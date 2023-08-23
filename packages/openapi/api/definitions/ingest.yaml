@@ -1,0 +1,1502 @@
+title: ingest
+description: Ingest methods
+resources:
+  ingestPlaylists:
+    get:
+      operationId: getIngestPlaylists
+      tags:
+        - ingest
+      summary: Gets ingest data for all Playlists in Sofie belonging to a Studio.
+      parameters:
+        - name: studioId
+          in: path
+          description: Studio the Playlist belongs to.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Command successfully handled - returns an array of Playlist Ids.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    const: 200
+                    example: 200
+                  playlists:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ingestPlaylistItem'
+                    example:
+                      - id: '4e8fb4df-4d37-4ce5-adb7-009af7feb755'
+                        externalId: 'playlist1'
+                      - id: 'd0deb87b-e9fd-4283-977b-4cd3c9b559bd'
+                        externalId: 'playlist2'
+                required:
+                  - status
+                  - playlists
+                additionalProperties: false
+        404:
+          $ref: '#/components/responses/studioNotFound'
+  ingestPlaylist:
+    get:
+      operationId: getIngestPlaylist
+      tags:
+        - ingest
+      summary: Gets ingest data for a specific Playlist from Sofie.
+      parameters:
+        - name: studioId
+          in: path
+          description: Studio to ingest Playlist into.
+          required: true
+          schema:
+            type: string
+        - name: playlistId
+          in: path
+          description: Requested Playlist. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Playlist is returned.
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: Version of Playlist, if known.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    const: 200
+                  playlist:
+                    $ref: '#/components/schemas/ingestPlaylist'
+                example:
+                  status: 200
+                  playlist:
+                    name: playlist1
+                    externalId: playlist1
+                required:
+                  - status
+                  - playlist
+                additionalProperties: false
+        404:
+          description: Invalid studioId or playlistId
+          $ref: '#/components/responses/idNotFound'
+          # oneOf:
+          #   - $ref: '#/components/responses/studioNotFound'
+          #   - $ref: '#/components/responses/playlistNotFound'
+    put:
+      operationId: putIngestPlaylist
+      tags:
+        - ingest
+      summary: Creates a new or updates an existing Playlist.
+      parameters:
+        - name: studioId
+          in: path
+          description: Studio to ingest Playlist into.
+          required: true
+          schema:
+            type: string
+        - name: playlistId
+          in: path
+          description: Playlist to create/update. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+        - name: If-None-Match
+          in: header
+          schema:
+            type: array
+            items:
+              type: string
+          description: If specified, the Playlist will only be updated if the specified ETag does not match. If unspecified, the new data will replace whatever currently exists, regardless of whether the data is actually the same.
+        - name: ETag
+          in: header
+          required: true
+          schema:
+            type: string
+          description: ETag to use as version information for Playlist.
+      requestBody:
+        description: Contains the Playlist data.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Name of the Playlist as shown to the user.
+                externalId:
+                  type: string
+                  description: The Id provided by a system external to Sofie that can be used by the same external system to identify this Rundown.
+                resyncURL:
+                  type: string
+                  description: The URL to POST a message to in order to request that the entire Playlist be re-sent to Sofie. This message will have no request body.
+              example:
+                name: playlist1
+                externalId: playlist1
+              required:
+                - name
+                - externalId
+              additionalProperties: false
+      responses:
+        200:
+          description: Playlist has been updated.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    const: 200
+                    example: 200
+                required:
+                  - status
+                additionalProperties: false
+        201:
+          description: Playlist has been created.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    const: 201
+                    example: 201
+                required:
+                  - status
+                additionalProperties: false
+        404:
+          $ref: '#/components/responses/idNotFound'
+        409:
+          $ref: '#/components/responses/externalIdConflict'
+    delete:
+      operationId: deleteIngestPlaylist
+      tags:
+        - ingest
+      summary: Deletes a specified ingest Playlist. Resources under the Playlist (e.g. Rundowns) will also be removed.
+      parameters:
+        - name: studioId
+          in: path
+          description: Studio the ingest Playlist belongs to.
+          required: true
+          schema:
+            type: string
+        - name: playlistId
+          in: path
+          description: Playlist to delete. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Playlist removed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    const: 200
+                    example: 200
+                required:
+                  - status
+                additionalProperties: false
+        404:
+          $ref: '#/components/responses/idNotFound'
+          # oneOf:
+          #   - $ref: '#/components/responses/studioNotFound'
+          #   - $ref: '#/components/responses/playlistNotFound'
+  ingestRundowns:
+    get:
+      operationId: getIngestRundowns
+      tags:
+        - ingest
+      summary: Gets ingest data for all Rundowns belonging to a Playlist.
+      parameters:
+        - name: studioId
+          in: path
+          description: Studio the Playlist belongs to.
+          required: true
+          schema:
+            type: string
+        - name: playlistId
+          in: path
+          description: Playlist to get all Rundowns for. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Command successfully handled - returns an array of Rundowns.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    const: 200
+                    example: 200
+                  rundowns:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ingestRundownItem'
+                    example:
+                      - id: 4e8fb4df-4d37-4ce5-adb7-009af7feb755
+                        externalId: rundown1
+                required:
+                  - status
+                  - playlists
+                additionalProperties: false
+        404:
+          $ref: '#/components/responses/idNotFound'
+          # oneOf:
+          #   - $ref: '#/components/responses/studioNotFound'
+          #   - $ref: '#/components/responses/playlistNotFound'
+    put:
+      operationId: putIngestRundowns
+      tags:
+        - ingest
+      summary: Creates/updates the Rundowns in a Playlist. Any existing Rundowns in the Playlist that are not included in this list will be deleted (including their Segments and Parts). Rundowns will be placed in the Playlist in the order specified by their individual ranks. If the creation/deletion/updating of any Rundown fails all changes will be discarded. ETags are not supported for bulk updates, no version information will be stored for any of the created/modified Rundowns.
+      parameters:
+        - name: studioId
+          in: path
+          description: Studio the Playlist belongs to.
+          required: true
+          schema:
+            type: string
+        - name: playlistId
+          in: path
+          description: Playlist to create/update all Rundowns for. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+        - name: If-None-Match
+          in: header
+          schema:
+            type: array
+            items:
+              type: string
+          description: If specified, each Rundown will only be updated if its version does not match one of the specified ETags. If no ETag is found for a Rundown, the new data will replace whatever currently exists, regardless of whether the data is actually the same.
+      requestBody:
+        description: Contains the Rundown data.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                rundowns:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ingestRundown'
+                  example:
+                    - name: rundown1
+                      source: 'Our Company - Some Product Name'
+                      externalId: 4e8fb4df-4d37-4ce5-adb7-009af7feb755
+                      rank: 0
+              required:
+                - rundowns
+              additionalProperties: false
+      responses:
+        200:
+          description: Rundowns have been updated.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    const: 200
+                    example: 200
+                required:
+                  - status
+                additionalProperties: false
+        404:
+          $ref: '#/components/responses/idNotFound'
+          # oneOf:
+          #   - $ref: '#/components/responses/studioNotFound'
+          #   - $ref: '#/components/responses/playlistNotFound'
+        409:
+          $ref: '#/components/responses/externalIdConflict'
+  ingestRundown:
+    get:
+      operationId: getIngestRundown
+      tags:
+        - ingest
+      summary: Gets ingest data for a specific Rundown.
+      parameters:
+        - name: studioId
+          in: path
+          description: Studio the Rundown belongs to.
+          required: true
+          schema:
+            type: string
+        - name: playlistId
+          in: path
+          description: Playlist the Rundown belongs to. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+        - name: rundownId
+          in: path
+          description: Rundown to return. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Rundown is returned.
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: Version of Rundown, if known.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    const: 200
+                  rundown:
+                    $ref: '#/components/schemas/ingestRundown'
+                example:
+                  status: 200
+                  rundown:
+                    name: rundown1
+                    source: 'Our Company - Some Product Name'
+                    externalId: 4e8fb4df-4d37-4ce5-adb7-009af7feb755
+                    rank: 0
+                required:
+                  - status
+                  - rundown
+                additionalProperties: false
+        404:
+          $ref: '#/components/responses/idNotFound'
+          # oneOf:
+          #   - $ref: '#/components/responses/studioNotFound'
+          #   - $ref: '#/components/responses/playlistNotFound'
+          #   - $ref: '#/components/responses/rundownNotFound'
+    put:
+      operationId: putIngestRundown
+      tags:
+        - ingest
+      summary: Creates a new or updates an existing Rundown.
+      parameters:
+        - name: studioId
+          in: path
+          description: Studio to ingest Rundown into.
+          required: true
+          schema:
+            type: string
+        - name: playlistId
+          in: path
+          description: Playlist to ingest Rundown into. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+        - name: rundownId
+          in: path
+          description: Rundown to create/update. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+        - name: If-None-Match
+          in: header
+          schema:
+            type: array
+            items:
+              type: string
+          description: If specified, the Rundown will only be updated if the specified ETag does not match. If unspecified, the new data will replace whatever currently exists, regardless of whether the data is actually the same.
+        - name: ETag
+          in: header
+          required: true
+          schema:
+            type: string
+          description: ETag to use as version information for Rundown.
+      requestBody:
+        description: Contains the Rundown data.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ingestRundown'
+            example:
+              name: rundown1
+              source: 'Our Company - Some Product Name'
+              externalId: 4e8fb4df-4d37-4ce5-adb7-009af7feb755
+              rank: 0
+      responses:
+        200:
+          description: Rundown has been updated.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    const: 200
+                    example: 200
+                required:
+                  - status
+                additionalProperties: false
+        201:
+          description: Rundown has been created.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    const: 201
+                    example: 201
+                required:
+                  - status
+                additionalProperties: false
+        404:
+          $ref: '#/components/responses/idNotFound'
+          # oneOf:
+          #   - $ref: '#/components/responses/studioNotFound'
+          #   - $ref: '#/components/responses/playlistNotFound'
+          #   - $ref: '#/components/responses/rundownNotFound'
+        409:
+          $ref: '#/components/responses/externalIdConflict'
+    delete:
+      operationId: deleteIngestRundown
+      tags:
+        - ingest
+      summary: Deletes a specified ingest Rundown. Resources under the Rundown (e.g. Segments) will also be removed.
+      parameters:
+        - name: studioId
+          in: path
+          description: Studio the ingest Rundown belongs to.
+          required: true
+          schema:
+            type: string
+        - name: playlistId
+          in: path
+          description: Playlist the ingest Rundown belongs to. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+        - name: rundownId
+          in: path
+          description: Rundown to delete. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Rundown removed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    const: 200
+                    example: 200
+                required:
+                  - status
+                additionalProperties: false
+        404:
+          $ref: '#/components/responses/idNotFound'
+          # oneOf:
+          #   - $ref: '#/components/responses/studioNotFound'
+          #   - $ref: '#/components/responses/playlistNotFound'
+          #   - $ref: '#/components/responses/rundownNotFound'
+  ingestSegments:
+    get:
+      operationId: getIngestSegments
+      tags:
+        - ingest
+      summary: Gets the ingest data for all Segments belonging to a Rundown.
+      parameters:
+        - name: studioId
+          in: path
+          description: Studio the Segment belongs to.
+          required: true
+          schema:
+            type: string
+        - name: playlistId
+          in: path
+          description: Playlist the Rundown belongs to. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+        - name: rundownId
+          in: path
+          description: Rundown to get Segments for. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Command successfully handled - returns an array of Segments.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    const: 200
+                    example: 200
+                  segments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ingestSegmentItem'
+                    example:
+                      - id: 4e8fb4df-4d37-4ce5-adb7-009af7feb755
+                        externalId: segment1
+                required:
+                  - status
+                  - segments
+                additionalProperties: false
+        404:
+          $ref: '#/components/responses/idNotFound'
+          # oneOf:
+          #   - $ref: '#/components/responses/studioNotFound'
+          #   - $ref: '#/components/responses/playlistNotFound'
+          #   - $ref: '#/components/responses/rundownNotFound'
+    put:
+      operationId: putIngestSegments
+      tags:
+        - ingest
+      summary: Creates/updates the Segments in a Rundown. Any existing Segments in the Rundown that are not included in this list will be deleted (including their Parts). Segments will be placed in the Rundown in the order specified by their individual ranks. If the creation/deletion/updating of any Segment fails all changes will be discarded.
+      parameters:
+        - name: studioId
+          in: path
+          description: Studio the Rundown belongs to.
+          required: true
+          schema:
+            type: string
+        - name: playlistId
+          in: path
+          description: Playlist the Rundown belongs to. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+        - name: rundownId
+          in: path
+          description: Rundown to create/update all Segments for. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+        - name: If-None-Match
+          in: header
+          schema:
+            type: array
+            items:
+              type: string
+          description: If specified, each Segment will only be updated if its version does not match one of the specified ETags. If no ETag is found for a Segment, the new data will replace whatever currently exists, regardless of whether the data is actually the same. ETags are not supported for bulk updates, no version information will be stored for any of the created/modified Rundowns.
+      requestBody:
+        description: Contains the Segment data.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                segments:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ingestSegment'
+                  example:
+                    - name: segment1
+                      externalId: segment1
+                      rank: 0
+              required:
+                - segments
+              additionalProperties: false
+      responses:
+        200:
+          description: Segments have been updated.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    const: 200
+                    example: 200
+                required:
+                  - status
+                additionalProperties: false
+        404:
+          $ref: '#/components/responses/idNotFound'
+          # oneOf:
+          #   - $ref: '#/components/responses/studioNotFound'
+          #   - $ref: '#/components/responses/playlistNotFound'
+          #   - $ref: '#/components/responses/rundownNotFound'
+        409:
+          $ref: '#/components/responses/externalIdConflict'
+  ingestSegment:
+    get:
+      operationId: getIngestSegment
+      tags:
+        - ingest
+      summary: Gets ingest data for a specific Segment.
+      parameters:
+        - name: studioId
+          in: path
+          description: Studio the Segment belongs to.
+          required: true
+          schema:
+            type: string
+        - name: playlistId
+          in: path
+          description: Playlist the Segment belongs to. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+        - name: rundownId
+          in: path
+          description: Rundown the Segment belongs to. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+        - name: segmentId
+          in: path
+          description: Segment to create/update. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Segment is returned.
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: Version of Segment, if known.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    const: 200
+                  segment:
+                    $ref: '#/components/schemas/ingestSegment'
+                example:
+                  status: 200
+                  segment:
+                    name: segment1
+                    externalId: segment1
+                    rank: 0
+                required:
+                  - status
+                  - segment
+                additionalProperties: false
+        404:
+          $ref: '#/components/responses/idNotFound'
+          # oneOf:
+          #   - $ref: '#/components/responses/studioNotFound'
+          #   - $ref: '#/components/responses/playlistNotFound'
+          #   - $ref: '#/components/responses/rundownNotFound'
+          #   - $ref: '#/components/responses/segmentNotFound'
+    put:
+      operationId: putIngestSegment
+      tags:
+        - ingest
+      summary: Creates a new or updates an existing Segment.
+      parameters:
+        - name: studioId
+          in: path
+          description: Studio to ingest Segment into.
+          required: true
+          schema:
+            type: string
+        - name: playlistId
+          in: path
+          description: Playlist to ingest Segment into. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+        - name: rundownId
+          in: path
+          description: Rundown to ingest Segment into. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+        - name: segmentId
+          in: path
+          description: Segment to create/update. May use external Id or Sofie internal Id.
+          schema:
+            type: string
+        - name: If-None-Match
+          in: header
+          schema:
+            type: array
+            items:
+              type: string
+          description: If specified, the Segment will only be updated if the specified ETag does not match. If unspecified, the new data will replace whatever currently exists, regardless of whether the data is actually the same.
+        - name: ETag
+          in: header
+          required: true
+          schema:
+            type: string
+          description: ETag to use as version information for Segment.
+      requestBody:
+        description: Contains the Segment data.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ingestSegment'
+            example:
+              name: segment1
+              externalId: segment1
+              rank: 0
+      responses:
+        200:
+          description: Segment has been updated.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    const: 200
+                    example: 200
+                required:
+                  - status
+                additionalProperties: false
+        201:
+          description: Segment has been created.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    const: 201
+                    example: 201
+                required:
+                  - status
+                additionalProperties: false
+        404:
+          $ref: '#/components/responses/idNotFound'
+          # oneOf:
+          #   - $ref: '#/components/responses/studioNotFound'
+          #   - $ref: '#/components/responses/playlistNotFound'
+          #   - $ref: '#/components/responses/rundownNotFound'
+        409:
+          $ref: '#/components/responses/externalIdConflict'
+    delete:
+      operationId: deleteIngestSegment
+      tags:
+        - ingest
+      summary: Deletes a specified ingest Segment. Resources under the Segment (e.g. Parts) will also be removed.
+      parameters:
+        - name: studioId
+          in: path
+          description: Studio the ingest Segment belongs to.
+          required: true
+          schema:
+            type: string
+        - name: playlistId
+          in: path
+          description: Playlist the ingest Segment belongs to. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+        - name: rundownId
+          in: path
+          description: Rundown the ingest Segment belongs to. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+        - name: segmentId
+          in: path
+          description: Segment to delete. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Segment removed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    const: 200
+                    example: 200
+                required:
+                  - status
+                additionalProperties: false
+        404:
+          $ref: '#/components/responses/idNotFound'
+          # oneOf:
+          #   - $ref: '#/components/responses/studioNotFound'
+          #   - $ref: '#/components/responses/playlistNotFound'
+          #   - $ref: '#/components/responses/rundownNotFound'
+  ingestParts:
+    get:
+      operationId: getIngestParts
+      tags:
+        - ingest
+      summary: Gets the ingest data for all Parts belonging to a Segment.
+      parameters:
+        - name: studioId
+          in: path
+          description: Studio the Segment belongs to.
+          required: true
+          schema:
+            type: string
+        - name: playlistId
+          in: path
+          description: Playlist the Segment belongs to. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+        - name: rundownId
+          in: path
+          description: Rundown the Segment belongs to. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+        - name: segmentId
+          in: path
+          description: Segment to get Parts for. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Command successfully handled - returns an array of Parts.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    const: 200
+                    example: 200
+                  parts:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ingestPartItem'
+                    example:
+                      - name: 4e8fb4df-4d37-4ce5-adb7-009af7feb755
+                        externalId: part1
+                required:
+                  - status
+                  - parts
+                additionalProperties: false
+        404:
+          $ref: '#/components/responses/idNotFound'
+          # oneOf:
+          #   - $ref: '#/components/responses/studioNotFound'
+          #   - $ref: '#/components/responses/playlistNotFound'
+          #   - $ref: '#/components/responses/rundownNotFound'
+          #   - $ref: '#/components/responses/segmentNotFound'
+    put:
+      operationId: putIngestParts
+      tags:
+        - ingest
+      summary: Creates/updates the Parts in a Segment. Any existing Parts in the Segment that are not included in this list will be deleted. Parts will be placed in the Segment in the order specified by their individual ranks. If the creation/deletion/updating of any Parts fails all changes will be discarded.
+      parameters:
+        - name: studioId
+          in: path
+          description: Studio the Segment belongs to.
+          required: true
+          schema:
+            type: string
+        - name: playlistId
+          in: path
+          description: Playlist the Segment belongs to. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+        - name: rundownId
+          in: path
+          description: Rundown the Segment belongs to. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+        - name: segmentId
+          in: path
+          description: Segment to create/update all Parts for. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+        - name: If-None-Match
+          in: header
+          schema:
+            type: array
+            items:
+              type: string
+          description: If specified, each Part will only be updated if its version does not match one of the specified ETags. If no ETag is found for a Part, the new data will replace whatever currently exists, regardless of whether the data is actually the same. ETags are not supported for bulk updates, no version information will be stored for any of the created/modified Rundowns.
+      requestBody:
+        description: Contains the Part data.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                parts:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ingestPartItem'
+                  example:
+                    - name: 4e8fb4df-4d37-4ce5-adb7-009af7feb755
+                      externalId: part1
+              required:
+                - parts
+              additionalProperties: false
+      responses:
+        200:
+          description: Parts have been updated.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    const: 200
+                    example: 200
+                required:
+                  - status
+                additionalProperties: false
+        404:
+          $ref: '#/components/responses/idNotFound'
+          # oneOf:
+          #   - $ref: '#/components/responses/studioNotFound'
+          #   - $ref: '#/components/responses/playlistNotFound'
+          #   - $ref: '#/components/responses/rundownNotFound'
+          #   - $ref: '#/components/responses/partNotFound'
+        409:
+          $ref: '#/components/responses/externalIdConflict'
+  ingestPart:
+    get:
+      operationId: getIngestPart
+      tags:
+        - ingest
+      summary: Gets ingest data for a specific Part.
+      parameters:
+        - name: studioId
+          in: path
+          description: Studio the Part belongs to.
+          required: true
+          schema:
+            type: string
+        - name: playlistId
+          in: path
+          description: Playlist the Part belongs to. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+        - name: rundownId
+          in: path
+          description: Rundown the Part belongs to. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+        - name: segmentId
+          in: path
+          description: Segment the Part belongs to. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+        - name: partId
+          in: path
+          description: Part to create/update. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Part is returned.
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: Version of Part, if known.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    const: 200
+                  part:
+                    $ref: '#/components/schemas/ingestPart'
+                example:
+                  status: 200
+                  part:
+                    name: part1
+                    externalId: part1
+                    rank: 0
+                required:
+                  - status
+                  - part
+                additionalProperties: false
+        404:
+          $ref: '#/components/responses/idNotFound'
+          # oneOf:
+          #   - $ref: '#/components/responses/studioNotFound'
+          #   - $ref: '#/components/responses/playlistNotFound'
+          #   - $ref: '#/components/responses/rundownNotFound'
+          #   - $ref: '#/components/responses/segmentNotFound'
+          #   - $ref: '#/components/responses/partNotFound'
+    put:
+      operationId: putIngestPart
+      tags:
+        - ingest
+      summary: Creates a new or updates an existing Part.
+      parameters:
+        - name: studioId
+          in: path
+          description: Studio to ingest Part into.
+          required: true
+          schema:
+            type: string
+        - name: playlistId
+          in: path
+          description: Playlist to ingest Part into. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+        - name: rundownId
+          in: path
+          description: Rundown to ingest Part into. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+        - name: segmentId
+          in: path
+          description: Segment to ingest Part into. May use external Id or Sofie internal Id.
+          schema:
+            type: string
+        - name: partId
+          in: path
+          description: Part to update/create. May use external Id or Sofie internal Id.
+          schema:
+            type: string
+        - name: If-None-Match
+          in: header
+          schema:
+            type: array
+            items:
+              type: string
+          description: If specified, the Part will only be updated if the specified ETag does not match. If unspecified, the new data will replace whatever currently exists, regardless of whether the data is actually the same.
+        - name: ETag
+          in: header
+          required: true
+          schema:
+            type: string
+          description: ETag to use as version information for Part.
+      requestBody:
+        description: Contains the Rundown data.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ingestPart'
+            example:
+              name: part1
+              externalId: part1
+              rank: 0
+      responses:
+        200:
+          description: Part has been updated.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    const: 200
+                    example: 200
+                required:
+                  - status
+                additionalProperties: false
+        201:
+          description: Part has been created.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    const: 201
+                    example: 201
+                required:
+                  - status
+                additionalProperties: false
+        404:
+          $ref: '#/components/responses/idNotFound'
+          # oneOf:
+          #   - $ref: '#/components/responses/studioNotFound'
+          #   - $ref: '#/components/responses/playlistNotFound'
+          #   - $ref: '#/components/responses/rundownNotFound'
+          #   - $ref: '#/components/responses/segmentNotFound'
+        409:
+          $ref: '#/components/responses/externalIdConflict'
+    delete:
+      operationId: deleteIngestPart
+      tags:
+        - ingest
+      summary: Deletes a specified ingest Part.
+      parameters:
+        - name: studioId
+          in: path
+          description: Studio the ingest Part belongs to.
+          required: true
+          schema:
+            type: string
+        - name: playlistId
+          in: path
+          description: Playlist the ingest Part belongs to. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+        - name: rundownId
+          in: path
+          description: Rundown the ingest Part belongs to. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+        - name: segmentId
+          in: path
+          description: Segment the ingest Part belongs to. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+        - name: partId
+          in: path
+          description: Part to delete. May use external Id or Sofie internal Id.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Part removed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    const: 200
+                    example: 200
+                required:
+                  - status
+                additionalProperties: false
+        404:
+          $ref: '#/components/responses/idNotFound'
+          # oneOf:
+          #   - $ref: '#/components/responses/studioNotFound'
+          #   - $ref: '#/components/responses/playlistNotFound'
+          #   - $ref: '#/components/responses/rundownNotFound'
+          #   - $ref: '#/components/responses/segmentNotFound'
+
+components:
+  responses:
+    idNotFound:
+      # oneOf responses like below don't render correctly with current tools - use studio as an example for the docs.
+      # oneOf:
+      #   - $ref: '#/components/responses/studioNotFound'
+      #   - $ref: '#/components/responses/playlistNotFound'
+      $ref: '#/components/responses/studioNotFound'
+    studioNotFound:
+      description: The specified Studio does not exist.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: number
+                const: 404
+                example: 404
+              notFound:
+                type: string
+                const: studio
+                example: studio
+              message:
+                type: string
+                example: The specified Studio was not found.
+            required:
+              - status
+              - notFound
+              - message
+            additionalProperties: false
+    playlistNotFound:
+      description: The specified Playlist does not exist.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: number
+                const: 404
+                example: 404
+              notFound:
+                type: string
+                const: playlist
+                example: playlist
+              message:
+                type: string
+                example: The specified Playlist was not found.
+            required:
+              - status
+              - notFound
+              - message
+            additionalProperties: false
+    rundownNotFound:
+      description: The specified Rundown does not exist.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: number
+                const: 404
+                example: 404
+              notFound:
+                type: string
+                const: rundown
+                example: rundown
+              message:
+                type: string
+                example: The specified Rundown was not found.
+            required:
+              - status
+              - notFound
+              - message
+            additionalProperties: false
+    segmentNotFound:
+      description: The specified Segment does not exist.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: number
+                const: 404
+                example: 404
+              notFound:
+                type: string
+                const: segment
+                example: segment
+              message:
+                type: string
+                example: The specified Segment was not found.
+            required:
+              - status
+              - notFound
+              - message
+            additionalProperties: false
+    partNotFound:
+      description: The specified Part does not exist.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: number
+                const: 404
+                example: 404
+              notFound:
+                type: string
+                const: part
+                example: part
+              message:
+                type: string
+                example: The specified Part was not found.
+            required:
+              - status
+              - notFound
+              - message
+            additionalProperties: false
+    externalIdConflict:
+      description: The provided external Id is already in use by a different object with a different Sofie internal Id.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: number
+                const: 409
+                example: 409
+              conflict:
+                type: string
+                const: externalId
+                example: externalId
+              message:
+                type: string
+                example: The externalId "b105625d-e1ab-4ce7-b99f-d720cdcdc519" is already in use by "808267a9-a074-4800-b6c7-bfcf7dc1f144" with externalId "9c8faa5d-07af-4e2b-a860-46c3b0f30b2e".
+  schemas:
+    ingestPlaylistItem:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The Id used internally by Sofie.
+        externalId:
+          type: string
+          description: The Id provided by a system external to Sofie that can be used by the same external system to identify this Playlist.
+      required:
+        - id
+        - externalId
+      additionalProperties: false
+    ingestRundownItem:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The Id used internally by Sofie.
+        externalId:
+          type: string
+          description: The Id provided by a system external to Sofie that can be used by the same external system to identify this Rundown.
+      required:
+        - id
+        - externalId
+      additionalProperties: false
+    ingestSegmentItem:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The Id used internally by Sofie
+        externalId:
+          type: string
+          description: The Id provided by a system external to Sofie that can be used by the same external system to identify this Segment.
+      required:
+        - id
+        - externalId
+      additionalProperties: false
+    ingestPartItem:
+      type: object
+      properties:
+        name:
+          type: string
+        externalId:
+          type: string
+          description: The Id provided by a system external to Sofie that can be used by the same external system to identify this Part.
+      required:
+        - name
+        - externalId
+      additionalProperties: false
+    ingestPlaylist:
+      type: object
+      properties:
+        name:
+          type: string
+        externalId:
+          type: string
+          description: The Id provided by a system external to Sofie that can be used by the same external system to identify this Playlist.
+        resyncURL:
+          type: string
+          description: The URL to POST a message to in order to request that the entire Playlist be re-sent to Sofie. This message will have no request body.
+      required:
+        - name
+        - externalId
+      additionalProperties: false
+    ingestRundown:
+      type: object
+      properties:
+        name:
+          type: string
+        source:
+          type: string
+          description: A source type that can be displayed to the end-user. Should identify what type of system (e.g. vendor/product name) the data has been sent from.
+          examples:
+            - 'Some Product Name'
+            - 'Our Company - Some Product Name'
+        externalId:
+          type: string
+          description: The Id provided by a system external to Sofie that can be used by the same external system to identify this Rundown.
+        rank:
+          type: number
+          description: The position of the Rundown in the parent Playlist.
+          inclusiveMinimum: 0.0
+        payload:
+          type: object
+          additionalProperties: true
+      required:
+        - name
+        - source
+        - externalId
+        - rank
+      additionalProperties: false
+    ingestSegment:
+      type: object
+      properties:
+        name:
+          type: string
+        externalId:
+          type: string
+          description: The Id provided by a system external to Sofie that can be used by the same external system to identify this Segment.
+        rank:
+          type: number
+          description: The position of the Segment in the parent Rundown.
+          inclusiveMinimum: 0.0
+        payload:
+          type: object
+          additionalProperties: true
+      required:
+        - name
+        - externalId
+        - rank
+      additionalProperties: false
+    ingestPart:
+      type: object
+      properties:
+        name:
+          type: string
+        externalId:
+          type: string
+          description: The Id provided by a system external to Sofie that can be used by the same external system to identify this Part.
+        rank:
+          type: number
+          description: The position of the Part in the parent Segment.
+        payload:
+          type: object
+          additionalProperties: true
+      required:
+        - name
+        - externalId
+        - rank
+      additionalProperties: false
