@@ -138,9 +138,6 @@ resources:
                 externalId:
                   type: string
                   description: The Id provided by a system external to Sofie that can be used by the same external system to identify this Rundown.
-                resyncURL:
-                  type: string
-                  description: The URL to POST a message to in order to request that the entire Playlist be re-sent to Sofie. This message will have no request body.
               example:
                 name: playlist1
                 externalId: playlist1
@@ -1427,9 +1424,6 @@ components:
         externalId:
           type: string
           description: The Id provided by a system external to Sofie that can be used by the same external system to identify this Playlist.
-        resyncURL:
-          type: string
-          description: The URL to POST a message to in order to request that the entire Playlist be re-sent to Sofie. This message will have no request body.
       required:
         - name
         - externalId
