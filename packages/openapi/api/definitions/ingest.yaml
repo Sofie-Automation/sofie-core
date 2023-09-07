@@ -126,17 +126,7 @@ resources:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  description: Name of the Playlist as shown to the user.
-              required:
-                - name
-              example:
-                name: playlist1
-              additionalProperties: false
+            $ref: '#/components/schemas/ingestPlaylist'
       responses:
         200:
           description: Playlist has been updated.
@@ -937,7 +927,7 @@ resources:
                 parts:
                   type: array
                   items:
-                    $ref: '#/components/schemas/ingestPartItem'
+                    $ref: '#/components/schemas/ingestPart'
                   example:
                     - externalId: part1
               required:
