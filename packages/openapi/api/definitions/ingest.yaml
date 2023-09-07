@@ -31,10 +31,8 @@ resources:
                     items:
                       $ref: '#/components/schemas/ingestPlaylistItem'
                     example:
-                      - id: '4e8fb4df-4d37-4ce5-adb7-009af7feb755'
-                        externalId: 'playlist1'
-                      - id: 'd0deb87b-e9fd-4283-977b-4cd3c9b559bd'
-                        externalId: 'playlist2'
+                      - externalId: 'playlist1'
+                      - externalId: 'playlist2'
                 required:
                   - status
                   - playlists
@@ -56,7 +54,7 @@ resources:
             type: string
         - name: playlistId
           in: path
-          description: Requested Playlist. May use external Id or Sofie internal Id.
+          description: Requested Playlist.
           required: true
           schema:
             type: string
@@ -82,7 +80,6 @@ resources:
                   status: 200
                   playlist:
                     name: playlist1
-                    externalId: playlist1
                 required:
                   - status
                   - playlist
@@ -107,7 +104,7 @@ resources:
             type: string
         - name: playlistId
           in: path
-          description: Playlist to create/update. May use external Id or Sofie internal Id.
+          description: Playlist to create/update.
           required: true
           schema:
             type: string
@@ -135,15 +132,10 @@ resources:
                 name:
                   type: string
                   description: Name of the Playlist as shown to the user.
-                externalId:
-                  type: string
-                  description: The Id provided by a system external to Sofie that can be used by the same external system to identify this Rundown.
-              example:
-                name: playlist1
-                externalId: playlist1
               required:
                 - name
-                - externalId
+              example:
+                name: playlist1
               additionalProperties: false
       responses:
         200:
@@ -176,8 +168,6 @@ resources:
                 additionalProperties: false
         404:
           $ref: '#/components/responses/idNotFound'
-        409:
-          $ref: '#/components/responses/externalIdConflict'
     delete:
       operationId: deleteIngestPlaylist
       tags:
@@ -192,7 +182,7 @@ resources:
             type: string
         - name: playlistId
           in: path
-          description: Playlist to delete. May use external Id or Sofie internal Id.
+          description: Playlist to delete.
           required: true
           schema:
             type: string
@@ -231,7 +221,7 @@ resources:
             type: string
         - name: playlistId
           in: path
-          description: Playlist to get all Rundowns for. May use external Id or Sofie internal Id.
+          description: Playlist to get all Rundowns for.
           required: true
           schema:
             type: string
@@ -252,8 +242,7 @@ resources:
                     items:
                       $ref: '#/components/schemas/ingestRundownItem'
                     example:
-                      - id: 4e8fb4df-4d37-4ce5-adb7-009af7feb755
-                        externalId: rundown1
+                      - externalId: rundown1
                 required:
                   - status
                   - playlists
@@ -277,7 +266,7 @@ resources:
             type: string
         - name: playlistId
           in: path
-          description: Playlist to create/update all Rundowns for. May use external Id or Sofie internal Id.
+          description: Playlist to create/update all Rundowns for.
           required: true
           schema:
             type: string
@@ -303,7 +292,6 @@ resources:
                   example:
                     - name: rundown1
                       source: 'Our Company - Some Product Name'
-                      externalId: 4e8fb4df-4d37-4ce5-adb7-009af7feb755
                       rank: 0
               required:
                 - rundowns
@@ -328,8 +316,6 @@ resources:
           # oneOf:
           #   - $ref: '#/components/responses/studioNotFound'
           #   - $ref: '#/components/responses/playlistNotFound'
-        409:
-          $ref: '#/components/responses/externalIdConflict'
   ingestRundown:
     get:
       operationId: getIngestRundown
@@ -345,13 +331,13 @@ resources:
             type: string
         - name: playlistId
           in: path
-          description: Playlist the Rundown belongs to. May use external Id or Sofie internal Id.
+          description: Playlist the Rundown belongs to.
           required: true
           schema:
             type: string
         - name: rundownId
           in: path
-          description: Rundown to return. May use external Id or Sofie internal Id.
+          description: Rundown to return.
           required: true
           schema:
             type: string
@@ -378,7 +364,6 @@ resources:
                   rundown:
                     name: rundown1
                     source: 'Our Company - Some Product Name'
-                    externalId: 4e8fb4df-4d37-4ce5-adb7-009af7feb755
                     rank: 0
                 required:
                   - status
@@ -404,13 +389,13 @@ resources:
             type: string
         - name: playlistId
           in: path
-          description: Playlist to ingest Rundown into. May use external Id or Sofie internal Id.
+          description: Playlist to ingest Rundown into.
           required: true
           schema:
             type: string
         - name: rundownId
           in: path
-          description: Rundown to create/update. May use external Id or Sofie internal Id.
+          description: Rundown to create/update.
           required: true
           schema:
             type: string
@@ -437,7 +422,6 @@ resources:
             example:
               name: rundown1
               source: 'Our Company - Some Product Name'
-              externalId: 4e8fb4df-4d37-4ce5-adb7-009af7feb755
               rank: 0
       responses:
         200:
@@ -474,8 +458,6 @@ resources:
           #   - $ref: '#/components/responses/studioNotFound'
           #   - $ref: '#/components/responses/playlistNotFound'
           #   - $ref: '#/components/responses/rundownNotFound'
-        409:
-          $ref: '#/components/responses/externalIdConflict'
     delete:
       operationId: deleteIngestRundown
       tags:
@@ -490,13 +472,13 @@ resources:
             type: string
         - name: playlistId
           in: path
-          description: Playlist the ingest Rundown belongs to. May use external Id or Sofie internal Id.
+          description: Playlist the ingest Rundown belongs to.
           required: true
           schema:
             type: string
         - name: rundownId
           in: path
-          description: Rundown to delete. May use external Id or Sofie internal Id.
+          description: Rundown to delete.
           required: true
           schema:
             type: string
@@ -536,13 +518,13 @@ resources:
             type: string
         - name: playlistId
           in: path
-          description: Playlist the Rundown belongs to. May use external Id or Sofie internal Id.
+          description: Playlist the Rundown belongs to.
           required: true
           schema:
             type: string
         - name: rundownId
           in: path
-          description: Rundown to get Segments for. May use external Id or Sofie internal Id.
+          description: Rundown to get Segments for.
           required: true
           schema:
             type: string
@@ -563,8 +545,7 @@ resources:
                     items:
                       $ref: '#/components/schemas/ingestSegmentItem'
                     example:
-                      - id: 4e8fb4df-4d37-4ce5-adb7-009af7feb755
-                        externalId: segment1
+                      - externalId: segment1
                 required:
                   - status
                   - segments
@@ -589,13 +570,13 @@ resources:
             type: string
         - name: playlistId
           in: path
-          description: Playlist the Rundown belongs to. May use external Id or Sofie internal Id.
+          description: Playlist the Rundown belongs to.
           required: true
           schema:
             type: string
         - name: rundownId
           in: path
-          description: Rundown to create/update all Segments for. May use external Id or Sofie internal Id.
+          description: Rundown to create/update all Segments for.
           required: true
           schema:
             type: string
@@ -620,7 +601,6 @@ resources:
                     $ref: '#/components/schemas/ingestSegment'
                   example:
                     - name: segment1
-                      externalId: segment1
                       rank: 0
               required:
                 - segments
@@ -646,8 +626,6 @@ resources:
           #   - $ref: '#/components/responses/studioNotFound'
           #   - $ref: '#/components/responses/playlistNotFound'
           #   - $ref: '#/components/responses/rundownNotFound'
-        409:
-          $ref: '#/components/responses/externalIdConflict'
   ingestSegment:
     get:
       operationId: getIngestSegment
@@ -663,19 +641,19 @@ resources:
             type: string
         - name: playlistId
           in: path
-          description: Playlist the Segment belongs to. May use external Id or Sofie internal Id.
+          description: Playlist the Segment belongs to.
           required: true
           schema:
             type: string
         - name: rundownId
           in: path
-          description: Rundown the Segment belongs to. May use external Id or Sofie internal Id.
+          description: Rundown the Segment belongs to.
           required: true
           schema:
             type: string
         - name: segmentId
           in: path
-          description: Segment to create/update. May use external Id or Sofie internal Id.
+          description: Segment to create/update.
           required: true
           schema:
             type: string
@@ -701,7 +679,6 @@ resources:
                   status: 200
                   segment:
                     name: segment1
-                    externalId: segment1
                     rank: 0
                 required:
                   - status
@@ -728,19 +705,19 @@ resources:
             type: string
         - name: playlistId
           in: path
-          description: Playlist to ingest Segment into. May use external Id or Sofie internal Id.
+          description: Playlist to ingest Segment into.
           required: true
           schema:
             type: string
         - name: rundownId
           in: path
-          description: Rundown to ingest Segment into. May use external Id or Sofie internal Id.
+          description: Rundown to ingest Segment into.
           required: true
           schema:
             type: string
         - name: segmentId
           in: path
-          description: Segment to create/update. May use external Id or Sofie internal Id.
+          description: Segment to create/update.
           schema:
             type: string
         - name: If-None-Match
@@ -765,7 +742,6 @@ resources:
               $ref: '#/components/schemas/ingestSegment'
             example:
               name: segment1
-              externalId: segment1
               rank: 0
       responses:
         200:
@@ -802,8 +778,6 @@ resources:
           #   - $ref: '#/components/responses/studioNotFound'
           #   - $ref: '#/components/responses/playlistNotFound'
           #   - $ref: '#/components/responses/rundownNotFound'
-        409:
-          $ref: '#/components/responses/externalIdConflict'
     delete:
       operationId: deleteIngestSegment
       tags:
@@ -818,19 +792,19 @@ resources:
             type: string
         - name: playlistId
           in: path
-          description: Playlist the ingest Segment belongs to. May use external Id or Sofie internal Id.
+          description: Playlist the ingest Segment belongs to.
           required: true
           schema:
             type: string
         - name: rundownId
           in: path
-          description: Rundown the ingest Segment belongs to. May use external Id or Sofie internal Id.
+          description: Rundown the ingest Segment belongs to.
           required: true
           schema:
             type: string
         - name: segmentId
           in: path
-          description: Segment to delete. May use external Id or Sofie internal Id.
+          description: Segment to delete.
           required: true
           schema:
             type: string
@@ -870,19 +844,19 @@ resources:
             type: string
         - name: playlistId
           in: path
-          description: Playlist the Segment belongs to. May use external Id or Sofie internal Id.
+          description: Playlist the Segment belongs to.
           required: true
           schema:
             type: string
         - name: rundownId
           in: path
-          description: Rundown the Segment belongs to. May use external Id or Sofie internal Id.
+          description: Rundown the Segment belongs to.
           required: true
           schema:
             type: string
         - name: segmentId
           in: path
-          description: Segment to get Parts for. May use external Id or Sofie internal Id.
+          description: Segment to get Parts for.
           required: true
           schema:
             type: string
@@ -903,8 +877,7 @@ resources:
                     items:
                       $ref: '#/components/schemas/ingestPartItem'
                     example:
-                      - name: 4e8fb4df-4d37-4ce5-adb7-009af7feb755
-                        externalId: part1
+                      - externalId: part1
                 required:
                   - status
                   - parts
@@ -930,19 +903,19 @@ resources:
             type: string
         - name: playlistId
           in: path
-          description: Playlist the Segment belongs to. May use external Id or Sofie internal Id.
+          description: Playlist the Segment belongs to.
           required: true
           schema:
             type: string
         - name: rundownId
           in: path
-          description: Rundown the Segment belongs to. May use external Id or Sofie internal Id.
+          description: Rundown the Segment belongs to.
           required: true
           schema:
             type: string
         - name: segmentId
           in: path
-          description: Segment to create/update all Parts for. May use external Id or Sofie internal Id.
+          description: Segment to create/update all Parts for.
           required: true
           schema:
             type: string
@@ -966,8 +939,7 @@ resources:
                   items:
                     $ref: '#/components/schemas/ingestPartItem'
                   example:
-                    - name: 4e8fb4df-4d37-4ce5-adb7-009af7feb755
-                      externalId: part1
+                    - externalId: part1
               required:
                 - parts
               additionalProperties: false
@@ -993,8 +965,6 @@ resources:
           #   - $ref: '#/components/responses/playlistNotFound'
           #   - $ref: '#/components/responses/rundownNotFound'
           #   - $ref: '#/components/responses/partNotFound'
-        409:
-          $ref: '#/components/responses/externalIdConflict'
   ingestPart:
     get:
       operationId: getIngestPart
@@ -1010,25 +980,25 @@ resources:
             type: string
         - name: playlistId
           in: path
-          description: Playlist the Part belongs to. May use external Id or Sofie internal Id.
+          description: Playlist the Part belongs to.
           required: true
           schema:
             type: string
         - name: rundownId
           in: path
-          description: Rundown the Part belongs to. May use external Id or Sofie internal Id.
+          description: Rundown the Part belongs to.
           required: true
           schema:
             type: string
         - name: segmentId
           in: path
-          description: Segment the Part belongs to. May use external Id or Sofie internal Id.
+          description: Segment the Part belongs to.
           required: true
           schema:
             type: string
         - name: partId
           in: path
-          description: Part to create/update. May use external Id or Sofie internal Id.
+          description: Part to create/update.
           required: true
           schema:
             type: string
@@ -1054,7 +1024,6 @@ resources:
                   status: 200
                   part:
                     name: part1
-                    externalId: part1
                     rank: 0
                 required:
                   - status
@@ -1082,24 +1051,24 @@ resources:
             type: string
         - name: playlistId
           in: path
-          description: Playlist to ingest Part into. May use external Id or Sofie internal Id.
+          description: Playlist to ingest Part into.
           required: true
           schema:
             type: string
         - name: rundownId
           in: path
-          description: Rundown to ingest Part into. May use external Id or Sofie internal Id.
+          description: Rundown to ingest Part into.
           required: true
           schema:
             type: string
         - name: segmentId
           in: path
-          description: Segment to ingest Part into. May use external Id or Sofie internal Id.
+          description: Segment to ingest Part into.
           schema:
             type: string
         - name: partId
           in: path
-          description: Part to update/create. May use external Id or Sofie internal Id.
+          description: Part to update/create.
           schema:
             type: string
         - name: If-None-Match
@@ -1124,7 +1093,6 @@ resources:
               $ref: '#/components/schemas/ingestPart'
             example:
               name: part1
-              externalId: part1
               rank: 0
       responses:
         200:
@@ -1162,8 +1130,6 @@ resources:
           #   - $ref: '#/components/responses/playlistNotFound'
           #   - $ref: '#/components/responses/rundownNotFound'
           #   - $ref: '#/components/responses/segmentNotFound'
-        409:
-          $ref: '#/components/responses/externalIdConflict'
     delete:
       operationId: deleteIngestPart
       tags:
@@ -1178,25 +1144,25 @@ resources:
             type: string
         - name: playlistId
           in: path
-          description: Playlist the ingest Part belongs to. May use external Id or Sofie internal Id.
+          description: Playlist the ingest Part belongs to.
           required: true
           schema:
             type: string
         - name: rundownId
           in: path
-          description: Rundown the ingest Part belongs to. May use external Id or Sofie internal Id.
+          description: Rundown the ingest Part belongs to.
           required: true
           schema:
             type: string
         - name: segmentId
           in: path
-          description: Segment the ingest Part belongs to. May use external Id or Sofie internal Id.
+          description: Segment the ingest Part belongs to.
           required: true
           schema:
             type: string
         - name: partId
           in: path
-          description: Part to delete. May use external Id or Sofie internal Id.
+          description: Part to delete.
           required: true
           schema:
             type: string
@@ -1346,62 +1312,32 @@ components:
               - notFound
               - message
             additionalProperties: false
-    externalIdConflict:
-      description: The provided external Id is already in use by a different object with a different Sofie internal Id.
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              status:
-                type: number
-                const: 409
-                example: 409
-              conflict:
-                type: string
-                const: externalId
-                example: externalId
-              message:
-                type: string
-                example: The externalId "b105625d-e1ab-4ce7-b99f-d720cdcdc519" is already in use by "808267a9-a074-4800-b6c7-bfcf7dc1f144" with externalId "9c8faa5d-07af-4e2b-a860-46c3b0f30b2e".
   schemas:
     ingestPlaylistItem:
       type: object
       properties:
-        id:
-          type: string
-          description: The Id used internally by Sofie.
         externalId:
           type: string
           description: The Id provided by a system external to Sofie that can be used by the same external system to identify this Playlist.
       required:
-        - id
         - externalId
       additionalProperties: false
     ingestRundownItem:
       type: object
       properties:
-        id:
-          type: string
-          description: The Id used internally by Sofie.
         externalId:
           type: string
           description: The Id provided by a system external to Sofie that can be used by the same external system to identify this Rundown.
       required:
-        - id
         - externalId
       additionalProperties: false
     ingestSegmentItem:
       type: object
       properties:
-        id:
-          type: string
-          description: The Id used internally by Sofie
         externalId:
           type: string
           description: The Id provided by a system external to Sofie that can be used by the same external system to identify this Segment.
       required:
-        - id
         - externalId
       additionalProperties: false
     ingestPartItem:
@@ -1421,12 +1357,8 @@ components:
       properties:
         name:
           type: string
-        externalId:
-          type: string
-          description: The Id provided by a system external to Sofie that can be used by the same external system to identify this Playlist.
       required:
         - name
-        - externalId
       additionalProperties: false
     ingestRundown:
       type: object
@@ -1439,9 +1371,6 @@ components:
           examples:
             - 'Some Product Name'
             - 'Our Company - Some Product Name'
-        externalId:
-          type: string
-          description: The Id provided by a system external to Sofie that can be used by the same external system to identify this Rundown.
         rank:
           type: number
           description: The position of the Rundown in the parent Playlist.
@@ -1452,7 +1381,6 @@ components:
       required:
         - name
         - source
-        - externalId
         - rank
       additionalProperties: false
     ingestSegment:
@@ -1460,9 +1388,6 @@ components:
       properties:
         name:
           type: string
-        externalId:
-          type: string
-          description: The Id provided by a system external to Sofie that can be used by the same external system to identify this Segment.
         rank:
           type: number
           description: The position of the Segment in the parent Rundown.
@@ -1472,7 +1397,6 @@ components:
           additionalProperties: true
       required:
         - name
-        - externalId
         - rank
       additionalProperties: false
     ingestPart:
@@ -1480,9 +1404,6 @@ components:
       properties:
         name:
           type: string
-        externalId:
-          type: string
-          description: The Id provided by a system external to Sofie that can be used by the same external system to identify this Part.
         rank:
           type: number
           description: The position of the Part in the parent Segment.
@@ -1491,6 +1412,5 @@ components:
           additionalProperties: true
       required:
         - name
-        - externalId
         - rank
       additionalProperties: false
