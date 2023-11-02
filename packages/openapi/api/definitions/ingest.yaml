@@ -6,14 +6,7 @@ resources:
       operationId: getIngestPlaylists
       tags:
         - ingest
-      summary: Gets ingest data for all Playlists in Sofie belonging to a Studio.
-      parameters:
-        - name: studioId
-          in: path
-          description: Studio the Playlist belongs to.
-          required: true
-          schema:
-            type: string
+      summary: Gets ingest data for all Playlists in Sofie.
       responses:
         200:
           description: Command successfully handled - returns an array of Playlist Ids.
@@ -37,8 +30,6 @@ resources:
                   - status
                   - playlists
                 additionalProperties: false
-        404:
-          $ref: '#/components/responses/studioNotFound'
   ingestPlaylist:
     get:
       operationId: getIngestPlaylist
@@ -46,12 +37,6 @@ resources:
         - ingest
       summary: Gets ingest data for a specific Playlist from Sofie.
       parameters:
-        - name: studioId
-          in: path
-          description: Studio to ingest Playlist into.
-          required: true
-          schema:
-            type: string
         - name: playlistId
           in: path
           description: Requested Playlist.
@@ -85,10 +70,9 @@ resources:
                   - playlist
                 additionalProperties: false
         404:
-          description: Invalid studioId or playlistId
+          description: Invalid playlistId
           $ref: '#/components/responses/idNotFound'
           # oneOf:
-          #   - $ref: '#/components/responses/studioNotFound'
           #   - $ref: '#/components/responses/playlistNotFound'
     put:
       operationId: putIngestPlaylist
@@ -96,12 +80,6 @@ resources:
         - ingest
       summary: Creates a new or updates an existing Playlist.
       parameters:
-        - name: studioId
-          in: path
-          description: Studio to ingest Playlist into.
-          required: true
-          schema:
-            type: string
         - name: playlistId
           in: path
           description: Playlist to create/update.
@@ -171,12 +149,6 @@ resources:
         - ingest
       summary: Deletes a specified ingest Playlist. Resources under the Playlist (e.g. Rundowns) will also be removed.
       parameters:
-        - name: studioId
-          in: path
-          description: Studio the ingest Playlist belongs to.
-          required: true
-          schema:
-            type: string
         - name: playlistId
           in: path
           description: Playlist to delete.
@@ -201,7 +173,6 @@ resources:
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
-          #   - $ref: '#/components/responses/studioNotFound'
           #   - $ref: '#/components/responses/playlistNotFound'
   ingestRundowns:
     get:
@@ -210,12 +181,6 @@ resources:
         - ingest
       summary: Gets ingest data for all Rundowns belonging to a Playlist.
       parameters:
-        - name: studioId
-          in: path
-          description: Studio the Playlist belongs to.
-          required: true
-          schema:
-            type: string
         - name: playlistId
           in: path
           description: Playlist to get all Rundowns for.
@@ -247,7 +212,6 @@ resources:
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
-          #   - $ref: '#/components/responses/studioNotFound'
           #   - $ref: '#/components/responses/playlistNotFound'
     put:
       operationId: putIngestRundowns
@@ -255,12 +219,6 @@ resources:
         - ingest
       summary: Creates/updates the Rundowns in a Playlist. Any existing Rundowns in the Playlist that are not included in this list will be deleted (including their Segments and Parts). Rundowns will be placed in the Playlist in the order specified by their individual ranks. If the creation/deletion/updating of any Rundown fails all changes will be discarded. ETags are not supported for bulk updates, no version information will be stored for any of the created/modified Rundowns.
       parameters:
-        - name: studioId
-          in: path
-          description: Studio the Playlist belongs to.
-          required: true
-          schema:
-            type: string
         - name: playlistId
           in: path
           description: Playlist to create/update all Rundowns for.
@@ -311,7 +269,6 @@ resources:
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
-          #   - $ref: '#/components/responses/studioNotFound'
           #   - $ref: '#/components/responses/playlistNotFound'
   ingestRundown:
     get:
@@ -320,12 +277,6 @@ resources:
         - ingest
       summary: Gets ingest data for a specific Rundown.
       parameters:
-        - name: studioId
-          in: path
-          description: Studio the Rundown belongs to.
-          required: true
-          schema:
-            type: string
         - name: playlistId
           in: path
           description: Playlist the Rundown belongs to.
@@ -369,7 +320,6 @@ resources:
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
-          #   - $ref: '#/components/responses/studioNotFound'
           #   - $ref: '#/components/responses/playlistNotFound'
           #   - $ref: '#/components/responses/rundownNotFound'
     put:
@@ -378,12 +328,6 @@ resources:
         - ingest
       summary: Creates a new or updates an existing Rundown.
       parameters:
-        - name: studioId
-          in: path
-          description: Studio to ingest Rundown into.
-          required: true
-          schema:
-            type: string
         - name: playlistId
           in: path
           description: Playlist to ingest Rundown into.
@@ -459,7 +403,6 @@ resources:
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
-          #   - $ref: '#/components/responses/studioNotFound'
           #   - $ref: '#/components/responses/playlistNotFound'
           #   - $ref: '#/components/responses/rundownNotFound'
     delete:
@@ -468,12 +411,6 @@ resources:
         - ingest
       summary: Deletes a specified ingest Rundown. Resources under the Rundown (e.g. Segments) will also be removed.
       parameters:
-        - name: studioId
-          in: path
-          description: Studio the ingest Rundown belongs to.
-          required: true
-          schema:
-            type: string
         - name: playlistId
           in: path
           description: Playlist the ingest Rundown belongs to.
@@ -504,7 +441,6 @@ resources:
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
-          #   - $ref: '#/components/responses/studioNotFound'
           #   - $ref: '#/components/responses/playlistNotFound'
           #   - $ref: '#/components/responses/rundownNotFound'
   ingestSegments:
@@ -514,12 +450,6 @@ resources:
         - ingest
       summary: Gets the ingest data for all Segments belonging to a Rundown.
       parameters:
-        - name: studioId
-          in: path
-          description: Studio the Segment belongs to.
-          required: true
-          schema:
-            type: string
         - name: playlistId
           in: path
           description: Playlist the Rundown belongs to.
@@ -557,7 +487,6 @@ resources:
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
-          #   - $ref: '#/components/responses/studioNotFound'
           #   - $ref: '#/components/responses/playlistNotFound'
           #   - $ref: '#/components/responses/rundownNotFound'
     put:
@@ -566,12 +495,6 @@ resources:
         - ingest
       summary: Creates/updates the Segments in a Rundown. Any existing Segments in the Rundown that are not included in this list will be deleted (including their Parts). Segments will be placed in the Rundown in the order specified by their individual ranks. If the creation/deletion/updating of any Segment fails all changes will be discarded.
       parameters:
-        - name: studioId
-          in: path
-          description: Studio the Rundown belongs to.
-          required: true
-          schema:
-            type: string
         - name: playlistId
           in: path
           description: Playlist the Rundown belongs to.
@@ -627,7 +550,6 @@ resources:
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
-          #   - $ref: '#/components/responses/studioNotFound'
           #   - $ref: '#/components/responses/playlistNotFound'
           #   - $ref: '#/components/responses/rundownNotFound'
   ingestSegment:
@@ -637,12 +559,6 @@ resources:
         - ingest
       summary: Gets ingest data for a specific Segment.
       parameters:
-        - name: studioId
-          in: path
-          description: Studio the Segment belongs to.
-          required: true
-          schema:
-            type: string
         - name: playlistId
           in: path
           description: Playlist the Segment belongs to.
@@ -691,7 +607,6 @@ resources:
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
-          #   - $ref: '#/components/responses/studioNotFound'
           #   - $ref: '#/components/responses/playlistNotFound'
           #   - $ref: '#/components/responses/rundownNotFound'
           #   - $ref: '#/components/responses/segmentNotFound'
@@ -701,12 +616,6 @@ resources:
         - ingest
       summary: Creates a new or updates an existing Segment.
       parameters:
-        - name: studioId
-          in: path
-          description: Studio to ingest Segment into.
-          required: true
-          schema:
-            type: string
         - name: playlistId
           in: path
           description: Playlist to ingest Segment into.
@@ -786,7 +695,6 @@ resources:
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
-          #   - $ref: '#/components/responses/studioNotFound'
           #   - $ref: '#/components/responses/playlistNotFound'
           #   - $ref: '#/components/responses/rundownNotFound'
     delete:
@@ -795,12 +703,6 @@ resources:
         - ingest
       summary: Deletes a specified ingest Segment. Resources under the Segment (e.g. Parts) will also be removed.
       parameters:
-        - name: studioId
-          in: path
-          description: Studio the ingest Segment belongs to.
-          required: true
-          schema:
-            type: string
         - name: playlistId
           in: path
           description: Playlist the ingest Segment belongs to.
@@ -837,7 +739,6 @@ resources:
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
-          #   - $ref: '#/components/responses/studioNotFound'
           #   - $ref: '#/components/responses/playlistNotFound'
           #   - $ref: '#/components/responses/rundownNotFound'
   ingestParts:
@@ -847,12 +748,6 @@ resources:
         - ingest
       summary: Gets the ingest data for all Parts belonging to a Segment.
       parameters:
-        - name: studioId
-          in: path
-          description: Studio the Segment belongs to.
-          required: true
-          schema:
-            type: string
         - name: playlistId
           in: path
           description: Playlist the Segment belongs to.
@@ -896,7 +791,6 @@ resources:
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
-          #   - $ref: '#/components/responses/studioNotFound'
           #   - $ref: '#/components/responses/playlistNotFound'
           #   - $ref: '#/components/responses/rundownNotFound'
           #   - $ref: '#/components/responses/segmentNotFound'
@@ -906,12 +800,6 @@ resources:
         - ingest
       summary: Creates/updates the Parts in a Segment. Any existing Parts in the Segment that are not included in this list will be deleted. Parts will be placed in the Segment in the order specified by their individual ranks. If the creation/deletion/updating of any Parts fails all changes will be discarded.
       parameters:
-        - name: studioId
-          in: path
-          description: Studio the Segment belongs to.
-          required: true
-          schema:
-            type: string
         - name: playlistId
           in: path
           description: Playlist the Segment belongs to.
@@ -972,7 +860,6 @@ resources:
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
-          #   - $ref: '#/components/responses/studioNotFound'
           #   - $ref: '#/components/responses/playlistNotFound'
           #   - $ref: '#/components/responses/rundownNotFound'
           #   - $ref: '#/components/responses/partNotFound'
@@ -983,12 +870,6 @@ resources:
         - ingest
       summary: Gets ingest data for a specific Part.
       parameters:
-        - name: studioId
-          in: path
-          description: Studio the Part belongs to.
-          required: true
-          schema:
-            type: string
         - name: playlistId
           in: path
           description: Playlist the Part belongs to.
@@ -1043,7 +924,6 @@ resources:
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
-          #   - $ref: '#/components/responses/studioNotFound'
           #   - $ref: '#/components/responses/playlistNotFound'
           #   - $ref: '#/components/responses/rundownNotFound'
           #   - $ref: '#/components/responses/segmentNotFound'
@@ -1054,12 +934,6 @@ resources:
         - ingest
       summary: Creates a new or updates an existing Part.
       parameters:
-        - name: studioId
-          in: path
-          description: Studio to ingest Part into.
-          required: true
-          schema:
-            type: string
         - name: playlistId
           in: path
           description: Playlist to ingest Part into.
@@ -1144,7 +1018,6 @@ resources:
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
-          #   - $ref: '#/components/responses/studioNotFound'
           #   - $ref: '#/components/responses/playlistNotFound'
           #   - $ref: '#/components/responses/rundownNotFound'
           #   - $ref: '#/components/responses/segmentNotFound'
@@ -1154,12 +1027,6 @@ resources:
         - ingest
       summary: Deletes a specified ingest Part.
       parameters:
-        - name: studioId
-          in: path
-          description: Studio the ingest Part belongs to.
-          required: true
-          schema:
-            type: string
         - name: playlistId
           in: path
           description: Playlist the ingest Part belongs to.
@@ -1202,7 +1069,6 @@ resources:
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
-          #   - $ref: '#/components/responses/studioNotFound'
           #   - $ref: '#/components/responses/playlistNotFound'
           #   - $ref: '#/components/responses/rundownNotFound'
           #   - $ref: '#/components/responses/segmentNotFound'
@@ -1210,34 +1076,10 @@ resources:
 components:
   responses:
     idNotFound:
-      # oneOf responses like below don't render correctly with current tools - use studio as an example for the docs.
+      # oneOf responses like below don't render correctly with current tools - use playlist as an example for the docs.
       # oneOf:
-      #   - $ref: '#/components/responses/studioNotFound'
       #   - $ref: '#/components/responses/playlistNotFound'
-      $ref: '#/components/responses/studioNotFound'
-    studioNotFound:
-      description: The specified Studio does not exist.
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              status:
-                type: number
-                const: 404
-                example: 404
-              notFound:
-                type: string
-                const: studio
-                example: studio
-              message:
-                type: string
-                example: The specified Studio was not found.
-            required:
-              - status
-              - notFound
-              - message
-            additionalProperties: false
+      $ref: '#/components/responses/playlistNotFound'
     playlistNotFound:
       description: The specified Playlist does not exist.
       content:
