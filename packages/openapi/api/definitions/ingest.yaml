@@ -23,9 +23,6 @@ resources:
                     type: array
                     items:
                       $ref: '#/components/schemas/ingestPlaylistItem'
-                    example:
-                      - externalId: 'playlist1'
-                      - externalId: 'playlist2'
                 required:
                   - status
                   - playlists
@@ -1189,6 +1186,16 @@ components:
         - playlistId
         - rundowns
       additionalProperties: false
+      example:
+        - playlistId: 'playlist1'
+          rundowns:
+            - externalId: 'playlist1Rundown1'
+            - externalId: 'playlist1Rundown2'
+        - playlistId: 'playlist2'
+          rundowns:
+            - externalId: 'playlist2Rundown1'
+            - externalId: 'playlist2Rundown2'
+            - externalId: 'playlist2Rundown3'
     ingestRundownItem:
       type: object
       properties:
