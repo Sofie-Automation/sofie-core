@@ -111,7 +111,8 @@ resources:
         required: true
         content:
           application/json:
-            $ref: '#/components/schemas/ingestPlaylist'
+            schema:
+              $ref: '#/components/schemas/ingestPlaylist'
       responses:
         200:
           description: Playlist has been updated.
