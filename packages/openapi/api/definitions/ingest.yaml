@@ -9,7 +9,7 @@ resources:
       summary: Gets ingest data for all Playlists in Sofie.
       responses:
         200:
-          description: Command successfully handled - returns an array of Playlist Ids.
+          description: Command successfully handled - returns an array of Playlists with their playlistIds and list of Rundow.
           content:
             application/json:
               schema:
@@ -1177,11 +1177,17 @@ components:
     ingestPlaylistItem:
       type: object
       properties:
-        externalId:
+        playlistId:
           type: string
-          description: The Id provided by a system external to Sofie that can be used by the same external system to identify this Playlist.
+          description: The Id provided by Sofie. This Id will be used for /playlist commands for controlling playlist activations, playback etc.
+        rundowns:
+          type: array
+          description: All rundowns in a Playlist.
+          items:
+            $ref: '#/components/schemas/ingestRundownItem'
       required:
-        - externalId
+        - playlistId
+        - rundowns
       additionalProperties: false
     ingestRundownItem:
       type: object
