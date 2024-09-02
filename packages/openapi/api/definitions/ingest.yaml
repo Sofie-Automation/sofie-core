@@ -23,10 +23,16 @@ resources:
                     type: array
                     items:
                       $ref: '#/components/schemas/ingestPlaylistItem'
-                required:
-                  - status
-                  - playlists
-                additionalProperties: false
+                    example:
+                      - playlistId: 'playlist1'
+                        rundowns:
+                          - externalId: 'playlist1Rundown1'
+                          - externalId: 'playlist1Rundown2'
+                      - playlistId: 'playlist2'
+                        rundowns:
+                          - externalId: 'playlist2Rundown1'
+                          - externalId: 'playlist2Rundown2'
+                          - externalId: 'playlist2Rundown3'
   ingestPlaylist:
     get:
       operationId: getIngestPlaylist
@@ -71,76 +77,6 @@ resources:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
           #   - $ref: '#/components/responses/playlistNotFound'
-    put:
-      operationId: putIngestPlaylist
-      tags:
-        - ingest
-      summary: Creates a new or updates an existing Playlist.
-      parameters:
-        - name: playlistId
-          in: path
-          description: Playlist to create/update.
-          required: true
-          schema:
-            type: string
-        - name: If-None-Match
-          in: header
-          schema:
-            type: array
-            items:
-              type: string
-          description: If specified, the Playlist will only be updated if one of the specified ETags does not match. If unspecified, the new data will replace whatever currently exists, regardless of whether the data is actually the same.
-        - name: If-Match
-          in: header
-          schema:
-            type: array
-            items:
-              type: string
-          description: If specified, the Playlist will only be updated if one of the specified ETags matches.
-        - name: ETag
-          in: header
-          required: true
-          schema:
-            type: string
-          description: ETag to use as version information for Playlist.
-      requestBody:
-        description: Contains the Playlist data.
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ingestPlaylist'
-      responses:
-        200:
-          description: Playlist has been updated.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    const: 200
-                    example: 200
-                required:
-                  - status
-                additionalProperties: false
-        201:
-          description: Playlist has been created.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    const: 201
-                    example: 201
-                required:
-                  - status
-                additionalProperties: false
-        404:
-          $ref: '#/components/responses/idNotFound'
     delete:
       operationId: deleteIngestPlaylist
       tags:
@@ -1186,16 +1122,6 @@ components:
         - playlistId
         - rundowns
       additionalProperties: false
-      example:
-        - playlistId: 'playlist1'
-          rundowns:
-            - externalId: 'playlist1Rundown1'
-            - externalId: 'playlist1Rundown2'
-        - playlistId: 'playlist2'
-          rundowns:
-            - externalId: 'playlist2Rundown1'
-            - externalId: 'playlist2Rundown2'
-            - externalId: 'playlist2Rundown3'
     ingestRundownItem:
       type: object
       properties:
