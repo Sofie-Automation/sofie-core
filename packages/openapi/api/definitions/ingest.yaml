@@ -181,6 +181,7 @@ resources:
             type: string
         - name: If-None-Match
           in: header
+          style: simple
           schema:
             type: array
             items:
@@ -323,6 +324,7 @@ resources:
             type: string
         - name: If-None-Match
           in: header
+          style: simple
           schema:
             type: array
             items:
@@ -330,6 +332,7 @@ resources:
           description: If specified, the Rundown will only be updated if one of the specified ETags does not match. If unspecified, the new data will replace whatever currently exists, regardless of whether the data is actually the same.
         - name: If-Match
           in: header
+          style: simple
           schema:
             type: array
             items:
@@ -340,6 +343,7 @@ resources:
           required: true
           schema:
             type: string
+            example: '123456789'
           description: ETag to use as version information for Rundown.
       requestBody:
         description: Contains the Rundown data.
@@ -490,6 +494,7 @@ resources:
             type: string
         - name: If-None-Match
           in: header
+          style: simple
           schema:
             type: array
             items:
@@ -649,6 +654,7 @@ resources:
             type: string
         - name: If-None-Match
           in: header
+          style: simple
           schema:
             type: array
             items:
@@ -656,6 +662,7 @@ resources:
           description: If specified, the Segment will only be updated if one of the specified ETags does not match. If unspecified, the new data will replace whatever currently exists, regardless of whether the data is actually the same.
         - name: If-Match
           in: header
+          style: simple
           schema:
             type: array
             items:
@@ -834,6 +841,7 @@ resources:
             type: string
         - name: If-None-Match
           in: header
+          style: simple
           schema:
             type: array
             items:
@@ -1011,6 +1019,7 @@ resources:
             type: string
         - name: If-None-Match
           in: header
+          style: simple
           schema:
             type: array
             items:
@@ -1018,6 +1027,7 @@ resources:
           description: If specified, the Part will only be updated if the specified ETag does not match. If unspecified, the new data will replace whatever currently exists, regardless of whether the data is actually the same.
         - name: If-Match
           in: header
+          style: simple
           schema:
             type: array
             items:

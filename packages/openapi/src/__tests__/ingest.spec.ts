@@ -126,7 +126,8 @@ describe('Network client', () => {
 				source: 'Our Company - Some Product Name',
 				rank: 3,
 			},
-			eTag: '1725268817',
+			eTag: '123456789',
+			ifNoneMatch: ['123456789', '1725453459'],
 		})
 		expect(newPutIngestRundown.status).toBe(200)
 	})
