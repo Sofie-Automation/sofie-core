@@ -181,6 +181,7 @@ resources:
             type: string
         - name: If-None-Match
           in: header
+          # Indicates that the array elements are serialized as a comma-separated list in the header.
           style: simple
           schema:
             type: array
@@ -324,6 +325,7 @@ resources:
             type: string
         - name: If-None-Match
           in: header
+          # Indicates that the array elements are serialized as a comma-separated list in the header.
           style: simple
           schema:
             type: array
@@ -332,6 +334,7 @@ resources:
           description: If specified, the Rundown will only be updated if one of the specified ETags does not match. If unspecified, the new data will replace whatever currently exists, regardless of whether the data is actually the same.
         - name: If-Match
           in: header
+          # Indicates that the array elements are serialized as a comma-separated list in the header.
           style: simple
           schema:
             type: array
@@ -494,6 +497,7 @@ resources:
             type: string
         - name: If-None-Match
           in: header
+          # Indicates that the array elements are serialized as a comma-separated list in the header.
           style: simple
           schema:
             type: array
@@ -654,6 +658,7 @@ resources:
             type: string
         - name: If-None-Match
           in: header
+          # Indicates that the array elements are serialized as a comma-separated list in the header.
           style: simple
           schema:
             type: array
@@ -662,6 +667,7 @@ resources:
           description: If specified, the Segment will only be updated if one of the specified ETags does not match. If unspecified, the new data will replace whatever currently exists, regardless of whether the data is actually the same.
         - name: If-Match
           in: header
+          # Indicates that the array elements are serialized as a comma-separated list in the header.
           style: simple
           schema:
             type: array
@@ -841,6 +847,7 @@ resources:
             type: string
         - name: If-None-Match
           in: header
+          # Indicates that the array elements are serialized as a comma-separated list in the header.
           style: simple
           schema:
             type: array
@@ -1019,6 +1026,7 @@ resources:
             type: string
         - name: If-None-Match
           in: header
+          # Indicates that the array elements are serialized as a comma-separated list in the header.
           style: simple
           schema:
             type: array
@@ -1027,6 +1035,7 @@ resources:
           description: If specified, the Part will only be updated if the specified ETag does not match. If unspecified, the new data will replace whatever currently exists, regardless of whether the data is actually the same.
         - name: If-Match
           in: header
+          # Indicates that the array elements are serialized as a comma-separated list in the header.
           style: simple
           schema:
             type: array
