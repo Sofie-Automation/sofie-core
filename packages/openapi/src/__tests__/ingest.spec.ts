@@ -5,7 +5,7 @@ import Logging from '../httpLogging'
 
 const httpLogging = false
 
-describe('Network client', () => {
+describe('Ingest API', () => {
 	const config = new Configuration({
 		basePath: process.env.SERVER_URL,
 		middleware: [new Logging(httpLogging)],
@@ -21,14 +21,12 @@ describe('Network client', () => {
 	const playlistIds: string[] = []
 	test('Can request all ingest playlists in Sofie', async () => {
 		const ingestPlaylists = await ingestApi.getIngestPlaylists()
-		expect(ingestPlaylists.status).toBe(200)
-		expect(ingestPlaylists).toHaveProperty('playlists')
 
-		expect(ingestPlaylists.playlists.length).toBeGreaterThanOrEqual(1)
-		ingestPlaylists.playlists.forEach((playlist) => {
+		expect(ingestPlaylists.length).toBeGreaterThanOrEqual(1)
+		ingestPlaylists.forEach((playlist) => {
 			expect(typeof playlist).toBe('object')
-			expect(typeof playlist.playlistId).toBe('string')
-			playlistIds.push(playlist.playlistId)
+			expect(typeof playlist.externalId).toBe('string')
+			playlistIds.push(playlist.externalId)
 		})
 	})
 
@@ -36,11 +34,9 @@ describe('Network client', () => {
 		const ingestPlaylist = await ingestApi.getIngestPlaylist({
 			playlistId: playlistIds[0],
 		})
-		expect(ingestPlaylist.status).toBe(200)
-		expect(ingestPlaylist).toHaveProperty('playlist')
 
-		expect(ingestPlaylist.playlist).toHaveProperty('name')
-		expect(typeof ingestPlaylist.playlist.name).toBe('string')
+		expect(ingestPlaylist).toHaveProperty('name')
+		expect(typeof ingestPlaylist.name).toBe('string')
 	})
 
 	test('Can delete multiple ingest playlists in Sofie', async () => {

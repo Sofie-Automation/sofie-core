@@ -12,6 +12,7 @@ import { blueprintsRouter } from '../blueprints/http'
 import { createLegacyApiRouter } from './v0/index'
 import { heapSnapshotPrivateApiRouter } from '../heapSnapshot'
 import { getRootSubpath } from '../../lib'
+import { httpIngestRouter } from '../ingest/httpIngest/httpIngestController'
 
 const LATEST_REST_API = 'v1.0'
 
@@ -19,6 +20,8 @@ const apiRouter = new KoaRouter()
 
 apiRouter.get('/', redirectToLatest)
 apiRouter.get('/latest', redirectToLatest)
+
+apiRouter.use('/v1.0/ingest', httpIngestRouter.routes(), httpIngestRouter.allowedMethods())
 
 apiRouter.use('/v1.0', apiV1Router.routes(), apiV1Router.allowedMethods())
 

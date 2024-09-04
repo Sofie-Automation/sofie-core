@@ -27,6 +27,11 @@ export namespace IngestActions {
 
 				return TriggerReloadDataResponse.COMPLETED
 			}
+			case 'httpIngest': {
+				console.log('TODO: RELOADING HTTP INGEST DATA')
+
+				return TriggerReloadDataResponse.COMPLETED
+			}
 			case 'testing': {
 				await runIngestOperation(rundown.studioId, IngestJobs.CreateAdlibTestingRundownForShowStyleVariant, {
 					showStyleVariantId: rundown.showStyleVariantId,

@@ -13,26 +13,19 @@ resources:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    const: 200
-                    example: 200
-                  playlists:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/ingestPlaylistItem'
-                    example:
-                      - playlistId: 'playlist1'
-                        rundowns:
-                          - externalId: 'playlist1Rundown1'
-                          - externalId: 'playlist1Rundown2'
-                      - playlistId: 'playlist2'
-                        rundowns:
-                          - externalId: 'playlist2Rundown1'
-                          - externalId: 'playlist2Rundown2'
-                          - externalId: 'playlist2Rundown3'
+                type: array
+                items:
+                  $ref: '#/components/schemas/ingestPlaylist'
+                example:
+                  - externalId: 'playlist1'
+                    rundowns:
+                      - externalId: 'playlist1Rundown1'
+                      - externalId: 'playlist1Rundown2'
+                  - externalId: 'playlist2'
+                    rundowns:
+                      - externalId: 'playlist2Rundown1'
+                      - externalId: 'playlist2Rundown2'
+                      - externalId: 'playlist2Rundown3'
     delete:
       operationId: deleteIngestPlaylists
       tags:
@@ -77,21 +70,7 @@ resources:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    const: 200
-                  playlist:
-                    $ref: '#/components/schemas/ingestPlaylist'
-                example:
-                  status: 200
-                  playlist:
-                    name: playlist1
-                required:
-                  - status
-                  - playlist
-                additionalProperties: false
+                $ref: '#/components/schemas/ingestPlaylist'
         404:
           description: Invalid playlistId
           $ref: '#/components/responses/idNotFound'
@@ -1295,6 +1274,12 @@ components:
       properties:
         name:
           type: string
+        externalId:
+          type: string
+        rundownIdsInOrder:
+          type: array
+          items:
+            type: string
       required:
         - name
       additionalProperties: false
