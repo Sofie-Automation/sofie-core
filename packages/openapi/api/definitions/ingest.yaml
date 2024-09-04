@@ -33,6 +33,26 @@ resources:
                           - externalId: 'playlist2Rundown1'
                           - externalId: 'playlist2Rundown2'
                           - externalId: 'playlist2Rundown3'
+    delete:
+      operationId: deleteIngestPlaylists
+      tags:
+        - ingest
+      summary: Delete multiple playlists.
+      responses:
+        200:
+          description: Playlists removed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    const: 200
+                    example: 200
+                required:
+                  - status
+                additionalProperties: false
   ingestPlaylist:
     get:
       operationId: getIngestPlaylist
@@ -204,6 +224,33 @@ resources:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
           #   - $ref: '#/components/responses/playlistNotFound'
+    delete:
+      operationId: deleteIngestRundowns
+      tags:
+        - ingest
+      summary: Delete multiple rundowns.
+      parameters:
+        - name: playlistId
+          in: path
+          description: Playlist the ingest Part belongs to.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Rundown removed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    const: 200
+                    example: 200
+                required:
+                  - status
+                additionalProperties: false
   ingestRundown:
     get:
       operationId: getIngestRundown
@@ -486,6 +533,39 @@ resources:
           # oneOf:
           #   - $ref: '#/components/responses/playlistNotFound'
           #   - $ref: '#/components/responses/rundownNotFound'
+    delete:
+      operationId: deleteIngestSegments
+      tags:
+        - ingest
+      summary: Delete multiple segments.
+      parameters:
+        - name: playlistId
+          in: path
+          description: Playlist the ingest Part belongs to.
+          required: true
+          schema:
+            type: string
+        - name: rundownId
+          in: path
+          description: Rundown the ingest Part belongs to.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Segments removed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    const: 200
+                    example: 200
+                required:
+                  - status
+                additionalProperties: false
   ingestSegment:
     get:
       operationId: getIngestSegment
@@ -797,6 +877,45 @@ resources:
           #   - $ref: '#/components/responses/playlistNotFound'
           #   - $ref: '#/components/responses/rundownNotFound'
           #   - $ref: '#/components/responses/partNotFound'
+    delete:
+      operationId: deleteIngestParts
+      tags:
+        - ingest
+      summary: Delete multiple Parts.
+      parameters:
+        - name: playlistId
+          in: path
+          description: Playlist the ingest Part belongs to.
+          required: true
+          schema:
+            type: string
+        - name: rundownId
+          in: path
+          description: Rundown the ingest Part belongs to.
+          required: true
+          schema:
+            type: string
+        - name: segmentId
+          in: path
+          description: Segment the ingest Part belongs to.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Parts removed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    const: 200
+                    example: 200
+                required:
+                  - status
+                additionalProperties: false
   ingestPart:
     get:
       operationId: getIngestPart

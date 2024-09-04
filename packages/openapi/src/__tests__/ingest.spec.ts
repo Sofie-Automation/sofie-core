@@ -4,10 +4,6 @@ import { checkServer } from '../checkServer'
 import Logging from '../httpLogging'
 
 const httpLogging = false
-// let testServer = false
-// if (process.env.SERVER_TYPE === 'TEST') {
-// 	testServer = true
-// }
 
 describe('Network client', () => {
 	const config = new Configuration({
@@ -45,6 +41,18 @@ describe('Network client', () => {
 
 		expect(ingestPlaylist.playlist).toHaveProperty('name')
 		expect(typeof ingestPlaylist.playlist.name).toBe('string')
+	})
+
+	test('Can delete multiple ingest playlists in Sofie', async () => {
+		const ingestRundown = await ingestApi.deleteIngestPlaylists()
+		expect(ingestRundown.status).toBe(200)
+	})
+
+	test('Can delete ingest playlist by id in Sofie', async () => {
+		const ingestRundown = await ingestApi.deleteIngestPlaylist({
+			playlistId: playlistIds[0],
+		})
+		expect(ingestRundown.status).toBe(200)
 	})
 
 	/**
@@ -123,6 +131,13 @@ describe('Network client', () => {
 		expect(newPutIngestRundown.status).toBe(200)
 	})
 
+	test('Can delete multiple ingest rundowns in Sofie', async () => {
+		const ingestRundown = await ingestApi.deleteIngestRundowns({
+			playlistId: playlistIds[0],
+		})
+		expect(ingestRundown.status).toBe(200)
+	})
+
 	test('Can delete ingest rundown by id in Sofie', async () => {
 		const ingestRundown = await ingestApi.deleteIngestRundown({
 			playlistId: playlistIds[0],
@@ -196,6 +211,14 @@ describe('Network client', () => {
 			ingestSegment: newIngestSegment,
 		})
 		expect(ingestSegment.status).toBe(200)
+	})
+
+	test('Can delete multiple ingest segments in Sofie', async () => {
+		const ingestRundown = await ingestApi.deleteIngestSegments({
+			playlistId: playlistIds[0],
+			rundownId: rundownIds[0],
+		})
+		expect(ingestRundown.status).toBe(200)
 	})
 
 	test('Can delete ingest segment by id in Sofie', async () => {
@@ -277,6 +300,15 @@ describe('Network client', () => {
 			ingestPart: newIngestPart,
 		})
 		expect(ingestPart.status).toBe(200)
+	})
+
+	test('Can delete multiple ingest parts in Sofie', async () => {
+		const ingestRundown = await ingestApi.deleteIngestParts({
+			playlistId: playlistIds[0],
+			rundownId: rundownIds[0],
+			segmentId: segmentIds[0],
+		})
+		expect(ingestRundown.status).toBe(200)
 	})
 
 	test('Can delete ingest part by id in Sofie', async () => {
