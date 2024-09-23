@@ -1,5 +1,5 @@
 // eslint-disable-next-line node/no-missing-import
-import { Configuration, IngestApi, IngestPart, IngestRundown, IngestSegment } from '../../client/ts'
+import { Configuration, IngestApi, Part } from '../../client/ts'
 import { checkServer } from '../checkServer'
 import Logging from '../httpLogging'
 
@@ -16,11 +16,11 @@ describe('Ingest API', () => {
 	const ingestApi = new IngestApi(config)
 
 	/**
-	 * INGEST PLAYLIST
+	 * PLAYLISTS
 	 */
 	const playlistIds: string[] = []
-	test('Can request all ingest playlists in Sofie', async () => {
-		const ingestPlaylists = await ingestApi.getIngestPlaylists()
+	test('Can request all playlists', async () => {
+		const ingestPlaylists = await ingestApi.getPlaylists()
 
 		expect(ingestPlaylists.length).toBeGreaterThanOrEqual(1)
 		ingestPlaylists.forEach((playlist) => {
@@ -30,8 +30,8 @@ describe('Ingest API', () => {
 		})
 	})
 
-	test('Can request a playlist by id in Sofie', async () => {
-		const ingestPlaylist = await ingestApi.getIngestPlaylist({
+	test('Can request a playlist by id', async () => {
+		const ingestPlaylist = await ingestApi.getPlaylist({
 			playlistId: playlistIds[0],
 		})
 
@@ -39,282 +39,316 @@ describe('Ingest API', () => {
 		expect(typeof ingestPlaylist.name).toBe('string')
 	})
 
-	test('Can delete multiple ingest playlists in Sofie', async () => {
-		const ingestRundown = await ingestApi.deleteIngestPlaylists()
-		expect(ingestRundown.status).toBe(200)
+	test('Can delete multiple playlists', async () => {
+		const result = await ingestApi.deletePlaylists()
+		expect(result).toBe(undefined)
 	})
 
-	test('Can delete ingest playlist by id in Sofie', async () => {
-		const ingestRundown = await ingestApi.deleteIngestPlaylist({
+	test('Can delete playlist by id', async () => {
+		const result = await ingestApi.deletePlaylist({
 			playlistId: playlistIds[0],
 		})
-		expect(ingestRundown.status).toBe(200)
+		expect(result).toBe(undefined)
 	})
 
 	/**
-	 * INGEST RUNDOWS
+	 * RUNDOWNS
 	 */
 	const rundownIds: string[] = []
-	test('Can request all ingest rundowns in Sofie', async () => {
-		const ingestRundowns = await ingestApi.getIngestRundowns({
+	test('Can request all rundowns', async () => {
+		const rundowns = await ingestApi.getRundowns({
 			playlistId: playlistIds[0],
 		})
-		expect(ingestRundowns.status).toBe(200)
-		expect(ingestRundowns).toHaveProperty('rundowns')
 
-		expect(ingestRundowns.rundowns.length).toBeGreaterThanOrEqual(1)
+		expect(rundowns.length).toBeGreaterThanOrEqual(1)
 
-		ingestRundowns.rundowns.forEach((rundown) => {
+		rundowns.forEach((rundown) => {
 			expect(typeof rundown).toBe('object')
+			expect(rundown).toHaveProperty('name')
+			expect(rundown).toHaveProperty('rank')
+			expect(rundown).toHaveProperty('source')
+			expect(rundown).toHaveProperty('externalId')
+			expect(typeof rundown.name).toBe('string')
+			expect(typeof rundown.rank).toBe('number')
+			expect(typeof rundown.source).toBe('string')
 			expect(typeof rundown.externalId).toBe('string')
 			rundownIds.push(rundown.externalId)
 		})
 	})
 
-	let newIngestRundown: IngestRundown | undefined
-	test('Can request ingest rundown by id in Sofie', async () => {
-		const ingestRundown = await ingestApi.getIngestRundown({
+	test('Can request rundown by id', async () => {
+		const rundown = await ingestApi.getRundown({
 			playlistId: playlistIds[0],
 			rundownId: rundownIds[0],
 		})
-		expect(ingestRundown.status).toBe(200)
-		expect(ingestRundown).toHaveProperty('rundown')
 
-		expect(ingestRundown.rundown).toHaveProperty('name')
-		expect(ingestRundown.rundown).toHaveProperty('rank')
-		expect(ingestRundown.rundown).toHaveProperty('source')
-		expect(typeof ingestRundown.rundown.name).toBe('string')
-		expect(typeof ingestRundown.rundown.rank).toBe('number')
-		expect(typeof ingestRundown.rundown.source).toBe('string')
-		newIngestRundown = JSON.parse(JSON.stringify(ingestRundown.rundown))
+		expect(rundown).toHaveProperty('name')
+		expect(rundown).toHaveProperty('rank')
+		expect(rundown).toHaveProperty('source')
+		expect(rundown).toHaveProperty('externalId')
+		expect(typeof rundown.name).toBe('string')
+		expect(typeof rundown.rank).toBe('number')
+		expect(typeof rundown.source).toBe('string')
+		expect(typeof rundown.externalId).toBe('string')
 	})
 
-	test('Can add/update multiple rundowns in Sofie', async () => {
-		newIngestRundown.name = newIngestRundown.name + 'added'
-		newIngestRundown.rank = 2
-		const ingestRundown = await ingestApi.putIngestRundowns({
+	test('Can create rundown', async () => {
+		const result = await ingestApi.postRundown({
 			playlistId: playlistIds[0],
-			putIngestRundownsRequest: {
-				rundowns: [
-					{
-						name: 'rundown1',
-						source: 'Our Company - Some Product Name',
-						rank: 0,
-					},
-					{
-						name: 'rundown2',
-						source: 'Our Second Company - Some Product Name',
-						rank: 1,
-					},
-				],
+			rundown: {
+				externalId: 'newRundown',
+				name: 'New rundown',
+				rank: 1,
+				source: 'nrcsId',
 			},
 		})
-		expect(ingestRundown.status).toBe(200)
+
+		expect(result).toBe(undefined)
 	})
 
-	const testIngestRundownId = 'rundown3'
-	test('Can add/update an ingest rundown in Sofie', async () => {
-		const newPutIngestRundown = await ingestApi.putIngestRundown({
+	test('Can update multiple rundowns', async () => {
+		const result = await ingestApi.putRundowns({
 			playlistId: playlistIds[0],
-			rundownId: testIngestRundownId,
-			ingestRundown: {
-				name: 'rundown3',
+			rundown: [
+				{
+					externalId: 'rundown1',
+					name: 'Rundown 1',
+					source: 'Our Company - Some Product Name',
+					rank: 0,
+				},
+				{
+					externalId: 'rundown2',
+					name: 'Rundown 2',
+					source: 'Our Second Company - Some Product Name',
+					rank: 1,
+				},
+			],
+		})
+		expect(result).toBe(undefined)
+	})
+
+	const updatedRundownId = 'rundown3'
+	test('Can update single rundown', async () => {
+		const result = await ingestApi.putRundown({
+			playlistId: playlistIds[0],
+			rundownId: updatedRundownId,
+			rundown: {
+				externalId: 'rundown3',
+				name: 'Rundown 3',
 				source: 'Our Company - Some Product Name',
 				rank: 3,
 			},
-			eTag: '123456789',
-			ifNoneMatch: ['123456789', '1725453459'],
 		})
-		expect(newPutIngestRundown.status).toBe(200)
+		expect(result).toBe(undefined)
 	})
 
-	test('Can delete multiple ingest rundowns in Sofie', async () => {
-		const ingestRundown = await ingestApi.deleteIngestRundowns({
+	test('Can delete multiple rundowns', async () => {
+		const ingestRundown = await ingestApi.deleteRundowns({
 			playlistId: playlistIds[0],
 		})
 		expect(ingestRundown.status).toBe(200)
 	})
 
-	test('Can delete ingest rundown by id in Sofie', async () => {
-		const ingestRundown = await ingestApi.deleteIngestRundown({
+	test('Can delete rundown by id', async () => {
+		const result = await ingestApi.deleteRundown({
 			playlistId: playlistIds[0],
-			rundownId: testIngestRundownId,
+			rundownId: updatedRundownId,
 		})
-		expect(ingestRundown.status).toBe(200)
+		expect(result).toBe(undefined)
 	})
 
 	/**
 	 * INGEST SEGMENT
 	 */
 	const segmentIds: string[] = []
-	test('Can request all ingest segments in Sofie', async () => {
-		const ingestSegments = await ingestApi.getIngestSegments({
+	test('Can request all segments', async () => {
+		const segments = await ingestApi.getSegments({
 			playlistId: playlistIds[0],
 			rundownId: rundownIds[0],
 		})
-		expect(ingestSegments.status).toBe(200)
-		expect(ingestSegments).toHaveProperty('segments')
 
-		expect(ingestSegments.segments.length).toBeGreaterThanOrEqual(1)
+		expect(segments.length).toBeGreaterThanOrEqual(1)
 
-		ingestSegments.segments.forEach((segment) => {
+		segments.forEach((segment) => {
 			expect(typeof segment).toBe('object')
 			expect(typeof segment.externalId).toBe('string')
 			segmentIds.push(segment.externalId)
 		})
 	})
 
-	let newIngestSegment: IngestSegment | undefined
-	test('Can request ingest segment by id in Sofie', async () => {
-		const ingestSegment = await ingestApi.getIngestSegment({
+	test('Can request segment by id', async () => {
+		const segment = await ingestApi.getSegment({
 			playlistId: playlistIds[0],
 			rundownId: rundownIds[0],
 			segmentId: segmentIds[0],
 		})
-		expect(ingestSegment.status).toBe(200)
-		expect(ingestSegment).toHaveProperty('segment')
 
-		expect(ingestSegment.segment).toHaveProperty('name')
-		expect(ingestSegment.segment).toHaveProperty('rank')
-		expect(typeof ingestSegment.segment.name).toBe('string')
-		expect(typeof ingestSegment.segment.rank).toBe('number')
-		newIngestSegment = JSON.parse(JSON.stringify(ingestSegment.segment))
+		expect(segment).toHaveProperty('name')
+		expect(segment).toHaveProperty('rank')
+		expect(typeof segment.name).toBe('string')
+		expect(typeof segment.rank).toBe('number')
 	})
 
-	test('can add/update multiple ingest segments in Sofie', async () => {
-		const ingestSegment = await ingestApi.putIngestSegments({
+	test('Can create segment', async () => {
+		const result = await ingestApi.postSegment({
 			playlistId: playlistIds[0],
 			rundownId: rundownIds[0],
-			putIngestSegmentsRequest: {
-				segments: [
-					{
-						name: 'segment1',
-						rank: 0,
-					},
-				],
+			segment: {
+				externalId: 'segment1',
+				name: 'Segment 1',
+				rank: 0,
 			},
 		})
-		expect(ingestSegment.status).toBe(200)
+
+		expect(result).toBe(undefined)
 	})
 
-	const testIngestSegmentId = 'segment2'
-	test('Can add/update an ingest segment in Sofie', async () => {
-		newIngestSegment.name = newIngestSegment.name + 'Added'
-		const ingestSegment = await ingestApi.putIngestSegment({
+	test('Can update multiple segments', async () => {
+		const result = await ingestApi.putSegments({
 			playlistId: playlistIds[0],
 			rundownId: rundownIds[0],
-			segmentId: testIngestSegmentId,
-			eTag: '1725269223',
-			ingestSegment: newIngestSegment,
+			segment: [
+				{
+					externalId: 'segment1',
+					name: 'Segment 1',
+					rank: 0,
+				},
+			],
 		})
-		expect(ingestSegment.status).toBe(200)
+		expect(result).toBe(undefined)
 	})
 
-	test('Can delete multiple ingest segments in Sofie', async () => {
-		const ingestRundown = await ingestApi.deleteIngestSegments({
+	const updatedSegmentId = 'segment2'
+	test('Can update single segment', async () => {
+		const result = await ingestApi.putSegment({
 			playlistId: playlistIds[0],
 			rundownId: rundownIds[0],
+			segmentId: updatedSegmentId,
+			segment: {
+				externalId: 'segment2',
+				name: 'Segment 2',
+				rank: 1,
+			},
 		})
-		expect(ingestRundown.status).toBe(200)
+		expect(result).toBe(undefined)
 	})
 
-	test('Can delete ingest segment by id in Sofie', async () => {
-		const ingestRundown = await ingestApi.deleteIngestSegment({
+	test('Can delete multiple segments', async () => {
+		const result = await ingestApi.deleteSegments({
 			playlistId: playlistIds[0],
 			rundownId: rundownIds[0],
-			segmentId: testIngestSegmentId,
 		})
-		expect(ingestRundown.status).toBe(200)
+		expect(result).toBe(undefined)
+	})
+
+	test('Can delete segment by id', async () => {
+		const result = await ingestApi.deleteSegment({
+			playlistId: playlistIds[0],
+			rundownId: rundownIds[0],
+			segmentId: updatedSegmentId,
+		})
+		expect(result).toBe(undefined)
 	})
 
 	/**
 	 * INGEST PARTS
 	 */
 	const partIds: string[] = []
-	test('Can request all ingest parts in Sofie', async () => {
-		const ingestParts = await ingestApi.getIngestParts({
+	test('Can request all parts', async () => {
+		const parts = await ingestApi.getParts({
 			playlistId: playlistIds[0],
 			rundownId: rundownIds[0],
 			segmentId: segmentIds[0],
 		})
 
-		expect(ingestParts.status).toBe(200)
-		expect(ingestParts).toHaveProperty('parts')
+		expect(parts.length).toBeGreaterThanOrEqual(1)
 
-		expect(ingestParts.parts.length).toBeGreaterThanOrEqual(1)
-
-		ingestParts.parts.forEach((part) => {
+		parts.forEach((part) => {
 			expect(typeof part).toBe('object')
 			expect(typeof part.externalId).toBe('string')
 			partIds.push(part.externalId)
 		})
 	})
 
-	let newIngestPart: IngestPart | undefined
-	test('Can request ingest part by id in Sofie', async () => {
-		const ingestPart = await ingestApi.getIngestPart({
+	let newIngestPart: Part | undefined
+	test('Can request part by id', async () => {
+		const part = await ingestApi.getPart({
 			playlistId: playlistIds[0],
 			rundownId: rundownIds[0],
 			segmentId: segmentIds[0],
 			partId: partIds[0],
 		})
-		expect(ingestPart.status).toBe(200)
-		expect(ingestPart).toHaveProperty('part')
 
-		expect(ingestPart.part).toHaveProperty('name')
-		expect(ingestPart.part).toHaveProperty('rank')
-		expect(typeof ingestPart.part.name).toBe('string')
-		expect(typeof ingestPart.part.rank).toBe('number')
-		newIngestPart = JSON.parse(JSON.stringify(ingestPart.part))
+		expect(part).toHaveProperty('name')
+		expect(part).toHaveProperty('rank')
+		expect(typeof part.name).toBe('string')
+		expect(typeof part.rank).toBe('number')
+		newIngestPart = JSON.parse(JSON.stringify(part))
 	})
 
-	test('Can add/update multiple ingest parts in Sofie', async () => {
-		const ingestPart = await ingestApi.putIngestParts({
+	test('Can create part', async () => {
+		const result = await ingestApi.postPart({
 			playlistId: playlistIds[0],
 			rundownId: rundownIds[0],
 			segmentId: segmentIds[0],
-			putIngestPartsRequest: {
-				parts: [
-					{
-						name: 'part1',
-						rank: 0,
-					},
-				],
+			part: {
+				externalId: 'part1',
+				name: 'Part 1',
+				rank: 0,
 			},
 		})
-		expect(ingestPart.status).toBe(200)
+		expect(result).toBe(undefined)
 	})
 
-	const testIngestPartId = 'part2'
-	test('Can add/update an ingest part in Sofie', async () => {
-		newIngestPart.name = newIngestPart.name + 'Added'
-		const ingestPart = await ingestApi.putIngestPart({
+	test('Can update multiple parts', async () => {
+		const result = await ingestApi.putParts({
 			playlistId: playlistIds[0],
 			rundownId: rundownIds[0],
 			segmentId: segmentIds[0],
-			partId: testIngestPartId,
-			eTag: '1725269417',
-			ingestPart: newIngestPart,
+			part: [
+				{
+					externalId: 'part1',
+					name: 'Part 1',
+					rank: 0,
+				},
+			],
 		})
-		expect(ingestPart.status).toBe(200)
+		expect(result).toBe(undefined)
 	})
 
-	test('Can delete multiple ingest parts in Sofie', async () => {
-		const ingestRundown = await ingestApi.deleteIngestParts({
+	const updatedPartId = 'part2'
+	test('Can update an part', async () => {
+		newIngestPart.name = newIngestPart.name + '  added'
+		const result = await ingestApi.putPart({
+			playlistId: playlistIds[0],
+			rundownId: rundownIds[0],
+			segmentId: segmentIds[0],
+			partId: updatedPartId,
+			part: {
+				externalId: 'part1',
+				name: 'Part 1',
+				rank: 0,
+			},
+		})
+		expect(result).toBe(undefined)
+	})
+
+	test('Can delete multiple parts', async () => {
+		const result = await ingestApi.deleteParts({
 			playlistId: playlistIds[0],
 			rundownId: rundownIds[0],
 			segmentId: segmentIds[0],
 		})
-		expect(ingestRundown.status).toBe(200)
+		expect(result).toBe(undefined)
 	})
 
-	test('Can delete ingest part by id in Sofie', async () => {
-		const ingestRundown = await ingestApi.deleteIngestPart({
+	test('Can delete part by id', async () => {
+		const result = await ingestApi.deletePart({
 			playlistId: playlistIds[0],
 			rundownId: rundownIds[0],
 			segmentId: segmentIds[0],
-			partId: testIngestPartId,
+			partId: updatedPartId,
 		})
-		expect(ingestRundown.status).toBe(200)
+		expect(result).toBe(undefined)
 	})
 })
