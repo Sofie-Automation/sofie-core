@@ -957,8 +957,10 @@ components:
           example: Rundown 1
         type:
           type: string
+          example: external
         resyncUrl:
           type: string
+          example: http://nrcs-url/resync/rundownId
         segments:
           type: array
           items:
@@ -966,20 +968,11 @@ components:
         payload:
           type: object
           properties:
-            externalId:
-              type: string
-            name:
-              type: string
-            spreadsheetVersion:
-              type: string
             expectedStart:
               type: number
             expectedEnd:
               type: number
           required:
-            - externalId
-            - name
-            - spreadsheetVersion
             - expectedStart
             - expectedEnd
           additionalProperties: true
@@ -1007,14 +1000,6 @@ components:
         payload:
           type: object
           properties:
-            rundownId:
-              type: string
-            externalId:
-              type: string
-            rank:
-              type: number
-            name:
-              type: string
             float:
               type: boolean
             tags:
@@ -1022,10 +1007,6 @@ components:
               items:
                 type: string
           required:
-            - rundownId
-            - externalId
-            - rank
-            - name
             - float
             - tags
           additionalProperties: false
@@ -1065,14 +1046,6 @@ components:
                 - COMPOSITION
                 - FULLSCREEN_GRAPHIC
                 - MACRO
-            segmentId:
-              type: string
-            externalId:
-              type: string
-            rank:
-              type: number
-            name:
-              type: string
             float:
               type: boolean
             script:
@@ -1092,10 +1065,6 @@ components:
           additionalProperties: false
           required:
             - type
-            - segmentId
-            - externalId
-            - rank
-            - name
             - float
             - script
             - pieces

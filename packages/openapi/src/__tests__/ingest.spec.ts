@@ -99,14 +99,11 @@ describe('Ingest API', () => {
 	const rundown = {
 		externalId: 'newRundown',
 		name: 'New rundown',
-		type: 'TYPE',
+		type: 'external',
 		resyncUrl: 'resyncUrl',
 		payload: {
-			name: 'Rundown 1',
 			expectedStart: 0,
 			expectedEnd: 0,
-			externalId: 'rundown1',
-			spreadsheetVersion: '1.1.1',
 		},
 	}
 
@@ -291,11 +288,8 @@ describe('Ingest API', () => {
 				name: 'Part 1',
 				rank: 0,
 				payload: {
-					externalId: 'part1',
-					name: 'Part 1',
 					segmentId: 'segment1',
 					type: 'CAMERA',
-					rank: 0,
 					_float: true,
 					autoNext: true,
 					guest: true,
@@ -329,11 +323,8 @@ describe('Ingest API', () => {
 					name: 'Part 1',
 					rank: 0,
 					payload: {
-						externalId: 'part1',
-						name: 'Part 1',
 						segmentId: 'segment1',
 						type: 'CAMERA',
-						rank: 0,
 						_float: true,
 						autoNext: true,
 						guest: true,
@@ -370,11 +361,8 @@ describe('Ingest API', () => {
 				name: 'Part 1',
 				rank: 0,
 				payload: {
-					externalId: 'part1',
-					name: 'Part 1',
 					segmentId: 'segment1',
 					type: 'CAMERA',
-					rank: 0,
 					_float: true,
 					autoNext: true,
 					guest: true,
