@@ -65,13 +65,15 @@ describe('Ingest API', () => {
 		rundowns.forEach((rundown) => {
 			expect(typeof rundown).toBe('object')
 			expect(rundown).toHaveProperty('name')
-			expect(rundown).toHaveProperty('rank')
-			expect(rundown).toHaveProperty('source')
 			expect(rundown).toHaveProperty('externalId')
+			expect(rundown).toHaveProperty('payload')
+			expect(rundown).toHaveProperty('resyncUrl')
+			expect(rundown).toHaveProperty('type')
 			expect(typeof rundown.name).toBe('string')
-			expect(typeof rundown.rank).toBe('number')
-			expect(typeof rundown.source).toBe('string')
 			expect(typeof rundown.externalId).toBe('string')
+			expect(typeof rundown.payload).toBe('object')
+			expect(typeof rundown.resyncUrl).toBe('string')
+			expect(typeof rundown.type).toBe('string')
 			rundownIds.push(rundown.externalId)
 		})
 	})
@@ -83,24 +85,35 @@ describe('Ingest API', () => {
 		})
 
 		expect(rundown).toHaveProperty('name')
-		expect(rundown).toHaveProperty('rank')
-		expect(rundown).toHaveProperty('source')
 		expect(rundown).toHaveProperty('externalId')
+		expect(rundown).toHaveProperty('payload')
+		expect(rundown).toHaveProperty('resyncUrl')
+		expect(rundown).toHaveProperty('type')
 		expect(typeof rundown.name).toBe('string')
-		expect(typeof rundown.rank).toBe('number')
-		expect(typeof rundown.source).toBe('string')
 		expect(typeof rundown.externalId).toBe('string')
+		expect(typeof rundown.payload).toBe('object')
+		expect(typeof rundown.resyncUrl).toBe('string')
+		expect(typeof rundown.type).toBe('string')
 	})
+
+	const rundown = {
+		externalId: 'newRundown',
+		name: 'New rundown',
+		type: 'TYPE',
+		resyncUrl: 'resyncUrl',
+		payload: {
+			name: 'Rundown 1',
+			expectedStart: 0,
+			expectedEnd: 0,
+			externalId: 'rundown1',
+			spreadsheetVersion: '1.1.1',
+		},
+	}
 
 	test('Can create rundown', async () => {
 		const result = await ingestApi.postRundown({
 			playlistId: playlistIds[0],
-			rundown: {
-				externalId: 'newRundown',
-				name: 'New rundown',
-				rank: 1,
-				source: 'nrcsId',
-			},
+			rundown,
 		})
 
 		expect(result).toBe(undefined)
@@ -109,20 +122,7 @@ describe('Ingest API', () => {
 	test('Can update multiple rundowns', async () => {
 		const result = await ingestApi.putRundowns({
 			playlistId: playlistIds[0],
-			rundown: [
-				{
-					externalId: 'rundown1',
-					name: 'Rundown 1',
-					source: 'Our Company - Some Product Name',
-					rank: 0,
-				},
-				{
-					externalId: 'rundown2',
-					name: 'Rundown 2',
-					source: 'Our Second Company - Some Product Name',
-					rank: 1,
-				},
-			],
+			rundown: [rundown],
 		})
 		expect(result).toBe(undefined)
 	})
@@ -132,12 +132,7 @@ describe('Ingest API', () => {
 		const result = await ingestApi.putRundown({
 			playlistId: playlistIds[0],
 			rundownId: updatedRundownId,
-			rundown: {
-				externalId: 'rundown3',
-				name: 'Rundown 3',
-				source: 'Our Company - Some Product Name',
-				rank: 3,
-			},
+			rundown,
 		})
 		expect(result).toBe(undefined)
 	})
@@ -189,15 +184,25 @@ describe('Ingest API', () => {
 		expect(typeof segment.rank).toBe('number')
 	})
 
+	const segment = {
+		externalId: 'segment1',
+		name: 'Segment 1',
+		rank: 0,
+		payload: {
+			externalId: 'segment1',
+			name: 'Segment 1',
+			rank: 1,
+			rundownId: 'rundown1',
+			tags: [],
+			_float: true,
+		},
+	}
+
 	test('Can create segment', async () => {
 		const result = await ingestApi.postSegment({
 			playlistId: playlistIds[0],
 			rundownId: rundownIds[0],
-			segment: {
-				externalId: 'segment1',
-				name: 'Segment 1',
-				rank: 0,
-			},
+			segment,
 		})
 
 		expect(result).toBe(undefined)
@@ -207,13 +212,7 @@ describe('Ingest API', () => {
 		const result = await ingestApi.putSegments({
 			playlistId: playlistIds[0],
 			rundownId: rundownIds[0],
-			segment: [
-				{
-					externalId: 'segment1',
-					name: 'Segment 1',
-					rank: 0,
-				},
-			],
+			segment: [segment],
 		})
 		expect(result).toBe(undefined)
 	})
@@ -224,11 +223,7 @@ describe('Ingest API', () => {
 			playlistId: playlistIds[0],
 			rundownId: rundownIds[0],
 			segmentId: updatedSegmentId,
-			segment: {
-				externalId: 'segment2',
-				name: 'Segment 2',
-				rank: 1,
-			},
+			segment,
 		})
 		expect(result).toBe(undefined)
 	})
@@ -295,6 +290,29 @@ describe('Ingest API', () => {
 				externalId: 'part1',
 				name: 'Part 1',
 				rank: 0,
+				payload: {
+					externalId: 'part1',
+					name: 'Part 1',
+					segmentId: 'segment1',
+					type: 'CAMERA',
+					rank: 0,
+					_float: true,
+					autoNext: true,
+					guest: true,
+					pieces: [
+						{
+							id: 'piece1',
+							externalId: 'piece1',
+							label: 'Piece 1',
+							attributes: {},
+							objectType: 'CAMERA',
+							position: '',
+							resourceName: 'camera1',
+						},
+					],
+					script: '',
+					tags: [],
+				},
 			},
 		})
 		expect(result).toBe(undefined)
@@ -310,6 +328,29 @@ describe('Ingest API', () => {
 					externalId: 'part1',
 					name: 'Part 1',
 					rank: 0,
+					payload: {
+						externalId: 'part1',
+						name: 'Part 1',
+						segmentId: 'segment1',
+						type: 'CAMERA',
+						rank: 0,
+						_float: true,
+						autoNext: true,
+						guest: true,
+						pieces: [
+							{
+								id: 'piece1',
+								externalId: 'piece1',
+								label: 'Piece 1',
+								attributes: {},
+								objectType: 'CAMERA',
+								position: '',
+								resourceName: 'camera1',
+							},
+						],
+						script: '',
+						tags: [],
+					},
 				},
 			],
 		})
@@ -328,6 +369,29 @@ describe('Ingest API', () => {
 				externalId: 'part1',
 				name: 'Part 1',
 				rank: 0,
+				payload: {
+					externalId: 'part1',
+					name: 'Part 1',
+					segmentId: 'segment1',
+					type: 'CAMERA',
+					rank: 0,
+					_float: true,
+					autoNext: true,
+					guest: true,
+					pieces: [
+						{
+							id: 'piece1',
+							externalId: 'piece1',
+							label: 'Piece 1',
+							attributes: {},
+							objectType: 'CAMERA',
+							position: '',
+							resourceName: 'camera1',
+						},
+					],
+					script: '',
+					tags: [],
+				},
 			},
 		})
 		expect(result).toBe(undefined)

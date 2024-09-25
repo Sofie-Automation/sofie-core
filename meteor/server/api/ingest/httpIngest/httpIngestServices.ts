@@ -1,13 +1,14 @@
-import { IngestPart, IngestRundown, IngestSegment } from '@sofie-automation/blueprints-integration'
+import { IngestPart, IngestSegment } from '@sofie-automation/blueprints-integration'
 import { PartId, RundownId, RundownPlaylistId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { getRundownNrcsName, Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { getHash } from '@sofie-automation/corelib/dist/hash'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { IngestJobs } from '@sofie-automation/corelib/dist/worker/ingest'
 import { Meteor } from 'meteor/meteor'
 import { Parts, RundownPlaylists, Rundowns, Segments, Studios } from '../../../collections'
 import { runIngestOperation } from '../lib'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { HttpIngestRundown } from './httpIngestTypes'
 
 async function findPlaylist(playlistId: string) {
 	const playlist = await RundownPlaylists.findOneAsync({
@@ -139,6 +140,14 @@ export async function deletePlaylist(playlistId: string): Promise<void> {
 
 // Rundowns
 
+// Get rundown
+export async function getRundown(playlistId: string, rundownId: string): Promise<Rundown> {
+	const playlist = await findPlaylist(playlistId)
+	const rundown = findRundown(playlist._id, rundownId)
+	return rundown
+}
+
+// Get rundowns
 export async function getRundowns(playlistId: string): Promise<any> {
 	await findPlaylist(playlistId)
 	const rundowns = await Rundowns.findFetchAsync({
@@ -152,25 +161,8 @@ export async function getRundowns(playlistId: string): Promise<any> {
 	return rundowns
 }
 
-export async function getRundown(playlistId: string, rundownId: string): Promise<Rundown> {
-	const playlist = await findPlaylist(playlistId)
-	const rundown = findRundown(playlist._id, rundownId)
-	return rundown
-}
-
-export async function deleteRundowns(playlistId: string): Promise<void> {
-	const playlist = await findPlaylist(playlistId)
-	const rundowns = await Rundowns.findFetchAsync({ $or: [{ playlistId: playlist._id }] })
-	const studioId = await findStudioId()
-
-	for (const rundown of rundowns) {
-		await runIngestOperation(studioId, IngestJobs.RemoveRundown, {
-			rundownExternalId: rundown.externalId,
-		})
-	}
-}
-
-export async function putRundown(playlistId: string, ingestRundown: IngestRundown): Promise<void> {
+// Create rundown
+export async function postRundown(playlistId: string, ingestRundown: HttpIngestRundown): Promise<void> {
 	const rundownId = getRundownId(ingestRundown.externalId)
 	const studioId = await findStudioId()
 
@@ -188,10 +180,63 @@ export async function putRundown(playlistId: string, ingestRundown: IngestRundow
 		isCreateAction: true,
 		rundownSource: {
 			type: 'httpIngest',
+			resyncUrl: ingestRundown.resyncUrl,
 		},
 	})
 }
 
+// Update rundown
+export async function putRundown(playlistId: string, ingestRundown: HttpIngestRundown): Promise<void> {
+	const rundownId = getRundownId(ingestRundown.externalId)
+	const studioId = await findStudioId()
+
+	const existingRundown = await Rundowns.findOneAsync({
+		$or: [
+			{ _id: rundownId, playlistId: protectString<RundownPlaylistId>(playlistId) },
+			{ externalId: rundownId, playlistExternalId: playlistId },
+		],
+	})
+	checkRundownSource(existingRundown)
+
+	await runIngestOperation(studioId, IngestJobs.UpdateRundown, {
+		rundownExternalId: ingestRundown.externalId,
+		ingestRundown: ingestRundown,
+		isCreateAction: true,
+		rundownSource: {
+			type: 'httpIngest',
+			resyncUrl: ingestRundown.resyncUrl,
+		},
+	})
+}
+
+// Update rundowns
+export async function putRundowns(playlistId: string, ingestRundowns: HttpIngestRundown[]): Promise<void> {
+	const studioId = await findStudioId()
+
+	for (const ingestRundown of ingestRundowns) {
+		const rundownId = getRundownId(ingestRundown.externalId)
+
+		const existingRundown = await Rundowns.findOneAsync({
+			$or: [
+				{ _id: rundownId, playlistId: protectString<RundownPlaylistId>(playlistId) },
+				{ externalId: rundownId, playlistExternalId: playlistId },
+			],
+		})
+		checkRundownSource(existingRundown)
+
+		await runIngestOperation(studioId, IngestJobs.UpdateRundown, {
+			rundownExternalId: ingestRundown.externalId,
+			ingestRundown: ingestRundown,
+			isCreateAction: true,
+			rundownSource: {
+				type: 'httpIngest',
+				resyncUrl: ingestRundown.resyncUrl,
+			},
+		})
+	}
+}
+
+// Delete rundown
 export async function deleteRundown(playlistId: string, rundownId: string): Promise<void> {
 	const playlist = await findPlaylist(playlistId)
 	const rundown = await findRundown(playlist._id, rundownId)
@@ -200,6 +245,19 @@ export async function deleteRundown(playlistId: string, rundownId: string): Prom
 	await runIngestOperation(studioId, IngestJobs.RemoveRundown, {
 		rundownExternalId: rundown.externalId,
 	})
+}
+
+// Delete rundowns
+export async function deleteRundowns(playlistId: string): Promise<void> {
+	const playlist = await findPlaylist(playlistId)
+	const rundowns = await Rundowns.findFetchAsync({ $or: [{ playlistId: playlist._id }] })
+	const studioId = await findStudioId()
+
+	for (const rundown of rundowns) {
+		await runIngestOperation(studioId, IngestJobs.RemoveRundown, {
+			rundownExternalId: rundown.externalId,
+		})
+	}
 }
 
 // Segments

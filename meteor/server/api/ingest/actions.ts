@@ -28,9 +28,17 @@ export namespace IngestActions {
 				return TriggerReloadDataResponse.COMPLETED
 			}
 			case 'httpIngest': {
-				console.log('TODO: RELOADING HTTP INGEST DATA')
+				console.log(`Should be sending POST request to resync URL`)
+				// const resyncUrl = rundown.source.resyncUrl
+				// fetch(resyncUrl, { method: 'POST', signal: AbortSignal.timeout(5000) })
+				// 	.then(() => {
+				// 		console.log(`Resync request sent to ${resyncUrl}`)
+				// 	})
+				// 	.catch(() => {
+				// 		throw new Meteor.Error(400, `Could not reload rundown using resync URL "${resyncUrl}"`)
+				// 	})
 
-				return TriggerReloadDataResponse.COMPLETED
+				return TriggerReloadDataResponse.WORKING
 			}
 			case 'testing': {
 				await runIngestOperation(rundown.studioId, IngestJobs.CreateAdlibTestingRundownForShowStyleVariant, {

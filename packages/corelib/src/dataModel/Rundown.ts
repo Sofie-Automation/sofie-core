@@ -127,6 +127,7 @@ export interface RundownSourceTesting {
 /** A description of the source of a Rundown which was through the new HTTP ingest API */
 export interface RundownSourceHttpIngest {
 	type: 'httpIngest'
+	resyncUrl: string
 }
 
 export function getRundownNrcsName(rundown: ReadonlyDeep<Pick<DBRundown, 'source'>> | undefined): string {

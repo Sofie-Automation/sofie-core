@@ -955,25 +955,40 @@ components:
         name:
           type: string
           example: Rundown 1
-        source:
+        type:
           type: string
-          description: A source type that can be displayed to the end-user. Should identify what type of system (e.g. vendor/product name) the data has been sent from.
-          examples:
-            - 'Some Product Name'
-            - 'Our Company - Some Product Name'
-        rank:
-          type: number
-          description: The position of the Rundown in the parent Playlist.
-          inclusiveMinimum: 0.0
-          example: 1
+        resyncUrl:
+          type: string
+        segments:
+          type: array
+          items:
+            $ref: '#/components/schemas/segment'
         payload:
           type: object
+          properties:
+            externalId:
+              type: string
+            name:
+              type: string
+            spreadsheetVersion:
+              type: string
+            expectedStart:
+              type: number
+            expectedEnd:
+              type: number
+          required:
+            - externalId
+            - name
+            - spreadsheetVersion
+            - expectedStart
+            - expectedEnd
           additionalProperties: true
       required:
         - externalId
         - name
-        - source
-        - rank
+        - type
+        - resyncUrl
+        - payload
       additionalProperties: false
     segment:
       type: object
@@ -991,11 +1006,38 @@ components:
           example: 1
         payload:
           type: object
-          additionalProperties: true
+          properties:
+            rundownId:
+              type: string
+            externalId:
+              type: string
+            rank:
+              type: number
+            name:
+              type: string
+            float:
+              type: boolean
+            tags:
+              type: array
+              items:
+                type: string
+          required:
+            - rundownId
+            - externalId
+            - rank
+            - name
+            - float
+            - tags
+          additionalProperties: false
+        parts:
+          type: array
+          items:
+            $ref: '#/components/schemas/part'
       required:
         - externalId
         - name
         - rank
+        - payload
       additionalProperties: false
     part:
       type: object
@@ -1012,9 +1054,116 @@ components:
           example: 0
         payload:
           type: object
-          additionalProperties: true
+          properties:
+            type:
+              type: string
+              enum:
+                - CAMERA
+                - FULL
+                - VO
+                - REMOTE
+                - COMPOSITION
+                - FULLSCREEN_GRAPHIC
+                - MACRO
+            segmentId:
+              type: string
+            externalId:
+              type: string
+            rank:
+              type: number
+            name:
+              type: string
+            float:
+              type: boolean
+            script:
+              type: string
+            pieces:
+              type: array
+              items:
+                $ref: '#/components/schemas/piece'
+            autoNext:
+              type: boolean
+            tags:
+              type: array
+              items:
+                type: string
+            guest:
+              type: boolean
+          additionalProperties: false
+          required:
+            - type
+            - segmentId
+            - externalId
+            - rank
+            - name
+            - float
+            - script
+            - pieces
+            - autoNext
+            - tags
+            - guest
       required:
         - externalId
         - name
         - rank
+        - payload
+      additionalProperties: false
+    piece:
+      type: object
+      properties:
+        externalId:
+          type: string
+          example: piece1
+        id:
+          type: string
+          example: Piece 1
+        objectType:
+          type: string
+          enum:
+            - CAMERA
+            - REMOTE
+            - FULL
+            - VO
+            - COMPOSITION
+            - FULLSCREEN_GRAPHIC
+            - OVERLAY_GRAPHIC
+            - STUDIO_GRAPHIC
+            - AUDIO
+            - BED
+            - MACRO
+            - AUX
+            - LIGHTING
+        objectTime:
+          type: string
+        duration:
+          type: string
+        resourceName:
+          type: string
+        label:
+          type: string
+        attributes:
+          type: object
+          additionalProperties: true
+        position:
+          type: string
+        script:
+          type: string
+        transition:
+          type: string
+        transitionDuration:
+          type: string
+        target:
+          type: string
+        rank:
+          type: number
+          description: The position of the Part in the parent Segment.
+          example: 0
+      required:
+        - externalId
+        - id
+        - objectType
+        - resourceName
+        - label
+        - attributes
+        - position
       additionalProperties: false

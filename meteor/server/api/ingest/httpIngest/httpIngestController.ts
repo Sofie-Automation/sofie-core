@@ -1,5 +1,5 @@
 import KoaRouter from '@koa/router'
-import { IngestPart, IngestRundown, IngestSegment } from '@sofie-automation/blueprints-integration'
+import { IngestPart, IngestSegment } from '@sofie-automation/blueprints-integration'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import Koa from 'koa'
 import koaBodyParser from 'koa-bodyparser'
@@ -22,10 +22,13 @@ import {
 	getRundowns,
 	getSegment,
 	getSegments,
+	postRundown,
 	putParts,
 	putRundown,
+	putRundowns,
 	putSegments,
 } from './httpIngestServices'
+import { HttpIngestRundown } from './httpIngestTypes'
 
 const router = new KoaRouter()
 export const httpIngestRouter = router
@@ -51,15 +54,30 @@ const validateBodyMiddleware = async (ctx: Koa.DefaultContext, next: () => Promi
 	}
 }
 
+/**
+ * OK.
+ */
 const handle200 = (ctx: Koa.DefaultContext, data?: any) => {
 	ctx.response.type = 'application/json'
 	ctx.response.status = 200
 	ctx.response.body = data || ''
 }
 
+/**
+ * Resource created.
+ */
 const handle201 = (ctx: Koa.DefaultContext, data?: any) => {
 	ctx.response.type = 'application/json'
 	ctx.response.status = 201
+	ctx.response.body = data || ''
+}
+
+/**
+ * Request accepted.
+ */
+const handle202 = (ctx: Koa.DefaultContext, data?: any) => {
+	ctx.response.type = 'application/json'
+	ctx.response.status = 202
 	ctx.response.body = data || ''
 }
 
@@ -87,7 +105,7 @@ router.get('/playlists', async (ctx) => {
 router.delete('/playlists', async (ctx) => {
 	try {
 		await deletePlaylists()
-		handle200(ctx)
+		handle202(ctx)
 	} catch (e) {
 		handleError(e, ctx)
 	}
@@ -111,7 +129,7 @@ router.delete('/playlists/:playlistId', async (ctx) => {
 
 	try {
 		await deletePlaylist(playlistId)
-		handle200(ctx)
+		handle202(ctx)
 	} catch (e) {
 		handleError(e, ctx)
 	}
@@ -119,47 +137,7 @@ router.delete('/playlists/:playlistId', async (ctx) => {
 
 // Rundowns
 
-router.put('/playlists/:playlistId/rundowns', bodyParser, validateBodyMiddleware, async (ctx) => {
-	const playlistId = ctx.params.playlistId
-	check(playlistId, String)
-
-	try {
-		const ingestRundown = ctx.request.body as IngestRundown
-		if (!ingestRundown) throw new Meteor.Error(400, 'Upload rundown: Missing request body')
-		if (typeof ingestRundown !== 'object') throw new Meteor.Error(400, 'Upload rundown: Invalid request body')
-
-		await putRundown(playlistId, ingestRundown)
-
-		handle201(ctx)
-	} catch (e) {
-		handleError(e, ctx)
-	}
-})
-
-router.get('/playlists/:playlistId/rundowns', async (ctx) => {
-	const playlistId = ctx.params.playlistId
-	check(playlistId, String)
-
-	try {
-		const rundowns = await getRundowns(playlistId)
-		handle200(ctx, rundowns)
-	} catch (e) {
-		handleError(e, ctx)
-	}
-})
-
-router.delete('/playlists/:playlistId/rundowns', async (ctx) => {
-	const playlistId = ctx.params.playlistId
-	check(playlistId, String)
-
-	try {
-		await deleteRundowns(playlistId)
-		handle200(ctx)
-	} catch (e) {
-		handleError(e, ctx)
-	}
-})
-
+// Get rundown
 router.get('/playlists/:playlistId/rundowns/:rundownId', async (ctx) => {
 	const playlistId = ctx.params.playlistId
 	check(playlistId, String)
@@ -174,6 +152,74 @@ router.get('/playlists/:playlistId/rundowns/:rundownId', async (ctx) => {
 	}
 })
 
+// Get rundowns
+router.get('/playlists/:playlistId/rundowns', async (ctx) => {
+	const playlistId = ctx.params.playlistId
+	check(playlistId, String)
+
+	try {
+		const rundowns = await getRundowns(playlistId)
+		handle200(ctx, rundowns)
+	} catch (e) {
+		handleError(e, ctx)
+	}
+})
+
+// Create rundown
+router.post('/playlists/:playlistId/rundowns', bodyParser, validateBodyMiddleware, async (ctx) => {
+	const playlistId = ctx.params.playlistId
+	check(playlistId, String)
+
+	try {
+		const ingestRundown = ctx.request.body as HttpIngestRundown
+		if (!ingestRundown) throw new Meteor.Error(400, 'Upload rundown: Missing request body')
+		if (typeof ingestRundown !== 'object') throw new Meteor.Error(400, 'Upload rundown: Invalid request body')
+
+		await postRundown(playlistId, ingestRundown)
+
+		handle202(ctx)
+	} catch (e) {
+		handleError(e, ctx)
+	}
+})
+
+// Update rundown
+router.put('/playlists/:playlistId/rundowns', bodyParser, validateBodyMiddleware, async (ctx) => {
+	const playlistId = ctx.params.playlistId
+	check(playlistId, String)
+
+	try {
+		const ingestRundown = ctx.request.body as HttpIngestRundown
+		if (!ingestRundown) throw new Meteor.Error(400, 'Upload rundown: Missing request body')
+		if (typeof ingestRundown !== 'object') throw new Meteor.Error(400, 'Upload rundown: Invalid request body')
+
+		await putRundown(playlistId, ingestRundown)
+
+		handle201(ctx)
+	} catch (e) {
+		handleError(e, ctx)
+	}
+})
+
+// Update rundowns
+router.put('/playlists/:playlistId/rundowns', bodyParser, validateBodyMiddleware, async (ctx) => {
+	const playlistId = ctx.params.playlistId
+	check(playlistId, String)
+
+	try {
+		const ingestRundown = ctx.request.body as HttpIngestRundown[]
+		if (!ingestRundown) throw new Meteor.Error(400, 'Upload rundown: Missing request body')
+		if (typeof ingestRundown !== 'object') throw new Meteor.Error(400, 'Upload rundown: Invalid request body')
+
+		await putRundowns(playlistId, ingestRundown)
+
+		handle201(ctx)
+	} catch (e) {
+		handleError(e, ctx)
+	}
+})
+
+// Delete rundown
 router.delete('/playlists/:playlistId/rundowns/:rundownId', async (ctx) => {
 	const playlistId = ctx.params.playlistId
 	check(playlistId, String)
@@ -182,7 +228,20 @@ router.delete('/playlists/:playlistId/rundowns/:rundownId', async (ctx) => {
 
 	try {
 		await deleteRundown(playlistId, rundownId)
-		handle200(ctx)
+		handle202(ctx)
+	} catch (e) {
+		handleError(e, ctx)
+	}
+})
+
+// Delete rundowns
+router.delete('/playlists/:playlistId/rundowns', async (ctx) => {
+	const playlistId = ctx.params.playlistId
+	check(playlistId, String)
+
+	try {
+		await deleteRundowns(playlistId)
+		handle202(ctx)
 	} catch (e) {
 		handleError(e, ctx)
 	}
