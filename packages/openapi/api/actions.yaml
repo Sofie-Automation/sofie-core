@@ -110,19 +110,19 @@ paths:
   /snapshots:
     $ref: 'definitions/snapshots.yaml#/resources/snapshots'
   # ingest operations
-  /ingest/playlists:
+  /ingest/{studioId}/playlists:
     $ref: 'definitions/ingest.yaml#/resources/playlists'
-  /ingest/playlists/{playlistId}:
+  /ingest/{studioId}/playlists/{playlistId}:
     $ref: 'definitions/ingest.yaml#/resources/playlist'
-  /ingest/playlists/{playlistId}/rundowns:
+  /ingest/{studioId}/playlists/{playlistId}/rundowns:
     $ref: 'definitions/ingest.yaml#/resources/rundowns'
-  /ingest/playlists/{playlistId}/rundowns/{rundownId}:
+  /ingest/{studioId}/playlists/{playlistId}/rundowns/{rundownId}:
     $ref: 'definitions/ingest.yaml#/resources/rundown'
-  /ingest/playlists/{playlistId}/rundowns/{rundownId}/segments:
+  /ingest/{studioId}/playlists/{playlistId}/rundowns/{rundownId}/segments:
     $ref: 'definitions/ingest.yaml#/resources/segments'
-  /ingest/playlists/{playlistId}/rundowns/{rundownId}/segments/{segmentId}:
+  /ingest/{studioId}/playlists/{playlistId}/rundowns/{rundownId}/segments/{segmentId}:
     $ref: 'definitions/ingest.yaml#/resources/segment'
-  /ingest/playlists/{playlistId}/rundowns/{rundownId}/segments/{segmentId}/parts:
+  /ingest/{studioId}/playlists/{playlistId}/rundowns/{rundownId}/segments/{segmentId}/parts:
     $ref: 'definitions/ingest.yaml#/resources/parts'
-  /ingest/playlists/{playlistId}/rundowns/{rundownId}/segments/{segmentId}/parts/{partId}:
+  /ingest/{studioId}/playlists/{playlistId}/rundowns/{rundownId}/segments/{segmentId}/parts/{partId}:
     $ref: 'definitions/ingest.yaml#/resources/part'

@@ -15,17 +15,7 @@ resources:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/playlist'
-                example:
-                  - externalId: 'playlist1'
-                    rundowns:
-                      - externalId: 'playlist1Rundown1'
-                      - externalId: 'playlist1Rundown2'
-                  - externalId: 'playlist2'
-                    rundowns:
-                      - externalId: 'playlist2Rundown1'
-                      - externalId: 'playlist2Rundown2'
-                      - externalId: 'playlist2Rundown3'
+                  $ref: '#/components/schemas/playlistResponse'
     delete:
       operationId: deletePlaylists
       tags:
@@ -53,7 +43,7 @@ resources:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/playlist'
+                $ref: '#/components/schemas/playlistResponse'
         404:
           description: Invalid playlistId
           $ref: '#/components/responses/playlistNotFound'
@@ -95,7 +85,7 @@ resources:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/rundown'
+                  $ref: '#/components/schemas/rundownResponse'
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
@@ -123,6 +113,8 @@ resources:
       responses:
         202:
           description: Request has been accepted.
+        400:
+          description: Bad request.
     put:
       operationId: putRundowns
       summary: Updates the Rundowns in a Playlist. Any existing Rundowns in the Playlist that are not included in this list will be deleted (including their Segments and Parts). Rundowns will be placed in the Playlist in the order specified by their individual ranks. If the creation/deletion/updating of any Rundown fails all changes will be discarded.
@@ -147,6 +139,8 @@ resources:
       responses:
         202:
           description: Request has been accepted.
+        400:
+          description: Bad request.
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
@@ -178,6 +172,8 @@ resources:
                 required:
                   - status
                 additionalProperties: false
+        404:
+          $ref: '#/components/responses/idNotFound'
   rundown:
     get:
       operationId: getRundown
@@ -203,8 +199,7 @@ resources:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/rundown'
-                additionalProperties: false
+                $ref: '#/components/schemas/rundownResponse'
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
@@ -238,6 +233,8 @@ resources:
       responses:
         202:
           description: Request has been accepted.
+        400:
+          description: Bad request.
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
@@ -296,9 +293,7 @@ resources:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/segment'
-                example:
-                  - externalId: segment1
+                  $ref: '#/components/schemas/segmentResponse'
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
@@ -332,6 +327,8 @@ resources:
       responses:
         202:
           description: Request accepted.
+        400:
+          description: Bad request.
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
@@ -367,6 +364,8 @@ resources:
       responses:
         202:
           description: Request accepted.
+        400:
+          description: Bad request.
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
@@ -393,6 +392,8 @@ resources:
       responses:
         202:
           description: Request accepted.
+        404:
+          $ref: '#/components/responses/idNotFound'
   segment:
     get:
       operationId: getSegment
@@ -424,7 +425,7 @@ resources:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/segment'
+                $ref: '#/components/schemas/segmentResponse'
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
@@ -465,6 +466,8 @@ resources:
       responses:
         202:
           description: Request accepted.
+        400:
+          description: Bad request.
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
@@ -535,7 +538,7 @@ resources:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/part'
+                  $ref: '#/components/schemas/partResponse'
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
@@ -576,6 +579,8 @@ resources:
       responses:
         202:
           description: Request accepted.
+        400:
+          description: Bad request.
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
@@ -618,6 +623,8 @@ resources:
       responses:
         202:
           description: Request accepted.
+        400:
+          description: Bad request.
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
@@ -651,6 +658,8 @@ resources:
       responses:
         202:
           description: Request for deleting accepted.
+        404:
+          $ref: '#/components/responses/idNotFound'
   part:
     get:
       operationId: getPart
@@ -688,7 +697,7 @@ resources:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/part'
+                $ref: '#/components/schemas/partResponse'
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
@@ -734,6 +743,8 @@ resources:
       responses:
         202:
           description: Request has been accepted.
+        400:
+          description: Bad request.
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
@@ -881,6 +892,8 @@ components:
               - notFound
               - message
             additionalProperties: false
+    badRequest:
+      description: Bad request.
   schemas:
     ingestPlaylistItem:
       type: object
@@ -946,6 +959,31 @@ components:
       required:
         - name
       additionalProperties: false
+    playlistResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        externalId:
+          type: string
+          example: playlist1
+        rundownIds:
+          type: array
+          items:
+            type: string
+          example:
+            - rundown1
+            - rundown2
+            - rundown3
+        studioId:
+          type: string
+          example: studio0
+      required:
+        - id
+        - externalId
+        - rundownIds
+        - studioId
+      additionalProperties: false
     rundown:
       type: object
       properties:
@@ -983,6 +1021,32 @@ components:
         - resyncUrl
         - payload
       additionalProperties: false
+    rundownResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        externalId:
+          type: string
+          example: rundown1
+        studioId:
+          type: string
+          example: studio0
+        playlistId:
+          type: string
+          example: playlist1
+        playlistExternalId:
+          type: string
+          example: playlistExternal1
+        name:
+          type: string
+          example: Rundown 1
+      required:
+        - id
+        - externalId
+        - studioId
+        - playlistId
+        - name
     segment:
       type: object
       properties:
@@ -1019,6 +1083,31 @@ components:
         - name
         - rank
         - payload
+      additionalProperties: false
+    segmentResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: segment1
+        externalId:
+          type: string
+          example: segmentExternal1
+        rundownId:
+          type: string
+          example: rundown11
+        name:
+          type: string
+          example: Segment 1
+        rank:
+          type: number
+          example: 1
+      required:
+        - id
+        - externalId
+        - rundownId
+        - name
+        - rank
       additionalProperties: false
     part:
       type: object
@@ -1076,6 +1165,41 @@ components:
         - name
         - rank
         - payload
+      additionalProperties: false
+    partResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: part1
+        externalId:
+          type: string
+          example: partExternal1
+        rundownId:
+          type: string
+          example: rundown1
+        segmentId:
+          type: string
+          example: segment1
+        title:
+          type: string
+          example: Part 1
+        expectedDuration:
+          type: number
+          example: 10000
+        autoNext:
+          type: boolean
+          example: true
+        rank:
+          type: number
+          example: 0
+      required:
+        - id
+        - externalId
+        - rundownId
+        - segmentId
+        - title
+        - rank
       additionalProperties: false
     piece:
       type: object
