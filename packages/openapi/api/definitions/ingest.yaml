@@ -1008,8 +1008,10 @@ components:
           properties:
             expectedStart:
               type: number
+              example: 1705924800000
             expectedEnd:
               type: number
+              example: 1705927500000
           required:
             - expectedStart
             - expectedEnd
@@ -1041,6 +1043,8 @@ components:
         name:
           type: string
           example: Rundown 1
+        type:
+          type: string
       required:
         - id
         - externalId

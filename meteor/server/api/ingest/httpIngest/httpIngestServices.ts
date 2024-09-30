@@ -161,11 +161,13 @@ export async function deletePlaylists(studioId: string): Promise<void> {
 	const rundowns = await Rundowns.findFetchAsync({})
 	const studio = await findStudio(studioId)
 
-	for (const rundown of rundowns) {
-		await runIngestOperation(studio._id, IngestJobs.RemoveRundown, {
-			rundownExternalId: rundown.externalId,
-		})
-	}
+	await Promise.all(
+		rundowns.map(async (rundown) =>
+			runIngestOperation(studio._id, IngestJobs.RemoveRundown, {
+				rundownExternalId: rundown.externalId,
+			})
+		)
+	)
 }
 
 export async function deletePlaylist(studioId: string, playlistId: string): Promise<void> {
@@ -176,11 +178,13 @@ export async function deletePlaylist(studioId: string, playlistId: string): Prom
 		$or: [{ playlistId: protectString<RundownPlaylistId>(playlistId) }, { playlistExternalId: playlistId }],
 	})
 
-	for (const rundown of rundowns) {
-		await runIngestOperation(studio._id, IngestJobs.RemoveRundown, {
-			rundownExternalId: rundown.externalId,
-		})
-	}
+	await Promise.all(
+		rundowns.map(async (rundown) =>
+			runIngestOperation(studio._id, IngestJobs.RemoveRundown, {
+				rundownExternalId: rundown.externalId,
+			})
+		)
+	)
 }
 
 // Rundowns
@@ -280,25 +284,27 @@ export async function putRundowns(
 	const studio = await findStudio(studioId)
 	const playlist = await findPlaylist(studio._id, playlistId)
 
-	for (const ingestRundown of ingestRundowns) {
-		const rundownExternalId = ingestRundown.externalId
-		const existingRundown = await findRundown(studio._id, playlist._id, rundownExternalId)
-		if (!existingRundown) {
-			continue
-		}
+	await Promise.all(
+		ingestRundowns.map(async (ingestRundown) => {
+			const rundownExternalId = ingestRundown.externalId
+			const existingRundown = await findRundown(studio._id, playlist._id, rundownExternalId)
+			if (!existingRundown) {
+				return
+			}
 
-		checkRundownSource(existingRundown)
+			checkRundownSource(existingRundown)
 
-		await runIngestOperation(studio._id, IngestJobs.UpdateRundown, {
-			rundownExternalId: ingestRundown.externalId,
-			ingestRundown: ingestRundown,
-			isCreateAction: true,
-			rundownSource: {
-				type: 'httpIngest',
-				resyncUrl: ingestRundown.resyncUrl,
-			},
+			return runIngestOperation(studio._id, IngestJobs.UpdateRundown, {
+				rundownExternalId: ingestRundown.externalId,
+				ingestRundown: ingestRundown,
+				isCreateAction: true,
+				rundownSource: {
+					type: 'httpIngest',
+					resyncUrl: ingestRundown.resyncUrl,
+				},
+			})
 		})
-	}
+	)
 }
 
 // Delete rundown
@@ -319,12 +325,14 @@ export async function deleteRundowns(studioId: string, playlistId: string): Prom
 	const playlist = await findPlaylist(studio._id, playlistId)
 	const rundowns = await findRundowns(studio._id, playlist._id)
 
-	for (const rundown of rundowns) {
-		checkRundownSource(rundown)
-		await runIngestOperation(studio._id, IngestJobs.RemoveRundown, {
-			rundownExternalId: rundown.externalId,
+	await Promise.all(
+		rundowns.map(async (rundown) => {
+			checkRundownSource(rundown)
+			return runIngestOperation(studio._id, IngestJobs.RemoveRundown, {
+				rundownExternalId: rundown.externalId,
+			})
 		})
-	}
+	)
 }
 
 // Segments
@@ -401,13 +409,16 @@ export async function putSegment(
 	}
 
 	const parts = await findParts(segment._id)
-	for (const part of parts) {
-		await runIngestOperation(studio._id, IngestJobs.RemovePart, {
-			partExternalId: part.externalId,
-			rundownExternalId: rundown.externalId,
-			segmentExternalId: segment.externalId,
-		})
-	}
+
+	await Promise.all(
+		parts.map(async (part) =>
+			runIngestOperation(studio._id, IngestJobs.RemovePart, {
+				partExternalId: part.externalId,
+				rundownExternalId: rundown.externalId,
+				segmentExternalId: segment.externalId,
+			})
+		)
+	)
 
 	await runIngestOperation(studio._id, IngestJobs.UpdateSegment, {
 		rundownExternalId: rundown.externalId,
@@ -427,30 +438,40 @@ export async function putSegments(
 	const rundown = await findRundown(studio._id, playlist._id, rundownId)
 	checkRundownSource(rundown)
 
-	const segments = await findSegments(rundown._id)
-	for (const segment of segments) {
-		const parts = await findParts(segment._id)
-		for (const part of parts) {
-			await runIngestOperation(studio._id, IngestJobs.RemovePart, {
-				partExternalId: part.externalId,
-				rundownExternalId: rundown.externalId,
-				segmentExternalId: segment.externalId,
-			})
-		}
-	}
+	await Promise.all(
+		ingestSegments.map(async (ingestSegment) => {
+			const segment = await findSegment(rundown._id, ingestSegment.externalId)
+			if (!segment) {
+				return
+			}
 
-	for (const ingestSegment of ingestSegments) {
-		const existingSegment = await softFindSegment(rundown._id, ingestSegment.externalId)
-		if (!existingSegment) {
-			continue
-		}
-
-		await runIngestOperation(studio._id, IngestJobs.UpdateSegment, {
-			rundownExternalId: rundown.externalId,
-			isCreateAction: true,
-			ingestSegment,
+			const parts = await findParts(segment._id)
+			return Promise.all(
+				parts.map(async (part) =>
+					runIngestOperation(studio._id, IngestJobs.RemovePart, {
+						partExternalId: part.externalId,
+						rundownExternalId: rundown.externalId,
+						segmentExternalId: segment.externalId,
+					})
+				)
+			)
 		})
-	}
+	)
+
+	await Promise.all(
+		ingestSegments.map(async (ingestSegment) => {
+			const existingSegment = await softFindSegment(rundown._id, ingestSegment.externalId)
+			if (!existingSegment) {
+				return null
+			}
+
+			return runIngestOperation(studio._id, IngestJobs.UpdateSegment, {
+				rundownExternalId: rundown.externalId,
+				isCreateAction: true,
+				ingestSegment,
+			})
+		})
+	)
 }
 
 export async function deleteSegment(
@@ -465,6 +486,7 @@ export async function deleteSegment(
 	checkRundownSource(rundown)
 	const segment = await findSegment(rundown._id, segmentId)
 
+	// This also removes linked Parts
 	await runIngestOperation(studio._id, IngestJobs.RemoveSegment, {
 		segmentExternalId: segment.externalId,
 		rundownExternalId: rundown.externalId,
@@ -478,12 +500,15 @@ export async function deleteSegments(studioId: string, playlistId: string, rundo
 
 	const segments = await findSegments(rundown._id)
 
-	for (const segment of segments) {
-		await runIngestOperation(studio._id, IngestJobs.RemoveSegment, {
-			rundownExternalId: rundown.externalId,
-			segmentExternalId: segment.externalId,
-		})
-	}
+	await Promise.all(
+		segments.map(async (segment) =>
+			// This also removes linked Parts
+			runIngestOperation(studio._id, IngestJobs.RemoveSegment, {
+				rundownExternalId: rundown.externalId,
+				segmentExternalId: segment.externalId,
+			})
+		)
+	)
 }
 
 // Parts
@@ -592,19 +617,21 @@ export async function putParts(
 	checkRundownSource(rundown)
 	const segment = await findSegment(rundown._id, segmentId)
 
-	for (const ingestPart of ingestParts) {
-		const existingPart = await findPart(segment._id, ingestPart.externalId)
-		if (!existingPart) {
-			continue
-		}
+	await Promise.all(
+		ingestParts.map(async (ingestPart) => {
+			const existingPart = await findPart(segment._id, ingestPart.externalId)
+			if (!existingPart) {
+				return
+			}
 
-		await runIngestOperation(studio._id, IngestJobs.UpdatePart, {
-			segmentExternalId: segment.externalId,
-			rundownExternalId: rundown.externalId,
-			isCreateAction: true,
-			ingestPart,
+			return runIngestOperation(studio._id, IngestJobs.UpdatePart, {
+				segmentExternalId: segment.externalId,
+				rundownExternalId: rundown.externalId,
+				isCreateAction: true,
+				ingestPart,
+			})
 		})
-	}
+	)
 }
 
 export async function deletePart(
@@ -643,11 +670,13 @@ export async function deleteParts(
 
 	const parts = await findParts(segment._id)
 
-	for (const part of parts) {
-		await runIngestOperation(studio._id, IngestJobs.RemovePart, {
-			rundownExternalId: rundown.externalId,
-			segmentExternalId: segment.externalId,
-			partExternalId: part.externalId,
-		})
-	}
+	await Promise.all(
+		parts.map(async (part) =>
+			runIngestOperation(studio._id, IngestJobs.RemovePart, {
+				rundownExternalId: rundown.externalId,
+				segmentExternalId: segment.externalId,
+				partExternalId: part.externalId,
+			})
+		)
+	)
 }

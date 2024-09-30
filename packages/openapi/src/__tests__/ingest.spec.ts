@@ -20,23 +20,36 @@ describe('Ingest API', () => {
 	 */
 	const playlistIds: string[] = []
 	test('Can request all playlists', async () => {
-		const ingestPlaylists = await ingestApi.getPlaylists()
+		const playlists = await ingestApi.getPlaylists()
 
-		expect(ingestPlaylists.length).toBeGreaterThanOrEqual(1)
-		ingestPlaylists.forEach((playlist) => {
+		expect(playlists.length).toBeGreaterThanOrEqual(1)
+		playlists.forEach((playlist) => {
 			expect(typeof playlist).toBe('object')
+			expect(typeof playlist.id).toBe('string')
 			expect(typeof playlist.externalId).toBe('string')
+			expect(typeof playlist.studioId).toBe('string')
+			expect(typeof playlist.rundownIds).toBe('object')
+			playlist.rundownIds.forEach((rundownId) => {
+				expect(typeof rundownId).toBe('string')
+			})
+
 			playlistIds.push(playlist.externalId)
 		})
 	})
 
 	test('Can request a playlist by id', async () => {
-		const ingestPlaylist = await ingestApi.getPlaylist({
+		const playlist = await ingestApi.getPlaylist({
 			playlistId: playlistIds[0],
 		})
 
-		expect(ingestPlaylist).toHaveProperty('name')
-		expect(typeof ingestPlaylist.name).toBe('string')
+		expect(typeof playlist).toBe('object')
+		expect(typeof playlist.id).toBe('string')
+		expect(typeof playlist.externalId).toBe('string')
+		expect(typeof playlist.studioId).toBe('string')
+		expect(typeof playlist.rundownIds).toBe('object')
+		playlist.rundownIds.forEach((rundownId) => {
+			expect(typeof rundownId).toBe('string')
+		})
 	})
 
 	test('Can delete multiple playlists', async () => {
@@ -64,15 +77,19 @@ describe('Ingest API', () => {
 
 		rundowns.forEach((rundown) => {
 			expect(typeof rundown).toBe('object')
-			expect(rundown).toHaveProperty('name')
+			expect(rundown).toHaveProperty('id')
 			expect(rundown).toHaveProperty('externalId')
-			expect(rundown).toHaveProperty('payload')
-			expect(rundown).toHaveProperty('resyncUrl')
+			expect(rundown).toHaveProperty('name')
+			expect(rundown).toHaveProperty('studioId')
+			expect(rundown).toHaveProperty('playlistId')
+			expect(rundown).toHaveProperty('playlistExternalId')
 			expect(rundown).toHaveProperty('type')
-			expect(typeof rundown.name).toBe('string')
+			expect(typeof rundown.id).toBe('string')
 			expect(typeof rundown.externalId).toBe('string')
-			expect(typeof rundown.payload).toBe('object')
-			expect(typeof rundown.resyncUrl).toBe('string')
+			expect(typeof rundown.name).toBe('string')
+			expect(typeof rundown.studioId).toBe('string')
+			expect(typeof rundown.playlistId).toBe('string')
+			expect(typeof rundown.playlistExternalId).toBe('string')
 			expect(typeof rundown.type).toBe('string')
 			rundownIds.push(rundown.externalId)
 		})
@@ -84,16 +101,20 @@ describe('Ingest API', () => {
 			rundownId: rundownIds[0],
 		})
 
-		expect(rundown).toHaveProperty('name')
+		expect(typeof rundown).toBe('object')
+		expect(rundown).toHaveProperty('id')
 		expect(rundown).toHaveProperty('externalId')
-		expect(rundown).toHaveProperty('payload')
-		expect(rundown).toHaveProperty('resyncUrl')
+		expect(rundown).toHaveProperty('name')
+		expect(rundown).toHaveProperty('studioId')
+		expect(rundown).toHaveProperty('playlistId')
+		expect(rundown).toHaveProperty('playlistExternalId')
 		expect(rundown).toHaveProperty('type')
-		expect(typeof rundown.name).toBe('string')
+		expect(typeof rundown.id).toBe('string')
 		expect(typeof rundown.externalId).toBe('string')
-		expect(typeof rundown.payload).toBe('object')
-		expect(typeof rundown.resyncUrl).toBe('string')
-		expect(typeof rundown.type).toBe('string')
+		expect(typeof rundown.name).toBe('string')
+		expect(typeof rundown.studioId).toBe('string')
+		expect(typeof rundown.playlistId).toBe('string')
+		expect(typeof rundown.playlistExternalId).toBe('string')
 	})
 
 	const rundown = {
@@ -186,10 +207,6 @@ describe('Ingest API', () => {
 		name: 'Segment 1',
 		rank: 0,
 		payload: {
-			externalId: 'segment1',
-			name: 'Segment 1',
-			rank: 1,
-			rundownId: 'rundown1',
 			tags: [],
 			_float: true,
 		},
@@ -271,9 +288,21 @@ describe('Ingest API', () => {
 			partId: partIds[0],
 		})
 
-		expect(part).toHaveProperty('name')
+		expect(part).toHaveProperty('id')
+		expect(part).toHaveProperty('externalId')
+		expect(part).toHaveProperty('rundownId')
+		expect(part).toHaveProperty('segmentId')
+		expect(part).toHaveProperty('title')
+		expect(part).toHaveProperty('expectedDuration')
+		expect(part).toHaveProperty('autoNext')
 		expect(part).toHaveProperty('rank')
-		expect(typeof part.name).toBe('string')
+		expect(typeof part.id).toBe('string')
+		expect(typeof part.externalId).toBe('string')
+		expect(typeof part.rundownId).toBe('string')
+		expect(typeof part.segmentId).toBe('string')
+		expect(typeof part.title).toBe('string')
+		expect(typeof part.expectedDuration).toBe('number')
+		expect(typeof part.autoNext).toBe('boolean')
 		expect(typeof part.rank).toBe('number')
 		newIngestPart = JSON.parse(JSON.stringify(part))
 	})
@@ -288,7 +317,6 @@ describe('Ingest API', () => {
 				name: 'Part 1',
 				rank: 0,
 				payload: {
-					segmentId: 'segment1',
 					type: 'CAMERA',
 					_float: true,
 					autoNext: true,
@@ -323,7 +351,6 @@ describe('Ingest API', () => {
 					name: 'Part 1',
 					rank: 0,
 					payload: {
-						segmentId: 'segment1',
 						type: 'CAMERA',
 						_float: true,
 						autoNext: true,
@@ -361,7 +388,6 @@ describe('Ingest API', () => {
 				name: 'Part 1',
 				rank: 0,
 				payload: {
-					segmentId: 'segment1',
 					type: 'CAMERA',
 					_float: true,
 					autoNext: true,
