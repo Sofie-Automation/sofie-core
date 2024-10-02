@@ -1,5 +1,5 @@
 // eslint-disable-next-line node/no-missing-import
-import { Configuration, IngestApi, Part } from '../../client/ts'
+import { Configuration, IngestApi, Part, RundownTimingTypeEnum } from '../../client/ts'
 import { checkServer } from '../checkServer'
 import Logging from '../httpLogging'
 
@@ -122,7 +122,8 @@ describe('Ingest API', () => {
 		name: 'New rundown',
 		type: 'external',
 		resyncUrl: 'resyncUrl',
-		payload: {
+		timing: {
+			type: RundownTimingTypeEnum.None,
 			expectedStart: 0,
 			expectedEnd: 0,
 		},
@@ -156,10 +157,10 @@ describe('Ingest API', () => {
 	})
 
 	test('Can delete multiple rundowns', async () => {
-		const ingestRundown = await ingestApi.deleteRundowns({
+		const result = await ingestApi.deleteRundowns({
 			playlistId: playlistIds[0],
 		})
-		expect(ingestRundown.status).toBe(200)
+		expect(result).toBe(undefined)
 	})
 
 	test('Can delete rundown by id', async () => {
@@ -206,10 +207,7 @@ describe('Ingest API', () => {
 		externalId: 'segment1',
 		name: 'Segment 1',
 		rank: 0,
-		payload: {
-			tags: [],
-			_float: true,
-		},
+		_float: true,
 	}
 
 	test('Can create segment', async () => {
@@ -333,7 +331,6 @@ describe('Ingest API', () => {
 						},
 					],
 					script: '',
-					tags: [],
 				},
 			},
 		})
@@ -367,7 +364,6 @@ describe('Ingest API', () => {
 							},
 						],
 						script: '',
-						tags: [],
 					},
 				},
 			],
@@ -377,7 +373,7 @@ describe('Ingest API', () => {
 
 	const updatedPartId = 'part2'
 	test('Can update an part', async () => {
-		newIngestPart.name = newIngestPart.name + '  added'
+		newIngestPart.name = newIngestPart.name + ' added'
 		const result = await ingestApi.putPart({
 			playlistId: playlistIds[0],
 			rundownId: rundownIds[0],
@@ -404,7 +400,6 @@ describe('Ingest API', () => {
 						},
 					],
 					script: '',
-					tags: [],
 				},
 			},
 		})

@@ -20,20 +20,20 @@ resources:
       operationId: deletePlaylists
       tags:
         - ingest
-      summary: Delete multiple playlists. Resources under the Playlist (e.g. Rundowns) will also be removed.
+      summary: Deletes all Playlists. Resources under the Playlists (e.g. Rundowns) will also be removed.
       responses:
         202:
           description: Request for deleting accepted.
   playlist:
     get:
       operationId: getPlaylist
-      summary: Gets a specific Playlist.
+      summary: Gets the specified Playlist.
       tags:
         - ingest
       parameters:
         - name: playlistId
           in: path
-          description: Requested Playlist.
+          description: Internal or external ID of the Playlist to return.
           required: true
           schema:
             type: string
@@ -55,7 +55,7 @@ resources:
       parameters:
         - name: playlistId
           in: path
-          description: Playlist to delete.
+          description: Internal or external ID of the Playlist to delete.
           required: true
           schema:
             type: string
@@ -67,13 +67,13 @@ resources:
   rundowns:
     get:
       operationId: getRundowns
-      summary: Gets all Rundowns belonging to a Playlist.
+      summary: Gets all Rundowns belonging to a specified Playlist.
       tags:
         - ingest
       parameters:
         - name: playlistId
           in: path
-          description: Playlist to get all Rundowns for.
+          description: Internal or external ID of the Playlist the Rundowns belong to.
           required: true
           schema:
             type: string
@@ -93,13 +93,13 @@ resources:
           #   - $ref: '#/components/responses/rundownNotFound'
     post:
       operationId: postRundown
-      summary: Creates the Rundowns in a Playlist.
+      summary: Creates a Rundown in a specified Playlist.
       tags:
         - ingest
       parameters:
         - name: playlistId
           in: path
-          description: Playlist to create Rundowns for.
+          description: Internal or external ID of the Playlist the new Rundown belongs to.
           required: true
           schema:
             type: string
@@ -117,13 +117,13 @@ resources:
           description: Bad request.
     put:
       operationId: putRundowns
-      summary: Updates the Rundowns in a Playlist. Any existing Rundowns in the Playlist that are not included in this list will be deleted (including their Segments and Parts). Rundowns will be placed in the Playlist in the order specified by their individual ranks. If the creation/deletion/updating of any Rundown fails all changes will be discarded.
+      summary: Updates Rundowns belonging to a specified Playlist.
       tags:
         - ingest
       parameters:
         - name: playlistId
           in: path
-          description: Playlist to create/update all Rundowns for.
+          description: Internal or external ID of the Playlist the Rundowns to update belong to.
           required: true
           schema:
             type: string
@@ -149,47 +149,35 @@ resources:
       operationId: deleteRundowns
       tags:
         - ingest
-      summary: Delete multiple rundowns. Resources under the Rundown (e.g. Segments) will also be removed.
+      summary: Deletes all Rundowns belonging to specified Playlist. Resources under the Rundowns (e.g. Segments) will also be removed.
       parameters:
         - name: playlistId
           in: path
-          description: Playlist the ingest Part belongs to.
+          description: Internal or external ID of the Playlist the Rundowns to delete belong to.
           required: true
           schema:
             type: string
       responses:
-        200:
-          description: Rundown removed.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    const: 200
-                    example: 200
-                required:
-                  - status
-                additionalProperties: false
+        202:
+          description: Request accepted.
         404:
           $ref: '#/components/responses/idNotFound'
   rundown:
     get:
       operationId: getRundown
-      summary: Gets ingest data for a specific Rundown.
+      summary: Gets the specified Rundown.
       tags:
         - ingest
       parameters:
         - name: playlistId
           in: path
-          description: Playlist the Rundown belongs to.
+          description: Internal or external ID of the Playlist the Rundown belongs to.
           required: true
           schema:
             type: string
         - name: rundownId
           in: path
-          description: Rundown to return.
+          description: Internal or external ID of the Rundown to return.
           required: true
           schema:
             type: string
@@ -207,19 +195,19 @@ resources:
           #   - $ref: '#/components/responses/rundownNotFound'
     put:
       operationId: putRundown
-      summary: Updates an existing Rundown.
+      summary: Updates an existing specified Rundown.
       tags:
         - ingest
       parameters:
         - name: playlistId
           in: path
-          description: Playlist to ingest Rundown into.
+          description: Internal or external ID of the Playlist the Rundown to update belongs to.
           required: true
           schema:
             type: string
         - name: rundownId
           in: path
-          description: Rundown to create/update.
+          description: Internal or external ID of the Rundown to update.
           required: true
           schema:
             type: string
@@ -242,19 +230,19 @@ resources:
           #   - $ref: '#/components/responses/rundownNotFound'
     delete:
       operationId: deleteRundown
-      summary: Deletes a specified ingest Rundown. Resources under the Rundown (e.g. Segments) will also be removed.
+      summary: Deletes a specified Rundown. Resources under the Rundown (e.g. Segments) will also be removed.
       tags:
         - ingest
       parameters:
         - name: playlistId
           in: path
-          description: Playlist the ingest Rundown belongs to.
+          description: Internal or external ID of the Playlist the Rundown belongs to.
           required: true
           schema:
             type: string
         - name: rundownId
           in: path
-          description: Rundown to delete.
+          description: Internal or external ID of the Rundown to delete.
           required: true
           schema:
             type: string
@@ -271,17 +259,17 @@ resources:
       operationId: getSegments
       tags:
         - ingest
-      summary: Gets all Segments belonging to a Rundown.
+      summary: Gets all Segments belonging to a specified Rundown.
       parameters:
         - name: playlistId
           in: path
-          description: Playlist the Rundown belongs to.
+          description: Internal or external ID of the Playlist the Segments belong to.
           required: true
           schema:
             type: string
         - name: rundownId
           in: path
-          description: Rundown to get Segments for.
+          description: Internal or external ID of the Rundown the Segments belong to.
           required: true
           schema:
             type: string
@@ -303,17 +291,17 @@ resources:
       operationId: postSegment
       tags:
         - ingest
-      summary: Creates a Segment in a Rundown.
+      summary: Creates a Segment in a specified Rundown.
       parameters:
         - name: playlistId
           in: path
-          description: Playlist the Segment belongs to.
+          description: Internal or external ID of the Playlist the new Segment belongs to.
           required: true
           schema:
             type: string
         - name: rundownId
           in: path
-          description: Rundown the Segment belongs to.
+          description: Internal or external ID of the Rundown the new Segment belongs to.
           required: true
           schema:
             type: string
@@ -338,17 +326,17 @@ resources:
       operationId: putSegments
       tags:
         - ingest
-      summary: Updates the Segments in a Rundown. Any existing Segments in the Rundown that are not included in this list will be deleted (including their Parts). Segments will be placed in the Rundown in the order specified by their individual ranks. If the creation/deletion/updating of any Segment fails all changes will be discarded.
+      summary: Updates Segments belonging to a specified Rundown.
       parameters:
         - name: playlistId
           in: path
-          description: Playlist the Rundown belongs to.
+          description: Internal or external ID of the Playlist the Segments to update belongs to.
           required: true
           schema:
             type: string
         - name: rundownId
           in: path
-          description: Rundown to create/update all Segments for.
+          description: Internal or external ID of the Rundown the Segments to update belong to.
           required: true
           schema:
             type: string
@@ -375,17 +363,17 @@ resources:
       operationId: deleteSegments
       tags:
         - ingest
-      summary: Delete segment.
+      summary: Deletes all Segments belonging to specified Rundown. Resources under the Segments (e.g. Parts) will also be removed.
       parameters:
         - name: playlistId
           in: path
-          description: Playlist the ingest Part belongs to.
+          description: Internal or external ID of the Playlist the Segments belong to.
           required: true
           schema:
             type: string
         - name: rundownId
           in: path
-          description: Rundown the ingest Part belongs to.
+          description: Internal or external ID of the Rundown the Segments to delete belong to.
           required: true
           schema:
             type: string
@@ -399,23 +387,23 @@ resources:
       operationId: getSegment
       tags:
         - ingest
-      summary: Gets specific Segment.
+      summary: Gets the specified Segment.
       parameters:
         - name: playlistId
           in: path
-          description: Playlist the Segment belongs to.
+          description: Internal or external ID of the Playlist the Segment belongs to.
           required: true
           schema:
             type: string
         - name: rundownId
           in: path
-          description: Rundown the Segment belongs to.
+          description: Internal or external ID of the Rundown the Segment belongs to.
           required: true
           schema:
             type: string
         - name: segmentId
           in: path
-          description: Segment to create/update.
+          description: Internal or external ID of the Segment to return.
           required: true
           schema:
             type: string
@@ -436,23 +424,23 @@ resources:
       operationId: putSegment
       tags:
         - ingest
-      summary: Updates an existing Segment.
+      summary: Updates an existing specified Segment.
       parameters:
         - name: playlistId
           in: path
-          description: Playlist to ingest Segment into.
+          description: Internal or external ID of the Playlist the Segment to update belongs to.
           required: true
           schema:
             type: string
         - name: rundownId
           in: path
-          description: Rundown to ingest Segment into.
+          description: Internal or external ID of the Rundown the Segment to update belongs to.
           required: true
           schema:
             type: string
         - name: segmentId
           in: path
-          description: Segment to create/update.
+          description: Internal or external ID of the Segment to update.
           required: true
           schema:
             type: string
@@ -477,23 +465,23 @@ resources:
       operationId: deleteSegment
       tags:
         - ingest
-      summary: Deletes a specified ingest Segment. Resources under the Segment (e.g. Parts) will also be removed.
+      summary: Deletes a specified Segment. Resources under the Segment (e.g. Parts) will also be removed.
       parameters:
         - name: playlistId
           in: path
-          description: Playlist the ingest Segment belongs to.
+          description: Internal or external ID of the Playlist the Segment belongs to.
           required: true
           schema:
             type: string
         - name: rundownId
           in: path
-          description: Rundown the ingest Segment belongs to.
+          description: Internal or external ID of the Rundown the Segment belongs to.
           required: true
           schema:
             type: string
         - name: segmentId
           in: path
-          description: Segment to delete.
+          description: Internal or external ID of the Segment to delete.
           required: true
           schema:
             type: string
@@ -510,23 +498,23 @@ resources:
       operationId: getParts
       tags:
         - ingest
-      summary: Gets the data for all Parts belonging to a Segment.
+      summary: Gets all Parts belonging to a specified Segment.
       parameters:
         - name: playlistId
           in: path
-          description: Playlist the Segment belongs to.
+          description: Internal or external ID of the Playlist the Parts belong to.
           required: true
           schema:
             type: string
         - name: rundownId
           in: path
-          description: Rundown the Segment belongs to.
+          description: Internal or external ID of the Rundown the Parts belong to.
           required: true
           schema:
             type: string
         - name: segmentId
           in: path
-          description: Segment to get Parts for.
+          description: Internal or external ID of the Segment the Parts belong to.
           required: true
           schema:
             type: string
@@ -549,23 +537,23 @@ resources:
       operationId: postPart
       tags:
         - ingest
-      summary: Creates Part in a Segment.
+      summary: Creates a Part in a specified Segment.
       parameters:
         - name: playlistId
           in: path
-          description: Playlist the Segment belongs to.
+          description: Internal or external ID of the Playlist the new Part belongs to.
           required: true
           schema:
             type: string
         - name: rundownId
           in: path
-          description: Rundown the Segment belongs to.
+          description: Internal or external ID of the Rundown the new Part belongs to.
           required: true
           schema:
             type: string
         - name: segmentId
           in: path
-          description: Segment the Part belongs to.
+          description: Internal or external ID of the Segment the new Part belongs to.
           required: true
           schema:
             type: string
@@ -591,23 +579,23 @@ resources:
       operationId: putParts
       tags:
         - ingest
-      summary: Updates the Parts in a Segment. Any existing Parts in the Segment that are not included in this list will be deleted. Parts will be placed in the Segment in the order specified by their individual ranks. If the creation/deletion/updating of any Parts fails all changes will be discarded.
+      summary: Updates Parts belonging to a specified Segment.
       parameters:
         - name: playlistId
           in: path
-          description: Playlist the Segment belongs to.
+          description: Internal or external ID of the Playlist the Parts to update belong to.
           required: true
           schema:
             type: string
         - name: rundownId
           in: path
-          description: Rundown the Segment belongs to.
+          description: Internal or external ID of the Rundown the Parts to update belong to.
           required: true
           schema:
             type: string
         - name: segmentId
           in: path
-          description: Segment to create/update all Parts for.
+          description: Internal or external ID of the Segment the Parts to update belong to.
           required: true
           schema:
             type: string
@@ -635,23 +623,23 @@ resources:
       operationId: deleteParts
       tags:
         - ingest
-      summary: Delete multiple Parts.
+      summary: Deletes all Parts belonging to specified Segment.
       parameters:
         - name: playlistId
           in: path
-          description: Playlist the Part belongs to.
+          description: Internal or external ID of the Playlist the Parts belong to.
           required: true
           schema:
             type: string
         - name: rundownId
           in: path
-          description: Rundown the Part belongs to.
+          description: Internal or external ID of the Rundown the Parts belong to.
           required: true
           schema:
             type: string
         - name: segmentId
           in: path
-          description: Segment the Part belongs to.
+          description: Internal or external ID of the Segment the Parts to delete belong to.
           required: true
           schema:
             type: string
@@ -665,29 +653,29 @@ resources:
       operationId: getPart
       tags:
         - ingest
-      summary: Gets data for a specific Part.
+      summary: Gets the specified Part.
       parameters:
         - name: playlistId
           in: path
-          description: Playlist the Part belongs to.
+          description: Internal or external ID of the Playlist the Part belongs to.
           required: true
           schema:
             type: string
         - name: rundownId
           in: path
-          description: Rundown the Part belongs to.
+          description: Internal or external ID of the Rundown the Part belongs to.
           required: true
           schema:
             type: string
         - name: segmentId
           in: path
-          description: Segment the Part belongs to.
+          description: Internal or external ID of the Segment the Part belongs to.
           required: true
           schema:
             type: string
         - name: partId
           in: path
-          description: Part to create/update.
+          description: Internal or external ID of the Part to return.
           required: true
           schema:
             type: string
@@ -709,28 +697,28 @@ resources:
       operationId: putPart
       tags:
         - ingest
-      summary: Updates an existing Part.
+      summary: Updates an existing specified Part.
       parameters:
         - name: playlistId
           in: path
-          description: Playlist to ingest Part into.
+          description: Internal or external ID of the Playlist the Part to update belongs to.
           required: true
           schema:
             type: string
         - name: rundownId
           in: path
-          description: Rundown to ingest Part into.
+          description: Internal or external ID of the Rundown the Part to update belongs to.
           required: true
           schema:
             type: string
         - name: segmentId
           in: path
-          description: Segment to ingest Part into.
+          description: Internal or external ID of the Segment the Part to update belongs to.
           schema:
             type: string
         - name: partId
           in: path
-          description: Part to update/create.
+          description: Internal or external ID of the Part to update.
           schema:
             type: string
       requestBody:
@@ -759,25 +747,25 @@ resources:
       parameters:
         - name: playlistId
           in: path
-          description: Playlist the Part belongs to.
+          description: Internal or external ID of the Playlist the Part belongs to.
           required: true
           schema:
             type: string
         - name: rundownId
           in: path
-          description: Rundown the Part belongs to.
+          description: Internal or external ID of the Rundown the Part belongs to.
           required: true
           schema:
             type: string
         - name: segmentId
           in: path
-          description: Segment the Part belongs to.
+          description: Internal or external ID of the Segment the Part belongs to.
           required: true
           schema:
             type: string
         - name: partId
           in: path
-          description: Part to delete.
+          description: Internal or external ID of the Part to delete.
           required: true
           schema:
             type: string
@@ -996,32 +984,46 @@ components:
         type:
           type: string
           example: external
+          description: Value that defines the structure of the payload, must be known by Sofie.
         resyncUrl:
           type: string
           example: http://nrcs-url/resync/rundownId
+          description: URL on which the Sofie will send the POST request to request re-syncing of the Rundown.
+        timing:
+          type: object
+          description: If type is "none", only expectedDuration can be optionally provided. If type is "forward-time", expectedStart must be provided while either duration or expectedEnd can be optionally provided. If type is "back-time", expectedEnd must be provided while either duration or expectedStart can be optionally provided.
+          properties:
+            type:
+              type: string
+              enum:
+                - none
+                - forward-time
+                - back-time
+            expectedStart:
+              type: number
+              description: Epoch time in milliseconds.
+              example: 1705924800000
+            expectedEnd:
+              type: number
+              description: Epoch time in milliseconds.
+              example: 1705927500000
+            expectedDuration:
+              type: number
+              description: Interval in milliseconds.
+              example: 3600000
+          required:
+            - timingType
+          additionalProperties: false
         segments:
           type: array
           items:
             $ref: '#/components/schemas/segment'
-        payload:
-          type: object
-          properties:
-            expectedStart:
-              type: number
-              example: 1705924800000
-            expectedEnd:
-              type: number
-              example: 1705927500000
-          required:
-            - expectedStart
-            - expectedEnd
-          additionalProperties: true
       required:
         - externalId
         - name
         - type
         - resyncUrl
-        - payload
+        - timing
       additionalProperties: false
     rundownResponse:
       type: object
@@ -1065,19 +1067,10 @@ components:
           description: The position of the Segment in the parent Rundown.
           inclusiveMinimum: 0.0
           example: 1
-        payload:
-          type: object
-          properties:
-            float:
-              type: boolean
-            tags:
-              type: array
-              items:
-                type: string
-          required:
-            - float
-            - tags
-          additionalProperties: false
+        float:
+          type: boolean
+          example: false
+          description: If the Segment is visible or not.
         parts:
           type: array
           items:
@@ -1086,7 +1079,7 @@ components:
         - externalId
         - name
         - rank
-        - payload
+        - float
       additionalProperties: false
     segmentResponse:
       type: object
@@ -1149,10 +1142,6 @@ components:
                 $ref: '#/components/schemas/piece'
             autoNext:
               type: boolean
-            tags:
-              type: array
-              items:
-                type: string
             guest:
               type: boolean
           additionalProperties: false
