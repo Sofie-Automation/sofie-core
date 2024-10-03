@@ -4,6 +4,7 @@ import { checkServer } from '../checkServer'
 import Logging from '../httpLogging'
 
 const httpLogging = false
+const studioId = 'studio0'
 
 describe('Ingest API', () => {
 	const config = new Configuration({
@@ -20,7 +21,7 @@ describe('Ingest API', () => {
 	 */
 	const playlistIds: string[] = []
 	test('Can request all playlists', async () => {
-		const playlists = await ingestApi.getPlaylists()
+		const playlists = await ingestApi.getPlaylists({ studioId })
 
 		expect(playlists.length).toBeGreaterThanOrEqual(1)
 		playlists.forEach((playlist) => {
@@ -39,6 +40,7 @@ describe('Ingest API', () => {
 
 	test('Can request a playlist by id', async () => {
 		const playlist = await ingestApi.getPlaylist({
+			studioId,
 			playlistId: playlistIds[0],
 		})
 
@@ -53,12 +55,13 @@ describe('Ingest API', () => {
 	})
 
 	test('Can delete multiple playlists', async () => {
-		const result = await ingestApi.deletePlaylists()
+		const result = await ingestApi.deletePlaylists({ studioId })
 		expect(result).toBe(undefined)
 	})
 
 	test('Can delete playlist by id', async () => {
 		const result = await ingestApi.deletePlaylist({
+			studioId,
 			playlistId: playlistIds[0],
 		})
 		expect(result).toBe(undefined)
@@ -70,6 +73,7 @@ describe('Ingest API', () => {
 	const rundownIds: string[] = []
 	test('Can request all rundowns', async () => {
 		const rundowns = await ingestApi.getRundowns({
+			studioId,
 			playlistId: playlistIds[0],
 		})
 
@@ -97,6 +101,7 @@ describe('Ingest API', () => {
 
 	test('Can request rundown by id', async () => {
 		const rundown = await ingestApi.getRundown({
+			studioId,
 			playlistId: playlistIds[0],
 			rundownId: rundownIds[0],
 		})
@@ -130,25 +135,20 @@ describe('Ingest API', () => {
 	}
 
 	test('Can create rundown', async () => {
-		const result = await ingestApi.postRundown({
-			playlistId: playlistIds[0],
-			rundown,
-		})
+		const result = await ingestApi.postRundown({ studioId, playlistId: playlistIds[0], rundown })
 
 		expect(result).toBe(undefined)
 	})
 
 	test('Can update multiple rundowns', async () => {
-		const result = await ingestApi.putRundowns({
-			playlistId: playlistIds[0],
-			rundown: [rundown],
-		})
+		const result = await ingestApi.putRundowns({ studioId, playlistId: playlistIds[0], rundown: [rundown] })
 		expect(result).toBe(undefined)
 	})
 
 	const updatedRundownId = 'rundown3'
 	test('Can update single rundown', async () => {
 		const result = await ingestApi.putRundown({
+			studioId,
 			playlistId: playlistIds[0],
 			rundownId: updatedRundownId,
 			rundown,
@@ -157,14 +157,13 @@ describe('Ingest API', () => {
 	})
 
 	test('Can delete multiple rundowns', async () => {
-		const result = await ingestApi.deleteRundowns({
-			playlistId: playlistIds[0],
-		})
+		const result = await ingestApi.deleteRundowns({ studioId, playlistId: playlistIds[0] })
 		expect(result).toBe(undefined)
 	})
 
 	test('Can delete rundown by id', async () => {
 		const result = await ingestApi.deleteRundown({
+			studioId,
 			playlistId: playlistIds[0],
 			rundownId: updatedRundownId,
 		})
@@ -176,10 +175,7 @@ describe('Ingest API', () => {
 	 */
 	const segmentIds: string[] = []
 	test('Can request all segments', async () => {
-		const segments = await ingestApi.getSegments({
-			playlistId: playlistIds[0],
-			rundownId: rundownIds[0],
-		})
+		const segments = await ingestApi.getSegments({ studioId, playlistId: playlistIds[0], rundownId: rundownIds[0] })
 
 		expect(segments.length).toBeGreaterThanOrEqual(1)
 
@@ -192,6 +188,7 @@ describe('Ingest API', () => {
 
 	test('Can request segment by id', async () => {
 		const segment = await ingestApi.getSegment({
+			studioId,
 			playlistId: playlistIds[0],
 			rundownId: rundownIds[0],
 			segmentId: segmentIds[0],
@@ -212,6 +209,7 @@ describe('Ingest API', () => {
 
 	test('Can create segment', async () => {
 		const result = await ingestApi.postSegment({
+			studioId,
 			playlistId: playlistIds[0],
 			rundownId: rundownIds[0],
 			segment,
@@ -222,6 +220,7 @@ describe('Ingest API', () => {
 
 	test('Can update multiple segments', async () => {
 		const result = await ingestApi.putSegments({
+			studioId,
 			playlistId: playlistIds[0],
 			rundownId: rundownIds[0],
 			segment: [segment],
@@ -232,6 +231,7 @@ describe('Ingest API', () => {
 	const updatedSegmentId = 'segment2'
 	test('Can update single segment', async () => {
 		const result = await ingestApi.putSegment({
+			studioId,
 			playlistId: playlistIds[0],
 			rundownId: rundownIds[0],
 			segmentId: updatedSegmentId,
@@ -242,6 +242,7 @@ describe('Ingest API', () => {
 
 	test('Can delete multiple segments', async () => {
 		const result = await ingestApi.deleteSegments({
+			studioId,
 			playlistId: playlistIds[0],
 			rundownId: rundownIds[0],
 		})
@@ -250,6 +251,7 @@ describe('Ingest API', () => {
 
 	test('Can delete segment by id', async () => {
 		const result = await ingestApi.deleteSegment({
+			studioId,
 			playlistId: playlistIds[0],
 			rundownId: rundownIds[0],
 			segmentId: updatedSegmentId,
@@ -263,6 +265,7 @@ describe('Ingest API', () => {
 	const partIds: string[] = []
 	test('Can request all parts', async () => {
 		const parts = await ingestApi.getParts({
+			studioId,
 			playlistId: playlistIds[0],
 			rundownId: rundownIds[0],
 			segmentId: segmentIds[0],
@@ -280,6 +283,7 @@ describe('Ingest API', () => {
 	let newIngestPart: Part | undefined
 	test('Can request part by id', async () => {
 		const part = await ingestApi.getPart({
+			studioId,
 			playlistId: playlistIds[0],
 			rundownId: rundownIds[0],
 			segmentId: segmentIds[0],
@@ -307,6 +311,7 @@ describe('Ingest API', () => {
 
 	test('Can create part', async () => {
 		const result = await ingestApi.postPart({
+			studioId,
 			playlistId: playlistIds[0],
 			rundownId: rundownIds[0],
 			segmentId: segmentIds[0],
@@ -339,6 +344,7 @@ describe('Ingest API', () => {
 
 	test('Can update multiple parts', async () => {
 		const result = await ingestApi.putParts({
+			studioId,
 			playlistId: playlistIds[0],
 			rundownId: rundownIds[0],
 			segmentId: segmentIds[0],
@@ -375,6 +381,7 @@ describe('Ingest API', () => {
 	test('Can update an part', async () => {
 		newIngestPart.name = newIngestPart.name + ' added'
 		const result = await ingestApi.putPart({
+			studioId,
 			playlistId: playlistIds[0],
 			rundownId: rundownIds[0],
 			segmentId: segmentIds[0],
@@ -408,6 +415,7 @@ describe('Ingest API', () => {
 
 	test('Can delete multiple parts', async () => {
 		const result = await ingestApi.deleteParts({
+			studioId,
 			playlistId: playlistIds[0],
 			rundownId: rundownIds[0],
 			segmentId: segmentIds[0],
@@ -417,6 +425,7 @@ describe('Ingest API', () => {
 
 	test('Can delete part by id', async () => {
 		const result = await ingestApi.deletePart({
+			studioId,
 			playlistId: playlistIds[0],
 			rundownId: rundownIds[0],
 			segmentId: segmentIds[0],

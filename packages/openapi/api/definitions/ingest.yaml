@@ -7,6 +7,13 @@ resources:
       summary: Gets all Playlists.
       tags:
         - ingest
+      parameters:
+        - name: studioId
+          in: path
+          description: ID of the studio that is performing ingest operation.
+          required: true
+          schema:
+            type: string
       responses:
         200:
           description: Command successfully handled - returns an array of Playlists.
@@ -20,6 +27,13 @@ resources:
       operationId: deletePlaylists
       tags:
         - ingest
+      parameters:
+        - name: studioId
+          in: path
+          description: ID of the studio that is performing ingest operation.
+          required: true
+          schema:
+            type: string
       summary: Deletes all Playlists. Resources under the Playlists (e.g. Rundowns) will also be removed.
       responses:
         202:
@@ -31,6 +45,12 @@ resources:
       tags:
         - ingest
       parameters:
+        - name: studioId
+          in: path
+          description: ID of the studio that is performing ingest operation.
+          required: true
+          schema:
+            type: string
         - name: playlistId
           in: path
           description: Internal or external ID of the Playlist to return.
@@ -53,6 +73,12 @@ resources:
       tags:
         - ingest
       parameters:
+        - name: studioId
+          in: path
+          description: ID of the studio that is performing ingest operation.
+          required: true
+          schema:
+            type: string
         - name: playlistId
           in: path
           description: Internal or external ID of the Playlist to delete.
@@ -71,6 +97,12 @@ resources:
       tags:
         - ingest
       parameters:
+        - name: studioId
+          in: path
+          description: ID of the studio that is performing ingest operation.
+          required: true
+          schema:
+            type: string
         - name: playlistId
           in: path
           description: Internal or external ID of the Playlist the Rundowns belong to.
@@ -97,6 +129,12 @@ resources:
       tags:
         - ingest
       parameters:
+        - name: studioId
+          in: path
+          description: ID of the studio that is performing ingest operation.
+          required: true
+          schema:
+            type: string
         - name: playlistId
           in: path
           description: Internal or external ID of the Playlist the new Rundown belongs to.
@@ -121,6 +159,12 @@ resources:
       tags:
         - ingest
       parameters:
+        - name: studioId
+          in: path
+          description: ID of the studio that is performing ingest operation.
+          required: true
+          schema:
+            type: string
         - name: playlistId
           in: path
           description: Internal or external ID of the Playlist the Rundowns to update belong to.
@@ -151,6 +195,12 @@ resources:
         - ingest
       summary: Deletes all Rundowns belonging to specified Playlist. Resources under the Rundowns (e.g. Segments) will also be removed.
       parameters:
+        - name: studioId
+          in: path
+          description: ID of the studio that is performing ingest operation.
+          required: true
+          schema:
+            type: string
         - name: playlistId
           in: path
           description: Internal or external ID of the Playlist the Rundowns to delete belong to.
@@ -169,6 +219,12 @@ resources:
       tags:
         - ingest
       parameters:
+        - name: studioId
+          in: path
+          description: ID of the studio that is performing ingest operation.
+          required: true
+          schema:
+            type: string
         - name: playlistId
           in: path
           description: Internal or external ID of the Playlist the Rundown belongs to.
@@ -199,6 +255,12 @@ resources:
       tags:
         - ingest
       parameters:
+        - name: studioId
+          in: path
+          description: ID of the studio that is performing ingest operation.
+          required: true
+          schema:
+            type: string
         - name: playlistId
           in: path
           description: Internal or external ID of the Playlist the Rundown to update belongs to.
@@ -234,6 +296,12 @@ resources:
       tags:
         - ingest
       parameters:
+        - name: studioId
+          in: path
+          description: ID of the studio that is performing ingest operation.
+          required: true
+          schema:
+            type: string
         - name: playlistId
           in: path
           description: Internal or external ID of the Playlist the Rundown belongs to.
@@ -261,6 +329,12 @@ resources:
         - ingest
       summary: Gets all Segments belonging to a specified Rundown.
       parameters:
+        - name: studioId
+          in: path
+          description: ID of the studio that is performing ingest operation.
+          required: true
+          schema:
+            type: string
         - name: playlistId
           in: path
           description: Internal or external ID of the Playlist the Segments belong to.
@@ -293,6 +367,12 @@ resources:
         - ingest
       summary: Creates a Segment in a specified Rundown.
       parameters:
+        - name: studioId
+          in: path
+          description: ID of the studio that is performing ingest operation.
+          required: true
+          schema:
+            type: string
         - name: playlistId
           in: path
           description: Internal or external ID of the Playlist the new Segment belongs to.
@@ -328,6 +408,12 @@ resources:
         - ingest
       summary: Updates Segments belonging to a specified Rundown.
       parameters:
+        - name: studioId
+          in: path
+          description: ID of the studio that is performing ingest operation.
+          required: true
+          schema:
+            type: string
         - name: playlistId
           in: path
           description: Internal or external ID of the Playlist the Segments to update belongs to.
@@ -365,6 +451,12 @@ resources:
         - ingest
       summary: Deletes all Segments belonging to specified Rundown. Resources under the Segments (e.g. Parts) will also be removed.
       parameters:
+        - name: studioId
+          in: path
+          description: ID of the studio that is performing ingest operation.
+          required: true
+          schema:
+            type: string
         - name: playlistId
           in: path
           description: Internal or external ID of the Playlist the Segments belong to.
@@ -389,6 +481,12 @@ resources:
         - ingest
       summary: Gets the specified Segment.
       parameters:
+        - name: studioId
+          in: path
+          description: ID of the studio that is performing ingest operation.
+          required: true
+          schema:
+            type: string
         - name: playlistId
           in: path
           description: Internal or external ID of the Playlist the Segment belongs to.
@@ -426,6 +524,12 @@ resources:
         - ingest
       summary: Updates an existing specified Segment.
       parameters:
+        - name: studioId
+          in: path
+          description: ID of the studio that is performing ingest operation.
+          required: true
+          schema:
+            type: string
         - name: playlistId
           in: path
           description: Internal or external ID of the Playlist the Segment to update belongs to.
@@ -467,6 +571,12 @@ resources:
         - ingest
       summary: Deletes a specified Segment. Resources under the Segment (e.g. Parts) will also be removed.
       parameters:
+        - name: studioId
+          in: path
+          description: ID of the studio that is performing ingest operation.
+          required: true
+          schema:
+            type: string
         - name: playlistId
           in: path
           description: Internal or external ID of the Playlist the Segment belongs to.
@@ -500,6 +610,12 @@ resources:
         - ingest
       summary: Gets all Parts belonging to a specified Segment.
       parameters:
+        - name: studioId
+          in: path
+          description: ID of the studio that is performing ingest operation.
+          required: true
+          schema:
+            type: string
         - name: playlistId
           in: path
           description: Internal or external ID of the Playlist the Parts belong to.
@@ -539,6 +655,12 @@ resources:
         - ingest
       summary: Creates a Part in a specified Segment.
       parameters:
+        - name: studioId
+          in: path
+          description: ID of the studio that is performing ingest operation.
+          required: true
+          schema:
+            type: string
         - name: playlistId
           in: path
           description: Internal or external ID of the Playlist the new Part belongs to.
@@ -581,6 +703,12 @@ resources:
         - ingest
       summary: Updates Parts belonging to a specified Segment.
       parameters:
+        - name: studioId
+          in: path
+          description: ID of the studio that is performing ingest operation.
+          required: true
+          schema:
+            type: string
         - name: playlistId
           in: path
           description: Internal or external ID of the Playlist the Parts to update belong to.
@@ -625,6 +753,12 @@ resources:
         - ingest
       summary: Deletes all Parts belonging to specified Segment.
       parameters:
+        - name: studioId
+          in: path
+          description: ID of the studio that is performing ingest operation.
+          required: true
+          schema:
+            type: string
         - name: playlistId
           in: path
           description: Internal or external ID of the Playlist the Parts belong to.
@@ -655,6 +789,12 @@ resources:
         - ingest
       summary: Gets the specified Part.
       parameters:
+        - name: studioId
+          in: path
+          description: ID of the studio that is performing ingest operation.
+          required: true
+          schema:
+            type: string
         - name: playlistId
           in: path
           description: Internal or external ID of the Playlist the Part belongs to.
@@ -699,6 +839,12 @@ resources:
         - ingest
       summary: Updates an existing specified Part.
       parameters:
+        - name: studioId
+          in: path
+          description: ID of the studio that is performing ingest operation.
+          required: true
+          schema:
+            type: string
         - name: playlistId
           in: path
           description: Internal or external ID of the Playlist the Part to update belongs to.
@@ -745,6 +891,12 @@ resources:
         - ingest
       summary: Deletes a specified Part.
       parameters:
+        - name: studioId
+          in: path
+          description: ID of the studio that is performing ingest operation.
+          required: true
+          schema:
+            type: string
         - name: playlistId
           in: path
           description: Internal or external ID of the Playlist the Part belongs to.
