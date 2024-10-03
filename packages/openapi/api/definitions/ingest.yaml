@@ -1153,11 +1153,11 @@ components:
                 - back-time
             expectedStart:
               type: number
-              description: Epoch time in milliseconds.
+              description: Epoch timestamp in milliseconds.
               example: 1705924800000
             expectedEnd:
               type: number
-              description: Epoch time in milliseconds.
+              description: Epoch timestamp in milliseconds.
               example: 1705927500000
             expectedDuration:
               type: number
@@ -1199,6 +1199,27 @@ components:
           example: Rundown 1
         type:
           type: string
+        timing:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+                - none
+                - forward-time
+                - back-time
+            expectedStart:
+              type: number
+              description: Epoch timestamp in milliseconds.
+            expectedDuration:
+              type: number
+              description: Epoch interval in milliseconds.
+            expectedEnd:
+              type: number
+              description: Epoch timestamp in milliseconds.
+          required:
+            - type
+          additionalProperties: false
       required:
         - id
         - externalId

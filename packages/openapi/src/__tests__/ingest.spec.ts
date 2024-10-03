@@ -1,5 +1,5 @@
 // eslint-disable-next-line node/no-missing-import
-import { Configuration, IngestApi, Part, RundownTimingTypeEnum } from '../../client/ts'
+import { Configuration, IngestApi, Part } from '../../client/ts'
 import { checkServer } from '../checkServer'
 import Logging from '../httpLogging'
 
@@ -88,6 +88,8 @@ describe('Ingest API', () => {
 			expect(rundown).toHaveProperty('playlistId')
 			expect(rundown).toHaveProperty('playlistExternalId')
 			expect(rundown).toHaveProperty('type')
+			expect(rundown).toHaveProperty('timing')
+			expect(rundown.timing).toHaveProperty('type')
 			expect(typeof rundown.id).toBe('string')
 			expect(typeof rundown.externalId).toBe('string')
 			expect(typeof rundown.name).toBe('string')
@@ -95,6 +97,8 @@ describe('Ingest API', () => {
 			expect(typeof rundown.playlistId).toBe('string')
 			expect(typeof rundown.playlistExternalId).toBe('string')
 			expect(typeof rundown.type).toBe('string')
+			expect(typeof rundown.timing).toBe('object')
+			expect(typeof rundown.timing.type).toBe('string')
 			rundownIds.push(rundown.externalId)
 		})
 	})
@@ -114,12 +118,17 @@ describe('Ingest API', () => {
 		expect(rundown).toHaveProperty('playlistId')
 		expect(rundown).toHaveProperty('playlistExternalId')
 		expect(rundown).toHaveProperty('type')
+		expect(rundown).toHaveProperty('timing')
+		expect(rundown.timing).toHaveProperty('type')
 		expect(typeof rundown.id).toBe('string')
 		expect(typeof rundown.externalId).toBe('string')
 		expect(typeof rundown.name).toBe('string')
 		expect(typeof rundown.studioId).toBe('string')
 		expect(typeof rundown.playlistId).toBe('string')
 		expect(typeof rundown.playlistExternalId).toBe('string')
+		expect(typeof rundown.type).toBe('string')
+		expect(typeof rundown.timing).toBe('object')
+		expect(typeof rundown.timing.type).toBe('string')
 	})
 
 	const rundown = {
@@ -128,9 +137,10 @@ describe('Ingest API', () => {
 		type: 'external',
 		resyncUrl: 'resyncUrl',
 		timing: {
-			type: RundownTimingTypeEnum.None,
+			type: 'none',
 			expectedStart: 0,
 			expectedEnd: 0,
+			expectedDuration: 0,
 		},
 	}
 
