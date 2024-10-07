@@ -443,7 +443,9 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 		fromPartInstanceId: PartInstanceId | undefined
 	): Promise<ClientAPI.ClientResponse<void>> {
 		triggerWriteAccess()
-		const rundownPlaylist = await RundownPlaylists.findOneAsync(rundownPlaylistId)
+		const rundownPlaylist = await RundownPlaylists.findOneAsync({
+			$or: [{ _id: rundownPlaylistId }, { externalId: rundownPlaylistId }],
+		})
 		if (!rundownPlaylist) throw new Error(`Rundown playlist ${rundownPlaylistId} does not exist`)
 
 		return ServerClientAPI.runUserActionInLogForPlaylistOnWorker(
