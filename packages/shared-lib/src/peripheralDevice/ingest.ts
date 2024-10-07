@@ -18,6 +18,8 @@ export interface IngestRundown<TRundownPayload = unknown, TSegmentPayload = unkn
 
 	/** Array of segments in this rundown */
 	segments: IngestSegment<TSegmentPayload, TPartPayload>[]
+
+	playlistExternalId?: string
 }
 export interface IngestSegment<TSegmentPayload = unknown, TPartPayload = unknown> {
 	/** Id of the segment as reported by the ingest gateway. Must be unique for each segment in the rundown */

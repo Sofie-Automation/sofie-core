@@ -238,7 +238,7 @@ export async function postRundown(
 
 	await runIngestOperation(studio._id, IngestJobs.UpdateRundown, {
 		rundownExternalId: rundownExternalId,
-		ingestRundown: ingestRundown,
+		ingestRundown: { ...ingestRundown, playlistExternalId: playlistId },
 		isCreateAction: true,
 		rundownSource: {
 			type: 'httpIngest',
@@ -266,7 +266,7 @@ export async function putRundown(
 
 	await runIngestOperation(studio._id, IngestJobs.UpdateRundown, {
 		rundownExternalId: existingRundown.externalId,
-		ingestRundown: ingestRundown,
+		ingestRundown: { ...ingestRundown, playlistExternalId: playlist.externalId },
 		isCreateAction: true,
 		rundownSource: {
 			type: 'httpIngest',
@@ -296,7 +296,7 @@ export async function putRundowns(
 
 			return runIngestOperation(studio._id, IngestJobs.UpdateRundown, {
 				rundownExternalId: ingestRundown.externalId,
-				ingestRundown: ingestRundown,
+				ingestRundown: { ...ingestRundown, playlistExternalId: playlist.externalId },
 				isCreateAction: true,
 				rundownSource: {
 					type: 'httpIngest',
