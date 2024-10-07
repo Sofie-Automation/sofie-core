@@ -1,5 +1,5 @@
 // eslint-disable-next-line node/no-missing-import
-import { Configuration, IngestApi, Part } from '../../client/ts'
+import { Configuration, IngestApi, Part, RundownTimingTypeEnum } from '../../client/ts'
 import { checkServer } from '../checkServer'
 import Logging from '../httpLogging'
 
@@ -137,7 +137,7 @@ describe('Ingest API', () => {
 		type: 'external',
 		resyncUrl: 'resyncUrl',
 		timing: {
-			type: 'none',
+			type: RundownTimingTypeEnum.None,
 			expectedStart: 0,
 			expectedEnd: 0,
 			expectedDuration: 0,
