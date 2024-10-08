@@ -19,6 +19,15 @@ export interface IngestRundown<TRundownPayload = unknown, TSegmentPayload = unkn
 	/** Array of segments in this rundown */
 	segments: IngestSegment<TSegmentPayload, TPartPayload>[]
 
+	/**	Rundown timing definition */
+	timing?: {
+		type?: 'none' | 'forward-time' | 'back-time'
+		expectedStart?: number
+		expectedDuration?: number
+		expectedEnd?: number
+	}
+
+	/** Id of the playlist this rundown belongs to */
 	playlistExternalId?: string
 }
 export interface IngestSegment<TSegmentPayload = unknown, TPartPayload = unknown> {
