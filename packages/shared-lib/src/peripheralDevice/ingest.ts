@@ -43,6 +43,12 @@ export interface IngestSegment<TSegmentPayload = unknown, TPartPayload = unknown
 
 	/** Array of parts in this segment */
 	parts: IngestPart<TPartPayload>[]
+
+	/**	Timing definition */
+	timing?: {
+		expectedStart?: number
+		expectedEnd?: number
+	}
 }
 export interface IngestPart<TPartPayload = unknown> {
 	/** Id of the part as reported by the ingest gateway. Must be unique for each part in the rundown */

@@ -1244,6 +1244,19 @@ components:
           type: boolean
           example: false
           description: If the Segment is visible or not.
+        timing:
+          type: object
+          description: Segment timing.
+          properties:
+            expectedStart:
+              type: number
+              description: Epoch timestamp in milliseconds.
+              example: 1705924800000
+            expectedEnd:
+              type: number
+              description: Epoch timestamp in milliseconds.
+              example: 1705927500000
+          additionalProperties: false
         parts:
           type: array
           items:
@@ -1272,6 +1285,16 @@ components:
         rank:
           type: number
           example: 1
+        timing:
+          type: object
+          properties:
+            expectedStart:
+              type: number
+              description: Epoch timestamp in milliseconds.
+            expectedEnd:
+              type: number
+              description: Epoch timestamp in milliseconds.
+          additionalProperties: false
       required:
         - id
         - externalId

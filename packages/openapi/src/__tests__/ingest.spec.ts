@@ -191,7 +191,14 @@ describe('Ingest API', () => {
 
 		segments.forEach((segment) => {
 			expect(typeof segment).toBe('object')
+			expect(typeof segment.id).toBe('string')
 			expect(typeof segment.externalId).toBe('string')
+			expect(typeof segment.rundownId).toBe('string')
+			expect(typeof segment.name).toBe('string')
+			expect(typeof segment.rank).toBe('number')
+			expect(typeof segment.timing).toBe('object')
+			expect(typeof segment.timing.expectedStart).toBe('number')
+			expect(typeof segment.timing.expectedEnd).toBe('number')
 			segmentIds.push(segment.externalId)
 		})
 	})
@@ -204,10 +211,22 @@ describe('Ingest API', () => {
 			segmentId: segmentIds[0],
 		})
 
+		expect(segment).toHaveProperty('id')
+		expect(segment).toHaveProperty('externalId')
+		expect(segment).toHaveProperty('rundownId')
 		expect(segment).toHaveProperty('name')
 		expect(segment).toHaveProperty('rank')
+		expect(segment).toHaveProperty('timing')
+		expect(segment.timing).toHaveProperty('expectedStart')
+		expect(segment.timing).toHaveProperty('expectedEnd')
+		expect(typeof segment.id).toBe('string')
+		expect(typeof segment.externalId).toBe('string')
+		expect(typeof segment.rundownId).toBe('string')
 		expect(typeof segment.name).toBe('string')
 		expect(typeof segment.rank).toBe('number')
+		expect(typeof segment.timing).toBe('object')
+		expect(typeof segment.timing.expectedStart).toBe('number')
+		expect(typeof segment.timing.expectedEnd).toBe('number')
 	})
 
 	const segment = {
@@ -215,6 +234,10 @@ describe('Ingest API', () => {
 		name: 'Segment 1',
 		rank: 0,
 		_float: true,
+		timing: {
+			expectedStart: 0,
+			expectedEnd: 0,
+		},
 	}
 
 	test('Can create segment', async () => {

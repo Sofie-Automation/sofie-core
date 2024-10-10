@@ -122,7 +122,7 @@ async function findParts(segmentId: SegmentId) {
 async function findStudio(studioId: string) {
 	const studio = await Studios.findOneAsync({ _id: protectString<StudioId>(studioId) })
 	if (!studio) {
-		throw new Meteor.Error(500, `Studio does not exist`)
+		throw new Meteor.Error(500, `Studio '${studioId}' does not exist`)
 	}
 
 	return studio
