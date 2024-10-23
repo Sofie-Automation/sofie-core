@@ -1035,51 +1035,6 @@ components:
     badRequest:
       description: Bad request.
   schemas:
-    ingestPlaylistItem:
-      type: object
-      properties:
-        playlistId:
-          type: string
-          description: The Id provided by Sofie. This Id will be used for /playlist commands for controlling playlist activations, playback etc.
-        rundowns:
-          type: array
-          description: All rundowns in a Playlist.
-          items:
-            $ref: '#/components/schemas/ingestRundownItem'
-      required:
-        - playlistId
-        - rundowns
-      additionalProperties: false
-    ingestRundownItem:
-      type: object
-      properties:
-        externalId:
-          type: string
-          description: The Id provided by a system external to Sofie that can be used by the same external system to identify this Rundown.
-      required:
-        - externalId
-      additionalProperties: false
-    segmentItem:
-      type: object
-      properties:
-        externalId:
-          type: string
-          description: The Id provided by a system external to Sofie that can be used by the same external system to identify this Segment.
-      required:
-        - externalId
-      additionalProperties: false
-    partItem:
-      type: object
-      properties:
-        name:
-          type: string
-        externalId:
-          type: string
-          description: The Id provided by a system external to Sofie that can be used by the same external system to identify this Part.
-      required:
-        - name
-        - externalId
-      additionalProperties: false
     playlist:
       type: object
       properties:
@@ -1308,12 +1263,16 @@ components:
         externalId:
           type: string
           example: part1
-        name:
+        title:
           type: string
           example: Part 1
+        float:
+          type: boolean
+        autoNext:
+          type: boolean
         rank:
           type: number
-          description: The position of the Part in the parent Segment.
+          description: Position of the Part in the Segment.
           example: 0
         payload:
           type: object
@@ -1328,30 +1287,26 @@ components:
                 - COMPOSITION
                 - FULLSCREEN_GRAPHIC
                 - MACRO
-            float:
-              type: boolean
             script:
               type: string
+            guest:
+              type: boolean
             pieces:
               type: array
               items:
                 $ref: '#/components/schemas/piece'
-            autoNext:
-              type: boolean
-            guest:
-              type: boolean
           additionalProperties: false
           required:
             - type
-            - float
             - script
-            - pieces
-            - autoNext
             - guest
+            - pieces
       required:
         - externalId
-        - name
+        - title
         - rank
+        - float
+        - autoNext
         - payload
       additionalProperties: false
     partResponse:
@@ -1360,20 +1315,21 @@ components:
         id:
           type: string
           example: part1
-        externalId:
-          type: string
-          example: partExternal1
         rundownId:
           type: string
           example: rundown1
         segmentId:
           type: string
           example: segment1
+        externalId:
+          type: string
+          example: partExternal1
         title:
           type: string
           example: Part 1
         expectedDuration:
           type: number
+          description: Calculated based on pieces
           example: 10000
         autoNext:
           type: boolean
@@ -1392,12 +1348,12 @@ components:
     piece:
       type: object
       properties:
-        externalId:
-          type: string
-          example: piece1
         id:
           type: string
           example: Piece 1
+        externalId:
+          type: string
+          example: piece1
         objectType:
           type: string
           enum:
@@ -1440,8 +1396,8 @@ components:
           description: The position of the Part in the parent Segment.
           example: 0
       required:
-        - externalId
         - id
+        - externalId
         - objectType
         - resourceName
         - label

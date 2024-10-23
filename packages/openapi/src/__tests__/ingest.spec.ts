@@ -350,13 +350,14 @@ describe('Ingest API', () => {
 			segmentId: segmentIds[0],
 			part: {
 				externalId: 'part1',
-				name: 'Part 1',
+				title: 'Part 1',
 				rank: 0,
+				_float: true,
+				autoNext: true,
 				payload: {
 					type: 'CAMERA',
-					_float: true,
-					autoNext: true,
 					guest: true,
+					script: '',
 					pieces: [
 						{
 							id: 'piece1',
@@ -368,7 +369,6 @@ describe('Ingest API', () => {
 							resourceName: 'camera1',
 						},
 					],
-					script: '',
 				},
 			},
 		})
@@ -384,13 +384,14 @@ describe('Ingest API', () => {
 			part: [
 				{
 					externalId: 'part1',
-					name: 'Part 1',
+					title: 'Part 1',
 					rank: 0,
+					_float: true,
+					autoNext: true,
 					payload: {
 						type: 'CAMERA',
-						_float: true,
-						autoNext: true,
 						guest: true,
+						script: '',
 						pieces: [
 							{
 								id: 'piece1',
@@ -402,7 +403,6 @@ describe('Ingest API', () => {
 								resourceName: 'camera1',
 							},
 						],
-						script: '',
 					},
 				},
 			],
@@ -412,7 +412,7 @@ describe('Ingest API', () => {
 
 	const updatedPartId = 'part2'
 	test('Can update an part', async () => {
-		newIngestPart.name = newIngestPart.name + ' added'
+		newIngestPart.title = newIngestPart.title + ' added'
 		const result = await ingestApi.putPart({
 			studioId,
 			playlistId: playlistIds[0],
@@ -421,13 +421,14 @@ describe('Ingest API', () => {
 			partId: updatedPartId,
 			part: {
 				externalId: 'part1',
-				name: 'Part 1',
+				title: 'Part 1',
 				rank: 0,
+				_float: true,
+				autoNext: true,
 				payload: {
 					type: 'CAMERA',
-					_float: true,
-					autoNext: true,
 					guest: true,
+					script: '',
 					pieces: [
 						{
 							id: 'piece1',
@@ -439,7 +440,6 @@ describe('Ingest API', () => {
 							resourceName: 'camera1',
 						},
 					],
-					script: '',
 				},
 			},
 		})
