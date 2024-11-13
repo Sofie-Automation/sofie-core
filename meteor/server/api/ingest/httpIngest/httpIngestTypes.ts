@@ -26,6 +26,7 @@ export type SegmentResponse = {
 	rundownId: string
 	name: string
 	rank: number
+	isHidden?: boolean
 }
 
 export type PartResponse = {

@@ -1195,10 +1195,9 @@ components:
           description: The position of the Segment in the parent Rundown.
           inclusiveMinimum: 0.0
           example: 1
-        float:
+        isHidden:
           type: boolean
-          example: false
-          description: If the Segment is visible or not.
+          description: If the Segment is hidden or not.
         timing:
           type: object
           description: Segment timing.
@@ -1220,7 +1219,6 @@ components:
         - externalId
         - name
         - rank
-        - float
       additionalProperties: false
     segmentResponse:
       type: object
@@ -1240,6 +1238,8 @@ components:
         rank:
           type: number
           example: 1
+        isHidden:
+          type: boolean
         timing:
           type: object
           properties:
@@ -1298,15 +1298,11 @@ components:
           additionalProperties: false
           required:
             - type
-            - script
-            - guest
             - pieces
       required:
         - externalId
         - title
         - rank
-        - float
-        - autoNext
         - payload
       additionalProperties: false
     partResponse:
@@ -1333,7 +1329,6 @@ components:
           example: 10000
         autoNext:
           type: boolean
-          example: true
         rank:
           type: number
           example: 0
@@ -1381,26 +1376,16 @@ components:
         attributes:
           type: object
           additionalProperties: true
-        position:
-          type: string
-        script:
-          type: string
         transition:
           type: string
         transitionDuration:
           type: string
         target:
           type: string
-        rank:
-          type: number
-          description: The position of the Part in the parent Segment.
-          example: 0
       required:
         - id
         - externalId
         - objectType
         - resourceName
-        - label
         - attributes
-        - position
       additionalProperties: false
