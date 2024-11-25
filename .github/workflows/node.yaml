@@ -1,12 +1,11 @@
-name: Node CI
+name: Core CI/CD
 
 on:
   push:
     branches:
-      - "**"
-    tags:
-      - "v**"
-  pull_request:
+      - "master"
+      - "release*"
+      - "EAV-*"
   workflow_dispatch:
 
 jobs:
@@ -15,6 +14,10 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -32,6 +35,20 @@ jobs:
             meteor/node_modules
             packages/node_modules
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock', 'meteor/yarn.lock', 'meteor/.meteor/release', 'packages/yarn.lock') }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Login to CodeArtifact
+        run: |
+          aws codeartifact login --tool npm --repository selma-store --domain selma --domain-owner ${{ secrets.AWS_ACCOUNT_ID }} --region ${{ secrets.AWS_REGION }}
+      - name: Configure CodeArtifact Token
+        run: |
+          export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain selma --domain-owner ${{ secrets.AWS_ACCOUNT_ID }} --region ${{ secrets.AWS_REGION }} --query authorizationToken --output text`
+          yarn config set npmRegistryServer "https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"
+          yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAuthToken' "${CODEARTIFACT_AUTH_TOKEN}"
+          yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAlwaysAuth' "true"
       - name: Prepare Environment
         run: |
           corepack enable
@@ -56,6 +73,10 @@ jobs:
     name: Test Core
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -73,6 +94,20 @@ jobs:
             meteor/node_modules
             packages/node_modules
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock', 'meteor/yarn.lock', 'meteor/.meteor/release', 'packages/yarn.lock') }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Login to CodeArtifact
+        run: |
+          aws codeartifact login --tool npm --repository selma-store --domain selma --domain-owner ${{ secrets.AWS_ACCOUNT_ID }} --region ${{ secrets.AWS_REGION }}
+      - name: Configure CodeArtifact Token
+        run: |
+          export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain selma --domain-owner ${{ secrets.AWS_ACCOUNT_ID }} --region ${{ secrets.AWS_REGION }} --query authorizationToken --output text`
+          yarn config set npmRegistryServer "https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"
+          yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAuthToken' "${CODEARTIFACT_AUTH_TOKEN}"
+          yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAlwaysAuth' "true"
       - name: Prepare Environment
         run: |
           corepack enable
@@ -99,160 +134,126 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   build-core:
-    # TODO - should this be dependant on tests or something passing if we are on a tag?
     name: Build Core and publish docker image
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Determine if images should be published to DockerHub
-        id: dockerhub
+      - name: Determine if images should be published to ecr
+        id: ecrrepo
         run: |
           # check if a release branch, or master, or a tag
-          if [[ "${{ github.ref }}" =~ ^refs/heads/release([0-9]+)$ || "${{ github.ref }}" == "refs/heads/master" || "${{ github.ref }}" == refs/tags/* ]]
+          if [[ "${{ github.ref }}" =~ ^refs/heads/release([0-9]+)$ || "${{ github.ref }}" == "refs/heads/master" || "${{ github.ref }}" == refs/tags/* || "${{ github.ref }}" == refs/heads/EAV-* ]]
           then
-            DOCKERHUB_PUBLISH="1"
+            ECRREPO_PUBLISH="1"
           else
-            DOCKERHUB_PUBLISH="0"
+            ECRREPO_PUBLISH="0"
           fi
           # debug output
-          echo "dockerhub-publish $DOCKERHUB_PUBLISH"
-          echo "dockerhub-publish=$DOCKERHUB_PUBLISH" >> $GITHUB_OUTPUT
-      - name: Check if push to GHCR is enabled
-        id: check-ghcr
-        env:
-          GHCR_ENABLED: ${{ secrets.GHCR_ENABLED }}
-        run: |
-          echo "Enable push to GHCR: ${{ env.GHCR_ENABLED != '' }}"
-          echo "enable=${{ env.GHCR_ENABLED != '' }}" >> $GITHUB_OUTPUT
-      - name: Check if there is access to repo secrets (needed for build and push)
-        if: steps.dockerhub.outputs.dockerhub-publish == '1' || steps.check-ghcr.outputs.enable == 'true'
-        id: check-build-and-push
-        env:
-          SECRET_ACCESS: ${{ secrets.DOCKERHUB_IMAGE_PREFIX }}
-        run: |
-          echo "Enable build and push: ${{ env.SECRET_ACCESS != '' }}"
-          echo "enable=${{ env.SECRET_ACCESS != '' }}" >> $GITHUB_OUTPUT
-      - name: Get the Docker tag for GHCR
-        id: ghcr-tag
-        if: steps.check-build-and-push.outputs.enable == 'true'
+          echo "ecrrepo-publish $ECRREPO_PUBLISH"
+          echo "ecrrepo-publish=$ECRREPO_PUBLISH" >> $GITHUB_OUTPUT
+      - name: Configure AWS Credentials
+        if: steps.ecrrepo.outputs.ecrrepo-publish == '1'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Login to Amazon ECR
+        id: login-ecr
+        if: steps.ecrrepo.outputs.ecrrepo-publish == '1'
+        uses: aws-actions/amazon-ecr-login@v1
+      - name: Get the Docker tag for ecr
+        id: ecr-tag
+        if: steps.ecrrepo.outputs.ecrrepo-publish == '1'
         uses: docker/metadata-action@v5
         with:
-          images: |
-            ghcr.io/${{ github.repository }}-server-core
-          tags: |
-            type=schedule
-            type=ref,event=branch
-            type=ref,event=tag
-            type=raw,value=latest,enable={{is_default_branch}}
-      - name: Get the Docker tag for DockerHub
-        id: dockerhub-tag
-        if: steps.check-build-and-push.outputs.enable == 'true'
-        uses: docker/metadata-action@v5
-        with:
-          images: |
-            ${{ secrets.DOCKERHUB_IMAGE_PREFIX }}server-core
+          images: ${{ steps.login-ecr.outputs.registry }}/sofie-core
           tags: |
             type=schedule
             type=ref,event=branch
             type=ref,event=tag
             type=raw,value=latest,enable={{is_default_branch}}
       - name: Use Node.js
-        if: steps.check-build-and-push.outputs.enable == 'true'
+        if: steps.ecrrepo.outputs.ecrrepo-publish == '1'
         uses: actions/setup-node@v4
         with:
           node-version-file: ".node-version"
       - uses: ./.github/actions/setup-meteor
-        if: steps.check-build-and-push.outputs.enable == 'true'
+        if: steps.ecrrepo.outputs.ecrrepo-publish == '1'
       - name: restore node_modules
         uses: actions/cache@v4
-        if: steps.check-build-and-push.outputs.enable == 'true'
+        if: steps.ecrrepo.outputs.ecrrepo-publish == '1'
         with:
           path: |
             node_modules
             meteor/node_modules
             packages/node_modules
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock', 'meteor/yarn.lock', 'meteor/.meteor/release', 'packages/yarn.lock') }}
+      - name: Login to CodeArtifact
+        run: |
+          aws codeartifact login --tool npm --repository selma-store --domain selma --domain-owner ${{ secrets.AWS_ACCOUNT_ID }} --region ${{ secrets.AWS_REGION }}
+      - name: Configure CodeArtifact Token
+        run: |
+          export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain selma --domain-owner ${{ secrets.AWS_ACCOUNT_ID }} --region ${{ secrets.AWS_REGION }} --query authorizationToken --output text`
+          yarn config set npmRegistryServer "https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"
+          yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAuthToken' "${CODEARTIFACT_AUTH_TOKEN}"
+          yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAlwaysAuth' "true"
       - name: Prepare Environment
-        if: steps.check-build-and-push.outputs.enable == 'true'
+        if: steps.ecrrepo.outputs.ecrrepo-publish == '1'
         run: |
           corepack enable
 
           yarn install
       - name: Build libs
-        if: steps.check-build-and-push.outputs.enable == 'true'
+        if: steps.ecrrepo.outputs.ecrrepo-publish == '1'
         run: |
           yarn build:packages
       - name: Persist Built Version information
-        if: steps.check-build-and-push.outputs.enable == 'true'
+        if: steps.ecrrepo.outputs.ecrrepo-publish == '1'
         run: |
           cd meteor
           yarn inject-git-hash
-      - name: Prepare webui for meteor build
-        if: steps.check-build-and-push.outputs.enable == 'true'
-        run: |
-          rm -Rf meteor/public
-          cp -R packages/webui/dist meteor/public
       - name: Meteor Build
-        if: steps.check-build-and-push.outputs.enable == 'true'
+        if: steps.ecrrepo.outputs.ecrrepo-publish == '1'
         run: |
           cd meteor
           NODE_OPTIONS="--max-old-space-size=4096" METEOR_DEBUG_BUILD=1 meteor build --allow-superuser --directory .
-          mv bundle/programs/web.browser/assets/ bundle/programs/web.browser/app/assets/ || true
-
       - name: Meteor Bundle NPM Build
-        if: steps.check-build-and-push.outputs.enable == 'true'
+        if: steps.ecrrepo.outputs.ecrrepo-publish == '1'
         run: |
           cd meteor/bundle/programs/server
           meteor npm install
       - name: Set up Docker Buildx
-        if: steps.check-build-and-push.outputs.enable == 'true'
+        if: steps.ecrrepo.outputs.ecrrepo-publish == '1'
         uses: docker/setup-buildx-action@v3
-      - name: Login to DockerHub
-        if: steps.check-build-and-push.outputs.enable == 'true' && steps.dockerhub.outputs.dockerhub-publish == '1'
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Login to GitHub Container Registry
-        if: steps.check-build-and-push.outputs.enable == 'true' && steps.check-ghcr.outputs.enable == 'true'
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push to GHCR
-        if: steps.check-build-and-push.outputs.enable == 'true' && steps.check-ghcr.outputs.enable == 'true' && steps.ghcr-tag.outputs.tags != 0
+      - name: Build and push to ECR
+        if: steps.ecrrepo.outputs.ecrrepo-publish == '1' && steps.ecr-tag.outputs.tags != 0
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./meteor/Dockerfile.circle
           push: true
           provenance: false
-          labels: ${{ steps.ghcr-tag.outputs.labels }}
-          tags: "${{ steps.ghcr-tag.outputs.tags }}"
+          labels: ${{ steps.ecr-tag.outputs.labels }}
+          tags: "${{ steps.ecr-tag.outputs.tags }}"
           github-token: ${{ github.token }}
-      - name: Build and push to DockerHub
-        if: steps.check-build-and-push.outputs.enable == 'true' && steps.dockerhub.outputs.dockerhub-publish == '1'
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./meteor/Dockerfile.circle
-          push: true
-          provenance: false
-          labels: ${{ steps.dockerhub-tag.outputs.labels }}
-          tags: ${{ steps.dockerhub-tag.outputs.tags }}
       - name: Get image for Trivy scanning
         id: trivy-image
-        if: steps.check-build-and-push.outputs.enable == 'true' && steps.check-ghcr.outputs.enable == 'true' && steps.ghcr-tag.outputs.tags != 0
+        if: steps.ecrrepo.outputs.ecrrepo-publish == '1' && steps.ecr-tag.outputs.tags != 0
         run: |
-          image=$(echo ${{ steps.ghcr-tag.outputs.tags }} | head -n 1)
+          image=$(echo ${{ steps.ecr-tag.outputs.tags }} | head -n 1)
           echo "image=$image" >> $GITHUB_OUTPUT
       - name: Trivy scanning
-        if: steps.check-build-and-push.outputs.enable == 'true' && steps.check-ghcr.outputs.enable == 'true' && steps.ghcr-tag.outputs.tags != 0
-        uses: aquasecurity/trivy-action@0.29.0
+        if: steps.ecrrepo.outputs.ecrrepo-publish == '1' && steps.ecr-tag.outputs.tags != 0
+        continue-on-error: true
+        uses: aquasecurity/trivy-action@0.24.0
         env:
           TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db
         with:
@@ -262,78 +263,76 @@ jobs:
           ignore-unfixed: true
           severity: "CRITICAL,HIGH"
       - name: Post all Trivy scan results to Github Summary as a table
-        if: steps.check-build-and-push.outputs.enable == 'true' && steps.check-ghcr.outputs.enable == 'true' && steps.ghcr-tag.outputs.tags != 0
+        if: steps.ecrrepo.outputs.ecrrepo-publish == '1' && steps.ecr-tag.outputs.tags != 0
         env:
           CODE_BLOCK: "```"
         run: |
           echo "# Trivy scan results ~ core" >> $GITHUB_STEP_SUMMARY
-
-          echo $CODE_BLOCK >> $GITHUB_STEP_SUMMARY
-          cat trivy-scan-result.txt >> $GITHUB_STEP_SUMMARY
-          echo $CODE_BLOCK >> $GITHUB_STEP_SUMMARY
-
+          if [ -f trivy-scan-result.txt ]; then
+            echo "$CODE_BLOCK" >> $GITHUB_STEP_SUMMARY
+            cat trivy-scan-result.txt >> $GITHUB_STEP_SUMMARY
+            echo "$CODE_BLOCK" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Trivy scan result file not found." >> $GITHUB_STEP_SUMMARY
+          fi
   build-gateways:
     # TODO - should this be dependant on tests or something passing if we are on a tag?
     name: Build gateways
     runs-on: ubuntu-latest
     timeout-minutes: 30
-
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
     strategy:
       fail-fast: false
       matrix:
-        gateway-name: [playout-gateway, mos-gateway, "live-status-gateway"]
+        gateway-name: [playout-gateway, "live-status-gateway"]
 
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Determine if images should be published to DockerHub
-        id: dockerhub
+      - name: Determine if images should be published to ecr
+        id: ecrrepo
         run: |
           # check if a release branch, or master, or a tag
-          if [[ "${{ github.ref }}" =~ ^refs/heads/release([0-9]+)$ || "${{ github.ref }}" == "refs/heads/master" || "${{ github.ref }}" == "refs/tags/*" ]]
+          if [[ "${{ github.ref }}" =~ ^refs/heads/release([0-9]+)$ || "${{ github.ref }}" == "refs/heads/master" || "${{ github.ref }}" == refs/tags/* || "${{ github.ref }}" == refs/heads/EAV-* ]]
           then
-            DOCKERHUB_PUBLISH="1"
+              ECRREPO_PUBLISH="1"
           else
-            DOCKERHUB_PUBLISH="0"
+              ECRREPO_PUBLISH="0"
           fi
           # debug output
-          echo "dockerhub-publish $DOCKERHUB_PUBLISH"
-          echo "dockerhub-publish=$DOCKERHUB_PUBLISH" >> $GITHUB_OUTPUT
-      - name: Check if push to GHCR is enabled
-        id: check-ghcr
-        env:
-          GHCR_ENABLED: ${{ secrets.GHCR_ENABLED }}
-        run: |
-          echo "Enable push to GHCR: ${{ env.GHCR_ENABLED != '' }}"
-          echo "enable=${{ env.GHCR_ENABLED != '' }}" >> $GITHUB_OUTPUT
-      - name: Check if there is access to repo secrets (needed for build and push)
-        if: steps.dockerhub.outputs.dockerhub-publish == '1' || steps.check-ghcr.outputs.enable == 'true'
-        id: check-build-and-push
-        env:
-          SECRET_ACCESS: ${{ secrets.DOCKERHUB_IMAGE_PREFIX }}
-        run: |
-          echo "Enable build and push: ${{ env.SECRET_ACCESS != '' }}"
-          echo "enable=${{ env.SECRET_ACCESS != '' }}" >> $GITHUB_OUTPUT
-      - name: Get the Docker tag for GHCR
-        id: ghcr-tag
-        if: steps.check-build-and-push.outputs.enable == 'true'
+          echo "ecrrepo-publish $ECRREPO_PUBLISH"
+          echo "ecrrepo-publish=$ECRREPO_PUBLISH" >> $GITHUB_OUTPUT
+      - name: Configure AWS Credentials
+        if: steps.ecrrepo.outputs.ecrrepo-publish == '1'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Login to Amazon ECR
+        id: login-ecr
+        if: steps.ecrrepo.outputs.ecrrepo-publish == '1'
+        uses: aws-actions/amazon-ecr-login@v1
+      - name: Get the Docker tag for ecr
+        id: ecr-tag
+        if: steps.ecrrepo.outputs.ecrrepo-publish == '1'
         uses: docker/metadata-action@v5
         with:
-          images: |
-            ghcr.io/${{ github.repository }}-${{ matrix.gateway-name }}
+          images: ${{ steps.login-ecr.outputs.registry }}/${{ matrix.gateway-name }}
           tags: |
             type=schedule
             type=ref,event=branch
             type=ref,event=tag
             type=raw,value=latest,enable={{is_default_branch}}
-      - name: Get the Docker tag for DockerHub
-        id: dockerhub-tag
-        if: steps.check-build-and-push.outputs.enable == 'true'
+      - name: Get the Docker tag for ECR
+        id: ghcr-tag
+        if: steps.ecrrepo.outputs.ecrrepo-publish == '1'
         uses: docker/metadata-action@v5
         with:
-          images: |
-            ${{ secrets.DOCKERHUB_IMAGE_PREFIX }}${{ matrix.gateway-name }}
+          images: ${{ steps.login-ecr.outputs.registry }}/${{ matrix.gateway-name }}
           tags: |
             type=schedule
             type=ref,event=branch
@@ -341,18 +340,27 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
       - name: Use Node.js
         uses: actions/setup-node@v4
-        if: steps.check-build-and-push.outputs.enable == 'true'
+        if: steps.ecrrepo.outputs.ecrrepo-publish == '1'
         with:
           node-version-file: ".node-version"
       - name: restore node_modules
-        if: steps.check-build-and-push.outputs.enable == 'true'
+        if: steps.ecrrepo.outputs.ecrrepo-publish == '1'
         uses: actions/cache@v4
         with:
           path: |
             packages/node_modules
           key: ${{ runner.os }}-${{ hashFiles('packages/yarn.lock') }}
+      - name: Login to CodeArtifact
+        run: |
+          aws codeartifact login --tool npm --repository selma-store --domain selma --domain-owner ${{ secrets.AWS_ACCOUNT_ID }} --region ${{ secrets.AWS_REGION }}
+      - name: Configure CodeArtifact Token
+        run: |
+          export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain selma --domain-owner ${{ secrets.AWS_ACCOUNT_ID }} --region ${{ secrets.AWS_REGION }} --query authorizationToken --output text`
+          yarn config set npmRegistryServer "https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"
+          yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAuthToken' "${CODEARTIFACT_AUTH_TOKEN}"
+          yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAlwaysAuth' "true"
       - name: Build
-        if: steps.check-build-and-push.outputs.enable == 'true'
+        if: steps.ecrrepo.outputs.ecrrepo-publish == '1'
         run: |
           corepack enable
 
@@ -362,23 +370,10 @@ jobs:
           yarn run pinst --disable
           yarn workspaces focus ${{ matrix.gateway-name }} --production
       - name: Set up Docker Buildx
-        if: steps.check-build-and-push.outputs.enable == 'true'
+        if: steps.ecrrepo.outputs.ecrrepo-publish == '1'
         uses: docker/setup-buildx-action@v3
-      - name: Login to DockerHub
-        if: steps.check-build-and-push.outputs.enable == 'true' && steps.dockerhub.outputs.dockerhub-publish == '1'
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Login to GitHub Container Registry
-        if: steps.check-build-and-push.outputs.enable == 'true' && steps.check-ghcr.outputs.enable == 'true'
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push to GHCR
-        if: steps.check-build-and-push.outputs.enable == 'true' && steps.check-ghcr.outputs.enable == 'true' && steps.ghcr-tag.outputs.tags != 0
+      - name: Build and push to ECR
+        if: steps.ecrrepo.outputs.ecrrepo-publish == '1' && steps.ghcr-tag.outputs.tags != 0
         uses: docker/build-push-action@v6
         with:
           context: ./packages
@@ -387,25 +382,16 @@ jobs:
           provenance: false
           labels: ${{ steps.ghcr-tag.outputs.labels }}
           tags: "${{ steps.ghcr-tag.outputs.tags }}"
-      - name: Build and push to DockerHub
-        if: steps.check-build-and-push.outputs.enable == 'true' && steps.dockerhub.outputs.dockerhub-publish == '1'
-        uses: docker/build-push-action@v6
-        with:
-          context: ./packages
-          file: ./packages/${{ matrix.gateway-name }}/Dockerfile.circle
-          push: true
-          provenance: false
-          labels: ${{ steps.dockerhub-tag.outputs.labels }}
-          tags: "${{ steps.dockerhub-tag.outputs.tags }}"
       - name: Get image for Trivy scanning
         id: trivy-image
-        if: steps.check-build-and-push.outputs.enable == 'true' && steps.check-ghcr.outputs.enable == 'true' && steps.ghcr-tag.outputs.tags != 0
+        if: steps.ecrrepo.outputs.ecrrepo-publish == '1' && steps.ghcr-tag.outputs.tags != 0
         run: |
           image=$(echo ${{ steps.ghcr-tag.outputs.tags }} | head -n 1)
           echo "image=$image" >> $GITHUB_OUTPUT
       - name: Trivy scanning
-        if: steps.check-build-and-push.outputs.enable == 'true' && steps.check-ghcr.outputs.enable == 'true' && steps.ghcr-tag.outputs.tags != 0
-        uses: aquasecurity/trivy-action@0.29.0
+        if: steps.ecrrepo.outputs.ecrrepo-publish == '1' && steps.ghcr-tag.outputs.tags != 0
+        continue-on-error: true
+        uses: aquasecurity/trivy-action@0.24.0
         env:
           TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db
         with:
@@ -415,22 +401,27 @@ jobs:
           ignore-unfixed: true
           severity: "CRITICAL,HIGH"
       - name: Post all Trivy scan results to Github Summary as a table
-        if: steps.check-build-and-push.outputs.enable == 'true' && steps.check-ghcr.outputs.enable == 'true' && steps.ghcr-tag.outputs.tags != 0
+        if: steps.ecrrepo.outputs.ecrrepo-publish == '1' && steps.ghcr-tag.outputs.tags != 0
         env:
           CODE_BLOCK: "```"
         run: |
           echo "# Trivy scan results ~ ${{ matrix.gateway-name }}" >> $GITHUB_STEP_SUMMARY
-
-          echo $CODE_BLOCK >> $GITHUB_STEP_SUMMARY
-          cat ${{ matrix.gateway-name }}-trivy-scan-result.txt >> $GITHUB_STEP_SUMMARY
-          echo $CODE_BLOCK >> $GITHUB_STEP_SUMMARY
-
+          if [ -f "${{ matrix.gateway-name }}-trivy-scan-result.txt" ]; then
+            echo $CODE_BLOCK >> $GITHUB_STEP_SUMMARY
+            cat "${{ matrix.gateway-name }}-trivy-scan-result.txt" >> $GITHUB_STEP_SUMMARY
+            echo $CODE_BLOCK >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Trivy scan result file not found." >> $GITHUB_STEP_SUMMARY
+          fi
   lint-packages:
     name: Lint Package
     runs-on: ubuntu-latest
     continue-on-error: true
     timeout-minutes: 15
-
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
     strategy:
       fail-fast: false
       matrix:
@@ -446,7 +437,6 @@ jobs:
           - openapi
           - live-status-gateway
           - webui
-
     steps:
       - uses: actions/checkout@v4
         with:
@@ -461,6 +451,20 @@ jobs:
           path: |
             packages/node_modules
           key: ${{ runner.os }}-${{ hashFiles('packages/yarn.lock') }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Login to CodeArtifact
+        run: |
+          aws codeartifact login --tool npm --repository selma-store --domain selma --domain-owner ${{ secrets.AWS_ACCOUNT_ID }} --region ${{ secrets.AWS_REGION }}
+      - name: Configure CodeArtifact Token
+        run: |
+          export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain selma --domain-owner ${{ secrets.AWS_ACCOUNT_ID }} --region ${{ secrets.AWS_REGION }} --query authorizationToken --output text`
+          yarn config set npmRegistryServer "https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"
+          yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAuthToken' "${CODEARTIFACT_AUTH_TOKEN}"
+          yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAlwaysAuth' "true"
       - name: Prepare Environment
         run: |
           corepack enable
@@ -482,7 +486,10 @@ jobs:
     name: Test Package
     runs-on: ubuntu-latest
     timeout-minutes: 15
-
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
     strategy:
       fail-fast: false
       matrix:
@@ -529,6 +536,20 @@ jobs:
           path: |
             packages/node_modules
           key: ${{ runner.os }}-${{ hashFiles('packages/yarn.lock') }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Login to CodeArtifact
+        run: |
+          aws codeartifact login --tool npm --repository selma-store --domain selma --domain-owner ${{ secrets.AWS_ACCOUNT_ID }} --region ${{ secrets.AWS_REGION }}
+      - name: Configure CodeArtifact Token
+        run: |
+          export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain selma --domain-owner ${{ secrets.AWS_ACCOUNT_ID }} --region ${{ secrets.AWS_REGION }} --query authorizationToken --output text`
+          yarn config set npmRegistryServer "https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"
+          yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAuthToken' "${CODEARTIFACT_AUTH_TOKEN}"
+          yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAlwaysAuth' "true"
       - name: Prepare Environment
         run: |
           corepack enable
@@ -550,7 +571,6 @@ jobs:
         uses: codecov/codecov-action@v4
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
   asyncapi-generation:
     name: AsyncAPI Generation
     runs-on: ubuntu-latest
@@ -612,13 +632,15 @@ jobs:
           yarn genserver
         env:
           CI: true
-
   publish-docs:
     name: Publish Docs
     runs-on: ubuntu-latest
     continue-on-error: true
     timeout-minutes: 15
-
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -633,6 +655,20 @@ jobs:
           path: |
             packages/node_modules
           key: ${{ runner.os }}-${{ hashFiles('packages/yarn.lock') }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Login to CodeArtifact
+        run: |
+          aws codeartifact login --tool npm --repository selma-store --domain selma --domain-owner ${{ secrets.AWS_ACCOUNT_ID }} --region ${{ secrets.AWS_REGION }}
+      - name: Configure CodeArtifact Token
+        run: |
+          export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain selma --domain-owner ${{ secrets.AWS_ACCOUNT_ID }} --region ${{ secrets.AWS_REGION }} --query authorizationToken --output text`
+          yarn config set npmRegistryServer "https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"
+          yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAuthToken' "${CODEARTIFACT_AUTH_TOKEN}"
+          yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAlwaysAuth' "true"
       - name: Prepare Environment
         run: |
           corepack enable
@@ -667,10 +703,12 @@ jobs:
     name: Release Lib
     runs-on: ubuntu-latest
     timeout-minutes: 15
-
-    # only run for tags
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    # only run for tags    # only run for tags
     if: contains(github.ref, 'refs/tags/')
-
     needs:
       - test-packages
       # core must be published first
@@ -684,6 +722,20 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: ".node-version"
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Login to CodeArtifact
+        run: |
+          aws codeartifact login --tool npm --repository selma-store --domain selma --domain-owner ${{ secrets.AWS_ACCOUNT_ID }} --region ${{ secrets.AWS_REGION }}
+      - name: Configure CodeArtifact Token
+        run: |
+          export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain selma --domain-owner ${{ secrets.AWS_ACCOUNT_ID }} --region ${{ secrets.AWS_REGION }} --query authorizationToken --output text`
+          yarn config set npmRegistryServer "https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"
+          yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAuthToken' "${CODEARTIFACT_AUTH_TOKEN}"
+          yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAlwaysAuth' "true"
       - name: Prepare Environment # have to run this first to make sure the semver lib is available
         run: |
           corepack enable
@@ -697,8 +749,8 @@ jobs:
       - name: Check release is desired
         id: do-publish
         run: |
-          if [ -z "${{ secrets.NPM_TOKEN }}" ]; then
-            echo "No Token"
+          if [ -z "${{ secrets.AWS_ROLE_ARN }}" ]; then
+            echo "No Role"
           else
             # make dependencies of `determine-npm-tag` available
             yarn install --mode=skip-build
@@ -729,19 +781,17 @@ jobs:
           CI: true
       - name: Modify dependencies to use npm packages
         run: node scripts/prepublish.js
-      - name: Publish to NPM
-        if: ${{ steps.do-publish.outputs.tag }}
+      - name: Reset .yarnrc.yml
         run: |
-          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
-
           # hack as it can sometimes have unexpected changes
           git checkout .yarnrc.yml
-
+      - name: Publish to Code Artifact
+        if: ${{ steps.do-publish.outputs.tag }}
+        run: |
           cd packages
           git checkout .yarnrc.yml
-
+          aws codeartifact login --tool npm --repository selma-store --domain selma --domain-owner ${{ secrets.AWS_ACCOUNT_ID }} --region ${{ secrets.AWS_REGION }}
           yarn lerna publish from-package --tag-version-prefix='' --dist-tag ${{ steps.do-publish.outputs.tag }} --yes --no-verify-access
-
           NEW_VERSION=$(node -p "require('./package.json').version")
           echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
           echo "**Published:** $NEW_VERSION" >> $GITHUB_STEP_SUMMARY
@@ -753,6 +803,10 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -770,10 +824,24 @@ jobs:
             meteor/node_modules
             packages/node_modules
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock', 'meteor/yarn.lock', 'meteor/.meteor/release', 'packages/yarn.lock') }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Login to CodeArtifact
+        run: |
+          aws codeartifact login --tool npm --repository selma-store --domain selma --domain-owner ${{ secrets.AWS_ACCOUNT_ID }} --region ${{ secrets.AWS_REGION }}
+      - name: Configure CodeArtifact Token
+        run: |
+          export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain selma --domain-owner ${{ secrets.AWS_ACCOUNT_ID }} --region ${{ secrets.AWS_REGION }} --query authorizationToken --output text`
+          yarn config set npmRegistryServer "https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"
+          yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAuthToken' "${CODEARTIFACT_AUTH_TOKEN}"
+          yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAlwaysAuth' "true"
       - name: Prepare Environment
         run: |
           corepack enable
-          
+
           yarn config set cacheFolder /home/runner/check-for-multiple-library-versions-cache
           yarn
         env:
