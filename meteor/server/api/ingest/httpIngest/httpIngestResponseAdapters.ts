@@ -40,7 +40,7 @@ export const adaptPart = (rawPart: DBPart): PartResponse => {
 	return {
 		id: unprotectString(rawPart._id),
 		externalId: rawPart.externalId,
-		title: rawPart.title,
+		name: rawPart.title,
 		rank: rawPart._rank,
 		rundownId: unprotectString(rawPart.rundownId),
 		autoNext: rawPart.autoNext,

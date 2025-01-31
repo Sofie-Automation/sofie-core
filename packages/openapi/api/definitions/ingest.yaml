@@ -1040,6 +1040,7 @@ components:
       properties:
         name:
           type: string
+          example: Playlist name
         externalId:
           type: string
           example: playlist1
@@ -1197,6 +1198,7 @@ components:
           example: 1
         isHidden:
           type: boolean
+          example: false
           description: If the Segment is hidden or not.
         timing:
           type: object
@@ -1263,13 +1265,15 @@ components:
         externalId:
           type: string
           example: part1
-        title:
+        name:
           type: string
           example: Part 1
         float:
           type: boolean
+          example: false
         autoNext:
           type: boolean
+          example: false
         rank:
           type: number
           description: Position of the Part in the Segment.
@@ -1320,7 +1324,7 @@ components:
         externalId:
           type: string
           example: partExternal1
-        title:
+        name:
           type: string
           example: Part 1
         expectedDuration:
@@ -1329,6 +1333,7 @@ components:
           example: 10000
         autoNext:
           type: boolean
+          example: false
         rank:
           type: number
           example: 0
@@ -1378,10 +1383,13 @@ components:
           additionalProperties: true
         transition:
           type: string
+          example: cut
         transitionDuration:
           type: string
+          example: 00:00:00:00
         target:
           type: string
+          example: pgm
       required:
         - id
         - externalId

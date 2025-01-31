@@ -34,7 +34,7 @@ export type PartResponse = {
 	externalId: string
 	rundownId: string
 	segmentId: string
-	title: string
+	name: string
 	expectedDuration?: number
 	autoNext?: boolean
 	rank: number
