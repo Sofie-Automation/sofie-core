@@ -1350,9 +1350,6 @@ components:
       properties:
         id:
           type: string
-          example: Piece 1
-        externalId:
-          type: string
           example: piece1
         objectType:
           type: string
@@ -1373,7 +1370,24 @@ components:
         objectTime:
           type: string
         duration:
-          type: string
+          type: object
+          description: If type is "duration", duration property must be provided.
+          properties:
+            type:
+              type: string
+              example: within-part
+              enum:
+                - within-part
+                - segment-end
+                - rundown-end
+                - showstyle-end
+                - duration
+            duration:
+              type: number
+              example: 10000
+          required:
+            - type
+          additionalProperties: false
         resourceName:
           type: string
         label:
@@ -1392,7 +1406,6 @@ components:
           example: pgm
       required:
         - id
-        - externalId
         - objectType
         - resourceName
         - attributes
