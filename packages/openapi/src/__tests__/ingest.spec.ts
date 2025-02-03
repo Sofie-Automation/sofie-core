@@ -327,7 +327,7 @@ describe('Ingest API', () => {
 		expect(part).toHaveProperty('externalId')
 		expect(part).toHaveProperty('rundownId')
 		expect(part).toHaveProperty('segmentId')
-		expect(part).toHaveProperty('title')
+		expect(part).toHaveProperty('name')
 		expect(part).toHaveProperty('expectedDuration')
 		expect(part).toHaveProperty('autoNext')
 		expect(part).toHaveProperty('rank')
@@ -335,7 +335,7 @@ describe('Ingest API', () => {
 		expect(typeof part.externalId).toBe('string')
 		expect(typeof part.rundownId).toBe('string')
 		expect(typeof part.segmentId).toBe('string')
-		expect(typeof part.title).toBe('string')
+		expect(typeof part.name).toBe('string')
 		expect(typeof part.expectedDuration).toBe('number')
 		expect(typeof part.autoNext).toBe('boolean')
 		expect(typeof part.rank).toBe('number')
@@ -350,7 +350,7 @@ describe('Ingest API', () => {
 			segmentId: segmentIds[0],
 			part: {
 				externalId: 'part1',
-				title: 'Part 1',
+				name: 'Part 1',
 				rank: 0,
 				_float: true,
 				autoNext: true,
@@ -361,12 +361,18 @@ describe('Ingest API', () => {
 					pieces: [
 						{
 							id: 'piece1',
-							externalId: 'piece1',
+							objectType: 'CAMERA',
+							objectTime: '00:00:00:00',
+							duration: {
+								type: 'within-part',
+								duration: '00:00:10:00',
+							},
+							resourceName: 'camera1',
 							label: 'Piece 1',
 							attributes: {},
-							objectType: 'CAMERA',
-							position: '',
-							resourceName: 'camera1',
+							transition: 'cut',
+							transitionDuration: '00:00:00:00',
+							target: 'pgm',
 						},
 					],
 				},
@@ -384,7 +390,7 @@ describe('Ingest API', () => {
 			part: [
 				{
 					externalId: 'part1',
-					title: 'Part 1',
+					name: 'Part 1',
 					rank: 0,
 					_float: true,
 					autoNext: true,
@@ -395,11 +401,9 @@ describe('Ingest API', () => {
 						pieces: [
 							{
 								id: 'piece1',
-								externalId: 'piece1',
 								label: 'Piece 1',
 								attributes: {},
 								objectType: 'CAMERA',
-								position: '',
 								resourceName: 'camera1',
 							},
 						],
@@ -411,8 +415,8 @@ describe('Ingest API', () => {
 	})
 
 	const updatedPartId = 'part2'
-	test('Can update an part', async () => {
-		newIngestPart.title = newIngestPart.title + ' added'
+	test('Can update a part', async () => {
+		newIngestPart.name = newIngestPart.name + ' added'
 		const result = await ingestApi.putPart({
 			studioId,
 			playlistId: playlistIds[0],
@@ -421,7 +425,7 @@ describe('Ingest API', () => {
 			partId: updatedPartId,
 			part: {
 				externalId: 'part1',
-				title: 'Part 1',
+				name: 'Part 1',
 				rank: 0,
 				_float: true,
 				autoNext: true,
@@ -432,11 +436,9 @@ describe('Ingest API', () => {
 					pieces: [
 						{
 							id: 'piece1',
-							externalId: 'piece1',
 							label: 'Piece 1',
 							attributes: {},
 							objectType: 'CAMERA',
-							position: '',
 							resourceName: 'camera1',
 						},
 					],

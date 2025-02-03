@@ -1305,7 +1305,7 @@ components:
             - pieces
       required:
         - externalId
-        - title
+        - name
         - rank
         - payload
       additionalProperties: false
@@ -1315,34 +1315,34 @@ components:
         id:
           type: string
           example: part1
+        externalId:
+          type: string
+          example: partExternal1
         rundownId:
           type: string
           example: rundown1
         segmentId:
           type: string
           example: segment1
-        externalId:
-          type: string
-          example: partExternal1
         name:
           type: string
           example: Part 1
+        rank:
+          type: number
+          example: 0
         expectedDuration:
           type: number
-          description: Calculated based on pieces
+          description: Calculated based on pieces.
           example: 10000
         autoNext:
           type: boolean
           example: false
-        rank:
-          type: number
-          example: 0
       required:
         - id
         - externalId
         - rundownId
         - segmentId
-        - title
+        - name
         - rank
       additionalProperties: false
     piece:
@@ -1383,17 +1383,20 @@ components:
                 - showstyle-end
                 - duration
             duration:
-              type: number
-              example: 10000
+              type: string
+              example: 00:00:10:00
           required:
             - type
           additionalProperties: false
         resourceName:
           type: string
+          example: camera1
         label:
           type: string
+          example: Lower third
         attributes:
           type: object
+          description: Object with key-value pairs.
           additionalProperties: true
         transition:
           type: string
