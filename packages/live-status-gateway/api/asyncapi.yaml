@@ -48,6 +48,7 @@ channels:
           - $ref: '#/components/messages/activePieces'
           - $ref: '#/components/messages/segments'
           - $ref: '#/components/messages/adLibs'
+          - $ref: '#/components/messages/buckets'
 components:
   messages:
     ping:
@@ -124,3 +125,8 @@ components:
       description: AdLibs in active Playlist
       payload:
         $ref: './schemas/adLibs.yaml#/$defs/adLibs'
+    buckets:
+      name: buckets
+      description: Buckets in Studio
+      payload:
+        $ref: './schemas/buckets.yaml#/$defs/buckets'

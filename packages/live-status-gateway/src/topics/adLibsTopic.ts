@@ -27,12 +27,12 @@ export interface AdLibsStatus {
 	globalAdLibs: GlobalAdLibStatus[]
 }
 
-interface AdLibActionType {
+export interface AdLibActionType {
 	name: string
 	label: string
 }
 
-interface AdLibStatus extends AdLibStatusBase {
+export interface AdLibStatus extends AdLibStatusBase {
 	segmentId: string
 	partId: string
 }

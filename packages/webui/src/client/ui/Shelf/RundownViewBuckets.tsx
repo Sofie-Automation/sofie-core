@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Bucket } from '@sofie-automation/meteor-lib/dist/collections/Buckets'
+import { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
 import { BucketPanel } from './BucketPanel'
 import { doUserAction, UserAction } from '../../lib/clientUserAction'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'

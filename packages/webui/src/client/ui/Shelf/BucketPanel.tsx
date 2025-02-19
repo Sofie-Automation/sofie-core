@@ -28,7 +28,7 @@ import { literal, unprotectString, protectString } from '../../lib/tempLib'
 import { contextMenuHoldToDisplayTime, UserAgentPointer, USER_AGENT_POINTER_PROPERTY } from '../../lib/lib'
 import { IDashboardPanelTrackedProps } from './DashboardPanel'
 import { BucketAdLib } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibPiece'
-import { Bucket } from '@sofie-automation/meteor-lib/dist/collections/Buckets'
+import { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
 import { Events as MOSEvents } from '../../lib/data/mos/plugin-support'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { MeteorCall } from '../../lib/meteorApi'
@@ -273,7 +273,7 @@ interface BucketTargetCollectedProps {
 export const BucketPanel = React.memo(
 	function BucketPanel(props: Readonly<IBucketPanelProps>): JSX.Element | null {
 		// Data subscriptions:
-		useSubscription(MeteorPubSub.buckets, props.playlist.studioId, props.bucket._id)
+		useSubscription(CorelibPubSub.buckets, props.playlist.studioId, props.bucket._id)
 		useSubscription(MeteorPubSub.uiBucketContentStatuses, props.playlist.studioId, props.bucket._id)
 		useSubscription(MeteorPubSub.uiStudio, props.playlist.studioId)
 
