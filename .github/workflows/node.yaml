@@ -26,6 +26,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: ".node-version"
+      - name: Prepare Environment
+        run: |
+          corepack enable
+
+          yarn config set cacheFolder /home/runner/lint-core-cache
+          yarn
+          yarn build:packages
+        env:
+          CI: true
       - uses: ./.github/actions/setup-meteor
       - name: restore node_modules
         uses: actions/cache@v4
@@ -49,15 +58,6 @@ jobs:
           yarn config set npmRegistryServer "https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"
           yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAuthToken' "${CODEARTIFACT_AUTH_TOKEN}"
           yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAlwaysAuth' "true"
-      - name: Prepare Environment
-        run: |
-          corepack enable
-
-          yarn config set cacheFolder /home/runner/lint-core-cache
-          yarn
-          yarn build:packages
-        env:
-          CI: true
       - name: Run typecheck and linter
         run: |
           cd meteor
@@ -94,6 +94,15 @@ jobs:
             meteor/node_modules
             packages/node_modules
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock', 'meteor/yarn.lock', 'meteor/.meteor/release', 'packages/yarn.lock') }}
+      - name: Prepare Environment
+        run: |
+          corepack enable
+
+          yarn config set cacheFolder /home/runner/test-core-cache
+          yarn
+          yarn build:packages
+        env:
+          CI: true
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -108,15 +117,6 @@ jobs:
           yarn config set npmRegistryServer "https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"
           yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAuthToken' "${CODEARTIFACT_AUTH_TOKEN}"
           yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAlwaysAuth' "true"
-      - name: Prepare Environment
-        run: |
-          corepack enable
-
-          yarn config set cacheFolder /home/runner/test-core-cache
-          yarn
-          yarn build:packages
-        env:
-          CI: true
       - name: Run Tests
         run: |
           cd meteor
@@ -159,6 +159,12 @@ jobs:
           # debug output
           echo "ecrrepo-publish $ECRREPO_PUBLISH"
           echo "ecrrepo-publish=$ECRREPO_PUBLISH" >> $GITHUB_OUTPUT
+      - name: Prepare Environment
+        if: steps.ecrrepo.outputs.ecrrepo-publish == '1'
+        run: |
+          corepack enable
+
+          yarn install
       - name: Configure AWS Credentials
         if: steps.ecrrepo.outputs.ecrrepo-publish == '1'
         uses: aws-actions/configure-aws-credentials@v4
@@ -205,12 +211,6 @@ jobs:
           yarn config set npmRegistryServer "https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"
           yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAuthToken' "${CODEARTIFACT_AUTH_TOKEN}"
           yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAlwaysAuth' "true"
-      - name: Prepare Environment
-        if: steps.ecrrepo.outputs.ecrrepo-publish == '1'
-        run: |
-          corepack enable
-
-          yarn install
       - name: Build libs
         if: steps.ecrrepo.outputs.ecrrepo-publish == '1'
         run: |
@@ -343,6 +343,16 @@ jobs:
         if: steps.ecrrepo.outputs.ecrrepo-publish == '1'
         with:
           node-version-file: ".node-version"
+      - name: Build
+        if: steps.ecrrepo.outputs.ecrrepo-publish == '1'
+        run: |
+          corepack enable
+
+          cd packages
+          yarn install
+          yarn lerna run --scope \*\*/${{ matrix.gateway-name }} --include-dependencies --stream build
+          yarn run pinst --disable
+          yarn workspaces focus ${{ matrix.gateway-name }} --production
       - name: restore node_modules
         if: steps.ecrrepo.outputs.ecrrepo-publish == '1'
         uses: actions/cache@v4
@@ -359,16 +369,6 @@ jobs:
           yarn config set npmRegistryServer "https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"
           yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAuthToken' "${CODEARTIFACT_AUTH_TOKEN}"
           yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAlwaysAuth' "true"
-      - name: Build
-        if: steps.ecrrepo.outputs.ecrrepo-publish == '1'
-        run: |
-          corepack enable
-
-          cd packages
-          yarn install
-          yarn lerna run --scope \*\*/${{ matrix.gateway-name }} --include-dependencies --stream build
-          yarn run pinst --disable
-          yarn workspaces focus ${{ matrix.gateway-name }} --production
       - name: Set up Docker Buildx
         if: steps.ecrrepo.outputs.ecrrepo-publish == '1'
         uses: docker/setup-buildx-action@v3
@@ -451,6 +451,16 @@ jobs:
           path: |
             packages/node_modules
           key: ${{ runner.os }}-${{ hashFiles('packages/yarn.lock') }}
+      - name: Prepare Environment
+        run: |
+          corepack enable
+
+          cd packages
+          yarn config set cacheFolder /home/runner/${{ matrix.package-name }}-cache
+          yarn install
+          yarn lerna run --scope \*\*/${{ matrix.package-name }} --include-dependencies --stream build
+        env:
+          CI: true
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -465,16 +475,6 @@ jobs:
           yarn config set npmRegistryServer "https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"
           yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAuthToken' "${CODEARTIFACT_AUTH_TOKEN}"
           yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAlwaysAuth' "true"
-      - name: Prepare Environment
-        run: |
-          corepack enable
-
-          cd packages
-          yarn config set cacheFolder /home/runner/${{ matrix.package-name }}-cache
-          yarn install
-          yarn lerna run --scope \*\*/${{ matrix.package-name }} --include-dependencies --stream build
-        env:
-          CI: true
       - name: Run typecheck and linter
         run: |
           cd packages/${{ matrix.package-name }}
@@ -536,6 +536,16 @@ jobs:
           path: |
             packages/node_modules
           key: ${{ runner.os }}-${{ hashFiles('packages/yarn.lock') }}
+      - name: Prepare Environment
+        run: |
+          corepack enable
+
+          cd packages
+          yarn config set cacheFolder /home/runner/test-packages-cache
+          yarn install
+          yarn lerna run --scope \*\*/${{ matrix.package-name }} --include-dependencies --stream build
+        env:
+          CI: true
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -550,16 +560,6 @@ jobs:
           yarn config set npmRegistryServer "https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"
           yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAuthToken' "${CODEARTIFACT_AUTH_TOKEN}"
           yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAlwaysAuth' "true"
-      - name: Prepare Environment
-        run: |
-          corepack enable
-
-          cd packages
-          yarn config set cacheFolder /home/runner/test-packages-cache
-          yarn install
-          yarn lerna run --scope \*\*/${{ matrix.package-name }} --include-dependencies --stream build
-        env:
-          CI: true
       - name: Run tests
         run: |
           cd packages/${{ matrix.package-name }}
@@ -655,6 +655,16 @@ jobs:
           path: |
             packages/node_modules
           key: ${{ runner.os }}-${{ hashFiles('packages/yarn.lock') }}
+      - name: Prepare Environment
+        run: |
+          corepack enable
+
+          cd packages
+          yarn config set cacheFolder /home/runner/publish-docs-cache
+          yarn install
+          yarn build:all
+        env:
+          CI: true
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -669,16 +679,6 @@ jobs:
           yarn config set npmRegistryServer "https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"
           yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAuthToken' "${CODEARTIFACT_AUTH_TOKEN}"
           yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAlwaysAuth' "true"
-      - name: Prepare Environment
-        run: |
-          corepack enable
-
-          cd packages
-          yarn config set cacheFolder /home/runner/publish-docs-cache
-          yarn install
-          yarn build:all
-        env:
-          CI: true
       - name: Run docusaurus
         run: |
           cd packages/documentation
@@ -722,6 +722,16 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: ".node-version"
+      - name: Prepare Environment # have to run this first to make sure the semver lib is available
+        run: |
+          corepack enable
+
+          yarn config set cacheFolder /home/runner/release-libs-cache
+
+          cd packages
+          yarn install
+        env:
+          CI: true
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -736,16 +746,6 @@ jobs:
           yarn config set npmRegistryServer "https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"
           yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAuthToken' "${CODEARTIFACT_AUTH_TOKEN}"
           yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAlwaysAuth' "true"
-      - name: Prepare Environment # have to run this first to make sure the semver lib is available
-        run: |
-          corepack enable
-
-          yarn config set cacheFolder /home/runner/release-libs-cache
-
-          cd packages
-          yarn install
-        env:
-          CI: true
       - name: Check release is desired
         id: do-publish
         run: |
@@ -824,6 +824,14 @@ jobs:
             meteor/node_modules
             packages/node_modules
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock', 'meteor/yarn.lock', 'meteor/.meteor/release', 'packages/yarn.lock') }}
+      - name: Prepare Environment
+        run: |
+          corepack enable
+
+          yarn config set cacheFolder /home/runner/check-for-multiple-library-versions-cache
+          yarn
+        env:
+          CI: true
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -838,14 +846,6 @@ jobs:
           yarn config set npmRegistryServer "https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"
           yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAuthToken' "${CODEARTIFACT_AUTH_TOKEN}"
           yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAlwaysAuth' "true"
-      - name: Prepare Environment
-        run: |
-          corepack enable
-
-          yarn config set cacheFolder /home/runner/check-for-multiple-library-versions-cache
-          yarn
-        env:
-          CI: true
       - name: Run check
         run: |
           yarn validate:versions
