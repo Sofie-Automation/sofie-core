@@ -1,11 +1,8 @@
 import { SegmentsStatus, SegmentsTopic } from '../segmentsTopic'
-import { PlaylistHandler } from '../../collections/playlistHandler'
 import { protectString, unprotectString } from '@sofie-automation/server-core-integration'
-import { SegmentsHandler } from '../../collections/segmentsHandler'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { makeMockLogger, makeMockSubscriber, makeTestPlaylist } from './utils'
+import { makeMockHandlers, makeMockLogger, makeMockSubscriber, makeTestPlaylist } from './utils'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { PartsHandler } from '../../collections/partsHandler'
 
 const RUNDOWN_1_ID = 'RUNDOWN_1'
 const RUNDOWN_2_ID = 'RUNDOWN_2'
@@ -50,7 +47,8 @@ describe('SegmentsTopic', () => {
 	})
 
 	it('notifies added subscribers immediately', async () => {
-		const topic = new SegmentsTopic(makeMockLogger())
+		const handlers = makeMockHandlers()
+		const topic = new SegmentsTopic(makeMockLogger(), handlers)
 		const mockSubscriber = makeMockSubscriber()
 
 		topic.addSubscriber(mockSubscriber)
@@ -65,35 +63,38 @@ describe('SegmentsTopic', () => {
 	})
 
 	it('notifies subscribers when playlist changes from null', async () => {
-		const topic = new SegmentsTopic(makeMockLogger())
+		const handlers = makeMockHandlers()
+		const topic = new SegmentsTopic(makeMockLogger(), handlers)
 		const mockSubscriber = makeMockSubscriber()
 
 		topic.addSubscriber(mockSubscriber)
 		mockSubscriber.send.mockClear()
 
 		const testPlaylist = makeTestPlaylist()
-		await topic.update(PlaylistHandler.name, testPlaylist)
+		handlers.playlistHandler.notify(testPlaylist)
 
 		const expectedStatus: SegmentsStatus = {
 			event: 'segments',
 			rundownPlaylistId: unprotectString(testPlaylist._id),
 			segments: [],
 		}
+		jest.advanceTimersByTime(THROTTLE_PERIOD_MS)
 		expect(mockSubscriber.send.mock.calls).toEqual([[JSON.stringify(expectedStatus)]])
 	})
 
 	it('notifies subscribers when playlist id changes', async () => {
-		const topic = new SegmentsTopic(makeMockLogger())
+		const handlers = makeMockHandlers()
+		const topic = new SegmentsTopic(makeMockLogger(), handlers)
 		const mockSubscriber = makeMockSubscriber()
 
 		const testPlaylist = makeTestPlaylist()
-		await topic.update(PlaylistHandler.name, testPlaylist)
+		handlers.playlistHandler.notify(testPlaylist)
 
 		topic.addSubscriber(mockSubscriber)
 		mockSubscriber.send.mockClear()
 
 		const testPlaylist2 = makeTestPlaylist('PLAYLIST_2')
-		await topic.update(PlaylistHandler.name, testPlaylist2)
+		handlers.playlistHandler.notify(testPlaylist2)
 		jest.advanceTimersByTime(THROTTLE_PERIOD_MS)
 
 		const expectedStatus2: SegmentsStatus = {
@@ -104,45 +105,18 @@ describe('SegmentsTopic', () => {
 		expect(mockSubscriber.send.mock.calls).toEqual([[JSON.stringify(expectedStatus2)]])
 	})
 
-	it('does not notify subscribers when an unimportant property of the playlist changes', async () => {
-		const topic = new SegmentsTopic(makeMockLogger())
-		const mockSubscriber = makeMockSubscriber()
-
-		const testPlaylist = makeTestPlaylist()
-		await topic.update(PlaylistHandler.name, testPlaylist)
-
-		topic.addSubscriber(mockSubscriber)
-		mockSubscriber.send.mockClear()
-
-		const testPlaylist2 = makeTestPlaylist()
-		testPlaylist2.currentPartInfo = {
-			partInstanceId: protectString('PI_1'),
-			consumesQueuedSegmentId: true,
-			manuallySelected: false,
-			rundownId: protectString(RUNDOWN_1_ID),
-		}
-		testPlaylist2.name = 'Another Playlist'
-		testPlaylist2.startedPlayback = Date.now()
-		// ... this is enough to prove that it works as expected
-
-		await topic.update(PlaylistHandler.name, testPlaylist2)
-		jest.advanceTimersByTime(THROTTLE_PERIOD_MS)
-
-		// eslint-disable-next-line @typescript-eslint/unbound-method
-		expect(mockSubscriber.send).toHaveBeenCalledTimes(0)
-	})
-
 	it('notifies subscribers when segments change', async () => {
-		const topic = new SegmentsTopic(makeMockLogger())
+		const handlers = makeMockHandlers()
+		const topic = new SegmentsTopic(makeMockLogger(), handlers)
 		const mockSubscriber = makeMockSubscriber()
 
 		const testPlaylist = makeTestPlaylist()
-		await topic.update(PlaylistHandler.name, testPlaylist)
+		handlers.playlistHandler.notify(testPlaylist)
 
 		topic.addSubscriber(mockSubscriber)
 		mockSubscriber.send.mockClear()
 
-		await topic.update(SegmentsHandler.name, [
+		handlers.segmentsHandler.notify([
 			makeTestSegment('2_1', 1, RUNDOWN_2_ID),
 			makeTestSegment('2_2', 2, RUNDOWN_2_ID),
 			makeTestSegment('1_2', 2, RUNDOWN_1_ID),
@@ -188,12 +162,13 @@ describe('SegmentsTopic', () => {
 	})
 
 	it('notifies subscribers when rundown order changes', async () => {
-		const topic = new SegmentsTopic(makeMockLogger())
+		const handlers = makeMockHandlers()
+		const topic = new SegmentsTopic(makeMockLogger(), handlers)
 		const mockSubscriber = makeMockSubscriber()
 
 		const testPlaylist = makeTestPlaylist()
-		await topic.update(PlaylistHandler.name, testPlaylist)
-		await topic.update(SegmentsHandler.name, [
+		handlers.playlistHandler.notify(testPlaylist)
+		handlers.segmentsHandler.notify([
 			makeTestSegment('2_1', 1, RUNDOWN_2_ID),
 			makeTestSegment('2_2', 2, RUNDOWN_2_ID),
 			makeTestSegment('1_2', 2, RUNDOWN_1_ID),
@@ -205,7 +180,7 @@ describe('SegmentsTopic', () => {
 
 		const testPlaylist2 = makeTestPlaylist()
 		testPlaylist2.rundownIdsInOrder = [protectString(RUNDOWN_2_ID), protectString(RUNDOWN_1_ID)]
-		await topic.update(PlaylistHandler.name, testPlaylist2)
+		handlers.playlistHandler.notify(testPlaylist2)
 		jest.advanceTimersByTime(THROTTLE_PERIOD_MS)
 
 		const expectedStatus: SegmentsStatus = {
@@ -246,11 +221,12 @@ describe('SegmentsTopic', () => {
 	})
 
 	it('exposes budgetDuration', async () => {
-		const topic = new SegmentsTopic(makeMockLogger())
+		const handlers = makeMockHandlers()
+		const topic = new SegmentsTopic(makeMockLogger(), handlers)
 		const mockSubscriber = makeMockSubscriber()
 
 		const testPlaylist = makeTestPlaylist()
-		await topic.update(PlaylistHandler.name, testPlaylist)
+		handlers.playlistHandler.notify(testPlaylist)
 
 		topic.addSubscriber(mockSubscriber)
 		mockSubscriber.send.mockClear()
@@ -258,14 +234,14 @@ describe('SegmentsTopic', () => {
 		const segment_1_1_id = '1_1'
 		const segment_1_2_id = '1_2'
 		const segment_2_2_id = '2_2'
-		await topic.update(SegmentsHandler.name, [
+		handlers.segmentsHandler.notify([
 			makeTestSegment('2_1', 1, RUNDOWN_2_ID),
 			makeTestSegment(segment_2_2_id, 2, RUNDOWN_2_ID, { segmentTiming: { budgetDuration: 51000 } }),
 			makeTestSegment(segment_1_2_id, 2, RUNDOWN_1_ID, { segmentTiming: { budgetDuration: 15000 } }),
 			makeTestSegment(segment_1_1_id, 1, RUNDOWN_1_ID, { segmentTiming: { budgetDuration: 5000 } }),
 		])
 		mockSubscriber.send.mockClear()
-		await topic.update(PartsHandler.name, [
+		handlers.partsHandler.notify([
 			makeTestPart('1_2_1', 1, RUNDOWN_1_ID, segment_1_2_id),
 			makeTestPart('2_2_1', 1, RUNDOWN_1_ID, segment_2_2_id),
 			makeTestPart('1_2_2', 2, RUNDOWN_1_ID, segment_1_2_id),
@@ -319,11 +295,12 @@ describe('SegmentsTopic', () => {
 	})
 
 	it('exposes expectedDuration', async () => {
-		const topic = new SegmentsTopic(makeMockLogger())
+		const handlers = makeMockHandlers()
+		const topic = new SegmentsTopic(makeMockLogger(), handlers)
 		const mockSubscriber = makeMockSubscriber()
 
 		const testPlaylist = makeTestPlaylist()
-		await topic.update(PlaylistHandler.name, testPlaylist)
+		handlers.playlistHandler.notify(testPlaylist)
 
 		topic.addSubscriber(mockSubscriber)
 		mockSubscriber.send.mockClear()
@@ -331,14 +308,14 @@ describe('SegmentsTopic', () => {
 		const segment_1_1_id = '1_1'
 		const segment_1_2_id = '1_2'
 		const segment_2_2_id = '2_2'
-		await topic.update(SegmentsHandler.name, [
+		handlers.segmentsHandler.notify([
 			makeTestSegment('2_1', 1, RUNDOWN_2_ID),
 			makeTestSegment(segment_2_2_id, 2, RUNDOWN_2_ID),
 			makeTestSegment(segment_1_2_id, 2, RUNDOWN_1_ID),
 			makeTestSegment(segment_1_1_id, 1, RUNDOWN_1_ID),
 		])
 		mockSubscriber.send.mockClear()
-		await topic.update(PartsHandler.name, [
+		handlers.partsHandler.notify([
 			makeTestPart('1_2_1', 1, RUNDOWN_1_ID, segment_1_2_id, {
 				expectedDurationWithTransition: 10000,
 			}),
@@ -401,12 +378,13 @@ describe('SegmentsTopic', () => {
 	})
 
 	it('includes segment identifier', async () => {
-		const topic = new SegmentsTopic(makeMockLogger())
+		const handlers = makeMockHandlers()
+		const topic = new SegmentsTopic(makeMockLogger(), handlers)
 		const mockSubscriber = makeMockSubscriber()
 
 		const testPlaylist = makeTestPlaylist()
-		await topic.update(PlaylistHandler.name, testPlaylist)
-		await topic.update(SegmentsHandler.name, [
+		handlers.playlistHandler.notify(testPlaylist)
+		handlers.segmentsHandler.notify([
 			{ ...makeTestSegment('1_2', 2, RUNDOWN_1_ID), identifier: 'SomeIdentifier' },
 			makeTestSegment('1_1', 1, RUNDOWN_1_ID),
 		])
@@ -416,7 +394,7 @@ describe('SegmentsTopic', () => {
 
 		const testPlaylist2 = makeTestPlaylist()
 		testPlaylist2.rundownIdsInOrder = [protectString(RUNDOWN_2_ID), protectString(RUNDOWN_1_ID)]
-		await topic.update(PlaylistHandler.name, testPlaylist2)
+		handlers.playlistHandler.notify(testPlaylist2)
 		jest.advanceTimersByTime(THROTTLE_PERIOD_MS)
 
 		const expectedStatus: SegmentsStatus = {

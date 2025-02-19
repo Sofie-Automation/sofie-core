@@ -3,7 +3,7 @@ import { CoreHandler } from './coreHandler'
 import { WebSocket, WebSocketServer } from 'ws'
 import { StudioHandler } from './collections/studioHandler'
 import { ShowStyleBaseHandler } from './collections/showStyleBaseHandler'
-import { PlaylistHandler } from './collections/playlistHandler'
+import { PlaylistHandler, PlaylistsHandler } from './collections/playlistHandler'
 import { RundownHandler } from './collections/rundownHandler'
 // import { RundownsHandler } from './collections/rundownsHandler'
 import { SegmentHandler } from './collections/segmentHandler'
@@ -24,6 +24,24 @@ import { PieceInstancesHandler } from './collections/pieceInstancesHandler'
 import { AdLibsTopic } from './topics/adLibsTopic'
 import { ActivePiecesTopic } from './topics/activePiecesTopic'
 
+export interface CollectionHandlers {
+	studioHandler: StudioHandler
+	showStyleBaseHandler: ShowStyleBaseHandler
+	playlistHandler: PlaylistHandler
+	playlistsHandler: PlaylistsHandler
+	rundownHandler: RundownHandler
+	segmentsHandler: SegmentsHandler
+	segmentHandler: SegmentHandler
+	partsHandler: PartsHandler
+	partHandler: PartHandler
+	partInstancesHandler: PartInstancesHandler
+	pieceInstancesHandler: PieceInstancesHandler
+	adLibActionsHandler: AdLibActionsHandler
+	adLibsHandler: AdLibsHandler
+	globalAdLibActionsHandler: GlobalAdLibActionsHandler
+	globalAdLibsHandler: GlobalAdLibsHandler
+}
+
 export class LiveStatusServer {
 	_logger: Logger
 	_coreHandler: CoreHandler
@@ -39,94 +57,55 @@ export class LiveStatusServer {
 
 		const rootChannel = new RootChannel(this._logger)
 
-		const studioTopic = new StudioTopic(this._logger)
-		const activePiecesTopic = new ActivePiecesTopic(this._logger)
-		const activePlaylistTopic = new ActivePlaylistTopic(this._logger)
-		const segmentsTopic = new SegmentsTopic(this._logger)
-		const adLibsTopic = new AdLibsTopic(this._logger)
+		const studioHandler = new StudioHandler(this._logger, this._coreHandler)
+		const showStyleBaseHandler = new ShowStyleBaseHandler(this._logger, this._coreHandler)
+		const playlistHandler = new PlaylistHandler(this._logger, this._coreHandler)
+		const playlistsHandler = playlistHandler.playlistsHandler
+		const rundownHandler = new RundownHandler(this._logger, this._coreHandler)
+		const segmentsHandler = new SegmentsHandler(this._logger, this._coreHandler)
+		const segmentHandler = new SegmentHandler(this._logger, this._coreHandler, segmentsHandler)
+		const partsHandler = new PartsHandler(this._logger, this._coreHandler)
+		const partHandler = new PartHandler(this._logger, this._coreHandler, partsHandler)
+		const partInstancesHandler = new PartInstancesHandler(this._logger, this._coreHandler)
+		const pieceInstancesHandler = new PieceInstancesHandler(this._logger, this._coreHandler)
+		const adLibActionsHandler = new AdLibActionsHandler(this._logger, this._coreHandler)
+		const adLibsHandler = new AdLibsHandler(this._logger, this._coreHandler)
+		const globalAdLibActionsHandler = new GlobalAdLibActionsHandler(this._logger, this._coreHandler)
+		const globalAdLibsHandler = new GlobalAdLibsHandler(this._logger, this._coreHandler)
+
+		const handlers: CollectionHandlers = {
+			studioHandler,
+			showStyleBaseHandler,
+			playlistHandler,
+			playlistsHandler,
+			rundownHandler,
+			segmentsHandler,
+			segmentHandler,
+			partsHandler,
+			partHandler,
+			partInstancesHandler,
+			pieceInstancesHandler,
+			adLibActionsHandler,
+			adLibsHandler,
+			globalAdLibActionsHandler,
+			globalAdLibsHandler,
+		}
+
+		for (const handlerName in handlers) {
+			handlers[handlerName as keyof CollectionHandlers].init(handlers)
+		}
+
+		const studioTopic = new StudioTopic(this._logger, handlers)
+		const activePiecesTopic = new ActivePiecesTopic(this._logger, handlers)
+		const activePlaylistTopic = new ActivePlaylistTopic(this._logger, handlers)
+		const segmentsTopic = new SegmentsTopic(this._logger, handlers)
+		const adLibsTopic = new AdLibsTopic(this._logger, handlers)
 
 		rootChannel.addTopic(StatusChannels.studio, studioTopic)
 		rootChannel.addTopic(StatusChannels.activePlaylist, activePlaylistTopic)
 		rootChannel.addTopic(StatusChannels.activePieces, activePiecesTopic)
 		rootChannel.addTopic(StatusChannels.segments, segmentsTopic)
 		rootChannel.addTopic(StatusChannels.adLibs, adLibsTopic)
-
-		const studioHandler = new StudioHandler(this._logger, this._coreHandler)
-		await studioHandler.init()
-		const showStyleBaseHandler = new ShowStyleBaseHandler(this._logger, this._coreHandler)
-		await showStyleBaseHandler.init()
-		const playlistHandler = new PlaylistHandler(this._logger, this._coreHandler)
-		await playlistHandler.init()
-		// const rundownsHandler = new RundownsHandler(this._logger, this._coreHandler)
-		// await rundownsHandler.init()
-		const rundownHandler = new RundownHandler(this._logger, this._coreHandler)
-		await rundownHandler.init()
-		const segmentsHandler = new SegmentsHandler(this._logger, this._coreHandler)
-		await segmentsHandler.init()
-		const segmentHandler = new SegmentHandler(this._logger, this._coreHandler, segmentsHandler)
-		await segmentHandler.init()
-		const partsHandler = new PartsHandler(this._logger, this._coreHandler)
-		await partsHandler.init()
-		const partHandler = new PartHandler(this._logger, this._coreHandler, partsHandler)
-		await partHandler.init()
-		const partInstancesHandler = new PartInstancesHandler(this._logger, this._coreHandler)
-		await partInstancesHandler.init()
-		const pieceInstancesHandler = new PieceInstancesHandler(this._logger, this._coreHandler)
-		await pieceInstancesHandler.init()
-		const adLibActionsHandler = new AdLibActionsHandler(this._logger, this._coreHandler)
-		await adLibActionsHandler.init()
-		const adLibsHandler = new AdLibsHandler(this._logger, this._coreHandler)
-		await adLibsHandler.init()
-		const globalAdLibActionsHandler = new GlobalAdLibActionsHandler(this._logger, this._coreHandler)
-		await globalAdLibActionsHandler.init()
-		const globalAdLibsHandler = new GlobalAdLibsHandler(this._logger, this._coreHandler)
-		await globalAdLibsHandler.init()
-
-		// add observers for collection subscription updates
-		await playlistHandler.subscribe(rundownHandler)
-		await playlistHandler.subscribe(segmentHandler)
-		await playlistHandler.subscribe(partHandler)
-		await playlistHandler.subscribe(partInstancesHandler)
-		await playlistHandler.subscribe(pieceInstancesHandler)
-		await rundownHandler.subscribe(showStyleBaseHandler)
-		await partInstancesHandler.subscribe(rundownHandler)
-		await partInstancesHandler.subscribe(segmentHandler)
-		// partInstancesHandler.subscribe(partHandler)
-		await partInstancesHandler.subscribe(adLibActionsHandler)
-		await partInstancesHandler.subscribe(globalAdLibActionsHandler)
-		await partInstancesHandler.subscribe(adLibsHandler)
-		await partInstancesHandler.subscribe(globalAdLibsHandler)
-		await showStyleBaseHandler.subscribe(pieceInstancesHandler)
-		await partInstancesHandler.subscribe(pieceInstancesHandler)
-
-		// add observers for websocket topic updates
-		await studioHandler.subscribe(studioTopic)
-		await playlistHandler.playlistsHandler.subscribe(studioTopic)
-
-		await playlistHandler.subscribe(activePlaylistTopic)
-		await showStyleBaseHandler.subscribe(activePlaylistTopic)
-		await partInstancesHandler.subscribe(activePlaylistTopic)
-		await partsHandler.subscribe(activePlaylistTopic)
-		await pieceInstancesHandler.subscribe(activePlaylistTopic)
-		await segmentHandler.subscribe(activePlaylistTopic)
-		await segmentsHandler.subscribe(activePlaylistTopic)
-
-		await playlistHandler.subscribe(activePiecesTopic)
-		await showStyleBaseHandler.subscribe(activePiecesTopic)
-		await pieceInstancesHandler.subscribe(activePiecesTopic)
-
-		await playlistHandler.subscribe(segmentsTopic)
-		await segmentsHandler.subscribe(segmentsTopic)
-		await partsHandler.subscribe(segmentsTopic)
-
-		await showStyleBaseHandler.subscribe(adLibsTopic)
-		await partsHandler.subscribe(adLibsTopic)
-		await segmentsHandler.subscribe(adLibsTopic)
-		await playlistHandler.subscribe(adLibsTopic)
-		await adLibActionsHandler.subscribe(adLibsTopic)
-		await adLibsHandler.subscribe(adLibsTopic)
-		await globalAdLibActionsHandler.subscribe(adLibsTopic)
-		await globalAdLibsHandler.subscribe(adLibsTopic)
 
 		const wss = new WebSocketServer({ port: 8080 })
 		wss.on('connection', (ws, request) => {

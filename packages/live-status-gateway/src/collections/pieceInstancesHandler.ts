@@ -1,25 +1,42 @@
 import { Logger } from 'winston'
 import { CoreHandler } from '../coreHandler'
-import { CollectionBase, Collection, CollectionObserver } from '../wsHandler'
+import { PublicationCollection } from '../publicationCollection'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
-import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 import areElementsShallowEqual from '@sofie-automation/shared-lib/dist/lib/isShallowEqual'
-import throttleToNextTick from '@sofie-automation/shared-lib/dist/lib/throttleToNextTick'
 import _ = require('underscore')
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
-import { PartInstanceId, PieceInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import {
+	PieceInstanceWithTimings,
 	processAndPrunePieceInstanceTimings,
 	resolvePrunedPieceInstance,
 } from '@sofie-automation/corelib/dist/playout/processAndPrune'
-import { ShowStyleBaseExt, ShowStyleBaseHandler } from './showStyleBaseHandler'
-import { PlaylistHandler } from './playlistHandler'
+import { ShowStyleBaseExt } from './showStyleBaseHandler'
 import { SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { PartInstancesHandler, SelectedPartInstances } from './partInstancesHandler'
+import { SelectedPartInstances } from './partInstancesHandler'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
+import { arePropertiesDeepEqual } from '../helpers/equality'
+import { CollectionHandlers } from '../liveStatusServer'
 import { ReadonlyDeep } from 'type-fest'
+import { PickKeys } from '@sofie-automation/shared-lib/dist/lib/types'
+
+const PLAYLIST_KEYS = [
+	'_id',
+	'activationId',
+	'currentPartInfo',
+	'nextPartInfo',
+	'previousPartInfo',
+	'rundownIdsInOrder',
+] as const
+type Playlist = PickKeys<DBRundownPlaylist, typeof PLAYLIST_KEYS>
+
+const PART_INSTANCES_KEYS = ['previous', 'current'] as const
+type PartInstances = PickKeys<SelectedPartInstances, typeof PART_INSTANCES_KEYS>
+
+const SHOW_STYLE_BASE_KEYS = ['sourceLayers'] as const
+type ShowStyle = PickKeys<ShowStyleBaseExt, typeof SHOW_STYLE_BASE_KEYS>
 
 export type PieceInstanceMin = Omit<ReadonlyDeep<PieceInstance>, 'reportedStartedPlayback' | 'reportedStoppedPlayback'>
 
@@ -34,31 +51,18 @@ export interface SelectedPieceInstances {
 	nextPartInstance: PieceInstanceMin[]
 }
 
-export class PieceInstancesHandler
-	extends CollectionBase<SelectedPieceInstances, CorelibPubSub.pieceInstances, CollectionName.PieceInstances>
-	implements Collection<SelectedPieceInstances>, CollectionObserver<DBRundownPlaylist>
-{
-	public observerName: string
-	private _currentPlaylist: DBRundownPlaylist | undefined
+export class PieceInstancesHandler extends PublicationCollection<
+	SelectedPieceInstances,
+	CorelibPubSub.pieceInstances,
+	CollectionName.PieceInstances
+> {
+	private _currentPlaylist: Playlist | undefined
 	private _partInstanceIds: PartInstanceId[] = []
-	private _activationId: string | undefined
-	private _subscriptionPending = false
 	private _sourceLayers: SourceLayers = {}
-	private _partInstances: SelectedPartInstances | undefined
-
-	private _throttledUpdateAndNotify = throttleToNextTick(() => {
-		this.updateAndNotify().catch(this._logger.error)
-	})
+	private _partInstances: PartInstances | undefined
 
 	constructor(logger: Logger, coreHandler: CoreHandler) {
-		super(
-			PieceInstancesHandler.name,
-			CollectionName.PieceInstances,
-			CorelibPubSub.pieceInstances,
-			logger,
-			coreHandler
-		)
-		this.observerName = this._name
+		super(CollectionName.PieceInstances, CorelibPubSub.pieceInstances, logger, coreHandler)
 		this._collectionData = {
 			active: [],
 			currentPartInstance: [],
@@ -66,17 +70,23 @@ export class PieceInstancesHandler
 		}
 	}
 
-	async changed(id: PieceInstanceId, changeType: string): Promise<void> {
-		this.logDocumentChange(id, changeType)
-		if (!this._collectionName || this._subscriptionPending) return
-		this._throttledUpdateAndNotify()
+	init(handlers: CollectionHandlers): void {
+		super.init(handlers)
+
+		handlers.playlistHandler.subscribe(this.onPlaylistUpdate, PLAYLIST_KEYS)
+		handlers.partInstancesHandler.subscribe(this.onPartInstancesUpdate, PART_INSTANCES_KEYS)
+		handlers.showStyleBaseHandler.subscribe(this.onShowStyleBaseUpdate, SHOW_STYLE_BASE_KEYS)
+	}
+
+	protected changed(): void {
+		this.updateAndNotify()
 	}
 
 	private processAndPrunePieceInstanceTimings(
 		partInstance: DBPartInstance | undefined,
 		pieceInstances: PieceInstance[],
 		filterActive: boolean
-	): ReadonlyDeep<PieceInstance>[] {
+	): PieceInstanceWithTimings[] {
 		// Approximate when 'now' is in the PartInstance, so that any adlibbed Pieces will be timed roughly correctly
 		const partStarted = partInstance?.timings?.plannedStartedPlayback
 		const nowInPart = partStarted === undefined ? 0 : Date.now() - partStarted
@@ -104,9 +114,8 @@ export class PieceInstancesHandler
 	}
 
 	private updateCollectionData(): boolean {
-		if (!this._collectionName || !this._collectionData) return false
-		const collection = this._core.getCollection(this._collectionName)
-		if (!collection) throw new Error(`collection '${this._collectionName}' not found!`)
+		if (!this._collectionData) return false
+		const collection = this.getCollectionOrFail()
 
 		const inPreviousPartInstance = this._currentPlaylist?.previousPartInfo?.partInstanceId
 			? this.processAndPrunePieceInstanceTimings(
@@ -145,20 +154,35 @@ export class PieceInstancesHandler
 			hasAnythingChanged = true
 		}
 		if (
-			!_.isEqual(this._collectionData.currentPartInstance, inCurrentPartInstance) &&
-			(this._collectionData.currentPartInstance.length !== inCurrentPartInstance.length ||
-				this._collectionData.currentPartInstance.some((pieceInstance, index) => {
-					return !arePropertiesDeepEqual<ReadonlyDeep<PieceInstance>>(
-						inCurrentPartInstance[index],
-						pieceInstance,
-						['reportedStartedPlayback', 'reportedStoppedPlayback']
-					)
-				}))
+			this._collectionData.currentPartInstance.length !== inCurrentPartInstance.length ||
+			this._collectionData.currentPartInstance.some((pieceInstance, index) => {
+				return !arePropertiesDeepEqual<PieceInstanceWithTimings>(inCurrentPartInstance[index], pieceInstance, [
+					'plannedStartedPlayback',
+					'plannedStoppedPlayback',
+					'reportedStartedPlayback',
+					'reportedStoppedPlayback',
+					'resolvedEndCap',
+					'priority',
+				])
+			})
 		) {
+			this._logger.debug('xcur', { prev: this._collectionData.currentPartInstance, cur: inCurrentPartInstance })
 			this._collectionData.currentPartInstance = inCurrentPartInstance
 			hasAnythingChanged = true
 		}
-		if (!_.isEqual(this._collectionData.nextPartInstance, inNextPartInstance)) {
+		if (
+			this._collectionData.nextPartInstance.length !== inNextPartInstance.length ||
+			this._collectionData.nextPartInstance.some((pieceInstance, index) => {
+				return !arePropertiesDeepEqual<PieceInstanceWithTimings>(inNextPartInstance[index], pieceInstance, [
+					'plannedStartedPlayback',
+					'plannedStoppedPlayback',
+					'reportedStartedPlayback',
+					'reportedStoppedPlayback',
+					'resolvedEndCap',
+					'priority',
+				])
+			})
+		) {
 			this._collectionData.nextPartInstance = inNextPartInstance
 			hasAnythingChanged = true
 		}
@@ -166,122 +190,70 @@ export class PieceInstancesHandler
 	}
 
 	private clearCollectionData() {
-		if (!this._collectionName || !this._collectionData) return
+		if (!this._collectionData) return
 		this._collectionData.active = []
 		this._collectionData.currentPartInstance = []
 		this._collectionData.nextPartInstance = []
 	}
 
-	async update(
-		source: string,
-		data: DBRundownPlaylist | ShowStyleBaseExt | SelectedPartInstances | undefined
-	): Promise<void> {
-		switch (source) {
-			case PlaylistHandler.name:
-				return this.updateRundownPlaylist(source, data as DBRundownPlaylist | undefined)
-			case ShowStyleBaseHandler.name: {
-				this.logUpdateReceived('showStyleBase', source)
-				const showStyleBaseExt = data as ShowStyleBaseExt | undefined
-				this._sourceLayers = showStyleBaseExt?.sourceLayers ?? {}
-				this._throttledUpdateAndNotify()
-				break
-			}
-			case PartInstancesHandler.name: {
-				this.logUpdateReceived('partInstances', source)
-				this._partInstances = data as SelectedPartInstances
-				this._throttledUpdateAndNotify()
-				break
-			}
-			default:
-				throw new Error(`${this._name} received unsupported update from ${source}}`)
-		}
+	private onShowStyleBaseUpdate = (showStyleBase: ShowStyle | undefined): void => {
+		this.logUpdateReceived('showStyleBase')
+		this._sourceLayers = showStyleBase?.sourceLayers ?? {}
+		this.updateAndNotify()
 	}
 
-	private async updateRundownPlaylist(source: string, data: DBRundownPlaylist | undefined): Promise<void> {
-		const prevPartInstanceIds = this._partInstanceIds
-		const prevActivationId = this._activationId
+	private onPartInstancesUpdate = (partInstances: PartInstances | undefined): void => {
+		this.logUpdateReceived('partInstances')
+		this._partInstances = partInstances
+		this.updateAndNotify()
+	}
 
-		this.logUpdateReceived('playlist', source, `rundownPlaylistId ${data?._id}, active ${!!data?.activationId}`)
-		this._currentPlaylist = data
-		if (!this._collectionName) return
+	private onPlaylistUpdate = (playlist: Playlist | undefined): void => {
+		this.logUpdateReceived('playlist', `rundownPlaylistId ${playlist?._id}, active ${!!playlist?.activationId}`)
+
+		const prevPartInstanceIds = this._partInstanceIds
+		const prevPlaylist = this._currentPlaylist
+
+		this._currentPlaylist = playlist
 
 		this._partInstanceIds = this._currentPlaylist
-			? _.compact([
-					this._currentPlaylist.previousPartInfo?.partInstanceId,
-					this._currentPlaylist.nextPartInfo?.partInstanceId,
-					this._currentPlaylist.currentPartInfo?.partInstanceId,
-			  ])
+			? _.compact(
+					[
+						this._currentPlaylist.previousPartInfo?.partInstanceId,
+						this._currentPlaylist.nextPartInfo?.partInstanceId,
+						this._currentPlaylist.currentPartInfo?.partInstanceId,
+					].sort()
+			  )
 			: []
-		this._activationId = unprotectString(this._currentPlaylist?.activationId)
-		if (this._currentPlaylist && this._partInstanceIds.length && this._activationId) {
+		if (this._currentPlaylist && this._partInstanceIds.length && this._currentPlaylist?.activationId) {
 			const sameSubscription =
 				areElementsShallowEqual(this._partInstanceIds, prevPartInstanceIds) &&
-				prevActivationId === this._activationId
+				areElementsShallowEqual(
+					prevPlaylist?.rundownIdsInOrder ?? [],
+					this._currentPlaylist.rundownIdsInOrder
+				) &&
+				prevPlaylist?.activationId === this._currentPlaylist?.activationId
 			if (!sameSubscription) {
-				await new Promise(process.nextTick.bind(this))
-				if (!this._collectionName) return
-				if (!this._publicationName) return
-				if (!this._currentPlaylist) return
-				if (this._subscriptionId) this._coreHandler.unsubscribe(this._subscriptionId)
-				this._subscriptionPending = true
-				this._subscriptionId = await this._coreHandler.setupSubscription(
-					this._publicationName,
-					this._currentPlaylist.rundownIdsInOrder,
-					this._partInstanceIds,
-					{}
-				)
-				this._subscriptionPending = false
-				this._dbObserver = this._coreHandler.setupObserver(this._collectionName)
-				this._dbObserver.added = (id) => {
-					void this.changed(id, 'added').catch(this._logger.error)
-				}
-				this._dbObserver.changed = (id) => {
-					void this.changed(id, 'changed').catch(this._logger.error)
-				}
-				this._dbObserver.removed = (id) => {
-					void this.changed(id, 'removed').catch(this._logger.error)
-				}
-
-				await this.updateAndNotify()
+				this.setupSubscription(this._currentPlaylist.rundownIdsInOrder, this._partInstanceIds, {})
 			} else if (this._subscriptionId) {
-				await this.updateAndNotify()
+				this.updateAndNotify()
 			} else {
-				await this.clearAndNotify()
+				this.clearAndNotify()
 			}
 		} else {
-			this.clearCollectionData()
-			await this.notify(this._collectionData)
+			this.clearAndNotify()
 		}
 	}
 
-	private async clearAndNotify() {
+	private clearAndNotify() {
 		this.clearCollectionData()
-		await this.notify(this._collectionData)
+		this.notify(this._collectionData)
 	}
 
-	private async updateAndNotify() {
+	private updateAndNotify() {
 		const hasAnythingChanged = this.updateCollectionData()
 		if (hasAnythingChanged) {
-			await this.notify(this._collectionData)
+			this.notify(this._collectionData)
 		}
 	}
-}
-
-function arePropertiesDeepEqual<T extends Record<string, any>>(a: T, b: T, omitProperties: Array<keyof T>): boolean {
-	if (typeof a !== 'object' || a == null || typeof b !== 'object' || b == null) {
-		return false
-	}
-
-	const keysA = Object.keys(a).filter((key) => !omitProperties.includes(key))
-	const keysB = Object.keys(b).filter((key) => !omitProperties.includes(key))
-
-	if (keysA.length !== keysB.length) return false
-
-	for (const key of keysA) {
-		if (!keysB.includes(key) || !_.isEqual(a[key], b[key])) {
-			return false
-		}
-	}
-
-	return true
 }

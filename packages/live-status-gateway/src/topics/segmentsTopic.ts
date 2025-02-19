@@ -1,17 +1,15 @@
 import { Logger } from 'winston'
 import { WebSocket } from 'ws'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { WebSocketTopicBase, WebSocketTopic, CollectionObserver } from '../wsHandler'
+import { WebSocketTopicBase, WebSocketTopic } from '../wsHandler'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { PlaylistHandler } from '../collections/playlistHandler'
 import { groupByToMap } from '@sofie-automation/corelib/dist/lib'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
-import { SegmentsHandler } from '../collections/segmentsHandler'
-import areElementsShallowEqual from '@sofie-automation/shared-lib/dist/lib/isShallowEqual'
-import { PartsHandler } from '../collections/partsHandler'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import _ = require('underscore')
 import { SegmentTiming, calculateSegmentTiming } from './helpers/segmentTiming'
+import { CollectionHandlers } from '../liveStatusServer'
+import { PickKeys } from '@sofie-automation/shared-lib/dist/lib/types'
 
 const THROTTLE_PERIOD_MS = 200
 
@@ -30,32 +28,21 @@ export interface SegmentsStatus {
 	segments: SegmentStatus[]
 }
 
-export class SegmentsTopic
-	extends WebSocketTopicBase
-	implements
-		WebSocketTopic,
-		CollectionObserver<DBSegment[]>,
-		CollectionObserver<DBRundownPlaylist>,
-		CollectionObserver<DBPart[]>
-{
-	public observerName = SegmentsTopic.name
-	private _activePlaylist: DBRundownPlaylist | undefined
+const PLAYLIST_KEYS = ['_id', 'rundownIdsInOrder', 'activationId'] as const
+type Playlist = PickKeys<DBRundownPlaylist, typeof PLAYLIST_KEYS>
+
+export class SegmentsTopic extends WebSocketTopicBase implements WebSocketTopic {
+	private _activePlaylist: Playlist | undefined
 	private _segments: DBSegment[] = []
 	private _partsBySegment: Record<string, DBPart[]> = {}
 	private _orderedSegments: DBSegment[] = []
-	private throttledSendStatusToAll: () => void
 
-	constructor(logger: Logger) {
-		super(SegmentsTopic.name, logger)
-		this.throttledSendStatusToAll = _.throttle(this.sendStatusToAll.bind(this), THROTTLE_PERIOD_MS, {
-			leading: true,
-			trailing: true,
-		})
-	}
+	constructor(logger: Logger, handlers: CollectionHandlers) {
+		super(SegmentsTopic.name, logger, THROTTLE_PERIOD_MS)
 
-	addSubscriber(ws: WebSocket): void {
-		super.addSubscriber(ws)
-		this.sendStatus([ws])
+		handlers.playlistHandler.subscribe(this.onPlaylistUpdate, PLAYLIST_KEYS)
+		handlers.segmentsHandler.subscribe(this.onSegmentsUpdate)
+		handlers.partsHandler.subscribe(this.onPartsUpdate)
 	}
 
 	sendStatus(subscribers: Iterable<WebSocket>): void {
@@ -68,7 +55,7 @@ export class SegmentsTopic
 					id: segmentId,
 					rundownId: unprotectString(segment.rundownId),
 					name: segment.name,
-					timing: calculateSegmentTiming(segment, this._partsBySegment[segmentId] ?? []),
+					timing: calculateSegmentTiming(segment.segmentTiming, this._partsBySegment[segmentId] ?? []),
 					identifier: segment.identifier,
 					publicData: segment.publicData,
 				}
@@ -78,51 +65,33 @@ export class SegmentsTopic
 		this.sendMessage(subscribers, segmentsStatus)
 	}
 
-	async update(source: string, data: DBRundownPlaylist | DBSegment[] | DBPart[] | undefined): Promise<void> {
-		const prevSegments = this._segments
-		const prevRundownOrder = this._activePlaylist?.rundownIdsInOrder ?? []
-		const prevParts = this._partsBySegment
-		const prevPlaylistId = this._activePlaylist?._id
-		switch (source) {
-			case PlaylistHandler.name: {
-				this._activePlaylist = data as DBRundownPlaylist | undefined
-				this.logUpdateReceived('playlist', source)
-				break
-			}
-			case SegmentsHandler.name: {
-				this._segments = data as DBSegment[]
-				this.logUpdateReceived('segments', source)
-				break
-			}
-			case PartsHandler.name: {
-				this._partsBySegment = _.groupBy(data as DBPart[], 'segmentId')
-				this.logUpdateReceived('parts', source)
-				break
-			}
-			default:
-				throw new Error(`${this._name} received unsupported update from ${source}}`)
-		}
-
-		if (this._activePlaylist) {
-			if (
-				this._activePlaylist._id !== prevPlaylistId ||
-				prevSegments !== this._segments ||
-				prevParts !== this._partsBySegment ||
-				!areElementsShallowEqual(prevRundownOrder, this._activePlaylist.rundownIdsInOrder)
-			) {
-				const segmentsByRundownId = groupByToMap(this._segments, 'rundownId')
-				this._orderedSegments = this._activePlaylist.rundownIdsInOrder.flatMap((rundownId) => {
-					return segmentsByRundownId.get(rundownId)?.sort((a, b) => a._rank - b._rank) ?? []
-				})
-				this.throttledSendStatusToAll()
-			}
-		} else {
-			this._orderedSegments = []
-			this.throttledSendStatusToAll()
-		}
+	private onPlaylistUpdate = (rundownPlaylist: Playlist | undefined): void => {
+		this.logUpdateReceived(
+			'playlist',
+			`rundownPlaylistId ${rundownPlaylist?._id}, activationId ${rundownPlaylist?.activationId}`
+		)
+		this._activePlaylist = rundownPlaylist
+		this.updateAndSendStatusToAll()
 	}
 
-	private sendStatusToAll() {
-		this.sendStatus(this._subscribers)
+	private onSegmentsUpdate = (segments: DBSegment[] | undefined): void => {
+		this.logUpdateReceived('segments')
+		this._segments = segments ?? []
+		this.updateAndSendStatusToAll()
+	}
+
+	private onPartsUpdate = (parts: DBPart[] | undefined): void => {
+		this.logUpdateReceived('parts')
+		this._partsBySegment = _.groupBy(parts ?? [], 'segmentId')
+		this.updateAndSendStatusToAll()
+	}
+
+	private updateAndSendStatusToAll() {
+		const segmentsByRundownId = groupByToMap(this._segments, 'rundownId')
+		this._orderedSegments =
+			this._activePlaylist?.rundownIdsInOrder.flatMap((rundownId) => {
+				return segmentsByRundownId.get(rundownId)?.sort((a, b) => a._rank - b._rank) ?? []
+			}) ?? []
+		this.throttledSendStatusToAll()
 	}
 }

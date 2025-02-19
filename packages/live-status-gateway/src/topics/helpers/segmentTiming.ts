@@ -1,6 +1,6 @@
+import { SegmentTimingInfo } from '@sofie-automation/blueprints-integration'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
-import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 
 export interface SegmentTiming {
 	budgetDurationMs?: number
@@ -13,13 +13,13 @@ export interface CurrentSegmentTiming extends SegmentTiming {
 }
 
 export function calculateCurrentSegmentTiming(
-	segment: DBSegment,
+	segmentTimingInfo: SegmentTimingInfo | undefined,
 	currentPartInstance: DBPartInstance,
 	firstInstanceInSegmentPlayout: DBPartInstance | undefined,
 	segmentPartInstances: DBPartInstance[],
 	segmentParts: DBPart[]
 ): CurrentSegmentTiming {
-	const segmentTiming = calculateSegmentTiming(segment, segmentParts)
+	const segmentTiming = calculateSegmentTiming(segmentTimingInfo, segmentParts)
 	const playedDurations = segmentPartInstances.reduce((sum, partInstance) => {
 		return (partInstance.timings?.duration ?? 0) + sum
 	}, 0)
@@ -39,14 +39,17 @@ export function calculateCurrentSegmentTiming(
 	}
 }
 
-export function calculateSegmentTiming(segment: DBSegment, segmentParts: DBPart[]): SegmentTiming {
+export function calculateSegmentTiming(
+	segmentTimingInfo: SegmentTimingInfo | undefined,
+	segmentParts: DBPart[]
+): SegmentTiming {
 	return {
-		budgetDurationMs: segment.segmentTiming?.budgetDuration,
+		budgetDurationMs: segmentTimingInfo?.budgetDuration,
 		expectedDurationMs: segmentParts.reduce<number>((sum, part): number => {
 			return part.expectedDurationWithTransition != null && !part.untimed
 				? sum + part.expectedDurationWithTransition
 				: sum
 		}, 0),
-		countdownType: segment.segmentTiming?.countdownType,
+		countdownType: segmentTimingInfo?.countdownType,
 	}
 }

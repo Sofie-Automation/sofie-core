@@ -1,15 +1,15 @@
 import { Logger } from 'winston'
 import { WebSocket } from 'ws'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { literal } from '@sofie-automation/shared-lib/dist/lib/lib'
-import { WebSocketTopicBase, WebSocketTopic, CollectionObserver } from '../wsHandler'
-import { PlaylistHandler } from '../collections/playlistHandler'
-import { ShowStyleBaseExt, ShowStyleBaseHandler } from '../collections/showStyleBaseHandler'
-import _ = require('underscore')
-import { SelectedPieceInstances, PieceInstancesHandler, PieceInstanceMin } from '../collections/pieceInstancesHandler'
+import { WebSocketTopicBase, WebSocketTopic } from '../wsHandler'
+import { ShowStyleBaseExt } from '../collections/showStyleBaseHandler'
+import { SelectedPieceInstances, PieceInstanceMin } from '../collections/pieceInstancesHandler'
 import { PieceStatus, toPieceStatus } from './helpers/pieceStatus'
 import { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { CollectionHandlers } from '../liveStatusServer'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { PickKeys } from '@sofie-automation/shared-lib/dist/lib/types'
 
 const THROTTLE_PERIOD_MS = 100
 
@@ -19,31 +19,23 @@ export interface ActivePiecesStatus {
 	activePieces: PieceStatus[]
 }
 
-export class ActivePiecesTopic
-	extends WebSocketTopicBase
-	implements
-		WebSocketTopic,
-		CollectionObserver<DBRundownPlaylist>,
-		CollectionObserver<ShowStyleBaseExt>,
-		CollectionObserver<SelectedPieceInstances>
-{
-	public observerName = ActivePiecesTopic.name
+const PLAYLIST_KEYS = ['_id', 'activationId'] as const
+type Playlist = PickKeys<DBRundownPlaylist, typeof PLAYLIST_KEYS>
+
+const PIECE_INSTANCES_KEYS = ['active'] as const
+type PieceInstances = PickKeys<SelectedPieceInstances, typeof PIECE_INSTANCES_KEYS>
+
+export class ActivePiecesTopic extends WebSocketTopicBase implements WebSocketTopic {
 	private _activePlaylistId: RundownPlaylistId | undefined
 	private _activePieceInstances: PieceInstanceMin[] | undefined
 	private _showStyleBaseExt: ShowStyleBaseExt | undefined
-	private throttledSendStatusToAll: () => void
 
-	constructor(logger: Logger) {
-		super(ActivePiecesTopic.name, logger)
-		this.throttledSendStatusToAll = _.throttle(this.sendStatusToAll.bind(this), THROTTLE_PERIOD_MS, {
-			leading: false,
-			trailing: true,
-		})
-	}
+	constructor(logger: Logger, handlers: CollectionHandlers) {
+		super(ActivePiecesTopic.name, logger, THROTTLE_PERIOD_MS)
 
-	addSubscriber(ws: WebSocket): void {
-		super.addSubscriber(ws)
-		this.sendStatus([ws])
+		handlers.playlistHandler.subscribe(this.onPlaylistUpdate, PLAYLIST_KEYS)
+		handlers.showStyleBaseHandler.subscribe(this.onShowStyleBaseUpdate)
+		handlers.pieceInstancesHandler.subscribe(this.onPieceInstancesUpdate, PIECE_INSTANCES_KEYS)
 	}
 
 	sendStatus(subscribers: Iterable<WebSocket>): void {
@@ -63,53 +55,31 @@ export class ActivePiecesTopic
 		this.sendMessage(subscribers, message)
 	}
 
-	async update(
-		source: string,
-		data: DBRundownPlaylist | ShowStyleBaseExt | SelectedPieceInstances | undefined
-	): Promise<void> {
-		let hasAnythingChanged = false
-		switch (source) {
-			case PlaylistHandler.name: {
-				const rundownPlaylist = data ? (data as DBRundownPlaylist) : undefined
-				this._logger.info(
-					`${this._name} received playlist update ${rundownPlaylist?._id}, activationId ${rundownPlaylist?.activationId}`
-				)
-				const previousActivePlaylistId = this._activePlaylistId
-				this._activePlaylistId = unprotectString(rundownPlaylist?.activationId)
-					? rundownPlaylist?._id
-					: undefined
+	private onShowStyleBaseUpdate = (showStyleBase: ShowStyleBaseExt | undefined): void => {
+		this.logUpdateReceived('showStyleBase')
+		this._showStyleBaseExt = showStyleBase
+		this.throttledSendStatusToAll()
+	}
 
-				if (previousActivePlaylistId !== this._activePlaylistId) {
-					hasAnythingChanged = true
-				}
-				break
-			}
-			case ShowStyleBaseHandler.name: {
-				const showStyleBaseExt = data ? (data as ShowStyleBaseExt) : undefined
-				this._logger.info(`${this._name} received showStyleBase update from ${source}`)
-				this._showStyleBaseExt = showStyleBaseExt
-				hasAnythingChanged = true
-				break
-			}
-			case PieceInstancesHandler.name: {
-				const pieceInstances = data as SelectedPieceInstances
-				this._logger.info(`${this._name} received pieceInstances update from ${source}`)
-				if (pieceInstances.active !== this._activePieceInstances) {
-					hasAnythingChanged = true
-				}
-				this._activePieceInstances = pieceInstances.active
-				break
-			}
-			default:
-				throw new Error(`${this._name} received unsupported update from ${source}}`)
-		}
+	private onPlaylistUpdate = (rundownPlaylist: Playlist | undefined): void => {
+		this.logUpdateReceived(
+			'playlist',
+			`rundownPlaylistId ${rundownPlaylist?._id}, activationId ${rundownPlaylist?.activationId}`
+		)
+		const previousActivePlaylistId = this._activePlaylistId
+		this._activePlaylistId = unprotectString(rundownPlaylist?.activationId) ? rundownPlaylist?._id : undefined
 
-		if (hasAnythingChanged) {
+		if (previousActivePlaylistId !== this._activePlaylistId) {
 			this.throttledSendStatusToAll()
 		}
 	}
 
-	private sendStatusToAll() {
-		this.sendStatus(this._subscribers)
+	private onPieceInstancesUpdate = (pieceInstances: PieceInstances | undefined): void => {
+		this.logUpdateReceived('pieceInstances')
+		const prevPieceInstances = this._activePieceInstances
+		this._activePieceInstances = pieceInstances?.active
+		if (prevPieceInstances !== this._activePieceInstances) {
+			this.throttledSendStatusToAll()
+		}
 	}
 }
