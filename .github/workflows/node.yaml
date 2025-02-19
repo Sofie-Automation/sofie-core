@@ -26,15 +26,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: ".node-version"
-      - name: Prepare Environment
-        run: |
-          corepack enable
-
-          yarn config set cacheFolder /home/runner/lint-core-cache
-          yarn
-          yarn build:packages
-        env:
-          CI: true
       - uses: ./.github/actions/setup-meteor
       - name: restore node_modules
         uses: actions/cache@v4
@@ -44,6 +35,15 @@ jobs:
             meteor/node_modules
             packages/node_modules
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock', 'meteor/yarn.lock', 'meteor/.meteor/release', 'packages/yarn.lock') }}
+      - name: Prepare Environment
+        run: |
+          corepack enable
+
+          yarn config set cacheFolder /home/runner/lint-core-cache
+          yarn
+          yarn build:packages
+        env:
+          CI: true
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -159,12 +159,6 @@ jobs:
           # debug output
           echo "ecrrepo-publish $ECRREPO_PUBLISH"
           echo "ecrrepo-publish=$ECRREPO_PUBLISH" >> $GITHUB_OUTPUT
-      - name: Prepare Environment
-        if: steps.ecrrepo.outputs.ecrrepo-publish == '1'
-        run: |
-          corepack enable
-
-          yarn install
       - name: Configure AWS Credentials
         if: steps.ecrrepo.outputs.ecrrepo-publish == '1'
         uses: aws-actions/configure-aws-credentials@v4
@@ -202,6 +196,12 @@ jobs:
             meteor/node_modules
             packages/node_modules
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock', 'meteor/yarn.lock', 'meteor/.meteor/release', 'packages/yarn.lock') }}
+      - name: Prepare Environment
+        if: steps.ecrrepo.outputs.ecrrepo-publish == '1'
+        run: |
+          corepack enable
+
+          yarn install
       - name: Login to CodeArtifact
         run: |
           aws codeartifact login --tool npm --repository selma-store --domain selma --domain-owner ${{ secrets.AWS_ACCOUNT_ID }} --region ${{ secrets.AWS_REGION }}
