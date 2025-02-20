@@ -52,6 +52,24 @@ export interface CollectionHandlers {
 	bucketAdLibActionsHandler: BucketAdLibActionsHandler
 }
 
+export interface CollectionHandlers {
+	studioHandler: StudioHandler
+	showStyleBaseHandler: ShowStyleBaseHandler
+	playlistHandler: PlaylistHandler
+	playlistsHandler: PlaylistsHandler
+	rundownHandler: RundownHandler
+	segmentsHandler: SegmentsHandler
+	segmentHandler: SegmentHandler
+	partsHandler: PartsHandler
+	partHandler: PartHandler
+	partInstancesHandler: PartInstancesHandler
+	pieceInstancesHandler: PieceInstancesHandler
+	adLibActionsHandler: AdLibActionsHandler
+	adLibsHandler: AdLibsHandler
+	globalAdLibActionsHandler: GlobalAdLibActionsHandler
+	globalAdLibsHandler: GlobalAdLibsHandler
+}
+
 export class LiveStatusServer {
 	_logger: Logger
 	_coreHandler: CoreHandler

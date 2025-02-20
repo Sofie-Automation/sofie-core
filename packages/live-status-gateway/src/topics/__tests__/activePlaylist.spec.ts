@@ -135,6 +135,16 @@ describe('ActivePlaylistTopic', () => {
 					expectedDurationMs: 10000,
 					projectedEndTime: 1600000070000,
 				},
+				parts: [
+					{
+						id: 'PART_1',
+						name: 'Test Part',
+						timing: {
+							expectedDurationMs: 10000,
+						},
+						autoNext: undefined,
+					},
+				],
 			},
 			rundownIds: unprotectStringArray(playlist.rundownIdsInOrder),
 			publicData: { a: 'b' },
@@ -230,6 +240,16 @@ describe('ActivePlaylistTopic', () => {
 					projectedEndTime: 1600000072300,
 					countdownType: 'segment_budget_duration',
 				},
+				parts: [
+					{
+						id: 'PART_1',
+						name: 'Test Part',
+						timing: {
+							expectedDurationMs: 10000,
+						},
+						autoNext: undefined,
+					},
+				],
 			},
 			rundownIds: unprotectStringArray(playlist.rundownIdsInOrder),
 			publicData: { a: 'b' },
