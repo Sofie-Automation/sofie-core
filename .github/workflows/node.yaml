@@ -220,11 +220,17 @@ jobs:
         run: |
           cd meteor
           yarn inject-git-hash
+      - name: Prepare webui for meteor build
+        if: steps.ecrrepo.outputs.ecrrepo-publish == '1'
+        run: |
+          rm -Rf meteor/public
+          cp -R packages/webui/dist meteor/public
       - name: Meteor Build
         if: steps.ecrrepo.outputs.ecrrepo-publish == '1'
         run: |
           cd meteor
           NODE_OPTIONS="--max-old-space-size=4096" METEOR_DEBUG_BUILD=1 meteor build --allow-superuser --directory .
+          mv bundle/programs/web.browser/assets/ bundle/programs/web.browser/app/assets/ || true
       - name: Meteor Bundle NPM Build
         if: steps.ecrrepo.outputs.ecrrepo-publish == '1'
         run: |
