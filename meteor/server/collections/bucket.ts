@@ -1,7 +1,7 @@
 import { BucketAdLibAction } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibAction'
 import { BucketAdLib } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibPiece'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
-import { Bucket } from '@sofie-automation/meteor-lib/dist/collections/Buckets'
+import { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
 import { createAsyncOnlyMongoCollection } from './collection'
 import { registerIndex } from './indices'
 

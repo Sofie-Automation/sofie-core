@@ -1,6 +1,6 @@
 import { Logger } from 'winston'
 import { CoreHandler } from '../coreHandler'
-import { Collection, PickArr, PublicationCollection } from '../wsHandler'
+import { PublicationCollection } from '../publicationCollection'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { RundownId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
@@ -9,14 +9,16 @@ import { RundownsHandler } from './rundownsHandler'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { unprotectString } from '@sofie-automation/server-core-integration'
 import { CollectionHandlers } from '../liveStatusServer'
+import { PickKeys } from '@sofie-automation/shared-lib/dist/lib/types'
 
 const PLAYLIST_KEYS = ['_id', 'currentPartInfo', 'nextPartInfo'] as const
-type Playlist = PickArr<DBRundownPlaylist, typeof PLAYLIST_KEYS>
+type Playlist = PickKeys<DBRundownPlaylist, typeof PLAYLIST_KEYS>
 
-export class RundownHandler
-	extends PublicationCollection<DBRundown, CorelibPubSub.rundownsInPlaylists, CollectionName.Rundowns>
-	implements Collection<DBRundown>
-{
+export class RundownHandler extends PublicationCollection<
+	DBRundown,
+	CorelibPubSub.rundownsInPlaylists,
+	CollectionName.Rundowns
+> {
 	private _currentPlaylistId: RundownPlaylistId | undefined
 	private _currentRundownId: RundownId | undefined
 
@@ -30,11 +32,11 @@ export class RundownHandler
 		handlers.playlistHandler.subscribe(this.onPlaylistUpdate, PLAYLIST_KEYS)
 	}
 
-	changed(): void {
+	protected changed(): void {
 		this.updateAndNotify()
 	}
 
-	protected updateAndNotify(): void {
+	private updateAndNotify(): void {
 		const collection = this.getCollectionOrFail()
 		this._rundownsHandler?.setRundowns(collection.find(undefined))
 		if (this._currentRundownId) {

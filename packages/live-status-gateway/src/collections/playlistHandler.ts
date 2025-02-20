@@ -1,15 +1,13 @@
 import { Logger } from 'winston'
 import { CoreHandler } from '../coreHandler'
-import { CollectionBase, Collection, PublicationCollection } from '../wsHandler'
+import { PublicationCollection } from '../publicationCollection'
+import { CollectionBase } from '../collectionBase'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { CollectionHandlers } from '../liveStatusServer'
 
-export class PlaylistsHandler
-	extends CollectionBase<DBRundownPlaylist[], CollectionName.RundownPlaylists>
-	implements Collection<DBRundownPlaylist[]>
-{
+export class PlaylistsHandler extends CollectionBase<DBRundownPlaylist[], CollectionName.RundownPlaylists> {
 	constructor(logger: Logger, coreHandler: CoreHandler) {
 		super(CollectionName.RundownPlaylists, logger, coreHandler)
 	}
@@ -21,10 +19,11 @@ export class PlaylistsHandler
 	}
 }
 
-export class PlaylistHandler
-	extends PublicationCollection<DBRundownPlaylist, CorelibPubSub.rundownPlaylists, CollectionName.RundownPlaylists>
-	implements Collection<DBRundownPlaylist>
-{
+export class PlaylistHandler extends PublicationCollection<
+	DBRundownPlaylist,
+	CorelibPubSub.rundownPlaylists,
+	CollectionName.RundownPlaylists
+> {
 	private _playlistsHandler: PlaylistsHandler
 
 	constructor(logger: Logger, coreHandler: CoreHandler) {
@@ -37,11 +36,11 @@ export class PlaylistHandler
 		this.setupSubscription(null, [this._studioId])
 	}
 
-	changed(): void {
+	protected changed(): void {
 		this.updateAndNotify()
 	}
 
-	protected updateAndNotify(): void {
+	private updateAndNotify(): void {
 		const collection = this.getCollectionOrFail()
 		const playlists = collection.find(undefined)
 		this._playlistsHandler.setPlaylists(playlists)

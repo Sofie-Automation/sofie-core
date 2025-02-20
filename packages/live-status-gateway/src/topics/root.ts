@@ -38,6 +38,7 @@ export enum StatusChannels {
 	segments = 'segments',
 	adLibs = 'adLibs',
 	packages = 'packages',
+	buckets = 'buckets',
 }
 
 interface RootMsg {

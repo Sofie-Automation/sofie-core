@@ -1,7 +1,7 @@
 import { Logger } from 'winston'
 import { WebSocket } from 'ws'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { WebSocketTopicBase, WebSocketTopic, PickArr } from '../wsHandler'
+import { WebSocketTopicBase, WebSocketTopic } from '../wsHandler'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { groupByToMap } from '@sofie-automation/corelib/dist/lib'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
@@ -9,6 +9,7 @@ import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import _ = require('underscore')
 import { SegmentTiming, calculateSegmentTiming } from './helpers/segmentTiming'
 import { CollectionHandlers } from '../liveStatusServer'
+import { PickKeys } from '@sofie-automation/shared-lib/dist/lib/types'
 
 const THROTTLE_PERIOD_MS = 200
 
@@ -28,7 +29,7 @@ export interface SegmentsStatus {
 }
 
 const PLAYLIST_KEYS = ['_id', 'rundownIdsInOrder', 'activationId'] as const
-type Playlist = PickArr<DBRundownPlaylist, typeof PLAYLIST_KEYS>
+type Playlist = PickKeys<DBRundownPlaylist, typeof PLAYLIST_KEYS>
 
 export class SegmentsTopic extends WebSocketTopicBase implements WebSocketTopic {
 	private _activePlaylist: Playlist | undefined
@@ -73,13 +74,13 @@ export class SegmentsTopic extends WebSocketTopicBase implements WebSocketTopic 
 		this.updateAndSendStatusToAll()
 	}
 
-	protected onSegmentsUpdate = (segments: DBSegment[] | undefined): void => {
+	private onSegmentsUpdate = (segments: DBSegment[] | undefined): void => {
 		this.logUpdateReceived('segments')
 		this._segments = segments ?? []
 		this.updateAndSendStatusToAll()
 	}
 
-	protected onPartsUpdate = (parts: DBPart[] | undefined): void => {
+	private onPartsUpdate = (parts: DBPart[] | undefined): void => {
 		this.logUpdateReceived('parts')
 		this._partsBySegment = _.groupBy(parts ?? [], 'segmentId')
 		this.updateAndSendStatusToAll()

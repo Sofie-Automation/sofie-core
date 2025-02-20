@@ -1,12 +1,13 @@
 import { Logger } from 'winston'
 import { WebSocket } from 'ws'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { WebSocketTopicBase, WebSocketTopic, PickArr } from '../wsHandler'
+import { WebSocketTopicBase, WebSocketTopic } from '../wsHandler'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { UIPieceContentStatus } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
 import { PieceStatusCode } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { CollectionHandlers } from '../liveStatusServer'
 import { assertNever } from '@sofie-automation/server-core-integration'
+import { PickKeys } from '@sofie-automation/shared-lib/dist/lib/types'
 
 const THROTTLE_PERIOD_MS = 200
 
@@ -42,7 +43,7 @@ export interface PackagesStatus {
 }
 
 const PLAYLIST_KEYS = ['_id', 'activationId'] as const
-type Playlist = PickArr<DBRundownPlaylist, typeof PLAYLIST_KEYS>
+type Playlist = PickKeys<DBRundownPlaylist, typeof PLAYLIST_KEYS>
 
 export class PackagesTopic extends WebSocketTopicBase implements WebSocketTopic {
 	public observerName = PackagesTopic.name

@@ -1,13 +1,10 @@
 import { Logger } from 'winston'
 import { CoreHandler } from '../coreHandler'
-import { CollectionBase, Collection } from '../wsHandler'
+import { CollectionBase } from '../collectionBase'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 
-export class RundownsHandler
-	extends CollectionBase<DBRundown[], CollectionName.Rundowns>
-	implements Collection<DBRundown[]>
-{
+export class RundownsHandler extends CollectionBase<DBRundown[], CollectionName.Rundowns> {
 	constructor(logger: Logger, coreHandler: CoreHandler) {
 		super(CollectionName.Rundowns, logger, coreHandler)
 	}

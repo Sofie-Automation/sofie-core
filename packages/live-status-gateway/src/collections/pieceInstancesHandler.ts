@@ -1,6 +1,6 @@
 import { Logger } from 'winston'
 import { CoreHandler } from '../coreHandler'
-import { Collection, PickArr, PublicationCollection } from '../wsHandler'
+import { PublicationCollection } from '../publicationCollection'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
@@ -20,6 +20,7 @@ import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartIns
 import { arePropertiesDeepEqual } from '../helpers/equality'
 import { CollectionHandlers } from '../liveStatusServer'
 import { ReadonlyDeep } from 'type-fest'
+import { PickKeys } from '@sofie-automation/shared-lib/dist/lib/types'
 
 const PLAYLIST_KEYS = [
 	'_id',
@@ -29,13 +30,13 @@ const PLAYLIST_KEYS = [
 	'previousPartInfo',
 	'rundownIdsInOrder',
 ] as const
-type Playlist = PickArr<DBRundownPlaylist, typeof PLAYLIST_KEYS>
+type Playlist = PickKeys<DBRundownPlaylist, typeof PLAYLIST_KEYS>
 
 const PART_INSTANCES_KEYS = ['previous', 'current'] as const
-type PartInstances = PickArr<SelectedPartInstances, typeof PART_INSTANCES_KEYS>
+type PartInstances = PickKeys<SelectedPartInstances, typeof PART_INSTANCES_KEYS>
 
 const SHOW_STYLE_BASE_KEYS = ['sourceLayers'] as const
-type ShowStyle = PickArr<ShowStyleBaseExt, typeof SHOW_STYLE_BASE_KEYS>
+type ShowStyle = PickKeys<ShowStyleBaseExt, typeof SHOW_STYLE_BASE_KEYS>
 
 export type PieceInstanceMin = Omit<ReadonlyDeep<PieceInstance>, 'reportedStartedPlayback' | 'reportedStoppedPlayback'>
 
@@ -50,10 +51,11 @@ export interface SelectedPieceInstances {
 	nextPartInstance: PieceInstanceMin[]
 }
 
-export class PieceInstancesHandler
-	extends PublicationCollection<SelectedPieceInstances, CorelibPubSub.pieceInstances, CollectionName.PieceInstances>
-	implements Collection<SelectedPieceInstances>
-{
+export class PieceInstancesHandler extends PublicationCollection<
+	SelectedPieceInstances,
+	CorelibPubSub.pieceInstances,
+	CollectionName.PieceInstances
+> {
 	private _currentPlaylist: Playlist | undefined
 	private _partInstanceIds: PartInstanceId[] = []
 	private _sourceLayers: SourceLayers = {}
@@ -76,7 +78,7 @@ export class PieceInstancesHandler
 		handlers.showStyleBaseHandler.subscribe(this.onShowStyleBaseUpdate, SHOW_STYLE_BASE_KEYS)
 	}
 
-	changed(): void {
+	protected changed(): void {
 		this.updateAndNotify()
 	}
 

@@ -1,6 +1,5 @@
 import { Logger } from 'winston'
 import { CoreHandler } from '../coreHandler'
-import { Collection, PickArr, PublicationCollection } from '../wsHandler'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { UIPieceContentStatus } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
 import throttleToNextTick from '@sofie-automation/shared-lib/dist/lib/throttleToNextTick'
@@ -8,18 +7,17 @@ import { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { CollectionHandlers } from '../liveStatusServer'
 import { CustomCollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
+import { PickKeys } from '@sofie-automation/shared-lib/dist/lib/types'
+import { PublicationCollection } from '../publicationCollection'
 
 const PLAYLIST_KEYS = ['_id'] as const
-type Playlist = PickArr<DBRundownPlaylist, typeof PLAYLIST_KEYS>
+type Playlist = PickKeys<DBRundownPlaylist, typeof PLAYLIST_KEYS>
 
-export class PieceContentStatusesHandler
-	extends PublicationCollection<
-		UIPieceContentStatus[],
-		CorelibPubSub.uiPieceContentStatuses,
-		CustomCollectionName.UIPieceContentStatuses
-	>
-	implements Collection<UIPieceContentStatus[]>
-{
+export class PieceContentStatusesHandler extends PublicationCollection<
+	UIPieceContentStatus[],
+	CorelibPubSub.uiPieceContentStatuses,
+	CustomCollectionName.UIPieceContentStatuses
+> {
 	private _currentPlaylistId: RundownPlaylistId | undefined
 
 	private _throttledUpdateAndNotify = throttleToNextTick(() => {

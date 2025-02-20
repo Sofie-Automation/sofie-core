@@ -8,7 +8,7 @@ import {
 	ShowStyleBaseId,
 	StudioId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { Bucket } from '../collections/Buckets'
+import { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
 import { ICoreSystem } from '../collections/CoreSystem'
 import { Evaluation } from '../collections/Evaluations'
 import { ExpectedPlayoutItem } from '@sofie-automation/corelib/dist/dataModel/ExpectedPlayoutItem'
@@ -94,10 +94,6 @@ export enum MeteorPubSub {
 	 * If null is provided, nothing will be returned
 	 */
 	organization = 'organization',
-	/**
-	 * Fetch either all buckets for the given Studio, or the Bucket specified.
-	 */
-	buckets = 'buckets',
 	/**
 	 * Fetch all translation bundles
 	 */
@@ -205,7 +201,6 @@ export interface MeteorPubSubTypes {
 		token?: string
 	) => CollectionName.RundownLayouts
 	[MeteorPubSub.organization]: (organizationId: OrganizationId | null, token?: string) => CollectionName.Organizations
-	[MeteorPubSub.buckets]: (studioId: StudioId, bucketId: BucketId | null, token?: string) => CollectionName.Buckets
 	[MeteorPubSub.translationsBundles]: (token?: string) => CollectionName.TranslationsBundles
 	[MeteorPubSub.notificationsForRundown]: (studioId: StudioId, rundownId: RundownId) => CollectionName.Notifications
 	[MeteorPubSub.notificationsForRundownPlaylist]: (

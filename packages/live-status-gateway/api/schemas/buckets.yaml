@@ -1,0 +1,39 @@
+title: Buckets
+description: Buckets schema for websocket subscriptions
+$defs:
+  buckets:
+    type: object
+    properties:
+      event:
+        type: string
+        const: buckets
+      buckets:
+        description: Buckets available in the Studio
+        type: array
+        items:
+          $ref: '#/$defs/bucket'
+    required: [event, buckets]
+    additionalProperties: false
+    examples:
+      - event: buckets
+        buckets:
+          $ref: '#/$defs/bucket/examples'
+  bucket:
+    type: object
+    properties:
+      id:
+        description: Unique id of the bucket
+        type: string
+      name:
+        description: The user defined bucket name
+        type: string
+      adLibs:
+        description: The AdLibs in this bucket
+        type: array
+        items:
+          $ref: './adLibs.yaml#/$defs/adLib'
+    examples:
+      - id: 'C6K_yIMuGFUk8X_L9A9_jRT6aq4_'
+        name: My Bucket
+        adLibs:
+          $ref: './adLibs.yaml#/$defs/adLib/examples'

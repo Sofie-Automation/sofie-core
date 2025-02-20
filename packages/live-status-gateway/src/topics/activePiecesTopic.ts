@@ -2,13 +2,14 @@ import { Logger } from 'winston'
 import { WebSocket } from 'ws'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { literal } from '@sofie-automation/shared-lib/dist/lib/lib'
-import { WebSocketTopicBase, WebSocketTopic, PickArr } from '../wsHandler'
+import { WebSocketTopicBase, WebSocketTopic } from '../wsHandler'
 import { ShowStyleBaseExt } from '../collections/showStyleBaseHandler'
 import { SelectedPieceInstances, PieceInstanceMin } from '../collections/pieceInstancesHandler'
 import { PieceStatus, toPieceStatus } from './helpers/pieceStatus'
 import { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { CollectionHandlers } from '../liveStatusServer'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { PickKeys } from '@sofie-automation/shared-lib/dist/lib/types'
 
 const THROTTLE_PERIOD_MS = 100
 
@@ -19,10 +20,10 @@ export interface ActivePiecesStatus {
 }
 
 const PLAYLIST_KEYS = ['_id', 'activationId'] as const
-type Playlist = PickArr<DBRundownPlaylist, typeof PLAYLIST_KEYS>
+type Playlist = PickKeys<DBRundownPlaylist, typeof PLAYLIST_KEYS>
 
 const PIECE_INSTANCES_KEYS = ['active'] as const
-type PieceInstances = PickArr<SelectedPieceInstances, typeof PIECE_INSTANCES_KEYS>
+type PieceInstances = PickKeys<SelectedPieceInstances, typeof PIECE_INSTANCES_KEYS>
 
 export class ActivePiecesTopic extends WebSocketTopicBase implements WebSocketTopic {
 	private _activePlaylistId: RundownPlaylistId | undefined
@@ -54,13 +55,13 @@ export class ActivePiecesTopic extends WebSocketTopicBase implements WebSocketTo
 		this.sendMessage(subscribers, message)
 	}
 
-	protected onShowStyleBaseUpdate = (showStyleBase: ShowStyleBaseExt | undefined): void => {
+	private onShowStyleBaseUpdate = (showStyleBase: ShowStyleBaseExt | undefined): void => {
 		this.logUpdateReceived('showStyleBase')
 		this._showStyleBaseExt = showStyleBase
 		this.throttledSendStatusToAll()
 	}
 
-	protected onPlaylistUpdate = (rundownPlaylist: Playlist | undefined): void => {
+	private onPlaylistUpdate = (rundownPlaylist: Playlist | undefined): void => {
 		this.logUpdateReceived(
 			'playlist',
 			`rundownPlaylistId ${rundownPlaylist?._id}, activationId ${rundownPlaylist?.activationId}`
@@ -73,7 +74,7 @@ export class ActivePiecesTopic extends WebSocketTopicBase implements WebSocketTo
 		}
 	}
 
-	protected onPieceInstancesUpdate = (pieceInstances: PieceInstances | undefined): void => {
+	private onPieceInstancesUpdate = (pieceInstances: PieceInstances | undefined): void => {
 		this.logUpdateReceived('pieceInstances')
 		const prevPieceInstances = this._activePieceInstances
 		this._activePieceInstances = pieceInstances?.active

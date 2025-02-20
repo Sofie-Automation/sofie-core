@@ -1,7 +1,7 @@
 import { Logger } from 'winston'
 import { WebSocket } from 'ws'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { WebSocketTopicBase, WebSocketTopic, PickArr } from '../wsHandler'
+import { WebSocketTopicBase, WebSocketTopic } from '../wsHandler'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
@@ -16,6 +16,7 @@ import { PartId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { WithSortingMetadata, getRank, sortContent } from './helpers/contentSorting'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { CollectionHandlers } from '../liveStatusServer'
+import { PickKeys } from '@sofie-automation/shared-lib/dist/lib/types'
 
 const THROTTLE_PERIOD_MS = 100
 
@@ -26,12 +27,12 @@ export interface AdLibsStatus {
 	globalAdLibs: GlobalAdLibStatus[]
 }
 
-interface AdLibActionType {
+export interface AdLibActionType {
 	name: string
 	label: string
 }
 
-interface AdLibStatus extends AdLibStatusBase {
+export interface AdLibStatus extends AdLibStatusBase {
 	segmentId: string
 	partId: string
 }
@@ -50,10 +51,10 @@ interface AdLibStatusBase {
 }
 
 const PLAYLIST_KEYS = ['_id', 'rundownIdsInOrder', 'activationId'] as const
-type Playlist = PickArr<DBRundownPlaylist, typeof PLAYLIST_KEYS>
+type Playlist = PickKeys<DBRundownPlaylist, typeof PLAYLIST_KEYS>
 
 const SHOW_STYLE_BASE_KEYS = ['sourceLayerNamesById', 'outputLayerNamesById'] as const
-type ShowStyle = PickArr<ShowStyleBaseExt, typeof SHOW_STYLE_BASE_KEYS>
+type ShowStyle = PickKeys<ShowStyleBaseExt, typeof SHOW_STYLE_BASE_KEYS>
 
 export class AdLibsTopic extends WebSocketTopicBase implements WebSocketTopic {
 	private _activePlaylist: Playlist | undefined
@@ -245,31 +246,31 @@ export class AdLibsTopic extends WebSocketTopicBase implements WebSocketTopic {
 		this.throttledSendStatusToAll()
 	}
 
-	protected onAdLibActionsUpdate = (adLibActions: AdLibAction[] | undefined): void => {
+	private onAdLibActionsUpdate = (adLibActions: AdLibAction[] | undefined): void => {
 		this.logUpdateReceived('adLibActions')
 		this._adLibActions = adLibActions
 		this.throttledSendStatusToAll()
 	}
 
-	protected onAdLibsUpdate = (adLibs: AdLibPiece[] | undefined): void => {
+	private onAdLibsUpdate = (adLibs: AdLibPiece[] | undefined): void => {
 		this.logUpdateReceived('adLibs')
 		this._adLibs = adLibs
 		this.throttledSendStatusToAll()
 	}
 
-	protected onGlobalAdLibActionsUpdate = (adLibActions: RundownBaselineAdLibAction[] | undefined): void => {
+	private onGlobalAdLibActionsUpdate = (adLibActions: RundownBaselineAdLibAction[] | undefined): void => {
 		this.logUpdateReceived('globalAdLibActions')
 		this._globalAdLibActions = adLibActions
 		this.throttledSendStatusToAll()
 	}
 
-	protected onGlobalAdLibsUpdate = (adLibs: RundownBaselineAdLibItem[] | undefined): void => {
+	private onGlobalAdLibsUpdate = (adLibs: RundownBaselineAdLibItem[] | undefined): void => {
 		this.logUpdateReceived('globalAdLibs')
 		this._globalAdLibs = adLibs
 		this.throttledSendStatusToAll()
 	}
 
-	protected onSegmentsUpdate = (segments: DBSegment[] | undefined): void => {
+	private onSegmentsUpdate = (segments: DBSegment[] | undefined): void => {
 		this.logUpdateReceived('segments')
 		const newSegments = new Map()
 		segments ??= []
@@ -280,7 +281,7 @@ export class AdLibsTopic extends WebSocketTopicBase implements WebSocketTopic {
 		this.throttledSendStatusToAll()
 	}
 
-	protected onPartsUpdate = (parts: DBPart[] | undefined): void => {
+	private onPartsUpdate = (parts: DBPart[] | undefined): void => {
 		this.logUpdateReceived('parts')
 		const newParts = new Map()
 		parts ??= []

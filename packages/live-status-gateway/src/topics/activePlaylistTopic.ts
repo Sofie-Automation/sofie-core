@@ -10,7 +10,7 @@ import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartIns
 import { assertNever, literal } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { SelectedPartInstances } from '../collections/partInstancesHandler'
 import { ShowStyleBaseExt } from '../collections/showStyleBaseHandler'
-import { WebSocketTopicBase, WebSocketTopic, PickArr } from '../wsHandler'
+import { WebSocketTopicBase, WebSocketTopic } from '../wsHandler'
 import { CurrentSegmentTiming, calculateCurrentSegmentTiming } from './helpers/segmentTiming'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import _ = require('underscore')
@@ -22,6 +22,7 @@ import { PlaylistTimingType } from '@sofie-automation/blueprints-integration'
 import { normalizeArray } from '@sofie-automation/corelib/dist/lib'
 import { CollectionHandlers } from '../liveStatusServer'
 import areElementsShallowEqual from '@sofie-automation/shared-lib/dist/lib/isShallowEqual'
+import { PickKeys } from '@sofie-automation/shared-lib/dist/lib/types'
 
 const THROTTLE_PERIOD_MS = 100
 
@@ -88,16 +89,16 @@ const PLAYLIST_KEYS = [
 	'startedPlayback',
 	'quickLoop',
 ] as const
-type Playlist = PickArr<DBRundownPlaylist, typeof PLAYLIST_KEYS>
+type Playlist = PickKeys<DBRundownPlaylist, typeof PLAYLIST_KEYS>
 
 const PART_INSTANCES_KEYS = ['current', 'next', 'inCurrentSegment', 'firstInSegmentPlayout'] as const
-type PartInstances = PickArr<SelectedPartInstances, typeof PART_INSTANCES_KEYS>
+type PartInstances = PickKeys<SelectedPartInstances, typeof PART_INSTANCES_KEYS>
 
 const PIECE_INSTANCES_KEYS = ['currentPartInstance', 'nextPartInstance'] as const
-type PieceInstances = PickArr<SelectedPieceInstances, typeof PIECE_INSTANCES_KEYS>
+type PieceInstances = PickKeys<SelectedPieceInstances, typeof PIECE_INSTANCES_KEYS>
 
 const SEGMENT_KEYS = ['_id', 'segmentTiming'] as const
-type Segment = PickArr<DBSegment, typeof SEGMENT_KEYS>
+type Segment = PickKeys<DBSegment, typeof SEGMENT_KEYS>
 
 export class ActivePlaylistTopic extends WebSocketTopicBase implements WebSocketTopic {
 	private _activePlaylist: Playlist | undefined

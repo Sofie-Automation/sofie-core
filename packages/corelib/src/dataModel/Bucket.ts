@@ -1,4 +1,4 @@
-import { BucketId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { BucketId, StudioId } from './Ids'
 
 /**
  * A Bucket is an container for AdLib pieces that do not come from a MOS gateway and are

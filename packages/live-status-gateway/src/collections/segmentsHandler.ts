@@ -1,16 +1,13 @@
 import { Logger } from 'winston'
 import { CoreHandler } from '../coreHandler'
-import { CollectionBase, Collection } from '../wsHandler'
+import { CollectionBase } from '../collectionBase'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import * as _ from 'underscore'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 
 const THROTTLE_PERIOD_MS = 200
 
-export class SegmentsHandler
-	extends CollectionBase<DBSegment[], CollectionName.Segments>
-	implements Collection<DBSegment[]>
-{
+export class SegmentsHandler extends CollectionBase<DBSegment[], CollectionName.Segments> {
 	private throttledNotify: (data: DBSegment[]) => void
 
 	constructor(logger: Logger, coreHandler: CoreHandler) {

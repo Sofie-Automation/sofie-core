@@ -49,6 +49,7 @@ channels:
           - $ref: '#/components/messages/segments'
           - $ref: '#/components/messages/adLibs'
           - $ref: '#/components/messages/packages'
+          - $ref: '#/components/messages/buckets'
 components:
   messages:
     ping:
@@ -131,3 +132,8 @@ components:
       description: Status of Packages expected by Pieces
       payload:
         $ref: './schemas/packages.yaml#/$defs/packages'
+    buckets:
+      name: buckets
+      description: Buckets in Studio
+      payload:
+        $ref: './schemas/buckets.yaml#/$defs/buckets'

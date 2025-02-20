@@ -1,6 +1,6 @@
 import { Logger } from 'winston'
 import { CoreHandler } from '../coreHandler'
-import { Collection, PickArr, PublicationCollection } from '../wsHandler'
+import { PublicationCollection } from '../publicationCollection'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { SelectedPartInstances } from './partInstancesHandler'
 import { RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
@@ -10,17 +10,15 @@ import { SegmentsHandler } from './segmentsHandler'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { CollectionHandlers } from '../liveStatusServer'
+import { PickKeys } from '@sofie-automation/shared-lib/dist/lib/types'
 
 const PLAYLIST_KEYS = ['rundownIdsInOrder'] as const
-type Playlist = PickArr<DBRundownPlaylist, typeof PLAYLIST_KEYS>
+type Playlist = PickKeys<DBRundownPlaylist, typeof PLAYLIST_KEYS>
 
 const PART_INSTANCES_KEYS = ['current'] as const
-type PartInstances = PickArr<SelectedPartInstances, typeof PART_INSTANCES_KEYS>
+type PartInstances = PickKeys<SelectedPartInstances, typeof PART_INSTANCES_KEYS>
 
-export class SegmentHandler
-	extends PublicationCollection<DBSegment, CorelibPubSub.segments, CollectionName.Segments>
-	implements Collection<DBSegment>
-{
+export class SegmentHandler extends PublicationCollection<DBSegment, CorelibPubSub.segments, CollectionName.Segments> {
 	private _currentSegmentId: SegmentId | undefined
 	private _rundownIds: RundownId[] = []
 
@@ -35,7 +33,7 @@ export class SegmentHandler
 		handlers.partInstancesHandler.subscribe(this.onPartInstancesUpdate, PART_INSTANCES_KEYS)
 	}
 
-	changed(): void {
+	protected changed(): void {
 		this.updateAndNotify()
 	}
 
