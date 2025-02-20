@@ -1,5 +1,5 @@
 import { DBPart } from './dataModel/Part'
-import { CollectionName } from './dataModel/Collections'
+import { CollectionName, CustomCollectionName } from './dataModel/Collections'
 import { MongoQuery } from './mongo'
 import { AdLibAction } from './dataModel/AdlibAction'
 import { AdLibPiece } from './dataModel/AdLibPiece'
@@ -37,6 +37,7 @@ import {
 } from '@sofie-automation/shared-lib/dist/core/model/Ids'
 import { BlueprintId, BucketId, RundownPlaylistActivationId, SegmentId, ShowStyleVariantId } from './dataModel/Ids'
 import { PackageInfoDB } from './dataModel/PackageInfos'
+import { UIPieceContentStatus } from './dataModel/PieceContentStatus'
 import { Bucket } from './dataModel/Bucket'
 
 /**
@@ -185,6 +186,12 @@ export enum CorelibPubSub {
 	 * Fetch all the PackageInfos owned by a PeripheralDevice
 	 */
 	packageInfos = 'packageInfos',
+
+	/**
+	 * Fetch the Pieces content-status in the given RundownPlaylist
+	 * If the id is null, nothing will be returned
+	 */
+	uiPieceContentStatuses = 'uiPieceContentStatuses',
 }
 
 /**
@@ -323,6 +330,10 @@ export interface CorelibPubSubTypes {
 		token?: string
 	) => CollectionName.PackageContainerStatuses
 	[CorelibPubSub.packageInfos]: (deviceId: PeripheralDeviceId, token?: string) => CollectionName.PackageInfos
+
+	[CorelibPubSub.uiPieceContentStatuses]: (
+		rundownPlaylistId: RundownPlaylistId | null
+	) => CustomCollectionName.UIPieceContentStatuses
 }
 
 export type CorelibPubSubCollections = {
@@ -354,4 +365,8 @@ export type CorelibPubSubCollections = {
 	[CollectionName.Studios]: DBStudio
 	[CollectionName.Timelines]: TimelineComplete
 	[CollectionName.TimelineDatastore]: DBTimelineDatastoreEntry
+} & CorelibPubSubCustomCollections
+
+export type CorelibPubSubCustomCollections = {
+	[CustomCollectionName.UIPieceContentStatuses]: UIPieceContentStatus
 }

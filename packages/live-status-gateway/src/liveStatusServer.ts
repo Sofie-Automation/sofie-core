@@ -23,6 +23,8 @@ import { PartsHandler } from './collections/partsHandler'
 import { PieceInstancesHandler } from './collections/pieceInstancesHandler'
 import { AdLibsTopic } from './topics/adLibsTopic'
 import { ActivePiecesTopic } from './topics/activePiecesTopic'
+import { PieceContentStatusesHandler } from './collections/pieceContentStatusesHandler'
+import { PackagesTopic } from './topics/packagesTopic'
 import { BucketsHandler } from './collections/bucketsHandler'
 import { BucketAdLibsHandler } from './collections/bucketAdLibsHandler'
 import { BucketAdLibActionsHandler } from './collections/bucketAdLibActionsHandler'
@@ -44,6 +46,7 @@ export interface CollectionHandlers {
 	adLibsHandler: AdLibsHandler
 	globalAdLibActionsHandler: GlobalAdLibActionsHandler
 	globalAdLibsHandler: GlobalAdLibsHandler
+	pieceContentStatusesHandler: PieceContentStatusesHandler
 	bucketsHandler: BucketsHandler
 	bucketAdLibsHandler: BucketAdLibsHandler
 	bucketAdLibActionsHandler: BucketAdLibActionsHandler
@@ -79,6 +82,7 @@ export class LiveStatusServer {
 		const adLibsHandler = new AdLibsHandler(this._logger, this._coreHandler)
 		const globalAdLibActionsHandler = new GlobalAdLibActionsHandler(this._logger, this._coreHandler)
 		const globalAdLibsHandler = new GlobalAdLibsHandler(this._logger, this._coreHandler)
+		const pieceContentStatusesHandler = new PieceContentStatusesHandler(this._logger, this._coreHandler)
 		const bucketsHandler = new BucketsHandler(this._logger, this._coreHandler)
 		const bucketAdLibsHandler = new BucketAdLibsHandler(this._logger, this._coreHandler)
 		const bucketAdLibActionsHandler = new BucketAdLibActionsHandler(this._logger, this._coreHandler)
@@ -99,6 +103,7 @@ export class LiveStatusServer {
 			adLibsHandler,
 			globalAdLibActionsHandler,
 			globalAdLibsHandler,
+			pieceContentStatusesHandler,
 			bucketsHandler,
 			bucketAdLibsHandler,
 			bucketAdLibActionsHandler,
@@ -113,6 +118,7 @@ export class LiveStatusServer {
 		const activePlaylistTopic = new ActivePlaylistTopic(this._logger, handlers)
 		const segmentsTopic = new SegmentsTopic(this._logger, handlers)
 		const adLibsTopic = new AdLibsTopic(this._logger, handlers)
+		const packageStatusTopic = new PackagesTopic(this._logger, handlers)
 		const bucketsTopic = new BucketsTopic(this._logger, handlers)
 
 		rootChannel.addTopic(StatusChannels.studio, studioTopic)
@@ -120,6 +126,7 @@ export class LiveStatusServer {
 		rootChannel.addTopic(StatusChannels.activePieces, activePiecesTopic)
 		rootChannel.addTopic(StatusChannels.segments, segmentsTopic)
 		rootChannel.addTopic(StatusChannels.adLibs, adLibsTopic)
+		rootChannel.addTopic(StatusChannels.packages, packageStatusTopic)
 		rootChannel.addTopic(StatusChannels.buckets, bucketsTopic)
 
 		const wss = new WebSocketServer({ port: 8080 })

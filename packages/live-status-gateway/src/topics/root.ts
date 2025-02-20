@@ -37,6 +37,7 @@ export enum StatusChannels {
 	activePieces = 'activePieces',
 	segments = 'segments',
 	adLibs = 'adLibs',
+	packages = 'packages',
 	buckets = 'buckets',
 }
 

@@ -14,7 +14,7 @@ $defs:
         description: User-presentable name for the active playlist
         type: string
       rundownIds:
-        description: The set of rundownIds in the active playlist
+        description: The set of rundownIds in the active playlist, in order
         type: array
         items:
           type: string

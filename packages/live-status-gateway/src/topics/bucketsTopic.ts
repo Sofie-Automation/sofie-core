@@ -1,6 +1,6 @@
 import { Logger } from 'winston'
 import { WebSocket } from 'ws'
-import { WebSocketTopicBase, WebSocketTopic, PickArr } from '../wsHandler'
+import { WebSocketTopicBase, WebSocketTopic } from '../wsHandler'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import _ = require('underscore')
@@ -13,6 +13,7 @@ import { interpollateTranslation } from '@sofie-automation/corelib/dist/Translat
 import { AdLibActionType, AdLibStatus } from './adLibsTopic'
 import { CollectionHandlers } from '../liveStatusServer'
 import { sortContent, WithSortingMetadata } from './helpers/contentSorting'
+import { PickKeys } from '@sofie-automation/shared-lib/dist/lib/types'
 
 const THROTTLE_PERIOD_MS = 100
 
@@ -32,7 +33,7 @@ export interface BucketStatus {
 }
 
 const SHOW_STYLE_BASE_KEYS = ['sourceLayerNamesById', 'outputLayerNamesById'] as const
-type ShowStyle = PickArr<ShowStyleBaseExt, typeof SHOW_STYLE_BASE_KEYS>
+type ShowStyle = PickKeys<ShowStyleBaseExt, typeof SHOW_STYLE_BASE_KEYS>
 
 export class BucketsTopic extends WebSocketTopicBase implements WebSocketTopic {
 	private _buckets: Bucket[] = []

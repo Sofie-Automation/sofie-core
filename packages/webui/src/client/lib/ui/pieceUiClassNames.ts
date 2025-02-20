@@ -5,7 +5,7 @@ import classNames from 'classnames'
 import { PieceUi } from '../../ui/SegmentContainer/withResolvedSegment'
 import { RundownUtils } from '../rundown'
 import { ReadonlyDeep } from 'type-fest'
-import { PieceContentStatusObj } from '@sofie-automation/meteor-lib/dist/api/pieceContentStatus'
+import { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
 
 export function pieceUiClassNames(
 	pieceInstance: PieceUi,

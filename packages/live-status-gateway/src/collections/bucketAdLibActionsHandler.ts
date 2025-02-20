@@ -1,19 +1,16 @@
 import { Logger } from 'winston'
 import { CoreHandler } from '../coreHandler'
-import { Collection, PublicationCollection } from '../wsHandler'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 import { BucketAdLibAction } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibAction'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { CollectionHandlers } from '../liveStatusServer'
+import { PublicationCollection } from '../publicationCollection'
 
-export class BucketAdLibActionsHandler
-	extends PublicationCollection<
-		BucketAdLibAction[],
-		CorelibPubSub.bucketAdLibActions,
-		CollectionName.BucketAdLibActions
-	>
-	implements Collection<BucketAdLibAction[]>
-{
+export class BucketAdLibActionsHandler extends PublicationCollection<
+	BucketAdLibAction[],
+	CorelibPubSub.bucketAdLibActions,
+	CollectionName.BucketAdLibActions
+> {
 	constructor(logger: Logger, coreHandler: CoreHandler) {
 		super(CollectionName.BucketAdLibActions, CorelibPubSub.bucketAdLibActions, logger, coreHandler)
 	}

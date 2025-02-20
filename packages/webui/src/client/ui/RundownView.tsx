@@ -1403,7 +1403,7 @@ export function RundownView(props: Readonly<IProps>): JSX.Element {
 
 	// Load once the playlist is confirmed to exist
 	auxSubsReady.push(useSubscriptionIfEnabled(MeteorPubSub.uiSegmentPartNotes, !!playlistStudioId, playlistId))
-	auxSubsReady.push(useSubscriptionIfEnabled(MeteorPubSub.uiPieceContentStatuses, !!playlistStudioId, playlistId))
+	auxSubsReady.push(useSubscriptionIfEnabled(CorelibPubSub.uiPieceContentStatuses, !!playlistStudioId, playlistId))
 
 	useTracker(() => {
 		const playlist = RundownPlaylists.findOne(playlistId, {
