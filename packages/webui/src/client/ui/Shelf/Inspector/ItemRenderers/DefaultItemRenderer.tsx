@@ -9,7 +9,7 @@ import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyle
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { ReadonlyDeep } from 'type-fest'
-import { PieceContentStatusObj } from '@sofie-automation/meteor-lib/dist/api/pieceContentStatus'
+import { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
 
 export default function DefaultItemRenderer(
 	props: Readonly<{

@@ -19,6 +19,8 @@ import {
 	UpdateOptions,
 	UpsertOptions,
 } from '@sofie-automation/meteor-lib/dist/collections/lib'
+import { CustomCollectionName as CustomCorelibCollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
+import { CorelibPubSubCustomCollections } from '@sofie-automation/corelib/dist/pubsub'
 
 export * from '@sofie-automation/meteor-lib/dist/collections/lib'
 
@@ -118,6 +120,18 @@ export function createSyncCustomPublicationMongoCollection<
 >(name: K): MongoReadOnlyCollection<MeteorPubSubCustomCollections[K]> {
 	const collection = new Mongo.Collection<MeteorPubSubCustomCollections[K]>(name)
 	const wrapped = new WrappedMongoReadOnlyCollection<MeteorPubSubCustomCollections[K]>(collection, name)
+
+	if (PublicationCollections.has(name)) throw new Meteor.Error(`Cannot re-register collection "${name}"`)
+	PublicationCollections.set(name, wrapped)
+
+	return wrapped
+}
+
+export function createSyncCorelibCustomPublicationMongoCollection<
+	K extends CustomCorelibCollectionName & keyof CorelibPubSubCustomCollections
+>(name: K): MongoReadOnlyCollection<CorelibPubSubCustomCollections[K]> {
+	const collection = new Mongo.Collection<CorelibPubSubCustomCollections[K]>(name)
+	const wrapped = new WrappedMongoReadOnlyCollection<CorelibPubSubCustomCollections[K]>(collection, name)
 
 	if (PublicationCollections.has(name)) throw new Meteor.Error(`Cannot re-register collection "${name}"`)
 	PublicationCollections.set(name, wrapped)

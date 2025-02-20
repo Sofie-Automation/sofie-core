@@ -7,7 +7,7 @@ import {
 	RundownId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ReadonlyDeep } from 'type-fest'
-import { UIPieceContentStatus } from '@sofie-automation/meteor-lib/dist/api/rundownNotifications'
+import { UIPieceContentStatus } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
 import { literal, protectString } from '../../../lib/tempLib'
 import { CustomPublishCollection } from '../../../lib/customPublication'
 import { ContentCache } from './reactiveContentCache'

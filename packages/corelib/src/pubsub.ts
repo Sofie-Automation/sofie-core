@@ -1,5 +1,5 @@
 import { DBPart } from './dataModel/Part'
-import { CollectionName } from './dataModel/Collections'
+import { CollectionName, CustomCollectionName } from './dataModel/Collections'
 import { MongoQuery } from './mongo'
 import { AdLibAction } from './dataModel/AdlibAction'
 import { AdLibPiece } from './dataModel/AdLibPiece'
@@ -37,6 +37,8 @@ import {
 } from '@sofie-automation/shared-lib/dist/core/model/Ids'
 import { BlueprintId, BucketId, RundownPlaylistActivationId, SegmentId, ShowStyleVariantId } from './dataModel/Ids'
 import { PackageInfoDB } from './dataModel/PackageInfos'
+import { UIPieceContentStatus } from './dataModel/PieceContentStatus'
+import { Bucket } from './dataModel/Bucket'
 
 /**
  * Ids of possible DDP subscriptions for any the UI and gateways accessing the Rundown & RundownPlaylist model.
@@ -135,12 +137,16 @@ export enum CorelibPubSub {
 	packageContainerStatuses = 'packageContainerStatuses',
 
 	/**
-	 * Fetch all bucket adlib pieces for the specified Studio and Bucket.
+	 * Fetch either all buckets for the given Studio, or the Bucket specified.
+	 */
+	buckets = 'buckets',
+	/**
+	 * Fetch all bucket adlib pieces for the specified Studio and Bucket (or all buckets in a Studio).
 	 * The result will be limited to ones valid to the ShowStyleVariants specified, as well as ones marked as valid in any ShowStyleVariant
 	 */
 	bucketAdLibPieces = 'bucketAdLibPieces',
 	/**
-	 * Fetch all bucket adlib action for the specified Studio and Bucket.
+	 * Fetch all bucket adlib action for the specified Studio and Bucket (or all buckets in a Studio).
 	 * The result will be limited to ones valid to the ShowStyleVariants specified, as well as ones marked as valid in any ShowStyleVariant
 	 */
 	bucketAdLibActions = 'bucketAdLibActions',
@@ -180,6 +186,12 @@ export enum CorelibPubSub {
 	 * Fetch all the PackageInfos owned by a PeripheralDevice
 	 */
 	packageInfos = 'packageInfos',
+
+	/**
+	 * Fetch the Pieces content-status in the given RundownPlaylist
+	 * If the id is null, nothing will be returned
+	 */
+	uiPieceContentStatuses = 'uiPieceContentStatuses',
 }
 
 /**
@@ -297,14 +309,15 @@ export interface CorelibPubSubTypes {
 		token?: string
 	) => CollectionName.Studios
 	[CorelibPubSub.timelineDatastore]: (studioId: StudioId, token?: string) => CollectionName.TimelineDatastore
+	[CorelibPubSub.buckets]: (studioId: StudioId, bucketId: BucketId | null, token?: string) => CollectionName.Buckets
 	[CorelibPubSub.bucketAdLibPieces]: (
 		studioId: StudioId,
-		bucketId: BucketId,
+		bucketId: BucketId | null,
 		showStyleVariantIds: ShowStyleVariantId[]
 	) => CollectionName.BucketAdLibPieces
 	[CorelibPubSub.bucketAdLibActions]: (
 		studioId: StudioId,
-		bucketId: BucketId,
+		bucketId: BucketId | null,
 		showStyleVariantIds: ShowStyleVariantId[]
 	) => CollectionName.BucketAdLibActions
 	[CorelibPubSub.expectedPackages]: (studioIds: StudioId[], token?: string) => CollectionName.ExpectedPackages
@@ -317,12 +330,17 @@ export interface CorelibPubSubTypes {
 		token?: string
 	) => CollectionName.PackageContainerStatuses
 	[CorelibPubSub.packageInfos]: (deviceId: PeripheralDeviceId, token?: string) => CollectionName.PackageInfos
+
+	[CorelibPubSub.uiPieceContentStatuses]: (
+		rundownPlaylistId: RundownPlaylistId | null
+	) => CustomCollectionName.UIPieceContentStatuses
 }
 
 export type CorelibPubSubCollections = {
 	[CollectionName.AdLibActions]: AdLibAction
 	[CollectionName.AdLibPieces]: AdLibPiece
 	[CollectionName.Blueprints]: Blueprint
+	[CollectionName.Buckets]: Bucket
 	[CollectionName.BucketAdLibActions]: BucketAdLibAction
 	[CollectionName.BucketAdLibPieces]: BucketAdLib
 	[CollectionName.ExpectedMediaItems]: ExpectedMediaItem
@@ -347,4 +365,8 @@ export type CorelibPubSubCollections = {
 	[CollectionName.Studios]: DBStudio
 	[CollectionName.Timelines]: TimelineComplete
 	[CollectionName.TimelineDatastore]: DBTimelineDatastoreEntry
+} & CorelibPubSubCustomCollections
+
+export type CorelibPubSubCustomCollections = {
+	[CustomCollectionName.UIPieceContentStatuses]: UIPieceContentStatus
 }

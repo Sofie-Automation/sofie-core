@@ -469,3 +469,11 @@ export function generateTranslation(
 		namespaces,
 	}
 }
+
+export function areSetsEqual<T>(a: Set<T>, b: Set<T>): boolean {
+	return a.size === b.size && [...a].every((value) => b.has(value))
+}
+
+export function doSetsIntersect<T>(a: Set<T>, b: Set<T>): boolean {
+	return [...a].some((value) => b.has(value))
+}

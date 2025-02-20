@@ -6,22 +6,36 @@ on:
 
 jobs:
   trivy:
-    if: ${{ github.repository_owner == 'nrkno' }}
-
     name: Trivy scan
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        image: ["server-core", "playout-gateway", "mos-gateway"]
+        image: ["sofie-core", "playout-gateway", "mos-gateway"]
     timeout-minutes: 15
-
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
     steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      - name: Pull Docker Images for Scanning
+        run: |
+          BRANCH_NAME=$(echo ${{ github.ref }} | sed 's@refs/heads/@@')
+          IMAGE_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ matrix.image }}:${{ github.ref_name }}
+          docker pull $IMAGE_URI
       - name: Run Trivy vulnerability scanner (json)
         uses: aquasecurity/trivy-action@0.29.0
         env:
           TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db
         with:
-          image-ref: ghcr.io/nrkno/sofie-core-${{ matrix.image }}:latest
+          image-ref: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ matrix.image }}:${{ github.ref_name }}
           format: json
           output: "${{ matrix.image }}-trivy-scan-results.json"
 
@@ -30,65 +44,26 @@ jobs:
         env:
           TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db
         with:
-          image-ref: ghcr.io/nrkno/sofie-core-${{ matrix.image }}:latest
+          image-ref: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ matrix.image }}:${{ github.ref_name }}
           output: "${{ matrix.image }}-trivy-scan-results.txt"
 
       - name: Post all scan results to Github Summary as a table
         env:
           CODE_BLOCK: "```"
         run: |
-          echo "# Trivy scan results ~ sofie-core-${{ matrix.image}}:latest" >> $GITHUB_STEP_SUMMARY
+          echo "# Trivy scan results ~ ${{ matrix.image}}:latest" >> $GITHUB_STEP_SUMMARY
 
           echo $CODE_BLOCK >> $GITHUB_STEP_SUMMARY
           cat ${{ matrix.image }}-trivy-scan-results.txt >> $GITHUB_STEP_SUMMARY
           echo $CODE_BLOCK >> $GITHUB_STEP_SUMMARY
 
-      - name: Run Trivy in GitHub SBOM mode and submit results to Dependency Graph
-        uses: aquasecurity/trivy-action@0.29.0
-        env:
-          TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db
-        with:
-          format: "github"
-          output: "dependency-results-${{ matrix.image }}.sbom.json"
-          image-ref: ghcr.io/nrkno/sofie-core-${{ matrix.image }}:latest
-          github-pat: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Create summary of Trivy issues
         run: |
           summary=$(jq -r '.Results[] | select(.Vulnerabilities) | .Vulnerabilities | group_by(.Severity) | map({Severity: .[0].Severity, Count: length}) | .[] | [.Severity, .Count] | join(": ")' ${{ matrix.image }}-trivy-scan-results.json | awk 'NR > 1 { printf(" | ") } {printf "%s",$0}')
-          if [ -z "$summary" ]
-          then
+          if [ -z "$summary" ]; then
             summary="0 Issues"
           fi
           echo "SUMMARY=$summary" >> $GITHUB_ENV
-          echo ${{ env.SUMMARY }}
 
-      - name: Send Slack Notification
-        uses: slackapi/slack-github-action@v2.0.0
-        with:
-          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
-          webhook-type: incoming-webhook
-          payload: |
-            text: "Trivy scan results"
-            blocks:
-              - type: "header"
-                text:
-                  type: "plain_text"
-                  text: "Trivy scan results for sofie-core-${{ matrix.image }}:latest"
-              - type: "section"
-                text:
-                  type: "mrkdwn"
-                  text: ":thisisfine: ${{ env.SUMMARY }}"
-              - type: "section"
-                text:
-                  type: "mrkdwn"
-                  text: "Read the full scan results on Github"
-                accessory:
-                  type: "button"
-                  text:
-                    type: "plain_text"
-                    text: ":github: Scan results"
-                    emoji: true
-                  value: "workflow_run"
-                  url: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-                  action_id: "button-action"
+      - name: Print summary
+        run: echo "$SUMMARY"

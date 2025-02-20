@@ -8,7 +8,7 @@ import {
 	ShowStyleBaseId,
 	StudioId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { Bucket } from '../collections/Buckets'
+import { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
 import { ICoreSystem } from '../collections/CoreSystem'
 import { Evaluation } from '../collections/Evaluations'
 import { ExpectedPlayoutItem } from '@sofie-automation/corelib/dist/dataModel/ExpectedPlayoutItem'
@@ -20,7 +20,7 @@ import { SnapshotItem } from '../collections/Snapshots'
 import { TranslationsBundle } from '../collections/TranslationsBundles'
 import { DBTriggeredActions, UITriggeredActionsObj } from '../collections/TriggeredActions'
 import { UserActionsLogItem } from '../collections/UserActionsLog'
-import { UIBucketContentStatus, UIPieceContentStatus, UISegmentPartNote } from './rundownNotifications'
+import { UIBucketContentStatus, UISegmentPartNote } from './rundownNotifications'
 import { UIShowStyleBase } from './showStyles'
 import { UIStudio } from './studios'
 import { UIDeviceTriggerPreview } from './MountedTriggers'
@@ -95,10 +95,6 @@ export enum MeteorPubSub {
 	 */
 	organization = 'organization',
 	/**
-	 * Fetch either all buckets for the given Studio, or the Bucket specified.
-	 */
-	buckets = 'buckets',
-	/**
 	 * Fetch all translation bundles
 	 */
 	translationsBundles = 'translationsBundles',
@@ -147,11 +143,6 @@ export enum MeteorPubSub {
 	 * If the id is null, nothing will be returned
 	 */
 	uiSegmentPartNotes = 'uiSegmentPartNotes',
-	/**
-	 * Fetch the Pieces content-status in the given RundownPlaylist
-	 * If the id is null, nothing will be returned
-	 */
-	uiPieceContentStatuses = 'uiPieceContentStatuses',
 	/**
 	 * Fetch the Pieces content-status in the given Bucket
 	 */
@@ -210,7 +201,6 @@ export interface MeteorPubSubTypes {
 		token?: string
 	) => CollectionName.RundownLayouts
 	[MeteorPubSub.organization]: (organizationId: OrganizationId | null, token?: string) => CollectionName.Organizations
-	[MeteorPubSub.buckets]: (studioId: StudioId, bucketId: BucketId | null, token?: string) => CollectionName.Buckets
 	[MeteorPubSub.translationsBundles]: (token?: string) => CollectionName.TranslationsBundles
 	[MeteorPubSub.notificationsForRundown]: (studioId: StudioId, rundownId: RundownId) => CollectionName.Notifications
 	[MeteorPubSub.notificationsForRundownPlaylist]: (
@@ -242,9 +232,6 @@ export interface MeteorPubSubTypes {
 
 	/** Custom publications for the UI */
 	[MeteorPubSub.uiSegmentPartNotes]: (playlistId: RundownPlaylistId | null) => CustomCollectionName.UISegmentPartNotes
-	[MeteorPubSub.uiPieceContentStatuses]: (
-		rundownPlaylistId: RundownPlaylistId | null
-	) => CustomCollectionName.UIPieceContentStatuses
 	[MeteorPubSub.uiBucketContentStatuses]: (
 		studioId: StudioId,
 		bucketId: BucketId
@@ -299,7 +286,6 @@ export type MeteorPubSubCustomCollections = {
 	[CustomCollectionName.UITriggeredActions]: UITriggeredActionsObj
 	[CustomCollectionName.UIDeviceTriggerPreviews]: UIDeviceTriggerPreview
 	[CustomCollectionName.UISegmentPartNotes]: UISegmentPartNote
-	[CustomCollectionName.UIPieceContentStatuses]: UIPieceContentStatus
 	[CustomCollectionName.UIBucketContentStatuses]: UIBucketContentStatus
 	[CustomCollectionName.UIBlueprintUpgradeStatuses]: UIBlueprintUpgradeStatus
 	[CustomCollectionName.UIParts]: DBPart

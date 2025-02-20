@@ -5,10 +5,13 @@ import { BucketAdLibUi, BucketAdLibActionUi } from '../Shelf/RundownViewBuckets'
 import { AdLibPieceUi } from '../../lib/shelf'
 import { UIBucketContentStatuses, UIPieceContentStatuses } from '../Collections'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
-import { PieceContentStatusObj } from '@sofie-automation/meteor-lib/dist/api/pieceContentStatus'
+import {
+	PieceContentStatusObj,
+	UIPieceContentStatus,
+} from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
 import { useTracker } from '../../lib/ReactMeteorData/ReactMeteorData'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
-import { UIBucketContentStatus, UIPieceContentStatus } from '@sofie-automation/meteor-lib/dist/api/rundownNotifications'
+import { UIBucketContentStatus } from '@sofie-automation/meteor-lib/dist/api/rundownNotifications'
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import { ReadonlyDeep } from 'type-fest'
 

@@ -91,7 +91,7 @@ import {
 import { VirtualElement } from '../lib/VirtualElement'
 import { SEGMENT_TIMELINE_ELEMENT_ID } from './SegmentTimeline/SegmentTimeline'
 import { NoraPreviewRenderer } from './FloatingInspectors/NoraFloatingInspector'
-import { Bucket } from '@sofie-automation/meteor-lib/dist/collections/Buckets'
+import { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
 import { contextMenuHoldToDisplayTime, isEventInInputField } from '../lib/lib'
 import { OffsetPosition } from '../utils/positions'
 import { MeteorCall } from '../lib/meteorApi'
@@ -1353,7 +1353,7 @@ export function RundownView(props: Readonly<IProps>): JSX.Element {
 		useSubscriptionIfEnabled(MeteorPubSub.uiStudio, !!playlistStudioId, playlistStudioId ?? protectString(''))
 	)
 	auxSubsReady.push(
-		useSubscriptionIfEnabled(MeteorPubSub.buckets, !!playlistStudioId, playlistStudioId ?? protectString(''), null)
+		useSubscriptionIfEnabled(CorelibPubSub.buckets, !!playlistStudioId, playlistStudioId ?? protectString(''), null)
 	)
 
 	const playlistActivationId = useTracker(() => {
@@ -1403,7 +1403,7 @@ export function RundownView(props: Readonly<IProps>): JSX.Element {
 
 	// Load once the playlist is confirmed to exist
 	auxSubsReady.push(useSubscriptionIfEnabled(MeteorPubSub.uiSegmentPartNotes, !!playlistStudioId, playlistId))
-	auxSubsReady.push(useSubscriptionIfEnabled(MeteorPubSub.uiPieceContentStatuses, !!playlistStudioId, playlistId))
+	auxSubsReady.push(useSubscriptionIfEnabled(CorelibPubSub.uiPieceContentStatuses, !!playlistStudioId, playlistId))
 
 	useTracker(() => {
 		const playlist = RundownPlaylists.findOne(playlistId, {

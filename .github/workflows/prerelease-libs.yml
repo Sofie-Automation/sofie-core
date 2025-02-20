@@ -10,7 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     timeout-minutes: 15
-
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
     strategy:
       fail-fast: false
       matrix:
@@ -27,6 +30,20 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: ".node-version"
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Login to CodeArtifact
+        run: |
+          aws codeartifact login --tool npm --repository selma-store --domain selma --domain-owner ${{ secrets.AWS_ACCOUNT_ID }} --region ${{ secrets.AWS_REGION }}
+      - name: Configure CodeArtifact Token
+        run: |
+          export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain selma --domain-owner ${{ secrets.AWS_ACCOUNT_ID }} --region ${{ secrets.AWS_REGION }} --query authorizationToken --output text`
+          yarn config set npmRegistryServer "https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"
+          yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAuthToken' "${CODEARTIFACT_AUTH_TOKEN}"
+          yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAlwaysAuth' "true"
       - name: Prepare Environment
         run: |
           corepack enable
@@ -47,7 +64,10 @@ jobs:
     name: Test Lib
     runs-on: ubuntu-latest
     timeout-minutes: 15
-
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
     strategy:
       fail-fast: false
       matrix:
@@ -65,6 +85,20 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Login to CodeArtifact
+        run: |
+          aws codeartifact login --tool npm --repository selma-store --domain selma --domain-owner ${{ secrets.AWS_ACCOUNT_ID }} --region ${{ secrets.AWS_REGION }}
+      - name: Configure CodeArtifact Token
+        run: |
+          export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain selma --domain-owner ${{ secrets.AWS_ACCOUNT_ID }} --region ${{ secrets.AWS_REGION }} --query authorizationToken --output text`
+          yarn config set npmRegistryServer "https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"
+          yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAuthToken' "${CODEARTIFACT_AUTH_TOKEN}"
+          yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAlwaysAuth' "true"
       - name: Prepare Environment
         run: |
           corepack enable
@@ -85,7 +119,10 @@ jobs:
     name: Prerelease Lib
     runs-on: ubuntu-latest
     timeout-minutes: 15
-
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
     needs:
       - test-packages
 
@@ -100,12 +137,26 @@ jobs:
       - name: Check release is possible
         id: do-publish
         run: |
-          if [ -z "${{ secrets.NPM_TOKEN }}" ]; then
-            echo "No Token"
+          if [ -z "${{ secrets.AWS_ROLE_ARN }}" ]; then
+            echo "No Role ARN set, skipping publish"
           else
             echo "Publish prerelease"
             echo "publish=1" >> $GITHUB_OUTPUT
           fi
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Login to CodeArtifact
+        run: |
+          aws codeartifact login --tool npm --repository selma-store --domain selma --domain-owner ${{ secrets.AWS_ACCOUNT_ID }} --region ${{ secrets.AWS_REGION }}
+      - name: Configure CodeArtifact Token
+        run: |
+          export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain selma --domain-owner ${{ secrets.AWS_ACCOUNT_ID }} --region ${{ secrets.AWS_REGION }} --query authorizationToken --output text`
+          yarn config set npmRegistryServer "https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"
+          yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAuthToken' "${CODEARTIFACT_AUTH_TOKEN}"
+          yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAlwaysAuth' "true"
       - name: Prepare Environment
         if: ${{ steps.do-publish.outputs.publish }}
         run: |
@@ -124,8 +175,8 @@ jobs:
           GIT_HASH=$(git rev-parse --short HEAD)
           PRERELEASE_TAG=nightly-$(echo "${{ github.ref_name }}" | sed -r 's/[^a-z0-9]+/-/gi')
 
-          git config --global user.email "info@superfly.tv"
-          git config --global user.name "superflytvab"
+          git config --global user.email "chandrashekar.nallamilli@tv2.no"
+          git config --global user.name "chandrashekar-nallamilli"
 
           yarn set-version-and-commit prerelease --preid $PRERELEASE_TAG-$COMMIT_DATE-$GIT_HASH
         env:
@@ -137,7 +188,6 @@ jobs:
           yarn build
         env:
           CI: true
-
       - name: Build OpenAPI client library
         if: ${{ steps.do-publish.outputs.publish }}
         run: |
@@ -147,14 +197,14 @@ jobs:
           CI: true
       - name: Modify dependencies to use npm packages
         run: node scripts/prepublish.js
-      - name: Publish to NPM
+      - name: Reset .yarnrc.yml
+        run: |
+          git checkout -- .yarnrc.yml
+      - name: Publish to CodeArtifact
         id: publish-npm
         if: ${{ steps.do-publish.outputs.publish }}
         run: |
-          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
-
           cd packages
-
           yarn lerna publish from-package --tag-version-prefix='' --dist-tag nightly --yes --no-verify-access
 
           NEW_VERSION=$(node -p "require('./lerna.json').version")

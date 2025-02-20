@@ -1,5 +1,4 @@
 import * as EventEmitter from 'events'
-import { Bucket } from '../collections/Buckets'
 import {
 	BucketId,
 	PartId,
@@ -14,6 +13,7 @@ import type { PieceUi } from '../uiTypes/Piece'
 import type { ShelfTabs } from '../uiTypes/ShelfTabs'
 import type { IAdLibListItem } from '../uiTypes/Adlib'
 import type { BucketAdLibItem } from '../uiTypes/Bucket'
+import { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
 
 export enum RundownViewEvents {
 	ACTIVATE_RUNDOWN_PLAYLIST = 'activateRundownPlaylist',

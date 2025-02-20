@@ -59,6 +59,7 @@ interface IWrappedAdLibType<T extends SomeAdLib, typeName extends MountedAdLibTr
 	sourceLayerId?: ISourceLayer['_id']
 	outputLayerId?: IOutputLayer['_id']
 	expectedDuration?: number | PieceLifespan
+	currentPieceTags?: string[]
 	item: T
 }
 
@@ -74,6 +75,7 @@ function wrapAdLibAction(adLib: AdLibAction, type: MountedAdLibTriggerType.adLib
 		sourceLayerId: (adLib.display as IBlueprintActionManifestDisplayContent)?.sourceLayerId,
 		outputLayerId: (adLib.display as IBlueprintActionManifestDisplayContent)?.outputLayerId,
 		expectedDuration: undefined,
+		currentPieceTags: adLib.display.currentPieceTags,
 		item: adLib,
 	}
 }
@@ -91,6 +93,7 @@ function wrapRundownBaselineAdLibAction(
 		sourceLayerId: (adLib.display as IBlueprintActionManifestDisplayContent)?.sourceLayerId,
 		outputLayerId: (adLib.display as IBlueprintActionManifestDisplayContent)?.outputLayerId,
 		expectedDuration: undefined,
+		currentPieceTags: adLib.display.currentPieceTags,
 		item: adLib,
 	}
 }
