@@ -1,0 +1,37 @@
+name: CodeArtifact Login
+description: Makes sure Corepack is enabled, logs into CodeArtifact and configures the token in order to be able to pull dependencies
+inputs:
+  account-id:
+    required: true
+  role-to-assume:
+    required: true
+  aws-region:
+    required: true
+  repository:
+    required: false
+    default: selma-store # should probably put that in a secret instead
+  domain:
+    required: false
+    default: selma # should probably put that in a secret instead
+runs:
+  using: composite
+  steps:
+    - name: Enable Corepack
+      shell: bash
+      run: corepack enable
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ inputs.role-to-assume }}
+        aws-region: ${{ inputs.aws-region }}
+    - name: Login to CodeArtifact
+      shell: bash
+      run: |
+        aws codeartifact login --tool npm --repository ${{ inputs.repository }} --domain ${{ inputs.domain }} --domain-owner ${{ inputs.account-id }} --region ${{ inputs.aws-region }}
+    - name: Configure CodeArtifact Token
+      shell: bash
+      run: |
+        export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain ${{ inputs.domain }} --domain-owner ${{ inputs.account-id }} --region ${{ inputs.aws-region }} --query authorizationToken --output text`
+        yarn config set npmRegistryServer "https://${{ inputs.domain }}-${{ inputs.account-id }}.d.codeartifact.${{ inputs.aws-region }}.amazonaws.com/npm/${{ inputs.repository }}/"
+        yarn config set 'npmRegistries["https://${{ inputs.domain }}-${{ inputs.account-id }}.d.codeartifact.${{ inputs.aws-region }}.amazonaws.com/npm/${{ inputs.repository }}/"].npmAuthToken' "${CODEARTIFACT_AUTH_TOKEN}"
+        yarn config set 'npmRegistries["https://${{ inputs.domain }}-${{ inputs.account-id }}.d.codeartifact.${{ inputs.aws-region }}.amazonaws.com/npm/${{ inputs.repository }}/"].npmAlwaysAuth' "true"

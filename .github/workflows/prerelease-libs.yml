@@ -30,20 +30,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: ".node-version"
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
+      - uses: ./.github/actions/codeartifact-login
+        with: 
+          account-id: ${{ secrets.AWS_ACCOUNT_ID }}
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ secrets.AWS_REGION }}
-      - name: Login to CodeArtifact
-        run: |
-          aws codeartifact login --tool npm --repository selma-store --domain selma --domain-owner ${{ secrets.AWS_ACCOUNT_ID }} --region ${{ secrets.AWS_REGION }}
-      - name: Configure CodeArtifact Token
-        run: |
-          export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain selma --domain-owner ${{ secrets.AWS_ACCOUNT_ID }} --region ${{ secrets.AWS_REGION }} --query authorizationToken --output text`
-          yarn config set npmRegistryServer "https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"
-          yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAuthToken' "${CODEARTIFACT_AUTH_TOKEN}"
-          yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAlwaysAuth' "true"
       - name: Prepare Environment
         run: |
           corepack enable
@@ -85,20 +76,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
+      - uses: ./.github/actions/codeartifact-login
+        with: 
+          account-id: ${{ secrets.AWS_ACCOUNT_ID }}
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ secrets.AWS_REGION }}
-      - name: Login to CodeArtifact
-        run: |
-          aws codeartifact login --tool npm --repository selma-store --domain selma --domain-owner ${{ secrets.AWS_ACCOUNT_ID }} --region ${{ secrets.AWS_REGION }}
-      - name: Configure CodeArtifact Token
-        run: |
-          export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain selma --domain-owner ${{ secrets.AWS_ACCOUNT_ID }} --region ${{ secrets.AWS_REGION }} --query authorizationToken --output text`
-          yarn config set npmRegistryServer "https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"
-          yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAuthToken' "${CODEARTIFACT_AUTH_TOKEN}"
-          yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAlwaysAuth' "true"
       - name: Prepare Environment
         run: |
           corepack enable
@@ -143,20 +125,11 @@ jobs:
             echo "Publish prerelease"
             echo "publish=1" >> $GITHUB_OUTPUT
           fi
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
+      - uses: ./.github/actions/codeartifact-login
+        with: 
+          account-id: ${{ secrets.AWS_ACCOUNT_ID }}
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ secrets.AWS_REGION }}
-      - name: Login to CodeArtifact
-        run: |
-          aws codeartifact login --tool npm --repository selma-store --domain selma --domain-owner ${{ secrets.AWS_ACCOUNT_ID }} --region ${{ secrets.AWS_REGION }}
-      - name: Configure CodeArtifact Token
-        run: |
-          export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain selma --domain-owner ${{ secrets.AWS_ACCOUNT_ID }} --region ${{ secrets.AWS_REGION }} --query authorizationToken --output text`
-          yarn config set npmRegistryServer "https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"
-          yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAuthToken' "${CODEARTIFACT_AUTH_TOKEN}"
-          yarn config set 'npmRegistries["https://selma-${{ secrets.AWS_ACCOUNT_ID }}.d.codeartifact.${{ secrets.AWS_REGION }}.amazonaws.com/npm/selma-store/"].npmAlwaysAuth' "true"
       - name: Prepare Environment
         if: ${{ steps.do-publish.outputs.publish }}
         run: |
