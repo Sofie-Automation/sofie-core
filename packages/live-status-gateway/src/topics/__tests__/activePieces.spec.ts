@@ -1,16 +1,16 @@
-import { makeMockLogger, makeMockSubscriber, makeTestPlaylist, makeTestShowStyleBase } from './utils'
-import { PlaylistHandler } from '../../collections/playlistHandler'
-import { ShowStyleBaseExt, ShowStyleBaseHandler } from '../../collections/showStyleBaseHandler'
+import { makeMockHandlers, makeMockLogger, makeMockSubscriber, makeTestPlaylist, makeTestShowStyleBase } from './utils'
+import { ShowStyleBaseExt } from '../../collections/showStyleBaseHandler'
 import { protectString } from '@sofie-automation/server-core-integration/dist'
 import { PartialDeep } from 'type-fest'
 import { literal } from '@sofie-automation/corelib/dist/lib'
-import { PieceInstancesHandler, SelectedPieceInstances } from '../../collections/pieceInstancesHandler'
+import { SelectedPieceInstances } from '../../collections/pieceInstancesHandler'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { ActivePiecesStatus, ActivePiecesTopic } from '../activePiecesTopic'
 
 describe('ActivePiecesTopic', () => {
 	it('provides active pieces', async () => {
-		const topic = new ActivePiecesTopic(makeMockLogger())
+		const handlers = makeMockHandlers()
+		const topic = new ActivePiecesTopic(makeMockLogger(), handlers)
 		const mockSubscriber = makeMockSubscriber()
 
 		const currentPartInstanceId = 'CURRENT_PART_INSTANCE_ID'
@@ -23,10 +23,10 @@ describe('ActivePiecesTopic', () => {
 			partInstanceId: protectString(currentPartInstanceId),
 			rundownId: playlist.rundownIdsInOrder[0],
 		}
-		await topic.update(PlaylistHandler.name, playlist)
+		handlers.playlistHandler.notify(playlist)
 
 		const testShowStyleBase = makeTestShowStyleBase()
-		await topic.update(ShowStyleBaseHandler.name, testShowStyleBase as ShowStyleBaseExt)
+		handlers.showStyleBaseHandler.notify(testShowStyleBase as ShowStyleBaseExt)
 
 		const testPieceInstances: PartialDeep<SelectedPieceInstances> = {
 			currentPartInstance: [],
@@ -44,7 +44,7 @@ describe('ActivePiecesTopic', () => {
 				}),
 			] as PieceInstance[],
 		}
-		await topic.update(PieceInstancesHandler.name, testPieceInstances as SelectedPieceInstances)
+		handlers.pieceInstancesHandler.notify(testPieceInstances as SelectedPieceInstances)
 
 		topic.addSubscriber(mockSubscriber)
 

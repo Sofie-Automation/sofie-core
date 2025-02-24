@@ -1,22 +1,52 @@
-name: "Prune container images"
+name: cleanup-ecr
 
 on:
-  workflow_dispatch:
   schedule:
-    - cron: '12 14 * * *'
+    - cron: "0 10 * * 3"
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
-  prune-container-images:
-    if: ${{ github.repository_owner == 'nrkno' }}
-    
-    uses: nrkno/sofie-github-workflows/.github/workflows/prune-container-images.yml@main
-    strategy:
-      max-parallel: 1
-      matrix:
-        repo: [ server-core, playout-gateway, mos-gateway ]
-    with:
-      dry-run: false
-      prune-untagged: true
-      package-name: sofie-core-${{ matrix.repo }}
-    secrets:
-      prune-token: ${{ secrets.GHCR_PRUNE_TOKEN }}
+  cleanup:
+    runs-on: ubuntu-latest
+    env:
+      REPOSITORY_NAMES: "sofie-core live-status-gateway playout-gateway" # Accept multiple input repositories
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Grant execute permission for delete-old-image.sh script
+        run: chmod +x ./.github/workflows/delete-old-image.sh
+
+      - name: Clean up Untagged ECR images
+        run: |
+          for REPO in $REPOSITORY_NAMES ; do
+              echo "Cleaning untagged  images from repository: ${REPO}"
+              UNTAGGED_IMAGES=$(aws ecr list-images --region ${{ secrets.AWS_REGION }} --repository-name ${REPO} --query "imageIds[?type(imageTag)!=\`string\`].[imageDigest]" --output text)              
+
+              if [ -n "$UNTAGGED_IMAGES" ]; then  
+              echo "Untagged Images Found in ${REPO}.. Logging"
+                for IMAGE in $UNTAGGED_IMAGES; do 
+                  sh ./.github/workflows/delete-old-image.sh $REPO $IMAGE ${{ secrets.AWS_REGION }}
+                done        
+              else 
+                echo "No Untageed images found in ${REPO}"
+              fi
+           done

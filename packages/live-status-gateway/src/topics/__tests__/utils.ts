@@ -7,6 +7,7 @@ import { ShowStyleBaseExt } from '../../collections/showStyleBaseHandler'
 import { Logger } from 'winston'
 import { WebSocket } from 'ws'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
+import { CollectionHandlers } from '../../liveStatusServer'
 
 const RUNDOWN_1_ID = 'RUNDOWN_1'
 const RUNDOWN_2_ID = 'RUNDOWN_2'
@@ -57,4 +58,42 @@ export function makeTestParts(): DBPart[] {
 			title: 'Part 0',
 		},
 	]
+}
+
+export function makeMockHandlers(): CollectionHandlers {
+	return {
+		adLibActionsHandler: makeMockHandler(),
+		adLibsHandler: makeMockHandler(),
+		bucketAdLibActionsHandler: makeMockHandler(),
+		bucketAdLibsHandler: makeMockHandler(),
+		bucketsHandler: makeMockHandler(),
+		globalAdLibActionsHandler: makeMockHandler(),
+		globalAdLibsHandler: makeMockHandler(),
+		partHandler: makeMockHandler(),
+		partInstancesHandler: makeMockHandler(),
+		partsHandler: makeMockHandler(),
+		pieceContentStatusesHandler: makeMockHandler(),
+		pieceInstancesHandler: makeMockHandler(),
+		playlistHandler: makeMockHandler(),
+		playlistsHandler: makeMockHandler(),
+		rundownHandler: makeMockHandler(),
+		segmentHandler: makeMockHandler(),
+		segmentsHandler: makeMockHandler(),
+		showStyleBaseHandler: makeMockHandler(),
+		studioHandler: makeMockHandler(),
+	} as unknown as CollectionHandlers
+}
+
+function makeMockHandler() {
+	const subscribers: Array<(data: unknown) => void> = []
+	return {
+		subscribe: (callback: (data: unknown) => void) => {
+			subscribers.push(callback)
+		},
+		notify: (data: unknown) => {
+			subscribers.forEach((callback) => {
+				callback(data)
+			})
+		},
+	}
 }

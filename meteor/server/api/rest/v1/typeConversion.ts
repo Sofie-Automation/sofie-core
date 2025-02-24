@@ -54,7 +54,7 @@ import {
 	DEFAULT_MINIMUM_TAKE_SPAN,
 	DEFAULT_FALLBACK_PART_DURATION,
 } from '@sofie-automation/shared-lib/dist/core/constants'
-import { Bucket } from '@sofie-automation/meteor-lib/dist/collections/Buckets'
+import { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
 import { ForceQuickLoopAutoNext } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 import { PlaylistSnapshotOptions, SystemSnapshotOptions } from '@sofie-automation/meteor-lib/dist/api/shapshot'
 

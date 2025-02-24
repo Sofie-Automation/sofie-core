@@ -14,7 +14,7 @@ $defs:
         description: User-presentable name for the active playlist
         type: string
       rundownIds:
-        description: The set of rundownIds in the active playlist
+        description: The set of rundownIds in the active playlist, in order
         type: array
         items:
           type: string
@@ -124,6 +124,32 @@ $defs:
           - $ref: '#/$defs/piece/examples/0'
         publicData:
           partType: 'intro'
+  currentSegmentPart:
+    type: object
+    properties:
+      id:
+        description: Unique id of the part
+        type: string
+      name:
+        description: User-presentable name of the part
+        type: string
+      autoNext:
+        description: If this part will progress to the next automatically
+        type: boolean
+        default: false
+      timing:
+        type: object
+        properties:
+          expectedDurationMs:
+            description: Expected duration of the part
+            type: number
+    required: [id, name, timing]
+    additionalProperties: false
+    examples:
+      - id: 'H5CBGYjThrMSmaYvRaa5FVKJIzk_'
+        name: 'Intro'
+        timing:
+          expectedDurationMs: 15000
   part:
     oneOf:
       - $ref: '#/$defs/partBase'
@@ -196,7 +222,11 @@ $defs:
               - part_expected_duration
               - segment_budget_duration
         required: [expectedDurationMs, projectedEndTime]
-    required: [id, timing]
+      parts:
+        type: array
+        items:
+          $ref: '#/$defs/currentSegmentPart'
+    required: [id, timing, parts]
     additionalProperties: false
     examples:
       - id: 'H5CBGYjThrMSmaYvRaa5FVKJIzk_'
@@ -205,6 +235,8 @@ $defs:
           budgetDurationMs: 20000
           projectedEndTime: 1600000075000
           countdownType: segment_budget_duration
+        parts:
+          - $ref: '#/$defs/currentSegmentPart/examples/0'
   piece:
     type: object
     properties:

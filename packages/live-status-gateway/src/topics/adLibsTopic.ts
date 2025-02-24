@@ -1,29 +1,22 @@
 import { Logger } from 'winston'
 import { WebSocket } from 'ws'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { WebSocketTopicBase, WebSocketTopic, CollectionObserver } from '../wsHandler'
-import { PlaylistHandler } from '../collections/playlistHandler'
+import { WebSocketTopicBase, WebSocketTopic } from '../wsHandler'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
-import _ = require('underscore')
 import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
 import { RundownBaselineAdLibAction } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibAction'
-import { AdLibActionsHandler } from '../collections/adLibActionsHandler'
-import { GlobalAdLibActionsHandler } from '../collections/globalAdLibActionsHandler'
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import { RundownBaselineAdLibItem } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibPiece'
 import { IBlueprintActionManifestDisplayContent } from '@sofie-automation/blueprints-integration'
-import { ShowStyleBaseExt, ShowStyleBaseHandler } from '../collections/showStyleBaseHandler'
+import { ShowStyleBaseExt } from '../collections/showStyleBaseHandler'
 import { interpollateTranslation } from '@sofie-automation/corelib/dist/TranslatableMessage'
-import { AdLibsHandler } from '../collections/adLibsHandler'
-import { GlobalAdLibsHandler } from '../collections/globalAdLibsHandler'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { PartsHandler } from '../collections/partsHandler'
 import { PartId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { WithSortingMetadata, getRank, sortContent } from './helpers/contentSorting'
-import { isDeepStrictEqual } from 'util'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { SegmentsHandler } from '../collections/segmentsHandler'
+import { CollectionHandlers } from '../liveStatusServer'
+import { PickKeys } from '@sofie-automation/shared-lib/dist/lib/types'
 
 const THROTTLE_PERIOD_MS = 100
 
@@ -34,12 +27,12 @@ export interface AdLibsStatus {
 	globalAdLibs: GlobalAdLibStatus[]
 }
 
-interface AdLibActionType {
+export interface AdLibActionType {
 	name: string
 	label: string
 }
 
-interface AdLibStatus extends AdLibStatusBase {
+export interface AdLibStatus extends AdLibStatusBase {
 	segmentId: string
 	partId: string
 }
@@ -57,39 +50,34 @@ interface AdLibStatusBase {
 	optionsSchema?: any
 }
 
-export class AdLibsTopic
-	extends WebSocketTopicBase
-	implements
-		WebSocketTopic,
-		CollectionObserver<DBRundownPlaylist>,
-		CollectionObserver<ShowStyleBaseExt>,
-		CollectionObserver<AdLibAction[]>,
-		CollectionObserver<RundownBaselineAdLibAction[]>,
-		CollectionObserver<DBPart[]>
-{
-	public observerName = AdLibsTopic.name
-	private _activePlaylist: DBRundownPlaylist | undefined
+const PLAYLIST_KEYS = ['_id', 'rundownIdsInOrder', 'activationId'] as const
+type Playlist = PickKeys<DBRundownPlaylist, typeof PLAYLIST_KEYS>
+
+const SHOW_STYLE_BASE_KEYS = ['sourceLayerNamesById', 'outputLayerNamesById'] as const
+type ShowStyle = PickKeys<ShowStyleBaseExt, typeof SHOW_STYLE_BASE_KEYS>
+
+export class AdLibsTopic extends WebSocketTopicBase implements WebSocketTopic {
+	private _activePlaylist: Playlist | undefined
 	private _sourceLayersMap: ReadonlyMap<string, string> = new Map()
 	private _outputLayersMap: ReadonlyMap<string, string> = new Map()
 	private _adLibActions: AdLibAction[] | undefined
-	private _abLibs: AdLibPiece[] | undefined
+	private _adLibs: AdLibPiece[] | undefined
 	private _parts: ReadonlyMap<PartId, DBPart> = new Map()
 	private _segments: ReadonlyMap<SegmentId, DBSegment> = new Map()
 	private _globalAdLibActions: RundownBaselineAdLibAction[] | undefined
 	private _globalAdLibs: RundownBaselineAdLibItem[] | undefined
-	private throttledSendStatusToAll: () => void
 
-	constructor(logger: Logger) {
-		super(AdLibsTopic.name, logger)
-		this.throttledSendStatusToAll = _.throttle(this.sendStatusToAll.bind(this), THROTTLE_PERIOD_MS, {
-			leading: true,
-			trailing: true,
-		})
-	}
+	constructor(logger: Logger, handlers: CollectionHandlers) {
+		super(AdLibsTopic.name, logger, THROTTLE_PERIOD_MS)
 
-	addSubscriber(ws: WebSocket): void {
-		super.addSubscriber(ws)
-		this.sendStatus([ws])
+		handlers.playlistHandler.subscribe(this.onPlaylistUpdate, PLAYLIST_KEYS)
+		handlers.showStyleBaseHandler.subscribe(this.onShowStyleBaseUpdate, SHOW_STYLE_BASE_KEYS)
+		handlers.adLibActionsHandler.subscribe(this.onAdLibActionsUpdate)
+		handlers.adLibsHandler.subscribe(this.onAdLibsUpdate)
+		handlers.globalAdLibActionsHandler.subscribe(this.onGlobalAdLibActionsUpdate)
+		handlers.globalAdLibsHandler.subscribe(this.onGlobalAdLibsUpdate)
+		handlers.segmentsHandler.subscribe(this.onSegmentsUpdate)
+		handlers.partsHandler.subscribe(this.onPartsUpdate)
 	}
 
 	sendStatus(subscribers: Iterable<WebSocket>): void {
@@ -139,9 +127,9 @@ export class AdLibsTopic
 			)
 		}
 
-		if (this._abLibs) {
+		if (this._adLibs) {
 			adLibs.push(
-				...this._abLibs.map((adLib) => {
+				...this._adLibs.map((adLib) => {
 					const sourceLayerName = this._sourceLayersMap.get(adLib.sourceLayerId)
 					const outputLayerName = this._outputLayersMap.get(adLib.outputLayerId)
 					const segmentId = adLib.partId ? this._parts.get(adLib.partId)?.segmentId : undefined
@@ -242,92 +230,65 @@ export class AdLibsTopic
 		this.sendMessage(subscribers, adLibsStatus)
 	}
 
-	async update(
-		source: string,
-		data:
-			| DBRundownPlaylist
-			| ShowStyleBaseExt
-			| AdLibAction[]
-			| RundownBaselineAdLibAction[]
-			| AdLibPiece[]
-			| RundownBaselineAdLibItem[]
-			| DBPart[]
-			| DBSegment[]
-			| undefined
-	): Promise<void> {
-		switch (source) {
-			case PlaylistHandler.name: {
-				const previousPlaylist = this._activePlaylist
-				this.logUpdateReceived('playlist', source)
-				this._activePlaylist = data as DBRundownPlaylist | undefined
-				// PlaylistHandler is quite chatty (will update on every take), so let's make sure there's a point
-				// in sending a status
-				if (
-					previousPlaylist?._id === this._activePlaylist?._id &&
-					isDeepStrictEqual(previousPlaylist?.rundownIdsInOrder, this._activePlaylist?.rundownIdsInOrder)
-				)
-					return
-				break
-			}
-			case AdLibActionsHandler.name: {
-				const adLibActions = data ? (data as AdLibAction[]) : []
-				this.logUpdateReceived('adLibActions', source)
-				this._adLibActions = adLibActions
-				break
-			}
-			case GlobalAdLibActionsHandler.name: {
-				const globalAdLibActions = data ? (data as RundownBaselineAdLibAction[]) : []
-				this.logUpdateReceived('globalAdLibActions', source)
-				this._globalAdLibActions = globalAdLibActions
-				break
-			}
-			case AdLibsHandler.name: {
-				const adLibs = data ? (data as AdLibPiece[]) : []
-				this.logUpdateReceived('adLibs', source)
-				this._abLibs = adLibs
-				break
-			}
-			case GlobalAdLibsHandler.name: {
-				const globalAdLibs = data ? (data as RundownBaselineAdLibItem[]) : []
-				this.logUpdateReceived('globalAdLibs', source)
-				this._globalAdLibs = globalAdLibs
-				break
-			}
-			case ShowStyleBaseHandler.name: {
-				const showStyleBaseExt = data ? (data as ShowStyleBaseExt) : undefined
-				this.logUpdateReceived('showStyleBase', source)
-				this._sourceLayersMap = showStyleBaseExt?.sourceLayerNamesById ?? new Map()
-				this._outputLayersMap = showStyleBaseExt?.outputLayerNamesById ?? new Map()
-				break
-			}
-			case SegmentsHandler.name: {
-				const segments = data ? (data as DBPart[]) : []
-				this.logUpdateReceived('segments', source)
-				const newSegments = new Map()
-				segments.forEach((segment) => {
-					newSegments.set(segment._id, segment)
-				})
-				this._segments = newSegments
-				break
-			}
-			case PartsHandler.name: {
-				const parts = data ? (data as DBPart[]) : []
-				this.logUpdateReceived('parts', source)
-				const newParts = new Map()
-				parts.forEach((part) => {
-					newParts.set(part._id, part)
-				})
-				this._parts = newParts
-				break
-			}
-			default:
-				throw new Error(`${this._name} received unsupported update from ${source}}`)
-		}
-
+	private onPlaylistUpdate = (rundownPlaylist: Playlist | undefined): void => {
+		this.logUpdateReceived(
+			'playlist',
+			`rundownPlaylistId ${rundownPlaylist?._id}, activationId ${rundownPlaylist?.activationId}`
+		)
+		this._activePlaylist = rundownPlaylist
 		this.throttledSendStatusToAll()
 	}
 
-	private sendStatusToAll() {
-		this.sendStatus(this._subscribers)
+	private onShowStyleBaseUpdate = (showStyleBase: ShowStyle | undefined): void => {
+		this.logUpdateReceived('showStyleBase')
+		this._sourceLayersMap = showStyleBase?.sourceLayerNamesById ?? new Map()
+		this._outputLayersMap = showStyleBase?.outputLayerNamesById ?? new Map()
+		this.throttledSendStatusToAll()
+	}
+
+	private onAdLibActionsUpdate = (adLibActions: AdLibAction[] | undefined): void => {
+		this.logUpdateReceived('adLibActions')
+		this._adLibActions = adLibActions
+		this.throttledSendStatusToAll()
+	}
+
+	private onAdLibsUpdate = (adLibs: AdLibPiece[] | undefined): void => {
+		this.logUpdateReceived('adLibs')
+		this._adLibs = adLibs
+		this.throttledSendStatusToAll()
+	}
+
+	private onGlobalAdLibActionsUpdate = (adLibActions: RundownBaselineAdLibAction[] | undefined): void => {
+		this.logUpdateReceived('globalAdLibActions')
+		this._globalAdLibActions = adLibActions
+		this.throttledSendStatusToAll()
+	}
+
+	private onGlobalAdLibsUpdate = (adLibs: RundownBaselineAdLibItem[] | undefined): void => {
+		this.logUpdateReceived('globalAdLibs')
+		this._globalAdLibs = adLibs
+		this.throttledSendStatusToAll()
+	}
+
+	private onSegmentsUpdate = (segments: DBSegment[] | undefined): void => {
+		this.logUpdateReceived('segments')
+		const newSegments = new Map()
+		segments ??= []
+		segments.forEach((segment) => {
+			newSegments.set(segment._id, segment)
+		})
+		this._segments = newSegments
+		this.throttledSendStatusToAll()
+	}
+
+	private onPartsUpdate = (parts: DBPart[] | undefined): void => {
+		this.logUpdateReceived('parts')
+		const newParts = new Map()
+		parts ??= []
+		parts.forEach((part) => {
+			newParts.set(part._id, part)
+		})
+		this._parts = newParts
+		this.throttledSendStatusToAll()
 	}
 }

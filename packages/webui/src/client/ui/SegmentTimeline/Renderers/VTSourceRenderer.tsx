@@ -22,7 +22,7 @@ import { IFloatingInspectorPosition } from '../../FloatingInspectors/IFloatingIn
 import { logger } from '../../../lib/logging'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { ReadonlyDeep } from 'type-fest'
-import { PieceContentStatusObj } from '@sofie-automation/meteor-lib/dist/api/pieceContentStatus'
+import { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
 
 interface IProps extends ICustomLayerItemProps {
 	studio: UIStudio | undefined

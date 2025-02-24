@@ -27,7 +27,7 @@ import { PieceStatusCode } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { PeripheralDevicesAPI } from '../../lib/clientAPI'
 import { handleRundownReloadResponse } from '../RundownView'
 import { MeteorCall } from '../../lib/meteorApi'
-import { UIPieceContentStatus, UISegmentPartNote } from '@sofie-automation/meteor-lib/dist/api/rundownNotifications'
+import { UISegmentPartNote } from '@sofie-automation/meteor-lib/dist/api/rundownNotifications'
 import { isTranslatableMessage, translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { NoteSeverity, StatusCode } from '@sofie-automation/blueprints-integration'
 import { getIgnorePieceContentStatus } from '../../lib/localStorage'
@@ -51,6 +51,7 @@ import { UserPermissionsContext, UserPermissions } from '../UserPermissions'
 import { PartInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import { assertNever } from '@sofie-automation/corelib/dist/lib'
 import { DBNotificationTargetType } from '@sofie-automation/corelib/dist/dataModel/Notifications'
+import { UIPieceContentStatus } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
 
 export const onRONotificationClick = new ReactiveVar<((e: RONotificationEvent) => void) | undefined>(undefined)
 export const reloadRundownPlaylistClick = new ReactiveVar<((e: any) => void) | undefined>(undefined)

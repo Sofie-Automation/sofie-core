@@ -16,7 +16,7 @@ import { ExternalMessageQueueObj } from '@sofie-automation/corelib/dist/dataMode
 import { PackageContainerStatusDB } from '@sofie-automation/corelib/dist/dataModel/PackageContainerStatus'
 import { MediaWorkFlow } from '@sofie-automation/shared-lib/dist/core/model/MediaWorkFlows'
 import { MediaWorkFlowStep } from '@sofie-automation/shared-lib/dist/core/model/MediaWorkFlowSteps'
-import { Bucket } from '@sofie-automation/meteor-lib/dist/collections/Buckets'
+import { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
 import { ICoreSystem, SYSTEM_ID } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
 import { Evaluation } from '@sofie-automation/meteor-lib/dist/collections/Evaluations'
 import { ExpectedPackageDB } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'

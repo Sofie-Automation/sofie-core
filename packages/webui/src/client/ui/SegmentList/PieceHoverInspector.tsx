@@ -15,7 +15,7 @@ import { L3rdFloatingInspector } from '../FloatingInspectors/L3rdFloatingInspect
 import { VTFloatingInspector } from '../FloatingInspectors/VTFloatingInspector'
 import { PieceUi } from '../SegmentContainer/withResolvedSegment'
 import { ReadonlyDeep } from 'type-fest'
-import { PieceContentStatusObj } from '@sofie-automation/meteor-lib/dist/api/pieceContentStatus'
+import { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
 
 export function PieceHoverInspector({
 	studio,

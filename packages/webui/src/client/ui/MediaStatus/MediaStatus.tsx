@@ -28,7 +28,7 @@ import { ProtectedString, unprotectString } from '@sofie-automation/corelib/dist
 import { ExpectedPackage } from '@sofie-automation/shared-lib/dist/package-manager/package'
 import { PartInvalidReason } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { IBlueprintActionManifestDisplayContent, SourceLayerType } from '@sofie-automation/blueprints-integration'
-import { PieceContentStatusObj } from '@sofie-automation/meteor-lib/dist/api/pieceContentStatus'
+import { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
 import { Piece, PieceStatusCode } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { assertNever, literal } from '@sofie-automation/corelib/dist/lib'
 import { UIPieceContentStatuses, UIShowStyleBases } from '../Collections'
@@ -277,7 +277,7 @@ function useMediaStatusSubscriptions(
 		() => playlistIds.map((playlistIds) => [playlistIds] as [RundownPlaylistId]),
 		[playlistIds]
 	)
-	readyStatus[counter++] = useSubscriptions(MeteorPubSub.uiPieceContentStatuses, uiPieceContentStatusesSubArguments)
+	readyStatus[counter++] = useSubscriptions(CorelibPubSub.uiPieceContentStatuses, uiPieceContentStatusesSubArguments)
 
 	return readyStatus.reduce((mem, current) => mem && current, true)
 }
