@@ -54,6 +54,7 @@ meteorPublish(
 			{
 				fields: {
 					ingestInfo: 0, // This is a large blob, and is not of interest to the UI
+					privateData: 0,
 				},
 			}
 		)
@@ -80,6 +81,7 @@ meteorPublish(
 			{
 				fields: {
 					ingestInfo: 0, // This is a large blob, and is not of interest to the UI
+					privateData: 0,
 				},
 			}
 		)
