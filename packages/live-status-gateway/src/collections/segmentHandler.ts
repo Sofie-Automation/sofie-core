@@ -48,10 +48,8 @@ export class SegmentHandler extends PublicationCollection<DBSegment, CorelibPubS
 
 	private updateAndNotifyCurrentSegment() {
 		const collection = this.getCollectionOrFail()
-		if (this._currentSegmentId) {
-			this._collectionData = collection.findOne(this._currentSegmentId)
-			this.notify(this._collectionData)
-		}
+		this._collectionData = this._currentSegmentId ? collection.findOne(this._currentSegmentId) : undefined
+		this.notify(this._collectionData)
 	}
 
 	private onPlaylistUpdate = (playlist: Playlist | undefined): void => {
