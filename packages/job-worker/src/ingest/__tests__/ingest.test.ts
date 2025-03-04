@@ -1733,7 +1733,6 @@ describe('Test ingest actions for rundowns and segments', () => {
 						currentPartInstance,
 						{
 							_id: protectString(`after_${currentPartInstance.partInstance._id}_part`),
-							_rank: 0,
 							externalId: `after_${currentPartInstance.partInstance._id}_externalId`,
 							title: 'New part',
 							expectedDurationWithTransition: undefined,

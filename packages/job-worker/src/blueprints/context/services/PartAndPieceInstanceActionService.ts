@@ -381,10 +381,9 @@ export class PartAndPieceInstanceActionService {
 			throw new Error('New part must contain at least one piece')
 		}
 
-		const newPart: Omit<DBPart, 'segmentId' | 'rundownId'> = {
+		const newPart: Omit<DBPart, 'segmentId' | 'rundownId' | '_rank'> = {
 			...rawPart,
 			_id: getRandomId(),
-			_rank: 99999, // Corrected in innerStartQueuedAdLib
 			notes: [],
 			invalid: false,
 			invalidReason: undefined,

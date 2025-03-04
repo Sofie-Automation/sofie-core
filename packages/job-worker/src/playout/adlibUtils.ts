@@ -187,41 +187,29 @@ export async function innerFindLastScriptedPieceOnLayer(
 	return fullPiece
 }
 
-function updateRankForAdlibbedPartInstance(
-	_context: JobContext,
-	playoutModel: PlayoutModel,
-	newPartInstance: PlayoutPartInstanceModel
-) {
-	const currentPartInstance = playoutModel.currentPartInstance
-	if (!currentPartInstance) throw new Error('CurrentPartInstance not found')
-
-	// Parts are always integers spaced by one, and orphaned PartInstances will be decimals spaced between two Part
-	// so we can predict a 'safe' rank to get the desired position with some simple maths
-	newPartInstance.setRank(
-		getRank(
-			currentPartInstance.partInstance.part._rank,
-			Math.floor(currentPartInstance.partInstance.part._rank + 1)
-		)
-	)
-
-	updatePartInstanceRanksAfterAdlib(playoutModel, currentPartInstance, newPartInstance)
-}
-
 export async function insertQueuedPartWithPieces(
 	context: JobContext,
 	playoutModel: PlayoutModel,
 	rundown: PlayoutRundownModel,
 	currentPartInstance: PlayoutPartInstanceModel,
-	newPart: Omit<DBPart, 'segmentId' | 'rundownId'>,
+	newPart: Omit<DBPart, 'segmentId' | 'rundownId' | '_rank'>,
 	initialPieces: Omit<PieceInstancePiece, 'startPartId'>[],
 	fromAdlibId: PieceId | undefined
 ): Promise<PlayoutPartInstanceModel> {
 	const span = context.startSpan('insertQueuedPartWithPieces')
 
+	// Parts are always integers spaced by one, and orphaned PartInstances will be decimals spaced between two Part
+	// so we can predict a 'safe' rank to get the desired position with some simple maths
+	const newRank = getRank(
+		currentPartInstance.partInstance.part._rank,
+		Math.floor(currentPartInstance.partInstance.part._rank + 1)
+	)
+
 	const newPartFull: DBPart = {
 		...newPart,
 		segmentId: currentPartInstance.partInstance.segmentId,
 		rundownId: currentPartInstance.partInstance.rundownId,
+		_rank: newRank,
 	}
 
 	// Find any rundown defined infinites that we should inherit
@@ -237,13 +225,13 @@ export async function insertQueuedPartWithPieces(
 	)
 
 	const newPartInstance = playoutModel.createAdlibbedPartInstance(
-		newPart,
+		newPartFull,
 		initialPieces,
 		fromAdlibId,
 		infinitePieceInstances
 	)
 
-	updateRankForAdlibbedPartInstance(context, playoutModel, newPartInstance)
+	updatePartInstanceRanksAfterAdlib(playoutModel, currentPartInstance, newPartInstance)
 
 	await setNextPart(context, playoutModel, newPartInstance, false)
 

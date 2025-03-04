@@ -26,6 +26,7 @@ import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartIns
 import { getCurrentTime } from '../../../../lib'
 import {
 	EmptyPieceTimelineObjectsBlob,
+	Piece,
 	serializePieceTimelineObjectsBlob,
 } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { PlayoutPartInstanceModel } from '../../../../playout/model/PlayoutPartInstanceModel'
@@ -176,7 +177,9 @@ describe('Test blueprint api context', () => {
 		return runJobWithPlayoutModel(context, { playlistId }, null, fcn as any)
 	}
 
-	async function setupMyDefaultRundown(): Promise<{
+	async function setupMyDefaultRundown(
+		insertExtraContents?: (jobContext: MockJobContext, rundownId: RundownId) => Promise<void>
+	): Promise<{
 		jobContext: MockJobContext
 		playlistId: RundownPlaylistId
 		rundownId: RundownId
@@ -199,6 +202,8 @@ describe('Test blueprint api context', () => {
 		const rundownId: RundownId = getRandomId()
 
 		await setupDefaultRundown(context, showStyleCompound, playlistId, rundownId)
+
+		if (insertExtraContents) await insertExtraContents(context, rundownId)
 
 		const allPartInstances = await generateSparsePieceInstances(context, activationId, rundownId)
 		expect(allPartInstances).toHaveLength(5)
@@ -1187,14 +1192,82 @@ describe('Test blueprint api context', () => {
 					expect(newPartInstance.partInstance.part._rank).toEqual(0.5)
 					expect(newPartInstance.partInstance.orphaned).toEqual('adlib-part')
 
-					const newNextPartInstances = await service.getPieceInstances('next')
-					expect(newNextPartInstances).toHaveLength(1)
-					expect(newNextPartInstances[0].partInstanceId).toEqual(
+					const newNextPieceInstances = await service.getPieceInstances('next')
+					expect(newNextPieceInstances).toHaveLength(1)
+					expect(newNextPieceInstances[0].partInstanceId).toEqual(
 						unprotectString(newPartInstance.partInstance._id)
 					)
 
 					expect(service.nextPartState).toEqual(ActionPartChange.SAFE_CHANGE)
 					expect(service.currentPartState).toEqual(ActionPartChange.NONE)
+				})
+			})
+
+			test('queued part does not hijack infinites from following parts', async () => {
+				// makes sure that infinites which would normally start in the part AFTER the part that is being queued,
+				// are not and starting in the queued part itself
+
+				const { jobContext, playlistId, rundownId } = await setupMyDefaultRundown(
+					async (context, rundownId) => {
+						const secondPart = await context.mockCollections.Parts.findOne({ externalId: 'MOCK_PART_0_1' })
+						if (!secondPart) throw Error('could not find mock part')
+						const piece001: Piece = {
+							_id: protectString(rundownId + '_piece012'),
+							externalId: 'MOCK_PIECE_012',
+							startRundownId: rundownId,
+							startSegmentId: secondPart.segmentId,
+							startPartId: secondPart._id,
+							name: 'Piece 012',
+							enable: {
+								start: 0,
+							},
+							sourceLayerId: '',
+							outputLayerId: '',
+							pieceType: IBlueprintPieceType.Normal,
+							lifespan: PieceLifespan.OutOnSegmentEnd,
+							invalid: false,
+							content: {},
+							timelineObjectsString: EmptyPieceTimelineObjectsBlob,
+						}
+						await context.mockCollections.Pieces.insertOne(piece001)
+					}
+				)
+
+				const partInstance = (await jobContext.mockCollections.PartInstances.findOne({
+					rundownId,
+				})) as DBPartInstance
+				expect(partInstance).toBeTruthy()
+				await setPartInstances(jobContext, playlistId, partInstance, undefined)
+
+				await wrapWithPlayoutModel(jobContext, playlistId, async (playoutModel) => {
+					const { service } = await getTestee(jobContext, playoutModel)
+
+					const newPiece: IBlueprintPiece = {
+						name: 'test piece',
+						sourceLayerId: 'sl1',
+						outputLayerId: 'o1',
+						externalId: '-',
+						enable: { start: 0 },
+						lifespan: PieceLifespan.OutOnRundownEnd,
+						content: {
+							timelineObjects: [],
+						},
+					}
+					const newPart: IBlueprintPart = {
+						externalId: 'nope',
+						title: 'something',
+					}
+
+					// Create it with most of the real flow
+					postProcessPiecesMock.mockImplementationOnce(postProcessPiecesOrig)
+					insertQueuedPartWithPiecesMock.mockImplementationOnce(insertQueuedPartWithPiecesOrig)
+					expect((await service.queuePart(newPart, [newPiece]))._id).toEqual(
+						playoutModel.playlist.nextPartInfo?.partInstanceId
+					)
+
+					const newNextPartInstances = await service.getPieceInstances('next')
+					expect(newNextPartInstances).toHaveLength(1)
+					expect(newNextPartInstances[0].piece.name).toBe('test piece')
 				})
 			})
 		})
