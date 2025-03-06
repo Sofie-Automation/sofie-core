@@ -191,7 +191,7 @@ const calculateStartAfterPreviousObj = (
 	const prevHasDelayFlag = (prevObj.classes || []).indexOf('_lookahead_start_delay') !== -1
 
 	// Start with previous piece
-	const startOffset = prevHasDelayFlag ? 2000 : 0
+	const startOffset = prevHasDelayFlag ? 2000 : 1 // has to be 1, because 0 causes a clash with previous object in superfly-timeline
 	return {
 		start: `${getStartOfObjectRef(prevObj)} + ${startOffset}`,
 	}
