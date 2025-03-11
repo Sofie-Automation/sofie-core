@@ -70,6 +70,7 @@
 	"name": "packages",
 	"packageManager": "yarn@4.6.0",
 	"resolutions": {
-		"timecode@0.0.4": "patch:timecode@npm%3A0.0.4#./.yarn/patches/timecode-npm-0.0.4-82bde9e6fe.patch"
+		"timecode@0.0.4": "patch:timecode@npm%3A0.0.4#./.yarn/patches/timecode-npm-0.0.4-82bde9e6fe.patch",
+		"superfly-timeline": "9.0.3"
 	}
 }

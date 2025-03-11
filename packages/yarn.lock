@@ -6007,7 +6007,7 @@ __metadata:
     mongodb: "npm:^6.12.0"
     p-lazy: "npm:^3.1.0"
     p-timeout: "npm:^4.1.0"
-    superfly-timeline: "npm:9.0.2"
+    superfly-timeline: "npm:9.0.3"
     threadedclass: "npm:^1.2.2"
     tslib: "npm:^2.8.1"
     type-fest: "npm:^4.33.0"
@@ -27276,12 +27276,12 @@ asn1@evs-broadcast/node-asn1:
   languageName: node
   linkType: hard
 
-"superfly-timeline@npm:9.0.2, superfly-timeline@npm:^9.0.1":
-  version: 9.0.2
-  resolution: "superfly-timeline@npm:9.0.2"
+"superfly-timeline@npm:9.0.3":
+  version: 9.0.3
+  resolution: "superfly-timeline@npm:9.0.3"
   dependencies:
     tslib: "npm:^2.6.0"
-  checksum: 10/1459938b2f05858a9563b23774ffeb9376c8babcf8ea59cf10ec76296ae4d8a923f9b6858bf86517dbe7eaba705150b3f502cac11354b92c241efc52ffe3fe0f
+  checksum: 10/a5aa4d673fbeb5c53c321d55c9cd625263dc96e8a54d427779f85b7d668347bf5c109467903eb3abfb4e81caf542dbc9d3251a747dbd71b7be1be9ecc809cf4a
   languageName: node
   linkType: hard
 
