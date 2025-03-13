@@ -23,6 +23,7 @@ type TgetOrderedPartsAfterPlayhead = jest.MockedFunction<typeof getOrderedPartsA
 import { getOrderedPartsAfterPlayhead, PartAndPieces, PartInstanceAndPieceInstances } from '../util.js'
 import { LookaheadTimelineObject } from '../findObjects.js'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
+import { createPartCurrentTimes } from '@sofie-automation/corelib/dist/playout/processAndPrune'
 const getOrderedPartsAfterPlayheadMock = getOrderedPartsAfterPlayhead as TgetOrderedPartsAfterPlayhead
 
 describe('Lookahead', () => {
@@ -271,8 +272,7 @@ describe('Lookahead', () => {
 		const partInstancesInfo: SelectedPartInstancesTimelineInfo = {}
 		partInstancesInfo.previous = {
 			partInstance: { _id: 'abc2', part: { _id: 'abc' } } as any,
-			nowInPart: 987,
-			partStarted: getCurrentTime() + 546,
+			partTimes: createPartCurrentTimes(getCurrentTime(), getCurrentTime() + 546),
 			pieceInstances: ['1', '2'] as any,
 			calculatedTimings: { inTransitionStart: null } as any,
 			regenerateTimelineAt: undefined,
@@ -281,7 +281,7 @@ describe('Lookahead', () => {
 		const expectedPrevious = {
 			part: partInstancesInfo.previous.partInstance,
 			onTimeline: true,
-			nowInPart: partInstancesInfo.previous.nowInPart,
+			nowInPart: partInstancesInfo.previous.partTimes.nowInPart,
 			allPieces: partInstancesInfo.previous.pieceInstances,
 			calculatedTimings: partInstancesInfo.previous.calculatedTimings,
 		}
@@ -295,8 +295,7 @@ describe('Lookahead', () => {
 		// Add a current
 		partInstancesInfo.current = {
 			partInstance: { _id: 'curr', part: {} } as any,
-			nowInPart: 56,
-			partStarted: getCurrentTime() + 865,
+			partTimes: createPartCurrentTimes(getCurrentTime(), getCurrentTime() + 865),
 			pieceInstances: ['3', '4'] as any,
 			calculatedTimings: { inTransitionStart: null } as any,
 			regenerateTimelineAt: undefined,
@@ -304,7 +303,7 @@ describe('Lookahead', () => {
 		const expectedCurrent = {
 			part: partInstancesInfo.current.partInstance,
 			onTimeline: true,
-			nowInPart: partInstancesInfo.current.nowInPart,
+			nowInPart: partInstancesInfo.current.partTimes.nowInPart,
 			allPieces: partInstancesInfo.current.pieceInstances,
 			calculatedTimings: partInstancesInfo.current.calculatedTimings,
 		}
@@ -316,8 +315,7 @@ describe('Lookahead', () => {
 		// Add a next
 		partInstancesInfo.next = {
 			partInstance: { _id: 'nxt2', part: { _id: 'nxt' } } as any,
-			nowInPart: -85,
-			partStarted: getCurrentTime() + 142,
+			partTimes: createPartCurrentTimes(getCurrentTime(), getCurrentTime() + 142),
 			pieceInstances: ['5'] as any,
 			calculatedTimings: { inTransitionStart: null } as any,
 			regenerateTimelineAt: undefined,
@@ -325,7 +323,7 @@ describe('Lookahead', () => {
 		const expectedNext = {
 			part: partInstancesInfo.next.partInstance,
 			onTimeline: false,
-			nowInPart: partInstancesInfo.next.nowInPart,
+			nowInPart: partInstancesInfo.next.partTimes.nowInPart,
 			allPieces: partInstancesInfo.next.pieceInstances,
 			calculatedTimings: partInstancesInfo.next.calculatedTimings,
 		}

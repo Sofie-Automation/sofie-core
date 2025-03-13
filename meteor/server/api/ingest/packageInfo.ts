@@ -35,6 +35,7 @@ export async function onUpdatedPackageInfo(packageId: ExpectedPackageId, _doc: P
 			case ExpectedPackageDBType.ADLIB_ACTION:
 			case ExpectedPackageDBType.BASELINE_ADLIB_PIECE:
 			case ExpectedPackageDBType.BASELINE_ADLIB_ACTION:
+			case ExpectedPackageDBType.BASELINE_PIECE:
 			case ExpectedPackageDBType.RUNDOWN_BASELINE_OBJECTS:
 				onUpdatedPackageInfoForRundownDebounce(pkg)
 				break

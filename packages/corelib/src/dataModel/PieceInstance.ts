@@ -34,7 +34,7 @@ export interface PieceInstance {
 	_id: PieceInstanceId
 	/** The rundown this piece belongs to */
 	rundownId: RundownId
-	/** The part instace this piece belongs to */
+	/** The part instance this piece belongs to. */
 	partInstanceId: PartInstanceId
 
 	/** Whether this PieceInstance is a temprorary wrapping of a Piece */

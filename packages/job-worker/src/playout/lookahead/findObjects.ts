@@ -19,7 +19,7 @@ function getBestPieceInstanceId(piece: ReadonlyDeep<PieceInstance>): string {
 		return unprotectString(piece._id)
 	}
 	// Something is needed, and it must be distant future here, so accuracy is not important
-	return unprotectString(piece.piece.startPartId)
+	return unprotectString(piece.piece.startPartId ?? piece.rundownId)
 }
 
 function tryActivateKeyframesForObject(

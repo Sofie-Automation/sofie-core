@@ -13,6 +13,8 @@ import {
 } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { EmptyPieceTimelineObjectsBlob } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import {
+	createPartCurrentTimes,
+	PartCurrentTimes,
 	processAndPrunePieceInstanceTimings,
 	resolvePrunedPieceInstance,
 } from '@sofie-automation/corelib/dist/playout/processAndPrune'
@@ -93,8 +95,9 @@ describe('Resolved Pieces', () => {
 			nowInPart: number | null,
 			pieceInstances: PieceInstance[]
 		): ResolvedPieceInstance[] {
-			const preprocessedPieces = processAndPrunePieceInstanceTimings(sourceLayers, pieceInstances, nowInPart ?? 0)
-			return preprocessedPieces.map((instance) => resolvePrunedPieceInstance(nowInPart ?? 0, instance))
+			const partTimes = createPartCurrentTimes(5000, nowInPart)
+			const preprocessedPieces = processAndPrunePieceInstanceTimings(sourceLayers, pieceInstances, partTimes)
+			return preprocessedPieces.map((instance) => resolvePrunedPieceInstance(partTimes, instance))
 		}
 
 		test('simple single piece', async () => {
@@ -372,18 +375,18 @@ describe('Resolved Pieces', () => {
 		}
 
 		function createPartInstanceInfo(
-			partStarted: number,
-			nowInPart: number,
+			partTimes: PartCurrentTimes,
+			// partStarted: number,
+			// nowInPart: number,
 			partInstance: DBPartInstance,
 			currentPieces: PieceInstance[]
 		): SelectedPartInstanceTimelineInfo {
-			const pieceInstances = processAndPrunePieceInstanceTimings(sourceLayers, currentPieces, nowInPart)
+			const pieceInstances = processAndPrunePieceInstanceTimings(sourceLayers, currentPieces, partTimes)
 
 			return {
 				partInstance,
 				pieceInstances,
-				nowInPart,
-				partStarted,
+				partTimes,
 				// Approximate `calculatedTimings`, for the partInstances which already have it cached
 				calculatedTimings: getPartTimingsOrDefaults(partInstance, pieceInstances),
 				regenerateTimelineAt: undefined,
@@ -395,9 +398,10 @@ describe('Resolved Pieces', () => {
 			expect(sourceLayerId).toBeTruthy()
 
 			const now = 990000
+			const partTimes = createPartCurrentTimes(now, now)
 
 			const piece001 = createPieceInstance(sourceLayerId, { start: 0 })
-			const currentPartInfo = createPartInstanceInfo(now, 0, createPartInstance(), [piece001])
+			const currentPartInfo = createPartInstanceInfo(partTimes, createPartInstance(), [piece001])
 
 			const resolvedPieces = getResolvedPiecesForPartInstancesOnTimeline(
 				context,
@@ -430,13 +434,9 @@ describe('Resolved Pieces', () => {
 			)
 
 			const now = 990000
-			const nowInPart = 2000
-			const partStarted = now - nowInPart
+			const partTimes = createPartCurrentTimes(now, now - 2000)
 
-			const currentPartInfo = createPartInstanceInfo(partStarted, nowInPart, createPartInstance(), [
-				piece001,
-				virtualPiece,
-			])
+			const currentPartInfo = createPartInstanceInfo(partTimes, createPartInstance(), [piece001, virtualPiece])
 
 			// Check the result
 			const simpleResolvedPieces = getResolvedPiecesForPartInstancesOnTimeline(
@@ -447,8 +447,8 @@ describe('Resolved Pieces', () => {
 			expect(stripResult(simpleResolvedPieces)).toEqual([
 				{
 					_id: piece001._id,
-					resolvedStart: partStarted,
-					resolvedDuration: nowInPart,
+					resolvedStart: partTimes.partStartTime!,
+					resolvedDuration: partTimes.nowInPart,
 				},
 				{
 					// TODO - this object should not be present?
@@ -475,13 +475,9 @@ describe('Resolved Pieces', () => {
 			)
 
 			const now = 990000
-			const nowInPart = 2000
-			const partStarted = now - nowInPart
+			const partTimes = createPartCurrentTimes(now, now - 2000)
 
-			const currentPartInfo = createPartInstanceInfo(partStarted, nowInPart, createPartInstance(), [
-				piece001,
-				virtualPiece,
-			])
+			const currentPartInfo = createPartInstanceInfo(partTimes, createPartInstance(), [piece001, virtualPiece])
 
 			const simpleResolvedPieces = getResolvedPiecesForPartInstancesOnTimeline(
 				context,
@@ -491,13 +487,13 @@ describe('Resolved Pieces', () => {
 			expect(stripResult(simpleResolvedPieces)).toEqual([
 				{
 					_id: piece001._id,
-					resolvedStart: partStarted,
+					resolvedStart: partTimes.partStartTime!,
 					resolvedDuration: 7000,
 				},
 				{
 					// TODO - this object should not be present?
 					_id: virtualPiece._id,
-					resolvedStart: partStarted + 7000,
+					resolvedStart: partTimes.partStartTime! + 7000,
 					resolvedDuration: undefined,
 				},
 			] satisfies StrippedResult)
@@ -510,10 +506,9 @@ describe('Resolved Pieces', () => {
 			const piece001 = createPieceInstance(sourceLayerId, { start: 0, duration: 0 })
 
 			const now = 990000
-			const nowInPart = 2000
-			const partStarted = now - nowInPart
+			const partTimes = createPartCurrentTimes(now, now - 2000)
 
-			const currentPartInfo = createPartInstanceInfo(partStarted, nowInPart, createPartInstance(), [piece001])
+			const currentPartInfo = createPartInstanceInfo(partTimes, createPartInstance(), [piece001])
 
 			const simpleResolvedPieces = getResolvedPiecesForPartInstancesOnTimeline(
 				context,
@@ -523,7 +518,7 @@ describe('Resolved Pieces', () => {
 			expect(stripResult(simpleResolvedPieces)).toEqual([
 				{
 					_id: piece001._id,
-					resolvedStart: partStarted,
+					resolvedStart: partTimes.partStartTime!,
 					resolvedDuration: 0,
 				},
 			] satisfies StrippedResult)
@@ -551,10 +546,9 @@ describe('Resolved Pieces', () => {
 			)
 
 			const now = 990000
-			const nowInPart = 2000
-			const partStarted = now - nowInPart
+			const partTimes = createPartCurrentTimes(now, now - 2000)
 
-			const currentPartInfo = createPartInstanceInfo(partStarted, nowInPart, createPartInstance(), [
+			const currentPartInfo = createPartInstanceInfo(partTimes, createPartInstance(), [
 				piece001,
 				infinite1,
 				infinite2,
@@ -568,17 +562,17 @@ describe('Resolved Pieces', () => {
 			expect(stripResult(simpleResolvedPieces)).toEqual([
 				{
 					_id: infinite1._id,
-					resolvedStart: partStarted + 1000,
+					resolvedStart: partTimes.partStartTime! + 1000,
 					resolvedDuration: 4000,
 				},
 				{
 					_id: piece001._id,
-					resolvedStart: partStarted + 3000,
+					resolvedStart: partTimes.partStartTime! + 3000,
 					resolvedDuration: 2000,
 				},
 				{
 					_id: infinite2._id,
-					resolvedStart: partStarted + 5000,
+					resolvedStart: partTimes.partStartTime! + 5000,
 					resolvedDuration: undefined,
 				},
 			] satisfies StrippedResult)
@@ -600,10 +594,9 @@ describe('Resolved Pieces', () => {
 			)
 
 			const now = 990000
-			const nowInPart = 2000
-			const partStarted = now - nowInPart
+			const partTimes = createPartCurrentTimes(now, now - 2000)
 
-			const currentPartInfo = createPartInstanceInfo(partStarted, nowInPart, createPartInstance(), [piece001])
+			const currentPartInfo = createPartInstanceInfo(partTimes, createPartInstance(), [piece001])
 
 			const simpleResolvedPieces = getResolvedPiecesForPartInstancesOnTimeline(
 				context,
@@ -613,7 +606,7 @@ describe('Resolved Pieces', () => {
 			expect(stripResult(simpleResolvedPieces)).toEqual([
 				{
 					_id: piece001._id,
-					resolvedStart: partStarted + 3000,
+					resolvedStart: partTimes.partStartTime! + 3000,
 					resolvedDuration: 1200,
 				},
 			] satisfies StrippedResult)
@@ -628,20 +621,12 @@ describe('Resolved Pieces', () => {
 			const piece010 = createPieceInstance(sourceLayerId, { start: 0 })
 
 			const now = 990000
-			const nowInPart = 2000
-			const currentPartStarted = now - nowInPart
-			const previousPartStarted = currentPartStarted - 5000
+			const currentPartTimes = createPartCurrentTimes(now, now - 2000)
+			const previousPartTimes = createPartCurrentTimes(now, now - 7000)
 
-			const previousPartInfo = createPartInstanceInfo(
-				previousPartStarted,
-				nowInPart + 5000,
-				createPartInstance(),
-				[piece001]
-			)
+			const previousPartInfo = createPartInstanceInfo(previousPartTimes, createPartInstance(), [piece001])
 
-			const currentPartInfo = createPartInstanceInfo(currentPartStarted, nowInPart, createPartInstance(), [
-				piece010,
-			])
+			const currentPartInfo = createPartInstanceInfo(currentPartTimes, createPartInstance(), [piece010])
 
 			const simpleResolvedPieces = getResolvedPiecesForPartInstancesOnTimeline(
 				context,
@@ -654,12 +639,12 @@ describe('Resolved Pieces', () => {
 			expect(stripResult(simpleResolvedPieces)).toEqual([
 				{
 					_id: piece001._id,
-					resolvedStart: previousPartStarted,
+					resolvedStart: previousPartTimes.partStartTime!,
 					resolvedDuration: 5000,
 				},
 				{
 					_id: piece010._id,
-					resolvedStart: currentPartStarted,
+					resolvedStart: currentPartTimes.partStartTime!,
 					resolvedDuration: undefined,
 				},
 			] satisfies StrippedResult)
@@ -682,20 +667,15 @@ describe('Resolved Pieces', () => {
 			)
 
 			const now = 990000
-			const nowInPart = 2000
-			const currentPartStarted = now - nowInPart
-			const previousPartStarted = currentPartStarted - 5000
+			const currentPartTimes = createPartCurrentTimes(now, now - 2000)
+			const previousPartTimes = createPartCurrentTimes(now, now - 7000)
 
-			const previousPartInfo = createPartInstanceInfo(
-				previousPartStarted,
-				nowInPart + 5000,
-				createPartInstance(),
-				[piece001, cappedInfinitePiece]
-			)
-
-			const currentPartInfo = createPartInstanceInfo(currentPartStarted, nowInPart, createPartInstance(), [
-				piece010,
+			const previousPartInfo = createPartInstanceInfo(previousPartTimes, createPartInstance(), [
+				piece001,
+				cappedInfinitePiece,
 			])
+
+			const currentPartInfo = createPartInstanceInfo(currentPartTimes, createPartInstance(), [piece010])
 
 			const simpleResolvedPieces = getResolvedPiecesForPartInstancesOnTimeline(
 				context,
@@ -708,17 +688,17 @@ describe('Resolved Pieces', () => {
 			expect(stripResult(simpleResolvedPieces)).toEqual([
 				{
 					_id: piece001._id,
-					resolvedStart: previousPartStarted,
+					resolvedStart: previousPartTimes.partStartTime!,
 					resolvedDuration: 1000,
 				},
 				{
 					_id: cappedInfinitePiece._id,
-					resolvedStart: previousPartStarted + 1000,
+					resolvedStart: previousPartTimes.partStartTime! + 1000,
 					resolvedDuration: 4000,
 				},
 				{
 					_id: piece010._id,
-					resolvedStart: currentPartStarted,
+					resolvedStart: currentPartTimes.partStartTime!,
 					resolvedDuration: undefined,
 				},
 			] satisfies StrippedResult)
@@ -759,18 +739,15 @@ describe('Resolved Pieces', () => {
 			}
 
 			const now = 990000
-			const nowInPart = 2000
-			const currentPartStarted = now - nowInPart
-			const previousPartStarted = currentPartStarted - 5000
+			const currentPartTimes = createPartCurrentTimes(now, now - 2000)
+			const previousPartTimes = createPartCurrentTimes(now, now - 7000)
 
-			const previousPartInfo = createPartInstanceInfo(
-				previousPartStarted,
-				nowInPart + 5000,
-				createPartInstance(),
-				[piece001, startingInfinitePiece]
-			)
+			const previousPartInfo = createPartInstanceInfo(previousPartTimes, createPartInstance(), [
+				piece001,
+				startingInfinitePiece,
+			])
 
-			const currentPartInfo = createPartInstanceInfo(currentPartStarted, nowInPart, createPartInstance(), [
+			const currentPartInfo = createPartInstanceInfo(currentPartTimes, createPartInstance(), [
 				piece010,
 				continuingInfinitePiece,
 			])
@@ -786,17 +763,17 @@ describe('Resolved Pieces', () => {
 			expect(stripResult(simpleResolvedPieces)).toEqual([
 				{
 					_id: piece001._id,
-					resolvedStart: previousPartStarted,
+					resolvedStart: previousPartTimes.partStartTime!,
 					resolvedDuration: 1000,
 				},
 				{
 					_id: continuingInfinitePiece._id,
-					resolvedStart: previousPartStarted + 1000,
+					resolvedStart: previousPartTimes.partStartTime! + 1000,
 					resolvedDuration: 9400,
 				},
 				{
 					_id: piece010._id,
-					resolvedStart: currentPartStarted,
+					resolvedStart: currentPartTimes.partStartTime!,
 					resolvedDuration: undefined,
 				},
 			] satisfies StrippedResult)
@@ -811,14 +788,12 @@ describe('Resolved Pieces', () => {
 			const piece010 = createPieceInstance(sourceLayerId, { start: 0 })
 
 			const now = 990000
-			const nowInPart = 2000
-			const currentPartStarted = now - nowInPart
+			const currentPartTimes = createPartCurrentTimes(now, now - 2000)
 			const currentPartLength = 13000
-			const nextPartStart = currentPartStarted + currentPartLength
+			const nextPartTimes = createPartCurrentTimes(now, currentPartTimes.partStartTime! + currentPartLength)
 
 			const currentPartInfo = createPartInstanceInfo(
-				currentPartStarted,
-				nowInPart,
+				currentPartTimes,
 				createPartInstance({
 					autoNext: true,
 					expectedDuration: currentPartLength,
@@ -826,7 +801,7 @@ describe('Resolved Pieces', () => {
 				[piece001]
 			)
 
-			const nextPartInfo = createPartInstanceInfo(nextPartStart, 0, createPartInstance(), [piece010])
+			const nextPartInfo = createPartInstanceInfo(nextPartTimes, createPartInstance(), [piece010])
 
 			const simpleResolvedPieces = getResolvedPiecesForPartInstancesOnTimeline(
 				context,
@@ -839,12 +814,12 @@ describe('Resolved Pieces', () => {
 			expect(stripResult(simpleResolvedPieces)).toEqual([
 				{
 					_id: piece001._id,
-					resolvedStart: currentPartStarted,
+					resolvedStart: currentPartTimes.partStartTime!,
 					resolvedDuration: currentPartLength,
 				},
 				{
 					_id: piece010._id,
-					resolvedStart: nextPartStart,
+					resolvedStart: nextPartTimes.partStartTime!,
 					resolvedDuration: undefined,
 				},
 			] satisfies StrippedResult)
@@ -867,14 +842,12 @@ describe('Resolved Pieces', () => {
 			)
 
 			const now = 990000
-			const nowInPart = 2000
-			const currentPartStarted = now - nowInPart
+			const currentPartTimes = createPartCurrentTimes(now, now - 2000)
 			const currentPartLength = 13000
-			const nextPartStart = currentPartStarted + currentPartLength
+			const nextPartTimes = createPartCurrentTimes(now, currentPartTimes.partStartTime! + currentPartLength)
 
 			const currentPartInfo = createPartInstanceInfo(
-				currentPartStarted,
-				nowInPart,
+				currentPartTimes,
 				createPartInstance({
 					autoNext: true,
 					expectedDuration: currentPartLength,
@@ -882,7 +855,7 @@ describe('Resolved Pieces', () => {
 				[piece001, cappedInfinitePiece]
 			)
 
-			const nextPartInfo = createPartInstanceInfo(nextPartStart, 0, createPartInstance(), [piece010])
+			const nextPartInfo = createPartInstanceInfo(nextPartTimes, createPartInstance(), [piece010])
 
 			const simpleResolvedPieces = getResolvedPiecesForPartInstancesOnTimeline(
 				context,
@@ -896,17 +869,17 @@ describe('Resolved Pieces', () => {
 			expect(stripResult(simpleResolvedPieces)).toEqual([
 				{
 					_id: piece001._id,
-					resolvedStart: currentPartStarted,
+					resolvedStart: currentPartTimes.partStartTime!,
 					resolvedDuration: 1000,
 				},
 				{
 					_id: cappedInfinitePiece._id,
-					resolvedStart: currentPartStarted + 1000,
+					resolvedStart: currentPartTimes.partStartTime! + 1000,
 					resolvedDuration: currentPartLength - 1000,
 				},
 				{
 					_id: piece010._id,
-					resolvedStart: nextPartStart,
+					resolvedStart: nextPartTimes.partStartTime!,
 					resolvedDuration: undefined,
 				},
 			] satisfies StrippedResult)
@@ -947,14 +920,12 @@ describe('Resolved Pieces', () => {
 			}
 
 			const now = 990000
-			const nowInPart = 2000
-			const currentPartStarted = now - nowInPart
+			const currentPartTimes = createPartCurrentTimes(now, now - 2000)
 			const currentPartLength = 13000
-			const nextPartStart = currentPartStarted + currentPartLength
+			const nextPartTimes = createPartCurrentTimes(now, currentPartTimes.partStartTime! + currentPartLength)
 
 			const currentPartInfo = createPartInstanceInfo(
-				currentPartStarted,
-				nowInPart,
+				currentPartTimes,
 				createPartInstance({
 					autoNext: true,
 					expectedDuration: currentPartLength,
@@ -962,7 +933,7 @@ describe('Resolved Pieces', () => {
 				[piece001, startingInfinitePiece]
 			)
 
-			const nextPartInfo = createPartInstanceInfo(nextPartStart, 0, createPartInstance(), [
+			const nextPartInfo = createPartInstanceInfo(nextPartTimes, createPartInstance(), [
 				piece010,
 				continuingInfinitePiece,
 			])
@@ -979,17 +950,17 @@ describe('Resolved Pieces', () => {
 			expect(stripResult(simpleResolvedPieces)).toEqual([
 				{
 					_id: piece001._id,
-					resolvedStart: currentPartStarted,
+					resolvedStart: currentPartTimes.partStartTime!,
 					resolvedDuration: 1000,
 				},
 				{
 					_id: startingInfinitePiece._id,
-					resolvedStart: currentPartStarted + 1000,
+					resolvedStart: currentPartTimes.partStartTime! + 1000,
 					resolvedDuration: currentPartLength - 1000 + 3400,
 				},
 				{
 					_id: piece010._id,
-					resolvedStart: nextPartStart,
+					resolvedStart: nextPartTimes.partStartTime!,
 					resolvedDuration: undefined,
 				},
 			] satisfies StrippedResult)

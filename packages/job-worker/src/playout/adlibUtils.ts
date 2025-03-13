@@ -67,6 +67,7 @@ export async function innerStartOrQueueAdLibPiece(
 		await syncPlayheadInfinitesForNextPartInstance(
 			context,
 			playoutModel,
+			undefined,
 			currentPartInstance,
 			playoutModel.nextPartInstance
 		)

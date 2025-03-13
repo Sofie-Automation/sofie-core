@@ -62,6 +62,9 @@ export async function updateExpectedPlayoutItemsForRundownBaseline(
 	for (const action of baselineAdlibActions) {
 		baselineExpectedPlayoutItems.push(...extractExpectedPlayoutItems(studioId, rundownId, undefined, action))
 	}
+	for (const piece of ingestModel.getGlobalPieces()) {
+		baselineExpectedPlayoutItems.push(...extractExpectedPlayoutItems(studioId, rundownId, undefined, piece))
+	}
 
 	if (baseline) {
 		for (const item of baseline.expectedPlayoutItems ?? []) {
@@ -93,7 +96,7 @@ export function updateExpectedPlayoutItemsForPartModel(context: JobContext, part
 	const expectedPlayoutItems: ExpectedPlayoutItemRundown[] = []
 	for (const piece of part.pieces) {
 		expectedPlayoutItems.push(
-			...extractExpectedPlayoutItems(studioId, part.part.rundownId, piece.startPartId, piece)
+			...extractExpectedPlayoutItems(studioId, part.part.rundownId, piece.startPartId ?? undefined, piece)
 		)
 	}
 	for (const piece of part.adLibPieces) {

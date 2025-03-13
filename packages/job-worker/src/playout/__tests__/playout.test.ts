@@ -608,7 +608,7 @@ describe('Playout API', () => {
 										: now) +
 									Math.random() * TIME_RANDOM,
 							},
-						}
+						} satisfies PlayoutChangedResult
 					}),
 				],
 			})
@@ -701,7 +701,7 @@ describe('Playout API', () => {
 										: now) +
 									Math.random() * TIME_RANDOM,
 							},
-						}
+						} satisfies PlayoutChangedResult
 					}),
 				],
 			})

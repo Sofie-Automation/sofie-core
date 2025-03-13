@@ -53,6 +53,15 @@ export interface PieceGeneric extends Omit<IBlueprintPieceGeneric, 'content'> {
 export interface Piece
 	extends PieceGeneric,
 		Omit<IBlueprintPieceDB, '_id' | 'content' | 'userEditOperations' | 'userEditProperties'> {
+	/** Timeline enabler. When the piece should be active on the timeline. */
+	enable: {
+		start: number | 'now' // TODO - now will be removed from this eventually, but as it is not an acceptable value 99% of the time, that is not really breaking
+		duration?: number
+
+		// Pieces owned by the Rundown should always be absolute
+		isAbsolute?: boolean
+	}
+
 	/**
 	 * This is the id of the rundown this piece starts playing in.
 	 * Currently this is the only rundown the piece could be playing in
@@ -62,12 +71,12 @@ export interface Piece
 	 * This is the id of the segment this piece starts playing in.
 	 * It is the only segment the piece could be playing in, unless the piece has a lifespan which spans beyond the segment
 	 */
-	startSegmentId: SegmentId
+	startSegmentId: SegmentId | null
 	/**
 	 * This is the id of the part this piece starts playing in.
 	 * If the lifespan is WithinPart, it is the only part the piece could be playing in.
 	 */
-	startPartId: PartId
+	startPartId: PartId | null
 
 	/** Whether this piece is a special piece */
 	pieceType: IBlueprintPieceType

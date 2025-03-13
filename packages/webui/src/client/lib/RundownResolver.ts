@@ -63,7 +63,7 @@ function fetchPiecesThatMayBeActiveForPart(
 	segmentsToReceiveOnRundownEndFromSet: Set<SegmentId>,
 	rundownsToReceiveOnShowStyleEndFrom: RundownId[],
 	/** Map of Pieces on Parts, passed through for performance */
-	allPiecesCache?: Map<PartId, Piece[]>
+	allPiecesCache?: Map<PartId | null, Piece[]>
 ): Piece[] {
 	let piecesStartingInPart: Piece[]
 	const allPieces = allPiecesCache?.get(part._id)
@@ -132,7 +132,7 @@ export function getPieceInstancesForPartInstance(
 	currentPartInstancePieceInstances: PieceInstance[] | undefined,
 	allowTestingAdlibsToPersist: boolean,
 	/** Map of Pieces on Parts, passed through for performance */
-	allPiecesCache?: Map<PartId, Piece[]>,
+	allPiecesCache?: Map<PartId | null, Piece[]>,
 	options?: FindOptions<PieceInstance>,
 	pieceInstanceSimulation?: boolean
 ): PieceInstance[] {

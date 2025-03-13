@@ -221,7 +221,7 @@ export function useSelectedElements(
 		const computation = Tracker.nonreactive(() =>
 			Tracker.autorun(() => {
 				const piece = Pieces.findOne(selectedElement?.elementId)
-				const part = UIParts.findOne({ _id: piece ? piece.startPartId : selectedElement?.elementId })
+				const part = UIParts.findOne({ _id: piece?.startPartId ?? selectedElement?.elementId })
 				const segment = Segments.findOne({ _id: part ? part.segmentId : selectedElement?.elementId })
 
 				setPiece(piece)

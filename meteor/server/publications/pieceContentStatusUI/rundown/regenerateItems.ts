@@ -108,7 +108,7 @@ export async function regenerateForPieceIds(
 				{
 					_id: protectString(`piece_${pieceId}`),
 
-					partId: pieceDoc.startPartId,
+					partId: pieceDoc.startPartId ?? undefined,
 					rundownId: pieceDoc.startRundownId,
 					pieceId: pieceId,
 
@@ -194,7 +194,7 @@ export async function regenerateForPieceInstanceIds(
 				const res: UIPieceContentStatus = {
 					_id: protectString(`piece_${pieceId}`),
 
-					partId: pieceDoc.piece.startPartId,
+					partId: pieceDoc.piece.startPartId ?? undefined,
 					rundownId: pieceDoc.rundownId,
 					pieceId: pieceId,
 

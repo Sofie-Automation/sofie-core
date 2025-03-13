@@ -273,6 +273,7 @@ describe('Test blueprint api context', () => {
 				rundownId,
 			})) as PieceInstance
 			expect(pieceInstance).toBeTruthy()
+			expect(pieceInstance.partInstanceId).toBe(partInstance._id)
 
 			// Check what was generated
 			const context = await getContext(rundown, undefined, partInstance, undefined)

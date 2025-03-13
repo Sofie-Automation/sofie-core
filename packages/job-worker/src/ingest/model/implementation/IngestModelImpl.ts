@@ -114,6 +114,8 @@ export class IngestModelImpl implements IngestModel, DatabasePersistedModel {
 	}
 
 	protected readonly segmentsImpl: Map<SegmentId, SegmentWrapper>
+	readonly #piecesWithChanges = new Set<PieceId>()
+	#piecesImpl: ReadonlyArray<Piece>
 
 	readonly #rundownBaselineExpectedPackagesStore: ExpectedPackagesStore<ExpectedPackageForIngestModelBaseline>
 
@@ -216,6 +218,8 @@ export class IngestModelImpl implements IngestModel, DatabasePersistedModel {
 				})
 			}
 
+			this.#piecesImpl = groupedPieces.get(null) ?? []
+
 			this.#rundownBaselineObjs = new LazyInitialise(async () =>
 				context.directCollections.RundownBaselineObjects.findFetch({
 					rundownId: this.rundownId,
@@ -244,6 +248,7 @@ export class IngestModelImpl implements IngestModel, DatabasePersistedModel {
 			)
 
 			this.segmentsImpl = new Map()
+			this.#piecesImpl = []
 
 			this.#rundownBaselineObjs = new LazyInitialise(async () => [])
 			this.#rundownBaselineAdLibPieces = new LazyInitialise(async () => [])
@@ -323,6 +328,10 @@ export class IngestModelImpl implements IngestModel, DatabasePersistedModel {
 	 */
 	getAllPieces(): ReadonlyDeep<Piece>[] {
 		return this.getAllOrderedParts().flatMap((part) => part.pieces)
+	}
+
+	getGlobalPieces(): ReadonlyDeep<Piece>[] {
+		return [...this.#piecesImpl]
 	}
 
 	findPart(partId: PartId): IngestPartModel | undefined {
@@ -463,7 +472,8 @@ export class IngestModelImpl implements IngestModel, DatabasePersistedModel {
 	async setRundownBaseline(
 		timelineObjectsBlob: PieceTimelineObjectsBlob,
 		adlibPieces: RundownBaselineAdLibItem[],
-		adlibActions: RundownBaselineAdLibAction[]
+		adlibActions: RundownBaselineAdLibAction[],
+		pieces: Piece[]
 	): Promise<void> {
 		const [loadedRundownBaselineObjs, loadedRundownBaselineAdLibPieces, loadedRundownBaselineAdLibActions] =
 			await Promise.all([
@@ -485,11 +495,13 @@ export class IngestModelImpl implements IngestModel, DatabasePersistedModel {
 		)
 
 		// Compare and update the adlibPieces
-		const newAdlibPieces = adlibPieces.map((piece) => ({
-			...clone(piece),
-			partId: undefined,
-			rundownId: this.rundownId,
-		}))
+		const newAdlibPieces = adlibPieces.map(
+			(piece): AdLibPiece => ({
+				...clone(piece),
+				partId: undefined,
+				rundownId: this.rundownId,
+			})
+		)
 		this.#rundownBaselineAdLibPieces.setValue(
 			diffAndReturnLatestObjects(
 				this.#rundownBaselineAdLibPiecesWithChanges,
@@ -499,11 +511,13 @@ export class IngestModelImpl implements IngestModel, DatabasePersistedModel {
 		)
 
 		// Compare and update the adlibActions
-		const newAdlibActions = adlibActions.map((action) => ({
-			...clone(action),
-			partId: undefined,
-			rundownId: this.rundownId,
-		}))
+		const newAdlibActions = adlibActions.map(
+			(action): RundownBaselineAdLibAction => ({
+				...clone(action),
+				partId: undefined,
+				rundownId: this.rundownId,
+			})
+		)
 		this.#rundownBaselineAdLibActions.setValue(
 			diffAndReturnLatestObjects(
 				this.#rundownBaselineAdLibActionsWithChanges,
@@ -511,6 +525,17 @@ export class IngestModelImpl implements IngestModel, DatabasePersistedModel {
 				newAdlibActions
 			)
 		)
+
+		// Compare and update the rundown pieces
+		const newPieces = pieces.map(
+			(piece): Piece => ({
+				...clone(piece),
+				startRundownId: this.rundownId,
+				startPartId: null,
+				startSegmentId: null,
+			})
+		)
+		this.#piecesImpl = diffAndReturnLatestObjects(this.#piecesWithChanges, this.#piecesImpl, newPieces)
 	}
 
 	setRundownOrphaned(orphaned: RundownOrphanedReason | undefined): void {
@@ -614,9 +639,26 @@ export class IngestModelImpl implements IngestModel, DatabasePersistedModel {
 			for (const segment of this.segmentsImpl.values()) {
 				if (segment.deleted) {
 					logOrThrowError(new Error(`Failed no changes in model assertion, Segment has been changed`))
+					break
 				} else {
 					const err = segment.segmentModel.checkNoChanges()
-					if (err) logOrThrowError(err)
+					if (err) {
+						logOrThrowError(err)
+						break
+					}
+				}
+			}
+
+			if (this.#piecesWithChanges.size) {
+				logOrThrowError(new Error(`Failed no changes in model assertion, Rundown Pieces have been changed`))
+			} else {
+				for (const piece of this.#piecesImpl.values()) {
+					if (!piece) {
+						logOrThrowError(
+							new Error(`Failed no changes in model assertion, Rundown Pieces have been changed`)
+						)
+						break
+					}
 				}
 			}
 		} finally {
@@ -673,6 +715,8 @@ export class IngestModelImpl implements IngestModel, DatabasePersistedModel {
 
 		saveHelper.addExpectedPackagesStore(this.#rundownBaselineExpectedPackagesStore)
 		this.#rundownBaselineExpectedPackagesStore.clearChangedFlags()
+
+		saveHelper.addChangedPieces(this.#piecesImpl, this.#piecesWithChanges)
 
 		await Promise.all([
 			this.#rundownHasChanged && this.#rundownImpl

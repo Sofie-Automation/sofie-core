@@ -395,6 +395,7 @@ export function studioSettingsFrom(apiStudioSettings: APIStudioSettings): Comple
 		enableBuckets: apiStudioSettings.enableBuckets ?? true, // Backwards compatible
 		enableEvaluationForm: apiStudioSettings.enableEvaluationForm ?? true, // Backwards compatible
 		mockPieceContentStatus: apiStudioSettings.mockPieceContentStatus,
+		rundownGlobalPiecesPrepareTime: apiStudioSettings.rundownGlobalPiecesPrepareTime,
 	}
 }
 
@@ -422,6 +423,7 @@ export function APIStudioSettingsFrom(settings: IStudioSettings): Complete<APISt
 		enableBuckets: settings.enableBuckets,
 		enableEvaluationForm: settings.enableEvaluationForm,
 		mockPieceContentStatus: settings.mockPieceContentStatus,
+		rundownGlobalPiecesPrepareTime: settings.rundownGlobalPiecesPrepareTime,
 	}
 }
 

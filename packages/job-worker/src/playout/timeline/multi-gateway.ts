@@ -290,18 +290,24 @@ function setPlannedTimingsOnPieceInstance(
 	}
 
 	if (typeof pieceInstance.pieceInstance.piece.enable.start === 'number') {
-		const plannedStart = partPlannedStart + pieceInstance.pieceInstance.piece.enable.start
+		const plannedStart =
+			(pieceInstance.pieceInstance.piece.enable.isAbsolute ? 0 : partPlannedStart) +
+			pieceInstance.pieceInstance.piece.enable.start
 		pieceInstance.setPlannedStartedPlayback(plannedStart)
 
 		const userDurationEnd =
 			pieceInstance.pieceInstance.userDuration && 'endRelativeToPart' in pieceInstance.pieceInstance.userDuration
 				? pieceInstance.pieceInstance.userDuration.endRelativeToPart
 				: null
-		const plannedEnd =
-			userDurationEnd ??
-			(pieceInstance.pieceInstance.piece.enable.duration
-				? plannedStart + pieceInstance.pieceInstance.piece.enable.duration
-				: partPlannedEnd)
+
+		let plannedEnd: number | undefined = userDurationEnd ?? undefined
+		if (plannedEnd === undefined) {
+			if (pieceInstance.pieceInstance.piece.enable.duration !== undefined) {
+				plannedEnd = plannedStart + pieceInstance.pieceInstance.piece.enable.duration
+			} else if (!pieceInstance.pieceInstance.piece.enable.isAbsolute) {
+				plannedEnd = partPlannedEnd
+			}
+		}
 
 		pieceInstance.setPlannedStoppedPlayback(plannedEnd)
 	}

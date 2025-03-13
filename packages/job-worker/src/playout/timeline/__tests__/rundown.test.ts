@@ -10,7 +10,10 @@ import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { transformTimeline } from '@sofie-automation/corelib/dist/playout/timeline'
 import { deleteAllUndefinedProperties, getRandomId } from '@sofie-automation/corelib/dist/lib'
 import { PieceInstance, PieceInstancePiece } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
-import { PieceInstanceWithTimings } from '@sofie-automation/corelib/dist/playout/processAndPrune'
+import {
+	createPartCurrentTimes,
+	PieceInstanceWithTimings,
+} from '@sofie-automation/corelib/dist/playout/processAndPrune'
 import { EmptyPieceTimelineObjectsBlob } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { IBlueprintPieceType, PieceLifespan } from '@sofie-automation/blueprints-integration'
 import { getPartGroupId } from '@sofie-automation/corelib/dist/playout/ids'
@@ -70,6 +73,8 @@ function transformTimelineIntoSimplifiedForm(res: RundownTimelineResult) {
  * inside of this will have their own tests to stress difference scenarios.
  */
 describe('buildTimelineObjsForRundown', () => {
+	const currentTime = 5678
+
 	function createMockPlaylist(selectedPartInfos: SelectedPartInstancesTimelineInfo): DBRundownPlaylist {
 		function convertSelectedPartInstance(
 			info: SelectedPartInstanceTimelineInfo | undefined
@@ -196,8 +201,7 @@ describe('buildTimelineObjsForRundown', () => {
 
 		const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
 			previous: {
-				nowInPart: 1234,
-				partStarted: 5678,
+				partTimes: createPartCurrentTimes(currentTime, 5678),
 				partInstance: createMockPartInstance('part0'),
 				pieceInstances: [],
 				calculatedTimings: DEFAULT_PART_TIMINGS,
@@ -217,8 +221,7 @@ describe('buildTimelineObjsForRundown', () => {
 
 		const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
 			current: {
-				nowInPart: 1234,
-				partStarted: 5678,
+				partTimes: createPartCurrentTimes(currentTime, 5678),
 				partInstance: createMockPartInstance('part0'),
 				pieceInstances: [createMockPieceInstance('piece0')],
 				calculatedTimings: DEFAULT_PART_TIMINGS,
@@ -243,8 +246,7 @@ describe('buildTimelineObjsForRundown', () => {
 
 		const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
 			current: {
-				nowInPart: 1234,
-				partStarted: 5678,
+				partTimes: createPartCurrentTimes(currentTime, 5678),
 				partInstance: createMockPartInstance(
 					'part0',
 					{},
@@ -277,16 +279,14 @@ describe('buildTimelineObjsForRundown', () => {
 
 		const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
 			current: {
-				nowInPart: 1234,
-				partStarted: 5678,
+				partTimes: createPartCurrentTimes(currentTime, 5678),
 				partInstance: createMockPartInstance('part0'),
 				pieceInstances: [createMockPieceInstance('piece0')],
 				calculatedTimings: DEFAULT_PART_TIMINGS,
 				regenerateTimelineAt: undefined,
 			},
 			next: {
-				nowInPart: 0,
-				partStarted: undefined,
+				partTimes: createPartCurrentTimes(currentTime, undefined),
 				partInstance: createMockPartInstance('part1'),
 				pieceInstances: [createMockPieceInstance('piece1')],
 				calculatedTimings: DEFAULT_PART_TIMINGS,
@@ -312,16 +312,14 @@ describe('buildTimelineObjsForRundown', () => {
 
 		const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
 			current: {
-				nowInPart: 1234,
-				partStarted: 5678,
+				partTimes: createPartCurrentTimes(currentTime, 5678),
 				partInstance: createMockPartInstance('part0', { autoNext: true, expectedDuration: 5000 }),
 				pieceInstances: [createMockPieceInstance('piece0')],
 				calculatedTimings: DEFAULT_PART_TIMINGS,
 				regenerateTimelineAt: undefined,
 			},
 			next: {
-				nowInPart: 0,
-				partStarted: undefined,
+				partTimes: createPartCurrentTimes(currentTime, undefined),
 				partInstance: createMockPartInstance('part1'),
 				pieceInstances: [createMockPieceInstance('piece1')],
 				calculatedTimings: DEFAULT_PART_TIMINGS,
@@ -347,8 +345,7 @@ describe('buildTimelineObjsForRundown', () => {
 
 		const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
 			previous: {
-				nowInPart: 9999,
-				partStarted: 1234,
+				partTimes: createPartCurrentTimes(currentTime, 1234),
 				partInstance: createMockPartInstance(
 					'part9',
 					{ autoNext: true, expectedDuration: 5000 },
@@ -363,8 +360,7 @@ describe('buildTimelineObjsForRundown', () => {
 				regenerateTimelineAt: undefined,
 			},
 			current: {
-				nowInPart: 1234,
-				partStarted: 5678,
+				partTimes: createPartCurrentTimes(currentTime, 5678),
 				partInstance: createMockPartInstance('part0'),
 				pieceInstances: [createMockPieceInstance('piece0')],
 				calculatedTimings: DEFAULT_PART_TIMINGS,
@@ -391,8 +387,7 @@ describe('buildTimelineObjsForRundown', () => {
 
 			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
 				previous: {
-					nowInPart: 9999,
-					partStarted: 1234,
+					partTimes: createPartCurrentTimes(currentTime, 1234),
 					partInstance: createMockPartInstance(
 						'part9',
 						{ autoNext: true, expectedDuration: 5000 },
@@ -407,8 +402,7 @@ describe('buildTimelineObjsForRundown', () => {
 					regenerateTimelineAt: undefined,
 				},
 				current: {
-					nowInPart: 1234,
-					partStarted: 5678,
+					partTimes: createPartCurrentTimes(currentTime, 5678),
 					partInstance: createMockPartInstance('part0'),
 					pieceInstances: [createMockPieceInstance('piece0')],
 					calculatedTimings: {
@@ -441,8 +435,7 @@ describe('buildTimelineObjsForRundown', () => {
 
 			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
 				previous: {
-					nowInPart: 9999,
-					partStarted: 1234,
+					partTimes: createPartCurrentTimes(currentTime, 1234),
 					partInstance: createMockPartInstance(
 						'part9',
 						{ autoNext: true, expectedDuration: 5000 },
@@ -462,8 +455,7 @@ describe('buildTimelineObjsForRundown', () => {
 					regenerateTimelineAt: undefined,
 				},
 				current: {
-					nowInPart: 1234,
-					partStarted: 5678,
+					partTimes: createPartCurrentTimes(currentTime, 5678),
 					partInstance: createMockPartInstance('part0'),
 					pieceInstances: [createMockPieceInstance('piece0')],
 					calculatedTimings: {
@@ -496,16 +488,14 @@ describe('buildTimelineObjsForRundown', () => {
 
 			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
 				current: {
-					nowInPart: 1234,
-					partStarted: 5678,
+					partTimes: createPartCurrentTimes(currentTime, 5678),
 					partInstance: createMockPartInstance('part0', { autoNext: true, expectedDuration: 5000 }),
 					pieceInstances: [createMockPieceInstance('piece0')],
 					calculatedTimings: DEFAULT_PART_TIMINGS,
 					regenerateTimelineAt: undefined,
 				},
 				next: {
-					nowInPart: 0,
-					partStarted: undefined,
+					partTimes: createPartCurrentTimes(currentTime, undefined),
 					partInstance: createMockPartInstance('part1'),
 					pieceInstances: [createMockPieceInstance('piece1')],
 					calculatedTimings: {
@@ -540,8 +530,7 @@ describe('buildTimelineObjsForRundown', () => {
 
 			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
 				current: {
-					nowInPart: 1234,
-					partStarted: 5678,
+					partTimes: createPartCurrentTimes(currentTime, 5678),
 					partInstance: createMockPartInstance(
 						'part0',
 						{ autoNext: true, expectedDuration: 5000 },
@@ -561,8 +550,7 @@ describe('buildTimelineObjsForRundown', () => {
 					regenerateTimelineAt: undefined,
 				},
 				next: {
-					nowInPart: 0,
-					partStarted: undefined,
+					partTimes: createPartCurrentTimes(currentTime, undefined),
 					partInstance: createMockPartInstance(
 						'part1',
 						{},
@@ -601,8 +589,7 @@ describe('buildTimelineObjsForRundown', () => {
 
 	describe('infinite pieces', () => {
 		const PREVIOUS_PART_INSTANCE: SelectedPartInstanceTimelineInfo = {
-			nowInPart: 9999,
-			partStarted: 1234,
+			partTimes: createPartCurrentTimes(currentTime, 1234),
 			partInstance: createMockPartInstance(
 				'part9',
 				{ autoNext: true, expectedDuration: 5000 },
@@ -623,8 +610,7 @@ describe('buildTimelineObjsForRundown', () => {
 			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
 				previous: PREVIOUS_PART_INSTANCE,
 				current: {
-					nowInPart: 1234,
-					partStarted: 5678,
+					partTimes: createPartCurrentTimes(currentTime, 5678),
 					partInstance: createMockPartInstance('part0'),
 					pieceInstances: [
 						createMockPieceInstance('piece0'),
@@ -655,8 +641,7 @@ describe('buildTimelineObjsForRundown', () => {
 					],
 				},
 				current: {
-					nowInPart: 1234,
-					partStarted: 5678,
+					partTimes: createPartCurrentTimes(currentTime, 5678),
 					partInstance: createMockPartInstance('part0'),
 					pieceInstances: [createMockPieceInstance('piece0')],
 					calculatedTimings: DEFAULT_PART_TIMINGS,
@@ -684,8 +669,7 @@ describe('buildTimelineObjsForRundown', () => {
 					],
 				},
 				current: {
-					nowInPart: 1234,
-					partStarted: 5678,
+					partTimes: createPartCurrentTimes(currentTime, 5678),
 					partInstance: createMockPartInstance('part0'),
 					pieceInstances: [createMockPieceInstance('piece0')],
 					calculatedTimings: DEFAULT_PART_TIMINGS,
@@ -712,8 +696,7 @@ describe('buildTimelineObjsForRundown', () => {
 					pieceInstances: [...PREVIOUS_PART_INSTANCE.pieceInstances, infinitePiece],
 				},
 				current: {
-					nowInPart: 1234,
-					partStarted: 5678,
+					partTimes: createPartCurrentTimes(currentTime, 5678),
 					partInstance: createMockPartInstance('part0'),
 					pieceInstances: [createMockPieceInstance('piece0'), continueInfinitePiece(infinitePiece)],
 					calculatedTimings: DEFAULT_PART_TIMINGS,
@@ -736,8 +719,7 @@ describe('buildTimelineObjsForRundown', () => {
 
 			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
 				current: {
-					nowInPart: 1234,
-					partStarted: 5678,
+					partTimes: createPartCurrentTimes(currentTime, 5678),
 					partInstance: createMockPartInstance(
 						'part0',
 						{ autoNext: true, expectedDuration: 5000 },
@@ -752,8 +734,7 @@ describe('buildTimelineObjsForRundown', () => {
 					regenerateTimelineAt: undefined,
 				},
 				next: {
-					nowInPart: 0,
-					partStarted: undefined,
+					partTimes: createPartCurrentTimes(currentTime, undefined),
 					partInstance: createMockPartInstance(
 						'part1',
 						{},
@@ -782,8 +763,7 @@ describe('buildTimelineObjsForRundown', () => {
 
 			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
 				current: {
-					nowInPart: 1234,
-					partStarted: 5678,
+					partTimes: createPartCurrentTimes(currentTime, 5678),
 					partInstance: createMockPartInstance(
 						'part0',
 						{ autoNext: true, expectedDuration: 5000 },
@@ -798,8 +778,7 @@ describe('buildTimelineObjsForRundown', () => {
 					regenerateTimelineAt: undefined,
 				},
 				next: {
-					nowInPart: 0,
-					partStarted: undefined,
+					partTimes: createPartCurrentTimes(currentTime, undefined),
 					partInstance: createMockPartInstance(
 						'part1',
 						{},
@@ -831,8 +810,7 @@ describe('buildTimelineObjsForRundown', () => {
 
 			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
 				current: {
-					nowInPart: 1234,
-					partStarted: 5678,
+					partTimes: createPartCurrentTimes(currentTime, 5678),
 					partInstance: createMockPartInstance(
 						'part0',
 						{ autoNext: true, expectedDuration: 5000 },
@@ -850,8 +828,7 @@ describe('buildTimelineObjsForRundown', () => {
 					regenerateTimelineAt: undefined,
 				},
 				next: {
-					nowInPart: 0,
-					partStarted: undefined,
+					partTimes: createPartCurrentTimes(currentTime, undefined),
 					partInstance: createMockPartInstance(
 						'part1',
 						{},

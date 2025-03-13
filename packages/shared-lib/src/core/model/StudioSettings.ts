@@ -99,4 +99,9 @@ export interface IStudioSettings {
 	 * Override the piece content statuses with fake info - used for developing the UI
 	 */
 	mockPieceContentStatus?: boolean
+
+	/**
+	 * How long before their start time a rundown owned piece be added to the timeline
+	 */
+	rundownGlobalPiecesPrepareTime?: number
 }

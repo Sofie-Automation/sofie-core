@@ -9,6 +9,7 @@ import _ from 'underscore'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import {
+	createPartCurrentTimes,
 	PieceInstanceWithTimings,
 	processAndPrunePieceInstanceTimings,
 	resolvePrunedPieceInstance,
@@ -88,25 +89,24 @@ export class PieceInstancesHandler extends PublicationCollection<
 		filterActive: boolean
 	): PieceInstanceWithTimings[] {
 		// Approximate when 'now' is in the PartInstance, so that any adlibbed Pieces will be timed roughly correctly
-		const partStarted = partInstance?.timings?.plannedStartedPlayback
-		const nowInPart = partStarted === undefined ? 0 : Date.now() - partStarted
+		const partTimes = createPartCurrentTimes(Date.now(), partInstance?.timings?.plannedStartedPlayback)
 
 		const prunedPieceInstances = processAndPrunePieceInstanceTimings(
 			this._sourceLayers,
 			pieceInstances,
-			nowInPart,
-			false,
+			partTimes,
 			false
 		)
 		if (!filterActive) return prunedPieceInstances
 
 		return prunedPieceInstances.filter((pieceInstance) => {
-			const resolvedPieceInstance = resolvePrunedPieceInstance(nowInPart, pieceInstance)
+			const resolvedPieceInstance = resolvePrunedPieceInstance(partTimes, pieceInstance)
 
 			return (
-				resolvedPieceInstance.resolvedStart <= nowInPart &&
+				resolvedPieceInstance.resolvedStart <= partTimes.nowInPart &&
 				(resolvedPieceInstance.resolvedDuration == null ||
-					resolvedPieceInstance.resolvedStart + resolvedPieceInstance.resolvedDuration > nowInPart) &&
+					resolvedPieceInstance.resolvedStart + resolvedPieceInstance.resolvedDuration >
+						partTimes.nowInPart) &&
 				pieceInstance.piece.virtual !== true &&
 				pieceInstance.disabled !== true
 			)

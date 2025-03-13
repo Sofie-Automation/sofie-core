@@ -2,7 +2,7 @@ import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibActio
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import { ExpectedPackageDB } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
 import { ExpectedPlayoutItem } from '@sofie-automation/corelib/dist/dataModel/ExpectedPlayoutItem'
-import { RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { PieceId, RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
@@ -50,6 +50,19 @@ export class SaveIngestModelHelper {
 			this.#pieces.addChanges(part.partModel.piecesChanges, partIsDeleted)
 			this.#adLibPieces.addChanges(part.partModel.adLibPiecesChanges, partIsDeleted)
 			this.#adLibActions.addChanges(part.partModel.adLibActionsChanges, partIsDeleted)
+		}
+	}
+
+	addChangedPieces(pieces: ReadonlyArray<Piece>, changedPieceIds: Set<PieceId>): void {
+		for (const piece of pieces) {
+			this.#pieces.addDocument(piece, changedPieceIds.has(piece._id))
+		}
+
+		const currentPieceIds = new Set(pieces.map((p) => p._id))
+		for (const changedPieceId of changedPieceIds) {
+			if (!currentPieceIds.has(changedPieceId)) {
+				this.#pieces.deleteDocument(changedPieceId)
+			}
 		}
 	}
 

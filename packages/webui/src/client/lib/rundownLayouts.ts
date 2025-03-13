@@ -4,7 +4,10 @@ import {
 	RundownPlaylistActivationId,
 	StudioId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { processAndPrunePieceInstanceTimings } from '@sofie-automation/corelib/dist/playout/processAndPrune'
+import {
+	createPartCurrentTimes,
+	processAndPrunePieceInstanceTimings,
+} from '@sofie-automation/corelib/dist/playout/processAndPrune'
 import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import {
@@ -138,13 +141,11 @@ export function getUnfinishedPieceInstancesReactive(
 						playlistActivationId: playlistActivationId,
 					}).fetch()
 
-					const nowInPart = partInstance.timings?.plannedStartedPlayback
-						? now - partInstance.timings.plannedStartedPlayback
-						: 0
+					const partTimes = createPartCurrentTimes(now, partInstance.timings?.plannedStartedPlayback)
 					prospectivePieces = processAndPrunePieceInstanceTimings(
 						showStyleBase.sourceLayers,
 						prospectivePieces,
-						nowInPart
+						partTimes
 					)
 
 					let nearestEnd = Number.POSITIVE_INFINITY

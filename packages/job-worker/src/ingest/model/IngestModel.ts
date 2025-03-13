@@ -1,6 +1,7 @@
 import {
 	ExpectedPackageDBFromBaselineAdLibAction,
 	ExpectedPackageDBFromBaselineAdLibPiece,
+	ExpectedPackageDBFromBaselinePiece,
 	ExpectedPackageDBFromRundownBaselineObjects,
 	ExpectedPackageFromRundown,
 } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
@@ -36,6 +37,7 @@ export type ExpectedPackageForIngestModelBaseline =
 	| ExpectedPackageDBFromBaselineAdLibAction
 	| ExpectedPackageDBFromBaselineAdLibPiece
 	| ExpectedPackageDBFromRundownBaselineObjects
+	| ExpectedPackageDBFromBaselinePiece
 export type ExpectedPackageForIngestModel = ExpectedPackageFromRundown | ExpectedPackageForIngestModelBaseline
 
 export interface IngestModelReadonly {
@@ -123,6 +125,11 @@ export interface IngestModelReadonly {
 	 * Get the Pieces in this Rundown, in no particular order
 	 */
 	getAllPieces(): ReadonlyDeep<Piece>[]
+
+	/**
+	 * Get the Pieces which belong to the Rundown, not a Part
+	 */
+	getGlobalPieces(): ReadonlyDeep<Piece>[]
 
 	/**
 	 * Search for a Part through the whole Rundown
@@ -233,11 +240,13 @@ export interface IngestModel extends IngestModelReadonly, BaseModel, INotificati
 	 * @param timelineObjectsBlob Rundown baseline timeline objects
 	 * @param adlibPieces Rundown adlib pieces
 	 * @param adlibActions Rundown adlib actions
+	 * @param pieces Rundown owned pieces
 	 */
 	setRundownBaseline(
 		timelineObjectsBlob: PieceTimelineObjectsBlob,
 		adlibPieces: RundownBaselineAdLibItem[],
-		adlibActions: RundownBaselineAdLibAction[]
+		adlibActions: RundownBaselineAdLibAction[],
+		pieces: Piece[]
 	): Promise<void>
 
 	/**

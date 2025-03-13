@@ -145,6 +145,21 @@ export async function updateExpectedPackagesForRundownBaseline(
 		preserveTypesDuringSave.add(ExpectedPackageDBType.RUNDOWN_BASELINE_OBJECTS)
 	}
 
+	// Add expected packages for global pieces
+	for (const piece of ingestModel.getGlobalPieces()) {
+		if (piece.expectedPackages) {
+			const bases = generateExpectedPackageBases(context.studio, piece._id, piece.expectedPackages)
+			for (const base of bases) {
+				expectedPackages.push({
+					...base,
+					rundownId: ingestModel.rundownId,
+					pieceId: piece._id,
+					fromPieceType: ExpectedPackageDBType.BASELINE_PIECE,
+				})
+			}
+		}
+	}
+
 	// Preserve anything existing
 	for (const expectedPackage of ingestModel.expectedPackagesForRundownBaseline) {
 		if (preserveTypesDuringSave.has(expectedPackage.fromPieceType)) {

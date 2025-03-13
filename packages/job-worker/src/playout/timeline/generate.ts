@@ -22,6 +22,8 @@ import { getResolvedPiecesForPartInstancesOnTimeline } from '../resolvedPieces.j
 import {
 	processAndPrunePieceInstanceTimings,
 	PieceInstanceWithTimings,
+	createPartCurrentTimes,
+	PartCurrentTimes,
 } from '@sofie-automation/corelib/dist/playout/processAndPrune'
 import { StudioPlayoutModel, StudioPlayoutModelBase } from '../../studio/model/StudioPlayoutModel.js'
 import { getLookeaheadObjects } from '../lookahead/index.js'
@@ -43,6 +45,9 @@ import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyE
 import { PlayoutPartInstanceModel } from '../model/PlayoutPartInstanceModel.js'
 import { PersistentPlayoutStateStore } from '../../blueprints/context/services/PersistantStateStore.js'
 import { PlayoutChangedType } from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI'
+import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
+
+const DEFAULT_ABSOLUTE_PIECE_PREPARE_TIME = 30000
 
 function isModelForStudio(model: StudioPlayoutModelBase): model is StudioPlayoutModel {
 	const tmp = model as StudioPlayoutModel
@@ -246,8 +251,7 @@ export interface SelectedPartInstancesTimelineInfo {
 	next?: SelectedPartInstanceTimelineInfo
 }
 export interface SelectedPartInstanceTimelineInfo {
-	nowInPart: number
-	partStarted: number | undefined
+	partTimes: PartCurrentTimes
 	partInstance: ReadonlyDeep<DBPartInstance>
 	pieceInstances: PieceInstanceWithTimings[]
 	calculatedTimings: PartCalculatedTimings
@@ -255,29 +259,44 @@ export interface SelectedPartInstanceTimelineInfo {
 }
 
 function getPartInstanceTimelineInfo(
+	absolutePiecePrepareTime: number,
 	currentTime: Time,
 	sourceLayers: SourceLayers,
 	partInstance: PlayoutPartInstanceModel | null
 ): SelectedPartInstanceTimelineInfo | undefined {
 	if (!partInstance) return undefined
 
-	const partStarted = partInstance.partInstance.timings?.plannedStartedPlayback
-	const nowInPart = partStarted === undefined ? 0 : currentTime - partStarted
-	const pieceInstances = processAndPrunePieceInstanceTimings(
-		sourceLayers,
-		partInstance.pieceInstances.map((p) => p.pieceInstance),
-		nowInPart
-	)
+	const partTimes = createPartCurrentTimes(currentTime, partInstance.partInstance.timings?.plannedStartedPlayback)
+
+	let regenerateTimelineAt: Time | undefined = undefined
+
+	const rawPieceInstances: ReadonlyDeep<PieceInstance>[] = []
+	for (const { pieceInstance } of partInstance.pieceInstances) {
+		if (
+			pieceInstance.piece.enable.isAbsolute &&
+			typeof pieceInstance.piece.enable.start === 'number' &&
+			pieceInstance.piece.enable.start > currentTime + absolutePiecePrepareTime
+		) {
+			// This absolute timed piece is starting too far in the future, ignore it
+			regenerateTimelineAt = Math.min(
+				regenerateTimelineAt ?? Number.POSITIVE_INFINITY,
+				pieceInstance.piece.enable.start - absolutePiecePrepareTime
+			)
+
+			continue
+		}
+
+		rawPieceInstances.push(pieceInstance)
+	}
 
 	const partInstanceWithOverrides = partInstance.getPartInstanceWithQuickLoopOverrides()
 	return {
 		partInstance: partInstanceWithOverrides,
-		pieceInstances,
-		nowInPart,
-		partStarted,
+		pieceInstances: processAndPrunePieceInstanceTimings(sourceLayers, rawPieceInstances, partTimes),
+		partTimes,
 		// Approximate `calculatedTimings`, for the partInstances which already have it cached
-		calculatedTimings: getPartTimingsOrDefaults(partInstanceWithOverrides, pieceInstances),
-		regenerateTimelineAt: undefined, // Future use
+		calculatedTimings: getPartTimingsOrDefaults(partInstanceWithOverrides, rawPieceInstances),
+		regenerateTimelineAt,
 	}
 }
 
@@ -318,10 +337,27 @@ async function getTimelineRundown(
 			}
 
 			const targetNowTime = playoutModel.getNowInPlayout()
+			const absolutePiecePrepareTime =
+				context.studio.settings.rundownGlobalPiecesPrepareTime || DEFAULT_ABSOLUTE_PIECE_PREPARE_TIME
 			const partInstancesInfo: SelectedPartInstancesTimelineInfo = {
-				current: getPartInstanceTimelineInfo(targetNowTime, showStyle.sourceLayers, currentPartInstance),
-				next: getPartInstanceTimelineInfo(targetNowTime, showStyle.sourceLayers, nextPartInstance),
-				previous: getPartInstanceTimelineInfo(targetNowTime, showStyle.sourceLayers, previousPartInstance),
+				current: getPartInstanceTimelineInfo(
+					absolutePiecePrepareTime,
+					targetNowTime,
+					showStyle.sourceLayers,
+					currentPartInstance
+				),
+				next: getPartInstanceTimelineInfo(
+					absolutePiecePrepareTime,
+					targetNowTime,
+					showStyle.sourceLayers,
+					nextPartInstance
+				),
+				previous: getPartInstanceTimelineInfo(
+					absolutePiecePrepareTime,
+					targetNowTime,
+					showStyle.sourceLayers,
+					previousPartInstance
+				),
 			}
 
 			if (partInstancesInfo.next && nextPartInstance) {

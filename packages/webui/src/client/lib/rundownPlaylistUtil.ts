@@ -164,7 +164,7 @@ export class RundownPlaylistClientUtil {
 	static getPiecesForParts(
 		parts: Array<PartId>,
 		piecesOptions?: Omit<FindOptions<Piece>, 'projection'> // We are mangling fields, so block projection
-	): Map<PartId, Piece[]> {
+	): Map<PartId | null, Piece[]> {
 		const allPieces = Pieces.find(
 			{ startPartId: { $in: parts } },
 			{

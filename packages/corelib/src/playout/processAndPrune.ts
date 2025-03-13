@@ -10,12 +10,41 @@ import { ReadonlyDeep } from 'type-fest'
 /**
  * Get the `enable: { start: ?? }` for the new piece in terms that can be used as an `end` for another object
  */
-function getPieceStartTimeAsReference(newPieceStart: number | 'now'): number | RelativeResolvedEndCap {
-	return typeof newPieceStart === 'number' ? newPieceStart : { offsetFromNow: 0 }
+function getPieceStartTimeAsReference(
+	newPieceStart: number | 'now',
+	partTimes: PartCurrentTimes,
+	pieceToAffect: ReadonlyDeep<PieceInstance>
+): number | RelativeResolvedEndCap {
+	if (typeof newPieceStart !== 'number') return { offsetFromNow: 0 }
+
+	if (pieceToAffect.piece.enable.isAbsolute) {
+		// If the piece is absolute timed, then the end needs to be adjusted to be absolute
+		if (pieceToAffect.piece.enable.start === 'now') {
+			return { offsetFromNow: newPieceStart }
+		} else {
+			// Translate to an absolute timestamp
+			return partTimes.currentTime - partTimes.nowInPart + newPieceStart
+		}
+	}
+
+	return newPieceStart
 }
 
-function getPieceStartTimeWithinPart(p: ReadonlyDeep<PieceInstance>): 'now' | number {
-	return p.piece.enable.start
+function getPieceStartTimeWithinPart(p: ReadonlyDeep<PieceInstance>, partTimes: PartCurrentTimes): 'now' | number {
+	const pieceEnable = p.piece.enable
+	if (pieceEnable.isAbsolute) {
+		// Note: these can't be adlibbed, so we don't need to consider adding the preroll
+
+		if (pieceEnable.start === 'now') {
+			// Should never happen, but just in case
+			return pieceEnable.start
+		} else {
+			// Translate this to the part
+			return pieceEnable.start - partTimes.currentTime + partTimes.nowInPart
+		}
+	}
+
+	return pieceEnable.start
 }
 
 function isClear(piece?: ReadonlyDeep<PieceInstance>): boolean {
@@ -51,24 +80,43 @@ export interface PieceInstanceWithTimings extends ReadonlyDeep<PieceInstance> {
 	 * This is a maximum end point of the pieceInstance.
 	 * If the pieceInstance also has a enable.duration or userDuration set then the shortest one will need to be used
 	 * This can be:
-	 *  - 'now', if it was stopped by something that does not need a preroll (or is virtual)
-	 *  - '#something.start + 100', if it was stopped by something that needs a preroll
-	 *  - '100', if not relative to now at all
+	 *  - '100', if relative to the start of the part
+	 *  - { offsetFromNow: 100 }, if stopped by an absolute time
 	 */
 	resolvedEndCap?: number | RelativeResolvedEndCap
 	priority: number
+}
+
+export interface PartCurrentTimes {
+	/** The current time when this was sampled */
+	readonly currentTime: number
+	/** The time the part started playback, if it has begun */
+	readonly partStartTime: number | null
+	/** An approximate current time within the part */
+	readonly nowInPart: number
+}
+
+export function createPartCurrentTimes(
+	currentTime: number,
+	partStartTime: number | undefined | null
+): PartCurrentTimes {
+	return {
+		currentTime,
+		partStartTime: partStartTime ?? null,
+		nowInPart: typeof partStartTime === 'number' ? currentTime - partStartTime : 0,
+	}
 }
 
 /**
  * Process the infinite pieces to determine the start time and a maximum end time for each.
  * Any pieces which have no chance of being shown (duplicate start times) are pruned
  * The stacking order of infinites is considered, to define the stop times
- * Note: `nowInPart` is only needed to order the PieceInstances. The result of this can be cached until that order changes
+ * Note: `nowInPart` is only needed to order the PieceInstances. The result of this can be cached until that order changes.
  */
 export function processAndPrunePieceInstanceTimings(
 	sourceLayers: SourceLayers,
 	pieces: ReadonlyDeep<PieceInstance[]>,
-	nowInPart: number,
+	partTimes: PartCurrentTimes,
 	keepDisabledPieces?: boolean,
 	includeVirtual?: boolean
 ): PieceInstanceWithTimings[] {
@@ -82,7 +130,7 @@ export function processAndPrunePieceInstanceTimings(
 		}
 	}
 
-	const groupedPieces = groupByToMapFunc(
+	const piecesGroupedByExclusiveGroupOrLayer = groupByToMapFunc(
 		keepDisabledPieces ? pieces : pieces.filter((p) => !p.disabled),
 		// At this stage, if a Piece is disabled, the `keepDisabledPieces` must be turned on. If that's the case
 		// we split out the disabled Pieces onto the sourceLayerId they actually exist on, instead of putting them
@@ -91,13 +139,16 @@ export function processAndPrunePieceInstanceTimings(
 		(p) =>
 			p.disabled ? p.piece.sourceLayerId : exclusiveGroupMap.get(p.piece.sourceLayerId) || p.piece.sourceLayerId
 	)
-	for (const pieces of groupedPieces.values()) {
-		// Group and sort the pieces so that we can step through each point in time
+	for (const piecesInExclusiveGroupOrLayer of piecesGroupedByExclusiveGroupOrLayer.values()) {
+		// Group and sort the pieces so that we can step through each point in time in order
+		const piecesByStartMap = groupByToMapFunc(piecesInExclusiveGroupOrLayer, (p) =>
+			getPieceStartTimeWithinPart(p, partTimes)
+		)
 		const piecesByStart: Array<[number | 'now', ReadonlyDeep<PieceInstance[]>]> = _.sortBy(
-			Array.from(groupByToMapFunc(pieces, (p) => getPieceStartTimeWithinPart(p)).entries()).map(([k, v]) =>
+			Array.from(piecesByStartMap.entries()).map(([k, v]) =>
 				literal<[number | 'now', ReadonlyDeep<PieceInstance[]>]>([k === 'now' ? 'now' : Number(k), v])
 			),
-			([k]) => (k === 'now' ? nowInPart : k)
+			([k]) => (k === 'now' ? partTimes.nowInPart : k)
 		)
 
 		// Step through time
@@ -107,10 +158,34 @@ export function processAndPrunePieceInstanceTimings(
 
 			// Apply the updates
 			// Note: order is important, the higher layers must be done first
-			updateWithNewPieces(results, activePieces, newPieces, newPiecesStart, includeVirtual, 'other')
-			updateWithNewPieces(results, activePieces, newPieces, newPiecesStart, includeVirtual, 'onSegmentEnd')
-			updateWithNewPieces(results, activePieces, newPieces, newPiecesStart, includeVirtual, 'onRundownEnd')
-			updateWithNewPieces(results, activePieces, newPieces, newPiecesStart, includeVirtual, 'onShowStyleEnd')
+			updateWithNewPieces(results, partTimes, activePieces, newPieces, newPiecesStart, includeVirtual, 'other')
+			updateWithNewPieces(
+				results,
+				partTimes,
+				activePieces,
+				newPieces,
+				newPiecesStart,
+				includeVirtual,
+				'onSegmentEnd'
+			)
+			updateWithNewPieces(
+				results,
+				partTimes,
+				activePieces,
+				newPieces,
+				newPiecesStart,
+				includeVirtual,
+				'onRundownEnd'
+			)
+			updateWithNewPieces(
+				results,
+				partTimes,
+				activePieces,
+				newPieces,
+				newPiecesStart,
+				includeVirtual,
+				'onShowStyleEnd'
+			)
 		}
 	}
 
@@ -119,6 +194,7 @@ export function processAndPrunePieceInstanceTimings(
 }
 function updateWithNewPieces(
 	results: PieceInstanceWithTimings[],
+	partTimes: PartCurrentTimes,
 	activePieces: PieceInstanceOnInfiniteLayers,
 	newPieces: PieceInstanceOnInfiniteLayers,
 	newPiecesStart: number | 'now',
@@ -129,7 +205,7 @@ function updateWithNewPieces(
 	if (newPiece) {
 		const activePiece = activePieces[key]
 		if (activePiece) {
-			activePiece.resolvedEndCap = getPieceStartTimeAsReference(newPiecesStart)
+			activePiece.resolvedEndCap = getPieceStartTimeAsReference(newPiecesStart, partTimes, activePiece)
 		}
 		// track the new piece
 		activePieces[key] = newPiece
@@ -154,7 +230,11 @@ function updateWithNewPieces(
 					(newPiecesStart !== 0 || isCandidateBetterToBeContinued(activePieces.other, newPiece))
 				) {
 					// These modes should stop the 'other' when they start if not hidden behind a higher priority onEnd
-					activePieces.other.resolvedEndCap = getPieceStartTimeAsReference(newPiecesStart)
+					activePieces.other.resolvedEndCap = getPieceStartTimeAsReference(
+						newPiecesStart,
+						partTimes,
+						activePieces.other
+					)
 					activePieces.other = undefined
 				}
 			}
@@ -221,21 +301,25 @@ function findPieceInstancesOnInfiniteLayers(pieces: ReadonlyDeep<PieceInstance[]
 
 /**
  * Resolve a PieceInstanceWithTimings to approximated numbers within the PartInstance
- * @param nowInPart Approximate time of the playhead within the PartInstance
+ * @param partTimes Approximate time of the playhead within the PartInstance
  * @param pieceInstance The PieceInstance to resolve
  */
 export function resolvePrunedPieceInstance(
-	nowInPart: number,
+	partTimes: PartCurrentTimes,
 	pieceInstance: PieceInstanceWithTimings
 ): ResolvedPieceInstance {
-	const resolvedStart = pieceInstance.piece.enable.start === 'now' ? nowInPart : pieceInstance.piece.enable.start
+	let resolvedStart =
+		pieceInstance.piece.enable.start === 'now' ? partTimes.nowInPart : pieceInstance.piece.enable.start
+	if (pieceInstance.piece.enable.isAbsolute) {
+		resolvedStart -= partTimes.currentTime - partTimes.nowInPart
+	}
 
 	// Interpret the `resolvedEndCap` property into a number
 	let resolvedEnd: number | undefined
 	if (typeof pieceInstance.resolvedEndCap === 'number') {
 		resolvedEnd = pieceInstance.resolvedEndCap
 	} else if (pieceInstance.resolvedEndCap) {
-		resolvedEnd = nowInPart + pieceInstance.resolvedEndCap.offsetFromNow
+		resolvedEnd = partTimes.nowInPart + pieceInstance.resolvedEndCap.offsetFromNow
 	}
 
 	// Find any possible durations this piece may have

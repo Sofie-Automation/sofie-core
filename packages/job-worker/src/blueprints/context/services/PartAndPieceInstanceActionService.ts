@@ -255,6 +255,9 @@ export class PartAndPieceInstanceActionService {
 		})
 		if (!pieceDB) throw new Error(`Cannot find Piece ${piece._id}`)
 
+		if (!pieceDB.startPartId || !pieceDB.startSegmentId)
+			throw new Error(`Piece ${piece._id} does not belong to a part`)
+
 		const rundown = this._playoutModel.getRundown(pieceDB.startRundownId)
 		const segment = rundown?.getSegment(pieceDB.startSegmentId)
 		const part = segment?.getPart(pieceDB.startPartId)
@@ -534,6 +537,7 @@ export async function applyActionSideEffects(
 		await syncPlayheadInfinitesForNextPartInstance(
 			context,
 			playoutModel,
+			undefined,
 			playoutModel.currentPartInstance,
 			playoutModel.nextPartInstance
 		)
