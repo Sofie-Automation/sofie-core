@@ -25,7 +25,7 @@ exports[`Lookahead got some objects 1`] = `
     "disabled": false,
     "enable": {
       "end": "#piece1obj1.start",
-      "start": "#piece0obj0.start + 1",
+      "start": "#piece0obj0.start + 0",
     },
     "id": "lookahead_timed1_piece1obj1",
     "isLookahead": true,
@@ -101,7 +101,7 @@ exports[`Lookahead got some objects 1`] = `
     "disabled": false,
     "enable": {
       "end": "#piece0obj6.start",
-      "start": "#piece1obj5.start + 1",
+      "start": "#piece1obj5.start + 0",
     },
     "id": "lookahead_timed1_piece0obj6",
     "isLookahead": true,
@@ -115,7 +115,7 @@ exports[`Lookahead got some objects 1`] = `
     },
     "disabled": false,
     "enable": {
-      "start": "#piece0obj6.start + 1",
+      "start": "#piece0obj6.start + 0",
     },
     "id": "lookahead_future0_piece1obj7",
     "isLookahead": true,

@@ -1160,7 +1160,7 @@ __metadata:
     mongodb: "npm:^6.12.0"
     p-lazy: "npm:^3.1.0"
     p-timeout: "npm:^4.1.0"
-    superfly-timeline: "npm:9.0.2"
+    superfly-timeline: "npm:9.0.3"
     threadedclass: "npm:^1.2.2"
     tslib: "npm:^2.8.1"
     type-fest: "npm:^4.33.0"
@@ -1191,7 +1191,7 @@ __metadata:
   resolution: "@sofie-automation/shared-lib@portal:../packages/shared-lib::locator=automation-core%40workspace%3A."
   dependencies:
     "@mos-connection/model": "npm:^4.2.2"
-    timeline-state-resolver-types: "npm:9.3.0-nightly-release52-20250220-231843-7047eb657.0"
+    timeline-state-resolver-types: "npm:9.3.0-nightly-release52-20250324-114036-9c86d5a2a.0"
     tslib: "npm:^2.8.1"
     type-fest: "npm:^4.33.0"
   languageName: node
@@ -2280,7 +2280,7 @@ __metadata:
     prettier: "npm:^2.8.8"
     semver: "npm:^7.6.3"
     standard-version: "npm:^9.5.0"
-    superfly-timeline: "npm:9.0.2"
+    superfly-timeline: "npm:9.0.3"
     threadedclass: "npm:^1.2.2"
     timecode: "npm:0.0.4"
     ts-jest: "npm:^29.2.5"
@@ -10054,12 +10054,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"superfly-timeline@npm:9.0.2":
-  version: 9.0.2
-  resolution: "superfly-timeline@npm:9.0.2"
+"superfly-timeline@npm:9.0.3":
+  version: 9.0.3
+  resolution: "superfly-timeline@npm:9.0.3"
   dependencies:
     tslib: "npm:^2.6.0"
-  checksum: 10/1459938b2f05858a9563b23774ffeb9376c8babcf8ea59cf10ec76296ae4d8a923f9b6858bf86517dbe7eaba705150b3f502cac11354b92c241efc52ffe3fe0f
+  checksum: 10/a5aa4d673fbeb5c53c321d55c9cd625263dc96e8a54d427779f85b7d668347bf5c109467903eb3abfb4e81caf542dbc9d3251a747dbd71b7be1be9ecc809cf4a
   languageName: node
   linkType: hard
 
@@ -10234,12 +10234,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"timeline-state-resolver-types@npm:9.3.0-nightly-release52-20250220-231843-7047eb657.0":
-  version: 9.3.0-nightly-release52-20250220-231843-7047eb657.0
-  resolution: "timeline-state-resolver-types@npm:9.3.0-nightly-release52-20250220-231843-7047eb657.0"
+"timeline-state-resolver-types@npm:9.3.0-nightly-release52-20250324-114036-9c86d5a2a.0":
+  version: 9.3.0-nightly-release52-20250324-114036-9c86d5a2a.0
+  resolution: "timeline-state-resolver-types@npm:9.3.0-nightly-release52-20250324-114036-9c86d5a2a.0"
   dependencies:
     tslib: "npm:^2.6.3"
-  checksum: 10/6bdecba5d42dc39d9ccaed76e7728b76c1465563f1f5ee17034d0351147af60de0d86a9612c2790b210365b487f913408de0a341e1d820cf4fc7614454709acc
+  checksum: 10/e843791ab84b22b3242ab0f828c682ea116211fec7d1bae0434d3b8977a2d278fe9d1c2e4b987b4d36d0c1c9e768e3ca8c47228cb33a4db04f26ce65811bfd55
   languageName: node
   linkType: hard
 
