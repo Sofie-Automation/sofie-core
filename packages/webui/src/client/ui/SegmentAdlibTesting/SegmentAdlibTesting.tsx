@@ -19,7 +19,7 @@ import { getElementWidth } from '../../utils/dimensions'
 import { HOVER_TIMEOUT } from '../Shelf/DashboardPieceButton'
 import { Meteor } from 'meteor/meteor'
 import { hidePointerLockCursor, showPointerLockCursor } from '../../lib/PointerLockCursor'
-import { OptionalVelocityComponent } from '../../lib/utilComponents'
+import { motion } from 'motion/react'
 import { filterSecondarySourceLayers } from '../SegmentStoryboard/StoryboardPartSecondaryPieces/StoryboardPartSecondaryPieces'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
@@ -511,39 +511,30 @@ export const SegmentAdlibTesting = React.memo(
 						))}
 				</div>
 				<div className="segment-storyboard__part-list__container" ref={listRef} onPointerDown={onListPointerDown}>
-					<OptionalVelocityComponent
-						animation={{
-							translateX: `-${scrollLeft}px`,
+					<motion.div
+						className={classNames('segment-storyboard__part-list', {
+							loading: !props.subscriptionsReady,
+						})}
+						animate={{
+							translateX: Math.min(0, scrollLeft * -1),
 						}}
-						duration={100}
-						shouldAnimate={animateScrollLeft}
+						transition={{ duration: animateScrollLeft ? 0.1 : 0, bounce: 0 }}
 					>
+						{parts}
 						<div
-							className={classNames('segment-storyboard__part-list', {
-								loading: !props.subscriptionsReady /*  */,
+							className={classNames('segment-storyboard__part-list', 'segment-storyboard__part-list--squished-parts', {
+								hover: squishedHover !== null,
 							})}
-							style={!animateScrollLeft ? { transform: `translateX(-${scrollLeft}px)` } : undefined}
+							style={{
+								minWidth: `${spaceLeft}px`,
+							}}
+							onPointerEnter={onSquishedPointerEnter}
+							onPointerLeave={onSquishedPointerLeave}
+							onPointerMove={onSquishedPointerMove}
 						>
-							{parts}
-							<div
-								className={classNames(
-									'segment-storyboard__part-list',
-									'segment-storyboard__part-list--squished-parts',
-									{
-										hover: squishedHover !== null,
-									}
-								)}
-								style={{
-									minWidth: `${spaceLeft}px`,
-								}}
-								onPointerEnter={onSquishedPointerEnter}
-								onPointerLeave={onSquishedPointerLeave}
-								onPointerMove={onSquishedPointerMove}
-							>
-								{squishedParts}
-							</div>
+							{squishedParts}
 						</div>
-					</OptionalVelocityComponent>
+					</motion.div>
 					<div
 						className="segment-storyboard__history-shade"
 						style={{

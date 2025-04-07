@@ -148,90 +148,88 @@ export const App: React.FC = function App() {
 	return (
 		<UserPermissionsContext.Provider value={roles}>
 			<Router getUserConfirmation={onNavigationUserConfirmation}>
-				<div className="container-fluid header-clear">
-					{/* Header switch - render the usual header for all pages but the rundown view */}
-					<ErrorBoundary>
-						<Switch>
-							<Route path="/rundown/:playlistId" component={NullComponent} />
-							<Route path="/countdowns/:studioId" component={NullComponent} />
-							<Route path="/activeRundown" component={NullComponent} />
-							<Route path="/prompter/:studioId" component={NullComponent} />
-							<Route
-								path="/"
-								render={(props) => (
-									<Header
-										{...props}
-										allowConfigure={roles.configure}
-										allowTesting={roles.testing}
-										allowDeveloper={roles.developer}
-									/>
-								)}
-							/>
-						</Switch>
-					</ErrorBoundary>
-					{/* Main app switch */}
-					<ErrorBoundary>
-						<Switch>
-							<Route exact path="/" component={RundownList} />
-							<Route path="/rundowns" render={() => <RundownList />} />
-							<Route
-								path="/rundown/:playlistId/shelf"
-								exact
-								render={(props) => (
-									<RundownView
-										playlistId={protectString(decodeURIComponent(props.match.params.playlistId))}
-										onlyShelf={true}
-									/>
-								)}
-							/>
-							<Route
-								path="/rundown/:playlistId"
-								render={(props) => (
-									<RundownView playlistId={protectString(decodeURIComponent(props.match.params.playlistId))} />
-								)}
-							/>
-							<Route
-								path="/activeRundown/:studioId"
-								render={(props) => (
-									<ActiveRundownView studioId={protectString(decodeURIComponent(props.match.params.studioId))} />
-								)}
-							/>
-							<Route
-								path="/prompter/:studioId"
-								render={(props) => (
-									<PrompterView studioId={protectString(decodeURIComponent(props.match.params.studioId))} />
-								)}
-							/>
-							{/* We switch to the general ClockView component, and allow it to do the switch between various types of countdowns */}
-							<Route
-								path="/countdowns/:studioId"
-								render={(props) => (
-									<ClockView studioId={protectString(decodeURIComponent(props.match.params.studioId))} />
-								)}
-							/>
-							<Route path="/status" render={() => <Status />} />
-							<Route path="/settings" render={() => <SettingsView />} />
-							<Route path="/testTools" render={() => <TestTools />} />
-							<Route>
-								<Redirect to="/" />
-							</Route>
-						</Switch>
-					</ErrorBoundary>
-					<ErrorBoundary>
-						<Switch>
-							{/* Put views that should NOT have the Notification center here: */}
-							<Route path="/countdowns/:studioId" component={NullComponent} />
-							<Route path="/prompter/:studioId" component={NullComponent} />
-							<Route path="/" component={ConnectionStatusNotification} />
-						</Switch>
-					</ErrorBoundary>
-					<ErrorBoundary>
-						<DocumentTitleProvider />
-					</ErrorBoundary>
-					<ErrorBoundary>
-						<ModalDialogGlobalContainer />
-					</ErrorBoundary>
-				</div>
+				{/* Header switch - render the usual header for all pages but the rundown view */}
+				<ErrorBoundary>
+					<Switch>
+						<Route path="/rundown/:playlistId" component={NullComponent} />
+						<Route path="/countdowns/:studioId" component={NullComponent} />
+						<Route path="/activeRundown" component={NullComponent} />
+						<Route path="/prompter/:studioId" component={NullComponent} />
+						<Route
+							path="/"
+							render={(props) => (
+								<Header
+									{...props}
+									allowConfigure={roles.configure}
+									allowTesting={roles.testing}
+									allowDeveloper={roles.developer}
+								/>
+							)}
+						/>
+					</Switch>
+				</ErrorBoundary>
+				{/* Main app switch */}
+				<ErrorBoundary>
+					<Switch>
+						<Route exact path="/" component={RundownList} />
+						<Route path="/rundowns" render={() => <RundownList />} />
+						<Route
+							path="/rundown/:playlistId/shelf"
+							exact
+							render={(props) => (
+								<RundownView
+									playlistId={protectString(decodeURIComponent(props.match.params.playlistId))}
+									onlyShelf={true}
+								/>
+							)}
+						/>
+						<Route
+							path="/rundown/:playlistId"
+							render={(props) => (
+								<RundownView playlistId={protectString(decodeURIComponent(props.match.params.playlistId))} />
+							)}
+						/>
+						<Route
+							path="/activeRundown/:studioId"
+							render={(props) => (
+								<ActiveRundownView studioId={protectString(decodeURIComponent(props.match.params.studioId))} />
+							)}
+						/>
+						<Route
+							path="/prompter/:studioId"
+							render={(props) => (
+								<PrompterView studioId={protectString(decodeURIComponent(props.match.params.studioId))} />
+							)}
+						/>
+						{/* We switch to the general ClockView component, and allow it to do the switch between various types of countdowns */}
+						<Route
+							path="/countdowns/:studioId"
+							render={(props) => (
+								<ClockView studioId={protectString(decodeURIComponent(props.match.params.studioId))} />
+							)}
+						/>
+						<Route path="/status" render={() => <Status />} />
+						<Route path="/settings" render={() => <SettingsView />} />
+						<Route path="/testTools" render={() => <TestTools />} />
+						<Route>
+							<Redirect to="/" />
+						</Route>
+					</Switch>
+				</ErrorBoundary>
+				<ErrorBoundary>
+					<Switch>
+						{/* Put views that should NOT have the Notification center here: */}
+						<Route path="/countdowns/:studioId" component={NullComponent} />
+						<Route path="/prompter/:studioId" component={NullComponent} />
+						<Route path="/" component={ConnectionStatusNotification} />
+					</Switch>
+				</ErrorBoundary>
+				<ErrorBoundary>
+					<DocumentTitleProvider />
+				</ErrorBoundary>
+				<ErrorBoundary>
+					<ModalDialogGlobalContainer />
+				</ErrorBoundary>
 			</Router>
 		</UserPermissionsContext.Provider>
 	)

@@ -5,8 +5,9 @@ import type {
 	IBlueprintPiece,
 	IBlueprintPieceInstance,
 } from '../documents'
+import type { IEventContext } from './eventContext'
 
-export interface ISyncIngestUpdateToPartInstanceContext extends IRundownUserContext {
+export interface ISyncIngestUpdateToPartInstanceContext extends IRundownUserContext, IEventContext {
 	/** Sync a pieceInstance. Inserts the pieceInstance if new, updates if existing. Optionally pass in a mutated Piece, to override the content of the instance */
 	syncPieceInstance(
 		pieceInstanceId: string,

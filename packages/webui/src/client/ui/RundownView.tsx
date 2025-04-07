@@ -1,8 +1,6 @@
 import { Meteor } from 'meteor/meteor'
 import React, { useContext } from 'react'
 import { parse as queryStringParse } from 'query-string'
-// @ts-expect-error No types available
-import * as VelocityReact from 'velocity-react'
 import {
 	Translated,
 	translateWithTracker,
@@ -172,6 +170,7 @@ import * as RundownResolver from '../lib/RundownResolver'
 import { MAGIC_TIME_SCALE_FACTOR } from './SegmentTimeline/Constants'
 import { SelectedElementProvider, SelectedElementsContext } from './RundownView/SelectedElementsContext'
 import { PropertiesPanel } from './UserEditOperations/PropertiesPanel'
+import { AnimatePresence } from 'motion/react'
 
 const REHEARSAL_MARGIN = 1 * 60 * 1000
 const HIDE_NOTIFICATIONS_AFTER_MOUNT: number | undefined = 5000
@@ -1457,7 +1456,11 @@ export function RundownView(props: Readonly<IProps>): JSX.Element {
 	}, [playlistId])
 
 	const subsReady = requiredSubsReady.findIndex((ready) => !ready) === -1
-	return <RundownViewContent {...props} subsReady={subsReady} userPermissions={userPermissions} />
+	return (
+		<div className="container-fluid header-clear">
+			<RundownViewContent {...props} subsReady={subsReady} userPermissions={userPermissions} />
+		</div>
+	)
 }
 
 interface IPropsWithReady extends IProps {
@@ -3171,48 +3174,16 @@ const RundownViewContent = translateWithTracker<IPropsWithReady, IState, ITracke
 											</ErrorBoundary>
 											<ErrorBoundary>{this.renderSorensenContext()}</ErrorBoundary>
 											<ErrorBoundary>
-												<VelocityReact.VelocityTransitionGroup
-													enter={{
-														animation: {
-															translateX: ['0%', '100%'],
-														},
-														easing: 'ease-out',
-														duration: 300,
-													}}
-													leave={{
-														animation: {
-															translateX: ['100%', '0%'],
-														},
-														easing: 'ease-in',
-														duration: 500,
-													}}
-												>
+												<AnimatePresence>
 													{this.state.isNotificationsCenterOpen && (
 														<NotificationCenterPanel filter={this.state.isNotificationsCenterOpen} />
 													)}
-												</VelocityReact.VelocityTransitionGroup>
-												{!this.state.isNotificationsCenterOpen &&
-													selectionContext.listSelectedElements().length > 0 && (
-														<div>
-															<PropertiesPanel />
-														</div>
-													)}
-												<VelocityReact.VelocityTransitionGroup
-													enter={{
-														animation: {
-															translateX: ['0%', '100%'],
-														},
-														easing: 'ease-out',
-														duration: 300,
-													}}
-													leave={{
-														animation: {
-															translateX: ['100%', '0%'],
-														},
-														easing: 'ease-in',
-														duration: 500,
-													}}
-												>
+													{!this.state.isNotificationsCenterOpen &&
+														selectionContext.listSelectedElements().length > 0 && (
+															<div>
+																<PropertiesPanel />
+															</div>
+														)}
 													{this.state.isSupportPanelOpen && (
 														<SupportPopUp>
 															<hr />
@@ -3248,7 +3219,7 @@ const RundownViewContent = translateWithTracker<IPropsWithReady, IState, ITracke
 																))}
 														</SupportPopUp>
 													)}
-												</VelocityReact.VelocityTransitionGroup>
+												</AnimatePresence>
 											</ErrorBoundary>
 											<ErrorBoundary>
 												{this.props.userPermissions.studio && (

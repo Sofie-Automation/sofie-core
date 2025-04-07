@@ -12,13 +12,19 @@ interface IProps {
 
 const showHiddenSourceLayers = getShowHiddenSourceLayers()
 
+export function filterSecondaryOutputLayers(outputLayers: IOutputLayerUi[]): IOutputLayerUi[] {
+	return outputLayers.filter((outputLayer) => outputLayer.used).sort((a, b) => a._rank - b._rank)
+}
+
 export function filterSecondarySourceLayers(sourceLayers: ISourceLayerExtended[]): ISourceLayerExtended[] {
-	return sourceLayers.filter(
-		(sourceLayer) =>
-			(showHiddenSourceLayers || !sourceLayer.isHidden) &&
-			!sourceLayer.onPresenterScreen &&
-			sourceLayer.type !== SourceLayerType.TRANSITION
-	)
+	return sourceLayers
+		.filter(
+			(sourceLayer) =>
+				(showHiddenSourceLayers || !sourceLayer.isHidden) &&
+				!sourceLayer.onPresenterScreen &&
+				sourceLayer.type !== SourceLayerType.TRANSITION
+		)
+		.sort((a, b) => a._rank - b._rank)
 }
 
 export const StoryboardPartSecondaryPieces = React.memo(function StoryboardPartSecondaryPieces({
@@ -27,34 +33,25 @@ export const StoryboardPartSecondaryPieces = React.memo(function StoryboardPartS
 }: IProps) {
 	return (
 		<div className="segment-storyboard__part__secondary-pieces">
-			{Object.values<IOutputLayerUi>(outputLayers)
-				.filter((outputLayer) => outputLayer.used)
-				.map((outputLayer) => {
-					const sourceLayers = filterSecondarySourceLayers(
-						Object.values<ISourceLayerExtended>(outputLayer.sourceLayers)
-					)
+			{filterSecondaryOutputLayers(Object.values<IOutputLayerUi>(outputLayers)).map((outputLayer) => {
+				const sourceLayers = filterSecondarySourceLayers(Object.values<ISourceLayerExtended>(outputLayer.sourceLayers))
 
-					if (sourceLayers.length === 0) return null
+				if (sourceLayers.length === 0) return null
 
-					return (
-						<div
-							key={outputLayer._id}
-							className="segment-storyboard__part__output-group"
-							data-obj-id={outputLayer._id}
-							role="log"
-							aria-live="assertive"
-						>
-							{sourceLayers.map((sourceLayer) => (
-								<StoryboardSourceLayer
-									key={sourceLayer._id}
-									sourceLayer={sourceLayer}
-									pieces={part.pieces}
-									part={part}
-								/>
-							))}
-						</div>
-					)
-				})}
+				return (
+					<div
+						key={outputLayer._id}
+						className="segment-storyboard__part__output-group"
+						data-obj-id={outputLayer._id}
+						role="log"
+						aria-live="assertive"
+					>
+						{sourceLayers.map((sourceLayer) => (
+							<StoryboardSourceLayer key={sourceLayer._id} sourceLayer={sourceLayer} pieces={part.pieces} part={part} />
+						))}
+					</div>
+				)
+			})}
 		</div>
 	)
 })

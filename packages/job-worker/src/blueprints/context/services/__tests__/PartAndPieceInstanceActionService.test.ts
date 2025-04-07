@@ -1205,7 +1205,7 @@ describe('Test blueprint api context', () => {
 
 			test('queued part does not hijack infinites from following parts', async () => {
 				// makes sure that infinites which would normally start in the part AFTER the part that is being queued,
-				// are not and starting in the queued part itself
+				// are not starting in the queued part itself
 
 				const { jobContext, playlistId, rundownId } = await setupMyDefaultRundown(
 					async (context, rundownId) => {

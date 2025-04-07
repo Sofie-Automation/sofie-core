@@ -26,8 +26,11 @@ import { HOVER_TIMEOUT } from '../Shelf/DashboardPieceButton'
 import { Meteor } from 'meteor/meteor'
 import { hidePointerLockCursor, showPointerLockCursor } from '../../lib/PointerLockCursor'
 import { SegmentScrollbar } from './SegmentScrollbar'
-import { OptionalVelocityComponent } from '../../lib/utilComponents'
-import { filterSecondarySourceLayers } from './StoryboardPartSecondaryPieces/StoryboardPartSecondaryPieces'
+import {
+	filterSecondaryOutputLayers,
+	filterSecondarySourceLayers,
+} from './StoryboardPartSecondaryPieces/StoryboardPartSecondaryPieces'
+import { motion } from 'motion/react'
 import { SegmentViewMode } from '../SegmentContainer/SegmentViewModes'
 import { ErrorBoundary } from '../../lib/ErrorBoundary'
 import { SwitchViewModeButton } from '../SegmentContainer/SwitchViewModeButton'
@@ -658,57 +661,46 @@ export const SegmentStoryboard = React.memo(
 
 				<div className="segment-timeline__mos-id">{props.segment.externalId}</div>
 				<div className="segment-timeline__source-layers" role="tree" aria-label={t('Sources')}>
-					{Object.values<IOutputLayerUi>(props.segment.outputLayers)
-						.filter((outputGroup) => outputGroup.used)
-						.map((outputGroup) => (
-							<div className="segment-timeline__output-group" key={outputGroup._id}>
-								{filterSecondarySourceLayers(outputGroup.sourceLayers).map((sourceLayer) =>
-									sourceLayer.pieces.length > 0 ? (
-										<div className="segment-timeline__source-layer" key={sourceLayer._id} role="treeitem">
-											{sourceLayer.name}
-										</div>
-									) : null
-								)}
-							</div>
-						))}
+					{filterSecondaryOutputLayers(Object.values<IOutputLayerUi>(props.segment.outputLayers)).map((outputGroup) => (
+						<div className="segment-timeline__output-group" key={outputGroup._id}>
+							{filterSecondarySourceLayers(outputGroup.sourceLayers).map((sourceLayer) =>
+								sourceLayer.pieces.length > 0 ? (
+									<div className="segment-timeline__source-layer" key={sourceLayer._id} role="treeitem">
+										{sourceLayer.name}
+									</div>
+								) : null
+							)}
+						</div>
+					))}
 				</div>
 				<ErrorBoundary>
 					<SwitchViewModeButton currentMode={SegmentViewMode.Storyboard} onSwitchViewMode={props.onSwitchViewMode} />
 				</ErrorBoundary>
 				<div className="segment-storyboard__part-list__container" ref={listRef} onPointerDown={onListPointerDown}>
-					<OptionalVelocityComponent
-						animation={{
-							translateX: `-${scrollLeft}px`,
+					<motion.div
+						className={classNames('segment-storyboard__part-list', {
+							loading: !props.subscriptionsReady,
+						})}
+						animate={{
+							translateX: Math.min(0, scrollLeft * -1),
 						}}
-						duration={100}
-						shouldAnimate={animateScrollLeft}
+						transition={{ duration: animateScrollLeft ? 0.1 : 0, bounce: 0 }}
 					>
+						{parts}
 						<div
-							className={classNames('segment-storyboard__part-list', {
-								loading: !props.subscriptionsReady,
+							className={classNames('segment-storyboard__part-list', 'segment-storyboard__part-list--squished-parts', {
+								hover: squishedHover !== null,
 							})}
-							style={!animateScrollLeft ? { transform: `translateX(-${scrollLeft}px)` } : undefined}
+							style={{
+								minWidth: `${spaceLeft}px`,
+							}}
+							onPointerEnter={onSquishedPointerEnter}
+							onPointerLeave={onSquishedPointerLeave}
+							onPointerMove={onSquishedPointerMove}
 						>
-							{parts}
-							<div
-								className={classNames(
-									'segment-storyboard__part-list',
-									'segment-storyboard__part-list--squished-parts',
-									{
-										hover: squishedHover !== null,
-									}
-								)}
-								style={{
-									minWidth: `${spaceLeft}px`,
-								}}
-								onPointerEnter={onSquishedPointerEnter}
-								onPointerLeave={onSquishedPointerLeave}
-								onPointerMove={onSquishedPointerMove}
-							>
-								{squishedParts}
-							</div>
+							{squishedParts}
 						</div>
-					</OptionalVelocityComponent>
+					</motion.div>
 					<div
 						className="segment-storyboard__history-shade"
 						style={{

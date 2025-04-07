@@ -261,7 +261,7 @@ export class CoreHandler {
 				fcnObject
 					.executeAction(cmd.actionId, cmd.payload)
 					.then((result) => cb(null, result))
-					.catch((e) => cb(e.toString, null))
+					.catch((e) => cb(stringifyError(e), null))
 			} else if (cmd.actionId) {
 				this.logger.warning(`Could not execute action "${cmd.actionId}", because there is no handler`)
 				cb(`Could not execute action "${cmd.actionId}", because there is no handler`)

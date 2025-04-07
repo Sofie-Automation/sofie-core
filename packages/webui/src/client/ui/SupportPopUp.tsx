@@ -7,6 +7,8 @@ import { getHelpMode } from '../lib/localStorage'
 import { CoreSystem } from '../collections'
 import { SYSTEM_ID } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
+import { PopUpPanel } from './RundownView/PopUpPanel'
+import { RundownRightHandButton } from './RundownView/RundownRightHandButton'
 
 interface IProps {}
 
@@ -31,12 +33,12 @@ export function SupportPopUp({ children }: Readonly<React.PropsWithChildren<IPro
 	)
 
 	return (
-		<div className="support-pop-up-panel" role="dialog">
+		<PopUpPanel className="support-pop-up-panel" role="dialog">
 			<h2 className="mhn mvn">{t('Help & Support')}</h2>
 			{children && <div className="support-pop-up-panel__actions">{children}</div>}
 			{!supportMessage && <DocumentationLink />}
 			<div dangerouslySetInnerHTML={supportMessageHTML} />
-		</div>
+		</PopUpPanel>
 	)
 }
 
@@ -48,7 +50,7 @@ interface IToggleProps {
 
 export function SupportPopUpToggle({ isOpen, title, onClick }: Readonly<IToggleProps>): JSX.Element {
 	return (
-		<button
+		<RundownRightHandButton
 			className={ClassNames('status-bar__controls__button', 'support__toggle-button', {
 				'status-bar__controls__button--open': isOpen,
 				// 'status-bar__controls__button--has-messages': this.getMessages() !== ''
@@ -61,7 +63,7 @@ export function SupportPopUpToggle({ isOpen, title, onClick }: Readonly<IToggleP
 			aria-pressed={isOpen ? 'true' : 'false'}
 		>
 			<SupportIcon />
-		</button>
+		</RundownRightHandButton>
 	)
 }
 

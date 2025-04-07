@@ -5,7 +5,7 @@ import ClassNames from 'classnames'
 import { Meteor } from 'meteor/meteor'
 import { parse as queryStringParse } from 'query-string'
 import { Route } from 'react-router-dom'
-import Velocity from 'velocity-animate'
+import { animate, AnimationPlaybackControls } from 'motion'
 import {
 	Translated,
 	useGlobalDelayedTrackerUpdateState,
@@ -121,6 +121,8 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 
 	// @ts-expect-error The manager inspects this instance
 	private _controller: PrompterControlManager
+
+	private _lastAnimation: AnimationPlaybackControls | null = null
 
 	private checkWindowScroll: number | null = null
 
@@ -316,29 +318,66 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 		const scrollMargin = this.calculateScrollPosition()
 		const target = document.querySelector<HTMLElement>(`[data-part-instance-id="${partInstanceId}"]`)
 
-		if (target) {
-			Velocity(document.body, 'finish')
-			Velocity(target, 'scroll', { offset: -1 * scrollMargin, duration: 400, easing: 'ease-out' })
-		}
+		if (!target) return
+		// Velocity(document.body, 'finish')
+		// Velocity(target, 'scroll', { offset: -1 * scrollMargin, duration: 400, easing: 'ease-out' })
+		const offsetTop = window.scrollY + target.offsetTop
+		this._lastAnimation?.stop()
+		this._lastAnimation = animate(
+			window,
+			{
+				scrollY: offsetTop + -1 * scrollMargin,
+			},
+			{
+				duration: 0.4,
+				ease: 'easeOut',
+			}
+		)
 	}
 	scrollToLive(): void {
 		const scrollMargin = this.calculateScrollPosition()
 		const current =
 			document.querySelector<HTMLElement>('.prompter .live') || document.querySelector<HTMLElement>('.prompter .next')
 
-		if (current) {
-			Velocity(document.body, 'finish')
-			Velocity(current, 'scroll', { offset: -1 * scrollMargin, duration: 400, easing: 'ease-out' })
-		}
+		if (!current) return
+		// 	Velocity(document.body, 'finish')
+		// 	Velocity(current, 'scroll', { offset: -1 * scrollMargin, duration: 400, easing: 'ease-out' })
+		// }
+
+		const offsetTop = window.scrollY + current.offsetTop
+		this._lastAnimation?.stop()
+		this._lastAnimation = animate(
+			window,
+			{
+				scrollY: offsetTop + -1 * scrollMargin,
+			},
+			{
+				duration: 0.4,
+				ease: 'easeOut',
+			}
+		)
 	}
 	scrollToNext(): void {
 		const scrollMargin = this.calculateScrollPosition()
 		const next = document.querySelector<HTMLElement>('.prompter .next')
 
-		if (next) {
-			Velocity(document.body, 'finish')
-			Velocity(next, 'scroll', { offset: -1 * scrollMargin, duration: 400, easing: 'ease-out' })
-		}
+		if (!next) return
+		// 	Velocity(document.body, 'finish')
+		// 	Velocity(next, 'scroll', { offset: -1 * scrollMargin, duration: 400, easing: 'ease-out' })
+		// }
+
+		const offsetTop = window.scrollY + next.offsetTop
+		this._lastAnimation?.stop()
+		this._lastAnimation = animate(
+			window,
+			{
+				scrollY: offsetTop + -1 * scrollMargin,
+			},
+			{
+				duration: 0.4,
+				ease: 'easeOut',
+			}
+		)
 	}
 	scrollToPrevious(): void {
 		const scrollMargin = this.calculateScrollPosition()
@@ -347,12 +386,25 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 		const target = anchors[anchors.length - 2] || anchors[0]
 		if (!target) return
 
-		Velocity(document.body, 'finish')
-		Velocity(document.body, 'scroll', {
-			offset: window.scrollY - scrollMargin + target[0],
-			duration: 200,
-			easing: 'ease-out',
-		})
+		// Velocity(document.body, 'finish')
+		// Velocity(document.body, 'scroll', {
+		// 	offset: window.scrollY - scrollMargin + target[0],
+		// 	duration: 200,
+		// 	easing: 'ease-out',
+		// })
+
+		const offsetTop = window.scrollY + target[0]
+		this._lastAnimation?.stop()
+		this._lastAnimation = animate(
+			window,
+			{
+				scrollY: offsetTop + -1 * scrollMargin,
+			},
+			{
+				duration: 0.4,
+				ease: 'easeOut',
+			}
+		)
 	}
 	scrollToFollowing(): void {
 		const scrollMargin = this.calculateScrollPosition()
@@ -361,12 +413,24 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 		const target = anchors[0]
 		if (!target) return
 
-		Velocity(document.body, 'finish')
-		Velocity(document.body, 'scroll', {
-			offset: window.scrollY - scrollMargin + target[0],
-			duration: 200,
-			easing: 'ease-out',
-		})
+		// Velocity(document.body, 'finish')
+		// Velocity(document.body, 'scroll', {
+		// 	offset: window.scrollY - scrollMargin + target[0],
+		// 	duration: 200,
+		// 	easing: 'ease-out',
+		// })
+		const offsetTop = window.scrollY + target[0]
+		this._lastAnimation?.stop()
+		this._lastAnimation = animate(
+			window,
+			{
+				scrollY: offsetTop + -1 * scrollMargin,
+			},
+			{
+				duration: 0.4,
+				ease: 'easeOut',
+			}
+		)
 	}
 	listAnchorPositions(startY: number, endY: number, sortDirection = 1): [number, Element][] {
 		let foundPositions: [number, Element][] = []

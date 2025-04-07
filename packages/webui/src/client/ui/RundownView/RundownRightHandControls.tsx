@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react'
-// @ts-expect-error No types available
-import * as VelocityReact from 'velocity-react'
-
+import { AnimatePresence } from 'motion/react'
 import {
 	StudioRouteSet,
 	StudioRouteBehavior,
@@ -26,6 +24,7 @@ import { MediaStatusPopUp } from './MediaStatusPopUp'
 import { MediaStatusIcon } from '../../lib/ui/icons/mediaStatus'
 import { SelectedElementsContext } from './SelectedElementsContext'
 import { UserEditsCloseIcon, UserEditsIcon } from '../../lib/ui/icons/useredits'
+import { RundownRightHandButton } from './RundownRightHandButton'
 
 interface IProps {
 	playlistId: RundownPlaylistId
@@ -129,181 +128,154 @@ export function RundownRightHandControls(props: Readonly<IProps>): JSX.Element {
 	}
 
 	return (
-		<div className="status-bar">
-			<VelocityReact.VelocityTransitionGroup
-				enter={{ animation: 'fadeIn', easing: 'ease-out', duration: 250 }}
-				leave={{ animation: 'fadeOut', easing: 'ease-in', duration: 500 }}
-				className="status-bar__cell status-bar__cell--align-start"
-			>
-				<NotificationCenterPanelToggle
-					onClick={(e) => props.onToggleNotifications?.(e, NoticeLevel.CRITICAL)}
-					isOpen={props.isNotificationCenterOpen === NoticeLevel.CRITICAL}
-					filter={NoticeLevel.CRITICAL}
-					className="type-critical"
-					title={t('Critical Problems')}
+		<>
+			{mediaStatusOpen && <MediaStatusPopUp key="mediaStatusPopUp" playlistId={props.playlistId} />}
+			{switchboardOpen && (
+				<SwitchboardPopUp
+					key="switchboardPopUp"
+					availableRouteSets={availableRouteSets}
+					studioRouteSetExclusivityGroups={props.studioRouteSetExclusivityGroups}
+					onStudioRouteSetSwitch={props.onStudioRouteSetSwitch}
 				/>
-				<NotificationCenterPanelToggle
-					onClick={(e) => props.onToggleNotifications?.(e, NoticeLevel.WARNING)}
-					isOpen={props.isNotificationCenterOpen === NoticeLevel.WARNING}
-					filter={NoticeLevel.WARNING}
-					className="type-warning"
-					title={t('Warnings')}
-				/>
-				<NotificationCenterPanelToggle
-					onClick={(e) => props.onToggleNotifications?.(e, NoticeLevel.NOTIFICATION | NoticeLevel.TIP)}
-					isOpen={props.isNotificationCenterOpen === (NoticeLevel.NOTIFICATION | NoticeLevel.TIP)}
-					filter={NoticeLevel.NOTIFICATION | NoticeLevel.TIP}
-					className="type-notification"
-					title={t('Notes')}
-				/>
-				{props.isUserEditsEnabled && (
-					<PropertiesPanelToggle isNotificationCenterOpen={props.isNotificationCenterOpen} />
-				)}
-				<button
-					className="status-bar__controls__button"
-					role="button"
-					onClick={onRewindClick}
-					tabIndex={0}
-					aria-label={t('Rewind all Segments')}
-				>
-					<RewindAllSegmentsIcon />
-				</button>
-				{!props.isFollowingOnAir && (
-					<button
-						className="status-bar__controls__button"
-						role="button"
-						onMouseEnter={onOnAirMouseEnter}
-						onMouseLeave={onOnAirMouseLeave}
-						onClick={onOnAirClick}
-						tabIndex={0}
-						aria-label={t('Go to On Air Segment')}
-					>
-						{onAirHover ? <Lottie config={ONAIR_OVER} /> : <Lottie config={ONAIR_OUT} />}
-					</button>
-				)}
-			</VelocityReact.VelocityTransitionGroup>
-			<VelocityReact.VelocityTransitionGroup
-				enter={{ animation: 'fadeIn', easing: 'ease-out', duration: 250 }}
-				leave={{ animation: 'fadeOut', easing: 'ease-in', duration: 500 }}
-				className="status-bar__cell status-bar__cell--align-end"
-			>
-				{props.isStudioMode && (
-					<button
-						className="status-bar__controls__button status-bar__controls__button--take"
-						role="button"
-						onClick={onTakeClick}
-						tabIndex={0}
-						aria-label={t('Take')}
-					>
-						Take
-					</button>
-				)}
-				<>
-					<button
-						className={classNames(
-							'status-bar__controls__button',
-							'status-bar__controls__button--media-status',
-							'notifications-s notifications-text',
-							{
-								'status-bar__controls__button--open': mediaStatusOpen,
-							}
+			)}
+			<div className="status-bar">
+				<div className="status-bar__cell status-bar__cell--align-start">
+					<AnimatePresence initial={false}>
+						<NotificationCenterPanelToggle
+							key="critical"
+							onClick={(e) => props.onToggleNotifications?.(e, NoticeLevel.CRITICAL)}
+							isOpen={props.isNotificationCenterOpen === NoticeLevel.CRITICAL}
+							filter={NoticeLevel.CRITICAL}
+							className="type-critical"
+							title={t('Critical Problems')}
+						/>
+						<NotificationCenterPanelToggle
+							key="warning"
+							onClick={(e) => props.onToggleNotifications?.(e, NoticeLevel.WARNING)}
+							isOpen={props.isNotificationCenterOpen === NoticeLevel.WARNING}
+							filter={NoticeLevel.WARNING}
+							className="type-warning"
+							title={t('Warnings')}
+						/>
+						<NotificationCenterPanelToggle
+							key="notification"
+							onClick={(e) => props.onToggleNotifications?.(e, NoticeLevel.NOTIFICATION | NoticeLevel.TIP)}
+							isOpen={props.isNotificationCenterOpen === (NoticeLevel.NOTIFICATION | NoticeLevel.TIP)}
+							filter={NoticeLevel.NOTIFICATION | NoticeLevel.TIP}
+							className="type-notification"
+							title={t('Notes')}
+						/>
+						{props.isUserEditsEnabled && (
+							<PropertiesPanelToggle key="properties" isNotificationCenterOpen={props.isNotificationCenterOpen} />
 						)}
-						role="button"
-						onClick={onMediaStatusToggle}
-						tabIndex={0}
-						aria-label={t('Media Status')}
-						aria-haspopup="dialog"
-						aria-pressed={mediaStatusOpen ? 'true' : 'false'}
-					>
-						<MediaStatusIcon />
-					</button>
-					<VelocityReact.VelocityTransitionGroup
-						enter={{
-							animation: {
-								width: ['28rem', '0rem'],
-							},
-							easing: 'ease-out',
-							duration: 300,
-						}}
-						leave={{
-							animation: {
-								width: ['0rem'],
-							},
-							easing: 'ease-in',
-							duration: 500,
-						}}
-					>
-						{mediaStatusOpen && <MediaStatusPopUp playlistId={props.playlistId} />}
-					</VelocityReact.VelocityTransitionGroup>
-				</>
-				<button
-					className="status-bar__controls__button status-bar__controls__button--segment-view-mode"
-					role="button"
-					onClick={onSegmentViewModeClick}
-					tabIndex={0}
-					aria-label={t('Switch Segment View Mode')}
-				>
-					<SegmentViewMode />
-				</button>
-				{props.isStudioMode &&
-					props.studioRouteSets &&
-					props.onStudioRouteSetSwitch &&
-					availableRouteSets.length > 0 && (
-						<>
+						<button
+							key="rewind"
+							className="status-bar__controls__button"
+							role="button"
+							onClick={onRewindClick}
+							tabIndex={0}
+							aria-label={t('Rewind all Segments')}
+						>
+							<RewindAllSegmentsIcon />
+						</button>
+						{!props.isFollowingOnAir && (
 							<button
-								className={classNames(
-									'status-bar__controls__button',
-									'status-bar__controls__button--switchboard-panel',
-									'notifications-s notifications-text',
-									{
-										'status-bar__controls__button--open': switchboardOpen,
-									}
-								)}
+								key="followingOnAir"
+								className="status-bar__controls__button"
 								role="button"
-								onClick={onRouteSetsToggle}
+								onMouseEnter={onOnAirMouseEnter}
+								onMouseLeave={onOnAirMouseLeave}
+								onClick={onOnAirClick}
 								tabIndex={0}
-								aria-label={t('Switchboard Panel')}
-								aria-haspopup="dialog"
-								aria-pressed={switchboardOpen ? 'true' : 'false'}
+								aria-label={t('Go to On Air Segment')}
 							>
-								<SwitchboardIcon />
-								{nonDefaultRoutes > 0 && (
-									<RouteSetOverrideIcon className="status-bar__controls__button--switchboard-panel__notification" />
-								)}
+								{onAirHover ? <Lottie config={ONAIR_OVER} /> : <Lottie config={ONAIR_OUT} />}
 							</button>
-							<VelocityReact.VelocityTransitionGroup
-								enter={{
-									animation: {
-										width: ['28rem', '0rem'],
-									},
-									easing: 'ease-out',
-									duration: 300,
-								}}
-								leave={{
-									animation: {
-										width: ['0rem'],
-									},
-									easing: 'ease-in',
-									duration: 500,
-								}}
+						)}
+					</AnimatePresence>
+				</div>
+				<div className="status-bar__cell status-bar__cell--align-end">
+					<AnimatePresence>
+						{props.isStudioMode && (
+							<RundownRightHandButton
+								key="take"
+								className="status-bar__controls__button status-bar__controls__button--take"
+								role="button"
+								onClick={onTakeClick}
+								tabIndex={0}
+								aria-label={t('Take')}
 							>
-								{switchboardOpen && (
-									<SwitchboardPopUp
-										availableRouteSets={availableRouteSets}
-										studioRouteSetExclusivityGroups={props.studioRouteSetExclusivityGroups}
-										onStudioRouteSetSwitch={props.onStudioRouteSetSwitch}
-									/>
-								)}
-							</VelocityReact.VelocityTransitionGroup>
-						</>
-					)}
-				<SupportPopUpToggle
-					onClick={props.onToggleSupportPanel}
-					isOpen={props.isSupportPanelOpen}
-					title={t('Toggle Support Panel')}
-				/>
-			</VelocityReact.VelocityTransitionGroup>
-		</div>
+								Take
+							</RundownRightHandButton>
+						)}
+						<RundownRightHandButton
+							key="mediaStatus"
+							className={classNames(
+								'status-bar__controls__button',
+								'status-bar__controls__button--media-status',
+								'notifications-s notifications-text',
+								{
+									'status-bar__controls__button--open': mediaStatusOpen,
+								}
+							)}
+							role="button"
+							onClick={onMediaStatusToggle}
+							tabIndex={0}
+							aria-label={t('Media Status')}
+							aria-haspopup="dialog"
+							aria-pressed={mediaStatusOpen ? 'true' : 'false'}
+						>
+							<MediaStatusIcon />
+						</RundownRightHandButton>
+						<RundownRightHandButton
+							key="segmentViewMode"
+							className="status-bar__controls__button status-bar__controls__button--segment-view-mode"
+							role="button"
+							onClick={onSegmentViewModeClick}
+							tabIndex={0}
+							aria-label={t('Switch Segment View Mode')}
+						>
+							<SegmentViewMode />
+						</RundownRightHandButton>
+						{props.isStudioMode &&
+							props.studioRouteSets &&
+							props.onStudioRouteSetSwitch &&
+							availableRouteSets.length > 0 && (
+								<>
+									<RundownRightHandButton
+										key="switchboard"
+										className={classNames(
+											'status-bar__controls__button',
+											'status-bar__controls__button--switchboard-panel',
+											'notifications-s notifications-text',
+											{
+												'status-bar__controls__button--open': switchboardOpen,
+											}
+										)}
+										role="button"
+										onClick={onRouteSetsToggle}
+										tabIndex={0}
+										aria-label={t('Switchboard Panel')}
+										aria-haspopup="dialog"
+										aria-pressed={switchboardOpen ? 'true' : 'false'}
+									>
+										<SwitchboardIcon />
+										{nonDefaultRoutes > 0 && (
+											<RouteSetOverrideIcon className="status-bar__controls__button--switchboard-panel__notification" />
+										)}
+									</RundownRightHandButton>
+								</>
+							)}
+						<SupportPopUpToggle
+							key="supportPopUp"
+							onClick={props.onToggleSupportPanel}
+							isOpen={props.isSupportPanelOpen}
+							title={t('Toggle Support Panel')}
+						/>
+					</AnimatePresence>
+				</div>
+			</div>
+		</>
 	)
 }
 

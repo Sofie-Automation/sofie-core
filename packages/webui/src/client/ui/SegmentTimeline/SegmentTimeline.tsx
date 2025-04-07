@@ -882,10 +882,8 @@ export class SegmentTimelineClass extends React.Component<Translated<WithTiming<
 		if (this.props.segment.outputLayers === undefined) return []
 
 		return Object.values<IOutputLayerUi>(this.props.segment.outputLayers)
-			.sort((a, b) => {
-				return a._rank - b._rank
-			})
 			.filter((group) => group.used)
+			.sort((a, b) => a._rank - b._rank)
 	}
 
 	private renderOutputLayerControls(outputGroups: IOutputLayerUi[]) {

@@ -3,12 +3,13 @@ import { Clock } from '../StudioScreenSaver/Clock'
 import { useTracker, useSubscription } from '../../lib/ReactMeteorData/ReactMeteorData'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { findNextPlaylist } from '../StudioScreenSaver/StudioScreenSaver'
-import Velocity from 'velocity-animate'
 import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { useSetDocumentClass } from '../util/useSetDocumentClass'
+import { AnimationPlaybackControls, animate as motionAnimate } from 'motion'
 
 export function OverlayScreenSaver({ studioId }: Readonly<{ studioId: StudioId }>): JSX.Element {
 	const studioNameRef = useRef<HTMLDivElement>(null)
+	const animationControlsRef = useRef<AnimationPlaybackControls | null>(null)
 
 	useSetDocumentClass('transparent')
 
@@ -46,27 +47,18 @@ export function OverlayScreenSaver({ studioId }: Readonly<{ studioId: StudioId }
 			el.style.position = 'absolute'
 			el.style.left = '0.2em'
 
-			Velocity(
-				el,
-				{
-					opacity: 1,
-				},
-				{
-					duration: 3000,
-					delay: 1000,
-				}
-			)
-			Velocity(
-				el,
-				{
-					opacity: 0,
-				},
-				{
-					duration: 3000,
-					delay: 5000,
-					complete: () => animate(),
-				}
-			)
+			const animation = motionAnimate([
+				[el, { opacity: 1 }, { duration: 3, delay: 1 }],
+				[el, { opacity: 0 }, { duration: 3, delay: 5 }],
+			])
+			animation
+				.then(() => {
+					animate()
+				})
+				.catch(() => {
+					console.error('Unlikely animation failure')
+				})
+			animationControlsRef.current = animation
 		}
 	}
 
@@ -76,13 +68,13 @@ export function OverlayScreenSaver({ studioId }: Readonly<{ studioId: StudioId }
 			animate()
 		}
 		return () => {
-			if (el) {
-				el.style.transform = ''
-				el.style.opacity = ''
-				el.style.position = ''
-				el.style.left = ''
-				Velocity(el, 'stop', true)
-			}
+			animationControlsRef.current?.stop()
+
+			if (!el) return
+			el.style.transform = ''
+			el.style.opacity = ''
+			el.style.position = ''
+			el.style.left = ''
 		}
 	}, [studioNameRef.current, data?.rundownPlaylist?.name, data?.studio?.name])
 
