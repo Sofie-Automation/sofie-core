@@ -173,9 +173,9 @@ function deNowifyCurrentPieces(
 		const objMetadata = obj.metaData as Partial<PieceTimelineMetadata> | undefined
 		if (objMetadata?.isPieceTimeline && !Array.isArray(obj.enable) && obj.enable.start === 'now') {
 			if (obj.inGroup === timingContext.currentPartGroup.id) {
-				obj.enable = { start: nowInPart }
+				obj.enable = { ...obj.enable, start: nowInPart }
 			} else if (!obj.inGroup) {
-				obj.enable = { start: targetNowTime }
+				obj.enable = { ...obj.enable, start: targetNowTime }
 			}
 		}
 	}
