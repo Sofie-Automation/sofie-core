@@ -341,7 +341,7 @@ function GlobalPropertiesEditor({
 
 	return (
 		<div className="properties-panel-pop-up__form styled-schema-form" style={{ color: 'white' }}>
-			{parsedSchema ? (
+			{parsedSchema && (
 				<SchemaFormWithState
 					key={(schema as any as string) ?? 'key'}
 					schema={parsedSchema}
@@ -349,8 +349,6 @@ function GlobalPropertiesEditor({
 					onUpdate={onUpdate}
 					translationNamespaces={translationNamespace}
 				/>
-			) : (
-				<></>
 			)}
 		</div>
 	)

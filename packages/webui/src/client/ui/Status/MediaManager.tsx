@@ -1,8 +1,6 @@
 import React, { useCallback, useContext } from 'react'
 import * as CoreIcons from '@nrk/core-icons/jsx'
 import { faChevronDown, faChevronRight, faCheck, faStopCircle, faRedo, faFlag } from '@fortawesome/free-solid-svg-icons'
-// @ts-expect-error No types available
-import * as VelocityReact from 'velocity-react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import ClassNames from 'classnames'
 import { MomentFromNow } from '../../lib/Moment'
@@ -35,23 +33,6 @@ interface IItemProps {
 	actionRestart: (event: React.MouseEvent<HTMLElement>, workflow: MediaWorkFlowUi) => void
 	actionAbort: (event: React.MouseEvent<HTMLElement>, workflow: MediaWorkFlowUi) => void
 	actionPrioritize: (event: React.MouseEvent<HTMLElement>, workflow: MediaWorkFlowUi) => void
-}
-
-const iconEnterAnimation = {
-	translateY: ['0%', '-100%'],
-}
-
-const iconLeaveAnimation = {
-	translateY: ['100%', '0%'],
-}
-
-const subIconEnterAnimation = {
-	translateY: ['0%', '100%'],
-	opacity: [1, 1],
-}
-
-const subIconLeaveAnimation = {
-	opacity: [0, 1],
 }
 
 type TFunc = (label: string, attrs?: object) => string
@@ -181,29 +162,17 @@ function MediaManagerWorkFlowItem(props: Readonly<IItemProps>): JSX.Element {
 		>
 			<div className="workflow__header pas">
 				<div className="workflow__header__progress">
-					<VelocityReact.VelocityComponent
-						animation={finishedOK ? iconEnterAnimation : iconLeaveAnimation}
-						duration={300}
-						easing="easeIn"
-					>
+					{finishedOK && (
 						<div className="big-status ok">
 							<FontAwesomeIcon icon={faCheck} />
 						</div>
-					</VelocityReact.VelocityComponent>
-					<VelocityReact.VelocityComponent
-						animation={finishedError ? iconEnterAnimation : iconLeaveAnimation}
-						duration={300}
-						easing="easeIn"
-					>
+					)}
+					{finishedError && (
 						<div className="big-status error">
 							<WarningIcon />
 						</div>
-					</VelocityReact.VelocityComponent>
-					<VelocityReact.VelocityComponent
-						animation={!finishedOK && !finishedError ? iconEnterAnimation : iconLeaveAnimation}
-						duration={300}
-						easing="easeIn"
-					>
+					)}
+					{!finishedOK && !finishedError && (
 						<CircularProgressbar
 							value={progress * 100} // TODO: initialAnimation={true} removed, make the animation other way if needed
 							text={Math.round(progress * 100) + '%'}
@@ -214,16 +183,12 @@ function MediaManagerWorkFlowItem(props: Readonly<IItemProps>): JSX.Element {
 								text: { fill: '#252627', fontSize: '170%', transform: 'translate(0, 8%)', textAnchor: 'middle' },
 							}}
 						/>
-					</VelocityReact.VelocityComponent>
-					<VelocityReact.VelocityComponent
-						animation={!finishedOK && !finishedError && keyFinishedOK ? subIconEnterAnimation : subIconLeaveAnimation}
-						duration={300}
-						easing="easeIn"
-					>
+					)}
+					{!finishedOK && !finishedError && keyFinishedOK && (
 						<div className="big-status sub-icon ok">
 							<FontAwesomeIcon icon={faCheck} />
 						</div>
-					</VelocityReact.VelocityComponent>
+					)}
 				</div>
 				<div className="workflow__header__summary">
 					{mediaWorkflow.comment && mediaWorkflow.name !== mediaWorkflow.comment ? (
@@ -281,56 +246,40 @@ function MediaManagerWorkFlowItem(props: Readonly<IItemProps>): JSX.Element {
 					</Tooltip>
 				</div>
 			</div>
-			<VelocityReact.VelocityTransitionGroup
-				enter={{
-					animation: 'slideDown',
-					easing: 'ease-out',
-					duration: 150,
-					maxHeight: 0,
-					overflow: 'hidden',
-				}}
-				leave={{
-					animation: 'slideUp',
-					easing: 'ease-in',
-					duration: 150,
-					overflow: 'hidden',
-				}}
-			>
-				{isExpanded && (
-					<div>
-						{mediaWorkflow.steps
-							.sort((a, b) => b.priority - a.priority)
-							.map((step) => (
-								<div
-									className={ClassNames('workflow__step', {
-										ok: step.status === MediaManagerAPI.WorkStepStatus.DONE,
-										error: step.status === MediaManagerAPI.WorkStepStatus.ERROR,
-										working: step.status === MediaManagerAPI.WorkStepStatus.WORKING,
-									})}
-									key={unprotectString(step._id)}
-								>
-									<div className="workflow__step__action pas">{actionLabel(t, step.action)}</div>
-									<div className="workflow__step__status pas">{workStepStatusLabel(t, step)}</div>
-									<div className="workflow__step__progress progress-bar">
-										<div
-											className="pb-indicator"
-											style={{
-												width: (step.progress || 0) * 100 + '%',
-											}}
-										/>
-									</div>
-									{step.messages && step.messages.length > 0 && (
-										<ul className="workflow__step__messages pas man">
-											{step.messages.map((k, key) => (
-												<li key={key}>{k}</li>
-											))}
-										</ul>
-									)}
+			{isExpanded && (
+				<div>
+					{mediaWorkflow.steps
+						.sort((a, b) => b.priority - a.priority)
+						.map((step) => (
+							<div
+								className={ClassNames('workflow__step', {
+									ok: step.status === MediaManagerAPI.WorkStepStatus.DONE,
+									error: step.status === MediaManagerAPI.WorkStepStatus.ERROR,
+									working: step.status === MediaManagerAPI.WorkStepStatus.WORKING,
+								})}
+								key={unprotectString(step._id)}
+							>
+								<div className="workflow__step__action pas">{actionLabel(t, step.action)}</div>
+								<div className="workflow__step__status pas">{workStepStatusLabel(t, step)}</div>
+								<div className="workflow__step__progress progress-bar">
+									<div
+										className="pb-indicator"
+										style={{
+											width: (step.progress || 0) * 100 + '%',
+										}}
+									/>
 								</div>
-							))}
-					</div>
-				)}
-			</VelocityReact.VelocityTransitionGroup>
+								{step.messages && step.messages.length > 0 && (
+									<ul className="workflow__step__messages pas man">
+										{step.messages.map((k, key) => (
+											<li key={key}>{k}</li>
+										))}
+									</ul>
+								)}
+							</div>
+						))}
+				</div>
+			)}
 		</div>
 	)
 }

@@ -22,6 +22,7 @@ import { mapOrFallback, useDebounce } from '../../../lib/lib'
 import { Spinner } from '../../../lib/Spinner'
 import { NavLink } from 'react-router-dom'
 import { MediaStatusPopOutIcon } from '../../../lib/ui/icons/mediaStatus'
+import { PopUpPanel } from '../PopUpPanel'
 
 interface IProps {
 	playlistId: RundownPlaylistId
@@ -80,7 +81,7 @@ export function MediaStatusPopUp({ playlistId }: Readonly<IProps>): JSX.Element 
 	)
 
 	return (
-		<div className="media-status-panel" role="dialog">
+		<PopUpPanel className="media-status-panel" role="dialog">
 			<div className="media-status-panel__inside">
 				<div className="media-status-panel__pop-out">
 					<NavLink to="/status/media" target="_blank">
@@ -167,6 +168,6 @@ export function MediaStatusPopUp({ playlistId }: Readonly<IProps>): JSX.Element 
 					</table>
 				</div>
 			</div>
-		</div>
+		</PopUpPanel>
 	)
 }

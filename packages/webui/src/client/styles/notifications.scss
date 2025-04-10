@@ -212,6 +212,8 @@
 	overflow: hidden;
 
 	.notifications__toggle-button__icon {
+		position: relative;
+
 		> svg {
 			position: absolute;
 			width: calc($fullscreen-controls__button--radius / 1.75);
@@ -397,7 +399,7 @@
 .rundown-view .notification-center-panel {
 	background: #acacad;
 	color: #000;
-	top: 3.1rem;
+	top: 4rem;
 
 	&::before {
 		content: ' ';

@@ -1,24 +1,19 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import classNames from 'classnames'
-// @ts-expect-error No types available
-import * as VelocityReact from 'velocity-react'
 import { ISourceLayerExtended, PartExtended, PieceExtended } from '../../../lib/RundownResolver'
-import StudioContext from '../../RundownView/StudioContext'
-import { StoryboardSecondaryPiece } from './StoryboardSecondaryPiece'
 import { getCurrentTime } from '../../../lib/systemTime'
 import { useInvalidateTimeout } from '../../../lib/lib'
 import { Meteor } from 'meteor/meteor'
 import { HOVER_TIMEOUT } from '../../Shelf/DashboardPieceButton'
 import { PieceInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
+import { StoryboardSourceLayerItem } from './StoryboardSourceLayerItem'
 
 interface IProps {
 	sourceLayer: ISourceLayerExtended
 	pieces: PieceExtended[]
 	part: PartExtended
 }
-
-// needs to match .segment-storyboard__part__source-layer--multiple-piece > .segment-storyboard__part__piece width CSS property
-const MULTIPLE_PIECES_PIECE_WIDTH = 0.8
 
 /**
  * Calculate which pieces should now be playing and which have already stopped playing. Return the IDs of the playing
@@ -140,8 +135,6 @@ export function StoryboardSourceLayer({ pieces, sourceLayer, part }: Readonly<IP
 
 	const pieceCount = piecesOnLayer.length - finishedIds.length
 
-	const offset = (1 - 0.8) / (pieceCount - 1 || 1)
-
 	// the first piece found will be the "latest finished"
 	const lastFinished = piecesOnLayer.find((pieceInstance) => finishedIds.includes(pieceInstance.instance._id))
 	const topmostPieceIndex = lastFinished ? piecesOnLayer.indexOf(lastFinished) - 1 : piecesOnLayer.length - 1
@@ -187,53 +180,29 @@ export function StoryboardSourceLayer({ pieces, sourceLayer, part }: Readonly<IP
 			onPointerEnter={onPointerEnter}
 			onPointerLeave={onPointerLeave}
 			onPointerMove={onPointerMove}
+			style={{
+				//@ts-expect-error: CSS Variable
+				'--piece-count': pieceCount,
+			}}
 		>
 			{piecesOnLayer.map((piece, index) => {
 				const isFinished = finishedIds.includes(piece.instance._id)
+				const isPlaying = playingIds.includes(piece.instance._id)
 
 				return (
-					<VelocityReact.VelocityComponent
-						key={piece.instance._id}
-						animation={{
-							translateX:
-								pieceCount > 1
-									? `${Math.max(0, (offset * (pieceCount - 1 - index) * 100) / MULTIPLE_PIECES_PIECE_WIDTH)}%`
-									: undefined,
-							translateY: isFinished ? [25, 0] : undefined,
-							opacity: isFinished ? [0, 1] : 1,
-						}}
-						duration={350}
-					>
-						<StudioContext.Consumer>
-							{(studio) => (
-								<StoryboardSecondaryPiece
-									piece={piece}
-									studio={studio}
-									isLiveLine={false}
-									layer={sourceLayer}
-									partId={partId}
-									className={classNames({
-										'segment-storyboard__part__piece--frontmost':
-											hoverIndex !== null ? hoverIndex === index : topmostPieceIndex === index,
-										'segment-storyboard__part__piece--playing':
-											piece.renderedDuration !== null && playingIds.includes(piece.instance._id),
-										hover: index === hoverIndex,
-									})}
-									style={{
-										//@ts-expect-error: CSS Variable
-										'--piece-playback-duration': `${piece.renderedDuration}ms`,
-										zIndex:
-											hoverIndex !== null
-												? index <= hoverIndex
-													? piecesOnLayer.length + index
-													: piecesOnLayer.length - index
-												: undefined,
-									}}
-									onPointerEnter={() => setHoverIndex(index)}
-								/>
-							)}
-						</StudioContext.Consumer>
-					</VelocityReact.VelocityComponent>
+					<StoryboardSourceLayerItem
+						key={unprotectString(piece.instance._id)}
+						piece={piece}
+						layer={sourceLayer}
+						partId={partId}
+						isFinished={isFinished}
+						isPlaying={isPlaying}
+						index={index}
+						hoverIndex={hoverIndex}
+						topmostPieceIndex={topmostPieceIndex}
+						totalSiblings={piecesOnLayer.length}
+						onPointerEnter={() => setHoverIndex(index)}
+					/>
 				)
 			})}
 		</div>

@@ -6127,6 +6127,7 @@ __metadata:
     immutability-helper: "npm:^3.1.1"
     lottie-web: "npm:^5.12.2"
     moment: "npm:^2.30.1"
+    motion: "npm:^12.4.7"
     promise.allsettled: "npm:^1.0.7"
     query-string: "npm:^6.14.1"
     rc-tooltip: "npm:^6.4.0"
@@ -6152,8 +6153,6 @@ __metadata:
     type-fest: "npm:^4.33.0"
     typescript: "npm:~5.5.4"
     underscore: "npm:^1.13.7"
-    velocity-animate: "npm:^1.5.2"
-    velocity-react: "npm:^1.4.3"
     vite: "npm:^6.0.11"
     vite-plugin-node-polyfills: "npm:^0.23.0"
     vite-tsconfig-paths: "npm:^5.1.4"
@@ -12731,15 +12730,6 @@ asn1@evs-broadcast/node-asn1:
   languageName: node
   linkType: hard
 
-"dom-helpers@npm:^3.4.0":
-  version: 3.4.0
-  resolution: "dom-helpers@npm:3.4.0"
-  dependencies:
-    "@babel/runtime": "npm:^7.1.2"
-  checksum: 10/63ce62469be8cb481c41811f6b463a1b071dce8a7cd73a39cd4fdaa1e570201af6e7a895a502f4db414e2cc0533e44096ad95c13f303e5a3c3a036f0a43798e4
-  languageName: node
-  linkType: hard
-
 "dom-serializer@npm:0":
   version: 0.2.2
   resolution: "dom-serializer@npm:0.2.2"
@@ -14743,6 +14733,28 @@ asn1@evs-broadcast/node-asn1:
   version: 4.3.7
   resolution: "fraction.js@npm:4.3.7"
   checksum: 10/bb5ebcdeeffcdc37b68ead3bdfc244e68de188e0c64e9702197333c72963b95cc798883ad16adc21588088b942bca5b6a6ff4aeb1362d19f6f3b629035dc15f5
+  languageName: node
+  linkType: hard
+
+"framer-motion@npm:^12.4.7":
+  version: 12.4.7
+  resolution: "framer-motion@npm:12.4.7"
+  dependencies:
+    motion-dom: "npm:^12.4.5"
+    motion-utils: "npm:^12.0.0"
+    tslib: "npm:^2.4.0"
+  peerDependencies:
+    "@emotion/is-prop-valid": "*"
+    react: ^18.0.0 || ^19.0.0
+    react-dom: ^18.0.0 || ^19.0.0
+  peerDependenciesMeta:
+    "@emotion/is-prop-valid":
+      optional: true
+    react:
+      optional: true
+    react-dom:
+      optional: true
+  checksum: 10/d277e75f1ed8af69f145f263758aa046083a2c0b4f9a5e48911f3847d38d7c3bdb361e97876f635ae58d5bdb4b9cc50f6e8c631b8e225c6d8233584f106116e2
   languageName: node
   linkType: hard
 
@@ -18798,7 +18810,7 @@ asn1@evs-broadcast/node-asn1:
   languageName: node
   linkType: hard
 
-"lodash@npm:4.17.21, lodash@npm:^4, lodash@npm:^4.17.15, lodash@npm:^4.17.19, lodash@npm:^4.17.20, lodash@npm:^4.17.21, lodash@npm:^4.17.5, lodash@npm:^4.7.0, lodash@npm:~4.17.21":
+"lodash@npm:4.17.21, lodash@npm:^4, lodash@npm:^4.17.15, lodash@npm:^4.17.19, lodash@npm:^4.17.20, lodash@npm:^4.17.21, lodash@npm:^4.7.0, lodash@npm:~4.17.21":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
   checksum: 10/c08619c038846ea6ac754abd6dd29d2568aa705feb69339e836dfa8d8b09abbb2f859371e86863eda41848221f9af43714491467b5b0299122431e202bb0c532
@@ -20675,6 +20687,43 @@ asn1@evs-broadcast/node-asn1:
     winston: "npm:^3.17.0"
   languageName: unknown
   linkType: soft
+
+"motion-dom@npm:^12.4.5":
+  version: 12.4.5
+  resolution: "motion-dom@npm:12.4.5"
+  dependencies:
+    motion-utils: "npm:^12.0.0"
+  checksum: 10/40c84519266093813a59c340324b3b7134c750075fb50abac8ed2d1cde83d50f084ddf53910fc1e82bd28d932e9a2d1c0fba49dbe8d7aa97b3f8c814b17664ad
+  languageName: node
+  linkType: hard
+
+"motion-utils@npm:^12.0.0":
+  version: 12.0.0
+  resolution: "motion-utils@npm:12.0.0"
+  checksum: 10/e73b82cf36746f6d498bc48450d34bf8d51128279d8f542cab8a02edf13368d0b99e4208c6d60c670fac5481c60e09d590db7345e390070ed0499dd4367d1695
+  languageName: node
+  linkType: hard
+
+"motion@npm:^12.4.7":
+  version: 12.4.7
+  resolution: "motion@npm:12.4.7"
+  dependencies:
+    framer-motion: "npm:^12.4.7"
+    tslib: "npm:^2.4.0"
+  peerDependencies:
+    "@emotion/is-prop-valid": "*"
+    react: ^18.0.0 || ^19.0.0
+    react-dom: ^18.0.0 || ^19.0.0
+  peerDependenciesMeta:
+    "@emotion/is-prop-valid":
+      optional: true
+    react:
+      optional: true
+    react-dom:
+      optional: true
+  checksum: 10/3f649dc2688bf6a5627a34193dc3b3e9d277d65ca1be2159a65a80f72c140c2f52fbdde50b876ebd0c2b00622a222048a6e72aa15eefe6038cce0192657c1d44
+  languageName: node
+  linkType: hard
 
 "mrmime@npm:^1.0.0":
   version: 1.0.1
@@ -23960,7 +24009,7 @@ asn1@evs-broadcast/node-asn1:
   languageName: node
   linkType: hard
 
-"prop-types@npm:^15.5.8, prop-types@npm:^15.6.0, prop-types@npm:^15.6.1, prop-types@npm:^15.6.2, prop-types@npm:^15.7.2, prop-types@npm:^15.8.1":
+"prop-types@npm:^15.6.0, prop-types@npm:^15.6.1, prop-types@npm:^15.6.2, prop-types@npm:^15.7.2, prop-types@npm:^15.8.1":
   version: 15.8.1
   resolution: "prop-types@npm:15.8.1"
   dependencies:
@@ -24594,13 +24643,6 @@ asn1@evs-broadcast/node-asn1:
   languageName: node
   linkType: hard
 
-"react-lifecycles-compat@npm:^3.0.4":
-  version: 3.0.4
-  resolution: "react-lifecycles-compat@npm:3.0.4"
-  checksum: 10/c66b9c98c15cd6b0d0a4402df5f665e8cc7562fb7033c34508865bea51fd7b623f7139b5b7e708515d3cd665f264a6a9403e1fa7e6d61a05759066f5e9f07783
-  languageName: node
-  linkType: hard
-
 "react-loadable-ssr-addon-v5-slorber@npm:^1.0.1":
   version: 1.0.1
   resolution: "react-loadable-ssr-addon-v5-slorber@npm:1.0.1"
@@ -24740,21 +24782,6 @@ asn1@evs-broadcast/node-asn1:
   peerDependencies:
     react: ^15.0.0 || ^16.0.0
   checksum: 10/caf5a75a81340344b05169d81cd48cbea833019c09c98767ef39d0e0961bbe3bfad1a0ea62d27450cc8971ec15cb4b44b001c76ed9b656f4a43da5dc20037abd
-  languageName: node
-  linkType: hard
-
-"react-transition-group@npm:^2.0.0":
-  version: 2.9.0
-  resolution: "react-transition-group@npm:2.9.0"
-  dependencies:
-    dom-helpers: "npm:^3.4.0"
-    loose-envify: "npm:^1.4.0"
-    prop-types: "npm:^15.6.2"
-    react-lifecycles-compat: "npm:^3.0.4"
-  peerDependencies:
-    react: ">=15.0.0"
-    react-dom: ">=15.0.0"
-  checksum: 10/1c26e2f7807547d7ebb9c317b8b63c0edaa7542bf2734309c9036484af4825cebb7e32e0ecdd94d7fbffa3c65666530bde9a84f673d438acf9a4d49e0aaed180
   languageName: node
   linkType: hard
 
@@ -28960,28 +28987,6 @@ asn1@evs-broadcast/node-asn1:
   version: 1.1.2
   resolution: "vary@npm:1.1.2"
   checksum: 10/31389debef15a480849b8331b220782230b9815a8e0dbb7b9a8369559aed2e9a7800cd904d4371ea74f4c3527db456dc8e7ac5befce5f0d289014dbdf47b2242
-  languageName: node
-  linkType: hard
-
-"velocity-animate@npm:^1.4.0, velocity-animate@npm:^1.5.2":
-  version: 1.5.2
-  resolution: "velocity-animate@npm:1.5.2"
-  checksum: 10/745d3824c3b0c2faf97d57d90ea71deb45eef3a3470ea38e5be18be2638a4f998f2741be6c72dec371ede379102b6734d7d0664d9d391cdb27653b97ca78cba7
-  languageName: node
-  linkType: hard
-
-"velocity-react@npm:^1.4.3":
-  version: 1.4.3
-  resolution: "velocity-react@npm:1.4.3"
-  dependencies:
-    lodash: "npm:^4.17.5"
-    prop-types: "npm:^15.5.8"
-    react-transition-group: "npm:^2.0.0"
-    velocity-animate: "npm:^1.4.0"
-  peerDependencies:
-    react: ^15.3.0 || ^16.0.0
-    react-dom: ^15.3.0 || ^16.0.0
-  checksum: 10/07d68e4a096e3f4104b0bd643438d06c76ebc788b6a2b5376c3f7ad308b0169f187f167b9cee0f7b0877b1426a51eb576bd3785fc67d6f502586a09b394b2b5c
   languageName: node
   linkType: hard
 

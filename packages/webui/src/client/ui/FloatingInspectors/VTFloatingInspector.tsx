@@ -49,11 +49,11 @@ function renderNotice(
 				) : null}
 			</div>
 			<div className="segment-timeline__mini-inspector__notice">
-				{noticeMessages?.map((msg) => (
-					<>
+				{noticeMessages?.map((msg, index) => (
+					<React.Fragment key={index}>
 						{translateMessage(msg, t)}
 						<br />
-					</>
+					</React.Fragment>
 				))}
 			</div>
 		</>

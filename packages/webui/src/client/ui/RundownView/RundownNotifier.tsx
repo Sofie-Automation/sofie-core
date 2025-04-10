@@ -617,11 +617,11 @@ class RundownViewNotifier extends WithManagedTracker {
 							<>
 								<h5>{messageName}</h5>
 								<div>
-									{messages.map((msg) => (
-										<>
+									{messages.map((msg, index) => (
+										<React.Fragment key={`${index}_${msg.key}`}>
 											{translateMessage(msg, t)}
 											<br />
-										</>
+										</React.Fragment>
 									))}
 									{messages.length === 0 && t('There is an unspecified problem with the source.')}
 								</div>

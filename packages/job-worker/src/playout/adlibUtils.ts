@@ -40,9 +40,8 @@ export async function innerStartOrQueueAdLibPiece(
 	const span = context.startSpan('innerStartOrQueueAdLibPiece')
 	let queuedPartInstanceId: PartInstanceId | undefined
 	if (queue || adLibPiece.toBeQueued) {
-		const adlibbedPart: Omit<DBPart, 'segmentId' | 'rundownId'> = {
+		const adlibbedPart: Omit<DBPart, 'segmentId' | 'rundownId' | '_rank'> = {
 			_id: getRandomId(),
-			_rank: 99999, // Corrected in innerStartQueuedAdLib
 			externalId: '',
 			title: adLibPiece.name,
 			expectedDuration: adLibPiece.expectedDuration,

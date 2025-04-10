@@ -4007,7 +4007,6 @@ input[type=search].pi-input {
   margin-left: -10px; }
 
 .title-box-content {
-  height: 100%;
   max-height: 28em;
   overflow-y: auto;
   overflow-x: hidden; }

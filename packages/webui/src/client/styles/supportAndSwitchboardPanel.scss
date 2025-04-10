@@ -86,7 +86,6 @@
 
 .switchboard-pop-up-panel {
 	top: auto;
-	z-index: -1;
 	white-space: nowrap;
 	overflow: hidden;
 	text-align: left;
@@ -101,7 +100,6 @@
 
 .media-status-panel {
 	top: auto;
-	z-index: -1;
 	white-space: nowrap;
 	overflow: hidden;
 	text-align: left;
@@ -174,8 +172,6 @@
 		color: #000;
 		--panel-background: #eee;
 		background: var(--panel-background);
-
-		z-index: -1;
 
 		.status-bar__controls__button {
 			color: #999;

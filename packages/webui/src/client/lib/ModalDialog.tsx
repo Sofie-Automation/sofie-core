@@ -6,8 +6,7 @@ import FocusBounder from 'react-focus-bounder'
 import { useTranslation } from 'react-i18next'
 
 import ClassNames from 'classnames'
-// @ts-expect-error No types available
-import * as VelocityReact from 'velocity-react'
+import { motion } from 'motion/react'
 import { logger } from './logging'
 import * as _ from 'underscore'
 import { withTranslation } from 'react-i18next'
@@ -141,135 +140,123 @@ export function ModalDialog({
 
 	return (
 		<Escape to="viewport">
-			<VelocityReact.VelocityTransitionGroup
-				enter={{ animation: 'fadeIn', easing: 'ease-out', duration: 250 }}
-				runOnMount={true}
+			<motion.div
+				className="glass-pane"
+				initial={{ opacity: 0 }}
+				animate={{ opacity: 1 }}
+				transition={{ ease: 'easeOut', duration: 0.25 }}
 			>
-				<div className="glass-pane">
-					<FocusBounder>
-						<div className="glass-pane-content">
-							<VelocityReact.VelocityTransitionGroup
-								enter={{
-									animation: {
-										translateY: [0, 100],
-										opacity: [1, 0],
+				<FocusBounder>
+					<div className="glass-pane-content">
+						<motion.dialog
+							open={true}
+							className={'border-box overlay-m ' + (className || '')}
+							role="alertdialog"
+							onKeyUp={onDialogKeyUp}
+							onKeyDown={onDialogKeyDown}
+							initial={{ translateY: 100, opacity: 0 }}
+							animate={{ translateY: 0, opacity: 1 }}
+							transition={{ type: 'spring', bounce: 0.25, duration: 0.25 }}
+						>
+							<div className={'flex-row ' + (warning ? 'warn' : 'info') + ' vertical-align-stretch tight-s'}>
+								<div className="flex-col c12">
+									<h2>{title}</h2>
+								</div>
+								<div className="flex-col horizontal-align-right vertical-align-middle">
+									<p>
+										<button
+											className="action-btn"
+											onClick={handleDiscard}
+											onKeyDown={preventClickOnEnter}
+											onKeyUp={emulateClick}
+											aria-label={t('Dismiss')}
+										>
+											<CoreIcons.NrkClose />
+										</button>
+									</p>
+								</div>
+							</div>
+							<div className="title-box-content">{children}</div>
+							{inputs ? (
+								<div className="title-box-inputs">
+									{_.map(inputs, (input: ModalInput, attribute: string) => {
+										return (
+											<div className="title-box-input" key={attribute}>
+												{input.text}
+												<EditAttribute
+													type={input.type}
+													label={input.label}
+													options={input.options}
+													overrideDisplayValue={input.defaultValue}
+													attribute={attribute}
+													updateFunction={updateInput}
+												/>
+											</div>
+										)
+									})}
+								</div>
+							) : null}
+							<div
+								className={ClassNames(
+									'mod',
+									{
+										alright: !secondaryText,
 									},
-									easing: 'spring',
-									duration: 250,
-								}}
-								runOnMount={true}
+									'modal-dialog-actions'
+								)}
 							>
-								<dialog
-									open={true}
-									className={'border-box overlay-m ' + className || ''}
-									role="alertdialog"
-									onKeyUp={onDialogKeyUp}
-									onKeyDown={onDialogKeyDown}
-								>
-									<div className={'flex-row ' + (warning ? 'warn' : 'info') + ' vertical-align-stretch tight-s'}>
-										<div className="flex-col c12">
-											<h2>{title}</h2>
-										</div>
-										<div className="flex-col horizontal-align-right vertical-align-middle">
-											<p>
-												<button
-													className="action-btn"
-													onClick={handleDiscard}
-													onKeyDown={preventClickOnEnter}
-													onKeyUp={emulateClick}
-													aria-label={t('Dismiss')}
-												>
-													<CoreIcons.NrkClose />
-												</button>
-											</p>
-										</div>
-									</div>
-									<div className="title-box-content">{children}</div>
-									{inputs ? (
-										<div className="title-box-inputs">
-											{_.map(inputs, (input: ModalInput, attribute: string) => {
-												return (
-													<div className="title-box-input" key={attribute}>
-														{input.text}
-														<EditAttribute
-															type={input.type}
-															label={input.label}
-															options={input.options}
-															overrideDisplayValue={input.defaultValue}
-															attribute={attribute}
-															updateFunction={updateInput}
-														/>
-													</div>
-												)
-											})}
-										</div>
-									) : null}
-									<div
-										className={ClassNames(
-											'mod',
-											{
-												alright: !secondaryText,
-											},
-											'modal-dialog-actions'
-										)}
+								{secondaryText && (
+									<button
+										className={ClassNames('btn', discardAsPrimary ? 'btn-primary' : 'btn-secondary', 'discard-btn', {
+											'btn-warn': discardAsPrimary && warning,
+										})}
+										autoFocus={discardAsPrimary}
+										onClick={handleSecondary}
+										onKeyDown={preventClickOnEnter}
+										onKeyUp={emulateClick}
 									>
-										{secondaryText && (
+										{secondaryText}
+									</button>
+								)}
+								{_.compact(
+									_.map(actions || [], (action: ModalAction, i) => {
+										if (!action) return null
+										return (
 											<button
+												key={i}
 												className={ClassNames(
-													'btn',
-													discardAsPrimary ? 'btn-primary' : 'btn-secondary',
-													'discard-btn',
-													{ 'btn-warn': discardAsPrimary && warning }
+													'btn right mrs',
+													{
+														'btn-secondary': !(action.classNames || '').match(/btn-/),
+													},
+													action.classNames
 												)}
-												autoFocus={discardAsPrimary}
-												onClick={handleSecondary}
+												onClick={(e) => handleAction(e, action.on)}
 												onKeyDown={preventClickOnEnter}
 												onKeyUp={emulateClick}
 											>
-												{secondaryText}
+												{action.label}
 											</button>
-										)}
-										{_.compact(
-											_.map(actions || [], (action: ModalAction, i) => {
-												if (!action) return null
-												return (
-													<button
-														key={i}
-														className={ClassNames(
-															'btn right mrs',
-															{
-																'btn-secondary': !(action.classNames || '').match(/btn-/),
-															},
-															action.classNames
-														)}
-														onClick={(e) => handleAction(e, action.on)}
-														onKeyDown={preventClickOnEnter}
-														onKeyUp={emulateClick}
-													>
-														{action.label}
-													</button>
-												)
-											})
-										)}
-										<button
-											className={ClassNames('btn', !discardAsPrimary ? 'btn-primary' : 'btn-secondary', {
-												right: secondaryText !== undefined,
-												'btn-warn': !discardAsPrimary && warning,
-											})}
-											autoFocus={!discardAsPrimary}
-											onClick={handleAccept}
-											onKeyDown={preventClickOnEnter}
-											onKeyUp={emulateClick}
-										>
-											{acceptText}
-										</button>
-									</div>
-								</dialog>
-							</VelocityReact.VelocityTransitionGroup>
-						</div>
-					</FocusBounder>
-				</div>
-			</VelocityReact.VelocityTransitionGroup>
+										)
+									})
+								)}
+								<button
+									className={ClassNames('btn', !discardAsPrimary ? 'btn-primary' : 'btn-secondary', {
+										right: secondaryText !== undefined,
+										'btn-warn': !discardAsPrimary && warning,
+									})}
+									autoFocus={!discardAsPrimary}
+									onClick={handleAccept}
+									onKeyDown={preventClickOnEnter}
+									onKeyUp={emulateClick}
+								>
+									{acceptText}
+								</button>
+							</div>
+						</motion.dialog>
+					</div>
+				</FocusBounder>
+			</motion.div>
 		</Escape>
 	)
 }

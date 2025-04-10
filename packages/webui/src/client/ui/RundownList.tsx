@@ -139,7 +139,7 @@ export function RundownList(): JSX.Element {
 	}
 
 	return (
-		<>
+		<div className="container-fluid header-clear">
 			{coreSystem ? <RegisterHelp step={step} /> : null}
 
 			{showGettingStarted === true ? <GettingStarted step={step} /> : null}
@@ -191,6 +191,6 @@ export function RundownList(): JSX.Element {
 			{userPermissions.studio && <CreateAdlibTestingRundownPanel />}
 
 			<RundownListFooter />
-		</>
+		</div>
 	)
 }

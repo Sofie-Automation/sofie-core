@@ -1,7 +1,5 @@
 import * as React from 'react'
 import * as _ from 'underscore'
-// @ts-expect-error No types available
-import * as VelocityReact from 'velocity-react'
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function makeTableOfObject(o: any): React.ReactNode {
@@ -41,20 +39,5 @@ export function makeTableOfObject(o: any): React.ReactNode {
 				})}
 			</tbody>
 		</table>
-	)
-}
-
-interface OptionalVelocityComponentProps {
-	shouldAnimate: boolean
-	animation: Record<string, any>
-	duration: number
-}
-export function OptionalVelocityComponent(props: React.PropsWithChildren<OptionalVelocityComponentProps>): JSX.Element {
-	return props.shouldAnimate ? (
-		<VelocityReact.VelocityComponent animation={props.animation} duration={props.duration}>
-			{props.children}
-		</VelocityReact.VelocityComponent>
-	) : (
-		<>{props.children}</>
 	)
 }

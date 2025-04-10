@@ -24,6 +24,15 @@ $source-layer-margin: 0.2rem;
 	margin-bottom: $source-layer-margin;
 	overflow: hidden;
 
+	> .segment-storyboard__part__piece-animator {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		min-height: inherit;
+		pointer-events: fill;
+	}
+
 	> .segment-storyboard__part__piece {
 		width: 100%;
 	}
@@ -34,6 +43,11 @@ $source-layer-margin: 0.2rem;
 			filter: brightness(0.5);
 			$squished-shadow: 0 0 10px rgba(0, 0, 0, 1);
 			box-shadow: $squished-shadow;
+			--piece-translate-y: 0px;
+			--piece-translate-x: calc(max(0, ((1 - 0.8) / max(1, var(--piece-count) - 1) * (var(--piece-count) - 1 - var(--piece-index))) / 0.8) * 100%);
+			transform: translate(var(--piece-translate-x), var(--piece-translate-y));
+			transition: opacity 350ms, transform 350ms;
+			opacity: 1;
 
 			&--frontmost {
 				filter: none;
@@ -66,6 +80,11 @@ $source-layer-margin: 0.2rem;
 
 					background-color: rgba(255, 255, 255, 0.3);
 				}
+			}
+
+			&--finished {
+				--piece-translate-y: 25px;
+				opacity: 0;
 			}
 		}
 	}
