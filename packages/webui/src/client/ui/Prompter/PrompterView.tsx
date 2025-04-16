@@ -340,7 +340,7 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 		if (!next) return
 
 		const targetOffsetTop = next.getBoundingClientRect().top + window.pageYOffset
-  		this.animateScrollTo(targetOffsetTop - scrollMargin)
+		this.animateScrollTo(targetOffsetTop - scrollMargin)
 	}
 	scrollToPrevious(): void {
 		const scrollMargin = this.calculateScrollPosition()
@@ -350,7 +350,7 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 		if (!target) return
 
 		const targetOffsetTop = target[0] + window.pageYOffset
-  		this.animateScrollTo(targetOffsetTop - scrollMargin)
+		this.animateScrollTo(targetOffsetTop - scrollMargin)
 	}
 	scrollToFollowing(): void {
 		const scrollMargin = this.calculateScrollPosition()
@@ -364,15 +364,11 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 	}
 	private animateScrollTo(scrollToPosition: number) {
 		this._lastAnimation?.stop()
-		this._lastAnimation = animate(
-			window.scrollY,
-			scrollToPosition,
-			{
-				duration: 0.4,
-				ease: 'easeOut',
-				onUpdate: (latest) => window.scrollTo(0, latest),
-			}
-		)
+		this._lastAnimation = animate(window.scrollY, scrollToPosition, {
+			duration: 0.4,
+			ease: 'easeOut',
+			onUpdate: (latest) => window.scrollTo(0, latest),
+		})
 	}
 	listAnchorPositions(startY: number, endY: number, sortDirection = 1): [number, Element][] {
 		let foundPositions: [number, Element][] = []
