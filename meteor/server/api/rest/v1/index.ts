@@ -19,6 +19,7 @@ import { registerRoutes as registerStudiosRoutes } from './studios'
 import { registerRoutes as registerSystemRoutes } from './system'
 import { registerRoutes as registerBucketsRoutes } from './buckets'
 import { registerRoutes as registerSnapshotRoutes } from './snapshots'
+import { registerRoutes as registerIngestRoutes } from './ingest'
 import { APIFactory, ServerAPIContext } from './types'
 
 function restAPIUserEvent(
@@ -201,3 +202,4 @@ registerStudiosRoutes(sofieAPIRequest)
 registerSystemRoutes(sofieAPIRequest)
 registerBucketsRoutes(sofieAPIRequest)
 registerSnapshotRoutes(sofieAPIRequest)
+registerIngestRoutes(sofieAPIRequest)
