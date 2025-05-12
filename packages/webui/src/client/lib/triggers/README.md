@@ -26,14 +26,14 @@ sequences.
 
 ## codesToKeyLabels
 
-This is a utility library file that has conveniance methods for converting key `code` values to the labels on those keys
+This is a utility library file that has convenience methods for converting key `code` values to the labels on those keys
 and vice-versa. The functions require an initialized Sorensen instance.
 
 ## ActionAdLibHotkeyPreview
 
 This is a tiny component that will print the hotkeys assigned to an AdLib, given it's ID and type. For _Sticky_ and
 _Clear Source Layer_ "virtual AdLibs", a SourceLayer ID should be provided in place of `targetId`. The returned hotkeys
-are wrapped in some HTML, allowing targetted styling, and zero-width-space is inserted after each `+` combination
+are wrapped in some HTML, allowing targeted styling, and zero-width-space is inserted after each `+` combination
 character, as so:
 
 ```html
