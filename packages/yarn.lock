@@ -6066,7 +6066,7 @@ __metadata:
   resolution: "@sofie-automation/shared-lib@workspace:shared-lib"
   dependencies:
     "@mos-connection/model": "npm:^4.2.2"
-    timeline-state-resolver-types: "npm:9.3.0-nightly-release52-20250512-122556-b84d12d1f.0"
+    timeline-state-resolver-types: "npm:9.3.0-nightly-release52-20250512-150719-dbeeb26d6.0"
     tslib: "npm:^2.8.1"
     type-fest: "npm:^4.33.0"
   languageName: unknown
@@ -22934,7 +22934,7 @@ asn1@evs-broadcast/node-asn1:
     "@sofie-automation/shared-lib": "npm:1.52.0-in-testing.0"
     debug: "npm:^4.4.0"
     influx: "npm:^5.9.7"
-    timeline-state-resolver: "npm:9.3.0-nightly-release52-20250512-122556-b84d12d1f.0"
+    timeline-state-resolver: "npm:9.3.0-nightly-release52-20250512-150719-dbeeb26d6.0"
     tslib: "npm:^2.8.1"
     underscore: "npm:^1.13.7"
     winston: "npm:^3.17.0"
@@ -27303,21 +27303,12 @@ asn1@evs-broadcast/node-asn1:
   languageName: node
   linkType: hard
 
-"superfly-timeline@npm:9.1.2":
+"superfly-timeline@npm:9.1.2, superfly-timeline@npm:^9.1.2":
   version: 9.1.2
   resolution: "superfly-timeline@npm:9.1.2"
   dependencies:
     tslib: "npm:^2.6.0"
   checksum: 10/f77552cb8b4faab5d13aa88da364498c90d5117427af739fa456d73acd26075fe2e04cc227b8d58d45a4684af7115c24a7e5867c85479a2c0aba3f43b6230367
-  languageName: node
-  linkType: hard
-
-"superfly-timeline@npm:^9.0.1":
-  version: 9.0.3
-  resolution: "superfly-timeline@npm:9.0.3"
-  dependencies:
-    tslib: "npm:^2.6.0"
-  checksum: 10/a5aa4d673fbeb5c53c321d55c9cd625263dc96e8a54d427779f85b7d668347bf5c109467903eb3abfb4e81caf542dbc9d3251a747dbd71b7be1be9ecc809cf4a
   languageName: node
   linkType: hard
 
@@ -27651,18 +27642,18 @@ asn1@evs-broadcast/node-asn1:
   languageName: node
   linkType: hard
 
-"timeline-state-resolver-types@npm:9.3.0-nightly-release52-20250512-122556-b84d12d1f.0":
-  version: 9.3.0-nightly-release52-20250512-122556-b84d12d1f.0
-  resolution: "timeline-state-resolver-types@npm:9.3.0-nightly-release52-20250512-122556-b84d12d1f.0"
+"timeline-state-resolver-types@npm:9.3.0-nightly-release52-20250512-150719-dbeeb26d6.0":
+  version: 9.3.0-nightly-release52-20250512-150719-dbeeb26d6.0
+  resolution: "timeline-state-resolver-types@npm:9.3.0-nightly-release52-20250512-150719-dbeeb26d6.0"
   dependencies:
     tslib: "npm:^2.6.3"
-  checksum: 10/741c0db15831fe7578cbf9bbdeaa4abb9224bff399d36ede7840d1cde6a63039ee0095a2049bc09e33303c0051ba28ac278dc4db7cd1da156411bfd456f31952
+  checksum: 10/b83a4b7227364e9caaef1e59d31352d70524e54d1a1ff2a1e1c181007e63f150f90df2fdba22976657adf0d1ab5d038061483be77d986a25e9b71188e003e8c9
   languageName: node
   linkType: hard
 
-"timeline-state-resolver@npm:9.3.0-nightly-release52-20250512-122556-b84d12d1f.0":
-  version: 9.3.0-nightly-release52-20250512-122556-b84d12d1f.0
-  resolution: "timeline-state-resolver@npm:9.3.0-nightly-release52-20250512-122556-b84d12d1f.0"
+"timeline-state-resolver@npm:9.3.0-nightly-release52-20250512-150719-dbeeb26d6.0":
+  version: 9.3.0-nightly-release52-20250512-150719-dbeeb26d6.0
+  resolution: "timeline-state-resolver@npm:9.3.0-nightly-release52-20250512-150719-dbeeb26d6.0"
   dependencies:
     "@tv2media/v-connection": "npm:^7.3.4"
     atem-connection: "npm:3.5.0"
@@ -27685,9 +27676,9 @@ asn1@evs-broadcast/node-asn1:
     p-timeout: "npm:^3.2.0"
     simple-oauth2: "npm:^5.1.0"
     sprintf-js: "npm:^1.1.3"
-    superfly-timeline: "npm:^9.0.1"
+    superfly-timeline: "npm:^9.1.2"
     threadedclass: "npm:^1.2.2"
-    timeline-state-resolver-types: "npm:9.3.0-nightly-release52-20250512-122556-b84d12d1f.0"
+    timeline-state-resolver-types: "npm:9.3.0-nightly-release52-20250512-150719-dbeeb26d6.0"
     tslib: "npm:^2.6.3"
     tv-automation-quantel-gateway-client: "npm:^3.1.7"
     type-fest: "npm:^3.13.1"
@@ -27695,7 +27686,7 @@ asn1@evs-broadcast/node-asn1:
     utf-8-validate: "npm:^6.0.4"
     ws: "npm:^8.18.0"
     xml-js: "npm:^1.6.11"
-  checksum: 10/d900fac08fe6065eaea38faa36e3e325709af4b18fcc3c04dd570055361e8d9373f71a9e8a74d787ec1c4a916e5751254e2a420331a2943bb1ca05bcf0e1a97a
+  checksum: 10/4a0df01aa8d3e6b13092fa7dd191e451360300101295ed9392f55c8a6e7532ed7233e0b7701a28470afcc437f8fd7426cf5705187632fd52079a378503bd24d5
   languageName: node
   linkType: hard
 
