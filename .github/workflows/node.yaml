@@ -238,7 +238,7 @@ jobs:
       - name: Trivy scanning
         if: steps.ecrrepo.outputs.ecrrepo-publish == '1' && steps.ecr-tag.outputs.tags != 0
         continue-on-error: true
-        uses: aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@0.30.0
         env:
           TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db
         with:
@@ -373,7 +373,7 @@ jobs:
       - name: Trivy scanning
         if: steps.ecrrepo.outputs.ecrrepo-publish == '1' && steps.ghcr-tag.outputs.tags != 0
         continue-on-error: true
-        uses: aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@0.30.0
         env:
           TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db
         with:

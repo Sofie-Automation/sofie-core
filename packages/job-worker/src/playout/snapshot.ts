@@ -32,6 +32,22 @@ import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/Rund
 import { RundownOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { SofieIngestDataCacheObj } from '@sofie-automation/corelib/dist/dataModel/SofieIngestDataCache'
 
+class IdMapWithGenerator<V extends ProtectedString<any>> extends Map<V, V> {
+	getOrGenerate(key: V): V {
+		return this.getOrGenerateAndWarn(key, '')
+	}
+
+	getOrGenerateAndWarn(key: V, name: string): V {
+		const existing = this.get(key)
+		if (existing) return existing
+
+		const newValue = getRandomId<V>()
+		this.set(key, newValue)
+		if (name) logger.warn(`Couldn't find "${name}" when restoring snapshot`)
+		return newValue
+	}
+}
+
 /**
  * Generate the Playlist owned portions of a Playlist snapshot
  */
@@ -244,7 +260,7 @@ export async function handleRestorePlaylistSnapshot(
 		rd._id = getRandomId()
 		rundownIdMap.set(oldId, rd._id)
 	}
-	const partIdMap = new Map<PartId, PartId>()
+	const partIdMap = new IdMapWithGenerator<PartId>()
 	for (const part of snapshot.parts) {
 		const oldId = part._id
 		part._id = part.externalId ? getPartId(getNewRundownId(part.rundownId), part.externalId) : getRandomId()
@@ -253,32 +269,34 @@ export async function handleRestorePlaylistSnapshot(
 	}
 
 	const partInstanceOldRundownIdMap = new Map<PartInstanceId, RundownId>()
-	const partInstanceIdMap = new Map<PartInstanceId, PartInstanceId>()
+	const partInstanceIdMap = new IdMapWithGenerator<PartInstanceId>()
 	for (const partInstance of snapshot.partInstances) {
 		const oldId = partInstance._id
 		partInstance._id = getRandomId()
 		partInstanceIdMap.set(oldId, partInstance._id)
 
-		partInstance.part._id = partIdMap.get(partInstance.part._id) || getRandomId()
+		partInstance.part._id = partIdMap.getOrGenerate(partInstance.part._id)
 		partInstanceOldRundownIdMap.set(oldId, partInstance.rundownId)
 	}
-	const segmentIdMap = new Map<SegmentId, SegmentId>()
+	const segmentIdMap = new IdMapWithGenerator<SegmentId>()
 	for (const segment of snapshot.segments) {
 		const oldId = segment._id
 		segment._id = getSegmentId(getNewRundownId(segment.rundownId), segment.externalId)
 		segmentIdMap.set(oldId, segment._id)
 	}
 	type AnyPieceId = PieceId | AdLibActionId | RundownBaselineAdLibActionId
-	const pieceIdMap = new Map<AnyPieceId, AnyPieceId>()
+	const pieceIdMap = new IdMapWithGenerator<AnyPieceId>()
 	for (const piece of snapshot.pieces) {
 		const oldId = piece._id
 		piece.startRundownId = getNewRundownId(piece.startRundownId)
-		piece.startPartId =
-			partIdMap.get(piece.startPartId) ||
-			getRandomIdAndWarn(`piece.startPartId=${piece.startPartId} of piece=${piece._id}`)
-		piece.startSegmentId =
-			segmentIdMap.get(piece.startSegmentId) ||
-			getRandomIdAndWarn(`piece.startSegmentId=${piece.startSegmentId} of piece=${piece._id}`)
+		piece.startPartId = partIdMap.getOrGenerateAndWarn(
+			piece.startPartId,
+			`piece.startPartId=${piece.startPartId} of piece=${piece._id}`
+		)
+		piece.startSegmentId = segmentIdMap.getOrGenerateAndWarn(
+			piece.startSegmentId,
+			`piece.startSegmentId=${piece.startSegmentId} of piece=${piece._id}`
+		)
 		piece._id = getRandomId()
 		pieceIdMap.set(oldId, piece._id)
 	}
@@ -297,10 +315,11 @@ export async function handleRestorePlaylistSnapshot(
 	for (const pieceInstance of snapshot.pieceInstances) {
 		pieceInstance._id = getRandomId()
 
-		pieceInstance.piece._id = (pieceIdMap.get(pieceInstance.piece._id) || getRandomId()) as PieceId // Note: don't warn if not found, as the piece may have been deleted
+		pieceInstance.piece._id = pieceIdMap.getOrGenerate(pieceInstance.piece._id) as PieceId // Note: don't warn if not found, as the piece may have been deleted
 		if (pieceInstance.infinite) {
-			pieceInstance.infinite.infinitePieceId =
-				(pieceIdMap.get(pieceInstance.infinite.infinitePieceId) as PieceId) || getRandomId() // Note: don't warn if not found, as the piece may have been deleted
+			pieceInstance.infinite.infinitePieceId = pieceIdMap.getOrGenerate(
+				pieceInstance.infinite.infinitePieceId
+			) as PieceId // Note: don't warn if not found, as the piece may have been deleted
 		}
 	}
 
@@ -330,9 +349,10 @@ export async function handleRestorePlaylistSnapshot(
 			case ExpectedPackageDBType.ADLIB_ACTION:
 			case ExpectedPackageDBType.BASELINE_ADLIB_PIECE:
 			case ExpectedPackageDBType.BASELINE_ADLIB_ACTION: {
-				expectedPackage.pieceId =
-					pieceIdMap.get(expectedPackage.pieceId) ||
-					getRandomIdAndWarn(`expectedPackage.pieceId=${expectedPackage.pieceId}`)
+				expectedPackage.pieceId = pieceIdMap.getOrGenerateAndWarn(
+					expectedPackage.pieceId,
+					`expectedPackage.pieceId=${expectedPackage.pieceId}`
+				)
 
 				expectedPackage._id = getExpectedPackageId(expectedPackage.pieceId, expectedPackage.blueprintPackageId)
 
@@ -383,13 +403,13 @@ export async function handleRestorePlaylistSnapshot(
 			}
 
 			if (obj.partId) {
-				obj.partId = partIdMap.get(obj.partId) || getRandomId()
+				obj.partId = partIdMap.getOrGenerate(obj.partId)
 			}
 			if (obj.segmentId) {
-				obj.segmentId = segmentIdMap.get(obj.segmentId) || getRandomId()
+				obj.segmentId = segmentIdMap.getOrGenerate(obj.segmentId)
 			}
 			if (obj.partInstanceId) {
-				obj.partInstanceId = partInstanceIdMap.get(obj.partInstanceId) || getRandomId()
+				obj.partInstanceId = partInstanceIdMap.getOrGenerate(obj.partInstanceId)
 			}
 
 			if (updateOwnId) {
@@ -514,11 +534,6 @@ export async function handleRestorePlaylistSnapshot(
 			expectedPackageId: Array.from(expectedPackageIdMap.entries()),
 		},
 	}
-}
-
-function getRandomIdAndWarn<T extends ProtectedString<any>>(name: string): T {
-	logger.warn(`Couldn't find "${name}" when restoring snapshot`)
-	return getRandomId<T>()
 }
 
 function fixupImportedSelectedPartInstanceIds(

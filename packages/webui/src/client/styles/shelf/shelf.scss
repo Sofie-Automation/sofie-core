@@ -128,33 +128,61 @@
 		}
 
 		.rundown-view__shelf__tabs__tab {
+			position: relative;
 			display: block;
 			background: none;
 			border: none;
-			position: relative;
 			flex: 1 1;
 			max-width: 7em;
-			min-width: 13em;
+			min-width: min-content;
 			overflow: hidden;
 			text-overflow: ellipsis;
 			white-space: nowrap;
 			text-align: center;
-			color: #8f8f8f;
 			line-height: $inspector-shelf-tabs-height;
 			cursor: pointer;
 			user-select: none;
+			padding-inline: 1.5em;
 
 			outline-offset: -5px;
 
+			// this is a setup that ensures that the min-content is calculated with this font-weight,
+			// while we display the button with differing font-weights depending on state
+			font-weight: 500;
+			color: transparent;
+
 			&:hover {
-				color: #fff;
-				transition: 0.3s;
+				// color: #fff;
+				// transition: 0.3s;
+
+				> .rundown-view__shelf__tabs__tab-label {
+					color: #fff;
+					transition: 0.3s;
+				}
+			}
+
+			> .rundown-view__shelf__tabs__tab-label {
+				position: absolute;
+				top: 0;
+				left: 0;
+				right: 0;
+				line-height: inherit;
+				font-weight: 300;
+				color: #b0b0b0;
 			}
 
 			&.selected {
-				color: #fff;
-				font-weight: 500;
-				text-shadow: 0 0 5px #000;
+				// color: #fff;
+				// font-weight: 500;
+				// text-shadow: 0 0 5px #000;
+				// transition: 0s;
+
+				> .rundown-view__shelf__tabs__tab-label {
+					color: #fff;
+					font-weight: 500;
+					text-shadow: 0 0 5px #000;
+					transition: 0s;
+				}
 
 				&::after {
 					content: ' ';

@@ -66,7 +66,7 @@ export function transformPartIntoTimeline(
 				nowInParentGroup,
 				pieceInstance,
 				pieceEnable,
-				0,
+				pieceInstance.dynamicallyInserted ? 0 : partTimings.toPartDelay,
 				pieceGroupFirstObjClasses,
 				isInHold,
 				false
