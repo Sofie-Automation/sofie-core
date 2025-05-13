@@ -175,11 +175,10 @@ The [**Playout Gateway**](../for-developers/libraries.md#gateways) then picks up
 
 The TSR then...
 
-- Resolves the timeline, using the [timeline-library](https://github.com/SuperFlyTV/supertimeline)
-- Calculates new target-states for each relevant point in time
-- Maps the target-state to each playout device
-- Compares the target-states for each device with the currently-tracked-state and..
-- Generates commands to send to each device to account for the change
+- Resolves the timeline, using the [timeline-library](https://github.com/SuperFlyTV/supertimeline).
+- Calculates new target-states for each relevant point in time.
+- Maps the target-state to each playout device.
+- Compares the target-states for each device with the currently-tracked-state and generates commands to send to each device to account for the change.
 - Puts the commands on the queue and sends them to the devices at the correct time.
 
 :::info

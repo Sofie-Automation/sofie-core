@@ -37,5 +37,5 @@ Sofie features a modular ingest data-flow, allowing multiple types of input data
 
 ### Blueprints
 
-The [Blueprints](concepts-and-architecture.md#blueprints) are plugins to _Sofie_, which allow for customization and tailor-made show designs.
+The [Blueprints](concepts-and-architecture#blueprints) are plugins to _Sofie_ which allow for customization and tailor-made show designs. 
 The way these blueprints are created varies based on the characteristics of the input data (rundowns), the desired show design, and the specific devices being controlled.
