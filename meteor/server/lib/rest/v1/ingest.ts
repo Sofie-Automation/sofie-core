@@ -232,7 +232,7 @@ export interface IngestRestAPI {
 	): Promise<ClientAPI.ClientResponse<void>>
 }
 
-export type HttpIngestRundown = IngestRundown & {
+export type HttpIngestRundown = Omit<IngestRundown, 'playlistExternalId'> & {
 	resyncUrl: string
 }
 

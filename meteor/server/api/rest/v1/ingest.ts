@@ -1,5 +1,12 @@
-import { IngestPart, IngestSegment } from '@sofie-automation/blueprints-integration'
-import { PartId, RundownId, RundownPlaylistId, SegmentId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { IngestPart, IngestRundown, IngestSegment } from '@sofie-automation/blueprints-integration'
+import {
+	BlueprintId,
+	PartId,
+	RundownId,
+	RundownPlaylistId,
+	SegmentId,
+	StudioId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { getRundownNrcsName, Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
@@ -20,12 +27,112 @@ import { check } from '../../../../lib/check'
 import { Parts, RundownPlaylists, Rundowns, Segments, Studios } from '../../../collections'
 import { logger } from '../../../logging'
 import { runIngestOperation } from '../../ingest/lib'
+import { validateAPIPartPayload } from './typeConversion'
 import { APIFactory, APIRegisterHook, ServerAPIContext } from './types'
 
 class IngestServerAPI implements IngestRestAPI {
-	constructor(private context: ServerAPIContext) {}
+	private async validateAPIPartPayloadForRundown(
+		blueprintId: BlueprintId | undefined,
+		ingestRundown: IngestRundown,
+		indexes?: {
+			rundown?: number
+		}
+	) {
+		return Promise.all(
+			ingestRundown.segments.map(async (segment, index) => {
+				return this.validateAPIPartPayloadForSegment(blueprintId, segment, {
+					...indexes,
+					segment: index,
+				})
+			})
+		)
+	}
 
-	adaptPlaylist(rawPlaylist: DBRundownPlaylist): PlaylistResponse {
+	private async validateAPIPartPayloadForSegment(
+		blueprintId: BlueprintId | undefined,
+		segment: IngestRundown['segments'][number],
+		indexes?: {
+			rundown?: number
+			segment?: number
+		}
+	) {
+		return Promise.all(
+			segment.parts.map(async (part, index) => {
+				return this.validateAPIPartPayloadForPart(blueprintId, part, { ...indexes, part: index })
+			})
+		)
+	}
+
+	private async validateAPIPartPayloadForPart(
+		blueprintId: BlueprintId | undefined,
+		part: IngestRundown['segments'][number]['parts'][number],
+		indexes?: {
+			rundown?: number
+			segment?: number
+			part?: number
+		}
+	) {
+		const validationResult = await validateAPIPartPayload(blueprintId, part.payload)
+		if (validationResult && validationResult.length > 0) {
+			const parts = []
+			if (indexes?.rundown !== undefined) parts.push(`rundowns[${indexes.rundown}]`)
+			if (indexes?.segment !== undefined) parts.push(`segments[${indexes.segment}]`)
+			if (indexes?.part !== undefined) parts.push(`parts[${indexes.part}]`)
+			let msg = `Part payload validation failed`
+			if (parts.length > 0) msg += ` for ${parts.join('.')}`
+
+			logger.error(`${msg} with errors: ${validationResult}`)
+			throw new Meteor.Error(409, msg, JSON.stringify(validationResult))
+		}
+	}
+
+	private validateRundown(ingestRundown: HttpIngestRundown) {
+		check(ingestRundown, Object)
+		check(ingestRundown.externalId, String)
+		check(ingestRundown.name, String)
+		check(ingestRundown.type, String)
+		check(ingestRundown.segments, Array)
+		check(ingestRundown.resyncUrl, String)
+
+		check(ingestRundown.timing, Object)
+		check(ingestRundown.timing?.type, String)
+
+		if (ingestRundown.timing?.type === 'forward-time') {
+			check(ingestRundown.timing.expectedStart, Number)
+		} else if (ingestRundown.timing?.type === 'back-time') {
+			check(ingestRundown.timing?.expectedEnd, Number)
+		}
+
+		ingestRundown.segments.forEach((ingestSegment) => this.validateSegment(ingestSegment))
+	}
+
+	private validateSegment(ingestSegment: IngestSegment) {
+		check(ingestSegment, Object)
+		check(ingestSegment.externalId, String)
+		check(ingestSegment.name, String)
+		check(ingestSegment.rank, Number)
+		check(ingestSegment.parts, Array)
+
+		if (ingestSegment.isHidden !== undefined) check(ingestSegment.isHidden, Boolean)
+		if (ingestSegment.timing !== undefined) {
+			check(ingestSegment.timing.expectedStart, Number)
+			check(ingestSegment.timing.expectedEnd, Number)
+		}
+
+		ingestSegment.parts.forEach((ingestPart) => this.validatePart(ingestPart))
+	}
+
+	private validatePart(ingestPart: IngestPart) {
+		check(ingestPart, Object)
+		check(ingestPart.externalId, String)
+		check(ingestPart.name, String)
+		check(ingestPart.rank, Number)
+
+		if (ingestPart.float !== undefined) check(ingestPart.float, Boolean)
+		if (ingestPart.autoNext !== undefined) check(ingestPart.autoNext, Boolean)
+	}
+
+	private adaptPlaylist(rawPlaylist: DBRundownPlaylist): PlaylistResponse {
 		return {
 			id: unprotectString(rawPlaylist._id),
 			externalId: rawPlaylist.externalId,
@@ -34,7 +141,7 @@ class IngestServerAPI implements IngestRestAPI {
 		}
 	}
 
-	adaptRundown(rawRundown: Rundown): RundownResponse {
+	private adaptRundown(rawRundown: Rundown): RundownResponse {
 		return {
 			id: unprotectString(rawRundown._id),
 			externalId: rawRundown.externalId,
@@ -45,7 +152,7 @@ class IngestServerAPI implements IngestRestAPI {
 		}
 	}
 
-	adaptSegment(rawSegment: DBSegment): SegmentResponse {
+	private adaptSegment(rawSegment: DBSegment): SegmentResponse {
 		return {
 			id: unprotectString(rawSegment._id),
 			externalId: rawSegment.externalId,
@@ -56,7 +163,7 @@ class IngestServerAPI implements IngestRestAPI {
 		}
 	}
 
-	adaptPart(rawPart: DBPart): PartResponse {
+	private adaptPart(rawPart: DBPart): PartResponse {
 		return {
 			id: unprotectString(rawPart._id),
 			externalId: rawPart.externalId,
@@ -206,6 +313,8 @@ class IngestServerAPI implements IngestRestAPI {
 		_event: string,
 		studioId: StudioId
 	): Promise<ClientAPI.ClientResponse<Array<PlaylistResponse>>> {
+		check(studioId, String)
+
 		const studio = await this.findStudio(studioId)
 		const rawPlaylists = await RundownPlaylists.findFetchAsync({ studioId: studio._id })
 		const playlists = rawPlaylists.map((rawPlaylist) => this.adaptPlaylist(rawPlaylist))
@@ -219,6 +328,9 @@ class IngestServerAPI implements IngestRestAPI {
 		studioId: StudioId,
 		playlistId: string
 	): Promise<ClientAPI.ClientResponse<PlaylistResponse>> {
+		check(studioId, String)
+		check(playlistId, String)
+
 		const studio = await this.findStudio(studioId)
 		const rawPlaylist = await this.findPlaylist(studio._id, playlistId)
 		const playlist = this.adaptPlaylist(rawPlaylist)
@@ -231,6 +343,8 @@ class IngestServerAPI implements IngestRestAPI {
 		_event: string,
 		studioId: StudioId
 	): Promise<ClientAPI.ClientResponse<undefined>> {
+		check(studioId, String)
+
 		const rundowns = await Rundowns.findFetchAsync({})
 		const studio = await this.findStudio(studioId)
 
@@ -251,6 +365,9 @@ class IngestServerAPI implements IngestRestAPI {
 		studioId: StudioId,
 		playlistId: string
 	): Promise<ClientAPI.ClientResponse<undefined>> {
+		check(studioId, String)
+		check(playlistId, String)
+
 		const studio = await this.findStudio(studioId)
 		await this.findPlaylist(studio._id, playlistId)
 
@@ -277,6 +394,9 @@ class IngestServerAPI implements IngestRestAPI {
 		studioId: StudioId,
 		playlistId: string
 	): Promise<ClientAPI.ClientResponse<Array<RundownResponse>>> {
+		check(studioId, String)
+		check(playlistId, String)
+
 		const studio = await this.findStudio(studioId)
 		const playlist = await this.findPlaylist(studio._id, playlistId)
 		const rawRundowns = await this.findRundowns(studio._id, playlist._id)
@@ -292,6 +412,10 @@ class IngestServerAPI implements IngestRestAPI {
 		playlistId: string,
 		rundownId: string
 	): Promise<ClientAPI.ClientResponse<RundownResponse>> {
+		check(studioId, String)
+		check(playlistId, String)
+		check(rundownId, String)
+
 		const studio = await this.findStudio(studioId)
 		const playlist = await this.findPlaylist(studio._id, playlistId)
 		const rawRundown = await this.findRundown(studio._id, playlist._id, rundownId)
@@ -307,29 +431,35 @@ class IngestServerAPI implements IngestRestAPI {
 		playlistId: string,
 		ingestRundown: HttpIngestRundown
 	): Promise<ClientAPI.ClientResponse<void>> {
+		check(studioId, String)
+		check(playlistId, String)
+		check(ingestRundown, Object)
+
 		const studio = await this.findStudio(studioId)
-		const rundownExternalId = ingestRundown.externalId
+
+		this.validateRundown(ingestRundown)
+		await this.validateAPIPartPayloadForRundown(studio.blueprintId, ingestRundown)
 
 		const existingRundown = await Rundowns.findOneAsync({
 			$or: [
 				{
-					_id: protectString<RundownId>(rundownExternalId),
+					_id: protectString<RundownId>(ingestRundown.externalId),
 					playlistId: protectString<RundownPlaylistId>(playlistId),
 					studioId: studio._id,
 				},
 				{
-					externalId: rundownExternalId,
+					externalId: ingestRundown.externalId,
 					playlistExternalId: playlistId,
 					studioId: studio._id,
 				},
 			],
 		})
 		if (existingRundown) {
-			throw new Meteor.Error(400, `Rundown '${rundownExternalId}' already exists`)
+			throw new Meteor.Error(400, `Rundown '${ingestRundown.externalId}' already exists`)
 		}
 
 		await runIngestOperation(studio._id, IngestJobs.UpdateRundown, {
-			rundownExternalId: rundownExternalId,
+			rundownExternalId: ingestRundown.externalId,
 			ingestRundown: { ...ingestRundown, playlistExternalId: playlistId },
 			isCreateAction: true,
 			rundownSource: {
@@ -348,7 +478,19 @@ class IngestServerAPI implements IngestRestAPI {
 		playlistId: string,
 		ingestRundowns: HttpIngestRundown[]
 	): Promise<ClientAPI.ClientResponse<void>> {
+		check(studioId, String)
+		check(playlistId, String)
+		check(ingestRundowns, Array)
+
 		const studio = await this.findStudio(studioId)
+
+		await Promise.all(
+			ingestRundowns.map(async (ingestRundown, index) => {
+				this.validateRundown(ingestRundown)
+				return this.validateAPIPartPayloadForRundown(studio.blueprintId, ingestRundown, { rundown: index })
+			})
+		)
+
 		const playlist = await this.findPlaylist(studio._id, playlistId)
 
 		await Promise.all(
@@ -384,14 +526,21 @@ class IngestServerAPI implements IngestRestAPI {
 		rundownId: string,
 		ingestRundown: HttpIngestRundown
 	): Promise<ClientAPI.ClientResponse<void>> {
-		const studio = await this.findStudio(studioId)
-		const playlist = await this.findPlaylist(studio._id, playlistId)
+		check(studioId, String)
+		check(playlistId, String)
+		check(rundownId, String)
+		check(ingestRundown, Object)
 
+		const studio = await this.findStudio(studioId)
+
+		this.validateRundown(ingestRundown)
+		await this.validateAPIPartPayloadForRundown(studio.blueprintId, ingestRundown)
+
+		const playlist = await this.findPlaylist(studio._id, playlistId)
 		const existingRundown = await this.findRundown(studio._id, playlist._id, rundownId)
 		if (!existingRundown) {
 			throw new Meteor.Error(400, `Rundown '${rundownId}' does not exist`)
 		}
-
 		this.checkRundownSource(existingRundown)
 
 		await runIngestOperation(studio._id, IngestJobs.UpdateRundown, {
@@ -413,6 +562,9 @@ class IngestServerAPI implements IngestRestAPI {
 		studioId: StudioId,
 		playlistId: string
 	): Promise<ClientAPI.ClientResponse<void>> {
+		check(studioId, String)
+		check(playlistId, String)
+
 		const studio = await this.findStudio(studioId)
 		const playlist = await this.findPlaylist(studio._id, playlistId)
 		const rundowns = await this.findRundowns(studio._id, playlist._id)
@@ -436,6 +588,10 @@ class IngestServerAPI implements IngestRestAPI {
 		playlistId: string,
 		rundownId: string
 	): Promise<ClientAPI.ClientResponse<void>> {
+		check(studioId, String)
+		check(playlistId, String)
+		check(rundownId, String)
+
 		const studio = await this.findStudio(studioId)
 		const playlist = await this.findPlaylist(studio._id, playlistId)
 		const rundown = await this.findRundown(studio._id, playlist._id, rundownId)
@@ -457,11 +613,14 @@ class IngestServerAPI implements IngestRestAPI {
 		playlistId: string,
 		rundownId: string
 	): Promise<ClientAPI.ClientResponse<Array<SegmentResponse>>> {
+		check(studioId, String)
+		check(playlistId, String)
+		check(rundownId, String)
+
 		const studio = await this.findStudio(studioId)
 		const playlist = await this.findPlaylist(studio._id, playlistId)
 		const rundown = await this.findRundown(studio._id, playlist._id, rundownId)
 		this.checkRundownSource(rundown)
-
 		const rawSegments = await this.findSegments(rundown._id)
 		const segments = rawSegments.map((rawSegment) => this.adaptSegment(rawSegment))
 
@@ -476,11 +635,15 @@ class IngestServerAPI implements IngestRestAPI {
 		rundownId: string,
 		segmentId: string
 	): Promise<ClientAPI.ClientResponse<SegmentResponse>> {
+		check(studioId, String)
+		check(playlistId, String)
+		check(rundownId, String)
+		check(segmentId, String)
+
 		const studio = await this.findStudio(studioId)
 		const playlist = await this.findPlaylist(studio._id, playlistId)
 		const rundown = await this.findRundown(studio._id, playlist._id, rundownId)
 		this.checkRundownSource(rundown)
-
 		const rawSegment = await this.findSegment(rundown._id, segmentId)
 		const segment = this.adaptSegment(rawSegment)
 
@@ -495,16 +658,22 @@ class IngestServerAPI implements IngestRestAPI {
 		rundownId: string,
 		ingestSegment: IngestSegment
 	): Promise<ClientAPI.ClientResponse<void>> {
+		check(studioId, String)
+		check(playlistId, String)
+		check(rundownId, String)
+		check(ingestSegment, Object)
+
 		const studio = await this.findStudio(studioId)
+
+		this.validateSegment(ingestSegment)
+		await this.validateAPIPartPayloadForSegment(studio.blueprintId, ingestSegment)
+
 		const playlist = await this.findPlaylist(studio._id, playlistId)
 		const rundown = await this.findRundown(studio._id, playlist._id, rundownId)
 		this.checkRundownSource(rundown)
-
-		const segmentExternalId = ingestSegment.externalId
-
-		const existingSegment = await this.softFindSegment(rundown._id, segmentExternalId)
+		const existingSegment = await this.softFindSegment(rundown._id, ingestSegment.externalId)
 		if (existingSegment) {
-			throw new Meteor.Error(400, `Segment '${segmentExternalId}' already exists`)
+			throw new Meteor.Error(400, `Segment '${ingestSegment.externalId}' already exists`)
 		}
 
 		await runIngestOperation(studio._id, IngestJobs.UpdateSegment, {
@@ -524,7 +693,22 @@ class IngestServerAPI implements IngestRestAPI {
 		rundownId: string,
 		ingestSegments: IngestSegment[]
 	): Promise<ClientAPI.ClientResponse<void>> {
+		check(studioId, String)
+		check(playlistId, String)
+		check(rundownId, String)
+		check(ingestSegments, Array)
+
 		const studio = await this.findStudio(studioId)
+
+		await Promise.all(
+			ingestSegments.map(async (ingestSegment, index) => {
+				this.validateSegment(ingestSegment)
+				return await this.validateAPIPartPayloadForSegment(studio.blueprintId, ingestSegment, {
+					segment: index,
+				})
+			})
+		)
+
 		const playlist = await this.findPlaylist(studio._id, playlistId)
 		const rundown = await this.findRundown(studio._id, playlist._id, rundownId)
 		this.checkRundownSource(rundown)
@@ -576,16 +760,24 @@ class IngestServerAPI implements IngestRestAPI {
 		segmentId: string,
 		ingestSegment: IngestSegment
 	): Promise<ClientAPI.ClientResponse<void>> {
+		check(studioId, String)
+		check(playlistId, String)
+		check(rundownId, String)
+		check(segmentId, String)
+		check(ingestSegment, Object)
+
 		const studio = await this.findStudio(studioId)
+
+		this.validateSegment(ingestSegment)
+		await this.validateAPIPartPayloadForSegment(studio.blueprintId, ingestSegment)
+
 		const playlist = await this.findPlaylist(studio._id, playlistId)
 		const rundown = await this.findRundown(studio._id, playlist._id, rundownId)
 		this.checkRundownSource(rundown)
-
 		const segment = await this.softFindSegment(rundown._id, segmentId)
 		if (!segment) {
 			throw new Meteor.Error(400, `Segment '${segmentId}' does not exist`)
 		}
-
 		const parts = await this.findParts(segment._id)
 
 		await Promise.all(
@@ -614,10 +806,13 @@ class IngestServerAPI implements IngestRestAPI {
 		playlistId: string,
 		rundownId: string
 	): Promise<ClientAPI.ClientResponse<void>> {
+		check(studioId, String)
+		check(playlistId, String)
+		check(rundownId, String)
+
 		const studio = await this.findStudio(studioId)
 		const playlist = await this.findPlaylist(studio._id, playlistId)
 		const rundown = await this.findRundown(studio._id, playlist._id, rundownId)
-
 		const segments = await this.findSegments(rundown._id)
 
 		await Promise.all(
@@ -641,6 +836,11 @@ class IngestServerAPI implements IngestRestAPI {
 		rundownId: string,
 		segmentId: string
 	): Promise<ClientAPI.ClientResponse<void>> {
+		check(studioId, String)
+		check(playlistId, String)
+		check(rundownId, String)
+		check(segmentId, String)
+
 		const studio = await this.findStudio(studioId)
 		const playlist = await this.findPlaylist(studio._id, playlistId)
 		const rundown = await this.findRundown(studio._id, playlist._id, rundownId)
@@ -666,12 +866,16 @@ class IngestServerAPI implements IngestRestAPI {
 		rundownId: string,
 		segmentId: string
 	): Promise<ClientAPI.ClientResponse<Array<PartResponse>>> {
+		check(studioId, String)
+		check(playlistId, String)
+		check(rundownId, String)
+		check(segmentId, String)
+
 		const studio = await this.findStudio(studioId)
 		const playlist = await this.findPlaylist(studio._id, playlistId)
 		const rundown = await this.findRundown(studio._id, playlist._id, rundownId)
 		this.checkRundownSource(rundown)
 		const segment = await this.findSegment(rundown._id, segmentId)
-
 		const rawParts = await this.findParts(segment._id)
 		const parts = rawParts.map((rawPart) => this.adaptPart(rawPart))
 
@@ -687,12 +891,17 @@ class IngestServerAPI implements IngestRestAPI {
 		segmentId: string,
 		partId: string
 	): Promise<ClientAPI.ClientResponse<PartResponse>> {
+		check(studioId, String)
+		check(playlistId, String)
+		check(rundownId, String)
+		check(segmentId, String)
+		check(partId, String)
+
 		const studio = await this.findStudio(studioId)
 		const playlist = await this.findPlaylist(studio._id, playlistId)
 		const rundown = await this.findRundown(studio._id, playlist._id, rundownId)
 		this.checkRundownSource(rundown)
 		const segment = await this.findSegment(rundown._id, segmentId)
-
 		const rawPart = await this.findPart(segment._id, partId)
 		const part = this.adaptPart(rawPart)
 
@@ -708,16 +917,24 @@ class IngestServerAPI implements IngestRestAPI {
 		segmentId: string,
 		ingestPart: IngestPart
 	): Promise<ClientAPI.ClientResponse<void>> {
+		check(studioId, String)
+		check(playlistId, String)
+		check(rundownId, String)
+		check(segmentId, String)
+		check(ingestPart, Object)
+
 		const studio = await this.findStudio(studioId)
+
+		this.validatePart(ingestPart)
+		await this.validateAPIPartPayloadForPart(studio.blueprintId, ingestPart)
+
 		const playlist = await this.findPlaylist(studio._id, playlistId)
 		const rundown = await this.findRundown(studio._id, playlist._id, rundownId)
 		this.checkRundownSource(rundown)
 		const segment = await this.findSegment(rundown._id, segmentId)
-		const partExternalId = ingestPart.externalId
-
-		const existingPart = await this.softFindPart(segment._id, partExternalId)
+		const existingPart = await this.softFindPart(segment._id, ingestPart.externalId)
 		if (existingPart) {
-			throw new Meteor.Error(400, `Part '${partExternalId}' already exists`)
+			throw new Meteor.Error(400, `Part '${ingestPart.externalId}' already exists`)
 		}
 
 		await runIngestOperation(studio._id, IngestJobs.UpdatePart, {
@@ -739,7 +956,21 @@ class IngestServerAPI implements IngestRestAPI {
 		segmentId: string,
 		ingestParts: IngestPart[]
 	): Promise<ClientAPI.ClientResponse<void>> {
+		check(studioId, String)
+		check(playlistId, String)
+		check(rundownId, String)
+		check(segmentId, String)
+		check(ingestParts, Array)
+
 		const studio = await this.findStudio(studioId)
+
+		await Promise.all(
+			ingestParts.map(async (ingestPart, index) => {
+				this.validatePart(ingestPart)
+				return this.validateAPIPartPayloadForPart(studio.blueprintId, ingestPart, { part: index })
+			})
+		)
+
 		const playlist = await this.findPlaylist(studio._id, playlistId)
 		const rundown = await this.findRundown(studio._id, playlist._id, rundownId)
 		this.checkRundownSource(rundown)
@@ -774,12 +1005,22 @@ class IngestServerAPI implements IngestRestAPI {
 		partId: string,
 		ingestPart: IngestPart
 	): Promise<ClientAPI.ClientResponse<void>> {
+		check(studioId, String)
+		check(playlistId, String)
+		check(rundownId, String)
+		check(segmentId, String)
+		check(partId, String)
+		check(ingestPart, Object)
+
 		const studio = await this.findStudio(studioId)
+
+		this.validatePart(ingestPart)
+		await this.validateAPIPartPayloadForPart(studio.blueprintId, ingestPart)
+
 		const playlist = await this.findPlaylist(studio._id, playlistId)
 		const rundown = await this.findRundown(studio._id, playlist._id, rundownId)
 		this.checkRundownSource(rundown)
 		const segment = await this.findSegment(rundown._id, segmentId)
-
 		const existingPart = await this.findPart(segment._id, partId)
 		if (!existingPart) {
 			throw new Meteor.Error(400, `Part '${partId}' does not exists`)
@@ -803,12 +1044,16 @@ class IngestServerAPI implements IngestRestAPI {
 		rundownId: string,
 		segmentId: string
 	): Promise<ClientAPI.ClientResponse<void>> {
+		check(studioId, String)
+		check(playlistId, String)
+		check(rundownId, String)
+		check(segmentId, String)
+
 		const studio = await this.findStudio(studioId)
 		const playlist = await this.findPlaylist(studio._id, playlistId)
 		const rundown = await this.findRundown(studio._id, playlist._id, rundownId)
 		this.checkRundownSource(rundown)
 		const segment = await this.findSegment(rundown._id, segmentId)
-
 		const parts = await this.findParts(segment._id)
 
 		await Promise.all(
@@ -833,12 +1078,17 @@ class IngestServerAPI implements IngestRestAPI {
 		segmentId: string,
 		partId: string
 	): Promise<ClientAPI.ClientResponse<void>> {
+		check(studioId, String)
+		check(playlistId, String)
+		check(rundownId, String)
+		check(segmentId, String)
+		check(partId, String)
+
 		const studio = await this.findStudio(studioId)
 		const playlist = await this.findPlaylist(studio._id, playlistId)
 		const rundown = await this.findRundown(studio._id, playlist._id, rundownId)
 		this.checkRundownSource(rundown)
 		const segment = await this.findSegment(rundown._id, segmentId)
-
 		const part = await this.findPart(segment._id, partId)
 
 		await runIngestOperation(studio._id, IngestJobs.RemovePart, {
@@ -852,8 +1102,8 @@ class IngestServerAPI implements IngestRestAPI {
 }
 
 class IngestAPIFactory implements APIFactory<IngestRestAPI> {
-	createServerAPI(context: ServerAPIContext): IngestRestAPI {
-		return new IngestServerAPI(context)
+	createServerAPI(_context: ServerAPIContext): IngestRestAPI {
+		return new IngestServerAPI()
 	}
 }
 
