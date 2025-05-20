@@ -62,6 +62,7 @@ interface PrompterConfig {
 	pedal_rangeNeutralMax?: number
 	pedal_rangeFwdMax?: number
 	shuttle_speedMap?: number[]
+	shuttleWebHid_buttonMap?: string[]
 	marker?: 'center' | 'top' | 'bottom' | 'hide'
 	showMarker: boolean
 	showScroll: boolean
@@ -175,6 +176,7 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 			pedal_rangeNeutralMin: parseInt(firstIfArray(queryParams['pedal_rangeNeutralMin']) as string, 10) || undefined,
 			pedal_rangeNeutralMax: parseInt(firstIfArray(queryParams['pedal_rangeNeutralMax']) as string, 10) || undefined,
 			pedal_rangeFwdMax: parseInt(firstIfArray(queryParams['pedal_rangeFwdMax']) as string, 10) || undefined,
+			shuttleWebHid_buttonMap: asArray(queryParams['shuttleWebHid_buttonMap']),
 			marker: (firstIfArray(queryParams['marker']) as any) || undefined,
 			showMarker: queryParams['showmarker'] === undefined ? true : queryParams['showmarker'] === '1',
 			showScroll: queryParams['showscroll'] === undefined ? true : queryParams['showscroll'] === '1',
@@ -399,6 +401,19 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 			MeteorCall.userAction.take(e, ts, playlist._id, playlist.currentPartInfo?.partInstanceId ?? null)
 		)
 	}
+
+	executeAction(e: Event | string, actionId: string): void {
+		const { t } = this.props
+		if (!this.props.rundownPlaylist) {
+			logger.error('No active Rundown Playlist to perform a Take in')
+			return
+		}
+		const playlist = this.props.rundownPlaylist
+		doUserAction(t, e, UserAction.START_GLOBAL_ADLIB, (e, ts) =>
+			MeteorCall.userAction.executeAction(e, ts, playlist._id, null, actionId, null)
+		)
+	}
+
 	private onWindowScroll = () => {
 		this.triggerCheckCurrentTakeMarkers()
 	}

@@ -86,21 +86,7 @@ export async function executeAdlibActionAndSaveModel(
 		},
 	})
 
-	const [adLibAction, baselineAdLibAction, bucketAdLibAction] = await Promise.all([
-		context.directCollections.AdLibActions.findOne(data.actionDocId as AdLibActionId, {
-			projection: { _id: 1, privateData: 1 },
-		}),
-		context.directCollections.RundownBaselineAdLibActions.findOne(
-			data.actionDocId as RundownBaselineAdLibActionId,
-			{
-				projection: { _id: 1, privateData: 1 },
-			}
-		),
-		context.directCollections.BucketAdLibActions.findOne(data.actionDocId as BucketAdLibActionId, {
-			projection: { _id: 1, privateData: 1 },
-		}),
-	])
-	const adLibActionDoc = adLibAction ?? baselineAdLibAction ?? bucketAdLibAction
+	const adLibActionDoc = await findActionDoc(context, data)
 
 	const actionParameters: ExecuteActionParameters = {
 		actionId: data.actionId,
@@ -189,6 +175,26 @@ export interface ExecuteActionParameters {
 	actionOptions: { [key: string]: any } | undefined
 
 	triggerMode: string | undefined
+}
+
+async function findActionDoc(context: JobContext, data: ExecuteActionProps) {
+	if (data.actionDocId === null) return undefined
+
+	const [adLibAction, baselineAdLibAction, bucketAdLibAction] = await Promise.all([
+		context.directCollections.AdLibActions.findOne(data.actionDocId as AdLibActionId, {
+			projection: { _id: 1, privateData: 1 },
+		}),
+		context.directCollections.RundownBaselineAdLibActions.findOne(
+			data.actionDocId as RundownBaselineAdLibActionId,
+			{
+				projection: { _id: 1, privateData: 1 },
+			}
+		),
+		context.directCollections.BucketAdLibActions.findOne(data.actionDocId as BucketAdLibActionId, {
+			projection: { _id: 1, privateData: 1 },
+		}),
+	])
+	return adLibAction ?? baselineAdLibAction ?? bucketAdLibAction
 }
 
 export async function executeActionInner(

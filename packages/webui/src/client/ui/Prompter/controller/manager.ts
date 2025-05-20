@@ -5,7 +5,7 @@ import { ControllerAbstract } from './lib'
 import { JoyConController } from './joycon-device'
 import { KeyboardController } from './keyboard-device'
 import { ShuttleKeyboardController } from './shuttle-keyboard-device'
-import { ShuttleWebHidController } from './shuttle-webhid-device'
+import { CustomizableShuttleWebHidController } from './customizable-shuttle-webhid-device'
 
 export class PrompterControlManager {
 	private _view: PrompterViewContent
@@ -37,7 +37,7 @@ export class PrompterControlManager {
 				this._controllers.push(new JoyConController(this._view))
 			}
 			if (this._view.configOptions.mode.indexOf(PrompterConfigMode.SHUTTLEWEBHID) > -1) {
-				this._controllers.push(new ShuttleWebHidController(this._view))
+				this._controllers.push(new CustomizableShuttleWebHidController(this._view))
 			}
 		}
 
