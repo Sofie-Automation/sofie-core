@@ -65,6 +65,7 @@ interface PrompterConfig {
 	xbox_speedMap?: number[]
 	xbox_reverseSpeedMap?: number[]
 	xbox_triggerDeadZone?: number
+	shuttleWebHid_buttonMap?: string[]
 	marker?: 'center' | 'top' | 'bottom' | 'hide'
 	showMarker: boolean
 	showScroll: boolean
@@ -191,6 +192,7 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 				const val = Number.parseFloat(firstIfArray(queryParams['xbox_triggerDeadZone']) as string)
 				return Number.isNaN(val) ? undefined : val
 			})(),
+			shuttleWebHid_buttonMap: asArray(queryParams['shuttleWebHid_buttonMap']),
 			marker: (firstIfArray(queryParams['marker']) as any) || undefined,
 			showMarker: queryParams['showmarker'] === undefined ? true : queryParams['showmarker'] === '1',
 			showScroll: queryParams['showscroll'] === undefined ? true : queryParams['showscroll'] === '1',
@@ -421,6 +423,19 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 			MeteorCall.userAction.take(e, ts, playlist._id, playlist.currentPartInfo?.partInstanceId ?? null)
 		)
 	}
+
+	executeAction(e: Event | string, actionId: string): void {
+		const { t } = this.props
+		if (!this.props.rundownPlaylist) {
+			logger.error('No active Rundown Playlist to perform a Take in')
+			return
+		}
+		const playlist = this.props.rundownPlaylist
+		doUserAction(t, e, UserAction.START_GLOBAL_ADLIB, (e, ts) =>
+			MeteorCall.userAction.executeAction(e, ts, playlist._id, null, actionId, null)
+		)
+	}
+
 	private onWindowScroll = () => {
 		this.triggerCheckCurrentTakeMarkers()
 	}

@@ -8,7 +8,7 @@ import { logger } from '../../../lib/logging.js'
  * This class handles control of the prompter using Contour Shuttle / Multimedia Controller line of devices
  */
 export class ShuttleWebHidController extends ControllerAbstract {
-	private prompterView: PrompterViewContent
+	protected prompterView: PrompterViewContent
 
 	private speedMap = [0, 1, 2, 3, 5, 7, 9, 30]
 
