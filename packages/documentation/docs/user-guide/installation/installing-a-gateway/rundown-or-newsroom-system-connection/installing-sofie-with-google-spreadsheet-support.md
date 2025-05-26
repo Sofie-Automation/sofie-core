@@ -2,6 +2,14 @@
 
 The Spreadsheet Gateway is an application for piping data between Sofie&nbsp;Core and Spreadsheets on Google Drive.
 
+### Installing the Spreadsheet Gateway
+
+If you are using the example Docker Compose file found in the [Quick install](../../installing-sofie-server-core.md), then the configuration for the Spreadsheet Gateway is includedin the `spreadsheet-gateway` docker-compose profile.
+
+You can activate the profile by setting `COMPOSE_PROFILES=spreadsheet-gateway` as an environment variable or by writing that to a file called `.env` in the same folder as the docker-compose file. For more information, see the [docker documentation on Compose profiles](https://docs.docker.com/compose/how-tos/profiles/).
+
+If you are not using the example docker-compose, please follow the [instructions listed on the GitHub page](https://github.com/SuperFlyTV/spreadsheet-gateway) labeled _Installation \(for developers\)_.
+
 ### Example Blueprints for Spreadsheet Gateway
 
 To begin with, you will need to install a set of Blueprints that can handle the data being sent from the _Gateway_ to _Sofie&nbsp;Core_. Download the `demo-blueprints-r*.zip` file containing the blueprints you need from the [Demo Blueprints GitHub Repository](https://github.com/SuperFlyTV/sofie-demo-blueprints/releases). It is recommended to choose the newest release but, an older _Sofie&nbsp;Core_ version may require a different Blueprint version. The _Rundown page_ will warn you about any issue and display the desired versions.
@@ -9,8 +17,6 @@ To begin with, you will need to install a set of Blueprints that can handle the 
 Instructions on how to install any Blueprint can be found in the [Installing Blueprints](../../installing-blueprints.md) section from earlier.
 
 ### Spreadsheet Gateway Configuration
-
-If you are using the example Docker Compose file found in the [Quick install](../../installing-sofie-server-core.md), then the configuration for the Spreadsheet Gateway is included but commented out. For those who are not, please follow the [instructions listed on the GitHub page](https://github.com/SuperFlyTV/spreadsheet-gateway) labeled _Installation \(for developers\)._
 
 Once the Gateway has been installed, you can navigate to the _Settings page_ and check the newly added Gateway is listed as _Spreadsheet Gateway_ under the _Devices section_.
 
