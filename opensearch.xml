@@ -4,8 +4,8 @@
   <ShortName>Sofie TV Automation Documentation</ShortName>
   <Description>Search Sofie TV Automation Documentation</Description>
   <InputEncoding>UTF-8</InputEncoding>
-  <Image width="16" height="16" type="image/x-icon">https://nrkno.github.io/sofie-core/img/favicon.ico</Image>
-  <Url type="text/html" method="get" template="https://nrkno.github.io/sofie-core/search?q={searchTerms}"/>
-  <Url type="application/opensearchdescription+xml" rel="self" template="https://nrkno.github.io/sofie-core/opensearch.xml" />
-  <moz:SearchForm>https://nrkno.github.io/sofie-core/</moz:SearchForm>
+  <Image width="16" height="16" type="image/x-icon">https://sofie-automation.github.io/sofie-core/img/favicon.ico</Image>
+  <Url type="text/html" method="get" template="https://sofie-automation.github.io/sofie-core/search?q={searchTerms}"/>
+  <Url type="application/opensearchdescription+xml" rel="self" template="https://sofie-automation.github.io/sofie-core/opensearch.xml" />
+  <moz:SearchForm>https://sofie-automation.github.io/sofie-core/</moz:SearchForm>
 </OpenSearchDescription>
