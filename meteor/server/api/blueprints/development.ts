@@ -15,43 +15,6 @@ import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyE
 import { logger } from '../../logging'
 import { IngestJobs } from '@sofie-automation/corelib/dist/worker/ingest'
 
-// Note: This is a development tool, so doesn't need to worry about replication
-const rundownIdsToReload = new Set<RundownId>()
-const debouncedReloadRundowns = _.debounce(
-	() => {
-		if (rundownIdsToReload.size === 0) return
-
-		const rundownIds = Array.from(rundownIdsToReload)
-		rundownIdsToReload.clear()
-
-		// Perform the reload
-		Rundowns.findFetchAsync({ _id: { $in: rundownIds } })
-			.then(async (rundowns) => {
-				// Trigger a reload with the default strategy
-				await Promise.all(
-					rundowns.map(async (rundown) => {
-						try {
-							const job = await QueueIngestJob(IngestJobs.RegenerateRundown, rundown.studioId, {
-								rundownExternalId: rundown.externalId,
-							})
-
-							await job.complete
-						} catch (e) {
-							logger.error(
-								`Regenerating rundown "${rundown.name}"(${rundown._id}) failed: ${stringifyError(e)}`
-							)
-						}
-					})
-				)
-			})
-			.catch((e) => {
-				logger.error(`Failed to reload rundowns: ${stringifyError(e)}`)
-			})
-	},
-	1000,
-	false
-)
-
 export async function blueprintsPerformDevelopmentMode(blueprint: Blueprint): Promise<void> {
 	// Note: These are not the most efficient implementations, but this is a development tool so the simplicity is more important
 	switch (blueprint.blueprintType) {
@@ -125,3 +88,40 @@ export async function blueprintsPerformDevelopmentMode(blueprint: Blueprint): Pr
 			throw new Meteor.Error(400, `Blueprint type "${blueprint.blueprintType}" is not valid`)
 	}
 }
+
+// Note: This is a development tool, so doesn't need to worry about replication
+const rundownIdsToReload = new Set<RundownId>()
+const debouncedReloadRundowns = _.debounce(
+	() => {
+		if (rundownIdsToReload.size === 0) return
+
+		const rundownIds = Array.from(rundownIdsToReload)
+		rundownIdsToReload.clear()
+
+		// Perform the reload
+		Rundowns.findFetchAsync({ _id: { $in: rundownIds } })
+			.then(async (rundowns) => {
+				// Trigger a reload with the default strategy
+				await Promise.all(
+					rundowns.map(async (rundown) => {
+						try {
+							const job = await QueueIngestJob(IngestJobs.RegenerateRundown, rundown.studioId, {
+								rundownExternalId: rundown.externalId,
+							})
+
+							await job.complete
+						} catch (e) {
+							logger.error(
+								`Regenerating rundown "${rundown.name}"(${rundown._id}) failed: ${stringifyError(e)}`
+							)
+						}
+					})
+				)
+			})
+			.catch((e) => {
+				logger.error(`Failed to reload rundowns: ${stringifyError(e)}`)
+			})
+	},
+	1000,
+	false
+)

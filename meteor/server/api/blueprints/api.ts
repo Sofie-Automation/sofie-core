@@ -77,8 +77,11 @@ export async function removeBlueprint(methodContext: MethodContext, blueprintId:
 }
 
 export interface UploadBlueprintOptions {
+	/** The display name of the blueprint. If not provided, the blueprintId will be used. This is only used when the blueprint is first uploaded */
 	blueprintName?: string
+	/** If true, the blueprint will replace an existing blueprint even if the blueprintId is different. */
 	ignoreIdChange?: boolean
+	/** If true, after uploading the blueprint, the config will be auto-applied and rundowns will be regenerated from cached ingest data */
 	developmentMode?: boolean
 }
 
