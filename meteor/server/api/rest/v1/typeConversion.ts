@@ -304,19 +304,19 @@ export async function studioFrom(apiStudio: APIStudio, existingId?: StudioId): P
 	}
 	if (!blueprint) return undefined
 
-	let studio: DBStudio | undefined
-	if (existingId) studio = await Studios.findOneAsync(existingId)
+	let existingStudio: DBStudio | undefined
+	if (existingId) existingStudio = await Studios.findOneAsync(existingId)
 
 	const blueprintManifest = evalBlueprint(blueprint) as StudioBlueprintManifest
 	let blueprintConfig: ObjectWithOverrides<IBlueprintConfig>
 	if (typeof blueprintManifest.blueprintConfigFromAPI !== 'function') {
-		blueprintConfig = studio
-			? updateOverrides(studio.blueprintConfigWithOverrides, apiStudio.config as IBlueprintConfig)
+		blueprintConfig = existingStudio
+			? updateOverrides(existingStudio.blueprintConfigWithOverrides, apiStudio.config as IBlueprintConfig)
 			: wrapDefaultObject({})
 	} else {
-		blueprintConfig = studio
+		blueprintConfig = existingStudio
 			? updateOverrides(
-					studio.blueprintConfigWithOverrides,
+					existingStudio.blueprintConfigWithOverrides,
 					await StudioBlueprintConfigFromAPI(apiStudio, blueprintManifest)
 			  )
 			: convertObjectIntoOverrides(await StudioBlueprintConfigFromAPI(apiStudio, blueprintManifest))
@@ -325,15 +325,7 @@ export async function studioFrom(apiStudio: APIStudio, existingId?: StudioId): P
 	const studioSettings = studioSettingsFrom(apiStudio.settings)
 
 	return {
-		_id: existingId ?? getRandomId(),
-		name: apiStudio.name,
-		blueprintId: blueprint?._id,
-		blueprintConfigPresetId: apiStudio.blueprintConfigPresetId,
-		blueprintConfigWithOverrides: blueprintConfig,
-		settingsWithOverrides: studio
-			? updateOverrides(studio.settingsWithOverrides, studioSettings)
-			: wrapDefaultObject(studioSettings),
-		supportedShowStyleBase: apiStudio.supportedShowStyleBase?.map((id) => protectString<ShowStyleBaseId>(id)) ?? [],
+		// fill in the blanks if there is no existing studio
 		organizationId: null,
 		mappingsWithOverrides: wrapDefaultObject({}),
 		routeSetsWithOverrides: wrapDefaultObject({}),
@@ -350,6 +342,20 @@ export async function studioFrom(apiStudio: APIStudio, existingId?: StudioId): P
 		},
 		lastBlueprintConfig: undefined,
 		lastBlueprintFixUpHash: undefined,
+
+		// take what existing studio might have
+		...existingStudio,
+
+		// override what apiStudio can
+		_id: existingId ?? getRandomId(),
+		name: apiStudio.name,
+		blueprintId: blueprint?._id,
+		blueprintConfigPresetId: apiStudio.blueprintConfigPresetId,
+		blueprintConfigWithOverrides: blueprintConfig,
+		settingsWithOverrides: existingStudio
+			? updateOverrides(existingStudio.settingsWithOverrides, studioSettings)
+			: wrapDefaultObject(studioSettings),
+		supportedShowStyleBase: apiStudio.supportedShowStyleBase?.map((id) => protectString<ShowStyleBaseId>(id)) ?? [],
 	}
 }
 
