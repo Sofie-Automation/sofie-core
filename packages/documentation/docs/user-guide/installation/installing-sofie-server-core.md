@@ -71,12 +71,15 @@ services:
   live-status-gateway:
     image: sofietv/tv-automation-live-status-gateway:release53
     restart: always
+    ports:
+      - '8080:8080'    
     environment:
       DEVICE_ID: liveStatusGateway
       CORE_HOST: core
       CORE_PORT: "3000"
     networks:
       - sofie
+      - lan_access      
     depends_on:
       - core      
 
@@ -99,7 +102,7 @@ services:
     image: sofietv/package-manager-http-server:latest
     restart: always
     ports:
-      - '8080:8080'
+      - '8081:8080'
     environment:
       HTTP_SERVER_BASE_PATH: /mnt/package-manager-store
     networks:
