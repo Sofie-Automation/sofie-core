@@ -31,6 +31,7 @@ blueprintsRouter.post(
 		try {
 			const blueprintId = ctx.params.blueprintId
 			const force = ctx.query['force'] === '1' || ctx.query['force'] === 'true'
+			const developmentMode = ctx.query['developmentMode'] === '1' || ctx.query['developmentMode'] === 'true'
 
 			const blueprintNames = ctx.query['name']
 			const blueprintName: string | undefined = Array.isArray(blueprintNames) ? blueprintNames[0] : blueprintNames
@@ -43,7 +44,11 @@ blueprintsRouter.post(
 			if (typeof body !== 'string' || body.length < 10)
 				throw new Meteor.Error(400, 'Restore Blueprint: Invalid request body')
 
-			await uploadBlueprint(ctx, protectString<BlueprintId>(blueprintId), body, blueprintName, force)
+			await uploadBlueprint(ctx, protectString<BlueprintId>(blueprintId), body, {
+				blueprintName,
+				ignoreIdChange: force,
+				developmentMode,
+			})
 
 			ctx.response.status = 200
 			ctx.body = ''
@@ -69,6 +74,8 @@ blueprintsRouter.post(
 			if (typeof body !== 'object' || Object.keys(body as any).length === 0)
 				throw new Meteor.Error(400, 'Restore Blueprint: Invalid request body')
 
+			const developmentMode = ctx.query['developmentMode'] === '1' || ctx.query['developmentMode'] === 'true'
+
 			const collection = body as BlueprintManifestSet
 
 			const isBlueprintManifestSet = (obj: string | object): obj is BlueprintManifestSet =>
@@ -81,7 +88,10 @@ blueprintsRouter.post(
 			const errors: any[] = []
 			for (const id of _.keys(collection.blueprints)) {
 				try {
-					await uploadBlueprint(ctx, protectString<BlueprintId>(id), collection.blueprints[id], id)
+					await uploadBlueprint(ctx, protectString<BlueprintId>(id), collection.blueprints[id], {
+						blueprintName: id,
+						developmentMode,
+					})
 				} catch (e) {
 					logger.error('Blueprint restore failed: ' + e)
 					errors.push(e)

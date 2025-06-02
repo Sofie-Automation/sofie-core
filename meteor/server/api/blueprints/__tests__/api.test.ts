@@ -336,12 +336,9 @@ describe('Test blueprint management api', () => {
 				}
 			)
 
-			const blueprint = await uploadBlueprint(
-				DEFAULT_CONNECTION,
-				protectString('tmp_studio'),
-				blueprintStr,
-				'tmp name'
-			)
+			const blueprint = await uploadBlueprint(DEFAULT_CONNECTION, protectString('tmp_studio'), blueprintStr, {
+				blueprintName: 'tmp name',
+			})
 			expect(blueprint).toBeTruthy()
 			expect(blueprint).toMatchObject(
 				literal<Omit<Blueprint, 'created' | 'modified' | 'databaseVersion' | 'blueprintHash'>>({
@@ -380,12 +377,9 @@ describe('Test blueprint management api', () => {
 				}
 			)
 
-			const blueprint = await uploadBlueprint(
-				DEFAULT_CONNECTION,
-				protectString('tmp_system'),
-				blueprintStr,
-				'tmp name'
-			)
+			const blueprint = await uploadBlueprint(DEFAULT_CONNECTION, protectString('tmp_system'), blueprintStr, {
+				blueprintName: 'tmp name',
+			})
 			expect(blueprint).toBeTruthy()
 			expect(blueprint).toMatchObject(
 				literal<Omit<Blueprint, 'created' | 'modified' | 'databaseVersion' | 'blueprintHash'>>({
