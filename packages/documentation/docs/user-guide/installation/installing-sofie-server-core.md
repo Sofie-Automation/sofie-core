@@ -68,6 +68,18 @@ services:
     depends_on:
       - core
 
+  live-status-gateway:
+    image: sofietv/tv-automation-live-status-gateway:release53
+    restart: always
+    environment:
+      DEVICE_ID: liveStatusGateway
+      CORE_HOST: core
+      CORE_PORT: "3000"
+    networks:
+      - sofie
+    depends_on:
+      - core      
+
   package-manager:
     image: sofietv/package-manager-package-manager:latest
     restart: always
