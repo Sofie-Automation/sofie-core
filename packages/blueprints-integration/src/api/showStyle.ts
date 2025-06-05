@@ -1,4 +1,4 @@
-import type { ActionUserData, IBlueprintActionManifest } from '../action'
+import type { ActionUserData, IBlueprintActionManifest } from '../action.js'
 import type {
 	IActionExecutionContext,
 	ISyncIngestUpdateToPartInstanceContext,
@@ -18,10 +18,10 @@ import type {
 	IFixUpConfigContext,
 	IOnTakeContext,
 	IOnSetAsNextContext,
-} from '../context'
-import type { IngestAdlib, ExtendedIngestRundown, IngestSegment, IngestRundown } from '../ingest'
-import type { IBlueprintExternalMessageQueueObj } from '../message'
-import type { MigrationStepShowStyle } from '../migrations'
+} from '../context/index.js'
+import type { IngestAdlib, ExtendedIngestRundown, IngestRundown } from '../ingest.js'
+import type { IBlueprintExternalMessageQueueObj } from '../message.js'
+import type {} from '../migrations.js'
 import type {
 	IBlueprintAdLibPiece,
 	IBlueprintResolvedPieceInstance,
@@ -35,17 +35,22 @@ import type {
 	IBlueprintSegment,
 	IBlueprintPiece,
 	IBlueprintPart,
-} from '../documents'
-import type { IBlueprintShowStyleVariant, IOutputLayer, ISourceLayer } from '../showStyle'
-import type { TSR, OnGenerateTimelineObj, TimelineObjectCoreExt } from '../timeline'
-import type { IBlueprintConfig } from '../common'
+} from '../documents/index.js'
+import type { IBlueprintShowStyleVariant, IOutputLayer, ISourceLayer } from '../showStyle.js'
+import type { TSR, OnGenerateTimelineObj, TimelineObjectCoreExt } from '../timeline.js'
+import type { IBlueprintConfig } from '../common.js'
 import type { ReadonlyDeep } from 'type-fest'
 import type { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
 import type { JSONBlob } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
-import type { BlueprintConfigCoreConfig, BlueprintManifestBase, BlueprintManifestType, IConfigMessage } from './base'
-import type { IBlueprintTriggeredActions } from '../triggers'
-import type { ExpectedPackage } from '../package'
-import type { ABResolverConfiguration } from '../abPlayback'
+import type { BlueprintConfigCoreConfig, BlueprintManifestBase, BlueprintManifestType, IConfigMessage } from './base.js'
+import type { IBlueprintTriggeredActions } from '../triggers.js'
+import type { ExpectedPackage } from '../package.js'
+import type { ABResolverConfiguration } from '../abPlayback.js'
+import type { SofieIngestSegment } from '../ingest-types.js'
+import { PackageStatusMessage } from '@sofie-automation/shared-lib/dist/packageStatusMessages'
+import { BlueprintPlayoutPersistentStore } from '../context/playoutStore.js'
+
+export { PackageStatusMessage }
 
 export type TimelinePersistentState = unknown
 
@@ -55,13 +60,12 @@ export interface ShowStyleBlueprintManifest<TRawConfig = IBlueprintConfig, TProc
 
 	/** A list of config items this blueprint expects to be available on the ShowStyle */
 	showStyleConfigSchema: JSONBlob<JSONSchema>
-	/** A list of Migration steps related to a ShowStyle
-	 * @deprecated This has been replaced with `validateConfig` and `applyConfig`
-	 */
-	showStyleMigrations: MigrationStepShowStyle[]
 
 	/** The config presets exposed by this blueprint */
 	configPresets: Record<string, IShowStyleConfigPreset<TRawConfig>>
+
+	/** Alternate package status messages, to override the builtin ones produced by Sofie */
+	packageStatusMessages?: Partial<Record<PackageStatusMessage, string | undefined>>
 
 	/** Translations connected to the studio (as stringified JSON) */
 	translations?: string
@@ -85,7 +89,7 @@ export interface ShowStyleBlueprintManifest<TRawConfig = IBlueprintConfig, TProc
 	/** Generate segment from ingest data */
 	getSegment: (
 		context: ISegmentUserContext,
-		ingestSegment: IngestSegment
+		ingestSegment: SofieIngestSegment
 	) => BlueprintResultSegment | Promise<BlueprintResultSegment>
 
 	/**
@@ -108,7 +112,6 @@ export interface ShowStyleBlueprintManifest<TRawConfig = IBlueprintConfig, TProc
 		context: ISyncIngestUpdateToPartInstanceContext,
 		existingPartInstance: BlueprintSyncIngestPartInstance,
 		newData: BlueprintSyncIngestNewData,
-
 		playoutStatus: 'previous' | 'current' | 'next'
 	) => void
 
@@ -127,11 +130,14 @@ export interface ShowStyleBlueprintManifest<TRawConfig = IBlueprintConfig, TProc
 	/** Execute an action defined by an IBlueprintActionManifest */
 	executeAction?: (
 		context: IActionExecutionContext,
+		playoutPersistentState: BlueprintPlayoutPersistentStore<TimelinePersistentState>,
 		actionId: string,
 		userData: ActionUserData,
 		triggerMode: string | undefined,
-		privateData?: unknown
-	) => Promise<void>
+		privateData: unknown | undefined,
+		publicData: unknown | undefined,
+		actionOptions: { [key: string]: any } | undefined
+	) => Promise<{ validationErrors: any } | void>
 
 	/** Generate adlib piece from ingest data */
 	getAdlibItem?: (
@@ -169,6 +175,24 @@ export interface ShowStyleBlueprintManifest<TRawConfig = IBlueprintConfig, TProc
 		coreConfig: BlueprintConfigCoreConfig
 	) => TProcessedConfig
 
+	/**
+	 * Optional method to validate the blueprint config passed to this blueprint according to the API schema.
+	 * Returns a list of messages to the caller that are used for logging or to throw if errors have been found.
+	 */
+	validateConfigFromAPI?: (context: ICommonContext, apiConfig: object) => Array<IConfigMessage>
+
+	/**
+	 * Optional method to transform from an API blueprint config to the database blueprint config if these are required to be different.
+	 * If this method is not defined the config object will be used directly
+	 */
+	blueprintConfigFromAPI?: (context: ICommonContext, config: object) => TRawConfig
+
+	/**
+	 * Optional method to transform from a database blueprint config to the API blueprint config if these are required to be different.
+	 * If this method is not defined the config object will be used directly
+	 */
+	blueprintConfigToAPI?: (context: ICommonContext, config: TRawConfig) => object
+
 	// Events
 
 	onRundownActivate?: (context: IRundownActivationContext, wasActive: boolean) => Promise<void>
@@ -181,7 +205,10 @@ export interface ShowStyleBlueprintManifest<TRawConfig = IBlueprintConfig, TProc
 	 * Called during a Take action.
 	 * Allows for part modification or aborting the take.
 	 */
-	onTake?: (context: IOnTakeContext) => Promise<void>
+	onTake?: (
+		context: IOnTakeContext,
+		playoutPersistentState: BlueprintPlayoutPersistentStore<TimelinePersistentState>
+	) => Promise<void>
 	/** Called after a Take action */
 	onPostTake?: (context: IPartEventContext) => Promise<void>
 
@@ -189,13 +216,16 @@ export interface ShowStyleBlueprintManifest<TRawConfig = IBlueprintConfig, TProc
 	 * Called when a part is set as Next, including right after a Take.
 	 * Allows for part modification.
 	 */
-	onSetAsNext?: (context: IOnSetAsNextContext) => Promise<void>
+	onSetAsNext?: (
+		context: IOnSetAsNextContext,
+		playoutPersistentState: BlueprintPlayoutPersistentStore<TimelinePersistentState>
+	) => Promise<void>
 
 	/** Called after the timeline has been generated, used to manipulate the timeline */
 	onTimelineGenerate?: (
 		context: ITimelineEventContext,
 		timeline: OnGenerateTimelineObj<TSR.TSRTimelineContent>[],
-		previousPersistentState: TimelinePersistentState | undefined,
+		playoutPersistentState: BlueprintPlayoutPersistentStore<TimelinePersistentState>,
 		previousPartEndState: PartEndState | undefined,
 		resolvedPieces: IBlueprintResolvedPieceInstance[]
 	) => Promise<BlueprintResultTimeline>
@@ -206,7 +236,7 @@ export interface ShowStyleBlueprintManifest<TRawConfig = IBlueprintConfig, TProc
 	/** Called just before taking the next part. This generates some persisted data used by onTimelineGenerate to modify the timeline based on the previous part (eg, persist audio levels) */
 	getEndStateForPart?: (
 		context: IRundownContext,
-		previousPersistentState: TimelinePersistentState | undefined,
+		playoutPersistentState: BlueprintPlayoutPersistentStore<TimelinePersistentState>,
 		partInstance: IBlueprintPartInstance,
 		resolvedPieces: IBlueprintResolvedPieceInstance[],
 		time: number
@@ -226,7 +256,6 @@ export interface ShowStyleBlueprintManifest<TRawConfig = IBlueprintConfig, TProc
 
 export interface BlueprintResultTimeline {
 	timeline: OnGenerateTimelineObj<TSR.TSRTimelineContent>[]
-	persistentState: TimelinePersistentState
 }
 export interface BlueprintResultBaseline {
 	timelineObjects: TimelineObjectCoreExt<TSR.TSRTimelineContent>[]

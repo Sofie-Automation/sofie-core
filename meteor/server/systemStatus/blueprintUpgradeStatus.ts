@@ -1,6 +1,6 @@
 import { StatusCode } from '@sofie-automation/blueprints-integration'
 import { literal } from '@sofie-automation/corelib/dist/lib'
-import { Component } from '../../lib/api/systemStatus'
+import { Component } from '@sofie-automation/meteor-lib/dist/api/systemStatus'
 import { status2ExternalStatus } from './systemStatus'
 import { getServerBlueprintUpgradeStatuses } from '../publications/blueprintUpgradeStatus/systemStatus'
 

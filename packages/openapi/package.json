@@ -1,6 +1,6 @@
 {
 	"name": "@sofie-automation/openapi",
-	"version": "1.51.7",
+	"version": "1.53.0-in-development",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
@@ -14,7 +14,7 @@
 		"cov": "run unit && open-cli coverage/lcov-report/index.html",
 		"cov-open": "open-cli coverage/lcov-report/index.html",
 		"unit": "run genserver && node --experimental-fetch run_server_tests.mjs",
-		"lint:raw": "run -T eslint . --ext .ts --ext .js --ext .yaml --ignore-pattern dist",
+		"lint:raw": "run -T eslint",
 		"lint": "run lint:raw .",
 		"lint-fix": "run lint --fix",
 		"genclient:ts": "run -T rimraf client/ts && openapi-generator-cli generate -i ./api/actions.yaml -o client/ts -g typescript-fetch -p supportsES6=true",
@@ -27,7 +27,7 @@
 	},
 	"prettier": "@sofie-automation/code-standard-preset/.prettierrc.json",
 	"engines": {
-		"node": ">=16.0.0"
+		"node": ">=21"
 	},
 	"files": [
 		"/api",
@@ -35,11 +35,12 @@
 		"install_swagger.js"
 	],
 	"dependencies": {
-		"tslib": "^2.6.2"
+		"tslib": "^2.8.1"
 	},
 	"devDependencies": {
-		"@openapitools/openapi-generator-cli": "^2.9.0",
-		"eslint-plugin-yml": "^1.12.2",
+		"@openapitools/openapi-generator-cli": "^2.16.3",
+		"eslint": "^9.18.0",
+		"eslint-plugin-yml": "^1.16.0",
 		"js-yaml": "^4.1.0",
 		"wget-improved": "^3.4.0"
 	},

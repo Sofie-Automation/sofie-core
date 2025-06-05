@@ -5,7 +5,7 @@ import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowSt
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { ObserveChangesHelper } from '../collections/lib'
-import { MeteorStartupAsync } from '../../lib/lib'
+import { Meteor } from 'meteor/meteor'
 
 const ObserveChangeBufferTimeout = 100
 
@@ -18,7 +18,7 @@ const ObserveChangeBufferTimeout = 100
  * Whenever the Studio changes the blueprint or config preset, ensure the config is synced across
  * We want it synced across, so that if the config-preset is removed, then there is some config that can be used
  */
-MeteorStartupAsync(async () => {
+Meteor.startup(async () => {
 	const doUpdate = async (doc: DBStudio): Promise<void> => {
 		const markUnlinked = async () => {
 			await Studios.updateAsync(doc._id, {
@@ -35,7 +35,7 @@ MeteorStartupAsync(async () => {
 
 		const blueprint = (await Blueprints.findOneAsync(
 			{ _id: doc.blueprintId, blueprintType: BlueprintManifestType.STUDIO },
-			{ fields: { _id: 1, studioConfigPresets: 1 } }
+			{ projection: { _id: 1, studioConfigPresets: 1 } }
 		)) as Pick<Blueprint, '_id' | 'studioConfigPresets'> | undefined
 
 		if (!blueprint?.studioConfigPresets) {
@@ -69,7 +69,7 @@ MeteorStartupAsync(async () => {
  * Whenever the ShowStyleBase changes the blueprint or config preset, ensure the config is synced across
  * We want it synced across, so that if the config-preset is removed, then there is some config that can be used
  */
-MeteorStartupAsync(async () => {
+Meteor.startup(async () => {
 	const doUpdate = async (doc: DBShowStyleBase): Promise<void> => {
 		const markUnlinked = async () => {
 			await Promise.all([
@@ -100,7 +100,7 @@ MeteorStartupAsync(async () => {
 
 		const blueprint = (await Blueprints.findOneAsync(
 			{ _id: doc.blueprintId, blueprintType: BlueprintManifestType.SHOWSTYLE },
-			{ fields: { _id: 1, showStyleConfigPresets: 1 } }
+			{ projection: { _id: 1, showStyleConfigPresets: 1 } }
 		)) as Pick<Blueprint, '_id' | 'showStyleConfigPresets'> | undefined
 
 		if (!blueprint?.showStyleConfigPresets) {
@@ -116,7 +116,7 @@ MeteorStartupAsync(async () => {
 
 		const variants = (await ShowStyleVariants.findFetchAsync(
 			{ showStyleBaseId: doc._id },
-			{ fields: { blueprintConfigPresetId: 1 } }
+			{ projection: { blueprintConfigPresetId: 1 } }
 		)) as Pick<DBShowStyleVariant, '_id' | 'blueprintConfigPresetId'>[]
 
 		const ps: Promise<unknown>[] = [
@@ -168,7 +168,7 @@ MeteorStartupAsync(async () => {
  * Whenever the ShowStyleVariant changes the config preset, ensure the config is synced across
  * We want it synced across, so that if the config-preset is removed, then there is some config that can be used
  */
-MeteorStartupAsync(async () => {
+Meteor.startup(async () => {
 	const doUpdate = async (doc: DBShowStyleVariant): Promise<void> => {
 		const markUnlinked = async () => {
 			await ShowStyleVariants.updateAsync(doc._id, {
@@ -188,7 +188,7 @@ MeteorStartupAsync(async () => {
 
 		const blueprint = (await Blueprints.findOneAsync(
 			{ _id: showStyleBase.blueprintId, blueprintType: BlueprintManifestType.SHOWSTYLE },
-			{ fields: { _id: 1, showStyleConfigPresets: 1 } }
+			{ projection: { _id: 1, showStyleConfigPresets: 1 } }
 		)) as Pick<Blueprint, '_id' | 'showStyleConfigPresets'> | undefined
 
 		if (!blueprint?.showStyleConfigPresets) {

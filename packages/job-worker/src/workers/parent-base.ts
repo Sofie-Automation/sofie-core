@@ -3,24 +3,24 @@ import {
 	ManualPromise,
 	createManualPromise,
 	assertNever,
-	sleep,
 	getRandomString,
 	deferAsync,
 } from '@sofie-automation/corelib/dist/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { startTransaction } from '../profiler'
+import { startTransaction } from '../profiler.js'
 import { MongoClient } from 'mongodb'
-import { createInvalidateWorkerDataCache, InvalidateWorkerDataCache } from './caches'
-import { logger } from '../logging'
-import { LocksManager } from '../locks'
+import { createInvalidateWorkerDataCache, InvalidateWorkerDataCache } from './caches.js'
+import { logger } from '../logging.js'
+import { LocksManager } from '../locks.js'
 import { FORCE_CLEAR_CACHES_JOB } from '@sofie-automation/corelib/dist/worker/shared'
-import { JobManager, JobStream } from '../manager'
+import { JobManager, JobStream } from '../manager.js'
 import { Promisify, ThreadedClassManager } from 'threadedclass'
 import { StatusCode } from '@sofie-automation/blueprints-integration'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 import { WorkerThreadStatus } from '@sofie-automation/corelib/dist/dataModel/WorkerThreads'
 import { UserError } from '@sofie-automation/corelib/dist/error'
+import { sleep } from '@sofie-automation/shared-lib/dist/lib/lib'
 
 export enum ThreadStatus {
 	Closed = 0,
@@ -307,7 +307,7 @@ export abstract class WorkerParentBase {
 										startTime,
 										endTime,
 										result.error
-											? UserError.tryFromJSON(result.error) ?? new Error(result.error)
+											? (UserError.tryFromJSON(result.error) ?? new Error(result.error))
 											: null,
 										result.result
 									)

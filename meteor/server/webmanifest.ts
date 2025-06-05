@@ -3,13 +3,13 @@ import type {
 	JSONSchemaForWebApplicationManifestFiles,
 	ManifestImageResource,
 	ShortcutItem,
-} from '../lib/typings/webmanifest'
-import { logger } from '../lib/logging'
+} from './typings/webmanifest'
+import { logger } from './logging'
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { RundownPlaylists, Rundowns, Studios } from './collections'
-import { getLocale, Translations } from './lib'
-import { generateTranslation } from '../lib/lib'
+import { getLocale, getRootSubpath, Translations } from './lib'
+import { generateTranslation } from './lib/tempLib'
 import { ITranslatableMessage } from '@sofie-automation/blueprints-integration'
 import { interpollateTranslation } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
@@ -18,22 +18,9 @@ import Koa from 'koa'
 import KoaRouter from '@koa/router'
 import { Meteor } from 'meteor/meteor'
 import { bindKoaRouter } from './api/rest/koa'
+import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 
 const appShortName = 'Sofie'
-const SOFIE_DEFAULT_ICONS: ManifestImageResource[] = [
-	{
-		src: '/icons/mstile-144x144.png',
-		sizes: '144x144',
-		purpose: 'monochrome',
-		type: 'image/png',
-	},
-	{
-		src: '/icons/maskable-96x96.png',
-		sizes: '96x96',
-		purpose: 'maskable',
-		type: 'image/png',
-	},
-]
 
 const t = generateTranslation
 
@@ -47,6 +34,21 @@ function getShortcutsForStudio(
 	studio: Pick<DBStudio, '_id' | 'name'>,
 	studioCount: number
 ): ShortcutItem[] {
+	const SOFIE_DEFAULT_ICONS: ManifestImageResource[] = [
+		{
+			src: getRootSubpath() + '/icons/mstile-144x144.png',
+			sizes: '144x144',
+			purpose: 'monochrome',
+			type: 'image/png',
+		},
+		{
+			src: getRootSubpath() + '/icons/maskable-96x96.png',
+			sizes: '96x96',
+			purpose: 'maskable',
+			type: 'image/png',
+		},
+	]
+
 	const multiStudio = studioCount > 1
 	return [
 		{
@@ -56,11 +58,11 @@ function getShortcutsForStudio(
 				multiStudio
 					? t('{{studioName}}: Active Rundown', {
 							studioName: studio.name,
-					  })
+						})
 					: t('Active Rundown')
 			),
 			icons: SOFIE_DEFAULT_ICONS,
-			url: `/activeRundown/${studio._id}`,
+			url: getRootSubpath() + `/activeRundown/${studio._id}`,
 		},
 		{
 			id: `${studio._id}_prompter`,
@@ -69,11 +71,11 @@ function getShortcutsForStudio(
 				multiStudio
 					? t('{{studioName}}: Prompter', {
 							studioName: studio.name,
-					  })
+						})
 					: t('Prompter')
 			),
 			icons: SOFIE_DEFAULT_ICONS,
-			url: `/prompter/${studio._id}`,
+			url: getRootSubpath() + `/prompter/${studio._id}`,
 		},
 		{
 			id: `${studio._id}_countdowns`,
@@ -82,7 +84,7 @@ function getShortcutsForStudio(
 				multiStudio ? t('{{studioName}}: Presenter screen', { studioName: studio.name }) : t('Presenter screen')
 			),
 			icons: SOFIE_DEFAULT_ICONS,
-			url: `/countdowns/${studio._id}/presenter`,
+			url: getRootSubpath() + `/countdowns/${studio._id}/presenter`,
 		},
 	]
 }
@@ -110,31 +112,31 @@ async function getWebManifest(languageCode: string): Promise<JSONSchemaForWebApp
 		short_name: appShortName,
 		icons: [
 			{
-				src: '/icons/android-chrome-192x192.png',
+				src: getRootSubpath() + '/icons/android-chrome-192x192.png',
 				sizes: '192x192',
 				purpose: 'any',
 				type: 'image/png',
 			},
 			{
-				src: '/icons/android-chrome-512x512.png',
+				src: getRootSubpath() + '/icons/android-chrome-512x512.png',
 				sizes: '512x512',
 				purpose: 'any',
 				type: 'image/png',
 			},
 			{
-				src: '/icons/mstile-144x144.png',
+				src: getRootSubpath() + '/icons/mstile-144x144.png',
 				sizes: '144x144',
 				purpose: 'monochrome',
 				type: 'image/png',
 			},
 			{
-				src: '/icons/maskable-96x96.png',
+				src: getRootSubpath() + '/icons/maskable-96x96.png',
 				sizes: '96x96',
 				purpose: 'maskable',
 				type: 'image/png',
 			},
 			{
-				src: '/icons/maskable-512x512.png',
+				src: getRootSubpath() + '/icons/maskable-512x512.png',
 				sizes: '512x512',
 				purpose: 'maskable',
 				type: 'image/png',
@@ -143,14 +145,14 @@ async function getWebManifest(languageCode: string): Promise<JSONSchemaForWebApp
 		theme_color: '#2d89ef',
 		background_color: '#252627',
 		display: 'fullscreen',
-		start_url: '/',
-		scope: '/',
+		start_url: getRootSubpath() + '/',
+		scope: getRootSubpath() + '/',
 		orientation: 'landscape',
 		shortcuts: shortcuts.length > 0 ? shortcuts : undefined,
 		protocol_handlers: [
 			{
 				protocol: 'web+nrcs',
-				url: '/url/nrcs?q=%s',
+				url: getRootSubpath() + '/url/nrcs?q=%s',
 			},
 		],
 	}
@@ -198,7 +200,7 @@ webManifestRouter.get('/', async (ctx) => {
 		ctx.response.type = 'application/manifest+json;charset=utf-8'
 		ctx.body = JSON.stringify(manifest)
 	} catch (e) {
-		logger.error(`Could not produce PWA WebManifest`, e)
+		logger.error(`Could not produce PWA WebManifest: ${stringifyError(e)}`)
 		ctx.response.status = 500
 		ctx.body = 'Internal Server Error'
 	}
@@ -238,7 +240,7 @@ nrcsUrlRouter.get('/', async (ctx) => {
 		ctx.body = `Unsupported namespace: "${parsedWebNrcsUrl.host}"`
 		return
 	} catch (e) {
-		logger.error(`Unknown error in /url/nrcs`, e)
+		logger.error(`Unknown error in /url/nrcs: ${stringifyError(e)}`)
 	}
 
 	ctx.response.status = 500
@@ -260,14 +262,14 @@ async function webNrcsRundownRoute(ctx: Koa.ParameterizedContext, parsedUrl: URL
 		// we couldn't find the External ID for Rundown/Rundown Playlist
 		logger.debug(`NRCS URL: External ID not found "${externalId}"`)
 		ctx.body = `Could not find requested object: "${externalId}", see the full list`
-		ctx.redirect('/')
+		ctx.redirect(`${getRootSubpath()}/`)
 		ctx.response.status = 303
 		return
 	}
 
 	logger.debug(`NRCS URL: External ID found "${externalId}" in "${rundownPlaylist._id}"`)
 	ctx.body = `Requested object found in Rundown Playlist "${rundownPlaylist._id}"`
-	ctx.redirect(`/rundown/${rundownPlaylist._id}`)
+	ctx.redirect(`${getRootSubpath()}/rundown/${rundownPlaylist._id}`)
 }
 
 Meteor.startup(() => {

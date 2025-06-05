@@ -1,0 +1,11 @@
+diff --git a/lib/timecode.js b/lib/timecode.js
+index ef4028e2ebc3b5480e93d88a38627454553e3502..a521b33cd239c38dfced835410aa57e8be9246ca 100644
+--- a/lib/timecode.js
++++ b/lib/timecode.js
+@@ -217,3 +217,5 @@ var exports = exports || window;
+ 
+ exports.Timecode = Timecode;
+ 
++// Vite needs a more modern export
++module.exports = { Timecode }
+\ No newline at end of file

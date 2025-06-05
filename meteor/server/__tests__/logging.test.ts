@@ -1,10 +1,9 @@
-import { testInFiber } from '../../__mocks__/helpers/jest'
 import { supressLogging } from '../../__mocks__/helpers/lib'
 import { SupressLogMessages } from '../../__mocks__/suppressLogging'
 import { logger } from '../logging'
 
 describe('server/logger', () => {
-	testInFiber('supress errors', async () => {
+	test('supress errors', async () => {
 		const logMessages = () => {
 			logger.debug('This is a debug message')
 			logger.info('This is an info message')
@@ -18,5 +17,13 @@ describe('server/logger', () => {
 		// These should suppress all but errors:
 		await supressLogging(logMessages, true)
 		expect(1).toBe(1)
+	})
+
+	test('logger', () => {
+		expect(typeof logger.error).toEqual('function')
+		expect(typeof logger.warn).toEqual('function')
+		// expect(typeof logger.help).toEqual('function')
+		expect(typeof logger.info).toEqual('function')
+		expect(typeof logger.debug).toEqual('function')
 	})
 })

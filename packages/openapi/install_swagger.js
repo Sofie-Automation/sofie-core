@@ -1,6 +1,6 @@
 const fs = require('fs/promises')
 const fs_constants = require('fs').constants
-// eslint-disable-next-line node/no-unpublished-require
+// eslint-disable-next-line n/no-unpublished-require
 const wget = require('wget-improved')
 
 async function get(url, path) {

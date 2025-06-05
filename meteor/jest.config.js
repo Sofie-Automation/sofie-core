@@ -2,22 +2,21 @@ const path = require('path')
 
 const commonConfig = {
 	modulePaths: ['<rootDir>/node_modules/'],
-	moduleNameMapper: {},
+	moduleNameMapper: {
+		// Ensure libraries that would match the extension rule are still resolved
+		'bignumber.js': 'bignumber.js',
+		// Drop file extensions in imports
+		'(.+)\\.js$': '$1',
+	},
 	unmockedModulePathPatterns: ['/^imports\\/.*\\.jsx?$/', '/^node_modules/'],
 	globals: {},
-	moduleFileExtensions: ['ts', 'js'],
+	moduleFileExtensions: ['ts', 'js', 'json'],
 	transform: {
 		'^.+\\.(ts|tsx)$': [
 			'ts-jest',
 			{
 				isolatedModules: true, // Skip type check to reduce memory impact, as we are already do a yarn check-types
 				tsconfig: 'tsconfig.json',
-				babelConfig: {
-					plugins: [
-						// Fibers and await do not work well together. This transpiles await calls to something that works
-						'./__mocks__/plugins/meteor-async-await.js',
-					],
-				},
 				diagnostics: {
 					ignoreCodes: ['TS151001'],
 				},
@@ -34,26 +33,6 @@ const commonConfig = {
 module.exports = {
 	projects: [
 		Object.assign({}, commonConfig, {
-			displayName: 'client',
-			testMatch: [
-				'<rootDir>/client/__tests__/**/*.(spec|test).(ts|js)',
-				'<rootDir>/client/**/__tests__/**/*.(spec|test).(ts|js)',
-				'!.meteor/*.*',
-			],
-			testEnvironment: 'jsdom',
-			setupFilesAfterEnv: [...commonConfig.setupFilesAfterEnv, '<rootDir>/client/__tests__/jest-setup.js'],
-		}),
-		Object.assign({}, commonConfig, {
-			displayName: 'lib',
-			testMatch: [
-				'<rootDir>/lib/__tests__/**/*.(spec|test).(ts|js)',
-				'<rootDir>/lib/**/__tests__/**/*.(spec|test).(ts|js)',
-				'!.meteor/*.*',
-			],
-			testEnvironment: 'node',
-		}),
-		Object.assign({}, commonConfig, {
-			displayName: 'server',
 			testMatch: [
 				'<rootDir>/server/__tests__/**/*.(spec|test).(ts|js)',
 				'<rootDir>/server/**/__tests__/**/*.(spec|test).(ts|js)',
@@ -75,9 +54,7 @@ module.exports = {
 	collectCoverageFrom: [
 		'server/**/*.{js,ts}',
 		'lib/**/*.{js,ts}',
-		'client/**/*.{js,ts}',
 		'!**/*.{tsx}',
-		'!**/client/main.js',
 		'!.meteor/**/*.*',
 		'!**/__tests__/**',
 		'!**/__mocks__/**',

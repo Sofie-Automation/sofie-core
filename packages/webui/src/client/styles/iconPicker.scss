@@ -1,0 +1,54 @@
+.expco.iconpicker {
+	&.expco-expanded {
+		z-index: 2;
+	}
+
+	.expco-expand {
+		cursor: pointer;
+	}
+
+	.expco-title {
+		white-space: nowrap;
+		margin-right: 24px;
+		width: 100%;
+		padding: 1px 0px;
+		overflow: hidden;
+		vertical-align: middle;
+	}
+
+	.expco-body {
+		position: absolute;
+		left: -1px;
+		width: 320px;
+		top: 100%;
+		background: #fff;
+		border: 1px solid #bbb;
+		padding: 0;
+	}
+
+	.expco-item {
+		display: inline-flex !important;
+		white-space: pre;
+		margin: 0.25rem !important;
+		width: 24px;
+		text-align: center;
+
+		.action-btn {
+			padding: 0px;
+			margin: 0px;
+			width: 100%;
+		}
+	}
+
+	.expco-list {
+		overflow-y: auto;
+		max-height: 16em;
+		padding: 4px;
+	}
+
+	.search-input {
+		width: calc(100% - 8px);
+		padding: 5px;
+		margin: 4px;
+	}
+}

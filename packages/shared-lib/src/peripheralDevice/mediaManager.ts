@@ -1,4 +1,4 @@
-import { MediaWorkFlowId, MediaWorkFlowStepId } from '../core/model/Ids'
+import { MediaWorkFlowId, MediaWorkFlowStepId } from '../core/model/Ids.js'
 
 export interface MediaObjectRevision {
 	id: string

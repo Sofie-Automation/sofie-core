@@ -6,7 +6,7 @@ import {
 	TimelineCompleteGenerationVersions,
 	TimelineObjGeneric,
 } from '@sofie-automation/corelib/dist/dataModel/Timeline'
-import { BaseModel } from '../../modelBase'
+import { BaseModel } from '../../modelBase.js'
 import { ReadonlyDeep } from 'type-fest'
 import { ExpectedPackageDBFromStudioBaselineObjects } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
 import { ExpectedPlayoutItemStudio } from '@sofie-automation/corelib/dist/dataModel/ExpectedPlayoutItem'
@@ -47,7 +47,8 @@ export interface StudioPlayoutModelBase extends StudioPlayoutModelBaseReadonly {
 	 */
 	setTimeline(
 		timelineObjs: TimelineObjGeneric[],
-		generationVersions: TimelineCompleteGenerationVersions
+		generationVersions: TimelineCompleteGenerationVersions,
+		regenerateTimelineToken: string | undefined
 	): ReadonlyDeep<TimelineComplete>
 }
 
@@ -68,4 +69,12 @@ export interface StudioPlayoutModel extends StudioPlayoutModelBase, BaseModel {
 	 * @param excludeRundownPlaylistId Ignore a given RundownPlaylist, useful to see if any other RundownPlaylists are active
 	 */
 	getActiveRundownPlaylists(excludeRundownPlaylistId?: RundownPlaylistId): ReadonlyDeep<DBRundownPlaylist[]>
+
+	/**
+	 * Update the active state of a RouteSet
+	 * @param routeSetId The RouteSet to update
+	 * @param isActive The new active state of the RouteSet
+	 * @returns Whether the change may affect timeline generation
+	 */
+	switchRouteSet(routeSetId: string, isActive: boolean | 'toggle'): boolean
 }

@@ -7,40 +7,41 @@ import {
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBRundown, RundownOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { unprotectString, protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { logger } from '../logging'
-import { PlayoutModel } from '../playout/model/PlayoutModel'
-import { PlayoutRundownModel } from '../playout/model/PlayoutRundownModel'
-import { allowedToMoveRundownOutOfPlaylist } from '../rundown'
-import { updatePartInstanceRanksAndOrphanedState } from '../updatePartInstanceRanksAndOrphanedState'
+import { logger } from '../logging.js'
+import { PlayoutModel } from '../playout/model/PlayoutModel.js'
+import { PlayoutRundownModel } from '../playout/model/PlayoutRundownModel.js'
+import { allowedToMoveRundownOutOfPlaylist } from '../rundown.js'
+import { updatePartInstanceRanksAndOrphanedState } from '../updatePartInstanceRanksAndOrphanedState.js'
 import {
 	getPlaylistIdFromExternalId,
 	produceRundownPlaylistInfoFromRundown,
+	removePlaylistFromDb,
 	removeRundownFromDb,
-} from '../rundownPlaylists'
+} from '../rundownPlaylists.js'
 import { ReadonlyDeep } from 'type-fest'
-import { IngestModel, IngestModelReadonly } from './model/IngestModel'
-import { JobContext } from '../jobs'
+import { IngestModel, IngestModelReadonly } from './model/IngestModel.js'
+import { JobContext } from '../jobs/index.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
-import { runJobWithPlaylistLock, runWithPlayoutModel } from '../playout/lock'
-import { CommitIngestData } from './lock'
+import { runJobWithPlaylistLock, runWithPlayoutModel } from '../playout/lock.js'
+import { CommitIngestData } from './lock.js'
 import { clone, groupByToMapFunc } from '@sofie-automation/corelib/dist/lib'
-import { PlaylistLock } from '../jobs/lock'
-import { syncChangesToPartInstances } from './syncChangesToPartInstance'
-import { ensureNextPartIsValid } from './updateNext'
+import { PlaylistLock } from '../jobs/lock.js'
+import { syncChangesToPartInstances } from './syncChangesToPartInstance.js'
+import { ensureNextPartIsValid } from './updateNext.js'
 import { StudioJobs } from '@sofie-automation/corelib/dist/worker/studio'
-import { getTranslatedMessage, ServerTranslatedMesssages } from '../notes'
-import _ = require('underscore')
+import { getTranslatedMessage, ServerTranslatedMesssages } from '../notes.js'
+import _ from 'underscore'
 import { EventsJobs } from '@sofie-automation/corelib/dist/worker/events'
 import { NoteSeverity } from '@sofie-automation/blueprints-integration'
 import { DBSegment, SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/error'
-import { PlayoutRundownModelImpl } from '../playout/model/implementation/PlayoutRundownModelImpl'
-import { PlayoutSegmentModelImpl } from '../playout/model/implementation/PlayoutSegmentModelImpl'
-import { createPlayoutModelFromIngestModel } from '../playout/model/implementation/LoadPlayoutModel'
+import { PlayoutRundownModelImpl } from '../playout/model/implementation/PlayoutRundownModelImpl.js'
+import { PlayoutSegmentModelImpl } from '../playout/model/implementation/PlayoutSegmentModelImpl.js'
+import { createPlayoutModelFromIngestModel } from '../playout/model/implementation/LoadPlayoutModel.js'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { DatabasePersistedModel } from '../modelBase'
-import { updateSegmentIdsForAdlibbedPartInstances } from './commit/updateSegmentIdsForAdlibbedPartInstances'
+import { DatabasePersistedModel } from '../modelBase.js'
+import { updateSegmentIdsForAdlibbedPartInstances } from './commit/updateSegmentIdsForAdlibbedPartInstances.js'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { AnyBulkWriteOperation } from 'mongodb'
 
@@ -80,7 +81,7 @@ export async function CommitIngestOperation(
 		? {
 				id: beforeRundown.playlistId,
 				externalId: null, // The id on the Rundown is not correct
-		  }
+			}
 		: undefined) ?? {
 		id: getPlaylistIdFromExternalId(context.studioId, rundown.playlistExternalId ?? unprotectString(rundown._id)),
 		externalId: rundown.playlistExternalId ?? unprotectString(rundown._id),
@@ -108,6 +109,8 @@ export async function CommitIngestOperation(
 				} else {
 					// The rundown is safe to simply move or remove
 					trappedInPlaylistId = undefined
+
+					updateNotificationForTrappedInPlaylist(ingestModel, false)
 
 					await removeRundownFromPlaylistAndUpdatePlaylist(
 						context,
@@ -228,6 +231,9 @@ export async function CommitIngestOperation(
 			try {
 				// sync changes to the 'selected' partInstances
 				await syncChangesToPartInstances(context, playoutModel, ingestModel)
+
+				// update the quickloop in case we did any changes to things involving marker
+				playoutModel.updateQuickLoopState()
 
 				playoutModel.deferAfterSave(() => {
 					// Run in the background, we don't want to hold onto the lock to do this
@@ -557,7 +563,7 @@ export async function regeneratePlaylistAndRundownOrder(
 		return newPlaylist
 	} else {
 		// Playlist is empty and should be removed
-		await context.directCollections.RundownPlaylists.remove(oldPlaylist._id)
+		await removePlaylistFromDb(context, lock)
 
 		return null
 	}
@@ -579,7 +585,7 @@ export async function updatePlayoutAfterChangingRundownInPlaylist(
 				throw new Error(`RundownPlaylist "${playoutModel.playlistId}" has no contents but is active...`)
 
 			// Remove an empty playlist
-			await context.directCollections.RundownPlaylists.remove({ _id: playoutModel.playlistId })
+			await removePlaylistFromDb(context, playlistLock)
 
 			playoutModel.assertNoChanges()
 			return
@@ -650,7 +656,7 @@ async function getSelectedPartInstances(
 					rundownId: { $in: rundownIds },
 					_id: { $in: ids },
 					reset: { $ne: true },
-			  })
+				})
 			: []
 
 	const currentPartInstance = instances.find((inst) => inst._id === playlist.currentPartInfo?.partInstanceId)
@@ -692,7 +698,7 @@ export async function removeRundownFromPlaylistAndUpdatePlaylist(
 			...(updatePlaylistIdIsSetInSofieTo !== undefined
 				? {
 						playlistIdIsSetInSofie: updatePlaylistIdIsSetInSofieTo,
-				  }
+					}
 				: {}),
 		},
 	})
@@ -719,15 +725,29 @@ function setRundownAsTrappedInPlaylist(
 	if (rundownIsToBeRemoved) {
 		// Orphan the deleted rundown
 		ingestModel.setRundownOrphaned(RundownOrphanedReason.DELETED)
+
+		updateNotificationForTrappedInPlaylist(ingestModel, false)
 	} else {
+		updateNotificationForTrappedInPlaylist(ingestModel, true)
+	}
+}
+
+function updateNotificationForTrappedInPlaylist(ingestModel: IngestModel, isTrapped: boolean) {
+	const notificationCategory = `trappedInPlaylist:${ingestModel.rundownId}`
+
+	if (isTrapped) {
 		// The rundown is still synced, but is in the wrong playlist. Notify the user
-		ingestModel.appendRundownNotes({
-			type: NoteSeverity.WARNING,
+		ingestModel.setNotification(notificationCategory, {
+			id: `trappedInPlaylist`,
+			severity: NoteSeverity.WARNING,
 			message: getTranslatedMessage(ServerTranslatedMesssages.PLAYLIST_ON_AIR_CANT_MOVE_RUNDOWN),
-			origin: {
-				name: 'Data update',
+			relatedTo: {
+				type: 'rundown',
+				rundownId: ingestModel.rundownId,
 			},
 		})
+	} else {
+		ingestModel.clearAllNotifications(notificationCategory)
 	}
 }
 

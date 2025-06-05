@@ -18,7 +18,6 @@ This docker-compose file automates the basic setup of the [Sofie-Core applicatio
 ```yaml
 # This is NOT recommended to be used for a production deployment.
 # It aims to quickly get an evaluation version of Sofie running and serve as a basis for how to set up a production deployment.
-version: '3.3'
 services:
   db:
     hostname: mongo
@@ -59,7 +58,10 @@ services:
   playout-gateway:
     image: sofietv/tv-automation-playout-gateway:release51
     restart: always
-    command: yarn start -host core -port 3000 -id playoutGateway0
+    environment:
+      DEVICE_ID: playoutGateway0
+      CORE_HOST: core
+      CORE_PORT: '3000'
     networks:
       - sofie
       - lan_access
@@ -113,13 +115,17 @@ volumes:
 
 Create a `Sofie` folder, copy the above content, and save it as `docker-compose.yaml` within the `Sofie` folder.
 
-Navigate to the _ingest-gateway_ section of `docker-compose.yaml` and select which type of _ingest-gateway_ you'd like installed by uncommenting it. Save your changes. If you are using the [Rundown Editor](rundown-editor.md), then no ingest gateways need to be uncommented.
+Navigate to the _ingest-gateway_ section of `docker-compose.yaml` and select which type of _ingest-gateway_ you'd like installed by uncommenting it. Save your changes. If you are using the [Rundown Editor](rundown-editor.md), then no ingest gateways need to be uncommented. Visit [Rundowns & Newsroom Systems](installing-a-gateway/rundown-or-newsroom-system-connection/intro.md) to see which _Ingest Gateway_ is best suited for _your_ production environment.
 
 Then open a terminal, `cd your-sofie-folder` and `sudo docker-compose up` \(just `docker-compose up` on Windows\).
 
 Once the installation is done, Sofie should be running on [http://localhost:3000](http://localhost:3000)
 
 Next, you will need to install a Rundown Gateway. Visit [Rundowns & Newsroom Systems](installing-a-gateway/rundown-or-newsroom-system-connection/intro.md) to see which _Rundown Gateway_ is best suited for _your_ production environment.
+
+:::note
+Starting with Sofie version 1.52.0, `sofietv` container images will run as UID 1000.
+:::
 
 ### Tips for running in production
 

@@ -14,7 +14,7 @@ export const mockRO = {
 				{
 					MosSchema: 'http://SLENPS01:10505/schema/enpsro.dtd',
 					MosPayload: {
-						AllowExternalMod: 1,
+						AllowExternalMod: '1',
 						EndTime: '2018-09-07T07:09:00',
 						MOSroBlock: 'VIZ.DKOA.MOS;VIZ.NPRO.MOS;VIZ.TPRO.MOS',
 						MOSROStatus: 'PLAY',
@@ -25,13 +25,13 @@ export const mockRO = {
 						RundownDuration: '09:00',
 						StartTime: '2018-10-07T07:00:00',
 						AnsvRed: 'DKSL',
-						AutoArchiveClips: 1,
+						AutoArchiveClips: '1',
 						Clipnames: 'Klipp 1;\\Klipp 2;\\Klipp 3;\\Klipp 4;',
 						Kanal: 'NRK1',
 						ProdNr: 'DKSL99090618',
 						Regionalsend: 'SL',
 						LocalStartTime: '2018-10-07T07:00:00',
-						ENPSItemType: 2,
+						ENPSItemType: '2',
 						roLayout:
 							'PageNum_450|RowStatus_150|Slug_1920|SegStatus_210|Segment_2595|mosartType_1110|mosartVariant_1290|mosartTransition_825|ip1_460|ip2_535|MOSObjSlugs_8295|Estimated_555|Actual_570|MOSItemDurations_630|Float_600|Tekniske-opplysninger_1875|FrontTime_1005|ElapsedTime_1000',
 					},
@@ -85,19 +85,23 @@ export const mockRO = {
 	segmentIdMap: () => [
 		{
 			parts: ['ro1;s1;p1', 'ro1;s1;p2', 'ro1;s1;p3'],
-			segmentId: 'MCxHIjO7_t3PRHpLiX0vbzwx4gg_',
+			segmentName: 'SEGMENT1',
+			segmentId: 'baQfD5zawLDmJTRumGpHDH2MwaM_',
 		},
 		{
 			parts: ['ro1;s2;p1', 'ro1;s2;p2'],
-			segmentId: 'Qz1OqWVatX_W4Sp5C0m8VhTTfME_',
+			segmentName: 'SEGMENT2',
+			segmentId: '6cEU5uY8M93lfQssMy9XaGxT23E_',
 		},
 		{
 			parts: ['ro1;s3;p1', 'ro1;s3;p2'],
-			segmentId: '8GUNgE7zUulco2K3yuhJ1Fyceeo_',
+			segmentName: 'SEGMENT3',
+			segmentId: 'rSEZMzZhJ55454sqsU_7TOq_DIk_',
 		},
 		{
 			parts: ['ro1;s4;p1'],
-			segmentId: 'XF9ZBDI5IouvkmTbounEfoJ6ijY_',
+			segmentName: 'SEGMENT2',
+			segmentId: 'YXMZjMqslZFcM3K4sGelyBYJ_rA_',
 		},
 	],
 	newItem: (id: string, slug: string): MOS.IMOSROStory =>

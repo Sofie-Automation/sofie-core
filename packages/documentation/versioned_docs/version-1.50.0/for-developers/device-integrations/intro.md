@@ -4,10 +4,10 @@ Device integrations in Sofie are part of the Timeline State Resolver (TSR) libra
 
 In order to understand all about writing TSR integrations there are some concepts to familiarise yourself with, in this documentation we will attempt to explain these.
 
- - [Options and mappings](./options-and-mappings.html)
- - [TSR Integration API](./tsr-api.html)
- - [TSR Types package](./tsr-types.html)
- - [TSR Actions](./tsr-actions.html)
+- [Options and mappings](./options-and-mappings.html)
+- [TSR Integration API](./tsr-api.html)
+- [TSR Types package](./tsr-types.html)
+- [TSR Actions](./tsr-actions.html)
 
 But to start of we will explain the general structure of the TSR. Any user of the TSR will interface primarily with the Conductor class. Primarily the user will input device configurations, mappings and timelines into the TSR. The timeline describes the entire state of all of the devices over time. It does this by putting objects on timeline layers. Every timeline layer maps to a specific part of the device, this is configured throught the mappings.
 

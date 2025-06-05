@@ -1,0 +1,347 @@
+@import '../colorScheme';
+$liveline-timecode-color: $general-countdown-to-next-color; //$general-live-color;
+$hold-status-color: $liveline-timecode-color;
+
+.piece__label__colored-mark {
+	display: inline-block;
+	background-color: currentColor;
+	border-radius: 100%;
+	width: 0.75em;
+	height: 0.75em;
+	margin-right: 0.125em;
+	margin-left: 0.125em;
+	line-height: 0.75em;
+}
+
+.presenter-screen {
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+
+	font-size: 1vh;
+
+	display: grid;
+	grid-template: 4fr 3fr fit-content(1em) / auto;
+
+	overflow: hidden;
+	white-space: nowrap;
+
+	.presenter-screen__part {
+		display: grid;
+		grid-template:
+			10em
+			4fr
+			6fr / 13vw auto; // allow a fallback for CasparCG
+		grid-template:
+			10em
+			4fr
+			6fr / #{'min(13vw, 27vh)'} auto;
+
+		.presenter-screen__segment-name {
+			grid-row: 1;
+			grid-column: 1 / -1;
+			text-align: center;
+			font-size: 8em;
+			font-weight: bold;
+
+			&.live {
+				background: $general-live-color;
+				color: #fff;
+				border-top: 0.1em solid #fff;
+				-webkit-text-stroke: black;
+				-webkit-text-stroke-width: 0.025em;
+				text-shadow: 0px 0px 20px #00000044;
+			}
+
+			&.next {
+				background: $general-next-color;
+				color: #000;
+				border-top: 0.1em solid #fff;
+			}
+		}
+
+		.presenter-screen__rundown-countdown {
+			grid-row: 2 / -1;
+			grid-column: 1 / -1;
+
+			text-align: center;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+
+			font-size: 12vw;
+		}
+
+		.presenter-screen__part__piece-icon {
+			grid-row: 2;
+			grid-column: 1;
+			padding: 0em;
+
+			text-align: center;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+
+			> svg {
+				flex-grow: 1;
+			}
+		}
+
+		.presenter-screen__part__piece-name {
+			grid-row: 2;
+			grid-column: 2;
+			text-align: left;
+			font-size: 13em;
+			overflow: hidden;
+			white-space: nowrap;
+			padding-left: 0.2em;
+
+			display: flex;
+			align-items: center;
+
+			.presenter-screen__part__auto-next-icon {
+				display: block;
+				min-width: 1em;
+				max-width: 1em;
+			}
+		}
+
+		.presenter-screen__part__piece-countdown {
+			text-align: left;
+
+			display: flex;
+			align-items: center;
+			font-size: 13em; // Allow a fallback for CasparCG
+			font-size: #{'min(13em, 8vw)'};
+			padding: 0 0.2em;
+			line-height: 1em;
+
+			> .overtime {
+				color: $general-late-color;
+			}
+
+			> img.freeze-icon {
+				width: 0.9em;
+				height: 0.9em;
+				margin-left: -0.05em;
+				margin-top: -0.05em;
+			}
+		}
+
+		.presenter-screen__part__part-countdown {
+			text-align: right;
+
+			display: flex;
+			align-items: center;
+			justify-content: flex-end;
+			font-size: 13em;
+			padding: 0 0.2em;
+			line-height: 1em;
+
+			> span {
+				font-size: 2em; // Allow a fallback for CasparCG
+				font-size: #{'min(2em, 20vw)'};
+			}
+		}
+
+		.presenter-screen__part__piece-countdown,
+		.presenter-screen__part__part-countdown {
+			grid-row: 3;
+			grid-column: 2;
+			color: $general-countdown-to-next-color;
+		}
+
+		&.presenter-screen__part--next-part {
+			.presenter-screen__part__piece-icon,
+			.presenter-screen__part__piece-name {
+				grid-row: 2 / -1;
+			}
+		}
+	}
+
+	.presenter-screen__rundown-status-bar {
+		display: grid;
+		grid-template-columns: auto fit-content(5em);
+		grid-template-rows: fit-content(1em);
+		font-size: 6em;
+		color: #888;
+		padding: 0 0.2em;
+
+		.presenter-screen__rundown-status-bar__rundown-name {
+			overflow: hidden;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+			line-height: 1.44em;
+		}
+
+		.presenter-screen__rundown-status-bar__countdown {
+			white-space: nowrap;
+
+			color: $general-countdown-to-next-color;
+
+			font-weight: 600;
+			font-size: 1.2em;
+
+			&.over {
+				color: $general-late-color;
+			}
+		}
+	}
+
+	.presenter-screen__part + .presenter-screen__part {
+		border-top: solid 0.8em #454545;
+	}
+
+	.clocks-segment-countdown-red {
+		color: $general-late-color;
+	}
+
+	.clocks-counter-heavy {
+		font-weight: 600;
+	}
+
+	.dashboard {
+		.timing {
+			margin: 0 0;
+			min-width: auto;
+			width: 100%;
+			text-align: center;
+
+			.timing-clock {
+				position: relative;
+				margin-right: 1em;
+				font-weight: 100;
+				color: $general-clock;
+				font-size: 1.5em;
+				margin-top: 0.8em;
+				word-break: keep-all;
+				white-space: nowrap;
+
+				&.visual-last-child {
+					margin-right: 0;
+				}
+
+				&.countdown {
+					font-weight: 400;
+				}
+
+				&.playback-started {
+					display: inline-block;
+					width: 25%;
+				}
+
+				&.left {
+					text-align: left;
+				}
+
+				&.time-now {
+					position: absolute;
+					top: 0.05em;
+					left: 50%;
+					transform: translateX(-50%);
+					margin-top: 0px;
+					margin-right: 0;
+					font-size: 2.3em;
+					font-weight: 100;
+					text-align: center;
+				}
+
+				&.current-remaining {
+					position: absolute;
+					left: calc(50% + 3.5em);
+					text-align: left;
+					color: $liveline-timecode-color;
+					font-weight: 500;
+
+					.overtime {
+						color: $general-fast-color;
+						text-shadow: 0px 0px 6px $general-fast-color--shadow;
+					}
+				}
+
+				.timing-clock-label {
+					position: absolute;
+					top: -1em;
+					color: #b8b8b8;
+					text-transform: uppercase;
+					white-space: nowrap;
+					font-weight: 300;
+					font-size: 0.5em;
+
+					&.left {
+						left: 0;
+						right: auto;
+						text-align: left;
+					}
+
+					&.right {
+						right: 0;
+						left: auto;
+						text-align: right;
+					}
+
+					&.hide-overflow {
+						overflow: hidden;
+						text-overflow: ellipsis;
+						width: 100%;
+					}
+
+					&.rundown-name {
+						width: auto;
+						max-width: calc(40vw - 138px);
+						min-width: 100%;
+
+						> strong {
+							margin-right: 0.4em;
+						}
+
+						> svg.icon.looping {
+							width: 1.4em;
+							height: 1.4em;
+						}
+					}
+				}
+
+				&.heavy-light {
+					font-weight: 600;
+
+					&.heavy {
+						// color: $general-late-color;
+						color: #ffe900;
+						background: none;
+					}
+
+					&.light {
+						color: $general-fast-color;
+						text-shadow: 0px 0px 6px $general-fast-color--shadow;
+						background: none;
+					}
+				}
+			}
+
+			.rundown__header-status {
+				position: absolute;
+				font-size: 0.7rem;
+				text-transform: uppercase;
+				background: #fff;
+				border-radius: 1rem;
+				line-height: 1em;
+				font-weight: 700;
+				color: #000;
+				top: 2.4em;
+				left: 0;
+				padding: 2px 5px 1px;
+
+				&.rundown__header-status--hold {
+					background: $hold-status-color;
+				}
+			}
+
+			.timing-clock-header-label {
+				font-weight: 100px;
+			}
+		}
+	}
+}

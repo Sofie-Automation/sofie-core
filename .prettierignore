@@ -1,0 +1,5 @@
+meteor/.meteor
+**/dist/**
+
+**/node_modules/**
+

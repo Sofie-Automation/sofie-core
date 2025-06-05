@@ -10,9 +10,9 @@ import {
 import deepExtend from 'deep-extend'
 import { ReadonlyDeep } from 'type-fest'
 import _ from 'underscore'
-import { getSideEffect } from '../../../../lib/collections/ExpectedPackages'
+import { getSideEffect } from '@sofie-automation/meteor-lib/dist/collections/ExpectedPackages'
 import { DBStudio, StudioLight, StudioPackageContainer } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { clone, omit } from '../../../../lib/lib'
+import { clone, omit } from '../../../lib/tempLib'
 import { CustomPublishCollection } from '../../../lib/customPublication'
 import { logger } from '../../../logging'
 import { ExpectedPackagesContentCache } from './contentCache'
@@ -31,6 +31,7 @@ export async function updateCollectionForExpectedPackageIds(
 	contentCache: ReadonlyDeep<ExpectedPackagesContentCache>,
 	studio: Pick<DBStudio, StudioFields>,
 	layerNameToDeviceIds: Map<string, PeripheralDeviceId[]>,
+	packageContainers: Record<string, StudioPackageContainer>,
 	collection: CustomPublishCollection<PackageManagerExpectedPackage>,
 	filterPlayoutDeviceIds: ReadonlyDeep<PeripheralDeviceId[]> | undefined,
 	regenerateIds: Set<ExpectedPackageId>
@@ -66,7 +67,8 @@ export async function updateCollectionForExpectedPackageIds(
 				},
 				deviceId,
 				null,
-				Priorities.OTHER // low priority
+				Priorities.OTHER, // low priority
+				packageContainers
 			)
 
 			updatedDocIds.add(routedPackage._id)
@@ -99,6 +101,7 @@ export async function updateCollectionForPieceInstanceIds(
 	contentCache: ReadonlyDeep<ExpectedPackagesContentCache>,
 	studio: Pick<DBStudio, StudioFields>,
 	layerNameToDeviceIds: Map<string, PeripheralDeviceId[]>,
+	packageContainers: Record<string, StudioPackageContainer>,
 	collection: CustomPublishCollection<PackageManagerExpectedPackage>,
 	filterPlayoutDeviceIds: ReadonlyDeep<PeripheralDeviceId[]> | undefined,
 	regenerateIds: Set<PieceInstanceId>
@@ -140,7 +143,8 @@ export async function updateCollectionForPieceInstanceIds(
 					},
 					deviceId,
 					pieceInstanceId,
-					Priorities.OTHER // low priority
+					Priorities.OTHER, // low priority
+					packageContainers
 				)
 
 				updatedDocIds.add(routedPackage._id)
@@ -172,17 +176,21 @@ enum Priorities {
 }
 
 function generateExpectedPackageForDevice(
-	studio: Pick<StudioLight, '_id' | 'packageContainers' | 'previewContainerIds' | 'thumbnailContainerIds'>,
+	studio: Pick<
+		StudioLight,
+		'_id' | 'packageContainersWithOverrides' | 'previewContainerIds' | 'thumbnailContainerIds'
+	>,
 	expectedPackage: PackageManagerExpectedPackageBase,
 	deviceId: PeripheralDeviceId,
 	pieceInstanceId: PieceInstanceId | null,
-	priority: Priorities
+	priority: Priorities,
+	packageContainers: Record<string, StudioPackageContainer>
 ): PackageManagerExpectedPackage {
 	// Lookup Package sources:
 	const combinedSources: PackageContainerOnPackage[] = []
 
 	for (const packageSource of expectedPackage.sources) {
-		const lookedUpSource = studio.packageContainers[packageSource.containerId]
+		const lookedUpSource = packageContainers[packageSource.containerId]
 		if (lookedUpSource) {
 			combinedSources.push(calculateCombinedSource(packageSource, lookedUpSource))
 		} else {
@@ -199,7 +207,7 @@ function generateExpectedPackageForDevice(
 	}
 
 	// Lookup Package targets:
-	const combinedTargets = calculateCombinedTargets(studio, expectedPackage, deviceId)
+	const combinedTargets = calculateCombinedTargets(expectedPackage, deviceId, packageContainers)
 
 	if (!combinedSources.length && expectedPackage.sources.length !== 0) {
 		logger.warn(`Pub.expectedPackagesForDevice: No sources found for "${expectedPackage._id}"`)
@@ -253,14 +261,14 @@ function calculateCombinedSource(
 	return combinedSource
 }
 function calculateCombinedTargets(
-	studio: Pick<StudioLight, '_id' | 'packageContainers'>,
 	expectedPackage: PackageManagerExpectedPackageBase,
-	deviceId: PeripheralDeviceId
+	deviceId: PeripheralDeviceId,
+	packageContainers: Record<string, StudioPackageContainer>
 ): PackageContainerOnPackage[] {
 	const mappingDeviceId = unprotectString(deviceId)
 
 	let packageContainerId: string | undefined
-	for (const [containerId, packageContainer] of Object.entries<StudioPackageContainer>(studio.packageContainers)) {
+	for (const [containerId, packageContainer] of Object.entries<StudioPackageContainer>(packageContainers)) {
 		if (packageContainer.deviceIds.includes(mappingDeviceId)) {
 			// TODO: how to handle if a device has multiple containers?
 			packageContainerId = containerId
@@ -270,7 +278,7 @@ function calculateCombinedTargets(
 
 	const combinedTargets: PackageContainerOnPackage[] = []
 	if (packageContainerId) {
-		const lookedUpTarget = studio.packageContainers[packageContainerId]
+		const lookedUpTarget = packageContainers[packageContainerId]
 		if (lookedUpTarget) {
 			// Todo: should the be any combination of properties here?
 			combinedTargets.push({

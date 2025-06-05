@@ -1,12 +1,12 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion, @typescript-eslint/unbound-method */
+/* eslint-disable @typescript-eslint/unbound-method */
 import { IBlueprintMutatablePart, IBlueprintPart, IBlueprintPiece } from '@sofie-automation/blueprints-integration'
-import { ActionExecutionContext } from '../context/adlibActions'
-import { PlayoutModel } from '../../playout/model/PlayoutModel'
-import { WatchedPackagesHelper } from '../context/watchedPackages'
-import { JobContext, ProcessedShowStyleCompound } from '../../jobs'
+import { ActionExecutionContext } from '../context/adlibActions.js'
+import { PlayoutModel } from '../../playout/model/PlayoutModel.js'
+import { WatchedPackagesHelper } from '../context/watchedPackages.js'
+import { JobContext, ProcessedShowStyleCompound } from '../../jobs/index.js'
 import { mock } from 'jest-mock-extended'
-import { PartAndPieceInstanceActionService } from '../context/services/PartAndPieceInstanceActionService'
-import { ProcessedShowStyleConfig } from '../config'
+import { PartAndPieceInstanceActionService } from '../context/services/PartAndPieceInstanceActionService.js'
+import { ProcessedShowStyleConfig } from '../config.js'
 
 describe('Test blueprint api context', () => {
 	async function getTestee() {
@@ -53,6 +53,14 @@ describe('Test blueprint api context', () => {
 			await context.getResolvedPieceInstances('current')
 			expect(mockActionService.getResolvedPieceInstances).toHaveBeenCalledTimes(1)
 			expect(mockActionService.getResolvedPieceInstances).toHaveBeenCalledWith('current')
+		})
+
+		test('getSegment', async () => {
+			const { context, mockActionService } = await getTestee()
+
+			await context.getSegment('current')
+			expect(mockActionService.getSegment).toHaveBeenCalledTimes(1)
+			expect(mockActionService.getSegment).toHaveBeenCalledWith('current')
 		})
 
 		test('findLastPieceOnLayer', async () => {
@@ -139,6 +147,10 @@ describe('Test blueprint api context', () => {
 			await context.removePieceInstances('next', ['pieceInstanceId'])
 			expect(mockActionService.removePieceInstances).toHaveBeenCalledTimes(1)
 			expect(mockActionService.removePieceInstances).toHaveBeenCalledWith('next', ['pieceInstanceId'])
+
+			await context.removePieceInstances('current', ['pieceInstanceId'])
+			expect(mockActionService.removePieceInstances).toHaveBeenCalledTimes(2)
+			expect(mockActionService.removePieceInstances).toHaveBeenCalledWith('current', ['pieceInstanceId'])
 		})
 
 		test('updatePartInstance', async () => {

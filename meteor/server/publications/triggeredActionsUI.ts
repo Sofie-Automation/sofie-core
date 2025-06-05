@@ -1,23 +1,23 @@
 import { ShowStyleBaseId, TriggeredActionId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import { Meteor } from 'meteor/meteor'
 import { ReadonlyDeep } from 'type-fest'
-import { CustomCollectionName, MeteorPubSub } from '../../lib/api/pubsub'
-import { DBTriggeredActions, UITriggeredActionsObj } from '../../lib/collections/TriggeredActions'
-import { Complete, literal } from '../../lib/lib'
+import { CustomCollectionName, MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
+import {
+	DBTriggeredActions,
+	UITriggeredActionsObj,
+} from '@sofie-automation/meteor-lib/dist/collections/TriggeredActions'
+import { Complete, literal } from '../lib/tempLib'
 import {
 	CustomPublishCollection,
 	meteorCustomPublish,
 	setUpCollectionOptimizedObserver,
+	SetupObserversResult,
 	TriggerUpdate,
 } from '../lib/customPublication'
-import { logger } from '../logging'
-import { resolveCredentials } from '../security/lib/credentials'
-import { NoSecurityReadAccess } from '../security/noSecurity'
-import { ShowStyleReadAccess } from '../security/showStyle'
 import { TriggeredActions } from '../collections'
 import { check, Match } from 'meteor/check'
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
+import { triggerWriteAccessBecauseNoCheckNecessary } from '../security/securityVerify'
 
 interface UITriggeredActionsArgs {
 	readonly showStyleBaseId: ShowStyleBaseId | null
@@ -61,7 +61,7 @@ function convertDocument(doc: DBTriggeredActions): UITriggeredActionsObj {
 async function setupUITriggeredActionsPublicationObservers(
 	args: ReadonlyDeep<UITriggeredActionsArgs>,
 	triggerUpdate: TriggerUpdate<UITriggeredActionsUpdateProps>
-): Promise<Meteor.LiveQueryHandle[]> {
+): Promise<SetupObserversResult> {
 	const trackChange = (id: TriggeredActionId): Partial<UITriggeredActionsUpdateProps> => ({
 		invalidateTriggeredActions: [id],
 	})
@@ -111,27 +111,19 @@ meteorCustomPublish(
 	async function (pub, showStyleBaseId: ShowStyleBaseId | null) {
 		check(showStyleBaseId, Match.Maybe(String))
 
-		const cred = await resolveCredentials({ userId: this.userId, token: undefined })
+		triggerWriteAccessBecauseNoCheckNecessary()
 
-		if (
-			!cred ||
-			NoSecurityReadAccess.any() ||
-			(showStyleBaseId && (await ShowStyleReadAccess.showStyleBase(showStyleBaseId, cred)))
-		) {
-			await setUpCollectionOptimizedObserver<
-				UITriggeredActionsObj,
-				UITriggeredActionsArgs,
-				UITriggeredActionsState,
-				UITriggeredActionsUpdateProps
-			>(
-				`pub_${MeteorPubSub.uiTriggeredActions}_${showStyleBaseId}`,
-				{ showStyleBaseId },
-				setupUITriggeredActionsPublicationObservers,
-				manipulateUITriggeredActionsPublicationData,
-				pub
-			)
-		} else {
-			logger.warn(`Pub.${CustomCollectionName.UITriggeredActions}: Not allowed: "${showStyleBaseId}"`)
-		}
+		await setUpCollectionOptimizedObserver<
+			UITriggeredActionsObj,
+			UITriggeredActionsArgs,
+			UITriggeredActionsState,
+			UITriggeredActionsUpdateProps
+		>(
+			`pub_${MeteorPubSub.uiTriggeredActions}_${showStyleBaseId}`,
+			{ showStyleBaseId },
+			setupUITriggeredActionsPublicationObservers,
+			manipulateUITriggeredActionsPublicationData,
+			pub
+		)
 	}
 )

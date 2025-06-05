@@ -1,17 +1,15 @@
 import { Meteor } from 'meteor/meteor'
-import { check, Match } from '../../lib/check'
+import { check, Match } from '../lib/check'
 import { registerClassToMeteorMethods, ReplaceOptionalWithNullInMethodArguments } from '../methods'
-import { literal, getRandomId, protectString, Complete } from '../../lib/lib'
+import { literal, getRandomId, protectString, Complete } from '../lib/tempLib'
 import { logger } from '../logging'
-import { MethodContext, MethodContextAPI } from '../../lib/api/methods'
-import { ShowStyleContentWriteAccess } from '../security/showStyle'
-import { DBTriggeredActions, TriggeredActionsObj } from '../../lib/collections/TriggeredActions'
+import { MethodContext, MethodContextAPI } from './methodContext'
+import { DBTriggeredActions, TriggeredActionsObj } from '@sofie-automation/meteor-lib/dist/collections/TriggeredActions'
 import {
 	CreateTriggeredActionsContent,
 	NewTriggeredActionsAPI,
 	TriggeredActionsAPIMethods,
-} from '../../lib/api/triggeredActions'
-import { SystemWriteAccess } from '../security/system'
+} from '@sofie-automation/meteor-lib/dist/api/triggeredActions'
 import { fetchShowStyleBaseLight } from '../optimizations'
 import {
 	convertObjectIntoOverrides,
@@ -21,6 +19,10 @@ import { ShowStyleBaseId, TriggeredActionId } from '@sofie-automation/corelib/di
 import { TriggeredActions } from '../collections'
 import KoaRouter from '@koa/router'
 import bodyParser from 'koa-bodyparser'
+import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
+import { assertConnectionHasOneOfPermissions } from '../security/auth'
+
+const PERMISSIONS_FOR_TRIGGERED_ACTIONS: Array<keyof UserPermissions> = ['configure']
 
 export async function createTriggeredActions(
 	showStyleBaseId: ShowStyleBaseId | null,
@@ -57,6 +59,8 @@ actionTriggersRouter.post(
 	}),
 	async (ctx) => {
 		ctx.response.type = 'text/plain'
+
+		assertConnectionHasOneOfPermissions(ctx, ...PERMISSIONS_FOR_TRIGGERED_ACTIONS)
 
 		const showStyleBaseId: ShowStyleBaseId | undefined = protectString<ShowStyleBaseId>(ctx.params.showStyleBaseId)
 
@@ -161,22 +165,14 @@ async function apiCreateTriggeredActions(
 	check(showStyleBaseId, Match.Maybe(String))
 	check(base, Match.Maybe(Object))
 
-	if (!showStyleBaseId) {
-		const access = await SystemWriteAccess.coreSystem(context)
-		if (!access) throw new Meteor.Error(403, `Core System settings not writable`)
-	} else {
-		const access = await ShowStyleContentWriteAccess.anyContent(context, showStyleBaseId)
-		if (!access) throw new Meteor.Error(404, `ShowStyleBase "${showStyleBaseId}" not found`)
-	}
+	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_TRIGGERED_ACTIONS)
 
 	return createTriggeredActions(showStyleBaseId, base || undefined)
 }
 async function apiRemoveTriggeredActions(context: MethodContext, id: TriggeredActionId) {
 	check(id, String)
 
-	const access = await ShowStyleContentWriteAccess.triggeredActions(context, id)
-	const triggeredActions = typeof access === 'boolean' ? access : access.triggeredActions
-	if (!triggeredActions) throw new Meteor.Error(404, `Action Trigger "${id}" not found`)
+	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_TRIGGERED_ACTIONS)
 
 	await removeTriggeredActions(id)
 }

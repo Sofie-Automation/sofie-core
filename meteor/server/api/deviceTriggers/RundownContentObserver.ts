@@ -23,6 +23,7 @@ import {
 	rundownPlaylistFieldSpecifier,
 	segmentFieldSpecifier,
 } from './reactiveContentCache'
+import { waitForAllObserversReady } from '../../publications/lib/lib'
 
 const REACTIVITY_DEBOUNCE = 20
 
@@ -37,13 +38,7 @@ export class RundownContentObserver {
 	}
 	#disposed = false
 
-	constructor(
-		rundownPlaylistId: RundownPlaylistId,
-		showStyleBaseId: ShowStyleBaseId,
-		rundownIds: RundownId[],
-		onChanged: ChangedHandler
-	) {
-		logger.silly(`Creating RundownContentObserver for playlist "${rundownPlaylistId}"`)
+	private constructor(onChanged: ChangedHandler) {
 		const { cache, cancel: cancelCache } = createReactiveContentCache(() => {
 			if (this.#disposed) {
 				this.#cleanup?.()
@@ -54,19 +49,40 @@ export class RundownContentObserver {
 
 		this.#cache = cache
 		this.#cancelCache = cancelCache
+	}
 
-		this.#observers = [
-			RundownPlaylists.observeChanges(rundownPlaylistId, cache.RundownPlaylists.link(), {
+	static async create(
+		rundownPlaylistId: RundownPlaylistId,
+		showStyleBaseId: ShowStyleBaseId,
+		rundownIds: RundownId[],
+		onChanged: ChangedHandler
+	): Promise<RundownContentObserver> {
+		logger.silly(`Creating RundownContentObserver for playlist "${rundownPlaylistId}"`)
+
+		const observer = new RundownContentObserver(onChanged)
+
+		await observer.initObservers(rundownPlaylistId, showStyleBaseId, rundownIds)
+
+		return observer
+	}
+
+	private async initObservers(
+		rundownPlaylistId: RundownPlaylistId,
+		showStyleBaseId: ShowStyleBaseId,
+		rundownIds: RundownId[]
+	) {
+		this.#observers = await waitForAllObserversReady([
+			RundownPlaylists.observeChanges(rundownPlaylistId, this.#cache.RundownPlaylists.link(), {
 				projection: rundownPlaylistFieldSpecifier,
 			}),
-			ShowStyleBases.observeChanges(showStyleBaseId, cache.ShowStyleBases.link()),
+			ShowStyleBases.observeChanges(showStyleBaseId, this.#cache.ShowStyleBases.link()),
 			TriggeredActions.observeChanges(
 				{
 					showStyleBaseId: {
 						$in: [showStyleBaseId, null],
 					},
 				},
-				cache.TriggeredActions.link()
+				this.#cache.TriggeredActions.link()
 			),
 			Segments.observeChanges(
 				{
@@ -74,7 +90,7 @@ export class RundownContentObserver {
 						$in: rundownIds,
 					},
 				},
-				cache.Segments.link(),
+				this.#cache.Segments.link(),
 				{
 					projection: segmentFieldSpecifier,
 				}
@@ -85,7 +101,7 @@ export class RundownContentObserver {
 						$in: rundownIds,
 					},
 				},
-				cache.Parts.link(),
+				this.#cache.Parts.link(),
 				{
 					projection: partFieldSpecifier,
 				}
@@ -99,7 +115,7 @@ export class RundownContentObserver {
 						$ne: true,
 					},
 				},
-				cache.PartInstances.link(),
+				this.#cache.PartInstances.link(),
 				{
 					projection: partInstanceFieldSpecifier,
 				}
@@ -110,7 +126,7 @@ export class RundownContentObserver {
 						$in: rundownIds,
 					},
 				},
-				cache.RundownBaselineAdLibActions.link(),
+				this.#cache.RundownBaselineAdLibActions.link(),
 				{
 					projection: adLibActionFieldSpecifier,
 				}
@@ -121,7 +137,7 @@ export class RundownContentObserver {
 						$in: rundownIds,
 					},
 				},
-				cache.RundownBaselineAdLibPieces.link(),
+				this.#cache.RundownBaselineAdLibPieces.link(),
 				{
 					projection: adLibPieceFieldSpecifier,
 				}
@@ -132,7 +148,7 @@ export class RundownContentObserver {
 						$in: rundownIds,
 					},
 				},
-				cache.AdLibActions.link(),
+				this.#cache.AdLibActions.link(),
 				{
 					projection: adLibActionFieldSpecifier,
 				}
@@ -143,12 +159,12 @@ export class RundownContentObserver {
 						$in: rundownIds,
 					},
 				},
-				cache.AdLibPieces.link(),
+				this.#cache.AdLibPieces.link(),
 				{
 					projection: adLibPieceFieldSpecifier,
 				}
 			),
-		]
+		])
 	}
 
 	public get cache(): ContentCache {

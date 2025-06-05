@@ -2,6 +2,7 @@
 
 var class2type = {}
 
+// eslint-disable-next-line no-redeclare
 var toString = class2type.toString
 
 var hasOwn = class2type.hasOwnProperty

@@ -1,21 +1,26 @@
-import { studioJobHandlers } from './jobs'
+import { studioJobHandlers } from './jobs.js'
 import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { MongoClient } from 'mongodb'
-import { createMongoConnection, getMongoCollections, IDirectCollections } from '../../db'
+import { createMongoConnection, getMongoCollections, IDirectCollections } from '../../db/index.js'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { setupApmAgent, startTransaction } from '../../profiler'
-import { InvalidateWorkerDataCache, invalidateWorkerDataCache, loadWorkerDataCache, WorkerDataCache } from '../caches'
-import { QueueJobFunc, JobContextImpl } from '../context'
-import { AnyLockEvent, LocksManager } from '../locks'
-import { FastTrackTimelineFunc, LogLineWithSourceFunc } from '../../main'
-import { interceptLogging, logger } from '../../logging'
-import { setupInfluxDb } from '../../influx'
+import { setupApmAgent, startTransaction } from '../../profiler.js'
+import {
+	InvalidateWorkerDataCache,
+	invalidateWorkerDataCache,
+	loadWorkerDataCache,
+	WorkerDataCache,
+} from '../caches.js'
+import { JobContextImpl } from '../context/JobContextImpl.js'
+import { QueueJobFunc } from '../context/util.js'
+import { AnyLockEvent, LocksManager } from '../locks.js'
+import { FastTrackTimelineFunc, LogLineWithSourceFunc } from '../../main.js'
+import { interceptLogging, logger } from '../../logging.js'
+import { setupInfluxDb } from '../../influx.js'
 import { getStudioQueueName } from '@sofie-automation/corelib/dist/worker/studio'
-import { WorkerJobResult } from '../parent-base'
+import { WorkerJobResult } from '../parent-base.js'
 import { endTrace, sendTrace, startTrace } from '@sofie-automation/corelib/dist/influxdb'
 import { getPrometheusMetricsString, setupPrometheusMetrics } from '@sofie-automation/corelib/dist/prometheus'
 import { UserError } from '@sofie-automation/corelib/dist/error'
-import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 
 interface StaticData {
 	readonly mongoClient: MongoClient
@@ -81,7 +86,7 @@ export class StudioWorkerChild {
 
 		const transaction = startTransaction('invalidateCaches', 'worker-studio')
 		if (transaction) {
-			transaction.setLabel('studioId', unprotectString(this.#staticData.dataCache.studio._id))
+			transaction.setLabel('studioId', unprotectString(this.#staticData.dataCache.jobStudio._id))
 		}
 
 		try {
@@ -99,7 +104,7 @@ export class StudioWorkerChild {
 		const trace = startTrace('studioWorker:' + jobName)
 		const transaction = startTransaction(jobName, 'worker-studio')
 		if (transaction) {
-			transaction.setLabel('studioId', unprotectString(this.#staticData.dataCache.studio._id))
+			transaction.setLabel('studioId', unprotectString(this.#staticData.dataCache.jobStudio._id))
 		}
 
 		const context = new JobContextImpl(
@@ -125,7 +130,6 @@ export class StudioWorkerChild {
 					}
 				} catch (e) {
 					const userError = UserError.fromUnknown(e)
-					console.log('border', userError.toErrorString(), stringifyError(e))
 
 					logger.error(`Studio job "${jobName}" errored: ${userError.toErrorString()}`)
 

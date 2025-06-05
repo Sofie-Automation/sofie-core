@@ -13,6 +13,7 @@ import { RundownBaselineAdLibAction } from '@sofie-automation/corelib/dist/dataM
 import { BlueprintId, ShowStyleBaseId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
+import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
 
 export interface SourceLayersDoc {
 	_id: ShowStyleBaseId
@@ -115,6 +116,12 @@ export const showStyleBaseFieldSpecifier = literal<
 	sourceLayersWithOverrides: 1,
 })
 
+export type BlueprintFields = '_id' | 'packageStatusMessages'
+export const blueprintFieldSpecifier = literal<MongoFieldSpecifierOnesStrict<Pick<Blueprint, BlueprintFields>>>({
+	_id: 1,
+	packageStatusMessages: 1,
+})
+
 export interface ContentCache {
 	Rundowns: ReactiveCacheCollection<Pick<Rundown, RundownFields>>
 	Segments: ReactiveCacheCollection<Pick<DBSegment, SegmentFields>>
@@ -127,6 +134,7 @@ export interface ContentCache {
 	BaselineAdLibPieces: ReactiveCacheCollection<Pick<RundownBaselineAdLibItem, AdLibPieceFields>>
 	BaselineAdLibActions: ReactiveCacheCollection<Pick<RundownBaselineAdLibAction, AdLibActionFields>>
 	ShowStyleSourceLayers: ReactiveCacheCollection<SourceLayersDoc>
+	Blueprints: ReactiveCacheCollection<Pick<Blueprint, BlueprintFields>>
 }
 
 export function createReactiveContentCache(): ContentCache {
@@ -144,6 +152,7 @@ export function createReactiveContentCache(): ContentCache {
 			'baselineAdlibActions'
 		),
 		ShowStyleSourceLayers: new ReactiveCacheCollection<SourceLayersDoc>('sourceLayers'),
+		Blueprints: new ReactiveCacheCollection<Pick<Blueprint, BlueprintFields>>('blueprints'),
 	}
 
 	return cache

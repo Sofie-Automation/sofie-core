@@ -1,6 +1,6 @@
-import { JobContext, ProcessedShowStyleCompound } from '../../jobs'
-import { UserContextInfo } from './CommonContext'
-import { ShowStyleUserContext } from './ShowStyleUserContext'
+import { JobContext, ProcessedShowStyleCompound } from '../../jobs/index.js'
+import { ContextInfo } from './CommonContext.js'
+import { ShowStyleUserContext } from './ShowStyleUserContext.js'
 import {
 	IBlueprintMutatablePart,
 	IBlueprintPart,
@@ -9,6 +9,7 @@ import {
 	IBlueprintPieceDB,
 	IBlueprintPieceInstance,
 	IBlueprintResolvedPieceInstance,
+	IBlueprintSegment,
 	IEventContext,
 	IOnSetAsNextContext,
 } from '@sofie-automation/blueprints-integration'
@@ -16,19 +17,24 @@ import {
 	ActionPartChange,
 	IPartAndPieceInstanceActionContext,
 	PartAndPieceInstanceActionService,
-} from './services/PartAndPieceInstanceActionService'
-import { WatchedPackagesHelper } from './watchedPackages'
-import { PlayoutModel } from '../../playout/model/PlayoutModel'
+} from './services/PartAndPieceInstanceActionService.js'
+import { WatchedPackagesHelper } from './watchedPackages.js'
+import { PlayoutModel } from '../../playout/model/PlayoutModel.js'
 import { ReadonlyDeep } from 'type-fest'
-import { getCurrentTime } from '../../lib'
+import { getCurrentTime } from '../../lib/index.js'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
+import { BlueprintQuickLookInfo } from '@sofie-automation/blueprints-integration/dist/context/quickLoopInfo'
+import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
+import { selectNewPartWithOffsets } from '../../playout/moveNextPart.js'
 
 export class OnSetAsNextContext
 	extends ShowStyleUserContext
 	implements IOnSetAsNextContext, IEventContext, IPartAndPieceInstanceActionContext
 {
+	public pendingMoveNextPart: { selectedPart: ReadonlyDeep<DBPart> | null } | undefined = undefined
+
 	constructor(
-		contextInfo: UserContextInfo,
+		contextInfo: ContextInfo,
 		context: JobContext,
 		private playoutModel: PlayoutModel,
 		showStyle: ReadonlyDeep<ProcessedShowStyleCompound>,
@@ -36,6 +42,10 @@ export class OnSetAsNextContext
 		private partAndPieceInstanceService: PartAndPieceInstanceActionService
 	) {
 		super(contextInfo, context, showStyle, watchedPackages)
+	}
+
+	public get quickLoopInfo(): BlueprintQuickLookInfo | null {
+		return this.partAndPieceInstanceService.quickLoopInfo
 	}
 
 	public get nextPartState(): ActionPartChange {
@@ -56,6 +66,10 @@ export class OnSetAsNextContext
 
 	async getResolvedPieceInstances(part: 'current' | 'next'): Promise<IBlueprintResolvedPieceInstance<unknown>[]> {
 		return this.partAndPieceInstanceService.getResolvedPieceInstances(part)
+	}
+
+	async getSegment(segment: 'current' | 'next'): Promise<IBlueprintSegment | undefined> {
+		return this.partAndPieceInstanceService.getSegment(segment)
 	}
 
 	async findLastPieceOnLayer(
@@ -108,8 +122,31 @@ export class OnSetAsNextContext
 		return this.partAndPieceInstanceService.updatePartInstance(part, props)
 	}
 
-	async removePieceInstances(_part: 'next', pieceInstanceIds: string[]): Promise<string[]> {
-		return this.partAndPieceInstanceService.removePieceInstances('next', pieceInstanceIds)
+	async removePieceInstances(part: 'current' | 'next', pieceInstanceIds: string[]): Promise<string[]> {
+		return this.partAndPieceInstanceService.removePieceInstances(part, pieceInstanceIds)
+	}
+
+	async moveNextPart(partDelta: number, segmentDelta: number, ignoreQuickLoop?: boolean): Promise<boolean> {
+		if (typeof partDelta !== 'number') throw new Error('partDelta must be a number')
+		if (typeof segmentDelta !== 'number') throw new Error('segmentDelta must be a number')
+
+		// Values of 0 mean discard the pending change
+		if (partDelta === 0 && segmentDelta === 0) {
+			this.pendingMoveNextPart = undefined
+			return true
+		}
+
+		this.pendingMoveNextPart = {
+			selectedPart: selectNewPartWithOffsets(
+				this.jobContext,
+				this.playoutModel,
+				partDelta,
+				segmentDelta,
+				ignoreQuickLoop
+			),
+		}
+
+		return !!this.pendingMoveNextPart.selectedPart
 	}
 
 	getCurrentTime(): number {

@@ -1,6 +1,6 @@
-import type { IBlueprintConfig } from '../common'
-import type { ITranslatableMessage } from '../translations'
-import type { ICommonContext } from './baseContext'
+import type { IBlueprintConfig } from '../common.js'
+import type { ITranslatableMessage } from '../translations.js'
+import type { ICommonContext } from './baseContext.js'
 
 export interface IFixUpConfigContext<TConfig = IBlueprintConfig> extends ICommonContext {
 	/**

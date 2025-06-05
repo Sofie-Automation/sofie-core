@@ -1,5 +1,5 @@
-import { Config } from './connector'
-import * as _ from 'underscore'
+import { Config } from './connector.js'
+import _ from 'underscore'
 import { protectString } from '@sofie-automation/server-core-integration'
 
 // CLI arguments / Environment variables --------------

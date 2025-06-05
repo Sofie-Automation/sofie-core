@@ -1,0 +1,51 @@
+.expco.colorpicker {
+	&.expco-expanded {
+		z-index: 2;
+	}
+
+	.expco-expand {
+		cursor: pointer;
+	}
+
+	.expco-title {
+		white-space: nowrap;
+		margin-right: 24px;
+		width: 100%;
+		padding: 0.2rem 0px;
+		overflow: hidden;
+		vertical-align: middle;
+	}
+
+	.expco-body {
+		position: absolute;
+		left: -1px;
+		width: 210px;
+		top: 100%;
+		max-height: 16em;
+		background: #fff;
+		overflow-y: auto;
+		border: 1px solid #bbb;
+		padding: 4px;
+	}
+
+	.expco-item {
+		display: inline-flex !important;
+		white-space: pre;
+		margin: 0.25rem !important;
+
+		&.action-btn {
+			padding: 0px;
+			margin: 0px;
+			width: 100%;
+			color: #252627;
+			font-weight: 300;
+		}
+	}
+
+	.color-preview {
+		width: 16px;
+		height: 16px;
+		border-radius: 50%;
+		border: 1px solid #bbb;
+	}
+}

@@ -1,0 +1,64 @@
+{
+	"name": "@sofie-automation/live-status-gateway-api",
+	"version": "1.53.0-in-development",
+	"description": "Library for types & values shared by core, workers and gateways",
+	"main": "dist/index.js",
+	"typings": "dist/index.d.ts",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/nrkno/sofie-core.git",
+		"directory": "packages/live-status-gateway-api"
+	},
+	"bugs": {
+		"url": "https://github.com/nrkno/sofie-core/issues"
+	},
+	"homepage": "https://github.com/nrkno/sofie-core/blob/master/packages/live-status-gateway-api#readme",
+	"scripts": {
+		"build": "run -T rimraf dist && run build:main",
+		"build:main": "run -T tsc -p tsconfig.build.json",
+		"lint:raw": "run -T eslint",
+		"lint": "run lint:raw .",
+		"unit": "run -T jest",
+		"test": "run lint && run unit",
+		"watch": "run -T jest --watch",
+		"cov": "run -T jest --coverage; open-cli coverage/lcov-report/index.html",
+		"cov-open": "open-cli coverage/lcov-report/index.html",
+		"validate:dependencies": "yarn npm audit --environment production && run license-validate",
+		"validate:dev-dependencies": "yarn npm audit --environment development",
+		"license-validate": "run -T sofie-licensecheck",
+		"gendocs": "run -T rimraf docs && ag ./api/asyncapi.yaml @asyncapi/html-template -o docs -p singleFile=true -p outFilename=liveStatus.html",
+		"genserver": "run -T rimraf server && ag ./api/asyncapi.yaml @asyncapi/nodejs-ws-template -o server -p server=development",
+		"generate-schema-types": "node scripts/schema-types.mjs"
+	},
+	"engines": {
+		"node": ">=14.19"
+	},
+	"files": [
+		"/dist",
+		"/api",
+		"/CHANGELOG.md",
+		"/README.md",
+		"/LICENSE"
+	],
+	"dependencies": {
+		"tslib": "^2.6.2"
+	},
+	"devDependencies": {
+		"@asyncapi/generator": "^2.6.0",
+		"@asyncapi/html-template": "^3.2.0",
+		"@asyncapi/modelina": "^4.0.4",
+		"@asyncapi/nodejs-ws-template": "^0.10.0",
+		"@asyncapi/parser": "^3.4.0"
+	},
+	"prettier": "@sofie-automation/code-standard-preset/.prettierrc.json",
+	"lint-staged": {
+		"*.{js,css,json,md,scss}": [
+			"yarn run -T prettier"
+		],
+		"*.{ts,tsx}": [
+			"yarn lint:raw"
+		]
+	},
+	"packageManager": "yarn@4.6.0"
+}

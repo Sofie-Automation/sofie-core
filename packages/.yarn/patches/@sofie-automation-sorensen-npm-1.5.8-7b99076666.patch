@@ -1,0 +1,12 @@
+diff --git a/dist/index.d.ts b/dist/index.d.ts
+index d5722b1ac530aac3965f1e77e4673e3b4a7e2b1b..1745642ed6b36ad1d4c9a4dfb70e6068402ba86d 100644
+--- a/dist/index.d.ts
++++ b/dist/index.d.ts
+@@ -1,6 +1,6 @@
+ type Note = string[];
+ type ComboChord = Note[];
+-interface EnchancedKeyboardEvent extends KeyboardEvent {
++export interface EnchancedKeyboardEvent extends KeyboardEvent {
+     comboChordCodes: ComboChord;
+     comboCodes: Note;
+     tag: any | undefined;

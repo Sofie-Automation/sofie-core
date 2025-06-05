@@ -224,6 +224,117 @@ resources:
                 additionalProperties: false
         500:
           $ref: '#/components/responses/internalServerError'
+  config:
+    get:
+      operationId: getShowStyleConfig
+      tags:
+        - showstyles
+      summary: Returns the requested ShowStyle config
+      parameters:
+        - name: showStyleBaseId
+          in: path
+          description: Id of ShowStyle to retrieve the config from
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: ShowStyle config found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 200
+                  result:
+                    type: object
+                    description: Blueprint config.
+                    properties:
+                      developerMode:
+                        type: boolean
+                        example: true
+                    additionalProperties: true
+        404:
+          $ref: '#/components/responses/showStyleBaseNotFound'
+        500:
+          $ref: '#/components/responses/internalServerError'
+    put:
+      operationId: updateShowStyleConfig
+      tags:
+        - showstyles
+      summary: Updates an existing ShowStyle config.
+      parameters:
+        - name: showStyleBaseId
+          in: path
+          description: Id of ShowStyle to update the config for.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Blueprint config.
+              properties:
+                developerMode:
+                  type: boolean
+                  example: true
+              additionalProperties: true
+      responses:
+        200:
+          description: Operation successful.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 200
+        404:
+          $ref: '#/components/responses/showStyleBaseNotFound'
+        409:
+          description: The specified ShowStyle config has failed validation.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 409
+                  message:
+                    type: string
+                  details:
+                    type: array
+                    items:
+                      type: string
+                      example: 'Invalid Union'
+                required:
+                  - status
+                  - message
+                additionalProperties: false
+        412:
+          description: The specified ShowStyleBase is in use in an on-air Rundown.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 412
+                  message:
+                    type: string
+                required:
+                  - status
+                  - message
+                additionalProperties: false
+        500:
+          $ref: '#/components/responses/internalServerError'
   showStyleVariants:
     get:
       operationId: getShowStyleVariants

@@ -1,6 +1,6 @@
-import { unprotectString, protectString } from '../../lib/protectedString'
-import { TSR } from '../../tsr'
-import { MappingsHash, PeripheralDeviceId, StudioId, TimelineBlob, TimelineHash } from './Ids'
+import { unprotectString, protectString } from '../../lib/protectedString.js'
+import { TSR } from '../../tsr.js'
+import { MappingsHash, PeripheralDeviceId, StudioId, TimelineBlob, TimelineHash } from './Ids.js'
 
 /**
  * This defines a session, indicating that this TimelineObject uses an AB player
@@ -16,6 +16,14 @@ export interface TimelineObjectAbSessionInfo {
 	 * The name of the AB Pool this session is for
 	 */
 	poolName: string
+
+	/**
+	 * Whether the `sessionName` of this session is globally unique
+	 * This means that every usage of this name will be treated as the same session, regardless of where it is used
+	 * This should typically only be used when generating a unique id in an adlib-action, if used during ingest
+	 * then replaying a part will often cause the session to be reused which is likely not the desired behaviour
+	 */
+	sessionNameIsGloballyUnique?: boolean
 }
 
 export enum TimelineObjHoldMode {
@@ -30,7 +38,7 @@ export enum TimelineObjHoldMode {
 export interface TimelineObjectCoreExt<
 	TContent extends { deviceType: TSR.DeviceType },
 	TMetadata = unknown,
-	TKeyframeMetadata = unknown
+	TKeyframeMetadata = unknown,
 > extends TSR.TSRTimelineObj<TContent> {
 	/**
 	 * AB playback sessions needed for this Object

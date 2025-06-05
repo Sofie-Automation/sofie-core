@@ -1,6 +1,6 @@
 import { WorkerId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { UserError } from '@sofie-automation/corelib/dist/error'
-import { JobSpec } from './main'
+import { JobSpec } from './main.js'
 
 export interface JobManager {
 	jobFinished: (

@@ -10,7 +10,7 @@ Instructions on how to install any Blueprint can be found in the [Installing Blu
 
 ### Spreadsheet Gateway Configuration
 
-If you are using the Docker version of Sofie, then the Spreadsheet Gateway will come preinstalled. For those who are not, please follow the [instructions listed on the GitHub page](https://github.com/SuperFlyTV/spreadsheet-gateway) labeled _Installation \(for developers\)._
+If you are using the example Docker Compose file found in the [Quick install](../../installing-sofie-server-core.md), then the configuration for the Spreadsheet Gateway is included but commented out. For those who are not, please follow the [instructions listed on the GitHub page](https://github.com/SuperFlyTV/spreadsheet-gateway) labeled _Installation \(for developers\)._
 
 Once the Gateway has been installed, you can navigate to the _Settings page_ and check the newly added Gateway is listed as _Spreadsheet Gateway_ under the _Devices section_.
 

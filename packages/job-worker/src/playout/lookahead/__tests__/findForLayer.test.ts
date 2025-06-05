@@ -1,12 +1,12 @@
-import { findLookaheadForLayer } from '../findForLayer'
-import { PartAndPieces, PartInstanceAndPieceInstances } from '../util'
+import { findLookaheadForLayer } from '../findForLayer.js'
+import { PartAndPieces, PartInstanceAndPieceInstances } from '../util.js'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { getRandomString } from '@sofie-automation/corelib/dist/lib'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { setupDefaultJobEnvironment } from '../../../__mocks__/context'
+import { setupDefaultJobEnvironment } from '../../../__mocks__/context.js'
 
 jest.mock('../findObjects')
-import { findLookaheadObjectsForPart } from '../findObjects'
+import { findLookaheadObjectsForPart } from '../findObjects.js'
 import { ReadonlyDeep } from 'type-fest'
 type TfindLookaheadObjectsForPart = jest.MockedFunction<typeof findLookaheadObjectsForPart>
 const findLookaheadObjectsForPartMock = findLookaheadObjectsForPart as TfindLookaheadObjectsForPart

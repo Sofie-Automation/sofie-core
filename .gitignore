@@ -4,6 +4,7 @@ meteor/.coverage/
 node_modules
 **/yarn-error.log
 scratch/
+meteor-settings.json
 
 # Exclude JetBrains IDE specific files
 .idea

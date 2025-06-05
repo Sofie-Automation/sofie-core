@@ -1,7 +1,8 @@
 import { JSONBlob } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
-import { Time } from './common'
-import { TSR, TimelineObjectCoreExt } from './timeline'
+import { Time } from './common.js'
+import { TSR, TimelineObjectCoreExt } from './timeline.js'
 import { SourceLayerType } from '@sofie-automation/shared-lib/dist/core/model/ShowStyle'
+import { PopupPreview } from './previews.js'
 
 export type WithTimeline<T extends BaseContent> = T & {
 	timelineObjects: TimelineObjectCoreExt<TSR.TSRTimelineContent>[]
@@ -19,9 +20,14 @@ export interface BaseContent {
 	ignoreBlackFrames?: boolean
 	ignoreFreezeFrame?: boolean
 	ignoreAudioFormat?: boolean
+
+	/**
+	 * Overwrite any default hover previews in Sofie
+	 */
+	popUpPreview?: PopupPreview
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface BaseEditableParameters {}
 
 export interface VTEditableParameters extends BaseEditableParameters {
@@ -37,11 +43,16 @@ export type SomeContent =
 	| ScriptContent
 	| NoraContent
 	| SplitsContent
+	// eslint-disable-next-line @typescript-eslint/no-duplicate-type-constituents
 	| LiveSpeakContent
 	| TransitionContent
 	| GraphicsContent
 	| UnknownContent
 	| EvsContent
+	// eslint-disable-next-line @typescript-eslint/no-duplicate-type-constituents
+	| RemoteSpeakContent
+	// eslint-disable-next-line @typescript-eslint/no-duplicate-type-constituents
+	| LightingContent
 
 export type UnknownContent = BaseContent
 
@@ -55,6 +66,10 @@ export interface VTContent extends BaseContent {
 	/** Duration of extra content past sourceDuration. Not planned to play back but present on the media and playable. */
 	postrollDuration?: number
 	editable?: VTEditableParameters
+	/** This is for the VT's in out words */
+	firstWords?: string
+	lastWords?: string
+	fullScript?: string
 }
 
 export interface GraphicsContent extends BaseContent {
@@ -67,17 +82,20 @@ export interface GraphicsContent extends BaseContent {
 
 export interface CameraContent extends BaseContent {
 	studioLabel: string
+	studioLabelShort?: string
 	switcherInput: number | string
 }
 
 export interface RemoteContent extends BaseContent {
 	studioLabel: string
+	studioLabelShort?: string
 	switcherInput: number | string
 }
 
 /** Content description for the EVS variant of a LOCAL source */
 export interface EvsContent extends BaseContent {
 	studioLabel: string
+	studioLabelShort?: string
 	/** Switcher input for the EVS channel */
 	switcherInput: number | string
 	/** Name of the EVS channel as used in the studio */
@@ -155,6 +173,7 @@ export interface NoraContent extends BaseContent {
 export interface SplitsContentBoxProperties {
 	type: SourceLayerType
 	studioLabel: string
+	studioLabelShort?: string
 	switcherInput: number | string
 	/** Geometry information for a given box item in the Split. X,Y are relative to center of Box, Scale is 0...1, where 1 is Full-Screen */
 	geometry?: {
@@ -189,5 +208,9 @@ export interface TransitionContent extends BaseContent {
 }
 
 export type SomeTransitionContent = VTContent | TransitionContent
+
+export type RemoteSpeakContent = RemoteContent
+
+export type LightingContent = UnknownContent
 
 export { SourceLayerType }

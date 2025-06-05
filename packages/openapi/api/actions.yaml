@@ -74,6 +74,8 @@ paths:
     $ref: 'definitions/studios.yaml#/resources/studios'
   /studios/{studioId}:
     $ref: 'definitions/studios.yaml#/resources/studio'
+  /studios/{studioId}/config:
+    $ref: 'definitions/studios.yaml#/resources/config'
   /studios/{studioId}/switch-route-set:
     $ref: 'definitions/studios.yaml#/resources/switchRouteSet'
   /studios/{studioId}/devices:
@@ -87,6 +89,8 @@ paths:
     $ref: 'definitions/showstyles.yaml#/resources/showStyleBases'
   /showstyles/{showStyleBaseId}:
     $ref: 'definitions/showstyles.yaml#/resources/showStyleBase'
+  /showstyles/{showStyleBaseId}/config:
+    $ref: 'definitions/showstyles.yaml#/resources/config'
   /showstyles/{showStyleBaseId}/variants:
     $ref: 'definitions/showstyles.yaml#/resources/showStyleVariants'
   /showstyles/{showStyleBaseId}/variants/{showStyleVariantId}:
@@ -102,3 +106,6 @@ paths:
     $ref: 'definitions/buckets.yaml#/resources/bucketAdlibs'
   /buckets/{bucketId}/adlibs/{externalId}:
     $ref: 'definitions/buckets.yaml#/resources/bucketAdlib'
+  # snapshot operations
+  /snapshots:
+    $ref: 'definitions/snapshots.yaml#/resources/snapshots'

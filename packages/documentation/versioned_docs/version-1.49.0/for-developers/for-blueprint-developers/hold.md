@@ -37,7 +37,7 @@ Some unanswered questions we have are:
 
 - Should _Hold_ be rewritten to be done with adlib-actions instead to allow for more complex scenarios?
 - Should there be a way to more intelligently check if _Hold_ can be done between two Parts? (perhaps a new blueprint method?)
-:::
+  :::
 
 The blueprints have to label parts as supporting _Hold_.  
 You can do this with the [`holdMode`](https://nrkno.github.io/sofie-core/typedoc/interfaces/_sofie_automation_blueprints_integration.IBlueprintPart.html#holdMode) property, and labelling it possible to _Hold_ from or to the part.
