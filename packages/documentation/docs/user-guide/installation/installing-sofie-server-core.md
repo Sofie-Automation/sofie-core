@@ -121,6 +121,10 @@ Once the installation is done, Sofie should be running on [http://localhost:3000
 
 Next, you will need to install a Rundown Gateway. Visit [Rundowns & Newsroom Systems](installing-a-gateway/rundown-or-newsroom-system-connection/intro.md) to see which _Rundown Gateway_ is best suited for _your_ production environment.
 
+:::note
+Starting with Sofie version 1.52.0, `sofietv` container images will run as UID 1000.
+:::
+
 ### Tips for running in production
 
 There are some things not covered in this guide needed to run _Sofie_ in a production environment:

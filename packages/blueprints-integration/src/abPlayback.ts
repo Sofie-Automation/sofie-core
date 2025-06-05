@@ -1,6 +1,9 @@
 import type { TimelineObjectAbSessionInfo } from '@sofie-automation/shared-lib/dist/core/model/Timeline'
 import type { ICommonContext } from './context'
 import type { OnGenerateTimelineObj, TSR } from './timeline'
+import type { AbPlayerId } from '@sofie-automation/shared-lib/dist/core/model/StudioRouteSet'
+
+export type { AbPlayerId }
 
 export interface PieceAbSessionInfo extends TimelineObjectAbSessionInfo {
 	/**
@@ -20,7 +23,7 @@ export const AB_MEDIA_PLAYER_AUTO = '__auto__'
  * Description of a player in an AB pool
  */
 export interface ABPlayerDefinition {
-	playerId: number | string
+	playerId: AbPlayerId
 }
 
 /**
@@ -30,7 +33,7 @@ export interface ABTimelineLayerChangeRule {
 	/** What AB pools can this rule be used for */
 	acceptedPoolNames: string[]
 	/** A function to generate the new layer name for a chosen playerId */
-	newLayerName: (playerId: number | string) => string
+	newLayerName: (playerId: AbPlayerId) => string
 	/** Whether this rule can be used for lookaheadObjects */
 	allowsLookahead: boolean
 }
@@ -60,7 +63,7 @@ export interface ABResolverConfiguration {
 	customApplyToObject?: (
 		context: ICommonContext,
 		poolName: string,
-		playerId: number | string,
+		playerId: AbPlayerId,
 		timelineObject: OnGenerateTimelineObj<TSR.TSRTimelineContent>
 	) => boolean
 }

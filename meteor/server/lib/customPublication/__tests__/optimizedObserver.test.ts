@@ -1,8 +1,8 @@
-import { UserId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { createManualPromise, sleep } from '@sofie-automation/corelib/dist/lib'
+import { createManualPromise } from '@sofie-automation/corelib/dist/lib'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { optimizedObserverCountSubscribers, setUpOptimizedObserverInner, TriggerUpdate } from '../optimizedObserverBase'
 import { CustomPublish, CustomPublishChanges } from '../publish'
+import { sleep } from '../../lib'
 
 interface CustomPublishMockExt {
 	stop?: () => void
@@ -18,9 +18,6 @@ class CustomPublishMock<DBObj extends { _id: ProtectedString<any> }>
 
 	get isReady(): boolean {
 		return false
-	}
-	get userId(): UserId | null {
-		return null
 	}
 
 	stop?: () => void

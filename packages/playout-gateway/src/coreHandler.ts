@@ -261,7 +261,7 @@ export class CoreHandler {
 				fcnObject
 					.executeAction(cmd.actionId, cmd.payload)
 					.then((result) => cb(null, result))
-					.catch((e) => cb(e.toString, null))
+					.catch((e) => cb(stringifyError(e), null))
 			} else if (cmd.actionId) {
 				this.logger.warning(`Could not execute action "${cmd.actionId}", because there is no handler`)
 				cb(`Could not execute action "${cmd.actionId}", because there is no handler`)
@@ -346,7 +346,7 @@ export class CoreHandler {
 
 		const devices: any[] = []
 		if (this._tsrHandler) {
-			for (const device of this._tsrHandler.tsr.getDevices()) {
+			for (const device of this._tsrHandler.tsr.connectionManager.getConnections()) {
 				devices.push({
 					instanceId: device.instanceId,
 					deviceId: device.deviceId,
@@ -416,7 +416,6 @@ export class CoreTSRDeviceHandler {
 	public _deviceId: string
 	public _device!: BaseRemoteDeviceIntegration<DeviceOptionsAny>
 	private _coreParentHandler: CoreHandler
-	private _tsrHandler: TSRHandler
 	private _hasGottenStatusChange = false
 	private _deviceStatus: PeripheralDeviceAPI.PeripheralDeviceStatusObject = {
 		statusCode: StatusCode.BAD,
@@ -424,16 +423,10 @@ export class CoreTSRDeviceHandler {
 	}
 	private disposed = false
 
-	constructor(
-		parent: CoreHandler,
-		device: Promise<BaseRemoteDeviceIntegration<DeviceOptionsAny>>,
-		deviceId: string,
-		tsrHandler: TSRHandler
-	) {
+	constructor(parent: CoreHandler, device: Promise<BaseRemoteDeviceIntegration<DeviceOptionsAny>>, deviceId: string) {
 		this._coreParentHandler = parent
 		this._devicePr = device
 		this._deviceId = deviceId
-		this._tsrHandler = tsrHandler
 	}
 	async init(): Promise<void> {
 		this._device = await this._devicePr
@@ -455,10 +448,11 @@ export class CoreTSRDeviceHandler {
 			)
 		})
 
+		console.log('has got status? ' + this._hasGottenStatusChange)
 		if (!this._hasGottenStatusChange) {
 			this._deviceStatus = await this._device.device.getStatus()
-			this.sendStatus()
 		}
+		this.sendStatus()
 		if (this.disposed) throw new Error('CoreTSRDeviceHandler cant init, is disposed')
 		await this.setupSubscriptionsAndObservers()
 		if (this.disposed) throw new Error('CoreTSRDeviceHandler cant init, is disposed')
@@ -490,8 +484,9 @@ export class CoreTSRDeviceHandler {
 		// setup observers
 		this._coreParentHandler.setupObserverForPeripheralDeviceCommands(this)
 	}
-	statusChanged(deviceStatus: Partial<PeripheralDeviceAPI.PeripheralDeviceStatusObject>): void {
-		this._hasGottenStatusChange = true
+	statusChanged(deviceStatus: Partial<PeripheralDeviceAPI.PeripheralDeviceStatusObject>, fromDevice = true): void {
+		console.log('device ' + this._deviceId + ' status set to ' + deviceStatus.statusCode)
+		if (fromDevice) this._hasGottenStatusChange = true
 
 		this._deviceStatus = {
 			...this._deviceStatus,
@@ -545,7 +540,8 @@ export class CoreTSRDeviceHandler {
 	async dispose(subdevice: 'keepSubDevice' | 'removeSubDevice' = 'keepSubDevice'): Promise<void> {
 		this._observers.forEach((obs) => obs.stop())
 
-		await this._tsrHandler.tsr.removeDevice(this._deviceId)
+		if (!this.core) return
+
 		await this.core.setStatus({
 			statusCode: StatusCode.BAD,
 			messages: ['Uninitialized'],

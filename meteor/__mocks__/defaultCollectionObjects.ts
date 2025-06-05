@@ -1,5 +1,5 @@
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { clone, getCurrentTime, unprotectString } from '../lib/lib'
+import { clone, unprotectString } from '../server/lib/tempLib'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
@@ -9,7 +9,7 @@ import { Piece, EmptyPieceTimelineObjectsBlob } from '@sofie-automation/corelib/
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import { getRundownId } from '../server/api/ingest/lib'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import { PartInstance } from '../lib/collections/PartInstances'
+import { PartInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import {
 	PartId,
@@ -26,7 +26,10 @@ import {
 	ShowStyleVariantId,
 	StudioId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { DEFAULT_MINIMUM_TAKE_SPAN } from '@sofie-automation/shared-lib/dist/core/constants'
+import {
+	DEFAULT_FALLBACK_PART_DURATION,
+	DEFAULT_MINIMUM_TAKE_SPAN,
+} from '@sofie-automation/shared-lib/dist/core/constants'
 
 export function defaultRundownPlaylist(_id: RundownPlaylistId, studioId: StudioId): DBRundownPlaylist {
 	return {
@@ -37,8 +40,8 @@ export function defaultRundownPlaylist(_id: RundownPlaylistId, studioId: StudioI
 		studioId: studioId,
 
 		name: 'Default RundownPlaylist',
-		created: getCurrentTime(),
-		modified: getCurrentTime(),
+		created: Date.now(),
+		modified: Date.now(),
 
 		// activationId: undefined,
 		rehearsal: false,
@@ -72,8 +75,8 @@ export function defaultRundown(
 		externalId: externalId,
 		name: 'Default Rundown',
 
-		created: getCurrentTime(),
-		modified: getCurrentTime(),
+		created: Date.now(),
+		modified: Date.now(),
 		importVersions: {
 			studio: '',
 			showStyleBase: '',
@@ -102,18 +105,24 @@ export function defaultStudio(_id: StudioId): DBStudio {
 		mappingsWithOverrides: wrapDefaultObject({}),
 		supportedShowStyleBase: [],
 		blueprintConfigWithOverrides: wrapDefaultObject({}),
-		settings: {
+		settingsWithOverrides: wrapDefaultObject({
 			frameRate: 25,
 			mediaPreviewsUrl: '',
 			minimumTakeSpan: DEFAULT_MINIMUM_TAKE_SPAN,
-		},
+			fallbackPartDuration: DEFAULT_FALLBACK_PART_DURATION,
+			allowHold: false,
+			allowPieceDirectPlay: false,
+			enableBuckets: false,
+			enableEvaluationForm: true,
+		}),
 		_rundownVersionHash: '',
-		routeSets: {},
-		routeSetExclusivityGroups: {},
-		packageContainers: {},
+		routeSetsWithOverrides: wrapDefaultObject({}),
+		routeSetExclusivityGroupsWithOverrides: wrapDefaultObject({}),
+		packageContainersWithOverrides: wrapDefaultObject({}),
 		previewContainerIds: [],
 		thumbnailContainerIds: [],
 		peripheralDeviceSettings: {
+			deviceSettings: wrapDefaultObject({}),
 			playoutDevices: wrapDefaultObject({}),
 			ingestDevices: wrapDefaultObject({}),
 			inputDevices: wrapDefaultObject({}),
@@ -130,7 +139,6 @@ export function defaultSegment(_id: SegmentId, rundownId: RundownId): DBSegment 
 		externalId: unprotectString(_id),
 		rundownId: rundownId,
 		name: 'Default Segment',
-		externalModified: 1,
 	}
 }
 

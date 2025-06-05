@@ -338,7 +338,7 @@ describe('Test sending messages to mocked endpoints', () => {
 			expect(ExternalMessageQueue.findOne()).toBeFalsy()
 		})
 
-		testInFiber('fail to send a slack-type message', async () => {
+		test('fail to send a slack-type message', async () => {
 			// setLogLevel(LogLevel.DEBUG)
 			expect(ExternalMessageQueue.findOne()).toBeFalsy()
 
@@ -372,14 +372,14 @@ describe('Test sending messages to mocked endpoints', () => {
 			expect(message.sent).toBeUndefined()
 		})
 
-		testInFiber('does not try to send again immediately', async () => {
+		test('does not try to send again immediately', async () => {
 			// setLogLevel(LogLevel.DEBUG)
 			await runAllTimers()
 			// Does not try to send again yet ... too close to lastTry
 			expect(sendSlackMessageToWebhook).toHaveBeenCalledTimes(2)
 		})
 
-		testInFiber('after a minute, tries to resend', async () => {
+		test('after a minute, tries to resend', async () => {
 			// setLogLevel(LogLevel.DEBUG)
 			// Reset the last try clock
 			const sendTime = getCurrentTime()
@@ -400,7 +400,7 @@ describe('Test sending messages to mocked endpoints', () => {
 			expect(message.sent).toBeUndefined()
 		})
 
-		testInFiber('does not retry to send if on hold', async () => {
+		test('does not retry to send if on hold', async () => {
 			// setLogLevel(LogLevel.DEBUG)
 
 			Meteor.call(ExternalMessageQueueAPIMethods.toggleHold, message._id)
@@ -422,7 +422,7 @@ describe('Test sending messages to mocked endpoints', () => {
 			expect(message.hold).toBe(false)
 		})
 
-		testInFiber('does not retry after retryUntil time', async () => {
+		test('does not retry after retryUntil time', async () => {
 			// setLogLevel(LogLevel.DEBUG)
 
 			ExternalMessageQueue.update(message._id, {
@@ -435,7 +435,7 @@ describe('Test sending messages to mocked endpoints', () => {
 			expect(sendSlackMessageToWebhook).toHaveBeenCalledTimes(3)
 		})
 
-		testInFiber('can be forced to retry manually once', async () => {
+		test('can be forced to retry manually once', async () => {
 			// setLogLevel(LogLevel.DEBUG)
 
 			Meteor.call(ExternalMessageQueueAPIMethods.toggleHold, message._id)
@@ -460,7 +460,7 @@ describe('Test sending messages to mocked endpoints', () => {
 		})
 	})
 
-	testInFiber('send a soap-type message', async () => {
+	test('send a soap-type message', async () => {
 		// setLogLevel(LogLevel.DEBUG)
 		expect(
 			ExternalMessageQueue.findOne({
@@ -504,7 +504,7 @@ describe('Test sending messages to mocked endpoints', () => {
 		).toBeFalsy()
 	})
 
-	testInFiber('fail to send a soap message', async () => {
+	test('fail to send a soap message', async () => {
 		// setLogLevel(LogLevel.DEBUG)
 		expect(ExternalMessageQueue.findOne()).toBeFalsy()
 
@@ -546,7 +546,7 @@ describe('Test sending messages to mocked endpoints', () => {
 		expect(ExternalMessageQueue.findOne()).toBeFalsy()
 	})
 
-	testInFiber('fatal error when sending a soap-type message', async () => {
+	test('fatal error when sending a soap-type message', async () => {
 		// setLogLevel(LogLevel.DEBUG)
 		expect(ExternalMessageQueue.findOne()).toBeFalsy()
 
@@ -597,7 +597,7 @@ describe('Test sending messages to mocked endpoints', () => {
 		expect(ExternalMessageQueue.findOne()).toBeFalsy()
 	})
 
-	testInFiber('send a rabbit MQ-type message', async () => {
+	test('send a rabbit MQ-type message', async () => {
 		// setLogLevel(LogLevel.DEBUG)
 		expect(ExternalMessageQueue.findOne()).toBeFalsy()
 
@@ -634,7 +634,7 @@ describe('Test sending messages to mocked endpoints', () => {
 		expect(ExternalMessageQueue.findOne()).toBeFalsy()
 	})
 
-	testInFiber('fail to send a rabbitMQ-type message', async () => {
+	test('fail to send a rabbitMQ-type message', async () => {
 		// setLogLevel(LogLevel.DEBUG)
 		expect(ExternalMessageQueue.findOne()).toBeFalsy()
 
@@ -679,7 +679,7 @@ describe('Test sending messages to mocked endpoints', () => {
 		expect(ExternalMessageQueue.findOne()).toBeFalsy()
 	})
 
-	testInFiber('does not send expired messages', async () => {
+	test('does not send expired messages', async () => {
 		// setLogLevel(LogLevel.DEBUG)
 		expect(ExternalMessageQueue.findOne()).toBeFalsy()
 

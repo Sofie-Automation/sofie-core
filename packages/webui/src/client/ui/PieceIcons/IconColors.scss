@@ -1,0 +1,8 @@
+
+svg.piece_icon {
+	@include item-type-colors-svg();
+
+	rect {
+		@include item-type-colors-svg();
+	}
+}

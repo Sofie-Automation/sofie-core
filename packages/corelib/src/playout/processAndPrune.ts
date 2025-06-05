@@ -15,15 +15,7 @@ function getPieceStartTimeAsReference(newPieceStart: number | 'now'): number | R
 }
 
 function getPieceStartTimeWithinPart(p: ReadonlyDeep<PieceInstance>): 'now' | number {
-	// If the piece is dynamically inserted, then its preroll should be factored into its start time, but not for any infinite continuations
-	const isStartOfAdlib =
-		!!p.dynamicallyInserted && !(p.infinite?.fromPreviousPart || p.infinite?.fromPreviousPlayhead)
-
-	if (isStartOfAdlib && p.piece.enable.start !== 'now') {
-		return p.piece.enable.start + (p.piece.prerollDuration ?? 0)
-	} else {
-		return p.piece.enable.start
-	}
+	return p.piece.enable.start
 }
 
 function isClear(piece?: ReadonlyDeep<PieceInstance>): boolean {

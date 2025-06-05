@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor'
-import { check } from '../../../lib/check'
+import { check } from '../../lib/check'
 import { RundownPlaylists, Rundowns, Segments } from '../../collections'
 import { logger } from '../../logging'
 import { runIngestOperation } from './lib'

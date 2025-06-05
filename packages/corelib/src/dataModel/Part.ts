@@ -3,6 +3,7 @@ import { ITranslatableMessage } from '../TranslatableMessage'
 import { PartId, RundownId, SegmentId } from './Ids'
 import { PartNote } from './Notes'
 import { ReadonlyDeep } from 'type-fest'
+import { CoreUserEditingDefinition, CoreUserEditingProperties } from './UserEditingDefinitions'
 
 export interface PartInvalidReason {
 	message: ITranslatableMessage
@@ -11,7 +12,7 @@ export interface PartInvalidReason {
 }
 
 /** A "Line" in NRK Lingo. */
-export interface DBPart extends IBlueprintPart {
+export interface DBPart extends Omit<IBlueprintPart, 'userEditOperations'> {
 	_id: PartId
 	/**
 	 * Position inside the segment
@@ -35,6 +36,17 @@ export interface DBPart extends IBlueprintPart {
 
 	/** A modified expectedDuration with the piece/transition derived timings factored in */
 	expectedDurationWithTransition: number | undefined
+
+	/**
+	 * User editing definitions for this part
+	 */
+	userEditOperations?: CoreUserEditingDefinition[]
+
+	/**
+	 * Properties that are user editable from the properties panel in the Sofie UI, if the user saves changes to these
+	 * it will trigger a user edit operation of type DefaultUserOperationEditProperties
+	 */
+	userEditProperties?: CoreUserEditingProperties
 }
 
 export function isPartPlayable(part: Pick<ReadonlyDeep<DBPart>, 'invalid' | 'floated'>): boolean {

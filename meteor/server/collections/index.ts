@@ -10,48 +10,39 @@ import { ExternalMessageQueueObj } from '@sofie-automation/corelib/dist/dataMode
 import { PeripheralDeviceCommand } from '@sofie-automation/corelib/dist/dataModel/PeripheralDeviceCommand'
 import { WorkerThreadStatus } from '@sofie-automation/corelib/dist/dataModel/WorkerThreads'
 import { Meteor } from 'meteor/meteor'
-import { ICoreSystem } from '../../lib/collections/CoreSystem'
-import { Evaluation } from '../../lib/collections/Evaluations'
-import { DBOrganization } from '../../lib/collections/Organization'
+import { ICoreSystem } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
+import { Evaluation } from '@sofie-automation/meteor-lib/dist/collections/Evaluations'
+import { DBOrganization } from '@sofie-automation/meteor-lib/dist/collections/Organization'
 import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
-import { RundownLayoutBase } from '../../lib/collections/RundownLayouts'
+import { RundownLayoutBase } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
-import { SnapshotItem } from '../../lib/collections/Snapshots'
+import { SnapshotItem } from '@sofie-automation/meteor-lib/dist/collections/Snapshots'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { TimelineComplete } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { DBTimelineDatastoreEntry } from '@sofie-automation/corelib/dist/dataModel/TimelineDatastore'
-import { TranslationsBundle } from '../../lib/collections/TranslationsBundles'
-import { DBTriggeredActions } from '../../lib/collections/TriggeredActions'
-import { UserActionsLogItem } from '../../lib/collections/UserActionsLog'
-import { DBUser } from '../../lib/collections/Users'
-import { WorkerStatus } from '../../lib/collections/Workers'
+import { TranslationsBundle } from '@sofie-automation/meteor-lib/dist/collections/TranslationsBundles'
+import { DBTriggeredActions } from '@sofie-automation/meteor-lib/dist/collections/TriggeredActions'
+import { UserActionsLogItem } from '@sofie-automation/meteor-lib/dist/collections/UserActionsLog'
+import { WorkerStatus } from '@sofie-automation/meteor-lib/dist/collections/Workers'
 import { registerIndex } from './indices'
-import { getCurrentTime, MeteorStartupAsync } from '../../lib/lib'
+import { getCurrentTime } from '../lib/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
-import {
-	createAsyncOnlyMongoCollection,
-	createAsyncOnlyReadOnlyMongoCollection,
-	wrapMongoCollection,
-} from './collection'
+import { createAsyncOnlyMongoCollection, createAsyncOnlyReadOnlyMongoCollection } from './collection'
 import { ObserveChangesForHash } from './lib'
 import { logger } from '../logging'
-import { resolveCredentials } from '../security/lib/credentials'
-import { logNotAllowed, allowOnlyFields, rejectFields } from '../security/lib/lib'
-import {
-	allowAccessToCoreSystem,
-	allowAccessToOrganization,
-	allowAccessToShowStyleBase,
-	allowAccessToStudio,
-} from '../security/lib/security'
-import { SystemWriteAccess } from '../security/system'
+import { allowOnlyFields, rejectFields } from '../security/allowDeny'
+import { checkUserIdHasOneOfPermissions } from '../security/auth'
+import { DBNotificationObj } from '@sofie-automation/corelib/dist/dataModel/Notifications'
 
 export * from './bucket'
 export * from './packages-media'
 export * from './rundown'
 
 export const Blueprints = createAsyncOnlyMongoCollection<Blueprint>(CollectionName.Blueprints, {
-	update(_userId, doc, fields, _modifier) {
+	update(userId, doc, fields, _modifier) {
+		if (!checkUserIdHasOneOfPermissions(userId, CollectionName.Blueprints, 'configure')) return false
+
 		return allowOnlyFields(doc, fields, ['name', 'disableVersionChecks'])
 	},
 })
@@ -61,19 +52,16 @@ registerIndex(Blueprints, {
 
 export const CoreSystem = createAsyncOnlyMongoCollection<ICoreSystem>(CollectionName.CoreSystem, {
 	async update(userId, doc, fields, _modifier) {
-		const cred = await resolveCredentials({ userId: userId })
-		const access = await allowAccessToCoreSystem(cred)
-		if (!access.update) return logNotAllowed('CoreSystem', access.reason)
+		if (!checkUserIdHasOneOfPermissions(userId, CollectionName.CoreSystem, 'configure')) return false
 
 		return allowOnlyFields(doc, fields, [
-			'support',
 			'systemInfo',
 			'name',
 			'logLevel',
 			'apm',
-			'cron',
 			'logo',
-			'evaluations',
+			'blueprintId',
+			'settingsWithOverrides',
 		])
 	},
 })
@@ -101,10 +89,30 @@ registerIndex(ExternalMessageQueue, {
 	rundownId: 1,
 })
 
+export const Notifications = createAsyncOnlyMongoCollection<DBNotificationObj>(CollectionName.Notifications, false)
+// For NotificationsModelHelper.getAllNotifications
+registerIndex(Notifications, {
+	// @ts-expect-error nested property
+	'relatedTo.studioId': 1,
+	catgory: 1,
+})
+// For MeteorPubSub.notificationsForRundownPlaylist
+registerIndex(Notifications, {
+	// @ts-expect-error nested property
+	'relatedTo.studioId': 1,
+	'relatedTo.playlistId': 1,
+})
+// For MeteorPubSub.notificationsForRundown
+registerIndex(Notifications, {
+	// @ts-expect-error nested property
+	'relatedTo.studioId': 1,
+	'relatedTo.rundownId': 1,
+})
+
 export const Organizations = createAsyncOnlyMongoCollection<DBOrganization>(CollectionName.Organizations, {
 	async update(userId, doc, fields, _modifier) {
-		const access = await allowAccessToOrganization({ userId: userId }, doc._id)
-		if (!access.update) return logNotAllowed('Organization', access.reason)
+		if (!checkUserIdHasOneOfPermissions(userId, CollectionName.Organizations, 'configure')) return false
+
 		return allowOnlyFields(doc, fields, ['userRoles'])
 	},
 })
@@ -118,28 +126,25 @@ registerIndex(PeripheralDeviceCommands, {
 })
 
 export const PeripheralDevices = createAsyncOnlyMongoCollection<PeripheralDevice>(CollectionName.PeripheralDevices, {
-	update(_userId, doc, fields, _modifier) {
-		return rejectFields(doc, fields, [
-			'type',
-			'parentDeviceId',
-			'versions',
-			'created',
-			'status',
-			'lastSeen',
-			'lastConnected',
-			'connected',
-			'connectionId',
-			'token',
-			// 'settings' is allowed
+	update(userId, doc, fields, _modifier) {
+		if (!checkUserIdHasOneOfPermissions(userId, CollectionName.PeripheralDevices, 'configure')) return false
+
+		return allowOnlyFields(doc, fields, [
+			'name',
+			'deviceName',
+			'organizationId',
+			'disableVersionChecks',
+			'nrcsName',
+			'ignore',
 		])
 	},
 })
 registerIndex(PeripheralDevices, {
 	organizationId: 1,
-	studioId: 1,
+	studioAndConfigId: 1,
 })
 registerIndex(PeripheralDevices, {
-	studioId: 1,
+	studioAndConfigId: 1,
 })
 registerIndex(PeripheralDevices, {
 	token: 1,
@@ -147,8 +152,8 @@ registerIndex(PeripheralDevices, {
 
 export const RundownLayouts = createAsyncOnlyMongoCollection<RundownLayoutBase>(CollectionName.RundownLayouts, {
 	async update(userId, doc, fields) {
-		const access = await allowAccessToShowStyleBase({ userId: userId }, doc.showStyleBaseId)
-		if (!access.update) return logNotAllowed('ShowStyleBase', access.reason)
+		if (!checkUserIdHasOneOfPermissions(userId, CollectionName.RundownLayouts, 'configure')) return false
+
 		return rejectFields(doc, fields, ['_id', 'showStyleBaseId'])
 	},
 })
@@ -164,8 +169,8 @@ registerIndex(RundownLayouts, {
 
 export const ShowStyleBases = createAsyncOnlyMongoCollection<DBShowStyleBase>(CollectionName.ShowStyleBases, {
 	async update(userId, doc, fields) {
-		const access = await allowAccessToShowStyleBase({ userId: userId }, doc._id)
-		if (!access.update) return logNotAllowed('ShowStyleBase', access.reason)
+		if (!checkUserIdHasOneOfPermissions(userId, CollectionName.ShowStyleBases, 'configure')) return false
+
 		return rejectFields(doc, fields, ['_id'])
 	},
 })
@@ -175,8 +180,7 @@ registerIndex(ShowStyleBases, {
 
 export const ShowStyleVariants = createAsyncOnlyMongoCollection<DBShowStyleVariant>(CollectionName.ShowStyleVariants, {
 	async update(userId, doc, fields) {
-		const access = await allowAccessToShowStyleBase({ userId: userId }, doc.showStyleBaseId)
-		if (!access.update) return logNotAllowed('ShowStyleBase', access.reason)
+		if (!checkUserIdHasOneOfPermissions(userId, CollectionName.ShowStyleVariants, 'configure')) return false
 
 		return rejectFields(doc, fields, ['showStyleBaseId'])
 	},
@@ -187,7 +191,9 @@ registerIndex(ShowStyleVariants, {
 })
 
 export const Snapshots = createAsyncOnlyMongoCollection<SnapshotItem>(CollectionName.Snapshots, {
-	update(_userId, doc, fields, _modifier) {
+	update(userId, doc, fields, _modifier) {
+		if (!checkUserIdHasOneOfPermissions(userId, CollectionName.Snapshots, 'configure')) return false
+
 		return allowOnlyFields(doc, fields, ['comment'])
 	},
 })
@@ -200,8 +206,8 @@ registerIndex(Snapshots, {
 
 export const Studios = createAsyncOnlyMongoCollection<DBStudio>(CollectionName.Studios, {
 	async update(userId, doc, fields, _modifier) {
-		const access = await allowAccessToStudio({ userId: userId }, doc._id)
-		if (!access.update) return logNotAllowed('Studio', access.reason)
+		if (!checkUserIdHasOneOfPermissions(userId, CollectionName.Studios, 'configure')) return false
+
 		return rejectFields(doc, fields, ['_id'])
 	},
 })
@@ -229,17 +235,9 @@ export const TranslationsBundles = createAsyncOnlyMongoCollection<TranslationsBu
 
 export const TriggeredActions = createAsyncOnlyMongoCollection<DBTriggeredActions>(CollectionName.TriggeredActions, {
 	async update(userId, doc, fields) {
-		const cred = await resolveCredentials({ userId: userId })
+		if (!checkUserIdHasOneOfPermissions(userId, CollectionName.TriggeredActions, 'configure')) return false
 
-		if (doc.showStyleBaseId) {
-			const access = await allowAccessToShowStyleBase(cred, doc.showStyleBaseId)
-			if (!access.update) return logNotAllowed('ShowStyleBase', access.reason)
-			return rejectFields(doc, fields, ['_id'])
-		} else {
-			const access = await allowAccessToCoreSystem(cred)
-			if (!access.update) return logNotAllowed('CoreSystem', access.reason)
-			return rejectFields(doc, fields, ['_id'])
-		}
+		return rejectFields(doc, fields, ['_id'])
 	},
 })
 registerIndex(TriggeredActions, {
@@ -253,26 +251,6 @@ registerIndex(UserActionsLog, {
 })
 registerIndex(UserActionsLog, {
 	timelineHash: 1,
-})
-
-// This is a somewhat special collection, as it draws from the Meteor.users collection from the Accounts package
-export const Users = wrapMongoCollection<DBUser>(Meteor.users as any, CollectionName.Users, {
-	async update(userId, doc, fields, _modifier) {
-		const access = await SystemWriteAccess.currentUser(userId, { userId })
-		if (!access) return logNotAllowed('CurrentUser', '')
-		return rejectFields(doc, fields, [
-			'_id',
-			'createdAt',
-			'services',
-			'emails',
-			'profile',
-			'organizationId',
-			'superAdmin',
-		])
-	},
-})
-registerIndex(Users, {
-	organizationId: 1,
 })
 
 export const Workers = createAsyncOnlyMongoCollection<WorkerStatus>(CollectionName.Workers, false)
@@ -298,7 +276,7 @@ const removeOldCommands = () => {
 		logger.error(`Failed to cleanup old PeripheralDeviceCommands: ${stringifyError(e)}`)
 	})
 }
-MeteorStartupAsync(async () => {
+Meteor.startup(async () => {
 	Meteor.setInterval(() => removeOldCommands(), 5 * 60 * 1000)
 
 	await Promise.allSettled([

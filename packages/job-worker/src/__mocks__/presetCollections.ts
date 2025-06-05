@@ -224,7 +224,6 @@ export async function setupDefaultRundown(
 		externalId: 'MOCK_SEGMENT_0',
 		rundownId: rundownId,
 		name: 'Segment 0',
-		externalModified: 1,
 	})
 
 	const part00: DBPart = {
@@ -332,7 +331,6 @@ export async function setupDefaultRundown(
 		externalId: 'MOCK_SEGMENT_2',
 		rundownId: rundownId,
 		name: 'Segment 1',
-		externalModified: 1,
 	})
 
 	const part10: DBPart = {
@@ -374,7 +372,6 @@ export async function setupDefaultRundown(
 		externalId: 'MOCK_SEGMENT_2',
 		rundownId: rundownId,
 		name: 'Segment 2',
-		externalModified: 1,
 	})
 
 	const globalAdLib0: RundownBaselineAdLibItem = {
@@ -423,8 +420,10 @@ export async function setupMockPeripheralDevice(
 		name: 'mockDevice',
 		deviceName: 'Mock Gateway',
 		organizationId: null,
-		studioId: context.studioId,
-		settings: {},
+		studioAndConfigId: {
+			studioId: context.studioId,
+			configId: 'test',
+		},
 		nrcsName: category === PeripheralDeviceCategory.INGEST ? 'JEST-NRCS' : undefined,
 
 		category: category,

@@ -53,7 +53,7 @@ interface QueuedMethodCall {
 }
 
 export class ConnectionMethodsQueue {
-	private _triggerDoQueueTimer: NodeJS.Timer | null = null
+	private _triggerDoQueueTimer: NodeJS.Timeout | null = null
 	private _timeLastMethodCall = 0
 	private _timeLastMethodReply = 0
 	private queuedMethodCalls: Array<QueuedMethodCall> = []

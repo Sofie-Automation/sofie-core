@@ -1,19 +1,18 @@
 import { Meteor } from 'meteor/meteor'
 import { CustomPublish, meteorCustomPublish } from '../lib/customPublication'
 import { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { PeripheralDeviceReadAccess } from '../security/peripheralDevice'
 import { logger } from '../logging'
 import { DeviceTriggerMountedActionAdlibsPreview, DeviceTriggerMountedActions } from '../api/deviceTriggers/observer'
 import { Mongo } from 'meteor/mongo'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import _ from 'underscore'
-import { PeripheralDevices } from '../collections'
 import { check } from 'meteor/check'
 import {
 	PeripheralDevicePubSub,
 	PeripheralDevicePubSubCollectionsNames,
 } from '@sofie-automation/shared-lib/dist/pubsub/peripheralDevice'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
+import { checkAccessAndGetPeripheralDevice } from '../security/check'
 
 const PUBLICATION_DEBOUNCE = 20
 
@@ -24,26 +23,20 @@ meteorCustomPublish(
 		check(deviceId, String)
 		check(deviceIds, [String])
 
-		if (await PeripheralDeviceReadAccess.peripheralDeviceContent(deviceId, { userId: this.userId, token })) {
-			const peripheralDevice = await PeripheralDevices.findOneAsync(deviceId)
+		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, this)
 
-			if (!peripheralDevice) throw new Meteor.Error(404, `PeripheralDevice "${deviceId}" not found`)
+		const studioId = peripheralDevice.studioAndConfigId?.studioId
+		if (!studioId) throw new Meteor.Error(400, `Peripheral Device "${deviceId}" not attached to a studio`)
 
-			const studioId = peripheralDevice.studioId
-			if (!studioId) throw new Meteor.Error(400, `Peripheral Device "${deviceId}" not attached to a studio`)
-
-			cursorCustomPublish(
-				pub,
-				DeviceTriggerMountedActions.find({
-					studioId,
-					deviceId: {
-						$in: deviceIds,
-					},
-				})
-			)
-		} else {
-			logger.warn(`Pub.mountedTriggersForDevice: Not allowed: "${deviceId}"`)
-		}
+		cursorCustomPublish(
+			pub,
+			DeviceTriggerMountedActions.find({
+				studioId,
+				deviceId: {
+					$in: deviceIds,
+				},
+			})
+		)
 	}
 )
 
@@ -53,23 +46,17 @@ meteorCustomPublish(
 	async function (pub, deviceId: PeripheralDeviceId, token: string | undefined) {
 		check(deviceId, String)
 
-		if (await PeripheralDeviceReadAccess.peripheralDeviceContent(deviceId, { userId: this.userId, token })) {
-			const peripheralDevice = await PeripheralDevices.findOneAsync(deviceId)
+		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, this)
 
-			if (!peripheralDevice) throw new Meteor.Error(404, `PeripheralDevice "${deviceId}" not found`)
+		const studioId = peripheralDevice.studioAndConfigId?.studioId
+		if (!studioId) throw new Meteor.Error(400, `Peripheral Device "${deviceId}" not attached to a studio`)
 
-			const studioId = peripheralDevice.studioId
-			if (!studioId) throw new Meteor.Error(400, `Peripheral Device "${deviceId}" not attached to a studio`)
-
-			cursorCustomPublish(
-				pub,
-				DeviceTriggerMountedActionAdlibsPreview.find({
-					studioId,
-				})
-			)
-		} else {
-			logger.warn(`Pub.mountedTriggersForDevicePreview: Not allowed: "${deviceId}"`)
-		}
+		cursorCustomPublish(
+			pub,
+			DeviceTriggerMountedActionAdlibsPreview.find({
+				studioId,
+			})
+		)
 	}
 )
 

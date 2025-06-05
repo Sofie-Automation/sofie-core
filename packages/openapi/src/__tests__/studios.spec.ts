@@ -1,5 +1,5 @@
 // eslint-disable-next-line node/no-missing-import
-import { Configuration, Studio, StudiosApi } from '../../client/ts'
+import { Configuration, GetStudioConfig200ResponseResult, Studio, StudiosApi } from '../../client/ts'
 import { checkServer } from '../checkServer'
 import Logging from '../httpLogging'
 
@@ -54,6 +54,26 @@ describe('Network client', () => {
 		const studio = await studiosApi.addOrUpdateStudio({
 			studioId: studioIds[0],
 			studio: newStudio,
+		})
+		expect(studio.status).toBe(200)
+	})
+
+	let studioConfig: GetStudioConfig200ResponseResult | undefined
+	test('can request a Studio config by id', async () => {
+		const studio = await studiosApi.getStudioConfig({
+			studioId: studioIds[0],
+		})
+		expect(studio.status).toBe(200)
+		expect(studio).toHaveProperty('result')
+		expect(studio.result).toHaveProperty('developerMode')
+		studioConfig = JSON.parse(JSON.stringify(studio.result))
+	})
+
+	test('can update a studio config', async () => {
+		studioConfig.developerMode = !studioConfig.developerMode
+		const studio = await studiosApi.updateStudioConfig({
+			studioId: studioIds[0],
+			requestBody: studioConfig,
 		})
 		expect(studio.status).toBe(200)
 	})

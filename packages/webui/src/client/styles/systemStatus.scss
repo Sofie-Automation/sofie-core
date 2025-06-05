@@ -1,0 +1,493 @@
+
+.status-dialog {
+	overflow: visible !important;
+}
+
+.system-status {
+	.device-item-container {
+		.children {
+			margin-top: 0.3em;
+
+			> .device-item-container {
+				margin-bottom: 0;
+				margin-top: 0;
+			}
+
+			.childlist {
+				margin-right: 0;
+			}
+
+			ul,
+			li {
+				position: relative;
+			}
+
+			ul {
+				margin-top: 0;
+				list-style: none;
+				padding-left: 2.4em;
+			}
+
+			li::before,
+			li::after {
+				content: '';
+				position: absolute;
+				left: -2.4em;
+			}
+
+			li::before {
+				border-top: 3px solid #d8cccc;
+				top: 1.2em;
+				width: 2em;
+				height: 0;
+			}
+
+			li::after {
+				border-left: 3px solid #d8cccc;
+				height: 100%;
+				width: 0px;
+				top: 0.1em;
+			}
+
+			ul > li:last-child::after {
+				height: 1.2em;
+			}
+
+			.child-device-li {
+				.device-item-container {
+					padding-bottom: 0.3em;
+
+					.device-item {
+						margin-bottom: 0px;
+					}
+				}
+			}
+		}
+	}
+
+	&.expando {
+		> thead {
+			> tr {
+				> th {
+					padding: 3px 5px 3px 10px;
+				}
+			}
+		}
+	}
+}
+
+.device-item {
+	background: #f0f0f0;
+	padding: 15px 5px 8px 10px;
+	margin-bottom: 0.3em;
+	line-height: 1.5em;
+	clear: both;
+
+	.clear {
+		clear: both;
+	}
+
+	.status-container {
+		float: right;
+		text-align: right;
+		padding-right: 0.3em;
+	}
+	.actions-container {
+		margin-top: 2.3em;
+		display: block;
+		text-align: right;
+		clear: both;
+		padding-right: 0.3em;
+	}
+
+	label {
+		display: inline;
+	}
+	div.value {
+		display: inline;
+	}
+	.device-item__id {
+		font-weight: bold;
+	}
+	.device-item__connected {
+		font-weight: bold;
+	}
+
+	.device-item__actions {
+		> .action-btn {
+			vertical-align: top;
+			margin-top: 0.4em;
+		}
+
+		> .btn {
+			margin-left: 0.3em;
+		}
+	}
+
+	.device-item__debugState {
+		overflow-x: scroll;
+		width: 100%;
+
+		> label {
+			font-weight: bold;
+		}
+	}
+
+	&:hover {
+		background: #fff;
+	}
+}
+
+.device-status {
+	line-height: 1.5em;
+
+	> .value {
+		> .pill {
+			margin-right: 0;
+			a {
+				color: inherit;
+			}
+		}
+	}
+
+	&.device-item__device-status--minor-warning {
+		.pill {
+			background: $color-status-minor-warning;
+			border: $color-status-minor-warning;
+			color: $color-status-minor-warning-text;
+		}
+	}
+
+	&.device-status--good {
+		.pill {
+			background: $color-status-good;
+			border: $color-status-good;
+		}
+	}
+
+	&.device-status--minor-warning {
+		.pill {
+			background: $color-status-minor-warning;
+			border: $color-status-minor-warning;
+		}
+	}
+
+	&.device-status--warning {
+		.pill {
+			background: $color-status-warning;
+			border: $color-status-warning;
+		}
+	}
+
+	&.device-status--bad {
+		.pill {
+			background: $color-status-bad;
+			border: $color-status-bad;
+		}
+	}
+
+	.device-item__device-status-message {
+		margin-top: 0.4em;
+	}
+
+	&.device-status--fatal {
+		.pill {
+			background: $color-status-fatal;
+			border: $color-status-fatal;
+		}
+	}
+
+	&.device-status--unknown {
+		.pill {
+			background: $color-status-unknown;
+			border: $color-status-unknown;
+		}
+	}
+}
+
+.table.user-action-log {
+	tr.hl {
+		font-weight: inherit;
+		> td {
+			background-color: #ffff42;
+		}
+	}
+	.user-action-log__timestamp {
+		min-width: 12em;
+	}
+	.user-action-log__userId {
+		min-width: 2em;
+	}
+	.user-action-log__executionTime {
+		min-width: 5em;
+
+		> table {
+			width: 100%;
+
+			> tbody > tr:first-child td {
+				border-top: none;
+			}
+
+			td {
+				white-space: nowrap;
+
+				&:first-child {
+					width: 4.5em;
+				}
+			}
+		}
+	}
+	.user-action-log__clientAddress {
+		min-width: 8em;
+	}
+	.user-action-log__context {
+		min-width: 10em;
+	}
+	.user-action-log__method {
+		min-width: 17em;
+	}
+	.user-action-log__status {
+		min-width: 6em;
+	}
+	.user-action-log__args {
+		min-width: 30em;
+	}
+	td.user-action-log__args {
+		position: relative;
+		font-family: 'Consolas', 'SF Mono', SFMono-Regular, 'DejaVu Sans Mono', Menlo, ui-monospace, 'Courier New', Courier,
+			monospace;
+		color: #555;
+		white-space: pre;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		font-size: 0.8em;
+		line-height: 1.7em;
+
+		pre {
+			margin: 0;
+		}
+	}
+}
+
+.media-manager-status {
+	.workflow {
+		background: #ffffff;
+		border-radius: 3px;
+		position: relative;
+		overflow: hidden;
+		overflow-y: auto;
+		box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);
+
+		> .workflow__header {
+			display: flex;
+
+			> .workflow__header__progress {
+				position: relative;
+				width: 45px;
+				height: 45px;
+				margin-right: 10px;
+				overflow: hidden;
+
+				> .big-status {
+					transform: translateY(0%);
+					width: 45px;
+					height: 45px;
+					border-radius: 100%;
+					background: #e0e3e4;
+					position: absolute;
+
+					&.ok {
+						background: $color-status-good;
+
+						> svg.svg-inline--fa {
+							transform: translate(-50%, -50%);
+							width: 50%;
+							height: 50%;
+							top: 50%;
+							left: 49.5%;
+							position: relative;
+							> path {
+								fill: #fff;
+							}
+						}
+					}
+
+					&.error {
+						background: $color-status-fatal;
+
+						> svg {
+							transform: translate(-50%, -50%);
+							width: 50%;
+							height: 50%;
+							top: 47%;
+							left: 49.5%;
+							position: relative;
+							> path {
+								stroke: #fff;
+							}
+						}
+					}
+
+					&.sub-icon {
+						top: auto;
+						left: auto;
+						right: 0;
+						bottom: 0;
+						width: 15px;
+						height: 15px;
+
+						> svg.svg-inline--fa {
+							top: -2px;
+						}
+					}
+				}
+				> svg.CircularProgressbar {
+					transform: translateY(0%);
+					position: absolute;
+					width: 45px;
+					height: 45px;
+				}
+			}
+
+			> .workflow__header__summary {
+				display: flex;
+				flex-direction: row;
+				flex-wrap: wrap;
+				flex: 1 1;
+			}
+			> .workflow__header__actions {
+				display: flex;
+				flex-direction: row;
+				flex-wrap: wrap;
+				flex: 0 0;
+				margin-left: 0.5em;
+				min-width: 4em;
+				align-items: flex-start;
+				justify-content: space-around;
+
+				> .action-btn.prioritized {
+					color: #dc143c;
+				}
+			}
+
+			.workflow__header__expand {
+				flex: 1 1;
+				text-align: center;
+				cursor: pointer;
+
+				&:hover {
+					text-decoration: underline;
+				}
+
+				> svg.svg-inline--fa {
+					height: 0.9em;
+					margin-left: 5px;
+				}
+			}
+
+			.workflow__header__name,
+			.workflow__header__status {
+				flex: 1 1;
+			}
+
+			.workflow__header__name {
+				.workflow__header__name__name,
+				.workflow__header__name__comment {
+					display: block;
+				}
+				.workflow__header__name__comment {
+					font-size: 0.7em;
+				}
+			}
+
+			.workflow__header__status {
+				text-align: right;
+
+				> svg {
+					margin-right: 5px;
+					height: 15px;
+				}
+
+				> .working-spinner {
+					display: inline-block;
+					transform: scale(0.7);
+					margin-bottom: -8px;
+				}
+			}
+
+			.workflow__header__created {
+				text-align: center;
+				flex: 1 1;
+			}
+
+			.workflow__header__current-task {
+				flex: 0 1 100%;
+				background: none;
+				border-top: none;
+			}
+		}
+
+		&.ok {
+			> .workflow__header {
+				.workflow__header__status {
+					color: $color-status-good;
+
+					> svg {
+						> path {
+							stroke: $color-status-good;
+						}
+					}
+				}
+			}
+		}
+
+		&.error {
+			> .workflow__header {
+				.workflow__header__status {
+					color: $color-status-fatal;
+
+					> svg {
+						transform: translate(0, 2px);
+
+						> path {
+							stroke: $color-status-fatal;
+						}
+					}
+				}
+			}
+		}
+
+		.workflow__step {
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			flex: 1 1;
+			background: #f9f9f9;
+			border-top: 1px solid #f0f0f0;
+
+			> .workflow__step__action,
+			> .workflow__step__status {
+				flex: 1 1;
+			}
+
+			> .workflow__step__status {
+				text-align: right;
+			}
+
+			> .workflow__step__messages {
+				flex: 0 1 100%;
+				background: #fff;
+			}
+
+			> .workflow__header__progress {
+				flex: 0 1 100%;
+			}
+		}
+	}
+}
+
+.system-status-table {
+	thead th {
+		padding-right: 1em;
+	}
+}

@@ -4,7 +4,7 @@ import { ExpectedMediaItem } from './dataModel/ExpectedMediaItem'
 import { ExpectedPackageDB } from './dataModel/ExpectedPackages'
 import { ExpectedPlayoutItem } from './dataModel/ExpectedPlayoutItem'
 import { RundownPlaylistId } from './dataModel/Ids'
-import { IngestDataCacheObj } from './dataModel/IngestDataCache'
+import { NrcsIngestDataCacheObj } from './dataModel/NrcsIngestDataCache'
 import { DBPart } from './dataModel/Part'
 import { DBPartInstance } from './dataModel/PartInstance'
 import { Piece } from './dataModel/Piece'
@@ -15,13 +15,16 @@ import { RundownBaselineAdLibItem } from './dataModel/RundownBaselineAdLibPiece'
 import { RundownBaselineObj } from './dataModel/RundownBaselineObj'
 import { DBRundownPlaylist } from './dataModel/RundownPlaylist'
 import { DBSegment } from './dataModel/Segment'
+import { SofieIngestDataCacheObj } from './dataModel/SofieIngestDataCache'
+import { TimelineComplete } from './dataModel/Timeline'
 
 export interface CoreRundownPlaylistSnapshot {
 	version: string
 	playlistId: RundownPlaylistId
 	playlist: DBRundownPlaylist
 	rundowns: Array<DBRundown>
-	ingestData: Array<IngestDataCacheObj>
+	ingestData: Array<NrcsIngestDataCacheObj>
+	sofieIngestData: Array<SofieIngestDataCacheObj> | undefined // Added in 1.52
 	baselineObjs: Array<RundownBaselineObj>
 	baselineAdlibs: Array<RundownBaselineAdLibItem>
 	segments: Array<DBSegment>
@@ -35,4 +38,5 @@ export interface CoreRundownPlaylistSnapshot {
 	expectedMediaItems: Array<ExpectedMediaItem>
 	expectedPlayoutItems: Array<ExpectedPlayoutItem>
 	expectedPackages: Array<ExpectedPackageDB>
+	timeline?: TimelineComplete
 }

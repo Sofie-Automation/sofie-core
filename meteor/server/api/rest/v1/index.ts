@@ -1,15 +1,15 @@
 import KoaRouter from '@koa/router'
 import { interpollateTranslation, translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/error'
+import { IConfigMessage, NoteSeverity } from '@sofie-automation/blueprints-integration'
 import Koa from 'koa'
 import bodyParser from 'koa-bodyparser'
 import { Meteor } from 'meteor/meteor'
-import { ClientAPI } from '../../../../lib/api/client'
-import { MethodContextAPI } from '../../../../lib/api/methods'
+import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
+import { MethodContextAPI } from '../../methodContext'
 import { logger } from '../../../logging'
 import { CURRENT_SYSTEM_VERSION } from '../../../migration/currentSystemVersion'
-import { Credentials } from '../../../security/lib/credentials'
-import { triggerWriteAccess } from '../../../security/lib/securityVerify'
+import { triggerWriteAccess } from '../../../security/securityVerify'
 import { makeMeteorConnectionFromKoa } from '../koa'
 import { registerRoutes as registerBlueprintsRoutes } from './blueprints'
 import { registerRoutes as registerDevicesRoutes } from './devices'
@@ -18,6 +18,7 @@ import { registerRoutes as registerShowStylesRoutes } from './showstyles'
 import { registerRoutes as registerStudiosRoutes } from './studios'
 import { registerRoutes as registerSystemRoutes } from './system'
 import { registerRoutes as registerBucketsRoutes } from './buckets'
+import { registerRoutes as registerSnapshotRoutes } from './snapshots'
 import { APIFactory, ServerAPIContext } from './types'
 
 function restAPIUserEvent(
@@ -34,20 +35,11 @@ function restAPIUserEvent(
 class APIContext implements ServerAPIContext {
 	public getMethodContext(connection: Meteor.Connection): MethodContextAPI {
 		return {
-			userId: null,
 			connection,
-			isSimulation: false,
-			setUserId: () => {
-				/* no-op */
-			},
 			unblock: () => {
 				/* no-op */
 			},
 		}
-	}
-
-	public getCredentials(): Credentials {
-		return { userId: null }
 	}
 }
 
@@ -89,6 +81,30 @@ function extractErrorDetails(e: unknown): string[] | undefined {
 		}
 	} else {
 		return undefined
+	}
+}
+
+export const checkValidation = (method: string, configValidationMsgs: IConfigMessage[]): void => {
+	/**
+	 * Throws if any of the configValidationMsgs indicates that the config has errors.
+	 * Will log any messages with severity WARNING or INFO
+	 */
+	const configValidationOK = configValidationMsgs.reduce((acc, msg) => acc && msg.level !== NoteSeverity.ERROR, true)
+	if (!configValidationOK) {
+		const details = JSON.stringify(
+			configValidationMsgs.filter((msg) => msg.level === NoteSeverity.ERROR).map((msg) => msg.message.key),
+			null,
+			2
+		)
+		logger.error(`${method} failed blueprint config validation with errors: ${details}`)
+		throw new Meteor.Error(409, `${method} has failed blueprint config validation`, details)
+	} else {
+		const details = JSON.stringify(
+			configValidationMsgs.map((msg) => msg.message.key),
+			null,
+			2
+		)
+		logger.info(`${method} received messages from bluepring config validation: ${details}`)
 	}
 }
 
@@ -184,3 +200,4 @@ registerShowStylesRoutes(sofieAPIRequest)
 registerStudiosRoutes(sofieAPIRequest)
 registerSystemRoutes(sofieAPIRequest)
 registerBucketsRoutes(sofieAPIRequest)
+registerSnapshotRoutes(sofieAPIRequest)

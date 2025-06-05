@@ -1,4 +1,3 @@
-import { isTooCloseToAutonext } from '../playout/lib'
 import { selectNextPart } from '../playout/selectNextPart'
 import { PlayoutModel } from '../playout/model/PlayoutModel'
 import { JobContext } from '../jobs'
@@ -37,7 +36,7 @@ export async function ensureNextPartIsValid(context: JobContext, playoutModel: P
 	}
 
 	// If we are close to an autonext, then leave it to avoid glitches
-	if (isTooCloseToAutonext(currentPartInstance?.partInstance) && nextPartInstance) {
+	if (currentPartInstance?.isTooCloseToAutonext(false) && nextPartInstance) {
 		span?.end()
 		return false
 	}
@@ -53,7 +52,8 @@ export async function ensureNextPartIsValid(context: JobContext, playoutModel: P
 			currentPartInstance?.partInstance ?? null,
 			nextPartInstance?.partInstance ?? null,
 			orderedSegments,
-			orderedParts
+			orderedParts,
+			{ ignoreUnplayable: true, ignoreQuickLoop: false }
 		)
 
 		if (!newNextPart && !playoutModel.playlist.nextPartInfo) {
@@ -74,7 +74,8 @@ export async function ensureNextPartIsValid(context: JobContext, playoutModel: P
 			currentPartInstance.partInstance,
 			nextPartInstance.partInstance,
 			orderedSegments,
-			orderedParts
+			orderedParts,
+			{ ignoreUnplayable: true, ignoreQuickLoop: false }
 		)
 
 		if (

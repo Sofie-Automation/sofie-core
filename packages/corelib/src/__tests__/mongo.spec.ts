@@ -1,5 +1,5 @@
 import { protectString, ProtectedString } from '../protectedString'
-import { FindOptions, mongoFindOptions } from '../mongo'
+import { FindOptions, mongoFindOptions, MongoQuery, mongoWhere } from '../mongo'
 
 describe('mongoFindOptions', () => {
 	const rawDocs = ['1', '2', '3', '4', '5', '6', '7'].map((s) => ({ _id: protectString(s) }))
@@ -168,4 +168,58 @@ describe('mongoFindOptions', () => {
 			},
 		])
 	})
+})
+
+test('mongoWhere', () => {
+	const docs = [
+		{
+			_id: protectString('id0'),
+			name: 'abc',
+			rank: 0,
+		},
+		{
+			_id: protectString('id1'),
+			name: 'abc',
+			rank: 1,
+		},
+		{
+			_id: protectString('id2'),
+			name: 'abcd',
+			rank: 2,
+		},
+		{
+			_id: protectString('id3'),
+			name: 'abcd',
+			rank: 3,
+		},
+		{
+			_id: protectString('id4'),
+			name: 'xyz',
+			rank: 4,
+		},
+		{
+			_id: protectString('id5'),
+			name: 'xyz',
+			rank: 5,
+		},
+	]
+
+	function findFetch(query: MongoQuery<any>) {
+		return docs.filter((doc) => mongoWhere(doc, query))
+	}
+
+	expect(findFetch({})).toHaveLength(6)
+
+	expect(findFetch({ _id: protectString('id3') })).toHaveLength(1)
+	expect(findFetch({ _id: protectString('id99') })).toHaveLength(0)
+
+	expect(findFetch({ name: 'abcd' })).toHaveLength(2)
+	expect(findFetch({ name: 'xyz' })).toHaveLength(2)
+	expect(findFetch({ name: { $in: ['abc', 'xyz'] } })).toHaveLength(4)
+
+	expect(findFetch({ rank: { $gt: 2 } })).toHaveLength(3)
+	expect(findFetch({ rank: { $gte: 2 } })).toHaveLength(4)
+
+	expect(findFetch({ rank: { $lt: 3 } })).toHaveLength(3)
+	expect(findFetch({ rank: { $lte: 3 } })).toHaveLength(4)
 })

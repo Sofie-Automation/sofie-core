@@ -16,16 +16,21 @@ import {
 import { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ReadonlyDeep } from 'type-fest'
 import { PlayoutModel } from '../../playout/model/PlayoutModel'
-import { UserContextInfo } from './CommonContext'
+import { ContextInfo } from './CommonContext'
 import { ShowStyleUserContext } from './ShowStyleUserContext'
 import { WatchedPackagesHelper } from './watchedPackages'
 import { getCurrentTime } from '../../lib'
 import { JobContext, ProcessedShowStyleCompound } from '../../jobs'
 import { executePeripheralDeviceAction, listPlayoutDevices } from '../../peripheralDevice'
 import { ActionPartChange, PartAndPieceInstanceActionService } from './services/PartAndPieceInstanceActionService'
+import { BlueprintQuickLookInfo } from '@sofie-automation/blueprints-integration/dist/context/quickLoopInfo'
 
 export class OnTakeContext extends ShowStyleUserContext implements IOnTakeContext, IEventContext {
 	public isTakeAborted: boolean
+
+	public get quickLoopInfo(): BlueprintQuickLookInfo | null {
+		return this.partAndPieceInstanceService.quickLoopInfo
+	}
 
 	public get currentPartState(): ActionPartChange {
 		return this.partAndPieceInstanceService.currentPartState
@@ -35,7 +40,7 @@ export class OnTakeContext extends ShowStyleUserContext implements IOnTakeContex
 	}
 
 	constructor(
-		contextInfo: UserContextInfo,
+		contextInfo: ContextInfo,
 		private readonly _context: JobContext,
 		private readonly _playoutModel: PlayoutModel,
 		showStyle: ReadonlyDeep<ProcessedShowStyleCompound>,
@@ -112,7 +117,7 @@ export class OnTakeContext extends ShowStyleUserContext implements IOnTakeContex
 	async stopPieceInstances(pieceInstanceIds: string[], timeOffset?: number | undefined): Promise<string[]> {
 		return this.partAndPieceInstanceService.stopPieceInstances(pieceInstanceIds, timeOffset)
 	}
-	async removePieceInstances(part: 'next', pieceInstanceIds: string[]): Promise<string[]> {
+	async removePieceInstances(part: 'current' | 'next', pieceInstanceIds: string[]): Promise<string[]> {
 		return this.partAndPieceInstanceService.removePieceInstances(part, pieceInstanceIds)
 	}
 

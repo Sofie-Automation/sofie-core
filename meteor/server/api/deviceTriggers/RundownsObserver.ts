@@ -1,14 +1,16 @@
 import { Meteor } from 'meteor/meteor'
 import { RundownId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import _ from 'underscore'
 import { Rundowns } from '../../collections'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { MongoFieldSpecifierOnesStrict } from '@sofie-automation/corelib/dist/mongo'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
+import { PromiseDebounce } from '../../publications/lib/PromiseDebounce'
+import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
+import { logger } from '../../logging'
 
 const REACTIVITY_DEBOUNCE = 20
 
-type ChangedHandler = (rundownIds: RundownId[]) => () => void
+type ChangedHandler = (rundownIds: RundownId[]) => Promise<() => void>
 
 type RundownFields = '_id'
 const rundownFieldSpecifier = literal<MongoFieldSpecifierOnesStrict<Pick<DBRundown, RundownFields>>>({
@@ -16,53 +18,72 @@ const rundownFieldSpecifier = literal<MongoFieldSpecifierOnesStrict<Pick<DBRundo
 })
 
 export class RundownsObserver {
-	#rundownsLiveQuery: Meteor.LiveQueryHandle
+	#rundownsLiveQuery!: Meteor.LiveQueryHandle
 	#rundownIds: Set<RundownId> = new Set<RundownId>()
 	#changed: ChangedHandler | undefined
 	#cleanup: (() => void) | undefined
 
-	constructor(activePlaylistId: RundownPlaylistId, onChanged: ChangedHandler) {
+	#disposed = false
+
+	readonly #triggerUpdateRundownContent = new PromiseDebounce(async () => {
+		try {
+			if (this.#disposed) return
+
+			if (!this.#changed) return
+			this.#cleanup?.()
+
+			const changed = this.#changed
+			this.#cleanup = await changed(this.rundownIds)
+
+			if (this.#disposed) this.#cleanup?.()
+		} catch (e) {
+			logger.error(`Error in RundownsObserver triggerUpdateRundownContent: ${stringifyError(e)}`)
+		}
+	}, REACTIVITY_DEBOUNCE)
+
+	private constructor(onChanged: ChangedHandler) {
 		this.#changed = onChanged
-		this.#rundownsLiveQuery = Rundowns.observeChanges(
+	}
+
+	static async create(playlistId: RundownPlaylistId, onChanged: ChangedHandler): Promise<RundownsObserver> {
+		const observer = new RundownsObserver(onChanged)
+
+		await observer.init(playlistId)
+
+		return observer
+	}
+
+	private async init(activePlaylistId: RundownPlaylistId) {
+		this.#rundownsLiveQuery = await Rundowns.observeChanges(
 			{
 				playlistId: activePlaylistId,
 			},
 			{
 				added: (rundownId) => {
 					this.#rundownIds.add(rundownId)
-					this.updateRundownContent()
+					this.#triggerUpdateRundownContent.trigger()
 				},
 				removed: (rundownId) => {
 					this.#rundownIds.delete(rundownId)
-					this.updateRundownContent()
+					this.#triggerUpdateRundownContent.trigger()
 				},
 			},
 			{
 				projection: rundownFieldSpecifier,
 			}
 		)
-		this.updateRundownContent()
+
+		this.#triggerUpdateRundownContent.trigger()
 	}
 
 	public get rundownIds(): RundownId[] {
 		return Array.from(this.#rundownIds)
 	}
 
-	private innerUpdateRundownContent = () => {
-		if (!this.#changed) return
-		this.#cleanup?.()
-
-		const changed = this.#changed
-		this.#cleanup = changed(this.rundownIds)
-	}
-
-	public updateRundownContent = _.debounce(
-		Meteor.bindEnvironment(this.innerUpdateRundownContent),
-		REACTIVITY_DEBOUNCE
-	)
-
 	public stop = (): void => {
-		this.updateRundownContent.cancel()
+		this.#disposed = true
+
+		this.#triggerUpdateRundownContent.cancelWaiting()
 		this.#rundownsLiveQuery.stop()
 		this.#changed = undefined
 		this.#cleanup?.()

@@ -1,3 +1,4 @@
+import type { UserEditingDefinition } from '../userEditing'
 import type { RundownPlaylistTiming } from './playlistTiming'
 
 /** The Rundown generated from Blueprint */
@@ -26,6 +27,11 @@ export interface IBlueprintRundown<TPrivateData = unknown, TPublicData = unknown
 	 * Allows the Next Break timer in the Rundown Header to time to the end of this rundown when looking for the next break.
 	 */
 	endOfRundownIsShowBreak?: boolean
+
+	/**
+	 * User editing definitions for this rundown
+	 */
+	userEditOperations?: UserEditingDefinition[]
 }
 /** The Rundown sent from Core */
 

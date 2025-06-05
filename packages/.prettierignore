@@ -13,3 +13,5 @@ blueprints-integration/src/copy
 # Temporary until they have been updated
 server-core-integration
 mos-gateway
+
+/.nx/workspace-data

@@ -18,9 +18,11 @@ import { PlaylistLock, RundownLock } from './lock'
 import { BaseModel } from '../modelBase'
 import { TimelineComplete } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { ProcessedShowStyleBase, ProcessedShowStyleVariant, ProcessedShowStyleCompound } from './showStyle'
+import { JobStudio } from './studio'
 
 export { ApmSpan }
 export { ProcessedShowStyleVariant, ProcessedShowStyleBase, ProcessedShowStyleCompound }
+export { JobStudio }
 
 /**
  * Context for any job run in the job-worker
@@ -64,6 +66,26 @@ export interface JobContext extends StudioCacheContext {
 
 	/** Hack: fast-track the timeline out to the playout-gateway. */
 	hackPublishTimelineToFastTrack(newTimeline: TimelineComplete): void
+
+	/**
+	 * Set whether a routeset for this studio is active.
+	 * Any routeset `exclusivityGroup` will be respected.
+	 * The changes will be immediately visible in subsequent calls to the `studio` getter
+	 * @param routeSetId The routeSetId to change
+	 * @param isActive Whether the routeSet should be active, or toggle
+	 * @returns Whether the change could affect playout
+	 */
+	setRouteSetActive(routeSetId: string, isActive: boolean | 'toggle'): boolean
+
+	/**
+	 * Save any changes to the routesets for this studio to the database
+	 */
+	saveRouteSetChanges(): Promise<void>
+
+	/**
+	 * Discard any unsaved changes to the routesets for this studio
+	 */
+	discardRouteSetChanges(): void
 }
 
 /**
@@ -82,9 +104,16 @@ export interface StudioCacheContext {
 	 */
 	readonly studioId: StudioId
 	/**
-	 * The Studio the job belongs to
+	 * The Studio the job belongs to.
+	 * This has any ObjectWithOverrides in their computed/flattened form
 	 */
-	readonly studio: ReadonlyDeep<DBStudio>
+	readonly studio: ReadonlyDeep<JobStudio>
+
+	/**
+	 * The Studio the job belongs to
+	 * This has any ObjectWithOverrides in their original form
+	 */
+	readonly rawStudio: ReadonlyDeep<DBStudio>
 
 	/**
 	 * Blueprint for the studio the job belongs to

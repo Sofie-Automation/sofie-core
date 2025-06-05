@@ -10,6 +10,8 @@ import {
 	StudioId,
 	RundownId,
 } from './Ids'
+import { RundownPlaylistNote } from './Notes'
+import { ForceQuickLoopAutoNext } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 
 /** Details of an ab-session requested by the blueprints in onTimelineGenerate */
 export interface ABSessionInfo {
@@ -17,6 +19,8 @@ export interface ABSessionInfo {
 	id: string
 	/** The name of the session from the blueprints */
 	name: string
+	/** Whether the name is treated as globally unique */
+	isUniqueName: boolean
 	/** Set if the session is being by lookahead for a future part */
 	lookaheadForPartId?: PartId
 	/** Set if the session is being used by an infinite PieceInstance */
@@ -40,6 +44,54 @@ export enum RundownHoldState {
 	PENDING = 1, // During STK
 	ACTIVE = 2, // During full, STK is played
 	COMPLETE = 3, // During full, full is played
+}
+
+export enum QuickLoopMarkerType {
+	PART = 'part',
+	SEGMENT = 'segment',
+	RUNDOWN = 'rundown',
+	PLAYLIST = 'playlist',
+}
+
+interface QuickLoopPartMarker {
+	type: QuickLoopMarkerType.PART
+	id: PartId
+
+	/** When a part is dynamically inserted after the marker, the user selected id gets persisted here for the next iteration */
+	overridenId?: PartId
+}
+
+interface QuickLoopSegmentMarker {
+	type: QuickLoopMarkerType.SEGMENT
+	id: SegmentId
+}
+
+interface QuickLoopRundownMarker {
+	type: QuickLoopMarkerType.RUNDOWN
+	id: RundownId
+}
+
+interface QuickLoopPlaylistMarker {
+	type: QuickLoopMarkerType.PLAYLIST
+}
+
+export type QuickLoopMarker =
+	| QuickLoopPartMarker
+	| QuickLoopSegmentMarker
+	| QuickLoopRundownMarker
+	| QuickLoopPlaylistMarker
+
+export interface QuickLoopProps {
+	/** The Start marker */
+	start?: QuickLoopMarker
+	/** The End marker */
+	end?: QuickLoopMarker
+	/** Whether the user is allowed to make alterations to the Start/End markers */
+	locked: boolean
+	/** Whether the loop has two valid markers and is currently running (the current Part is within the loop) */
+	running: boolean
+	/** Whether the loop has autoNext should force auto-next on contained Parts */
+	forceAutoNext: ForceQuickLoopAutoNext
 }
 
 export interface DBRundownPlaylist {
@@ -69,8 +121,6 @@ export interface DBRundownPlaylist {
 	activationId?: RundownPlaylistActivationId
 	/** Timestamp when the playlist was last reset. Used to silence a few errors upon reset.*/
 	resetTime?: Time
-	/** Should the playlist loop at the end */
-	loop?: boolean
 	/** Marker indicating if unplayed parts behind the onAir part, should be treated as "still to be played" or "skipped" in terms of timing calculations */
 	outOfOrderTiming?: boolean
 	/** Should time-of-day clocks be used instead of countdowns by default */
@@ -95,12 +145,22 @@ export interface DBRundownPlaylist {
 	 */
 	queuedSegmentId?: SegmentId
 
+	/** Holds notes (warnings / errors) thrown by the blueprints during creation */
+	notes?: Array<RundownPlaylistNote>
+
+	quickLoop?: QuickLoopProps
+
 	/** Actual time of playback starting */
 	startedPlayback?: Time
 	/** Timestamp for the last time an incorrect part was reported as started */
 	lastIncorrectPartPlaybackReported?: Time
 	/** Actual time of each rundown starting playback */
 	rundownsStartedPlayback?: Record<string, Time>
+	/**
+	 * Actual time of SOME segments starting playback - usually just the previous and current one
+	 * This is not using SegmentId, but SegmentPlayoutId
+	 */
+	segmentsStartedPlayback?: Record<string, Time>
 	/** Time of the last take */
 	lastTakeTime?: Time
 

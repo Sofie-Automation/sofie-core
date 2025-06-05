@@ -11,7 +11,13 @@ import {
 	StudioId,
 } from '../dataModel/Ids'
 import type { MOS } from '@sofie-automation/shared-lib/dist/mos'
-import { IngestAdlib, IngestPart, IngestRundown, IngestSegment } from '@sofie-automation/blueprints-integration'
+import {
+	IngestAdlib,
+	IngestPart,
+	IngestRundown,
+	IngestSegment,
+	UserOperationTarget,
+} from '@sofie-automation/blueprints-integration'
 import { BucketAdLibAction } from '../dataModel/BucketAdLibAction'
 import { RundownSource } from '../dataModel/Rundown'
 
@@ -116,6 +122,11 @@ export enum IngestJobs {
 	 * User requested unsyncing a rundown
 	 */
 	UserUnsyncRundown = 'userUnsyncRundown',
+
+	/**
+	 * User executed a change operation
+	 */
+	UserExecuteChangeOperation = 'userExecuteChangeOperation',
 
 	// For now these are in this queue, but if this gets split up to be per rundown, then a single bucket queue will be needed
 	BucketItemImport = 'bucketItemImport',
@@ -234,6 +245,11 @@ export interface UserRemoveRundownProps extends UserRundownPropsBase {
 }
 export type UserUnsyncRundownProps = UserRundownPropsBase
 
+export interface UserExecuteChangeOperationProps extends IngestPropsBase {
+	operationTarget: UserOperationTarget
+	operation: { id: string; [key: string]: any }
+}
+
 export interface BucketItemImportProps {
 	bucketId: BucketId
 	showStyleBaseId: ShowStyleBaseId
@@ -275,7 +291,7 @@ export interface CreateAdlibTestingRundownForShowStyleVariantProps {
  */
 export type IngestJobFunc = {
 	[IngestJobs.RemoveRundown]: (data: IngestRemoveRundownProps) => void
-	[IngestJobs.UpdateRundown]: (data: IngestUpdateRundownProps) => RundownId
+	[IngestJobs.UpdateRundown]: (data: IngestUpdateRundownProps) => void
 	[IngestJobs.UpdateRundownMetaData]: (data: IngestUpdateRundownMetaDataProps) => void
 	[IngestJobs.RemoveSegment]: (data: IngestRemoveSegmentProps) => void
 	[IngestJobs.UpdateSegment]: (data: IngestUpdateSegmentProps) => void
@@ -302,6 +318,7 @@ export type IngestJobFunc = {
 
 	[IngestJobs.UserRemoveRundown]: (data: UserRemoveRundownProps) => void
 	[IngestJobs.UserUnsyncRundown]: (data: UserUnsyncRundownProps) => void
+	[IngestJobs.UserExecuteChangeOperation]: (data: UserExecuteChangeOperationProps) => void
 
 	[IngestJobs.BucketItemImport]: (data: BucketItemImportProps) => void
 	[IngestJobs.BucketItemRegenerate]: (data: BucketItemRegenerateProps) => void

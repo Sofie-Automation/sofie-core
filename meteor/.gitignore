@@ -5,6 +5,7 @@ src/**/*.js.map
 coverage
 settings.json
 server/_force_restart.js
+public/
 
 # Ignore TV2-features:
 client/styles/tv2

@@ -43,7 +43,12 @@ If an integer property, whether to treat it as zero-based
 ### `ui:displayType`
 
 Override the presentation with a special mode.
-Currently only valid for string properties. Valid values are 'json'.
+
+Currently only valid for:
+
+- object properties. Valid values are 'json'.
+- string properties. Valid values are 'base64-image'.
+- boolean properties. Valid values are 'switch'.
 
 ### `tsEnumNames`
 
@@ -55,7 +60,7 @@ Names of the enum values as generated for the typescript enum, which we display 
 
 Note: Only valid for blueprint configuration.
 
-Sometimes it can be useful to reference other values. This property can be used on string fields, to let sofie generate a dropdown populated with values valid in the current context.
+Sometimes it can be useful to reference other values. This property can be used on string fields, to let Sofie generate a dropdown populated with values valid in the current context.
 
 #### `mappings`
 

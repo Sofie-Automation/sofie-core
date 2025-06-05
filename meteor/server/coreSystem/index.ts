@@ -1,5 +1,6 @@
-import { SYSTEM_ID, parseVersion, GENESIS_SYSTEM_VERSION } from '../../lib/collections/CoreSystem'
-import { getCurrentTime, MeteorStartupAsync } from '../../lib/lib'
+import { SYSTEM_ID, GENESIS_SYSTEM_VERSION } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
+import { parseVersion } from '../systemStatus/semverUtils'
+import { getCurrentTime } from '../lib/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { Meteor } from 'meteor/meteor'
 import { prepareMigration, runMigration } from '../migration/databaseMigration'
@@ -7,15 +8,16 @@ import { CURRENT_SYSTEM_VERSION } from '../migration/currentSystemVersion'
 import { Blueprints, CoreSystem } from '../collections'
 import { getEnvLogLevel, logger, LogLevel, setLogLevel } from '../logging'
 const PackageInfo = require('../../package.json')
-import Agent from 'meteor/julusian:meteor-elastic-apm'
+import { startAgent } from '../api/profiler/apm'
 import { profiler } from '../api/profiler'
-import { TMP_TSR_VERSION } from '@sofie-automation/blueprints-integration'
+import { ICoreSystemSettings, TMP_TSR_VERSION } from '@sofie-automation/blueprints-integration'
 import { getAbsolutePath } from '../lib'
 import * as fs from 'fs/promises'
 import path from 'path'
 import { checkDatabaseVersions } from './checkDatabaseVersions'
 import PLazy from 'p-lazy'
 import { getCoreSystemAsync } from './collection'
+import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 
 export { PackageInfo }
 
@@ -58,11 +60,25 @@ async function initializeCoreSystem() {
 				enabled: false,
 				transactionSampleRate: -1,
 			},
-			cron: {
-				casparCGRestart: {
-					enabled: true,
+			settingsWithOverrides: wrapDefaultObject<ICoreSystemSettings>({
+				cron: {
+					casparCGRestart: {
+						enabled: true,
+					},
+					storeRundownSnapshots: {
+						enabled: false,
+					},
 				},
-			},
+				support: {
+					message: '',
+				},
+				evaluationsMessage: {
+					enabled: false,
+					heading: '',
+					message: '',
+				},
+			}),
+			lastBlueprintConfig: undefined,
 		})
 
 		if (!isRunningInJest()) {
@@ -76,7 +92,7 @@ async function initializeCoreSystem() {
 	}
 
 	// Monitor database changes:
-	CoreSystem.observeChanges(SYSTEM_ID, {
+	await CoreSystem.observeChanges(SYSTEM_ID, {
 		added: onCoreSystemChanged,
 		changed: onCoreSystemChanged,
 		removed: onCoreSystemChanged,
@@ -86,7 +102,7 @@ async function initializeCoreSystem() {
 		checkDatabaseVersions()
 	}
 
-	Blueprints.observeChanges(
+	await Blueprints.observeChanges(
 		{},
 		{
 			added: observeBlueprintChanges,
@@ -144,7 +160,6 @@ async function startupMessage() {
 		logger.info(`Core starting up`)
 		logger.info(`Core system version: "${CURRENT_SYSTEM_VERSION}"`)
 
-		// @ts-expect-error Its not always defined
 		if (global.gc) {
 			logger.info(`Manual garbage-collection is enabled`)
 		} else {
@@ -171,22 +186,20 @@ async function startInstrumenting() {
 
 	if (APM_HOST && system && system.apm) {
 		logger.info(`APM agent starting up`)
-		Agent.start({
+		startAgent({
 			serviceName: KIBANA_INDEX || 'tv-automation-server-core',
 			hostname: APP_HOST,
 			serverUrl: APM_HOST,
 			secretToken: APM_SECRET,
 			active: system.apm.enabled,
 			transactionSampleRate: system.apm.transactionSampleRate,
-			disableMeteorInstrumentations: ['methods', 'http-out', 'session', 'async', 'metrics'],
 		})
 		profiler.setActive(system.apm.enabled || false)
 	} else {
 		logger.info(`APM agent inactive`)
-		Agent.start({
+		startAgent({
 			serviceName: 'tv-automation-server-core',
 			active: false,
-			disableMeteorInstrumentations: ['methods', 'http-out', 'session', 'async', 'metrics'],
 		})
 	}
 }
@@ -201,7 +214,7 @@ async function updateLoggerLevel(startup: boolean) {
 	}
 }
 
-MeteorStartupAsync(async () => {
+Meteor.startup(async () => {
 	if (Meteor.isServer) {
 		await startupMessage()
 		await updateLoggerLevel(true)

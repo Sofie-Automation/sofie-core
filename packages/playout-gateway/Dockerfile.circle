@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:22-alpine
 RUN apk add --no-cache tzdata
 
 COPY package.json /opt/
@@ -8,4 +8,6 @@ COPY server-core-integration /opt/server-core-integration
 COPY shared-lib /opt/shared-lib
 
 WORKDIR /opt/playout-gateway
+RUN chown -R 1000:1000 /opt/playout-gateway
+USER 1000
 CMD ["node", "dist/index.js"]

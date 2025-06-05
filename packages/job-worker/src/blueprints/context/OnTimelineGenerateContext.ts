@@ -4,7 +4,6 @@ import {
 	ITimelineEventContext,
 } from '@sofie-automation/blueprints-integration'
 import { ReadonlyDeep } from 'type-fest'
-import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { OnGenerateTimelineObjExt } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { clone } from '@sofie-automation/corelib/dist/lib'
@@ -14,23 +13,26 @@ import { getCurrentTime } from '../../lib'
 import { PieceInstance, ResolvedPieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { ProcessedStudioConfig, ProcessedShowStyleConfig } from '../config'
 import _ = require('underscore')
-import { ProcessedShowStyleCompound } from '../../jobs'
-import { convertPartInstanceToBlueprints } from './lib'
+import { JobStudio, ProcessedShowStyleCompound } from '../../jobs'
+import { convertPartInstanceToBlueprints, createBlueprintQuickLoopInfo } from './lib'
 import { RundownContext } from './RundownContext'
 import { AbSessionHelper } from '../../playout/abPlayback/abSessionHelper'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { PieceInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { BlueprintQuickLookInfo } from '@sofie-automation/blueprints-integration/dist/context/quickLoopInfo'
 
 export class OnTimelineGenerateContext extends RundownContext implements ITimelineEventContext {
 	readonly currentPartInstance: Readonly<IBlueprintPartInstance> | undefined
 	readonly nextPartInstance: Readonly<IBlueprintPartInstance> | undefined
 	readonly previousPartInstance: Readonly<IBlueprintPartInstance> | undefined
 
+	readonly quickLoopInfo: BlueprintQuickLookInfo | null
+
 	readonly abSessionsHelper: AbSessionHelper
 	readonly #pieceInstanceCache = new Map<PieceInstanceId, ReadonlyDeep<PieceInstance>>()
 
 	constructor(
-		studio: ReadonlyDeep<DBStudio>,
+		studio: ReadonlyDeep<JobStudio>,
 		studioBlueprintConfig: ProcessedStudioConfig,
 		showStyleCompound: ReadonlyDeep<ProcessedShowStyleCompound>,
 		showStyleBlueprintConfig: ProcessedShowStyleConfig,
@@ -56,6 +58,8 @@ export class OnTimelineGenerateContext extends RundownContext implements ITimeli
 		this.currentPartInstance = currentPartInstance && convertPartInstanceToBlueprints(currentPartInstance)
 		this.nextPartInstance = nextPartInstance && convertPartInstanceToBlueprints(nextPartInstance)
 		this.previousPartInstance = previousPartInstance && convertPartInstanceToBlueprints(previousPartInstance)
+
+		this.quickLoopInfo = createBlueprintQuickLoopInfo(playlist)
 
 		const partInstances = _.compact([previousPartInstance, currentPartInstance, nextPartInstance])
 
@@ -85,13 +89,13 @@ export class OnTimelineGenerateContext extends RundownContext implements ITimeli
 		const partInstanceId = pieceInstance?.partInstanceId
 		if (!partInstanceId) throw new Error('Missing partInstanceId in call to getPieceABSessionId')
 
-		return this.abSessionsHelper.getPieceABSessionId(pieceInstance, sessionName)
+		return this.abSessionsHelper.getPieceABSessionIdFromSessionName(pieceInstance, sessionName)
 	}
 
 	/**
 	 * @deprecated Use core provided AB resolving
 	 */
 	getTimelineObjectAbSessionId(tlObj: OnGenerateTimelineObjExt, sessionName: string): string | undefined {
-		return this.abSessionsHelper.getTimelineObjectAbSessionId(tlObj, sessionName)
+		return this.abSessionsHelper.getTimelineObjectAbSessionIdFromSessionName(tlObj, sessionName)
 	}
 }

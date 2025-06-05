@@ -11,6 +11,8 @@ import { defaultRundownPlaylist } from '../../../__mocks__/defaultCollectionObje
 import _ = require('underscore')
 import { wrapPartToTemporaryInstance } from '../../../__mocks__/partinstance'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
+import { QuickLoopMarkerType } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { ForceQuickLoopAutoNext } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 
 describe('getOrderedPartsAfterPlayhead', () => {
 	let context!: MockJobContext
@@ -36,7 +38,7 @@ describe('getOrderedPartsAfterPlayhead', () => {
 			}
 		}
 		context.setStudio({
-			...context.studio,
+			...context.rawStudio,
 			mappingsWithOverrides: wrapDefaultObject(mappings),
 		})
 
@@ -85,7 +87,6 @@ describe('getOrderedPartsAfterPlayhead', () => {
 				externalId: 'MOCK_SEGMENT_0',
 				rundownId: rundownId,
 				name: 'Segment 0',
-				externalModified: 1,
 			}),
 			context.mockCollections.Segments.insertOne({
 				_id: protectString(rundownId + '_segment01'),
@@ -93,7 +94,6 @@ describe('getOrderedPartsAfterPlayhead', () => {
 				externalId: 'MOCK_SEGMENT_1',
 				rundownId: rundownId,
 				name: 'Segment 1',
-				externalModified: 1,
 			}),
 			context.mockCollections.Segments.insertOne({
 				_id: protectString(rundownId + '_segment2'),
@@ -101,7 +101,6 @@ describe('getOrderedPartsAfterPlayhead', () => {
 				externalId: 'MOCK_SEGMENT_2',
 				rundownId: rundownId,
 				name: 'Segment 2',
-				externalModified: 1,
 			}),
 		])
 		segmentId0 = segmentIds[0]
@@ -236,7 +235,17 @@ describe('getOrderedPartsAfterPlayhead', () => {
 		expect(parts.map((p) => p._id)).toEqual([])
 
 		// Playlist could loop
-		await context.mockCollections.RundownPlaylists.update(playlistId, { $set: { loop: true } })
+		await context.mockCollections.RundownPlaylists.update(playlistId, {
+			$set: {
+				quickLoop: {
+					start: { type: QuickLoopMarkerType.PLAYLIST },
+					end: { type: QuickLoopMarkerType.PLAYLIST },
+					running: true,
+					forceAutoNext: ForceQuickLoopAutoNext.DISABLED,
+					locked: false,
+				},
+			},
+		})
 		const parts2 = await runJobWithPlayoutModel(context, { playlistId }, null, async (playoutModel) =>
 			getOrderedPartsAfterPlayhead(context, playoutModel, 5)
 		)

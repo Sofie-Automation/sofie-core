@@ -1,17 +1,24 @@
 import { UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/error'
-import type { CreateAdlibTestingRundownForShowStyleVariantProps } from '@sofie-automation/corelib/dist/worker/ingest'
+import type {
+	CreateAdlibTestingRundownForShowStyleVariantProps,
+	IngestUpdateRundownProps,
+} from '@sofie-automation/corelib/dist/worker/ingest'
 import type { JobContext } from '../jobs'
-import type { RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { convertShowStyleVariantToBlueprints } from '../blueprints/context/lib'
 import { ShowStyleUserContext } from '../blueprints/context'
 import { WatchedPackagesHelper } from '../blueprints/context/watchedPackages'
-import { handleUpdatedRundown } from './ingestRundownJobs'
 import type {
 	IShowStyleUserContext,
 	IBlueprintShowStyleVariant,
 	IngestRundown,
 } from '@sofie-automation/blueprints-integration'
 import { logger } from '../logging'
+import { NotificationsModelHelper } from '../notifications/NotificationsModelHelper'
+import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
+import { convertNoteToNotification } from '../notifications/util'
+import { RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { handleUpdatedRundown } from './ingestRundownJobs'
+import { runIngestUpdateOperation } from './runOperation'
 
 export async function handleCreateAdlibTestingRundownForShowStyleVariant(
 	context: JobContext,
@@ -27,7 +34,6 @@ export async function handleCreateAdlibTestingRundownForShowStyleVariant(
 		{
 			name: `Create Adlib Testing Rundown`,
 			identifier: `studioId=${context.studioId},showStyleBaseId=${showStyleCompound._id},showStyleVariantId=${showStyleCompound.showStyleVariantId}`,
-			tempSendUserNotesIntoBlackHole: true, // TODO-CONTEXT
 		},
 		context,
 		showStyleCompound,
@@ -49,7 +55,7 @@ export async function handleCreateAdlibTestingRundownForShowStyleVariant(
 		`Creating adlib testing rundown "${ingestRundown.name}" for showStyleVariant "${showStyleVariant.name}"`
 	)
 
-	return handleUpdatedRundown(context, {
+	const updateData: IngestUpdateRundownProps = {
 		rundownExternalId: ingestRundown.externalId,
 		ingestRundown,
 		isCreateAction: true,
@@ -57,7 +63,28 @@ export async function handleCreateAdlibTestingRundownForShowStyleVariant(
 			type: 'testing',
 			showStyleVariantId: showStyleVariant._id,
 		},
-	})
+	}
+
+	const createdRundownId = await runIngestUpdateOperation(context, updateData, (ingestRundown) =>
+		handleUpdatedRundown(context, updateData, ingestRundown)
+	)
+
+	// Store the notes as notifications. This is necessary, as any stored on the Rundown will be lost when the rundown is regenerated, without regenerating these notes
+	const notificationCategory = unprotectString(createdRundownId)
+	const notificationsHelper = new NotificationsModelHelper(context, 'adlibTestingRundown', null)
+	notificationsHelper.clearAllNotifications(notificationCategory)
+	for (const note of blueprintContext.notes) {
+		notificationsHelper.setNotification(notificationCategory, {
+			...convertNoteToNotification(note, [showStyleBlueprint.blueprintId]),
+			relatedTo: {
+				type: 'rundown',
+				rundownId: createdRundownId,
+			},
+		})
+	}
+	await notificationsHelper.saveAllToDatabase()
+
+	return createdRundownId
 }
 
 function fallbackBlueprintMethod(

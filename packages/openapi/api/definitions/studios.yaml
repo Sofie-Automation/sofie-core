@@ -157,6 +157,76 @@ resources:
           $ref: '#/components/responses/studioInUse'
         500:
           $ref: '#/components/responses/internalServerError'
+  config:
+    get:
+      operationId: getStudioConfig
+      tags:
+        - studios
+      summary: Gets a Studio blueprint configuration.
+      parameters:
+        - name: studioId
+          in: path
+          description: Id of Studio config to retrieve.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Configuration found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 200
+                  result:
+                    type: object
+                    description: Blueprint configuration.
+                    properties:
+                      developerMode:
+                        type: boolean
+                        example: true
+                    additionalProperties: true
+        404:
+          $ref: '#/components/responses/studioNotFound'
+        500:
+          $ref: '#/components/responses/internalServerError'
+    put:
+      operationId: updateStudioConfig
+      tags:
+        - studios
+      summary: Updates an existing Studio blueprint configuration.
+      parameters:
+        - name: studioId
+          in: path
+          description: Id of Studio to update/create.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Blueprint configuration.
+              properties:
+                developerMode:
+                  type: boolean
+                  example: true
+              additionalProperties: true
+      responses:
+        200:
+          $ref: '#/components/responses/putSuccess'
+        404:
+          $ref: '#/components/responses/studioNotFound'
+        409:
+          $ref: '#/components/responses/studioNotValid'
+        412:
+          $ref: '#/components/responses/studioInUse'
+        500:
+          $ref: '#/components/responses/internalServerError'
   switchRouteSet:
     put:
       operationId: switchRouteSet
@@ -247,6 +317,9 @@ resources:
               properties:
                 deviceId:
                   type: string
+                configId:
+                  type: string
+                  description: Id of the studio owned configuration to assign to the device. If not specified, one will be created.
               required:
                 - deviceId
       responses:
@@ -466,6 +539,26 @@ components:
         preserveOrphanedSegmentPositionInRundown:
           type: boolean
           description: Preserve unsynced segments psoition in the rundown, relative to the other segments
+        enableQuickLoop:
+          type: boolean
+          description: Should QuickLoop context menu options be available to the users
+        forceQuickLoopAutoNext:
+          type: string
+          enum: [disabled, enabled_when_valid_duration, enabled_forcing_min_duration]
+          description: If and how to force auto-nexting in a looping Playlist
+        fallbackPartDuration:
+          type: number
+          description: The duration to apply on too short Parts Within QuickLoop when forceQuickLoopAutoNext is set to `enabled_forcing_min_duration`
+        allowAdlibTestingSegment:
+          type: boolean
+          description: Whether to allow adlib testing mode, before a Part is playing in a Playlist
+        allowHold:
+          type: boolean
+          description: Whether to allow hold operations for Rundowns in this Studio
+        allowPieceDirectPlay:
+          type: boolean
+          description: Whether to allow direct playing of a piece in the rundown
+
       required:
         - frameRate
         - mediaPreviewsUrl

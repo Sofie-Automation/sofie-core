@@ -1,9 +1,21 @@
-import { BlueprintMapping, BlueprintMappings, JSONBlobParse, TSR } from '@sofie-automation/blueprints-integration'
+import {
+	BlueprintMapping,
+	BlueprintMappings,
+	BlueprintParentDeviceSettings,
+	IStudioSettings,
+	JSONBlobParse,
+	StudioRouteBehavior,
+	TSR,
+} from '@sofie-automation/blueprints-integration'
 import {
 	MappingsExt,
+	StudioDeviceSettings,
 	StudioIngestDevice,
 	StudioInputDevice,
+	StudioPackageContainer,
 	StudioPlayoutDevice,
+	StudioRouteSet,
+	StudioRouteSetExclusivityGroup,
 } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { Complete, clone, literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
@@ -17,6 +29,7 @@ import { compileCoreConfigValues } from '../blueprints/config'
 import { CommonContext } from '../blueprints/context'
 import { JobContext } from '../jobs'
 import { FixUpBlueprintConfigContext } from '@sofie-automation/corelib/dist/fixUpBlueprintConfig/context'
+import { DEFAULT_MINIMUM_TAKE_SPAN } from '@sofie-automation/shared-lib/dist/core/constants'
 
 /**
  * Run the Blueprint applyConfig for the studio
@@ -32,7 +45,7 @@ export async function handleBlueprintUpgradeForStudio(context: JobContext, _data
 		name: 'applyConfig',
 		identifier: `studio:${context.studioId},blueprint:${blueprint.blueprintId}`,
 	})
-	const rawBlueprintConfig = applyAndValidateOverrides(context.studio.blueprintConfigWithOverrides).obj
+	const rawBlueprintConfig = context.studio.blueprintConfig
 
 	const result = blueprint.blueprint.applyConfig(
 		blueprintContext,
@@ -40,6 +53,15 @@ export async function handleBlueprintUpgradeForStudio(context: JobContext, _data
 		compileCoreConfigValues(context.studio.settings)
 	)
 
+	const parentDevices = Object.fromEntries(
+		Object.entries<BlueprintParentDeviceSettings>(result.parentDevices ?? {}).map((dev) => [
+			dev[0],
+			literal<Complete<StudioDeviceSettings>>({
+				name: dev[1].name ?? '',
+				options: dev[1],
+			}),
+		])
+	)
 	const playoutDevices = Object.fromEntries(
 		Object.entries<TSR.DeviceOptionsAny>(result.playoutDevices ?? {}).map((dev) => [
 			dev[0],
@@ -67,13 +89,60 @@ export async function handleBlueprintUpgradeForStudio(context: JobContext, _data
 			}),
 		])
 	)
+	const routeSets = Object.fromEntries(
+		Object.entries<Partial<StudioRouteSet>>(result.routeSets ?? {}).map((dev) => [
+			dev[0],
+			literal<Complete<StudioRouteSet>>({
+				name: dev[1].name ?? '',
+				active: dev[1].active ?? false,
+				defaultActive: dev[1].defaultActive ?? false,
+				behavior: dev[1].behavior ?? StudioRouteBehavior.TOGGLE,
+				exclusivityGroup: dev[1].exclusivityGroup ?? undefined,
+				routes: dev[1].routes ?? [],
+				abPlayers: dev[1].abPlayers ?? [],
+			}),
+		])
+	)
+	const routeSetExclusivityGroups = Object.fromEntries(
+		Object.entries<Partial<StudioRouteSetExclusivityGroup>>(result.routeSetExclusivityGroups ?? {}).map((dev) => [
+			dev[0],
+			literal<Complete<StudioRouteSetExclusivityGroup>>({
+				name: dev[1].name ?? '',
+			}),
+		])
+	)
+
+	const packageContainers = Object.fromEntries(
+		Object.entries<Partial<StudioPackageContainer>>(result.packageContainers ?? {}).map((dev) => [
+			dev[0],
+			literal<Complete<StudioPackageContainer>>({
+				deviceIds: dev[1].deviceIds ?? [],
+				container: dev[1].container as any,
+			}),
+		])
+	)
+
+	const studioSettings: IStudioSettings = result.studioSettings ?? {
+		frameRate: 25,
+		mediaPreviewsUrl: '',
+		minimumTakeSpan: DEFAULT_MINIMUM_TAKE_SPAN,
+		allowHold: true,
+		allowPieceDirectPlay: true,
+		enableBuckets: true,
+		enableEvaluationForm: true,
+	}
 
 	await context.directCollections.Studios.update(context.studioId, {
 		$set: {
+			'settingsWithOverrides.defaults': studioSettings,
 			'mappingsWithOverrides.defaults': translateMappings(result.mappings),
+			'peripheralDeviceSettings.deviceSettings.defaults': parentDevices,
 			'peripheralDeviceSettings.playoutDevices.defaults': playoutDevices,
 			'peripheralDeviceSettings.ingestDevices.defaults': ingestDevices,
 			'peripheralDeviceSettings.inputDevices.defaults': inputDevices,
+			'routeSetsWithOverrides.defaults': routeSets,
+			'routeSetExclusivityGroupsWithOverrides.defaults': routeSetExclusivityGroups,
+			'packageContainersWithOverrides.defaults': packageContainers,
 			lastBlueprintConfig: {
 				blueprintHash: blueprint.blueprintDoc.blueprintHash,
 				blueprintId: blueprint.blueprintId,
@@ -114,7 +183,7 @@ export async function handleBlueprintValidateConfigForStudio(
 		name: 'validateConfig',
 		identifier: `studio:${context.studioId},blueprint:${blueprint.blueprintId}`,
 	})
-	const rawBlueprintConfig = applyAndValidateOverrides(context.studio.blueprintConfigWithOverrides).obj
+	const rawBlueprintConfig = applyAndValidateOverrides(context.rawStudio.blueprintConfigWithOverrides).obj
 
 	// This clone seems excessive, but without it a DataCloneError is generated when posting the result to the parent
 	const messages = clone(blueprint.blueprint.validateConfig(blueprintContext, rawBlueprintConfig))
@@ -156,7 +225,7 @@ export async function handleBlueprintFixUpConfigForStudio(
 	const blueprintContext = new FixUpBlueprintConfigContext(
 		commonContext,
 		JSONBlobParse(blueprint.blueprint.studioConfigSchema),
-		context.studio.blueprintConfigWithOverrides
+		context.rawStudio.blueprintConfigWithOverrides
 	)
 
 	blueprint.blueprint.fixUpConfig(blueprintContext)

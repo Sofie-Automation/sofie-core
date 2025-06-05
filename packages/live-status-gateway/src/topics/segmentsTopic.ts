@@ -68,7 +68,7 @@ export class SegmentsTopic
 					id: segmentId,
 					rundownId: unprotectString(segment.rundownId),
 					name: segment.name,
-					timing: calculateSegmentTiming(this._partsBySegment[segmentId] ?? []),
+					timing: calculateSegmentTiming(segment, this._partsBySegment[segmentId] ?? []),
 					identifier: segment.identifier,
 					publicData: segment.publicData,
 				}

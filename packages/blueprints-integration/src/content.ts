@@ -42,6 +42,8 @@ export type SomeContent =
 	| GraphicsContent
 	| UnknownContent
 	| EvsContent
+	| RemoteSpeakContent
+	| LightingContent
 
 export type UnknownContent = BaseContent
 
@@ -55,6 +57,10 @@ export interface VTContent extends BaseContent {
 	/** Duration of extra content past sourceDuration. Not planned to play back but present on the media and playable. */
 	postrollDuration?: number
 	editable?: VTEditableParameters
+	/** This is for the VT's in out words */
+	firstWords?: string
+	lastWords?: string
+	fullScript?: string
 }
 
 export interface GraphicsContent extends BaseContent {
@@ -189,5 +195,9 @@ export interface TransitionContent extends BaseContent {
 }
 
 export type SomeTransitionContent = VTContent | TransitionContent
+
+export type RemoteSpeakContent = RemoteContent
+
+export type LightingContent = UnknownContent
 
 export { SourceLayerType }

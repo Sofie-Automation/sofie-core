@@ -43,6 +43,7 @@ The prompter can be controlled by different types of controllers. The control mo
 | `?mode=mouse`           | Controlled by mouse only. [See configuration details](prompter.md#control-using-mouse-scroll-wheel)                                                                                                                                            |
 | `?mode=keyboard`        | Controlled by keyboard only. [See configuration details](prompter.md#control-using-keyboard)                                                                                                                                                   |
 | `?mode=shuttlekeyboard` | Controlled by a Contour Design ShuttleXpress, X-keys Jog and Shuttle or any compatible, configured as keyboard-ish device. [See configuration details](prompter.md#control-using-contour-shuttlexpress-or-x-keys)                              |
+| `?mode=shuttlewebhid`   | Controlled by a Contour Design ShuttleXpress, using the browser's WebHID API [See configuration details](prompter.md#control-using-contour-shuttlexpress-via-webhid)                                                                               |
 | `?mode=pedal`           | Controlled by any MIDI device outputting note values between 0 - 127 of CC notes on channel 8. Analogue Expression pedals work well with TRS-USB midi-converters. [See configuration details](prompter.md#control-using-midi-input-mode-pedal) |
 | `?mode=joycon`          | Controlled by Nintendo Switch Joycon, using the HTML5 GamePad API. [See configuration details](prompter.md#control-using-nintendo-joycon-gamepad)                                                                                              |
 
@@ -93,6 +94,14 @@ Configuration files that can be used in their respective driver software:
 
 - [Contour ShuttleXpress](https://github.com/Sofie-Automation/sofie-core/blob/release26/resources/prompter_layout_shuttlexpress.pref)
 - [X-keys](https://github.com/Sofie-Automation/sofie-core/blob/release26/resources/prompter_layout_xkeys.mw3)
+
+#### Control using Contour ShuttleXpress via WebHID
+
+This mode uses a Contour ShuttleXpress (Multimedia Controller Xpress) through web browser's WebHID API.
+
+When opening the Prompter View for the first time, it is necessary to press the _Connect to Contour Shuttle_ button in the top left corner of the screen, select the device, and press _Connect_.
+
+![Contour ShuttleXpress input mapping](/img/docs/main/features/contour-shuttle-webhid.jpg)
 
 ####
 

@@ -59,6 +59,7 @@ export class MosHandler {
 	private _logger: Winston.Logger
 	private _disposed = false
 	private _settings?: MosGatewayConfig
+	private _openMediaHotStandby: Record<string, boolean>
 	private _coreHandler: CoreHandler | undefined
 	private _observers: Array<Observer<any>> = []
 	private _triggerupdateDevicesTimeout: any = null
@@ -66,6 +67,7 @@ export class MosHandler {
 
 	constructor(logger: Winston.Logger) {
 		this._logger = logger
+		this._openMediaHotStandby = {}
 		this.mosTypes = getMosTypes(this.strict) // temporary, another will be set upon init()
 	}
 	async init(config: MosConfig, coreHandler: CoreHandler): Promise<void> {
@@ -101,7 +103,7 @@ export class MosHandler {
 
 		this.mosTypes = getMosTypes(this.strict)
 
-		await this._initMosConnection()
+		await this._updateDevices()
 
 		if (!this._coreHandler) throw Error('_coreHandler is undefined!')
 		this._coreHandler.onConnected(() => {
@@ -110,8 +112,6 @@ export class MosHandler {
 			this.sendStatusOfAllMosDevices()
 		})
 		this.setupObservers()
-
-		return this._updateDevices()
 	}
 	async dispose(): Promise<void> {
 		this._disposed = true
@@ -243,7 +243,11 @@ export class MosHandler {
 
 				if (!this._coreHandler) throw Error('_coreHandler is undefined!')
 
-				const coreMosHandler = await this._coreHandler.registerMosDevice(mosDevice, this)
+				const coreMosHandler = await this._coreHandler.registerMosDevice(mosDevice, this, {
+					openMediaHotStandby: mosDevice.idSecondary
+						? this._openMediaHotStandby[mosDevice.idSecondary]
+						: false,
+				})
 				// this._logger.info('mosDevice registered -------------')
 				// Setup message flow between the devices:
 
@@ -420,6 +424,8 @@ export class MosHandler {
 			for (const [deviceId, device] of Object.entries<{ options: MosDeviceConfig }>(devices)) {
 				if (device) {
 					if (device.options.secondary) {
+						this._openMediaHotStandby[device.options.secondary.id] =
+							device.options.secondary?.openMediaHotStandby || false
 						// If the host isn't set, don't use secondary:
 						if (!device.options.secondary.host || !device.options.secondary.id)
 							delete device.options.secondary
@@ -481,6 +487,10 @@ export class MosHandler {
 
 		deviceOptions.primary.heartbeatInterval =
 			deviceOptions.primary.heartbeatInterval || DEFAULT_MOS_HEARTBEAT_INTERVAL
+
+		if (deviceOptions.secondary?.id && this._openMediaHotStandby[deviceOptions.secondary.id]) {
+			deviceOptions.secondary.openMediaHotStandby = true
+		}
 
 		const mosDevice: MosDevice = await this.mos.connect(deviceOptions)
 		this._ownMosDevices[deviceId] = mosDevice

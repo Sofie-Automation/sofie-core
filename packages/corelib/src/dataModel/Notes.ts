@@ -24,6 +24,11 @@ export interface GenericNote extends INoteBase {
 		name: string
 	}
 }
+export interface RundownPlaylistNote extends INoteBase {
+	origin: {
+		name: string
+	}
+}
 export interface RundownNote extends INoteBase {
 	origin: {
 		name: string

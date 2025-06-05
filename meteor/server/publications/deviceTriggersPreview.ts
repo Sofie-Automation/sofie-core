@@ -4,13 +4,13 @@ import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { check } from 'meteor/check'
 import { Meteor } from 'meteor/meteor'
 import { ReadonlyDeep } from 'type-fest'
-import { CustomCollectionName, MeteorPubSub } from '../../lib/api/pubsub'
-import { DeviceTriggerArguments, UIDeviceTriggerPreview } from '../../lib/api/triggers/MountedTriggers'
-import { getCurrentTime } from '../../lib/lib'
-import { setUpOptimizedObserverArray, TriggerUpdate } from '../lib/customPublication'
+import { CustomCollectionName, MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
+import { DeviceTriggerArguments, UIDeviceTriggerPreview } from '@sofie-automation/meteor-lib/dist/api/MountedTriggers'
+import { getCurrentTime } from '../lib/lib'
+import { SetupObserversResult, setUpOptimizedObserverArray, TriggerUpdate } from '../lib/customPublication'
 import { CustomPublish, meteorCustomPublish } from '../lib/customPublication/publish'
-import { StudioReadAccess } from '../security/studio'
 import { PeripheralDevices } from '../collections'
+import { assertConnectionHasOneOfPermissions } from '../security/auth'
 
 /** IDEA: This could potentially be a Capped Collection, thus enabling scaling Core horizontally:
  *  https://www.mongodb.com/docs/manual/core/capped-collections/ */
@@ -19,14 +19,12 @@ const lastTriggers: Record<string, { triggers: UIDeviceTriggerPreview[]; updated
 meteorCustomPublish(
 	MeteorPubSub.deviceTriggersPreview,
 	CustomCollectionName.UIDeviceTriggerPreviews,
-	async function (pub, studioId: StudioId, token: string | undefined) {
+	async function (pub, studioId: StudioId, _token: string | undefined) {
 		check(studioId, String)
 
-		if (!studioId) throw new Meteor.Error(400, 'One of studioId must be provided')
+		assertConnectionHasOneOfPermissions(this.connection, 'configure')
 
-		if (await StudioReadAccess.studioContent(studioId, { userId: this.userId, token })) {
-			await createObserverForDeviceTriggersPreviewsPublication(pub, MeteorPubSub.deviceTriggersPreview, studioId)
-		}
+		await createObserverForDeviceTriggersPreviewsPublication(pub, MeteorPubSub.deviceTriggersPreview, studioId)
 	}
 )
 
@@ -41,7 +39,7 @@ export async function insertInputDeviceTriggerIntoPreview(
 
 	if (!pDevice) throw new Meteor.Error(404, `Could not find peripheralDevice "${deviceId}"`)
 
-	const studioId = unprotectString(pDevice.studioId)
+	const studioId = unprotectString(pDevice.studioAndConfigId?.studioId)
 	if (!studioId) throw new Meteor.Error(501, `Device "${pDevice._id}" is not assigned to any studio`)
 
 	const lastTriggersStudio = prepareTriggerBufferForStudio(studioId)
@@ -73,7 +71,7 @@ function prepareTriggerBufferForStudio(studioId: string) {
 async function setupDeviceTriggersPreviewsObservers(
 	args: ReadonlyDeep<DeviceTriggersPreviewArgs>,
 	triggerUpdate: TriggerUpdate<DeviceTriggersUpdateProps>
-): Promise<Meteor.LiveQueryHandle[]> {
+): Promise<SetupObserversResult> {
 	const studioId = unprotectString(args.studioId)
 	const lastTriggersStudio = prepareTriggerBufferForStudio(studioId)
 

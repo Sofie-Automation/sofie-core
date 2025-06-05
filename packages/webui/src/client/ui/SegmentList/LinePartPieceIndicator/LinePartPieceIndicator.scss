@@ -1,0 +1,84 @@
+
+.segment-opl__piece-indicator-placeholder {
+	position: relative;
+	flex: 0 1 1.3em;
+	width: 1.3em;
+	height: 1.3em;
+	line-height: 1.3em;
+	font-size: 1em;
+	margin-left: 0.2em;
+
+	> .segment-opl__piece-indicator {
+		width: 100%;
+		height: 100%;
+		text-align: center;
+		border-radius: 3px;
+		box-sizing: border-box;
+		font-weight: 400;
+		text-shadow: 0.5px 0.5px 8px rgba(0, 0, 0, 0.8);
+		white-space: nowrap;
+
+		background: #33333333;
+
+		@include piece-colors();
+		@include missing-overlay();
+
+		&.continuation {
+			@include item-type-before-background();
+			&::before {
+				content: ' ';
+				display: block;
+				position: absolute;
+				height: 1.3em;
+				top: -1.3em;
+				left: calc(50% - 1px);
+				width: 2px;
+			}
+		}
+
+		&:not(.segment-opl__piece-indicator--no-piece) {
+			cursor: pointer;
+		}
+	}
+
+	&.multiple {
+		> .segment-opl__piece-indicator {
+			width: 80%;
+			position: absolute;
+		}
+
+		> .segment-opl__piece-indicator:nth-child(1) {
+			filter: brightness(0.5);
+			left: 20%;
+		}
+
+		> .segment-opl__piece-indicator:nth-child(2) {
+			filter: brightness(0.75);
+			left: 10%;
+		}
+
+		> .segment-opl__piece-indicator:last-child {
+			filter: none;
+			left: 0;
+			box-shadow: 0 0 2px black;
+		}
+	}
+
+	&.segment-opl__piece-indicator-placeholder--script {
+		width: 10em;
+		flex-basis: 10em;
+		overflow: hidden;
+		text-overflow: clip;
+
+		> .segment-opl__piece-indicator--script {
+			text-align: right;
+			direction: rtl;
+			font-style: italic;
+			font-weight: 300;
+			padding: 0 0.3em;
+			text-overflow: ellipsis;
+			overflow: hidden;
+			cursor: default;
+		}
+	}
+}

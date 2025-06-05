@@ -1,7 +1,6 @@
 import { RundownId, RundownPlaylistId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ProtectedString, protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { UISegmentPartNote } from '../../../../lib/api/rundownNotifications'
-import { testInFiber } from '../../../../__mocks__/helpers/jest'
+import { UISegmentPartNote } from '@sofie-automation/meteor-lib/dist/api/rundownNotifications'
 import { CustomPublishCollection } from '../../../lib/customPublication'
 import { ReactiveCacheCollection } from '../../lib/ReactiveCacheCollection'
 import { manipulateUISegmentPartNotesPublicationData, UISegmentPartNotesState } from '../publication'
@@ -120,7 +119,7 @@ describe('manipulateUISegmentPartNotesPublicationData', () => {
 		},
 	]
 
-	testInFiber('basic call', async () => {
+	test('basic call', async () => {
 		const state: Partial<UISegmentPartNotesState> = {}
 		const collection = createSpyPublishCollection()
 
@@ -142,7 +141,7 @@ describe('manipulateUISegmentPartNotesPublicationData', () => {
 		expect(collection.remove).toHaveBeenLastCalledWith(null)
 	})
 
-	testInFiber('first cache', async () => {
+	test('first cache', async () => {
 		const playlistId = protectString<RundownPlaylistId>('playlist0')
 		const state: Partial<UISegmentPartNotesState> = {}
 		const collection = createSpyPublishCollection()
@@ -167,7 +166,7 @@ describe('manipulateUISegmentPartNotesPublicationData', () => {
 		expect(collection.replace).toHaveBeenCalledTimes(2)
 	})
 
-	testInFiber('replace cache', async () => {
+	test('replace cache', async () => {
 		const playlistId = protectString<RundownPlaylistId>('playlist0')
 		const state: Partial<UISegmentPartNotesState> = {}
 		const collection = createSpyPublishCollection()
@@ -212,7 +211,7 @@ describe('manipulateUISegmentPartNotesPublicationData', () => {
 		expect(generateNotesForSegment.generateNotesForSegment).toHaveBeenCalledTimes(3)
 	})
 
-	testInFiber('update no reported changes', async () => {
+	test('update no reported changes', async () => {
 		const playlistId = protectString<RundownPlaylistId>('playlist0')
 		const state: Partial<UISegmentPartNotesState> = {}
 		const collection = createSpyPublishCollection()
@@ -249,7 +248,7 @@ describe('manipulateUISegmentPartNotesPublicationData', () => {
 		expect(generateNotesForSegment.generateNotesForSegment).toHaveBeenCalledTimes(2)
 	})
 
-	testInFiber('rundown changed', async () => {
+	test('rundown changed', async () => {
 		const playlistId = protectString<RundownPlaylistId>('playlist0')
 		const state: Partial<UISegmentPartNotesState> = {}
 		const collection = createSpyPublishCollection()
@@ -287,7 +286,7 @@ describe('manipulateUISegmentPartNotesPublicationData', () => {
 		expect(generateNotesForSegment.generateNotesForSegment).toHaveBeenCalledTimes(4)
 	})
 
-	testInFiber('segment changed', async () => {
+	test('segment changed', async () => {
 		const playlistId = protectString<RundownPlaylistId>('playlist0')
 		const state: Partial<UISegmentPartNotesState> = {}
 		const collection = createSpyPublishCollection()
@@ -366,7 +365,7 @@ describe('manipulateUISegmentPartNotesPublicationData', () => {
 			part: 'part' as any,
 		})
 
-		testInFiber('segment changed', async () => {
+		test('segment changed', async () => {
 			const playlistId = protectString<RundownPlaylistId>('playlist0')
 			const state: Partial<UISegmentPartNotesState> = {}
 			const collection = createSpyPublishCollection()

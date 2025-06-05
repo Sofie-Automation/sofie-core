@@ -1,3 +1,4 @@
+import { UserEditingDefinition, UserEditingProperties } from '../userEditing'
 import type { IBlueprintPieceGeneric } from './pieceGeneric'
 
 /** Special types of pieces. Some are not always used in all circumstances */
@@ -29,6 +30,21 @@ export interface IBlueprintPiece<TPrivateData = unknown, TPublicData = unknown>
 
 	/** Whether the piece affects the output of the Studio or is describing an invisible state within the Studio */
 	notInVision?: boolean
+
+	/**
+	 * User editing definitions for this piece
+	 */
+	userEditOperations?: UserEditingDefinition[]
+
+	/**
+	 * Properties that are user editable from the properties panel in the Sofie UI, if the user saves changes to these
+	 * it will trigger a user edit operation of type DefaultUserOperationEditProperties
+	 */
+	userEditProperties?: UserEditingProperties
+	/**
+	 * Whether to stop this piece before the 'keepalive' period of the part
+	 */
+	excludeDuringPartKeepalive?: boolean
 }
 export interface IBlueprintPieceDB<TPrivateData = unknown, TPublicData = unknown>
 	extends IBlueprintPiece<TPrivateData, TPublicData> {

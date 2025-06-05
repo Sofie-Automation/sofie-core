@@ -41,14 +41,15 @@ try {
 	console.log(" 🪛  Build packages...");
 	console.log(hr());
 
+	const buildArgs = ['--ignore @sofie-automation/webui']
+	if (config.uiOnly) {
+		buildArgs.push(...EXTRA_PACKAGES.map((pkg) => `--ignore ${pkg}`))
+	}
+
 	await concurrently(
 		[
 			{
-				command: config.uiOnly
-					? `yarn build:try ${EXTRA_PACKAGES.map(
-							(pkg) => `--ignore ${pkg}`
-					  ).join(" ")}`
-					: "yarn build:try",
+				command: `yarn build:try ${buildArgs.join(" ")}`,
 				cwd: "packages",
 				name: "PACKAGES-BUILD",
 				prefixColor: "yellow",

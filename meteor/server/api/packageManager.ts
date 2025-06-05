@@ -3,43 +3,31 @@ import {
 	PeripheralDeviceType,
 	PERIPHERAL_SUBTYPE_PROCESS,
 } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
-import { PeripheralDeviceContentWriteAccess } from '../security/peripheralDevice'
-import { StudioContentAccess } from '../security/studio'
 import { PeripheralDevices } from '../collections'
 import { executePeripheralDeviceFunction } from './peripheralDevice/executeFunction'
+import { PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
-export namespace PackageManagerAPI {
-	export async function restartExpectation(
-		access: PeripheralDeviceContentWriteAccess.ContentAccess,
-		workId: string
-	): Promise<void> {
-		await executePeripheralDeviceFunction(access.deviceId, 'restartExpectation', workId)
-	}
-	export async function abortExpectation(
-		access: PeripheralDeviceContentWriteAccess.ContentAccess,
-		workId: string
-	): Promise<any> {
-		await executePeripheralDeviceFunction(access.deviceId, 'abortExpectation', workId)
-	}
+export async function restartExpectation(deviceId: PeripheralDeviceId, workId: string): Promise<void> {
+	await executePeripheralDeviceFunction(deviceId, 'restartExpectation', workId)
+}
+export async function abortExpectation(deviceId: PeripheralDeviceId, workId: string): Promise<any> {
+	await executePeripheralDeviceFunction(deviceId, 'abortExpectation', workId)
+}
 
-	export async function restartAllExpectationsInStudio(access: StudioContentAccess): Promise<void> {
-		const packageManagerDevices = await PeripheralDevices.findFetchAsync({
-			studioId: access.studioId,
-			category: PeripheralDeviceCategory.PACKAGE_MANAGER,
-			type: PeripheralDeviceType.PACKAGE_MANAGER,
-			subType: PERIPHERAL_SUBTYPE_PROCESS,
+export async function restartAllExpectationsInStudio(studioId: StudioId): Promise<void> {
+	const packageManagerDevices = await PeripheralDevices.findFetchAsync({
+		'studioAndConfigId.studioId': studioId,
+		category: PeripheralDeviceCategory.PACKAGE_MANAGER,
+		type: PeripheralDeviceType.PACKAGE_MANAGER,
+		subType: PERIPHERAL_SUBTYPE_PROCESS,
+	})
+
+	await Promise.all(
+		packageManagerDevices.map(async (packageManagerDevice) => {
+			return executePeripheralDeviceFunction(packageManagerDevice._id, 'restartAllExpectations')
 		})
-
-		await Promise.all(
-			packageManagerDevices.map(async (packageManagerDevice) => {
-				return executePeripheralDeviceFunction(packageManagerDevice._id, 'restartAllExpectations')
-			})
-		)
-	}
-	export async function restartPackageContainer(
-		access: PeripheralDeviceContentWriteAccess.ContentAccess,
-		containerId: string
-	): Promise<void> {
-		await executePeripheralDeviceFunction(access.deviceId, 'restartPackageContainer', containerId)
-	}
+	)
+}
+export async function restartPackageContainer(deviceId: PeripheralDeviceId, containerId: string): Promise<void> {
+	await executePeripheralDeviceFunction(deviceId, 'restartPackageContainer', containerId)
 }

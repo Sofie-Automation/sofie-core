@@ -1,7 +1,8 @@
 import * as _ from 'underscore'
 import path from 'path'
 import { ReadStream, createReadStream, promises as fsp } from 'fs'
-import { getCurrentTime, unprotectString, getRandomId } from '../../../lib/lib'
+import { unprotectString, getRandomId } from '../../lib/tempLib'
+import { getCurrentTime } from '../../lib/lib'
 import { logger } from '../../logging'
 import { Meteor } from 'meteor/meteor'
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
@@ -11,17 +12,14 @@ import {
 	SomeBlueprintManifest,
 	TranslationsBundle,
 } from '@sofie-automation/blueprints-integration'
-import { check, Match } from '../../../lib/check'
-import { NewBlueprintAPI, BlueprintAPIMethods } from '../../../lib/api/blueprint'
+import { check, Match } from '../../lib/check'
+import { NewBlueprintAPI, BlueprintAPIMethods } from '@sofie-automation/meteor-lib/dist/api/blueprint'
 import { registerClassToMeteorMethods, ReplaceOptionalWithNullInMethodArguments } from '../../methods'
-import { parseVersion, SYSTEM_ID } from '../../../lib/collections/CoreSystem'
+import { SYSTEM_ID } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
+import { parseVersion } from '../../systemStatus/semverUtils'
 import { evalBlueprint } from './cache'
 import { removeSystemStatus } from '../../systemStatus/systemStatus'
-import { MethodContext, MethodContextAPI } from '../../../lib/api/methods'
-import { OrganizationContentWriteAccess, OrganizationReadAccess } from '../../security/organization'
-import { SystemWriteAccess } from '../../security/system'
-import { Credentials, isResolvedCredentials } from '../../security/lib/credentials'
-import { Settings } from '../../../lib/Settings'
+import { MethodContext, MethodContextAPI } from '../methodContext'
 import { generateTranslationBundleOriginId, upsertBundles } from '../translationsBundles'
 import { BlueprintId, OrganizationId, ShowStyleBaseId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { Blueprints, CoreSystem, ShowStyleBases, ShowStyleVariants, Studios } from '../../collections'
@@ -30,21 +28,21 @@ import { getSystemStorePath } from '../../coreSystem'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
+import { assertConnectionHasOneOfPermissions, RequestCredentials } from '../../security/auth'
+
+const PERMISSIONS_FOR_MANAGE_BLUEPRINTS: Array<keyof UserPermissions> = ['configure']
 
 export async function insertBlueprint(
-	methodContext: MethodContext,
+	cred: RequestCredentials | null,
 	type?: BlueprintManifestType,
 	name?: string
 ): Promise<BlueprintId> {
-	const { organizationId, cred } = await OrganizationContentWriteAccess.blueprint(methodContext)
-	if (Settings.enableUserAccounts && isResolvedCredentials(cred)) {
-		if (!cred.user || !cred.user.superAdmin) {
-			throw new Meteor.Error(401, 'Only super admins can create new blueprints')
-		}
-	}
+	assertConnectionHasOneOfPermissions(cred, ...PERMISSIONS_FOR_MANAGE_BLUEPRINTS)
+
 	return Blueprints.insertAsync({
 		_id: getRandomId(),
-		organizationId: organizationId,
+		organizationId: null,
 		name: name || 'New Blueprint',
 		hasCode: false,
 		code: '',
@@ -55,8 +53,6 @@ export async function insertBlueprint(
 		blueprintType: type,
 
 		databaseVersion: {
-			studio: {},
-			showStyle: {},
 			system: undefined,
 		},
 
@@ -70,7 +66,9 @@ export async function insertBlueprint(
 }
 export async function removeBlueprint(methodContext: MethodContext, blueprintId: BlueprintId): Promise<void> {
 	check(blueprintId, String)
-	await OrganizationContentWriteAccess.blueprint(methodContext, blueprintId, true)
+
+	assertConnectionHasOneOfPermissions(methodContext.connection, ...PERMISSIONS_FOR_MANAGE_BLUEPRINTS)
+
 	if (!blueprintId) throw new Meteor.Error(404, `Blueprint id "${blueprintId}" was not found`)
 
 	await Blueprints.removeAsync(blueprintId)
@@ -78,7 +76,7 @@ export async function removeBlueprint(methodContext: MethodContext, blueprintId:
 }
 
 export async function uploadBlueprint(
-	context: Credentials,
+	cred: RequestCredentials,
 	blueprintId: BlueprintId,
 	body: string,
 	blueprintName?: string,
@@ -88,18 +86,20 @@ export async function uploadBlueprint(
 	check(body, String)
 	check(blueprintName, Match.Maybe(String))
 
-	// TODO: add access control here
-	const { organizationId } = await OrganizationContentWriteAccess.blueprint(context, blueprintId, true)
+	assertConnectionHasOneOfPermissions(cred, ...PERMISSIONS_FOR_MANAGE_BLUEPRINTS)
+
 	if (!Meteor.isTest) logger.info(`Got blueprint '${blueprintId}'. ${body.length} bytes`)
 
 	if (!blueprintId) throw new Meteor.Error(400, `Blueprint id "${blueprintId}" is not valid`)
 	const blueprint = await fetchBlueprintLight(blueprintId)
 
-	return innerUploadBlueprint(organizationId, blueprint, blueprintId, body, blueprintName, ignoreIdChange)
+	return innerUploadBlueprint(null, blueprint, blueprintId, body, blueprintName, ignoreIdChange)
 }
-export async function uploadBlueprintAsset(_context: Credentials, fileId: string, body: string): Promise<void> {
+export async function uploadBlueprintAsset(cred: RequestCredentials, fileId: string, body: string): Promise<void> {
 	check(fileId, String)
 	check(body, String)
+
+	assertConnectionHasOneOfPermissions(cred, ...PERMISSIONS_FOR_MANAGE_BLUEPRINTS)
 
 	const storePath = getSystemStorePath()
 
@@ -113,12 +113,11 @@ export async function uploadBlueprintAsset(_context: Credentials, fileId: string
 	await fsp.mkdir(path.join(storePath, parsedPath.dir), { recursive: true })
 	await fsp.writeFile(path.join(storePath, fileId), data)
 }
-export function retrieveBlueprintAsset(_context: Credentials, fileId: string): ReadStream {
+export function retrieveBlueprintAsset(_cred: RequestCredentials, fileId: string): ReadStream {
 	check(fileId, String)
 
 	const storePath = getSystemStorePath()
 
-	// TODO: add access control here
 	return createReadStream(path.join(storePath, fileId))
 }
 /** Only to be called from internal functions */
@@ -153,8 +152,6 @@ async function innerUploadBlueprint(
 		databaseVersion: blueprint
 			? blueprint.databaseVersion
 			: {
-					studio: {},
-					showStyle: {},
 					system: undefined,
 			  },
 		blueprintId: '',
@@ -204,8 +201,6 @@ async function innerUploadBlueprint(
 
 			// Force reset migrations
 			newBlueprint.databaseVersion = {
-				showStyle: {},
-				studio: {},
 				system: undefined,
 			}
 		} else {
@@ -220,6 +215,7 @@ async function innerUploadBlueprint(
 		newBlueprint.showStyleConfigSchema = blueprintManifest.showStyleConfigSchema
 		newBlueprint.showStyleConfigPresets = blueprintManifest.configPresets
 		newBlueprint.hasFixUpFunction = !!blueprintManifest.fixUpConfig
+		newBlueprint.packageStatusMessages = blueprintManifest.packageStatusMessages
 	} else if (blueprintManifest.blueprintType === BlueprintManifestType.STUDIO) {
 		newBlueprint.studioConfigSchema = blueprintManifest.studioConfigSchema
 		newBlueprint.studioConfigPresets = blueprintManifest.configPresets
@@ -361,16 +357,13 @@ async function syncConfigPresetsToStudios(blueprint: Blueprint): Promise<void> {
 }
 
 async function assignSystemBlueprint(methodContext: MethodContext, blueprintId: BlueprintId | null): Promise<void> {
-	await SystemWriteAccess.coreSystem(methodContext)
+	assertConnectionHasOneOfPermissions(methodContext.connection, ...PERMISSIONS_FOR_MANAGE_BLUEPRINTS)
 
 	if (blueprintId !== undefined && blueprintId !== null) {
 		check(blueprintId, String)
 
 		const blueprint = await fetchBlueprintLight(blueprintId)
 		if (!blueprint) throw new Meteor.Error(404, 'Blueprint not found')
-
-		if (blueprint.organizationId)
-			await OrganizationReadAccess.organizationContent(blueprint.organizationId, { userId: methodContext.userId })
 
 		if (blueprint.blueprintType !== BlueprintManifestType.SYSTEM)
 			throw new Meteor.Error(404, 'Blueprint not of type SYSTEM')
@@ -391,7 +384,7 @@ async function assignSystemBlueprint(methodContext: MethodContext, blueprintId: 
 
 class ServerBlueprintAPI extends MethodContextAPI implements ReplaceOptionalWithNullInMethodArguments<NewBlueprintAPI> {
 	async insertBlueprint() {
-		return insertBlueprint(this)
+		return insertBlueprint(this.connection)
 	}
 	async removeBlueprint(blueprintId: BlueprintId) {
 		return removeBlueprint(this, blueprintId)

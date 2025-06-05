@@ -15,6 +15,7 @@ import {
 	SegmentId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBRundown, RundownOrphanedReason, RundownSource } from '@sofie-automation/corelib/dist/dataModel/Rundown'
+import { CoreUserEditingDefinition } from '@sofie-automation/corelib/dist/dataModel/UserEditingDefinitions'
 import { RundownBaselineAdLibAction } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibAction'
 import { RundownBaselineAdLibItem } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibPiece'
 import { LazyInitialiseReadonly } from '../../lib/lazy'
@@ -30,6 +31,7 @@ import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { ProcessedShowStyleBase, ProcessedShowStyleVariant } from '../../jobs/showStyle'
 import { WrappedShowStyleBlueprint } from '../../blueprints/cache'
 import { IBlueprintRundown } from '@sofie-automation/blueprints-integration'
+import type { INotificationsModel } from '../../notifications/NotificationsModel'
 
 export type ExpectedPackageForIngestModelBaseline =
 	| ExpectedPackageDBFromBaselineAdLibAction
@@ -109,7 +111,7 @@ export interface IngestModelReadonly {
 	 */
 	getSegment(id: SegmentId): IngestSegmentModelReadonly | undefined
 	/**
-	 * Get the Segments of this Rundown, in order
+	 * Get the Segments of this Rundown, in no particular order
 	 */
 	getAllSegments(): IngestSegmentModelReadonly[]
 
@@ -147,7 +149,7 @@ export interface IngestModelReadonly {
 	findExpectedPackage(packageId: ExpectedPackageId): ReadonlyDeep<ExpectedPackageForIngestModel> | undefined
 }
 
-export interface IngestModel extends IngestModelReadonly, BaseModel {
+export interface IngestModel extends IngestModelReadonly, BaseModel, INotificationsModel {
 	/**
 	 * Search for a Part through the whole Rundown
 	 * @param id Id of the Part
@@ -234,7 +236,8 @@ export interface IngestModel extends IngestModelReadonly, BaseModel {
 		showStyleVariant: ReadonlyDeep<ProcessedShowStyleVariant>,
 		showStyleBlueprint: ReadonlyDeep<WrappedShowStyleBlueprint>,
 		source: RundownSource,
-		rundownNotes: RundownNote[]
+		rundownNotes: RundownNote[],
+		userEdits: CoreUserEditingDefinition[] | undefined
 	): ReadonlyDeep<DBRundown>
 
 	/**
@@ -268,13 +271,6 @@ export interface IngestModel extends IngestModelReadonly, BaseModel {
 	 * @param status Rundown air status
 	 */
 	setRundownAirStatus(status: string | undefined): void
-
-	/**
-	 * Add some user facing notes for this Rundown
-	 * Future: it is only possible to add these, there is no way to 'replace' or remove them
-	 * @param notes New notes to add
-	 */
-	appendRundownNotes(...notes: RundownNote[]): void
 }
 
 export type IngestReplaceSegmentType = Omit<DBSegment, '_id' | 'rundownId'>

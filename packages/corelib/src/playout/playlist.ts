@@ -91,6 +91,22 @@ export function sortRundownIDsInPlaylist(
 	return [...sortedVerifiedExisting, ...missingIds]
 }
 
+export type MarkerPosition = {
+	partRank: number
+	segmentRank: number
+	rundownRank: number
+}
+
+export function compareMarkerPositions(a: MarkerPosition, b: MarkerPosition): number {
+	if (a.rundownRank > b.rundownRank) return -1
+	if (a.rundownRank < b.rundownRank) return 1
+	if (a.segmentRank > b.segmentRank) return -1
+	if (a.segmentRank < b.segmentRank) return 1
+	if (a.partRank > b.partRank) return -1
+	if (a.partRank < b.partRank) return 1
+	return 0
+}
+
 export function sortRundownsWithinPlaylist(
 	sortedPossibleIds: ReadonlyDeep<RundownId[]>,
 	unsortedRundowns: ReadonlyDeep<DBRundown[]>

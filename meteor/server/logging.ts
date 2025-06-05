@@ -1,10 +1,11 @@
 import * as Winston from 'winston'
 import * as fs from 'fs'
 import { getAbsolutePath } from './lib'
-import { LogLevel } from '../lib/lib'
+import { LogLevel } from './lib/tempLib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { Meteor } from 'meteor/meteor'
 import * as _ from 'underscore'
+import { LoggerInstanceFixed } from '@sofie-automation/corelib/dist/logging'
 
 export function getLogLevel(): LogLevel {
 	return logger.level as LogLevel
@@ -24,9 +25,9 @@ export function setLogLevel(level: LogLevel, startup = false): void {
 		}
 	}
 }
-let originalLogger: LoggerInstanceFixed | undefined = undefined
+let originalLogger: LoggerInstanceFixedExt | undefined = undefined
 /** For use in unit tests */
-export function overrideLogger(fcn: (logger: LoggerInstanceFixed) => LoggerInstanceFixed): void {
+export function overrideLogger(fcn: (logger: LoggerInstanceFixedExt) => LoggerInstanceFixedExt): void {
 	originalLogger = logger
 	logger = fcn(logger)
 }
@@ -39,37 +40,8 @@ export function getEnvLogLevel(): LogLevel | undefined {
 	return Object.values<LogLevel>(LogLevel as any).find((level) => level === process.env.LOG_LEVEL)
 }
 
-// @todo: remove this and do a PR to https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/winston
-// because there's an error in the typings logging.debug() takes any, not only string
-interface LoggerInstanceFixed extends Winston.Logger {
-	// for cli and npm levels
-	error: LeveledLogMethodFixed
-	warn: LeveledLogMethodFixed
-	help: LeveledLogMethodFixed
-	data: LeveledLogMethodFixed
-	info: LeveledLogMethodFixed
-	debug: LeveledLogMethodFixed
-	prompt: LeveledLogMethodFixed
-	http: LeveledLogMethodFixed
-	verbose: LeveledLogMethodFixed
-	input: LeveledLogMethodFixed
-	silly: LeveledLogMethodFixed
+export type LoggerInstanceFixedExt = LoggerInstanceFixed & Pick<Winston.Logger, 'level'>
 
-	// for syslog levels only
-	emerg: LeveledLogMethodFixed
-	alert: LeveledLogMethodFixed
-	crit: LeveledLogMethodFixed
-	warning: LeveledLogMethodFixed
-	notice: LeveledLogMethodFixed
-}
-interface LogMeta {
-	[key: string]: any
-}
-interface LeveledLogMethodFixed {
-	(msg: any, callback: Winston.LogCallback): LoggerInstanceFixed
-	(msg: any, meta: LogMeta, callback: Winston.LogCallback): LoggerInstanceFixed
-	(msg: any, ...meta: LogMeta[]): LoggerInstanceFixed
-}
 const leadingZeros = (num: number | string, length: number) => {
 	num = num + ''
 	if (num.length < length) {
@@ -83,7 +55,7 @@ if (process.env.LOG_TO_FILE) logToFile = true
 
 let logPath = process.env.LOG_FILE || ''
 
-let logger: LoggerInstanceFixed
+let logger: LoggerInstanceFixedExt
 let transports: {
 	console?: Winston.transports.ConsoleTransportInstance
 	file?: Winston.transports.FileTransportInstance

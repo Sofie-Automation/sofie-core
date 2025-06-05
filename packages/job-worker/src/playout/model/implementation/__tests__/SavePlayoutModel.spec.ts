@@ -8,6 +8,8 @@ import { writePartInstancesAndPieceInstances, writeAdlibTestingSegments } from '
 import { PlayoutPartInstanceModelImpl } from '../PlayoutPartInstanceModelImpl'
 import { PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
+import { mock } from 'jest-mock-extended'
+import { QuickLoopService } from '../../services/QuickLoopService'
 
 describe('SavePlayoutModel', () => {
 	function createRundownModel(segments?: DBSegment[]): PlayoutRundownModelImpl {
@@ -191,7 +193,12 @@ describe('SavePlayoutModel', () => {
 			const context = setupDefaultJobEnvironment()
 
 			const pieceInstance = { _id: 'test0' } as unknown as PieceInstance
-			const partInstanceModel = new PlayoutPartInstanceModelImpl(null as any, [pieceInstance], false)
+			const partInstanceModel = new PlayoutPartInstanceModelImpl(
+				null as any,
+				[pieceInstance],
+				false,
+				mock<QuickLoopService>()
+			)
 			expect(partInstanceModel.removePieceInstance(pieceInstance._id)).toBeTruthy()
 
 			const partInstances = new Map<PartInstanceId, PlayoutPartInstanceModelImpl | null>()
@@ -229,7 +236,12 @@ describe('SavePlayoutModel', () => {
 		it('update PartInstance', async () => {
 			const context = setupDefaultJobEnvironment()
 
-			const partInstanceModel = new PlayoutPartInstanceModelImpl({ _id: 'id0' } as any, [], false)
+			const partInstanceModel = new PlayoutPartInstanceModelImpl(
+				{ _id: 'id0' } as any,
+				[],
+				false,
+				mock<QuickLoopService>()
+			)
 			expect(partInstanceModel.partInstance.blockTakeUntil).toBeUndefined()
 			partInstanceModel.blockTakeUntil(10000)
 			expect(partInstanceModel.partInstance.blockTakeUntil).toEqual(10000)
@@ -262,7 +274,12 @@ describe('SavePlayoutModel', () => {
 			const context = setupDefaultJobEnvironment()
 
 			const pieceInstance = { _id: 'test0' } as unknown as PieceInstance
-			const partInstanceModel = new PlayoutPartInstanceModelImpl(null as any, [pieceInstance], false)
+			const partInstanceModel = new PlayoutPartInstanceModelImpl(
+				null as any,
+				[pieceInstance],
+				false,
+				mock<QuickLoopService>()
+			)
 			expect(
 				partInstanceModel.mergeOrInsertPieceInstance({
 					...pieceInstance,
@@ -304,7 +321,8 @@ describe('SavePlayoutModel', () => {
 			const partInstanceModel = new PlayoutPartInstanceModelImpl(
 				{ _id: 'id0' } as any,
 				[pieceInstance, pieceInstance2],
-				false
+				false,
+				mock<QuickLoopService>()
 			)
 			expect(
 				partInstanceModel.mergeOrInsertPieceInstance({

@@ -1,0 +1,24 @@
+
+.segment-opl__secondary-piece {
+	position: absolute;
+	// overflow: hidden;
+
+	height: 2px;
+	top: -3px;
+
+	@include piece-colors();
+	@include missing-overlay();
+
+	/** This pseudo-element is used to increase the hit target of the main element */
+	&::after {
+		content: ' ';
+		display: block;
+		position: absolute;
+		top: -5px;
+		left: 0;
+		right: 0;
+		height: 5px;
+		background: none;
+		border: none;
+	}
+}

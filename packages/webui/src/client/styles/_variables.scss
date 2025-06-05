@@ -1,0 +1,31 @@
+
+$fullscreen-controls__button--radius: 3.125rem;
+
+$statusbar-width: 3.6rem;
+$notification-center-width: 25rem;
+$properties-panel-width: 550px;
+
+$browser-context: 16px; // Default browser font size in pixels
+
+$inspector-shelf-tabs-height: 2.3em;
+
+$segment-header-height: 2.2em;
+$segment-group-controls-width: 120px;
+$segment-margin-y: 0.8em;
+$segment-margin-x: 0.75em;
+$segment-border-radius: 11px;
+
+$part-start-color: #a5a5a5;
+$segment-background-color: #000;
+
+$liveline-timecode-color: $general-countdown-to-next-color; //$general-live-color;
+$hold-status-color: $liveline-timecode-color;
+
+$segment-storyboard-part-width: 166px;
+$segment-storyboard-thumbnail-height: 2.9rem;
+
+$portrait-mode-breakpoint: 35em;
+
+@function rem($pixels, $context: $browser-context) {
+	@return #{calc($pixels/$context)}rem;
+}

@@ -14,13 +14,11 @@ import {
 	SourceLayerType,
 	StudioBlueprintManifest,
 	BlueprintManifestType,
-	IngestRundown,
 	BlueprintManifestBase,
 	ShowStyleBlueprintManifest,
 	IShowStyleContext,
 	BlueprintResultRundown,
 	BlueprintResultSegment,
-	IngestSegment,
 	IBlueprintAdLibPiece,
 	IBlueprintRundown,
 	IBlueprintSegment,
@@ -32,22 +30,24 @@ import {
 	StatusCode,
 	IBlueprintPieceType,
 	IBlueprintActionManifest,
+	SofieIngestSegment,
+	SofieIngestRundown,
 } from '@sofie-automation/blueprints-integration'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
-import { ICoreSystem, SYSTEM_ID, stripVersion } from '../../lib/collections/CoreSystem'
+import { ICoreSystem, SYSTEM_ID } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
+import { stripVersion } from '../../server/systemStatus/semverUtils'
 import { internalUploadBlueprint } from '../../server/api/blueprints/api'
 import {
 	literal,
-	getCurrentTime,
 	protectString,
 	unprotectString,
 	getRandomId,
 	getRandomString,
 	Complete,
 	normalizeArray,
-} from '../../lib/lib'
+} from '../../server/lib/tempLib'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
@@ -59,14 +59,14 @@ import { restartRandomId } from '../random'
 import { MongoMock } from '../mongo'
 import { defaultRundownPlaylist, defaultStudio } from '../defaultCollectionObjects'
 import { PackageInfo } from '../../server/coreSystem'
-import { DBTriggeredActions } from '../../lib/collections/TriggeredActions'
-import { WorkerStatus } from '../../lib/collections/Workers'
+import { DBTriggeredActions } from '@sofie-automation/meteor-lib/dist/collections/TriggeredActions'
+import { WorkerStatus } from '@sofie-automation/meteor-lib/dist/collections/Workers'
 import { WorkerThreadStatus } from '@sofie-automation/corelib/dist/dataModel/WorkerThreads'
 import {
 	applyAndValidateOverrides,
 	wrapDefaultObject,
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import { UIShowStyleBase } from '../../lib/api/showStyles'
+import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import {
 	BlueprintId,
 	OrganizationId,
@@ -127,8 +127,7 @@ export async function setupMockPeripheralDevice(
 		_id: protectString('mockDevice' + dbI++),
 		name: 'mockDevice',
 		organizationId: null,
-		studioId: studio ? studio._id : undefined,
-		settings: {},
+		studioAndConfigId: studio ? { studioId: studio._id, configId: 'test' } : undefined,
 
 		category: category,
 		type: type,
@@ -171,6 +170,25 @@ export async function setupMockCore(doc?: Partial<ICoreSystem>): Promise<ICoreSy
 		version: '0.0.0',
 		previousVersion: '0.0.0',
 		serviceMessages: {},
+		settingsWithOverrides: wrapDefaultObject({
+			cron: {
+				casparCGRestart: {
+					enabled: true,
+				},
+				storeRundownSnapshots: {
+					enabled: false,
+				},
+			},
+			support: {
+				message: '',
+			},
+			evaluationsMessage: {
+				enabled: false,
+				heading: '',
+				message: '',
+			},
+		}),
+		lastBlueprintConfig: undefined,
 	}
 	const coreSystem = _.extend(defaultCore, doc)
 	await CoreSystem.removeAsync(SYSTEM_ID)
@@ -368,7 +386,6 @@ export async function setupMockStudioBlueprint(
 				},
 
 				studioConfigSchema: '{}' as any,
-				studioMigrations: [],
 				getBaseline: () => {
 					return {
 						timelineObjects: [],
@@ -425,11 +442,13 @@ export async function setupMockShowStyleBlueprint(
 				},
 
 				showStyleConfigSchema: '{}' as any,
-				showStyleMigrations: [],
 				getShowStyleVariantId: (): string | null => {
 					return SHOW_STYLE_VARIANT_ID
 				},
-				getRundown: (_context: IShowStyleContext, ingestRundown: IngestRundown): BlueprintResultRundown => {
+				getRundown: (
+					_context: IShowStyleContext,
+					ingestRundown: SofieIngestRundown<any, any, any>
+				): BlueprintResultRundown => {
 					const rundown: IBlueprintRundown = {
 						externalId: ingestRundown.externalId,
 						name: ingestRundown.name,
@@ -452,7 +471,10 @@ export async function setupMockShowStyleBlueprint(
 						baseline: { timelineObjects: [] },
 					}
 				},
-				getSegment: (_context: unknown, ingestSegment: IngestSegment): BlueprintResultSegment => {
+				getSegment: (
+					_context: unknown,
+					ingestSegment: SofieIngestSegment<any, any>
+				): BlueprintResultSegment => {
 					const segment: IBlueprintSegment = {
 						name: ingestSegment.name ? ingestSegment.name : ingestSegment.externalId,
 						privateData: ingestSegment.payload,
@@ -624,8 +646,8 @@ export async function setupDefaultRundown(
 		externalId: 'MOCK_RUNDOWN_' + rundownId,
 		name: 'Default Rundown',
 
-		created: getCurrentTime(),
-		modified: getCurrentTime(),
+		created: Date.now(),
+		modified: Date.now(),
 		importVersions: {
 			studio: '',
 			showStyleBase: '',
@@ -654,7 +676,6 @@ export async function setupDefaultRundown(
 		externalId: 'MOCK_SEGMENT_0',
 		rundownId: rundown._id,
 		name: 'Segment 0',
-		externalModified: 1,
 	}
 	await Segments.mutableCollection.insertAsync(segment0)
 	/* tslint:disable:ter-indent*/
@@ -764,7 +785,6 @@ export async function setupDefaultRundown(
 		externalId: 'MOCK_SEGMENT_2',
 		rundownId: rundown._id,
 		name: 'Segment 1',
-		externalModified: 1,
 	}
 	await Segments.mutableCollection.insertAsync(segment1)
 
@@ -807,7 +827,6 @@ export async function setupDefaultRundown(
 		externalId: 'MOCK_SEGMENT_2',
 		rundownId: rundown._id,
 		name: 'Segment 2',
-		externalModified: 1,
 	}
 	await Segments.mutableCollection.insertAsync(segment2)
 

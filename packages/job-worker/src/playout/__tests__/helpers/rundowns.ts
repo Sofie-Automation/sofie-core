@@ -59,7 +59,6 @@ export async function setupRundownBase(
 		externalId: 'MOCK_SEGMENT_0',
 		rundownId: rundown._id,
 		name: 'Segment 0',
-		externalModified: 1,
 	}
 	await context.mockCollections.Segments.insertOne(segment0)
 	/* tslint:disable:ter-indent*/

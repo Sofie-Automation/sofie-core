@@ -75,7 +75,9 @@ describe('applyMediaPlayersAssignments', () => {
 		const pieceInstanceId = 'piece0'
 		const partInstanceId = protectString('part0')
 
-		mockGetObjectSessionId.mockImplementation((obj, name) => `${obj.pieceInstanceId}_${name}`)
+		mockGetObjectSessionId.mockImplementation(
+			(obj, session) => `${obj.pieceInstanceId}_${session.poolName}_${session.sessionName}`
+		)
 
 		const objects = [
 			literal<OnGenerateTimelineObjExt>({

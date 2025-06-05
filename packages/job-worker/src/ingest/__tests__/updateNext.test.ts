@@ -69,7 +69,6 @@ async function createMockRO(context: MockJobContext): Promise<RundownId> {
 				externalId: 's1',
 				rundownId: rundownId,
 				name: 'Segment1',
-				externalModified: 1,
 			}),
 			literal<DBSegment>({
 				_id: protectString('mock_segment2'),
@@ -77,7 +76,6 @@ async function createMockRO(context: MockJobContext): Promise<RundownId> {
 				externalId: 's2',
 				rundownId: rundownId,
 				name: 'Segment2',
-				externalModified: 1,
 			}),
 			literal<DBSegment>({
 				_id: protectString('mock_segment3'),
@@ -85,7 +83,6 @@ async function createMockRO(context: MockJobContext): Promise<RundownId> {
 				externalId: 's3',
 				rundownId: rundownId,
 				name: 'Segment3',
-				externalModified: 1,
 			}),
 			literal<DBSegment>({
 				_id: protectString('mock_segment4'),
@@ -93,7 +90,6 @@ async function createMockRO(context: MockJobContext): Promise<RundownId> {
 				externalId: 's4',
 				rundownId: rundownId,
 				name: 'Segment4',
-				externalModified: 1,
 			}),
 		]
 	)

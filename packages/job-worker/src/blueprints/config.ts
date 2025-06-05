@@ -11,10 +11,9 @@ import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyE
 import _ = require('underscore')
 import { logger } from '../logging'
 import { CommonContext } from './context'
-import { DBStudio, IStudioSettings } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import { IStudioSettings } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { ProcessedShowStyleCompound, StudioCacheContext } from '../jobs'
-import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
+import { JobStudio, ProcessedShowStyleCompound, StudioCacheContext } from '../jobs'
 
 /**
  * Parse a string containing BlueprintConfigRefs (`${studio.studio0.myConfigField}`) to replace the refs with the current values
@@ -100,10 +99,10 @@ export function compileCoreConfigValues(studioSettings: ReadonlyDeep<IStudioSett
  * Resolves any overrides defined by the user, and run the result through the `preprocessConfig` blueprint method
  */
 export function preprocessStudioConfig(
-	studio: ReadonlyDeep<DBStudio>,
+	studio: ReadonlyDeep<JobStudio>,
 	blueprint: ReadonlyDeep<StudioBlueprintManifest>
 ): ProcessedStudioConfig {
-	let res: any = applyAndValidateOverrides(studio.blueprintConfigWithOverrides).obj
+	let res: any = studio.blueprintConfig
 
 	try {
 		if (blueprint.preprocessConfig) {

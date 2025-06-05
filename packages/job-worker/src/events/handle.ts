@@ -256,7 +256,7 @@ export async function handleNotifyCurrentlyPlayingPart(
 	}
 	const parentDevice = await context.directCollections.PeripheralDevices.findOne({
 		_id: device.parentDeviceId,
-		studioId: context.studioId,
+		'studioAndConfigId.studioId': context.studioId,
 		parentDeviceId: { $exists: false },
 	})
 	if (!parentDevice) {

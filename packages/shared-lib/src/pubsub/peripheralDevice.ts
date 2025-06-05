@@ -103,16 +103,16 @@ export interface PeripheralDevicePubSubTypes {
 	/** Custom publications for package-manager */
 	[PeripheralDevicePubSub.packageManagerPlayoutContext]: (
 		deviceId: PeripheralDeviceId,
-		token: string | undefined
+		token?: string
 	) => PeripheralDevicePubSubCollectionsNames.packageManagerPlayoutContext
 	[PeripheralDevicePubSub.packageManagerPackageContainers]: (
 		deviceId: PeripheralDeviceId,
-		token: string | undefined
+		token?: string
 	) => PeripheralDevicePubSubCollectionsNames.packageManagerPackageContainers
 	[PeripheralDevicePubSub.packageManagerExpectedPackages]: (
 		deviceId: PeripheralDeviceId,
 		filterPlayoutDeviceIds: PeripheralDeviceId[] | undefined,
-		token: string | undefined
+		token?: string
 	) => PeripheralDevicePubSubCollectionsNames.packageManagerExpectedPackages
 }
 

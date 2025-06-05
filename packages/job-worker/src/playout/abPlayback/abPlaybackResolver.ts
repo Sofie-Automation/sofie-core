@@ -1,4 +1,4 @@
-import { ABResolverOptions } from '@sofie-automation/blueprints-integration'
+import type { AbPlayerId, ABResolverOptions } from '@sofie-automation/blueprints-integration'
 import { clone } from '@sofie-automation/corelib/dist/lib'
 import * as _ from 'underscore'
 
@@ -8,7 +8,7 @@ export interface SessionRequest {
 	readonly end: number | undefined
 	readonly optional?: boolean
 	readonly lookaheadRank?: number
-	playerId?: number | string
+	playerId?: AbPlayerId
 }
 
 export interface AssignmentResult {
@@ -21,7 +21,7 @@ export interface AssignmentResult {
 }
 
 interface SlotAvailability {
-	id: number | string
+	id: AbPlayerId
 	before: (SessionRequest & { end: number }) | null
 	after: SessionRequest | null
 	clashes: SessionRequest[]
@@ -55,10 +55,26 @@ function safeMin<T>(arr: T[], func: (val: T) => number): T | undefined {
  */
 export function resolveAbAssignmentsFromRequests(
 	resolverOptions: ABResolverOptions,
-	playerIds: Array<number | string>,
+	playerIds: AbPlayerId[],
 	rawRequests: SessionRequest[],
 	now: number // Current time
 ): AssignmentResult {
+	// Check that the player assigned still exists
+	const validPlayerIdsSet = new Set(playerIds)
+	for (const req of rawRequests) {
+		if (req.playerId !== undefined && !validPlayerIdsSet.has(req.playerId)) {
+			delete req.playerId
+		}
+	}
+
+	const originalLookaheadAssignments: Record<string, AbPlayerId> = {}
+	for (const req of rawRequests) {
+		if (req.lookaheadRank !== undefined && req.playerId !== undefined) {
+			originalLookaheadAssignments[req.id] = req.playerId
+			delete req.playerId
+		}
+	}
+
 	const res: AssignmentResult = {
 		requests: _.sortBy(rawRequests, (r) => r.start).map((v) => clone(v)),
 		failedRequired: [],
@@ -80,14 +96,6 @@ export function resolveAbAssignmentsFromRequests(
 		return res
 	}
 
-	const originalLookaheadAssignments: Record<string, number | string> = {}
-	for (const req of rawRequests) {
-		if (req.lookaheadRank !== undefined && req.playerId !== undefined) {
-			originalLookaheadAssignments[req.id] = req.playerId
-			delete req.playerId
-		}
-	}
-
 	const safeNow = now + resolverOptions.nowWindow // Treat now + nowWindow as now, as it is likely that anything changed within that window will be late to air
 
 	// Clear assignments for anything which has no chance of being preloaded yet
@@ -104,7 +112,7 @@ export function resolveAbAssignmentsFromRequests(
 	pendingRequests = grouped[undefined as any]
 
 	// build map of slots and what they already have assigned
-	const slots: Map<number | string, SessionRequest[]> = new Map()
+	const slots = new Map<AbPlayerId, SessionRequest[]>()
 	_.each(playerIds, (id) => slots.set(id, grouped[id] || []))
 
 	const beforeHasGap = (p: SlotAvailability, req: SessionRequest): boolean =>
@@ -311,16 +319,27 @@ export function resolveAbAssignmentsFromRequests(
 		}
 	}
 
+	assignPlayersForLookahead(slots, res, originalLookaheadAssignments, safeNow)
+
+	return res
+}
+
+function assignPlayersForLookahead(
+	slots: Map<AbPlayerId, SessionRequest[]>,
+	res: AssignmentResult,
+	originalLookaheadAssignments: Record<string, AbPlayerId>,
+	safeNow: number
+) {
 	// Ensure lookahead gets assigned based on priority not some randomness
 	// Includes slots which have either no sessions, or the last has a known end time
-	const lastSessionPerSlot: Record<number | string, number | undefined> = {} // playerId, end
+	const lastSessionPerSlot = new Map<AbPlayerId, number>() // playerId, end
 	for (const [playerId, sessions] of slots) {
 		const last = _.last(sessions.filter((s) => s.lookaheadRank === undefined))
 		if (!last) {
-			lastSessionPerSlot[playerId] = Number.NEGATIVE_INFINITY
+			lastSessionPerSlot.set(playerId, Number.NEGATIVE_INFINITY)
 		} else if (last.end !== undefined) {
 			// If there is a defined end, then it can be useful after that point of time
-			lastSessionPerSlot[playerId] = last.end
+			lastSessionPerSlot.set(playerId, last.end)
 		}
 	}
 
@@ -328,56 +347,39 @@ export function resolveAbAssignmentsFromRequests(
 	const lookaheadsToAssign = _.sortBy(
 		res.requests.filter((r) => r.lookaheadRank !== undefined),
 		(r) => r.lookaheadRank
-	).slice(0, Object.keys(lastSessionPerSlot).length)
+	).slice(0, lastSessionPerSlot.size)
 
-	// Persist previous players if possible
-	const remainingLookaheads: SessionRequest[] = []
-	for (const req of lookaheadsToAssign) {
-		delete req.playerId
+	const [playersClearNow, playersClearSoon] = _.partition(
+		Array.from(lastSessionPerSlot.entries()),
+		(session) => session[1] < safeNow
+	)
 
+	// Assign the players which are clear right now
+	const playersClearNowIds = new Set(playersClearNow.map((p) => p[0]))
+	// First persist any previous players
+	const lookaheadsToAssignNow = lookaheadsToAssign.slice(0, playersClearNow.length)
+	for (const req of lookaheadsToAssignNow) {
 		const prevPlayer = originalLookaheadAssignments[req.id]
-		if (prevPlayer === undefined) {
-			remainingLookaheads.push(req)
-		} else {
-			// Ensure the assignment is ok
-			const slotEnd = lastSessionPerSlot[prevPlayer]
-			if (slotEnd === undefined || slotEnd >= safeNow) {
-				// It isnt available for this lookahead, or isnt visible yet
-				remainingLookaheads.push(req)
-			} else {
-				// It is ours, so remove the player from the pool
-				req.playerId = prevPlayer
-				delete lastSessionPerSlot[req.playerId]
-			}
-		}
-	}
-
-	// Assign any remaining lookaheads
-	const sortedSlots = _.sortBy(Object.entries<number | undefined>(lastSessionPerSlot), (s) => s[1] ?? 0)
-	for (let i = 0; i < remainingLookaheads.length; i++) {
-		const slot = sortedSlots[i]
-		const req = remainingLookaheads[i]
-
-		if (slot) {
-			// Check if we were originally given a player index rather than a string Id
-			if (playerIds.find((id) => typeof id === 'number' && id === Number(slot[0]))) {
-				req.playerId = Number(slot[0])
-			} else {
-				req.playerId = slot[0]
-			}
+		if (prevPlayer !== undefined && playersClearNowIds.delete(prevPlayer)) {
+			req.playerId = prevPlayer
 		} else {
 			delete req.playerId
 		}
 	}
+	// Then fill in the blanks
+	const playersClearNowRemainingIds = Array.from(playersClearNowIds)
+	for (const req of lookaheadsToAssignNow) {
+		if (req.playerId === undefined) req.playerId = playersClearNowRemainingIds.shift()
+	}
 
-	return res
+	// Assign the players which are clear soon. These aren't visible, so don't need to preserve anything
+	const lookaheadsToAssignSoon = lookaheadsToAssign.slice(playersClearNow.length)
+	for (const req of lookaheadsToAssignSoon) {
+		req.playerId = playersClearSoon.shift()?.[0]
+	}
 }
 
-function getAvailability(
-	id: number | string,
-	thisReq: SessionRequest,
-	orderedRequests: SessionRequest[]
-): SlotAvailability {
+function getAvailability(id: AbPlayerId, thisReq: SessionRequest, orderedRequests: SessionRequest[]): SlotAvailability {
 	const res: SlotAvailability = {
 		id,
 		before: null,

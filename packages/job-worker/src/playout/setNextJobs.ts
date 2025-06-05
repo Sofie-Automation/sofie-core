@@ -12,7 +12,7 @@ import {
 import { JobContext } from '../jobs'
 import { runJobWithPlayoutModel } from './lock'
 import { setNextPartFromPart, setNextSegment, queueNextSegment } from './setNext'
-import { moveNextPart } from './moveNextPart'
+import { selectNewPartWithOffsets } from './moveNextPart'
 import { updateTimeline } from './timeline/generate'
 import { PlayoutSegmentModel } from './model/PlayoutSegmentModel'
 import { ReadonlyDeep } from 'type-fest'
@@ -68,11 +68,19 @@ export async function handleMoveNextPart(context: JobContext, data: MoveNextPart
 			}
 		},
 		async (playoutModel) => {
-			const newPartId = await moveNextPart(context, playoutModel, data.partDelta, data.segmentDelta)
+			const selectedPart = selectNewPartWithOffsets(
+				context,
+				playoutModel,
+				data.partDelta,
+				data.segmentDelta,
+				data.ignoreQuickLoop
+			)
+			if (!selectedPart) return null
 
-			if (newPartId) await updateTimeline(context, playoutModel)
+			await setNextPartFromPart(context, playoutModel, selectedPart, true)
+			await updateTimeline(context, playoutModel)
 
-			return newPartId
+			return selectedPart._id
 		}
 	)
 }

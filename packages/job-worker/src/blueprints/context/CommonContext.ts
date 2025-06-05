@@ -8,9 +8,6 @@ export interface ContextInfo {
 	/** Full identifier info for the context. Should be able to identify the rundown/studio/blueprint etc being executed */
 	identifier: string
 }
-export interface UserContextInfo extends ContextInfo {
-	tempSendUserNotesIntoBlackHole?: boolean // TODO-CONTEXT remove this
-}
 
 /** Common */
 

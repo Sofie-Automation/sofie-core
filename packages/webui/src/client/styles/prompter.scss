@@ -1,0 +1,304 @@
+@import 'colorScheme';
+
+@font-face {
+	font-family: 'Source Serif Pro';
+	src: url('../../fonts/Source_Serif_Pro/SourceSerifPro-Regular.woff') format('woff'),
+		/* Pretty Modern Browsers */ url('../../fonts/Source_Serif_Pro/SourceSerifPro-Regular.ttf') format('truetype'); /* Safari, Android, iOS */
+}
+@font-face {
+	font-family: 'Overpass';
+	src: url('../../fonts/Overpass/Overpass-Regular.woff') format('woff'),
+		/* Pretty Modern Browsers */ url('../../fonts/Overpass/Overpass-Regular.ttf') format('truetype'); /* Safari, Android, iOS */
+}
+
+body.prompter-scrollbar {
+	&::-webkit-scrollbar {
+		width: 20px;
+		height: 20px;
+	}
+	&::-webkit-scrollbar-button {
+		width: 0px;
+		height: 0px;
+	}
+	&::-webkit-scrollbar-thumb {
+		background: #888888;
+		border: 0px solid #ffffff;
+		border-radius: 31px;
+	}
+	&::-webkit-scrollbar-thumb:hover {
+		background: #ffffff;
+	}
+	&::-webkit-scrollbar-thumb:active {
+		background: #666666;
+	}
+	&::-webkit-scrollbar-track {
+		background: #000000;
+		border: 0px solid #ffffff;
+		border-radius: 50px;
+	}
+	&::-webkit-scrollbar-track:hover {
+		background: #444444;
+	}
+	&::-webkit-scrollbar-track:active {
+		background: #333333;
+	}
+	&::-webkit-scrollbar-corner {
+		background: transparent;
+	}
+}
+
+.prompter {
+	user-select: none;
+	cursor: none;
+
+	font-size: 14vh;
+	font-weight: 400;
+	background: #000;
+	line-height: 1.15;
+	text-align: left;
+	letter-spacing: 0.9px;
+
+	font-family: Roboto, Helvetica, Arial, sans-serif;
+
+	&.mirror {
+		transform: scaleX(-1);
+	}
+	&.mirrorv {
+		transform: scaleY(-1);
+	}
+	&.mirror.mirrorv {
+		transform: rotate(180deg);
+	}
+
+	.prompter-rundown {
+		font-size: 75%;
+		text-align: center;
+		background: #fff;
+		color: #000;
+		font-weight: bold;
+	}
+
+	.prompter-segment {
+		font-size: 75%;
+		text-align: center;
+
+		margin-top: -0.1em;
+		border-top: 0.1em solid #fff;
+	}
+	.prompter-part {
+		text-align: center;
+		letter-spacing: 0.1em;
+		font-size: 50%;
+	}
+	.overlay-fix {
+		pointer-events: none;
+	}
+	.prompter-break {
+		font-size: 75%;
+		text-align: center;
+
+		margin-top: -0.1em;
+
+		&.end {
+			text-transform: uppercase;
+			background-color: #5ff;
+			border-bottom: 0;
+		}
+		&.begin {
+			font-size: 75%;
+			text-transform: uppercase;
+			background-color: #333;
+			border-top: 0;
+			border-bottom: 0;
+			padding-top: 1em;
+			padding-bottom: 1em;
+			color: #fff;
+		}
+	}
+
+	.prompter-segment,
+	.prompter-part,
+	.prompter-break {
+		border-bottom: 0.2em solid #000;
+
+		background: #bbb;
+		color: #000;
+		font-weight: bold;
+
+		&.live {
+			//border-bottom: 0.2em solid #f55;
+			background: $general-live-color;
+			color: #fff;
+			-webkit-text-stroke: black;
+			-webkit-text-stroke-width: 0.025em;
+			text-shadow: 0px 0px 20px #00000044;
+		}
+		&.next {
+			//border-bottom: 0.2em solid #5f5;
+			background: $general-next-color;
+		}
+	}
+
+	.prompter-line {
+		// font-family: Overpass, Roboto, Helvetica, Arial, sans-serif;
+		font-family: 'Source Serif Pro', Roboto, Helvetica, Arial, sans-serif;
+		font-size: 0.96em;
+		letter-spacing: 0em;
+		line-height: 1.2em;
+		margin-bottom: 0.5em;
+		overflow-wrap: break-word;
+		// hyphens: auto;  // do not use, leads to much more broken words than is needed.
+		white-space: pre-line; // allows for line breaks in manuscript, also replaces line with just "<>" with a blank line
+
+		.add-blank {
+			margin-bottom: 1.5em;
+		}
+	}
+
+	.overlay-fix {
+		position: fixed;
+		top: 0;
+		left: 0;
+		bottom: 0;
+		right: 0;
+		z-index: 1000;
+
+		.indicators {
+			position: absolute;
+			top: 0;
+			left: 0;
+			bottom: 0;
+			right: 0;
+			opacity: 0.25;
+		}
+
+		.read-marker {
+			position: absolute;
+			left: 0;
+			right: 0;
+			width: 0;
+			height: 1em;
+			border-left: 0.5em solid #bbb;
+			border-right: 0.5em solid transparent;
+			border-top: 0.5em solid transparent;
+			border-bottom: 0.5em solid transparent;
+
+			&.center {
+				top: 50%;
+				transform: translateY(-50%);
+			}
+			&.top {
+				top: 0.2em;
+			}
+			&.bottom {
+				bottom: 0.2em;
+			}
+			&.hide {
+				display: none;
+			}
+		}
+
+		.take-indicator,
+		.next-indicator {
+			position: absolute;
+
+			width: 0;
+			height: 0;
+
+			border-left: 1em solid transparent;
+			border-right: 1em solid transparent;
+
+			transform: scaleX(0.66);
+
+			bottom: 0;
+			margin-bottom: -1em;
+			opacity: 1;
+
+			transition: opacity 0.5s;
+
+			&.top {
+				bottom: auto;
+				top: 1.1em;
+				margin-top: -1em;
+			}
+			&.hidden {
+				opacity: 0;
+			}
+		}
+		.take-indicator {
+			right: 0em;
+
+			border-top: 1em solid #f00;
+			border-bottom: 1em solid transparent;
+			&.top {
+				border-top: 1em solid transparent;
+				border-bottom: 1em solid #f00;
+			}
+		}
+		.next-indicator {
+			right: 1.33em;
+
+			border-top: 1em solid #0f0;
+			border-bottom: 1em solid transparent;
+			&.top {
+				border-top: 1em solid transparent;
+				border-bottom: 1em solid #0f0;
+			}
+		}
+	}
+}
+
+#prompter-debug {
+	position: fixed;
+	top: 0;
+	left: 0;
+	background: black;
+	padding: 3vh;
+	font-size: 3vh;
+	color: gold;
+
+	h2 {
+		font-size: 1em;
+		font-weight: 600;
+		padding: 0;
+		margin: 0;
+	}
+}
+
+#prompter-device-access {
+	position: fixed;
+	top: 0;
+	left: 0;
+	padding: 0.7em;
+	button {
+		background: black;
+	}
+}
+
+.prompter-timing-clock {
+	position: fixed;
+	display: block;
+	top: 0;
+	right: 0;
+	left: auto;
+	font-size: 75%;
+	padding: 0.05em 0.3em;
+	border-radius: 1em;
+	box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
+
+	&.heavy-light {
+		font-weight: 600;
+
+		&.heavy {
+			// color: $general-late-color;
+			background-color: #ffe900;
+			color: #000;
+		}
+
+		&.light {
+			background-color: $general-fast-color;
+			color: #fff;
+			text-shadow: 1px 1px 0px #000, 1px -1px 0px #000, -1px -1px 0px #000, -1px 1px 0px #000;
+		}
+	}
+}

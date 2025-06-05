@@ -1,4 +1,10 @@
-import { ABResolverOptions, IBlueprintPieceType, PieceLifespan } from '@sofie-automation/blueprints-integration'
+import {
+	AbPlayerId,
+	ABResolverOptions,
+	IBlueprintPieceType,
+	PieceAbSessionInfo,
+	PieceLifespan,
+} from '@sofie-automation/blueprints-integration'
 import { EmptyPieceTimelineObjectsBlob } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { PieceInstancePiece, ResolvedPieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { ABSessionAssignments } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
@@ -21,7 +27,8 @@ function createBasicResolvedPieceInstance(
 	start: number,
 	duration: number | undefined,
 	reqId: string | undefined,
-	optional?: boolean
+	optional?: boolean,
+	uniqueSessionName?: boolean
 ): ResolvedPieceInstance {
 	const piece = literal<PieceInstancePiece>({
 		_id: protectString(id),
@@ -47,6 +54,7 @@ function createBasicResolvedPieceInstance(
 				sessionName: reqId,
 				poolName: POOL_NAME,
 				optional: optional,
+				sessionNameIsGloballyUnique: uniqueSessionName,
 			},
 		]
 	}
@@ -72,7 +80,7 @@ function resolveAbSessions(
 	timelineObjs: OnGenerateTimelineObjExt[],
 	previousAssignmentMap: ABSessionAssignments,
 	sessionPool: string,
-	playerIds: Array<number | string>,
+	playerIds: Array<AbPlayerId>,
 	now: number
 ): AssignmentResult {
 	const sessionRequests = calculateSessionTimeRanges(
@@ -120,7 +128,9 @@ describe('resolveMediaPlayers', () => {
 			createBasicResolvedPieceInstance('2', 800, 4000, 'ghi'),
 		]
 
-		mockGetPieceSessionId.mockImplementation((piece, name) => `${piece._id}_${name}`)
+		mockGetPieceSessionId.mockImplementation(
+			(piece, session) => `${piece._id}_${session.poolName}_${session.sessionName}`
+		)
 
 		const assignments = resolveAbSessions(
 			abSessionHelper,
@@ -143,9 +153,18 @@ describe('resolveMediaPlayers', () => {
 
 		expect(mockGetPieceSessionId).toHaveBeenCalledTimes(3)
 		expect(mockGetObjectSessionId).toHaveBeenCalledTimes(0)
-		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(1, pieces[0].instance, 'clip_abc')
-		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(2, pieces[1].instance, 'clip_def')
-		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(3, pieces[2].instance, 'clip_ghi')
+		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(1, pieces[0].instance, {
+			poolName: 'clip',
+			sessionName: 'abc',
+		} satisfies PieceAbSessionInfo)
+		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(2, pieces[1].instance, {
+			poolName: 'clip',
+			sessionName: 'def',
+		} satisfies PieceAbSessionInfo)
+		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(3, pieces[2].instance, {
+			poolName: 'clip',
+			sessionName: 'ghi',
+		} satisfies PieceAbSessionInfo)
 	})
 
 	test('basic pieces - players with string Ids', () => {
@@ -156,7 +175,9 @@ describe('resolveMediaPlayers', () => {
 			createBasicResolvedPieceInstance('2', 800, 4000, 'ghi'),
 		]
 
-		mockGetPieceSessionId.mockImplementation((piece, name) => `${piece._id}_${name}`)
+		mockGetPieceSessionId.mockImplementation(
+			(piece, session) => `${piece._id}_${session.poolName}_${session.sessionName}`
+		)
 
 		const assignments = resolveAbSessions(
 			abSessionHelper,
@@ -179,9 +200,18 @@ describe('resolveMediaPlayers', () => {
 
 		expect(mockGetPieceSessionId).toHaveBeenCalledTimes(3)
 		expect(mockGetObjectSessionId).toHaveBeenCalledTimes(0)
-		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(1, pieces[0].instance, 'clip_abc')
-		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(2, pieces[1].instance, 'clip_def')
-		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(3, pieces[2].instance, 'clip_ghi')
+		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(1, pieces[0].instance, {
+			poolName: 'clip',
+			sessionName: 'abc',
+		} satisfies PieceAbSessionInfo)
+		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(2, pieces[1].instance, {
+			poolName: 'clip',
+			sessionName: 'def',
+		} satisfies PieceAbSessionInfo)
+		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(3, pieces[2].instance, {
+			poolName: 'clip',
+			sessionName: 'ghi',
+		} satisfies PieceAbSessionInfo)
 	})
 
 	test('basic pieces - players with number and string Ids', () => {
@@ -192,7 +222,9 @@ describe('resolveMediaPlayers', () => {
 			createBasicResolvedPieceInstance('2', 800, 4000, 'ghi'),
 		]
 
-		mockGetPieceSessionId.mockImplementation((piece, name) => `${piece._id}_${name}`)
+		mockGetPieceSessionId.mockImplementation(
+			(piece, session) => `${piece._id}_${session.poolName}_${session.sessionName}`
+		)
 
 		const assignments = resolveAbSessions(
 			abSessionHelper,
@@ -215,9 +247,18 @@ describe('resolveMediaPlayers', () => {
 
 		expect(mockGetPieceSessionId).toHaveBeenCalledTimes(3)
 		expect(mockGetObjectSessionId).toHaveBeenCalledTimes(0)
-		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(1, pieces[0].instance, 'clip_abc')
-		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(2, pieces[1].instance, 'clip_def')
-		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(3, pieces[2].instance, 'clip_ghi')
+		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(1, pieces[0].instance, {
+			poolName: 'clip',
+			sessionName: 'abc',
+		} satisfies PieceAbSessionInfo)
+		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(2, pieces[1].instance, {
+			poolName: 'clip',
+			sessionName: 'def',
+		} satisfies PieceAbSessionInfo)
+		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(3, pieces[2].instance, {
+			poolName: 'clip',
+			sessionName: 'ghi',
+		} satisfies PieceAbSessionInfo)
 	})
 
 	test('Multiple pieces same id', () => {
@@ -229,7 +270,7 @@ describe('resolveMediaPlayers', () => {
 			createBasicResolvedPieceInstance('3', 6400, 1000, 'abc'), // Gap before
 		]
 
-		mockGetPieceSessionId.mockImplementation((_piece, name) => `tmp_${name}`)
+		mockGetPieceSessionId.mockImplementation((_piece, session) => `tmp_${session.poolName}_${session.sessionName}`)
 
 		const assignments = resolveAbSessions(
 			abSessionHelper,
@@ -250,10 +291,22 @@ describe('resolveMediaPlayers', () => {
 
 		expect(mockGetPieceSessionId).toHaveBeenCalledTimes(4)
 		expect(mockGetObjectSessionId).toHaveBeenCalledTimes(0)
-		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(1, pieces[0].instance, 'clip_abc')
-		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(2, pieces[1].instance, 'clip_abc')
-		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(3, pieces[2].instance, 'clip_abc')
-		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(4, pieces[3].instance, 'clip_abc')
+		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(1, pieces[0].instance, {
+			poolName: 'clip',
+			sessionName: 'abc',
+		} satisfies PieceAbSessionInfo)
+		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(2, pieces[1].instance, {
+			poolName: 'clip',
+			sessionName: 'abc',
+		} satisfies PieceAbSessionInfo)
+		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(3, pieces[2].instance, {
+			poolName: 'clip',
+			sessionName: 'abc',
+		} satisfies PieceAbSessionInfo)
+		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(4, pieces[3].instance, {
+			poolName: 'clip',
+			sessionName: 'abc',
+		} satisfies PieceAbSessionInfo)
 	})
 
 	test('Reuse after gap', () => {
@@ -264,7 +317,9 @@ describe('resolveMediaPlayers', () => {
 			createBasicResolvedPieceInstance('3', 6400, 1000, 'ghi'), // Wait, then reuse first
 		]
 
-		mockGetPieceSessionId.mockImplementation((piece, name) => `${piece._id}_${name}`)
+		mockGetPieceSessionId.mockImplementation(
+			(piece, session) => `${piece._id}_${session.poolName}_${session.sessionName}`
+		)
 
 		const assignments = resolveAbSessions(
 			abSessionHelper,
@@ -287,9 +342,18 @@ describe('resolveMediaPlayers', () => {
 
 		expect(mockGetPieceSessionId).toHaveBeenCalledTimes(3)
 		expect(mockGetObjectSessionId).toHaveBeenCalledTimes(0)
-		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(1, pieces[0].instance, 'clip_abc')
-		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(2, pieces[1].instance, 'clip_def')
-		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(3, pieces[2].instance, 'clip_ghi')
+		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(1, pieces[0].instance, {
+			poolName: 'clip',
+			sessionName: 'abc',
+		} satisfies PieceAbSessionInfo)
+		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(2, pieces[1].instance, {
+			poolName: 'clip',
+			sessionName: 'def',
+		} satisfies PieceAbSessionInfo)
+		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(3, pieces[2].instance, {
+			poolName: 'clip',
+			sessionName: 'ghi',
+		} satisfies PieceAbSessionInfo)
 	})
 
 	test('Reuse immediately', () => {
@@ -300,7 +364,9 @@ describe('resolveMediaPlayers', () => {
 			createBasicResolvedPieceInstance('3', 5400, 1000, 'ghi'), // Wait, then reuse first
 		]
 
-		mockGetPieceSessionId.mockImplementation((piece, name) => `${piece._id}_${name}`)
+		mockGetPieceSessionId.mockImplementation(
+			(piece, session) => `${piece._id}_${session.poolName}_${session.sessionName}`
+		)
 
 		const assignments = resolveAbSessions(
 			abSessionHelper,
@@ -323,9 +389,18 @@ describe('resolveMediaPlayers', () => {
 
 		expect(mockGetPieceSessionId).toHaveBeenCalledTimes(3)
 		expect(mockGetObjectSessionId).toHaveBeenCalledTimes(0)
-		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(1, pieces[0].instance, 'clip_abc')
-		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(2, pieces[1].instance, 'clip_def')
-		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(3, pieces[2].instance, 'clip_ghi')
+		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(1, pieces[0].instance, {
+			poolName: 'clip',
+			sessionName: 'abc',
+		} satisfies PieceAbSessionInfo)
+		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(2, pieces[1].instance, {
+			poolName: 'clip',
+			sessionName: 'def',
+		} satisfies PieceAbSessionInfo)
+		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(3, pieces[2].instance, {
+			poolName: 'clip',
+			sessionName: 'ghi',
+		} satisfies PieceAbSessionInfo)
 	})
 
 	test('Reuse immediately dense', () => {
@@ -336,7 +411,9 @@ describe('resolveMediaPlayers', () => {
 			createBasicResolvedPieceInstance('3', 5400, 1000, 'ghi'), // Wait, then reuse first
 		]
 
-		mockGetPieceSessionId.mockImplementation((piece, name) => `${piece._id}_${name}`)
+		mockGetPieceSessionId.mockImplementation(
+			(piece, session) => `${piece._id}_${session.poolName}_${session.sessionName}`
+		)
 
 		const assignments = resolveAbSessions(
 			abSessionHelper,
@@ -359,9 +436,18 @@ describe('resolveMediaPlayers', () => {
 
 		expect(mockGetPieceSessionId).toHaveBeenCalledTimes(3)
 		expect(mockGetObjectSessionId).toHaveBeenCalledTimes(0)
-		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(1, pieces[0].instance, 'clip_abc')
-		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(2, pieces[1].instance, 'clip_def')
-		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(3, pieces[2].instance, 'clip_ghi')
+		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(1, pieces[0].instance, {
+			poolName: 'clip',
+			sessionName: 'abc',
+		} satisfies PieceAbSessionInfo)
+		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(2, pieces[1].instance, {
+			poolName: 'clip',
+			sessionName: 'def',
+		} satisfies PieceAbSessionInfo)
+		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(3, pieces[2].instance, {
+			poolName: 'clip',
+			sessionName: 'ghi',
+		} satisfies PieceAbSessionInfo)
 	})
 
 	test('basic reassignment', () => {
@@ -373,7 +459,7 @@ describe('resolveMediaPlayers', () => {
 			},
 			inst_1_clip_def: {
 				sessionId: 'inst_1_clip_def',
-				playerId: 3,
+				playerId: 1,
 				lookahead: true,
 			},
 		}
@@ -383,7 +469,9 @@ describe('resolveMediaPlayers', () => {
 			createBasicResolvedPieceInstance('2', 2800, 4000, 'ghi'),
 		]
 
-		mockGetPieceSessionId.mockImplementation((piece, name) => `${piece._id}_${name}`)
+		mockGetPieceSessionId.mockImplementation(
+			(piece, session) => `${piece._id}_${session.poolName}_${session.sessionName}`
+		)
 
 		const assignments = resolveAbSessions(
 			abSessionHelper,
@@ -395,20 +483,29 @@ describe('resolveMediaPlayers', () => {
 			[1, 2],
 			0
 		)
-		expect(assignments.failedRequired).toHaveLength(0)
+		expect(assignments.failedRequired).toEqual(['inst_2_clip_ghi'])
 		expect(assignments.failedOptional).toHaveLength(0)
 		expect(assignments.requests).toHaveLength(3)
 		expect(assignments.requests).toEqual([
-			{ end: 7400, id: 'inst_0_clip_abc', playerId: 5, start: 2400, optional: false },
-			{ end: 7400, id: 'inst_1_clip_def', playerId: 3, start: 2400, optional: false },
-			{ end: 6800, id: 'inst_2_clip_ghi', playerId: 1, start: 2800, optional: false },
+			{ end: 7400, id: 'inst_0_clip_abc', playerId: 2, start: 2400, optional: false },
+			{ end: 7400, id: 'inst_1_clip_def', playerId: 1, start: 2400, optional: false },
+			{ end: 6800, id: 'inst_2_clip_ghi', playerId: undefined, start: 2800, optional: false },
 		])
 
 		expect(mockGetPieceSessionId).toHaveBeenCalledTimes(3)
 		expect(mockGetObjectSessionId).toHaveBeenCalledTimes(0)
-		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(1, pieces[0].instance, 'clip_abc')
-		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(2, pieces[1].instance, 'clip_def')
-		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(3, pieces[2].instance, 'clip_ghi')
+		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(1, pieces[0].instance, {
+			poolName: 'clip',
+			sessionName: 'abc',
+		} satisfies PieceAbSessionInfo)
+		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(2, pieces[1].instance, {
+			poolName: 'clip',
+			sessionName: 'def',
+		} satisfies PieceAbSessionInfo)
+		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(3, pieces[2].instance, {
+			poolName: 'clip',
+			sessionName: 'ghi',
+		} satisfies PieceAbSessionInfo)
 	})
 
 	test('optional gets discarded', () => {
@@ -430,7 +527,9 @@ describe('resolveMediaPlayers', () => {
 			createBasicResolvedPieceInstance('2', 2800, 4000, 'ghi'),
 		]
 
-		mockGetPieceSessionId.mockImplementation((piece, name) => `${piece._id}_${name}`)
+		mockGetPieceSessionId.mockImplementation(
+			(piece, session) => `${piece._id}_${session.poolName}_${session.sessionName}`
+		)
 
 		const assignments = resolveAbSessions(
 			abSessionHelper,
@@ -453,9 +552,19 @@ describe('resolveMediaPlayers', () => {
 
 		expect(mockGetPieceSessionId).toHaveBeenCalledTimes(3)
 		expect(mockGetObjectSessionId).toHaveBeenCalledTimes(0)
-		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(1, pieces[0].instance, 'clip_abc')
-		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(2, pieces[1].instance, 'clip_def')
-		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(3, pieces[2].instance, 'clip_ghi')
+		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(1, pieces[0].instance, {
+			poolName: 'clip',
+			sessionName: 'abc',
+		} satisfies PieceAbSessionInfo)
+		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(2, pieces[1].instance, {
+			poolName: 'clip',
+			sessionName: 'def',
+			optional: true,
+		} satisfies PieceAbSessionInfo)
+		expect(mockGetPieceSessionId).toHaveBeenNthCalledWith(3, pieces[2].instance, {
+			poolName: 'clip',
+			sessionName: 'ghi',
+		} satisfies PieceAbSessionInfo)
 	})
 
 	// TODO add some tests which check lookahead

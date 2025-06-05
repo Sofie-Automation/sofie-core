@@ -1,6 +1,6 @@
 {
 	"name": "@sofie-automation/job-worker",
-	"version": "1.51.7",
+	"version": "1.52.0-in-testing.1",
 	"description": "Worker for things",
 	"main": "dist/index.js",
 	"license": "MIT",
@@ -31,7 +31,7 @@
 		"license-validate": "run -T sofie-licensecheck"
 	},
 	"engines": {
-		"node": "^14.19 || ^16.14 || ^18.12"
+		"node": ">=22.11"
 	},
 	"files": [
 		"/dist",
@@ -40,23 +40,21 @@
 		"/LICENSE"
 	],
 	"dependencies": {
-		"@slack/webhook": "^6.1.0",
-		"@sofie-automation/blueprints-integration": "1.51.7",
-		"@sofie-automation/corelib": "1.51.7",
-		"@sofie-automation/shared-lib": "1.51.7",
-		"amqplib": "^0.10.3",
+		"@slack/webhook": "^7.0.4",
+		"@sofie-automation/blueprints-integration": "1.52.0-in-testing.1",
+		"@sofie-automation/corelib": "1.52.0-in-testing.1",
+		"@sofie-automation/shared-lib": "1.52.0-in-testing.1",
+		"amqplib": "^0.10.5",
 		"deepmerge": "^4.3.1",
-		"elastic-apm-node": "^3.51.0",
-		"eventemitter3": "^4.0.7",
-		"mongodb": "^5.9.2",
-		"node-fetch": "^2.7.0",
+		"elastic-apm-node": "^4.11.0",
+		"mongodb": "^6.12.0",
 		"p-lazy": "^3.1.0",
 		"p-timeout": "^4.1.0",
 		"superfly-timeline": "9.1.2",
 		"threadedclass": "^1.2.2",
-		"tslib": "^2.6.2",
-		"type-fest": "^3.13.1",
-		"underscore": "^1.13.6"
+		"tslib": "^2.8.1",
+		"type-fest": "^4.33.0",
+		"underscore": "^1.13.7"
 	},
 	"prettier": "@sofie-automation/code-standard-preset/.prettierrc.json",
 	"lint-staged": {
@@ -67,8 +65,8 @@
 			"yarn lint:raw"
 		]
 	},
-	"packageManager": "yarn@3.5.0",
+	"packageManager": "yarn@4.6.0",
 	"devDependencies": {
-		"jest-mock-extended": "^3.0.5"
+		"jest-mock-extended": "^3.0.7"
 	}
 }
