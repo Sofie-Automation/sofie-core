@@ -1,5 +1,6 @@
 meteor/.meteor
 **/dist/**
+**/generated/**
 
 **/node_modules/**
 
