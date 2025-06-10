@@ -137,6 +137,7 @@ function getSystemStatusForDevice(device: PeripheralDevice): StatusResponse {
 	const so: StatusResponse = {
 		name: device.name,
 		instanceId: device._id,
+		parentId: device.parentDeviceId ?? undefined,
 		status: 'UNDEFINED',
 		updated: new Date(device.lastSeen).toISOString(),
 		_status: deviceStatus,

@@ -19,26 +19,27 @@
 		"lint-fix": "run lint --fix",
 		"genclient:ts": "run -T rimraf client/ts && openapi-generator-cli generate -i ./api/actions.yaml -o client/ts -g typescript-fetch -p supportsES6=true",
 		"genclient:rs": "run -T rimraf client/rs && openapi-generator-cli generate -i ./api/actions.yaml -o client/rs -g rust",
-		"gendocs": "run -T rimraf docs && node install_swagger.js && java -jar ./jars/swagger-codegen-cli.jar generate -i ./api/actions.yaml -l html2 -o ./docs",
-		"genserver": "run -T rimraf server && node install_swagger.js && java -jar ./jars/swagger-codegen-cli.jar generate -i ./api/actions.yaml -l nodejs-server -o server && cd server && npm install && cd ../",
+		"genclient:cs": "run -T rimraf client/cs && openapi-generator-cli generate -i ./api/actions.yaml -o client/cs -g csharp",
+		"gendocs": "run -T rimraf docs && node install_swagger.mjs && java -jar ./jars/swagger-codegen-cli.jar generate -i ./api/actions.yaml -l html2 -o ./docs",
+		"genserver": "run -T rimraf server && node install_swagger.mjs && java -jar ./jars/swagger-codegen-cli.jar generate -i ./api/actions.yaml -l nodejs-server -o server && cd server && npm install && cd ../",
 		"runserver": "run genserver && cd server && node index.js",
 		"test": "run lint && run genclient:ts && run unit",
 		"unit:no-server": "node --experimental-fetch ../node_modules/jest/bin/jest.js --detectOpenHandles --forceExit"
 	},
 	"prettier": "@sofie-automation/code-standard-preset/.prettierrc.json",
 	"engines": {
-		"node": ">=21"
+		"node": ">=22.13.1"
 	},
 	"files": [
 		"/api",
 		"/dist",
-		"install_swagger.js"
+		"install_swagger.mjs"
 	],
 	"dependencies": {
 		"tslib": "^2.8.1"
 	},
 	"devDependencies": {
-		"@openapitools/openapi-generator-cli": "^2.16.3",
+		"@openapitools/openapi-generator-cli": "^2.20.2",
 		"eslint": "^9.18.0",
 		"eslint-plugin-yml": "^1.16.0",
 		"js-yaml": "^4.1.0",
@@ -51,5 +52,6 @@
 		"*.{ts,tsx,js,jsx,yaml}": [
 			"yarn lint:raw"
 		]
-	}
+	},
+	"packageManager": "yarn@4.6.0"
 }

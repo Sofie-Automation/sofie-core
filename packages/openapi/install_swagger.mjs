@@ -1,7 +1,7 @@
-const fs = require('fs/promises')
-const fs_constants = require('fs').constants
-// eslint-disable-next-line n/no-unpublished-require
-const wget = require('wget-improved')
+import fs from 'fs/promises'
+import { exit } from 'process'
+// eslint-disable-next-line n/no-unpublished-import
+import wget from 'wget-improved'
 
 async function get(url, path) {
 	let totalBytes = 0
@@ -23,7 +23,7 @@ async function get(url, path) {
 			}
 		})
 		download.on('end', function (output) {
-			process.stdout.write(`Downloaded 100% of '${path}'. Total length ${totalBytes} bytes.\n`)
+			process.stdout.write(`${output}, total length ${totalBytes} bytes.\n`)
 			resolve(output)
 		})
 	})
@@ -37,11 +37,13 @@ async function checkInstall() {
 	})
 
 	const srcPath =
-		'https://repo1.maven.org/maven2/io/swagger/codegen/v3/swagger-codegen-cli/3.0.34/swagger-codegen-cli-3.0.34.jar'
+		'https://repo1.maven.org/maven2/io/swagger/codegen/v3/swagger-codegen-cli/3.0.51/swagger-codegen-cli-3.0.51.jar'
 	const swaggerFilename = 'swagger-codegen-cli.jar'
 	await fs
-		.access(`jars/${swaggerFilename}`, fs_constants.R_OK)
+		.access(`jars/${swaggerFilename}`, fs.constants.R_OK)
 		.catch(async () => get(srcPath, `jars/${swaggerFilename}`))
 }
 
-checkInstall()
+await checkInstall()
+
+exit(0)
