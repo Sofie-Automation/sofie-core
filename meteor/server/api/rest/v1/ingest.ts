@@ -14,7 +14,7 @@ import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { IngestJobs } from '@sofie-automation/corelib/dist/worker/ingest'
 import { Meteor } from 'meteor/meteor'
-import { ClientAPI } from '../../../../lib/api/client'
+import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import {
 	HttpIngestRundown,
 	IngestRestAPI,
@@ -22,8 +22,8 @@ import {
 	PlaylistResponse,
 	RundownResponse,
 	SegmentResponse,
-} from '../../../../lib/api/rest/v1/ingest'
-import { check } from '../../../../lib/check'
+} from '../../../lib/rest/v1/ingest'
+import { check } from '../../../lib/check'
 import { Parts, RundownPlaylists, Rundowns, Segments, Studios } from '../../../collections'
 import { logger } from '../../../logging'
 import { runIngestOperation } from '../../ingest/lib'

@@ -9,6 +9,7 @@ import {
 	StatusCode,
 	StudioBlueprintManifest,
 } from '@sofie-automation/blueprints-integration'
+import { PeripheralDevice, PeripheralDeviceType } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
 import {
 	BlueprintId,
@@ -17,24 +18,17 @@ import {
 	ShowStyleVariantId,
 	StudioId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { PeripheralDevice, PeripheralDeviceType } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
-import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
 import { DBStudio, IStudioSettings } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { assertNever, Complete, getRandomId, literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import {
 	applyAndValidateOverrides,
-	convertObjectIntoOverrides,
 	ObjectOverrideSetOp,
-	updateOverrides,
 	wrapDefaultObject,
 	updateOverrides,
 	convertObjectIntoOverrides,
 	ObjectWithOverrides,
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import { DEFAULT_MINIMUM_TAKE_SPAN } from '@sofie-automation/shared-lib/dist/core/constants'
-import { Meteor } from 'meteor/meteor'
 import {
 	APIBlueprint,
 	APIBucket,
@@ -52,11 +46,17 @@ import {
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
 import { Blueprints, ShowStyleBases, Studios } from '../../../collections'
-import { logger } from '../../../logging'
+import { Meteor } from 'meteor/meteor'
+import { evalBlueprint } from '../../blueprints/cache'
 import { CommonContext } from '../../../migration/upgrades/context'
 import { logger } from '../../../logging'
-import { DEFAULT_MINIMUM_TAKE_SPAN } from '@sofie-automation/shared-lib/dist/core/constants'
-import { Bucket } from '../../../../lib/collections/Buckets'
+import {
+	DEFAULT_MINIMUM_TAKE_SPAN,
+	DEFAULT_FALLBACK_PART_DURATION,
+} from '@sofie-automation/shared-lib/dist/core/constants'
+import { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
+import { ForceQuickLoopAutoNext } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
+import { PlaylistSnapshotOptions, SystemSnapshotOptions } from '@sofie-automation/meteor-lib/dist/api/shapshot'
 
 /*
 This file contains functions that convert between the internal Sofie-Core types and types exposed to the external API.
@@ -730,7 +730,7 @@ export function playlistSnapshotOptionsFrom(options: APIPlaylistSnapshotOptions)
 
 export async function validateAPIPartPayload(
 	blueprintId: BlueprintId | undefined,
-	partPayload: Object
+	partPayload: object
 ): Promise<string[] | undefined> {
 	const blueprint = await getBlueprint(blueprintId, BlueprintManifestType.STUDIO)
 	const blueprintManifest = evalBlueprint(blueprint) as StudioBlueprintManifest
