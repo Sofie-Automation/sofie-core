@@ -122,9 +122,12 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 		if (regularAdLibDoc) {
 			// This is an AdLib Piece
 			const pieceType = baselineAdLibDoc ? 'baseline' : segmentAdLibDoc ? 'normal' : 'bucket'
-			const rundownPlaylist = await RundownPlaylists.findOneAsync(rundownPlaylistId, {
-				projection: { currentPartInfo: 1 },
-			})
+			const rundownPlaylist = await RundownPlaylists.findOneAsync(
+				{ $or: [{ _id: rundownPlaylistId }, { externalId: rundownPlaylistId }] },
+				{
+					projection: { currentPartInfo: 1 },
+				}
+			)
 			if (!rundownPlaylist)
 				return ClientAPI.responseError(
 					UserError.from(
@@ -160,9 +163,12 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 			return ClientAPI.responseSuccess({})
 		} else if (adLibActionDoc) {
 			// This is an AdLib Action
-			const rundownPlaylist = await RundownPlaylists.findOneAsync(rundownPlaylistId, {
-				projection: { currentPartInfo: 1, activationId: 1 },
-			})
+			const rundownPlaylist = await RundownPlaylists.findOneAsync(
+				{ $or: [{ _id: rundownPlaylistId }, { externalId: rundownPlaylistId }] },
+				{
+					projection: { currentPartInfo: 1, activationId: 1 },
+				}
+			)
 
 			if (!rundownPlaylist)
 				return ClientAPI.responseError(
@@ -470,7 +476,9 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 		rundownPlaylistId: RundownPlaylistId,
 		sourceLayerIds: string[]
 	): Promise<ClientAPI.ClientResponse<void>> {
-		const rundownPlaylist = await RundownPlaylists.findOneAsync(rundownPlaylistId)
+		const rundownPlaylist = await RundownPlaylists.findOneAsync({
+			$or: [{ _id: rundownPlaylistId }, { externalId: rundownPlaylistId }],
+		})
 		if (!rundownPlaylist)
 			return ClientAPI.responseError(
 				UserError.from(
