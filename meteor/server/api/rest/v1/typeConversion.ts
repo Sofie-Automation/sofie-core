@@ -730,7 +730,7 @@ export function playlistSnapshotOptionsFrom(options: APIPlaylistSnapshotOptions)
 
 export async function validateAPIPartPayload(
 	blueprintId: BlueprintId | undefined,
-	partPayload: object
+	partPayload: unknown
 ): Promise<string[] | undefined> {
 	const blueprint = await getBlueprint(blueprintId, BlueprintManifestType.STUDIO)
 	const blueprintManifest = evalBlueprint(blueprint) as StudioBlueprintManifest
