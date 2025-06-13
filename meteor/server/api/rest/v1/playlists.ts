@@ -41,12 +41,16 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 	async getAllRundownPlaylists(
 		_connection: Meteor.Connection,
 		_event: string
-	): Promise<ClientAPI.ClientResponse<Array<{ id: string }>>> {
-		const rundownPlaylists = (await RundownPlaylists.findFetchAsync({}, { projection: { _id: 1 } })) as Array<
-			Pick<DBRundownPlaylist, '_id'>
-		>
+	): Promise<ClientAPI.ClientResponse<Array<{ id: string; externalId: string }>>> {
+		const rundownPlaylists = (await RundownPlaylists.findFetchAsync(
+			{},
+			{ projection: { _id: 1, externalId: 1 } }
+		)) as Array<Pick<DBRundownPlaylist, '_id' | 'externalId'>>
 		return ClientAPI.responseSuccess(
-			rundownPlaylists.map((rundownPlaylist) => ({ id: unprotectString(rundownPlaylist._id) }))
+			rundownPlaylists.map((rundownPlaylist) => ({
+				id: unprotectString(rundownPlaylist._id),
+				externalId: rundownPlaylist.externalId,
+			}))
 		)
 	}
 

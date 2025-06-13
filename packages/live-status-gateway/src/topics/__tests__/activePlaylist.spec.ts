@@ -53,6 +53,7 @@ describe('ActivePlaylistTopic', () => {
 			event: 'activePlaylist',
 			name: playlist.name,
 			id: unprotectString(playlist._id),
+			externalId: 'NCS_PLAYLIST_1',
 			currentPart: null,
 			nextPart: null,
 			currentSegment: null,
@@ -129,6 +130,7 @@ describe('ActivePlaylistTopic', () => {
 			event: 'activePlaylist',
 			name: playlist.name,
 			id: unprotectString(playlist._id),
+			externalId: 'NCS_PLAYLIST_1',
 			currentPart: {
 				id: 'PART_1',
 				name: 'Test Part',
@@ -232,6 +234,7 @@ describe('ActivePlaylistTopic', () => {
 			event: 'activePlaylist',
 			name: playlist.name,
 			id: unprotectString(playlist._id),
+			externalId: 'NCS_PLAYLIST_1',
 			currentPart: {
 				id: 'PART_1',
 				name: 'Test Part',

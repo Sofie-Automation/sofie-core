@@ -40,6 +40,7 @@ const THROTTLE_PERIOD_MS = 100
 
 const PLAYLIST_KEYS = [
 	'_id',
+	'externalId',
 	'activationId',
 	'name',
 	'rundownIdsInOrder',
@@ -103,6 +104,7 @@ export class ActivePlaylistTopic extends WebSocketTopicBase implements WebSocket
 			? literal<ActivePlaylistEvent>({
 					event: 'activePlaylist',
 					id: unprotectString(this._activePlaylist._id),
+					externalId: this._activePlaylist.externalId,
 					name: this._activePlaylist.name,
 					rundownIds: this._activePlaylist.rundownIdsInOrder.map((r) => unprotectString(r)),
 					currentPart:
@@ -172,6 +174,7 @@ export class ActivePlaylistTopic extends WebSocketTopicBase implements WebSocket
 			: literal<ActivePlaylistEvent>({
 					event: 'activePlaylist',
 					id: null,
+					externalId: null,
 					name: '',
 					rundownIds: [],
 					currentPart: null,

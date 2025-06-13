@@ -56,6 +56,7 @@ export class StudioTopic extends WebSocketTopicBase implements WebSocketTopic {
 				if (p.activationId && p.rehearsal) activationStatus = PlaylistActivationStatus.REHEARSAL
 				return literal<PlaylistStatus>({
 					id: unprotectString(p._id),
+					externalId: p.externalId,
 					name: p.name,
 					activationStatus: activationStatus,
 				})
