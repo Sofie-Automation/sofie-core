@@ -23,4 +23,6 @@ COPY --from=0 /opt/server-core-integration /opt/server-core-integration
 COPY --from=0 /opt/shared-lib /opt/shared-lib
 
 WORKDIR /opt/playout-gateway
+RUN chown -R 1000:1000 /opt/playout-gateway
+USER 1000
 CMD ["node", "dist/index.js"]

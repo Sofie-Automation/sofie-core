@@ -11,6 +11,17 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 - modify datastore in `onRundownActivate` SOFIE-3310 ([#1240](https://github.com/nrkno/sofie-core/issues/1240)) ([8a0759f](https://github.com/nrkno/sofie-core/commit/8a0759f610497e37493e8a798aa0dd13f4f57119))
 - update meteor to 3.1 and node to 22 ([61b6854](https://github.com/nrkno/sofie-core/commit/61b6854261a03f04e81416b9d37ee995e3a10108))
 
+## [1.51.7](https://github.com/nrkno/sofie-core/compare/v1.51.6...v1.51.7) (2025-05-06)
+
+
+### Bug Fixes
+
+* update timeline-state-resolver to a test version ([fbe3a55](https://github.com/nrkno/sofie-core/commit/fbe3a556e6e98d7dc70b8995c65a5eeb2c9593f9))
+
+
+
+
+
 ## [1.51.6](https://github.com/nrkno/sofie-core/compare/v1.51.5...v1.51.6) (2025-01-14)
 
 ### Bug Fixes

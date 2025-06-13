@@ -23,4 +23,6 @@ COPY --from=0 /opt/server-core-integration /opt/server-core-integration
 COPY --from=0 /opt/shared-lib /opt/shared-lib
 
 WORKDIR /opt/mos-gateway
+RUN chown -R 1000:1000 /opt/mos-gateway
+USER 1000
 CMD ["node", "dist/index.js"]

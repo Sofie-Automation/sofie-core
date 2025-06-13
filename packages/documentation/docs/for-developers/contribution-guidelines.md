@@ -68,7 +68,7 @@ Most of the projects use a linter (eslint) and a formatter (prettier). Before su
 
 ### Documentation
 
-We rely on two types of documentation; the [Sofie documentation](https://nrkno.github.io/sofie-core/) ([source code](https://github.com/nrkno/sofie-core/tree/master/packages/documentation)) and inline code documentation.
+We rely on two types of documentation; the [Sofie documentation](https://sofie-automation.github.io/sofie-core/) ([source code](https://github.com/Sofie-Automation/sofie-core/tree/main/packages/documentation)) and inline code documentation.
 
 We don't aim to have the "absolute perfect documentation possible", BUT we do try to improve and add documentation to have a good-enough-to-be-comprehensible standard. We think that:
 

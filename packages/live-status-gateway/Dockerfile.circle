@@ -4,10 +4,13 @@ RUN apk add --no-cache tzdata
 COPY package.json /opt/
 COPY node_modules /opt/node_modules
 COPY live-status-gateway /opt/live-status-gateway
+COPY live-status-gateway-api /opt/live-status-gateway-api
 COPY blueprints-integration /opt/blueprints-integration
 COPY server-core-integration /opt/server-core-integration
 COPY shared-lib /opt/shared-lib
 COPY corelib /opt/corelib
 
 WORKDIR /opt/live-status-gateway
+RUN chown -R 1000:1000 /opt/live-status-gateway
+USER 1000
 CMD ["node", "dist/index.js"]

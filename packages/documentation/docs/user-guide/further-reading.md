@@ -40,8 +40,8 @@ description: This guide has a lot of links. Here they are all listed by section.
 #### Installing CasparCG&nbsp;Server for Sofie
 
 - NRK's version of [CasparCG&nbsp;Server](https://github.com/nrkno/sofie-casparcg-server/releases) on GitHub.
-- [Media Scanner](https://github.com/nrkno/sofie-casparcg-launcher/releases) on GitHub.
-- [CasparCG Launcher](https://github.com/nrkno/sofie-casparcg-launcher) on GitHub.
+- [Media Scanner](https://github.com/Sofie-Automation/sofie-casparcg-launcher/releases) on GitHub.
+- [CasparCG Launcher](https://github.com/Sofie-Automation/sofie-casparcg-launcher) on GitHub.
 - [Microsoft Visual C++ 2015 Redistributable](https://www.microsoft.com/en-us/download/details.aspx?id=52685) on Microsoft's website.
 - [Blackmagic Design's DeckLink Cards](https://www.blackmagicdesign.com/products/decklink/models) on Blackmagic Design's website. Check the [DeckLink cards](installation/installing-connections-and-additional-hardware/casparcg-server-installation.md#decklink-cards) section for compatibility.
 - [Installing a DeckLink Card](https://documents.blackmagicdesign.com/UserManuals/DesktopVideoManual.pdf) as a PDF.
@@ -56,4 +56,4 @@ description: This guide has a lot of links. Here they are all listed by section.
 ## FAQ, Progress, and Issues
 
 - [MIT Licence](https://opensource.org/licenses/MIT)
-- [Releases and Issues on GitHub](https://github.com/nrkno/Sofie-TV-automation/issues?utf8=%E2%9C%93&q=is%3Aissue+label%3ARelease)
+- [Releases and Issues on GitHub](https://github.com/Sofie-Automation/Sofie-TV-automation/issues?utf8=%E2%9C%93&q=is%3Aissue+label%3ARelease)

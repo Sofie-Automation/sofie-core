@@ -16,7 +16,7 @@ In version 1.50, a new REST API was introduced. This can be found at `/api/v1.0`
 The _Live Status Gateway_ is also part of this stable API, intended to allow for reactively retrieving data from Sofie. Internally it is translating the internal APIs into a stable version.
 
 :::note
-You can find the _Live Status Gateway_ in the `packages` folder of the [Sofie Core](https://github.com/nrkno/sofie-core) repository.
+You can find the _Live Status Gateway_ in the `packages` folder of the [Sofie Core](https://github.com/Sofie-Automation/sofie-core) repository.
 :::
 
 ## Internal

@@ -197,7 +197,7 @@ class AdLibRegionPanelBase extends React.Component<
 			this.props.panel.tags && this.props.rundownBaselineAdLibs
 				? this.props.rundownBaselineAdLibs
 						.concat(_.flatten(this.props.uiSegments.map((seg) => seg.pieces)))
-						.filter((item) => matchFilter(item, this.props.showStyleBase, liveSegment, this.props.filter))[
+						.filter((item) => matchFilter(item, this.props.showStyleBase.sourceLayers, liveSegment, this.props.filter))[
 						this.props.adlibRank ? this.props.adlibRank : 0
 					]
 				: undefined

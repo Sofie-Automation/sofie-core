@@ -53,7 +53,7 @@ One additional note, the Server does require the configuration file be named `ca
 
 ### Installing the CasparCG Launcher
 
-You can launch CasparCG&nbsp;Server and the Media scanner applications with the [CasparCG Launcher.](https://github.com/nrkno/sofie-casparcg-launcher) Download the `.exe` file in the latest release and once complete, move the file to the same folder as your `casparcg.exe` file.
+You can launch CasparCG&nbsp;Server and the Media scanner applications with the [CasparCG Launcher.](https://github.com/Sofie-Automation/sofie-casparcg-launcher) Download the `.exe` file in the latest release and once complete, move the file to the same folder as your `casparcg.exe` file.
 
 ## Configuring Windows
 
@@ -219,7 +219,7 @@ In the _Attached Sub Devices_ section, you should now see the status of the Casp
 
 - [CasparCG&nbsp;Server Releases](https://github.com/nrkno/sofie-casparcg-server/releases) on GitHub.
 - [Media Scanner Releases](https://github.com/nrkno/sofie-media-scanner/releases) on GitHub.
-- [CasparCG Launcher](https://github.com/nrkno/sofie-casparcg-launcher) on GitHub.
+- [CasparCG Launcher](https://github.com/Sofie-Automation/sofie-casparcg-launcher) on GitHub.
 - [Microsoft Visual C++ 2015 Redistributable](https://www.microsoft.com/en-us/download/details.aspx?id=52685) on Microsoft's website.
 - [Blackmagic Design's DeckLink Cards](https://www.blackmagicdesign.com/products/decklink/models) on Blackmagic's website. Check the [DeckLink cards](casparcg-server-installation.md#decklink-cards) section for compatibility.
 - [Installing a DeckLink Card](https://documents.blackmagicdesign.com/UserManuals/DesktopVideoManual.pdf) as a PDF.

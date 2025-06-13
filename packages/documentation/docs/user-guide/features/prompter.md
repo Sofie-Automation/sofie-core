@@ -92,8 +92,8 @@ This mode is intended to be used when having a Contour ShuttleXpress or X-keys d
 
 Configuration files that can be used in their respective driver software:
 
-- [Contour ShuttleXpress](https://github.com/nrkno/sofie-core/blob/release26/resources/prompter_layout_shuttlexpress.pref)
-- [X-keys](https://github.com/nrkno/sofie-core/blob/release26/resources/prompter_layout_xkeys.mw3)
+- [Contour ShuttleXpress](https://github.com/Sofie-Automation/sofie-core/blob/release26/resources/prompter_layout_shuttlexpress.pref)
+- [X-keys](https://github.com/Sofie-Automation/sofie-core/blob/release26/resources/prompter_layout_xkeys.mw3)
 
 #### Control using Contour ShuttleXpress via WebHID
 

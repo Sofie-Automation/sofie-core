@@ -14,8 +14,18 @@ require('../http.ts') // include in order to create the Meteor methods needed
 
 describe('Test blueprint http api', () => {
 	describe('router restore single', () => {
-		async function callRoute(blueprintId: string, body: any, name?: string, force?: boolean) {
-			const queryParams = _.compact([name ? `name=${name}` : undefined, force ? 'force=1' : undefined])
+		async function callRoute(
+			blueprintId: string,
+			body: any,
+			name?: string,
+			force?: boolean,
+			developmentMode?: boolean
+		) {
+			const queryParams = _.compact([
+				name ? `name=${name}` : undefined,
+				force ? 'force=1' : undefined,
+				developmentMode ? 'developmentMode=1' : undefined,
+			])
 
 			const ctx = await callKoaRoute(blueprintsRouter, {
 				method: 'POST',
@@ -74,7 +84,11 @@ describe('Test blueprint http api', () => {
 			expect(res.body).toEqual('')
 
 			expect(api.uploadBlueprint).toHaveBeenCalledTimes(1)
-			expect(api.uploadBlueprint).toHaveBeenCalledWith(DEFAULT_CONTEXT, id, body, undefined, false)
+			expect(api.uploadBlueprint).toHaveBeenCalledWith(DEFAULT_CONTEXT, id, body, {
+				blueprintName: undefined,
+				ignoreIdChange: false,
+				developmentMode: false,
+			} satisfies api.UploadBlueprintOptions)
 		})
 		test('with body & force', async () => {
 			const id = 'id1'
@@ -85,7 +99,26 @@ describe('Test blueprint http api', () => {
 			expect(res.body).toEqual('')
 
 			expect(api.uploadBlueprint).toHaveBeenCalledTimes(1)
-			expect(api.uploadBlueprint).toHaveBeenCalledWith(DEFAULT_CONTEXT, id, body, undefined, true)
+			expect(api.uploadBlueprint).toHaveBeenCalledWith(DEFAULT_CONTEXT, id, body, {
+				blueprintName: undefined,
+				ignoreIdChange: true,
+				developmentMode: false,
+			} satisfies api.UploadBlueprintOptions)
+		})
+		test('with body & developmentMode', async () => {
+			const id = 'id1'
+			const body = '0123456789'
+
+			const res = await callRoute(id, body, undefined, false, true)
+			expect(res.response.status).toEqual(200)
+			expect(res.body).toEqual('')
+
+			expect(api.uploadBlueprint).toHaveBeenCalledTimes(1)
+			expect(api.uploadBlueprint).toHaveBeenCalledWith(DEFAULT_CONTEXT, id, body, {
+				blueprintName: undefined,
+				ignoreIdChange: false,
+				developmentMode: true,
+			} satisfies api.UploadBlueprintOptions)
 		})
 		test('internal error', async () => {
 			const id = 'id1'
@@ -104,7 +137,11 @@ describe('Test blueprint http api', () => {
 				expect(res.body).toEqual('[505] Some thrown error')
 
 				expect(api.uploadBlueprint).toHaveBeenCalledTimes(1)
-				expect(api.uploadBlueprint).toHaveBeenCalledWith(DEFAULT_CONTEXT, id, body, undefined, false)
+				expect(api.uploadBlueprint).toHaveBeenCalledWith(DEFAULT_CONTEXT, id, body, {
+					blueprintName: undefined,
+					ignoreIdChange: false,
+					developmentMode: false,
+				} satisfies api.UploadBlueprintOptions)
 			} finally {
 				uploadBlueprint.mockRestore()
 			}
@@ -119,15 +156,21 @@ describe('Test blueprint http api', () => {
 			expect(res.body).toEqual('')
 
 			expect(api.uploadBlueprint).toHaveBeenCalledTimes(1)
-			expect(api.uploadBlueprint).toHaveBeenCalledWith(DEFAULT_CONTEXT, id, body, name, false)
+			expect(api.uploadBlueprint).toHaveBeenCalledWith(DEFAULT_CONTEXT, id, body, {
+				blueprintName: name,
+				ignoreIdChange: false,
+				developmentMode: false,
+			} satisfies api.UploadBlueprintOptions)
 		})
 	})
 
 	describe('router restore bulk', () => {
-		async function callRoute(body: any) {
+		async function callRoute(body: any, developmentMode?: boolean) {
+			const queryParams = _.compact(['force=1', developmentMode ? 'developmentMode=1' : undefined])
+
 			const ctx = await callKoaRoute(blueprintsRouter, {
 				method: 'POST',
-				url: `/restore?force=1`,
+				url: `/restore?${queryParams.join('&')}`,
 
 				requestBody: body,
 			})
@@ -207,7 +250,30 @@ describe('Test blueprint http api', () => {
 			expect(res.body).toEqual('')
 
 			expect(api.uploadBlueprint).toHaveBeenCalledTimes(1)
-			expect(api.uploadBlueprint).toHaveBeenCalledWith(DEFAULT_CONTEXT, id, body, id)
+			expect(api.uploadBlueprint).toHaveBeenCalledWith(DEFAULT_CONTEXT, id, body, {
+				blueprintName: id,
+				developmentMode: false,
+			} satisfies api.UploadBlueprintOptions)
+		})
+		test('with json body & developmentMode', async () => {
+			const id = 'id1'
+			const body = 'bodyStr1'
+
+			const payload: any = {
+				blueprints: {
+					[id]: body,
+				},
+			}
+
+			const res = await callRoute(payload, true)
+			expect(res.response.status).toEqual(200)
+			expect(res.body).toEqual('')
+
+			expect(api.uploadBlueprint).toHaveBeenCalledTimes(1)
+			expect(api.uploadBlueprint).toHaveBeenCalledWith(DEFAULT_CONTEXT, id, body, {
+				blueprintName: id,
+				developmentMode: true,
+			} satisfies api.UploadBlueprintOptions)
 		})
 		test('with json body as object', async () => {
 			const id = 'id1'
@@ -224,7 +290,10 @@ describe('Test blueprint http api', () => {
 			expect(res.body).toEqual('')
 
 			expect(api.uploadBlueprint).toHaveBeenCalledTimes(1)
-			expect(api.uploadBlueprint).toHaveBeenCalledWith(DEFAULT_CONTEXT, id, body, id)
+			expect(api.uploadBlueprint).toHaveBeenCalledWith(DEFAULT_CONTEXT, id, body, {
+				blueprintName: id,
+				developmentMode: false,
+			} satisfies api.UploadBlueprintOptions)
 		})
 		test('with json body - multiple', async () => {
 			const count = 10
@@ -242,7 +311,10 @@ describe('Test blueprint http api', () => {
 
 			expect(api.uploadBlueprint).toHaveBeenCalledTimes(count)
 			for (let i = 0; i < count; i++) {
-				expect(api.uploadBlueprint).toHaveBeenCalledWith(DEFAULT_CONTEXT, `id${i}`, `body${i}`, `id${i}`)
+				expect(api.uploadBlueprint).toHaveBeenCalledWith(DEFAULT_CONTEXT, `id${i}`, `body${i}`, {
+					blueprintName: `id${i}`,
+					developmentMode: false,
+				} satisfies api.UploadBlueprintOptions)
 			}
 		})
 		test('with errors', async () => {
@@ -275,7 +347,10 @@ describe('Test blueprint http api', () => {
 
 				expect(api.uploadBlueprint).toHaveBeenCalledTimes(count)
 				for (let i = 0; i < count; i++) {
-					expect(api.uploadBlueprint).toHaveBeenCalledWith(DEFAULT_CONTEXT, `id${i}`, `body${i}`, `id${i}`)
+					expect(api.uploadBlueprint).toHaveBeenCalledWith(DEFAULT_CONTEXT, `id${i}`, `body${i}`, {
+						blueprintName: `id${i}`,
+						developmentMode: false,
+					})
 				}
 			} finally {
 				uploadBlueprint.mockRestore()

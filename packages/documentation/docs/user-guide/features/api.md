@@ -16,4 +16,4 @@ Starting with version 1.50.0, there is also a separate service available, called
 
 ## DDP – Core Integration
 
-If you're planning to build NodeJS applications that talk to _Sofie&nbsp;Core_, we recommend using the [core-integration](https://github.com/nrkno/sofie-core/tree/master/packages/server-core-integration) library, which exposes a number of callable methods and allows for subscribing to data the same way the [Gateways](../concepts-and-architecture.md#gateways) do it.
+If you're planning to build NodeJS applications that talk to _Sofie&nbsp;Core_, we recommend using the [core-integration](https://github.com/Sofie-Automation/sofie-core/tree/master/packages/server-core-integration) library, which exposes a number of callable methods and allows for subscribing to data the same way the [Gateways](../concepts-and-architecture.md#gateways) do it.

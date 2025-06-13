@@ -289,7 +289,7 @@ export namespace RundownUtils {
 		segment: DBSegment,
 		segmentsToReceiveOnRundownEndFromSet: Set<SegmentId>,
 		rundownsToReceiveOnShowStyleEndFrom: RundownId[],
-		rundownsToShowstyles: Map<RundownId, ShowStyleBaseId>,
+		rundownsToShowstyles: ReadonlyMap<RundownId, ShowStyleBaseId>,
 		orderedAllPartIds: PartId[],
 		currentPartInstance: PartInstance | undefined,
 		nextPartInstance: PartInstance | undefined,

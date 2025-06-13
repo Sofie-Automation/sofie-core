@@ -8,7 +8,7 @@ For example, it could be setup to hold back the video when going between two cli
 
 ## Flow
 
-While _Hold_ is active or in progress, an indicator is shown in the header of the UI.  
+While _Hold_ is active or in progress, an indicator is shown in the header of the UI.
 ![_Hold_ in Rundown View header](/img/docs/rundown-header-hold.png)
 
 It is not possible to run any adlibs while a hold is active, or to change the nexted part. Once it is in progress, it is not possible to abort or cancel the _Hold_ and it must be run to completion. If the second part has an autonext and that gets reached before the _Hold_ is completed, the _Hold_ will be treated as completed and the autonext will execute as normal.
@@ -39,14 +39,14 @@ Some unanswered questions we have are:
 - Should there be a way to more intelligently check if _Hold_ can be done between two Parts? (perhaps a new blueprint method?)
   :::
 
-The blueprints have to label parts as supporting _Hold_.  
-You can do this with the [`holdMode`](https://nrkno.github.io/sofie-core/typedoc/interfaces/_sofie_automation_blueprints_integration.IBlueprintPart.html#holdMode) property, and labelling it possible to _Hold_ from or to the part.
+The blueprints have to label parts as supporting _Hold_.
+You can do this with the [`holdMode`](https://sofie-automation.github.io/sofie-core/typedoc/interfaces/_sofie_automation_blueprints_integration.IBlueprintPart.html#holdMode) property, and labelling it possible to _Hold_ from or to the part.
 
 Note: If the user manipulates what part is set as next, they will be able to do a _Hold_ between parts that are not sequential in the Rundown.
 
-You also have to label Pieces as something to extend into the _Hold_. Not every piece will be wanted, so it is opt-in.  
-You can do this with the [`extendOnHold`](https://nrkno.github.io/sofie-core/typedoc/interfaces/_sofie_automation_blueprints_integration.IBlueprintPiece.html#extendOnHold) property. The pieces will get extended in the same way as infinite pieces, but limited to only be extended into the one part. The usual piece collision and priority logic applies.
+You also have to label Pieces as something to extend into the _Hold_. Not every piece will be wanted, so it is opt-in.
+You can do this with the [`extendOnHold`](https://sofie-automation.github.io/sofie-core/typedoc/interfaces/_sofie_automation_blueprints_integration.IBlueprintPiece.html#extendOnHold) property. The pieces will get extended in the same way as infinite pieces, but limited to only be extended into the one part. The usual piece collision and priority logic applies.
 
-Finally, you may find that there are some timeline objects that you don't want to use inside of the extended pieces, or there are some objects in the part that you don't want active while the _Hold_ is.  
-You can mark an object with the [`holdMode`](https://nrkno.github.io/sofie-core/typedoc/interfaces/_sofie_automation_blueprints_integration.TimelineObjectCoreExt.html#holdMode) property to specify its presence during a _Hold_.  
+Finally, you may find that there are some timeline objects that you don't want to use inside of the extended pieces, or there are some objects in the part that you don't want active while the _Hold_ is.
+You can mark an object with the [`holdMode`](https://sofie-automation.github.io/sofie-core/typedoc/interfaces/_sofie_automation_blueprints_integration.TimelineObjectCoreExt.html#holdMode) property to specify its presence during a _Hold_.
 The `HoldMode.ONLY` mode tells the object to only be used when in a _Hold_, which allows for doing some overrides in more complex scenarios.

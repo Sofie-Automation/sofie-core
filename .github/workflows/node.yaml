@@ -110,8 +110,8 @@ jobs:
       - name: Determine if images should be published to DockerHub
         id: dockerhub
         run: |
-          # check if a release branch, or master, or a tag
-          if [[ "${{ github.ref }}" =~ ^refs/heads/release([0-9]+)$ || "${{ github.ref }}" == "refs/heads/master" || "${{ github.ref }}" == refs/tags/* ]]
+          # check if a release branch, or main, or a tag
+          if [[ "${{ github.ref }}" =~ ^refs/heads/release([0-9]+)$ || "${{ github.ref }}" == "refs/heads/main" || "${{ github.ref }}" == refs/tags/* ]]
           then
             DOCKERHUB_PUBLISH="1"
           else
@@ -290,8 +290,8 @@ jobs:
       - name: Determine if images should be published to DockerHub
         id: dockerhub
         run: |
-          # check if a release branch, or master, or a tag
-          if [[ "${{ github.ref }}" =~ ^refs/heads/release([0-9]+)$ || "${{ github.ref }}" == "refs/heads/master" || "${{ github.ref }}" == "refs/tags/*" ]]
+          # check if a release branch, or main, or a tag
+          if [[ "${{ github.ref }}" =~ ^refs/heads/release([0-9]+)$ || "${{ github.ref }}" == "refs/heads/main" || "${{ github.ref }}" == "refs/tags/*" ]]
           then
             DOCKERHUB_PUBLISH="1"
           else
@@ -661,7 +661,7 @@ jobs:
         env:
           CI: true
       - name: Publish
-        if: github.ref == 'refs/heads/master' # always publish for just the master branch
+        if: github.ref == 'refs/heads/main' # always publish for just the main branch
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

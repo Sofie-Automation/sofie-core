@@ -28,7 +28,7 @@ _TODO: add examples of the GUI:_
 
 _TODO: make new overview_
 
-## ![Sofie System Overview](https://raw.githubusercontent.com/nrkno/Sofie-TV-automation/master/images/Sofie_NRK_May_10_2019.png)
+## ![Sofie System Overview](https://raw.githubusercontent.com/Sofie-Automation/Sofie-TV-automation/main/images/Sofie_NRK_May_10_2019.png)
 
 ## User Interface
 

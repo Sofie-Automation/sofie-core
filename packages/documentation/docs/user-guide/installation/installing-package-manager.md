@@ -18,7 +18,7 @@ Although Package Manager can be used to copy any kind of file to/from a wide arr
 
 :::caution
 
-Sofie supports only one Package Manager running for a Studio. Attaching more at a time will result in weird behaviour due to them fighting over reporting the statuses of packages.  
+Sofie supports only one Package Manager running for a Studio. Attaching more at a time will result in weird behaviour due to them fighting over reporting the statuses of packages.
 If you feel like you need multiple, then you likely want to run Package Manager in the distributed setup instead.
 
 :::
@@ -34,7 +34,7 @@ The Package Manager worker process is primarily tested on Windows only. It does 
 Package Manager is a suite of standalone applications, separate from _Sofie&nbsp;Core_. This guide assumes that Package Manager will be running on the same computer as _CasparCG&nbsp;Server_ and _Sofie&nbsp;Core_, as that is the fastest way to set up a demo. To get all parts of _Package Manager_ up and running quickly, execute these commands:
 
 ```bash
-git clone https://github.com/nrkno/sofie-package-manager.git
+git clone https://github.com/Sofie-Automation/sofie-package-manager.git
 cd sofie-package-manager
 yarn install
 yarn build
@@ -62,7 +62,7 @@ Only one Package Manager can be running for a Sofie Studio. If you reached this 
 
 ### Simple Setup
 
-For setups where you only need to interact with CasparCG on one machine, we provide pre-built executables for Windows (x64) systems. These can be found on the [Releases](https://github.com/nrkno/sofie-package-manager/releases) GitHub repository page for Package Manager. For a minimal installation, you'll need the `package-manager-single-app.exe` and `worker.exe`. Put them in a folder of your choice. You can also place `ffmpeg.exe` and `ffprobe.exe` alongside them, if you don't want to make them available in `PATH`.
+For setups where you only need to interact with CasparCG on one machine, we provide pre-built executables for Windows (x64) systems. These can be found on the [Releases](https://github.com/Sofie-Automation/sofie-package-manager/releases) GitHub repository page for Package Manager. For a minimal installation, you'll need the `package-manager-single-app.exe` and `worker.exe`. Put them in a folder of your choice. You can also place `ffmpeg.exe` and `ffprobe.exe` alongside them, if you don't want to make them available in `PATH`.
 
 ```bash
 package-manager-single-app.exe --coreHost=<Core Host Name> --corePort=<Core HTTP(S) port> --deviceId=<Peripheral Device Id> --deviceToken=<Peripheral Device Token/Password>
@@ -72,8 +72,8 @@ Package Manager can be launched from [CasparCG Launcher](./installing-connection
 
 You can see a list of available options by running `package-manager-single-app.exe --help`.
 
-In some cases, you will need to run the HTTP proxy server component elsewhere so that it can be accessed from your Sofie UI machines.  
-For this, you can run the `sofietv/package-manager-http-server` docker image, which exposes its service on port 8080 and expects `/data/http-server` to be persistent storage.  
+In some cases, you will need to run the HTTP proxy server component elsewhere so that it can be accessed from your Sofie UI machines.
+For this, you can run the `sofietv/package-manager-http-server` docker image, which exposes its service on port 8080 and expects `/data/http-server` to be persistent storage.
 When configuring the http proxy server in Sofie, you may need to follow extra configuration steps for this to work as expected.
 
 ### Distributed Setup
@@ -137,7 +137,7 @@ In addition to this, you will need to run the appContainer and workers on each w
   --networkIds=pm-net // This is not necessary, but can be useful for more complex setups
 ```
 
-You can get the windows executables from [Releases](https://github.com/nrkno/sofie-package-manager/releases) GitHub repository page for Package Manager. You'll need the `appContainer-node.exe` and `worker.exe`. Put them in a folder of your choice. You can also place `ffmpeg.exe` and `ffprobe.exe` alongside them, if you don't want to make them available in `PATH`.
+You can get the windows executables from [Releases](https://github.com/Sofie-Automation/sofie-package-manager/releases) GitHub repository page for Package Manager. You'll need the `appContainer-node.exe` and `worker.exe`. Put them in a folder of your choice. You can also place `ffmpeg.exe` and `ffprobe.exe` alongside them, if you don't want to make them available in `PATH`.
 
 Note that each appContainer needs to use a different resourceId and will need its own package containers set to use the same resourceIds if they need to access the local disk. This is how package-manager knows which workers have access to which machines.
 
@@ -160,7 +160,7 @@ Note that each appContainer needs to use a different resourceId and will need it
 
 ### Separate HTTP proxy server
 
-In some setups, the URL of the HTTP proxy server is different when accessing the Sofie UI and Package Manager.  
+In some setups, the URL of the HTTP proxy server is different when accessing the Sofie UI and Package Manager.
 You can use the 'Network ID' concept in Package Manager to provide guidance on which to use when.
 
 By adding `--networkIds=pm-net` (a semi colon separated list) when launching the exes on the CasparCG machine, the application will know to prefer certain accessors with matching values.
@@ -186,4 +186,4 @@ If all is good, head to the [Rundowns page](http://localhost:3000/rundowns) and 
 
 ### Further Reading
 
-- [Package Manager](https://github.com/nrkno/sofie-package-manager) on GitHub.
+- [Package Manager](https://github.com/Sofie-Automation/sofie-package-manager) on GitHub.

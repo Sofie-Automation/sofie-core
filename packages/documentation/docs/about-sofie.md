@@ -7,7 +7,7 @@ sidebar_position: 1
 
 # NRK Sofie TV Automation System
 
-![The producer's view in Sofie](https://raw.githubusercontent.com/nrkno/Sofie-TV-automation/master/images/Sofie_GUI_example.jpg)
+![The producer's view in Sofie](https://raw.githubusercontent.com/Sofie-Automation/Sofie-TV-automation/main/images/Sofie_GUI_example.jpg)
 
 _**Sofie**_ is a web-based TV automation system for studios and live shows, used in daily live TV news productions by the Norwegian public&nbsp;service broadcaster [**NRK**](https://www.nrk.no/about/) since September 2018.
 

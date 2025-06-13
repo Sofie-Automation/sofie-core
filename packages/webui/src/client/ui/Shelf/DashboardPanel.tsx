@@ -136,7 +136,7 @@ export function filterOutAdLibsForDashboardPanel(
 	return props.rundownBaselineAdLibs
 		.concat(props.uiSegments.map((seg) => seg.pieces).flat())
 		.filter((item) =>
-			matchFilter(item, props.showStyleBase, liveSegment, props.filter, state.searchFilter, uniquenessIds)
+			matchFilter(item, props.showStyleBase.sourceLayers, liveSegment, props.filter, state.searchFilter, uniquenessIds)
 		)
 }
 

@@ -178,16 +178,33 @@ export function useDebounce<K>(value: K, delay: number, shouldUpdate?: (oldVal: 
 	return debouncedValue
 }
 
+/**
+ * This hook returns the current time and updates it at the specified refresh period.
+ * It uses a timeout to schedule the next update based on the refresh period.
+ * The time is calculated as the current time in milliseconds since the Unix epoch.
+ * The hook also cleans up the timeout when the component using it unmounts.
+ *
+ * @param refreshPeriod - The period in milliseconds at which the current time should be refreshed.
+ * @returns The current time in milliseconds since the Unix epoch.
+ */
 export function useCurrentTime(refreshPeriod = 1000): number {
 	const [time, setTime] = useState(getCurrentTime())
+	const timeoutId = useRef<ReturnType<typeof setTimeout> | null>(null)
 
 	useEffect(() => {
-		const interval = setInterval(() => {
-			setTime(getCurrentTime())
-		}, refreshPeriod)
+		function updateTime() {
+			const current = getCurrentTime()
+			setTime(current)
+			const delay = refreshPeriod - (current % refreshPeriod)
+			timeoutId.current = setTimeout(updateTime, delay)
+		}
+
+		updateTime() // Initial call to start the timer
 
 		return () => {
-			clearInterval(interval)
+			if (timeoutId.current) {
+				clearTimeout(timeoutId.current) // Cleanup on unmount
+			}
 		}
 	}, [refreshPeriod])
 

@@ -667,16 +667,15 @@ interface BucketStatus {
 	/**
 	 * Unique id of the bucket
 	 */
-	id?: string
+	id: string
 	/**
 	 * The user defined bucket name
 	 */
-	name?: string
+	name: string
 	/**
 	 * The AdLibs in this bucket
 	 */
-	adLibs?: BucketAdLibStatus[]
-	additionalProperties?: Record<string, any>
+	adLibs: BucketAdLibStatus[]
 }
 
 interface BucketAdLibStatus {

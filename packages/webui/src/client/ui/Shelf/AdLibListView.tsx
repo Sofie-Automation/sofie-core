@@ -14,6 +14,7 @@ import { IBlueprintActionTriggerMode } from '@sofie-automation/blueprints-integr
 import { getRandomString } from '@sofie-automation/corelib/dist/lib'
 import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
+import { SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase.js'
 
 interface IListViewPropsHeader {
 	uiSegments: Array<AdlibSegmentUi>
@@ -32,7 +33,7 @@ interface IListViewPropsHeader {
 /**
  * Applies a filter to an adLib to determine whether it matches filter criteria.
  * @param item AdLib to test against filter.
- * @param showStyleBase
+ * @param sourceLayers
  * @param liveSegment The live segment.
  * @param filter Filter to match against.
  * @param searchFilter Text to try to match against adLib label.
@@ -40,7 +41,7 @@ interface IListViewPropsHeader {
  */
 export function matchFilter(
 	item: AdLibPieceUi,
-	showStyleBase: UIShowStyleBase,
+	sourceLayers: SourceLayers,
 	liveSegment?: AdlibSegmentUi,
 	filter?: RundownLayoutFilterBase,
 	searchFilter?: string,
@@ -74,7 +75,7 @@ export function matchFilter(
 			return false
 		}
 		// Source layer types
-		const sourceLayerType = showStyleBase.sourceLayers[item.sourceLayerId]
+		const sourceLayerType = sourceLayers[item.sourceLayerId]
 		if (
 			sourceLayerType &&
 			filter.sourceLayerTypes &&
@@ -164,7 +165,14 @@ export function AdLibListView(props: Readonly<IListViewPropsHeader>): JSX.Elemen
 		return {
 			rundownAdLibs: props.rundownAdLibs
 				? props.rundownAdLibs.filter((item) =>
-						matchFilter(item, props.showStyleBase, liveSegment, props.filter, props.searchFilter, uniquenessIds0)
+						matchFilter(
+							item,
+							props.showStyleBase.sourceLayers,
+							liveSegment,
+							props.filter,
+							props.searchFilter,
+							uniquenessIds0
+						)
 					)
 				: ([] as AdLibPieceUi[]),
 			rundownAdLibsUniqueIds: uniquenessIds0,
@@ -184,7 +192,14 @@ export function AdLibListView(props: Readonly<IListViewPropsHeader>): JSX.Elemen
 
 		filteredSegments.forEach((segment) => {
 			segmentMap[unprotectString(segment._id)] = segment.pieces.filter((item) =>
-				matchFilter(item, props.showStyleBase, liveSegment, props.filter, props.searchFilter, uniquenessIds1)
+				matchFilter(
+					item,
+					props.showStyleBase.sourceLayers,
+					liveSegment,
+					props.filter,
+					props.searchFilter,
+					uniquenessIds1
+				)
 			)
 		})
 

@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/nrkno/sofie-core.git",
+		"url": "git+https://github.com/Sofie-Automation/sofie-core.git",
 		"directory": "packages/openapi"
 	},
 	"main": "dist/index.js",

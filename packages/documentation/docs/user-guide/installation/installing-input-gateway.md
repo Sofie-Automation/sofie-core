@@ -2,7 +2,7 @@
 
 The Input Gateway handles control devices that are not capable of running a Web Browser. This allows Sofie to integrate directly with devices such as: Hardware Panels, GPI input, MIDI devices and external systems being able to send an HTTP Request.
 
-To install it, begin by downloading the latest release of [Input Gateway from GitHub](https://github.com/nrkno/sofie-input-gateway/releases). You can now run the `input-gateway.exe` file inside the extracted folder. A warning window may popup about the app being unrecognized. You can get around this by selecting _More Info_ and clicking _Run Anyways_.
+To install it, begin by downloading the latest release of [Input Gateway from GitHub](https://github.com/Sofie-Automation/sofie-input-gateway/releases). You can now run the `input-gateway.exe` file inside the extracted folder. A warning window may popup about the app being unrecognized. You can get around this by selecting _More Info_ and clicking _Run Anyways_.
 
 Much like [Package Manager](./installing-package-manager), the Sofie instance that Input Gateway needs to connect to is configured through command line arguments. A minimal configuration could look something like this.
 
@@ -41,5 +41,5 @@ Input Gateway supports an unlimited number of Shift Registers, Shift Register nu
 
 ### Further Reading
 
-- [Input Gateway Releases on GitHub](https://github.com/nrkno/sofie-input-gateway/releases)
-- [Input Gateway GitHub Page for Developers](https://github.com/nrkno/sofie-input-gateway)
+- [Input Gateway Releases on GitHub](https://github.com/Sofie-Automation/sofie-input-gateway/releases)
+- [Input Gateway GitHub Page for Developers](https://github.com/Sofie-Automation/sofie-input-gateway)

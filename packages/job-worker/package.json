@@ -7,13 +7,13 @@
 	"private": true,
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/nrkno/sofie-core.git",
+		"url": "git+https://github.com/Sofie-Automation/sofie-core.git",
 		"directory": "packages/job-worker"
 	},
 	"bugs": {
-		"url": "https://github.com/nrkno/sofie-core/issues"
+		"url": "https://github.com/Sofie-Automation/sofie-core/issues"
 	},
-	"homepage": "https://github.com/nrkno/sofie-core/blob/master/packages/job-worker#readme",
+	"homepage": "https://github.com/Sofie-Automation/sofie-core/blob/main/packages/job-worker#readme",
 	"scripts": {
 		"dev": "run -T nodemon --config nodemon.json src/index.ts",
 		"dev:debug": "run -T nodemon --config nodemon.json --inspect-brk src/index.ts",

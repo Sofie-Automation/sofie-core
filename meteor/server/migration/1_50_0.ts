@@ -347,21 +347,21 @@ export const addSteps = addMigrationSteps('1.50.0', [
 				let documentationUrl = ''
 
 				if (device.type === PeripheralDeviceType.MOS) {
-					documentationUrl = 'https://github.com/nrkno/sofie-core'
+					documentationUrl = 'https://github.com/Sofie-Automation/sofie-core'
 				} else if (device.type === PeripheralDeviceType.SPREADSHEET) {
 					documentationUrl = 'https://github.com/SuperFlyTV/spreadsheet-gateway'
 				} else if (device.type === PeripheralDeviceType.PLAYOUT) {
-					documentationUrl = 'https://github.com/nrkno/sofie-core'
+					documentationUrl = 'https://github.com/Sofie-Automation/sofie-core'
 				} else if (device.type === PeripheralDeviceType.MEDIA_MANAGER) {
 					documentationUrl = 'https://github.com/nrkno/sofie-media-management'
 				} else if (device.type === PeripheralDeviceType.INEWS) {
 					documentationUrl = 'https://github.com/olzzon/tv2-inews-ftp-gateway'
 				} else if (device.type === PeripheralDeviceType.PACKAGE_MANAGER) {
-					documentationUrl = 'https://github.com/nrkno/sofie-package-manager'
+					documentationUrl = 'https://github.com/Sofie-Automation/sofie-package-manager'
 				} else if (device.type === PeripheralDeviceType.INPUT) {
-					documentationUrl = 'https://github.com/nrkno/sofie-input-gateway'
+					documentationUrl = 'https://github.com/Sofie-Automation/sofie-input-gateway'
 				} else if (device.type === PeripheralDeviceType.LIVE_STATUS) {
-					documentationUrl = 'https://nrkno.github.io/sofie-core/'
+					documentationUrl = 'https://sofie-automation.github.io/sofie-core/'
 				} else {
 					assertNever(device.type)
 				}

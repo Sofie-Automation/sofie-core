@@ -160,7 +160,7 @@ export class CoreHandler {
 
 			versions: getVersions(this.logger),
 
-			documentationUrl: 'https://github.com/nrkno/sofie-core',
+			documentationUrl: 'https://github.com/Sofie-Automation/sofie-core',
 		}
 
 		if (!options.deviceToken) {

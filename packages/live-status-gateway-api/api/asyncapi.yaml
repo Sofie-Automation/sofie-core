@@ -9,7 +9,7 @@ info:
     url: http://opensource.org/licenses/MIT
   contact:
     name: Sofie TV Automation - NRK Team
-    url: https://github.com/nrkno/sofie-core/issues
+    url: https://github.com/Sofie-Automation/sofie-core/issues
 
 servers:
   development:

@@ -174,7 +174,7 @@ export class CoreHandler {
 			watchDog: this._coreConfig ? this._coreConfig.watchdog : true,
 
 			configManifest: LIVE_STATUS_DEVICE_CONFIG,
-			documentationUrl: `https://nrkno.github.io/sofie-core/`,
+			documentationUrl: `https://sofie-automation.github.io/sofie-core/`,
 
 			versions: this._getVersions(),
 		}

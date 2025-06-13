@@ -106,5 +106,5 @@ There are various settings you can set for an installation. See the list below:
 | `confirmKeyCode`              | Which keyboard key is used as "Confirm" in modal dialogs etc.                                                                 | `'Enter'`                              |
 
 :::info
-The exact definition for the settings can be found [in the code here](https://github.com/nrkno/sofie-core/blob/master/meteor/lib/Settings.ts#L12).
+The exact definition for the settings can be found [in the code here](https://github.com/Sofie-Automation/sofie-core/blob/main/meteor/lib/Settings.ts#L12).
 :::

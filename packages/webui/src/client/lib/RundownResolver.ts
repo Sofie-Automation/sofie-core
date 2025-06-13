@@ -122,7 +122,7 @@ export function getPieceInstancesForPartInstance(
 	partsToReceiveOnSegmentEndFromSet: Set<PartId>,
 	segmentsToReceiveOnRundownEndFromSet: Set<SegmentId>,
 	rundownsToReceiveOnShowStyleEndFrom: RundownId[],
-	rundownsToShowstyles: Map<RundownId, ShowStyleBaseId>,
+	rundownsToShowstyles: ReadonlyMap<RundownId, ShowStyleBaseId>,
 	orderedAllParts: PartId[],
 	nextPartIsAfterCurrentPart: boolean,
 	currentPartInstance: PartInstance | undefined,

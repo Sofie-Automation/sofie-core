@@ -14,5 +14,5 @@ But to start of we will explain the general structure of the TSR. Any user of th
 The timeline is converted into disctinct states at different points in time, and these states are fed to the individual integrations. As an integration developer you shouldn't have to worry about keeping track of this. It is most important that you expose \(a\) a method to convert from a Timeline State to a Device State, \(b\) a method for diffing 2 device states and (c) a way to send commands to the device. We'll dive deeper into this in [TSR Integration API](./tsr-api.html).
 
 :::info
-The information in this section is not a conclusive guide on writing an integration, it should be use more as a guide to use while looking at a TSR integration such as the [OSC integration](https://github.com/nrkno/sofie-timeline-state-resolver/tree/master/packages/timeline-state-resolver/src/integrations/osc).
+The information in this section is not a conclusive guide on writing an integration, it should be use more as a guide to use while looking at a TSR integration such as the [OSC integration](https://github.com/Sofie-Automation/sofie-timeline-state-resolver/tree/master/packages/timeline-state-resolver/src/integrations/osc).
 :::

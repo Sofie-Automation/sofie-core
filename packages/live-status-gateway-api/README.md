@@ -1,4 +1,4 @@
-# Sofie: The Modern TV News Studio Automation System (Shared Lib)
+# Sofie: The Modern TV News Studio Automation System (Live Status Gateway API)
 
 [![npm](https://img.shields.io/npm/v/@sofie-automation/live-status-gateway-api)](https://www.npmjs.com/package/@sofie-automation/live-status-gateway-api)
 

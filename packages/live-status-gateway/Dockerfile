@@ -29,4 +29,6 @@ COPY --from=0 /opt/shared-lib /opt/shared-lib
 COPY --from=0 /opt/corelib /opt/corelib
 
 WORKDIR /opt/live-status-gateway
+RUN chown -R 1000:1000 /opt/live-status-gateway
+USER 1000
 CMD ["node", "dist/index.js"]

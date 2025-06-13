@@ -141,32 +141,40 @@ interface IFetchAndFilterProps {
 }
 
 export function useFetchAndFilter(
-	playlist: DBRundownPlaylist,
-	showStyleBase: UIShowStyleBase,
+	playlist: DBRundownPlaylist | undefined,
+	showStyleBase: UIShowStyleBase | undefined,
 	filter: RundownLayoutFilterBase | undefined,
 	includeGlobalAdLibs: boolean | undefined
 ): AdLibFetchAndFilterProps {
 	return useTracker(
 		() =>
-			fetchAndFilter({
-				playlist: playlist as Pick<
-					DBRundownPlaylist,
-					'_id' | 'studioId' | 'currentPartInfo' | 'nextPartInfo' | 'previousPartInfo' | 'rundownIdsInOrder'
-				>,
-				showStyleBase: showStyleBase as Pick<UIShowStyleBase, '_id' | 'sourceLayers' | 'outputLayers'>,
-				filter,
-				includeGlobalAdLibs,
-			}),
+			playlist && showStyleBase
+				? fetchAndFilter({
+						playlist: playlist as Pick<
+							DBRundownPlaylist,
+							'_id' | 'studioId' | 'currentPartInfo' | 'nextPartInfo' | 'previousPartInfo' | 'rundownIdsInOrder'
+						>,
+						showStyleBase: showStyleBase as Pick<UIShowStyleBase, '_id' | 'sourceLayers' | 'outputLayers'>,
+						filter,
+						includeGlobalAdLibs,
+					})
+				: {
+						liveSegment: undefined,
+						rundownBaselineAdLibs: [],
+						sourceLayerLookup: {},
+						uiSegments: [] as AdlibSegmentUi[],
+						uiSegmentMap: new Map(),
+					},
 		[
-			playlist._id,
-			playlist.studioId,
-			playlist.currentPartInfo?.partInstanceId,
-			playlist.nextPartInfo?.partInstanceId,
-			playlist.previousPartInfo?.partInstanceId,
-			playlist.rundownIdsInOrder,
-			showStyleBase._id,
-			showStyleBase.sourceLayers,
-			showStyleBase.outputLayers,
+			playlist?._id,
+			playlist?.studioId,
+			playlist?.currentPartInfo?.partInstanceId,
+			playlist?.nextPartInfo?.partInstanceId,
+			playlist?.previousPartInfo?.partInstanceId,
+			playlist?.rundownIdsInOrder,
+			showStyleBase?._id,
+			showStyleBase?.sourceLayers,
+			showStyleBase?.outputLayers,
 			filter,
 			includeGlobalAdLibs,
 		],

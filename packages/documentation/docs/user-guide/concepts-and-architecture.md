@@ -10,15 +10,15 @@ sidebar_position: 1
 
 ### Sofie Core
 
-**Sofie&nbsp;Core** is a web server which handle business logic and serves the web GUI.  
+**Sofie&nbsp;Core** is a web server which handle business logic and serves the web GUI.
 It is a [NodeJS](https://nodejs.org/) process backed up by a [MongoDB](https://www.mongodb.com/) database and based on the framework [Meteor](http://meteor.com/).
 
 ### Gateways
 
 Gateways are applications that connect to Sofie&nbsp;Core and exchange data; such as rundown data from an NRCS (Newsroom Computer System) or the [Timeline](#timeline) for playout.
 
-An example of a gateway is the [Spreadsheet Gateway](https://github.com/SuperFlyTV/spreadsheet-gateway).  
-All gateways use the [Core Integration Library](https://github.com/nrkno/sofie-core/tree/master/packages/server-core-integration) to communicate with Core.
+An example of a gateway is the [Spreadsheet Gateway](https://github.com/SuperFlyTV/spreadsheet-gateway).
+All gateways use the [Core Integration Library](https://github.com/Sofie-Automation/sofie-core/tree/master/packages/server-core-integration) to communicate with Core.
 
 ## System, \(Organization\), Studio & Show Style
 
@@ -52,7 +52,7 @@ A playlist is normally played through and then ends but it is also possible to m
 
 ### Rundown
 
-The Rundown contains the content for a show. It contains Segments and Parts, which can be selected by the user to be played out.  
+The Rundown contains the content for a show. It contains Segments and Parts, which can be selected by the user to be played out.
 A Rundown always has a [showstyle](#showstyle) and is played out in the context of the [Studio](#studio) of its Playlist.
 
 ### Segment
@@ -90,7 +90,7 @@ A Bucket is a container for AdLib Pieces created by the producer/operator during
 
 The primary use-case of these elements is for breaking-news formats where quick turnaround video editing may require circumvention of the regular flow of show assets and programming via the NRCS. Currently, one way of creating AdLibs inside Buckets is using a MOS Plugin integration inside the Shelf, where MOS [ncsItem](https://mosprotocol.com/wp-content/MOS-Protocol-Documents/MOSProtocolVersion40/index.html#calibre_link-72) elements can be dragged from the MOS Plugin onto a bucket and ingested.
 
-The ingest happens via the `getAdlibItem` method: [https://github.com/nrkno/sofie-core/blob/6c4edee7f352bb542c8a29317d59c0bf9ac340ba/packages/blueprints-integration/src/api/showStyle.ts#L122](https://github.com/nrkno/sofie-core/blob/6c4edee7f352bb542c8a29317d59c0bf9ac340ba/packages/blueprints-integration/src/api/showStyle.ts#L122)
+The ingest happens via the `getAdlibItem` method: [https://github.com/Sofie-Automation/sofie-core/blob/6c4edee7f352bb542c8a29317d59c0bf9ac340ba/packages/blueprints-integration/src/api/showStyle.ts#L122](https://github.com/Sofie-Automation/sofie-core/blob/6c4edee7f352bb542c8a29317d59c0bf9ac340ba/packages/blueprints-integration/src/api/showStyle.ts#L122)
 
 ## Views and Screens
 
@@ -102,34 +102,34 @@ Blueprints are plug-ins that run in Sofie&nbsp;Core. They interpret the data com
 
 The blueprints are webpacked javascript bundles which are uploaded into Sofie via the GUI. They are custom-made and vary depending on the show style, type of input data \(NRCS\) and the types of controlled devices. A generic [blueprint that works with spreadsheets is available here](https://github.com/SuperFlyTV/sofie-demo-blueprints).
 
-When [Sofie&nbsp;Core](#sofie-core) calls upon a Blueprint, it returns a JavaScript object containing methods callable by Sofie&nbsp;Core. These methods will be called by Sofie&nbsp;Core in different situations, depending on the method.  
+When [Sofie&nbsp;Core](#sofie-core) calls upon a Blueprint, it returns a JavaScript object containing methods callable by Sofie&nbsp;Core. These methods will be called by Sofie&nbsp;Core in different situations, depending on the method.
 Documentation on these interfaces are available in the [Blueprints integration](https://www.npmjs.com/package/@sofie-automation/blueprints-integration) library.
 
 There are 3 types of blueprints, and all 3 must be uploaded into Sofie before the system will work correctly.
 
 ### System Blueprints
 
-Handle things on the _System level_.  
-Documentation on the interface to be exposed by the Blueprint:  
-[https://github.com/nrkno/sofie-core/blob/master/packages/blueprints-integration/src/api/system.ts](https://github.com/nrkno/sofie-core/blob/master/packages/blueprints-integration/src/api/system.ts)
+Handle things on the _System level_.
+Documentation on the interface to be exposed by the Blueprint:
+[https://github.com/Sofie-Automation/sofie-core/blob/main/packages/blueprints-integration/src/api/system.ts](https://github.com/Sofie-Automation/sofie-core/blob/main/packages/blueprints-integration/src/api/system.ts)
 
 ### Studio Blueprints
 
-Handle things on the _Studio level_, like "which showstyle to use for this rundown".  
-Documentation on the interface to be exposed by the Blueprint:  
-[https://github.com/nrkno/sofie-core/blob/master/packages/blueprints-integration/src/api/studio.ts](https://github.com/nrkno/sofie-core/blob/master/packages/blueprints-integration/src/api/studio.ts)
+Handle things on the _Studio level_, like "which showstyle to use for this rundown".
+Documentation on the interface to be exposed by the Blueprint:
+[https://github.com/Sofie-Automation/sofie-core/blob/main/packages/blueprints-integration/src/api/studio.ts](https://github.com/Sofie-Automation/sofie-core/blob/main/packages/blueprints-integration/src/api/studio.ts)
 
 ### Showstyle Blueprints
 
-Handle things on the _Showstyle level_, like generating [_Baseline_](#baseline), _Segments_, _Parts, Pieces_ and _Timelines_ in a rundown.  
-Documentation on the interface to be exposed by the Blueprint:  
-[https://github.com/nrkno/sofie-core/blob/master/packages/blueprints-integration/src/api/showStyle.ts](https://github.com/nrkno/sofie-core/blob/master/packages/blueprints-integration/src/api/showStyle.ts)
+Handle things on the _Showstyle level_, like generating [_Baseline_](#baseline), _Segments_, _Parts, Pieces_ and _Timelines_ in a rundown.
+Documentation on the interface to be exposed by the Blueprint:
+[https://github.com/Sofie-Automation/sofie-core/blob/main/packages/blueprints-integration/src/api/showStyle.ts](https://github.com/Sofie-Automation/sofie-core/blob/main/packages/blueprints-integration/src/api/showStyle.ts)
 
 ## `PartInstances` and `PieceInstances`
 
 In order to be able to facilitate ingesting changes from the NRCS while continuing to provide a stable and predictable playback of the Rundowns, Sofie internally uses a concept of ["instantiation"](<https://en.wikipedia.org/wiki/Instance_(computer_science)>) of key Rundown elements. Before playback of a Part can begin, the Part and it's Pieces are copied into an Instance of a Part: a `PartInstance`. This protects the contents of the _Next_ and _On Air_ part, preventing accidental changes that could surprise the producer/director. This also makes it possible to inspect the "as played" state of the Rundown, independently of the "as planned" state ingested from the NRCS.
 
-The blueprints can optionally allow some changes to the Parts and Pieces to be forwarded onto these `PartInstances`: [https://github.com/nrkno/sofie-core/blob/master/packages/blueprints-integration/src/api.ts#L190](https://github.com/nrkno/sofie-core/blob/master/packages/blueprints-integration/src/api.ts#L190)
+The blueprints can optionally allow some changes to the Parts and Pieces to be forwarded onto these `PartInstances`: [https://github.com/Sofie-Automation/sofie-core/blob/main/packages/blueprints-integration/src/api.ts#L190](https://github.com/Sofie-Automation/sofie-core/blob/main/packages/blueprints-integration/src/api.ts#L190)
 
 ## Timeline
 
@@ -139,7 +139,7 @@ The Timeline is a collection of timeline-objects, that together form a "target s
 
 The timeline-objects can be programmed to contain relative references to each other, so programming things like _"play this thing right after this other thing"_ is as easy as `{start: { #otherThing.end }}`
 
-The [Playout Gateway](../for-developers/libraries.md) picks up the timeline from Sofie&nbsp;Core and \(using the [TSR timeline-state-resolver](https://github.com/nrkno/sofie-timeline-state-resolver)\) controls the playout devices to make sure that they actually play what is intended.
+The [Playout Gateway](../for-developers/libraries.md) picks up the timeline from Sofie&nbsp;Core and \(using the [TSR timeline-state-resolver](https://github.com/Sofie-Automation/sofie-timeline-state-resolver)\) controls the playout devices to make sure that they actually play what is intended.
 
 ![Example of 2 objects in a timeline: The #video object, destined to play at a certain time, and #gfx0, destined to start 15 seconds into the video.](/img/docs/main/features/timeline.png)
 
@@ -149,7 +149,7 @@ The Sofie system is made to work with a modern web- and IT-based approach in min
 
 ![Sofie Core can run in the cloud](/img/docs/main/features/sofie-web-architecture.png)
 
-One drawback of running in a cloud over the public internet is the - sometimes unpredictable - latency. The Timeline overcomes this by moving all the immediate control of the playout devices to the Playout Gateway, which is intended to run on a local network, close to the hardware it controls.  
+One drawback of running in a cloud over the public internet is the - sometimes unpredictable - latency. The Timeline overcomes this by moving all the immediate control of the playout devices to the Playout Gateway, which is intended to run on a local network, close to the hardware it controls.
 This also gives the system a simple way of load-balancing - since the number of web-clients or load on Sofie&nbsp;Core won't affect the playout.
 
 Another benefit of basing the playout on a timeline is that when programming the show \(the blueprints\), you only have to care about "what you want to be on screen", you don't have to care about cleaning up previously played things, or what was actually played out before. This is handled by the Playout Gateway automatically. This also allows the user to jump around in a rundown freely, without the risk of things going wrong on air.
@@ -172,7 +172,7 @@ _Sofie&nbsp;Core_ generates the timeline using:
 - The [Next'ed Part](#next-point-and-lookahead) and Parts that come after it \(the [Lookahead](#lookahead)\)
 - Any [AdLibs](#adlib-pieces) the user has manually selected to play
 
-The [**Playout Gateway**](../for-developers/libraries.md#gateways) then picks up the new timeline, and pipes it into the [\(TSR\) timeline-state-resolver](https://github.com/nrkno/sofie-timeline-state-resolver) library.
+The [**Playout Gateway**](../for-developers/libraries.md#gateways) then picks up the new timeline, and pipes it into the [\(TSR\) timeline-state-resolver](https://github.com/Sofie-Automation/sofie-timeline-state-resolver) library.
 
 The TSR then...
 
@@ -184,7 +184,7 @@ The TSR then...
 - Puts the commands on the queue and sends them to the devices at the correct time.
 
 :::info
-For more information about what playout devices _TSR_ supports, and examples of the timeline-objects, see the [README of TSR](https://github.com/nrkno/sofie-timeline-state-resolver#timeline-state-resolver)
+For more information about what playout devices _TSR_ supports, and examples of the timeline-objects, see the [README of TSR](https://github.com/Sofie-Automation/sofie-timeline-state-resolver#timeline-state-resolver)
 :::
 
 :::info

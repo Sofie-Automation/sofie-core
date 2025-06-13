@@ -30,6 +30,10 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 - routeset config defined in blueprints ([e839b97](https://github.com/nrkno/sofie-core/commit/e839b97c0205df38e5bc7ab816a9c79406a7d767))
 - update meteor to 3.1 and node to 22 ([61b6854](https://github.com/nrkno/sofie-core/commit/61b6854261a03f04e81416b9d37ee995e3a10108))
 
+## [1.51.7](https://github.com/nrkno/sofie-core/compare/v1.51.6...v1.51.7) (2025-05-06)
+
+**Note:** Version bump only for package @sofie-automation/blueprints-integration
+
 ## [1.51.6](https://github.com/nrkno/sofie-core/compare/v1.51.5...v1.51.6) (2025-01-14)
 
 **Note:** Version bump only for package @sofie-automation/blueprints-integration

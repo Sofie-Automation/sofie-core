@@ -65,7 +65,7 @@ export interface IResolvedSegmentProps {
 	segmentId: SegmentId
 	segmentsIdsBefore: Set<SegmentId>
 	rundownIdsBefore: RundownId[]
-	rundownsToShowstyles: Map<RundownId, ShowStyleBaseId>
+	rundownsToShowstyles: ReadonlyMap<RundownId, ShowStyleBaseId>
 	studio: UIStudio
 	showStyleBase: UIShowStyleBase
 	playlist: DBRundownPlaylist

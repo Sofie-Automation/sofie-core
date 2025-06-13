@@ -539,7 +539,7 @@ describe('Pieces', () => {
 				classes: [],
 				enable: {
 					...enable,
-					end: 400,
+					end: 600,
 				},
 			})
 		})

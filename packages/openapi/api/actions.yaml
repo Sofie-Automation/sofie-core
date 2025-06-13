@@ -7,7 +7,7 @@ info:
     name: 'MIT License'
     url: 'http://opensource.org/licenses/MIT'
   x-logo:
-    url: 'https://nrkno.github.io/sofie-core/img/sofie-logo.svg'
+    url: 'https://sofie-automation.github.io/sofie-core/img/sofie-logo.svg'
     backgroundColor: '#FFFFFF'
     altText: 'Sofie TV Automation'
 

@@ -6,13 +6,13 @@
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/nrkno/sofie-core.git",
+		"url": "git+https://github.com/Sofie-Automation/sofie-core.git",
 		"directory": "packages/live-status-gateway"
 	},
 	"bugs": {
-		"url": "https://github.com/nrkno/sofie-core/issues"
+		"url": "https://github.com/Sofie-Automation/sofie-core/issues"
 	},
-	"homepage": "https://github.com/nrkno/sofie-core/blob/master/packages/live-status-gateway#readme",
+	"homepage": "https://github.com/Sofie-Automation/sofie-core/blob/main/packages/live-status-gateway#readme",
 	"contributors": [],
 	"scripts": {
 		"build": "run -T rimraf dist && run build:main",

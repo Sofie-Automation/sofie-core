@@ -95,13 +95,8 @@ export function getPieceEnableInsidePart(
 ): TSR.Timeline.TimelineEnable {
 	const pieceEnable: TSR.Timeline.TimelineEnable = { ...pieceInstance.piece.enable }
 	if (typeof pieceEnable.start === 'number') {
-		if (pieceInstance.dynamicallyInserted) {
-			// timed adlibbed pieces needs to factor in their preroll
-			pieceEnable.start += pieceInstance.piece.prerollDuration || 0
-		} else {
-			// timed planned pieces should be offset based on the preroll of the part
-			pieceEnable.start += partTimings.toPartDelay
-		}
+		// pieces should be offset based on the preroll of the part
+		pieceEnable.start += partTimings.toPartDelay
 	}
 
 	// If the part has an end time, we can consider post-roll

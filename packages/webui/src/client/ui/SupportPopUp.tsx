@@ -88,7 +88,7 @@ export function DocumentationLink(): JSX.Element {
 			)}
 			<p>
 				{t('More documentation available at:')}&nbsp;
-				<a href="https://nrkno.github.io/sofie-core/">https://nrkno.github.io/sofie-core/</a>
+				<a href="https://sofie-automation.github.io/sofie-core/">https://sofie-automation.github.io/sofie-core/</a>
 			</p>
 		</div>
 	)

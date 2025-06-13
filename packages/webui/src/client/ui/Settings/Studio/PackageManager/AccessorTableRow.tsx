@@ -161,7 +161,7 @@ export function AccessorTableRow({
 										{(value, handleUpdate) => <TextInputControl value={value} handleUpdate={handleUpdate} />}
 									</LabelAndOverrides>
 									<LabelAndOverrides
-										label={t('Resourse Id')}
+										label={t('Resource Id')}
 										hint={t('(Optional) This could be the name of the computer on which the local folder is on')}
 										item={packageContainer}
 										//@ts-expect-error can't be 4 levels deep

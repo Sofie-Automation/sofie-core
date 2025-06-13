@@ -80,7 +80,7 @@ const TimelineDashboardPanelContent = withTranslation()(
 					const filteredRudownBaselineAdLibs = this.props.rundownBaselineAdLibs.filter((item) =>
 						matchFilter(
 							item,
-							this.props.showStyleBase,
+							this.props.showStyleBase.sourceLayers,
 							liveSegment,
 							this.props.filter,
 							this.state.searchFilter,
@@ -160,7 +160,7 @@ const TimelineDashboardPanelContent = withTranslation()(
 										? seg.pieces.filter((item) =>
 												matchFilter(
 													item,
-													this.props.showStyleBase,
+													this.props.showStyleBase.sourceLayers,
 													liveSegment,
 													this.props.filter,
 													this.state.searchFilter,

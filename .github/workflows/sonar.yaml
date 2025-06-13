@@ -1,9 +1,9 @@
 on:
-  # Trigger analysis when pushing in master or pull requests, and when creating
+  # Trigger analysis when pushing in main or pull requests, and when creating
   # a pull request.
   push:
     branches:
-      - master
+      - main
       - release**
   pull_request:
     types: [opened, synchronize, reopened]
@@ -12,7 +12,7 @@ jobs:
   sonarcloud:
     name: SonarCloud
     runs-on: ubuntu-latest
-    if: ${{ github.repository_owner == 'nrkno' && !github.event.pull_request.head.repo.fork }}
+    if: ${{ github.repository_owner == 'Sofie-Automation' && !github.event.pull_request.head.repo.fork }}
     timeout-minutes: 15
 
     steps:
@@ -45,7 +45,7 @@ jobs:
           CI: true
 
       - name: SonarCloud Scan
-        uses: sonarsource/sonarcloud-github-action@master
+        uses: sonarsource/sonarcloud-github-action@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

@@ -1,6 +1,6 @@
 # Sofie Core
 
-This is the _Core_ application of the [**Sofie** TV Automation System](https://github.com/nrkno/Sofie-TV-automation/).
+This is the _Core_ application of the [**Sofie** TV Automation System](https://github.com/Sofie-Automation/Sofie-TV-automation/).
 
 The _Core_ is a _Meteor/Node.JS_-based web server that serves the web GUIs as well as handling the business logic for the Sofie system.
 
@@ -8,8 +8,8 @@ The _Core_ is a _Meteor/Node.JS_-based web server that serves the web GUIs as we
 
 ## General Sofie System Information
 
-- [_Sofie_ Documentation](https://nrkno.github.io/sofie-core/)
-- [_Sofie_ Releases](https://nrkno.github.io/sofie-core/releases)
+- [_Sofie_ Documentation](https://sofie-automation.github.io/sofie-core//)
+- [_Sofie_ Releases](https://sofie-automation.github.io/sofie-core//releases)
 - [Contribution Guidelines](CONTRIBUTING.md)
 - [License](LICENSE)
 

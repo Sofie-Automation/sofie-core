@@ -26,7 +26,7 @@ Before any playout operation can proceed a studio and playlist lock must be crea
 
 ### How Sofie Selects Which Part will be Next
 
-[Definition of a Part](https://nrkno.github.io/sofie-core/docs/user-guide/concepts-and-architecture/#part)
+[Definition of a Part](https://sofie-automation.github.io/sofie-core/docs/user-guide/concepts-and-architecture/#part)
 
 From an optional current part instance and a selection of parts and segments Sofie can select the next part:
 
@@ -57,7 +57,7 @@ _Prerequisites: rundown playlist is active and there is no current hold_
 
 ### How Sofie Removes Orphaned Segments and Part Instances
 
-<!-- [https://github.com/nrkno/sofie-core/blob/release35/meteor/server/api/playout/lib.ts#L442](https://github.com/nrkno/sofie-core/blob/release35/meteor/server/api/playout/lib.ts#L442) -->
+<!-- [https://github.com/Sofie-Automation/sofie-core/blob/release35/meteor/server/api/playout/lib.ts#L442](https://github.com/Sofie-Automation/sofie-core/blob/release35/meteor/server/api/playout/lib.ts#L442) -->
 
 - Gather segments that have `orphaned === 'deleted'`
 - Find the part instances from the orphaned segment

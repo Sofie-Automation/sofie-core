@@ -9,13 +9,13 @@
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/nrkno/sofie-core.git",
+		"url": "git+https://github.com/Sofie-Automation/sofie-core.git",
 		"directory": "packages/server-core-integration"
 	},
 	"bugs": {
-		"url": "https://github.com/nrkno/sofie-core/issues"
+		"url": "https://github.com/Sofie-Automation/sofie-core/issues"
 	},
-	"homepage": "https://github.com/nrkno/sofie-core/blob/master/packages/server-core-integration#readme",
+	"homepage": "https://github.com/Sofie-Automation/sofie-core/blob/main/packages/server-core-integration#readme",
 	"author": {
 		"name": "Johan Nyman",
 		"email": "johan@superfly.tv",
