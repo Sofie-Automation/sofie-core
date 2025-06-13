@@ -1,7 +1,7 @@
-import objectPath = require('object-path')
+import * as objectPath from 'object-path'
 import { ReadonlyDeep } from 'type-fest'
-import _ = require('underscore')
-import { assertNever, clone, literal } from '../lib'
+import _ from 'underscore'
+import { assertNever, clone, literal } from '../lib.js'
 
 /**
  * This is an object which allows for overrides to be tracked and reapplied
@@ -50,6 +50,10 @@ export function wrapDefaultObject<T extends object>(obj: T): ObjectWithOverrides
 		defaults: obj,
 		overrides: [],
 	}
+}
+export function isObjectWithOverrides<T extends object>(o: ObjectWithOverrides<T> | T): o is ObjectWithOverrides<T> {
+	const oAny = o as any
+	return typeof oAny.defaults === 'object' && Array.isArray(oAny.overrides)
 }
 /**
  * In some cases, an ObjectWithOverrides should have no defaults. This is common for when the user owns the object containing the ObjectWithOverrides.

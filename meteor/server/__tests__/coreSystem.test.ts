@@ -1,8 +1,7 @@
-import { testInFiber } from '../../__mocks__/helpers/jest'
 import { RelevantSystemVersions } from '../coreSystem'
 
 describe('coreSystem', () => {
-	testInFiber('RelevantSystemVersions', async () => {
+	test('RelevantSystemVersions', async () => {
 		const versions = await RelevantSystemVersions
 
 		expect(versions).toEqual({

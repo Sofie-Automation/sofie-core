@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor'
-import './lib'
+import './lib/lib'
 
 import './buckets'
 import './blueprintUpgradeStatus/publication'
@@ -9,6 +9,8 @@ import './packageManager/playoutContext'
 import './pieceContentStatusUI/bucket/publication'
 import './pieceContentStatusUI/rundown/publication'
 import './organization'
+import './partsUI/publication'
+import './partInstancesUI/publication'
 import './peripheralDevice'
 import './peripheralDeviceForDevice'
 import './rundown'
@@ -25,8 +27,8 @@ import './triggeredActionsUI'
 import './mountedTriggers'
 import './deviceTriggersPreview'
 
-import { AllPubSubNames } from '../../lib/api/pubsub'
-import { MeteorPublications } from './lib'
+import { AllPubSubNames } from '@sofie-automation/meteor-lib/dist/api/pubsub'
+import { MeteorPublications } from './lib/lib'
 import { logger } from '../logging'
 
 // Ensure all the publications were registered at startup

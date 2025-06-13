@@ -3,13 +3,13 @@ import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { defaultPart, defaultPiece, defaultAdLibPiece } from '../../__mocks__/defaultCollectionObjects'
-import { LAYER_IDS } from '../../__mocks__/presetCollections'
+import { defaultPart, defaultPiece, defaultAdLibPiece } from '../../__mocks__/defaultCollectionObjects.js'
+import { LAYER_IDS } from '../../__mocks__/presetCollections.js'
 import { ExpectedPackage, PieceLifespan, VTContent } from '@sofie-automation/blueprints-integration'
-import { updateExpectedPackagesForPartModel } from '../expectedPackages'
-import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context'
+import { updateExpectedPackagesForPartModel } from '../expectedPackages.js'
+import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context.js'
 import { ReadonlyDeep } from 'type-fest'
-import { IngestPartModel } from '../model/IngestPartModel'
+import { IngestPartModel } from '../model/IngestPartModel.js'
 
 describe('Expected Media Items', () => {
 	let context: MockJobContext

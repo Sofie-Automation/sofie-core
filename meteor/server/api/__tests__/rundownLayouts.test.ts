@@ -1,9 +1,12 @@
 import '../../../__mocks__/_extendJest'
-import { testInFiber } from '../../../__mocks__/helpers/jest'
 import { setupDefaultStudioEnvironment, DefaultEnvironment } from '../../../__mocks__/helpers/database'
-import { protectString, literal, getRandomString } from '../../../lib/lib'
-import { RundownLayoutType, RundownLayout, CustomizableRegions } from '../../../lib/collections/RundownLayouts'
-import { MeteorCall } from '../../../lib/api/methods'
+import { protectString, literal, getRandomString } from '../../lib/tempLib'
+import {
+	RundownLayoutType,
+	RundownLayout,
+	CustomizableRegions,
+} from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
+import { MeteorCall } from '../methods'
 import { RundownLayoutId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { RundownLayouts } from '../../collections'
 import { SupressLogMessages } from '../../../__mocks__/suppressLogging'
@@ -16,7 +19,7 @@ describe('Rundown Layouts', () => {
 		env = await setupDefaultStudioEnvironment()
 	})
 	let rundownLayoutId: RundownLayoutId
-	testInFiber('Create rundown layout', async () => {
+	test('Create rundown layout', async () => {
 		const res = await MeteorCall.rundownLayout.createRundownLayout(
 			'Test',
 			RundownLayoutType.RUNDOWN_LAYOUT,
@@ -31,7 +34,7 @@ describe('Rundown Layouts', () => {
 			_id: rundownLayoutId,
 		})
 	})
-	testInFiber('Remove rundown layout', async () => {
+	test('Remove rundown layout', async () => {
 		const item0 = await RundownLayouts.findOneAsync(rundownLayoutId)
 		expect(item0).toMatchObject({
 			_id: rundownLayoutId,

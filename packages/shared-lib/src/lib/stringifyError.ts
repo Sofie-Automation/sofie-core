@@ -25,6 +25,7 @@ export function stringifyError(error: unknown, noStack = false): string {
 				// Try to stringify the object:
 				str = JSON.stringify(error)
 			} catch (e) {
+				// eslint-disable-next-line @typescript-eslint/no-base-to-string
 				str = `${error} (stringifyError: ${e})`
 			}
 		}

@@ -10,7 +10,7 @@ import {
 	SegmentId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ReadonlyDeep } from 'type-fest'
-import { diffAndReturnLatestObjects, DocumentChanges, getDocumentChanges, setValuesAndTrackChanges } from './utils'
+import { diffAndReturnLatestObjects, DocumentChanges, getDocumentChanges, setValuesAndTrackChanges } from './utils.js'
 
 function mutateExpectedPackage<ExpectedPackageType extends ExpectedPackageDBBase>(
 	oldObj: ExpectedPackageType,
@@ -40,7 +40,7 @@ export class ExpectedPackagesStore<ExpectedPackageType extends ExpectedPackageDB
 	}
 	get expectedPackages(): ReadonlyDeep<ExpectedPackageType[]> {
 		// Typescript is not happy with turning ExpectedPackageType into ReadonlyDeep because it can be a union
-		return this.#expectedPackages as any[]
+		return this.#expectedPackages as any
 	}
 
 	get hasChanges(): boolean {

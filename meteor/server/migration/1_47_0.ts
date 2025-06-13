@@ -3,7 +3,7 @@ import { DBStudio, MappingsExt } from '@sofie-automation/corelib/dist/dataModel/
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
 import { DBShowStyleBase, OutputLayers, SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { DBBlueprintTrigger, TriggeredActionsObj } from '../../lib/collections/TriggeredActions'
+import { DBBlueprintTrigger, TriggeredActionsObj } from '@sofie-automation/meteor-lib/dist/collections/TriggeredActions'
 import { getRandomString, normalizeArray } from '@sofie-automation/corelib/dist/lib'
 import { IBlueprintConfig, IOutputLayer, ISourceLayer, SomeAction } from '@sofie-automation/blueprints-integration'
 import { ShowStyleBases, ShowStyleVariants, Studios, TriggeredActions } from '../collections'

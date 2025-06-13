@@ -5,9 +5,9 @@ import {
 	ExpectedMediaItemRundown,
 } from '@sofie-automation/corelib/dist/dataModel/ExpectedMediaItem'
 import {
-	AdLibActionId,
+	BucketAdLibActionId,
+	BucketAdLibId,
 	ExpectedMediaItemId,
-	PieceId,
 	RundownId,
 	StudioId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
@@ -18,20 +18,20 @@ import {
 	SomeContent,
 	VTContent,
 } from '@sofie-automation/blueprints-integration'
-import { getCurrentTime } from '../lib'
+import { getCurrentTime } from '../lib/index.js'
 import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
-import { IngestModel } from './model/IngestModel'
-import { JobContext } from '../jobs'
-import { logger } from '../logging'
-import { saveIntoDb } from '../db/changes'
+import { IngestModel } from './model/IngestModel.js'
+import { JobContext } from '../jobs/index.js'
+import { logger } from '../logging.js'
+import { saveIntoDb } from '../db/changes.js'
 import { BucketAdLibAction } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibAction'
 import { BucketAdLib } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibPiece'
 import { interpollateTranslation, translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { RundownBaselineAdLibAction } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibAction'
 import { ReadonlyDeep } from 'type-fest'
-import { IngestPartModel } from './model/IngestPartModel'
+import { IngestPartModel } from './model/IngestPartModel.js'
 
 export enum PieceType {
 	PIECE = 'piece',
@@ -44,7 +44,7 @@ function generateExpectedMediaItems<T extends ExpectedMediaItemBase>(
 	commonProps: Subtract<T, ExpectedMediaItemBase>,
 	studioId: StudioId,
 	label: string,
-	content: Partial<SomeContent> | undefined,
+	content: Partial<SomeContent | ReadonlyDeep<SomeContent>> | undefined,
 	pieceType: string
 ): T[] {
 	const result: T[] = []
@@ -140,7 +140,7 @@ function generateExpectedMediaItemsFull(
  */
 export async function cleanUpExpectedMediaItemForBucketAdLibPiece(
 	context: JobContext,
-	adLibIds: PieceId[]
+	adLibIds: BucketAdLibId[]
 ): Promise<void> {
 	if (adLibIds.length > 0) {
 		const removedItems = await context.directCollections.ExpectedMediaItems.remove({
@@ -160,7 +160,7 @@ export async function cleanUpExpectedMediaItemForBucketAdLibPiece(
  */
 export async function cleanUpExpectedMediaItemForBucketAdLibActions(
 	context: JobContext,
-	actionIds: AdLibActionId[]
+	actionIds: BucketAdLibActionId[]
 ): Promise<void> {
 	if (actionIds.length > 0) {
 		const removedItems = await context.directCollections.ExpectedMediaItems.remove({

@@ -1,31 +1,31 @@
-import { DBPart } from './dataModel/Part'
-import { CollectionName } from './dataModel/Collections'
-import { MongoQuery } from './mongo'
-import { AdLibAction } from './dataModel/AdlibAction'
-import { AdLibPiece } from './dataModel/AdLibPiece'
-import { RundownBaselineAdLibAction } from './dataModel/RundownBaselineAdLibAction'
-import { RundownBaselineAdLibItem } from './dataModel/RundownBaselineAdLibPiece'
-import { DBPartInstance } from './dataModel/PartInstance'
-import { DBRundown } from './dataModel/Rundown'
-import { DBRundownPlaylist } from './dataModel/RundownPlaylist'
-import { DBSegment } from './dataModel/Segment'
-import { DBShowStyleBase } from './dataModel/ShowStyleBase'
-import { DBShowStyleVariant } from './dataModel/ShowStyleVariant'
-import { DBStudio } from './dataModel/Studio'
-import { IngestDataCacheObj } from './dataModel/IngestDataCache'
+import { DBPart } from './dataModel/Part.js'
+import { CollectionName, CustomCollectionName } from './dataModel/Collections.js'
+import { MongoQuery } from './mongo.js'
+import { AdLibAction } from './dataModel/AdlibAction.js'
+import { AdLibPiece } from './dataModel/AdLibPiece.js'
+import { RundownBaselineAdLibAction } from './dataModel/RundownBaselineAdLibAction.js'
+import { RundownBaselineAdLibItem } from './dataModel/RundownBaselineAdLibPiece.js'
+import { DBPartInstance } from './dataModel/PartInstance.js'
+import { DBRundown } from './dataModel/Rundown.js'
+import { DBRundownPlaylist } from './dataModel/RundownPlaylist.js'
+import { DBSegment } from './dataModel/Segment.js'
+import { DBShowStyleBase } from './dataModel/ShowStyleBase.js'
+import { DBShowStyleVariant } from './dataModel/ShowStyleVariant.js'
+import { DBStudio } from './dataModel/Studio.js'
+import { NrcsIngestDataCacheObj } from './dataModel/NrcsIngestDataCache.js'
 import { DBTimelineDatastoreEntry } from '@sofie-automation/shared-lib/dist/core/model/TimelineDatastore'
-import { Blueprint } from './dataModel/Blueprint'
-import { BucketAdLibAction } from './dataModel/BucketAdLibAction'
-import { BucketAdLib } from './dataModel/BucketAdLibPiece'
-import { ExpectedMediaItem } from './dataModel/ExpectedMediaItem'
-import { ExpectedPackageWorkStatus } from './dataModel/ExpectedPackageWorkStatuses'
-import { ExpectedPackageDBBase } from './dataModel/ExpectedPackages'
-import { ExternalMessageQueueObj } from './dataModel/ExternalMessageQueue'
-import { PackageContainerStatusDB } from './dataModel/PackageContainerStatus'
-import { PeripheralDevice } from './dataModel/PeripheralDevice'
-import { Piece } from './dataModel/Piece'
-import { PieceInstance } from './dataModel/PieceInstance'
-import { TimelineComplete } from './dataModel/Timeline'
+import { Blueprint } from './dataModel/Blueprint.js'
+import { BucketAdLibAction } from './dataModel/BucketAdLibAction.js'
+import { BucketAdLib } from './dataModel/BucketAdLibPiece.js'
+import { ExpectedMediaItem } from './dataModel/ExpectedMediaItem.js'
+import { ExpectedPackageWorkStatus } from './dataModel/ExpectedPackageWorkStatuses.js'
+import { ExpectedPackageDBBase } from './dataModel/ExpectedPackages.js'
+import { ExternalMessageQueueObj } from './dataModel/ExternalMessageQueue.js'
+import { PackageContainerStatusDB } from './dataModel/PackageContainerStatus.js'
+import { PeripheralDevice } from './dataModel/PeripheralDevice.js'
+import { Piece } from './dataModel/Piece.js'
+import { PieceInstance } from './dataModel/PieceInstance.js'
+import { TimelineComplete } from './dataModel/Timeline.js'
 import {
 	PartId,
 	PartInstanceId,
@@ -35,15 +35,10 @@ import {
 	ShowStyleBaseId,
 	StudioId,
 } from '@sofie-automation/shared-lib/dist/core/model/Ids'
-import {
-	BlueprintId,
-	BucketId,
-	RundownPlaylistActivationId,
-	SegmentId,
-	SegmentPlayoutId,
-	ShowStyleVariantId,
-} from './dataModel/Ids'
-import { PackageInfoDB } from './dataModel/PackageInfos'
+import { BlueprintId, BucketId, RundownPlaylistActivationId, SegmentId, ShowStyleVariantId } from './dataModel/Ids.js'
+import { PackageInfoDB } from './dataModel/PackageInfos.js'
+import { UIPieceContentStatus } from './dataModel/PieceContentStatus.js'
+import { Bucket } from './dataModel/Bucket.js'
 
 /**
  * Ids of possible DDP subscriptions for any the UI and gateways accessing the Rundown & RundownPlaylist model.
@@ -103,11 +98,6 @@ export enum CorelibPubSub {
 	 */
 	partInstancesSimple = 'partInstancesSimple',
 	/**
-	 * Fetch the most recent PartInstance in a Rundown with the SegmentPlayoutId, including reset instances
-	 * This provides a simplified form of the PartInstance, with any timing information omitted to reduce data churn
-	 */
-	partInstancesForSegmentPlayout = 'partInstancesForSegmentPlayout',
-	/**
 	 * Fetch Pieces belonging to the specified Rundowns, optionally limiting the result to the specified Parts
 	 */
 	pieces = 'pieces',
@@ -147,12 +137,16 @@ export enum CorelibPubSub {
 	packageContainerStatuses = 'packageContainerStatuses',
 
 	/**
-	 * Fetch all bucket adlib pieces for the specified Studio and Bucket.
+	 * Fetch either all buckets for the given Studio, or the Bucket specified.
+	 */
+	buckets = 'buckets',
+	/**
+	 * Fetch all bucket adlib pieces for the specified Studio and Bucket (or all buckets in a Studio).
 	 * The result will be limited to ones valid to the ShowStyleVariants specified, as well as ones marked as valid in any ShowStyleVariant
 	 */
 	bucketAdLibPieces = 'bucketAdLibPieces',
 	/**
-	 * Fetch all bucket adlib action for the specified Studio and Bucket.
+	 * Fetch all bucket adlib action for the specified Studio and Bucket (or all buckets in a Studio).
 	 * The result will be limited to ones valid to the ShowStyleVariants specified, as well as ones marked as valid in any ShowStyleVariant
 	 */
 	bucketAdLibActions = 'bucketAdLibActions',
@@ -192,6 +186,12 @@ export enum CorelibPubSub {
 	 * Fetch all the PackageInfos owned by a PeripheralDevice
 	 */
 	packageInfos = 'packageInfos',
+
+	/**
+	 * Fetch the Pieces content-status in the given RundownPlaylist
+	 * If the id is null, nothing will be returned
+	 */
+	uiPieceContentStatuses = 'uiPieceContentStatuses',
 }
 
 /**
@@ -223,9 +223,9 @@ export interface CorelibPubSubTypes {
 		token?: string
 	) => CollectionName.RundownBaselineAdLibActions
 	[CorelibPubSub.ingestDataCache]: (
-		selector: MongoQuery<IngestDataCacheObj>,
+		selector: MongoQuery<NrcsIngestDataCacheObj>,
 		token?: string
-	) => CollectionName.IngestDataCache
+	) => CollectionName.NrcsIngestDataCache
 	[CorelibPubSub.rundownPlaylists]: (
 		/** RundownPlaylistIds to fetch for, or null to fetch all */
 		rundownPlaylistIds: RundownPlaylistId[] | null,
@@ -283,11 +283,6 @@ export interface CorelibPubSubTypes {
 		playlistActivationId: RundownPlaylistActivationId | null,
 		token?: string
 	) => CollectionName.PartInstances
-	[CorelibPubSub.partInstancesForSegmentPlayout]: (
-		rundownId: RundownId,
-		segmentPlayoutId: SegmentPlayoutId,
-		token?: string
-	) => CollectionName.PartInstances
 	[CorelibPubSub.segments]: (
 		rundownIds: RundownId[],
 		filter: {
@@ -314,14 +309,15 @@ export interface CorelibPubSubTypes {
 		token?: string
 	) => CollectionName.Studios
 	[CorelibPubSub.timelineDatastore]: (studioId: StudioId, token?: string) => CollectionName.TimelineDatastore
+	[CorelibPubSub.buckets]: (studioId: StudioId, bucketId: BucketId | null, token?: string) => CollectionName.Buckets
 	[CorelibPubSub.bucketAdLibPieces]: (
 		studioId: StudioId,
-		bucketId: BucketId,
+		bucketId: BucketId | null,
 		showStyleVariantIds: ShowStyleVariantId[]
 	) => CollectionName.BucketAdLibPieces
 	[CorelibPubSub.bucketAdLibActions]: (
 		studioId: StudioId,
-		bucketId: BucketId,
+		bucketId: BucketId | null,
 		showStyleVariantIds: ShowStyleVariantId[]
 	) => CollectionName.BucketAdLibActions
 	[CorelibPubSub.expectedPackages]: (studioIds: StudioId[], token?: string) => CollectionName.ExpectedPackages
@@ -334,19 +330,24 @@ export interface CorelibPubSubTypes {
 		token?: string
 	) => CollectionName.PackageContainerStatuses
 	[CorelibPubSub.packageInfos]: (deviceId: PeripheralDeviceId, token?: string) => CollectionName.PackageInfos
+
+	[CorelibPubSub.uiPieceContentStatuses]: (
+		rundownPlaylistId: RundownPlaylistId | null
+	) => CustomCollectionName.UIPieceContentStatuses
 }
 
 export type CorelibPubSubCollections = {
 	[CollectionName.AdLibActions]: AdLibAction
 	[CollectionName.AdLibPieces]: AdLibPiece
 	[CollectionName.Blueprints]: Blueprint
+	[CollectionName.Buckets]: Bucket
 	[CollectionName.BucketAdLibActions]: BucketAdLibAction
 	[CollectionName.BucketAdLibPieces]: BucketAdLib
 	[CollectionName.ExpectedMediaItems]: ExpectedMediaItem
 	[CollectionName.ExpectedPackages]: ExpectedPackageDBBase
 	[CollectionName.ExpectedPackageWorkStatuses]: ExpectedPackageWorkStatus
 	[CollectionName.ExternalMessageQueue]: ExternalMessageQueueObj
-	[CollectionName.IngestDataCache]: IngestDataCacheObj
+	[CollectionName.NrcsIngestDataCache]: NrcsIngestDataCacheObj
 	[CollectionName.PartInstances]: DBPartInstance
 	[CollectionName.PackageContainerStatuses]: PackageContainerStatusDB
 	[CollectionName.PackageInfos]: PackageInfoDB
@@ -364,4 +365,8 @@ export type CorelibPubSubCollections = {
 	[CollectionName.Studios]: DBStudio
 	[CollectionName.Timelines]: TimelineComplete
 	[CollectionName.TimelineDatastore]: DBTimelineDatastoreEntry
+} & CorelibPubSubCustomCollections
+
+export type CorelibPubSubCustomCollections = {
+	[CustomCollectionName.UIPieceContentStatuses]: UIPieceContentStatus
 }

@@ -1,6 +1,10 @@
 import { Time } from '@sofie-automation/blueprints-integration'
-import { DeviceConfigManifest } from '../deviceConfig'
-import { OrganizationId, PeripheralDeviceId, StudioId } from './Ids'
+import { DeviceConfigManifest } from '../deviceConfig.js'
+import { OrganizationId, PeripheralDeviceId, StudioId } from './Ids.js'
+import type {
+	IngestDeviceSecretSettings,
+	IngestDeviceSecretSettingsStatus,
+} from '@sofie-automation/shared-lib/dist/core/model/peripheralDevice'
 
 import {
 	PeripheralDeviceStatusObject,
@@ -18,12 +22,6 @@ export {
 	PERIPHERAL_SUBTYPE_PROCESS,
 }
 
-import {
-	GenericPeripheralDeviceSettings,
-	IngestDeviceSecretSettings,
-	IngestDeviceSettings,
-} from '@sofie-automation/shared-lib/dist/core/model/peripheralDevice'
-
 export interface PeripheralDevice {
 	_id: PeripheralDeviceId
 
@@ -33,8 +31,11 @@ export interface PeripheralDevice {
 	/** Name of the device (set by the device) */
 	deviceName: string
 
-	/** The studio this device is assigned to. Will be undefined for sub-devices */
-	studioId?: StudioId
+	/** The studio and config this device is assigned to. Will be undefined for sub-devices */
+	studioAndConfigId?: {
+		studioId: StudioId
+		configId: string
+	}
 
 	category: PeripheralDeviceCategory
 	type: PeripheralDeviceType
@@ -45,8 +46,6 @@ export interface PeripheralDevice {
 	/** When the device was initially created [unix-timestamp] */
 	created: number
 	status: PeripheralDeviceStatusObject
-
-	settings: IngestDeviceSettings | GenericPeripheralDeviceSettings
 
 	/** If set, this device is owned by that organization */
 	organizationId: OrganizationId | null
@@ -70,6 +69,7 @@ export interface PeripheralDevice {
 	token: string
 
 	secretSettings?: IngestDeviceSecretSettings | { [key: string]: any }
+	secretSettingsStatus?: IngestDeviceSecretSettingsStatus
 
 	/** If the device is of category ingest, the name of the NRCS being used */
 	nrcsName?: string
@@ -79,7 +79,10 @@ export interface PeripheralDevice {
 	/** Ignore this device when computing status in the GUI (other status reports are unaffected) */
 	ignore?: boolean
 
-	configManifest: DeviceConfigManifest
+	/**
+	 * If this device is a parent-device, the config manifest for the device
+	 */
+	configManifest: DeviceConfigManifest | undefined
 
 	/** If this is an ingest gateway, the last tiem data was received */
 	lastDataReceived?: Time

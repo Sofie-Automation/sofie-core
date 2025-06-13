@@ -9,7 +9,6 @@ import * as vm from 'vm'
 import { ReadonlyDeep } from 'type-fest'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
-import fetch from 'node-fetch'
 
 export interface WrappedSystemBlueprint {
 	blueprintId: BlueprintId
@@ -55,12 +54,7 @@ export async function parseBlueprintDocument(
 		let manifest: SomeBlueprintManifest
 		try {
 			const blueprintPath = `db:///blueprint/${blueprint.name || blueprint._id}-bundle.js`
-			const context = vm.createContext(
-				{
-					fetch: fetch, // Future: This should be removed once node18 native fetch is available
-				},
-				{}
-			)
+			const context = vm.createContext({}, {})
 			const script = new vm.Script(
 				`__run_result = ${blueprint.code}
 __run_result || blueprint`,

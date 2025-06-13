@@ -1,8 +1,8 @@
 // This is a collection of functions that match what the playout-gateway / TSR does
 
-import _ = require('underscore')
+import _ from 'underscore'
 import { TSR } from '@sofie-automation/blueprints-integration'
-import { TimelineObjGeneric, TimelineObjGroup } from '../dataModel/Timeline'
+import { TimelineObjGeneric, TimelineObjGroup } from '../dataModel/Timeline.js'
 
 // playout-gateway:
 export function transformTimeline(timeline: Array<TimelineObjGeneric>): Array<TimelineContentObject> {

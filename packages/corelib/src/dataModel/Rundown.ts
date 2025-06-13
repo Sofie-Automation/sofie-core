@@ -7,9 +7,10 @@ import {
 	PeripheralDeviceId,
 	RundownPlaylistId,
 	ShowStyleVariantId,
-} from './Ids'
-import { RundownNote } from './Notes'
+} from './Ids.js'
+import { RundownNote } from './Notes.js'
 import { ReadonlyDeep } from 'type-fest'
+import { CoreUserEditingDefinition } from './UserEditingDefinitions.js'
 
 export enum RundownOrphanedReason {
 	/** Rundown is deleted from the source but we still need it */
@@ -59,7 +60,7 @@ export interface Rundown {
 	/** Last sent storyStatus to ingestDevice (MOS) */
 	notifiedCurrentPlayingPartExternalId?: string
 
-	/** Holds notes (warnings / errors) thrown by the blueprints during creation, or appended after */
+	/** Holds notes (warnings / errors) thrown by the blueprints during creation */
 	notes?: Array<RundownNote>
 
 	externalId: string
@@ -85,6 +86,10 @@ export interface Rundown {
 	playlistId: RundownPlaylistId
 	/** If the playlistId has ben set manually by a user in Sofie */
 	playlistIdIsSetInSofie?: boolean
+	/**
+	 * User editing definitions for this rundown
+	 */
+	userEditOperations?: CoreUserEditingDefinition[]
 }
 
 /** A description of where a Rundown originated from */

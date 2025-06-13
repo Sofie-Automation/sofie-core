@@ -3,13 +3,12 @@ import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { ReadonlyDeep } from 'type-fest'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { RundownBaselineObj } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineObj'
-import { PlayoutRundownModel } from '../PlayoutRundownModel'
-import { PlayoutSegmentModel } from '../PlayoutSegmentModel'
+import { PlayoutRundownModel } from '../PlayoutRundownModel.js'
+import { PlayoutSegmentModel } from '../PlayoutSegmentModel.js'
 import { UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/error'
 import { SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { getRandomId } from '@sofie-automation/corelib/dist/lib'
-import { getCurrentTime } from '../../../lib'
-import { PlayoutSegmentModelImpl } from './PlayoutSegmentModelImpl'
+import { PlayoutSegmentModelImpl } from './PlayoutSegmentModelImpl.js'
 
 export class PlayoutRundownModelImpl implements PlayoutRundownModel {
 	readonly rundown: ReadonlyDeep<DBRundown>
@@ -74,7 +73,6 @@ export class PlayoutRundownModelImpl implements PlayoutRundownModel {
 					_id: segmentId,
 					_rank: calculateRankForAdlibTestingSegment(this.#segments),
 					externalId: '__adlib-testing__',
-					externalModified: getCurrentTime(),
 					rundownId: this.rundown._id,
 					orphaned: SegmentOrphanedReason.ADLIB_TESTING,
 					name: '',

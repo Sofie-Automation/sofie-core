@@ -2,6 +2,7 @@ import { PlayoutChangedResults } from '@sofie-automation/shared-lib/dist/periphe
 import {
 	AdLibActionId,
 	BucketAdLibActionId,
+	BucketAdLibId,
 	BucketId,
 	ExpectedPackageId,
 	PartId,
@@ -13,11 +14,12 @@ import {
 	RundownPlaylistId,
 	SegmentId,
 	StudioId,
-} from '../dataModel/Ids'
+} from '../dataModel/Ids.js'
 import { JSONBlob } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
-import { CoreRundownPlaylistSnapshot } from '../snapshots'
+import { CoreRundownPlaylistSnapshot } from '../snapshots.js'
 import { NoteSeverity } from '@sofie-automation/blueprints-integration'
-import { ITranslatableMessage } from '../TranslatableMessage'
+import { ITranslatableMessage } from '../TranslatableMessage.js'
+import { QuickLoopMarker } from '../dataModel/RundownPlaylist.js'
 
 /** List of all Jobs performed by the Worker related to a certain Studio */
 export enum StudioJobs {
@@ -184,9 +186,25 @@ export enum StudioJobs {
 	BlueprintIgnoreFixUpConfigForStudio = 'blueprintIgnoreFixUpConfigForStudio',
 
 	/**
-	 * Activate AdlibTesting (Rehearsal Mode) mode for the Rundown containing the nexted Part.
+	 * Activate AdlibTesting for the Rundown containing the nexted part.
 	 */
 	ActivateAdlibTesting = 'activateAdlibTesting',
+
+	/**
+	 * Set QuickLoop marker
+	 */
+	SetQuickLoopMarker = 'setQuickLoopMarker',
+
+	/**
+	 * Clear all QuickLoop markers
+	 */
+	ClearQuickLoopMarkers = 'clearQuickLoopMarkers',
+
+	/**
+	 * Switch the route of the studio
+	 * for use in ad.lib actions and other triggers
+	 */
+	SwitchRouteSet = 'switchRouteSet',
 }
 
 export interface RundownPlayoutPropsBase {
@@ -196,7 +214,7 @@ export type UpdateTimelineAfterIngestProps = RundownPlayoutPropsBase
 
 export interface AdlibPieceStartProps extends RundownPlayoutPropsBase {
 	partInstanceId: PartInstanceId
-	adLibPieceId: PieceId
+	adLibPieceId: PieceId | BucketAdLibId
 	pieceType: 'baseline' | 'normal' | 'bucket'
 	queue?: boolean
 }
@@ -214,6 +232,7 @@ export interface StopPiecesOnSourceLayersProps extends RundownPlayoutPropsBase {
 export interface MoveNextPartProps extends RundownPlayoutPropsBase {
 	partDelta: number
 	segmentDelta: number
+	ignoreQuickLoop?: boolean
 }
 export type ActivateHoldProps = RundownPlayoutPropsBase
 export type DeactivateHoldProps = RundownPlayoutPropsBase
@@ -243,6 +262,7 @@ export interface ExecuteActionProps extends RundownPlayoutPropsBase {
 	actionId: string
 	userData: any
 	triggerMode?: string
+	actionOptions?: { [key: string]: any }
 }
 export interface ExecuteBucketAdLibOrActionProps extends RundownPlayoutPropsBase {
 	bucketId: BucketId
@@ -290,6 +310,8 @@ export type DebugSyncInfinitesForNextPartInstanceProps = RundownPlayoutPropsBase
 export interface GeneratePlaylistSnapshotProps extends RundownPlayoutPropsBase {
 	// Include all Instances, or just recent ones
 	full: boolean
+	// Include the Timeline
+	withTimeline: boolean
 }
 export interface GeneratePlaylistSnapshotResult {
 	/**
@@ -332,6 +354,17 @@ export interface BlueprintFixUpConfigForStudioResult {
 
 export interface ActivateAdlibTestingProps extends RundownPlayoutPropsBase {
 	rundownId: RundownId
+}
+
+export interface SetQuickLoopMarkerProps extends RundownPlayoutPropsBase {
+	type: 'start' | 'end'
+	marker: QuickLoopMarker | null
+}
+export type ClearQuickLoopMarkersProps = RundownPlayoutPropsBase
+
+export interface SwitchRouteSetProps {
+	routeSetId: string
+	state: boolean | 'toggle'
 }
 
 /**
@@ -385,6 +418,11 @@ export type StudioJobFunc = {
 	[StudioJobs.BlueprintIgnoreFixUpConfigForStudio]: () => void
 
 	[StudioJobs.ActivateAdlibTesting]: (data: ActivateAdlibTestingProps) => void
+
+	[StudioJobs.SetQuickLoopMarker]: (data: SetQuickLoopMarkerProps) => void
+	[StudioJobs.ClearQuickLoopMarkers]: (data: ClearQuickLoopMarkersProps) => void
+
+	[StudioJobs.SwitchRouteSet]: (data: SwitchRouteSetProps) => void
 }
 
 export function getStudioQueueName(id: StudioId): string {

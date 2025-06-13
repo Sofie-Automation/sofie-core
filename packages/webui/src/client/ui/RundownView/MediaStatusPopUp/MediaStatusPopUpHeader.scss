@@ -1,0 +1,121 @@
+.media-status-panel-header {
+	tr > th {
+		position: sticky;
+		top: 0;
+		background: var(--panel-background);
+
+		font-size: 0.875em;
+		letter-spacing: -0.5px;
+		font-weight: 500;
+		z-index: 10;
+	}
+	.media-status-popup-item__sort-button {
+		border: none;
+		background: none;
+		margin: 0;
+		padding: 0;
+		text-align: center;
+		min-width: 1.5em;
+		color: #141517;
+		font-weight: 500;
+
+		> svg {
+			vertical-align: top;
+			margin-top: 0.4em;
+		}
+
+		&.inactive {
+			color: #b3b3b3;
+		}
+	}
+	.media-status-popup-item__countdown {
+		text-align: right;
+		padding: 0 0.15em;
+		width: 4.2em;
+	}
+	.media-status-popup-item__status {
+		width: 2em;
+	}
+	.media-status-item__source-layer {
+		width: 3.5em;
+	}
+	.media-status-item__identifiers {
+		width: 3em;
+	}
+	.media-status-item__source-layer,
+	.media-status-popup-item__status {
+		text-align: center;
+	}
+	.media-status-popup-item__countdown,
+	.media-status-popup-item__status,
+	.media-status-item__source-layer,
+	.media-status-item__identifiers,
+	.media-status-item__label {
+		padding-bottom: 0.5em;
+		padding-top: 0.1em;
+
+		&::after {
+			content: ' ';
+			display: block;
+			position: absolute;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			height: 2px;
+			border-bottom: 1px solid #d7d7d7;
+			border-top: 1px solid #d7d7d7;
+		}
+	}
+
+	.media-status-item__label {
+		&::after {
+			right: 1.75em;
+		}
+	}
+
+	.media-status-panel-header__filter-input {
+		position: absolute;
+		top: 0;
+		right: 0.5em;
+		width: 12em;
+		border: none;
+		border-radius: 1em;
+		background: #f5f5f5;
+		font-weight: 400;
+		padding: 0.1em 0.5em;
+		margin: 0;
+
+		&::placeholder {
+			font-style: italic;
+			color: #b3b3b3;
+			font-weight: 300;
+		}
+
+		&:focus-within {
+			background: #ffffff;
+		}
+
+		&:focus-visible {
+			outline: none;
+		}
+	}
+
+	.media-status-panel-header__clear-search-input {
+		position: absolute;
+		right: 0.6em;
+		top: 0.05em;
+		opacity: 0.3;
+		cursor: pointer;
+		border: none;
+		background: none;
+
+		&:hover {
+			opacity: 0.7;
+			background: none;
+		}
+	}
+
+	.media-status-popup-item__playout-indicator {
+		width: 1em;
+	}
+}

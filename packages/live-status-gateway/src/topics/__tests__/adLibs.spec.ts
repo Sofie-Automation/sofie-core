@@ -1,13 +1,17 @@
 import { protectString, unprotectString } from '@sofie-automation/server-core-integration'
-import { makeMockLogger, makeMockSubscriber, makeTestParts, makeTestPlaylist, makeTestShowStyleBase } from './utils'
-import { AdLibsStatus, AdLibsTopic } from '../adLibsTopic'
-import { PlaylistHandler } from '../../collections/playlistHandler'
-import { ShowStyleBaseExt, ShowStyleBaseHandler } from '../../collections/showStyleBaseHandler'
+import {
+	makeMockHandlers,
+	makeMockLogger,
+	makeMockSubscriber,
+	makeTestParts,
+	makeTestPlaylist,
+	makeTestShowStyleBase,
+} from './utils.js'
+import { AdLibsTopic } from '../adLibsTopic.js'
+import { ShowStyleBaseExt } from '../../collections/showStyleBaseHandler.js'
 import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
 import { RundownBaselineAdLibAction } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibAction'
-import { AdLibActionsHandler } from '../../collections/adLibActionsHandler'
-import { GlobalAdLibActionsHandler } from '../../collections/globalAdLibActionsHandler'
-import { PartsHandler } from '../../collections/partsHandler'
+import { AdLibsEvent } from '@sofie-automation/live-status-gateway-api'
 
 function makeTestAdLibActions(): AdLibAction[] {
 	return [
@@ -52,32 +56,33 @@ function makeTestGlobalAdLibActions(): RundownBaselineAdLibAction[] {
 	]
 }
 
-describe('ActivePlaylistTopic', () => {
+describe('AdLibsTopic', () => {
 	it('notifies subscribers', async () => {
-		const topic = new AdLibsTopic(makeMockLogger())
+		const handlers = makeMockHandlers()
+		const topic = new AdLibsTopic(makeMockLogger(), handlers)
 		const mockSubscriber = makeMockSubscriber()
 
 		const playlist = makeTestPlaylist()
 		playlist.activationId = protectString('somethingRandom')
-		await topic.update(PlaylistHandler.name, playlist)
+		handlers.playlistHandler.notify(playlist)
 
 		const parts = makeTestParts()
-		await topic.update(PartsHandler.name, parts)
+		handlers.partsHandler.notify(parts)
 
 		const testShowStyleBase = makeTestShowStyleBase()
-		await topic.update(ShowStyleBaseHandler.name, testShowStyleBase as ShowStyleBaseExt)
+		handlers.showStyleBaseHandler.notify(testShowStyleBase as ShowStyleBaseExt)
 
 		const testAdLibActions = makeTestAdLibActions()
-		await topic.update(AdLibActionsHandler.name, testAdLibActions)
+		handlers.adLibActionsHandler.notify(testAdLibActions)
 
 		const testGlobalAdLibActions = makeTestGlobalAdLibActions()
-		await topic.update(GlobalAdLibActionsHandler.name, testGlobalAdLibActions)
+		handlers.globalAdLibActionsHandler.notify(testGlobalAdLibActions)
 
 		// TODO: AdLibPieces and Global AdLibPieces
 
 		topic.addSubscriber(mockSubscriber)
 
-		const expectedStatus: AdLibsStatus = {
+		const expectedStatus: AdLibsEvent = {
 			event: 'adLibs',
 			rundownPlaylistId: unprotectString(playlist._id),
 			adLibs: [

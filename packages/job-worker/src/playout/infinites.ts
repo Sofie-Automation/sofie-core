@@ -10,20 +10,20 @@ import {
 	buildPastInfinitePiecesForThisPartQuery,
 } from '@sofie-automation/corelib/dist/playout/infinites'
 import { processAndPrunePieceInstanceTimings } from '@sofie-automation/corelib/dist/playout/processAndPrune'
-import { JobContext } from '../jobs'
+import { JobContext } from '../jobs/index.js'
 import { ReadonlyDeep } from 'type-fest'
-import { PlayoutModel } from './model/PlayoutModel'
-import { PlayoutPartInstanceModel } from './model/PlayoutPartInstanceModel'
-import { PlayoutSegmentModel } from './model/PlayoutSegmentModel'
-import { getCurrentTime } from '../lib'
+import { PlayoutModel } from './model/PlayoutModel.js'
+import { PlayoutPartInstanceModel } from './model/PlayoutPartInstanceModel.js'
+import { PlayoutSegmentModel } from './model/PlayoutSegmentModel.js'
+import { getCurrentTime } from '../lib/index.js'
 import { flatten } from '@sofie-automation/corelib/dist/lib'
-import _ = require('underscore')
-import { IngestModelReadonly } from '../ingest/model/IngestModel'
+import _ from 'underscore'
+import { IngestModelReadonly } from '../ingest/model/IngestModel.js'
 import { SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { sortRundownIDsInPlaylist } from '@sofie-automation/corelib/dist/playout/playlist'
 import { mongoWhere } from '@sofie-automation/corelib/dist/mongo'
-import { PlayoutRundownModel } from './model/PlayoutRundownModel'
-import { logger } from '../logging'
+import { PlayoutRundownModel } from './model/PlayoutRundownModel.js'
+import { logger } from '../logging.js'
 
 /** When we crop a piece, set the piece as "it has definitely ended" this far into the future. */
 export const DEFINITELY_ENDED_FUTURE_DURATION = 1 * 1000

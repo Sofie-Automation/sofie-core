@@ -1,8 +1,7 @@
 import { ReadonlyDeep } from 'type-fest'
-import { ProtectedString } from '../../../lib/lib'
-import { LiveQueryHandle } from '../lib'
+import { ProtectedString } from '../tempLib'
 import { CustomPublishCollection } from './customPublishCollection'
-import { TriggerUpdate, setUpOptimizedObserverInner } from './optimizedObserverBase'
+import { SetupObserversResult, TriggerUpdate, setUpOptimizedObserverInner } from './optimizedObserverBase'
 import { CustomPublish } from './publish'
 
 /**
@@ -20,7 +19,7 @@ export async function setUpCollectionOptimizedObserver<
 	PublicationDoc extends { _id: ProtectedString<any> },
 	Args,
 	State extends Record<string, any>,
-	UpdateProps extends Record<string, any>
+	UpdateProps extends Record<string, any>,
 >(
 	identifier: string,
 	args0: ReadonlyDeep<Args>,
@@ -28,7 +27,7 @@ export async function setUpCollectionOptimizedObserver<
 		args: ReadonlyDeep<Args>,
 		/** Trigger an update by mutating the context of manipulateData */
 		triggerUpdate: TriggerUpdate<UpdateProps>
-	) => Promise<LiveQueryHandle[]>,
+	) => Promise<SetupObserversResult>,
 	manipulateData: (
 		args: ReadonlyDeep<Args>,
 		state: Partial<State>,

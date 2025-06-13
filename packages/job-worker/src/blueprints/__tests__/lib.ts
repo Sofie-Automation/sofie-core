@@ -18,7 +18,6 @@ export function generateFakeBlueprint(
   integrationVersion: '0.0.0',
   TSRVersion: '0.0.0',
   studioConfigManifest: [],
-  studioMigrations: [],
   getBaseline: () => {
 	return {
       timelineObjects: [],
@@ -45,8 +44,6 @@ export function generateFakeBlueprint(
 
 		databaseVersion: {
 			system: undefined,
-			showStyle: {},
-			studio: {},
 		},
 
 		blueprintVersion: '',

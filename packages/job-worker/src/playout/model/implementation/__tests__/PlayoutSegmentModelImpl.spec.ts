@@ -1,5 +1,5 @@
 import { DBSegment, SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { PlayoutSegmentModelImpl } from '../PlayoutSegmentModelImpl'
+import { PlayoutSegmentModelImpl } from '../PlayoutSegmentModelImpl.js'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 
@@ -9,7 +9,6 @@ describe('PlayoutSegmentModelImpl', () => {
 			_id: protectString('abc'),
 			rundownId: protectString('rd0'),
 			externalId: 'ext1',
-			externalModified: 100000,
 			_rank: 1,
 			name: 'test segment',
 		}

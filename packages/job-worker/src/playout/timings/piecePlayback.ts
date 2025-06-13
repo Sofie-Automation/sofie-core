@@ -1,10 +1,10 @@
 import { PartInstanceId, PieceInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { logger } from '../../logging'
-import { JobContext } from '../../jobs'
-import { PlayoutModel } from '../model/PlayoutModel'
+import { logger } from '../../logging.js'
+import { JobContext } from '../../jobs/index.js'
+import { PlayoutModel } from '../model/PlayoutModel.js'
 import { Time } from '@sofie-automation/blueprints-integration'
-import { PlayoutPartInstanceModel } from '../model/PlayoutPartInstanceModel'
-import { PlayoutPieceInstanceModel } from '../model/PlayoutPieceInstanceModel'
+import { PlayoutPartInstanceModel } from '../model/PlayoutPartInstanceModel.js'
+import { PlayoutPieceInstanceModel } from '../model/PlayoutPieceInstanceModel.js'
 
 /**
  * Set the playback of a piece is confirmed to have started

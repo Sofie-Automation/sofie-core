@@ -1,9 +1,12 @@
 import { registerClassToMeteorMethods } from '../methods'
-import { StatusResponse, NewSystemStatusAPI, SystemStatusAPIMethods } from '../../lib/api/systemStatus'
+import {
+	StatusResponse,
+	NewSystemStatusAPI,
+	SystemStatusAPIMethods,
+} from '@sofie-automation/meteor-lib/dist/api/systemStatus'
 import { getDebugStates, getSystemStatus } from './systemStatus'
-import { protectString } from '../../lib/lib'
-import { Settings } from '../../lib/Settings'
-import { MethodContextAPI } from '../../lib/api/methods'
+import { protectString } from '../lib/tempLib'
+import { MethodContextAPI } from '../api/methodContext'
 import { profiler } from '../api/profiler'
 import { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PrometheusHTTPContentType, getPrometheusMetricsString } from '@sofie-automation/corelib/dist/prometheus'
@@ -18,53 +21,38 @@ const apmNamespace = 'http'
 export const metricsRouter = new KoaRouter()
 export const healthRouter = new KoaRouter()
 
-if (!Settings.enableUserAccounts) {
-	// For backwards compatibility:
+metricsRouter.get('/', async (ctx) => {
+	const transaction = profiler.startTransaction('metrics', apmNamespace)
+	try {
+		ctx.response.type = PrometheusHTTPContentType
 
-	metricsRouter.get('/', async (ctx) => {
-		const transaction = profiler.startTransaction('metrics', apmNamespace)
-		try {
-			ctx.response.type = PrometheusHTTPContentType
+		const [meteorMetrics, workerMetrics] = await Promise.all([
+			getPrometheusMetricsString(),
+			collectWorkerPrometheusMetrics(),
+		])
 
-			const [meteorMetrics, workerMetrics] = await Promise.all([
-				getPrometheusMetricsString(),
-				collectWorkerPrometheusMetrics(),
-			])
+		ctx.body = [meteorMetrics, ...workerMetrics].join('\n\n')
+	} catch (ex) {
+		ctx.response.status = 500
+		ctx.body = ex + ''
+	}
+	transaction?.end()
+})
 
-			ctx.body = [meteorMetrics, ...workerMetrics].join('\n\n')
-		} catch (ex) {
-			ctx.response.status = 500
-			ctx.body = ex + ''
-		}
-		transaction?.end()
-	})
-
-	healthRouter.get('/', async (ctx) => {
-		const transaction = profiler.startTransaction('health', apmNamespace)
-		const status = await getSystemStatus({ userId: null })
-		health(status, ctx)
-		transaction?.end()
-	})
-
-	healthRouter.get('/:studioId', async (ctx) => {
-		const transaction = profiler.startTransaction('health', apmNamespace)
-		const status = await getSystemStatus({ userId: null }, protectString(ctx.params.studioId))
-		health(status, ctx)
-		transaction?.end()
-	})
-}
-healthRouter.get('/:token', async (ctx) => {
+healthRouter.get('/', async (ctx) => {
 	const transaction = profiler.startTransaction('health', apmNamespace)
-	const status = await getSystemStatus({ userId: null, token: ctx.params.token })
+	const status = await getSystemStatus(ctx)
 	health(status, ctx)
 	transaction?.end()
 })
-healthRouter.get('/:token/:studioId', async (ctx) => {
+
+healthRouter.get('/:studioId', async (ctx) => {
 	const transaction = profiler.startTransaction('health', apmNamespace)
-	const status = await getSystemStatus({ userId: null, token: ctx.params.token }, protectString(ctx.params.studioId))
+	const status = await getSystemStatus(ctx, protectString(ctx.params.studioId))
 	health(status, ctx)
 	transaction?.end()
 })
+
 function health(status: StatusResponse, ctx: Koa.ParameterizedContext) {
 	ctx.response.type = 'application/json'
 
@@ -75,7 +63,7 @@ function health(status: StatusResponse, ctx: Koa.ParameterizedContext) {
 
 class ServerSystemStatusAPI extends MethodContextAPI implements NewSystemStatusAPI {
 	async getSystemStatus() {
-		return getSystemStatus(this)
+		return getSystemStatus(this.connection)
 	}
 
 	async getDebugStates(peripheralDeviceId: PeripheralDeviceId) {

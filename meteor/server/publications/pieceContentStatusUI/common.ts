@@ -7,26 +7,26 @@ import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settin
 import { MediaObject } from '@sofie-automation/shared-lib/dist/core/model/MediaObjects'
 import { ReadonlyDeep } from 'type-fest'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { literal } from '../../../lib/lib'
+import { literal } from '../../lib/tempLib'
 import { Studios } from '../../collections'
 import { PieceContentStatusStudio } from './checkPieceContentStatus'
 
 export type StudioFields =
 	| '_id'
-	| 'settings'
-	| 'packageContainers'
+	| 'settingsWithOverrides'
+	| 'packageContainersWithOverrides'
 	| 'previewContainerIds'
 	| 'thumbnailContainerIds'
 	| 'mappingsWithOverrides'
-	| 'routeSets'
+	| 'routeSetsWithOverrides'
 export const studioFieldSpecifier = literal<MongoFieldSpecifierOnesStrict<Pick<DBStudio, StudioFields>>>({
 	_id: 1,
-	settings: 1,
-	packageContainers: 1,
+	settingsWithOverrides: 1,
+	packageContainersWithOverrides: 1,
 	previewContainerIds: 1,
 	thumbnailContainerIds: 1,
 	mappingsWithOverrides: 1,
-	routeSets: 1,
+	routeSetsWithOverrides: 1,
 })
 
 export type PackageContainerPackageStatusLight = Pick<PackageContainerPackageStatusDB, '_id' | 'studioId' | 'status'>
@@ -112,11 +112,11 @@ export async function fetchStudio(studioId: StudioId): Promise<PieceContentStatu
 
 	return {
 		_id: studio._id,
-		settings: studio.settings,
-		packageContainers: studio.packageContainers,
+		settings: applyAndValidateOverrides(studio.settingsWithOverrides).obj,
 		previewContainerIds: studio.previewContainerIds,
 		thumbnailContainerIds: studio.thumbnailContainerIds,
 		mappings: applyAndValidateOverrides(studio.mappingsWithOverrides).obj,
-		routeSets: studio.routeSets,
+		routeSets: applyAndValidateOverrides(studio.routeSetsWithOverrides).obj,
+		packageContainers: applyAndValidateOverrides(studio.packageContainersWithOverrides).obj,
 	}
 }

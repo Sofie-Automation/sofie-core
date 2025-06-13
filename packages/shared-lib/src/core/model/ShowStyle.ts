@@ -21,11 +21,14 @@ export enum SourceLayerType {
 	LIVE_SPEAK = 11,
 	/** Transition effects, content object can use VTContent or TransitionContent */
 	TRANSITION = 13,
-	// LIGHTS = 14,
+	/** Control of Studio Lighting, Effects, etc. */
+	LIGHTS = 14,
 	/** Uncontrolled local sources, such as PowerPoint presentation inputs, Weather systems, EVS replay machines, etc. */
 	LOCAL = 15,
 	/** Sources that are intended for a studio screen, such as weather, presentations etc. */
 	STUDIO_SCREEN = 16,
+	/** Remote source with (Local) Studio Audio */
+	REMOTE_SPEAK = 17,
 }
 
 /** A single source layer, f.g Cameras, VT, Graphics, Remotes */
@@ -95,6 +98,7 @@ export enum PlayoutActions {
 	reloadRundownPlaylistData = 'reloadRundownPlaylistData',
 	disableNextPiece = 'disableNextPiece',
 	activateAdlibTestingMode = 'activateAdlibTestingMode',
+	switchRouteSet = 'switchRouteSet',
 }
 
 export enum ClientActions {

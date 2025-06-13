@@ -13,10 +13,12 @@ export enum CollectionName {
 	ExpectedPackageWorkStatuses = 'expectedPackageWorkStatuses',
 	ExpectedPlayoutItems = 'expectedPlayoutItems',
 	ExternalMessageQueue = 'externalMessageQueue',
-	IngestDataCache = 'ingestDataCache',
+	NrcsIngestDataCache = 'ingestDataCache', // Future: this could be renamed to nrcsIngestDataCache
+	SofieIngestDataCache = 'sofieIngestDataCache',
 	MediaObjects = 'mediaObjects',
 	MediaWorkFlows = 'mediaWorkFlows',
 	MediaWorkFlowSteps = 'mediaWorkFlowSteps',
+	Notifications = 'notifications',
 	Organizations = 'organizations',
 	PartInstances = 'partInstances',
 	PackageInfos = 'packageInfos',
@@ -43,7 +45,13 @@ export enum CollectionName {
 	TriggeredActions = 'triggeredActions',
 	TranslationsBundles = 'translationsBundles',
 	UserActionsLog = 'userActionsLog',
-	Users = 'Users',
 	Workers = 'workers',
 	WorkerThreads = 'workersThreads',
+}
+
+/**
+ * Ids of possible Custom collections, populated by DDP subscriptions
+ */
+export enum CustomCollectionName {
+	UIPieceContentStatuses = 'uiPieceContentStatuses',
 }

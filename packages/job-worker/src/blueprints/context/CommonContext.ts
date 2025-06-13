@@ -1,5 +1,5 @@
 import { ICommonContext, NoteSeverity } from '@sofie-automation/blueprints-integration'
-import { logger } from '../../logging'
+import { logger } from '../../logging.js'
 import { assertNever, getHash } from '@sofie-automation/corelib/dist/lib'
 
 export interface ContextInfo {
@@ -7,9 +7,6 @@ export interface ContextInfo {
 	name: string
 	/** Full identifier info for the context. Should be able to identify the rundown/studio/blueprint etc being executed */
 	identifier: string
-}
-export interface UserContextInfo extends ContextInfo {
-	tempSendUserNotesIntoBlackHole?: boolean // TODO-CONTEXT remove this
 }
 
 /** Common */

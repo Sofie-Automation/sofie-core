@@ -1,6 +1,12 @@
-import { ICommonContext, NoteSeverity } from '@sofie-automation/blueprints-integration'
-import { assertNever, getHash } from '@sofie-automation/corelib/dist/lib'
+import {
+	IBlueprintDefaultCoreSystemTriggers,
+	ICommonContext,
+	NoteSeverity,
+} from '@sofie-automation/blueprints-integration'
+import { assertNever, clone, getHash } from '@sofie-automation/corelib/dist/lib'
 import { logger } from '../../logging'
+import { ICoreSystemApplyConfigContext } from '@sofie-automation/blueprints-integration/dist/context/systemApplyConfigContext'
+import { DEFAULT_CORE_TRIGGERS } from './defaultSystemActionTriggers'
 
 /**
  * This is almost identical to the one in the job-worker, but it is hard to share the implementation due to differing loggers
@@ -54,5 +60,11 @@ export class CommonContext implements ICommonContext {
 			assertNever(type)
 			this.logDebug(message)
 		}
+	}
+}
+
+export class CoreSystemApplyConfigContext extends CommonContext implements ICoreSystemApplyConfigContext {
+	getDefaultSystemActionTriggers(): IBlueprintDefaultCoreSystemTriggers {
+		return clone(DEFAULT_CORE_TRIGGERS)
 	}
 }

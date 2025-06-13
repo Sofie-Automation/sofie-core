@@ -1,8 +1,9 @@
 import '../../../../__mocks__/_extendJest'
-import { testInFiber, waitUntil } from '../../../../__mocks__/helpers/jest'
-import { getCurrentTime, getRandomId, protectString } from '../../../../lib/lib'
+import { waitUntil } from '../../../../__mocks__/helpers/jest'
+import { getRandomId, protectString } from '../../../lib/tempLib'
+import { getCurrentTime } from '../../../lib/lib'
 import { setupDefaultStudioEnvironment, DefaultEnvironment } from '../../../../__mocks__/helpers/database'
-import { MeteorCall } from '../../../../lib/api/methods'
+import { MeteorCall } from '../../methods'
 import { MediaWorkFlowId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { MediaWorkFlows, PeripheralDeviceCommands, PeripheralDevices } from '../../../collections'
 
@@ -45,12 +46,17 @@ describe('User Actions - Media Manager', () => {
 		env = await setupDefaultStudioEnvironment()
 		jest.resetAllMocks()
 	})
-	testInFiber('Restart workflow', async () => {
-		const { workFlowId } = await setupMockWorkFlow()
+	test('Restart workflow', async () => {
+		const { workFlowId, workFlow } = await setupMockWorkFlow()
 
 		// should fail if the workflow doesn't exist
 		await expect(
-			MeteorCall.userAction.mediaRestartWorkflow('', getCurrentTime(), protectString('FAKE_ID'))
+			MeteorCall.userAction.mediaRestartWorkflow(
+				'',
+				getCurrentTime(),
+				workFlow.deviceId,
+				protectString('FAKE_ID')
+			)
 		).resolves.toMatchUserRawError(/not found/gi)
 
 		{
@@ -71,16 +77,16 @@ describe('User Actions - Media Manager', () => {
 				})
 			}, MAX_WAIT_TIME)
 
-			await MeteorCall.userAction.mediaRestartWorkflow('', getCurrentTime(), workFlowId)
+			await MeteorCall.userAction.mediaRestartWorkflow('', getCurrentTime(), workFlow.deviceId, workFlowId)
 			await p
 		}
 	})
-	testInFiber('Abort worfklow', async () => {
-		const { workFlowId } = await setupMockWorkFlow()
+	test('Abort worfklow', async () => {
+		const { workFlowId, workFlow } = await setupMockWorkFlow()
 
 		// should fail if the workflow doesn't exist
 		await expect(
-			MeteorCall.userAction.mediaAbortWorkflow('', getCurrentTime(), protectString('FAKE_ID'))
+			MeteorCall.userAction.mediaAbortWorkflow('', getCurrentTime(), workFlow.deviceId, protectString('FAKE_ID'))
 		).resolves.toMatchUserRawError(/not found/gi)
 
 		{
@@ -102,16 +108,21 @@ describe('User Actions - Media Manager', () => {
 				})
 			}, MAX_WAIT_TIME)
 
-			await MeteorCall.userAction.mediaAbortWorkflow('', getCurrentTime(), workFlowId)
+			await MeteorCall.userAction.mediaAbortWorkflow('', getCurrentTime(), workFlow.deviceId, workFlowId)
 			await p
 		}
 	})
-	testInFiber('Prioritize workflow', async () => {
-		const { workFlowId } = await setupMockWorkFlow()
+	test('Prioritize workflow', async () => {
+		const { workFlowId, workFlow } = await setupMockWorkFlow()
 
 		// should fail if the workflow doesn't exist
 		await expect(
-			MeteorCall.userAction.mediaPrioritizeWorkflow('', getCurrentTime(), protectString('FAKE_ID'))
+			MeteorCall.userAction.mediaPrioritizeWorkflow(
+				'',
+				getCurrentTime(),
+				workFlow.deviceId,
+				protectString('FAKE_ID')
+			)
 		).resolves.toMatchUserRawError(/not found/gi)
 
 		{
@@ -133,11 +144,11 @@ describe('User Actions - Media Manager', () => {
 				})
 			}, MAX_WAIT_TIME)
 
-			await MeteorCall.userAction.mediaPrioritizeWorkflow('', getCurrentTime(), workFlowId)
+			await MeteorCall.userAction.mediaPrioritizeWorkflow('', getCurrentTime(), workFlow.deviceId, workFlowId)
 			await p
 		}
 	})
-	testInFiber('Restart all workflows', async () => {
+	test('Restart all workflows', async () => {
 		await setupMockWorkFlow()
 
 		{
@@ -159,7 +170,7 @@ describe('User Actions - Media Manager', () => {
 			await p
 		}
 	})
-	testInFiber('Abort all workflows', async () => {
+	test('Abort all workflows', async () => {
 		await setupMockWorkFlow()
 
 		{

@@ -37,6 +37,8 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock', 'meteor/yarn.lock', 'meteor/.meteor/release', 'packages/yarn.lock') }}
       - name: Prepare Environment
         run: |
+          corepack enable
+          
           yarn
           yarn build:packages
         env:

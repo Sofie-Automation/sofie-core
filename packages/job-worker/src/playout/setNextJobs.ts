@@ -9,12 +9,12 @@ import {
 	QueueNextSegmentProps,
 	QueueNextSegmentResult,
 } from '@sofie-automation/corelib/dist/worker/studio'
-import { JobContext } from '../jobs'
-import { runJobWithPlayoutModel } from './lock'
-import { setNextPartFromPart, setNextSegment, queueNextSegment } from './setNext'
-import { moveNextPart } from './moveNextPart'
-import { updateTimeline } from './timeline/generate'
-import { PlayoutSegmentModel } from './model/PlayoutSegmentModel'
+import { JobContext } from '../jobs/index.js'
+import { runJobWithPlayoutModel } from './lock.js'
+import { setNextPartFromPart, setNextSegment, queueNextSegment } from './setNext.js'
+import { selectNewPartWithOffsets } from './moveNextPart.js'
+import { updateTimeline } from './timeline/generate.js'
+import { PlayoutSegmentModel } from './model/PlayoutSegmentModel.js'
 import { ReadonlyDeep } from 'type-fest'
 
 /**
@@ -68,11 +68,19 @@ export async function handleMoveNextPart(context: JobContext, data: MoveNextPart
 			}
 		},
 		async (playoutModel) => {
-			const newPartId = await moveNextPart(context, playoutModel, data.partDelta, data.segmentDelta)
+			const selectedPart = selectNewPartWithOffsets(
+				context,
+				playoutModel,
+				data.partDelta,
+				data.segmentDelta,
+				data.ignoreQuickLoop
+			)
+			if (!selectedPart) return null
 
-			if (newPartId) await updateTimeline(context, playoutModel)
+			await setNextPartFromPart(context, playoutModel, selectedPart, true)
+			await updateTimeline(context, playoutModel)
 
-			return newPartId
+			return selectedPart._id
 		}
 	)
 }

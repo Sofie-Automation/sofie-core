@@ -1,0 +1,114 @@
+@import '../../../styles/colorScheme';
+
+.media-status-item:nth-child(2n + 1) > td {
+	background: #f6f6f6;
+}
+
+.media-status-item {
+	> td {
+		padding: 5px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	> .media-status-item__rundown {
+		font-weight: 400;
+		max-width: 10em;
+	}
+
+	> .media-status-item__duration {
+		text-align: right;
+	}
+
+	> .media-status-item__source-layer {
+		padding: 0;
+	}
+
+	> .media-status-item__label {
+		font-weight: 500;
+	}
+
+	> .media-status-item__label {
+		position: relative;
+
+		> .media-status-item__label-container {
+			position: absolute;
+			top: 5px;
+			left: 5px;
+			right: 5px;
+			bottom: 5px;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+	}
+
+	> .media-status-item__identifiers {
+		text-align: center;
+	}
+
+	.media-status-item__source-layer-indicator {
+		position: relative;
+		color: #fff;
+		width: 3.5em;
+		text-align: center;
+		font-weight: 400;
+		font-size: 0.875em;
+
+		line-height: 1.75em;
+		margin-top: 0.25em;
+		overflow: hidden;
+		white-space: nowrap;
+
+		@include item-type-colors();
+		@include missing-overlay();
+
+		&.media-status-item__source-layer-overlay {
+			display: block;
+			content: ' ';
+			position: absolute;
+			top: 0;
+			left: 0;
+			bottom: 0;
+			right: 0;
+
+			@include invalid-overlay();
+		}
+
+		> .media-status-item__source-layer-label {
+			position: relative;
+			z-index: 1;
+		}
+	}
+
+	> .media-status-item__status {
+		padding-top: 0.2em;
+		padding-bottom: 0;
+
+		svg {
+			width: auto;
+			height: 1.3em;
+		}
+
+		svg.hourglass {
+			g > path {
+				stroke: #8c8c8c;
+			}
+			clipPath > rect {
+				fill: #8c8c8c;
+			}
+		}
+	}
+
+	.media-status-item__part-identifier {
+		display: inline-block;
+		background: #363636;
+		border-radius: 1em;
+		padding: 0 0.25em;
+		color: #fff;
+		font-weight: 400;
+		font-size: 0.875em;
+		min-width: 2.5em;
+	}
+}

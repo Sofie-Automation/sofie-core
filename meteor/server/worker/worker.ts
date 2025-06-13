@@ -8,16 +8,10 @@ import { FORCE_CLEAR_CACHES_JOB, IS_INSPECTOR_ENABLED } from '@sofie-automation/
 import { threadedClass, Promisify, ThreadedClassManager } from 'threadedclass'
 import type { JobSpec } from '@sofie-automation/job-worker/dist/main'
 import type { IpcJobWorker } from '@sofie-automation/job-worker/dist/ipc'
-import {
-	createManualPromise,
-	getCurrentTime,
-	getRandomString,
-	ManualPromise,
-	MeteorStartupAsync,
-	Time,
-} from '../../lib/lib'
+import { createManualPromise, getRandomString, ManualPromise, Time } from '../lib/tempLib'
+import { getCurrentTime } from '../lib/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
-import { UserActionsLogItem } from '../../lib/collections/UserActionsLog'
+import { UserActionsLogItem } from '@sofie-automation/meteor-lib/dist/collections/UserActionsLog'
 import { triggerFastTrackObserver, FastTrackObservers } from '../publications/fastTrack'
 import { TimelineComplete } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { fetchStudioLight } from '../optimizations'
@@ -27,6 +21,7 @@ import { initializeWorkerStatus, setWorkerStatus } from './workerStatus'
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { UserActionsLog } from '../collections'
 import { MetricsCounter } from '@sofie-automation/corelib/dist/prometheus'
+import { isInTestWrite } from '../security/securityVerify'
 
 const FREEZE_LIMIT = 1000 // how long to wait for a response to a Ping
 const RESTART_TIMEOUT = 30000 // how long to wait for a restart to complete before throwing an error
@@ -133,7 +128,7 @@ async function waitForNextJob(queueName: string): Promise<void> {
 			try {
 				// Notify the worker in the background
 				oldNotify.manualReject(new Error('new workerThread, replacing the old'))
-			} catch (e) {
+			} catch (_e) {
 				// Ignore
 			}
 		})
@@ -174,7 +169,7 @@ async function interruptJobStream(queueName: string): Promise<void> {
 			try {
 				// Notify the worker in the background
 				oldNotify.manualResolve()
-			} catch (e) {
+			} catch (_e) {
 				// Ignore
 			}
 		})
@@ -268,13 +263,14 @@ async function logLine(msg: LogEntry): Promise<void> {
 }
 
 let worker: Promisify<IpcJobWorker> | undefined
-MeteorStartupAsync(async () => {
+Meteor.startup(async () => {
+	if (Meteor.isTest) return // Don't start the worker
+
 	if (Meteor.isDevelopment) {
 		// Ensure meteor restarts when the _force_restart file changes
 		try {
-			// eslint-disable-next-line node/no-missing-require, node/no-unpublished-require
 			require('../_force_restart')
-		} catch (e) {
+		} catch (_e) {
 			// ignore
 		}
 	}
@@ -465,6 +461,7 @@ export async function QueueStudioJob<T extends keyof StudioJobFunc>(
 	studioId: StudioId,
 	jobParameters: Parameters<StudioJobFunc[T]>[0]
 ): Promise<WorkerJob<ReturnType<StudioJobFunc[T]>>> {
+	if (isInTestWrite()) throw new Meteor.Error(404, 'Should not be reachable during startup tests')
 	if (!studioId) throw new Meteor.Error(500, 'Missing studioId')
 
 	const now = getCurrentTime()

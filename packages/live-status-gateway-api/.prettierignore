@@ -1,0 +1,4 @@
+package.json
+src/copy
+src/generated/*
+CHANGELOG.md

@@ -1,24 +1,25 @@
-import { eventJobHandlers } from './jobs'
+import { eventJobHandlers } from './jobs.js'
 import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { MongoClient } from 'mongodb'
-import { createMongoConnection, getMongoCollections, IDirectCollections } from '../../db'
+import { createMongoConnection, getMongoCollections, IDirectCollections } from '../../db/index.js'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { setupApmAgent, startTransaction } from '../../profiler'
+import { setupApmAgent, startTransaction } from '../../profiler.js'
 import {
 	InvalidateWorkerDataCache,
 	invalidateWorkerDataCache,
 	loadWorkerDataCache,
 	WorkerDataCache,
 	WorkerDataCacheWrapperImpl,
-} from '../caches'
-import { JobContextImpl, QueueJobFunc } from '../context'
-import { AnyLockEvent, LocksManager } from '../locks'
-import { FastTrackTimelineFunc, LogLineWithSourceFunc } from '../../main'
-import { interceptLogging, logger } from '../../logging'
-import { setupInfluxDb } from '../../influx'
+} from '../caches.js'
+import { JobContextImpl } from '../context/JobContextImpl.js'
+import { QueueJobFunc } from '../context/util.js'
+import { AnyLockEvent, LocksManager } from '../locks.js'
+import { FastTrackTimelineFunc, LogLineWithSourceFunc } from '../../main.js'
+import { interceptLogging, logger } from '../../logging.js'
+import { setupInfluxDb } from '../../influx.js'
 import { getEventsQueueName } from '@sofie-automation/corelib/dist/worker/events'
-import { ExternalMessageQueueRunner } from '../../events/ExternalMessageQueue'
-import { WorkerJobResult } from '../parent-base'
+import { ExternalMessageQueueRunner } from '../../events/ExternalMessageQueue.js'
+import { WorkerJobResult } from '../parent-base.js'
 import { endTrace, sendTrace, startTrace } from '@sofie-automation/corelib/dist/influxdb'
 import { getPrometheusMetricsString, setupPrometheusMetrics } from '@sofie-automation/corelib/dist/prometheus'
 import { UserError } from '@sofie-automation/corelib/dist/error'
@@ -97,7 +98,7 @@ export class EventsWorkerChild {
 
 		const transaction = startTransaction('invalidateCaches', 'worker-studio')
 		if (transaction) {
-			transaction.setLabel('studioId', unprotectString(this.#staticData.dataCache.studio._id))
+			transaction.setLabel('studioId', unprotectString(this.#staticData.dataCache.jobStudio._id))
 		}
 
 		try {
@@ -117,7 +118,7 @@ export class EventsWorkerChild {
 		const trace = startTrace('studioWorker' + jobName)
 		const transaction = startTransaction(jobName, 'worker-studio')
 		if (transaction) {
-			transaction.setLabel('studioId', unprotectString(this.#staticData.dataCache.studio._id))
+			transaction.setLabel('studioId', unprotectString(this.#staticData.dataCache.jobStudio._id))
 		}
 
 		const context = new JobContextImpl(

@@ -1,18 +1,18 @@
-import { EventEmitter } from 'eventemitter3'
+import { EventEmitter } from 'events'
 import {
 	PeripheralDeviceStatusObject,
 	PeripheralDeviceInitOptions,
 	PeripheralDeviceSubType,
 } from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI'
 import { PeripheralDeviceAPIMethods } from '@sofie-automation/shared-lib/dist/peripheralDevice/methodsAPI'
-import { DDPConnector } from './ddpConnector'
-import { Observer } from './ddpClient'
+import { DDPConnector } from './ddpConnector.js'
+import { Observer } from './ddpClient.js'
 import { PeripheralDeviceId } from '@sofie-automation/shared-lib/dist/core/model/Ids'
-import { ConnectionMethodsQueue, ExternalPeripheralDeviceAPI, makeMethods, makeMethodsLowPrio } from './methods'
+import { ConnectionMethodsQueue, ExternalPeripheralDeviceAPI, makeMethods, makeMethodsLowPrio } from './methods.js'
 import { PeripheralDeviceForDevice } from '@sofie-automation/shared-lib/dist/core/model/peripheralDevice'
-import { CoreConnection, Collection, CoreOptions, CollectionDocCheck } from './coreConnection'
-import { CorePinger } from './ping'
-import { ParametersOfFunctionOrNever, SubscriptionId, SubscriptionsHelper } from './subscriptions'
+import { CoreConnection, Collection, CoreOptions, CollectionDocCheck } from './coreConnection.js'
+import { CorePinger } from './ping.js'
+import { ParametersOfFunctionOrNever, SubscriptionId, SubscriptionsHelper } from './subscriptions.js'
 import {
 	PeripheralDevicePubSubCollections,
 	PeripheralDevicePubSubTypes,
@@ -39,7 +39,7 @@ export type ChildCoreConnectionEvents = {
 
 export class CoreConnectionChild<
 	PubSubTypes = PeripheralDevicePubSubTypes,
-	PubSubCollections = PeripheralDevicePubSubCollections
+	PubSubCollections = PeripheralDevicePubSubCollections,
 > extends EventEmitter<ChildCoreConnectionEvents> {
 	private _parent: CoreConnection<PubSubTypes, PubSubCollections> | undefined
 	private _parentOptions!: CoreOptions
@@ -147,7 +147,7 @@ export class CoreConnectionChild<
 	 */
 	async callMethodRaw(methodName: string, attrs: Array<any>): Promise<any> {
 		if (this._destroyed) {
-			throw 'callMethod: CoreConnection has been destroyed'
+			throw new Error('callMethod: CoreConnection has been destroyed')
 		}
 
 		return this._methodQueue.callMethodRaw(methodName, attrs)

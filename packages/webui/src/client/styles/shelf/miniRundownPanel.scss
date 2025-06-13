@@ -1,0 +1,36 @@
+@import '../colorScheme';
+
+.mini-rundown-panel {
+	--dashboard-panel-scale: 1;
+	position: absolute;
+	user-select: none;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	margin: 0.625rem;
+
+	.mini-rundown-panel__container {
+		width: 100%;
+		height: calc(100% - var(--dashboard-panel-scale) * 1em);
+		overflow-x: hidden;
+		overflow-y: auto;
+		position: relative;
+	}
+
+	.mini-rundown-panel__segment {
+		font-weight: 500;
+		padding: 2px;
+	}
+
+	.mini-rundown-panel__rank {
+		margin-right: 2px;
+		padding: 2px;
+	}
+
+	.current-segment {
+		background-color: var(--general-live-color);
+	}
+
+	.next-segment {
+		background-color: var(--general-next-color);
+	}
+}

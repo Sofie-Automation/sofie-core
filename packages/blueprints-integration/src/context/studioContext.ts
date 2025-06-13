@@ -1,6 +1,6 @@
 import type { BlueprintMappings } from '@sofie-automation/shared-lib/dist/core/model/Timeline'
-import type { ICommonContext, IUserNotesContext } from './baseContext'
-import type { IPackageInfoContext } from './packageInfoContext'
+import type { ICommonContext, IUserNotesContext } from './baseContext.js'
+import type { IPackageInfoContext } from './packageInfoContext.js'
 
 export interface IStudioContext extends ICommonContext {
 	/** The id of the studio */
