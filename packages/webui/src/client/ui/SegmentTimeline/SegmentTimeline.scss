@@ -1,0 +1,225 @@
+$timeline-layer-height: 1em;
+
+.segment-timeline {
+	// display: block;
+	width: 100%;
+	max-width: 100%;
+
+	.segment-timeline__title {
+		position: relative;
+	}
+}
+.segment-timeline__title__check {
+	margin: 0 0 0.5em;
+	padding: 0 0.5em;
+
+	.checkbox-checked {
+		color: #0cff57;
+	}
+}
+.segment-timeline__title__label.identifier::before {
+	content: attr(data-identifier);
+	border-radius: 3px;
+	background-color: #095709;
+	margin-right: 4px;
+	padding: 0px 3px 0px 2px;
+	white-space: nowrap;
+	font-size: 0.9em;
+	font-weight: 300;
+	vertical-align: text-bottom;
+}
+.segment-timeline__title__user-edit-states {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	display: flex;
+	flex-flow: row nowrap;
+}
+
+.segment-timeline__title__user-edit-state {
+	margin-left: 5px;
+	margin-bottom: 5px;
+	width: 20px;
+	height: 20px;
+}
+
+.segment-timeline__part-identifiers {
+	text-align: right;
+	margin: 0 1px 0 2px;
+
+	.segment-timeline__part-identifiers__identifier {
+		display: inline-block;
+		box-sizing: border-box;
+		cursor: pointer;
+	}
+}
+.segment-timeline__liveline {
+	position: absolute;
+	top: 2.3em;
+	left: 0;
+	bottom: 0.2em;
+}
+.segment-timeline__timeline-container {
+	position: relative;
+	overflow: hidden;
+	contain: layout paint style size;
+	touch-action: pan-y;
+
+	&.segment-timeline__timeline-container--grabbable {
+		cursor: ew-resize;
+		cursor: url(/images/cursor_zoom_area_move.png), ew-resize;
+		cursor: url(/images/cursor_zoom_area_move.png) 15 8, ew-resize;
+	}
+
+	.segment-timeline__timeline {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+
+		width: 100%;
+		padding-left: 2px;
+
+		contain: layout style;
+	}
+}
+.segment-timeline__zoom-area {
+	contain: strict;
+
+	.segment-timeline__timeline {
+		.segment-timeline__part {
+			display: inline-block;
+		}
+	}
+}
+.segment-timeline__timeline-grid {
+	position: relative;
+	contain: strict;
+
+	.segment-timeline__timeline-grid__canvas {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+	}
+}
+.segment-timeline__small-parts-flag-hoist {
+	position: absolute;
+	flex: 0 0;
+	max-width: 0;
+	z-index: 1001;
+	top: var(--segment-timeline-padding-top);
+	bottom: 0;
+}
+.segment-timeline__small-parts-flag {
+	position: absolute;
+	top: -2.2em;
+	display: flex;
+
+	.segment-timeline__small-parts-flag__part {
+		flex: 0 0;
+		white-space: nowrap;
+	}
+}
+.segment-timeline__part {
+	flex: 0 0;
+	pointer-events: none;
+	contain: layout;
+
+	.segment-timeline__part__end-of-segment {
+		position: absolute;
+		top: 0;
+		height: 100%;
+
+		&.is-live {
+			will-change: transform;
+		}
+	}
+
+	.segment-timeline__output-group {
+		display: flex;
+		flex-flow: column nowrap;
+		min-height: 1em;
+		contain: layout style;
+		overflow: hidden;
+
+		.segment-timeline__layer {
+			flex: 1 1;
+			display: block;
+			position: relative;
+			min-height: 1em;
+			line-height: 1em;
+			pointer-events: auto;
+			contain: layout style;
+
+			> * {
+				pointer-events: none;
+			}
+
+			> .segment-timeline__piece {
+				position: absolute;
+				top: 0;
+				bottom: 0;
+				left: 0;
+				right: auto;
+				box-sizing: border-box;
+				white-space: nowrap;
+				pointer-events: auto;
+			}
+		}
+	}
+
+	.segment-timeline__piece-appendage {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		display: block;
+	}
+
+	.segment-timeline__part__difference {
+		position: absolute;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		width: 0;
+		background: rgba(0, 0, 0, 0.5);
+		z-index: 5;
+		pointer-events: none;
+	}
+}
+.segment-timeline__output-layers {
+	display: block;
+
+	> .segment-timeline__output-layer-control {
+		flex: 0 0;
+		display: flex;
+		line-height: $timeline-layer-height;
+		min-height: $timeline-layer-height;
+		box-sizing: border-box;
+		position: relative;
+
+		flex-flow: column nowrap;
+		align-items: flex-end;
+		align-content: flex-start;
+		justify-content: flex-start;
+
+		> .segment-timeline__output-layer-control__label {
+			position: absolute;
+			top: 0;
+			left: 0;
+		}
+
+		> .segment-timeline__output-layer-control__layer {
+			flex: 1 1;
+			line-height: $timeline-layer-height;
+			height: $timeline-layer-height;
+			min-height: $timeline-layer-height;
+			box-sizing: border-box;
+			white-space: nowrap;
+			overflow: hidden;
+		}
+	}
+}

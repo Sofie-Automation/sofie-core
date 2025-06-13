@@ -29,6 +29,7 @@ export enum SchemaFormUIField {
 	 * Currently only valid for:
 	 * - object properties. Valid values are 'json'.
 	 * - string properties. Valid values are 'base64-image'.
+	 * - boolean properties. Valid values are 'switch'.
 	 */
 	DisplayType = 'ui:displayType',
 	/**

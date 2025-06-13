@@ -13,6 +13,7 @@ import { PieceTimelineMetadata } from '../timeline/pieceGroup'
 import { deserializeTimelineBlob } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { ReadonlyDeep } from 'type-fest'
 import { AnyBulkWriteOperation } from 'mongodb'
+import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 
 /**
  * Called from Playout-gateway when the trigger-time of a timeline object has updated
@@ -40,20 +41,38 @@ export async function handleTimelineTriggerTime(context: JobContext, data: OnTim
 						(id): id is PartInstanceId => id !== null
 					)
 
-					// We only need the PieceInstances, so load just them
-					const pieceInstances = await context.directCollections.PieceInstances.findFetch({
-						rundownId: { $in: rundownIDs },
-						partInstanceId: {
-							$in: partInstanceIDs,
-						},
-					})
+					// We only need the PieceInstances and PartInstances, so load just them
+					const [pieceInstances, partInstances] = await Promise.all([
+						context.directCollections.PieceInstances.findFetch({
+							rundownId: { $in: rundownIDs },
+							partInstanceId: {
+								$in: partInstanceIDs,
+							},
+						}),
+						context.directCollections.PartInstances.findFetch(
+							{
+								rundownId: { $in: rundownIDs },
+								_id: {
+									$in: partInstanceIDs,
+								},
+							},
+							{
+								projection: {
+									_id: 1,
+									partPlayoutTimings: 1,
+								},
+							}
+						) as Promise<Array<Pick<DBPartInstance, '_id' | 'partPlayoutTimings'>>>,
+					])
 					const pieceInstancesMap = normalizeArrayToMap(pieceInstances, '_id')
+					const partInstanceMap = normalizeArrayToMap(partInstances, '_id')
 
 					// Take ownership of the playlist in the db, so that we can mutate the timeline and piece instances
 					const changes = timelineTriggerTimeInner(
 						context,
 						studioCache,
 						data.results,
+						partInstanceMap,
 						pieceInstancesMap,
 						activePlaylist
 					)
@@ -62,7 +81,7 @@ export async function handleTimelineTriggerTime(context: JobContext, data: OnTim
 				})
 			} else {
 				// No playlist is active. no extra lock needed
-				timelineTriggerTimeInner(context, studioCache, data.results, undefined, undefined)
+				timelineTriggerTimeInner(context, studioCache, data.results, undefined, undefined, undefined)
 			}
 		})
 	}
@@ -107,6 +126,7 @@ function timelineTriggerTimeInner(
 	context: JobContext,
 	studioPlayoutModel: StudioPlayoutModel,
 	results: OnTimelineTriggerTimeProps['results'],
+	partInstances: Map<PartInstanceId, Pick<DBPartInstance, '_id' | 'partPlayoutTimings'>> | undefined,
 	pieceInstances: Map<PieceInstanceId, PieceInstance> | undefined,
 	activePlaylist: ReadonlyDeep<DBRundownPlaylist> | undefined
 ) {
@@ -142,7 +162,7 @@ function timelineTriggerTimeInner(
 
 				const objPieceInstanceId = (obj.metaData as Partial<PieceTimelineMetadata> | undefined)
 					?.triggerPieceInstanceId
-				if (objPieceInstanceId && activePlaylist && pieceInstances) {
+				if (objPieceInstanceId && activePlaylist && pieceInstances && partInstances) {
 					logger.debug('Update PieceInstance: ', {
 						pieceId: objPieceInstanceId,
 						time: new Date(o.time).toTimeString(),
@@ -154,8 +174,12 @@ function timelineTriggerTimeInner(
 						pieceInstance.dynamicallyInserted !== undefined &&
 						pieceInstance.piece.enable.start === 'now'
 					) {
-						pieceInstance.piece.enable.start = o.time
-						changes.setStartTime.set(pieceInstance._id, o.time)
+						const partPrerollDuration =
+							partInstances.get(pieceInstance.partInstanceId)?.partPlayoutTimings?.toPartDelay ?? 0
+
+						const adjustedStartTime = o.time - partPrerollDuration
+						pieceInstance.piece.enable.start = adjustedStartTime
+						changes.setStartTime.set(pieceInstance._id, adjustedStartTime)
 
 						const takeTime = pieceInstance.dynamicallyInserted
 						lastTakeTime = lastTakeTime === undefined ? takeTime : Math.max(lastTakeTime, takeTime)

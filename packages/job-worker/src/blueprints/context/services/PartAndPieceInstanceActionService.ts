@@ -18,9 +18,11 @@ import {
 	IBlueprintPieceObjectsSampleKeys,
 	convertPartInstanceToBlueprints,
 	convertPartToBlueprints,
+	convertPartialBlueprintMutablePartToCore,
 	convertPieceInstanceToBlueprints,
 	convertPieceToBlueprints,
 	convertResolvedPieceInstanceToBlueprints,
+	createBlueprintQuickLoopInfo,
 	getMediaObjectDuration,
 } from '../lib'
 import { getResolvedPiecesForCurrentPartInstance } from '../../../playout/resolvedPieces'
@@ -52,9 +54,9 @@ import { getCurrentTime } from '../../../lib'
 import _ = require('underscore')
 import { syncPlayheadInfinitesForNextPartInstance } from '../../../playout/infinites'
 import { validateAdlibTestingPartInstanceProperties } from '../../../playout/adlibTesting'
-import { isTooCloseToAutonext } from '../../../playout/lib'
 import { DBPart, isPartPlayable } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { PlayoutRundownModel } from '../../../playout/model/PlayoutRundownModel'
+import { BlueprintQuickLookInfo } from '@sofie-automation/blueprints-integration/dist/context/quickLoopInfo'
 
 export enum ActionPartChange {
 	NONE = 0,
@@ -70,6 +72,10 @@ export class PartAndPieceInstanceActionService {
 	private readonly _context: JobContext
 	private readonly _playoutModel: PlayoutModel
 	readonly showStyleCompound: ReadonlyDeep<ProcessedShowStyleCompound>
+
+	public get quickLoopInfo(): BlueprintQuickLookInfo | null {
+		return createBlueprintQuickLoopInfo(this._playoutModel.playlist)
+	}
 
 	/** To be set by any mutation methods on this context. Indicates to core how extensive the changes are to the current partInstance */
 	public currentPartState: ActionPartChange = ActionPartChange.NONE
@@ -89,7 +95,15 @@ export class PartAndPieceInstanceActionService {
 		this.showStyleCompound = showStyle
 	}
 
-	private _getPartInstance(part: 'current' | 'next'): PlayoutPartInstanceModel | null {
+	#trackStateChange(part: 'current' | 'next', change: ActionPartChange): void {
+		if (part === 'current') {
+			this.currentPartState = Math.max(this.currentPartState, change)
+		} else {
+			this.nextPartState = Math.max(this.nextPartState, change)
+		}
+	}
+
+	#getPartInstance(part: 'current' | 'next'): PlayoutPartInstanceModel | null {
 		switch (part) {
 			case 'current':
 				return this._playoutModel.currentPartInstance
@@ -103,16 +117,16 @@ export class PartAndPieceInstanceActionService {
 	}
 
 	async getPartInstance(part: 'current' | 'next'): Promise<IBlueprintPartInstance | undefined> {
-		const partInstance = this._getPartInstance(part)
+		const partInstance = this.#getPartInstance(part)
 
 		return partInstance ? convertPartInstanceToBlueprints(partInstance.partInstance) : undefined
 	}
 	async getPieceInstances(part: 'current' | 'next'): Promise<IBlueprintPieceInstance[]> {
-		const partInstance = this._getPartInstance(part)
+		const partInstance = this.#getPartInstance(part)
 		return partInstance?.pieceInstances?.map((p) => convertPieceInstanceToBlueprints(p.pieceInstance)) ?? []
 	}
 	async getResolvedPieceInstances(part: 'current' | 'next'): Promise<IBlueprintResolvedPieceInstance[]> {
-		const partInstance = this._getPartInstance(part)
+		const partInstance = this.#getPartInstance(part)
 		if (!partInstance) {
 			return []
 		}
@@ -238,7 +252,7 @@ export class PartAndPieceInstanceActionService {
 	}
 
 	async insertPiece(part: 'current' | 'next', rawPiece: IBlueprintPiece): Promise<IBlueprintPieceInstance> {
-		const partInstance = this._getPartInstance(part)
+		const partInstance = this.#getPartInstance(part)
 		if (!partInstance) {
 			throw new Error('Cannot insert piece when no active part')
 		}
@@ -264,11 +278,7 @@ export class PartAndPieceInstanceActionService {
 		// Do the work
 		const newPieceInstance = partInstance.insertAdlibbedPiece(piece, undefined)
 
-		if (part === 'current') {
-			this.currentPartState = Math.max(this.currentPartState, ActionPartChange.SAFE_CHANGE)
-		} else {
-			this.nextPartState = Math.max(this.nextPartState, ActionPartChange.SAFE_CHANGE)
-		}
+		this.#trackStateChange(part, ActionPartChange.SAFE_CHANGE)
 
 		return convertPieceInstanceToBlueprints(newPieceInstance.pieceInstance)
 	}
@@ -324,8 +334,8 @@ export class PartAndPieceInstanceActionService {
 
 		// setupPieceInstanceInfiniteProperties(pieceInstance)
 
-		this.nextPartState = Math.max(this.nextPartState, updatesNextPart)
-		this.currentPartState = Math.max(this.currentPartState, updatesCurrentPart)
+		this.#trackStateChange('next', updatesNextPart)
+		this.#trackStateChange('current', updatesCurrentPart)
 
 		return convertPieceInstanceToBlueprints(pieceInstance.pieceInstance)
 	}
@@ -334,23 +344,18 @@ export class PartAndPieceInstanceActionService {
 		part: 'current' | 'next',
 		props: Partial<IBlueprintMutatablePart>
 	): Promise<IBlueprintPartInstance> {
-		const partInstance = this._getPartInstance(part)
+		const partInstance = this.#getPartInstance(part)
 		if (!partInstance) {
 			throw new Error('PartInstance could not be found')
 		}
 
-		if (!partInstance.updatePartProps(props)) {
+		const playoutUpdatePart = convertPartialBlueprintMutablePartToCore(props, this.showStyleCompound.blueprintId)
+
+		if (!partInstance.updatePartProps(playoutUpdatePart)) {
 			throw new Error('Some valid properties must be defined')
 		}
 
-		this.nextPartState = Math.max(
-			this.nextPartState,
-			part === 'next' ? ActionPartChange.SAFE_CHANGE : ActionPartChange.NONE
-		)
-		this.currentPartState = Math.max(
-			this.currentPartState,
-			part === 'current' ? ActionPartChange.SAFE_CHANGE : ActionPartChange.NONE
-		)
+		this.#trackStateChange(part, ActionPartChange.SAFE_CHANGE)
 
 		return convertPartInstanceToBlueprints(partInstance.partInstance)
 	}
@@ -368,7 +373,7 @@ export class PartAndPieceInstanceActionService {
 			throw new Error('Cannot queue part when next part has already been modified')
 		}
 
-		if (isTooCloseToAutonext(currentPartInstance.partInstance, true)) {
+		if (currentPartInstance.isTooCloseToAutonext(true)) {
 			throw new Error('Too close to an autonext to queue a part')
 		}
 
@@ -376,15 +381,16 @@ export class PartAndPieceInstanceActionService {
 			throw new Error('New part must contain at least one piece')
 		}
 
-		const newPart: Omit<DBPart, 'segmentId' | 'rundownId'> = {
+		const newPart: Omit<DBPart, 'segmentId' | 'rundownId' | '_rank'> = {
 			...rawPart,
 			_id: getRandomId(),
-			_rank: 99999, // Corrected in innerStartQueuedAdLib
 			notes: [],
 			invalid: false,
 			invalidReason: undefined,
 			floated: false,
 			expectedDurationWithTransition: undefined, // Filled in later
+			userEditOperations: [], // Adlibbed parts can't be edited by ingest
+			userEditProperties: undefined,
 		}
 
 		const pieces = postProcessPieces(
@@ -440,8 +446,8 @@ export class PartAndPieceInstanceActionService {
 		)
 	}
 
-	async removePieceInstances(_part: 'next', pieceInstanceIds: string[]): Promise<string[]> {
-		const partInstance = this._getPartInstance('next')
+	async removePieceInstances(part: 'current' | 'next', pieceInstanceIds: string[]): Promise<string[]> {
+		const partInstance = this.#getPartInstance(part)
 		if (!partInstance) {
 			throw new Error('Cannot remove pieceInstances when no selected partInstance')
 		}
@@ -456,7 +462,7 @@ export class PartAndPieceInstanceActionService {
 			}
 		}
 
-		this.nextPartState = Math.max(this.nextPartState, ActionPartChange.SAFE_CHANGE)
+		this.#trackStateChange(part, ActionPartChange.SAFE_CHANGE)
 
 		return unprotectStringArray(removedPieceInstanceIds)
 	}
@@ -495,7 +501,7 @@ export class PartAndPieceInstanceActionService {
 		)
 
 		if (stoppedIds.length > 0) {
-			this.currentPartState = Math.max(this.currentPartState, ActionPartChange.SAFE_CHANGE)
+			this.#trackStateChange('current', ActionPartChange.SAFE_CHANGE)
 		}
 
 		return unprotectStringArray(stoppedIds)

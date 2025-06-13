@@ -34,6 +34,8 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock', 'meteor/yarn.lock', 'meteor/.meteor/release', 'packages/yarn.lock') }}
       - name: Prepare Environment
         run: |
+          corepack enable
+
           yarn config set cacheFolder /home/runner/lint-core-cache
           yarn
           yarn build:packages
@@ -46,7 +48,7 @@ jobs:
           # setup zodern:types. No linters are setup, so this simply installs the packages
           meteor lint
 
-          meteor yarn ci:lint
+          yarn ci:lint
         env:
           CI: true
 
@@ -73,6 +75,8 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock', 'meteor/yarn.lock', 'meteor/.meteor/release', 'packages/yarn.lock') }}
       - name: Prepare Environment
         run: |
+          corepack enable
+
           yarn config set cacheFolder /home/runner/test-core-cache
           yarn
           yarn build:packages
@@ -85,7 +89,7 @@ jobs:
           # setup zodern:types. No linters are setup, so this simply installs the packages
           meteor lint
 
-          NODE_OPTIONS="--max-old-space-size=6144" meteor yarn unitci --force-exit
+          NODE_OPTIONS="--max-old-space-size=6144" yarn unitci --force-exit
         env:
           CI: true
       - name: Send coverage
@@ -174,6 +178,8 @@ jobs:
       - name: Prepare Environment
         if: steps.check-build-and-push.outputs.enable == 'true'
         run: |
+          corepack enable
+
           yarn install
       - name: Build libs
         if: steps.check-build-and-push.outputs.enable == 'true'
@@ -184,11 +190,18 @@ jobs:
         run: |
           cd meteor
           yarn inject-git-hash
+      - name: Prepare webui for meteor build
+        if: steps.check-build-and-push.outputs.enable == 'true'
+        run: |
+          rm -Rf meteor/public
+          cp -R packages/webui/dist meteor/public
       - name: Meteor Build
         if: steps.check-build-and-push.outputs.enable == 'true'
         run: |
           cd meteor
           NODE_OPTIONS="--max-old-space-size=4096" METEOR_DEBUG_BUILD=1 meteor build --allow-superuser --directory .
+          mv bundle/programs/web.browser/assets/ bundle/programs/web.browser/app/assets/ || true
+
       - name: Meteor Bundle NPM Build
         if: steps.check-build-and-push.outputs.enable == 'true'
         run: |
@@ -341,6 +354,8 @@ jobs:
       - name: Build
         if: steps.check-build-and-push.outputs.enable == 'true'
         run: |
+          corepack enable
+
           cd packages
           yarn install
           yarn lerna run --scope \*\*/${{ matrix.gateway-name }} --include-dependencies --stream build
@@ -426,9 +441,11 @@ jobs:
           - mos-gateway
           - corelib
           - shared-lib
+          - meteor-lib
           - job-worker
           - openapi
           - live-status-gateway
+          - webui
 
     steps:
       - uses: actions/checkout@v4
@@ -446,6 +463,8 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('packages/yarn.lock') }}
       - name: Prepare Environment
         run: |
+          corepack enable
+
           cd packages
           yarn config set cacheFolder /home/runner/${{ matrix.package-name }}-cache
           yarn install
@@ -471,29 +490,30 @@ jobs:
           - blueprints-integration
           - server-core-integration
           - shared-lib
-        node-version: [14.x, 16.x, 18.x, 20.x]
+          - openapi
+        node-version: [22.x]
         include:
           # include additional configs, to run certain packages only for a certain version of node
-          - node-version: 14.x
+          - node-version: 22.x
             package-name: corelib
             send-coverage: true
-          - node-version: 14.x
+          - node-version: 22.x
             package-name: job-worker
             send-coverage: true
-          # manual openapi to avoid testing for 14.x
-          - node-version: 16.x
-            package-name: openapi
-          - node-version: 18.x
-            package-name: openapi
-          - node-version: 20.x
-            package-name: openapi
           # No tests for the gateways yet
-          # - node-version: 18.x
+          # - node-version: 22.x
           #   package-name: playout-gateway
-          # - node-version: 18.x
+          # - node-version: 22.x
           #   package-name: mos-gateway
-          - node-version: 18.x
+          - node-version: 22.x
             package-name: live-status-gateway
+            send-coverage: true
+          - node-version: 22.x
+            package-name: webui
+          # manual meteor-lib as it only needs a couple of versions
+          - node-version: 22.x
+            package-name: meteor-lib
+            send-coverage: true
 
     steps:
       - uses: actions/checkout@v4
@@ -511,9 +531,11 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('packages/yarn.lock') }}
       - name: Prepare Environment
         run: |
+          corepack enable
+
           cd packages
           yarn config set cacheFolder /home/runner/test-packages-cache
-          node is_node_14.js && yarn lerna run --ignore openapi install || yarn install
+          yarn install
           yarn lerna run --scope \*\*/${{ matrix.package-name }} --include-dependencies --stream build
         env:
           CI: true
@@ -524,8 +546,8 @@ jobs:
         env:
           CI: true
       - name: Send coverage
-        if: (matrix.node-version == '16.x' || matrix.send-coverage == true) && ((github.event_name == 'pull_request') && ((!startsWith(github.head_ref, 'release'))) || ((github.event_name == 'push') && (!startsWith(github.ref_name, 'release'))))
-        uses: codecov/codecov-action@v5
+        if: (matrix.node-version == '18.x' || matrix.send-coverage == true) && ((github.event_name == 'pull_request') && ((!startsWith(github.head_ref, 'release'))) || ((github.event_name == 'push') && (!startsWith(github.ref_name, 'release'))))
+        uses: codecov/codecov-action@v4
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
@@ -543,6 +565,8 @@ jobs:
           node-version-file: ".node-version"
       - name: Prepare Environment
         run: |
+          corepack enable
+
           cd packages
           yarn
         env:
@@ -569,6 +593,8 @@ jobs:
           node-version-file: ".node-version"
       - name: Prepare Environment
         run: |
+          corepack enable
+
           cd packages
           yarn
         env:
@@ -609,10 +635,12 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('packages/yarn.lock') }}
       - name: Prepare Environment
         run: |
+          corepack enable
+
           cd packages
           yarn config set cacheFolder /home/runner/publish-docs-cache
           yarn install
-          yarn build
+          yarn build:all
         env:
           CI: true
       - name: Run docusaurus
@@ -658,6 +686,8 @@ jobs:
           node-version-file: ".node-version"
       - name: Prepare Environment # have to run this first to make sure the semver lib is available
         run: |
+          corepack enable
+
           yarn config set cacheFolder /home/runner/release-libs-cache
 
           cd packages
@@ -742,6 +772,8 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock', 'meteor/yarn.lock', 'meteor/.meteor/release', 'packages/yarn.lock') }}
       - name: Prepare Environment
         run: |
+          corepack enable
+          
           yarn config set cacheFolder /home/runner/check-for-multiple-library-versions-cache
           yarn
         env:

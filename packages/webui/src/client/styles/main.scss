@@ -1,0 +1,260 @@
+/* SASS statring point. Import styles from here on: */
+
+/* body {
+	user-select: none;
+}
+
+input {
+	user-select: auto;
+} */
+
+@import 'defaultColors';
+@import 'itemTypeColors';
+@import 'colorScheme';
+@import '_variables';
+@import '_header';
+@import '_colorScheme';
+@import 'fonts';
+
+@import 'afterBroadcastForm';
+@import 'collapseJSON';
+@import 'colorPicker';
+@import 'contextMenu';
+@import 'datePicker';
+@import 'editAttribute';
+@import 'externalMessagesStatus';
+@import 'iconPicker';
+@import 'modalDialog';
+@import 'multiSelect';
+@import 'notifications';
+@import 'propertiesPanel';
+@import 'organization';
+@import 'overflowingContainer';
+@import 'pieceStatusIcon';
+@import 'prompter';
+@import 'rundownList';
+@import 'rundownSystemStatus';
+@import 'settings';
+@import 'splitDropdown';
+@import 'statusbar';
+@import 'statusNotification';
+@import 'studioScreenSaver';
+@import 'supportAndSwitchboardPanel';
+@import 'systemStatus';
+@import 'testtools';
+@import 'tooltips';
+@import 'utils';
+@import 'elementSelected';
+
+@import 'countdown/overlay';
+@import 'countdown/presenter';
+
+@import 'customizations/nrk/shelf/taPanel';
+
+@import 'shelf/adLibPanel';
+@import 'shelf/adLibRegionPanel';
+@import 'shelf/colored-box-panel';
+@import 'shelf/dashboard-rundownView';
+@import 'shelf/dashboard-streamdeck';
+@import 'shelf/dashboard';
+@import 'shelf/endTimerPanel';
+@import 'shelf/endWordsPanel';
+@import 'shelf/externalFramePanel';
+@import 'shelf/inspector';
+@import 'shelf/miniRundownPanel';
+@import 'shelf/nextInfoPanel';
+@import 'shelf/partCountdownPanel';
+@import 'shelf/partNamePanel';
+@import 'shelf/pieceCountdownPanel';
+@import 'shelf/playlistNamePanel';
+@import 'shelf/segmentNamePanel';
+@import 'shelf/segmentTimingPanel';
+@import 'shelf/shelf';
+@import 'shelf/showStylePanel';
+@import 'shelf/startTimerPanel';
+@import 'shelf/studioNamePanel';
+@import 'shelf/systemStatusPanel';
+@import 'shelf/textLabelPanel';
+@import 'shelf/timeOfDayPanel';
+
+@import '../lib/forms/SchemaFormTable/ObjectTable.scss';
+@import '../lib/Components/PromiseButton.scss';
+@import '../lib/VideoPreviewPlayer.scss';
+@import '../ui/ClipTrimPanel/ClipTrimPanel.scss';
+@import '../ui/ClipTrimPanel/TimecodeEncoder.scss';
+@import '../ui/ClipTrimPanel/VideoEditMonitor.scss';
+@import '../ui/SegmentStoryboard/StoryboardPartThumbnail/StoryboardPartThumbnail.scss';
+@import '../ui/SegmentStoryboard/SegmentStoryboard.scss';
+@import '../ui/SegmentStoryboard/StoryboardPartSecondaryPieces/StoryboardPartSecondaryPieces.scss';
+@import '../ui/Settings/components/triggeredActions/TriggeredActionsEditor.scss';
+@import '../ui/Settings/Forms.scss';
+@import '../ui/SegmentTimeline/SegmentTimeline.scss';
+@import '../ui/Status/media-status/MediaStatusListItem.scss';
+@import '../ui/Status/media-status/MediaStatusList.scss';
+@import '../ui/Status/media-status/MediaStatusListHeader.scss';
+@import '../ui/Status/package-status/package-status.scss';
+@import '../ui/SegmentList/LinePartPieceIndicator/LinePartPieceIndicator.scss';
+@import '../ui/SegmentList/LinePartPieceIndicator/PieceIndicatorMenu.scss';
+@import '../ui/SegmentList/SegmentList.scss';
+@import '../ui/SegmentList/LinePartMainPiece/LinePartMainPiece.scss';
+@import '../ui/SegmentList/LinePartTransitionPiece/LinePartTransitionPiece.scss';
+@import '../ui/SegmentList/LinePartSecondaryPiece/LinePartSecondaryPiece.scss';
+@import '../ui/PieceIcons/IconColors.scss';
+@import '../ui/ClockView/CameraScreen/CameraScreen.scss';
+@import '../ui/RundownView/MediaStatusPopUp/MediaStatusPopUpItem.scss';
+@import '../ui/RundownView/MediaStatusPopUp/MediaStatusPopUp.scss';
+@import '../ui/RundownView/MediaStatusPopUp/MediaStatusPopUpHeader.scss';
+@import '../ui/RundownView/MediaStatusPopUp/MediaStatusPopUpSegmentRule.scss';
+@import '../ui/SegmentAdlibTesting/SegmentAdlibTesting.scss';
+
+@import 'rundownView';
+
+body {
+	overscroll-behavior: none;
+	touch-action: pan-x pan-y;
+}
+
+:fullscreen ::-webkit-scrollbar {
+	background: #252627;
+}
+
+:fullscreen ::-webkit-scrollbar-thumb {
+	background: #555;
+	border: 3px solid #252627;
+	border-radius: 10px;
+}
+
+.scroll-sink {
+	overscroll-behavior: none;
+}
+
+/* Don't show visited status, since people will browse around the app a lot */
+a:visited {
+	color: $ui-button-primary;
+}
+
+.header {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 500;
+	user-select: none;
+
+	// position: relative;
+	// z-index: 500;
+}
+.header-clear {
+	padding-top: 4rem;
+	padding-right: $statusbar-width;
+}
+
+#render-target {
+	font-weight: 300;
+
+	h5,
+	.h5,
+	.text-s,
+	.text-s p,
+	.text-s .mod,
+	.text-s .table,
+	.text-s .action-btn,
+	.switch,
+	.pill,
+	.pills .action-btn,
+	.notification,
+	.tooltip,
+	.btn,
+	.btn-tight {
+		font-weight: 300;
+	}
+
+	p,
+	center,
+	.table {
+		font-weight: 300;
+	}
+
+	.checkbox {
+		vertical-align: top;
+
+		&.mod {
+			vertical-align: middle;
+		}
+	}
+
+	.btn,
+	.btn-tight {
+		font-weight: 300;
+	}
+
+	input {
+		&::-webkit-input-placeholder,
+		&::placeholder {
+			color: #bbb;
+		}
+	}
+
+	.scroll-x {
+		overflow-x: auto;
+	}
+}
+
+.origo-pulse {
+	vertical-align: top;
+
+	&.small.left,
+	&.small.right {
+		top: 1px;
+	}
+}
+
+a.selectable {
+	display: block;
+	text-decoration: inherit;
+
+	&:hover,
+	&:active {
+		text-decoration: inherit;
+	}
+}
+
+.btn > svg.svg-inline--fa + span {
+	margin-left: 0.5em;
+}
+
+.switch-button {
+	width: 42px !important;
+	height: 21px !important;
+
+	&.sb-nocolor.sb-on {
+		.sb-content {
+			.sb-label {
+				background-color: #737373;
+			}
+		}
+	}
+
+	.sb-content {
+		width: 42px;
+		height: 21px;
+		> .sb-label {
+			width: 42px;
+			height: 21px;
+		}
+		.sb-switch {
+			width: 19px;
+			height: 19px;
+		}
+	}
+
+	&:active .sb-label {
+		opacity: 0.8;
+	}
+
+	&.sb-on {
+		.sb-switch {
+			transform: matrix(1, 0, 0, 1, 21, 0);
+		}
+	}
+}

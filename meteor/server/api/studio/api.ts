@@ -1,15 +1,17 @@
 import { Meteor } from 'meteor/meteor'
-import { check } from '../../../lib/check'
+import { check } from '../../lib/check'
 import { registerClassToMeteorMethods } from '../../methods'
-import { NewStudiosAPI, StudiosAPIMethods } from '../../../lib/api/studios'
+import { NewStudiosAPI, StudiosAPIMethods } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { literal, getRandomId, lazyIgnore } from '../../../lib/lib'
+import { literal, getRandomId, protectString } from '../../lib/tempLib'
+import { lazyIgnore } from '../../lib/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import {
 	ExpectedPackages,
 	ExpectedPackageWorkStatuses,
 	ExternalMessageQueue,
 	MediaObjects,
+	Notifications,
 	PackageContainerPackageStatuses,
 	PackageInfos,
 	PeripheralDevices,
@@ -18,19 +20,22 @@ import {
 	Studios,
 	Timeline,
 } from '../../collections'
-import { MethodContextAPI, MethodContext } from '../../../lib/api/methods'
-import { OrganizationContentWriteAccess } from '../../security/organization'
-import { Credentials } from '../../security/lib/credentials'
+import { MethodContextAPI, MethodContext } from '../methodContext'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import { OrganizationId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { OrganizationId, PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { logger } from '../../logging'
 import { DEFAULT_MINIMUM_TAKE_SPAN } from '@sofie-automation/shared-lib/dist/core/constants'
+import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
+import { assertConnectionHasOneOfPermissions } from '../../security/auth'
 
-async function insertStudio(context: MethodContext | Credentials, newId?: StudioId): Promise<StudioId> {
+const PERMISSIONS_FOR_MANAGE_STUDIOS: Array<keyof UserPermissions> = ['configure']
+
+async function insertStudio(context: MethodContext, newId?: StudioId): Promise<StudioId> {
 	if (newId) check(newId, String)
 
-	const access = await OrganizationContentWriteAccess.studio(context)
-	return insertStudioInner(access.organizationId, newId)
+	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_MANAGE_STUDIOS)
+
+	return insertStudioInner(null, newId)
 }
 export async function insertStudioInner(organizationId: OrganizationId | null, newId?: StudioId): Promise<StudioId> {
 	return Studios.insertAsync(
@@ -43,18 +48,23 @@ export async function insertStudioInner(organizationId: OrganizationId | null, n
 			supportedShowStyleBase: [],
 			blueprintConfigWithOverrides: wrapDefaultObject({}),
 			// testToolsConfig?: ITestToolsConfig
-			settings: {
+			settingsWithOverrides: wrapDefaultObject({
 				frameRate: 25,
 				mediaPreviewsUrl: '',
 				minimumTakeSpan: DEFAULT_MINIMUM_TAKE_SPAN,
-			},
+				allowHold: false,
+				allowPieceDirectPlay: false,
+				enableBuckets: true,
+				enableEvaluationForm: true,
+			}),
 			_rundownVersionHash: '',
-			routeSets: {},
-			routeSetExclusivityGroups: {},
-			packageContainers: {},
+			routeSetsWithOverrides: wrapDefaultObject({}),
+			routeSetExclusivityGroupsWithOverrides: wrapDefaultObject({}),
+			packageContainersWithOverrides: wrapDefaultObject({}),
 			thumbnailContainerIds: [],
 			previewContainerIds: [],
 			peripheralDeviceSettings: {
+				deviceSettings: wrapDefaultObject({}),
 				playoutDevices: wrapDefaultObject({}),
 				ingestDevices: wrapDefaultObject({}),
 				inputDevices: wrapDefaultObject({}),
@@ -67,8 +77,9 @@ export async function insertStudioInner(organizationId: OrganizationId | null, n
 async function removeStudio(context: MethodContext, studioId: StudioId): Promise<void> {
 	check(studioId, String)
 
-	const access = await OrganizationContentWriteAccess.studio(context, studioId)
-	const studio = access.studio
+	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_MANAGE_STUDIOS)
+
+	const studio = await Studios.findOneAsync(studioId)
 	if (!studio) throw new Meteor.Error(404, `Studio "${studioId}" not found`)
 
 	// allowed to remove?
@@ -83,7 +94,10 @@ async function removeStudio(context: MethodContext, studioId: StudioId): Promise
 			`Can't remove studio "${studioId}", because the rundownPlaylist "${playlist._id}" is in it.`
 		)
 
-	const peripheralDevice = await PeripheralDevices.findOneAsync({ studioId: studio._id }, { fields: { _id: 1 } })
+	const peripheralDevice = await PeripheralDevices.findOneAsync(
+		{ 'studioAndConfigId.studioId': studio._id },
+		{ fields: { _id: 1 } }
+	)
 	if (peripheralDevice)
 		throw new Meteor.Error(
 			404,
@@ -101,6 +115,7 @@ async function removeStudio(context: MethodContext, studioId: StudioId): Promise
 		ExpectedPackageWorkStatuses.removeAsync({ studioId: studio._id }),
 		PackageInfos.removeAsync({ studioId: studio._id }),
 		PackageContainerPackageStatuses.removeAsync({ studioId: studio._id }),
+		Notifications.removeAsync({ 'relatedTo.studioId': studio._id }),
 	])
 }
 
@@ -110,6 +125,41 @@ class ServerStudiosAPI extends MethodContextAPI implements NewStudiosAPI {
 	}
 	async removeStudio(studioId: StudioId) {
 		return removeStudio(this, studioId)
+	}
+
+	async assignConfigToPeripheralDevice(studioId: StudioId, configId: string, deviceId: PeripheralDeviceId | null) {
+		assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MANAGE_STUDIOS)
+
+		// Unassign other uses
+		await PeripheralDevices.updateAsync(
+			{
+				studioAndConfigId: {
+					studioId,
+					configId,
+				},
+				_id: { $ne: deviceId ?? protectString('') },
+			},
+			{
+				$unset: {
+					studioAndConfigId: 1,
+				},
+			},
+			{
+				multi: true,
+			}
+		)
+
+		if (deviceId) {
+			// Set for the new one
+			await PeripheralDevices.updateAsync(deviceId, {
+				$set: {
+					studioAndConfigId: {
+						studioId,
+						configId,
+					},
+				},
+			})
+		}
 	}
 }
 registerClassToMeteorMethods(StudiosAPIMethods, ServerStudiosAPI, false)
@@ -130,17 +180,20 @@ function triggerUpdateStudioMappingsHash(studioId: StudioId) {
 		10
 	)
 }
-Studios.observeChanges(
-	{},
-	{
-		added: triggerUpdateStudioMappingsHash,
-		changed: triggerUpdateStudioMappingsHash,
-		removed: triggerUpdateStudioMappingsHash,
-	},
-	{
-		fields: {
-			mappingsWithOverrides: 1,
-			routeSets: 1,
+
+Meteor.startup(async () => {
+	await Studios.observeChanges(
+		{},
+		{
+			added: triggerUpdateStudioMappingsHash,
+			changed: triggerUpdateStudioMappingsHash,
+			removed: triggerUpdateStudioMappingsHash,
 		},
-	}
-)
+		{
+			fields: {
+				mappingsWithOverrides: 1,
+				routeSetsWithOverrides: 1,
+			},
+		}
+	)
+})

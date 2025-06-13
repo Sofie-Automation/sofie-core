@@ -1,0 +1,127 @@
+
+.expco.button {
+	border: 1px solid rgba(99, 99, 99, 0.5);
+	color: #636363;
+	box-shadow: unset;
+
+	&:hover {
+		border-color: rgba(37, 38, 39, 0.5);
+		color: #252627;
+	}
+
+	.action-btn.right {
+		width: 20%;
+		height: 100%;
+		position: absolute;
+		top: 0;
+		display: flex;
+
+		svg {
+			display: block;
+			margin: auto;
+		}
+	}
+}
+
+.expco.split-dropdown {
+	position: relative;
+	padding: 0 1.1em 0 0;
+	max-width: 7.5em;
+	&.expco-expanded {
+		z-index: 2;
+	}
+
+	.expco-expand {
+		cursor: pointer;
+		color: #636363;
+	}
+
+	.expco-title {
+		white-space: nowrap;
+		cursor: auto;
+		color: #636363;
+		border-radius: 0px;
+		padding: 0px;
+
+		.action-btn {
+			color: #636363;
+
+			.layout-icon {
+				color: #636363;
+			}
+		}
+	}
+
+	.expco-body {
+		position: absolute;
+		right: -1px;
+		top: 100%;
+		max-height: 16em;
+		background: #fff;
+		overflow-y: auto;
+		border: 1px solid #bbb;
+		padding: 2px 0 4px 0;
+		box-sizing: unset;
+
+		.expco-item.action-btn {
+			&:hover {
+				color: #fff;
+				background: $ui-button-primary--hover;
+			}
+		}
+	}
+
+	.expco-text {
+		display: inline-flex;
+		overflow: hidden;
+		width: 82%;
+	}
+
+	.expco-item {
+		display: inline-block;
+		white-space: pre;
+		transition: none;
+
+		&.action-btn {
+			padding: 5px 10px;
+			margin: 0px;
+			width: 90%;
+			font-weight: 300;
+			overflow: hidden;
+
+			> span {
+				text-decoration: none;
+			}
+		}
+	}
+
+	.expco-header {
+		text-transform: uppercase;
+		font-size: 0.8em;
+		font-weight: bold;
+		padding: 6px 10px 6px;
+		color: #999;
+		white-space: pre;
+	}
+
+	.expco-separator {
+		margin: 4px 0px;
+		border-bottom: 1px solid #ddd;
+	}
+
+	.layout-icon {
+		width: 16px;
+		height: 16px;
+		text-align: center;
+		border-radius: 50%;
+		display: inline-block;
+		margin: 0 6px 3px 0;
+		line-height: 1em;
+		vertical-align: middle;
+
+		&.small {
+			font-size: 0.6em;
+			line-height: 1.8em;
+		}
+	}
+}

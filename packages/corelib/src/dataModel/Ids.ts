@@ -35,8 +35,14 @@ export type ExpectedPlayoutItemId = ProtectedString<'ExpectedPlayoutItemId'>
 /** A string, identifying a ExternalMessageQueueObj */
 export type ExternalMessageQueueObjId = ProtectedString<'ExternalMessageQueueObjId'>
 
-/** A string, identifying a IngestDataCacheObj */
-export type IngestDataCacheObjId = ProtectedString<'IngestDataCacheObjId'>
+/** A string, identifying a NrcsIngestDataCacheObj */
+export type NrcsIngestDataCacheObjId = ProtectedString<'NrcsIngestDataCacheObjId'>
+
+/** A string, identifying a SofieIngestDataCacheObj */
+export type SofieIngestDataCacheObjId = ProtectedString<'SofieIngestDataCacheObjId'>
+
+/** A string, identifying a DBNotificationObj */
+export type NotificationId = ProtectedString<'NotificationId'>
 
 /** A string, identifying a Organization */
 export type OrganizationId = ProtectedString<'OrganizationId'>

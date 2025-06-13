@@ -8,7 +8,6 @@ import { PlayoutSegmentModel } from '../PlayoutSegmentModel'
 import { UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/error'
 import { SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { getRandomId } from '@sofie-automation/corelib/dist/lib'
-import { getCurrentTime } from '../../../lib'
 import { PlayoutSegmentModelImpl } from './PlayoutSegmentModelImpl'
 
 export class PlayoutRundownModelImpl implements PlayoutRundownModel {
@@ -74,7 +73,6 @@ export class PlayoutRundownModelImpl implements PlayoutRundownModel {
 					_id: segmentId,
 					_rank: calculateRankForAdlibTestingSegment(this.#segments),
 					externalId: '__adlib-testing__',
-					externalModified: getCurrentTime(),
 					rundownId: this.rundown._id,
 					orphaned: SegmentOrphanedReason.ADLIB_TESTING,
 					name: '',

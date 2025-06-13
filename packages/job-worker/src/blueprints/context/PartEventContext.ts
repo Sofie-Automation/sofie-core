@@ -1,11 +1,10 @@
 import { IBlueprintPartInstance, IPartEventContext } from '@sofie-automation/blueprints-integration'
 import { ReadonlyDeep } from 'type-fest'
-import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { getCurrentTime } from '../../lib'
 import { ProcessedStudioConfig, ProcessedShowStyleConfig } from '../config'
-import { ProcessedShowStyleCompound } from '../../jobs'
+import { JobStudio, ProcessedShowStyleCompound } from '../../jobs'
 import { convertPartInstanceToBlueprints } from './lib'
 import { RundownContext } from './RundownContext'
 
@@ -14,7 +13,7 @@ export class PartEventContext extends RundownContext implements IPartEventContex
 
 	constructor(
 		eventName: string,
-		studio: ReadonlyDeep<DBStudio>,
+		studio: ReadonlyDeep<JobStudio>,
 		studioBlueprintConfig: ProcessedStudioConfig,
 		showStyleCompound: ReadonlyDeep<ProcessedShowStyleCompound>,
 		showStyleBlueprintConfig: ProcessedShowStyleConfig,

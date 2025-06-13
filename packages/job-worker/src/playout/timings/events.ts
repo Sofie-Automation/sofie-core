@@ -6,7 +6,7 @@ import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyE
 
 const EVENT_WAIT_TIME = 500
 
-const partInstanceTimingDebounceFunctions = new Map<string, NodeJS.Timer>()
+const partInstanceTimingDebounceFunctions = new Map<string, NodeJS.Timeout>()
 
 /**
  * Queue a PartInstanceTimings event to be sent

@@ -51,6 +51,10 @@ export function wrapDefaultObject<T extends object>(obj: T): ObjectWithOverrides
 		overrides: [],
 	}
 }
+export function isObjectWithOverrides<T extends object>(o: ObjectWithOverrides<T> | T): o is ObjectWithOverrides<T> {
+	const oAny = o as any
+	return typeof oAny.defaults === 'object' && Array.isArray(oAny.overrides)
+}
 /**
  * In some cases, an ObjectWithOverrides should have no defaults. This is common for when the user owns the object containing the ObjectWithOverrides.
  * This helper takes an ObjectWithOverrides, and converts it to have no defaults, and have each contained object as an override

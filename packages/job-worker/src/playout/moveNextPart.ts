@@ -1,20 +1,19 @@
 import { groupByToMap } from '@sofie-automation/corelib/dist/lib'
 import { DBPart, isPartPlayable } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { JobContext } from '../jobs'
-import { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { PlayoutModel } from './model/PlayoutModel'
+import { PlayoutModelReadonly } from './model/PlayoutModel'
 import { sortPartsInSortedSegments } from '@sofie-automation/corelib/dist/playout/playlist'
-import { setNextPartFromPart } from './setNext'
 import { logger } from '../logging'
 import { SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { ReadonlyDeep } from 'type-fest'
 
-export async function moveNextPart(
-	context: JobContext,
-	playoutModel: PlayoutModel,
+export function selectNewPartWithOffsets(
+	_context: JobContext,
+	playoutModel: PlayoutModelReadonly,
 	partDelta: number,
-	segmentDelta: number
-): Promise<PartId | null> {
+	segmentDelta: number,
+	ignoreQuickLoop = false
+): ReadonlyDeep<DBPart> | null {
 	const playlist = playoutModel.playlist
 
 	const currentPartInstance = playoutModel.currentPartInstance?.partInstance
@@ -25,8 +24,21 @@ export async function moveNextPart(
 	if (!refPart || !refPartInstance)
 		throw new Error(`RundownPlaylist "${playlist._id}" has no next and no current part!`)
 
-	const rawSegments = playoutModel.getAllOrderedSegments()
-	const rawParts = playoutModel.getAllOrderedParts()
+	let rawSegments = playoutModel.getAllOrderedSegments()
+	let rawParts = playoutModel.getAllOrderedParts()
+	let allowWrap = false // whether we should wrap to the first part if the curIndex + delta exceeds the total number of parts
+
+	if (!ignoreQuickLoop && playlist.quickLoop?.start && playlist.quickLoop.end) {
+		const partsInQuickloop = playoutModel.getPartsBetweenQuickLoopMarker(
+			playlist.quickLoop.start,
+			playlist.quickLoop.end
+		)
+		if (partsInQuickloop.parts.includes(refPart._id)) {
+			rawParts = rawParts.filter((p) => partsInQuickloop.parts.includes(p._id))
+			rawSegments = rawSegments.filter((s) => partsInQuickloop.segments.includes(s.segment._id))
+			allowWrap = true
+		}
+	}
 
 	if (segmentDelta) {
 		// Ignores horizontalDelta
@@ -39,7 +51,14 @@ export async function moveNextPart(
 		const refSegmentIndex = considerSegments.findIndex((s) => s.segment._id === refPart.segmentId)
 		if (refSegmentIndex === -1) throw new Error(`Segment "${refPart.segmentId}" not found!`)
 
-		const targetSegmentIndex = refSegmentIndex + segmentDelta
+		let targetSegmentIndex = refSegmentIndex + segmentDelta
+		if (allowWrap) {
+			targetSegmentIndex = targetSegmentIndex % considerSegments.length
+			if (targetSegmentIndex < 0) {
+				// -1 becomes last segment
+				targetSegmentIndex = considerSegments.length + targetSegmentIndex
+			}
+		}
 		const targetSegment = considerSegments[targetSegmentIndex]
 		if (!targetSegment) return null
 
@@ -66,11 +85,9 @@ export async function moveNextPart(
 			}
 		}
 
-		// TODO - looping playlists
 		if (selectedPart) {
 			// Switch to that part
-			await setNextPartFromPart(context, playoutModel, selectedPart, true)
-			return selectedPart._id
+			return selectedPart
 		} else {
 			// Nothing looked valid so do nothing
 			// Note: we should try and a smaller delta if it is not -1/1
@@ -91,7 +108,11 @@ export async function moveNextPart(
 		}
 
 		// Get the past we are after
-		const targetPartIndex = refPartIndex + partDelta
+		let targetPartIndex = allowWrap ? (refPartIndex + partDelta) % playabaleParts.length : refPartIndex + partDelta
+		if (allowWrap) {
+			targetPartIndex = targetPartIndex % playabaleParts.length
+			if (targetPartIndex < 0) targetPartIndex = playabaleParts.length + targetPartIndex // -1 becomes last part
+		}
 		let targetPart = playabaleParts[targetPartIndex]
 		if (targetPart && targetPart._id === currentPartInstance?.part._id) {
 			// Cant go to the current part (yet)
@@ -101,8 +122,7 @@ export async function moveNextPart(
 
 		if (targetPart) {
 			// Switch to that part
-			await setNextPartFromPart(context, playoutModel, targetPart, true)
-			return targetPart._id
+			return targetPart
 		} else {
 			// Nothing looked valid so do nothing
 			// Note: we should try and a smaller delta if it is not -1/1

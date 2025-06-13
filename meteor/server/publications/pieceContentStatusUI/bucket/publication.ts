@@ -5,27 +5,24 @@ import {
 	BucketId,
 	ExpectedPackageId,
 	PackageContainerPackageId,
+	ShowStyleBaseId,
 	StudioId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { MongoFieldSpecifierOnesStrict } from '@sofie-automation/corelib/dist/mongo'
 import { ReadonlyDeep } from 'type-fest'
-import { CustomCollectionName, MeteorPubSub } from '../../../../lib/api/pubsub'
-import { UIBucketContentStatus } from '../../../../lib/api/rundownNotifications'
+import { CustomCollectionName, MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
+import { UIBucketContentStatus } from '@sofie-automation/meteor-lib/dist/api/rundownNotifications'
 import { Buckets, MediaObjects, PackageContainerPackageStatuses, PackageInfos, Studios } from '../../../collections'
-import { literal, protectString } from '../../../../lib/lib'
+import { literal, protectString } from '../../../lib/tempLib'
 import {
 	CustomPublishCollection,
 	meteorCustomPublish,
 	setUpCollectionOptimizedObserver,
 	TriggerUpdate,
+	SetupObserversResult,
 } from '../../../lib/customPublication'
-import { logger } from '../../../logging'
-import { resolveCredentials } from '../../../security/lib/credentials'
-import { NoSecurityReadAccess } from '../../../security/noSecurity'
 import { BucketContentCache, createReactiveContentCache } from './bucketContentCache'
-import { LiveQueryHandle } from '../../../lib/lib'
-import { StudioReadAccess } from '../../../security/studio'
-import { Bucket } from '../../../../lib/collections/Buckets'
+import { Bucket } from '@sofie-automation/meteor-lib/dist/collections/Buckets'
 import {
 	addItemsWithDependenciesChangesToChangedSet,
 	fetchStudio,
@@ -39,8 +36,9 @@ import {
 import { BucketContentObserver } from './bucketContentObserver'
 import { regenerateForBucketActionIds, regenerateForBucketAdLibIds } from './regenerateForItem'
 import { PieceContentStatusStudio } from '../checkPieceContentStatus'
-import { BucketSecurity } from '../../../security/buckets'
 import { check } from 'meteor/check'
+import { triggerWriteAccessBecauseNoCheckNecessary } from '../../../security/securityVerify'
+import { PieceContentStatusMessageFactory } from '../messageFactory'
 
 interface UIBucketContentStatusesArgs {
 	readonly studioId: StudioId
@@ -51,6 +49,8 @@ interface UIBucketContentStatusesState {
 	contentCache: ReadonlyDeep<BucketContentCache>
 
 	studio: PieceContentStatusStudio
+
+	showStyleMessageFactories: Map<ShowStyleBaseId, PieceContentStatusMessageFactory>
 
 	adlibDependencies: Map<BucketAdLibId, PieceDependencies>
 	actionDependencies: Map<BucketAdLibActionId, PieceDependencies>
@@ -72,7 +72,7 @@ const bucketFieldSpecifier = literal<MongoFieldSpecifierOnesStrict<Pick<Bucket, 
 async function setupUIBucketContentStatusesPublicationObservers(
 	args: ReadonlyDeep<UIBucketContentStatusesArgs>,
 	triggerUpdate: TriggerUpdate<UIBucketContentStatusesUpdateProps>
-): Promise<LiveQueryHandle[]> {
+): Promise<SetupObserversResult> {
 	const trackMediaObjectChange = (mediaId: string): Partial<UIBucketContentStatusesUpdateProps> => ({
 		invalidateMediaObjectMediaId: [mediaId],
 	})
@@ -103,7 +103,7 @@ async function setupUIBucketContentStatusesPublicationObservers(
 
 	// Set up observers:
 	return [
-		new BucketContentObserver(args.bucketId, contentCache),
+		BucketContentObserver.create(args.bucketId, contentCache),
 
 		contentCache.BucketAdLibs.find({}).observeChanges({
 			added: (id) => triggerUpdate(trackAdlibChange(protectString(id))),
@@ -114,6 +114,16 @@ async function setupUIBucketContentStatusesPublicationObservers(
 			added: (id) => triggerUpdate(trackActionChange(protectString(id))),
 			changed: (id) => triggerUpdate(trackActionChange(protectString(id))),
 			removed: (id) => triggerUpdate(trackActionChange(protectString(id))),
+		}),
+		contentCache.Blueprints.find({}).observeChanges({
+			added: () => triggerUpdate({ invalidateAll: true }),
+			changed: () => triggerUpdate({ invalidateAll: true }),
+			removed: () => triggerUpdate({ invalidateAll: true }),
+		}),
+		contentCache.ShowStyleSourceLayers.find({}).observeChanges({
+			added: () => triggerUpdate({ invalidateAll: true }),
+			changed: () => triggerUpdate({ invalidateAll: true }),
+			removed: () => triggerUpdate({ invalidateAll: true }),
 		}),
 
 		Studios.observeChanges(
@@ -202,14 +212,26 @@ async function manipulateUIBucketContentStatusesPublicationData(
 
 	let regenerateActionIds: Set<BucketAdLibActionId>
 	let regenerateAdlibIds: Set<BucketAdLibId>
-	if (!state.adlibDependencies || !state.actionDependencies || invalidateAllItems) {
+	if (
+		!state.adlibDependencies ||
+		!state.actionDependencies ||
+		!state.showStyleMessageFactories ||
+		invalidateAllItems
+	) {
 		state.adlibDependencies = new Map()
 		state.actionDependencies = new Map()
+		state.showStyleMessageFactories = new Map()
 
 		// force every piece to be regenerated
 		collection.remove(null)
 		regenerateAdlibIds = new Set(state.contentCache.BucketAdLibs.find({}).map((p) => p._id))
 		regenerateActionIds = new Set(state.contentCache.BucketAdLibActions.find({}).map((p) => p._id))
+
+		// prepare the message factories
+		for (const showStyle of state.contentCache.ShowStyleSourceLayers.find({})) {
+			const blueprint = state.contentCache.Blueprints.findOne(showStyle.blueprintId)
+			state.showStyleMessageFactories.set(showStyle._id, new PieceContentStatusMessageFactory(blueprint))
+		}
 	} else {
 		regenerateAdlibIds = new Set(updateProps.invalidateBucketAdlibIds)
 		regenerateActionIds = new Set(updateProps.invalidateBucketActionIds)
@@ -231,6 +253,7 @@ async function manipulateUIBucketContentStatusesPublicationData(
 		state.contentCache,
 		state.studio,
 		state.adlibDependencies,
+		state.showStyleMessageFactories,
 		collection,
 		regenerateAdlibIds
 	)
@@ -238,6 +261,7 @@ async function manipulateUIBucketContentStatusesPublicationData(
 		state.contentCache,
 		state.studio,
 		state.actionDependencies,
+		state.showStyleMessageFactories,
 		collection,
 		regenerateActionIds
 	)
@@ -250,30 +274,20 @@ meteorCustomPublish(
 		check(studioId, String)
 		check(bucketId, String)
 
-		const cred = await resolveCredentials({ userId: this.userId, token: undefined })
+		triggerWriteAccessBecauseNoCheckNecessary()
 
-		if (
-			NoSecurityReadAccess.any() ||
-			(studioId &&
-				bucketId &&
-				(await StudioReadAccess.studioContent(studioId, cred)) &&
-				(await BucketSecurity.allowReadAccess(cred, bucketId)))
-		) {
-			await setUpCollectionOptimizedObserver<
-				UIBucketContentStatus,
-				UIBucketContentStatusesArgs,
-				UIBucketContentStatusesState,
-				UIBucketContentStatusesUpdateProps
-			>(
-				`pub_${MeteorPubSub.uiBucketContentStatuses}_${studioId}_${bucketId}`,
-				{ studioId, bucketId },
-				setupUIBucketContentStatusesPublicationObservers,
-				manipulateUIBucketContentStatusesPublicationData,
-				pub,
-				100
-			)
-		} else {
-			logger.warn(`Pub.${CustomCollectionName.UIBucketContentStatuses}: Not allowed: "${studioId}" "${bucketId}"`)
-		}
+		await setUpCollectionOptimizedObserver<
+			UIBucketContentStatus,
+			UIBucketContentStatusesArgs,
+			UIBucketContentStatusesState,
+			UIBucketContentStatusesUpdateProps
+		>(
+			`pub_${MeteorPubSub.uiBucketContentStatuses}_${studioId}_${bucketId}`,
+			{ studioId, bucketId },
+			setupUIBucketContentStatusesPublicationObservers,
+			manipulateUIBucketContentStatusesPublicationData,
+			pub,
+			100
+		)
 	}
 )

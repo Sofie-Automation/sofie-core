@@ -1,0 +1,134 @@
+
+.segment-opl__main-piece {
+	position: relative;
+	overflow: visible;
+	min-height: 1.2em;
+
+	@include piece-colors();
+	@include missing-overlay();
+
+	> .segment-opl__main-piece__bkg {
+		position: absolute;
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+		height: 100%;
+		z-index: 0;
+
+		> .segment-opl__main-piece__item {
+			flex: 1 1;
+			@include piece-colors();
+		}
+	}
+
+	> .segment-opl__main-piece__label {
+		position: relative;
+		font-weight: 400;
+		font-size: 1em;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		margin-left: 0.85em;
+		text-shadow: 0.5px 0.5px 8px rgba(0, 0, 0, 0.8);
+		z-index: 0;
+
+		> .piece__status-icon {
+			margin-top: -1px;
+			margin-bottom: -1em;
+			vertical-align: top;
+		}
+
+		> .segment-opl__main-piece__label__colored-mark {
+			line-height: 1em;
+			width: 25px;
+			margin: 0 6px 0 2px;
+
+			&::before {
+				content: ' ';
+				display: inline-block;
+				width: 12px;
+				height: 12px;
+				background-color: currentColor;
+				border: 1px solid rgba(255, 255, 255, 0.3);
+				border-radius: 100%;
+				box-shadow: 0 0 4px black;
+				vertical-align: top;
+				margin-top: 0.25em;
+			}
+		}
+
+		> .segment-opl__main-piece__label-icon {
+			display: inline-block;
+			vertical-align: top;
+			
+			&.label-loop-icon {
+				margin: -3px 0 -2px 0;
+			}
+		}
+	}
+
+	// TODO: Loan from rundownView.scss, convert to a shared mixin
+	.segment-timeline__piece__scene-marker {
+		position: absolute;
+		display: block;
+		top: 0;
+		width: 2px;
+		bottom: 0;
+		background: linear-gradient(to bottom, #0000ff 0, #fff 1.9px, #000 2px, #000 4px, rgba(0, 0, 0, 0.2) 4.1px);
+		overflow: hidden;
+		transform: translate3d(0, 0, 2px);
+	}
+
+	.segment-timeline__piece__anomaly-marker {
+		position: absolute;
+		display: block;
+		top: 0;
+		height: calc(100% + 2px);
+		min-width: 2px;
+		background: repeating-linear-gradient(90deg, black, black 3px, rgba(0, 0, 0, 0.2) 3px, rgba(0, 0, 0, 0.2) 6px);
+		overflow: hidden;
+	}
+	.segment-timeline__piece__anomaly-marker::after {
+		content: '';
+		position: absolute;
+		display: block;
+		top: 0px;
+		width: 100%;
+		height: 2px;
+		min-width: 2px;
+		// background: repeating-linear-gradient(
+		// 	90deg,
+		// 	black,
+		// 	black 2px,
+		// 	rgba(0, 0, 0, .2) 1.5px,
+		// 	rgba(0, 0, 0, .2) 3px
+		// );
+		background: yellow;
+		overflow: hidden;
+	}
+
+	.segment-timeline__piece__anomaly-marker__freezes {
+		background: repeating-linear-gradient(0deg, black, black 3px, rgba(0, 0, 0, 0.2) 3px, rgba(0, 0, 0, 0.2) 6px);
+	}
+
+	@include invalid-overlay();
+
+	&.invalid {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		opacity: 1;
+	}
+}
+
+.segment-opl__main-piece + .segment-opl__main-piece.invalid {
+	background-color: transparent;
+}
+
+.segment-opl__part.segment-opl__part--next
+	> .segment-opl__part-timeline
+	> .segment-opl__main-piece
+	> .segment-opl__main-piece__label:not(.mln) {
+	left: 3em;
+}

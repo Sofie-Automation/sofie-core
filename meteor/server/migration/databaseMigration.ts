@@ -4,25 +4,15 @@ import {
 	BlueprintManifestType,
 	InputFunctionCore,
 	InputFunctionSystem,
-	InputFunctionShowStyle,
-	InputFunctionStudio,
 	MigrateFunctionCore,
-	MigrateFunctionShowStyle,
-	MigrateFunctionStudio,
 	MigrationContextSystem as IMigrationContextSystem,
-	MigrationContextShowStyle as IMigrationContextShowStyle,
-	MigrationContextStudio as IMigrationContextStudio,
 	MigrationStep,
 	MigrationStepInput,
 	MigrationStepInputFilteredResult,
 	MigrationStepInputResult,
-	ShowStyleBlueprintManifest,
-	StudioBlueprintManifest,
 	SystemBlueprintManifest,
 	ValidateFunctionCore,
 	ValidateFunctionSystem,
-	ValidateFunctionShowStyle,
-	ValidateFunctionStudio,
 	MigrateFunctionSystem,
 	ValidateFunction,
 	MigrateFunction,
@@ -35,21 +25,18 @@ import {
 	MigrationChunk,
 	MigrationStepType,
 	RunMigrationResult,
-} from '../../lib/api/migration'
-import { logger } from '../../lib/logging'
+} from '@sofie-automation/meteor-lib/dist/api/migration'
+import { logger } from '../logging'
 import { internalStoreSystemSnapshot } from '../api/snapshot'
-import { GENESIS_SYSTEM_VERSION, parseVersion, Version } from '../../lib/collections/CoreSystem'
-import { clone, getHash, omit, protectString, unprotectString } from '../../lib/lib'
+import { parseVersion, Version } from '../systemStatus/semverUtils'
+import { GENESIS_SYSTEM_VERSION } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
+import { clone, getHash, omit, protectString } from '../lib/tempLib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { evalBlueprint } from '../api/blueprints/cache'
-import {
-	MigrationContextShowStyle,
-	MigrationContextStudio,
-	MigrationContextSystem,
-} from '../api/blueprints/migrationContext'
+import { MigrationContextSystem } from '../api/blueprints/migrationContext'
 import { CURRENT_SYSTEM_VERSION } from './currentSystemVersion'
-import { SnapshotId, ShowStyleBaseId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { Blueprints, CoreSystem, ShowStyleBases, Studios } from '../collections'
+import { SnapshotId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { Blueprints, CoreSystem } from '../collections'
 import { getSystemStorePath } from '../coreSystem'
 import { getCoreSystemAsync, setCoreSystemVersion } from '../coreSystem/collection'
 
@@ -161,102 +148,24 @@ export async function prepareMigration(returnAllChunks?: boolean): Promise<Prepa
 	}
 
 	// Collect migration steps from blueprints:
-	const allBlueprints = await Blueprints.findFetchAsync({})
+	const allBlueprints = await Blueprints.findFetchAsync({
+		blueprintType: BlueprintManifestType.SYSTEM,
+	})
 	for (const blueprint of allBlueprints) {
 		// console.log('bp', blueprint._id)
 		if (blueprint.code) {
 			const blueprintManifest = evalBlueprint(blueprint)
 
 			if (!blueprint.databaseVersion || typeof blueprint.databaseVersion === 'string')
-				blueprint.databaseVersion = { showStyle: {}, studio: {}, system: undefined }
-			if (!blueprint.databaseVersion.showStyle) blueprint.databaseVersion.showStyle = {}
-			if (!blueprint.databaseVersion.studio) blueprint.databaseVersion.studio = {}
+				blueprint.databaseVersion = { system: undefined }
 			if (!blueprint.databaseVersion.system) blueprint.databaseVersion.system = undefined
 
-			if (blueprint.blueprintType === BlueprintManifestType.SHOWSTYLE) {
-				const bp = blueprintManifest as ShowStyleBlueprintManifest
-
-				// If blueprint uses the new flow, don't attempt migrations
-				if (typeof bp.applyConfig === 'function') continue
-
-				// Find all showStyles that uses this blueprint:
-				const showStyleBases = await ShowStyleBases.findFetchAsync({ blueprintId: blueprint._id })
-				showStyleBases.forEach((showStyleBase) => {
-					const chunk: MigrationChunk = {
-						sourceType: MigrationStepType.SHOWSTYLE,
-						sourceName: 'Blueprint ' + blueprint.name + ' for showStyle ' + showStyleBase.name,
-						blueprintId: blueprint._id,
-						sourceId: showStyleBase._id,
-						_dbVersion: parseVersion(
-							blueprint.databaseVersion.showStyle[unprotectString(showStyleBase._id)] || '0.0.0'
-						),
-						_targetVersion: parseVersion(bp.blueprintVersion),
-						_steps: [],
-					}
-					migrationChunks.push(chunk)
-					// Add show-style migration steps from blueprint:
-					for (const step of bp.showStyleMigrations) {
-						allMigrationSteps.push(
-							prefixIdsOnStep('blueprint_' + blueprint._id + '_showStyle_' + showStyleBase._id + '_', {
-								id: step.id,
-								overrideSteps: step.overrideSteps,
-								validate: step.validate,
-								canBeRunAutomatically: step.canBeRunAutomatically,
-								migrate: step.migrate,
-								input: step.input,
-								dependOnResultFrom: step.dependOnResultFrom,
-								version: step.version,
-								_version: parseVersion(step.version),
-								_validateResult: false, // to be set later
-								_rank: rank++,
-								chunk: chunk,
-							})
-						)
-					}
-				})
-			} else if (blueprint.blueprintType === BlueprintManifestType.STUDIO) {
-				const bp = blueprintManifest as StudioBlueprintManifest
-
-				// If blueprint uses the new flow, don't attempt migrations
-				if (typeof bp.applyConfig === 'function') continue
-
-				// Find all studios that use this blueprint
-				const studios = await Studios.findFetchAsync({ blueprintId: blueprint._id })
-				studios.forEach((studio) => {
-					const chunk: MigrationChunk = {
-						sourceType: MigrationStepType.STUDIO,
-						sourceName: 'Blueprint ' + blueprint.name + ' for studio ' + studio.name,
-						blueprintId: blueprint._id,
-						sourceId: studio._id,
-						_dbVersion: parseVersion(
-							blueprint.databaseVersion.studio[unprotectString(studio._id)] || '0.0.0'
-						),
-						_targetVersion: parseVersion(bp.blueprintVersion),
-						_steps: [],
-					}
-					migrationChunks.push(chunk)
-					// Add studio migration steps from blueprint:
-					for (const step of bp.studioMigrations) {
-						allMigrationSteps.push(
-							prefixIdsOnStep('blueprint_' + blueprint._id + '_studio_' + studio._id + '_', {
-								id: step.id,
-								overrideSteps: step.overrideSteps,
-								validate: step.validate,
-								canBeRunAutomatically: step.canBeRunAutomatically,
-								migrate: step.migrate,
-								input: step.input,
-								dependOnResultFrom: step.dependOnResultFrom,
-								version: step.version,
-								_version: parseVersion(step.version),
-								_validateResult: false, // to be set later
-								_rank: rank++,
-								chunk: chunk,
-							})
-						)
-					}
-				})
-			} else if (blueprint.blueprintType === BlueprintManifestType.SYSTEM) {
+			if (blueprint.blueprintType === BlueprintManifestType.SYSTEM) {
 				const bp = blueprintManifest as SystemBlueprintManifest
+
+				// If blueprint uses the new flow, don't attempt migrations
+				if (typeof bp.applyConfig === 'function') continue
+
 				// Check if the coreSystem uses this blueprint
 				const coreSystems = await CoreSystem.findFetchAsync({
 					blueprintId: blueprint._id,
@@ -309,15 +218,6 @@ export async function prepareMigration(returnAllChunks?: boolean): Promise<Prepa
 		if (a.chunk.sourceType === MigrationStepType.SYSTEM && b.chunk.sourceType !== MigrationStepType.SYSTEM)
 			return -1
 		if (a.chunk.sourceType !== MigrationStepType.SYSTEM && b.chunk.sourceType === MigrationStepType.SYSTEM) return 1
-
-		if (a.chunk.sourceType === MigrationStepType.STUDIO && b.chunk.sourceType !== MigrationStepType.STUDIO)
-			return -1
-		if (a.chunk.sourceType !== MigrationStepType.STUDIO && b.chunk.sourceType === MigrationStepType.STUDIO) return 1
-
-		if (a.chunk.sourceType === MigrationStepType.SHOWSTYLE && b.chunk.sourceType !== MigrationStepType.SHOWSTYLE)
-			return -1
-		if (a.chunk.sourceType !== MigrationStepType.SHOWSTYLE && b.chunk.sourceType === MigrationStepType.SHOWSTYLE)
-			return 1
 
 		// Then, sort by version:
 		if (semver.gt(a._version, b._version)) return 1
@@ -386,13 +286,7 @@ export async function prepareMigration(returnAllChunks?: boolean): Promise<Prepa
 					step._validateResult = await validate(false)
 				} else if (step.chunk.sourceType === MigrationStepType.SYSTEM) {
 					const validate = step.validate as ValidateFunctionSystem
-					step._validateResult = validate(getMigrationSystemContext(step.chunk), false)
-				} else if (step.chunk.sourceType === MigrationStepType.STUDIO) {
-					const validate = step.validate as ValidateFunctionStudio
-					step._validateResult = validate(await getMigrationStudioContext(step.chunk), false)
-				} else if (step.chunk.sourceType === MigrationStepType.SHOWSTYLE) {
-					const validate = step.validate as ValidateFunctionShowStyle
-					step._validateResult = validate(await getMigrationShowStyleContext(step.chunk), false)
+					step._validateResult = await validate(getMigrationSystemContext(step.chunk), false)
 				} else throw new Meteor.Error(500, `Unknown step.chunk.sourceType "${step.chunk.sourceType}"`)
 			} catch (error) {
 				throw new Meteor.Error(500, `Error in migration step "${step.id}": ${stringifyError(error)}`)
@@ -433,12 +327,6 @@ export async function prepareMigration(returnAllChunks?: boolean): Promise<Prepa
 					} else if (step.chunk.sourceType === MigrationStepType.SYSTEM) {
 						const inputFunction = step.input as InputFunctionSystem
 						input = inputFunction(getMigrationSystemContext(step.chunk))
-					} else if (step.chunk.sourceType === MigrationStepType.STUDIO) {
-						const inputFunction = step.input as InputFunctionStudio
-						input = inputFunction(await getMigrationStudioContext(step.chunk))
-					} else if (step.chunk.sourceType === MigrationStepType.SHOWSTYLE) {
-						const inputFunction = step.input as InputFunctionShowStyle
-						input = inputFunction(await getMigrationShowStyleContext(step.chunk))
 					} else throw new Meteor.Error(500, `Unknown step.chunk.sourceType "${step.chunk.sourceType}"`)
 				}
 				if (input.length) {
@@ -566,7 +454,7 @@ export async function runMigration(
 		const storePath = getSystemStorePath()
 		if (storePath) {
 			try {
-				snapshotId = await internalStoreSystemSnapshot(null, null, `Automatic, taken before migration`)
+				snapshotId = await internalStoreSystemSnapshot(null, {}, `Automatic, taken before migration`)
 			} catch (e) {
 				warningMessages.push(`Error when taking snapshot:${stringifyError(e)}`)
 				logger.error(e)
@@ -600,13 +488,7 @@ export async function runMigration(
 					await migration(stepInput)
 				} else if (step.chunk.sourceType === MigrationStepType.SYSTEM) {
 					const migration = step.migrate as MigrateFunctionSystem
-					migration(getMigrationSystemContext(step.chunk), stepInput)
-				} else if (step.chunk.sourceType === MigrationStepType.STUDIO) {
-					const migration = step.migrate as MigrateFunctionStudio
-					migration(await getMigrationStudioContext(step.chunk), stepInput)
-				} else if (step.chunk.sourceType === MigrationStepType.SHOWSTYLE) {
-					const migration = step.migrate as MigrateFunctionShowStyle
-					migration(await getMigrationShowStyleContext(step.chunk), stepInput)
+					await migration(getMigrationSystemContext(step.chunk), stepInput)
 				} else throw new Meteor.Error(500, `Unknown step.chunk.sourceType "${step.chunk.sourceType}"`)
 			}
 
@@ -620,13 +502,7 @@ export async function runMigration(
 				validateMessage = await validate(true)
 			} else if (step.chunk.sourceType === MigrationStepType.SYSTEM) {
 				const validate = step.validate as ValidateFunctionSystem
-				validateMessage = validate(getMigrationSystemContext(step.chunk), true)
-			} else if (step.chunk.sourceType === MigrationStepType.STUDIO) {
-				const validate = step.validate as ValidateFunctionStudio
-				validateMessage = validate(await getMigrationStudioContext(step.chunk), true)
-			} else if (step.chunk.sourceType === MigrationStepType.SHOWSTYLE) {
-				const validate = step.validate as ValidateFunctionShowStyle
-				validateMessage = validate(await getMigrationShowStyleContext(step.chunk), true)
+				validateMessage = await validate(getMigrationSystemContext(step.chunk), true)
 			} else throw new Meteor.Error(500, `Unknown step.chunk.sourceType "${step.chunk.sourceType}"`)
 
 			// let validate = step.validate as ValidateFunctionCore
@@ -694,11 +570,7 @@ async function completeMigration(chunks: Array<MigrationChunk>) {
 	for (const chunk of chunks) {
 		if (chunk.sourceType === MigrationStepType.CORE) {
 			await setCoreSystemVersion(chunk._targetVersion)
-		} else if (
-			chunk.sourceType === MigrationStepType.STUDIO ||
-			chunk.sourceType === MigrationStepType.SHOWSTYLE ||
-			chunk.sourceType === MigrationStepType.SYSTEM
-		) {
+		} else if (chunk.sourceType === MigrationStepType.SYSTEM) {
 			if (!chunk.blueprintId) throw new Meteor.Error(500, `chunk.blueprintId missing!`)
 			if (!chunk.sourceId) throw new Meteor.Error(500, `chunk.sourceId missing!`)
 
@@ -711,20 +583,6 @@ async function completeMigration(chunks: Array<MigrationChunk>) {
 					`Updating Blueprint "${chunk.sourceName}" version, from "${blueprint.databaseVersion.system}" to "${chunk._targetVersion}".`
 				)
 				m[`databaseVersion.system`] = chunk._targetVersion
-			} else if (chunk.sourceType === MigrationStepType.STUDIO && chunk.sourceId !== 'system') {
-				logger.info(
-					`Updating Blueprint "${chunk.sourceName}" version, from "${
-						blueprint.databaseVersion.studio[unprotectString(chunk.sourceId)]
-					}" to "${chunk._targetVersion}".`
-				)
-				m[`databaseVersion.studio.${chunk.sourceId}`] = chunk._targetVersion
-			} else if (chunk.sourceType === MigrationStepType.SHOWSTYLE && chunk.sourceId !== 'system') {
-				logger.info(
-					`Updating Blueprint "${chunk.sourceName}" version, from "${
-						blueprint.databaseVersion.showStyle[unprotectString(chunk.sourceId)]
-					}" to "${chunk._targetVersion}".`
-				)
-				m[`databaseVersion.showStyle.${chunk.sourceId}`] = chunk._targetVersion
 			} else throw new Meteor.Error(500, `Bad chunk.sourcetype: "${chunk.sourceType}"`)
 
 			await Blueprints.updateAsync(chunk.blueprintId, { $set: m })
@@ -780,8 +638,6 @@ export async function resetDatabaseVersions(): Promise<void> {
 		{
 			$set: {
 				databaseVersion: {
-					studio: {},
-					showStyle: {},
 					system: '',
 				},
 			},
@@ -796,28 +652,4 @@ function getMigrationSystemContext(chunk: MigrationChunk): IMigrationContextSyst
 	if (!chunk.sourceId) throw new Meteor.Error(500, `chunk.sourceId missing`)
 
 	return new MigrationContextSystem()
-}
-async function getMigrationStudioContext(chunk: MigrationChunk): Promise<IMigrationContextStudio> {
-	if (chunk.sourceType !== MigrationStepType.STUDIO)
-		throw new Meteor.Error(500, `wrong chunk.sourceType "${chunk.sourceType}", expected STUDIO`)
-	if (!chunk.sourceId) throw new Meteor.Error(500, `chunk.sourceId missing`)
-	if (chunk.sourceId === 'system')
-		throw new Meteor.Error(500, `cunk.sourceId invalid in this context: ${chunk.sourceId}`)
-
-	const studio = await Studios.findOneAsync(chunk.sourceId as StudioId)
-	if (!studio) throw new Meteor.Error(404, `Studio "${chunk.sourceId}" not found`)
-
-	return new MigrationContextStudio(studio)
-}
-async function getMigrationShowStyleContext(chunk: MigrationChunk): Promise<IMigrationContextShowStyle> {
-	if (chunk.sourceType !== MigrationStepType.SHOWSTYLE)
-		throw new Meteor.Error(500, `wrong chunk.sourceType "${chunk.sourceType}", expected SHOWSTYLE`)
-	if (!chunk.sourceId) throw new Meteor.Error(500, `chunk.sourceId missing`)
-	if (chunk.sourceId === 'system')
-		throw new Meteor.Error(500, `cunk.sourceId invalid in this context: ${chunk.sourceId}`)
-
-	const showStyleBase = await ShowStyleBases.findOneAsync(chunk.sourceId as ShowStyleBaseId)
-	if (!showStyleBase) throw new Meteor.Error(404, `ShowStyleBase "${chunk.sourceId}" not found`)
-
-	return new MigrationContextShowStyle(showStyleBase)
 }

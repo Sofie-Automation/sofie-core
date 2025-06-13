@@ -1,5 +1,5 @@
 import * as _ from 'underscore'
-import { LogLevel, ProtectedString } from '../../lib/lib'
+import { LogLevel, ProtectedString } from '../../server/lib/tempLib'
 import { AsyncOnlyMongoCollection } from '../../server/collections/collection'
 import { getLogLevel, setLogLevel } from '../../server/logging'
 
@@ -24,7 +24,7 @@ const METHOD_NAMES = [
 	'remove',
 	'update',
 	'upsert',
-	'_ensureIndex',
+	'createIndex',
 	'findFetchAsync',
 	'findOneAsync',
 	'insertAsync',

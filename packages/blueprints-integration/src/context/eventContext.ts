@@ -2,6 +2,7 @@ import type { OnGenerateTimelineObj, TSR } from '../timeline'
 import type { IBlueprintPartInstance, IBlueprintPieceInstance, IBlueprintSegmentDB } from '../documents'
 import type { IRundownContext } from './rundownContext'
 import type { IBlueprintExternalMessageQueueObj } from '../message'
+import { BlueprintQuickLookInfo } from './quickLoopInfo'
 
 export interface IEventContext {
 	getCurrentTime(): number
@@ -11,6 +12,9 @@ export interface ITimelineEventContext extends IEventContext, IRundownContext {
 	readonly currentPartInstance: Readonly<IBlueprintPartInstance> | undefined
 	readonly nextPartInstance: Readonly<IBlueprintPartInstance> | undefined
 	readonly previousPartInstance: Readonly<IBlueprintPartInstance> | undefined
+
+	/** Information about the current loop, if there is one */
+	readonly quickLoopInfo: BlueprintQuickLookInfo | null
 
 	/**
 	 * Get the full session id for an ab playback session.

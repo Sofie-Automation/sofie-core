@@ -1,44 +1,47 @@
 import * as _ from 'underscore'
-import { check } from '../../lib/check'
+import { check } from '../lib/check'
 import { logger } from '../logging'
 import { registerClassToMeteorMethods } from '../methods'
-import { NewRundownAPI, RundownAPIMethods } from '../../lib/api/rundown'
+import { NewRundownAPI, RundownAPIMethods } from '@sofie-automation/meteor-lib/dist/api/rundown'
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { PackageInfo } from '../coreSystem'
 import { IngestActions } from './ingest/actions'
-import { ReloadRundownPlaylistResponse, TriggerReloadDataResponse } from '../../lib/api/userActions'
-import { MethodContextAPI, MethodContext } from '../../lib/api/methods'
-import { StudioContentWriteAccess } from '../security/studio'
+import {
+	ReloadRundownPlaylistResponse,
+	TriggerReloadDataResponse,
+} from '@sofie-automation/meteor-lib/dist/api/userActions'
+import { MethodContextAPI, MethodContext } from './methodContext'
 import { runIngestOperation } from './ingest/lib'
 import { IngestJobs } from '@sofie-automation/corelib/dist/worker/ingest'
-import { VerifiedRundownContentAccess, VerifiedRundownPlaylistContentAccess } from './lib'
+import { VerifiedRundownForUserAction, VerifiedRundownPlaylistForUserAction } from '../security/check'
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { Blueprints, Rundowns, ShowStyleBases, ShowStyleVariants, Studios } from '../collections'
+import { triggerWriteAccessBecauseNoCheckNecessary } from '../security/securityVerify'
 
 export namespace ServerRundownAPI {
 	/** Remove an individual rundown */
-	export async function removeRundown(access: VerifiedRundownContentAccess): Promise<void> {
-		await runIngestOperation(access.rundown.studioId, IngestJobs.UserRemoveRundown, {
-			rundownId: access.rundown._id,
+	export async function removeRundown(rundown: VerifiedRundownForUserAction): Promise<void> {
+		await runIngestOperation(rundown.studioId, IngestJobs.UserRemoveRundown, {
+			rundownId: rundown._id,
 			force: true,
 		})
 	}
 
-	export async function unsyncRundown(access: VerifiedRundownContentAccess): Promise<void> {
-		await runIngestOperation(access.rundown.studioId, IngestJobs.UserUnsyncRundown, {
-			rundownId: access.rundown._id,
+	export async function unsyncRundown(rundown: VerifiedRundownForUserAction): Promise<void> {
+		await runIngestOperation(rundown.studioId, IngestJobs.UserUnsyncRundown, {
+			rundownId: rundown._id,
 		})
 	}
 	/** Resync all rundowns in a rundownPlaylist */
 	export async function resyncRundownPlaylist(
-		access: VerifiedRundownPlaylistContentAccess
+		playlist: VerifiedRundownPlaylistForUserAction
 	): Promise<ReloadRundownPlaylistResponse> {
-		logger.info('resyncRundownPlaylist ' + access.playlist._id)
+		logger.info('resyncRundownPlaylist ' + playlist._id)
 
-		const rundowns = await Rundowns.findFetchAsync({ playlistId: access.playlist._id })
+		const rundowns = await Rundowns.findFetchAsync({ playlistId: playlist._id })
 		const responses = await Promise.all(
 			rundowns.map(async (rundown) => {
 				return {
@@ -53,23 +56,22 @@ export namespace ServerRundownAPI {
 		}
 	}
 
-	export async function resyncRundown(access: VerifiedRundownContentAccess): Promise<TriggerReloadDataResponse> {
-		return IngestActions.reloadRundown(access.rundown)
+	export async function resyncRundown(rundown: VerifiedRundownForUserAction): Promise<TriggerReloadDataResponse> {
+		return IngestActions.reloadRundown(rundown)
 	}
 }
 
 export namespace ClientRundownAPI {
 	export async function rundownPlaylistNeedsResync(
-		context: MethodContext,
+		_context: MethodContext,
 		playlistId: RundownPlaylistId
 	): Promise<string[]> {
 		check(playlistId, String)
-		const access = await StudioContentWriteAccess.rundownPlaylist(context, playlistId)
-		const playlist = access.playlist
+		triggerWriteAccessBecauseNoCheckNecessary()
 
 		const rundowns = await Rundowns.findFetchAsync(
 			{
-				playlistId: playlist._id,
+				playlistId: playlistId,
 			},
 			{
 				sort: { _id: 1 },

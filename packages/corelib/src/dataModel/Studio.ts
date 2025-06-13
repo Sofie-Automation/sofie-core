@@ -1,55 +1,35 @@
-import { BlueprintMapping, IBlueprintConfig, PackageContainer, TSR } from '@sofie-automation/blueprints-integration'
+import { IBlueprintConfig, TSR } from '@sofie-automation/blueprints-integration'
 import { ObjectWithOverrides } from '../settings/objectWithOverrides'
 import { StudioId, OrganizationId, BlueprintId, ShowStyleBaseId, MappingsHash, PeripheralDeviceId } from './Ids'
 import { BlueprintHash, LastBlueprintConfig } from './Blueprint'
 import { MappingsExt, MappingExt } from '@sofie-automation/shared-lib/dist/core/model/Timeline'
+import {
+	ResultingMappingRoute,
+	RouteMapping,
+	StudioRouteBehavior,
+	ResultingMappingRoutes,
+	StudioRouteSet,
+	StudioRouteSetExclusivityGroup,
+	StudioRouteType,
+	StudioAbPlayerDisabling,
+} from '@sofie-automation/shared-lib/dist/core/model/StudioRouteSet'
+import { StudioPackageContainer } from '@sofie-automation/shared-lib/dist/core/model/PackageContainer'
+import { IStudioSettings } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 
-export { MappingsExt, MappingExt, MappingsHash }
+export { MappingsExt, MappingExt, MappingsHash, IStudioSettings }
 
-export interface IStudioSettings {
-	/** The framerate (frames per second) used to convert internal timing information (in milliseconds)
-	 * into timecodes and timecode-like strings and interpret timecode user input
-	 * Default: 25
-	 */
-	frameRate: number
-
-	/** URL to endpoint where media preview are exposed */
-	mediaPreviewsUrl: string // (former media_previews_url in config)
-	/** URLs for slack webhook to send evaluations */
-	slackEvaluationUrls?: string // (former slack_evaluation in config)
-
-	/** Media Resolutions supported by the studio for media playback */
-	supportedMediaFormats?: string // (former mediaResolutions in config)
-	/** Audio Stream Formats supported by the studio for media playback */
-	supportedAudioStreams?: string // (former audioStreams in config)
-
-	/** Should the play from anywhere feature be enabled in this studio */
-	enablePlayFromAnywhere?: boolean
-
-	/**
-	 * If set, forces the multi-playout-gateway mode (aka set "now"-time right away)
-	 * for single playout-gateways setups
-	 */
-	forceMultiGatewayMode?: boolean
-
-	/** How much extra delay to add to the Now-time (used for the "multi-playout-gateway" feature) .
-	 * A higher value adds delays in playout, but reduces the risk of missed frames. */
-	multiGatewayNowSafeLatency?: number
-
-	/** Allow resets while a rundown is on-air */
-	allowRundownResetOnAir?: boolean
-
-	/** Preserve unsynced segments psoition in the rundown, relative to the other segments */
-	preserveOrphanedSegmentPositionInRundown?: boolean
-
-	/**
-	 * The minimum amount of time, in milliseconds, that must pass after a take before another take may be performed.
-	 * Default: 1000
-	 */
-	minimumTakeSpan: number
-
-	/** Whether to allow adlib testing mode, before a Part is playing in a Playlist */
-	allowAdlibTestingSegment?: boolean
+// RouteSet functions has been moved to shared-lib:
+// So we need to re-export them here:
+export {
+	StudioRouteSetExclusivityGroup,
+	ResultingMappingRoute,
+	RouteMapping,
+	StudioRouteBehavior,
+	ResultingMappingRoutes,
+	StudioRouteSet,
+	StudioRouteType,
+	StudioAbPlayerDisabling,
+	StudioPackageContainer,
 }
 
 export type StudioLight = Omit<DBStudio, 'mappingsWithOverrides' | 'blueprintConfigWithOverrides'>
@@ -84,17 +64,17 @@ export interface DBStudio {
 	/** Config values are used by the Blueprints */
 	blueprintConfigWithOverrides: ObjectWithOverrides<IBlueprintConfig>
 
-	settings: IStudioSettings
+	settingsWithOverrides: ObjectWithOverrides<IStudioSettings>
 
 	_rundownVersionHash: string
 
-	routeSets: Record<string, StudioRouteSet>
-	routeSetExclusivityGroups: Record<string, StudioRouteSetExclusivityGroup>
+	routeSetsWithOverrides: ObjectWithOverrides<Record<string, StudioRouteSet>>
+	routeSetExclusivityGroupsWithOverrides: ObjectWithOverrides<Record<string, StudioRouteSetExclusivityGroup>>
 
 	/** Contains settings for which Package Containers are present in the studio.
 	 * (These are used by the Package Manager and the Expected Packages)
 	 */
-	packageContainers: Record<string, StudioPackageContainer>
+	packageContainersWithOverrides: ObjectWithOverrides<Record<string, StudioPackageContainer>>
 
 	/** Which package containers is used for media previews in GUI */
 	previewContainerIds: string[]
@@ -109,6 +89,9 @@ export interface DBStudio {
 }
 
 export interface StudioPeripheralDeviceSettings {
+	/** Settings for gateway parent-devices */
+	deviceSettings: ObjectWithOverrides<Record<string, StudioDeviceSettings>>
+
 	/** Playout gateway sub-devices */
 	playoutDevices: ObjectWithOverrides<Record<string, StudioPlayoutDevice>>
 
@@ -149,57 +132,11 @@ export interface StudioPlayoutDevice {
 	options: TSR.DeviceOptionsAny
 }
 
-export interface StudioPackageContainer {
-	/** List of which peripheraldevices uses this packageContainer */
-	deviceIds: string[]
-	container: PackageContainer
-}
-export interface StudioRouteSetExclusivityGroup {
+export interface StudioDeviceSettings {
+	/**
+	 * User friendly name for the device
+	 */
 	name: string
-}
 
-export interface StudioRouteSet {
-	/** User-presentable name */
-	name: string
-	/** Whether this group is active or not */
-	active: boolean
-	/** Default state of this group */
-	defaultActive?: boolean
-	/** Only one Route can be active at the same time in the exclusivity-group */
-	exclusivityGroup?: string
-	/** If true, should be displayed and toggleable by user */
-	behavior: StudioRouteBehavior
-
-	routes: RouteMapping[]
-}
-export enum StudioRouteBehavior {
-	HIDDEN = 0,
-	TOGGLE = 1,
-	ACTIVATE_ONLY = 2,
-}
-
-export enum StudioRouteType {
-	/** Default */
-	REROUTE = 0,
-	/** Replace all properties with a new mapping */
-	REMAP = 1,
-}
-
-export interface RouteMapping extends ResultingMappingRoute {
-	/** Which original layer to route. If false, a "new" layer will be inserted during routing */
-	mappedLayer: string | undefined
-}
-export interface ResultingMappingRoutes {
-	/** Routes that route existing layers */
-	existing: {
-		[mappedLayer: string]: ResultingMappingRoute[]
-	}
-	/** Routes that create new layers, from nothing */
-	inserted: ResultingMappingRoute[]
-}
-export interface ResultingMappingRoute {
-	outputMappedLayer: string
-	deviceType?: TSR.DeviceType
-	remapping?: Partial<BlueprintMapping>
-	routeType: StudioRouteType
+	options: unknown
 }

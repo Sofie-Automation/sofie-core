@@ -1,6 +1,9 @@
 import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { ExecutableAction, ReactivePlaylistActionContext } from '../../../lib/api/triggers/actionFactory'
-import { DeviceActionId } from '../../../lib/api/triggers/MountedTriggers'
+import {
+	ExecutableAction,
+	ReactivePlaylistActionContext,
+} from '@sofie-automation/meteor-lib/dist/triggers/actionFactory'
+import { DeviceActionId } from '@sofie-automation/meteor-lib/dist/api/MountedTriggers'
 
 /**
  * `StudioActionManager` allows to store the current, runtime ReactivePlaylistActionContext for a given studio

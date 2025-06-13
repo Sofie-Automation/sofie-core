@@ -3,6 +3,38 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.52.0-in-testing.1](https://github.com/Sofie-Automation/sofie-core/compare/v1.51.7...v1.52.0-in-testing.1) (2025-06-05)
+
+
+### Bug Fixes
+
+* change owner of application files, run as non-root user, linting ([2de99a2](https://github.com/Sofie-Automation/sofie-core/commit/2de99a2226edb0c8c0bdc92d823e072957a108e1))
+* **EAV-524:** stringify error in executeAction ([b2d584e](https://github.com/Sofie-Automation/sofie-core/commit/b2d584ef018dfaf60e342a11bef02c12cb9633b2))
+* update TSR dependency, to update the timeline library to 9.0.3 to resolve [#1395](https://github.com/Sofie-Automation/sofie-core/issues/1395) ([a757a66](https://github.com/Sofie-Automation/sofie-core/commit/a757a66882a4dc7bcc35a5747d1a7cd09b3e6c09))
+
+
+
+# [1.52.0-in-testing.0](https://github.com/Sofie-Automation/sofie-core/compare/v1.51.6...v1.52.0-in-testing.0) (2025-02-04)
+
+
+### Features
+
+* meteor 3.0.4 ([8670727](https://github.com/Sofie-Automation/sofie-core/commit/8670727bba5ac9cffe0e5d36b4bd45d6664482be))
+* modify datastore in `onRundownActivate` SOFIE-3310 ([#1240](https://github.com/Sofie-Automation/sofie-core/issues/1240)) ([8a0759f](https://github.com/Sofie-Automation/sofie-core/commit/8a0759f610497e37493e8a798aa0dd13f4f57119))
+* update meteor to 3.1 and node to 22 ([61b6854](https://github.com/Sofie-Automation/sofie-core/commit/61b6854261a03f04e81416b9d37ee995e3a10108))
+
+
+
+
+
+# [1.52.0-in-testing.0](https://github.com/nrkno/sofie-core/compare/v1.51.6...v1.52.0-in-testing.0) (2025-02-04)
+
+
+### Features
+
+* meteor 3.0.4 ([8670727](https://github.com/nrkno/sofie-core/commit/8670727bba5ac9cffe0e5d36b4bd45d6664482be))
+* modify datastore in `onRundownActivate` SOFIE-3310 ([#1240](https://github.com/nrkno/sofie-core/issues/1240)) ([8a0759f](https://github.com/nrkno/sofie-core/commit/8a0759f610497e37493e8a798aa0dd13f4f57119))
+* update meteor to 3.1 and node to 22 ([61b6854](https://github.com/nrkno/sofie-core/commit/61b6854261a03f04e81416b9d37ee995e3a10108))
 ## [1.51.7](https://github.com/nrkno/sofie-core/compare/v1.51.6...v1.51.7) (2025-05-06)
 
 

@@ -1,22 +1,33 @@
 import {
 	BlueprintManifestType,
 	IBlueprintConfig,
+	IConfigMessage,
 	IOutputLayer,
 	ISourceLayer,
+	ShowStyleBlueprintManifest,
 	SourceLayerType,
 	StatusCode,
+	StudioBlueprintManifest,
 } from '@sofie-automation/blueprints-integration'
 import { PeripheralDevice, PeripheralDeviceType } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
-import { BucketId, ShowStyleBaseId, ShowStyleVariantId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import {
+	BlueprintId,
+	BucketId,
+	ShowStyleBaseId,
+	ShowStyleVariantId,
+	StudioId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBStudio, IStudioSettings } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { assertNever, getRandomId, literal } from '@sofie-automation/corelib/dist/lib'
+import { assertNever, Complete, getRandomId, literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import {
 	applyAndValidateOverrides,
 	ObjectOverrideSetOp,
 	wrapDefaultObject,
 	updateOverrides,
+	convertObjectIntoOverrides,
+	ObjectWithOverrides,
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import {
 	APIBlueprint,
@@ -29,12 +40,23 @@ import {
 	APISourceLayer,
 	APIStudio,
 	APIStudioSettings,
-} from '../../../../lib/api/rest/v1'
+	APIPlaylistSnapshotOptions,
+	APISystemSnapshotOptions,
+} from '../../../lib/rest/v1'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
 import { Blueprints, ShowStyleBases, Studios } from '../../../collections'
-import { DEFAULT_MINIMUM_TAKE_SPAN } from '@sofie-automation/shared-lib/dist/core/constants'
-import { Bucket } from '../../../../lib/collections/Buckets'
+import { Meteor } from 'meteor/meteor'
+import { evalBlueprint } from '../../blueprints/cache'
+import { CommonContext } from '../../../migration/upgrades/context'
+import { logger } from '../../../logging'
+import {
+	DEFAULT_MINIMUM_TAKE_SPAN,
+	DEFAULT_FALLBACK_PART_DURATION,
+} from '@sofie-automation/shared-lib/dist/core/constants'
+import { Bucket } from '@sofie-automation/meteor-lib/dist/collections/Buckets'
+import { ForceQuickLoopAutoNext } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
+import { PlaylistSnapshotOptions, SystemSnapshotOptions } from '@sofie-automation/meteor-lib/dist/api/shapshot'
 
 /*
 This file contains functions that convert between the internal Sofie-Core types and types exposed to the external API.
@@ -68,9 +90,20 @@ export async function showStyleBaseFrom(
 		? updateOverrides(showStyleBase.sourceLayersWithOverrides, newSourceLayers)
 		: wrapDefaultObject({})
 
-	const blueprintConfig = showStyleBase
-		? updateOverrides(showStyleBase.blueprintConfigWithOverrides, apiShowStyleBase.config as IBlueprintConfig)
-		: wrapDefaultObject({})
+	const blueprintManifest = evalBlueprint(blueprint) as ShowStyleBlueprintManifest
+	let blueprintConfig: ObjectWithOverrides<IBlueprintConfig>
+	if (typeof blueprintManifest.blueprintConfigFromAPI !== 'function') {
+		blueprintConfig = showStyleBase
+			? updateOverrides(showStyleBase.blueprintConfigWithOverrides, apiShowStyleBase.config as IBlueprintConfig)
+			: wrapDefaultObject({})
+	} else {
+		blueprintConfig = showStyleBase
+			? updateOverrides(
+					showStyleBase.blueprintConfigWithOverrides,
+					await ShowStyleBaseBlueprintConfigFromAPI(apiShowStyleBase, blueprintManifest)
+			  )
+			: convertObjectIntoOverrides(await ShowStyleBaseBlueprintConfigFromAPI(apiShowStyleBase, blueprintManifest))
+	}
 
 	return {
 		_id: existingId ?? getRandomId(),
@@ -87,7 +120,7 @@ export async function showStyleBaseFrom(
 	}
 }
 
-export function APIShowStyleBaseFrom(showStyleBase: DBShowStyleBase): APIShowStyleBase {
+export async function APIShowStyleBaseFrom(showStyleBase: DBShowStyleBase): Promise<APIShowStyleBase> {
 	return {
 		name: showStyleBase.name,
 		blueprintId: unprotectString(showStyleBase.blueprintId),
@@ -98,7 +131,7 @@ export function APIShowStyleBaseFrom(showStyleBase: DBShowStyleBase): APIShowSty
 		sourceLayers: Object.values<ISourceLayer | undefined>(
 			applyAndValidateOverrides(showStyleBase.sourceLayersWithOverrides).obj
 		).map((layer) => APISourceLayerFrom(layer!)),
-		config: applyAndValidateOverrides(showStyleBase.blueprintConfigWithOverrides).obj,
+		config: await APIShowStyleBlueprintConfigFrom(showStyleBase, showStyleBase.blueprintId),
 	}
 }
 
@@ -124,12 +157,16 @@ export function showStyleVariantFrom(
 	}
 }
 
-export function APIShowStyleVariantFrom(showStyleVariant: DBShowStyleVariant): APIShowStyleVariant {
+export async function APIShowStyleVariantFrom(
+	showStyleBase: DBShowStyleBase,
+	showStyleVariant: DBShowStyleVariant
+): Promise<APIShowStyleVariant> {
 	return {
 		name: showStyleVariant.name,
 		rank: showStyleVariant._rank,
 		showStyleBaseId: unprotectString(showStyleVariant.showStyleBaseId),
-		config: applyAndValidateOverrides(showStyleVariant.blueprintConfigWithOverrides).obj,
+		blueprintConfigPresetId: showStyleVariant.blueprintConfigPresetId,
+		config: await APIShowStyleBlueprintConfigFrom(showStyleVariant, showStyleBase.blueprintId),
 	}
 }
 
@@ -166,6 +203,9 @@ export function sourceLayerFrom(apiSourceLayer: APISourceLayer): ISourceLayer {
 		case 'transition':
 			layerType = SourceLayerType.TRANSITION
 			break
+		case 'lights':
+			layerType = SourceLayerType.LIGHTS
+			break
 		case 'unknown':
 			layerType = SourceLayerType.UNKNOWN
 			break
@@ -174,6 +214,9 @@ export function sourceLayerFrom(apiSourceLayer: APISourceLayer): ISourceLayer {
 			break
 		case 'studio-screen':
 			layerType = SourceLayerType.STUDIO_SCREEN
+			break
+		case 'remote-speak':
+			layerType = SourceLayerType.REMOTE_SPEAK
 			break
 		default:
 			layerType = SourceLayerType.UNKNOWN
@@ -223,6 +266,9 @@ export function APISourceLayerFrom(sourceLayer: ISourceLayer): APISourceLayer {
 		case SourceLayerType.TRANSITION:
 			layerType = 'transition'
 			break
+		case SourceLayerType.LIGHTS:
+			layerType = 'lights'
+			break
 		case SourceLayerType.UNKNOWN:
 			layerType = 'unknown'
 			break
@@ -231,6 +277,9 @@ export function APISourceLayerFrom(sourceLayer: ISourceLayer): APISourceLayer {
 			break
 		case SourceLayerType.STUDIO_SCREEN:
 			layerType = 'studio-screen'
+			break
+		case SourceLayerType.REMOTE_SPEAK:
+			layerType = 'remote-speak'
 			break
 		default:
 			layerType = 'unknown'
@@ -251,16 +300,29 @@ export async function studioFrom(apiStudio: APIStudio, existingId?: StudioId): P
 	let blueprint: Blueprint | undefined
 	if (apiStudio.blueprintId) {
 		blueprint = await Blueprints.findOneAsync(protectString(apiStudio.blueprintId))
-		if (!blueprint) return undefined
-		if (blueprint.blueprintType !== BlueprintManifestType.STUDIO) return undefined
+		if (blueprint?.blueprintType !== BlueprintManifestType.STUDIO) return undefined
 	}
+	if (!blueprint) return undefined
 
 	let studio: DBStudio | undefined
 	if (existingId) studio = await Studios.findOneAsync(existingId)
 
-	const blueprintConfig = studio
-		? updateOverrides(studio.blueprintConfigWithOverrides, apiStudio.config as IBlueprintConfig)
-		: wrapDefaultObject({})
+	const blueprintManifest = evalBlueprint(blueprint) as StudioBlueprintManifest
+	let blueprintConfig: ObjectWithOverrides<IBlueprintConfig>
+	if (typeof blueprintManifest.blueprintConfigFromAPI !== 'function') {
+		blueprintConfig = studio
+			? updateOverrides(studio.blueprintConfigWithOverrides, apiStudio.config as IBlueprintConfig)
+			: wrapDefaultObject({})
+	} else {
+		blueprintConfig = studio
+			? updateOverrides(
+					studio.blueprintConfigWithOverrides,
+					await StudioBlueprintConfigFromAPI(apiStudio, blueprintManifest)
+			  )
+			: convertObjectIntoOverrides(await StudioBlueprintConfigFromAPI(apiStudio, blueprintManifest))
+	}
+
+	const studioSettings = studioSettingsFrom(apiStudio.settings)
 
 	return {
 		_id: existingId ?? getRandomId(),
@@ -268,17 +330,20 @@ export async function studioFrom(apiStudio: APIStudio, existingId?: StudioId): P
 		blueprintId: blueprint?._id,
 		blueprintConfigPresetId: apiStudio.blueprintConfigPresetId,
 		blueprintConfigWithOverrides: blueprintConfig,
-		settings: studioSettingsFrom(apiStudio.settings),
+		settingsWithOverrides: studio
+			? updateOverrides(studio.settingsWithOverrides, studioSettings)
+			: wrapDefaultObject(studioSettings),
 		supportedShowStyleBase: apiStudio.supportedShowStyleBase?.map((id) => protectString<ShowStyleBaseId>(id)) ?? [],
 		organizationId: null,
 		mappingsWithOverrides: wrapDefaultObject({}),
-		routeSets: {},
+		routeSetsWithOverrides: wrapDefaultObject({}),
 		_rundownVersionHash: '',
-		routeSetExclusivityGroups: {},
-		packageContainers: {},
+		routeSetExclusivityGroupsWithOverrides: wrapDefaultObject({}),
+		packageContainersWithOverrides: wrapDefaultObject({}),
 		previewContainerIds: [],
 		thumbnailContainerIds: [],
 		peripheralDeviceSettings: {
+			deviceSettings: wrapDefaultObject({}),
 			playoutDevices: wrapDefaultObject({}),
 			ingestDevices: wrapDefaultObject({}),
 			inputDevices: wrapDefaultObject({}),
@@ -288,20 +353,20 @@ export async function studioFrom(apiStudio: APIStudio, existingId?: StudioId): P
 	}
 }
 
-export function APIStudioFrom(studio: DBStudio): APIStudio {
-	const studioSettings = APIStudioSettingsFrom(studio.settings)
+export async function APIStudioFrom(studio: DBStudio): Promise<Complete<APIStudio>> {
+	const studioSettings = APIStudioSettingsFrom(applyAndValidateOverrides(studio.settingsWithOverrides).obj)
 
 	return {
 		name: studio.name,
 		blueprintId: unprotectString(studio.blueprintId),
 		blueprintConfigPresetId: studio.blueprintConfigPresetId,
-		config: applyAndValidateOverrides(studio.blueprintConfigWithOverrides).obj,
+		config: await APIStudioBlueprintConfigFrom(studio),
 		settings: studioSettings,
 		supportedShowStyleBase: studio.supportedShowStyleBase.map((id) => unprotectString(id)),
 	}
 }
 
-export function studioSettingsFrom(apiStudioSettings: APIStudioSettings): IStudioSettings {
+export function studioSettingsFrom(apiStudioSettings: APIStudioSettings): Complete<IStudioSettings> {
 	return {
 		frameRate: apiStudioSettings.frameRate,
 		mediaPreviewsUrl: apiStudioSettings.mediaPreviewsUrl,
@@ -314,10 +379,19 @@ export function studioSettingsFrom(apiStudioSettings: APIStudioSettings): IStudi
 		allowRundownResetOnAir: apiStudioSettings.allowRundownResetOnAir,
 		preserveOrphanedSegmentPositionInRundown: apiStudioSettings.preserveOrphanedSegmentPositionInRundown,
 		minimumTakeSpan: apiStudioSettings.minimumTakeSpan ?? DEFAULT_MINIMUM_TAKE_SPAN,
+		enableQuickLoop: apiStudioSettings.enableQuickLoop,
+		forceQuickLoopAutoNext: forceQuickLoopAutoNextFrom(apiStudioSettings.forceQuickLoopAutoNext),
+		fallbackPartDuration: apiStudioSettings.fallbackPartDuration ?? DEFAULT_FALLBACK_PART_DURATION,
+		enableUserEdits: apiStudioSettings.enableUserEdits,
+		allowAdlibTestingSegment: apiStudioSettings.allowAdlibTestingSegment,
+		allowHold: apiStudioSettings.allowHold ?? true, // Backwards compatible
+		allowPieceDirectPlay: apiStudioSettings.allowPieceDirectPlay ?? true, // Backwards compatible
+		enableBuckets: apiStudioSettings.enableBuckets ?? true, // Backwards compatible
+		enableEvaluationForm: apiStudioSettings.enableEvaluationForm ?? true, // Backwards compatible
 	}
 }
 
-export function APIStudioSettingsFrom(settings: IStudioSettings): APIStudioSettings {
+export function APIStudioSettingsFrom(settings: IStudioSettings): Complete<APIStudioSettings> {
 	return {
 		frameRate: settings.frameRate,
 		mediaPreviewsUrl: settings.mediaPreviewsUrl,
@@ -330,6 +404,48 @@ export function APIStudioSettingsFrom(settings: IStudioSettings): APIStudioSetti
 		allowRundownResetOnAir: settings.allowRundownResetOnAir,
 		preserveOrphanedSegmentPositionInRundown: settings.preserveOrphanedSegmentPositionInRundown,
 		minimumTakeSpan: settings.minimumTakeSpan,
+		enableQuickLoop: settings.enableQuickLoop,
+		forceQuickLoopAutoNext: APIForceQuickLoopAutoNextFrom(settings.forceQuickLoopAutoNext),
+		fallbackPartDuration: settings.fallbackPartDuration,
+		enableUserEdits: settings.enableUserEdits,
+		allowAdlibTestingSegment: settings.allowAdlibTestingSegment,
+		allowHold: settings.allowHold,
+		allowPieceDirectPlay: settings.allowPieceDirectPlay,
+		enableBuckets: settings.enableBuckets,
+		enableEvaluationForm: settings.enableEvaluationForm,
+	}
+}
+
+export function forceQuickLoopAutoNextFrom(
+	forceQuickLoopAutoNext: APIStudioSettings['forceQuickLoopAutoNext']
+): ForceQuickLoopAutoNext | undefined {
+	if (!forceQuickLoopAutoNext) return undefined
+	switch (forceQuickLoopAutoNext) {
+		case 'disabled':
+			return ForceQuickLoopAutoNext.DISABLED
+		case 'enabled_forcing_min_duration':
+			return ForceQuickLoopAutoNext.ENABLED_FORCING_MIN_DURATION
+		case 'enabled_when_valid_duration':
+			return ForceQuickLoopAutoNext.ENABLED_WHEN_VALID_DURATION
+		default:
+			assertNever(forceQuickLoopAutoNext)
+			return undefined
+	}
+}
+
+export function APIForceQuickLoopAutoNextFrom(
+	forceQuickLoopAutoNext: ForceQuickLoopAutoNext | undefined
+): APIStudioSettings['forceQuickLoopAutoNext'] {
+	if (!forceQuickLoopAutoNext) return undefined
+	switch (forceQuickLoopAutoNext) {
+		case ForceQuickLoopAutoNext.DISABLED:
+			return 'disabled'
+		case ForceQuickLoopAutoNext.ENABLED_FORCING_MIN_DURATION:
+			return 'enabled_forcing_min_duration'
+		case ForceQuickLoopAutoNext.ENABLED_WHEN_VALID_DURATION:
+			return 'enabled_when_valid_duration'
+		default:
+			assertNever(forceQuickLoopAutoNext)
 	}
 }
 
@@ -418,6 +534,157 @@ export function APIOutputLayerFrom(outputLayer: IOutputLayer): APIOutputLayer {
 	}
 }
 
+async function getBlueprint(
+	blueprintId: BlueprintId | undefined,
+	blueprintType: BlueprintManifestType
+): Promise<Blueprint> {
+	const blueprint = blueprintId
+		? await Blueprints.findOneAsync({
+				_id: blueprintId,
+				blueprintType,
+		  })
+		: undefined
+	if (!blueprint) throw new Meteor.Error(404, `Blueprint "${blueprintId}" not found!`)
+
+	if (!blueprint.blueprintHash) throw new Meteor.Error(500, 'Blueprint is not valid')
+
+	return blueprint
+}
+
+export async function validateAPIBlueprintConfigForShowStyle(
+	apiShowStyle: APIShowStyleBase | APIShowStyleVariant,
+	blueprintId: BlueprintId
+): Promise<Array<IConfigMessage>> {
+	if (!apiShowStyle.blueprintConfigPresetId) {
+		logger.warn(`ShowStyle ${apiShowStyle.name} is missing config preset`)
+		return []
+	}
+	const blueprint = await getBlueprint(blueprintId, BlueprintManifestType.SHOWSTYLE)
+	const blueprintManifest = evalBlueprint(blueprint) as ShowStyleBlueprintManifest
+
+	if (typeof blueprintManifest.validateConfigFromAPI !== 'function') {
+		logger.info(`Blueprint ${blueprintManifest.blueprintId} does not support Config validation`)
+		return []
+	}
+
+	const blueprintContext = new CommonContext(
+		'validateAPIBlueprintConfig',
+		`showStyle:${apiShowStyle.name},blueprint:${blueprint._id}`
+	)
+
+	return blueprintManifest.validateConfigFromAPI(blueprintContext, apiShowStyle.config)
+}
+
+export async function ShowStyleBaseBlueprintConfigFromAPI(
+	apiShowStyleBase: APIShowStyleBase,
+	blueprintManifest: ShowStyleBlueprintManifest
+): Promise<IBlueprintConfig> {
+	if (!apiShowStyleBase.blueprintConfigPresetId) {
+		logger.warn(`ShowStyleBase ${apiShowStyleBase.name} is missing config preset`)
+		return apiShowStyleBase.config as IBlueprintConfig
+	}
+
+	if (typeof blueprintManifest.blueprintConfigFromAPI !== 'function') {
+		return apiShowStyleBase.config as IBlueprintConfig
+	}
+
+	const blueprintContext = new CommonContext(
+		'BlueprintConfigFromAPI',
+		`showStyleBase:${apiShowStyleBase.name},blueprint:${blueprintManifest.blueprintId}`
+	)
+
+	return blueprintManifest.blueprintConfigFromAPI(blueprintContext, apiShowStyleBase.config)
+}
+
+export async function APIShowStyleBlueprintConfigFrom(
+	showStyle: DBShowStyleBase | DBShowStyleVariant,
+	blueprintId: BlueprintId
+): Promise<object> {
+	if (!showStyle.blueprintConfigPresetId) {
+		logger.warn(`ShowStyle ${showStyle._id} is missing config preset`)
+		return applyAndValidateOverrides(showStyle.blueprintConfigWithOverrides).obj
+	}
+	const blueprint = await getBlueprint(blueprintId, BlueprintManifestType.SHOWSTYLE)
+	const blueprintManifest = evalBlueprint(blueprint) as ShowStyleBlueprintManifest
+
+	if (typeof blueprintManifest.blueprintConfigToAPI !== 'function')
+		return applyAndValidateOverrides(showStyle.blueprintConfigWithOverrides).obj
+
+	const blueprintContext = new CommonContext(
+		'APIShowStyleBlueprintConfigFrom',
+		`showStyleBase:${showStyle._id},blueprint:${blueprint._id}`
+	)
+
+	return blueprintManifest.blueprintConfigToAPI(
+		blueprintContext,
+		applyAndValidateOverrides(showStyle.blueprintConfigWithOverrides).obj
+	)
+}
+
+export async function validateAPIBlueprintConfigForStudio(apiStudio: APIStudio): Promise<Array<IConfigMessage>> {
+	if (!apiStudio.blueprintConfigPresetId) {
+		logger.warn(`Studio ${apiStudio.name} is missing config preset`)
+		return []
+	}
+	const blueprint = await getBlueprint(protectString(apiStudio.blueprintId), BlueprintManifestType.STUDIO)
+	const blueprintManifest = evalBlueprint(blueprint) as StudioBlueprintManifest
+
+	if (typeof blueprintManifest.validateConfigFromAPI !== 'function') {
+		logger.info(`Blueprint ${blueprintManifest.blueprintId} does not support Config validation`)
+		return []
+	}
+
+	const blueprintContext = new CommonContext(
+		'validateAPIBlueprintConfig',
+		`studio:${apiStudio.name},blueprint:${blueprint._id}`
+	)
+
+	return blueprintManifest.validateConfigFromAPI(blueprintContext, apiStudio.config)
+}
+
+export async function StudioBlueprintConfigFromAPI(
+	apiStudio: APIStudio,
+	blueprintManifest: StudioBlueprintManifest
+): Promise<IBlueprintConfig> {
+	if (!apiStudio.blueprintConfigPresetId) {
+		logger.warn(`Studio ${apiStudio.name} is missing config preset`)
+		return apiStudio.config as IBlueprintConfig
+	}
+
+	if (typeof blueprintManifest.blueprintConfigFromAPI !== 'function') {
+		return apiStudio.config as IBlueprintConfig
+	}
+
+	const blueprintContext = new CommonContext(
+		'BlueprintConfigFromAPI',
+		`studio:${apiStudio.name},blueprint:${blueprintManifest.blueprintId}`
+	)
+
+	return blueprintManifest.blueprintConfigFromAPI(blueprintContext, apiStudio.config)
+}
+
+export async function APIStudioBlueprintConfigFrom(studio: DBStudio): Promise<object> {
+	if (!studio.blueprintConfigPresetId) {
+		logger.warn(`Studio ${studio._id} is missing config preset`)
+		return applyAndValidateOverrides(studio.blueprintConfigWithOverrides).obj
+	}
+	const blueprint = await getBlueprint(studio.blueprintId, BlueprintManifestType.STUDIO)
+	const blueprintManifest = evalBlueprint(blueprint) as StudioBlueprintManifest
+
+	if (typeof blueprintManifest.blueprintConfigToAPI !== 'function')
+		return applyAndValidateOverrides(studio.blueprintConfigWithOverrides).obj
+
+	const blueprintContext = new CommonContext(
+		'APIStudioBlueprintConfigFrom',
+		`studio:${studio.name},blueprint:${blueprint._id}`
+	)
+
+	return blueprintManifest.blueprintConfigToAPI(
+		blueprintContext,
+		applyAndValidateOverrides(studio.blueprintConfigWithOverrides).obj
+	)
+}
+
 export function bucketFrom(apiBucket: APIBucket, existingId?: BucketId): Bucket {
 	return {
 		_id: existingId ?? getRandomId(),
@@ -435,5 +702,20 @@ export function APIBucketFrom(bucket: Bucket): APIBucketComplete {
 		id: unprotectString(bucket._id),
 		name: bucket.name,
 		studioId: unprotectString(bucket.studioId),
+	}
+}
+
+export function systemSnapshotOptionsFrom(options: APISystemSnapshotOptions): SystemSnapshotOptions {
+	return {
+		withDeviceSnapshots: !!options.withDeviceSnapshots,
+		studioId: typeof options.studioId === 'string' ? protectString(options.studioId) : undefined,
+	}
+}
+
+export function playlistSnapshotOptionsFrom(options: APIPlaylistSnapshotOptions): PlaylistSnapshotOptions {
+	return {
+		withDeviceSnapshots: !!options.withDeviceSnapshots,
+		withArchivedDocuments: !!options.withArchivedDocuments,
+		withTimeline: !!options.withTimeline,
 	}
 }

@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor'
 import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { TriggerReloadDataResponse } from '../../../../lib/api/userActions'
+import { TriggerReloadDataResponse } from '@sofie-automation/meteor-lib/dist/api/userActions'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { logger } from '../../../logging'
 import * as _ from 'underscore'

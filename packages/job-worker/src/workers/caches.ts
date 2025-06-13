@@ -15,8 +15,9 @@ import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { clone, deepFreeze } from '@sofie-automation/corelib/dist/lib'
 import { logger } from '../logging'
 import deepmerge = require('deepmerge')
-import { ProcessedShowStyleBase, ProcessedShowStyleVariant, StudioCacheContext } from '../jobs'
-import { StudioCacheContextImpl } from './context'
+import { JobStudio, ProcessedShowStyleBase, ProcessedShowStyleVariant, StudioCacheContext } from '../jobs'
+import { StudioCacheContextImpl } from './context/StudioCacheContextImpl'
+import { convertStudioToJobStudio } from '../jobs/studio'
 
 /**
  * A Wrapper to maintain a cache and provide a context using the cache when appropriate
@@ -43,7 +44,7 @@ export class WorkerDataCacheWrapperImpl implements WorkerDataCacheWrapper {
 	 * The StudioId the cache is maintained for
 	 */
 	get studioId(): StudioId {
-		return this.#dataCache.studio._id
+		return this.#dataCache.rawStudio._id
 	}
 
 	constructor(collections: IDirectCollections, dataCache: WorkerDataCache) {
@@ -99,7 +100,16 @@ export class WorkerDataCacheWrapperImpl implements WorkerDataCacheWrapper {
  * This is a reusable cache of these properties
  */
 export interface WorkerDataCache {
-	studio: ReadonlyDeep<DBStudio>
+	/**
+	 * The Studio the cache belongs to
+	 * This has any ObjectWithOverrides in their original form
+	 */
+	rawStudio: ReadonlyDeep<DBStudio>
+	/**
+	 * The Studio the cache belongs to.
+	 * This has any ObjectWithOverrides in their computed/flattened form
+	 */
+	jobStudio: ReadonlyDeep<JobStudio>
 	studioBlueprint: ReadonlyDeep<WrappedStudioBlueprint>
 	studioBlueprintConfig: ProcessedStudioConfig | undefined
 
@@ -133,12 +143,16 @@ export async function loadWorkerDataCache(
 	studioId: StudioId
 ): Promise<WorkerDataCache> {
 	// Load some 'static' data from the db
-	const studio = deepFreeze(await collections.Studios.findOne(studioId))
-	if (!studio) throw new Error('Missing studio')
+	const dbStudio = await collections.Studios.findOne(studioId)
+	if (!dbStudio) throw new Error('Missing studio')
+	const studio = deepFreeze(dbStudio)
 	const studioBlueprint = await loadStudioBlueprintOrPlaceholder(collections, studio)
 
+	const jobStudio = deepFreeze(convertStudioToJobStudio(dbStudio))
+
 	return {
-		studio,
+		rawStudio: studio,
+		jobStudio: jobStudio,
 		studioBlueprint,
 		studioBlueprintConfig: undefined,
 
@@ -157,11 +171,12 @@ export async function invalidateWorkerDataCache(
 	if (data.forceAll) {
 		// Clear everything!
 
-		const newStudio = await collections.Studios.findOne(cache.studio._id)
+		const newStudio = await collections.Studios.findOne(cache.rawStudio._id)
 		if (!newStudio) throw new Error(`Studio is missing during cache invalidation!`)
-		cache.studio = deepFreeze(newStudio)
+		cache.rawStudio = deepFreeze(newStudio)
+		cache.jobStudio = deepFreeze(convertStudioToJobStudio(newStudio))
 
-		cache.studioBlueprint = await loadStudioBlueprintOrPlaceholder(collections, cache.studio)
+		cache.studioBlueprint = await loadStudioBlueprintOrPlaceholder(collections, cache.rawStudio)
 		cache.studioBlueprintConfig = undefined
 
 		cache.showStyleBases.clear()
@@ -176,25 +191,26 @@ export async function invalidateWorkerDataCache(
 
 	if (data.studio) {
 		logger.debug('WorkerDataCache: Reloading studio')
-		const newStudio = await collections.Studios.findOne(cache.studio._id)
+		const newStudio = await collections.Studios.findOne(cache.rawStudio._id)
 		if (!newStudio) throw new Error(`Studio is missing during cache invalidation!`)
 
 		// If studio blueprintId changed, then force it to be reloaded
-		if (newStudio.blueprintId !== cache.studio.blueprintId) updateStudioBlueprint = true
+		if (newStudio.blueprintId !== cache.rawStudio.blueprintId) updateStudioBlueprint = true
 
-		cache.studio = deepFreeze(newStudio)
+		cache.rawStudio = deepFreeze(newStudio)
+		cache.jobStudio = deepFreeze(convertStudioToJobStudio(newStudio))
 		cache.studioBlueprintConfig = undefined
 	}
 
 	// Check if studio blueprint was in the changed list
-	if (!updateStudioBlueprint && cache.studio.blueprintId) {
-		updateStudioBlueprint = data.blueprints.includes(cache.studio.blueprintId)
+	if (!updateStudioBlueprint && cache.rawStudio.blueprintId) {
+		updateStudioBlueprint = data.blueprints.includes(cache.rawStudio.blueprintId)
 	}
 
 	// Reload studioBlueprint
 	if (updateStudioBlueprint) {
 		logger.debug('WorkerDataCache: Reloading studioBlueprint')
-		cache.studioBlueprint = await loadStudioBlueprintOrPlaceholder(collections, cache.studio)
+		cache.studioBlueprint = await loadStudioBlueprintOrPlaceholder(collections, cache.rawStudio)
 		cache.studioBlueprintConfig = undefined
 	}
 
@@ -210,7 +226,7 @@ export async function invalidateWorkerDataCache(
 
 	if (data.studio) {
 		// Ensure showStyleBases & showStyleVariants are all still valid for the studio
-		const allowedBases = new Set(cache.studio.supportedShowStyleBase)
+		const allowedBases = new Set(cache.rawStudio.supportedShowStyleBase)
 
 		for (const id of Array.from(cache.showStyleBases.keys())) {
 			if (!allowedBases.has(id)) {

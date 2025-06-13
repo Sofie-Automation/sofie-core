@@ -7,11 +7,11 @@
 import * as _ from 'underscore'
 import { Meteor } from 'meteor/meteor'
 import { MeteorMethodSignatures } from '../../../methods'
-import { MeteorPubSub } from '../../../../lib/api/pubsub'
-import { MeteorPublications, MeteorPublicationSignatures } from '../../../publications/lib'
-import { UserActionAPIMethods } from '../../../../lib/api/userActions'
-import { logger } from '../../../../lib/logging'
-import { ClientAPI } from '../../../../lib/api/client'
+import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
+import { MeteorPublications, MeteorPublicationSignatures } from '../../../publications/lib/lib'
+import { UserActionAPIMethods } from '@sofie-automation/meteor-lib/dist/api/userActions'
+import { logger } from '../../../logging'
+import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import Koa from 'koa'
 import KoaRouter from '@koa/router'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
@@ -78,9 +78,9 @@ export function createLegacyApiRouter(): KoaRouter {
 
 		index.POST.push(docString)
 
-		assignRoute(router, 'POST', resource, signature.length, (args) => {
+		assignRoute(router, 'POST', resource, signature.length, async (args) => {
 			const convArgs = typeConvertUrlParameters(args)
-			return Meteor.call(methodValue, ...convArgs)
+			return Meteor.callAsync(methodValue, ...convArgs)
 		})
 	}
 
@@ -159,7 +159,7 @@ function assignRoute(
 	routeType: 'POST' | 'GET',
 	resource: string,
 	paramCount: number,
-	fcn: (p: any[]) => any
+	fcn: (p: any[]) => Promise<any>
 ) {
 	const route = routeType === 'POST' ? router.post.bind(router) : router.get.bind(router)
 

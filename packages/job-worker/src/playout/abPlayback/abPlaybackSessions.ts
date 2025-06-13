@@ -5,6 +5,7 @@ import { OnGenerateTimelineObjExt } from '@sofie-automation/corelib/dist/dataMod
 import * as _ from 'underscore'
 import { SessionRequest } from './abPlaybackResolver'
 import { AbSessionHelper } from './abSessionHelper'
+import { ReadonlyDeep } from 'type-fest'
 
 /**
  * Calculate all of the AB-playback sessions currently on the timeline
@@ -19,7 +20,7 @@ export function calculateSessionTimeRanges(
 	abSessionHelper: AbSessionHelper,
 	resolvedPieces: ResolvedPieceInstance[],
 	timelineObjects: OnGenerateTimelineObjExt[],
-	previousAssignmentMap: ABSessionAssignments,
+	previousAssignmentMap: ReadonlyDeep<ABSessionAssignments> | undefined,
 	poolName: string
 ): SessionRequest[] {
 	const sessionRequests: { [sessionId: string]: SessionRequest | undefined } = {}
@@ -35,10 +36,7 @@ export function calculateSessionTimeRanges(
 		for (const session of abSessions) {
 			if (session.poolName !== poolName) continue
 
-			const sessionId = abSessionHelper.getPieceABSessionId(
-				p.instance,
-				abSessionHelper.validateSessionName(p.instance._id, session)
-			)
+			const sessionId = abSessionHelper.getPieceABSessionId(p.instance, session)
 
 			// Note: multiple generated sessionIds for a single piece will not work as there will not be enough info to assign objects to different players. TODO is this still true?
 			const val = sessionRequests[sessionId]
@@ -50,7 +48,7 @@ export function calculateSessionTimeRanges(
 					end: val.end === undefined || end === undefined ? undefined : Math.max(val.end, end),
 					optional: val.optional && (session.optional ?? false),
 					lookaheadRank: undefined,
-					playerId: previousAssignmentMap[sessionId]?.playerId, // Persist previous assignments
+					playerId: previousAssignmentMap?.[sessionId]?.playerId, // Persist previous assignments
 				}
 			} else {
 				// New session
@@ -60,7 +58,7 @@ export function calculateSessionTimeRanges(
 					end,
 					optional: session.optional ?? false,
 					lookaheadRank: undefined,
-					playerId: previousAssignmentMap[sessionId]?.playerId, // Persist previous assignments
+					playerId: previousAssignmentMap?.[sessionId]?.playerId, // Persist previous assignments
 				}
 			}
 		}
@@ -81,10 +79,7 @@ export function calculateSessionTimeRanges(
 		) {
 			for (const session of obj.abSessions) {
 				if (session.poolName === poolName) {
-					const sessionId = abSessionHelper.getTimelineObjectAbSessionId(
-						obj,
-						abSessionHelper.validateSessionName(obj.pieceInstanceId, session)
-					)
+					const sessionId = abSessionHelper.getTimelineObjectAbSessionId(obj, session)
 					if (sessionId) {
 						const existing = groupedLookaheadMap.get(sessionId)
 						groupedLookaheadMap.set(sessionId, existing ? [...existing, obj] : [obj])
@@ -108,7 +103,7 @@ export function calculateSessionTimeRanges(
 				start: Number.MAX_SAFE_INTEGER, // Distant future
 				end: undefined,
 				lookaheadRank: i + 1, // This is so that we can easily work out which to use first
-				playerId: previousAssignmentMap[grp.id]?.playerId,
+				playerId: previousAssignmentMap?.[grp.id]?.playerId,
 			})
 		}
 	})

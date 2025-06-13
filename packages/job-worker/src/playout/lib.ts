@@ -4,14 +4,15 @@ import { TSR } from '@sofie-automation/blueprints-integration'
 import { JobContext } from '../jobs'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { ReadonlyDeep } from 'type-fest'
 import { PlayoutModel } from './model/PlayoutModel'
 import { logger } from '../logging'
-import { getCurrentTime } from '../lib'
 import { MongoQuery } from '../db'
 import { mongoWhere } from '@sofie-automation/corelib/dist/mongo'
 import { setNextPart } from './setNext'
 import { selectNextPart } from './selectNextPart'
+import { StudioPlayoutModel } from '../studio/model/StudioPlayoutModel'
+import { runJobWithPlayoutModel } from './lock'
+import { updateTimeline, updateStudioTimeline } from './timeline/generate'
 
 /**
  * Reset the rundownPlaylist (all of the rundowns within the playlist):
@@ -40,7 +41,8 @@ export async function resetRundownPlaylist(context: JobContext, playoutModel: Pl
 			null,
 			null,
 			playoutModel.getAllOrderedSegments(),
-			playoutModel.getAllOrderedParts()
+			playoutModel.getAllOrderedParts(),
+			{ ignoreUnplayable: true, ignoreQuickLoop: false }
 		)
 		await setNextPart(context, playoutModel, firstPart, false)
 	} else {
@@ -118,6 +120,13 @@ export function resetPartInstancesWithPieceInstances(
 						}
 				  )
 				: undefined,
+			allToReset.length > 0
+				? context.directCollections.Notifications.remove({
+						'relatedTo.studioId': context.studioId,
+						'relatedTo.rundownId': { $in: rundownIds },
+						'relatedTo.partInstanceId': { $in: allToReset },
+				  })
+				: undefined,
 		])
 	})
 }
@@ -177,30 +186,20 @@ export function prefixAllObjectIds<T extends TimelineObjGeneric>(objList: T[], p
 	})
 }
 
-/**
- * time in ms before an autotake when we don't accept takes/updates
- */
-const AUTOTAKE_UPDATE_DEBOUNCE = 5000
-const AUTOTAKE_TAKE_DEBOUNCE = 1000
+export async function updateTimelineFromStudioPlayoutModel(
+	context: JobContext,
+	studioPlayoutModel: StudioPlayoutModel
+): Promise<void> {
+	const activePlaylists = studioPlayoutModel.getActiveRundownPlaylists()
+	if (activePlaylists.length > 1) {
+		throw new Error(`Too many active playlists`)
+	} else if (activePlaylists.length > 0) {
+		const playlist = activePlaylists[0]
 
-export function isTooCloseToAutonext(
-	currentPartInstance: ReadonlyDeep<DBPartInstance> | undefined,
-	isTake?: boolean
-): boolean {
-	if (!currentPartInstance?.part?.autoNext) return false
-
-	const debounce = isTake ? AUTOTAKE_TAKE_DEBOUNCE : AUTOTAKE_UPDATE_DEBOUNCE
-
-	const start = currentPartInstance.timings?.plannedStartedPlayback
-	if (start !== undefined && currentPartInstance.part.expectedDuration) {
-		// date.now - start = playback duration, duration + offset gives position in part
-		const playbackDuration = getCurrentTime() - start
-
-		// If there is an auto next planned
-		if (Math.abs(currentPartInstance.part.expectedDuration - playbackDuration) < debounce) {
-			return true
-		}
+		await runJobWithPlayoutModel(context, { playlistId: playlist._id }, null, async (playoutModel) => {
+			await updateTimeline(context, playoutModel)
+		})
+	} else {
+		await updateStudioTimeline(context, studioPlayoutModel)
 	}
-
-	return false
 }

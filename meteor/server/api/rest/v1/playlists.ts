@@ -13,10 +13,10 @@ import {
 	RundownPlaylistId,
 	SegmentId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { Match, check } from '../../../../lib/check'
-import { PlaylistsRestAPI } from '../../../../lib/api/rest/v1'
+import { Match, check } from '../../../lib/check'
+import { PlaylistsRestAPI } from '../../../lib/rest/v1'
 import { Meteor } from 'meteor/meteor'
-import { ClientAPI } from '../../../../lib/api/client'
+import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import {
 	AdLibActions,
 	AdLibPieces,
@@ -30,10 +30,10 @@ import {
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { ServerClientAPI } from '../../client'
 import { QueueNextSegmentResult, StudioJobs } from '@sofie-automation/corelib/dist/worker/studio'
-import { getCurrentTime } from '../../../../lib/lib'
-import { TriggerReloadDataResponse } from '../../../../lib/api/userActions'
+import { getCurrentTime } from '../../../lib/lib'
+import { TriggerReloadDataResponse } from '@sofie-automation/meteor-lib/dist/api/userActions'
 import { ServerRundownAPI } from '../../rundown'
-import { triggerWriteAccess } from '../../../security/lib/securityVerify'
+import { triggerWriteAccess } from '../../../security/securityVerify'
 
 class PlaylistsServerAPI implements PlaylistsRestAPI {
 	constructor(private context: ServerAPIContext) {}
@@ -96,7 +96,8 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		adLibId: AdLibActionId | RundownBaselineAdLibActionId | PieceId | BucketAdLibId,
-		triggerMode?: string | null
+		triggerMode?: string | null,
+		adLibOptions?: { [key: string]: any }
 	): Promise<ClientAPI.ClientResponse<object>> {
 		const baselineAdLibPiece = RundownBaselineAdLibPieces.findOneAsync(adLibId as PieceId, {
 			projection: { _id: 1 },
@@ -204,6 +205,7 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 					actionId: adLibActionDoc.actionId,
 					userData: adLibActionDoc.userData,
 					triggerMode: triggerMode ?? undefined,
+					actionOptions: adLibOptions,
 				}
 			)
 		} else {
@@ -273,7 +275,8 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 		connection: Meteor.Connection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
-		delta: number
+		delta: number,
+		ignoreQuickLoop?: boolean
 	): Promise<ClientAPI.ClientResponse<PartId | null>> {
 		return ServerClientAPI.runUserActionInLogForPlaylistOnWorker(
 			this.context.getMethodContext(connection),
@@ -289,6 +292,7 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 				playlistId: rundownPlaylistId,
 				partDelta: delta,
 				segmentDelta: 0,
+				ignoreQuickLoop,
 			}
 		)
 	}
@@ -576,7 +580,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<PlaylistsRestAPI>)
 		}
 	)
 
-	registerRoute<{ playlistId: string }, { adLibId: string; actionType?: string }, object>(
+	registerRoute<{ playlistId: string }, { adLibId: string; actionType?: string; adLibOptions?: any }, object>(
 		'post',
 		'/playlists/:playlistId/execute-adlib',
 		new Map([
@@ -591,12 +595,24 @@ export function registerRoutes(registerRoute: APIRegisterHook<PlaylistsRestAPI>)
 			)
 			const actionTypeObj = body
 			const triggerMode = actionTypeObj ? (actionTypeObj as { actionType: string }).actionType : undefined
-			logger.info(`API POST: execute-adlib ${rundownPlaylistId} ${adLibId} - triggerMode: ${triggerMode}`)
+			const adLibOptions = actionTypeObj ? actionTypeObj.adLibOptions : undefined
+			logger.info(
+				`API POST: execute-adlib ${rundownPlaylistId} ${adLibId} - actionType: ${triggerMode} - options: ${
+					adLibOptions ? JSON.stringify(adLibOptions) : 'undefined'
+				}`
+			)
 
 			check(adLibId, String)
 			check(rundownPlaylistId, String)
 
-			return await serverAPI.executeAdLib(connection, event, rundownPlaylistId, adLibId, triggerMode)
+			return await serverAPI.executeAdLib(
+				connection,
+				event,
+				rundownPlaylistId,
+				adLibId,
+				triggerMode,
+				adLibOptions
+			)
 		}
 	)
 

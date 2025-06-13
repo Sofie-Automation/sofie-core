@@ -1,8 +1,10 @@
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { Meteor } from 'meteor/meteor'
-import { MongoCursor } from '../../../lib/collections/lib'
 import { Simplify } from 'type-fest'
-import { assertNever, waitForPromise } from '../../../lib/lib'
+import { assertNever } from '../../lib/tempLib'
+import { logger } from '../../logging'
+import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
+import { MinimalMongoCursor } from '../../collections/implementations/asyncCollection'
 
 /**
  * https://stackoverflow.com/a/66011942
@@ -17,7 +19,7 @@ type Not<Yes, Not> = Yes extends Not ? never : Yes
 type Link<T> = {
 	next: <L extends string, K extends { _id: ProtectedString<any> }>(
 		key: Not<L, keyof T>,
-		cursorChain: (state: T) => Promise<MongoCursor<K> | null>
+		cursorChain: (state: T) => Promise<MinimalMongoCursor<K> | null>
 	) => Link<Simplify<T & { [P in StringLiteral<L>]: K }>>
 
 	end: (complete: (state: T | null) => void) => Meteor.LiveQueryHandle
@@ -26,7 +28,7 @@ type Link<T> = {
 export function observerChain(): Pick<Link<{}>, 'next'> {
 	function createNextLink(baseCollectorObject: Record<string, any>, liveQueryHandle: Meteor.LiveQueryHandle) {
 		let mode: 'next' | 'end' | undefined
-		let chainedCursor: (state: Record<string, any>) => Promise<MongoCursor<any> | null>
+		let chainedCursor: (state: Record<string, any>) => Promise<MinimalMongoCursor<any> | null>
 		let completeFunction: (state: Record<string, any> | null) => void
 		let chainedKey: string | undefined = undefined
 		let previousObserver: Meteor.LiveQueryHandle | null = null
@@ -40,18 +42,18 @@ export function observerChain(): Pick<Link<{}>, 'next'> {
 			throw new Error('nextChanged: Unfinished observer chain. This is a memory leak.')
 		}
 
-		function changedLink(collectorObject: Record<string, any>) {
+		async function changedLink(collectorObject: Record<string, any>) {
 			if (previousObserver) {
 				previousObserver.stop()
 				previousObserver = null
 			}
-			const cursorResult = waitForPromise(chainedCursor(collectorObject))
+			const cursorResult = await chainedCursor(collectorObject)
 			if (cursorResult === null) {
 				nextStop()
 				return
 			}
 
-			previousObserver = cursorResult.observe({
+			previousObserver = await cursorResult.observeAsync({
 				added: (doc) => {
 					if (!chainedKey) throw new Error('Chained key needs to be defined')
 					const newCollectorObject: Record<string, any> = {
@@ -95,10 +97,10 @@ export function observerChain(): Pick<Link<{}>, 'next'> {
 		}
 
 		return {
-			changed: (obj: Record<string, any>) => {
+			changed: async (obj: Record<string, any>) => {
 				switch (mode) {
 					case 'next':
-						changedLink(obj)
+						await changedLink(obj)
 						break
 					case 'end':
 						changedEnd(obj)
@@ -159,7 +161,9 @@ export function observerChain(): Pick<Link<{}>, 'next'> {
 			const nextLink = link.next(key, cursorChain)
 			setImmediate(
 				Meteor.bindEnvironment(() => {
-					changed({})
+					changed({}).catch((e) => {
+						logger.error(`Error in observerChain: ${stringifyError(e)}`)
+					})
 				})
 			)
 			return nextLink as any

@@ -1,5 +1,5 @@
 import { ProtectedString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { EventEmitter } from 'eventemitter3'
+import { EventEmitter } from 'events'
 import { AnyBulkWriteOperation, ChangeStream, Collection as MongoCollection, FindOptions, CountOptions } from 'mongodb'
 import { IChangeStreamEvents } from '.'
 import { startSpanManual } from '../profiler'

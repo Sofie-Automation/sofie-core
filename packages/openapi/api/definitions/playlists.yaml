@@ -109,15 +109,19 @@ resources:
             schema:
               type: object
               properties:
-                actionType:
-                  type: string
-                  description: An actionType string to specify a particular variation for the AdLibAction, valid strings are to be read from the status API
                 adLibId:
                   type: string
                   description: AdLib to execute
+                actionType:
+                  type: string
+                  description: An actionType string to specify a particular variation for the AdLibAction, valid strings are to be read from the status API
+                adLibOptions:
+                  type: object
+                  description: AdLibAction options object defined according to the optionsSchema provided in the adLib status API
               required:
                 - adLibId
               example:
+                adLibId: adlib_action_camera
                 actionType: pvw
       responses:
         200:
@@ -274,6 +278,9 @@ resources:
                 delta:
                   type: number
                   description: Amount to move next Segment point by (+/-). If delta results in an index that is greater than the number of Segments available, no action will be taken.
+                ignoreQuickLoop:
+                  type: boolean
+                  description: When true, the operation will ignore any boundaries set by the QuickLoop feature when moving to the next part
               required:
                 - delta
       responses:

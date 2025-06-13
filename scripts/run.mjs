@@ -1,15 +1,22 @@
 import process from "process";
+import fs from "fs";
 import concurrently from "concurrently";
 import { EXTRA_PACKAGES, config } from "./lib.js";
+
+function joinCommand(...parts) {
+	return parts.filter((part) => !!part).join(" ");
+}
 
 function watchPackages() {
 	return [
 		{
-			command: config.uiOnly
-				? `yarn watch ${EXTRA_PACKAGES.map((pkg) => `--ignore ${pkg}`).join(
+			command: joinCommand('yarn watch',
+				config.uiOnly
+					? EXTRA_PACKAGES.map((pkg) => `--ignore ${pkg}`).join(
 						" "
-				  )}`
-				: "yarn watch",
+					)
+					: "",
+			),
 			cwd: "packages",
 			name: "PACKAGES-TSC",
 			prefixColor: "red",
@@ -29,20 +36,36 @@ function watchWorker() {
 }
 
 function watchMeteor() {
+	const settingsFileExists = fs.existsSync("meteor-settings.json");
+	if (settingsFileExists) {
+		console.log('Found meteor-settings.json')
+	} else {
+		console.log('No meteor-settings.json')
+	}
+
 	return [
 		{
-			command: "meteor yarn watch-types --preserveWatchOutput",
+			command: "yarn watch-types --preserveWatchOutput",
 			cwd: "meteor",
 			name: "METEOR-TSC",
 			prefixColor: "blue",
 		},
 		{
-			command: `meteor yarn debug${config.inspectMeteor ? " --inspect" : ""}${
-				config.verbose ? " --verbose" : ""
-			}`,
+			command: joinCommand(
+				'yarn debug',
+				config.inspectMeteor ? " --inspect" : "",
+				config.verbose ? " --verbose" : "",
+				settingsFileExists ? " --settings ../meteor-settings.json" : ""
+			),
 			cwd: "meteor",
 			name: "METEOR",
 			prefixColor: "cyan",
+		},
+		{
+			command: `yarn dev`,
+			cwd: "packages/webui",
+			name: "VITE",
+			prefixColor: "yellow",
 		},
 	];
 }
@@ -51,13 +74,11 @@ function hr() {
 	// write regular dashes if this is a "simple" output stream ()
 	if (!process.stdout.hasColors || !process.stdout.hasColors())
 		return "-".repeat(process.stdout.columns ?? 40);
-	return '─'.repeat(process.stdout.columns ?? 40)
+	return "─".repeat(process.stdout.columns ?? 40);
 }
 
 try {
 	// Note: This scricpt assumes that install-and-build.mjs has been run before
-
-	
 
 	// The main watching execution
 	console.log(hr());

@@ -8,29 +8,15 @@
 
 # but you can also edit it by hand.
 
-meteor-base@1.5.1 # Packages every Meteor app needs to have
-mobile-experience@1.1.0 # Packages for a great mobile UX
-mongo@1.16.7 # The database Meteor supports right now
-reactive-var@1.0.12 # Reactive variable for tracker
+meteor@2.0.1
+webapp@2.0.3
+ddp@1.4.2
 
-standard-minifier-css@1.9.2 # CSS minifier run for production mode
-standard-minifier-js@2.8.1 # JS minifier run for production mode
-es5-shim@4.8.0 # ECMAScript 5 compatibility for older browsers
-ecmascript@0.16.7 # Enable ECMAScript2015+ syntax in app code
-typescript@4.9.4 # Enable TypeScript syntax in .ts and .tsx modules
-shell-server@0.5.0 # Server-side component of the `meteor shell` command
-modern-browsers@0.1.9 # Select when to allow use of the "modern" bundle
+mongo@2.0.2 # The database Meteor supports right now
 
-static-html@1.3.2 # Define static page content in .html files
-react-meteor-data # React higher-order component for reactively tracking Meteor data
+ecmascript@0.16.9 # Enable ECMAScript2015+ syntax in app code
+typescript@5.4.3 # Enable TypeScript syntax in .ts and .tsx modules
 
-tracker@1.3.2 # Meteor's client-side reactive programming library
-session@1.2.1
-fourseven:scss
+tracker@1.3.4 # Meteor's client-side reactive programming library
 
-dynamic-import@0.7.3
-ostrio:meteor-root
-accounts-password@2.3.4
-
-julusian:meteor-elastic-apm@2.5.2
 zodern:types

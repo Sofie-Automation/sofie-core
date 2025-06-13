@@ -1,19 +1,22 @@
 import { Meteor } from 'meteor/meteor'
-import { APIBucket, APIBucketComplete, APIImportAdlib, BucketsRestAPI } from '../../../../lib/api/rest/v1/buckets'
+import { APIBucket, APIBucketComplete, APIImportAdlib, BucketsRestAPI } from '../../../lib/rest/v1/buckets'
 import { BucketAdLibActions, BucketAdLibs, Buckets } from '../../../collections'
 import { APIBucketFrom } from './typeConversion'
-import { ClientAPI } from '../../../../lib/api/client'
+import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { BucketId, ShowStyleBaseId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ServerClientAPI } from '../../client'
-import { getCurrentTime, protectString } from '../../../../lib/lib'
+import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
+import { getCurrentTime } from '../../../lib/lib'
 import { check } from 'meteor/check'
-import { StudioContentWriteAccess } from '../../../security/studio'
 import { BucketsAPI } from '../../buckets'
-import { BucketSecurity } from '../../../security/buckets'
 import { APIFactory, APIRegisterHook, ServerAPIContext } from './types'
 import { logger } from '../../../logging'
 import { UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/error'
 import { IngestAdlib } from '@sofie-automation/blueprints-integration'
+import { assertConnectionHasOneOfPermissions } from '../../../security/auth'
+import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
+
+const PERMISSIONS_FOR_BUCKET_MODIFICATION: Array<keyof UserPermissions> = ['studio']
 
 export class BucketsServerAPI implements BucketsRestAPI {
 	constructor(private context: ServerAPIContext) {}
@@ -56,11 +59,9 @@ export class BucketsServerAPI implements BucketsRestAPI {
 				check(bucket.studioId, String)
 				check(bucket.name, String)
 
-				const access = await StudioContentWriteAccess.bucket(
-					this.context.getCredentials(),
-					protectString(bucket.studioId)
-				)
-				return BucketsAPI.createNewBucket(access, bucket.name)
+				assertConnectionHasOneOfPermissions(connection, ...PERMISSIONS_FOR_BUCKET_MODIFICATION)
+
+				return BucketsAPI.createNewBucket(protectString(bucket.studioId), bucket.name)
 			}
 		)
 		if (ClientAPI.isClientResponseSuccess(createdBucketResponse)) {
@@ -83,8 +84,9 @@ export class BucketsServerAPI implements BucketsRestAPI {
 			async () => {
 				check(bucketId, String)
 
-				const access = await BucketSecurity.allowWriteAccess(this.context.getCredentials(), bucketId)
-				return BucketsAPI.removeBucket(access)
+				assertConnectionHasOneOfPermissions(connection, ...PERMISSIONS_FOR_BUCKET_MODIFICATION)
+
+				return BucketsAPI.removeBucket(bucketId)
 			}
 		)
 	}
@@ -103,8 +105,9 @@ export class BucketsServerAPI implements BucketsRestAPI {
 			async () => {
 				check(bucketId, String)
 
-				const access = await BucketSecurity.allowWriteAccess(this.context.getCredentials(), bucketId)
-				return BucketsAPI.emptyBucket(access)
+				assertConnectionHasOneOfPermissions(connection, ...PERMISSIONS_FOR_BUCKET_MODIFICATION)
+
+				return BucketsAPI.emptyBucket(bucketId)
 			}
 		)
 	}
@@ -121,6 +124,8 @@ export class BucketsServerAPI implements BucketsRestAPI {
 			'bucketsRemoveBucketAdLib',
 			{ externalId },
 			async () => {
+				assertConnectionHasOneOfPermissions(connection, ...PERMISSIONS_FOR_BUCKET_MODIFICATION)
+
 				const bucketAdLibPiecePromise = BucketAdLibs.findOneAsync(
 					{ externalId },
 					{
@@ -138,17 +143,9 @@ export class BucketsServerAPI implements BucketsRestAPI {
 					bucketAdLibActionPromise,
 				])
 				if (bucketAdLibPiece) {
-					const access = await BucketSecurity.allowWriteAccessPiece(
-						this.context.getCredentials(),
-						bucketAdLibPiece._id
-					)
-					return BucketsAPI.removeBucketAdLib(access)
+					return BucketsAPI.removeBucketAdLib(bucketAdLibPiece._id)
 				} else if (bucketAdLibAction) {
-					const access = await BucketSecurity.allowWriteAccessAction(
-						this.context.getCredentials(),
-						bucketAdLibAction._id
-					)
-					return BucketsAPI.removeBucketAdLibAction(access)
+					return BucketsAPI.removeBucketAdLibAction(bucketAdLibAction._id)
 				}
 			}
 		)
@@ -172,8 +169,9 @@ export class BucketsServerAPI implements BucketsRestAPI {
 				check(showStyleBaseId, String)
 				check(ingestItem, Object)
 
-				const access = await BucketSecurity.allowWriteAccess(this.context.getCredentials(), bucketId)
-				return BucketsAPI.importAdlibToBucket(access, showStyleBaseId, undefined, ingestItem)
+				assertConnectionHasOneOfPermissions(connection, ...PERMISSIONS_FOR_BUCKET_MODIFICATION)
+
+				return BucketsAPI.importAdlibToBucket(bucketId, showStyleBaseId, undefined, ingestItem)
 			}
 		)
 	}

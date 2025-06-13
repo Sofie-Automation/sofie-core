@@ -42,6 +42,7 @@ import { IDirectCollections } from '../db'
 import {
 	ApmSpan,
 	JobContext,
+	JobStudio,
 	ProcessedShowStyleBase,
 	ProcessedShowStyleCompound,
 	ProcessedShowStyleVariant,
@@ -56,6 +57,7 @@ import { JSONBlobStringify } from '@sofie-automation/shared-lib/dist/lib/JSONBlo
 import { removeRundownPlaylistFromDb } from '../ingest/__tests__/lib'
 import { processShowStyleBase, processShowStyleVariant } from '../jobs/showStyle'
 import { defaultStudio } from './defaultCollectionObjects'
+import { convertStudioToJobStudio } from '../jobs/studio'
 
 export function setupDefaultJobEnvironment(studioId?: StudioId): MockJobContext {
 	const { mockCollections, jobCollections } = getMockCollections()
@@ -75,6 +77,7 @@ export class MockJobContext implements JobContext {
 	#jobCollections: Readonly<IDirectCollections>
 	#mockCollections: Readonly<IMockCollections>
 	#studio: ReadonlyDeep<DBStudio>
+	#jobStudio: ReadonlyDeep<JobStudio>
 
 	#studioBlueprint: ReadonlyDeep<StudioBlueprintManifest>
 	#showStyleBlueprint: ReadonlyDeep<ShowStyleBlueprintManifest>
@@ -87,6 +90,7 @@ export class MockJobContext implements JobContext {
 		this.#jobCollections = jobCollections
 		this.#mockCollections = mockCollections
 		this.#studio = studio
+		this.#jobStudio = convertStudioToJobStudio(clone<DBStudio>(studio))
 
 		this.#studioBlueprint = MockStudioBlueprint()
 		this.#showStyleBlueprint = MockShowStyleBlueprint()
@@ -103,7 +107,10 @@ export class MockJobContext implements JobContext {
 	get studioId(): StudioId {
 		return this.#studio._id
 	}
-	get studio(): ReadonlyDeep<DBStudio> {
+	get studio(): ReadonlyDeep<JobStudio> {
+		return this.#jobStudio
+	}
+	get rawStudio(): ReadonlyDeep<DBStudio> {
 		return this.#studio
 	}
 
@@ -219,10 +226,22 @@ export class MockJobContext implements JobContext {
 		}
 	}
 	getShowStyleBlueprintConfig(showStyle: ReadonlyDeep<ProcessedShowStyleCompound>): ProcessedShowStyleConfig {
-		return preprocessShowStyleConfig(showStyle, this.#showStyleBlueprint, this.#studio.settings)
+		return preprocessShowStyleConfig(showStyle, this.#showStyleBlueprint, this.studio.settings)
 	}
 
 	hackPublishTimelineToFastTrack(_newTimeline: TimelineComplete): void {
+		// throw new Error('Method not implemented.')
+	}
+
+	setRouteSetActive(_routeSetId: string, _isActive: boolean | 'toggle'): boolean {
+		throw new Error('Method not implemented.')
+	}
+
+	async saveRouteSetChanges(): Promise<void> {
+		// throw new Error('Method not implemented.')
+	}
+
+	discardRouteSetChanges(): void {
 		// throw new Error('Method not implemented.')
 	}
 
@@ -232,6 +251,7 @@ export class MockJobContext implements JobContext {
 
 	setStudio(studio: ReadonlyDeep<DBStudio>): void {
 		this.#studio = clone(studio)
+		this.#jobStudio = convertStudioToJobStudio(clone<DBStudio>(studio))
 	}
 	setShowStyleBlueprint(blueprint: ReadonlyDeep<ShowStyleBlueprintManifest>): void {
 		this.#showStyleBlueprint = blueprint
@@ -276,7 +296,6 @@ const MockStudioBlueprint: () => StudioBlueprintManifest = () => ({
 	},
 
 	studioConfigSchema: JSONBlobStringify({}),
-	studioMigrations: [],
 	getBaseline: () => {
 		return {
 			timelineObjects: [],
@@ -308,11 +327,13 @@ const MockShowStyleBlueprint: () => ShowStyleBlueprintManifest = () => ({
 	},
 
 	showStyleConfigSchema: JSONBlobStringify({}),
-	showStyleMigrations: [],
 	getShowStyleVariantId: (_context, variants): string | null => {
 		return variants[0]._id
 	},
-	getRundown: (_context: IShowStyleContext, ingestRundown: ExtendedIngestRundown): BlueprintResultRundown => {
+	getRundown: (
+		_context: IShowStyleContext,
+		ingestRundown: ExtendedIngestRundown<any, any, any>
+	): BlueprintResultRundown => {
 		const rundown: IBlueprintRundown = {
 			externalId: ingestRundown.externalId,
 			name: ingestRundown.name,
@@ -338,7 +359,7 @@ const MockShowStyleBlueprint: () => ShowStyleBlueprintManifest = () => ({
 			baseline: { timelineObjects: [] },
 		}
 	},
-	getSegment: (_context: ISegmentUserContext, ingestSegment: IngestSegment): BlueprintResultSegment => {
+	getSegment: (_context: ISegmentUserContext, ingestSegment: IngestSegment<any, any>): BlueprintResultSegment => {
 		const segment: IBlueprintSegment = {
 			name: ingestSegment.name ? ingestSegment.name : ingestSegment.externalId,
 			privateData: ingestSegment.payload,

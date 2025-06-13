@@ -1,19 +1,24 @@
 import * as _ from 'underscore'
 import { Meteor } from 'meteor/meteor'
-import { Bucket } from '../../lib/collections/Buckets'
-import { getRandomId, getRandomString, literal } from '../../lib/lib'
-import { BucketSecurity } from '../security/buckets'
+import { Bucket } from '@sofie-automation/meteor-lib/dist/collections/Buckets'
+import { getRandomId, getRandomString, literal } from '../lib/tempLib'
 import { BucketAdLib } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibPiece'
 import { AdLibAction, AdLibActionCommon } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
 import { BucketAdLibAction } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibAction'
-import { BucketAdLibActions, Buckets, Rundowns, ShowStyleVariants, Studios } from '../collections'
+import { BucketAdLibActions, BucketAdLibs, Buckets, Rundowns, ShowStyleVariants, Studios } from '../collections'
 import { runIngestOperation } from './ingest/lib'
 import { IngestJobs } from '@sofie-automation/corelib/dist/worker/ingest'
-import { StudioContentAccess } from '../security/studio'
-import { Settings } from '../../lib/Settings'
 import { IngestAdlib } from '@sofie-automation/blueprints-integration'
 import { getShowStyleCompound } from './showStyles'
-import { ShowStyleBaseId, ShowStyleVariantId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import {
+	BucketAdLibActionId,
+	BucketAdLibId,
+	BucketId,
+	ShowStyleBaseId,
+	ShowStyleVariantId,
+	StudioId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { fetchStudioLight } from '../optimizations'
 
 const DEFAULT_BUCKET_WIDTH = undefined
 
@@ -25,18 +30,28 @@ function isBucketAdLibAction(action: AdLibActionCommon | BucketAdLibAction): act
 }
 
 export namespace BucketsAPI {
-	export async function removeBucketAdLib(access: BucketSecurity.BucketAdlibPieceContentAccess): Promise<void> {
-		const adlib = access.adlib
+	export async function removeBucketAdLib(adLibId: BucketAdLibId): Promise<void> {
+		const adlib = (await BucketAdLibs.findOneAsync(adLibId, {
+			projection: {
+				_id: 1,
+				studioId: 1,
+			},
+		})) as Pick<BucketAdLib, '_id' | 'studioId'> | undefined
+		if (!adlib) throw new Meteor.Error(404, `BucketAdLib "${adLibId}" not found`)
 
 		await runIngestOperation(adlib.studioId, IngestJobs.BucketRemoveAdlibPiece, {
 			pieceId: adlib._id,
 		})
 	}
 
-	export async function removeBucketAdLibAction(
-		access: BucketSecurity.BucketAdlibActionContentAccess
-	): Promise<void> {
-		const adlib = access.action
+	export async function removeBucketAdLibAction(adLibActionId: BucketAdLibActionId): Promise<void> {
+		const adlib = (await BucketAdLibActions.findOneAsync(adLibActionId, {
+			projection: {
+				_id: 1,
+				studioId: 1,
+			},
+		})) as Pick<BucketAdLibAction, '_id' | 'studioId'> | undefined
+		if (!adlib) throw new Meteor.Error(404, `BucketAdLibAction "${adLibActionId}" not found`)
 
 		await runIngestOperation(adlib.studioId, IngestJobs.BucketRemoveAdlibAction, {
 			actionId: adlib._id,
@@ -44,22 +59,26 @@ export namespace BucketsAPI {
 	}
 
 	export async function modifyBucket(
-		access: BucketSecurity.BucketContentAccess,
+		bucketId: BucketId,
 		bucketProps: Partial<Omit<Bucket, '_id' | 'studioId'>>
 	): Promise<void> {
-		await Buckets.updateAsync(access.bucket._id, {
+		await Buckets.updateAsync(bucketId, {
 			$set: _.omit(bucketProps, ['_id', 'studioId']),
 		})
 	}
 
-	export async function emptyBucket(access: BucketSecurity.BucketContentAccess): Promise<void> {
-		await runIngestOperation(access.studioId, IngestJobs.BucketEmpty, {
-			bucketId: access.bucket._id,
+	export async function emptyBucket(bucketId: BucketId): Promise<void> {
+		const bucket = await Buckets.findOneAsync(bucketId)
+		if (!bucket) throw new Meteor.Error(404, `Bucket "${bucketId}" not found`)
+
+		await runIngestOperation(bucket.studioId, IngestJobs.BucketEmpty, {
+			bucketId: bucket._id,
 		})
 	}
 
-	export async function createNewBucket(access: StudioContentAccess, name: string): Promise<Bucket> {
-		const { studio } = access
+	export async function createNewBucket(studioId: StudioId, name: string): Promise<Bucket> {
+		const studio = await fetchStudioLight(studioId)
+		if (!studio) throw new Meteor.Error(404, `Studio "${studioId}" not found`)
 
 		const heaviestBucket = (
 			await Buckets.findFetchAsync(
@@ -99,28 +118,20 @@ export namespace BucketsAPI {
 	}
 
 	export async function modifyBucketAdLibAction(
-		access: BucketSecurity.BucketAdlibActionContentAccess,
+		adLibActionId: BucketAdLibActionId,
 		actionProps: Partial<Omit<BucketAdLibAction, '_id'>>
 	): Promise<void> {
-		const oldAction = access.action
+		const oldAction = await BucketAdLibActions.findOneAsync(adLibActionId)
+		if (!oldAction) throw new Meteor.Error(404, `BucketAdLibAction "${adLibActionId}" not found`)
 
-		let moveIntoBucket: Bucket | undefined
 		if (actionProps.bucketId && actionProps.bucketId !== oldAction.bucketId) {
-			moveIntoBucket = await Buckets.findOneAsync(actionProps.bucketId)
-			if (!moveIntoBucket) throw new Meteor.Error(`Could not find bucket: "${actionProps.bucketId}"`)
+			const moveIntoBucket = await Buckets.countDocuments(actionProps.bucketId)
+			if (moveIntoBucket === 0) throw new Meteor.Error(`Could not find bucket: "${actionProps.bucketId}"`)
 		}
 
-		// Check we are allowed to move into the new bucket
-		if (Settings.enableUserAccounts && moveIntoBucket) {
-			// Shouldn't be moved across orgs
-			const newBucketStudio = await Studios.findOneAsync(moveIntoBucket.studioId, {
-				fields: { organizationId: 1 },
-			})
-			if (!newBucketStudio) throw new Meteor.Error(`Could not find studio: "${moveIntoBucket.studioId}"`)
-
-			if (newBucketStudio.organizationId !== access.studio.organizationId) {
-				throw new Meteor.Error(403, 'Access denied')
-			}
+		if (actionProps.studioId && actionProps.studioId !== oldAction.studioId) {
+			const newStudioCount = await Studios.countDocuments(actionProps.studioId)
+			if (newStudioCount === 0) throw new Meteor.Error(`Could not find studio: "${actionProps.studioId}"`)
 		}
 
 		await runIngestOperation(oldAction.studioId, IngestJobs.BucketActionModify, {
@@ -130,25 +141,30 @@ export namespace BucketsAPI {
 	}
 
 	export async function saveAdLibActionIntoBucket(
-		access: BucketSecurity.BucketContentAccess,
+		bucketId: BucketId,
 		action: AdLibActionCommon | BucketAdLibAction
 	): Promise<BucketAdLibAction> {
+		const targetBucket = (await Buckets.findOneAsync(bucketId, { projection: { _id: 1, studioId: 1 } })) as
+			| Pick<Bucket, '_id' | 'studioId'>
+			| undefined
+		if (!targetBucket) throw new Meteor.Error(404, `Bucket "${bucketId}" not found`)
+
 		let adLibAction: BucketAdLibAction
 		if (isBucketAdLibAction(action)) {
 			if (action.showStyleVariantId && !(await ShowStyleVariants.findOneAsync(action.showStyleVariantId))) {
 				throw new Meteor.Error(`Could not find show style variant: "${action.showStyleVariantId}"`)
 			}
 
-			if (access.studioId !== action.studioId) {
+			if (targetBucket.studioId !== action.studioId) {
 				throw new Meteor.Error(
-					`studioId is different than Action's studioId: "${access.studioId}" - "${action.studioId}"`
+					`studioId is different than Action's studioId: "${targetBucket.studioId}" - "${action.studioId}"`
 				)
 			}
 
 			adLibAction = {
 				...action,
 				_id: getRandomId(),
-				bucketId: access.bucket._id,
+				bucketId: targetBucket._id,
 			}
 		} else {
 			const rundown = await Rundowns.findOneAsync(action.rundownId)
@@ -156,9 +172,9 @@ export namespace BucketsAPI {
 				throw new Meteor.Error(`Could not find rundown: "${action.rundownId}"`)
 			}
 
-			if (access.studioId !== rundown.studioId) {
+			if (targetBucket.studioId !== rundown.studioId) {
 				throw new Meteor.Error(
-					`studioId is different than Rundown's studioId: "${access.studioId}" - "${rundown.studioId}"`
+					`studioId is different than Rundown's studioId: "${targetBucket.studioId}" - "${rundown.studioId}"`
 				)
 			}
 
@@ -166,8 +182,8 @@ export namespace BucketsAPI {
 				...(_.omit(action, ['partId', 'rundownId']) as Omit<AdLibAction, 'partId' | 'rundownId'>),
 				_id: getRandomId(),
 				externalId: getRandomString(), // This needs to be something unique, so that the regenerate logic doesn't get it mixed up with something else
-				bucketId: access.bucket._id,
-				studioId: access.studioId,
+				bucketId: targetBucket._id,
+				studioId: targetBucket.studioId,
 				showStyleBaseId: rundown.showStyleBaseId,
 				showStyleVariantId: action.allVariants ? null : rundown.showStyleVariantId,
 				importVersions: rundown.importVersions,
@@ -178,7 +194,7 @@ export namespace BucketsAPI {
 		// We can insert it here, as it is a creation with a new id, so the only race risk we have is the bucket being deleted
 		await BucketAdLibActions.insertAsync(adLibAction)
 
-		await runIngestOperation(access.studioId, IngestJobs.BucketActionRegenerateExpectedPackages, {
+		await runIngestOperation(targetBucket.studioId, IngestJobs.BucketActionRegenerateExpectedPackages, {
 			actionId: adLibAction._id,
 		})
 
@@ -186,28 +202,20 @@ export namespace BucketsAPI {
 	}
 
 	export async function modifyBucketAdLib(
-		access: BucketSecurity.BucketAdlibPieceContentAccess,
+		adLibId: BucketAdLibId,
 		adlibProps: Partial<Omit<BucketAdLib, '_id'>>
 	): Promise<void> {
-		const oldAdLib = access.adlib
+		const oldAdLib = await BucketAdLibs.findOneAsync(adLibId)
+		if (!oldAdLib) throw new Meteor.Error(404, `BucketAdLib "${adLibId}" not found`)
 
-		let moveIntoBucket: Bucket | undefined
 		if (adlibProps.bucketId && adlibProps.bucketId !== oldAdLib.bucketId) {
-			moveIntoBucket = await Buckets.findOneAsync(adlibProps.bucketId)
-			if (!moveIntoBucket) throw new Meteor.Error(`Could not find bucket: "${adlibProps.bucketId}"`)
+			const moveIntoBucket = await Buckets.countDocuments(adlibProps.bucketId)
+			if (moveIntoBucket === 0) throw new Meteor.Error(`Could not find bucket: "${adlibProps.bucketId}"`)
 		}
 
-		// Check we are allowed to move into the new bucket
-		if (Settings.enableUserAccounts && moveIntoBucket) {
-			// Shouldn't be moved across orgs
-			const newBucketStudio = await Studios.findOneAsync(moveIntoBucket.studioId, {
-				fields: { organizationId: 1 },
-			})
-			if (!newBucketStudio) throw new Meteor.Error(`Could not find studio: "${moveIntoBucket.studioId}"`)
-
-			if (newBucketStudio.organizationId !== access.studio.organizationId) {
-				throw new Meteor.Error(403, 'Access denied')
-			}
+		if (adlibProps.studioId && adlibProps.studioId !== oldAdLib.studioId) {
+			const newStudioCount = await Studios.countDocuments(adlibProps.studioId)
+			if (newStudioCount === 0) throw new Meteor.Error(`Could not find studio: "${adlibProps.studioId}"`)
 		}
 
 		await runIngestOperation(oldAdLib.studioId, IngestJobs.BucketPieceModify, {
@@ -216,8 +224,10 @@ export namespace BucketsAPI {
 		})
 	}
 
-	export async function removeBucket(access: BucketSecurity.BucketContentAccess): Promise<void> {
-		const bucket = access.bucket
+	export async function removeBucket(bucketId: BucketId): Promise<void> {
+		const bucket = await Buckets.findOneAsync(bucketId)
+		if (!bucket) throw new Meteor.Error(404, `Bucket "${bucketId}" not found`)
+
 		await Promise.all([
 			Buckets.removeAsync(bucket._id),
 			await runIngestOperation(bucket.studioId, IngestJobs.BucketEmpty, {
@@ -227,13 +237,17 @@ export namespace BucketsAPI {
 	}
 
 	export async function importAdlibToBucket(
-		access: BucketSecurity.BucketContentAccess,
+		bucketId: BucketId,
 		showStyleBaseId: ShowStyleBaseId,
 		/** Optional: if set, only create adlib for this variant (otherwise: for all variants in ShowStyleBase)*/
 		showStyleVariantId: ShowStyleVariantId | undefined,
 		ingestItem: IngestAdlib
 	): Promise<void> {
-		const studioLight = access.studio
+		const bucket = await Buckets.findOneAsync(bucketId)
+		if (!bucket) throw new Meteor.Error(404, `Bucket "${bucketId}" not found`)
+
+		const studioLight = await fetchStudioLight(bucket.studioId)
+		if (!studioLight) throw new Meteor.Error(404, `Studio "${bucket.studioId}" not found`)
 
 		if (showStyleVariantId) {
 			const showStyleCompound = await getShowStyleCompound(showStyleVariantId)
@@ -249,12 +263,12 @@ export namespace BucketsAPI {
 		if (studioLight.supportedShowStyleBase.indexOf(showStyleBaseId) === -1) {
 			throw new Meteor.Error(
 				500,
-				`ShowStyle base "${showStyleBaseId}" not supported by studio "${access.studioId}"`
+				`ShowStyle base "${showStyleBaseId}" not supported by studio "${bucket.studioId}"`
 			)
 		}
 
-		await runIngestOperation(access.studioId, IngestJobs.BucketItemImport, {
-			bucketId: access.bucket._id,
+		await runIngestOperation(bucket.studioId, IngestJobs.BucketItemImport, {
+			bucketId: bucket._id,
 			showStyleBaseId: showStyleBaseId,
 			showStyleVariantIds: showStyleVariantId ? [showStyleVariantId] : undefined,
 			payload: ingestItem,

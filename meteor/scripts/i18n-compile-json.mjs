@@ -28,7 +28,7 @@ for (const lng of languages) {
 	try {
 		console.log('\n')
 		await runCmd(
-			`i18next-conv -l ${lng} -s i18n/${lng}.po -t public/locales/${lng}/translations.json --skipUntranslated`
+			`i18next-conv -l ${lng} -s i18n/${lng}.po -t ../packages/webui/public/locales/${lng}/translations.json --skipUntranslated`
 		)
 	} catch (e) {
 		console.error(`💣 Failed: ${lng}`)

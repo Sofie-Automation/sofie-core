@@ -225,6 +225,7 @@ function deNowifyCurrentPieces(
 	const objectsNotDeNowified: TimelineObjRundown[] = []
 	// The relative time for 'now' to be resolved to, inside of the part group
 	const nowInPart = targetNowTime - currentPartGroupStartTime
+	const nowInPartWithoutPreroll = nowInPart - (currentPartInstance.partInstance.partPlayoutTimings?.toPartDelay ?? 0)
 
 	// Ensure any pieces in the currentPartInstance have their now replaced
 	for (const pieceInstance of currentPartInstance.pieceInstances) {
@@ -232,7 +233,7 @@ function deNowifyCurrentPieces(
 			pieceInstance.updatePieceProps({
 				enable: {
 					...pieceInstance.pieceInstance.piece.enable,
-					start: nowInPart,
+					start: nowInPartWithoutPreroll,
 				},
 			})
 		}
@@ -244,9 +245,9 @@ function deNowifyCurrentPieces(
 		const objMetadata = obj.metaData as Partial<PieceTimelineMetadata> | undefined
 		if (objMetadata?.isPieceTimeline && !Array.isArray(obj.enable) && obj.enable.start === 'now') {
 			if (obj.inGroup === timingContext.currentPartGroup.id) {
-				obj.enable = { start: nowInPart }
+				obj.enable = { ...obj.enable, start: nowInPart }
 			} else if (!obj.inGroup) {
-				obj.enable = { start: targetNowTime }
+				obj.enable = { ...obj.enable, start: targetNowTime }
 			} else {
 				objectsNotDeNowified.push(obj)
 			}

@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor'
 import semver from 'semver'
-import { ICoreSystem, SYSTEM_ID, parseVersion } from '../../lib/collections/CoreSystem'
+import { ICoreSystem, SYSTEM_ID } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
+import { parseVersion } from '../systemStatus/semverUtils'
 import { logger } from '../logging'
 import { CoreSystem } from '../collections'
 

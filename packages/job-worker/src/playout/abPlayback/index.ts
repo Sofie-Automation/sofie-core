@@ -1,19 +1,30 @@
 import { ResolvedPieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
-import { ABSessionAssignments, DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import {
+	ABSessionAssignment,
+	ABSessionAssignments,
+	DBRundownPlaylist,
+} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { OnGenerateTimelineObjExt } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { endTrace, sendTrace, startTrace } from '@sofie-automation/corelib/dist/influxdb'
 import { WrappedShowStyleBlueprint } from '../../blueprints/cache'
 import { ReadonlyDeep } from 'type-fest'
 import { JobContext, ProcessedShowStyleCompound } from '../../jobs'
 import { getCurrentTime } from '../../lib'
-import { resolveAbAssignmentsFromRequests } from './abPlaybackResolver'
+import { resolveAbAssignmentsFromRequests, SessionRequest } from './abPlaybackResolver'
 import { calculateSessionTimeRanges } from './abPlaybackSessions'
 import { applyAbPlayerObjectAssignments } from './applyAssignments'
 import { AbSessionHelper } from './abSessionHelper'
 import { ShowStyleContext } from '../../blueprints/context'
 import { logger } from '../../logging'
-import { ABPlayerDefinition } from '@sofie-automation/blueprints-integration'
+import { ABPlayerDefinition, NoteSeverity } from '@sofie-automation/blueprints-integration'
+import { abPoolFilterDisabled, findPlayersInRouteSets } from './routeSetDisabling'
+import type { INotification } from '../../notifications/NotificationsModel'
+import { generateTranslation } from '@sofie-automation/corelib/dist/lib'
 
+export interface ABPlaybackResult {
+	assignments: Record<string, ABSessionAssignments>
+	notifications: INotification[]
+}
 /**
  * Resolve and apply AB-playback for the given timeline
  * @param context Context of the job
@@ -33,8 +44,12 @@ export function applyAbPlaybackForTimeline(
 	playlist: ReadonlyDeep<DBRundownPlaylist>,
 	resolvedPieces: ResolvedPieceInstance[],
 	timelineObjects: OnGenerateTimelineObjExt[]
-): Record<string, ABSessionAssignments> {
-	if (!blueprint.blueprint.getAbResolverConfiguration) return {}
+): ABPlaybackResult {
+	if (!blueprint.blueprint.getAbResolverConfiguration)
+		return {
+			assignments: {},
+			notifications: [],
+		}
 
 	const blueprintContext = new ShowStyleContext(
 		{
@@ -48,6 +63,17 @@ export function applyAbPlaybackForTimeline(
 	)
 
 	const previousAbSessionAssignments: Record<string, ABSessionAssignments> = playlist.assignedAbSessions || {}
+	logger.silly(`ABPlayback: Starting AB playback resolver ----------------------------`)
+	for (const [pool, assignments] of Object.entries<ABSessionAssignments>(previousAbSessionAssignments)) {
+		for (const assignment of Object.values<ABSessionAssignment | undefined>(assignments)) {
+			if (assignment) {
+				logger.silly(
+					`ABPlayback: Previous assignment "${pool}"-"${assignment.sessionId}" to player "${assignment.playerId}"`
+				)
+			}
+		}
+	}
+
 	const newAbSessionsResult: Record<string, ABSessionAssignments> = {}
 
 	const span = context.startSpan('blueprint.abPlaybackResolver')
@@ -55,9 +81,17 @@ export function applyAbPlaybackForTimeline(
 
 	const now = getCurrentTime()
 
+	const notifications: INotification[] = []
+
 	const abConfiguration = blueprint.blueprint.getAbResolverConfiguration(blueprintContext)
+	const routeSetMembers = findPlayersInRouteSets(context.studio.routeSets)
+
 	for (const [poolName, players] of Object.entries<ABPlayerDefinition[]>(abConfiguration.pools)) {
-		const previousAssignmentMap: ABSessionAssignments = previousAbSessionAssignments[poolName] || {}
+		// Filter out offline devices
+		const filteredPlayers = abPoolFilterDisabled(poolName, players, routeSetMembers)
+
+		const previousAssignmentMap: ReadonlyDeep<ABSessionAssignments> | undefined =
+			playlist.assignedAbSessions?.[poolName]
 		const sessionRequests = calculateSessionTimeRanges(
 			abSessionHelper,
 			resolvedPieces,
@@ -68,16 +102,29 @@ export function applyAbPlaybackForTimeline(
 
 		const assignments = resolveAbAssignmentsFromRequests(
 			abConfiguration.resolverOptions,
-			players.map((player) => player.playerId),
+			filteredPlayers.map((player) => player.playerId),
 			sessionRequests,
 			now
 		)
 
-		logger.silly(`ABPlayback resolved sessions for "${poolName}": ${JSON.stringify(assignments)}`)
+		for (const assignment of Object.values<SessionRequest>(assignments.requests)) {
+			logger.silly(
+				`ABPlayback resolved session "${poolName}"-"${assignment.id}" to player "${
+					assignment.playerId
+				}" (${JSON.stringify(assignment)})`
+			)
+		}
 		if (assignments.failedRequired.length > 0) {
 			logger.warn(
 				`ABPlayback failed to assign sessions for "${poolName}": ${JSON.stringify(assignments.failedRequired)}`
 			)
+			notifications.push({
+				id: `failedRequired-${poolName}`,
+				severity: NoteSeverity.ERROR,
+				message: generateTranslation('Failed to assign players for {{count}} sessions', {
+					count: assignments.failedRequired.length,
+				}),
+			})
 		}
 		if (assignments.failedOptional.length > 0) {
 			logger.info(
@@ -85,6 +132,13 @@ export function applyAbPlaybackForTimeline(
 					assignments.failedOptional
 				)}`
 			)
+			notifications.push({
+				id: `failedOptional-${poolName}`,
+				severity: NoteSeverity.WARNING,
+				message: generateTranslation('Failed to assign players for {{count}} non-critical sessions', {
+					count: assignments.failedOptional.length,
+				}),
+			})
 		}
 
 		newAbSessionsResult[poolName] = applyAbPlayerObjectAssignments(
@@ -101,5 +155,8 @@ export function applyAbPlaybackForTimeline(
 	sendTrace(endTrace(influxTrace))
 	if (span) span.end()
 
-	return newAbSessionsResult
+	return {
+		assignments: newAbSessionsResult,
+		notifications,
+	}
 }

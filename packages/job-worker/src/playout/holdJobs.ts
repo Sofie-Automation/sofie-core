@@ -5,11 +5,18 @@ import { ActivateHoldProps, DeactivateHoldProps } from '@sofie-automation/coreli
 import { JobContext } from '../jobs'
 import { runJobWithPlayoutModel } from './lock'
 import { updateTimeline } from './timeline/generate'
+import { logger } from '../logging'
 
 /**
  * Activate Hold
  */
 export async function handleActivateHold(context: JobContext, data: ActivateHoldProps): Promise<void> {
+	if (!context.studio.settings.allowHold) {
+		// Hold isn't allowed, making this a noop
+		logger.debug(`Hold isn't allowed, skipping`)
+		return
+	}
+
 	return runJobWithPlayoutModel(
 		context,
 		data,
@@ -59,6 +66,8 @@ export async function handleActivateHold(context: JobContext, data: ActivateHold
  * Deactivate Hold
  */
 export async function handleDeactivateHold(context: JobContext, data: DeactivateHoldProps): Promise<void> {
+	// This should be possible even when hold is not allowed, as it is a way to get out of a stuck state
+
 	return runJobWithPlayoutModel(
 		context,
 		data,

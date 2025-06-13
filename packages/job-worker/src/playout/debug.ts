@@ -8,7 +8,8 @@ import { logger } from '../logging'
 import { syncPlayheadInfinitesForNextPartInstance } from './infinites'
 import { setNextPart } from './setNext'
 import { runJobWithPlayoutModel } from './lock'
-import { updateStudioTimeline, updateTimeline } from './timeline/generate'
+import { updateTimeline } from './timeline/generate'
+import { updateTimelineFromStudioPlayoutModel } from './lib'
 
 /**
  * Ensure that the infinite pieces on the nexted-part are correct
@@ -80,17 +81,6 @@ export async function handleDebugCrash(context: JobContext, data: DebugRegenerat
  */
 export async function handleDebugUpdateTimeline(context: JobContext, _data: void): Promise<void> {
 	await runJobWithStudioPlayoutModel(context, async (studioPlayoutModel) => {
-		const activePlaylists = studioPlayoutModel.getActiveRundownPlaylists()
-		if (activePlaylists.length > 1) {
-			throw new Error(`Too many active playlists`)
-		} else if (activePlaylists.length > 0) {
-			const playlist = activePlaylists[0]
-
-			await runJobWithPlayoutModel(context, { playlistId: playlist._id }, null, async (playoutModel) => {
-				await updateTimeline(context, playoutModel)
-			})
-		} else {
-			await updateStudioTimeline(context, studioPlayoutModel)
-		}
+		await updateTimelineFromStudioPlayoutModel(context, studioPlayoutModel)
 	})
 }

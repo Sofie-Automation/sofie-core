@@ -20,7 +20,7 @@ const tmpRules = {
 }
 
 const tsBase = {
-	extends: [...tsExtends, 'plugin:custom-rules/all'],
+	extends: [...tsExtends],
 	plugins: tsPlugins,
 	...tsParser,
 	settings: {
@@ -50,48 +50,24 @@ const tsBase = {
 				allowModules: ['meteor', 'mongodb'],
 			},
 		],
-		'jest/no-standalone-expect': 'off', // testInFiber confuses the rule
 		...tmpRules,
 	},
 }
 
 module.exports = {
-	extends: [...commonExtends, 'plugin:react/recommended'],
-	plugins: [...commonPlugins, 'react'],
+	extends: [...commonExtends],
+	plugins: [...commonPlugins],
 	rules: {
 		'prettier/prettier': 'error',
 	},
 	env: { es2017: true },
 	parserOptions: { sourceType: 'module', ecmaVersion: 2018 },
-	settings: {
-		react: {
-			version: 'detect', // Tells eslint-plugin-react to automatically detect the version of React to use
-		},
-	},
+	settings: {},
 	overrides: [
 		// Note: these replace the values defined above, so make sure to extend them if they are needed
 		{
 			files: ['*.ts'],
 			...tsBase,
-		},
-		{
-			files: ['*.tsx'],
-			...tsBase,
-			extends: [...tsBase.extends, 'plugin:react/recommended'],
-			parserOptions: {
-				...tsBase.parserOptions,
-				ecmaFeatures: {
-					jsx: true, // Allows for the parsing of JSX
-				},
-			},
-			rules: {
-				...tsBase.rules,
-				'node/no-extraneous-import': 'off', // because there are a lot of them as dev-dependencies
-				'node/no-missing-import': 'off', // erroring on every single import
-				'react/prop-types': 'off', // we don't use this
-				'@typescript-eslint/no-empty-interface': 'off', // many prop/state types are {}
-				'@typescript-eslint/promise-function-async': 'off', // event handlers can't be async
-			},
 		},
 		{
 			files: ['*.js'],

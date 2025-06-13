@@ -1,31 +1,40 @@
 import '../../__mocks__/_extendJest'
-import { testInFiber, runAllTimers, beforeAllInFiber, waitUntil } from '../../__mocks__/helpers/jest'
+import { runAllTimers, waitUntil } from '../../__mocks__/helpers/jest'
 import { MeteorMock } from '../../__mocks__/meteor'
 import { logger } from '../logging'
-import { getRandomId, getRandomString, protectString } from '../../lib/lib'
-import { SnapshotType } from '../../lib/collections/Snapshots'
-import { IBlueprintPieceType, PieceLifespan, StatusCode, TSR } from '@sofie-automation/blueprints-integration'
+import { getRandomId, getRandomString, literal, protectString } from '../lib/tempLib'
+import { SnapshotType } from '@sofie-automation/meteor-lib/dist/collections/Snapshots'
+import {
+	IBlueprintPieceType,
+	PieceLifespan,
+	PlaylistTimingType,
+	StatusCode,
+	TSR,
+} from '@sofie-automation/blueprints-integration'
 import {
 	PeripheralDeviceType,
 	PeripheralDeviceCategory,
 	PeripheralDevice,
 	PERIPHERAL_SUBTYPE_PROCESS,
 } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
-import { SYSTEM_ID } from '../../lib/collections/CoreSystem'
-import * as lib from '../../lib/lib'
+import { SYSTEM_ID } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
+import * as lib from '../lib/lib'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { PartInstance } from '../../lib/collections/PartInstances'
+import { PartInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { Meteor } from 'meteor/meteor'
 import { EmptyPieceTimelineObjectsBlob } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import {
-	IngestDataCacheObjId,
+	NrcsIngestDataCacheObjId,
+	SofieIngestDataCacheObjId,
 	PartId,
 	PeripheralDeviceId,
 	RundownId,
 	SegmentId,
 	SnapshotId,
 	UserActionsLogItemId,
+	StudioId,
+	RundownPlaylistId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 // Set up mocks for tests in this suite
@@ -42,7 +51,7 @@ import '../cronjobs'
 import '../api/peripheralDevice'
 import {
 	CoreSystem,
-	IngestDataCache,
+	NrcsIngestDataCache,
 	PartInstances,
 	Parts,
 	PeripheralDeviceCommands,
@@ -51,8 +60,11 @@ import {
 	Snapshots,
 	UserActionsLog,
 	Segments,
+	SofieIngestDataCache,
+	Studios,
+	RundownPlaylists,
 } from '../collections'
-import { IngestCacheType } from '@sofie-automation/corelib/dist/dataModel/IngestDataCache'
+import { NrcsIngestCacheType } from '@sofie-automation/corelib/dist/dataModel/NrcsIngestDataCache'
 import { JSONBlobStringify } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 import {
 	DefaultEnvironment,
@@ -60,32 +72,43 @@ import {
 	setupDefaultStudioEnvironment,
 } from '../../__mocks__/helpers/database'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { Settings } from '../../lib/Settings'
+import { Settings } from '../Settings'
+import { SofieIngestCacheType } from '@sofie-automation/corelib/dist/dataModel/SofieIngestDataCache'
+import { ObjectOverrideSetOp, ObjectWithOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 
 describe('cronjobs', () => {
 	let env: DefaultEnvironment
 	let rundownId: RundownId
 
-	beforeAllInFiber(async () => {
+	async function setCasparCGCronEnabled(enabled: boolean) {
+		await CoreSystem.updateAsync(
+			{},
+			{
+				// This is a little bit of a hack, as it will result in duplicate ops, but it's fine for unit tests
+				$push: {
+					'settingsWithOverrides.overrides': literal<ObjectOverrideSetOp>({
+						op: 'set',
+						path: 'cron.casparCGRestart.enabled',
+						value: enabled,
+					}),
+				},
+			},
+			{ multi: true }
+		)
+	}
+
+	beforeAll(async () => {
 		env = await setupDefaultStudioEnvironment()
 
 		const o = await setupDefaultRundownPlaylist(env)
 		rundownId = o.rundownId
 
-		await CoreSystem.updateAsync(
-			{},
-			{
-				$set: {
-					'cron.casparCGRestart.enabled': true,
-				},
-			},
-			{ multi: true }
-		)
+		await setCasparCGCronEnabled(true)
 
 		jest.useFakeTimers()
 		// set time to 2020/07/19 00:00 Local Time
 		mockCurrentTime = new Date(2020, 6, 19, 0, 0, 0).getTime()
-		MeteorMock.mockRunMeteorStartup()
+		await MeteorMock.mockRunMeteorStartup()
 		origGetCurrentTime = lib.getCurrentTime
 		//@ts-ignore Mock getCurrentTime for tests
 		lib.getCurrentTime = jest.fn(() => {
@@ -98,22 +121,22 @@ describe('cronjobs', () => {
 		await CoreSystem.removeAsync(SYSTEM_ID)
 	})
 	describe('Runs at the appropriate time', () => {
-		testInFiber("Doesn't run during the day", async () => {
+		test("Doesn't run during the day", async () => {
 			// set time to 2020/07/19 12:00 Local Time
 			mockCurrentTime = new Date(2020, 6, 19, 12, 0, 0).getTime()
 			// cronjob is checked every 5 minutes, so advance 6 minutes
-			jest.advanceTimersByTime(6 * 60 * 1000)
+			await jest.advanceTimersByTimeAsync(6 * 60 * 1000)
 			expect(lib.getCurrentTime).toHaveBeenCalled()
 
 			await runAllTimers()
 
 			expect(logger.info).toHaveBeenCalledTimes(0)
 		})
-		testInFiber("Runs at 4 o'clock", async () => {
+		test("Runs at 4 o'clock", async () => {
 			// set time to 2020/07/20 04:05 Local Time, should be more than 24 hours after 2020/07/19 00:00 UTC
 			mockCurrentTime = new Date(2020, 6, 20, 4, 5, 0).getTime()
 			// cronjob is checked every 5 minutes, so advance 6 minutes
-			jest.advanceTimersByTime(6 * 60 * 1000)
+			await jest.advanceTimersByTimeAsync(6 * 60 * 1000)
 			expect(lib.getCurrentTime).toHaveBeenCalled()
 
 			expect(logger.info).not.toHaveBeenLastCalledWith('Nightly cronjob: done')
@@ -124,11 +147,11 @@ describe('cronjobs', () => {
 				expect(logger.info).toHaveBeenLastCalledWith('Nightly cronjob: done')
 			}, MAX_WAIT_TIME)
 		})
-		testInFiber("Doesn't run if less than 20 hours have passed since last run", async () => {
+		test("Doesn't run if less than 20 hours have passed since last run", async () => {
 			// set time to 2020/07/21 04:05 Local Time, should be more than 24 hours after 2020/07/19 00:00 UTC
 			mockCurrentTime = new Date(2020, 6, 21, 4, 5, 0).getTime()
 			// cronjob is checked every 5 minutes, so advance 6 minutes
-			jest.advanceTimersByTime(6 * 60 * 1000)
+			await jest.advanceTimersByTimeAsync(6 * 60 * 1000)
 			expect(lib.getCurrentTime).toHaveBeenCalled()
 
 			expect(logger.info).not.toHaveBeenLastCalledWith('Nightly cronjob: done')
@@ -142,7 +165,7 @@ describe('cronjobs', () => {
 			;(logger.info as jest.Mock).mockClear()
 
 			mockCurrentTime = new Date(2020, 6, 20, 4, 50, 0).getTime()
-			jest.advanceTimersByTime(6 * 60 * 1000)
+			await jest.advanceTimersByTimeAsync(6 * 60 * 1000)
 
 			await runAllTimers()
 			// less than 24 hours have passed so we do not expect the cronjob to run
@@ -156,7 +179,7 @@ describe('cronjobs', () => {
 			// set time to 2020/07/{date} 04:05 Local Time, should be more than 24 hours after 2020/07/19 00:00 UTC
 			mockCurrentTime = new Date(2020, 6, date++, 4, 5, 0).getTime()
 			// cronjob is checked every 5 minutes, so advance 6 minutes
-			jest.advanceTimersByTime(6 * 60 * 1000)
+			await jest.advanceTimersByTimeAsync(6 * 60 * 1000)
 
 			expect(logger.info).not.toHaveBeenLastCalledWith('Nightly cronjob: done')
 			await waitUntil(async () => {
@@ -170,54 +193,103 @@ describe('cronjobs', () => {
 			await PeripheralDevices.removeAsync({})
 		})
 
-		testInFiber('Remove IngestDataCache objects that are not connected to any Rundown', async () => {
-			// Set up a mock rundown, a detached IngestDataCache object and an object attached to the mock rundown
-			// Detached IngestDataCache object 0
-			const dataCache0Id = protectString<IngestDataCacheObjId>(getRandomString())
-			await IngestDataCache.mutableCollection.insertAsync({
+		test('Remove NrcsIngestDataCache objects that are not connected to any Rundown', async () => {
+			// Set up a mock rundown, a detached NrcsIngestDataCache object and an object attached to the mock rundown
+			// Detached NrcsIngestDataCache object 0
+			const dataCache0Id = protectString<NrcsIngestDataCacheObjId>(getRandomString())
+			await NrcsIngestDataCache.mutableCollection.insertAsync({
 				_id: dataCache0Id,
 				data: {
 					externalId: '',
 					name: '',
 					segments: [],
 					type: '',
+					rundownSource: {} as any,
+					payload: undefined,
 				},
 				modified: new Date(2000, 0, 1, 0, 0, 0).getTime(),
 				// this one is attached to rundown0
 				rundownId: getRandomId(),
-				type: IngestCacheType.RUNDOWN,
+				type: NrcsIngestCacheType.RUNDOWN,
 			})
-			// Attached IngestDataCache object 1
-			const dataCache1Id = protectString<IngestDataCacheObjId>(getRandomString())
-			await IngestDataCache.mutableCollection.insertAsync({
+			// Attached NrcsIngestDataCache object 1
+			const dataCache1Id = protectString<NrcsIngestDataCacheObjId>(getRandomString())
+			await NrcsIngestDataCache.mutableCollection.insertAsync({
 				_id: dataCache1Id,
 				data: {
 					externalId: '',
 					name: '',
 					segments: [],
 					type: '',
+					rundownSource: {} as any,
+					payload: undefined,
 				},
 				modified: new Date(2000, 0, 1, 0, 0, 0).getTime(),
 				// just some random ID
 				rundownId: rundownId,
-				type: IngestCacheType.RUNDOWN,
+				type: NrcsIngestCacheType.RUNDOWN,
 			})
 
 			await runCronjobs()
 
-			expect(await IngestDataCache.findOneAsync(dataCache1Id)).toMatchObject({
+			expect(await NrcsIngestDataCache.findOneAsync(dataCache1Id)).toMatchObject({
 				_id: dataCache1Id,
 			})
-			expect(await IngestDataCache.findOneAsync(dataCache0Id)).toBeUndefined()
+			expect(await NrcsIngestDataCache.findOneAsync(dataCache0Id)).toBeUndefined()
 		})
-		testInFiber('Removes old PartInstances and PieceInstances', async () => {
+		test('Remove SofieIngestDataCache objects that are not connected to any Rundown', async () => {
+			// Set up a mock rundown, a detached SofieIngestDataCache object and an object attached to the mock rundown
+			// Detached SofieIngestDataCache object 0
+			const dataCache0Id = protectString<SofieIngestDataCacheObjId>(getRandomString())
+			await SofieIngestDataCache.mutableCollection.insertAsync({
+				_id: dataCache0Id,
+				data: {
+					externalId: '',
+					name: '',
+					segments: [],
+					type: '',
+					rundownSource: {} as any,
+					userEditStates: {},
+					payload: undefined,
+				},
+				modified: new Date(2000, 0, 1, 0, 0, 0).getTime(),
+				// this one is attached to rundown0
+				rundownId: getRandomId(),
+				type: SofieIngestCacheType.RUNDOWN,
+			})
+			// Attached SofieIngestDataCache object 1
+			const dataCache1Id = protectString<SofieIngestDataCacheObjId>(getRandomString())
+			await SofieIngestDataCache.mutableCollection.insertAsync({
+				_id: dataCache1Id,
+				data: {
+					externalId: '',
+					name: '',
+					segments: [],
+					type: '',
+					rundownSource: {} as any,
+					userEditStates: {},
+					payload: undefined,
+				},
+				modified: new Date(2000, 0, 1, 0, 0, 0).getTime(),
+				// just some random ID
+				rundownId: rundownId,
+				type: SofieIngestCacheType.RUNDOWN,
+			})
+
+			await runCronjobs()
+
+			expect(await SofieIngestDataCache.findOneAsync(dataCache1Id)).toMatchObject({
+				_id: dataCache1Id,
+			})
+			expect(await SofieIngestDataCache.findOneAsync(dataCache0Id)).toBeUndefined()
+		})
+		test('Removes old PartInstances and PieceInstances', async () => {
 			// nightlyCronjobInner()
 
 			const segment0: DBSegment = {
 				_id: getRandomId<SegmentId>(),
 				_rank: 0,
 				externalId: '',
-				externalModified: 0,
 				rundownId,
 				name: 'mock segment',
 			}
@@ -344,7 +416,7 @@ describe('cronjobs', () => {
 			expect(await PieceInstances.findOneAsync(pieceInstance0._id)).toBeDefined()
 			expect(await PieceInstances.findOneAsync(pieceInstance1._id)).toBeUndefined() // Removed, since owned by non-existent partInstance2
 		})
-		testInFiber('Removes old entries in UserActionsLog', async () => {
+		test('Removes old entries in UserActionsLog', async () => {
 			// reasonably fresh entry
 			const userAction0 = protectString<UserActionsLogItemId>(getRandomString())
 			await UserActionsLog.insertAsync({
@@ -378,7 +450,7 @@ describe('cronjobs', () => {
 			})
 			expect(await UserActionsLog.findOneAsync(userAction1)).toBeUndefined()
 		})
-		testInFiber('Removes old entries in Snapshots', async () => {
+		test('Removes old entries in Snapshots', async () => {
 			// reasonably fresh entry
 			const snapshot0 = protectString<SnapshotId>(getRandomString())
 			await Snapshots.insertAsync({
@@ -414,7 +486,11 @@ describe('cronjobs', () => {
 			expect(await Snapshots.findOneAsync(snapshot1)).toBeUndefined()
 		})
 		async function insertPlayoutDevice(
-			props: Pick<PeripheralDevice, 'subType' | 'deviceName' | 'lastSeen' | 'parentDeviceId'>
+			props: Pick<
+				PeripheralDevice,
+				'subType' | 'deviceName' | 'lastSeen' | 'parentDeviceId' | 'studioAndConfigId'
+			> &
+				Partial<Pick<PeripheralDevice, 'token'>>
 		): Promise<PeripheralDeviceId> {
 			const deviceId = protectString<PeripheralDeviceId>(getRandomString())
 			await PeripheralDevices.insertAsync({
@@ -435,51 +511,132 @@ describe('cronjobs', () => {
 					statusCode: StatusCode.GOOD,
 				},
 				token: '',
-				settings: {},
 				...props,
 			})
 
 			return deviceId
 		}
 
-		async function createMockPlayoutGatewayAndDevices(lastSeen: number): Promise<{
+		async function createMockPlayoutGatewayAndDevices(
+			lastSeen: number,
+			studioId?: StudioId
+		): Promise<{
+			deviceToken: string
 			mockPlayoutGw: PeripheralDeviceId
 			mockCasparCg: PeripheralDeviceId
 			mockAtem: PeripheralDeviceId
 		}> {
+			const deviceToken = 'token1'
 			const mockPlayoutGw = await insertPlayoutDevice({
 				deviceName: 'Playout Gateway',
 				lastSeen: lastSeen,
 				subType: PERIPHERAL_SUBTYPE_PROCESS,
+				token: deviceToken,
+				studioAndConfigId: studioId
+					? {
+							configId: '',
+							studioId,
+					  }
+					: undefined,
 			})
 			const mockCasparCg = await insertPlayoutDevice({
 				deviceName: 'CasparCG',
 				lastSeen: lastSeen,
 				subType: TSR.DeviceType.CASPARCG,
 				parentDeviceId: mockPlayoutGw,
+				token: deviceToken,
 			})
 			const mockAtem = await insertPlayoutDevice({
 				deviceName: 'ATEM',
 				lastSeen: lastSeen,
 				subType: TSR.DeviceType.ATEM,
 				parentDeviceId: mockPlayoutGw,
+				token: deviceToken,
 			})
 
 			return {
+				deviceToken,
 				mockPlayoutGw,
 				mockCasparCg,
 				mockAtem,
 			}
 		}
 
-		testInFiber('Attempts to restart CasparCG when job is enabled', async () => {
-			const { mockCasparCg } = await createMockPlayoutGatewayAndDevices(Date.now()) // Some time after the threshold
+		async function createMockStudioAndRundown(): Promise<{
+			studioId: StudioId
+			rundownPlaylistId: RundownPlaylistId
+		}> {
+			function newObjectWithOverrides<T extends {}>(defaults: T): ObjectWithOverrides<T> {
+				return {
+					defaults,
+					overrides: [],
+				}
+			}
+			const studioId = protectString<StudioId>(getRandomString())
+			await Studios.insertAsync({
+				_id: studioId,
+				organizationId: null,
+				name: 'Studio',
+				blueprintConfigWithOverrides: newObjectWithOverrides({}),
+				_rundownVersionHash: '',
+				lastBlueprintConfig: undefined,
+				lastBlueprintFixUpHash: undefined,
+				mappingsWithOverrides: newObjectWithOverrides({}),
+				supportedShowStyleBase: [],
+				settingsWithOverrides: newObjectWithOverrides({
+					allowHold: true,
+					allowPieceDirectPlay: true,
+					enableBuckets: true,
+					enableEvaluationForm: true,
+					frameRate: 25,
+					mediaPreviewsUrl: '',
+					minimumTakeSpan: 1000,
+				}),
+				routeSetsWithOverrides: newObjectWithOverrides({}),
+				routeSetExclusivityGroupsWithOverrides: newObjectWithOverrides({}),
+				packageContainersWithOverrides: newObjectWithOverrides({}),
+				previewContainerIds: [],
+				thumbnailContainerIds: [],
+				peripheralDeviceSettings: {
+					deviceSettings: newObjectWithOverrides({}),
+					ingestDevices: newObjectWithOverrides({}),
+					inputDevices: newObjectWithOverrides({}),
+					playoutDevices: newObjectWithOverrides({}),
+				},
+			})
+
+			const rundownPlaylistId = protectString<RundownPlaylistId>(getRandomString())
+			await RundownPlaylists.mutableCollection.insertAsync({
+				_id: rundownPlaylistId,
+				created: Date.now(),
+				currentPartInfo: null,
+				nextPartInfo: null,
+				externalId: '',
+				modified: Date.now(),
+				name: 'Rundown',
+				previousPartInfo: null,
+				rundownIdsInOrder: [],
+				studioId,
+				timing: {
+					type: PlaylistTimingType.None,
+				},
+				activationId: protectString(''),
+			})
+
+			return {
+				studioId,
+				rundownPlaylistId,
+			}
+		}
+
+		test('Attempts to restart CasparCG when job is enabled', async () => {
+			const { mockCasparCg, deviceToken } = await createMockPlayoutGatewayAndDevices(Date.now()) // Some time after the threshold
 
 			;(logger.info as jest.Mock).mockClear()
 			// set time to 2020/07/{date} 04:05 Local Time, should be more than 24 hours after 2020/07/19 00:00 UTC
 			mockCurrentTime = new Date(2020, 6, date++, 4, 5, 0).getTime()
 			// cronjob is checked every 5 minutes, so advance 6 minutes
-			jest.advanceTimersByTime(6 * 60 * 1000)
+			await jest.advanceTimersByTimeAsync(6 * 60 * 1000)
 			await runAllTimers()
 
 			// check if the correct PeripheralDevice command has been issued, and only for CasparCG devices
@@ -491,16 +648,18 @@ describe('cronjobs', () => {
 			})
 
 			// Emulate that the restart was successful:
-			pendingCommands.forEach((cmd) => {
-				Meteor.call(
-					'peripheralDevice.functionReply',
-					cmd.deviceId, // deviceId
-					'', // deviceToken
-					cmd._id, // commandId
-					null, // err
-					null // result
+			await Promise.all(
+				pendingCommands.map(async (cmd) =>
+					Meteor.callAsync(
+						'peripheralDevice.functionReply',
+						cmd.deviceId, // deviceId
+						deviceToken, // deviceToken
+						cmd._id, // commandId
+						null, // err
+						null // result
+					)
 				)
-			})
+			)
 
 			expect(logger.info).not.toHaveBeenLastCalledWith('Nightly cronjob: done')
 			await waitUntil(async () => {
@@ -509,7 +668,7 @@ describe('cronjobs', () => {
 				expect(logger.info).toHaveBeenLastCalledWith('Nightly cronjob: done')
 			}, MAX_WAIT_TIME)
 		})
-		testInFiber('Skips offline CasparCG when job is enabled', async () => {
+		test('Skips offline CasparCG when job is enabled', async () => {
 			const { mockCasparCg } = await createMockPlayoutGatewayAndDevices(Date.now()) // Some time after the threshold
 			await PeripheralDevices.updateAsync(mockCasparCg, {
 				$set: {
@@ -520,7 +679,7 @@ describe('cronjobs', () => {
 			// set time to 2020/07/{date} 04:05 Local Time, should be more than 24 hours after 2020/07/19 00:00 UTC
 			mockCurrentTime = new Date(2020, 6, date++, 4, 5, 0).getTime()
 			// cronjob is checked every 5 minutes, so advance 6 minutes
-			jest.advanceTimersByTime(6 * 60 * 1000)
+			await jest.advanceTimersByTimeAsync(6 * 60 * 1000)
 
 			await waitUntil(async () => {
 				// Run timers, so that all promises in the cronjob has a chance to resolve:
@@ -535,22 +694,36 @@ describe('cronjobs', () => {
 				expect(logger.info).toHaveBeenLastCalledWith('Nightly cronjob: done')
 			}, MAX_WAIT_TIME)
 		})
-		testInFiber('Does not attempt to restart CasparCG when job is disabled', async () => {
-			await createMockPlayoutGatewayAndDevices(Date.now()) // Some time after the threshold
-			await CoreSystem.updateAsync(
-				{},
-				{
-					$set: {
-						'cron.casparCGRestart.enabled': false,
-					},
-				},
-				{ multi: true }
-			)
+		test('Skips CasparCG in Studios with active Playlists when job is enabled', async () => {
+			const { studioId } = await createMockStudioAndRundown()
+			await createMockPlayoutGatewayAndDevices(Date.now(), studioId) // Some time after the threshold
 			;(logger.info as jest.Mock).mockClear()
 			// set time to 2020/07/{date} 04:05 Local Time, should be more than 24 hours after 2020/07/19 00:00 UTC
 			mockCurrentTime = new Date(2020, 6, date++, 4, 5, 0).getTime()
 			// cronjob is checked every 5 minutes, so advance 6 minutes
-			jest.advanceTimersByTime(6 * 60 * 1000)
+			await jest.advanceTimersByTimeAsync(6 * 60 * 1000)
+
+			await waitUntil(async () => {
+				// Run timers, so that all promises in the cronjob has a chance to resolve:
+				const pendingCommands = await PeripheralDeviceCommands.findFetchAsync({})
+				expect(pendingCommands).toHaveLength(0)
+			}, MAX_WAIT_TIME)
+
+			// make sure that the cronjob ends
+			await waitUntil(async () => {
+				// Run timers, so that all promises in the cronjob has a chance to resolve:
+				await runAllTimers()
+				expect(logger.info).toHaveBeenLastCalledWith('Nightly cronjob: done')
+			}, MAX_WAIT_TIME)
+		})
+		test('Does not attempt to restart CasparCG when job is disabled', async () => {
+			await createMockPlayoutGatewayAndDevices(Date.now()) // Some time after the threshold
+			await setCasparCGCronEnabled(false)
+			;(logger.info as jest.Mock).mockClear()
+			// set time to 2020/07/{date} 04:05 Local Time, should be more than 24 hours after 2020/07/19 00:00 UTC
+			mockCurrentTime = new Date(2020, 6, date++, 4, 5, 0).getTime()
+			// cronjob is checked every 5 minutes, so advance 6 minutes
+			await jest.advanceTimersByTimeAsync(6 * 60 * 1000)
 			jest.runOnlyPendingTimers()
 
 			// check if the no PeripheralDevice command have been issued

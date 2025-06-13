@@ -1,18 +1,15 @@
 import { StatusCode } from '@sofie-automation/blueprints-integration'
-import { BlueprintId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
+import { BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
-import { Blueprints, ShowStyleBases, Studios } from '../collections'
+import { Blueprints } from '../collections'
 import {
 	parseVersion,
 	compareSemverVersions,
 	parseRange,
 	isPrerelease,
 	parseCoreIntegrationCompatabilityRange,
-} from '../../lib/collections/CoreSystem'
-import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { lazyIgnore } from '../../lib/lib'
+} from '../systemStatus/semverUtils'
+import { lazyIgnore } from '../lib/lib'
 import { logger } from '../logging'
 import { CURRENT_SYSTEM_VERSION } from '../migration/currentSystemVersion'
 import { setSystemStatus, removeSystemStatus } from '../systemStatus/systemStatus'
@@ -89,62 +86,7 @@ export function checkDatabaseVersions(): void {
 						blueprintIds.add(blueprint._id)
 
 						if (!blueprint.databaseVersion || typeof blueprint.databaseVersion === 'string')
-							blueprint.databaseVersion = { showStyle: {}, studio: {}, system: undefined }
-						if (!blueprint.databaseVersion.showStyle) blueprint.databaseVersion.showStyle = {}
-						if (!blueprint.databaseVersion.studio) blueprint.databaseVersion.studio = {}
-
-						let o: {
-							statusCode: StatusCode
-							messages: string[]
-						} = {
-							statusCode: StatusCode.BAD,
-							messages: [],
-						}
-
-						const checkedStudioIds = new Set<StudioId>()
-
-						const showStylesForBlueprint = (await ShowStyleBases.findFetchAsync(
-							{ blueprintId: blueprint._id },
-							{
-								fields: { _id: 1 },
-							}
-						)) as Array<Pick<DBShowStyleBase, '_id'>>
-						for (const showStyleBase of showStylesForBlueprint) {
-							if (o.statusCode === StatusCode.GOOD) {
-								o = compareSemverVersions(
-									parseVersion(blueprint.blueprintVersion),
-									parseRange(blueprint.databaseVersion.showStyle[unprotectString(showStyleBase._id)]),
-									false,
-									'to fix, run migration',
-									'blueprint version',
-									`showStyle "${showStyleBase._id}" migrations`
-								)
-							}
-
-							const studiosForShowStyleBase = (await Studios.findFetchAsync(
-								{ supportedShowStyleBase: showStyleBase._id },
-								{
-									fields: { _id: 1 },
-								}
-							)) as Array<Pick<DBStudio, '_id'>>
-							for (const studio of studiosForShowStyleBase) {
-								if (!checkedStudioIds.has(studio._id)) {
-									// only run once per blueprint and studio
-									checkedStudioIds.add(studio._id)
-
-									if (o.statusCode === StatusCode.GOOD) {
-										o = compareSemverVersions(
-											parseVersion(blueprint.blueprintVersion),
-											parseRange(blueprint.databaseVersion.studio[unprotectString(studio._id)]),
-											false,
-											'to fix, run migration',
-											'blueprint version',
-											`studio "${studio._id}]" migrations`
-										)
-									}
-								}
-							}
-						}
+							blueprint.databaseVersion = { system: undefined }
 
 						checkBlueprintCompability(blueprint)
 					}

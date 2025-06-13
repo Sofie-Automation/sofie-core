@@ -5,6 +5,11 @@ import { WebApp } from 'meteor/webapp'
 import { Meteor } from 'meteor/meteor'
 import { getRandomString } from '@sofie-automation/corelib/dist/lib'
 import _ from 'underscore'
+import { public_dir } from '../../lib'
+import staticServe from 'koa-static'
+import { logger } from '../../logging'
+import { PackageInfo } from '../../coreSystem'
+import { profiler } from '../profiler'
 
 declare module 'http' {
 	interface IncomingMessage {
@@ -13,15 +18,13 @@ declare module 'http' {
 	}
 }
 
-export function bindKoaRouter(koaRouter: KoaRouter, bindPath: string): void {
-	const app = new Koa()
-	// Expose the API at the url
-	WebApp.rawConnectHandlers.use(bindPath, (req, res) => {
-		const callback = Meteor.bindEnvironment(app.callback())
-		callback(req, res).catch(() => res.end())
-	})
+const rootRouter = new KoaRouter()
+const boundRouterPaths: string[] = []
 
-	app.use(async (ctx, next) => {
+Meteor.startup(() => {
+	const koaApp = new Koa()
+
+	koaApp.use(async (ctx, next) => {
 		// Strange - sometimes a JSON body gets parsed by Koa before here (eg for a POST call?).
 		if (typeof ctx.req.body === 'object') {
 			ctx.disableBodyParser = true
@@ -33,7 +36,7 @@ export function bindKoaRouter(koaRouter: KoaRouter, bindPath: string): void {
 		}
 		await next()
 	})
-	app.use(
+	koaApp.use(
 		cors({
 			// Allow anything
 			origin(ctx) {
@@ -41,7 +44,82 @@ export function bindKoaRouter(koaRouter: KoaRouter, bindPath: string): void {
 			},
 		})
 	)
-	app.use(koaRouter.routes()).use(koaRouter.allowedMethods())
+
+	// Expose the API at the url
+	WebApp.rawHandlers.use((req, res) => {
+		const transaction = profiler.startTransaction(`${req.method}:${req.url}`, 'http.incoming')
+		if (transaction) {
+			transaction.setLabel('url', `${req.url}`)
+			transaction.setLabel('method', `${req.method}`)
+
+			res.on('finish', () => {
+				// When the end of the request is sent to the client, submit the apm transaction
+				let route = req.originalUrl
+				if (req.originalUrl && req.url && req.originalUrl.endsWith(req.url.slice(1)) && req.url.length > 1) {
+					route = req.originalUrl.slice(0, -1 * (req.url.length - 1))
+				}
+
+				if (route && route.endsWith('/')) {
+					route = route.slice(0, -1)
+				}
+
+				if (route) {
+					transaction.name = `${req.method}:${route}`
+					transaction.setLabel('route', `${route}`)
+				}
+
+				transaction.end()
+			})
+		}
+
+		const callback = Meteor.bindEnvironment(koaApp.callback())
+		callback(req, res).catch(() => res.end())
+	})
+
+	// serve the webui through koa
+	// This is to avoid meteor injecting anything into the served html
+	const webuiServer = staticServe(public_dir)
+	koaApp.use(webuiServer)
+	logger.debug(`Serving static files from ${public_dir}`)
+
+	// Serve the meteor runtime config
+	rootRouter.get('/meteor-runtime-config.js', async (ctx) => {
+		const versionExtended: string = PackageInfo.versionExtended || PackageInfo.version // package version
+
+		ctx.body = `window.__meteor_runtime_config__ = (${JSON.stringify({
+			// @ts-expect-error missing types for internal meteor detail
+			...__meteor_runtime_config__,
+			sofieVersionExtended: versionExtended,
+		})})`
+	})
+
+	koaApp.use(rootRouter.routes()).use(rootRouter.allowedMethods())
+
+	koaApp.use(async (ctx, next) => {
+		if (ctx.method !== 'GET') return next()
+
+		// Don't use the fallback for certain paths
+		if (ctx.path.startsWith('/assets/')) return next()
+
+		// Don't use the fallback for anything handled by another router
+		// This does not feel efficient, but koa doesn't appear to have any shared state between the router handlers
+		for (const bindPath of boundRouterPaths) {
+			if (ctx.path.startsWith(bindPath)) return next()
+		}
+
+		// fallback to the root file
+		ctx.path = '/'
+		return webuiServer(ctx, next)
+	})
+})
+
+export function bindKoaRouter(koaRouter: KoaRouter, bindPath: string): void {
+	// Track this path as having a router
+	let bindPathFull = bindPath
+	if (!bindPathFull.endsWith('/')) bindPathFull += '/'
+	boundRouterPaths.push(bindPathFull)
+
+	rootRouter.use(bindPath, koaRouter.routes()).use(bindPath, koaRouter.allowedMethods())
 }
 
 const REVERSE_PROXY_COUNT = process.env.HTTP_FORWARDED_COUNT ? parseInt(process.env.HTTP_FORWARDED_COUNT) : 0

@@ -4,7 +4,7 @@ import { MongoFieldSpecifierOnes } from '@sofie-automation/corelib/dist/mongo'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { Meteor } from 'meteor/meteor'
 import _ from 'underscore'
-import { stringifyObjects } from '../../lib/lib'
+import { stringifyObjects } from '../lib/tempLib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { logger } from '../logging'
 import { AsyncOnlyMongoCollection, AsyncOnlyReadOnlyMongoCollection } from './collection'
@@ -60,7 +60,7 @@ export async function ObserveChangesHelper<DBInterface extends { _id: ProtectedS
 		projection[field] = 1
 	}
 
-	collection.observeChanges(
+	await collection.observeChanges(
 		{},
 		{
 			changed: (id: DBInterface['_id'], changedFields) => {

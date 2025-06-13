@@ -5,7 +5,8 @@ import { createMongoConnection, getMongoCollections, IDirectCollections } from '
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { setupApmAgent, startTransaction } from '../../profiler'
 import { InvalidateWorkerDataCache, invalidateWorkerDataCache, loadWorkerDataCache, WorkerDataCache } from '../caches'
-import { JobContextImpl, QueueJobFunc } from '../context'
+import { JobContextImpl } from '../context/JobContextImpl'
+import { QueueJobFunc } from '../context/util'
 import { AnyLockEvent, LocksManager } from '../locks'
 import { FastTrackTimelineFunc, LogLineWithSourceFunc } from '../../main'
 import { interceptLogging, logger } from '../../logging'
@@ -80,7 +81,7 @@ export class IngestWorkerChild {
 
 		const transaction = startTransaction('invalidateCaches', 'worker-studio')
 		if (transaction) {
-			transaction.setLabel('studioId', unprotectString(this.#staticData.dataCache.studio._id))
+			transaction.setLabel('studioId', unprotectString(this.#staticData.dataCache.jobStudio._id))
 		}
 
 		try {
@@ -98,7 +99,7 @@ export class IngestWorkerChild {
 		const trace = startTrace('ingestWorker:' + jobName)
 		const transaction = startTransaction(jobName, 'worker-ingest')
 		if (transaction) {
-			transaction.setLabel('studioId', unprotectString(this.#staticData.dataCache.studio._id))
+			transaction.setLabel('studioId', unprotectString(this.#staticData.dataCache.jobStudio._id))
 			// transaction.setLabel('rundownId', unprotectString(staticData.rundownId))
 		}
 

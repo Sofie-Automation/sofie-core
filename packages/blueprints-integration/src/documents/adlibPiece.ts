@@ -22,6 +22,8 @@ export interface IBlueprintAdLibPiece<TPrivateData = unknown, TPublicData = unkn
 	uniquenessId?: string
 	/** When not playing, display in the UI as playing, and vice versa. Useful for Adlibs that toggle something off when taken */
 	invertOnAirState?: boolean
+	/** Hide this adLib from the shelf - it is accessible only through the API */
+	hidden?: boolean
 }
 /** The AdLib piece sent from Core */
 export interface IBlueprintAdLibPieceDB<TPrivateData = unknown, TPublicData = unknown>
