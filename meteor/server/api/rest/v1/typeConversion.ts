@@ -727,3 +727,20 @@ export function playlistSnapshotOptionsFrom(options: APIPlaylistSnapshotOptions)
 		withTimeline: !!options.withTimeline,
 	}
 }
+
+export async function validateAPIPartPayload(
+	blueprintId: BlueprintId | undefined,
+	partPayload: unknown
+): Promise<string[] | undefined> {
+	const blueprint = await getBlueprint(blueprintId, BlueprintManifestType.STUDIO)
+	const blueprintManifest = evalBlueprint(blueprint) as StudioBlueprintManifest
+
+	if (typeof blueprintManifest.validatePartPayloadFromAPI !== 'function') {
+		logger.info(`Blueprint ${blueprintManifest.blueprintId} does not support part payload validation`)
+		return []
+	}
+
+	const blueprintContext = new CommonContext('validateAPIPartPayload', `blueprint:${blueprint._id}`)
+
+	return blueprintManifest.validatePartPayloadFromAPI(blueprintContext, partPayload)
+}

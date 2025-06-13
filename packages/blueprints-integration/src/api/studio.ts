@@ -103,6 +103,9 @@ export interface StudioBlueprintManifest<TRawConfig = IBlueprintConfig, TProcess
 	 */
 	validateConfigFromAPI?: (context: ICommonContext, apiConfig: object) => Array<IConfigMessage>
 
+	/** Validate the part payload passed to this blueprint according to the API schema, returning a list of error messages. */
+	validatePartPayloadFromAPI?: (context: ICommonContext, payload: unknown) => Array<string>
+
 	/**
 	 * Optional method to transform from an API blueprint config to the database blueprint config if these are required to be different.
 	 * If this method is not defined the config object will be used directly
