@@ -98,7 +98,7 @@ export type RundownSource =
 	| RundownSourceSnapshot
 	| RundownSourceHttp
 	| RundownSourceTesting
-	| RundownSourceHttpIngest
+	| RundownSourceRestApi
 
 /** A description of the external NRCS source of a Rundown */
 export interface RundownSourceNrcs {
@@ -125,8 +125,8 @@ export interface RundownSourceTesting {
 	showStyleVariantId: ShowStyleVariantId
 }
 /** A description of the source of a Rundown which was through the new HTTP ingest API */
-export interface RundownSourceHttpIngest {
-	type: 'httpIngest'
+export interface RundownSourceRestApi {
+	type: 'restApi'
 	resyncUrl: string
 }
 

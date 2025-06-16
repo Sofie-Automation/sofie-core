@@ -61,7 +61,7 @@ export interface IngestRestAPI {
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
-		ingestRundown: HttpIngestRundown
+		ingestRundown: RestApiIngestRundown
 	): Promise<ClientAPI.ClientResponse<void>>
 
 	putRundowns(
@@ -69,7 +69,7 @@ export interface IngestRestAPI {
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
-		ingestRundowns: HttpIngestRundown[]
+		ingestRundowns: RestApiIngestRundown[]
 	): Promise<ClientAPI.ClientResponse<void>>
 
 	putRundown(
@@ -78,7 +78,7 @@ export interface IngestRestAPI {
 		studioId: StudioId,
 		playlistId: string,
 		rundownId: string,
-		ingestRundown: HttpIngestRundown
+		ingestRundown: RestApiIngestRundown
 	): Promise<ClientAPI.ClientResponse<void>>
 
 	deleteRundowns(
@@ -232,7 +232,7 @@ export interface IngestRestAPI {
 	): Promise<ClientAPI.ClientResponse<void>>
 }
 
-export type HttpIngestRundown = Omit<IngestRundown, 'playlistExternalId'> & {
+export type RestApiIngestRundown = Omit<IngestRundown, 'playlistExternalId'> & {
 	resyncUrl: string
 }
 

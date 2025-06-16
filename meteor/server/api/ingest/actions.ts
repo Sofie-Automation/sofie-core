@@ -29,7 +29,7 @@ export namespace IngestActions {
 
 				return TriggerReloadDataResponse.COMPLETED
 			}
-			case 'httpIngest': {
+			case 'restApi': {
 				const resyncUrl = rundown.source.resyncUrl
 				fetch(resyncUrl, { method: 'POST' })
 					.then(() => {

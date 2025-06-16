@@ -16,7 +16,7 @@ import { IngestJobs } from '@sofie-automation/corelib/dist/worker/ingest'
 import { Meteor } from 'meteor/meteor'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import {
-	HttpIngestRundown,
+	RestApiIngestRundown,
 	IngestRestAPI,
 	PartResponse,
 	PlaylistResponse,
@@ -86,7 +86,7 @@ class IngestServerAPI implements IngestRestAPI {
 		}
 	}
 
-	private validateRundown(ingestRundown: HttpIngestRundown) {
+	private validateRundown(ingestRundown: RestApiIngestRundown) {
 		check(ingestRundown, Object)
 		check(ingestRundown.externalId, String)
 		check(ingestRundown.name, String)
@@ -296,12 +296,12 @@ class IngestServerAPI implements IngestRestAPI {
 	}
 
 	private checkRundownSource(rundown: Rundown | undefined) {
-		if (rundown && rundown.source.type !== 'httpIngest') {
+		if (rundown && rundown.source.type !== 'restApi') {
 			throw new Meteor.Error(
 				403,
 				`Cannot replace existing rundown from source '${getRundownNrcsName(
 					rundown
-				)}' with new data from 'httpIngest' source`
+				)}' with new data from 'restApi' source`
 			)
 		}
 	}
@@ -429,7 +429,7 @@ class IngestServerAPI implements IngestRestAPI {
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
-		ingestRundown: HttpIngestRundown
+		ingestRundown: RestApiIngestRundown
 	): Promise<ClientAPI.ClientResponse<void>> {
 		check(studioId, String)
 		check(playlistId, String)
@@ -463,7 +463,7 @@ class IngestServerAPI implements IngestRestAPI {
 			ingestRundown: { ...ingestRundown, playlistExternalId: playlistId },
 			isCreateAction: true,
 			rundownSource: {
-				type: 'httpIngest',
+				type: 'restApi',
 				resyncUrl: ingestRundown.resyncUrl,
 			},
 		})
@@ -476,7 +476,7 @@ class IngestServerAPI implements IngestRestAPI {
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
-		ingestRundowns: HttpIngestRundown[]
+		ingestRundowns: RestApiIngestRundown[]
 	): Promise<ClientAPI.ClientResponse<void>> {
 		check(studioId, String)
 		check(playlistId, String)
@@ -508,7 +508,7 @@ class IngestServerAPI implements IngestRestAPI {
 					ingestRundown: { ...ingestRundown, playlistExternalId: playlist.externalId },
 					isCreateAction: true,
 					rundownSource: {
-						type: 'httpIngest',
+						type: 'restApi',
 						resyncUrl: ingestRundown.resyncUrl,
 					},
 				})
@@ -524,7 +524,7 @@ class IngestServerAPI implements IngestRestAPI {
 		studioId: StudioId,
 		playlistId: string,
 		rundownId: string,
-		ingestRundown: HttpIngestRundown
+		ingestRundown: RestApiIngestRundown
 	): Promise<ClientAPI.ClientResponse<void>> {
 		check(studioId, String)
 		check(playlistId, String)
@@ -548,7 +548,7 @@ class IngestServerAPI implements IngestRestAPI {
 			ingestRundown: { ...ingestRundown, playlistExternalId: playlist.externalId },
 			isCreateAction: true,
 			rundownSource: {
-				type: 'httpIngest',
+				type: 'restApi',
 				resyncUrl: ingestRundown.resyncUrl,
 			},
 		})
@@ -1234,7 +1234,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			const playlistId = params.playlistId
 			check(playlistId, String)
 
-			const ingestRundown = body as HttpIngestRundown
+			const ingestRundown = body as RestApiIngestRundown
 			if (!ingestRundown) throw new Meteor.Error(400, 'Upload rundown: Missing request body')
 			if (typeof ingestRundown !== 'object') throw new Meteor.Error(400, 'Upload rundown: Invalid request body')
 
@@ -1256,7 +1256,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			const playlistId = params.playlistId
 			check(playlistId, String)
 
-			const ingestRundowns = body as HttpIngestRundown[]
+			const ingestRundowns = body as RestApiIngestRundown[]
 			if (!ingestRundowns) throw new Meteor.Error(400, 'Upload rundown: Missing request body')
 			if (typeof ingestRundowns !== 'object') throw new Meteor.Error(400, 'Upload rundown: Invalid request body')
 
@@ -1280,7 +1280,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			const rundownId = params.rundownId
 			check(rundownId, String)
 
-			const ingestRundown = body as HttpIngestRundown
+			const ingestRundown = body as RestApiIngestRundown
 			if (!ingestRundown) throw new Meteor.Error(400, 'Upload rundown: Missing request body')
 			if (typeof ingestRundown !== 'object') throw new Meteor.Error(400, 'Upload rundown: Invalid request body')
 
