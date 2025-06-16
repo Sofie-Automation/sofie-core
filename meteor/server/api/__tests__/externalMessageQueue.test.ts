@@ -2,10 +2,10 @@ import '../../../__mocks__/_extendJest'
 import { ExternalMessageQueueObj } from '@sofie-automation/corelib/dist/dataModel/ExternalMessageQueue'
 import { ExternalMessageQueue, RundownPlaylists, Rundowns } from '../../collections'
 import { IBlueprintExternalMessageQueueType, PlaylistTimingType } from '@sofie-automation/blueprints-integration'
-import { testInFiber } from '../../../__mocks__/helpers/jest'
 import { DefaultEnvironment, setupDefaultStudioEnvironment } from '../../../__mocks__/helpers/database'
-import { getCurrentTime, getRandomId, protectString } from '../../../lib/lib'
-import { MeteorCall } from '../../../lib/api/methods'
+import { getRandomId, protectString } from '../../lib/tempLib'
+import { getCurrentTime } from '../../lib/lib'
+import { MeteorCall } from '../methods'
 
 import '../ExternalMessageQueue'
 import { SupressLogMessages } from '../../../__mocks__/suppressLogging'
@@ -83,7 +83,7 @@ describe('Test external message queue static methods', () => {
 		})
 	})
 
-	testInFiber('toggleHold', async () => {
+	test('toggleHold', async () => {
 		let message = (await ExternalMessageQueue.findOneAsync({})) as ExternalMessageQueueObj
 		expect(message).toBeTruthy()
 		expect(message.hold).toBeUndefined()
@@ -99,7 +99,7 @@ describe('Test external message queue static methods', () => {
 		expect(message.hold).toBe(false)
 	})
 
-	testInFiber('toggleHold unknown id', async () => {
+	test('toggleHold unknown id', async () => {
 		SupressLogMessages.suppressLogMessage(/ExternalMessage/i)
 		await expect(MeteorCall.externalMessages.toggleHold(protectString('cake'))).rejects.toThrowMeteor(
 			404,
@@ -107,7 +107,7 @@ describe('Test external message queue static methods', () => {
 		)
 	})
 
-	testInFiber('retry', async () => {
+	test('retry', async () => {
 		let message = (await ExternalMessageQueue.findOneAsync({})) as ExternalMessageQueueObj
 		expect(message).toBeTruthy()
 
@@ -122,7 +122,7 @@ describe('Test external message queue static methods', () => {
 		})
 	})
 
-	testInFiber('retry unknown id', async () => {
+	test('retry unknown id', async () => {
 		SupressLogMessages.suppressLogMessage(/ExternalMessage/i)
 		await expect(MeteorCall.externalMessages.retry(protectString('is_a_lie'))).rejects.toThrowMeteor(
 			404,
@@ -130,7 +130,7 @@ describe('Test external message queue static methods', () => {
 		)
 	})
 
-	testInFiber('remove', async () => {
+	test('remove', async () => {
 		const message = (await ExternalMessageQueue.findOneAsync({})) as ExternalMessageQueueObj
 		expect(message).toBeTruthy()
 

@@ -1,5 +1,13 @@
 import { Time } from '@sofie-automation/blueprints-integration'
-import { ExpectedMediaItemId, StudioId, RundownId, PartId, BucketId, PieceId, AdLibActionId } from './Ids'
+import {
+	ExpectedMediaItemId,
+	StudioId,
+	RundownId,
+	PartId,
+	BucketId,
+	BucketAdLibId,
+	BucketAdLibActionId,
+} from './Ids.js'
 
 /** @deprecated */
 export interface ExpectedMediaItemBase {
@@ -46,7 +54,7 @@ export interface ExpectedMediaItemBucketPiece extends ExpectedMediaItemBase {
 	bucketId: BucketId
 
 	/** The bucked adLib piece that is the source of this Media Item */
-	bucketAdLibPieceId: PieceId
+	bucketAdLibPieceId: BucketAdLibId
 }
 /** @deprecated */
 export interface ExpectedMediaItemBucketAction extends ExpectedMediaItemBase {
@@ -54,7 +62,7 @@ export interface ExpectedMediaItemBucketAction extends ExpectedMediaItemBase {
 	bucketId: BucketId
 
 	/** The bucked adLib piece that is the source of this Media Item */
-	bucketAdLibActionId: AdLibActionId
+	bucketAdLibActionId: BucketAdLibActionId
 }
 /** @deprecated */
 export type ExpectedMediaItem = ExpectedMediaItemRundown | ExpectedMediaItemBucketPiece | ExpectedMediaItemBucketAction

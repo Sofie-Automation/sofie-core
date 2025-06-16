@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-function-type */
 import { overrideLogger } from '../server/logging'
 
 export class SupressLogMessages {

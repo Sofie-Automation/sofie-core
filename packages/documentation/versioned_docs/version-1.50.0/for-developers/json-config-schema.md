@@ -55,7 +55,7 @@ Names of the enum values as generated for the typescript enum, which we display 
 
 Note: Only valid for blueprint configuration.
 
-Sometimes it can be useful to reference other values. This property can be used on string fields, to let sofie generate a dropdown populated with values valid in the current context.
+Sometimes it can be useful to reference other values. This property can be used on string fields, to let Sofie generate a dropdown populated with values valid in the current context.
 
 #### `mappings`
 

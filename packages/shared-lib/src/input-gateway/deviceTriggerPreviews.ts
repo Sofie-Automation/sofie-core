@@ -1,8 +1,8 @@
-import { ITranslatableMessage } from '../lib/translations'
-import { PartId, ShowStyleBaseId, StudioId, TriggeredActionId } from '../core/model/Ids'
-import { ProtectedString } from '../lib/protectedString'
-import { ISourceLayer, IOutputLayer, SourceLayerType, SomeActionIdentifier } from '../core/model/ShowStyle'
-import { PieceLifespan } from '../core/model/Rundown'
+import { ITranslatableMessage } from '../lib/translations.js'
+import { PartId, ShowStyleBaseId, StudioId, TriggeredActionId } from '../core/model/Ids.js'
+import { ProtectedString } from '../lib/protectedString.js'
+import { ISourceLayer, IOutputLayer, SourceLayerType, SomeActionIdentifier } from '../core/model/ShowStyle.js'
+import { PieceLifespan } from '../core/model/Rundown.js'
 
 export type DeviceTriggerMountedActionId = ProtectedString<'deviceTriggerMountedActionId'>
 
@@ -61,4 +61,6 @@ export type PreviewWrappedAdLib = Omit<IWrappedAdLibBase, '_id'> & {
 		  }
 		| undefined
 	styleClassNames: string | undefined
+	isActive: boolean | undefined
+	isNext: boolean | undefined
 }

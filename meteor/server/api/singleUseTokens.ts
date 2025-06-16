@@ -1,8 +1,9 @@
 import { createHmac, randomBytes } from 'crypto'
 import { Time } from '@sofie-automation/blueprints-integration'
-import { getCurrentTime, getHash } from '../../lib/lib'
-import { SINGLE_USE_TOKEN_SALT } from '../../lib/api/userActions'
-import { isInTestWrite } from '../security/lib/securityVerify'
+import { getHash } from '@sofie-automation/corelib/dist/hash'
+import { getCurrentTime } from '../lib/lib'
+import { SINGLE_USE_TOKEN_SALT } from '@sofie-automation/meteor-lib/dist/api/userActions'
+import { isInTestWrite } from '../security/securityVerify'
 
 // The following code is taken from an NPM pacakage called "@sunknudsen/totp", but copied here, instead
 // of used as a dependency so that it's not vulnerable to a supply chain attack
@@ -48,9 +49,12 @@ export function verifyHashedToken(token: string, secret: string = TOKEN_SECRET, 
 	if (valid) {
 		usedTokensShortTermMemory.set(token, timestamp)
 		// we can forget that the token has been used after the validity window has passed, because it will be invalid anyway
-		setTimeout(() => {
-			usedTokensShortTermMemory.delete(token)
-		}, 3 * 1000 * VALIDITY_PERIOD)
+		setTimeout(
+			() => {
+				usedTokensShortTermMemory.delete(token)
+			},
+			3 * 1000 * VALIDITY_PERIOD
+		)
 	}
 	return valid
 }

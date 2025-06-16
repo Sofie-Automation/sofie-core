@@ -17,7 +17,6 @@ The Sofie team at NRK is responsible for development and maintenance. We also do
 
 The Sofie team welcomes open source contributions and will actively work towards enabling contributions to become mergeable into the Sofie repositories. However, as main stakeholder and maintainer we reserve the right to refuse any contributions.
 
-
 ## About Contributions
 
 Thank you for considering contributing to the Sofie project!
@@ -36,6 +35,7 @@ However, Sofie is a big project with many differing users and use cases. **Large
 4. The contributor references the RFC when a pull request is ready.
 
 ### Base contributions on the in-development branch (or the master branch)
+
 In order to facilitate merging, we ask that contributions are based on the latest (at the time of the pull request) _in-development_ branch (often named `release*`), alternatively the stable (eg. `master`) branch. NRK will take responsibility for rebasing stable contributions to the latest in-development branch if needed.
 See **CONTRIBUTING.md** in each official repository for details on which branch to use as a base for contributions.
 
@@ -59,12 +59,13 @@ We rely on two types of documentation; the [Sofie documentation](https://nrkno.g
 
 We don't aim to have the "absolute perfect documentation possible", BUT we do try to improve and add documentation to have a good-enough-to-be-comprehensible standard. We think that:
 
-* _What_ something does is not as important – we can read the code for that.
-* _Why_ something does something, **is** important. Implied usage, side-effects, descriptions of the context etcetera...
+- _What_ something does is not as important – we can read the code for that.
+- _Why_ something does something, **is** important. Implied usage, side-effects, descriptions of the context etcetera...
 
 When you contribute, we ask you to also update any documentation where needed.
 
 ### Updating Dependencies​
+
 When updating dependencies in a library, it is preferred to do so via `yarn upgrade-interactive --latest` whenever possible. This is so that the versions in `package.json` are also updated as we have no guarantee that the library will work with versions lower than that used in the `yarn.lock` file, even if it is compatible with the semver range in `package.json`. After this, a `yarn upgrade` can be used to update any child dependencies
 
 Be careful when bumping across major versions.
@@ -84,13 +85,12 @@ When logging, we try to adher to the following guideliness:
 Usage of `console.log` and `console.error` directly is discouraged (except for quick debugging locally). Instead, use one of the logger libraries (to output json logs which are easier to index).
 When logging, use one of the **log level** described below:
 
-| Level   | Description | Examples |
-| ------- | ----------- | -- |
-| `silly` | For very detailed logs (rarely used). | - |
-| `debug` | Logging of info that could be useful for developers when debugging certain issues in production. | `"payload: {>JSON<} "`<br></br>`"Reloading data X from DB"` |
-| `verbose` | Logging of common events. | `"File X updated"` |
-| `info` | Logging of significant / uncommon events.<br></br>_Note: If an event happens often or many times, use `verbose` instead._ | `"Initializing TSR..."`<br></br>`"Starting nightly cronjob..."`<br></br>`"Snapshot X restored"`<br></br>`"Not allowing removal of current playing segment 'xyz', making segment unsynced instead"`<br></br>`"PeripheralDevice X connected"`  |
-| `warn` | Used when something unexpected happened, but not necessarily due to an application bug.<br></br>These logs don't have to be acted upon directly, but could be useful to provide context to a dev/sysadmin while troubleshooting an issue. | `"PeripheralDevice X disconnected"`<br></br>`"User Error: Cannot activate Rundown (Rundown not found)" `<br></br>`"mosRoItemDelete NOT SUPPORTED"` |
-| `error` | Used when something went _wrong_, preventing something from functioning.<br></br>A logged `error` should always result in a sysadmin / developer looking into the issue.<br></br>_Note: Don't use `error` for things that are out of the app's control, such as user error._ | `"Cannot read property 'length' of undefined"`<br></br>`"Failed to save Part 'X' to DB"`|
-| `crit` | Fatal errors (rarely used) | - |
-
+| Level     | Description                                                                                                                                                                                                                                                                  | Examples                                                                                                                                                                                                                                    |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `silly`   | For very detailed logs (rarely used).                                                                                                                                                                                                                                        | -                                                                                                                                                                                                                                           |
+| `debug`   | Logging of info that could be useful for developers when debugging certain issues in production.                                                                                                                                                                             | `"payload: {>JSON<} "`<br></br>`"Reloading data X from DB"`                                                                                                                                                                                 |
+| `verbose` | Logging of common events.                                                                                                                                                                                                                                                    | `"File X updated"`                                                                                                                                                                                                                          |
+| `info`    | Logging of significant / uncommon events.<br></br>_Note: If an event happens often or many times, use `verbose` instead._                                                                                                                                                    | `"Initializing TSR..."`<br></br>`"Starting nightly cronjob..."`<br></br>`"Snapshot X restored"`<br></br>`"Not allowing removal of current playing segment 'xyz', making segment unsynced instead"`<br></br>`"PeripheralDevice X connected"` |
+| `warn`    | Used when something unexpected happened, but not necessarily due to an application bug.<br></br>These logs don't have to be acted upon directly, but could be useful to provide context to a dev/sysadmin while troubleshooting an issue.                                    | `"PeripheralDevice X disconnected"`<br></br>`"User Error: Cannot activate Rundown (Rundown not found)" `<br></br>`"mosRoItemDelete NOT SUPPORTED"`                                                                                          |
+| `error`   | Used when something went _wrong_, preventing something from functioning.<br></br>A logged `error` should always result in a sysadmin / developer looking into the issue.<br></br>_Note: Don't use `error` for things that are out of the app's control, such as user error._ | `"Cannot read property 'length' of undefined"`<br></br>`"Failed to save Part 'X' to DB"`                                                                                                                                                    |
+| `crit`    | Fatal errors (rarely used)                                                                                                                                                                                                                                                   | -                                                                                                                                                                                                                                           |

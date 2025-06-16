@@ -1,13 +1,12 @@
 import '../../../../__mocks__/_extendJest'
-import { testInFiber } from '../../../../__mocks__/helpers/jest'
 import { setupDefaultStudioEnvironment, DefaultEnvironment } from '../../../../__mocks__/helpers/database'
 import { getRandomId, protectString } from '../../../../lib/lib'
-import { ClientAPI } from '../../../../lib/api/client'
+import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { Bucket, BucketId, Buckets } from '../../../../lib/collections/Buckets'
 import { BucketAdLibs } from '../../../../lib/collections/BucketAdlibs'
 import { PieceLifespan } from '@sofie-automation/blueprints-integration'
 import { CreateFakeResult, QueueIngestJobSpy } from '../../../../__mocks__/worker'
-import { MeteorCall } from '../../../../lib/api/methods'
+import { MeteorCall } from '../../../lib/meteorApi'
 
 require('../../client') // include in order to create the Meteor methods needed
 require('../../userActions') // include in order to create the Meteor methods needed
@@ -69,7 +68,7 @@ describe('User Actions - Buckets', () => {
 			throw new Error('Not implemented')
 		})
 	})
-	testInFiber('createBucket', async () => {
+	test('createBucket', async () => {
 		const NAME = 'Test bucket'
 
 		// should fail if the studio doesn't exist
@@ -96,7 +95,7 @@ describe('User Actions - Buckets', () => {
 			})
 		}
 	})
-	testInFiber('removeBucket', async () => {
+	test('removeBucket', async () => {
 		const { bucketId } = setUpMockBucket()
 
 		expect(
@@ -123,7 +122,7 @@ describe('User Actions - Buckets', () => {
 			).toHaveLength(0)
 		}
 	})
-	testInFiber('modifyBucket', async () => {
+	test('modifyBucket', async () => {
 		const { bucketId } = setUpMockBucket()
 
 		// should throw if the bucket doesn't exist
@@ -149,7 +148,7 @@ describe('User Actions - Buckets', () => {
 			})
 		}
 	})
-	testInFiber('emptyBucket', async () => {
+	test('emptyBucket', async () => {
 		const { bucketId } = setUpMockBucket()
 
 		// should throw if the bucket doesn't exist
@@ -170,7 +169,7 @@ describe('User Actions - Buckets', () => {
 			).toHaveLength(0)
 		}
 	})
-	testInFiber('removeBucketAdLib', async () => {
+	test('removeBucketAdLib', async () => {
 		const { bucketAdlibs } = setUpMockBucket()
 
 		// should throw if the adlib doesn't exits
@@ -187,7 +186,7 @@ describe('User Actions - Buckets', () => {
 			expect(BucketAdLibs.findOne(bucketAdlibs[0]._id)).toBeUndefined()
 		}
 	})
-	testInFiber('modifyBucketAdLib', async () => {
+	test('modifyBucketAdLib', async () => {
 		const { bucketAdlibs } = setUpMockBucket()
 
 		// check that the adlib exists

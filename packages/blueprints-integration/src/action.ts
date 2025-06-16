@@ -1,7 +1,7 @@
-import { ExpectedPackage } from './package'
-import { SomeContent } from './content'
-import { ITranslatableMessage } from './translations'
-import { ExpectedPlayoutItemGeneric } from './documents'
+import { ExpectedPackage } from './package.js'
+import { SomeContent } from './content.js'
+import { ITranslatableMessage } from './translations.js'
+import { ExpectedPlayoutItemGeneric } from './documents/index.js'
 import { JSONBlob } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 import { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
 
@@ -41,6 +41,8 @@ export interface IBlueprintActionManifestDisplay {
 	uniquenessId?: string
 	/** When not playing, display in the UI as playing, and vice versa. Useful for Adlibs that toggle something off when taken */
 	invertOnAirState?: boolean
+	/** Hide this adLib from the shelf - it is accessible only through the API */
+	hidden?: boolean
 }
 
 export interface IBlueprintActionManifestDisplayContent extends IBlueprintActionManifestDisplay {
@@ -99,8 +101,8 @@ export interface IBlueprintActionManifest<TPrivateData = unknown, TPublicData = 
 	allVariants?: boolean
 
 	userDataManifest: {
-		/** List of editable fields in userData, to allow for customising */
-		editableFields?: JSONBlob<JSONSchema>
+		/** Schema for the executeAdLib adLibOptions property to allow for customising */
+		optionsSchema?: JSONBlob<JSONSchema>
 		// Potential future properties:
 		// /** Execute the action after userData is changed. If not present ActionExecuteAfterChanged.none is assumed. */
 		// executeOnUserDataChanged?: ActionExecuteAfterChanged

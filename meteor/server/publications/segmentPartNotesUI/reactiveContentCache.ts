@@ -4,7 +4,7 @@ import { ReactiveCacheCollection } from '../lib/ReactiveCacheCollection'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { MongoFieldSpecifierOnesStrict } from '@sofie-automation/corelib/dist/mongo'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { PartInstance } from '../../../lib/collections/PartInstances'
+import { PartInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 
 export type RundownFields = '_id' | 'playlistId' | 'source'
 export const rundownFieldSpecifier = literal<MongoFieldSpecifierOnesStrict<Pick<Rundown, RundownFields>>>({

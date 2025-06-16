@@ -1,15 +1,15 @@
-import * as _ from 'underscore'
+import _ from 'underscore'
 import * as AMQP from 'amqplib'
-import { logger } from '../../logging'
+import { logger } from '../../logging.js'
 import { ExternalMessageQueueObjRabbitMQ } from '@sofie-automation/blueprints-integration'
 import { ExternalMessageQueueObjId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { createManualPromise, ManualPromise } from '@sofie-automation/corelib/dist/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { FatalExternalMessageError } from '../ExternalMessageQueue'
+import { FatalExternalMessageError } from '../ExternalMessageQueue.js'
 import { ExternalMessageQueueObj } from '@sofie-automation/corelib/dist/dataModel/ExternalMessageQueue'
-import { retrieveBlueprintConfigRefs } from '../../blueprints/config'
-import { StudioCacheContext } from '../../jobs'
+import { retrieveBlueprintConfigRefs } from '../../blueprints/config.js'
+import { StudioCacheContext } from '../../jobs/index.js'
 
 interface Message {
 	_id: ExternalMessageQueueObjId

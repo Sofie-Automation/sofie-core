@@ -6,11 +6,11 @@ import { profiler } from '../../api/profiler'
 import { Studios } from '../../collections'
 import { logger } from '../../logging'
 import { QueueStudioJob } from '../../worker/worker'
-import { BlueprintFixUpConfigMessage } from '../../../lib/api/migration'
+import { BlueprintFixUpConfigMessage } from '@sofie-automation/meteor-lib/dist/api/migration'
 
 async function getStudio(studioId: StudioId): Promise<Pick<DBStudio, '_id'>> {
 	const studio = (await Studios.findOneAsync(studioId, {
-		fields: {
+		projection: {
 			_id: 1,
 		},
 	})) as Pick<DBStudio, '_id'> | undefined

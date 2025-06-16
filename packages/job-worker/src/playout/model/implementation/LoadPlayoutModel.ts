@@ -1,29 +1,28 @@
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { DatabasePersistedModel } from '../../../modelBase'
-import { IngestModelReadonly } from '../../../ingest/model/IngestModel'
-import { PlaylistLock } from '../../../jobs/lock'
+import { DatabasePersistedModel } from '../../../modelBase.js'
+import { IngestModelReadonly } from '../../../ingest/model/IngestModel.js'
+import { PlaylistLock } from '../../../jobs/lock.js'
 import { ReadonlyDeep } from 'type-fest'
-import { JobContext } from '../../../jobs'
-import { PlayoutModelImpl } from './PlayoutModelImpl'
-import { PlayoutRundownModelImpl } from './PlayoutRundownModelImpl'
-import { RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { JobContext } from '../../../jobs/index.js'
+import { PlayoutModelImpl } from './PlayoutModelImpl.js'
+import { PlayoutRundownModelImpl } from './PlayoutRundownModelImpl.js'
+import { PartInstanceId, RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { DBSegment, SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { TimelineComplete } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
-import _ = require('underscore')
+import _ from 'underscore'
 import { clone, Complete, groupByToMap, groupByToMapFunc, literal } from '@sofie-automation/corelib/dist/lib'
-import { PlayoutSegmentModelImpl } from './PlayoutSegmentModelImpl'
+import { PlayoutSegmentModelImpl } from './PlayoutSegmentModelImpl.js'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { PlayoutPartInstanceModelImpl } from './PlayoutPartInstanceModelImpl'
 import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
-import { PlayoutModel, PlayoutModelPreInit } from '../PlayoutModel'
+import { PlayoutModel, PlayoutModelPreInit } from '../PlayoutModel.js'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { RundownBaselineObj } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineObj'
 import { sortRundownsWithinPlaylist } from '@sofie-automation/corelib/dist/playout/playlist'
-import { logger } from '../../../logging'
+import { logger } from '../../../logging.js'
 
 /**
  * Load a PlayoutModelPreInit for the given RundownPlaylist
@@ -47,7 +46,7 @@ export async function loadPlayoutModelPreInit(
 	}
 
 	const [PeripheralDevices, Playlist, Rundowns] = await Promise.all([
-		context.directCollections.PeripheralDevices.findFetch({ studioId: tmpPlaylist.studioId }),
+		context.directCollections.PeripheralDevices.findFetch({ 'studioAndConfigId.studioId': tmpPlaylist.studioId }),
 		reloadPlaylist ? context.directCollections.RundownPlaylists.findOne(tmpPlaylist._id) : clone(tmpPlaylist),
 		context.directCollections.Rundowns.findFetch({ playlistId: tmpPlaylist._id }),
 	])
@@ -89,7 +88,7 @@ export async function createPlayoutModelFromIngestModel(
 	const [peripheralDevices, playlist, rundowns] = await loadInitData(context, loadedPlaylist, false, newRundowns)
 	const rundownIds = rundowns.map((r) => r._id)
 
-	const [partInstances, rundownsWithContent, timeline] = await Promise.all([
+	const [{ partInstances, groupedPieceInstances }, rundownsWithContent, timeline] = await Promise.all([
 		loadPartInstances(context, loadedPlaylist, rundownIds),
 		loadRundowns(context, ingestModel, sortRundownsWithinPlaylist(playlist.rundownIdsInOrder, rundowns)),
 		loadTimeline(context),
@@ -102,6 +101,7 @@ export async function createPlayoutModelFromIngestModel(
 		peripheralDevices,
 		playlist,
 		partInstances,
+		groupedPieceInstances,
 		rundownsWithContent,
 		timeline
 	)
@@ -121,7 +121,7 @@ async function loadInitData(
 	existingRundowns: ReadonlyDeep<DBRundown[]> | undefined
 ): Promise<[ReadonlyDeep<PeripheralDevice[]>, DBRundownPlaylist, ReadonlyDeep<DBRundown[]>]> {
 	const [peripheralDevices, reloadedPlaylist, rundowns] = await Promise.all([
-		context.directCollections.PeripheralDevices.findFetch({ studioId: tmpPlaylist.studioId }),
+		context.directCollections.PeripheralDevices.findFetch({ 'studioAndConfigId.studioId': tmpPlaylist.studioId }),
 		reloadPlaylist
 			? await context.directCollections.RundownPlaylists.findOne(tmpPlaylist._id)
 			: clone<DBRundownPlaylist>(tmpPlaylist),
@@ -152,7 +152,7 @@ export async function createPlayoutModelfromInitModel(
 
 	const rundownIds = initModel.rundowns.map((r) => r._id)
 
-	const [partInstances, rundownsWithContent, timeline] = await Promise.all([
+	const [{ partInstances, groupedPieceInstances }, rundownsWithContent, timeline] = await Promise.all([
 		loadPartInstances(context, initModel.playlist, rundownIds),
 		loadRundowns(context, null, initModel.rundowns),
 		loadTimeline(context),
@@ -165,6 +165,7 @@ export async function createPlayoutModelfromInitModel(
 		initModel.peripheralDevices,
 		clone<DBRundownPlaylist>(initModel.playlist),
 		partInstances,
+		groupedPieceInstances,
 		rundownsWithContent,
 		timeline
 	)
@@ -259,7 +260,7 @@ async function loadPartInstances(
 	context: JobContext,
 	playlist: ReadonlyDeep<DBRundownPlaylist>,
 	rundownIds: RundownId[]
-): Promise<PlayoutPartInstanceModelImpl[]> {
+): Promise<{ partInstances: DBPartInstance[]; groupedPieceInstances: Map<PartInstanceId, PieceInstance[]> }> {
 	const selectedPartInstanceIds = _.compact([
 		playlist.currentPartInfo?.partInstanceId,
 		playlist.nextPartInfo?.partInstanceId,
@@ -315,15 +316,5 @@ async function loadPartInstances(
 
 	const groupedPieceInstances = groupByToMap(pieceInstances, 'partInstanceId')
 
-	const allPartInstances: PlayoutPartInstanceModelImpl[] = []
-	for (const partInstance of partInstances) {
-		const wrappedPartInstance = new PlayoutPartInstanceModelImpl(
-			partInstance,
-			groupedPieceInstances.get(partInstance._id) ?? [],
-			false
-		)
-		allPartInstances.push(wrappedPartInstance)
-	}
-
-	return allPartInstances
+	return { partInstances, groupedPieceInstances }
 }

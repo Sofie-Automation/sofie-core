@@ -1,11 +1,11 @@
 import { DBSegment, SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { PlayoutSegmentModelImpl } from '../PlayoutSegmentModelImpl'
+import { PlayoutSegmentModelImpl } from '../PlayoutSegmentModelImpl.js'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { PlayoutRundownModelImpl } from '../PlayoutRundownModelImpl'
+import { PlayoutRundownModelImpl } from '../PlayoutRundownModelImpl.js'
 import { SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ReadonlyDeep } from 'type-fest'
-import { restartRandomId } from '../../../../__mocks__/nanoid'
+import { restartRandomId } from '../../../../__mocks__/nanoid.js'
 import { UserErrorMessage } from '@sofie-automation/corelib/dist/error'
 
 describe('PlayoutRundownModelImpl', () => {
@@ -34,7 +34,6 @@ describe('PlayoutRundownModelImpl', () => {
 			_id: protectString(id),
 			rundownId: protectString('rd0'),
 			externalId: id,
-			externalModified: 100000,
 			_rank: rank,
 			name: `${id} segment`,
 		}
@@ -108,14 +107,12 @@ describe('PlayoutRundownModelImpl', () => {
 
 			const fixedSegment: ReadonlyDeep<DBSegment> = {
 				...createdSegment.segment,
-				externalModified: 0,
 			}
 
 			expect(fixedSegment).toEqual({
 				_id: expectedId,
 				rundownId: protectString('rd0'),
 				externalId: '__adlib-testing__',
-				externalModified: 0,
 				_rank: -1,
 				name: '',
 				orphaned: SegmentOrphanedReason.ADLIB_TESTING,

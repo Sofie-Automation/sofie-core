@@ -1,8 +1,8 @@
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { setupMockShowStyleCompound } from '../../__mocks__/presetCollections'
-import { setupDefaultJobEnvironment } from '../../__mocks__/context'
-import { preprocessStudioConfig, retrieveBlueprintConfigRefs } from '../config'
-import { getShowStyleConfigRef, getStudioConfigRef } from '../configRefs'
+import { setupMockShowStyleCompound } from '../../__mocks__/presetCollections.js'
+import { setupDefaultJobEnvironment } from '../../__mocks__/context.js'
+import { preprocessStudioConfig, retrieveBlueprintConfigRefs } from '../config.js'
+import { getShowStyleConfigRef, getStudioConfigRef } from '../configRefs.js'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { DEFAULT_MINIMUM_TAKE_SPAN } from '@sofie-automation/shared-lib/dist/core/constants'
 
@@ -10,12 +10,16 @@ describe('Test blueprint config', () => {
 	test('compileStudioConfig', () => {
 		const jobContext = setupDefaultJobEnvironment()
 		jobContext.setStudio({
-			...jobContext.studio,
-			settings: {
+			...jobContext.rawStudio,
+			settingsWithOverrides: wrapDefaultObject({
 				mediaPreviewsUrl: '',
 				frameRate: 25,
 				minimumTakeSpan: DEFAULT_MINIMUM_TAKE_SPAN,
-			},
+				allowHold: true,
+				allowPieceDirectPlay: true,
+				enableBuckets: true,
+				enableEvaluationForm: true,
+			}),
 			blueprintConfigWithOverrides: wrapDefaultObject({ sdfsdf: 'one', another: 5 }),
 		})
 		jobContext.updateStudioBlueprint({
@@ -33,12 +37,16 @@ describe('Test blueprint config', () => {
 	test('compileStudioConfig with function', () => {
 		const jobContext = setupDefaultJobEnvironment()
 		jobContext.setStudio({
-			...jobContext.studio,
-			settings: {
+			...jobContext.rawStudio,
+			settingsWithOverrides: wrapDefaultObject({
 				mediaPreviewsUrl: '',
 				frameRate: 25,
 				minimumTakeSpan: DEFAULT_MINIMUM_TAKE_SPAN,
-			},
+				allowHold: true,
+				allowPieceDirectPlay: true,
+				enableBuckets: true,
+				enableEvaluationForm: true,
+			}),
 			blueprintConfigWithOverrides: wrapDefaultObject({ sdfsdf: 'one', another: 5 }),
 		})
 		jobContext.updateStudioBlueprint({
@@ -136,7 +144,7 @@ describe('Test blueprint config', () => {
 
 			const studioId = jobContext.studioId
 			jobContext.setStudio({
-				...jobContext.studio,
+				...jobContext.rawStudio,
 				blueprintConfigWithOverrides: wrapDefaultObject({
 					two: 'abc',
 					number: 99,
@@ -183,7 +191,7 @@ describe('Test blueprint config', () => {
 				},
 			})
 			jobContext.setStudio({
-				...jobContext.studio,
+				...jobContext.rawStudio,
 				supportedShowStyleBase: [showStyle._id],
 			})
 			jobContext.updateShowStyleBlueprint({

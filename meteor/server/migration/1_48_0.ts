@@ -1,5 +1,5 @@
 import { addMigrationSteps } from './databaseMigration'
-import { TranslationsBundle } from '../../lib/collections/TranslationsBundles'
+import { TranslationsBundle } from '@sofie-automation/meteor-lib/dist/collections/TranslationsBundles'
 import { generateTranslationBundleOriginId } from '../api/translationsBundles'
 import { BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'

@@ -61,7 +61,7 @@
 							"ui:title": "(Optional) MOS Query Port",
 							"ui:description": "Connect to an alternate port for 'query' port MOS messages",
 							"default": 10542
-						}	
+						}
 					},
 					"required": ["lower", "upper", "query"],
 					"additionalProperties": false
@@ -105,6 +105,12 @@
 					"ui:description": "How often to ping NRCS to determine connection status",
 					"default": 30000
 				},
+				"openMediaHotStandby": {
+					"type": "boolean",
+					"ui:title": "Secondary: OpenMedia Hot Standby",
+					"ui:description": "Is the secondary connection a OpenMedia hot standby for the primary",
+					"default": false
+				},
 				"ports": {
 					"type": "object",
 					"ui:title": "Ports",
@@ -126,11 +132,11 @@
 							"ui:title": "(Optional) MOS Query Port",
 							"ui:description": "Connect to an alternate port for 'query' port MOS messages",
 							"default": 10542
-						}	
+						}
 					},
 					"required": ["lower", "upper", "query"],
 					"additionalProperties": false
-				}				
+				}
 			},
 			"required": ["id", "host"],
 			"additionalProperties": false

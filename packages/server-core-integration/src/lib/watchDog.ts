@@ -1,4 +1,4 @@
-import { EventEmitter } from 'eventemitter3'
+import { EventEmitter } from 'events'
 
 export type WatchDogCheckFunction = () => Promise<any>
 export type WatchDogEvents = {
@@ -15,8 +15,8 @@ export type WatchDogEvents = {
  */
 export class WatchDog extends EventEmitter<WatchDogEvents> {
 	public timeout: number
-	private _checkTimeout: NodeJS.Timer | null = null
-	private _dieTimeout: NodeJS.Timer | null = null
+	private _checkTimeout: NodeJS.Timeout | null = null
+	private _dieTimeout: NodeJS.Timeout | null = null
 	private _watching = false
 	private _checkFunctions: WatchDogCheckFunction[] = []
 	private _runningChecks = false
@@ -85,7 +85,7 @@ export class WatchDog extends EventEmitter<WatchDogEvents> {
 				if (this.listenerCount('exit') > 0) {
 					this.emit('exit')
 				} else {
-					// eslint-disable-next-line no-process-exit
+					// eslint-disable-next-line n/no-process-exit
 					process.exit(42)
 				}
 			}, 5000)

@@ -27,12 +27,11 @@
  * SOFTWARE.
  */
 
-import { promisify } from 'util'
 import fs from 'fs'
 import yargs from 'yargs'
 import { Parser } from 'i18next-scanner'
 import converter from 'i18next-conv'
-import glob from 'glob'
+import { glob } from 'glob'
 
 const args = yargs(process.argv)
 	.option('files', {
@@ -65,8 +64,6 @@ const args = yargs(process.argv)
 	})
 	.help()
 	.alias('help', 'h').argv
-
-const pGlob = promisify(glob)
 
 const parserOptions = {
 	// Include react helpers into parsing
@@ -101,18 +98,17 @@ console.log('Extracting translatable strings...')
 console.log('This process may print out some error messages, but the translation template should work fine.')
 console.log('──────\n')
 
-const files = await pGlob(fileGlob)
+const files = await glob(fileGlob)
 
 // console.debug('Loading content of ' + files.length + ' files')
 
-let content = ''
+// console.debug('Parsing translation keys out of content')
 files.map(function (file) {
-	content += fs.readFileSync(file, 'utf-8')
+	const content = fs.readFileSync(file, 'utf-8')
+	parser.parseFuncFromString(content, parserOptions)
+	parser.parseAttrFromString(content, parserOptions)
 })
 
-// console.debug('Parsing translation keys out of content')
-parser.parseFuncFromString(content, parserOptions)
-parser.parseAttrFromString(content, parserOptions)
 const json = parser.get().en.translation
 
 // console.debug('Converting ' + Object.keys(json).length + ' translation keys into gettext')

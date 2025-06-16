@@ -5,6 +5,7 @@ import { MongoFieldSpecifierOnesStrict } from '@sofie-automation/corelib/dist/mo
 import { BucketAdLibAction } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibAction'
 import { BucketAdLib } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibPiece'
 import { BlueprintId, ShowStyleBaseId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
 
 export interface SourceLayersDoc {
 	_id: ShowStyleBaseId
@@ -53,10 +54,17 @@ export const showStyleBaseFieldSpecifier = literal<
 	sourceLayersWithOverrides: 1,
 })
 
+export type BlueprintFields = '_id' | 'packageStatusMessages'
+export const blueprintFieldSpecifier = literal<MongoFieldSpecifierOnesStrict<Pick<Blueprint, BlueprintFields>>>({
+	_id: 1,
+	packageStatusMessages: 1,
+})
+
 export interface BucketContentCache {
 	BucketAdLibs: ReactiveCacheCollection<Pick<BucketAdLib, BucketAdLibFields>>
 	BucketAdLibActions: ReactiveCacheCollection<Pick<BucketAdLibAction, BucketActionFields>>
 	ShowStyleSourceLayers: ReactiveCacheCollection<SourceLayersDoc>
+	Blueprints: ReactiveCacheCollection<Pick<Blueprint, BlueprintFields>>
 }
 
 export function createReactiveContentCache(): BucketContentCache {
@@ -66,6 +74,7 @@ export function createReactiveContentCache(): BucketContentCache {
 			'bucketAdlibActions'
 		),
 		ShowStyleSourceLayers: new ReactiveCacheCollection<SourceLayersDoc>('sourceLayers'),
+		Blueprints: new ReactiveCacheCollection<Pick<Blueprint, BlueprintFields>>('blueprints'),
 	}
 
 	return cache

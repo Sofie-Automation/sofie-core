@@ -1,5 +1,5 @@
-import type { Time } from '../common'
-import type { IBlueprintPartDB } from './part'
+import type { Time } from '../common.js'
+import type { IBlueprintPartDB } from './part.js'
 
 export type PartEndState = unknown
 

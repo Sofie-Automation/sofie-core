@@ -1,16 +1,41 @@
-import type { IBlueprintConfig } from '../common'
+import type { IBlueprintConfig } from '../common.js'
 import type { ReadonlyDeep } from 'type-fest'
-import type { BlueprintConfigCoreConfig, BlueprintManifestBase, BlueprintManifestType, IConfigMessage } from './base'
+import type { BlueprintConfigCoreConfig, BlueprintManifestBase, BlueprintManifestType, IConfigMessage } from './base.js'
 import type { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
 import type { JSONBlob } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
-import type { MigrationStepStudio } from '../migrations'
-import type { ICommonContext, IFixUpConfigContext, IStudioBaselineContext, IStudioUserContext } from '../context'
-import type { IBlueprintShowStyleBase } from '../showStyle'
-import type { ExtendedIngestRundown } from '../ingest'
-import type { ExpectedPlayoutItemGeneric, IBlueprintResultRundownPlaylist, IBlueprintRundownDB } from '../documents'
-import type { BlueprintMappings } from '../studio'
-import type { TimelineObjectCoreExt, TSR } from '../timeline'
-import type { ExpectedPackage } from '../package'
+import type {
+	ICommonContext,
+	IFixUpConfigContext,
+	IStudioBaselineContext,
+	IStudioUserContext,
+	IProcessIngestDataContext,
+} from '../context/index.js'
+import type { IBlueprintShowStyleBase } from '../showStyle.js'
+import type {
+	ExtendedIngestRundown,
+	NrcsIngestChangeDetails,
+	IngestRundown,
+	MutableIngestRundown,
+	UserOperationChange,
+} from '../ingest.js'
+import type {
+	ExpectedPlayoutItemGeneric,
+	IBlueprintResultRundownPlaylist,
+	IBlueprintRundownDB,
+} from '../documents/index.js'
+import type { BlueprintMappings } from '../studio.js'
+import type { TimelineObjectCoreExt, TSR } from '../timeline.js'
+import type { ExpectedPackage } from '../package.js'
+import type {
+	StudioRouteSet,
+	StudioRouteSetExclusivityGroup,
+} from '@sofie-automation/shared-lib/dist/core/model/StudioRouteSet'
+import type { StudioPackageContainer } from '@sofie-automation/shared-lib/dist/core/model/PackageContainer'
+import type { IStudioSettings } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
+import type { MosDeviceConfig } from '@sofie-automation/shared-lib/dist/generated/MosGatewayDevicesTypes'
+import type { MosGatewayConfig } from '@sofie-automation/shared-lib/dist/generated/MosGatewayOptionsTypes'
+import type { PlayoutGatewayConfig } from '@sofie-automation/shared-lib/dist/generated/PlayoutGatewayConfigTypes'
+import type { LiveStatusGatewayConfig } from '@sofie-automation/shared-lib/dist/generated/LiveStatusGatewayOptionsTypes'
 
 export interface StudioBlueprintManifest<TRawConfig = IBlueprintConfig, TProcessedConfig = unknown>
 	extends BlueprintManifestBase {
@@ -18,10 +43,6 @@ export interface StudioBlueprintManifest<TRawConfig = IBlueprintConfig, TProcess
 
 	/** A list of config items this blueprint expects to be available on the Studio */
 	studioConfigSchema: JSONBlob<JSONSchema>
-	/** A list of Migration steps related to a Studio
-	 * @deprecated This has been replaced with `validateConfig` and `applyConfig`
-	 */
-	studioMigrations: MigrationStepStudio[]
 
 	/** The config presets exposed by this blueprint */
 	configPresets: Record<string, IStudioConfigPreset<TRawConfig>>
@@ -75,6 +96,35 @@ export interface StudioBlueprintManifest<TRawConfig = IBlueprintConfig, TProcess
 		config: TRawConfig,
 		coreConfig: BlueprintConfigCoreConfig
 	) => TProcessedConfig
+
+	/**
+	 * Optional method to validate the blueprint config passed to this blueprint according to the API schema.
+	 * Returns a list of messages to the caller that are used for logging or to throw if errors have been found.
+	 */
+	validateConfigFromAPI?: (context: ICommonContext, apiConfig: object) => Array<IConfigMessage>
+
+	/**
+	 * Optional method to transform from an API blueprint config to the database blueprint config if these are required to be different.
+	 * If this method is not defined the config object will be used directly
+	 */
+	blueprintConfigFromAPI?: (context: ICommonContext, config: object) => IBlueprintConfig
+
+	/**
+	 * Optional method to transform from a database blueprint config to the API blueprint config if these are required to be different.
+	 * If this method is not defined the config object will be used directly
+	 */
+	blueprintConfigToAPI?: (context: ICommonContext, config: TRawConfig) => object
+
+	/**
+	 * Process an ingest operation, to apply changes to the sofie interpretation of the ingest data
+	 */
+	processIngestData?: (
+		context: IProcessIngestDataContext,
+		mutableIngestRundown: MutableIngestRundown<any, any, any>,
+		nrcsIngestRundown: IngestRundown,
+		previousNrcsIngestRundown: IngestRundown | undefined,
+		changes: NrcsIngestChangeDetails | UserOperationChange
+	) => Promise<void>
 }
 
 export interface BlueprintResultStudioBaseline {
@@ -102,13 +152,39 @@ export interface BlueprintResultApplyStudioConfig {
 	/** Playout Mappings */
 	mappings: BlueprintMappings
 
+	/** Parent device settings */
+	parentDevices: Record<string, BlueprintParentDeviceSettings>
 	/** Playout-gateway subdevices */
 	playoutDevices: Record<string, TSR.DeviceOptionsAny>
 	/** Ingest-gateway subdevices, the types here depend on the gateway you use */
-	ingestDevices: Record<string, unknown>
+	ingestDevices: Record<string, BlueprintMosDeviceConfig | unknown>
 	/** Input-gateway subdevices */
 	inputDevices: Record<string, unknown>
+	/** Route Sets */
+	routeSets?: Record<string, StudioRouteSet>
+	/** Route Set Exclusivity Groups */
+	routeSetExclusivityGroups?: Record<string, StudioRouteSetExclusivityGroup>
+	/** Package Containers */
+	packageContainers?: Record<string, StudioPackageContainer>
+
+	studioSettings?: IStudioSettings
 }
+export interface BlueprintParentDeviceSettings {
+	/**
+	 * User friendly name for the device
+	 */
+	name: string
+
+	options: Record<string, any>
+}
+
+export type BlueprintMosGatewayConfig = MosGatewayConfig
+
+export type BlueprintMosDeviceConfig = MosDeviceConfig
+
+export type BlueprintPlayoutGatewayConfig = PlayoutGatewayConfig
+
+export type BlueprintLiveStatusGatewayConfig = LiveStatusGatewayConfig
 
 export interface IStudioConfigPreset<TConfig = IBlueprintConfig> {
 	name: string

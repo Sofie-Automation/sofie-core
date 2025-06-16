@@ -26,7 +26,6 @@ export const DefaultStudioBlueprint: ReadonlyDeep<StudioBlueprintManifest> = dee
 	blueprintType: BlueprintManifestType.STUDIO,
 
 	studioConfigSchema: JSONBlobStringify({}),
-	studioMigrations: [],
 
 	configPresets: {
 		0: {

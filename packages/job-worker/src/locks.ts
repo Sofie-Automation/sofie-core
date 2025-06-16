@@ -1,6 +1,6 @@
 import { assertNever } from '@sofie-automation/corelib/dist/lib'
-import { logger } from './logging'
-import { AnyLockEvent } from './workers/locks'
+import { logger } from './logging.js'
+import { AnyLockEvent } from './workers/locks.js'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 
 type OwnerAndLockIds = [string, string]

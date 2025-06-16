@@ -1,6 +1,6 @@
 # Configuring Vision Mixers
 
-## ATEM – Blackmagic Design 
+## ATEM – Blackmagic Design
 
 The [Playout Gateway](../installing-a-gateway/playout-gateway.md) supports communicating with the entire line up of Blackmagic Design's ATEM vision mixers.
 
@@ -11,4 +11,3 @@ Once your ATEM is properly configured on the network, you can add it as a device
 ### Additional Information
 
 Sofie does not support connecting to a vision mixer hardware panels. All interacts with the vision mixers must be handled within a Rundown.
-

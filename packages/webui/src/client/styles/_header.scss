@@ -1,0 +1,45 @@
+.navbar {
+	.links {
+		> a {
+			color: #fff;
+			margin-left: 1em;
+			> .icon {
+				margin: -4px 0 -2px;
+			}
+		}
+	}
+
+	.badge-sofie {
+		color: #fff;
+		text-decoration: none;
+		display: flex;
+		flex-direction: row;
+
+		&:link,
+		&:visited,
+		&:active {
+			color: #fff;
+		}
+		&:hover {
+			text-decoration: underline;
+		}
+
+		.sofie-logo {
+			background: var(--sofie-logo-url) center center no-repeat;
+			background-size: contain;
+			width: 2em;
+			height: 2em;
+			margin-top: -0.5em;
+		}
+	}
+
+	.dashboard {
+		flex: 1 1;
+		position: unset;
+	}
+}
+
+.super-dark {
+	background: #000000;
+	color: #fff;
+}

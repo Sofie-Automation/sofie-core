@@ -2,11 +2,11 @@ import { PieceInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { normalizeArrayToMap, omit } from '@sofie-automation/corelib/dist/lib'
 import { protectString, protectStringArray, unprotectStringArray } from '@sofie-automation/corelib/dist/protectedString'
-import { PlayoutPartInstanceModel } from '../../playout/model/PlayoutPartInstanceModel'
+import { PlayoutPartInstanceModel } from '../../playout/model/PlayoutPartInstanceModel.js'
 import { ReadonlyDeep } from 'type-fest'
-import _ = require('underscore')
-import { ContextInfo } from './CommonContext'
-import { RundownUserContext } from './RundownUserContext'
+import _ from 'underscore'
+import { ContextInfo } from './CommonContext.js'
+import { RundownUserContext } from './RundownUserContext.js'
 import {
 	ISyncIngestUpdateToPartInstanceContext,
 	IBlueprintPiece,
@@ -17,20 +17,21 @@ import {
 	SomeContent,
 	WithTimeline,
 } from '@sofie-automation/blueprints-integration'
-import { postProcessPieces, postProcessTimelineObjects } from '../postProcess'
+import { postProcessPieces, postProcessTimelineObjects } from '../postProcess.js'
 import {
 	IBlueprintPieceObjectsSampleKeys,
 	convertPieceInstanceToBlueprints,
 	convertPartInstanceToBlueprints,
-} from './lib'
+	convertPartialBlueprintMutablePartToCore,
+} from './lib.js'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { JobContext, ProcessedShowStyleCompound } from '../../jobs'
+import { JobContext, JobStudio, ProcessedShowStyleCompound } from '../../jobs/index.js'
 import {
 	PieceTimelineObjectsBlob,
 	serializePieceTimelineObjectsBlob,
 } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { EXPECTED_INGEST_TO_PLAYOUT_TIME } from '@sofie-automation/shared-lib/dist/core/constants'
+import { getCurrentTime } from '../../lib/index.js'
 
 export class SyncIngestUpdateToPartInstanceContext
 	extends RundownUserContext
@@ -40,10 +41,14 @@ export class SyncIngestUpdateToPartInstanceContext
 
 	private partInstance: PlayoutPartInstanceModel | null
 
+	public get hasRemovedPartInstance(): boolean {
+		return !this.partInstance
+	}
+
 	constructor(
 		private readonly _context: JobContext,
 		contextInfo: ContextInfo,
-		studio: ReadonlyDeep<DBStudio>,
+		studio: ReadonlyDeep<JobStudio>,
 		showStyleCompound: ReadonlyDeep<ProcessedShowStyleCompound>,
 		rundown: ReadonlyDeep<DBRundown>,
 		partInstance: PlayoutPartInstanceModel,
@@ -91,7 +96,7 @@ export class SyncIngestUpdateToPartInstanceContext
 					this.partInstance.partInstance.segmentId,
 					this.partInstance.partInstance.part._id,
 					this.playStatus === 'current'
-			  )[0]
+				)[0]
 			: proposedPieceInstance.piece
 
 		const newPieceInstance: ReadonlyDeep<PieceInstance> = {
@@ -165,15 +170,22 @@ export class SyncIngestUpdateToPartInstanceContext
 		if (!this.partInstance) throw new Error(`PartInstance has been removed`)
 
 		// for autoNext, the new expectedDuration cannot be shorter than the time a part has been on-air for
-		if (updatePart.expectedDuration && (updatePart.autoNext ?? this.partInstance.partInstance.part.autoNext)) {
+		const expectedDuration = updatePart.expectedDuration ?? this.partInstance.partInstance.part.expectedDuration
+		const autoNext = updatePart.autoNext ?? this.partInstance.partInstance.part.autoNext
+		if (expectedDuration && autoNext) {
 			const onAir = this.partInstance.partInstance.timings?.reportedStartedPlayback
 			const minTime = Date.now() - (onAir ?? 0) + EXPECTED_INGEST_TO_PLAYOUT_TIME
-			if (onAir && minTime > updatePart.expectedDuration) {
+			if (onAir && minTime > expectedDuration) {
 				updatePart.expectedDuration = minTime
 			}
 		}
 
-		if (!this.partInstance.updatePartProps(updatePart)) {
+		const playoutUpdatePart = convertPartialBlueprintMutablePartToCore(
+			updatePart,
+			this.showStyleCompound.blueprintId
+		)
+
+		if (!this.partInstance.updatePartProps(playoutUpdatePart)) {
 			throw new Error(`Cannot update PartInstance. Some valid properties must be defined`)
 		}
 
@@ -201,5 +213,9 @@ export class SyncIngestUpdateToPartInstanceContext
 		}
 
 		return unprotectStringArray(pieceInstanceIdsToRemove)
+	}
+
+	getCurrentTime(): number {
+		return getCurrentTime()
 	}
 }

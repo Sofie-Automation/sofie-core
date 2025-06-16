@@ -1,0 +1,131 @@
+@import '../../../styles/variables';
+
+$page-margin: 1rem 1rem 0 3rem;
+
+.camera-screen {
+	margin-top: nth($page-margin, 1);
+	margin-bottom: calc(100vh - 4rem);
+
+	--piece-type-indicator-width: 2rem;
+	--piece-type-indicator-border-radius: 11px;
+
+	user-select: none;
+}
+
+.camera-screen__segment {
+	> .camera-screen__segment-name {
+		font-size: 1em;
+		margin-left: nth($page-margin, 4);
+		margin-right: nth($page-margin, 2);
+	}
+
+	.camera-screen__piece {
+		position: relative;
+		font-size: 2em;
+		margin-left: calc(var(--piece-type-indicator-width) - var(--piece-type-indicator-border-radius));
+
+		.camera-screen__piece-label {
+			position: relative;
+			padding-left: 1.6rem;
+			margin-right: 5rem;
+			max-width: max-content;
+			min-width: 1.5em;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		.camera-screen__piece-type-indicator {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: var(--piece-type-indicator-width);
+			bottom: 0;
+			display: flex;
+			margin-left: calc(-1 * var(--piece-type-indicator-width) + var(--piece-type-indicator-border-radius));
+			flex-direction: column;
+			z-index: -1;
+			border-top-right-radius: var(--piece-type-indicator-border-radius);
+			border-bottom-right-radius: var(--piece-type-indicator-border-radius);
+			overflow: hidden;
+
+			@include item-type-colors();
+
+			.camera-screen__piece-type-indicator-sub-background {
+				flex: 1 1;
+				@include item-type-colors();
+			}
+		}
+
+		.camera-screen__piece-background {
+			position: absolute;
+			z-index: -2;
+			top: 0;
+			left: 0;
+			bottom: 0;
+			width: 100%;
+			transform-origin: 0 0;
+			display: flex;
+			flex-direction: column;
+			filter: brightness(0.6);
+
+			@include item-type-colors();
+
+			.camera-screen__piece-sub-background {
+				flex: 1 1;
+				@include item-type-colors();
+			}
+		}
+	}
+
+	.camera-screen__part {
+		position: relative;
+		margin-bottom: 1px;
+
+		.camera-screen__countdown {
+			position: absolute;
+			top: 0;
+			bottom: auto;
+			left: auto;
+			right: nth($page-margin, 2);
+			display: none;
+			font-weight: 500;
+			letter-spacing: -0.3px;
+		}
+
+		.camera-screen__part-duration-left {
+			position: absolute;
+			top: auto;
+			left: auto;
+			bottom: 0;
+			right: nth($page-margin, 2);
+			letter-spacing: -0.3px;
+			opacity: 0.5;
+		}
+
+		.camera-screen__part-take-mode > div {
+			display: inline-block;
+			vertical-align: top;
+			text-transform: uppercase;
+			margin-right: 0.5em;
+			font-size: 0.7em;
+			margin-top: 0.42em;
+		}
+	}
+}
+
+$parts-start-at-index: 2;
+
+.camera-screen__segment.live:not(.next) + .camera-screen__segment {
+	--countdown-display: block;
+}
+
+.camera-screen__segment .camera-screen__part:nth-child(#{$parts-start-at-index}) .camera-screen__countdown {
+	display: var(--countdown-display, none);
+}
+
+.camera-screen__segment:nth-child(1)
+	.camera-screen__part:nth-child(#{$parts-start-at-index}):not(.live)
+	.camera-screen__countdown {
+	display: block;
+}

@@ -3,29 +3,29 @@ import {
 	PartInstanceTimingsProps,
 	RundownDataChangedProps,
 } from '@sofie-automation/corelib/dist/worker/events'
-import { getCurrentTime } from '../lib'
-import { JobContext } from '../jobs'
-import { logger } from '../logging'
+import { getCurrentTime } from '../lib/index.js'
+import { JobContext } from '../jobs/index.js'
+import { logger } from '../logging.js'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { ReadonlyDeep } from 'type-fest'
-import { RundownDataChangedEventContext, RundownTimingEventContext } from '../blueprints/context'
+import { RundownDataChangedEventContext, RundownTimingEventContext } from '../blueprints/context/index.js'
 import { IBlueprintExternalMessageQueueObj } from '@sofie-automation/blueprints-integration'
 import { protectString, unDeepString } from '@sofie-automation/corelib/dist/protectedString'
-import _ = require('underscore')
+import _ from 'underscore'
 import { getRandomId, omit, removeNullyProperties } from '@sofie-automation/corelib/dist/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { ExternalMessageQueueObj } from '@sofie-automation/corelib/dist/dataModel/ExternalMessageQueue'
-import { ICollection, MongoModifier } from '../db'
+import { ICollection, MongoModifier } from '../db/index.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { ExternalMessageQueueObjId, PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { runWithRundownLock } from '../ingest/lock'
+import { runWithRundownLock } from '../ingest/lock.js'
 import {
 	PeripheralDevice,
 	PeripheralDeviceCategory,
 	PeripheralDeviceType,
 } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { MOS } from '@sofie-automation/corelib'
-import { executePeripheralDeviceFunction } from '../peripheralDevice'
+import { executePeripheralDeviceFunction } from '../peripheralDevice.js'
 import { DEFAULT_MOS_TIMEOUT_TIME } from '@sofie-automation/shared-lib/dist/core/constants'
 
 async function getBlueprintAndDependencies(context: JobContext, rundown: ReadonlyDeep<DBRundown>) {
@@ -256,7 +256,7 @@ export async function handleNotifyCurrentlyPlayingPart(
 	}
 	const parentDevice = await context.directCollections.PeripheralDevices.findOne({
 		_id: device.parentDeviceId,
-		studioId: context.studioId,
+		'studioAndConfigId.studioId': context.studioId,
 		parentDeviceId: { $exists: false },
 	})
 	if (!parentDevice) {

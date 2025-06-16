@@ -1,8 +1,8 @@
-import { UserId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { createManualPromise, sleep } from '@sofie-automation/corelib/dist/lib'
+import { createManualPromise } from '@sofie-automation/corelib/dist/lib'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { optimizedObserverCountSubscribers, setUpOptimizedObserverInner, TriggerUpdate } from '../optimizedObserverBase'
 import { CustomPublish, CustomPublishChanges } from '../publish'
+import { sleep } from '../../lib'
 
 interface CustomPublishMockExt {
 	stop?: () => void
@@ -18,9 +18,6 @@ class CustomPublishMock<DBObj extends { _id: ProtectedString<any> }>
 
 	get isReady(): boolean {
 		return false
-	}
-	get userId(): UserId | null {
-		return null
 	}
 
 	stop?: () => void
@@ -49,7 +46,7 @@ describe('optimizedObserver base', () => {
 		const receiver2 = CustomPublishMock.create<any>()
 
 		try {
-			let triggerUpdate: TriggerUpdate<{}> | undefined
+			let triggerUpdate: TriggerUpdate<Record<string, never>> | undefined
 			const setupObservers = jest.fn(async (_args, triggerUpdate0) => {
 				triggerUpdate = triggerUpdate0
 				return []

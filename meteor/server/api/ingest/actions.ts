@@ -1,12 +1,12 @@
 import { getPeripheralDeviceFromRundown, runIngestOperation } from './lib'
 import { MOSDeviceActions } from './mosDevice/actions'
 import { Meteor } from 'meteor/meteor'
-import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { TriggerReloadDataResponse } from '../../../lib/api/userActions'
+import { TriggerReloadDataResponse } from '@sofie-automation/meteor-lib/dist/api/userActions'
 import { GenericDeviceActions } from './genericDevice/actions'
 import { PeripheralDeviceType } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { IngestJobs } from '@sofie-automation/corelib/dist/worker/ingest'
 import { assertNever } from '@sofie-automation/corelib/dist/lib'
+import { VerifiedRundownForUserAction } from '../../security/check'
 
 /*
 This file contains actions that can be performed on an ingest-device
@@ -15,9 +15,7 @@ export namespace IngestActions {
 	/**
 	 * Trigger a reload of a rundown
 	 */
-	export async function reloadRundown(
-		rundown: Pick<Rundown, '_id' | 'studioId' | 'externalId' | 'showStyleVariantId' | 'source'>
-	): Promise<TriggerReloadDataResponse> {
+	export async function reloadRundown(rundown: VerifiedRundownForUserAction): Promise<TriggerReloadDataResponse> {
 		const rundownSourceType = rundown.source.type
 		switch (rundown.source.type) {
 			case 'snapshot':

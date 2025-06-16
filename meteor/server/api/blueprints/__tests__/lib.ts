@@ -1,5 +1,5 @@
 import { BlueprintManifestType, SomeBlueprintManifest } from '@sofie-automation/blueprints-integration'
-import { getRandomId, literal, protectString } from '../../../../lib/lib'
+import { getRandomId, literal, protectString } from '../../../lib/tempLib'
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
 import { JSONBlobStringify } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 
@@ -17,7 +17,6 @@ export function generateFakeBlueprint(
   integrationVersion: '0.0.0',
   TSRVersion: '0.0.0',
   studioConfigManifest: [],
-  studioMigrations: [],
   getBaseline: () => {
 	return {
       timelineObjects: [],
@@ -43,8 +42,6 @@ export function generateFakeBlueprint(
 		showStyleConfigSchema: JSONBlobStringify({}),
 
 		databaseVersion: {
-			showStyle: {},
-			studio: {},
 			system: undefined,
 		},
 

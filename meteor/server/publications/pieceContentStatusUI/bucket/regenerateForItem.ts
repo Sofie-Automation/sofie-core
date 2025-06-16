@@ -1,7 +1,7 @@
-import { BucketAdLibActionId, BucketAdLibId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { BucketAdLibActionId, BucketAdLibId, ShowStyleBaseId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ReadonlyDeep } from 'type-fest'
-import { UIBucketContentStatus } from '../../../../lib/api/rundownNotifications'
-import { literal, protectString } from '../../../../lib/lib'
+import { UIBucketContentStatus } from '@sofie-automation/meteor-lib/dist/api/rundownNotifications'
+import { literal, protectString } from '../../../lib/tempLib'
 import { CustomPublishCollection } from '../../../lib/customPublication'
 import { BucketContentCache } from './bucketContentCache'
 import { PieceDependencies } from '../common'
@@ -11,6 +11,7 @@ import {
 	PieceContentStatusPiece,
 	PieceContentStatusStudio,
 } from '../checkPieceContentStatus'
+import type { PieceContentStatusMessageFactory } from '../messageFactory'
 
 /**
  * Regenerating the status for the provided AdLibActionId
@@ -20,6 +21,7 @@ export async function regenerateForBucketAdLibIds(
 	contentCache: ReadonlyDeep<BucketContentCache>,
 	uiStudio: PieceContentStatusStudio,
 	dependenciesState: Map<BucketAdLibId, PieceDependencies>,
+	messageFactories: Map<ShowStyleBaseId, PieceContentStatusMessageFactory>,
 	collection: CustomPublishCollection<UIBucketContentStatus>,
 	regenerateIds: Set<BucketAdLibId>
 ): Promise<void> {
@@ -45,6 +47,7 @@ export async function regenerateForBucketAdLibIds(
 			if (sourceLayer) {
 				const [status, itemDependencies] = await checkPieceContentStatusAndDependencies(
 					uiStudio,
+					messageFactories.get(actionDoc.showStyleBaseId),
 					actionDoc,
 					sourceLayer
 				)
@@ -79,6 +82,7 @@ export async function regenerateForBucketActionIds(
 	contentCache: ReadonlyDeep<BucketContentCache>,
 	uiStudio: PieceContentStatusStudio,
 	dependenciesState: Map<BucketAdLibActionId, PieceDependencies>,
+	messageFactories: Map<ShowStyleBaseId, PieceContentStatusMessageFactory>,
 	collection: CustomPublishCollection<UIBucketContentStatus>,
 	regenerateIds: Set<BucketAdLibActionId>
 ): Promise<void> {
@@ -106,11 +110,16 @@ export async function regenerateForBucketActionIds(
 				const fakedPiece = literal<PieceContentStatusPiece>({
 					_id: protectString(`${actionDoc._id}`),
 					content: 'content' in actionDoc.display ? actionDoc.display.content : {},
+					name:
+						typeof actionDoc.display.label === 'string'
+							? actionDoc.display.label
+							: actionDoc.display.label.key,
 					expectedPackages: actionDoc.expectedPackages,
 				})
 
 				const [status, itemDependencies] = await checkPieceContentStatusAndDependencies(
 					uiStudio,
+					messageFactories.get(actionDoc.showStyleBaseId),
 					fakedPiece,
 					sourceLayer
 				)

@@ -1,5 +1,6 @@
-import { ProtectedString, getCurrentTime } from '../../lib/lib'
-import { CollectionCleanupResult } from '../../lib/api/system'
+import { ProtectedString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
+import { getCurrentTime } from '../lib/lib'
+import { CollectionCleanupResult } from '@sofie-automation/meteor-lib/dist/api/system'
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import {
@@ -8,7 +9,7 @@ import {
 	getOrphanedPackageInfos,
 	removePackageInfos,
 } from './studio/lib'
-import { Settings } from '../../lib/Settings'
+import { Settings } from '../Settings'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 import {
 	BlueprintId,
@@ -36,7 +37,7 @@ import {
 	ExpectedPackageWorkStatuses,
 	ExpectedPlayoutItems,
 	ExternalMessageQueue,
-	IngestDataCache,
+	NrcsIngestDataCache,
 	MediaObjects,
 	MediaWorkFlows,
 	MediaWorkFlowSteps,
@@ -68,10 +69,13 @@ import {
 	UserActionsLog,
 	Workers,
 	WorkerThreadStatuses,
+	Notifications,
+	SofieIngestDataCache,
 } from '../collections'
 import { AsyncOnlyMongoCollection, AsyncOnlyReadOnlyMongoCollection } from '../collections/collection'
 import { getCollectionKey } from '../collections/lib'
 import { generateTranslationBundleOriginId } from './translationsBundles'
+import { DBNotificationTargetType } from '@sofie-automation/corelib/dist/dataModel/Notifications'
 
 /**
  * If actuallyCleanup=true, cleans up old data. Otherwise just checks what old data there is
@@ -103,7 +107,7 @@ export async function cleanupOldDataInner(actuallyCleanup = false): Promise<Coll
 	): Promise<ID[]> => {
 		const collectionName = getCollectionKey(collection)
 
-		const ids = (await collection.findFetchAsync(query, { fields: { _id: 1 } })).map((doc) => doc._id)
+		const ids = (await collection.findFetchAsync(query, { projection: { _id: 1 } })).map((doc) => doc._id)
 		const count = ids.length
 		if (actuallyCleanup) {
 			await collection.mutableCollection.removeAsync(query)
@@ -123,10 +127,6 @@ export async function cleanupOldDataInner(actuallyCleanup = false): Promise<Coll
 	{
 		addToResult(CollectionName.Organizations, 0) // Do nothing
 	}
-	// Users
-	{
-		addToResult(CollectionName.Users, 0) // Do nothing
-	}
 
 	// Documents owned by Organizations:
 	const organizationIds = await getAllIdsInCollection(Organizations)
@@ -137,7 +137,7 @@ export async function cleanupOldDataInner(actuallyCleanup = false): Promise<Coll
 	{
 		const ownedByOrganizationId = async <
 			DBInterface extends { _id: ID; organizationId: OrganizationId | null | undefined },
-			ID extends ProtectedString<any>
+			ID extends ProtectedString<any>,
 		>(
 			collection: AsyncOnlyReadOnlyMongoCollection<DBInterface>
 		): Promise<ID[]> => {
@@ -167,7 +167,7 @@ export async function cleanupOldDataInner(actuallyCleanup = false): Promise<Coll
 	{
 		const ownedByDeviceId = async <
 			DBInterface extends { _id: ID; deviceId: PeripheralDeviceId },
-			ID extends ProtectedString<any>
+			ID extends ProtectedString<any>,
 		>(
 			collection: AsyncOnlyReadOnlyMongoCollection<DBInterface>
 		): Promise<ID[]> => {
@@ -190,7 +190,7 @@ export async function cleanupOldDataInner(actuallyCleanup = false): Promise<Coll
 	{
 		const ownedByStudioId = async <
 			DBInterface extends { _id: ID; studioId: StudioId },
-			ID extends ProtectedString<any>
+			ID extends ProtectedString<any>,
 		>(
 			collection: AsyncOnlyReadOnlyMongoCollection<DBInterface>
 		): Promise<ID[]> => {
@@ -248,7 +248,7 @@ export async function cleanupOldDataInner(actuallyCleanup = false): Promise<Coll
 	{
 		const ownedByRundownPlaylistId = async <
 			DBInterface extends { _id: ID; playlistId: RundownPlaylistId },
-			ID extends ProtectedString<any>
+			ID extends ProtectedString<any>,
 		>(
 			collection: AsyncOnlyReadOnlyMongoCollection<DBInterface>
 		): Promise<ID[]> => {
@@ -265,7 +265,7 @@ export async function cleanupOldDataInner(actuallyCleanup = false): Promise<Coll
 	{
 		const ownedByRundownId = async <
 			DBInterface extends { _id: ID; rundownId: RundownId },
-			ID extends ProtectedString<any>
+			ID extends ProtectedString<any>,
 		>(
 			collection: AsyncOnlyReadOnlyMongoCollection<DBInterface>
 		): Promise<ID[]> => {
@@ -275,7 +275,8 @@ export async function cleanupOldDataInner(actuallyCleanup = false): Promise<Coll
 		}
 		await ownedByRundownId(AdLibActions)
 		await ownedByRundownId(AdLibPieces)
-		await ownedByRundownId(IngestDataCache)
+		await ownedByRundownId(SofieIngestDataCache)
+		await ownedByRundownId(NrcsIngestDataCache)
 		;(await ownedByRundownId(Parts)).forEach((id) => removedParts.add(id))
 		await ownedByRundownId(RundownBaselineAdLibActions)
 		await ownedByRundownId(RundownBaselineAdLibPieces)
@@ -353,7 +354,7 @@ export async function cleanupOldDataInner(actuallyCleanup = false): Promise<Coll
 					},
 				],
 			},
-			{ fields: { _id: 1 } }
+			{ projection: { _id: 1 } }
 		)
 		const emiFromRundowns = await ExpectedMediaItems.findFetchAsync(
 			{
@@ -367,7 +368,7 @@ export async function cleanupOldDataInner(actuallyCleanup = false): Promise<Coll
 					},
 				],
 			},
-			{ fields: { _id: 1 } }
+			{ projection: { _id: 1 } }
 		)
 		addToResult(CollectionName.ExpectedMediaItems, emiFromBuckets.length)
 		addToResult(CollectionName.ExpectedMediaItems, emiFromRundowns.length)
@@ -446,13 +447,41 @@ export async function cleanupOldDataInner(actuallyCleanup = false): Promise<Coll
 		addToResult(getCollectionKey(WorkerThreadStatuses), 0)
 	}
 
+	// Notifications
+	{
+		const rundownIds = await getAllIdsInCollection(Rundowns)
+		const playlistIds = await getAllIdsInCollection(RundownPlaylists)
+		await removeByQuery(Notifications, {
+			studioId: { $nin: studioIds },
+			$or: [
+				// {
+				// 	'relatedTo.type': DBNotificationTargetType.EVERYWHERE,
+				// },
+				{
+					'relatedTo.type': DBNotificationTargetType.PLAYLIST,
+					'relatedTo.playlistId': { $nin: playlistIds },
+				},
+				{
+					'relatedTo.type': {
+						$in: [
+							DBNotificationTargetType.RUNDOWN,
+							DBNotificationTargetType.PARTINSTANCE,
+							DBNotificationTargetType.PIECEINSTANCE,
+						],
+					},
+					'relatedTo.rundownId': { $nin: rundownIds },
+				},
+			],
+		})
+	}
+
 	return result
 }
 async function isAllowedToRunCleanup(): Promise<string | void> {
 	// HACK: TODO - should we check this?
 	// if (isAnyQueuedWorkRunning()) return `Another sync-function is running, try again later`
 
-	const studios = await Studios.findFetchAsync({}, { fields: { _id: 1 } })
+	const studios = await Studios.findFetchAsync({}, { projection: { _id: 1 } })
 	for (const studio of studios) {
 		const activePlaylist: DBRundownPlaylist | undefined = (
 			await getActiveRundownPlaylistsInStudioFromDb(studio._id)
@@ -471,7 +500,7 @@ async function getAllIdsInCollection<DBInterface extends { _id: ID }, ID extends
 		await collection.findFetchAsync(
 			{},
 			{
-				fields: {
+				projection: {
 					_id: 1,
 				},
 			}

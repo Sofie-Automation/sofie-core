@@ -1,7 +1,7 @@
 import { PackageInfo, Time } from '@sofie-automation/blueprints-integration'
-import { protectString } from '../protectedString'
-import { ExpectedPackageDB } from './ExpectedPackages'
-import { ExpectedPackageId, PackageInfoId, PeripheralDeviceId, StudioId } from './Ids'
+import { protectString } from '../protectedString.js'
+import { ExpectedPackageDB } from './ExpectedPackages.js'
+import { ExpectedPackageId, PackageInfoId, PeripheralDeviceId, StudioId } from './Ids.js'
 
 /**
  * The PackageInfos collection contains information related to Packages.

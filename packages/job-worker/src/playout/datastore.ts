@@ -2,8 +2,8 @@ import { DatastorePersistenceMode, TSR } from '@sofie-automation/blueprints-inte
 import { StudioId, TimelineDatastoreEntryId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { deserializeTimelineBlob } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { JobContext } from '../jobs'
-import { PlayoutModel } from './model/PlayoutModel'
+import { JobContext } from '../jobs/index.js'
+import { PlayoutModel } from './model/PlayoutModel.js'
 
 export function getDatastoreId(studioId: StudioId, key: string): TimelineDatastoreEntryId {
 	return protectString<TimelineDatastoreEntryId>(`${studioId}_${key}`)
@@ -33,4 +33,34 @@ export async function cleanTimelineDatastore(context: JobContext, playoutModel: 
 		studioId: context.studioId,
 		mode: DatastorePersistenceMode.Temporary,
 	})
+}
+
+export async function setTimelineDatastoreValue(
+	context: JobContext,
+	key: string,
+	value: unknown,
+	mode: DatastorePersistenceMode
+): Promise<void> {
+	const studioId = context.studioId
+	const id = protectString(`${studioId}_${key}`)
+	const collection = context.directCollections.TimelineDatastores
+
+	await collection.replace({
+		_id: id,
+		studioId: studioId,
+
+		key,
+		value,
+
+		modified: Date.now(),
+		mode,
+	})
+}
+
+export async function removeTimelineDatastoreValue(context: JobContext, key: string): Promise<void> {
+	const studioId = context.studioId
+	const id = getDatastoreId(studioId, key)
+	const collection = context.directCollections.TimelineDatastores
+
+	await collection.remove({ _id: id })
 }

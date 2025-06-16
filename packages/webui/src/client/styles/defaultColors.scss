@@ -1,0 +1,45 @@
+@use 'sass:color';
+
+@import 'itemTypeColors';
+
+:root {
+	--color-status-good: green;
+	--color-status-minor-warning: lime;
+	--color-status-minor-warning-text: black;
+	--color-status-warning: gold;
+	--color-status-bad: #ff5e00;
+	--color-status-fatal: #e62421;
+	--color-status-fatal--translucent: #{color.scale(#e62421, $alpha: -50%)};
+	--color-status-unknown: #777;
+
+	//--general-live-color: #FFE900;
+	--general-live-color: #e30000;
+	//--general-next-color: #FF0000;
+	--general-next-color: #3eca19;
+
+	//--general-live-remote-color: #8d008d;
+	--general-live-remote-color: #e80064;
+	--general-live-guest-color: #008a92;
+
+	--general-late-color: #ff0000;
+	--general-fast-color: #ff0000;
+	--general-countdown-to-next-color: #ffff00;
+	--general-freeze-color: #00bfff;
+	--general-fast-color--shadow: #{color.scale(#ff0000, $alpha: -20%)};
+
+	--general-clock: #49c0fb;
+
+	--part-identifier: #363636;
+	--part-identifier-text: #eee;
+	--general-timecode-color: #ffff00;
+
+	--ui-button-primary: #1769ff;
+	--ui-button-primary--hover: #0050e3;
+	--ui-button-primary--translucent: #{color.scale(#1769ff, $alpha: -50%)};
+	--ui-button-primary--transparent: #{color.scale(#1769ff, $alpha: -100%)};
+
+	--ui-dark-color: #252627;
+	--ui-dark-color-brighter: #5f6164;
+
+	--segment-timeline-background-color: #{$segment-timeline-background-color};
+}

@@ -1,7 +1,7 @@
 import { createManualPromise } from '@sofie-automation/corelib/dist/lib'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { Meteor } from 'meteor/meteor'
-import { UIBlueprintUpgradeStatus } from '../../../lib/api/upgradeStatus'
+import { UIBlueprintUpgradeStatus } from '@sofie-automation/meteor-lib/dist/api/upgradeStatus'
 import { CustomPublish, CustomPublishChanges } from '../../lib/customPublication'
 import { createBlueprintUpgradeStatusSubscriptionHandle } from './publication'
 

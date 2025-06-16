@@ -20,17 +20,18 @@ import {
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { Piece, PieceTimelineObjectsBlob } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { DBRundown, RundownOrphanedReason, RundownSource } from '@sofie-automation/corelib/dist/dataModel/Rundown'
+import { CoreUserEditingDefinition } from '@sofie-automation/corelib/dist/dataModel/UserEditingDefinitions'
 import { RundownBaselineAdLibAction } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibAction'
 import { RundownBaselineAdLibItem } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibPiece'
 import { RundownBaselineObj } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineObj'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { JobContext, ProcessedShowStyleBase, ProcessedShowStyleVariant } from '../../../jobs'
-import { LazyInitialise, LazyInitialiseReadonly } from '../../../lib/lazy'
-import { getRundownId, getSegmentId } from '../../lib'
-import { RundownLock } from '../../../jobs/lock'
-import { IngestSegmentModel } from '../IngestSegmentModel'
-import { IngestSegmentModelImpl } from './IngestSegmentModelImpl'
-import { IngestPartModel } from '../IngestPartModel'
+import { JobContext, ProcessedShowStyleBase, ProcessedShowStyleVariant } from '../../../jobs/index.js'
+import { LazyInitialise, LazyInitialiseReadonly } from '../../../lib/lazy.js'
+import { getRundownId, getSegmentId } from '../../lib.js'
+import { RundownLock } from '../../../jobs/lock.js'
+import { IngestSegmentModel } from '../IngestSegmentModel.js'
+import { IngestSegmentModelImpl } from './IngestSegmentModelImpl.js'
+import { IngestPartModel } from '../IngestPartModel.js'
 import {
 	clone,
 	Complete,
@@ -39,27 +40,28 @@ import {
 	groupByToMap,
 	literal,
 } from '@sofie-automation/corelib/dist/lib'
-import { IngestPartModelImpl } from './IngestPartModelImpl'
-import { DatabasePersistedModel } from '../../../modelBase'
-import { ExpectedPackagesStore } from './ExpectedPackagesStore'
+import { IngestPartModelImpl } from './IngestPartModelImpl.js'
+import { DatabasePersistedModel } from '../../../modelBase.js'
+import { ExpectedPackagesStore } from './ExpectedPackagesStore.js'
 import { ReadonlyDeep } from 'type-fest'
 import {
 	ExpectedPackageForIngestModel,
 	ExpectedPackageForIngestModelBaseline,
 	IngestModel,
 	IngestReplaceSegmentType,
-} from '../IngestModel'
+} from '../IngestModel.js'
 import { RundownNote } from '@sofie-automation/corelib/dist/dataModel/Notes'
-import { diffAndReturnLatestObjects } from './utils'
-import _ = require('underscore')
+import { diffAndReturnLatestObjects } from './utils.js'
+import _ from 'underscore'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { IBlueprintRundown } from '@sofie-automation/blueprints-integration'
-import { getCurrentTime, getSystemVersion } from '../../../lib'
-import { WrappedShowStyleBlueprint } from '../../../blueprints/cache'
-import { SaveIngestModelHelper } from './SaveIngestModel'
-import { generateWriteOpsForLazyDocuments } from './DocumentChangeTracker'
-import { IS_PRODUCTION } from '../../../environment'
-import { logger } from '../../../logging'
+import { getCurrentTime, getSystemVersion } from '../../../lib/index.js'
+import { WrappedShowStyleBlueprint } from '../../../blueprints/cache.js'
+import { SaveIngestModelHelper } from './SaveIngestModel.js'
+import { generateWriteOpsForLazyDocuments } from './DocumentChangeTracker.js'
+import { IS_PRODUCTION } from '../../../environment.js'
+import { logger } from '../../../logging.js'
+import { NotificationsModelHelper } from '../../../notifications/NotificationsModelHelper.js'
 
 export interface IngestModelImplExistingData {
 	rundown: DBRundown
@@ -102,6 +104,8 @@ export class IngestModelImpl implements IngestModel, DatabasePersistedModel {
 	readonly #rundownBaselineObjs: LazyInitialise<RundownBaselineObj[]>
 	readonly #rundownBaselineAdLibPieces: LazyInitialise<RundownBaselineAdLibItem[]>
 	readonly #rundownBaselineAdLibActions: LazyInitialise<RundownBaselineAdLibAction[]>
+
+	readonly #notificationsHelper: NotificationsModelHelper
 
 	public get rundownId(): RundownId {
 		return this.#rundownImpl?._id ?? getRundownId(this.context.studioId, this.rundownExternalId)
@@ -254,6 +258,8 @@ export class IngestModelImpl implements IngestModel, DatabasePersistedModel {
 			this.#rundownBaselineAdLibPieces = new LazyInitialise(async () => [])
 			this.#rundownBaselineAdLibActions = new LazyInitialise(async () => [])
 		}
+
+		this.#notificationsHelper = new NotificationsModelHelper(context, `ingest:${this.rundownId}`, null)
 	}
 
 	getRundown(): ReadonlyDeep<DBRundown> {
@@ -291,7 +297,7 @@ export class IngestModelImpl implements IngestModel, DatabasePersistedModel {
 		return undefined
 	}
 	/**
-	 * Get the Segments of this Rundown, in order
+	 * Get the Segments of this Rundown, in no particular order
 	 */
 	getAllSegments(): IngestSegmentModel[] {
 		const segments: IngestSegmentModel[] = []
@@ -421,7 +427,8 @@ export class IngestModelImpl implements IngestModel, DatabasePersistedModel {
 		showStyleVariant: ReadonlyDeep<ProcessedShowStyleVariant>,
 		showStyleBlueprint: ReadonlyDeep<WrappedShowStyleBlueprint>,
 		source: RundownSource,
-		rundownNotes: RundownNote[]
+		rundownNotes: RundownNote[],
+		userEditOperations: CoreUserEditingDefinition[] | undefined
 	): ReadonlyDeep<DBRundown> {
 		const newRundown = literal<Complete<DBRundown>>({
 			...clone(rundownData as Complete<IBlueprintRundown>),
@@ -432,6 +439,7 @@ export class IngestModelImpl implements IngestModel, DatabasePersistedModel {
 			studioId: this.context.studio._id,
 			showStyleVariantId: showStyleVariant._id,
 			showStyleBaseId: showStyleBase._id,
+			userEditOperations: clone(userEditOperations),
 			orphaned: undefined,
 
 			importVersions: {
@@ -552,12 +560,27 @@ export class IngestModelImpl implements IngestModel, DatabasePersistedModel {
 		}
 	}
 
-	appendRundownNotes(...notes: RundownNote[]): void {
-		// Future: this doesnt allow for removing notes
-		if (!this.#rundownImpl) throw new Error(`Rundown "${this.rundownId}" ("${this.rundownExternalId}") not found`)
+	/** Notifications */
 
-		this.#rundownImpl.notes = [...(this.#rundownImpl.notes ?? []), ...clone(notes)]
-		this.#rundownHasChanged = true
+	async getAllNotifications(
+		...args: Parameters<NotificationsModelHelper['getAllNotifications']>
+	): ReturnType<NotificationsModelHelper['getAllNotifications']> {
+		return this.#notificationsHelper.getAllNotifications(...args)
+	}
+	clearNotification(
+		...args: Parameters<NotificationsModelHelper['clearNotification']>
+	): ReturnType<NotificationsModelHelper['clearNotification']> {
+		return this.#notificationsHelper.clearNotification(...args)
+	}
+	setNotification(
+		...args: Parameters<NotificationsModelHelper['setNotification']>
+	): ReturnType<NotificationsModelHelper['setNotification']> {
+		return this.#notificationsHelper.setNotification(...args)
+	}
+	clearAllNotifications(
+		...args: Parameters<NotificationsModelHelper['clearAllNotifications']>
+	): ReturnType<NotificationsModelHelper['clearAllNotifications']> {
+		return this.#notificationsHelper.clearAllNotifications(...args)
 	}
 
 	/** BaseModel */
@@ -673,6 +696,7 @@ export class IngestModelImpl implements IngestModel, DatabasePersistedModel {
 			this.context.directCollections.RundownBaselineAdLibPieces.bulkWrite(baselineAdLibPiecesOps),
 			this.context.directCollections.RundownBaselineAdLibActions.bulkWrite(baselineAdLibActionsOps),
 			...saveHelper.commit(this.context),
+			this.#notificationsHelper.saveAllToDatabase(),
 		])
 
 		this.#rundownHasChanged = false

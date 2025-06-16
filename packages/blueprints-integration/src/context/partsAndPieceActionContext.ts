@@ -6,10 +6,15 @@ import {
 	IBlueprintPieceDB,
 	IBlueprintPieceInstance,
 	IBlueprintResolvedPieceInstance,
+	IBlueprintSegment,
 	Time,
-} from '..'
+} from '../index.js'
+import { BlueprintQuickLookInfo } from './quickLoopInfo.js'
 
 export interface IPartAndPieceActionContext {
+	/** Information about the current loop, if there is one */
+	readonly quickLoopInfo: BlueprintQuickLookInfo | null
+
 	/**
 	 * Data fetching
 	 */
@@ -40,6 +45,8 @@ export interface IPartAndPieceActionContext {
 	getPartInstanceForPreviousPiece(piece: IBlueprintPieceInstance): Promise<IBlueprintPartInstance>
 	/** Gets the Part for a Piece retrieved from findLastScriptedPieceOnLayer. This primarily allows for accessing metadata of the Part */
 	getPartForPreviousPiece(piece: IBlueprintPieceDB): Promise<IBlueprintPart | undefined>
+	/** Gets the Segment. This primarily allows for accessing metadata */
+	getSegment(segment: 'current' | 'next'): Promise<IBlueprintSegment | undefined>
 
 	/**
 	 * Creative actions
@@ -64,6 +71,6 @@ export interface IPartAndPieceActionContext {
 	stopPiecesOnLayers(sourceLayerIds: string[], timeOffset?: number): Promise<string[]>
 	/** Stop piecesInstances by id. Returns ids of piecesInstances that were removed */
 	stopPieceInstances(pieceInstanceIds: string[], timeOffset?: number): Promise<string[]>
-	/** Remove piecesInstances by id. Returns ids of piecesInstances that were removed. Note: For now we only allow removing from the next, but this might change to include current if there is justification */
-	removePieceInstances(part: 'next', pieceInstanceIds: string[]): Promise<string[]>
+	/** Remove piecesInstances by id. Returns ids of piecesInstances that were removed. */
+	removePieceInstances(part: 'current' | 'next', pieceInstanceIds: string[]): Promise<string[]>
 }

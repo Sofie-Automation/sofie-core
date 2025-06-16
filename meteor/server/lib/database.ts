@@ -1,10 +1,15 @@
 import { Meteor } from 'meteor/meteor'
 import type { AnyBulkWriteOperation } from 'mongodb'
 import _ from 'underscore'
-import { DBObj, normalizeArrayToMap, ProtectedString, deleteAllUndefinedProperties } from '../../lib/lib'
+import { normalizeArrayToMap, ProtectedString, deleteAllUndefinedProperties } from './tempLib'
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { profiler } from '../api/profiler'
 import { AsyncOnlyMongoCollection } from '../collections/collection'
+
+export interface DBObj {
+	_id: ProtectedString<any>
+	[key: string]: any
+}
 
 export interface Changes {
 	added: number

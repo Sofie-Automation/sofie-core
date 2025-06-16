@@ -3,22 +3,30 @@ import { logger } from '../../../logging'
 import { APIFactory, APIRegisterHook, ServerAPIContext } from './types'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { check } from '../../../../lib/check'
-import { APIStudio, StudioAction, StudioActionType, StudiosRestAPI } from '../../../../lib/api/rest/v1'
+import { check } from '../../../lib/check'
+import { APIStudio, StudioAction, StudioActionType, StudiosRestAPI } from '../../../lib/rest/v1'
 import { Meteor } from 'meteor/meteor'
-import { ClientAPI } from '../../../../lib/api/client'
+import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { PeripheralDevices, RundownPlaylists, Studios } from '../../../collections'
-import { APIStudioFrom, studioFrom } from './typeConversion'
+import { APIStudioFrom, studioFrom, validateAPIBlueprintConfigForStudio } from './typeConversion'
 import { runUpgradeForStudio, validateConfigForStudio } from '../../../migration/upgrades'
-import { NoteSeverity } from '@sofie-automation/blueprints-integration'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { ServerClientAPI } from '../../client'
-import { assertNever, getCurrentTime } from '../../../../lib/lib'
+import { assertNever, literal } from '../../../lib/tempLib'
+import { getCurrentTime } from '../../../lib/lib'
 import { StudioJobs } from '@sofie-automation/corelib/dist/worker/studio'
-import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import { DBStudio, StudioDeviceSettings } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
-import { StudioContentWriteAccess } from '../../../security/studio'
 import { ServerPlayoutAPI } from '../../playout/playout'
+import { checkValidation } from '.'
+import { assertConnectionHasOneOfPermissions } from '../../../security/auth'
+import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
+import {
+	applyAndValidateOverrides,
+	ObjectOverrideSetOp,
+} from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
+
+const PERMISSIONS_FOR_PLAYOUT_USERACTION: Array<keyof UserPermissions> = ['studio']
 
 class StudiosServerAPI implements StudiosRestAPI {
 	constructor(private context: ServerAPIContext) {}
@@ -35,24 +43,18 @@ class StudiosServerAPI implements StudiosRestAPI {
 	async addStudio(
 		_connection: Meteor.Connection,
 		_event: string,
-		studio: APIStudio
+		apiStudio: APIStudio
 	): Promise<ClientAPI.ClientResponse<string>> {
-		const newStudio = await studioFrom(studio)
+		const blueprintConfigValidation = await validateAPIBlueprintConfigForStudio(apiStudio)
+		checkValidation(`addStudio`, blueprintConfigValidation)
+
+		const newStudio = await studioFrom(apiStudio)
 		if (!newStudio) throw new Meteor.Error(400, `Invalid Studio`)
 
 		const newStudioId = await Studios.insertAsync(newStudio)
 
 		const validation = await validateConfigForStudio(newStudioId)
-		const validateOK = validation.messages.reduce((acc, msg) => acc && msg.level === NoteSeverity.INFO, true)
-		if (!validateOK) {
-			const details = JSON.stringify(
-				validation.messages.filter((msg) => msg.level < NoteSeverity.INFO).map((msg) => msg.message.key),
-				null,
-				2
-			)
-			logger.error(`addStudio failed validation with errors: ${details}`)
-			throw new Meteor.Error(409, `Studio ${newStudioId} has failed validation`, details)
-		}
+		checkValidation(`addStudio ${newStudioId}`, validation.messages)
 
 		await runUpgradeForStudio(newStudioId)
 		return ClientAPI.responseSuccess(unprotectString(newStudioId), 200)
@@ -66,16 +68,19 @@ class StudiosServerAPI implements StudiosRestAPI {
 		const studio = await Studios.findOneAsync(studioId)
 		if (!studio) throw new Meteor.Error(404, `Studio ${studioId} not found`)
 
-		return ClientAPI.responseSuccess(APIStudioFrom(studio))
+		return ClientAPI.responseSuccess(await APIStudioFrom(studio))
 	}
 
 	async addOrUpdateStudio(
 		_connection: Meteor.Connection,
 		_event: string,
 		studioId: StudioId,
-		studio: APIStudio
+		apiStudio: APIStudio
 	): Promise<ClientAPI.ClientResponse<void>> {
-		const newStudio = await studioFrom(studio, studioId)
+		const blueprintConfigValidation = await validateAPIBlueprintConfigForStudio(apiStudio)
+		checkValidation(`addOrUpdateStudio ${studioId}`, blueprintConfigValidation)
+
+		const newStudio = await studioFrom(apiStudio, studioId)
 		if (!newStudio) throw new Meteor.Error(400, `Invalid Studio`)
 
 		const existingStudio = await Studios.findOneAsync(studioId)
@@ -95,17 +100,53 @@ class StudiosServerAPI implements StudiosRestAPI {
 
 		await Studios.upsertAsync(studioId, newStudio)
 
+		// wait for the upsert to complete before validation and upgrade read from the studios collection
+		await new Promise<void>((resolve) => setTimeout(() => resolve(), 200))
+
 		const validation = await validateConfigForStudio(studioId)
-		const validateOK = validation.messages.reduce((acc, msg) => acc && msg.level === NoteSeverity.INFO, true)
-		if (!validateOK) {
-			const details = JSON.stringify(
-				validation.messages.filter((msg) => msg.level < NoteSeverity.INFO).map((msg) => msg.message.key),
-				null,
-				2
-			)
-			logger.error(`addOrUpdateStudio failed validation with errors: ${details}`)
-			throw new Meteor.Error(409, `Studio ${studioId} has failed validation`, details)
+		checkValidation(`addOrUpdateStudio ${studioId}`, validation.messages)
+
+		return ClientAPI.responseSuccess(await runUpgradeForStudio(studioId))
+	}
+
+	async getStudioConfig(
+		_connection: Meteor.Connection,
+		_event: string,
+		studioId: StudioId
+	): Promise<ClientAPI.ClientResponse<object>> {
+		const studio = await Studios.findOneAsync(studioId)
+		if (!studio) throw new Meteor.Error(404, `Studio ${studioId} not found`)
+
+		return ClientAPI.responseSuccess((await APIStudioFrom(studio)).config)
+	}
+
+	async updateStudioConfig(
+		_connection: Meteor.Connection,
+		_event: string,
+		studioId: StudioId,
+		config: object
+	): Promise<ClientAPI.ClientResponse<void>> {
+		const existingStudio = await Studios.findOneAsync(studioId)
+		if (!existingStudio) {
+			throw new Meteor.Error(404, `Studio ${studioId} not found`)
 		}
+
+		const apiStudio = await APIStudioFrom(existingStudio)
+		apiStudio.config = config
+
+		const blueprintConfigValidation = await validateAPIBlueprintConfigForStudio(apiStudio)
+		checkValidation(`updateStudioConfig ${studioId}`, blueprintConfigValidation)
+
+		const newStudio = await studioFrom(apiStudio, studioId)
+		if (!newStudio) throw new Meteor.Error(400, `Invalid Studio`)
+
+		await Studios.upsertAsync(studioId, newStudio)
+
+		// wait for the upsert to complete before validation and upgrade read from the studios collection
+		await new Promise<void>((resolve) => setTimeout(() => resolve(), 200))
+
+		const validation = await validateConfigForStudio(studioId)
+		checkValidation(`updateStudioConfig ${studioId}`, validation.messages)
 
 		return ClientAPI.responseSuccess(await runUpgradeForStudio(studioId))
 	}
@@ -130,7 +171,11 @@ class StudiosServerAPI implements StudiosRestAPI {
 			}
 		}
 
-		await PeripheralDevices.updateAsync({ studioId }, { $unset: { studioId: 1 } }, { multi: true })
+		await PeripheralDevices.updateAsync(
+			{ 'studioAndConfigId.studioId': studioId },
+			{ $unset: { studioAndConfigId: 1 } },
+			{ multi: true }
+		)
 
 		const rundownPlaylists = (await RundownPlaylists.findFetchAsync(
 			{ studioId },
@@ -181,8 +226,9 @@ class StudiosServerAPI implements StudiosRestAPI {
 				check(routeSetId, String)
 				check(state, Boolean)
 
-				const access = await StudioContentWriteAccess.routeSet(this.context.getCredentials(), studioId)
-				return ServerPlayoutAPI.switchRouteSet(access, routeSetId, state)
+				assertConnectionHasOneOfPermissions(connection, ...PERMISSIONS_FOR_PLAYOUT_USERACTION)
+
+				return ServerPlayoutAPI.switchRouteSet(studioId, routeSetId, state)
 			}
 		)
 	}
@@ -193,7 +239,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 		studioId: StudioId
 	): Promise<ClientAPI.ClientResponse<Array<{ id: string }>>> {
 		const peripheralDevices = (await PeripheralDevices.findFetchAsync(
-			{ studioId },
+			{ 'studioAndConfigId.studioId': studioId },
 			{ projection: { _id: 1 } }
 		)) as Array<Pick<PeripheralDevice, '_id'>>
 
@@ -204,7 +250,8 @@ class StudiosServerAPI implements StudiosRestAPI {
 		_connection: Meteor.Connection,
 		_event: string,
 		studioId: StudioId,
-		deviceId: PeripheralDeviceId
+		deviceId: PeripheralDeviceId,
+		configId: string | undefined
 	): Promise<ClientAPI.ClientResponse<void>> {
 		const studio = await Studios.findOneAsync(studioId)
 		if (!studio)
@@ -220,7 +267,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 				404
 			)
 
-		if (device.studioId !== undefined && device.studioId !== studio._id) {
+		if (device.studioAndConfigId !== undefined && device.studioAndConfigId.studioId !== studio._id) {
 			return ClientAPI.responseError(
 				UserError.from(
 					new Error(`Device already attached to studio`),
@@ -229,9 +276,33 @@ class StudiosServerAPI implements StudiosRestAPI {
 				412
 			)
 		}
+
+		// If no configId is provided, use the id of the device
+		configId = configId || unprotectString(device._id)
+
+		// Ensure that the requested config blob exists
+		const availableDeviceSettings = applyAndValidateOverrides(studio.peripheralDeviceSettings.deviceSettings).obj
+		if (!availableDeviceSettings[configId]) {
+			await Studios.updateAsync(studioId, {
+				$push: {
+					'peripheralDeviceSettings.deviceSettings.overrides': literal<ObjectOverrideSetOp>({
+						op: 'set',
+						path: configId,
+						value: literal<StudioDeviceSettings>({
+							name: device.name,
+							options: {},
+						}),
+					}),
+				},
+			})
+		}
+
 		await PeripheralDevices.updateAsync(deviceId, {
 			$set: {
-				studioId,
+				studioAndConfigId: {
+					studioId,
+					configId,
+				},
 			},
 		})
 
@@ -250,11 +321,17 @@ class StudiosServerAPI implements StudiosRestAPI {
 				UserError.from(new Error(`Studio does not exist`), UserErrorMessage.StudioNotFound),
 				404
 			)
-		await PeripheralDevices.updateAsync(deviceId, {
-			$unset: {
-				studioId: 1,
+		await PeripheralDevices.updateAsync(
+			{
+				_id: deviceId,
+				'studioAndConfigId.studioId': studioId,
 			},
-		})
+			{
+				$unset: {
+					studioAndConfigId: 1,
+				},
+			}
+		)
 
 		return ClientAPI.responseSuccess(undefined, 200)
 	}
@@ -337,6 +414,37 @@ export function registerRoutes(registerRoute: APIRegisterHook<StudiosRestAPI>): 
 		}
 	)
 
+	registerRoute<{ studioId: string }, never, object>(
+		'get',
+		'/studios/:studioId/config',
+		new Map([[404, [UserErrorMessage.StudioNotFound]]]),
+		studiosAPIFactory,
+		async (serverAPI, connection, event, params, _) => {
+			const studioId = protectString<StudioId>(params.studioId)
+			logger.info(`API GET: studio config ${studioId}`)
+
+			check(studioId, String)
+			return await serverAPI.getStudioConfig(connection, event, studioId)
+		}
+	)
+
+	registerRoute<{ studioId: string }, object, void>(
+		'put',
+		'/studios/:studioId/config',
+		new Map([
+			[404, [UserErrorMessage.StudioNotFound]],
+			[409, [UserErrorMessage.ValidationFailed]],
+		]),
+		studiosAPIFactory,
+		async (serverAPI, connection, event, params, body) => {
+			const studioId = protectString<StudioId>(params.studioId)
+			logger.info(`API PUT: Update studio config ${studioId}`)
+
+			check(studioId, String)
+			return await serverAPI.updateStudioConfig(connection, event, studioId, body)
+		}
+	)
+
 	registerRoute<{ studioId: string }, never, void>(
 		'delete',
 		'/studios/:studioId',
@@ -383,7 +491,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<StudiosRestAPI>): 
 		}
 	)
 
-	registerRoute<{ studioId: string }, { deviceId: string }, void>(
+	registerRoute<{ studioId: string }, { deviceId: string; configId: string | undefined }, void>(
 		'put',
 		'/studios/:studioId/devices',
 		new Map([
@@ -394,9 +502,10 @@ export function registerRoutes(registerRoute: APIRegisterHook<StudiosRestAPI>): 
 		async (serverAPI, connection, events, params, body) => {
 			const studioId = protectString<StudioId>(params.studioId)
 			const deviceId = protectString<PeripheralDeviceId>(body.deviceId)
-			logger.info(`API PUT: Attach device ${deviceId} to studio ${studioId}`)
+			const configId = body.configId
+			logger.info(`API PUT: Attach device ${deviceId} to studio ${studioId} (${configId})`)
 
-			return await serverAPI.attachDeviceToStudio(connection, events, studioId, deviceId)
+			return await serverAPI.attachDeviceToStudio(connection, events, studioId, deviceId, configId)
 		}
 	)
 

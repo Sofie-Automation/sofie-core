@@ -12,5 +12,5 @@ import { CURRENT_SYSTEM_VERSION } from './currentSystemVersion'
  */
 
 export const addSteps = addMigrationSteps(CURRENT_SYSTEM_VERSION, [
-	// Add some migrations here:
+	// Add your migration here
 ])

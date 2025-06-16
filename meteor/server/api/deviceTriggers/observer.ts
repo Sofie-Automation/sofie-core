@@ -3,14 +3,14 @@ import { ITranslatableMessage } from '@sofie-automation/corelib/dist/Translatabl
 import { check } from 'meteor/check'
 import { Meteor } from 'meteor/meteor'
 import _ from 'underscore'
-import { MethodContext } from '../../../lib/api/methods'
+import { MethodContext } from '../methodContext'
 import {
 	DeviceTriggerArguments,
 	DeviceTriggerMountedAction,
 	PreviewWrappedAdLib,
-} from '../../../lib/api/triggers/MountedTriggers'
+} from '@sofie-automation/meteor-lib/dist/api/MountedTriggers'
 import { logger } from '../../logging'
-import { checkAccessAndGetPeripheralDevice } from '../ingest/lib'
+import { checkAccessAndGetPeripheralDevice } from '../../security/check'
 import { StudioActionManagers } from './StudioActionManagers'
 import { JobQueueWithClasses } from '@sofie-automation/shared-lib/dist/lib/JobQueueWithClasses'
 import { StudioDeviceTriggerManager } from './StudioDeviceTriggerManager'
@@ -18,14 +18,14 @@ import { StudioObserver } from './StudioObserver'
 import { Studios } from '../../collections'
 import { ReactiveCacheCollection } from '../../publications/lib/ReactiveCacheCollection'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
+import { TagsService } from './TagsService'
 
 type ObserverAndManager = {
 	observer: StudioObserver
 	manager: StudioDeviceTriggerManager
 }
 
-Meteor.startup(() => {
-	if (!Meteor.isServer) return
+Meteor.startup(async () => {
 	const studioObserversAndManagers = new Map<StudioId, ObserverAndManager>()
 	const jobQueue = new JobQueueWithClasses({
 		autoStart: true,
@@ -44,15 +44,25 @@ Meteor.startup(() => {
 
 	function createObserverAndManager(studioId: StudioId) {
 		logger.debug(`Creating observer for studio "${studioId}"`)
-		const manager = new StudioDeviceTriggerManager(studioId)
-		const observer = new StudioObserver(studioId, (showStyleBaseId, cache) => {
-			logger.silly(`Studio observer updating triggers for "${studioId}":"${showStyleBaseId}"`)
-			workInQueue(async () => manager.updateTriggers(cache, showStyleBaseId))
+		const manager = new StudioDeviceTriggerManager(studioId, new TagsService())
+		const observer = new StudioObserver(
+			studioId,
+			(showStyleBaseId, cache) => {
+				logger.silly(`Studio observer updating triggers for "${studioId}":"${showStyleBaseId}"`)
+				workInQueue(async () => manager.updateTriggers(cache, showStyleBaseId))
 
-			return () => {
-				workInQueue(async () => manager.clearTriggers())
+				return () => {
+					workInQueue(async () => manager.clearTriggers())
+				}
+			},
+			(showStyleBaseId, cache) => {
+				workInQueue(async () => manager.updatePieceInstances(cache, showStyleBaseId))
+
+				return () => {
+					return
+				}
 			}
-		})
+		)
 
 		studioObserversAndManagers.set(studioId, { manager, observer })
 	}
@@ -70,7 +80,7 @@ Meteor.startup(() => {
 		})
 	}
 
-	Studios.observeChanges(
+	await Studios.observeChanges(
 		{},
 		{
 			added: (studioId) => {
@@ -104,7 +114,7 @@ export async function receiveInputDeviceTrigger(
 	check(deviceId, String)
 	check(triggerId, String)
 
-	const studioId = peripheralDevice.studioId
+	const studioId = peripheralDevice.studioAndConfigId?.studioId
 	if (!studioId) throw new Meteor.Error(400, `Peripheral Device "${peripheralDevice._id}" not assigned to a studio`)
 
 	logger.debug(
@@ -118,10 +128,12 @@ export async function receiveInputDeviceTrigger(
 	if (!actionManager)
 		throw new Meteor.Error(500, `No Studio Action Manager available to handle trigger in Studio "${studioId}"`)
 
-	DeviceTriggerMountedActions.find({
+	const mountedActions = DeviceTriggerMountedActions.find({
 		deviceId,
 		deviceTriggerId: triggerId,
-	}).forEach((mountedAction) => {
+	}).fetch()
+
+	for (const mountedAction of mountedActions) {
 		if (values && !_.isMatch(values, mountedAction.values)) return
 		const executableAction = actionManager.getAction(mountedAction.actionId)
 		if (!executableAction)
@@ -133,6 +145,6 @@ export async function receiveInputDeviceTrigger(
 		const context = actionManager.getContext()
 		if (!context) throw new Meteor.Error(500, `Undefined Device Trigger context for studio "${studioId}"`)
 
-		executableAction.execute((t: ITranslatableMessage) => t.key ?? t, `${deviceId}: ${triggerId}`, context)
-	})
+		await executableAction.execute((t: ITranslatableMessage) => t.key ?? t, `${deviceId}: ${triggerId}`, context)
+	}
 }

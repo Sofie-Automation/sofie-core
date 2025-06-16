@@ -1,16 +1,19 @@
-import { literal, getRandomId, getCurrentTime } from '../../lib/lib'
-import { MethodContextAPI, MethodContext } from '../../lib/api/methods'
-import { NewOrganizationAPI, OrganizationAPIMethods } from '../../lib/api/organization'
+import { literal, getRandomId } from '../lib/tempLib'
+import { getCurrentTime } from '../lib/lib'
+import { MethodContextAPI, MethodContext } from './methodContext'
+import { NewOrganizationAPI, OrganizationAPIMethods } from '@sofie-automation/meteor-lib/dist/api/organization'
 import { registerClassToMeteorMethods } from '../methods'
-import { DBOrganization, DBOrganizationBase } from '../../lib/collections/Organization'
-import { OrganizationContentWriteAccess } from '../security/organization'
-import { triggerWriteAccessBecauseNoCheckNecessary } from '../security/lib/securityVerify'
+import { DBOrganization, DBOrganizationBase } from '@sofie-automation/meteor-lib/dist/collections/Organization'
 import { insertStudioInner } from './studio/api'
 import { insertShowStyleBaseInner } from './showStyles'
-import { resetCredentials } from '../security/lib/credentials'
 import { BlueprintId, OrganizationId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { Blueprints, CoreSystem, Organizations, ShowStyleBases, Studios, Users } from '../collections'
+import { Blueprints, CoreSystem, Organizations, ShowStyleBases, Studios } from '../collections'
 import { getCoreSystemAsync } from '../coreSystem/collection'
+import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
+import { assertConnectionHasOneOfPermissions } from '../security/auth'
+import { BlueprintManifestType } from '@sofie-automation/blueprints-integration'
+
+const PERMISSIONS_FOR_MANAGE_ORGANIZATIONS: Array<keyof UserPermissions> = ['configure']
 
 async function createDefaultEnvironmentForOrg(orgId: OrganizationId) {
 	let systemBlueprintId: BlueprintId | undefined
@@ -23,9 +26,9 @@ async function createDefaultEnvironmentForOrg(orgId: OrganizationId) {
 	const core = await getCoreSystemAsync()
 	const blueprints = await Blueprints.findFetchAsync({})
 	for (const blueprint of blueprints) {
-		if (blueprint.blueprintType === 'system') systemBlueprintId = blueprint._id
-		if (blueprint.blueprintType === 'studio') studioBlueprintId = blueprint._id
-		if (blueprint.blueprintType === 'showstyle') showStyleBlueprintId = blueprint._id
+		if (blueprint.blueprintType === BlueprintManifestType.SYSTEM) systemBlueprintId = blueprint._id
+		if (blueprint.blueprintType === BlueprintManifestType.STUDIO) studioBlueprintId = blueprint._id
+		if (blueprint.blueprintType === BlueprintManifestType.SHOWSTYLE) showStyleBlueprintId = blueprint._id
 	}
 
 	if (systemBlueprintId && core) await CoreSystem.updateAsync(core._id, { $set: { blueprintId: systemBlueprintId } })
@@ -42,8 +45,11 @@ async function createDefaultEnvironmentForOrg(orgId: OrganizationId) {
 		await ShowStyleBases.updateAsync(showStyleId, { $set: { blueprintId: showStyleBlueprintId } })
 }
 
-export async function createOrganization(organization: DBOrganizationBase): Promise<OrganizationId> {
-	triggerWriteAccessBecauseNoCheckNecessary()
+export async function createOrganization(
+	context: MethodContext,
+	organization: DBOrganizationBase
+): Promise<OrganizationId> {
+	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_MANAGE_ORGANIZATIONS)
 
 	const orgId = await Organizations.insertAsync(
 		literal<DBOrganization>({
@@ -60,12 +66,8 @@ export async function createOrganization(organization: DBOrganizationBase): Prom
 }
 
 async function removeOrganization(context: MethodContext, organizationId: OrganizationId) {
-	await OrganizationContentWriteAccess.organization(context, organizationId)
+	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_MANAGE_ORGANIZATIONS)
 
-	const users = await Users.findFetchAsync({ organizationId })
-	users.forEach((user) => {
-		resetCredentials({ userId: user._id })
-	})
 	await Organizations.removeAsync(organizationId)
 }
 

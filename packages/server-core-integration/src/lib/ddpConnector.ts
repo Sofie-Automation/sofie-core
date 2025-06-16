@@ -1,5 +1,5 @@
-import { EventEmitter } from 'eventemitter3'
-import { DDPClient, DDPConnectorOptions } from './ddpClient'
+import { EventEmitter } from 'events'
+import { DDPClient, DDPConnectorOptions } from './ddpClient.js'
 
 export type DDPConnectorEvents = {
 	error: [e: any]
@@ -31,6 +31,7 @@ export class DDPConnector extends EventEmitter<DDPConnectorEvents> {
 		const o: DDPConnectorOptions = {
 			host: this._options.host,
 			port: this._options.port,
+			headers: this._options.headers,
 			path: this._options.path || '',
 			ssl: this._options.ssl || false,
 			tlsOpts: this._options.tlsOpts || {},

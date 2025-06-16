@@ -1,12 +1,12 @@
-import { StudioLight } from '../dataModel/Studio'
-import { TimelineComplete } from '../dataModel/Timeline'
+import { DBStudio } from '../dataModel/Studio.js'
+import { TimelineComplete } from '../dataModel/Timeline.js'
 import { ReadonlyDeep } from 'type-fest'
-import { unprotectString } from '../protectedString'
-import { Blueprint } from '../dataModel/Blueprint'
+import { unprotectString } from '../protectedString.js'
+import { Blueprint } from '../dataModel/Blueprint.js'
 
 export function shouldUpdateStudioBaselineInner(
 	coreVersion: string,
-	studio: ReadonlyDeep<StudioLight>,
+	studio: Pick<DBStudio, 'blueprintId' | '_rundownVersionHash'>,
 	studioTimeline: ReadonlyDeep<TimelineComplete> | null,
 	studioBlueprint: Pick<Blueprint, 'blueprintVersion'> | null
 ): string | false {

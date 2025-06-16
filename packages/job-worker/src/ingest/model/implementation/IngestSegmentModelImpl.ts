@@ -1,17 +1,17 @@
 import { PartId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ReadonlyDeep } from 'type-fest'
 import { DBSegment, SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { IngestReplacePartType, IngestSegmentModel } from '../IngestSegmentModel'
-import _ = require('underscore')
-import { IngestPartModelImpl } from './IngestPartModelImpl'
-import { IngestPartModel } from '../IngestPartModel'
+import { IngestReplacePartType, IngestSegmentModel } from '../IngestSegmentModel.js'
+import _ from 'underscore'
+import { IngestPartModelImpl } from './IngestPartModelImpl.js'
+import { IngestPartModel } from '../IngestPartModel.js'
 import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { calculatePartExpectedDurationWithTransition } from '@sofie-automation/corelib/dist/playout/timings'
 import { clone } from '@sofie-automation/corelib/dist/lib'
-import { getPartId } from '../../lib'
+import { getPartId } from '../../lib.js'
 
 /**
  * A light wrapper around the IngestPartModel, so that we can track the deletions while still accessing the contents
