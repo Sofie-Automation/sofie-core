@@ -36,9 +36,9 @@ export namespace IngestActions {
 						logger.info(`Reload rundown: resync request sent to "${resyncUrl}"`)
 					})
 					.catch((error) => {
-						if (error.errno === 'ECONNREFUSED') {
+						if (error.errno === 'ECONNREFUSED' || error.errno === 'ENOTFOUND') {
 							logger.error(
-								`Reload rundown: could not establish connection with "${resyncUrl}" (ECONNREFUSED)`
+								`Reload rundown: could not establish connection with "${resyncUrl}" (${error.errno})`
 							)
 							return
 						}
