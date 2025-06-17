@@ -24,9 +24,7 @@ export async function runJobWithPlayoutModel<TRes>(
 
 	// We can lock before checking ownership, as the locks are scoped to the studio
 	return runWithPlaylistLock(context, data.playlistId, async (playlistLock) => {
-		const playlist = await context.directCollections.RundownPlaylists.findOne({
-			$or: [{ _id: data.playlistId }, { externalId: data.playlistId }],
-		})
+		const playlist = await context.directCollections.RundownPlaylists.findOne(data.playlistId)
 		if (!playlist || playlist.studioId !== context.studioId) {
 			throw new Error(`Job playlist "${data.playlistId}" not found or for another studio`)
 		}
@@ -50,9 +48,7 @@ export async function runJobWithPlaylistLock<TRes>(
 
 	// We can lock before checking ownership, as the locks are scoped to the studio
 	return runWithPlaylistLock(context, data.playlistId, async (lock) => {
-		const playlist = await context.directCollections.RundownPlaylists.findOne({
-			$or: [{ _id: data.playlistId }, { externalId: data.playlistId }],
-		})
+		const playlist = await context.directCollections.RundownPlaylists.findOne(data.playlistId)
 		if (playlist && playlist.studioId !== context.studioId) {
 			throw new Error(`Job playlist "${data.playlistId}" not found or for another studio`)
 		}

@@ -9,7 +9,6 @@ import { UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/erro
 import { SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { getRandomId } from '@sofie-automation/corelib/dist/lib'
 import { PlayoutSegmentModelImpl } from './PlayoutSegmentModelImpl.js'
-import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 
 export class PlayoutRundownModelImpl implements PlayoutRundownModel {
 	readonly rundown: ReadonlyDeep<DBRundown>
@@ -48,9 +47,7 @@ export class PlayoutRundownModelImpl implements PlayoutRundownModel {
 	}
 
 	getSegment(id: SegmentId): PlayoutSegmentModel | undefined {
-		return this.segments.find(
-			(segment) => segment.segment._id === id || segment.segment.externalId === unprotectString(id)
-		)
+		return this.segments.find((segment) => segment.segment._id === id)
 	}
 
 	getSegmentIds(): SegmentId[] {

@@ -20,17 +20,14 @@ export async function checkAccessToPlaylist(
 ): Promise<VerifiedRundownPlaylistForUserAction> {
 	assertConnectionHasOneOfPermissions(cred, 'studio')
 
-	const playlist = (await RundownPlaylists.findOneAsync(
-		{ $or: [{ _id: playlistId }, { externalId: playlistId }] },
-		{
-			projection: {
-				_id: 1,
-				studioId: 1,
-				organizationId: 1,
-				name: 1,
-			},
-		}
-	)) as Pick<DBRundownPlaylist, '_id' | 'studioId' | 'organizationId' | 'name'> | undefined
+	const playlist = (await RundownPlaylists.findOneAsync(playlistId, {
+		projection: {
+			_id: 1,
+			studioId: 1,
+			organizationId: 1,
+			name: 1,
+		},
+	})) as Pick<DBRundownPlaylist, '_id' | 'studioId' | 'organizationId' | 'name'> | undefined
 	if (!playlist) throw new Meteor.Error(404, `RundownPlaylist "${playlistId}" not found`)
 
 	return playlist
