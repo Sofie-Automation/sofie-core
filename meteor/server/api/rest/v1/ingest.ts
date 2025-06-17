@@ -27,20 +27,28 @@ import { check } from '../../../lib/check'
 import { Parts, RundownPlaylists, Rundowns, Segments, Studios } from '../../../collections'
 import { logger } from '../../../logging'
 import { runIngestOperation } from '../../ingest/lib'
-import { validateAPIPartPayload } from './typeConversion'
+import { validateAPIPartPayload, validateAPIRundownPayload, validateAPISegmentPayload } from './typeConversion'
 import { APIFactory, APIRegisterHook, ServerAPIContext } from './types'
 
 class IngestServerAPI implements IngestRestAPI {
-	private async validateAPIPartPayloadForRundown(
+	private async validateAPIPayloadsForRundown(
 		blueprintId: BlueprintId | undefined,
-		ingestRundown: IngestRundown,
+		rundown: IngestRundown,
 		indexes?: {
 			rundown?: number
 		}
 	) {
+		const validationResult = await validateAPIRundownPayload(blueprintId, rundown.payload)
+		const errorMessage = this.formatPayloadValidationErrors('Rundown', validationResult, indexes)
+
+		if (errorMessage) {
+			logger.error(`${errorMessage} with errors: ${validationResult}`)
+			throw new Meteor.Error(409, errorMessage, JSON.stringify(validationResult))
+		}
+
 		return Promise.all(
-			ingestRundown.segments.map(async (segment, index) => {
-				return this.validateAPIPartPayloadForSegment(blueprintId, segment, {
+			rundown.segments.map(async (segment, index) => {
+				return this.validateAPIPayloadsForSegment(blueprintId, segment, {
 					...indexes,
 					segment: index,
 				})
@@ -48,7 +56,7 @@ class IngestServerAPI implements IngestRestAPI {
 		)
 	}
 
-	private async validateAPIPartPayloadForSegment(
+	private async validateAPIPayloadsForSegment(
 		blueprintId: BlueprintId | undefined,
 		segment: IngestRundown['segments'][number],
 		indexes?: {
@@ -56,14 +64,22 @@ class IngestServerAPI implements IngestRestAPI {
 			segment?: number
 		}
 	) {
+		const validationResult = await validateAPISegmentPayload(blueprintId, segment.payload)
+		const errorMessage = this.formatPayloadValidationErrors('Segment', validationResult, indexes)
+
+		if (errorMessage) {
+			logger.error(`${errorMessage} with errors: ${validationResult}`)
+			throw new Meteor.Error(409, errorMessage, JSON.stringify(validationResult))
+		}
+
 		return Promise.all(
 			segment.parts.map(async (part, index) => {
-				return this.validateAPIPartPayloadForPart(blueprintId, part, { ...indexes, part: index })
+				return this.validateAPIPayloadsForPart(blueprintId, part, { ...indexes, part: index })
 			})
 		)
 	}
 
-	private async validateAPIPartPayloadForPart(
+	private async validateAPIPayloadsForPart(
 		blueprintId: BlueprintId | undefined,
 		part: IngestRundown['segments'][number]['parts'][number],
 		indexes?: {
@@ -73,17 +89,34 @@ class IngestServerAPI implements IngestRestAPI {
 		}
 	) {
 		const validationResult = await validateAPIPartPayload(blueprintId, part.payload)
-		if (validationResult && validationResult.length > 0) {
-			const parts = []
-			if (indexes?.rundown !== undefined) parts.push(`rundowns[${indexes.rundown}]`)
-			if (indexes?.segment !== undefined) parts.push(`segments[${indexes.segment}]`)
-			if (indexes?.part !== undefined) parts.push(`parts[${indexes.part}]`)
-			let msg = `Part payload validation failed`
-			if (parts.length > 0) msg += ` for ${parts.join('.')}`
+		const errorMessage = this.formatPayloadValidationErrors('Part', validationResult, indexes)
 
-			logger.error(`${msg} with errors: ${validationResult}`)
-			throw new Meteor.Error(409, msg, JSON.stringify(validationResult))
+		if (errorMessage) {
+			logger.error(`${errorMessage} with errors: ${validationResult}`)
+			throw new Meteor.Error(409, errorMessage, JSON.stringify(validationResult))
 		}
+	}
+
+	private formatPayloadValidationErrors(
+		type: 'Rundown' | 'Segment' | 'Part',
+		validationResult: string[] | undefined,
+		indexes?: {
+			rundown?: number
+			segment?: number
+			part?: number
+		}
+	) {
+		if (!validationResult || validationResult.length === 0) {
+			return
+		}
+
+		const messageParts = []
+		if (indexes?.rundown !== undefined) messageParts.push(`rundowns[${indexes.rundown}]`)
+		if (indexes?.segment !== undefined) messageParts.push(`segments[${indexes.segment}]`)
+		if (indexes?.part !== undefined) messageParts.push(`parts[${indexes.part}]`)
+		let message = `${type} payload validation failed`
+		if (messageParts.length > 0) message += ` for ${messageParts.join('.')}`
+		return message
 	}
 
 	private validateRundown(ingestRundown: RestApiIngestRundown) {
@@ -438,7 +471,7 @@ class IngestServerAPI implements IngestRestAPI {
 		const studio = await this.findStudio(studioId)
 
 		this.validateRundown(ingestRundown)
-		await this.validateAPIPartPayloadForRundown(studio.blueprintId, ingestRundown)
+		await this.validateAPIPayloadsForRundown(studio.blueprintId, ingestRundown)
 
 		const existingRundown = await Rundowns.findOneAsync({
 			$or: [
@@ -487,7 +520,7 @@ class IngestServerAPI implements IngestRestAPI {
 		await Promise.all(
 			ingestRundowns.map(async (ingestRundown, index) => {
 				this.validateRundown(ingestRundown)
-				return this.validateAPIPartPayloadForRundown(studio.blueprintId, ingestRundown, { rundown: index })
+				return this.validateAPIPayloadsForRundown(studio.blueprintId, ingestRundown, { rundown: index })
 			})
 		)
 
@@ -534,7 +567,7 @@ class IngestServerAPI implements IngestRestAPI {
 		const studio = await this.findStudio(studioId)
 
 		this.validateRundown(ingestRundown)
-		await this.validateAPIPartPayloadForRundown(studio.blueprintId, ingestRundown)
+		await this.validateAPIPayloadsForRundown(studio.blueprintId, ingestRundown)
 
 		const playlist = await this.findPlaylist(studio._id, playlistId)
 		const existingRundown = await this.findRundown(studio._id, playlist._id, rundownId)
@@ -666,7 +699,7 @@ class IngestServerAPI implements IngestRestAPI {
 		const studio = await this.findStudio(studioId)
 
 		this.validateSegment(ingestSegment)
-		await this.validateAPIPartPayloadForSegment(studio.blueprintId, ingestSegment)
+		await this.validateAPIPayloadsForSegment(studio.blueprintId, ingestSegment)
 
 		const playlist = await this.findPlaylist(studio._id, playlistId)
 		const rundown = await this.findRundown(studio._id, playlist._id, rundownId)
@@ -703,7 +736,7 @@ class IngestServerAPI implements IngestRestAPI {
 		await Promise.all(
 			ingestSegments.map(async (ingestSegment, index) => {
 				this.validateSegment(ingestSegment)
-				return await this.validateAPIPartPayloadForSegment(studio.blueprintId, ingestSegment, {
+				return await this.validateAPIPayloadsForSegment(studio.blueprintId, ingestSegment, {
 					segment: index,
 				})
 			})
@@ -769,7 +802,7 @@ class IngestServerAPI implements IngestRestAPI {
 		const studio = await this.findStudio(studioId)
 
 		this.validateSegment(ingestSegment)
-		await this.validateAPIPartPayloadForSegment(studio.blueprintId, ingestSegment)
+		await this.validateAPIPayloadsForSegment(studio.blueprintId, ingestSegment)
 
 		const playlist = await this.findPlaylist(studio._id, playlistId)
 		const rundown = await this.findRundown(studio._id, playlist._id, rundownId)
@@ -926,7 +959,7 @@ class IngestServerAPI implements IngestRestAPI {
 		const studio = await this.findStudio(studioId)
 
 		this.validatePart(ingestPart)
-		await this.validateAPIPartPayloadForPart(studio.blueprintId, ingestPart)
+		await this.validateAPIPayloadsForPart(studio.blueprintId, ingestPart)
 
 		const playlist = await this.findPlaylist(studio._id, playlistId)
 		const rundown = await this.findRundown(studio._id, playlist._id, rundownId)
@@ -967,7 +1000,7 @@ class IngestServerAPI implements IngestRestAPI {
 		await Promise.all(
 			ingestParts.map(async (ingestPart, index) => {
 				this.validatePart(ingestPart)
-				return this.validateAPIPartPayloadForPart(studio.blueprintId, ingestPart, { part: index })
+				return this.validateAPIPayloadsForPart(studio.blueprintId, ingestPart, { part: index })
 			})
 		)
 
@@ -1015,7 +1048,7 @@ class IngestServerAPI implements IngestRestAPI {
 		const studio = await this.findStudio(studioId)
 
 		this.validatePart(ingestPart)
-		await this.validateAPIPartPayloadForPart(studio.blueprintId, ingestPart)
+		await this.validateAPIPayloadsForPart(studio.blueprintId, ingestPart)
 
 		const playlist = await this.findPlaylist(studio._id, playlistId)
 		const rundown = await this.findRundown(studio._id, playlist._id, rundownId)

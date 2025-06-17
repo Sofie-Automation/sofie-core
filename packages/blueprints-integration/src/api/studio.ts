@@ -103,6 +103,12 @@ export interface StudioBlueprintManifest<TRawConfig = IBlueprintConfig, TProcess
 	 */
 	validateConfigFromAPI?: (context: ICommonContext, apiConfig: object) => Array<IConfigMessage>
 
+	/** Validate the rundown payload passed to this blueprint according to the API schema, returning a list of error messages. */
+	validateRundownPayloadFromAPI?: (context: ICommonContext, payload: unknown) => Array<string>
+
+	/** Validate the segment payload passed to this blueprint according to the API schema, returning a list of error messages. */
+	validateSegmentPayloadFromAPI?: (context: ICommonContext, payload: unknown) => Array<string>
+
 	/** Validate the part payload passed to this blueprint according to the API schema, returning a list of error messages. */
 	validatePartPayloadFromAPI?: (context: ICommonContext, payload: unknown) => Array<string>
 

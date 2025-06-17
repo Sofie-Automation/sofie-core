@@ -728,6 +728,40 @@ export function playlistSnapshotOptionsFrom(options: APIPlaylistSnapshotOptions)
 	}
 }
 
+export async function validateAPIRundownPayload(
+	blueprintId: BlueprintId | undefined,
+	rundownPayload: unknown
+): Promise<string[] | undefined> {
+	const blueprint = await getBlueprint(blueprintId, BlueprintManifestType.STUDIO)
+	const blueprintManifest = evalBlueprint(blueprint) as StudioBlueprintManifest
+
+	if (typeof blueprintManifest.validateRundownPayloadFromAPI !== 'function') {
+		logger.info(`Blueprint ${blueprintManifest.blueprintId} does not support rundown payload validation`)
+		return []
+	}
+
+	const blueprintContext = new CommonContext('validateAPIRundownPayload', `blueprint:${blueprint._id}`)
+
+	return blueprintManifest.validateRundownPayloadFromAPI(blueprintContext, rundownPayload)
+}
+
+export async function validateAPISegmentPayload(
+	blueprintId: BlueprintId | undefined,
+	segmentPayload: unknown
+): Promise<string[] | undefined> {
+	const blueprint = await getBlueprint(blueprintId, BlueprintManifestType.STUDIO)
+	const blueprintManifest = evalBlueprint(blueprint) as StudioBlueprintManifest
+
+	if (typeof blueprintManifest.validateSegmentPayloadFromAPI !== 'function') {
+		logger.info(`Blueprint ${blueprintManifest.blueprintId} does not support segment payload validation`)
+		return []
+	}
+
+	const blueprintContext = new CommonContext('validateAPISegmentPayload', `blueprint:${blueprint._id}`)
+
+	return blueprintManifest.validateSegmentPayloadFromAPI(blueprintContext, segmentPayload)
+}
+
 export async function validateAPIPartPayload(
 	blueprintId: BlueprintId | undefined,
 	partPayload: unknown
