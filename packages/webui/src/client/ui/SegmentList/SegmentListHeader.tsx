@@ -35,6 +35,7 @@ export function SegmentListHeader({
 	getSegmentContext,
 	onTimeUntilClick,
 	onHeaderNoteClick,
+	hideRundownHeader,
 }: Readonly<{
 	isDetached: boolean
 	isDetachedStick: boolean
@@ -54,6 +55,7 @@ export function SegmentListHeader({
 	onTimeUntilClick: () => void
 	getSegmentContext: () => IContextMenuContext
 	onHeaderNoteClick?: (segmentId: SegmentId, level: NoteSeverity) => void
+	hideRundownHeader?: boolean
 }>): JSX.Element {
 	const { t } = useTranslation()
 
@@ -194,6 +196,8 @@ export function SegmentListHeader({
 						'invert-flash': highlight,
 
 						'time-of-day-countdowns': useTimeOfDayCountdowns,
+
+						'no-rundown-header': hideRundownHeader,
 					})}
 				>
 					{contents}

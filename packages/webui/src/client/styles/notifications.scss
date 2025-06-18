@@ -415,6 +415,10 @@
 		background: linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.7) 100%);
 	}
 
+	&.notification-center-panel--no-rundown-header {
+		top: 0;
+	}
+
 	.notification-pop-ups {
 		top: 0;
 
