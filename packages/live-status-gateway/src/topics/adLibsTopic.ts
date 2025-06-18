@@ -54,6 +54,7 @@ interface AdLibStatusBase {
 	actionType: AdLibActionType[]
 	tags?: string[]
 	publicData: unknown
+	optionsSchema?: any
 }
 
 export class AdLibsTopic
@@ -125,6 +126,7 @@ export class AdLibsTopic
 							actionType: triggerModes,
 							tags: action.display.tags,
 							publicData: action.publicData,
+							optionsSchema: action.userDataManifest.optionsSchema,
 						},
 						id: unprotectString(action._id),
 						label: name,
@@ -193,6 +195,7 @@ export class AdLibsTopic
 							actionType: triggerModes,
 							tags: action.display.tags,
 							publicData: action.publicData,
+							optionsSchema: action.userDataManifest.optionsSchema,
 						},
 						id: unprotectString(action._id),
 						label: name,

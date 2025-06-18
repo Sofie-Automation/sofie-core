@@ -1,4 +1,4 @@
-import { EventEmitter } from 'eventemitter3'
+import { EventEmitter } from 'events'
 
 export type WatchDogCheckFunction = () => Promise<any>
 export type WatchDogEvents = {
@@ -15,8 +15,8 @@ export type WatchDogEvents = {
  */
 export class WatchDog extends EventEmitter<WatchDogEvents> {
 	public timeout: number
-	private _checkTimeout: NodeJS.Timer | null = null
-	private _dieTimeout: NodeJS.Timer | null = null
+	private _checkTimeout: NodeJS.Timeout | null = null
+	private _dieTimeout: NodeJS.Timeout | null = null
 	private _watching = false
 	private _checkFunctions: WatchDogCheckFunction[] = []
 	private _runningChecks = false

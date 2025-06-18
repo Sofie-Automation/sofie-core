@@ -3,13 +3,13 @@ import type {
 	JSONSchemaForWebApplicationManifestFiles,
 	ManifestImageResource,
 	ShortcutItem,
-} from '../lib/typings/webmanifest'
-import { logger } from '../lib/logging'
+} from './typings/webmanifest'
+import { logger } from './logging'
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { RundownPlaylists, Rundowns, Studios } from './collections'
 import { getLocale, Translations } from './lib'
-import { generateTranslation } from '../lib/lib'
+import { generateTranslation } from './lib/tempLib'
 import { ITranslatableMessage } from '@sofie-automation/blueprints-integration'
 import { interpollateTranslation } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
@@ -18,6 +18,7 @@ import Koa from 'koa'
 import KoaRouter from '@koa/router'
 import { Meteor } from 'meteor/meteor'
 import { bindKoaRouter } from './api/rest/koa'
+import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 
 const appShortName = 'Sofie'
 const SOFIE_DEFAULT_ICONS: ManifestImageResource[] = [
@@ -198,7 +199,7 @@ webManifestRouter.get('/', async (ctx) => {
 		ctx.response.type = 'application/manifest+json;charset=utf-8'
 		ctx.body = JSON.stringify(manifest)
 	} catch (e) {
-		logger.error(`Could not produce PWA WebManifest`, e)
+		logger.error(`Could not produce PWA WebManifest: ${stringifyError(e)}`)
 		ctx.response.status = 500
 		ctx.body = 'Internal Server Error'
 	}
@@ -238,7 +239,7 @@ nrcsUrlRouter.get('/', async (ctx) => {
 		ctx.body = `Unsupported namespace: "${parsedWebNrcsUrl.host}"`
 		return
 	} catch (e) {
-		logger.error(`Unknown error in /url/nrcs`, e)
+		logger.error(`Unknown error in /url/nrcs: ${stringifyError(e)}`)
 	}
 
 	ctx.response.status = 500

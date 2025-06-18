@@ -105,14 +105,13 @@ const files = await pGlob(fileGlob)
 
 // console.debug('Loading content of ' + files.length + ' files')
 
-let content = ''
+// console.debug('Parsing translation keys out of content')
 files.map(function (file) {
-	content += fs.readFileSync(file, 'utf-8')
+	const content = fs.readFileSync(file, 'utf-8')
+	parser.parseFuncFromString(content, parserOptions)
+	parser.parseAttrFromString(content, parserOptions)
 })
 
-// console.debug('Parsing translation keys out of content')
-parser.parseFuncFromString(content, parserOptions)
-parser.parseAttrFromString(content, parserOptions)
 const json = parser.get().en.translation
 
 // console.debug('Converting ' + Object.keys(json).length + ' translation keys into gettext')

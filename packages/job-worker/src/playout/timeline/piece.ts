@@ -90,21 +90,18 @@ export function transformPieceGroupAndObjects(
 export function getPieceEnableInsidePart(
 	pieceInstance: ReadonlyDeep<PieceInstanceWithTimings>,
 	partTimings: PartCalculatedTimings,
-	partGroupId: string
+	partGroupId: string,
+	partHasEndTime: boolean
 ): TSR.Timeline.TimelineEnable {
 	const pieceEnable: TSR.Timeline.TimelineEnable = { ...pieceInstance.piece.enable }
 	if (typeof pieceEnable.start === 'number') {
-		if (pieceInstance.dynamicallyInserted) {
-			// timed adlibbed pieces needs to factor in their preroll
-			pieceEnable.start += pieceInstance.piece.prerollDuration || 0
-		} else {
-			// timed planned pieces should be offset based on the preroll of the part
-			pieceEnable.start += partTimings.toPartDelay
-		}
+		// pieces should be offset based on the preroll of the part
+		pieceEnable.start += partTimings.toPartDelay
 	}
 
-	if (partTimings.toPartPostroll) {
-		if (!pieceEnable.duration) {
+	// If the part has an end time, we can consider post-roll
+	if (partHasEndTime && partTimings.toPartPostroll) {
+		if (pieceEnable.duration === undefined) {
 			// make sure that the control object is shortened correctly
 			pieceEnable.end = `#${partGroupId} - ${partTimings.toPartPostroll}`
 		}

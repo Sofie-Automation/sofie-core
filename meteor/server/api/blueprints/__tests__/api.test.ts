@@ -1,34 +1,28 @@
 import * as _ from 'underscore'
 import { setupDefaultStudioEnvironment, packageBlueprint } from '../../../../__mocks__/helpers/database'
-import { testInFiber } from '../../../../__mocks__/helpers/jest'
-import { literal, getRandomId, protectString } from '../../../../lib/lib'
+import { literal, getRandomId, protectString } from '../../../lib/tempLib'
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
 import { BlueprintManifestType } from '@sofie-automation/blueprints-integration'
-import { SYSTEM_ID, ICoreSystem } from '../../../../lib/collections/CoreSystem'
+import { SYSTEM_ID, ICoreSystem } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
 import { insertBlueprint, uploadBlueprint } from '../api'
-import { MeteorCall, MethodContext } from '../../../../lib/api/methods'
+import { MeteorCall } from '../../methods'
 import '../../../../__mocks__/_extendJest'
 import { Blueprints, CoreSystem } from '../../../collections'
 import { SupressLogMessages } from '../../../../__mocks__/suppressLogging'
 import { JSONBlobStringify } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
+import { Meteor } from 'meteor/meteor'
 
 // we don't want the deviceTriggers observer to start up at this time
 jest.mock('../../deviceTriggers/observer')
 
 require('../../peripheralDevice.ts') // include in order to create the Meteor methods needed
 
-const DEFAULT_CONTEXT: MethodContext = {
-	userId: null,
-	isSimulation: false,
-	connection: {
-		id: 'mockConnectionId',
-		close: () => undefined,
-		onClose: () => undefined,
-		clientAddress: '127.0.0.1',
-		httpHeaders: {},
-	},
-	setUserId: () => undefined,
-	unblock: () => undefined,
+const DEFAULT_CONNECTION: Meteor.Connection = {
+	id: 'mockConnectionId',
+	close: () => undefined,
+	onClose: () => undefined,
+	clientAddress: '127.0.0.1',
+	httpHeaders: {},
 }
 
 describe('Test blueprint management api', () => {
@@ -61,8 +55,6 @@ describe('Test blueprint management api', () => {
 				showStyleConfigSchema: JSONBlobStringify({}),
 
 				databaseVersion: {
-					showStyle: {},
-					studio: {},
 					system: undefined,
 				},
 
@@ -83,7 +75,7 @@ describe('Test blueprint management api', () => {
 			return core.blueprintId
 		}
 
-		testInFiber('empty id', async () => {
+		test('empty id', async () => {
 			const initialBlueprintId = await getActiveSystemBlueprintId()
 
 			SupressLogMessages.suppressLogMessage(/Blueprint not found/i)
@@ -94,7 +86,7 @@ describe('Test blueprint management api', () => {
 
 			expect(await getActiveSystemBlueprintId()).toEqual(initialBlueprintId)
 		})
-		testInFiber('unknown id', async () => {
+		test('unknown id', async () => {
 			const blueprint = await ensureSystemBlueprint()
 			const initialBlueprintId = await getActiveSystemBlueprintId()
 
@@ -105,7 +97,7 @@ describe('Test blueprint management api', () => {
 
 			expect(await getActiveSystemBlueprintId()).toEqual(initialBlueprintId)
 		})
-		testInFiber('good', async () => {
+		test('good', async () => {
 			const blueprint = await ensureSystemBlueprint()
 
 			// Ensure starts off 'wrong'
@@ -116,7 +108,7 @@ describe('Test blueprint management api', () => {
 			// Ensure ends up good
 			expect(await getActiveSystemBlueprintId()).toEqual(blueprint._id)
 		})
-		testInFiber('unassign', async () => {
+		test('unassign', async () => {
 			// Ensure starts off 'wrong'
 			expect(await getActiveSystemBlueprintId()).toBeTruthy()
 
@@ -125,7 +117,7 @@ describe('Test blueprint management api', () => {
 			// Ensure ends up good
 			expect(await getActiveSystemBlueprintId()).toBeFalsy()
 		})
-		testInFiber('wrong type', async () => {
+		test('wrong type', async () => {
 			const blueprint = (await Blueprints.findOneAsync({
 				blueprintType: BlueprintManifestType.SHOWSTYLE,
 			})) as Blueprint
@@ -147,25 +139,25 @@ describe('Test blueprint management api', () => {
 	})
 
 	describe('removeBlueprint', () => {
-		testInFiber('undefined id', async () => {
+		test('undefined id', async () => {
 			SupressLogMessages.suppressLogMessage(/Match error/i)
 			await expect(MeteorCall.blueprint.removeBlueprint(undefined as any)).rejects.toThrow(
 				'Match error: Expected string, got undefined'
 			)
 		})
 
-		testInFiber('empty id', async () => {
+		test('empty id', async () => {
 			SupressLogMessages.suppressLogMessage(/Blueprint id/i)
 			await expect(MeteorCall.blueprint.removeBlueprint(protectString(''))).rejects.toThrowMeteor(
 				404,
 				'Blueprint id "" was not found'
 			)
 		})
-		testInFiber('missing id', async () => {
+		test('missing id', async () => {
 			// Should not error
 			await MeteorCall.blueprint.removeBlueprint(protectString('not_a_real_blueprint'))
 		})
-		testInFiber('good', async () => {
+		test('good', async () => {
 			const blueprint = await ensureSystemBlueprint()
 			expect(await Blueprints.findOneAsync(blueprint._id)).toBeTruthy()
 
@@ -176,7 +168,7 @@ describe('Test blueprint management api', () => {
 	})
 
 	describe('insertBlueprint', () => {
-		testInFiber('no params', async () => {
+		test('no params', async () => {
 			const initialBlueprints = await getCurrentBlueprintIds()
 
 			const newId = await MeteorCall.blueprint.insertBlueprint()
@@ -193,9 +185,9 @@ describe('Test blueprint management api', () => {
 			expect(blueprint.name).toBeTruthy()
 			expect(blueprint.blueprintType).toBeFalsy()
 		})
-		testInFiber('with name', async () => {
+		test('with name', async () => {
 			const rawName = 'some_fake_name'
-			const newId = await insertBlueprint(DEFAULT_CONTEXT, undefined, rawName)
+			const newId = await insertBlueprint(DEFAULT_CONNECTION, undefined, rawName)
 			expect(newId).toBeTruthy()
 
 			// Check some props
@@ -204,9 +196,9 @@ describe('Test blueprint management api', () => {
 			expect(blueprint.name).toEqual(rawName)
 			expect(blueprint.blueprintType).toBeFalsy()
 		})
-		testInFiber('with type', async () => {
+		test('with type', async () => {
 			const type = BlueprintManifestType.STUDIO
-			const newId = await insertBlueprint(DEFAULT_CONTEXT, type)
+			const newId = await insertBlueprint(DEFAULT_CONNECTION, type)
 			expect(newId).toBeTruthy()
 
 			// Check some props
@@ -218,24 +210,24 @@ describe('Test blueprint management api', () => {
 	})
 
 	describe('uploadBlueprint', () => {
-		testInFiber('empty id', async () => {
-			await expect(uploadBlueprint(DEFAULT_CONTEXT, protectString(''), '0')).rejects.toThrowMeteor(
+		test('empty id', async () => {
+			await expect(uploadBlueprint(DEFAULT_CONNECTION, protectString(''), '0')).rejects.toThrowMeteor(
 				400,
 				'Blueprint id "" is not valid'
 			)
 		})
-		testInFiber('empty body', async () => {
-			await expect(uploadBlueprint(DEFAULT_CONTEXT, protectString('blueprint99'), '')).rejects.toThrowMeteor(
+		test('empty body', async () => {
+			await expect(uploadBlueprint(DEFAULT_CONNECTION, protectString('blueprint99'), '')).rejects.toThrowMeteor(
 				400,
 				'Blueprint blueprint99 failed to parse'
 			)
 		})
-		testInFiber('body not a manifest', async () => {
+		test('body not a manifest', async () => {
 			await expect(
-				uploadBlueprint(DEFAULT_CONTEXT, protectString('blueprint99'), `({default: (() => 5)()})`)
+				uploadBlueprint(DEFAULT_CONNECTION, protectString('blueprint99'), `({default: (() => 5)()})`)
 			).rejects.toThrowMeteor(400, 'Blueprint blueprint99 returned a manifest of type number')
 		})
-		testInFiber('manifest missing blueprintType', async () => {
+		test('manifest missing blueprintType', async () => {
 			const blueprintStr = packageBlueprint({}, () => {
 				return {
 					blueprintType: undefined as any,
@@ -244,7 +236,6 @@ describe('Test blueprint management api', () => {
 					TSRVersion: '0.0.0',
 
 					// studioConfigManifest: [],
-					// studioMigrations: [],
 					// getBaseline: (context: IStudioContext): TSRTimelineObjBase[] => {
 					// 	return []
 					// },
@@ -254,13 +245,13 @@ describe('Test blueprint management api', () => {
 				}
 			})
 			await expect(
-				uploadBlueprint(DEFAULT_CONTEXT, protectString('blueprint99'), blueprintStr)
+				uploadBlueprint(DEFAULT_CONNECTION, protectString('blueprint99'), blueprintStr)
 			).rejects.toThrowMeteor(
 				400,
 				`Blueprint blueprint99 returned a manifest of unknown blueprintType "undefined"`
 			)
 		})
-		testInFiber('replace existing with different type', async () => {
+		test('replace existing with different type', async () => {
 			const BLUEPRINT_TYPE = BlueprintManifestType.STUDIO
 			const blueprintStr = packageBlueprint(
 				{
@@ -281,12 +272,14 @@ describe('Test blueprint management api', () => {
 			})) as Blueprint
 			expect(existingBlueprint).toBeTruthy()
 
-			await expect(uploadBlueprint(DEFAULT_CONTEXT, existingBlueprint._id, blueprintStr)).rejects.toThrowMeteor(
+			await expect(
+				uploadBlueprint(DEFAULT_CONNECTION, existingBlueprint._id, blueprintStr)
+			).rejects.toThrowMeteor(
 				400,
 				`Cannot replace old blueprint (of type "showstyle") with new blueprint of type "studio"`
 			)
 		})
-		testInFiber('success - showstyle', async () => {
+		test('success - showstyle', async () => {
 			const BLUEPRINT_TYPE = BlueprintManifestType.SHOWSTYLE
 			const blueprintStr = packageBlueprint(
 				{
@@ -305,7 +298,7 @@ describe('Test blueprint management api', () => {
 				}
 			)
 
-			const blueprint = await uploadBlueprint(DEFAULT_CONTEXT, protectString('tmp_showstyle'), blueprintStr)
+			const blueprint = await uploadBlueprint(DEFAULT_CONNECTION, protectString('tmp_showstyle'), blueprintStr)
 			expect(blueprint).toBeTruthy()
 			expect(blueprint).toMatchObject(
 				literal<Omit<Blueprint, 'created' | 'modified' | 'databaseVersion' | 'blueprintHash'>>({
@@ -325,7 +318,7 @@ describe('Test blueprint management api', () => {
 			)
 			expect(blueprint.studioConfigSchema).toBeUndefined()
 		})
-		testInFiber('success - studio', async () => {
+		test('success - studio', async () => {
 			const BLUEPRINT_TYPE = BlueprintManifestType.STUDIO
 			const blueprintStr = packageBlueprint(
 				{
@@ -344,7 +337,7 @@ describe('Test blueprint management api', () => {
 			)
 
 			const blueprint = await uploadBlueprint(
-				DEFAULT_CONTEXT,
+				DEFAULT_CONNECTION,
 				protectString('tmp_studio'),
 				blueprintStr,
 				'tmp name'
@@ -368,7 +361,7 @@ describe('Test blueprint management api', () => {
 			)
 			expect(blueprint.showStyleConfigSchema).toBeUndefined()
 		})
-		testInFiber('success - system', async () => {
+		test('success - system', async () => {
 			const BLUEPRINT_TYPE = BlueprintManifestType.SYSTEM
 			const blueprintStr = packageBlueprint(
 				{
@@ -388,7 +381,7 @@ describe('Test blueprint management api', () => {
 			)
 
 			const blueprint = await uploadBlueprint(
-				DEFAULT_CONTEXT,
+				DEFAULT_CONNECTION,
 				protectString('tmp_system'),
 				blueprintStr,
 				'tmp name'
@@ -412,7 +405,7 @@ describe('Test blueprint management api', () => {
 			expect(blueprint.showStyleConfigSchema).toBeUndefined()
 			expect(blueprint.studioConfigSchema).toBeUndefined()
 		})
-		testInFiber('update - studio', async () => {
+		test('update - studio', async () => {
 			const BLUEPRINT_TYPE = BlueprintManifestType.STUDIO
 			const blueprintStr = packageBlueprint(
 				{
@@ -436,7 +429,7 @@ describe('Test blueprint management api', () => {
 			expect(existingBlueprint).toBeTruthy()
 			expect(existingBlueprint.blueprintId).toBeFalsy()
 
-			const blueprint = await uploadBlueprint(DEFAULT_CONTEXT, existingBlueprint._id, blueprintStr)
+			const blueprint = await uploadBlueprint(DEFAULT_CONNECTION, existingBlueprint._id, blueprintStr)
 			expect(blueprint).toBeTruthy()
 			expect(blueprint).toMatchObject(
 				literal<Omit<Blueprint, 'created' | 'modified' | 'databaseVersion' | 'blueprintHash'>>({
@@ -456,7 +449,7 @@ describe('Test blueprint management api', () => {
 			)
 			expect(blueprint.showStyleConfigSchema).toBeUndefined()
 		})
-		testInFiber('update - matching blueprintId', async () => {
+		test('update - matching blueprintId', async () => {
 			const BLUEPRINT_TYPE = BlueprintManifestType.SHOWSTYLE
 			const blueprintStr = packageBlueprint(
 				{
@@ -482,7 +475,7 @@ describe('Test blueprint management api', () => {
 			expect(existingBlueprint).toBeTruthy()
 			expect(existingBlueprint.blueprintId).toBeTruthy()
 
-			const blueprint = await uploadBlueprint(DEFAULT_CONTEXT, existingBlueprint._id, blueprintStr)
+			const blueprint = await uploadBlueprint(DEFAULT_CONNECTION, existingBlueprint._id, blueprintStr)
 			expect(blueprint).toBeTruthy()
 			expect(blueprint).toMatchObject(
 				literal<Omit<Blueprint, 'created' | 'modified' | 'databaseVersion' | 'blueprintHash'>>({
@@ -502,7 +495,7 @@ describe('Test blueprint management api', () => {
 			)
 			expect(blueprint.studioConfigSchema).toBeUndefined()
 		})
-		testInFiber('update - change blueprintId', async () => {
+		test('update - change blueprintId', async () => {
 			const BLUEPRINT_TYPE = BlueprintManifestType.SHOWSTYLE
 			const blueprintStr = packageBlueprint(
 				{
@@ -528,12 +521,14 @@ describe('Test blueprint management api', () => {
 			expect(existingBlueprint).toBeTruthy()
 			expect(existingBlueprint.blueprintId).toBeTruthy()
 
-			await expect(uploadBlueprint(DEFAULT_CONTEXT, existingBlueprint._id, blueprintStr)).rejects.toThrowMeteor(
+			await expect(
+				uploadBlueprint(DEFAULT_CONNECTION, existingBlueprint._id, blueprintStr)
+			).rejects.toThrowMeteor(
 				422,
 				`Cannot replace old blueprint "${existingBlueprint._id}" ("ss1") with new blueprint "show2"`
 			)
 		})
-		testInFiber('update - drop blueprintId', async () => {
+		test('update - drop blueprintId', async () => {
 			const BLUEPRINT_TYPE = BlueprintManifestType.SHOWSTYLE
 			const blueprintStr = packageBlueprint(
 				{
@@ -558,7 +553,9 @@ describe('Test blueprint management api', () => {
 			expect(existingBlueprint).toBeTruthy()
 			expect(existingBlueprint.blueprintId).toBeTruthy()
 
-			await expect(uploadBlueprint(DEFAULT_CONTEXT, existingBlueprint._id, blueprintStr)).rejects.toThrowMeteor(
+			await expect(
+				uploadBlueprint(DEFAULT_CONNECTION, existingBlueprint._id, blueprintStr)
+			).rejects.toThrowMeteor(
 				422,
 				`Cannot replace old blueprint "${existingBlueprint._id}" ("ss1") with new blueprint ""`
 			)

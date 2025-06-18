@@ -4,7 +4,7 @@ import * as _ from 'underscore'
 import Koa from 'koa'
 import KoaRouter from '@koa/router'
 import bodyParser from 'koa-bodyparser'
-import { check } from '../../lib/check'
+import { check, Match } from '../lib/check'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import {
 	SnapshotType,
@@ -12,21 +12,13 @@ import {
 	SnapshotDebug,
 	SnapshotBase,
 	SnapshotRundownPlaylist,
-} from '../../lib/collections/Snapshots'
-import { UserActionsLogItem } from '../../lib/collections/UserActionsLog'
+} from '@sofie-automation/meteor-lib/dist/collections/Snapshots'
+import { UserActionsLogItem } from '@sofie-automation/meteor-lib/dist/collections/UserActionsLog'
 import { PieceGeneric } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { MediaObject } from '@sofie-automation/shared-lib/dist/core/model/MediaObjects'
-import {
-	getCurrentTime,
-	Time,
-	formatDateTime,
-	fixValidPath,
-	protectString,
-	getRandomId,
-	omit,
-	unprotectStringArray,
-	unprotectString,
-} from '../../lib/lib'
+import { Time, protectString, getRandomId, omit, unprotectStringArray, unprotectString } from '../lib/tempLib'
+import { formatDateTime } from '@sofie-automation/meteor-lib/dist/time'
+import { getCurrentTime, fixValidPath } from '../lib/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { PeripheralDevice, PERIPHERAL_SUBTYPE_PROCESS } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
@@ -34,8 +26,14 @@ import { logger } from '../logging'
 import { TimelineComplete } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { PeripheralDeviceCommand } from '@sofie-automation/corelib/dist/dataModel/PeripheralDeviceCommand'
 import { registerClassToMeteorMethods } from '../methods'
-import { NewSnapshotAPI, SnapshotAPIMethods } from '../../lib/api/shapshot'
-import { ICoreSystem, parseVersion } from '../../lib/collections/CoreSystem'
+import {
+	NewSnapshotAPI,
+	SnapshotAPIMethods,
+	PlaylistSnapshotOptions,
+	SystemSnapshotOptions,
+} from '@sofie-automation/meteor-lib/dist/api/shapshot'
+import { ICoreSystem } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
+import { parseVersion } from '../systemStatus/semverUtils'
 import { CURRENT_SYSTEM_VERSION } from '../migration/currentSystemVersion'
 import { isVersionSupported } from '../migration/databaseMigration'
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
@@ -44,14 +42,9 @@ import { IngestRundown, VTContent } from '@sofie-automation/blueprints-integrati
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { importIngestRundown } from './ingest/http'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { RundownLayoutBase } from '../../lib/collections/RundownLayouts'
-import { DBTriggeredActions } from '../../lib/collections/TriggeredActions'
-import { Settings } from '../../lib/Settings'
-import { MethodContext, MethodContextAPI } from '../../lib/api/methods'
-import { Credentials, isResolvedCredentials } from '../security/lib/credentials'
-import { OrganizationContentWriteAccess } from '../security/organization'
-import { StudioContentWriteAccess } from '../security/studio'
-import { SystemWriteAccess } from '../security/system'
+import { RundownLayoutBase } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
+import { DBTriggeredActions } from '@sofie-automation/meteor-lib/dist/collections/TriggeredActions'
+import { MethodContext, MethodContextAPI } from './methodContext'
 import { saveIntoDb, sumChanges } from '../lib/database'
 import * as fs from 'fs'
 import { ExpectedPackageWorkStatus } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackageWorkStatuses'
@@ -60,12 +53,10 @@ import {
 	getPackageContainerPackageId,
 } from '@sofie-automation/corelib/dist/dataModel/PackageContainerPackageStatus'
 import { PackageInfoDB, getPackageInfoId } from '@sofie-automation/corelib/dist/dataModel/PackageInfos'
-import { checkStudioExists } from '../optimizations'
 import { CoreRundownPlaylistSnapshot } from '@sofie-automation/corelib/dist/snapshots'
 import { QueueStudioJob } from '../worker/worker'
 import { StudioJobs } from '@sofie-automation/corelib/dist/worker/studio'
-import { ReadonlyDeep } from 'type-fest'
-import { checkAccessToPlaylist, VerifiedRundownPlaylistContentAccess } from './lib'
+import { checkAccessToPlaylist, VerifiedRundownPlaylistForUserAction } from '../security/check'
 import { getSystemStorePath, PackageInfo } from '../coreSystem'
 import { JSONBlobParse, JSONBlobStringify } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 import {
@@ -100,6 +91,15 @@ import {
 import { getCoreSystemAsync } from '../coreSystem/collection'
 import { executePeripheralDeviceFunction } from './peripheralDevice/executeFunction'
 import { verifyHashedToken } from './singleUseTokens'
+import {
+	NrcsIngestDataCacheObjRundown,
+	NrcsIngestDataCacheObjSegment,
+	NrcsIngestDataCacheObjPart,
+} from '@sofie-automation/corelib/dist/dataModel/NrcsIngestDataCache'
+import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
+import { assertConnectionHasOneOfPermissions, RequestCredentials } from '../security/auth'
+
+const PERMISSIONS_FOR_SNAPSHOT_MANAGEMENT: Array<keyof UserPermissions> = ['configure']
 
 interface RundownPlaylistSnapshot extends CoreRundownPlaylistSnapshot {
 	versionExtended: string | undefined
@@ -115,6 +115,7 @@ interface RundownPlaylistSnapshot extends CoreRundownPlaylistSnapshot {
 interface SystemSnapshot {
 	version: string
 	versionExtended?: string
+	options: SystemSnapshotOptions
 	studioId: StudioId | null
 	snapshot: SnapshotSystem
 	studios: Array<DBStudio>
@@ -126,6 +127,8 @@ interface SystemSnapshot {
 	devices: Array<PeripheralDevice>
 	deviceCommands: Array<PeripheralDeviceCommand>
 	coreSystem: ICoreSystem
+	deviceSnaphots?: Array<DeviceSnapshot>
+	timeline?: TimelineComplete[]
 }
 interface DebugSnapshot {
 	version: string
@@ -153,17 +156,15 @@ type AnySnapshot = RundownPlaylistSnapshot | SystemSnapshot | DebugSnapshot
  * @param studioId (Optional) Only generate for a certain studio
  */
 async function createSystemSnapshot(
-	studioId: StudioId | null,
+	options: SystemSnapshotOptions,
 	organizationId: OrganizationId | null
 ): Promise<SystemSnapshot> {
 	const snapshotId: SnapshotId = getRandomId()
+	const studioId = options.studioId ?? null
 	logger.info(`Generating System snapshot "${snapshotId}"` + (studioId ? `for studio "${studioId}"` : ''))
 
 	const coreSystem = await getCoreSystemAsync()
 	if (!coreSystem) throw new Meteor.Error(500, `coreSystem not set up`)
-
-	if (Settings.enableUserAccounts && !organizationId)
-		throw new Meteor.Error(500, 'Not able to create a systemSnaphost without organizationId')
 
 	let queryStudio: MongoQuery<DBStudio> = {}
 	let queryShowStyleBases: MongoQuery<DBShowStyleBase> = {}
@@ -196,7 +197,7 @@ async function createSystemSnapshot(
 	queryRundownLayouts = { showStyleBaseId: { $in: showStyleBaseIds } }
 	queryTriggeredActions = { showStyleBaseIds: { $in: [null, ...showStyleBaseIds] } }
 
-	if (studioId) queryDevices = { studioId: studioId }
+	if (studioId) queryDevices = { 'studioAndConfigId.studioId': studioId }
 	else if (organizationId) queryDevices = { organizationId: organizationId }
 
 	const [showStyleVariants, rundownLayouts, devices, triggeredActions] = await Promise.all([
@@ -225,10 +226,13 @@ async function createSystemSnapshot(
 		deviceId: { $in: devices.map((device) => device._id) },
 	})
 
+	const deviceSnaphots = options.withDeviceSnapshots ? await fetchDeviceSnapshots(devices) : undefined
+
 	logger.info(`Snapshot generation done`)
 	return {
 		version: CURRENT_SYSTEM_VERSION,
 		versionExtended: PackageInfo.versionExtended || PackageInfo.version || 'UNKNOWN',
+		options,
 		studioId: studioId,
 		snapshot: {
 			_id: snapshotId,
@@ -247,6 +251,7 @@ async function createSystemSnapshot(
 		devices,
 		coreSystem,
 		deviceCommands: deviceCommands,
+		deviceSnaphots,
 	}
 }
 
@@ -261,7 +266,7 @@ async function createDebugSnapshot(studioId: StudioId, organizationId: Organizat
 	const studio = await Studios.findOneAsync(studioId)
 	if (!studio) throw new Meteor.Error(404, `Studio ${studioId} not found`)
 
-	const systemSnapshot = await createSystemSnapshot(studioId, organizationId)
+	const systemSnapshot = await createSystemSnapshot({ studioId, withDeviceSnapshots: true }, organizationId)
 
 	const activePlaylists = await RundownPlaylists.findFetchAsync({
 		studioId: studio._id,
@@ -269,7 +274,9 @@ async function createDebugSnapshot(studioId: StudioId, organizationId: Organizat
 	})
 
 	const activePlaylistSnapshots = await Promise.all(
-		activePlaylists.map(async (playlist) => createRundownPlaylistSnapshot(playlist, true))
+		activePlaylists.map(async (playlist) =>
+			createRundownPlaylistSnapshot(playlist, { withArchivedDocuments: true })
+		)
 	)
 
 	const timeline = await Timeline.findFetchAsync({})
@@ -278,29 +285,6 @@ async function createDebugSnapshot(studioId: StudioId, organizationId: Organizat
 			$gt: getCurrentTime() - 1000 * 3600 * 3, // latest 3 hours
 		},
 	})
-
-	// Also fetch debugInfo from devices:
-	const deviceSnaphots: Array<DeviceSnapshot> = _.compact(
-		await Promise.all(
-			systemSnapshot.devices.map(async (device) => {
-				if (device.connected && device.subType === PERIPHERAL_SUBTYPE_PROCESS) {
-					const startTime = getCurrentTime()
-
-					// defer to another fiber
-					const deviceSnapshot = await executePeripheralDeviceFunction(device._id, 'getSnapshot')
-
-					logger.info('Got snapshot from device "' + device._id + '"')
-					return {
-						deviceId: device._id,
-						created: startTime,
-						replyTime: getCurrentTime(),
-						content: deviceSnapshot,
-					}
-				}
-				return null
-			})
-		)
-	)
 
 	logger.info(`Snapshot generation done`)
 	return {
@@ -319,8 +303,31 @@ async function createDebugSnapshot(studioId: StudioId, organizationId: Organizat
 		activeRundownPlaylists: activePlaylistSnapshots,
 		timeline: timeline,
 		userActionLog: userActionLogLatest,
-		deviceSnaphots: deviceSnaphots,
+		deviceSnaphots: systemSnapshot.deviceSnaphots ?? [],
 	}
+}
+
+async function fetchDeviceSnapshots(devices: Array<PeripheralDevice>): Promise<DeviceSnapshot[]> {
+	return _.compact(
+		await Promise.all(
+			devices.map(async (device) => {
+				if (device.connected && device.subType === PERIPHERAL_SUBTYPE_PROCESS) {
+					const startTime = getCurrentTime()
+
+					const deviceSnapshot = await executePeripheralDeviceFunction(device._id, 'getSnapshot')
+
+					logger.info('Got snapshot from device "' + device._id + '"')
+					return {
+						deviceId: device._id,
+						created: startTime,
+						replyTime: getCurrentTime(),
+						content: deviceSnapshot,
+					}
+				}
+				return null
+			})
+		)
+	)
 }
 
 function getPiecesMediaObjects(pieces: PieceGeneric[]): string[] {
@@ -328,22 +335,23 @@ function getPiecesMediaObjects(pieces: PieceGeneric[]): string[] {
 }
 
 async function createRundownPlaylistSnapshot(
-	playlist: ReadonlyDeep<DBRundownPlaylist>,
-	full = false
+	playlist: VerifiedRundownPlaylistForUserAction,
+	options: PlaylistSnapshotOptions
 ): Promise<RundownPlaylistSnapshot> {
 	/** Max count of one type of items to include in the snapshot */
 	const LIMIT_COUNT = 500
 
 	const snapshotId: SnapshotId = getRandomId()
 	logger.info(
-		`Generating ${full ? 'full ' : ''}RundownPlaylist snapshot "${snapshotId}" for RundownPlaylist "${
-			playlist._id
-		}"`
+		`Generating ${
+			options.withArchivedDocuments ? 'full ' : ''
+		}RundownPlaylist snapshot "${snapshotId}" for RundownPlaylist "${playlist._id}"`
 	)
 
 	const queuedJob = await QueueStudioJob(StudioJobs.GeneratePlaylistSnapshot, playlist.studioId, {
 		playlistId: playlist._id,
-		full,
+		full: !!options.withArchivedDocuments,
+		withTimeline: !!options.withTimeline,
 	})
 	const coreResult = await queuedJob.complete
 	const coreSnapshot: CoreRundownPlaylistSnapshot = JSONBlobParse(coreResult.snapshotJson)
@@ -460,23 +468,11 @@ async function storeSnaphot(
 
 	return id
 }
-async function retreiveSnapshot(snapshotId: SnapshotId, cred0: Credentials): Promise<AnySnapshot> {
+async function retreiveSnapshot(snapshotId: SnapshotId, cred: RequestCredentials | null): Promise<AnySnapshot> {
+	assertConnectionHasOneOfPermissions(cred, ...PERMISSIONS_FOR_SNAPSHOT_MANAGEMENT)
+
 	const snapshot = await Snapshots.findOneAsync(snapshotId)
 	if (!snapshot) throw new Meteor.Error(404, `Snapshot not found!`)
-
-	if (Settings.enableUserAccounts) {
-		if (snapshot.type === SnapshotType.RUNDOWNPLAYLIST) {
-			if (!snapshot.studioId)
-				throw new Meteor.Error(500, `Snapshot is of type "${snapshot.type}" but hase no studioId`)
-			await StudioContentWriteAccess.dataFromSnapshot(cred0, snapshot.studioId)
-		} else if (snapshot.type === SnapshotType.SYSTEM) {
-			if (!snapshot.organizationId)
-				throw new Meteor.Error(500, `Snapshot is of type "${snapshot.type}" but has no organizationId`)
-			await OrganizationContentWriteAccess.dataFromSnapshot(cred0, snapshot.organizationId)
-		} else {
-			await SystemWriteAccess.coreSystem(cred0)
-		}
-	}
 
 	const storePath = getSystemStorePath()
 	const filePath = Path.join(storePath, snapshot.fileName)
@@ -489,6 +485,7 @@ async function retreiveSnapshot(snapshotId: SnapshotId, cred0: Credentials): Pro
 
 	return readSnapshot
 }
+
 async function restoreFromSnapshot(
 	/** The snapshot data to restore */
 	snapshot: AnySnapshot,
@@ -497,22 +494,7 @@ async function restoreFromSnapshot(
 ): Promise<void> {
 	// Determine what kind of snapshot
 
-	if (!_.isObject(snapshot)) throw new Meteor.Error(500, `Restore input data is not an object`)
-	// First, some special (debugging) cases:
-	// @ts-expect-error is's not really a snapshot here:
-	if (snapshot.externalId && snapshot.segments && snapshot.type === 'mos') {
-		// Special: Not a snapshot, but a datadump of a MOS rundown
-		const studioId: StudioId = Meteor.settings.manualSnapshotIngestStudioId || 'studio0'
-		const studioExists = await checkStudioExists(studioId)
-		if (studioExists) {
-			await importIngestRundown(studioId, snapshot as unknown as IngestRundown)
-			return
-		}
-		throw new Meteor.Error(500, `No Studio found`)
-	}
-
 	// Then, continue as if it's a normal snapshot:
-
 	if (!snapshot.snapshot) throw new Meteor.Error(500, `Restore input data is not a snapshot (${_.keys(snapshot)})`)
 
 	if (snapshot.snapshot.type === SnapshotType.RUNDOWNPLAYLIST) {
@@ -525,11 +507,7 @@ async function restoreFromSnapshot(
 			)
 		}
 
-		// TODO: Improve this. This matches the 'old' behaviour
-		const studios = await Studios.findFetchAsync({})
-		const snapshotStudioExists = studios.find((studio) => studio._id === playlistSnapshot.playlist.studioId)
-		const studioId = snapshotStudioExists ? playlistSnapshot.playlist.studioId : studios[0]?._id
-		if (!studioId) throw new Meteor.Error(500, `No Studio found`)
+		const studioId = await getStudioIdFromPlaylistSnapshot(playlistSnapshot)
 
 		// A snapshot of a rundownPlaylist
 		return restoreFromRundownPlaylistSnapshot(snapshot as RundownPlaylistSnapshot, studioId, restoreDebugData)
@@ -538,6 +516,60 @@ async function restoreFromSnapshot(
 		return restoreFromSystemSnapshot(snapshot as SystemSnapshot)
 	} else {
 		throw new Meteor.Error(402, `Unknown snapshot type "${snapshot.snapshot.type}"`)
+	}
+}
+
+async function getStudioIdFromPlaylistSnapshot(playlistSnapshot: RundownPlaylistSnapshot): Promise<StudioId> {
+	// TODO: Improve this. This matches the 'old' behaviour
+	const studios = await Studios.findFetchAsync({})
+	const snapshotStudioExists = studios.find((studio) => studio._id === playlistSnapshot.playlist.studioId)
+	const studioId = snapshotStudioExists ? playlistSnapshot.playlist.studioId : studios[0]?._id
+	if (!studioId) throw new Meteor.Error(500, `No Studio found`)
+	return studioId
+}
+/** Read the ingest data from a snapshot and pipe it into blueprints */
+async function ingestFromSnapshot(
+	/** The snapshot data to restore */
+	snapshot: AnySnapshot
+): Promise<void> {
+	// Determine what kind of snapshot
+	if (!snapshot.snapshot) throw new Meteor.Error(500, `Restore input data is not a snapshot (${_.keys(snapshot)})`)
+	if (snapshot.snapshot.type === SnapshotType.RUNDOWNPLAYLIST) {
+		const playlistSnapshot = snapshot as RundownPlaylistSnapshot
+
+		const studioId = await getStudioIdFromPlaylistSnapshot(playlistSnapshot)
+
+		// Read the ingestData from the snapshot
+		const ingestData = playlistSnapshot.ingestData
+
+		const rundownData = ingestData.filter((e) => e.type === 'rundown') as NrcsIngestDataCacheObjRundown[]
+		const segmentData = ingestData.filter((e) => e.type === 'segment') as NrcsIngestDataCacheObjSegment[]
+		const partData = ingestData.filter((e) => e.type === 'part') as NrcsIngestDataCacheObjPart[]
+
+		if (rundownData.length === 0) throw new Meteor.Error(402, `No rundowns found in ingestData`)
+
+		for (const seg of segmentData) {
+			seg.data.parts = partData
+				.filter((e) => e.segmentId === seg.segmentId)
+				.map((e) => e.data)
+				.sort((a, b) => b.rank - a.rank)
+		}
+
+		for (let i = 0; i < rundownData.length; i++) {
+			const rundown = rundownData[i]
+
+			const segmentsInRundown = segmentData.filter((e) => e.rundownId === rundown.rundownId)
+
+			const ingestRundown: IngestRundown = rundown.data
+			ingestRundown.segments = segmentsInRundown.map((s) => s.data).sort((a, b) => b.rank - a.rank)
+
+			await importIngestRundown(studioId, ingestRundown)
+		}
+	} else {
+		throw new Meteor.Error(
+			402,
+			`Unable to ingest a snapshot of type "${snapshot.snapshot.type}", did you mean to restore it?`
+		)
 	}
 }
 
@@ -648,7 +680,7 @@ async function restoreFromSystemSnapshot(snapshot: SystemSnapshot): Promise<void
 			snapshot.blueprints ? saveIntoDb(Blueprints, {}, snapshot.blueprints) : null,
 			snapshot.rundownLayouts ? saveIntoDb(RundownLayouts, {}, snapshot.rundownLayouts) : null,
 			snapshot.triggeredActions ? saveIntoDb(TriggeredActions, {}, snapshot.triggeredActions) : null,
-			saveIntoDb(PeripheralDevices, studioId ? { studioId: studioId } : {}, snapshot.devices),
+			saveIntoDb(PeripheralDevices, studioId ? { 'studioAndConfigId.studioId': studioId } : {}, snapshot.devices),
 			saveIntoDb(CoreSystem, {}, [snapshot.coreSystem]),
 		]))
 	)
@@ -661,54 +693,41 @@ async function restoreFromSystemSnapshot(snapshot: SystemSnapshot): Promise<void
 /** Take and store a system snapshot */
 export async function storeSystemSnapshot(
 	context: MethodContext,
-	hashedToken: string,
-	studioId: StudioId | null,
+	options: SystemSnapshotOptions,
 	reason: string
 ): Promise<SnapshotId> {
-	check(hashedToken, String)
-	if (!_.isNull(studioId)) check(studioId, String)
-	if (!verifyHashedToken(hashedToken)) {
-		throw new Meteor.Error(401, `Restart token is invalid or has expired`)
-	}
+	check(options.studioId, Match.Optional(String))
 
-	const { organizationId, cred } = await OrganizationContentWriteAccess.snapshot(context)
-	if (Settings.enableUserAccounts && isResolvedCredentials(cred)) {
-		if (cred.user && !cred.user.superAdmin) throw new Meteor.Error(401, 'Only Super Admins can store Snapshots')
-	}
-	return internalStoreSystemSnapshot(organizationId, studioId, reason)
+	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_SNAPSHOT_MANAGEMENT)
+
+	return internalStoreSystemSnapshot(null, options, reason)
 }
 /** Take and store a system snapshot. For internal use only, performs no access control. */
 export async function internalStoreSystemSnapshot(
 	organizationId: OrganizationId | null,
-	studioId: StudioId | null,
+	options: SystemSnapshotOptions,
 	reason: string
 ): Promise<SnapshotId> {
-	if (!_.isNull(studioId)) check(studioId, String)
+	check(options.studioId, Match.Optional(String))
 
-	const s = await createSystemSnapshot(studioId, organizationId)
+	const s = await createSystemSnapshot(options, organizationId)
 	return storeSnaphot(s, organizationId, reason)
 }
 export async function storeRundownPlaylistSnapshot(
-	access: VerifiedRundownPlaylistContentAccess,
-	hashedToken: string,
-	reason: string,
-	full?: boolean
+	playlist: VerifiedRundownPlaylistForUserAction,
+	options: PlaylistSnapshotOptions,
+	reason: string
 ): Promise<SnapshotId> {
-	check(hashedToken, String)
-	if (!verifyHashedToken(hashedToken)) {
-		throw new Meteor.Error(401, `Restart token is invalid or has expired`)
-	}
-
-	const s = await createRundownPlaylistSnapshot(access.playlist, full)
-	return storeSnaphot(s, access.organizationId, reason)
+	const s = await createRundownPlaylistSnapshot(playlist, options)
+	return storeSnaphot(s, playlist.organizationId ?? null, reason)
 }
 export async function internalStoreRundownPlaylistSnapshot(
 	playlist: DBRundownPlaylist,
-	reason: string,
-	full?: boolean
+	options: PlaylistSnapshotOptions,
+	reason: string
 ): Promise<SnapshotId> {
-	const s = await createRundownPlaylistSnapshot(playlist, full)
-	return storeSnaphot(s, playlist.organizationId || null, reason)
+	const s = await createRundownPlaylistSnapshot(playlist, options)
+	return storeSnaphot(s, playlist.organizationId ?? null, reason)
 }
 export async function storeDebugSnapshot(
 	context: MethodContext,
@@ -722,12 +741,10 @@ export async function storeDebugSnapshot(
 		throw new Meteor.Error(401, `Restart token is invalid or has expired`)
 	}
 
-	const { organizationId, cred } = await OrganizationContentWriteAccess.snapshot(context)
-	if (Settings.enableUserAccounts && isResolvedCredentials(cred)) {
-		if (cred.user && !cred.user.superAdmin) throw new Meteor.Error(401, 'Only Super Admins can store Snapshots')
-	}
-	const s = await createDebugSnapshot(studioId, organizationId)
-	return storeSnaphot(s, organizationId, reason)
+	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_SNAPSHOT_MANAGEMENT)
+
+	const s = await createDebugSnapshot(studioId, null)
+	return storeSnaphot(s, null, reason)
 }
 export async function restoreSnapshot(
 	context: MethodContext,
@@ -735,21 +752,18 @@ export async function restoreSnapshot(
 	restoreDebugData: boolean
 ): Promise<void> {
 	check(snapshotId, String)
-	const { cred } = await OrganizationContentWriteAccess.snapshot(context)
-	if (Settings.enableUserAccounts && isResolvedCredentials(cred)) {
-		if (cred.user && !cred.user.superAdmin) throw new Meteor.Error(401, 'Only Super Admins can store Snapshots')
-	}
-	const snapshot = await retreiveSnapshot(snapshotId, context)
+
+	const snapshot = await retreiveSnapshot(snapshotId, context.connection)
 	return restoreFromSnapshot(snapshot, restoreDebugData)
 }
 export async function removeSnapshot(context: MethodContext, snapshotId: SnapshotId): Promise<void> {
 	check(snapshotId, String)
-	const { snapshot, cred } = await OrganizationContentWriteAccess.snapshot(context, snapshotId)
-	if (Settings.enableUserAccounts && isResolvedCredentials(cred)) {
-		if (cred.user && !cred.user.superAdmin) throw new Meteor.Error(401, 'Only Super Admins can store Snapshots')
-	}
+
+	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_SNAPSHOT_MANAGEMENT)
+
 	logger.info(`Removing snapshot ${snapshotId}`)
 
+	const snapshot = await Snapshots.findOneAsync(snapshotId)
 	if (!snapshot) throw new Meteor.Error(404, `Snapshot "${snapshotId}" not found!`)
 
 	if (snapshot.fileName) {
@@ -797,69 +811,73 @@ async function handleKoaResponse(
 	}
 }
 
-// For backwards compatibility:
-if (!Settings.enableUserAccounts) {
-	snapshotPrivateApiRouter.post(
-		'/restore',
-		bodyParser({
-			jsonLimit: '200mb', // Arbitrary limit
-		}),
-		async (ctx) => {
-			const content = 'ok'
-			try {
-				ctx.response.type = 'text/plain'
+snapshotPrivateApiRouter.post(
+	'/restore',
+	bodyParser({
+		jsonLimit: '200mb', // Arbitrary limit
+	}),
+	async (ctx) => {
+		assertConnectionHasOneOfPermissions(ctx, ...PERMISSIONS_FOR_SNAPSHOT_MANAGEMENT)
 
-				if (ctx.request.type !== 'application/json')
-					throw new Meteor.Error(400, 'Restore Snapshot: Invalid content-type')
+		const content = 'ok'
+		try {
+			ctx.response.type = 'text/plain'
 
-				const snapshot = ctx.request.body as any
-				if (!snapshot) throw new Meteor.Error(400, 'Restore Snapshot: Missing request body')
+			if (ctx.request.type !== 'application/json')
+				throw new Meteor.Error(400, 'Restore Snapshot: Invalid content-type')
 
-				const restoreDebugData = ctx.headers['restore-debug-data'] === '1'
+			const snapshot = ctx.request.body as any
+			if (!snapshot) throw new Meteor.Error(400, 'Restore Snapshot: Missing request body')
 
+			const restoreDebugData = ctx.headers['restore-debug-data'] === '1'
+			const ingestSnapshotData = ctx.headers['ingest-snapshot-data'] === '1'
+
+			if (typeof snapshot !== 'object' || snapshot === null)
+				throw new Meteor.Error(500, `Restore input data is not an object`)
+
+			if (ingestSnapshotData) {
+				await ingestFromSnapshot(snapshot)
+			} else {
 				await restoreFromSnapshot(snapshot, restoreDebugData)
+			}
 
-				ctx.response.status = 200
-				ctx.response.body = content
-			} catch (e) {
-				ctx.response.type = 'text/plain'
-				ctx.response.status = e instanceof Meteor.Error && typeof e.error === 'number' ? e.error : 500
-				ctx.response.body = 'Error: ' + stringifyError(e)
+			ctx.response.status = 200
+			ctx.response.body = content
+		} catch (e) {
+			ctx.response.type = 'text/plain'
+			ctx.response.status = e instanceof Meteor.Error && typeof e.error === 'number' ? e.error : 500
+			ctx.response.body = 'Error: ' + stringifyError(e)
 
-				if (ctx.response.status !== 404) {
-					logger.error(stringifyError(e))
-				}
+			if (ctx.response.status !== 404) {
+				logger.error(stringifyError(e))
 			}
 		}
-	)
-
-	// Retrieve snapshot:
-	snapshotPrivateApiRouter.get('/retrieve/:snapshotId', async (ctx) => {
-		return handleKoaResponse(ctx, async () => {
-			const snapshotId = ctx.params.snapshotId
-			check(snapshotId, String)
-			return retreiveSnapshot(protectString(snapshotId), { userId: null })
-		})
-	})
-}
+	}
+)
 
 // Retrieve snapshot:
-snapshotPrivateApiRouter.get('/:token/retrieve/:snapshotId', async (ctx) => {
+snapshotPrivateApiRouter.get('/retrieve/:snapshotId', async (ctx) => {
 	return handleKoaResponse(ctx, async () => {
 		const snapshotId = ctx.params.snapshotId
 		check(snapshotId, String)
-		return retreiveSnapshot(protectString(snapshotId), { userId: null, token: ctx.params.token })
+		return retreiveSnapshot(protectString(snapshotId), ctx)
 	})
 })
 
 class ServerSnapshotAPI extends MethodContextAPI implements NewSnapshotAPI {
 	async storeSystemSnapshot(hashedToken: string, studioId: StudioId | null, reason: string) {
-		return storeSystemSnapshot(this, hashedToken, studioId, reason)
+		if (!verifyHashedToken(hashedToken)) {
+			throw new Meteor.Error(401, `Idempotency token is invalid or has expired`)
+		}
+		return storeSystemSnapshot(this, { studioId: studioId ?? undefined }, reason)
 	}
 	async storeRundownPlaylist(hashedToken: string, playlistId: RundownPlaylistId, reason: string) {
+		if (!verifyHashedToken(hashedToken)) {
+			throw new Meteor.Error(401, `Idempotency token is invalid or has expired`)
+		}
 		check(playlistId, String)
-		const access = await checkAccessToPlaylist(this, playlistId)
-		return storeRundownPlaylistSnapshot(access, hashedToken, reason)
+		const playlist = await checkAccessToPlaylist(this.connection, playlistId)
+		return storeRundownPlaylistSnapshot(playlist, {}, reason)
 	}
 	async storeDebugSnapshot(hashedToken: string, studioId: StudioId, reason: string) {
 		return storeDebugSnapshot(this, hashedToken, studioId, reason)

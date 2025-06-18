@@ -1,5 +1,5 @@
 import { BlueprintId, TimelineHash } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { JobContext } from '../../jobs'
+import { JobContext, JobStudio } from '../../jobs'
 import { ReadonlyDeep } from 'type-fest'
 import {
 	BlueprintResultBaseline,
@@ -36,18 +36,13 @@ import { WatchedPackagesHelper } from '../../blueprints/context/watchedPackages'
 import { postProcessStudioBaselineObjects } from '../../blueprints/postProcess'
 import { updateBaselineExpectedPackagesOnStudio } from '../../ingest/expectedPackages'
 import { endTrace, sendTrace, startTrace } from '@sofie-automation/corelib/dist/influxdb'
-import { StudioLight } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { deserializePieceTimelineObjectsBlob } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { convertResolvedPieceInstanceToBlueprints } from '../../blueprints/context/lib'
 import { buildTimelineObjsForRundown, RundownTimelineTimingContext } from './rundown'
 import { SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { deNowifyMultiGatewayTimeline } from './multi-gateway'
 import { validateTimeline } from 'superfly-timeline'
-import {
-	calculatePartTimings,
-	getPartTimingsOrDefaults,
-	PartCalculatedTimings,
-} from '@sofie-automation/corelib/dist/playout/timings'
+import { getPartTimingsOrDefaults, PartCalculatedTimings } from '@sofie-automation/corelib/dist/playout/timings'
 import { applyAbPlaybackForTimeline } from '../abPlayback'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { PlayoutPartInstanceModel } from '../model/PlayoutPartInstanceModel'
@@ -58,7 +53,7 @@ function isModelForStudio(model: StudioPlayoutModelBase): model is StudioPlayout
 }
 
 function generateTimelineVersions(
-	studio: ReadonlyDeep<StudioLight>,
+	studio: ReadonlyDeep<JobStudio>,
 	blueprintId: BlueprintId | undefined,
 	blueprintVersion: string
 ): TimelineCompleteGenerationVersions {
@@ -260,25 +255,24 @@ function getPartInstanceTimelineInfo(
 	sourceLayers: SourceLayers,
 	partInstance: PlayoutPartInstanceModel | null
 ): SelectedPartInstanceTimelineInfo | undefined {
-	if (partInstance) {
-		const partStarted = partInstance.partInstance.timings?.plannedStartedPlayback
-		const nowInPart = partStarted === undefined ? 0 : currentTime - partStarted
-		const pieceInstances = processAndPrunePieceInstanceTimings(
-			sourceLayers,
-			partInstance.pieceInstances.map((p) => p.pieceInstance),
-			nowInPart
-		)
+	if (!partInstance) return undefined
 
-		return {
-			partInstance: partInstance.partInstance,
-			pieceInstances,
-			nowInPart,
-			partStarted,
-			// Approximate `calculatedTimings`, for the partInstances which already have it cached
-			calculatedTimings: getPartTimingsOrDefaults(partInstance.partInstance, pieceInstances),
-		}
-	} else {
-		return undefined
+	const partStarted = partInstance.partInstance.timings?.plannedStartedPlayback
+	const nowInPart = partStarted === undefined ? 0 : currentTime - partStarted
+	const pieceInstances = processAndPrunePieceInstanceTimings(
+		sourceLayers,
+		partInstance.pieceInstances.map((p) => p.pieceInstance),
+		nowInPart
+	)
+
+	const partInstanceWithOverrides = partInstance.getPartInstanceWithQuickLoopOverrides()
+	return {
+		partInstance: partInstanceWithOverrides,
+		pieceInstances,
+		nowInPart,
+		partStarted,
+		// Approximate `calculatedTimings`, for the partInstances which already have it cached
+		calculatedTimings: getPartTimingsOrDefaults(partInstanceWithOverrides, pieceInstances),
 	}
 }
 
@@ -323,16 +317,13 @@ async function getTimelineRundown(
 				next: getPartInstanceTimelineInfo(currentTime, showStyle.sourceLayers, nextPartInstance),
 				previous: getPartInstanceTimelineInfo(currentTime, showStyle.sourceLayers, previousPartInstance),
 			}
-			if (partInstancesInfo.next) {
+
+			if (partInstancesInfo.next && nextPartInstance) {
 				// the nextPartInstance doesn't have accurate cached `calculatedTimings` yet, so calculate a prediction
-				partInstancesInfo.next.calculatedTimings = calculatePartTimings(
-					playoutModel.playlist.holdState,
-					partInstancesInfo.current?.partInstance?.part,
-					partInstancesInfo.current?.pieceInstances?.map?.((p) => p.piece),
-					partInstancesInfo.next.partInstance.part,
-					partInstancesInfo.next.pieceInstances
-						.filter((p) => !p.infinite || p.infinite.infiniteInstanceIndex === 0)
-						.map((p) => p.piece)
+				partInstancesInfo.next.calculatedTimings = playoutModel.calculatePartTimings(
+					currentPartInstance,
+					nextPartInstance,
+					partInstancesInfo.next.pieceInstances // already processed and pruned
 				)
 			}
 
@@ -345,12 +336,7 @@ async function getTimelineRundown(
 				logger.warn(`Missing Baseline objects for Rundown "${activeRundown.rundown._id}"`)
 			}
 
-			const rundownTimelineResult = buildTimelineObjsForRundown(
-				context,
-				playoutModel,
-				activeRundown.rundown,
-				partInstancesInfo
-			)
+			const rundownTimelineResult = buildTimelineObjsForRundown(context, playoutModel.playlist, partInstancesInfo)
 
 			timelineObjs = timelineObjs.concat(rundownTimelineResult.timeline)
 			timelineObjs = timelineObjs.concat(await pLookaheadObjs)
@@ -392,6 +378,16 @@ async function getTimelineRundown(
 						timelineObjs
 					)
 
+					// Store the new notes in the model
+					const notificationCategory = 'abPlayback'
+					playoutModel.clearAllNotifications(notificationCategory)
+					for (const notification of newAbSessionsResult.notifications) {
+						playoutModel.setNotification(notificationCategory, {
+							...notification,
+							relatedTo: { type: 'playlist' },
+						})
+					}
+
 					let tlGenRes: BlueprintResultTimeline | undefined
 					if (blueprint.blueprint.onTimelineGenerate) {
 						const span = context.startSpan('blueprint.onTimelineGenerate')
@@ -416,7 +412,7 @@ async function getTimelineRundown(
 
 					playoutModel.setOnTimelineGenerateResult(
 						tlGenRes?.persistentState,
-						newAbSessionsResult,
+						newAbSessionsResult.assignments,
 						blueprintContext.abSessionsHelper.knownSessions
 					)
 				} catch (err) {

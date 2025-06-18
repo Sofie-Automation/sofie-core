@@ -1,17 +1,6 @@
 import { MOS } from '@sofie-automation/corelib'
-import { IngestPart } from '@sofie-automation/blueprints-integration'
-import { getPartId } from '../lib'
-import { PartId, RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { IngestRundown, IngestSegment } from '@sofie-automation/blueprints-integration'
 import _ = require('underscore')
-
-export function getPartIdFromMosStory(rundownId: RundownId, partMosId: MOS.IMOSString128 | string): PartId {
-	if (!partMosId) throw new Error('parameter partMosId missing!')
-	return getPartId(rundownId, typeof partMosId === 'string' ? partMosId : parseMosString(partMosId))
-}
-
-export function getSegmentExternalId(rundownId: RundownId, ingestPart: IngestPart): string {
-	return `${rundownId}_${ingestPart.name.split(';')[0]}_${ingestPart.externalId}`
-}
 
 export function fixIllegalObject(o: unknown): void {
 	if (_.isArray(o)) {
@@ -37,4 +26,38 @@ export function parseMosString(str: MOS.IMOSString128): string {
 	if (!str) throw new Error('parseMosString: str parameter missing!')
 	if (mosTypes.mosString128.is(str)) return mosTypes.mosString128.stringify(str)
 	return (str as any).toString()
+}
+
+export function getMosIngestSegmentExternalId(partExternalId: string): string {
+	return `segment-${partExternalId}`
+}
+
+export function updateRanksBasedOnOrder(ingestRundown: IngestRundown): void {
+	ingestRundown.segments.forEach((segment, i) => {
+		segment.rank = i
+
+		segment.parts.forEach((part, j) => {
+			part.rank = j
+		})
+	})
+}
+
+export function mosStoryToIngestSegment(mosStory: MOS.IMOSStory, undefinedPayload: boolean): IngestSegment {
+	const partExternalId = parseMosString(mosStory.ID)
+
+	const name = mosStory.Slug ? parseMosString(mosStory.Slug) : ''
+	return {
+		externalId: getMosIngestSegmentExternalId(partExternalId),
+		name: name,
+		rank: 0, // Set later
+		parts: [
+			{
+				externalId: partExternalId,
+				name: name,
+				rank: 0,
+				payload: undefinedPayload ? undefined : {},
+			},
+		],
+		payload: undefined,
+	}
 }

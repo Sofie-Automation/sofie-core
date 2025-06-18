@@ -11,7 +11,8 @@ import {
 	WorkerDataCache,
 	WorkerDataCacheWrapperImpl,
 } from '../caches'
-import { JobContextImpl, QueueJobFunc } from '../context'
+import { JobContextImpl } from '../context/JobContextImpl'
+import { QueueJobFunc } from '../context/util'
 import { AnyLockEvent, LocksManager } from '../locks'
 import { FastTrackTimelineFunc, LogLineWithSourceFunc } from '../../main'
 import { interceptLogging, logger } from '../../logging'
@@ -97,7 +98,7 @@ export class EventsWorkerChild {
 
 		const transaction = startTransaction('invalidateCaches', 'worker-studio')
 		if (transaction) {
-			transaction.setLabel('studioId', unprotectString(this.#staticData.dataCache.studio._id))
+			transaction.setLabel('studioId', unprotectString(this.#staticData.dataCache.jobStudio._id))
 		}
 
 		try {
@@ -117,7 +118,7 @@ export class EventsWorkerChild {
 		const trace = startTrace('studioWorker' + jobName)
 		const transaction = startTransaction(jobName, 'worker-studio')
 		if (transaction) {
-			transaction.setLabel('studioId', unprotectString(this.#staticData.dataCache.studio._id))
+			transaction.setLabel('studioId', unprotectString(this.#staticData.dataCache.jobStudio._id))
 		}
 
 		const context = new JobContextImpl(

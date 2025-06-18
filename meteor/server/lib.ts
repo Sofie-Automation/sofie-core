@@ -4,11 +4,12 @@ import fs from 'fs'
 import path from 'path'
 import { logger } from './logging'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
+import { Meteor } from 'meteor/meteor'
 
 /** Returns absolute path to programs/server directory of your compiled application, without trailing slash. */
 export function getAbsolutePath(): string {
-	// @ts-expect-error Meteor.absolutePath is injected by the package ostrio:meteor-root
-	return Meteor.absolutePath
+	const rootPath = path.resolve('.')
+	return rootPath.split(`${path.sep}.meteor`)[0]
 }
 export function extractFunctionSignature(f: Function): string[] | undefined {
 	if (f) {
@@ -27,7 +28,10 @@ export function extractFunctionSignature(f: Function): string[] | undefined {
 export type Translations = Record<string, string>
 
 // The /public directory in a Meteor app
-export const public_dir = path.join(process.cwd(), '../web.browser/app')
+export const public_dir = Meteor.isProduction
+	? path.join(process.cwd(), '../web.browser/app')
+	: // In development, find the webui package and use its public directory
+	  path.join(process.cwd(), '../../../../../../packages/webui/public')
 
 /**
  * Get the i18next locale object for a given `languageCode`. If the translations file can not be found or it can't be

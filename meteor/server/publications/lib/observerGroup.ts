@@ -1,7 +1,7 @@
 import { ManualPromise, createManualPromise, getRandomString } from '@sofie-automation/corelib/dist/lib'
 import { Meteor } from 'meteor/meteor'
-import { lazyIgnore } from '../../../lib/lib'
-import { LiveQueryHandle } from '../../lib/lib'
+import { LiveQueryHandle, lazyIgnore } from '../../lib/lib'
+import { waitForAllObserversReady } from './lib'
 
 export interface ReactiveMongoObserverGroupHandle extends LiveQueryHandle {
 	/**
@@ -19,7 +19,7 @@ const REACTIVITY_DEBOUNCE = 20
  * @returns Handle to stop and restart the observer group
  */
 export async function ReactiveMongoObserverGroup(
-	generator: () => Promise<Array<LiveQueryHandle>>
+	generator: () => Promise<Array<Promise<LiveQueryHandle>>>
 ): Promise<ReactiveMongoObserverGroupHandle> {
 	let running = true
 	let pendingStop: ManualPromise<void> | undefined
@@ -70,8 +70,7 @@ export async function ReactiveMongoObserverGroup(
 
 			// Start the child observers
 			if (!handles) {
-				// handles = await generator()
-				handles = await generator()
+				handles = await waitForAllObserversReady(await generator())
 
 				// check for another pending operation
 				deferCheck()

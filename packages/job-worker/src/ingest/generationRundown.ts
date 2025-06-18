@@ -1,5 +1,5 @@
 import { ExpectedPackageDBType } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
-import { BlueprintId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { RundownNote } from '@sofie-automation/corelib/dist/dataModel/Notes'
 import { serializePieceTimelineObjectsBlob } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { DBRundown, RundownSource } from '@sofie-automation/corelib/dist/dataModel/Rundown'
@@ -16,7 +16,6 @@ import {
 import { logger } from '../logging'
 import _ = require('underscore')
 import { IngestModel } from './model/IngestModel'
-import { LocalIngestRundown } from './ingestCache'
 import { extendIngestRundownCore, canRundownBeUpdated } from './lib'
 import { JobContext } from '../jobs'
 import { CommitIngestData } from './lock'
@@ -25,8 +24,19 @@ import { updateExpectedPackagesForRundownBaseline } from './expectedPackages'
 import { ReadonlyDeep } from 'type-fest'
 import { BlueprintResultRundown, ExtendedIngestRundown } from '@sofie-automation/blueprints-integration'
 import { wrapTranslatableMessageFromBlueprints } from '@sofie-automation/corelib/dist/TranslatableMessage'
-import { convertRundownToBlueprintSegmentRundown } from '../blueprints/context/lib'
+import { convertRundownToBlueprintSegmentRundown, translateUserEditsFromBlueprint } from '../blueprints/context/lib'
 import { calculateSegmentsAndRemovalsFromIngestData } from './generationSegment'
+import { SofieIngestRundownWithSource } from '@sofie-automation/corelib/dist/dataModel/SofieIngestDataCache'
+
+export enum GenerateRundownMode {
+	Create = 'create',
+	Update = 'update',
+	MetadataChange = 'metadata-change',
+}
+
+export interface CommitIngestDataExt extends CommitIngestData {
+	didRegenerateRundown: boolean
+}
 
 /**
  * Regenerate and save a whole Rundown
@@ -40,13 +50,60 @@ import { calculateSegmentsAndRemovalsFromIngestData } from './generationSegment'
 export async function updateRundownFromIngestData(
 	context: JobContext,
 	ingestModel: IngestModel,
-	ingestRundown: LocalIngestRundown,
-	isCreateAction: boolean,
-	rundownSource: RundownSource
-): Promise<CommitIngestData | null> {
+	ingestRundown: SofieIngestRundownWithSource,
+	generateMode: GenerateRundownMode
+): Promise<CommitIngestDataExt | null> {
 	const span = context.startSpan('ingest.rundownInput.updateRundownFromIngestData')
 
-	if (!canRundownBeUpdated(ingestModel.rundown, isCreateAction)) return null
+	const regenerateAllContents = await updateRundownFromIngestDataInner(
+		context,
+		ingestModel,
+		ingestRundown,
+		generateMode
+	)
+
+	if (!regenerateAllContents) return null
+
+	const regenerateSegmentsChanges = regenerateAllContents.regenerateAllContents
+		? await calculateSegmentsAndRemovalsFromIngestData(
+				context,
+				ingestModel,
+				ingestRundown,
+				regenerateAllContents.allRundownWatchedPackages
+		  )
+		: undefined
+
+	logger.info(`Rundown ${ingestModel.rundownId} update complete`)
+
+	span?.end()
+	return literal<CommitIngestDataExt>({
+		changedSegmentIds: regenerateSegmentsChanges?.changedSegmentIds ?? [],
+		removedSegmentIds: regenerateSegmentsChanges?.removedSegmentIds ?? [],
+		renamedSegments: new Map(),
+
+		didRegenerateRundown: regenerateAllContents.regenerateAllContents,
+
+		removeRundown: false,
+	})
+}
+
+export interface UpdateRundownInnerResult {
+	allRundownWatchedPackages: WatchedPackagesHelper
+	regenerateAllContents: boolean
+}
+
+export async function updateRundownFromIngestDataInner(
+	context: JobContext,
+	ingestModel: IngestModel,
+	ingestRundown: SofieIngestRundownWithSource,
+	generateMode: GenerateRundownMode
+): Promise<UpdateRundownInnerResult | null> {
+	if (!canRundownBeUpdated(ingestModel.rundown, generateMode === GenerateRundownMode.Create)) return null
+
+	const existingRundown = ingestModel.rundown
+	if (!existingRundown && generateMode === GenerateRundownMode.MetadataChange) {
+		throw new Error(`Rundown "${ingestRundown.externalId}" does not exist`)
+	}
 
 	logger.info(`${ingestModel.rundown ? 'Updating' : 'Adding'} rundown ${ingestModel.rundownId}`)
 
@@ -58,17 +115,16 @@ export async function updateRundownFromIngestData(
 		{
 			name: 'selectShowStyleVariant',
 			identifier: `studioId=${context.studio._id},rundownId=${ingestModel.rundownId},ingestRundownId=${ingestModel.rundownExternalId}`,
-			tempSendUserNotesIntoBlackHole: true,
 		},
 		context.studio,
 		context.getStudioBlueprintConfig()
 	)
-	// TODO-CONTEXT save any user notes from selectShowStyleContext
+
 	const showStyle = await selectShowStyleVariant(
 		context,
 		selectShowStyleContext,
 		extendedIngestRundown,
-		rundownSource
+		ingestRundown.rundownSource
 	)
 	if (!showStyle) {
 		logger.debug('Blueprint rejected the rundown')
@@ -80,15 +136,24 @@ export async function updateRundownFromIngestData(
 	const showStyleBlueprint = await context.getShowStyleBlueprint(showStyle.base._id)
 	const allRundownWatchedPackages = await pAllRundownWatchedPackages
 
+	const extraRundownNotes: RundownNote[] = selectShowStyleContext.notes.map((note) => ({
+		type: note.type,
+		message: wrapTranslatableMessageFromBlueprints(note.message, [showStyleBlueprint.blueprintId]),
+		origin: {
+			name: 'selectShowStyleVariant',
+		},
+	}))
+
 	// Call blueprints, get rundown
 	const dbRundown = await regenerateRundownAndBaselineFromIngestData(
 		context,
 		ingestModel,
 		extendedIngestRundown,
-		rundownSource,
+		ingestRundown.rundownSource,
 		showStyle,
 		showStyleBlueprint,
-		allRundownWatchedPackages
+		allRundownWatchedPackages,
+		extraRundownNotes
 	)
 	if (!dbRundown) {
 		// We got no rundown, abort:
@@ -97,123 +162,23 @@ export async function updateRundownFromIngestData(
 
 	// TODO - store notes from rundownNotesContext
 
-	const { changedSegmentIds, removedSegmentIds } = await calculateSegmentsAndRemovalsFromIngestData(
-		context,
-		ingestModel,
-		ingestRundown,
-		allRundownWatchedPackages
-	)
-
-	logger.info(`Rundown ${dbRundown._id} update complete`)
-
-	span?.end()
-	return literal<CommitIngestData>({
-		changedSegmentIds: changedSegmentIds,
-		removedSegmentIds: removedSegmentIds,
-		renamedSegments: null,
-
-		removeRundown: false,
-	})
-}
-
-/**
- * Regenerate Rundown if necessary from metadata change
- * Note: callers are expected to check the change is allowed by calling `canBeUpdated` prior to this
- * @param context Context for the running job
- * @param ingestModel The ingest model of the rundown
- * @param ingestRundown The rundown to regenerate
- * @param rundownSource Source of this Rundown
- * @returns CommitIngestData describing the change
- */
-export async function updateRundownMetadataFromIngestData(
-	context: JobContext,
-	ingestModel: IngestModel,
-	ingestRundown: LocalIngestRundown,
-	rundownSource: RundownSource
-): Promise<CommitIngestData | null> {
-	if (!canRundownBeUpdated(ingestModel.rundown, false)) return null
-	const existingRundown = ingestModel.rundown
-	if (!existingRundown) {
-		throw new Error(`Rundown "${ingestRundown.externalId}" does not exist`)
+	let regenerateAllContents = true
+	if (generateMode == GenerateRundownMode.MetadataChange) {
+		regenerateAllContents =
+			!existingRundown ||
+			!_.isEqual(
+				convertRundownToBlueprintSegmentRundown(existingRundown, true),
+				convertRundownToBlueprintSegmentRundown(dbRundown, true)
+			)
+		if (regenerateAllContents) {
+			logger.info(`MetaData of rundown ${dbRundown.externalId} has been modified, regenerating segments`)
+		}
 	}
 
-	const span = context.startSpan('ingest.rundownInput.handleUpdatedRundownMetaDataInner')
-
-	logger.info(`Updating rundown ${ingestModel.rundownId}`)
-
-	const extendedIngestRundown = extendIngestRundownCore(ingestRundown, ingestModel.rundown)
-
-	const selectShowStyleContext = new StudioUserContext(
-		{
-			name: 'selectShowStyleVariant',
-			identifier: `studioId=${context.studio._id},rundownId=${ingestModel.rundownId},ingestRundownId=${ingestModel.rundownExternalId}`,
-			tempSendUserNotesIntoBlackHole: true,
-		},
-		context.studio,
-		context.getStudioBlueprintConfig()
-	)
-
-	// TODO-CONTEXT save any user notes from selectShowStyleContext
-	const showStyle = await selectShowStyleVariant(
-		context,
-		selectShowStyleContext,
-		extendedIngestRundown,
-		rundownSource
-	)
-	if (!showStyle) {
-		logger.debug('Blueprint rejected the rundown')
-		throw new Error('Blueprint rejected the rundown')
+	return {
+		allRundownWatchedPackages,
+		regenerateAllContents,
 	}
-
-	const pAllRundownWatchedPackages = WatchedPackagesHelper.createForIngestRundown(context, ingestModel)
-
-	const showStyleBlueprint = await context.getShowStyleBlueprint(showStyle.base._id)
-	const allRundownWatchedPackages = await pAllRundownWatchedPackages
-
-	// Call blueprints, get rundown
-	const dbRundown = await regenerateRundownAndBaselineFromIngestData(
-		context,
-		ingestModel,
-		extendedIngestRundown,
-		rundownSource,
-		showStyle,
-		showStyleBlueprint,
-		allRundownWatchedPackages
-	)
-	if (!dbRundown) {
-		// We got no rundown, abort:
-		return null
-	}
-
-	let changedSegmentIds: SegmentId[] | undefined
-	let removedSegmentIds: SegmentId[] | undefined
-	if (
-		!_.isEqual(
-			convertRundownToBlueprintSegmentRundown(existingRundown, true),
-			convertRundownToBlueprintSegmentRundown(dbRundown, true)
-		)
-	) {
-		logger.info(`MetaData of rundown ${dbRundown.externalId} has been modified, regenerating segments`)
-		const changes = await calculateSegmentsAndRemovalsFromIngestData(
-			context,
-			ingestModel,
-			ingestRundown,
-			allRundownWatchedPackages
-		)
-		changedSegmentIds = changes.changedSegmentIds
-		removedSegmentIds = changes.removedSegmentIds
-	}
-
-	logger.info(`Rundown ${dbRundown._id} update complete`)
-
-	span?.end()
-	return literal<CommitIngestData>({
-		changedSegmentIds: changedSegmentIds ?? [],
-		removedSegmentIds: removedSegmentIds ?? [],
-		renamedSegments: null,
-
-		removeRundown: false,
-	})
 }
 
 /**
@@ -225,6 +190,7 @@ export async function updateRundownMetadataFromIngestData(
  * @param showStyle ShowStyle to regenerate for
  * @param showStyleBlueprint ShowStyle Blueprint to regenerate with
  * @param allRundownWatchedPackages WatchedPackagesHelper for all packages belonging to the rundown
+ * @param extraRundownNotes Additional notes to add to the Rundown, produced earlier in the ingest process
  * @returns Generated documents or null if Blueprints reject the Rundown
  */
 export async function regenerateRundownAndBaselineFromIngestData(
@@ -234,7 +200,8 @@ export async function regenerateRundownAndBaselineFromIngestData(
 	rundownSource: RundownSource,
 	showStyle: SelectedShowStyleVariant,
 	showStyleBlueprint: ReadonlyDeep<WrappedShowStyleBlueprint>,
-	allRundownWatchedPackages: WatchedPackagesHelper
+	allRundownWatchedPackages: WatchedPackagesHelper,
+	extraRundownNotes: RundownNote[]
 ): Promise<ReadonlyDeep<DBRundown> | null> {
 	const rundownBaselinePackages = allRundownWatchedPackages.filter(
 		context,
@@ -297,15 +264,18 @@ export async function regenerateRundownAndBaselineFromIngestData(
 	}
 
 	// Ensure the ids in the notes are clean
-	const rundownNotes = blueprintContext.notes.map((note) =>
-		literal<RundownNote>({
-			type: note.type,
-			message: wrapTranslatableMessageFromBlueprints(note.message, translationNamespaces),
-			origin: {
-				name: `${showStyle.base.name}-${showStyle.variant.name}`,
-			},
-		})
-	)
+	const rundownNotes = [
+		...extraRundownNotes,
+		...blueprintContext.notes.map((note) =>
+			literal<RundownNote>({
+				type: note.type,
+				message: wrapTranslatableMessageFromBlueprints(note.message, translationNamespaces),
+				origin: {
+					name: `${showStyle.base.name}-${showStyle.variant.name}`,
+				},
+			})
+		),
+	]
 
 	ingestModel.setRundownData(
 		rundownRes.rundown,
@@ -313,7 +283,8 @@ export async function regenerateRundownAndBaselineFromIngestData(
 		showStyle.variant,
 		showStyleBlueprint,
 		rundownSource,
-		rundownNotes
+		rundownNotes,
+		translateUserEditsFromBlueprint(rundownRes.rundown.userEditOperations, translationNamespaces)
 	)
 
 	// get the rundown separetely to ensure it exists now

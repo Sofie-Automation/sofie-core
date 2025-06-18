@@ -1,17 +1,24 @@
 import { Meteor } from 'meteor/meteor'
-import { check, Match } from '../../lib/check'
+import { check, Match } from '../lib/check'
 import { registerClassToMeteorMethods } from '../methods'
-import { NewRundownLayoutsAPI, RundownLayoutsAPIMethods } from '../../lib/api/rundownLayouts'
-import { RundownLayoutType, RundownLayoutBase, CustomizableRegions } from '../../lib/collections/RundownLayouts'
-import { literal, getRandomId, protectString } from '../../lib/lib'
+import { NewRundownLayoutsAPI, RundownLayoutsAPIMethods } from '@sofie-automation/meteor-lib/dist/api/rundownLayouts'
+import {
+	RundownLayoutType,
+	RundownLayoutBase,
+	CustomizableRegions,
+} from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
+import { literal, getRandomId, protectString } from '../lib/tempLib'
 import { logger } from '../logging'
-import { MethodContext, MethodContextAPI } from '../../lib/api/methods'
-import { ShowStyleContentWriteAccess } from '../security/showStyle'
+import { MethodContext, MethodContextAPI } from './methodContext'
 import { fetchShowStyleBaseLight } from '../optimizations'
 import { BlueprintId, RundownLayoutId, ShowStyleBaseId, UserId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { RundownLayouts } from '../collections'
 import KoaRouter from '@koa/router'
 import bodyParser from 'koa-bodyparser'
+import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
+import { assertConnectionHasOneOfPermissions } from '../security/auth'
+
+const PERMISSIONS_FOR_MANAGE_RUNDOWN_LAYOUTS: Array<keyof UserPermissions> = ['configure']
 
 export async function createRundownLayout(
 	name: string,
@@ -52,6 +59,8 @@ shelfLayoutsRouter.post(
 	}),
 	async (ctx) => {
 		ctx.response.type = 'text/plain'
+
+		assertConnectionHasOneOfPermissions(ctx, ...PERMISSIONS_FOR_MANAGE_RUNDOWN_LAYOUTS)
 
 		const showStyleBaseId: ShowStyleBaseId = protectString(ctx.params.showStyleBaseId)
 
@@ -125,15 +134,16 @@ async function apiCreateRundownLayout(
 	check(showStyleBaseId, String)
 	check(regionId, String)
 
-	const access = await ShowStyleContentWriteAccess.anyContent(context, showStyleBaseId)
+	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_MANAGE_RUNDOWN_LAYOUTS)
 
-	return createRundownLayout(name, type, showStyleBaseId, regionId, undefined, access.userId || undefined)
+	return createRundownLayout(name, type, showStyleBaseId, regionId, undefined, undefined)
 }
 async function apiRemoveRundownLayout(context: MethodContext, id: RundownLayoutId) {
 	check(id, String)
 
-	const access = await ShowStyleContentWriteAccess.rundownLayout(context, id)
-	const rundownLayout = access.rundownLayout
+	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_MANAGE_RUNDOWN_LAYOUTS)
+
+	const rundownLayout = await RundownLayouts.findOneAsync(id)
 	if (!rundownLayout) throw new Meteor.Error(404, `RundownLayout "${id}" not found`)
 
 	await removeRundownLayout(id)

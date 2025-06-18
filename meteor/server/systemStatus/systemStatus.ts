@@ -1,13 +1,13 @@
-import { Meteor } from 'meteor/meteor'
 import { PeripheralDevice, PERIPHERAL_SUBTYPE_PROCESS } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
-import { getCurrentTime, Time, getRandomId, literal } from '../../lib/lib'
+import { Time, getRandomId, literal } from '../lib/tempLib'
+import { getCurrentTime } from '../lib/lib'
 import {
 	parseVersion,
 	parseCoreIntegrationCompatabilityRange,
 	stripVersion,
 	compareSemverVersions,
 	isPrerelease,
-} from '../../lib/collections/CoreSystem'
+} from './semverUtils'
 import {
 	StatusResponse,
 	CheckObj,
@@ -15,21 +15,17 @@ import {
 	CheckError,
 	SystemInstanceId,
 	Component,
-} from '../../lib/api/systemStatus'
+} from '@sofie-automation/meteor-lib/dist/api/systemStatus'
 import { RelevantSystemVersions } from '../coreSystem'
-import { Settings } from '../../lib/Settings'
-import { StudioReadAccess } from '../security/studio'
-import { OrganizationReadAccess } from '../security/organization'
-import { resolveCredentials, Credentials } from '../security/lib/credentials'
-import { SystemReadAccess } from '../security/system'
 import { StatusCode } from '@sofie-automation/blueprints-integration'
 import { PeripheralDevices, Workers, WorkerThreadStatuses } from '../collections'
 import { PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ServerPeripheralDeviceAPI } from '../api/peripheralDevice'
-import { PeripheralDeviceContentWriteAccess } from '../security/peripheralDevice'
-import { MethodContext } from '../../lib/api/methods'
+import { MethodContext } from '../api/methodContext'
 import { getBlueprintVersions } from './blueprintVersions'
 import { getUpgradeSystemStatusMessages } from './blueprintUpgradeStatus'
+import { triggerWriteAccessBecauseNoCheckNecessary } from '../security/securityVerify'
+import { assertConnectionHasOneOfPermissions, RequestCredentials } from '../security/auth'
 
 const PackageInfo = require('../../package.json')
 const integrationVersionRange = parseCoreIntegrationCompatabilityRange(PackageInfo.version)
@@ -165,10 +161,12 @@ function getSystemStatusForDevice(device: PeripheralDevice): StatusResponse {
  * Returns system status
  * @param studioId (Optional) If provided, limits the status to what's affecting the studio
  */
-export async function getSystemStatus(cred0: Credentials, studioId?: StudioId): Promise<StatusResponse> {
-	const checks: Array<CheckObj> = []
+export async function getSystemStatus(_cred: RequestCredentials | null, studioId?: StudioId): Promise<StatusResponse> {
+	// Future: this should consider the studioId
+	// For now, all users should have access to all statuses
+	triggerWriteAccessBecauseNoCheckNecessary()
 
-	await SystemReadAccess.systemStatus(cred0)
+	const checks: Array<CheckObj> = []
 
 	// Check systemStatuses:
 	for (const [key, status] of Object.entries<StatusObjectInternal>(systemStatuses)) {
@@ -250,25 +248,11 @@ export async function getSystemStatus(cred0: Credentials, studioId?: StudioId): 
 	if (studioId) {
 		// Check status for a certain studio:
 
-		if (!(await StudioReadAccess.studioContent(studioId, cred0))) {
-			throw new Meteor.Error(403, `Not allowed`)
-		}
-		devices = await PeripheralDevices.findFetchAsync({ studioId: studioId })
+		devices = await PeripheralDevices.findFetchAsync({ 'studioAndConfigId.studioId': studioId })
 	} else {
-		if (Settings.enableUserAccounts) {
-			// Check status for the user's studios:
+		// Check status for all studios:
 
-			const cred = await resolveCredentials(cred0)
-			if (!cred.organizationId) throw new Meteor.Error(500, 'user has no organization')
-			if (!(await OrganizationReadAccess.organizationContent(cred.organizationId, cred))) {
-				throw new Meteor.Error(403, `Not allowed`)
-			}
-			devices = await PeripheralDevices.findFetchAsync({ organizationId: cred.organizationId })
-		} else {
-			// Check status for all studios:
-
-			devices = await PeripheralDevices.findFetchAsync({})
-		}
+		devices = await PeripheralDevices.findFetchAsync({})
 	}
 	for (const device of devices) {
 		const so = getSystemStatusForDevice(device)
@@ -404,6 +388,7 @@ export async function getDebugStates(
 	methodContext: MethodContext,
 	peripheralDeviceId: PeripheralDeviceId
 ): Promise<object> {
-	const access = await PeripheralDeviceContentWriteAccess.peripheralDevice(methodContext, peripheralDeviceId)
-	return ServerPeripheralDeviceAPI.getDebugStates(access)
+	assertConnectionHasOneOfPermissions(methodContext.connection, 'developer')
+
+	return ServerPeripheralDeviceAPI.getDebugStates(peripheralDeviceId)
 }

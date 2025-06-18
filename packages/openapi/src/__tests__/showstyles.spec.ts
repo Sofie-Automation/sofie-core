@@ -1,5 +1,11 @@
 // eslint-disable-next-line node/no-missing-import
-import { Configuration, ShowStyleBase, ShowstylesApi, ShowStyleVariant } from '../../client/ts'
+import {
+	Configuration,
+	GetShowStyleConfig200ResponseResult,
+	ShowStyleBase,
+	ShowstylesApi,
+	ShowStyleVariant,
+} from '../../client/ts'
 import { checkServer } from '../checkServer'
 import Logging from '../httpLogging'
 
@@ -68,6 +74,26 @@ describe('Network client', () => {
 	test('can remove a ShowStyleBase', async () => {
 		const showStyle = await showStylesApi.deleteShowStyleBase({
 			showStyleBaseId: testShowStyleBaseId,
+		})
+		expect(showStyle.status).toBe(200)
+	})
+
+	let showStyleConfig: GetShowStyleConfig200ResponseResult | undefined
+	test('can request a ShowStyle config by id', async () => {
+		const showStyle = await showStylesApi.getShowStyleConfig({
+			showStyleBaseId: showStyleBaseIds[0],
+		})
+		expect(showStyle.status).toBe(200)
+		expect(showStyle).toHaveProperty('result')
+		expect(showStyle.result).toHaveProperty('developerMode')
+		showStyleConfig = JSON.parse(JSON.stringify(showStyle.result))
+	})
+
+	test('can update a ShowStyle config', async () => {
+		showStyleConfig.developerMode = !showStyleConfig.developerMode
+		const showStyle = await showStylesApi.updateShowStyleConfig({
+			showStyleBaseId: showStyleBaseIds[0],
+			requestBody: showStyleConfig,
 		})
 		expect(showStyle.status).toBe(200)
 	})

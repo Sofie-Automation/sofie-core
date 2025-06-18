@@ -27,9 +27,11 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('meteor/yarn.lock') }}-${{ hashFiles('meteor/.meteor/release') }}
       - name: Validate production dependencies for vulnerabilities and compatible licenses
         run: |
+          corepack enable
+
           yarn
           cd meteor
-          meteor yarn validate:prod-dependencies
+          yarn validate:prod-dependencies
         env:
           CI: true
 
@@ -55,9 +57,11 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('meteor/yarn.lock') }}-${{ hashFiles('meteor/.meteor/release') }}
       - name: Validate production dependencies for vulnerabilities and compatible licenses
         run: |
+          corepack enable
+
           yarn
           cd meteor
-          meteor yarn run validate:all-dependencies
+          yarn run validate:all-dependencies
         env:
           CI: true
 
@@ -88,6 +92,8 @@ jobs:
           node-version-file: ".node-version"
       - name: Prepare Environment
         run: |
+          corepack enable
+
           cd packages
           yarn install
         env:
@@ -119,6 +125,8 @@ jobs:
           node-version-file: ".node-version"
       - name: Prepare Environment
         run: |
+          corepack enable
+          
           cd packages
           yarn install
         env:

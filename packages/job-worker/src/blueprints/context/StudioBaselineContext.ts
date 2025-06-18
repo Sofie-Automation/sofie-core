@@ -1,7 +1,7 @@
 import { PackageInfo, IStudioBaselineContext } from '@sofie-automation/blueprints-integration'
 import { WatchedPackagesHelper } from './watchedPackages'
 import { JobContext } from '../../jobs'
-import { UserContextInfo } from './CommonContext'
+import { ContextInfo } from './CommonContext'
 import { StudioContext } from './StudioContext'
 import { getMediaObjectDuration } from './lib'
 
@@ -9,7 +9,7 @@ export class StudioBaselineContext extends StudioContext implements IStudioBasel
 	private readonly jobContext: JobContext
 
 	constructor(
-		contextInfo: UserContextInfo,
+		contextInfo: ContextInfo,
 		context: JobContext,
 		private readonly watchedPackages: WatchedPackagesHelper
 	) {

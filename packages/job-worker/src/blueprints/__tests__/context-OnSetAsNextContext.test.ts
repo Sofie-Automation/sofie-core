@@ -113,6 +113,10 @@ describe('Test blueprint api context', () => {
 			await context.removePieceInstances('next', ['pieceInstanceId'])
 			expect(mockActionService.removePieceInstances).toHaveBeenCalledTimes(1)
 			expect(mockActionService.removePieceInstances).toHaveBeenCalledWith('next', ['pieceInstanceId'])
+
+			await context.removePieceInstances('current', ['pieceInstanceId'])
+			expect(mockActionService.removePieceInstances).toHaveBeenCalledTimes(2)
+			expect(mockActionService.removePieceInstances).toHaveBeenCalledWith('current', ['pieceInstanceId'])
 		})
 
 		test('updatePartInstance', async () => {

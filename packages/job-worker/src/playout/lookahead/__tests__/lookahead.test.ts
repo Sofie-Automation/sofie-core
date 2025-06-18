@@ -51,7 +51,7 @@ describe('Lookahead', () => {
 			}
 		}
 		context.setStudio({
-			...context.studio,
+			...context.rawStudio,
 			mappingsWithOverrides: wrapDefaultObject(mappings),
 		})
 
@@ -222,7 +222,7 @@ describe('Lookahead', () => {
 
 		// Set really low
 		{
-			const studio = clone<DBStudio>(context.studio)
+			const studio = clone<DBStudio>(context.rawStudio)
 			studio.mappingsWithOverrides.defaults['WHEN_CLEAR'].lookaheadMaxSearchDistance = 0
 			studio.mappingsWithOverrides.defaults['PRELOAD'].lookaheadMaxSearchDistance = 0
 			context.setStudio(studio)
@@ -236,7 +236,7 @@ describe('Lookahead', () => {
 		// really high
 		getOrderedPartsAfterPlayheadMock.mockClear()
 		{
-			const studio = clone<DBStudio>(context.studio)
+			const studio = clone<DBStudio>(context.rawStudio)
 			studio.mappingsWithOverrides.defaults['WHEN_CLEAR'].lookaheadMaxSearchDistance = -1
 			studio.mappingsWithOverrides.defaults['PRELOAD'].lookaheadMaxSearchDistance = 2000
 			context.setStudio(studio)
@@ -250,7 +250,7 @@ describe('Lookahead', () => {
 		// unset
 		getOrderedPartsAfterPlayheadMock.mockClear()
 		{
-			const studio = clone<DBStudio>(context.studio)
+			const studio = clone<DBStudio>(context.rawStudio)
 			studio.mappingsWithOverrides.defaults['WHEN_CLEAR'].lookaheadMaxSearchDistance = undefined
 			studio.mappingsWithOverrides.defaults['PRELOAD'].lookaheadMaxSearchDistance = -1
 			context.setStudio(studio)
@@ -341,7 +341,7 @@ describe('Lookahead', () => {
 		await expectLookaheadForLayerMock(playlistId, [expectedCurrent, expectedNext], expectedPrevious, fakeParts)
 	})
 
-	// testInFiber('Pieces', () => {
+	// test('Pieces', () => {
 	// 	const fakeParts = partIds.map((p) => ({ _id: p })) as Part[]
 	// 	getOrderedPartsAfterPlayheadMock.mockReturnValue(fakeParts)
 

@@ -1,4 +1,4 @@
-import { EventEmitter } from 'eventemitter3'
+import { EventEmitter } from 'events'
 import * as _ from 'underscore'
 import {
 	PeripheralDeviceCategory,
@@ -126,7 +126,7 @@ export class CoreConnection<
 			}
 		})
 
-		const ddpOptions = ddpOptions0 || {
+		const ddpOptions: DDPConnectorOptions = ddpOptions0 || {
 			host: '127.0.0.1',
 			port: 3000,
 		}

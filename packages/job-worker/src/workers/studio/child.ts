@@ -5,7 +5,8 @@ import { createMongoConnection, getMongoCollections, IDirectCollections } from '
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { setupApmAgent, startTransaction } from '../../profiler'
 import { InvalidateWorkerDataCache, invalidateWorkerDataCache, loadWorkerDataCache, WorkerDataCache } from '../caches'
-import { QueueJobFunc, JobContextImpl } from '../context'
+import { JobContextImpl } from '../context/JobContextImpl'
+import { QueueJobFunc } from '../context/util'
 import { AnyLockEvent, LocksManager } from '../locks'
 import { FastTrackTimelineFunc, LogLineWithSourceFunc } from '../../main'
 import { interceptLogging, logger } from '../../logging'
@@ -81,7 +82,7 @@ export class StudioWorkerChild {
 
 		const transaction = startTransaction('invalidateCaches', 'worker-studio')
 		if (transaction) {
-			transaction.setLabel('studioId', unprotectString(this.#staticData.dataCache.studio._id))
+			transaction.setLabel('studioId', unprotectString(this.#staticData.dataCache.jobStudio._id))
 		}
 
 		try {
@@ -99,7 +100,7 @@ export class StudioWorkerChild {
 		const trace = startTrace('studioWorker:' + jobName)
 		const transaction = startTransaction(jobName, 'worker-studio')
 		if (transaction) {
-			transaction.setLabel('studioId', unprotectString(this.#staticData.dataCache.studio._id))
+			transaction.setLabel('studioId', unprotectString(this.#staticData.dataCache.jobStudio._id))
 		}
 
 		const context = new JobContextImpl(

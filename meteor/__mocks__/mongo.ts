@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import * as _ from 'underscore'
-import { literal, ProtectedString, unprotectString, protectString, sleep, getRandomString } from '../lib/lib'
+import { literal, ProtectedString, unprotectString, protectString, getRandomString } from '../server/lib/tempLib'
 import { RandomMock } from './random'
 import { MeteorMock } from './meteor'
 import { Random } from 'meteor/random'
@@ -9,21 +9,19 @@ import type { AnyBulkWriteOperation } from 'mongodb'
 import {
 	FindOneOptions,
 	FindOptions,
+	MongoCursor,
 	MongoReadOnlyCollection,
 	ObserveCallbacks,
 	ObserveChangesCallbacks,
 	UpdateOptions,
 	UpsertOptions,
-} from '../lib/collections/lib'
-import {
-	mongoWhere,
-	mongoFindOptions,
-	mongoModify,
-	MongoQuery,
-	MongoModifier,
-} from '@sofie-automation/corelib/dist/mongo'
-import { Mongo } from 'meteor/mongo'
+} from '@sofie-automation/meteor-lib/dist/collections/lib'
+import { mongoWhere, mongoFindOptions, mongoModify, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { AsyncOnlyMongoCollection, AsyncOnlyReadOnlyMongoCollection } from '../server/collections/collection'
+import type {
+	MinimalMeteorMongoCollection,
+	MinimalMongoCursor,
+} from '../server/collections/implementations/asyncCollection'
 const clone = require('fast-clone')
 
 export namespace MongoMock {
@@ -45,9 +43,9 @@ export namespace MongoMock {
 	}
 
 	const mockCollections: MockCollections<any> = {}
-	export type MongoCollection = {}
-	export class Collection<T extends CollectionObject> implements MongoCollection {
+	export class Collection<T extends CollectionObject> implements Omit<MinimalMeteorMongoCollection<T>, 'find'> {
 		public _name: string
+		private _isTemporaryCollection: boolean
 		private _options: any = {}
 		// @ts-expect-error used in test to check that it's a mock
 		private _isMock = true as const
@@ -58,11 +56,15 @@ export namespace MongoMock {
 		constructor(name: string | null, options?: { transform?: never }) {
 			this._options = options || {}
 			this._name = name || getRandomString() // If `null`, then its an in memory unique collection
+			this._isTemporaryCollection = name === null
 
 			if (this._options.transform) throw new Error('document transform is no longer supported')
 		}
 
-		find(query: any, options?: FindOptions<T>) {
+		find(
+			query: any,
+			options?: FindOptions<T>
+		): MinimalMongoCursor<T> & { _fetchRaw: () => T[] } & Pick<MongoCursor<T>, 'fetch' | 'forEach'> {
 			if (_.isString(query)) query = { _id: query }
 			query = query || {}
 
@@ -95,13 +97,28 @@ export namespace MongoMock {
 				_fetchRaw: () => {
 					return docs
 				},
-				fetch: () => {
+				fetchAsync: async () => {
+					// Force this to be performed async
+					await MeteorMock.sleepNoFakeTimers(0)
+
 					return clone(docs)
 				},
-				count: () => {
+				fetch: () => {
+					if (!this._isTemporaryCollection)
+						throw new Meteor.Error(500, 'sync methods can only be used for unnamed collections')
+
+					return clone(docs)
+				},
+				countAsync: async () => {
+					// Force this to be performed async
+					await MeteorMock.sleepNoFakeTimers(0)
+
 					return docs.length
 				},
-				observe(clbs: ObserveCallbacks<T>): Meteor.LiveQueryHandle {
+				async observeAsync(clbs: ObserveCallbacks<T>): Promise<Meteor.LiveQueryHandle> {
+					// Force this to be performed async
+					await MeteorMock.sleepNoFakeTimers(0)
+
 					const id = Random.id(5)
 					observers.push(
 						literal<ObserverEntry<T>>({
@@ -116,7 +133,10 @@ export namespace MongoMock {
 						},
 					}
 				},
-				observeChanges(clbs: ObserveChangesCallbacks<T>): Meteor.LiveQueryHandle {
+				async observeChangesAsync(clbs: ObserveChangesCallbacks<T>): Promise<Meteor.LiveQueryHandle> {
+					// Force this to be performed async
+					await MeteorMock.sleepNoFakeTimers(0)
+
 					// todo - finish implementing uses of callbacks
 					const id = Random.id(5)
 					observers.push(
@@ -132,18 +152,43 @@ export namespace MongoMock {
 						},
 					}
 				},
-				forEach(f: any) {
+				forEach: (f: any) => {
+					if (!this._isTemporaryCollection)
+						throw new Meteor.Error(500, 'sync methods can only be used for unnamed collections')
+
 					docs.forEach(f)
 				},
-				map(f: any) {
-					return docs.map(f)
-				},
+				// async mapAsync(f: any) {
+				// 	return docs.map(f)
+				// },
 			}
 		}
-		findOne(query: MongoQuery<T>, options?: FindOneOptions<T>) {
-			return this.find(query, options).fetch()[0]
+		async findOneAsync(query: MongoQuery<T>, options?: FindOneOptions<T>) {
+			const docs = await this.find(query, options).fetchAsync()
+			return docs[0]
 		}
-		update(query: MongoQuery<T>, modifier: MongoModifier<T>, options?: UpdateOptions): number {
+		findOne(query: MongoQuery<T>, options?: FindOneOptions<T>) {
+			if (!this._isTemporaryCollection)
+				throw new Meteor.Error(500, 'sync methods can only be used for unnamed collections')
+
+			const docs = this.find(query, options).fetch()
+			return docs[0]
+		}
+
+		async updateAsync(query: any, modifier: any, options?: UpdateOptions): Promise<number> {
+			// Force this to be performed async
+			await MeteorMock.sleepNoFakeTimers(0)
+
+			return this.updateRaw(query, modifier, options)
+		}
+		update(query: any, modifier: any, options?: UpdateOptions): number {
+			if (!this._isTemporaryCollection)
+				throw new Meteor.Error(500, 'sync methods can only be used for unnamed collections')
+
+			return this.updateRaw(query, modifier, options)
+		}
+
+		private updateRaw(query: any, modifier: any, options?: UpdateOptions): number {
 			const unimplementedUsedOptions = _.without(_.keys(options), 'multi')
 			if (unimplementedUsedOptions.length > 0) {
 				throw new Error(`update being performed using unimplemented options: ${unimplementedUsedOptions}`)
@@ -177,7 +222,20 @@ export namespace MongoMock {
 
 			return docs.length
 		}
-		insert(doc: T): T['_id'] {
+
+		async insertAsync(doc: any): Promise<string> {
+			// Force this to be performed async
+			await MeteorMock.sleepNoFakeTimers(0)
+
+			return this.insertRaw(doc)
+		}
+		insert(doc: any): string {
+			if (!this._isTemporaryCollection)
+				throw new Meteor.Error(500, 'sync methods can only be used for unnamed collections')
+
+			return this.insertRaw(doc)
+		}
+		private insertRaw(doc: any): string {
 			const d = _.clone(doc)
 			if (!d._id) d._id = protectString(RandomMock.id())
 
@@ -206,25 +264,59 @@ export namespace MongoMock {
 
 			return d._id
 		}
+
+		async upsertAsync(
+			query: any,
+			modifier: any,
+			options?: UpsertOptions
+		): Promise<{ numberAffected: number | undefined; insertedId: string | undefined }> {
+			// Force this to be performed async
+			await MeteorMock.sleepNoFakeTimers(0)
+
+			return this.upsertRaw(query, modifier, options)
+		}
 		upsert(
 			query: any,
-			modifier: MongoModifier<T>,
+			modifier: any,
 			options?: UpsertOptions
-		): { numberAffected: number | undefined; insertedId: T['_id'] | undefined } {
+		): { numberAffected: number | undefined; insertedId: string | undefined } {
+			if (!this._isTemporaryCollection)
+				throw new Meteor.Error(500, 'sync methods can only be used for unnamed collections')
+
+			return this.upsertRaw(query, modifier, options)
+		}
+		private upsertRaw(
+			query: any,
+			modifier: any,
+			options?: UpsertOptions
+		): { numberAffected: number | undefined; insertedId: string | undefined } {
 			const id = _.isString(query) ? query : query._id
 
 			const docs = this.find(id)._fetchRaw()
 
 			if (docs.length) {
-				const count = this.update(docs[0]._id, modifier, options)
+				const count = this.updateRaw(docs[0]._id, modifier, options)
 				return { insertedId: undefined, numberAffected: count }
 			} else {
 				const doc = mongoModify<T>(query, { _id: id } as any, modifier)
-				const insertedId = this.insert(doc)
+				const insertedId = this.insertRaw(doc)
 				return { insertedId: insertedId, numberAffected: undefined }
 			}
 		}
+
+		async removeAsync(query: any): Promise<number> {
+			// Force this to be performed async
+			await MeteorMock.sleepNoFakeTimers(0)
+
+			return this.removeRaw(query)
+		}
 		remove(query: any): number {
+			if (!this._isTemporaryCollection)
+				throw new Meteor.Error(500, 'sync methods can only be used for unnamed collections')
+
+			return this.removeRaw(query)
+		}
+		private removeRaw(query: any): number {
 			const docs = this.find(query)._fetchRaw()
 
 			_.each(docs, (doc) => {
@@ -246,41 +338,53 @@ export namespace MongoMock {
 			return docs.length
 		}
 
-		_ensureIndex(_obj: any) {
+		createIndex(_obj: any) {
 			// todo
 		}
 		allow() {
 			// todo
 		}
-		rawCollection() {
+
+		rawDatabase(): any {
+			throw new Error('Not implemented')
+		}
+		rawCollection(): any {
 			return {
 				bulkWrite: async (updates: AnyBulkWriteOperation<any>[], _options: unknown) => {
-					await sleep(this.asyncBulkWriteDelay)
+					await MeteorMock.sleepNoFakeTimers(this.asyncBulkWriteDelay)
 
 					for (const update of updates) {
 						if ('insertOne' in update) {
-							this.insert(update.insertOne.document)
+							await this.insertAsync(update.insertOne.document)
 						} else if ('updateOne' in update) {
 							if (update.updateOne.upsert) {
-								this.upsert(update.updateOne.filter, update.updateOne.update as any, { multi: false })
+								await this.upsertAsync(update.updateOne.filter, update.updateOne.update as any, {
+									multi: false,
+								})
 							} else {
-								this.update(update.updateOne.filter, update.updateOne.update as any, { multi: false })
+								await this.updateAsync(update.updateOne.filter, update.updateOne.update as any, {
+									multi: false,
+								})
 							}
 						} else if ('updateMany' in update) {
 							if (update.updateMany.upsert) {
-								this.upsert(update.updateMany.filter, update.updateMany.update as any, { multi: true })
+								await this.upsertAsync(update.updateMany.filter, update.updateMany.update as any, {
+									multi: true,
+								})
 							} else {
-								this.update(update.updateMany.filter, update.updateMany.update as any, { multi: true })
+								await this.updateAsync(update.updateMany.filter, update.updateMany.update as any, {
+									multi: true,
+								})
 							}
 						} else if ('deleteOne' in update) {
-							const docs = this.find(update.deleteOne.filter).fetch()
+							const docs = await this.find(update.deleteOne.filter).fetchAsync()
 							if (docs.length) {
-								this.remove(docs[0]._id)
+								await this.removeAsync(docs[0]._id)
 							}
 						} else if ('deleteMany' in update) {
-							this.remove(update.deleteMany.filter)
+							await this.removeAsync(update.deleteMany.filter)
 						} else if (update['replaceOne']) {
-							this.upsert(update.replaceOne.filter, update.replaceOne.replacement)
+							await this.upsertAsync(update.replaceOne.filter, update.replaceOne.replacement)
 						}
 					}
 				},
@@ -340,7 +444,7 @@ export namespace MongoMock {
 
 	export function getInnerMockCollection<T extends { _id: ProtectedString<any> }>(
 		collection: MongoReadOnlyCollection<T> | AsyncOnlyReadOnlyMongoCollection<T>
-	): Mongo.Collection<T> {
+	): MinimalMeteorMongoCollection<T> {
 		return (collection as any).mockCollection
 	}
 }
@@ -349,5 +453,3 @@ export function setup(): any {
 		Mongo: MongoMock,
 	}
 }
-
-MeteorMock.mockSetUsersCollection(new MongoMock.Collection('Meteor.users'))

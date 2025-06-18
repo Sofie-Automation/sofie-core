@@ -1,0 +1,62 @@
+button.promise-button {
+	position: relative;
+
+	&.is-success {
+		animation-name: anim-success;
+		animation-timing-function: linear;
+		animation-duration: 3s;
+
+		@keyframes anim-success {
+			0% {
+				background-color: #95e995;
+			}
+			100% {
+				background-color: inherit;
+			}
+		}
+	}
+	&.is-failure {
+		background-color: inherit;
+
+		animation-name: anim-failure;
+		animation-timing-function: linear;
+		animation-duration: 0.25s;
+		animation-iteration-count: 4;
+
+		@keyframes anim-failure {
+			0% {
+				background-color: inherit;
+			}
+			49% {
+				background-color: inherit;
+			}
+			50% {
+				background-color: #767676;
+			}
+			99% {
+				background-color: #767676;
+			}
+			100% {
+				background-color: inherit;
+			}
+		}
+	}
+
+	> .content {
+		&-hidden {
+			visibility: hidden;
+		}
+	}
+	> .overlay {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		padding: inherit;
+
+		> svg {
+			height: 100%;
+		}
+	}
+}

@@ -2,9 +2,9 @@ import * as _ from 'underscore'
 import { logger } from '../../logging'
 import { Meteor } from 'meteor/meteor'
 import { BlueprintManifestSet } from '@sofie-automation/blueprints-integration'
-import { check, Match } from '../../../lib/check'
+import { check, Match } from '../../lib/check'
 import { retrieveBlueprintAsset, uploadBlueprint, uploadBlueprintAsset } from './api'
-import { protectString } from '../../../lib/lib'
+import { protectString } from '../../lib/tempLib'
 import path from 'path'
 import { BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import KoaRouter from '@koa/router'
@@ -38,20 +38,12 @@ blueprintsRouter.post(
 			check(blueprintId, String)
 			check(blueprintName, Match.Maybe(String))
 
-			const userId = ctx.headers.authorization ? ctx.headers.authorization.split(' ')[1] : ''
-
 			const body = ctx.request.body || ctx.req.body
 			if (!body) throw new Meteor.Error(400, 'Restore Blueprint: Missing request body')
 			if (typeof body !== 'string' || body.length < 10)
 				throw new Meteor.Error(400, 'Restore Blueprint: Invalid request body')
 
-			await uploadBlueprint(
-				{ userId: protectString(userId) },
-				protectString<BlueprintId>(blueprintId),
-				body,
-				blueprintName,
-				force
-			)
+			await uploadBlueprint(ctx, protectString<BlueprintId>(blueprintId), body, blueprintName, force)
 
 			ctx.response.status = 200
 			ctx.body = ''
@@ -89,13 +81,7 @@ blueprintsRouter.post(
 			const errors: any[] = []
 			for (const id of _.keys(collection.blueprints)) {
 				try {
-					const userId = ctx.headers.authorization ? ctx.headers.authorization.split(' ')[1] : ''
-					await uploadBlueprint(
-						{ userId: protectString(userId) },
-						protectString<BlueprintId>(id),
-						collection.blueprints[id],
-						id
-					)
+					await uploadBlueprint(ctx, protectString<BlueprintId>(id), collection.blueprints[id], id)
 				} catch (e) {
 					logger.error('Blueprint restore failed: ' + e)
 					errors.push(e)
@@ -104,8 +90,7 @@ blueprintsRouter.post(
 			if (collection.assets) {
 				for (const id of _.keys(collection.assets)) {
 					try {
-						const userId = ctx.headers.authorization ? ctx.headers.authorization.split(' ')[1] : ''
-						await uploadBlueprintAsset({ userId: protectString(userId) }, id, collection.assets[id])
+						await uploadBlueprintAsset(ctx, id, collection.assets[id])
 					} catch (e) {
 						logger.error('Blueprint assets upload failed: ' + e)
 						errors.push(e)
@@ -157,8 +142,7 @@ blueprintsRouter.post(
 			const errors: any[] = []
 			for (const id of _.keys(collection)) {
 				try {
-					const userId = ctx.headers.authorization ? ctx.headers.authorization.split(' ')[1] : ''
-					await uploadBlueprintAsset({ userId: protectString(userId) }, id, collection[id])
+					await uploadBlueprintAsset(ctx, id, collection[id])
 				} catch (e) {
 					logger.error('Blueprint assets upload failed: ' + e)
 					errors.push(e)
@@ -192,9 +176,8 @@ blueprintsRouter.get('/assets/(.*)', async (ctx) => {
 
 	const filePath = ctx.params[0]
 	if (filePath.match(/\.(png|svg|gif)?$/)) {
-		const userId = ctx.headers.authorization ? ctx.headers.authorization.split(' ')[1] : ''
 		try {
-			const dataStream = retrieveBlueprintAsset({ userId: protectString(userId) }, filePath)
+			const dataStream = retrieveBlueprintAsset(ctx, filePath)
 			const extension = path.extname(filePath)
 			if (extension === '.svg') {
 				ctx.response.type = 'image/svg+xml'

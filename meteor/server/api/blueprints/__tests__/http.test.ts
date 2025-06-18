@@ -8,7 +8,7 @@ jest.mock('../../deviceTriggers/observer')
 import * as api from '../api'
 jest.mock('../api.ts')
 
-const DEFAULT_CONTEXT = { userId: '' }
+const DEFAULT_CONTEXT = expect.objectContaining({ req: expect.any(Object), res: expect.any(Object) })
 
 require('../http.ts') // include in order to create the Meteor methods needed
 

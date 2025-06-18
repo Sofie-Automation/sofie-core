@@ -1,3 +1,4 @@
+import { UserEditingDefinition, UserEditingProperties } from '../userEditing'
 import type { NoteSeverity } from '../lib'
 import type { ITranslatableMessage } from '../translations'
 
@@ -54,9 +55,6 @@ export interface IBlueprintMutatablePart<TPrivateData = unknown, TPublicData = u
 	/** Expected duration of the line, in milliseconds */
 	expectedDuration?: number
 
-	/** Budget duration of this part, in milliseconds */
-	budgetDuration?: number
-
 	/** Whether this segment line supports being used in HOLD */
 	holdMode?: PartHoldMode
 
@@ -85,6 +83,17 @@ export interface IBlueprintMutatablePart<TPrivateData = unknown, TPublicData = u
 
 	/** MediaObjects that when created/updated, should cause the blueprint to be rerun for the Segment of this Part */
 	hackListenToMediaObjectUpdates?: HackPartMediaObjectSubscription[]
+
+	/**
+	 * User editing definitions for this part
+	 */
+	userEditOperations?: UserEditingDefinition[]
+
+	/**
+	 * Properties that are user editable from the properties panel in the Sofie UI, if the user saves changes to these
+	 * it will trigger a user edit operation of type DefaultUserOperationEditProperties
+	 */
+	userEditProperties?: UserEditingProperties
 }
 
 export interface HackPartMediaObjectSubscription {
@@ -154,6 +163,7 @@ export interface IBlueprintPart<TPrivateData = unknown, TPublicData = unknown>
 	/** When this part is just a filler to fill space in a segment. Generally, used with invalid: true */
 	gap?: boolean
 }
+
 /** The Part sent from Core */
 export interface IBlueprintPartDB<TPrivateData = unknown, TPublicData = unknown>
 	extends IBlueprintPart<TPrivateData, TPublicData> {

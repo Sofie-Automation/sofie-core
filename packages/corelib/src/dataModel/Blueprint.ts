@@ -8,6 +8,7 @@ import { JSONBlob } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 import { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
 import { ProtectedString } from '../protectedString'
 import { BlueprintId, OrganizationId } from './Ids'
+import type { PackageStatusMessage } from '@sofie-automation/shared-lib/dist/packageStatusMessages'
 
 export type BlueprintHash = ProtectedString<'BlueprintHash'>
 
@@ -38,12 +39,6 @@ export interface Blueprint {
 	showStyleConfigPresets?: Record<string, IShowStyleConfigPreset>
 
 	databaseVersion: {
-		showStyle: {
-			[showStyleBaseId: string]: string
-		}
-		studio: {
-			[studioId: string]: string
-		}
 		system: string | undefined
 	}
 
@@ -58,13 +53,20 @@ export interface Blueprint {
 
 	/** Whether the blueprint this wraps has a `fixUpConfig` function defined */
 	hasFixUpFunction: boolean
+
+	/**
+	 * The blueprint provided alternate package status messages, if any were provided
+	 * Any undefined/unset values will use the system default messages.
+	 * Any empty strings will suppress the message from being shown.
+	 */
+	packageStatusMessages?: Partial<Record<PackageStatusMessage, string | undefined>>
 }
 
 /** Describes the last state a Blueprint document was in when applying config changes */
 export interface LastBlueprintConfig {
 	blueprintId: BlueprintId
 	blueprintHash: BlueprintHash
-	blueprintConfigPresetId: string
+	blueprintConfigPresetId: string | undefined
 
 	config: IBlueprintConfig
 }

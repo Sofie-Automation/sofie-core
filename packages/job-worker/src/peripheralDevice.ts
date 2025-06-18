@@ -199,7 +199,7 @@ export async function listPlayoutDevices(
 ): Promise<IBlueprintPlayoutDevice[]> {
 	const parentDevicesMap = normalizeArrayToMap(
 		playoutModel.peripheralDevices.filter(
-			(doc) => doc.studioId === context.studioId && doc.type === PeripheralDeviceType.PLAYOUT
+			(doc) => doc.studioAndConfigId?.studioId === context.studioId && doc.type === PeripheralDeviceType.PLAYOUT
 		),
 		'_id'
 	)

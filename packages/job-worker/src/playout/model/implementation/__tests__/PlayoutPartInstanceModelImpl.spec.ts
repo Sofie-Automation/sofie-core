@@ -63,7 +63,8 @@ describe('PlayoutPartInstanceModelImpl', () => {
 	describe('replaceInfinitesFromPreviousPlayhead', () => {
 		it('works for an empty part', async () => {
 			const partInstance = createBasicDBPartInstance()
-			const model = new PlayoutPartInstanceModelImpl(partInstance, [], false)
+			// note: QuickLoopService not implemented as it is not required for the test
+			const model = new PlayoutPartInstanceModelImpl(partInstance, [], false, {} as any)
 
 			expect(() => model.replaceInfinitesFromPreviousPlayhead([])).not.toThrow()
 			expect(model.pieceInstances).toEqual([])
@@ -71,10 +72,12 @@ describe('PlayoutPartInstanceModelImpl', () => {
 
 		it('keeps pieceInstance with fromPreviousPlayhead=false', async () => {
 			const partInstance = createBasicDBPartInstance()
+			// note: QuickLoopService not implemented as it is not required for the test
 			const model = new PlayoutPartInstanceModelImpl(
 				partInstance,
 				[createPieceInstanceAsInfinite('p1', false)],
-				false
+				false,
+				{} as any
 			)
 
 			expect(() => model.replaceInfinitesFromPreviousPlayhead([])).not.toThrow()
@@ -83,10 +86,12 @@ describe('PlayoutPartInstanceModelImpl', () => {
 
 		it('deleted pieceInstance with fromPreviousPlayhead=true if no replacement provided', async () => {
 			const partInstance = createBasicDBPartInstance()
+			// note: QuickLoopService not implemented as it is not required for the test
 			const model = new PlayoutPartInstanceModelImpl(
 				partInstance,
 				[createPieceInstanceAsInfinite('p1', true)],
-				false
+				false,
+				{} as any
 			)
 
 			expect(() => model.replaceInfinitesFromPreviousPlayhead([])).not.toThrow()
@@ -95,10 +100,12 @@ describe('PlayoutPartInstanceModelImpl', () => {
 
 		it('replaces pieceInstance with fromPreviousPlayhead=true if replacement provided', async () => {
 			const partInstance = createBasicDBPartInstance()
+			// note: QuickLoopService not implemented as it is not required for the test
 			const model = new PlayoutPartInstanceModelImpl(
 				partInstance,
 				[createPieceInstanceAsInfinite('p1', true)],
-				false
+				false,
+				{} as any
 			)
 
 			expect(() =>

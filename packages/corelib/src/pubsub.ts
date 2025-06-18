@@ -12,7 +12,7 @@ import { DBSegment } from './dataModel/Segment'
 import { DBShowStyleBase } from './dataModel/ShowStyleBase'
 import { DBShowStyleVariant } from './dataModel/ShowStyleVariant'
 import { DBStudio } from './dataModel/Studio'
-import { IngestDataCacheObj } from './dataModel/IngestDataCache'
+import { NrcsIngestDataCacheObj } from './dataModel/NrcsIngestDataCache'
 import { DBTimelineDatastoreEntry } from '@sofie-automation/shared-lib/dist/core/model/TimelineDatastore'
 import { Blueprint } from './dataModel/Blueprint'
 import { BucketAdLibAction } from './dataModel/BucketAdLibAction'
@@ -35,14 +35,7 @@ import {
 	ShowStyleBaseId,
 	StudioId,
 } from '@sofie-automation/shared-lib/dist/core/model/Ids'
-import {
-	BlueprintId,
-	BucketId,
-	RundownPlaylistActivationId,
-	SegmentId,
-	SegmentPlayoutId,
-	ShowStyleVariantId,
-} from './dataModel/Ids'
+import { BlueprintId, BucketId, RundownPlaylistActivationId, SegmentId, ShowStyleVariantId } from './dataModel/Ids'
 import { PackageInfoDB } from './dataModel/PackageInfos'
 
 /**
@@ -102,11 +95,6 @@ export enum CorelibPubSub {
 	 * This provides a simplified form of the PartInstance, with any timing information omitted to reduce data churn
 	 */
 	partInstancesSimple = 'partInstancesSimple',
-	/**
-	 * Fetch the most recent PartInstance in a Rundown with the SegmentPlayoutId, including reset instances
-	 * This provides a simplified form of the PartInstance, with any timing information omitted to reduce data churn
-	 */
-	partInstancesForSegmentPlayout = 'partInstancesForSegmentPlayout',
 	/**
 	 * Fetch Pieces belonging to the specified Rundowns, optionally limiting the result to the specified Parts
 	 */
@@ -223,9 +211,9 @@ export interface CorelibPubSubTypes {
 		token?: string
 	) => CollectionName.RundownBaselineAdLibActions
 	[CorelibPubSub.ingestDataCache]: (
-		selector: MongoQuery<IngestDataCacheObj>,
+		selector: MongoQuery<NrcsIngestDataCacheObj>,
 		token?: string
-	) => CollectionName.IngestDataCache
+	) => CollectionName.NrcsIngestDataCache
 	[CorelibPubSub.rundownPlaylists]: (
 		/** RundownPlaylistIds to fetch for, or null to fetch all */
 		rundownPlaylistIds: RundownPlaylistId[] | null,
@@ -281,11 +269,6 @@ export interface CorelibPubSubTypes {
 	[CorelibPubSub.partInstancesSimple]: (
 		rundownIds: RundownId[],
 		playlistActivationId: RundownPlaylistActivationId | null,
-		token?: string
-	) => CollectionName.PartInstances
-	[CorelibPubSub.partInstancesForSegmentPlayout]: (
-		rundownId: RundownId,
-		segmentPlayoutId: SegmentPlayoutId,
 		token?: string
 	) => CollectionName.PartInstances
 	[CorelibPubSub.segments]: (
@@ -346,7 +329,7 @@ export type CorelibPubSubCollections = {
 	[CollectionName.ExpectedPackages]: ExpectedPackageDBBase
 	[CollectionName.ExpectedPackageWorkStatuses]: ExpectedPackageWorkStatus
 	[CollectionName.ExternalMessageQueue]: ExternalMessageQueueObj
-	[CollectionName.IngestDataCache]: IngestDataCacheObj
+	[CollectionName.NrcsIngestDataCache]: NrcsIngestDataCacheObj
 	[CollectionName.PartInstances]: DBPartInstance
 	[CollectionName.PackageContainerStatuses]: PackageContainerStatusDB
 	[CollectionName.PackageInfos]: PackageInfoDB

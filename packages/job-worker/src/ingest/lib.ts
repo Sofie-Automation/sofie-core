@@ -4,7 +4,7 @@ import { getHash } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { ReadonlyDeep } from 'type-fest'
 import { logger } from '../logging'
-import { ExtendedIngestRundown, IngestRundown } from '@sofie-automation/blueprints-integration'
+import { ExtendedIngestRundown, SofieIngestRundown } from '@sofie-automation/blueprints-integration'
 import { SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { convertRundownToBlueprints } from '../blueprints/context/lib'
 import { IngestSegmentModel } from './model/IngestSegmentModel'
@@ -61,7 +61,7 @@ export function canSegmentBeUpdated(
 }
 
 export function extendIngestRundownCore(
-	ingestRundown: IngestRundown,
+	ingestRundown: SofieIngestRundown,
 	existingDbRundown: ReadonlyDeep<DBRundown> | undefined
 ): ExtendedIngestRundown {
 	const extendedIngestRundown: ExtendedIngestRundown = {

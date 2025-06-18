@@ -29,7 +29,49 @@ $defs:
         $ref: '#/$defs/part'
       publicData:
         description: Optional arbitrary data
-    required: [event, id, name, rundownIds, currentPart, currentSegment, nextPart]
+      timing:
+        description: Timing information about the active playlist
+        type: object
+        properties:
+          timingMode:
+            description: 'Timing mode for the playlist.'
+            type: string
+            enum:
+              - none
+              - forward-time
+              - back-time
+          startedPlayback:
+            description: Unix timestamp of when the playlist started (milliseconds)
+            type: number
+          expectedStart:
+            description: Unix timestamp of when the playlist is expected to start (milliseconds). Required when the timingMode is set to forward-time.
+            type: number
+          expectedDurationMs:
+            description: Duration of the playlist in ms
+            type: number
+          expectedEnd:
+            description: Unix timestamp of when the playlist is expected to end (milliseconds) Required when the timingMode is set to back-time.
+            type: number
+        required: [timingMode]
+        additionalProperties: false
+      quickLoop:
+        description: Information about the current quickLoop, if any
+        type: object
+        properties:
+          locked:
+            description: Whether the user is allowed to make alterations to the Start/End markers
+            type: boolean
+          running:
+            description: Whether the loop has two valid markers and is currently running
+            type: boolean
+          start:
+            description: The start of the loop
+            $ref: '#/$defs/quickLoopMarker'
+          end:
+            description: The end of the loop
+            $ref: '#/$defs/quickLoopMarker'
+        required: [locked, running]
+    required: [event, id, name, rundownIds, currentPart, currentSegment, nextPart, timing]
     additionalProperties: false
     examples:
       - event: activePlaylist
@@ -44,6 +86,10 @@ $defs:
           $ref: '#/$defs/part/examples/0'
         publicData:
           category: 'Evening News'
+        timing:
+          timingMode: 'forward-time'
+          expectedStart: 1728895750727
+          expectedDurationMs: 180000
   partBase:
     type: object
     properties:
@@ -143,6 +189,12 @@ $defs:
           projectedEndTime:
             description: Unix timestamp of when the segment is projected to end (milliseconds). The time this segment started, offset by its budget duration, if the segment has a defined budget duration. Otherwise, the time the current part started, offset by the difference between expected durations of all parts in this segment and the as-played durations of the parts that already stopped.
             type: number
+          countdownType:
+            description: 'Countdown type within the segment. Default: `part_expected_duration`'
+            type: string
+            enum:
+              - part_expected_duration
+              - segment_budget_duration
         required: [expectedDurationMs, projectedEndTime]
     required: [id, timing]
     additionalProperties: false
@@ -152,6 +204,7 @@ $defs:
           expectedDurationMs: 15000
           budgetDurationMs: 20000
           projectedEndTime: 1600000075000
+          countdownType: segment_budget_duration
   piece:
     type: object
     properties:
@@ -184,3 +237,24 @@ $defs:
         tags: ['camera']
         publicData:
           switcherSource: 1
+  quickLoopMarker:
+    type: object
+    properties:
+      markerType:
+        description: The type of entity the marker is locked to
+        type: string
+        enum:
+          - playlist
+          - rundown
+          - segment
+          - part
+      rundownId:
+        description: The rundown that this marker references. This will be set for rundown, segment and part markers
+        type: string
+      segmentId:
+        description: The segment that this marker references. This will be set for segment and part markers
+        type: string
+      partId:
+        description: The part that this marker references. This will be set for only part markers
+        type: string
+    required: [markerType]

@@ -1,12 +1,16 @@
 import { omit } from '@sofie-automation/corelib/dist/lib'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { Mongo } from 'meteor/mongo'
-import { ObserveChangesCallbacks } from '../../../lib/collections/lib'
+import { ObserveChangesCallbacks } from '@sofie-automation/meteor-lib/dist/collections/lib'
 import { MongoModifier, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 
 type Reaction = () => void
 
 export class ReactiveCacheCollection<Document extends { _id: ProtectedString<any> }> {
+	/**
+	 * The collection still works in sync mode when operating on `null` in Meteor 3.0
+	 * It may break in a later update, but this is fine for now.
+	 */
 	readonly #collection: Mongo.Collection<Document>
 
 	constructor(public collectionName: string, private reaction?: Reaction) {

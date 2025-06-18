@@ -1,5 +1,5 @@
 export class CorePinger {
-	private _pingTimeout: NodeJS.Timer | null = null
+	private _pingTimeout: NodeJS.Timeout | null = null
 	private _connected = false
 	private _destroyed = false
 

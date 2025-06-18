@@ -9,7 +9,6 @@ describe('PlayoutSegmentModelImpl', () => {
 			_id: protectString('abc'),
 			rundownId: protectString('rd0'),
 			externalId: 'ext1',
-			externalModified: 100000,
 			_rank: 1,
 			name: 'test segment',
 		}

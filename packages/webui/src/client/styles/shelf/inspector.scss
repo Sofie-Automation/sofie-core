@@ -1,0 +1,135 @@
+@import '../colorScheme';
+@import '../variables';
+
+.shelf-inspector {
+	overflow-y: auto;
+	overflow-x: hidden;
+
+	background: #1f1f1f;
+
+	> dl {
+		margin: 0 0.5em;
+
+		> dd {
+			margin: 0;
+			font-weight: 400;
+		}
+
+		> dt {
+			margin: 0 0 0 1em;
+		}
+	}
+
+	.field .input {
+		margin-left: 0;
+	}
+
+	.input-l {
+		width: 100%;
+	}
+
+	input.text-input[type='text'],
+	input.text-input[type='number'],
+	select.text-input {
+		background: #2d2d2d;
+		border: 1px solid #424242;
+		box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5) inset, 1px 1px 2px rgba(0, 0, 0, 0.2);
+		line-height: 1.8em;
+		padding: 0 0.4em;
+		color: #fff;
+
+		&:hover {
+			background: #3b3b3b;
+			transition: 0.2s background-color;
+		}
+
+		&:focus {
+			background: #fff;
+			color: #000;
+			transition: 0.2s background-color;
+			outline: none;
+			box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5) inset, 1px 1px 2px rgba(0, 0, 0, 0.2);
+		}
+	}
+
+	.btn {
+		background: $ui-dark-color;
+		border: 1px solid rgba(255, 255, 255, 0.3);
+		padding-left: 8px;
+		padding-right: 8px;
+
+		&:active {
+			background: $ui-dark-color-brighter;
+		}
+	}
+
+	.shelf-inspector__action-editor {
+		position: absolute;
+		display: grid;
+		grid-template:
+			'body'
+			'footer' min-content;
+		grid-gap: 5px;
+		top: $inspector-shelf-tabs-height;
+		left: 0;
+		right: 0;
+		bottom: 2px;
+
+		.shelf-inspector__action-editor__panel {
+			grid-area: body;
+			overflow: hidden auto;
+			margin: 10px;
+		}
+
+		.shelf-inspector__action-editor__actions {
+			grid-area: footer;
+			display: flex;
+			justify-content: space-around;
+			flex-wrap: wrap;
+		}
+	}
+
+	.shelf-inspector__title {
+		line-height: $inspector-shelf-tabs-height;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		font-size: 1em;
+		margin: 0;
+		padding: 0;
+
+		.shelf-inspector__title__icon {
+			position: relative;
+			display: inline-block;
+			vertical-align: top;
+
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			padding: 0;
+			width: 3em;
+			max-width: 3em;
+			margin-right: 0.5em;
+			text-align: center;
+
+			@include item-type-colors();
+			@include missing-overlay();
+			@include floated-overlay();
+		}
+		
+		.shelf-inspector__title__layer {
+			position: relative;
+			z-index: 2;
+		}
+
+		.shelf-inspector__title__label {
+			font-weight: 400;
+		}
+	}
+}
+
+.rundown-view__shelf .rundown-view__shelf__contents > .rundown-view__shelf__contents__pane.shelf-inspector {
+	flex: 0.3 1;
+	min-width: 335px;
+	max-width: 400px;
+}

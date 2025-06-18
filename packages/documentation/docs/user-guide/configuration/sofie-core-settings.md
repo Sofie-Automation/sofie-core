@@ -87,12 +87,11 @@ There are various settings you can set for an installation. See the list below:
 
 | **Field name**                | Use                                                                                                                           | Default value                          |
 | :---------------------------- | :---------------------------------------------------------------------------------------------------------------------------- | :------------------------------------- |
-| `defaultToCollapsedSegments`  | Should all segments be collapsed by default, until the user expands them                                                      | `false`                                |
 | `autoRewindLeavingSegment`    | Should segments be automatically rewound after they stop playing                                                              | `false`                                |
 | `disableBlurBorder`           | Should a border be displayed around the Rundown View when it's not in focus and studio mode is enabled                        | `false`                                |
 | `defaultTimeScale`            | An arbitrary number, defining the default zoom factor of the Timelines                                                        | `1`                                    |
 | `allowGrabbingTimeline`       | Can Segment Timelines be grabbed to scroll them?                                                                              | `true`                                 |
-| `enableUserAccounts`          | Enables User Accounts and Authentication. If disabled, all user stations will be treated as a single, anonymous user          | `false`                                |
+| `enableHeaderAuth`            | If true, enable http header based security measures. See [here](../features/access-levels) for details on using this          | `false`                                |
 | `defaultDisplayDuration`      | The fallback duration of a Part, when it's expectedDuration is 0. \_\_In milliseconds                                         | `3000`                                 |
 | `allowMultiplePlaylistsInGUI` | If true, allows creation of new playlists in the Lobby Gui (rundown list). If false; only pre-existing playlists are allowed. | `false`                                |
 | `followOnAirSegmentsHistory`  | How many segments of history to show when scrolling back in time (0 = show current segment only)                              | `0`                                    |

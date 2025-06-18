@@ -2,6 +2,7 @@ import { runJobWithPlaylistLock } from '../playout/lock'
 import { JobContext } from '../jobs'
 import { runJobWithStudioPlayoutModel } from './lock'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
+import { removePlaylistFromDb } from '../rundownPlaylists'
 
 /**
  * Cleanup any RundownPlaylists that contain no Rundowns
@@ -15,14 +16,14 @@ export async function handleRemoveEmptyPlaylists(context: JobContext, _data: voi
 		await Promise.allSettled(
 			tmpPlaylists.map(async (tmpPlaylist) =>
 				// Take the playlist lock, to ensure we don't fight something else
-				runJobWithPlaylistLock(context, { playlistId: tmpPlaylist._id }, async (playlist) => {
+				runJobWithPlaylistLock(context, { playlistId: tmpPlaylist._id }, async (playlist, playlistLock) => {
 					if (playlist) {
 						const rundowns: Pick<DBRundown, '_id'>[] = await context.directCollections.Rundowns.findFetch(
 							{ playlistId: playlist._id },
 							{ projection: { _id: 1 } }
 						)
 						if (rundowns.length === 0) {
-							await context.directCollections.RundownPlaylists.remove({ _id: playlist._id })
+							await removePlaylistFromDb(context, playlistLock)
 						}
 					}
 				})

@@ -60,6 +60,9 @@ export enum UserErrorMessage {
 	BucketNotFound = 44,
 	AdlibTestingRundownsNotSupported = 45,
 	AdlibTestingRundownsGenerationFailed = 46,
+	IdempotencyKeyMissing = 47,
+	IdempotencyKeyAlreadyUsed = 48,
+	RateLimitExceeded = 49,
 }
 
 const UserErrorMessagesTranslations: { [key in UserErrorMessage]: string } = {
@@ -118,6 +121,9 @@ const UserErrorMessagesTranslations: { [key in UserErrorMessage]: string } = {
 	[UserErrorMessage.BucketNotFound]: t(`Bucket not found!`),
 	[UserErrorMessage.AdlibTestingRundownsNotSupported]: t(`Adlib rundowns are not supported for this ShowStyle!`),
 	[UserErrorMessage.AdlibTestingRundownsGenerationFailed]: t(`Failed to generate adlib rundown! {{message}}`),
+	[UserErrorMessage.IdempotencyKeyMissing]: t(`Idempotency-Key is missing`),
+	[UserErrorMessage.IdempotencyKeyAlreadyUsed]: t(`Idempotency-Key is already used`),
+	[UserErrorMessage.RateLimitExceeded]: t(`Rate limit exceeded`),
 }
 
 export interface UserErrorObj {

@@ -35,6 +35,12 @@ import { PlayoutPieceInstanceModel } from './model/PlayoutPieceInstanceModel'
  * Play an existing Piece in the Rundown as an AdLib
  */
 export async function handleTakePieceAsAdlibNow(context: JobContext, data: TakePieceAsAdlibNowProps): Promise<void> {
+	if (!context.studio.settings.allowPieceDirectPlay) {
+		// Piece direct play isn't allowed, making this a noop
+		logger.debug(`Piece direct play isn't allowed, skipping`)
+		return
+	}
+
 	return runJobWithPlayoutModel(
 		context,
 		data,
@@ -115,6 +121,8 @@ export async function handleTakePieceAsAdlibNow(context: JobContext, data: TakeP
 							...executeProps,
 							triggerMode: undefined,
 							privateData: undefined,
+							publicData: undefined,
+							actionOptions: undefined,
 						}
 					)
 					break

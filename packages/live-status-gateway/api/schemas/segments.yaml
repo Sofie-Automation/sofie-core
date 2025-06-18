@@ -48,6 +48,12 @@ $defs:
           budgetDurationMs:
             description: Budget duration of the segment (milliseconds)
             type: number
+          countdownType:
+            description: 'Countdown type within the segment. Default: `part_expected_duration`'
+            type: string
+            enum:
+              - part_expected_duration
+              - segment_budget_duration
         required: [expectedDurationMs]
       publicData:
         description: Optional arbitrary data
@@ -60,5 +66,6 @@ $defs:
         timing:
           expectedDurationMs: 15000
           budgetDurationMs: 20000
+          countdownType: segment_budget_duration
         publicData:
           containsLiveSource: true

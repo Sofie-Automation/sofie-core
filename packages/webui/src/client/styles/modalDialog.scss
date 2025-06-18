@@ -1,0 +1,61 @@
+.glass-pane {
+	.border-box {
+		display: block;
+		padding: 0;
+		border: none;
+		pointer-events: auto;
+		min-width: 550px;
+
+		.big {
+			max-width: 550px;
+			width: 100%;
+		}
+
+		p,
+		center,
+		.table {
+			font-weight: 300;
+		}
+	}
+}
+
+.modal-dialog-actions {
+	display: flex;
+	justify-content: space-between;
+
+	.discard-btn {
+		margin-right: 2rem;
+		margin-left: 0px;
+	}
+}
+
+.dark .border-box {
+	color: #fff;
+}
+
+.btn {
+	font-weight: 100;
+	min-width: fit-content;
+}
+
+.btn.btn-primary {
+	font-weight: 500;
+	border: #fffcfc;
+	border-width: 1px;
+	border-style: solid;
+}
+
+
+.btn.btn-primary.btn-warn {
+	background: #e62421;
+	border-color: #e62421;
+	color: #ffffff;
+	border: #ffffff;
+	border-width: 1px;
+	border-style: solid;
+}
+
+.btn.btn-secondary.btn-warn {
+	border-color: #e62421;
+	color: #e62421;
+}

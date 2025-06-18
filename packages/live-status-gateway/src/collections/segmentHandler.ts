@@ -31,14 +31,19 @@ export class SegmentHandler
 		if (!collection) throw new Error(`collection '${this._collectionName}' not found!`)
 		const allSegments = collection.find(undefined)
 		await this._segmentsHandler.setSegments(allSegments)
-		if (this._currentSegmentId) {
-			this._collectionData = collection.findOne(this._currentSegmentId)
+		await this.updateAndNotify()
+	}
+
+	private async updateAndNotify() {
+		const collection = this._core.getCollection(this._collectionName)
+		const newData = this._currentSegmentId ? collection.findOne(this._currentSegmentId) : undefined
+		if (this._collectionData !== newData) {
+			this._collectionData = newData
 			await this.notify(this._collectionData)
 		}
 	}
 
 	async update(source: string, data: SelectedPartInstances | DBRundownPlaylist | undefined): Promise<void> {
-		const previousSegmentId = this._currentSegmentId
 		const previousRundownIds = this._rundownIds
 
 		switch (source) {
@@ -91,11 +96,6 @@ export class SegmentHandler
 			const allSegments = collection.find(undefined)
 			await this._segmentsHandler.setSegments(allSegments)
 		}
-		if (previousSegmentId !== this._currentSegmentId) {
-			if (this._currentSegmentId) {
-				this._collectionData = collection.findOne(this._currentSegmentId)
-				await this.notify(this._collectionData)
-			}
-		}
+		await this.updateAndNotify()
 	}
 }

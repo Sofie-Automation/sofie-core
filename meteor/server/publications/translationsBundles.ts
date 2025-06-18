@@ -1,20 +1,18 @@
-import { TranslationsBundlesSecurity } from '../security/translationsBundles'
-import { meteorPublish } from './lib'
-import { MeteorPubSub } from '../../lib/api/pubsub'
+import { meteorPublish } from './lib/lib'
+import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { TranslationsBundles } from '../collections'
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
-import { TranslationsBundle } from '../../lib/collections/TranslationsBundles'
+import { TranslationsBundle } from '@sofie-automation/meteor-lib/dist/collections/TranslationsBundles'
+import { triggerWriteAccessBecauseNoCheckNecessary } from '../security/securityVerify'
 
-meteorPublish(MeteorPubSub.translationsBundles, async (token: string | undefined) => {
+meteorPublish(MeteorPubSub.translationsBundles, async (_token: string | undefined) => {
 	const selector: MongoQuery<TranslationsBundle> = {}
 
-	if (TranslationsBundlesSecurity.allowReadAccess(selector, token, this)) {
-		return TranslationsBundles.findWithCursor(selector, {
-			fields: {
-				data: 0,
-			},
-		})
-	}
+	triggerWriteAccessBecauseNoCheckNecessary()
 
-	return null
+	return TranslationsBundles.findWithCursor(selector, {
+		fields: {
+			data: 0,
+		},
+	})
 })

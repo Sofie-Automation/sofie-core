@@ -1,0 +1,180 @@
+
+.status-bar__controls__button.support__toggle-button {
+	z-index: 310;
+	text-align: left;
+
+	> svg {
+		position: absolute !important;
+		width: calc($fullscreen-controls__button--radius / 2) !important;
+		height: calc($fullscreen-controls__button--radius / 2.86) !important;
+		right: 0 !important;
+		left: auto !important;
+		transform: translate(-50%, -53%) !important;
+		transition: 0.5s all ease-in-out !important;
+
+		> path {
+			fill: #999;
+			transition: 0.5s all linear;
+		}
+	}
+
+	&.status-bar__controls__button--open {
+		> svg {
+			> path {
+				fill: $ui-dark-color;
+			}
+		}
+	}
+}
+
+.support-pop-up-panel,
+.switchboard-pop-up-panel,
+.media-status-panel {
+	position: fixed;
+	bottom: rem(8px);
+	right: -1px;
+	left: auto;
+	margin-right: rem(60px);
+	--panel-background: #fff;
+	background: var(--panel-background);
+
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+	padding: rem(15px) rem(20px);
+	z-index: 290;
+	min-height: rem(50px);
+	max-width: rem(350px);
+
+	.support-pop-up-panel__actions {
+		margin-top: 1em;
+
+		> button {
+			display: inline-block;
+			clear: both;
+			margin: 0 0.5em;
+		}
+
+		> hr {
+			margin: 10px 0;
+			border-color: #d7d7d7;
+		}
+	}
+
+	.btn-secondary {
+		background: rgba(196, 196, 196, 0.2);
+		border: none;
+		color: $ui-dark-color !important;
+		font-weight: 400 !important;
+
+		&:hover {
+			color: $ui-dark-color !important;
+		}
+
+		&:active {
+			background: rgba(196, 196, 196, 0.4);
+		}
+	}
+
+	p {
+		margin-left: 0.5em;
+		margin-right: 0.5em;
+	}
+}
+
+.support-pop-up-panel {
+	width: 22rem;
+}
+
+.switchboard-pop-up-panel {
+	top: auto;
+	white-space: nowrap;
+	overflow: hidden;
+	text-align: left;
+	box-sizing: content-box;
+	width: 28rem;
+	max-width: 28rem;
+
+	> .switchboard-pop-up-panel__inside {
+		width: 28rem;
+	}
+}
+
+.media-status-panel {
+	top: auto;
+	white-space: nowrap;
+	overflow: hidden;
+	text-align: left;
+	box-sizing: content-box;
+	width: 28rem;
+	max-width: 28rem;
+	padding: 0;
+	padding-top: rem(15px);
+
+	> .media-status-panel__inside {
+		width: 28rem;
+	}
+}
+
+#render-target .switchboard-pop-up-panel .switchboard-pop-up-panel__group {
+	width: 28rem;
+	border-top: 1px solid #d7d7d7;
+	margin-top: 0.75em;
+	padding-top: 10px;
+	user-select: none;
+
+	> p {
+		font-weight: 400;
+	}
+
+	.switchboard-pop-up-panel__group__controls {
+		position: relative;
+
+		.switchboard-pop-up-panel__group__controls__inactive {
+			color: #a4a4a4;
+		}
+
+		&.dual {
+			display: flex;
+
+			> span:first-child {
+				text-align: right;
+			}
+
+			> .switchboard-pop-up-panel__group__controls__inactive,
+			> .switchboard-pop-up-panel__group__controls__active {
+				flex: 1;
+			}
+		}
+
+		> .switch-button {
+			margin-left: 1em;
+			margin-right: 1em;
+		}
+
+		.switchboard-pop-up-panel__group__controls__notice {
+			position: absolute;
+			top: -0.2em;
+			left: auto;
+			right: -1.5em;
+		}
+	}
+}
+
+.rundown-view {
+	.support-pop-up-panel {
+		color: #000;
+		--panel-background: #eee;
+		background: var(--panel-background);
+
+		z-index: 1900;
+	}
+	.switchboard-pop-up-panel,
+	.media-status-panel {
+		color: #000;
+		--panel-background: #eee;
+		background: var(--panel-background);
+
+		.status-bar__controls__button {
+			color: #999;
+		}
+	}
+}

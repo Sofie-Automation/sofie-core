@@ -1,5 +1,6 @@
-import { ProtectedString, getCurrentTime } from '../../lib/lib'
-import { CollectionCleanupResult } from '../../lib/api/system'
+import { ProtectedString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
+import { getCurrentTime } from '../lib/lib'
+import { CollectionCleanupResult } from '@sofie-automation/meteor-lib/dist/api/system'
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import {
@@ -8,7 +9,7 @@ import {
 	getOrphanedPackageInfos,
 	removePackageInfos,
 } from './studio/lib'
-import { Settings } from '../../lib/Settings'
+import { Settings } from '../Settings'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 import {
 	BlueprintId,
@@ -36,7 +37,7 @@ import {
 	ExpectedPackageWorkStatuses,
 	ExpectedPlayoutItems,
 	ExternalMessageQueue,
-	IngestDataCache,
+	NrcsIngestDataCache,
 	MediaObjects,
 	MediaWorkFlows,
 	MediaWorkFlowSteps,
@@ -68,10 +69,13 @@ import {
 	UserActionsLog,
 	Workers,
 	WorkerThreadStatuses,
+	Notifications,
+	SofieIngestDataCache,
 } from '../collections'
 import { AsyncOnlyMongoCollection, AsyncOnlyReadOnlyMongoCollection } from '../collections/collection'
 import { getCollectionKey } from '../collections/lib'
 import { generateTranslationBundleOriginId } from './translationsBundles'
+import { DBNotificationTargetType } from '@sofie-automation/corelib/dist/dataModel/Notifications'
 
 /**
  * If actuallyCleanup=true, cleans up old data. Otherwise just checks what old data there is
@@ -122,10 +126,6 @@ export async function cleanupOldDataInner(actuallyCleanup = false): Promise<Coll
 	// Organizations
 	{
 		addToResult(CollectionName.Organizations, 0) // Do nothing
-	}
-	// Users
-	{
-		addToResult(CollectionName.Users, 0) // Do nothing
 	}
 
 	// Documents owned by Organizations:
@@ -275,7 +275,8 @@ export async function cleanupOldDataInner(actuallyCleanup = false): Promise<Coll
 		}
 		await ownedByRundownId(AdLibActions)
 		await ownedByRundownId(AdLibPieces)
-		await ownedByRundownId(IngestDataCache)
+		await ownedByRundownId(SofieIngestDataCache)
+		await ownedByRundownId(NrcsIngestDataCache)
 		;(await ownedByRundownId(Parts)).forEach((id) => removedParts.add(id))
 		await ownedByRundownId(RundownBaselineAdLibActions)
 		await ownedByRundownId(RundownBaselineAdLibPieces)
@@ -444,6 +445,34 @@ export async function cleanupOldDataInner(actuallyCleanup = false): Promise<Coll
 	{
 		// Not supported
 		addToResult(getCollectionKey(WorkerThreadStatuses), 0)
+	}
+
+	// Notifications
+	{
+		const rundownIds = await getAllIdsInCollection(Rundowns)
+		const playlistIds = await getAllIdsInCollection(RundownPlaylists)
+		await removeByQuery(Notifications, {
+			studioId: { $nin: studioIds },
+			$or: [
+				// {
+				// 	'relatedTo.type': DBNotificationTargetType.EVERYWHERE,
+				// },
+				{
+					'relatedTo.type': DBNotificationTargetType.PLAYLIST,
+					'relatedTo.playlistId': { $nin: playlistIds },
+				},
+				{
+					'relatedTo.type': {
+						$in: [
+							DBNotificationTargetType.RUNDOWN,
+							DBNotificationTargetType.PARTINSTANCE,
+							DBNotificationTargetType.PIECEINSTANCE,
+						],
+					},
+					'relatedTo.rundownId': { $nin: rundownIds },
+				},
+			],
+		})
 	}
 
 	return result

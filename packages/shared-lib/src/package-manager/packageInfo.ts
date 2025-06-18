@@ -51,6 +51,7 @@ export namespace PackageInfo {
 		display_aspect_ratio?: string // Example: '16:9'
 		pix_fmt?: string // Example: 'yuv420p'
 		bits_per_raw_sample?: string // Example: '8'
+		field_order?: FieldOrder
 
 		// audio
 		sample_fmt?: string

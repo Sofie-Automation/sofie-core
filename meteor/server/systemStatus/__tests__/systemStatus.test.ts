@@ -1,17 +1,16 @@
 import '../../../__mocks__/_extendJest'
-import { testInFiber } from '../../../__mocks__/helpers/jest'
 import { setupDefaultStudioEnvironment, DefaultEnvironment } from '../../../__mocks__/helpers/database'
-import { generateTranslation, literal, protectString, unprotectString } from '../../../lib/lib'
+import { generateTranslation, literal, protectString, unprotectString } from '../../lib/tempLib'
 import { MeteorMock } from '../../../__mocks__/meteor'
 import { status2ExternalStatus, setSystemStatus } from '../systemStatus'
-import { StatusResponse } from '../../../lib/api/systemStatus'
-import { stripVersion } from '../../../lib/collections/CoreSystem'
+import { StatusResponse } from '@sofie-automation/meteor-lib/dist/api/systemStatus'
+import { stripVersion } from '../semverUtils'
 import semver from 'semver'
 import { StatusCode } from '@sofie-automation/blueprints-integration'
-import { MeteorCall } from '../../../lib/api/methods'
+import { MeteorCall } from '../../api/methods'
 import { PeripheralDeviceStatusObject } from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI'
 import { PeripheralDevices } from '../../collections'
-import { UIBlueprintUpgradeStatus } from '../../../lib/api/upgradeStatus'
+import { UIBlueprintUpgradeStatus } from '@sofie-automation/meteor-lib/dist/api/upgradeStatus'
 
 // we don't want the deviceTriggers observer to start up at this time
 jest.mock('../../api/deviceTriggers/observer')
@@ -34,7 +33,7 @@ describe('systemStatus', () => {
 	})
 
 	let env: DefaultEnvironment
-	testInFiber('getSystemStatus: before startup', async () => {
+	test('getSystemStatus: before startup', async () => {
 		// Before starting the system up, the system status will be unknown
 		const expectedStatus0 = StatusCode.UNKNOWN
 		const result0: StatusResponse = await MeteorCall.systemStatus.getSystemStatus()
@@ -44,9 +43,9 @@ describe('systemStatus', () => {
 		})
 		expect(result0.checks).toHaveLength(0)
 	})
-	testInFiber('getSystemStatus: after startup', async () => {
+	test('getSystemStatus: after startup', async () => {
 		env = await setupDefaultStudioEnvironment()
-		MeteorMock.mockRunMeteorStartup()
+		await MeteorMock.mockRunMeteorStartup()
 		await MeteorMock.sleepNoFakeTimers(200)
 
 		const result0: StatusResponse = await MeteorCall.systemStatus.getSystemStatus()
@@ -64,7 +63,7 @@ describe('systemStatus', () => {
 			status: status2ExternalStatus(StatusCode.BAD),
 		})
 	})
-	testInFiber('getSystemStatus: after all migrations completed', async () => {
+	test('getSystemStatus: after all migrations completed', async () => {
 		// simulate migrations completed
 		setSystemStatus('databaseVersion', {
 			statusCode: StatusCode.GOOD,
@@ -84,7 +83,7 @@ describe('systemStatus', () => {
 			status: status2ExternalStatus(StatusCode.GOOD),
 		})
 	})
-	testInFiber('getSystemStatus: a component has a fault', async () => {
+	test('getSystemStatus: a component has a fault', async () => {
 		// simulate device failure
 		await PeripheralDevices.updateAsync(env.ingestDevice._id, {
 			$set: {
@@ -110,7 +109,7 @@ describe('systemStatus', () => {
 			status: status2ExternalStatus(expectedStatus0),
 		})
 	})
-	testInFiber('getSystemStatus: a component has a library version mismatch', async () => {
+	test('getSystemStatus: a component has a library version mismatch', async () => {
 		// simulate device failure
 		await PeripheralDevices.updateAsync(env.ingestDevice._id, {
 			$set: {
@@ -238,7 +237,7 @@ describe('systemStatus', () => {
 		})
 	})
 
-	testInFiber('getSystemStatus: blueprint upgrades need running', async () => {
+	test('getSystemStatus: blueprint upgrades need running', async () => {
 		{
 			// Ensure we start with a status of GOOD
 			const result: StatusResponse = await MeteorCall.systemStatus.getSystemStatus()

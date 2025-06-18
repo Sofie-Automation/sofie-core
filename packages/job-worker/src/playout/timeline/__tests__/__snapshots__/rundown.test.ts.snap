@@ -1,0 +1,2350 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`buildTimelineObjsForRundown current and previous parts 1`] = `
+{
+  "timeline": [
+    {
+      "classes": [
+        "rundown_active",
+        "last_part",
+      ],
+      "enable": {
+        "while": 1,
+      },
+      "id": "mockPlaylist_status",
+      "layer": "rundown_status",
+      "partInstanceId": null,
+      "priority": 0,
+    },
+    {
+      "children": [
+        {
+          "classes": [
+            "previous_part",
+          ],
+          "enable": {
+            "start": 0,
+          },
+          "id": "piece_group_control_piece9",
+          "isPieceTimeline": true,
+          "priority": 5,
+        },
+        {
+          "children": [],
+          "enable": {
+            "end": "#piece_group_control_piece9.end + 0",
+            "start": "#piece_group_control_piece9.start - 0",
+          },
+          "id": "piece_group_piece9",
+          "isPieceTimeline": true,
+          "layer": "",
+          "priority": 0,
+        },
+      ],
+      "enable": {
+        "end": "#part_group_part0.start + 0",
+        "start": 1235,
+      },
+      "id": "part_group_part9",
+      "isPieceTimeline": true,
+      "layer": "",
+      "partInstanceId": "part9",
+      "priority": -1,
+    },
+    {
+      "children": [
+        {
+          "enable": {
+            "start": 0,
+          },
+          "id": "part_group_firstobject_part0",
+          "layer": "group_first_object",
+          "partInstanceId": "part0",
+          "priority": 0,
+        },
+        {
+          "classes": [
+            "current_part",
+          ],
+          "enable": {
+            "start": 0,
+          },
+          "id": "piece_group_control_piece0",
+          "isPieceTimeline": true,
+          "priority": 5,
+        },
+        {
+          "children": [],
+          "enable": {
+            "end": "#piece_group_control_piece0.end + 0",
+            "start": "#piece_group_control_piece0.start - 0",
+          },
+          "id": "piece_group_piece0",
+          "isPieceTimeline": true,
+          "layer": "",
+          "priority": 0,
+        },
+      ],
+      "enable": {
+        "start": "now",
+      },
+      "id": "part_group_part0",
+      "isPieceTimeline": true,
+      "layer": "",
+      "partInstanceId": "part0",
+      "priority": 5,
+    },
+  ],
+  "timingContext": {
+    "currentPartDuration": undefined,
+    "currentPartGroup": {
+      "children": 3,
+      "content": {
+        "deviceType": "ABSTRACT",
+        "objects": [],
+        "type": "group",
+      },
+      "enable": {
+        "start": "now",
+      },
+      "id": "part_group_part0",
+      "isGroup": true,
+      "layer": "",
+      "metaData": {
+        "isPieceTimeline": true,
+      },
+      "objectType": "rundown",
+      "partInstanceId": "part0",
+      "priority": 5,
+    },
+    "nextPartGroup": undefined,
+    "previousPartOverlap": 0,
+  },
+}
+`;
+
+exports[`buildTimelineObjsForRundown current part with startedPlayback 1`] = `
+{
+  "timeline": [
+    {
+      "classes": [
+        "rundown_active",
+        "last_part",
+      ],
+      "enable": {
+        "while": 1,
+      },
+      "id": "mockPlaylist_status",
+      "layer": "rundown_status",
+      "partInstanceId": null,
+      "priority": 0,
+    },
+    {
+      "children": [
+        {
+          "enable": {
+            "start": 0,
+          },
+          "id": "part_group_firstobject_part0",
+          "layer": "group_first_object",
+          "partInstanceId": "part0",
+          "priority": 0,
+        },
+        {
+          "classes": [
+            "current_part",
+          ],
+          "enable": {
+            "start": 0,
+          },
+          "id": "piece_group_control_piece0",
+          "isPieceTimeline": true,
+          "priority": 5,
+        },
+        {
+          "children": [],
+          "enable": {
+            "end": "#piece_group_control_piece0.end + 0",
+            "start": "#piece_group_control_piece0.start - 0",
+          },
+          "id": "piece_group_piece0",
+          "isPieceTimeline": true,
+          "layer": "",
+          "priority": 0,
+        },
+      ],
+      "enable": {
+        "start": 5678,
+      },
+      "id": "part_group_part0",
+      "isPieceTimeline": true,
+      "layer": "",
+      "partInstanceId": "part0",
+      "priority": 5,
+    },
+  ],
+  "timingContext": {
+    "currentPartDuration": undefined,
+    "currentPartGroup": {
+      "children": 3,
+      "content": {
+        "deviceType": "ABSTRACT",
+        "objects": [],
+        "type": "group",
+      },
+      "enable": {
+        "start": 5678,
+      },
+      "id": "part_group_part0",
+      "isGroup": true,
+      "layer": "",
+      "metaData": {
+        "isPieceTimeline": true,
+      },
+      "objectType": "rundown",
+      "partInstanceId": "part0",
+      "priority": 5,
+    },
+    "nextPartGroup": undefined,
+  },
+}
+`;
+
+exports[`buildTimelineObjsForRundown infinite pieces infinite continuing from previous 1`] = `
+{
+  "timeline": [
+    {
+      "classes": [
+        "rundown_active",
+        "last_part",
+      ],
+      "enable": {
+        "while": 1,
+      },
+      "id": "mockPlaylist_status",
+      "layer": "rundown_status",
+      "partInstanceId": null,
+      "priority": 0,
+    },
+    {
+      "children": [
+        {
+          "classes": [
+            "previous_part",
+          ],
+          "enable": {
+            "start": 0,
+          },
+          "id": "piece_group_control_piece9",
+          "isPieceTimeline": true,
+          "priority": 5,
+        },
+        {
+          "children": [],
+          "enable": {
+            "end": "#piece_group_control_piece9.end + 0",
+            "start": "#piece_group_control_piece9.start - 0",
+          },
+          "id": "piece_group_piece9",
+          "isPieceTimeline": true,
+          "layer": "",
+          "priority": 0,
+        },
+      ],
+      "enable": {
+        "end": "#part_group_part0.start + 0",
+        "start": 1235,
+      },
+      "id": "part_group_part9",
+      "isPieceTimeline": true,
+      "layer": "",
+      "partInstanceId": "part9",
+      "priority": -1,
+    },
+    {
+      "children": [
+        {
+          "classes": [
+            "current_part",
+            "continues_infinite",
+          ],
+          "enable": {
+            "start": 0,
+          },
+          "id": "piece_group_control_piece6b",
+          "isPieceTimeline": true,
+          "priority": 5,
+        },
+        {
+          "children": [],
+          "enable": {
+            "end": "#piece_group_control_piece6b.end + 0",
+            "start": "#piece_group_control_piece6b.start - 0",
+          },
+          "id": "piece_group_piece6b",
+          "isPieceTimeline": true,
+          "layer": "",
+          "priority": 0,
+        },
+      ],
+      "enable": {
+        "start": 123,
+      },
+      "id": "part_group_piece6b_infinite",
+      "isPieceTimeline": true,
+      "layer": "",
+      "partInstanceId": "part0",
+      "priority": 1,
+    },
+    {
+      "children": [
+        {
+          "enable": {
+            "start": 0,
+          },
+          "id": "part_group_firstobject_part0",
+          "layer": "group_first_object",
+          "partInstanceId": "part0",
+          "priority": 0,
+        },
+        {
+          "classes": [
+            "current_part",
+          ],
+          "enable": {
+            "start": 0,
+          },
+          "id": "piece_group_control_piece0",
+          "isPieceTimeline": true,
+          "priority": 5,
+        },
+        {
+          "children": [],
+          "enable": {
+            "end": "#piece_group_control_piece0.end + 0",
+            "start": "#piece_group_control_piece0.start - 0",
+          },
+          "id": "piece_group_piece0",
+          "isPieceTimeline": true,
+          "layer": "",
+          "priority": 0,
+        },
+      ],
+      "enable": {
+        "start": "now",
+      },
+      "id": "part_group_part0",
+      "isPieceTimeline": true,
+      "layer": "",
+      "partInstanceId": "part0",
+      "priority": 5,
+    },
+  ],
+  "timingContext": {
+    "currentPartDuration": undefined,
+    "currentPartGroup": {
+      "children": 3,
+      "content": {
+        "deviceType": "ABSTRACT",
+        "objects": [],
+        "type": "group",
+      },
+      "enable": {
+        "start": "now",
+      },
+      "id": "part_group_part0",
+      "isGroup": true,
+      "layer": "",
+      "metaData": {
+        "isPieceTimeline": true,
+      },
+      "objectType": "rundown",
+      "partInstanceId": "part0",
+      "priority": 5,
+    },
+    "nextPartGroup": undefined,
+    "previousPartOverlap": 0,
+  },
+}
+`;
+
+exports[`buildTimelineObjsForRundown infinite pieces infinite continuing into next with autonext 1`] = `
+{
+  "timeline": [
+    {
+      "classes": [
+        "rundown_active",
+      ],
+      "enable": {
+        "while": 1,
+      },
+      "id": "mockPlaylist_status",
+      "layer": "rundown_status",
+      "partInstanceId": null,
+      "priority": 0,
+    },
+    {
+      "children": [
+        {
+          "classes": [
+            "current_part",
+          ],
+          "enable": {
+            "start": 0,
+          },
+          "id": "piece_group_control_piece6",
+          "isPieceTimeline": true,
+          "priority": 5,
+        },
+        {
+          "children": [],
+          "enable": {
+            "end": "#piece_group_control_piece6.end + 0",
+            "start": "#piece_group_control_piece6.start - 0",
+          },
+          "id": "piece_group_piece6",
+          "isPieceTimeline": true,
+          "layer": "",
+          "priority": 0,
+        },
+      ],
+      "enable": {
+        "start": 123,
+      },
+      "id": "part_group_piece6_infinite",
+      "isPieceTimeline": true,
+      "layer": "",
+      "partInstanceId": "part0",
+      "priority": 1,
+    },
+    {
+      "children": [
+        {
+          "enable": {
+            "start": 0,
+          },
+          "id": "part_group_firstobject_part0",
+          "layer": "group_first_object",
+          "partInstanceId": "part0",
+          "priority": 0,
+        },
+        {
+          "classes": [
+            "current_part",
+          ],
+          "enable": {
+            "start": 0,
+          },
+          "id": "piece_group_control_piece0",
+          "isPieceTimeline": true,
+          "priority": 5,
+        },
+        {
+          "children": [],
+          "enable": {
+            "end": "#piece_group_control_piece0.end + 0",
+            "start": "#piece_group_control_piece0.start - 0",
+          },
+          "id": "piece_group_piece0",
+          "isPieceTimeline": true,
+          "layer": "",
+          "priority": 0,
+        },
+      ],
+      "enable": {
+        "duration": 5000,
+        "start": 1235,
+      },
+      "id": "part_group_part0",
+      "isPieceTimeline": true,
+      "layer": "",
+      "partInstanceId": "part0",
+      "priority": 5,
+    },
+    {
+      "children": [
+        {
+          "enable": {
+            "start": 0,
+          },
+          "id": "part_group_firstobject_part1",
+          "layer": "group_first_object",
+          "partInstanceId": "part1",
+          "priority": 0,
+        },
+        {
+          "classes": [
+            "next_part",
+          ],
+          "enable": {
+            "start": 0,
+          },
+          "id": "piece_group_control_piece1",
+          "isPieceTimeline": true,
+          "priority": 5,
+        },
+        {
+          "children": [],
+          "enable": {
+            "end": "#piece_group_control_piece1.end + 0",
+            "start": "#piece_group_control_piece1.start - 0",
+          },
+          "id": "piece_group_piece1",
+          "isPieceTimeline": true,
+          "layer": "",
+          "priority": 0,
+        },
+      ],
+      "enable": {
+        "start": "#part_group_part0.end - 0",
+      },
+      "id": "part_group_part1",
+      "isPieceTimeline": true,
+      "layer": "",
+      "partInstanceId": "part1",
+      "priority": 5,
+    },
+  ],
+  "timingContext": {
+    "currentPartDuration": 5000,
+    "currentPartGroup": {
+      "children": 3,
+      "content": {
+        "deviceType": "ABSTRACT",
+        "objects": [],
+        "type": "group",
+      },
+      "enable": {
+        "duration": 5000,
+        "start": 1235,
+      },
+      "id": "part_group_part0",
+      "isGroup": true,
+      "layer": "",
+      "metaData": {
+        "isPieceTimeline": true,
+      },
+      "objectType": "rundown",
+      "partInstanceId": "part0",
+      "priority": 5,
+    },
+    "nextPartGroup": {
+      "children": 3,
+      "content": {
+        "deviceType": "ABSTRACT",
+        "objects": [],
+        "type": "group",
+      },
+      "enable": {
+        "start": "#part_group_part0.end - 0",
+      },
+      "id": "part_group_part1",
+      "isGroup": true,
+      "layer": "",
+      "metaData": {
+        "isPieceTimeline": true,
+      },
+      "objectType": "rundown",
+      "partInstanceId": "part1",
+      "priority": 5,
+    },
+    "nextPartOverlap": 0,
+  },
+}
+`;
+
+exports[`buildTimelineObjsForRundown infinite pieces infinite ending with previous 1`] = `
+{
+  "timeline": [
+    {
+      "classes": [
+        "rundown_active",
+        "last_part",
+      ],
+      "enable": {
+        "while": 1,
+      },
+      "id": "mockPlaylist_status",
+      "layer": "rundown_status",
+      "partInstanceId": null,
+      "priority": 0,
+    },
+    {
+      "children": [
+        {
+          "classes": [
+            "previous_part",
+          ],
+          "enable": {
+            "start": 0,
+          },
+          "id": "piece_group_control_piece9",
+          "isPieceTimeline": true,
+          "priority": 5,
+        },
+        {
+          "children": [],
+          "enable": {
+            "end": "#piece_group_control_piece9.end + 0",
+            "start": "#piece_group_control_piece9.start - 0",
+          },
+          "id": "piece_group_piece9",
+          "isPieceTimeline": true,
+          "layer": "",
+          "priority": 0,
+        },
+        {
+          "classes": [
+            "previous_part",
+          ],
+          "enable": {
+            "start": 0,
+          },
+          "id": "piece_group_control_piece6",
+          "isPieceTimeline": true,
+          "priority": 5,
+        },
+        {
+          "children": [],
+          "enable": {
+            "end": "#piece_group_control_piece6.end + 0",
+            "start": "#piece_group_control_piece6.start - 0",
+          },
+          "id": "piece_group_piece6",
+          "isPieceTimeline": true,
+          "layer": "",
+          "priority": 0,
+        },
+      ],
+      "enable": {
+        "end": "#part_group_part0.start + 0",
+        "start": 1235,
+      },
+      "id": "part_group_part9",
+      "isPieceTimeline": true,
+      "layer": "",
+      "partInstanceId": "part9",
+      "priority": -1,
+    },
+    {
+      "children": [
+        {
+          "enable": {
+            "start": 0,
+          },
+          "id": "part_group_firstobject_part0",
+          "layer": "group_first_object",
+          "partInstanceId": "part0",
+          "priority": 0,
+        },
+        {
+          "classes": [
+            "current_part",
+          ],
+          "enable": {
+            "start": 0,
+          },
+          "id": "piece_group_control_piece0",
+          "isPieceTimeline": true,
+          "priority": 5,
+        },
+        {
+          "children": [],
+          "enable": {
+            "end": "#piece_group_control_piece0.end + 0",
+            "start": "#piece_group_control_piece0.start - 0",
+          },
+          "id": "piece_group_piece0",
+          "isPieceTimeline": true,
+          "layer": "",
+          "priority": 0,
+        },
+      ],
+      "enable": {
+        "start": "now",
+      },
+      "id": "part_group_part0",
+      "isPieceTimeline": true,
+      "layer": "",
+      "partInstanceId": "part0",
+      "priority": 5,
+    },
+  ],
+  "timingContext": {
+    "currentPartDuration": undefined,
+    "currentPartGroup": {
+      "children": 3,
+      "content": {
+        "deviceType": "ABSTRACT",
+        "objects": [],
+        "type": "group",
+      },
+      "enable": {
+        "start": "now",
+      },
+      "id": "part_group_part0",
+      "isGroup": true,
+      "layer": "",
+      "metaData": {
+        "isPieceTimeline": true,
+      },
+      "objectType": "rundown",
+      "partInstanceId": "part0",
+      "priority": 5,
+    },
+    "nextPartGroup": undefined,
+    "previousPartOverlap": 0,
+  },
+}
+`;
+
+exports[`buildTimelineObjsForRundown infinite pieces infinite ending with previous excludeDuringPartKeepalive=true 1`] = `
+{
+  "timeline": [
+    {
+      "classes": [
+        "rundown_active",
+        "last_part",
+      ],
+      "enable": {
+        "while": 1,
+      },
+      "id": "mockPlaylist_status",
+      "layer": "rundown_status",
+      "partInstanceId": null,
+      "priority": 0,
+    },
+    {
+      "children": [
+        {
+          "classes": [
+            "previous_part",
+          ],
+          "enable": {
+            "start": 0,
+          },
+          "id": "piece_group_control_piece9",
+          "isPieceTimeline": true,
+          "priority": 5,
+        },
+        {
+          "children": [],
+          "enable": {
+            "end": "#piece_group_control_piece9.end + 0",
+            "start": "#piece_group_control_piece9.start - 0",
+          },
+          "id": "piece_group_piece9",
+          "isPieceTimeline": true,
+          "layer": "",
+          "priority": 0,
+        },
+        {
+          "children": [
+            {
+              "classes": [
+                "previous_part",
+              ],
+              "enable": {
+                "start": 0,
+              },
+              "id": "piece_group_control_piece6",
+              "isPieceTimeline": true,
+              "priority": 5,
+            },
+            {
+              "children": [],
+              "enable": {
+                "end": "#piece_group_control_piece6.end + 0",
+                "start": "#piece_group_control_piece6.start - 0",
+              },
+              "id": "piece_group_piece6",
+              "isPieceTimeline": true,
+              "layer": "",
+              "priority": 0,
+            },
+          ],
+          "enable": {
+            "end": "#part_group_part9.end - 0",
+            "start": 0,
+          },
+          "id": "part_group_part9_no_keepalive",
+          "isPieceTimeline": true,
+          "layer": "",
+          "partInstanceId": "part9",
+          "priority": 5,
+        },
+      ],
+      "enable": {
+        "end": "#part_group_part0.start + 0",
+        "start": 1235,
+      },
+      "id": "part_group_part9",
+      "isPieceTimeline": true,
+      "layer": "",
+      "partInstanceId": "part9",
+      "priority": -1,
+    },
+    {
+      "children": [
+        {
+          "enable": {
+            "start": 0,
+          },
+          "id": "part_group_firstobject_part0",
+          "layer": "group_first_object",
+          "partInstanceId": "part0",
+          "priority": 0,
+        },
+        {
+          "classes": [
+            "current_part",
+          ],
+          "enable": {
+            "start": 0,
+          },
+          "id": "piece_group_control_piece0",
+          "isPieceTimeline": true,
+          "priority": 5,
+        },
+        {
+          "children": [],
+          "enable": {
+            "end": "#piece_group_control_piece0.end + 0",
+            "start": "#piece_group_control_piece0.start - 0",
+          },
+          "id": "piece_group_piece0",
+          "isPieceTimeline": true,
+          "layer": "",
+          "priority": 0,
+        },
+      ],
+      "enable": {
+        "start": "now",
+      },
+      "id": "part_group_part0",
+      "isPieceTimeline": true,
+      "layer": "",
+      "partInstanceId": "part0",
+      "priority": 5,
+    },
+  ],
+  "timingContext": {
+    "currentPartDuration": undefined,
+    "currentPartGroup": {
+      "children": 3,
+      "content": {
+        "deviceType": "ABSTRACT",
+        "objects": [],
+        "type": "group",
+      },
+      "enable": {
+        "start": "now",
+      },
+      "id": "part_group_part0",
+      "isGroup": true,
+      "layer": "",
+      "metaData": {
+        "isPieceTimeline": true,
+      },
+      "objectType": "rundown",
+      "partInstanceId": "part0",
+      "priority": 5,
+    },
+    "nextPartGroup": undefined,
+    "previousPartOverlap": 0,
+  },
+}
+`;
+
+exports[`buildTimelineObjsForRundown infinite pieces infinite starting in current 1`] = `
+{
+  "timeline": [
+    {
+      "classes": [
+        "rundown_active",
+        "last_part",
+      ],
+      "enable": {
+        "while": 1,
+      },
+      "id": "mockPlaylist_status",
+      "layer": "rundown_status",
+      "partInstanceId": null,
+      "priority": 0,
+    },
+    {
+      "children": [
+        {
+          "classes": [
+            "previous_part",
+          ],
+          "enable": {
+            "start": 0,
+          },
+          "id": "piece_group_control_piece9",
+          "isPieceTimeline": true,
+          "priority": 5,
+        },
+        {
+          "children": [],
+          "enable": {
+            "end": "#piece_group_control_piece9.end + 0",
+            "start": "#piece_group_control_piece9.start - 0",
+          },
+          "id": "piece_group_piece9",
+          "isPieceTimeline": true,
+          "layer": "",
+          "priority": 0,
+        },
+      ],
+      "enable": {
+        "end": "#part_group_part0.start + 0",
+        "start": 1235,
+      },
+      "id": "part_group_part9",
+      "isPieceTimeline": true,
+      "layer": "",
+      "partInstanceId": "part9",
+      "priority": -1,
+    },
+    {
+      "children": [
+        {
+          "classes": [
+            "current_part",
+          ],
+          "enable": {
+            "start": 0,
+          },
+          "id": "piece_group_control_piece1",
+          "isPieceTimeline": true,
+          "priority": 5,
+        },
+        {
+          "children": [],
+          "enable": {
+            "end": "#piece_group_control_piece1.end + 0",
+            "start": "#piece_group_control_piece1.start - 0",
+          },
+          "id": "piece_group_piece1",
+          "isPieceTimeline": true,
+          "layer": "",
+          "priority": 0,
+        },
+      ],
+      "enable": {
+        "start": "#part_group_part0.start",
+      },
+      "id": "part_group_piece1_infinite",
+      "isPieceTimeline": true,
+      "layer": "",
+      "partInstanceId": "part0",
+      "priority": 1,
+    },
+    {
+      "children": [
+        {
+          "enable": {
+            "start": 0,
+          },
+          "id": "part_group_firstobject_part0",
+          "layer": "group_first_object",
+          "partInstanceId": "part0",
+          "priority": 0,
+        },
+        {
+          "classes": [
+            "current_part",
+          ],
+          "enable": {
+            "start": 0,
+          },
+          "id": "piece_group_control_piece0",
+          "isPieceTimeline": true,
+          "priority": 5,
+        },
+        {
+          "children": [],
+          "enable": {
+            "end": "#piece_group_control_piece0.end + 0",
+            "start": "#piece_group_control_piece0.start - 0",
+          },
+          "id": "piece_group_piece0",
+          "isPieceTimeline": true,
+          "layer": "",
+          "priority": 0,
+        },
+      ],
+      "enable": {
+        "start": "now",
+      },
+      "id": "part_group_part0",
+      "isPieceTimeline": true,
+      "layer": "",
+      "partInstanceId": "part0",
+      "priority": 5,
+    },
+  ],
+  "timingContext": {
+    "currentPartDuration": undefined,
+    "currentPartGroup": {
+      "children": 3,
+      "content": {
+        "deviceType": "ABSTRACT",
+        "objects": [],
+        "type": "group",
+      },
+      "enable": {
+        "start": "now",
+      },
+      "id": "part_group_part0",
+      "isGroup": true,
+      "layer": "",
+      "metaData": {
+        "isPieceTimeline": true,
+      },
+      "objectType": "rundown",
+      "partInstanceId": "part0",
+      "priority": 5,
+    },
+    "nextPartGroup": undefined,
+    "previousPartOverlap": 0,
+  },
+}
+`;
+
+exports[`buildTimelineObjsForRundown infinite pieces infinite stopping in current with autonext 1`] = `
+{
+  "timeline": [
+    {
+      "classes": [
+        "rundown_active",
+      ],
+      "enable": {
+        "while": 1,
+      },
+      "id": "mockPlaylist_status",
+      "layer": "rundown_status",
+      "partInstanceId": null,
+      "priority": 0,
+    },
+    {
+      "children": [
+        {
+          "classes": [
+            "current_part",
+          ],
+          "enable": {
+            "start": 0,
+          },
+          "id": "piece_group_control_piece6",
+          "isPieceTimeline": true,
+          "priority": 5,
+        },
+        {
+          "children": [],
+          "enable": {
+            "end": "#piece_group_control_piece6.end + 0",
+            "start": "#piece_group_control_piece6.start - 0",
+          },
+          "id": "piece_group_piece6",
+          "isPieceTimeline": true,
+          "layer": "",
+          "priority": 0,
+        },
+      ],
+      "enable": {
+        "end": "#part_group_part0.end + 0",
+        "start": 123,
+      },
+      "id": "part_group_piece6_infinite",
+      "isPieceTimeline": true,
+      "layer": "",
+      "partInstanceId": "part0",
+      "priority": 1,
+    },
+    {
+      "children": [
+        {
+          "enable": {
+            "start": 0,
+          },
+          "id": "part_group_firstobject_part0",
+          "layer": "group_first_object",
+          "partInstanceId": "part0",
+          "priority": 0,
+        },
+        {
+          "classes": [
+            "current_part",
+          ],
+          "enable": {
+            "start": 0,
+          },
+          "id": "piece_group_control_piece0",
+          "isPieceTimeline": true,
+          "priority": 5,
+        },
+        {
+          "children": [],
+          "enable": {
+            "end": "#piece_group_control_piece0.end + 0",
+            "start": "#piece_group_control_piece0.start - 0",
+          },
+          "id": "piece_group_piece0",
+          "isPieceTimeline": true,
+          "layer": "",
+          "priority": 0,
+        },
+      ],
+      "enable": {
+        "duration": 5000,
+        "start": 1235,
+      },
+      "id": "part_group_part0",
+      "isPieceTimeline": true,
+      "layer": "",
+      "partInstanceId": "part0",
+      "priority": 5,
+    },
+    {
+      "children": [
+        {
+          "enable": {
+            "start": 0,
+          },
+          "id": "part_group_firstobject_part1",
+          "layer": "group_first_object",
+          "partInstanceId": "part1",
+          "priority": 0,
+        },
+        {
+          "classes": [
+            "next_part",
+          ],
+          "enable": {
+            "start": 0,
+          },
+          "id": "piece_group_control_piece1",
+          "isPieceTimeline": true,
+          "priority": 5,
+        },
+        {
+          "children": [],
+          "enable": {
+            "end": "#piece_group_control_piece1.end + 0",
+            "start": "#piece_group_control_piece1.start - 0",
+          },
+          "id": "piece_group_piece1",
+          "isPieceTimeline": true,
+          "layer": "",
+          "priority": 0,
+        },
+      ],
+      "enable": {
+        "start": "#part_group_part0.end - 0",
+      },
+      "id": "part_group_part1",
+      "isPieceTimeline": true,
+      "layer": "",
+      "partInstanceId": "part1",
+      "priority": 5,
+    },
+  ],
+  "timingContext": {
+    "currentPartDuration": 5000,
+    "currentPartGroup": {
+      "children": 3,
+      "content": {
+        "deviceType": "ABSTRACT",
+        "objects": [],
+        "type": "group",
+      },
+      "enable": {
+        "duration": 5000,
+        "start": 1235,
+      },
+      "id": "part_group_part0",
+      "isGroup": true,
+      "layer": "",
+      "metaData": {
+        "isPieceTimeline": true,
+      },
+      "objectType": "rundown",
+      "partInstanceId": "part0",
+      "priority": 5,
+    },
+    "nextPartGroup": {
+      "children": 3,
+      "content": {
+        "deviceType": "ABSTRACT",
+        "objects": [],
+        "type": "group",
+      },
+      "enable": {
+        "start": "#part_group_part0.end - 0",
+      },
+      "id": "part_group_part1",
+      "isGroup": true,
+      "layer": "",
+      "metaData": {
+        "isPieceTimeline": true,
+      },
+      "objectType": "rundown",
+      "partInstanceId": "part1",
+      "priority": 5,
+    },
+    "nextPartOverlap": 0,
+  },
+}
+`;
+
+exports[`buildTimelineObjsForRundown infinite pieces infinite stopping in current with autonext excludeDuringPartKeepalive=true 1`] = `
+{
+  "timeline": [
+    {
+      "classes": [
+        "rundown_active",
+      ],
+      "enable": {
+        "while": 1,
+      },
+      "id": "mockPlaylist_status",
+      "layer": "rundown_status",
+      "partInstanceId": null,
+      "priority": 0,
+    },
+    {
+      "children": [
+        {
+          "classes": [
+            "current_part",
+          ],
+          "enable": {
+            "start": 0,
+          },
+          "id": "piece_group_control_piece6",
+          "isPieceTimeline": true,
+          "priority": 5,
+        },
+        {
+          "children": [],
+          "enable": {
+            "end": "#piece_group_control_piece6.end + 0",
+            "start": "#piece_group_control_piece6.start - 0",
+          },
+          "id": "piece_group_piece6",
+          "isPieceTimeline": true,
+          "layer": "",
+          "priority": 0,
+        },
+      ],
+      "enable": {
+        "end": "#part_group_part0.end + -100",
+        "start": 123,
+      },
+      "id": "part_group_piece6_infinite",
+      "isPieceTimeline": true,
+      "layer": "",
+      "partInstanceId": "part0",
+      "priority": 1,
+    },
+    {
+      "children": [
+        {
+          "enable": {
+            "start": 0,
+          },
+          "id": "part_group_firstobject_part0",
+          "layer": "group_first_object",
+          "partInstanceId": "part0",
+          "priority": 0,
+        },
+        {
+          "classes": [
+            "current_part",
+          ],
+          "enable": {
+            "start": 0,
+          },
+          "id": "piece_group_control_piece0",
+          "isPieceTimeline": true,
+          "priority": 5,
+        },
+        {
+          "children": [],
+          "enable": {
+            "end": "#piece_group_control_piece0.end + 0",
+            "start": "#piece_group_control_piece0.start - 0",
+          },
+          "id": "piece_group_piece0",
+          "isPieceTimeline": true,
+          "layer": "",
+          "priority": 0,
+        },
+      ],
+      "enable": {
+        "duration": 5000,
+        "start": 1235,
+      },
+      "id": "part_group_part0",
+      "isPieceTimeline": true,
+      "layer": "",
+      "partInstanceId": "part0",
+      "priority": 5,
+    },
+    {
+      "children": [
+        {
+          "enable": {
+            "start": 0,
+          },
+          "id": "part_group_firstobject_part1",
+          "layer": "group_first_object",
+          "partInstanceId": "part1",
+          "priority": 0,
+        },
+        {
+          "classes": [
+            "next_part",
+          ],
+          "enable": {
+            "start": 0,
+          },
+          "id": "piece_group_control_piece1",
+          "isPieceTimeline": true,
+          "priority": 5,
+        },
+        {
+          "children": [],
+          "enable": {
+            "end": "#piece_group_control_piece1.end + 0",
+            "start": "#piece_group_control_piece1.start - 0",
+          },
+          "id": "piece_group_piece1",
+          "isPieceTimeline": true,
+          "layer": "",
+          "priority": 0,
+        },
+      ],
+      "enable": {
+        "start": "#part_group_part0.end - 0",
+      },
+      "id": "part_group_part1",
+      "isPieceTimeline": true,
+      "layer": "",
+      "partInstanceId": "part1",
+      "priority": 5,
+    },
+  ],
+  "timingContext": {
+    "currentPartDuration": 5000,
+    "currentPartGroup": {
+      "children": 3,
+      "content": {
+        "deviceType": "ABSTRACT",
+        "objects": [],
+        "type": "group",
+      },
+      "enable": {
+        "duration": 5000,
+        "start": 1235,
+      },
+      "id": "part_group_part0",
+      "isGroup": true,
+      "layer": "",
+      "metaData": {
+        "isPieceTimeline": true,
+      },
+      "objectType": "rundown",
+      "partInstanceId": "part0",
+      "priority": 5,
+    },
+    "nextPartGroup": {
+      "children": 3,
+      "content": {
+        "deviceType": "ABSTRACT",
+        "objects": [],
+        "type": "group",
+      },
+      "enable": {
+        "start": "#part_group_part0.end - 0",
+      },
+      "id": "part_group_part1",
+      "isGroup": true,
+      "layer": "",
+      "metaData": {
+        "isPieceTimeline": true,
+      },
+      "objectType": "rundown",
+      "partInstanceId": "part1",
+      "priority": 5,
+    },
+    "nextPartOverlap": 0,
+  },
+}
+`;
+
+exports[`buildTimelineObjsForRundown next part no autonext 1`] = `
+{
+  "timeline": [
+    {
+      "classes": [
+        "rundown_active",
+      ],
+      "enable": {
+        "while": 1,
+      },
+      "id": "mockPlaylist_status",
+      "layer": "rundown_status",
+      "partInstanceId": null,
+      "priority": 0,
+    },
+    {
+      "children": [
+        {
+          "enable": {
+            "start": 0,
+          },
+          "id": "part_group_firstobject_part0",
+          "layer": "group_first_object",
+          "partInstanceId": "part0",
+          "priority": 0,
+        },
+        {
+          "classes": [
+            "current_part",
+          ],
+          "enable": {
+            "start": 0,
+          },
+          "id": "piece_group_control_piece0",
+          "isPieceTimeline": true,
+          "priority": 5,
+        },
+        {
+          "children": [],
+          "enable": {
+            "end": "#piece_group_control_piece0.end + 0",
+            "start": "#piece_group_control_piece0.start - 0",
+          },
+          "id": "piece_group_piece0",
+          "isPieceTimeline": true,
+          "layer": "",
+          "priority": 0,
+        },
+      ],
+      "enable": {
+        "start": "now",
+      },
+      "id": "part_group_part0",
+      "isPieceTimeline": true,
+      "layer": "",
+      "partInstanceId": "part0",
+      "priority": 5,
+    },
+  ],
+  "timingContext": {
+    "currentPartDuration": undefined,
+    "currentPartGroup": {
+      "children": 3,
+      "content": {
+        "deviceType": "ABSTRACT",
+        "objects": [],
+        "type": "group",
+      },
+      "enable": {
+        "start": "now",
+      },
+      "id": "part_group_part0",
+      "isGroup": true,
+      "layer": "",
+      "metaData": {
+        "isPieceTimeline": true,
+      },
+      "objectType": "rundown",
+      "partInstanceId": "part0",
+      "priority": 5,
+    },
+    "nextPartGroup": undefined,
+  },
+}
+`;
+
+exports[`buildTimelineObjsForRundown next part with autonext 1`] = `
+{
+  "timeline": [
+    {
+      "classes": [
+        "rundown_active",
+      ],
+      "enable": {
+        "while": 1,
+      },
+      "id": "mockPlaylist_status",
+      "layer": "rundown_status",
+      "partInstanceId": null,
+      "priority": 0,
+    },
+    {
+      "children": [
+        {
+          "enable": {
+            "start": 0,
+          },
+          "id": "part_group_firstobject_part0",
+          "layer": "group_first_object",
+          "partInstanceId": "part0",
+          "priority": 0,
+        },
+        {
+          "classes": [
+            "current_part",
+          ],
+          "enable": {
+            "start": 0,
+          },
+          "id": "piece_group_control_piece0",
+          "isPieceTimeline": true,
+          "priority": 5,
+        },
+        {
+          "children": [],
+          "enable": {
+            "end": "#piece_group_control_piece0.end + 0",
+            "start": "#piece_group_control_piece0.start - 0",
+          },
+          "id": "piece_group_piece0",
+          "isPieceTimeline": true,
+          "layer": "",
+          "priority": 0,
+        },
+      ],
+      "enable": {
+        "duration": 5000,
+        "start": "now",
+      },
+      "id": "part_group_part0",
+      "isPieceTimeline": true,
+      "layer": "",
+      "partInstanceId": "part0",
+      "priority": 5,
+    },
+    {
+      "children": [
+        {
+          "enable": {
+            "start": 0,
+          },
+          "id": "part_group_firstobject_part1",
+          "layer": "group_first_object",
+          "partInstanceId": "part1",
+          "priority": 0,
+        },
+        {
+          "classes": [
+            "next_part",
+          ],
+          "enable": {
+            "start": 0,
+          },
+          "id": "piece_group_control_piece1",
+          "isPieceTimeline": true,
+          "priority": 5,
+        },
+        {
+          "children": [],
+          "enable": {
+            "end": "#piece_group_control_piece1.end + 0",
+            "start": "#piece_group_control_piece1.start - 0",
+          },
+          "id": "piece_group_piece1",
+          "isPieceTimeline": true,
+          "layer": "",
+          "priority": 0,
+        },
+      ],
+      "enable": {
+        "start": "#part_group_part0.end - 0",
+      },
+      "id": "part_group_part1",
+      "isPieceTimeline": true,
+      "layer": "",
+      "partInstanceId": "part1",
+      "priority": 5,
+    },
+  ],
+  "timingContext": {
+    "currentPartDuration": 5000,
+    "currentPartGroup": {
+      "children": 3,
+      "content": {
+        "deviceType": "ABSTRACT",
+        "objects": [],
+        "type": "group",
+      },
+      "enable": {
+        "duration": 5000,
+        "start": "now",
+      },
+      "id": "part_group_part0",
+      "isGroup": true,
+      "layer": "",
+      "metaData": {
+        "isPieceTimeline": true,
+      },
+      "objectType": "rundown",
+      "partInstanceId": "part0",
+      "priority": 5,
+    },
+    "nextPartGroup": {
+      "children": 3,
+      "content": {
+        "deviceType": "ABSTRACT",
+        "objects": [],
+        "type": "group",
+      },
+      "enable": {
+        "start": "#part_group_part0.end - 0",
+      },
+      "id": "part_group_part1",
+      "isGroup": true,
+      "layer": "",
+      "metaData": {
+        "isPieceTimeline": true,
+      },
+      "objectType": "rundown",
+      "partInstanceId": "part1",
+      "priority": 5,
+    },
+    "nextPartOverlap": 0,
+  },
+}
+`;
+
+exports[`buildTimelineObjsForRundown overlap and keepalive autonext into next part 1`] = `
+{
+  "timeline": [
+    {
+      "classes": [
+        "rundown_active",
+      ],
+      "enable": {
+        "while": 1,
+      },
+      "id": "mockPlaylist_status",
+      "layer": "rundown_status",
+      "partInstanceId": null,
+      "priority": 0,
+    },
+    {
+      "children": [
+        {
+          "enable": {
+            "start": 0,
+          },
+          "id": "part_group_firstobject_part0",
+          "layer": "group_first_object",
+          "partInstanceId": "part0",
+          "priority": 0,
+        },
+        {
+          "classes": [
+            "current_part",
+          ],
+          "enable": {
+            "start": 0,
+          },
+          "id": "piece_group_control_piece0",
+          "isPieceTimeline": true,
+          "priority": 5,
+        },
+        {
+          "children": [],
+          "enable": {
+            "end": "#piece_group_control_piece0.end + 0",
+            "start": "#piece_group_control_piece0.start - 0",
+          },
+          "id": "piece_group_piece0",
+          "isPieceTimeline": true,
+          "layer": "",
+          "priority": 0,
+        },
+      ],
+      "enable": {
+        "duration": 5000,
+        "start": "now",
+      },
+      "id": "part_group_part0",
+      "isPieceTimeline": true,
+      "layer": "",
+      "partInstanceId": "part0",
+      "priority": 5,
+    },
+    {
+      "children": [
+        {
+          "enable": {
+            "start": 0,
+          },
+          "id": "part_group_firstobject_part1",
+          "layer": "group_first_object",
+          "partInstanceId": "part1",
+          "priority": 0,
+        },
+        {
+          "classes": [
+            "next_part",
+          ],
+          "enable": {
+            "start": 500,
+          },
+          "id": "piece_group_control_piece1",
+          "isPieceTimeline": true,
+          "priority": 5,
+        },
+        {
+          "children": [],
+          "enable": {
+            "end": "#piece_group_control_piece1.end + 0",
+            "start": "#piece_group_control_piece1.start - 0",
+          },
+          "id": "piece_group_piece1",
+          "isPieceTimeline": true,
+          "layer": "",
+          "priority": 0,
+        },
+      ],
+      "enable": {
+        "start": "#part_group_part0.end - 900",
+      },
+      "id": "part_group_part1",
+      "isPieceTimeline": true,
+      "layer": "",
+      "partInstanceId": "part1",
+      "priority": 5,
+    },
+  ],
+  "timingContext": {
+    "currentPartDuration": 5000,
+    "currentPartGroup": {
+      "children": 3,
+      "content": {
+        "deviceType": "ABSTRACT",
+        "objects": [],
+        "type": "group",
+      },
+      "enable": {
+        "duration": 5000,
+        "start": "now",
+      },
+      "id": "part_group_part0",
+      "isGroup": true,
+      "layer": "",
+      "metaData": {
+        "isPieceTimeline": true,
+      },
+      "objectType": "rundown",
+      "partInstanceId": "part0",
+      "priority": 5,
+    },
+    "nextPartGroup": {
+      "children": 3,
+      "content": {
+        "deviceType": "ABSTRACT",
+        "objects": [],
+        "type": "group",
+      },
+      "enable": {
+        "start": "#part_group_part0.end - 900",
+      },
+      "id": "part_group_part1",
+      "isGroup": true,
+      "layer": "",
+      "metaData": {
+        "isPieceTimeline": true,
+      },
+      "objectType": "rundown",
+      "partInstanceId": "part1",
+      "priority": 5,
+    },
+    "nextPartOverlap": 900,
+  },
+}
+`;
+
+exports[`buildTimelineObjsForRundown overlap and keepalive autonext into next part with excludeDuringPartKeepalive 1`] = `
+{
+  "timeline": [
+    {
+      "classes": [
+        "rundown_active",
+      ],
+      "enable": {
+        "while": 1,
+      },
+      "id": "mockPlaylist_status",
+      "layer": "rundown_status",
+      "partInstanceId": null,
+      "priority": 0,
+    },
+    {
+      "children": [
+        {
+          "enable": {
+            "start": 0,
+          },
+          "id": "part_group_firstobject_part0",
+          "layer": "group_first_object",
+          "partInstanceId": "part0",
+          "priority": 0,
+        },
+        {
+          "classes": [
+            "current_part",
+          ],
+          "enable": {
+            "start": 0,
+          },
+          "id": "piece_group_control_piece0",
+          "isPieceTimeline": true,
+          "priority": 5,
+        },
+        {
+          "children": [],
+          "enable": {
+            "end": "#piece_group_control_piece0.end + 0",
+            "start": "#piece_group_control_piece0.start - 0",
+          },
+          "id": "piece_group_piece0",
+          "isPieceTimeline": true,
+          "layer": "",
+          "priority": 0,
+        },
+        {
+          "children": [
+            {
+              "classes": [
+                "current_part",
+              ],
+              "enable": {
+                "start": 0,
+              },
+              "id": "piece_group_control_piece9",
+              "isPieceTimeline": true,
+              "priority": 5,
+            },
+            {
+              "children": [],
+              "enable": {
+                "end": "#piece_group_control_piece9.end + 0",
+                "start": "#piece_group_control_piece9.start - 0",
+              },
+              "id": "piece_group_piece9",
+              "isPieceTimeline": true,
+              "layer": "",
+              "priority": 0,
+            },
+          ],
+          "enable": {
+            "end": "#part_group_part0.end - 100",
+            "start": 0,
+          },
+          "id": "part_group_part0_no_keepalive",
+          "isPieceTimeline": true,
+          "layer": "",
+          "partInstanceId": "part0",
+          "priority": 5,
+        },
+      ],
+      "enable": {
+        "duration": 5000,
+        "start": 1235,
+      },
+      "id": "part_group_part0",
+      "isPieceTimeline": true,
+      "layer": "",
+      "partInstanceId": "part0",
+      "priority": 5,
+    },
+    {
+      "children": [
+        {
+          "enable": {
+            "start": 0,
+          },
+          "id": "part_group_firstobject_part1",
+          "layer": "group_first_object",
+          "partInstanceId": "part1",
+          "priority": 0,
+        },
+        {
+          "classes": [
+            "next_part",
+          ],
+          "enable": {
+            "start": 500,
+          },
+          "id": "piece_group_control_piece1",
+          "isPieceTimeline": true,
+          "priority": 5,
+        },
+        {
+          "children": [],
+          "enable": {
+            "end": "#piece_group_control_piece1.end + 0",
+            "start": "#piece_group_control_piece1.start - 0",
+          },
+          "id": "piece_group_piece1",
+          "isPieceTimeline": true,
+          "layer": "",
+          "priority": 0,
+        },
+      ],
+      "enable": {
+        "start": "#part_group_part0.end - 900",
+      },
+      "id": "part_group_part1",
+      "isPieceTimeline": true,
+      "layer": "",
+      "partInstanceId": "part1",
+      "priority": 5,
+    },
+  ],
+  "timingContext": {
+    "currentPartDuration": 5000,
+    "currentPartGroup": {
+      "children": 4,
+      "content": {
+        "deviceType": "ABSTRACT",
+        "objects": [],
+        "type": "group",
+      },
+      "enable": {
+        "duration": 5000,
+        "start": 1235,
+      },
+      "id": "part_group_part0",
+      "isGroup": true,
+      "layer": "",
+      "metaData": {
+        "isPieceTimeline": true,
+      },
+      "objectType": "rundown",
+      "partInstanceId": "part0",
+      "priority": 5,
+    },
+    "nextPartGroup": {
+      "children": 3,
+      "content": {
+        "deviceType": "ABSTRACT",
+        "objects": [],
+        "type": "group",
+      },
+      "enable": {
+        "start": "#part_group_part0.end - 900",
+      },
+      "id": "part_group_part1",
+      "isGroup": true,
+      "layer": "",
+      "metaData": {
+        "isPieceTimeline": true,
+      },
+      "objectType": "rundown",
+      "partInstanceId": "part1",
+      "priority": 5,
+    },
+    "nextPartOverlap": 900,
+  },
+}
+`;
+
+exports[`buildTimelineObjsForRundown overlap and keepalive current and previous parts 1`] = `
+{
+  "timeline": [
+    {
+      "classes": [
+        "rundown_active",
+        "last_part",
+      ],
+      "enable": {
+        "while": 1,
+      },
+      "id": "mockPlaylist_status",
+      "layer": "rundown_status",
+      "partInstanceId": null,
+      "priority": 0,
+    },
+    {
+      "children": [
+        {
+          "classes": [
+            "previous_part",
+          ],
+          "enable": {
+            "start": 0,
+          },
+          "id": "piece_group_control_piece9",
+          "isPieceTimeline": true,
+          "priority": 5,
+        },
+        {
+          "children": [],
+          "enable": {
+            "end": "#piece_group_control_piece9.end + 0",
+            "start": "#piece_group_control_piece9.start - 0",
+          },
+          "id": "piece_group_piece9",
+          "isPieceTimeline": true,
+          "layer": "",
+          "priority": 0,
+        },
+        {
+          "classes": [
+            "previous_part",
+          ],
+          "enable": {
+            "start": 0,
+          },
+          "id": "piece_group_control_piece8",
+          "isPieceTimeline": true,
+          "priority": 5,
+        },
+        {
+          "children": [],
+          "enable": {
+            "end": "#piece_group_control_piece8.end + 0",
+            "start": "#piece_group_control_piece8.start - 0",
+          },
+          "id": "piece_group_piece8",
+          "isPieceTimeline": true,
+          "layer": "",
+          "priority": 0,
+        },
+      ],
+      "enable": {
+        "end": "#part_group_part0.start + 900",
+        "start": 1235,
+      },
+      "id": "part_group_part9",
+      "isPieceTimeline": true,
+      "layer": "",
+      "partInstanceId": "part9",
+      "priority": -1,
+    },
+    {
+      "children": [
+        {
+          "enable": {
+            "start": 0,
+          },
+          "id": "part_group_firstobject_part0",
+          "layer": "group_first_object",
+          "partInstanceId": "part0",
+          "priority": 0,
+        },
+        {
+          "classes": [
+            "current_part",
+          ],
+          "enable": {
+            "start": 500,
+          },
+          "id": "piece_group_control_piece0",
+          "isPieceTimeline": true,
+          "priority": 5,
+        },
+        {
+          "children": [],
+          "enable": {
+            "end": "#piece_group_control_piece0.end + 0",
+            "start": "#piece_group_control_piece0.start - 0",
+          },
+          "id": "piece_group_piece0",
+          "isPieceTimeline": true,
+          "layer": "",
+          "priority": 0,
+        },
+      ],
+      "enable": {
+        "start": "now",
+      },
+      "id": "part_group_part0",
+      "isPieceTimeline": true,
+      "layer": "",
+      "partInstanceId": "part0",
+      "priority": 5,
+    },
+  ],
+  "timingContext": {
+    "currentPartDuration": undefined,
+    "currentPartGroup": {
+      "children": 3,
+      "content": {
+        "deviceType": "ABSTRACT",
+        "objects": [],
+        "type": "group",
+      },
+      "enable": {
+        "start": "now",
+      },
+      "id": "part_group_part0",
+      "isGroup": true,
+      "layer": "",
+      "metaData": {
+        "isPieceTimeline": true,
+      },
+      "objectType": "rundown",
+      "partInstanceId": "part0",
+      "priority": 5,
+    },
+    "nextPartGroup": undefined,
+    "previousPartOverlap": 900,
+  },
+}
+`;
+
+exports[`buildTimelineObjsForRundown overlap and keepalive current and previous parts with excludeDuringPartKeepalive 1`] = `
+{
+  "timeline": [
+    {
+      "classes": [
+        "rundown_active",
+        "last_part",
+      ],
+      "enable": {
+        "while": 1,
+      },
+      "id": "mockPlaylist_status",
+      "layer": "rundown_status",
+      "partInstanceId": null,
+      "priority": 0,
+    },
+    {
+      "children": [
+        {
+          "classes": [
+            "previous_part",
+          ],
+          "enable": {
+            "start": 0,
+          },
+          "id": "piece_group_control_piece9",
+          "isPieceTimeline": true,
+          "priority": 5,
+        },
+        {
+          "children": [],
+          "enable": {
+            "end": "#piece_group_control_piece9.end + 0",
+            "start": "#piece_group_control_piece9.start - 0",
+          },
+          "id": "piece_group_piece9",
+          "isPieceTimeline": true,
+          "layer": "",
+          "priority": 0,
+        },
+        {
+          "children": [
+            {
+              "classes": [
+                "previous_part",
+              ],
+              "enable": {
+                "start": 0,
+              },
+              "id": "piece_group_control_piece8",
+              "isPieceTimeline": true,
+              "priority": 5,
+            },
+            {
+              "children": [],
+              "enable": {
+                "end": "#piece_group_control_piece8.end + 0",
+                "start": "#piece_group_control_piece8.start - 0",
+              },
+              "id": "piece_group_piece8",
+              "isPieceTimeline": true,
+              "layer": "",
+              "priority": 0,
+            },
+          ],
+          "enable": {
+            "end": "#part_group_part9.end - 100",
+            "start": 0,
+          },
+          "id": "part_group_part9_no_keepalive",
+          "isPieceTimeline": true,
+          "layer": "",
+          "partInstanceId": "part9",
+          "priority": 5,
+        },
+      ],
+      "enable": {
+        "end": "#part_group_part0.start + 900",
+        "start": 1235,
+      },
+      "id": "part_group_part9",
+      "isPieceTimeline": true,
+      "layer": "",
+      "partInstanceId": "part9",
+      "priority": -1,
+    },
+    {
+      "children": [
+        {
+          "enable": {
+            "start": 0,
+          },
+          "id": "part_group_firstobject_part0",
+          "layer": "group_first_object",
+          "partInstanceId": "part0",
+          "priority": 0,
+        },
+        {
+          "classes": [
+            "current_part",
+          ],
+          "enable": {
+            "start": 500,
+          },
+          "id": "piece_group_control_piece0",
+          "isPieceTimeline": true,
+          "priority": 5,
+        },
+        {
+          "children": [],
+          "enable": {
+            "end": "#piece_group_control_piece0.end + 0",
+            "start": "#piece_group_control_piece0.start - 0",
+          },
+          "id": "piece_group_piece0",
+          "isPieceTimeline": true,
+          "layer": "",
+          "priority": 0,
+        },
+      ],
+      "enable": {
+        "start": "now",
+      },
+      "id": "part_group_part0",
+      "isPieceTimeline": true,
+      "layer": "",
+      "partInstanceId": "part0",
+      "priority": 5,
+    },
+  ],
+  "timingContext": {
+    "currentPartDuration": undefined,
+    "currentPartGroup": {
+      "children": 3,
+      "content": {
+        "deviceType": "ABSTRACT",
+        "objects": [],
+        "type": "group",
+      },
+      "enable": {
+        "start": "now",
+      },
+      "id": "part_group_part0",
+      "isGroup": true,
+      "layer": "",
+      "metaData": {
+        "isPieceTimeline": true,
+      },
+      "objectType": "rundown",
+      "partInstanceId": "part0",
+      "priority": 5,
+    },
+    "nextPartGroup": undefined,
+    "previousPartOverlap": 900,
+  },
+}
+`;
+
+exports[`buildTimelineObjsForRundown simple current part 1`] = `
+{
+  "timeline": [
+    {
+      "classes": [
+        "rundown_active",
+        "last_part",
+      ],
+      "enable": {
+        "while": 1,
+      },
+      "id": "mockPlaylist_status",
+      "layer": "rundown_status",
+      "partInstanceId": null,
+      "priority": 0,
+    },
+    {
+      "children": [
+        {
+          "enable": {
+            "start": 0,
+          },
+          "id": "part_group_firstobject_part0",
+          "layer": "group_first_object",
+          "partInstanceId": "part0",
+          "priority": 0,
+        },
+        {
+          "classes": [
+            "current_part",
+          ],
+          "enable": {
+            "start": 0,
+          },
+          "id": "piece_group_control_piece0",
+          "isPieceTimeline": true,
+          "priority": 5,
+        },
+        {
+          "children": [],
+          "enable": {
+            "end": "#piece_group_control_piece0.end + 0",
+            "start": "#piece_group_control_piece0.start - 0",
+          },
+          "id": "piece_group_piece0",
+          "isPieceTimeline": true,
+          "layer": "",
+          "priority": 0,
+        },
+      ],
+      "enable": {
+        "start": "now",
+      },
+      "id": "part_group_part0",
+      "isPieceTimeline": true,
+      "layer": "",
+      "partInstanceId": "part0",
+      "priority": 5,
+    },
+  ],
+  "timingContext": {
+    "currentPartDuration": undefined,
+    "currentPartGroup": {
+      "children": 3,
+      "content": {
+        "deviceType": "ABSTRACT",
+        "objects": [],
+        "type": "group",
+      },
+      "enable": {
+        "start": "now",
+      },
+      "id": "part_group_part0",
+      "isGroup": true,
+      "layer": "",
+      "metaData": {
+        "isPieceTimeline": true,
+      },
+      "objectType": "rundown",
+      "partInstanceId": "part0",
+      "priority": 5,
+    },
+    "nextPartGroup": undefined,
+  },
+}
+`;

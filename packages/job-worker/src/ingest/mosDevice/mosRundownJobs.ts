@@ -1,5 +1,4 @@
-import { IngestPart } from '@sofie-automation/blueprints-integration'
-import { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { NrcsIngestRundownChangeDetails, IngestPart, IngestChangeType } from '@sofie-automation/blueprints-integration'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import {
 	MosRundownProps,
@@ -8,117 +7,95 @@ import {
 	MosRundownReadyToAirProps,
 } from '@sofie-automation/corelib/dist/worker/ingest'
 import { JobContext } from '../../jobs'
-import { getCurrentTime } from '../../lib'
-import _ = require('underscore')
-import { LocalIngestRundown } from '../ingestCache'
-import { getRundownId, getPartId, canRundownBeUpdated } from '../lib'
-import { runIngestJob, CommitIngestData, runWithRundownLock } from '../lock'
-import { diffAndUpdateSegmentIds } from './diff'
-import { parseMosString } from './lib'
-import { groupedPartsToSegments, groupIngestParts, storiesToIngestParts } from './mosToIngest'
-import { updateRundownFromIngestData, updateRundownMetadataFromIngestData } from '../generationRundown'
+import { getRundownId, canRundownBeUpdated } from '../lib'
+import { CommitIngestData, runWithRundownLock } from '../lock'
+import { mosStoryToIngestSegment, parseMosString, updateRanksBasedOnOrder } from './lib'
+import { GenerateRundownMode, updateRundownFromIngestData } from '../generationRundown'
+import { IngestUpdateOperationFunction } from '../runOperation'
+import { IngestModel } from '../model/IngestModel'
+import { IngestRundownWithSource } from '@sofie-automation/corelib/dist/dataModel/NrcsIngestDataCache'
+import { SofieIngestRundownWithSource } from '@sofie-automation/corelib/dist/dataModel/SofieIngestDataCache'
 
 /**
  * Insert or update a mos rundown
  */
-export async function handleMosRundownData(context: JobContext, data: MosRundownProps): Promise<void> {
+export function handleMosRundownData(
+	_context: JobContext,
+	data: MosRundownProps
+): IngestUpdateOperationFunction | null {
 	// Create or update a rundown (ie from rundownCreate or rundownList)
 
 	if (parseMosString(data.mosRunningOrder.ID) !== data.rundownExternalId)
 		throw new Error('mosRunningOrder.ID and rundownExternalId mismatch!')
 
-	await runIngestJob(
-		context,
-		data,
-		(ingestRundown) => {
-			const rundownId = getRundownId(context.studioId, data.rundownExternalId)
-			const parts = _.compact(
-				storiesToIngestParts(context, rundownId, data.mosRunningOrder.Stories || [], data.isUpdateOperation, [])
-			)
-			const groupedStories = groupIngestParts(parts)
+	return (ingestRundown) => {
+		const ingestSegments = (data.mosRunningOrder.Stories || []).map((story) =>
+			mosStoryToIngestSegment(story, data.isUpdateOperation)
+		)
 
-			// If this is a reload of a RO, then use cached data to make the change more seamless
-			if (data.isUpdateOperation && ingestRundown) {
-				const partCacheMap = new Map<PartId, IngestPart>()
-				for (const segment of ingestRundown.segments) {
-					for (const part of segment.parts) {
-						partCacheMap.set(getPartId(rundownId, part.externalId), part)
-					}
-				}
-
-				for (const annotatedPart of parts) {
-					const cached = partCacheMap.get(annotatedPart.partId)
-					if (cached && !annotatedPart.ingest.payload) {
-						annotatedPart.ingest.payload = cached.payload
-					}
+		// If this is a reload of a RO, then use cached data to make the change more seamless
+		if (data.isUpdateOperation && ingestRundown) {
+			const partCacheMap = new Map<string, IngestPart>()
+			for (const segment of ingestRundown.segments) {
+				for (const part of segment.parts) {
+					partCacheMap.set(part.externalId, part)
 				}
 			}
 
-			const ingestSegments = groupedPartsToSegments(rundownId, groupedStories)
+			for (const newIngestSegment of ingestSegments) {
+				const ingestPart = newIngestSegment.parts[0]
+				if (!ingestPart) continue
 
-			return literal<LocalIngestRundown>({
-				externalId: data.rundownExternalId,
-				name: parseMosString(data.mosRunningOrder.Slug),
-				type: 'mos',
-				segments: ingestSegments,
-				payload: data.mosRunningOrder,
-				modified: getCurrentTime(),
-			})
-		},
-		async (context, ingestModel, newIngestRundown, oldIngestRundown) => {
-			if (!newIngestRundown) throw new Error(`handleMosRundownData lost the IngestRundown...`)
-
-			if (!canRundownBeUpdated(ingestModel.rundown, !data.isUpdateOperation)) return null
-
-			let renamedSegments: CommitIngestData['renamedSegments'] = null
-			if (ingestModel.rundown && oldIngestRundown) {
-				// If we already have a rundown, update any modified segment ids
-				renamedSegments = diffAndUpdateSegmentIds(context, ingestModel, oldIngestRundown, newIngestRundown)
-			}
-
-			const res = await updateRundownFromIngestData(
-				context,
-				ingestModel,
-				newIngestRundown,
-				!data.isUpdateOperation,
-				data.rundownSource
-			)
-			if (res) {
-				return {
-					...res,
-					renamedSegments: renamedSegments,
+				const cached = partCacheMap.get(ingestPart.externalId)
+				if (cached && !ingestPart.payload) {
+					ingestPart.payload = cached.payload
 				}
-			} else {
-				return null
 			}
 		}
-	)
+
+		const newIngestRundown = literal<IngestRundownWithSource>({
+			externalId: data.rundownExternalId,
+			name: parseMosString(data.mosRunningOrder.Slug),
+			type: 'mos',
+			segments: ingestSegments,
+			payload: data.mosRunningOrder,
+			rundownSource: data.rundownSource,
+		})
+		updateRanksBasedOnOrder(newIngestRundown)
+
+		return {
+			ingestRundown: newIngestRundown,
+			changes: {
+				source: IngestChangeType.Ingest,
+				rundownChanges: NrcsIngestRundownChangeDetails.Regenerate,
+			},
+		}
+	}
 }
 
 /**
  * Update the payload of a mos rundown, without changing any parts or segments
  */
-export async function handleMosRundownMetadata(context: JobContext, data: MosRundownMetadataProps): Promise<void> {
-	await runIngestJob(
-		context,
-		data,
-		(ingestRundown) => {
-			if (ingestRundown) {
-				ingestRundown.payload = _.extend(ingestRundown.payload, data.mosRunningOrderBase)
-				ingestRundown.modified = getCurrentTime()
+export function handleMosRundownMetadata(
+	_context: JobContext,
+	data: MosRundownMetadataProps
+): IngestUpdateOperationFunction | null {
+	return (ingestRundown) => {
+		if (ingestRundown) {
+			ingestRundown.payload = Object.assign(ingestRundown.payload as object, data.mosRunningOrderBase)
 
+			return {
 				// We modify in-place
-				return ingestRundown
-			} else {
-				throw new Error(`Rundown "${data.rundownExternalId}" not found`)
+				ingestRundown,
+				changes: {
+					source: IngestChangeType.Ingest,
+					rundownChanges: NrcsIngestRundownChangeDetails.Payload,
+				},
 			}
-		},
-		async (context, ingestModel, ingestRundown) => {
-			if (!ingestRundown) throw new Error(`handleMosRundownMetadata lost the IngestRundown...`)
-
-			return updateRundownMetadataFromIngestData(context, ingestModel, ingestRundown, data.rundownSource)
+		} else {
+			throw new Error(`Rundown "${data.rundownExternalId}" not found`)
 		}
-	)
+	}
 }
 
 /**
@@ -143,29 +120,18 @@ export async function handleMosRundownStatus(context: JobContext, data: MosRundo
 /**
  * Update the ready to air state of a mos rundown
  */
-export async function handleMosRundownReadyToAir(context: JobContext, data: MosRundownReadyToAirProps): Promise<void> {
-	await runIngestJob(
-		context,
-		data,
-		(ingestRundown) => {
-			if (ingestRundown) {
-				// No change
-				return ingestRundown
-			} else {
-				throw new Error(`Rundown "${data.rundownExternalId}" not found`)
-			}
-		},
-		async (context, ingestModel, ingestRundown) => {
-			if (!ingestRundown) throw new Error(`handleMosRundownReadyToAir lost the IngestRundown...`)
+export async function handleMosRundownReadyToAir(
+	context: JobContext,
+	data: MosRundownReadyToAirProps,
+	ingestModel: IngestModel,
+	ingestRundown: SofieIngestRundownWithSource
+): Promise<CommitIngestData | null> {
+	if (!ingestModel.rundown || ingestModel.rundown.airStatus === data.status) return null
 
-			if (!ingestModel.rundown || ingestModel.rundown.airStatus === data.status) return null
+	// If rundown is orphaned, then it should be ignored
+	if (ingestModel.rundown.orphaned) return null
 
-			// If rundown is orphaned, then it should be ignored
-			if (ingestModel.rundown.orphaned) return null
+	ingestModel.setRundownAirStatus(data.status)
 
-			ingestModel.setRundownAirStatus(data.status)
-
-			return updateRundownMetadataFromIngestData(context, ingestModel, ingestRundown, ingestModel.rundown.source)
-		}
-	)
+	return updateRundownFromIngestData(context, ingestModel, ingestRundown, GenerateRundownMode.MetadataChange)
 }

@@ -3,6 +3,36 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.52.0-in-testing.1](https://github.com/Sofie-Automation/sofie-core/compare/v1.51.7...v1.52.0-in-testing.1) (2025-06-05)
+
+
+### Bug Fixes
+
+* change owner of application files, run as non-root user, linting ([2de99a2](https://github.com/Sofie-Automation/sofie-core/commit/2de99a2226edb0c8c0bdc92d823e072957a108e1))
+
+
+
+# [1.52.0-in-testing.0](https://github.com/Sofie-Automation/sofie-core/compare/v1.51.6...v1.52.0-in-testing.0) (2025-02-04)
+
+
+### Bug Fixes
+
+* dis-/en-able heartbeat when openMediaHotStandby ([e2fe446](https://github.com/Sofie-Automation/sofie-core/commit/e2fe4467df8b578661c74c5755c110f730f3c3d4))
+* make openMediaHotStandby option pr subdevice, and rename from hotStandby to openMediaHotStandby ([ce68543](https://github.com/Sofie-Automation/sofie-core/commit/ce6854336f4df8fc4f4b512a3de1f039fc0f1309))
+* MosGateway hotstandby - send message for both servers if both connections are offline ([72c765f](https://github.com/Sofie-Automation/sofie-core/commit/72c765f56f4acf991bbb566fefb2b99106536587))
+* update mos-connection dependency (SOFIE-3006) ([#1251](https://github.com/Sofie-Automation/sofie-core/issues/1251)) ([d5c2cad](https://github.com/Sofie-Automation/sofie-core/commit/d5c2cad8e154703df2a9fb7698d54c35ef3f17f8))
+* update mos-connection dependency: fixes an issue where ExternalMetadata.MosPayload was not passed through if content is a string ([d499893](https://github.com/Sofie-Automation/sofie-core/commit/d4998939b463de518c7e12f32462cb77b6a40975))
+
+
+### Features
+
+* meteor 3.0.4 ([8670727](https://github.com/Sofie-Automation/sofie-core/commit/8670727bba5ac9cffe0e5d36b4bd45d6664482be))
+* update meteor to 3.1 and node to 22 ([61b6854](https://github.com/Sofie-Automation/sofie-core/commit/61b6854261a03f04e81416b9d37ee995e3a10108))
+
+
+
+
+
 ## [1.51.7](https://github.com/nrkno/sofie-core/compare/v1.51.6...v1.51.7) (2025-05-06)
 
 **Note:** Version bump only for package mos-gateway

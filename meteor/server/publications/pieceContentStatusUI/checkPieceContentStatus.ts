@@ -24,14 +24,18 @@ import {
 	MappingsExt,
 	ResultingMappingRoutes,
 	StudioPackageContainer,
+	StudioRouteSet,
 } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { literal, Complete, assertNever } from '@sofie-automation/corelib/dist/lib'
+import { literal, Complete, assertNever, omit } from '@sofie-automation/corelib/dist/lib'
 import { ReadonlyDeep } from 'type-fest'
 import _ from 'underscore'
-import { getSideEffect } from '../../../lib/collections/ExpectedPackages'
-import { getActiveRoutes, getRoutedMappings } from '../../../lib/collections/Studios'
-import { ensureHasTrailingSlash, generateTranslation, unprotectString } from '../../../lib/lib'
-import { PieceContentStatusObj } from '../../../lib/api/pieceContentStatus'
+import {
+	getExpectedPackageFileName,
+	getSideEffect,
+} from '@sofie-automation/meteor-lib/dist/collections/ExpectedPackages'
+import { getActiveRoutes, getRoutedMappings } from '@sofie-automation/meteor-lib/dist/collections/Studios'
+import { ensureHasTrailingSlash, unprotectString } from '../../lib/tempLib'
+import { PieceContentStatusObj } from '@sofie-automation/meteor-lib/dist/api/pieceContentStatus'
 import { MediaObjects, PackageContainerPackageStatuses, PackageInfos } from '../../collections'
 import {
 	mediaObjectFieldSpecifier,
@@ -42,6 +46,10 @@ import {
 	PackageInfoLight,
 	PieceDependencies,
 } from './common'
+import { PieceContentStatusMessageFactory, PieceContentStatusMessageRequiredArgs } from './messageFactory'
+import { PackageStatusMessage } from '@sofie-automation/shared-lib/dist/packageStatusMessages'
+
+const DEFAULT_MESSAGE_FACTORY = new PieceContentStatusMessageFactory(undefined)
 
 interface ScanInfoForPackages {
 	[packageId: string]: ScanInfoForPackage
@@ -49,6 +57,8 @@ interface ScanInfoForPackages {
 interface ScanInfoForPackage {
 	/** Display name of the package  */
 	packageName: string
+	containerLabel: string
+
 	scan?: PackageInfo.FFProbeScan['payload']
 	deepScan?: PackageInfo.FFProbeDeepScan['payload']
 	timebase?: number // derived from scan
@@ -59,9 +69,21 @@ interface ScanInfoForPackage {
  * formatted string
  */
 export function buildFormatString(
-	field_order: PackageInfo.FieldOrder | undefined,
+	scan_field_order: PackageInfo.FieldOrder | undefined,
 	stream: PieceContentStreamInfo
 ): string {
+	let field_order: PackageInfo.FieldOrder
+	if (stream.field_order === PackageInfo.FieldOrder.BFF || stream.field_order === PackageInfo.FieldOrder.TFF) {
+		// If the stream says it is interlaced, trust that
+		field_order = stream.field_order
+	} else if (scan_field_order && scan_field_order !== PackageInfo.FieldOrder.Unknown) {
+		// Then try the scan if it gave a value
+		field_order = scan_field_order
+	} else {
+		// Fallback to whatever the stream has
+		field_order = stream.field_order || PackageInfo.FieldOrder.Unknown
+	}
+
 	let format = `${stream.width || 0}x${stream.height || 0}`
 	switch (field_order) {
 		case PackageInfo.FieldOrder.Progressive:
@@ -134,7 +156,9 @@ export function acceptFormat(format: string, formats: Array<Array<string>>): boo
  * 	[undefined, undefined, i, 5000, tff]
  * ]
  */
-export function getAcceptedFormats(settings: IStudioSettings | undefined): Array<Array<string>> {
+export function getAcceptedFormats(
+	settings: Pick<IStudioSettings, 'supportedMediaFormats' | 'frameRate'> | undefined
+): Array<Array<string>> {
 	const formatsConfigField = settings ? settings.supportedMediaFormats : ''
 	const formatsString: string =
 		(formatsConfigField && formatsConfigField !== '' ? formatsConfigField : '1920x1080i5000') + ''
@@ -168,20 +192,26 @@ export function getMediaObjectMediaId(
 	return undefined
 }
 
-export type PieceContentStatusPiece = Pick<PieceGeneric, '_id' | 'content' | 'expectedPackages'> & {
+export type PieceContentStatusPiece = Pick<PieceGeneric, '_id' | 'content' | 'expectedPackages' | 'name'> & {
 	pieceInstanceId?: PieceInstanceId
 }
 export interface PieceContentStatusStudio
-	extends Pick<
-		DBStudio,
-		'_id' | 'settings' | 'packageContainers' | 'previewContainerIds' | 'thumbnailContainerIds' | 'routeSets'
-	> {
+	extends Pick<DBStudio, '_id' | 'previewContainerIds' | 'thumbnailContainerIds'> {
 	/** Mappings between the physical devices / outputs and logical ones */
 	mappings: MappingsExt
+	/** Route sets with overrides */
+	routeSets: Record<string, StudioRouteSet>
+	/** Contains settings for which Package Containers are present in the studio.
+	 * (These are used by the Package Manager and the Expected Packages)
+	 */
+	packageContainers: Record<string, StudioPackageContainer>
+
+	settings: IStudioSettings
 }
 
 export async function checkPieceContentStatusAndDependencies(
 	studio: PieceContentStatusStudio,
+	messageFactory: PieceContentStatusMessageFactory | undefined,
 	piece: PieceContentStatusPiece,
 	sourceLayer: ISourceLayer
 ): Promise<[status: PieceContentStatusObj, pieceDependencies: PieceDependencies]> {
@@ -231,7 +261,8 @@ export async function checkPieceContentStatusAndDependencies(
 				sourceLayer,
 				studio,
 				getPackageInfos,
-				getPackageContainerPackageStatus
+				getPackageContainerPackageStatus,
+				messageFactory || DEFAULT_MESSAGE_FACTORY
 			)
 			return [status, pieceDependencies]
 		} else {
@@ -247,7 +278,13 @@ export async function checkPieceContentStatusAndDependencies(
 				) as Promise<MediaObjectLight | undefined>
 			}
 
-			const status = await checkPieceContentMediaObjectStatus(piece, sourceLayer, studio, getMediaObject)
+			const status = await checkPieceContentMediaObjectStatus(
+				piece,
+				sourceLayer,
+				studio,
+				getMediaObject,
+				messageFactory || DEFAULT_MESSAGE_FACTORY
+			)
 			return [status, pieceDependencies]
 		}
 	}
@@ -272,11 +309,17 @@ export async function checkPieceContentStatusAndDependencies(
 	]
 }
 
+interface MediaObjectMessage {
+	status: PieceStatusCode
+	message: ITranslatableMessage | null
+}
+
 async function checkPieceContentMediaObjectStatus(
 	piece: PieceContentStatusPiece,
 	sourceLayer: ISourceLayer,
 	studio: PieceContentStatusStudio,
-	getMediaObject: (mediaId: string) => Promise<MediaObjectLight | undefined>
+	getMediaObject: (mediaId: string) => Promise<MediaObjectLight | undefined>,
+	messageFactory: PieceContentStatusMessageFactory
 ): Promise<PieceContentStatusObj> {
 	let metadata: MediaObjectLight | null = null
 	const settings: IStudioSettings | undefined = studio?.settings
@@ -288,7 +331,7 @@ async function checkPieceContentMediaObjectStatus(
 	let blacks: Array<PackageInfo.Anomaly> = []
 	let scenes: Array<number> = []
 
-	const messages: Array<ContentMessage> = []
+	const messages: Array<MediaObjectMessage> = []
 	let contentSeemsOK = false
 	const fileName = getMediaObjectMediaId(piece, sourceLayer)
 	switch (sourceLayer.type) {
@@ -299,19 +342,31 @@ async function checkPieceContentMediaObjectStatus(
 			if (!fileName) {
 				messages.push({
 					status: PieceStatusCode.SOURCE_NOT_SET,
-					message: generateTranslation('{{sourceLayer}} is missing a file path', {
+					message: messageFactory.getTranslation(PackageStatusMessage.MISSING_FILE_PATH, {
 						sourceLayer: sourceLayer.name,
+						pieceName: piece.name,
+						fileName: '',
+						containerLabels: '',
 					}),
 				})
 			} else {
+				const messageRequiredArgs: PieceContentStatusMessageRequiredArgs = {
+					sourceLayer: sourceLayer.name,
+					pieceName: piece.name,
+					fileName: fileName,
+					containerLabels: '',
+				}
 				const mediaObject = await getMediaObject(fileName)
 				// If media object not found, then...
 				if (!mediaObject) {
 					messages.push({
 						status: PieceStatusCode.SOURCE_MISSING,
-						message: generateTranslation('{{sourceLayer}} is not yet ready on the playout system', {
-							sourceLayer: sourceLayer.name,
-						}),
+						message: messageFactory.getTranslation(
+							PackageStatusMessage.FILE_NOT_YET_READY_ON_PLAYOUT_SYSTEM,
+							{
+								...messageRequiredArgs,
+							}
+						),
 					})
 					// All VT content should have at least two streams
 				} else {
@@ -320,9 +375,20 @@ async function checkPieceContentMediaObjectStatus(
 					// Do a format check:
 					if (mediaObject.mediainfo) {
 						if (mediaObject.mediainfo.streams) {
+							const pushMessages = (newMessages: Array<ContentMessageLight>) => {
+								for (const message of newMessages) {
+									messages.push({
+										status: message.status,
+										message: messageFactory.getTranslation(message.message, {
+											...messageRequiredArgs,
+											...message.extraArgs,
+										}),
+									})
+								}
+							}
+
 							const mediainfo = mediaObject.mediainfo
-							const timebase = checkStreamFormatsAndCounts(
-								messages,
+							const { timebase, messages: formatMessages } = checkStreamFormatsAndCounts(
 								mediaObject.mediainfo.streams.map((stream) =>
 									// Translate to a package-manager type, for code reuse
 									literal<Complete<PieceContentStreamInfo>>({
@@ -333,6 +399,7 @@ async function checkPieceContentMediaObjectStatus(
 										codec_time_base: stream.codec.time_base,
 										channels: stream.channels,
 										r_frame_rate: undefined,
+										field_order: undefined,
 									})
 								),
 								(stream) => buildFormatString(mediainfo.field_order, stream),
@@ -340,6 +407,7 @@ async function checkPieceContentMediaObjectStatus(
 								sourceLayer,
 								ignoreMediaAudioStatus
 							)
+							pushMessages(formatMessages)
 
 							if (timebase) {
 								mediaObject.mediainfo.timebase = timebase
@@ -349,14 +417,14 @@ async function checkPieceContentMediaObjectStatus(
 
 								if (mediaObject.mediainfo.blacks?.length) {
 									if (!piece.content.ignoreBlackFrames) {
-										addFrameWarning(
-											messages,
+										const blackMessages = addFrameWarning(
 											timebase,
 											sourceDuration,
 											mediaObject.mediainfo.format?.duration,
 											mediaObject.mediainfo.blacks,
 											BlackFrameWarnings
 										)
+										pushMessages(blackMessages)
 									}
 
 									blacks = mediaObject.mediainfo.blacks.map((i): PackageInfo.Anomaly => {
@@ -365,14 +433,14 @@ async function checkPieceContentMediaObjectStatus(
 								}
 								if (mediaObject.mediainfo.freezes?.length) {
 									if (!piece.content.ignoreFreezeFrame) {
-										addFrameWarning(
-											messages,
+										const freezeMessages = addFrameWarning(
 											timebase,
 											sourceDuration,
 											mediaObject.mediainfo.format?.duration,
 											mediaObject.mediainfo.freezes,
 											FreezeFrameWarnings
 										)
+										pushMessages(freezeMessages)
 									}
 
 									freezes = mediaObject.mediainfo.freezes.map((i): PackageInfo.Anomaly => {
@@ -388,8 +456,8 @@ async function checkPieceContentMediaObjectStatus(
 					} else {
 						messages.push({
 							status: PieceStatusCode.SOURCE_MISSING,
-							message: generateTranslation('{{sourceLayer}} is being ingested', {
-								sourceLayer: sourceLayer.name,
+							message: messageFactory.getTranslation(PackageStatusMessage.FILE_IS_BEING_INGESTED, {
+								...messageRequiredArgs,
 							}),
 						})
 					}
@@ -405,7 +473,12 @@ async function checkPieceContentMediaObjectStatus(
 				if (!mediaObject) {
 					messages.push({
 						status: PieceStatusCode.SOURCE_MISSING,
-						message: generateTranslation('{{sourceLayer}} is missing', { sourceLayer: sourceLayer.name }),
+						message: messageFactory.getTranslation(PackageStatusMessage.FILE_IS_MISSING, {
+							sourceLayer: sourceLayer.name,
+							pieceName: piece.name,
+							fileName: fileName,
+							containerLabels: '',
+						}),
 					})
 				} else {
 					contentSeemsOK = true
@@ -438,7 +511,7 @@ async function checkPieceContentMediaObjectStatus(
 
 	return {
 		status: pieceStatus,
-		messages: messages.map((msg) => msg.message),
+		messages: _.compact(messages.map((msg) => msg.message)),
 		progress: 0,
 
 		freezes,
@@ -471,9 +544,15 @@ function getAssetUrlFromContentMetaData(
 	)
 }
 
-interface ContentMessage {
+interface ContentMessageLight {
 	status: PieceStatusCode
-	message: ITranslatableMessage
+	message: PackageStatusMessage
+	customMessage?: string
+	extraArgs?: { [key: string]: string | number }
+}
+interface ContentMessage extends ContentMessageLight {
+	fileName: string
+	packageContainers: string[]
 }
 
 async function checkPieceContentExpectedPackageStatus(
@@ -484,14 +563,26 @@ async function checkPieceContentExpectedPackageStatus(
 	getPackageContainerPackageStatus: (
 		packageContainerId: string,
 		expectedPackageId: ExpectedPackageId
-	) => Promise<PackageContainerPackageStatusLight | undefined>
+	) => Promise<PackageContainerPackageStatusLight | undefined>,
+	messageFactory: PieceContentStatusMessageFactory
 ): Promise<PieceContentStatusObj> {
 	const settings: IStudioSettings | undefined = studio?.settings
-	let pieceStatus: PieceStatusCode = PieceStatusCode.UNKNOWN
 
 	const ignoreMediaAudioStatus = piece.content && piece.content.ignoreAudioFormat
 
 	const messages: Array<ContentMessage> = []
+	const pushOrMergeMessage = (newMessage: ContentMessage) => {
+		const existingMessage = messages.find((m) =>
+			_.isEqual(omit(m, 'packageContainers'), omit(newMessage, 'packageContainers'))
+		)
+		if (existingMessage) {
+			// If we have already added this message, just add the package name to the message
+			existingMessage.packageContainers.push(...newMessage.packageContainers)
+		} else {
+			messages.push(newMessage)
+		}
+	}
+
 	const packageInfos: ScanInfoForPackages = {}
 	let readyCount = 0
 
@@ -514,27 +605,27 @@ async function checkPieceContentExpectedPackageStatus(
 			const checkedPackageContainers = new Set<string>()
 
 			for (const routedDeviceId of routedDeviceIds) {
-				let packageContainerId: string | undefined
-				for (const [containerId, packageContainer] of Object.entries<ReadonlyDeep<StudioPackageContainer>>(
+				let matchedPackageContainer: [string, ReadonlyDeep<StudioPackageContainer>] | undefined
+				for (const packageContainer of Object.entries<ReadonlyDeep<StudioPackageContainer>>(
 					studio.packageContainers
 				)) {
-					if (packageContainer.deviceIds.includes(unprotectString(routedDeviceId))) {
+					if (packageContainer[1].deviceIds.includes(unprotectString(routedDeviceId))) {
 						// TODO: how to handle if a device has multiple containers?
-						packageContainerId = containerId
+						matchedPackageContainer = packageContainer
 						break // just picking the first one found, for now
 					}
 				}
 
-				if (!packageContainerId) {
+				if (!matchedPackageContainer) {
 					continue
 				}
 
-				if (checkedPackageContainers.has(packageContainerId)) {
+				if (checkedPackageContainers.has(matchedPackageContainer[0])) {
 					// we have already checked this package container for this expected package
 					continue
 				}
 
-				checkedPackageContainers.add(packageContainerId)
+				checkedPackageContainers.add(matchedPackageContainer[0])
 
 				const expectedPackageIds = [getExpectedPackageId(piece._id, expectedPackage._id)]
 				if (piece.pieceInstanceId) {
@@ -542,11 +633,11 @@ async function checkPieceContentExpectedPackageStatus(
 					expectedPackageIds.unshift(getExpectedPackageId(piece.pieceInstanceId, expectedPackage._id))
 				}
 
-				let warningMessage: ContentMessage | null = null
+				let warningMessage: ContentMessageLight | null = null
 				let matchedExpectedPackageId: ExpectedPackageId | null = null
 				for (const expectedPackageId of expectedPackageIds) {
 					const packageOnPackageContainer = await getPackageContainerPackageStatus(
-						packageContainerId,
+						matchedPackageContainer[0],
 						expectedPackageId
 					)
 					if (!packageOnPackageContainer) continue
@@ -557,7 +648,7 @@ async function checkPieceContentExpectedPackageStatus(
 						const sideEffect = getSideEffect(expectedPackage, studio)
 
 						thumbnailUrl = await getAssetUrlFromPackageContainerStatus(
-							studio,
+							studio.packageContainers,
 							getPackageContainerPackageStatus,
 							expectedPackageId,
 							sideEffect.thumbnailContainerId,
@@ -569,7 +660,7 @@ async function checkPieceContentExpectedPackageStatus(
 						const sideEffect = getSideEffect(expectedPackage, studio)
 
 						previewUrl = await getAssetUrlFromPackageContainerStatus(
-							studio,
+							studio.packageContainers,
 							getPackageContainerPackageStatus,
 							expectedPackageId,
 							sideEffect.previewContainerId,
@@ -577,30 +668,33 @@ async function checkPieceContentExpectedPackageStatus(
 						)
 					}
 
-					warningMessage = getPackageWarningMessage(packageOnPackageContainer, sourceLayer)
+					warningMessage = getPackageWarningMessage(packageOnPackageContainer.status)
 
-					progress = getPackageProgress(packageOnPackageContainer) ?? undefined
+					progress = getPackageProgress(packageOnPackageContainer.status) ?? undefined
 
 					// Found a packageOnPackageContainer
 					break
 				}
 
+				const fileName = getExpectedPackageFileName(expectedPackage) ?? ''
+				const containerLabel = matchedPackageContainer[1].container.label
+
 				if (!matchedExpectedPackageId || warningMessage) {
 					// If no package matched, we must have a warning
-					messages.push(warningMessage ?? getPackageSoruceMissingWarning(sourceLayer))
+					warningMessage = warningMessage ?? getPackageSourceMissingWarning()
+
+					pushOrMergeMessage({
+						...warningMessage,
+						fileName: fileName,
+						packageContainers: [containerLabel],
+					})
 				} else {
 					// No warning, must be OK
 
-					const packageName =
-						// @ts-expect-error hack
-						expectedPackage.content.filePath ||
-						// @ts-expect-error hack
-						expectedPackage.content.guid ||
-						expectedPackage._id
-
 					readyCount++
 					packageInfos[expectedPackage._id] = {
-						packageName,
+						packageName: fileName || expectedPackage._id,
+						containerLabel,
 					}
 					// Fetch scan-info about the package:
 					const dbPackageInfos = await getPackageInfos(matchedExpectedPackageId)
@@ -620,14 +714,25 @@ async function checkPieceContentExpectedPackageStatus(
 		const { scan, deepScan } = packageInfo
 
 		if (scan && scan.streams) {
-			const timebase = checkStreamFormatsAndCounts(
-				messages,
+			const pushMessages = (newMessages: Array<ContentMessageLight>) => {
+				for (const message of newMessages) {
+					pushOrMergeMessage({
+						...message,
+						fileName: packageInfo.packageName,
+						packageContainers: [packageInfo.containerLabel],
+					})
+				}
+			}
+
+			const { timebase, messages: formatMessages } = checkStreamFormatsAndCounts(
 				scan.streams,
 				(stream) => (deepScan ? buildFormatString(deepScan.field_order, stream) : null),
 				settings,
 				sourceLayer,
 				ignoreMediaAudioStatus
 			)
+			pushMessages(formatMessages)
+
 			if (timebase) {
 				packageInfo.timebase = timebase // what todo?
 
@@ -636,24 +741,24 @@ async function checkPieceContentExpectedPackageStatus(
 				const sourceDuration = piece.content.sourceDuration
 
 				if (!piece.content.ignoreBlackFrames && deepScan?.blacks?.length) {
-					addFrameWarning(
-						messages,
+					const blackMessages = addFrameWarning(
 						timebase,
 						sourceDuration,
 						scan.format?.duration,
 						deepScan.blacks,
 						BlackFrameWarnings
 					)
+					pushMessages(blackMessages)
 				}
 				if (!piece.content.ignoreFreezeFrame && deepScan?.freezes?.length) {
-					addFrameWarning(
-						messages,
+					const freezeMessages = addFrameWarning(
 						timebase,
 						sourceDuration,
 						scan.format?.duration,
 						deepScan.freezes,
 						FreezeFrameWarnings
 					)
+					pushMessages(freezeMessages)
 				}
 			}
 		}
@@ -689,17 +794,30 @@ async function checkPieceContentExpectedPackageStatus(
 		packageName = firstPackage.packageName
 	}
 
+	let pieceStatus: PieceStatusCode = PieceStatusCode.UNKNOWN
 	if (messages.length) {
 		pieceStatus = messages.reduce((prev, msg) => Math.max(prev, msg.status), PieceStatusCode.UNKNOWN)
-	} else {
-		if (readyCount > 0) {
-			pieceStatus = PieceStatusCode.OK
-		}
+	} else if (readyCount > 0) {
+		pieceStatus = PieceStatusCode.OK
 	}
+
+	const translatedMessages = messages.map((msg) => {
+		const messageArgs: PieceContentStatusMessageRequiredArgs & { [k: string]: any } = {
+			sourceLayer: sourceLayer.name,
+			pieceName: piece.name,
+			containerLabels: msg.packageContainers.join(', '),
+			fileName: msg.fileName,
+			...msg.extraArgs,
+		}
+
+		return msg.customMessage
+			? { key: msg.customMessage, args: messageArgs }
+			: messageFactory.getTranslation(msg.message, messageArgs)
+	})
 
 	return {
 		status: pieceStatus,
-		messages: messages.map((msg) => msg.message),
+		messages: _.compact(translatedMessages),
 		progress,
 
 		freezes,
@@ -716,7 +834,7 @@ async function checkPieceContentExpectedPackageStatus(
 }
 
 async function getAssetUrlFromPackageContainerStatus(
-	studio: PieceContentStatusStudio,
+	packageContainers: Record<string, StudioPackageContainer>,
 	getPackageContainerPackageStatus: (
 		packageContainerId: string,
 		expectedPackageId: ExpectedPackageId
@@ -727,7 +845,7 @@ async function getAssetUrlFromPackageContainerStatus(
 ): Promise<string | undefined> {
 	if (!assetContainerId || !packageAssetPath) return
 
-	const assetPackageContainer = studio.packageContainers[assetContainerId]
+	const assetPackageContainer = packageContainers[assetContainerId]
 	if (!assetPackageContainer) return
 
 	const previewPackageOnPackageContainer = await getPackageContainerPackageStatus(assetContainerId, expectedPackageId)
@@ -764,35 +882,32 @@ function getAssetUrlFromExpectedPackages(
 }
 
 function getPackageProgress(
-	packageOnPackageContainer: Pick<PackageContainerPackageStatusDB, 'status'> | undefined
+	packageOnPackageContainerStatus: ExpectedPackageStatusAPI.PackageContainerPackageStatus | undefined
 ): number | null {
-	return packageOnPackageContainer?.status.progress ?? null
+	return packageOnPackageContainerStatus?.progress ?? null
 }
 
-function getPackageSoruceMissingWarning(sourceLayer: ISourceLayer): ContentMessage {
+function getPackageSourceMissingWarning(): ContentMessageLight {
 	// Examples of contents in packageOnPackageContainer?.status.statusReason.user:
 	// * Target package: Quantel clip "XXX" not found
 	// * Can't read the Package from PackageContainer "Quantel source 0" (on accessor "${accessorLabel}"), due to: Quantel clip "XXX" not found
 
 	return {
 		status: PieceStatusCode.SOURCE_MISSING,
-		message: generateTranslation(`{{sourceLayer}} can't be found on the playout system`, {
-			sourceLayer: sourceLayer.name,
-		}),
+		message: PackageStatusMessage.FILE_CANT_BE_FOUND_ON_PLAYOUT_SYSTEM,
 	}
 }
 
 function getPackageWarningMessage(
-	packageOnPackageContainer: Pick<PackageContainerPackageStatusDB, 'status'>,
-	sourceLayer: ISourceLayer
-): ContentMessage | null {
+	packageOnPackageContainerStatus: ExpectedPackageStatusAPI.PackageContainerPackageStatus
+): ContentMessageLight | null {
 	if (
-		packageOnPackageContainer.status.status ===
+		packageOnPackageContainerStatus.status ===
 		ExpectedPackageStatusAPI.PackageContainerPackageStatusStatus.NOT_FOUND
 	) {
-		return getPackageSoruceMissingWarning(sourceLayer)
+		return getPackageSourceMissingWarning()
 	} else if (
-		packageOnPackageContainer.status.status ===
+		packageOnPackageContainerStatus.status ===
 		ExpectedPackageStatusAPI.PackageContainerPackageStatusStatus.NOT_READY
 	) {
 		// Examples of contents in packageOnPackageContainer?.status.statusReason.user:
@@ -800,95 +915,75 @@ function getPackageWarningMessage(
 
 		return {
 			status: PieceStatusCode.SOURCE_MISSING,
-			message: generateTranslation(
-				'{{reason}} {{sourceLayer}} exists, but is not yet ready on the playout system',
-				{
-					reason: ((packageOnPackageContainer?.status.statusReason.user || 'N/A') + '.').replace(
-						/\.\.$/,
-						'.'
-					), // remove any trailing double "."
-					sourceLayer: sourceLayer.name,
-				}
-			),
+			message: PackageStatusMessage.FILE_EXISTS_BUT_IS_NOT_READY_ON_PLAYOUT_SYSTEM,
+			extraArgs: {
+				reason: ((packageOnPackageContainerStatus?.statusReason.user || 'N/A') + '.').replace(/\.\.$/, '.'), // remove any trailing double "."
+			},
 		}
 	} else if (
 		// Examples of contents in packageOnPackageContainer?.status.statusReason.user:
 		// * Reserved clip (0 frames)
 		// * Reserved clip (1-9 frames)
-		packageOnPackageContainer.status.status ===
+		packageOnPackageContainerStatus.status ===
 		ExpectedPackageStatusAPI.PackageContainerPackageStatusStatus.PLACEHOLDER
 	) {
 		return {
 			status: PieceStatusCode.SOURCE_NOT_READY,
-			message: packageOnPackageContainer?.status.statusReason.user
-				? {
-						// remove any trailing double "."
-						key: (packageOnPackageContainer?.status.statusReason.user + '.').replace(/\.\.$/, '.'),
-				  }
-				: generateTranslation(
-						'{{sourceLayer}} is in a placeholder state for an unknown workflow-defined reason',
-						{
-							sourceLayer: sourceLayer.name,
-						}
-				  ),
+			message: PackageStatusMessage.FILE_IS_IN_PLACEHOLDER_STATE,
+			// remove any trailing double "."
+			customMessage: packageOnPackageContainerStatus?.statusReason.user
+				? (packageOnPackageContainerStatus?.statusReason.user + '.').replace(/\.\.$/, '.')
+				: undefined,
 		}
 	} else if (
-		packageOnPackageContainer.status.status ===
+		packageOnPackageContainerStatus.status ===
 		ExpectedPackageStatusAPI.PackageContainerPackageStatusStatus.TRANSFERRING_READY
 	) {
 		return {
 			status: PieceStatusCode.OK,
-			message: generateTranslation('{{sourceLayer}} is transferring to the playout system', {
-				sourceLayer: sourceLayer.name,
-			}),
+			message: PackageStatusMessage.FILE_IS_TRANSFERRING_TO_PLAYOUT_SYSTEM,
 		}
 	} else if (
-		packageOnPackageContainer.status.status ===
+		packageOnPackageContainerStatus.status ===
 		ExpectedPackageStatusAPI.PackageContainerPackageStatusStatus.TRANSFERRING_NOT_READY
 	) {
 		return {
 			status: PieceStatusCode.SOURCE_MISSING,
-			message: generateTranslation(
-				'{{sourceLayer}} is transferring to the playout system but cannot be played yet',
-				{
-					sourceLayer: sourceLayer.name,
-				}
-			),
+			message: PackageStatusMessage.FILE_IS_TRANSFERRING_TO_PLAYOUT_SYSTEM_NOT_READY,
 		}
 	} else if (
-		packageOnPackageContainer.status.status === ExpectedPackageStatusAPI.PackageContainerPackageStatusStatus.READY
+		packageOnPackageContainerStatus.status === ExpectedPackageStatusAPI.PackageContainerPackageStatusStatus.READY
 	) {
 		return null
 	} else {
-		assertNever(packageOnPackageContainer.status.status)
+		assertNever(packageOnPackageContainerStatus.status)
 		return {
 			status: PieceStatusCode.SOURCE_UNKNOWN_STATE,
-			message: generateTranslation('{{sourceLayer}} is in an unknown state: "{{status}}"', {
-				sourceLayer: sourceLayer.name,
-				status: packageOnPackageContainer.status.status,
-			}),
+			message: PackageStatusMessage.FILE_IS_IN_UNKNOWN_STATE,
+			extraArgs: {
+				status: packageOnPackageContainerStatus.status,
+			},
 		}
 	}
 }
 
 export type PieceContentStreamInfo = Pick<
 	PackageInfo.FFProbeScanStream,
-	'width' | 'height' | 'time_base' | 'codec_type' | 'codec_time_base' | 'channels' | 'r_frame_rate'
+	'width' | 'height' | 'time_base' | 'codec_type' | 'codec_time_base' | 'channels' | 'r_frame_rate' | 'field_order'
 >
 function checkStreamFormatsAndCounts(
-	messages: Array<ContentMessage>,
 	streams: PieceContentStreamInfo[],
 	getScanFormatString: (stream: PieceContentStreamInfo) => string | null,
 	studioSettings: IStudioSettings | undefined,
 	sourceLayer: ISourceLayer,
 	ignoreMediaAudioStatus: boolean | undefined
-): number {
+): { timebase: number; messages: ContentMessageLight[] } {
+	const messages: ContentMessageLight[] = []
+
 	if (!ignoreMediaAudioStatus && streams.length < 2 && sourceLayer.type !== SourceLayerType.AUDIO) {
 		messages.push({
 			status: PieceStatusCode.SOURCE_BROKEN,
-			message: generateTranslation("{{sourceLayer}} doesn't have both audio & video", {
-				sourceLayer: sourceLayer.name,
-			}),
+			message: PackageStatusMessage.FILE_DOESNT_HAVE_BOTH_VIDEO_AND_AUDIO,
 		})
 	}
 	const formats = getAcceptedFormats(studioSettings)
@@ -914,10 +1009,10 @@ function checkStreamFormatsAndCounts(
 				if (!acceptFormat(deepScanFormat, formats)) {
 					messages.push({
 						status: PieceStatusCode.SOURCE_BROKEN,
-						message: generateTranslation('{{sourceLayer}} has the wrong format: {{format}}', {
-							sourceLayer: sourceLayer.name,
+						message: PackageStatusMessage.FILE_HAS_WRONG_FORMAT,
+						extraArgs: {
 							format: deepScanFormat,
-						}),
+						},
 					})
 				}
 			}
@@ -936,52 +1031,58 @@ function checkStreamFormatsAndCounts(
 	) {
 		messages.push({
 			status: PieceStatusCode.SOURCE_BROKEN,
-			message: generateTranslation('{{sourceLayer}} has {{audioStreams}} audio streams', {
-				sourceLayer: sourceLayer.name,
+			message: PackageStatusMessage.FILE_HAS_WRONG_AUDIO_STREAMS,
+			extraArgs: {
 				audioStreams,
-			}),
+			},
 		})
 	}
 
-	return timebase
+	return { timebase, messages }
 }
 
 function addFrameWarning(
-	messages: Array<ContentMessage>,
 	timebase: number,
 	sourceDuration: number | undefined,
 	scannedFormatDuration: number | string | undefined,
 	anomalies: Array<PackageInfo.Anomaly>,
 	strings: FrameWarningStrings
-): void {
+): ContentMessageLight[] {
+	const messages: ContentMessageLight[] = []
+
 	if (anomalies.length === 1) {
 		/** Number of frames */
 		const frames = Math.ceil((anomalies[0].duration * 1000) / timebase)
 		if (anomalies[0].start === 0) {
 			messages.push({
 				status: PieceStatusCode.SOURCE_HAS_ISSUES,
-				message: generateTranslation(strings.clipStartsWithCount, {
+				message: strings.clipStartsWithCount,
+				extraArgs: {
 					frames,
-				}),
+					seconds: Math.round(anomalies[0].duration),
+				},
 			})
 		} else if (
 			scannedFormatDuration &&
 			anomalies[0].end === Number(scannedFormatDuration) &&
 			(sourceDuration === undefined || Math.round(anomalies[0].start) * 1000 < sourceDuration)
 		) {
-			const freezeStartsAt = Math.round(anomalies[0].start)
 			messages.push({
 				status: PieceStatusCode.SOURCE_HAS_ISSUES,
-				message: generateTranslation(strings.clipEndsWithAfter, {
-					seconds: freezeStartsAt,
-				}),
+				message: strings.clipEndsWithAfter,
+				extraArgs: {
+					frames: Math.ceil((anomalies[0].start * 1000) / timebase),
+					seconds: Math.round(anomalies[0].start),
+				},
 			})
 		} else if (frames > 0) {
 			messages.push({
 				status: PieceStatusCode.SOURCE_HAS_ISSUES,
-				message: generateTranslation(strings.countDetectedWithinClip, {
+				message: strings.countDetectedWithinClip,
+				extraArgs: {
 					frames,
-				}),
+					seconds: Math.round(anomalies[0].duration),
+				},
 			})
 		}
 	} else if (anomalies.length > 0) {
@@ -993,38 +1094,37 @@ function addFrameWarning(
 		if (frames > 0) {
 			messages.push({
 				status: PieceStatusCode.SOURCE_HAS_ISSUES,
-				message: generateTranslation(strings.countDetectedInClip, {
+				message: strings.countDetectedInClip,
+				extraArgs: {
 					frames,
-				}),
+					seconds: Math.round(dur),
+				},
 			})
 		}
 	}
+
+	return messages
 }
 
 interface FrameWarningStrings {
-	clipStartsWithCount: string
-	clipEndsWithAfter: string
-	countDetectedWithinClip: string
-	countDetectedInClip: string
-}
-
-// Mock 't' function for i18next to find the keys
-function t(key: string): string {
-	return key
+	clipStartsWithCount: PackageStatusMessage
+	clipEndsWithAfter: PackageStatusMessage
+	countDetectedWithinClip: PackageStatusMessage
+	countDetectedInClip: PackageStatusMessage
 }
 
 const BlackFrameWarnings: FrameWarningStrings = {
-	clipStartsWithCount: t('Clip starts with {{frames}} black frames'),
-	clipEndsWithAfter: t('This clip ends with black frames after {{seconds}} seconds'),
-	countDetectedWithinClip: t('{{frames}} black frames detected within the clip'),
-	countDetectedInClip: t('{{frames}} black frames detected in the clip'),
+	clipStartsWithCount: PackageStatusMessage.CLIP_STARTS_WITH_BLACK_FRAMES,
+	clipEndsWithAfter: PackageStatusMessage.CLIP_ENDS_WITH_BLACK_FRAMES,
+	countDetectedWithinClip: PackageStatusMessage.CLIP_HAS_SINGLE_BLACK_FRAMES_REGION,
+	countDetectedInClip: PackageStatusMessage.CLIP_HAS_MULTIPLE_BLACK_FRAMES_REGIONS,
 }
 
 const FreezeFrameWarnings: FrameWarningStrings = {
-	clipStartsWithCount: t('Clip starts with {{frames}} freeze frames'),
-	clipEndsWithAfter: t('This clip ends with freeze frames after {{seconds}} seconds'),
-	countDetectedWithinClip: t('{{frames}} freeze frames detected within the clip'),
-	countDetectedInClip: t('{{frames}} freeze frames detected in the clip'),
+	clipStartsWithCount: PackageStatusMessage.CLIP_STARTS_WITH_FREEZE_FRAMES,
+	clipEndsWithAfter: PackageStatusMessage.CLIP_ENDS_WITH_FREEZE_FRAMES,
+	countDetectedWithinClip: PackageStatusMessage.CLIP_HAS_SINGLE_FREEZE_FRAMES_REGION,
+	countDetectedInClip: PackageStatusMessage.CLIP_HAS_MULTIPLE_FREEZE_FRAMES_REGIONS,
 }
 
 function routeExpectedPackage(

@@ -1,14 +1,15 @@
 import { readAllMessages, writeMessage } from '../../../api/serviceMessages/serviceMessagesApi'
 import * as CoreSystemUtil from '../../../coreSystem/collection'
-import { protectString } from '../../../../lib/lib'
+import { protectString } from '../../../lib/tempLib'
 import {
 	Criticality,
 	ExternalServiceMessage,
 	ICoreSystem,
 	ServiceMessage,
-} from '../../../../lib/collections/CoreSystem'
+} from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
 import { CoreSystem } from '../../../collections'
 import { SupressLogMessages } from '../../../../__mocks__/suppressLogging'
+import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 
 function convertExternalToServiceMessage(message: ExternalServiceMessage): ServiceMessage {
 	return {
@@ -42,6 +43,8 @@ const fakeCoreSystem: ICoreSystem = {
 	version: '3',
 	previousVersion: null,
 	serviceMessages: {},
+	settingsWithOverrides: wrapDefaultObject({} as any),
+	lastBlueprintConfig: undefined,
 }
 
 describe('Service messages internal API', () => {

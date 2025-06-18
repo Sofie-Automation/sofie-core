@@ -34,3 +34,33 @@ export async function cleanTimelineDatastore(context: JobContext, playoutModel: 
 		mode: DatastorePersistenceMode.Temporary,
 	})
 }
+
+export async function setTimelineDatastoreValue(
+	context: JobContext,
+	key: string,
+	value: unknown,
+	mode: DatastorePersistenceMode
+): Promise<void> {
+	const studioId = context.studioId
+	const id = protectString(`${studioId}_${key}`)
+	const collection = context.directCollections.TimelineDatastores
+
+	await collection.replace({
+		_id: id,
+		studioId: studioId,
+
+		key,
+		value,
+
+		modified: Date.now(),
+		mode,
+	})
+}
+
+export async function removeTimelineDatastoreValue(context: JobContext, key: string): Promise<void> {
+	const studioId = context.studioId
+	const id = getDatastoreId(studioId, key)
+	const collection = context.directCollections.TimelineDatastores
+
+	await collection.remove({ _id: id })
+}

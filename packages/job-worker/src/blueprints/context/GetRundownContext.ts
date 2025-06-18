@@ -7,7 +7,7 @@ import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/Rund
 import { WatchedPackagesHelper } from './watchedPackages'
 import { JobContext, ProcessedShowStyleCompound } from '../../jobs'
 import { ReadonlyObjectDeep } from 'type-fest/source/readonly-deep'
-import { UserContextInfo } from './CommonContext'
+import { ContextInfo } from './CommonContext'
 import { ShowStyleUserContext } from './ShowStyleUserContext'
 import { convertRundownPlaylistToBlueprints } from './lib'
 
@@ -15,7 +15,7 @@ export class GetRundownContext extends ShowStyleUserContext implements IGetRundo
 	private cachedPlaylistsInStudio: Promise<Readonly<IBlueprintRundownPlaylist>[]> | undefined
 
 	constructor(
-		contextInfo: UserContextInfo,
+		contextInfo: ContextInfo,
 		context: JobContext,
 		showStyleCompound: ReadonlyDeep<ProcessedShowStyleCompound>,
 		watchedPackages: WatchedPackagesHelper,

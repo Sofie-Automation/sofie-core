@@ -1,0 +1,39 @@
+
+.part-name-panel {
+	position: absolute;
+	margin: 0 0;
+	min-width: auto;
+	text-align: center;
+	isolation: isolate;
+	padding: 1vw 1vh;
+	overflow: hidden;
+
+	@include item-type-colors();
+
+	.wrapper {
+		position: relative;
+		margin-right: 1em;
+		font-family: 'Roboto', Helvetica Neue, Arial, sans-serif;
+		font-weight: 100;
+		margin-top: 0.8em;
+		word-break: keep-all;
+		white-space: nowrap;
+		text-align: left;
+		font-size: 1.5em;
+		width: 100%;
+
+		.part-name-title {
+			position: absolute;
+			top: -1em;
+			color: #f0f0f0;
+			text-transform: uppercase;
+			white-space: nowrap;
+			font-weight: 600;
+			font-size: 0.5em;
+
+			width: 100%;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+	}
+}
