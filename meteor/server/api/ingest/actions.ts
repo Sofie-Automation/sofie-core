@@ -7,7 +7,6 @@ import { PeripheralDeviceType } from '@sofie-automation/corelib/dist/dataModel/P
 import { IngestJobs } from '@sofie-automation/corelib/dist/worker/ingest'
 import { assertNever } from '@sofie-automation/corelib/dist/lib'
 import { VerifiedRundownForUserAction } from '../../security/check'
-import { fetch } from 'meteor/fetch'
 import { logger } from '../../logging'
 
 /*
@@ -36,16 +35,14 @@ export namespace IngestActions {
 						logger.info(`Reload rundown: resync request sent to "${resyncUrl}"`)
 					})
 					.catch((error) => {
-						if (error.errno === 'ECONNREFUSED' || error.errno === 'ENOTFOUND') {
+						if (error.cause.code === 'ECONNREFUSED' || error.cause.code === 'ENOTFOUND') {
 							logger.error(
-								`Reload rundown: could not establish connection with "${resyncUrl}" (${error.errno})`
+								`Reload rundown: could not establish connection with "${resyncUrl}" (${error.cause.code})`
 							)
 							return
 						}
 						logger.error(
-							`Reload rundown: error occured while sending resync request to "${resyncUrl}", error: "${JSON.stringify(
-								error
-							)}"`
+							`Reload rundown: error occured while sending resync request to "${resyncUrl}", message: ${error.message}, cause: ${JSON.stringify(error.cause)}`
 						)
 					})
 
