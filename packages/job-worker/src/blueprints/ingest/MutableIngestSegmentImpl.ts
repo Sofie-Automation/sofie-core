@@ -64,6 +64,14 @@ export class MutableIngestSegmentImpl<TSegmentPayload = unknown, TPartPayload = 
 		return this.#ingestSegment.name
 	}
 
+	get isHidden(): boolean {
+		return this.#ingestSegment.isHidden ?? false
+	}
+
+	get timing(): { expectedStart?: number; expectedEnd?: number } {
+		return this.#ingestSegment.timing ?? { expectedStart: 0, expectedEnd: 0 }
+	}
+
 	get payload(): ReadonlyDeep<TSegmentPayload> | undefined {
 		return this.#ingestSegment.payload as ReadonlyDeep<TSegmentPayload>
 	}
@@ -225,6 +233,8 @@ export class MutableIngestSegmentImpl<TSegmentPayload = unknown, TPartPayload = 
 			const ingestPart: Complete<SofieIngestPart> = {
 				externalId: part.externalId,
 				rank,
+				float: part.float,
+				autoNext: part.autoNext,
 				name: part.name,
 				payload: part.payload,
 				userEditStates: part.userEditStates,

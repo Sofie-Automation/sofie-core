@@ -20,6 +20,14 @@ export class MutableIngestPartImpl<TPartPayload = unknown> implements MutableIng
 		return this.#ingestPart.name
 	}
 
+	get float(): boolean {
+		return this.#ingestPart.float ?? false
+	}
+
+	get autoNext(): boolean {
+		return this.#ingestPart.autoNext ?? false
+	}
+
 	get payload(): ReadonlyDeep<TPartPayload> | undefined {
 		return this.#ingestPart.payload as ReadonlyDeep<TPartPayload>
 	}
