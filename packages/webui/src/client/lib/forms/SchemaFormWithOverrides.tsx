@@ -31,6 +31,7 @@ import { SchemaFormObjectTable } from './SchemaFormTable/ObjectTable.js'
 import { getSchemaUIField, SchemaFormUIField } from '@sofie-automation/blueprints-integration'
 import { SchemaFormSectionHeader } from './SchemaFormSectionHeader.js'
 import { Base64ImageInputControl } from '../Components/Base64ImageInput.js'
+import { MultiLineIntInputControl } from '../Components/MultiLineIntInput.js'
 import { ToggleSwitchControl } from '../Components/ToggleSwitch.js'
 
 interface SchemaFormWithOverridesProps extends SchemaFormCommonProps {
@@ -167,6 +168,9 @@ const ArrayFormWithOverrides = (props: Readonly<SchemaFormWithOverridesProps>) =
 			} else {
 				return <StringArrayFormWithOverrides {...childProps} />
 			}
+		case TypeName.Number:
+		case TypeName.Integer:
+			return <IntArrayFormWithOverrides {...childProps} />
 		case TypeName.Object:
 			if (props.allowTables) {
 				return <SchemaFormArrayTable {...props} />
@@ -379,6 +383,22 @@ const StringArrayFormWithOverrides = ({ schema, commonAttrs }: Readonly<FormComp
 					placeholder={schema.default?.join('\n')}
 					value={value || []}
 					handleUpdate={handleUpdate}
+				/>
+			)}
+		</LabelAndOverrides>
+	)
+}
+
+const IntArrayFormWithOverrides = ({ schema, commonAttrs }: Readonly<FormComponentProps>) => {
+	return (
+		<LabelAndOverrides {...commonAttrs}>
+			{(values, handleUpdate) => (
+				<MultiLineIntInputControl
+					placeholder={schema.default}
+					values={values || []}
+					handleUpdate={handleUpdate}
+					min={schema.minimum}
+					max={schema.maximum}
 				/>
 			)}
 		</LabelAndOverrides>
