@@ -117,7 +117,7 @@ export class ShuttleKeyboardController extends ControllerAbstract {
 						// jump to top
 						this.lastSpeed = 0
 						this.lastSpeedMapPosition = ShuttleKeyboardController.SPEEDMAPNEUTRALPOSITION
-						window.scrollTo(0, 0)
+						window.scrollTo({ top: 0, behavior: 'instant' })
 						return
 					case 'F11':
 						// jump to live
@@ -175,7 +175,7 @@ export class ShuttleKeyboardController extends ControllerAbstract {
 		if (this.updateSpeedHandle !== null) return
 
 		// update scroll position
-		window.scrollBy(0, this.lastSpeed)
+		window.scrollBy({ top: this.lastSpeed, behavior: 'instant' })
 
 		const scrollPosition = window.scrollY
 		// check for reached end-of-scroll:

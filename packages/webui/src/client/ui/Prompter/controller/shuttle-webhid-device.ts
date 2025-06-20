@@ -146,7 +146,7 @@ export class ShuttleWebHidController extends ControllerAbstract {
 		if (Math.abs(delta) > 1) return // this is a hack because sometimes, right after connecting to the device, the delta would be larger than 1 or -1
 
 		this.resetSpeed()
-		window.scrollBy(0, this.JOG_BASE_MOVEMENT_PX * delta)
+		window.scrollBy({ top: this.JOG_BASE_MOVEMENT_PX * delta, behavior: 'instant' })
 	}
 
 	protected onShuttle(value: number): void {
@@ -162,7 +162,7 @@ export class ShuttleWebHidController extends ControllerAbstract {
 		if (this.updateSpeedHandle !== null) return
 
 		if (this.lastSpeed !== 0) {
-			window.scrollBy(0, this.lastSpeed)
+			window.scrollBy({ top: this.lastSpeed, behavior: 'instant' })
 
 			const scrollPosition = window.scrollY
 			// check for reached end-of-scroll:

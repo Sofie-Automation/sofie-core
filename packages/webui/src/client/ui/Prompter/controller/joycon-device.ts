@@ -126,7 +126,7 @@ export class JoyConController extends ControllerAbstract {
 					break
 				case '2':
 					// go to top
-					window.scrollTo(0, 0)
+					window.scrollTo({ top: 0, behavior: 'instant' })
 					break
 				case '3':
 					// go to following
@@ -152,7 +152,7 @@ export class JoyConController extends ControllerAbstract {
 					break
 				case '1':
 					// go to top
-					window.scrollTo(0, 0)
+					window.scrollTo({ top: 0, behavior: 'instant' })
 					break
 				case '0':
 					// go to following
@@ -183,7 +183,7 @@ export class JoyConController extends ControllerAbstract {
 				case '12':
 				case '3':
 					// go to top
-					window.scrollTo(0, 0)
+					window.scrollTo({ top: 0, behavior: 'instant' })
 					break
 				case '15':
 				case '1':
@@ -352,7 +352,7 @@ export class JoyConController extends ControllerAbstract {
 		const speed = this.calculateSpeed(joycons)
 
 		// update scroll position
-		window.scrollBy(0, speed)
+		window.scrollBy({ top: speed, behavior: 'instant' })
 
 		const scrollPosition = window.scrollY
 		// check for reached end-of-scroll:

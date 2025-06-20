@@ -189,7 +189,7 @@ export class MidiPedalController extends ControllerAbstract {
 		if (this.updateSpeedHandle !== null) return
 
 		// update scroll position
-		window.scrollBy(0, this.lastSpeed)
+		window.scrollBy({ top: this.lastSpeed, behavior: 'instant' })
 
 		const scrollPosition = window.scrollY
 		// check for reached end-of-scroll:

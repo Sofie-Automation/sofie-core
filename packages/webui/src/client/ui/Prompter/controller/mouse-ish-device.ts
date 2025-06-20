@@ -276,7 +276,7 @@ export class MouseIshController extends ControllerAbstract {
 			this._scrollRest = 0
 		}
 
-		window.scrollBy(0, speed)
+		window.scrollBy({ top: speed, behavior: 'instant' })
 
 		scrollPosition = window.scrollY
 
