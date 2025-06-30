@@ -1,0 +1,111 @@
+openapi: '3.0.3'
+info:
+  title: 'Sofie User Actions API'
+  description: 'The Sofie User Actions API provides paths to allow a device to control a Sofie and query health information'
+  version: '1.0.0'
+  license:
+    name: 'MIT License'
+    url: 'http://opensource.org/licenses/MIT'
+  x-logo:
+    url: 'https://sofie-automation.github.io/sofie-core/img/sofie-logo.svg'
+    backgroundColor: '#FFFFFF'
+    altText: 'Sofie TV Automation'
+
+servers:
+  - url: http://localhost:3000/api/v1.0
+    description: Initial release of UserActions API - http - for use during development only!
+tags:
+  - name: userActions
+    description: Provides the ability to control the Sofie application
+paths:
+  /:
+    $ref: 'definitions/sofie.yaml#/resources/index'
+  /system/blueprint:
+    $ref: 'definitions/sofie.yaml#/resources/systemBlueprint'
+  /system/migrations:
+    $ref: 'definitions/sofie.yaml#/resources/migrations'
+  # peripheral devices
+  /devices:
+    $ref: 'definitions/devices.yaml#/resources/devices'
+  /devices/{deviceId}:
+    $ref: 'definitions/devices.yaml#/resources/device'
+  /devices/{deviceId}/action:
+    $ref: 'definitions/devices.yaml#/resources/deviceAction'
+  # blueprint operations
+  /blueprints:
+    $ref: 'definitions/blueprints.yaml#/resources/blueprints'
+  /blueprints/{blueprintId}:
+    $ref: 'definitions/blueprints.yaml#/resources/blueprint'
+  # playlist operations
+  /playlists:
+    $ref: 'definitions/playlists.yaml#/resources/playlists'
+  /playlists/{playlistId}/activate:
+    $ref: 'definitions/playlists.yaml#/resources/activate'
+  /playlists/{playlistId}/deactivate:
+    $ref: 'definitions/playlists.yaml#/resources/deactivate'
+  /playlists/{playlistId}/execute-adlib:
+    $ref: 'definitions/playlists.yaml#/resources/executeAdLib'
+  /playlists/{playlistId}/execute-bucket-adlib:
+    $ref: 'definitions/playlists.yaml#/resources/executeBucketAdLib'
+  /playlists/{playlistId}/move-next-part:
+    $ref: 'definitions/playlists.yaml#/resources/moveNextPart'
+  /playlists/{playlistId}/move-next-segment:
+    $ref: 'definitions/playlists.yaml#/resources/moveNextSegment'
+  /playlists/{playlistId}/reload-playlist:
+    $ref: 'definitions/playlists.yaml#/resources/reloadPlaylist'
+  /playlists/{playlistId}/reset-playlist:
+    $ref: 'definitions/playlists.yaml#/resources/resetPlaylist'
+  /playlists/{playlistId}/set-next-part:
+    $ref: 'definitions/playlists.yaml#/resources/setNextPart'
+  /playlists/{playlistId}/set-next-segment:
+    $ref: 'definitions/playlists.yaml#/resources/setNextSegment'
+  /playlists/{playlistId}/queue-next-segment:
+    $ref: 'definitions/playlists.yaml#/resources/queueNextSegment'
+  /playlists/{playlistId}/clear-sourcelayers:
+    $ref: 'definitions/playlists.yaml#/resources/clearSourceLayers'
+  /playlists/{playlistId}/take:
+    $ref: 'definitions/playlists.yaml#/resources/take'
+  /playlists/{playlistId}/sourceLayer/{sourceLayerId}:
+    $ref: 'definitions/playlists.yaml#/resources/sourceLayer'
+  /playlists/{playlistId}/sourceLayer/{sourceLayerId}/sticky:
+    $ref: 'definitions/playlists.yaml#/resources/sourceLayer/sticky'
+  # studio operations
+  /studios:
+    $ref: 'definitions/studios.yaml#/resources/studios'
+  /studios/{studioId}:
+    $ref: 'definitions/studios.yaml#/resources/studio'
+  /studios/{studioId}/config:
+    $ref: 'definitions/studios.yaml#/resources/config'
+  /studios/{studioId}/switch-route-set:
+    $ref: 'definitions/studios.yaml#/resources/switchRouteSet'
+  /studios/{studioId}/devices:
+    $ref: 'definitions/studios.yaml#/resources/devices'
+  /studios/{studioId}/devices/{deviceId}:
+    $ref: 'definitions/studios.yaml#/resources/device'
+  /studios/{studioId}/action:
+    $ref: 'definitions/studios.yaml#/resources/studioAction'
+  # showstyle operations
+  /showstyles:
+    $ref: 'definitions/showstyles.yaml#/resources/showStyleBases'
+  /showstyles/{showStyleBaseId}:
+    $ref: 'definitions/showstyles.yaml#/resources/showStyleBase'
+  /showstyles/{showStyleBaseId}/config:
+    $ref: 'definitions/showstyles.yaml#/resources/config'
+  /showstyles/{showStyleBaseId}/variants:
+    $ref: 'definitions/showstyles.yaml#/resources/showStyleVariants'
+  /showstyles/{showStyleBaseId}/variants/{showStyleVariantId}:
+    $ref: 'definitions/showstyles.yaml#/resources/showStyleVariant'
+  /showstyles/{showStyleBaseId}/action:
+    $ref: 'definitions/showstyles.yaml#/resources/showStyleBaseAction'
+  # bucket operations
+  /buckets:
+    $ref: 'definitions/buckets.yaml#/resources/buckets'
+  /buckets/{bucketId}:
+    $ref: 'definitions/buckets.yaml#/resources/bucket'
+  /buckets/{bucketId}/adlibs:
+    $ref: 'definitions/buckets.yaml#/resources/bucketAdlibs'
+  /buckets/{bucketId}/adlibs/{externalId}:
+    $ref: 'definitions/buckets.yaml#/resources/bucketAdlib'
+  # snapshot operations
+  /snapshots:
+    $ref: 'definitions/snapshots.yaml#/resources/snapshots'
