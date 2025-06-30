@@ -1,6 +1,6 @@
 import { ExpectedPackageStatusAPI, Time } from '@sofie-automation/blueprints-integration'
-import { ExpectedPackageDBBase } from './ExpectedPackages'
-import { ExpectedPackageWorkStatusId, PeripheralDeviceId } from './Ids'
+import { ExpectedPackageDBBase } from './ExpectedPackages.js'
+import { ExpectedPackageWorkStatusId, PeripheralDeviceId } from './Ids.js'
 
 /**
  * ExpectedPackageWorkStatus contains statuses about Work that is being performed on expected packages

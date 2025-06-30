@@ -1,5 +1,5 @@
 import { addMigrationSteps } from './databaseMigration'
-import { Settings } from '../../lib/Settings'
+import { Settings } from '../Settings'
 import { Studios } from '../collections'
 
 // Release 40 (Skipped)
@@ -24,8 +24,6 @@ interface ISettingsOld {
 	allowRundownResetOnAir: boolean
 	/** Default duration to use to render parts when no duration is provided */
 	defaultDisplayDuration: number
-	/** If true, allows creation of new playlists in the Lobby Gui (rundown list). If false; only pre-existing playlists are allowed. */
-	allowMultiplePlaylistsInGUI: boolean
 	/** How many segments of history to show when scrolling back in time (0 = show current segment only) */
 	followOnAirSegmentsHistory: number
 	/** Clean up stuff that are older than this [ms] */

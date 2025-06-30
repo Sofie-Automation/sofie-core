@@ -1,8 +1,7 @@
-import { Meteor } from 'meteor/meteor'
 import { RandomMock } from '../../__mocks__/random'
 import { MongoMock } from '../../__mocks__/mongo'
-import { waitForPromise, protectString, getRandomString, sleep } from '../../lib/lib'
-import { testInFiber } from '../../__mocks__/helpers/jest'
+import { protectString, getRandomString } from '../lib/tempLib'
+import { sleep } from '../lib/lib'
 import {
 	AdLibPieces,
 	Blueprints,
@@ -10,7 +9,7 @@ import {
 	Evaluations,
 	ExpectedMediaItems,
 	ExternalMessageQueue,
-	IngestDataCache,
+	NrcsIngestDataCache,
 	MediaObjects,
 	MediaWorkFlows,
 	MediaWorkFlowSteps,
@@ -30,31 +29,11 @@ import {
 	UserActionsLog,
 } from '../collections'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { isInFiber } from '../../__mocks__/Fibers'
 import { Mongo } from 'meteor/mongo'
 import { defaultStudio } from '../../__mocks__/defaultCollectionObjects'
+import { MinimalMeteorMongoCollection } from '../collections/implementations/asyncCollection'
 
 describe('Basic test of test environment', () => {
-	testInFiber('Check that tests will run in fibers correctly', () => {
-		// This code runs in a fiber
-		expect(isInFiber()).toBeTruthy()
-
-		const val = asynchronousFibersFunction(1, 2, 3)
-		expect(val).toEqual(1 + 2 + 3)
-
-		const p = Promise.resolve()
-			.then(() => {
-				expect(isInFiber()).toBeTruthy()
-				return 'a'
-			})
-			.then(async (innerVal) => {
-				return new Promise((resolve) => {
-					expect(isInFiber()).toBeTruthy()
-					resolve(innerVal)
-				})
-			})
-		expect(waitForPromise(p)).toEqual('a')
-	})
 	test('Meteor Random mock', () => {
 		RandomMock.mockIds = ['superRandom']
 		expect(tempTestRandom()).toEqual('superRandom')
@@ -73,7 +52,7 @@ describe('Basic test of test environment', () => {
 		// @ts-ignore
 		expect(ExternalMessageQueue._isMock).toBeTruthy()
 		// @ts-ignore
-		expect(IngestDataCache._isMock).toBeTruthy()
+		expect(NrcsIngestDataCache._isMock).toBeTruthy()
 		// @ts-ignore
 		expect(MediaObjects._isMock).toBeTruthy()
 		// @ts-ignore
@@ -152,7 +131,7 @@ describe('Basic test of test environment', () => {
 		const studios = await Studios.findFetchAsync({})
 		expect(studios).toHaveLength(1)
 
-		const observer = Studios.observeChanges({ _id: protectString('abc') }, {})
+		const observer = await Studios.observeChanges({ _id: protectString('abc') }, {})
 		expect(observer).toBeTruthy()
 
 		await Studios.insertAsync({
@@ -167,82 +146,59 @@ describe('Basic test of test environment', () => {
 		MongoMock.mockSetData(Studios, null)
 		expect(await Studios.findFetchAsync({})).toHaveLength(0)
 	})
-	testInFiber('Promises in fibers', () => {
-		const p = new Promise((resolve) => {
-			setTimeout(() => {
-				resolve('yup')
-			}, 10)
-		})
-
-		const result = waitForPromise(p)
-
-		expect(result).toEqual('yup')
-	})
-	testInFiber('Mongo mock', async () => {
+	test('Mongo mock', async () => {
 		const mockAdded = jest.fn()
 		const mockChanged = jest.fn()
 		const mockRemoved = jest.fn()
 
-		const collection = new Mongo.Collection<any>('testmock')
+		const collection = new Mongo.Collection<any>('testmock') as any as MinimalMeteorMongoCollection<any>
 
-		collection
+		await collection
 			.find({
 				prop: 'b',
 			})
-			.observeChanges({
+			.observeChangesAsync({
 				added: mockAdded,
 				changed: mockChanged,
 				removed: mockRemoved,
 			})
 
-		expect(collection.find({}).fetch()).toHaveLength(0)
+		expect(await collection.find({}).fetchAsync()).toHaveLength(0)
 
-		const id = collection.insert({ prop: 'a' })
+		const id = await collection.insertAsync({ prop: 'a' })
 		expect(id).toBeTruthy()
-		expect(collection.find({}).fetch()).toHaveLength(1)
-		expect(collection.findOne(id)).toMatchObject({
-			prop: 'a',
-		})
-		expect(collection.remove(id)).toEqual(1)
-		expect(collection.find({}).fetch()).toHaveLength(0)
+		expect(await collection.find({}).fetchAsync()).toHaveLength(1)
+		// expect(collection.findOne(id)).toMatchObject({
+		// 	prop: 'a',
+		// })
+		expect(await collection.removeAsync(id)).toEqual(1)
+		expect(await collection.find({}).fetchAsync()).toHaveLength(0)
 
 		expect(mockAdded).toHaveBeenCalledTimes(0)
 		expect(mockChanged).toHaveBeenCalledTimes(0)
 		expect(mockRemoved).toHaveBeenCalledTimes(0)
 
-		const id2 = collection.insert({ prop: 'b' })
+		const id2 = await collection.insertAsync({ prop: 'b' })
 		await sleep(10)
 		expect(mockAdded).toHaveBeenCalledTimes(1)
 		expect(mockChanged).toHaveBeenCalledTimes(0)
 		expect(mockRemoved).toHaveBeenCalledTimes(0)
 		mockAdded.mockClear()
 
-		collection.update(id2, { $set: { name: 'test' } })
+		await collection.updateAsync(id2, { $set: { name: 'test' } })
 		await sleep(10)
 		expect(mockAdded).toHaveBeenCalledTimes(0)
 		expect(mockChanged).toHaveBeenCalledTimes(1)
 		expect(mockRemoved).toHaveBeenCalledTimes(0)
 		mockChanged.mockClear()
 
-		collection.remove(id2)
+		await collection.removeAsync(id2)
 		await sleep(10)
 		expect(mockAdded).toHaveBeenCalledTimes(0)
 		expect(mockChanged).toHaveBeenCalledTimes(0)
 		expect(mockRemoved).toHaveBeenCalledTimes(1)
 	})
 })
-
-function asynchronousFibersFunction(a: number, b: number, c: number): number {
-	return innerAsynchronousFiberFunction(a, b) + c
-}
-
-const innerAsynchronousFiberFunction = Meteor.wrapAsync(
-	(val0: number, val1: number, cb: (err: any, result: number) => void) => {
-		setTimeout(() => {
-			cb(undefined, val0 + val1)
-		}, 10)
-	}
-)
 
 function tempTestRandom() {
 	return getRandomString()

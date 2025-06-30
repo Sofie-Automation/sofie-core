@@ -1,6 +1,6 @@
 import { NoteSeverity } from '@sofie-automation/blueprints-integration'
-import { ITranslatableMessage } from '../TranslatableMessage'
-import { RundownId, SegmentId, PartId, PieceId } from './Ids'
+import { ITranslatableMessage } from '../TranslatableMessage.js'
+import { RundownId, SegmentId, PartId, PieceId } from './Ids.js'
 
 export interface INoteBase {
 	type: NoteSeverity
@@ -20,6 +20,11 @@ export interface TrackedNote extends GenericNote {
 }
 
 export interface GenericNote extends INoteBase {
+	origin: {
+		name: string
+	}
+}
+export interface RundownPlaylistNote extends INoteBase {
 	origin: {
 		name: string
 	}

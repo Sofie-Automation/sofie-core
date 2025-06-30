@@ -18,7 +18,6 @@ This docker-compose file automates the basic setup of the [Sofie-Core applicatio
 ```yaml
 # This is NOT recommended to be used for a production deployment.
 # It aims to quickly get an evaluation version of Sofie running and serve as a basis for how to set up a production deployment.
-version: '3.3'
 services:
   db:
     hostname: mongo
@@ -59,7 +58,10 @@ services:
   playout-gateway:
     image: sofietv/tv-automation-playout-gateway:release51
     restart: always
-    command: yarn start -host core -port 3000 -id playoutGateway0
+    environment:
+      DEVICE_ID: playoutGateway0
+      CORE_HOST: core
+      CORE_PORT: '3000'
     networks:
       - sofie
       - lan_access
@@ -70,36 +72,39 @@ services:
   # If using the Rundown Editor, then none of the below images are needed.
   # The Rundown Editor can be found here: https://github.com/SuperFlyTV/sofie-automation-rundown-editor
 
-  # spreadsheet-gateway:
-  #   image: superflytv/sofie-spreadsheet-gateway:latest
-  #   restart: always
-  #   command: yarn start -host core -port 3000 -id spreadsheetGateway0
-  #   networks:
-  #     - sofie
-  #   depends_on:
-  #     - core
+  spreadsheet-gateway:
+    image: superflytv/sofie-spreadsheet-gateway:latest
+    restart: always
+    command: yarn start -host core -port 3000 -id spreadsheetGateway0
+    networks:
+      - sofie
+    depends_on:
+      - core
+    profiles: [spreadsheet-gateway]
 
-  # mos-gateway:
-  #   image: sofietv/tv-automation-mos-gateway:release51
-  #   restart: always
-  #   ports:
-  #     - "10540:10540" # MOS Lower port
-  #     - "10541:10541" # MOS Upper port
-  #     # - "10542:10542" # MOS query port - not used
-  #   command: yarn start -host core -port 3000 -id mosGateway0
-  #   networks:
-  #     - sofie
-  #   depends_on:
-  #     - core
+  mos-gateway:
+    image: sofietv/tv-automation-mos-gateway:release51
+    restart: always
+    ports:
+      - "10540:10540" # MOS Lower port
+      - "10541:10541" # MOS Upper port
+      # - "10542:10542" # MOS query port - not used
+    command: yarn start -host core -port 3000 -id mosGateway0
+    networks:
+      - sofie
+    depends_on:
+      - core
+    profiles: [mos-gateway]
 
-  # inews-gateway:
-  #   image: tv2media/inews-ftp-gateway:1.37.0-in-testing.20
-  #   restart: always
-  #   command: yarn start -host core -port 3000 -id inewsGateway0
-  #   networks:
-  #     - sofie
-  #   depends_on:
-  #     - core
+  inews-gateway:
+    image: tv2media/inews-ftp-gateway:1.37.0-in-testing.20
+    restart: always
+    command: yarn start -host core -port 3000 -id inewsGateway0
+    networks:
+      - sofie
+    depends_on:
+      - core
+    profiles: [inews-gateway]
 
 networks:
   sofie:
@@ -113,13 +118,25 @@ volumes:
 
 Create a `Sofie` folder, copy the above content, and save it as `docker-compose.yaml` within the `Sofie` folder.
 
-Navigate to the _ingest-gateway_ section of `docker-compose.yaml` and select which type of _ingest-gateway_ you'd like installed by uncommenting it. Save your changes. If you are using the [Rundown Editor](rundown-editor.md), then no ingest gateways need to be uncommented.
-
-Then open a terminal, `cd your-sofie-folder` and `sudo docker-compose up` \(just `docker-compose up` on Windows\).
-
 Once the installation is done, Sofie should be running on [http://localhost:3000](http://localhost:3000)
 
+You can now choose if you are using the [Rundown Editor](rundown-editor.md) or an _ingest-gateway_. Visit [Rundowns & Newsroom Systems](installing-a-gateway/rundown-or-newsroom-system-connection/intro.md) to see which _Ingest Gateway_ is best suited for _your_ production environment.
+
+Select the ingest gateway by creating using docker compose profiles. Create a file called `.env` in the same folder as docker compose with the contents:
+
+```
+COMPOSE_PROFILES=ingest-profile-name
+```
+
+But replacing `ingest-profile-name` with one of `spreadsheet-gateway`, `mos-gateway` or `inews-gateway`, or a comma separated list of more than one. For more information, see the [docker documentation on Compose profiles](https://docs.docker.com/compose/how-tos/profiles/).
+
+Then open a terminal, `cd your-sofie-folder` and `sudo docker-compose up` \(just `docker-compose up` on Windows or MacOS\).
+
 Next, you will need to install a Rundown Gateway. Visit [Rundowns & Newsroom Systems](installing-a-gateway/rundown-or-newsroom-system-connection/intro.md) to see which _Rundown Gateway_ is best suited for _your_ production environment.
+
+:::note
+Starting with Sofie version 1.52.0, `sofietv` container images will run as UID 1000.
+:::
 
 ### Tips for running in production
 

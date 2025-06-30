@@ -42,8 +42,11 @@ export function createPieceGroupAndCap(
 	partGroup?: TimelineObjRundown,
 	pieceStartOffset?: number
 ): {
+	/** The 'control' object which defines the bounds of the group. This triggers the timing, and does not include and pre/postroll */
 	controlObj: TimelineObjPieceAbstract & OnGenerateTimelineObjExt<PieceTimelineMetadata>
+	/** The 'group' object that should contain all the content. This uses the control object for its timing, and adds the pre/postroll. */
 	childGroup: TimelineObjGroupRundown & OnGenerateTimelineObjExt<PieceTimelineMetadata>
+	/** Any additional objects which are used to determine points in time that the piece should start/end relative to. */
 	capObjs: Array<TimelineObjRundown & OnGenerateTimelineObjExt<PieceTimelineMetadata>>
 } {
 	const controlObj = literal<TimelineObjPieceAbstract & OnGenerateTimelineObjExt<PieceTimelineMetadata>>({
@@ -133,7 +136,7 @@ export function createPieceGroupAndCap(
 	let resolvedEndCap: number | string | undefined
 	// If the start has been adjusted, the end needs to be updated to compensate
 	if (typeof pieceInstance.resolvedEndCap === 'number') {
-		resolvedEndCap = pieceInstance.resolvedEndCap - (pieceStartOffset ?? 0)
+		resolvedEndCap = pieceInstance.resolvedEndCap + (pieceStartOffset ?? 0)
 	} else if (pieceInstance.resolvedEndCap) {
 		// TODO - there could already be a piece with a cap of 'now' that we could use as our end time
 		// As the cap is for 'now', rather than try to get tsr to understand `end: 'now'`, we can create a 'now' object to tranlate it

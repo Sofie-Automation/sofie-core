@@ -30,21 +30,23 @@ import {
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { RundownBaselineAdLibAction } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibAction'
 import { RundownBaselineAdLibItem } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibPiece'
-import { saveIntoDb } from '../db/changes'
-import { PlayoutModel } from '../playout/model/PlayoutModel'
-import { StudioPlayoutModel } from '../studio/model/StudioPlayoutModel'
+import { saveIntoDb } from '../db/changes.js'
+import { PlayoutModel } from '../playout/model/PlayoutModel.js'
+import { StudioPlayoutModel } from '../studio/model/StudioPlayoutModel.js'
 import { ReadonlyDeep } from 'type-fest'
 import { ExpectedPackage, BlueprintResultBaseline } from '@sofie-automation/blueprints-integration'
-import { updateExpectedMediaItemsForPartModel, updateExpectedMediaItemsForRundownBaseline } from './expectedMediaItems'
+import {
+	updateExpectedMediaItemsForPartModel,
+	updateExpectedMediaItemsForRundownBaseline,
+} from './expectedMediaItems.js'
 import {
 	updateBaselineExpectedPlayoutItemsOnStudio,
 	updateExpectedPlayoutItemsForPartModel,
 	updateExpectedPlayoutItemsForRundownBaseline,
-} from './expectedPlayoutItems'
-import { JobContext } from '../jobs'
-import { ExpectedPackageForIngestModelBaseline, IngestModel } from './model/IngestModel'
-import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { IngestPartModel } from './model/IngestPartModel'
+} from './expectedPlayoutItems.js'
+import { JobContext, JobStudio } from '../jobs/index.js'
+import { ExpectedPackageForIngestModelBaseline, IngestModel } from './model/IngestModel.js'
+import { IngestPartModel } from './model/IngestPartModel.js'
 import { clone } from '@sofie-automation/corelib/dist/lib'
 
 export function updateExpectedPackagesForPartModel(context: JobContext, part: IngestPartModel): void {
@@ -160,7 +162,7 @@ export async function updateExpectedPackagesForRundownBaseline(
 }
 
 function generateExpectedPackagesForPiece(
-	studio: ReadonlyDeep<DBStudio>,
+	studio: ReadonlyDeep<JobStudio>,
 	rundownId: RundownId,
 	segmentId: SegmentId,
 	pieces: ReadonlyDeep<Piece | AdLibPiece>[],
@@ -186,7 +188,7 @@ function generateExpectedPackagesForPiece(
 	return packages
 }
 function generateExpectedPackagesForBaselineAdlibPiece(
-	studio: ReadonlyDeep<DBStudio>,
+	studio: ReadonlyDeep<JobStudio>,
 	rundownId: RundownId,
 	pieces: ReadonlyDeep<RundownBaselineAdLibItem[]>
 ) {
@@ -207,7 +209,7 @@ function generateExpectedPackagesForBaselineAdlibPiece(
 	return packages
 }
 function generateExpectedPackagesForAdlibAction(
-	studio: ReadonlyDeep<DBStudio>,
+	studio: ReadonlyDeep<JobStudio>,
 	rundownId: RundownId,
 	segmentId: SegmentId,
 	actions: ReadonlyDeep<AdLibAction[]>
@@ -231,7 +233,7 @@ function generateExpectedPackagesForAdlibAction(
 	return packages
 }
 function generateExpectedPackagesForBaselineAdlibAction(
-	studio: ReadonlyDeep<DBStudio>,
+	studio: ReadonlyDeep<JobStudio>,
 	rundownId: RundownId,
 	actions: ReadonlyDeep<RundownBaselineAdLibAction[]>
 ) {
@@ -251,7 +253,7 @@ function generateExpectedPackagesForBaselineAdlibAction(
 	}
 	return packages
 }
-function generateExpectedPackagesForBucketAdlib(studio: ReadonlyDeep<DBStudio>, adlibs: BucketAdLib[]) {
+function generateExpectedPackagesForBucketAdlib(studio: ReadonlyDeep<JobStudio>, adlibs: BucketAdLib[]) {
 	const packages: ExpectedPackageDBFromBucketAdLib[] = []
 	for (const adlib of adlibs) {
 		if (adlib.expectedPackages) {
@@ -270,7 +272,7 @@ function generateExpectedPackagesForBucketAdlib(studio: ReadonlyDeep<DBStudio>, 
 	return packages
 }
 function generateExpectedPackagesForBucketAdlibAction(
-	studio: ReadonlyDeep<DBStudio>,
+	studio: ReadonlyDeep<JobStudio>,
 	adlibActions: BucketAdLibAction[]
 ) {
 	const packages: ExpectedPackageDBFromBucketAdLibAction[] = []
@@ -291,7 +293,7 @@ function generateExpectedPackagesForBucketAdlibAction(
 	return packages
 }
 function generateExpectedPackageBases(
-	studio: ReadonlyDeep<DBStudio>,
+	studio: ReadonlyDeep<JobStudio>,
 	ownerId:
 		| PieceId
 		| AdLibActionId
@@ -337,7 +339,10 @@ export async function updateExpectedPackagesForBucketAdLibAction(
 
 	await saveIntoDb(context, context.directCollections.ExpectedPackages, { pieceId: action._id }, packages)
 }
-export async function cleanUpExpectedPackagesForBucketAdLibs(context: JobContext, adLibIds: PieceId[]): Promise<void> {
+export async function cleanUpExpectedPackagesForBucketAdLibs(
+	context: JobContext,
+	adLibIds: BucketAdLibId[]
+): Promise<void> {
 	if (adLibIds.length > 0) {
 		await context.directCollections.ExpectedPackages.remove({
 			pieceId: {
@@ -348,7 +353,7 @@ export async function cleanUpExpectedPackagesForBucketAdLibs(context: JobContext
 }
 export async function cleanUpExpectedPackagesForBucketAdLibsActions(
 	context: JobContext,
-	adLibIds: AdLibActionId[]
+	adLibIds: BucketAdLibActionId[]
 ): Promise<void> {
 	if (adLibIds.length > 0) {
 		await context.directCollections.ExpectedPackages.remove({

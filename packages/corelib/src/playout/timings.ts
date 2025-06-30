@@ -1,9 +1,9 @@
 import { IBlueprintPartInTransition, IBlueprintPieceType } from '@sofie-automation/blueprints-integration'
-import { DBPartInstance } from '../dataModel/PartInstance'
-import { DBPart } from '../dataModel/Part'
-import { PieceInstance, PieceInstancePiece } from '../dataModel/PieceInstance'
-import { Piece } from '../dataModel/Piece'
-import { RundownHoldState } from '../dataModel/RundownPlaylist'
+import { DBPartInstance } from '../dataModel/PartInstance.js'
+import { DBPart } from '../dataModel/Part.js'
+import { PieceInstance, PieceInstancePiece } from '../dataModel/PieceInstance.js'
+import { Piece } from '../dataModel/Piece.js'
+import { RundownHoldState } from '../dataModel/RundownPlaylist.js'
 import { ReadonlyDeep } from 'type-fest'
 
 /**
@@ -58,6 +58,7 @@ export interface PartCalculatedTimings {
 	toPartPostroll: number
 	fromPartRemaining: number // How long after the start of toPartGroup should fromPartGroup continue?
 	fromPartPostroll: number
+	fromPartKeepalive: number
 }
 
 export type CalculateTimingsPiece = Pick<Piece, 'enable' | 'prerollDuration' | 'postrollDuration' | 'pieceType'>
@@ -117,6 +118,7 @@ export function calculatePartTimings(
 			// The old part needs to continue for a while
 			fromPartRemaining: takeOffset + fromPartPostroll,
 			fromPartPostroll: fromPartPostroll,
+			fromPartKeepalive: 0,
 		}
 	} else {
 		// The amount of time needed to complete the outTransition before the 'take' point
@@ -136,6 +138,7 @@ export function calculatePartTimings(
 			toPartPostroll: toPartPostroll,
 			fromPartRemaining: takeOffset + inTransition.previousPartKeepaliveDuration + fromPartPostroll,
 			fromPartPostroll: fromPartPostroll,
+			fromPartKeepalive: inTransition.previousPartKeepaliveDuration,
 		}
 	}
 }

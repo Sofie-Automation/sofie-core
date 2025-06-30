@@ -1,5 +1,5 @@
 import { createManualPromise, ManualPromise } from '@sofie-automation/corelib/dist/lib'
-import { logger } from '../logging'
+import { logger } from '../logging.js'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 
 export type AnyLockEvent = LockEvent | UnLockEvent

@@ -1,14 +1,14 @@
 import { PieceInstanceInfiniteId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ResolvedPieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { JobContext } from '../jobs'
-import { getCurrentTime } from '../lib'
+import { JobContext } from '../jobs/index.js'
+import { getCurrentTime } from '../lib/index.js'
 import {
 	processAndPrunePieceInstanceTimings,
 	resolvePrunedPieceInstance,
 } from '@sofie-automation/corelib/dist/playout/processAndPrune'
-import { SelectedPartInstancesTimelineInfo } from './timeline/generate'
-import { PlayoutPartInstanceModel } from './model/PlayoutPartInstanceModel'
+import { SelectedPartInstancesTimelineInfo } from './timeline/generate.js'
+import { PlayoutPartInstanceModel } from './model/PlayoutPartInstanceModel.js'
 
 /**
  * Resolve the PieceInstances for a PartInstance
@@ -48,15 +48,15 @@ export function getResolvedPiecesForPartInstancesOnTimeline(
 	const currentPartStarted = partInstancesInfo.current.partStarted ?? now
 
 	const nextPartStarted =
-		partInstancesInfo.current.partInstance.part.expectedDuration !== undefined &&
+		partInstancesInfo.current.partInstance.part.autoNext &&
 		partInstancesInfo.current.partInstance.part.expectedDuration !== 0 &&
-		partInstancesInfo.current.partInstance.part.autoNext
+		partInstancesInfo.current.partInstance.part.expectedDuration !== undefined
 			? currentPartStarted + partInstancesInfo.current.partInstance.part.expectedDuration
 			: null
 
 	// Calculate the next part if needed
 	let nextResolvedPieces: ResolvedPieceInstance[] = []
-	if (partInstancesInfo.next && partInstancesInfo.current.partInstance.part.autoNext && nextPartStarted != null) {
+	if (partInstancesInfo.next && nextPartStarted != null) {
 		const nowInPart = partInstancesInfo.next.nowInPart
 		nextResolvedPieces = partInstancesInfo.next.pieceInstances.map((instance) =>
 			resolvePrunedPieceInstance(nowInPart, instance)

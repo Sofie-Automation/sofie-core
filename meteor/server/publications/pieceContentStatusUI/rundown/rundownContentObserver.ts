@@ -1,9 +1,10 @@
 import { Meteor } from 'meteor/meteor'
-import { RundownId, ShowStyleBaseId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { BlueprintId, RundownId, ShowStyleBaseId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { logger } from '../../../logging'
 import {
 	adLibActionFieldSpecifier,
 	adLibPieceFieldSpecifier,
+	blueprintFieldSpecifier,
 	ContentCache,
 	partFieldSpecifier,
 	partInstanceFieldSpecifier,
@@ -18,6 +19,7 @@ import {
 import {
 	AdLibActions,
 	AdLibPieces,
+	Blueprints,
 	PartInstances,
 	Parts,
 	PieceInstances,
@@ -29,10 +31,11 @@ import {
 	ShowStyleBases,
 } from '../../../collections'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { equivalentArrays, waitForPromise } from '../../../../lib/lib'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { ReactiveMongoObserverGroup, ReactiveMongoObserverGroupHandle } from '../../lib/observerGroup'
 import _ from 'underscore'
+import { equivalentArrays } from '@sofie-automation/shared-lib/dist/lib/lib'
+import { waitForAllObserversReady } from '../../lib/lib'
 
 const REACTIVITY_DEBOUNCE = 20
 
@@ -45,59 +48,105 @@ function convertShowStyleBase(doc: Pick<DBShowStyleBase, ShowStyleBaseFields>): 
 
 export class RundownContentObserver {
 	#observers: Meteor.LiveQueryHandle[] = []
-	#cache: ContentCache
+	readonly #cache: ContentCache
 
 	#showStyleBaseIds: ShowStyleBaseId[] = []
-	#showStyleBaseIdObserver: ReactiveMongoObserverGroupHandle
+	#showStyleBaseIdObserver!: ReactiveMongoObserverGroupHandle
 
-	constructor(rundownIds: RundownId[], cache: ContentCache) {
-		logger.silly(`Creating RundownContentObserver for rundowns "${rundownIds.join(',')}"`)
+	#blueprintIds: BlueprintId[] = []
+	#blueprintIdObserver!: ReactiveMongoObserverGroupHandle
+
+	private constructor(cache: ContentCache) {
 		this.#cache = cache
+	}
 
+	#disposed = false
+
+	static async create(rundownIds: RundownId[], cache: ContentCache): Promise<RundownContentObserver> {
+		logger.silly(`Creating RundownContentObserver for rundowns "${rundownIds.join(',')}"`)
+
+		const observer = new RundownContentObserver(cache)
+
+		await observer.initShowStyleBaseIdObserver()
+		await observer.initBlueprintIdObserver()
+
+		// This takes ownership of the #showStyleBaseIdObserver, and will stop it if this throws
+		await observer.initContentObservers(rundownIds)
+
+		return observer
+	}
+
+	private async initShowStyleBaseIdObserver() {
 		// Run the ShowStyleBase query in a ReactiveMongoObserverGroup, so that it can be restarted whenever
-		this.#showStyleBaseIdObserver = waitForPromise(
-			ReactiveMongoObserverGroup(async () => {
-				// Clear already cached data
-				cache.ShowStyleSourceLayers.remove({})
+		this.#showStyleBaseIdObserver = await ReactiveMongoObserverGroup(async () => {
+			// Clear already cached data
+			this.#cache.ShowStyleSourceLayers.remove({})
 
-				logger.silly(`optimized observer restarting ${this.#showStyleBaseIds}`)
+			logger.silly(`optimized observer restarting ${this.#showStyleBaseIds}`)
 
-				return [
-					ShowStyleBases.observe(
-						{
-							// We can use the `this.#showStyleBaseIds` here, as this is restarted every time that property changes
-							_id: { $in: this.#showStyleBaseIds },
+			return [
+				ShowStyleBases.observe(
+					{
+						// We can use the `this.#showStyleBaseIds` here, as this is restarted every time that property changes
+						_id: { $in: this.#showStyleBaseIds },
+					},
+					{
+						added: (doc) => {
+							const newDoc = convertShowStyleBase(doc)
+							this.#cache.ShowStyleSourceLayers.upsert(doc._id, { $set: newDoc as Partial<Document> })
+							this.updateBlueprintIds()
 						},
-						{
-							added: (doc) => {
-								const newDoc = convertShowStyleBase(doc)
-								cache.ShowStyleSourceLayers.upsert(doc._id, { $set: newDoc as Partial<Document> })
-							},
-							changed: (doc) => {
-								const newDoc = convertShowStyleBase(doc)
-								cache.ShowStyleSourceLayers.upsert(doc._id, { $set: newDoc as Partial<Document> })
-							},
-							removed: (doc) => {
-								cache.ShowStyleSourceLayers.remove(doc._id)
-							},
+						changed: (doc) => {
+							const newDoc = convertShowStyleBase(doc)
+							this.#cache.ShowStyleSourceLayers.upsert(doc._id, { $set: newDoc as Partial<Document> })
+							this.updateBlueprintIds()
 						},
-						{
-							projection: showStyleBaseFieldSpecifier,
-						}
-					),
-				]
-			})
-		)
+						removed: (doc) => {
+							this.#cache.ShowStyleSourceLayers.remove(doc._id)
+							this.updateBlueprintIds()
+						},
+					},
+					{
+						projection: showStyleBaseFieldSpecifier,
+					}
+				),
+			]
+		})
+	}
 
+	private async initBlueprintIdObserver() {
+		// Run the Blueprint query in a ReactiveMongoObserverGroup, so that it can be restarted whenever
+		this.#blueprintIdObserver = await ReactiveMongoObserverGroup(async () => {
+			// Clear already cached data
+			this.#cache.Blueprints.remove({})
+
+			logger.silly(`optimized observer restarting ${this.#blueprintIds}`)
+
+			return [
+				Blueprints.observeChanges(
+					{
+						// We can use the `this.#blueprintIds` here, as this is restarted every time that property changes
+						_id: { $in: this.#blueprintIds },
+					},
+					this.#cache.Blueprints.link(),
+					{
+						projection: blueprintFieldSpecifier,
+					}
+				),
+			]
+		})
+	}
+
+	private async initContentObservers(rundownIds: RundownId[]) {
 		// Subscribe to the database, and pipe any updates into the ReactiveCacheCollections
-		this.#observers = [
+		this.#observers = await waitForAllObserversReady([
 			Rundowns.observeChanges(
 				{
 					_id: {
 						$in: rundownIds,
 					},
 				},
-				cache.Rundowns.link(() => {
+				this.#cache.Rundowns.link(() => {
 					// Check if the ShowStyleBaseIds needs updating
 					this.updateShowStyleBaseIds()
 				}),
@@ -106,6 +155,7 @@ export class RundownContentObserver {
 				}
 			),
 			this.#showStyleBaseIdObserver,
+			this.#blueprintIdObserver,
 
 			Segments.observeChanges(
 				{
@@ -113,7 +163,7 @@ export class RundownContentObserver {
 						$in: rundownIds,
 					},
 				},
-				cache.Segments.link(),
+				this.#cache.Segments.link(),
 				{
 					projection: segmentFieldSpecifier,
 				}
@@ -124,7 +174,7 @@ export class RundownContentObserver {
 						$in: rundownIds,
 					},
 				},
-				cache.Parts.link(),
+				this.#cache.Parts.link(),
 				{
 					projection: partFieldSpecifier,
 				}
@@ -135,7 +185,7 @@ export class RundownContentObserver {
 						$in: rundownIds,
 					},
 				},
-				cache.Pieces.link(),
+				this.#cache.Pieces.link(),
 				{
 					projection: pieceFieldSpecifier,
 				}
@@ -147,7 +197,7 @@ export class RundownContentObserver {
 					},
 					reset: { $ne: true },
 				},
-				cache.PartInstances.link(),
+				this.#cache.PartInstances.link(),
 				{
 					projection: partInstanceFieldSpecifier,
 				}
@@ -159,7 +209,7 @@ export class RundownContentObserver {
 					},
 					reset: { $ne: true },
 				},
-				cache.PieceInstances.link(),
+				this.#cache.PieceInstances.link(),
 				{
 					projection: pieceInstanceFieldSpecifier,
 				}
@@ -170,7 +220,7 @@ export class RundownContentObserver {
 						$in: rundownIds,
 					},
 				},
-				cache.AdLibPieces.link(),
+				this.#cache.AdLibPieces.link(),
 				{
 					projection: adLibPieceFieldSpecifier,
 				}
@@ -181,7 +231,7 @@ export class RundownContentObserver {
 						$in: rundownIds,
 					},
 				},
-				cache.AdLibActions.link(),
+				this.#cache.AdLibActions.link(),
 				{
 					projection: adLibActionFieldSpecifier,
 				}
@@ -192,7 +242,7 @@ export class RundownContentObserver {
 						$in: rundownIds,
 					},
 				},
-				cache.BaselineAdLibPieces.link(),
+				this.#cache.BaselineAdLibPieces.link(),
 				{
 					projection: adLibPieceFieldSpecifier,
 				}
@@ -203,16 +253,18 @@ export class RundownContentObserver {
 						$in: rundownIds,
 					},
 				},
-				cache.BaselineAdLibActions.link(),
+				this.#cache.BaselineAdLibActions.link(),
 				{
 					projection: adLibActionFieldSpecifier,
 				}
 			),
-		]
+		])
 	}
 
 	private updateShowStyleBaseIds = _.debounce(
 		Meteor.bindEnvironment(() => {
+			if (this.#disposed) return
+
 			const newShowStyleBaseIds = _.uniq(this.#cache.Rundowns.find({}).map((rd) => rd.showStyleBaseId))
 
 			if (!equivalentArrays(newShowStyleBaseIds, this.#showStyleBaseIds)) {
@@ -227,11 +279,29 @@ export class RundownContentObserver {
 		REACTIVITY_DEBOUNCE
 	)
 
+	private updateBlueprintIds = _.debounce(
+		Meteor.bindEnvironment(() => {
+			if (this.#disposed) return
+
+			const newBlueprintIds = _.uniq(this.#cache.ShowStyleSourceLayers.find({}).map((rd) => rd.blueprintId))
+
+			if (!equivalentArrays(newBlueprintIds, this.#blueprintIds)) {
+				logger.silly(`optimized observer changed ids ${JSON.stringify(newBlueprintIds)} ${this.#blueprintIds}`)
+				this.#blueprintIds = newBlueprintIds
+				// trigger the rundown group to restart
+				this.#blueprintIdObserver.restart()
+			}
+		}),
+		REACTIVITY_DEBOUNCE
+	)
+
 	public get cache(): ContentCache {
 		return this.#cache
 	}
 
 	public dispose = (): void => {
+		this.#disposed = true
+
 		this.#observers.forEach((observer) => observer.stop())
 	}
 }

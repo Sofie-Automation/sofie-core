@@ -1,5 +1,5 @@
-import { RundownBaselineObjId, RundownId } from './Ids'
-import { PieceTimelineObjectsBlob } from './Piece'
+import { RundownBaselineObjId, RundownId } from './Ids.js'
+import { PieceTimelineObjectsBlob } from './Piece.js'
 
 export interface RundownBaselineObj {
 	_id: RundownBaselineObjId

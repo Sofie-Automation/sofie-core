@@ -1,4 +1,4 @@
-import { Connector } from '../connector'
+import { Connector } from '../connector.js'
 import * as Winston from 'winston'
 
 test('Simple test', async () => {

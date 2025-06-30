@@ -3,9 +3,9 @@ import { ABSessionAssignments } from '@sofie-automation/corelib/dist/dataModel/R
 import { OnGenerateTimelineObjExt } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { CommonContext } from '../../../blueprints/context'
-import { AbSessionHelper } from '../abSessionHelper'
-import { applyAbPlayerObjectAssignments } from '../applyAssignments'
+import { CommonContext } from '../../../blueprints/context/index.js'
+import { AbSessionHelper } from '../abSessionHelper.js'
+import { applyAbPlayerObjectAssignments } from '../applyAssignments.js'
 
 const POOL_NAME = 'clip'
 
@@ -42,11 +42,13 @@ describe('applyMediaPlayersAssignments', () => {
 		const previousAssignments: ABSessionAssignments = {
 			abc: {
 				sessionId: 'abc',
+				sessionName: 'abc',
 				playerId: 5,
 				lookahead: false,
 			},
 			def: {
 				sessionId: 'def',
+				sessionName: 'def',
 				playerId: 3,
 				lookahead: true,
 			},
@@ -68,6 +70,7 @@ describe('applyMediaPlayersAssignments', () => {
 		const previousAssignments: ABSessionAssignments = {
 			piece0_clip_def: {
 				sessionId: 'piece0_clip_def',
+				sessionName: 'def',
 				playerId: 3,
 				lookahead: false,
 			},
@@ -75,7 +78,9 @@ describe('applyMediaPlayersAssignments', () => {
 		const pieceInstanceId = 'piece0'
 		const partInstanceId = protectString('part0')
 
-		mockGetObjectSessionId.mockImplementation((obj, name) => `${obj.pieceInstanceId}_${name}`)
+		mockGetObjectSessionId.mockImplementation(
+			(obj, session) => `${obj.pieceInstanceId}_${session.poolName}_${session.sessionName}`
+		)
 
 		const objects = [
 			literal<OnGenerateTimelineObjExt>({

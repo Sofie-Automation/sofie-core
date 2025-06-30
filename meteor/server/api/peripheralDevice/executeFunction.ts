@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor'
 import { PeripheralDeviceCommandId, PeripheralDeviceId } from '@sofie-automation/shared-lib/dist/core/model/Ids'
-import { createManualPromise, getCurrentTime, getRandomId } from '../../../lib/lib'
+import { createManualPromise, getRandomId } from '../../lib/tempLib'
+import { getCurrentTime } from '../../lib/lib'
 import { PeripheralDeviceCommands } from '../../collections'
 import { logger } from '../../logging'
 import { TSR } from '@sofie-automation/blueprints-integration'
@@ -125,7 +126,7 @@ export async function executePeripheralDeviceFunctionWithCustomTimeout(
 		})
 	}
 
-	observer = PeripheralDeviceCommands.observeChanges(
+	observer = await PeripheralDeviceCommands.observeChanges(
 		{
 			_id: commandId,
 		},

@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import * as _ from 'underscore'
+import _ from 'underscore'
 import {
 	IBlueprintPart,
 	IBlueprintPiece,
 	IBlueprintPieceType,
 	PieceLifespan,
 } from '@sofie-automation/blueprints-integration'
-import { PlayoutModel } from '../../../../playout/model/PlayoutModel'
-import { MockJobContext, setupDefaultJobEnvironment } from '../../../../__mocks__/context'
-import { runJobWithPlayoutModel } from '../../../../playout/lock'
-import { defaultRundownPlaylist } from '../../../../__mocks__/defaultCollectionObjects'
+import { PlayoutModel } from '../../../../playout/model/PlayoutModel.js'
+import { MockJobContext, setupDefaultJobEnvironment } from '../../../../__mocks__/context.js'
+import { runJobWithPlayoutModel } from '../../../../playout/lock.js'
+import { defaultRundownPlaylist } from '../../../../__mocks__/defaultCollectionObjects.js'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { clone, getRandomId, literal, normalizeArrayToMapFunc, omit } from '@sofie-automation/corelib/dist/lib'
 import {
@@ -18,25 +18,26 @@ import {
 	RundownPlaylistActivationId,
 	RundownPlaylistId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { setupDefaultRundown, setupMockShowStyleCompound } from '../../../../__mocks__/presetCollections'
+import { setupDefaultRundown, setupMockShowStyleCompound } from '../../../../__mocks__/presetCollections.js'
 import { SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { JobContext } from '../../../../jobs'
+import { JobContext } from '../../../../jobs/index.js'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
-import { getCurrentTime } from '../../../../lib'
+import { getCurrentTime } from '../../../../lib/index.js'
 import {
 	EmptyPieceTimelineObjectsBlob,
+	Piece,
 	serializePieceTimelineObjectsBlob,
 } from '@sofie-automation/corelib/dist/dataModel/Piece'
-import { PlayoutPartInstanceModel } from '../../../../playout/model/PlayoutPartInstanceModel'
-import { convertPartInstanceToBlueprints, convertPieceInstanceToBlueprints } from '../../lib'
+import { PlayoutPartInstanceModel } from '../../../../playout/model/PlayoutPartInstanceModel.js'
+import { convertPartInstanceToBlueprints, convertPieceInstanceToBlueprints } from '../../lib.js'
 import { TimelineObjRundown, TimelineObjType } from '@sofie-automation/corelib/dist/dataModel/Timeline'
-import { PlayoutPartInstanceModelImpl } from '../../../../playout/model/implementation/PlayoutPartInstanceModelImpl'
-import { writePartInstancesAndPieceInstances } from '../../../../playout/model/implementation/SavePlayoutModel'
-import { PlayoutPieceInstanceModel } from '../../../../playout/model/PlayoutPieceInstanceModel'
-import { DatabasePersistedModel } from '../../../../modelBase'
+import { PlayoutPartInstanceModelImpl } from '../../../../playout/model/implementation/PlayoutPartInstanceModelImpl.js'
+import { writePartInstancesAndPieceInstances } from '../../../../playout/model/implementation/SavePlayoutModel.js'
+import { PlayoutPieceInstanceModel } from '../../../../playout/model/PlayoutPieceInstanceModel.js'
+import { DatabasePersistedModel } from '../../../../modelBase.js'
 
-import * as PlayoutAdlib from '../../../../playout/adlibUtils'
+import * as PlayoutAdlib from '../../../../playout/adlibUtils.js'
 type TinnerStopPieces = jest.MockedFunction<typeof PlayoutAdlib.innerStopPieces>
 const innerStopPiecesMock = jest.spyOn(PlayoutAdlib, 'innerStopPieces') as TinnerStopPieces
 const insertQueuedPartWithPiecesOrig = PlayoutAdlib.insertQueuedPartWithPieces
@@ -47,15 +48,16 @@ const insertQueuedPartWithPiecesMock = jest.spyOn(
 ) as TinsertQueuedPartWithPieces
 
 jest.mock('../../../../playout/resolvedPieces')
-import { getResolvedPiecesForCurrentPartInstance } from '../../../../playout/resolvedPieces'
+import { getResolvedPiecesForCurrentPartInstance } from '../../../../playout/resolvedPieces.js'
 type TgetResolvedPiecesForCurrentPartInstance = jest.MockedFunction<typeof getResolvedPiecesForCurrentPartInstance>
 const getResolvedPiecesForCurrentPartInstanceMock =
 	getResolvedPiecesForCurrentPartInstance as TgetResolvedPiecesForCurrentPartInstance
 
 jest.mock('../../../postProcess')
-import { postProcessPieces, postProcessTimelineObjects } from '../../../postProcess'
-import { ActionPartChange, PartAndPieceInstanceActionService } from '../PartAndPieceInstanceActionService'
-import { isTooCloseToAutonext } from '../../../../playout/lib'
+import { postProcessPieces, postProcessTimelineObjects } from '../../../postProcess.js'
+import { ActionPartChange, PartAndPieceInstanceActionService } from '../PartAndPieceInstanceActionService.js'
+import { mock } from 'jest-mock-extended'
+import { QuickLoopService } from '../../../../playout/model/services/QuickLoopService.js'
 const { postProcessPieces: postProcessPiecesOrig, postProcessTimelineObjects: postProcessTimelineObjectsOrig } =
 	jest.requireActual('../../../postProcess')
 
@@ -138,7 +140,7 @@ describe('Test blueprint api context', () => {
 				const pieceInstances = await context.mockCollections.PieceInstances.findFetch({
 					partInstanceId: partInstance._id,
 				})
-				return new PlayoutPartInstanceModelImpl(partInstance, pieceInstances, false)
+				return new PlayoutPartInstanceModelImpl(partInstance, pieceInstances, false, mock<QuickLoopService>())
 			})
 		)
 	}
@@ -175,7 +177,9 @@ describe('Test blueprint api context', () => {
 		return runJobWithPlayoutModel(context, { playlistId }, null, fcn as any)
 	}
 
-	async function setupMyDefaultRundown(): Promise<{
+	async function setupMyDefaultRundown(
+		insertExtraContents?: (jobContext: MockJobContext, rundownId: RundownId) => Promise<void>
+	): Promise<{
 		jobContext: MockJobContext
 		playlistId: RundownPlaylistId
 		rundownId: RundownId
@@ -198,6 +202,8 @@ describe('Test blueprint api context', () => {
 		const rundownId: RundownId = getRandomId()
 
 		await setupDefaultRundown(context, showStyleCompound, playlistId, rundownId)
+
+		if (insertExtraContents) await insertExtraContents(context, rundownId)
 
 		const allPartInstances = await generateSparsePieceInstances(context, activationId, rundownId)
 		expect(allPartInstances).toHaveLength(5)
@@ -1126,7 +1132,7 @@ describe('Test blueprint api context', () => {
 					})
 					partInstanceModel.setPlannedStartedPlayback(getCurrentTime())
 
-					expect(isTooCloseToAutonext(partInstanceModel.partInstance, true)).toBeTruthy()
+					expect(partInstanceModel.isTooCloseToAutonext(true)).toBeTruthy()
 					await expect(service.queuePart({} as any, [{}] as any)).rejects.toThrow(
 						'Too close to an autonext to queue a part'
 					)
@@ -1186,14 +1192,82 @@ describe('Test blueprint api context', () => {
 					expect(newPartInstance.partInstance.part._rank).toEqual(0.5)
 					expect(newPartInstance.partInstance.orphaned).toEqual('adlib-part')
 
-					const newNextPartInstances = await service.getPieceInstances('next')
-					expect(newNextPartInstances).toHaveLength(1)
-					expect(newNextPartInstances[0].partInstanceId).toEqual(
+					const newNextPieceInstances = await service.getPieceInstances('next')
+					expect(newNextPieceInstances).toHaveLength(1)
+					expect(newNextPieceInstances[0].partInstanceId).toEqual(
 						unprotectString(newPartInstance.partInstance._id)
 					)
 
 					expect(service.nextPartState).toEqual(ActionPartChange.SAFE_CHANGE)
 					expect(service.currentPartState).toEqual(ActionPartChange.NONE)
+				})
+			})
+
+			test('queued part does not hijack infinites from following parts', async () => {
+				// makes sure that infinites which would normally start in the part AFTER the part that is being queued,
+				// are not starting in the queued part itself
+
+				const { jobContext, playlistId, rundownId } = await setupMyDefaultRundown(
+					async (context, rundownId) => {
+						const secondPart = await context.mockCollections.Parts.findOne({ externalId: 'MOCK_PART_0_1' })
+						if (!secondPart) throw Error('could not find mock part')
+						const piece001: Piece = {
+							_id: protectString(rundownId + '_piece012'),
+							externalId: 'MOCK_PIECE_012',
+							startRundownId: rundownId,
+							startSegmentId: secondPart.segmentId,
+							startPartId: secondPart._id,
+							name: 'Piece 012',
+							enable: {
+								start: 0,
+							},
+							sourceLayerId: '',
+							outputLayerId: '',
+							pieceType: IBlueprintPieceType.Normal,
+							lifespan: PieceLifespan.OutOnSegmentEnd,
+							invalid: false,
+							content: {},
+							timelineObjectsString: EmptyPieceTimelineObjectsBlob,
+						}
+						await context.mockCollections.Pieces.insertOne(piece001)
+					}
+				)
+
+				const partInstance = (await jobContext.mockCollections.PartInstances.findOne({
+					rundownId,
+				})) as DBPartInstance
+				expect(partInstance).toBeTruthy()
+				await setPartInstances(jobContext, playlistId, partInstance, undefined)
+
+				await wrapWithPlayoutModel(jobContext, playlistId, async (playoutModel) => {
+					const { service } = await getTestee(jobContext, playoutModel)
+
+					const newPiece: IBlueprintPiece = {
+						name: 'test piece',
+						sourceLayerId: 'sl1',
+						outputLayerId: 'o1',
+						externalId: '-',
+						enable: { start: 0 },
+						lifespan: PieceLifespan.OutOnRundownEnd,
+						content: {
+							timelineObjects: [],
+						},
+					}
+					const newPart: IBlueprintPart = {
+						externalId: 'nope',
+						title: 'something',
+					}
+
+					// Create it with most of the real flow
+					postProcessPiecesMock.mockImplementationOnce(postProcessPiecesOrig)
+					insertQueuedPartWithPiecesMock.mockImplementationOnce(insertQueuedPartWithPiecesOrig)
+					expect((await service.queuePart(newPart, [newPiece]))._id).toEqual(
+						playoutModel.playlist.nextPartInfo?.partInstanceId
+					)
+
+					const newNextPartInstances = await service.getPieceInstances('next')
+					expect(newNextPartInstances).toHaveLength(1)
+					expect(newNextPartInstances[0].piece.name).toBe('test piece')
 				})
 			})
 		})
@@ -1602,14 +1676,13 @@ describe('Test blueprint api context', () => {
 
 					await expect(service.removePieceInstances('next', [])).resolves.toEqual([])
 					await expect(
-						// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 						service.removePieceInstances('next', [unprotectString(pieceInstanceFromOther._id)])
 					).resolves.toEqual([]) // Try and remove something belonging to a different part
 					expectCountsToEqual(getPieceInstanceCounts(playoutModel), beforePieceInstancesCounts)
 				})
 			})
 
-			test('good', async () => {
+			test('good - from next', async () => {
 				const { jobContext, playlistId, allPartInstances } = await setupMyDefaultRundown()
 
 				const partInstance = allPartInstances[0]
@@ -1635,6 +1708,37 @@ describe('Test blueprint api context', () => {
 					// Ensure it was all removed
 					expect(playoutModel.findPieceInstance(targetPieceInstance.pieceInstance._id)).toBeFalsy()
 					expect(service.nextPartState).toEqual(ActionPartChange.SAFE_CHANGE)
+				})
+			})
+
+			test('good - from current', async () => {
+				const { jobContext, playlistId, allPartInstances } = await setupMyDefaultRundown()
+
+				const partInstance = allPartInstances[0]
+				await setPartInstances(jobContext, playlistId, partInstance, undefined)
+
+				await wrapWithPlayoutModel(jobContext, playlistId, async (playoutModel) => {
+					const { service } = await getTestee(jobContext, playoutModel)
+
+					const beforePieceInstancesCounts = getPieceInstanceCounts(playoutModel)
+					expect(beforePieceInstancesCounts.previous).toEqual(0)
+					expect(beforePieceInstancesCounts.current).not.toEqual(0)
+					expect(beforePieceInstancesCounts.next).toEqual(0)
+					expect(beforePieceInstancesCounts.other).toEqual(0)
+
+					// Find the instance, and create its backing piece
+					const targetPieceInstance = playoutModel.currentPartInstance!.pieceInstances[0]
+					expect(targetPieceInstance).toBeTruthy()
+
+					await expect(
+						service.removePieceInstances('current', [
+							unprotectString(targetPieceInstance.pieceInstance._id),
+						])
+					).resolves.toEqual([unprotectString(targetPieceInstance.pieceInstance._id)])
+
+					// Ensure it was all removed
+					expect(playoutModel.findPieceInstance(targetPieceInstance.pieceInstance._id)).toBeFalsy()
+					expect(service.currentPartState).toEqual(ActionPartChange.SAFE_CHANGE)
 				})
 			})
 		})

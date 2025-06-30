@@ -14,11 +14,12 @@ import {
 	ABSessionAssignments,
 	ABSessionInfo,
 	DBRundownPlaylist,
+	QuickLoopMarker,
 	RundownHoldState,
 	SelectedPartInstance,
 } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { ReadonlyDeep } from 'type-fest'
-import { JobContext } from '../../../jobs'
+import { JobContext } from '../../../jobs/index.js'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import {
@@ -32,30 +33,35 @@ import {
 	TimelineCompleteGenerationVersions,
 	TimelineObjGeneric,
 } from '@sofie-automation/corelib/dist/dataModel/Timeline'
-import _ = require('underscore')
+import _ from 'underscore'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { PlaylistLock } from '../../../jobs/lock'
-import { logger } from '../../../logging'
-import { clone, getRandomId, literal, normalizeArrayToMapFunc, sleep } from '@sofie-automation/corelib/dist/lib'
+import { PlaylistLock } from '../../../jobs/lock.js'
+import { logger } from '../../../logging.js'
+import { clone, getRandomId, literal, normalizeArrayToMapFunc } from '@sofie-automation/corelib/dist/lib'
+import { sleep } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { sortRundownIDsInPlaylist } from '@sofie-automation/corelib/dist/playout/playlist'
-import { PlayoutRundownModel } from '../PlayoutRundownModel'
-import { PlayoutRundownModelImpl } from './PlayoutRundownModelImpl'
-import { PlayoutSegmentModel } from '../PlayoutSegmentModel'
-import { PlayoutPartInstanceModelImpl } from './PlayoutPartInstanceModelImpl'
-import { PlayoutPartInstanceModel } from '../PlayoutPartInstanceModel'
-import { getCurrentTime } from '../../../lib'
+import { PlayoutRundownModel } from '../PlayoutRundownModel.js'
+import { PlayoutRundownModelImpl } from './PlayoutRundownModelImpl.js'
+import { PlayoutSegmentModel } from '../PlayoutSegmentModel.js'
+import { PlayoutPartInstanceModelImpl } from './PlayoutPartInstanceModelImpl.js'
+import { PlayoutPartInstanceModel } from '../PlayoutPartInstanceModel.js'
+import { getCurrentTime } from '../../../lib/index.js'
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
-import { queuePartInstanceTimingEvent } from '../../timings/events'
-import { IS_PRODUCTION } from '../../../environment'
-import { DeferredAfterSaveFunction, DeferredFunction, PlayoutModel, PlayoutModelReadonly } from '../PlayoutModel'
-import { writePartInstancesAndPieceInstances, writeAdlibTestingSegments } from './SavePlayoutModel'
-import { PlayoutPieceInstanceModel } from '../PlayoutPieceInstanceModel'
-import { DatabasePersistedModel } from '../../../modelBase'
+import { queuePartInstanceTimingEvent } from '../../timings/events.js'
+import { IS_PRODUCTION } from '../../../environment.js'
+import { DeferredAfterSaveFunction, DeferredFunction, PlayoutModel, PlayoutModelReadonly } from '../PlayoutModel.js'
+import { writePartInstancesAndPieceInstances, writeAdlibTestingSegments } from './SavePlayoutModel.js'
+import { PlayoutPieceInstanceModel } from '../PlayoutPieceInstanceModel.js'
+import { DatabasePersistedModel } from '../../../modelBase.js'
 import { ExpectedPackageDBFromStudioBaselineObjects } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
 import { ExpectedPlayoutItemStudio } from '@sofie-automation/corelib/dist/dataModel/ExpectedPlayoutItem'
-import { StudioBaselineHelper } from '../../../studio/model/StudioBaselineHelper'
+import { StudioBaselineHelper } from '../../../studio/model/StudioBaselineHelper.js'
 import { EventsJobs } from '@sofie-automation/corelib/dist/worker/events'
+import { QuickLoopService } from '../services/QuickLoopService.js'
+import { calculatePartTimings, PartCalculatedTimings } from '@sofie-automation/corelib/dist/playout/timings'
+import { PieceInstanceWithTimings } from '@sofie-automation/corelib/dist/playout/processAndPrune'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
+import { NotificationsModelHelper } from '../../../notifications/NotificationsModelHelper.js'
 
 export class PlayoutModelReadonlyImpl implements PlayoutModelReadonly {
 	public readonly playlistId: RundownPlaylistId
@@ -79,7 +85,9 @@ export class PlayoutModelReadonlyImpl implements PlayoutModelReadonly {
 		return this.timelineImpl
 	}
 
-	protected allPartInstances: Map<PartInstanceId, PlayoutPartInstanceModelImpl | null>
+	protected allPartInstances: Map<PartInstanceId, PlayoutPartInstanceModelImpl | null> = new Map()
+
+	protected quickLoopService: QuickLoopService
 
 	public constructor(
 		protected readonly context: JobContext,
@@ -87,7 +95,8 @@ export class PlayoutModelReadonlyImpl implements PlayoutModelReadonly {
 		playlistId: RundownPlaylistId,
 		peripheralDevices: ReadonlyDeep<PeripheralDevice[]>,
 		playlist: DBRundownPlaylist,
-		partInstances: PlayoutPartInstanceModelImpl[],
+		partInstances: DBPartInstance[],
+		groupedPieceInstances: Map<PartInstanceId, PieceInstance[]>,
 		rundowns: PlayoutRundownModelImpl[],
 		timeline: TimelineComplete | undefined
 	) {
@@ -97,11 +106,34 @@ export class PlayoutModelReadonlyImpl implements PlayoutModelReadonly {
 		this.peripheralDevices = peripheralDevices
 		this.playlistImpl = playlist
 
+		this.quickLoopService = new QuickLoopService(context, this)
+
+		this.allPartInstances = normalizeArrayToMapFunc(
+			this.createPartInstanceModelImpls(partInstances, groupedPieceInstances),
+			(p) => p.partInstance._id
+		)
+
 		this.rundownsImpl = rundowns
 
 		this.timelineImpl = timeline ?? null
+	}
 
-		this.allPartInstances = normalizeArrayToMapFunc(partInstances, (p) => p.partInstance._id)
+	private createPartInstanceModelImpls(
+		partInstances: DBPartInstance[],
+		groupedPieceInstances: Map<PartInstanceId, PieceInstance[]>
+	) {
+		const allPartInstances: PlayoutPartInstanceModelImpl[] = []
+		for (const partInstance of partInstances) {
+			const wrappedPartInstance = new PlayoutPartInstanceModelImpl(
+				partInstance,
+				groupedPieceInstances.get(partInstance._id) ?? [],
+				false,
+				this.quickLoopService
+			)
+			allPartInstances.push(wrappedPartInstance)
+		}
+
+		return allPartInstances
 	}
 
 	public get olderPartInstances(): PlayoutPartInstanceModel[] {
@@ -208,6 +240,16 @@ export class PlayoutModelReadonlyImpl implements PlayoutModelReadonly {
 		return undefined
 	}
 
+	getSegmentsBetweenQuickLoopMarker(start: QuickLoopMarker, end: QuickLoopMarker): SegmentId[] {
+		return this.quickLoopService.getSegmentsBetweenMarkers(start, end)
+	}
+	getPartsBetweenQuickLoopMarker(
+		start: QuickLoopMarker,
+		end: QuickLoopMarker
+	): { parts: PartId[]; segments: SegmentId[] } {
+		return this.quickLoopService.getPartsBetweenMarkers(start, end)
+	}
+
 	#isMultiGatewayMode: boolean | undefined = undefined
 	public get isMultiGatewayMode(): boolean {
 		if (this.#isMultiGatewayMode === undefined) {
@@ -231,6 +273,7 @@ export class PlayoutModelReadonlyImpl implements PlayoutModelReadonly {
  */
 export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements PlayoutModel, DatabasePersistedModel {
 	readonly #baselineHelper: StudioBaselineHelper
+	readonly #notificationsHelper: NotificationsModelHelper
 
 	#deferredBeforeSaveFunctions: DeferredFunction[] = []
 	#deferredAfterSaveFunctions: DeferredAfterSaveFunction[] = []
@@ -256,14 +299,26 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 		playlistId: RundownPlaylistId,
 		peripheralDevices: ReadonlyDeep<PeripheralDevice[]>,
 		playlist: DBRundownPlaylist,
-		partInstances: PlayoutPartInstanceModelImpl[],
+		partInstances: DBPartInstance[],
+		groupedPieceInstances: Map<PartInstanceId, PieceInstance[]>,
 		rundowns: PlayoutRundownModelImpl[],
 		timeline: TimelineComplete | undefined
 	) {
-		super(context, playlistLock, playlistId, peripheralDevices, playlist, partInstances, rundowns, timeline)
+		super(
+			context,
+			playlistLock,
+			playlistId,
+			peripheralDevices,
+			playlist,
+			partInstances,
+			groupedPieceInstances,
+			rundowns,
+			timeline
+		)
 		context.trackCache(this)
 
 		this.#baselineHelper = new StudioBaselineHelper(context)
+		this.#notificationsHelper = new NotificationsModelHelper(context, `playout:${playlist._id}`, playlistId)
 	}
 
 	public get displayName(): string {
@@ -289,6 +344,20 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 		delete this.playlistImpl.queuedSegmentId
 
 		this.#playlistHasChanged = true
+	}
+
+	calculatePartTimings(
+		fromPartInstance: PlayoutPartInstanceModel | null,
+		toPartInstance: PlayoutPartInstanceModel,
+		toPieceInstances: PieceInstanceWithTimings[]
+	): PartCalculatedTimings {
+		return calculatePartTimings(
+			this.playlist.holdState,
+			fromPartInstance?.getPartInstanceWithQuickLoopOverrides()?.part,
+			fromPartInstance?.pieceInstances.map((p) => p.pieceInstance.piece) ?? [],
+			toPartInstance?.getPartInstanceWithQuickLoopOverrides()?.part,
+			toPieceInstances.filter((p) => !p.infinite || p.infinite.infiniteInstanceIndex === 0).map((p) => p.piece)
+		)
 	}
 
 	#fixupPieceInstancesForPartInstance(partInstance: DBPartInstance, pieceInstances: PieceInstance[]): void {
@@ -326,7 +395,12 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 
 		this.#fixupPieceInstancesForPartInstance(newPartInstance, infinitePieceInstances)
 
-		const partInstance = new PlayoutPartInstanceModelImpl(newPartInstance, infinitePieceInstances, true)
+		const partInstance = new PlayoutPartInstanceModelImpl(
+			newPartInstance,
+			infinitePieceInstances,
+			true,
+			this.quickLoopService
+		)
 
 		for (const piece of pieces) {
 			partInstance.insertAdlibbedPiece(piece, fromAdlibId)
@@ -367,7 +441,12 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 
 		this.#fixupPieceInstancesForPartInstance(newPartInstance, pieceInstances)
 
-		const partInstance = new PlayoutPartInstanceModelImpl(newPartInstance, pieceInstances, true)
+		const partInstance = new PlayoutPartInstanceModelImpl(
+			newPartInstance,
+			pieceInstances,
+			true,
+			this.quickLoopService
+		)
 		partInstance.recalculateExpectedDurationWithTransition()
 
 		this.allPartInstances.set(newPartInstance._id, partInstance)
@@ -406,12 +485,16 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 			},
 		}
 
-		const partInstance = new PlayoutPartInstanceModelImpl(newPartInstance, [], true)
+		const partInstance = new PlayoutPartInstanceModelImpl(newPartInstance, [], true, this.quickLoopService)
 		partInstance.recalculateExpectedDurationWithTransition()
 
 		this.allPartInstances.set(newPartInstance._id, partInstance)
 
 		return partInstance
+	}
+
+	switchRouteSet(routeSetId: string, isActive: boolean | 'toggle'): boolean {
+		return this.context.setRouteSetActive(routeSetId, isActive)
 	}
 
 	cycleSelectedPartInstances(): void {
@@ -436,6 +519,7 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 		}
 
 		this.clearSelectedPartInstances()
+		this.playlistImpl.quickLoop = this.quickLoopService.getUpdatedPropsByClearingMarkers()
 
 		this.#playlistHasChanged = true
 	}
@@ -486,23 +570,46 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 					? this.context.directCollections.PartInstances.remove({
 							_id: { $in: removeFromDb },
 							rundownId: { $in: rundownIds },
-					  })
+						})
 					: undefined,
 				allToRemove.length > 0
 					? this.context.directCollections.PieceInstances.remove({
 							partInstanceId: { $in: allToRemove },
 							rundownId: { $in: rundownIds },
-					  })
+						})
+					: undefined,
+				allToRemove.length > 0
+					? this.context.directCollections.Notifications.remove({
+							'relatedTo.studioId': this.context.studioId,
+							'relatedTo.rundownId': { $in: rundownIds },
+							'relatedTo.partInstanceId': { $in: allToRemove },
+						})
 					: undefined,
 			])
 		})
 	}
 
 	removeUntakenPartInstances(): void {
+		const removedPartInstanceIds: PartInstanceId[] = []
+
 		for (const partInstance of this.olderPartInstances) {
 			if (!partInstance.partInstance.isTaken) {
 				this.allPartInstances.set(partInstance.partInstance._id, null)
+				removedPartInstanceIds.push(partInstance.partInstance._id)
 			}
+		}
+
+		// Ensure there are no notifications left for these partInstances
+		if (removedPartInstanceIds.length > 0) {
+			this.deferAfterSave(async (playoutModel) => {
+				const rundownIds = playoutModel.getRundownIds()
+
+				await this.context.directCollections.Notifications.remove({
+					'relatedTo.studioId': this.context.studioId,
+					'relatedTo.rundownId': { $in: rundownIds },
+					'relatedTo.partInstanceId': { $in: removedPartInstanceIds },
+				})
+			})
 		}
 	}
 
@@ -519,11 +626,18 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 		delete this.playlistImpl.lastTakeTime
 		delete this.playlistImpl.startedPlayback
 		delete this.playlistImpl.rundownsStartedPlayback
+		delete this.playlistImpl.segmentsStartedPlayback
 		delete this.playlistImpl.previousPersistentState
 		delete this.playlistImpl.trackedAbSessions
 		delete this.playlistImpl.queuedSegmentId
 
 		if (regenerateActivationId) this.playlistImpl.activationId = getRandomId()
+
+		// reset quickloop if applicable:
+		if (this.playlist.quickLoop && !this.playlist.quickLoop.locked) {
+			this.setQuickLoopMarker('start', null)
+			this.setQuickLoopMarker('end', null)
+		}
 
 		this.#playlistHasChanged = true
 	}
@@ -565,6 +679,8 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 			...writePartInstancesAndPieceInstances(this.context, this.allPartInstances),
 			writeAdlibTestingSegments(this.context, this.rundownsImpl),
 			this.#baselineHelper.saveAllToDatabase(),
+			this.#notificationsHelper.saveAllToDatabase(),
+			this.context.saveRouteSetChanges(),
 		])
 
 		// Clean up deleted partInstances, since they have now been deleted by writePartInstancesAndPieceInstances
@@ -611,14 +727,18 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 		this.#playlistHasChanged = true
 	}
 
-	setOnTimelineGenerateResult(
-		persistentState: unknown | undefined,
+	setAbResolvingState(
 		assignedAbSessions: Record<string, ABSessionAssignments>,
 		trackedAbSessions: ABSessionInfo[]
 	): void {
-		this.playlistImpl.previousPersistentState = persistentState
 		this.playlistImpl.assignedAbSessions = assignedAbSessions
 		this.playlistImpl.trackedAbSessions = trackedAbSessions
+
+		this.#playlistHasChanged = true
+	}
+
+	setBlueprintPersistentState(persistentState: unknown | undefined): void {
+		this.playlistImpl.previousPersistentState = persistentState
 
 		this.#playlistHasChanged = true
 	}
@@ -676,9 +796,28 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 		this.#playlistHasChanged = true
 	}
 
+	setSegmentStartedPlayback(segmentPlayoutId: SegmentPlayoutId, timestamp: number): void {
+		const segmentPlayoutIdsToKeep: string[] = []
+		if (this.previousPartInstance) {
+			segmentPlayoutIdsToKeep.push(unprotectString(this.previousPartInstance.partInstance.segmentPlayoutId))
+		}
+		if (this.currentPartInstance) {
+			segmentPlayoutIdsToKeep.push(unprotectString(this.currentPartInstance.partInstance.segmentPlayoutId))
+		}
+
+		this.playlistImpl.segmentsStartedPlayback = this.playlistImpl.segmentsStartedPlayback
+			? _.pick(this.playlistImpl.segmentsStartedPlayback, segmentPlayoutIdsToKeep)
+			: {}
+
+		const segmentPlayoutIdStr = unprotectString(segmentPlayoutId)
+		this.playlistImpl.segmentsStartedPlayback[segmentPlayoutIdStr] = timestamp
+		this.#playlistHasChanged = true
+	}
+
 	setTimeline(
 		timelineObjs: TimelineObjGeneric[],
-		generationVersions: TimelineCompleteGenerationVersions
+		generationVersions: TimelineCompleteGenerationVersions,
+		regenerateTimelineToken: string | undefined
 	): ReadonlyDeep<TimelineComplete> {
 		this.timelineImpl = {
 			_id: this.context.studioId,
@@ -686,6 +825,7 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 			generated: getCurrentTime(),
 			timelineBlob: serializeTimelineBlob(timelineObjs),
 			generationVersions: generationVersions,
+			regenerateTimelineToken: regenerateTimelineToken,
 		}
 		this.#timelineHasChanged = true
 
@@ -697,6 +837,40 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 	}
 	setExpectedPlayoutItemsForStudioBaseline(playoutItems: ExpectedPlayoutItemStudio[]): void {
 		this.#baselineHelper.setExpectedPlayoutItems(playoutItems)
+	}
+
+	setQuickLoopMarker(type: 'start' | 'end', marker: QuickLoopMarker | null): void {
+		this.playlistImpl.quickLoop = this.quickLoopService.getUpdatedPropsBySettingAMarker(type, marker)
+		this.playlistImpl.quickLoop = this.quickLoopService.getUpdatedProps(type)
+		this.#playlistHasChanged = true
+	}
+
+	updateQuickLoopState(): void {
+		this.playlistImpl.quickLoop = this.quickLoopService.getUpdatedProps()
+		this.#playlistHasChanged = true
+	}
+
+	/** Notifications */
+
+	async getAllNotifications(
+		...args: Parameters<NotificationsModelHelper['getAllNotifications']>
+	): ReturnType<NotificationsModelHelper['getAllNotifications']> {
+		return this.#notificationsHelper.getAllNotifications(...args)
+	}
+	clearNotification(
+		...args: Parameters<NotificationsModelHelper['clearNotification']>
+	): ReturnType<NotificationsModelHelper['clearNotification']> {
+		return this.#notificationsHelper.clearNotification(...args)
+	}
+	setNotification(
+		...args: Parameters<NotificationsModelHelper['setNotification']>
+	): ReturnType<NotificationsModelHelper['setNotification']> {
+		return this.#notificationsHelper.setNotification(...args)
+	}
+	clearAllNotifications(
+		...args: Parameters<NotificationsModelHelper['clearAllNotifications']>
+	): ReturnType<NotificationsModelHelper['clearAllNotifications']> {
+		return this.#notificationsHelper.clearAllNotifications(...args)
 	}
 
 	/** Lifecycle */
@@ -773,7 +947,7 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 									? 'null'
 									: `partInstanceHasChanges: ${
 											pi.partInstanceHasChanges
-									  }, changedPieceInstanceIds: ${JSON.stringify(pi.changedPieceInstanceIds())}`)
+										}, changedPieceInstanceIds: ${JSON.stringify(pi.changedPieceInstanceIds())}`)
 						)
 					)}`
 				)

@@ -1,12 +1,12 @@
 import { ExecuteActionResult, ExecuteBucketAdLibOrActionProps } from '@sofie-automation/corelib/dist/worker/studio'
-import { JobContext } from '../jobs'
-import { runJobWithPlaylistLock } from './lock'
+import { JobContext } from '../jobs/index.js'
+import { runJobWithPlaylistLock } from './lock.js'
 import { UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/error'
 import { BucketId, ShowStyleBaseId, ShowStyleVariantId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { innerStartOrQueueAdLibPiece } from './adlibUtils'
-import { executeAdlibActionAndSaveModel } from './adlibAction'
+import { innerStartOrQueueAdLibPiece } from './adlibUtils.js'
+import { executeAdlibActionAndSaveModel } from './adlibAction.js'
 import { RundownHoldState } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { createPlayoutModelfromInitModel, loadPlayoutModelPreInit } from './model/implementation/LoadPlayoutModel'
+import { createPlayoutModelfromInitModel, loadPlayoutModelPreInit } from './model/implementation/LoadPlayoutModel.js'
 
 /**
  * Execute an AdLib Action

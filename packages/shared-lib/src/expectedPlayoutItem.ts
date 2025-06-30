@@ -1,6 +1,6 @@
-import { RundownId } from './core/model/Ids'
-import { ProtectedString } from './lib/protectedString'
-import { TSR } from './tsr'
+import { RundownId } from './core/model/Ids.js'
+import { ProtectedString } from './lib/protectedString.js'
+import { TSR } from './tsr.js'
 
 /** @deprecated */
 export interface ExpectedPlayoutItemGeneric {

@@ -1,0 +1,34 @@
+.piece__status-icon {
+	display: inline-block;
+
+	.type-warning {
+		width: 1.2em;
+		height: 1.2em;
+		vertical-align: top;
+		margin-top: 1px; // TODOSYNC: NRK: -5px
+		margin-right: 4px;
+	}
+
+	&.type-hourglass {
+		> svg {
+			position: relative;
+			top: 1px;
+		}
+	}
+	// Temporarily disabled, pending user testing:
+	// @keyframes animated {
+	// 	0% {
+	// 		transform: scale(1);
+	// 	}
+	// 	50% {
+	// 		transform: scale(1.3);
+	// 	}
+	// 	100% {
+	// 		transform: scale(1);
+	// 	}
+	// }
+	// animation-name: animated;
+	// animation-fill-mode: forwards;
+	// animation-duration: calc(0.5s * var(--missing-overlay-animated));
+	// animation-iteration-count: infinite;
+}

@@ -14,11 +14,11 @@ import {
 import * as Winston from 'winston'
 
 import { IMOSDevice } from '@mos-connection/connector'
-import { MosHandler } from './mosHandler'
-import { DeviceConfig } from './connector'
-import { MOS_DEVICE_CONFIG_MANIFEST } from './configManifest'
-import { getVersions } from './versions'
-import { CoreMosDeviceHandler } from './CoreMosDeviceHandler'
+import { MosHandler } from './mosHandler.js'
+import { DeviceConfig } from './connector.js'
+import { MOS_DEVICE_CONFIG_MANIFEST } from './configManifest.js'
+import { getVersions } from './versions.js'
+import { CoreMosDeviceHandler, CoreMosDeviceHandlerOptions } from './CoreMosDeviceHandler.js'
 import { PeripheralDeviceCommandId } from '@sofie-automation/shared-lib/dist/core/model/Ids'
 
 export interface CoreConfig {
@@ -142,9 +142,13 @@ export class CoreHandler {
 
 		return options
 	}
-	async registerMosDevice(mosDevice: IMOSDevice, mosHandler: MosHandler): Promise<CoreMosDeviceHandler> {
+	async registerMosDevice(
+		mosDevice: IMOSDevice,
+		mosHandler: MosHandler,
+		deviceOptions: CoreMosDeviceHandlerOptions
+	): Promise<CoreMosDeviceHandler> {
 		this.logger.info('registerMosDevice -------------')
-		const coreMos = new CoreMosDeviceHandler(this, mosDevice, mosHandler)
+		const coreMos = new CoreMosDeviceHandler(this, mosDevice, mosHandler, deviceOptions)
 
 		this._coreMosHandlers.push(coreMos)
 		return coreMos.init().then(() => {
@@ -293,7 +297,7 @@ export class CoreHandler {
 	killProcess(): void {
 		this.logger.info('KillProcess command received, shutting down in 1000ms!')
 		setTimeout(() => {
-			// eslint-disable-next-line no-process-exit
+			// eslint-disable-next-line n/no-process-exit
 			process.exit(0)
 		}, 1000)
 	}

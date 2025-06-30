@@ -4,6 +4,25 @@ import { MongoFieldSpecifierOnesStrict } from '@sofie-automation/corelib/dist/mo
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
+import { ICoreSystem } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
+
+export type CoreSystemFields =
+	| '_id'
+	| 'blueprintId'
+	| 'blueprintConfigPresetId'
+	| 'lastBlueprintConfig'
+	| 'blueprintConfigWithOverrides'
+	| 'lastBlueprintFixUpHash'
+	| 'name'
+export const coreSystemFieldsSpecifier = literal<MongoFieldSpecifierOnesStrict<Pick<ICoreSystem, CoreSystemFields>>>({
+	_id: 1,
+	blueprintId: 1,
+	blueprintConfigPresetId: 1,
+	lastBlueprintConfig: 1,
+	lastBlueprintFixUpHash: 1,
+	blueprintConfigWithOverrides: 1,
+	name: 1,
+})
 
 export type StudioFields =
 	| '_id'
@@ -64,6 +83,7 @@ export const blueprintFieldSpecifier = literal<MongoFieldSpecifierOnesStrict<Pic
 })
 
 export interface ContentCache {
+	CoreSystem: ReactiveCacheCollection<Pick<ICoreSystem, CoreSystemFields>>
 	Studios: ReactiveCacheCollection<Pick<DBStudio, StudioFields>>
 	ShowStyleBases: ReactiveCacheCollection<Pick<DBShowStyleBase, ShowStyleBaseFields>>
 	Blueprints: ReactiveCacheCollection<Pick<Blueprint, BlueprintFields>>
@@ -71,6 +91,7 @@ export interface ContentCache {
 
 export function createReactiveContentCache(): ContentCache {
 	const cache: ContentCache = {
+		CoreSystem: new ReactiveCacheCollection<Pick<ICoreSystem, CoreSystemFields>>('coreSystem'),
 		Studios: new ReactiveCacheCollection<Pick<DBStudio, StudioFields>>('studios'),
 		ShowStyleBases: new ReactiveCacheCollection<Pick<DBShowStyleBase, ShowStyleBaseFields>>('showStyleBases'),
 		Blueprints: new ReactiveCacheCollection<Pick<Blueprint, BlueprintFields>>('blueprints'),

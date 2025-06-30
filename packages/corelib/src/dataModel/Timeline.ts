@@ -5,7 +5,7 @@ import {
 	TimelineEnableExt,
 } from '@sofie-automation/shared-lib/dist/core/model/Timeline'
 import { SetRequired } from 'type-fest'
-import { PartInstanceId, PieceInstanceInfiniteId, BlueprintId, StudioId } from './Ids'
+import { PartInstanceId, PieceInstanceInfiniteId, BlueprintId, StudioId } from './Ids.js'
 
 export {
 	deserializeTimelineBlob,
@@ -18,6 +18,7 @@ import {
 	PartPlaybackCallbackData,
 	PiecePlaybackCallbackData,
 	PlayoutChangedType,
+	TriggerRegenerationCallbackData,
 } from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI'
 export { PartPlaybackCallbackData, PiecePlaybackCallbackData }
 
@@ -74,6 +75,16 @@ export interface TimelineObjPieceAbstract extends Omit<TimelineObjRundown, 'enab
 	}
 }
 
+export interface TimelineObjRegenerateTrigger extends TimelineObjRundown {
+	// used for sending callbacks
+	content: {
+		deviceType: TSR.DeviceType.ABSTRACT
+		type: 'callback'
+		callBack: PlayoutChangedType.TRIGGER_REGENERATION
+		callBackData: TriggerRegenerationCallbackData
+	}
+}
+
 export function updateLookaheadLayer(obj: TimelineObjRundown): void {
 	// Set lookaheadForLayer to reference the original layer:
 	obj.lookaheadForLayer = obj.layer
@@ -102,4 +113,10 @@ export interface TimelineComplete {
 	timelineBlob: TimelineBlob
 	/** Version numbers of sofie at the time the timeline was generated */
 	generationVersions: TimelineCompleteGenerationVersions
+
+	/**
+	 * A special regenerate object can be on the timeline to trigger a regeneration at a certain point
+	 * It uses this token to verify that the regeneration request is valid
+	 */
+	regenerateTimelineToken: string | undefined
 }

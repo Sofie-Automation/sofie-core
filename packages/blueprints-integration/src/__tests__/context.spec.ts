@@ -1,4 +1,4 @@
-import { isCommonContext, isUserNotesContext } from '../context'
+import { isCommonContext, isUserNotesContext } from '../context/index.js'
 
 describe('Context', () => {
 	const validCommonContext = {

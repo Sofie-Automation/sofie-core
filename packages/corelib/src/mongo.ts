@@ -1,9 +1,8 @@
-import * as _ from 'underscore'
-import { ProtectedString } from './protectedString'
+import _ from 'underscore'
+import { ProtectedString } from './protectedString.js'
 import * as objectPath from 'object-path'
-// eslint-disable-next-line node/no-extraneous-import
 import type { Condition, Filter, UpdateFilter } from 'mongodb'
-import { clone } from './lib'
+import { clone } from './lib.js'
 
 /** Hack's using typings pulled from meteor */
 
@@ -31,8 +30,8 @@ export type MongoFieldSpecifierOnesStrict<T extends Record<string, any>> = {
 	[key in keyof T]?: T[key] extends ProtectedString<any>
 		? 1
 		: T[key] extends object | undefined
-		? MongoFieldSpecifierOnesStrict<T[key]> | 1
-		: 1
+			? MongoFieldSpecifierOnesStrict<T[key]> | 1
+			: 1
 }
 
 export interface FindOneOptions<TDoc> {
@@ -146,7 +145,7 @@ export function mongoWhere<T>(o: Record<string, any>, selector: MongoQuery<T>): 
 					ok = mongoWhere(o, innerSelector)
 				}
 			}
-		} catch (e) {
+		} catch (_e) {
 			ok = false
 		}
 	}
@@ -369,7 +368,7 @@ export function mutatePath<T>(
 		o.forEach((val, i) => {
 			// mutate any objects which match
 			if (_.isMatch(val, info.query)) {
-				mutator(o, i + '')
+				mutator(o as any, i + '')
 			}
 		})
 	} else {

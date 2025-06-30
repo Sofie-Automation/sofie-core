@@ -1,6 +1,7 @@
 ---
 sidebar_position: 2
 ---
+
 # Settings View
 
 :::caution
@@ -22,9 +23,9 @@ Documentation for this section is yet to be written.
 A _Studio_ in Sofie-terms is a physical location, with a specific set of devices and equipment. Only one show can be on air in a studio at the same time.  
 The _studio_ settings are settings for that specific studio, and contains settings related to hardware and playout, such as:
 
-* **Attached devices** - the Gateways related to this studio
-* **Blueprint configuration** - custom config option defined by the blueprints
-* **Layer Mappings** - Maps the logical _timeline layers_ to physical devices and outputs
+- **Attached devices** - the Gateways related to this studio
+- **Blueprint configuration** - custom config option defined by the blueprints
+- **Layer Mappings** - Maps the logical _timeline layers_ to physical devices and outputs
 
 The Studio uses a studio-blueprint, which handles things like mapping up an incoming rundown to a Showstyle.
 
@@ -52,9 +53,9 @@ In order to allow the Producer to reconfigure the automation from the Switchboar
 
 A Route Set is essentially a distinct set of Layer Mappings, which can modify the settings already configured by the Layer Mappings, but can be turned On and Off. Called Routes, these can change:
 
-* the Layer ID to a new Layer ID
-* change the Device being controlled by the Layer
-* change the aspect of the Device that's being controlled.
+- the Layer ID to a new Layer ID
+- change the Device being controlled by the Layer
+- change the aspect of the Device that's being controlled.
 
 Route Sets can be grouped into Exclusivity Groups, in which only a single Route Set can be enabled at a time. When activating a Route Set within an Exclusivity Group, all other Route Sets in that group will be deactivated. This in turn, allows the System Administrator to create entire sections of exclusive automation control within the Studio that the Producer can then switch between. One such example could be switching between Primary and Backup playout servers, or switching between Primary and Backup talent microphone.
 
@@ -83,10 +84,10 @@ Route Sets can also be configured with a _Default State_. This can be used to co
 A _Showstyle_ is related to the looks and logic of a _show_, which in contrast to the _studio_ is not directly related to the hardware.  
 The Showstyle contains settings like
 
-* **Source Layers** - Groups different types of content in the GUI
-* **Output Channels** - Indicates different output targets \(such as the _Program_ or _back-screen in the studio_\)
-* **Action Triggers** - Select how actions can be started on a per-show basis, outside of the on-screen controls
-* **Blueprint configuration** - custom config option defined by the blueprints
+- **Source Layers** - Groups different types of content in the GUI
+- **Output Channels** - Indicates different output targets \(such as the _Program_ or _back-screen in the studio_\)
+- **Action Triggers** - Select how actions can be started on a per-show basis, outside of the on-screen controls
+- **Blueprint configuration** - custom config option defined by the blueprints
 
 :::caution
 Please note the difference between _Source Layers_ and _timeline-layers_:
@@ -96,12 +97,12 @@ Please note the difference between _Source Layers_ and _timeline-layers_:
 [Timeline-objects](../concepts-and-architecture.md#timeline-object) \(inside of the [Pieces](../concepts-and-architecture.md#piece)\) are put onto timeline-layers, which are \(through the Mappings in the studio\) mapped to physical devices and outputs.  
 The exact timeline-layer is never exposed to the user, but instead used on the technical level to control playout.
 
-An example of the difference could be when playing a VT \(that's a Source Layer\), which could involve all of the timeline-layers _video\_player0_, _audio\_fader\_video_, _audio\_fader\_host_ and _mixer\_pgm._
+An example of the difference could be when playing a VT \(that's a Source Layer\), which could involve all of the timeline-layers _video_player0_, _audio_fader_video_, _audio_fader_host_ and _mixer_pgm._
 :::
 
 ### Action Triggers
 
-This is a way to set up how - outside of the Point-and-Click Graphical User Interface - actions can be performed in the User Interface. Commonly, these are the *hotkey combinations* that can be used to either trigger AdLib content or other actions in the larger system. This is done by creating sets of Triggers and Actions to be triggered by them. These pairs can be set at the Show Style level or at the _Sofie&nbsp;Core_ (System) level, for common actions such as doing a Take or activating a Rundown, where you want a shared method of operation. _Sofie&nbsp;Core_ migrations will set up a base set of basic, system-wide Action Triggers for interacting with rundowns, but they can be changed by the System blueprint.
+This is a way to set up how - outside of the Point-and-Click Graphical User Interface - actions can be performed in the User Interface. Commonly, these are the _hotkey combinations_ that can be used to either trigger AdLib content or other actions in the larger system. This is done by creating sets of Triggers and Actions to be triggered by them. These pairs can be set at the Show Style level or at the _Sofie&nbsp;Core_ (System) level, for common actions such as doing a Take or activating a Rundown, where you want a shared method of operation. _Sofie&nbsp;Core_ migrations will set up a base set of basic, system-wide Action Triggers for interacting with rundowns, but they can be changed by the System blueprint.
 
 ![Action triggers define modes of interacting with a Rundown](/img/docs/main/features/action_triggers_3.png)
 
@@ -109,16 +110,16 @@ This is a way to set up how - outside of the Point-and-Click Graphical User Inte
 
 The triggers are designed to be either client-specific or issued by a peripheral device module.
 
-Currently, the Action Triggers system only supports a single, client-specific trigger type: a Hotkey. Hotkeys can be either a single key, a combination of keys (*combo*) or a *chord* - a sequnece of key combinations pressed in a particular order. *Chords* are popular in some text editing applications and vastly expand the amount of actions that can be triggered from a keyboard, at the expense of the time needed to execute them. Currently, the Hotkey editor in Sofie does not support creating *Chords*, but they can be specified by Blueprints during migrations.
+Currently, the Action Triggers system only supports a single, client-specific trigger type: a Hotkey. Hotkeys can be either a single key, a combination of keys (_combo_) or a _chord_ - a sequnece of key combinations pressed in a particular order. _Chords_ are popular in some text editing applications and vastly expand the amount of actions that can be triggered from a keyboard, at the expense of the time needed to execute them. Currently, the Hotkey editor in Sofie does not support creating _Chords_, but they can be specified by Blueprints during migrations.
 
 To edit a given trigger, click on the trigger pill on the left of the Trigger-Action set. When hovering, a **+** sign will appear,
 allowing you to add a new trigger to the set.
 
 #### Actions
 
-The actions are built using a base *action* (such as *Activate a Rundown* or *AdLib*) and a set of *filters*, limiting the scope of the *action*. Optionally, some of these *actions* can take additional *parameters*. These filters can operate on various types of objects, depending on the action in question. All actions currently require that the chain of filters starts with scoping out the Rundown the action is supposed to affect. Currently, there is only one type of Rundown-level filter supported: "The Rundown currently in view".
+The actions are built using a base _action_ (such as _Activate a Rundown_ or _AdLib_) and a set of _filters_, limiting the scope of the _action_. Optionally, some of these _actions_ can take additional _parameters_. These filters can operate on various types of objects, depending on the action in question. All actions currently require that the chain of filters starts with scoping out the Rundown the action is supposed to affect. Currently, there is only one type of Rundown-level filter supported: "The Rundown currently in view".
 
-The Action Triggers user interface guides the user in a wizzard-like fashion through the available *filter* options on a given *action*.
+The Action Triggers user interface guides the user in a wizzard-like fashion through the available _filter_ options on a given _action_.
 
 ![Actions can take additional parameters](/img/docs/main/features/action_triggers_2.png)
 
@@ -126,7 +127,7 @@ If the action provides a preview of the triggered items and there is an availabl
 
 ![A preview of the action, as scoped by the filters](/img/docs/main/features/action_triggers_4.png)
 
-Clicking on the action and filter pills allows you to edit the action parameters and filter parameters. *Limit* limits the amount of objects to only the first *N* objects matched - this can significantly improve performance on large data sets. *Pick* and *Pick last* filters end the chain of the filters by selecting a single item from the filtered set of objects (the *N-th* object from the beginning or the end, respectively). *Pick* implicitly contains a *Limit* for the performance improvement. This is not true for *Pick last*, though.
+Clicking on the action and filter pills allows you to edit the action parameters and filter parameters. _Limit_ limits the amount of objects to only the first _N_ objects matched - this can significantly improve performance on large data sets. _Pick_ and _Pick last_ filters end the chain of the filters by selecting a single item from the filtered set of objects (the _N-th_ object from the beginning or the end, respectively). _Pick_ implicitly contains a _Limit_ for the performance improvement. This is not true for _Pick last_, though.
 
 ## Migrations
 
@@ -135,4 +136,3 @@ The migrations are automatic setup-scripts that help you during initial setup an
 There are system-migrations that comes directly from the version of _Sofie&nbsp;Core_ you're running, and there are also migrations added by the different blueprints.
 
 It is mandatory to run migrations when you've upgraded _Sofie&nbsp;Core_ to a new version, or upgraded your blueprints.
-

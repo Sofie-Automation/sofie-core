@@ -1,12 +1,14 @@
-import * as _ from 'underscore'
+import _ from 'underscore'
 import { ReadonlyDeep } from 'type-fest'
-import fastClone = require('fast-clone')
-import { ProtectedString, protectString } from './protectedString'
+import fastClone from 'fast-clone'
+import { ProtectedString, protectString } from './protectedString.js'
 import * as objectPath from 'object-path'
 import { Timecode } from 'timecode'
 import { iterateDeeply, iterateDeeplyEnum, Time } from '@sofie-automation/blueprints-integration'
-import { IStudioSettings } from './dataModel/Studio'
+import { IStudioSettings } from './dataModel/Studio.js'
 import { customAlphabet as createNanoid } from 'nanoid'
+import type { ITranslatableMessage } from './TranslatableMessage.js'
+import { ReadonlyObjectDeep } from 'type-fest/source/readonly-deep'
 
 /**
  * Limited character set to use for id generation
@@ -19,9 +21,10 @@ const UNMISTAKABLE_CHARS = '23456789ABCDEFGHJKLMNPQRSTWXYZabcdefghijkmnopqrstuvw
 // The probability for a collision is around 1.5e-6 in a set of 1e12 items
 const nanoid = createNanoid(UNMISTAKABLE_CHARS, 17)
 
-export * from './hash'
+export * from './hash.js'
 
-export type Subtract<T extends T1, T1 extends object> = Pick<T, Exclude<keyof T, keyof T1>>
+export type { Complete, ArrayElement, Subtract } from '@sofie-automation/shared-lib/dist/lib/types'
+export { assertNever, literal } from '@sofie-automation/shared-lib/dist/lib/lib'
 
 export function getSofieHostUrl(): string {
 	const url = process.env.ROOT_URL
@@ -29,16 +32,6 @@ export function getSofieHostUrl(): string {
 
 	throw new Error('ROOT_URL must be defined to launch Sofie')
 }
-
-/**
- * Make all optional properties be required and `| undefined`
- * This is useful to ensure that no property is missed, when manually converting between types, but allowing fields to be undefined
- */
-export type Complete<T> = {
-	[P in keyof Required<T>]: Pick<T, P> extends Required<Pick<T, P>> ? T[P] : T[P] | undefined
-}
-
-export type ArrayElement<A> = A extends readonly (infer T)[] ? T : never
 
 export function omit<T, P extends keyof T>(obj: T, ...props: P[]): Omit<T, P> {
 	return _.omit(obj, ...(props as string[])) as any
@@ -48,7 +41,7 @@ export function flatten<T>(vals: Array<T[] | undefined>): T[] {
 	return _.flatten(
 		vals.filter((v) => v !== undefined),
 		true
-	) as T[]
+	)
 }
 
 export function max<T>(vals: T[], iterator: _.ListIterator<T, any>): T | undefined {
@@ -67,11 +60,11 @@ export function min<T>(vals: T[] | readonly T[], iterator: _.ListIterator<T, any
 	}
 }
 
-export function assertNever(_never: never): void {
-	// Do nothing. This is a type guard
-}
-
 export function clone<T>(o: ReadonlyDeep<T> | Readonly<T> | T): T {
+	// Use this instead of fast-clone directly, as this retains the type
+	return fastClone(o as any)
+}
+export function cloneObject<T extends object>(o: ReadonlyObjectDeep<T> | Readonly<T> | T): T {
 	// Use this instead of fast-clone directly, as this retains the type
 	return fastClone(o as any)
 }
@@ -110,14 +103,6 @@ export function getRandomString(numberOfChars?: number): string {
 
 export function getRandomId<T extends ProtectedString<any>>(numberOfChars?: number): T {
 	return protectString(getRandomString(numberOfChars))
-}
-
-export function literal<T>(o: T): T {
-	return o
-}
-
-export async function sleep(ms: number): Promise<void> {
-	return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 /**
@@ -434,4 +419,66 @@ export function deferAsync(fn: () => Promise<void>, catcher: (e: unknown) => voi
 
 export function joinObjectPathFragments(...fragments: Array<string | number | undefined>): string {
 	return fragments.filter((v) => v !== '' && v !== undefined && v !== null).join('.')
+}
+
+export function ensureHasTrailingSlash(input: string | null): string | undefined {
+	if (input) {
+		return input.endsWith('/') ? input : input + '/'
+	} else {
+		return undefined
+	}
+}
+
+/**
+ * Returns a string that can be used to compare objects for equality
+ * @param objs
+ */
+export function stringifyObjects(objs: unknown): string {
+	if (_.isArray(objs)) {
+		return _.map(objs, (obj) => {
+			if (obj !== undefined) {
+				return stringifyObjects(obj)
+			} else {
+				return undefined
+			}
+		}).join(',')
+	} else if (_.isFunction(objs)) {
+		return ''
+	} else if (_.isObject(objs)) {
+		const objs0 = objs as any
+		const keys = _.sortBy(_.keys(objs), (k) => k)
+
+		return _.compact(
+			_.map(keys, (key) => {
+				if (objs0[key] !== undefined) {
+					return key + '=' + stringifyObjects(objs0[key])
+				} else {
+					return null
+				}
+			})
+		).join(',')
+	} else {
+		return objs + ''
+	}
+}
+
+/** Generate the translation for a string, to be applied later when it gets rendered */
+export function generateTranslation(
+	key: string,
+	args?: { [k: string]: any },
+	namespaces?: string[]
+): ITranslatableMessage {
+	return {
+		key,
+		args,
+		namespaces,
+	}
+}
+
+export function areSetsEqual<T>(a: Set<T>, b: Set<T>): boolean {
+	return a.size === b.size && [...a].every((value) => b.has(value))
+}
+
+export function doSetsIntersect<T>(a: Set<T>, b: Set<T>): boolean {
+	return [...a].some((value) => b.has(value))
 }

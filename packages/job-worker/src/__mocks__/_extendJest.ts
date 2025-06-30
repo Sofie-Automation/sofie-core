@@ -14,14 +14,14 @@ expect.extend({
 
 		const pass =
 			received instanceof UserError &&
-			received.message.key === expectedError.message.key &&
-			(args === undefined || JSON.stringify(args) === JSON.stringify(received.message.args))
+			received.userMessage.key === expectedError.userMessage.key &&
+			(args === undefined || JSON.stringify(args) === JSON.stringify(received.userMessage.args))
 
 		return {
 			message: () =>
 				`expected ${JSON.stringify(
-					received instanceof UserError ? received.message : received
-				)} to match ${JSON.stringify(expectedError.message)}`,
+					received instanceof UserError ? received.userMessage : received
+				)} to match ${JSON.stringify(expectedError.userMessage)}`,
 			pass: pass,
 		}
 	},
