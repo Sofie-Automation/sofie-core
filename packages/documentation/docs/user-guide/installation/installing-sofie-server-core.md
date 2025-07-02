@@ -76,7 +76,7 @@ services:
     environment:
       DEVICE_ID: liveStatusGateway
       CORE_HOST: core
-      CORE_PORT: "3000"
+      CORE_PORT: '3000'
     networks:
       - sofie
       - lan_access
@@ -89,7 +89,7 @@ services:
     environment:
       DEVICE_ID: packageManager
       CORE_HOST: core
-      CORE_PORT: "3000"
+      CORE_PORT: '3000'
       PACKAGE_MANAGER_URL: ws://package-manager:8060
       WORKFORCE_URL: ws://package-manager-workforce:8070
     networks:
