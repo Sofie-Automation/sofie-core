@@ -164,6 +164,7 @@ export function ShelfDashboardLayout(props: Readonly<IShelfDashboardLayoutProps>
 									layout={rundownLayout}
 									panel={panel}
 									showStyleBase={props.showStyleBase}
+									studio={props.studio}
 								/>
 							)
 						} else if (RundownLayoutsAPI.isPartTiming(panel)) {

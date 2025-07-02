@@ -100,7 +100,9 @@ function getShowStyleBaseIdSegmentPartUi(
 	segment: SegmentUi | undefined
 	partInstance: PartUi | undefined
 } {
+	let studioId: StudioId | undefined = undefined
 	let showStyleBaseId: ShowStyleBaseId | undefined = undefined
+	let studio: UIStudio | undefined = undefined
 	let showStyleBase: UIShowStyleBase | undefined = undefined
 	let showStyleVariantId: ShowStyleVariantId | undefined = undefined
 	let showStyleVariant: DBShowStyleVariant | undefined = undefined
@@ -116,6 +118,7 @@ function getShowStyleBaseIdSegmentPartUi(
 			timing: 1,
 		},
 	})
+	studioId = currentRundown?.studioId
 	showStyleBaseId = currentRundown?.showStyleBaseId
 	showStyleVariantId = currentRundown?.showStyleVariantId
 
@@ -123,6 +126,7 @@ function getShowStyleBaseIdSegmentPartUi(
 	if (currentRundown && segmentIndex >= 0) {
 		const rundownOrder = RundownPlaylistCollectionUtil.getRundownOrderedIDs(playlist)
 		const rundownIndex = rundownOrder.indexOf(partInstance.rundownId)
+		studio = UIStudios.findOne(studioId)
 		showStyleBase = UIShowStyleBases.findOne(showStyleBaseId)
 		showStyleVariant = ShowStyleVariants.findOne(showStyleVariantId)
 
@@ -132,6 +136,7 @@ function getShowStyleBaseIdSegmentPartUi(
 
 			const o = RundownUtils.getResolvedSegment(
 				showStyleBase,
+				studio,
 				playlist,
 				currentRundown,
 				orderedSegmentsAndParts.segments[segmentIndex],

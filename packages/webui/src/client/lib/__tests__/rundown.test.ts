@@ -3,6 +3,7 @@ import {
 	DefaultEnvironment,
 	setupDefaultRundownPlaylist,
 	convertToUIShowStyleBase,
+	convertToUIStudio,
 } from '../../../__mocks__/helpers/database.js'
 import { RundownUtils } from '../rundown.js'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
@@ -16,6 +17,7 @@ import { PartInstances, PieceInstances, Pieces, RundownPlaylists } from '../../c
 import { MongoMock } from '../../../__mocks__/mongo.js'
 import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil.js'
 import { RundownPlaylistClientUtil } from '../rundownPlaylistUtil.js'
+import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 
 const mockRundownPlaylistsCollection = MongoMock.getInnerMockCollection(RundownPlaylists)
 const mockPartInstancesCollection = MongoMock.getInnerMockCollection(PartInstances)
@@ -36,9 +38,11 @@ jest.mock('../../ui/Collections', () => {
 describe('client/lib/rundown', () => {
 	let env: DefaultEnvironment
 	let playlistId: RundownPlaylistId
+	let studio: UIStudio
 	beforeEach(async () => {
 		env = await setupDefaultStudioEnvironment()
 		playlistId = (await setupDefaultRundownPlaylist(env)).playlistId
+		studio = convertToUIStudio(env.studio)
 	})
 	describe('RundownUtils.getResolvedSegment', () => {
 		test('Basic Segment resolution', () => {
@@ -56,6 +60,7 @@ describe('client/lib/rundown', () => {
 
 			const resolvedSegment = RundownUtils.getResolvedSegment(
 				showStyleBase,
+				studio,
 				playlist,
 				rundown,
 				segment,
@@ -117,6 +122,7 @@ describe('client/lib/rundown', () => {
 
 			const resolvedSegment = RundownUtils.getResolvedSegment(
 				showStyleBase,
+				studio,
 				playlist,
 				rundown,
 				segment,
@@ -202,6 +208,7 @@ describe('client/lib/rundown', () => {
 
 			const resolvedSegment = RundownUtils.getResolvedSegment(
 				showStyleBase,
+				studio,
 				playlist,
 				rundown,
 				segment,
@@ -352,6 +359,7 @@ describe('client/lib/rundown', () => {
 
 			const resolvedSegment = RundownUtils.getResolvedSegment(
 				showStyleBase,
+				studio,
 				playlist,
 				rundown,
 				segment,

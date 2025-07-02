@@ -91,7 +91,8 @@ function getShowStyleBaseIdSegmentPartUi(
 	},
 	rundownsToShowstyles: Map<RundownId, ShowStyleBaseId>,
 	currentPartInstance: PartInstance | undefined,
-	nextPartInstance: PartInstance | undefined
+	nextPartInstance: PartInstance | undefined,
+	studio: UIStudio | undefined
 ): {
 	showStyleBaseId: ShowStyleBaseId | undefined
 	showStyleBase: UIShowStyleBase | undefined
@@ -132,6 +133,7 @@ function getShowStyleBaseIdSegmentPartUi(
 
 			const o = RundownUtils.getResolvedSegment(
 				showStyleBase,
+				studio,
 				playlist,
 				currentRundown,
 				orderedSegmentsAndParts.segments[segmentIndex],
@@ -238,7 +240,8 @@ export const getPresenterScreenReactive = (
 					orderedSegmentsAndParts,
 					rundownsToShowstyles,
 					currentPartInstance,
-					nextPartInstance
+					nextPartInstance,
+					studio
 				)
 				currentSegment = current.segment
 				currentPartInstanceUi = current.partInstance
@@ -255,7 +258,8 @@ export const getPresenterScreenReactive = (
 					orderedSegmentsAndParts,
 					rundownsToShowstyles,
 					currentPartInstance,
-					nextPartInstance
+					nextPartInstance,
+					studio
 				)
 				nextSegment = next.segment
 				nextPartInstanceUi = next.partInstance
