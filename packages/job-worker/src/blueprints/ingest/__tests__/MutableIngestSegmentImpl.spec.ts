@@ -25,6 +25,8 @@ describe('MutableIngestSegmentImpl', () => {
 					externalId: 'part0',
 					name: 'my first part',
 					rank: 0,
+					float: false,
+					autoNext: false,
 					payload: {
 						val: 'some-val',
 					},
@@ -34,6 +36,8 @@ describe('MutableIngestSegmentImpl', () => {
 					externalId: 'part1',
 					name: 'another part',
 					rank: 1,
+					float: false,
+					autoNext: false,
 					payload: {
 						val: 'second-val',
 					},
@@ -43,6 +47,8 @@ describe('MutableIngestSegmentImpl', () => {
 					externalId: 'part2',
 					name: 'third part',
 					rank: 2,
+					float: false,
+					autoNext: false,
 					payload: {
 						val: 'third-val',
 					},
@@ -52,6 +58,8 @@ describe('MutableIngestSegmentImpl', () => {
 					externalId: 'part3',
 					name: 'last part',
 					rank: 3,
+					float: false,
+					autoNext: false,
 					payload: {
 						val: 'last-val',
 					},
@@ -329,6 +337,8 @@ describe('MutableIngestSegmentImpl', () => {
 			const newPart: Omit<IngestPart, 'rank'> = {
 				externalId: 'part1',
 				name: 'new name',
+				float: false,
+				autoNext: false,
 				payload: {
 					val: 'new-val',
 				},
@@ -369,6 +379,8 @@ describe('MutableIngestSegmentImpl', () => {
 			const newPart: Omit<IngestPart, 'rank'> = {
 				externalId: 'partX',
 				name: 'new name',
+				float: false,
+				autoNext: false,
 				payload: {
 					val: 'new-val',
 				},
@@ -408,6 +420,8 @@ describe('MutableIngestSegmentImpl', () => {
 			const newPart: Omit<IngestPart, 'rank'> = {
 				externalId: 'partX',
 				name: 'new name',
+				float: false,
+				autoNext: false,
 				payload: {
 					val: 'new-val',
 				},
