@@ -39,6 +39,8 @@ interface IProps {
 	onContextMenu?: (contextMenuContext: IContextMenuContext) => void
 	onSwitchViewMode?: (newViewMode: SegmentViewMode) => void
 	onPieceDoubleClick?: (item: PieceUi, e: React.MouseEvent<HTMLDivElement>) => void
+
+	hideRundownHeader?: boolean
 }
 
 const SegmentListInner = React.forwardRef<HTMLDivElement, IProps>(function SegmentList(props, ref) {
@@ -238,6 +240,7 @@ const SegmentListInner = React.forwardRef<HTMLDivElement, IProps>(function Segme
 				onTimeUntilClick={onTimeUntilClick}
 				onSwitchViewMode={props.onSwitchViewMode}
 				onHeaderNoteClick={props.onHeaderNoteClick}
+				hideRundownHeader={props.hideRundownHeader}
 			/>
 			<div className="segment-opl__part-list">{parts}</div>
 		</div>

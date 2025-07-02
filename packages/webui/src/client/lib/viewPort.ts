@@ -5,6 +5,7 @@ import { Settings } from '../lib/Settings.js'
 import { PartId, PartInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { UIPartInstances, UIParts } from '../ui/Collections.js'
 import { logger } from './logging.js'
+import { parse as queryStringParse } from 'query-string'
 
 const HEADER_MARGIN = 24 // TODOSYNC: TV2 uses 15. If it's needed to be different, it needs to be made generic somehow..
 const FALLBACK_HEADER_HEIGHT = 65
@@ -102,6 +103,10 @@ export async function scrollToPart(
 let HEADER_HEIGHT: number | undefined = undefined
 
 export function getHeaderHeight(): number {
+	if (queryStringParse(location.search)['hideRundownHeader'] === '1') {
+		return 0
+	}
+
 	if (HEADER_HEIGHT === undefined) {
 		const root = document.querySelector(
 			'#render-target > .container-fluid-custom > .rundown-view > .rundown-header'

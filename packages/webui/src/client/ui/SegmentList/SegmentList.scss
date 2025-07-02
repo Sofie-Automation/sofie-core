@@ -701,6 +701,10 @@ $identifier-area-width: 3em;
 	padding: $segment-margin-y $segment-margin-x 0;
 	overflow: hidden;
 
+	&.no-rundown-header {
+		margin-top: 0;
+	}
+
 	.segment-opl__title {
 		background: $segment-background-color;
 		border-top-left-radius: $segment-border-radius;

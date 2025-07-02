@@ -51,6 +51,7 @@ interface IProps {
 		state: boolean
 	) => void
 	onSegmentViewMode?: (e: React.MouseEvent<HTMLButtonElement>) => void
+	hideRundownHeader?: boolean
 }
 
 const ANIMATION_TEMPLATE = {
@@ -138,7 +139,11 @@ export function RundownRightHandControls(props: Readonly<IProps>): JSX.Element {
 					onStudioRouteSetSwitch={props.onStudioRouteSetSwitch}
 				/>
 			)}
-			<div className="status-bar">
+			<div
+				className={classNames('status-bar', {
+					'status-bar--no-rundown-header': props.hideRundownHeader,
+				})}
+			>
 				<div className="status-bar__cell status-bar__cell--align-start">
 					<AnimatePresence initial={false}>
 						<NotificationCenterPanelToggle
