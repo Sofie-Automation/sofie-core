@@ -159,7 +159,7 @@ export async function manipulateUIPartInstancesPublicationData(
 			playlist.quickLoop.start,
 			-Infinity,
 			state.contentCache.Segments,
-			{ partInstances: state.contentCache.PartInstances },
+			{ partInstances: state.contentCache.PartInstances, parts: state.contentCache.Parts },
 			rundownRanks
 		)
 	const quickLoopEndPosition =
@@ -168,7 +168,7 @@ export async function manipulateUIPartInstancesPublicationData(
 			playlist.quickLoop.end,
 			Infinity,
 			state.contentCache.Segments,
-			{ partInstances: state.contentCache.PartInstances },
+			{ partInstances: state.contentCache.PartInstances, parts: state.contentCache.Parts },
 			rundownRanks
 		)
 
