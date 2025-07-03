@@ -198,6 +198,10 @@ export type PieceContentStatusPiece = Pick<
 	'_id' | 'content' | 'expectedPackages' | 'name'
 > & {
 	pieceInstanceId?: PieceInstanceId
+	/**
+	 * If this is an infinite continuation, check the previous PieceInstance to fill the gap when package-manager has not processed an adlibbed part
+	 */
+	previousPieceInstanceId?: PieceInstanceId
 }
 export interface PieceContentStatusStudio
 	extends Pick<DBStudio, '_id' | 'previewContainerIds' | 'thumbnailContainerIds'> {
@@ -656,6 +660,13 @@ async function checkPieceContentExpectedPackageStatus(
 				if (piece.pieceInstanceId) {
 					// If this is a PieceInstance, try looking up the PieceInstance first
 					expectedPackageIds.unshift(getExpectedPackageId(piece.pieceInstanceId, expectedPackage._id))
+
+					if (piece.previousPieceInstanceId) {
+						// Also try the previous PieceInstance, when this is an infinite continuation in case package-manager needs to catchup
+						expectedPackageIds.unshift(
+							getExpectedPackageId(piece.previousPieceInstanceId, expectedPackage._id)
+						)
+					}
 				}
 
 				let warningMessage: ContentMessageLight | null = null
