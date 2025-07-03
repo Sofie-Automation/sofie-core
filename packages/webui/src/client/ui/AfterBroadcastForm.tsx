@@ -18,6 +18,7 @@ import { useTracker } from '../lib/ReactMeteorData/ReactMeteorData.js'
 import { CoreSystem } from '../collections/index.js'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { SYSTEM_ID } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
+import { UserError } from '@sofie-automation/corelib/dist/error'
 
 type ProblemType = 'nothing' | 'minor' | 'major'
 
@@ -81,7 +82,7 @@ export function AfterBroadcastForm({ playlist }: Readonly<{ playlist: DBRundownP
 				UserAction.CREATE_SNAPSHOT_FOR_DEBUG,
 				async (e, ts) =>
 					MeteorCall.system.generateSingleUseToken().then((tokenResult) => {
-						if (ClientAPI.isClientResponseError(tokenResult)) throw tokenResult.error
+						if (ClientAPI.isClientResponseError(tokenResult)) throw UserError.fromSerialized(tokenResult.error)
 						if (!tokenResult.result) throw new Error('Failed to generate token')
 						return MeteorCall.userAction.storeRundownSnapshot(
 							e,

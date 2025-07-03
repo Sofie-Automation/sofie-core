@@ -23,6 +23,7 @@ import { useTranslation, withTranslation } from 'react-i18next'
 import Button from 'react-bootstrap/esm/Button'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { createPrivateApiPath } from '../../url.js'
+import { UserError } from '@sofie-automation/corelib/dist/error'
 
 interface IProps {
 	match: {
@@ -116,7 +117,7 @@ const SnapshotsViewContent = withTranslation()(
 			MeteorCall.system
 				.generateSingleUseToken()
 				.then((tokenResponse) => {
-					if (ClientAPI.isClientResponseError(tokenResponse)) throw tokenResponse.error
+					if (ClientAPI.isClientResponseError(tokenResponse)) throw UserError.fromSerialized(tokenResponse.error)
 					if (!tokenResponse.result) throw new Error('Failed to generate token')
 					return MeteorCall.snapshot.storeSystemSnapshot(
 						hashSingleUseToken(tokenResponse.result),
@@ -140,7 +141,7 @@ const SnapshotsViewContent = withTranslation()(
 			MeteorCall.system
 				.generateSingleUseToken()
 				.then((tokenResponse) => {
-					if (ClientAPI.isClientResponseError(tokenResponse)) throw tokenResponse.error
+					if (ClientAPI.isClientResponseError(tokenResponse)) throw UserError.fromSerialized(tokenResponse.error)
 					if (!tokenResponse.result) throw new Error('Failed to generate token')
 					return MeteorCall.snapshot.storeDebugSnapshot(
 						hashSingleUseToken(tokenResponse.result),

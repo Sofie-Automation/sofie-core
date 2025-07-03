@@ -149,7 +149,11 @@ describe('Lib', () => {
 				key: 'Validation failed!',
 				args: {},
 			},
-			rawError: expect.stringMatching(/Error: Hello/),
+			rawError: {
+				name: expect.stringContaining('Error'),
+				message: 'Hello',
+				stack: expect.stringContaining('Error: Hello'),
+			},
 		})
 
 		// Array of stuff:

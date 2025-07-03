@@ -11,7 +11,11 @@ describe('UserError', () => {
 			expect.stringContaining(
 				'UserError: ' +
 					JSON.stringify({
-						rawError: 'Error: raw, mock stack',
+						rawError: {
+							name: 'UserError',
+							message: 'raw',
+							stack: 'mock stack',
+						},
 						userMessage: {
 							key: 'The selected part does not exist',
 							args: {

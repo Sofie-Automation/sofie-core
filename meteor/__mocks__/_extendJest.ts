@@ -42,7 +42,7 @@ expect.extend({
 			received = received.error
 		}
 
-		if (UserError.isUserError(received)) {
+		if (received instanceof UserError) {
 			const expected = UserError.create(msg, args)
 			const received2 = clone(received)
 
@@ -68,10 +68,11 @@ expect.extend({
 			received = received.error
 		}
 
-		if (UserError.isUserError(received)) {
-			const pass = !!received.rawError.toString().match(regexp)
+		if (UserError.isSerializedUserErrorObject(received)) {
+			received = UserError.fromUnknown(received)
+			const pass = !!received.toString().match(regexp)
 			return {
-				message: () => `expected ${received.rawError} to match ${regexp}`,
+				message: () => `expected ${stringifyError(received)} to match ${regexp}`,
 				pass: pass,
 			}
 		} else {

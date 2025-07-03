@@ -12,6 +12,7 @@ import { hashSingleUseToken } from '../../../lib/lib.js'
 import { UserPermissionsContext } from '../../UserPermissions.js'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import Button from 'react-bootstrap/Button'
+import { UserError } from '@sofie-automation/corelib/dist/error'
 
 interface ICoreItemProps {
 	systemStatus: StatusResponse | undefined
@@ -93,7 +94,8 @@ export function CoreItem({ systemStatus, coreSystem }: ICoreItemProps): JSX.Elem
 											UserAction.RESTART_CORE,
 											(e, ts) =>
 												MeteorCall.system.generateSingleUseToken().then((tokenResponse) => {
-													if (ClientAPI.isClientResponseError(tokenResponse)) throw tokenResponse.error
+													if (ClientAPI.isClientResponseError(tokenResponse))
+														throw UserError.fromSerialized(tokenResponse.error)
 													if (!tokenResponse.result) throw new Error('Failed to generate token')
 													return MeteorCall.userAction.restartCore(e, ts, hashSingleUseToken(tokenResponse.result))
 												}),

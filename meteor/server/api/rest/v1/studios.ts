@@ -256,24 +256,28 @@ class StudiosServerAPI implements StudiosRestAPI {
 		const studio = await Studios.findOneAsync(studioId)
 		if (!studio)
 			return ClientAPI.responseError(
-				UserError.from(new Error(`Studio does not exist`), UserErrorMessage.StudioNotFound),
-				404
+				UserError.from(new Error(`Studio does not exist`), UserErrorMessage.StudioNotFound, undefined, 404)
 			)
 
 		const device = await PeripheralDevices.findOneAsync(deviceId)
 		if (!device)
 			return ClientAPI.responseError(
-				UserError.from(new Error(`Studio does not exist`), UserErrorMessage.PeripheralDeviceNotFound),
-				404
+				UserError.from(
+					new Error(`Studio does not exist`),
+					UserErrorMessage.PeripheralDeviceNotFound,
+					undefined,
+					404
+				)
 			)
 
 		if (device.studioAndConfigId !== undefined && device.studioAndConfigId.studioId !== studio._id) {
 			return ClientAPI.responseError(
 				UserError.from(
 					new Error(`Device already attached to studio`),
-					UserErrorMessage.DeviceAlreadyAttachedToStudio
-				),
-				412
+					UserErrorMessage.DeviceAlreadyAttachedToStudio,
+					undefined,
+					412
+				)
 			)
 		}
 
@@ -318,8 +322,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 		const studio = await Studios.findOneAsync(studioId)
 		if (!studio)
 			return ClientAPI.responseError(
-				UserError.from(new Error(`Studio does not exist`), UserErrorMessage.StudioNotFound),
-				404
+				UserError.from(new Error(`Studio does not exist`), UserErrorMessage.StudioNotFound, undefined, 404)
 			)
 		await PeripheralDevices.updateAsync(
 			{

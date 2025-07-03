@@ -110,6 +110,7 @@ import { useRundownViewSubscriptions } from './RundownView/RundownViewSubscripti
 import { useMiniShelfAdlibsData } from './RundownView/useQueueMiniShelfAdlib.js'
 import { RundownViewContextProviders } from './RundownView/RundownViewContextProviders.js'
 import { AnimatePresence } from 'motion/react'
+import { UserError } from '@sofie-automation/corelib/dist/error'
 
 const HIDE_NOTIFICATIONS_AFTER_MOUNT: number | undefined = 5000
 
@@ -1245,7 +1246,7 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 					async (e, ts) => {
 						const tokenResponse = await MeteorCall.system.generateSingleUseToken()
 
-						if (ClientAPI.isClientResponseError(tokenResponse)) throw tokenResponse.error
+						if (ClientAPI.isClientResponseError(tokenResponse)) throw UserError.fromSerialized(tokenResponse.error)
 						if (!tokenResponse.result) throw new Meteor.Error(500, 'Failed to generate token')
 
 						return MeteorCall.userAction.storeRundownSnapshot(

@@ -1,6 +1,6 @@
 import { ITranslatableMessage } from '@sofie-automation/blueprints-integration'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
-import { interpollateTranslation, translateMessage } from './TranslatableMessage.js'
+import { interpollateTranslation, isTranslatableMessage, translateMessage } from './TranslatableMessage.js'
 
 // Mock 't' function for i18next to find the keys
 function t(key: string): string {
@@ -126,23 +126,23 @@ const UserErrorMessagesTranslations: { [key in UserErrorMessage]: string } = {
 	[UserErrorMessage.RateLimitExceeded]: t(`Rate limit exceeded`),
 }
 
-export interface UserErrorObj {
+export interface SerializedUserError {
 	readonly errorCode: number
 
 	/** The raw Error that was thrown */
-	readonly rawError: Error
+	rawError: Pick<Error, 'name' | 'message' | 'stack'>
 	/** The UserErrorMessage key (for matching certain error) */
 	readonly key: UserErrorMessage
 	/** The translatable string for the key */
 	readonly userMessage: ITranslatableMessage
 }
 
-export class UserError extends Error implements UserErrorObj {
+export class UserError extends Error {
 	public readonly errorCode: number
 
 	private constructor(
 		/** The raw Error that was thrown */
-		public readonly rawError: Error,
+		rawError: SerializedUserError['rawError'],
 		/** The UserErrorMessage key (for matching certain error) */
 		public readonly key: UserErrorMessage,
 		/** The translatable string for the key */
@@ -151,23 +151,43 @@ export class UserError extends Error implements UserErrorObj {
 		errorCode: number | undefined
 	) {
 		super()
-		this.errorCode = errorCode ?? 500
-	}
 
-	public toString(): string {
-		return UserError.toJSON(this)
+		// Populate the error properties:
+		this.message = rawError.message
+		this.stack = rawError.stack
+		this.name = 'UserError'
+
+		this.errorCode = errorCode ?? 500
 	}
 
 	/** Create a UserError with a custom error for the log */
 	static from(err: Error, key: UserErrorMessage, args?: { [k: string]: any }, errCode?: number): UserError {
 		return new UserError(err, key, { key: UserErrorMessagesTranslations[key], args }, errCode)
 	}
+	/** Create a UserError duplicating the same error for the log */
+	static create(key: UserErrorMessage, args?: { [k: string]: any }, errorCode?: number): UserError {
+		return UserError.from(
+			new Error(translateMessage({ key: UserErrorMessagesTranslations[key], args }, interpollateTranslation)),
+			key,
+			args,
+			errorCode
+		)
+	}
+	static fromSerialized(o: SerializedUserError): UserError {
+		return new UserError(o.rawError, o.key, o.userMessage, o.errorCode)
+	}
 	/** Create a UserError from an unknown possibly error input */
 	static fromUnknown(err: unknown, errorCode?: number): UserError {
 		if (err instanceof UserError) return err
-		if (this.isUserError(err))
-			return new UserError(new Error(err.rawError.toString()), err.key, err.userMessage, err.errorCode)
 
+		if (this.isSerializedUserErrorObject(err)) {
+			return new UserError(err.rawError, err.key, err.userMessage, err.errorCode)
+		} else if (typeof err === 'string') {
+			const errorFromJson = this.tryFromJSON(err)
+			if (errorFromJson) {
+				return errorFromJson
+			}
+		}
 		const err2 = err instanceof Error ? err : new Error(stringifyError(err))
 		return new UserError(
 			err2,
@@ -177,38 +197,65 @@ export class UserError extends Error implements UserErrorObj {
 		)
 	}
 
-	/** Create a UserError duplicating the same error for the log */
-	static create(key: UserErrorMessage, args?: { [k: string]: any }, errorCode?: number): UserError {
-		return UserError.from(new Error(UserErrorMessagesTranslations[key]), key, args, errorCode)
-	}
-
 	static tryFromJSON(str: string): UserError | undefined {
+		let p: SerializedUserError | undefined
 		try {
-			const p = JSON.parse(str)
-			if (UserError.isUserError(p)) {
-				return new UserError(new Error(p.rawError.toString()), p.key, p.userMessage, p.errorCode)
-			} else {
-				return undefined
-			}
+			p = UserError.fromJSON(str)
+			if (!p) return undefined
 		} catch (_e: any) {
+			// Ignore JSON parsing error
+			return undefined
+		}
+
+		if (this.isSerializedUserErrorObject(p)) {
+			return new UserError(p.rawError, p.key, p.userMessage, p.errorCode)
+		} else {
 			return undefined
 		}
 	}
 
-	static toJSON(e: UserErrorObj): string {
-		return JSON.stringify({
-			rawError: stringifyError(e.rawError),
+	static serialize(e: UserError): SerializedUserError {
+		const o: SerializedUserError = {
+			rawError: {
+				name: e.name,
+				message: e.message,
+				stack: e.stack,
+			},
 			userMessage: e.userMessage,
 			key: e.key,
 			errorCode: e.errorCode,
-		})
+		}
+		return o
 	}
+	static toJSON(e: UserError): string {
+		return JSON.stringify(this.serialize(e))
+	}
+	static fromJSON(str: string): SerializedUserError | undefined {
+		const o = JSON.parse(str)
+		if (this.isSerializedUserErrorObject(o)) return o
+		return undefined
+	}
+	static isSerializedUserErrorObject(o: unknown): o is SerializedUserError {
+		if (!o || typeof o !== 'object') return false
+		const errorObject = o as SerializedUserError
 
-	static isUserError(e: unknown): e is UserErrorObj {
-		return !!e && typeof e === 'object' && 'rawError' in e && 'userMessage' in e && 'key' in e
+		return (
+			'rawError' in errorObject &&
+			!!errorObject.rawError &&
+			typeof errorObject.rawError === 'object' &&
+			errorObject.rawError &&
+			typeof errorObject.rawError.message === 'string' &&
+			isTranslatableMessage(errorObject.userMessage) &&
+			typeof errorObject.errorCode === 'number' &&
+			typeof errorObject.key === 'number'
+		)
 	}
 
 	toErrorString(): string {
-		return `${translateMessage(this.userMessage, interpollateTranslation)}\n${stringifyError(this.rawError)}`
+		return `${translateMessage(this.userMessage, interpollateTranslation)}\n${stringifyError(this)}`
+	}
+
+	toString(): string {
+		return UserError.toJSON(this)
 	}
 }

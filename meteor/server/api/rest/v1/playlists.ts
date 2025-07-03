@@ -133,14 +133,19 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 				return ClientAPI.responseError(
 					UserError.from(
 						new Error(`Rundown playlist does not exist`),
-						UserErrorMessage.RundownPlaylistNotFound
-					),
-					404
+						UserErrorMessage.RundownPlaylistNotFound,
+						undefined,
+						404
+					)
 				)
 			if (rundownPlaylist.currentPartInfo === null)
 				return ClientAPI.responseError(
-					UserError.from(Error(`No active Part in ${rundownPlaylistId}`), UserErrorMessage.PartNotFound),
-					412
+					UserError.from(
+						Error(`No active Part in ${rundownPlaylistId}`),
+						UserErrorMessage.PartNotFound,
+						undefined,
+						412
+					)
 				)
 
 			const result = await ServerClientAPI.runUserActionInLogForPlaylistOnWorker(
@@ -172,25 +177,28 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 				return ClientAPI.responseError(
 					UserError.from(
 						new Error(`Rundown playlist does not exist`),
-						UserErrorMessage.RundownPlaylistNotFound
-					),
-					404
+						UserErrorMessage.RundownPlaylistNotFound,
+						undefined,
+						404
+					)
 				)
 			if (!rundownPlaylist.activationId)
 				return ClientAPI.responseError(
 					UserError.from(
 						new Error(`Rundown playlist ${rundownPlaylistId} is not currently active`),
-						UserErrorMessage.InactiveRundown
-					),
-					412
+						UserErrorMessage.InactiveRundown,
+						undefined,
+						412
+					)
 				)
 			if (!rundownPlaylist.currentPartInfo)
 				return ClientAPI.responseError(
 					UserError.from(
 						new Error(`Rundown playlist ${rundownPlaylistId} must be playing`),
-						UserErrorMessage.NoCurrentPart
-					),
-					412
+						UserErrorMessage.NoCurrentPart,
+						undefined,
+						412
+					)
 				)
 
 			return ServerClientAPI.runUserActionInLogForPlaylistOnWorker(
@@ -214,8 +222,7 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 			)
 		} else {
 			return ClientAPI.responseError(
-				UserError.from(new Error(`No adLib with Id ${adLibId}`), UserErrorMessage.AdlibNotFound),
-				412
+				UserError.from(new Error(`No adLib with Id ${adLibId}`), UserErrorMessage.AdlibNotFound, undefined, 412)
 			)
 		}
 	}
@@ -242,17 +249,22 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 		])
 		if (!bucket) {
 			return ClientAPI.responseError(
-				UserError.from(new Error(`Bucket ${bucketId} not found`), UserErrorMessage.BucketNotFound),
-				412
+				UserError.from(
+					new Error(`Bucket ${bucketId} not found`),
+					UserErrorMessage.BucketNotFound,
+					undefined,
+					412
+				)
 			)
 		}
 		if (!bucketAdlib && !bucketAdlibAction) {
 			return ClientAPI.responseError(
 				UserError.from(
 					new Error(`No adLib with Id ${externalId}, in bucket ${bucketId}`),
-					UserErrorMessage.AdlibNotFound
-				),
-				412
+					UserErrorMessage.AdlibNotFound,
+					undefined,
+					412
+				)
 			)
 		}
 
@@ -477,17 +489,19 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 			return ClientAPI.responseError(
 				UserError.from(
 					Error(`Rundown playlist ${rundownPlaylistId} does not exist`),
-					UserErrorMessage.RundownPlaylistNotFound
-				),
-				412
+					UserErrorMessage.RundownPlaylistNotFound,
+					undefined,
+					412
+				)
 			)
 		if (!rundownPlaylist.currentPartInfo?.partInstanceId || !rundownPlaylist.activationId)
 			return ClientAPI.responseError(
 				UserError.from(
 					new Error(`Rundown playlist ${rundownPlaylistId} is not currently active`),
-					UserErrorMessage.InactiveRundown
-				),
-				412
+					UserErrorMessage.InactiveRundown,
+					undefined,
+					412
+				)
 			)
 
 		return ServerClientAPI.runUserActionInLogForPlaylistOnWorker(

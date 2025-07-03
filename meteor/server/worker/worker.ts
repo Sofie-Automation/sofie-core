@@ -22,6 +22,7 @@ import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { UserActionsLog } from '../collections'
 import { MetricsCounter } from '@sofie-automation/corelib/dist/prometheus'
 import { isInTestWrite } from '../security/securityVerify'
+import { UserError } from '@sofie-automation/corelib/dist/error'
 
 const FREEZE_LIMIT = 1000 // how long to wait for a response to a Ping
 const RESTART_TIMEOUT = 30000 // how long to wait for a restart to complete before throwing an error
@@ -107,7 +108,8 @@ async function jobFinished(
 		}
 
 		if (job.completionHandler) {
-			job.completionHandler(startedTime, finishedTime, err, result)
+			const userError = err ? UserError.tryFromJSON(err) || new Error(err) : undefined
+			job.completionHandler(startedTime, finishedTime, userError, result)
 		}
 	}
 }
