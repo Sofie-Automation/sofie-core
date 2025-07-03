@@ -21,6 +21,7 @@ meteorPublish(MeteorPubSub.coreSystem, async function (_token: string | undefine
 			blueprintId: 1,
 			logo: 1,
 			settingsWithOverrides: 1,
+			enableMonitorBlockedThread: 1,
 		},
 	})
 })
