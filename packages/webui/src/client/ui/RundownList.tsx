@@ -126,7 +126,7 @@ export function RundownList(): JSX.Element {
 
 	function renderRundownPlaylists() {
 		if (rundownPlaylists.length < 1) {
-			return <p>{t('There are no rundowns ingested into Sofie.')}</p>
+			return <p className="px-2 py-2">{t('There are no rundowns ingested into Sofie.')}</p>
 		}
 
 		return (
