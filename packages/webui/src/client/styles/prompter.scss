@@ -289,13 +289,13 @@ body.prompter-scrollbar {
 	&.heavy-light {
 		font-weight: 600;
 
-		&.heavy {
+		&.light {
 			// color: $general-late-color;
 			background-color: #ffe900;
 			color: #000;
 		}
 
-		&.light {
+		&.heavy {
 			background-color: $general-fast-color;
 			color: #fff;
 			text-shadow: 1px 1px 0px #000, 1px -1px 0px #000, -1px -1px 0px #000, -1px 1px 0px #000;
