@@ -87,6 +87,7 @@ export class ShuttleWebHidController extends ControllerAbstract {
 			logger.debug(`Button ${keyIndex} down`)
 		})
 		shuttle.on('up', (keyIndex: number) => {
+			this.onButtonReleased(keyIndex)
 			logger.debug(`Button ${keyIndex} up`)
 		})
 		shuttle.on('jog', (delta, value) => {
@@ -140,6 +141,10 @@ export class ShuttleWebHidController extends ControllerAbstract {
 				this.prompterView.take('Shuttle button 4 press')
 				break
 		}
+	}
+
+	protected onButtonReleased(_keyIndex: number): void {
+		// no-op
 	}
 
 	protected onJog(delta: number): void {

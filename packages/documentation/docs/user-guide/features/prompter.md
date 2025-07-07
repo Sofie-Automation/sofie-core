@@ -110,7 +110,7 @@ By default, the ShuttleXpress buttons execute built-in prompter actions. However
 
 | Query parameter | Type | Description |
 | :--- | :--- | :--- |
-| `shuttleWebHid_buttonMap` | Comma-separated strings | Maps ShuttleXpress buttons to global adlib actions. Each entry should be in the format `buttonIndex:actionId`, where `buttonIndex` is the button number (0-indexed) and `actionId` is the ID of a global adlib action defined in your blueprints. Actions trigger on button press (key down). Multiple mappings are comma-separated. |
+| `shuttleWebHid_buttonMap` | Comma-separated strings | Maps ShuttleXpress buttons to global adlib actions. Each entry should be in the format `buttonIndex:actionId`, where `buttonIndex` is the button number (0-indexed) and `actionId` is the ID of a global adlib action defined in your blueprints. Each custom action is triggered once on button press (trigger mode: `pressed`) and once on button release (trigger mode: `released`). Multiple mappings are comma-separated. |
 
 **Example:**
 ```
