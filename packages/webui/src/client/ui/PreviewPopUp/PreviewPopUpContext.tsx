@@ -98,6 +98,13 @@ export function convertSourceLayerItemToPreview(
 					}
 					break
 				case PreviewType.VT:
+					if (popupPreview.preview.outWords) {
+						contents.push({
+							type: 'inOutWords',
+							in: popupPreview.preview.inWords,
+							out: popupPreview.preview.outWords,
+						})
+					}
 					if (contentStatus?.previewUrl) {
 						contents.push({
 							type: 'video',
@@ -107,13 +114,6 @@ export function convertSourceLayerItemToPreview(
 						contents.push({
 							type: 'image',
 							src: contentStatus.thumbnailUrl,
-						})
-					}
-					if (popupPreview.preview.outWords) {
-						contents.push({
-							type: 'inOutWords',
-							in: popupPreview.preview.inWords,
-							out: popupPreview.preview.outWords,
 						})
 					}
 					break
@@ -139,6 +139,13 @@ export function convertSourceLayerItemToPreview(
 					type: 'title',
 					content: content.fileName,
 				},
+				content.lastWords
+					? {
+							type: 'inOutWords',
+							in: content.firstWords,
+							out: content.lastWords,
+						}
+					: undefined,
 				contentStatus?.previewUrl
 					? {
 							type: 'video',
@@ -150,13 +157,6 @@ export function convertSourceLayerItemToPreview(
 								src: contentStatus.thumbnailUrl,
 							}
 						: undefined,
-				content.lastWords
-					? {
-							type: 'inOutWords',
-							in: content.firstWords,
-							out: content.lastWords,
-						}
-					: undefined,
 				...(contentStatus?.messages?.map<PreviewContent>((m) => ({
 					type: 'warning',
 					content: m as any,
@@ -261,6 +261,7 @@ export function convertSourceLayerItemToPreview(
 				{
 					type: 'script',
 					script: content.fullScript,
+					firstWords: content.firstWords,
 					lastWords: content.lastWords,
 					comment: content.comment,
 					lastModified: content.lastModified ?? undefined,
@@ -301,6 +302,7 @@ export type PreviewContent =
 	| {
 			type: 'script'
 			script?: string
+			firstWords?: string
 			lastWords?: string
 			comment?: string
 			lastModified?: number

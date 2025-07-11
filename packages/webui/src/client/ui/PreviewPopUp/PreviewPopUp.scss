@@ -174,24 +174,30 @@
 	}
 
 	.preview-popUp__in-out-words {
-		font-size: 0.8em;
 		letter-spacing: 0em;
 
 		width: 100%;
 		overflow: hidden;
-		text-overflow: ellipsis;
+		text-overflow: clip;
 		white-space: nowrap;
 
-		display: flex;
-		justify-content: space-between;
-
+		margin-top: -25px; //Pull up the in/out words a bit
 		padding: 7px;
+
+		.separation-line {
+			width: 100%;
+			height: 1px;
+			background-color: #5b5b5b;
+			margin-bottom: 5px;
+		}
 
 		.in-words,
 		.out-words {
+			color: white;
+			font-weight: 500;
 			white-space: nowrap;
 			overflow: hidden;
-			text-overflow: ellipsis;
+			text-overflow: clip;
 		}
 
 		.out-words {

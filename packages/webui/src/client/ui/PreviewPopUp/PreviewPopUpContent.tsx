@@ -38,6 +38,7 @@ export function PreviewPopUpContent({ content, time }: PreviewPopUpContentProps)
 		case 'inOutWords':
 			return (
 				<div className="preview-popUp__in-out-words">
+					<hr className="separation-line" />
 					<div className="in-words">{content.in}</div>
 					<div className="out-words">{content.out}</div>
 				</div>
