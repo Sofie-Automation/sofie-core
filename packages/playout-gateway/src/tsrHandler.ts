@@ -283,6 +283,7 @@ export class TSRHandler {
 
 			coreTsrHandler.statusChanged(status)
 
+			if (!coreTsrHandler._device) return
 			// When the status has changed, the deviceName might have changed:
 			coreTsrHandler._device.reloadProps().catch((err) => {
 				this.logger.error(`Error in reloadProps: ${stringifyError(err)}`)
