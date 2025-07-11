@@ -12,8 +12,8 @@ export function stringifyError(error: unknown, noStack = false): string {
 			str = `${(error as any).toString()}`
 		} else {
 			const strings: (string | undefined)[] = [
-				stringify((error as any).rawError), // UserError
-				stringify((error as Error).message), // Error
+				stringify((error as any).rawError?.message), // SerializedUserError
+				stringify((error as any).message), // UserError or Error
 				stringify((error as any).reason), // Meteor.Error
 				stringify((error as any).details),
 			]
@@ -38,8 +38,12 @@ export function stringifyError(error: unknown, noStack = false): string {
 	}
 
 	if (!noStack) {
-		if (error && typeof error === 'object' && typeof (error as any).stack === 'string') {
-			str += ', ' + (error as any).stack
+		if (error && typeof error === 'object') {
+			if (typeof (error as any).stack === 'string') {
+				str += ', ' + (error as any).stack
+			} else if (typeof (error as any).rawError?.stack === 'string') {
+				str += ', ' + (error as any).rawError.stack
+			}
 		}
 	}
 

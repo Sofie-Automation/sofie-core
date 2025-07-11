@@ -34,11 +34,10 @@ import { assertConnectionHasOneOfPermissions } from '../security/auth'
 
 function rewrapError(methodName: string, e: any): ClientAPI.ClientResponseError {
 	const userError = UserError.fromUnknown(e)
-
 	logger.info(`UserAction "${methodName}" failed: ${userError.toErrorString()}`)
 
 	// Forward the error to the caller
-	return ClientAPI.responseError(userError, userError.errorCode)
+	return ClientAPI.responseError(userError)
 }
 
 export namespace ServerClientAPI {
@@ -199,7 +198,6 @@ export namespace ServerClientAPI {
 				// Just run and return right away:
 				try {
 					const result = await fcn({})
-
 					return ClientAPI.responseSuccess(result)
 				} catch (e) {
 					return rewrapError(methodName, e)

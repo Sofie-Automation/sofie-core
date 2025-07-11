@@ -34,6 +34,7 @@ describe('ClientAPI', () => {
 		{
 			const rawErr = new Error(mockErrorMessage)
 			const error = ClientAPI.responseError(UserError.from(rawErr, UserErrorMessage.InternalError, mockArgs))
+
 			expect(error).toMatchObject({
 				error: {
 					key: UserErrorMessage.InternalError,
@@ -41,7 +42,10 @@ describe('ClientAPI', () => {
 						args: mockArgs,
 						key: 'An internal error occured!',
 					},
-					rawError: rawErr,
+					rawError: expect.objectContaining({
+						message: mockErrorMessage,
+						name: 'UserError',
+					}),
 				},
 			})
 		}

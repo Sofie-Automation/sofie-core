@@ -15,6 +15,7 @@ import { TranslationsBundleId } from '@sofie-automation/corelib/dist/dataModel/I
 import { TranslationsBundles } from '../collections/index.js'
 import { catchError } from '../lib/lib.js'
 import { relativeToSiteRootUrl } from '../url.js'
+import { UserError } from '@sofie-automation/corelib/dist/error'
 
 const i18nOptions = {
 	fallbackLng: {
@@ -71,7 +72,7 @@ async function getAndCacheTranslationBundle(bundleId: TranslationsBundleId) {
 					localStorage.setItem(`i18n.translationBundles.${bundleId}`, JSON.stringify(response.result))
 					resolve(response.result)
 				} else {
-					reject(response.error)
+					reject(UserError.fromUnknown(response.error))
 				}
 			},
 			(reason) => {

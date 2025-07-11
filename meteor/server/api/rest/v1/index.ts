@@ -50,8 +50,8 @@ koaRouter.use(bodyParser())
 
 function extractErrorCode(e: unknown): number {
 	if (ClientAPI.isClientResponseError(e)) {
-		return e.errorCode
-	} else if (UserError.isUserError(e)) {
+		return e.error.errorCode
+	} else if (UserError.isSerializedUserErrorObject(e) || e instanceof UserError) {
 		return e.errorCode
 	} else if ((e as Meteor.Error).error && typeof (e as Meteor.Error).error === 'number') {
 		return (e as Meteor.Error).error as number
@@ -60,10 +60,18 @@ function extractErrorCode(e: unknown): number {
 	}
 }
 
-function extractErrorMessage(e: unknown): string {
+function validateUserError(e: unknown): UserError | undefined {
+	if (e instanceof UserError) {
+		return e
+	} else if (UserError.isSerializedUserErrorObject(e)) {
+		return UserError.fromUnknown(e)
+	}
+}
+
+function extractErrorUserMessage(e: unknown): string {
 	if (ClientAPI.isClientResponseError(e)) {
 		return translateMessage(e.error.userMessage, interpollateTranslation)
-	} else if (UserError.isUserError(e)) {
+	} else if (UserError.isSerializedUserErrorObject(e) || e instanceof UserError) {
 		return translateMessage(e.userMessage, interpollateTranslation)
 	} else if ((e as Meteor.Error).reason && typeof (e as Meteor.Error).reason === 'string') {
 		return (e as Meteor.Error).reason as string
@@ -119,7 +127,7 @@ interface APIRequestError {
 function sofieAPIRequest<API, Params, Body, Response>(
 	method: 'get' | 'post' | 'put' | 'delete',
 	route: string,
-	errMsgs: Map<number, UserErrorMessage[]>,
+	errMsgFallbacks: Map<number, UserErrorMessage[]>,
 	serverAPIFactory: APIFactory<API>,
 	handler: (
 		serverAPI: API,
@@ -140,27 +148,36 @@ function sofieAPIRequest<API, Params, Body, Response>(
 				ctx.params as unknown as Params,
 				ctx.request.body as unknown as Body
 			)
-			if (ClientAPI.isClientResponseError(response)) throw response.error
+			if (ClientAPI.isClientResponseError(response)) {
+				throw UserError.fromSerialized(response.error)
+			}
 			ctx.body = JSON.stringify({ status: response.success, result: response.result })
 			ctx.status = response.success
 		} catch (e) {
+			const userError = validateUserError(e)
 			const errCode = extractErrorCode(e)
-			let errMsg = extractErrorMessage(e)
-			const msgs = errMsgs.get(errCode)
-			if (msgs) {
+			let errMsg = extractErrorUserMessage(e)
+			// Get the fallback messages of the endpoint
+			const fallbackMsgs = errMsgFallbacks.get(errCode)
+
+			if (fallbackMsgs && (userError?.message === errMsg || userError?.message === '')) {
+				// If no detailed error message is provided then return the fallback error messages.
 				const msgConcat = {
-					key: msgs
+					key: fallbackMsgs
 						.map((msg) => UserError.create(msg, undefined, errCode).userMessage.key)
-						.reduce((acc, msg) => acc + (acc.length ? ' or ' : '') + msg, ''),
+						.reduce((acc, msg) => acc + (acc.length ? ' or ' : '') + msg, errMsg),
 				}
 				errMsg = translateMessage(msgConcat, interpollateTranslation)
-			} else {
-				logger.error(
-					`${method.toUpperCase()} for route ${route} returned unexpected error code ${errCode} - ${errMsg}`
-				)
+			} else if (userError?.message) {
+				// If we have a detailed arbitrary error message then return that together with the standard error message.
+				errMsg = `${errMsg}${userError.message !== errMsg && userError.message !== '' ? ` - ${userError?.message}` : ''}`
 			}
 
-			logger.error(`${method.toUpperCase()} failed for route ${route}: ${errCode} - ${errMsg}`)
+			// Log unknown error codes
+			logger.error(
+				`${method.toUpperCase()} failed for route ${route}:${!fallbackMsgs ? ' returned unexpected error code' : ''} ${errCode} - ${errMsg}`
+			)
+
 			ctx.type = 'application/json'
 			const bodyObj: APIRequestError = { status: errCode, message: errMsg }
 			const details = extractErrorDetails(e)

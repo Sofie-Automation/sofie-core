@@ -1,4 +1,4 @@
-import { UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/error'
+import { SerializedUserError, UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/error'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { UserAction } from '@sofie-automation/meteor-lib/dist/userAction'
 import { doUserAction } from '../../../lib/clientUserAction'
@@ -102,7 +102,7 @@ class RundownPlaylistOperationsService {
 		t: i18next.TFunction,
 		playlistId: RundownPlaylistId,
 		rehersal: boolean,
-		err: UserError,
+		err: SerializedUserError,
 		clb?: (response: void) => void
 	): void {
 		function handleResult(err: any, response: void) {
@@ -491,7 +491,7 @@ class RundownPlaylistOperationsService {
 			async (e, ts) =>
 				MeteorCall.system.generateSingleUseToken().then(async (tokenResponse) => {
 					if (ClientAPI.isClientResponseError(tokenResponse)) {
-						throw tokenResponse.error
+						throw UserError.fromSerialized(tokenResponse.error)
 					} else if (!tokenResponse.result) {
 						throw new Error(`Internal Error: No token.`)
 					}

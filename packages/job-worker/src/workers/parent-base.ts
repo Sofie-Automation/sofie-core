@@ -19,7 +19,7 @@ import { Promisify, ThreadedClassManager } from 'threadedclass'
 import { StatusCode } from '@sofie-automation/blueprints-integration'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 import { WorkerThreadStatus } from '@sofie-automation/corelib/dist/dataModel/WorkerThreads'
-import { UserError } from '@sofie-automation/corelib/dist/error'
+import { UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/error'
 import { sleep } from '@sofie-automation/shared-lib/dist/lib/lib'
 
 export enum ThreadStatus {
@@ -306,9 +306,7 @@ export abstract class WorkerParentBase {
 										job.id,
 										startTime,
 										endTime,
-										result.error
-											? (UserError.tryFromJSON(result.error) ?? new Error(result.error))
-											: null,
+										result.error,
 										result.result
 									)
 
@@ -324,7 +322,13 @@ export abstract class WorkerParentBase {
 									logger.error(`Job errored ${job.id} "${job.name}": ${stringifyError(e)}`)
 
 									this.#watchdogJobStarted = undefined
-									await this.#jobManager.jobFinished(job.id, startTime, Date.now(), error, null)
+									await this.#jobManager.jobFinished(
+										job.id,
+										startTime,
+										Date.now(),
+										UserError.toJSON(UserError.from(error, UserErrorMessage.InternalError)),
+										null
+									)
 								}
 
 								// Ensure all locks have been freed after the job

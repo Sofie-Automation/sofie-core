@@ -554,7 +554,8 @@ export function createAction(
 					UserAction.CREATE_SNAPSHOT_FOR_DEBUG,
 					async (e, ts, ctx) =>
 						triggersContext.MeteorCall.system.generateSingleUseToken().then(async (tokenResult) => {
-							if (ClientAPI.isClientResponseError(tokenResult)) throw tokenResult.error
+							if (ClientAPI.isClientResponseError(tokenResult))
+								throw UserError.fromSerialized(tokenResult.error)
 							if (!tokenResult.result) throw new Error('Failed to generate token')
 							return triggersContext.MeteorCall.userAction.storeRundownSnapshot(
 								e,

@@ -1,6 +1,6 @@
 import _ from 'underscore'
 import { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
-import { UserError } from '@sofie-automation/corelib/dist/error'
+import { SerializedUserError, UserError } from '@sofie-automation/corelib/dist/error'
 import { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { TSR } from '@sofie-automation/blueprints-integration'
 
@@ -43,17 +43,23 @@ export enum ClientAPIMethods {
 export namespace ClientAPI {
 	/** Response from a method that's called from the client */
 	export interface ClientResponseError {
-		/** On error, return status code (by default, use 500) */
+		/**
+		 * On error, return status code (by default, use 500)
+		 * @deprecated The value of this is identical to error.errorCode (will be removed in a later release)
+		 */
 		errorCode: number
 		/** On error, provide a human-readable error message */
-		error: UserError
+		error: SerializedUserError
 	}
+
 	/**
-	 * Used to reply to the user that the action didn't succeed (but it's not bad enough to log it as an error)
-	 * @param errorMessage
+	 * Returns a `ClientResponseError` object from a given `UserError`.
+	 *
+	 * @param userError - The `UserError` instance containing error details.
+	 * @returns A `ClientResponseError` object containing the error and the resolved error code.
 	 */
-	export function responseError(error: UserError, errorCode?: number): ClientResponseError {
-		return { error, errorCode: errorCode ?? 500 }
+	export function responseError(userError: UserError): ClientResponseError {
+		return { error: UserError.serialize(userError), errorCode: userError.errorCode }
 	}
 	export interface ClientResponseSuccess<Result> {
 		/** On success, return success code (by default, use 200) */
@@ -63,7 +69,7 @@ export namespace ClientAPI {
 	}
 	export function responseSuccess<Result>(result: Result, code?: number): ClientResponseSuccess<Result> {
 		if (isClientResponseSuccess(result)) result = result.result
-		else if (isClientResponseError(result)) throw result.error
+		else if (isClientResponseError(result)) throw UserError.fromSerialized(result.error)
 
 		return {
 			success: code ?? 200,
@@ -72,8 +78,10 @@ export namespace ClientAPI {
 	}
 	export type ClientResponse<Result> = ClientResponseError | ClientResponseSuccess<Result>
 	export function isClientResponseError(res: unknown): res is ClientResponseError {
-		const res0 = res as Partial<ClientResponseError>
-		return !!res0 && typeof res0 === 'object' && 'error' in res0 && UserError.isUserError(res0.error)
+		const res0 = res as ClientResponseError
+		return (
+			!!res0 && typeof res0 === 'object' && 'error' in res0 && UserError.isSerializedUserErrorObject(res0.error)
+		)
 	}
 	export function isClientResponseSuccess(res: unknown): res is ClientResponseSuccess<any> {
 		const res0 = res as any

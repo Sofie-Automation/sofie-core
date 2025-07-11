@@ -72,7 +72,6 @@ export async function handleTakeNextPart(context: JobContext, data: TakeNextPart
 					)
 				}
 			}
-
 			if (lastTakeTime && now - lastTakeTime < context.studio.settings.minimumTakeSpan) {
 				logger.debug(
 					`Time since last take is shorter than ${context.studio.settings.minimumTakeSpan} for ${
