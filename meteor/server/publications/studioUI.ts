@@ -32,6 +32,7 @@ function convertDocument(studio: Pick<DBStudio, StudioFields>): UIStudio {
 		_id: studio._id,
 		name: studio.name,
 		mappings: applyAndValidateOverrides(studio.mappingsWithOverrides).obj,
+		peripheralDeviceSettings: applyAndValidateOverrides(studio.peripheralDeviceSettings.deviceSettings).obj,
 
 		settings: applyAndValidateOverrides(studio.settingsWithOverrides).obj,
 
@@ -44,6 +45,7 @@ type StudioFields =
 	| '_id'
 	| 'name'
 	| 'mappingsWithOverrides'
+	| 'peripheralDeviceSettings'
 	| 'settingsWithOverrides'
 	| 'routeSetsWithOverrides'
 	| 'routeSetExclusivityGroupsWithOverrides'
@@ -51,6 +53,7 @@ const fieldSpecifier = literal<MongoFieldSpecifierOnesStrict<Pick<DBStudio, Stud
 	_id: 1,
 	name: 1,
 	mappingsWithOverrides: 1,
+	peripheralDeviceSettings: 1,
 	settingsWithOverrides: 1,
 	routeSetsWithOverrides: 1,
 	routeSetExclusivityGroupsWithOverrides: 1,

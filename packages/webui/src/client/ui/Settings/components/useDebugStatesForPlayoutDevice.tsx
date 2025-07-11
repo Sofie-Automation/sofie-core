@@ -5,11 +5,10 @@ import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyE
 import { PeripheralDeviceType } from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI'
 import { useState, useEffect, useContext } from 'react'
 import { MeteorCall } from '../../../lib/meteorApi.js'
-import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import { Studios } from '../../../collections/index.js'
+import { UIStudios } from '../../Collections.js'
 import { useTracker } from '../../../lib/ReactMeteorData/ReactMeteorData.js'
 import { UserPermissionsContext } from '../../UserPermissions.js'
+import { logger } from '../../../lib/logging.js'
 
 export function useDebugStatesForPlayoutDevice(device: PeripheralDevice): ReadonlyMap<PeripheralDeviceId, object> {
 	const [debugStates, setDebugStates] = useState(() => new Map<PeripheralDeviceId, object>())
@@ -22,16 +21,10 @@ export function useDebugStatesForPlayoutDevice(device: PeripheralDevice): Readon
 		if (device.type !== PeripheralDeviceType.PLAYOUT) return false
 		if (!device.studioAndConfigId) return false
 
-		const studio = Studios.findOne(device.studioAndConfigId.studioId, {
-			projection: {
-				peripheralDeviceSettings: 1,
-			},
-		}) as Pick<DBStudio, 'peripheralDeviceSettings'> | undefined
-		if (!studio) return false
+		const studio = UIStudios.findOne(device.studioAndConfigId.studioId)
+		if (!studio?.peripheralDeviceSettings) return false
 
-		const deviceSettings = applyAndValidateOverrides(studio.peripheralDeviceSettings.deviceSettings).obj
-		const settingsForDevice = deviceSettings[device.studioAndConfigId.configId]
-
+		const settingsForDevice = studio.peripheralDeviceSettings[device.studioAndConfigId.configId]
 		return !!(settingsForDevice && (settingsForDevice.options as any)['debugState'])
 	}, [userPermissions.developer, device._id, device.studioAndConfigId])
 
@@ -47,7 +40,7 @@ export function useDebugStatesForPlayoutDevice(device: PeripheralDevice): Readon
 						}
 						setDebugStates(states)
 					})
-					.catch((err) => console.log(`Error fetching device states: ${stringifyError(err)}`))
+					.catch((err) => logger.error(`Error fetching device states: ${stringifyError(err)}`))
 			}, 1000)
 
 			return () => {

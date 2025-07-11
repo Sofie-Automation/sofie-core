@@ -2,6 +2,7 @@ import { PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dat
 import {
 	IStudioSettings,
 	MappingsExt,
+	StudioDeviceSettings,
 	StudioRouteSet,
 	StudioRouteSetExclusivityGroup,
 } from '@sofie-automation/corelib/dist/dataModel/Studio'
@@ -37,7 +38,7 @@ export interface UIStudio {
 
 	/** Mappings between the physical devices / outputs and logical ones */
 	mappings: MappingsExt
-
+	peripheralDeviceSettings: Record<string, StudioDeviceSettings>
 	settings: IStudioSettings
 
 	routeSets: Record<string, StudioRouteSet>
