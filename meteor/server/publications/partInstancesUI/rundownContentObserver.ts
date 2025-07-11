@@ -3,6 +3,7 @@ import { RundownId, RundownPlaylistActivationId, StudioId } from '@sofie-automat
 import { logger } from '../../logging'
 import {
 	ContentCache,
+	partFieldSpecifier,
 	partInstanceFieldSpecifier,
 	rundownPlaylistFieldSpecifier,
 	segmentFieldSpecifier,
@@ -10,7 +11,7 @@ import {
 	studioFieldSpecifier,
 	StudioSettingsDoc,
 } from './reactiveContentCache'
-import { PartInstances, RundownPlaylists, Segments, Studios } from '../../collections'
+import { PartInstances, Parts, RundownPlaylists, Segments, Studios } from '../../collections'
 import { waitForAllObserversReady } from '../lib/lib'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
@@ -80,6 +81,17 @@ export class RundownContentObserver {
 				cache.Segments.link(),
 				{
 					projection: segmentFieldSpecifier,
+				}
+			),
+			Parts.observeChanges(
+				{
+					rundownId: {
+						$in: rundownIds,
+					},
+				},
+				cache.Parts.link(),
+				{
+					projection: partFieldSpecifier,
 				}
 			),
 			PartInstances.observeChanges(
