@@ -218,6 +218,7 @@ export interface APIStudioSettings {
 	fallbackPartDuration?: number
 	enableUserEdits?: boolean
 	allowAdlibTestingSegment?: boolean
+	allowTestingAdlibsToPersist?: boolean
 	allowHold?: boolean
 	allowPieceDirectPlay?: boolean
 	enableBuckets?: boolean

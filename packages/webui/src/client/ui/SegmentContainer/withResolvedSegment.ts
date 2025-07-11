@@ -202,6 +202,7 @@ export function withResolvedSegment<T extends IResolvedSegmentProps, IState = {}
 
 			const o = RundownUtils.getResolvedSegment(
 				props.showStyleBase,
+				props.studio,
 				props.playlist,
 				props.rundown,
 				segment,

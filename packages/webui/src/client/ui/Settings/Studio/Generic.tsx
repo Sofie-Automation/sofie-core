@@ -321,6 +321,15 @@ function StudioSettings({ studio }: { studio: DBStudio }): JSX.Element {
 			</LabelAndOverridesForCheckbox>
 
 			<LabelAndOverridesForCheckbox
+				label={t('Allow infinites from AdLib testing to persist')}
+				item={wrappedItem}
+				itemKey={'allowTestingAdlibsToPersist'}
+				overrideHelper={overrideHelper}
+			>
+				{(value, handleUpdate) => <CheckboxControl value={!!value} handleUpdate={handleUpdate} />}
+			</LabelAndOverridesForCheckbox>
+
+			<LabelAndOverridesForCheckbox
 				label={t('Enable Buckets')}
 				item={wrappedItem}
 				itemKey={'enableBuckets'}

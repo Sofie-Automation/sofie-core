@@ -23,6 +23,7 @@ import { PartId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataMo
 import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil.js'
 import { RundownPlaylistClientUtil } from '../../lib/rundownPlaylistUtil.js'
 import { useTranslation } from 'react-i18next'
+import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 
 interface ISegmentTimingPanelProps {
 	visible?: boolean
@@ -30,6 +31,7 @@ interface ISegmentTimingPanelProps {
 	panel: RundownLayoutSegmentTiming
 	playlist: DBRundownPlaylist
 	showStyleBase: UIShowStyleBase
+	studio: UIStudio
 }
 
 interface ISegmentTimingPanelTrackedProps {
@@ -136,6 +138,7 @@ export const SegmentTimingPanel = withTracker<ISegmentTimingPanelProps, {}, ISeg
 
 			const o = RundownUtils.getResolvedSegment(
 				props.showStyleBase,
+				props.studio,
 				props.playlist,
 				rundown,
 				liveSegment,

@@ -103,9 +103,11 @@ export function getPlayheadTrackingInfinitesForPart(
 	intoSegment: ReadonlyDeep<Pick<DBSegment, '_id' | 'orphaned'>>,
 	newInstanceId: PartInstanceId,
 	nextPartIsAfterCurrentPart: boolean,
-	isTemporary: boolean
+	isTemporary: boolean,
+	allowTestingAdlibsToPersist: boolean
 ): PieceInstance[] {
 	if (
+		!allowTestingAdlibsToPersist &&
 		intoSegment._id !== playingSegment._id &&
 		(intoSegment.orphaned === SegmentOrphanedReason.ADLIB_TESTING ||
 			playingSegment.orphaned === SegmentOrphanedReason.ADLIB_TESTING)
@@ -210,7 +212,10 @@ export function getPlayheadTrackingInfinitesForPart(
 							isValid =
 								candidatePiece.rundownId === intoPart.rundownId &&
 								(segmentsToReceiveOnRundownEndFromSet.has(currentPartInstance.segmentId) ||
-									currentPartInstance.segmentId === intoPart.segmentId)
+									currentPartInstance.segmentId === intoPart.segmentId ||
+									// If infinites are allowed to persist, then the infinite is allowed to continue
+									(allowTestingAdlibsToPersist &&
+										intoSegment.orphaned === SegmentOrphanedReason.ADLIB_TESTING))
 							break
 						case PieceLifespan.OutOnShowStyleEnd:
 							isValid = canContinueShowStyleEndInfinites
@@ -380,7 +385,8 @@ export function getPieceInstancesForPart(
 	orderedPartIds: PartId[],
 	newInstanceId: PartInstanceId,
 	nextPartIsAfterCurrentPart: boolean,
-	isTemporary: boolean
+	isTemporary: boolean,
+	allowTestingAdlibsToPersist: boolean
 ): PieceInstance[] {
 	const doesPieceAStartBeforePieceB = (
 		pieceA: ReadonlyDeep<PieceInstancePiece>,
@@ -458,7 +464,8 @@ export function getPieceInstancesForPart(
 					segment,
 					newInstanceId,
 					nextPartIsAfterCurrentPart,
-					isTemporary
+					isTemporary,
+					allowTestingAdlibsToPersist
 				)
 			: []
 

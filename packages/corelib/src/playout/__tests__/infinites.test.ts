@@ -35,6 +35,7 @@ describe('Infinites', () => {
 				segment,
 				newInstanceId,
 				true,
+				false,
 				false
 			)
 			return resolvedInstances.map((p) => ({

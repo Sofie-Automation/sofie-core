@@ -61,7 +61,10 @@ export interface PrompterData {
 
 export namespace PrompterAPI {
 	// TODO: discuss: move this implementation to server-side?
-	export function getPrompterData(playlistId: RundownPlaylistId): PrompterData | null {
+	export function getPrompterData(
+		playlistId: RundownPlaylistId,
+		allowTestingAdlibsToPersist: boolean
+	): PrompterData | null {
 		if (typeof playlistId !== 'string') throw new Error('Expected `playlistId` to be a string')
 
 		const playlist = RundownPlaylists.findOne(playlistId)
@@ -232,6 +235,7 @@ export namespace PrompterAPI {
 					currentPartInstance,
 					currentSegment,
 					currentPartInstancePieceInstances,
+					allowTestingAdlibsToPersist,
 					allPiecesCache,
 					pieceInstanceFieldOptions,
 					true

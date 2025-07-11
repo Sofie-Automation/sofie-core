@@ -26,6 +26,7 @@ import {
 	wrapDefaultObject,
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
+import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import {
 	BlueprintId,
 	OrganizationId,
@@ -559,5 +560,15 @@ export function convertToUIShowStyleBase(showStyleBase: DBShowStyleBase): UIShow
 		hotkeyLegend: showStyleBase.hotkeyLegend,
 		sourceLayers: applyAndValidateOverrides(showStyleBase.sourceLayersWithOverrides).obj,
 		outputLayers: applyAndValidateOverrides(showStyleBase.outputLayersWithOverrides).obj,
+	})
+}
+export function convertToUIStudio(studio: DBStudio): UIStudio {
+	return literal<Complete<UIStudio>>({
+		_id: studio._id,
+		settings: applyAndValidateOverrides(studio.settingsWithOverrides).obj,
+		name: studio.name,
+		routeSets: applyAndValidateOverrides(studio.routeSetsWithOverrides).obj,
+		routeSetExclusivityGroups: applyAndValidateOverrides(studio.routeSetExclusivityGroupsWithOverrides).obj,
+		mappings: {},
 	})
 }
