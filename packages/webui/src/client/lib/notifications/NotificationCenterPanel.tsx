@@ -12,6 +12,7 @@ import { i18nTranslator } from '../../ui/i18n.js'
 import { RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { useTranslation } from 'react-i18next'
 import { PopUpPanel } from '../../ui/RundownView/PopUpPanel.js'
+import classNames from 'classnames'
 
 interface IPopUpProps {
 	id?: string
@@ -469,8 +470,16 @@ function NotificationCenterElement(props: HTMLMotionProps<'div'>) {
  * Presentational component that displays a panel containing the NotificationCenterPopUps list containing
  * the snoozed items and an 'Empty' label if no notifications are present.
  */
-export const NotificationCenterPanel = (props: { limitCount?: number; filter?: NoticeLevel }): JSX.Element => (
-	<PopUpPanel className="notification-center-panel">
+export const NotificationCenterPanel = (props: {
+	limitCount?: number
+	filter?: NoticeLevel
+	hideRundownHeader?: boolean
+}): JSX.Element => (
+	<PopUpPanel
+		className={classNames('notification-center-panel', {
+			'notification-center-panel--no-rundown-header': props.hideRundownHeader,
+		})}
+	>
 		<NotificationCenterPopUps
 			initialAnimation={false}
 			showEmptyListLabel={true}

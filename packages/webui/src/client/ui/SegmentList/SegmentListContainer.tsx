@@ -19,6 +19,7 @@ export const LIVELINE_HISTORY_SIZE = TIMELINE_LIVELINE_HISTORY_SIZE
 
 interface IProps extends IResolvedSegmentProps {
 	id: string
+	hideRundownHeader?: boolean
 }
 
 export const SegmentListContainer = withResolvedSegment<IProps>(function SegmentListContainer({
@@ -211,6 +212,7 @@ export const SegmentListContainer = withResolvedSegment<IProps>(function Segment
 				onSwitchViewMode={props.onSwitchViewMode}
 				onHeaderNoteClick={props.onHeaderNoteClick}
 				onPieceDoubleClick={props.onPieceDoubleClick}
+				hideRundownHeader={props.hideRundownHeader}
 			/>
 			{props.segmentui.showShelf && props.adLibSegmentUi && (
 				<RundownViewShelf

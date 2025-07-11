@@ -177,6 +177,10 @@
 	background: $ui-dark-color;
 	border-left: none;
 
+	&.status-bar--no-rundown-header {
+		top: 0;
+	}
+
 	.status-bar__controls__button {
 		border: none;
 

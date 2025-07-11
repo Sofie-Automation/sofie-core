@@ -2,6 +2,10 @@
 	padding-top: 4rem;
 	padding-right: $statusbar-width;
 	padding-left: 0;
+
+	&.header-clear--no-rundown-header {
+		padding-top: 0;
+	}
 }
 
 ul {
