@@ -28,6 +28,12 @@ import {
 import { compileCoreConfigValues } from '../blueprints/config.js'
 import { CommonContext } from '../blueprints/context/index.js'
 import { JobContext } from '../jobs/index.js'
+import {
+	PeripheralDevice,
+	PeripheralDeviceType,
+	PeripheralDeviceCategory,
+	PERIPHERAL_SUBTYPE_PROCESS,
+} from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { FixUpBlueprintConfigContext } from '@sofie-automation/corelib/dist/fixUpBlueprintConfig/context'
 import { DEFAULT_MINIMUM_TAKE_SPAN } from '@sofie-automation/shared-lib/dist/core/constants'
 
@@ -62,29 +68,54 @@ export async function handleBlueprintUpgradeForStudio(context: JobContext, _data
 			}),
 		])
 	)
+
+	const peripheralDevices = (await context.directCollections.PeripheralDevices.findFetch(
+		{ subType: PERIPHERAL_SUBTYPE_PROCESS, 'studioAndConfigId.studioId': context.studioId },
+		{ projection: { _id: 1, type: 1, category: 1 } }
+	)) as Array<Pick<PeripheralDevice, '_id' | 'type' | 'category'>>
+
+	const playoutIds = peripheralDevices.filter((p) => p.type === PeripheralDeviceType.PLAYOUT).map((p) => p._id)
+
+	const ingestPeripheralDevices = peripheralDevices
+		.filter((p) => p.category === PeripheralDeviceCategory.INGEST)
+		.map((p) => ({ id: p._id, type: p.type }))
+	const spreadsheetGateways = ingestPeripheralDevices.filter(
+		(device) => device.type === PeripheralDeviceType.SPREADSHEET
+	)
+	const spreadsheetGatewayId = spreadsheetGateways.length === 1 ? spreadsheetGateways[0].id : undefined
+	const mosGateways = ingestPeripheralDevices.filter((device) => device.type === PeripheralDeviceType.MOS)
+	const mosGatewayId = mosGateways.length === 1 ? mosGateways[0].id : undefined
+
+	const inputIds = peripheralDevices.filter((p) => p.type === PeripheralDeviceType.INPUT).map((p) => p._id)
+
+	// for each device type set the peripheralDeviceId if there is exactly one parent device in the studio
 	const playoutDevices = Object.fromEntries(
 		Object.entries<TSR.DeviceOptionsAny>(result.playoutDevices ?? {}).map((dev) => [
 			dev[0],
 			literal<Complete<StudioPlayoutDevice>>({
-				peripheralDeviceId: undefined,
+				peripheralDeviceId: playoutIds.length === 1 ? playoutIds[0] : undefined,
 				options: dev[1],
 			}),
 		])
 	)
 	const ingestDevices = Object.fromEntries(
-		Object.entries<unknown>(result.ingestDevices ?? {}).map((dev) => [
-			dev[0],
-			literal<Complete<StudioIngestDevice>>({
-				peripheralDeviceId: undefined,
-				options: dev[1],
-			}),
-		])
+		Object.entries<unknown>(result.ingestDevices ?? {}).map((dev) => {
+			const { ingestDeviceType, ...payload } = dev[1] as any
+			return [
+				dev[0],
+				literal<Complete<StudioIngestDevice>>({
+					peripheralDeviceId:
+						ingestDeviceType === PeripheralDeviceType.SPREADSHEET ? spreadsheetGatewayId : mosGatewayId,
+					options: payload,
+				}),
+			]
+		})
 	)
 	const inputDevices = Object.fromEntries(
 		Object.entries<unknown>(result.inputDevices ?? {}).map((dev) => [
 			dev[0],
 			literal<Complete<StudioInputDevice>>({
-				peripheralDeviceId: undefined,
+				peripheralDeviceId: inputIds.length === 1 ? inputIds[0] : undefined,
 				options: dev[1],
 			}),
 		])
