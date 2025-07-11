@@ -275,6 +275,8 @@ async function updateSofieIngestRundown(
 						name: nrcsIngestRundown.name,
 						type: nrcsIngestRundown.type,
 						segments: [],
+						timing: nrcsIngestRundown.timing,
+						playlistExternalId: nrcsIngestRundown.playlistExternalId,
 						payload: undefined,
 						userEditStates: {},
 						rundownSource: nrcsIngestRundown.rundownSource,
