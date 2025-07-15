@@ -28,6 +28,11 @@ describe('MutableIngestRundownImpl', () => {
 					externalId: 'seg0',
 					name: 'name',
 					rank: 0,
+					isHidden: false,
+					timing: {
+						expectedStart: 0,
+						expectedEnd: 0,
+					},
 					payload: {
 						val: 'first-val',
 						second: 5,
@@ -38,6 +43,8 @@ describe('MutableIngestRundownImpl', () => {
 							externalId: 'part0',
 							name: 'my first part',
 							rank: 0,
+							float: false,
+							autoNext: false,
 							payload: {
 								val: 'some-val',
 							},
@@ -49,6 +56,11 @@ describe('MutableIngestRundownImpl', () => {
 					externalId: 'seg1',
 					name: 'name 2',
 					rank: 1,
+					isHidden: false,
+					timing: {
+						expectedStart: 0,
+						expectedEnd: 0,
+					},
 					payload: {
 						val: 'next-val',
 					},
@@ -58,6 +70,8 @@ describe('MutableIngestRundownImpl', () => {
 							externalId: 'part1',
 							name: 'my second part',
 							rank: 0,
+							float: false,
+							autoNext: false,
 							payload: {
 								val: 'some-val',
 							},
@@ -69,6 +83,11 @@ describe('MutableIngestRundownImpl', () => {
 					externalId: 'seg2',
 					name: 'name 3',
 					rank: 2,
+					isHidden: false,
+					timing: {
+						expectedStart: 0,
+						expectedEnd: 0,
+					},
 					payload: {
 						val: 'last-val',
 					},
@@ -78,6 +97,8 @@ describe('MutableIngestRundownImpl', () => {
 							externalId: 'part2',
 							name: 'my third part',
 							rank: 0,
+							float: false,
+							autoNext: false,
 							payload: {
 								val: 'some-val',
 							},
@@ -445,6 +466,11 @@ describe('MutableIngestRundownImpl', () => {
 			const newSegment: Omit<SofieIngestSegment, 'rank'> = {
 				externalId: 'seg1',
 				name: 'new name',
+				isHidden: false,
+				timing: {
+					expectedStart: 0,
+					expectedEnd: 0,
+				},
 				payload: {
 					val: 'new-val',
 				},
@@ -454,6 +480,8 @@ describe('MutableIngestRundownImpl', () => {
 						externalId: 'part1',
 						name: 'new part name',
 						rank: 0,
+						float: false,
+						autoNext: false,
 						payload: {
 							val: 'new-part-val',
 						},
@@ -498,6 +526,11 @@ describe('MutableIngestRundownImpl', () => {
 			const newSegment: Omit<SofieIngestSegment, 'rank'> = {
 				externalId: 'segX',
 				name: 'new name',
+				isHidden: false,
+				timing: {
+					expectedStart: 0,
+					expectedEnd: 0,
+				},
 				payload: {
 					val: 'new-val',
 				},
@@ -507,6 +540,8 @@ describe('MutableIngestRundownImpl', () => {
 						externalId: 'partX',
 						name: 'new part name',
 						rank: 0,
+						float: false,
+						autoNext: false,
 						payload: {
 							val: 'new-part-val',
 						},
@@ -543,6 +578,11 @@ describe('MutableIngestRundownImpl', () => {
 			const newSegment: Omit<IngestSegment, 'rank'> = {
 				externalId: 'segX',
 				name: 'new name',
+				isHidden: false,
+				timing: {
+					expectedStart: 0,
+					expectedEnd: 0,
+				},
 				payload: {
 					val: 'new-val',
 				},
@@ -551,6 +591,8 @@ describe('MutableIngestRundownImpl', () => {
 						externalId: 'partX',
 						name: 'new part name',
 						rank: 0,
+						float: false,
+						autoNext: false,
 						payload: {
 							val: 'new-part-val',
 						},
