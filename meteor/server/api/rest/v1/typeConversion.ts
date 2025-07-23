@@ -332,8 +332,10 @@ export async function studioFrom(apiStudio: APIStudio, existingId?: StudioId): P
 		_rundownVersionHash: '',
 		routeSetExclusivityGroupsWithOverrides: wrapDefaultObject({}),
 		packageContainersWithOverrides: wrapDefaultObject({}),
-		previewContainerIds: [],
-		thumbnailContainerIds: [],
+		packageContainerIdsWithOverrides: wrapDefaultObject({
+			previewContainerIds: [],
+			thumbnailContainerIds: [],
+		}),
 		peripheralDeviceSettings: {
 			deviceSettings: wrapDefaultObject({}),
 			playoutDevices: wrapDefaultObject({}),

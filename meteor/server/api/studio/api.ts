@@ -61,8 +61,10 @@ export async function insertStudioInner(organizationId: OrganizationId | null, n
 			routeSetsWithOverrides: wrapDefaultObject({}),
 			routeSetExclusivityGroupsWithOverrides: wrapDefaultObject({}),
 			packageContainersWithOverrides: wrapDefaultObject({}),
-			thumbnailContainerIds: [],
-			previewContainerIds: [],
+			packageContainerIdsWithOverrides: wrapDefaultObject({
+				thumbnailContainerIds: [],
+				previewContainerIds: [],
+			}),
 			peripheralDeviceSettings: {
 				deviceSettings: wrapDefaultObject({}),
 				playoutDevices: wrapDefaultObject({}),

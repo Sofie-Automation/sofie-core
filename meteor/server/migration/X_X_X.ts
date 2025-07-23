@@ -1,5 +1,6 @@
 import { addMigrationSteps } from './databaseMigration'
 import { CURRENT_SYSTEM_VERSION } from './currentSystemVersion'
+import { ContainerIdsToObjectWithOverridesMigrationStep } from './steps/ContainerIdsToObjectWithOverridesMigrationStep'
 
 /*
  * **************************************************************************************
@@ -13,4 +14,6 @@ import { CURRENT_SYSTEM_VERSION } from './currentSystemVersion'
 
 export const addSteps = addMigrationSteps(CURRENT_SYSTEM_VERSION, [
 	// Add your migration here
+
+	new ContainerIdsToObjectWithOverridesMigrationStep(),
 ])

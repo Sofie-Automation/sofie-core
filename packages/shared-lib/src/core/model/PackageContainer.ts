@@ -5,3 +5,8 @@ export interface StudioPackageContainer {
 	deviceIds: string[]
 	container: PackageContainer
 }
+
+export interface StudioPackageContainerIds {
+	previewContainerIds: string[]
+	thumbnailContainerIds: string[]
+}

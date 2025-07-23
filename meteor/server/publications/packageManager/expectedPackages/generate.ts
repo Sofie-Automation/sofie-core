@@ -17,6 +17,7 @@ import { CustomPublishCollection } from '../../../lib/customPublication'
 import { logger } from '../../../logging'
 import { ExpectedPackagesContentCache } from './contentCache'
 import type { StudioFields } from './publication'
+import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 
 /**
  * Regenerate the output for the provided ExpectedPackage `regenerateIds`, updating the data in `collection` as needed
@@ -176,10 +177,7 @@ enum Priorities {
 }
 
 function generateExpectedPackageForDevice(
-	studio: Pick<
-		StudioLight,
-		'_id' | 'packageContainersWithOverrides' | 'previewContainerIds' | 'thumbnailContainerIds'
-	>,
+	studio: Pick<StudioLight, '_id' | 'packageContainerIdsWithOverrides'>,
 	expectedPackage: PackageManagerExpectedPackageBase,
 	deviceId: PeripheralDeviceId,
 	pieceInstanceId: PieceInstanceId | null,
@@ -215,7 +213,9 @@ function generateExpectedPackageForDevice(
 	if (!combinedTargets.length) {
 		logger.warn(`Pub.expectedPackagesForDevice: No targets found for "${expectedPackage._id}"`)
 	}
-	expectedPackage.sideEffect = getSideEffect(expectedPackage, studio)
+
+	const packageContainerIds = applyAndValidateOverrides(studio.packageContainerIdsWithOverrides).obj
+	expectedPackage.sideEffect = getSideEffect(expectedPackage, packageContainerIds)
 
 	return {
 		_id: protectString(`${expectedPackage._id}_${deviceId}_${pieceInstanceId}`),

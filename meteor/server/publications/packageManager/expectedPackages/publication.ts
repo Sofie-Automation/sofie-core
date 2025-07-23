@@ -58,15 +58,13 @@ export type StudioFields =
 	| 'routeSetsWithOverrides'
 	| 'mappingsWithOverrides'
 	| 'packageContainersWithOverrides'
-	| 'previewContainerIds'
-	| 'thumbnailContainerIds'
+	| 'packageContainerIdsWithOverrides'
 const studioFieldSpecifier = literal<MongoFieldSpecifierOnesStrict<Pick<DBStudio, StudioFields>>>({
 	_id: 1,
 	routeSetsWithOverrides: 1,
 	mappingsWithOverrides: 1,
 	packageContainersWithOverrides: 1,
-	previewContainerIds: 1,
-	thumbnailContainerIds: 1,
+	packageContainerIdsWithOverrides: 1,
 })
 
 async function setupExpectedPackagesPublicationObservers(

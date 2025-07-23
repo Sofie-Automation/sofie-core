@@ -260,8 +260,10 @@ describe('lib/mediaObjects', () => {
 		const mockStudio: Complete<PieceContentStatusStudio> = {
 			_id: mockDefaultStudio._id,
 			settings: mockStudioSettings,
-			previewContainerIds: ['previews0'],
-			thumbnailContainerIds: ['thumbnails0'],
+			packageContainerIds: {
+				previewContainerIds: ['previews0'],
+				thumbnailContainerIds: ['thumbnails0'],
+			},
 			routeSets: applyAndValidateOverrides(mockDefaultStudio.routeSetsWithOverrides).obj,
 			mappings: applyAndValidateOverrides(mockDefaultStudio.mappingsWithOverrides).obj,
 			packageContainers: applyAndValidateOverrides(mockDefaultStudio.packageContainersWithOverrides).obj,

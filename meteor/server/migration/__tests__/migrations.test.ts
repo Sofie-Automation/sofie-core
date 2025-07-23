@@ -126,8 +126,10 @@ describe('Migrations', () => {
 						routeSetsWithOverrides: wrapDefaultObject({}),
 						routeSetExclusivityGroupsWithOverrides: wrapDefaultObject({}),
 						packageContainersWithOverrides: wrapDefaultObject({}),
-						previewContainerIds: [],
-						thumbnailContainerIds: [],
+						packageContainerIdsWithOverrides: wrapDefaultObject({
+							previewContainerIds: [],
+							thumbnailContainerIds: [],
+						}),
 						peripheralDeviceSettings: {
 							deviceSettings: wrapDefaultObject({}),
 							playoutDevices: wrapDefaultObject({}),
@@ -169,8 +171,10 @@ describe('Migrations', () => {
 						routeSetsWithOverrides: wrapDefaultObject({}),
 						routeSetExclusivityGroupsWithOverrides: wrapDefaultObject({}),
 						packageContainersWithOverrides: wrapDefaultObject({}),
-						previewContainerIds: [],
-						thumbnailContainerIds: [],
+						packageContainerIdsWithOverrides: wrapDefaultObject({
+							previewContainerIds: [],
+							thumbnailContainerIds: [],
+						}),
 						peripheralDeviceSettings: {
 							deviceSettings: wrapDefaultObject({}),
 							playoutDevices: wrapDefaultObject({}),
@@ -212,8 +216,10 @@ describe('Migrations', () => {
 						routeSetsWithOverrides: wrapDefaultObject({}),
 						routeSetExclusivityGroupsWithOverrides: wrapDefaultObject({}),
 						packageContainersWithOverrides: wrapDefaultObject({}),
-						previewContainerIds: [],
-						thumbnailContainerIds: [],
+						packageContainerIdsWithOverrides: wrapDefaultObject({
+							previewContainerIds: [],
+							thumbnailContainerIds: [],
+						}),
 						peripheralDeviceSettings: {
 							deviceSettings: wrapDefaultObject({}),
 							playoutDevices: wrapDefaultObject({}),
