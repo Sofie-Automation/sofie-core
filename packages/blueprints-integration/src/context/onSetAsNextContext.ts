@@ -19,6 +19,9 @@ export interface IOnSetAsNextContext extends IShowStyleUserContext, IEventContex
 	/** Information about the current loop, if there is one */
 	readonly quickLoopInfo: BlueprintQuickLookInfo | null
 
+	/** Whether the part being set as next was selected as a result of user's actions */
+	readonly manuallySelected: boolean
+
 	/**
 	 * Data fetching
 	 */
