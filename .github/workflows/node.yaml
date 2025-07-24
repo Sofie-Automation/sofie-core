@@ -480,7 +480,7 @@ jobs:
           CI: true
 
   test-packages:
-    name: Test Package
+    name: Test Package1
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -777,7 +777,7 @@ jobs:
       - name: Prepare Environment
         run: |
           corepack enable
-          
+
           yarn config set cacheFolder /home/runner/check-for-multiple-library-versions-cache
           yarn
         env:
