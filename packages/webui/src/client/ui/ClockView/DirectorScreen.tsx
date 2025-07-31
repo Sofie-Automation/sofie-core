@@ -385,7 +385,7 @@ function DirectorScreenRender({
 						</div>
 					) : null}
 					{expectedEnd ? (
-						<div>
+						<div className="director-screen__top__time-to">
 							<div>
 								<TimeToPlannedEndComponent value={now - expectedEnd} />
 							</div>
@@ -496,16 +496,14 @@ function DirectorScreenRender({
 									</>
 								)}
 							</>
-						) : (
-							expectedStart && (
-								<div className="director-screen__body__part__timeto-content">
-									<div className="director-screen__body__part__timeto-countdown">
-										<Timediff time={expectedStart - getCurrentTime()} />
-									</div>
-									<div className="director-screen__body__part__timeto-name">Time to planned start</div>
+						) : expectedStart ? (
+							<div className="director-screen__body__part__timeto-content">
+								<div className="director-screen__body__part__timeto-countdown">
+									<Timediff time={expectedStart - getCurrentTime()} />
 								</div>
-							)
-						)}
+								<div className="director-screen__body__part__timeto-name">Time to planned start</div>
+							</div>
+						) : null}
 					</div>
 					{
 						// Next Part:
