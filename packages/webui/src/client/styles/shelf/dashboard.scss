@@ -116,6 +116,12 @@ $dashboard-button-height: 3.625em;
 
 		.dashboard-panel__handle {
 			cursor: move;
+
+			> svg {
+				height: 1em;
+				vertical-align: top;
+    			margin-top: 0.05em;
+			}
 		}
 	}
 

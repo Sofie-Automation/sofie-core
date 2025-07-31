@@ -64,6 +64,11 @@ export interface IBlueprintActionTriggerMode {
 		label: ITranslatableMessage
 		/** An optional, longer description that will not be immediately visible to the user */
 		description?: ITranslatableMessage
+		/** An icon to be displayed to the user next to the label
+		 *
+		 * This can either be a relative URL to an image in the Blueprints assets or a `data:` URL
+		 */
+		icon?: string
 	}
 }
 

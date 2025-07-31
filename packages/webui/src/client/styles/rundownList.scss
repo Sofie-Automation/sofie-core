@@ -142,6 +142,7 @@
 
 	.rundown-list-item__actions {
 		display: inline-grid;
+		margin-left: 1em;
 		grid-column: -1;
 		grid-template-columns: 1fr 1fr;
 		align-items: center;
@@ -349,6 +350,7 @@
 			);
 
 		.rundown-list-item__actions {
+			margin-left: 1em;
 			padding: 0 0 3px; // cater for icons being larger than the font
 		}
 

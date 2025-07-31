@@ -485,7 +485,6 @@ export class ShelfBase extends React.Component<Translated<IShelfProps>, IState> 
 								fullViewport={
 									!!this.props.fullViewport &&
 									this.props.shelfDisplayOptions.enableBuckets === true &&
-									this.props.shelfDisplayOptions.enableInspector === false &&
 									this.props.shelfDisplayOptions.enableLayout === false
 								}
 								displayBuckets={this.props.bucketDisplayFilter}
@@ -590,7 +589,6 @@ function getShelfDisplayOptions(studioSettings: IStudioSettings | undefined, par
 		// If buckets are enabled in Studiosettings, it can also be filtered in the URLs display options.
 		enableBuckets: !!studioSettings?.enableBuckets && displayOptions.includes('buckets'),
 		enableLayout: displayOptions.includes('layout') || displayOptions.includes('shelfLayout'),
-		enableInspector: displayOptions.includes('inspector'),
 	}
 }
 

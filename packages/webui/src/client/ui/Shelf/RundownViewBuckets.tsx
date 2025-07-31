@@ -33,6 +33,7 @@ import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyle
 import { BucketAdLibId, BucketId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DashboardLayoutExternalFrame } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import { BucketAdLibItem, BucketAdLibUi, BucketAdLibActionUi } from '@sofie-automation/meteor-lib/dist/uiTypes/Bucket'
+import { ErrorBoundary } from '../../lib/ErrorBoundary.js'
 
 export type {
 	BucketAdLibItem,
@@ -545,53 +546,55 @@ export const RundownViewBuckets = withTranslation()(
 											</div>
 										</div>
 									) : null}
-									<ContextMenuTrigger
-										id="shelf-context-menu"
-										attributes={{
-											className: 'buckets',
-										}}
-										collect={() =>
-											new Promise<void>((resolve) => {
-												setShelfContextMenuContext({
-													type: MenuContextType.BUCKET,
-													details: {
-														bucket,
-													},
+									<ErrorBoundary>
+										<ContextMenuTrigger
+											id="shelf-context-menu"
+											attributes={{
+												className: 'buckets',
+											}}
+											collect={() =>
+												new Promise<void>((resolve) => {
+													setShelfContextMenuContext({
+														type: MenuContextType.BUCKET,
+														details: {
+															bucket,
+														},
+													})
+													resolve()
 												})
-												resolve()
-											})
-										}
-										holdToDisplay={contextMenuHoldToDisplayTime()}
-									>
-										{this.state.panelWidths[index] > 0 && (
-											<BucketPanel
-												playlist={playlist}
-												showStyleBase={showStyleBase}
-												shouldQueue={shouldQueue}
-												bucket={bucket}
-												editableName={this.state.editedNameId === bucket._id}
-												editedPiece={
-													this.state.editedPieceName && this.state.editedPieceName.bucketId === bucket._id
-														? this.state.editedPieceName.pieceId
-														: undefined
-												}
-												onPieceNameRename={() => this.beginRenameBucketAdLib(undefined)}
-												onNameChanged={(e, name) => this.finishRenameBucket(e, bucket, name)}
-												moveBucket={this.moveBucket}
-												findBucket={this.findBucket}
-												onBucketReorder={this.onBucketReorder}
-												onAdLibContext={this.onAdLibContext}
-												onSelectAdlib={this.props.onSelectPiece}
-												selectedPiece={this.props.selectedPiece}
-												extFrameDropZones={this.props.extFrames
-													.filter((frame) => frame.dropzoneUrl)
-													.map<{ _id: string; url: string }>((frame) => ({
-														_id: frame._id,
-														url: frame.dropzoneUrl as string,
-													}))}
-											/>
-										)}
-									</ContextMenuTrigger>
+											}
+											holdToDisplay={contextMenuHoldToDisplayTime()}
+										>
+											{this.state.panelWidths[index] > 0 && (
+												<BucketPanel
+													playlist={playlist}
+													showStyleBase={showStyleBase}
+													shouldQueue={shouldQueue}
+													bucket={bucket}
+													editableName={this.state.editedNameId === bucket._id}
+													editedPiece={
+														this.state.editedPieceName && this.state.editedPieceName.bucketId === bucket._id
+															? this.state.editedPieceName.pieceId
+															: undefined
+													}
+													onPieceNameRename={() => this.beginRenameBucketAdLib(undefined)}
+													onNameChanged={(e, name) => this.finishRenameBucket(e, bucket, name)}
+													moveBucket={this.moveBucket}
+													findBucket={this.findBucket}
+													onBucketReorder={this.onBucketReorder}
+													onAdLibContext={this.onAdLibContext}
+													onSelectAdlib={this.props.onSelectPiece}
+													selectedPiece={this.props.selectedPiece}
+													extFrameDropZones={this.props.extFrames
+														.filter((frame) => frame.dropzoneUrl)
+														.map<{ _id: string; url: string }>((frame) => ({
+															_id: frame._id,
+															url: frame.dropzoneUrl as string,
+														}))}
+												/>
+											)}
+										</ContextMenuTrigger>
+									</ErrorBoundary>
 								</div>
 							) : null
 						)}

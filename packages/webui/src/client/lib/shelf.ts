@@ -16,7 +16,6 @@ export type { AdLibPieceUi } from '@sofie-automation/meteor-lib/dist/uiTypes/Adl
 export interface ShelfDisplayOptions {
 	enableBuckets: boolean
 	enableLayout: boolean
-	enableInspector: boolean
 }
 
 export interface AdlibSegmentUi extends DBSegment {

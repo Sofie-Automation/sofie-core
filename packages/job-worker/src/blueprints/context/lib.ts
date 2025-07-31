@@ -522,8 +522,8 @@ function translateUserEditsToBlueprint(
 						type: UserEditingType.ACTION,
 						id: userEdit.id,
 						label: omit(userEdit.label, 'namespaces'),
-						svgIcon: userEdit.svgIcon,
-						svgIconInactive: userEdit.svgIconInactive,
+						icon: userEdit.icon,
+						iconInactive: userEdit.iconInactive,
 						isActive: userEdit.isActive,
 					} satisfies Complete<UserEditingDefinitionAction>
 				case UserEditingType.FORM:
@@ -562,8 +562,8 @@ function translateUserEditPropertiesToBlueprint(
 					type: UserEditingType.ACTION,
 					id: userEdit.id,
 					label: omit(userEdit.label, 'namespaces'),
-					svgIcon: userEdit.svgIcon,
-					svgIconInactive: userEdit.svgIconInactive,
+					icon: userEdit.icon,
+					iconInactive: userEdit.iconInactive,
 					isActive: userEdit.isActive,
 				}) satisfies Complete<UserEditingDefinitionAction>
 		),
@@ -584,8 +584,8 @@ export function translateUserEditsFromBlueprint(
 						type: UserEditingType.ACTION,
 						id: userEdit.id,
 						label: wrapTranslatableMessageFromBlueprints(userEdit.label, blueprintIds),
-						svgIcon: userEdit.svgIcon,
-						svgIconInactive: userEdit.svgIconInactive,
+						icon: userEdit.icon,
+						iconInactive: userEdit.iconInactive,
 						isActive: userEdit.isActive,
 					} satisfies Complete<CoreUserEditingDefinitionAction>
 				case UserEditingType.FORM:
@@ -626,8 +626,8 @@ export function translateUserEditPropertiesFromBlueprint(
 					type: UserEditingType.ACTION,
 					id: userEdit.id,
 					label: wrapTranslatableMessageFromBlueprints(userEdit.label, blueprintIds),
-					svgIcon: userEdit.svgIcon,
-					svgIconInactive: userEdit.svgIconInactive,
+					icon: userEdit.icon,
+					iconInactive: userEdit.iconInactive,
 					isActive: userEdit.isActive,
 				}) satisfies Complete<UserEditingDefinitionAction>
 		),
