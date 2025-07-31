@@ -2,14 +2,14 @@ import {
 	DebugRegenerateNextPartInstanceProps,
 	DebugSyncInfinitesForNextPartInstanceProps,
 } from '@sofie-automation/corelib/dist/worker/studio'
-import { runJobWithStudioPlayoutModel } from '../studio/lock'
-import { JobContext } from '../jobs'
-import { logger } from '../logging'
-import { syncPlayheadInfinitesForNextPartInstance } from './infinites'
-import { setNextPart } from './setNext'
-import { runJobWithPlayoutModel } from './lock'
-import { updateTimeline } from './timeline/generate'
-import { updateTimelineFromStudioPlayoutModel } from './lib'
+import { runJobWithStudioPlayoutModel } from '../studio/lock.js'
+import { JobContext } from '../jobs/index.js'
+import { logger } from '../logging.js'
+import { syncPlayheadInfinitesForNextPartInstance } from './infinites.js'
+import { setNextPart } from './setNext.js'
+import { runJobWithPlayoutModel } from './lock.js'
+import { updateTimeline } from './timeline/generate.js'
+import { updateTimelineFromStudioPlayoutModel } from './lib.js'
 
 /**
  * Ensure that the infinite pieces on the nexted-part are correct

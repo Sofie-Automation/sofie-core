@@ -1,28 +1,28 @@
 import * as React from 'react'
-import { Bucket } from '@sofie-automation/meteor-lib/dist/collections/Buckets'
-import { BucketPanel } from './BucketPanel'
-import { doUserAction, UserAction } from '../../lib/clientUserAction'
+import { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
+import { BucketPanel } from './BucketPanel.js'
+import { doUserAction, UserAction } from '../../lib/clientUserAction.js'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 
 import { withTranslation } from 'react-i18next'
 import { faBars } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { unprotectString, literal, ProtectedString } from '../../lib/tempLib'
+import { unprotectString, literal, ProtectedString } from '../../lib/tempLib.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { getElementDocumentOffset } from '../../utils/positions'
-import { UIStateStorage } from '../../lib/UIStateStorage'
-import { doModalDialog, ModalDialogQueueItem } from '../../lib/ModalDialog'
+import { getElementDocumentOffset } from '../../utils/positions.js'
+import { UIStateStorage } from '../../lib/UIStateStorage.js'
+import { doModalDialog, ModalDialogQueueItem } from '../../lib/ModalDialog.js'
 import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'
-import { Translated } from '../../lib/ReactMeteorData/ReactMeteorData'
+import { Translated } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 
-import { MeteorCall } from '../../lib/meteorApi'
+import { MeteorCall } from '../../lib/meteorApi.js'
 import update from 'immutability-helper'
 
-import { contextMenuHoldToDisplayTime } from '../../lib/lib'
-import { AdLibPieceUi } from '../../lib/shelf'
-import { PieceUi } from '../SegmentTimeline/SegmentTimelineContainer'
-import { IAdLibListItem } from './AdLibListItem'
-import { setShelfContextMenuContext, ContextType as MenuContextType } from './ShelfContextMenu'
+import { contextMenuHoldToDisplayTime } from '../../lib/lib.js'
+import { AdLibPieceUi } from '../../lib/shelf.js'
+import { PieceUi } from '../SegmentTimeline/SegmentTimelineContainer.js'
+import { IAdLibListItem } from './AdLibListItem.js'
+import { setShelfContextMenuContext, ContextType as MenuContextType } from './ShelfContextMenu.js'
 import RundownViewEventBus, {
 	RundownViewEvents,
 	BucketAdLibEvent,
@@ -30,7 +30,7 @@ import RundownViewEventBus, {
 	IEventContext,
 } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
 import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
-import { BucketId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { BucketAdLibId, BucketId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DashboardLayoutExternalFrame } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import { BucketAdLibItem, BucketAdLibUi, BucketAdLibActionUi } from '@sofie-automation/meteor-lib/dist/uiTypes/Bucket'
 
@@ -122,14 +122,14 @@ export const RundownViewBuckets = withTranslation()(
 										'rundownView.shelf.buckets',
 										unprotectString(bucket._id),
 										bucket.width !== undefined ? bucket.width : 0.2
-								  )
-					  )
+									)
+						)
 					: [],
 			}
 		}
 
 		componentDidMount(): void {
-			super.componentDidMount && super.componentDidMount()
+			super.componentDidMount?.()
 
 			RundownViewEventBus.on(RundownViewEvents.CREATE_BUCKET, this.createNewBucket)
 			RundownViewEventBus.on(RundownViewEvents.DELETE_BUCKET, this.deleteBucket)
@@ -141,7 +141,7 @@ export const RundownViewBuckets = withTranslation()(
 		}
 
 		componentWillUnmount(): void {
-			super.componentWillUnmount && super.componentWillUnmount()
+			super.componentWillUnmount?.()
 
 			RundownViewEventBus.off(RundownViewEvents.CREATE_BUCKET, this.createNewBucket)
 			RundownViewEventBus.off(RundownViewEvents.DELETE_BUCKET, this.deleteBucket)
@@ -361,11 +361,12 @@ export const RundownViewBuckets = withTranslation()(
 								clb
 							)
 						} else {
+							const bucketAdLibId = bucketAdLib._id as BucketAdLibId
 							doUserAction(
 								t,
 								e.context,
 								UserAction.REMOVE_BUCKET_ADLIB,
-								(e, ts) => MeteorCall.userAction.bucketsRemoveBucketAdLib(e, ts, bucketAdLib._id),
+								(e, ts) => MeteorCall.userAction.bucketsRemoveBucketAdLib(e, ts, bucketAdLibId),
 								clb
 							)
 						}

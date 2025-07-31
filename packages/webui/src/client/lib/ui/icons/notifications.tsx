@@ -1,4 +1,5 @@
 import { JSX } from 'react'
+import { relativeToSiteRootUrl } from '../../../url.js'
 
 export function CriticalIcon(): JSX.Element {
 	return (
@@ -167,7 +168,7 @@ export function WarningIconSmall(): JSX.Element {
 // }
 
 export function WarningIconSmallWorkingOnIt(): JSX.Element {
-	return <img src="/images/warning-transferring.webp" width="20" height="20" alt="Warning" />
+	return <img src={relativeToSiteRootUrl('/images/warning-transferring.webp')} width="20" height="20" alt="Warning" />
 }
 
 export function InformationIconSmall(): JSX.Element {

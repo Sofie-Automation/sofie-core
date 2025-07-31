@@ -1,5 +1,5 @@
-import { Connector } from './connector'
-import { config, logPath, disableWatchdog, logLevel } from './config'
+import { Connector } from './connector.js'
+import { config, logPath, disableWatchdog, logLevel } from './config.js'
 
 import * as Winston from 'winston'
 import { stringifyError } from '@sofie-automation/server-core-integration'

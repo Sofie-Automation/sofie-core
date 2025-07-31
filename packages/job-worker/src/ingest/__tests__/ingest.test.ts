@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/unbound-method */
-import '../../__mocks__/_extendJest'
+import '../../__mocks__/_extendJest.js'
 import {
 	IBlueprintPiece,
 	IngestPart,
@@ -24,29 +23,33 @@ import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/Rund
 import { DBSegment, SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { clone, getRandomString, literal } from '@sofie-automation/corelib/dist/lib'
 import { sortPartsInSortedSegments, sortSegmentsInRundowns } from '@sofie-automation/corelib/dist/playout/playlist'
-import { MongoQuery } from '../../db'
-import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context'
-import { setupMockPeripheralDevice, setupMockShowStyleCompound } from '../../__mocks__/presetCollections'
+import { MongoQuery } from '../../db/index.js'
+import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context.js'
+import { setupMockPeripheralDevice, setupMockShowStyleCompound } from '../../__mocks__/presetCollections.js'
 import {
 	handleRemovedRundown,
 	handleUpdatedRundown,
 	handleUpdatedRundownMetaData,
 	handleUserRemoveRundown,
-} from '../../ingest/ingestRundownJobs'
-import { handleRemovedPart, handleUpdatedPart } from '../../ingest/ingestPartJobs'
-import { handleRemovedSegment, handleUpdatedSegment, handleUpdatedSegmentRanks } from '../../ingest/ingestSegmentJobs'
-import { handleTakeNextPart } from '../../playout/take'
-import { handleActivateRundownPlaylist } from '../../playout/activePlaylistJobs'
+} from '../../ingest/ingestRundownJobs.js'
+import { handleRemovedPart, handleUpdatedPart } from '../../ingest/ingestPartJobs.js'
+import {
+	handleRemovedSegment,
+	handleUpdatedSegment,
+	handleUpdatedSegmentRanks,
+} from '../../ingest/ingestSegmentJobs.js'
+import { handleTakeNextPart } from '../../playout/take.js'
+import { handleActivateRundownPlaylist } from '../../playout/activePlaylistJobs.js'
 import { PartInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { getSelectedPartInstances } from '../../playout/__tests__/lib'
+import { getSelectedPartInstances } from '../../playout/__tests__/lib.js'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
-import { runJobWithPlayoutModel } from '../../playout/lock'
+import { runJobWithPlayoutModel } from '../../playout/lock.js'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { insertQueuedPartWithPieces } from '../../playout/adlibUtils'
+import { insertQueuedPartWithPieces } from '../../playout/adlibUtils.js'
 import { UserErrorMessage } from '@sofie-automation/corelib/dist/error'
-import { PlayoutPartInstanceModel } from '../../playout/model/PlayoutPartInstanceModel'
+import { PlayoutPartInstanceModel } from '../../playout/model/PlayoutPartInstanceModel.js'
 import { NrcsIngestCacheType } from '@sofie-automation/corelib/dist/dataModel/NrcsIngestDataCache'
-import { wrapGenericIngestJob, wrapGenericIngestJobWithPrecheck } from '../jobWrappers'
+import { wrapGenericIngestJob, wrapGenericIngestJobWithPrecheck } from '../jobWrappers.js'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 
 const handleRemovedRundownWrapped = wrapGenericIngestJob(handleRemovedRundown)

@@ -1,7 +1,7 @@
 import { ReadonlyDeep } from 'type-fest'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import _ = require('underscore')
-import { IngestPartModel } from '../IngestPartModel'
+import _ from 'underscore'
+import { IngestPartModel } from '../IngestPartModel.js'
 import { AdLibActionId, PieceId, RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
@@ -9,14 +9,14 @@ import { ExpectedMediaItemRundown } from '@sofie-automation/corelib/dist/dataMod
 import { ExpectedPlayoutItemRundown } from '@sofie-automation/corelib/dist/dataModel/ExpectedPlayoutItem'
 import { ExpectedPackageFromRundown } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
-import { ExpectedPackagesStore } from './ExpectedPackagesStore'
+import { ExpectedPackagesStore } from './ExpectedPackagesStore.js'
 import {
 	addManyToSet,
 	diffAndReturnLatestObjects,
 	DocumentChanges,
 	getDocumentChanges,
 	setValuesAndTrackChanges,
-} from './utils'
+} from './utils.js'
 
 export class IngestPartModelImpl implements IngestPartModel {
 	readonly partImpl: DBPart

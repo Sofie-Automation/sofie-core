@@ -15,7 +15,7 @@ import { checkAccessAndGetPeripheralDevice } from '../security/check'
  * This file contains publications for the peripheralDevices, such as playout-gateway, mos-gateway and package-manager
  */
 
-const peripheralDeviceFields: MongoFieldSpecifierZeroes<PeripheralDevice> = {
+const peripheralDeviceProjection: MongoFieldSpecifierZeroes<PeripheralDevice> = {
 	token: 0,
 	secretSettings: 0,
 }
@@ -34,13 +34,13 @@ meteorPublish(
 		const selector: MongoQuery<PeripheralDevice> = {}
 		if (peripheralDeviceIds) selector._id = { $in: peripheralDeviceIds }
 
-		const fields = clone(peripheralDeviceFields)
+		const projection = clone(peripheralDeviceProjection)
 		if (selector._id && token) {
 			// in this case, send the secretSettings:
-			delete fields.secretSettings
+			delete projection.secretSettings
 		}
 		return PeripheralDevices.findWithCursor(selector, {
-			fields,
+			projection,
 		})
 	}
 )
@@ -67,7 +67,7 @@ meteorPublish(CorelibPubSub.peripheralDevicesAndSubDevices, async function (stud
 			],
 		},
 		{
-			fields: peripheralDeviceFields,
+			projection: peripheralDeviceProjection,
 		}
 	)
 })

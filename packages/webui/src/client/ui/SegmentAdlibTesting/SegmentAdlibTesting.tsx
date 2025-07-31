@@ -1,31 +1,37 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { NoteSeverity } from '@sofie-automation/blueprints-integration'
-import { IContextMenuContext } from '../RundownView'
-import { IOutputLayerUi, PartUi, PieceUi, SegmentNoteCounts, SegmentUi } from '../SegmentContainer/withResolvedSegment'
+import { IContextMenuContext } from '../RundownView.js'
+import {
+	IOutputLayerUi,
+	PartUi,
+	PieceUi,
+	SegmentNoteCounts,
+	SegmentUi,
+} from '../SegmentContainer/withResolvedSegment.js'
 import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'
-import { CriticalIconSmall, WarningIconSmall } from '../../lib/ui/icons/notifications'
-import { contextMenuHoldToDisplayTime, useCombinedRefs } from '../../lib/lib'
+import { CriticalIconSmall, WarningIconSmall } from '../../lib/ui/icons/notifications.js'
+import { contextMenuHoldToDisplayTime, useCombinedRefs, useRundownViewEventBusListener } from '../../lib/lib.js'
 import { useTranslation } from 'react-i18next'
-import { literal, unprotectString } from '../../lib/tempLib'
-import { lockPointer, unlockPointer } from '../../lib/viewPort'
-import { StoryboardPart } from '../SegmentStoryboard/StoryboardPart'
+import { literal, unprotectString } from '../../lib/tempLib.js'
+import { lockPointer, unlockPointer } from '../../lib/viewPort.js'
+import { StoryboardPart } from '../SegmentStoryboard/StoryboardPart.js'
 import classNames from 'classnames'
-import RundownViewEventBus, {
+import {
 	GoToPartEvent,
 	GoToPartInstanceEvent,
 	RundownViewEvents,
 } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
-import { getElementWidth } from '../../utils/dimensions'
-import { HOVER_TIMEOUT } from '../Shelf/DashboardPieceButton'
+import { getElementWidth } from '../../utils/dimensions.js'
+import { HOVER_TIMEOUT } from '../Shelf/DashboardPieceButton.js'
 import { Meteor } from 'meteor/meteor'
-import { hidePointerLockCursor, showPointerLockCursor } from '../../lib/PointerLockCursor'
+import { hidePointerLockCursor, showPointerLockCursor } from '../../lib/PointerLockCursor.js'
 import { motion } from 'motion/react'
-import { filterSecondarySourceLayers } from '../SegmentStoryboard/StoryboardPartSecondaryPieces/StoryboardPartSecondaryPieces'
+import { filterSecondarySourceLayers } from '../SegmentStoryboard/StoryboardPartSecondaryPieces/StoryboardPartSecondaryPieces.js'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBRundownPlaylist, RundownHoldState } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { isPartPlayable } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { isLoopRunning } from '../../lib/RundownResolver'
+import { isLoopRunning } from '../../lib/RundownResolver.js'
 
 interface IProps {
 	id: string
@@ -165,8 +171,8 @@ export const SegmentAdlibTesting = React.memo(
 								? 'background'
 								: undefined
 							: squishedHover === index
-							? 'hover'
-							: undefined
+								? 'hover'
+								: undefined
 					}
 					style={
 						needsToBeSquished && squishedPartCardStride
@@ -178,7 +184,7 @@ export const SegmentAdlibTesting = React.memo(
 												? renderedParts.length + index
 												: renderedParts.length - index
 											: undefined,
-							  }
+								}
 							: undefined
 					}
 					onHoverOver={() => needsToBeSquished && setSquishedHover(index)}
@@ -230,17 +236,9 @@ export const SegmentAdlibTesting = React.memo(
 			[renderedParts, props.followLiveLine]
 		)
 
-		useEffect(() => {
-			RundownViewEventBus.on(RundownViewEvents.REWIND_SEGMENTS, onRewindSegment)
-			RundownViewEventBus.on(RundownViewEvents.GO_TO_PART, onGoToPart)
-			RundownViewEventBus.on(RundownViewEvents.GO_TO_PART_INSTANCE, onGoToPartInstance)
-
-			return () => {
-				RundownViewEventBus.off(RundownViewEvents.REWIND_SEGMENTS, onRewindSegment)
-				RundownViewEventBus.off(RundownViewEvents.GO_TO_PART, onGoToPart)
-				RundownViewEventBus.off(RundownViewEvents.GO_TO_PART_INSTANCE, onGoToPartInstance)
-			}
-		}, [onRewindSegment, onGoToPart, onGoToPartInstance])
+		useRundownViewEventBusListener(RundownViewEvents.REWIND_SEGMENTS, onRewindSegment)
+		useRundownViewEventBusListener(RundownViewEvents.GO_TO_PART, onGoToPart)
+		useRundownViewEventBusListener(RundownViewEvents.GO_TO_PART_INSTANCE, onGoToPartInstance)
 
 		useLayoutEffect(() => {
 			if (!listRef.current) return
@@ -471,9 +469,7 @@ export const SegmentAdlibTesting = React.memo(
 							{criticalNotes > 0 && (
 								<div
 									className="segment-timeline__title__notes__note segment-timeline__title__notes__note--critical"
-									onClick={() =>
-										props.onHeaderNoteClick && props.onHeaderNoteClick(props.segment._id, NoteSeverity.ERROR)
-									}
+									onClick={() => props.onHeaderNoteClick?.(props.segment._id, NoteSeverity.ERROR)}
 									aria-label={t('Critical problems')}
 								>
 									<CriticalIconSmall />
@@ -483,9 +479,7 @@ export const SegmentAdlibTesting = React.memo(
 							{warningNotes > 0 && (
 								<div
 									className="segment-timeline__title__notes__note segment-timeline__title__notes__note--warning"
-									onClick={() =>
-										props.onHeaderNoteClick && props.onHeaderNoteClick(props.segment._id, NoteSeverity.WARNING)
-									}
+									onClick={() => props.onHeaderNoteClick?.(props.segment._id, NoteSeverity.WARNING)}
 									aria-label={t('Warnings')}
 								>
 									<WarningIconSmall />

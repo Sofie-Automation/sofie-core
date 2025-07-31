@@ -20,7 +20,7 @@ export function stripVersion(v: string): string {
 		return `${valid.major}.${valid.minor}.${valid.patch}`
 	}
 }
-export function parseRange(r: string | VersionRange | undefined): VersionRange {
+export function parseRange(r: VersionRange | undefined): VersionRange {
 	if (isReferenceOrUndefined(r)) {
 		return '^0.0.0' // anything goes..
 	}
@@ -28,7 +28,7 @@ export function parseRange(r: string | VersionRange | undefined): VersionRange {
 	if (!range) throw new Meteor.Error(500, `Invalid range: "${r}"`)
 	return range
 }
-export function parseVersion(v: string | Version | undefined): Version {
+export function parseVersion(v: Version | undefined): Version {
 	if (isReferenceOrUndefined(v)) {
 		return '0.0.0' // fallback
 	}
@@ -126,7 +126,7 @@ export function compareSemverVersions(
 					}
 				}
 				// the expectedVersion may be a proper range, in which case the new semver.SemVer will throw an error, even though the semver.satisfies check would work.
-			} catch (e) {
+			} catch (_e) {
 				const message =
 					`Version mismatch: ${meName} version: "${currentVersion}" does not satisfy expected version range of ${theyName}: "${targetRange}"` +
 					(fixMessage ? ` (${fixMessage})` : '')

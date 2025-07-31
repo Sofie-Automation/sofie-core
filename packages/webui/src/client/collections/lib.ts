@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor'
 import { Mongo } from 'meteor/mongo'
-import { ProtectedString, protectString } from '../lib/tempLib'
+import { ProtectedString, protectString } from '../lib/tempLib.js'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import type { Collection as RawCollection, Db as RawDb } from 'mongodb'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
@@ -19,6 +19,8 @@ import {
 	UpdateOptions,
 	UpsertOptions,
 } from '@sofie-automation/meteor-lib/dist/collections/lib'
+import { CustomCollectionName as CustomCorelibCollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
+import { CorelibPubSubCustomCollections } from '@sofie-automation/corelib/dist/pubsub'
 
 export * from '@sofie-automation/meteor-lib/dist/collections/lib'
 
@@ -114,7 +116,7 @@ export function createSyncReadOnlyMongoCollection<DBInterface extends { _id: Pro
  * @param name Name of the custom-collection
  */
 export function createSyncCustomPublicationMongoCollection<
-	K extends CustomCollectionName & keyof MeteorPubSubCustomCollections
+	K extends CustomCollectionName & keyof MeteorPubSubCustomCollections,
 >(name: K): MongoReadOnlyCollection<MeteorPubSubCustomCollections[K]> {
 	const collection = new Mongo.Collection<MeteorPubSubCustomCollections[K]>(name)
 	const wrapped = new WrappedMongoReadOnlyCollection<MeteorPubSubCustomCollections[K]>(collection, name)
@@ -125,8 +127,20 @@ export function createSyncCustomPublicationMongoCollection<
 	return wrapped
 }
 
+export function createSyncCorelibCustomPublicationMongoCollection<
+	K extends CustomCorelibCollectionName & keyof CorelibPubSubCustomCollections,
+>(name: K): MongoReadOnlyCollection<CorelibPubSubCustomCollections[K]> {
+	const collection = new Mongo.Collection<CorelibPubSubCustomCollections[K]>(name)
+	const wrapped = new WrappedMongoReadOnlyCollection<CorelibPubSubCustomCollections[K]>(collection, name)
+
+	if (PublicationCollections.has(name)) throw new Meteor.Error(`Cannot re-register collection "${name}"`)
+	PublicationCollections.set(name, wrapped)
+
+	return wrapped
+}
+
 export function createSyncPeripheralDeviceCustomPublicationMongoCollection<
-	K extends PeripheralDevicePubSubCollectionsNames & keyof PeripheralDevicePubSubCollections
+	K extends PeripheralDevicePubSubCollectionsNames & keyof PeripheralDevicePubSubCollections,
 >(name: K): MongoReadOnlyCollection<PeripheralDevicePubSubCollections[K]> {
 	const collection = new Mongo.Collection<PeripheralDevicePubSubCollections[K]>(name)
 	const wrapped = new WrappedMongoReadOnlyCollection<PeripheralDevicePubSubCollections[K]>(collection, name)

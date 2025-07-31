@@ -1,4 +1,4 @@
-import { JobContext } from '../../jobs'
+import { JobContext } from '../../jobs/index.js'
 import { IngestJobs, IngestJobFunc } from '@sofie-automation/corelib/dist/worker/ingest'
 import {
 	handleMosDeleteStory,
@@ -6,13 +6,13 @@ import {
 	handleMosInsertStories,
 	handleMosMoveStories,
 	handleMosSwapStories,
-} from '../../ingest/mosDevice/mosStoryJobs'
+} from '../../ingest/mosDevice/mosStoryJobs.js'
 import {
 	handleMosRundownData,
 	handleMosRundownMetadata,
 	handleMosRundownReadyToAir,
 	handleMosRundownStatus,
-} from '../../ingest/mosDevice/mosRundownJobs'
+} from '../../ingest/mosDevice/mosRundownJobs.js'
 import {
 	handleRegenerateRundown,
 	handleRemovedRundown,
@@ -20,16 +20,16 @@ import {
 	handleUpdatedRundownMetaData,
 	handleUserRemoveRundown,
 	handleUserUnsyncRundown,
-} from '../../ingest/ingestRundownJobs'
-import { handleRemovedPart, handleUpdatedPart } from '../../ingest/ingestPartJobs'
+} from '../../ingest/ingestRundownJobs.js'
+import { handleRemovedPart, handleUpdatedPart } from '../../ingest/ingestPartJobs.js'
 import {
 	handleRegenerateSegment,
 	handleRemovedSegment,
 	handleRemoveOrphanedSegemnts,
 	handleUpdatedSegment,
 	handleUpdatedSegmentRanks,
-} from '../../ingest/ingestSegmentJobs'
-import { handleExpectedPackagesRegenerate, handleUpdatedPackageInfoForRundown } from '../../ingest/packageInfo'
+} from '../../ingest/ingestSegmentJobs.js'
+import { handleExpectedPackagesRegenerate, handleUpdatedPackageInfoForRundown } from '../../ingest/packageInfo.js'
 import {
 	handleBucketActionModify,
 	handleBucketActionRegenerateExpectedPackages,
@@ -37,16 +37,16 @@ import {
 	handleBucketPieceModify,
 	handleBucketRemoveAdlibAction,
 	handleBucketRemoveAdlibPiece,
-} from '../../ingest/bucket/bucketAdlibs'
-import { handleBucketItemImport, handleBucketItemRegenerate } from '../../ingest/bucket/import'
-import { handleUserExecuteChangeOperation } from '../../ingest/userOperation'
+} from '../../ingest/bucket/bucketAdlibs.js'
+import { handleBucketItemImport, handleBucketItemRegenerate } from '../../ingest/bucket/import.js'
+import { handleUserExecuteChangeOperation } from '../../ingest/userOperation.js'
 import {
 	wrapCustomIngestJob,
 	wrapGenericIngestJob,
 	wrapGenericIngestJobWithPrecheck,
 	wrapMosIngestJob,
-} from '../../ingest/jobWrappers'
-import { handleCreateAdlibTestingRundownForShowStyleVariant } from '../../ingest/createAdlibTestingRundown'
+} from '../../ingest/jobWrappers.js'
+import { handleCreateAdlibTestingRundownForShowStyleVariant } from '../../ingest/createAdlibTestingRundown.js'
 
 type ExecutableFunction<T extends keyof IngestJobFunc> = (
 	context: JobContext,

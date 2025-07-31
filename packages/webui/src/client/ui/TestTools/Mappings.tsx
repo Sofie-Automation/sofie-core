@@ -1,15 +1,17 @@
-import { useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data'
-import * as _ from 'underscore'
-import { omit, unprotectString } from '../../lib/tempLib'
+import { useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
+import _ from 'underscore'
+import { omit, unprotectString } from '../../lib/tempLib.js'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { makeTableOfObject } from '../../lib/utilComponents'
-import { StudioSelect } from './StudioSelect'
+import { makeTableOfObject } from '../../lib/utilComponents.js'
+import { StudioSelect } from './StudioSelect.js'
 import { MappingExt } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { LookaheadMode, TSR } from '@sofie-automation/blueprints-integration'
-import { createSyncPeripheralDeviceCustomPublicationMongoCollection } from '../../collections/lib'
+import { createSyncPeripheralDeviceCustomPublicationMongoCollection } from '../../collections/lib.js'
 import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PeripheralDevicePubSubCollectionsNames } from '@sofie-automation/shared-lib/dist/pubsub/peripheralDevice'
 import { useTranslation } from 'react-i18next'
+import Row from 'react-bootstrap/Row'
+import Col from 'react-bootstrap/Col'
 
 const StudioMappings = createSyncPeripheralDeviceCustomPublicationMongoCollection(
 	PeripheralDevicePubSubCollectionsNames.studioMappings
@@ -26,16 +28,12 @@ function MappingsView(props: Readonly<IMappingsViewProps>): JSX.Element {
 	const { t } = useTranslation()
 
 	return (
-		<div className="mtl gutter">
-			<header className="mvs">
+		<div className="mx-5">
+			<header className="my-2">
 				<h1>{t('Routed Mappings')}</h1>
 			</header>
-			<div className="mod mvl">
-				{props.match && props.match.params && (
-					<div>
-						<ComponentMappingsTable studioId={props.match.params.studioId} />
-					</div>
-				)}
+			<div className="my-5">
+				{props.match && props.match.params && <ComponentMappingsTable studioId={props.match.params.studioId} />}
 			</div>
 		</div>
 	)
@@ -58,27 +56,25 @@ function ComponentMappingsTable({ studioId }: Readonly<ComponentMappingsTablePro
 	const mappingsItems = mappingsObj ? _.sortBy(Object.entries<MappingExt>(mappingsObj.mappings), (o) => o[0]) : []
 
 	return (
-		<div>
-			<div>
-				<div>
-					<table className="testtools-timelinetable">
-						<tbody>
-							<tr>
-								<th>Mapping</th>
-								<th>DeviceId</th>
-								<th>Type</th>
-								<th>Name</th>
-								<th>Lookahead</th>
-								<th>Data</th>
-							</tr>
-							{mappingsItems.map(([id, obj]) => (
-								<ComponentMappingsTableRow key={id} id={id} obj={obj} />
-							))}
-						</tbody>
-					</table>
-				</div>
-			</div>
-		</div>
+		<Row>
+			<Col xs={12}>
+				<table className="testtools-datatable">
+					<tbody>
+						<tr>
+							<th>Mapping</th>
+							<th>DeviceId</th>
+							<th>Type</th>
+							<th>Name</th>
+							<th>Lookahead</th>
+							<th>Data</th>
+						</tr>
+						{mappingsItems.map(([id, obj]) => (
+							<ComponentMappingsTableRow key={id} id={id} obj={obj} />
+						))}
+					</tbody>
+				</table>
+			</Col>
+		</Row>
 	)
 }
 

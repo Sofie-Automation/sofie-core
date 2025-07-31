@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor'
 import { check, Match } from '../lib/check'
-import * as _ from 'underscore'
+import _ from 'underscore'
 import { PeripheralDeviceType, PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { PeripheralDeviceCommands, PeripheralDevices, Rundowns, Studios, UserActionsLog } from '../collections'
 import { protectString, stringifyObjects, literal, unprotectString } from '../lib/tempLib'
@@ -34,7 +34,6 @@ import { PackageManagerIntegration } from './integration/expectedPackages'
 import { profiler } from './profiler'
 import { QueueStudioJob } from '../worker/worker'
 import { StudioJobs } from '@sofie-automation/corelib/dist/worker/studio'
-import { DeviceConfigManifest } from '@sofie-automation/corelib/dist/deviceConfig'
 import {
 	PlayoutChangedResults,
 	PeripheralDeviceInitOptions,
@@ -58,7 +57,7 @@ import { insertInputDeviceTriggerIntoPreview } from '../publications/deviceTrigg
 import { receiveInputDeviceTrigger } from './deviceTriggers/observer'
 import { upsertBundles, generateTranslationBundleOriginId } from './translationsBundles'
 import { isTranslatableMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
-import { JSONBlobParse, JSONBlobStringify } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
+import { JSONBlobParse } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 import {
 	applyAndValidateOverrides,
 	SomeObjectOverrideOp,
@@ -69,6 +68,7 @@ import KoaRouter from '@koa/router'
 import bodyParser from 'koa-bodyparser'
 import { assertConnectionHasOneOfPermissions } from '../security/auth'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import { getRootSubpath } from '../lib'
 
 const apmNamespace = 'peripheralDevice'
 export namespace ServerPeripheralDeviceAPI {
@@ -127,16 +127,16 @@ export namespace ServerPeripheralDeviceAPI {
 						? {
 								...options.configManifest,
 								translations: undefined, // unset the translations
-						  }
+							}
 						: undefined,
 
 					documentationUrl: options.documentationUrl,
-				},
+				} satisfies Partial<PeripheralDevice>,
 				$unset:
 					newVersionsStr !== oldVersionsStr
 						? {
 								disableVersionChecks: 1,
-						  }
+							}
 						: undefined,
 			})
 		} else {
@@ -166,11 +166,8 @@ export namespace ServerPeripheralDeviceAPI {
 					? {
 							...options.configManifest,
 							translations: undefined,
-					  }
-					: literal<DeviceConfigManifest>({
-							deviceConfigSchema: JSONBlobStringify({}),
-							subdeviceManifest: {},
-					  }),
+						}
+					: undefined,
 
 				documentationUrl: options.documentationUrl,
 			})
@@ -357,7 +354,7 @@ export namespace ServerPeripheralDeviceAPI {
 		if (really) {
 			logger.info('KillProcess command received from ' + peripheralDevice._id + ', shutting down in 1000ms!')
 			setTimeout(() => {
-				// eslint-disable-next-line no-process-exit
+				// eslint-disable-next-line n/no-process-exit
 				process.exit(0)
 			}, 1000)
 			return true
@@ -455,7 +452,7 @@ export namespace ServerPeripheralDeviceAPI {
 
 		// Fetch the relevant studio
 		const studioForDevice = (await Studios.findOneAsync(peripheralDevice.studioAndConfigId.studioId, {
-			fields: {
+			projection: {
 				peripheralDeviceSettings: 1,
 			},
 		})) as Pick<DBStudio, 'peripheralDeviceSettings'> | undefined
@@ -579,7 +576,7 @@ export namespace ServerPeripheralDeviceAPI {
 				timelineHash: timelineHash,
 			},
 			{
-				fields: {
+				projection: {
 					timelineGenerated: 1,
 				},
 			}
@@ -680,7 +677,7 @@ peripheralDeviceRouter.get('/:deviceId/oauthResponse', async (ctx) => {
 				.catch(logger.error)
 		}
 
-		ctx.redirect(`/settings/peripheralDevice/${deviceId}`)
+		ctx.redirect(`${getRootSubpath()}/settings/peripheralDevice/${deviceId}`)
 	} catch (e) {
 		ctx.response.type = 'text/plain'
 		ctx.response.status = 500

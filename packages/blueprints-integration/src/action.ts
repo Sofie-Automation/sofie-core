@@ -1,7 +1,7 @@
-import { ExpectedPackage } from './package'
-import { SomeContent } from './content'
-import { ITranslatableMessage } from './translations'
-import { ExpectedPlayoutItemGeneric } from './documents'
+import { ExpectedPackage } from './package.js'
+import { SomeContent } from './content.js'
+import { ITranslatableMessage } from './translations.js'
+import { ExpectedPlayoutItemGeneric } from './documents/index.js'
 import { JSONBlob } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 import { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
 

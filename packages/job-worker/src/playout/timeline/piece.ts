@@ -9,12 +9,12 @@ import {
 } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { assertNever, clone } from '@sofie-automation/corelib/dist/lib'
 import { PieceInstanceWithTimings } from '@sofie-automation/corelib/dist/playout/processAndPrune'
-import { createPieceGroupAndCap } from './pieceGroup'
+import { createPieceGroupAndCap } from './pieceGroup.js'
 import { PartCalculatedTimings } from '@sofie-automation/corelib/dist/playout/timings'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { ReadonlyDeep } from 'type-fest'
-import { prefixAllObjectIds } from '../lib'
-import { hasPieceInstanceDefinitelyEnded } from './lib'
+import { prefixAllObjectIds } from '../lib.js'
+import { hasPieceInstanceDefinitelyEnded } from './lib.js'
 
 export function transformPieceGroupAndObjects(
 	playlistId: RundownPlaylistId,

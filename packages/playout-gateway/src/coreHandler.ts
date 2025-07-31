@@ -13,17 +13,17 @@ import {
 	PeripheralDevicePubSubCollectionsNames,
 } from '@sofie-automation/server-core-integration'
 import { MediaObject, DeviceOptionsAny, ActionExecutionResult } from 'timeline-state-resolver'
-import * as _ from 'underscore'
-import { DeviceConfig } from './connector'
-import { TSRHandler } from './tsrHandler'
+import _ from 'underscore'
+import { DeviceConfig } from './connector.js'
+import { TSRHandler } from './tsrHandler.js'
 import { Logger } from 'winston'
-// eslint-disable-next-line node/no-extraneous-import
+// eslint-disable-next-line n/no-extraneous-import
 import { MemUsageReport as ThreadMemUsageReport } from 'threadedclass'
-import { PLAYOUT_DEVICE_CONFIG } from './configManifest'
+import { compilePlayoutGatewayConfigManifest } from './configManifest.js'
 import { BaseRemoteDeviceIntegration } from 'timeline-state-resolver/dist/service/remoteDeviceInstance'
-import { getVersions } from './versions'
+import { getVersions } from './versions.js'
 import { CoreConnectionChild } from '@sofie-automation/server-core-integration/dist/lib/CoreConnectionChild'
-import { PlayoutGatewayConfig } from './generated/options'
+import { PlayoutGatewayConfig } from '@sofie-automation/shared-lib/dist/generated/PlayoutGatewayConfigTypes'
 import { PeripheralDeviceCommandId } from '@sofie-automation/shared-lib/dist/core/model/Ids'
 
 export interface CoreConfig {
@@ -156,7 +156,7 @@ export class CoreHandler {
 			deviceName: 'Playout gateway',
 			watchDog: this._coreConfig ? this._coreConfig.watchdog : true,
 
-			configManifest: PLAYOUT_DEVICE_CONFIG,
+			configManifest: compilePlayoutGatewayConfigManifest(),
 
 			versions: getVersions(this.logger),
 
@@ -239,7 +239,7 @@ export class CoreHandler {
 				}
 				this._executedFunctions.add(cmd._id)
 				// @ts-expect-error Untyped bunch of functions
-				// eslint-disable-next-line @typescript-eslint/ban-types
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 				const fcn: Function = fcnObject[cmd.functionName]
 				try {
 					if (!fcn) throw Error(`Function "${cmd.functionName}" not found on device "${cmd.deviceId}"!`)
@@ -311,7 +311,7 @@ export class CoreHandler {
 	killProcess(): void {
 		this.logger.info('KillProcess command received, shutting down in 1000ms!')
 		setTimeout(() => {
-			// eslint-disable-next-line no-process-exit
+			// eslint-disable-next-line n/no-process-exit
 			process.exit(0)
 		}, 1000)
 	}
@@ -557,6 +557,6 @@ export class CoreTSRDeviceHandler {
 		this._coreParentHandler.logger.info(`Exec ${actionId} on ${this._deviceId}`)
 		const device = this._device.device
 
-		return device.executeAction(actionId, payload)
+		return device.executeAction(actionId, payload || {})
 	}
 }

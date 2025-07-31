@@ -1,16 +1,14 @@
-/* eslint-disable react/prefer-stateless-function */
-
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { Meteor } from 'meteor/meteor'
 import { Mongo } from 'meteor/mongo'
 import { Tracker } from 'meteor/tracker'
 import { withTranslation, WithTranslation } from 'react-i18next'
 import { AllPubSubTypes } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { meteorSubscribe } from '../meteorApi'
-import { stringifyObjects } from '../tempLib'
+import { meteorSubscribe } from '../meteorApi.js'
+import { stringifyObjects } from '../tempLib.js'
 import _ from 'underscore'
 
-const globalTrackerQueue: Array<Function> = []
+const globalTrackerQueue: Array<() => void> = []
 let globalTrackerTimestamp: number | undefined = undefined
 let globalTrackerTimeout: number | undefined = undefined
 
@@ -91,7 +89,7 @@ class MeteorDataManager {
 		globalTrackerQueue.length = 0
 	}
 
-	static enqueueUpdate(func: Function) {
+	static enqueueUpdate(func: () => void) {
 		if (globalTrackerTimeout !== undefined) {
 			clearTimeout(globalTrackerTimeout)
 			globalTrackerTimeout = undefined
@@ -310,7 +308,6 @@ export function translateWithTracker<IProps, IState, TrackedProps>(
 	checkUpdate?: (data: any, props: IProps, nextProps: IProps, state?: IState, nextState?: IState) => boolean,
 	queueTrackerUpdates?: boolean
 ): (component: React.ComponentType<Translated<IProps & TrackedProps>>) => React.ComponentType<IProps> {
-	// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 	return (WrappedComponent) => {
 		const inner: React.ComponentType<Translated<IProps>> = withTracker<Translated<IProps>, IState, TrackedProps>(
 			autorunFunction,

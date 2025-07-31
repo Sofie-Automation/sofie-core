@@ -1,8 +1,8 @@
 import type { JSONBlob } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
-import type { ITranslatableMessage } from './translations'
+import type { ITranslatableMessage } from './translations.js'
 import { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
-import { SourceLayerType } from './content'
-import { DefaultUserOperationsTypes } from './ingest'
+import { SourceLayerType } from './content.js'
+import { DefaultUserOperationsTypes } from './ingest.js'
 
 /**
  * Description of a user performed editing operation allowed on an document

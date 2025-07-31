@@ -7,10 +7,10 @@ import {
 	PeripheralDeviceId,
 	RundownPlaylistId,
 	ShowStyleVariantId,
-} from './Ids'
-import { RundownNote } from './Notes'
+} from './Ids.js'
+import { RundownNote } from './Notes.js'
 import { ReadonlyDeep } from 'type-fest'
-import { CoreUserEditingDefinition } from './UserEditingDefinitions'
+import { CoreUserEditingDefinition } from './UserEditingDefinitions.js'
 
 export enum RundownOrphanedReason {
 	/** Rundown is deleted from the source but we still need it */

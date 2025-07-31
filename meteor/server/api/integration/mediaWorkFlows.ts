@@ -28,7 +28,7 @@ export namespace MediaManagerIntegration {
 					studioId: peripheralDevice.studioAndConfigId.studioId,
 				},
 				{
-					fields: {
+					projection: {
 						_id: 1,
 						_rev: 1,
 					},
@@ -60,7 +60,7 @@ export namespace MediaManagerIntegration {
 					studioId: peripheralDevice.studioAndConfigId.studioId,
 				},
 				{
-					fields: {
+					projection: {
 						_id: 1,
 						_rev: 1,
 					},

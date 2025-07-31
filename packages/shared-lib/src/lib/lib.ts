@@ -1,4 +1,4 @@
-import { ProtectedString } from './protectedString'
+import { ProtectedString } from './protectedString.js'
 
 export type Time = number
 export type TimeDuration = number

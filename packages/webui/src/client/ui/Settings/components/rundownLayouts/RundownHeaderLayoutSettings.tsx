@@ -1,9 +1,9 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { RundownLayouts } from '../../../../collections'
+import { RundownLayouts } from '../../../../collections/index.js'
 import { RundownLayoutBase, RundownLayoutType } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import { EditAttribute } from '../../../../lib/EditAttribute'
-import { LabelActual } from '../../../../lib/Components/LabelAndOverrides'
+import { EditAttribute } from '../../../../lib/EditAttribute.js'
+import { LabelActual } from '../../../../lib/Components/LabelAndOverrides.js'
 
 interface IProps {
 	item: RundownLayoutBase
@@ -19,12 +19,10 @@ export default function RundownHeaderLayoutSettings(props: Readonly<IProps>): JS
 			<label className="field">
 				<LabelActual label={t('Expected End text')} />
 				<EditAttribute
-					modifiedClassName="bghl"
 					attribute={'plannedEndText'}
 					obj={props.item}
 					type="text"
 					collection={RundownLayouts}
-					className="input text-input input-l"
 				></EditAttribute>
 				<span className="text-s dimmed field-hint">{t('Text to show above countdown to end of show')}</span>
 			</label>
@@ -32,7 +30,6 @@ export default function RundownHeaderLayoutSettings(props: Readonly<IProps>): JS
 			<label className="field">
 				<LabelActual label={t('Hide Expected End timing when a break is next')} />
 				<EditAttribute
-					modifiedClassName="bghl"
 					attribute={'hideExpectedEndBeforeBreak'}
 					obj={props.item}
 					type="checkbox"
@@ -46,7 +43,6 @@ export default function RundownHeaderLayoutSettings(props: Readonly<IProps>): JS
 			<label className="field">
 				<LabelActual label={t('Show next break timing')} />
 				<EditAttribute
-					modifiedClassName="bghl"
 					attribute={'showNextBreakTiming'}
 					obj={props.item}
 					type="checkbox"
@@ -58,7 +54,6 @@ export default function RundownHeaderLayoutSettings(props: Readonly<IProps>): JS
 			<label className="field">
 				<LabelActual label={t('Last rundown is not break')} />
 				<EditAttribute
-					modifiedClassName="bghl"
 					attribute={'lastRundownIsNotBreak'}
 					obj={props.item}
 					type="checkbox"
@@ -72,12 +67,10 @@ export default function RundownHeaderLayoutSettings(props: Readonly<IProps>): JS
 			<label className="field">
 				<LabelActual label={t('Next Break text')} />
 				<EditAttribute
-					modifiedClassName="bghl"
 					attribute={'nextBreakText'}
 					obj={props.item}
 					type="text"
 					collection={RundownLayouts}
-					className="input text-input input-l"
 				></EditAttribute>
 				<span className="text-s dimmed field-hint">{t('Text to show above countdown to next break')}</span>
 			</label>

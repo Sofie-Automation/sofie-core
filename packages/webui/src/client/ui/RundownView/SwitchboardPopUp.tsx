@@ -6,14 +6,15 @@ import {
 	StudioRouteBehavior,
 } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import classNames from 'classnames'
-import { RouteSetOverrideIcon } from '../../lib/ui/icons/switchboard'
+import { RouteSetOverrideIcon } from '../../lib/ui/icons/switchboard.js'
 import Tooltip from 'rc-tooltip'
-import { TOOLTIP_DEFAULT_DELAY } from '../../lib/lib'
-import { PopUpPanel } from './PopUpPanel'
+import { TOOLTIP_DEFAULT_DELAY } from '../../lib/lib.js'
+import { ToggleSwitchControl } from '../../lib/Components/ToggleSwitch.js'
+import { PopUpPanel } from './PopUpPanel.js'
 
 interface IProps {
 	onStudioRouteSetSwitch?: (
-		e: React.MouseEvent<HTMLElement>,
+		e: React.ChangeEvent<HTMLInputElement>,
 		routeSetId: string,
 		routeSet: StudioRouteSet,
 		state: boolean
@@ -41,16 +42,16 @@ export function SwitchboardPopUp(props: Readonly<IProps>): JSX.Element {
 	return (
 		<PopUpPanel className="switchboard-pop-up-panel" role="dialog">
 			<div className="switchboard-pop-up-panel__inside">
-				<h2 className="mhn mvn">{t('Switchboard')}</h2>
+				<h2 className="">{t('Switchboard')}</h2>
 				{Object.entries<[string, StudioRouteSet][]>(exclusivityGroups).map(([key, routeSets]) => (
 					<div className="switchboard-pop-up-panel__group" key={key}>
 						{props.studioRouteSetExclusivityGroups[key]?.name && (
-							<p className="mhs mbs mtn">{props.studioRouteSetExclusivityGroups[key]?.name}</p>
+							<p className="mx-4 mb-2">{props.studioRouteSetExclusivityGroups[key]?.name}</p>
 						)}
 						{routeSets.length === 2 &&
 						routeSets[0][1].behavior === StudioRouteBehavior.ACTIVATE_ONLY &&
 						routeSets[1][1].behavior === StudioRouteBehavior.ACTIVATE_ONLY ? (
-							<div key={routeSets[0][0]} className="switchboard-pop-up-panel__group__controls dual mhm mbs">
+							<div key={routeSets[0][0]} className="switchboard-pop-up-panel__group__controls dual mx-4 mb-2">
 								<span
 									className={classNames({
 										'switchboard-pop-up-panel__group__controls__active': routeSets[0][1].active,
@@ -59,12 +60,11 @@ export function SwitchboardPopUp(props: Readonly<IProps>): JSX.Element {
 								>
 									{routeSets[0][1].name}
 								</span>
-								<a
-									className={classNames('switch-button', 'sb-nocolor', {
-										'sb-on': routeSets[1][1].active,
-									})}
-									role="button"
-									onClick={(e) =>
+
+								<ToggleSwitchControl
+									classNames="switch-nocolor switch-lg"
+									value={routeSets[1][1].active}
+									handleUpdate={(_state, e) =>
 										props.onStudioRouteSetSwitch &&
 										props.onStudioRouteSetSwitch(
 											e,
@@ -73,16 +73,8 @@ export function SwitchboardPopUp(props: Readonly<IProps>): JSX.Element {
 											true
 										)
 									}
-									tabIndex={0}
-								>
-									<div className="sb-content">
-										<div className="sb-label">
-											<span className="mls">&nbsp;</span>
-											<span className="mrs right">&nbsp;</span>
-										</div>
-										<div className="sb-switch"></div>
-									</div>
-								</a>
+								/>
+
 								<span
 									className={classNames({
 										'switchboard-pop-up-panel__group__controls__active': routeSets[1][1].active,
@@ -110,7 +102,7 @@ export function SwitchboardPopUp(props: Readonly<IProps>): JSX.Element {
 							</div>
 						) : (
 							routeSets.map(([id, routeSet]) => (
-								<div key={id} className="switchboard-pop-up-panel__group__controls mhm mbs">
+								<div key={id} className="switchboard-pop-up-panel__group__controls mx-4 mb-2">
 									<span
 										className={classNames({
 											'switchboard-pop-up-panel__group__controls__active': !routeSet.active,
@@ -119,26 +111,17 @@ export function SwitchboardPopUp(props: Readonly<IProps>): JSX.Element {
 									>
 										{t('Off')}
 									</span>
-									<a
-										className={classNames('switch-button', 'sb-nocolor', {
-											'sb-on': routeSet.active,
-										})}
-										role="button"
-										onClick={(e) =>
+
+									<ToggleSwitchControl
+										classNames="switch-nocolor switch-lg"
+										value={routeSet.active}
+										handleUpdate={(_state, e) =>
 											!(routeSet.active && routeSet.behavior === StudioRouteBehavior.ACTIVATE_ONLY) &&
 											props.onStudioRouteSetSwitch &&
 											props.onStudioRouteSetSwitch(e, id, routeSet, !routeSet.active)
 										}
-										tabIndex={0}
-									>
-										<div className="sb-content">
-											<div className="sb-label">
-												<span className="mls">&nbsp;</span>
-												<span className="mrs right">&nbsp;</span>
-											</div>
-											<div className="sb-switch"></div>
-										</div>
-									</a>
+									/>
+
 									<span
 										className={classNames({
 											'switchboard-pop-up-panel__group__controls__active': routeSet.active,

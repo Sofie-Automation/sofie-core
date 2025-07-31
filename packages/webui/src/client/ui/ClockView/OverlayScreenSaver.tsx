@@ -1,10 +1,10 @@
 import { useEffect, useRef } from 'react'
-import { Clock } from '../StudioScreenSaver/Clock'
-import { useTracker, useSubscription } from '../../lib/ReactMeteorData/ReactMeteorData'
+import { Clock } from '../StudioScreenSaver/Clock.js'
+import { useTracker, useSubscription } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { findNextPlaylist } from '../StudioScreenSaver/StudioScreenSaver'
+import { findNextPlaylist } from '../StudioScreenSaver/StudioScreenSaver.js'
 import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { useSetDocumentClass } from '../util/useSetDocumentClass'
+import { useSetDocumentClass } from '../util/useSetDocumentClass.js'
 import { AnimationPlaybackControls, animate as motionAnimate } from 'motion'
 
 export function OverlayScreenSaver({ studioId }: Readonly<{ studioId: StudioId }>): JSX.Element {

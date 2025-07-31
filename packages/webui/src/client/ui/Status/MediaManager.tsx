@@ -3,24 +3,24 @@ import * as CoreIcons from '@nrk/core-icons/jsx'
 import { faChevronDown, faChevronRight, faCheck, faStopCircle, faRedo, faFlag } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import ClassNames from 'classnames'
-import { MomentFromNow } from '../../lib/Moment'
+import { MomentFromNow } from '../../lib/Moment.js'
 import { CircularProgressbar } from 'react-circular-progressbar'
-import { useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data'
+import { useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
 import { MediaWorkFlow } from '@sofie-automation/shared-lib/dist/core/model/MediaWorkFlows'
 import { MediaWorkFlowStep } from '@sofie-automation/shared-lib/dist/core/model/MediaWorkFlowSteps'
 import { useTranslation } from 'react-i18next'
-import { unprotectString } from '../../lib/tempLib'
+import { assertNever, unprotectString } from '../../lib/tempLib.js'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { Spinner } from '../../lib/Spinner'
-import { sofieWarningIcon as WarningIcon } from '../../lib/notifications/warningIcon'
-import { doUserAction, UserAction } from '../../lib/clientUserAction'
-import { MeteorCall } from '../../lib/meteorApi'
+import { Spinner } from '../../lib/Spinner.js'
+import { sofieWarningIcon as WarningIcon } from '../../lib/notifications/warningIcon.js'
+import { doUserAction, UserAction } from '../../lib/clientUserAction.js'
+import { MeteorCall } from '../../lib/meteorApi.js'
 import Tooltip from 'rc-tooltip'
 import { MediaManagerAPI } from '@sofie-automation/meteor-lib/dist/api/mediaManager'
 import { MediaWorkFlowId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { MediaWorkFlows, MediaWorkFlowSteps } from '../../collections'
-import { useToggleExpandHelper } from '../util/useToggleExpandHelper'
-import { UserPermissionsContext } from '../UserPermissions'
+import { MediaWorkFlows, MediaWorkFlowSteps } from '../../collections/index.js'
+import { useToggleExpandHelper } from '../util/useToggleExpandHelper.js'
+import { UserPermissionsContext } from '../UserPermissions.js'
 
 interface MediaWorkFlowUi extends MediaWorkFlow {
 	steps: MediaWorkFlowStep[]
@@ -37,7 +37,8 @@ interface IItemProps {
 
 type TFunc = (label: string, attrs?: object) => string
 
-function actionLabel(t: TFunc, action: string): string {
+function actionLabel(t: TFunc, action0: string): string {
+	const action = action0 as MediaManagerAPI.WorkStepAction
 	switch (action) {
 		case MediaManagerAPI.WorkStepAction.COPY:
 			return t('File Copy')
@@ -52,6 +53,7 @@ function actionLabel(t: TFunc, action: string): string {
 		case MediaManagerAPI.WorkStepAction.GENERATE_PREVIEW:
 			return t('Generate Preview')
 		default:
+			assertNever(action)
 			return t('Unknown action: {{action}}', { action })
 	}
 }
@@ -130,7 +132,7 @@ function MediaManagerWorkFlowItem(props: Readonly<IItemProps>): JSX.Element {
 			? false
 			: criticalSteps.reduce((memo, item) => {
 					return memo && item.status === MediaManagerAPI.WorkStepStatus.DONE
-			  }, true)
+				}, true)
 	const currentTask = mediaWorkflow.steps
 		.sort((a, b) => b.priority - a.priority)
 		.find(
@@ -152,7 +154,7 @@ function MediaManagerWorkFlowItem(props: Readonly<IItemProps>): JSX.Element {
 
 	return (
 		<div
-			className={ClassNames('workflow mbs', {
+			className={ClassNames('workflow mb-2', {
 				expanded: isExpanded,
 
 				keyOk: keyFinishedOK,
@@ -160,7 +162,7 @@ function MediaManagerWorkFlowItem(props: Readonly<IItemProps>): JSX.Element {
 				error: finishedError,
 			})}
 		>
-			<div className="workflow__header pas">
+			<div className="workflow__header">
 				<div className="workflow__header__progress">
 					{finishedOK && (
 						<div className="big-status ok">
@@ -212,8 +214,8 @@ function MediaManagerWorkFlowItem(props: Readonly<IItemProps>): JSX.Element {
 					<div className="workflow__header__current-task workflow__step">
 						{currentTask && (
 							<React.Fragment>
-								<div className="workflow__step__action pts">{actionLabel(t, currentTask.action)}</div>
-								<div className="workflow__step__status pts">{workStepStatusLabel(t, currentTask)}</div>
+								<div className="workflow__step__action">{actionLabel(t, currentTask.action)}</div>
+								<div className="workflow__step__status">{workStepStatusLabel(t, currentTask)}</div>
 							</React.Fragment>
 						)}
 					</div>
@@ -246,6 +248,7 @@ function MediaManagerWorkFlowItem(props: Readonly<IItemProps>): JSX.Element {
 					</Tooltip>
 				</div>
 			</div>
+
 			{isExpanded && (
 				<div>
 					{mediaWorkflow.steps
@@ -353,23 +356,23 @@ export function MediaManagerStatus(): JSX.Element {
 	const expandedHelper = useToggleExpandHelper()
 
 	return (
-		<div className="mhl gutter media-manager-status">
-			<header className="mbs">
+		<div className="media-manager-status">
+			<header className="mb-2">
 				<h1>{t('Media Transfer Status')}</h1>
 			</header>
-			<div className="mod mvl alright">
+			<div className="mx-2 my-4 text-end">
 				{userPermissions.studio || userPermissions.configure ? (
 					<React.Fragment>
-						<button className="btn btn-secondary mls" onClick={actionAbortAll}>
+						<button className="btn btn-secondary ms-1" onClick={actionAbortAll}>
 							{t('Abort All')}
 						</button>
-						<button className="btn btn-secondary mls" onClick={actionRestartAll}>
+						<button className="btn btn-secondary ms-1" onClick={actionRestartAll}>
 							{t('Restart All')}
 						</button>
 					</React.Fragment>
 				) : null}
 			</div>
-			<div className="mod mvl">
+			<div className="my-5">
 				{sortedWorkflows.map((mediaWorkflow) => (
 					<MediaManagerWorkFlowItem
 						isExpanded={expandedHelper.isExpanded(mediaWorkflow._id)}

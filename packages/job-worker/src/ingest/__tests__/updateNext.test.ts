@@ -4,13 +4,13 @@ import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartIns
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { saveIntoDb } from '../../db/changes'
-import { ensureNextPartIsValid as ensureNextPartIsValidRaw } from '../updateNext'
-import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context'
-import { runJobWithPlayoutModel } from '../../playout/lock'
+import { saveIntoDb } from '../../db/changes.js'
+import { ensureNextPartIsValid as ensureNextPartIsValidRaw } from '../updateNext.js'
+import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context.js'
+import { runJobWithPlayoutModel } from '../../playout/lock.js'
 
 jest.mock('../../playout/setNext')
-import { setNextPart } from '../../playout/setNext'
+import { setNextPart } from '../../playout/setNext.js'
 type TsetNextPart = jest.MockedFunction<typeof setNextPart>
 const setNextPartMock = setNextPart as TsetNextPart
 setNextPartMock.mockImplementation(async () => Promise.resolve()) // Default mock
@@ -326,7 +326,7 @@ describe('ensureNextPartIsValid', () => {
 							rundownId,
 							manuallySelected: nextPartManual || false,
 							consumesQueuedSegmentId: false,
-					  }
+						}
 					: null,
 				currentPartInfo: currentPartInstanceId
 					? {
@@ -334,7 +334,7 @@ describe('ensureNextPartIsValid', () => {
 							rundownId,
 							manuallySelected: false,
 							consumesQueuedSegmentId: false,
-					  }
+						}
 					: null,
 				previousPartInfo: null,
 			},

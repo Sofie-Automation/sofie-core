@@ -20,6 +20,8 @@ tags:
 paths:
   /:
     $ref: 'definitions/sofie.yaml#/resources/index'
+  /health:
+    $ref: 'definitions/sofie.yaml#/resources/health'
   /system/blueprint:
     $ref: 'definitions/sofie.yaml#/resources/systemBlueprint'
   /system/migrations:

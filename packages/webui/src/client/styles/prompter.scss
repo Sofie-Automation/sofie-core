@@ -2,12 +2,14 @@
 
 @font-face {
 	font-family: 'Source Serif Pro';
-	src: url('../../fonts/Source_Serif_Pro/SourceSerifPro-Regular.woff') format('woff'),
+	src:
+		url('../../fonts/Source_Serif_Pro/SourceSerifPro-Regular.woff') format('woff'),
 		/* Pretty Modern Browsers */ url('../../fonts/Source_Serif_Pro/SourceSerifPro-Regular.ttf') format('truetype'); /* Safari, Android, iOS */
 }
 @font-face {
 	font-family: 'Overpass';
-	src: url('../../fonts/Overpass/Overpass-Regular.woff') format('woff'),
+	src:
+		url('../../fonts/Overpass/Overpass-Regular.woff') format('woff'),
 		/* Pretty Modern Browsers */ url('../../fonts/Overpass/Overpass-Regular.ttf') format('truetype'); /* Safari, Android, iOS */
 }
 
@@ -298,7 +300,11 @@ body.prompter-scrollbar {
 		&.light {
 			background-color: $general-fast-color;
 			color: #fff;
-			text-shadow: 1px 1px 0px #000, 1px -1px 0px #000, -1px -1px 0px #000, -1px 1px 0px #000;
+			text-shadow:
+				1px 1px 0px #000,
+				1px -1px 0px #000,
+				-1px -1px 0px #000,
+				-1px 1px 0px #000;
 		}
 	}
 }

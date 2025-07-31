@@ -4,10 +4,10 @@ import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceIns
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { processAndPrunePieceInstanceTimings } from '@sofie-automation/corelib/dist/playout/processAndPrune'
-import { getUnfinishedPieceInstancesReactive } from './rundownLayouts'
+import { getUnfinishedPieceInstancesReactive } from './rundownLayouts.js'
 import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { PieceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { PieceInstances } from '../collections'
+import { PieceInstances } from '../collections/index.js'
 import { ReadonlyDeep } from 'type-fest'
 import { AdLibPieceUi } from '@sofie-automation/meteor-lib/dist/uiTypes/Adlib'
 

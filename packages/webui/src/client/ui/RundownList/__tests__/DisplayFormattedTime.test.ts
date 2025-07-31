@@ -1,5 +1,5 @@
 import { TFunction } from 'i18next'
-import { DisplayFormattedTimeInner } from '../DisplayFormattedTimeInner'
+import { DisplayFormattedTimeInner } from '../DisplayFormattedTimeInner.js'
 
 describe('ui/RundownList/DisplayFormattedTime', () => {
 	describe('DisplayFormattedTime', () => {

@@ -1,4 +1,4 @@
-import { PackageContainer } from '../../package-manager/package'
+import { PackageContainer } from '../../package-manager/package.js'
 
 export interface StudioPackageContainer {
 	/** List of which peripheraldevices uses this packageContainer */

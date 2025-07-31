@@ -1,12 +1,18 @@
-import React, { useRef, useState } from 'react'
+import React, { useContext, useRef, useState } from 'react'
 import { ISourceLayer } from '@sofie-automation/blueprints-integration'
-import { PieceExtended } from '../../../lib/RundownResolver'
-import { getElementDocumentOffset, OffsetPosition } from '../../../utils/positions'
-import { getElementHeight, getElementWidth } from '../../../utils/dimensions'
-import { ThumbnailRenderer } from './Renderers/ThumbnailRendererFactory'
-import { PieceElement } from '../../SegmentContainer/PieceElement'
+import { PieceExtended } from '../../../lib/RundownResolver.js'
+import { getElementDocumentOffset, OffsetPosition } from '../../../utils/positions.js'
+import { getElementHeight, getElementWidth } from '../../../utils/dimensions.js'
+import { ThumbnailRenderer } from './Renderers/ThumbnailRendererFactory.js'
+import { PieceElement } from '../../SegmentContainer/PieceElement.js'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { PartId, PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { useContentStatusForPieceInstance } from '../../SegmentTimeline/withMediaObjectStatus.js'
+import {
+	convertSourceLayerItemToPreview,
+	IPreviewPopUpSession,
+	PreviewPopUpContext,
+} from '../../PreviewPopUp/PreviewPopUpContext.js'
 
 interface IProps {
 	partId: PartId
@@ -40,6 +46,16 @@ export function StoryboardPartThumbnailInner({
 	const [mousePosition, setMousePosition] = useState(0)
 	const thumbnailEl = useRef<HTMLDivElement>(null)
 
+	const previewContext = useContext(PreviewPopUpContext)
+	const previewSession = useRef<IPreviewPopUpSession | null>(null)
+
+	const contentStatus = useContentStatusForPieceInstance(piece.instance)
+	const { contents: previewContents, options: previewOptions } = convertSourceLayerItemToPreview(
+		layer?.type,
+		piece.instance.piece,
+		contentStatus
+	)
+
 	const onPointerEnter = (e: React.PointerEvent<HTMLDivElement>) => {
 		if (e.pointerType !== 'mouse') {
 			return
@@ -58,6 +74,13 @@ export function StoryboardPartThumbnailInner({
 		if (newHeight !== null) {
 			setHeight(newHeight)
 		}
+
+		if (previewContents.length > 0)
+			previewSession.current = previewContext.requestPreview(e.target as any, previewContents, {
+				...previewOptions,
+				time: mousePosition * (piece.instance.piece.content.sourceDuration || 0),
+				initialOffsetX: e.screenX,
+			})
 	}
 
 	const onPointerLeave = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -65,6 +88,11 @@ export function StoryboardPartThumbnailInner({
 			return
 		}
 		setHover(false)
+
+		if (previewSession.current) {
+			previewSession.current.close()
+			previewSession.current = null
+		}
 	}
 
 	const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -73,6 +101,9 @@ export function StoryboardPartThumbnailInner({
 		}
 		const newMousePosition = Math.max(0, Math.min(1, (e.pageX - origin.left - 5) / (width - 10)))
 		setMousePosition(newMousePosition)
+		previewSession.current?.setPointerTime(
+			mousePosition * (piece.instance.piece.content.sourceDuration ?? contentStatus?.contentDuration ?? 0)
+		)
 	}
 
 	return (

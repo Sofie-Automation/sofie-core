@@ -1,4 +1,4 @@
-import * as _ from 'underscore'
+import _ from 'underscore'
 import { Meteor } from 'meteor/meteor'
 import { IngestRundown, IngestSegment } from '@sofie-automation/blueprints-integration'
 import { logger } from '../../logging'
@@ -18,7 +18,10 @@ import { groupByToMap } from '@sofie-automation/corelib/dist/lib'
  * (or its child types) from the NrcsIngestDataCache collection
  */
 export class RundownIngestDataCache {
-	private constructor(private readonly rundownId: RundownId, private readonly documents: NrcsIngestDataCacheObj[]) {}
+	private constructor(
+		private readonly rundownId: RundownId,
+		private readonly documents: NrcsIngestDataCacheObj[]
+	) {}
 
 	static async create(rundownId: RundownId): Promise<RundownIngestDataCache> {
 		const docs = await NrcsIngestDataCache.findFetchAsync({ rundownId })

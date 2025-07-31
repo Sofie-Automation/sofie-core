@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor'
-// const shimmer = require('shimmer')
+// import shimmer from 'shimmer'
 import Agent, { AgentConfigOptions } from 'elastic-apm-node'
 
 // const { Session, Subscription, MongoCursor } = require('./meteorx')

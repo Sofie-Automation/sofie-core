@@ -6,12 +6,12 @@ import {
 } from '@sofie-automation/blueprints-integration'
 import { PeripheralDeviceId } from '@sofie-automation/shared-lib/dist/core/model/Ids'
 import { ReadonlyDeep } from 'type-fest'
-import { JobContext, ProcessedShowStyleCompound } from '../../jobs'
-import { executePeripheralDeviceAction, listPlayoutDevices } from '../../peripheralDevice'
-import { PlayoutModel } from '../../playout/model/PlayoutModel'
-import { RundownEventContext } from './RundownEventContext'
+import { JobContext, ProcessedShowStyleCompound } from '../../jobs/index.js'
+import { executePeripheralDeviceAction, listPlayoutDevices } from '../../peripheralDevice.js'
+import { PlayoutModel } from '../../playout/model/PlayoutModel.js'
+import { RundownEventContext } from './RundownEventContext.js'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { setTimelineDatastoreValue, removeTimelineDatastoreValue } from '../../playout/datastore'
+import { setTimelineDatastoreValue, removeTimelineDatastoreValue } from '../../playout/datastore.js'
 
 export class RundownActivationContext extends RundownEventContext implements IRundownActivationContext {
 	private readonly _playoutModel: PlayoutModel

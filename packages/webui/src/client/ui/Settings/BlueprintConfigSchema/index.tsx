@@ -1,20 +1,20 @@
 import { useCallback, useMemo } from 'react'
 import { MappingExt, MappingsExt } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { IBlueprintConfig, ISourceLayer, SchemaFormUIField } from '@sofie-automation/blueprints-integration'
-import { groupByToMapFunc, literal } from '../../../lib/tempLib'
+import { groupByToMapFunc, literal } from '../../../lib/tempLib.js'
 import { useTranslation } from 'react-i18next'
 import {
 	applyAndValidateOverrides,
 	ObjectWithOverrides,
 	SomeObjectOverrideOp,
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import { useOverrideOpHelper, WrappedOverridableItemNormal } from '../util/OverrideOpHelper'
+import { useOverrideOpHelper, WrappedOverridableItemNormal } from '../util/OverrideOpHelper.js'
 import { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
 import deepmerge from 'deepmerge'
-import { SchemaFormSofieEnumDefinition, translateStringIfHasNamespaces } from '../../../lib/forms/schemaFormUtil'
-import { useToggleExpandHelper } from '../../util/useToggleExpandHelper'
+import { SchemaFormSofieEnumDefinition, translateStringIfHasNamespaces } from '../../../lib/forms/schemaFormUtil.js'
+import { useToggleExpandHelper } from '../../util/useToggleExpandHelper.js'
 import { SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { ConfigCategoryEntry } from './CategoryEntry'
+import { ConfigCategoryEntry } from './CategoryEntry.js'
 
 interface BlueprintConfigSchemaSettingsProps {
 	schema: JSONSchema | undefined
@@ -91,7 +91,7 @@ export function BlueprintConfigSchemaSettings({
 		const combinedDefaults: IBlueprintConfig = alternateConfig
 			? deepmerge<IBlueprintConfig>(alternateConfig, rawConfigObject.defaults, {
 					arrayMerge: (_destinationArray, sourceArray, _options) => sourceArray,
-			  })
+				})
 			: rawConfigObject.defaults
 
 		const prefixedOps = rawConfigObject.overrides.map((op) => ({

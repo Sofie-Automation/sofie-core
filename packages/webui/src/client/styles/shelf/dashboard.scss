@@ -140,7 +140,9 @@ $dashboard-button-height: 3.625em;
 				background: #2d2d2d;
 				border: 1px solid #424242;
 				border-radius: 2em;
-				box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5) inset, 1px 1px 2px rgba(0, 0, 0, 0.2);
+				box-shadow:
+					1px 1px 2px rgba(0, 0, 0, 0.5) inset,
+					1px 1px 2px rgba(0, 0, 0, 0.2);
 				line-height: 1.8em;
 				padding: 0 1em;
 				color: #fff;
@@ -295,8 +297,8 @@ $dashboard-button-height: 3.625em;
 		$dashboard-panel__button__border-width: 2px;
 
 		&.selected {
-			box-shadow: $dashboard-panel__button__border-width $dashboard-panel__button__border-width 0
-					var(--adlib-item-selected-color),
+			box-shadow:
+				$dashboard-panel__button__border-width $dashboard-panel__button__border-width 0 var(--adlib-item-selected-color),
 				($dashboard-panel__button__border-width * -1) ($dashboard-panel__button__border-width * -1) 0
 					var(--adlib-item-selected-color),
 				($dashboard-panel__button__border-width * -1) $dashboard-panel__button__border-width 0
@@ -322,7 +324,8 @@ $dashboard-button-height: 3.625em;
 		}
 
 		&.live {
-			box-shadow: $dashboard-panel__button__border-width $dashboard-panel__button__border-width 0 $general-live-color,
+			box-shadow:
+				$dashboard-panel__button__border-width $dashboard-panel__button__border-width 0 $general-live-color,
 				($dashboard-panel__button__border-width * -1) ($dashboard-panel__button__border-width * -1) 0
 					$general-live-color,
 				($dashboard-panel__button__border-width * -1) $dashboard-panel__button__border-width 0 $general-live-color,
@@ -421,8 +424,12 @@ $dashboard-button-height: 3.625em;
 					font-family: 'Roboto Condensed', sans-serif;
 					font-size: 1.17em;
 					font-weight: 400;
-					text-shadow: -1px -1px 0px rgba(0, 0, 0, 0.5), 1px 1px 0px rgba(0, 0, 0, 0.5), 1px -1px 0px rgba(0, 0, 0, 0.5),
-						1px -1px 0px rgba(0, 0, 0, 0.5), 0.5px 0.5px 2px rgba(0, 0, 0, 1);
+					text-shadow:
+						-1px -1px 0px rgba(0, 0, 0, 0.5),
+						1px 1px 0px rgba(0, 0, 0, 0.5),
+						1px -1px 0px rgba(0, 0, 0, 0.5),
+						1px -1px 0px rgba(0, 0, 0, 0.5),
+						0.5px 0.5px 2px rgba(0, 0, 0, 1);
 					z-index: 2;
 
 					&.dashboard-panel__panel__button__label--editable {
@@ -485,8 +492,12 @@ $dashboard-button-height: 3.625em;
 					margin: auto 4px;
 					top: 50%;
 					transform: translateY(-50%);
-					text-shadow: -1px -1px 0px rgba(0, 0, 0, 0.5), 1px 1px 0px rgba(0, 0, 0, 0.5), 1px -1px 0px rgba(0, 0, 0, 0.5),
-						1px -1px 0px rgba(0, 0, 0, 0.5), 0.5px 0.5px 2px rgba(0, 0, 0, 1);
+					text-shadow:
+						-1px -1px 0px rgba(0, 0, 0, 0.5),
+						1px 1px 0px rgba(0, 0, 0, 0.5),
+						1px -1px 0px rgba(0, 0, 0, 0.5),
+						1px -1px 0px rgba(0, 0, 0, 0.5),
+						0.5px 0.5px 2px rgba(0, 0, 0, 1);
 				}
 
 				> .dashboard-panel__panel__button__label-container {

@@ -12,7 +12,7 @@
 		--pointer: 'no-pointer';
 	}
 
-	#render-target > .container-fluid > .rundown-view {
+	#render-target > .container-fluid-custom > .rundown-view {
 		background: #000;
 
 		> .rundown-view__label {
@@ -54,12 +54,12 @@
 		}
 	}
 
-	#render-target > .container-fluid > .rundown-view__shelf.dark.full-viewport > .rundown-view__shelf__contents {
+	#render-target > .container-fluid-custom > .rundown-view__shelf.dark.full-viewport > .rundown-view__shelf__contents {
 		background: #000;
 	}
 
 	#render-target
-		> .container-fluid
+		> .container-fluid-custom
 		> .rundown-view__shelf.dark.full-viewport
 		> .rundown-view__shelf__contents
 		> .rundown-view__shelf__contents__pane {
@@ -132,7 +132,7 @@
 		}
 	}
 
-	#render-target .container-fluid .notification-pop-ups {
+	#render-target .container-fluid-custom .notification-pop-ups {
 		display: none;
 	}
 
@@ -144,7 +144,7 @@
 /** Stream Deck Original */
 @media screen and (width: 360px) and (height: 216px), (height: 218px) {
 	#render-target
-		> .container-fluid
+		> .container-fluid-custom
 		> .rundown-view__shelf.dark.full-viewport
 		> .rundown-view__shelf__contents
 		> .rundown-view__shelf__contents__pane {
@@ -169,7 +169,7 @@
 /** Stream Deck XL */
 @media screen and (width: 768px) and (height: 384px) {
 	#render-target
-		> .container-fluid
+		> .container-fluid-custom
 		> .rundown-view__shelf.dark.full-viewport
 		> .rundown-view__shelf__contents
 		> .rundown-view__shelf__contents__pane {
@@ -194,7 +194,7 @@
 /** Stream Deck Mini */
 @media screen and (width: 240px) and (height: 160px) {
 	#render-target
-		> .container-fluid
+		> .container-fluid-custom
 		> .rundown-view__shelf.dark.full-viewport
 		> .rundown-view__shelf__contents
 		> .rundown-view__shelf__contents__pane {

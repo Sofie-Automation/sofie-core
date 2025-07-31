@@ -5,7 +5,7 @@ import type {
 	UserEditingSourceLayer,
 	DefaultUserOperationsTypes,
 } from '@sofie-automation/blueprints-integration'
-import type { ITranslatableMessage } from '../TranslatableMessage'
+import type { ITranslatableMessage } from '../TranslatableMessage.js'
 
 export type CoreUserEditingDefinition =
 	| CoreUserEditingDefinitionAction

@@ -35,7 +35,6 @@ import {
 } from '@sofie-automation/meteor-lib/dist/collections/ExpectedPackages'
 import { getActiveRoutes, getRoutedMappings } from '@sofie-automation/meteor-lib/dist/collections/Studios'
 import { ensureHasTrailingSlash, unprotectString } from '../../lib/tempLib'
-import { PieceContentStatusObj } from '@sofie-automation/meteor-lib/dist/api/pieceContentStatus'
 import { MediaObjects, PackageContainerPackageStatuses, PackageInfos } from '../../collections'
 import {
 	mediaObjectFieldSpecifier,
@@ -46,8 +45,10 @@ import {
 	PackageInfoLight,
 	PieceDependencies,
 } from './common'
+import { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
 import { PieceContentStatusMessageFactory, PieceContentStatusMessageRequiredArgs } from './messageFactory'
 import { PackageStatusMessage } from '@sofie-automation/shared-lib/dist/packageStatusMessages'
+import { BucketAdLib } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibPiece'
 
 const DEFAULT_MESSAGE_FACTORY = new PieceContentStatusMessageFactory(undefined)
 
@@ -192,8 +193,15 @@ export function getMediaObjectMediaId(
 	return undefined
 }
 
-export type PieceContentStatusPiece = Pick<PieceGeneric, '_id' | 'content' | 'expectedPackages' | 'name'> & {
+export type PieceContentStatusPiece = Pick<
+	PieceGeneric | BucketAdLib,
+	'_id' | 'content' | 'expectedPackages' | 'name'
+> & {
 	pieceInstanceId?: PieceInstanceId
+	/**
+	 * If this is an infinite continuation, check the previous PieceInstance to fill the gap when package-manager has not processed an adlibbed part
+	 */
+	previousPieceInstanceId?: PieceInstanceId
 }
 export interface PieceContentStatusStudio
 	extends Pick<DBStudio, '_id' | 'previewContainerIds' | 'thumbnailContainerIds'> {
@@ -219,6 +227,27 @@ export async function checkPieceContentStatusAndDependencies(
 		mediaObjects: [],
 		packageInfos: [],
 		packageContainerPackageStatuses: [],
+	}
+
+	if (studio.settings.mockPieceContentStatus) {
+		return [
+			{
+				status: PieceStatusCode.OK,
+				messages: [],
+				progress: undefined,
+
+				freezes: [],
+				blacks: [],
+				scenes: [],
+
+				thumbnailUrl: undefined,
+				previewUrl: '/dev/fakePreview.mp4',
+
+				packageName: null,
+				contentDuration: 30 * 1000,
+			},
+			pieceDependencies,
+		]
 	}
 
 	const ignoreMediaStatus = piece.content && piece.content.ignoreMediaObjectStatus
@@ -631,6 +660,13 @@ async function checkPieceContentExpectedPackageStatus(
 				if (piece.pieceInstanceId) {
 					// If this is a PieceInstance, try looking up the PieceInstance first
 					expectedPackageIds.unshift(getExpectedPackageId(piece.pieceInstanceId, expectedPackage._id))
+
+					if (piece.previousPieceInstanceId) {
+						// Also try the previous PieceInstance, when this is an infinite continuation in case package-manager needs to catchup
+						expectedPackageIds.unshift(
+							getExpectedPackageId(piece.previousPieceInstanceId, expectedPackage._id)
+						)
+					}
 				}
 
 				let warningMessage: ContentMessageLight | null = null

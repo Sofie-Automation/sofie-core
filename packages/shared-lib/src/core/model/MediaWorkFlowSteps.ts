@@ -1,5 +1,5 @@
-import { WorkStepStatus } from '../../peripheralDevice/mediaManager'
-import { MediaWorkFlowId, MediaWorkFlowStepId, PeripheralDeviceId, StudioId } from './Ids'
+import { WorkStepStatus } from '../../peripheralDevice/mediaManager.js'
+import { MediaWorkFlowId, MediaWorkFlowStepId, PeripheralDeviceId, StudioId } from './Ids.js'
 
 export interface MediaWorkFlowStep {
 	_id: MediaWorkFlowStepId

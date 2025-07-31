@@ -6,9 +6,9 @@ import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { ReadonlyDeep } from 'type-fest'
-import { ProcessedShowStyleCompound } from '../../../jobs'
-import { getCurrentTime } from '../../../lib'
-import { MockJobContext } from '../../../__mocks__/context'
+import { ProcessedShowStyleCompound } from '../../../jobs/index.js'
+import { getCurrentTime } from '../../../lib/index.js'
+import { MockJobContext } from '../../../__mocks__/context.js'
 
 export async function setupRundownBase(
 	context: MockJobContext,

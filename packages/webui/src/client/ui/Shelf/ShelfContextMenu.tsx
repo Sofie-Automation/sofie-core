@@ -1,15 +1,15 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { useTracker } from '../../lib/ReactMeteorData/ReactMeteorData'
-import Escape from './../../lib/Escape'
+import { useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
+import Escape from './../../lib/Escape.js'
 import { ContextMenu, MenuItem } from '@jstarpl/react-contextmenu'
 import { ReactiveVar } from 'meteor/reactive-var'
-import { Bucket } from '@sofie-automation/meteor-lib/dist/collections/Buckets'
-import { BucketAdLibItem, BucketAdLibActionUi } from './RundownViewBuckets'
+import { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
+import { BucketAdLibItem, BucketAdLibActionUi } from './RundownViewBuckets.js'
 import RundownViewEventBus, { RundownViewEvents } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
-import { IAdLibListItem } from './AdLibListItem'
-import { isActionItem } from './Inspector/ItemRenderers/ActionItemRenderer'
-import { AdLibPieceUi, ShelfDisplayOptions } from '../../lib/shelf'
+import { IAdLibListItem } from './AdLibListItem.js'
+import { isActionItem } from './Inspector/ItemRenderers/ActionItemRenderer.js'
+import { AdLibPieceUi, ShelfDisplayOptions } from '../../lib/shelf.js'
 import { IBlueprintActionTriggerMode } from '@sofie-automation/blueprints-integration'
 import { translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 
@@ -160,8 +160,8 @@ export default function ShelfContextMenu(props: Readonly<ShelfContextMenuProps>)
 		context?.type === ContextType.ADLIB
 			? renderStartExecuteAdLib(context.details)
 			: context?.type === ContextType.BUCKET_ADLIB
-			? renderStartExecuteAdLib(context.details)
-			: null
+				? renderStartExecuteAdLib(context.details)
+				: null
 
 	return (
 		<Escape to="viewport">

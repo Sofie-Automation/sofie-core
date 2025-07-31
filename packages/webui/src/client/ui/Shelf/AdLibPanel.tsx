@@ -1,16 +1,16 @@
 import { useState, useCallback, useEffect } from 'react'
 import _ from 'underscore'
 import { Meteor } from 'meteor/meteor'
-import { useTracker } from '../../lib/ReactMeteorData/react-meteor-data'
+import { useTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
 import { useTranslation } from 'react-i18next'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { IAdLibListItem } from './AdLibListItem'
+import { IAdLibListItem } from './AdLibListItem.js'
 import ClassNames from 'classnames'
 
-import { Spinner } from '../../lib/Spinner'
+import { Spinner } from '../../lib/Spinner.js'
 import { OutputLayers, SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import {
 	ISourceLayer,
@@ -18,45 +18,50 @@ import {
 	IBlueprintActionTriggerMode,
 	SomeContent,
 } from '@sofie-automation/blueprints-integration'
-import { doUserAction, UserAction } from '../../lib/clientUserAction'
-import { NotificationCenter, Notification, NoticeLevel } from '../../lib/notifications/notifications'
+import { doUserAction, UserAction } from '../../lib/clientUserAction.js'
+import { NotificationCenter, Notification, NoticeLevel } from '../../lib/notifications/notifications.js'
 import {
 	RundownLayoutFilter,
 	RundownLayoutFilterBase,
 	DashboardLayoutFilter,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import { RundownBaselineAdLibItem } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibPiece'
-import { literal, unprotectString, protectString } from '../../lib/tempLib'
-import { memoizedIsolatedAutorun } from '../../lib/memoizedIsolatedAutorun'
+import { literal, unprotectString, protectString } from '../../lib/tempLib.js'
+import { memoizedIsolatedAutorun } from '../../lib/memoizedIsolatedAutorun.js'
 import {
 	findPartInstanceOrWrapToTemporary,
 	PartInstance,
 } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
-import { MeteorCall } from '../../lib/meteorApi'
-import { PieceUi } from '../SegmentTimeline/SegmentTimelineContainer'
+import { MeteorCall } from '../../lib/meteorApi.js'
+import { PieceUi } from '../SegmentTimeline/SegmentTimelineContainer.js'
 import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
-import { RundownUtils } from '../../lib/rundown'
-import { ShelfTabs } from './Shelf'
+import { RundownUtils } from '../../lib/rundown.js'
+import { ShelfTabs } from './Shelf.js'
 import { RundownBaselineAdLibAction } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibAction'
-import { BucketAdLibActionUi, BucketAdLibUi } from './RundownViewBuckets'
+import { BucketAdLibActionUi, BucketAdLibUi } from './RundownViewBuckets.js'
 import RundownViewEventBus, {
 	RundownViewEvents,
 	RevealInShelfEvent,
 } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
 import { translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
-import { i18nTranslator } from '../i18n'
-import { AdLibPieceUi, AdlibSegmentUi } from '../../lib/shelf'
-import { getShelfFollowsOnAir, getShowHiddenSourceLayers } from '../../lib/localStorage'
+import { i18nTranslator } from '../i18n.js'
+import { AdLibPieceUi, AdlibSegmentUi } from '../../lib/shelf.js'
+import { getShelfFollowsOnAir } from '../../lib/localStorage.js'
 import { sortAdlibs } from '@sofie-automation/meteor-lib/dist/adlibs'
-import { AdLibPanelToolbar } from './AdLibPanelToolbar'
-import { AdLibListView } from './AdLibListView'
+import { AdLibPanelToolbar } from './AdLibPanelToolbar.js'
+import { AdLibListView } from './AdLibListView.js'
 import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
-import { UIPartInstances, UIStudios } from '../Collections'
+import { UIPartInstances, UIStudios } from '../Collections.js'
 import { PartId, PartInstanceId, RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { AdLibActions, AdLibPieces, RundownBaselineAdLibActions, RundownBaselineAdLibPieces } from '../../collections'
-import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil'
-import { RundownPlaylistClientUtil } from '../../lib/rundownPlaylistUtil'
+import {
+	AdLibActions,
+	AdLibPieces,
+	RundownBaselineAdLibActions,
+	RundownBaselineAdLibPieces,
+} from '../../collections/index.js'
+import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil.js'
+import { RundownPlaylistClientUtil } from '../../lib/rundownPlaylistUtil.js'
 
 export interface IAdLibPanelProps {
 	// liveSegment: Segment | undefined
@@ -136,32 +141,40 @@ interface IFetchAndFilterProps {
 }
 
 export function useFetchAndFilter(
-	playlist: DBRundownPlaylist,
-	showStyleBase: UIShowStyleBase,
+	playlist: DBRundownPlaylist | undefined,
+	showStyleBase: UIShowStyleBase | undefined,
 	filter: RundownLayoutFilterBase | undefined,
 	includeGlobalAdLibs: boolean | undefined
 ): AdLibFetchAndFilterProps {
 	return useTracker(
 		() =>
-			fetchAndFilter({
-				playlist: playlist as Pick<
-					DBRundownPlaylist,
-					'_id' | 'studioId' | 'currentPartInfo' | 'nextPartInfo' | 'previousPartInfo' | 'rundownIdsInOrder'
-				>,
-				showStyleBase: showStyleBase as Pick<UIShowStyleBase, '_id' | 'sourceLayers' | 'outputLayers'>,
-				filter,
-				includeGlobalAdLibs,
-			}),
+			playlist && showStyleBase
+				? fetchAndFilter({
+						playlist: playlist as Pick<
+							DBRundownPlaylist,
+							'_id' | 'studioId' | 'currentPartInfo' | 'nextPartInfo' | 'previousPartInfo' | 'rundownIdsInOrder'
+						>,
+						showStyleBase: showStyleBase as Pick<UIShowStyleBase, '_id' | 'sourceLayers' | 'outputLayers'>,
+						filter,
+						includeGlobalAdLibs,
+					})
+				: {
+						liveSegment: undefined,
+						rundownBaselineAdLibs: [],
+						sourceLayerLookup: {},
+						uiSegments: [] as AdlibSegmentUi[],
+						uiSegmentMap: new Map(),
+					},
 		[
-			playlist._id,
-			playlist.studioId,
-			playlist.currentPartInfo?.partInstanceId,
-			playlist.nextPartInfo?.partInstanceId,
-			playlist.previousPartInfo?.partInstanceId,
-			playlist.rundownIdsInOrder,
-			showStyleBase._id,
-			showStyleBase.sourceLayers,
-			showStyleBase.outputLayers,
+			playlist?._id,
+			playlist?.studioId,
+			playlist?.currentPartInfo?.partInstanceId,
+			playlist?.nextPartInfo?.partInstanceId,
+			playlist?.previousPartInfo?.partInstanceId,
+			playlist?.rundownIdsInOrder,
+			showStyleBase?._id,
+			showStyleBase?.sourceLayers,
+			showStyleBase?.outputLayers,
 			filter,
 			includeGlobalAdLibs,
 		],
@@ -261,7 +274,7 @@ export function fetchAndFilter(props: IFetchAndFilterProps): AdLibFetchAndFilter
 					isNext: false,
 					isCompatibleShowStyle: currentPartInstance?.rundownId
 						? rundowns[unprotectString(currentPartInstance.rundownId)].showStyleVariantId ===
-						  rundowns[unprotectString(segment.rundownId)].showStyleVariantId
+							rundowns[unprotectString(segment.rundownId)].showStyleVariantId
 						: true,
 				})
 
@@ -505,8 +518,6 @@ export function fetchAndFilter(props: IFetchAndFilterProps): AdLibFetchAndFilter
 						currentRundownId
 					)
 
-					const showHiddenSourceLayers = getShowHiddenSourceLayers()
-
 					rundownBaselineAdLibs = rundownBaselineAdLibs
 						.concat(globalAdLibActions)
 						.sort((a, b) => a._rank - b._rank)
@@ -515,13 +526,7 @@ export function fetchAndFilter(props: IFetchAndFilterProps): AdLibFetchAndFilter
 							const uiAdLib: AdLibPieceUi = _.clone(item)
 							uiAdLib.isGlobal = true
 
-							const sourceLayer = (uiAdLib.sourceLayer =
-								(item.sourceLayerId && sourceLayerLookup[item.sourceLayerId]) || undefined)
 							uiAdLib.outputLayer = (item.outputLayerId && outputLayerLookup[item.outputLayerId]) || undefined
-
-							if (sourceLayer && sourceLayer.isHidden && !showHiddenSourceLayers) {
-								uiAdLib.isHidden = true
-							}
 
 							// always add them to the list
 							return uiAdLib
@@ -651,7 +656,7 @@ export function AdLibPanel({
 	const currentPartInstanceId = playlist.currentPartInfo?.partInstanceId
 
 	const onToggleAdLib = useCallback(
-		(adlibPiece: IAdLibListItem, queue: boolean, e: KeyboardEvent, mode?: IBlueprintActionTriggerMode | undefined) => {
+		(adlibPiece: IAdLibListItem, queue: boolean, e: KeyboardEvent, mode?: IBlueprintActionTriggerMode) => {
 			if (adlibPiece.invalid) {
 				NotificationCenter.push(
 					new Notification(

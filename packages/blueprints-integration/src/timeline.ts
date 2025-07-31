@@ -20,7 +20,7 @@ export enum TimelineObjClassesCore {
 export interface OnGenerateTimelineObj<
 	TContent extends { deviceType: TSR.DeviceType },
 	TMetadata = unknown,
-	TKeyframeMetadata = unknown
+	TKeyframeMetadata = unknown,
 > extends TimelineObjectCoreExt<TContent, TMetadata, TKeyframeMetadata> {
 	pieceInstanceId?: string
 }

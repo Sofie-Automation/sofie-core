@@ -1,9 +1,9 @@
-import type { IBlueprintSegmentRundown } from '../documents'
-import type { IUserNotesContext } from './baseContext'
-import type { IPackageInfoContext } from './packageInfoContext'
-import type { IShowStyleContext } from './showStyleContext'
-import type { IExecuteTSRActionsContext } from './executeTsrActionContext'
-import type { IDataStoreMethods } from './adlibActionContext'
+import type { IBlueprintSegmentRundown } from '../documents/index.js'
+import type { IUserNotesContext } from './baseContext.js'
+import type { IPackageInfoContext } from './packageInfoContext.js'
+import type { IShowStyleContext } from './showStyleContext.js'
+import type { IExecuteTSRActionsContext } from './executeTsrActionContext.js'
+import type { IDataStoreMethods } from './adlibActionContext.js'
 
 export interface IRundownContext extends IShowStyleContext {
 	readonly rundownId: string

@@ -10,7 +10,7 @@ import {
 	SegmentId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ReadonlyDeep } from 'type-fest'
-import { diffAndReturnLatestObjects, DocumentChanges, getDocumentChanges, setValuesAndTrackChanges } from './utils'
+import { diffAndReturnLatestObjects, DocumentChanges, getDocumentChanges, setValuesAndTrackChanges } from './utils.js'
 
 function mutateExpectedPackage<ExpectedPackageType extends ExpectedPackageDBBase>(
 	oldObj: ExpectedPackageType,

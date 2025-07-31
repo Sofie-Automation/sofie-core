@@ -1,19 +1,22 @@
 import { Switch, Route, Redirect } from 'react-router-dom'
-import { useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data'
+import { useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
 
-import { RundownTimingProvider } from '../RundownView/RundownTiming/RundownTimingProvider'
+import { RundownTimingProvider } from '../RundownView/RundownTiming/RundownTimingProvider.js'
 
-import { StudioScreenSaver } from '../StudioScreenSaver/StudioScreenSaver'
-import { PresenterScreen } from './PresenterScreen'
-import { OverlayScreen } from './OverlayScreen'
-import { OverlayScreenSaver } from './OverlayScreenSaver'
-import { RundownPlaylists } from '../../collections'
+import { StudioScreenSaver } from '../StudioScreenSaver/StudioScreenSaver.js'
+import { PresenterScreen } from './PresenterScreen.js'
+import { DirectorScreen } from './DirectorScreen.js'
+import { OverlayScreen } from './OverlayScreen.js'
+import { OverlayScreenSaver } from './OverlayScreenSaver.js'
+import { RundownPlaylists } from '../../collections/index.js'
 import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { CameraScreen } from './CameraScreen'
+import { CameraScreen } from './CameraScreen/index.js'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
+import { useTranslation } from 'react-i18next'
 
 export function ClockView({ studioId }: Readonly<{ studioId: StudioId }>): JSX.Element {
 	useSubscription(MeteorPubSub.rundownPlaylistForStudio, studioId, true)
+	const { t } = useTranslation()
 
 	const playlist = useTracker(
 		() =>
@@ -32,7 +35,16 @@ export function ClockView({ studioId }: Readonly<{ studioId: StudioId }>): JSX.E
 						<PresenterScreen playlistId={playlist._id} studioId={studioId} />
 					</RundownTimingProvider>
 				) : (
-					<StudioScreenSaver studioId={studioId} ownBackground={true} />
+					<StudioScreenSaver studioId={studioId} ownBackground={true} screenName={t('Presenter Screen')} />
+				)}
+			</Route>
+			<Route path="/countdowns/:studioId/director">
+				{playlist ? (
+					<RundownTimingProvider playlist={playlist}>
+						<DirectorScreen playlistId={playlist._id} studioId={studioId} />
+					</RundownTimingProvider>
+				) : (
+					<StudioScreenSaver studioId={studioId} ownBackground={true} screenName={t("Director's Screen")} />
 				)}
 			</Route>
 			<Route path="/countdowns/:studioId/overlay">

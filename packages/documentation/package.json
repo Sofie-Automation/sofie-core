@@ -1,6 +1,6 @@
 {
 	"name": "sofie-documentation",
-	"version": "1.52.0",
+	"version": "1.53.0-in-development",
 	"private": true,
 	"scripts": {
 		"docusaurus": "docusaurus",
@@ -15,7 +15,7 @@
 		"write-heading-ids": "docusaurus write-heading-ids"
 	},
 	"engines": {
-		"node": ">=22.11"
+		"node": ">=22.13.1"
 	},
 	"devDependencies": {
 		"@docusaurus/core": "3.7.0",

@@ -1,5 +1,5 @@
-import { Piece } from '../dataModel/Piece'
-import { DBPart } from '../dataModel/Part'
+import { Piece } from '../dataModel/Piece.js'
+import { DBPart } from '../dataModel/Part.js'
 import {
 	PartId,
 	PartInstanceId,
@@ -7,17 +7,17 @@ import {
 	RundownPlaylistActivationId,
 	SegmentId,
 	ShowStyleBaseId,
-} from '../dataModel/Ids'
+} from '../dataModel/Ids.js'
 import { PieceLifespan } from '@sofie-automation/blueprints-integration'
-import { PieceInstance, PieceInstancePiece, rewrapPieceToInstance } from '../dataModel/PieceInstance'
-import { DBPartInstance } from '../dataModel/PartInstance'
-import { DBRundown } from '../dataModel/Rundown'
+import { PieceInstance, PieceInstancePiece, rewrapPieceToInstance } from '../dataModel/PieceInstance.js'
+import { DBPartInstance } from '../dataModel/PartInstance.js'
+import { DBRundown } from '../dataModel/Rundown.js'
 import { ReadonlyDeep } from 'type-fest'
-import { assertNever, clone, flatten, getRandomId, groupByToMapFunc, max, normalizeArrayToMapFunc } from '../lib'
-import { protectString } from '../protectedString'
-import _ = require('underscore')
-import { MongoQuery } from '../mongo'
-import { DBSegment, SegmentOrphanedReason } from '../dataModel/Segment'
+import { assertNever, clone, flatten, getRandomId, groupByToMapFunc, max, normalizeArrayToMapFunc } from '../lib.js'
+import { protectString } from '../protectedString.js'
+import _ from 'underscore'
+import { MongoQuery } from '../mongo.js'
+import { DBSegment, SegmentOrphanedReason } from '../dataModel/Segment.js'
 
 export function buildPiecesStartingInThisPartQuery(part: ReadonlyDeep<DBPart>): MongoQuery<Piece> {
 	return { startPartId: part._id }
@@ -45,7 +45,7 @@ export function buildPastInfinitePiecesForThisPartQuery(
 					startRundownId: part.rundownId,
 					startSegmentId: part.segmentId,
 					startPartId: { $in: partIdsToReceiveOnSegmentEndFrom },
-			  }
+				}
 			: undefined,
 		segmentsToReceiveOnRundownEndFrom.length > 0
 			? {
@@ -59,7 +59,7 @@ export function buildPastInfinitePiecesForThisPartQuery(
 					},
 					startRundownId: part.rundownId,
 					startSegmentId: { $in: segmentsToReceiveOnRundownEndFrom },
-			  }
+				}
 			: undefined,
 		rundownIdsBeforeThisInPlaylist.length > 0
 			? {
@@ -68,7 +68,7 @@ export function buildPastInfinitePiecesForThisPartQuery(
 						$in: [PieceLifespan.OutOnShowStyleEnd],
 					},
 					startRundownId: { $in: rundownIdsBeforeThisInPlaylist },
-			  }
+				}
 			: undefined,
 	])
 
@@ -94,7 +94,7 @@ export function getPlayheadTrackingInfinitesForPart(
 	partsToReceiveOnSegmentEndFromSet: Set<PartId>,
 	segmentsToReceiveOnRundownEndFromSet: Set<SegmentId>,
 	rundownsToReceiveOnShowStyleEndFrom: RundownId[],
-	rundownsToShowstyles: Map<RundownId, ShowStyleBaseId>,
+	rundownsToShowstyles: ReadonlyMap<RundownId, ShowStyleBaseId>,
 	currentPartInstance: ReadonlyDeep<DBPartInstance>,
 	playingSegment: ReadonlyDeep<Pick<DBSegment, '_id' | 'orphaned'>>,
 	currentPartPieceInstances: ReadonlyDeep<PieceInstance[]>,
@@ -103,9 +103,11 @@ export function getPlayheadTrackingInfinitesForPart(
 	intoSegment: ReadonlyDeep<Pick<DBSegment, '_id' | 'orphaned'>>,
 	newInstanceId: PartInstanceId,
 	nextPartIsAfterCurrentPart: boolean,
-	isTemporary: boolean
+	isTemporary: boolean,
+	allowTestingAdlibsToPersist: boolean
 ): PieceInstance[] {
 	if (
+		!allowTestingAdlibsToPersist &&
 		intoSegment._id !== playingSegment._id &&
 		(intoSegment.orphaned === SegmentOrphanedReason.ADLIB_TESTING ||
 			playingSegment.orphaned === SegmentOrphanedReason.ADLIB_TESTING)
@@ -210,7 +212,10 @@ export function getPlayheadTrackingInfinitesForPart(
 							isValid =
 								candidatePiece.rundownId === intoPart.rundownId &&
 								(segmentsToReceiveOnRundownEndFromSet.has(currentPartInstance.segmentId) ||
-									currentPartInstance.segmentId === intoPart.segmentId)
+									currentPartInstance.segmentId === intoPart.segmentId ||
+									// If infinites are allowed to persist, then the infinite is allowed to continue
+									(allowTestingAdlibsToPersist &&
+										intoSegment.orphaned === SegmentOrphanedReason.ADLIB_TESTING))
 							break
 						case PieceLifespan.OutOnShowStyleEnd:
 							isValid = canContinueShowStyleEndInfinites
@@ -278,7 +283,7 @@ export function isPiecePotentiallyActiveInPart(
 	partsToReceiveOnSegmentEndFrom: Set<PartId>,
 	segmentsToReceiveOnRundownEndFrom: Set<SegmentId>,
 	rundownsToReceiveOnShowStyleEndFrom: RundownId[],
-	rundownsToShowstyles: Map<RundownId, ShowStyleBaseId>,
+	rundownsToShowstyles: ReadonlyMap<RundownId, ShowStyleBaseId>,
 	rundown: ReadonlyDeep<Pick<DBRundown, '_id' | 'showStyleBaseId'>>,
 	part: ReadonlyDeep<DBPart>,
 	pieceToCheck: ReadonlyDeep<Piece>
@@ -338,7 +343,7 @@ export function isPiecePotentiallyActiveInPart(
 						rundownsToShowstyles,
 						previousPartInstance.rundownId,
 						rundown
-				  )
+					)
 				: false
 		default:
 			assertNever(pieceToCheck.lifespan)
@@ -375,12 +380,13 @@ export function getPieceInstancesForPart(
 	partsToReceiveOnSegmentEndFromSet: Set<PartId>,
 	segmentsToReceiveOnRundownEndFromSet: Set<SegmentId>,
 	rundownsToReceiveOnShowStyleEndFrom: RundownId[],
-	rundownsToShowstyles: Map<RundownId, ShowStyleBaseId>,
+	rundownsToShowstyles: ReadonlyMap<RundownId, ShowStyleBaseId>,
 	possiblePieces: ReadonlyDeep<Piece>[],
 	orderedPartIds: PartId[],
 	newInstanceId: PartInstanceId,
 	nextPartIsAfterCurrentPart: boolean,
-	isTemporary: boolean
+	isTemporary: boolean,
+	allowTestingAdlibsToPersist: boolean
 ): PieceInstance[] {
 	const doesPieceAStartBeforePieceB = (
 		pieceA: ReadonlyDeep<PieceInstancePiece>,
@@ -458,8 +464,9 @@ export function getPieceInstancesForPart(
 					segment,
 					newInstanceId,
 					nextPartIsAfterCurrentPart,
-					isTemporary
-			  )
+					isTemporary,
+					allowTestingAdlibsToPersist
+				)
 			: []
 
 	// Compile the resulting list
@@ -576,7 +583,7 @@ export function isCandidateBetterToBeContinued(
 
 function continueShowStyleEndInfinites(
 	rundownsToReceiveOnShowStyleEndFrom: RundownId[],
-	rundownsToShowstyles: Map<RundownId, ShowStyleBaseId>,
+	rundownsToShowstyles: ReadonlyMap<RundownId, ShowStyleBaseId>,
 	previousRundownId: RundownId,
 	targetRundown: ReadonlyDeep<Pick<DBRundown, '_id' | 'showStyleBaseId'>>
 ): boolean {

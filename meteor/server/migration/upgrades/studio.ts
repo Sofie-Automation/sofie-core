@@ -10,7 +10,7 @@ import { BlueprintFixUpConfigMessage } from '@sofie-automation/meteor-lib/dist/a
 
 async function getStudio(studioId: StudioId): Promise<Pick<DBStudio, '_id'>> {
 	const studio = (await Studios.findOneAsync(studioId, {
-		fields: {
+		projection: {
 			_id: 1,
 		},
 	})) as Pick<DBStudio, '_id'> | undefined

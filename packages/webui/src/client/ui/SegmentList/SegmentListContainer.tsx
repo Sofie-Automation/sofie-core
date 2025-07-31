@@ -1,23 +1,25 @@
 import { useEffect, useRef } from 'react'
-import { meteorSubscribe } from '../../lib/meteorApi'
-import { useSubscription, useTracker } from '../../lib/ReactMeteorData/ReactMeteorData'
+import { meteorSubscribe } from '../../lib/meteorApi.js'
+import { useSubscription, useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import {
 	withResolvedSegment,
 	IResolvedSegmentProps,
 	ITrackedResolvedSegmentProps,
-} from '../SegmentContainer/withResolvedSegment'
-import { SpeechSynthesiser } from '../../lib/speechSynthesis'
-import { SegmentList } from './SegmentList'
-import { unprotectString } from '../../lib/tempLib'
-import { LIVELINE_HISTORY_SIZE as TIMELINE_LIVELINE_HISTORY_SIZE } from '../SegmentTimeline/Constants'
-import { Segments } from '../../collections'
+} from '../SegmentContainer/withResolvedSegment.js'
+import { SpeechSynthesiser } from '../../lib/speechSynthesis.js'
+import { SegmentList } from './SegmentList.js'
+import { unprotectString } from '../../lib/tempLib.js'
+import { LIVELINE_HISTORY_SIZE as TIMELINE_LIVELINE_HISTORY_SIZE } from '../SegmentTimeline/Constants.js'
+import { Segments } from '../../collections/index.js'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
-import { UIPartInstances, UIParts } from '../Collections'
+import { UIPartInstances, UIParts } from '../Collections.js'
+import { RundownViewShelf } from '../RundownView/RundownViewShelf.js'
 
 export const LIVELINE_HISTORY_SIZE = TIMELINE_LIVELINE_HISTORY_SIZE
 
 interface IProps extends IResolvedSegmentProps {
 	id: string
+	hideRundownHeader?: boolean
 }
 
 export const SegmentListContainer = withResolvedSegment<IProps>(function SegmentListContainer({
@@ -72,13 +74,14 @@ export const SegmentListContainer = withResolvedSegment<IProps>(function Segment
 				_rank: 1,
 			},
 		})
-		segment &&
-			meteorSubscribe(
-				CorelibPubSub.piecesInfiniteStartingBefore,
-				rundownId,
-				Array.from(segmentsIdsBefore.values()),
-				Array.from(rundownIdsBefore.values())
-			)
+		if (!segment) return
+
+		meteorSubscribe(
+			CorelibPubSub.piecesInfiniteStartingBefore,
+			rundownId,
+			Array.from(segmentsIdsBefore.values()),
+			Array.from(rundownIdsBefore.values())
+		)
 	}, [segmentId, rundownId, segmentsIdsBefore.values(), rundownIdsBefore.values()])
 
 	const isLiveSegment = useTracker(
@@ -189,25 +192,40 @@ export const SegmentListContainer = withResolvedSegment<IProps>(function Segment
 	// }, [subscriptionsReady, firstNonInvalidPart?.pieces.length])
 
 	return (
-		<SegmentList
-			id={props.id}
-			ref={segmentRef}
-			key={unprotectString(props.segmentui._id)}
-			segment={props.segmentui}
-			parts={props.parts}
-			playlist={props.playlist}
-			currentPartWillAutoNext={currentPartWillAutoNext}
-			segmentNoteCounts={props.segmentNoteCounts}
-			isLiveSegment={isLiveSegment}
-			isNextSegment={isNextSegment}
-			isQueuedSegment={props.playlist.queuedSegmentId === props.segmentui._id}
-			showCountdownToSegment={props.showCountdownToSegment}
-			fixedSegmentDuration={props.fixedSegmentDuration ?? false}
-			hasAlreadyPlayed={props.hasAlreadyPlayed}
-			onContextMenu={props.onContextMenu}
-			onSwitchViewMode={props.onSwitchViewMode}
-			onHeaderNoteClick={props.onHeaderNoteClick}
-			onPieceDoubleClick={props.onPieceDoubleClick}
-		/>
+		<>
+			<SegmentList
+				id={props.id}
+				ref={segmentRef}
+				key={unprotectString(props.segmentui._id)}
+				segment={props.segmentui}
+				parts={props.parts}
+				playlist={props.playlist}
+				currentPartWillAutoNext={currentPartWillAutoNext}
+				segmentNoteCounts={props.segmentNoteCounts}
+				isLiveSegment={isLiveSegment}
+				isNextSegment={isNextSegment}
+				isQueuedSegment={props.playlist.queuedSegmentId === props.segmentui._id}
+				showCountdownToSegment={props.showCountdownToSegment}
+				fixedSegmentDuration={props.fixedSegmentDuration ?? false}
+				hasAlreadyPlayed={props.hasAlreadyPlayed}
+				onContextMenu={props.onContextMenu}
+				onSwitchViewMode={props.onSwitchViewMode}
+				onHeaderNoteClick={props.onHeaderNoteClick}
+				onPieceDoubleClick={props.onPieceDoubleClick}
+				hideRundownHeader={props.hideRundownHeader}
+			/>
+			{props.segmentui.showShelf && props.adLibSegmentUi && (
+				<RundownViewShelf
+					studio={props.studio}
+					segment={props.segmentui}
+					playlist={props.playlist}
+					showStyleBase={props.showStyleBase}
+					adLibSegmentUi={props.adLibSegmentUi}
+					hotkeyGroup={unprotectString(props.segmentui._id) + '_RundownViewShelf'}
+					miniShelfFilter={props.miniShelfFilter}
+					studioMode={props.studioMode}
+				/>
+			)}
+		</>
 	)
 })

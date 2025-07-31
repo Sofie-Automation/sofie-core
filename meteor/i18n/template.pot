@@ -660,6 +660,15 @@ msgstr ""
 msgid "Planned End"
 msgstr ""
 
+msgid "Time to planned end"
+msgstr ""
+
+msgid "Time since planned end"
+msgstr ""
+
+msgid "Over/Under"
+msgstr ""
+
 msgid ""
 "The rundown \"{{rundownName}}\" is not published or activated in "
 "{{nrcsName}}! No data updates will currently come through."

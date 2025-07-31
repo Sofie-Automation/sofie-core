@@ -1,6 +1,6 @@
 {
 	"name": "@sofie-automation/job-worker",
-	"version": "1.52.0",
+	"version": "1.53.0-in-development",
 	"description": "Worker for things",
 	"main": "dist/index.js",
 	"license": "MIT",
@@ -19,7 +19,7 @@
 		"dev:debug": "run -T nodemon --config nodemon.json --inspect-brk src/index.ts",
 		"build": "run -T rimraf dist && run build:main",
 		"build:main": "run -T tsc -p tsconfig.build.json",
-		"lint:raw": "run -T eslint --ext .ts --ext .js --ignore-pattern dist",
+		"lint:raw": "run -T eslint",
 		"lint": "run lint:raw .",
 		"unit": "run -T jest",
 		"test": "run lint && run unit",
@@ -31,7 +31,7 @@
 		"license-validate": "run -T sofie-licensecheck"
 	},
 	"engines": {
-		"node": ">=22.11"
+		"node": ">=22.13.1"
 	},
 	"files": [
 		"/dist",
@@ -41,9 +41,9 @@
 	],
 	"dependencies": {
 		"@slack/webhook": "^7.0.4",
-		"@sofie-automation/blueprints-integration": "1.52.0",
-		"@sofie-automation/corelib": "1.52.0",
-		"@sofie-automation/shared-lib": "1.52.0",
+		"@sofie-automation/blueprints-integration": "1.53.0-in-development",
+		"@sofie-automation/corelib": "1.53.0-in-development",
+		"@sofie-automation/shared-lib": "1.53.0-in-development",
 		"amqplib": "^0.10.5",
 		"deepmerge": "^4.3.1",
 		"elastic-apm-node": "^4.11.0",
@@ -67,6 +67,8 @@
 	},
 	"packageManager": "yarn@4.6.0",
 	"devDependencies": {
-		"jest-mock-extended": "^3.0.7"
+		"jest": "^29.7.0",
+		"jest-mock-extended": "^3.0.7",
+		"typescript": "~5.7.3"
 	}
 }

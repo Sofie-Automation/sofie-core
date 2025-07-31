@@ -1,8 +1,8 @@
-import { DBRundown } from '../dataModel/Rundown'
-import { DBSegment } from '../dataModel/Segment'
-import { DBPart } from '../dataModel/Part'
-import { DBPartInstance } from '../dataModel/PartInstance'
-import { RundownId, SegmentId } from '../dataModel/Ids'
+import { DBRundown } from '../dataModel/Rundown.js'
+import { DBSegment } from '../dataModel/Segment.js'
+import { DBPart } from '../dataModel/Part.js'
+import { DBPartInstance } from '../dataModel/PartInstance.js'
+import { RundownId, SegmentId } from '../dataModel/Ids.js'
 import { ReadonlyDeep } from 'type-fest'
 
 export function sortSegmentsInRundowns<TSegment extends Pick<DBSegment, '_id' | 'rundownId' | '_rank'>>(

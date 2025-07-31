@@ -6,10 +6,10 @@ import {
 	PeripheralDeviceCommandId,
 	PeripheralDeviceId,
 	TimelineHash,
-} from '../core/model/Ids'
-import { PeripheralDeviceForDevice } from '../core/model/peripheralDevice'
-import { IngestPlaylist, IngestRundown, IngestPart, IngestSegment } from './ingest'
-import { MediaObjectRevision, MediaWorkFlowRevision, MediaWorkFlowStepRevision } from './mediaManager'
+} from '../core/model/Ids.js'
+import { PeripheralDeviceForDevice } from '../core/model/peripheralDevice.js'
+import { IngestPlaylist, IngestRundown, IngestPart, IngestSegment } from './ingest.js'
+import { MediaObjectRevision, MediaWorkFlowRevision, MediaWorkFlowStepRevision } from './mediaManager.js'
 import {
 	IMOSRunningOrder,
 	IMOSRunningOrderBase,
@@ -25,7 +25,7 @@ import {
 	IMOSROFullStory,
 } from '@mos-connection/model'
 import { IMOSString128 } from '@mos-connection/model'
-import { ExpectedPackageStatusAPI } from '../package-manager/package'
+import { ExpectedPackageStatusAPI } from '../package-manager/package.js'
 import {
 	PeripheralDeviceInitOptions,
 	PeripheralDeviceStatusObject,
@@ -33,10 +33,10 @@ import {
 	DiffTimeResult,
 	TimeDiff,
 	PlayoutChangedResults,
-} from './peripheralDeviceAPI'
-import { MediaObject } from '../core/model/MediaObjects'
-import { MediaWorkFlow } from '../core/model/MediaWorkFlows'
-import { MediaWorkFlowStep } from '../core/model/MediaWorkFlowSteps'
+} from './peripheralDeviceAPI.js'
+import { MediaObject } from '../core/model/MediaObjects.js'
+import { MediaWorkFlow } from '../core/model/MediaWorkFlows.js'
+import { MediaWorkFlowStep } from '../core/model/MediaWorkFlowSteps.js'
 
 export type UpdateExpectedPackageWorkStatusesChanges =
 	| {

@@ -1,14 +1,14 @@
 import { PieceInstanceInfiniteId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ResolvedPieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { JobContext } from '../jobs'
-import { getCurrentTime } from '../lib'
+import { JobContext } from '../jobs/index.js'
+import { getCurrentTime } from '../lib/index.js'
 import {
 	processAndPrunePieceInstanceTimings,
 	resolvePrunedPieceInstance,
 } from '@sofie-automation/corelib/dist/playout/processAndPrune'
-import { SelectedPartInstancesTimelineInfo } from './timeline/generate'
-import { PlayoutPartInstanceModel } from './model/PlayoutPartInstanceModel'
+import { SelectedPartInstancesTimelineInfo } from './timeline/generate.js'
+import { PlayoutPartInstanceModel } from './model/PlayoutPartInstanceModel.js'
 
 /**
  * Resolve the PieceInstances for a PartInstance

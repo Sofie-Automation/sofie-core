@@ -1,4 +1,4 @@
-import { ProtectedString } from '../protectedString'
+import { ProtectedString } from '../protectedString.js'
 
 export interface MediaObjects {
 	_id: ProtectedString<'MediaObjId'>

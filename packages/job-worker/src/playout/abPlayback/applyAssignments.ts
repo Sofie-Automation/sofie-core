@@ -8,10 +8,10 @@ import {
 } from '@sofie-automation/blueprints-integration'
 import { ABSessionAssignment, ABSessionAssignments } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { OnGenerateTimelineObjExt } from '@sofie-automation/corelib/dist/dataModel/Timeline'
-import { logger } from '../../logging'
-import * as _ from 'underscore'
-import { SessionRequest } from './abPlaybackResolver'
-import { AbSessionHelper } from './abSessionHelper'
+import { logger } from '../../logging.js'
+import _ from 'underscore'
+import { SessionRequest } from './abPlaybackResolver.js'
+import { AbSessionHelper } from './abSessionHelper.js'
 import { ReadonlyDeep } from 'type-fest'
 
 /**
@@ -35,24 +35,28 @@ export function applyAbPlayerObjectAssignments(
 	poolName: string
 ): ABSessionAssignments {
 	const newAssignments: ABSessionAssignments = {}
-	const persistAssignment = (sessionId: string, playerId: AbPlayerId, lookahead: boolean): void => {
+	const persistAssignment = (session: ABSessionAssignment): void => {
 		// Track the assignment, so that the next onTimelineGenerate can try to reuse the same session
-		if (newAssignments[sessionId]) {
+		if (newAssignments[session.sessionId]) {
 			// TODO - warn?
 		}
-		newAssignments[sessionId] = { sessionId, playerId, lookahead }
+		newAssignments[session.sessionId] = session
 	}
 
 	// collect objects by their sessionId
-	const groupedObjectsMap = new Map<string, Array<OnGenerateTimelineObjExt>>()
+	const groupedObjectsMap = new Map<string, { name: string; objs: Array<OnGenerateTimelineObjExt> }>()
 	for (const obj of timelineObjs) {
 		if (obj.abSessions && obj.pieceInstanceId) {
 			for (const session of obj.abSessions) {
 				if (session.poolName === poolName) {
 					const sessionId = abSessionHelper.getTimelineObjectAbSessionId(obj, session)
-					if (sessionId) {
-						const existing = groupedObjectsMap.get(sessionId)
-						groupedObjectsMap.set(sessionId, existing ? [...existing, obj] : [obj])
+					if (!sessionId) continue
+
+					const existing = groupedObjectsMap.get(sessionId)
+					if (existing) {
+						existing.objs.push(obj)
+					} else {
+						groupedObjectsMap.set(sessionId, { name: session.sessionName, objs: [obj] })
 					}
 				}
 			}
@@ -63,7 +67,7 @@ export function applyAbPlayerObjectAssignments(
 	const unexpectedSessions: string[] = []
 
 	// Apply the known assignments
-	for (const [sessionId, objs] of groupedObjectsMap.entries()) {
+	for (const [sessionId, info] of groupedObjectsMap.entries()) {
 		if (sessionId === 'undefined') continue
 
 		const matchingAssignment = resolvedAssignments.find((req) => req.id === sessionId)
@@ -76,24 +80,34 @@ export function applyAbPlayerObjectAssignments(
 						abConfiguration,
 						poolName,
 						matchingAssignment.playerId,
-						objs
+						info.objs
 					)
 				)
-				persistAssignment(sessionId, matchingAssignment.playerId, !!matchingAssignment.lookaheadRank)
+				persistAssignment({
+					sessionId,
+					sessionName: matchingAssignment.name,
+					playerId: matchingAssignment.playerId,
+					lookahead: !!matchingAssignment.lookaheadRank,
+				})
 			} else {
 				// A warning will already have been raised about this having no player
 			}
 		} else {
 			// This is a group that shouldn't exist, so are likely a bug. There isnt a lot we can do beyond warn about the issue
-			unexpectedSessions.push(`${sessionId}(${objs.map((obj) => obj.id).join(',')})`)
+			unexpectedSessions.push(`${sessionId}(${info.objs.map((obj) => obj.id).join(',')})`)
 
 			// If there was a previous assignment, hopefully that is better than nothing
 			const prev = previousAssignmentMap?.[sessionId]
 			if (prev) {
 				failedObjects.push(
-					...updateObjectsToAbPlayer(blueprintContext, abConfiguration, poolName, prev.playerId, objs)
+					...updateObjectsToAbPlayer(blueprintContext, abConfiguration, poolName, prev.playerId, info.objs)
 				)
-				persistAssignment(sessionId, prev.playerId, false)
+				persistAssignment({
+					sessionId,
+					sessionName: '?',
+					playerId: prev.playerId,
+					lookahead: false,
+				})
 			}
 		}
 	}
@@ -110,7 +124,7 @@ export function applyAbPlayerObjectAssignments(
 	for (const assignment of Object.values<ABSessionAssignment | undefined>(newAssignments)) {
 		if (!assignment) continue
 		logger.silly(
-			`ABPlayback: Assigned session "${poolName}"-"${assignment.sessionId}" to player "${assignment.playerId}" (lookahead: ${assignment.lookahead})`
+			`ABPlayback: Assigned session "${poolName}"-"${assignment.sessionId}" (${assignment.sessionName}) to player "${assignment.playerId}" (lookahead: ${assignment.lookahead})`
 		)
 	}
 
@@ -131,8 +145,7 @@ function updateObjectsToAbPlayer(
 
 		const updatedLayer = applylayerMoveRule(abConfiguration.timelineObjectLayerChangeRules, poolName, playerId, obj)
 
-		const updatedCustom =
-			abConfiguration.customApplyToObject && abConfiguration.customApplyToObject(context, poolName, playerId, obj)
+		const updatedCustom = abConfiguration.customApplyToObject?.(context, poolName, playerId, obj)
 
 		if (!updatedKeyframes && !updatedLayer && !updatedCustom) {
 			failedObjects.push(obj)

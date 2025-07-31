@@ -8,7 +8,7 @@ export async function restartAllWorkflows(organizationId: OrganizationId | null)
 	const devices: Array<Pick<PeripheralDevice, '_id'>> = await PeripheralDevices.findFetchAsync(
 		organizationId ? { organizationId: organizationId } : {},
 		{
-			fields: {
+			projection: {
 				_id: 1,
 			},
 		}
@@ -18,7 +18,7 @@ export async function restartAllWorkflows(organizationId: OrganizationId | null)
 			deviceId: { $in: devices.map((d) => d._id) },
 		},
 		{
-			fields: {
+			projection: {
 				deviceId: 1,
 			},
 		}
@@ -34,7 +34,7 @@ export async function abortAllWorkflows(organizationId: OrganizationId | null): 
 	const devices: Array<Pick<PeripheralDevice, '_id'>> = await PeripheralDevices.findFetchAsync(
 		organizationId ? { organizationId: organizationId } : {},
 		{
-			fields: {
+			projection: {
 				_id: 1,
 			},
 		}
@@ -44,7 +44,7 @@ export async function abortAllWorkflows(organizationId: OrganizationId | null): 
 			deviceId: { $in: devices.map((d) => d._id) },
 		},
 		{
-			fields: {
+			projection: {
 				deviceId: 1,
 			},
 		}
