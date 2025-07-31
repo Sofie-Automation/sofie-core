@@ -29,7 +29,7 @@ const DEFAULT_STATE = {
 
 export function AfterBroadcastForm({ playlist }: Readonly<{ playlist: DBRundownPlaylist }>): JSX.Element {
 	const { t } = useTranslation()
-	const shouldDeactivateRundown = isLoopRunning(playlist)
+	const shouldDeactivateRundown = !isLoopRunning(playlist)
 	const [problems, setProblems] = useState<ProblemType>(DEFAULT_STATE.problems)
 	const [description, setDescription] = useState<string[]>(DEFAULT_STATE.description.slice())
 	const [userName, setUserName] = useState<string>(DEFAULT_STATE.userName)
