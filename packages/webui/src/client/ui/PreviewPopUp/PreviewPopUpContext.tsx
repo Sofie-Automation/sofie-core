@@ -110,11 +110,13 @@ export function convertSourceLayerItemToPreview(
 							type: 'video',
 							src: contentStatus?.previewUrl,
 						})
+						options.size = 'large'
 					} else if (contentStatus?.thumbnailUrl) {
 						contents.push({
 							type: 'image',
 							src: contentStatus.thumbnailUrl,
 						})
+						options.size = 'large'
 					}
 					break
 			}
@@ -162,7 +164,9 @@ export function convertSourceLayerItemToPreview(
 					content: m as any,
 				})) || []),
 			]) as PreviewContent[],
-			options: {},
+			options: {
+				size: contentStatus?.previewUrl ? 'large' : undefined,
+			},
 		}
 	} else if (
 		(sourceLayerType === SourceLayerType.GRAPHICS || sourceLayerType === SourceLayerType.LOWER_THIRD) &&
