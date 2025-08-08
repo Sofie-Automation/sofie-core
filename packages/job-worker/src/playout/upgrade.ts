@@ -18,7 +18,7 @@ import {
 	StudioRouteSetExclusivityGroup,
 } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { Complete, clone, literal } from '@sofie-automation/corelib/dist/lib'
-import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
+import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { wrapTranslatableMessageFromBlueprints } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import {
@@ -66,49 +66,48 @@ export async function handleBlueprintUpgradeForStudio(context: JobContext, _data
 
 	const peripheralDevices = (await context.directCollections.PeripheralDevices.findFetch(
 		{ subType: PERIPHERAL_SUBTYPE_PROCESS, 'studioAndConfigId.studioId': context.studioId },
-		{ projection: { _id: 1 } }
-	)) as Array<Pick<PeripheralDevice, '_id'>>
+		{ projection: { _id: 1, studioAndConfigId: 1 } }
+	)) as Array<Pick<PeripheralDevice, '_id' | 'studioAndConfigId'>>
 
 	const playoutDevices = Object.fromEntries(
-		Object.entries<TSR.DeviceOptionsAny>(result.playoutDevices ?? {}).map((dev) => {
-			const { parentDeviceName, ...payload } = dev[1] as any
-			return [
-				dev[0],
-				literal<Complete<StudioPlayoutDevice>>({
-					peripheralDeviceId: peripheralDevices.find(
-						(p) => unprotectString(p._id).substring(0, parentDeviceName?.length) === parentDeviceName
-					)?._id,
-					options: payload,
-				}),
-			]
-		})
+		Object.entries<{ parentDeviceName?: string; options: TSR.DeviceOptionsAny }>(result.playoutDevices ?? {}).map(
+			(dev) => {
+				return [
+					dev[0],
+					literal<Complete<StudioPlayoutDevice>>({
+						peripheralDeviceId: peripheralDevices.find(
+							(p) => p.studioAndConfigId?.configId === dev[1].parentDeviceName
+						)?._id,
+						options: dev[1].options,
+					}),
+				]
+			}
+		)
 	)
 
 	const ingestDevices = Object.fromEntries(
-		Object.entries<unknown>(result.ingestDevices ?? {}).map((dev) => {
-			const { parentDeviceName, ...payload } = dev[1] as any
+		Object.entries<{ parentDeviceName?: string; options: unknown }>(result.ingestDevices ?? {}).map((dev) => {
 			return [
 				dev[0],
 				literal<Complete<StudioIngestDevice>>({
 					peripheralDeviceId: peripheralDevices.find(
-						(p) => unprotectString(p._id).substring(0, parentDeviceName?.length) === parentDeviceName
+						(p) => p.studioAndConfigId?.configId === dev[1].parentDeviceName
 					)?._id,
-					options: payload,
+					options: dev[1].options,
 				}),
 			]
 		})
 	)
 
 	const inputDevices = Object.fromEntries(
-		Object.entries<unknown>(result.inputDevices ?? {}).map((dev) => {
-			const { parentDeviceName, ...payload } = dev[1] as any
+		Object.entries<{ parentDeviceName?: string; options: unknown }>(result.inputDevices ?? {}).map((dev) => {
 			return [
 				dev[0],
 				literal<Complete<StudioInputDevice>>({
 					peripheralDeviceId: peripheralDevices.find(
-						(p) => unprotectString(p._id).substring(0, parentDeviceName?.length) === parentDeviceName
+						(p) => p.studioAndConfigId?.configId === dev[1].parentDeviceName
 					)?._id,
-					options: payload,
+					options: dev[1].options,
 				}),
 			]
 		})
