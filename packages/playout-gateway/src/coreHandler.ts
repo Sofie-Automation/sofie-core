@@ -228,7 +228,7 @@ export class CoreHandler {
 					this.logger.error(`executeFunction error: ${errStr}`)
 				}
 				fcnObject.core.coreMethods.functionReply(cmd._id, errStr, res).catch((error: any) => {
-					this.logger.error(error)
+					this.logger.error(stringifyError(error))
 				})
 			}
 

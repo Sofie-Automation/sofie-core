@@ -27,7 +27,11 @@ import {
 import * as Winston from 'winston'
 import { CoreHandler } from './coreHandler'
 import { CoreMosDeviceHandler } from './CoreMosDeviceHandler'
-import { Observer, PeripheralDevicePubSubCollectionsNames } from '@sofie-automation/server-core-integration'
+import {
+	Observer,
+	PeripheralDevicePubSubCollectionsNames,
+	stringifyError,
+} from '@sofie-automation/server-core-integration'
 import {
 	DEFAULT_MOS_TIMEOUT_TIME,
 	DEFAULT_MOS_HEARTBEAT_INTERVAL,
@@ -154,10 +158,9 @@ export class MosHandler {
 
 		this._deviceOptionsChanged()
 	}
-	// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-	debugLog(msg: any, ...args: any[]): void {
+	debugLog(msg: string, args?: Record<string, string>): void {
 		if (this.debugLogging) {
-			this._logger.debug(msg, ...args)
+			this._logger.debug(msg, args)
 		}
 	}
 	get strict(): boolean {
@@ -222,15 +225,15 @@ export class MosHandler {
 			if (`${message}`.indexOf('<heartbeat') >= 0) {
 				return
 			}
-			this.debugLog('rawMessage', source, type, message)
+			this.debugLog(`rawMessage`, { source, type, rawMessage: message })
 		})
-		this.mos.on('info', (message: any) => {
+		this.mos.on('info', (message) => {
 			this._logger.info(message)
 		})
-		this.mos.on('error', (error: any) => {
-			this._logger.error(error)
+		this.mos.on('error', (error) => {
+			this._logger.error(stringifyError(error))
 		})
-		this.mos.on('warning', (warning: any) => {
+		this.mos.on('warning', (warning) => {
 			this._logger.error(warning)
 		})
 
