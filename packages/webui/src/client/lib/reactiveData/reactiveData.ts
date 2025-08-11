@@ -2,10 +2,10 @@ import { Tracker } from 'meteor/tracker'
 import { ReactiveVar } from 'meteor/reactive-var'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
-import { getCurrentTime } from '../systemTime'
-import { FindOptions } from '../../collections/lib'
+import { getCurrentTime } from '../systemTime.js'
+import { FindOptions } from '../../collections/lib.js'
 import { RundownPlaylistId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { ExternalMessageQueue, PeripheralDevices, Pieces, Rundowns } from '../../collections'
+import { ExternalMessageQueue, PeripheralDevices, Pieces, Rundowns } from '../../collections/index.js'
 import { DBRundown, Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 
 export namespace reactiveData {

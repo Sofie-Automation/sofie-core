@@ -2,38 +2,39 @@ import { PeripheralDeviceType } from '@sofie-automation/corelib/dist/dataModel/P
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { RundownHoldState, SelectedPartInstance } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/error'
-import { logger } from '../logging'
-import { JobContext, ProcessedShowStyleCompound } from '../jobs'
-import { PlayoutModel } from './model/PlayoutModel'
-import { PlayoutPartInstanceModel } from './model/PlayoutPartInstanceModel'
-import { resetPartInstancesWithPieceInstances } from './lib'
-import { selectNextPart } from './selectNextPart'
-import { setNextPart } from './setNext'
-import { getCurrentTime } from '../lib'
+import { logger } from '../logging.js'
+import { JobContext, ProcessedShowStyleCompound } from '../jobs/index.js'
+import { PlayoutModel } from './model/PlayoutModel.js'
+import { PlayoutPartInstanceModel } from './model/PlayoutPartInstanceModel.js'
+import { resetPartInstancesWithPieceInstances } from './lib.js'
+import { selectNextPart } from './selectNextPart.js'
+import { setNextPart } from './setNext.js'
+import { getCurrentTime } from '../lib/index.js'
 import { NoteSeverity, PartEndState, VTContent } from '@sofie-automation/blueprints-integration'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { ReadonlyDeep } from 'type-fest'
-import { getResolvedPiecesForCurrentPartInstance } from './resolvedPieces'
+import { getResolvedPiecesForCurrentPartInstance } from './resolvedPieces.js'
 import { clone, generateTranslation, getRandomId } from '@sofie-automation/corelib/dist/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
-import { updateTimeline } from './timeline/generate'
-import { OnTakeContext, PartEventContext, RundownContext } from '../blueprints/context'
-import { WrappedShowStyleBlueprint } from '../blueprints/cache'
-import { innerStopPieces } from './adlibUtils'
-import { reportPartInstanceHasStarted, reportPartInstanceHasStopped } from './timings/partPlayback'
-import { convertPartInstanceToBlueprints, convertResolvedPieceInstanceToBlueprints } from '../blueprints/context/lib'
+import { updateTimeline } from './timeline/generate.js'
+import { OnTakeContext, PartEventContext, RundownContext } from '../blueprints/context/index.js'
+import { WrappedShowStyleBlueprint } from '../blueprints/cache.js'
+import { innerStopPieces } from './adlibUtils.js'
+import { reportPartInstanceHasStarted, reportPartInstanceHasStopped } from './timings/partPlayback.js'
+import { convertPartInstanceToBlueprints, convertResolvedPieceInstanceToBlueprints } from '../blueprints/context/lib.js'
 import { processAndPrunePieceInstanceTimings } from '@sofie-automation/corelib/dist/playout/processAndPrune'
 import { TakeNextPartProps } from '@sofie-automation/corelib/dist/worker/studio'
-import { runJobWithPlayoutModel } from './lock'
-import _ = require('underscore')
+import { runJobWithPlayoutModel } from './lock.js'
+import _ from 'underscore'
 import { ReadonlyObjectDeep } from 'type-fest/source/readonly-deep'
-import { WatchedPackagesHelper } from '../blueprints/context/watchedPackages'
+import { WatchedPackagesHelper } from '../blueprints/context/watchedPackages.js'
 import {
 	PartAndPieceInstanceActionService,
 	applyActionSideEffects,
-} from '../blueprints/context/services/PartAndPieceInstanceActionService'
-import { PlayoutRundownModel } from './model/PlayoutRundownModel'
-import { convertNoteToNotification } from '../notifications/util'
+} from '../blueprints/context/services/PartAndPieceInstanceActionService.js'
+import { PlayoutRundownModel } from './model/PlayoutRundownModel.js'
+import { convertNoteToNotification } from '../notifications/util.js'
+import { PersistentPlayoutStateStore } from '../blueprints/context/services/PersistantStateStore.js'
 
 /**
  * Take the currently Next:ed Part (start playing it)
@@ -71,7 +72,6 @@ export async function handleTakeNextPart(context: JobContext, data: TakeNextPart
 					)
 				}
 			}
-
 			if (lastTakeTime && now - lastTakeTime < context.studio.settings.minimumTakeSpan) {
 				logger.debug(
 					`Time since last take is shorter than ${context.studio.settings.minimumTakeSpan} for ${
@@ -316,9 +316,17 @@ async function executeOnTakeCallback(
 			new PartAndPieceInstanceActionService(context, playoutModel, showStyle, currentRundown)
 		)
 		try {
-			await blueprint.blueprint.onTake(onSetAsNextContext)
+			const blueprintPersistentState = new PersistentPlayoutStateStore(
+				playoutModel.playlist.previousPersistentState
+			)
+
+			await blueprint.blueprint.onTake(onSetAsNextContext, blueprintPersistentState)
 			await applyOnTakeSideEffects(context, playoutModel, onSetAsNextContext)
 			isTakeAborted = onSetAsNextContext.isTakeAborted
+
+			if (blueprintPersistentState.hasChanges) {
+				playoutModel.setBlueprintPersistentState(blueprintPersistentState.getAll())
+			}
 
 			for (const note of onSetAsNextContext.notes) {
 				// Update the notifications. Even though these are related to a partInstance, they will be cleared on the next take
@@ -511,13 +519,19 @@ export function updatePartInstanceOnTake(
 				context.getShowStyleBlueprintConfig(showStyle),
 				takeRundown
 			)
+			const blueprintPersistentState = new PersistentPlayoutStateStore(
+				playoutModel.playlist.previousPersistentState
+			)
 			previousPartEndState = blueprint.blueprint.getEndStateForPart(
 				context2,
-				playoutModel.playlist.previousPersistentState,
+				blueprintPersistentState,
 				convertPartInstanceToBlueprints(currentPartInstance.partInstance),
 				resolvedPieces.map(convertResolvedPieceInstanceToBlueprints),
 				time
 			)
+			if (blueprintPersistentState.hasChanges) {
+				playoutModel.setBlueprintPersistentState(blueprintPersistentState.getAll())
+			}
 			if (span) span.end()
 			logger.info(`Calculated end state in ${getCurrentTime() - time}ms`)
 		} catch (err) {

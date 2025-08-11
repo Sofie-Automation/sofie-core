@@ -17,7 +17,7 @@ import {
 	CoreUserEditingDefinitionSofie,
 } from '@sofie-automation/corelib/dist/dataModel/UserEditingDefinitions'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { assertNever, clone, Complete, literal, omit } from '@sofie-automation/corelib/dist/lib'
+import { assertNever, clone, cloneObject, Complete, literal, omit } from '@sofie-automation/corelib/dist/lib'
 import { unprotectString, unprotectStringArray } from '@sofie-automation/corelib/dist/protectedString'
 import { ReadonlyDeep } from 'type-fest'
 import {
@@ -49,9 +49,9 @@ import {
 	PieceAbSessionInfo,
 	RundownPlaylistTiming,
 } from '@sofie-automation/blueprints-integration'
-import { JobContext, ProcessedShowStyleBase, ProcessedShowStyleVariant } from '../../jobs'
+import { JobContext, ProcessedShowStyleBase, ProcessedShowStyleVariant } from '../../jobs/index.js'
 import { DBRundownPlaylist, QuickLoopMarkerType } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import _ = require('underscore')
+import _ from 'underscore'
 import { BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { wrapTranslatableMessageFromBlueprints } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import {
@@ -62,7 +62,7 @@ import {
 	UserEditingDefinitionSofieDefault,
 	UserEditingType,
 } from '@sofie-automation/blueprints-integration/dist/userEditing'
-import type { PlayoutMutatablePart } from '../../playout/model/PlayoutPartInstanceModel'
+import type { PlayoutMutatablePart } from '../../playout/model/PlayoutPartInstanceModel.js'
 import { BlueprintQuickLookInfo } from '@sofie-automation/blueprints-integration/dist/context/quickLoopInfo'
 
 /**
@@ -150,7 +150,7 @@ function convertPieceInstanceToBlueprintsInner(
 					fromHold: pieceInstance.infinite.fromHold,
 					fromPreviousPart: pieceInstance.infinite.fromPreviousPart,
 					fromPreviousPlayhead: pieceInstance.infinite.fromPreviousPlayhead,
-			  })
+				})
 			: undefined,
 		piece: convertPieceToBlueprints(pieceInstance.piece),
 	}
@@ -222,7 +222,7 @@ function convertPieceGenericToBlueprintsInner(piece: ReadonlyDeep<PieceGeneric>)
 		expectedPackages: clone<ExpectedPackage.Any[] | undefined>(piece.expectedPackages),
 		hasSideEffects: piece.hasSideEffects,
 		content: {
-			...clone(piece.content),
+			...cloneObject(piece.content),
 			timelineObjects: deserializePieceTimelineObjectsBlob(piece.timelineObjectsString),
 		},
 		abSessions: clone<PieceAbSessionInfo[] | undefined>(piece.abSessions),
@@ -522,8 +522,8 @@ function translateUserEditsToBlueprint(
 						type: UserEditingType.ACTION,
 						id: userEdit.id,
 						label: omit(userEdit.label, 'namespaces'),
-						svgIcon: userEdit.svgIcon,
-						svgIconInactive: userEdit.svgIconInactive,
+						icon: userEdit.icon,
+						iconInactive: userEdit.iconInactive,
 						isActive: userEdit.isActive,
 					} satisfies Complete<UserEditingDefinitionAction>
 				case UserEditingType.FORM:
@@ -562,10 +562,10 @@ function translateUserEditPropertiesToBlueprint(
 					type: UserEditingType.ACTION,
 					id: userEdit.id,
 					label: omit(userEdit.label, 'namespaces'),
-					svgIcon: userEdit.svgIcon,
-					svgIconInactive: userEdit.svgIconInactive,
+					icon: userEdit.icon,
+					iconInactive: userEdit.iconInactive,
 					isActive: userEdit.isActive,
-				} satisfies Complete<UserEditingDefinitionAction>)
+				}) satisfies Complete<UserEditingDefinitionAction>
 		),
 	}
 }
@@ -584,8 +584,8 @@ export function translateUserEditsFromBlueprint(
 						type: UserEditingType.ACTION,
 						id: userEdit.id,
 						label: wrapTranslatableMessageFromBlueprints(userEdit.label, blueprintIds),
-						svgIcon: userEdit.svgIcon,
-						svgIconInactive: userEdit.svgIconInactive,
+						icon: userEdit.icon,
+						iconInactive: userEdit.iconInactive,
 						isActive: userEdit.isActive,
 					} satisfies Complete<CoreUserEditingDefinitionAction>
 				case UserEditingType.FORM:
@@ -626,10 +626,10 @@ export function translateUserEditPropertiesFromBlueprint(
 					type: UserEditingType.ACTION,
 					id: userEdit.id,
 					label: wrapTranslatableMessageFromBlueprints(userEdit.label, blueprintIds),
-					svgIcon: userEdit.svgIcon,
-					svgIconInactive: userEdit.svgIconInactive,
+					icon: userEdit.icon,
+					iconInactive: userEdit.iconInactive,
 					isActive: userEdit.isActive,
-				} satisfies Complete<UserEditingDefinitionAction>)
+				}) satisfies Complete<UserEditingDefinitionAction>
 		),
 
 		translationNamespaces: blueprintIds.map((id) => `blueprint_${id}`),

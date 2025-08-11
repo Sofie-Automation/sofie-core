@@ -7,10 +7,10 @@ import type {
 } from '@sofie-automation/blueprints-integration'
 import { Complete, clone, omit } from '@sofie-automation/corelib/dist/lib'
 import { ReadonlyDeep } from 'type-fest'
-import _ = require('underscore')
-import { MutableIngestPartImpl } from './MutableIngestPartImpl'
-import { SofieIngestRundownDataCacheGenerator } from '../../ingest/sofieIngestCache'
-import { getSegmentId } from '../../ingest/lib'
+import _ from 'underscore'
+import { MutableIngestPartImpl } from './MutableIngestPartImpl.js'
+import { SofieIngestRundownDataCacheGenerator } from '../../ingest/sofieIngestCache.js'
+import { getSegmentId } from '../../ingest/lib.js'
 import { SofieIngestDataCacheObjId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { SofieIngestDataCacheObj } from '@sofie-automation/corelib/dist/dataModel/SofieIngestDataCache'
 
@@ -200,7 +200,6 @@ export class MutableIngestSegmentImpl<TSegmentPayload = unknown, TPartPayload = 
 		}
 
 		if (this.#segmentHasChanges || !_.isEqual(this.#ingestSegment.payload[key], value)) {
-			// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
 			;(this.#ingestSegment.payload as any)[key] = clone(value)
 			this.#segmentHasChanges = true
 		}

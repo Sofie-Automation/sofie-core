@@ -65,7 +65,7 @@ meteorPublish(
 				studioId: studioId,
 			},
 			{
-				fields: {
+				projection: {
 					privateData: 0,
 				},
 			}
@@ -88,7 +88,7 @@ meteorPublish(
 		}
 
 		const modifier: FindOptions<DBRundown> = {
-			fields: {
+			projection: {
 				privateData: 0,
 			},
 		}
@@ -110,7 +110,7 @@ meteorPublish(
 		}
 
 		const modifier: FindOptions<DBRundown> = {
-			fields: {
+			projection: {
 				privateData: 0,
 			},
 		}
@@ -134,7 +134,7 @@ meteorPublish(
 		if (filter?.omitHidden) selector.isHidden = { $ne: true }
 
 		return Segments.findWithCursor(selector, {
-			fields: {
+			projection: {
 				privateData: 0,
 			},
 		})
@@ -153,7 +153,7 @@ meteorPublish(
 		if (segmentIds && segmentIds.length === 0) return null
 
 		const modifier: FindOptions<DBPart> = {
-			fields: {
+			projection: {
 				privateData: 0,
 			},
 		}
@@ -182,7 +182,7 @@ meteorPublish(
 		if (rundownIds.length === 0 || !playlistActivationId) return null
 
 		const modifier: FindOptions<DBPartInstance> = {
-			fields: {
+			projection: {
 				// @ts-expect-error Mongo typings aren't clever enough yet
 				'part.privateData': 0,
 			},
@@ -218,7 +218,7 @@ meteorPublish(
 		if (playlistActivationId) selector.playlistActivationId = playlistActivationId
 
 		return PartInstances.findWithCursor(selector, {
-			fields: literal<MongoFieldSpecifierZeroes<DBPartInstance>>({
+			projection: literal<MongoFieldSpecifierZeroes<DBPartInstance>>({
 				// @ts-expect-error Mongo typings aren't clever enough yet
 				'part.privateData': 0,
 				isTaken: 0,
@@ -250,7 +250,7 @@ meteorPublish(
 		if (partIds) selector.startPartId = { $in: partIds }
 
 		return Pieces.findWithCursor(selector, {
-			fields: piecesSubFields,
+			projection: piecesSubFields,
 		})
 	}
 )
@@ -293,7 +293,7 @@ meteorPublish(
 		}
 
 		return Pieces.findWithCursor(selector, {
-			fields: piecesSubFields,
+			projection: piecesSubFields,
 		})
 	}
 )
@@ -315,7 +315,7 @@ meteorPublish(CorelibPubSub.adLibPieces, async function (rundownIds: RundownId[]
 	}
 
 	return AdLibPieces.findWithCursor(selector, {
-		fields: adlibPiecesSubFields,
+		projection: adlibPiecesSubFields,
 	})
 })
 meteorPublish(MeteorPubSub.adLibPiecesForPart, async function (partId: PartId, sourceLayerIds: string[]) {
@@ -330,7 +330,7 @@ meteorPublish(MeteorPubSub.adLibPiecesForPart, async function (partId: PartId, s
 			sourceLayerId: { $in: sourceLayerIds },
 		},
 		{
-			fields: adlibPiecesSubFields,
+			projection: adlibPiecesSubFields,
 		}
 	)
 })
@@ -407,7 +407,7 @@ meteorPublish(
 		}
 
 		return PieceInstances.findWithCursor(selector, {
-			fields: pieceInstanceFields,
+			projection: pieceInstanceFields,
 		})
 	}
 )
@@ -433,7 +433,7 @@ meteorPublish(
 		if (playlistActivationId) selector.playlistActivationId = playlistActivationId
 
 		return PieceInstances.findWithCursor(selector, {
-			fields: literal<MongoFieldSpecifierZeroes<PieceInstance>>({
+			projection: literal<MongoFieldSpecifierZeroes<PieceInstance>>({
 				...pieceInstanceFields,
 				plannedStartedPlayback: 0,
 				plannedStoppedPlayback: 0,
@@ -463,7 +463,7 @@ meteorPublish(
 
 		if (!selector) throw new Meteor.Error(400, 'selector argument missing')
 		const modifier: FindOptions<NrcsIngestDataCacheObj> = {
-			fields: {},
+			projection: {},
 		}
 
 		return NrcsIngestDataCache.findWithCursor(selector, modifier)
@@ -483,7 +483,7 @@ meteorPublish(
 		}
 
 		return RundownBaselineAdLibPieces.findWithCursor(selector, {
-			fields: {
+			projection: {
 				timelineObjectsString: 0,
 				privateData: 0,
 			},
@@ -507,7 +507,7 @@ meteorPublish(CorelibPubSub.adLibActions, async function (rundownIds: RundownId[
 	}
 
 	return AdLibActions.findWithCursor(selector, {
-		fields: adlibActionSubFields,
+		projection: adlibActionSubFields,
 	})
 })
 meteorPublish(MeteorPubSub.adLibActionsForPart, async function (partId: PartId, sourceLayerIds: string[]) {
@@ -522,7 +522,7 @@ meteorPublish(MeteorPubSub.adLibActionsForPart, async function (partId: PartId, 
 			'display.sourceLayerId': { $in: sourceLayerIds },
 		},
 		{
-			fields: adlibActionSubFields,
+			projection: adlibActionSubFields,
 		}
 	)
 })
@@ -541,7 +541,7 @@ meteorPublish(
 		}
 
 		return RundownBaselineAdLibActions.findWithCursor(selector, {
-			fields: adlibActionSubFields,
+			projection: adlibActionSubFields,
 		})
 	}
 )

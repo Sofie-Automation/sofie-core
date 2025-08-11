@@ -8,17 +8,17 @@ import {
 	setupDefaultRundownPlaylist,
 	setupMockPeripheralDevice,
 	setupMockShowStyleCompound,
-} from '../../__mocks__/presetCollections'
-import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context'
+} from '../../__mocks__/presetCollections.js'
+import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context.js'
 import { DBRundown, Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { handleTakeNextPart } from '../take'
-import { handleActivateHold } from '../holdJobs'
-import { handleActivateRundownPlaylist, handleDeactivateRundownPlaylist } from '../activePlaylistJobs'
-import { fixSnapshot } from '../../__mocks__/helpers/snapshot'
-import { runJobWithPlayoutModel } from '../lock'
-import { updateTimeline } from '../timeline/generate'
-import { getSelectedPartInstances, getSortedPartsForRundown } from './lib'
+import { handleTakeNextPart } from '../take.js'
+import { handleActivateHold } from '../holdJobs.js'
+import { handleActivateRundownPlaylist, handleDeactivateRundownPlaylist } from '../activePlaylistJobs.js'
+import { fixSnapshot } from '../../__mocks__/helpers/snapshot.js'
+import { runJobWithPlayoutModel } from '../lock.js'
+import { updateTimeline } from '../timeline/generate.js'
+import { getSelectedPartInstances, getSortedPartsForRundown } from './lib.js'
 import { PieceLifespan, IBlueprintPieceType, Time } from '@sofie-automation/blueprints-integration'
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import { RundownPlaylistId, RundownId, PartId, PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
@@ -48,25 +48,25 @@ import {
 	setupRundownWithOutTransitionAndInTransition,
 	setupRundownWithOutTransitionEnableHold,
 	setupRundownBase,
-} from './helpers/rundowns'
-import { defaultRundownPlaylist } from '../../__mocks__/defaultCollectionObjects'
+} from './helpers/rundowns.js'
+import { defaultRundownPlaylist } from '../../__mocks__/defaultCollectionObjects.js'
 import { ReadonlyDeep } from 'type-fest'
-import { innerStartOrQueueAdLibPiece } from '../adlibUtils'
+import { innerStartOrQueueAdLibPiece } from '../adlibUtils.js'
 import { EmptyPieceTimelineObjectsBlob } from '@sofie-automation/corelib/dist/dataModel/Piece'
-import { adjustFakeTime, useFakeCurrentTime, useRealCurrentTime } from '../../__mocks__/time'
-import { restartRandomId } from '../../__mocks__/nanoid'
-import { ProcessedShowStyleCompound } from '../../jobs'
-import { handleOnPlayoutPlaybackChanged, handleTimelineTriggerTime } from '../timings'
+import { adjustFakeTime, useFakeCurrentTime, useRealCurrentTime } from '../../__mocks__/time.js'
+import { restartRandomId } from '../../__mocks__/nanoid.js'
+import { ProcessedShowStyleCompound } from '../../jobs/index.js'
+import { handleOnPlayoutPlaybackChanged, handleTimelineTriggerTime } from '../timings/index.js'
 import {
 	PlayoutChangedResult,
 	PlayoutChangedType,
 } from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI'
-import * as _ from 'underscore'
-import { PlayoutRundownModel } from '../model/PlayoutRundownModel'
-import { PlayoutPartInstanceModel } from '../model/PlayoutPartInstanceModel'
-import { PlayoutPartInstanceModelImpl } from '../model/implementation/PlayoutPartInstanceModelImpl'
+import _ from 'underscore'
+import { PlayoutRundownModel } from '../model/PlayoutRundownModel.js'
+import { PlayoutPartInstanceModel } from '../model/PlayoutPartInstanceModel.js'
+import { PlayoutPartInstanceModelImpl } from '../model/implementation/PlayoutPartInstanceModelImpl.js'
 import { mock } from 'jest-mock-extended'
-import { QuickLoopService } from '../model/services/QuickLoopService'
+import { QuickLoopService } from '../model/services/QuickLoopService.js'
 
 /**
  * An object used to represent the simplified timeline structure.
@@ -217,7 +217,7 @@ function checkTimingsRaw(
 				? {
 						childGroup: parsePieceGroupPrerollAndPostroll(pieceObj?.enable ?? []),
 						controlObj: controlObj.enable,
-				  }
+					}
 				: null
 		} else {
 			const partGroupId =
@@ -256,7 +256,7 @@ function checkTimingsRaw(
 					? {
 							childGroup: parsePieceGroupPrerollAndPostroll(pieceObj?.enable ?? []),
 							controlObj: controlObj.enable,
-					  }
+						}
 					: null
 			}
 		}
@@ -352,21 +352,22 @@ async function doOnPlayoutPlaybackChanged(
 							time: timings.baseTime,
 						},
 						objId: getPartGroupId(timings.partId),
-				  }
+					}
 				: undefined,
 			// The piece controlObjects start offset into the part, so need a manual offset
-			...Object.entries<number | null>(timings.pieceOffsets).map(([pieceInstanceId, offset]) =>
-				offset !== null
-					? {
-							type: PlayoutChangedType.PIECE_PLAYBACK_STARTED,
-							data: {
-								partInstanceId: timings.partId,
-								pieceInstanceId: protectString(pieceInstanceId),
-								time: timings.baseTime + offset,
-							},
-							objId: getPieceControlObjectId(protectString(pieceInstanceId)),
-					  }
-					: undefined
+			...Object.entries<number | null>(timings.pieceOffsets).map(
+				([pieceInstanceId, offset]): PlayoutChangedResult | undefined =>
+					offset !== null
+						? {
+								type: PlayoutChangedType.PIECE_PLAYBACK_STARTED,
+								data: {
+									partInstanceId: timings.partId,
+									pieceInstanceId: protectString(pieceInstanceId),
+									time: timings.baseTime + offset,
+								},
+								objId: getPieceControlObjectId(protectString(pieceInstanceId)),
+							}
+						: undefined
 			),
 		]),
 	})

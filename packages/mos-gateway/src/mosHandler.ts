@@ -25,15 +25,15 @@ import {
 } from '@mos-connection/connector'
 
 import * as Winston from 'winston'
-import { CoreHandler } from './coreHandler'
-import { CoreMosDeviceHandler } from './CoreMosDeviceHandler'
+import { CoreHandler } from './coreHandler.js'
+import { CoreMosDeviceHandler } from './CoreMosDeviceHandler.js'
 import { Observer, PeripheralDevicePubSubCollectionsNames } from '@sofie-automation/server-core-integration'
 import {
 	DEFAULT_MOS_TIMEOUT_TIME,
 	DEFAULT_MOS_HEARTBEAT_INTERVAL,
 } from '@sofie-automation/shared-lib/dist/core/constants'
-import { MosGatewayConfig } from './generated/options'
-import { MosDeviceConfig } from './generated/devices'
+import { MosGatewayConfig } from '@sofie-automation/shared-lib/dist/generated/MosGatewayOptionsTypes'
+import { MosDeviceConfig } from '@sofie-automation/shared-lib/dist/generated/MosGatewayDevicesTypes'
 import { PeripheralDeviceForDevice } from '@sofie-automation/server-core-integration'
 
 export interface MosConfig {
@@ -424,7 +424,8 @@ export class MosHandler {
 			for (const [deviceId, device] of Object.entries<{ options: MosDeviceConfig }>(devices)) {
 				if (device) {
 					if (device.options.secondary) {
-						this._openMediaHotStandby[device.options.secondary.id] =
+						const fullSecondaryId = this._settings?.mosId + '_' + device.options.secondary.id
+						this._openMediaHotStandby[fullSecondaryId] =
 							device.options.secondary?.openMediaHotStandby || false
 						// If the host isn't set, don't use secondary:
 						if (!device.options.secondary.host || !device.options.secondary.id)

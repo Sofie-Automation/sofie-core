@@ -446,6 +446,7 @@ jobs:
           - openapi
           - live-status-gateway
           - webui
+          - live-status-gateway-api
 
     steps:
       - uses: actions/checkout@v4
@@ -490,6 +491,7 @@ jobs:
           - blueprints-integration
           - server-core-integration
           - shared-lib
+          # - live-status-gateway-api # no tests yet
           - openapi
         node-version: [22.x]
         include:
@@ -573,10 +575,12 @@ jobs:
           CI: true
       - name: Run generator
         run: |
-          cd packages/live-status-gateway
+          cd packages/live-status-gateway-api
 
           yarn gendocs
           yarn genserver
+
+          yarn generate-schema-types
         env:
           CI: true
   openapi-generation:

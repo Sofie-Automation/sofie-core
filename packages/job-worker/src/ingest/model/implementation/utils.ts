@@ -1,6 +1,6 @@
 import { normalizeArrayToMap } from '@sofie-automation/corelib/dist/lib'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
-import _ = require('underscore')
+import _ from 'underscore'
 
 /**
  * Perform a diff of a pair of arrays of documents

@@ -1,5 +1,5 @@
-import { Time } from '../../lib/lib'
-import { MediaWorkFlowId, PeripheralDeviceId, StudioId } from './Ids'
+import { Time } from '../../lib/lib.js'
+import { MediaWorkFlowId, PeripheralDeviceId, StudioId } from './Ids.js'
 
 export interface MediaWorkFlow {
 	_id: MediaWorkFlowId

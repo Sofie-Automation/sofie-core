@@ -42,6 +42,7 @@ describe('server/lib', () => {
 			generated: 1234,
 			timelineBlob: serializeTimelineBlob(mystudioObjs),
 			generationVersions: {} as any,
+			regenerateTimelineToken: undefined,
 		})
 
 		const mystudio2Objs: Array<TimelineObjGeneric> = [
@@ -62,6 +63,7 @@ describe('server/lib', () => {
 			generated: 1234,
 			timelineBlob: serializeTimelineBlob(mystudio2Objs),
 			generationVersions: {} as any,
+			regenerateTimelineToken: undefined,
 		})
 
 		const options: SaveIntoDbHooks<any> = {

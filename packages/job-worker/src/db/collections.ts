@@ -9,7 +9,7 @@ import {
 	ChangeStreamDocument,
 	CountOptions,
 } from 'mongodb'
-import { wrapMongoCollection } from './collection'
+import { wrapMongoCollection } from './collection.js'
 import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'

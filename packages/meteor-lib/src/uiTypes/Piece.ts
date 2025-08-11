@@ -1,6 +1,6 @@
 import type { PieceInstanceWithTimings } from '@sofie-automation/corelib/dist/playout/processAndPrune'
-import type { IOutputLayerExtended } from './OutputLayer'
-import type { ISourceLayerExtended } from './SourceLayer'
+import type { IOutputLayerExtended } from './OutputLayer.js'
+import type { ISourceLayerExtended } from './SourceLayer.js'
 
 export interface PieceExtended {
 	instance: PieceInstanceWithTimings

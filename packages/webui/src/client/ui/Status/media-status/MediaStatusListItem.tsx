@@ -2,10 +2,10 @@ import { JSX } from 'react'
 import { SourceLayerType } from '@sofie-automation/blueprints-integration'
 import { PieceStatusCode } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { NavLink } from 'react-router-dom'
-import { RundownUtils } from '../../../lib/rundown'
+import { RundownUtils } from '../../../lib/rundown.js'
 import classNames from 'classnames'
 import { formatTime } from '@sofie-automation/meteor-lib/dist/time'
-import { MediaStatusIndicator } from '../../MediaStatus/MediaStatusIndicator'
+import { MediaStatusIndicator } from '../../MediaStatus/MediaStatusIndicator.js'
 
 export function MediaStatusListItem({
 	rundownName,

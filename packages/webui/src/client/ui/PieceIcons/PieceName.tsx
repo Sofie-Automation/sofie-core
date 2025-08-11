@@ -1,9 +1,9 @@
-import { useSubscription, useTracker } from '../../lib/ReactMeteorData/ReactMeteorData'
+import { useSubscription, useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import { EvsContent, SourceLayerType } from '@sofie-automation/blueprints-integration'
 
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { IPropsHeader } from './PieceIcon'
-import { findPieceInstanceToShow } from './utils'
+import { IPropsHeader } from './PieceIcon.js'
+import { findPieceInstanceToShow } from './utils.js'
 import { PieceGeneric } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { RundownPlaylistActivationId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ReadonlyDeep } from 'type-fest'

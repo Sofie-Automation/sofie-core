@@ -1,6 +1,6 @@
-import { DeviceConfigManifest } from '../core/deviceConfigManifest'
-import { PeripheralDeviceId, RundownPlaylistId, PartInstanceId, PieceInstanceId } from '../core/model/Ids'
-import { StatusCode } from '../lib/status'
+import { DeviceConfigManifest } from '../core/deviceConfigManifest.js'
+import { PeripheralDeviceId, RundownPlaylistId, PartInstanceId, PieceInstanceId } from '../core/model/Ids.js'
+import { StatusCode } from '../lib/status.js'
 
 export interface PartPlaybackCallbackData {
 	rundownPlaylistId: RundownPlaylistId
@@ -24,6 +24,12 @@ export interface PiecePlaybackStartedResult extends PiecePlaybackCallbackData {
 }
 export type PiecePlaybackStoppedResult = PiecePlaybackStartedResult
 
+export interface TriggerRegenerationCallbackData {
+	rundownPlaylistId: RundownPlaylistId
+	// partInstanceId: PartInstanceId
+	regenerationToken: string
+}
+
 export type PlayoutChangedResults = {
 	rundownPlaylistId: RundownPlaylistId
 	changes: PlayoutChangedResult[]
@@ -33,6 +39,7 @@ export enum PlayoutChangedType {
 	PART_PLAYBACK_STOPPED = 'partPlaybackStopped',
 	PIECE_PLAYBACK_STARTED = 'piecePlaybackStarted',
 	PIECE_PLAYBACK_STOPPED = 'piecePlaybackStopped',
+	TRIGGER_REGENERATION = 'triggerRegeneration',
 }
 export type PlayoutChangedResult = {
 	objId: string
@@ -41,6 +48,7 @@ export type PlayoutChangedResult = {
 		| PlayoutChangedType.PART_PLAYBACK_STOPPED
 		| PlayoutChangedType.PIECE_PLAYBACK_STARTED
 		| PlayoutChangedType.PIECE_PLAYBACK_STOPPED
+		| PlayoutChangedType.TRIGGER_REGENERATION
 } & (
 	| {
 			type: PlayoutChangedType.PART_PLAYBACK_STARTED
@@ -57,6 +65,10 @@ export type PlayoutChangedResult = {
 	| {
 			type: PlayoutChangedType.PIECE_PLAYBACK_STOPPED
 			data: Omit<PiecePlaybackStoppedResult, 'rundownPlaylistId'>
+	  }
+	| {
+			type: PlayoutChangedType.TRIGGER_REGENERATION
+			data: Omit<TriggerRegenerationCallbackData, 'rundownPlaylistId'>
 	  }
 )
 

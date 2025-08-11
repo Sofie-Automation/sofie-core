@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import 'moment/min/locales'
 import { parse as queryStringParse } from 'query-string'
-import Header from './Header'
+import Header from './Header.js'
 import {
 	setAllowSpeaking,
 	setAllowVibrating,
@@ -21,24 +21,25 @@ import {
 	getIgnorePieceContentStatus,
 	getHelpMode,
 	getReportNotifications,
-} from '../lib/localStorage'
-import Status from './Status'
-import { Settings as SettingsView } from './Settings'
-import TestTools from './TestTools'
-import { RundownList } from './RundownList'
-import { RundownView } from './RundownView'
-import { ActiveRundownView } from './ActiveRundownView'
-import { ClockView } from './ClockView/ClockView'
-import { ConnectionStatusNotification } from '../lib/ConnectionStatusNotification'
+} from '../lib/localStorage.js'
+import Status from './Status.js'
+import { Settings as SettingsView } from './Settings.js'
+import TestTools from './TestTools/index.js'
+import { RundownList } from './RundownList.js'
+import { RundownView } from './RundownView.js'
+import { ActiveRundownView } from './ActiveRundownView.js'
+import { ClockView } from './ClockView/ClockView.js'
+import { ConnectionStatusNotification } from '../lib/ConnectionStatusNotification.js'
 import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom'
-import { ErrorBoundary } from '../lib/ErrorBoundary'
-import { PrompterView } from './Prompter/PrompterView'
-import { ModalDialogGlobalContainer, doModalDialog } from '../lib/ModalDialog'
-import { Settings } from '../lib/Settings'
-import { DocumentTitleProvider } from '../lib/DocumentTitleProvider'
-import { catchError, firstIfArray, isRunningInPWA } from '../lib/lib'
+import { ErrorBoundary } from '../lib/ErrorBoundary.js'
+import { PrompterView } from './Prompter/PrompterView.js'
+import { ModalDialogGlobalContainer, doModalDialog } from '../lib/ModalDialog.js'
+import { Settings } from '../lib/Settings.js'
+import { DocumentTitleProvider } from '../lib/DocumentTitleProvider.js'
+import { catchError, firstIfArray, isRunningInPWA } from '../lib/lib.js'
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
-import { useUserPermissions, UserPermissionsContext } from './UserPermissions'
+import { useUserPermissions, UserPermissionsContext } from './UserPermissions.js'
+import { relativeToSiteRootUrl, ROOT_URL_PATH_PREFIX } from '../url.js'
 
 const NullComponent = () => null
 
@@ -98,10 +99,10 @@ export const App: React.FC = function App() {
 					.catch(catchError('documentElement.requestFullscreen'))
 
 				// Use Keyboard API to lock the keyboard and disable all browser shortcuts
-				if (!('keyboard' in navigator)) return
-				// but we check for its availability, so it should be fine.
-				// Keyboard Lock: https://wicg.github.io/keyboard-lock/
-				navigator.keyboard.lock().catch(catchError('keyboard.lock'))
+				if (!('keyboard' in navigator))
+					return // but we check for its availability, so it should be fine.
+					// Keyboard Lock: https://wicg.github.io/keyboard-lock/
+				;(navigator.keyboard as any).lock().catch(catchError('keyboard.lock'))
 			},
 			{
 				once: true,
@@ -147,89 +148,96 @@ export const App: React.FC = function App() {
 
 	return (
 		<UserPermissionsContext.Provider value={roles}>
-			<Router getUserConfirmation={onNavigationUserConfirmation}>
-				{/* Header switch - render the usual header for all pages but the rundown view */}
-				<ErrorBoundary>
-					<Switch>
-						<Route path="/rundown/:playlistId" component={NullComponent} />
-						<Route path="/countdowns/:studioId" component={NullComponent} />
-						<Route path="/activeRundown" component={NullComponent} />
-						<Route path="/prompter/:studioId" component={NullComponent} />
-						<Route
-							path="/"
-							render={(props) => (
-								<Header
-									{...props}
-									allowConfigure={roles.configure}
-									allowTesting={roles.testing}
-									allowDeveloper={roles.developer}
-								/>
-							)}
-						/>
-					</Switch>
-				</ErrorBoundary>
-				{/* Main app switch */}
-				<ErrorBoundary>
-					<Switch>
-						<Route exact path="/" component={RundownList} />
-						<Route path="/rundowns" render={() => <RundownList />} />
-						<Route
-							path="/rundown/:playlistId/shelf"
-							exact
-							render={(props) => (
-								<RundownView
-									playlistId={protectString(decodeURIComponent(props.match.params.playlistId))}
-									onlyShelf={true}
-								/>
-							)}
-						/>
-						<Route
-							path="/rundown/:playlistId"
-							render={(props) => (
-								<RundownView playlistId={protectString(decodeURIComponent(props.match.params.playlistId))} />
-							)}
-						/>
-						<Route
-							path="/activeRundown/:studioId"
-							render={(props) => (
-								<ActiveRundownView studioId={protectString(decodeURIComponent(props.match.params.studioId))} />
-							)}
-						/>
-						<Route
-							path="/prompter/:studioId"
-							render={(props) => (
-								<PrompterView studioId={protectString(decodeURIComponent(props.match.params.studioId))} />
-							)}
-						/>
-						{/* We switch to the general ClockView component, and allow it to do the switch between various types of countdowns */}
-						<Route
-							path="/countdowns/:studioId"
-							render={(props) => (
-								<ClockView studioId={protectString(decodeURIComponent(props.match.params.studioId))} />
-							)}
-						/>
-						<Route path="/status" render={() => <Status />} />
-						<Route path="/settings" render={() => <SettingsView />} />
-						<Route path="/testTools" render={() => <TestTools />} />
-						<Route>
-							<Redirect to="/" />
-						</Route>
-					</Switch>
-				</ErrorBoundary>
-				<ErrorBoundary>
-					<Switch>
-						{/* Put views that should NOT have the Notification center here: */}
-						<Route path="/countdowns/:studioId" component={NullComponent} />
-						<Route path="/prompter/:studioId" component={NullComponent} />
-						<Route path="/" component={ConnectionStatusNotification} />
-					</Switch>
-				</ErrorBoundary>
-				<ErrorBoundary>
-					<DocumentTitleProvider />
-				</ErrorBoundary>
-				<ErrorBoundary>
-					<ModalDialogGlobalContainer />
-				</ErrorBoundary>
+			<Router getUserConfirmation={onNavigationUserConfirmation} basename={ROOT_URL_PATH_PREFIX}>
+				<div
+					style={{
+						// @ts-expect-error custom variable
+						'--sofie-logo-url': `url(${relativeToSiteRootUrl('/images/sofie-logo.svg')})`,
+					}}
+				>
+					{/* Header switch - render the usual header for all pages but the rundown view */}
+					<ErrorBoundary>
+						<Switch>
+							<Route path="/rundown/:playlistId" component={NullComponent} />
+							<Route path="/countdowns/:studioId" component={NullComponent} />
+							<Route path="/activeRundown" component={NullComponent} />
+							<Route path="/prompter/:studioId" component={NullComponent} />
+							<Route
+								path="/"
+								render={(props) => (
+									<Header
+										{...props}
+										allowConfigure={roles.configure}
+										allowTesting={roles.testing}
+										allowDeveloper={roles.developer}
+									/>
+								)}
+							/>
+						</Switch>
+					</ErrorBoundary>
+					{/* Main app switch */}
+					<ErrorBoundary>
+						<Switch>
+							<Route exact path="/" component={RundownList} />
+							<Route path="/rundowns" render={() => <RundownList />} />
+							<Route
+								path="/rundown/:playlistId/shelf"
+								exact
+								render={(props) => (
+									<RundownView
+										playlistId={protectString(decodeURIComponent(props.match.params.playlistId))}
+										onlyShelf={true}
+									/>
+								)}
+							/>
+							<Route
+								path="/rundown/:playlistId"
+								render={(props) => (
+									<RundownView playlistId={protectString(decodeURIComponent(props.match.params.playlistId))} />
+								)}
+							/>
+							<Route
+								path="/activeRundown/:studioId"
+								render={(props) => (
+									<ActiveRundownView studioId={protectString(decodeURIComponent(props.match.params.studioId))} />
+								)}
+							/>
+							<Route
+								path="/prompter/:studioId"
+								render={(props) => (
+									<PrompterView studioId={protectString(decodeURIComponent(props.match.params.studioId))} />
+								)}
+							/>
+							{/* We switch to the general ClockView component, and allow it to do the switch between various types of countdowns */}
+							<Route
+								path="/countdowns/:studioId"
+								render={(props) => (
+									<ClockView studioId={protectString(decodeURIComponent(props.match.params.studioId))} />
+								)}
+							/>
+							<Route path="/status" render={() => <Status />} />
+							<Route path="/settings" render={() => <SettingsView />} />
+							<Route path="/testTools" render={() => <TestTools />} />
+							<Route>
+								<Redirect to="/" />
+							</Route>
+						</Switch>
+					</ErrorBoundary>
+					<ErrorBoundary>
+						<Switch>
+							{/* Put views that should NOT have the Notification center here: */}
+							<Route path="/countdowns/:studioId" component={NullComponent} />
+							<Route path="/prompter/:studioId" component={NullComponent} />
+							<Route path="/" component={ConnectionStatusNotification} />
+						</Switch>
+					</ErrorBoundary>
+					<ErrorBoundary>
+						<DocumentTitleProvider />
+					</ErrorBoundary>
+					<ErrorBoundary>
+						<ModalDialogGlobalContainer />
+					</ErrorBoundary>
+				</div>
 			</Router>
 		</UserPermissionsContext.Provider>
 	)

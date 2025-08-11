@@ -36,9 +36,9 @@ Example: [http://127.0.0.1/prompter/studio0/?mode=mouse&followtake=0&fontsize=20
 
 The prompter can be controlled by different types of controllers. The control mode is set by a query parameter, like so: `?mode=mouse`.
 
-| Query parameter         | Description                                                                                                                                                                                                                                    |
-| :---------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Default                 | Controlled by both mouse and keyboard                                                                                                                                                                                                          |
+| Query parameter         | Description                                                                                                                                                                                                                                 |
+| :---------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Default                 | Controlled by both mouse and keyboard                                                                                                                                                                                                       |
 | `?mode=mouse`           | Controlled by mouse only. [See configuration details](prompter#control-using-mouse-scroll-wheel)                                                                                                                                            |
 | `?mode=keyboard`        | Controlled by keyboard only. [See configuration details](prompter#control-using-keyboard)                                                                                                                                                   |
 | `?mode=shuttlekeyboard` | Controlled by a Contour Design ShuttleXpress, X-keys Jog and Shuttle or any compatible, configured as keyboard-ish device. [See configuration details](prompter#control-using-contour-shuttlexpress-or-x-keys)                              |
@@ -72,7 +72,7 @@ Keyboard control is intended to be used when having a "keyboard"-device, such as
 
 This mode is intended to be used when having a Contour ShuttleXpress or X-keys device, configured to work as a keyboard device. These devices have jog/shuttle wheels, and their software/firmware allow them to map scroll movement to keystrokes from any key-combination. Since we only listen for key combinations, it effectively means that any device outputing keystrokes will work in this mode.
 
-From Release 30, the speedMap has a prefix: **shuttle\_** \(i.e. shuttle\_speedMap\)
+From Release 30, the speedMap has a prefix: **shuttle\_** \(i.e. shuttle_speedMap\)
 
 | Key combination                                            | Function                               |
 | :--------------------------------------------------------- | :------------------------------------- |
@@ -88,10 +88,10 @@ From Release 30, the speedMap has a prefix: **shuttle\_** \(i.e. shuttle\_speedM
 
 Configuration files that can be used in their respective driver software:
 
-* [Contour ShuttleXpress](https://github.com/nrkno/sofie-core/blob/release26/resources/prompter_layout_shuttlexpress.pref)
-* [X-keys](https://github.com/nrkno/sofie-core/blob/release26/resources/prompter_layout_xkeys.mw3)
+- [Contour ShuttleXpress](https://github.com/nrkno/sofie-core/blob/release26/resources/prompter_layout_shuttlexpress.pref)
+- [X-keys](https://github.com/nrkno/sofie-core/blob/release26/resources/prompter_layout_xkeys.mw3)
 
-#### 
+####
 
 #### Control using midi input \(_?mode=pedal_\)
 
@@ -99,7 +99,7 @@ This mode listens to MIDI CC-notes on channel 8, expecting a linear range like i
 
 If you want to use traditional analogue pedals with 5 volt TRS connection, a converter such as the _Beat Bars EX2M_ will work well.
 
-From Release 30, the parameters for the pedal have a prefix: **pedal\_** \(i.e. pedal\_speedMap, pedal\_reverseSpeedMap etc\)
+From Release 30, the parameters for the pedal have a prefix: **pedal\_** \(i.e. pedal_speedMap, pedal_reverseSpeedMap etc\)
 
 | Query parameter   | Type             | Description                                                                                                                                                                                                                                                                                  | Default                                 |
 | :---------------- | :--------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------- |
@@ -110,11 +110,11 @@ From Release 30, the parameters for the pedal have a prefix: **pedal\_** \(i.e. 
 | `rangeNeutralMax` | number           | The minimum input to run forward, the start of the forward-range \(min speed\). This is also the end of any "deadband" you want filter out before starting moving forwards.                                                                                                                  | `80`                                    |
 | `rangeFwdMax`     | number           | The maximum input, the end of the forward-range \(max speed\)                                                                                                                                                                                                                                | `127`                                   |
 
-* `rangeNeutralMin` has to be greater than `rangeRevMin`
-* `rangeNeutralMax` has to be greater than `rangeNeutralMin`
-* `rangeFwdMax` has to be greater than `rangeNeutralMax`
+- `rangeNeutralMin` has to be greater than `rangeRevMin`
+- `rangeNeutralMax` has to be greater than `rangeNeutralMin`
+- `rangeFwdMax` has to be greater than `rangeNeutralMax`
 
-![Yamaha FC7 mapped for both a forward \(80-127\) and backwards \(0-35\) range.](/img/docs/main/features/yamaha-fc7.jpg)
+![Yamaha FC7 mapped for both a forward (80-127) and backwards (0-35) range.](/img/docs/main/features/yamaha-fc7.jpg)
 
 The default values allow for both going forwards and backwards. This matches the _Yamaha FC7_ expression pedal. The default values create a forward-range from 80-127, a neutral zone from 35-80 and a reverse-range from 0-35.
 
@@ -130,7 +130,7 @@ Any movement within forward range will map to the _speedMap_ with interpolation 
 | _"I have to go too far back to reverse"_                                                  | Increse `rangeNeutralMin`                                                                                                                                                                                                            |
 | _"As I find a good speed, it varies a bit in speed up/down even if I hold my foot still"_ | Use `?debug=1` to see what speed is calculated in the position the presenter wants to rest the foot in. Add more of that number in a sequence in the `speedMap` to flatten out the speed curve, i.e. `[1, 2, 3, 4, 4, 4, 4, 5, ...]` |
 
-**Note:** The default values are set up to work with the _Yamaha FC7_ expression pedal, and will probably not be good for pedals with one continuous linear range from fully released to fully depressed. A suggested configuration for such pedals \(i.e. the _Mission Engineering EP-1_\) will be like: 
+**Note:** The default values are set up to work with the _Yamaha FC7_ expression pedal, and will probably not be good for pedals with one continuous linear range from fully released to fully depressed. A suggested configuration for such pedals \(i.e. the _Mission Engineering EP-1_\) will be like:
 
 | Query parameter   | Suggestion                              |
 | :---------------- | :-------------------------------------- |
@@ -147,7 +147,7 @@ This mode uses the browsers Gamapad API and polls connected Joycons for their st
 
 The Joycons can operate in 3 modes, the L-stick, the R-stick or both L+R sticks together. Reconnections and jumping between modes works, with one known limitation: **Transition from L+R to a single stick blocks all input, and requires a reconnect of the sticks you want to use.** This seems to be a bug in either the Joycons themselves or in the Gamepad API in general.
 
-From Release 30, the parameters for the JoyCon have a prefix: **joycon\_** \(i.e. joycon\_speedMap, joycon\_reverseSpeedMap etc\)
+From Release 30, the parameters for the JoyCon have a prefix: **joycon\_** \(i.e. joycon_speedMap, joycon_reverseSpeedMap etc\)
 
 | Query parameter   | Type             | Description                                                                                                                                                                                                                                                                                | Default                      |
 | :---------------- | :--------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------- |
@@ -158,9 +158,9 @@ From Release 30, the parameters for the JoyCon have a prefix: **joycon\_** \(i.e
 | `rangeNeutralMax` | number           | The minimum input to run forward, the start of the forward-range \(min speed\). This is also the end of any "deadband" you want filter out before starting moving forwards.                                                                                                                | `0.25`                       |
 | `rangeFwdMax`     | number           | The maximum input, the end of the forward-range \(max speed\)                                                                                                                                                                                                                              | `1`                          |
 
-* `rangeNeutralMin` has to be greater than `rangeRevMin`
-* `rangeNeutralMax` has to be greater than `rangeNeutralMin`
-* `rangeFwdMax` has to be greater than `rangeNeutralMax`
+- `rangeNeutralMin` has to be greater than `rangeRevMin`
+- `rangeNeutralMax` has to be greater than `rangeNeutralMin`
+- `rangeFwdMax` has to be greater than `rangeNeutralMax`
 
 ![Nintendo Swith Joycons](/img/docs/main/features/nintendo-switch-joycons.jpg)
 
@@ -176,8 +176,6 @@ You can turn on `?debug=1` to see how your input maps to an output.
 | Left / Y   | Go to the previous story  |
 | Right / A  | Go to the following story |
 
-
-
 **Calibration guide:**
 
 | **Symptom**                                                                                 | Adjustment                                                                                                                                                                                                                               |
@@ -188,4 +186,3 @@ You can turn on `?debug=1` to see how your input maps to an output.
 | _"I can't reach max speed backwards"_                                                       | Increase `rangeRevMin`                                                                                                                                                                                                                   |
 | _"I can't reach max speed forwards"_                                                        | Decrease `rangeFwdMax`                                                                                                                                                                                                                   |
 | _"As I find a good speed, it varies a bit in speed up/down even if I hold my finger still"_ | Use `?debug=1` to see what speed is calculated in the position the presenter wants to rest their finger in. Add more of that number in a sequence in the `speedMap` to flatten out the speed curve, i.e. `[1, 2, 3, 4, 4, 4, 4, 5, ...]` |
-

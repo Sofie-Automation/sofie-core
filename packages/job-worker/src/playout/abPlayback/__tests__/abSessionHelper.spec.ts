@@ -5,10 +5,10 @@ import { ABSessionInfo } from '@sofie-automation/corelib/dist/dataModel/RundownP
 import { OnGenerateTimelineObjExt } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { clone, getRandomId, omit } from '@sofie-automation/corelib/dist/lib'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { MockJobContext, setupDefaultJobEnvironment } from '../../../__mocks__/context'
-import _ = require('underscore')
-import { setupDefaultRundownPlaylist, setupMockShowStyleCompound } from '../../../__mocks__/presetCollections'
-import { AbSessionHelper } from '../abSessionHelper'
+import { MockJobContext, setupDefaultJobEnvironment } from '../../../__mocks__/context.js'
+import _ from 'underscore'
+import { setupDefaultRundownPlaylist, setupMockShowStyleCompound } from '../../../__mocks__/presetCollections.js'
+import { AbSessionHelper } from '../abSessionHelper.js'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { TimelineObjectAbSessionInfo } from '@sofie-automation/shared-lib/dist/core/model/Timeline'
 

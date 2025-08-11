@@ -6,11 +6,11 @@ import {
 	OverrideOpHelperImpl,
 	WrappedOverridableItemNormal,
 } from '@sofie-automation/corelib/dist/overrideOpHelper'
-import { logger } from '../../logging'
+import { logger } from '../../logging.js'
 import type { ReadonlyDeep } from 'type-fest'
-import type { WorkerDataCache } from '../caches'
-import type { IDirectCollections } from '../../db'
-import { JobStudio } from '../../jobs'
+import type { WorkerDataCache } from '../caches.js'
+import type { IDirectCollections } from '../../db/index.js'
+import { JobStudio } from '../../jobs/index.js'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 
 export class StudioRouteSetUpdater {

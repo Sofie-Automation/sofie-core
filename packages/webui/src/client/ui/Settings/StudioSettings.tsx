@@ -1,21 +1,20 @@
 import { useMemo } from 'react'
-import { useTracker } from '../../lib/ReactMeteorData/react-meteor-data'
-import { Spinner } from '../../lib/Spinner'
+import { useTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
+import { Spinner } from '../../lib/Spinner.js'
 import { PeripheralDeviceType } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
-import { StudioRoutings } from './Studio/Routings'
-import { StudioDevices } from './Studio/Devices'
-import { MappingsSettingsManifest, MappingsSettingsManifests, StudioMappings } from './Studio/Mappings'
-import { StudioPackageManagerSettings } from './Studio/PackageManager'
-import { StudioGenericProperties } from './Studio/Generic'
+import { StudioRoutings } from './Studio/Routings/index.js'
+import { StudioDevices } from './Studio/Devices/index.js'
+import { MappingsSettingsManifest, MappingsSettingsManifests, StudioMappings } from './Studio/Mappings.js'
+import { StudioPackageManagerSettings } from './Studio/PackageManager/index.js'
+import { StudioGenericProperties } from './Studio/Generic.js'
 import { Redirect, Route, Switch, useRouteMatch } from 'react-router-dom'
-import { ErrorBoundary } from '../../lib/ErrorBoundary'
-import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import { PeripheralDevices, ShowStyleBases, Studios } from '../../collections'
+import { ErrorBoundary } from '../../lib/ErrorBoundary.js'
+import { PeripheralDevices, Studios } from '../../collections/index.js'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { literal } from '@sofie-automation/corelib/dist/lib'
-import { translateStringIfHasNamespaces } from '../../lib/forms/schemaFormUtil'
+import { translateStringIfHasNamespaces } from '../../lib/forms/schemaFormUtil.js'
 import { JSONBlob, JSONBlobParse } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
-import { StudioBlueprintConfigurationSettings } from './Studio/BlueprintConfiguration'
+import { StudioBlueprintConfigurationSettings } from './Studio/BlueprintConfiguration/index.js'
 import { SubdeviceManifest } from '@sofie-automation/corelib/dist/deviceConfig'
 import { JSONSchema } from '@sofie-automation/blueprints-integration'
 
@@ -24,27 +23,6 @@ export default function StudioSettings(): JSX.Element {
 	const studioId = protectString(match.params.studioId)
 
 	const studio = useTracker(() => Studios.findOne(studioId), [studioId])
-
-	const studioMappings = useMemo(
-		() => (studio ? applyAndValidateOverrides(studio.mappingsWithOverrides).obj : {}),
-		[studio?.mappingsWithOverrides]
-	)
-
-	// TODO - move into child-component
-	const availableShowStyleBases = useTracker(
-		() =>
-			ShowStyleBases.find()
-				.fetch()
-				.map((showStyle) => {
-					return {
-						name: `${showStyle.name}`,
-						value: showStyle._id,
-						showStyleBase: showStyle,
-					}
-				}),
-		[],
-		[]
-	)
 
 	const firstPlayoutDevice = useTracker(
 		() =>
@@ -81,7 +59,7 @@ export default function StudioSettings(): JSX.Element {
 									id,
 									JSONBlobParse(schema),
 								])
-						  )
+							)
 						: undefined
 
 					return [
@@ -99,43 +77,38 @@ export default function StudioSettings(): JSX.Element {
 	}, [firstPlayoutDevice])
 
 	return studio ? (
-		<div className="studio-edit mod mhl mvn">
-			<div className="row">
-				<div className="col c12 r1-c12">
-					<ErrorBoundary>
-						<Switch>
-							<Route path={`${match.path}/generic`}>
-								<StudioGenericProperties studio={studio} availableShowStyleBases={availableShowStyleBases} />
-							</Route>
-							<Route path={`${match.path}/devices`}>
-								<StudioDevices studioId={studio._id} />
-							</Route>
-							<Route path={`${match.path}/blueprint-config`}>
-								<StudioBlueprintConfigurationSettings studio={studio} />
-							</Route>
-							<Route path={`${match.path}/mappings`}>
-								<StudioMappings
-									translationNamespaces={translationNamespaces}
-									studio={studio}
-									manifest={layerMappingsSchema}
-								/>
-							</Route>
-							<Route path={`${match.path}/route-sets`}>
-								<StudioRoutings
-									translationNamespaces={translationNamespaces}
-									studio={studio}
-									studioMappings={studioMappings}
-									manifest={layerMappingsSchema}
-								/>
-							</Route>
-							<Route path={`${match.path}/package-manager`}>
-								<StudioPackageManagerSettings studio={studio} />
-							</Route>
-							<Redirect to={`${match.path}/generic`} />
-						</Switch>
-					</ErrorBoundary>
-				</div>
-			</div>
+		<div className="studio-edit mx-4">
+			<ErrorBoundary>
+				<Switch>
+					<Route path={`${match.path}/generic`}>
+						<StudioGenericProperties studio={studio} />
+					</Route>
+					<Route path={`${match.path}/devices`}>
+						<StudioDevices studioId={studio._id} />
+					</Route>
+					<Route path={`${match.path}/blueprint-config`}>
+						<StudioBlueprintConfigurationSettings studio={studio} />
+					</Route>
+					<Route path={`${match.path}/mappings`}>
+						<StudioMappings
+							translationNamespaces={translationNamespaces}
+							studio={studio}
+							manifest={layerMappingsSchema}
+						/>
+					</Route>
+					<Route path={`${match.path}/route-sets`}>
+						<StudioRoutings
+							translationNamespaces={translationNamespaces}
+							studio={studio}
+							manifest={layerMappingsSchema}
+						/>
+					</Route>
+					<Route path={`${match.path}/package-manager`}>
+						<StudioPackageManagerSettings studio={studio} />
+					</Route>
+					<Redirect to={`${match.path}/generic`} />
+				</Switch>
+			</ErrorBoundary>
 		</div>
 	) : (
 		<Spinner />

@@ -25,9 +25,9 @@ import {
 	BlueprintFixUpConfigForStudioResult,
 	BlueprintValidateConfigForStudioResult,
 } from '@sofie-automation/corelib/dist/worker/studio'
-import { compileCoreConfigValues } from '../blueprints/config'
-import { CommonContext } from '../blueprints/context'
-import { JobContext } from '../jobs'
+import { compileCoreConfigValues } from '../blueprints/config.js'
+import { CommonContext } from '../blueprints/context/index.js'
+import { JobContext } from '../jobs/index.js'
 import { FixUpBlueprintConfigContext } from '@sofie-automation/corelib/dist/fixUpBlueprintConfig/context'
 import { DEFAULT_MINIMUM_TAKE_SPAN } from '@sofie-automation/shared-lib/dist/core/constants'
 

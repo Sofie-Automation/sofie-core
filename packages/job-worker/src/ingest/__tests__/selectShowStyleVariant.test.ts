@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { ExtendedIngestRundown, IBlueprintShowStyleBase } from '@sofie-automation/blueprints-integration'
-import '../../__mocks__/_extendJest'
-import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context'
-import { selectShowStyleVariant } from '../selectShowStyleVariant'
-import { StudioUserContext } from '../../blueprints/context'
-import { setupMockShowStyleCompound, setupMockShowStyleVariant } from '../../__mocks__/presetCollections'
+import '../../__mocks__/_extendJest.js'
+import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context.js'
+import { selectShowStyleVariant } from '../selectShowStyleVariant.js'
+import { StudioUserContext } from '../../blueprints/context/index.js'
+import { setupMockShowStyleCompound, setupMockShowStyleVariant } from '../../__mocks__/presetCollections.js'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 
 describe('selectShowStyleVariant', () => {

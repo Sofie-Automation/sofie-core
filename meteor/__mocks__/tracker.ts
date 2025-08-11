@@ -116,6 +116,7 @@ export namespace TrackerMock {
 
 		TrackerMock.currentComputation.onInvalidate(clb)
 	}
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 	export function afterFlush(_clb: Function): void {
 		throw new Error(`Tracker.afterFlush() is not implemented in the mock Tracker`)
 	}

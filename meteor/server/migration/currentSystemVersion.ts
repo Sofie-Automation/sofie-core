@@ -51,7 +51,8 @@
  * 1.50.0: Release 50 (2024-02-23)
  * 1.51.0: Release 51 (TBD)
  * 1.52.0: Release 52 (TBD)
+ * 1.53.0: Release 53 (TBD)
  */
 
 // Note: Only set this to release versions, (ie X.Y.Z), not pre-releases (ie X.Y.Z-0-pre-release)
-export const CURRENT_SYSTEM_VERSION = '1.52.0'
+export const CURRENT_SYSTEM_VERSION = '1.53.0'

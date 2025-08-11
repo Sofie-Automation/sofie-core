@@ -5,7 +5,7 @@ import {
 	unprotectObject,
 	unprotectString,
 	unprotectStringArray,
-} from '../protectedString'
+} from '../protectedString.js'
 
 describe('ProtectedString', () => {
 	test('stringifies properly', async () => {

@@ -1,13 +1,12 @@
 import * as React from 'react'
-import { getElementWidth } from '../../../utils/dimensions'
+import { getElementWidth } from '../../../utils/dimensions.js'
 
 import ClassNames from 'classnames'
-import { CustomLayerItemRenderer, ICustomLayerItemProps } from './CustomLayerItemRenderer'
+import { CustomLayerItemRenderer, ICustomLayerItemProps } from './CustomLayerItemRenderer.js'
 
 import { SplitsContent } from '@sofie-automation/blueprints-integration'
-import { RundownUtils } from '../../../lib/rundown'
-import { SplitsFloatingInspector } from '../../FloatingInspectors/SplitsFloatingInspector'
-import { getSplitPreview, SplitRole, SplitSubItem } from '../../../lib/ui/splitPreview'
+import { RundownUtils } from '../../../lib/rundown.js'
+import { getSplitPreview, SplitRole, SplitSubItem } from '../../../lib/ui/splitPreview.js'
 
 type IProps = ICustomLayerItemProps
 
@@ -121,15 +120,6 @@ export class SplitsSourceRenderer extends CustomLayerItemRenderer<IProps, IState
 						</span>
 					</>
 				)}
-				{this.props.piece.instance.piece.content ? (
-					<SplitsFloatingInspector
-						position={this.getFloatingInspectorStyle()}
-						content={this.props.piece.instance.piece.content as Partial<SplitsContent>}
-						itemElement={this.props.itemElement}
-						showMiniInspector={this.props.showMiniInspector}
-						typeClass={this.props.typeClass}
-					/>
-				) : null}
 			</React.Fragment>
 		)
 	}

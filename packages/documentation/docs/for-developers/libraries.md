@@ -13,9 +13,9 @@ sidebar_position: 5
 
 Together with the _Sofie&nbsp;Core_ there are several _gateways_ which are separate applications, but which connect to _Sofie&nbsp;Core_ and are managed from within the Core's web UI.
 
-- [**Playout Gateway**](https://github.com/Sofie-Automation/sofie-core/tree/main/packages/playout-gateway) Handles the playout from _Sofie_. Connects to and controls a multitude of devices, such as vision mixers, graphics, light controllers, audio mixers etc..
-- [**MOS Gateway**](https://github.com/Sofie-Automation/sofie-core/tree/main/packages/mos-gateway) Connects _Sofie_ to a newsroom system \(NRCS\) and ingests rundowns via the [MOS protocol](http://mosprotocol.com/).
-- [**Live Status Gateway**](https://github.com/Sofie-Automation/sofie-core/tree/main/packages/live-status-gateway) Allows external systems to subscribe to state changes in Sofie.
+- [**Playout Gateway**](https://github.com/Sofie-Automation/sofie-core/tree/master/packages/playout-gateway) Handles the playout from _Sofie_. Connects to and controls a multitude of devices, such as vision mixers, graphics, light controllers, audio mixers etc..
+- [**MOS Gateway**](https://github.com/Sofie-Automation/sofie-core/tree/master/packages/mos-gateway) Connects _Sofie_ to a newsroom system \(NRCS\) and ingests rundowns via the [MOS protocol](http://mosprotocol.com/).
+- [**Live Status Gateway**](https://github.com/Sofie-Automation/sofie-core/tree/master/packages/live-status-gateway) Allows external systems to subscribe to state changes in Sofie.
 - [**iNEWS Gateway**](https://github.com/tv2/inews-ftp-gateway) Connects _Sofie_ to an Avid iNEWS newsroom system.
 - [**Spreadsheet Gateway**](https://github.com/SuperFlyTV/spreadsheet-gateway) Connects _Sofie_ to a _Google Drive_ folder and ingests rundowns from _Google Sheets_.
 - [**Input Gateway**](https://github.com/Sofie-Automation/sofie-input-gateway) Connects _Sofie_ to various input devices, allowing triggering _User-Actions_ using these devices.

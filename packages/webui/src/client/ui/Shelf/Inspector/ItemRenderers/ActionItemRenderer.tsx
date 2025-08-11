@@ -1,28 +1,28 @@
 import * as React from 'react'
-import * as _ from 'underscore'
-import { PieceUi } from '../../../SegmentTimeline/SegmentTimelineContainer'
-import { RundownUtils } from '../../../../lib/rundown'
+import _ from 'underscore'
+import { PieceUi } from '../../../SegmentTimeline/SegmentTimelineContainer.js'
+import { RundownUtils } from '../../../../lib/rundown.js'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { IBlueprintActionTriggerMode } from '@sofie-automation/blueprints-integration'
-import { translateWithTracker, Translated } from '../../../../lib/ReactMeteorData/ReactMeteorData'
+import { translateWithTracker, Translated } from '../../../../lib/ReactMeteorData/ReactMeteorData.js'
 import { AdLibActionCommon } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
-import { createInMemorySyncMongoCollection } from '../../../../collections/lib'
-import { Spinner } from '../../../../lib/Spinner'
-import InspectorTitle from './InspectorTitle'
-import { ProtectedString } from '../../../../lib/tempLib'
-import { doUserAction, UserAction } from '../../../../lib/clientUserAction'
-import { MeteorCall } from '../../../../lib/meteorApi'
-import { BucketAdLibItem, BucketAdLibActionUi } from '../../RundownViewBuckets'
+import { createInMemorySyncMongoCollection } from '../../../../collections/lib.js'
+import { Spinner } from '../../../../lib/Spinner.js'
+import InspectorTitle from './InspectorTitle.js'
+import { ProtectedString } from '../../../../lib/tempLib.js'
+import { doUserAction, UserAction } from '../../../../lib/clientUserAction.js'
+import { MeteorCall } from '../../../../lib/meteorApi.js'
+import { BucketAdLibItem, BucketAdLibActionUi } from '../../RundownViewBuckets.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { actionToAdLibPieceUi } from '../../BucketPanel'
+import { actionToAdLibPieceUi } from '../../BucketPanel.js'
 import RundownViewEventBus, { RundownViewEvents } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
-import { IAdLibListItem } from '../../AdLibListItem'
+import { IAdLibListItem } from '../../AdLibListItem.js'
 import { translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
-import { AdLibPieceUi } from '../../../../lib/shelf'
+import { AdLibPieceUi } from '../../../../lib/shelf.js'
 import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { BucketId, PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { Buckets } from '../../../../collections'
+import { Buckets } from '../../../../collections/index.js'
 import { BucketAdLibAction } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibAction'
 
 export { isActionItem }
@@ -263,8 +263,8 @@ function isActionItem(item: BucketAdLibItem | IAdLibListItem | PieceUi): item is
 	const content = RundownUtils.isAdLibPieceOrAdLibListItem(item)
 		? (item as AdLibPieceUi)
 		: RundownUtils.isPieceInstance(item)
-		? (item.instance.piece as Piece)
-		: (item as AdLibPieceUi)
+			? (item.instance.piece as Piece)
+			: (item as AdLibPieceUi)
 
 	if (content && (content as AdLibPieceUi).isAction) {
 		return true

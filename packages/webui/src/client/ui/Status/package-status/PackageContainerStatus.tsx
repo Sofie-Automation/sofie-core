@@ -3,11 +3,12 @@ import Tooltip from 'rc-tooltip'
 import { useTranslation } from 'react-i18next'
 import ClassNames from 'classnames'
 import { PackageContainerStatusDB } from '@sofie-automation/corelib/dist/dataModel/PackageContainerStatus'
-import { StatusCodePill } from '../StatusCodePill'
-import { doUserAction, UserAction } from '../../../lib/clientUserAction'
-import { MeteorCall } from '../../../lib/meteorApi'
+import { StatusCodePill } from '../StatusCodePill.js'
+import { doUserAction, UserAction } from '../../../lib/clientUserAction.js'
+import { MeteorCall } from '../../../lib/meteorApi.js'
 import { ExpectedPackageStatusAPI } from '@sofie-automation/blueprints-integration'
 import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
+import Button from 'react-bootstrap/Button'
 
 export const PackageContainerStatus: React.FC<{
 	packageContainerStatus: PackageContainerStatusDB
@@ -53,9 +54,9 @@ export const PackageContainerStatus: React.FC<{
 				<td>
 					{device?.connected && (
 						<>
-							<button className="btn btn-secondary mls" onClick={(e) => restartPackageContainer(e)}>
+							<Button variant="outline-secondary" onClick={(e) => restartPackageContainer(e)}>
 								{t('Restart Container')}
-							</button>
+							</Button>
 						</>
 					)}
 				</td>
@@ -109,7 +110,7 @@ export const PackageContainerStatus: React.FC<{
 // 							</Tooltip>
 // 						</td>
 // 						<td>
-// 							<button className="btn btn-secondary mls" onClick={(e) => this.restartPackageContainer(e)}>
+// 							<button className="btn btn-secondary ms-1" onClick={(e) => this.restartPackageContainer(e)}>
 // 								{t('Restart')}
 // 							</button>
 // 						</td>

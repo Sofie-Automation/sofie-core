@@ -1,6 +1,6 @@
 import { EvsContent } from '@sofie-automation/blueprints-integration'
-import { IProps } from './ThumbnailRendererFactory'
-import { getSizeClassForLabel } from '../../utils/getLabelClass'
+import { IProps } from './ThumbnailRendererFactory.js'
+import { getSizeClassForLabel } from '../../utils/getLabelClass.js'
 
 export function LocalThumbnailRenderer({ pieceInstance }: Readonly<IProps>): JSX.Element {
 	const localContent = pieceInstance.instance.piece.content as EvsContent

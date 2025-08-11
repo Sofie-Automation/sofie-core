@@ -10,7 +10,7 @@
 			"description": "Activate Debug Logging",
 			"default": false
 		}
-    },
+	},
 	"required": [],
 	"additionalProperties": false
 }

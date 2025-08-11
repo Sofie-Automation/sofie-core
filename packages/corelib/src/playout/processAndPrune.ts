@@ -1,10 +1,10 @@
 import { ISourceLayer, PieceLifespan } from '@sofie-automation/blueprints-integration'
 import { literal } from '@sofie-automation/shared-lib/dist/lib/lib'
-import { PieceInstance, ResolvedPieceInstance } from '../dataModel/PieceInstance'
-import { SourceLayers } from '../dataModel/ShowStyleBase'
-import { assertNever, groupByToMapFunc } from '../lib'
-import _ = require('underscore')
-import { isCandidateBetterToBeContinued, isCandidateMoreImportant } from './infinites'
+import { PieceInstance, ResolvedPieceInstance } from '../dataModel/PieceInstance.js'
+import { SourceLayers } from '../dataModel/ShowStyleBase.js'
+import { assertNever, groupByToMapFunc } from '../lib.js'
+import _ from 'underscore'
+import { isCandidateBetterToBeContinued, isCandidateMoreImportant } from './infinites.js'
 import { ReadonlyDeep } from 'type-fest'
 
 /**

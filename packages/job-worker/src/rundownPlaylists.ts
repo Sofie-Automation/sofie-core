@@ -24,25 +24,25 @@ import {
 	IBlueprintRundown,
 	NoteSeverity,
 } from '@sofie-automation/blueprints-integration'
-import { JobContext, JobStudio } from './jobs'
-import { logger } from './logging'
-import { resetRundownPlaylist } from './playout/lib'
-import { runJobWithPlaylistLock, runWithPlayoutModel } from './playout/lock'
-import { updateTimeline } from './playout/timeline/generate'
-import { WrappedStudioBlueprint } from './blueprints/cache'
-import { StudioUserContext } from './blueprints/context'
-import { getCurrentTime } from './lib'
+import { JobContext, JobStudio } from './jobs/index.js'
+import { logger } from './logging.js'
+import { resetRundownPlaylist } from './playout/lib.js'
+import { runJobWithPlaylistLock, runWithPlayoutModel } from './playout/lock.js'
+import { updateTimeline } from './playout/timeline/generate.js'
+import { WrappedStudioBlueprint } from './blueprints/cache.js'
+import { StudioUserContext } from './blueprints/context/index.js'
+import { getCurrentTime } from './lib/index.js'
 import {
 	regeneratePlaylistAndRundownOrder,
 	removeRundownFromPlaylistAndUpdatePlaylist,
 	updatePlayoutAfterChangingRundownInPlaylist,
-} from './ingest/commit'
-import { allowedToMoveRundownOutOfPlaylist } from './rundown'
+} from './ingest/commit.js'
+import { allowedToMoveRundownOutOfPlaylist } from './rundown.js'
 import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
 import { UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/error'
-import { PlaylistLock, RundownLock } from './jobs/lock'
-import { runWithRundownLock } from './ingest/lock'
-import { convertRundownToBlueprints } from './blueprints/context/lib'
+import { PlaylistLock, RundownLock } from './jobs/lock.js'
+import { runWithRundownLock } from './ingest/lock.js'
+import { convertRundownToBlueprints } from './blueprints/context/lib.js'
 import { sortRundownIDsInPlaylist } from '@sofie-automation/corelib/dist/playout/playlist'
 import { INoteBase } from '@sofie-automation/corelib/dist/dataModel/Notes'
 

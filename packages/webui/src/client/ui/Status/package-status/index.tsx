@@ -1,25 +1,29 @@
 import React, { useMemo } from 'react'
-import { useSubscription, useTracker } from '../../../lib/ReactMeteorData/react-meteor-data'
+import { useSubscription, useTracker } from '../../../lib/ReactMeteorData/react-meteor-data.js'
 import { ExpectedPackageWorkStatus } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackageWorkStatuses'
-import { normalizeArrayToMap, unprotectString } from '../../../lib/tempLib'
+import { normalizeArrayToMap, unprotectString } from '../../../lib/tempLib.js'
 import { ExpectedPackageDB } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
-import { MeteorCall } from '../../../lib/meteorApi'
-import { doUserAction, UserAction } from '../../../lib/clientUserAction'
+import { MeteorCall } from '../../../lib/meteorApi.js'
+import { doUserAction, UserAction } from '../../../lib/clientUserAction.js'
 import { Meteor } from 'meteor/meteor'
-import { PackageStatus } from './PackageStatus'
-import { PackageContainerStatus } from './PackageContainerStatus'
-import { Spinner } from '../../../lib/Spinner'
+import { PackageStatus } from './PackageStatus.js'
+import { PackageContainerStatus } from './PackageContainerStatus.js'
+import { Spinner } from '../../../lib/Spinner.js'
 import { useTranslation } from 'react-i18next'
-import { UIStudios } from '../../Collections'
+import { UIStudios } from '../../Collections.js'
 import {
 	ExpectedPackages,
 	ExpectedPackageWorkStatuses,
 	PackageContainerStatuses,
 	PeripheralDevices,
-} from '../../../collections'
+} from '../../../collections/index.js'
 import { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
+import Row from 'react-bootstrap/Row'
+import Col from 'react-bootstrap/Col'
+import Button from 'react-bootstrap/Button'
+import { ExpectedPackageStatusAPI } from '@sofie-automation/blueprints-integration'
 
 export const ExpectedPackagesStatus: React.FC<{}> = function ExpectedPackagesStatus(_props: {}) {
 	const { t } = useTranslation()
@@ -101,7 +105,7 @@ export const ExpectedPackagesStatus: React.FC<{}> = function ExpectedPackagesSta
 
 			let incompleteRank = 999
 			for (const status of p.statuses) {
-				if (status.status !== 'fulfilled') {
+				if (status.status !== ExpectedPackageStatusAPI.WorkStatusState.FULFILLED) {
 					if (status.requiredForPlayout) {
 						incompleteRank = Math.min(incompleteRank, 0)
 					} else {
@@ -156,21 +160,16 @@ export const ExpectedPackagesStatus: React.FC<{}> = function ExpectedPackagesSta
 	}
 
 	return (
-		<div className="mhl gutter package-status">
-			<header className="mbs">
+		<div className="package-status">
+			<header className="mb-4">
 				<h1>{t('Package Status')}</h1>
 			</header>
 
 			{allSubsReady && peripheralDeviceSubReady ? (
 				<>
-					<div className="mod row">
-						<div className="col c12 rl-c6">
-							<header className="mbs">
-								<b>{t('Container Status')}</b>
-							</header>
-						</div>
-					</div>
-					<table className="mod packageContainer-status-list">
+					<header className="mb-4">{t('Container Status')}</header>
+
+					<table className="packageContainer-status-list">
 						<tbody>
 							<tr className="packageContainer-status__header">
 								<th className="indent"></th>
@@ -182,20 +181,18 @@ export const ExpectedPackagesStatus: React.FC<{}> = function ExpectedPackagesSta
 						</tbody>
 					</table>
 
-					<div className="mod row mtl">
-						<div className="col c12 rl-c6">
-							<header className="mbs">
-								<b>{t('Job Status')}</b>
-							</header>
-						</div>
-						<div className="col c12 rl-c6 alright">
-							<button className="btn btn-secondary mls" onClick={(e) => restartAllExpectations(e)}>
+					<Row className="my-4">
+						<Col xs={6}>
+							<header>{t('Job Status')}</header>
+						</Col>
+						<Col xs={6} className="d-md-flex justify-content-md-end">
+							<Button variant="outline-secondary" onClick={(e) => restartAllExpectations(e)}>
 								{t('Restart All Jobs')}
-							</button>
-						</div>
-					</div>
+							</Button>
+						</Col>
+					</Row>
 
-					<table className="mod package-status-list">
+					<table className="package-status-list">
 						<tbody>
 							<tr className="package-status__header">
 								<th className="indent"></th>

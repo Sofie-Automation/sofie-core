@@ -1,23 +1,23 @@
 import { Meteor } from 'meteor/meteor'
 import { DDP } from 'meteor/ddp'
 import * as React from 'react'
-import * as _ from 'underscore'
-import { MomentFromNow } from './Moment'
+import _ from 'underscore'
+import { MomentFromNow } from './Moment.js'
 import {
 	NotificationCenter,
 	NoticeLevel,
 	Notification,
 	NotificationList,
 	NotifierHandle,
-} from './notifications/notifications'
-import { WithManagedTracker } from './reactiveData/reactiveDataHelper'
+} from './notifications/notifications.js'
+import { WithManagedTracker } from './reactiveData/reactiveDataHelper.js'
 import { useTranslation } from 'react-i18next'
-import { NotificationCenterPopUps } from './notifications/NotificationCenterPanel'
+import { NotificationCenterPopUps } from './notifications/NotificationCenterPanel.js'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { ICoreSystem, ServiceMessage, Criticality } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
 import { TFunction } from 'react-i18next'
 import { getRandomId } from '@sofie-automation/corelib/dist/lib'
-import { CoreSystem } from '../collections'
+import { CoreSystem } from '../collections/index.js'
 import { useEffect } from 'react'
 
 export class ConnectionStatusNotifier extends WithManagedTracker {
@@ -53,7 +53,7 @@ export class ConnectionStatusNotifier extends WithManagedTracker {
 				lastNotificationId = undefined
 				try {
 					NotificationCenter.drop(buf)
-				} catch (e) {
+				} catch (_e) {
 					// if the last notification can't be dropped, ignore
 				}
 			}
@@ -157,7 +157,7 @@ export class ConnectionStatusNotifier extends WithManagedTracker {
 								Meteor.reconnect()
 							},
 						},
-				  ]
+					]
 				: undefined,
 			-100
 		)

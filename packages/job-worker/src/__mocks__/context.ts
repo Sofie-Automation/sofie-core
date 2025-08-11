@@ -31,14 +31,14 @@ import { EventsJobFunc } from '@sofie-automation/corelib/dist/worker/events'
 import { IngestJobFunc } from '@sofie-automation/corelib/dist/worker/ingest'
 import { StudioJobFunc } from '@sofie-automation/corelib/dist/worker/studio'
 import { ReadonlyDeep } from 'type-fest'
-import { WrappedShowStyleBlueprint, WrappedStudioBlueprint } from '../blueprints/cache'
+import { WrappedShowStyleBlueprint, WrappedStudioBlueprint } from '../blueprints/cache.js'
 import {
 	ProcessedShowStyleConfig,
 	ProcessedStudioConfig,
 	preprocessShowStyleConfig,
 	preprocessStudioConfig,
-} from '../blueprints/config'
-import { IDirectCollections } from '../db'
+} from '../blueprints/config.js'
+import { IDirectCollections } from '../db/index.js'
 import {
 	ApmSpan,
 	JobContext,
@@ -46,18 +46,18 @@ import {
 	ProcessedShowStyleBase,
 	ProcessedShowStyleCompound,
 	ProcessedShowStyleVariant,
-} from '../jobs'
-import { PlaylistLock, RundownLock } from '../jobs/lock'
-import { BaseModel } from '../modelBase'
-import { createShowStyleCompound } from '../showStyles'
-import { IMockCollections, getMockCollections } from './collection'
-// import _ = require('underscore')
+} from '../jobs/index.js'
+import { PlaylistLock, RundownLock } from '../jobs/lock.js'
+import { BaseModel } from '../modelBase.js'
+import { createShowStyleCompound } from '../showStyles.js'
+import { IMockCollections, getMockCollections } from './collection.js'
+// import _ from 'underscore'
 import { TimelineComplete } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { JSONBlobStringify } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
-import { removeRundownPlaylistFromDb } from '../ingest/__tests__/lib'
-import { processShowStyleBase, processShowStyleVariant } from '../jobs/showStyle'
-import { defaultStudio } from './defaultCollectionObjects'
-import { convertStudioToJobStudio } from '../jobs/studio'
+import { removeRundownPlaylistFromDb } from '../ingest/__tests__/lib.js'
+import { processShowStyleBase, processShowStyleVariant } from '../jobs/showStyle.js'
+import { defaultStudio } from './defaultCollectionObjects.js'
+import { convertStudioToJobStudio } from '../jobs/studio.js'
 
 export function setupDefaultJobEnvironment(studioId?: StudioId): MockJobContext {
 	const { mockCollections, jobCollections } = getMockCollections()

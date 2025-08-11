@@ -1,9 +1,9 @@
 import { clone } from '@sofie-automation/corelib/dist/lib'
-import { MutableIngestSegmentChanges, MutableIngestSegmentImpl } from '../MutableIngestSegmentImpl'
-import { SofieIngestRundownDataCacheGenerator } from '../../../ingest/sofieIngestCache'
+import { MutableIngestSegmentChanges, MutableIngestSegmentImpl } from '../MutableIngestSegmentImpl.js'
+import { SofieIngestRundownDataCacheGenerator } from '../../../ingest/sofieIngestCache.js'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { getSegmentId } from '../../../ingest/lib'
-import { MutableIngestPartImpl } from '../MutableIngestPartImpl'
+import { getSegmentId } from '../../../ingest/lib.js'
+import { MutableIngestPartImpl } from '../MutableIngestPartImpl.js'
 import { IngestPart, IngestSegment, SofieIngestSegment } from '@sofie-automation/blueprints-integration'
 
 describe('MutableIngestSegmentImpl', () => {

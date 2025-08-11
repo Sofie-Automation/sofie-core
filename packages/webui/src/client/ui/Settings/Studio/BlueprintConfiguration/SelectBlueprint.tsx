@@ -1,16 +1,16 @@
 import { useMemo } from 'react'
-import { useTracker } from '../../../../lib/ReactMeteorData/react-meteor-data'
+import { useTracker } from '../../../../lib/ReactMeteorData/react-meteor-data.js'
 import { BlueprintManifestType } from '@sofie-automation/blueprints-integration'
-import { Blueprints, Studios } from '../../../../collections'
+import { Blueprints, Studios } from '../../../../collections/index.js'
 import { useTranslation } from 'react-i18next'
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { EditAttribute } from '../../../../lib/EditAttribute'
-import { RedirectToBlueprintButton } from '../../../../lib/SettingsNavigation'
+import { EditAttribute } from '../../../../lib/EditAttribute.js'
+import { RedirectToBlueprintButton } from '../../../../lib/SettingsNavigation.js'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { LabelActual } from '../../../../lib/Components/LabelAndOverrides'
+import { LabelActual } from '../../../../lib/Components/LabelAndOverrides.js'
 
 interface SelectBlueprintProps {
 	studio: DBStudio
@@ -47,28 +47,28 @@ export function SelectBlueprint({ studio }: Readonly<SelectBlueprintProps>): JSX
 	}, [t, allStudioBlueprints])
 
 	return (
-		<div className="mod mvs mhs">
-			<label className="field">
-				<LabelActual label={t('Blueprint')} />
+		<label className="field">
+			<LabelActual label={t('Blueprint')} />
+
+			<EditAttribute
+				attribute="blueprintId"
+				obj={studio}
+				type="dropdown"
+				options={blueprintOptions}
+				mutateDisplayValue={(v) => v || ''}
+				mutateUpdateValue={(v) => (v === '' ? undefined : v)}
+				collection={Studios}
+			/>
+			<div>
 				{!studio.blueprintId ? (
 					<div className="error-notice inline">
 						{t('Blueprint not set')} <FontAwesomeIcon icon={faExclamationTriangle} />
 					</div>
 				) : null}
-
-				<EditAttribute
-					modifiedClassName="bghl"
-					attribute="blueprintId"
-					obj={studio}
-					type="dropdown"
-					options={blueprintOptions}
-					mutateDisplayValue={(v) => v || ''}
-					mutateUpdateValue={(v) => (v === '' ? undefined : v)}
-					collection={Studios}
-					className="input text-input input-l"
-				/>
+			</div>
+			<div>
 				<RedirectToBlueprintButton id={studio.blueprintId} />
-			</label>
-		</div>
+			</div>
+		</label>
 	)
 }

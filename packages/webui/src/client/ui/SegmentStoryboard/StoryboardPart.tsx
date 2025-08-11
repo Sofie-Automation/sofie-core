@@ -1,36 +1,28 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import classNames from 'classnames'
 import { useTranslation } from 'react-i18next'
-import { PartExtended } from '../../lib/RundownResolver'
-import { IOutputLayerUi, SegmentUi } from '../SegmentContainer/withResolvedSegment'
-import { StoryboardPartSecondaryPieces } from './StoryboardPartSecondaryPieces/StoryboardPartSecondaryPieces'
-import { StoryboardPartThumbnail } from './StoryboardPartThumbnail/StoryboardPartThumbnail'
+import { PartExtended } from '../../lib/RundownResolver.js'
+import { IOutputLayerUi, SegmentUi } from '../SegmentContainer/withResolvedSegment.js'
+import { StoryboardPartSecondaryPieces } from './StoryboardPartSecondaryPieces/StoryboardPartSecondaryPieces.js'
+import { StoryboardPartThumbnail } from './StoryboardPartThumbnail/StoryboardPartThumbnail.js'
 import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'
-import { contextMenuHoldToDisplayTime } from '../../lib/lib'
-import { getElementDocumentOffset } from '../../utils/positions'
-import { IContextMenuContext } from '../RundownView'
-import { literal } from '../../lib/tempLib'
-import { SegmentTimelinePartElementId } from '../SegmentTimeline/Parts/SegmentTimelinePart'
-import { CurrentPartOrSegmentRemaining } from '../RundownView/RundownTiming/CurrentPartOrSegmentRemaining'
-import { getAllowSpeaking, getAllowVibrating } from '../../lib/localStorage'
-import RundownViewEventBus, {
-	HighlightEvent,
-	RundownViewEvents,
-} from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
+import { contextMenuHoldToDisplayTime, useRundownViewEventBusListener } from '../../lib/lib.js'
+import { getElementDocumentOffset } from '../../utils/positions.js'
+import { IContextMenuContext } from '../RundownView.js'
+import { literal } from '../../lib/tempLib.js'
+import { SegmentTimelinePartElementId } from '../SegmentTimeline/Parts/SegmentTimelinePart.js'
+import { CurrentPartOrSegmentRemaining } from '../RundownView/RundownTiming/CurrentPartOrSegmentRemaining.js'
+import { getAllowSpeaking, getAllowVibrating } from '../../lib/localStorage.js'
+import { HighlightEvent, RundownViewEvents } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
 import { Meteor } from 'meteor/meteor'
-import { StoryboardPartTransitions } from './StoryboardPartTransitions'
-import { PartDisplayDuration } from '../RundownView/RundownTiming/PartDuration'
-import { InvalidPartCover } from '../SegmentTimeline/Parts/InvalidPartCover'
-import { SegmentEnd } from '../../lib/ui/icons/segment'
-import { AutoNextStatus } from '../RundownView/RundownTiming/AutoNextStatus'
-import { RundownTimingContext, getPartInstanceTimingId } from '../../lib/rundownTiming'
-import {
-	TimingDataResolution,
-	TimingTickResolution,
-	WithTiming,
-	withTiming,
-} from '../RundownView/RundownTiming/withTiming'
-import { LoopingIcon } from '../../lib/ui/icons/looping'
+import { StoryboardPartTransitions } from './StoryboardPartTransitions.js'
+import { PartDisplayDuration } from '../RundownView/RundownTiming/PartDuration.js'
+import { InvalidPartCover } from '../SegmentTimeline/Parts/InvalidPartCover.js'
+import { SegmentEnd } from '../../lib/ui/icons/segment.js'
+import { AutoNextStatus } from '../RundownView/RundownTiming/AutoNextStatus.js'
+import { RundownTimingContext, getPartInstanceTimingId } from '../../lib/rundownTiming.js'
+import { TimingDataResolution, TimingTickResolution, useTiming } from '../RundownView/RundownTiming/withTiming.js'
+import { LoopingIcon } from '../../lib/ui/icons/looping.js'
 
 interface IProps {
 	className?: string
@@ -55,18 +47,7 @@ interface IProps {
 	onHoverOver?: () => void
 	onHoverOut?: () => void
 }
-export const StoryboardPart = withTiming<IProps, {}>((props: IProps) => {
-	return {
-		tickResolution: TimingTickResolution.Synced,
-		dataResolution: TimingDataResolution.High,
-		filter: (durations: RundownTimingContext) => {
-			durations = durations || {}
-
-			const timingId = getPartInstanceTimingId(props.part.instance)
-			return [(durations.partsInQuickLoop || {})[timingId]]
-		},
-	}
-})(function StoryboardPart({
+export function StoryboardPart({
 	className,
 	segment,
 	part,
@@ -84,14 +65,24 @@ export const StoryboardPart = withTiming<IProps, {}>((props: IProps) => {
 	subscriptionsReady,
 	displayLiveLineCounter,
 	style,
-	timingDurations,
 	onContextMenu,
 	onHoverOver,
 	onHoverOut,
-}: Readonly<WithTiming<IProps>>): JSX.Element {
+}: Readonly<IProps>): JSX.Element {
 	const { t } = useTranslation()
 	const [highlight, setHighlight] = useState(false)
 	const willBeAutoNextedInto = isNextPart ? currentPartWillAutonext : part.willProbablyAutoNext
+
+	const timingDurations = useTiming(
+		TimingTickResolution.Synced,
+		TimingDataResolution.High,
+		(durations: RundownTimingContext) => {
+			durations = durations || {}
+
+			const timingId = getPartInstanceTimingId(part.instance)
+			return [(durations.partsInQuickLoop || {})[timingId]]
+		}
+	)
 
 	const getPartContext = useCallback(() => {
 		const partElement = document.querySelector('#' + SegmentTimelinePartElementId + part.instance._id)
@@ -130,13 +121,8 @@ export const StoryboardPart = withTiming<IProps, {}>((props: IProps) => {
 			if (highlightTimeout.current) Meteor.clearTimeout(highlightTimeout.current)
 		}
 	}, [])
-	useEffect(() => {
-		RundownViewEventBus.on(RundownViewEvents.HIGHLIGHT, onHighlight)
 
-		return () => {
-			RundownViewEventBus.off(RundownViewEvents.HIGHLIGHT, onHighlight)
-		}
-	}, [onHighlight])
+	useRundownViewEventBusListener(RundownViewEvents.HIGHLIGHT, onHighlight)
 
 	const isInvalid = part.instance.part.invalid
 	const isFloated = part.instance.part.floated
@@ -243,8 +229,8 @@ export const StoryboardPart = withTiming<IProps, {}>((props: IProps) => {
 						{part.instance.part.autoNext
 							? t('Auto')
 							: isLivePart && (!isLastSegment || doesPlaylistHaveNextPart)
-							? t('Next')
-							: null}
+								? t('Next')
+								: null}
 					</div>
 				</>
 			)}
@@ -308,4 +294,4 @@ export const StoryboardPart = withTiming<IProps, {}>((props: IProps) => {
 			{isQuickLoopEnd && <div className="segment-storyboard__part__quickloop-end" />}
 		</ContextMenuTrigger>
 	)
-})
+}
