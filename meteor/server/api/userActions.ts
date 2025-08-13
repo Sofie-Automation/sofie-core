@@ -10,7 +10,6 @@ import { storeRundownPlaylistSnapshot } from './snapshot'
 import { registerClassToMeteorMethods, ReplaceOptionalWithNullInMethodArguments } from '../methods'
 import { ServerRundownAPI } from './rundown'
 import { saveEvaluation } from './evaluations'
-import * as MediaManagerAPI from './mediaManager'
 import { MOSDeviceActions } from './ingest/mosDevice/actions'
 import { MethodContextAPI } from './methodContext'
 import { ServerClientAPI } from './client'
@@ -28,7 +27,6 @@ import {
 	BucketAdLibActionId,
 	BucketAdLibId,
 	BucketId,
-	MediaWorkFlowId,
 	PartId,
 	PartInstanceId,
 	PeripheralDeviceId,
@@ -753,97 +751,6 @@ class ServerUserActionAPI
 			{ rundownId },
 			async (rundown) => {
 				return ServerRundownAPI.resyncRundown(rundown)
-			}
-		)
-	}
-	async mediaRestartWorkflow(
-		userEvent: string,
-		eventTime: Time,
-		deviceId: PeripheralDeviceId,
-		workflowId: MediaWorkFlowId
-	) {
-		return ServerClientAPI.runUserActionInLog(
-			this,
-			userEvent,
-			eventTime,
-			'mediaRestartWorkflow',
-			{ deviceId, workflowId },
-			async () => {
-				check(workflowId, String)
-
-				assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MEDIA_MANAGEMENT)
-
-				return MediaManagerAPI.restartWorkflow(deviceId, workflowId)
-			}
-		)
-	}
-	async mediaAbortWorkflow(
-		userEvent: string,
-		eventTime: Time,
-		deviceId: PeripheralDeviceId,
-		workflowId: MediaWorkFlowId
-	) {
-		return ServerClientAPI.runUserActionInLog(
-			this,
-			userEvent,
-			eventTime,
-			'mediaAbortWorkflow',
-			{ deviceId, workflowId },
-			async () => {
-				check(workflowId, String)
-
-				assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MEDIA_MANAGEMENT)
-
-				return MediaManagerAPI.abortWorkflow(deviceId, workflowId)
-			}
-		)
-	}
-	async mediaPrioritizeWorkflow(
-		userEvent: string,
-		eventTime: Time,
-		deviceId: PeripheralDeviceId,
-		workflowId: MediaWorkFlowId
-	) {
-		return ServerClientAPI.runUserActionInLog(
-			this,
-			userEvent,
-			eventTime,
-			'mediaPrioritizeWorkflow',
-			{ deviceId, workflowId },
-			async () => {
-				check(workflowId, String)
-
-				assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MEDIA_MANAGEMENT)
-
-				return MediaManagerAPI.prioritizeWorkflow(deviceId, workflowId)
-			}
-		)
-	}
-	async mediaRestartAllWorkflows(userEvent: string, eventTime: Time) {
-		return ServerClientAPI.runUserActionInLog(
-			this,
-			userEvent,
-			eventTime,
-			'mediaRestartAllWorkflows',
-			{},
-			async () => {
-				assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MEDIA_MANAGEMENT)
-
-				return MediaManagerAPI.restartAllWorkflows(null)
-			}
-		)
-	}
-	async mediaAbortAllWorkflows(userEvent: string, eventTime: Time) {
-		return ServerClientAPI.runUserActionInLog(
-			this,
-			userEvent,
-			eventTime,
-			'mediaAbortAllWorkflows',
-			{},
-			async () => {
-				assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MEDIA_MANAGEMENT)
-
-				return MediaManagerAPI.abortAllWorkflows(null)
 			}
 		)
 	}

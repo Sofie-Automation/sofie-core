@@ -12,7 +12,6 @@ import {
 	BucketAdLibActionId,
 	BucketAdLibId,
 	BucketId,
-	MediaWorkFlowId,
 	PartId,
 	PartInstanceId,
 	PeripheralDeviceId,
@@ -212,26 +211,6 @@ export interface NewUserActionAPI {
 		rundownId: RundownId
 	): Promise<ClientAPI.ClientResponse<TriggerReloadDataResponse>>
 	unsyncRundown(userEvent: string, eventTime: Time, rundownId: RundownId): Promise<ClientAPI.ClientResponse<void>> //
-	mediaRestartWorkflow(
-		userEvent: string,
-		eventTime: Time,
-		deviceId: PeripheralDeviceId,
-		workflowId: MediaWorkFlowId
-	): Promise<ClientAPI.ClientResponse<void>>
-	mediaAbortWorkflow(
-		userEvent: string,
-		eventTime: Time,
-		deviceId: PeripheralDeviceId,
-		workflowId: MediaWorkFlowId
-	): Promise<ClientAPI.ClientResponse<void>>
-	mediaPrioritizeWorkflow(
-		userEvent: string,
-		eventTime: Time,
-		deviceId: PeripheralDeviceId,
-		workflowId: MediaWorkFlowId
-	): Promise<ClientAPI.ClientResponse<void>>
-	mediaRestartAllWorkflows(userEvent: string, eventTime: Time): Promise<ClientAPI.ClientResponse<void>>
-	mediaAbortAllWorkflows(userEvent: string, eventTime: Time): Promise<ClientAPI.ClientResponse<void>>
 	packageManagerRestartExpectation(
 		userEvent: string,
 		eventTime: Time,
@@ -427,12 +406,6 @@ export enum UserActionAPIMethods {
 
 	'moveRundown' = 'userAction.moveRundown',
 	'restoreRundownOrder' = 'userAction.restoreRundownOrder',
-
-	'mediaRestartWorkflow' = 'userAction.mediamanager.restartWorkflow',
-	'mediaAbortWorkflow' = 'userAction.mediamanager.abortWorkflow',
-	'mediaRestartAllWorkflows' = 'userAction.mediamanager.restartAllWorkflows',
-	'mediaAbortAllWorkflows' = 'userAction.mediamanager.abortAllWorkflows',
-	'mediaPrioritizeWorkflow' = 'userAction.mediamanager.mediaPrioritizeWorkflow',
 
 	'packageManagerRestartExpectation' = 'userAction.packagemanager.restartExpectation',
 	'packageManagerRestartAllExpectations' = 'userAction.packagemanager.restartAllExpectations',

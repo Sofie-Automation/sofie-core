@@ -16,8 +16,6 @@ export enum CollectionName {
 	NrcsIngestDataCache = 'ingestDataCache', // Future: this could be renamed to nrcsIngestDataCache
 	SofieIngestDataCache = 'sofieIngestDataCache',
 	MediaObjects = 'mediaObjects',
-	MediaWorkFlows = 'mediaWorkFlows',
-	MediaWorkFlowSteps = 'mediaWorkFlowSteps',
 	Notifications = 'notifications',
 	Organizations = 'organizations',
 	PartInstances = 'partInstances',

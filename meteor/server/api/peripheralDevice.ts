@@ -20,9 +20,6 @@ import {
 import { MosIntegration } from './ingest/mosDevice/mosIntegration'
 import { MediaScannerIntegration } from './integration/media-scanner'
 import { MediaObject } from '@sofie-automation/shared-lib/dist/core/model/MediaObjects'
-import { MediaManagerIntegration } from './integration/mediaWorkFlows'
-import { MediaWorkFlow } from '@sofie-automation/shared-lib/dist/core/model/MediaWorkFlows'
-import { MediaWorkFlowStep } from '@sofie-automation/shared-lib/dist/core/model/MediaWorkFlowSteps'
 import { MOS } from '@sofie-automation/corelib'
 import { determineDiffTime } from './systemTime/systemTime'
 import { getTimeDiff } from './systemTime/api'
@@ -44,8 +41,6 @@ import { checkStudioExists } from '../optimizations'
 import {
 	ExpectedPackageId,
 	ExpectedPackageWorkStatusId,
-	MediaWorkFlowId,
-	MediaWorkFlowStepId,
 	PeripheralDeviceCommandId,
 	PeripheralDeviceId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
@@ -1130,7 +1125,7 @@ class ServerPeripheralDeviceAPIClass extends MethodContextAPI implements NewPeri
 	async mosRoFullStory(deviceId: PeripheralDeviceId, deviceToken: string, story: MOS.IMOSROFullStory) {
 		return MosIntegration.mosRoFullStory(this, deviceId, deviceToken, story)
 	}
-	// ------- Media Manager (Media Scanner)
+	// ------- Expected Playout Items (Previously: Media Manager (Media Scanner))
 	async getMediaObjectRevisions(deviceId: PeripheralDeviceId, deviceToken: string, collectionId: string) {
 		return MediaScannerIntegration.getMediaObjectRevisions(this, deviceId, deviceToken, collectionId)
 	}
@@ -1146,29 +1141,7 @@ class ServerPeripheralDeviceAPIClass extends MethodContextAPI implements NewPeri
 	async clearMediaObjectCollection(deviceId: PeripheralDeviceId, deviceToken: string, collectionId: string) {
 		return MediaScannerIntegration.clearMediaObjectCollection(this, deviceId, deviceToken, collectionId)
 	}
-	// ------- Media Manager --------------
-	async getMediaWorkFlowRevisions(deviceId: PeripheralDeviceId, deviceToken: string) {
-		return MediaManagerIntegration.getMediaWorkFlowRevisions(this, deviceId, deviceToken)
-	}
-	async getMediaWorkFlowStepRevisions(deviceId: PeripheralDeviceId, deviceToken: string) {
-		return MediaManagerIntegration.getMediaWorkFlowStepRevisions(this, deviceId, deviceToken)
-	}
-	async updateMediaWorkFlow(
-		deviceId: PeripheralDeviceId,
-		deviceToken: string,
-		workFlowId: MediaWorkFlowId,
-		obj: MediaWorkFlow | null
-	) {
-		return MediaManagerIntegration.updateMediaWorkFlow(this, deviceId, deviceToken, workFlowId, obj)
-	}
-	async updateMediaWorkFlowStep(
-		deviceId: PeripheralDeviceId,
-		deviceToken: string,
-		docId: MediaWorkFlowStepId,
-		obj: MediaWorkFlowStep | null
-	) {
-		return MediaManagerIntegration.updateMediaWorkFlowStep(this, deviceId, deviceToken, docId, obj)
-	}
+	// ------- Package Manager --------------
 	async updateExpectedPackageWorkStatuses(
 		deviceId: PeripheralDeviceId,
 		deviceToken: string,

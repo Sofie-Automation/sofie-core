@@ -14,7 +14,6 @@ import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collect
 import {
 	BlueprintId,
 	BucketId,
-	MediaWorkFlowId,
 	OrganizationId,
 	PartId,
 	PartInstanceId,
@@ -39,8 +38,6 @@ import {
 	ExternalMessageQueue,
 	NrcsIngestDataCache,
 	MediaObjects,
-	MediaWorkFlows,
-	MediaWorkFlowSteps,
 	Organizations,
 	PackageContainerPackageStatuses,
 	PackageContainerStatuses,
@@ -162,7 +159,6 @@ export async function cleanupOldDataInner(actuallyCleanup = false): Promise<Coll
 	}
 
 	// Documents owned by PeripheralDevices:
-	const removedMediaWorkFlows = new Set<MediaWorkFlowId>()
 	const deviceIds = await getAllIdsInCollection(PeripheralDevices, removedDeviceIds)
 	{
 		const ownedByDeviceId = async <
@@ -176,7 +172,6 @@ export async function cleanupOldDataInner(actuallyCleanup = false): Promise<Coll
 			})
 		}
 		await ownedByDeviceId(ExpectedPackageWorkStatuses)
-		;(await ownedByDeviceId(MediaWorkFlows)).forEach((id) => removedMediaWorkFlows.add(id))
 		await ownedByDeviceId(PackageContainerPackageStatuses)
 		await ownedByDeviceId(PackageContainerStatuses)
 		await ownedByDeviceId(PackageInfos)
@@ -385,13 +380,6 @@ export async function cleanupOldDataInner(actuallyCleanup = false): Promise<Coll
 				{ created: { $lt: getCurrentTime() - Settings.maximumDataAge } },
 				{ expires: { $lt: getCurrentTime() } },
 			],
-		})
-	}
-	// MediaWorkFlowSteps
-	{
-		const mediaWorkFlowIds = await getAllIdsInCollection(MediaWorkFlows, removedMediaWorkFlows)
-		await removeByQuery(MediaWorkFlowSteps, {
-			workFlowId: { $nin: mediaWorkFlowIds },
 		})
 	}
 	// PackageInfos

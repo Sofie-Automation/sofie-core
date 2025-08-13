@@ -1,10 +1,9 @@
 import { check, Match } from '../lib/check'
 import { meteorPublish } from './lib/lib'
-import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { MongoFieldSpecifierZeroes, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { MediaWorkFlows, MediaWorkFlowSteps, PeripheralDeviceCommands, PeripheralDevices } from '../collections'
+import { PeripheralDeviceCommands, PeripheralDevices } from '../collections'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { PeripheralDevicePubSub } from '@sofie-automation/shared-lib/dist/pubsub/peripheralDevice'
 import { clone } from '@sofie-automation/corelib/dist/lib'
@@ -79,13 +78,3 @@ meteorPublish(
 		return PeripheralDeviceCommands.findWithCursor({ deviceId: deviceId })
 	}
 )
-meteorPublish(MeteorPubSub.mediaWorkFlows, async function (_token: string | undefined) {
-	triggerWriteAccessBecauseNoCheckNecessary()
-
-	return MediaWorkFlows.findWithCursor({})
-})
-meteorPublish(MeteorPubSub.mediaWorkFlowSteps, async function (_token: string | undefined) {
-	triggerWriteAccessBecauseNoCheckNecessary()
-
-	return MediaWorkFlowSteps.findWithCursor({})
-})
