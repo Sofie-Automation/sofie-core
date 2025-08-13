@@ -44,9 +44,6 @@ describe('Expected Media Items', () => {
 		const mockFileName1 = 'mockFileName1'
 		const mockPath1 = mockBase + mockFileName1
 
-		const mockFlow0 = 'mockFlow0'
-		const mockFlow1 = 'mockFlow1'
-
 		const part: ReadonlyDeep<DBPart> = literal<DBPart>({
 			...defaultPart(protectString('mockPart0'), protectString(''), protectString('')),
 			_rank: 1,
@@ -68,7 +65,6 @@ describe('Expected Media Items', () => {
 				content: literal<VTContent>({
 					fileName: mockFileName0,
 					path: mockPath0,
-					mediaFlowIds: [mockFlow0, mockFlow1],
 					sourceDuration: 0,
 				}),
 				expectedPackages: [getExpectedPackage('id0', mockPath0), getExpectedPackage('id1', mockPath0)],
@@ -88,7 +84,6 @@ describe('Expected Media Items', () => {
 				content: literal<VTContent>({
 					fileName: mockFileName1,
 					path: mockPath1,
-					mediaFlowIds: [mockFlow0],
 					sourceDuration: 0,
 				}),
 				expectedPackages: [getExpectedPackage('id0', mockPath1)],
@@ -107,7 +102,6 @@ describe('Expected Media Items', () => {
 				content: literal<VTContent>({
 					fileName: mockFileName1,
 					path: mockPath1,
-					mediaFlowIds: [mockFlow0],
 					sourceDuration: 0,
 				}),
 				expectedPackages: [getExpectedPackage('id0', mockPath1)],

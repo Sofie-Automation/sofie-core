@@ -61,7 +61,6 @@ export interface VTContent extends BaseContent {
 	path: string
 	/** Frame that media manager should grab for thumbnail preview */
 	previewFrame?: number
-	mediaFlowIds?: string[]
 	seek?: number
 	/** Duration of extra content past sourceDuration. Not planned to play back but present on the media and playable. */
 	postrollDuration?: number
@@ -75,7 +74,6 @@ export interface VTContent extends BaseContent {
 export interface GraphicsContent extends BaseContent {
 	fileName: string
 	path: string
-	mediaFlowIds?: string[]
 	thumbnail?: string
 	templateData?: Record<string, any>
 }
