@@ -73,18 +73,7 @@ resources:
                         description: Service messages from the device.
                       deviceType:
                         type: string
-                        enum:
-                          [
-                            unknown,
-                            mos,
-                            spreadsheet,
-                            inews,
-                            playout,
-                            media_manager,
-                            package_manager,
-                            live_status,
-                            input,
-                          ]
+                        enum: [unknown, mos, spreadsheet, inews, playout, package_manager, live_status, input]
                         description: Device type.
                         example: playout
                       connected:

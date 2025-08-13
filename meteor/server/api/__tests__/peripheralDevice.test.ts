@@ -637,7 +637,7 @@ describe('test peripheralDevice general API methods', () => {
 					studioId: env.studio._id,
 					configId: 'test',
 				},
-				category: PeripheralDeviceCategory.MEDIA_MANAGER,
+				category: PeripheralDeviceCategory.PLAYOUT,
 				configManifest: {
 					deviceConfigSchema: JSONBlobStringify({}),
 					subdeviceManifest: {},
@@ -652,7 +652,7 @@ describe('test peripheralDevice general API methods', () => {
 				},
 				subType: '_process',
 				token: 'MockToken',
-				type: PeripheralDeviceType.MEDIA_MANAGER,
+				type: PeripheralDeviceType.PLAYOUT,
 			})
 			device = (await PeripheralDevices.findOneAsync(deviceId))!
 
