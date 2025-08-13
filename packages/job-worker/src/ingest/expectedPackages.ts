@@ -36,10 +36,6 @@ import { StudioPlayoutModel } from '../studio/model/StudioPlayoutModel.js'
 import { ReadonlyDeep } from 'type-fest'
 import { ExpectedPackage, BlueprintResultBaseline } from '@sofie-automation/blueprints-integration'
 import {
-	updateExpectedMediaItemsForPartModel,
-	updateExpectedMediaItemsForRundownBaseline,
-} from './expectedMediaItems.js'
-import {
 	updateBaselineExpectedPlayoutItemsOnStudio,
 	updateExpectedPlayoutItemsForPartModel,
 	updateExpectedPlayoutItemsForRundownBaseline,
@@ -50,7 +46,6 @@ import { IngestPartModel } from './model/IngestPartModel.js'
 import { clone } from '@sofie-automation/corelib/dist/lib'
 
 export function updateExpectedPackagesForPartModel(context: JobContext, part: IngestPartModel): void {
-	updateExpectedMediaItemsForPartModel(context, part)
 	updateExpectedPlayoutItemsForPartModel(context, part)
 
 	const expectedPackages: ExpectedPackageFromRundown[] = [
@@ -85,7 +80,6 @@ export async function updateExpectedPackagesForRundownBaseline(
 	baseline: BlueprintResultBaseline | undefined,
 	forceBaseline = false
 ): Promise<void> {
-	await updateExpectedMediaItemsForRundownBaseline(context, ingestModel)
 	await updateExpectedPlayoutItemsForRundownBaseline(context, ingestModel, baseline)
 
 	const expectedPackages: ExpectedPackageForIngestModelBaseline[] = []

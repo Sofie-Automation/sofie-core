@@ -24,11 +24,6 @@ export type CoreSystemId = ProtectedString<'CoreSystemId'>
 /** A string, identifying a Evaluation */
 export type EvaluationId = ProtectedString<'EvaluationId'>
 
-/** A string, identifying a ExpectedMediaItem
- * @deprecated
- */
-export type ExpectedMediaItemId = ProtectedString<'ExpectedMediaItemId'>
-
 /** A string, identifying a Rundown */
 export type ExpectedPlayoutItemId = ProtectedString<'ExpectedPlayoutItemId'>
 

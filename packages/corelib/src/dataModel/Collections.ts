@@ -8,7 +8,6 @@ export enum CollectionName {
 	Buckets = 'buckets',
 	CoreSystem = 'coreSystem',
 	Evaluations = 'evaluations',
-	ExpectedMediaItems = 'expectedMediaItems',
 	ExpectedPackages = 'expectedPackages',
 	ExpectedPackageWorkStatuses = 'expectedPackageWorkStatuses',
 	ExpectedPlayoutItems = 'expectedPlayoutItems',

@@ -7,7 +7,6 @@ import {
 	Blueprints,
 	CoreSystem,
 	Evaluations,
-	ExpectedMediaItems,
 	ExternalMessageQueue,
 	NrcsIngestDataCache,
 	MediaObjects,
@@ -45,8 +44,6 @@ describe('Basic test of test environment', () => {
 		expect(CoreSystem._isMock).toBeTruthy()
 		// @ts-ignore
 		expect(Evaluations._isMock).toBeTruthy()
-		// @ts-ignore
-		expect(ExpectedMediaItems._isMock).toBeTruthy()
 		// @ts-ignore
 		expect(ExternalMessageQueue._isMock).toBeTruthy()
 		// @ts-ignore

@@ -117,9 +117,6 @@ export async function handleGeneratePlaylistSnapshot(
 			rundownId: { $in: rundownIds },
 		})
 
-		const expectedMediaItems = await context.directCollections.ExpectedMediaItems.findFetch({
-			partId: { $in: parts.map((i) => i._id) },
-		})
 		const expectedPlayoutItems = await context.directCollections.ExpectedPlayoutItems.findFetch({
 			rundownId: { $in: rundownIds },
 		})
@@ -155,7 +152,6 @@ export async function handleGeneratePlaylistSnapshot(
 			adLibPieces,
 			adLibActions,
 			baselineAdLibActions,
-			expectedMediaItems,
 			expectedPlayoutItems,
 			expectedPackages,
 			timeline,
@@ -502,12 +498,6 @@ export async function handleRestorePlaylistSnapshot(
 			context.directCollections.AdLibActions,
 			{ rundownId: { $in: rundownIds } },
 			updateItemIds(snapshot.adLibActions, false)
-		),
-		saveIntoDb(
-			context,
-			context.directCollections.ExpectedMediaItems,
-			{ partId: { $in: Array.from(partIdMap.keys()) } },
-			updateItemIds(snapshot.expectedMediaItems, true)
 		),
 		saveIntoDb(
 			context,

@@ -1,6 +1,5 @@
 import { AdLibAction } from './dataModel/AdlibAction.js'
 import { AdLibPiece } from './dataModel/AdLibPiece.js'
-import { ExpectedMediaItem } from './dataModel/ExpectedMediaItem.js'
 import { ExpectedPackageDB } from './dataModel/ExpectedPackages.js'
 import { ExpectedPlayoutItem } from './dataModel/ExpectedPlayoutItem.js'
 import { RundownPlaylistId } from './dataModel/Ids.js'
@@ -35,7 +34,6 @@ export interface CoreRundownPlaylistSnapshot {
 	adLibPieces: Array<AdLibPiece>
 	adLibActions: Array<AdLibAction>
 	baselineAdLibActions: Array<RundownBaselineAdLibAction>
-	expectedMediaItems: Array<ExpectedMediaItem>
 	expectedPlayoutItems: Array<ExpectedPlayoutItem>
 	expectedPackages: Array<ExpectedPackageDB>
 	timeline?: TimelineComplete

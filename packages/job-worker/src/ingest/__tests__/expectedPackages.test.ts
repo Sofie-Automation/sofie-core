@@ -117,8 +117,7 @@ describe('Expected Media Items', () => {
 		return { part, pieces, adLibPieces }
 	}
 
-	test('Generates ExpectedPackages(/ExpectedMediaItems) for a Part', async () => {
-		const setExpectedMediaItems = jest.fn()
+	test('Generates ExpectedPackages for a Part', async () => {
 		const setExpectedPlayoutItems = jest.fn()
 		const setExpectedPackages = jest.fn()
 
@@ -129,11 +128,9 @@ describe('Expected Media Items', () => {
 			pieces,
 			adLibActions: [],
 			adLibPieces,
-			expectedMediaItems: [],
 			expectedPlayoutItems: [],
 			expectedPackages: [],
 
-			setExpectedMediaItems,
 			setExpectedPlayoutItems,
 			setExpectedPackages,
 			setInvalid: function (_invalid: boolean): void {
@@ -148,9 +145,5 @@ describe('Expected Media Items', () => {
 
 		expect(setExpectedPlayoutItems).toHaveBeenCalledTimes(1)
 		expect(setExpectedPlayoutItems).toHaveBeenCalledWith([])
-
-		// to be deprecated:
-		expect(setExpectedMediaItems).toHaveBeenCalledTimes(1)
-		expect(setExpectedMediaItems.mock.calls[0][0]).toHaveLength(4)
 	})
 })

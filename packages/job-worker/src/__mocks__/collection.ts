@@ -43,7 +43,6 @@ import {
 	MongoQuery,
 } from '../db/index.js'
 import _ from 'underscore'
-import { ExpectedMediaItem } from '@sofie-automation/corelib/dist/dataModel/ExpectedMediaItem'
 import { RundownBaselineAdLibItem } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibPiece'
 import { ExternalMessageQueueObj } from '@sofie-automation/corelib/dist/dataModel/ExternalMessageQueue'
 import { MediaObjects } from '@sofie-automation/corelib/dist/dataModel/MediaObjects'
@@ -290,7 +289,6 @@ export function getMockCollections(): {
 			Blueprints: new MockMongoCollection<Blueprint>(CollectionName.Blueprints),
 			BucketAdLibActions: new MockMongoCollection<BucketAdLibAction>(CollectionName.BucketAdLibActions),
 			BucketAdLibPieces: new MockMongoCollection<BucketAdLib>(CollectionName.BucketAdLibPieces),
-			ExpectedMediaItems: new MockMongoCollection(CollectionName.ExpectedMediaItems),
 			ExpectedPlayoutItems: new MockMongoCollection<ExpectedPlayoutItem>(CollectionName.ExpectedPlayoutItems),
 			Notifications: new MockMongoCollection<DBNotificationObj>(CollectionName.Notifications),
 			SofieIngestDataCache: new MockMongoCollection<SofieIngestDataCacheObj>(CollectionName.SofieIngestDataCache),
@@ -348,7 +346,6 @@ export interface IMockCollections {
 	Blueprints: MockMongoCollection<Blueprint>
 	BucketAdLibActions: MockMongoCollection<BucketAdLibAction>
 	BucketAdLibPieces: MockMongoCollection<BucketAdLib>
-	ExpectedMediaItems: MockMongoCollection<ExpectedMediaItem>
 	ExpectedPlayoutItems: MockMongoCollection<ExpectedPlayoutItem>
 	Notifications: MockMongoCollection<DBNotificationObj>
 	SofieIngestDataCache: MockMongoCollection<SofieIngestDataCacheObj>

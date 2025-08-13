@@ -16,12 +16,6 @@ import {
 	updateExpectedPackagesForBucketAdLibPiece,
 	updateExpectedPackagesForBucketAdLibAction,
 } from '../expectedPackages.js'
-import {
-	cleanUpExpectedMediaItemForBucketAdLibActions,
-	cleanUpExpectedMediaItemForBucketAdLibPiece,
-	updateExpectedMediaItemForBucketAdLibAction,
-	updateExpectedMediaItemForBucketAdLibPiece,
-} from '../expectedMediaItems.js'
 import { postProcessBucketAction, postProcessBucketAdLib } from '../../blueprints/postProcess.js'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { BucketAdLib, BucketAdLibIngestInfo } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibPiece'
@@ -195,7 +189,6 @@ async function regenerateBucketItemFromIngestInfo(
 
 				ps.push(
 					context.directCollections.BucketAdLibActions.replace(action),
-					updateExpectedMediaItemForBucketAdLibAction(context, action),
 					updateExpectedPackagesForBucketAdLibAction(context, action)
 				)
 
@@ -216,7 +209,6 @@ async function regenerateBucketItemFromIngestInfo(
 
 				ps.push(
 					context.directCollections.BucketAdLibPieces.replace(adlib),
-					updateExpectedMediaItemForBucketAdLibPiece(context, adlib),
 					updateExpectedPackagesForBucketAdLibPiece(context, adlib)
 				)
 
@@ -237,7 +229,6 @@ async function regenerateBucketItemFromIngestInfo(
 		const adlibIdsToRemoveArray = Array.from(adlibIdsToRemove)
 
 		ps.push(
-			cleanUpExpectedMediaItemForBucketAdLibPiece(context, adlibIdsToRemoveArray),
 			cleanUpExpectedPackagesForBucketAdLibs(context, adlibIdsToRemoveArray),
 			context.directCollections.BucketAdLibPieces.remove({ _id: { $in: adlibIdsToRemoveArray } })
 		)
@@ -246,7 +237,6 @@ async function regenerateBucketItemFromIngestInfo(
 		const actionIdsToRemoveArray = Array.from(actionIdsToRemove)
 
 		ps.push(
-			cleanUpExpectedMediaItemForBucketAdLibActions(context, actionIdsToRemoveArray),
 			cleanUpExpectedPackagesForBucketAdLibsActions(context, actionIdsToRemoveArray),
 			context.directCollections.BucketAdLibActions.remove({ _id: { $in: actionIdsToRemoveArray } })
 		)

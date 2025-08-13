@@ -145,10 +145,6 @@ However, one usage by AdlibActions for their userDataManifest remains as this is
 In R52, the replacement flow of `validateConfig` and `applyConfig` was extended to the system blueprint
 It is no longer recommended to use the old migrations flow for system blueprints.
 
-### ExpectedMediaItems
-
-These are used for Media-manager which is no longer being developed.
-
 ### Blueprints: getPieceABSessionId & getTimelineObjectAbSessionId
 
 With AB being a native concept supported by Sofie since R50, these are likely no longer useful to Blueprints.

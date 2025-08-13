@@ -15,7 +15,6 @@ import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
 import { BucketAdLibAction } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibAction'
 import { BucketAdLib } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibPiece'
-import { ExpectedMediaItem } from '@sofie-automation/corelib/dist/dataModel/ExpectedMediaItem'
 import { ExpectedPlayoutItem } from '@sofie-automation/corelib/dist/dataModel/ExpectedPlayoutItem'
 import { NrcsIngestDataCacheObj } from '@sofie-automation/corelib/dist/dataModel/NrcsIngestDataCache'
 import { SofieIngestDataCacheObj } from '@sofie-automation/corelib/dist/dataModel/SofieIngestDataCache'
@@ -97,7 +96,6 @@ export interface IDirectCollections {
 	Blueprints: ICollection<Blueprint>
 	BucketAdLibActions: ICollection<BucketAdLibAction>
 	BucketAdLibPieces: ICollection<BucketAdLib>
-	ExpectedMediaItems: ICollection<ExpectedMediaItem>
 	ExpectedPlayoutItems: ICollection<ExpectedPlayoutItem>
 	Notifications: ICollection<DBNotificationObj>
 	SofieIngestDataCache: ICollection<SofieIngestDataCacheObj>
@@ -152,10 +150,6 @@ export function getMongoCollections(
 			),
 			BucketAdLibPieces: wrapMongoCollection(
 				database.collection(CollectionName.BucketAdLibPieces),
-				allowWatchers
-			),
-			ExpectedMediaItems: wrapMongoCollection(
-				database.collection(CollectionName.ExpectedMediaItems),
 				allowWatchers
 			),
 			ExpectedPlayoutItems: wrapMongoCollection(
