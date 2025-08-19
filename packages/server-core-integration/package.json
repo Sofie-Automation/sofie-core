@@ -1,6 +1,6 @@
 {
 	"name": "@sofie-automation/server-core-integration",
-	"version": "1.52.0-in-testing.1",
+	"version": "1.52.0",
 	"description": "Library for connecting to Core",
 	"main": "dist/index.js",
 	"typings": "dist/index.d.ts",
@@ -70,7 +70,7 @@
 		"production"
 	],
 	"dependencies": {
-		"@sofie-automation/shared-lib": "1.52.0-in-testing.1",
+		"@sofie-automation/shared-lib": "1.52.0",
 		"ejson": "^2.2.3",
 		"faye-websocket": "^0.11.4",
 		"got": "^11.8.6",

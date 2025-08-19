@@ -697,7 +697,7 @@ export const addSteps = addMigrationSteps('1.50.0', [
 					$set: playlist.nextPartInfo
 						? {
 								'nextPartInfo.manuallySelected': nextPartManual,
-							}
+						  }
 						: undefined,
 					$unset: {
 						nextPartManual: 1,

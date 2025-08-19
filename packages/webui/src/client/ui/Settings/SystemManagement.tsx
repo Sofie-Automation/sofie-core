@@ -215,7 +215,7 @@ function SystemManagementEvaluationsMessage({ coreSystem }: Readonly<WithCoreSys
 					label={t('Enabled')}
 					item={wrappedItem}
 					// @ts-expect-error deep property
-					itemKey={'evaluations.enabled'}
+					itemKey={'evaluationsMessage.enabled'}
 					overrideHelper={overrideHelper}
 				>
 					{(value, handleUpdate) => <CheckboxControl value={!!value} handleUpdate={handleUpdate} />}
@@ -225,7 +225,7 @@ function SystemManagementEvaluationsMessage({ coreSystem }: Readonly<WithCoreSys
 					label={t('Heading')}
 					item={wrappedItem}
 					// @ts-expect-error deep property
-					itemKey={'evaluations.heading'}
+					itemKey={'evaluationsMessage.heading'}
 					overrideHelper={overrideHelper}
 				>
 					{(value, handleUpdate) => (
@@ -242,7 +242,7 @@ function SystemManagementEvaluationsMessage({ coreSystem }: Readonly<WithCoreSys
 					label={t('Message')}
 					item={wrappedItem}
 					// @ts-expect-error deep property
-					itemKey={'evaluations.message'}
+					itemKey={'evaluationsMessage.message'}
 					overrideHelper={overrideHelper}
 					hint={t('Message shown to users in the Evaluations form')}
 				>

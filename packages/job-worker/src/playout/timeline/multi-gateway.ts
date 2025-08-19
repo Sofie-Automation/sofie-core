@@ -59,6 +59,12 @@ export function deNowifyMultiGatewayTimeline(
 
 	// Because updatePlannedTimingsForPieceInstances changes start times of infinites, we can now run deNowifyInfinites()
 	deNowifyInfinites(targetNowTime, objectsNotDeNowified, timelineObjsMap)
+
+	for (const obj of timelineObjs) {
+		if (!Array.isArray(obj.enable) && obj.enable.start === 'now') {
+			logger.error(`deNowifyMultiGatewayTimeline: "${obj.id}" still set to 'now'`)
+		}
+	}
 }
 
 /**

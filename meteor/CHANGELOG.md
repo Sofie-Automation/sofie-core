@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.52.0](///compare/v1.52.0-in-testing.1...v1.52.0) (2025-06-30)
+
+
+### Bug Fixes
+
+* blueprint fetch method missing a9491d3
+* eventlistener on segmentBlock wasn't cleaned up 823e9c2
+* Memoryleak fixed in @jstarpl/react-contextmenu 2.15.1 ea0c4d4
+* missing fetch for blueprints, and minor logging changes ([#1471](undefined/undefined/undefined/issues/1471)) 4cec82b
+* system evaluations form message not saving SOFIE-4010 d89b35e
+
 ## [1.52.0-in-testing.1](https://github.com/nrkno/sofie-core/compare/v1.51.7...v1.52.0-in-testing.1) (2025-06-05)
 
 

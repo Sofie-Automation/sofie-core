@@ -59,7 +59,10 @@ services:
   playout-gateway:
     image: sofietv/tv-automation-playout-gateway:release51
     restart: always
-    command: yarn start -host core -port 3000 -id playoutGateway0
+    environment:
+      DEVICE_ID: playoutGateway0
+      CORE_HOST: core
+      CORE_PORT: '3000'
     networks:
       - sofie
       - lan_access

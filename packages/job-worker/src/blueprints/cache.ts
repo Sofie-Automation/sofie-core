@@ -54,7 +54,12 @@ export async function parseBlueprintDocument(
 		let manifest: SomeBlueprintManifest
 		try {
 			const blueprintPath = `db:///blueprint/${blueprint.name || blueprint._id}-bundle.js`
-			const context = vm.createContext({}, {})
+			const context = vm.createContext(
+				{
+					fetch,
+				},
+				{}
+			)
 			const script = new vm.Script(
 				`__run_result = ${blueprint.code}
 __run_result || blueprint`,

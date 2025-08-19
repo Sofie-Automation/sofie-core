@@ -290,6 +290,9 @@ export class SegmentTimelineClass extends React.Component<Translated<WithTiming<
 	componentWillUnmount(): void {
 		super.componentWillUnmount && super.componentWillUnmount()
 		clearTimeout(this.highlightTimeout)
+		if (this.segmentBlock) {
+			this.segmentBlock.removeEventListener('wheel', this.onTimelineWheel, { capture: true })
+		}
 
 		RundownViewEventBus.off(RundownViewEvents.HIGHLIGHT, this.onHighlight)
 		RundownViewEventBus.off(RundownViewEvents.SEGMENT_ZOOM_ON, this.onRundownEventSegmentZoomOn)
