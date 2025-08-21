@@ -198,7 +198,13 @@ export async function performTakeToNextedPart(
 	const showStyle = await pShowStyle
 	const blueprint = await context.getShowStyleBlueprint(showStyle._id)
 
-	const { isTakeAborted } = await executeOnTakeCallback(context, playoutModel, showStyle, blueprint, currentRundown)
+	const { isTakeAborted, queuePart } = await executeOnTakeCallback(
+		context,
+		playoutModel,
+		showStyle,
+		blueprint,
+		currentRundown
+	)
 
 	if (isTakeAborted) {
 		await updateTimeline(context, playoutModel)
@@ -264,8 +270,12 @@ export async function performTakeToNextedPart(
 		resetPreviousSegmentIfLooping(context, playoutModel)
 	}
 
-	// Once everything is synced, we can choose the next part
-	await setNextPart(context, playoutModel, nextPart, false)
+	if (queuePart) {
+		await queuePart()
+	} else {
+		// Once everything is synced, we can choose the next part
+		await setNextPart(context, playoutModel, nextPart, false)
+	}
 
 	// If the Hold is PENDING, make it active
 	if (playoutModel.playlist.holdState === RundownHoldState.PENDING) {
@@ -289,10 +299,11 @@ async function executeOnTakeCallback(
 	showStyle: ReadonlyObjectDeep<ProcessedShowStyleCompound>,
 	blueprint: ReadonlyObjectDeep<WrappedShowStyleBlueprint>,
 	currentRundown: PlayoutRundownModel
-): Promise<{ isTakeAborted: boolean }> {
+): Promise<{ isTakeAborted: boolean; queuePart: (() => Promise<void>) | undefined }> {
 	const NOTIFICATION_CATEGORY = 'onTake'
 
 	let isTakeAborted = false
+	let queuePart: (() => Promise<void>) | undefined = undefined
 	if (blueprint.blueprint.onTake) {
 		const rundownId = currentRundown.rundown._id
 		const partInstanceId = playoutModel.playlist.nextPartInfo?.partInstanceId
@@ -300,6 +311,7 @@ async function executeOnTakeCallback(
 
 		// Clear any existing notifications for this partInstance. This will clear any from the previous take
 		playoutModel.clearAllNotifications(NOTIFICATION_CATEGORY)
+		const actionService = new PartAndPieceInstanceActionService(context, playoutModel, showStyle, currentRundown)
 
 		const watchedPackagesHelper = WatchedPackagesHelper.empty(context)
 		const onSetAsNextContext = new OnTakeContext(
@@ -313,12 +325,18 @@ async function executeOnTakeCallback(
 			playoutModel,
 			showStyle,
 			watchedPackagesHelper,
-			new PartAndPieceInstanceActionService(context, playoutModel, showStyle, currentRundown)
+			actionService
 		)
 		try {
 			await blueprint.blueprint.onTake(onSetAsNextContext)
 			await applyOnTakeSideEffects(context, playoutModel, onSetAsNextContext)
 			isTakeAborted = onSetAsNextContext.isTakeAborted
+			if (onSetAsNextContext.partToQueue) {
+				const partToQueue = onSetAsNextContext.partToQueue
+				queuePart = async () => {
+					await actionService.queuePart(partToQueue.rawPart, partToQueue.rawPieces)
+				}
+			}
 
 			for (const note of onSetAsNextContext.notes) {
 				// Update the notifications. Even though these are related to a partInstance, they will be cleared on the next take
@@ -346,7 +364,7 @@ async function executeOnTakeCallback(
 			})
 		}
 	}
-	return { isTakeAborted }
+	return { isTakeAborted, queuePart }
 }
 
 async function applyOnTakeSideEffects(context: JobContext, playoutModel: PlayoutModel, onTakeContext: OnTakeContext) {

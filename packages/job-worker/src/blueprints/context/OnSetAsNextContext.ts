@@ -38,7 +38,8 @@ export class OnSetAsNextContext
 		private playoutModel: PlayoutModel,
 		showStyle: ReadonlyDeep<ProcessedShowStyleCompound>,
 		watchedPackages: WatchedPackagesHelper,
-		private partAndPieceInstanceService: PartAndPieceInstanceActionService
+		private partAndPieceInstanceService: PartAndPieceInstanceActionService,
+		public readonly manuallySelected: boolean
 	) {
 		super(contextInfo, context, showStyle, watchedPackages)
 	}
