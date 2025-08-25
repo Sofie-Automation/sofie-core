@@ -11,13 +11,13 @@ describe('buildStudioFromResolved', () => {
 		const blueprintManifest = {} as unknown as StudioBlueprintManifest
 		const apiStudio = {
 			name: 'New Name',
-			config: { c: 1 },
 			settings: { frameRate: 25 } as IStudioSettings,
+			config: { someValue: 1 },
 			supportedShowStyleBase: ['A'],
 		} as APIStudio
 		const existingStudio = {
 			_id: protectString<StudioId>('studio0'),
-			organizationId: protectString<OrganizationId>('org'),
+			organizationId: protectString<OrganizationId>('orgId'),
 			name: 'Studio 0',
 			settingsWithOverrides: wrapDefaultObject({ frameRate: 50, allowHold: true } as IStudioSettings),
 			blueprintConfigWithOverrides: wrapDefaultObject({ B: 0 } as IBlueprintConfig),
@@ -27,12 +27,12 @@ describe('buildStudioFromResolved', () => {
 			existingStudio,
 			blueprintManifest,
 			blueprintId: protectString('bp1'),
-			newId: protectString('NEW'),
+			studioId: protectString('studio0'),
 		})
 
 		expect(studio._id).toBe('studio0')
 		expect(studio.name).toBe('New Name')
-		expect(studio.organizationId).toBe('org')
+		expect(studio.organizationId).toBe('orgId')
 		expect(studio.blueprintId).toBe('bp1')
 		expect(studio.settingsWithOverrides.overrides).toContainEqual({
 			op: 'set',
@@ -41,7 +41,7 @@ describe('buildStudioFromResolved', () => {
 		})
 		expect(studio.blueprintConfigWithOverrides.overrides).toContainEqual({
 			op: 'set',
-			path: 'c',
+			path: 'someValue',
 			value: 1,
 		})
 	})
@@ -49,14 +49,14 @@ describe('buildStudioFromResolved', () => {
 		const blueprintManifest = { blueprintConfigFromAPI: async () => ({ fromBlueprints: true }) } as any
 		const apiStudio = {
 			name: 'New Name',
-			config: { c: 1 },
 			settings: { frameRate: 25 } as IStudioSettings,
+			config: { someValue: 1 },
 			supportedShowStyleBase: ['A'],
 			blueprintConfigPresetId: 'preset0',
 		} as APIStudio
 		const existingStudio = {
 			_id: protectString<StudioId>('studio0'),
-			organizationId: protectString<OrganizationId>('org'),
+			organizationId: protectString<OrganizationId>('orgId'),
 			name: 'Studio 0',
 			settingsWithOverrides: wrapDefaultObject({ frameRate: 50 } as IStudioSettings),
 			blueprintConfigWithOverrides: wrapDefaultObject({ B: 0 } as IBlueprintConfig),
@@ -66,12 +66,12 @@ describe('buildStudioFromResolved', () => {
 			existingStudio,
 			blueprintManifest,
 			blueprintId: protectString('bp1'),
-			newId: protectString('NEW'),
+			studioId: protectString('studio0'),
 		})
 
 		expect(studio._id).toBe('studio0')
 		expect(studio.name).toBe('New Name')
-		expect(studio.organizationId).toBe('org')
+		expect(studio.organizationId).toBe('orgId')
 		expect(studio.blueprintId).toBe('bp1')
 		expect(studio.settingsWithOverrides.overrides).toContainEqual({
 			op: 'set',

@@ -314,7 +314,7 @@ export async function studioFrom(apiStudio: APIStudio, existingId?: StudioId): P
 		existingStudio,
 		blueprintManifest,
 		blueprintId: blueprint._id,
-		newId: existingId ?? getRandomId(),
+		studioId: existingId ?? getRandomId(),
 	})
 }
 
@@ -323,13 +323,13 @@ export async function buildStudioFromResolved({
 	existingStudio,
 	blueprintManifest,
 	blueprintId,
-	newId,
+	studioId,
 }: {
 	apiStudio: APIStudio
 	existingStudio?: DBStudio
 	blueprintManifest: StudioBlueprintManifest
 	blueprintId: BlueprintId
-	newId: StudioId
+	studioId: StudioId
 }): Promise<DBStudio> {
 	let blueprintConfig: ObjectWithOverrides<IBlueprintConfig>
 	if (typeof blueprintManifest.blueprintConfigFromAPI !== 'function') {
@@ -370,7 +370,7 @@ export async function buildStudioFromResolved({
 		...existingStudio,
 
 		// override what apiStudio can
-		_id: newId,
+		_id: studioId,
 		name: apiStudio.name,
 		blueprintId,
 		blueprintConfigPresetId: apiStudio.blueprintConfigPresetId,
