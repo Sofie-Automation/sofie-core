@@ -308,6 +308,29 @@ export async function studioFrom(apiStudio: APIStudio, existingId?: StudioId): P
 	if (existingId) existingStudio = await Studios.findOneAsync(existingId)
 
 	const blueprintManifest = evalBlueprint(blueprint) as StudioBlueprintManifest
+
+	return buildStudioFromResolved({
+		apiStudio,
+		existingStudio,
+		blueprintManifest,
+		blueprintId: blueprint._id,
+		newId: existingId ?? getRandomId(),
+	})
+}
+
+export async function buildStudioFromResolved({
+	apiStudio,
+	existingStudio,
+	blueprintManifest,
+	blueprintId,
+	newId,
+}: {
+	apiStudio: APIStudio
+	existingStudio?: DBStudio
+	blueprintManifest: StudioBlueprintManifest
+	blueprintId: BlueprintId
+	newId: StudioId
+}): Promise<DBStudio> {
 	let blueprintConfig: ObjectWithOverrides<IBlueprintConfig>
 	if (typeof blueprintManifest.blueprintConfigFromAPI !== 'function') {
 		blueprintConfig = existingStudio
@@ -347,9 +370,9 @@ export async function studioFrom(apiStudio: APIStudio, existingId?: StudioId): P
 		...existingStudio,
 
 		// override what apiStudio can
-		_id: existingId ?? getRandomId(),
+		_id: newId,
 		name: apiStudio.name,
-		blueprintId: blueprint?._id,
+		blueprintId,
 		blueprintConfigPresetId: apiStudio.blueprintConfigPresetId,
 		blueprintConfigWithOverrides: blueprintConfig,
 		settingsWithOverrides: existingStudio
