@@ -44,9 +44,6 @@ describe('Expected Media Items', () => {
 		const mockFileName1 = 'mockFileName1'
 		const mockPath1 = mockBase + mockFileName1
 
-		const mockFlow0 = 'mockFlow0'
-		const mockFlow1 = 'mockFlow1'
-
 		const part: ReadonlyDeep<DBPart> = literal<DBPart>({
 			...defaultPart(protectString('mockPart0'), protectString(''), protectString('')),
 			_rank: 1,
@@ -68,7 +65,6 @@ describe('Expected Media Items', () => {
 				content: literal<VTContent>({
 					fileName: mockFileName0,
 					path: mockPath0,
-					mediaFlowIds: [mockFlow0, mockFlow1],
 					sourceDuration: 0,
 				}),
 				expectedPackages: [getExpectedPackage('id0', mockPath0), getExpectedPackage('id1', mockPath0)],
@@ -88,7 +84,6 @@ describe('Expected Media Items', () => {
 				content: literal<VTContent>({
 					fileName: mockFileName1,
 					path: mockPath1,
-					mediaFlowIds: [mockFlow0],
 					sourceDuration: 0,
 				}),
 				expectedPackages: [getExpectedPackage('id0', mockPath1)],
@@ -107,7 +102,6 @@ describe('Expected Media Items', () => {
 				content: literal<VTContent>({
 					fileName: mockFileName1,
 					path: mockPath1,
-					mediaFlowIds: [mockFlow0],
 					sourceDuration: 0,
 				}),
 				expectedPackages: [getExpectedPackage('id0', mockPath1)],
@@ -117,8 +111,7 @@ describe('Expected Media Items', () => {
 		return { part, pieces, adLibPieces }
 	}
 
-	test('Generates ExpectedPackages(/ExpectedMediaItems) for a Part', async () => {
-		const setExpectedMediaItems = jest.fn()
+	test('Generates ExpectedPackages for a Part', async () => {
 		const setExpectedPlayoutItems = jest.fn()
 		const setExpectedPackages = jest.fn()
 
@@ -129,11 +122,9 @@ describe('Expected Media Items', () => {
 			pieces,
 			adLibActions: [],
 			adLibPieces,
-			expectedMediaItems: [],
 			expectedPlayoutItems: [],
 			expectedPackages: [],
 
-			setExpectedMediaItems,
 			setExpectedPlayoutItems,
 			setExpectedPackages,
 			setInvalid: function (_invalid: boolean): void {
@@ -148,9 +139,5 @@ describe('Expected Media Items', () => {
 
 		expect(setExpectedPlayoutItems).toHaveBeenCalledTimes(1)
 		expect(setExpectedPlayoutItems).toHaveBeenCalledWith([])
-
-		// to be deprecated:
-		expect(setExpectedMediaItems).toHaveBeenCalledTimes(1)
-		expect(setExpectedMediaItems.mock.calls[0][0]).toHaveLength(4)
 	})
 })

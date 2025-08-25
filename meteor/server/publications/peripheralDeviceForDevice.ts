@@ -106,7 +106,6 @@ export function convertPeripheralDeviceForGateway(
 
 				break
 			}
-			case PeripheralDeviceCategory.MEDIA_MANAGER:
 			case PeripheralDeviceCategory.PACKAGE_MANAGER:
 			case PeripheralDeviceCategory.LIVE_STATUS:
 				// No subdevices to re-export

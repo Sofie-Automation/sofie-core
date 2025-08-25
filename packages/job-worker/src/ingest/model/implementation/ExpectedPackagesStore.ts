@@ -1,8 +1,6 @@
-import { ExpectedMediaItemRundown } from '@sofie-automation/corelib/dist/dataModel/ExpectedMediaItem'
 import { ExpectedPackageDBBase } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
 import { ExpectedPlayoutItemRundown } from '@sofie-automation/corelib/dist/dataModel/ExpectedPlayoutItem'
 import {
-	ExpectedMediaItemId,
 	ExpectedPackageId,
 	ExpectedPlayoutItemId,
 	PartId,
@@ -24,17 +22,12 @@ function mutateExpectedPackage<ExpectedPackageType extends ExpectedPackageDBBase
 }
 
 export class ExpectedPackagesStore<ExpectedPackageType extends ExpectedPackageDBBase & { rundownId: RundownId }> {
-	#expectedMediaItems: ExpectedMediaItemRundown[]
 	#expectedPlayoutItems: ExpectedPlayoutItemRundown[]
 	#expectedPackages: ExpectedPackageType[]
 
-	#expectedMediaItemsWithChanges = new Set<ExpectedMediaItemId>()
 	#expectedPlayoutItemsWithChanges = new Set<ExpectedPlayoutItemId>()
 	#expectedPackagesWithChanges = new Set<ExpectedPackageId>()
 
-	get expectedMediaItems(): ReadonlyDeep<ExpectedMediaItemRundown[]> {
-		return this.#expectedMediaItems
-	}
 	get expectedPlayoutItems(): ReadonlyDeep<ExpectedPlayoutItemRundown[]> {
 		return this.#expectedPlayoutItems
 	}
@@ -44,16 +37,9 @@ export class ExpectedPackagesStore<ExpectedPackageType extends ExpectedPackageDB
 	}
 
 	get hasChanges(): boolean {
-		return (
-			this.#expectedMediaItemsWithChanges.size > 0 ||
-			this.#expectedPlayoutItemsWithChanges.size > 0 ||
-			this.#expectedPackagesWithChanges.size > 0
-		)
+		return this.#expectedPlayoutItemsWithChanges.size > 0 || this.#expectedPackagesWithChanges.size > 0
 	}
 
-	get expectedMediaItemsChanges(): DocumentChanges<ExpectedMediaItemRundown> {
-		return getDocumentChanges(this.#expectedMediaItemsWithChanges, this.#expectedMediaItems)
-	}
 	get expectedPlayoutItemsChanges(): DocumentChanges<ExpectedPlayoutItemRundown> {
 		return getDocumentChanges(this.#expectedPlayoutItemsWithChanges, this.#expectedPlayoutItems)
 	}
@@ -62,7 +48,6 @@ export class ExpectedPackagesStore<ExpectedPackageType extends ExpectedPackageDB
 	}
 
 	clearChangedFlags(): void {
-		this.#expectedMediaItemsWithChanges.clear()
 		this.#expectedPlayoutItemsWithChanges.clear()
 		this.#expectedPackagesWithChanges.clear()
 	}
@@ -76,7 +61,6 @@ export class ExpectedPackagesStore<ExpectedPackageType extends ExpectedPackageDB
 		rundownId: RundownId,
 		segmentId: SegmentId | undefined,
 		partId: PartId | undefined,
-		expectedMediaItems: ExpectedMediaItemRundown[],
 		expectedPlayoutItems: ExpectedPlayoutItemRundown[],
 		expectedPackages: ExpectedPackageType[]
 	) {
@@ -84,7 +68,6 @@ export class ExpectedPackagesStore<ExpectedPackageType extends ExpectedPackageDB
 		this.#segmentId = segmentId
 		this.#partId = partId
 
-		this.#expectedMediaItems = expectedMediaItems
 		this.#expectedPlayoutItems = expectedPlayoutItems
 		this.#expectedPackages = expectedPackages
 
@@ -92,9 +75,6 @@ export class ExpectedPackagesStore<ExpectedPackageType extends ExpectedPackageDB
 			// Everything contained currently is a new document, track the ids as having changed
 			for (const expectedPlayoutItem of this.#expectedPlayoutItems) {
 				this.#expectedPlayoutItemsWithChanges.add(expectedPlayoutItem._id)
-			}
-			for (const expectedMediaItem of this.#expectedMediaItems) {
-				this.#expectedMediaItemsWithChanges.add(expectedMediaItem._id)
 			}
 			for (const expectedPackage of this.#expectedPackages) {
 				this.#expectedPackagesWithChanges.add(expectedPackage._id)
@@ -108,10 +88,6 @@ export class ExpectedPackagesStore<ExpectedPackageType extends ExpectedPackageDB
 		this.#partId = partId
 
 		setValuesAndTrackChanges(this.#expectedPlayoutItemsWithChanges, this.#expectedPlayoutItems, {
-			rundownId,
-			partId,
-		})
-		setValuesAndTrackChanges(this.#expectedMediaItemsWithChanges, this.#expectedMediaItems, {
 			rundownId,
 			partId,
 		})
@@ -129,11 +105,6 @@ export class ExpectedPackagesStore<ExpectedPackageType extends ExpectedPackageDB
 			this.#expectedPlayoutItemsWithChanges,
 			oldStore.#expectedPlayoutItems,
 			this.#expectedPlayoutItems
-		)
-		diffAndReturnLatestObjects(
-			this.#expectedMediaItemsWithChanges,
-			oldStore.#expectedMediaItems,
-			this.#expectedMediaItems
 		)
 		diffAndReturnLatestObjects(
 			this.#expectedPackagesWithChanges,
@@ -154,19 +125,6 @@ export class ExpectedPackagesStore<ExpectedPackageType extends ExpectedPackageDB
 			this.#expectedPlayoutItemsWithChanges,
 			this.#expectedPlayoutItems,
 			newExpectedPlayoutItems
-		)
-	}
-	setExpectedMediaItems(expectedMediaItems: ExpectedMediaItemRundown[]): void {
-		const newExpectedMediaItems: ExpectedMediaItemRundown[] = expectedMediaItems.map((item) => ({
-			...item,
-			partId: this.#partId,
-			rundownId: this.#rundownId,
-		}))
-
-		this.#expectedMediaItems = diffAndReturnLatestObjects(
-			this.#expectedMediaItemsWithChanges,
-			this.#expectedMediaItems,
-			newExpectedMediaItems
 		)
 	}
 	setExpectedPackages(expectedPackages: ExpectedPackageType[]): void {

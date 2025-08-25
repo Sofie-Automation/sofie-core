@@ -1,15 +1,13 @@
 import {
 	ExpectedPackageId,
 	ExpectedPackageWorkStatusId,
-	MediaWorkFlowId,
-	MediaWorkFlowStepId,
 	PeripheralDeviceCommandId,
 	PeripheralDeviceId,
 	TimelineHash,
 } from '../core/model/Ids.js'
 import { PeripheralDeviceForDevice } from '../core/model/peripheralDevice.js'
 import { IngestPlaylist, IngestRundown, IngestPart, IngestSegment } from './ingest.js'
-import { MediaObjectRevision, MediaWorkFlowRevision, MediaWorkFlowStepRevision } from './mediaManager.js'
+import { MediaObjectRevision } from './mediaManager.js'
 import {
 	IMOSRunningOrder,
 	IMOSRunningOrderBase,
@@ -35,8 +33,6 @@ import {
 	PlayoutChangedResults,
 } from './peripheralDeviceAPI.js'
 import { MediaObject } from '../core/model/MediaObjects.js'
-import { MediaWorkFlow } from '../core/model/MediaWorkFlows.js'
-import { MediaWorkFlowStep } from '../core/model/MediaWorkFlowSteps.js'
 
 export type UpdateExpectedPackageWorkStatusesChanges =
 	| {
@@ -277,24 +273,6 @@ export interface NewPeripheralDeviceAPI {
 	): Promise<void>
 	clearMediaObjectCollection(deviceId: PeripheralDeviceId, deviceToken: string, collectionId: string): Promise<void>
 
-	getMediaWorkFlowRevisions(deviceId: PeripheralDeviceId, deviceToken: string): Promise<MediaWorkFlowRevision[]>
-	getMediaWorkFlowStepRevisions(
-		deviceId: PeripheralDeviceId,
-		deviceToken: string
-	): Promise<MediaWorkFlowStepRevision[]>
-	updateMediaWorkFlow(
-		deviceId: PeripheralDeviceId,
-		deviceToken: string,
-		workFlowId: MediaWorkFlowId,
-		obj: MediaWorkFlow | null
-	): Promise<void>
-	updateMediaWorkFlowStep(
-		deviceId: PeripheralDeviceId,
-		deviceToken: string,
-		docId: MediaWorkFlowStepId,
-		obj: MediaWorkFlowStep | null
-	): Promise<void>
-
 	updateExpectedPackageWorkStatuses(
 		deviceId: PeripheralDeviceId,
 		deviceToken: string,
@@ -433,11 +411,6 @@ export enum PeripheralDeviceAPIMethods {
 	'getMediaObjectRevisions' = 'peripheralDevice.mediaScanner.getMediaObjectRevisions',
 	'updateMediaObject' = 'peripheralDevice.mediaScanner.updateMediaObject',
 	'clearMediaObjectCollection' = 'peripheralDevice.mediaScanner.clearMediaObjectCollection',
-
-	'getMediaWorkFlowRevisions' = 'peripheralDevice.mediaManager.getMediaWorkFlowRevisions',
-	'updateMediaWorkFlow' = 'peripheralDevice.mediaManager.updateMediaWorkFlow',
-	'getMediaWorkFlowStepRevisions' = 'peripheralDevice.mediaManager.getMediaWorkFlowStepRevisions',
-	'updateMediaWorkFlowStep' = 'peripheralDevice.mediaManager.updateMediaWorkFlowStep',
 
 	'updateExpectedPackageWorkStatuses' = 'peripheralDevice.packageManager.updateExpectedPackageWorkStatuses',
 	'removeAllExpectedPackageWorkStatusOfDevice' = 'peripheralDevice.packageManager.removeAllExpectedPackageWorkStatusOfDevice',

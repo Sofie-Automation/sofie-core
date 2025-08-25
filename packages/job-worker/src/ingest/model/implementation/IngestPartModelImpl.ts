@@ -5,7 +5,6 @@ import { IngestPartModel } from '../IngestPartModel.js'
 import { AdLibActionId, PieceId, RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
-import { ExpectedMediaItemRundown } from '@sofie-automation/corelib/dist/dataModel/ExpectedMediaItem'
 import { ExpectedPlayoutItemRundown } from '@sofie-automation/corelib/dist/dataModel/ExpectedPlayoutItem'
 import { ExpectedPackageFromRundown } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
@@ -84,9 +83,6 @@ export class IngestPartModelImpl implements IngestPartModel {
 		return [...this.#adLibActions]
 	}
 
-	get expectedMediaItems(): ReadonlyDeep<ExpectedMediaItemRundown>[] {
-		return [...this.expectedPackagesStore.expectedMediaItems]
-	}
 	get expectedPlayoutItems(): ReadonlyDeep<ExpectedPlayoutItemRundown>[] {
 		return [...this.expectedPackagesStore.expectedPlayoutItems]
 	}
@@ -138,7 +134,6 @@ export class IngestPartModelImpl implements IngestPartModel {
 		pieces: Piece[],
 		adLibPieces: AdLibPiece[],
 		adLibActions: AdLibAction[],
-		expectedMediaItems: ExpectedMediaItemRundown[],
 		expectedPlayoutItems: ExpectedPlayoutItemRundown[],
 		expectedPackages: ExpectedPackageFromRundown[]
 	) {
@@ -166,7 +161,6 @@ export class IngestPartModelImpl implements IngestPartModel {
 			part.rundownId,
 			part.segmentId,
 			part._id,
-			expectedMediaItems,
 			expectedPlayoutItems,
 			expectedPackages
 		)
@@ -230,9 +224,6 @@ export class IngestPartModelImpl implements IngestPartModel {
 
 	setExpectedPlayoutItems(expectedPlayoutItems: ExpectedPlayoutItemRundown[]): void {
 		this.expectedPackagesStore.setExpectedPlayoutItems(expectedPlayoutItems)
-	}
-	setExpectedMediaItems(expectedMediaItems: ExpectedMediaItemRundown[]): void {
-		this.expectedPackagesStore.setExpectedMediaItems(expectedMediaItems)
 	}
 	setExpectedPackages(expectedPackages: ExpectedPackageFromRundown[]): void {
 		// Future: should these be here, or held as part of each adlib/piece?

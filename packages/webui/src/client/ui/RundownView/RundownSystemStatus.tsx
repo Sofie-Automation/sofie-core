@@ -109,9 +109,7 @@ export const RundownSystemStatus = React.memo(
 		const ingest = useMemo(() => {
 			const attachedDevices = [...parentDevices, ...subDevices]
 
-			const ingestDevices = attachedDevices.filter(
-				(i) => i.category === PeripheralDeviceCategory.INGEST || i.category === PeripheralDeviceCategory.MEDIA_MANAGER
-			)
+			const ingestDevices = attachedDevices.filter((i) => i.category === PeripheralDeviceCategory.INGEST)
 
 			return calculateStatusForDevices(ingestDevices)
 		}, [parentDevices, subDevices])

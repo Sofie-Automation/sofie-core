@@ -1,4 +1,3 @@
-import { ExpectedMediaItemRundown } from '@sofie-automation/corelib/dist/dataModel/ExpectedMediaItem'
 import {
 	ExpectedPackageDBFromBaselineAdLibAction,
 	ExpectedPackageDBFromBaselineAdLibPiece,
@@ -52,11 +51,6 @@ export interface IngestModelReadonly {
 	 * Reference to the lock for the Rundown
 	 */
 	readonly rundownLock: RundownLock
-
-	/**
-	 * The ExpectedMediaItems for the baseline of this Rundown
-	 */
-	readonly expectedMediaItemsForRundownBaseline: ReadonlyDeep<ExpectedMediaItemRundown>[]
 
 	/**
 	 * The ExpectedPlayoutItems for the baseline of this Rundown
@@ -207,12 +201,6 @@ export interface IngestModel extends IngestModelReadonly, BaseModel, INotificati
 	 * @param expectedPlayoutItems The new ExpectedPlayoutItems
 	 */
 	setExpectedPlayoutItemsForRundownBaseline(expectedPlayoutItems: ExpectedPlayoutItemRundown[]): void
-
-	/**
-	 * Set the ExpectedMediaItems for the baseline of this Rundown
-	 * @param expectedMediaItems The new ExpectedMediaItems
-	 */
-	setExpectedMediaItemsForRundownBaseline(expectedMediaItems: ExpectedMediaItemRundown[]): void
 
 	/**
 	 * Set the ExpectedPackages for the baseline of this Rundown

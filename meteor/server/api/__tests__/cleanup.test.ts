@@ -472,10 +472,7 @@ async function setDefaultDatatoDB(env: DefaultEnvironment, now: number) {
 				'organizations',
 				'Users',
 				// Deprecated:
-				'expectedMediaItems',
 				'mediaObjects',
-				'mediaWorkFlows',
-				'mediaWorkFlowSteps',
 			].includes(collectionName)
 		)
 			continue
