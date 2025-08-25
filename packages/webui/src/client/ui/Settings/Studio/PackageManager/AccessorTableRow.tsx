@@ -17,6 +17,7 @@ import { TextInputControl } from '../../../../lib/Components/TextInput'
 import { DropdownInputControl, getDropdownInputOptions } from '../../../../lib/Components/DropdownInput'
 import { OverrideOpHelper, WrappedOverridableItemNormal } from '../../util/OverrideOpHelper'
 import { CheckboxControl } from '../../../../lib/Components/Checkbox'
+import { IntInputControl } from '../../../../lib/Components/IntInput'
 
 interface AccessorTableRowProps {
 	packageContainer: WrappedOverridableItemNormal<StudioPackageContainer>
@@ -183,7 +184,7 @@ export function AccessorTableRow({
 										)}
 									</LabelAndOverrides>
 									<LabelAndOverrides
-										label={t('Resourse Id')}
+										label={t('Resource Id')}
 										hint={t('(Optional) This could be the name of the computer on which the local folder is on')}
 										item={packageContainer}
 										//@ts-expect-error can't be 4 levels deep
@@ -411,14 +412,21 @@ export function AccessorTableRow({
 										itemKey={`container.accessors.${accessorId}.ISAUrls`}
 										overrideHelper={overrideHelper}
 									>
-										{(value, handleUpdate) => (
-											<TextInputControl
-												modifiedClassName="bghl"
-												classNames="input text-input input-l"
-												value={value}
-												handleUpdate={handleUpdate}
-											/>
-										)}
+										{(value, handleUpdate) => {
+											// Convert array of strings into comma-separated string for the input:
+											const strValue = Array.isArray(value) ? value.join(', ') : value
+											return (
+												<TextInputControl
+													modifiedClassName="bghl"
+													classNames="input text-input input-l"
+													value={strValue}
+													handleUpdate={(value: string) => {
+														// Convert comma-separated string into array of strings
+														handleUpdate(value.split(',').map((s) => s.trim()))
+													}}
+												/>
+											)
+										}}
 									</LabelAndOverrides>
 									<LabelAndOverrides
 										label={t('Quantel Zone ID')}
@@ -448,7 +456,7 @@ export function AccessorTableRow({
 										overrideHelper={overrideHelper}
 									>
 										{(value, handleUpdate) => (
-											<TextInputControl
+											<IntInputControl
 												modifiedClassName="bghl"
 												classNames="input text-input input-l"
 												value={value}
@@ -507,6 +515,98 @@ export function AccessorTableRow({
 											/>
 										)}
 									</LabelAndOverrides>
+								</>
+							) : accessor.type === Accessor.AccessType.ATEM_MEDIA_STORE ? (
+								<>
+									<LabelAndOverrides
+										label={t('Resource Id')}
+										hint={t('(Optional) This could be the name of the compute')}
+										item={packageContainer}
+										//@ts-expect-error can't be 4 levels deep
+										itemKey={`container.accessors.${accessorId}.resourceId`}
+										overrideHelper={overrideHelper}
+									>
+										{(value, handleUpdate) => (
+											<TextInputControl
+												modifiedClassName="bghl"
+												classNames="input text-input input-l"
+												value={value}
+												handleUpdate={handleUpdate}
+											/>
+										)}
+									</LabelAndOverrides>
+									<LabelAndOverrides
+										label={t('Network Id')}
+										hint={t('(Optional) A name/identifier of the local network where the Atem is located')}
+										item={packageContainer}
+										//@ts-expect-error can't be 4 levels deep
+										itemKey={`container.accessors.${accessorId}.networkId`}
+										overrideHelper={overrideHelper}
+									>
+										{(value, handleUpdate) => (
+											<TextInputControl
+												modifiedClassName="bghl"
+												classNames="input text-input input-l"
+												value={value}
+												handleUpdate={handleUpdate}
+											/>
+										)}
+									</LabelAndOverrides>
+
+									<LabelAndOverrides
+										label={t('Network address')}
+										hint={t('Hostname or IP address of the Atem')}
+										item={packageContainer}
+										//@ts-expect-error can't be 4 levels deep
+										itemKey={`container.accessors.${accessorId}.atemHost`}
+										overrideHelper={overrideHelper}
+									>
+										{(value, handleUpdate) => (
+											<TextInputControl
+												modifiedClassName="bghl"
+												classNames="input text-input input-l"
+												value={value}
+												handleUpdate={handleUpdate}
+											/>
+										)}
+									</LabelAndOverrides>
+									<LabelAndOverrides
+										label={t('Bank Index')}
+										hint={t(' The index of the Atem media/clip banks')}
+										item={packageContainer}
+										//@ts-expect-error can't be 4 levels deep
+										itemKey={`container.accessors.${accessorId}.bankIndex`}
+										overrideHelper={overrideHelper}
+									>
+										{(value, handleUpdate) => (
+											<IntInputControl
+												modifiedClassName="bghl"
+												classNames="input text-input input-l"
+												value={value}
+												handleUpdate={handleUpdate}
+											/>
+										)}
+									</LabelAndOverrides>
+									<LabelAndOverridesForDropdown
+										label={t('Media Type')}
+										hint={t('What type of bank')}
+										item={packageContainer}
+										//@ts-expect-error can't be 4 levels deep
+										itemKey={`container.accessors.${accessorId}.mediaType`}
+										overrideHelper={overrideHelper}
+										options={getDropdownInputOptions(['clip', 'still'])}
+									>
+										{(value, handleUpdate, options) => {
+											return (
+												<DropdownInputControl
+													classNames="input text-input input-l"
+													options={options}
+													value={value}
+													handleUpdate={handleUpdate}
+												/>
+											)
+										}}
+									</LabelAndOverridesForDropdown>
 								</>
 							) : null}
 
