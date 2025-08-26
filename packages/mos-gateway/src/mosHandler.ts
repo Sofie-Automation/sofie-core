@@ -371,6 +371,11 @@ export class MosHandler {
 				// Profile 3: -------------------------------------------------
 				// Profile 4: -------------------------------------------------
 				// onStory: (cb: (story: IMOSROFullStory) => Promise<any>) => void
+				mosDevice.onRequestAllRunningOrders(async () => {
+					// MOSDevice >>>> Core
+					// Not implemented (yet)
+					return []
+				})
 				mosDevice.onRunningOrderStory(async (story: IMOSROFullStory) => {
 					// MOSDevice >>>> Core
 					return this._getROAck(story.RunningOrderId, coreMosHandler.mosRoFullStory(story))
