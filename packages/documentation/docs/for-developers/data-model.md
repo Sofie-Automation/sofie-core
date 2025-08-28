@@ -63,7 +63,6 @@ The collections which are owned by the ingest workers are:
 - [AdLibPieces](https://github.com/Sofie-Automation/sofie-core/blob/main/packages/corelib/src/dataModel/AdLibPieces.ts)
 - [BucketAdLibActions](https://github.com/Sofie-Automation/sofie-core/blob/main/packages/corelib/src/dataModel/BucketAdLibActions.ts)
 - [BucketAdLibPieces](https://github.com/Sofie-Automation/sofie-core/blob/main/packages/corelib/src/dataModel/BucketAdLibPieces.ts)
-- [ExpectedMediaItems](https://github.com/Sofie-Automation/sofie-core/blob/main/packages/corelib/src/dataModel/ExpectedMediaItems.ts)
 - [ExpectedPackages](https://github.com/Sofie-Automation/sofie-core/blob/main/packages/corelib/src/dataModel/ExpectedPackages.ts)
 - [ExpectedPlayoutItems](https://github.com/Sofie-Automation/sofie-core/blob/main/packages/corelib/src/dataModel/ExpectedPlayoutItems.ts)
 - [IngestDataCache](https://github.com/Sofie-Automation/sofie-core/blob/main/packages/corelib/src/dataModel/IngestDataCache.ts)

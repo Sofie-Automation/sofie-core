@@ -7,12 +7,9 @@ import {
 	Blueprints,
 	CoreSystem,
 	Evaluations,
-	ExpectedMediaItems,
 	ExternalMessageQueue,
 	NrcsIngestDataCache,
 	MediaObjects,
-	MediaWorkFlows,
-	MediaWorkFlowSteps,
 	Parts,
 	PeripheralDeviceCommands,
 	PeripheralDevices,
@@ -48,17 +45,11 @@ describe('Basic test of test environment', () => {
 		// @ts-ignore
 		expect(Evaluations._isMock).toBeTruthy()
 		// @ts-ignore
-		expect(ExpectedMediaItems._isMock).toBeTruthy()
-		// @ts-ignore
 		expect(ExternalMessageQueue._isMock).toBeTruthy()
 		// @ts-ignore
 		expect(NrcsIngestDataCache._isMock).toBeTruthy()
 		// @ts-ignore
 		expect(MediaObjects._isMock).toBeTruthy()
-		// @ts-ignore
-		expect(MediaWorkFlows._isMock).toBeTruthy()
-		// @ts-ignore
-		expect(MediaWorkFlowSteps._isMock).toBeTruthy()
 		// @ts-ignore
 		expect(Parts._isMock).toBeTruthy()
 		// @ts-ignore

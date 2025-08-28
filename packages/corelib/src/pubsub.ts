@@ -17,7 +17,6 @@ import { DBTimelineDatastoreEntry } from '@sofie-automation/shared-lib/dist/core
 import { Blueprint } from './dataModel/Blueprint.js'
 import { BucketAdLibAction } from './dataModel/BucketAdLibAction.js'
 import { BucketAdLib } from './dataModel/BucketAdLibPiece.js'
-import { ExpectedMediaItem } from './dataModel/ExpectedMediaItem.js'
 import { ExpectedPackageWorkStatus } from './dataModel/ExpectedPackageWorkStatuses.js'
 import { ExpectedPackageDBBase } from './dataModel/ExpectedPackages.js'
 import { ExternalMessageQueueObj } from './dataModel/ExternalMessageQueue.js'
@@ -343,7 +342,6 @@ export type CorelibPubSubCollections = {
 	[CollectionName.Buckets]: Bucket
 	[CollectionName.BucketAdLibActions]: BucketAdLibAction
 	[CollectionName.BucketAdLibPieces]: BucketAdLib
-	[CollectionName.ExpectedMediaItems]: ExpectedMediaItem
 	[CollectionName.ExpectedPackages]: ExpectedPackageDBBase
 	[CollectionName.ExpectedPackageWorkStatuses]: ExpectedPackageWorkStatus
 	[CollectionName.ExternalMessageQueue]: ExternalMessageQueueObj

@@ -231,7 +231,6 @@ export class IngestSegmentModelImpl implements IngestSegmentModel {
 			clone(adLibPiece),
 			clone(adLibActions),
 			[],
-			[],
 			[]
 		)
 		partModel.setOwnerIds(this.segment.rundownId, this.segment._id)

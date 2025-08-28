@@ -1,6 +1,5 @@
 import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
-import { ExpectedMediaItem } from '@sofie-automation/corelib/dist/dataModel/ExpectedMediaItem'
 import { ExpectedPackageDB } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
 import { ExpectedPlayoutItem } from '@sofie-automation/corelib/dist/dataModel/ExpectedPlayoutItem'
 import { RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
@@ -17,7 +16,6 @@ import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 export class SaveIngestModelHelper {
 	#expectedPackages = new DocumentChangeTracker<ExpectedPackageDB>()
 	#expectedPlayoutItems = new DocumentChangeTracker<ExpectedPlayoutItem>()
-	#expectedMediaItems = new DocumentChangeTracker<ExpectedMediaItem>()
 
 	#segments = new DocumentChangeTracker<DBSegment>()
 	#parts = new DocumentChangeTracker<DBPart>()
@@ -31,7 +29,6 @@ export class SaveIngestModelHelper {
 	): void {
 		this.#expectedPackages.addChanges(store.expectedPackagesChanges, deleteAll ?? false)
 		this.#expectedPlayoutItems.addChanges(store.expectedPlayoutItemsChanges, deleteAll ?? false)
-		this.#expectedMediaItems.addChanges(store.expectedMediaItemsChanges, deleteAll ?? false)
 	}
 	addSegment(segment: IngestSegmentModelImpl, segmentIsDeleted: boolean): void {
 		if (segmentIsDeleted) {
@@ -61,7 +58,6 @@ export class SaveIngestModelHelper {
 		const deletedIds: { [key: string]: ProtectedString<any>[] } = {
 			expectedPackages: this.#expectedPackages.getDeletedIds(),
 			expectedPlayoutItems: this.#expectedPlayoutItems.getDeletedIds(),
-			expectedMediaItems: this.#expectedMediaItems.getDeletedIds(),
 			segments: this.#segments.getDeletedIds(),
 			parts: this.#parts.getDeletedIds(),
 			pieces: this.#pieces.getDeletedIds(),
@@ -77,7 +73,6 @@ export class SaveIngestModelHelper {
 		return [
 			context.directCollections.ExpectedPackages.bulkWrite(this.#expectedPackages.generateWriteOps()),
 			context.directCollections.ExpectedPlayoutItems.bulkWrite(this.#expectedPlayoutItems.generateWriteOps()),
-			context.directCollections.ExpectedMediaItems.bulkWrite(this.#expectedMediaItems.generateWriteOps()),
 
 			context.directCollections.Segments.bulkWrite(this.#segments.generateWriteOps()),
 			context.directCollections.Parts.bulkWrite(this.#parts.generateWriteOps()),

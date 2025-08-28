@@ -352,8 +352,6 @@ export const addSteps = addMigrationSteps('1.50.0', [
 					documentationUrl = 'https://github.com/SuperFlyTV/spreadsheet-gateway'
 				} else if (device.type === PeripheralDeviceType.PLAYOUT) {
 					documentationUrl = 'https://github.com/Sofie-Automation/sofie-core'
-				} else if (device.type === PeripheralDeviceType.MEDIA_MANAGER) {
-					documentationUrl = 'https://github.com/nrkno/sofie-media-management'
 				} else if (device.type === PeripheralDeviceType.INEWS) {
 					documentationUrl = 'https://github.com/olzzon/tv2-inews-ftp-gateway'
 				} else if (device.type === PeripheralDeviceType.PACKAGE_MANAGER) {

@@ -2,7 +2,6 @@ import { useSubscription } from '../lib/ReactMeteorData/react-meteor-data.js'
 import { useTranslation } from 'react-i18next'
 import { Route, Switch, Redirect, NavLink } from 'react-router-dom'
 import { SystemStatus } from './Status/SystemStatus/SystemStatus.js'
-import { MediaManagerStatus } from './Status/MediaManager.js'
 import { ExternalMessages } from './Status/ExternalMessages.js'
 import { UserActivity } from './Status/UserActivity.js'
 import { EvaluationView } from './Status/Evaluations.js'
@@ -83,7 +82,6 @@ export default function Status(): JSX.Element {
 							{/* <Route path='/status' exact component={WelcomeToStatus} /> */}
 							<Route path="/status/messages" component={ExternalMessages} />
 							<Route path="/status/media" component={MediaStatus} />
-							<Route path="/status/media-legacy" component={MediaManagerStatus} />
 							<Route path="/status/expected-packages" component={ExpectedPackagesStatus} />
 							<Route path="/status/system" component={SystemStatus} />
 							<Route path="/status/userLog" component={UserActivity} />
