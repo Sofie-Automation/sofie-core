@@ -40,7 +40,7 @@ import { deserializePieceTimelineObjectsBlob } from '@sofie-automation/corelib/d
 import { convertResolvedPieceInstanceToBlueprints } from '../../blueprints/context/lib'
 import { buildTimelineObjsForRundown, RundownTimelineTimingContext } from './rundown'
 import { SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { deNowifyMultiGatewayTimeline } from './multi-gateway'
+import { calculateNowOffsetLatency, deNowifyMultiGatewayTimeline } from './multi-gateway'
 import { validateTimeline } from 'superfly-timeline'
 import { getPartTimingsOrDefaults, PartCalculatedTimings } from '@sofie-automation/corelib/dist/playout/timings'
 import { applyAbPlaybackForTimeline } from '../abPlayback'
@@ -144,14 +144,21 @@ export async function updateTimeline(context: JobContext, playoutModel: PlayoutM
 		throw new Error(`RundownPlaylist ("${playoutModel.playlist._id}") is not active")`)
 	}
 
-	const { versions, objs: timelineObjs, timingContext: timingInfo } = await getTimelineRundown(context, playoutModel)
+	const nowOffsetLatency = calculateNowOffsetLatency(context, playoutModel)
+	const targetNowTime = getCurrentTime() + (nowOffsetLatency ?? 0)
+
+	const {
+		versions,
+		objs: timelineObjs,
+		timingContext: timingInfo,
+	} = await getTimelineRundown(context, playoutModel, targetNowTime)
 
 	flattenAndProcessTimelineObjects(context, timelineObjs)
 
 	preserveOrReplaceNowTimesInObjects(playoutModel, timelineObjs)
 
 	if (playoutModel.isMultiGatewayMode) {
-		deNowifyMultiGatewayTimeline(context, playoutModel, timelineObjs, timingInfo)
+		deNowifyMultiGatewayTimeline(playoutModel, timelineObjs, timingInfo, targetNowTime)
 
 		logAnyRemainingNowTimes(context, timelineObjs)
 	}
@@ -281,7 +288,8 @@ function getPartInstanceTimelineInfo(
  */
 async function getTimelineRundown(
 	context: JobContext,
-	playoutModel: PlayoutModel
+	playoutModel: PlayoutModel,
+	targetNowTime: number
 ): Promise<{
 	objs: Array<TimelineObjRundown>
 	versions: TimelineCompleteGenerationVersions
@@ -311,11 +319,10 @@ async function getTimelineRundown(
 				)
 			}
 
-			const currentTime = getCurrentTime()
 			const partInstancesInfo: SelectedPartInstancesTimelineInfo = {
-				current: getPartInstanceTimelineInfo(currentTime, showStyle.sourceLayers, currentPartInstance),
-				next: getPartInstanceTimelineInfo(currentTime, showStyle.sourceLayers, nextPartInstance),
-				previous: getPartInstanceTimelineInfo(currentTime, showStyle.sourceLayers, previousPartInstance),
+				current: getPartInstanceTimelineInfo(targetNowTime, showStyle.sourceLayers, currentPartInstance),
+				next: getPartInstanceTimelineInfo(targetNowTime, showStyle.sourceLayers, nextPartInstance),
+				previous: getPartInstanceTimelineInfo(targetNowTime, showStyle.sourceLayers, previousPartInstance),
 			}
 
 			if (partInstancesInfo.next && nextPartInstance) {
@@ -352,7 +359,7 @@ async function getTimelineRundown(
 				const resolvedPieces = getResolvedPiecesForPartInstancesOnTimeline(
 					context,
 					partInstancesInfo,
-					getCurrentTime()
+					targetNowTime
 				)
 				const blueprintContext = new OnTimelineGenerateContext(
 					context.studio,

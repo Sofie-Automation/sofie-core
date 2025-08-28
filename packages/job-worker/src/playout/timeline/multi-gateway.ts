@@ -7,7 +7,6 @@ import { PieceTimelineMetadata } from './pieceGroup'
 import { StudioPlayoutModelBase } from '../../studio/model/StudioPlayoutModel'
 import { logger } from '../../logging'
 import { JobContext } from '../../jobs'
-import { getCurrentTime } from '../../lib'
 import { PlayoutModel } from '../model/PlayoutModel'
 import { RundownTimelineTimingContext, getInfinitePartGroupId } from './rundown'
 import { getExpectedLatency } from '@sofie-automation/corelib/dist/studio/playout'
@@ -23,17 +22,16 @@ import { PlayoutPieceInstanceModel } from '../model/PlayoutPieceInstanceModel'
  * This does introduce a risk of error when changes are made to how we generate the timeline, but that risk should be small.
  */
 export function deNowifyMultiGatewayTimeline(
-	context: JobContext,
 	playoutModel: PlayoutModel,
 	timelineObjs: TimelineObjRundown[],
-	timingContext: RundownTimelineTimingContext | undefined
+	timingContext: RundownTimelineTimingContext | undefined,
+	targetNowTime: number
 ): void {
 	if (!timingContext) return
 
 	const timelineObjsMap = normalizeArray(timelineObjs, 'id')
 
-	const nowOffsetLatency = calculateNowOffsetLatency(context, playoutModel)
-	const targetNowTime = getCurrentTime() + (nowOffsetLatency ?? 0)
+	logger.info(`deNowifyMultiGatewayTimeline: ${targetNowTime}`)
 
 	// Replace `start: 'now'` in currentPartInstance on timeline
 	const currentPartInstance = playoutModel.currentPartInstance
