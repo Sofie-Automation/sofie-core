@@ -31,4 +31,16 @@ export interface IBlueprintPartInstanceTimings {
 	reportedStartedPlayback?: Time
 	/** Point in time the Part stopped playing (ie the time of the playout) */
 	reportedStoppedPlayback?: Time
+
+	/**
+	 * Point in time where the Part is planned to start playing.
+	 * This gets set when the part is taken
+	 * It may get set to a point in the past, if an offset is chosen when starting to play the part
+	 */
+	plannedStartedPlayback?: Time
+	/**
+	 * Point in time where the Part is planned to stop playing
+	 * This gets set when the plannedStartedPlayback of the following part is set
+	 */
+	plannedStoppedPlayback?: Time
 }
