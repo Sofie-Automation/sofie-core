@@ -18,7 +18,6 @@ This docker-compose file automates the basic setup of the [Sofie-Core applicatio
 ```yaml
 # This is NOT recommended to be used for a production deployment.
 # It aims to quickly get an evaluation version of Sofie running and serve as a basis for how to set up a production deployment.
-version: '3.3'
 services:
   db:
     hostname: mongo
