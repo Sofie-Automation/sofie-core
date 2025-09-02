@@ -17,6 +17,9 @@ export const addSteps = addMigrationSteps(CURRENT_SYSTEM_VERSION, [
 		id: `Drop media manager collections`,
 		canBeRunAutomatically: true,
 		validate: async () => {
+			// If MongoInternals is not available, we are in a test environment
+			if (!MongoInternals) return false
+
 			const existingCollections = await MongoInternals.defaultRemoteCollectionDriver()
 				.mongo.db.listCollections()
 				.toArray()
