@@ -888,23 +888,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mos-connection/helper@npm:^4.2.2":
-  version: 4.2.2
-  resolution: "@mos-connection/helper@npm:4.2.2"
+"@mos-connection/helper@npm:^4.3.1":
+  version: 4.3.1
+  resolution: "@mos-connection/helper@npm:4.3.1"
   dependencies:
-    "@mos-connection/model": "npm:4.2.2"
+    "@mos-connection/model": "npm:4.3.1"
     iconv-lite: "npm:^0.6.3"
     tslib: "npm:^2.5.3"
     xml-js: "npm:^1.6.11"
     xmlbuilder: "npm:^15.1.1"
-  checksum: 10/aa81a2808ac48439d0d6c5b586f302bed7f04c0d2bb8795d950b4df856f7ab0904f16464fe7a4838908caf6b26ac91a7ea2d5a1b24dcaed67111dd9f449ed168
+  checksum: 10/7f22e2c59ec4aa4934f4c76de75b547414368031c9fd3ce17a3b1fc5533419962d1494ab02d6518bea9b0036305101e6442e74dd602f17ac715ca7b11679b77b
   languageName: node
   linkType: hard
 
-"@mos-connection/model@npm:4.2.2, @mos-connection/model@npm:^4.2.2":
-  version: 4.2.2
-  resolution: "@mos-connection/model@npm:4.2.2"
-  checksum: 10/9cf044c543e165c6579df46af7a7081a8cd0baea36b0769b3237c94eef7254959b7b84421d612d39c2f1c6da82080cfd43f795fb42ea1f7cb2b6ce21d7108aeb
+"@mos-connection/model@npm:4.3.1, @mos-connection/model@npm:^4.3.1":
+  version: 4.3.1
+  resolution: "@mos-connection/model@npm:4.3.1"
+  checksum: 10/03b1977bae64a157555b6d13300670840f8715e657bae4db2dd38702e0ecc64195f40ab06ee5ebacf4699ecdc87a9812452df6a3cbb96cf490ffed5eec1cee85
   languageName: node
   linkType: hard
 
@@ -1160,7 +1160,7 @@ __metadata:
     mongodb: "npm:^6.12.0"
     p-lazy: "npm:^3.1.0"
     p-timeout: "npm:^4.1.0"
-    superfly-timeline: "npm:9.1.2"
+    superfly-timeline: "npm:^9.2.0"
     threadedclass: "npm:^1.2.2"
     tslib: "npm:^2.8.1"
     type-fest: "npm:^4.33.0"
@@ -1172,7 +1172,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@sofie-automation/meteor-lib@portal:../packages/meteor-lib::locator=automation-core%40workspace%3A."
   dependencies:
-    "@mos-connection/helper": "npm:^4.2.2"
+    "@mos-connection/helper": "npm:^4.3.1"
     "@sofie-automation/blueprints-integration": "npm:1.52.0"
     "@sofie-automation/corelib": "npm:1.52.0"
     "@sofie-automation/shared-lib": "npm:1.52.0"
@@ -1190,8 +1190,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@sofie-automation/shared-lib@portal:../packages/shared-lib::locator=automation-core%40workspace%3A."
   dependencies:
-    "@mos-connection/model": "npm:^4.2.2"
-    timeline-state-resolver-types: "npm:9.3.0"
+    "@mos-connection/model": "npm:^4.3.1"
+    timeline-state-resolver-types: "npm:9.3.2"
     tslib: "npm:^2.8.1"
     type-fest: "npm:^4.33.0"
   languageName: node
@@ -2219,7 +2219,7 @@ __metadata:
     "@babel/runtime": "npm:^7.26.7"
     "@koa/cors": "npm:^5.0.0"
     "@koa/router": "npm:^13.1.0"
-    "@mos-connection/helper": "npm:^4.2.2"
+    "@mos-connection/helper": "npm:^4.3.1"
     "@shopify/jest-koa-mocks": "npm:^5.3.1"
     "@slack/webhook": "npm:^7.0.4"
     "@sofie-automation/blueprints-integration": "portal:../packages/blueprints-integration"
@@ -2280,7 +2280,7 @@ __metadata:
     prettier: "npm:^2.8.8"
     semver: "npm:^7.6.3"
     standard-version: "npm:^9.5.0"
-    superfly-timeline: "npm:9.1.2"
+    superfly-timeline: "npm:^9.2.0"
     threadedclass: "npm:^1.2.2"
     timecode: "npm:0.0.4"
     ts-jest: "npm:^29.2.5"
@@ -10054,12 +10054,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"superfly-timeline@npm:9.1.2":
-  version: 9.1.2
-  resolution: "superfly-timeline@npm:9.1.2"
+"superfly-timeline@npm:^9.2.0":
+  version: 9.2.0
+  resolution: "superfly-timeline@npm:9.2.0"
   dependencies:
     tslib: "npm:^2.6.0"
-  checksum: 10/f77552cb8b4faab5d13aa88da364498c90d5117427af739fa456d73acd26075fe2e04cc227b8d58d45a4684af7115c24a7e5867c85479a2c0aba3f43b6230367
+  checksum: 10/254cbb359bc17fcaf181d47bd5f931eadc99d2dfc5883e60bf299ab136214eec7ef65e317bba8a4af59815e2665b3b9f4d0e03e9c266617537b1629a213820aa
   languageName: node
   linkType: hard
 
@@ -10234,12 +10234,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"timeline-state-resolver-types@npm:9.3.0":
-  version: 9.3.0
-  resolution: "timeline-state-resolver-types@npm:9.3.0"
+"timeline-state-resolver-types@npm:9.3.2":
+  version: 9.3.2
+  resolution: "timeline-state-resolver-types@npm:9.3.2"
   dependencies:
     tslib: "npm:^2.6.3"
-  checksum: 10/2193715a9a3acd89134b6dd102aa8a0adc3386a286744255788d44343e9e820a4cec293609397139a1506d326f0689599e8cc0ca50868c05ad4e78b90f5324ec
+  checksum: 10/bec9a377a683dab694ffbb7eed81c06aeb32070fef8037937d0be4b2867017eddd6956db5d6eddf14e269ad134abcb6e202d21a9a279596710a6a48191744cdf
   languageName: node
   linkType: hard
 
