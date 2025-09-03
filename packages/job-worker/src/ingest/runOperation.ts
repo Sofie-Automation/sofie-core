@@ -202,7 +202,7 @@ export async function runIngestUpdateOperationBase(
 			}
 		} finally {
 			// Ensure we save the nrcs ingest data
-			// await pSaveNrcsIngestChanges
+			await pSaveNrcsIngestChanges
 
 			span?.end()
 		}

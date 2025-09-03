@@ -490,7 +490,13 @@ export async function handleMoveRundownIntoPlaylist(
 					}
 
 					// If the playlist is active this could have changed lookahead
-					await updatePlayoutAfterChangingRundownInPlaylist(context, newPlaylist, intoPlaylistLock, rundown)
+					await updatePlayoutAfterChangingRundownInPlaylist(
+						context,
+						newPlaylist,
+						intoPlaylistLock,
+						rundown,
+						null
+					)
 				}
 			)
 		} else {
@@ -540,7 +546,7 @@ export async function handleRestoreRundownsInPlaylistToDefaultOrder(
 
 			if (updatedPlaylist) {
 				// If the playlist is active this could have changed lookahead
-				await updatePlayoutAfterChangingRundownInPlaylist(context, updatedPlaylist, playlistLock, null)
+				await updatePlayoutAfterChangingRundownInPlaylist(context, updatedPlaylist, playlistLock, null, null)
 			}
 		}
 	})

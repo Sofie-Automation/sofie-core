@@ -576,7 +576,8 @@ export async function updatePlayoutAfterChangingRundownInPlaylist(
 	context: JobContext,
 	playlist: DBRundownPlaylist,
 	playlistLock: PlaylistLock,
-	insertedRundown: ReadonlyDeep<DBRundown> | null
+	insertedRundown: ReadonlyDeep<DBRundown> | null,
+	rundownIdToForget: RundownId | null
 ): Promise<void> {
 	// ensure the 'old' playout is updated to remove any references to the rundown
 	await runWithPlayoutModel(context, playlist, playlistLock, null, async (playoutModel) => {
@@ -589,6 +590,16 @@ export async function updatePlayoutAfterChangingRundownInPlaylist(
 
 			playoutModel.assertNoChanges()
 			return
+		}
+
+		// Ensure previousPartInstance doesn't reference the old Rundown
+		// The current and next partInstances are enforced by allowedToMoveRundownOutOfPlaylist
+		if (
+			rundownIdToForget &&
+			playoutModel.previousPartInstance &&
+			playoutModel.previousPartInstance.partInstance.rundownId === rundownIdToForget
+		) {
+			playoutModel.clearPreviousPartInstance()
 		}
 
 		// Ensure playout is in sync
@@ -711,7 +722,7 @@ export async function removeRundownFromPlaylistAndUpdatePlaylist(
 
 	if (updatedPlaylist) {
 		// ensure the 'old' playout is updated to remove any references to the rundown
-		await updatePlayoutAfterChangingRundownInPlaylist(context, updatedPlaylist, playlistLock, null)
+		await updatePlayoutAfterChangingRundownInPlaylist(context, updatedPlaylist, playlistLock, null, rundownId)
 	}
 }
 
