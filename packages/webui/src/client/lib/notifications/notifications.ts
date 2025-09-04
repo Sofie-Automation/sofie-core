@@ -43,7 +43,7 @@ export enum NoticeLevel {
 	CRITICAL = 0b0001, // 1
 	/** High priority notification. Operations will not be affected, but non-critical functions may be affected or the result may be undesirable. */
 	WARNING = 0b0010, // 2
-	/** Confirmation of a successful operation and general informations. */
+	/** Confirmation of a successful operation and general information. */
 	NOTIFICATION = 0b0100, // 4
 	/** Tips to the user */
 	TIP = 0b1000, // 8
@@ -62,7 +62,7 @@ export interface NotificationAction {
 	type: string // for a default, use 'default'
 	/** Icon shown on the action button. */
 	icon?: any
-	/** The method that will be called when the user takes the aciton. */
+	/** The method that will be called when the user takes the action. */
 	action?: (e: any) => void
 	/** If true, will disable the action (ie the button will show, but not clickable). */
 	disabled?: boolean
@@ -291,7 +291,7 @@ class NotificationCenter0 {
 	}
 
 	/**
-	 * Get a reactive array of notificaitons in the Notification Center
+	 * Get a reactive array of notifications in the Notification Center
 	 *
 	 * @returns {Array<Notification>}
 	 * @memberof NotificationCenter0
@@ -321,7 +321,7 @@ class NotificationCenter0 {
 	}
 
 	/**
-	 * Get a reactive array of notificaiton id's in the Notification Center
+	 * Get a reactive array of notification id's in the Notification Center
 	 *
 	 * @returns {Array<string>}
 	 * @memberof NotificationCenter0
@@ -528,7 +528,7 @@ export class Notification extends EventEmitter {
 	}
 
 	/**
-	 * Callback called by the Notifcation Center when a user takes an action
+	 * Callback called by the Notification Center when a user takes an action
 	 *
 	 * @param {string} type
 	 * @param {*} event

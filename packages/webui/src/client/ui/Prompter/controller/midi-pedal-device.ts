@@ -14,7 +14,7 @@ export class MidiPedalController extends ControllerAbstract {
 	private idleMidiInputs: { [midiId: string]: boolean } = {}
 
 	private rangeRevMin = 0 // pedal "all back" position, the max-reverse-position
-	private rangeNeutralMin = 35 // pedal "back" position where reverse-range transistions to the neutral range
+	private rangeNeutralMin = 35 // pedal "back" position where reverse-range transitions to the neutral range
 	private rangeNeutralMax = 80 // pedal "front" position where scrolling starts, the 0 speed origin
 	private rangeFwdMax = 127 // pedal "all front" position where scrolling is maxed out
 	private speedMap = [1, 2, 3, 4, 5, 7, 9, 12, 17, 19, 30]
@@ -139,7 +139,7 @@ export class MidiPedalController extends ControllerAbstract {
 		const { rangeRevMin, rangeNeutralMin, rangeNeutralMax, rangeFwdMax } = this
 		let inputValue = e.value || 0
 
-		// start by clamping value to the leagal range
+		// start by clamping value to the legal range
 		inputValue = Math.min(Math.max(inputValue, rangeRevMin), rangeFwdMax) // clamps in between rangeRevMin and rangeFwdMax
 
 		if (inputValue >= rangeRevMin && inputValue <= rangeNeutralMin) {

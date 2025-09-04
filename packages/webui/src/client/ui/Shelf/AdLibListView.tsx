@@ -37,7 +37,7 @@ interface IListViewPropsHeader {
  * @param liveSegment The live segment.
  * @param filter Filter to match against.
  * @param searchFilter Text to try to match against adLib label.
- * @param uniquenessIds Set of uniquenessIds, for a given set only one adLib per uniquness Id will be matched by this filter.
+ * @param uniquenessIds Set of uniquenessIds, for a given set only one adLib per uniqueness Id will be matched by this filter.
  */
 export function matchFilter(
 	item: AdLibPieceUi,

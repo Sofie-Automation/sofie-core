@@ -37,7 +37,7 @@ export function OverlayScreenSaver({ studioId }: Readonly<{ studioId: StudioId }
 				parentWidth = parentRect.width
 			}
 
-			// try and find a nice random position, thats significanlty different from the last postion
+			// try and find a nice random position, thats significantly different from the last position
 			do {
 				position = Math.random() * ((parentWidth * 5) / 6 - width)
 			} while (Math.abs(position - lastPosition) < 200 && i++ < 10)

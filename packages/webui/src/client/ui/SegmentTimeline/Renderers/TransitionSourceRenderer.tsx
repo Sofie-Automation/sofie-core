@@ -36,7 +36,7 @@ export class TransitionSourceRenderer extends CustomLayerItemRenderer<IProps, IS
 		this.updateAnchoredElsWidths()
 	}
 
-	// this will be triggered if the SVG icon for the transiton will 404.
+	// this will be triggered if the SVG icon for the transition will 404.
 	private iconFailed = () => {
 		this.setState({
 			iconFailed: true,

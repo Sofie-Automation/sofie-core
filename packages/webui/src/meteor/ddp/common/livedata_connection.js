@@ -327,7 +327,7 @@ export class Connection {
 		//     });
 		//
 		// If "foo" has changed but "bar" has not, we will match the "bar"
-		// subcribe to an existing inactive subscription in order to not
+		// subscribe to an existing inactive subscription in order to not
 		// unsub and resub the subscription unnecessarily.
 		//
 		// We only look for one such sub; if there are N apparently-identical subs
@@ -1370,7 +1370,7 @@ export class Connection {
 		}
 
 		// Now, to minimize setup latency, go ahead and blast out all of
-		// our pending methods ands subscriptions before we've even taken
+		// our pending methods and subscriptions before we've even taken
 		// the necessary RTT to know if we successfully reconnected. (1)
 		// They're supposed to be idempotent, and where they are not,
 		// they can block retry in apply; (2) even if we did reconnect,

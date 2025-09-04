@@ -18,7 +18,7 @@ export async function runTimersUntilNow(): Promise<void> {
 	}
 }
 
-/** Returns a Promise that resolves after a speficied number of milliseconds */
+/** Returns a Promise that resolves after a specified number of milliseconds */
 export async function waitTime(ms: number): Promise<void> {
 	return new Promise((resolve) => orgSetTimeout(resolve, ms))
 }

@@ -336,7 +336,7 @@ export type Translated<T> = T & WithTranslation
  * @template T
  * @template K
  * @param {() => T} autorun The autorun function to be run.
- * @param {React.DependencyList} [deps] A required list of dependenices to limit the tracker re-running. Can be left empty, if tracker
+ * @param {React.DependencyList} [deps] A required list of dependencies to limit the tracker re-running. Can be left empty, if tracker
  * 		has no external dependencies and should only be rerun when it's invalidated.
  * @param {K} [initial] An optional, initial state of the tracker. If not provided, the tracker may return undefined.
  * @return {*}  {(T | K)}
@@ -458,7 +458,7 @@ function useDelayState(initialState = false): {
  *
  * @export
  * @param {PubSub} sub The subscription to be subscribed to
- * @param {...any[]} args A list of arugments for the subscription. This is used for optimizing the subscription across
+ * @param {...any[]} args A list of arguments for the subscription. This is used for optimizing the subscription across
  * 		renders so that it isn't torn down and created for every render.
  */
 export function useSubscription<K extends keyof AllPubSubTypes>(
@@ -497,7 +497,7 @@ export function useSubscription<K extends keyof AllPubSubTypes>(
  * @export
  * @param {PubSub} sub The subscription to be subscribed to
  * @param {boolean} enable Whether the subscription is enabled
- * @param {...any[]} args A list of arugments for the subscription. This is used for optimizing the subscription across
+ * @param {...any[]} args A list of arguments for the subscription. This is used for optimizing the subscription across
  * 		renders so that it isn't torn down and created for every render.
  */
 export function useSubscriptionIfEnabled<K extends keyof AllPubSubTypes>(
@@ -542,7 +542,7 @@ export function useSubscriptionIfEnabled<K extends keyof AllPubSubTypes>(
  * @export
  * @param {PubSub} sub The subscription to be subscribed to
  * @param {boolean} enable Whether the subscription is enabled
- * @param {...any[]} args A list of arugments for the subscription. This is used for optimizing the subscription across
+ * @param {...any[]} args A list of arguments for the subscription. This is used for optimizing the subscription across
  * 		renders so that it isn't torn down and created for every render.
  */
 export function useSubscriptionIfEnabledReadyOnce<K extends keyof AllPubSubTypes>(

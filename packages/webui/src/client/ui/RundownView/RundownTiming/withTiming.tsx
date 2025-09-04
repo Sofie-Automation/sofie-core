@@ -134,7 +134,7 @@ export function withTiming<IProps, IState>(
 				// a RundownTimingContext that has not gone through the filter and thus
 				// previousValue may go out of sync.
 				// To bring it back to sync, we mark the component as dirty, which will
-				// force an update on the next low resoluton tick, regardless of what
+				// force an update on the next low resolution tick, regardless of what
 				// the filter says.
 				if (componentIsDirty(this.filterGetter, highResDurations, expandedOptions.dataResolution)) {
 					this.isDirty = true

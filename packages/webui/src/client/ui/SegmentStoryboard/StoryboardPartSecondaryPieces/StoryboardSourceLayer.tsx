@@ -41,7 +41,7 @@ function usePlayedOutPieceState(
 		const stoppedPlayback = partInstanceStoppedPlayback ?? Number.POSITIVE_INFINITY
 		let closestAbsoluteNext = Number.POSITIVE_INFINITY
 
-		// the pieces are in anti-chronological order for conveniece elsewhere, so we need to go from the end
+		// the pieces are in anti-chronological order for convenience elsewhere, so we need to go from the end
 		// of the array
 		for (let i = piecesOnLayer.length - 1; i >= 0; i--) {
 			const piece = piecesOnLayer[i]
