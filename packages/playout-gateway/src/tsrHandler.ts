@@ -280,6 +280,7 @@ export class TSRHandler {
 		this.tsr.connectionManager.on('connectionEvent:connectionChanged', (id, status) => {
 			const coreTsrHandler = this._coreTsrHandlers[id]
 			if (!coreTsrHandler) return
+			if (!coreTsrHandler._device) return // Not initialized yet
 
 			coreTsrHandler.statusChanged(status)
 
@@ -382,7 +383,7 @@ export class TSRHandler {
 		this.tsr.connectionManager.on('connectionEvent:debugState', (id, state) => {
 			const device = this._coreTsrHandlers[id]?._device
 
-			if (device?.debugState && this._coreHandler.logDebug) {
+			if (device && device.debugState && this._coreHandler.logDebug) {
 				// Fetch the Id that core knows this device by
 				const coreId = this._coreTsrHandlers[device.deviceId].core.deviceId
 				this._debugStates.set(unprotectString(coreId), state)
