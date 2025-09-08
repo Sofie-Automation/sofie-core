@@ -238,7 +238,9 @@ export type ActivateHoldProps = RundownPlayoutPropsBase
 export type DeactivateHoldProps = RundownPlayoutPropsBase
 export type PrepareRundownForBroadcastProps = RundownPlayoutPropsBase
 export interface ResetRundownPlaylistProps extends RundownPlayoutPropsBase {
+	/** If set, also activate the RundownPlaylist */
 	activate?: 'active' | 'rehearsal'
+	/** If true and `activate` is set, deactivates any other active Playlists and activates this one. */
 	forceActivate?: boolean
 }
 export interface ActivateRundownPlaylistProps extends RundownPlayoutPropsBase {

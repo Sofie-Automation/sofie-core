@@ -195,8 +195,13 @@ export interface ShowStyleBlueprintManifest<TRawConfig = IBlueprintConfig, TProc
 
 	// Events
 
-	onRundownActivate?: (context: IRundownActivationContext, wasActive: boolean) => Promise<void>
+	/**
+	 * Called when a RundownPlaylist has been activated
+	 */
+	onRundownActivate?: (context: IRundownActivationContext) => Promise<void>
+	/** Called upon the first take in a RundownPlaylist */
 	onRundownFirstTake?: (context: IPartEventContext) => Promise<void>
+	/** Called when a RundownPlaylist has been deactivated */
 	onRundownDeActivate?: (context: IRundownActivationContext) => Promise<void>
 
 	/** Called before a Take action */

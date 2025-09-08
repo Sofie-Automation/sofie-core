@@ -1,6 +1,6 @@
 import { TimelineObjGeneric } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { applyToArray, clone } from '@sofie-automation/corelib/dist/lib'
-import { TSR } from '@sofie-automation/blueprints-integration'
+import { TSR, IRundownActivationContextState } from '@sofie-automation/blueprints-integration'
 import { JobContext } from '../jobs/index.js'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
@@ -104,7 +104,7 @@ export function resetPartInstancesWithPieceInstances(
 								reset: true,
 							},
 						}
-					)
+				  )
 				: undefined,
 			allToReset.length
 				? context.directCollections.PieceInstances.update(
@@ -118,14 +118,14 @@ export function resetPartInstancesWithPieceInstances(
 								reset: true,
 							},
 						}
-					)
+				  )
 				: undefined,
 			allToReset.length > 0
 				? context.directCollections.Notifications.remove({
 						'relatedTo.studioId': context.studioId,
 						'relatedTo.rundownId': { $in: rundownIds },
 						'relatedTo.partInstanceId': { $in: allToReset },
-					})
+				  })
 				: undefined,
 		])
 	})
@@ -201,5 +201,12 @@ export async function updateTimelineFromStudioPlayoutModel(
 		})
 	} else {
 		await updateStudioTimeline(context, studioPlayoutModel)
+	}
+}
+export function getActivationContextState(playoutModel: PlayoutModel): IRundownActivationContextState {
+	return {
+		active: playoutModel.playlist.activationId ? true : false,
+		rehearsal: playoutModel.playlist.rehearsal ? true : false,
+		resetTime: playoutModel.playlist.resetTime,
 	}
 }

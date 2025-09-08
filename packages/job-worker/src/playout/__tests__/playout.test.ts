@@ -152,7 +152,10 @@ describe('Playout API', () => {
 
 		await handleResetRundownPlaylist(context, { playlistId: playlistId0 })
 
-		expect(Timeline.operations).toMatchObject([{ args: ['mockStudio0', undefined], type: 'findOne' }])
+		expect(Timeline.operations).toMatchObject([
+			{ args: ['mockStudio0', undefined], type: 'findOne' },
+			{ args: ['mockStudio0'], type: 'replace' },
+		])
 		Timeline.clearOpLog()
 
 		const orgRundownData = await getAllRundownData(await getRundown0())

@@ -13,7 +13,11 @@ export interface IRundownContext extends IShowStyleContext {
 
 export interface IRundownUserContext extends IUserNotesContext, IRundownContext {}
 
-export interface IRundownActivationContext extends IRundownContext, IExecuteTSRActionsContext, IDataStoreMethods {}
+export interface IRundownActivationContext extends IRundownContext, IExecuteTSRActionsContext, IDataStoreMethods {
+	/** Info about the RundownPlaylist state before the Activation / Deactivation event */
+	readonly previousState: IRundownActivationContextState
+	readonly currentState: IRundownActivationContextState
+}
 
 export interface ISegmentUserContext extends IUserNotesContext, IRundownContext, IPackageInfoContext {
 	/** Display a notification to the user of an error */
@@ -22,4 +26,14 @@ export interface ISegmentUserContext extends IUserNotesContext, IRundownContext,
 	notifyUserWarning: (message: string, params?: { [key: string]: any }, partExternalId?: string) => void
 	/** Display a notification to the user of a note */
 	notifyUserInfo: (message: string, params?: { [key: string]: any }, partExternalId?: string) => void
+}
+
+/** Info about the RundownPlaylist state at a point in time */
+export interface IRundownActivationContextState {
+	/** If the playlist was active */
+	active: boolean
+	/** If the playlist was in rehearsal mode */
+	rehearsal: boolean
+	/** Timestamp when the playlist was last reset. Used to silence a few errors upon reset.*/
+	resetTime?: number
 }

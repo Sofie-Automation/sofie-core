@@ -2,6 +2,7 @@ import {
 	DatastorePersistenceMode,
 	IBlueprintPlayoutDevice,
 	IRundownActivationContext,
+	IRundownActivationContextState,
 	TSR,
 } from '@sofie-automation/blueprints-integration'
 import { PeripheralDeviceId } from '@sofie-automation/shared-lib/dist/core/model/Ids'
@@ -17,22 +18,38 @@ export class RundownActivationContext extends RundownEventContext implements IRu
 	private readonly _playoutModel: PlayoutModel
 	private readonly _context: JobContext
 
+	private readonly _previousState: IRundownActivationContextState
+	private readonly _currentState: IRundownActivationContextState
+
 	constructor(
 		context: JobContext,
-		playoutModel: PlayoutModel,
-		showStyleCompound: ReadonlyDeep<ProcessedShowStyleCompound>,
-		rundown: ReadonlyDeep<DBRundown>
+		options: {
+			playoutModel: PlayoutModel
+			showStyle: ReadonlyDeep<ProcessedShowStyleCompound>
+			rundown: ReadonlyDeep<DBRundown>
+			previousState: IRundownActivationContextState
+			currentState: IRundownActivationContextState
+		}
 	) {
 		super(
 			context.studio,
 			context.getStudioBlueprintConfig(),
-			showStyleCompound,
-			context.getShowStyleBlueprintConfig(showStyleCompound),
-			rundown
+			options.showStyle,
+			context.getShowStyleBlueprintConfig(options.showStyle),
+			options.rundown
 		)
 
 		this._context = context
-		this._playoutModel = playoutModel
+		this._playoutModel = options.playoutModel
+		this._previousState = options.previousState
+		this._currentState = options.currentState
+	}
+
+	get previousState(): IRundownActivationContextState {
+		return this._previousState
+	}
+	get currentState(): IRundownActivationContextState {
+		return this._currentState
 	}
 
 	async listPlayoutDevices(): Promise<IBlueprintPlayoutDevice[]> {
