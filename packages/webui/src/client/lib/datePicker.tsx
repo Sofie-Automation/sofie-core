@@ -4,7 +4,7 @@ import moment from 'moment'
 import 'react-datepicker/dist/react-datepicker.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronRight, faChevronLeft } from '@fortawesome/free-solid-svg-icons'
-import { Time } from './tempLib'
+import { Time } from './tempLib.js'
 import { useTranslation } from 'react-i18next'
 import Button from 'react-bootstrap/Button'
 

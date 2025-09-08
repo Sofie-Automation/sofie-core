@@ -1,18 +1,17 @@
 import * as React from 'react'
 import { WithTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
-import { NotificationCenterPanelToggle, NotificationCenterPanel } from '../lib/notifications/NotificationCenterPanel'
-import { NotificationCenter, NoticeLevel } from '../lib/notifications/notifications'
-import { ErrorBoundary } from '../lib/ErrorBoundary'
-import { SupportPopUpToggle, SupportPopUp } from './SupportPopUp'
-// @ts-expect-error No types available
-import * as VelocityReact from 'velocity-react'
-import { translateWithTracker, Translated } from '../lib/ReactMeteorData/ReactMeteorData'
-import { CoreSystem } from '../collections'
+import { NotificationCenterPanelToggle, NotificationCenterPanel } from '../lib/notifications/NotificationCenterPanel.js'
+import { NotificationCenter, NoticeLevel } from '../lib/notifications/notifications.js'
+import { ErrorBoundary } from '../lib/ErrorBoundary.js'
+import { SupportPopUpToggle, SupportPopUp } from './SupportPopUp.js'
+import { translateWithTracker, Translated } from '../lib/ReactMeteorData/ReactMeteorData.js'
+import { CoreSystem } from '../collections/index.js'
 import Container from 'react-bootstrap/Container'
 import Nav from 'react-bootstrap/Nav'
 import Navbar from 'react-bootstrap/Navbar'
 import { LinkContainer } from 'react-router-bootstrap'
+import { AnimatePresence } from 'motion/react'
 
 interface IPropsHeader {
 	allowConfigure?: boolean
@@ -62,44 +61,12 @@ class Header extends React.Component<Translated<IPropsHeader & ITrackedPropsHead
 		return (
 			<React.Fragment>
 				<ErrorBoundary>
-					<VelocityReact.VelocityTransitionGroup
-						enter={{
-							animation: {
-								translateX: ['0%', '100%'],
-							},
-							easing: 'ease-out',
-							duration: 300,
-						}}
-						leave={{
-							animation: {
-								translateX: ['100%', '0%'],
-							},
-							easing: 'ease-in',
-							duration: 500,
-						}}
-					>
+					<AnimatePresence>
 						{this.state.isNotificationCenterOpen !== undefined && (
 							<NotificationCenterPanel limitCount={15} filter={this.state.isNotificationCenterOpen} />
 						)}
-					</VelocityReact.VelocityTransitionGroup>
-					<VelocityReact.VelocityTransitionGroup
-						enter={{
-							animation: {
-								translateX: ['0%', '100%'],
-							},
-							easing: 'ease-out',
-							duration: 300,
-						}}
-						leave={{
-							animation: {
-								translateX: ['100%', '0%'],
-							},
-							easing: 'ease-in',
-							duration: 500,
-						}}
-					>
 						{this.state.isSupportPanelOpen && <SupportPopUp />}
-					</VelocityReact.VelocityTransitionGroup>
+					</AnimatePresence>
 				</ErrorBoundary>
 				<ErrorBoundary>
 					<div className="status-bar">
@@ -119,7 +86,9 @@ class Header extends React.Component<Translated<IPropsHeader & ITrackedPropsHead
 						/>
 						<NotificationCenterPanelToggle
 							onClick={(e) => this.onToggleNotifications(e, NoticeLevel.NOTIFICATION | NoticeLevel.TIP)}
-							isOpen={this.state.isNotificationCenterOpen === (NoticeLevel.NOTIFICATION | NoticeLevel.TIP)}
+							isOpen={
+								this.state.isNotificationCenterOpen === ((NoticeLevel.NOTIFICATION | NoticeLevel.TIP) as NoticeLevel)
+							}
 							filter={NoticeLevel.NOTIFICATION | NoticeLevel.TIP}
 							className="type-notification"
 							title={t('Notes')}

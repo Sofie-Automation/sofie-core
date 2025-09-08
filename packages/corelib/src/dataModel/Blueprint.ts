@@ -6,8 +6,8 @@ import {
 } from '@sofie-automation/blueprints-integration'
 import { JSONBlob } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 import { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
-import { ProtectedString } from '../protectedString'
-import { BlueprintId, OrganizationId } from './Ids'
+import { ProtectedString } from '../protectedString.js'
+import { BlueprintId, OrganizationId } from './Ids.js'
 import type { PackageStatusMessage } from '@sofie-automation/shared-lib/dist/packageStatusMessages'
 
 export type BlueprintHash = ProtectedString<'BlueprintHash'>

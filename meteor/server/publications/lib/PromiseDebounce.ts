@@ -38,6 +38,7 @@ export class PromiseDebounce<TResult = void, TArgs extends unknown[] = []> {
 
 	/**
 	 * Trigger an execution, but don't report the result.
+	 * Warning: If the function throws an error, that will not be logged or reported to the caller
 	 */
 	trigger = (...args: TArgs): void => {
 		// If an execution is 'imminent', don't do anything

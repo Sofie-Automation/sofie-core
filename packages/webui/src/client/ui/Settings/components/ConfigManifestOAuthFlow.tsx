@@ -1,10 +1,11 @@
 import * as React from 'react'
 import { withTranslation } from 'react-i18next'
 import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
-import { Translated } from '../../../lib/ReactMeteorData/react-meteor-data'
+import { Translated } from '../../../lib/ReactMeteorData/react-meteor-data.js'
 import { IngestDeviceSecretSettingsStatus } from '@sofie-automation/corelib/dist/dataModel/PeripheralDeviceSettings/ingestDevice'
-import { NotificationCenter, Notification, NoticeLevel } from '../../../lib/notifications/notifications'
-import { fetchFrom } from '../../../lib/lib'
+import { NotificationCenter, Notification, NoticeLevel } from '../../../lib/notifications/notifications.js'
+import { fetchFrom } from '../../../lib/lib.js'
+import { createPrivateApiPath } from '../../../url.js'
 
 interface IConfigManifestOAuthFlowComponentState {}
 interface IConfigManifestOAuthFlowComponentProps {
@@ -37,7 +38,7 @@ export const ConfigManifestOAuthFlowComponent = withTranslation()(
 
 				const uploadFileContents = (e2.target as any).result
 
-				fetchFrom(`/api/private/peripheralDevices/${this.props.device._id}/uploadCredentials`, {
+				fetchFrom(createPrivateApiPath(`peripheralDevices/${this.props.device._id}/uploadCredentials`), {
 					method: 'POST',
 					body: uploadFileContents,
 					headers: {
@@ -71,7 +72,7 @@ export const ConfigManifestOAuthFlowComponent = withTranslation()(
 		resetAppCredentials() {
 			const { t } = this.props
 
-			fetchFrom(`/api/private/peripheralDevices/${this.props.device._id}/resetAppCredentials`, {
+			fetchFrom(createPrivateApiPath(`peripheralDevices/${this.props.device._id}/resetAppCredentials`), {
 				method: 'POST',
 			})
 				.then(() => {
@@ -99,7 +100,7 @@ export const ConfigManifestOAuthFlowComponent = withTranslation()(
 		resetAuth() {
 			const { t } = this.props
 
-			fetchFrom(`/api/private/peripheralDevices/${this.props.device._id}/resetAuth`, {
+			fetchFrom(createPrivateApiPath(`peripheralDevices/${this.props.device._id}/resetAuth`), {
 				method: 'POST',
 			})
 				.then(() => {
@@ -124,10 +125,12 @@ export const ConfigManifestOAuthFlowComponent = withTranslation()(
 				})
 		}
 
-		render(): JSX.Element {
+		render(): JSX.Element | null {
 			const { t } = this.props
 			const secretStatus = (this.props.device.secretSettingsStatus || {}) as IngestDeviceSecretSettingsStatus
 			const device = this.props.device
+
+			if (!device.configManifest) return null
 
 			return (
 				<div>

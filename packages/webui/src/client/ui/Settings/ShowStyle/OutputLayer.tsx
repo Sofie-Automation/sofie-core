@@ -7,27 +7,27 @@ import { getRandomString, literal } from '@sofie-automation/corelib/dist/lib'
 import Tooltip from 'rc-tooltip'
 import { useTranslation } from 'react-i18next'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { getHelpMode } from '../../../lib/localStorage'
-import { doModalDialog } from '../../../lib/ModalDialog'
-import { findHighestRank } from '../StudioSettings'
+import { getHelpMode } from '../../../lib/localStorage.js'
+import { doModalDialog } from '../../../lib/ModalDialog.js'
+import { findHighestRank } from '../StudioSettings.js'
 import { ObjectOverrideSetOp, SomeObjectOverrideOp } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import { CheckboxControl } from '../../../lib/Components/Checkbox'
+import { CheckboxControl } from '../../../lib/Components/Checkbox.js'
 import {
 	useOverrideOpHelper,
 	getAllCurrentAndDeletedItemsFromOverrides,
 	OverrideOpHelper,
 	WrappedOverridableItemNormal,
-} from '../util/OverrideOpHelper'
-import { TextInputControl } from '../../../lib/Components/TextInput'
-import { IntInputControl } from '../../../lib/Components/IntInput'
-import { useToggleExpandHelper } from '../../util/useToggleExpandHelper'
+} from '../util/OverrideOpHelper.js'
+import { TextInputControl } from '../../../lib/Components/TextInput.js'
+import { IntInputControl } from '../../../lib/Components/IntInput.js'
+import { useToggleExpandHelper } from '../../util/useToggleExpandHelper.js'
 import {
 	LabelActual,
 	LabelAndOverrides,
 	LabelAndOverridesForCheckbox,
 	LabelAndOverridesForInt,
-} from '../../../lib/Components/LabelAndOverrides'
-import { ShowStyleBases } from '../../../collections'
+} from '../../../lib/Components/LabelAndOverrides.js'
+import { ShowStyleBases } from '../../../collections/index.js'
 
 interface IOutputSettingsProps {
 	showStyleBase: DBShowStyleBase

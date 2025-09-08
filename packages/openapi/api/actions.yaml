@@ -7,7 +7,7 @@ info:
     name: 'MIT License'
     url: 'http://opensource.org/licenses/MIT'
   x-logo:
-    url: 'https://nrkno.github.io/sofie-core/img/sofie-logo.svg'
+    url: 'https://sofie-automation.github.io/sofie-core/img/sofie-logo.svg'
     backgroundColor: '#FFFFFF'
     altText: 'Sofie TV Automation'
 
@@ -20,6 +20,8 @@ tags:
 paths:
   /:
     $ref: 'definitions/sofie.yaml#/resources/index'
+  /health:
+    $ref: 'definitions/sofie.yaml#/resources/health'
   /system/blueprint:
     $ref: 'definitions/sofie.yaml#/resources/systemBlueprint'
   /system/migrations:

@@ -1,17 +1,17 @@
 import React, { useLayoutEffect, useRef } from 'react'
 import * as CoreIcons from '@nrk/core-icons/jsx'
-import Escape from './Escape'
+import Escape from './Escape.js'
 // @ts-expect-error type linking issue
 import FocusBounder from 'react-focus-bounder'
 import { useTranslation } from 'react-i18next'
 
 import ClassNames from 'classnames'
-import { logger } from './logging'
-import * as _ from 'underscore'
+import { logger } from './logging.js'
+import _ from 'underscore'
 import { withTranslation } from 'react-i18next'
-import { Translated } from './ReactMeteorData/ReactMeteorData'
-import { EditAttribute, EditAttributeType, IEditAttributeBaseProps } from './EditAttribute'
-import { Settings } from '../lib/Settings'
+import { Translated } from './ReactMeteorData/ReactMeteorData.js'
+import { EditAttribute, EditAttributeType, IEditAttributeBaseProps } from './EditAttribute.js'
+import { Settings } from '../lib/Settings.js'
 
 import Modal from 'react-bootstrap/Modal'
 import Button from 'react-bootstrap/Button'
@@ -117,7 +117,8 @@ export function ModalDialog({
 		e.stopPropagation()
 
 		if (isAcceptKey(e.code)) {
-			discardAsPrimary ? handleDiscard(e) : handleAccept(e)
+			if (discardAsPrimary) handleDiscard(e)
+			else handleAccept(e)
 		} else if (isDismissKey(e.code)) {
 			handleDiscard(e)
 		}

@@ -1,20 +1,20 @@
 import React, { useEffect, useState, useLayoutEffect } from 'react'
-import { useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data'
-import { Time, unprotectString } from '../../lib/tempLib'
+import { useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
+import { Time, unprotectString } from '../../lib/tempLib.js'
 import { UserActionsLogItem } from '@sofie-automation/meteor-lib/dist/collections/UserActionsLog'
-import { DatePickerFromTo } from '../../lib/datePicker'
+import { DatePickerFromTo } from '../../lib/datePicker.js'
 import moment from 'moment'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { useTranslation } from 'react-i18next'
 import { parse as queryStringParse } from 'query-string'
 import { Link, useHistory, useLocation } from 'react-router-dom'
 import classNames from 'classnames'
-import { getCoreSystem, UserActionsLog } from '../../collections'
+import { getCoreSystem, UserActionsLog } from '../../collections/index.js'
 import Tooltip from 'rc-tooltip'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { CollapseJSON } from '../../lib/collapseJSON'
+import { CollapseJSON } from '../../lib/collapseJSON.js'
 import { faDownload } from '@fortawesome/free-solid-svg-icons'
-import { downloadBlob } from '../../lib/downloadBlob'
+import { downloadBlob } from '../../lib/downloadBlob.js'
 import Button from 'react-bootstrap/Button'
 
 const PARAM_DATE_FORMAT = 'YYYY-MM-DDTHHmm'
@@ -67,7 +67,7 @@ function UserActionsList(props: Readonly<IUserActionsListProps>) {
 								hl: props.highlighted === anchorId,
 							})}
 							key={unprotectString(msg._id)}
-							onClick={() => props.onItemClick && props.onItemClick(msg)}
+							onClick={() => props.onItemClick?.(msg)}
 						>
 							<td className="user-action-log__timestamp">
 								<Link id={anchorId} to={selfLink}>
@@ -165,16 +165,16 @@ function getStartAndEndDateFromLocationSearch(locationSearch: string): { from: T
 		? {
 				from: qsStartDate.valueOf(),
 				to: qsEndDate?.isValid() ? qsEndDate.valueOf() : qsStartDate.add(1, 'days').valueOf(),
-		  }
+			}
 		: qsEndDate?.isValid()
-		? {
-				to: qsEndDate.valueOf(),
-				from: qsStartDate?.isValid() ? qsStartDate.valueOf() : qsEndDate.add(1, 'days').valueOf(),
-		  }
-		: {
-				from: moment().startOf('day').valueOf(),
-				to: moment().add(1, 'days').startOf('day').valueOf(),
-		  }
+			? {
+					to: qsEndDate.valueOf(),
+					from: qsStartDate?.isValid() ? qsStartDate.valueOf() : qsEndDate.add(1, 'days').valueOf(),
+				}
+			: {
+					from: moment().startOf('day').valueOf(),
+					to: moment().add(1, 'days').startOf('day').valueOf(),
+				}
 }
 
 function UserActivity(): JSX.Element {

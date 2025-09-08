@@ -6,13 +6,13 @@ import {
 	MosRundownStatusProps,
 	MosRundownReadyToAirProps,
 } from '@sofie-automation/corelib/dist/worker/ingest'
-import { JobContext } from '../../jobs'
-import { getRundownId, canRundownBeUpdated } from '../lib'
-import { CommitIngestData, runWithRundownLock } from '../lock'
-import { mosStoryToIngestSegment, parseMosString, updateRanksBasedOnOrder } from './lib'
-import { GenerateRundownMode, updateRundownFromIngestData } from '../generationRundown'
-import { IngestUpdateOperationFunction } from '../runOperation'
-import { IngestModel } from '../model/IngestModel'
+import { JobContext } from '../../jobs/index.js'
+import { getRundownId, canRundownBeUpdated } from '../lib.js'
+import { CommitIngestData, runWithRundownLock } from '../lock.js'
+import { mosStoryToIngestSegment, parseMosString, updateRanksBasedOnOrder } from './lib.js'
+import { GenerateRundownMode, updateRundownFromIngestData } from '../generationRundown.js'
+import { IngestUpdateOperationFunction } from '../runOperation.js'
+import { IngestModel } from '../model/IngestModel.js'
 import { IngestRundownWithSource } from '@sofie-automation/corelib/dist/dataModel/NrcsIngestDataCache'
 import { SofieIngestRundownWithSource } from '@sofie-automation/corelib/dist/dataModel/SofieIngestDataCache'
 

@@ -163,7 +163,7 @@ export namespace MosIntegration {
 
 		const rundownExternalId = parseMosString(Action.RunningOrderID)
 
-		logger.info(`mosRoStoryInsert after "${Action.StoryID}" Stories: ${Stories.map((s) => s.ID)}`)
+		logger.info(`mosRoStoryInsert before "${Action.StoryID}" Stories: ${Stories.map((s) => s.ID)}`)
 		logger.debug(Action, Stories)
 
 		await runIngestOperation(studioId, IngestJobs.MosInsertStory, {

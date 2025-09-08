@@ -1,11 +1,11 @@
 import ClassNames from 'classnames'
 import * as React from 'react'
 import { DBStudio, StudioPackageContainer } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { doModalDialog } from '../../../../lib/ModalDialog'
+import { doModalDialog } from '../../../../lib/ModalDialog.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash, faPencilAlt, faPlus, faSync } from '@fortawesome/free-solid-svg-icons'
 import { useTranslation } from 'react-i18next'
-import { Studios } from '../../../../collections'
+import { Studios } from '../../../../collections/index.js'
 import {
 	ObjectOverrideSetOp,
 	SomeObjectOverrideOp,
@@ -15,19 +15,19 @@ import {
 	LabelActual,
 	LabelAndOverrides,
 	LabelAndOverridesForMultiSelect,
-} from '../../../../lib/Components/LabelAndOverrides'
-import { useToggleExpandHelper } from '../../../util/useToggleExpandHelper'
+} from '../../../../lib/Components/LabelAndOverrides.js'
+import { useToggleExpandHelper } from '../../../util/useToggleExpandHelper.js'
 import { literal } from '@sofie-automation/corelib/dist/lib'
-import { TextInputControl } from '../../../../lib/Components/TextInput'
-import { DropdownInputOption } from '../../../../lib/Components/DropdownInput'
-import { MultiSelectInputControl } from '../../../../lib/Components/MultiSelectInput'
+import { TextInputControl } from '../../../../lib/Components/TextInput.js'
+import { DropdownInputOption } from '../../../../lib/Components/DropdownInput.js'
+import { MultiSelectInputControl } from '../../../../lib/Components/MultiSelectInput.js'
 import {
 	OverrideOpHelper,
 	WrappedOverridableItem,
 	WrappedOverridableItemNormal,
 	useOverrideOpHelper,
-} from '../../util/OverrideOpHelper'
-import { AccessorsTable } from './AccessorTable'
+} from '../../util/OverrideOpHelper.js'
+import { AccessorsTable } from './AccessorTable.js'
 
 interface PackageContainersTableProps {
 	studio: DBStudio
@@ -200,7 +200,7 @@ interface PackageContainerRowProps {
 	studio: DBStudio
 	packageContainer: WrappedOverridableItemNormal<StudioPackageContainer>
 	overrideHelper: OverrideOpHelper
-	toggleExpanded: (id: string, forceState?: boolean | undefined) => void
+	toggleExpanded: (id: string, forceState?: boolean) => void
 	isExpanded: (id: string) => boolean
 	confirmRemovePackageContainer: (id: string) => void
 	confirmReset: (id: string) => void

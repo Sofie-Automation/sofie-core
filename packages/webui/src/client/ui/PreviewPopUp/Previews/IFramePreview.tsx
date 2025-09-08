@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react'
+import { relativeToSiteRootUrl } from '../../../url.js'
 
 interface IFramePreviewProps {
 	content: {
@@ -16,17 +17,19 @@ export function IFramePreview({ content }: IFramePreviewProps): React.ReactEleme
 
 	const onLoadListener = useCallback(() => {
 		if (content.postMessage) {
-			iFrameElement.current?.contentWindow?.postMessage(content.postMessage)
+			const url = new URL(content.href)
+			iFrameElement.current?.contentWindow?.postMessage(content.postMessage, url.origin)
 		}
-	}, [])
+	}, [content.postMessage, content.href])
 
 	useEffect(() => {
-		if (!iFrameElement) return
+		// Create a stable reference to the iframe element:
+		const currentIFrame = iFrameElement.current
+		if (!currentIFrame) return
+		currentIFrame.addEventListener('load', onLoadListener)
 
-		iFrameElement.current?.addEventListener('load', onLoadListener)
-
-		return () => iFrameElement.current?.removeEventListener('load', onLoadListener)
-	}, [iFrameElement.current, onLoadListener])
+		return () => currentIFrame.removeEventListener('load', onLoadListener)
+	}, [onLoadListener])
 
 	const style: Record<string, string | number> = {}
 	if (content.dimensions) {
@@ -37,7 +40,7 @@ export function IFramePreview({ content }: IFramePreviewProps): React.ReactEleme
 	return (
 		<div className="preview-popUp__iframe">
 			<div className="preview" style={style}>
-				<img src="/images/previewBG.jpg" alt="" />
+				<img src={relativeToSiteRootUrl('/images/previewBG.jpg')} alt="" />
 				{content.href && (
 					<iframe
 						key={content.href} // Use the url as the key, so that the old renderer unloads immediately when changing url

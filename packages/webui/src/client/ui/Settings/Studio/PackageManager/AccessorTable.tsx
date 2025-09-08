@@ -1,13 +1,13 @@
 import * as React from 'react'
-import * as _ from 'underscore'
+import _ from 'underscore'
 import { StudioPackageContainer } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { useTranslation } from 'react-i18next'
 import { Accessor } from '@sofie-automation/blueprints-integration'
-import { useToggleExpandHelper } from '../../../util/useToggleExpandHelper'
-import { OverrideOpHelper, WrappedOverridableItemNormal } from '../../util/OverrideOpHelper'
-import { AccessorTableRow } from './AccessorTableRow'
+import { useToggleExpandHelper } from '../../../util/useToggleExpandHelper.js'
+import { OverrideOpHelper, WrappedOverridableItemNormal } from '../../util/OverrideOpHelper.js'
+import { AccessorTableRow } from './AccessorTableRow.js'
 
 interface AccessorsTableProps {
 	packageContainer: WrappedOverridableItemNormal<StudioPackageContainer>

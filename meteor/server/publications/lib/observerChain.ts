@@ -25,7 +25,7 @@ type Link<T> = {
 	end: (complete: (state: T | null) => void) => Meteor.LiveQueryHandle
 }
 
-export function observerChain(): Pick<Link<{}>, 'next'> {
+export function observerChain(): Pick<Link<unknown>, 'next'> {
 	function createNextLink(baseCollectorObject: Record<string, any>, liveQueryHandle: Meteor.LiveQueryHandle) {
 		let mode: 'next' | 'end' | undefined
 		let chainedCursor: (state: Record<string, any>) => Promise<MinimalMongoCursor<any> | null>

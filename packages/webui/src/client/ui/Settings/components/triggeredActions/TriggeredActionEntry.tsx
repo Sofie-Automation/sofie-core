@@ -10,22 +10,22 @@ import {
 } from '@sofie-automation/blueprints-integration'
 import classNames from 'classnames'
 import { DBBlueprintTrigger } from '@sofie-automation/meteor-lib/dist/collections/TriggeredActions'
-import { useTracker, useTrackerAsync } from '../../../../lib/ReactMeteorData/ReactMeteorData'
-import { ActionEditor } from './actionEditors/ActionEditor'
+import { useTracker, useTrackerAsync } from '../../../../lib/ReactMeteorData/ReactMeteorData.js'
+import { ActionEditor } from './actionEditors/ActionEditor.js'
 import { OutputLayers, SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { flatten, getRandomString } from '../../../../lib/tempLib'
+import { flatten, getRandomString } from '../../../../lib/tempLib.js'
 import {
 	createAction,
 	isPreviewableAction,
 	PlainActionContext,
 } from '@sofie-automation/meteor-lib/dist/triggers/actionFactory'
-import { PreviewContext } from './TriggeredActionsEditor'
+import { PreviewContext } from './TriggeredActionsEditor.js'
 import { IWrappedAdLib } from '@sofie-automation/meteor-lib/dist/triggers/actionFilterChainCompilers'
-import { RundownUtils } from '../../../../lib/rundown'
+import { RundownUtils } from '../../../../lib/rundown.js'
 import { useTranslation } from 'react-i18next'
-import { TriggerEditor } from './triggerEditors/TriggerEditor'
-import { EditAttribute } from '../../../../lib/EditAttribute'
-import { iconDragHandle } from '../../../RundownList/icons'
+import { TriggerEditor } from './triggerEditors/TriggerEditor.js'
+import { EditAttribute } from '../../../../lib/EditAttribute.js'
+import { iconDragHandle } from '../../../RundownList/icons.js'
 import { useDrag, useDrop } from 'react-dnd'
 import { translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import {
@@ -36,12 +36,12 @@ import {
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { ShowStyleBaseId, TriggeredActionId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { isHotkeyTrigger } from '@sofie-automation/meteor-lib/dist/triggers/triggerTypeSelectors'
-import { getAllCurrentAndDeletedItemsFromOverrides, useOverrideOpHelper } from '../../util/OverrideOpHelper'
-import { TriggeredActions } from '../../../../collections'
-import { catchError } from '../../../../lib/lib'
-import { toTriggersComputation, UiTriggersContext } from '../../../../lib/triggers/triggersContext'
+import { getAllCurrentAndDeletedItemsFromOverrides, useOverrideOpHelper } from '../../util/OverrideOpHelper.js'
+import { TriggeredActions } from '../../../../collections/index.js'
+import { catchError } from '../../../../lib/lib.js'
+import { toTriggersComputation, UiTriggersContext } from '../../../../lib/triggers/triggersContext.js'
 import { last, literal } from '@sofie-automation/shared-lib/dist/lib/lib'
-import { LabelActual } from '../../../../lib/Components/LabelAndOverrides'
+import { LabelActual } from '../../../../lib/Components/LabelAndOverrides.js'
 
 interface IProps {
 	sourceLayers: SourceLayers | undefined
@@ -218,13 +218,13 @@ export const TriggeredActionEntry: React.FC<IProps> = React.memo(function Trigge
 
 	function getType(sourceLayerId: string | undefined): SourceLayerType {
 		return sourceLayerId && sourceLayers
-			? sourceLayers[sourceLayerId]?.type ?? SourceLayerType.UNKNOWN
+			? (sourceLayers[sourceLayerId]?.type ?? SourceLayerType.UNKNOWN)
 			: SourceLayerType.UNKNOWN
 	}
 
 	function getShortName(sourceLayerId: string | undefined) {
 		return sourceLayerId && sourceLayers
-			? sourceLayers[sourceLayerId]?.abbreviation ?? sourceLayers[sourceLayerId]?.name ?? t('Unknown')
+			? (sourceLayers[sourceLayerId]?.abbreviation ?? sourceLayers[sourceLayerId]?.name ?? t('Unknown'))
 			: t('Unknown')
 	}
 
@@ -379,7 +379,7 @@ export const TriggeredActionEntry: React.FC<IProps> = React.memo(function Trigge
 	)
 
 	const closeAction = useCallback(() => setSelectedAction(null), [])
-	const focusAction = useCallback(() => onFocus && onFocus(triggeredActionId), [triggeredActionId, onFocus])
+	const focusAction = useCallback(() => onFocus?.(triggeredActionId), [triggeredActionId, onFocus])
 
 	useEffect(() => {
 		if (!triggeredAction?.triggersWithOverrides) return

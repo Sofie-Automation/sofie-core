@@ -1,44 +1,48 @@
 import React, { useMemo } from 'react'
-import * as _ from 'underscore'
-import { SegmentTimeline, SegmentTimelineClass } from './SegmentTimeline'
-import { computeSegmentDisplayDuration, RundownTiming, TimingEvent } from '../RundownView/RundownTiming/RundownTiming'
-import { UIStateStorage } from '../../lib/UIStateStorage'
-import { PartExtended } from '../../lib/RundownResolver'
-import { SpeechSynthesiser } from '../../lib/speechSynthesis'
-import { getElementWidth } from '../../utils/dimensions'
-import { isMaintainingFocus, scrollToSegment, getHeaderHeight } from '../../lib/viewPort'
-import { unprotectString } from '../../lib/tempLib'
+import _ from 'underscore'
+import { SegmentTimeline, SegmentTimelineClass } from './SegmentTimeline.js'
+import {
+	computeSegmentDisplayDuration,
+	RundownTiming,
+	TimingEvent,
+} from '../RundownView/RundownTiming/RundownTiming.js'
+import { UIStateStorage } from '../../lib/UIStateStorage.js'
+import { PartExtended } from '../../lib/RundownResolver.js'
+import { SpeechSynthesiser } from '../../lib/speechSynthesis.js'
+import { getElementWidth } from '../../utils/dimensions.js'
+import { isMaintainingFocus, scrollToSegment, getHeaderHeight } from '../../lib/viewPort.js'
+import { unprotectString } from '../../lib/tempLib.js'
 import { equivalentArrays } from '@sofie-automation/shared-lib/dist/lib/lib'
-import { Settings } from '../../lib/Settings'
+import { Settings } from '../../lib/Settings.js'
 import RundownViewEventBus, {
 	RundownViewEvents,
 	GoToPartEvent,
 	GoToPartInstanceEvent,
 } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
-import { SegmentTimelinePartClass } from './Parts/SegmentTimelinePart'
+import { SegmentTimelinePartClass } from './Parts/SegmentTimelinePart.js'
 import {
 	PartUi,
 	withResolvedSegment,
 	IResolvedSegmentProps,
 	ITrackedResolvedSegmentProps,
 	IOutputLayerUi,
-} from '../SegmentContainer/withResolvedSegment'
-import { computeSegmentDuration, getPartInstanceTimingId } from '../../lib/rundownTiming'
-import { RundownViewShelf } from '../RundownView/RundownViewShelf'
+} from '../SegmentContainer/withResolvedSegment.js'
+import { computeSegmentDuration, getPartInstanceTimingId } from '../../lib/rundownTiming.js'
+import { RundownViewShelf } from '../RundownView/RundownViewShelf.js'
 import { PartInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { catchError, useDebounce } from '../../lib/lib'
+import { catchError, useDebounce } from '../../lib/lib.js'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
-import { useSubscription, useTracker } from '../../lib/ReactMeteorData/ReactMeteorData'
-import { logger } from '../../lib/logging'
+import { useSubscription, useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
+import { logger } from '../../lib/logging.js'
 import {
 	FALLBACK_ZOOM_FACTOR,
 	LIVELINE_HISTORY_SIZE,
 	MINIMUM_ZOOM_FACTOR,
 	SIMULATED_PLAYBACK_HARD_MARGIN,
 	TIMELINE_RIGHT_PADDING,
-} from './Constants'
-import { UIPartInstances, UIParts } from '../Collections'
-import { RundownTimingProviderContext } from '../RundownView/RundownTiming/withTiming'
+} from './Constants.js'
+import { UIPartInstances, UIParts } from '../Collections.js'
+import { RundownTimingProviderContext } from '../RundownView/RundownTiming/withTiming.js'
 
 // Kept for backwards compatibility
 export type {
@@ -47,7 +51,7 @@ export type {
 	PieceUi,
 	ISourceLayerUi,
 	IOutputLayerUi,
-} from '../SegmentContainer/withResolvedSegment'
+} from '../SegmentContainer/withResolvedSegment.js'
 
 interface IState {
 	scrollLeft: number
@@ -276,7 +280,9 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 				0
 			const partOffset =
 				nextPartDisplayStartsAt -
-				(firstPartInstanceTimingId ? this.context.durations?.partDisplayStartsAt?.[firstPartInstanceTimingId] ?? 0 : 0)
+				(firstPartInstanceTimingId
+					? (this.context.durations?.partDisplayStartsAt?.[firstPartInstanceTimingId] ?? 0)
+					: 0)
 			const nextPartIdOrOffsetHasChanged =
 				currentNextPart &&
 				this.props.playlist.nextPartInfo &&
@@ -512,8 +518,8 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 						(lastTake || 0) > (lastStartedPlayback || -1)
 							? lastTake
 							: lastStartedPlayback !== undefined
-							? lastStartedPlayback - lastTakeOffset
-							: undefined
+								? lastStartedPlayback - lastTakeOffset
+								: undefined
 
 					if (lastTake && lastTake + SIMULATED_PLAYBACK_HARD_MARGIN > e.detail.currentTime) {
 						isExpectedToPlay = true

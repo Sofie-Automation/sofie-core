@@ -3,7 +3,7 @@ import { CustomCollectionName as CustomCorelibCollectionName } from '@sofie-auto
 import {
 	createSyncCorelibCustomPublicationMongoCollection,
 	createSyncCustomPublicationMongoCollection,
-} from '../collections/lib'
+} from '../collections/lib.js'
 
 /**
  * A playout UI version of ShowStyleBases.

@@ -1,22 +1,22 @@
 import * as React from 'react'
-import { Translated, translateWithTracker } from '../../lib/ReactMeteorData/react-meteor-data'
-import { doModalDialog } from '../../lib/ModalDialog'
+import { Translated, translateWithTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
+import { doModalDialog } from '../../lib/ModalDialog.js'
 import ClassNames from 'classnames'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faClipboardCheck, faDatabase, faCoffee, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons'
-import { logger } from '../../lib/logging'
+import { logger } from '../../lib/logging.js'
 import {
 	GetMigrationStatusResult,
 	RunMigrationResult,
 	MigrationChunk,
 } from '@sofie-automation/meteor-lib/dist/api/migration'
 import { MigrationStepInput, MigrationStepInputResult } from '@sofie-automation/blueprints-integration'
-import * as _ from 'underscore'
-import { EditAttribute } from '../../lib/EditAttribute'
-import { MeteorCall } from '../../lib/meteorApi'
-import { checkForOldDataAndCleanUp } from './SystemManagement'
+import _ from 'underscore'
+import { EditAttribute } from '../../lib/EditAttribute.js'
+import { MeteorCall } from '../../lib/meteorApi.js'
+import { checkForOldDataAndCleanUp } from './SystemManagement.js'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
-import { UpgradesView } from './Upgrades/View'
+import { UpgradesView } from './Upgrades/View.js'
 import Button from 'react-bootstrap/esm/Button'
 
 interface IProps {}
@@ -271,7 +271,7 @@ export const MigrationView = translateWithTracker<IProps, IState, ITrackedProps>
 												toVersion: chunk._targetVersion,
 											})
 											return <div key={i}>{chunk._dbVersion === chunk._targetVersion ? <b>{str}</b> : str}</div>
-									  })
+										})
 									: null}
 							</div>
 							<div>{this.state.errorMessage ? <p>{this.state.errorMessage}</p> : null}</div>

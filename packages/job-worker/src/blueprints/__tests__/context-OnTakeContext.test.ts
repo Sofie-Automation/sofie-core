@@ -1,11 +1,11 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion, @typescript-eslint/unbound-method */
+/* eslint-disable @typescript-eslint/unbound-method */
 import { IBlueprintMutatablePart, IBlueprintPiece } from '@sofie-automation/blueprints-integration'
-import { PlayoutModel } from '../../playout/model/PlayoutModel'
-import { WatchedPackagesHelper } from '../context/watchedPackages'
-import { JobContext, ProcessedShowStyleCompound } from '../../jobs'
+import { PlayoutModel } from '../../playout/model/PlayoutModel.js'
+import { WatchedPackagesHelper } from '../context/watchedPackages.js'
+import { JobContext, ProcessedShowStyleCompound } from '../../jobs/index.js'
 import { mock } from 'jest-mock-extended'
-import { PartAndPieceInstanceActionService } from '../context/services/PartAndPieceInstanceActionService'
-import { OnTakeContext } from '../context'
+import { PartAndPieceInstanceActionService } from '../context/services/PartAndPieceInstanceActionService.js'
+import { OnTakeContext } from '../context/index.js'
 
 describe('Test blueprint api context', () => {
 	async function getTestee() {

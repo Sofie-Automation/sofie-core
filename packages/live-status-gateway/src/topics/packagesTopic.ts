@@ -6,41 +6,11 @@ import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protected
 import { PickKeys } from '@sofie-automation/shared-lib/dist/lib/types'
 import { Logger } from 'winston'
 import { WebSocket } from 'ws'
-import { CollectionHandlers } from '../liveStatusServer'
-import { WebSocketTopic, WebSocketTopicBase } from '../wsHandler'
+import { CollectionHandlers } from '../liveStatusServer.js'
+import { WebSocketTopic, WebSocketTopicBase } from '../wsHandler.js'
+import { PackagesEvent, PackageStatus } from '@sofie-automation/live-status-gateway-api'
 
 const THROTTLE_PERIOD_MS = 200
-
-interface Package {
-	packageName?: string
-	status: PackageStatus
-
-	rundownId: string
-	partId?: string
-	segmentId?: string
-
-	pieceId: string
-
-	thumbnailUrl?: string
-	previewUrl?: string
-}
-
-export enum PackageStatus {
-	UNKNOWN = 'unknown',
-	OK = 'ok',
-	SOURCE_BROKEN = 'source_broken',
-	SOURCE_HAS_ISSUES = 'source_has_issues',
-	SOURCE_MISSING = 'source_missing',
-	SOURCE_NOT_READY = 'source_not_ready',
-	SOURCE_NOT_SET = 'source_not_set',
-	SOURCE_UNKNOWN_STATE = 'source_unknown_state',
-}
-
-export interface PackagesStatus {
-	event: 'packages'
-	rundownPlaylistId: string | null
-	packages: Package[]
-}
 
 const PLAYLIST_KEYS = ['_id', 'activationId'] as const
 type Playlist = PickKeys<DBRundownPlaylist, typeof PLAYLIST_KEYS>
@@ -58,13 +28,13 @@ export class PackagesTopic extends WebSocketTopicBase implements WebSocketTopic 
 	}
 
 	sendStatus(subscribers: Iterable<WebSocket>): void {
-		const packagesStatus: PackagesStatus = {
+		const packagesStatus: PackagesEvent = {
 			event: 'packages',
 			rundownPlaylistId: this._activePlaylist ? unprotectString(this._activePlaylist._id) : null,
 			packages: this._pieceContentStatuses.map((contentStatus) => ({
 				packageName: contentStatus.status.packageName ?? undefined,
 				status: this.toStatusString(contentStatus.status.status),
-				pieceId: unprotectString(contentStatus.pieceId),
+				pieceOrAdLibId: unprotectString(contentStatus.pieceId),
 				rundownId: unprotectString(contentStatus.rundownId),
 				partId: unprotectString(contentStatus.partId),
 				segmentId: unprotectString(contentStatus.segmentId),

@@ -1,4 +1,4 @@
-import { IDefaultRendererProps } from './DefaultRenderer'
+import { IDefaultRendererProps } from './DefaultRenderer.js'
 
 export function ScriptRenderer(props: Readonly<IDefaultRendererProps>): JSX.Element | string {
 	const labelItems = (props.piece.instance.piece.name || '').split('||')

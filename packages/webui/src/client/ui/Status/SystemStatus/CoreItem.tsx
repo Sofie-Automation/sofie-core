@@ -1,17 +1,18 @@
 import { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
-import { unprotectString } from '../../../lib/tempLib'
-import { doModalDialog } from '../../../lib/ModalDialog'
-import { NotificationCenter, NoticeLevel, Notification } from '../../../lib/notifications/notifications'
+import { unprotectString } from '../../../lib/tempLib.js'
+import { doModalDialog } from '../../../lib/ModalDialog.js'
+import { NotificationCenter, NoticeLevel, Notification } from '../../../lib/notifications/notifications.js'
 import ClassNames from 'classnames'
 import { ICoreSystem } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
 import { StatusResponse } from '@sofie-automation/meteor-lib/dist/api/systemStatus'
-import { doUserAction, UserAction } from '../../../lib/clientUserAction'
-import { MeteorCall } from '../../../lib/meteorApi'
-import { hashSingleUseToken } from '../../../lib/lib'
-import { UserPermissionsContext } from '../../UserPermissions'
+import { doUserAction, UserAction } from '../../../lib/clientUserAction.js'
+import { MeteorCall } from '../../../lib/meteorApi.js'
+import { hashSingleUseToken } from '../../../lib/lib.js'
+import { UserPermissionsContext } from '../../UserPermissions.js'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import Button from 'react-bootstrap/Button'
+import { UserError } from '@sofie-automation/corelib/dist/error'
 
 interface ICoreItemProps {
 	systemStatus: StatusResponse | undefined
@@ -48,7 +49,7 @@ export function CoreItem({ systemStatus, coreSystem }: ICoreItemProps): JSX.Elem
 										: undefined
 								}
 							>
-								{systemStatus && systemStatus.status}
+								{systemStatus?.status ?? t('Unknown')}
 							</a>
 						</span>
 					</div>
@@ -56,7 +57,9 @@ export function CoreItem({ systemStatus, coreSystem }: ICoreItemProps): JSX.Elem
 			</div>
 			<div className="device-item__id">
 				<div className="value">
-					{t('Sofie Automation Server Core: {{name}}', { name: coreSystem.name || 'unnamed' })}
+					{!coreSystem.name
+						? t('Sofie Automation Server Core')
+						: t('Sofie Automation Server Core: {{name}}', { name: coreSystem.name })}
 				</div>
 			</div>
 			<div className="device-item__version">
@@ -91,8 +94,9 @@ export function CoreItem({ systemStatus, coreSystem }: ICoreItemProps): JSX.Elem
 											UserAction.RESTART_CORE,
 											(e, ts) =>
 												MeteorCall.system.generateSingleUseToken().then((tokenResponse) => {
-													if (ClientAPI.isClientResponseError(tokenResponse) || !tokenResponse.result)
-														throw tokenResponse
+													if (ClientAPI.isClientResponseError(tokenResponse))
+														throw UserError.fromSerialized(tokenResponse.error)
+													if (!tokenResponse.result) throw new Error('Failed to generate token')
 													return MeteorCall.userAction.restartCore(e, ts, hashSingleUseToken(tokenResponse.result))
 												}),
 											(err, restartMessage) => {

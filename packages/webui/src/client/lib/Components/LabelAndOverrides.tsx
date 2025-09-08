@@ -4,9 +4,12 @@ import { objectPathGet } from '@sofie-automation/corelib/dist/lib'
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ReadonlyDeep } from 'type-fest'
-import { OverrideOpHelperForItemContents, WrappedOverridableItemNormal } from '../../ui/Settings/util/OverrideOpHelper'
-import { DropdownInputOption, findOptionByValue } from './DropdownInput'
-import { hasOpWithPath } from './util'
+import {
+	OverrideOpHelperForItemContents,
+	WrappedOverridableItemNormal,
+} from '../../ui/Settings/util/OverrideOpHelper.js'
+import { DropdownInputOption, findOptionByValue } from './DropdownInput.js'
+import { hasOpWithPath } from './util.js'
 import Button from 'react-bootstrap/Button'
 import classNames from 'classnames'
 
@@ -99,11 +102,16 @@ export function LabelAndOverrides<T extends object, TValue = any>({
 			{item.defaults && (
 				<>
 					<span className="field-default">
-						<FontAwesomeIcon icon={faQuestionCircle} title={`${t('Default')}: ${displayValue}`} />
+						{displayValue === null ? (
+							<FontAwesomeIcon icon={faQuestionCircle} title={`${t('Default')}: null`} />
+						) : typeof displayValue === 'object' ? (
+							displayValue
+						) : (
+							<FontAwesomeIcon icon={faQuestionCircle} title={`${t('Default')}: ${displayValue}`} />
+						)}
 					</span>
 					<Button variant="primary" onClick={clearOverride} title="Reset to default" disabled={!isOverridden}>
-						{t('Reset')}
-						&nbsp;
+						<span>{t('Reset')}</span>
 						<FontAwesomeIcon icon={faSync} />
 					</Button>
 				</>

@@ -3,12 +3,12 @@ import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Meteor } from 'meteor/meteor'
 import Tooltip from 'rc-tooltip'
-import { MeteorCall } from '../../../lib/meteorApi'
-import { getHelpMode } from '../../../lib/localStorage'
+import { MeteorCall } from '../../../lib/meteorApi.js'
+import { getHelpMode } from '../../../lib/localStorage.js'
 import { useTranslation } from 'react-i18next'
 import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { LabelActual } from '../../../lib/Components/LabelAndOverrides'
-import { logger } from '../../../lib/logging'
+import { LabelActual } from '../../../lib/Components/LabelAndOverrides.js'
+import { logger } from '../../../lib/logging.js'
 import Button from 'react-bootstrap/Button'
 
 interface IStudioBaselineStatusProps {
@@ -68,7 +68,7 @@ export function StudioBaselineStatus({ studioId }: Readonly<IStudioBaselineStatu
 				) : (
 					t('No')
 				)}
-				<Button variant="primary" className="ms-2" onClick={reloadBaseline}>
+				<Button variant="secondary" className="ms-2 btn-outline-secondary" onClick={reloadBaseline}>
 					{t('Reload Baseline')}
 				</Button>
 				{needsUpdate ? (

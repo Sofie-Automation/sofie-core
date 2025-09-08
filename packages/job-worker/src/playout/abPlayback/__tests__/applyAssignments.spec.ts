@@ -3,9 +3,9 @@ import { ABSessionAssignments } from '@sofie-automation/corelib/dist/dataModel/R
 import { OnGenerateTimelineObjExt } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { CommonContext } from '../../../blueprints/context'
-import { AbSessionHelper } from '../abSessionHelper'
-import { applyAbPlayerObjectAssignments } from '../applyAssignments'
+import { CommonContext } from '../../../blueprints/context/index.js'
+import { AbSessionHelper } from '../abSessionHelper.js'
+import { applyAbPlayerObjectAssignments } from '../applyAssignments.js'
 
 const POOL_NAME = 'clip'
 

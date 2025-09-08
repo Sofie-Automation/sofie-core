@@ -73,7 +73,7 @@ async function setupUIStudioPublicationObservers(
 				changed: (id) => triggerUpdate(trackChange(id)),
 				removed: (id) => triggerUpdate(trackChange(id)),
 			},
-			{ fields: fieldSpecifier }
+			{ projection: fieldSpecifier }
 		),
 	]
 }

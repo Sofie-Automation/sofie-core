@@ -1,5 +1,5 @@
-import { useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data'
-import { StudioSelect } from './StudioSelect'
+import { useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
+import { StudioSelect } from './StudioSelect.js'
 import { Mongo } from 'meteor/mongo'
 import { DBTimelineDatastoreEntry } from '@sofie-automation/corelib/dist/dataModel/TimelineDatastore'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'

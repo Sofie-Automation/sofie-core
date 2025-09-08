@@ -19,7 +19,7 @@ meteorPublish(
 		triggerWriteAccessBecauseNoCheckNecessary()
 
 		const modifier: FindOptions<Bucket> = {
-			fields: {},
+			projection: {},
 		}
 
 		const selector: MongoQuery<Bucket> = {
@@ -49,8 +49,9 @@ meteorPublish(
 		if (bucketId) selector.bucketId = bucketId
 
 		return BucketAdLibs.findWithCursor(selector, {
-			fields: {
+			projection: {
 				ingestInfo: 0, // This is a large blob, and is not of interest to the UI
+				privateData: 0,
 			},
 		})
 	}
@@ -74,8 +75,9 @@ meteorPublish(
 		if (bucketId) selector.bucketId = bucketId
 
 		return BucketAdLibActions.findWithCursor(selector, {
-			fields: {
+			projection: {
 				ingestInfo: 0, // This is a large blob, and is not of interest to the UI
+				privateData: 0,
 			},
 		})
 	}

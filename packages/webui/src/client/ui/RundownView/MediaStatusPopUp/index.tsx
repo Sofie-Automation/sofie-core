@@ -2,9 +2,9 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 // import classNames from 'classnames'
 // import Tooltip from 'rc-tooltip'
-// import { TOOLTIP_DEFAULT_DELAY } from '../../lib/lib'
+// import { TOOLTIP_DEFAULT_DELAY } from '../../lib/lib.js'
 import { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { useTracker } from '../../../lib/ReactMeteorData/ReactMeteorData'
+import { useTracker } from '../../../lib/ReactMeteorData/ReactMeteorData.js'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import {
 	MediaStatus,
@@ -12,16 +12,17 @@ import {
 	sortItems,
 	SortBy,
 	SortOrder,
-} from '../../MediaStatus/MediaStatus'
-import { MediaStatusPopUpItem } from './MediaStatusPopUpItem'
+} from '../../MediaStatus/MediaStatus.js'
+import { MediaStatusPopUpItem } from './MediaStatusPopUpItem.js'
 import { translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
-import { MediaStatusPopUpHeader } from './MediaStatusPopUpHeader'
-import { RundownPlaylists } from '../../../collections'
-import { MediaStatusPopUpSegmentRule } from './MediaStatusPopUpSegmentRule'
-import { mapOrFallback, useDebounce } from '../../../lib/lib'
-import { Spinner } from '../../../lib/Spinner'
+import { MediaStatusPopUpHeader } from './MediaStatusPopUpHeader.js'
+import { RundownPlaylists } from '../../../collections/index.js'
+import { MediaStatusPopUpSegmentRule } from './MediaStatusPopUpSegmentRule.js'
+import { mapOrFallback, useDebounce } from '../../../lib/lib.js'
+import { Spinner } from '../../../lib/Spinner.js'
 import { NavLink } from 'react-router-dom'
-import { MediaStatusPopOutIcon } from '../../../lib/ui/icons/mediaStatus'
+import { MediaStatusPopOutIcon } from '../../../lib/ui/icons/mediaStatus.js'
+import { PopUpPanel } from '../PopUpPanel.js'
 
 interface IProps {
 	playlistId: RundownPlaylistId
@@ -80,7 +81,7 @@ export function MediaStatusPopUp({ playlistId }: Readonly<IProps>): JSX.Element 
 	)
 
 	return (
-		<div className="media-status-panel" role="dialog">
+		<PopUpPanel className="media-status-panel" role="dialog">
 			<div className="media-status-panel__inside">
 				<div className="media-status-panel__pop-out">
 					<NavLink to="/status/media" target="_blank">
@@ -167,6 +168,6 @@ export function MediaStatusPopUp({ playlistId }: Readonly<IProps>): JSX.Element 
 					</table>
 				</div>
 			</div>
-		</div>
+		</PopUpPanel>
 	)
 }

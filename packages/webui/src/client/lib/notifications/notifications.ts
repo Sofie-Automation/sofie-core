@@ -1,5 +1,5 @@
 import { ReactiveVar } from 'meteor/reactive-var'
-import * as _ from 'underscore'
+import _ from 'underscore'
 import { Tracker } from 'meteor/tracker'
 import { Meteor } from 'meteor/meteor'
 import { EventEmitter } from 'events'
@@ -11,12 +11,12 @@ import {
 	protectString,
 	assertNever,
 	getRandomString,
-} from '../tempLib'
+} from '../tempLib.js'
 import { isTranslatableMessage, ITranslatableMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { PieceStatusCode } from '@sofie-automation/corelib/dist/dataModel/Piece'
-import { MeteorCall } from '../../lib/meteorApi'
+import { MeteorCall } from '../../lib/meteorApi.js'
 import { RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { LocalStorageProperty } from '../localStorage'
+import { LocalStorageProperty } from '../localStorage.js'
 
 let reportNotificationsId: string | null = null
 
@@ -174,8 +174,8 @@ class NotificationCenter0 {
 							const message = isTranslatableMessage(notification.message)
 								? notification.message.key
 								: typeof notification.message === 'string'
-								? notification.message
-								: '[React Element]'
+									? notification.message
+									: '[React Element]'
 
 							MeteorCall.client
 								.clientLogNotification(

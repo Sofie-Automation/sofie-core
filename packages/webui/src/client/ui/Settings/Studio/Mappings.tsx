@@ -3,19 +3,19 @@ import React, { useCallback, useMemo } from 'react'
 import Tooltip from 'rc-tooltip'
 import { getActiveRoutes } from '@sofie-automation/meteor-lib/dist/collections/Studios'
 import { DBStudio, MappingExt, ResultingMappingRoutes } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { doModalDialog } from '../../../lib/ModalDialog'
+import { doModalDialog } from '../../../lib/ModalDialog.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash, faPencilAlt, faCheck, faPlus, faSync } from '@fortawesome/free-solid-svg-icons'
 import { useTranslation } from 'react-i18next'
 import { LookaheadMode, TSR } from '@sofie-automation/blueprints-integration'
 import { LOOKAHEAD_DEFAULT_SEARCH_DISTANCE } from '@sofie-automation/shared-lib/dist/core/constants'
-import { useToggleExpandHelper } from '../../util/useToggleExpandHelper'
+import { useToggleExpandHelper } from '../../util/useToggleExpandHelper.js'
 import {
 	getAllCurrentAndDeletedItemsFromOverrides,
 	OverrideOpHelper,
 	useOverrideOpHelper,
 	WrappedOverridableItemNormal,
-} from '../util/OverrideOpHelper'
+} from '../util/OverrideOpHelper.js'
 import {
 	applyAndValidateOverrides,
 	ObjectOverrideSetOp,
@@ -23,27 +23,27 @@ import {
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { literal, objectPathGet } from '@sofie-automation/corelib/dist/lib'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { TextInputControl } from '../../../lib/Components/TextInput'
-import { IntInputControl } from '../../../lib/Components/IntInput'
+import { TextInputControl } from '../../../lib/Components/TextInput.js'
+import { IntInputControl } from '../../../lib/Components/IntInput.js'
 import {
 	DropdownInputControl,
 	DropdownInputOption,
 	getDropdownInputOptions,
-} from '../../../lib/Components/DropdownInput'
+} from '../../../lib/Components/DropdownInput.js'
 import {
 	LabelActual,
 	LabelAndOverrides,
 	LabelAndOverridesForDropdown,
 	LabelAndOverridesForInt,
-} from '../../../lib/Components/LabelAndOverrides'
+} from '../../../lib/Components/LabelAndOverrides.js'
 import { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
-import { SchemaFormWithOverrides } from '../../../lib/forms/SchemaFormWithOverrides'
+import { SchemaFormWithOverrides } from '../../../lib/forms/SchemaFormWithOverrides.js'
 import {
 	getSchemaSummaryFields,
 	SchemaSummaryField,
 	translateStringIfHasNamespaces,
-} from '../../../lib/forms/schemaFormUtil'
-import { Studios } from '../../../collections'
+} from '../../../lib/forms/schemaFormUtil.js'
+import { Studios } from '../../../collections/index.js'
 
 export interface MappingsSettingsManifest {
 	displayName: string

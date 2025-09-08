@@ -1,6 +1,6 @@
 import Tooltip from 'rc-tooltip'
 import { useTranslation } from 'react-i18next'
-import { ToolTipStep } from '../RundownList'
+import { ToolTipStep } from '../RundownList.js'
 
 export interface IGettingStartedProps {
 	step: ToolTipStep
@@ -32,7 +32,9 @@ export function GettingStarted({ step }: Readonly<IGettingStartedProps>): JSX.El
 					</li>
 				</ul>
 				{t('Documentation is available at')}&nbsp;
-				<a href="https://github.com/nrkno/Sofie-TV-automation/">https://github.com/nrkno/Sofie-TV-automation/</a>
+				<a href="https://github.com/Sofie-Automation/Sofie-TV-automation/">
+					https://github.com/Sofie-Automation/Sofie-TV-automation/
+				</a>
 			</div>
 		</div>
 	)

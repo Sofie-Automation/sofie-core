@@ -158,8 +158,11 @@ export async function manipulateUIPartInstancesPublicationData(
 		findMarkerPosition(
 			playlist.quickLoop.start,
 			-Infinity,
-			state.contentCache.Segments,
-			{ partInstances: state.contentCache.PartInstances },
+			{
+				segments: state.contentCache.Segments,
+				partInstances: state.contentCache.PartInstances,
+				parts: state.contentCache.Parts,
+			},
 			rundownRanks
 		)
 	const quickLoopEndPosition =
@@ -167,8 +170,11 @@ export async function manipulateUIPartInstancesPublicationData(
 		findMarkerPosition(
 			playlist.quickLoop.end,
 			Infinity,
-			state.contentCache.Segments,
-			{ partInstances: state.contentCache.PartInstances },
+			{
+				segments: state.contentCache.Segments,
+				partInstances: state.contentCache.PartInstances,
+				parts: state.contentCache.Parts,
+			},
 			rundownRanks
 		)
 

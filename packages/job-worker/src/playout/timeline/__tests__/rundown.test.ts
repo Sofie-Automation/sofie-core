@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { DBRundownPlaylist, SelectedPartInstance } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { setupDefaultJobEnvironment } from '../../../__mocks__/context'
-import { buildTimelineObjsForRundown, RundownTimelineResult, RundownTimelineTimingContext } from '../rundown'
+import { setupDefaultJobEnvironment } from '../../../__mocks__/context.js'
+import { buildTimelineObjsForRundown, RundownTimelineResult, RundownTimelineTimingContext } from '../rundown.js'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { SelectedPartInstancesTimelineInfo, SelectedPartInstanceTimelineInfo } from '../generate'
+import { SelectedPartInstancesTimelineInfo, SelectedPartInstanceTimelineInfo } from '../generate.js'
 import { PartCalculatedTimings } from '@sofie-automation/corelib/dist/playout/timings'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
@@ -57,9 +57,9 @@ function transformTimelineIntoSimplifiedForm(res: RundownTimelineResult) {
 						? {
 								...res.timingContext.nextPartGroup,
 								children: res.timingContext.nextPartGroup.children.length as any,
-						  }
+							}
 						: undefined,
-			  } satisfies RundownTimelineTimingContext)
+				} satisfies RundownTimelineTimingContext)
 			: undefined,
 	}
 }

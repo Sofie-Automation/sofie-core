@@ -1,4 +1,5 @@
 import {
+	BucketAdLibId,
 	PartId,
 	PartInstanceId,
 	PieceId,
@@ -9,7 +10,7 @@ import {
 	SegmentId,
 	SegmentPlayoutId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { BaseModel } from '../../modelBase'
+import { BaseModel } from '../../modelBase.js'
 import {
 	ABSessionAssignments,
 	ABSessionInfo,
@@ -18,19 +19,19 @@ import {
 	RundownHoldState,
 } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { ReadonlyDeep } from 'type-fest'
-import { StudioPlayoutModelBase, StudioPlayoutModelBaseReadonly } from '../../studio/model/StudioPlayoutModel'
+import { StudioPlayoutModelBase, StudioPlayoutModelBaseReadonly } from '../../studio/model/StudioPlayoutModel.js'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { PieceInstance, PieceInstancePiece } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
-import { PlaylistLock } from '../../jobs/lock'
-import { PlayoutRundownModel } from './PlayoutRundownModel'
-import { PlayoutSegmentModel } from './PlayoutSegmentModel'
-import { PlayoutPartInstanceModel } from './PlayoutPartInstanceModel'
+import { PlaylistLock } from '../../jobs/lock.js'
+import { PlayoutRundownModel } from './PlayoutRundownModel.js'
+import { PlayoutSegmentModel } from './PlayoutSegmentModel.js'
+import { PlayoutPartInstanceModel } from './PlayoutPartInstanceModel.js'
 import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { PlayoutPieceInstanceModel } from './PlayoutPieceInstanceModel'
+import { PlayoutPieceInstanceModel } from './PlayoutPieceInstanceModel.js'
 import { PieceInstanceWithTimings } from '@sofie-automation/corelib/dist/playout/processAndPrune'
 import { PartCalculatedTimings } from '@sofie-automation/corelib/dist/playout/timings'
-import type { INotificationsModel } from '../../notifications/NotificationsModel'
+import type { INotificationsModel } from '../../notifications/NotificationsModel.js'
 
 export type DeferredFunction = (playoutModel: PlayoutModel) => void | Promise<void>
 export type DeferredAfterSaveFunction = (playoutModel: PlayoutModelReadonly) => void | Promise<void>
@@ -236,7 +237,7 @@ export interface PlayoutModel extends PlayoutModelReadonly, StudioPlayoutModelBa
 	createAdlibbedPartInstance(
 		part: Omit<DBPart, 'segmentId' | 'rundownId'>,
 		pieces: Omit<PieceInstancePiece, 'startPartId'>[],
-		fromAdlibId: PieceId | undefined,
+		fromAdlibId: PieceId | BucketAdLibId | undefined,
 		infinitePieceInstances: PieceInstance[]
 	): PlayoutPartInstanceModel
 

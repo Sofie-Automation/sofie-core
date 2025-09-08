@@ -1,12 +1,12 @@
 import { useCallback, useMemo } from 'react'
-import { Studios } from '../../../../collections'
+import { Studios } from '../../../../collections/index.js'
 import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { useTracker } from '../../../../lib/ReactMeteorData/ReactMeteorData'
+import { useTracker } from '../../../../lib/ReactMeteorData/ReactMeteorData.js'
 import { PeripheralDevice, PeripheralDeviceCategory } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
-import { getHelpMode } from '../../../../lib/localStorage'
+import { getHelpMode } from '../../../../lib/localStorage.js'
 import Tooltip from 'rc-tooltip'
 import { useTranslation } from 'react-i18next'
-import { getAllCurrentAndDeletedItemsFromOverrides, useOverrideOpHelper } from '../../util/OverrideOpHelper'
+import { getAllCurrentAndDeletedItemsFromOverrides, useOverrideOpHelper } from '../../util/OverrideOpHelper.js'
 import {
 	ObjectOverrideSetOp,
 	SomeObjectOverrideOp,
@@ -16,7 +16,7 @@ import { StudioInputDevice } from '@sofie-automation/corelib/dist/dataModel/Stud
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { literal } from '@sofie-automation/corelib/dist/lib'
-import { GenericSubDevicesTable } from './GenericSubDevices'
+import { GenericSubDevicesTable } from './GenericSubDevices.js'
 
 interface StudioInputSubDevicesProps {
 	studioId: StudioId
@@ -85,8 +85,8 @@ export function StudioInputSubDevices({ studioId, studioDevices }: Readonly<Stud
 	}, [studioId, wrappedSubDevices])
 
 	return (
-		<div>
-			<h2 className="mb-4">
+		<div className="mb-4">
+			<h2 className="mb-2">
 				<Tooltip
 					overlay={t('Input devices allow you to trigger Sofie actions remotely')}
 					visible={getHelpMode() && !wrappedSubDevices.length}

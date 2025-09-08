@@ -1,10 +1,10 @@
 import * as React from 'react'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { useTranslation } from 'react-i18next'
-import { MappingsSettingsManifests } from '../Mappings'
-import { getAllCurrentAndDeletedItemsFromOverrides } from '../../util/OverrideOpHelper'
-import { ExclusivityGroupsTable } from './ExclusivityGroups'
-import { RouteSetsTable } from './RouteSets'
+import { MappingsSettingsManifests } from '../Mappings.js'
+import { getAllCurrentAndDeletedItemsFromOverrides } from '../../util/OverrideOpHelper.js'
+import { ExclusivityGroupsTable } from './ExclusivityGroups.js'
+import { RouteSetsTable } from './RouteSets.js'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { useMemo } from 'react'
 
@@ -50,13 +50,13 @@ export function StudioRoutings({
 							'Controls for exposed Route Sets will be displayed to the producer within the Rundown View in the Switchboard.'
 						)}
 					</p>
-					<h3 className="my-4">{t('Exclusivity Groups')}</h3>
+					<h3 className="mb-2">{t('Exclusivity Groups')}</h3>
 					<ExclusivityGroupsTable
 						studio={studio}
 						routeSetsFromOverrides={routeSetsFromOverrides}
 						exclusivityGroupsFromOverrides={exclusivityGroupsFromOverrides}
 					/>
-					<h3 className="my-4">{t('Route Sets')}</h3>
+					<h3 className="mb-2 mt-4">{t('Route Sets')}</h3>
 					<RouteSetsTable
 						studio={studio}
 						routeSetsFromOverrides={routeSetsFromOverrides}

@@ -1,20 +1,20 @@
 import { useMemo } from 'react'
-import { useTracker } from '../../lib/ReactMeteorData/react-meteor-data'
-import { Spinner } from '../../lib/Spinner'
+import { useTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
+import { Spinner } from '../../lib/Spinner.js'
 import { PeripheralDeviceType } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
-import { StudioRoutings } from './Studio/Routings'
-import { StudioDevices } from './Studio/Devices'
-import { MappingsSettingsManifest, MappingsSettingsManifests, StudioMappings } from './Studio/Mappings'
-import { StudioPackageManagerSettings } from './Studio/PackageManager'
-import { StudioGenericProperties } from './Studio/Generic'
+import { StudioRoutings } from './Studio/Routings/index.js'
+import { StudioDevices } from './Studio/Devices/index.js'
+import { MappingsSettingsManifest, MappingsSettingsManifests, StudioMappings } from './Studio/Mappings.js'
+import { StudioPackageManagerSettings } from './Studio/PackageManager/index.js'
+import { StudioGenericProperties } from './Studio/Generic.js'
 import { Redirect, Route, Switch, useRouteMatch } from 'react-router-dom'
-import { ErrorBoundary } from '../../lib/ErrorBoundary'
-import { PeripheralDevices, Studios } from '../../collections'
+import { ErrorBoundary } from '../../lib/ErrorBoundary.js'
+import { PeripheralDevices, Studios } from '../../collections/index.js'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { literal } from '@sofie-automation/corelib/dist/lib'
-import { translateStringIfHasNamespaces } from '../../lib/forms/schemaFormUtil'
+import { translateStringIfHasNamespaces } from '../../lib/forms/schemaFormUtil.js'
 import { JSONBlob, JSONBlobParse } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
-import { StudioBlueprintConfigurationSettings } from './Studio/BlueprintConfiguration'
+import { StudioBlueprintConfigurationSettings } from './Studio/BlueprintConfiguration/index.js'
 import { SubdeviceManifest } from '@sofie-automation/corelib/dist/deviceConfig'
 import { JSONSchema } from '@sofie-automation/blueprints-integration'
 
@@ -59,7 +59,7 @@ export default function StudioSettings(): JSX.Element {
 									id,
 									JSONBlobParse(schema),
 								])
-						  )
+							)
 						: undefined
 
 					return [

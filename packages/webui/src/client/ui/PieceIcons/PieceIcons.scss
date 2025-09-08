@@ -6,89 +6,30 @@ $letter-spacing: 0.02em;
 
 // Base icon styles
 .piece-icon {
-  .camera {
-    @include item-type-colors-svg();
-    rx: 4;
-    ry: 4;
-  }
+	rect.piece-icon-bkg {
+		@include item-type-colors-svg();
+		rx: 4;
+		ry: 4;
+	}
 
-  .live-speak {
-    fill: url(#background-gradient);
-    rx: 4;
-    ry: 4;
-  }
+	// Common text styles
+	.piece-icon-text {
+		fill: $text-color;
+		font-family: 'Roboto Condensed', Roboto, sans-serif;
+		font-size: 40px;
 
+		filter: drop-shadow($text-shadow);
 
-  .graphics {
-    @include item-type-colors-svg();
-    rx: 4;
-    ry: 4;
-  }
+		.label {
+			fill: $text-color;
+			font-family: 'Roboto Condensed', Roboto, sans-serif;
+			font-size: $font-size-base;
+			font-weight: 300;
+			letter-spacing: $letter-spacing;
 
-  .local {
-    @include item-type-colors-svg();
-    rx: 4;
-    ry: 4;
-  }
-
-  .remote {
-    @include item-type-colors-svg();
-    rx: 4;
-    ry: 4;
-  }
-
-  .vt {
-    @include item-type-colors-svg();
-    rx: 4;
-    ry: 4;
-  }
-
-  .unknown {
-    @include item-type-colors-svg();
-    rx: 4;
-    ry: 4;
-  }
-
-  // Gradient styles for live-speak
-  #background-gradient {
-    .stop1 {
-      stop-color: #954c4c;
-    }
-    .stop2 {
-      stop-color: #4c954c;
-    }
-  }
-
-  // Split view specific styles
-  .upper, .lower {
-    rx: 4;
-    ry: 4;
-    
-    &.camera {
-      @include item-type-colors-svg();
-    }
-    &.remote {
-      @include item-type-colors-svg();
-    }
-    &.remote.second {
-      @include item-type-colors-svg();
-    }
-  }
-
-  // Common text styles
-  .piece-icon-text {
-    fill: $text-color;
-    font-family: Roboto Condensed, Roboto, sans-serif;
-    font-size: 40px;
-
-    filter: drop-shadow($text-shadow);
-    
-    .label {
-      fill: $text-color;
-      font-family: Roboto Condensed, Roboto, sans-serif;
-      font-size: $font-size-base;
-      font-weight: 300;
-      letter-spacing: $letter-spacing;
-    }
-  }
+			.input-number {
+				font-weight: normal;
+			}
+		}
+	}
 }

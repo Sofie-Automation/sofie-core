@@ -1,24 +1,24 @@
 import * as React from 'react'
 import { Meteor } from 'meteor/meteor'
 import ClassNames from 'classnames'
-import { RundownUtils } from '../../lib/rundown'
+import { RundownUtils } from '../../lib/rundown.js'
 import { ISourceLayer, IOutputLayer, SourceLayerType, VTContent } from '@sofie-automation/blueprints-integration'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { IAdLibListItem } from './AdLibListItem'
-import SplitInputIcon from '../PieceIcons/Renderers/SplitInputIcon'
+import { IAdLibListItem } from './AdLibListItem.js'
+import SplitInputIcon from '../PieceIcons/Renderers/SplitInputIcon.js'
 import { PieceDisplayStyle } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import { DashboardPieceButtonSplitPreview } from './DashboardPieceButtonSplitPreview'
-import { StyledTimecode } from '../../lib/StyledTimecode'
-import { useContentStatusForAdlibPiece, WithMediaObjectStatusProps } from '../SegmentTimeline/withMediaObjectStatus'
+import { DashboardPieceButtonSplitPreview } from './DashboardPieceButtonSplitPreview.js'
+import { StyledTimecode } from '../../lib/StyledTimecode.js'
+import { useContentStatusForAdlibPiece, WithMediaObjectStatusProps } from '../SegmentTimeline/withMediaObjectStatus.js'
 
-import { isTouchDevice } from '../../lib/lib'
+import { isTouchDevice } from '../../lib/lib.js'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import {
 	convertSourceLayerItemToPreview,
 	IPreviewPopUpContext,
 	IPreviewPopUpSession,
 	PreviewPopUpContext,
-} from '../PreviewPopUp/PreviewPopUpContext'
+} from '../PreviewPopUp/PreviewPopUpContext.js'
 
 export interface IDashboardButtonProps {
 	piece: IAdLibListItem
@@ -273,14 +273,14 @@ export class DashboardPieceButtonBase<T = {}> extends React.Component<
 					label: this.props.piece.name,
 				},
 				() => {
-					this._labelEl && this._labelEl.blur()
+					this._labelEl?.blur()
 				}
 			)
 			e.preventDefault()
 			e.stopPropagation()
 			e.stopImmediatePropagation()
 		} else if (e.key === 'Enter') {
-			this._labelEl && this._labelEl.blur()
+			this._labelEl?.blur()
 			e.preventDefault()
 			e.stopPropagation()
 			e.stopImmediatePropagation()
@@ -295,11 +295,11 @@ export class DashboardPieceButtonBase<T = {}> extends React.Component<
 					label: this.props.piece.name,
 				},
 				() => {
-					this.props.onNameChanged && this.props.onNameChanged(e, this.state.label)
+					this.props.onNameChanged?.(e, this.state.label)
 				}
 			)
 		} else {
-			this.props.onNameChanged && this.props.onNameChanged(e, this.state.label)
+			this.props.onNameChanged?.(e, this.state.label)
 		}
 	}
 
@@ -407,8 +407,8 @@ export class DashboardPieceButtonBase<T = {}> extends React.Component<
 					width: isList
 						? 'calc(100% - 8px)'
 						: this.props.widthScale
-						? (this.props.widthScale as number) * DEFAULT_BUTTON_WIDTH + 'em'
-						: undefined,
+							? (this.props.widthScale as number) * DEFAULT_BUTTON_WIDTH + 'em'
+							: undefined,
 					height:
 						!isList && !!this.props.heightScale
 							? (this.props.heightScale as number) * DEFAULT_BUTTON_HEIGHT + 'em'
@@ -433,11 +433,11 @@ export class DashboardPieceButtonBase<T = {}> extends React.Component<
 					{this.props.disableHoverInspector || !this.props.layer
 						? null
 						: this.props.layer.type === SourceLayerType.VT || this.props.layer.type === SourceLayerType.LIVE_SPEAK
-						? // VT should have thumbnails in "Button" layout.
-						  this.renderVTLiveSpeak(isButtons || (isList && this.props.showThumbnailsInList))
-						: this.props.layer.type === SourceLayerType.SPLITS
-						? this.renderSplits(isList && this.props.showThumbnailsInList)
-						: null}
+							? // VT should have thumbnails in "Button" layout.
+								this.renderVTLiveSpeak(isButtons || (isList && this.props.showThumbnailsInList))
+							: this.props.layer.type === SourceLayerType.SPLITS
+								? this.renderSplits(isList && this.props.showThumbnailsInList)
+								: null}
 
 					{this.renderHotkey()}
 					<div className="dashboard-panel__panel__button__label-container">

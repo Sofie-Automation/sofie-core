@@ -1,4 +1,4 @@
-import { BucketId, StudioId } from './Ids'
+import { BucketId, StudioId } from './Ids.js'
 
 /**
  * A Bucket is an container for AdLib pieces that do not come from a MOS gateway and are

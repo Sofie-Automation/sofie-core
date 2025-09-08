@@ -1,34 +1,35 @@
 import { Logger } from 'winston'
-import { CoreHandler } from './coreHandler'
+import { CoreHandler } from './coreHandler.js'
 import { WebSocket, WebSocketServer } from 'ws'
-import { StudioHandler } from './collections/studioHandler'
-import { ShowStyleBaseHandler } from './collections/showStyleBaseHandler'
-import { PlaylistHandler, PlaylistsHandler } from './collections/playlistHandler'
-import { RundownHandler } from './collections/rundownHandler'
-// import { RundownsHandler } from './collections/rundownsHandler'
-import { SegmentHandler } from './collections/segmentHandler'
-// import { PartHandler } from './collections/part'
-import { PartInstancesHandler } from './collections/partInstancesHandler'
-import { AdLibActionsHandler } from './collections/adLibActionsHandler'
-import { GlobalAdLibActionsHandler } from './collections/globalAdLibActionsHandler'
-import { RootChannel, StatusChannels } from './topics/root'
-import { StudioTopic } from './topics/studioTopic'
-import { ActivePlaylistTopic } from './topics/activePlaylistTopic'
-import { AdLibsHandler } from './collections/adLibsHandler'
-import { GlobalAdLibsHandler } from './collections/globalAdLibsHandler'
-import { SegmentsTopic } from './topics/segmentsTopic'
-import { SegmentsHandler } from './collections/segmentsHandler'
-import { PartHandler } from './collections/partHandler'
-import { PartsHandler } from './collections/partsHandler'
-import { PieceInstancesHandler } from './collections/pieceInstancesHandler'
-import { AdLibsTopic } from './topics/adLibsTopic'
-import { ActivePiecesTopic } from './topics/activePiecesTopic'
-import { PieceContentStatusesHandler } from './collections/pieceContentStatusesHandler'
-import { PackagesTopic } from './topics/packagesTopic'
-import { BucketsHandler } from './collections/bucketsHandler'
-import { BucketAdLibsHandler } from './collections/bucketAdLibsHandler'
-import { BucketAdLibActionsHandler } from './collections/bucketAdLibActionsHandler'
-import { BucketsTopic } from './topics/bucketsTopic'
+import { StudioHandler } from './collections/studioHandler.js'
+import { ShowStyleBaseHandler } from './collections/showStyleBaseHandler.js'
+import { PlaylistHandler, PlaylistsHandler } from './collections/playlistHandler.js'
+import { RundownHandler } from './collections/rundownHandler.js'
+// import { RundownsHandler } from './collections/rundownsHandler.js'
+import { SegmentHandler } from './collections/segmentHandler.js'
+// import { PartHandler } from './collections/part.js'
+import { PartInstancesHandler } from './collections/partInstancesHandler.js'
+import { AdLibActionsHandler } from './collections/adLibActionsHandler.js'
+import { GlobalAdLibActionsHandler } from './collections/globalAdLibActionsHandler.js'
+import { RootChannel } from './topics/root.js'
+import { StudioTopic } from './topics/studioTopic.js'
+import { ActivePlaylistTopic } from './topics/activePlaylistTopic.js'
+import { AdLibsHandler } from './collections/adLibsHandler.js'
+import { GlobalAdLibsHandler } from './collections/globalAdLibsHandler.js'
+import { SegmentsTopic } from './topics/segmentsTopic.js'
+import { SegmentsHandler } from './collections/segmentsHandler.js'
+import { PartHandler } from './collections/partHandler.js'
+import { PartsHandler } from './collections/partsHandler.js'
+import { PieceInstancesHandler } from './collections/pieceInstancesHandler.js'
+import { AdLibsTopic } from './topics/adLibsTopic.js'
+import { ActivePiecesTopic } from './topics/activePiecesTopic.js'
+import { SubscriptionName } from '@sofie-automation/live-status-gateway-api'
+import { PieceContentStatusesHandler } from './collections/pieceContentStatusesHandler.js'
+import { PackagesTopic } from './topics/packagesTopic.js'
+import { BucketsHandler } from './collections/bucketsHandler.js'
+import { BucketAdLibsHandler } from './collections/bucketAdLibsHandler.js'
+import { BucketAdLibActionsHandler } from './collections/bucketAdLibActionsHandler.js'
+import { BucketsTopic } from './topics/bucketsTopic.js'
 
 export interface CollectionHandlers {
 	studioHandler: StudioHandler
@@ -121,13 +122,13 @@ export class LiveStatusServer {
 		const packageStatusTopic = new PackagesTopic(this._logger, handlers)
 		const bucketsTopic = new BucketsTopic(this._logger, handlers)
 
-		rootChannel.addTopic(StatusChannels.studio, studioTopic)
-		rootChannel.addTopic(StatusChannels.activePlaylist, activePlaylistTopic)
-		rootChannel.addTopic(StatusChannels.activePieces, activePiecesTopic)
-		rootChannel.addTopic(StatusChannels.segments, segmentsTopic)
-		rootChannel.addTopic(StatusChannels.adLibs, adLibsTopic)
-		rootChannel.addTopic(StatusChannels.packages, packageStatusTopic)
-		rootChannel.addTopic(StatusChannels.buckets, bucketsTopic)
+		rootChannel.addTopic(SubscriptionName.STUDIO, studioTopic)
+		rootChannel.addTopic(SubscriptionName.ACTIVE_PLAYLIST, activePlaylistTopic)
+		rootChannel.addTopic(SubscriptionName.ACTIVE_PIECES, activePiecesTopic)
+		rootChannel.addTopic(SubscriptionName.SEGMENTS, segmentsTopic)
+		rootChannel.addTopic(SubscriptionName.AD_LIBS, adLibsTopic)
+		rootChannel.addTopic(SubscriptionName.RESERVED_PACKAGES, packageStatusTopic)
+		rootChannel.addTopic(SubscriptionName.BUCKETS, bucketsTopic)
 
 		const wss = new WebSocketServer({ port: 8080 })
 		wss.on('connection', (ws, request) => {

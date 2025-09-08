@@ -5,7 +5,7 @@ import {
 	TimelineEnableExt,
 } from '@sofie-automation/shared-lib/dist/core/model/Timeline'
 import { SetRequired } from 'type-fest'
-import { PartInstanceId, PieceInstanceInfiniteId, BlueprintId, StudioId } from './Ids'
+import { PartInstanceId, PieceInstanceInfiniteId, BlueprintId, StudioId } from './Ids.js'
 
 export {
 	deserializeTimelineBlob,

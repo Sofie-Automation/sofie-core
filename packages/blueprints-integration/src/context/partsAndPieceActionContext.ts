@@ -8,8 +8,8 @@ import {
 	IBlueprintResolvedPieceInstance,
 	IBlueprintSegment,
 	Time,
-} from '..'
-import { BlueprintQuickLookInfo } from './quickLoopInfo'
+} from '../index.js'
+import { BlueprintQuickLookInfo } from './quickLoopInfo.js'
 
 export interface IPartAndPieceActionContext {
 	/** Information about the current loop, if there is one */

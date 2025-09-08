@@ -1,8 +1,8 @@
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { ProtectedString, protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { AnyBulkWriteOperation } from 'mongodb'
-import { DocumentChangeTracker } from '../DocumentChangeTracker'
-import { DocumentChanges } from '../utils'
+import { DocumentChangeTracker } from '../DocumentChangeTracker.js'
+import { DocumentChanges } from '../utils.js'
 
 interface Doc {
 	_id: ProtectedString<any>

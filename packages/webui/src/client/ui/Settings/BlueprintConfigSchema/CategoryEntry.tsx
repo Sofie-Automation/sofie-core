@@ -1,13 +1,13 @@
 import { useCallback } from 'react'
 import ClassNames from 'classnames'
 import { useTranslation } from 'react-i18next'
-import { SchemaFormWithOverrides } from '../../../lib/forms/SchemaFormWithOverrides'
+import { SchemaFormWithOverrides } from '../../../lib/forms/SchemaFormWithOverrides.js'
 import { faPencilAlt, faCheck } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { IBlueprintConfig } from '@sofie-automation/blueprints-integration'
 import { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
-import { SchemaFormSofieEnumDefinition } from '../../../lib/forms/schemaFormUtil'
-import { WrappedOverridableItemNormal, OverrideOpHelperForItemContents } from '../util/OverrideOpHelper'
+import { SchemaFormSofieEnumDefinition } from '../../../lib/forms/schemaFormUtil.js'
+import { WrappedOverridableItemNormal, OverrideOpHelperForItemContents } from '../util/OverrideOpHelper.js'
 
 interface ConfigCategoryEntryProps {
 	translationNamespaces: string[]

@@ -5,7 +5,7 @@
  *   will fetch from a MAM and copy to the media-folder of CasparCG.
  */
 
-import { StatusCode } from '../lib/status'
+import { StatusCode } from '../lib/status.js'
 
 type AccessorId = string
 type ExpectedPackageId = string
@@ -364,7 +364,7 @@ export namespace Accessor {
 	export interface Quantel extends Base {
 		type: AccessType.QUANTEL
 
-		/** URL to a Quantel-gateway (https://github.com/nrkno/sofie-quantel-gateway) */
+		/** URL to a Quantel-gateway (https://github.com/Sofie-Automation/sofie-quantel-gateway) */
 		quantelGatewayUrl: string
 
 		/** Locations of the Quantel ISA:s (in order of importance) */
@@ -434,7 +434,7 @@ export namespace AccessorOnPackage {
 		guid?: string
 		title?: string
 	}
-	// eslint-disable-next-line @typescript-eslint/no-empty-interface
+	// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 	export interface CorePackageCollection extends Partial<Accessor.CorePackageCollection> {
 		// empty
 	}

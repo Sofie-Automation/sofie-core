@@ -1,6 +1,6 @@
 import { ExpectedPackageStatusAPI, Time } from '@sofie-automation/blueprints-integration'
-import { protectString } from '../protectedString'
-import { ExpectedPackageId, PackageContainerPackageId, PeripheralDeviceId, StudioId } from './Ids'
+import { protectString } from '../protectedString.js'
+import { ExpectedPackageId, PackageContainerPackageId, PeripheralDeviceId, StudioId } from './Ids.js'
 
 /**
  * The PackageContainerPackageStatuses-collection contains statuses about "a Package on a specific PackageContainer"

@@ -1,15 +1,14 @@
 import {
-	AdLibActionId,
 	BucketAdLibActionId,
+	BucketAdLibId,
 	BucketId,
 	ExpectedPackageId,
-	PieceId,
 	RundownId,
 	SegmentId,
 	ShowStyleBaseId,
 	ShowStyleVariantId,
 	StudioId,
-} from '../dataModel/Ids'
+} from '../dataModel/Ids.js'
 import type { MOS } from '@sofie-automation/shared-lib/dist/mos'
 import {
 	IngestAdlib,
@@ -18,8 +17,8 @@ import {
 	IngestSegment,
 	UserOperationTarget,
 } from '@sofie-automation/blueprints-integration'
-import { BucketAdLibAction } from '../dataModel/BucketAdLibAction'
-import { RundownSource } from '../dataModel/Rundown'
+import { BucketAdLibAction } from '../dataModel/BucketAdLibAction.js'
+import { RundownSource } from '../dataModel/Rundown.js'
 
 export enum IngestJobs {
 	/**
@@ -268,14 +267,14 @@ export interface BucketActionModifyProps {
 	props: Partial<Omit<BucketAdLibAction, '_id'>>
 }
 export interface BucketPieceModifyProps {
-	pieceId: PieceId
+	pieceId: BucketAdLibId
 	props: Partial<Omit<BucketAdLibAction, '_id'>>
 }
 export interface BucketRemoveAdlibPieceProps {
-	pieceId: PieceId
+	pieceId: BucketAdLibId
 }
 export interface BucketRemoveAdlibActionProps {
-	actionId: AdLibActionId
+	actionId: BucketAdLibActionId
 }
 export interface BucketEmptyProps {
 	bucketId: BucketId

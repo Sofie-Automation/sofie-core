@@ -1,10 +1,9 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import Moment from 'react-moment'
-import { withTiming, WithTiming } from './withTiming'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { RundownUtils } from '../../../lib/rundown'
-import { getCurrentTime } from '../../../lib/systemTime'
+import { RundownUtils } from '../../../lib/rundown.js'
+import { getCurrentTime } from '../../../lib/systemTime.js'
 import ClassNames from 'classnames'
 import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
 
@@ -15,12 +14,12 @@ interface IStartTimingProps {
 	plannedStartText?: string
 }
 
-export const PlaylistStartTiming = withTiming<IStartTimingProps, {}>()(function PlaylistStartTiming({
+export function PlaylistStartTiming({
 	rundownPlaylist,
 	hidePlannedStart,
 	hideDiff,
 	plannedStartText,
-}: WithTiming<IStartTimingProps>): JSX.Element {
+}: IStartTimingProps): JSX.Element {
 	const { t } = useTranslation()
 
 	const playlistExpectedStart = PlaylistTiming.getExpectedStart(rundownPlaylist.timing)
@@ -29,8 +28,8 @@ export const PlaylistStartTiming = withTiming<IStartTimingProps, {}>()(function 
 	const expectedStart = playlistExpectedStart
 		? playlistExpectedStart
 		: playlistExpectedDuration && playlistExpectedEnd
-		? playlistExpectedEnd - playlistExpectedDuration
-		: undefined
+			? playlistExpectedEnd - playlistExpectedDuration
+			: undefined
 
 	return (
 		<React.Fragment>
@@ -68,10 +67,10 @@ export const PlaylistStartTiming = withTiming<IStartTimingProps, {}>()(function 
 								true,
 								true,
 								true
-						  )
+							)
 						: RundownUtils.formatDiffToTimecode(getCurrentTime() - expectedStart, true, false, true, true, true)}
 				</span>
 			)}
 		</React.Fragment>
 	)
-})
+}

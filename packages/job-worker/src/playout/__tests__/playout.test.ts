@@ -8,23 +8,23 @@ import {
 	setupDefaultRundownPlaylist,
 	setupMockPeripheralDevice,
 	setupMockShowStyleCompound,
-} from '../../__mocks__/presetCollections'
-import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context'
+} from '../../__mocks__/presetCollections.js'
+import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context.js'
 import { PartInstanceId, RundownId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { fixSnapshot } from '../../__mocks__/helpers/snapshot'
+import { fixSnapshot } from '../../__mocks__/helpers/snapshot.js'
 import { sortPartsInSortedSegments, sortSegmentsInRundowns } from '@sofie-automation/corelib/dist/playout/playlist'
-import { handleSetNextPart, handleMoveNextPart, handleSetNextSegment, handleQueueNextSegment } from '../setNextJobs'
-import { handleTakeNextPart } from '../take'
+import { handleSetNextPart, handleMoveNextPart, handleSetNextSegment, handleQueueNextSegment } from '../setNextJobs.js'
+import { handleTakeNextPart } from '../take.js'
 import {
 	handleActivateRundownPlaylist,
 	handleDeactivateRundownPlaylist,
 	handlePrepareRundownPlaylistForBroadcast,
 	handleResetRundownPlaylist,
-} from '../activePlaylistJobs'
-import { getSelectedPartInstances } from './lib'
+} from '../activePlaylistJobs.js'
+import { getSelectedPartInstances } from './lib.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { UserErrorMessage } from '@sofie-automation/corelib/dist/error'
-import * as peripheralDeviceLib from '../../peripheralDevice'
+import * as peripheralDeviceLib from '../../peripheralDevice.js'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
@@ -38,17 +38,17 @@ import {
 	defaultPart,
 	defaultPiece,
 	defaultAdLibPiece,
-} from '../../__mocks__/defaultCollectionObjects'
+} from '../../__mocks__/defaultCollectionObjects.js'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { ReadonlyDeep } from 'type-fest'
-import { adjustFakeTime, getCurrentTime, useFakeCurrentTime } from '../../__mocks__/time'
+import { adjustFakeTime, getCurrentTime, useFakeCurrentTime } from '../../__mocks__/time.js'
 import { PieceLifespan } from '@sofie-automation/blueprints-integration'
 import {
 	PlayoutChangedResult,
 	PlayoutChangedType,
 } from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI'
-import { ProcessedShowStyleCompound } from '../../jobs'
-import { handleOnPlayoutPlaybackChanged } from '../timings'
+import { ProcessedShowStyleCompound } from '../../jobs/index.js'
+import { handleOnPlayoutPlaybackChanged } from '../timings/index.js'
 import { sleep } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 

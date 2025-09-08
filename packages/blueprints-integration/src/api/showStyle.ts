@@ -1,4 +1,4 @@
-import type { ActionUserData, IBlueprintActionManifest } from '../action'
+import type { ActionUserData, IBlueprintActionManifest } from '../action.js'
 import type {
 	IActionExecutionContext,
 	ISyncIngestUpdateToPartInstanceContext,
@@ -18,10 +18,10 @@ import type {
 	IFixUpConfigContext,
 	IOnTakeContext,
 	IOnSetAsNextContext,
-} from '../context'
-import type { IngestAdlib, ExtendedIngestRundown, IngestRundown } from '../ingest'
-import type { IBlueprintExternalMessageQueueObj } from '../message'
-import type {} from '../migrations'
+} from '../context/index.js'
+import type { IngestAdlib, ExtendedIngestRundown, IngestRundown } from '../ingest.js'
+import type { IBlueprintExternalMessageQueueObj } from '../message.js'
+import type {} from '../migrations.js'
 import type {
 	IBlueprintAdLibPiece,
 	IBlueprintResolvedPieceInstance,
@@ -35,20 +35,20 @@ import type {
 	IBlueprintSegment,
 	IBlueprintPiece,
 	IBlueprintPart,
-} from '../documents'
-import type { IBlueprintShowStyleVariant, IOutputLayer, ISourceLayer } from '../showStyle'
-import type { TSR, OnGenerateTimelineObj, TimelineObjectCoreExt } from '../timeline'
-import type { IBlueprintConfig } from '../common'
+} from '../documents/index.js'
+import type { IBlueprintShowStyleVariant, IOutputLayer, ISourceLayer } from '../showStyle.js'
+import type { TSR, OnGenerateTimelineObj, TimelineObjectCoreExt } from '../timeline.js'
+import type { IBlueprintConfig } from '../common.js'
 import type { ReadonlyDeep } from 'type-fest'
 import type { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
 import type { JSONBlob } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
-import type { BlueprintConfigCoreConfig, BlueprintManifestBase, BlueprintManifestType, IConfigMessage } from './base'
-import type { IBlueprintTriggeredActions } from '../triggers'
-import type { ExpectedPackage } from '../package'
-import type { ABResolverConfiguration } from '../abPlayback'
-import type { SofieIngestSegment } from '../ingest-types'
+import type { BlueprintConfigCoreConfig, BlueprintManifestBase, BlueprintManifestType, IConfigMessage } from './base.js'
+import type { IBlueprintTriggeredActions } from '../triggers.js'
+import type { ExpectedPackage } from '../package.js'
+import type { ABResolverConfiguration } from '../abPlayback.js'
+import type { SofieIngestSegment } from '../ingest-types.js'
 import { PackageStatusMessage } from '@sofie-automation/shared-lib/dist/packageStatusMessages'
-import { BlueprintPlayoutPersistentStore } from '../context/playoutStore'
+import { BlueprintPlayoutPersistentStore } from '../context/playoutStore.js'
 
 export { PackageStatusMessage }
 

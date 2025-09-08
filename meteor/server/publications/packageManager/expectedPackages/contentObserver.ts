@@ -72,7 +72,7 @@ export class ExpectedPackagesContentObserver implements Meteor.LiveQueryHandle {
 					observer.updatePartInstanceIds()
 				}),
 				{
-					fields: rundownPlaylistFieldSpecifier,
+					projection: rundownPlaylistFieldSpecifier,
 				}
 			),
 

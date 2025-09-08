@@ -1,4 +1,4 @@
-import { getElementDocumentOffset } from '../positions'
+import { getElementDocumentOffset } from '../positions.js'
 
 describe('getElementDocumentOffset', () => {
 	const emptyRect: DOMRect = {

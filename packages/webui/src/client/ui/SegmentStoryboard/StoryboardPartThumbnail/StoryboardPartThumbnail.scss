@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 @import '../../../styles/variables';
 
 .segment-storyboard__part__thumbnail {
@@ -22,7 +24,7 @@
 	}
 
 	&.segment-storyboard__part__thumbnail--placeholder {
-		background: lighten($segment-background-color, 10%);
+		background: color.scale($segment-background-color, $lightness: 10%);
 	}
 
 	.segment-storyboard__thumbnail__icon {

@@ -363,7 +363,7 @@ export namespace PackageManagerIntegration {
 				$or: [{ removeTime: null }, { removeTime: { $exists: false } }],
 			},
 			{
-				fields: {
+				projection: {
 					payload: 0,
 				},
 			}

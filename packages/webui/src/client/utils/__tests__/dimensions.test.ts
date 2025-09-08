@@ -1,4 +1,4 @@
-import { getElementWidth, getElementHeight } from '../dimensions'
+import { getElementWidth, getElementHeight } from '../dimensions.js'
 import { createSandbox, SinonStub } from 'sinon'
 
 const sandbox = createSandbox()

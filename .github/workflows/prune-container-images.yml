@@ -3,17 +3,16 @@ name: "Prune container images"
 on:
   workflow_dispatch:
   schedule:
-    - cron: '12 14 * * *'
+    - cron: "12 14 * * *"
 
 jobs:
   prune-container-images:
-    if: ${{ github.repository_owner == 'nrkno' }}
-    
-    uses: nrkno/sofie-github-workflows/.github/workflows/prune-container-images.yml@main
+    if: ${{ github.repository_owner == 'Sofie-Automation' }}
+    uses: Sofie-Automation/sofie-github-workflows/.github/workflows/prune-container-images.yml@main
     strategy:
       max-parallel: 1
       matrix:
-        repo: [ server-core, playout-gateway, mos-gateway ]
+        repo: [server-core, playout-gateway, mos-gateway]
     with:
       dry-run: false
       prune-untagged: true

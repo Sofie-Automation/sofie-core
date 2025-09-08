@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React from 'react'
 import ClassNames from 'classnames'
 import _ from 'underscore'
-import { RundownLayoutsAPI } from '../../../lib/rundownLayouts'
+import { RundownLayoutsAPI } from '../../../lib/rundownLayouts.js'
 import {
 	DashboardPanelBase,
 	DashboardPanelUnit,
@@ -15,14 +15,14 @@ import {
 	RundownLayoutElementType,
 	RundownLayoutFilterBase,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import { EditAttribute } from '../../../lib/EditAttribute'
-import { Translated } from '../../../lib/ReactMeteorData/react-meteor-data'
+import { EditAttribute } from '../../../lib/EditAttribute.js'
+import { Translated } from '../../../lib/ReactMeteorData/react-meteor-data.js'
 import { IOutputLayer, ISourceLayer, SourceLayerType } from '@sofie-automation/blueprints-integration'
 import { withTranslation } from 'react-i18next'
-import { defaultColorPickerPalette } from '../../../lib/colorPicker'
+import { defaultColorPickerPalette } from '../../../lib/colorPicker.js'
 import { OutputLayers, SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { RundownLayouts } from '../../../collections'
-import { LabelActual } from '../../../lib/Components/LabelAndOverrides'
+import { RundownLayouts } from '../../../collections/index.js'
+import { LabelActual } from '../../../lib/Components/LabelAndOverrides.js'
 
 interface IProps {
 	item: RundownLayoutBase

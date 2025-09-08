@@ -37,7 +37,7 @@ const FeatureList = [
 	{
 		title: 'Community',
 		Svg: require('../img/undraw_work_chat.svg').default,
-		link: 'https://join.slack.com/t/sofietv/shared_invite/enQtNTk2Mzc3MTQ1NzAzLTJkZjMyMDg3OGM0YWU3MmU4YzBhZDAyZWI1YmJmNmRiYWQ1OTZjYTkzOTkzMTA2YTE1YjgxMmVkM2U1OGZlNWI',
+		link: 'https://join.slack.com/t/sofietv/shared_invite/zt-2bfz8l9lw-azLeDB55cvN2wvMgqL1alA',
 		description: (
 			<>
 				Please join the growing <em>Slack</em> to meet the developers and other <em>Sofie</em> users.

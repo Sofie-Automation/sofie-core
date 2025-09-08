@@ -257,6 +257,7 @@ async function setDefaultDatatoDB(env: DefaultEnvironment, now: number) {
 	const packageId = await ExpectedPackages.mutableCollection.insertAsync({
 		_id: getRandomId(),
 		blueprintPackageId: '',
+		// @ts-expect-error bucketId is not a part of all ExpectedPackageDBs
 		bucketId,
 		content: {} as any,
 		contentVersionHash: '',
@@ -471,10 +472,7 @@ async function setDefaultDatatoDB(env: DefaultEnvironment, now: number) {
 				'organizations',
 				'Users',
 				// Deprecated:
-				'expectedMediaItems',
 				'mediaObjects',
-				'mediaWorkFlows',
-				'mediaWorkFlowSteps',
 			].includes(collectionName)
 		)
 			continue

@@ -1,6 +1,5 @@
 import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
-import { ExpectedMediaItemRundown } from '@sofie-automation/corelib/dist/dataModel/ExpectedMediaItem'
 import {
 	ExpectedPackageDB,
 	ExpectedPackageDBType,
@@ -25,13 +24,13 @@ import { RundownBaselineAdLibAction } from '@sofie-automation/corelib/dist/dataM
 import { RundownBaselineAdLibItem } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibPiece'
 import { RundownBaselineObj } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineObj'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { JobContext, ProcessedShowStyleBase, ProcessedShowStyleVariant } from '../../../jobs'
-import { LazyInitialise, LazyInitialiseReadonly } from '../../../lib/lazy'
-import { getRundownId, getSegmentId } from '../../lib'
-import { RundownLock } from '../../../jobs/lock'
-import { IngestSegmentModel } from '../IngestSegmentModel'
-import { IngestSegmentModelImpl } from './IngestSegmentModelImpl'
-import { IngestPartModel } from '../IngestPartModel'
+import { JobContext, ProcessedShowStyleBase, ProcessedShowStyleVariant } from '../../../jobs/index.js'
+import { LazyInitialise, LazyInitialiseReadonly } from '../../../lib/lazy.js'
+import { getRundownId, getSegmentId } from '../../lib.js'
+import { RundownLock } from '../../../jobs/lock.js'
+import { IngestSegmentModel } from '../IngestSegmentModel.js'
+import { IngestSegmentModelImpl } from './IngestSegmentModelImpl.js'
+import { IngestPartModel } from '../IngestPartModel.js'
 import {
 	clone,
 	Complete,
@@ -40,28 +39,28 @@ import {
 	groupByToMap,
 	literal,
 } from '@sofie-automation/corelib/dist/lib'
-import { IngestPartModelImpl } from './IngestPartModelImpl'
-import { DatabasePersistedModel } from '../../../modelBase'
-import { ExpectedPackagesStore } from './ExpectedPackagesStore'
+import { IngestPartModelImpl } from './IngestPartModelImpl.js'
+import { DatabasePersistedModel } from '../../../modelBase.js'
+import { ExpectedPackagesStore } from './ExpectedPackagesStore.js'
 import { ReadonlyDeep } from 'type-fest'
 import {
 	ExpectedPackageForIngestModel,
 	ExpectedPackageForIngestModelBaseline,
 	IngestModel,
 	IngestReplaceSegmentType,
-} from '../IngestModel'
+} from '../IngestModel.js'
 import { RundownNote } from '@sofie-automation/corelib/dist/dataModel/Notes'
-import { diffAndReturnLatestObjects } from './utils'
-import _ = require('underscore')
+import { diffAndReturnLatestObjects } from './utils.js'
+import _ from 'underscore'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { IBlueprintRundown } from '@sofie-automation/blueprints-integration'
-import { getCurrentTime, getSystemVersion } from '../../../lib'
-import { WrappedShowStyleBlueprint } from '../../../blueprints/cache'
-import { SaveIngestModelHelper } from './SaveIngestModel'
-import { generateWriteOpsForLazyDocuments } from './DocumentChangeTracker'
-import { IS_PRODUCTION } from '../../../environment'
-import { logger } from '../../../logging'
-import { NotificationsModelHelper } from '../../../notifications/NotificationsModelHelper'
+import { getCurrentTime, getSystemVersion } from '../../../lib/index.js'
+import { WrappedShowStyleBlueprint } from '../../../blueprints/cache.js'
+import { SaveIngestModelHelper } from './SaveIngestModel.js'
+import { generateWriteOpsForLazyDocuments } from './DocumentChangeTracker.js'
+import { IS_PRODUCTION } from '../../../environment.js'
+import { logger } from '../../../logging.js'
+import { NotificationsModelHelper } from '../../../notifications/NotificationsModelHelper.js'
 
 export interface IngestModelImplExistingData {
 	rundown: DBRundown
@@ -70,7 +69,6 @@ export interface IngestModelImplExistingData {
 	pieces: Piece[]
 	adLibPieces: AdLibPiece[]
 	adLibActions: AdLibAction[]
-	expectedMediaItems: ExpectedMediaItemRundown[]
 	expectedPlayoutItems: ExpectedPlayoutItemRundown[]
 	expectedPackages: ExpectedPackageDB[]
 }
@@ -143,9 +141,6 @@ export class IngestModelImpl implements IngestModel, DatabasePersistedModel {
 		return this.#rundownBaselineAdLibActions
 	}
 
-	get expectedMediaItemsForRundownBaseline(): ReadonlyDeep<ExpectedMediaItemRundown>[] {
-		return [...this.#rundownBaselineExpectedPackagesStore.expectedMediaItems]
-	}
 	get expectedPlayoutItemsForRundownBaseline(): ReadonlyDeep<ExpectedPlayoutItemRundown>[] {
 		return [...this.#rundownBaselineExpectedPackagesStore.expectedPlayoutItems]
 	}
@@ -173,7 +168,6 @@ export class IngestModelImpl implements IngestModel, DatabasePersistedModel {
 			const groupedAdLibPieces = groupByToMap(existingData.adLibPieces, 'partId')
 			const groupedAdLibActions = groupByToMap(existingData.adLibActions, 'partId')
 
-			const groupedExpectedMediaItems = groupByToMap(existingData.expectedMediaItems, 'partId')
 			const groupedExpectedPlayoutItems = groupByToMap(existingData.expectedPlayoutItems, 'partId')
 
 			const rundownExpectedPackages = existingData.expectedPackages.filter(
@@ -195,7 +189,6 @@ export class IngestModelImpl implements IngestModel, DatabasePersistedModel {
 				this.rundownId,
 				undefined,
 				undefined,
-				groupedExpectedMediaItems.get(undefined) ?? [],
 				groupedExpectedPlayoutItems.get(undefined) ?? [],
 				baselineExpectedPackages
 			)
@@ -213,7 +206,6 @@ export class IngestModelImpl implements IngestModel, DatabasePersistedModel {
 							groupedPieces.get(part._id) ?? [],
 							groupedAdLibPieces.get(part._id) ?? [],
 							groupedAdLibActions.get(part._id) ?? [],
-							groupedExpectedMediaItems.get(part._id) ?? [],
 							groupedExpectedPlayoutItems.get(part._id) ?? [],
 							groupedExpectedPackages.get(part._id) ?? []
 						)
@@ -247,7 +239,6 @@ export class IngestModelImpl implements IngestModel, DatabasePersistedModel {
 				this.rundownId,
 				undefined,
 				undefined,
-				[],
 				[],
 				[]
 			)
@@ -412,9 +403,6 @@ export class IngestModelImpl implements IngestModel, DatabasePersistedModel {
 
 	setExpectedPlayoutItemsForRundownBaseline(expectedPlayoutItems: ExpectedPlayoutItemRundown[]): void {
 		this.#rundownBaselineExpectedPackagesStore.setExpectedPlayoutItems(expectedPlayoutItems)
-	}
-	setExpectedMediaItemsForRundownBaseline(expectedMediaItems: ExpectedMediaItemRundown[]): void {
-		this.#rundownBaselineExpectedPackagesStore.setExpectedMediaItems(expectedMediaItems)
 	}
 	setExpectedPackagesForRundownBaseline(expectedPackages: ExpectedPackageForIngestModelBaseline[]): void {
 		// Future: should these be here, or held as part of each adlib?

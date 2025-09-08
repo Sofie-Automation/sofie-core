@@ -1,13 +1,13 @@
 import React from 'react'
-import { PreviewContent } from './PreviewPopUpContext'
-import { WarningIconSmall } from '../../lib/ui/icons/notifications'
+import { PreviewContent } from './PreviewPopUpContext.js'
+import { WarningIconSmall } from '../../lib/ui/icons/notifications.js'
 import { translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { TFunction, useTranslation } from 'react-i18next'
-import { VTPreviewElement } from './Previews/VTPreview'
-import { IFramePreview } from './Previews/IFramePreview'
-import { BoxLayoutPreview } from './Previews/BoxLayoutPreview'
-import { ScriptPreview } from './Previews/ScriptPreview'
-import { RundownUtils } from '../../lib/rundown'
+import { VTPreviewElement } from './Previews/VTPreview.js'
+import { IFramePreview } from './Previews/IFramePreview.js'
+import { BoxLayoutPreview } from './Previews/BoxLayoutPreview.js'
+import { ScriptPreview } from './Previews/ScriptPreview.js'
+import { RundownUtils } from '../../lib/rundown.js'
 import { PieceInstancePiece } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { ReadonlyObjectDeep } from 'type-fest/source/readonly-deep'
 import { PieceLifespan } from '@sofie-automation/blueprints-integration'
@@ -38,6 +38,7 @@ export function PreviewPopUpContent({ content, time }: PreviewPopUpContentProps)
 		case 'inOutWords':
 			return (
 				<div className="preview-popUp__in-out-words">
+					<hr className="separation-line" />
 					<div className="in-words">{content.in}</div>
 					<div className="out-words">{content.out}</div>
 				</div>

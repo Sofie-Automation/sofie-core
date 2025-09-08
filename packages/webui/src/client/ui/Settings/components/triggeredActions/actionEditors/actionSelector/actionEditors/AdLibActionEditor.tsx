@@ -1,10 +1,10 @@
 import _ from 'underscore'
 import { useTranslation } from 'react-i18next'
 import { PlayoutActions, SomeAction } from '@sofie-automation/blueprints-integration'
-import { useTracker } from '../../../../../../../lib/ReactMeteorData/ReactMeteorData'
-import { AdLibActions, RundownBaselineAdLibActions } from '../../../../../../../collections'
-import { ToggleSwitchControl } from '../../../../../../../lib/Components/ToggleSwitch'
-import { TextInputControl, TextInputSuggestion } from '../../../../../../../lib/Components/TextInput'
+import { useTracker } from '../../../../../../../lib/ReactMeteorData/ReactMeteorData.js'
+import { AdLibActions, RundownBaselineAdLibActions } from '../../../../../../../collections/index.js'
+import { ToggleSwitchControl } from '../../../../../../../lib/Components/ToggleSwitch.js'
+import { TextInputControl, TextInputSuggestion } from '../../../../../../../lib/Components/TextInput.js'
 
 export function AdLibActionEditor({
 	action,

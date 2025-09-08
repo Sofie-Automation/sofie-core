@@ -8,79 +8,39 @@ import {
 } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { assertNever, literal } from '@sofie-automation/shared-lib/dist/lib/lib'
-import { SelectedPartInstances } from '../collections/partInstancesHandler'
-import { ShowStyleBaseExt } from '../collections/showStyleBaseHandler'
-import { WebSocketTopicBase, WebSocketTopic } from '../wsHandler'
-import { CurrentSegmentTiming, calculateCurrentSegmentTiming } from './helpers/segmentTiming'
+import { SelectedPartInstances } from '../collections/partInstancesHandler.js'
+import { ShowStyleBaseExt } from '../collections/showStyleBaseHandler.js'
+import { WebSocketTopicBase, WebSocketTopic } from '../wsHandler.js'
+import { calculateCurrentSegmentTiming } from './helpers/segmentTiming.js'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import _ = require('underscore')
-import { PartTiming, calculateCurrentPartTiming } from './helpers/partTiming'
-import { CurrentSegmentPart, getCurrentSegmentParts } from './helpers/segmentParts'
-import { SelectedPieceInstances, PieceInstanceMin } from '../collections/pieceInstancesHandler'
-import { PieceStatus, toPieceStatus } from './helpers/pieceStatus'
+import _ from 'underscore'
+import { calculateCurrentPartTiming } from './helpers/partTiming.js'
+import { getCurrentSegmentParts } from './helpers/segmentParts.js'
+import { SelectedPieceInstances, PieceInstanceMin } from '../collections/pieceInstancesHandler.js'
+import { toPieceStatus } from './helpers/pieceStatus.js'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { PlaylistTimingType } from '@sofie-automation/blueprints-integration'
 import { normalizeArray } from '@sofie-automation/corelib/dist/lib'
-import { CollectionHandlers } from '../liveStatusServer'
+import {
+	PartStatus,
+	CurrentPartStatus,
+	CurrentSegment,
+	ActivePlaylistEvent,
+	ActivePlaylistTimingMode,
+	ActivePlaylistQuickLoop,
+	QuickLoopMarker as QuickLoopMarkerStatus,
+	QuickLoopMarkerType as QuickLoopMarkerStatusType,
+} from '@sofie-automation/live-status-gateway-api'
+
+import { CollectionHandlers } from '../liveStatusServer.js'
 import areElementsShallowEqual from '@sofie-automation/shared-lib/dist/lib/isShallowEqual'
 import { PickKeys } from '@sofie-automation/shared-lib/dist/lib/types'
 
 const THROTTLE_PERIOD_MS = 100
 
-interface PartStatus {
-	id: string
-	segmentId: string
-	name: string
-	autoNext: boolean | undefined
-	pieces: PieceStatus[]
-	publicData: unknown
-}
-
-interface CurrentPartStatus extends PartStatus {
-	timing: PartTiming
-}
-
-interface CurrentSegmentStatus {
-	id: string
-	timing: CurrentSegmentTiming
-	parts: CurrentSegmentPart[]
-}
-
-interface ActivePlaylistQuickLoopMarker {
-	type: 'playlist' | 'rundown' | 'segment' | 'part'
-	rundownId: string | undefined
-	segmentId: string | undefined
-	partId: string | undefined
-}
-
-interface ActivePlaylistQuickLoopStatus {
-	locked: boolean
-	running: boolean
-	start: ActivePlaylistQuickLoopMarker | undefined
-	end: ActivePlaylistQuickLoopMarker | undefined
-}
-
-export interface ActivePlaylistStatus {
-	event: string
-	id: string | null
-	name: string
-	rundownIds: string[]
-	currentPart: CurrentPartStatus | null
-	currentSegment: CurrentSegmentStatus | null
-	nextPart: PartStatus | null
-	quickLoop: ActivePlaylistQuickLoopStatus | undefined
-	publicData: unknown
-	timing: {
-		timingMode: PlaylistTimingType
-		startedPlayback?: number
-		expectedStart?: number
-		expectedDurationMs?: number
-		expectedEnd?: number
-	}
-}
-
 const PLAYLIST_KEYS = [
 	'_id',
+	'externalId',
 	'activationId',
 	'name',
 	'rundownIdsInOrder',
@@ -141,9 +101,10 @@ export class ActivePlaylistTopic extends WebSocketTopicBase implements WebSocket
 			(currentPart && this._partsBySegmentId[unprotectString(currentPart.segmentId)]) ?? []
 
 		const message = this._activePlaylist
-			? literal<ActivePlaylistStatus>({
+			? literal<ActivePlaylistEvent>({
 					event: 'activePlaylist',
 					id: unprotectString(this._activePlaylist._id),
+					externalId: this._activePlaylist.externalId,
 					name: this._activePlaylist.name,
 					rundownIds: this._activePlaylist.rundownIdsInOrder.map((r) => unprotectString(r)),
 					currentPart:
@@ -162,11 +123,11 @@ export class ActivePlaylistTopic extends WebSocketTopicBase implements WebSocket
 											toPieceStatus(piece, this._showStyleBaseExt)
 										) ?? [],
 									publicData: currentPart.publicData,
-							  })
+								})
 							: null,
 					currentSegment:
 						this._currentPartInstance && currentPart && this._currentSegment
-							? literal<CurrentSegmentStatus>({
+							? literal<CurrentSegment>({
 									id: unprotectString(currentPart.segmentId),
 									timing: calculateCurrentSegmentTiming(
 										this._currentSegment.segmentTiming,
@@ -179,7 +140,7 @@ export class ActivePlaylistTopic extends WebSocketTopicBase implements WebSocket
 										this._partInstancesInCurrentSegment,
 										currentSegmentParts
 									),
-							  })
+								})
 							: null,
 					nextPart: nextPart
 						? literal<PartStatus>({
@@ -192,12 +153,12 @@ export class ActivePlaylistTopic extends WebSocketTopicBase implements WebSocket
 										toPieceStatus(piece, this._showStyleBaseExt)
 									) ?? [],
 								publicData: nextPart.publicData,
-						  })
+							})
 						: null,
 					quickLoop: this.transformQuickLoopStatus(),
 					publicData: this._activePlaylist.publicData,
 					timing: {
-						timingMode: this._activePlaylist.timing.type,
+						timingMode: translatePlaylistTimingType(this._activePlaylist.timing.type),
 						startedPlayback: this._activePlaylist.startedPlayback,
 						expectedDurationMs: this._activePlaylist.timing.expectedDuration,
 						expectedStart:
@@ -209,10 +170,11 @@ export class ActivePlaylistTopic extends WebSocketTopicBase implements WebSocket
 								? this._activePlaylist.timing.expectedEnd
 								: undefined,
 					},
-			  })
-			: literal<ActivePlaylistStatus>({
+				})
+			: literal<ActivePlaylistEvent>({
 					event: 'activePlaylist',
 					id: null,
+					externalId: null,
 					name: '',
 					rundownIds: [],
 					currentPart: null,
@@ -221,14 +183,14 @@ export class ActivePlaylistTopic extends WebSocketTopicBase implements WebSocket
 					quickLoop: undefined,
 					publicData: undefined,
 					timing: {
-						timingMode: PlaylistTimingType.None,
+						timingMode: ActivePlaylistTimingMode.NONE,
 					},
-			  })
+				})
 
 		this.sendMessage(subscribers, message)
 	}
 
-	private transformQuickLoopStatus(): ActivePlaylistQuickLoopStatus | undefined {
+	private transformQuickLoopStatus(): ActivePlaylistQuickLoop | undefined {
 		if (!this._activePlaylist) return
 
 		const quickLoopProps = this._activePlaylist.quickLoop
@@ -242,22 +204,20 @@ export class ActivePlaylistTopic extends WebSocketTopicBase implements WebSocket
 		}
 	}
 
-	private transformQuickLoopMarkerStatus(
-		marker: QuickLoopMarker | undefined
-	): ActivePlaylistQuickLoopMarker | undefined {
+	private transformQuickLoopMarkerStatus(marker: QuickLoopMarker | undefined): QuickLoopMarkerStatus | undefined {
 		if (!marker) return undefined
 
 		switch (marker.type) {
 			case QuickLoopMarkerType.PLAYLIST:
 				return {
-					type: 'playlist',
+					markerType: QuickLoopMarkerStatusType.PLAYLIST,
 					rundownId: undefined,
 					segmentId: undefined,
 					partId: undefined,
 				}
 			case QuickLoopMarkerType.RUNDOWN:
 				return {
-					type: 'rundown',
+					markerType: QuickLoopMarkerStatusType.RUNDOWN,
 					rundownId: unprotectString(marker.id),
 					segmentId: undefined,
 					partId: undefined,
@@ -266,7 +226,7 @@ export class ActivePlaylistTopic extends WebSocketTopicBase implements WebSocket
 				const segment = this._segmentsById[unprotectString(marker.id)]
 
 				return {
-					type: 'segment',
+					markerType: QuickLoopMarkerStatusType.SEGMENT,
 					rundownId: unprotectString(segment?.rundownId),
 					segmentId: unprotectString(marker.id),
 					partId: undefined,
@@ -276,7 +236,7 @@ export class ActivePlaylistTopic extends WebSocketTopicBase implements WebSocket
 				const part = this._partsById[unprotectString(marker.id)]
 
 				return {
-					type: 'part',
+					markerType: QuickLoopMarkerStatusType.PART,
 					rundownId: unprotectString(part?.rundownId),
 					segmentId: unprotectString(part?.segmentId),
 					partId: unprotectString(marker.id),
@@ -364,5 +324,20 @@ export class ActivePlaylistTopic extends WebSocketTopicBase implements WebSocket
 		this.logUpdateReceived('segments')
 		this._segmentsById = segments ? normalizeArray(segments, '_id') : {}
 		this.throttledSendStatusToAll() // TODO: can this be smarter?
+	}
+}
+
+function translatePlaylistTimingType(type: PlaylistTimingType): ActivePlaylistTimingMode {
+	switch (type) {
+		case PlaylistTimingType.None:
+			return ActivePlaylistTimingMode.NONE
+		case PlaylistTimingType.BackTime:
+			return ActivePlaylistTimingMode.BACK_MINUS_TIME
+		case PlaylistTimingType.ForwardTime:
+			return ActivePlaylistTimingMode.FORWARD_MINUS_TIME
+		default:
+			assertNever(type)
+			// Cast and return the value anyway, so that the application works
+			return type as any as ActivePlaylistTimingMode
 	}
 }

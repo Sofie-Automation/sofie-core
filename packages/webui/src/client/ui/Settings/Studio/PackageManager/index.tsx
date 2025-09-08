@@ -1,9 +1,9 @@
 import * as React from 'react'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { useTranslation } from 'react-i18next'
-import { getAllCurrentAndDeletedItemsFromOverrides } from '../../util/OverrideOpHelper'
-import { PackageContainersPickers } from './PackageContainerPickers'
-import { PackageContainersTable } from './PackageContainers'
+import { getAllCurrentAndDeletedItemsFromOverrides } from '../../util/OverrideOpHelper.js'
+import { PackageContainersPickers } from './PackageContainerPickers.js'
+import { PackageContainersTable } from './PackageContainers.js'
 
 interface StudioPackageManagerSettingsProps {
 	studio: DBStudio

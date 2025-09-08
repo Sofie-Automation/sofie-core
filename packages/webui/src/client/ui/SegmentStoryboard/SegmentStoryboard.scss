@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 @import '../../styles/colorScheme';
 @import '../../styles/utils';
 @import '../../styles/variables';
@@ -17,7 +19,9 @@ $break-width: 35rem;
 
 		cursor: ew-resize;
 		cursor: url(/images/cursor_zoom_area_move.png), ew-resize;
-		cursor: url(/images/cursor_zoom_area_move.png) 15 8, ew-resize;
+		cursor:
+			url(/images/cursor_zoom_area_move.png) 15 8,
+			ew-resize;
 
 		grid-column: timeline / end;
 		grid-row: header / end;
@@ -122,11 +126,15 @@ $break-width: 35rem;
 		> .segment-timeline__zoom-area {
 			margin-left: 0;
 
-			transition: 1s opacity, 0s visibility;
+			transition:
+				1s opacity,
+				0s visibility;
 
 			&.hidden {
 				opacity: 0;
-				transition: 1s opacity, 0s visibility 1s;
+				transition:
+					1s opacity,
+					0s visibility 1s;
 				visibility: hidden;
 			}
 		}
@@ -542,7 +550,9 @@ $break-width: 35rem;
 		margin-left: 10px;
 		visibility: visible;
 		opacity: 1;
-		transition: visibility 0s, opacity 0.2s;
+		transition:
+			visibility 0s,
+			opacity 0.2s;
 
 		> .segment-storyboard__part__segment-end__label,
 		> .segment-storyboard__part__show-end__label {
@@ -596,7 +606,8 @@ $break-width: 35rem;
 		right: 1px;
 		z-index: 1;
 		pointer-events: all;
-		background-image: repeating-linear-gradient(
+		background-image:
+			repeating-linear-gradient(
 				45deg,
 				var(--invalid-reason-color-transparent) 0%,
 				var(--invalid-reason-color-transparent) 5px,
@@ -624,8 +635,8 @@ $break-width: 35rem;
 			-45deg,
 			transparent 0%,
 			transparent 8px,
-			darken($part-start-color, 50%) 8px,
-			darken($part-start-color, 50%) 10px
+			color.scale($part-start-color, $lightness: -50%) 8px,
+			color.scale($part-start-color, $lightness: -50%) 10px
 		);
 		backdrop-filter: saturate(0%) brightness(50%);
 	}
@@ -671,7 +682,9 @@ $break-width: 35rem;
 
 		> .segment-storyboard__part__segment-end,
 		> .segment-storyboard__part__show-end {
-			transition: visibility 0s, opacity 0s;
+			transition:
+				visibility 0s,
+				opacity 0s;
 			visibility: hidden;
 			opacity: 0;
 		}

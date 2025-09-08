@@ -1,9 +1,9 @@
 import * as React from 'react'
-import { getElementWidth } from '../../../utils/dimensions'
+import { getElementWidth } from '../../../utils/dimensions.js'
 
 import classNames from 'classnames'
-import { PieceMultistepChevron, getPieceSteps } from '../../SegmentContainer/PieceMultistepChevron'
-import { CustomLayerItemRenderer, ICustomLayerItemProps } from './CustomLayerItemRenderer'
+import { PieceMultistepChevron, getPieceSteps } from '../../SegmentContainer/PieceMultistepChevron.js'
+import { CustomLayerItemRenderer, ICustomLayerItemProps } from './CustomLayerItemRenderer.js'
 
 type IProps = ICustomLayerItemProps
 interface IState {

@@ -1,20 +1,20 @@
 import React, { useState, useRef, useEffect, useContext } from 'react'
 import { useTranslation } from 'react-i18next'
 import ClassNames from 'classnames'
-import { RundownUtils } from '../../../lib/rundown'
-import { ILayerItemRendererProps } from './ItemRendererFactory'
+import { RundownUtils } from '../../../lib/rundown.js'
+import { ILayerItemRendererProps } from './ItemRendererFactory.js'
 import { NoraContent, PieceLifespan } from '@sofie-automation/blueprints-integration'
-import { getElementDocumentOffset, OffsetPosition } from '../../../utils/positions'
-import { getElementWidth } from '../../../utils/dimensions'
-import { StyledTimecode } from '../../../lib/StyledTimecode'
-import { assertNever } from '../../../lib/tempLib'
-import { AdLibPieceUi } from '../../../lib/shelf'
-import { ActionAdLibHotkeyPreview } from '../../../lib/triggers/ActionAdLibHotkeyPreview'
+import { getElementDocumentOffset, OffsetPosition } from '../../../utils/positions.js'
+import { getElementWidth } from '../../../utils/dimensions.js'
+import { StyledTimecode } from '../../../lib/StyledTimecode.js'
+import { assertNever } from '../../../lib/tempLib.js'
+import { AdLibPieceUi } from '../../../lib/shelf.js'
+import { ActionAdLibHotkeyPreview } from '../../../lib/triggers/ActionAdLibHotkeyPreview.js'
 import {
 	PreviewPopUpContext,
 	IPreviewPopUpSession,
 	convertSourceLayerItemToPreview,
-} from '../../PreviewPopUp/PreviewPopUpContext'
+} from '../../PreviewPopUp/PreviewPopUpContext.js'
 
 export const L3rdListItemRenderer: React.FunctionComponent<ILayerItemRendererProps> = (
 	props: ILayerItemRendererProps
@@ -135,12 +135,12 @@ export const L3rdListItemRenderer: React.FunctionComponent<ILayerItemRendererPro
 			? 'rundownBaselineAdLibAction'
 			: 'adLibAction'
 		: props.adLibListItem.isClearSourceLayer
-		? 'clearSourceLayer'
-		: props.adLibListItem.isSticky
-		? 'sticky'
-		: props.adLibListItem.isGlobal
-		? 'rundownBaselineAdLibItem'
-		: 'adLibPiece'
+			? 'clearSourceLayer'
+			: props.adLibListItem.isSticky
+				? 'sticky'
+				: props.adLibListItem.isGlobal
+					? 'rundownBaselineAdLibItem'
+					: 'adLibPiece'
 
 	return (
 		<>

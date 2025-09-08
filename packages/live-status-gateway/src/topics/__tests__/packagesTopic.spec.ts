@@ -1,9 +1,10 @@
 import { protectString, unprotectString } from '@sofie-automation/server-core-integration'
-import { makeMockHandlers, makeMockLogger, makeMockSubscriber } from './utils'
-import { PackageStatus, PackagesTopic } from '../packagesTopic'
+import { makeMockHandlers, makeMockLogger, makeMockSubscriber } from './utils.js'
+import { PackagesTopic } from '../packagesTopic.js'
 import { UIPieceContentStatus } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
 import { PieceStatusCode } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { PackagesEvent, PackageStatus } from '@sofie-automation/live-status-gateway-api'
 
 function makeTestUIPieceContentStatuses(): UIPieceContentStatus[] {
 	return [
@@ -55,14 +56,14 @@ describe('PackagesTopic', () => {
 
 		topic.addSubscriber(mockSubscriber)
 
-		const expectedStatus = {
+		const expectedStatus: PackagesEvent = {
 			event: 'packages',
 			rundownPlaylistId: unprotectString(playlist._id),
 			packages: [
 				{
 					packageName: 'Test Package',
 					status: PackageStatus.OK,
-					pieceId: 'PIECE_0',
+					pieceOrAdLibId: 'PIECE_0',
 					rundownId: 'RUNDOWN_0',
 					partId: 'PART_0',
 					segmentId: 'SEGMENT_0',

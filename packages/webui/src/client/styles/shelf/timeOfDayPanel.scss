@@ -1,17 +1,17 @@
 .time-of-day-panel {
-    position: absolute;
-    isolation: isolate;
+	position: absolute;
+	isolation: isolate;
 
-    &.timing {
-        .timing-clock {
-            .time-now {
-                transform: unset !important;
-                font-size: 1em !important;
-            }
-        }
-    }
+	&.timing {
+		.timing-clock {
+			.time-now {
+				transform: unset !important;
+				font-size: 1em !important;
+			}
+		}
+	}
 
-    time {
-        font-size: 1em;
-    }
+	time {
+		font-size: 1em;
+	}
 }

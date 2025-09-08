@@ -1,13 +1,13 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons'
 import { useTranslation } from 'react-i18next'
-import { unprotectString } from '../../../lib/tempLib'
-import { EditAttribute } from '../../../lib/EditAttribute'
+import { unprotectString } from '../../../lib/tempLib.js'
+import { EditAttribute } from '../../../lib/EditAttribute.js'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { Link } from 'react-router-dom'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { ShowStyleBases } from '../../../collections'
-import { LabelActual } from '../../../lib/Components/LabelAndOverrides'
+import { ShowStyleBases } from '../../../collections/index.js'
+import { LabelActual } from '../../../lib/Components/LabelAndOverrides.js'
 
 interface IShowStyleGenericPropertiesProps {
 	showStyleBase: DBShowStyleBase
@@ -49,7 +49,7 @@ export function ShowStyleGenericProperties({
 										{i.name}
 									</Link>
 								</span>
-						  ))
+							))
 						: t('This Show Style is not compatible with any Studio')}
 				</div>
 			</div>

@@ -25,7 +25,7 @@
 		}
 
 		.sofie-logo {
-			background: url('/images/sofie-logo.svg') center center no-repeat;
+			background: var(--sofie-logo-url) center center no-repeat;
 			background-size: contain;
 			width: 2em;
 			height: 2em;

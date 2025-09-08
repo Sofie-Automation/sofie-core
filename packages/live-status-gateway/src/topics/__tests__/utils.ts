@@ -1,13 +1,12 @@
 import { PlaylistTimingType } from '@sofie-automation/blueprints-integration/dist/documents/playlistTiming'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
-// eslint-disable-next-line node/no-extraneous-import
 import { mock, MockProxy } from 'jest-mock-extended'
-import { ShowStyleBaseExt } from '../../collections/showStyleBaseHandler'
+import { ShowStyleBaseExt } from '../../collections/showStyleBaseHandler.js'
 import { Logger } from 'winston'
 import { WebSocket } from 'ws'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { CollectionHandlers } from '../../liveStatusServer'
+import { CollectionHandlers } from '../../liveStatusServer.js'
 
 const RUNDOWN_1_ID = 'RUNDOWN_1'
 const RUNDOWN_2_ID = 'RUNDOWN_2'

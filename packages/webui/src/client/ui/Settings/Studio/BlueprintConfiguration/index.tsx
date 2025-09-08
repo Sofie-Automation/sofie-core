@@ -1,20 +1,20 @@
 import { useCallback, useMemo } from 'react'
-import { useSubscription, useTracker } from '../../../../lib/ReactMeteorData/react-meteor-data'
+import { useSubscription, useTracker } from '../../../../lib/ReactMeteorData/react-meteor-data.js'
 import { BlueprintManifestType } from '@sofie-automation/blueprints-integration'
-import { BlueprintConfigSchemaSettings } from '../../BlueprintConfigSchema'
+import { BlueprintConfigSchemaSettings } from '../../BlueprintConfigSchema/index.js'
 import {
 	applyAndValidateOverrides,
 	SomeObjectOverrideOp,
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import { Blueprints, Studios } from '../../../../collections'
+import { Blueprints, Studios } from '../../../../collections/index.js'
 import { JSONBlobParse } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 import { useTranslation } from 'react-i18next'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { SelectConfigPreset } from './SelectConfigPreset'
-import { SelectBlueprint } from './SelectBlueprint'
+import { SelectConfigPreset } from './SelectConfigPreset.js'
+import { SelectBlueprint } from './SelectBlueprint.js'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { UIBlueprintUpgradeStatuses } from '../../../Collections'
-import { getUpgradeStatusMessage, UpgradeStatusButtons } from '../../Upgrades/Components'
+import { UIBlueprintUpgradeStatuses } from '../../../Collections.js'
+import { getUpgradeStatusMessage, UpgradeStatusButtons } from '../../Upgrades/Components.js'
 import { UIBlueprintUpgradeStatusStudio } from '@sofie-automation/meteor-lib/dist/api/upgradeStatus'
 
 interface StudioBlueprintConfigurationSettingsProps {
@@ -35,14 +35,14 @@ export function StudioBlueprintConfigurationSettings(
 			}) as UIBlueprintUpgradeStatusStudio | undefined,
 		[props.studio._id]
 	)
-	const statusMessage = isStatusReady && status ? getUpgradeStatusMessage(t, status) ?? t('OK') : t('Loading...')
+	const statusMessage = isStatusReady && status ? (getUpgradeStatusMessage(t, status) ?? t('OK')) : t('Loading...')
 
 	const blueprint = useTracker(() => {
 		return props.studio.blueprintId
 			? Blueprints.findOne({
 					_id: props.studio.blueprintId,
 					blueprintType: BlueprintManifestType.STUDIO,
-			  })
+				})
 			: undefined
 	}, [props.studio.blueprintId])
 	const configSchema = useMemo(

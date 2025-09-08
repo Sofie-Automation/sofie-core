@@ -1,17 +1,18 @@
 import * as React from 'react'
 import * as CoreIcon from '@nrk/core-icons/jsx'
 import ClassNames from 'classnames'
-// @ts-expect-error No types available
-import * as VelocityReact from 'velocity-react'
-import { translateWithTracker, Translated, useTracker } from '../ReactMeteorData/ReactMeteorData'
-import { NotificationCenter, Notification, NoticeLevel, NotificationAction } from './notifications'
+import { motion, AnimatePresence, HTMLMotionProps } from 'motion/react'
+import { translateWithTracker, Translated, useTracker } from '../ReactMeteorData/ReactMeteorData.js'
+import { NotificationCenter, Notification, NoticeLevel, NotificationAction } from './notifications.js'
 import { ContextMenuTrigger, ContextMenu, MenuItem } from '@jstarpl/react-contextmenu'
 import { translateMessage, isTranslatableMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
-import { CriticalIcon, WarningIcon, CollapseChevrons, InformationIcon } from '../ui/icons/notifications'
+import { CriticalIcon, WarningIcon, CollapseChevrons, InformationIcon } from '../ui/icons/notifications.js'
 import update from 'immutability-helper'
-import { i18nTranslator } from '../../ui/i18n'
+import { i18nTranslator } from '../../ui/i18n.js'
 import { RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { useTranslation } from 'react-i18next'
+import { PopUpPanel } from '../../ui/RundownView/PopUpPanel.js'
+import classNames from 'classnames'
 
 interface IPopUpProps {
 	id?: string
@@ -49,7 +50,7 @@ class NotificationPopUp extends React.Component<IPopUpProps> {
 		const message = isTranslatableMessage(item.message) ? translateMessage(item.message, i18nTranslator) : item.message
 
 		return (
-			<div
+			<NotificationCenterElement
 				id={this.props.id}
 				className={ClassNames(
 					'notification-pop-up',
@@ -136,7 +137,7 @@ class NotificationPopUp extends React.Component<IPopUpProps> {
 						</button>
 					</ContextMenuTrigger>
 				)}
-			</div>
+			</NotificationCenterElement>
 		)
 	}
 }
@@ -145,6 +146,8 @@ class NotificationPopUp extends React.Component<IPopUpProps> {
  * NotificationCenterPopUps props.
  */
 interface IProps {
+	/** Should the elements animate on initial show */
+	initialAnimation?: boolean
 	/** Should the list show a 'List empty' label, if the notification list is empty? Defaults to false */
 	showEmptyListLabel?: boolean
 	/** Should snoozed notifications be shown? Defaults to false */
@@ -156,7 +159,7 @@ interface IProps {
 }
 
 interface IState {
-	displayList: boolean
+	isVisible: boolean
 	dismissing: string[]
 	dismissingTransform: string[]
 }
@@ -187,7 +190,7 @@ export const NotificationCenterPopUps = translateWithTracker<IProps, IState, ITr
 			super(props)
 
 			this.state = {
-				displayList: props.notifications.length > 0,
+				isVisible: props.notifications.length > 0,
 				dismissing: [],
 				dismissingTransform: [],
 			}
@@ -323,9 +326,9 @@ export const NotificationCenterPopUps = translateWithTracker<IProps, IState, ITr
 				}
 			}
 
-			if (this.props.notifications.length > 0 && this.state.displayList !== true) {
+			if (this.props.notifications.length > 0 && this.state.isVisible !== true) {
 				this.setState({
-					displayList: true,
+					isVisible: true,
 				})
 			}
 		}
@@ -365,7 +368,7 @@ export const NotificationCenterPopUps = translateWithTracker<IProps, IState, ITr
 			const notifications = this.getNotificationsToDisplay()
 			if (notifications.length === 0) {
 				this.setState({
-					displayList: false,
+					isVisible: false,
 				})
 			}
 		}
@@ -412,36 +415,20 @@ export const NotificationCenterPopUps = translateWithTracker<IProps, IState, ITr
 				)
 			})
 
-			return this.state.displayList ? (
+			return this.state.isVisible ? (
 				<div
 					className={ClassNames('notification-pop-ups', {
 						'notification-pop-ups--empty': displayList.length === 0,
 					})}
 				>
-					<VelocityReact.VelocityTransitionGroup
-						enter={{
-							animation: {
-								translateX: ['0%', '150%'],
-								translateZ: 0,
-								opacity: [1, 0],
-							},
-							easing: 'ease-out',
-							duration: 300,
-							display: 'flex',
-						}}
-						leave={{
-							animation: 'fadeOut',
-							easing: 'ease-in',
-							duration: this.LEAVE_ANIMATION_DURATION,
-							display: 'flex',
-							complete: () => this.checkKeepDisplaying(),
-						}}
-					>
+					<AnimatePresence initial={this.props.initialAnimation ?? true} onExitComplete={this.checkKeepDisplaying}>
 						{displayList}
 						{this.props.showEmptyListLabel && displayList.length === 0 && (
-							<div className="notification-pop-ups__empty-list">{t('No notifications')}</div>
+							<NotificationCenterElement className="notification-pop-ups__empty-list">
+								{t('No notifications')}
+							</NotificationCenterElement>
 						)}
-					</VelocityReact.VelocityTransitionGroup>
+					</AnimatePresence>
 
 					<ContextMenu id="context-menu-dissmiss-all">
 						<MenuItem onClick={() => this.dismissAll()}>{t('Dismiss all notifications')}</MenuItem>
@@ -452,19 +439,55 @@ export const NotificationCenterPopUps = translateWithTracker<IProps, IState, ITr
 	}
 )
 
+function NotificationCenterElement(props: HTMLMotionProps<'div'>) {
+	return (
+		<motion.div
+			{...props}
+			initial={{
+				translateX: '150%',
+				translateZ: 0,
+				opacity: 0,
+			}}
+			animate={{
+				translateX: '0%',
+				opacity: 1,
+				transition: { ease: 'easeOut', duration: 0.3 },
+			}}
+			exit={{
+				opacity: 0,
+				transition: { ease: 'easeIn', duration: 0.15 },
+			}}
+			style={{
+				display: 'flex',
+			}}
+		>
+			{props.children}
+		</motion.div>
+	)
+}
+
 /**
  * Presentational component that displays a panel containing the NotificationCenterPopUps list containing
  * the snoozed items and an 'Empty' label if no notifications are present.
  */
-export const NotificationCenterPanel = (props: { limitCount?: number; filter?: NoticeLevel }): JSX.Element => (
-	<div className="notification-center-panel">
+export const NotificationCenterPanel = (props: {
+	limitCount?: number
+	filter?: NoticeLevel
+	hideRundownHeader?: boolean
+}): JSX.Element => (
+	<PopUpPanel
+		className={classNames('notification-center-panel', {
+			'notification-center-panel--no-rundown-header': props.hideRundownHeader,
+		})}
+	>
 		<NotificationCenterPopUps
+			initialAnimation={false}
 			showEmptyListLabel={true}
 			showSnoozed={true}
 			limitCount={props.limitCount}
 			filter={props.filter}
 		/>
-	</div>
+	</PopUpPanel>
 )
 
 /**
@@ -511,24 +534,49 @@ export function NotificationCenterPanelToggle({
 			tabIndex={0}
 			aria-label={title}
 		>
-			<VelocityReact.VelocityTransitionGroup
-				enter={{
-					animation: {
-						translateX: [0, '-3em'],
-						opacity: [1, 0],
-					},
-					duration: 500,
-				}}
-				leave={{
-					animation: {
-						translateX: ['3em', 0],
-						opacity: [0, 1],
-					},
-					duration: 500,
-				}}
-			>
-				{!isOpen ? (
-					<div className="notifications__toggle-button__icon notifications__toggle-button__icon--default">
+			<AnimatePresence initial={false}>
+				{isOpen ? (
+					<motion.div
+						key="collapse"
+						className="notifications__toggle-button__icon notifications__toggle-button__icon--collapse"
+						initial={{
+							translateX: '3em',
+							opacity: 0,
+						}}
+						animate={{
+							translateX: 0,
+							opacity: 1,
+						}}
+						exit={{
+							translateX: '3em',
+							opacity: 0,
+						}}
+						transition={{
+							duration: 0.5,
+						}}
+					>
+						<CollapseChevrons />
+					</motion.div>
+				) : (
+					<motion.div
+						key="default"
+						className="notifications__toggle-button__icon notifications__toggle-button__icon--default"
+						initial={{
+							translateX: '-3em',
+							opacity: 0,
+						}}
+						animate={{
+							translateX: 0,
+							opacity: 1,
+						}}
+						exit={{
+							translateX: '-3em',
+							opacity: 0,
+						}}
+						transition={{
+							duration: 0.5,
+						}}
+					>
 						{((filter || 0) & NoticeLevel.CRITICAL) !== 0 ? (
 							<CriticalIcon />
 						) : ((filter || 0) & NoticeLevel.CRITICAL) !== 0 ? (
@@ -543,14 +591,9 @@ export function NotificationCenterPanelToggle({
 								{count > 99 ? '99+' : count}
 							</span>
 						)}
-					</div>
-				) : undefined}
-				{isOpen ? (
-					<div className="notifications__toggle-button__icon notifications__toggle-button__icon--collapse">
-						<CollapseChevrons />
-					</div>
-				) : undefined}
-			</VelocityReact.VelocityTransitionGroup>
+					</motion.div>
+				)}
+			</AnimatePresence>
 		</button>
 	)
 }

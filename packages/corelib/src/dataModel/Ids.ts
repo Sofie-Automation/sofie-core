@@ -1,4 +1,4 @@
-import { ProtectedString } from '../protectedString'
+import { ProtectedString } from '../protectedString.js'
 
 /** A string, identifying an activation of a playlist */
 export type ActiveInstanceId = ProtectedString<'ActiveInstanceId'>
@@ -15,19 +15,14 @@ export type AdLibActionId = ProtectedString<'AdLibActionId'>
 export type BlueprintId = ProtectedString<'BlueprintId'>
 
 export type BucketId = ProtectedString<'BucketId'>
-export type BucketAdLibId = PieceId
-export type BucketAdLibActionId = AdLibActionId
+export type BucketAdLibId = ProtectedString<'BucketAdLibId'>
+export type BucketAdLibActionId = ProtectedString<'BucketAdLibActionId'>
 
 /** A string, identifying a CoreSystem */
 export type CoreSystemId = ProtectedString<'CoreSystemId'>
 
 /** A string, identifying a Evaluation */
 export type EvaluationId = ProtectedString<'EvaluationId'>
-
-/** A string, identifying a ExpectedMediaItem
- * @deprecated
- */
-export type ExpectedMediaItemId = ProtectedString<'ExpectedMediaItemId'>
 
 /** A string, identifying a Rundown */
 export type ExpectedPlayoutItemId = ProtectedString<'ExpectedPlayoutItemId'>

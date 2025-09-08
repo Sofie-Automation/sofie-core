@@ -1,5 +1,5 @@
 import React, { Fragment, useState } from 'react'
-import { useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data'
+import { useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
 import { Mongo } from 'meteor/mongo'
 import {} from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router-dom'
 import { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DeviceTriggerMountedAction, PreviewWrappedAdLib } from '@sofie-automation/meteor-lib/dist/api/MountedTriggers'
-import { PeripheralDevices } from '../../collections'
+import { PeripheralDevices } from '../../collections/index.js'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import {
 	PeripheralDevicePubSub,

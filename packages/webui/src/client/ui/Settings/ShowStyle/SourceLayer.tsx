@@ -7,29 +7,29 @@ import { assertNever, literal, getRandomString } from '@sofie-automation/corelib
 import Tooltip from 'rc-tooltip'
 import { TFunction, useTranslation } from 'react-i18next'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { getHelpMode } from '../../../lib/localStorage'
-import { doModalDialog } from '../../../lib/ModalDialog'
-import { findHighestRank } from '../StudioSettings'
-import { useToggleExpandHelper } from '../../util/useToggleExpandHelper'
+import { getHelpMode } from '../../../lib/localStorage.js'
+import { doModalDialog } from '../../../lib/ModalDialog.js'
+import { findHighestRank } from '../StudioSettings.js'
+import { useToggleExpandHelper } from '../../util/useToggleExpandHelper.js'
 import { ObjectOverrideSetOp, SomeObjectOverrideOp } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import {
 	getAllCurrentAndDeletedItemsFromOverrides,
 	OverrideOpHelper,
 	useOverrideOpHelper,
 	WrappedOverridableItemNormal,
-} from '../util/OverrideOpHelper'
-import { TextInputControl } from '../../../lib/Components/TextInput'
-import { CheckboxControl } from '../../../lib/Components/Checkbox'
-import { IntInputControl } from '../../../lib/Components/IntInput'
-import { DropdownInputControl, getDropdownInputOptions } from '../../../lib/Components/DropdownInput'
+} from '../util/OverrideOpHelper.js'
+import { TextInputControl } from '../../../lib/Components/TextInput.js'
+import { CheckboxControl } from '../../../lib/Components/Checkbox.js'
+import { IntInputControl } from '../../../lib/Components/IntInput.js'
+import { DropdownInputControl, getDropdownInputOptions } from '../../../lib/Components/DropdownInput.js'
 import {
 	LabelActual,
 	LabelAndOverrides,
 	LabelAndOverridesForCheckbox,
 	LabelAndOverridesForDropdown,
 	LabelAndOverridesForInt,
-} from '../../../lib/Components/LabelAndOverrides'
-import { ShowStyleBases } from '../../../collections'
+} from '../../../lib/Components/LabelAndOverrides.js'
+import { ShowStyleBases } from '../../../collections/index.js'
 
 function sourceLayerString(t: TFunction<'translation', undefined>, type: SourceLayerType) {
 	switch (type) {

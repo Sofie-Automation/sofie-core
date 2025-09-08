@@ -1,4 +1,4 @@
-import * as _ from 'underscore'
+import _ from 'underscore'
 import {
 	PeripheralDevice,
 	PeripheralDeviceType,
@@ -401,7 +401,15 @@ export async function setupMockStudioBlueprint(
 	const blueprintId: BlueprintId = protectString('mockBlueprint' + dbI++)
 	const blueprintName = 'mockBlueprint'
 
-	return internalUploadBlueprint(blueprintId, code, blueprintName, true, organizationId)
+	return internalUploadBlueprint(
+		blueprintId,
+		code,
+		{
+			blueprintName,
+			ignoreIdChange: true,
+		},
+		organizationId
+	)
 }
 export async function setupMockShowStyleBlueprint(
 	showStyleVariantId: ShowStyleVariantId,
@@ -532,7 +540,15 @@ export async function setupMockShowStyleBlueprint(
 	const blueprintId: BlueprintId = protectString('mockBlueprint' + dbI++)
 	const blueprintName = 'mockBlueprint'
 
-	return internalUploadBlueprint(blueprintId, code, blueprintName, true, organizationId)
+	return internalUploadBlueprint(
+		blueprintId,
+		code,
+		{
+			blueprintName,
+			ignoreIdChange: true,
+		},
+		organizationId
+	)
 }
 export interface DefaultEnvironment {
 	showStyleBaseId: ShowStyleBaseId

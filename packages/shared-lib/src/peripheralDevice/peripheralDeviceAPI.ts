@@ -1,6 +1,6 @@
-import { DeviceConfigManifest } from '../core/deviceConfigManifest'
-import { PeripheralDeviceId, RundownPlaylistId, PartInstanceId, PieceInstanceId } from '../core/model/Ids'
-import { StatusCode } from '../lib/status'
+import { DeviceConfigManifest } from '../core/deviceConfigManifest.js'
+import { PeripheralDeviceId, RundownPlaylistId, PartInstanceId, PieceInstanceId } from '../core/model/Ids.js'
+import { StatusCode } from '../lib/status.js'
 
 export interface PartPlaybackCallbackData {
 	rundownPlaylistId: RundownPlaylistId
@@ -82,7 +82,6 @@ export interface PeripheralDeviceStatusObject {
 export enum PeripheralDeviceCategory {
 	INGEST = 'ingest',
 	PLAYOUT = 'playout',
-	MEDIA_MANAGER = 'media_manager',
 	PACKAGE_MANAGER = 'package_manager',
 	LIVE_STATUS = 'live_status',
 	TRIGGER_INPUT = 'trigger_input',
@@ -94,8 +93,6 @@ export enum PeripheralDeviceType {
 	INEWS = 'inews',
 	// Playout devices:
 	PLAYOUT = 'playout',
-	// Media-manager devices:
-	MEDIA_MANAGER = 'media_manager',
 	// Package_manager devices:
 	PACKAGE_MANAGER = 'package_manager',
 	// API devices:

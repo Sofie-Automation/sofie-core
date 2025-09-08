@@ -8,17 +8,17 @@ import {
 	WrappedOverridableItem,
 	WrappedOverridableItemDeleted,
 	WrappedOverridableItemNormal,
-} from '../../util/OverrideOpHelper'
+} from '../../util/OverrideOpHelper.js'
 import { faCheck, faPencilAlt, faPlus, faSync, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { JSONBlob, JSONBlobParse, JSONSchema } from '@sofie-automation/blueprints-integration'
-import { DropdownInputControl, DropdownInputOption } from '../../../../lib/Components/DropdownInput'
-import { useToggleExpandHelper } from '../../../util/useToggleExpandHelper'
-import { doModalDialog } from '../../../../lib/ModalDialog'
+import { DropdownInputControl, DropdownInputOption } from '../../../../lib/Components/DropdownInput.js'
+import { useToggleExpandHelper } from '../../../util/useToggleExpandHelper.js'
+import { doModalDialog } from '../../../../lib/ModalDialog.js'
 import classNames from 'classnames'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { SchemaFormWithOverrides } from '../../../../lib/forms/SchemaFormWithOverrides'
-import { LabelActual, LabelAndOverrides } from '../../../../lib/Components/LabelAndOverrides'
+import { SchemaFormWithOverrides } from '../../../../lib/forms/SchemaFormWithOverrides.js'
+import { LabelActual, LabelAndOverrides } from '../../../../lib/Components/LabelAndOverrides.js'
 import { getRandomString, literal } from '@sofie-automation/corelib/dist/lib'
 import { StudioDeviceSettings } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import {
@@ -27,12 +27,12 @@ import {
 	ObjectOverrideSetOp,
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import Tooltip from 'rc-tooltip'
-import { PeripheralDevices, Studios } from '../../../../collections'
-import { getHelpMode } from '../../../../lib/localStorage'
-import { useTracker } from '../../../../lib/ReactMeteorData/ReactMeteorData'
-import { TextInputControl } from '../../../../lib/Components/TextInput'
-import { MomentFromNow } from '../../../../lib/Moment'
-import { MeteorCall } from '../../../../lib/meteorApi'
+import { PeripheralDevices, Studios } from '../../../../collections/index.js'
+import { getHelpMode } from '../../../../lib/localStorage.js'
+import { useTracker } from '../../../../lib/ReactMeteorData/ReactMeteorData.js'
+import { TextInputControl } from '../../../../lib/Components/TextInput.js'
+import { MomentFromNow } from '../../../../lib/Moment.js'
+import { MeteorCall } from '../../../../lib/meteorApi.js'
 import { ReadonlyDeep } from 'type-fest'
 import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 
@@ -101,8 +101,8 @@ export function StudioParentDevices({ studioId }: Readonly<StudioParentDevicesPr
 	const hasCurrentDevice = wrappedDeviceSettings.find((d) => d.type === 'normal')
 
 	return (
-		<div>
-			<h2 className="mb-4">
+		<div className="mb-4">
+			<h2 className="mb-2">
 				<Tooltip
 					overlay={t('No gateways are configured')}
 					visible={getHelpMode() && !hasCurrentDevice}
@@ -132,7 +132,7 @@ interface PeripheralDeviceTranslated {
 	_id: PeripheralDeviceId
 	name: string
 	lastSeen: number
-	deviceConfigSchema: JSONBlob<JSONSchema>
+	deviceConfigSchema: JSONBlob<JSONSchema> | undefined
 }
 
 interface ParentDevicesTableProps {
@@ -172,7 +172,7 @@ function GenericParentDevicesTable({
 					_id: device._id,
 					name: device.name || unprotectString(device._id),
 					lastSeen: device.lastSeen,
-					deviceConfigSchema: device.configManifest.deviceConfigSchema,
+					deviceConfigSchema: device.configManifest?.deviceConfigSchema,
 				})
 			)
 		}

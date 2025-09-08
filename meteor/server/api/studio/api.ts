@@ -83,11 +83,11 @@ async function removeStudio(context: MethodContext, studioId: StudioId): Promise
 	if (!studio) throw new Meteor.Error(404, `Studio "${studioId}" not found`)
 
 	// allowed to remove?
-	const rundown = await Rundowns.findOneAsync({ studioId: studio._id }, { fields: { _id: 1 } })
+	const rundown = await Rundowns.findOneAsync({ studioId: studio._id }, { projection: { _id: 1 } })
 	if (rundown)
 		throw new Meteor.Error(404, `Can't remove studio "${studioId}", because the rundown "${rundown._id}" is in it.`)
 
-	const playlist = await RundownPlaylists.findOneAsync({ studioId: studio._id }, { fields: { _id: 1 } })
+	const playlist = await RundownPlaylists.findOneAsync({ studioId: studio._id }, { projection: { _id: 1 } })
 	if (playlist)
 		throw new Meteor.Error(
 			404,
@@ -96,7 +96,7 @@ async function removeStudio(context: MethodContext, studioId: StudioId): Promise
 
 	const peripheralDevice = await PeripheralDevices.findOneAsync(
 		{ 'studioAndConfigId.studioId': studio._id },
-		{ fields: { _id: 1 } }
+		{ projection: { _id: 1 } }
 	)
 	if (peripheralDevice)
 		throw new Meteor.Error(
@@ -190,7 +190,7 @@ Meteor.startup(async () => {
 			removed: triggerUpdateStudioMappingsHash,
 		},
 		{
-			fields: {
+			projection: {
 				mappingsWithOverrides: 1,
 				routeSetsWithOverrides: 1,
 			},

@@ -1,11 +1,11 @@
 import { DBSegment, SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { PlayoutSegmentModelImpl } from '../PlayoutSegmentModelImpl'
+import { PlayoutSegmentModelImpl } from '../PlayoutSegmentModelImpl.js'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { PlayoutRundownModelImpl } from '../PlayoutRundownModelImpl'
+import { PlayoutRundownModelImpl } from '../PlayoutRundownModelImpl.js'
 import { SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ReadonlyDeep } from 'type-fest'
-import { restartRandomId } from '../../../../__mocks__/nanoid'
+import { restartRandomId } from '../../../../__mocks__/nanoid.js'
 import { UserErrorMessage } from '@sofie-automation/corelib/dist/error'
 
 describe('PlayoutRundownModelImpl', () => {

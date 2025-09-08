@@ -16,14 +16,14 @@ import {
 } from '@sofie-automation/blueprints-integration'
 import { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ReadonlyDeep } from 'type-fest'
-import { PlayoutModel } from '../../playout/model/PlayoutModel'
-import { ContextInfo } from './CommonContext'
-import { ShowStyleUserContext } from './ShowStyleUserContext'
-import { WatchedPackagesHelper } from './watchedPackages'
-import { getCurrentTime } from '../../lib'
-import { JobContext, ProcessedShowStyleCompound } from '../../jobs'
-import { executePeripheralDeviceAction, listPlayoutDevices } from '../../peripheralDevice'
-import { ActionPartChange, PartAndPieceInstanceActionService } from './services/PartAndPieceInstanceActionService'
+import { PlayoutModel } from '../../playout/model/PlayoutModel.js'
+import { ContextInfo } from './CommonContext.js'
+import { ShowStyleUserContext } from './ShowStyleUserContext.js'
+import { WatchedPackagesHelper } from './watchedPackages.js'
+import { getCurrentTime } from '../../lib/index.js'
+import { JobContext, ProcessedShowStyleCompound } from '../../jobs/index.js'
+import { executePeripheralDeviceAction, listPlayoutDevices } from '../../peripheralDevice.js'
+import { ActionPartChange, PartAndPieceInstanceActionService } from './services/PartAndPieceInstanceActionService.js'
 import { BlueprintQuickLookInfo } from '@sofie-automation/blueprints-integration/dist/context/quickLoopInfo'
 
 export class OnTakeContext extends ShowStyleUserContext implements IOnTakeContext, IEventContext {
@@ -115,10 +115,10 @@ export class OnTakeContext extends ShowStyleUserContext implements IOnTakeContex
 		return this.partAndPieceInstanceService.updatePartInstance(part, props)
 	}
 
-	async stopPiecesOnLayers(sourceLayerIds: string[], timeOffset?: number | undefined): Promise<string[]> {
+	async stopPiecesOnLayers(sourceLayerIds: string[], timeOffset?: number): Promise<string[]> {
 		return this.partAndPieceInstanceService.stopPiecesOnLayers(sourceLayerIds, timeOffset)
 	}
-	async stopPieceInstances(pieceInstanceIds: string[], timeOffset?: number | undefined): Promise<string[]> {
+	async stopPieceInstances(pieceInstanceIds: string[], timeOffset?: number): Promise<string[]> {
 		return this.partAndPieceInstanceService.stopPieceInstances(pieceInstanceIds, timeOffset)
 	}
 	async removePieceInstances(part: 'current' | 'next', pieceInstanceIds: string[]): Promise<string[]> {

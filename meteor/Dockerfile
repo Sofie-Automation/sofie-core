@@ -60,4 +60,6 @@ COPY --from=1 /opt/bundle /opt/core
 COPY meteor/docker-entrypoint.sh /opt
 
 WORKDIR /opt/core/
-CMD ["/opt/docker-entrypoint.sh"]
+RUN chown -R 1000:1000 /opt/core
+USER 1000
+ENTRYPOINT ["/opt/docker-entrypoint.sh"]

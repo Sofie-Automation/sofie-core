@@ -4,37 +4,37 @@ import { UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/erro
 import { getRandomId } from '@sofie-automation/corelib/dist/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { ExecuteActionProps, ExecuteActionResult } from '@sofie-automation/corelib/dist/worker/studio'
-import { WrappedShowStyleBlueprint } from '../blueprints/cache'
-import { DatastoreActionExecutionContext, ActionExecutionContext } from '../blueprints/context'
-import { WatchedPackagesHelper } from '../blueprints/context/watchedPackages'
-import { JobContext, ProcessedShowStyleCompound } from '../jobs'
-import { getCurrentTime } from '../lib'
+import { WrappedShowStyleBlueprint } from '../blueprints/cache.js'
+import { DatastoreActionExecutionContext, ActionExecutionContext } from '../blueprints/context/index.js'
+import { WatchedPackagesHelper } from '../blueprints/context/watchedPackages.js'
+import { JobContext, ProcessedShowStyleCompound } from '../jobs/index.js'
+import { getCurrentTime } from '../lib/index.js'
 import { ReadonlyDeep } from 'type-fest'
-import { PlayoutModel, PlayoutModelPreInit } from './model/PlayoutModel'
-import { runJobWithPlaylistLock } from './lock'
-import { updateTimeline } from './timeline/generate'
-import { performTakeToNextedPart } from './take'
+import { PlayoutModel, PlayoutModelPreInit } from './model/PlayoutModel.js'
+import { runJobWithPlaylistLock } from './lock.js'
+import { updateTimeline } from './timeline/generate.js'
+import { performTakeToNextedPart } from './take.js'
 import { ActionUserData } from '@sofie-automation/blueprints-integration'
 import { DBRundownPlaylist, SelectedPartInstance } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { logger } from '../logging'
+import { logger } from '../logging.js'
 import {
 	AdLibActionId,
 	BlueprintId,
 	BucketAdLibActionId,
 	RundownBaselineAdLibActionId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { PlayoutRundownModel } from './model/PlayoutRundownModel'
-import { createPlayoutModelfromInitModel, loadPlayoutModelPreInit } from './model/implementation/LoadPlayoutModel'
+import { PlayoutRundownModel } from './model/PlayoutRundownModel.js'
+import { createPlayoutModelfromInitModel, loadPlayoutModelPreInit } from './model/implementation/LoadPlayoutModel.js'
 import {
 	ActionPartChange,
 	PartAndPieceInstanceActionService,
 	applyActionSideEffects,
-} from '../blueprints/context/services/PartAndPieceInstanceActionService'
-import { convertNoteToNotification } from '../notifications/util'
+} from '../blueprints/context/services/PartAndPieceInstanceActionService.js'
+import { convertNoteToNotification } from '../notifications/util.js'
 import type { INoteBase } from '@sofie-automation/corelib/dist/dataModel/Notes'
-import { NotificationsModelHelper } from '../notifications/NotificationsModelHelper'
-import type { INotificationsModel } from '../notifications/NotificationsModel'
-import { PersistentPlayoutStateStore } from '../blueprints/context/services/PersistantStateStore'
+import { NotificationsModelHelper } from '../notifications/NotificationsModelHelper.js'
+import type { INotificationsModel } from '../notifications/NotificationsModel.js'
+import { PersistentPlayoutStateStore } from '../blueprints/context/services/PersistantStateStore.js'
 
 /**
  * Execute an AdLib Action
@@ -347,10 +347,10 @@ function storeNotificationsForCategory(
 						type: 'partInstance',
 						rundownId: partInstanceInfo.rundownId,
 						partInstanceId: partInstanceInfo.partInstanceId,
-				  }
+					}
 				: {
 						type: 'playlist',
-				  },
+					},
 		})
 	}
 }

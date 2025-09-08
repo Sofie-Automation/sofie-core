@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { PieceGeneric } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { SplitsContent, SourceLayerType } from '@sofie-automation/blueprints-integration'
-import { RundownUtils } from '../../../lib/rundown'
+import { RundownUtils } from '../../../lib/rundown.js'
 import classNames from 'classnames'
 import { ReadonlyDeep } from 'type-fest'
 
@@ -21,7 +21,7 @@ export default class SplitInputIcon extends React.Component<{
 				return (
 					<React.Fragment>
 						{label && label[1] ? label[1].substr(0, 1).toUpperCase() + ' ' : ''}
-						<tspan style={{ fontFamily: 'Roboto', fontWeight: 'normal' }}>{label ? label[2] : ''}</tspan>
+						<tspan className="input-number">{label ? label[2] : ''}</tspan>
 					</React.Fragment>
 				)
 			} else {
@@ -60,25 +60,20 @@ export default class SplitInputIcon extends React.Component<{
 				xmlns="http://www.w3.org/2000/svg"
 				preserveAspectRatio="none"
 			>
-				<rect width="126.5" height="44.5" className={classNames('upper', this.getLeftSourceType(this.props.piece))} />
+				<rect
+					width="126.5"
+					height="44.5"
+					className={classNames('piece-icon-bkg', 'upper', this.getLeftSourceType(this.props.piece))}
+				/>
 				<rect
 					width="126.5"
 					height="44.5"
 					y="44.5"
-					className={classNames('lower', this.getRightSourceType(this.props.piece))}
+					className={classNames('piece-icon-bkg', 'lower', this.getRightSourceType(this.props.piece))}
 				/>
 				{!this.props.hideLabel && (
-					<text
-						x="63.25"
-						y="71.513954"
-						textAnchor="middle"
-						textLength="126.5"
-						className="piece-icon-text"
-						xmlSpace="preserve"
-					>
-						<tspan lengthAdjust="spacing" className="label">
-							{this.getCameraLabel(this.props.piece)}
-						</tspan>
+					<text x="63.25" y="71.513954" textAnchor="middle" className="piece-icon-text" xmlSpace="preserve">
+						<tspan className="label">{this.getCameraLabel(this.props.piece)}</tspan>
 					</text>
 				)}
 			</svg>

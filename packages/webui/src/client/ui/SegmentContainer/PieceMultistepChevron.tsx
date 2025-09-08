@@ -1,6 +1,6 @@
 import { NoraContent, SourceLayerType } from '@sofie-automation/blueprints-integration'
 import React from 'react'
-import { PieceExtended } from '../../lib/RundownResolver'
+import { PieceExtended } from '../../lib/RundownResolver.js'
 
 export const PieceMultistepChevron = React.forwardRef<
 	HTMLSpanElement,

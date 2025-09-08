@@ -5,6 +5,8 @@ import { literal } from '@sofie-automation/corelib/dist/lib'
 import { MongoFieldSpecifierOnesStrict } from '@sofie-automation/corelib/dist/mongo'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { PromiseDebounce } from '../../publications/lib/PromiseDebounce'
+import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
+import { logger } from '../../logging'
 
 const REACTIVITY_DEBOUNCE = 20
 
@@ -24,15 +26,19 @@ export class RundownsObserver {
 	#disposed = false
 
 	readonly #triggerUpdateRundownContent = new PromiseDebounce(async () => {
-		if (this.#disposed) return
+		try {
+			if (this.#disposed) return
 
-		if (!this.#changed) return
-		this.#cleanup?.()
+			if (!this.#changed) return
+			this.#cleanup?.()
 
-		const changed = this.#changed
-		this.#cleanup = await changed(this.rundownIds)
+			const changed = this.#changed
+			this.#cleanup = await changed(this.rundownIds)
 
-		if (this.#disposed) this.#cleanup?.()
+			if (this.#disposed) this.#cleanup?.()
+		} catch (e) {
+			logger.error(`Error in RundownsObserver triggerUpdateRundownContent: ${stringifyError(e)}`)
+		}
 	}, REACTIVITY_DEBOUNCE)
 
 	private constructor(onChanged: ChangedHandler) {

@@ -8,10 +8,10 @@ import {
 } from '@sofie-automation/blueprints-integration'
 import { ABSessionAssignment, ABSessionAssignments } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { OnGenerateTimelineObjExt } from '@sofie-automation/corelib/dist/dataModel/Timeline'
-import { logger } from '../../logging'
-import * as _ from 'underscore'
-import { SessionRequest } from './abPlaybackResolver'
-import { AbSessionHelper } from './abSessionHelper'
+import { logger } from '../../logging.js'
+import _ from 'underscore'
+import { SessionRequest } from './abPlaybackResolver.js'
+import { AbSessionHelper } from './abSessionHelper.js'
 import { ReadonlyDeep } from 'type-fest'
 
 /**
@@ -145,8 +145,7 @@ function updateObjectsToAbPlayer(
 
 		const updatedLayer = applylayerMoveRule(abConfiguration.timelineObjectLayerChangeRules, poolName, playerId, obj)
 
-		const updatedCustom =
-			abConfiguration.customApplyToObject && abConfiguration.customApplyToObject(context, poolName, playerId, obj)
+		const updatedCustom = abConfiguration.customApplyToObject?.(context, poolName, playerId, obj)
 
 		if (!updatedKeyframes && !updatedLayer && !updatedCustom) {
 			failedObjects.push(obj)

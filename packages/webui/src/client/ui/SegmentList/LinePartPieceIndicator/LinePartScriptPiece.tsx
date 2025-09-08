@@ -1,12 +1,12 @@
 import { SourceLayerType } from '@sofie-automation/blueprints-integration'
 import { useContext, useMemo, useRef } from 'react'
-import { PieceExtended } from '../../../lib/RundownResolver'
+import { PieceExtended } from '../../../lib/RundownResolver.js'
 import {
 	PreviewPopUpContext,
 	IPreviewPopUpSession,
 	convertSourceLayerItemToPreview,
-} from '../../PreviewPopUp/PreviewPopUpContext'
-import { useContentStatusForPieceInstance } from '../../SegmentTimeline/withMediaObjectStatus'
+} from '../../PreviewPopUp/PreviewPopUpContext.js'
+import { useContentStatusForPieceInstance } from '../../SegmentTimeline/withMediaObjectStatus.js'
 
 interface IProps {
 	pieces: PieceExtended[]

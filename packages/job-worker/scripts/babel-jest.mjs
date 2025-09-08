@@ -1,4 +1,4 @@
-// eslint-disable-next-line node/no-extraneous-import
+// eslint-disable-next-line n/no-extraneous-import
 import babelJest from 'babel-jest'
 
 export default babelJest.default.createTransformer({

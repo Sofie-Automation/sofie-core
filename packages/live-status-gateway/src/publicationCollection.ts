@@ -8,14 +8,14 @@ import {
 } from '@sofie-automation/server-core-integration'
 import { ParametersOfFunctionOrNever } from '@sofie-automation/server-core-integration/dist/lib/subscriptions'
 import { Logger } from 'winston'
-import { CollectionBase, DEFAULT_THROTTLE_PERIOD_MS } from './collectionBase'
-import { CoreHandler } from './coreHandler'
-import { ObserverCallback } from './collectionBase'
+import { CollectionBase, DEFAULT_THROTTLE_PERIOD_MS } from './collectionBase.js'
+import { CoreHandler } from './coreHandler.js'
+import { ObserverCallback } from './collectionBase.js'
 
 export abstract class PublicationCollection<
 	T,
 	TPubSub extends keyof CorelibPubSubTypes,
-	TCollection extends keyof CorelibPubSubCollections
+	TCollection extends keyof CorelibPubSubCollections,
 > extends CollectionBase<T, TCollection> {
 	protected _publicationName: TPubSub
 	protected _subscriptionId: SubscriptionId | undefined

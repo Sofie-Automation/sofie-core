@@ -1,4 +1,4 @@
-import * as _ from 'underscore'
+import _ from 'underscore'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import {
 	PieceLifespan,
@@ -10,7 +10,7 @@ import {
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
 import { ICoreSystem, SYSTEM_ID } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
-import { literal, protectString, getRandomId, Complete, normalizeArray } from '../../client/lib/tempLib'
+import { literal, protectString, getRandomId, Complete, normalizeArray } from '../../client/lib/tempLib.js'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
@@ -18,14 +18,15 @@ import { EmptyPieceTimelineObjectsBlob, Piece } from '@sofie-automation/corelib/
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { RundownBaselineAdLibItem } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibPiece'
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
-import { restartRandomId } from '../random'
-import { MongoMock } from '../mongo'
-import { defaultRundownPlaylist, defaultStudio } from '../defaultCollectionObjects'
+import { restartRandomId } from '../random.js'
+import { MongoMock } from '../mongo.js'
+import { defaultRundownPlaylist, defaultStudio } from '../defaultCollectionObjects.js'
 import {
 	applyAndValidateOverrides,
 	wrapDefaultObject,
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
+import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import {
 	BlueprintId,
 	OrganizationId,
@@ -46,7 +47,7 @@ import {
 	ShowStyleBases,
 	ShowStyleVariants,
 	Studios,
-} from '../../client/collections'
+} from '../../client/collections/index.js'
 
 export enum LAYER_IDS {
 	SOURCE_CAM0 = 'cam0',
@@ -559,5 +560,15 @@ export function convertToUIShowStyleBase(showStyleBase: DBShowStyleBase): UIShow
 		hotkeyLegend: showStyleBase.hotkeyLegend,
 		sourceLayers: applyAndValidateOverrides(showStyleBase.sourceLayersWithOverrides).obj,
 		outputLayers: applyAndValidateOverrides(showStyleBase.outputLayersWithOverrides).obj,
+	})
+}
+export function convertToUIStudio(studio: DBStudio): UIStudio {
+	return literal<Complete<UIStudio>>({
+		_id: studio._id,
+		settings: applyAndValidateOverrides(studio.settingsWithOverrides).obj,
+		name: studio.name,
+		routeSets: applyAndValidateOverrides(studio.routeSetsWithOverrides).obj,
+		routeSetExclusivityGroups: applyAndValidateOverrides(studio.routeSetExclusivityGroupsWithOverrides).obj,
+		mappings: {},
 	})
 }

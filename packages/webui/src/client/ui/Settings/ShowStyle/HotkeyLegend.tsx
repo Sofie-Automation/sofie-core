@@ -1,27 +1,27 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import ClassNames from 'classnames'
 import { faPencilAlt, faTrash, faCheck, faPlus, faDownload, faUpload } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { HotkeyDefinition } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { literal, getRandomString } from '@sofie-automation/corelib/dist/lib'
-import { withTranslation } from 'react-i18next'
+import { useTranslation, withTranslation } from 'react-i18next'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { EditAttribute } from '../../../lib/EditAttribute'
-import { hotkeyHelper } from '../../../lib/hotkeyHelper'
-import { NotificationCenter, NoticeLevel, Notification } from '../../../lib/notifications/notifications'
-import { Translated } from '../../../lib/ReactMeteorData/ReactMeteorData'
-import { UploadButton } from '../../../lib/uploadButton'
-import _ from 'underscore'
-import { ShowStyleBases } from '../../../collections'
-import { LabelActual } from '../../../lib/Components/LabelAndOverrides'
+import { EditAttribute } from '../../../lib/EditAttribute.js'
+import { hotkeyHelper } from '../../../lib/hotkeyHelper.js'
+import { NotificationCenter, NoticeLevel, Notification } from '../../../lib/notifications/notifications.js'
+import { Translated } from '../../../lib/ReactMeteorData/ReactMeteorData.js'
+import { UploadButton } from '../../../lib/uploadButton.js'
+import { ShowStyleBases } from '../../../collections/index.js'
+import { LabelActual } from '../../../lib/Components/LabelAndOverrides.js'
 import Button from 'react-bootstrap/esm/Button'
+import { ShowStyleBaseId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 
 interface IHotkeyLegendSettingsProps {
 	showStyleBase: DBShowStyleBase
 }
 interface IHotkeyLegendSettingsState {
 	editedItems: Array<string>
-	uploadFileKey: number
 }
 
 export const HotkeyLegendSettings = withTranslation()(
@@ -34,7 +34,6 @@ export const HotkeyLegendSettings = withTranslation()(
 
 			this.state = {
 				editedItems: [],
-				uploadFileKey: Date.now(),
 			}
 		}
 
@@ -102,62 +101,6 @@ export const HotkeyLegendSettings = withTranslation()(
 			document.body.removeChild(element) // Required for this to work in FireFox
 		}
 
-		private importHotKeyJSON(e: React.ChangeEvent<HTMLInputElement>) {
-			const { t } = this.props
-
-			const file = e.target.files ? e.target.files[0] : null
-			if (!file) {
-				return
-			}
-
-			const reader = new FileReader()
-			reader.onload = (e2) => {
-				// On file upload
-
-				this.setState({
-					uploadFileKey: Date.now(),
-				})
-
-				const uploadFileContents = (e2.target as any).result
-
-				// Parse the config
-				let newConfig: Array<HotkeyDefinition> = []
-				try {
-					newConfig = JSON.parse(uploadFileContents)
-					if (!_.isArray(newConfig)) {
-						throw new Error('Not an array')
-					}
-				} catch (err) {
-					NotificationCenter.push(
-						new Notification(
-							undefined,
-							NoticeLevel.WARNING,
-							t('Failed to update config: {{errorMessage}}', { errorMessage: err + '' }),
-							'ConfigManifestSettings'
-						)
-					)
-					return
-				}
-
-				// Validate the config
-				const conformedConfig: Array<HotkeyDefinition> = []
-				_.forEach(newConfig, (entry) => {
-					const newEntry: HotkeyDefinition = {
-						_id: getRandomString(),
-						key: entry.key || '',
-						label: entry.label || '',
-						sourceLayerType: entry.sourceLayerType,
-						platformKey: entry.platformKey,
-						buttonColor: entry.buttonColor,
-					}
-					conformedConfig.push(newEntry)
-				})
-
-				ShowStyleBases.update({ _id: this.props.showStyleBase._id }, { $set: { hotkeyLegend: conformedConfig } })
-			}
-			reader.readAsText(file)
-		}
-
 		private renderItems() {
 			const { t } = this.props
 			return (this.props.showStyleBase.hotkeyLegend || []).map((item, index) => {
@@ -175,10 +118,7 @@ export const HotkeyLegendSettings = withTranslation()(
 								<button className="action-btn" onClick={() => this.editItem(item)}>
 									<FontAwesomeIcon icon={faPencilAlt} />
 								</button>
-								<button
-									className="action-btn"
-									onClick={() => this.onDeleteHotkeyLegend && this.onDeleteHotkeyLegend(item)}
-								>
+								<button className="action-btn" onClick={() => this.onDeleteHotkeyLegend?.(item)}>
 									<FontAwesomeIcon icon={faTrash} />
 								</button>
 							</td>
@@ -234,20 +174,68 @@ export const HotkeyLegendSettings = withTranslation()(
 
 						<Button variant="outline-secondary" className="mx-1" onClick={() => this.exportHotkeyJSON()}>
 							<FontAwesomeIcon icon={faDownload} />
-							&nbsp;{t('Export')}
+							<span>{t('Export')}</span>
 						</Button>
-						<UploadButton
-							className="btn btn-outline-secondary mx-1"
-							accept="application/json,.json"
-							onChange={(e) => this.importHotKeyJSON(e)}
-							key={this.state.uploadFileKey}
-						>
-							<FontAwesomeIcon icon={faUpload} />
-							&nbsp;{t('Import')}
-						</UploadButton>
+						<ImportHotkeyLegendButton showStyleBaseId={this.props.showStyleBase._id} />
 					</div>
 				</div>
 			)
 		}
 	}
 )
+
+function ImportHotkeyLegendButton({ showStyleBaseId }: { showStyleBaseId: ShowStyleBaseId }) {
+	const { t } = useTranslation()
+	const importHotKeyJSON = useCallback(
+		(uploadFileContents: string) => {
+			// Parse the config
+			const newConfig: Array<HotkeyDefinition> = JSON.parse(uploadFileContents)
+			if (!Array.isArray(newConfig)) {
+				throw new Error('Not an array')
+			}
+
+			// Validate the config
+			const conformedConfig: Array<HotkeyDefinition> = []
+			for (const entry of newConfig) {
+				const newEntry: HotkeyDefinition = {
+					_id: getRandomString(),
+					key: entry.key || '',
+					label: entry.label || '',
+					sourceLayerType: entry.sourceLayerType,
+					platformKey: entry.platformKey,
+					buttonColor: entry.buttonColor,
+				}
+				conformedConfig.push(newEntry)
+			}
+
+			ShowStyleBases.update({ _id: showStyleBaseId }, { $set: { hotkeyLegend: conformedConfig } })
+		},
+		[t, showStyleBaseId]
+	)
+
+	const importError = useCallback(
+		(err: Error) => {
+			NotificationCenter.push(
+				new Notification(
+					undefined,
+					NoticeLevel.WARNING,
+					t('Failed to update config: {{errorMessage}}', { errorMessage: stringifyError(err) }),
+					'ConfigManifestSettings'
+				)
+			)
+		},
+		[t]
+	)
+
+	return (
+		<UploadButton
+			className="btn btn-outline-secondary mx-1"
+			accept="application/json,.json"
+			onUploadContents={importHotKeyJSON}
+			onUploadError={importError}
+		>
+			<FontAwesomeIcon icon={faUpload} />
+			<span>{t('Import')}</span>
+		</UploadButton>
+	)
+}

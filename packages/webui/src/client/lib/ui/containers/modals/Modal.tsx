@@ -1,10 +1,10 @@
 import * as React from 'react'
 import type { Sorensen } from '@sofie-automation/sorensen'
 import * as CoreIcons from '@nrk/core-icons/jsx'
-import Escape from './../../../Escape'
+import Escape from './../../../Escape.js'
 
-import { SorensenContext } from '../../../SorensenContext'
-import { Settings } from '../../../../lib/Settings'
+import { SorensenContext } from '../../../SorensenContext.js'
+import { Settings } from '../../../../lib/Settings.js'
 
 export interface IModalAttributes {
 	show?: boolean

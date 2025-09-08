@@ -1,7 +1,7 @@
 import classNames from 'classnames'
 import React from 'react'
-import { RundownUtils } from './rundown'
-import { SplitRole, SplitSubItem } from './ui/splitPreview'
+import { RundownUtils } from './rundown.js'
+import { SplitRole, SplitSubItem } from './ui/splitPreview.js'
 
 export const RenderSplitPreview = React.memo(function RenderSplitPreview({
 	subItems,
@@ -40,7 +40,7 @@ export const RenderSplitPreview = React.memo(function RenderSplitPreview({
 							clipPath: item.content?.crop
 								? `inset(${item.content.crop.top * 100}% ${item.content.crop.right * 100}% ${
 										item.content.crop.bottom * 100
-								  }% ${item.content.crop.left * 100}%)`
+									}% ${item.content.crop.left * 100}%)`
 								: undefined,
 						}}
 					>

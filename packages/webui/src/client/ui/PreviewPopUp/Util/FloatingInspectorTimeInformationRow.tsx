@@ -1,9 +1,9 @@
 import React from 'react'
 import { PieceInstancePiece } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
-import { RundownUtils } from '../../../lib/rundown'
+import { RundownUtils } from '../../../lib/rundown.js'
 import { PieceLifespan } from '@sofie-automation/blueprints-integration'
 import { TFunction, useTranslation } from 'react-i18next'
-import { Time } from '../../../lib/tempLib'
+import { Time } from '../../../lib/tempLib.js'
 import Moment from 'react-moment'
 import { ReadonlyDeep } from 'type-fest'
 

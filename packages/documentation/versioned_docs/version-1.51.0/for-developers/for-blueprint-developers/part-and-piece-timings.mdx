@@ -1,0 +1,141 @@
+import { PartTimingsDemo } from './_part-timings-demo'
+
+# Part and Piece Timings
+
+Parts and pieces are the core groups that form the timeline, and define start and end caps for the other timeline objects.
+
+When referring to the timeline in this page, we mean the built timeline objects that is sent to playout-gateway.  
+It is made of the previous PartInstance, the current PartInstance and sometimes the next PartInstance.
+
+### The properties
+
+These are stripped down interfaces, containing only the properties that are relevant for the timeline generation:
+
+```ts
+export interface IBlueprintPart {
+	/** Should this item should progress to the next automatically */
+	autoNext?: boolean
+	/** How much to overlap on when doing autonext */
+	autoNextOverlap?: number
+
+	/** Timings for the inTransition, when supported and allowed */
+	inTransition?: IBlueprintPartInTransition
+
+	/** Should we block the inTransition when starting the next Part */
+	disableNextInTransition?: boolean
+
+	/** Timings for the outTransition, when supported and allowed */
+	outTransition?: IBlueprintPartOutTransition
+
+	/** Expected duration of the line, in milliseconds */
+	expectedDuration?: number
+}
+
+/** Timings for the inTransition, when supported and allowed */
+export interface IBlueprintPartInTransition {
+	/** Duration this transition block a take for. After this time, another take is allowed which may cut this transition off early */
+	blockTakeDuration: number
+	/** Duration the previous part be kept playing once the transition is started. Typically the duration of it remaining in-vision */
+	previousPartKeepaliveDuration: number
+	/** Duration the pieces of the part should be delayed for once the transition starts. Typically the duration until the new part is in-vision */
+	partContentDelayDuration: number
+}
+
+/** Timings for the outTransition, when supported and allowed */
+export interface IBlueprintPartOutTransition {
+	/** How long to keep this part alive after taken out  */
+	duration: number
+}
+
+export interface IBlueprintPiece {
+	/** Timeline enabler. When the piece should be active on the timeline. */
+	enable: {
+		start: number | 'now' // 'now' is only valid from adlib-actions when inserting into the current part
+		duration?: number
+	}
+
+	/** Whether this piece is a special piece */
+	pieceType: IBlueprintPieceType
+
+	/// from IBlueprintPieceGeneric:
+
+	/** Whether and how the piece is infinite */
+	lifespan: PieceLifespan
+
+	/**
+	 * How long this piece needs to prepare its content before it will have an effect on the output.
+	 * This allows for flows such as starting a clip playing, then cutting to it after some ms once the player is outputting frames.
+	 */
+	prerollDuration?: number
+}
+
+/** Special types of pieces. Some are not always used in all circumstances */
+export enum IBlueprintPieceType {
+	Normal = 'normal',
+	InTransition = 'in-transition',
+	OutTransition = 'out-transition',
+}
+```
+
+### Concepts
+
+#### Piece Preroll
+
+Often, a Piece will need some time to do some preparation steps on a device before it should be considered as active. A common example is playing a video, as it often takes the player a couple of frames before the first frame is output to SDI.
+This can be done with the `prerollDuration` property on the Piece. A general rule to follow is that it should not have any visible or audible effect on the output until `prerollDuration` has elapsed into the piece.
+
+When the timeline is built, the Pieces get their start times adjusted to allow for every Piece in the part to have its preroll time. If you look at the auto-generated pieceGroup timeline objects, their times will rarely match the times specified by the blueprints. Additionally, the previous Part will overlap into the Part long enough for the preroll to complete.
+
+Try the interactive to see how the prerollDuration properties interact.
+
+#### In Transition
+
+The in transition is a special Piece that can be played when taking into a Part. It is represented as a Piece, partly to show the user the transition type and duration, and partly to allow for timeline changes to be applied when the timeline generation thinks appropriate.
+
+When the `inTransition` is set on a Part, it will be applied when taking into that Part. During this time, any Pieces with `pieceType: IBlueprintPieceType.InTransition` will be added to the timeline, and the `IBlueprintPieceType.Normal` Pieces in the Part will be delayed based on the numbers from `inTransition`
+
+Try the interactive to see how the an inTransition affects the Piece and Part layout.
+
+#### Out Transition
+
+The out transition is a special Piece that gets played when taking out of the Part. It is intended to allow for some 'visual cleanup' before the take occurs.
+
+In effect, when `outTransition` is set on a Part, the take out of the Part will be delayed by the duration defined. During this time, any pieces with `pieceType: IBlueprintPieceType.OutTransition` will be added to the timeline and will run until the end of the Part.
+
+Try the interactive to see how this affects the Parts.
+
+### Piece postroll
+
+Sometimes rather than extending all the pieces and playing an out transition piece on top we want all pieces to stop except for 1, this has the same goal of 'visual cleanup' as the out transition but works slightly different. The main concept is that an out transition delays the take slightly but with postroll the take executes normally however the pieces with postroll will keep playing for a bit after the take.
+
+When the `postrollDuration` is set on a piece the part group will be extended slightly allowing pieces to play a little longer, however any piece that do not have postroll will end at their regular time.
+
+#### Autonext
+
+Autonext is a way for a Part to be made a fixed length. After playing for its `expectedDuration`, core will automatically perform a take into the next part. This is commonly used for fullscreen videos, to exit back to a camera before the video freezes on the last frame. It is enabled by setting the `autoNext: true` on a Part, and requires `expectedDuration` to be set to a duration higher than `1000`.
+
+In other situations, it can be desirable for a Part to overlap the next one for a few seconds. This is common for Parts such as a title sequence or bumpers, where the sequence ends with an keyer effect which should reveal the next Part.
+To achieve this you can set `autoNextOverlap: 1000 // ms` to make the parts overlap on the timeline. In doing so, the in transition for the next Part will be ignored.
+
+The `autoNextOverlap` property can be thought of an override for the intransition on the next part defined as:
+
+```ts
+const inTransition = {
+	blockTakeDuration: 1000,
+	partContentDelayDuration: 0,
+	previousPartKeepaliveDuration: 1000,
+}
+```
+
+#### Infinites
+
+Pieces with an infinite lifespan (ie, not `lifespan: PieceLifespan.WithinPart`) get handled differently to other pieces.
+
+Only one pieceGoup is created for an infinite Piece which is present in multiple of the current, next and previous Parts.  
+The Piece calculates and tracks its own started playback times, which is preserved and reused in future takes. On the timeline it lives outside of the partGroups, but still gets the same caps applied when appropriate.
+
+### Interactive timings demo
+
+Use the sliders below to see how various Preroll and In & Out Transition timing properties interact with each other.
+
+<PartTimingsDemo />

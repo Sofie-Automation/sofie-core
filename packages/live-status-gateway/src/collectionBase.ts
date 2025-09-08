@@ -7,11 +7,11 @@ import {
 	CollectionDocCheck,
 } from '@sofie-automation/server-core-integration'
 import throttleToNextTick from '@sofie-automation/shared-lib/dist/lib/throttleToNextTick'
-import * as _ from 'underscore'
+import _ from 'underscore'
 import { Logger } from 'winston'
-import { CoreHandler } from './coreHandler'
-import { arePropertiesShallowEqual } from './helpers/equality'
-import { CollectionHandlers } from './liveStatusServer'
+import { CoreHandler } from './coreHandler.js'
+import { arePropertiesShallowEqual } from './helpers/equality.js'
+import { CollectionHandlers } from './liveStatusServer.js'
 
 export type ObserverCallback<T, K extends keyof T> = (data: Pick<T, K> | undefined) => void
 

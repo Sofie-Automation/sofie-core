@@ -2,20 +2,20 @@ import React, { useEffect, useLayoutEffect, useState } from 'react'
 import { ClientActions, PlayoutActions, SomeAction } from '@sofie-automation/blueprints-integration'
 import { useTranslation } from 'react-i18next'
 import { TFunction } from 'react-i18next'
-import { assertNever } from '../../../../../../lib/tempLib'
-import { sameWidth } from '../../../../../../lib/popperUtils'
+import { assertNever } from '../../../../../../lib/tempLib.js'
+import { sameWidth } from '../../../../../../lib/popperUtils.js'
 import { usePopper } from 'react-popper'
 import classNames from 'classnames'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAngleRight, faTrash } from '@fortawesome/free-solid-svg-icons'
-import { AdLibActionEditor } from './actionEditors/AdLibActionEditor'
+import { AdLibActionEditor } from './actionEditors/AdLibActionEditor.js'
 import { DeviceActions } from '@sofie-automation/shared-lib/dist/core/model/ShowStyle'
-import { catchError } from '../../../../../../lib/lib'
+import { catchError } from '../../../../../../lib/lib.js'
 import { preventOverflow } from '@popperjs/core'
-import { ToggleSwitchControl } from '../../../../../../lib/Components/ToggleSwitch'
-import { DropdownInputControl, DropdownInputOption } from '../../../../../../lib/Components/DropdownInput'
-import { IntInputControl } from '../../../../../../lib/Components/IntInput'
-import { SwitchRouteSetEditor } from './actionEditors/SwitchRouteSetEditor'
+import { ToggleSwitchControl } from '../../../../../../lib/Components/ToggleSwitch.js'
+import { DropdownInputControl, DropdownInputOption } from '../../../../../../lib/Components/DropdownInput.js'
+import { IntInputControl } from '../../../../../../lib/Components/IntInput.js'
+import { SwitchRouteSetEditor } from './actionEditors/SwitchRouteSetEditor.js'
 import Button from 'react-bootstrap/esm/Button'
 
 interface IProps {
@@ -531,7 +531,7 @@ export const ActionSelector = function ActionSelector({
 				!composedPath.includes(popperElement) &&
 				!composedPath.includes(referenceElement)
 			) {
-				onClose && onClose()
+				onClose?.()
 			}
 		}
 
@@ -545,7 +545,7 @@ export const ActionSelector = function ActionSelector({
 	}, [popperElement, referenceElement, opened])
 
 	useLayoutEffect(() => {
-		update && update().catch(catchError('ActionSelector update'))
+		update?.().catch(catchError('ActionSelector update'))
 	}, [action])
 
 	const { t } = useTranslation()
@@ -606,8 +606,8 @@ export const ActionSelector = function ActionSelector({
 								variant="primary"
 								size="sm"
 								onClick={() => {
-									onClose && onClose()
-									onSetFilter && onSetFilter()
+									onClose?.()
+									onSetFilter?.()
 								}}
 							>
 								<FontAwesomeIcon icon={faAngleRight} />

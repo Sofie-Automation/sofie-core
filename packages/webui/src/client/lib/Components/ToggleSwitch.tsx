@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react'
+import { ChangeEvent, useCallback, useRef } from 'react'
 import Form from 'react-bootstrap/esm/Form'
 
 interface IToggleSwitchControlProps {
@@ -8,7 +8,7 @@ interface IToggleSwitchControlProps {
 	label?: string
 
 	value: boolean
-	handleUpdate: (value: boolean, e: React.MouseEvent<HTMLElement>) => void
+	handleUpdate: (value: boolean, e: ChangeEvent<HTMLInputElement>) => void
 }
 export function ToggleSwitchControl({
 	classNames,
@@ -22,7 +22,7 @@ export function ToggleSwitchControl({
 	currentValue.current = value
 
 	const handleChange = useCallback(
-		(e: React.MouseEvent<HTMLElement>) => {
+		(e: ChangeEvent<HTMLInputElement>) => {
 			if (disabled) return
 			handleUpdate(!currentValue.current, e)
 		},
@@ -34,8 +34,8 @@ export function ToggleSwitchControl({
 			type="switch"
 			className={classNames}
 			disabled={disabled}
-			onClick={handleChange}
 			checked={value}
+			onChange={handleChange}
 			label={label}
 		/>
 	)

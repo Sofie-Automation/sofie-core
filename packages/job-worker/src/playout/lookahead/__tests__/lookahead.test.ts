@@ -4,24 +4,24 @@ import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { DBStudio, MappingsExt } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { clone, getRandomId } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { getCurrentTime } from '../../../lib'
-import { SelectedPartInstancesTimelineInfo } from '../../timeline/generate'
-import { getLookeaheadObjects } from '..'
+import { getCurrentTime } from '../../../lib/index.js'
+import { SelectedPartInstancesTimelineInfo } from '../../timeline/generate.js'
+import { getLookeaheadObjects } from '../index.js'
 import { LookaheadMode, PlaylistTimingType, TSR } from '@sofie-automation/blueprints-integration'
-import { setupDefaultJobEnvironment, MockJobContext } from '../../../__mocks__/context'
-import { runJobWithPlayoutModel } from '../../../playout/lock'
-import { defaultRundownPlaylist } from '../../../__mocks__/defaultCollectionObjects'
+import { setupDefaultJobEnvironment, MockJobContext } from '../../../__mocks__/context.js'
+import { runJobWithPlayoutModel } from '../../../playout/lock.js'
+import { defaultRundownPlaylist } from '../../../__mocks__/defaultCollectionObjects.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 
 jest.mock('../findForLayer')
 type TfindLookaheadForLayer = jest.MockedFunction<typeof findLookaheadForLayer>
-import { findLookaheadForLayer } from '../findForLayer'
+import { findLookaheadForLayer } from '../findForLayer.js'
 const findLookaheadForLayerMock = findLookaheadForLayer as TfindLookaheadForLayer
 
 jest.mock('../util')
 type TgetOrderedPartsAfterPlayhead = jest.MockedFunction<typeof getOrderedPartsAfterPlayhead>
-import { getOrderedPartsAfterPlayhead, PartAndPieces, PartInstanceAndPieceInstances } from '../util'
-import { LookaheadTimelineObject } from '../findObjects'
+import { getOrderedPartsAfterPlayhead, PartAndPieces, PartInstanceAndPieceInstances } from '../util.js'
+import { LookaheadTimelineObject } from '../findObjects.js'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 const getOrderedPartsAfterPlayheadMock = getOrderedPartsAfterPlayhead as TgetOrderedPartsAfterPlayhead
 
@@ -344,6 +344,7 @@ describe('Lookahead', () => {
 		await expectLookaheadForLayerMock(playlistId, [expectedCurrent, expectedNext], expectedPrevious, fakeParts)
 	})
 
+	// eslint-disable-next-line jest/no-commented-out-tests
 	// test('Pieces', () => {
 	// 	const fakeParts = partIds.map((p) => ({ _id: p })) as Part[]
 	// 	getOrderedPartsAfterPlayheadMock.mockReturnValue(fakeParts)

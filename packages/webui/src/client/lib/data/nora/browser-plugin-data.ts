@@ -1,6 +1,6 @@
 import { JSONBlobParse, NoraContent } from '@sofie-automation/blueprints-integration'
 import { PieceGeneric } from '@sofie-automation/corelib/dist/dataModel/Piece'
-import { objectToXML } from '../util/object-to-xml'
+import { objectToXML } from '../util/object-to-xml.js'
 import { ReadonlyDeep } from 'type-fest'
 
 export { createMosObjectXmlStringNoraBluePrintPiece }
