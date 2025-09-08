@@ -17,8 +17,8 @@ export function IFramePreview({ content }: IFramePreviewProps): React.ReactEleme
 
 	const onLoadListener = useCallback(() => {
 		if (content.postMessage) {
-			const url = new URL(content.href)
-			iFrameElement.current?.contentWindow?.postMessage(content.postMessage, url.origin)
+			// use * as URL reference to avoid cors when posting message with new reference:
+			iFrameElement.current?.contentWindow?.postMessage(content.postMessage, '*')
 		}
 	}, [content.postMessage, content.href])
 
@@ -30,6 +30,14 @@ export function IFramePreview({ content }: IFramePreviewProps): React.ReactEleme
 
 		return () => currentIFrame.removeEventListener('load', onLoadListener)
 	}, [onLoadListener])
+
+	// Handle postMessage updates when iframe is already loaded
+	useEffect(() => {
+		if (content.postMessage && iFrameElement.current?.contentWindow) {
+			// use * as URL reference to avoid cors when posting message with new reference:
+			iFrameElement.current.contentWindow.postMessage(content.postMessage, '*')
+		}
+	}, [content.postMessage, content.href])
 
 	const style: Record<string, string | number> = {}
 	if (content.dimensions) {
