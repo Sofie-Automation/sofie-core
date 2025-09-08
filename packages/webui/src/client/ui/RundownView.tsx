@@ -110,6 +110,7 @@ import { useRundownViewSubscriptions } from './RundownView/RundownViewSubscripti
 import { useMiniShelfAdlibsData } from './RundownView/useQueueMiniShelfAdlib.js'
 import { RundownViewContextProviders } from './RundownView/RundownViewContextProviders.js'
 import { UserError } from '@sofie-automation/corelib/dist/error'
+import { AnimatePresence } from 'motion/react'
 
 const HIDE_NOTIFICATIONS_AFTER_MOUNT: number | undefined = 5000
 
