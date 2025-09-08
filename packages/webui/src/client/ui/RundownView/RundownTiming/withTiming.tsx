@@ -1,7 +1,7 @@
-import * as React from 'react'
-import * as _ from 'underscore'
-import { RundownTiming } from './RundownTiming'
-import { RundownTimingContext } from '../../../lib/rundownTiming'
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
+import _ from 'underscore'
+import { RundownTiming } from './RundownTiming.js'
+import { RundownTimingContext } from '../../../lib/rundownTiming.js'
 
 export type TimingFilterFunction = (durations: RundownTimingContext) => any
 
@@ -153,6 +153,63 @@ export function withTiming<IProps, IState>(
 			}
 		}
 	}
+}
+
+function getFilterFunction(
+	filter: TimingFilterFunction | string | (string | number)[] | undefined
+): TimingFilterFunction | undefined {
+	if (typeof filter === 'function') {
+		return filter
+	} else if (filter) {
+		return _.property(filter as string)
+	}
+	return undefined
+}
+
+export function useTiming(
+	tickResolution: TimingTickResolution = TimingTickResolution.Synced,
+	dataResolution: TimingDataResolution = TimingDataResolution.Synced,
+	filter?: TimingFilterFunction | string | (string | number)[]
+): RundownTimingContext {
+	const [_0, setForceUpdate] = useState(0)
+
+	const context = useContext(RundownTimingProviderContext)
+
+	const highResDurations: RundownTimingContext = context.durations
+	const syncedDurations: RundownTimingContext = context.syncedDurations
+
+	const isDirty = useRef(false)
+	const previousValue = useRef<RundownTimingContext | null>(null)
+
+	const filterGetter = useRef<TimingFilterFunction | undefined>()
+	filterGetter.current = getFilterFunction(filter)
+
+	const refreshComponent = useCallback(() => {
+		if (!filterGetter.current) {
+			setForceUpdate(Date.now())
+		} else {
+			const buf = filterGetter.current?.(context.durations || {})
+			if (isDirty.current || !_.isEqual(buf, previousValue.current)) {
+				previousValue.current = buf
+				isDirty.current = false
+				setForceUpdate(Date.now())
+			}
+		}
+	}, [])
+
+	useEffect(() => {
+		window.addEventListener(rundownTimingEventFromTickResolution(tickResolution), refreshComponent)
+
+		return () => {
+			window.removeEventListener(rundownTimingEventFromTickResolution(tickResolution), refreshComponent)
+		}
+	}, [tickResolution, refreshComponent])
+
+	if (componentIsDirty(filterGetter.current, highResDurations, dataResolution)) {
+		isDirty.current = true
+	}
+
+	return rundownTimingDataFromDataResolution(dataResolution, highResDurations, syncedDurations)
 }
 
 function componentIsDirty(

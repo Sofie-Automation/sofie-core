@@ -1,10 +1,10 @@
-import { getCurrentTime } from './systemTime'
+import { getCurrentTime } from './systemTime.js'
 import { Meteor } from 'meteor/meteor'
 import { Tracker } from 'meteor/tracker'
-import * as _ from 'underscore'
-import { MeteorCall } from '../lib/meteorApi'
-import { ClientCollections, PublicationCollections } from '../collections/lib'
-import { logger } from './logging'
+import _ from 'underscore'
+import { MeteorCall } from '../lib/meteorApi.js'
+import { ClientCollections, PublicationCollections } from '../collections/lib.js'
+import { logger } from './logging.js'
 
 // Note: These things are convenience functions to be used during development:
 

@@ -1,4 +1,4 @@
-.header {
+.navbar {
 	.links {
 		> a {
 			color: #fff;
@@ -9,16 +9,23 @@
 		}
 	}
 
-	.badge {
+	.badge-sofie {
 		color: #fff;
 		text-decoration: none;
+		display: flex;
+		flex-direction: row;
+
 		&:link,
 		&:visited,
 		&:active {
 			color: #fff;
 		}
+		&:hover {
+			text-decoration: underline;
+		}
+
 		.sofie-logo {
-			background: url('/images/sofie-logo.svg') center center no-repeat;
+			background: var(--sofie-logo-url) center center no-repeat;
 			background-size: contain;
 			width: 2em;
 			height: 2em;

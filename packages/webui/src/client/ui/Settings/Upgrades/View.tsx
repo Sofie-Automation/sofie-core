@@ -1,11 +1,11 @@
 import { useTranslation } from 'react-i18next'
-import { Spinner } from '../../../lib/Spinner'
+import { Spinner } from '../../../lib/Spinner.js'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { useSubscription, useTracker } from '../../../lib/ReactMeteorData/ReactMeteorData'
+import { useSubscription, useTracker } from '../../../lib/ReactMeteorData/ReactMeteorData.js'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { UIBlueprintUpgradeStatuses } from '../../Collections'
+import { UIBlueprintUpgradeStatuses } from '../../Collections.js'
 import { UIBlueprintUpgradeStatus } from '@sofie-automation/meteor-lib/dist/api/upgradeStatus'
-import { getUpgradeStatusMessage, SystemUpgradeStatusButtons, UpgradeStatusButtons } from './Components'
+import { getUpgradeStatusMessage, SystemUpgradeStatusButtons, UpgradeStatusButtons } from './Components.js'
 
 export function UpgradesView(): JSX.Element {
 	const { t } = useTranslation()
@@ -16,7 +16,7 @@ export function UpgradesView(): JSX.Element {
 
 	return (
 		<div>
-			<h2 className="mhn">{t('Apply blueprint upgrades')}</h2>
+			<h2 className="my-4">{t('Apply blueprint upgrades')}</h2>
 
 			<div>
 				{(!isReady || !statuses) && <Spinner />}

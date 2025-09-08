@@ -1,6 +1,6 @@
-import { UserEditingDefinition, UserEditingProperties } from '../userEditing'
-import type { NoteSeverity } from '../lib'
-import type { ITranslatableMessage } from '../translations'
+import { UserEditingDefinition, UserEditingProperties } from '../userEditing.js'
+import type { NoteSeverity } from '../lib.js'
+import type { ITranslatableMessage } from '../translations.js'
 
 /** Timings for the inTransition, when supported and allowed */
 export interface IBlueprintPartInTransition {

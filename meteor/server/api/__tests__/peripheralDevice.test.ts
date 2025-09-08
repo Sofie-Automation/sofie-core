@@ -12,9 +12,6 @@ import { waitUntil } from '../../../__mocks__/helpers/jest'
 import { setupDefaultStudioEnvironment, DefaultEnvironment } from '../../../__mocks__/helpers/database'
 import { setLogLevel } from '../../logging'
 import { IngestDeviceSecretSettings } from '@sofie-automation/corelib/dist/dataModel/PeripheralDeviceSettings/ingestDevice'
-import { MediaWorkFlow } from '@sofie-automation/shared-lib/dist/core/model/MediaWorkFlows'
-import { MediaWorkFlowStep } from '@sofie-automation/shared-lib/dist/core/model/MediaWorkFlowSteps'
-import { MediaManagerAPI } from '@sofie-automation/meteor-lib/dist/api/mediaManager'
 import { MediaObject } from '@sofie-automation/shared-lib/dist/core/model/MediaObjects'
 import {
 	IBlueprintPieceType,
@@ -39,8 +36,6 @@ import { RundownId, RundownPlaylistId, SegmentId } from '@sofie-automation/corel
 import { PeripheralDeviceAPIMethods } from '@sofie-automation/shared-lib/dist/peripheralDevice/methodsAPI'
 import {
 	MediaObjects,
-	MediaWorkFlows,
-	MediaWorkFlowSteps,
 	Parts,
 	PeripheralDeviceCommands,
 	PeripheralDevices,
@@ -624,166 +619,6 @@ describe('test peripheralDevice general API methods', () => {
 		}
 	})
 
-	// test MediaManagerIntegration API
-	describe('Media Manager API', () => {
-		let workFlowId: ProtectedString<any>
-		let workStepIds: ProtectedString<any>[]
-		let deviceId: ProtectedString<any>
-		let device: PeripheralDevice
-		beforeEach(async () => {
-			workFlowId = getRandomId()
-			workStepIds = [getRandomId(), getRandomId()]
-			deviceId = getRandomId()
-			env = await setupDefaultStudioEnvironment()
-			await PeripheralDevices.insertAsync({
-				_id: deviceId,
-				organizationId: null,
-				name: 'Mock Media Manager',
-				deviceName: 'Media Manager',
-				studioAndConfigId: {
-					studioId: env.studio._id,
-					configId: 'test',
-				},
-				category: PeripheralDeviceCategory.MEDIA_MANAGER,
-				configManifest: {
-					deviceConfigSchema: JSONBlobStringify({}),
-					subdeviceManifest: {},
-				},
-				connected: true,
-				connectionId: '0',
-				created: 0,
-				lastConnected: 0,
-				lastSeen: 0,
-				status: {
-					statusCode: StatusCode.GOOD,
-				},
-				subType: '_process',
-				token: 'MockToken',
-				type: PeripheralDeviceType.MEDIA_MANAGER,
-			})
-			device = (await PeripheralDevices.findOneAsync(deviceId))!
-			await MediaWorkFlows.insertAsync({
-				_id: workFlowId,
-				_rev: '1',
-				created: 0,
-				deviceId: device._id,
-				priority: 1,
-				source: 'MockSource',
-				studioId: device.studioAndConfigId!.studioId,
-				finished: false,
-				success: false,
-			})
-			await MediaWorkFlowSteps.insertAsync({
-				_id: workStepIds[0],
-				_rev: '1',
-				criticalStep: false,
-				action: MediaManagerAPI.WorkStepAction.COPY,
-				deviceId: device._id,
-				priority: 2,
-				status: MediaManagerAPI.WorkStepStatus.IDLE,
-				studioId: device.studioAndConfigId!.studioId,
-				workFlowId: workFlowId,
-			})
-			await MediaWorkFlowSteps.insertAsync({
-				_id: workStepIds[1],
-				_rev: '1',
-				criticalStep: false,
-				action: MediaManagerAPI.WorkStepAction.GENERATE_METADATA,
-				deviceId: device._id,
-				priority: 1,
-				status: MediaManagerAPI.WorkStepStatus.IDLE,
-				studioId: device.studioAndConfigId!.studioId,
-				workFlowId: workFlowId,
-			})
-		})
-		test('getMediaWorkFlowRevisions', async () => {
-			const workFlows = (
-				await MediaWorkFlows.findFetchAsync({
-					studioId: device.studioAndConfigId!.studioId,
-				})
-			).map((wf) => ({
-				_id: wf._id,
-				_rev: wf._rev,
-			}))
-			expect(workFlows.length).toBeGreaterThan(0)
-			const res = await MeteorCall.peripheralDevice.getMediaWorkFlowRevisions(device._id, device.token)
-			expect(res).toHaveLength(workFlows.length)
-			expect(res).toMatchObject(workFlows)
-		})
-		test('getMediaWorkFlowStepRevisions', async () => {
-			const workFlowSteps = (
-				await MediaWorkFlowSteps.findFetchAsync({
-					studioId: device.studioAndConfigId!.studioId,
-				})
-			).map((wf) => ({
-				_id: wf._id,
-				_rev: wf._rev,
-			}))
-			expect(workFlowSteps.length).toBeGreaterThan(0)
-			const res = await MeteorCall.peripheralDevice.getMediaWorkFlowStepRevisions(device._id, device.token)
-			expect(res).toHaveLength(workFlowSteps.length)
-			expect(res).toMatchObject(workFlowSteps)
-		})
-		describe('updateMediaWorkFlow', () => {
-			test('update', async () => {
-				const workFlow = await MediaWorkFlows.findOneAsync(workFlowId)
-
-				expect(workFlow).toBeTruthy()
-				const newWorkFlow = Object.assign({}, workFlow)
-				newWorkFlow._rev = '2'
-				newWorkFlow.comment = 'New comment'
-
-				await MeteorCall.peripheralDevice.updateMediaWorkFlow(
-					device._id,
-					device.token,
-					newWorkFlow._id,
-					newWorkFlow
-				)
-
-				const updatedWorkFlow = await MediaWorkFlows.findOneAsync(workFlowId)
-				expect(updatedWorkFlow).toMatchObject(newWorkFlow)
-			})
-			test('remove', async () => {
-				const workFlow = (await MediaWorkFlows.findOneAsync(workFlowId)) as MediaWorkFlow
-				expect(workFlow).toBeTruthy()
-
-				await MeteorCall.peripheralDevice.updateMediaWorkFlow(device._id, device.token, workFlow._id, null)
-
-				const updatedWorkFlow = await MediaWorkFlows.findOneAsync(workFlowId)
-				expect(updatedWorkFlow).toBeFalsy()
-			})
-		})
-		describe('updateMediaWorkFlowStep', () => {
-			test('update', async () => {
-				const workStep = await MediaWorkFlowSteps.findOneAsync(workStepIds[0])
-
-				expect(workStep).toBeTruthy()
-				const newWorkStep = Object.assign({}, workStep)
-				newWorkStep._rev = '2'
-				newWorkStep.status = MediaManagerAPI.WorkStepStatus.WORKING
-
-				await MeteorCall.peripheralDevice.updateMediaWorkFlowStep(
-					device._id,
-					device.token,
-					newWorkStep._id,
-					newWorkStep
-				)
-
-				const updatedWorkFlow = await MediaWorkFlowSteps.findOneAsync(workStepIds[0])
-				expect(updatedWorkFlow).toMatchObject(newWorkStep)
-			})
-			test('remove', async () => {
-				const workStep = (await MediaWorkFlowSteps.findOneAsync(workStepIds[0])) as MediaWorkFlowStep
-				expect(workStep).toBeTruthy()
-
-				await MeteorCall.peripheralDevice.updateMediaWorkFlowStep(device._id, device.token, workStep._id, null)
-
-				const updatedWorkFlow = await MediaWorkFlowSteps.findOneAsync(workStepIds[0])
-				expect(updatedWorkFlow).toBeFalsy()
-			})
-		})
-	})
-
 	// test Media Scanner API
 	describe('Media Scanner API', () => {
 		let deviceId: ProtectedString<any>
@@ -802,7 +637,7 @@ describe('test peripheralDevice general API methods', () => {
 					studioId: env.studio._id,
 					configId: 'test',
 				},
-				category: PeripheralDeviceCategory.MEDIA_MANAGER,
+				category: PeripheralDeviceCategory.PLAYOUT,
 				configManifest: {
 					deviceConfigSchema: JSONBlobStringify({}),
 					subdeviceManifest: {},
@@ -817,7 +652,7 @@ describe('test peripheralDevice general API methods', () => {
 				},
 				subType: '_process',
 				token: 'MockToken',
-				type: PeripheralDeviceType.MEDIA_MANAGER,
+				type: PeripheralDeviceType.PLAYOUT,
 			})
 			device = (await PeripheralDevices.findOneAsync(deviceId))!
 

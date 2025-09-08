@@ -1,5 +1,4 @@
-import * as EventEmitter from 'events'
-import { Bucket } from '../collections/Buckets'
+import { EventEmitter } from 'events'
 import {
 	BucketId,
 	PartId,
@@ -10,10 +9,11 @@ import {
 	SegmentId,
 	TriggeredActionId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import type { PieceUi } from '../uiTypes/Piece'
-import type { ShelfTabs } from '../uiTypes/ShelfTabs'
-import type { IAdLibListItem } from '../uiTypes/Adlib'
-import type { BucketAdLibItem } from '../uiTypes/Bucket'
+import type { PieceUi } from '../uiTypes/Piece.js'
+import type { ShelfTabs } from '../uiTypes/ShelfTabs.js'
+import type { IAdLibListItem } from '../uiTypes/Adlib.js'
+import type { BucketAdLibItem } from '../uiTypes/Bucket.js'
+import { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
 
 export enum RundownViewEvents {
 	ACTIVATE_RUNDOWN_PLAYLIST = 'activateRundownPlaylist',
@@ -127,74 +127,38 @@ export interface ItemDroppedEvent extends IEventContext {
 	ev: any
 }
 
-class RundownViewEventBus0 extends EventEmitter {
-	emit(event: RundownViewEvents.ACTIVATE_RUNDOWN_PLAYLIST, e: ActivateRundownPlaylistEvent): boolean
-	emit(event: RundownViewEvents.DEACTIVATE_RUNDOWN_PLAYLIST, e: DeactivateRundownPlaylistEvent): boolean
-	emit(event: RundownViewEvents.RESYNC_RUNDOWN_PLAYLIST, e: BaseEvent): boolean
-	emit(event: RundownViewEvents.RESET_RUNDOWN_PLAYLIST, e: BaseEvent): boolean
-	emit(event: RundownViewEvents.TAKE, e: BaseEvent): boolean
-	emit(event: RundownViewEvents.REWIND_SEGMENTS): boolean
-	emit(event: RundownViewEvents.GO_TO_LIVE_SEGMENT): boolean
-	emit(event: RundownViewEvents.GO_TO_TOP): boolean
-	emit(event: RundownViewEvents.SEGMENT_ZOOM_ON): boolean
-	emit(event: RundownViewEvents.SEGMENT_ZOOM_OFF): boolean
-	emit(event: RundownViewEvents.SHELF_STATE, e: ShelfStateEvent): boolean
-	emit(event: RundownViewEvents.REVEAL_IN_SHELF, e: RevealInShelfEvent): boolean
-	emit(event: RundownViewEvents.SWITCH_SHELF_TAB, e: SwitchToShelfTabEvent): boolean
-	emit(event: RundownViewEvents.MINI_SHELF_QUEUE_ADLIB, e: MiniShelfQueueAdLibEvent): boolean
-	emit(event: RundownViewEvents.GO_TO_PART, e: GoToPartEvent): boolean
-	emit(event: RundownViewEvents.GO_TO_PART_INSTANCE, e: GoToPartInstanceEvent): boolean
-	emit(event: RundownViewEvents.SELECT_PIECE, e: SelectPieceEvent): boolean
-	emit(event: RundownViewEvents.HIGHLIGHT, e: HighlightEvent): boolean
-	emit(event: RundownViewEvents.TRIGGER_ACTION, e: TriggerActionEvent): boolean
-	emit(event: RundownViewEvents.EMPTY_BUCKET, e: BucketEvent): boolean
-	emit(event: RundownViewEvents.DELETE_BUCKET, e: BucketEvent): boolean
-	emit(event: RundownViewEvents.RENAME_BUCKET, e: BucketEvent): boolean
-	emit(event: RundownViewEvents.CREATE_BUCKET, e: IEventContext): boolean
-	emit(event: RundownViewEvents.DELETE_BUCKET_ADLIB, e: BucketAdLibEvent): boolean
-	emit(event: RundownViewEvents.RENAME_BUCKET_ADLIB, e: BucketAdLibEvent): boolean
-	emit(event: RundownViewEvents.CREATE_SNAPSHOT_FOR_DEBUG, e: BaseEvent): boolean
-	emit(event: RundownViewEvents.TOGGLE_SHELF_DROPZONE, e: ToggleShelfDropzoneEvent): boolean
-	emit(event: RundownViewEvents.ITEM_DROPPED, e: ItemDroppedEvent): boolean
-	emit(event: string, ...args: any[]) {
-		return super.emit(event, ...args)
-	}
-
-	on(event: RundownViewEvents.ACTIVATE_RUNDOWN_PLAYLIST, listener: (e: ActivateRundownPlaylistEvent) => void): this
-	on(
-		event: RundownViewEvents.DEACTIVATE_RUNDOWN_PLAYLIST,
-		listener: (e: DeactivateRundownPlaylistEvent) => void
-	): this
-	on(event: RundownViewEvents.RESYNC_RUNDOWN_PLAYLIST, listener: (e: BaseEvent) => void): this
-	on(event: RundownViewEvents.RESET_RUNDOWN_PLAYLIST, listener: (e: BaseEvent) => void): this
-	on(event: RundownViewEvents.TAKE, listener: (e: BaseEvent) => void): this
-	on(event: RundownViewEvents.REWIND_SEGMENTS, listener: () => void): this
-	on(event: RundownViewEvents.GO_TO_LIVE_SEGMENT, listener: () => void): this
-	on(event: RundownViewEvents.GO_TO_TOP, listener: () => void): this
-	on(event: RundownViewEvents.SEGMENT_ZOOM_ON, listener: () => void): this
-	on(event: RundownViewEvents.SEGMENT_ZOOM_OFF, listener: () => void): this
-	on(event: RundownViewEvents.REVEAL_IN_SHELF, listener: (e: RevealInShelfEvent) => void): this
-	on(event: RundownViewEvents.SHELF_STATE, listener: (e: ShelfStateEvent) => void): this
-	on(event: RundownViewEvents.SWITCH_SHELF_TAB, listener: (e: SwitchToShelfTabEvent) => void): this
-	on(event: RundownViewEvents.MINI_SHELF_QUEUE_ADLIB, listener: (e: MiniShelfQueueAdLibEvent) => void): this
-	on(event: RundownViewEvents.GO_TO_PART, listener: (e: GoToPartEvent) => void): this
-	on(event: RundownViewEvents.GO_TO_PART_INSTANCE, listener: (e: GoToPartInstanceEvent) => void): this
-	on(event: RundownViewEvents.SELECT_PIECE, listener: (e: SelectPieceEvent) => void): this
-	on(event: RundownViewEvents.HIGHLIGHT, listener: (e: HighlightEvent) => void): this
-	on(event: RundownViewEvents.TRIGGER_ACTION, listener: (e: TriggerActionEvent) => void): this
-	on(event: RundownViewEvents.EMPTY_BUCKET, listener: (e: BucketEvent) => void): this
-	on(event: RundownViewEvents.DELETE_BUCKET, listener: (e: BucketEvent) => void): this
-	on(event: RundownViewEvents.RENAME_BUCKET, listener: (e: BucketEvent) => void): this
-	on(event: RundownViewEvents.CREATE_BUCKET, listener: (e: IEventContext) => void): this
-	on(event: RundownViewEvents.DELETE_BUCKET_ADLIB, listener: (e: BucketAdLibEvent) => void): this
-	on(event: RundownViewEvents.RENAME_BUCKET_ADLIB, listener: (e: BucketAdLibEvent) => void): this
-	on(event: RundownViewEvents.CREATE_SNAPSHOT_FOR_DEBUG, listener: (e: BaseEvent) => void): this
-	on(event: RundownViewEvents.TOGGLE_SHELF_DROPZONE, listener: (e: ToggleShelfDropzoneEvent) => void): this
-	on(event: RundownViewEvents.ITEM_DROPPED, listener: (e: ItemDroppedEvent) => void): this
-	on(event: string, listener: (...args: any[]) => void) {
-		return super.on(event, listener)
-	}
+export interface RundownViewEventBusEvents {
+	[RundownViewEvents.ACTIVATE_RUNDOWN_PLAYLIST]: [e: ActivateRundownPlaylistEvent]
+	[RundownViewEvents.DEACTIVATE_RUNDOWN_PLAYLIST]: [e: DeactivateRundownPlaylistEvent]
+	[RundownViewEvents.RESYNC_RUNDOWN_PLAYLIST]: [e: BaseEvent]
+	[RundownViewEvents.RESET_RUNDOWN_PLAYLIST]: [e: BaseEvent]
+	[RundownViewEvents.TAKE]: [e: BaseEvent]
+	[RundownViewEvents.REWIND_SEGMENTS]: []
+	[RundownViewEvents.GO_TO_LIVE_SEGMENT]: []
+	[RundownViewEvents.GO_TO_TOP]: []
+	[RundownViewEvents.SEGMENT_ZOOM_ON]: []
+	[RundownViewEvents.SEGMENT_ZOOM_OFF]: []
+	[RundownViewEvents.SHELF_STATE]: [e: ShelfStateEvent]
+	[RundownViewEvents.REVEAL_IN_SHELF]: [e: RevealInShelfEvent]
+	[RundownViewEvents.SWITCH_SHELF_TAB]: [e: SwitchToShelfTabEvent]
+	[RundownViewEvents.MINI_SHELF_QUEUE_ADLIB]: [e: MiniShelfQueueAdLibEvent]
+	[RundownViewEvents.GO_TO_PART]: [e: GoToPartEvent]
+	[RundownViewEvents.GO_TO_PART_INSTANCE]: [e: GoToPartInstanceEvent]
+	[RundownViewEvents.SELECT_PIECE]: [e: SelectPieceEvent]
+	[RundownViewEvents.HIGHLIGHT]: [e: HighlightEvent]
+	[RundownViewEvents.TRIGGER_ACTION]: [e: TriggerActionEvent]
+	[RundownViewEvents.EMPTY_BUCKET]: [e: BucketEvent]
+	[RundownViewEvents.DELETE_BUCKET]: [e: BucketEvent]
+	[RundownViewEvents.RENAME_BUCKET]: [e: BucketEvent]
+	[RundownViewEvents.CREATE_BUCKET]: [e: IEventContext]
+	[RundownViewEvents.DELETE_BUCKET_ADLIB]: [e: BucketAdLibEvent]
+	[RundownViewEvents.RENAME_BUCKET_ADLIB]: [e: BucketAdLibEvent]
+	[RundownViewEvents.CREATE_SNAPSHOT_FOR_DEBUG]: [e: BaseEvent]
+	[RundownViewEvents.TOGGLE_SHELF_DROPZONE]: [e: ToggleShelfDropzoneEvent]
+	[RundownViewEvents.ITEM_DROPPED]: [e: ItemDroppedEvent]
 }
+
+class RundownViewEventBus0 extends EventEmitter<RundownViewEventBusEvents> {}
 
 const RundownViewEventBus = new RundownViewEventBus0()
 RundownViewEventBus.setMaxListeners(Number.MAX_SAFE_INTEGER)

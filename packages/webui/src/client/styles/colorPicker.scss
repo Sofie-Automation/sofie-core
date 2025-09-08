@@ -1,9 +1,4 @@
 .expco.colorpicker {
-	position: relative;
-	padding-top: 0;
-	padding-bottom: 0;
-	padding-left: 8px;
-
 	&.expco-expanded {
 		z-index: 2;
 	}
@@ -16,7 +11,7 @@
 		white-space: nowrap;
 		margin-right: 24px;
 		width: 100%;
-		padding: 12px 0px;
+		padding: 0.2rem 0px;
 		overflow: hidden;
 		vertical-align: middle;
 	}
@@ -34,9 +29,9 @@
 	}
 
 	.expco-item {
-		display: inline-flex;
+		display: inline-flex !important;
 		white-space: pre;
-		margin: 4px;
+		margin: 0.25rem !important;
 
 		&.action-btn {
 			padding: 0px;

@@ -3,9 +3,9 @@ import classNames from 'classnames'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { DragSourceMonitor, DropTargetMonitor, useDrag, useDrop } from 'react-dnd'
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
-import { EditAttribute } from '../../../lib/EditAttribute'
-import { BlueprintConfigSchemaSettings } from '../BlueprintConfigSchema'
-import { ShowStyleDragDropTypes } from './DragDropTypesShowStyle'
+import { EditAttribute } from '../../../lib/EditAttribute.js'
+import { BlueprintConfigSchemaSettings } from '../BlueprintConfigSchema/index.js'
+import { ShowStyleDragDropTypes } from './DragDropTypesShowStyle.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
 	faCheck,
@@ -24,10 +24,10 @@ import { useTranslation } from 'react-i18next'
 import { IBlueprintConfig, JSONSchema } from '@sofie-automation/blueprints-integration'
 import { MappingsExt } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { ShowStyleVariantId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { iconDragHandle } from '../../RundownList/icons'
-import { ShowStyleVariants } from '../../../collections'
+import { iconDragHandle } from '../../RundownList/icons.js'
+import { ShowStyleVariants } from '../../../collections/index.js'
 import { SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { LabelActual } from '../../../lib/Components/LabelAndOverrides'
+import { LabelActual } from '../../../lib/Components/LabelAndOverrides.js'
 
 interface DraggableVariant {
 	id: ShowStyleVariantId
@@ -159,21 +159,16 @@ export const VariantListItem = ({
 								<label className="field">
 									<LabelActual label={t('Name')} />
 									<EditAttribute
-										modifiedClassName="bghl"
 										attribute={'name'}
 										obj={showStyleVariant}
 										type="text"
 										collection={ShowStyleVariants}
-										className="input text-input input-l"
 									></EditAttribute>
 								</label>
-							</div>
 
-							<div className="properties-grid">
 								<label className="field">
 									<LabelActual label={t('Can Generate Adlib Testing Rundown')} />
 									<EditAttribute
-										modifiedClassName="bghl"
 										attribute={'canGenerateAdlibTestingRundown'}
 										obj={showStyleVariant}
 										type="checkbox"
@@ -183,51 +178,47 @@ export const VariantListItem = ({
 										{t('This requires the blueprints to implement the `generateAdlibTestingIngestRundown` method')}
 									</span>
 								</label>
-							</div>
 
-							<div className="row">
-								<div className="col c12 r1-c12 phs">
-									<h3 className="mhn">{t('Blueprint Configuration')}</h3>
+								<h3 className="my-2">{t('Blueprint Configuration')}</h3>
 
-									<div className="properties-grid">
-										<label className="field">
-											<LabelActual label={t('Config preset')} />
-											{!showStyleVariant.blueprintConfigPresetId && (
-												<div className="error-notice inline">
-													{t('Config preset not set')} <FontAwesomeIcon icon={faExclamationTriangle} />
-												</div>
-											)}
-											{showStyleVariant.blueprintConfigPresetIdUnlinked && showStyleVariant.blueprintConfigPresetId && (
-												<div className="error-notice inline">
-													{t('Config preset is missing')} <FontAwesomeIcon icon={faExclamationTriangle} />
-												</div>
-											)}
-											<EditAttribute
-												modifiedClassName="bghl"
-												attribute="blueprintConfigPresetId"
-												obj={showStyleVariant}
-												type="dropdown"
-												options={blueprintPresetConfigOptions}
-												mutateDisplayValue={(v) => v || ''}
-												mutateUpdateValue={(v) => (v === '' ? undefined : v)}
-												collection={ShowStyleVariants}
-												className="mdinput"
-											/>
-										</label>
-									</div>
+								<label className="field">
+									<LabelActual label={t('Config preset')} />
 
-									<BlueprintConfigSchemaSettings
-										schema={blueprintConfigSchema}
-										translationNamespaces={blueprintTranslationNamespaces}
-										alternateConfig={applyAndValidateOverrides(baseBlueprintConfigWithOverrides).obj}
-										layerMappings={layerMappings}
-										sourceLayers={sourceLayers}
-										configObject={showStyleVariant.blueprintConfigWithOverrides}
-										saveOverrides={(newOps) => onSaveOverrides(showStyleVariant._id, newOps)}
+									<EditAttribute
+										attribute="blueprintConfigPresetId"
+										obj={showStyleVariant}
+										type="dropdown"
+										options={blueprintPresetConfigOptions}
+										mutateDisplayValue={(v) => v || ''}
+										mutateUpdateValue={(v) => (v === '' ? undefined : v)}
+										collection={ShowStyleVariants}
 									/>
-								</div>
+									<div>
+										{!showStyleVariant.blueprintConfigPresetId && (
+											<div className="error-notice inline">
+												{t('Config preset not set')} <FontAwesomeIcon icon={faExclamationTriangle} />
+											</div>
+										)}
+										{showStyleVariant.blueprintConfigPresetIdUnlinked && showStyleVariant.blueprintConfigPresetId && (
+											<div className="error-notice inline">
+												{t('Config preset is missing')} <FontAwesomeIcon icon={faExclamationTriangle} />
+											</div>
+										)}
+									</div>
+								</label>
 							</div>
-							<div className="mod alright">
+
+							<BlueprintConfigSchemaSettings
+								schema={blueprintConfigSchema}
+								translationNamespaces={blueprintTranslationNamespaces}
+								alternateConfig={applyAndValidateOverrides(baseBlueprintConfigWithOverrides).obj}
+								layerMappings={layerMappings}
+								sourceLayers={sourceLayers}
+								configObject={showStyleVariant.blueprintConfigWithOverrides}
+								saveOverrides={(newOps) => onSaveOverrides(showStyleVariant._id, newOps)}
+							/>
+
+							<div className="m-1 me-2 text-end">
 								<button className="btn btn-primary" onClick={() => onFinishEdit(showStyleVariant._id)}>
 									<FontAwesomeIcon icon={faCheck} />
 								</button>

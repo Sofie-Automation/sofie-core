@@ -1,4 +1,4 @@
-import type { TriggerTrackerComputation } from './triggersContext'
+import type { TriggerTrackerComputation } from './triggersContext.js'
 
 // Copied from Meteor
 export interface TriggerReactiveVar<T> {

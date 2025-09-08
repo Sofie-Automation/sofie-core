@@ -1,9 +1,9 @@
-export * from './lib/coreConnection'
-export * from './lib/configManifest'
-export * from './lib/ddpClient'
-export * from './lib/methods'
-export * from './lib/process'
-export { SubscriptionId } from './lib/subscriptions'
+export * from './lib/coreConnection.js'
+export * from './lib/configManifest.js'
+export * from './lib/ddpClient.js'
+export * from './lib/methods.js'
+export * from './lib/process.js'
+export { SubscriptionId } from './lib/subscriptions.js'
 
 // Re-export some util from shared-lib
 export * from '@sofie-automation/shared-lib/dist/lib/lib'

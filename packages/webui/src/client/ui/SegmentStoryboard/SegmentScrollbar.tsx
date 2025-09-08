@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { LeftArrow, RightArrow } from '../../lib/ui/icons/segment'
-import { getElementWidth } from '../../utils/dimensions'
+import { LeftArrow, RightArrow } from '../../lib/ui/icons/segment.js'
+import { getElementWidth } from '../../utils/dimensions.js'
 
 interface IProps {
 	scrollLeft: number

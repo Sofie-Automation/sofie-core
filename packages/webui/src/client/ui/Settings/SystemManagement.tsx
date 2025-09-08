@@ -1,35 +1,40 @@
 import React, { useCallback, useMemo } from 'react'
-import { useTracker, useSubscription } from '../../lib/ReactMeteorData/ReactMeteorData'
+import { useTracker, useSubscription } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import { ICoreSystem, SofieLogo } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { EditAttribute } from '../../lib/EditAttribute'
-import { doModalDialog } from '../../lib/ModalDialog'
-import { MeteorCall } from '../../lib/meteorApi'
-import { languageAnd } from '../../lib/language'
-import { TriggeredActionsEditor } from './components/triggeredActions/TriggeredActionsEditor'
+import { EditAttribute } from '../../lib/EditAttribute.js'
+import { doModalDialog } from '../../lib/ModalDialog.js'
+import { MeteorCall } from '../../lib/meteorApi.js'
+import { languageAnd } from '../../lib/language.js'
+import { TriggeredActionsEditor } from './components/triggeredActions/TriggeredActionsEditor.js'
 import { TFunction, useTranslation } from 'react-i18next'
 import { Meteor } from 'meteor/meteor'
-import { literal, LogLevel } from '../../lib/tempLib'
-import { CoreSystem } from '../../collections'
+import { literal, LogLevel } from '../../lib/tempLib.js'
+import { CoreSystem } from '../../collections/index.js'
 import { CollectionCleanupResult } from '@sofie-automation/meteor-lib/dist/api/system'
 import {
 	LabelActual,
 	LabelAndOverrides,
 	LabelAndOverridesForCheckbox,
 	LabelAndOverridesForMultiLineText,
-} from '../../lib/Components/LabelAndOverrides'
-import { catchError } from '../../lib/lib'
-import { SystemManagementBlueprint } from './SystemManagement/Blueprint'
+} from '../../lib/Components/LabelAndOverrides.js'
+import { catchError } from '../../lib/lib.js'
+import { SystemManagementBlueprint } from './SystemManagement/Blueprint.js'
 import {
 	applyAndValidateOverrides,
 	ObjectWithOverrides,
 	SomeObjectOverrideOp,
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { ICoreSystemSettings } from '@sofie-automation/blueprints-integration'
-import { WrappedOverridableItemNormal, useOverrideOpHelper } from './util/OverrideOpHelper'
-import { CheckboxControl } from '../../lib/Components/Checkbox'
-import { CombinedMultiLineTextInputControl, MultiLineTextInputControl } from '../../lib/Components/MultiLineTextInput'
-import { TextInputControl } from '../../lib/Components/TextInput'
+import { WrappedOverridableItemNormal, useOverrideOpHelper } from './util/OverrideOpHelper.js'
+import { CheckboxControl } from '../../lib/Components/Checkbox.js'
+import {
+	CombinedMultiLineTextInputControl,
+	MultiLineTextInputControl,
+} from '../../lib/Components/MultiLineTextInput.js'
+import { TextInputControl } from '../../lib/Components/TextInput.js'
+import Button from 'react-bootstrap/esm/Button'
+import { createPrivateApiPath } from '../../url.js'
 
 interface WithCoreSystemProps {
 	coreSystem: ICoreSystem
@@ -43,7 +48,7 @@ export default function SystemManagement(): JSX.Element | null {
 
 	if (!coreSystem) return null
 	return (
-		<div className="studio-edit mod mhl mvn">
+		<div className="studio-edit mx-4 mb-4">
 			<SystemManagementGeneral coreSystem={coreSystem} />
 
 			<SystemManagementBlueprint coreSystem={coreSystem} />
@@ -54,11 +59,7 @@ export default function SystemManagement(): JSX.Element | null {
 
 			<SystemManagementEvaluationsMessage coreSystem={coreSystem} />
 
-			<div className="row">
-				<div className="col c12 r1-c12">
-					<TriggeredActionsEditor showStyleBaseId={null} sourceLayers={emptyObject} outputLayers={emptyObject} />
-				</div>
-			</div>
+			<TriggeredActionsEditor showStyleBaseId={null} sourceLayers={emptyObject} outputLayers={emptyObject} />
 
 			<SystemManagementMonitoring coreSystem={coreSystem} />
 
@@ -75,56 +76,37 @@ function SystemManagementGeneral({ coreSystem }: Readonly<WithCoreSystemProps>) 
 
 	return (
 		<>
-			<h2 className="mhn mtn">{t('General')}</h2>
+			<h2 className="my-4">{t('General')}</h2>
 			<div className="properties-grid">
 				<label className="field">
 					<LabelActual label={t('Installation name')} />
-					<div className="mdi">
-						<EditAttribute
-							modifiedClassName="bghl"
-							attribute="name"
-							obj={coreSystem}
-							type="text"
-							collection={CoreSystem}
-							className="mdinput"
-						/>
-						<span className="mdfx"></span>
-					</div>
+					<EditAttribute attribute="name" obj={coreSystem} type="text" collection={CoreSystem} />
 					<span className="text-s dimmed field-hint">
 						{t('This name will be shown in the title bar of the window')}
 					</span>
 				</label>
 				<label className="field">
 					<LabelActual label={t('Logo')} />
-					<div className="mdi">
-						<EditAttribute
-							modifiedClassName="bghl"
-							attribute="logo"
-							obj={coreSystem}
-							type="dropdown"
-							options={{ ...SofieLogo }}
-							collection={CoreSystem}
-							className="mdinput"
-						/>
-					</div>
+					<EditAttribute
+						attribute="logo"
+						obj={coreSystem}
+						type="dropdown"
+						options={{ ...SofieLogo }}
+						collection={CoreSystem}
+					/>
 					<span className="text-s dimmed field-hint">
 						{t('Sofie logo to be displayed in the header. Requires a page refresh.')}
 					</span>
 				</label>
 				<label className="field">
 					<LabelActual label={t('Logging level')} />
-					<div className="mdi">
-						<EditAttribute
-							modifiedClassName="bghl"
-							attribute="logLevel"
-							obj={coreSystem}
-							type="dropdown"
-							options={{ ...LogLevel, 'Use fallback': undefined }}
-							collection={CoreSystem}
-							className="mdinput"
-						/>
-						<span className="mdfx"></span>
-					</div>
+					<EditAttribute
+						attribute="logLevel"
+						obj={coreSystem}
+						type="dropdown"
+						options={{ ...LogLevel, 'Use fallback': undefined }}
+						collection={CoreSystem}
+					/>
 					<span className="text-s dimmed field-hint">
 						{t('This affects how much is logged to the console on the server')}
 					</span>
@@ -139,32 +121,20 @@ function SystemManagementNotificationMessage({ coreSystem }: Readonly<WithCoreSy
 
 	return (
 		<>
-			<h2 className="mhn mtn">{t('System-wide Notification Message')}</h2>
+			<h2 className="my-4">{t('System-wide Notification Message')}</h2>
 			<div className="properties-grid">
 				<label className="field">
 					<LabelActual label={t('Message')} />
-					<div className="mdi">
-						<EditAttribute
-							modifiedClassName="bghl"
-							attribute="systemInfo.message"
-							obj={coreSystem}
-							type="text"
-							collection={CoreSystem}
-							className="mdinput"
-						/>
-						<span className="mdfx"></span>
-					</div>
+					<EditAttribute attribute="systemInfo.message" obj={coreSystem} type="text" collection={CoreSystem} />
 				</label>
 				<label className="field">
 					<LabelActual label={t('Enabled')} />
-					<div className="mdi">
-						<EditAttribute
-							attribute="systemInfo.enabled"
-							obj={coreSystem}
-							type="checkbox"
-							collection={CoreSystem}
-						></EditAttribute>
-					</div>
+					<EditAttribute
+						attribute="systemInfo.enabled"
+						obj={coreSystem}
+						type="checkbox"
+						collection={CoreSystem}
+					></EditAttribute>
 				</label>
 			</div>
 		</>
@@ -178,7 +148,7 @@ function SystemManagementSupportPanel({ coreSystem }: Readonly<WithCoreSystemPro
 
 	return (
 		<>
-			<h2 className="mhn mtn">{t('Support Panel')}</h2>
+			<h2 className="my-4">{t('Support Panel')}</h2>
 			<div className="properties-grid">
 				<LabelAndOverrides
 					label={t('Edit Support Panel')}
@@ -188,14 +158,7 @@ function SystemManagementSupportPanel({ coreSystem }: Readonly<WithCoreSystemPro
 					overrideHelper={overrideHelper}
 					hint={t('HTML that will be shown in the Support Panel')}
 				>
-					{(value, handleUpdate) => (
-						<CombinedMultiLineTextInputControl
-							modifiedClassName="bghl"
-							classNames="input text-input input-l"
-							value={value}
-							handleUpdate={handleUpdate}
-						/>
-					)}
+					{(value, handleUpdate) => <CombinedMultiLineTextInputControl value={value} handleUpdate={handleUpdate} />}
 				</LabelAndOverrides>
 			</div>
 		</>
@@ -209,7 +172,7 @@ function SystemManagementEvaluationsMessage({ coreSystem }: Readonly<WithCoreSys
 
 	return (
 		<>
-			<h2 className="mhn mtn">{t('Evaluations')}</h2>
+			<h2 className="my-4">{t('Evaluations')}</h2>
 			<div className="properties-grid">
 				<LabelAndOverridesForCheckbox
 					label={t('Enabled')}
@@ -228,14 +191,7 @@ function SystemManagementEvaluationsMessage({ coreSystem }: Readonly<WithCoreSys
 					itemKey={'evaluationsMessage.heading'}
 					overrideHelper={overrideHelper}
 				>
-					{(value, handleUpdate) => (
-						<TextInputControl
-							modifiedClassName="bghl"
-							classNames="input text-input input-l"
-							value={value}
-							handleUpdate={handleUpdate}
-						/>
-					)}
+					{(value, handleUpdate) => <TextInputControl value={value} handleUpdate={handleUpdate} />}
 				</LabelAndOverrides>
 
 				<LabelAndOverrides
@@ -246,14 +202,7 @@ function SystemManagementEvaluationsMessage({ coreSystem }: Readonly<WithCoreSys
 					overrideHelper={overrideHelper}
 					hint={t('Message shown to users in the Evaluations form')}
 				>
-					{(value, handleUpdate) => (
-						<CombinedMultiLineTextInputControl
-							modifiedClassName="bghl"
-							classNames="input text-input input-l"
-							value={value}
-							handleUpdate={handleUpdate}
-						/>
-					)}
+					{(value, handleUpdate) => <CombinedMultiLineTextInputControl value={value} handleUpdate={handleUpdate} />}
 				</LabelAndOverrides>
 			</div>
 		</>
@@ -265,32 +214,20 @@ function SystemManagementMonitoring({ coreSystem }: Readonly<WithCoreSystemProps
 
 	return (
 		<>
-			<h2 className="mhn">{t('Application Performance Monitoring')}</h2>
+			<h2 className="my-4">{t('Application Performance Monitoring')}</h2>
 			<div className="properties-grid">
 				<label className="field">
 					<LabelActual label={t('APM Enabled')} />
-					<div className="mdi">
-						<EditAttribute
-							attribute="apm.enabled"
-							obj={coreSystem}
-							type="checkbox"
-							collection={CoreSystem}
-						></EditAttribute>
-					</div>
+					<EditAttribute
+						attribute="apm.enabled"
+						obj={coreSystem}
+						type="checkbox"
+						collection={CoreSystem}
+					></EditAttribute>
 				</label>
 				<label className="field">
 					<LabelActual label={t('APM Transaction Sample Rate')} />
-					<div className="mdi">
-						<EditAttribute
-							modifiedClassName="bghl"
-							attribute="apm.transactionSampleRate"
-							obj={coreSystem}
-							type="float"
-							collection={CoreSystem}
-							className="mdinput"
-						/>
-						<span className="mdfx"></span>
-					</div>
+					<EditAttribute attribute="apm.transactionSampleRate" obj={coreSystem} type="float" collection={CoreSystem} />
 					<span className="text-s dimmed field-hint">
 						{t(
 							'How many of the transactions to monitor. Set to -1 to log nothing (max performance), 0.5 to log 50% of the transactions, 1 to log all transactions'
@@ -300,22 +237,15 @@ function SystemManagementMonitoring({ coreSystem }: Readonly<WithCoreSystemProps
 						{t('Note: Core needs to be restarted to apply these settings')}
 					</span>
 				</label>
-			</div>
 
-			<div className="properties-grid">
 				<label className="field">
 					<LabelActual label={t('Monitor blocked thread')} />
-					<div className="mdi">
-						<EditAttribute
-							modifiedClassName="bghl"
-							attribute="enableMonitorBlockedThread"
-							obj={coreSystem}
-							type="checkbox"
-							collection={CoreSystem}
-							className="mdinput"
-						/>
-						<span className="mdfx"></span>
-					</div>
+					<EditAttribute
+						attribute="enableMonitorBlockedThread"
+						obj={coreSystem}
+						type="checkbox"
+						collection={CoreSystem}
+					/>
 					<span className="text-s dimmed field-hint">
 						{t(
 							'Enables internal monitoring of blocked main thread. Logs when there is an issue, but (unverified) might cause issues in itself.'
@@ -336,7 +266,7 @@ function SystemManagementCronJobs({ coreSystem }: Readonly<WithCoreSystemProps>)
 
 	return (
 		<>
-			<h2 className="mhn">{t('Cron jobs')}</h2>
+			<h2 className="my-4">{t('Cron jobs')}</h2>
 			<div className="properties-grid">
 				<LabelAndOverridesForCheckbox
 					label={t('Enable CasparCG restart job')}
@@ -366,14 +296,7 @@ function SystemManagementCronJobs({ coreSystem }: Readonly<WithCoreSystemProps>)
 					overrideHelper={overrideHelper}
 					hint={t('(Comma separated list. Empty - will store snapshots of all Rundown Playlists)')}
 				>
-					{(value, handleUpdate) => (
-						<MultiLineTextInputControl
-							modifiedClassName="bghl"
-							classNames="input text-input input-l"
-							value={value}
-							handleUpdate={handleUpdate}
-						/>
-					)}
+					{(value, handleUpdate) => <MultiLineTextInputControl value={value} handleUpdate={handleUpdate} />}
 				</LabelAndOverridesForMultiLineText>
 			</div>
 		</>
@@ -391,7 +314,6 @@ function SystemManagementCleanup() {
 		MeteorCall.system
 			.cleanupIndexes(false)
 			.then((indexesToRemove) => {
-				console.log(indexesToRemove)
 				doModalDialog({
 					title: t('Remove indexes'),
 					message: t('This will remove {{indexCount}} old indexes, do you want to continue?', {
@@ -423,16 +345,15 @@ function SystemManagementCleanup() {
 
 	return (
 		<>
-			<h2 className="mhn">{t('Cleanup')}</h2>
+			<h2 className="my-4">{t('Cleanup')}</h2>
 			<div>
-				<button className="btn btn-default" onClick={cleanUpOldDatabaseIndexes}>
+				<Button onClick={cleanUpOldDatabaseIndexes} variant="secondary" className="me-1 btn-outline-secondary">
 					{t('Cleanup old database indexes')}
-				</button>
-			</div>
-			<div>
-				<button className="btn btn-default" onClick={localCheckForOldDataAndCleanUp}>
+				</Button>
+
+				<Button onClick={localCheckForOldDataAndCleanUp} variant="secondary" className="me-1 btn-outline-secondary">
 					{t('Cleanup old data')}
-				</button>
+				</Button>
 			</div>
 		</>
 	)
@@ -504,8 +425,6 @@ export function checkForOldDataAndCleanUp(t: TFunction, retriesLeft = 0): void {
 							MeteorCall.system
 								.cleanupOldData(true)
 								.then((results) => {
-									console.log(results)
-
 									if (typeof results === 'string') {
 										doModalDialog({
 											title: t('Error'),
@@ -564,7 +483,7 @@ function SystemManagementHeapSnapshot() {
 	}, [])
 	return (
 		<>
-			<h2 className="mhn">{t('Memory troubleshooting')}</h2>
+			<h2 className="my-4">{t('Memory troubleshooting')}</h2>
 			<div>
 				{active ? (
 					<span>{t('Preparing, please wait...')}</span>
@@ -572,17 +491,19 @@ function SystemManagementHeapSnapshot() {
 					<>
 						<div>{t(`Are you sure? This will cause the whole Sofie system to be unresponsive several seconds!`)}</div>
 
-						<a className="btn btn-primary" href="/api/private/heapSnapshot/retrieve?areYouSure=yes" onClick={onConfirm}>
+						<a
+							className="btn btn-primary"
+							href={createPrivateApiPath('heapSnapshot/retrieve?areYouSure=yes')}
+							onClick={onConfirm}
+						>
 							{t(`Yes, Take and Download Memory Heap Snapshot`)}
 						</a>
-						<button className="btn btn-default" onClick={onReset}>
-							{t(`No`)}
-						</button>
+						<Button onClick={onReset}>{t(`No`)}</Button>
 					</>
 				) : (
-					<button className="btn btn-primary" onClick={onAreYouSure}>
+					<Button onClick={onAreYouSure} variant="secondary" className="btn-outline-secondary">
 						{t(`Take and Download Memory Heap Snapshot`)}
-					</button>
+					</Button>
 				)}
 			</div>
 			<div>

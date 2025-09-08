@@ -29,7 +29,7 @@
 import { Tracker } from './tracker'
 
 /**
- * @class 
+ * @class
  * @instanceName reactiveVar
  * @summary Constructor for a ReactiveVar, which represents a single reactive variable.
  * @locus Client
@@ -37,62 +37,58 @@ import { Tracker } from './tracker'
  * @param {Function} [equalsFunc] Optional.  A function of two arguments, called on the old value and the new value whenever the ReactiveVar is set.  If it returns true, no set is performed.  If omitted, the default `equalsFunc` returns true if its arguments are `===` and are of type number, boolean, string, undefined, or null.
  */
 export const ReactiveVar = function (initialValue, equalsFunc) {
-    if (! (this instanceof ReactiveVar))
-      // called without `new`
-      return new ReactiveVar(initialValue, equalsFunc);
-  
-    this.curValue = initialValue;
-    this.equalsFunc = equalsFunc;
-    this.dep = new Tracker.Dependency;
-  };
-  
-  ReactiveVar._isEqual = function (oldValue, newValue) {
-    var a = oldValue, b = newValue;
-    // Two values are "equal" here if they are `===` and are
-    // number, boolean, string, undefined, or null.
-    if (a !== b)
-      return false;
-    else
-      return ((!a) || (typeof a === 'number') || (typeof a === 'boolean') ||
-              (typeof a === 'string'));
-  };
-  
-  /**
-   * @summary Returns the current value of the ReactiveVar, establishing a reactive dependency.
-   * @locus Client
-   */
-  ReactiveVar.prototype.get = function (computation) {
-    if (Tracker.active || computation)
-      this.dep.depend(computation);
-  
-    return this.curValue;
-  };
-  
-  /**
-   * @summary Sets the current value of the ReactiveVar, invalidating the Computations that called `get` if `newValue` is different from the old value.
-   * @locus Client
-   * @param {Any} newValue
-   */
-  ReactiveVar.prototype.set = function (newValue) {
-    var oldValue = this.curValue;
-  
-    if ((this.equalsFunc || ReactiveVar._isEqual)(oldValue, newValue))
-      // value is same as last time
-      return;
-  
-    this.curValue = newValue;
-    this.dep.changed();
-  };
-  
-  ReactiveVar.prototype.toString = function () {
-    return 'ReactiveVar{' + this.get() + '}';
-  };
-  
-  ReactiveVar.prototype._numListeners = function() {
-    // Tests want to know.
-    // Accesses a private field of Tracker.Dependency.
-    var count = 0;
-    for (var id in this.dep._dependentsById)
-      count++;
-    return count;
-  };
+	if (!(this instanceof ReactiveVar))
+		// called without `new`
+		return new ReactiveVar(initialValue, equalsFunc)
+
+	this.curValue = initialValue
+	this.equalsFunc = equalsFunc
+	this.dep = new Tracker.Dependency()
+}
+
+ReactiveVar._isEqual = function (oldValue, newValue) {
+	var a = oldValue,
+		b = newValue
+	// Two values are "equal" here if they are `===` and are
+	// number, boolean, string, undefined, or null.
+	if (a !== b) return false
+	else return !a || typeof a === 'number' || typeof a === 'boolean' || typeof a === 'string'
+}
+
+/**
+ * @summary Returns the current value of the ReactiveVar, establishing a reactive dependency.
+ * @locus Client
+ */
+ReactiveVar.prototype.get = function (computation) {
+	if (Tracker.active || computation) this.dep.depend(computation)
+
+	return this.curValue
+}
+
+/**
+ * @summary Sets the current value of the ReactiveVar, invalidating the Computations that called `get` if `newValue` is different from the old value.
+ * @locus Client
+ * @param {Any} newValue
+ */
+ReactiveVar.prototype.set = function (newValue) {
+	var oldValue = this.curValue
+
+	if ((this.equalsFunc || ReactiveVar._isEqual)(oldValue, newValue))
+		// value is same as last time
+		return
+
+	this.curValue = newValue
+	this.dep.changed()
+}
+
+ReactiveVar.prototype.toString = function () {
+	return 'ReactiveVar{' + this.get() + '}'
+}
+
+ReactiveVar.prototype._numListeners = function () {
+	// Tests want to know.
+	// Accesses a private field of Tracker.Dependency.
+	var count = 0
+	for (var id in this.dep._dependentsById) count++
+	return count
+}

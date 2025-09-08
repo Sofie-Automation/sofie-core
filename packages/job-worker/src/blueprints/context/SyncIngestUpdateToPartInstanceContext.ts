@@ -2,11 +2,11 @@ import { PieceInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { normalizeArrayToMap, omit } from '@sofie-automation/corelib/dist/lib'
 import { protectString, protectStringArray, unprotectStringArray } from '@sofie-automation/corelib/dist/protectedString'
-import { PlayoutPartInstanceModel } from '../../playout/model/PlayoutPartInstanceModel'
+import { PlayoutPartInstanceModel } from '../../playout/model/PlayoutPartInstanceModel.js'
 import { ReadonlyDeep } from 'type-fest'
-import _ = require('underscore')
-import { ContextInfo } from './CommonContext'
-import { RundownUserContext } from './RundownUserContext'
+import _ from 'underscore'
+import { ContextInfo } from './CommonContext.js'
+import { RundownUserContext } from './RundownUserContext.js'
 import {
 	ISyncIngestUpdateToPartInstanceContext,
 	IBlueprintPiece,
@@ -17,21 +17,21 @@ import {
 	SomeContent,
 	WithTimeline,
 } from '@sofie-automation/blueprints-integration'
-import { postProcessPieces, postProcessTimelineObjects } from '../postProcess'
+import { postProcessPieces, postProcessTimelineObjects } from '../postProcess.js'
 import {
 	IBlueprintPieceObjectsSampleKeys,
 	convertPieceInstanceToBlueprints,
 	convertPartInstanceToBlueprints,
 	convertPartialBlueprintMutablePartToCore,
-} from './lib'
+} from './lib.js'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { JobContext, JobStudio, ProcessedShowStyleCompound } from '../../jobs'
+import { JobContext, JobStudio, ProcessedShowStyleCompound } from '../../jobs/index.js'
 import {
 	PieceTimelineObjectsBlob,
 	serializePieceTimelineObjectsBlob,
 } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { EXPECTED_INGEST_TO_PLAYOUT_TIME } from '@sofie-automation/shared-lib/dist/core/constants'
-import { getCurrentTime } from '../../lib'
+import { getCurrentTime } from '../../lib/index.js'
 
 export class SyncIngestUpdateToPartInstanceContext
 	extends RundownUserContext
@@ -96,7 +96,7 @@ export class SyncIngestUpdateToPartInstanceContext
 					this.partInstance.partInstance.segmentId,
 					this.partInstance.partInstance.part._id,
 					this.playStatus === 'current'
-			  )[0]
+				)[0]
 			: proposedPieceInstance.piece
 
 		const newPieceInstance: ReadonlyDeep<PieceInstance> = {

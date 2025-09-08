@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { EventEmitter } from 'events'
-import { AnyMessage } from '../lib/ddpClient'
+import { AnyMessage } from '../lib/ddpClient.js'
 import * as EJSON from 'ejson'
 // import * as util from 'util'
 
@@ -109,7 +109,7 @@ export class Client extends EventEmitter {
 										error: 418,
 										reason: 'Bad Wolf error',
 										errorType: 'Meteor.Error',
-								  }
+									}
 								: undefined,
 						})
 					),

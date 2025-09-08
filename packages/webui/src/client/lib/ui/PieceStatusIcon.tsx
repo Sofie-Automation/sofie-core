@@ -1,5 +1,5 @@
-import { NoticeLevel } from '../notifications/notifications'
-import { CriticalIconSmall, WarningIconSmall } from './icons/notifications'
+import { NoticeLevel } from '../notifications/notifications.js'
+import { CriticalIconSmall, WarningIconSmall } from './icons/notifications.js'
 
 export interface IProps {
 	noticeLevel: NoticeLevel

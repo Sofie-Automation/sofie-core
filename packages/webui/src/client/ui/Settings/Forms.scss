@@ -1,19 +1,11 @@
 .properties-grid {
 	display: grid;
-	grid-auto-columns: fit-content(350px) auto minmax(350px, 1fr) fit-content(350px) minmax(max-content, 100px);
+	grid-auto-columns: fit-content(350px) minmax(350px, 1fr) auto minmax(max-content, 100px);
 	gap: 0 10px;
 	margin-left: 10px;
 
-	&:not(:first-child) {
-		margin-top: 20px;
-	}
-
-	&.form-dark {
-		color: white;
-
-		> .text-input.bghl {
-			color: black !important;
-		}
+	> * {
+		align-content: center;
 	}
 }
 
@@ -39,16 +31,27 @@
 .properties-grid > .field > .field-content {
 	text-wrap: nowrap;
 
+	align-content: center;
+
 	.field-clear {
 		margin-bottom: -6px !important;
 	}
 }
 
+.properties-grid > .field > .field-default {
+	align-content: center;
+}
+
 .properties-grid > .field > .field-hint {
 	grid-column: 1 / 5;
+	margin-top: 0.25rem;
 }
 
 .properties-grid > .field > .label-actual {
 	display: flex;
 	align-items: center;
+}
+
+.properties-grid > .field > .btn {
+	align-self: flex-start;
 }

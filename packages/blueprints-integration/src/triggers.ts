@@ -1,5 +1,5 @@
-import { SourceLayerType } from './content'
-import { ITranslatableMessage } from './translations'
+import { SourceLayerType } from './content.js'
+import { ITranslatableMessage } from './translations.js'
 import {
 	SomeActionIdentifier,
 	ClientActions,

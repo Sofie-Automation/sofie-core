@@ -1,10 +1,10 @@
-import type { DatastorePersistenceMode, Time } from '../common'
-import type { IEventContext } from '.'
-import type { IShowStyleUserContext } from './showStyleContext'
-import { IPartAndPieceActionContext } from './partsAndPieceActionContext'
-import { IExecuteTSRActionsContext } from './executeTsrActionContext'
-import { IBlueprintPart, IBlueprintPartInstance, IBlueprintPiece } from '..'
-import { IRouteSetMethods } from './routeSetContext'
+import type { DatastorePersistenceMode, Time } from '../common.js'
+import type { IEventContext } from './index.js'
+import type { IShowStyleUserContext } from './showStyleContext.js'
+import { IPartAndPieceActionContext } from './partsAndPieceActionContext.js'
+import { IExecuteTSRActionsContext } from './executeTsrActionContext.js'
+import { IBlueprintPart, IBlueprintPartInstance, IBlueprintPiece } from '../index.js'
+import { IRouteSetMethods } from './routeSetContext.js'
 
 /** Actions */
 export interface IDataStoreMethods {

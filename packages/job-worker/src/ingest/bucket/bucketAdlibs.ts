@@ -1,5 +1,5 @@
-import { PieceId, AdLibActionId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { JobContext } from '../../jobs'
+import { BucketAdLibActionId, BucketAdLibId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { JobContext } from '../../jobs/index.js'
 import {
 	BucketActionModifyProps,
 	BucketActionRegenerateExpectedPackagesProps,
@@ -13,18 +13,12 @@ import {
 	cleanUpExpectedPackagesForBucketAdLibsActions,
 	updateExpectedPackagesForBucketAdLibPiece,
 	updateExpectedPackagesForBucketAdLibAction,
-} from '../expectedPackages'
-import {
-	cleanUpExpectedMediaItemForBucketAdLibActions,
-	cleanUpExpectedMediaItemForBucketAdLibPiece,
-	updateExpectedMediaItemForBucketAdLibAction,
-	updateExpectedMediaItemForBucketAdLibPiece,
-} from '../expectedMediaItems'
+} from '../expectedPackages.js'
 import { omit } from '@sofie-automation/corelib/dist/lib'
 import { BucketAdLib } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibPiece'
 import { BucketAdLibAction } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibAction'
 import { ExpectedPackageDBType } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
-import { MongoQuery } from '../../db'
+import { MongoQuery } from '../../db/index.js'
 
 export async function handleBucketRemoveAdlibPiece(
 	context: JobContext,
@@ -34,13 +28,12 @@ export async function handleBucketRemoveAdlibPiece(
 	if (!piece || piece.studioId !== context.studioId)
 		throw new Error(`Bucket Piece "${data.pieceId}" not found in this studio`)
 
-	const idsToUpdate: PieceId[] = [piece._id]
+	const idsToUpdate: BucketAdLibId[] = [piece._id]
 	// Also remove adlibs that are grouped together with this adlib in the GUI:
 	;(await getGroupedAdlibs(context, piece)).forEach(({ _id }) => idsToUpdate.push(_id))
 
 	await Promise.all([
 		context.directCollections.BucketAdLibPieces.remove({ _id: { $in: idsToUpdate } }),
-		cleanUpExpectedMediaItemForBucketAdLibPiece(context, idsToUpdate),
 		cleanUpExpectedPackagesForBucketAdLibs(context, idsToUpdate),
 	])
 }
@@ -53,13 +46,12 @@ export async function handleBucketRemoveAdlibAction(
 	if (!action || action.studioId !== context.studioId)
 		throw new Error(`Bucket Action "${data.actionId}" not found in this studio`)
 
-	const idsToUpdate: AdLibActionId[] = [action._id]
+	const idsToUpdate: BucketAdLibActionId[] = [action._id]
 	// Also remove adlibs that are grouped together with this adlib in the GUI:
 	;(await getGroupedAdlibActions(context, action)).forEach(({ _id }) => idsToUpdate.push(_id))
 
 	await Promise.all([
 		context.directCollections.BucketAdLibActions.remove({ _id: { $in: idsToUpdate } }),
-		cleanUpExpectedMediaItemForBucketAdLibActions(context, idsToUpdate),
 		cleanUpExpectedPackagesForBucketAdLibsActions(context, idsToUpdate),
 	])
 }
@@ -70,7 +62,6 @@ export async function handleBucketEmpty(context: JobContext, data: BucketEmptyPr
 	await Promise.all([
 		context.directCollections.BucketAdLibPieces.remove({ bucketId: id, studioId: context.studioId }),
 		context.directCollections.BucketAdLibActions.remove({ bucketId: id, studioId: context.studioId }),
-		context.directCollections.ExpectedMediaItems.remove({ bucketId: id, studioId: context.studioId }),
 		context.directCollections.ExpectedPackages.remove({
 			studioId: context.studioId,
 			fromPieceType: ExpectedPackageDBType.BUCKET_ADLIB,
@@ -92,10 +83,7 @@ export async function handleBucketActionRegenerateExpectedPackages(
 	if (!action || action.studioId !== context.studioId)
 		throw new Error(`Bucket Action "${data.actionId}" not found in this studio`)
 
-	await Promise.all([
-		updateExpectedMediaItemForBucketAdLibAction(context, action),
-		updateExpectedPackagesForBucketAdLibAction(context, action),
-	])
+	await updateExpectedPackagesForBucketAdLibAction(context, action)
 }
 
 export async function handleBucketActionModify(context: JobContext, data: BucketActionModifyProps): Promise<void> {
@@ -123,7 +111,6 @@ export async function handleBucketActionModify(context: JobContext, data: Bucket
 			context.directCollections.BucketAdLibActions.update(action._id, {
 				$set: newProps,
 			}),
-			updateExpectedMediaItemForBucketAdLibAction(context, newAction),
 			updateExpectedPackagesForBucketAdLibAction(context, newAction),
 		])
 	}
@@ -149,10 +136,7 @@ export async function handleBucketPieceModify(context: JobContext, data: BucketP
 			...newProps,
 		}
 
-		await Promise.all([
-			updateExpectedMediaItemForBucketAdLibPiece(context, newPiece),
-			updateExpectedPackagesForBucketAdLibPiece(context, newPiece),
-		])
+		await updateExpectedPackagesForBucketAdLibPiece(context, newPiece)
 	}
 }
 /** Returns BucketAdlibActions that are grouped together with this adlib in the GUI */

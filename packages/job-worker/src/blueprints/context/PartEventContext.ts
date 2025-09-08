@@ -2,11 +2,11 @@ import { IBlueprintPartInstance, IPartEventContext } from '@sofie-automation/blu
 import { ReadonlyDeep } from 'type-fest'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { getCurrentTime } from '../../lib'
-import { ProcessedStudioConfig, ProcessedShowStyleConfig } from '../config'
-import { JobStudio, ProcessedShowStyleCompound } from '../../jobs'
-import { convertPartInstanceToBlueprints } from './lib'
-import { RundownContext } from './RundownContext'
+import { getCurrentTime } from '../../lib/index.js'
+import { ProcessedStudioConfig, ProcessedShowStyleConfig } from '../config.js'
+import { JobStudio, ProcessedShowStyleCompound } from '../../jobs/index.js'
+import { convertPartInstanceToBlueprints } from './lib.js'
+import { RundownContext } from './RundownContext.js'
 
 export class PartEventContext extends RundownContext implements IPartEventContext {
 	readonly part: Readonly<IBlueprintPartInstance>

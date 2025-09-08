@@ -25,16 +25,23 @@ import { protectString } from '../../lib/tempLib'
 import { StudioActionManager, StudioActionManagers } from './StudioActionManagers'
 import { DeviceTriggerMountedActionAdlibsPreview, DeviceTriggerMountedActions } from './observer'
 import { ContentCache } from './reactiveContentCache'
+import { ContentCache as PieceInstancesContentCache } from './reactiveContentCacheForPieceInstances'
 import { logger } from '../../logging'
 import { SomeAction, SomeBlueprintTrigger } from '@sofie-automation/blueprints-integration'
 import { DeviceActions } from '@sofie-automation/shared-lib/dist/core/model/ShowStyle'
 import { DummyReactiveVar } from '@sofie-automation/meteor-lib/dist/triggers/reactive-var'
 import { MeteorTriggersContext } from './triggersContext'
+import { TagsService } from './TagsService'
 
 export class StudioDeviceTriggerManager {
 	#lastShowStyleBaseId: ShowStyleBaseId | null = null
 
-	constructor(public studioId: StudioId) {
+	lastCache: ContentCache | undefined
+
+	constructor(
+		public studioId: StudioId,
+		protected tagsService: TagsService
+	) {
 		if (StudioActionManagers.get(studioId)) {
 			logger.error(`A StudioActionManager for "${studioId}" already exists`)
 			return
@@ -45,6 +52,7 @@ export class StudioDeviceTriggerManager {
 
 	async updateTriggers(cache: ContentCache, showStyleBaseId: ShowStyleBaseId): Promise<void> {
 		const studioId = this.studioId
+		this.lastCache = cache
 		this.#lastShowStyleBaseId = showStyleBaseId
 
 		const [showStyleBase, rundownPlaylist] = await Promise.all([
@@ -78,6 +86,8 @@ export class StudioDeviceTriggerManager {
 
 		const upsertedDeviceTriggerMountedActionIds: DeviceTriggerMountedActionId[] = []
 		const touchedActionIds: DeviceActionId[] = []
+
+		this.tagsService.clearObservedTags()
 
 		for (const rawTriggeredAction of allTriggeredActions) {
 			const triggeredAction = convertDocument(rawTriggeredAction)
@@ -163,6 +173,8 @@ export class StudioDeviceTriggerManager {
 								sourceLayerType: undefined,
 								sourceLayerName: undefined,
 								styleClassNames: triggeredAction.styleClassNames,
+								isActive: undefined,
+								isNext: undefined,
 							}),
 						})
 					} else {
@@ -174,6 +186,9 @@ export class StudioDeviceTriggerManager {
 							)
 
 							addedPreviewIds.push(adLibPreviewId)
+
+							this.tagsService.observeTallyTags(adLib)
+							const { isActive, isNext } = this.tagsService.getTallyStateFromTags(adLib)
 							return DeviceTriggerMountedActionAdlibsPreview.upsertAsync(adLibPreviewId, {
 								$set: literal<PreviewWrappedAdLib>({
 									...adLib,
@@ -189,9 +204,11 @@ export class StudioDeviceTriggerManager {
 										? {
 												name: sourceLayers[adLib.sourceLayerId]?.name,
 												abbreviation: sourceLayers[adLib.sourceLayerId]?.abbreviation,
-										  }
+											}
 										: undefined,
 									styleClassNames: triggeredAction.styleClassNames,
+									isActive,
+									isNext,
 								}),
 							})
 						})
@@ -222,6 +239,18 @@ export class StudioDeviceTriggerManager {
 		})
 
 		actionManager.deleteActionsOtherThan(touchedActionIds)
+	}
+
+	protected async updateTriggersFromLastCache(): Promise<void> {
+		if (!this.lastCache || !this.#lastShowStyleBaseId) return
+		return this.updateTriggers(this.lastCache, this.#lastShowStyleBaseId)
+	}
+
+	async updatePieceInstances(cache: PieceInstancesContentCache, showStyleBaseId: ShowStyleBaseId): Promise<void> {
+		const shouldUpdateTriggers = this.tagsService.updatePieceInstances(cache, showStyleBaseId)
+		if (shouldUpdateTriggers) {
+			await this.updateTriggersFromLastCache()
+		}
 	}
 
 	async clearTriggers(): Promise<void> {
@@ -309,14 +338,14 @@ async function createCurrentContextFromCache(
 	const currentSegmentPartIds = currentPartInstance
 		? await cache.Parts.find({
 				segmentId: currentPartInstance.part.segmentId,
-		  }).mapAsync((part) => part._id)
+			}).mapAsync((part) => part._id)
 		: []
 	const nextSegmentPartIds = nextPartInstance
 		? nextPartInstance.part.segmentId === currentPartInstance?.part.segmentId
 			? currentSegmentPartIds
 			: await cache.Parts.find({
 					segmentId: nextPartInstance.part.segmentId,
-			  }).mapAsync((part) => part._id)
+				}).mapAsync((part) => part._id)
 		: []
 
 	return {

@@ -19,15 +19,15 @@ description: This guide has a lot of links. Here they are all listed by section.
 - [Windows install for Docker](https://hub.docker.com/editions/community/docker-ce-desktop-windows)
 - [Linux install instructions for Docker](https://docs.docker.com/install/linux/docker-ce/ubuntu/)
 - [Linux install instructions for Docker Compose](https://www.digitalocean.com/community/tutorials/how-to-install-docker-compose-on-ubuntu-18-04)
-- [Sofie&nbsp;Core Docker File Download](https://firebasestorage.googleapis.com/v0/b/gitbook-28427.appspot.com/o/assets%2F-LWRCgfY_-kYo9iX6UNy%2F-Lo5eWjgoVlRRDeFzLuO%2F-Lo5fLSSyM1eO6OXScew%2Fdocker-compose.yaml?alt=media&token=fc2fbe79-365c-4817-b270-e507c6a6e3c6)
+- [Sofie&nbsp;Core Docker File Download](https://hub.docker.com/r/sofietv/tv-automation-server-core)
 
 ### Installing a Gateway
 
 #### Ingest Gateways and NRCS
 
 - [MOS Protocol Overview & Documentation](http://mosprotocol.com/)
-- Information about ENPS on [The Associated Press' Website](https://www.ap.org/enps/support)
-- Information about iNews: [Avid's Website](https://www.avid.com/products/inews/how-to-buy)
+- Information about ENPS on [The Associated Press' Website](https://workflow.ap.org/)
+- Information about iNews: [Avid's Website](https://www.avid.com/solutions/news-production)
 
 **Google Spreadsheet Gateway**
 

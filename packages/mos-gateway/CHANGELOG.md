@@ -43,140 +43,84 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ## [1.51.7](https://github.com/nrkno/sofie-core/compare/v1.51.6...v1.51.7) (2025-05-06)
 
-**Note:** Version bump only for package mos-gateway
+### Bug Fixes
 
+- dis-/en-able heartbeat when openMediaHotStandby ([e2fe446](https://github.com/nrkno/sofie-core/commit/e2fe4467df8b578661c74c5755c110f730f3c3d4))
+- make openMediaHotStandby option pr subdevice, and rename from hotStandby to openMediaHotStandby ([ce68543](https://github.com/nrkno/sofie-core/commit/ce6854336f4df8fc4f4b512a3de1f039fc0f1309))
+- MosGateway hotstandby - send message for both servers if both connections are offline ([72c765f](https://github.com/nrkno/sofie-core/commit/72c765f56f4acf991bbb566fefb2b99106536587))
+- update mos-connection dependency (SOFIE-3006) ([#1251](https://github.com/nrkno/sofie-core/issues/1251)) ([d5c2cad](https://github.com/nrkno/sofie-core/commit/d5c2cad8e154703df2a9fb7698d54c35ef3f17f8))
+- update mos-connection dependency: fixes an issue where ExternalMetadata.MosPayload was not passed through if content is a string ([d499893](https://github.com/nrkno/sofie-core/commit/d4998939b463de518c7e12f32462cb77b6a40975))
 
+### Features
 
-
+- meteor 3.0.4 ([8670727](https://github.com/nrkno/sofie-core/commit/8670727bba5ac9cffe0e5d36b4bd45d6664482be))
+- update meteor to 3.1 and node to 22 ([61b6854](https://github.com/nrkno/sofie-core/commit/61b6854261a03f04e81416b9d37ee995e3a10108))
 
 ## [1.51.6](https://github.com/nrkno/sofie-core/compare/v1.51.5...v1.51.6) (2025-01-14)
 
 **Note:** Version bump only for package mos-gateway
 
-
-
-
-
 ## [1.51.5](https://github.com/nrkno/sofie-core/compare/v1.51.4...v1.51.5) (2025-01-07)
 
 **Note:** Version bump only for package mos-gateway
-
-
-
-
 
 ## [1.51.4](https://github.com/nrkno/sofie-core/compare/v1.51.3...v1.51.4) (2024-12-04)
 
 **Note:** Version bump only for package mos-gateway
 
-
-
-
-
 ## [1.51.3](https://github.com/nrkno/sofie-core/compare/v1.51.2...v1.51.3) (2024-11-21)
-
 
 ### Bug Fixes
 
-* change CMD in GHA Dockerfile ([b13ba2d](https://github.com/nrkno/sofie-core/commit/b13ba2d60afb5a95314fcd217b4e63b4b5f241fa))
-
-
-
-
+- change CMD in GHA Dockerfile ([b13ba2d](https://github.com/nrkno/sofie-core/commit/b13ba2d60afb5a95314fcd217b4e63b4b5f241fa))
 
 ## [1.51.2](https://github.com/nrkno/sofie-core/compare/v1.51.1...v1.51.2) (2024-11-21)
 
 **Note:** Version bump only for package mos-gateway
 
-
-
-
-
 ## [1.51.1](https://github.com/nrkno/sofie-core/compare/v1.51.1-2...v1.51.1) (2024-11-13)
 
 **Note:** Version bump only for package mos-gateway
 
-
-
-
-
 ## [1.51.1-2](https://github.com/nrkno/sofie-core/compare/v1.51.1-1...v1.51.1-2) (2024-10-24)
 
 **Note:** Version bump only for package mos-gateway
 
-
-
-
-
 ## [1.51.1-2](https://github.com/nrkno/sofie-core/compare/v1.51.1-1...v1.51.1-2) (2024-10-24)
 
 **Note:** Version bump only for package mos-gateway
-
-
-
-
 
 ## [1.51.1-1](https://github.com/nrkno/sofie-core/compare/v1.51.1-0...v1.51.1-1) (2024-10-18)
 
 **Note:** Version bump only for package mos-gateway
 
+## [1.51.1-0](https://github.com/nrkno/sofie-core/compare/v1.51.0...v1.51.1-0) (2024-10-18)
 
-
-
+**Note:** Version bump only for package mos-gateway
 
 ## [1.51.1-0](https://github.com/nrkno/sofie-core/compare/v1.51.0...v1.51.1-0) (2024-10-18)
 
 **Note:** Version bump only for package mos-gateway
 
-
-
-
-
-## [1.51.1-0](https://github.com/nrkno/sofie-core/compare/v1.51.0...v1.51.1-0) (2024-10-18)
-
-**Note:** Version bump only for package mos-gateway
-
-
-
-
-
 # [1.51.0](https://github.com/nrkno/sofie-core/compare/v1.51.0-in-testing.3...v1.51.0) (2024-10-07)
 
 **Note:** Version bump only for package mos-gateway
 
-
-
-
-
 # [1.51.0](https://github.com/nrkno/sofie-core/compare/v1.51.0-in-testing.3...v1.51.0) (2024-10-07)
 
 **Note:** Version bump only for package mos-gateway
-
-
-
-
 
 # [1.51.0-in-testing.3](https://github.com/nrkno/sofie-core/compare/v1.51.0-in-testing.2...v1.51.0-in-testing.3) (2024-09-25)
 
 **Note:** Version bump only for package mos-gateway
 
-
-
-
-
 # [1.51.0-in-testing.2](https://github.com/nrkno/sofie-core/compare/v1.51.0-in-testing.1...v1.51.0-in-testing.2) (2024-09-24)
 
 **Note:** Version bump only for package mos-gateway
 
-
-
-
-
 # [1.51.0-in-testing.1](https://github.com/nrkno/sofie-core/compare/v1.51.0-in-testing.0...v1.51.0-in-testing.1) (2024-09-06)
 
-
 # [1.51.0-in-testing.1](https://github.com/nrkno/sofie-core/compare/v1.51.0-in-testing.0...v1.51.0-in-testing.1) (2024-09-06)
-
 
 **Note:** Version bump only for package mos-gateway
 
@@ -193,7 +137,6 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 ## [1.50.4](https://github.com/nrkno/tv-automation-server-core/compare/v1.50.3...v1.50.4) (2024-08-08)
 
 **Note:** Version bump only for package mos-gateway
-
 
 ## [1.50.5-LSG-updates](https://github.com/nrkno/sofie-core/compare/v1.50.4-LSG-updates...v1.50.5-LSG-updates) (2024-08-08)
 

@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { DBRundownPlaylist, SelectedPartInstance } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { setupDefaultJobEnvironment } from '../../../__mocks__/context'
-import { buildTimelineObjsForRundown, RundownTimelineResult, RundownTimelineTimingContext } from '../rundown'
+import { setupDefaultJobEnvironment } from '../../../__mocks__/context.js'
+import { buildTimelineObjsForRundown, RundownTimelineResult, RundownTimelineTimingContext } from '../rundown.js'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { SelectedPartInstancesTimelineInfo, SelectedPartInstanceTimelineInfo } from '../generate'
+import { SelectedPartInstancesTimelineInfo, SelectedPartInstanceTimelineInfo } from '../generate.js'
 import { PartCalculatedTimings } from '@sofie-automation/corelib/dist/playout/timings'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
@@ -57,9 +57,9 @@ function transformTimelineIntoSimplifiedForm(res: RundownTimelineResult) {
 						? {
 								...res.timingContext.nextPartGroup,
 								children: res.timingContext.nextPartGroup.children.length as any,
-						  }
+							}
 						: undefined,
-			  } satisfies RundownTimelineTimingContext)
+				} satisfies RundownTimelineTimingContext)
 			: undefined,
 	}
 }
@@ -201,6 +201,7 @@ describe('buildTimelineObjsForRundown', () => {
 				partInstance: createMockPartInstance('part0'),
 				pieceInstances: [],
 				calculatedTimings: DEFAULT_PART_TIMINGS,
+				regenerateTimelineAt: undefined,
 			},
 		}
 
@@ -221,6 +222,7 @@ describe('buildTimelineObjsForRundown', () => {
 				partInstance: createMockPartInstance('part0'),
 				pieceInstances: [createMockPieceInstance('piece0')],
 				calculatedTimings: DEFAULT_PART_TIMINGS,
+				regenerateTimelineAt: undefined,
 			},
 		}
 
@@ -254,6 +256,7 @@ describe('buildTimelineObjsForRundown', () => {
 				),
 				pieceInstances: [createMockPieceInstance('piece0')],
 				calculatedTimings: DEFAULT_PART_TIMINGS,
+				regenerateTimelineAt: undefined,
 			},
 		}
 
@@ -279,6 +282,7 @@ describe('buildTimelineObjsForRundown', () => {
 				partInstance: createMockPartInstance('part0'),
 				pieceInstances: [createMockPieceInstance('piece0')],
 				calculatedTimings: DEFAULT_PART_TIMINGS,
+				regenerateTimelineAt: undefined,
 			},
 			next: {
 				nowInPart: 0,
@@ -286,6 +290,7 @@ describe('buildTimelineObjsForRundown', () => {
 				partInstance: createMockPartInstance('part1'),
 				pieceInstances: [createMockPieceInstance('piece1')],
 				calculatedTimings: DEFAULT_PART_TIMINGS,
+				regenerateTimelineAt: undefined,
 			},
 		}
 
@@ -312,6 +317,7 @@ describe('buildTimelineObjsForRundown', () => {
 				partInstance: createMockPartInstance('part0', { autoNext: true, expectedDuration: 5000 }),
 				pieceInstances: [createMockPieceInstance('piece0')],
 				calculatedTimings: DEFAULT_PART_TIMINGS,
+				regenerateTimelineAt: undefined,
 			},
 			next: {
 				nowInPart: 0,
@@ -319,6 +325,7 @@ describe('buildTimelineObjsForRundown', () => {
 				partInstance: createMockPartInstance('part1'),
 				pieceInstances: [createMockPieceInstance('piece1')],
 				calculatedTimings: DEFAULT_PART_TIMINGS,
+				regenerateTimelineAt: undefined,
 			},
 		}
 
@@ -353,6 +360,7 @@ describe('buildTimelineObjsForRundown', () => {
 				),
 				pieceInstances: [createMockPieceInstance('piece9')],
 				calculatedTimings: DEFAULT_PART_TIMINGS,
+				regenerateTimelineAt: undefined,
 			},
 			current: {
 				nowInPart: 1234,
@@ -360,6 +368,7 @@ describe('buildTimelineObjsForRundown', () => {
 				partInstance: createMockPartInstance('part0'),
 				pieceInstances: [createMockPieceInstance('piece0')],
 				calculatedTimings: DEFAULT_PART_TIMINGS,
+				regenerateTimelineAt: undefined,
 			},
 		}
 
@@ -395,6 +404,7 @@ describe('buildTimelineObjsForRundown', () => {
 					),
 					pieceInstances: [createMockPieceInstance('piece9'), createMockPieceInstance('piece8')],
 					calculatedTimings: DEFAULT_PART_TIMINGS,
+					regenerateTimelineAt: undefined,
 				},
 				current: {
 					nowInPart: 1234,
@@ -409,6 +419,7 @@ describe('buildTimelineObjsForRundown', () => {
 						fromPartPostroll: 400,
 						fromPartKeepalive: 100,
 					},
+					regenerateTimelineAt: undefined,
 				},
 			}
 
@@ -448,6 +459,7 @@ describe('buildTimelineObjsForRundown', () => {
 						}),
 					],
 					calculatedTimings: DEFAULT_PART_TIMINGS,
+					regenerateTimelineAt: undefined,
 				},
 				current: {
 					nowInPart: 1234,
@@ -462,6 +474,7 @@ describe('buildTimelineObjsForRundown', () => {
 						fromPartPostroll: 400,
 						fromPartKeepalive: 100,
 					},
+					regenerateTimelineAt: undefined,
 				},
 			}
 
@@ -488,6 +501,7 @@ describe('buildTimelineObjsForRundown', () => {
 					partInstance: createMockPartInstance('part0', { autoNext: true, expectedDuration: 5000 }),
 					pieceInstances: [createMockPieceInstance('piece0')],
 					calculatedTimings: DEFAULT_PART_TIMINGS,
+					regenerateTimelineAt: undefined,
 				},
 				next: {
 					nowInPart: 0,
@@ -502,6 +516,7 @@ describe('buildTimelineObjsForRundown', () => {
 						fromPartPostroll: 400,
 						fromPartKeepalive: 100,
 					},
+					regenerateTimelineAt: undefined,
 				},
 			}
 
@@ -543,6 +558,7 @@ describe('buildTimelineObjsForRundown', () => {
 						}),
 					],
 					calculatedTimings: DEFAULT_PART_TIMINGS,
+					regenerateTimelineAt: undefined,
 				},
 				next: {
 					nowInPart: 0,
@@ -565,6 +581,7 @@ describe('buildTimelineObjsForRundown', () => {
 						fromPartPostroll: 400,
 						fromPartKeepalive: 100,
 					},
+					regenerateTimelineAt: undefined,
 				},
 			}
 
@@ -597,6 +614,7 @@ describe('buildTimelineObjsForRundown', () => {
 			),
 			pieceInstances: [createMockPieceInstance('piece9')],
 			calculatedTimings: DEFAULT_PART_TIMINGS,
+			regenerateTimelineAt: undefined,
 		}
 
 		it('infinite starting in current', () => {
@@ -613,6 +631,7 @@ describe('buildTimelineObjsForRundown', () => {
 						createMockInfinitePieceInstance('piece1', {}, { plannedStartedPlayback: undefined }),
 					],
 					calculatedTimings: DEFAULT_PART_TIMINGS,
+					regenerateTimelineAt: undefined,
 				},
 			}
 
@@ -641,6 +660,7 @@ describe('buildTimelineObjsForRundown', () => {
 					partInstance: createMockPartInstance('part0'),
 					pieceInstances: [createMockPieceInstance('piece0')],
 					calculatedTimings: DEFAULT_PART_TIMINGS,
+					regenerateTimelineAt: undefined,
 				},
 			}
 
@@ -669,6 +689,7 @@ describe('buildTimelineObjsForRundown', () => {
 					partInstance: createMockPartInstance('part0'),
 					pieceInstances: [createMockPieceInstance('piece0')],
 					calculatedTimings: DEFAULT_PART_TIMINGS,
+					regenerateTimelineAt: undefined,
 				},
 			}
 
@@ -696,6 +717,7 @@ describe('buildTimelineObjsForRundown', () => {
 					partInstance: createMockPartInstance('part0'),
 					pieceInstances: [createMockPieceInstance('piece0'), continueInfinitePiece(infinitePiece)],
 					calculatedTimings: DEFAULT_PART_TIMINGS,
+					regenerateTimelineAt: undefined,
 				},
 			}
 
@@ -727,6 +749,7 @@ describe('buildTimelineObjsForRundown', () => {
 					),
 					pieceInstances: [createMockPieceInstance('piece0'), infinitePiece],
 					calculatedTimings: DEFAULT_PART_TIMINGS,
+					regenerateTimelineAt: undefined,
 				},
 				next: {
 					nowInPart: 0,
@@ -742,6 +765,7 @@ describe('buildTimelineObjsForRundown', () => {
 					),
 					pieceInstances: [createMockPieceInstance('piece1'), continueInfinitePiece(infinitePiece)],
 					calculatedTimings: DEFAULT_PART_TIMINGS,
+					regenerateTimelineAt: undefined,
 				},
 			}
 
@@ -771,6 +795,7 @@ describe('buildTimelineObjsForRundown', () => {
 					),
 					pieceInstances: [createMockPieceInstance('piece0'), createMockInfinitePieceInstance('piece6')],
 					calculatedTimings: DEFAULT_PART_TIMINGS,
+					regenerateTimelineAt: undefined,
 				},
 				next: {
 					nowInPart: 0,
@@ -789,6 +814,7 @@ describe('buildTimelineObjsForRundown', () => {
 						...DEFAULT_PART_TIMINGS,
 						fromPartKeepalive: 100,
 					},
+					regenerateTimelineAt: undefined,
 				},
 			}
 
@@ -821,6 +847,7 @@ describe('buildTimelineObjsForRundown', () => {
 						createMockInfinitePieceInstance('piece6', { excludeDuringPartKeepalive: true }),
 					],
 					calculatedTimings: DEFAULT_PART_TIMINGS,
+					regenerateTimelineAt: undefined,
 				},
 				next: {
 					nowInPart: 0,
@@ -839,6 +866,7 @@ describe('buildTimelineObjsForRundown', () => {
 						...DEFAULT_PART_TIMINGS,
 						fromPartKeepalive: 100,
 					},
+					regenerateTimelineAt: undefined,
 				},
 			}
 

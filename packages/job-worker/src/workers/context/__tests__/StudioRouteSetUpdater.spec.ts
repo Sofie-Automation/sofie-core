@@ -1,7 +1,7 @@
 import { StudioRouteBehavior, StudioRouteSet } from '@sofie-automation/blueprints-integration'
-import { setupDefaultJobEnvironment } from '../../../__mocks__/context'
-import { StudioRouteSetUpdater } from '../StudioRouteSetUpdater'
-import type { WorkerDataCache } from '../../caches'
+import { setupDefaultJobEnvironment } from '../../../__mocks__/context.js'
+import { StudioRouteSetUpdater } from '../StudioRouteSetUpdater.js'
+import type { WorkerDataCache } from '../../caches.js'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 
 function setupTest(routeSets: Record<string, StudioRouteSet>) {

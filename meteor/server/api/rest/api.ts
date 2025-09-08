@@ -11,6 +11,7 @@ import { peripheralDeviceRouter } from '../peripheralDevice'
 import { blueprintsRouter } from '../blueprints/http'
 import { createLegacyApiRouter } from './v0/index'
 import { heapSnapshotPrivateApiRouter } from '../heapSnapshot'
+import { getRootSubpath } from '../../lib'
 
 const LATEST_REST_API = 'v1.0'
 
@@ -34,7 +35,7 @@ apiRouter.use(
 )
 
 async function redirectToLatest(ctx: koa.ParameterizedContext, _next: koa.Next): Promise<void> {
-	ctx.redirect(`/api/${LATEST_REST_API}`)
+	ctx.redirect(`${getRootSubpath()}/api/${LATEST_REST_API}`)
 	ctx.status = 307
 }
 

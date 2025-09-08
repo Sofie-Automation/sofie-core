@@ -175,7 +175,7 @@ describe('ClientAPI', () => {
 
 				// This will probably resolve after around 3s, since that is the timeout time
 				// of checkReply and the observeChanges is not implemented in the mock
-				await expect(promise).rejects.toBe('Failed')
+				await expect(promise).rejects.toThrow(/Failed/)
 
 				const log = (await UserActionsLog.findOneAsync({
 					method: logMethodName,

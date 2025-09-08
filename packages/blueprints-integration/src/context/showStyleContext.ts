@@ -1,8 +1,8 @@
-import type { IOutputLayer, ISourceLayer } from '../showStyle'
-import type { IBlueprintRundownPlaylist } from '../documents'
-import type { ICommonContext, IUserNotesContext } from './baseContext'
-import type { IPackageInfoContext } from './packageInfoContext'
-import type { IStudioContext } from './studioContext'
+import type { IOutputLayer, ISourceLayer } from '../showStyle.js'
+import type { IBlueprintRundownPlaylist } from '../documents/index.js'
+import type { ICommonContext, IUserNotesContext } from './baseContext.js'
+import type { IPackageInfoContext } from './packageInfoContext.js'
+import type { IStudioContext } from './studioContext.js'
 
 export interface IShowStyleContext extends ICommonContext, IStudioContext {
 	/** Returns a ShowStyle blueprint config. If ShowStyleBlueprintManifest.preprocessConfig is provided, a config preprocessed by that function is returned, otherwise it is returned unprocessed */

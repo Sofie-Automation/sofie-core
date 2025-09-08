@@ -4,18 +4,19 @@ import {
 	DashboardLayoutActionButton,
 	ActionButtonType,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import { DashboardActionButton } from './DashboardActionButton'
-import { doUserAction, UserAction } from '../../lib/clientUserAction'
+import { DashboardActionButton } from './DashboardActionButton.js'
+import { doUserAction, UserAction } from '../../lib/clientUserAction.js'
 import { withTranslation } from 'react-i18next'
-import { Translated } from '../../lib/ReactMeteorData/react-meteor-data'
+import { Translated } from '../../lib/ReactMeteorData/react-meteor-data.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { MeteorCall } from '../../lib/meteorApi'
-import { doModalDialog } from '../../lib/ModalDialog'
-import { NoticeLevel, Notification, NotificationCenter } from '../../lib/notifications/notifications'
+import { MeteorCall } from '../../lib/meteorApi.js'
+import { doModalDialog } from '../../lib/ModalDialog.js'
+import { NoticeLevel, Notification, NotificationCenter } from '../../lib/notifications/notifications.js'
 import { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { RundownHoldState } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
-import { hashSingleUseToken } from '../../lib/lib'
+import { hashSingleUseToken } from '../../lib/lib.js'
+import { UserError } from '@sofie-automation/corelib/dist/error'
 
 export interface IDashboardButtonGroupProps {
 	buttons: DashboardLayoutActionButton[]
@@ -74,7 +75,7 @@ export const DashboardActionButtonGroup = withTranslation()(
 		onButtonDown = (button: DashboardLayoutActionButton, e: React.SyntheticEvent<HTMLElement>) => {
 			switch (button.type) {
 				case ActionButtonType.QUEUE_ADLIB:
-					this.props.onChangeQueueAdLib && this.props.onChangeQueueAdLib(true, e)
+					this.props.onChangeQueueAdLib?.(true, e)
 					break
 			}
 		}
@@ -119,7 +120,8 @@ export const DashboardActionButtonGroup = withTranslation()(
 				UserAction.CREATE_SNAPSHOT_FOR_DEBUG,
 				(e, ts) =>
 					MeteorCall.system.generateSingleUseToken().then((tokenResult) => {
-						if (ClientAPI.isClientResponseError(tokenResult) || !tokenResult.result) throw tokenResult
+						if (ClientAPI.isClientResponseError(tokenResult)) throw UserError.fromSerialized(tokenResult.error)
+						if (!tokenResult.result) throw new Error('Failed to generate token')
 						return MeteorCall.userAction.storeRundownSnapshot(
 							e,
 							ts,
@@ -146,7 +148,7 @@ export const DashboardActionButtonGroup = withTranslation()(
 					this.take(e)
 					break
 				case ActionButtonType.QUEUE_ADLIB:
-					this.props.onChangeQueueAdLib && this.props.onChangeQueueAdLib(false, e)
+					this.props.onChangeQueueAdLib?.(false, e)
 					break
 				case ActionButtonType.MOVE_NEXT_PART:
 					this.moveNext(e, 1, 0)

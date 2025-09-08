@@ -1,5 +1,5 @@
-import { BlueprintMapping } from './Timeline'
-import { TSR } from '../../tsr'
+import { BlueprintMapping } from './Timeline.js'
+import { TSR } from '../../tsr.js'
 
 export type AbPlayerId = number | string
 

@@ -1,5 +1,5 @@
 import { useMemo, JSX } from 'react'
-import { useSubscription, useSubscriptions, useTracker } from '../../lib/ReactMeteorData/ReactMeteorData'
+import { useSubscription, useSubscriptions, useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import {
 	AdLibActionId,
@@ -22,20 +22,20 @@ import {
 	RundownBaselineAdLibPieces,
 	RundownPlaylists,
 	Rundowns,
-} from '../../collections'
+} from '../../collections/index.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { ProtectedString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { ExpectedPackage } from '@sofie-automation/shared-lib/dist/package-manager/package'
 import { PartInvalidReason } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { IBlueprintActionManifestDisplayContent, SourceLayerType } from '@sofie-automation/blueprints-integration'
-import { PieceContentStatusObj } from '@sofie-automation/meteor-lib/dist/api/pieceContentStatus'
+import { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
 import { Piece, PieceStatusCode } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { assertNever, literal } from '@sofie-automation/corelib/dist/lib'
-import { UIPieceContentStatuses, UIShowStyleBases } from '../Collections'
+import { UIPieceContentStatuses, UIShowStyleBases } from '../Collections.js'
 import { isTranslatableMessage, translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
-import { i18nTranslator } from '../i18n'
+import { i18nTranslator } from '../i18n.js'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
-import { RundownUtils } from '../../lib/rundown'
+import { RundownUtils } from '../../lib/rundown.js'
 
 export function MediaStatus({
 	playlistIds,
@@ -277,7 +277,7 @@ function useMediaStatusSubscriptions(
 		() => playlistIds.map((playlistIds) => [playlistIds] as [RundownPlaylistId]),
 		[playlistIds]
 	)
-	readyStatus[counter++] = useSubscriptions(MeteorPubSub.uiPieceContentStatuses, uiPieceContentStatusesSubArguments)
+	readyStatus[counter++] = useSubscriptions(CorelibPubSub.uiPieceContentStatuses, uiPieceContentStatusesSubArguments)
 
 	return readyStatus.reduce((mem, current) => mem && current, true)
 }

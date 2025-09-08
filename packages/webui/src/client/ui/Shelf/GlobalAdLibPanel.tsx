@@ -1,18 +1,18 @@
 import { useMemo } from 'react'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { IAdLibListItem } from './AdLibListItem'
-import { AdLibPanel } from './AdLibPanel'
-import { PieceUi } from '../SegmentTimeline/SegmentTimelineContainer'
-import { BucketAdLibActionUi, BucketAdLibUi } from './RundownViewBuckets'
-import { literal } from '../../lib/tempLib'
+import { IAdLibListItem } from './AdLibListItem.js'
+import { AdLibPanel } from './AdLibPanel.js'
+import { PieceUi } from '../SegmentTimeline/SegmentTimelineContainer.js'
+import { BucketAdLibActionUi, BucketAdLibUi } from './RundownViewBuckets.js'
+import { literal } from '../../lib/tempLib.js'
 import {
 	PieceDisplayStyle,
 	RundownLayoutElementType,
 	RundownLayoutFilter,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import { ShelfTabs } from './Shelf'
+import { ShelfTabs } from './Shelf.js'
 import { useTranslation } from 'react-i18next'
-import { AdLibPieceUi } from '../../lib/shelf'
+import { AdLibPieceUi } from '../../lib/shelf.js'
 import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 

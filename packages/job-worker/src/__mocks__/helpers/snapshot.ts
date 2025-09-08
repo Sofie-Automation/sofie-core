@@ -7,7 +7,7 @@ import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/Rund
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { TimelineObjGeneric, TimelineComplete } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { clone } from '@sofie-automation/corelib/dist/lib'
-import * as _ from 'underscore'
+import _ from 'underscore'
 
 // About snapshot testing: https://jestjs.io/docs/en/snapshot-testing
 

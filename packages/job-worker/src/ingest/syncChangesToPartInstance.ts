@@ -3,37 +3,37 @@ import {
 	BlueprintSyncIngestPartInstance,
 	IBlueprintAdLibPieceDB,
 } from '@sofie-automation/blueprints-integration'
-import { JobContext, ProcessedShowStyleCompound } from '../jobs'
-import { PlayoutModel } from '../playout/model/PlayoutModel'
-import { PlayoutPartInstanceModel } from '../playout/model/PlayoutPartInstanceModel'
-import { IngestModelReadonly } from './model/IngestModel'
+import { JobContext, ProcessedShowStyleCompound } from '../jobs/index.js'
+import { PlayoutModel } from '../playout/model/PlayoutModel.js'
+import { PlayoutPartInstanceModel } from '../playout/model/PlayoutPartInstanceModel.js'
+import { IngestModelReadonly } from './model/IngestModel.js'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
-import { logger } from '../logging'
+import { logger } from '../logging.js'
 import {
 	fetchPiecesThatMayBeActiveForPart,
 	getPieceInstancesForPart,
 	syncPlayheadInfinitesForNextPartInstance,
-} from '../playout/infinites'
-import _ = require('underscore')
-import { SyncIngestUpdateToPartInstanceContext } from '../blueprints/context'
+} from '../playout/infinites.js'
+import _ from 'underscore'
+import { SyncIngestUpdateToPartInstanceContext } from '../blueprints/context/index.js'
 import {
 	convertAdLibActionToBlueprints,
 	convertAdLibPieceToBlueprints,
 	convertPartInstanceToBlueprints,
 	convertPartToBlueprints,
 	convertPieceInstanceToBlueprints,
-} from '../blueprints/context/lib'
-import { validateAdlibTestingPartInstanceProperties } from '../playout/adlibTesting'
+} from '../blueprints/context/lib.js'
+import { validateAdlibTestingPartInstanceProperties } from '../playout/adlibTesting.js'
 import { ReadonlyDeep } from 'type-fest'
-import { convertIngestModelToPlayoutRundownWithSegments } from './commit'
-import { convertNoteToNotification } from '../notifications/util'
-import { PlayoutRundownModel } from '../playout/model/PlayoutRundownModel'
+import { convertIngestModelToPlayoutRundownWithSegments } from './commit.js'
+import { convertNoteToNotification } from '../notifications/util.js'
+import { PlayoutRundownModel } from '../playout/model/PlayoutRundownModel.js'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
-import { setNextPart } from '../playout/setNext'
+import { setNextPart } from '../playout/setNext.js'
 import { PartId, RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import type { WrappedShowStyleBlueprint } from '../blueprints/cache'
+import type { WrappedShowStyleBlueprint } from '../blueprints/cache.js'
 
 type PlayStatus = 'previous' | 'current' | 'next'
 export interface PartInstanceToSync {

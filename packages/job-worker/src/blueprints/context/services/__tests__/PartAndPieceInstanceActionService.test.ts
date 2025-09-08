@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import * as _ from 'underscore'
+import _ from 'underscore'
 import {
 	IBlueprintPart,
 	IBlueprintPiece,
 	IBlueprintPieceType,
 	PieceLifespan,
 } from '@sofie-automation/blueprints-integration'
-import { PlayoutModel } from '../../../../playout/model/PlayoutModel'
-import { MockJobContext, setupDefaultJobEnvironment } from '../../../../__mocks__/context'
-import { runJobWithPlayoutModel } from '../../../../playout/lock'
-import { defaultRundownPlaylist } from '../../../../__mocks__/defaultCollectionObjects'
+import { PlayoutModel } from '../../../../playout/model/PlayoutModel.js'
+import { MockJobContext, setupDefaultJobEnvironment } from '../../../../__mocks__/context.js'
+import { runJobWithPlayoutModel } from '../../../../playout/lock.js'
+import { defaultRundownPlaylist } from '../../../../__mocks__/defaultCollectionObjects.js'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { clone, getRandomId, literal, normalizeArrayToMapFunc, omit } from '@sofie-automation/corelib/dist/lib'
 import {
@@ -18,26 +18,26 @@ import {
 	RundownPlaylistActivationId,
 	RundownPlaylistId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { setupDefaultRundown, setupMockShowStyleCompound } from '../../../../__mocks__/presetCollections'
+import { setupDefaultRundown, setupMockShowStyleCompound } from '../../../../__mocks__/presetCollections.js'
 import { SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { JobContext } from '../../../../jobs'
+import { JobContext } from '../../../../jobs/index.js'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
-import { getCurrentTime } from '../../../../lib'
+import { getCurrentTime } from '../../../../lib/index.js'
 import {
 	EmptyPieceTimelineObjectsBlob,
 	Piece,
 	serializePieceTimelineObjectsBlob,
 } from '@sofie-automation/corelib/dist/dataModel/Piece'
-import { PlayoutPartInstanceModel } from '../../../../playout/model/PlayoutPartInstanceModel'
-import { convertPartInstanceToBlueprints, convertPieceInstanceToBlueprints } from '../../lib'
+import { PlayoutPartInstanceModel } from '../../../../playout/model/PlayoutPartInstanceModel.js'
+import { convertPartInstanceToBlueprints, convertPieceInstanceToBlueprints } from '../../lib.js'
 import { TimelineObjRundown, TimelineObjType } from '@sofie-automation/corelib/dist/dataModel/Timeline'
-import { PlayoutPartInstanceModelImpl } from '../../../../playout/model/implementation/PlayoutPartInstanceModelImpl'
-import { writePartInstancesAndPieceInstances } from '../../../../playout/model/implementation/SavePlayoutModel'
-import { PlayoutPieceInstanceModel } from '../../../../playout/model/PlayoutPieceInstanceModel'
-import { DatabasePersistedModel } from '../../../../modelBase'
+import { PlayoutPartInstanceModelImpl } from '../../../../playout/model/implementation/PlayoutPartInstanceModelImpl.js'
+import { writePartInstancesAndPieceInstances } from '../../../../playout/model/implementation/SavePlayoutModel.js'
+import { PlayoutPieceInstanceModel } from '../../../../playout/model/PlayoutPieceInstanceModel.js'
+import { DatabasePersistedModel } from '../../../../modelBase.js'
 
-import * as PlayoutAdlib from '../../../../playout/adlibUtils'
+import * as PlayoutAdlib from '../../../../playout/adlibUtils.js'
 type TinnerStopPieces = jest.MockedFunction<typeof PlayoutAdlib.innerStopPieces>
 const innerStopPiecesMock = jest.spyOn(PlayoutAdlib, 'innerStopPieces') as TinnerStopPieces
 const insertQueuedPartWithPiecesOrig = PlayoutAdlib.insertQueuedPartWithPieces
@@ -48,16 +48,16 @@ const insertQueuedPartWithPiecesMock = jest.spyOn(
 ) as TinsertQueuedPartWithPieces
 
 jest.mock('../../../../playout/resolvedPieces')
-import { getResolvedPiecesForCurrentPartInstance } from '../../../../playout/resolvedPieces'
+import { getResolvedPiecesForCurrentPartInstance } from '../../../../playout/resolvedPieces.js'
 type TgetResolvedPiecesForCurrentPartInstance = jest.MockedFunction<typeof getResolvedPiecesForCurrentPartInstance>
 const getResolvedPiecesForCurrentPartInstanceMock =
 	getResolvedPiecesForCurrentPartInstance as TgetResolvedPiecesForCurrentPartInstance
 
 jest.mock('../../../postProcess')
-import { postProcessPieces, postProcessTimelineObjects } from '../../../postProcess'
-import { ActionPartChange, PartAndPieceInstanceActionService } from '../PartAndPieceInstanceActionService'
+import { postProcessPieces, postProcessTimelineObjects } from '../../../postProcess.js'
+import { ActionPartChange, PartAndPieceInstanceActionService } from '../PartAndPieceInstanceActionService.js'
 import { mock } from 'jest-mock-extended'
-import { QuickLoopService } from '../../../../playout/model/services/QuickLoopService'
+import { QuickLoopService } from '../../../../playout/model/services/QuickLoopService.js'
 const { postProcessPieces: postProcessPiecesOrig, postProcessTimelineObjects: postProcessTimelineObjectsOrig } =
 	jest.requireActual('../../../postProcess')
 
@@ -1676,7 +1676,6 @@ describe('Test blueprint api context', () => {
 
 					await expect(service.removePieceInstances('next', [])).resolves.toEqual([])
 					await expect(
-						// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 						service.removePieceInstances('next', [unprotectString(pieceInstanceFromOther._id)])
 					).resolves.toEqual([]) // Try and remove something belonging to a different part
 					expectCountsToEqual(getPieceInstanceCounts(playoutModel), beforePieceInstancesCounts)

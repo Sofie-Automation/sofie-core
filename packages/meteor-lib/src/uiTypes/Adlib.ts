@@ -9,7 +9,6 @@ export interface AdLibPieceUi extends Omit<AdLibPiece, 'timelineObjectsString'> 
 	sourceLayer?: ISourceLayer
 	outputLayer?: IOutputLayer
 	isGlobal?: boolean
-	isHidden?: boolean
 	isSticky?: boolean
 	isAction?: boolean
 	isClearSourceLayer?: boolean
@@ -21,7 +20,6 @@ export interface AdLibPieceUi extends Omit<AdLibPiece, 'timelineObjectsString'> 
 export interface IAdLibListItem extends AdLibPieceUi {
 	sourceLayer?: ISourceLayer
 	outputLayer?: IOutputLayer
-	isHidden?: boolean
 	invalid?: boolean
 	floated?: boolean
 }

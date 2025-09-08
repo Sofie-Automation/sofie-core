@@ -1,5 +1,6 @@
 import classNames from 'classnames'
 import { useMemo, useState } from 'react'
+import Button from 'react-bootstrap/Button'
 
 /**
  * pretty-prints JSON content, and collapses it if it's too long.
@@ -55,7 +56,9 @@ export function CollapseJSON({ json }: { json: string }): JSX.Element {
 		<>
 			{originalString}
 			<div className="collapse-json__tools">
-				<button
+				<Button
+					variant="light"
+					size="sm"
 					key={'collapse'}
 					className="collapse-json__copy"
 					tabIndex={0}
@@ -65,8 +68,10 @@ export function CollapseJSON({ json }: { json: string }): JSX.Element {
 					}}
 				>
 					Copy
-				</button>
-				<button
+				</Button>
+				<Button
+					variant="light"
+					size="sm"
 					key={'collapse'}
 					className="collapse-json__collapser"
 					tabIndex={0}
@@ -76,14 +81,16 @@ export function CollapseJSON({ json }: { json: string }): JSX.Element {
 					}}
 				>
 					⮥
-				</button>
+				</Button>
 			</div>
 		</>
 	) : (
 		<>
 			{originalString.substring(0, Math.min(indexOf5thLine || 100, 100))}
 			<div className="collapse-json__tools">
-				<button
+				<Button
+					variant="light"
+					size="sm"
 					key={'expand'}
 					className="collapse-json__collapser"
 					tabIndex={0}
@@ -93,7 +100,7 @@ export function CollapseJSON({ json }: { json: string }): JSX.Element {
 					}}
 				>
 					…
-				</button>
+				</Button>
 			</div>
 		</>
 	)

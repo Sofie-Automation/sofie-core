@@ -1,45 +1,51 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { NoteSeverity } from '@sofie-automation/blueprints-integration'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { IContextMenuContext } from '../RundownView'
-import { IOutputLayerUi, PartUi, PieceUi, SegmentNoteCounts, SegmentUi } from '../SegmentContainer/withResolvedSegment'
+import { IContextMenuContext } from '../RundownView.js'
+import {
+	IOutputLayerUi,
+	PartUi,
+	PieceUi,
+	SegmentNoteCounts,
+	SegmentUi,
+} from '../SegmentContainer/withResolvedSegment.js'
 import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'
-import { CriticalIconSmall, WarningIconSmall } from '../../lib/ui/icons/notifications'
-import { SegmentDuration } from '../RundownView/RundownTiming/SegmentDuration'
-import { PartCountdown } from '../RundownView/RundownTiming/PartCountdown'
-import { contextMenuHoldToDisplayTime, useCombinedRefs } from '../../lib/lib'
+import { CriticalIconSmall, WarningIconSmall } from '../../lib/ui/icons/notifications.js'
+import { SegmentDuration } from '../RundownView/RundownTiming/SegmentDuration.js'
+import { PartCountdown } from '../RundownView/RundownTiming/PartCountdown.js'
+import { contextMenuHoldToDisplayTime, useCombinedRefs, useRundownViewEventBusListener } from '../../lib/lib.js'
 import { isPartPlayable } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { useTranslation } from 'react-i18next'
-import { UIStateStorage } from '../../lib/UIStateStorage'
-import { literal, unprotectString } from '../../lib/tempLib'
-import { lockPointer, scrollToPart, unlockPointer } from '../../lib/viewPort'
-import { StoryboardPart } from './StoryboardPart'
+import { UIStateStorage } from '../../lib/UIStateStorage.js'
+import { literal, unprotectString } from '../../lib/tempLib.js'
+import { lockPointer, scrollToPart, unlockPointer } from '../../lib/viewPort.js'
+import { StoryboardPart } from './StoryboardPart.js'
 import classNames from 'classnames'
-import RundownViewEventBus, {
+import {
 	GoToPartEvent,
 	GoToPartInstanceEvent,
 	HighlightEvent,
 	RundownViewEvents,
 } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
-import { getElementWidth } from '../../utils/dimensions'
-import { HOVER_TIMEOUT } from '../Shelf/DashboardPieceButton'
+import { getElementWidth } from '../../utils/dimensions.js'
+import { HOVER_TIMEOUT } from '../Shelf/DashboardPieceButton.js'
 import { Meteor } from 'meteor/meteor'
-import { hidePointerLockCursor, showPointerLockCursor } from '../../lib/PointerLockCursor'
-import { SegmentScrollbar } from './SegmentScrollbar'
+import { hidePointerLockCursor, showPointerLockCursor } from '../../lib/PointerLockCursor.js'
+import { SegmentScrollbar } from './SegmentScrollbar.js'
 import {
 	filterSecondaryOutputLayers,
 	filterSecondarySourceLayers,
-} from './StoryboardPartSecondaryPieces/StoryboardPartSecondaryPieces'
+} from './StoryboardPartSecondaryPieces/StoryboardPartSecondaryPieces.js'
 import { motion } from 'motion/react'
-import { SegmentViewMode } from '../SegmentContainer/SegmentViewModes'
-import { ErrorBoundary } from '../../lib/ErrorBoundary'
-import { SwitchViewModeButton } from '../SegmentContainer/SwitchViewModeButton'
+import { SegmentViewMode } from '../SegmentContainer/SegmentViewModes.js'
+import { ErrorBoundary } from '../../lib/ErrorBoundary.js'
+import { SwitchViewModeButton } from '../SegmentContainer/SwitchViewModeButton.js'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { PartId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { RundownHoldState } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { SegmentTimeAnchorTime } from '../RundownView/RundownTiming/SegmentTimeAnchorTime'
-import * as RundownResolver from '../../lib/RundownResolver'
-import { logger } from '../../lib/logging'
+import { SegmentTimeAnchorTime } from '../RundownView/RundownTiming/SegmentTimeAnchorTime.js'
+import * as RundownResolver from '../../lib/RundownResolver.js'
+import { logger } from '../../lib/logging.js'
 
 interface IProps {
 	id: string
@@ -108,7 +114,7 @@ export const SegmentStoryboard = React.memo(
 					? {
 							partId: p.partId,
 							ident: p.instance.part.identifier,
-					  }
+						}
 					: null
 			)
 			.filter((entry) => entry !== null) as Array<{ partId: PartId; ident?: string }>
@@ -242,8 +248,8 @@ export const SegmentStoryboard = React.memo(
 								? 'background'
 								: undefined
 							: squishedHover === index
-							? 'hover'
-							: undefined
+								? 'hover'
+								: undefined
 					}
 					style={
 						needsToBeSquished && squishedPartCardStride
@@ -255,7 +261,7 @@ export const SegmentStoryboard = React.memo(
 												? renderedParts.length + index
 												: renderedParts.length - index
 											: undefined,
-							  }
+								}
 							: undefined
 					}
 					onHoverOver={() => needsToBeSquished && setSquishedHover(index)}
@@ -323,19 +329,11 @@ export const SegmentStoryboard = React.memo(
 				if (highlightTimeout.current) Meteor.clearTimeout(highlightTimeout.current)
 			}
 		}, [])
-		useEffect(() => {
-			RundownViewEventBus.on(RundownViewEvents.REWIND_SEGMENTS, onRewindSegment)
-			RundownViewEventBus.on(RundownViewEvents.GO_TO_PART, onGoToPart)
-			RundownViewEventBus.on(RundownViewEvents.GO_TO_PART_INSTANCE, onGoToPartInstance)
-			RundownViewEventBus.on(RundownViewEvents.HIGHLIGHT, onHighlight)
 
-			return () => {
-				RundownViewEventBus.off(RundownViewEvents.REWIND_SEGMENTS, onRewindSegment)
-				RundownViewEventBus.off(RundownViewEvents.GO_TO_PART, onGoToPart)
-				RundownViewEventBus.off(RundownViewEvents.GO_TO_PART_INSTANCE, onGoToPartInstance)
-				RundownViewEventBus.off(RundownViewEvents.HIGHLIGHT, onHighlight)
-			}
-		}, [onRewindSegment, onGoToPart, onGoToPartInstance, onHighlight])
+		useRundownViewEventBusListener(RundownViewEvents.REWIND_SEGMENTS, onRewindSegment)
+		useRundownViewEventBusListener(RundownViewEvents.GO_TO_PART, onGoToPart)
+		useRundownViewEventBusListener(RundownViewEvents.GO_TO_PART_INSTANCE, onGoToPartInstance)
+		useRundownViewEventBusListener(RundownViewEvents.HIGHLIGHT, onHighlight)
 
 		useLayoutEffect(() => {
 			if (!listRef.current) return
@@ -581,9 +579,7 @@ export const SegmentStoryboard = React.memo(
 							{criticalNotes > 0 && (
 								<div
 									className="segment-timeline__title__notes__note segment-timeline__title__notes__note--critical"
-									onClick={() =>
-										props.onHeaderNoteClick && props.onHeaderNoteClick(props.segment._id, NoteSeverity.ERROR)
-									}
+									onClick={() => props.onHeaderNoteClick?.(props.segment._id, NoteSeverity.ERROR)}
 									aria-label={t('Critical problems')}
 								>
 									<CriticalIconSmall />
@@ -593,9 +589,7 @@ export const SegmentStoryboard = React.memo(
 							{warningNotes > 0 && (
 								<div
 									className="segment-timeline__title__notes__note segment-timeline__title__notes__note--warning"
-									onClick={() =>
-										props.onHeaderNoteClick && props.onHeaderNoteClick(props.segment._id, NoteSeverity.WARNING)
-									}
+									onClick={() => props.onHeaderNoteClick?.(props.segment._id, NoteSeverity.WARNING)}
 									aria-label={t('Warnings')}
 								>
 									<WarningIconSmall />

@@ -3,21 +3,22 @@ import { Meteor } from 'meteor/meteor'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { TFunction, useTranslation } from 'react-i18next'
 import { EvaluationBase } from '@sofie-automation/meteor-lib/dist/collections/Evaluations'
-import { doUserAction, UserAction } from '../lib/clientUserAction'
-import { MeteorCall } from '../lib/meteorApi'
+import { doUserAction, UserAction } from '../lib/clientUserAction.js'
+import { MeteorCall } from '../lib/meteorApi.js'
 import { SnapshotId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
-import { hashSingleUseToken } from '../lib/lib'
-import { DropdownInputControl, DropdownInputOption, getDropdownInputOptions } from '../lib/Components/DropdownInput'
-import { MultiLineTextInputControl } from '../lib/Components/MultiLineTextInput'
-import { TextInputControl } from '../lib/Components/TextInput'
-import { Spinner } from '../lib/Spinner'
-import { NotificationCenter, Notification, NoticeLevel } from '../lib/notifications/notifications'
-import { isLoopRunning } from '../lib/RundownResolver'
-import { useTracker } from '../lib/ReactMeteorData/ReactMeteorData'
-import { CoreSystem } from '../collections'
+import { hashSingleUseToken } from '../lib/lib.js'
+import { DropdownInputControl, DropdownInputOption, getDropdownInputOptions } from '../lib/Components/DropdownInput.js'
+import { MultiLineTextInputControl } from '../lib/Components/MultiLineTextInput.js'
+import { TextInputControl } from '../lib/Components/TextInput.js'
+import { Spinner } from '../lib/Spinner.js'
+import { NotificationCenter, Notification, NoticeLevel } from '../lib/notifications/notifications.js'
+import { isLoopRunning } from '../lib/RundownResolver.js'
+import { useTracker } from '../lib/ReactMeteorData/ReactMeteorData.js'
+import { CoreSystem } from '../collections/index.js'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { SYSTEM_ID } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
+import { UserError } from '@sofie-automation/corelib/dist/error'
 
 type ProblemType = 'nothing' | 'minor' | 'major'
 
@@ -29,7 +30,7 @@ const DEFAULT_STATE = {
 
 export function AfterBroadcastForm({ playlist }: Readonly<{ playlist: DBRundownPlaylist }>): JSX.Element {
 	const { t } = useTranslation()
-	const shouldDeactivateRundown = isLoopRunning(playlist)
+	const shouldDeactivateRundown = !isLoopRunning(playlist)
 	const [problems, setProblems] = useState<ProblemType>(DEFAULT_STATE.problems)
 	const [description, setDescription] = useState<string[]>(DEFAULT_STATE.description.slice())
 	const [userName, setUserName] = useState<string>(DEFAULT_STATE.userName)
@@ -81,7 +82,8 @@ export function AfterBroadcastForm({ playlist }: Readonly<{ playlist: DBRundownP
 				UserAction.CREATE_SNAPSHOT_FOR_DEBUG,
 				async (e, ts) =>
 					MeteorCall.system.generateSingleUseToken().then((tokenResult) => {
-						if (ClientAPI.isClientResponseError(tokenResult) || !tokenResult.result) throw tokenResult
+						if (ClientAPI.isClientResponseError(tokenResult)) throw UserError.fromSerialized(tokenResult.error)
+						if (!tokenResult.result) throw new Error('Failed to generate token')
 						return MeteorCall.userAction.storeRundownSnapshot(
 							e,
 							ts,
@@ -120,7 +122,7 @@ export function AfterBroadcastForm({ playlist }: Readonly<{ playlist: DBRundownP
 	const problemOptions = useMemo(() => getDropdownInputOptions<ProblemType>(getQuestionOptions(t)), [])
 
 	return (
-		<div className="afterbroadcastform-container" role="complementary" aria-labelledby="evaluation-header">
+		<div className="afterbroadcastform-container my-4" role="complementary" aria-labelledby="evaluation-header">
 			<div className="afterbroadcastform">
 				<form className="form" onSubmit={saveForm}>
 					<EvaluationInfoBubble />

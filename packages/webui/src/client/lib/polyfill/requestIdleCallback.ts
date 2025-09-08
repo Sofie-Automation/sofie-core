@@ -3,6 +3,7 @@
  */
 
 if (typeof window.requestIdleCallback !== 'function') {
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 	window.requestIdleCallback = (clb: Function) => {
 		return window.requestAnimationFrame(clb as any)
 	}

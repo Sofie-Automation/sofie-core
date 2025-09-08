@@ -9,7 +9,6 @@ RUN corepack enable
 RUN yarn install --immutable
 RUN yarn run pinst --disable
 RUN yarn lerna run --scope \*\*/mos-gateway --include-dependencies --stream build
-RUN yarn plugin import workspace-tools
 RUN yarn workspaces focus mos-gateway --production # purge dev-dependencies
 
 # DEPLOY IMAGE
@@ -25,4 +24,4 @@ COPY --from=0 /opt/shared-lib /opt/shared-lib
 WORKDIR /opt/mos-gateway
 RUN chown -R 1000:1000 /opt/mos-gateway
 USER 1000
-CMD ["node", "dist/index.js"]
+ENTRYPOINT ["node", "dist/index.js"]

@@ -1,18 +1,18 @@
 import * as React from 'react'
 import { StudioRouteSet, StudioAbPlayerDisabling } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { doModalDialog } from '../../../../lib/ModalDialog'
+import { doModalDialog } from '../../../../lib/ModalDialog.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import { useTranslation } from 'react-i18next'
 import { literal } from '@sofie-automation/corelib/dist/lib'
-import { LabelAndOverrides } from '../../../../lib/Components/LabelAndOverrides'
+import { LabelAndOverrides } from '../../../../lib/Components/LabelAndOverrides.js'
 import {
 	OverrideOpHelper,
 	OverrideOpHelperForItemContents,
 	WrappedOverridableItemNormal,
-} from '../../util/OverrideOpHelper'
-import { TextInputControl } from '../../../../lib/Components/TextInput'
-import { OverrideOpHelperArrayTable } from '../../../../lib/forms/SchemaFormTable/ArrayTableOpHelper'
+} from '../../util/OverrideOpHelper.js'
+import { TextInputControl } from '../../../../lib/Components/TextInput.js'
+import { OverrideOpHelperArrayTable } from '../../../../lib/forms/SchemaFormTable/ArrayTableOpHelper.js'
 
 interface RouteSetAbPlayersProps {
 	routeSet: WrappedOverridableItemNormal<StudioRouteSet>
@@ -53,14 +53,14 @@ export function RouteSetAbPlayers({ routeSet, overrideHelper }: Readonly<RouteSe
 
 	return (
 		<>
-			<h4 className="mod mhs">{t('AB Playout devices')}</h4>
-			<p className="text-s dimmed field-hint mhs">
+			<h4 className="my-2">{t('AB Playout devices')}</h4>
+			<p className="text-s dimmed field-hint my-2">
 				{t(
 					'Any AB Playout devices here will only be active when this or another RouteSet that includes them is active'
 				)}
 			</p>
 			{routeSet.computed.abPlayers.length === 0 ? (
-				<p className="text-s dimmed field-hint mhs">{t('There are no AB Playout devices set up yet')}</p>
+				<p className="text-s dimmed field-hint my-2">{t('There are no AB Playout devices set up yet')}</p>
 			) : (
 				routeSet.computed.abPlayers.map((route, index) => (
 					<AbPlayerRow
@@ -109,10 +109,7 @@ function AbPlayerRow({
 	)
 
 	return (
-		<div className="route-sets-editor mod pan mas">
-			<button className="action-btn right mod man pas" onClick={confirmRemoveRouteLocal}>
-				<FontAwesomeIcon icon={faTrash} />
-			</button>
+		<div className="route-sets-editor card m-2 p-2 grid-buttons-right">
 			<div className="properties-grid">
 				<LabelAndOverrides
 					label={t('Pool name')}
@@ -120,14 +117,7 @@ function AbPlayerRow({
 					itemKey={'poolName'}
 					overrideHelper={tableOverrideHelper}
 				>
-					{(value, handleUpdate) => (
-						<TextInputControl
-							modifiedClassName="bghl"
-							classNames="input text-input input-l"
-							value={value}
-							handleUpdate={handleUpdate}
-						/>
-					)}
+					{(value, handleUpdate) => <TextInputControl value={value} handleUpdate={handleUpdate} />}
 				</LabelAndOverrides>
 				<LabelAndOverrides
 					label={t('Pool PlayerId')}
@@ -135,16 +125,12 @@ function AbPlayerRow({
 					itemKey={'playerId'}
 					overrideHelper={tableOverrideHelper}
 				>
-					{(value, handleUpdate) => (
-						<TextInputControl
-							modifiedClassName="bghl"
-							classNames="input text-input input-l"
-							value={value}
-							handleUpdate={handleUpdate}
-						/>
-					)}
+					{(value, handleUpdate) => <TextInputControl value={value} handleUpdate={handleUpdate} />}
 				</LabelAndOverrides>
 			</div>
+			<button className="action-btn" onClick={confirmRemoveRouteLocal}>
+				<FontAwesomeIcon icon={faTrash} />
+			</button>
 		</div>
 	)
 }

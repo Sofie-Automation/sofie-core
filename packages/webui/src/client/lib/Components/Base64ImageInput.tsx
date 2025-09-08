@@ -1,5 +1,5 @@
-import React, { useCallback, useState } from 'react'
-import { UploadButton } from '../uploadButton'
+import { useCallback } from 'react'
+import { UploadButton } from '../uploadButton.js'
 import { faUpload } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useTranslation } from 'react-i18next'
@@ -19,37 +19,27 @@ export function Base64ImageInputControl({
 }: Readonly<IBase64ImageInputControlProps>): JSX.Element {
 	const { t } = useTranslation()
 
-	const [uploadFileKey, setUploadFileKey] = useState(() => Date.now())
-
 	const handleSelectFile = useCallback(
-		(event: React.ChangeEvent<HTMLInputElement>) => {
-			// Clear the field
-			setUploadFileKey(Date.now())
+		(fileContent: string) => {
+			if (typeof fileContent !== 'string' || !fileContent) return
 
-			const file = event.target.files?.[0]
-			if (!file) return
-
-			const reader = new FileReader()
-			reader.onload = (readEvent) => {
-				// On file upload
-
-				const uploadResult = readEvent.target?.result
-				if (typeof uploadResult !== 'string' || !uploadResult) return
-
-				handleUpdate(uploadResult.toString())
-			}
-			reader.readAsDataURL(file)
+			handleUpdate(fileContent)
 		},
 		[handleUpdate]
 	)
+
+	const handleUploadError = useCallback((error: Error) => {
+		// Handle upload error
+		console.error('Error uploading file:', error)
+	}, [])
 
 	return (
 		<div className={classNames}>
 			<UploadButton
 				className="btn btn-primary"
 				accept="image/*"
-				onChange={handleSelectFile}
-				key={uploadFileKey}
+				onUploadContents={handleSelectFile}
+				onUploadError={handleUploadError}
 				disabled={disabled}
 			>
 				<FontAwesomeIcon icon={faUpload} />

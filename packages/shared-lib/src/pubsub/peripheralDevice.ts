@@ -1,15 +1,15 @@
-import { PeripheralDeviceForDevice } from '../core/model/peripheralDevice'
-import { RoutedMappings, RoutedTimeline } from '../core/model/Timeline'
-import { DBTimelineDatastoreEntry } from '../core/model/TimelineDatastore'
+import { PeripheralDeviceForDevice } from '../core/model/peripheralDevice.js'
+import { RoutedMappings, RoutedTimeline } from '../core/model/Timeline.js'
+import { DBTimelineDatastoreEntry } from '../core/model/TimelineDatastore.js'
 import {
 	PackageManagerPlayoutContext,
 	PackageManagerPackageContainers,
 	PackageManagerExpectedPackage,
-} from '../package-manager/publications'
-import { PeripheralDeviceId, RundownId, RundownPlaylistId } from '../core/model/Ids'
-import { PeripheralDeviceCommand } from '../core/model/PeripheralDeviceCommand'
-import { ExpectedPlayoutItemPeripheralDevice } from '../expectedPlayoutItem'
-import { DeviceTriggerMountedAction, PreviewWrappedAdLib } from '../input-gateway/deviceTriggerPreviews'
+} from '../package-manager/publications.js'
+import { PeripheralDeviceId, RundownId, RundownPlaylistId } from '../core/model/Ids.js'
+import { PeripheralDeviceCommand } from '../core/model/PeripheralDeviceCommand.js'
+import { ExpectedPlayoutItemPeripheralDevice } from '../expectedPlayoutItem.js'
+import { DeviceTriggerMountedAction, PreviewWrappedAdLib } from '../input-gateway/deviceTriggerPreviews.js'
 
 /**
  * Ids of possible DDP subscriptions for any PeripheralDevice.

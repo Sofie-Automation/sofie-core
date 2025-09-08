@@ -1,14 +1,14 @@
 import { useCallback, useMemo, useState } from 'react'
-import { useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data'
+import { useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
 import Moment from 'react-moment'
-import { Time, unprotectString } from '../../lib/tempLib'
+import { Time, unprotectString } from '../../lib/tempLib.js'
 import { Evaluation } from '@sofie-automation/meteor-lib/dist/collections/Evaluations'
-import { DatePickerFromTo } from '../../lib/datePicker'
+import { DatePickerFromTo } from '../../lib/datePicker.js'
 import moment from 'moment'
-import { getQuestionOptions } from '../AfterBroadcastForm'
+import { getQuestionOptions } from '../AfterBroadcastForm.js'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { Evaluations } from '../../collections'
-import { DropdownInputOption } from '../../lib/Components/DropdownInput'
+import { Evaluations } from '../../collections/index.js'
+import { DropdownInputOption } from '../../lib/Components/DropdownInput.js'
 import { useTranslation } from 'react-i18next'
 
 export function EvaluationView(): JSX.Element {
@@ -41,11 +41,11 @@ export function EvaluationView(): JSX.Element {
 	}, [])
 
 	return (
-		<div className="mhl gutter external-message-status">
-			<header className="mbs">
+		<div className="mx-5">
+			<header className="mb-2">
 				<h1>{t('Evaluations')}</h1>
 			</header>
-			<div className="mod mvl">
+			<div className="my-5">
 				<div className="paging">
 					<DatePickerFromTo from={dateFrom} to={dateTo} onChange={handleChangeDate} />
 				</div>

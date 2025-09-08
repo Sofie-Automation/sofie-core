@@ -39,3 +39,6 @@ afterEach(() => {
 	// Expect all log messages that have been explicitly supressed, to have been handled:
 	SupressLogMessages.expectAllMessagesToHaveBeenHandled()
 })
+
+// @ts-expect-error mock meteor runtime config
+global.__meteor_runtime_config__ = {}

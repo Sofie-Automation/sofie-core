@@ -1,18 +1,18 @@
 import { RundownLayout } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import { RundownLayoutsAPI } from '../../lib/rundownLayouts'
-import { ExternalFramePanel } from './ExternalFramePanel'
-import { OverflowingContainer } from './OverflowingContainer'
+import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
+import { ExternalFramePanel } from './ExternalFramePanel.js'
+import { OverflowingContainer } from './OverflowingContainer.js'
 import ClassNames from 'classnames'
-import { ShelfTabs, DEFAULT_TAB as SHELF_DEFAULT_TAB } from './Shelf'
-import { AdLibPanel } from './AdLibPanel'
-import { AdLibPieceUi } from '../../lib/shelf'
-import { GlobalAdLibPanel } from './GlobalAdLibPanel'
-import { HotkeyHelpPanel } from './HotkeyHelpPanel'
+import { ShelfTabs, DEFAULT_TAB as SHELF_DEFAULT_TAB } from './Shelf.js'
+import { AdLibPanel } from './AdLibPanel.js'
+import { AdLibPieceUi } from '../../lib/shelf.js'
+import { GlobalAdLibPanel } from './GlobalAdLibPanel.js'
+import { HotkeyHelpPanel } from './HotkeyHelpPanel.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { PieceUi } from '../SegmentTimeline/SegmentTimelineContainer'
+import { PieceUi } from '../SegmentTimeline/SegmentTimelineContainer.js'
 import { useTranslation } from 'react-i18next'
-import { BucketAdLibItem } from './RundownViewBuckets'
-import { IAdLibListItem } from './AdLibListItem'
+import { BucketAdLibItem } from './RundownViewBuckets.js'
+import { IAdLibListItem } from './AdLibListItem.js'
 import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 
@@ -45,7 +45,7 @@ export function ShelfRundownLayout(props: Readonly<IShelfRundownLayoutProps>): J
 						<>
 							<button
 								className={ClassNames('rundown-view__shelf__tabs__tab', {
-									selected: (props.selectedTab || SHELF_DEFAULT_TAB) === ShelfTabs.ADLIB,
+									selected: (props.selectedTab || SHELF_DEFAULT_TAB) === `${ShelfTabs.ADLIB}`,
 								})}
 								onClick={() => onSwitchTab(ShelfTabs.ADLIB)}
 								tabIndex={0}
@@ -56,7 +56,7 @@ export function ShelfRundownLayout(props: Readonly<IShelfRundownLayoutProps>): J
 							</button>
 							<button
 								className={ClassNames('rundown-view__shelf__tabs__tab', {
-									selected: (props.selectedTab || SHELF_DEFAULT_TAB) === ShelfTabs.GLOBAL_ADLIB,
+									selected: (props.selectedTab || SHELF_DEFAULT_TAB) === `${ShelfTabs.GLOBAL_ADLIB}`,
 								})}
 								onClick={() => onSwitchTab(ShelfTabs.GLOBAL_ADLIB)}
 								tabIndex={0}
@@ -87,7 +87,7 @@ export function ShelfRundownLayout(props: Readonly<IShelfRundownLayoutProps>): J
 					)}
 					<button
 						className={ClassNames('rundown-view__shelf__tabs__tab', {
-							selected: (props.selectedTab || SHELF_DEFAULT_TAB) === ShelfTabs.SYSTEM_HOTKEYS,
+							selected: (props.selectedTab || SHELF_DEFAULT_TAB) === `${ShelfTabs.SYSTEM_HOTKEYS}`,
 						})}
 						onClick={() => onSwitchTab(ShelfTabs.SYSTEM_HOTKEYS)}
 						tabIndex={0}
@@ -102,7 +102,7 @@ export function ShelfRundownLayout(props: Readonly<IShelfRundownLayoutProps>): J
 				{!rundownLayout ? (
 					<>
 						<AdLibPanel
-							visible={(props.selectedTab || SHELF_DEFAULT_TAB) === ShelfTabs.ADLIB}
+							visible={(props.selectedTab || SHELF_DEFAULT_TAB) === `${ShelfTabs.ADLIB}`}
 							selectedPiece={props.selectedPiece}
 							onSelectPiece={props.onSelectPiece}
 							playlist={props.playlist}
@@ -111,7 +111,7 @@ export function ShelfRundownLayout(props: Readonly<IShelfRundownLayoutProps>): J
 							studio={props.studio}
 						></AdLibPanel>
 						<GlobalAdLibPanel
-							visible={(props.selectedTab || SHELF_DEFAULT_TAB) === ShelfTabs.GLOBAL_ADLIB}
+							visible={(props.selectedTab || SHELF_DEFAULT_TAB) === `${ShelfTabs.GLOBAL_ADLIB}`}
 							selectedPiece={props.selectedPiece}
 							onSelectPiece={props.onSelectPiece}
 							playlist={props.playlist}
@@ -147,7 +147,7 @@ export function ShelfRundownLayout(props: Readonly<IShelfRundownLayoutProps>): J
 					)
 				)}
 				<HotkeyHelpPanel
-					visible={(props.selectedTab || SHELF_DEFAULT_TAB) === ShelfTabs.SYSTEM_HOTKEYS}
+					visible={(props.selectedTab || SHELF_DEFAULT_TAB) === `${ShelfTabs.SYSTEM_HOTKEYS}`}
 					showStyleBase={props.showStyleBase}
 					hotkeys={props.hotkeys}
 				></HotkeyHelpPanel>

@@ -1,7 +1,7 @@
-import { selectNextPart } from '../playout/selectNextPart'
-import { PlayoutModel } from '../playout/model/PlayoutModel'
-import { JobContext } from '../jobs'
-import { setNextPart } from '../playout/setNext'
+import { selectNextPart } from '../playout/selectNextPart.js'
+import { PlayoutModel } from '../playout/model/PlayoutModel.js'
+import { JobContext } from '../jobs/index.js'
+import { setNextPart } from '../playout/setNext.js'
 import { isPartPlayable } from '@sofie-automation/corelib/dist/dataModel/Part'
 
 /**

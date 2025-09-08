@@ -1,5 +1,5 @@
 /* eslint-disable jest/no-conditional-expect */
-import { Queue } from '../queue'
+import { Queue } from '../queue.js'
 
 test('queue', async () => {
 	let runCount = 0

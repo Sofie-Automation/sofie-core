@@ -1,5 +1,5 @@
 import { INoteBase } from '@sofie-automation/corelib/dist/dataModel/Notes'
-import { CriticalIconSmall, WarningIconSmall } from '../../lib/ui/icons/notifications'
+import { CriticalIconSmall, WarningIconSmall } from '../../lib/ui/icons/notifications.js'
 
 interface IRundownListItemProblemsProps {
 	warnings: INoteBase[]

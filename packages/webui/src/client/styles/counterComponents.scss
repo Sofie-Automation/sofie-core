@@ -1,0 +1,148 @@
+@import '../styles/colorScheme';
+
+.counter-component__planned-end,
+.counter-component__time-to-planned-end,
+.counter-component__time-since-planned-end,
+.counter-component__over-under {
+	font-family: 'Roboto Flex';
+	font-style: normal;
+	font-size: 7.5rem;
+	font-weight: 500;
+	line-height: 100%;
+	font-feature-settings:
+		'liga' off,
+		'tnum' on;
+	font-variation-settings:
+		'GRAD' 0,
+		'XOPQ' 96,
+		'XTRA' 468,
+		'YOPQ' 79,
+		'YTAS' 750,
+		'YTDE' -203,
+		'YTFI' 738,
+		'YTLC' 514,
+		'YTUC' 712,
+		'opsz' 120,
+		'slnt' 0,
+		'wdth' 70,
+		'wght' 500;
+	margin-bottom: 4px;
+}
+
+.counter-component__over-under {
+	color: black;
+	text-align: right;
+
+	letter-spacing: 0.01em;
+	font-variation-settings:
+		'GRAD' 0,
+		'XOPQ' 96,
+		'XTRA' 468,
+		'YOPQ' 79,
+		'YTAS' 750,
+		'YTDE' -203,
+		'YTFI' 738,
+		'YTLC' 514,
+		'YTUC' 712,
+		'opsz' 120,
+		'slnt' 0,
+		'wdth' 70,
+		'wght' 500;
+
+	.under {
+		background-color: $general-countdown-to-next-color;
+		border-radius: 139px;
+		align-self: stretch;
+		gap: 10px;
+		min-width: 240px;
+		padding-left: 22px;
+		padding-right: 22px;
+		padding-top: 0px;
+		padding-bottom: 0px;
+		display: inline-block;
+	}
+	.over {
+		background-color: #ff5218;
+		border-radius: 139px;
+		align-self: stretch;
+		gap: 10px;
+		min-width: 240px;
+		padding-left: 22px;
+		padding-right: 22px;
+		padding-top: 3px;
+		padding-bottom: 0px;
+		display: inline-block;
+
+		font-variation-settings:
+			'GRAD' 0,
+			'XOPQ' 96,
+			'XTRA' 468,
+			'YOPQ' 79,
+			'YTAS' 750,
+			'YTDE' -203,
+			'YTFI' 738,
+			'YTLC' 514,
+			'YTUC' 712,
+			'opsz' 100,
+			'slnt' 0,
+			'wdth' 70,
+			'wght' 600;
+	}
+}
+
+.counter-component__planned-end {
+	color: #ffffff;
+	letter-spacing: 0%;
+	text-align: right;
+
+	letter-spacing: 0.01em;
+	font-variation-settings:
+		'slnt' -7,
+		'wdth' 70,
+		'wght' 500;
+}
+
+.counter-component__time-to-planned-end {
+	color: $general-countdown-to-next-color;
+	letter-spacing: 0%;
+	text-align: right;
+	margin-left: 1.2vw;
+
+	letter-spacing: 0.01em;
+	font-variation-settings:
+		'GRAD' 0,
+		'XOPQ' 96,
+		'XTRA' 468,
+		'YOPQ' 79,
+		'YTAS' 750,
+		'YTDE' -203,
+		'YTFI' 738,
+		'YTLC' 514,
+		'YTUC' 712,
+		'opsz' 120,
+		'slnt' 0,
+		'wdth' 70,
+		'wght' 500;
+}
+
+.counter-component__time-since-planned-end {
+	color: #ff5218;
+	text-align: right;
+	margin-left: 1.2vw;
+
+	letter-spacing: 0.01em;
+	font-variation-settings:
+		'GRAD' 100,
+		'XOPQ' 96,
+		'XTRA' 468,
+		'YOPQ' 79,
+		'YTAS' 750,
+		'YTDE' -203,
+		'YTFI' 738,
+		'YTLC' 514,
+		'YTUC' 712,
+		'opsz' 120,
+		'slnt' 0,
+		'wdth' 70,
+		'wght' 600;
+}

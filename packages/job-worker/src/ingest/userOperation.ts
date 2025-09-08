@@ -1,6 +1,6 @@
 import { UserExecuteChangeOperationProps } from '@sofie-automation/corelib/dist/worker/ingest'
-import { JobContext } from '../jobs'
-import { UpdateIngestRundownResult, runIngestUpdateOperationBase } from './runOperation'
+import { JobContext } from '../jobs/index.js'
+import { UpdateIngestRundownResult, runIngestUpdateOperationBase } from './runOperation.js'
 import { IngestChangeType } from '@sofie-automation/blueprints-integration'
 
 export async function handleUserExecuteChangeOperation(

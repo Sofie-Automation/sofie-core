@@ -1,14 +1,14 @@
 import * as React from 'react'
-import { IAdLibListItem } from '../AdLibListItem'
+import { IAdLibListItem } from '../AdLibListItem.js'
 import { ISourceLayer, IOutputLayer, SourceLayerType } from '@sofie-automation/blueprints-integration'
-import { DefaultListItemRenderer } from './DefaultListItemRenderer'
-import { VTListItemRenderer } from './VTListItemRenderer'
-import { L3rdListItemRenderer } from './L3rdListItemRenderer'
+import { DefaultListItemRenderer } from './DefaultListItemRenderer.js'
+import { VTListItemRenderer } from './VTListItemRenderer.js'
+import { L3rdListItemRenderer } from './L3rdListItemRenderer.js'
 import { PieceStatusCode } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { ITranslatableMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { ReadonlyDeep } from 'type-fest'
-import { PieceContentStatusObj } from '@sofie-automation/meteor-lib/dist/api/pieceContentStatus'
+import { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
 
 export interface ILayerItemRendererProps {
 	adLibListItem: IAdLibListItem

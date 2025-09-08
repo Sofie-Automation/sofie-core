@@ -1,14 +1,14 @@
 import React from 'react'
-import * as _ from 'underscore'
-import { Translated } from '../../lib/ReactMeteorData/react-meteor-data'
+import _ from 'underscore'
+import { Translated } from '../../lib/ReactMeteorData/react-meteor-data.js'
 import ClassNames from 'classnames'
-import { Spinner } from '../../lib/Spinner'
+import { Spinner } from '../../lib/Spinner.js'
 import { DashboardLayoutFilter, PieceDisplayStyle } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import { IAdLibPanelProps, AdLibFetchAndFilterProps } from './AdLibPanel'
-import { AdLibPanelToolbar } from './AdLibPanelToolbar'
-import { matchFilter } from './AdLibListView'
-import { DashboardPieceButton } from './DashboardPieceButton'
-import { contextMenuHoldToDisplayTime } from '../../lib/lib'
+import { IAdLibPanelProps, AdLibFetchAndFilterProps } from './AdLibPanel.js'
+import { AdLibPanelToolbar } from './AdLibPanelToolbar.js'
+import { matchFilter } from './AdLibListView.js'
+import { DashboardPieceButton } from './DashboardPieceButton.js'
+import { contextMenuHoldToDisplayTime } from '../../lib/lib.js'
 import {
 	DashboardPanelInner,
 	dashboardElementStyle,
@@ -16,12 +16,12 @@ import {
 	IDashboardPanelState,
 	DashboardPanelInnerProps,
 	useDashboardPanelTrackedProps,
-} from './DashboardPanel'
-import { unprotectString } from '../../lib/tempLib'
-import { RundownUtils } from '../../lib/rundown'
-import { AdLibPieceUi } from '../../lib/shelf'
+} from './DashboardPanel.js'
+import { unprotectString } from '../../lib/tempLib.js'
+import { RundownUtils } from '../../lib/rundown.js'
+import { AdLibPieceUi } from '../../lib/shelf.js'
 import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'
-import { ContextType, setShelfContextMenuContext } from './ShelfContextMenu'
+import { ContextType, setShelfContextMenuContext } from './ShelfContextMenu.js'
 import { withTranslation } from 'react-i18next'
 
 export const TimelineDashboardPanel = React.memo(
@@ -80,7 +80,7 @@ const TimelineDashboardPanelContent = withTranslation()(
 					const filteredRudownBaselineAdLibs = this.props.rundownBaselineAdLibs.filter((item) =>
 						matchFilter(
 							item,
-							this.props.showStyleBase,
+							this.props.showStyleBase.sourceLayers,
 							liveSegment,
 							this.props.filter,
 							this.state.searchFilter,
@@ -160,13 +160,13 @@ const TimelineDashboardPanelContent = withTranslation()(
 										? seg.pieces.filter((item) =>
 												matchFilter(
 													item,
-													this.props.showStyleBase,
+													this.props.showStyleBase.sourceLayers,
 													liveSegment,
 													this.props.filter,
 													this.state.searchFilter,
 													uniquenessIds
 												)
-										  )
+											)
 										: []
 									return filteredPieces.length > 0 ||
 										seg.isLive ||

@@ -7,8 +7,6 @@ import { Settings } from '../Settings'
 import { Meteor } from 'meteor/meteor'
 import Koa from 'koa'
 import { triggerWriteAccess } from './securityVerify'
-import { UserId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { unprotectString } from '../lib/tempLib'
 import { logger } from '../logging'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 
@@ -62,8 +60,8 @@ export function assertConnectionHasOneOfPermissions(
 	throw new Meteor.Error(403, 'Not authorized')
 }
 
-export function checkUserIdHasOneOfPermissions(
-	userId: UserId | null,
+export function checkHasOneOfPermissions(
+	permissions: UserPermissions,
 	collectionName: CollectionName,
 	...allowedPermissions: Array<keyof UserPermissions>
 ): boolean {
@@ -74,9 +72,8 @@ export function checkUserIdHasOneOfPermissions(
 	// Skip if auth is disabled
 	if (!Settings.enableHeaderAuth) return true
 
-	if (!userId) throw new Meteor.Error(403, 'UserId is null')
+	if (!permissions) throw new Meteor.Error(403, 'Permissions is null')
 
-	const permissions: UserPermissions = JSON.parse(unprotectString(userId))
 	for (const permission of allowedPermissions) {
 		if (permissions[permission]) return true
 	}

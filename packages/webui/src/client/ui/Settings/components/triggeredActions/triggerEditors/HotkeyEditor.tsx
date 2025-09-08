@@ -4,9 +4,10 @@ import React, { useContext, useState } from 'react'
 import { useLayoutEffect } from 'react'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { SorensenContext } from '../../../../../lib/SorensenContext'
-import { codesToKeyLabels } from '../../../../../lib/triggers/codesToKeyLabels'
-import { ToggleSwitchControl } from '../../../../../lib/Components/ToggleSwitch'
+import { SorensenContext } from '../../../../../lib/SorensenContext.js'
+import { codesToKeyLabels } from '../../../../../lib/triggers/codesToKeyLabels.js'
+import { ToggleSwitchControl } from '../../../../../lib/Components/ToggleSwitch.js'
+import Form from 'react-bootstrap/esm/Form'
 
 interface IProps {
 	trigger: IBlueprintHotkeyTrigger
@@ -84,9 +85,9 @@ export const HotkeyEditor = function HotkeyEditor({ trigger, modified, readonly,
 
 	return (
 		<>
-			<input
+			<Form.Control
 				type="text"
-				className={classNames('form-control input text-input input-m', {
+				className={classNames('mb-2', {
 					bghl: modified,
 				})}
 				ref={setInput}

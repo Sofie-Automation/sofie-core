@@ -1,5 +1,5 @@
 import { TSR } from '@sofie-automation/blueprints-integration'
-import { TimelineObjGeneric, TimelineObjType } from '../dataModel/Timeline'
+import { TimelineObjGeneric, TimelineObjType } from '../dataModel/Timeline.js'
 import {
 	formatDateAsTimecode,
 	formatDurationAsTimecode,
@@ -10,8 +10,8 @@ import {
 	objectPathSet,
 	removeNullyProperties,
 	stringifyObjects,
-} from '../lib'
-import { UserError, UserErrorMessage } from '../error'
+} from '../lib.js'
+import { UserError, UserErrorMessage } from '../error.js'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 
 describe('Lib', () => {
@@ -138,14 +138,22 @@ describe('Lib', () => {
 		// The stringification should trigger .toString() -> .toJSON() in UserError:
 		const str = stringifyError(userError)
 		expect(str).toMatch(/^UserError: /)
-		expect(JSON.parse(str.replace('UserError: ', ''))).toMatchObject({
+
+		// This trim is not nice, but necessary to strip off some of the error wrapping. This shouldn't be done anywhere else, but we need to for this test
+		let strTrimmed = str.slice('UserError: '.length)
+		strTrimmed = strTrimmed.slice(0, strTrimmed.indexOf('}, Error:') + 1)
+		expect(JSON.parse(strTrimmed)).toMatchObject({
 			errorCode: 42,
 			key: UserErrorMessage.ValidationFailed,
-			message: {
+			userMessage: {
 				key: 'Validation failed!',
 				args: {},
 			},
-			rawError: expect.stringMatching(/Error: Hello/),
+			rawError: {
+				name: expect.stringContaining('Error'),
+				message: 'Hello',
+				stack: expect.stringContaining('Error: Hello'),
+			},
 		})
 
 		// Array of stuff:

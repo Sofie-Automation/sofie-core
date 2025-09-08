@@ -1,4 +1,4 @@
-import { parseMosPluginMessageXml, generateMosPluginItemXml } from '../mosXml2Js'
+import { parseMosPluginMessageXml, generateMosPluginItemXml } from '../mosXml2Js.js'
 import { readFileSync } from 'fs'
 import { join } from 'path'
 import { MOS_DATA_IS_STRICT, MOS } from '@sofie-automation/meteor-lib/dist/mos'

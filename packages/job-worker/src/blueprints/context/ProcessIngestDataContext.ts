@@ -7,9 +7,12 @@ import type {
 	MutableIngestRundown,
 	NrcsIngestChangeDetails,
 } from '@sofie-automation/blueprints-integration'
-import { StudioContext } from './StudioContext'
-import { defaultApplyIngestChanges } from '../ingest/defaultApplyIngestChanges'
-import { groupMosPartsIntoIngestSegments, groupPartsInRundownAndChanges } from '../ingest/groupPartsInRundownAndChanges'
+import { StudioContext } from './StudioContext.js'
+import { defaultApplyIngestChanges } from '../ingest/defaultApplyIngestChanges.js'
+import {
+	groupMosPartsIntoIngestSegments,
+	groupPartsInRundownAndChanges,
+} from '../ingest/groupPartsInRundownAndChanges.js'
 
 /**
  * Provides a context for blueprints while running the blueprints.processIngestData() method.

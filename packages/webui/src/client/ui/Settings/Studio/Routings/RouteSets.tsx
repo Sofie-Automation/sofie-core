@@ -10,26 +10,26 @@ import {
 	MappingExt,
 	DBStudio,
 } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { doModalDialog } from '../../../../lib/ModalDialog'
+import { doModalDialog } from '../../../../lib/ModalDialog.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash, faPencilAlt, faCheck, faPlus, faSync } from '@fortawesome/free-solid-svg-icons'
 import { useTranslation } from 'react-i18next'
 import { TSR } from '@sofie-automation/blueprints-integration'
 import { ReadonlyDeep } from 'type-fest'
-import { MappingsSettingsManifest, MappingsSettingsManifests } from '../Mappings'
+import { MappingsSettingsManifest, MappingsSettingsManifests } from '../Mappings.js'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import {
 	DropdownInputControl,
 	DropdownInputOption,
 	getDropdownInputOptions,
-} from '../../../../lib/Components/DropdownInput'
+} from '../../../../lib/Components/DropdownInput.js'
 import { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
 import {
 	LabelActual,
 	LabelAndOverrides,
 	LabelAndOverridesForCheckbox,
 	LabelAndOverridesForDropdown,
-} from '../../../../lib/Components/LabelAndOverrides'
+} from '../../../../lib/Components/LabelAndOverrides.js'
 import {
 	OverrideOpHelper,
 	OverrideOpHelperForItemContents,
@@ -37,20 +37,21 @@ import {
 	WrappedOverridableItem,
 	WrappedOverridableItemDeleted,
 	WrappedOverridableItemNormal,
-} from '../../util/OverrideOpHelper'
-import { TextInputControl } from '../../../../lib/Components/TextInput'
-import { CheckboxControl } from '../../../../lib/Components/Checkbox'
-import { OverrideOpHelperArrayTable } from '../../../../lib/forms/SchemaFormTable/ArrayTableOpHelper'
-import { hasOpWithPath } from '../../../../lib/Components/util'
-import { SchemaFormWithOverrides } from '../../../../lib/forms/SchemaFormWithOverrides'
+} from '../../util/OverrideOpHelper.js'
+import { TextInputControl } from '../../../../lib/Components/TextInput.js'
+import { CheckboxControl } from '../../../../lib/Components/Checkbox.js'
+import { OverrideOpHelperArrayTable } from '../../../../lib/forms/SchemaFormTable/ArrayTableOpHelper.js'
+import { hasOpWithPath } from '../../../../lib/Components/util.js'
+import { SchemaFormWithOverrides } from '../../../../lib/forms/SchemaFormWithOverrides.js'
 import {
 	applyAndValidateOverrides,
 	ObjectOverrideSetOp,
 	SomeObjectOverrideOp,
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import { Studios } from '../../../../collections'
-import { useToggleExpandHelper } from '../../../util/useToggleExpandHelper'
-import { RouteSetAbPlayers } from './RouteSetAbPlayers'
+import { Studios } from '../../../../collections/index.js'
+import { useToggleExpandHelper } from '../../../util/useToggleExpandHelper.js'
+import { RouteSetAbPlayers } from './RouteSetAbPlayers.js'
+import Button from 'react-bootstrap/esm/Button'
 
 interface RouteSetsTable {
 	studio: DBStudio
@@ -128,7 +129,7 @@ export function RouteSetsTable({
 				<tbody>
 					{routeSetsFromOverrides.length === 0 ? (
 						<tr>
-							<td className="mhn dimmed">{t('There are no Route Sets set up.')}</td>
+							<td className="dimmed">{t('There are no Route Sets set up.')}</td>
 						</tr>
 					) : (
 						routeSetsFromOverrides.map((routeSet: WrappedOverridableItem<StudioRouteSet>) =>
@@ -151,7 +152,7 @@ export function RouteSetsTable({
 					)}
 				</tbody>
 			</table>
-			<div className="mod mhs">
+			<div className="my-1 mx-2">
 				<button className="btn btn-primary" onClick={addNewRouteSet}>
 					<FontAwesomeIcon icon={faPlus} />
 				</button>
@@ -293,13 +294,7 @@ function RouteSetRow({
 						<div className="properties-grid">
 							<label className="field">
 								<LabelActual label={t('Route Set ID')} />
-								<TextInputControl
-									modifiedClassName="bghl"
-									classNames="input text-input input-l"
-									value={routeSet.id}
-									handleUpdate={updateRouteSetId}
-									disabled={!!routeSet.defaults}
-								/>
+								<TextInputControl value={routeSet.id} handleUpdate={updateRouteSetId} disabled={!!routeSet.defaults} />
 							</label>
 							<LabelAndOverridesForDropdown
 								label={t('Default State')}
@@ -310,12 +305,7 @@ function RouteSetRow({
 								options={getDropdownInputOptions(DEFAULT_ACTIVE_OPTIONS)}
 							>
 								{(value, handleUpdate, options) => (
-									<DropdownInputControl
-										classNames="input text-input input-l"
-										options={options}
-										value={value}
-										handleUpdate={handleUpdate}
-									/>
+									<DropdownInputControl options={options} value={value} handleUpdate={handleUpdate} />
 								)}
 							</LabelAndOverridesForDropdown>
 							<LabelAndOverridesForCheckbox
@@ -332,14 +322,7 @@ function RouteSetRow({
 								itemKey={'name'}
 								overrideHelper={overrideHelper}
 							>
-								{(value, handleUpdate) => (
-									<TextInputControl
-										modifiedClassName="bghl"
-										classNames="input text-input input-l"
-										value={value}
-										handleUpdate={handleUpdate}
-									/>
-								)}
+								{(value, handleUpdate) => <TextInputControl value={value} handleUpdate={handleUpdate} />}
 							</LabelAndOverrides>
 
 							<LabelAndOverridesForDropdown
@@ -351,12 +334,7 @@ function RouteSetRow({
 								options={exclusivityGroupOptions}
 							>
 								{(value, handleUpdate, options) => (
-									<DropdownInputControl
-										classNames="input text-input input-l"
-										options={options}
-										value={value}
-										handleUpdate={handleUpdate}
-									/>
+									<DropdownInputControl options={options} value={value} handleUpdate={handleUpdate} />
 								)}
 							</LabelAndOverridesForDropdown>
 
@@ -369,12 +347,7 @@ function RouteSetRow({
 								options={getDropdownInputOptions(StudioRouteBehavior)}
 							>
 								{(value, handleUpdate, options) => (
-									<DropdownInputControl
-										classNames="input text-input input-l"
-										options={options}
-										value={value}
-										handleUpdate={handleUpdate}
-									/>
+									<DropdownInputControl options={options} value={value} handleUpdate={handleUpdate} />
 								)}
 							</LabelAndOverridesForDropdown>
 						</div>
@@ -385,46 +358,46 @@ function RouteSetRow({
 							overrideHelper={overrideHelper}
 							studioMappings={studioMappings}
 						/>
-						<div className="mod">
-							<button className="btn btn-secondary" onClick={() => addNewRouteInSet(routeSet.id)}>
+						<div className="my-1 mx-2">
+							<Button variant="outline-secondary" onClick={() => addNewRouteInSet(routeSet.id)}>
 								<FontAwesomeIcon icon={faPlus} />
-							</button>
+							</Button>
 							&nbsp;
 							{routeSet.defaults && (
-								<button
-									className="btn btn-primary"
+								<Button
+									variant="primary"
 									onClick={resyncRoutesTable}
 									title="Reset to default"
 									disabled={!routesIsOverridden}
 								>
-									{t('Reset')}
-									&nbsp;
+									<span>{t('Reset')}</span>
 									<FontAwesomeIcon icon={faSync} />
-								</button>
+								</Button>
 							)}
 						</div>
 						<RouteSetAbPlayers routeSet={routeSet} overrideHelper={overrideHelper} />
-						<div className="mod">
-							<button className="btn btn-secondary" onClick={() => addNewAbPlayerInSet(routeSet.id)}>
+						<div className="my-1 mx-2">
+							<Button variant="outline-secondary" onClick={() => addNewAbPlayerInSet(routeSet.id)}>
 								<FontAwesomeIcon icon={faPlus} />
-							</button>
+							</Button>
 							&nbsp;
 							{routeSet.defaults && (
-								<button
-									className="btn btn-primary"
+								<Button
+									variant="primary"
 									onClick={resyncAbPlayerTable}
 									title="Reset to default"
 									disabled={!abPlayerIsOverridden}
 								>
-									{t('Reset')}
-									&nbsp;
+									<span>{t('Reset')}</span>
 									<FontAwesomeIcon icon={faSync} />
-								</button>
+								</Button>
 							)}
 						</div>
-						<button className="btn btn-primary right" onClick={() => toggleExpanded(routeSet.id)}>
-							<FontAwesomeIcon icon={faCheck} />
-						</button>
+						<div className="text-end">
+							<Button variant="primary" onClick={() => toggleExpanded(routeSet.id)}>
+								<FontAwesomeIcon icon={faCheck} />
+							</Button>
+						</div>
 					</td>
 				</tr>
 			)}
@@ -508,9 +481,9 @@ function RenderRoutes({
 
 	return (
 		<>
-			<h4 className="mod mhs">{t('Routes')}</h4>
+			<h4 className="my-2">{t('Routes')}</h4>
 			{routeSet.computed?.routes?.length === 0 ? (
-				<p className="text-s dimmed field-hint mhs">{t('There are no routes set up yet')}</p>
+				<p className="text-s dimmed field-hint mx-2">{t('There are no routes set up yet')}</p>
 			) : null}
 			{routesBuffer.map((route, index) => (
 				<RenderRoutesRow
@@ -556,8 +529,8 @@ function RenderRoutesRow({
 		rawRoute.routeType === StudioRouteType.REMAP
 			? rawRoute.deviceType
 			: rawRoute.mappedLayer
-			? deviceTypeFromMappedLayer
-			: rawRoute.deviceType
+				? deviceTypeFromMappedLayer
+				: rawRoute.deviceType
 
 	const routeMappingSchema = manifest[(routeDeviceType ?? rawRoute.remapping?.device) as TSR.DeviceType]
 
@@ -587,10 +560,7 @@ function RenderRoutesRow({
 	const confirmRemoveRouteLocal = React.useCallback(() => confirmRemoveRoute(route), [confirmRemoveRoute, route])
 
 	return (
-		<div className="route-sets-editor mod pan mas">
-			<button className="action-btn right mod man pas" onClick={confirmRemoveRouteLocal}>
-				<FontAwesomeIcon icon={faTrash} />
-			</button>
+		<div className="route-sets-editor card m-2 p-2 grid-buttons-right">
 			<div className="properties-grid">
 				<LabelAndOverridesForDropdown
 					label={t('Original Layer')}
@@ -600,12 +570,7 @@ function RenderRoutesRow({
 					options={getDropdownInputOptions(Object.keys(studioMappings))}
 				>
 					{(value, handleUpdate, options) => (
-						<DropdownInputControl
-							classNames="input text-input input-l"
-							options={options}
-							value={value}
-							handleUpdate={handleUpdate}
-						/>
+						<DropdownInputControl options={options} value={value} handleUpdate={handleUpdate} />
 					)}
 				</LabelAndOverridesForDropdown>
 
@@ -615,14 +580,7 @@ function RenderRoutesRow({
 					itemKey={'outputMappedLayer'}
 					overrideHelper={tableOverrideHelper}
 				>
-					{(value, handleUpdate) => (
-						<TextInputControl
-							modifiedClassName="bghl"
-							classNames="input text-input input-l"
-							value={value}
-							handleUpdate={handleUpdate}
-						/>
-					)}
+					{(value, handleUpdate) => <TextInputControl value={value} handleUpdate={handleUpdate} />}
 				</LabelAndOverrides>
 
 				<LabelAndOverridesForDropdown
@@ -634,16 +592,9 @@ function RenderRoutesRow({
 				>
 					{(value, handleUpdate, options) => {
 						if (!rawRoute.mappedLayer) {
-							return <span className="mls">REMAP</span>
+							return <span className="ms-1">REMAP</span>
 						} else {
-							return (
-								<DropdownInputControl
-									classNames="input text-input input-l"
-									options={options}
-									value={value}
-									handleUpdate={handleUpdate}
-								/>
-							)
+							return <DropdownInputControl options={options} value={value} handleUpdate={handleUpdate} />
 						}
 					}}
 				</LabelAndOverridesForDropdown>
@@ -658,19 +609,12 @@ function RenderRoutesRow({
 					{(value, handleUpdate, options) => {
 						if (rawRoute.routeType === StudioRouteType.REROUTE && rawRoute.mappedLayer) {
 							return deviceTypeFromMappedLayer !== undefined ? (
-								<span className="mls">{TSR.DeviceType[deviceTypeFromMappedLayer]}</span>
+								<span className="ms-1">{TSR.DeviceType[deviceTypeFromMappedLayer]}</span>
 							) : (
-								<span className="mls dimmed">{t('Original Layer not found')}</span>
+								<span className="ms-1 dimmed">{t('Original Layer not found')}</span>
 							)
 						} else {
-							return (
-								<DropdownInputControl
-									classNames="input text-input input-l"
-									options={options}
-									value={value}
-									handleUpdate={handleUpdate}
-								/>
-							)
+							return <DropdownInputControl options={options} value={value} handleUpdate={handleUpdate} />
 						}
 					}}
 				</LabelAndOverridesForDropdown>
@@ -684,12 +628,7 @@ function RenderRoutesRow({
 						options={mappingTypeOptions}
 					>
 						{(value, handleUpdate, options) => (
-							<DropdownInputControl
-								classNames="input text-input input-l"
-								options={options}
-								value={value}
-								handleUpdate={handleUpdate}
-							/>
+							<DropdownInputControl options={options} value={value} handleUpdate={handleUpdate} />
 						)}
 					</LabelAndOverridesForDropdown>
 				)}
@@ -703,14 +642,7 @@ function RenderRoutesRow({
 							overrideHelper={tableOverrideHelper}
 							showClearButton={true}
 						>
-							{(value, handleUpdate) => (
-								<TextInputControl
-									modifiedClassName="bghl"
-									classNames="input text-input input-l"
-									value={value}
-									handleUpdate={handleUpdate}
-								/>
-							)}
+							{(value, handleUpdate) => <TextInputControl value={value} handleUpdate={handleUpdate} />}
 						</LabelAndOverrides>
 
 						<DeviceMappingSettings
@@ -723,6 +655,9 @@ function RenderRoutesRow({
 					</>
 				) : null}
 			</div>
+			<button className="action-btn" onClick={confirmRemoveRouteLocal}>
+				<FontAwesomeIcon icon={faTrash} />
+			</button>
 		</div>
 	)
 }

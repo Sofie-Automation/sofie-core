@@ -1,8 +1,8 @@
 import * as React from 'react'
-import { useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data'
-import * as _ from 'underscore'
+import { useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
+import _ from 'underscore'
 import { deserializeTimelineBlob, TimelineHash } from '@sofie-automation/corelib/dist/dataModel/Timeline'
-import { applyToArray, clone, normalizeArray, protectString } from '../../lib/tempLib'
+import { applyToArray, clone, normalizeArray, protectString } from '../../lib/tempLib.js'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import {
 	TimelineState,
@@ -14,15 +14,19 @@ import {
 	getResolvedState,
 } from 'superfly-timeline'
 import { TimelineContentObject, transformTimeline } from '@sofie-automation/corelib/dist/playout/timeline'
-import { useCurrentTime } from '../../lib/lib'
-import { StudioSelect } from './StudioSelect'
+import { useCurrentTime } from '../../lib/lib.js'
+import { StudioSelect } from './StudioSelect.js'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Classnames from 'classnames'
-import { createSyncPeripheralDeviceCustomPublicationMongoCollection } from '../../collections/lib'
+import { createSyncPeripheralDeviceCustomPublicationMongoCollection } from '../../collections/lib.js'
 import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PeripheralDevicePubSubCollectionsNames } from '@sofie-automation/shared-lib/dist/pubsub/peripheralDevice'
+import Row from 'react-bootstrap/Row'
+import Col from 'react-bootstrap/Col'
+import Button from 'react-bootstrap/Button'
+import Form from 'react-bootstrap/Form'
 
 export const StudioTimeline = createSyncPeripheralDeviceCustomPublicationMongoCollection(
 	PeripheralDevicePubSubCollectionsNames.studioTimeline
@@ -37,17 +41,11 @@ function TimelineView(): JSX.Element {
 	const { studioId } = useParams<TimelineViewRouteParams>()
 
 	return (
-		<div className="mtl gutter">
-			<header className="mvs">
+		<div className="mx-5">
+			<header className="my-2">
 				<h1>{t('Timeline')}</h1>
 			</header>
-			<div className="mod mvl">
-				{studioId && (
-					<div>
-						<ComponentTimelineSimulate studioId={protectString(studioId)} />
-					</div>
-				)}
-			</div>
+			<div className="my-5">{studioId && <ComponentTimelineSimulate studioId={protectString(studioId)} />}</div>
 		</div>
 	)
 }
@@ -115,7 +113,7 @@ function ComponentTimelineSimulate({ studioId }: Readonly<ITimelineSimulateProps
 	return (
 		<div>
 			<div>
-				<h2 className="mhn">Timeline state</h2>
+				<h2 className="my-3">Timeline state</h2>
 				{errorMsgResolve ? (
 					<p>{errorMsgResolve}</p>
 				) : (
@@ -123,12 +121,12 @@ function ComponentTimelineSimulate({ studioId }: Readonly<ITimelineSimulateProps
 				)}
 
 				<div>
-					<h2 className="mhn">Instances</h2>
+					<h2 className="my-3">Instances</h2>
 					<TimelineInstancesTable resolvedTl={resolvedTimeline} />
 				</div>
 
 				<div>
-					<h2 className="mhn">Events</h2>
+					<h2 className="my-3">Events</h2>
 					<TimelineChangesLog resolvedTl={resolvedTimeline} timelineHash={tlComplete?.timelineHash} />
 				</div>
 			</div>
@@ -155,7 +153,7 @@ function FilterInput({ filterChanged }: Readonly<FilterInputProps>) {
 			try {
 				filterChanged(new RegExp(filterText.substr(1, filterText.length - 2)))
 				setIsError(false)
-			} catch (e) {
+			} catch (_e) {
 				setIsError(true)
 			}
 		} else {
@@ -165,7 +163,7 @@ function FilterInput({ filterChanged }: Readonly<FilterInputProps>) {
 	}, [filterText])
 
 	return (
-		<input
+		<Form.Control
 			type="text"
 			value={filterText}
 			onChange={changeFilter}
@@ -196,38 +194,42 @@ function TimelineStateTable({ resolvedTimeline, now }: Readonly<TimelineStateTab
 	const times = _.uniq((state?.nextEvents ?? []).map((e) => e.time))
 
 	return (
-		<div>
-			<div className="flex-row mbl">
-				<div className="col mrl">
-					Time:{' '}
-					<select onChange={selectViewTime} value={viewTime ?? 'now'}>
-						<option id="now">Now: {now}</option>
-						{times.map((e) => (
-							<option id={e + ''} key={e}>
-								{e}
-							</option>
-						))}
-					</select>
+		<Row>
+			<Col xs={12}>
+				<div className="flex-row mb-2">
+					<div className="mx-2">
+						Time:{' '}
+						<Form.Select onChange={selectViewTime} value={viewTime ?? 'now'}>
+							<option id="now">Now: {now}</option>
+							{times.map((e) => (
+								<option id={e + ''} key={e}>
+									{e}
+								</option>
+							))}
+						</Form.Select>
+					</div>
+					<div className="mx-2">
+						Layer Filter: <FilterInput filterChanged={setLayerFilter} />
+					</div>
 				</div>
-				<div className="col">
-					Layer Filter: <FilterInput filterChanged={setLayerFilter} />
-				</div>
-			</div>
-			<table className="testtools-timelinetable">
-				<tbody>
-					<tr>
-						<th>Layer</th>
-						<th>id</th>
-						<th>Enable</th>
-						<th>Instance Times</th>
-						<th>type</th>
-						<th>classes</th>
-						<th>content</th>
-					</tr>
-					{state ? renderTimelineState(state, layerFilter) : ''}
-				</tbody>
-			</table>
-		</div>
+			</Col>
+			<Col xs={12}>
+				<table className="testtools-datatable">
+					<tbody>
+						<tr>
+							<th>Layer</th>
+							<th>id</th>
+							<th>Enable</th>
+							<th>Instance Times</th>
+							<th>type</th>
+							<th>classes</th>
+							<th>content</th>
+						</tr>
+						{state ? renderTimelineState(state, layerFilter) : ''}
+					</tbody>
+				</table>
+			</Col>
+		</Row>
 	)
 }
 
@@ -258,6 +260,17 @@ function renderTimelineState(state: TimelineState, filter: RegExp | string | und
 			<td>{(o.classes ?? []).join('<br />')}</td>
 			<td style={{ whiteSpace: 'pre' }}>
 				<pre>{JSON.stringify(o.content, undefined, '\t')}</pre>
+				{
+					//@ts-expect-error - abSessions is not in the type but are still in the object if used:
+					o.abSessions && (
+						<pre>
+							{
+								//@ts-expect-error - abSessions is not in the type but are still in the object if used:
+								'AB-Sessions:' + '\n' + JSON.stringify(o.abSessions, undefined, '\t')
+							}
+						</pre>
+					)
+				}
 			</td>
 		</tr>
 	))
@@ -270,24 +283,24 @@ function TimelineInstancesTable({ resolvedTl }: Readonly<TimelineInstancesTableP
 	const [idFilter, setIdFilter] = useState<FilterInputValue>(undefined)
 
 	return (
-		<div>
-			<div className="flex-row mbl">
-				<div className="col">
-					Id Filter: <FilterInput filterChanged={setIdFilter} />
-				</div>
-			</div>
-			<table className="testtools-timelinetable">
-				<tbody>
-					<tr>
-						<th>Id</th>
-						<th>Layer</th>
-						<th>Parent</th>
-						<th>Instance Times</th>
-					</tr>
-					{resolvedTl ? renderTimelineInstances(resolvedTl, idFilter) : ''}
-				</tbody>
-			</table>
-		</div>
+		<Row>
+			<Col xs={12}>
+				Id Filter: <FilterInput filterChanged={setIdFilter} />
+			</Col>
+			<Col xs={12}>
+				<table className="testtools-datatable">
+					<tbody>
+						<tr>
+							<th>Id</th>
+							<th>Layer</th>
+							<th>Parent</th>
+							<th>Instance Times</th>
+						</tr>
+						{resolvedTl ? renderTimelineInstances(resolvedTl, idFilter) : ''}
+					</tbody>
+				</table>
+			</Col>
+		</Row>
 	)
 }
 
@@ -429,28 +442,32 @@ function TimelineChangesLog({ resolvedTl, timelineHash }: Readonly<TimelineChang
 	}, [entries, idFilter])
 
 	return (
-		<div>
-			<div className="flex-row mbl">
-				<div className="col">
-					Id Filter: <FilterInput filterChanged={setIdFilter} />
+		<Row>
+			<Col xs={12}>
+				<div className="flex-row mb-4">
+					<div className="col">
+						Id Filter: <FilterInput filterChanged={setIdFilter} />
+					</div>
+					<div className="col">
+						<Button onClick={doClear}>Clear Events</Button>
+					</div>
 				</div>
-				<div className="col">
-					<button onClick={doClear}>Clear Events</button>
-				</div>
-			</div>
-			<table className="testtools-timelinetable">
-				<tbody>
-					<tr>
-						<th>Msg</th>
-					</tr>
-					{showEntries.map((e, i) => (
-						<tr key={i}>
-							<td>{e.msg}</td>
+			</Col>
+			<Col xs={12}>
+				<table className="testtools-datatable">
+					<tbody>
+						<tr>
+							<th>Msg</th>
 						</tr>
-					))}
-				</tbody>
-			</table>
-		</div>
+						{showEntries.map((e, i) => (
+							<tr key={i}>
+								<td>{e.msg}</td>
+							</tr>
+						))}
+					</tbody>
+				</table>
+			</Col>
+		</Row>
 	)
 }
 

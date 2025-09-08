@@ -3,20 +3,20 @@ import React, { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { Rundown, getRundownNrcsName } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { RundownUtils } from '../../lib/rundown'
-import { iconDragHandle, iconRemove, iconResync } from './icons'
-import { DisplayFormattedTime } from './DisplayFormattedTime'
-import { PathIcon } from '../../lib/ui/icons/rundownList'
-import { LoopingIcon } from '../../lib/ui/icons/looping'
-import { RundownViewLayoutSelection } from './RundownViewLayoutSelection'
+import { RundownUtils } from '../../lib/rundown.js'
+import { iconDragHandle, iconRemove, iconResync } from './icons.js'
+import { DisplayFormattedTime } from './DisplayFormattedTime.js'
+import { PathIcon } from '../../lib/ui/icons/rundownList.js'
+import { LoopingIcon } from '../../lib/ui/icons/looping.js'
+import { RundownViewLayoutSelection } from './RundownViewLayoutSelection.js'
 import { RundownLayoutBase } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import { RundownLayoutsAPI } from '../../lib/rundownLayouts'
+import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
 import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
-import { TOOLTIP_DEFAULT_DELAY } from '../../lib/lib'
+import { TOOLTIP_DEFAULT_DELAY } from '../../lib/lib.js'
 import { Meteor } from 'meteor/meteor'
-import { RundownPlaylists } from '../../collections'
-import { isLoopDefined } from '../../lib/RundownResolver'
-import { UserPermissionsContext } from '../UserPermissions'
+import { RundownPlaylists } from '../../collections/index.js'
+import { isLoopDefined } from '../../lib/RundownResolver.js'
+import { UserPermissionsContext } from '../UserPermissions.js'
 
 interface IRundownListItemViewProps {
 	isActive: boolean
@@ -81,38 +81,40 @@ export default React.memo(function RundownListItemView({
 			ref={connectDropTarget}
 			role="row"
 		>
+			{userPermissions.studio ? (
+				<span className="rundown-list-item__draghandle" ref={connectDragSource}>
+					<Tooltip
+						overlay={t('Drag to reorder or move out of playlist')}
+						placement="top"
+						mouseEnterDelay={TOOLTIP_DEFAULT_DELAY}
+						overlayStyle={{ display: renderTooltips ? undefined : 'none' }}
+					>
+						<button className="rundown-list-item__action" aria-label="Drag handle">
+							{iconDragHandle()}
+						</button>
+					</Tooltip>
+				</span>
+			) : (
+				<span></span>
+			)}
 			<span className="rundown-list-item__name" role="rowheader">
-				<>
-					{userPermissions.studio ? (
-						<span className="draghandle" ref={connectDragSource}>
-							<Tooltip
-								overlay={t('Drag to reorder or move out of playlist')}
-								placement="top"
-								mouseEnterDelay={TOOLTIP_DEFAULT_DELAY}
-								overlayStyle={{ display: renderTooltips ? undefined : 'none' }}
-							>
-								<button className="rundown-list-item__action" aria-label="Drag handle">
-									{iconDragHandle()}
-								</button>
-							</Tooltip>
+				<span className="rundown-name">{rundownNameContent}</span>
+				{rundown.description ? (
+					<Tooltip overlay={rundown.description} trigger={['hover']} placement="right">
+						<span className="rundown-list-description__icon">
+							<PathIcon />
 						</span>
-					) : null}
-					<b className="rundown-name">{rundownNameContent}</b>
-					{rundown.description ? (
-						<Tooltip overlay={rundown.description} trigger={['hover']} placement="right">
-							<span className="rundown-list-description__icon">
-								<PathIcon />
-							</span>
-						</Tooltip>
-					) : null}
+					</Tooltip>
+				) : null}
 
+				<span className="rundown-list-item__indicator">
 					{isActive === true ? (
 						<Tooltip
 							overlay={t('This rundown is currently active')}
 							mouseEnterDelay={TOOLTIP_DEFAULT_DELAY}
 							placement="bottom"
 						>
-							<div className="origo-pulse small right mrs">
+							<div className="origo-pulse small me-2">
 								<div className="pulse-marker">
 									<div className="pulse-rays"></div>
 									<div className="pulse-rays delay"></div>
@@ -120,7 +122,7 @@ export default React.memo(function RundownListItemView({
 							</div>
 						</Tooltip>
 					) : null}
-				</>
+				</span>
 			</span>
 			{/* <RundownListItemProblems warnings={warnings} errors={errors} /> */}
 			<span className="rundown-list-item__text" role="gridcell">
@@ -180,21 +182,20 @@ export default React.memo(function RundownListItemView({
 			<span className="rundown-list-item__text" role="gridcell">
 				<DisplayFormattedTime displayTimestamp={rundown.modified} t={t} />
 			</span>
-			{rundownLayouts.some(
-				(l) =>
-					(RundownLayoutsAPI.isLayoutForShelf(l) && l.exposeAsStandalone) ||
-					(RundownLayoutsAPI.isLayoutForRundownView(l) && l.exposeAsSelectableLayout)
-			) && (
-				<span className="rundown-list-item__text" role="gridcell">
-					{isOnlyRundownInPlaylist && (
+			<span className="rundown-list-item__text" role="gridcell">
+				{rundownLayouts.some(
+					(l) =>
+						(RundownLayoutsAPI.isLayoutForShelf(l) && l.exposeAsStandalone) ||
+						(RundownLayoutsAPI.isLayoutForRundownView(l) && l.exposeAsSelectableLayout)
+				) &&
+					isOnlyRundownInPlaylist && (
 						<RundownViewLayoutSelection
 							rundowns={[rundown]}
 							rundownLayouts={rundownLayouts}
 							playlistId={rundown.playlistId}
 						/>
 					)}
-				</span>
-			)}
+			</span>
 			<span className="rundown-list-item__actions" role="gridcell">
 				{confirmReSyncRundownHandler ? (
 					<Tooltip

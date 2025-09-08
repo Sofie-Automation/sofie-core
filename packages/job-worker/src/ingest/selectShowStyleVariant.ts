@@ -1,13 +1,18 @@
 import { ExtendedIngestRundown } from '@sofie-automation/blueprints-integration'
 import { ShowStyleBaseId, ShowStyleVariantId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { logger } from '../logging'
-import { createShowStyleCompound } from '../showStyles'
-import { StudioUserContext } from '../blueprints/context'
-import { ProcessedShowStyleBase, ProcessedShowStyleVariant, JobContext, ProcessedShowStyleCompound } from '../jobs'
+import { logger } from '../logging.js'
+import { createShowStyleCompound } from '../showStyles.js'
+import { StudioUserContext } from '../blueprints/context/index.js'
+import {
+	ProcessedShowStyleBase,
+	ProcessedShowStyleVariant,
+	JobContext,
+	ProcessedShowStyleCompound,
+} from '../jobs/index.js'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { ReadonlyDeep } from 'type-fest'
-import { convertShowStyleBaseToBlueprints, convertShowStyleVariantToBlueprints } from '../blueprints/context/lib'
+import { convertShowStyleBaseToBlueprints, convertShowStyleVariantToBlueprints } from '../blueprints/context/lib.js'
 import { RundownSource, RundownSourceTesting } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 
 export interface SelectedShowStyleVariant {

@@ -1,0 +1,35 @@
+// Variables
+$text-color: #ffffff;
+$font-size-base: 70px;
+$text-shadow: 0 2px 9px rgba(0, 0, 0, 0.5);
+$letter-spacing: 0.02em;
+
+// Base icon styles
+.piece-icon {
+	rect.piece-icon-bkg {
+		@include item-type-colors-svg();
+		rx: 4;
+		ry: 4;
+	}
+
+	// Common text styles
+	.piece-icon-text {
+		fill: $text-color;
+		font-family: 'Roboto Condensed', Roboto, sans-serif;
+		font-size: 40px;
+
+		filter: drop-shadow($text-shadow);
+
+		.label {
+			fill: $text-color;
+			font-family: 'Roboto Condensed', Roboto, sans-serif;
+			font-size: $font-size-base;
+			font-weight: 300;
+			letter-spacing: $letter-spacing;
+
+			.input-number {
+				font-weight: normal;
+			}
+		}
+	}
+}

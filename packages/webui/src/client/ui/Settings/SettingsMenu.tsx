@@ -1,65 +1,77 @@
 import React, { useCallback, useMemo } from 'react'
-import { useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data'
-import { unprotectString } from '../../lib/tempLib'
-import { doModalDialog } from '../../lib/ModalDialog'
+import { useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
+import { unprotectString } from '../../lib/tempLib.js'
+import { doModalDialog } from '../../lib/ModalDialog.js'
 import { NavLink, useLocation } from 'react-router-dom'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { PeripheralDevice, PERIPHERAL_SUBTYPE_PROCESS } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
-import { NotificationCenter, Notification, NoticeLevel } from '../../lib/notifications/notifications'
+import { NotificationCenter, Notification, NoticeLevel } from '../../lib/notifications/notifications.js'
 import { faPlus, faTrash, faExclamationTriangle, faCaretRight, faCaretDown } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
-import { MeteorCall } from '../../lib/meteorApi'
+import { MeteorCall } from '../../lib/meteorApi.js'
 import { IOutputLayer, StatusCode } from '@sofie-automation/blueprints-integration'
 import { TFunction, useTranslation } from 'react-i18next'
-import { RundownLayoutsAPI } from '../../lib/rundownLayouts'
-import { Blueprints, PeripheralDevices, ShowStyleBases, Studios } from '../../collections'
+import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
+import { Blueprints, PeripheralDevices, ShowStyleBases, Studios } from '../../collections/index.js'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import { catchError } from '../../lib/lib'
+import { catchError } from '../../lib/lib.js'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 
 export function SettingsMenu(): JSX.Element {
 	const { t } = useTranslation()
 
 	return (
-		<div className="tight-xs htight-xs text-s">
+		<div className="tight-xs htight-xs">
 			<SettingsMenuStudios />
 
 			<SettingsMenuShowStyles />
 
-			{<SettingsMenuBlueprints />}
+			<SettingsMenuBlueprints />
 
 			<SettingsMenuPeripheralDevices />
 
-			<h2 className="mhs">{t('Tools')}</h2>
-			<hr className="vsubtle man" />
-			{
-				<React.Fragment>
-					<NavLink
-						activeClassName="selectable-selected"
-						className="settings-menu__settings-menu-item selectable clickable"
-						to="/settings/tools/system"
-					>
-						<h3>{t('Core System settings')}</h3>
-					</NavLink>
-					<NavLink
-						activeClassName="selectable-selected"
-						className="settings-menu__settings-menu-item selectable clickable"
-						to="/settings/tools/migration"
-					>
-						<h3>{t('Upgrade Database')}</h3>
-					</NavLink>
-					<NavLink
-						activeClassName="selectable-selected"
-						className="settings-menu__settings-menu-item selectable clickable"
-						to="/settings/tools/snapshots"
-					>
-						<h3>{t('Manage Snapshots')}</h3>
-					</NavLink>
-				</React.Fragment>
-			}
+			<SectionHeading title={t('Tools')} />
+			<NavLink
+				activeClassName="selectable-selected"
+				className="settings-menu__settings-menu-item selectable clickable"
+				to="/settings/tools/system"
+			>
+				<h3>{t('Core System settings')}</h3>
+			</NavLink>
+			<NavLink
+				activeClassName="selectable-selected"
+				className="settings-menu__settings-menu-item selectable clickable"
+				to="/settings/tools/migration"
+			>
+				<h3>{t('Upgrade Database')}</h3>
+			</NavLink>
+			<NavLink
+				activeClassName="selectable-selected"
+				className="settings-menu__settings-menu-item selectable clickable"
+				to="/settings/tools/snapshots"
+			>
+				<h3>{t('Manage Snapshots')}</h3>
+			</NavLink>
 		</div>
+	)
+}
+
+function SectionHeading({ title, addClick }: { title: string; addClick?: () => void }) {
+	return (
+		<>
+			<h2 className="my-1 ms-2 me-1 settings-menu__settings-menu-section-heading">
+				{title}
+
+				{addClick && (
+					<button className="action-btn my-0" onClick={addClick}>
+						<FontAwesomeIcon icon={faPlus} />
+					</button>
+				)}
+			</h2>
+			<hr className="vsubtle" />
+		</>
 	)
 }
 
@@ -76,13 +88,8 @@ function SettingsMenuStudios() {
 
 	return (
 		<>
-			<h2 className="mhs">
-				<button className="action-btn right" onClick={onAddStudio}>
-					<FontAwesomeIcon icon={faPlus} />
-				</button>
-				{t('Studios')}
-			</h2>
-			<hr className="vsubtle man" />
+			<SectionHeading title={t('Studios')} addClick={onAddStudio} />
+
 			{studios.map((studio) => (
 				<SettingsMenuStudio key={unprotectString(studio._id)} studio={studio} />
 			))}
@@ -103,13 +110,8 @@ function SettingsMenuShowStyles() {
 
 	return (
 		<>
-			<h2 className="mhs">
-				<button className="action-btn right" onClick={onAddShowStyleBase}>
-					<FontAwesomeIcon icon={faPlus} />
-				</button>
-				{t('Show Styles')}
-			</h2>
-			<hr className="vsubtle man" />
+			<SectionHeading title={t('Show Styles')} addClick={onAddShowStyleBase} />
+
 			{showStyleBases.map((showStyleBase) => (
 				<SettingsMenuShowStyle key={unprotectString(showStyleBase._id)} showStyleBase={showStyleBase} />
 			))}
@@ -131,13 +133,8 @@ function SettingsMenuBlueprints() {
 
 	return (
 		<>
-			<h2 className="mhs">
-				<button className="action-btn right" onClick={onAddBlueprint}>
-					<FontAwesomeIcon icon={faPlus} />
-				</button>
-				{t('Blueprints')}
-			</h2>
-			<hr className="vsubtle man" />
+			<SectionHeading title={t('Blueprints')} addClick={onAddBlueprint} />
+
 			{blueprints.map((blueprint) => (
 				<SettingsMenuBlueprint key={unprotectString(blueprint._id)} blueprint={blueprint} />
 			))}
@@ -165,8 +162,8 @@ function SettingsMenuPeripheralDevices() {
 
 	return (
 		<>
-			<h2 className="mhs">{t('Devices')}</h2>
-			<hr className="vsubtle man" />
+			<SectionHeading title={t('Devices')} />
+
 			{peripheralDevices
 				.filter((device) => {
 					return device.subType === PERIPHERAL_SUBTYPE_PROCESS
@@ -215,13 +212,15 @@ function SettingsCollapsibleGroup({
 				to={basePath}
 				onClick={toggleExpanded}
 			>
-				{children}
-				<h3>
-					<span className="icon action-item">
-						<FontAwesomeIcon icon={expanded ? faCaretDown : faCaretRight} />
-					</span>
-					{title}
-				</h3>
+				<div className="settings-menu__settings-menu-item-heading">
+					<h3>
+						<span className="icon action-item">
+							<FontAwesomeIcon icon={expanded ? faCaretDown : faCaretRight} />
+						</span>
+						{title}
+					</h3>
+					<div>{children}</div>
+				</div>
 			</NavLink>
 			{expanded
 				? links.map((link, i) => (
@@ -233,9 +232,9 @@ function SettingsCollapsibleGroup({
 						>
 							<h4>{link.label}</h4>
 						</NavLink>
-				  ))
+					))
 				: ''}
-			<hr className="vsubtle man" />
+			<hr className="vsubtle" />
 		</>
 	)
 }
@@ -287,14 +286,14 @@ function SettingsMenuStudio({ studio }: Readonly<SettingsMenuStudioProps>) {
 			links={childLinks}
 			title={studio.name || t('Unnamed Studio')}
 		>
-			<button className="action-btn right" onClick={onDeleteStudio}>
-				<FontAwesomeIcon icon={faTrash} />
-			</button>
 			{studioHasError(studio) ? (
-				<button className="action-btn right error-notice">
+				<button className="action-btn error-notice">
 					<FontAwesomeIcon icon={faExclamationTriangle} />
 				</button>
 			) : null}
+			<button className="action-btn" onClick={onDeleteStudio}>
+				<FontAwesomeIcon icon={faTrash} />
+			</button>
 		</SettingsCollapsibleGroup>
 	)
 }
@@ -381,14 +380,14 @@ function SettingsMenuShowStyle({ showStyleBase }: Readonly<SettingsMenuShowStyle
 			links={childLinks}
 			title={showStyleBase.name || t('Unnamed Show Style')}
 		>
-			<button className="action-btn right" onClick={onDeleteShowStyleBase}>
-				<FontAwesomeIcon icon={faTrash} />
-			</button>
 			{showStyleHasError ? (
-				<button className="action-btn right error-notice">
+				<button className="action-btn error-notice">
 					<FontAwesomeIcon icon={faExclamationTriangle} />
 				</button>
 			) : null}
+			<button className="action-btn" onClick={onDeleteShowStyleBase}>
+				<FontAwesomeIcon icon={faTrash} />
+			</button>
 		</SettingsCollapsibleGroup>
 	)
 }
@@ -427,28 +426,35 @@ function SettingsMenuBlueprint({ blueprint }: Readonly<SettingsMenuBlueprintProp
 	)
 
 	return (
-		<NavLink
-			activeClassName="selectable-selected"
-			className="settings-menu__settings-menu-item selectable clickable"
-			to={'/settings/blueprint/' + blueprint._id}
-		>
-			<button className="action-btn right" onClick={onDeleteBlueprint}>
-				<FontAwesomeIcon icon={faTrash} />
-			</button>
-			{blueprintHasError(blueprint) ? (
-				<button className="action-btn right error-notice">
-					<FontAwesomeIcon icon={faExclamationTriangle} />
-				</button>
-			) : null}
-			<h3>{blueprint.name || t('Unnamed blueprint')}</h3>
-			<p>
-				{t('Type')} {(blueprint.blueprintType ?? '').toUpperCase()}
-			</p>
-			<p>
-				{t('Version')} {blueprint.blueprintVersion}
-			</p>
-			<hr className="vsubtle man" />
-		</NavLink>
+		<>
+			<NavLink
+				activeClassName="selectable-selected"
+				className="settings-menu__settings-menu-item selectable clickable"
+				to={'/settings/blueprint/' + blueprint._id}
+			>
+				<div className="settings-menu__settings-menu-item-heading">
+					<h3>{blueprint.name || t('Unnamed blueprint')}</h3>
+					<div>
+						{blueprintHasError(blueprint) ? (
+							<button className="action-btn error-notice">
+								<FontAwesomeIcon icon={faExclamationTriangle} />
+							</button>
+						) : null}
+						<button className="action-btn" onClick={onDeleteBlueprint}>
+							<FontAwesomeIcon icon={faTrash} />
+						</button>
+					</div>
+				</div>
+
+				<p className="text-s">
+					{t('Type')} {(blueprint.blueprintType ?? '').toUpperCase()}
+				</p>
+				<p className="text-s">
+					{t('Version')} {blueprint.blueprintVersion}
+				</p>
+			</NavLink>
+			<hr className="vsubtle" />
+		</>
 	)
 }
 
@@ -494,26 +500,33 @@ function SettingsMenuPeripheralDevice({ device }: Readonly<SettingsMenuPeriphera
 	)
 
 	return (
-		<NavLink
-			activeClassName="selectable-selected"
-			className="settings-menu__settings-menu-item selectable clickable"
-			to={'/settings/peripheralDevice/' + device._id}
-		>
-			<button className="action-btn right" onClick={onDeleteDevice}>
-				<FontAwesomeIcon icon={faTrash} />
-			</button>
-			{peripheralDeviceHasError(device) ? (
-				<button className="action-btn right error-notice">
-					<FontAwesomeIcon icon={faExclamationTriangle} />
-				</button>
-			) : null}
-			<h3>{device.name}</h3>
-			<p>
-				{device.connected ? t('Connected') : t('Disconnected')}, {t('Status')}:{' '}
-				{statusCodeString(t, device.status.statusCode)}
-			</p>
-			<hr className="vsubtle man" key={device._id + '-hr'} />
-		</NavLink>
+		<>
+			<NavLink
+				activeClassName="selectable-selected"
+				className="settings-menu__settings-menu-item selectable clickable"
+				to={'/settings/peripheralDevice/' + device._id}
+			>
+				<div className="settings-menu__settings-menu-item-heading">
+					<h3>{device.name}</h3>
+					<div>
+						{peripheralDeviceHasError(device) ? (
+							<button className="action-btn error-notice">
+								<FontAwesomeIcon icon={faExclamationTriangle} />
+							</button>
+						) : null}
+						<button className="action-btn" onClick={onDeleteDevice}>
+							<FontAwesomeIcon icon={faTrash} />
+						</button>
+					</div>
+				</div>
+
+				<p>
+					{device.connected ? t('Connected') : t('Disconnected')}, {t('Status')}:{' '}
+					{statusCodeString(t, device.status.statusCode)}
+				</p>
+			</NavLink>
+			<hr className="vsubtle" />
+		</>
 	)
 }
 

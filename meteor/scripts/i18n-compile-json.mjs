@@ -1,8 +1,5 @@
-import { promisify } from 'util'
-import glob from 'glob'
+import { glob } from 'glob'
 import { spawn } from 'child_process'
-
-const pGlob = promisify(glob)
 
 /*************************************************
 
@@ -14,7 +11,7 @@ and compiles the json-files (used in production).
 const errors = []
 const failedLanguages = []
 // List all po-files:
-const poFiles = await pGlob('./i18n/*.po')
+const poFiles = await glob('./i18n/*.po')
 
 const languages = []
 for (const poFile of poFiles) {

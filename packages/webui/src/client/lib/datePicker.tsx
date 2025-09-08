@@ -4,8 +4,9 @@ import moment from 'moment'
 import 'react-datepicker/dist/react-datepicker.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronRight, faChevronLeft } from '@fortawesome/free-solid-svg-icons'
-import { Time } from './tempLib'
+import { Time } from './tempLib.js'
 import { useTranslation } from 'react-i18next'
+import Button from 'react-bootstrap/Button'
 
 export function DatePickerFromTo({
 	from,
@@ -67,10 +68,10 @@ export function DatePickerFromTo({
 
 	return (
 		<div className="datepicker-from-to">
-			<button className="action-btn mod mhm" onClick={onClickPrevious}>
+			<Button variant="link" className="action-btn mx-2 my-4" onClick={onClickPrevious}>
 				<FontAwesomeIcon icon={faChevronLeft} />
-			</button>
-			<label className="mod mhs mvn">
+			</Button>
+			<label className="mx-2 my-0">
 				{t('From')}
 				<div className="picker expco">
 					<DatePicker
@@ -78,11 +79,11 @@ export function DatePickerFromTo({
 						showTimeInput
 						selected={localFrom}
 						onChange={handleChangeFrom}
-						className="expco-title"
+						className="form-control"
 					/>
 				</div>
 			</label>
-			<label className="mod mhs mvn">
+			<label className="mx-2 my-0">
 				{t('Until')}
 				<div className="picker expco">
 					<DatePicker
@@ -90,13 +91,13 @@ export function DatePickerFromTo({
 						showTimeInput
 						selected={localTo}
 						onChange={handleChangeTo}
-						className="expco-title"
+						className="form-control"
 					/>
 				</div>
 			</label>
-			<button className="action-btn mod mhm" onClick={onClickNext}>
+			<Button variant="link" className="action-btn mx-2 my-4" onClick={onClickNext}>
 				<FontAwesomeIcon icon={faChevronRight} />
-			</button>
+			</Button>
 		</div>
 	)
 }

@@ -1,13 +1,12 @@
-// eslint-disable-next-line node/no-missing-import
 import {
 	Configuration,
 	GetShowStyleConfig200ResponseResult,
 	ShowStyleBase,
 	ShowstylesApi,
 	ShowStyleVariant,
-} from '../../client/ts'
-import { checkServer } from '../checkServer'
-import Logging from '../httpLogging'
+} from '../../client/ts/index.js'
+import { checkServer } from '../checkServer.js'
+import Logging from '../httpLogging.js'
 
 const httpLogging = false
 

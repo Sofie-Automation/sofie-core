@@ -27,12 +27,11 @@
  * SOFTWARE.
  */
 
-import { promisify } from 'util'
 import fs from 'fs'
 import yargs from 'yargs'
 import { Parser } from 'i18next-scanner'
 import converter from 'i18next-conv'
-import glob from 'glob'
+import { glob } from 'glob'
 
 const args = yargs(process.argv)
 	.option('files', {
@@ -65,8 +64,6 @@ const args = yargs(process.argv)
 	})
 	.help()
 	.alias('help', 'h').argv
-
-const pGlob = promisify(glob)
 
 const parserOptions = {
 	// Include react helpers into parsing
@@ -101,7 +98,7 @@ console.log('Extracting translatable strings...')
 console.log('This process may print out some error messages, but the translation template should work fine.')
 console.log('──────\n')
 
-const files = await pGlob(fileGlob)
+const files = await glob(fileGlob)
 
 // console.debug('Loading content of ' + files.length + ' files')
 

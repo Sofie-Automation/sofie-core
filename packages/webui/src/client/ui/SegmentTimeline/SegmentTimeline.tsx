@@ -5,58 +5,59 @@ import ClassNames from 'classnames'
 import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'
 
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { SegmentUi, PartUi, IOutputLayerUi, PieceUi } from './SegmentTimelineContainer'
-import { TimelineGrid } from './TimelineGrid'
-import { SegmentTimelinePart, SegmentTimelinePartClass } from './Parts/SegmentTimelinePart'
-import { SegmentTimelineZoomControls } from './SegmentTimelineZoomControls'
-import { SegmentDuration } from '../RundownView/RundownTiming/SegmentDuration'
-import { PartCountdown } from '../RundownView/RundownTiming/PartCountdown'
-import { RundownTiming } from '../RundownView/RundownTiming/RundownTiming'
-import { CurrentPartOrSegmentRemaining } from '../RundownView/RundownTiming/CurrentPartOrSegmentRemaining'
+import { SegmentUi, PartUi, IOutputLayerUi, PieceUi } from './SegmentTimelineContainer.js'
+import { TimelineGrid } from './TimelineGrid.js'
+import { SegmentTimelinePart, SegmentTimelinePartClass } from './Parts/SegmentTimelinePart.js'
+import { SegmentTimelineZoomControls } from './SegmentTimelineZoomControls.js'
+import { SegmentDuration } from '../RundownView/RundownTiming/SegmentDuration.js'
+import { PartCountdown } from '../RundownView/RundownTiming/PartCountdown.js'
+import { RundownTiming } from '../RundownView/RundownTiming/RundownTiming.js'
+import { CurrentPartOrSegmentRemaining } from '../RundownView/RundownTiming/CurrentPartOrSegmentRemaining.js'
 
-import { RundownUtils } from '../../lib/rundown'
-import { Translated } from '../../lib/ReactMeteorData/ReactMeteorData'
-import { ErrorBoundary } from '../../lib/ErrorBoundary'
-import { scrollToPart, lockPointer, unlockPointer } from '../../lib/viewPort'
+import { RundownUtils } from '../../lib/rundown.js'
+import { Translated } from '../../lib/ReactMeteorData/ReactMeteorData.js'
+import { ErrorBoundary } from '../../lib/ErrorBoundary.js'
+import { scrollToPart, lockPointer, unlockPointer } from '../../lib/viewPort.js'
 
-import { getAllowSpeaking, getAllowVibrating, getShowHiddenSourceLayers } from '../../lib/localStorage'
-import { showPointerLockCursor, hidePointerLockCursor } from '../../lib/PointerLockCursor'
-import { Settings } from '../../lib/Settings'
-import { IContextMenuContext } from '../RundownView'
-import { literal, protectString, unprotectString } from '../../lib/tempLib'
+import { getAllowSpeaking, getAllowVibrating, getShowHiddenSourceLayers } from '../../lib/localStorage.js'
+import { showPointerLockCursor, hidePointerLockCursor } from '../../lib/PointerLockCursor.js'
+import { Settings } from '../../lib/Settings.js'
+import { IContextMenuContext } from '../RundownView.js'
+import { literal, protectString, unprotectString } from '../../lib/tempLib.js'
 import { isPartPlayable } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { contextMenuHoldToDisplayTime } from '../../lib/lib'
-import { WarningIconSmall, CriticalIconSmall } from '../../lib/ui/icons/notifications'
+import { contextMenuHoldToDisplayTime } from '../../lib/lib.js'
+import { WarningIconSmall, CriticalIconSmall } from '../../lib/ui/icons/notifications.js'
 import RundownViewEventBus, {
 	RundownViewEvents,
 	HighlightEvent,
 } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
 import { wrapPartToTemporaryInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 
-import { SegmentTimelineSmallPartFlag } from './SmallParts/SegmentTimelineSmallPartFlag'
-import { UIStateStorage } from '../../lib/UIStateStorage'
-import { getPartInstanceTimingId, RundownTimingContext } from '../../lib/rundownTiming'
+import { SegmentTimelineSmallPartFlag } from './SmallParts/SegmentTimelineSmallPartFlag.js'
+import { UIStateStorage } from '../../lib/UIStateStorage.js'
+import { getPartInstanceTimingId, RundownTimingContext } from '../../lib/rundownTiming.js'
 import { IOutputLayer, ISourceLayer, NoteSeverity, UserEditingType } from '@sofie-automation/blueprints-integration'
-import { SegmentTimelineZoomButtons } from './SegmentTimelineZoomButtons'
-import { SegmentViewMode } from '../SegmentContainer/SegmentViewModes'
-import { SwitchViewModeButton } from '../SegmentContainer/SwitchViewModeButton'
+import { SegmentTimelineZoomButtons } from './SegmentTimelineZoomButtons.js'
+import { SegmentViewMode } from '../SegmentContainer/SegmentViewModes.js'
+import { SwitchViewModeButton } from '../SegmentContainer/SwitchViewModeButton.js'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { PartId, PartInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { RundownHoldState } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { SegmentNoteCounts } from '../SegmentContainer/withResolvedSegment'
-import { PartExtended } from '../../lib/RundownResolver'
+import { SegmentNoteCounts } from '../SegmentContainer/withResolvedSegment.js'
+import { PartExtended } from '../../lib/RundownResolver.js'
 import {
 	withTiming,
 	TimingTickResolution,
 	TimingDataResolution,
 	WithTiming,
 	RundownTimingProviderContext,
-} from '../RundownView/RundownTiming/withTiming'
-import { SegmentTimeAnchorTime } from '../RundownView/RundownTiming/SegmentTimeAnchorTime'
-import { logger } from '../../lib/logging'
-import * as RundownResolver from '../../lib/RundownResolver'
+} from '../RundownView/RundownTiming/withTiming.js'
+import { SegmentTimeAnchorTime } from '../RundownView/RundownTiming/SegmentTimeAnchorTime.js'
+import { logger } from '../../lib/logging.js'
+import * as RundownResolver from '../../lib/RundownResolver.js'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { SelectedElementsContext } from '../RundownView/SelectedElementsContext'
+import { SelectedElementsContext } from '../RundownView/SelectedElementsContext.js'
+import { BlueprintAssetIcon } from '../../lib/Components/BlueprintAssetIcon.js'
 
 interface IProps {
 	id: string
@@ -273,7 +274,7 @@ export class SegmentTimelineClass extends React.Component<Translated<WithTiming<
 	}
 
 	componentDidMount(): void {
-		super.componentDidMount && super.componentDidMount()
+		super.componentDidMount?.()
 
 		RundownViewEventBus.on(RundownViewEvents.HIGHLIGHT, this.onHighlight)
 		RundownViewEventBus.on(RundownViewEvents.SEGMENT_ZOOM_ON, this.onRundownEventSegmentZoomOn)
@@ -288,7 +289,7 @@ export class SegmentTimelineClass extends React.Component<Translated<WithTiming<
 	}
 
 	componentWillUnmount(): void {
-		super.componentWillUnmount && super.componentWillUnmount()
+		super.componentWillUnmount?.()
 		clearTimeout(this.highlightTimeout)
 		if (this.segmentBlock) {
 			this.segmentBlock.removeEventListener('wheel', this.onTimelineWheel, { capture: true })
@@ -633,8 +634,8 @@ export class SegmentTimelineClass extends React.Component<Translated<WithTiming<
 					(group.isFlattened
 						? 1
 						: this.isOutputGroupCollapsed(group)
-						? 1
-						: group.sourceLayers.filter((layer) => showHiddenSourceLayers || !layer.isHidden).length),
+							? 1
+							: group.sourceLayers.filter((layer) => showHiddenSourceLayers || !layer.isHidden).length),
 				0
 			)} * var(--segment-layer-height) + var(--segment-timeline-padding-top) + var(--segment-timeline-padding-bottom))`,
 			minWidth:
@@ -663,9 +664,9 @@ export class SegmentTimelineClass extends React.Component<Translated<WithTiming<
 			left:
 				(this.props.followLiveLine
 					? // if the livePostion is greater than historyTimeDuration and followLiveLine is on
-					  // we always lock the onAirLine in place at liveLineHistorySize, so we can just return
-					  // a fixed value here
-					  this.props.livePosition > historyTimeDuration
+						// we always lock the onAirLine in place at liveLineHistorySize, so we can just return
+						// a fixed value here
+						this.props.livePosition > historyTimeDuration
 						? this.props.liveLineHistorySize
 						: Math.min(pixelPostion, this.props.liveLineHistorySize).toString()
 					: pixelPostion.toString()) + 'px',
@@ -682,10 +683,7 @@ export class SegmentTimelineClass extends React.Component<Translated<WithTiming<
 					/>
 				)}
 				<div className="segment-timeline__liveline" style={lineStyle}>
-					<div
-						className="segment-timeline__liveline__label"
-						onClick={(e) => this.props.onFollowLiveLine && this.props.onFollowLiveLine(true, e)}
-					>
+					<div className="segment-timeline__liveline__label" onClick={(e) => this.props.onFollowLiveLine?.(true, e)}>
 						{t('On Air')}
 					</div>
 					<div className="segment-timeline__liveline__timecode">
@@ -914,9 +912,7 @@ export class SegmentTimelineClass extends React.Component<Translated<WithTiming<
 						className="segment-timeline__output-layer-control__label"
 						data-output-id={outputLayer._id}
 						tabIndex={0}
-						onClick={(e) =>
-							isCollapsable && this.props.onCollapseOutputToggle && this.props.onCollapseOutputToggle(outputLayer, e)
-						}
+						onClick={(e) => isCollapsable && this.props.onCollapseOutputToggle?.(outputLayer, e)}
 						role="presentation"
 					>
 						{outputLayer.name}
@@ -976,7 +972,7 @@ export class SegmentTimelineClass extends React.Component<Translated<WithTiming<
 						this.props.timingDurations.partDisplayStartsAt[getPartInstanceTimingId(livePart.instance)] -
 							this.props.timingDurations.partDisplayStartsAt[getPartInstanceTimingId(firstPartInSegment.instance)]) ||
 						0
-			  )
+				)
 			: 0
 	}
 
@@ -996,7 +992,7 @@ export class SegmentTimelineClass extends React.Component<Translated<WithTiming<
 					? {
 							partId: p.partId,
 							ident: p.instance.part.identifier,
-					  }
+						}
 					: null
 			)
 			.filter((entry): entry is { partId: PartId; ident: string } => entry !== null)
@@ -1183,7 +1179,7 @@ export class SegmentTimelineClass extends React.Component<Translated<WithTiming<
 					isLiveSegment={this.props.isLiveSegment}
 					partInstances={this.props.parts}
 					currentPartInstanceId={
-						this.props.isLiveSegment ? this.props.playlist.currentPartInfo?.partInstanceId ?? null : null
+						this.props.isLiveSegment ? (this.props.playlist.currentPartInfo?.partInstanceId ?? null) : null
 					}
 				/>
 				<div
@@ -1265,16 +1261,14 @@ function HeaderEditStates({ userEditOperations }: HeaderEditStatesProps) {
 		<div className="segment-timeline__title__user-edit-states">
 			{userEditOperations &&
 				userEditOperations.map((operation) => {
-					if (operation.type !== UserEditingType.ACTION || !operation.svgIcon || !operation.isActive) return null
+					if (operation.type !== UserEditingType.ACTION || !operation.icon || !operation.isActive) return null
 
 					return (
-						<div
+						<BlueprintAssetIcon
 							key={operation.id}
+							src={operation.icon}
 							className="segment-timeline__title__user-edit-state"
-							dangerouslySetInnerHTML={{
-								__html: operation.svgIcon,
-							}}
-						></div>
+						/>
 					)
 				})}
 		</div>

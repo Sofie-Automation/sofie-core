@@ -1,29 +1,31 @@
 import * as React from 'react'
-import { ISourceLayerUi, IOutputLayerUi, PartUi, PieceUi } from './SegmentTimelineContainer'
+import { ISourceLayerUi, IOutputLayerUi, PartUi, PieceUi } from './SegmentTimelineContainer.js'
 import { SourceLayerType, PieceLifespan, IBlueprintPieceType } from '@sofie-automation/blueprints-integration'
-import { RundownUtils } from '../../lib/rundown'
-import { DefaultLayerItemRenderer } from './Renderers/DefaultLayerItemRenderer'
-import { MicSourceRenderer } from './Renderers/MicSourceRenderer'
-import { VTSourceRenderer } from './Renderers/VTSourceRenderer'
-import { L3rdSourceRenderer } from './Renderers/L3rdSourceRenderer'
-import { SplitsSourceRenderer } from './Renderers/SplitsSourceRenderer'
-import { LocalLayerItemRenderer } from './Renderers/LocalLayerItemRenderer'
+import { RundownUtils } from '../../lib/rundown.js'
+import { DefaultLayerItemRenderer } from './Renderers/DefaultLayerItemRenderer.js'
+import { MicSourceRenderer } from './Renderers/MicSourceRenderer.js'
+import { VTSourceRenderer } from './Renderers/VTSourceRenderer.js'
+import { L3rdSourceRenderer } from './Renderers/L3rdSourceRenderer.js'
+import { SplitsSourceRenderer } from './Renderers/SplitsSourceRenderer.js'
+import { LocalLayerItemRenderer } from './Renderers/LocalLayerItemRenderer.js'
 
-import { DEBUG_MODE } from './SegmentTimelineDebugMode'
-import { withTranslation, WithTranslation } from 'react-i18next'
-import { getElementDocumentOffset, OffsetPosition } from '../../utils/positions'
-import { unprotectString } from '../../lib/tempLib'
-import RundownViewEventBus, {
-	RundownViewEvents,
-	HighlightEvent,
-} from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
-import { pieceUiClassNames } from '../../lib/ui/pieceUiClassNames'
-import { SourceDurationLabelAlignment } from './Renderers/CustomLayerItemRenderer'
-import { TransitionSourceRenderer } from './Renderers/TransitionSourceRenderer'
+import { DEBUG_MODE } from './SegmentTimelineDebugMode.js'
+import { getElementDocumentOffset, OffsetPosition } from '../../utils/positions.js'
+import { unprotectString } from '../../lib/tempLib.js'
+import { RundownViewEvents, HighlightEvent } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
+import { pieceUiClassNames } from '../../lib/ui/pieceUiClassNames.js'
+import { TransitionSourceRenderer } from './Renderers/TransitionSourceRenderer.js'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { ReadonlyDeep } from 'type-fest'
-import { PieceContentStatusObj } from '@sofie-automation/meteor-lib/dist/api/pieceContentStatus'
-import { SelectedElementsContext } from '../RundownView/SelectedElementsContext'
+import { useSelectedElementsContext } from '../RundownView/SelectedElementsContext.js'
+import { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
+import { useCallback, useRef, useState, useEffect, useContext } from 'react'
+import {
+	convertSourceLayerItemToPreview,
+	IPreviewPopUpSession,
+	PreviewPopUpContext,
+} from '../PreviewPopUp/PreviewPopUpContext.js'
+import { useRundownViewEventBusListener } from '../../lib/lib.js'
 const LEFT_RIGHT_ANCHOR_SPACER = 15
 const MARGINAL_ANCHORED_WIDTH = 5
 
@@ -83,670 +85,534 @@ export interface ISourceLayerItemProps {
 	/** If source duration of piece's content should be displayed next to any labels */
 	showDuration?: boolean
 }
-interface ISourceLayerItemState {
-	/** Whether hover-scrub / inspector is shown */
-	showMiniInspector: boolean
-	/** Element position relative to document top-left */
-	elementPosition: OffsetPosition
-	/** Cursor position relative to element */
-	cursorPosition: OffsetPosition
-	/** Cursor position relative to entire viewport */
-	cursorRawPosition: { clientX: number; clientY: number }
-	/** Timecode under cursor */
-	cursorTimePosition: number
-	/** A reference to this element (&self) */
-	itemElement: HTMLDivElement | null
-	/** Width of the child element anchored to the left side of this element */
-	leftAnchoredWidth: number
-	/** Width of the child element anchored to the right side of this element */
-	rightAnchoredWidth: number
-	/** Set to `true` when the segment is "highlighted" (in focus, generally from a scroll event) */
-	highlight: boolean
-}
 
-export const SourceLayerItem = withTranslation()(
-	class SourceLayerItem extends React.Component<
-		ISourceLayerItemProps & WithTranslation & ISourceLayerItemProps,
-		ISourceLayerItemState
-	> {
-		animFrameHandle: number | undefined
+export const SourceLayerItem = (props: Readonly<ISourceLayerItemProps>): JSX.Element => {
+	const {
+		layer,
+		part,
+		partStartsAt,
+		partDuration,
+		piece,
+		contentStatus,
+		timeScale,
+		isLiveLine,
+		isTooSmallForText,
+		onClick,
+		onDoubleClick,
+		followLiveLine,
+		liveLineHistorySize,
+		scrollLeft,
+		scrollWidth,
+		studio,
+	} = props
 
-		constructor(props: ISourceLayerItemProps & WithTranslation & ISourceLayerItemProps) {
-			super(props)
-			this.state = {
-				showMiniInspector: false,
-				elementPosition: {
-					top: 0,
-					left: 0,
-				},
-				cursorPosition: {
-					top: 0,
-					left: 0,
-				},
-				cursorRawPosition: {
-					clientX: 0,
-					clientY: 0,
-				},
-				cursorTimePosition: 0,
-				itemElement: null,
-				leftAnchoredWidth: 0,
-				rightAnchoredWidth: 0,
-				highlight: false,
-			}
-		}
+	const [highlight, setHighlight] = useState(false)
+	const [showPreviewPopUp, setShowPreviewPopUp] = useState(false)
+	const [elementPosition, setElementPosition] = useState<OffsetPosition>({ top: 0, left: 0 })
+	const [cursorPosition, setCursorPosition] = useState<OffsetPosition>({ top: 0, left: 0 })
+	const [cursorTimePosition, setCursorTimePosition] = useState(0)
+	const [leftAnchoredWidth, setLeftAnchoredWidth] = useState<number>(0)
+	const [rightAnchoredWidth, setRightAnchoredWidth] = useState<number>(0)
 
-		setRef = (e: HTMLDivElement) => {
-			this.setState({
-				itemElement: e,
-			})
-		}
+	const state = {
+		highlight,
+		showPreviewPopUp,
+		elementPosition,
+		cursorPosition,
+		cursorTimePosition,
+		leftAnchoredWidth,
+		rightAnchoredWidth,
+	}
 
-		convertTimeToPixels = (time: number) => {
-			return Math.round(this.props.timeScale * time)
-		}
+	const itemElementRef = useRef<HTMLDivElement | null>(null)
+	const animFrameHandle = useRef<number | undefined>(undefined)
+	const cursorRawPosition = useRef({ clientX: 0, clientY: 0 })
+	const setRef = useCallback((e: HTMLDivElement) => {
+		itemElementRef.current = e
+	}, [])
 
-		private getSourceDurationLabelAlignment = (): SourceDurationLabelAlignment => {
-			if (this.props.part && this.props.partStartsAt !== undefined && !this.props.isLiveLine) {
-				const elementWidth = this.getElementAbsoluteWidth()
-				return this.state.leftAnchoredWidth + this.state.rightAnchoredWidth > elementWidth - 10 ? 'left' : 'right'
-			}
-			return 'right'
-		}
-
-		getItemLabelOffsetLeft = (): React.CSSProperties => {
-			const maxLabelWidth = this.props.piece.maxLabelWidth
-
-			if (this.props.part && this.props.partStartsAt !== undefined) {
-				//  && this.props.piece.renderedInPoint !== undefined && this.props.piece.renderedDuration !== undefined
-				const piece = this.props.piece
-
-				const inPoint = piece.renderedInPoint || 0
-				const duration = Number.isFinite(piece.renderedDuration || 0)
-					? piece.renderedDuration || this.props.partDuration || this.props.part.renderedDuration || 0
-					: this.props.partDuration || this.props.part.renderedDuration || 0
-
-				const elementWidth = this.getElementAbsoluteWidth()
-
-				const widthConstrictedMode =
-					this.props.isTooSmallForText ||
-					(this.state.leftAnchoredWidth > 0 &&
-						this.state.rightAnchoredWidth > 0 &&
-						this.state.leftAnchoredWidth + this.state.rightAnchoredWidth > elementWidth)
-
-				const nextIsTouching = !!piece.cropped
-
-				if (this.props.followLiveLine && this.props.isLiveLine) {
-					const liveLineHistoryWithMargin = this.props.liveLineHistorySize - 10
-					if (
-						this.props.scrollLeft + liveLineHistoryWithMargin / this.props.timeScale >
-							inPoint + this.props.partStartsAt + this.state.leftAnchoredWidth / this.props.timeScale &&
-						this.props.scrollLeft + liveLineHistoryWithMargin / this.props.timeScale <
-							inPoint + duration + this.props.partStartsAt
-					) {
-						const targetPos = this.convertTimeToPixels(this.props.scrollLeft - inPoint - this.props.partStartsAt)
-
-						return {
-							maxWidth:
-								this.state.rightAnchoredWidth > 0
-									? (elementWidth - this.state.rightAnchoredWidth).toString() + 'px'
-									: maxLabelWidth !== undefined
-									? this.convertTimeToPixels(maxLabelWidth).toString() + 'px'
-									: nextIsTouching
-									? '100%'
-									: 'none',
-							transform:
-								'translate(' +
-								(widthConstrictedMode
-									? targetPos
-									: Math.min(targetPos, elementWidth - this.state.rightAnchoredWidth - liveLineHistoryWithMargin - 10)
-								).toString() +
-								'px, 0) ' +
-								'translate(' +
-								liveLineHistoryWithMargin.toString() +
-								'px, 0) ' +
-								'translate(-100%, 0)',
-							willChange: 'transform',
-						}
-					} else if (
-						this.state.rightAnchoredWidth < elementWidth &&
-						this.state.leftAnchoredWidth < elementWidth &&
-						this.props.scrollLeft + liveLineHistoryWithMargin / this.props.timeScale >=
-							inPoint + duration + this.props.partStartsAt
-					) {
-						const targetPos = this.convertTimeToPixels(this.props.scrollLeft - inPoint - this.props.partStartsAt)
-
-						return {
-							maxWidth:
-								this.state.rightAnchoredWidth > 0
-									? (elementWidth - this.state.rightAnchoredWidth).toString() + 'px'
-									: maxLabelWidth !== undefined
-									? this.convertTimeToPixels(maxLabelWidth).toString() + 'px'
-									: nextIsTouching
-									? '100%'
-									: 'none',
-							transform:
-								'translate(' +
-								Math.min(
-									targetPos,
-									elementWidth - this.state.rightAnchoredWidth - liveLineHistoryWithMargin - 10
-								).toString() +
-								'px, 0) ' +
-								'translate(' +
-								liveLineHistoryWithMargin.toString() +
-								'px, 0) ' +
-								'translate3d(-100%, 0)',
-							willChange: 'transform',
-						}
-					} else {
-						return {
-							maxWidth:
-								this.state.rightAnchoredWidth > 0
-									? (elementWidth - this.state.rightAnchoredWidth - 10).toString() + 'px'
-									: maxLabelWidth !== undefined
-									? this.convertTimeToPixels(maxLabelWidth).toString() + 'px'
-									: nextIsTouching
-									? '100%'
-									: 'none',
-						}
-					}
-				} else {
-					if (
-						this.props.scrollLeft > inPoint + this.props.partStartsAt &&
-						this.props.scrollLeft < inPoint + duration + this.props.partStartsAt
-					) {
-						const targetPos = this.convertTimeToPixels(this.props.scrollLeft - inPoint - this.props.partStartsAt)
-
-						return {
-							maxWidth:
-								this.state.rightAnchoredWidth > 0
-									? (elementWidth - this.state.rightAnchoredWidth - 10).toString() + 'px'
-									: maxLabelWidth !== undefined
-									? this.convertTimeToPixels(maxLabelWidth).toString() + 'px'
-									: nextIsTouching
-									? '100%'
-									: 'none',
-							transform:
-								'translate(' +
-								(widthConstrictedMode || this.state.leftAnchoredWidth === 0 || this.state.rightAnchoredWidth === 0
-									? targetPos
-									: Math.min(targetPos, elementWidth - this.state.leftAnchoredWidth - this.state.rightAnchoredWidth)
-								).toString() +
-								'px,  0)',
-						}
-					} else {
-						return {
-							maxWidth:
-								this.state.rightAnchoredWidth > 0
-									? (elementWidth - this.state.rightAnchoredWidth - 10).toString() + 'px'
-									: maxLabelWidth !== undefined
-									? this.convertTimeToPixels(maxLabelWidth).toString() + 'px'
-									: nextIsTouching
-									? '100%'
-									: 'none',
-						}
-					}
-				}
-			}
-			return {}
-		}
-
-		getItemLabelOffsetRight = (): React.CSSProperties => {
-			if (!this.props.part || this.props.partStartsAt === undefined) return {}
-
-			const piece = this.props.piece
-			const innerPiece = piece.instance.piece
-
-			const inPoint = piece.renderedInPoint || 0
-			const duration =
-				innerPiece.lifespan !== PieceLifespan.WithinPart || piece.renderedDuration === 0
-					? this.props.partDuration - inPoint
-					: Math.min(piece.renderedDuration || 0, this.props.partDuration - inPoint)
-			const outPoint = inPoint + duration
-
-			const elementWidth = this.getElementAbsoluteWidth()
-
-			// const widthConstrictedMode = this.state.leftAnchoredWidth > 0 && this.state.rightAnchoredWidth > 0 && ((this.state.leftAnchoredWidth + this.state.rightAnchoredWidth) > this.state.elementWidth)
-
-			if (
-				this.props.scrollLeft + this.props.scrollWidth < outPoint + this.props.partStartsAt &&
-				this.props.scrollLeft + this.props.scrollWidth > inPoint + this.props.partStartsAt
-			) {
-				const targetPos = Math.max(
-					(this.props.scrollLeft + this.props.scrollWidth - outPoint - this.props.partStartsAt) * this.props.timeScale,
-					(elementWidth - this.state.leftAnchoredWidth - this.state.rightAnchoredWidth - LEFT_RIGHT_ANCHOR_SPACER) * -1
-				)
-
-				return {
-					transform: 'translate(' + targetPos.toString() + 'px,  0)',
-				}
-			}
-			return {}
-		}
-
-		getItemDuration = (returnInfinite?: boolean): number => {
-			const piece = this.props.piece
-			const innerPiece = piece.instance.piece
-
-			const expectedDurationNumber =
-				typeof innerPiece.enable.duration === 'number' ? innerPiece.enable.duration || 0 : 0
-
-			let itemDuration: number
-			if (!returnInfinite) {
-				itemDuration = Math.min(
-					piece.renderedDuration || expectedDurationNumber || 0,
-					this.props.partDuration - (piece.renderedInPoint || 0)
-				)
-			} else {
-				itemDuration =
-					this.props.partDuration - (piece.renderedInPoint || 0) <
-					(piece.renderedDuration || expectedDurationNumber || 0)
-						? Number.POSITIVE_INFINITY
-						: piece.renderedDuration || expectedDurationNumber || 0
-			}
-
-			if (
-				(innerPiece.lifespan !== PieceLifespan.WithinPart ||
-					(innerPiece.enable.start !== undefined &&
-						innerPiece.enable.duration === undefined &&
-						piece.instance.userDuration === undefined)) &&
-				!piece.cropped &&
-				piece.renderedDuration === null &&
-				piece.instance.userDuration === undefined
-			) {
-				if (!returnInfinite) {
-					itemDuration = this.props.partDuration - (piece.renderedInPoint || 0)
-				} else {
-					itemDuration = Number.POSITIVE_INFINITY
-				}
-			}
-
-			return itemDuration
-		}
-
-		getElementAbsoluteWidth(): number {
-			const itemDuration = this.getItemDuration()
-			return this.convertTimeToPixels(itemDuration)
-		}
-
-		getElementAbsoluteStyleWidth(): string {
-			const renderedInPoint = this.props.piece.renderedInPoint
-			if (renderedInPoint === 0) {
-				const itemPossiblyInfiniteDuration = this.getItemDuration(true)
-				if (!Number.isFinite(itemPossiblyInfiniteDuration)) {
-					return '100%'
-				}
-			}
-			const itemDuration = this.getItemDuration(false)
-			return this.convertTimeToPixels(itemDuration).toString() + 'px'
-		}
-
-		getItemStyle(): { [key: string]: string } {
-			const piece = this.props.piece
-			const innerPiece = piece.instance.piece
-
-			// If this is a live line, take duration verbatim from SegmentLayerItemContainer with a fallback on expectedDuration.
-			// If not, as-run part "duration" limits renderdDuration which takes priority over MOS-import
-			// expectedDuration (editorial duration)
-
-			// let liveLinePadding = this.props.autoNextPart ? 0 : (this.props.isLiveLine ? this.props.liveLinePadding : 0)
-
-			if (innerPiece.pieceType === IBlueprintPieceType.OutTransition) {
-				return {
-					left: 'auto',
-					right: '0',
-					width: this.getElementAbsoluteWidth().toString() + 'px',
-				}
-			}
-			return {
-				left: this.convertTimeToPixels(piece.renderedInPoint || 0).toString() + 'px',
-				width: this.getElementAbsoluteStyleWidth(),
-			}
-		}
-
-		// TODO(Performance): use ResizeObserver to avoid style recalculations
-		// checkElementWidth = () => {
-		// 	if (this.state.itemElement && this._forceSizingRecheck) {
-		// 		this._forceSizingRecheck = false
-		// 		const width = getElementWidth(this.state.itemElement) || 0
-		// 		if (this.state.elementWidth !== width) {
-		// 			this.setState({
-		// 				elementWidth: width
-		// 			})
-		// 		}
-		// 	}
-		// }
-
-		private highlightTimeout: NodeJS.Timeout | undefined
-
-		private onHighlight = (e: HighlightEvent) => {
-			if (
-				e.partId === this.props.part.partId &&
-				(e.pieceId === this.props.piece.instance.piece._id || e.pieceId === this.props.piece.instance._id)
-			) {
-				this.setState({
-					highlight: true,
-				})
-				clearTimeout(this.highlightTimeout)
-				this.highlightTimeout = setTimeout(() => {
-					this.setState({
-						highlight: false,
-					})
+	const highlightTimeout = useRef<undefined | NodeJS.Timeout>(undefined)
+	const onHighlight = useCallback(
+		(e: HighlightEvent) => {
+			if (e.partId === part.partId && (e.pieceId === piece.instance.piece._id || e.pieceId === piece.instance._id)) {
+				setHighlight(true)
+				clearTimeout(highlightTimeout.current)
+				highlightTimeout.current = setTimeout(() => {
+					setHighlight(false)
 				}, 5000)
 			}
-		}
+		},
+		[part, piece]
+	)
 
-		componentDidMount(): void {
-			RundownViewEventBus.on(RundownViewEvents.HIGHLIGHT, this.onHighlight)
+	useRundownViewEventBusListener(RundownViewEvents.HIGHLIGHT, onHighlight)
+	useEffect(() => {
+		return () => {
+			clearTimeout(highlightTimeout.current)
 		}
+	}, [])
 
-		componentWillUnmount(): void {
-			super.componentWillUnmount && super.componentWillUnmount()
-			RundownViewEventBus.off(RundownViewEvents.HIGHLIGHT, this.onHighlight)
-			clearTimeout(this.highlightTimeout)
-		}
-
-		componentDidUpdate(prevProps: ISourceLayerItemProps, _prevState: ISourceLayerItemState) {
-			if (this.state.showMiniInspector) {
-				if (prevProps.scrollLeft !== this.props.scrollLeft) {
-					const cursorPosition = {
-						left: this.state.cursorRawPosition.clientX - this.state.elementPosition.left,
-						top: this.state.cursorRawPosition.clientY - this.state.elementPosition.top,
-					}
-					const cursorTimePosition = Math.max(cursorPosition.left, 0) / this.props.timeScale
-					if (this.state.cursorTimePosition !== cursorTimePosition) {
-						this.setState({
-							cursorTimePosition,
-						})
-					}
-				}
-			}
-		}
-
-		itemClick = (e: React.MouseEvent<HTMLDivElement>) => {
-			// this.props.onFollowLiveLine && this.props.onFollowLiveLine(false, e)
+	const selectElementContext = useSelectedElementsContext()
+	const itemClick = useCallback(
+		(e: React.MouseEvent<HTMLDivElement>) => {
+			// this.props.onFollowLiveLine?.(false, e)
 			e.preventDefault()
 			e.stopPropagation()
-			this.props.onClick && this.props.onClick(this.props.piece, e)
-		}
-
-		itemDblClick = (e: React.MouseEvent<HTMLDivElement>) => {
-			e.preventDefault()
-			e.stopPropagation()
-
-			if (typeof this.props.onDoubleClick === 'function') {
-				this.props.onDoubleClick(this.props.piece, e)
-			}
-		}
-
-		itemMouseUp = (e: any) => {
-			const eM = e as MouseEvent
-			if (eM.ctrlKey === true) {
-				eM.preventDefault()
-				eM.stopPropagation()
-			}
-			return
-		}
-
-		toggleMiniInspectorOn = (e: React.MouseEvent) => this.toggleMiniInspector(e, true)
-		toggleMiniInspectorOff = (e: React.MouseEvent) => this.toggleMiniInspector(e, false)
-
-		toggleMiniInspector = (e: MouseEvent | any, v: boolean) => {
-			this.setState({
-				showMiniInspector: v,
-				cursorRawPosition: {
-					clientX: e.clientX,
-					clientY: e.clientY,
-				},
-			})
-
-			if (v) {
-				const updatePos = () => {
-					const elementPos = getElementDocumentOffset(this.state.itemElement) || {
-						top: 0,
-						left: 0,
-					}
-					const cursorPosition = {
-						left: this.state.cursorRawPosition.clientX - elementPos.left,
-						top: this.state.cursorRawPosition.clientY - elementPos.top,
-					}
-
-					const cursorTimePosition = Math.max(cursorPosition.left, 0) / this.props.timeScale
-
-					this.setState({
-						elementPosition: elementPos,
-						cursorPosition,
-						cursorTimePosition,
-					})
-					this.animFrameHandle = requestAnimationFrame(updatePos)
+			onClick?.(piece, e)
+		},
+		[piece]
+	)
+	const itemDblClick = useCallback(
+		(e: React.MouseEvent<HTMLDivElement>) => {
+			if (studio?.settings.enableUserEdits && !studio?.settings.allowPieceDirectPlay) {
+				const pieceId = piece.instance.piece._id
+				if (!selectElementContext.isSelected(pieceId)) {
+					selectElementContext.clearAndSetSelection({ type: 'piece', elementId: pieceId })
+				} else {
+					selectElementContext.clearSelections()
 				}
-				this.animFrameHandle = requestAnimationFrame(updatePos)
-			} else if (this.animFrameHandle !== undefined) {
-				cancelAnimationFrame(this.animFrameHandle)
+				// Until a proper data structure, the only reference is a part.
+				// const partId = this.props.part.instance.part._id
+				// if (!selectElementContext.isSelected(partId)) {
+				// 	selectElementContext.clearAndSetSelection({ type: 'part', elementId: partId })
+				// } else {
+				// 	selectElementContext.clearSelections()
+				// }
+			} else if (typeof onDoubleClick === 'function') {
+				onDoubleClick(piece, e)
 			}
+		},
+		[piece]
+	)
+	const itemMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+		e.preventDefault()
+		e.stopPropagation()
+	}, [])
+	const itemMouseUp = useCallback((e: any) => {
+		const eM = e as MouseEvent
+		if (eM.ctrlKey === true) {
+			eM.preventDefault()
+			eM.stopPropagation()
+		}
+		return
+	}, [])
+
+	const previewContext = useContext(PreviewPopUpContext)
+	const previewSession = useRef<IPreviewPopUpSession | null>(null)
+	const toggleMiniInspectorOn = useCallback(
+		(e: React.MouseEvent) => togglePreviewPopUp(e, true),
+		[piece, cursorTimePosition, contentStatus, timeScale]
+	)
+	const toggleMiniInspectorOff = useCallback(
+		(e: React.MouseEvent) => togglePreviewPopUp(e, false),
+		[piece, cursorTimePosition, contentStatus, timeScale]
+	)
+	const updatePos = useCallback(() => {
+		const elementPos = getElementDocumentOffset(itemElementRef.current) || {
+			top: 0,
+			left: 0,
+		}
+		const cursorPosition = {
+			left: cursorRawPosition.current.clientX - elementPos.left,
+			top: cursorRawPosition.current.clientY - elementPos.top,
 		}
 
-		moveMiniInspector = (e: MouseEvent | any) => {
-			this.setState({
-				cursorRawPosition: {
-					clientX: e.clientX,
-					clientY: e.clientY,
-				},
-			})
+		const cursorTimePosition = Math.max(cursorPosition.left, 0) / timeScale
+
+		setElementPosition(elementPos)
+		setCursorPosition(cursorPosition)
+		setCursorTimePosition(cursorTimePosition)
+
+		if (previewSession.current) {
+			previewSession.current.setPointerTime(cursorTimePosition)
 		}
 
-		setAnchoredElsWidths = (leftAnchoredWidth: number, rightAnchoredWidth: number) => {
-			// anchored labels will sometimes errorneously report some width. Discard if it's marginal.
-			this.setState({
-				leftAnchoredWidth: leftAnchoredWidth > MARGINAL_ANCHORED_WIDTH ? leftAnchoredWidth : 0,
-				rightAnchoredWidth: rightAnchoredWidth > MARGINAL_ANCHORED_WIDTH ? rightAnchoredWidth : 0,
-			})
-		}
-
-		renderInsideItem(typeClass: string) {
-			switch (this.props.layer.type) {
-				case SourceLayerType.SCRIPT:
-					// case SourceLayerType.MIC:
-					return (
-						<MicSourceRenderer
-							key={unprotectString(this.props.piece.instance._id)}
-							typeClass={typeClass}
-							getItemDuration={this.getItemDuration}
-							getItemLabelOffsetLeft={this.getItemLabelOffsetLeft}
-							getItemLabelOffsetRight={this.getItemLabelOffsetRight}
-							setAnchoredElsWidths={this.setAnchoredElsWidths}
-							{...this.props}
-							{...this.state}
-						/>
-					)
-				case SourceLayerType.VT:
-				case SourceLayerType.LIVE_SPEAK:
-					return (
-						<VTSourceRenderer
-							key={unprotectString(this.props.piece.instance._id)}
-							typeClass={typeClass}
-							getItemDuration={this.getItemDuration}
-							getSourceDurationLabelAlignment={this.getSourceDurationLabelAlignment}
-							getItemLabelOffsetLeft={this.getItemLabelOffsetLeft}
-							getItemLabelOffsetRight={this.getItemLabelOffsetRight}
-							setAnchoredElsWidths={this.setAnchoredElsWidths}
-							{...this.props}
-							{...this.state}
-						/>
-					)
-				case SourceLayerType.GRAPHICS:
-				case SourceLayerType.LOWER_THIRD:
-				case SourceLayerType.STUDIO_SCREEN:
-					return (
-						<L3rdSourceRenderer
-							key={unprotectString(this.props.piece.instance._id)}
-							typeClass={typeClass}
-							getItemDuration={this.getItemDuration}
-							getItemLabelOffsetLeft={this.getItemLabelOffsetLeft}
-							getItemLabelOffsetRight={this.getItemLabelOffsetRight}
-							setAnchoredElsWidths={this.setAnchoredElsWidths}
-							{...this.props}
-							{...this.state}
-						/>
-					)
-				case SourceLayerType.SPLITS:
-					return (
-						<SplitsSourceRenderer
-							key={unprotectString(this.props.piece.instance._id)}
-							typeClass={typeClass}
-							getItemDuration={this.getItemDuration}
-							getItemLabelOffsetLeft={this.getItemLabelOffsetLeft}
-							getItemLabelOffsetRight={this.getItemLabelOffsetRight}
-							setAnchoredElsWidths={this.setAnchoredElsWidths}
-							{...this.props}
-							{...this.state}
-						/>
-					)
-
-				case SourceLayerType.TRANSITION:
-					// TODOSYNC: TV2 uses other renderers, to be discussed.
-
-					return (
-						<TransitionSourceRenderer
-							key={unprotectString(this.props.piece.instance._id)}
-							typeClass={typeClass}
-							getItemDuration={this.getItemDuration}
-							getItemLabelOffsetLeft={this.getItemLabelOffsetLeft}
-							getItemLabelOffsetRight={this.getItemLabelOffsetRight}
-							setAnchoredElsWidths={this.setAnchoredElsWidths}
-							{...this.props}
-							{...this.state}
-						/>
-					)
-				case SourceLayerType.LOCAL:
-					return (
-						<LocalLayerItemRenderer
-							key={unprotectString(this.props.piece.instance._id)}
-							typeClass={typeClass}
-							getItemDuration={this.getItemDuration}
-							getItemLabelOffsetLeft={this.getItemLabelOffsetLeft}
-							getItemLabelOffsetRight={this.getItemLabelOffsetRight}
-							setAnchoredElsWidths={this.setAnchoredElsWidths}
-							{...this.props}
-							{...this.state}
-						/>
-					)
-				default:
-					return (
-						<DefaultLayerItemRenderer
-							key={unprotectString(this.props.piece.instance._id)}
-							typeClass={typeClass}
-							getItemDuration={this.getItemDuration}
-							getSourceDurationLabelAlignment={this.getSourceDurationLabelAlignment}
-							getItemLabelOffsetLeft={this.getItemLabelOffsetLeft}
-							getItemLabelOffsetRight={this.getItemLabelOffsetRight}
-							setAnchoredElsWidths={this.setAnchoredElsWidths}
-							{...this.props}
-							{...this.state}
-						/>
-					)
-			}
-		}
-
-		isInsideViewport() {
-			return RundownUtils.isInsideViewport(
-				this.props.scrollLeft,
-				this.props.scrollWidth,
-				this.props.part,
-				this.props.partStartsAt,
-				this.props.partDuration,
-				this.props.piece
-			)
-		}
-
-		render(): JSX.Element {
-			if (this.isInsideViewport()) {
-				const typeClass = RundownUtils.getSourceLayerClassName(this.props.layer.type)
-
-				const piece = this.props.piece
-				const innerPiece = piece.instance.piece
-
-				const elementWidth = this.getElementAbsoluteWidth()
-
-				return (
-					<SelectedElementsContext.Consumer>
-						{(selectElementContext) => (
-							<div
-								className={pieceUiClassNames(
-									piece,
-									this.props.contentStatus,
-									'segment-timeline__piece',
-									selectElementContext.isSelected(this.props.piece.instance.piece._id) ||
-										selectElementContext.isSelected(this.props.part.instance.part._id),
-									this.props.layer.type,
-									this.props.part.partId,
-									this.state.highlight,
-									elementWidth,
-									this.state
-								)}
-								data-obj-id={piece.instance._id}
-								ref={this.setRef}
-								onClick={this.itemClick}
-								onDoubleClick={(e) => {
-									if (
-										this.props.studio?.settings.enableUserEdits &&
-										!this.props.studio?.settings.allowPieceDirectPlay
-									) {
-										const pieceId = this.props.piece.instance.piece._id
-										if (!selectElementContext.isSelected(pieceId)) {
-											selectElementContext.clearAndSetSelection({ type: 'piece', elementId: pieceId })
-										} else {
-											selectElementContext.clearSelections()
-										}
-										// Until a proper data structure, the only reference is a part.
-										// const partId = this.props.part.instance.part._id
-										// if (!selectElementContext.isSelected(partId)) {
-										// 	selectElementContext.clearAndSetSelection({ type: 'part', elementId: partId })
-										// } else {
-										// 	selectElementContext.clearSelections()
-										// }
-									} else {
-										this.itemDblClick(e)
-									}
-								}}
-								onMouseUp={this.itemMouseUp}
-								onMouseMove={this.moveMiniInspector}
-								onMouseEnter={this.toggleMiniInspectorOn}
-								onMouseLeave={this.toggleMiniInspectorOff}
-								style={this.getItemStyle()}
-							>
-								{this.renderInsideItem(typeClass)}
-								{DEBUG_MODE && this.props.studio && (
-									<div className="segment-timeline__debug-info">
-										{innerPiece.enable.start} /{' '}
-										{RundownUtils.formatTimeToTimecode(this.props.studio.settings, this.props.partDuration).substr(-5)}{' '}
-										/{' '}
-										{piece.renderedDuration
-											? RundownUtils.formatTimeToTimecode(this.props.studio.settings, piece.renderedDuration).substr(-5)
-											: 'X'}{' '}
-										/{' '}
-										{typeof innerPiece.enable.duration === 'number'
-											? RundownUtils.formatTimeToTimecode(
-													this.props.studio.settings,
-													innerPiece.enable.duration
-											  ).substr(-5)
-											: ''}
-									</div>
-								)}
-							</div>
-						)}
-					</SelectedElementsContext.Consumer>
-				)
+		animFrameHandle.current = requestAnimationFrame(updatePos)
+	}, [piece, contentStatus, timeScale])
+	const togglePreviewPopUp = useCallback(
+		(e: React.MouseEvent, state: boolean) => {
+			if (!state && previewSession.current) {
+				previewSession.current.close()
+				previewSession.current = null
 			} else {
-				// render a placeholder
-				return (
-					<div
-						className="segment-timeline__piece"
-						data-obj-id={this.props.piece.instance._id}
-						ref={this.setRef}
-						style={this.getItemStyle()}
-					></div>
+				const { contents: previewContents, options: previewOptions } = convertSourceLayerItemToPreview(
+					layer.type,
+					piece.instance.piece,
+					contentStatus,
+					{
+						in: props.piece.renderedInPoint,
+						dur: props.piece.renderedDuration,
+					}
 				)
+
+				if (previewContents.length) {
+					previewSession.current = previewContext.requestPreview(e.target as any, previewContents, {
+						...previewOptions,
+						time: cursorTimePosition,
+						initialOffsetX: e.screenX,
+						trackMouse: true,
+					})
+				}
 			}
+
+			setShowPreviewPopUp(state)
+
+			cursorRawPosition.current = {
+				clientX: e.clientX,
+				clientY: e.clientY,
+			}
+
+			if (state) {
+				animFrameHandle.current = requestAnimationFrame(updatePos)
+			} else if (animFrameHandle.current !== undefined) {
+				cancelAnimationFrame(animFrameHandle.current)
+			}
+		},
+		[piece, cursorTimePosition, contentStatus, timeScale]
+	)
+	const moveMiniInspector = useCallback((e: MouseEvent | any) => {
+		cursorRawPosition.current = {
+			clientX: e.clientX,
+			clientY: e.clientY,
+		}
+	}, [])
+
+	const convertTimeToPixels = (time: number) => {
+		return Math.round(timeScale * time)
+	}
+	const getItemDuration = (returnInfinite?: boolean): number => {
+		const innerPiece = piece.instance.piece
+
+		const expectedDurationNumber = typeof innerPiece.enable.duration === 'number' ? innerPiece.enable.duration || 0 : 0
+
+		let itemDuration: number
+		if (!returnInfinite) {
+			itemDuration = Math.min(
+				piece.renderedDuration || expectedDurationNumber || 0,
+				partDuration - (piece.renderedInPoint || 0)
+			)
+		} else {
+			itemDuration =
+				partDuration - (piece.renderedInPoint || 0) < (piece.renderedDuration || expectedDurationNumber || 0)
+					? Number.POSITIVE_INFINITY
+					: piece.renderedDuration || expectedDurationNumber || 0
+		}
+
+		if (
+			(innerPiece.lifespan !== PieceLifespan.WithinPart ||
+				(innerPiece.enable.start !== undefined &&
+					innerPiece.enable.duration === undefined &&
+					piece.instance.userDuration === undefined)) &&
+			!piece.cropped &&
+			piece.renderedDuration === null &&
+			piece.instance.userDuration === undefined
+		) {
+			if (!returnInfinite) {
+				itemDuration = partDuration - (piece.renderedInPoint || 0)
+			} else {
+				itemDuration = Number.POSITIVE_INFINITY
+			}
+		}
+
+		return itemDuration
+	}
+	const getElementAbsoluteWidth = (): number => {
+		const itemDuration = getItemDuration()
+		return convertTimeToPixels(itemDuration)
+	}
+
+	const isInsideViewport = RundownUtils.isInsideViewport(
+		scrollLeft,
+		scrollWidth,
+		part,
+		partStartsAt,
+		partDuration,
+		piece
+	)
+	const getItemStyle = (): { [key: string]: string } => {
+		const innerPiece = piece.instance.piece
+
+		// If this is a live line, take duration verbatim from SegmentLayerItemContainer with a fallback on expectedDuration.
+		// If not, as-run part "duration" limits renderdDuration which takes priority over MOS-import
+		// expectedDuration (editorial duration)
+
+		// let liveLinePadding = this.props.autoNextPart ? 0 : (this.props.isLiveLine ? this.props.liveLinePadding : 0)
+
+		if (innerPiece.pieceType === IBlueprintPieceType.OutTransition) {
+			return {
+				left: 'auto',
+				right: '0',
+				width: getElementAbsoluteWidth().toString() + 'px',
+			}
+		}
+		return {
+			left: convertTimeToPixels(piece.renderedInPoint || 0).toString() + 'px',
+			width: getElementAbsoluteStyleWidth(),
 		}
 	}
-)
+	const getElementAbsoluteStyleWidth = (): string => {
+		const renderedInPoint = piece.renderedInPoint
+		if (renderedInPoint === 0) {
+			const itemPossiblyInfiniteDuration = getItemDuration(true)
+			if (!Number.isFinite(itemPossiblyInfiniteDuration)) {
+				return '100%'
+			}
+		}
+		const itemDuration = getItemDuration(false)
+		return convertTimeToPixels(itemDuration).toString() + 'px'
+	}
+
+	const getItemLabelOffsetLeft = (): React.CSSProperties => {
+		const maxLabelWidth = piece.maxLabelWidth
+
+		if (part && partStartsAt !== undefined) {
+			//  && this.props.piece.renderedInPoint !== undefined && this.props.piece.renderedDuration !== undefined
+
+			const inPoint = piece.renderedInPoint || 0
+			const duration = Number.isFinite(piece.renderedDuration || 0)
+				? piece.renderedDuration || partDuration || part.renderedDuration || 0
+				: partDuration || part.renderedDuration || 0
+
+			const elementWidth = getElementAbsoluteWidth()
+
+			const widthConstrictedMode =
+				isTooSmallForText ||
+				(leftAnchoredWidth > 0 && rightAnchoredWidth > 0 && leftAnchoredWidth + rightAnchoredWidth > elementWidth)
+
+			const nextIsTouching = !!piece.cropped
+
+			if (followLiveLine && isLiveLine) {
+				const liveLineHistoryWithMargin = liveLineHistorySize - 10
+				if (
+					scrollLeft + liveLineHistoryWithMargin / timeScale > inPoint + partStartsAt + leftAnchoredWidth / timeScale &&
+					scrollLeft + liveLineHistoryWithMargin / timeScale < inPoint + duration + partStartsAt
+				) {
+					const targetPos = convertTimeToPixels(scrollLeft - inPoint - partStartsAt)
+
+					return {
+						maxWidth:
+							rightAnchoredWidth > 0
+								? (elementWidth - rightAnchoredWidth).toString() + 'px'
+								: maxLabelWidth !== undefined
+									? convertTimeToPixels(maxLabelWidth).toString() + 'px'
+									: nextIsTouching
+										? '100%'
+										: 'none',
+						transform:
+							'translate(' +
+							(widthConstrictedMode
+								? targetPos
+								: Math.min(targetPos, elementWidth - rightAnchoredWidth - liveLineHistoryWithMargin - 10)
+							).toString() +
+							'px, 0) ' +
+							'translate(' +
+							liveLineHistoryWithMargin.toString() +
+							'px, 0) ' +
+							'translate(-100%, 0)',
+						willChange: 'transform',
+					}
+				} else if (
+					rightAnchoredWidth < elementWidth &&
+					leftAnchoredWidth < elementWidth &&
+					scrollLeft + liveLineHistoryWithMargin / timeScale >= inPoint + duration + partStartsAt
+				) {
+					const targetPos = convertTimeToPixels(scrollLeft - inPoint - partStartsAt)
+
+					return {
+						maxWidth:
+							rightAnchoredWidth > 0
+								? (elementWidth - rightAnchoredWidth).toString() + 'px'
+								: maxLabelWidth !== undefined
+									? convertTimeToPixels(maxLabelWidth).toString() + 'px'
+									: nextIsTouching
+										? '100%'
+										: 'none',
+						transform:
+							'translate(' +
+							Math.min(targetPos, elementWidth - rightAnchoredWidth - liveLineHistoryWithMargin - 10).toString() +
+							'px, 0) ' +
+							'translate(' +
+							liveLineHistoryWithMargin.toString() +
+							'px, 0) ' +
+							'translate3d(-100%, 0)',
+						willChange: 'transform',
+					}
+				} else {
+					return {
+						maxWidth:
+							rightAnchoredWidth > 0
+								? (elementWidth - rightAnchoredWidth - 10).toString() + 'px'
+								: maxLabelWidth !== undefined
+									? convertTimeToPixels(maxLabelWidth).toString() + 'px'
+									: nextIsTouching
+										? '100%'
+										: 'none',
+					}
+				}
+			} else {
+				if (scrollLeft > inPoint + partStartsAt && scrollLeft < inPoint + duration + partStartsAt) {
+					const targetPos = convertTimeToPixels(scrollLeft - inPoint - partStartsAt)
+
+					return {
+						maxWidth:
+							rightAnchoredWidth > 0
+								? (elementWidth - rightAnchoredWidth - 10).toString() + 'px'
+								: maxLabelWidth !== undefined
+									? convertTimeToPixels(maxLabelWidth).toString() + 'px'
+									: nextIsTouching
+										? '100%'
+										: 'none',
+						transform:
+							'translate(' +
+							(widthConstrictedMode || leftAnchoredWidth === 0 || rightAnchoredWidth === 0
+								? targetPos
+								: Math.min(targetPos, elementWidth - leftAnchoredWidth - rightAnchoredWidth)
+							).toString() +
+							'px,  0)',
+					}
+				} else {
+					return {
+						maxWidth:
+							rightAnchoredWidth > 0
+								? (elementWidth - rightAnchoredWidth - 10).toString() + 'px'
+								: maxLabelWidth !== undefined
+									? convertTimeToPixels(maxLabelWidth).toString() + 'px'
+									: nextIsTouching
+										? '100%'
+										: 'none',
+					}
+				}
+			}
+		}
+		return {}
+	}
+	const getItemLabelOffsetRight = (): React.CSSProperties => {
+		if (!part || partStartsAt === undefined) return {}
+
+		const innerPiece = piece.instance.piece
+
+		const inPoint = piece.renderedInPoint || 0
+		const duration =
+			innerPiece.lifespan !== PieceLifespan.WithinPart || piece.renderedDuration === 0
+				? partDuration - inPoint
+				: Math.min(piece.renderedDuration || 0, partDuration - inPoint)
+		const outPoint = inPoint + duration
+
+		const elementWidth = getElementAbsoluteWidth()
+
+		// const widthConstrictedMode = this.state.leftAnchoredWidth > 0 && this.state.rightAnchoredWidth > 0 && ((this.state.leftAnchoredWidth + this.state.rightAnchoredWidth) > this.state.elementWidth)
+
+		if (scrollLeft + scrollWidth < outPoint + partStartsAt && scrollLeft + scrollWidth > inPoint + partStartsAt) {
+			const targetPos = Math.max(
+				(scrollLeft + scrollWidth - outPoint - partStartsAt) * timeScale,
+				(elementWidth - leftAnchoredWidth - rightAnchoredWidth - LEFT_RIGHT_ANCHOR_SPACER) * -1
+			)
+
+			return {
+				transform: 'translate(' + targetPos.toString() + 'px,  0)',
+			}
+		}
+		return {}
+	}
+	const setAnchoredElsWidths = (leftAnchoredWidth: number, rightAnchoredWidth: number) => {
+		// anchored labels will sometimes errorneously report some width. Discard if it's marginal.
+		setLeftAnchoredWidth(leftAnchoredWidth > MARGINAL_ANCHORED_WIDTH ? leftAnchoredWidth : 0)
+		setRightAnchoredWidth(rightAnchoredWidth > MARGINAL_ANCHORED_WIDTH ? rightAnchoredWidth : 0)
+	}
+
+	const renderInsideItem = (typeClass: string) => {
+		const elProps = {
+			typeClass: typeClass,
+			getItemDuration: getItemDuration,
+			getItemLabelOffsetLeft: getItemLabelOffsetLeft,
+			getItemLabelOffsetRight: getItemLabelOffsetRight,
+			setAnchoredElsWidths: setAnchoredElsWidths,
+			itemElement: itemElementRef.current,
+			...props,
+			...state,
+		}
+
+		switch (layer.type) {
+			case SourceLayerType.SCRIPT:
+				// case SourceLayerType.MIC:
+				return <MicSourceRenderer key={unprotectString(piece.instance._id)} {...elProps} />
+			case SourceLayerType.VT:
+			case SourceLayerType.LIVE_SPEAK:
+				return <VTSourceRenderer key={unprotectString(piece.instance._id)} {...elProps} />
+			case SourceLayerType.GRAPHICS:
+			case SourceLayerType.LOWER_THIRD:
+			case SourceLayerType.STUDIO_SCREEN:
+				return <L3rdSourceRenderer key={unprotectString(piece.instance._id)} {...elProps} />
+			case SourceLayerType.SPLITS:
+				return <SplitsSourceRenderer key={unprotectString(piece.instance._id)} {...elProps} />
+
+			case SourceLayerType.TRANSITION:
+				// TODOSYNC: TV2 uses other renderers, to be discussed.
+
+				return <TransitionSourceRenderer key={unprotectString(piece.instance._id)} {...elProps} />
+			case SourceLayerType.LOCAL:
+				return <LocalLayerItemRenderer key={unprotectString(piece.instance._id)} {...elProps} />
+			default:
+				return <DefaultLayerItemRenderer key={unprotectString(piece.instance._id)} {...elProps} />
+		}
+	}
+
+	if (isInsideViewport) {
+		const typeClass = RundownUtils.getSourceLayerClassName(layer.type)
+
+		const innerPiece = piece.instance.piece
+
+		const elementWidth = getElementAbsoluteWidth()
+
+		return (
+			<div
+				className={pieceUiClassNames(
+					piece,
+					contentStatus,
+					'segment-timeline__piece',
+					selectElementContext.isSelected(piece.instance.piece._id) ||
+						selectElementContext.isSelected(part.instance.part._id),
+					layer.type,
+					part.partId,
+					highlight,
+					elementWidth
+					// this.state
+				)}
+				data-obj-id={piece.instance._id}
+				ref={setRef}
+				onClick={itemClick}
+				onDoubleClick={itemDblClick}
+				onMouseUp={itemMouseUp}
+				onMouseDown={itemMouseDown}
+				onMouseMove={moveMiniInspector}
+				onMouseEnter={toggleMiniInspectorOn}
+				onMouseLeave={toggleMiniInspectorOff}
+				style={getItemStyle()}
+			>
+				{renderInsideItem(typeClass)}
+				{DEBUG_MODE && studio && (
+					<div className="segment-timeline__debug-info">
+						{innerPiece.enable.start} / {RundownUtils.formatTimeToTimecode(studio.settings, partDuration).substr(-5)} /{' '}
+						{piece.renderedDuration
+							? RundownUtils.formatTimeToTimecode(studio.settings, piece.renderedDuration).substr(-5)
+							: 'X'}{' '}
+						/{' '}
+						{typeof innerPiece.enable.duration === 'number'
+							? RundownUtils.formatTimeToTimecode(studio.settings, innerPiece.enable.duration).substr(-5)
+							: ''}
+					</div>
+				)}
+			</div>
+		)
+	} else {
+		// render a placeholder
+		return (
+			<div
+				className="segment-timeline__piece"
+				data-obj-id={piece.instance._id}
+				ref={setRef}
+				style={getItemStyle()}
+			></div>
+		)
+	}
+}

@@ -1,6 +1,6 @@
 import { useRef, useLayoutEffect, useState } from 'react'
 import Tooltip from 'rc-tooltip'
-import { TOOLTIP_DEFAULT_DELAY } from '../../lib/lib'
+import { TOOLTIP_DEFAULT_DELAY } from '../../lib/lib.js'
 import { TooltipProps } from 'rc-tooltip/lib/Tooltip'
 
 const TOOLTIP_ALIGN: Required<TooltipProps>['align'] = { points: ['tl', 'tl'], offset: [-8, 0] }

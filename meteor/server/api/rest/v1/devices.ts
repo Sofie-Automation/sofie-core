@@ -39,9 +39,10 @@ class DevicesServerAPI implements DevicesRestAPI {
 			return ClientAPI.responseError(
 				UserError.from(
 					new Error(`Device ${deviceId} does not exist`),
-					UserErrorMessage.PeripheralDeviceNotFound
-				),
-				404
+					UserErrorMessage.PeripheralDeviceNotFound,
+					undefined,
+					404
+				)
 			)
 		return ClientAPI.responseSuccess(APIPeripheralDeviceFrom(device))
 	}
@@ -57,9 +58,10 @@ class DevicesServerAPI implements DevicesRestAPI {
 			return ClientAPI.responseError(
 				UserError.from(
 					new Error(`Device ${deviceId} does not exist`),
-					UserErrorMessage.PeripheralDeviceNotFound
-				),
-				404
+					UserErrorMessage.PeripheralDeviceNotFound,
+					undefined,
+					404
+				)
 			)
 
 		switch (action.type) {

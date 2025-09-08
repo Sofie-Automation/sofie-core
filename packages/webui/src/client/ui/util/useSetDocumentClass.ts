@@ -13,3 +13,13 @@ export function useSetDocumentClass(...classNames: string[]): void {
 		}
 	}, [JSON.stringify(classNames)])
 }
+
+export function useSetDocumentDarkTheme(): void {
+	useLayoutEffect(() => {
+		document.body.setAttribute('data-bs-theme', 'dark')
+
+		return () => {
+			document.body.removeAttribute('data-bs-theme')
+		}
+	}, [])
+}

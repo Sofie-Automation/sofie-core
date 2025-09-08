@@ -1,4 +1,4 @@
-import { PartInstanceId, RundownId, RundownPlaylistId, StudioId } from '../dataModel/Ids'
+import { PartInstanceId, RundownId, RundownPlaylistId, StudioId } from '../dataModel/Ids.js'
 
 export enum EventsJobs {
 	PartInstanceTimings = 'partInstanceTimings',

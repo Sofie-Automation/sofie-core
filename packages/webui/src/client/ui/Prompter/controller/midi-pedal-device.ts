@@ -1,9 +1,9 @@
-import { ControllerAbstract } from './lib'
-import { PrompterViewContent, PrompterConfigMode } from '../PrompterView'
+import { ControllerAbstract } from './lib.js'
+import { PrompterViewContent, PrompterConfigMode } from '../PrompterView.js'
 import Spline from 'cubic-spline'
 
 import webmidi, { Input, InputEventControlchange } from 'webmidi'
-import { logger } from '../../../lib/logging'
+import { logger } from '../../../lib/logging.js'
 
 /**
  * This class handles control of the prompter using
@@ -189,7 +189,7 @@ export class MidiPedalController extends ControllerAbstract {
 		if (this.updateSpeedHandle !== null) return
 
 		// update scroll position
-		window.scrollBy(0, this.lastSpeed)
+		window.scrollBy({ top: this.lastSpeed, behavior: 'instant' })
 
 		const scrollPosition = window.scrollY
 		// check for reached end-of-scroll:

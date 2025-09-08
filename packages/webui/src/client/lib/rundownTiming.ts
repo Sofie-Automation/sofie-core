@@ -20,12 +20,12 @@ import { PartInstance } from '@sofie-automation/meteor-lib/dist/collections/Part
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { DBRundownPlaylist, QuickLoopMarkerType } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { objectFromEntries } from '@sofie-automation/shared-lib/dist/lib/lib'
-import { getCurrentTime } from './systemTime'
-import { Settings } from '../lib/Settings'
+import { getCurrentTime } from './systemTime.js'
+import { Settings } from '../lib/Settings.js'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { CountdownType } from '@sofie-automation/blueprints-integration'
-import { isLoopDefined, isEntirePlaylistLooping, isLoopRunning } from '../lib/RundownResolver'
+import { isLoopDefined, isEntirePlaylistLooping, isLoopRunning } from '../lib/RundownResolver.js'
 
 // Minimum duration that a part can be assigned. Used by gap parts to allow them to "compress" to indicate time running out.
 const MINIMAL_NONZERO_DURATION = 1
@@ -385,7 +385,7 @@ export class RundownTimingCalculator {
 							? Math.max(
 									partExpectedDuration,
 									calculatePartInstanceExpectedDurationWithTransition(partInstance) || 0
-							  )
+								)
 							: calculatePartInstanceExpectedDurationWithTransition(partInstance) || 0,
 						now - lastStartedPlayback
 					)
@@ -648,7 +648,7 @@ export class RundownTimingCalculator {
 		}
 
 		return literal<RundownTimingContext>({
-			currentPartInstanceId: playlist ? playlist.currentPartInfo?.partInstanceId ?? null : undefined,
+			currentPartInstanceId: playlist ? (playlist.currentPartInfo?.partInstanceId ?? null) : undefined,
 			currentSegmentId: currentSegmentId,
 			totalPlaylistDuration: totalRundownDuration,
 			remainingPlaylistDuration: remainingRundownDuration,
@@ -846,7 +846,7 @@ export function getPlaylistTimingDiff(
 
 	let diff = PlaylistTiming.isPlaylistTimingNone(timing)
 		? (timingContext.asPlayedPlaylistDuration || 0) -
-		  (timing.expectedDuration ?? timingContext.totalPlaylistDuration ?? 0)
+			(timing.expectedDuration ?? timingContext.totalPlaylistDuration ?? 0)
 		: frontAnchor + (timingContext.remainingPlaylistDuration || 0) - backAnchor
 
 	// handle special cases

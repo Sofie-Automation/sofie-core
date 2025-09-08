@@ -4,7 +4,7 @@ import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartIns
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { sortPartsInSortedSegments } from '@sofie-automation/corelib/dist/playout/playlist'
-import { JobContext } from '../../jobs'
+import { JobContext } from '../../jobs/index.js'
 
 export async function getSelectedPartInstances(
 	context: JobContext,

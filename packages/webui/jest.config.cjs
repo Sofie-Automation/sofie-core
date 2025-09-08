@@ -7,7 +7,9 @@ module.exports = {
 	globals: {},
 	moduleFileExtensions: ['js', 'ts', 'tsx'],
 	moduleNameMapper: {
+		'sha.js': 'sha.js',
 		'meteor/(.*)': '<rootDir>/src/meteor/$1',
+		'(.+)\\.js$': '$1',
 	},
 	transform: {
 		'^.+\\.(ts|tsx)$': [

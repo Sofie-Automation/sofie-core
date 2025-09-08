@@ -6,7 +6,7 @@ import {
 	TimelineCompleteGenerationVersions,
 	TimelineObjGeneric,
 } from '@sofie-automation/corelib/dist/dataModel/Timeline'
-import { BaseModel } from '../../modelBase'
+import { BaseModel } from '../../modelBase.js'
 import { ReadonlyDeep } from 'type-fest'
 import { ExpectedPackageDBFromStudioBaselineObjects } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
 import { ExpectedPlayoutItemStudio } from '@sofie-automation/corelib/dist/dataModel/ExpectedPlayoutItem'
@@ -47,7 +47,8 @@ export interface StudioPlayoutModelBase extends StudioPlayoutModelBaseReadonly {
 	 */
 	setTimeline(
 		timelineObjs: TimelineObjGeneric[],
-		generationVersions: TimelineCompleteGenerationVersions
+		generationVersions: TimelineCompleteGenerationVersions,
+		regenerateTimelineToken: string | undefined
 	): ReadonlyDeep<TimelineComplete>
 }
 

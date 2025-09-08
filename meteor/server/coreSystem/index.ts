@@ -109,7 +109,7 @@ async function initializeCoreSystem() {
 			changed: observeBlueprintChanges,
 			removed: observeBlueprintChanges,
 		},
-		{ fields: { code: 0 } }
+		{ projection: { code: 0 } }
 	)
 
 	checkDatabaseVersions()

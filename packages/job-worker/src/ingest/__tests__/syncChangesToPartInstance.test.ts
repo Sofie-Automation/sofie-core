@@ -1,29 +1,33 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/unbound-method */
-import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context'
-import { setupMockShowStyleCompound } from '../../__mocks__/presetCollections'
-import { findInstancesToSync, PartInstanceToSync, SyncChangesToPartInstancesWorker } from '../syncChangesToPartInstance'
+import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context.js'
+import { setupMockShowStyleCompound } from '../../__mocks__/presetCollections.js'
+import {
+	findInstancesToSync,
+	PartInstanceToSync,
+	SyncChangesToPartInstancesWorker,
+} from '../syncChangesToPartInstance.js'
 import { mock } from 'jest-mock-extended'
-import type { PlayoutModel } from '../../playout/model/PlayoutModel'
-import type { IngestModelReadonly } from '../model/IngestModel'
-import type { PlayoutRundownModel } from '../../playout/model/PlayoutRundownModel'
-import type { PlayoutPartInstanceModel } from '../../playout/model/PlayoutPartInstanceModel'
+import type { PlayoutModel } from '../../playout/model/PlayoutModel.js'
+import type { IngestModelReadonly } from '../model/IngestModel.js'
+import type { PlayoutRundownModel } from '../../playout/model/PlayoutRundownModel.js'
+import type { PlayoutPartInstanceModel } from '../../playout/model/PlayoutPartInstanceModel.js'
 import type { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { PlayoutModelImpl } from '../../playout/model/implementation/PlayoutModelImpl'
+import { PlayoutModelImpl } from '../../playout/model/implementation/PlayoutModelImpl.js'
 import { PlaylistTimingType, ShowStyleBlueprintManifest } from '@sofie-automation/blueprints-integration'
 import { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBRundownPlaylist, SelectedPartInstance } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { PlayoutRundownModelImpl } from '../../playout/model/implementation/PlayoutRundownModelImpl'
+import { PlayoutRundownModelImpl } from '../../playout/model/implementation/PlayoutRundownModelImpl.js'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { PlayoutSegmentModelImpl } from '../../playout/model/implementation/PlayoutSegmentModelImpl'
+import { PlayoutSegmentModelImpl } from '../../playout/model/implementation/PlayoutSegmentModelImpl.js'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
-import { ProcessedShowStyleCompound } from '../../jobs'
+import { ProcessedShowStyleCompound } from '../../jobs/index.js'
 import { PartialDeep, ReadonlyDeep } from 'type-fest'
 
 jest.mock('../../playout/adlibTesting')
-import { validateAdlibTestingPartInstanceProperties } from '../../playout/adlibTesting'
+import { validateAdlibTestingPartInstanceProperties } from '../../playout/adlibTesting.js'
 
 const mockOptions = {
 	fallbackMockImplementation: () => {

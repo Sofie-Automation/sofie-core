@@ -1,7 +1,7 @@
-import objectPath = require('object-path')
+import * as objectPath from 'object-path'
 import { ReadonlyDeep } from 'type-fest'
-import _ = require('underscore')
-import { assertNever, clone, literal } from '../lib'
+import _ from 'underscore'
+import { assertNever, clone, literal } from '../lib.js'
 
 /**
  * This is an object which allows for overrides to be tracked and reapplied

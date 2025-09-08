@@ -60,7 +60,7 @@ export class RundownContentObserver {
 			PartInstances.observeChanges(
 				{ rundownId: { $in: rundownIds }, reset: { $ne: true }, orphaned: 'deleted' },
 				cache.DeletedPartInstances.link(),
-				{ fields: partInstanceFieldSpecifier }
+				{ projection: partInstanceFieldSpecifier }
 			),
 		])
 

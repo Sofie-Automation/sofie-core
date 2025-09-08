@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-function-type */
+
 interface Options {
 	name: string // DDP method name
 	mixins: any // Method extensions

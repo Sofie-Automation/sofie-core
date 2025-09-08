@@ -164,7 +164,7 @@ async function setupMappingsPublicationObservers(
 				removed: () => triggerUpdate({ invalidateStudio: true }),
 			},
 			{
-				fields: {
+				projection: {
 					// It should be enough to watch the mappingsHash, since that should change whenever there is a
 					// change to the mappings or the routes
 					mappingsHash: 1,

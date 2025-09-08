@@ -1,7 +1,7 @@
-import { TSRHandler, TSRConfig } from './tsrHandler'
-import { CoreHandler, CoreConfig } from './coreHandler'
+import { TSRHandler, TSRConfig } from './tsrHandler.js'
+import { CoreHandler, CoreConfig } from './coreHandler.js'
 import { Logger } from 'winston'
-import { InfluxConfig } from './influxdb'
+import { InfluxConfig } from './influxdb.js'
 import {
 	CertificatesConfig,
 	PeripheralDeviceId,
@@ -67,7 +67,7 @@ export class Connector {
 
 			this._logger.info('Shutting down in 10 seconds!')
 			setTimeout(() => {
-				// eslint-disable-next-line no-process-exit
+				// eslint-disable-next-line n/no-process-exit
 				process.exit(0)
 			}, 10 * 1000)
 			return

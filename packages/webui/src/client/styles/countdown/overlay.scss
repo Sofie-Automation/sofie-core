@@ -59,8 +59,17 @@ body.transparent {
 
 	.clocks-part-icon {
 		width: (1em * 1.2599784264077);
-		height: 1em; // 18.3 + 3.6
 		margin-left: 0.3em;
+
+		> svg {
+			vertical-align: top;
+			margin-top: 0.05em;
+		}
+	}
+
+	.clocks-part-icon > svg.piece-icon {
+		vertical-align: top;
+    	margin-top: 0.16em;
 	}
 
 	.clocks-next-rundown,

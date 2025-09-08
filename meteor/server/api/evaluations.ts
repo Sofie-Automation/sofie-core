@@ -4,7 +4,7 @@ import { getCurrentTime } from '../lib/lib'
 import { deferAsync } from '../lib/lib'
 import { logger } from '../logging'
 import { Meteor } from 'meteor/meteor'
-import * as _ from 'underscore'
+import _ from 'underscore'
 import { fetchStudioLight } from '../optimizations'
 import { sendSlackMessageToWebhook } from './integration/slack'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
@@ -63,7 +63,7 @@ export async function saveEvaluation(
 			// only send message for evaluations with content
 			if (evaluationMessage) {
 				const playlist = (await RundownPlaylists.findOneAsync(evaluation.playlistId, {
-					fields: {
+					projection: {
 						_id: 1,
 						name: 1,
 					},

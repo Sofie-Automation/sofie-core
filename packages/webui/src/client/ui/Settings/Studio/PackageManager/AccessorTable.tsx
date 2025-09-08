@@ -1,13 +1,13 @@
 import * as React from 'react'
-import * as _ from 'underscore'
+import _ from 'underscore'
 import { StudioPackageContainer } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { useTranslation } from 'react-i18next'
 import { Accessor } from '@sofie-automation/blueprints-integration'
-import { useToggleExpandHelper } from '../../../util/useToggleExpandHelper'
-import { OverrideOpHelper, WrappedOverridableItemNormal } from '../../util/OverrideOpHelper'
-import { AccessorTableRow } from './AccessorTableRow'
+import { useToggleExpandHelper } from '../../../util/useToggleExpandHelper.js'
+import { OverrideOpHelper, WrappedOverridableItemNormal } from '../../util/OverrideOpHelper.js'
+import { AccessorTableRow } from './AccessorTableRow.js'
 
 interface AccessorsTableProps {
 	packageContainer: WrappedOverridableItemNormal<StudioPackageContainer>
@@ -51,7 +51,7 @@ export function AccessorsTable({ packageContainer, overrideHelper }: AccessorsTa
 			<table className="expando settings-studio-package-containers-accessors-table">
 				{Object.keys(container.accessors || {}).length === 0 ? (
 					<tr>
-						<td className="mhn dimmed">{t('There are no Accessors set up.')}</td>
+						<td className="dimmed">{t('There are no Accessors set up.')}</td>
 					</tr>
 				) : (
 					_.map(container.accessors || {}, (accessor: Accessor.Any, accessorId: string) => (
@@ -67,7 +67,7 @@ export function AccessorsTable({ packageContainer, overrideHelper }: AccessorsTa
 					))
 				)}
 			</table>
-			<div className="mod mhs">
+			<div className="my-1 mx-2">
 				<button className="btn btn-primary" onClick={addNewAccessor}>
 					<FontAwesomeIcon icon={faPlus} />
 				</button>

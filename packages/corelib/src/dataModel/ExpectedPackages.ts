@@ -1,6 +1,6 @@
 import { ExpectedPackage, Time } from '@sofie-automation/blueprints-integration'
-import { protectString } from '../protectedString'
-import { getHash, hashObj } from '../lib'
+import { protectString } from '../protectedString.js'
+import { getHash, hashObj } from '../lib.js'
 import {
 	AdLibActionId,
 	BucketAdLibActionId,
@@ -14,7 +14,7 @@ import {
 	RundownId,
 	SegmentId,
 	StudioId,
-} from './Ids'
+} from './Ids.js'
 import { ReadonlyDeep } from 'type-fest'
 
 /*

@@ -26,7 +26,7 @@ export async function createRundownLayout(
 	showStyleBaseId: ShowStyleBaseId,
 	regionId: CustomizableRegions,
 	blueprintId: BlueprintId | undefined,
-	userId?: UserId | undefined
+	userId?: UserId
 ): Promise<RundownLayoutId> {
 	const id: RundownLayoutId = getRandomId()
 	await RundownLayouts.insertAsync(

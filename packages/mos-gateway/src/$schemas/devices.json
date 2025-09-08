@@ -63,18 +63,11 @@
 							"default": 10542
 						}
 					},
-					"required": [
-						"lower",
-						"upper",
-						"query"
-					],
+					"required": ["lower", "upper", "query"],
 					"additionalProperties": false
 				}
 			},
-			"required": [
-				"id",
-				"host"
-			],
+			"required": ["id", "host"],
 			"additionalProperties": false
 		},
 		"secondary": {
@@ -141,23 +134,14 @@
 							"default": 10542
 						}
 					},
-					"required": [
-						"lower",
-						"upper",
-						"query"
-					],
+					"required": ["lower", "upper", "query"],
 					"additionalProperties": false
 				}
 			},
-			"required": [
-				"id",
-				"host"
-			],
+			"required": ["id", "host"],
 			"additionalProperties": false
 		}
 	},
-	"required": [
-		"primary"
-	],
+	"required": ["primary"],
 	"additionalProperties": false
 }

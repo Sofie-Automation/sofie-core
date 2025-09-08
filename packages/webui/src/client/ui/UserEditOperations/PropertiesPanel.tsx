@@ -1,6 +1,6 @@
 import * as React from 'react'
-import { doUserAction, UserAction } from '../../lib/clientUserAction'
-import { MeteorCall } from '../../lib/meteorApi'
+import { doUserAction, UserAction } from '../../lib/clientUserAction.js'
+import { MeteorCall } from '../../lib/meteorApi.js'
 import {
 	DefaultUserOperationEditProperties,
 	DefaultUserOperationsTypes,
@@ -15,12 +15,13 @@ import {
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import classNames from 'classnames'
 import { useTranslation } from 'react-i18next'
-import { useSelectedElements, useSelectedElementsContext } from '../RundownView/SelectedElementsContext'
-import { RundownUtils } from '../../lib/rundown'
+import { useSelectedElements, useSelectedElementsContext } from '../RundownView/SelectedElementsContext.js'
+import { RundownUtils } from '../../lib/rundown.js'
 import * as CoreIcon from '@nrk/core-icons/jsx'
 import { useCallback, useMemo, useState } from 'react'
-import { SchemaFormWithState } from '../../lib/forms/SchemaFormWithState'
+import { SchemaFormWithState } from '../../lib/forms/SchemaFormWithState.js'
 import { translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
+import { BlueprintAssetIcon } from '../../lib/Components/BlueprintAssetIcon.js'
 
 type PendingChange = DefaultUserOperationEditProperties['payload']
 
@@ -111,18 +112,18 @@ export function PropertiesPanel(): JSX.Element {
 		selectedElement?.type === 'piece'
 			? piece?.userEditOperations
 			: selectedElement?.type === 'part'
-			? part?.userEditOperations
-			: selectedElement?.type === 'segment'
-			? segment?.userEditOperations
-			: undefined
+				? part?.userEditOperations
+				: selectedElement?.type === 'segment'
+					? segment?.userEditOperations
+					: undefined
 	const userEditProperties =
 		selectedElement?.type === 'piece'
 			? piece?.userEditProperties
 			: selectedElement?.type === 'part'
-			? part?.userEditProperties
-			: selectedElement?.type === 'segment'
-			? segment?.userEditProperties
-			: undefined
+				? part?.userEditProperties
+				: selectedElement?.type === 'segment'
+					? segment?.userEditProperties
+					: undefined
 	const change = pendingChange ?? {
 		pieceTypeProperties: userEditProperties?.pieceTypeProperties?.currentValue ?? { type: '', value: {} },
 		globalProperties: userEditProperties?.globalProperties?.currentValue ?? {},
@@ -132,10 +133,10 @@ export function PropertiesPanel(): JSX.Element {
 		selectedElement?.type === 'piece'
 			? piece?.name
 			: selectedElement?.type === 'part'
-			? part?.title
-			: selectedElement?.type === 'segment'
-			? segment?.name
-			: undefined
+				? part?.title
+				: selectedElement?.type === 'segment'
+					? segment?.name
+					: undefined
 
 	return (
 		<div className={'properties-panel'}>
@@ -143,16 +144,8 @@ export function PropertiesPanel(): JSX.Element {
 				<div className="propertiespanel-pop-up__header">
 					{userEditOperations &&
 						userEditOperations.map((operation) => {
-							if (operation.type !== UserEditingType.ACTION || !operation.svgIcon || !operation.isActive) return null
-							return (
-								<div
-									key={operation.id}
-									className="svg"
-									dangerouslySetInnerHTML={{
-										__html: operation.svgIcon,
-									}}
-								></div>
-							)
+							if (operation.type !== UserEditingType.ACTION || !operation.icon || !operation.isActive) return null
+							return <BlueprintAssetIcon key={operation.id} src={operation.icon} className="svg" />
 						})}
 					<div className="title">{title}</div>
 					<span className="properties">{t('Properties')}</span>
@@ -372,14 +365,7 @@ function ActionList({
 					onClick={(e) => executeAction(e, action.id)}
 					key={action.id}
 				>
-					{action.svgIcon && (
-						<span
-							className="svg"
-							dangerouslySetInnerHTML={{
-								__html: action.svgIcon,
-							}}
-						></span>
-					)}
+					{action.icon && <BlueprintAssetIcon src={action.icon} className="svg" />}
 					<span className="propertiespanel-pop-up__label">{translateMessage(action.label, t)}</span>
 				</button>
 			))}

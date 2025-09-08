@@ -1,6 +1,6 @@
 {
 	"name": "@sofie-automation/blueprints-integration",
-	"version": "1.52.0",
+	"version": "1.53.0-in-development",
 	"description": "Library to define the interaction between core and the blueprints.",
 	"main": "dist/index.js",
 	"typings": "dist/index.d.ts",
@@ -17,7 +17,7 @@
 	"scripts": {
 		"build": "run -T rimraf dist && run build:main",
 		"build:main": "run -T tsc -p tsconfig.build.json",
-		"lint:raw": "run -T eslint --ext .ts --ext .js --ignore-pattern dist",
+		"lint:raw": "run -T eslint",
 		"lint": "run lint:raw .",
 		"unit": "run -T jest",
 		"test": "run lint && run unit",
@@ -29,7 +29,7 @@
 		"license-validate": "run -T sofie-licensecheck"
 	},
 	"engines": {
-		"node": ">=22.11"
+		"node": ">=22.13.1"
 	},
 	"files": [
 		"/dist",
@@ -38,7 +38,7 @@
 		"/LICENSE"
 	],
 	"dependencies": {
-		"@sofie-automation/shared-lib": "1.52.0",
+		"@sofie-automation/shared-lib": "1.53.0-in-development",
 		"tslib": "^2.8.1",
 		"type-fest": "^4.33.0"
 	},

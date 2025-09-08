@@ -1,15 +1,15 @@
 import { PartInstanceId, PieceInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { OnTimelineTriggerTimeProps } from '@sofie-automation/corelib/dist/worker/studio'
-import { logger } from '../../logging'
-import { JobContext } from '../../jobs'
-import { runJobWithPlaylistLock } from '../lock'
-import { saveTimeline } from '../timeline/generate'
+import { logger } from '../../logging.js'
+import { JobContext } from '../../jobs/index.js'
+import { runJobWithPlaylistLock } from '../lock.js'
+import { saveTimeline } from '../timeline/generate.js'
 import { applyToArray, normalizeArrayToMap } from '@sofie-automation/corelib/dist/lib'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
-import { runJobWithStudioPlayoutModel } from '../../studio/lock'
-import { StudioPlayoutModel } from '../../studio/model/StudioPlayoutModel'
-import { PieceTimelineMetadata } from '../timeline/pieceGroup'
+import { runJobWithStudioPlayoutModel } from '../../studio/lock.js'
+import { StudioPlayoutModel } from '../../studio/model/StudioPlayoutModel.js'
+import { PieceTimelineMetadata } from '../timeline/pieceGroup.js'
 import { deserializeTimelineBlob } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { ReadonlyDeep } from 'type-fest'
 import { AnyBulkWriteOperation } from 'mongodb'
@@ -205,7 +205,14 @@ function timelineTriggerTimeInner(
 			}
 		}
 		if (tlChanged) {
-			const timelineHash = saveTimeline(context, studioPlayoutModel, timelineObjs, timeline.generationVersions)
+			const timelineHash = saveTimeline(
+				context,
+				studioPlayoutModel,
+				timelineObjs,
+				// Preserve some current values:
+				timeline.generationVersions,
+				timeline.regenerateTimelineToken
+			)
 
 			logger.verbose(`timelineTriggerTime: Updated Timeline, hash: "${timelineHash}"`)
 		}

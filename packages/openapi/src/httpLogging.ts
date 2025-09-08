@@ -1,5 +1,4 @@
-// eslint-disable-next-line node/no-missing-import
-import { Middleware, ResponseContext, ErrorContext, RequestContext, FetchParams } from '../client/ts'
+import { Middleware, ResponseContext, ErrorContext, RequestContext, FetchParams } from '../client/ts/index.js'
 
 class TestError extends Error {
 	override name: 'TestError' = 'TestError' as const
@@ -19,7 +18,7 @@ export default class Logging implements Middleware {
 			// parse body to help readability of logging
 			const req = {
 				...context.init,
-				body: context.init.body ? JSON.parse(context.init.body.toString()) : undefined,
+				body: typeof context.init.body === 'string' ? JSON.parse(context.init.body.toString()) : undefined,
 			}
 			console.log(`Request ${context.url} - ${JSON.stringify(req, null, 2)}`)
 		}
@@ -39,8 +38,8 @@ export default class Logging implements Middleware {
 			let message: string
 			try {
 				message = JSON.stringify(await response.json(), null, 2)
-			} catch (e) {
-				message = 'Response body is not JSON!'
+			} catch (e: any) {
+				message = `Response body is not JSON! Error: "${e}"`
 			}
 			console.log(`Response ${response.url} ${response.status} ${response.statusText} - ${message}`)
 		}

@@ -1,7 +1,7 @@
-import { ExpectedPackage } from './package'
-import { SomeContent } from './content'
-import { ITranslatableMessage } from './translations'
-import { ExpectedPlayoutItemGeneric } from './documents'
+import { ExpectedPackage } from './package.js'
+import { SomeContent } from './content.js'
+import { ITranslatableMessage } from './translations.js'
+import { ExpectedPlayoutItemGeneric } from './documents/index.js'
 import { JSONBlob } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 import { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
 
@@ -64,6 +64,11 @@ export interface IBlueprintActionTriggerMode {
 		label: ITranslatableMessage
 		/** An optional, longer description that will not be immediately visible to the user */
 		description?: ITranslatableMessage
+		/** An icon to be displayed to the user next to the label
+		 *
+		 * This can either be a relative URL to an image in the Blueprints assets or a `data:` URL
+		 */
+		icon?: string
 	}
 }
 

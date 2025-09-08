@@ -1,12 +1,9 @@
 import * as React from 'react'
-import { getElementWidth } from '../../../utils/dimensions'
+import { getElementWidth } from '../../../utils/dimensions.js'
 
-import { NoraContent, SourceLayerType } from '@sofie-automation/blueprints-integration'
 import classNames from 'classnames'
-import { RundownUtils } from '../../../lib/rundown'
-import { L3rdFloatingInspector } from '../../FloatingInspectors/L3rdFloatingInspector'
-import { PieceMultistepChevron, getPieceSteps } from '../../SegmentContainer/PieceMultistepChevron'
-import { CustomLayerItemRenderer, ICustomLayerItemProps } from './CustomLayerItemRenderer'
+import { PieceMultistepChevron, getPieceSteps } from '../../SegmentContainer/PieceMultistepChevron.js'
+import { CustomLayerItemRenderer, ICustomLayerItemProps } from './CustomLayerItemRenderer.js'
 
 type IProps = ICustomLayerItemProps
 interface IState {
@@ -121,7 +118,6 @@ export class L3rdSourceRenderer extends CustomLayerItemRenderer<IProps, IState> 
 	render(): JSX.Element {
 		const { piece, isTooSmallForText, isLiveLine } = this.props
 		const innerPiece = piece.instance.piece
-		const noraContent = innerPiece.content as NoraContent | undefined
 
 		const hasStepChevron = getPieceSteps(piece)
 		const multistepPill = (
@@ -160,16 +156,6 @@ export class L3rdSourceRenderer extends CustomLayerItemRenderer<IProps, IState> 
 						</span>
 					</>
 				)}
-				<L3rdFloatingInspector
-					content={noraContent}
-					typeClass={this.props.typeClass || RundownUtils.getSourceLayerClassName(SourceLayerType.LOWER_THIRD)}
-					itemElement={this.props.itemElement}
-					piece={this.props.piece.instance.piece}
-					showMiniInspector={this.props.showMiniInspector}
-					position={this.getFloatingInspectorStyle()}
-					pieceRenderedDuration={this.props.piece.renderedDuration}
-					pieceRenderedIn={this.props.piece.renderedInPoint}
-				/>
 			</React.Fragment>
 		)
 	}

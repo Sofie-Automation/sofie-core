@@ -1,24 +1,25 @@
-import * as _ from 'underscore'
-import { NewBlueprintAPI, BlueprintAPIMethods } from './blueprint'
-import { NewClientAPI, ClientAPIMethods } from './client'
-import { NewExternalMessageQueueAPI, ExternalMessageQueueAPIMethods } from './ExternalMessageQueue'
-import { NewMigrationAPI, MigrationAPIMethods } from './migration'
-import { NewPlayoutAPI, PlayoutAPIMethods } from './playout'
-import { NewRundownAPI, RundownAPIMethods } from './rundown'
-import { NewRundownLayoutsAPI, RundownLayoutsAPIMethods } from './rundownLayouts'
-import { NewShowStylesAPI, ShowStylesAPIMethods } from './showStyles'
-import { NewSnapshotAPI, SnapshotAPIMethods } from './shapshot'
-import { NewSystemStatusAPI, SystemStatusAPIMethods } from './systemStatus'
-import { NewUserActionAPI, UserActionAPIMethods } from './userActions'
-import { StudiosAPIMethods, NewStudiosAPI } from './studios'
-import { NewOrganizationAPI, OrganizationAPIMethods } from './organization'
-import { NewUserAPI, UserAPIMethods } from './user'
-import { SystemAPIMethods, SystemAPI } from './system'
-import { NewTriggeredActionsAPI, TriggeredActionsAPIMethods } from './triggeredActions'
+import _ from 'underscore'
+import { NewBlueprintAPI, BlueprintAPIMethods } from './blueprint.js'
+import { NewClientAPI, ClientAPIMethods } from './client.js'
+import { NewExternalMessageQueueAPI, ExternalMessageQueueAPIMethods } from './ExternalMessageQueue.js'
+import { NewMigrationAPI, MigrationAPIMethods } from './migration.js'
+import { NewPlayoutAPI, PlayoutAPIMethods } from './playout.js'
+import { NewRundownAPI, RundownAPIMethods } from './rundown.js'
+import { NewRundownLayoutsAPI, RundownLayoutsAPIMethods } from './rundownLayouts.js'
+import { NewShowStylesAPI, ShowStylesAPIMethods } from './showStyles.js'
+import { NewSnapshotAPI, SnapshotAPIMethods } from './shapshot.js'
+import { NewSystemStatusAPI, SystemStatusAPIMethods } from './systemStatus.js'
+import { NewUserActionAPI, UserActionAPIMethods } from './userActions.js'
+import { StudiosAPIMethods, NewStudiosAPI } from './studios.js'
+import { NewOrganizationAPI, OrganizationAPIMethods } from './organization.js'
+import { NewUserAPI, UserAPIMethods } from './user.js'
+import { SystemAPIMethods, SystemAPI } from './system.js'
+import { NewTriggeredActionsAPI, TriggeredActionsAPIMethods } from './triggeredActions.js'
 import {
 	NewPeripheralDeviceAPI,
 	PeripheralDeviceAPIMethods,
 } from '@sofie-automation/shared-lib/dist/peripheralDevice/methodsAPI'
+import { MongoAPI, MongoAPIMethods } from './mongo.js'
 
 /** All methods typings are defined here, the actual implementation is defined in other places */
 export interface IMeteorCall {
@@ -39,6 +40,7 @@ export interface IMeteorCall {
 	userAction: NewUserActionAPI
 	organization: NewOrganizationAPI
 	system: SystemAPI
+	mongo: MongoAPI
 }
 
 export type MakeMeteorMethodCall = (name: string, args: any[], options?: { noRetry?: boolean }) => Promise<any>
@@ -81,5 +83,6 @@ export function MakeMeteorCall(makeMethodCall: MakeMeteorMethodCall): IMeteorCal
 		userAction: makeMethods(UserActionAPIMethods, ['storeRundownSnapshot']),
 		organization: makeMethods(OrganizationAPIMethods),
 		system: makeMethods(SystemAPIMethods),
+		mongo: makeMethods(MongoAPIMethods),
 	}
 }

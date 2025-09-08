@@ -1,8 +1,8 @@
 import { Meteor } from 'meteor/meteor'
 import { Tracker } from 'meteor/tracker'
-import { getRandomString } from './tempLib'
-import { logger } from './logging'
-import { getLocalAllowStudio } from './localStorage'
+import { getRandomString } from './tempLib.js'
+import { logger } from './logging.js'
+import { getLocalAllowStudio } from './localStorage.js'
 
 /*
  * This file sets up logging of the connection status, for troubleshooting purposes.

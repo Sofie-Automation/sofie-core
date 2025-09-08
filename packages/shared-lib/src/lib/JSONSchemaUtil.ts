@@ -1,4 +1,4 @@
-import { JSONSchema, TypeName } from './JSONSchemaTypes'
+import { JSONSchema, TypeName } from './JSONSchemaTypes.js'
 
 /**
  * The custom JSONSchema properties we can use for building the UI

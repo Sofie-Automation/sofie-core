@@ -1,6 +1,6 @@
-import { JobContext } from '../../jobs'
+import { JobContext } from '../../jobs/index.js'
 import { PartInstanceId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { logger } from '../../logging'
+import { logger } from '../../logging.js'
 import { EventsJobs } from '@sofie-automation/corelib/dist/worker/events'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 

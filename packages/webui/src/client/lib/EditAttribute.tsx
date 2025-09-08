@@ -1,20 +1,20 @@
 import * as React from 'react'
-import * as _ from 'underscore'
-import { useTracker } from './ReactMeteorData/react-meteor-data'
-import { MultiSelect, MultiSelectEvent, MultiSelectOptions } from './multiSelect'
+import _ from 'underscore'
+import { useTracker } from './ReactMeteorData/react-meteor-data.js'
+import { MultiSelect, MultiSelectEvent, MultiSelectOptions } from './multiSelect.js'
 import ClassNames from 'classnames'
-import { ColorPickerEvent, ColorPicker } from './colorPicker'
-import { IconPicker, IconPickerEvent } from './iconPicker'
-import { assertNever } from './tempLib'
-import { MongoCollection } from '../collections/lib'
-import { CheckboxControl } from './Components/Checkbox'
-import { TextInputControl } from './Components/TextInput'
-import { IntInputControl } from './Components/IntInput'
-import { DropdownInputControl, getDropdownInputOptions } from './Components/DropdownInput'
-import { FloatInputControl } from './Components/FloatInput'
-import { joinLines, MultiLineTextInputControl, splitValueIntoLines } from './Components/MultiLineTextInput'
-import { JsonTextInputControl, tryParseJson } from './Components/JsonTextInput'
-import { ToggleSwitchControl } from './Components/ToggleSwitch'
+import { ColorPickerEvent, ColorPicker } from './colorPicker.js'
+import { IconPicker, IconPickerEvent } from './iconPicker.js'
+import { assertNever } from './tempLib.js'
+import { MongoCollection } from '../collections/lib.js'
+import { CheckboxControl } from './Components/Checkbox.js'
+import { TextInputControl } from './Components/TextInput.js'
+import { IntInputControl } from './Components/IntInput.js'
+import { DropdownInputControl, getDropdownInputOptions } from './Components/DropdownInput.js'
+import { FloatInputControl } from './Components/FloatInput.js'
+import { joinLines, MultiLineTextInputControl, splitValueIntoLines } from './Components/MultiLineTextInput.js'
+import { JsonTextInputControl, tryParseJson } from './Components/JsonTextInput.js'
+import { ToggleSwitchControl } from './Components/ToggleSwitch.js'
 import { useCallback, useMemo, useState } from 'react'
 
 interface IEditAttribute extends IEditAttributeBaseProps {
@@ -405,7 +405,7 @@ function useEditAttributeStateHelper(props: IEditAttributeBaseProps): EditAttrib
 				try {
 					newValue = props.mutateUpdateValue(newValue)
 					setValueError(false)
-				} catch (e) {
+				} catch (_e) {
 					setValueError(true)
 
 					return

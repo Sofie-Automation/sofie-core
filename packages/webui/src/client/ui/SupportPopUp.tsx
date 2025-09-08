@@ -1,14 +1,14 @@
 import * as React from 'react'
 import ClassNames from 'classnames'
-import { useTracker } from '../lib/ReactMeteorData/ReactMeteorData'
-import { SupportIcon } from '../lib/ui/icons/supportIcon'
+import { useTracker } from '../lib/ReactMeteorData/ReactMeteorData.js'
+import { SupportIcon } from '../lib/ui/icons/supportIcon.js'
 import { useTranslation } from 'react-i18next'
-import { getHelpMode } from '../lib/localStorage'
-import { CoreSystem } from '../collections'
+import { getHelpMode } from '../lib/localStorage.js'
+import { CoreSystem } from '../collections/index.js'
 import { SYSTEM_ID } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import { PopUpPanel } from './RundownView/PopUpPanel'
-import { RundownRightHandButton } from './RundownView/RundownRightHandButton'
+import { PopUpPanel } from './RundownView/PopUpPanel.js'
+import { RundownRightHandButton } from './RundownView/RundownRightHandButton.js'
 
 interface IProps {}
 
@@ -33,12 +33,15 @@ export function SupportPopUp({ children }: Readonly<React.PropsWithChildren<IPro
 	)
 
 	return (
-		<PopUpPanel className="support-pop-up-panel" role="dialog">
-			<h2 className="mhn mvn">{t('Help & Support')}</h2>
-			{children && <div className="support-pop-up-panel__actions">{children}</div>}
-			{!supportMessage && <DocumentationLink />}
-			<div dangerouslySetInnerHTML={supportMessageHTML} />
-		</PopUpPanel>
+		<>
+			<PopUpPanel className="support-pop-up-panel" role="dialog">
+				<h2 className="m-0">{t('Help & Support')}</h2>
+
+				{children && <div className="support-pop-up-panel__actions">{children}</div>}
+				{!supportMessage && <DocumentationLink />}
+				<div dangerouslySetInnerHTML={supportMessageHTML} />
+			</PopUpPanel>
+		</>
 	)
 }
 
@@ -71,17 +74,17 @@ export function DocumentationLink(): JSX.Element {
 	const { t } = useTranslation()
 
 	return (
-		<div className="mod mhn mbn">
+		<div>
 			{getHelpMode() ? (
-				<div>
+				<p>
 					{t('Disable hints by adding this to the URL:')}&nbsp;
 					<a href="?help=0">?help=0</a>
-				</div>
+				</p>
 			) : (
-				<div>
+				<p>
 					{t('Enable hints by adding this to the URL:')}&nbsp;
 					<a href="?help=1">?help=1</a>
-				</div>
+				</p>
 			)}
 			<p>
 				{t('More documentation available at:')}&nbsp;

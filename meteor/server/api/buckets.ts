@@ -1,6 +1,6 @@
-import * as _ from 'underscore'
+import _ from 'underscore'
 import { Meteor } from 'meteor/meteor'
-import { Bucket } from '@sofie-automation/meteor-lib/dist/collections/Buckets'
+import { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
 import { getRandomId, getRandomString, literal } from '../lib/tempLib'
 import { BucketAdLib } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibPiece'
 import { AdLibAction, AdLibActionCommon } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
@@ -89,7 +89,7 @@ export namespace BucketsAPI {
 					sort: {
 						_rank: 1,
 					},
-					fields: {
+					projection: {
 						_rank: 1,
 					},
 				}

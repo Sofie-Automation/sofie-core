@@ -22,7 +22,7 @@ import {
 	SetupObserversResult,
 } from '../../../lib/customPublication'
 import { BucketContentCache, createReactiveContentCache } from './bucketContentCache'
-import { Bucket } from '@sofie-automation/meteor-lib/dist/collections/Buckets'
+import { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
 import {
 	addItemsWithDependenciesChangesToChangedSet,
 	fetchStudio,

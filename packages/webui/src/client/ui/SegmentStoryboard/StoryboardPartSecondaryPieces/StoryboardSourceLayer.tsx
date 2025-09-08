@@ -1,13 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import classNames from 'classnames'
-import { ISourceLayerExtended, PartExtended, PieceExtended } from '../../../lib/RundownResolver'
-import { getCurrentTime } from '../../../lib/systemTime'
-import { useInvalidateTimeout } from '../../../lib/lib'
+import { ISourceLayerExtended, PartExtended, PieceExtended } from '../../../lib/RundownResolver.js'
+import { getCurrentTime } from '../../../lib/systemTime.js'
+import { useInvalidateTimeout } from '../../../lib/lib.js'
 import { Meteor } from 'meteor/meteor'
-import { HOVER_TIMEOUT } from '../../Shelf/DashboardPieceButton'
+import { HOVER_TIMEOUT } from '../../Shelf/DashboardPieceButton.js'
 import { PieceInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { StoryboardSourceLayerItem } from './StoryboardSourceLayerItem'
+import { StoryboardSourceLayerItem } from './StoryboardSourceLayerItem.js'
 
 interface IProps {
 	sourceLayer: ISourceLayerExtended
@@ -71,16 +71,16 @@ function usePlayedOutPieceState(
 
 		const nextRevalidation = Number.isFinite(closestAbsoluteNext)
 			? // the next closest change is in that time, so let's wait until then
-			  Math.max(1, closestAbsoluteNext - getCurrentTime())
+				Math.max(1, closestAbsoluteNext - getCurrentTime())
 			: // the part has stopped playing, so we can stop checking
-			Number.isFinite(stoppedPlayback)
-			? 0
-			: // if all Pieces are finished, we can stop updating, because piecesOnLayer will change anyway if
-			// anything happens to the Pieces
-			finishedPieceIds.length === piecesOnLayer.length
-			? 0
-			: // essentially a fallback, we shouldn't hit this condition ever
-			  10000 + Math.random() * 1000
+				Number.isFinite(stoppedPlayback)
+				? 0
+				: // if all Pieces are finished, we can stop updating, because piecesOnLayer will change anyway if
+					// anything happens to the Pieces
+					finishedPieceIds.length === piecesOnLayer.length
+					? 0
+					: // essentially a fallback, we shouldn't hit this condition ever
+						10000 + Math.random() * 1000
 
 		return [
 			{

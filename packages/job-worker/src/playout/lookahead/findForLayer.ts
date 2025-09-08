@@ -1,10 +1,10 @@
 import { PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBPart, isPartPlayable } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { ReadonlyDeep } from 'type-fest'
-import { JobContext } from '../../jobs'
-import { sortPieceInstancesByStart } from '../pieces'
-import { findLookaheadObjectsForPart, LookaheadTimelineObject } from './findObjects'
-import { PartAndPieces, PartInstanceAndPieceInstances } from './util'
+import { JobContext } from '../../jobs/index.js'
+import { sortPieceInstancesByStart } from '../pieces.js'
+import { findLookaheadObjectsForPart, LookaheadTimelineObject } from './findObjects.js'
+import { PartAndPieces, PartInstanceAndPieceInstances } from './util.js'
 
 export interface LookaheadResult {
 	timed: Array<LookaheadTimelineObject>

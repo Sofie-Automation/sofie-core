@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react'
 import ClassNames from 'classnames'
+import Form from 'react-bootstrap/Form'
 
 interface IIntInputControlProps {
 	classNames?: string
@@ -79,7 +80,7 @@ export function IntInputControl({
 	if (showValue === undefined || isNaN(Number(showValue))) showValue = ''
 
 	return (
-		<input
+		<Form.Control
 			type="number"
 			step={step ?? 1}
 			min={min}

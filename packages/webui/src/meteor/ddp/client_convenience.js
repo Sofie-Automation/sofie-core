@@ -1,5 +1,5 @@
-import { DDP } from './common/namespace.js';
-import { Meteor } from '../meteor';
+import { DDP } from './common/namespace.js'
+import { Meteor } from '../meteor'
 
 // By default, try to connect back to the same endpoint as the page
 // was served from.
@@ -16,20 +16,14 @@ import { Meteor } from '../meteor';
 // _translateUrl in stream_client_common.js not force absolute paths
 // to be treated like relative paths. See also
 // stream_client_common.js #RationalizingRelativeDDPURLs
-const runtimeConfig = typeof window.__meteor_runtime_config__ !== 'undefined' ? window.__meteor_runtime_config__ : Object.create(null);
-const ddpUrl = runtimeConfig.DDP_DEFAULT_CONNECTION_URL || '/';
+const runtimeConfig =
+	typeof window.__meteor_runtime_config__ !== 'undefined' ? window.__meteor_runtime_config__ : Object.create(null)
+const ddpUrl = runtimeConfig.DDP_DEFAULT_CONNECTION_URL || '/'
 
-Meteor.connection = DDP.connect(ddpUrl);
+Meteor.connection = DDP.connect(ddpUrl)
 
 // Proxy the public methods of Meteor.connection so they can
 // be called directly on Meteor.
-[
-  'subscribe',
-  'call',
-  'apply',
-  'status',
-  'reconnect',
-  'disconnect'
-].forEach(name => {
-  Meteor[name] = Meteor.connection[name].bind(Meteor.connection);
-});
+;['subscribe', 'call', 'apply', 'status', 'reconnect', 'disconnect'].forEach((name) => {
+	Meteor[name] = Meteor.connection[name].bind(Meteor.connection)
+})

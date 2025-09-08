@@ -1,6 +1,6 @@
 import { getRandomId, literal } from '@sofie-automation/corelib/dist/lib'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
-import { createPieceGroupAndCap, PieceTimelineMetadata } from '../pieceGroup'
+import { createPieceGroupAndCap, PieceTimelineMetadata } from '../pieceGroup.js'
 import {
 	OnGenerateTimelineObjExt,
 	TimelineContentTypeOther,

@@ -49,7 +49,6 @@ To setup, go into Core and add this device to a Studio
 
 This first run is necessary to get the Package Manager device registered with _Sofie&nbsp;Core_. We'll restart Package Manager later on in the [Configuration](#configuration) instructions.
 
-
 ## Installation In Production
 
 We provide pre-built executables for Windows (x64) systems that can be used in production environments. These can be found on the [Releases](https://github.com/nrkno/sofie-package-manager/releases) GitHub repository page for Package Manager. For a minimal installation, you'll need the `package-manager-single-app.exe` and `worker.exe`. Put them in a folder of your choice. You can also place `ffmpeg.exe` and `ffprobe.exe` alongside them, if you don't want to make them available in `PATH`.

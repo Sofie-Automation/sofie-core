@@ -1,6 +1,6 @@
 {
 	"name": "live-status-gateway",
-	"version": "1.52.0",
+	"version": "1.53.0-in-development",
 	"private": true,
 	"description": "Provides state from Sofie over sockets",
 	"license": "MIT",
@@ -19,7 +19,7 @@
 		"buildstart": "run build && run dev",
 		"buildinspect": "run build && run inspect",
 		"build:main": "run -T tsc -p tsconfig.build.json",
-		"lint:raw": "run -T eslint --ext .ts --ext .js --ignore-pattern dist --ignore-pattern server",
+		"lint:raw": "run -T eslint --ignore-pattern server",
 		"lint": "run lint:raw .",
 		"unit": "run -T jest",
 		"test": "run lint && run unit",
@@ -27,8 +27,6 @@
 		"cov": "run -T jest; run -T open-cli coverage/lcov-report/index.html",
 		"cov-open": "open-cli coverage/lcov-report/index.html",
 		"ci": "run test",
-		"gendocs": "run -T rimraf docs && ag ./api/asyncapi.yaml @asyncapi/html-template -o docs -p singleFile=true -p outFilename=liveStatus.html",
-		"genserver": "run -T rimraf server && ag ./api/asyncapi.yaml @asyncapi/nodejs-ws-template -o server -p server=development",
 		"inspect": "node --experimental-fetch --inspect dist/index.js",
 		"start": "node --experimental-fetch dist/index.js",
 		"dev": "run start -id localDevLsg",
@@ -37,7 +35,7 @@
 		"license-validate": "run -T sofie-licensecheck"
 	},
 	"engines": {
-		"node": ">=22.11"
+		"node": ">=22.13.1"
 	},
 	"keywords": [
 		"broadcast",
@@ -53,10 +51,11 @@
 		"production"
 	],
 	"dependencies": {
-		"@sofie-automation/blueprints-integration": "1.52.0",
-		"@sofie-automation/corelib": "1.52.0",
-		"@sofie-automation/server-core-integration": "1.52.0",
-		"@sofie-automation/shared-lib": "1.52.0",
+		"@sofie-automation/blueprints-integration": "1.53.0-in-development",
+		"@sofie-automation/corelib": "1.53.0-in-development",
+		"@sofie-automation/live-status-gateway-api": "1.53.0-in-development",
+		"@sofie-automation/server-core-integration": "1.53.0-in-development",
+		"@sofie-automation/shared-lib": "1.53.0-in-development",
 		"debug": "^4.4.0",
 		"fast-clone": "^1.5.13",
 		"influx": "^5.9.7",
@@ -66,9 +65,6 @@
 		"ws": "^8.18.0"
 	},
 	"devDependencies": {
-		"@asyncapi/generator": "^2.6.0",
-		"@asyncapi/html-template": "^3.1.0",
-		"@asyncapi/nodejs-ws-template": "^0.10.0",
 		"type-fest": "^4.33.0"
 	},
 	"lint-staged": {

@@ -5,8 +5,8 @@ import {
 	PeripheralDeviceType,
 	PERIPHERAL_SUBTYPE_PROCESS,
 } from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI'
-import { CoreConnection, PeripheralDevicePubSub, PeripheralDevicePubSubCollectionsNames } from '../index'
-import { DDPConnectorOptions } from '../lib/ddpClient'
+import { CoreConnection, PeripheralDevicePubSub, PeripheralDevicePubSubCollectionsNames } from '../index.js'
+import { DDPConnectorOptions } from '../lib/ddpClient.js'
 jest.mock('faye-websocket')
 jest.mock('got')
 
@@ -368,7 +368,7 @@ describe('coreConnection', () => {
 
 		// temporary scramble the ddp host:
 		options.host = '127.0.0.9'
-		core.ddp.ddpClient && core.ddp.ddpClient.resetOptions(options)
+		core.ddp.ddpClient?.resetOptions(options)
 		// Force-close the socket:
 		core.ddp.ddpClient?.socket?.close()
 
@@ -379,7 +379,7 @@ describe('coreConnection', () => {
 
 		// restore ddp host:
 		options.host = '127.0.0.1'
-		core.ddp.ddpClient && core.ddp.ddpClient.resetOptions(options)
+		core.ddp.ddpClient?.resetOptions(options)
 		await wait(1000)
 		// should have reconnected by now
 

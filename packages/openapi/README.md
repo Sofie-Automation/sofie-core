@@ -32,20 +32,23 @@ npm install @sofie-automation/openapi
 ```
 
 ```typescript
-import { Configuration, PlaylistsApi, ResponseError, API_VERSION } from '@sofie-automation/openapi'
+import { API_VERSION, Configuration, PlaylistsApi, SofieApi } from '@sofie-automation/openapi'
 
 const config = new Configuration({
 	basePath: `http://mysofie:3000/api/${API_VERSION}`,
 })
 
+const sofieApi = new SofieApi(config)
 const sofieVersion = await sofieApi.index()
+
 if (sofieVersion.status !== 200) throw new Error('Bad initial response code')
 // Check Sofie version:
 console.log(`Talking to Sofie version ${sofieVersion.result.version}`)
 
+const playlistsApi = new PlaylistsApi(config)
 const playlists = await playlistsApi.playlists()
 
-const firstPlaylist = playlists.result[0]
+const firstPlaylist = playlists.result ? playlists.result[0] : undefined
 if (!firstPlaylist) throw new Error('No playlists found')
 
 await playlistsApi.activate({

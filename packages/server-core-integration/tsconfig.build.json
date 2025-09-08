@@ -11,6 +11,7 @@
 		},
 		"resolveJsonModule": true,
 		"types": ["node"],
-		"skipLibCheck": true
+		"skipLibCheck": true,
+		"esModuleInterop": true
 	}
 }

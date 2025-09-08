@@ -1,53 +1,53 @@
-import { JobContext } from '../../jobs'
+import { JobContext } from '../../jobs/index.js'
 import {
 	handleAdLibPieceStart,
 	handleStartStickyPieceOnSourceLayer,
 	handleTakePieceAsAdlibNow,
 	handleStopPiecesOnSourceLayers,
 	handleDisableNextPiece,
-} from '../../playout/adlibJobs'
+} from '../../playout/adlibJobs.js'
 import { StudioJobs, StudioJobFunc } from '@sofie-automation/corelib/dist/worker/studio'
-import { handleUpdateTimelineAfterIngest, handleUpdateStudioBaseline } from '../../playout/timelineJobs'
+import { handleUpdateTimelineAfterIngest, handleUpdateStudioBaseline } from '../../playout/timelineJobs.js'
 import {
 	handleMoveNextPart,
 	handleSetNextPart,
 	handleSetNextSegment,
 	handleQueueNextSegment,
-} from '../../playout/setNextJobs'
+} from '../../playout/setNextJobs.js'
 import {
 	handleActivateRundownPlaylist,
 	handleDeactivateRundownPlaylist,
 	handlePrepareRundownPlaylistForBroadcast,
 	handleResetRundownPlaylist,
-} from '../../playout/activePlaylistJobs'
+} from '../../playout/activePlaylistJobs.js'
 import {
 	handleDebugSyncPlayheadInfinitesForNextPartInstance,
 	handleDebugRegenerateNextPartInstance,
 	handleDebugCrash,
 	handleDebugUpdateTimeline,
-} from '../../playout/debug'
-import { handleActivateHold, handleDeactivateHold } from '../../playout/holdJobs'
-import { handleRemoveEmptyPlaylists } from '../../studio/cleanup'
+} from '../../playout/debug.js'
+import { handleActivateHold, handleDeactivateHold } from '../../playout/holdJobs.js'
+import { handleRemoveEmptyPlaylists } from '../../studio/cleanup.js'
 import {
 	handleRegenerateRundownPlaylist,
 	handleRemoveRundownPlaylist,
 	handleMoveRundownIntoPlaylist,
 	handleRestoreRundownsInPlaylistToDefaultOrder,
-} from '../../rundownPlaylists'
-import { handleGeneratePlaylistSnapshot, handleRestorePlaylistSnapshot } from '../../playout/snapshot'
+} from '../../rundownPlaylists.js'
+import { handleGeneratePlaylistSnapshot, handleRestorePlaylistSnapshot } from '../../playout/snapshot.js'
 import {
 	handleBlueprintFixUpConfigForStudio,
 	handleBlueprintIgnoreFixUpConfigForStudio,
 	handleBlueprintUpgradeForStudio,
 	handleBlueprintValidateConfigForStudio,
-} from '../../playout/upgrade'
-import { handleTimelineTriggerTime, handleOnPlayoutPlaybackChanged } from '../../playout/timings'
-import { handleExecuteAdlibAction } from '../../playout/adlibAction'
-import { handleTakeNextPart } from '../../playout/take'
-import { handleClearQuickLoopMarkers, handleSetQuickLoopMarker } from '../../playout/quickLoopMarkers'
-import { handleActivateAdlibTesting } from '../../playout/adlibTesting'
-import { handleExecuteBucketAdLibOrAction } from '../../playout/bucketAdlibJobs'
-import { handleSwitchRouteSet } from '../../studio/routeSet'
+} from '../../playout/upgrade.js'
+import { handleTimelineTriggerTime, handleOnPlayoutPlaybackChanged } from '../../playout/timings/index.js'
+import { handleExecuteAdlibAction } from '../../playout/adlibAction.js'
+import { handleTakeNextPart } from '../../playout/take.js'
+import { handleClearQuickLoopMarkers, handleSetQuickLoopMarker } from '../../playout/quickLoopMarkers.js'
+import { handleActivateAdlibTesting } from '../../playout/adlibTesting.js'
+import { handleExecuteBucketAdLibOrAction } from '../../playout/bucketAdlibJobs.js'
+import { handleSwitchRouteSet } from '../../studio/routeSet.js'
 
 type ExecutableFunction<T extends keyof StudioJobFunc> = (
 	context: JobContext,

@@ -1,5 +1,4 @@
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
-import { ExpectedMediaItem } from '@sofie-automation/corelib/dist/dataModel/ExpectedMediaItem'
 import { ExpectedPackageDB } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
 import { ExpectedPackageWorkStatus } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackageWorkStatuses'
 import { ExpectedPlayoutItem } from '@sofie-automation/corelib/dist/dataModel/ExpectedPlayoutItem'
@@ -7,25 +6,8 @@ import { PackageContainerPackageStatusDB } from '@sofie-automation/corelib/dist/
 import { PackageContainerStatusDB } from '@sofie-automation/corelib/dist/dataModel/PackageContainerStatus'
 import { PackageInfoDB } from '@sofie-automation/corelib/dist/dataModel/PackageInfos'
 import { MediaObject } from '@sofie-automation/shared-lib/dist/core/model/MediaObjects'
-import { MediaWorkFlow } from '@sofie-automation/shared-lib/dist/core/model/MediaWorkFlows'
-import { MediaWorkFlowStep } from '@sofie-automation/shared-lib/dist/core/model/MediaWorkFlowSteps'
 import { createAsyncOnlyMongoCollection, createAsyncOnlyReadOnlyMongoCollection } from './collection'
 import { registerIndex } from './indices'
-
-/** @deprecated */
-export const ExpectedMediaItems = createAsyncOnlyReadOnlyMongoCollection<ExpectedMediaItem>(
-	CollectionName.ExpectedMediaItems
-)
-registerIndex(ExpectedMediaItems, {
-	path: 1,
-})
-registerIndex(ExpectedMediaItems, {
-	mediaFlowId: 1,
-	studioId: 1,
-})
-registerIndex(ExpectedMediaItems, {
-	rundownId: 1,
-})
 
 export const ExpectedPackages = createAsyncOnlyReadOnlyMongoCollection<ExpectedPackageDB>(
 	CollectionName.ExpectedPackages
@@ -79,32 +61,6 @@ registerIndex(MediaObjects, {
 registerIndex(MediaObjects, {
 	studioId: 1,
 	mediaId: 1,
-})
-
-export const MediaWorkFlows = createAsyncOnlyMongoCollection<MediaWorkFlow>(CollectionName.MediaWorkFlows, false)
-registerIndex(MediaWorkFlows, {
-	// TODO: add deviceId: 1,
-	mediaObjectId: 1,
-})
-registerIndex(MediaWorkFlows, {
-	finished: 1,
-	success: 1,
-	priority: 1,
-})
-
-export const MediaWorkFlowSteps = createAsyncOnlyMongoCollection<MediaWorkFlowStep>(
-	CollectionName.MediaWorkFlowSteps,
-	false
-)
-registerIndex(MediaWorkFlowSteps, {
-	deviceId: 1,
-})
-registerIndex(MediaWorkFlowSteps, {
-	workFlowId: 1,
-})
-registerIndex(MediaWorkFlowSteps, {
-	status: 1,
-	priority: 1,
 })
 
 export const PackageContainerPackageStatuses = createAsyncOnlyMongoCollection<PackageContainerPackageStatusDB>(

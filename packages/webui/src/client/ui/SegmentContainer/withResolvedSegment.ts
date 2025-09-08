@@ -1,26 +1,26 @@
 import * as React from 'react'
-import * as _ from 'underscore'
+import _ from 'underscore'
 import { ISourceLayer, NoteSeverity, PieceLifespan } from '@sofie-automation/blueprints-integration'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { withTracker } from '../../lib/ReactMeteorData/react-meteor-data'
-import { IOutputLayerExtended, ISourceLayerExtended, PartExtended, SegmentExtended } from '../../lib/RundownResolver'
-import { IContextMenuContext } from '../RundownView'
+import { withTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
+import { IOutputLayerExtended, ISourceLayerExtended, PartExtended, SegmentExtended } from '../../lib/RundownResolver.js'
+import { IContextMenuContext } from '../RundownView.js'
 import { equalSets } from '@sofie-automation/shared-lib/dist/lib/lib'
-import { RundownUtils } from '../../lib/rundown'
+import { RundownUtils } from '../../lib/rundown.js'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { PartInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { slowDownReactivity } from '../../lib/reactiveData/reactiveDataHelper'
-import { memoizedIsolatedAutorun } from '../../lib/memoizedIsolatedAutorun'
-import { getIsFilterActive } from '../../lib/rundownLayouts'
+import { slowDownReactivity } from '../../lib/reactiveData/reactiveDataHelper.js'
+import { memoizedIsolatedAutorun } from '../../lib/memoizedIsolatedAutorun.js'
+import { getIsFilterActive } from '../../lib/rundownLayouts.js'
 import {
 	RundownLayoutFilterBase,
 	RundownViewLayout,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import { getReactivePieceNoteCountsForSegment } from './getReactivePieceNoteCountsForSegment'
-import { SegmentViewMode } from './SegmentViewModes'
+import { getReactivePieceNoteCountsForSegment } from './getReactivePieceNoteCountsForSegment.js'
+import { SegmentViewMode } from './SegmentViewModes.js'
 import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
-import { AdlibSegmentUi } from '../../lib/shelf'
+import { AdlibSegmentUi } from '../../lib/shelf.js'
 import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import {
@@ -30,10 +30,10 @@ import {
 	SegmentId,
 	ShowStyleBaseId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { PieceInstances, Segments } from '../../collections'
-import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil'
+import { PieceInstances, Segments } from '../../collections/index.js'
+import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil.js'
 import { SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { RundownPlaylistClientUtil } from '../../lib/rundownPlaylistUtil'
+import { RundownPlaylistClientUtil } from '../../lib/rundownPlaylistUtil.js'
 import type { PieceUi } from '@sofie-automation/meteor-lib/dist/uiTypes/Piece'
 
 export type { PieceUi } from '@sofie-automation/meteor-lib/dist/uiTypes/Piece'
@@ -65,7 +65,7 @@ export interface IResolvedSegmentProps {
 	segmentId: SegmentId
 	segmentsIdsBefore: Set<SegmentId>
 	rundownIdsBefore: RundownId[]
-	rundownsToShowstyles: Map<RundownId, ShowStyleBaseId>
+	rundownsToShowstyles: ReadonlyMap<RundownId, ShowStyleBaseId>
 	studio: UIStudio
 	showStyleBase: UIShowStyleBase
 	playlist: DBRundownPlaylist
@@ -185,7 +185,7 @@ export function withResolvedSegment<T extends IResolvedSegmentProps, IState = {}
 						),
 					] as [
 						PartId[],
-						{ currentPartInstance: PartInstance | undefined; nextPartInstance: PartInstance | undefined }
+						{ currentPartInstance: PartInstance | undefined; nextPartInstance: PartInstance | undefined },
 					],
 				// if the rundown isn't active, run the changes ASAP, we don't care if there's going to be jank
 				// if this is the current or next segment (will have those two properties defined), run the changes ASAP,
@@ -193,8 +193,8 @@ export function withResolvedSegment<T extends IResolvedSegmentProps, IState = {}
 				props.playlist.activationId === undefined || props.ownCurrentPartInstance || props.ownNextPartInstance
 					? 0
 					: props.isFollowingOnAirSegment
-					? 150
-					: Math.random() * 2000 + 500
+						? 150
+						: Math.random() * 2000 + 500
 			)
 
 			const rundownOrder = RundownPlaylistCollectionUtil.getRundownOrderedIDs(props.playlist)
@@ -202,6 +202,7 @@ export function withResolvedSegment<T extends IResolvedSegmentProps, IState = {}
 
 			const o = RundownUtils.getResolvedSegment(
 				props.showStyleBase,
+				props.studio,
 				props.playlist,
 				props.rundown,
 				segment,

@@ -4,12 +4,12 @@ import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { getRandomString } from '@sofie-automation/corelib/dist/lib'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { WatchedPackagesHelper } from './watchedPackages'
-import { JobContext, ProcessedShowStyleCompound } from '../../jobs'
+import { WatchedPackagesHelper } from './watchedPackages.js'
+import { JobContext, ProcessedShowStyleCompound } from '../../jobs/index.js'
 import { ReadonlyObjectDeep } from 'type-fest/source/readonly-deep'
-import { ContextInfo } from './CommonContext'
-import { ShowStyleUserContext } from './ShowStyleUserContext'
-import { convertRundownPlaylistToBlueprints } from './lib'
+import { ContextInfo } from './CommonContext.js'
+import { ShowStyleUserContext } from './ShowStyleUserContext.js'
+import { convertRundownPlaylistToBlueprints } from './lib.js'
 
 export class GetRundownContext extends ShowStyleUserContext implements IGetRundownContext {
 	private cachedPlaylistsInStudio: Promise<Readonly<IBlueprintRundownPlaylist>[]> | undefined

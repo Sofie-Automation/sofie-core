@@ -1,14 +1,14 @@
 import * as React from 'react'
 import { ExpectedPackageWorkStatus } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackageWorkStatuses'
-import { unprotectString } from '../../../lib/tempLib'
+import { unprotectString } from '../../../lib/tempLib.js'
 import Tooltip from 'rc-tooltip'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faRedo, faStopCircle, faChevronDown, faChevronRight, faExclamation } from '@fortawesome/free-solid-svg-icons'
-import { MeteorCall } from '../../../lib/meteorApi'
-import { doUserAction, UserAction } from '../../../lib/clientUserAction'
+import { MeteorCall } from '../../../lib/meteorApi.js'
+import { doUserAction, UserAction } from '../../../lib/clientUserAction.js'
 
-import { DisplayFormattedTime } from '../../RundownList/DisplayFormattedTime'
-import { JobStatusIcon } from './JobStatusIcon'
+import { DisplayFormattedTime } from '../../RundownList/DisplayFormattedTime.js'
+import { JobStatusIcon } from './JobStatusIcon.js'
 import { ExpectedPackageStatusAPI } from '@sofie-automation/blueprints-integration'
 import { useTranslation } from 'react-i18next'
 import { useCallback } from 'react'
@@ -109,7 +109,7 @@ export const PackageWorkStatus: React.FC<{ status: ExpectedPackageWorkStatus; co
 												})}
 												placement="bottom"
 											>
-												<span>{status.statusReason.user ?? status.statusReason?.toString()}</span>
+												<span>{status.statusReason.user ?? JSON.stringify(status.statusReason)}</span>
 											</Tooltip>
 										</td>
 									</tr>
@@ -129,7 +129,7 @@ export const PackageWorkStatus: React.FC<{ status: ExpectedPackageWorkStatus; co
 																		})}
 																		placement="bottom"
 																	>
-																		<span>{reason.user ?? reason?.toString()}</span>
+																		<span>{reason.user ?? JSON.stringify(reason)}</span>
 																	</Tooltip>
 																</li>
 															)

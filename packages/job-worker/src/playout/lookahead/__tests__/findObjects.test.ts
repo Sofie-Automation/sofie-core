@@ -1,19 +1,19 @@
-import { findLookaheadObjectsForPart } from '../findObjects'
+import { findLookaheadObjectsForPart } from '../findObjects.js'
 import {
 	IBlueprintPieceType,
 	OnGenerateTimelineObj,
 	PieceLifespan,
 	TSR,
 } from '@sofie-automation/blueprints-integration'
-import { sortPieceInstancesByStart } from '../../pieces'
+import { sortPieceInstancesByStart } from '../../pieces.js'
 import { RundownId, PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { TimelineObjRundown } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { setupDefaultJobEnvironment } from '../../../__mocks__/context'
-import _ = require('underscore')
+import { setupDefaultJobEnvironment } from '../../../__mocks__/context.js'
+import _ from 'underscore'
 import {
 	EmptyPieceTimelineObjectsBlob,
 	serializePieceTimelineObjectsBlob,

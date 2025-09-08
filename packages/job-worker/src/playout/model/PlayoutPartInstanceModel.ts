@@ -1,10 +1,15 @@
-import { PieceId, PieceInstanceId, RundownPlaylistActivationId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import {
+	BucketAdLibId,
+	PieceId,
+	PieceInstanceId,
+	RundownPlaylistActivationId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ReadonlyDeep } from 'type-fest'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { PieceInstance, PieceInstancePiece } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { IBlueprintMutatablePart, PieceLifespan, Time } from '@sofie-automation/blueprints-integration'
 import { PartCalculatedTimings } from '@sofie-automation/corelib/dist/playout/timings'
-import { PlayoutPieceInstanceModel } from './PlayoutPieceInstanceModel'
+import { PlayoutPieceInstanceModel } from './PlayoutPieceInstanceModel.js'
 import { CoreUserEditingDefinition } from '@sofie-automation/corelib/dist/dataModel/UserEditingDefinitions'
 
 /**
@@ -65,7 +70,7 @@ export interface PlayoutPartInstanceModel {
 	 */
 	insertAdlibbedPiece(
 		piece: Omit<PieceInstancePiece, 'startPartId'>,
-		fromAdlibId: PieceId | undefined
+		fromAdlibId: PieceId | BucketAdLibId | undefined
 	): PlayoutPieceInstanceModel
 
 	/**

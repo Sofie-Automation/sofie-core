@@ -1,10 +1,10 @@
 import * as React from 'react'
 import type { Sorensen } from '@sofie-automation/sorensen'
 import * as CoreIcons from '@nrk/core-icons/jsx'
-import Escape from './../../../Escape'
+import Escape from './../../../Escape.js'
 
-import { SorensenContext } from '../../../SorensenContext'
-import { Settings } from '../../../../lib/Settings'
+import { SorensenContext } from '../../../SorensenContext.js'
+import { Settings } from '../../../../lib/Settings.js'
 
 export interface IModalAttributes {
 	show?: boolean
@@ -107,7 +107,7 @@ export class Modal extends React.Component<React.PropsWithChildren<IModalAttribu
 								</div>
 							</div>
 							<div className="title-box-content">{this.props.children}</div>
-							<div className="mod alright">
+							<div className="m-1 me-2 text-end">
 								<button className="btn btn-primary" onClick={this.handleDiscard}>
 									OK
 								</button>

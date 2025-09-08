@@ -1,5 +1,5 @@
 import * as React from 'react'
-import Escape from './../../lib/Escape'
+import Escape from './../../lib/Escape.js'
 import { withTranslation } from 'react-i18next'
 import { ContextMenu, MenuItem } from '@jstarpl/react-contextmenu'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
@@ -8,16 +8,16 @@ import {
 	QuickLoopMarker,
 	QuickLoopMarkerType,
 } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { Translated } from '../../lib/ReactMeteorData/ReactMeteorData'
-import { RundownUtils } from '../../lib/rundown'
-import { IContextMenuContext } from '../RundownView'
-import { PartUi, SegmentUi } from './SegmentTimelineContainer'
+import { Translated } from '../../lib/ReactMeteorData/ReactMeteorData.js'
+import { RundownUtils } from '../../lib/rundown.js'
+import { IContextMenuContext } from '../RundownView.js'
+import { PartUi, SegmentUi } from './SegmentTimelineContainer.js'
 import { SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { UserEditOperationMenuItems } from '../UserEditOperations/RenderUserEditOperations'
-import * as RundownResolver from '../../lib/RundownResolver'
-import { SelectedElement } from '../RundownView/SelectedElementsContext'
-import { PieceExtended } from '../../lib/RundownResolver'
+import { UserEditOperationMenuItems } from '../UserEditOperations/RenderUserEditOperations.js'
+import * as RundownResolver from '../../lib/RundownResolver.js'
+import { SelectedElement } from '../RundownView/SelectedElementsContext.js'
+import { PieceExtended } from '../../lib/RundownResolver.js'
 
 interface IProps {
 	onSetNext: (part: DBPart | undefined, e: any, offset?: number, take?: boolean) => void

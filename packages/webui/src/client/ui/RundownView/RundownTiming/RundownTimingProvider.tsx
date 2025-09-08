@@ -1,10 +1,10 @@
 import React, { PropsWithChildren } from 'react'
 import { Meteor } from 'meteor/meteor'
-import { withTracker } from '../../../lib/ReactMeteorData/react-meteor-data'
-import { protectString } from '../../../lib/tempLib'
+import { withTracker } from '../../../lib/ReactMeteorData/react-meteor-data.js'
+import { protectString } from '../../../lib/tempLib.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { PartInstance, wrapPartToTemporaryInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
-import { RundownTiming, TimeEventArgs } from './RundownTiming'
+import { RundownTiming, TimeEventArgs } from './RundownTiming.js'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import {
@@ -13,14 +13,14 @@ import {
 	RundownTimingContext,
 	TimingId,
 	findPartInstancesInQuickLoop,
-} from '../../../lib/rundownTiming'
+} from '../../../lib/rundownTiming.js'
 import { PartId, PartInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { RundownPlaylistCollectionUtil } from '../../../collections/rundownPlaylistUtil'
+import { RundownPlaylistCollectionUtil } from '../../../collections/rundownPlaylistUtil.js'
 import { sortPartInstancesInSortedSegments } from '@sofie-automation/corelib/dist/playout/playlist'
-import { RundownUtils } from '../../../lib/rundown'
-import { RundownPlaylistClientUtil } from '../../../lib/rundownPlaylistUtil'
-import { getCurrentTime } from '../../../lib/systemTime'
-import { IRundownTimingProviderValues, RundownTimingProviderContext } from './withTiming'
+import { RundownUtils } from '../../../lib/rundown.js'
+import { RundownPlaylistClientUtil } from '../../../lib/rundownPlaylistUtil.js'
+import { getCurrentTime } from '../../../lib/systemTime.js'
+import { IRundownTimingProviderValues, RundownTimingProviderContext } from './withTiming.js'
 
 const TIMING_DEFAULT_REFRESH_INTERVAL = 1000 / 60 // the interval for high-resolution events (timeupdateHR)
 const LOW_RESOLUTION_TIMING_DECIMATOR = 15

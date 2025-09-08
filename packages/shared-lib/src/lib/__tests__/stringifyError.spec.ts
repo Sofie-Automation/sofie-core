@@ -1,4 +1,4 @@
-import { stringifyError } from '../stringifyError'
+import { stringifyError } from '../stringifyError.js'
 
 test('stringifyError', () => {
 	// string:

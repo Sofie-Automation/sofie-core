@@ -1,4 +1,3 @@
-
 // Root playlist/rundown list, see RundownList.tsx
 .rundown-list {
 	--defaultSpacing: 20px;
@@ -20,7 +19,8 @@
 	/* "column" width calculations */
 	--statusBarWidth: 2.1rem; //  the width of the floating right status bar
 	--componentWidth: calc(100% - var(--statusBarWidth));
-	--nameColumnWidth: calc(var(--componentWidth) * var(--nameColumnSize));
+	--dragHandleWidth: calc(var(--defaultSpacing) + 1rem);
+	--nameColumnWidth: calc(var(--componentWidth) * var(--nameColumnSize) - var(--dragHandleWidth));
 	--showStyleColumnWidth: calc(var(--componentWidth) * var(--showStyleColumnSize));
 	--airTimeColumnWidth: calc(var(--componentWidth) * var(--standardColumnSize));
 	--durationColumnWidth: calc(var(--componentWidth) * var(--standardColumnSize));
@@ -37,6 +37,7 @@
 	.rundown-list__header {
 		display: grid;
 		grid-template-columns:
+			var(--dragHandleWidth)
 			var(--nameColumnWidth) var(--showStyleColumnWidth) var(--airTimeColumnWidth)
 			var(--durationColumnWidth) var(--expectedEndColumnWidth) var(--lastModifiedColumnWidth) var(
 				--layoutSelectionColumnWidth
@@ -47,36 +48,38 @@
 		color: #fff;
 		padding: 5px var(--defaultSpacing) 7px;
 		vertical-align: middle;
+		font-weight: inherit;
+	}
+
+	.rundown-list-item__draghandle {
+		cursor: grab;
+		width: var(--defaultSpacing);
+		align-content: center;
+
+		button {
+			all: unset;
+			display: inline-flex;
+			align-self: center;
+			justify-content: center;
+			width: inherit;
+			overflow: hidden;
+
+			svg {
+				height: 1em;
+				width: 1em;
+				top: 0.125em;
+				position: relative;
+			}
+		}
 	}
 
 	.rundown-list-item__name {
-		display: inline-block;
-		align-self: center;
+		display: inline-flex;
 		align-items: center;
 		letter-spacing: inherit;
 
-		.draghandle {
-			cursor: grab;
-			width: var(--defaultSpacing);
-
-			button {
-				all: unset;
-				display: inline-flex;
-				align-self: center;
-				justify-content: center;
-				width: inherit;
-				overflow: hidden;
-
-				svg {
-					height: 1em;
-					width: 1em;
-					top: 0.125em;
-					position: relative;
-				}
-			}
-		}
-
 		.rundown-name {
+			font-weight: 500;
 			> a > svg {
 				margin-right: 0;
 			}
@@ -89,6 +92,17 @@
 	.rundown-list-description__icon {
 		margin-left: 1em;
 		vertical-align: top;
+	}
+	.rundown-list-item__indicator {
+		align-self: stretch;
+		flex: 1 0;
+		display: grid;
+		align-items: center;
+		justify-content: end;
+
+		> .origo-pulse {
+			top: unset;
+		}
 	}
 	.rundown-list-item__text {
 		display: inline-flex;
@@ -128,6 +142,7 @@
 
 	.rundown-list-item__actions {
 		display: inline-grid;
+		margin-left: 1em;
 		grid-column: -1;
 		grid-template-columns: 1fr 1fr;
 		align-items: center;
@@ -198,6 +213,7 @@
 				display: grid;
 				// for the header, the first column spans the first four item columns
 				grid-template-columns:
+					var(--dragHandleWidth)
 					calc(var(--nameColumnWidth) + var(--showStyleColumnWidth)) var(--airTimeColumnWidth)
 					var(--durationColumnWidth) var(--expectedEndColumnWidth) var(--lastModifiedColumnWidth);
 
@@ -281,10 +297,6 @@
 					margin-bottom: 0;
 					position: relative;
 
-					> .rundown-list-item__name > b {
-						font-weight: 500;
-					}
-
 					&::before,
 					&::after {
 						content: '';
@@ -331,10 +343,14 @@
 		vertical-align: middle;
 		display: grid;
 		grid-template-columns:
+			var(--dragHandleWidth)
 			var(--nameColumnWidth) var(--showStyleColumnWidth) var(--airTimeColumnWidth)
-			var(--durationColumnWidth) var(--expectedEndColumnWidth) var(--lastModifiedColumnWidth) var(--layoutSelectionColumnWidth);
+			var(--durationColumnWidth) var(--expectedEndColumnWidth) var(--lastModifiedColumnWidth) var(
+				--layoutSelectionColumnWidth
+			);
 
 		.rundown-list-item__actions {
+			margin-left: 1em;
 			padding: 0 0 3px; // cater for icons being larger than the font
 		}
 
@@ -374,6 +390,20 @@
 		&.open {
 			display: flex;
 		}
+	}
+
+	.rundown-progress-bar {
+		height: 2px;
+		position: relative;
+		transition: height 0.25s;
+	}
+
+	.rundown-progress-bar-indicator {
+		position: absolute;
+		top: 0;
+		left: 0;
+		height: 100%;
+		background: linear-gradient(90deg, #1769ff, #3593ff);
 	}
 }
 

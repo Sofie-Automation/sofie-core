@@ -1,7 +1,7 @@
 import React, { memo, useEffect, useState } from 'react'
 import { CreateAdlibTestingRundownOption } from '@sofie-automation/meteor-lib/dist/api/showStyles'
-import { MeteorCall } from '../../lib/meteorApi'
-import { UserAction, doUserAction } from '../../lib/clientUserAction'
+import { MeteorCall } from '../../lib/meteorApi.js'
+import { UserAction, doUserAction } from '../../lib/clientUserAction.js'
 import { useTranslation } from 'react-i18next'
 
 export const CreateAdlibTestingRundownPanel = memo(function CreateAdlibTestingRundownPanel(): JSX.Element | null {
@@ -42,7 +42,7 @@ export const CreateAdlibTestingRundownPanel = memo(function CreateAdlibTestingRu
 	if (options.length === 0) return null
 
 	return (
-		<div className="mtl gutter create-testing-rundown">
+		<div className="mt-5 mx-5 create-testing-rundown">
 			<h2>{t('Create Adlib Testing Rundown')}</h2>
 			<p>
 				{options.map((option) => (

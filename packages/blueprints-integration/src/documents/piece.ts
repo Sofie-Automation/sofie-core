@@ -1,5 +1,5 @@
-import { UserEditingDefinition, UserEditingProperties } from '../userEditing'
-import type { IBlueprintPieceGeneric } from './pieceGeneric'
+import { UserEditingDefinition, UserEditingProperties } from '../userEditing.js'
+import type { IBlueprintPieceGeneric } from './pieceGeneric.js'
 
 /** Special types of pieces. Some are not always used in all circumstances */
 export enum IBlueprintPieceType {

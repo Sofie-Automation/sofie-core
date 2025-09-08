@@ -10,12 +10,11 @@ import { storeRundownPlaylistSnapshot } from './snapshot'
 import { registerClassToMeteorMethods, ReplaceOptionalWithNullInMethodArguments } from '../methods'
 import { ServerRundownAPI } from './rundown'
 import { saveEvaluation } from './evaluations'
-import * as MediaManagerAPI from './mediaManager'
 import { MOSDeviceActions } from './ingest/mosDevice/actions'
 import { MethodContextAPI } from './methodContext'
 import { ServerClientAPI } from './client'
 import { triggerWriteAccessBecauseNoCheckNecessary } from '../security/securityVerify'
-import { Bucket } from '@sofie-automation/meteor-lib/dist/collections/Buckets'
+import { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
 import { BucketsAPI } from './buckets'
 import { BucketAdLib } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibPiece'
 import { AdLibActionCommon } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
@@ -25,8 +24,9 @@ import { ServerPeripheralDeviceAPI } from './peripheralDevice'
 import { StudioJobs } from '@sofie-automation/corelib/dist/worker/studio'
 import {
 	AdLibActionId,
+	BucketAdLibActionId,
+	BucketAdLibId,
 	BucketId,
-	MediaWorkFlowId,
 	PartId,
 	PartInstanceId,
 	PeripheralDeviceId,
@@ -399,7 +399,7 @@ class ServerUserActionAPI
 		userEvent: string,
 		eventTime: Time,
 		rundownPlaylistId: RundownPlaylistId,
-		actionDocId: AdLibActionId | RundownBaselineAdLibActionId,
+		actionDocId: AdLibActionId | RundownBaselineAdLibActionId | BucketAdLibActionId,
 		actionId: string,
 		userData: ActionUserData,
 		triggerMode: string | null
@@ -559,7 +559,7 @@ class ServerUserActionAPI
 		eventTime: Time,
 		rundownPlaylistId: RundownPlaylistId,
 		partInstanceId: PartInstanceId,
-		bucketAdlibId: PieceId,
+		bucketAdlibId: BucketAdLibId,
 		queue: boolean | null
 	) {
 		return ServerClientAPI.runUserActionInLogForPlaylistOnWorker(
@@ -754,97 +754,6 @@ class ServerUserActionAPI
 			}
 		)
 	}
-	async mediaRestartWorkflow(
-		userEvent: string,
-		eventTime: Time,
-		deviceId: PeripheralDeviceId,
-		workflowId: MediaWorkFlowId
-	) {
-		return ServerClientAPI.runUserActionInLog(
-			this,
-			userEvent,
-			eventTime,
-			'mediaRestartWorkflow',
-			{ deviceId, workflowId },
-			async () => {
-				check(workflowId, String)
-
-				assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MEDIA_MANAGEMENT)
-
-				return MediaManagerAPI.restartWorkflow(deviceId, workflowId)
-			}
-		)
-	}
-	async mediaAbortWorkflow(
-		userEvent: string,
-		eventTime: Time,
-		deviceId: PeripheralDeviceId,
-		workflowId: MediaWorkFlowId
-	) {
-		return ServerClientAPI.runUserActionInLog(
-			this,
-			userEvent,
-			eventTime,
-			'mediaAbortWorkflow',
-			{ deviceId, workflowId },
-			async () => {
-				check(workflowId, String)
-
-				assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MEDIA_MANAGEMENT)
-
-				return MediaManagerAPI.abortWorkflow(deviceId, workflowId)
-			}
-		)
-	}
-	async mediaPrioritizeWorkflow(
-		userEvent: string,
-		eventTime: Time,
-		deviceId: PeripheralDeviceId,
-		workflowId: MediaWorkFlowId
-	) {
-		return ServerClientAPI.runUserActionInLog(
-			this,
-			userEvent,
-			eventTime,
-			'mediaPrioritizeWorkflow',
-			{ deviceId, workflowId },
-			async () => {
-				check(workflowId, String)
-
-				assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MEDIA_MANAGEMENT)
-
-				return MediaManagerAPI.prioritizeWorkflow(deviceId, workflowId)
-			}
-		)
-	}
-	async mediaRestartAllWorkflows(userEvent: string, eventTime: Time) {
-		return ServerClientAPI.runUserActionInLog(
-			this,
-			userEvent,
-			eventTime,
-			'mediaRestartAllWorkflows',
-			{},
-			async () => {
-				assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MEDIA_MANAGEMENT)
-
-				return MediaManagerAPI.restartAllWorkflows(null)
-			}
-		)
-	}
-	async mediaAbortAllWorkflows(userEvent: string, eventTime: Time) {
-		return ServerClientAPI.runUserActionInLog(
-			this,
-			userEvent,
-			eventTime,
-			'mediaAbortAllWorkflows',
-			{},
-			async () => {
-				assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MEDIA_MANAGEMENT)
-
-				return MediaManagerAPI.abortAllWorkflows(null)
-			}
-		)
-	}
 	async packageManagerRestartExpectation(
 		userEvent: string,
 		eventTime: Time,
@@ -959,7 +868,7 @@ class ServerUserActionAPI
 				}
 
 				setTimeout(() => {
-					// eslint-disable-next-line no-process-exit
+					// eslint-disable-next-line n/no-process-exit
 					process.exit(0)
 				}, 3000)
 				return `Restarting Core in 3s.`
@@ -1045,7 +954,7 @@ class ServerUserActionAPI
 			}
 		)
 	}
-	async bucketsRemoveBucketAdLib(userEvent: string, eventTime: Time, adlibId: PieceId) {
+	async bucketsRemoveBucketAdLib(userEvent: string, eventTime: Time, adlibId: BucketAdLibId) {
 		check(adlibId, String)
 
 		return ServerClientAPI.runUserActionInLog(
@@ -1060,7 +969,7 @@ class ServerUserActionAPI
 			}
 		)
 	}
-	async bucketsRemoveBucketAdLibAction(userEvent: string, eventTime: Time, actionId: AdLibActionId) {
+	async bucketsRemoveBucketAdLibAction(userEvent: string, eventTime: Time, actionId: BucketAdLibActionId) {
 		return ServerClientAPI.runUserActionInLog(
 			this,
 			userEvent,
@@ -1078,7 +987,7 @@ class ServerUserActionAPI
 	async bucketsModifyBucketAdLib(
 		userEvent: string,
 		eventTime: Time,
-		adlibId: PieceId,
+		adlibId: BucketAdLibId,
 		adlibProps: Partial<Omit<BucketAdLib, '_id'>>
 	) {
 		return ServerClientAPI.runUserActionInLog(
@@ -1099,7 +1008,7 @@ class ServerUserActionAPI
 	async bucketsModifyBucketAdLibAction(
 		userEvent: string,
 		eventTime: Time,
-		actionId: AdLibActionId,
+		actionId: BucketAdLibActionId,
 		actionProps: Partial<Omit<BucketAdLibAction, '_id'>>
 	) {
 		return ServerClientAPI.runUserActionInLog(

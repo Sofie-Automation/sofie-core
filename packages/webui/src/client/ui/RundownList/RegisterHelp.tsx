@@ -1,9 +1,9 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { literal } from '../../lib/tempLib'
-import { ReactNotification } from '../../lib/notifications/ReactNotification'
-import { ToolTipStep } from '../RundownList'
-import { NotificationAction } from '../../lib/notifications/notifications'
+import { literal } from '../../lib/tempLib.js'
+import { ReactNotification } from '../../lib/notifications/ReactNotification.js'
+import { ToolTipStep } from '../RundownList.js'
+import { NotificationAction } from '../../lib/notifications/notifications.js'
 
 export interface IRegisterHelpProps {
 	step: ToolTipStep

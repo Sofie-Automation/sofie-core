@@ -1,5 +1,5 @@
 import { DBSegment, SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { PlayoutSegmentModelImpl } from '../PlayoutSegmentModelImpl'
+import { PlayoutSegmentModelImpl } from '../PlayoutSegmentModelImpl.js'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 

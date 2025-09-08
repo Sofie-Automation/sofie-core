@@ -85,7 +85,7 @@ export class WatchDog extends EventEmitter<WatchDogEvents> {
 				if (this.listenerCount('exit') > 0) {
 					this.emit('exit')
 				} else {
-					// eslint-disable-next-line no-process-exit
+					// eslint-disable-next-line n/no-process-exit
 					process.exit(42)
 				}
 			}, 5000)

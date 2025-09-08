@@ -33,7 +33,9 @@
 	select.text-input {
 		background: #2d2d2d;
 		border: 1px solid #424242;
-		box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5) inset, 1px 1px 2px rgba(0, 0, 0, 0.2);
+		box-shadow:
+			1px 1px 2px rgba(0, 0, 0, 0.5) inset,
+			1px 1px 2px rgba(0, 0, 0, 0.2);
 		line-height: 1.8em;
 		padding: 0 0.4em;
 		color: #fff;
@@ -48,7 +50,9 @@
 			color: #000;
 			transition: 0.2s background-color;
 			outline: none;
-			box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5) inset, 1px 1px 2px rgba(0, 0, 0, 0.2);
+			box-shadow:
+				1px 1px 2px rgba(0, 0, 0, 0.5) inset,
+				1px 1px 2px rgba(0, 0, 0, 0.2);
 		}
 	}
 
@@ -116,7 +120,7 @@
 			@include missing-overlay();
 			@include floated-overlay();
 		}
-		
+
 		.shelf-inspector__title__layer {
 			position: relative;
 			z-index: 2;

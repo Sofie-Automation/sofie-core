@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events'
-import * as _ from 'underscore'
+import _ from 'underscore'
 import {
 	PeripheralDeviceCategory,
 	PERIPHERAL_SUBTYPE_PROCESS,
@@ -9,25 +9,24 @@ import {
 } from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI'
 import { PeripheralDeviceAPIMethods } from '@sofie-automation/shared-lib/dist/peripheralDevice/methodsAPI'
 
-import { DDPConnector } from './ddpConnector'
-import { DDPConnectorOptions, Observer } from './ddpClient'
+import { DDPConnector } from './ddpConnector.js'
+import { DDPConnectorOptions, Observer } from './ddpClient.js'
 
-import { TimeSync } from './timeSync'
-import { WatchDog } from './watchDog'
-import { DeviceConfigManifest } from './configManifest'
+import { TimeSync } from './timeSync.js'
+import { WatchDog } from './watchDog.js'
+import { DeviceConfigManifest } from './configManifest.js'
 import { PeripheralDeviceId } from '@sofie-automation/shared-lib/dist/core/model/Ids'
-import { ConnectionMethodsQueue, ExternalPeripheralDeviceAPI, makeMethods, makeMethodsLowPrio } from './methods'
+import { ConnectionMethodsQueue, ExternalPeripheralDeviceAPI, makeMethods, makeMethodsLowPrio } from './methods.js'
 import { PeripheralDeviceForDevice } from '@sofie-automation/shared-lib/dist/core/model/peripheralDevice'
 import { ProtectedString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
-import { ChildCoreOptions, CoreConnectionChild } from './CoreConnectionChild'
-import { CorePinger } from './ping'
-import { ParametersOfFunctionOrNever, SubscriptionId, SubscriptionsHelper } from './subscriptions'
+import { ChildCoreOptions, CoreConnectionChild } from './CoreConnectionChild.js'
+import { CorePinger } from './ping.js'
+import { ParametersOfFunctionOrNever, SubscriptionId, SubscriptionsHelper } from './subscriptions.js'
 import {
 	PeripheralDevicePubSubCollections,
 	PeripheralDevicePubSubTypes,
 } from '@sofie-automation/shared-lib/dist/pubsub/peripheralDevice'
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const PkgInfo = require('../../package.json')
 
 export interface CoreCredentials {
@@ -80,7 +79,7 @@ export type CoreConnectionEvents = {
 }
 export class CoreConnection<
 	PubSubTypes = PeripheralDevicePubSubTypes,
-	PubSubCollections = PeripheralDevicePubSubCollections
+	PubSubCollections = PeripheralDevicePubSubCollections,
 > extends EventEmitter<CoreConnectionEvents> {
 	private _ddp: DDPConnector | undefined
 	private _methodQueue: ConnectionMethodsQueue | undefined
@@ -272,7 +271,7 @@ export class CoreConnection<
 	 */
 	async callMethodRaw(methodName: string, attrs: Array<any>): Promise<any> {
 		if (this._destroyed) {
-			throw 'callMethod: CoreConnection has been destroyed'
+			throw new Error('callMethod: CoreConnection has been destroyed')
 		}
 
 		if (!this._methodQueue) throw new Error('Connection is not ready to call methods')
@@ -444,7 +443,7 @@ export class CoreConnection<
 				} else {
 					i++
 					if (i > 50) {
-						reject()
+						reject(new Error('Watchdog ping timeout'))
 					} else {
 						setTimeout(checkPingReply, 300)
 					}
