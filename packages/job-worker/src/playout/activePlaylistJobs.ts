@@ -15,6 +15,7 @@ import {
 	deactivateRundownPlaylistInner,
 } from './activePlaylistActions'
 import { ReadonlyDeep } from 'type-fest'
+import { resetRundownPlaylist } from './lib'
 
 async function checkNoOtherPlaylistsActive(
 	context: JobContext,
@@ -106,7 +107,17 @@ export async function handleResetRundownPlaylist(context: JobContext, data: Rese
 			}
 		},
 		async (playoutModel) => {
-			await activateRundownPlaylist(context, playoutModel, data.activate !== 'active', true) // Activate rundown
+			if (playoutModel.playlist.activationId || data.activate !== undefined) {
+				const goToRehearsal =
+					data.activate === undefined
+						? playoutModel.playlist.rehearsal ?? false
+						: data.activate === 'rehearsal'
+
+				await activateRundownPlaylist(context, playoutModel, goToRehearsal, true) // Activate rundown
+			} else {
+				// If the Playlist is inactive, and we are not activating it, just reset it:
+				await resetRundownPlaylist(context, playoutModel)
+			}
 		}
 	)
 }
