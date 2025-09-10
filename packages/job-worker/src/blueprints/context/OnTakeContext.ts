@@ -25,6 +25,7 @@ import { JobContext, ProcessedShowStyleCompound } from '../../jobs/index.js'
 import { executePeripheralDeviceAction, listPlayoutDevices } from '../../peripheralDevice.js'
 import { ActionPartChange, PartAndPieceInstanceActionService } from './services/PartAndPieceInstanceActionService.js'
 import { BlueprintQuickLookInfo } from '@sofie-automation/blueprints-integration/dist/context/quickLoopInfo'
+import { getOrderedPartsAfterPlayhead } from '../../playout/lookahead/util.js'
 
 export class OnTakeContext extends ShowStyleUserContext implements IOnTakeContext, IEventContext {
 	public isTakeAborted: boolean
@@ -50,6 +51,10 @@ export class OnTakeContext extends ShowStyleUserContext implements IOnTakeContex
 	) {
 		super(contextInfo, _context, showStyle, watchedPackages)
 		this.isTakeAborted = false
+	}
+
+	async getUpcomingParts(limit: number = 5): Promise<ReadonlyDeep<IBlueprintPart[]>> {
+		return getOrderedPartsAfterPlayhead(this._context, this._playoutModel, limit)
 	}
 
 	abortTake(): void {
