@@ -1,4 +1,4 @@
-import { SplitsContentBoxContent, SplitsContentBoxProperties } from './content.js'
+import { SourceLayerType, SplitsContentBoxContent, SplitsContentBoxProperties } from './content.js'
 import { NoteSeverity } from './lib.js'
 import { ITranslatableMessage } from './translations.js'
 
@@ -6,6 +6,10 @@ export interface PopupPreview<P extends Previews = Previews> {
 	name?: string
 	preview?: P
 	warnings?: InvalidPreview[]
+	/**
+	 * Add custom content preview content
+	 */
+	additionalPreviewContent?: Array<PreviewContent>
 }
 export type Previews = TablePreview | ScriptPreview | HTMLPreview | SplitPreview | VTPreview | BlueprintImagePreview
 
@@ -18,6 +22,55 @@ export enum PreviewType {
 	VT = 'vt',
 	BlueprintImage = 'blueprintImage',
 }
+
+// The PreviewContent types are a partly replica of the types in PreviewPopUpContext.tsx
+export type PreviewContent =
+	| {
+			type: 'iframe'
+			href: string
+			postMessage?: any
+			dimensions?: { width: number; height: number }
+	  }
+	| {
+			type: 'image'
+			src: string
+	  }
+	| {
+			type: 'video'
+			src: string
+	  }
+	| {
+			type: 'script'
+			script?: string
+			firstWords?: string
+			lastWords?: string
+			comment?: string
+			lastModified?: number
+	  }
+	| {
+			type: 'title'
+			content: string
+	  }
+	| {
+			type: 'inOutWords'
+			in?: string
+			out: string
+	  }
+	| {
+			type: 'layerInfo'
+			layerType: SourceLayerType
+			text: Array<string>
+			inTime?: number | string
+			outTime?: number | string
+			duration?: number | string
+	  }
+	| {
+			type: 'separationLine'
+	  }
+	| {
+			type: 'data'
+			content: { key: string; value: string }[]
+	  }
 
 interface PreviewBase {
 	type: PreviewType

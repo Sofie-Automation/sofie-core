@@ -1,5 +1,4 @@
 import React from 'react'
-import { PreviewContent } from './PreviewPopUpContext.js'
 import { WarningIconSmall } from '../../lib/ui/icons/notifications.js'
 import { translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { TFunction, useTranslation } from 'react-i18next'
@@ -11,9 +10,11 @@ import { RundownUtils } from '../../lib/rundown.js'
 import { PieceInstancePiece } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { ReadonlyObjectDeep } from 'type-fest/source/readonly-deep'
 import { PieceLifespan } from '@sofie-automation/blueprints-integration'
+import { LayerInfoPreview } from './Previews/LayerInfoPreview.js'
+import { PreviewContentUI } from './PreviewPopUpContext.js'
 
 interface PreviewPopUpContentProps {
-	content: PreviewContent
+	content: PreviewContentUI
 	time: number | null
 }
 
@@ -38,7 +39,6 @@ export function PreviewPopUpContent({ content, time }: PreviewPopUpContentProps)
 		case 'inOutWords':
 			return (
 				<div className="preview-popUp__in-out-words">
-					<hr className="separation-line" />
 					<div className="in-words">{content.in}</div>
 					<div className="out-words">{content.out}</div>
 				</div>
@@ -59,6 +59,10 @@ export function PreviewPopUpContent({ content, time }: PreviewPopUpContentProps)
 					</table>
 				</div>
 			)
+		case 'layerInfo':
+			return <LayerInfoPreview {...content} />
+		case 'separationLine':
+			return <hr className="preview-popup__separation-line" />
 		case 'boxLayout':
 			return <BoxLayoutPreview content={content} />
 		case 'warning':
@@ -108,17 +112,17 @@ function getDurationText(
 function getLifeSpanText(t: TFunction, lifespan: PieceLifespan): string {
 	switch (lifespan) {
 		case PieceLifespan.WithinPart:
-			return t('Until next take')
+			return t('Until Next Take')
 		case PieceLifespan.OutOnSegmentChange:
-			return t('Until next segment')
+			return t('Until Next Segment')
 		case PieceLifespan.OutOnSegmentEnd:
-			return t('Until end of segment')
+			return t('Until End of Segment')
 		case PieceLifespan.OutOnRundownChange:
-			return t('Until next rundown')
+			return t('Until Next Rundown')
 		case PieceLifespan.OutOnRundownEnd:
-			return t('Until end of rundown')
+			return t('Until End of Rundown')
 		case PieceLifespan.OutOnShowStyleEnd:
-			return t('Until end of showstyle')
+			return t('Until End of Showstyle')
 		default:
 			return ''
 	}

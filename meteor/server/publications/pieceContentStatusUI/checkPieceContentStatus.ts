@@ -240,7 +240,7 @@ export async function checkPieceContentStatusAndDependencies(
 				blacks: [],
 				scenes: [],
 
-				thumbnailUrl: undefined,
+				thumbnailUrl: '/dev/fakeThumbnail.png',
 				previewUrl: '/dev/fakePreview.mp4',
 
 				packageName: null,
