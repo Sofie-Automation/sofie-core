@@ -1,3 +1,4 @@
+import { ReadonlyDeep } from 'type-fest'
 import {
 	IBlueprintMutatablePart,
 	IBlueprintPart,
@@ -47,6 +48,12 @@ export interface IPartAndPieceActionContext {
 	getPartForPreviousPiece(piece: IBlueprintPieceDB): Promise<IBlueprintPart | undefined>
 	/** Gets the Segment. This primarily allows for accessing metadata */
 	getSegment(segment: 'current' | 'next'): Promise<IBlueprintSegment | undefined>
+
+	/** Get a list of the upcoming Parts in the Rundown, in the order that they will be Taken */
+	getUpcomingParts(
+		/** The max number of parts returned. */
+		limit?: number
+	): Promise<ReadonlyDeep<IBlueprintPart[]>>
 
 	/**
 	 * Creative actions
