@@ -264,7 +264,7 @@ export namespace RundownUtils {
 	 * It simulates the operations done by the playout operations in core and playout-gateway
 	 * and produces a list of Pieces across Parts timed relatively.
 	 *
-	 * This method is primarly used by the GUI to visualize segments, but other functions
+	 * This method is primarily used by the GUI to visualize segments, but other functions
 	 * utilize it as well when information about timing & time placement is needed.
 	 *
 	 * @export
@@ -280,7 +280,7 @@ export namespace RundownUtils {
 	 * 		PartInstance, whose contents are being streamed in. When ran in a reactive context, the computation will
 	 * 		be eventually invalidated so that the actual data can be streamed in (to show that the part is actually empty)
 	 * @param {boolean} [includeDisabledPieces=false] In some uses (like when previewing a Segment in the GUI) it's needed
-	 * 		to consider disabled Piecess as where they are, insted of stripping them out. When enabled, the method will
+	 * 		to consider disabled Piecess as where they are, instead of stripping them out. When enabled, the method will
 	 * 		keep them in the result set.
 	 * @return {*}  {({
 	 */

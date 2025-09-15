@@ -242,7 +242,7 @@ All notable changes to this project will be documented in this file. See [standa
 ### Features
 
 - expose infinite ids of pieces to onTimelineGenerate ([401f30d](https://github.com/nrkno/tv-automation-sofie-blueprints-integration/commit/401f30d))
-- persistant state to onTimelineGenerate ([713c048](https://github.com/nrkno/tv-automation-sofie-blueprints-integration/commit/713c048))
+- persistent state to onTimelineGenerate ([713c048](https://github.com/nrkno/tv-automation-sofie-blueprints-integration/commit/713c048))
 
 ## [0.24.0](https://github.com/nrkno/tv-automation-sofie-blueprints-integration/compare/0.23.0...0.24.0) (2019-06-18)
 
@@ -296,7 +296,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Features
 
-- Refacor sli and adlib types ([e6fc888](https://github.com/nrkno/tv-automation-sofie-blueprints-integration/commit/e6fc888))
+- Refactor sli and adlib types ([e6fc888](https://github.com/nrkno/tv-automation-sofie-blueprints-integration/commit/e6fc888))
 - Refactor typings for simpler ingest gateway interface ([5edd6e5](https://github.com/nrkno/tv-automation-sofie-blueprints-integration/commit/5edd6e5))
 - rename everything according to new naming schedule ([54268c5](https://github.com/nrkno/tv-automation-sofie-blueprints-integration/commit/54268c5))
 - split some types into simpler ones ([0a7fb06](https://github.com/nrkno/tv-automation-sofie-blueprints-integration/commit/0a7fb06))
@@ -539,7 +539,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Bug Fixes
 
-- **rundown:** Correct types of transisition duration properties on Part ([b0aec50](https://github.com/nrkno/tv-automation-sofie-blueprints-integration/commit/b0aec50))
+- **rundown:** Correct types of transition duration properties on Part ([b0aec50](https://github.com/nrkno/tv-automation-sofie-blueprints-integration/commit/b0aec50))
 
 <a name="0.4.0"></a>
 

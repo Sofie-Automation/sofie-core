@@ -733,7 +733,7 @@ export interface RundownTimingContext {
 	rundownExpectedDurations?: Record<string, number>
 	/** This is the complete duration of each rundown: as planned for the unplayed content, and as-run for the played-out, but ignoring unplayed/unplayable parts in order */
 	rundownAsPlayedDurations?: Record<string, number>
-	/** this is the countdown to each of the parts relative to the current on air part. This allways uses PartId's as the index */
+	/** this is the countdown to each of the parts relative to the current on air part. This always uses PartId's as the index */
 	partCountdown?: Record<string, number | null>
 	/** The calculated durations of each of the Parts: as-planned/as-run depending on state. */
 	partDurations?: Record<string, number>

@@ -423,7 +423,7 @@ export function fetchAndFilter(props: IFetchAndFilterProps): AdLibFetchAndFilter
 					adlibId: piece._id,
 					partRank: (piece.partId && uiPartMap.get(piece.partId))?._rank ?? null,
 					segmentRank: segment._rank,
-					rundownRank: 0, // not needed, bacause we are in just one rundown
+					rundownRank: 0, // not needed, because we are in just one rundown
 				}))
 			)
 		})

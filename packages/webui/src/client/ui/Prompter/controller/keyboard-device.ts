@@ -163,7 +163,7 @@ export class KeyboardController extends ControllerAbstract {
 				const stopAcceleration = Math.sign(this._currentSpeed) * this._acceleration
 				const distanceToStop = this._getDistanceToStop(this._currentSpeed, stopAcceleration)
 				if (Math.abs(dp) <= Math.abs(distanceToStop)) {
-					// We should deccelerate
+					// We should decelerate
 
 					const actualStopAcceleration = this._getAccelerationToStopInTime(
 						this._currentSpeed,

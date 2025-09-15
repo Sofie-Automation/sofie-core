@@ -3,8 +3,8 @@
  * It should be removed entirely, but requires a bit of effort to update the hundreds of references to this file.
  */
 
-// Legacy compatability
-// Note: These have to be named explicity, to satisfy Vite
+// Legacy compatibility
+// Note: These have to be named explicitly, to satisfy Vite
 export type { Time, TimeDuration } from '@sofie-automation/shared-lib/dist/lib/lib'
 export type { ProtectedString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 export {
