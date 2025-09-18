@@ -18,7 +18,7 @@ import {
 	StudioRouteSetExclusivityGroup,
 } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { Complete, clone, literal } from '@sofie-automation/corelib/dist/lib'
-import { protectString } from '@sofie-automation/corelib/dist/protectedString'
+import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { wrapTranslatableMessageFromBlueprints } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import {
@@ -31,6 +31,7 @@ import { JobContext } from '../jobs/index.js'
 import { FixUpBlueprintConfigContext } from '@sofie-automation/corelib/dist/fixUpBlueprintConfig/context'
 import { DEFAULT_MINIMUM_TAKE_SPAN } from '@sofie-automation/shared-lib/dist/core/constants'
 import { PERIPHERAL_SUBTYPE_PROCESS, PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
+import { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 /**
  * Run the Blueprint applyConfig for the studio
@@ -64,20 +65,37 @@ export async function handleBlueprintUpgradeForStudio(context: JobContext, _data
 		])
 	)
 
-	const peripheralDevices = (await context.directCollections.PeripheralDevices.findFetch(
-		{ subType: PERIPHERAL_SUBTYPE_PROCESS, 'studioAndConfigId.studioId': context.studioId },
+	const allPeripheralDevices = (await context.directCollections.PeripheralDevices.findFetch(
+		{ subType: PERIPHERAL_SUBTYPE_PROCESS },
 		{ projection: { _id: 1, studioAndConfigId: 1 } }
 	)) as Array<Pick<PeripheralDevice, '_id' | 'studioAndConfigId'>>
+
+	const configIdMap = new Map<string, PeripheralDeviceId>() // configId -> deviceId
+	for (const pd of allPeripheralDevices) {
+		if (pd.studioAndConfigId) configIdMap.set(pd.studioAndConfigId.configId, pd._id)
+	}
+
+	// Assign configId to peripheral devices
+	for (const deviceName in parentDevices) {
+		const peripheralDevice = allPeripheralDevices.find((pd) => unprotectString(pd._id).startsWith(deviceName))
+		if (peripheralDevice) {
+			await context.directCollections.PeripheralDevices.update(peripheralDevice._id, {
+				$set: {
+					studioAndConfigId: { studioId: context.studioId, configId: deviceName },
+				},
+			})
+			configIdMap.set(deviceName, peripheralDevice._id)
+		}
+	}
 
 	const playoutDevices = Object.fromEntries(
 		Object.entries<{ parentDeviceName?: string; options: TSR.DeviceOptionsAny }>(result.playoutDevices ?? {}).map(
 			(dev) => {
+				const parentDeviceName = dev[1].parentDeviceName
 				return [
 					dev[0],
 					literal<Complete<StudioPlayoutDevice>>({
-						peripheralDeviceId: peripheralDevices.find(
-							(p) => p.studioAndConfigId?.configId === dev[1].parentDeviceName
-						)?._id,
+						peripheralDeviceId: parentDeviceName ? configIdMap.get(parentDeviceName) : undefined, //peripheralDevice?._id,
 						options: dev[1].options,
 					}),
 				]
@@ -87,12 +105,11 @@ export async function handleBlueprintUpgradeForStudio(context: JobContext, _data
 
 	const ingestDevices = Object.fromEntries(
 		Object.entries<{ parentDeviceName?: string; options: unknown }>(result.ingestDevices ?? {}).map((dev) => {
+			const parentDeviceName = dev[1].parentDeviceName
 			return [
 				dev[0],
 				literal<Complete<StudioIngestDevice>>({
-					peripheralDeviceId: peripheralDevices.find(
-						(p) => p.studioAndConfigId?.configId === dev[1].parentDeviceName
-					)?._id,
+					peripheralDeviceId: parentDeviceName ? configIdMap.get(parentDeviceName) : undefined, //peripheralDevice?._id,
 					options: dev[1].options,
 				}),
 			]
@@ -101,12 +118,11 @@ export async function handleBlueprintUpgradeForStudio(context: JobContext, _data
 
 	const inputDevices = Object.fromEntries(
 		Object.entries<{ parentDeviceName?: string; options: unknown }>(result.inputDevices ?? {}).map((dev) => {
+			const parentDeviceName = dev[1].parentDeviceName
 			return [
 				dev[0],
 				literal<Complete<StudioInputDevice>>({
-					peripheralDeviceId: peripheralDevices.find(
-						(p) => p.studioAndConfigId?.configId === dev[1].parentDeviceName
-					)?._id,
+					peripheralDeviceId: parentDeviceName ? configIdMap.get(parentDeviceName) : undefined, //peripheralDevice?._id,
 					options: dev[1].options,
 				}),
 			]

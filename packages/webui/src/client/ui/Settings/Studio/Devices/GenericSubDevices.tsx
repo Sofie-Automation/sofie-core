@@ -50,7 +50,7 @@ export function GenericSubDevicesTable({
 				device._id,
 				literal<PeripheralDeviceTranslated>({
 					_id: device._id,
-					name: device.name || unprotectString(device._id),
+					name: device.studioAndConfigId?.configId || device.name || unprotectString(device._id),
 					subdeviceConfigSchema: device.configManifest?.subdeviceConfigSchema,
 					subdeviceManifest: device.configManifest?.subdeviceManifest ?? {},
 				})

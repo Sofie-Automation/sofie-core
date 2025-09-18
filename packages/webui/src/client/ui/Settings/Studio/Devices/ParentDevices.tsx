@@ -131,6 +131,7 @@ export function StudioParentDevices({ studioId }: Readonly<StudioParentDevicesPr
 interface PeripheralDeviceTranslated {
 	_id: PeripheralDeviceId
 	name: string
+	deviceType: string
 	lastSeen: number
 	deviceConfigSchema: JSONBlob<JSONSchema> | undefined
 }
@@ -170,7 +171,8 @@ function GenericParentDevicesTable({
 				device.studioAndConfigId.configId,
 				literal<PeripheralDeviceTranslated>({
 					_id: device._id,
-					name: device.name || unprotectString(device._id),
+					name: device.studioAndConfigId.configId,
+					deviceType: device.deviceName,
 					lastSeen: device.lastSeen,
 					deviceConfigSchema: device.configManifest?.deviceConfigSchema,
 				})
@@ -313,7 +315,7 @@ function SummaryRow({
 		>
 			<th className="settings-studio-device__name c2">{item.computed.name}</th>
 
-			<th className="settings-studio-device__parent c2">{peripheralDevice?.name || '-'}</th>
+			<th className="settings-studio-device__parent c2">{peripheralDevice?.deviceType || '-'}</th>
 
 			<th className="settings-studio-device__type c2">
 				{peripheralDevice ? <MomentFromNow date={peripheralDevice.lastSeen} /> : '-'}

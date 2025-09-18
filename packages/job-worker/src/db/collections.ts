@@ -102,7 +102,7 @@ export interface IDirectCollections {
 	NrcsIngestDataCache: ICollection<NrcsIngestDataCacheObj>
 	Parts: ICollection<DBPart>
 	PartInstances: ICollection<DBPartInstance>
-	PeripheralDevices: IReadOnlyCollection<PeripheralDevice>
+	PeripheralDevices: ICollection<PeripheralDevice>
 	PeripheralDeviceCommands: ICollection<PeripheralDeviceCommand>
 	Pieces: ICollection<Piece>
 	PieceInstances: ICollection<PieceInstance>
