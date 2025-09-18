@@ -252,7 +252,7 @@ jobs:
           echo "image=$image" >> $GITHUB_OUTPUT
       - name: Trivy scanning
         if: steps.check-build-and-push.outputs.enable == 'true' && steps.check-ghcr.outputs.enable == 'true' && steps.ghcr-tag.outputs.tags != 0
-        uses: aquasecurity/trivy-action@0.32.0
+        uses: aquasecurity/trivy-action@0.33.1
         env:
           TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db
         with:
@@ -405,7 +405,7 @@ jobs:
           echo "image=$image" >> $GITHUB_OUTPUT
       - name: Trivy scanning
         if: steps.check-build-and-push.outputs.enable == 'true' && steps.check-ghcr.outputs.enable == 'true' && steps.ghcr-tag.outputs.tags != 0
-        uses: aquasecurity/trivy-action@0.32.0
+        uses: aquasecurity/trivy-action@0.33.1
         env:
           TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db
         with:
