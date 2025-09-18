@@ -1,0 +1,177 @@
+title: Notifications
+description: Active notifications in Sofie
+
+$defs:
+  notifications:
+    type: object
+    title: NotificationsEvent
+    properties:
+      event:
+        type: string
+        const: notifications
+      activeNotifications:
+        description: Active notifications in Sofie
+        type: array
+        items:
+          $ref: '#/$defs/DBNotificationObj'
+    required: [event, activeNotifications]
+    additionalProperties: false
+    examples:
+      - event: notifications
+        activeNotifications:
+          - $ref: '#/$defs/DBNotificationObj/examples/0'
+
+  DBNotificationObj:
+    type: object
+    title: DBNotificationObj
+    description: This describes a notification that should be shown to a user. These can come from various sources, and are added and removed dynamically during system usage
+    required:
+      - _id
+      - severity
+      - message
+      - relatedTo
+      - created
+    properties:
+      _id:
+        type: string
+        description: Unique identifier for the notification
+      severity:
+        $ref: '#/$defs/severity'
+      message:
+        type: string
+        description: The message of the notification
+      relatedTo:
+        $ref: '#/$defs/DBNotificationTarget'
+      created:
+        type: integer
+        format: int64
+        description: Unix timestamp of creation
+      modified:
+        type: integer
+        format: int64
+        description: Unix timestamp of last modification
+    additionalProperties: false
+    examples:
+      - _id: 'notif123'
+        severity: error
+        message: 'disk.space.low'
+        relatedTo:
+          $ref: '#/$defs/DBNotificationTarget/examples/0'
+        created: 1694784932
+        modified: 1694784950
+
+  severity:
+    type: string
+    title: NotificationSeverity
+    description: Severity level of the notification.
+    enum:
+      - warning
+      - error
+      - info
+    examples:
+      - info
+
+  DBNotificationTarget:
+    title: DBNotificationTarget
+    description: Description of what the notification is related to
+    oneOf:
+      - $ref: '#/$defs/DBNotificationTargetRundown'
+      - $ref: '#/$defs/DBNotificationTargetRundownPlaylist'
+      - $ref: '#/$defs/DBNotificationTargetPartInstance'
+      - $ref: '#/$defs/DBNotificationTargetPieceInstance'
+    examples:
+      - $ref: '#/$defs/DBNotificationTargetRundown/examples/0'
+      - $ref: '#/$defs/DBNotificationTargetRundownPlaylist/examples/0'
+      - $ref: '#/$defs/DBNotificationTargetPartInstance/examples/0'
+      - $ref: '#/$defs/DBNotificationTargetPieceInstance/examples/0'
+
+  NotificationTargetType:
+    type: string
+    title: NotificationTargetType
+    description: Possible NotificationTarget types
+    enum:
+      - rundown
+      - playlist
+      - partInstance
+      - pieceInstance
+
+  DBNotificationTargetRundown:
+    type: object
+    title: DBNotificationTargetRundown
+    required: [type, studioId, rundownId]
+    properties:
+      type:
+        $ref: '#/$defs/NotificationTargetType'
+        enum: [rundown]
+      studioId:
+        type: string
+      rundownId:
+        type: string
+    additionalProperties: false
+    examples:
+      - type: rundown
+        studioId: studio01
+        rundownId: rd123
+
+  DBNotificationTargetRundownPlaylist:
+    type: object
+    title: DBNotificationTargetRundownPlaylist
+    required: [type, studioId, playlistId]
+    properties:
+      type:
+        $ref: '#/$defs/NotificationTargetType'
+        enum: [playlist]
+      studioId:
+        type: string
+      playlistId:
+        type: string
+    additionalProperties: false
+    examples:
+      - type: playlist
+        studioId: studio01
+        playlistId: pl456
+
+  DBNotificationTargetPartInstance:
+    type: object
+    title: DBNotificationTargetPartInstance
+    required: [type, studioId, rundownId, partInstanceId]
+    properties:
+      type:
+        $ref: '#/$defs/NotificationTargetType'
+        enum: [partInstance]
+      studioId:
+        type: string
+      rundownId:
+        type: string
+      partInstanceId:
+        type: string
+    additionalProperties: false
+    examples:
+      - type: partInstance
+        studioId: studio01
+        rundownId: rd123
+        partInstanceId: pi789
+
+  DBNotificationTargetPieceInstance:
+    type: object
+    title: DBNotificationTargetPieceInstance
+    required: [type, studioId, rundownId, partInstanceId, pieceInstanceId]
+    properties:
+      type:
+        $ref: '#/$defs/NotificationTargetType'
+        enum: [pieceInstance]
+      studioId:
+        type: string
+      rundownId:
+        type: string
+      partInstanceId:
+        type: string
+      pieceInstanceId:
+        type: string
+    additionalProperties: false
+    examples:
+      - type: pieceInstance
+        studioId: studio01
+        rundownId: rd123
+        partInstanceId: pi789
+        pieceInstanceId: pc1011

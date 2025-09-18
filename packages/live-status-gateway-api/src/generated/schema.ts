@@ -766,6 +766,106 @@ interface BucketAdLibStatus {
 	additionalProperties?: Record<string, any>
 }
 
+interface NotificationsEvent {
+	event: 'notifications'
+	/**
+	 * Active notifications in Sofie
+	 */
+	activeNotifications: DbNotificationObj[]
+}
+
+/**
+ * This describes a notification that should be shown to a user. These can come from various sources, and are added and removed dynamically during system usage
+ */
+interface DbNotificationObj {
+	/**
+	 * Unique identifier for the notification
+	 */
+	_id: string
+	/**
+	 * Severity level of the notification.
+	 */
+	severity: NotificationSeverity
+	/**
+	 * The message of the notification
+	 */
+	message: string
+	/**
+	 * Description of what the notification is related to
+	 */
+	relatedTo:
+		| DbNotificationTargetRundown
+		| DbNotificationTargetRundownPlaylist
+		| DbNotificationTargetPartInstance
+		| DbNotificationTargetPieceInstance
+	/**
+	 * Unix timestamp of creation
+	 */
+	created: number
+	/**
+	 * Unix timestamp of last modification
+	 */
+	modified?: number
+}
+
+/**
+ * Severity level of the notification.
+ */
+enum NotificationSeverity {
+	WARNING = 'warning',
+	ERROR = 'error',
+	INFO = 'info',
+}
+
+interface DbNotificationTargetRundown {
+	/**
+	 * Possible NotificationTarget types
+	 */
+	type: NotificationTargetType
+	studioId: string
+	rundownId: string
+}
+
+/**
+ * Possible NotificationTarget types
+ */
+enum NotificationTargetType {
+	RUNDOWN = 'rundown',
+	PLAYLIST = 'playlist',
+	PART_INSTANCE = 'partInstance',
+	PIECE_INSTANCE = 'pieceInstance',
+}
+
+interface DbNotificationTargetRundownPlaylist {
+	/**
+	 * Possible NotificationTarget types
+	 */
+	type: NotificationTargetType
+	studioId: string
+	playlistId: string
+}
+
+interface DbNotificationTargetPartInstance {
+	/**
+	 * Possible NotificationTarget types
+	 */
+	type: NotificationTargetType
+	studioId: string
+	rundownId: string
+	partInstanceId: string
+}
+
+interface DbNotificationTargetPieceInstance {
+	/**
+	 * Possible NotificationTarget types
+	 */
+	type: NotificationTargetType
+	studioId: string
+	rundownId: string
+	partInstanceId: string
+	pieceInstanceId: string
+}
+
 export type Slash =
 	| ActivePiecesEvent
 	| ActivePlaylistEvent
@@ -824,4 +924,12 @@ export {
 	BucketsEvent,
 	BucketStatus,
 	BucketAdLibStatus,
+	NotificationsEvent,
+	DbNotificationObj,
+	NotificationSeverity,
+	DbNotificationTargetRundown,
+	NotificationTargetType,
+	DbNotificationTargetRundownPlaylist,
+	DbNotificationTargetPartInstance,
+	DbNotificationTargetPieceInstance,
 }
