@@ -174,7 +174,7 @@ async function innerUploadBlueprint(
 	} catch (e) {
 		logger.error(`Error evaluating Blueprint "${blueprintId}": "${stringifyError(e)}"`)
 
-		throw new Meteor.Error(400, `Blueprint ${blueprintId} failed to parse`)
+		throw new Meteor.Error(400, `Error evaluating Blueprint "${blueprintId}": "${stringifyError(e)}"`)
 	}
 
 	if (!_.isObject(blueprintManifest))
