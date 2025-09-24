@@ -104,7 +104,7 @@ export function resetPartInstancesWithPieceInstances(
 								reset: true,
 							},
 						}
-				  )
+					)
 				: undefined,
 			allToReset.length
 				? context.directCollections.PieceInstances.update(
@@ -118,14 +118,14 @@ export function resetPartInstancesWithPieceInstances(
 								reset: true,
 							},
 						}
-				  )
+					)
 				: undefined,
 			allToReset.length > 0
 				? context.directCollections.Notifications.remove({
 						'relatedTo.studioId': context.studioId,
 						'relatedTo.rundownId': { $in: rundownIds },
 						'relatedTo.partInstanceId': { $in: allToReset },
-				  })
+					})
 				: undefined,
 		])
 	})

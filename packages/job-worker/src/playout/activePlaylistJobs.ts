@@ -110,7 +110,7 @@ export async function handleResetRundownPlaylist(context: JobContext, data: Rese
 			if (playoutModel.playlist.activationId || data.activate !== undefined) {
 				const goToRehearsal =
 					data.activate === undefined
-						? playoutModel.playlist.rehearsal ?? false
+						? (playoutModel.playlist.rehearsal ?? false)
 						: data.activate === 'rehearsal'
 
 				await activateRundownPlaylist(context, playoutModel, goToRehearsal, true) // Activate rundown
