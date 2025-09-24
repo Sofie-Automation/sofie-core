@@ -50,7 +50,7 @@
 		"mongodb": "^6.12.0",
 		"p-lazy": "^3.1.0",
 		"p-timeout": "^4.1.0",
-		"superfly-timeline": "9.1.2",
+		"superfly-timeline": "9.2.0",
 		"threadedclass": "^1.2.2",
 		"tslib": "^2.8.1",
 		"type-fest": "^4.33.0",
