@@ -24,6 +24,7 @@ export interface Config {
 export interface DeviceConfig {
 	deviceId: PeripheralDeviceId
 	deviceToken: string
+	name?: string
 }
 export class Connector implements IConnector {
 	public initialized = false

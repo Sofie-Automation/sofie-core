@@ -75,27 +75,44 @@ export async function handleBlueprintUpgradeForStudio(context: JobContext, _data
 		if (pd.studioAndConfigId) configIdMap.set(pd.studioAndConfigId.configId, pd._id)
 	}
 
-	// Assign configId to peripheral devices
-	for (const deviceName in parentDevices) {
-		const peripheralDevice = allPeripheralDevices.find((pd) => unprotectString(pd._id).startsWith(deviceName))
+	// Assign configId and name to peripheral devices
+	for (const configId in parentDevices) {
+		const peripheralDevice = allPeripheralDevices.find((pd) => unprotectString(pd._id).startsWith(configId))
 		if (peripheralDevice) {
+			if (configIdMap.has(configId)) {
+				// Need to ensure there is only one reference to a configId in the peripheralDevices collection
+				const existingPeripheralDeviceId = configIdMap.get(configId)
+				await context.directCollections.PeripheralDevices.update(
+					{
+						studioAndConfigId: { studioId: context.studioId, configId: configId },
+						_id: { $ne: existingPeripheralDeviceId ?? protectString('') },
+					},
+					{
+						$unset: {
+							studioAndConfigId: 1,
+						},
+					}
+				)
+				configIdMap.delete(configId)
+			}
 			await context.directCollections.PeripheralDevices.update(peripheralDevice._id, {
 				$set: {
-					studioAndConfigId: { studioId: context.studioId, configId: deviceName },
+					name: parentDevices[configId].name,
+					studioAndConfigId: { studioId: context.studioId, configId: configId },
 				},
 			})
-			configIdMap.set(deviceName, peripheralDevice._id)
+			configIdMap.set(configId, peripheralDevice._id)
 		}
 	}
 
 	const playoutDevices = Object.fromEntries(
-		Object.entries<{ parentDeviceName?: string; options: TSR.DeviceOptionsAny }>(result.playoutDevices ?? {}).map(
+		Object.entries<{ parentConfigId?: string; options: TSR.DeviceOptionsAny }>(result.playoutDevices ?? {}).map(
 			(dev) => {
-				const parentDeviceName = dev[1].parentDeviceName
+				const parentConfigId = dev[1].parentConfigId
 				return [
 					dev[0],
 					literal<Complete<StudioPlayoutDevice>>({
-						peripheralDeviceId: parentDeviceName ? configIdMap.get(parentDeviceName) : undefined, //peripheralDevice?._id,
+						peripheralDeviceId: parentConfigId ? configIdMap.get(parentConfigId) : undefined,
 						options: dev[1].options,
 					}),
 				]
@@ -104,12 +121,12 @@ export async function handleBlueprintUpgradeForStudio(context: JobContext, _data
 	)
 
 	const ingestDevices = Object.fromEntries(
-		Object.entries<{ parentDeviceName?: string; options: unknown }>(result.ingestDevices ?? {}).map((dev) => {
-			const parentDeviceName = dev[1].parentDeviceName
+		Object.entries<{ parentConfigId?: string; options: unknown }>(result.ingestDevices ?? {}).map((dev) => {
+			const parentConfigId = dev[1].parentConfigId
 			return [
 				dev[0],
 				literal<Complete<StudioIngestDevice>>({
-					peripheralDeviceId: parentDeviceName ? configIdMap.get(parentDeviceName) : undefined, //peripheralDevice?._id,
+					peripheralDeviceId: parentConfigId ? configIdMap.get(parentConfigId) : undefined,
 					options: dev[1].options,
 				}),
 			]
@@ -117,12 +134,12 @@ export async function handleBlueprintUpgradeForStudio(context: JobContext, _data
 	)
 
 	const inputDevices = Object.fromEntries(
-		Object.entries<{ parentDeviceName?: string; options: unknown }>(result.inputDevices ?? {}).map((dev) => {
-			const parentDeviceName = dev[1].parentDeviceName
+		Object.entries<{ parentConfigId?: string; options: unknown }>(result.inputDevices ?? {}).map((dev) => {
+			const parentConfigId = dev[1].parentConfigId
 			return [
 				dev[0],
 				literal<Complete<StudioInputDevice>>({
-					peripheralDeviceId: parentDeviceName ? configIdMap.get(parentDeviceName) : undefined, //peripheralDevice?._id,
+					peripheralDeviceId: parentConfigId ? configIdMap.get(parentConfigId) : undefined,
 					options: dev[1].options,
 				}),
 			]

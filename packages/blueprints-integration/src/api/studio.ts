@@ -155,11 +155,11 @@ export interface BlueprintResultApplyStudioConfig {
 	/** Parent device settings */
 	parentDevices: Record<string, BlueprintParentDeviceSettings>
 	/** Playout-gateway subdevices */
-	playoutDevices: Record<string, { parentDeviceName?: string; options: TSR.DeviceOptionsAny }>
+	playoutDevices: Record<string, { parentConfigId?: string; options: TSR.DeviceOptionsAny }>
 	/** Ingest-gateway subdevices, the types here depend on the gateway you use */
-	ingestDevices: Record<string, { parentDeviceName?: string; options: BlueprintMosDeviceConfig | unknown }>
+	ingestDevices: Record<string, { parentConfigId?: string; options: BlueprintMosDeviceConfig | unknown }>
 	/** Input-gateway subdevices */
-	inputDevices: Record<string, { parentDeviceName?: string; options: unknown }>
+	inputDevices: Record<string, { parentConfigId?: string; options: unknown }>
 	/** Route Sets */
 	routeSets?: Record<string, StudioRouteSet>
 	/** Route Set Exclusivity Groups */

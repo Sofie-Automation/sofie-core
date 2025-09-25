@@ -237,6 +237,7 @@ export class CoreConnectionChild<
 			subType: this._coreOptions.deviceSubType,
 
 			name: this._coreOptions.deviceName,
+			deviceName: this._coreOptions.deviceName,
 			connectionId: this.ddp.connectionId,
 			parentDeviceId: this._parent.deviceId,
 

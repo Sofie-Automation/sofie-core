@@ -18,6 +18,7 @@ export interface ProcessConfig {
 export interface DeviceConfig {
 	deviceId: PeripheralDeviceId
 	deviceToken: string
+	name?: string
 }
 export class Connector {
 	private coreHandler: CoreHandler | undefined

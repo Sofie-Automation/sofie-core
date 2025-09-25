@@ -45,7 +45,12 @@ export interface CoreOptions extends CoreCredentials {
 	deviceType: PeripheralDeviceType
 
 	/**
-	 * Name of the device
+	 * User name of the device
+	 */
+	name: string
+
+	/**
+	 * Name of the device type
 	 * eg 'MOS Gateway'
 	 */
 	deviceName: string
@@ -407,7 +412,8 @@ export class CoreConnection<
 			type: this._coreOptions.deviceType,
 			subType: PERIPHERAL_SUBTYPE_PROCESS,
 
-			name: this._coreOptions.deviceName,
+			name: this._coreOptions.name,
+			deviceName: this._coreOptions.deviceName,
 			connectionId: this.ddp.connectionId,
 			parentDeviceId: undefined,
 			versions: this._coreOptions.versions,

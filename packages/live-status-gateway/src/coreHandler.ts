@@ -170,6 +170,7 @@ export class CoreHandler {
 			deviceCategory: PeripheralDeviceCategory.LIVE_STATUS,
 			deviceType: PeripheralDeviceType.LIVE_STATUS,
 
+			name: this._deviceOptions.name || 'Live Status Gateway',
 			deviceName: 'Live Status Gateway',
 			watchDog: this._coreConfig ? this._coreConfig.watchdog : true,
 
