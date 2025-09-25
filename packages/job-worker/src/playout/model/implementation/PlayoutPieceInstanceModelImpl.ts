@@ -2,9 +2,11 @@ import { PieceInstanceInfiniteId } from '@sofie-automation/corelib/dist/dataMode
 import { ReadonlyDeep } from 'type-fest'
 import { PieceInstance, PieceInstancePiece } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { clone, getRandomId } from '@sofie-automation/corelib/dist/lib'
-import { Time } from '@sofie-automation/blueprints-integration'
+import { PieceLifespan, Time } from '@sofie-automation/blueprints-integration'
 import { PlayoutPieceInstanceModel } from '../PlayoutPieceInstanceModel'
+import { setupPieceInstanceInfiniteProperties } from '../../pieces'
 import _ = require('underscore')
+import { getCurrentTime } from '../../../lib/time'
 
 export class PlayoutPieceInstanceModelImpl implements PlayoutPieceInstanceModel {
 	/**
@@ -135,5 +137,13 @@ export class PlayoutPieceInstanceModelImpl implements PlayoutPieceInstanceModel 
 			},
 			true
 		)
+		if (
+			props.lifespan !== undefined &&
+			props.lifespan !== PieceLifespan.WithinPart &&
+			!this.PieceInstanceImpl.infinite
+		) {
+			setupPieceInstanceInfiniteProperties(this.PieceInstanceImpl)
+			this.PieceInstanceImpl.dynamicallyConvertedToInfinite = getCurrentTime()
+		}
 	}
 }
