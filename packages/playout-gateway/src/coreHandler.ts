@@ -158,7 +158,6 @@ export class CoreHandler implements ICoreHandler {
 			deviceCategory: PeripheralDeviceAPI.PeripheralDeviceCategory.PLAYOUT,
 			deviceType: PeripheralDeviceAPI.PeripheralDeviceType.PLAYOUT,
 
-			name: this._deviceOptions.name || 'Playout Gateway',
 			deviceName: 'Playout gateway',
 			watchDog: this._coreConfig ? this._coreConfig.watchdog : true,
 

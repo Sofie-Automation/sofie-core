@@ -179,7 +179,6 @@ describe('test peripheralDevice general API methods', () => {
 			type: PeripheralDeviceType.MOS,
 			subType: 'mos_connection',
 			name: 'test',
-			deviceName: 'test',
 			connectionId: 'test',
 			configManifest: {
 				deviceConfigSchema: JSONBlobStringify({}),

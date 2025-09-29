@@ -97,7 +97,6 @@ export async function handleBlueprintUpgradeForStudio(context: JobContext, _data
 			}
 			await context.directCollections.PeripheralDevices.update(peripheralDevice._id, {
 				$set: {
-					name: parentDevices[configId].name,
 					studioAndConfigId: { studioId: context.studioId, configId: configId },
 				},
 			})

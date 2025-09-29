@@ -120,14 +120,10 @@ export interface PeripheralDeviceInitOptions {
 	 */
 	subType: PeripheralDeviceSubType
 	/**
-	 * User name of the device
-	 */
-	name: string
-	/**
-	 * Name of the device type
+	 * Name of the device
 	 * eg 'MOS Gateway'
 	 */
-	deviceName: string
+	name: string
 	connectionId: string
 	parentDeviceId?: PeripheralDeviceId
 	versions?: {

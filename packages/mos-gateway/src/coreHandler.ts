@@ -144,7 +144,6 @@ export class CoreHandler implements ICoreHandler {
 			deviceCategory: PeripheralDeviceAPI.PeripheralDeviceCategory.INGEST,
 			deviceType: PeripheralDeviceAPI.PeripheralDeviceType.MOS,
 
-			name: this._deviceOptions.name || 'MOS Gateway',
 			deviceName: 'MOS gateway',
 			watchDog: this._coreConfig ? this._coreConfig.watchdog : true,
 
