@@ -3,7 +3,7 @@
 	"version": "1.53.0-in-development",
 	"private": true,
 	"engines": {
-		"node": ">=22.13.1"
+		"node": ">=22.20.0"
 	},
 	"scripts": {
 		"preinstall": "node -v",

@@ -119,7 +119,7 @@ describe('ClientAPI', () => {
 		})
 		describe('Call a failing method on the peripheralDevice', () => {
 			let logMethodName = `not set yet`
-			let promise: Promise<void>
+			let promise: Promise<unknown>
 			beforeAll(async () => {
 				logMethodName = `${mockDeviceId}: ${mockFailingFunctionName}`
 
