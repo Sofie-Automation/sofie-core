@@ -30,6 +30,10 @@ import { BucketsHandler } from './collections/bucketsHandler.js'
 import { BucketAdLibsHandler } from './collections/bucketAdLibsHandler.js'
 import { BucketAdLibActionsHandler } from './collections/bucketAdLibActionsHandler.js'
 import { BucketsTopic } from './topics/bucketsTopic.js'
+import { NotificationsHandler } from './collections/notifications/notificationsHandler.js'
+import { NotificationsTopic } from './topics/notificationsTopic.js'
+import { PlaylistNotificationsHandler } from './collections/notifications/playlistNotificationsHandler.js'
+import { RundownNotificationsHandler } from './collections/notifications/rundownNotificationsHandler.js'
 
 export interface CollectionHandlers {
 	studioHandler: StudioHandler
@@ -47,6 +51,9 @@ export interface CollectionHandlers {
 	adLibsHandler: AdLibsHandler
 	globalAdLibActionsHandler: GlobalAdLibActionsHandler
 	globalAdLibsHandler: GlobalAdLibsHandler
+	playlistNotificationsHandler: PlaylistNotificationsHandler
+	rundownNotificationsHandler: RundownNotificationsHandler
+	notificationsHandler: NotificationsHandler
 	pieceContentStatusesHandler: PieceContentStatusesHandler
 	bucketsHandler: BucketsHandler
 	bucketAdLibsHandler: BucketAdLibsHandler
@@ -83,6 +90,9 @@ export class LiveStatusServer {
 		const adLibsHandler = new AdLibsHandler(this._logger, this._coreHandler)
 		const globalAdLibActionsHandler = new GlobalAdLibActionsHandler(this._logger, this._coreHandler)
 		const globalAdLibsHandler = new GlobalAdLibsHandler(this._logger, this._coreHandler)
+		const playlistNotificationsHandler = new PlaylistNotificationsHandler(this._logger, this._coreHandler)
+		const rundownNotificationsHandler = new RundownNotificationsHandler(this._logger, this._coreHandler)
+		const notificationsHandler = new NotificationsHandler(this._logger, this._coreHandler)
 		const pieceContentStatusesHandler = new PieceContentStatusesHandler(this._logger, this._coreHandler)
 		const bucketsHandler = new BucketsHandler(this._logger, this._coreHandler)
 		const bucketAdLibsHandler = new BucketAdLibsHandler(this._logger, this._coreHandler)
@@ -104,6 +114,9 @@ export class LiveStatusServer {
 			adLibsHandler,
 			globalAdLibActionsHandler,
 			globalAdLibsHandler,
+			playlistNotificationsHandler,
+			rundownNotificationsHandler,
+			notificationsHandler,
 			pieceContentStatusesHandler,
 			bucketsHandler,
 			bucketAdLibsHandler,
@@ -119,6 +132,7 @@ export class LiveStatusServer {
 		const activePlaylistTopic = new ActivePlaylistTopic(this._logger, handlers)
 		const segmentsTopic = new SegmentsTopic(this._logger, handlers)
 		const adLibsTopic = new AdLibsTopic(this._logger, handlers)
+		const notificationsTopic = new NotificationsTopic(this._logger, handlers)
 		const packageStatusTopic = new PackagesTopic(this._logger, handlers)
 		const bucketsTopic = new BucketsTopic(this._logger, handlers)
 
@@ -127,6 +141,7 @@ export class LiveStatusServer {
 		rootChannel.addTopic(SubscriptionName.ACTIVE_PIECES, activePiecesTopic)
 		rootChannel.addTopic(SubscriptionName.SEGMENTS, segmentsTopic)
 		rootChannel.addTopic(SubscriptionName.AD_LIBS, adLibsTopic)
+		rootChannel.addTopic(SubscriptionName.NOTIFICATIONS, notificationsTopic)
 		rootChannel.addTopic(SubscriptionName.RESERVED_PACKAGES, packageStatusTopic)
 		rootChannel.addTopic(SubscriptionName.BUCKETS, bucketsTopic)
 
