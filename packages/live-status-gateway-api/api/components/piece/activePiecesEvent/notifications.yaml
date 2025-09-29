@@ -13,17 +13,17 @@ $defs:
         description: Active notifications in Sofie
         type: array
         items:
-          $ref: '#/$defs/DBNotificationObj'
+          $ref: '#/$defs/NotificationObj'
     required: [event, activeNotifications]
     additionalProperties: false
     examples:
       - event: notifications
         activeNotifications:
-          - $ref: '#/$defs/DBNotificationObj/examples/0'
+          - $ref: '#/$defs/NotificationObj/examples/0'
 
-  DBNotificationObj:
+  NotificationObj:
     type: object
-    title: DBNotificationObj
+    title: NotificationObj
     description: This describes a notification that should be shown to a user. These can come from various sources, and are added and removed dynamically during system usage
     required:
       - _id
@@ -41,7 +41,7 @@ $defs:
         type: string
         description: The message of the notification
       relatedTo:
-        $ref: '#/$defs/DBNotificationTarget'
+        $ref: '#/$defs/NotificationTarget'
       created:
         type: integer
         format: int64
@@ -56,7 +56,7 @@ $defs:
         severity: error
         message: 'disk.space.low'
         relatedTo:
-          $ref: '#/$defs/DBNotificationTarget/examples/0'
+          $ref: '#/$defs/NotificationTarget/examples/0'
         created: 1694784932
         modified: 1694784950
 
@@ -71,19 +71,19 @@ $defs:
     examples:
       - info
 
-  DBNotificationTarget:
-    title: DBNotificationTarget
+  NotificationTarget:
+    title: NotificationTarget
     description: Description of what the notification is related to
     oneOf:
-      - $ref: '#/$defs/DBNotificationTargetRundown'
-      - $ref: '#/$defs/DBNotificationTargetRundownPlaylist'
-      - $ref: '#/$defs/DBNotificationTargetPartInstance'
-      - $ref: '#/$defs/DBNotificationTargetPieceInstance'
+      - $ref: '#/$defs/NotificationTargetRundown'
+      - $ref: '#/$defs/NotificationTargetRundownPlaylist'
+      - $ref: '#/$defs/NotificationTargetPartInstance'
+      - $ref: '#/$defs/NotificationTargetPieceInstance'
     examples:
-      - $ref: '#/$defs/DBNotificationTargetRundown/examples/0'
-      - $ref: '#/$defs/DBNotificationTargetRundownPlaylist/examples/0'
-      - $ref: '#/$defs/DBNotificationTargetPartInstance/examples/0'
-      - $ref: '#/$defs/DBNotificationTargetPieceInstance/examples/0'
+      - $ref: '#/$defs/NotificationTargetRundown/examples/0'
+      - $ref: '#/$defs/NotificationTargetRundownPlaylist/examples/0'
+      - $ref: '#/$defs/NotificationTargetPartInstance/examples/0'
+      - $ref: '#/$defs/NotificationTargetPieceInstance/examples/0'
 
   NotificationTargetType:
     type: string
@@ -95,9 +95,9 @@ $defs:
       - partInstance
       - pieceInstance
 
-  DBNotificationTargetRundown:
+  NotificationTargetRundown:
     type: object
-    title: DBNotificationTargetRundown
+    title: NotificationTargetRundown
     required: [type, studioId, rundownId]
     properties:
       type:
@@ -113,9 +113,9 @@ $defs:
         studioId: studio01
         rundownId: rd123
 
-  DBNotificationTargetRundownPlaylist:
+  NotificationTargetRundownPlaylist:
     type: object
-    title: DBNotificationTargetRundownPlaylist
+    title: NotificationTargetRundownPlaylist
     required: [type, studioId, playlistId]
     properties:
       type:
@@ -131,9 +131,9 @@ $defs:
         studioId: studio01
         playlistId: pl456
 
-  DBNotificationTargetPartInstance:
+  NotificationTargetPartInstance:
     type: object
-    title: DBNotificationTargetPartInstance
+    title: NotificationTargetPartInstance
     required: [type, studioId, rundownId, partInstanceId]
     properties:
       type:
@@ -152,9 +152,9 @@ $defs:
         rundownId: rd123
         partInstanceId: pi789
 
-  DBNotificationTargetPieceInstance:
+  NotificationTargetPieceInstance:
     type: object
-    title: DBNotificationTargetPieceInstance
+    title: NotificationTargetPieceInstance
     required: [type, studioId, rundownId, partInstanceId, pieceInstanceId]
     properties:
       type:

@@ -63,6 +63,7 @@ enum SubscriptionName {
 	ACTIVE_PIECES = 'activePieces',
 	SEGMENTS = 'segments',
 	AD_LIBS = 'adLibs',
+	NOTIFICATIONS = 'notifications',
 	BUCKETS = 'buckets',
 	RESERVED_PACKAGES = 'packages',
 }
@@ -771,13 +772,13 @@ interface NotificationsEvent {
 	/**
 	 * Active notifications in Sofie
 	 */
-	activeNotifications: DbNotificationObj[]
+	activeNotifications: NotificationObj[]
 }
 
 /**
  * This describes a notification that should be shown to a user. These can come from various sources, and are added and removed dynamically during system usage
  */
-interface DbNotificationObj {
+interface NotificationObj {
 	/**
 	 * Unique identifier for the notification
 	 */
@@ -794,10 +795,10 @@ interface DbNotificationObj {
 	 * Description of what the notification is related to
 	 */
 	relatedTo:
-		| DbNotificationTargetRundown
-		| DbNotificationTargetRundownPlaylist
-		| DbNotificationTargetPartInstance
-		| DbNotificationTargetPieceInstance
+		| NotificationTargetRundown
+		| NotificationTargetRundownPlaylist
+		| NotificationTargetPartInstance
+		| NotificationTargetPieceInstance
 	/**
 	 * Unix timestamp of creation
 	 */
@@ -817,7 +818,7 @@ enum NotificationSeverity {
 	INFO = 'info',
 }
 
-interface DbNotificationTargetRundown {
+interface NotificationTargetRundown {
 	/**
 	 * Possible NotificationTarget types
 	 */
@@ -836,7 +837,7 @@ enum NotificationTargetType {
 	PIECE_INSTANCE = 'pieceInstance',
 }
 
-interface DbNotificationTargetRundownPlaylist {
+interface NotificationTargetRundownPlaylist {
 	/**
 	 * Possible NotificationTarget types
 	 */
@@ -845,7 +846,7 @@ interface DbNotificationTargetRundownPlaylist {
 	playlistId: string
 }
 
-interface DbNotificationTargetPartInstance {
+interface NotificationTargetPartInstance {
 	/**
 	 * Possible NotificationTarget types
 	 */
@@ -855,7 +856,7 @@ interface DbNotificationTargetPartInstance {
 	partInstanceId: string
 }
 
-interface DbNotificationTargetPieceInstance {
+interface NotificationTargetPieceInstance {
 	/**
 	 * Possible NotificationTarget types
 	 */
@@ -925,11 +926,11 @@ export {
 	BucketStatus,
 	BucketAdLibStatus,
 	NotificationsEvent,
-	DbNotificationObj,
+	NotificationObj,
 	NotificationSeverity,
-	DbNotificationTargetRundown,
+	NotificationTargetRundown,
 	NotificationTargetType,
-	DbNotificationTargetRundownPlaylist,
-	DbNotificationTargetPartInstance,
-	DbNotificationTargetPieceInstance,
+	NotificationTargetRundownPlaylist,
+	NotificationTargetPartInstance,
+	NotificationTargetPieceInstance,
 }

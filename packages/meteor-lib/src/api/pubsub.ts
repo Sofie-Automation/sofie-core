@@ -243,9 +243,6 @@ export type MeteorPubSubCollections = {
 	[CollectionName.Buckets]: Bucket
 	[CollectionName.TranslationsBundles]: TranslationsBundle
 	[CollectionName.ExpectedPlayoutItems]: ExpectedPlayoutItem
-
-	[CollectionName.MediaWorkFlows]: MediaWorkFlow
-	[CollectionName.MediaWorkFlowSteps]: MediaWorkFlowStep
 } & MeteorPubSubCustomCollections
 
 export type MeteorPubSubCustomCollections = {
