@@ -119,6 +119,7 @@
 		]
 	},
 	"meteor": {
+		"modern": true,
 		"mainModule": {
 			"server": "server/main.ts"
 		}
