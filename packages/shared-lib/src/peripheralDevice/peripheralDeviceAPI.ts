@@ -119,6 +119,7 @@ export interface PeripheralDeviceInitOptions {
 	 * SubType of the connection
 	 */
 	subType: PeripheralDeviceSubType
+
 	/**
 	 * Name of the device
 	 * eg 'MOS Gateway'
