@@ -6373,7 +6373,7 @@ __metadata:
   resolution: "@sofie-automation/shared-lib@workspace:shared-lib"
   dependencies:
     "@mos-connection/model": "npm:^4.2.2"
-    timeline-state-resolver-types: "npm:10.0.0-nightly-release53-20250908-063535-af36ced74.0"
+    timeline-state-resolver-types: "npm:10.0.0-nightly-superfly-feat-ograf-graphics-20250930-055556-968aaad3d.0"
     tslib: "npm:^2.8.1"
     type-fest: "npm:^4.33.0"
   languageName: unknown
@@ -23144,7 +23144,7 @@ asn1@evs-broadcast/node-asn1:
     "@sofie-automation/shared-lib": "npm:1.53.0-in-development"
     debug: "npm:^4.4.0"
     influx: "npm:^5.9.7"
-    timeline-state-resolver: "npm:10.0.0-nightly-release53-20250908-063535-af36ced74.0"
+    timeline-state-resolver: "npm:10.0.0-nightly-superfly-feat-ograf-graphics-20250930-055556-968aaad3d.0"
     tslib: "npm:^2.8.1"
     underscore: "npm:^1.13.7"
     winston: "npm:^3.17.0"
@@ -27880,29 +27880,29 @@ asn1@evs-broadcast/node-asn1:
   languageName: node
   linkType: hard
 
-"timeline-state-resolver-api@npm:10.0.0-nightly-release53-20250908-063535-af36ced74.0":
-  version: 10.0.0-nightly-release53-20250908-063535-af36ced74.0
-  resolution: "timeline-state-resolver-api@npm:10.0.0-nightly-release53-20250908-063535-af36ced74.0"
+"timeline-state-resolver-api@npm:10.0.0-nightly-superfly-feat-ograf-graphics-20250930-055556-968aaad3d.0":
+  version: 10.0.0-nightly-superfly-feat-ograf-graphics-20250930-055556-968aaad3d.0
+  resolution: "timeline-state-resolver-api@npm:10.0.0-nightly-superfly-feat-ograf-graphics-20250930-055556-968aaad3d.0"
   dependencies:
     tslib: "npm:^2.6.3"
   peerDependencies:
     timeline-state-resolver-types: 10.0.0-release53
-  checksum: 10/562990051b6f0030d9ea0166e24f9f438f9f1d763258e8f0d0ac032660c62c4394b826910213140609a63527800a53b68e16b4beeb348dad95f4d4f0c05923fc
+  checksum: 10/54dbe07edbfc283908d1d4be068e513f4d20c58b140d5bcf5fa20244ac7911f332434f7bd27a32407da0f29883cdd5a8dfcacd95bd8aa9eddf0a8c250409510e
   languageName: node
   linkType: hard
 
-"timeline-state-resolver-types@npm:10.0.0-nightly-release53-20250908-063535-af36ced74.0":
-  version: 10.0.0-nightly-release53-20250908-063535-af36ced74.0
-  resolution: "timeline-state-resolver-types@npm:10.0.0-nightly-release53-20250908-063535-af36ced74.0"
+"timeline-state-resolver-types@npm:10.0.0-nightly-superfly-feat-ograf-graphics-20250930-055556-968aaad3d.0":
+  version: 10.0.0-nightly-superfly-feat-ograf-graphics-20250930-055556-968aaad3d.0
+  resolution: "timeline-state-resolver-types@npm:10.0.0-nightly-superfly-feat-ograf-graphics-20250930-055556-968aaad3d.0"
   dependencies:
     tslib: "npm:^2.6.3"
-  checksum: 10/e26e2c5dc6ba1d68458862c35035be060f088e5582c85c3a99215830557e46f9ab43f7c2813105f664288f49ef2ee6e81eb4e084480befde2ab0fc748f3f6429
+  checksum: 10/6621e8d9e2ee96b8587efff298efa2c82eec10f6ac27be3d90f8e76c5f9aca436d40a7d35503ab266f5cf41bec3ad0f66ecdcbab7279da1489b2716925e37fa2
   languageName: node
   linkType: hard
 
-"timeline-state-resolver@npm:10.0.0-nightly-release53-20250908-063535-af36ced74.0":
-  version: 10.0.0-nightly-release53-20250908-063535-af36ced74.0
-  resolution: "timeline-state-resolver@npm:10.0.0-nightly-release53-20250908-063535-af36ced74.0"
+"timeline-state-resolver@npm:10.0.0-nightly-superfly-feat-ograf-graphics-20250930-055556-968aaad3d.0":
+  version: 10.0.0-nightly-superfly-feat-ograf-graphics-20250930-055556-968aaad3d.0
+  resolution: "timeline-state-resolver@npm:10.0.0-nightly-superfly-feat-ograf-graphics-20250930-055556-968aaad3d.0"
   dependencies:
     "@tv2media/v-connection": "npm:^7.3.4"
     atem-connection: "npm:3.5.0"
@@ -27926,8 +27926,8 @@ asn1@evs-broadcast/node-asn1:
     sprintf-js: "npm:^1.1.3"
     superfly-timeline: "npm:^9.2.0"
     threadedclass: "npm:^1.2.2"
-    timeline-state-resolver-api: "npm:10.0.0-nightly-release53-20250908-063535-af36ced74.0"
-    timeline-state-resolver-types: "npm:10.0.0-nightly-release53-20250908-063535-af36ced74.0"
+    timeline-state-resolver-api: "npm:10.0.0-nightly-superfly-feat-ograf-graphics-20250930-055556-968aaad3d.0"
+    timeline-state-resolver-types: "npm:10.0.0-nightly-superfly-feat-ograf-graphics-20250930-055556-968aaad3d.0"
     tslib: "npm:^2.6.3"
     tv-automation-quantel-gateway-client: "npm:^3.1.7"
     type-fest: "npm:^3.13.1"
@@ -27935,7 +27935,7 @@ asn1@evs-broadcast/node-asn1:
     utf-8-validate: "npm:^6.0.4"
     ws: "npm:^8.18.0"
     xml-js: "npm:^1.6.11"
-  checksum: 10/2069e3567dd657dd5e6ae855711dca576842b967e47f197f36a2f181353a0a5f4cdcbf2c6ec31b7c3b74ea739b01d065d045362e72da76b60665c9c0aab5c609
+  checksum: 10/8bbc4547bf0c922fe7cf9cf246ab6687d6628162d98d953025eff9ce4ebc8455421f51cbd8d8f02d85633bb55af5460e8acea588dca32efb945d1a0d36d5f1bb
   languageName: node
   linkType: hard
 
