@@ -555,5 +555,5 @@ function statusCodeString(t: TFunction, statusCode: StatusCode): string {
 
 function configIdString(t: TFunction, configId: string | undefined): string {
 	if (configId) return t(', Config ID: ') + configId
-	return t(', Unconfigured')
+	else return t(', Unconfigured')
 }
