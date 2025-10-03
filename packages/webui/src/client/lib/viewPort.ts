@@ -254,7 +254,7 @@ async function innerScrollToSegment(
 							} else {
 								resolve(true)
 							}
-						}, 420)
+						}, 1000) // When UI is getting optimized further we could lower this value
 					} else {
 						currentScrollingElement = undefined
 						resolve(true)
