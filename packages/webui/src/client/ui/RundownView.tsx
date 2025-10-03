@@ -2730,6 +2730,27 @@ const RundownViewContent = translateWithTracker<IPropsWithReady, IState, ITracke
 								const isLastSegment =
 									rundownIndex === rundownArray.length - 1 && segmentIndex === segmentArray.length - 1
 
+								// Calculate placeholder height based on segment properties
+								const calculatePlaceholderHeight = (segment: DBSegment): number => {
+									// Base height for a normal segment timeline
+									const BASE_SEGMENT_HEIGHT = 260
+									// Approximate height for dashboard panel (mini-shelf) when displayed
+									const DASHBOARD_PANEL_HEIGHT = 200
+									// Minimum height for hidden segments to prevent layout issues
+									const HIDDEN_SEGMENT_MIN_HEIGHT = 10
+
+									if (segment.isHidden) {
+										// Hidden segments don't render the timeline at all
+										// They only render the dashboard panel if showShelf is true
+										return segment.showShelf ? DASHBOARD_PANEL_HEIGHT : HIDDEN_SEGMENT_MIN_HEIGHT
+									}
+
+									// Normal segment: base timeline height + optional dashboard panel
+									return segment.showShelf ? BASE_SEGMENT_HEIGHT + DASHBOARD_PANEL_HEIGHT : BASE_SEGMENT_HEIGHT
+								}
+
+								const segmentPlaceholderHeight = calculatePlaceholderHeight(segment)
+
 								return (
 									<ErrorBoundary key={unprotectString(segment._id)}>
 										<VirtualElement
@@ -2739,8 +2760,8 @@ const RundownViewContent = translateWithTracker<IPropsWithReady, IState, ITracke
 											})}
 											id={SEGMENT_TIMELINE_ELEMENT_ID + segment._id}
 											margin={'100% 0px 100% 0px'}
-											initialShow={globalIndex++ < window.innerHeight / 260}
-											placeholderHeight={260}
+											initialShow={globalIndex++ < window.innerHeight / segmentPlaceholderHeight}
+											placeholderHeight={segmentPlaceholderHeight}
 											placeholderClassName="placeholder-shimmer-element segment-timeline-placeholder"
 											width="auto"
 										>

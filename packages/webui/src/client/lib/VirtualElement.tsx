@@ -338,18 +338,22 @@ export function VirtualElement({
 		>
 			<div
 				ref={setRef}
+				id={id}
 				style={
-					// We need to set undefined if the height is not known, to allow the parent to calculate the height
+					// Use measurements if available, otherwise fall back to placeholder/ref height when virtualized
 					measurements
 						? {
 								height: measurements.clientHeight + 'px',
+						  }
+						: !isShowingChildren
+						? {
+								height: ((placeholderHeight || ref?.clientHeight) ?? 0) + 'px',
 						  }
 						: undefined
 				}
 			>
 				{!isShowingChildren ? (
 					<div
-						id={measurements?.id ?? id}
 						className={`virtual-element-placeholder ${placeholderClassName}`}
 						style={styleObj}
 					></div>
