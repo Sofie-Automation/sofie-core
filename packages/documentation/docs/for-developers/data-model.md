@@ -32,7 +32,6 @@ This includes:
 - [MediaObjects](https://github.com/Sofie-Automation/sofie-core/blob/main/packages/corelib/src/dataModel/MediaObjects.ts)
 - [MediaWorkFlows](https://github.com/Sofie-Automation/sofie-core/blob/main/meteor/lib/collections/MediaWorkFlows.ts)
 - [MediaWorkFlowSteps](https://github.com/Sofie-Automation/sofie-core/blob/main/meteor/lib/collections/MediaWorkFlowSteps.ts)
-- [Organizations](https://github.com/Sofie-Automation/sofie-core/blob/main/meteor/lib/collections/Organization.ts)
 - [PackageInfos](https://github.com/Sofie-Automation/sofie-core/blob/main/packages/corelib/src/dataModel/PackageInfos.ts)
 - [PackageContainerPackageStatuses](https://github.com/Sofie-Automation/sofie-core/blob/main/packages/corelib/src/dataModel/PackageContainerPackageStatus.ts)
 - [PackageContainerStatuses](https://github.com/Sofie-Automation/sofie-core/blob/main/packages/corelib/src/dataModel/PackageContainerStatus.ts)

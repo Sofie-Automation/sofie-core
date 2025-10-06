@@ -137,7 +137,6 @@ export namespace ServerPeripheralDeviceAPI {
 		} else {
 			await PeripheralDevices.insertAsync({
 				_id: deviceId,
-				organizationId: null,
 				created: getCurrentTime(),
 				status: {
 					statusCode: StatusCode.UNKNOWN,

@@ -72,7 +72,6 @@ export async function setupMockShowStyleBase(
 	const defaultShowStyleBase: DBShowStyleBase = {
 		_id: protectString('mockShowStyleBase' + dbI),
 		name: 'mockShowStyleBase',
-		organizationId: null,
 		outputLayersWithOverrides: wrapDefaultObject(
 			normalizeArray(
 				[
@@ -188,7 +187,6 @@ export async function setupDefaultRundown(
 	const sourceLayerIds = Object.keys(showStyleCompound.sourceLayers)
 
 	await context.mockCollections.Rundowns.insertOne({
-		organizationId: null,
 		studioId: context.studioId,
 		showStyleBaseId: showStyleCompound._id,
 		showStyleVariantId: showStyleCompound.showStyleVariantId,
@@ -419,7 +417,6 @@ export async function setupMockPeripheralDevice(
 		_id: protectString('mockDevice' + dbI),
 		name: 'mockDevice',
 		deviceName: 'Mock Gateway',
-		organizationId: null,
 		studioAndConfigId: {
 			studioId: context.studioId,
 			configId: 'test',

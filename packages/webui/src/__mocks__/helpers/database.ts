@@ -29,7 +29,6 @@ import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyle
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import {
 	BlueprintId,
-	OrganizationId,
 	RundownId,
 	RundownPlaylistId,
 	ShowStyleBaseId,
@@ -162,7 +161,6 @@ export async function setupMockShowStyleBase(
 	const defaultShowStyleBase: DBShowStyleBase = {
 		_id: protectString('mockShowStyleBase' + dbI++),
 		name: 'mockShowStyleBase',
-		organizationId: null,
 		outputLayersWithOverrides: wrapDefaultObject(
 			normalizeArray(
 				[
@@ -252,9 +250,7 @@ export interface DefaultEnvironment {
 	core: ICoreSystem
 	// systemTriggeredActions: DBTriggeredActions[]
 }
-export async function setupDefaultStudioEnvironment(
-	organizationId: OrganizationId | null = null
-): Promise<DefaultEnvironment> {
+export async function setupDefaultStudioEnvironment(): Promise<DefaultEnvironment> {
 	const core = await setupMockCore({})
 	// const systemTriggeredActions = await setupMockTriggeredActions()
 
@@ -263,7 +259,6 @@ export async function setupDefaultStudioEnvironment(
 
 	const showStyleBase = await setupMockShowStyleBase(protectString('blueprint0'), {
 		_id: showStyleBaseId,
-		organizationId: organizationId,
 	})
 	// const triggeredActions = await setupMockTriggeredActions(showStyleBase._id)
 	const showStyleVariant = await setupMockShowStyleVariant(showStyleBase._id, { _id: showStyleVariantId })
@@ -271,7 +266,6 @@ export async function setupDefaultStudioEnvironment(
 	const studio = await setupMockStudio({
 		blueprintId: protectString('blueprint0'),
 		supportedShowStyleBase: [showStyleBaseId],
-		organizationId: organizationId,
 	})
 
 	return {
@@ -319,7 +313,6 @@ export async function setupDefaultRundown(
 	const sourceLayerIds = Object.keys(applyAndValidateOverrides(env.showStyleBase.sourceLayersWithOverrides).obj)
 
 	const rundown: DBRundown = {
-		organizationId: null,
 		studioId: env.studio._id,
 		showStyleBaseId: env.showStyleBase._id,
 		showStyleVariantId: env.showStyleVariant._id,

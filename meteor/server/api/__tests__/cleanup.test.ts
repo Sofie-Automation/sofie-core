@@ -51,6 +51,7 @@ import { Collections } from '../../collections/lib'
 import { generateTranslationBundleOriginId } from '../translationsBundles'
 import { CollectionCleanupResult } from '@sofie-automation/meteor-lib/dist/api/system'
 import { DBNotificationTargetType } from '@sofie-automation/corelib/dist/dataModel/Notifications'
+import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 
 describe('Cleanup', () => {
 	let env: DefaultEnvironment
@@ -67,6 +68,15 @@ describe('Cleanup', () => {
 		expect(typeof result).not.toBe('string')
 
 		for (const name of Collections.keys()) {
+			// Some collections have no 'owner'
+			if (
+				name === CollectionName.Blueprints ||
+				name === CollectionName.Studios ||
+				name === CollectionName.ShowStyleBases ||
+				name === CollectionName.PeripheralDevices
+			)
+				continue
+
 			// Check that the collection has been handled in the function cleanupOldDataInner:
 			expect(result).toHaveProperty(name)
 		}
@@ -248,7 +258,6 @@ async function setDefaultDatatoDB(env: DefaultEnvironment, now: number) {
 	await Evaluations.insertAsync({
 		_id: getRandomId(),
 		answers: {} as any,
-		organizationId: null,
 		playlistId,
 		studioId,
 		timestamp: now,
@@ -401,7 +410,6 @@ async function setDefaultDatatoDB(env: DefaultEnvironment, now: number) {
 		created: now,
 		fileName: '',
 		name: '',
-		organizationId: null,
 		type: '' as any,
 		version: '',
 	})
@@ -427,7 +435,6 @@ async function setDefaultDatatoDB(env: DefaultEnvironment, now: number) {
 		clientAddress: '',
 		context: '',
 		method: '',
-		organizationId: null,
 		timestamp: now,
 		userId: null,
 	})
@@ -469,7 +476,6 @@ async function setDefaultDatatoDB(env: DefaultEnvironment, now: number) {
 		if (
 			[
 				// Ignore these:
-				'organizations',
 				'Users',
 				// Deprecated:
 				'mediaObjects',

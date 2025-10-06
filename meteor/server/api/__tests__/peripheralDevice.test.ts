@@ -99,7 +99,6 @@ describe('test peripheralDevice general API methods', () => {
 				peripheralDeviceId: env.ingestDevice._id,
 				nrcsName: 'mockNRCS',
 			},
-			organizationId: protectString(''),
 			timing: {
 				type: PlaylistTimingType.None,
 			},
@@ -630,7 +629,6 @@ describe('test peripheralDevice general API methods', () => {
 			env = await setupDefaultStudioEnvironment()
 			await PeripheralDevices.insertAsync({
 				_id: deviceId,
-				organizationId: null,
 				name: 'Mock Media Manager',
 				deviceName: 'Media Manager',
 				studioAndConfigId: {

@@ -22,7 +22,6 @@ export async function setupRundownBase(
 	const sourceLayerIds = Object.keys(showStyle.sourceLayers)
 
 	const rundown: DBRundown = {
-		organizationId: null,
 		studioId: context.studio._id,
 		showStyleBaseId: showStyle._id,
 		showStyleVariantId: showStyle.showStyleVariantId,

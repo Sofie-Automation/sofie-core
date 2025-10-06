@@ -244,9 +244,6 @@ async function fastTrackTimeline(newTimeline: TimelineComplete): Promise<void> {
 		// Only set the timelineHash once:
 		timelineHash: { $exists: false },
 	}
-	if (studio.organizationId) {
-		selector.organizationId = studio.organizationId
-	}
 
 	await UserActionsLog.updateAsync(
 		selector,

@@ -250,7 +250,6 @@ describe('SyncChangesToPartInstancesWorker', () => {
 				showStyleBaseId: showStyleCompound._id,
 				showStyleVariantId: showStyleCompound.showStyleVariantId,
 				name: 'mockName',
-				organizationId: null,
 				studioId: context.studioId,
 				source: {
 					type: 'http',
