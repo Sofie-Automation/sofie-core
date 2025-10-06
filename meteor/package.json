@@ -140,5 +140,5 @@
 		"@sofie-automation/job-worker": "portal:../packages/job-worker",
 		"@sofie-automation/shared-lib": "portal:../packages/shared-lib"
 	},
-	"packageManager": "yarn@4.6.0"
+	"packageManager": "yarn@4.10.3"
 }

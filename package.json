@@ -41,5 +41,5 @@
 		"semver": "^7.6.3",
 		"snyk-nodejs-lockfile-parser": "^1.58.16"
 	},
-	"packageManager": "yarn@4.6.0"
+	"packageManager": "yarn@4.10.3"
 }
