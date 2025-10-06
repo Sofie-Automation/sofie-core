@@ -38,6 +38,14 @@ async function insertStudio(context: MethodContext, newId?: StudioId): Promise<S
 	return insertStudioInner(null, newId)
 }
 export async function insertStudioInner(organizationId: OrganizationId | null, newId?: StudioId): Promise<StudioId> {
+	const studioCount = await Studios.countDocuments()
+	if (studioCount > 0) {
+		throw new Meteor.Error(
+			400,
+			`Only one studio is supported per installation (there are currently ${studioCount})`
+		)
+	}
+
 	return Studios.insertAsync(
 		literal<DBStudio>({
 			_id: newId || getRandomId(),
@@ -78,6 +86,14 @@ async function removeStudio(context: MethodContext, studioId: StudioId): Promise
 	check(studioId, String)
 
 	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_MANAGE_STUDIOS)
+
+	const studioCount = await Studios.countDocuments()
+	if (studioCount === 1) {
+		throw new Meteor.Error(
+			400,
+			`The last studio in the system cannot be deleted (there must be at least one studio)`
+		)
+	}
 
 	const studio = await Studios.findOneAsync(studioId)
 	if (!studio) throw new Meteor.Error(404, `Studio "${studioId}" not found`)
