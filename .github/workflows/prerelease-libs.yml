@@ -4,12 +4,50 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+env:
+  IS_UPSTREAM: ${{ github.repository_owner == 'Sofie-Automation' }}
+  NPM_PACKAGE_SCOPE: ${{ vars.NPM_PACKAGE_SCOPE }} # In the form of nrkno, without the @
+  NPM_PACKAGE_PREFIX: ${{ vars.NPM_PACKAGE_PREFIX }} # Set to anything to prefix the published package names with "sofie-". eg in combination with NPM_PACKAGE_SCOPE this will turn @sofie-automation/shared-lib into @nrkno/sofie-shared-lib
+
 jobs:
+  check-publish:
+    name: Check if publish is possible
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      can-publish: ${{ steps.check.outputs.can-publish }}
+      npm-scope: ${{ steps.check.outputs.npm-scope }}
+
+    steps:
+      - name: Check release is possible
+        id: check
+        run: |
+          if [ "${{ env.IS_UPSTREAM }}" = "true" ]; then
+            echo "Upstream repo, publishing unscoped" >> $GITHUB_STEP_SUMMARY
+            echo "can-publish=1" >> $GITHUB_OUTPUT
+            echo "npm-scope=" >> $GITHUB_OUTPUT
+          elif [ "${{ env.NPM_PACKAGE_SCOPE }}" = "" ]; then
+            echo "No NPM_PACKAGE_SCOPE set, not publishing" >> $GITHUB_STEP_SUMMARY
+            echo "can-publish=0" >> $GITHUB_OUTPUT
+            echo "npm-scope=" >> $GITHUB_OUTPUT
+          else
+            echo "Downstream repo, publishing scoped to \`@${{ env.NPM_PACKAGE_SCOPE }}\`" >> $GITHUB_STEP_SUMMARY
+            echo "can-publish=1" >> $GITHUB_OUTPUT
+            echo "npm-scope=${{ env.NPM_PACKAGE_SCOPE }}" >> $GITHUB_OUTPUT
+          fi
+
   lint-packages:
     name: Lint Lib
     runs-on: ubuntu-latest
     continue-on-error: true
     timeout-minutes: 15
+
+    needs: check-publish
+
+    if: ${{ needs.check-publish.outputs.can-publish == '1' }}
 
     strategy:
       fail-fast: false
@@ -26,7 +64,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v6
         with:
-          node-version-file: ".node-version"
+          node-version-file: '.node-version'
       - name: Prepare Environment
         run: |
           corepack enable
@@ -47,6 +85,10 @@ jobs:
     name: Test Lib
     runs-on: ubuntu-latest
     timeout-minutes: 15
+
+    needs: check-publish
+
+    if: ${{ needs.check-publish.outputs.can-publish == '1' }}
 
     strategy:
       fail-fast: false
@@ -81,13 +123,14 @@ jobs:
         env:
           CI: true
 
-  prerelease-libs:
-    name: Prerelease Lib
+  prepare-publish:
+    name: Prepare for publish
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
-    needs:
-      - test-packages
+    needs: check-publish
+
+    if: ${{ needs.check-publish.outputs.can-publish == '1' }}
 
     steps:
       - uses: actions/checkout@v5
@@ -96,27 +139,16 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v6
         with:
-          node-version-file: ".node-version"
-      - name: Check release is possible
-        id: do-publish
-        run: |
-          if [ -z "${{ secrets.NPM_TOKEN }}" ]; then
-            echo "No Token"
-          else
-            echo "Publish prerelease"
-            echo "publish=1" >> $GITHUB_OUTPUT
-          fi
+          node-version-file: '.node-version'
       - name: Prepare Environment
-        if: ${{ steps.do-publish.outputs.publish }}
         run: |
           corepack enable
-          
+
           cd packages
           yarn install
         env:
           CI: true
       - name: Bump version
-        if: ${{ steps.do-publish.outputs.publish }}
         run: |
           cd packages
           COMMIT_TIMESTAMP=$(git log -1 --pretty=format:%ct HEAD)
@@ -131,7 +163,6 @@ jobs:
         env:
           CI: true
       - name: Build
-        if: ${{ steps.do-publish.outputs.publish }}
         run: |
           cd packages
           yarn build
@@ -139,26 +170,85 @@ jobs:
           CI: true
 
       - name: Build OpenAPI client library
-        if: ${{ steps.do-publish.outputs.publish }}
         run: |
           cd packages/openapi
           yarn build
         env:
           CI: true
       - name: Modify dependencies to use npm packages
-        run: node scripts/prepublish.js
+        run: |
+          node scripts/prepublish.js "${{ github.repository }}" "${{ env.NPM_PACKAGE_SCOPE }}" ${{ env.NPM_PACKAGE_PREFIX }}
+
+          cd packages
+          yarn install --no-immutable
+
+      - name: Upload release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: publish-dist
+          path: |
+            packages/*/dist
+            packages/*/package.json
+            packages/package.json
+            packages/yarn.lock
+            package.json
+          retention-days: 1
+          if-no-files-found: error
+
+  publish:
+    name: Publish to NPM
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs:
+      - prepare-publish
+      - test-packages
+
+    permissions:
+      contents: write
+      id-token: write # scoped for as short as possible, as this gives write access to npm
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.node-version'
+
+      - name: Download release artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: publish-dist
+
       - name: Publish to NPM
         id: publish-npm
-        if: ${{ steps.do-publish.outputs.publish }}
         run: |
-          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
+          # Commit any changes, to make lerna happy that the tree isn't dirty
+          git config --global user.email "info@superfly.tv"
+          git config --global user.name "superflytvab"
+          git add .
+          git commit -m "chore: temp commit" --no-verify --allow-empty
+
+          # If an npm token is provided, use it (for simpler setup in forks)
+          if [ "${{ secrets.NPM_TOKEN }}" != "" ]; then
+            echo "Using provided NPM token"
+            echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
+          else
+            echo "No NPM token provided, using trusted publishing"
+          fi
 
           cd packages
 
-          yarn lerna publish from-package --tag-version-prefix='' --dist-tag nightly --yes --no-verify-access
+          corepack enable
+          yarn install
+
+          yarn lerna publish from-package --tag-version-prefix='' --dist-tag nightly --yes
 
           NEW_VERSION=$(node -p "require('./lerna.json').version")
           echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
           echo "**Published:** $NEW_VERSION" >> $GITHUB_STEP_SUMMARY
         env:
+          NPM_CONFIG_PROVENANCE: true
           CI: true
