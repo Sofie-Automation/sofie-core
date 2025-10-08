@@ -1,5 +1,6 @@
 ---
 title: MOS-plugins
+sidebar_position: 20
 ---
 
 # iFrames MOS-plugins
