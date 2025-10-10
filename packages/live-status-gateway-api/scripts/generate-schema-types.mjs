@@ -61,10 +61,13 @@ const generator = new TypeScriptGenerator({
 })
 
 const parser = new Parser()
-const asyncApiDoc = await fromFile(parser, 'api/asyncapi.yaml').parse()
+const asyncApiDoc = await fromFile(parser, 'api/refactor/index.yaml').parse()
 if (!asyncApiDoc.document) {
+	// Ignore the expected legacy version error
+	const filteredDiagnostics = asyncApiDoc.diagnostics.filter((d) => d.code !== 'asyncapi-latest-version')
+
 	console.error('No document was produced from the asyncapi parser')
-	console.error(JSON.stringify(asyncApiDoc.diagnostics))
+	console.error(JSON.stringify(filteredDiagnostics, null, 2)) // TODO: maybe formatting the output is not great for tooling
 
 	// eslint-disable-next-line n/no-process-exit
 	process.exit(5)
