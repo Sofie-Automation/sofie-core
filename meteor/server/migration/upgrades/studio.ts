@@ -79,3 +79,19 @@ export async function runUpgradeForStudio(studioId: StudioId): Promise<void> {
 		span?.end()
 	}
 }
+
+export async function updateStudioBaseline(studioId: StudioId): Promise<string | false> {
+	logger.info(`Running baseline update for Studio "${studioId}"`)
+	await getStudio(studioId)
+
+	const queuedJob = await QueueStudioJob(StudioJobs.UpdateStudioBaseline, studioId, undefined)
+
+	const span = profiler.startSpan('queued-job')
+	try {
+		const res = await queuedJob.complete
+		// explicitly await before returning
+		return res
+	} finally {
+		span?.end()
+	}
+}

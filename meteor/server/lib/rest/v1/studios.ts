@@ -55,7 +55,7 @@ export interface StudiosRestAPI {
 		event: string,
 		studioId: StudioId,
 		studio: APIStudio
-	): Promise<ClientAPI.ClientResponse<void>>
+	): Promise<ClientAPI.ClientResponse<string | false>>
 	/**
 	 * Gets a Studio config, if it exists.
 	 *
@@ -83,7 +83,7 @@ export interface StudiosRestAPI {
 		event: string,
 		studioId: StudioId,
 		config: object
-	): Promise<ClientAPI.ClientResponse<void>>
+	): Promise<ClientAPI.ClientResponse<string | false>>
 	/**
 	 * Deletes a Studio.
 	 *
