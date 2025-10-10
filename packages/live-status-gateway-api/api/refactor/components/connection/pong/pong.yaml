@@ -1,0 +1,10 @@
+title: PongEvent
+type: object
+properties:
+  event:
+    type: string
+    const: pong
+  reqid:
+    $ref: '../../reqid.yaml'
+required: [event, reqid]
+additionalProperties: false

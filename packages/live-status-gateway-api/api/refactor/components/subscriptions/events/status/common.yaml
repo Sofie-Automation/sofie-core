@@ -1,0 +1,26 @@
+type: object
+title: SubscriptionStatusCommon
+properties:
+  event:
+    type: string
+    const: subscriptionStatus
+  reqid:
+    $ref: '../../../reqid.yaml'
+  subscription:
+    type: object
+    title: SubscriptionDetails
+    properties:
+      name:
+        $ref: '../../../subscriptionName.yaml'
+      status:
+        $ref: '../../primitives/status.yaml'
+    required: [name, status]
+    additionalProperties: false
+required: [event, reqid, subscription]
+additionalProperties: false
+examples:
+  - event: subscriptionStatus
+    reqid: 27
+    subscription:
+      name: studio
+      status: subscribed

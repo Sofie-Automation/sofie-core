@@ -1,0 +1,7 @@
+type: object
+title: SubscriptionStatus
+oneOf:
+  - $ref: './error.yaml'
+  - $ref: './success.yaml'
+examples:
+  - $ref: './common.yaml#/examples/0'

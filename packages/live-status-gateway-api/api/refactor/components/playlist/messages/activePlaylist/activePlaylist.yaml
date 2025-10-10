@@ -1,0 +1,8 @@
+components:
+  messages:
+    activePlaylist:
+      name: activePlaylist
+      messageId: activePlaylistUpdate
+      description: Active Playlist status
+      payload:
+        $ref: '../../activePlaylist.yaml#/$defs/activePlaylist'

@@ -1,0 +1,13 @@
+title: BucketsEvent
+type: object
+properties:
+  event:
+    type: string
+    const: buckets
+  buckets:
+    description: Buckets available in the Studio
+    type: array
+    items:
+      $ref: 'bucket/bucket.yaml'
+required: [event, buckets]
+additionalProperties: false

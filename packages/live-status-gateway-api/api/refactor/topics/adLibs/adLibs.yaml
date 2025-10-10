@@ -1,0 +1,7 @@
+description: Topic for AdLibs updates
+
+subscribe:
+  operationId: publishAdLibs
+  summary: Client publishes AdLibs updates
+  message:
+    $ref: '../../components/adLibs/messages/adLibs.yaml#/components/messages/adLibs'

@@ -1,0 +1,8 @@
+components:
+  messages:
+    buckets:
+      name: buckets
+      messageId: buckets
+      description: Buckets in Studio
+      payload:
+        $ref: '../buckets.yaml'

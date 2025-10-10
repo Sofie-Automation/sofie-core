@@ -1,0 +1,10 @@
+title: PingEvent
+type: object
+properties:
+  event:
+    type: string
+    const: ping
+  reqid:
+    $ref: '../../reqid.yaml'
+required: [event, reqid]
+additionalProperties: false

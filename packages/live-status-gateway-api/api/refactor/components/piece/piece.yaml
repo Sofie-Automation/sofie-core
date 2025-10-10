@@ -1,0 +1,34 @@
+$defs:
+  piece:
+    type: object
+    title: PieceStatus
+    properties:
+      id:
+        description: Unique id of the Piece
+        type: string
+      name:
+        description: User-facing name of the Piece
+        type: string
+      sourceLayer:
+        description: The source layer name for this Piece
+        type: string
+      outputLayer:
+        description: The output layer name for this Piece
+        type: string
+      tags:
+        description: Tags attached to this Piece
+        type: array
+        items:
+          type: string
+      publicData:
+        description: Optional arbitrary data
+    required: [id, name, sourceLayer, outputLayer]
+    additionalProperties: false
+    examples:
+      - id: 'H5CBGYjThrMSmaYvRaa5FVKJIzk_'
+        name: 'Camera 1'
+        sourceLayer: 'Camera'
+        outputLayer: 'PGM'
+        tags: ['camera']
+        publicData:
+          switcherSource: 1

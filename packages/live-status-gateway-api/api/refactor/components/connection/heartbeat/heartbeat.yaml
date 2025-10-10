@@ -1,0 +1,8 @@
+title: HeartbeatEvent
+type: object
+properties:
+  event:
+    type: string
+    const: heartbeat
+required: [event]
+additionalProperties: false

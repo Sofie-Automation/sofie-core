@@ -1,0 +1,10 @@
+name: UnsubscribeMessage
+title: Unsubscribe Event Message
+contentType: application/json
+payload:
+  $ref: '../../../components/subscriptions/events/unsubscribe.yaml'
+examples:
+  - event: unsubscribe
+    reqid: 27
+    subscription:
+      name: studio

@@ -1,0 +1,11 @@
+title: Subscription Details
+description: Schema for Subscription Details
+$defs:
+  subscriptionDetails:
+    type: object
+    title: SubscriptionDetails
+    properties:
+      name:
+        $ref: '../subscriptionName.yaml'
+    required: [name]
+    additionalProperties: false

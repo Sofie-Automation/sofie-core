@@ -1,0 +1,73 @@
+$defs:
+  # TODO: Move this into the parts folder
+  currentSegmentPart:
+    title: CurrentSegmentPart
+    type: object
+    properties:
+      id:
+        description: Unique id of the part
+        type: string
+      name:
+        description: User-presentable name of the part
+        type: string
+      autoNext:
+        description: If this part will progress to the next automatically
+        type: boolean
+        default: false
+      timing:
+        $ref: '../timing/currentSegmentPartTiming.yaml#/$defs/currentSegmentPartTiming'
+    required: [id, name, timing]
+    examples:
+      - id: 'H5CBGYjThrMSmaYvRaa5FVKJIzk_'
+        name: 'Intro'
+        timing:
+          expectedDurationMs: 15000
+    additionalProperties: false
+
+  # TODO: move this into it's own folder
+  currentSegment:
+    title: CurrentSegment
+    type: object
+    properties:
+      id:
+        type: string
+        description: Unique id of the segment
+      timing:
+        $ref: '../timing/currentSegmentTiming.yaml#/$defs/currentSegmentTiming'
+      parts:
+        type: array
+        items:
+          $ref: '#/$defs/currentSegmentPart'
+    required: [id, timing, parts]
+    additionalProperties: false
+
+  segment:
+    type: object
+    title: Segment
+    properties:
+      id:
+        description: Unique id of the segment
+        type: string
+      identifier:
+        description: User-facing identifier that can be used to identify the contents of a segment in the Rundown source system
+        type: string
+      rundownId:
+        description: Unique id of the rundown this segment belongs to
+        type: string
+      name:
+        description: Name of the segment
+        type: string
+      timing:
+        $ref: '../timing/segmentTiming.yaml#/$defs/segmentTiming'
+      publicData:
+        description: Optional arbitrary data
+    required: [id, rundownId, name, timing]
+    additionalProperties: false
+    examples:
+      - id: 'OKAgZmZ0Buc99lE_2uPPSKVbMrQ_'
+        rundownId: 'y9HauyWkcxQS3XaAOsW40BRLLsI_'
+        name: 'Segment 0'
+        timing:
+          $ref: '../timing/segmentTiming.yaml#/$defs/segmentTiming/examples/0'
+        publicData:
+          containsLiveSource: true

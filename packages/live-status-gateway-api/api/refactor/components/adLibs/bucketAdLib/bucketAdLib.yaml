@@ -1,0 +1,9 @@
+title: BucketAdLibStatus
+allOf:
+  - $ref: '../adLibBase.yaml#/$defs/adLibBase'
+  - type: object
+    properties:
+      externalId:
+        type: string
+        description: Id of the adlib recognizable by the external source. Unique within a bucket.
+    required: [externalId]

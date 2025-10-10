@@ -1,0 +1,10 @@
+name: SubscribeMessage
+title: Subscribe Event Message
+contentType: application/json
+payload:
+  $ref: '../../../components/subscriptions/events/subscribe.yaml'
+examples:
+  - event: subscribe
+    reqid: 27
+    subscription:
+      name: studio

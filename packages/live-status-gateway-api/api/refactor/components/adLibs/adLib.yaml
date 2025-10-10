@@ -1,0 +1,14 @@
+$defs:
+  adLib:
+    title: AdLibStatus
+    allOf:
+      - $ref: './adLibBase.yaml#/$defs/adLibBase'
+      - type: object
+        properties:
+          segmentId:
+            description: Unique id of the segment this adLib belongs to
+            type: string
+          partId:
+            description: Unique id of the part this adLib belongs to
+            type: string
+        required: [segmentId, partId]

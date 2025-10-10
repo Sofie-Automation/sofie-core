@@ -1,0 +1,17 @@
+type: object
+title: UnsubscribeEvent
+properties:
+  event:
+    type: string
+    const: unsubscribe
+  reqid:
+    $ref: '../../../reqid.yaml'
+  subscription:
+    $ref: '../../subscriptionDetails.yaml#/$defs/subscriptionDetails'
+required: [event, reqid, subscription]
+additionalProperties: false
+examples:
+  - event: unsubscribe
+    reqid: 27
+    subscription:
+      name: studio

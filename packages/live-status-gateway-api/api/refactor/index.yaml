@@ -1,0 +1,89 @@
+asyncapi: '2.6.0'
+id: 'sofie:live-status-gateway:server'
+info:
+  title: Sofie Live Status Service
+  version: '2.0.1'
+  description: This service provides subscriptions for status updates from Sofie
+  license:
+    name: MIT License
+    url: http://opensource.org/licenses/MIT
+  contact:
+    name: Sofie TV Automation
+    url: https://github.com/Sofie-Automation/sofie-core/issues
+    # TODO: Remove example email
+    email: example@example.com
+
+servers:
+  development:
+    url: localhost
+    description: Server available without authorization
+    protocol: ws
+    protocolVersion: '13'
+
+defaultContentType: application/json
+
+tags:
+  - name: sofie
+  - name: tv-automation
+  - name: broadcast
+
+channels:
+  # As the LSG is websocket only, channels only used for logical grouping for the generated docs and folder structure.
+  ping:
+    $ref: './topics/ping/ping.yaml'
+  heartbeat:
+    $ref: './topics/heartbeat/heartbeat.yaml'
+  subscriptions:
+    $ref: './topics/subscriptions/subscriptions.yaml'
+  studio:
+    $ref: './topics/studio/studio.yaml'
+  activePlaylist:
+    $ref: './topics/activePlaylist/activePlaylist.yaml'
+  activePieces:
+    $ref: './topics/activePieces/activePieces.yaml'
+  segments:
+    $ref: './topics/segments/segments.yaml'
+  adLibs:
+    $ref: './topics/adLibs/adLibs.yaml'
+  packages:
+    $ref: './topics/packages/packages.yaml'
+  buckets:
+    $ref: './topics/buckets/buckets.yaml'
+
+  # Needed to retain the types from the old schema structure. Eventually this should be removed.
+  /:
+    subscribe:
+      description: Messages that are received from the API
+      operationId: sendRootMessage
+      message:
+        oneOf:
+          - messageId: pong-typeGen
+            payload:
+              $ref: './components/connection/messages/pong.yaml#/components/messages/pong/payload'
+          - messageId: heartbeat-typeGen
+            payload:
+              $ref: './components/connection/messages/heartbeat.yaml#/components/messages/heartbeat/payload'
+          - messageId: subscriptions-typeGen
+            payload:
+              $ref: './components/subscriptions/messages/subscriptionStatus.yaml#/components/messages/subscriptionStatus/payload'
+          - messageId: studioUpdate-typeGen
+            payload:
+              $ref: './components/studio/messages/studioUpdate.yaml#/components/messages/studioUpdate/payload'
+          - messageId: activePlaylist-typeGen
+            payload:
+              $ref: './components/playlist/messages/activePlaylist/activePlaylist.yaml#/components/messages/activePlaylist/payload'
+          - messageId: activePieces-typeGen
+            payload:
+              $ref: './components/piece/activePieces/message.yaml#/components/messages/activePiecesMessage/payload'
+          - messageId: segments-typeGen
+            payload:
+              $ref: './components/segment/messages/segments/message.yaml#/components/messages/segments/payload'
+          - messageId: adLibs-typeGen
+            payload:
+              $ref: './components/adLibs/messages/adLibs.yaml#/components/messages/adLibs/payload'
+          - messageId: packages-typeGen
+            payload:
+              $ref: './components/packages/messages/packages.yaml#/components/messages/packages/payload'
+          - messageId: buckets-typeGen
+            payload:
+              $ref: './components/buckets/messages/buckets.yaml#/components/messages/buckets/payload'

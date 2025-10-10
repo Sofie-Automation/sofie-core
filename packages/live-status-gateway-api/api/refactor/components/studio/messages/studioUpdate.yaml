@@ -1,0 +1,8 @@
+components:
+  messages:
+    studioUpdate:
+      name: studio
+      messageId: studioUpdate
+      description: Studio status
+      payload:
+        $ref: '../studio.yaml'

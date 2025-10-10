@@ -1,0 +1,7 @@
+components:
+  messages:
+    subscribe:
+      messageId: subscribe
+      title: Subscribe Event Message
+      payload:
+        $ref: '../events/subscribe/subscribe.yaml'

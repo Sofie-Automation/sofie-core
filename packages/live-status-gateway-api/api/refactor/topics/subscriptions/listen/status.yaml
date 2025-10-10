@@ -1,0 +1,11 @@
+name: SubscriptionStatusMessage
+title: Subscription Status Event
+contentType: application/json
+payload:
+  $ref: '../../../components/subscriptions/events/result/result.yaml'
+examples:
+  - event: subscriptionStatus
+    reqid: 27
+    subscription:
+      name: studio
+      status: subscribed

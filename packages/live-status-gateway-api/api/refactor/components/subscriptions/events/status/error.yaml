@@ -1,0 +1,11 @@
+title: SubscriptionStatusError
+allOf:
+  - properties:
+      errorMessage:
+        type: string
+    required: [errorMessage]
+    additionalProperties: false
+  - $ref: './common.yaml'
+examples:
+  - errorMessage: 'Subscribe to studio topic failed'
+    $ref: './common.yaml#/examples/0'

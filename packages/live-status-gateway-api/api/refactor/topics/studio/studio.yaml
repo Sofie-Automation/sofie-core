@@ -1,0 +1,6 @@
+description: Studio topic for websocket subscriptions
+subscribe:
+  operationId: receiveStudioUpdate
+  message:
+    oneOf:
+      - $ref: '../../components/studio/messages/studioUpdate.yaml#/components/messages/studioUpdate'

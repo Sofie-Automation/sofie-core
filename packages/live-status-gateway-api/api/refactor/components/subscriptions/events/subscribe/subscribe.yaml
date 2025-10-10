@@ -1,0 +1,17 @@
+type: object
+title: SubscribeEvent
+properties:
+  event:
+    type: string
+    const: subscribe
+  reqid:
+    $ref: '../../../reqid.yaml'
+  subscription:
+    $ref: '../../subscriptionDetails.yaml#/$defs/subscriptionDetails'
+required: [event, reqid, subscription]
+additionalProperties: false
+examples:
+  - event: subscribe
+    reqid: 27
+    subscription:
+      name: studio

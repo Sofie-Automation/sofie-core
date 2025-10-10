@@ -5,6 +5,8 @@
  * and run "yarn generate-schema-types" to regenerate this file.
  */
 
+type Subscriptions = SubscribeEvent | UnsubscribeEvent
+
 type Slash =
 	| PongEvent
 	| HeartbeatEvent
@@ -18,6 +20,14 @@ type Slash =
 	| PackagesEvent
 	| BucketsEvent
 
+interface PingEvent {
+	event: 'ping'
+	/**
+	 * Client originated ID reflected in response message.
+	 */
+	reqid: number
+}
+
 interface PongEvent {
 	event: 'pong'
 	/**
@@ -30,9 +40,8 @@ interface HeartbeatEvent {
 	event: 'heartbeat'
 }
 
-interface SubscriptionStatusError {
-	errorMessage: string
-	event: 'subscriptionStatus'
+interface SubscribeEvent {
+	event: 'subscribe'
 	/**
 	 * Client originated ID reflected in response message.
 	 */
@@ -64,12 +73,31 @@ enum SubscriptionName {
 	RESERVED_PACKAGES = 'packages',
 }
 
+interface UnsubscribeEvent {
+	event: 'unsubscribe'
+	/**
+	 * Client originated ID reflected in response message.
+	 */
+	reqid: number
+	subscription: SubscriptionDetails
+}
+
 /**
  * The current status of the subscription
  */
 enum SubscriptionStatus {
 	SUBSCRIBED = 'subscribed',
 	UNSUBSCRIBED = 'unsubscribed',
+}
+
+interface SubscriptionStatusError {
+	errorMessage: string
+	event: 'subscriptionStatus'
+	/**
+	 * Client originated ID reflected in response message.
+	 */
+	reqid: number
+	subscription: SubscriptionDetails
 }
 
 interface SubscriptionStatusSuccess {
@@ -727,13 +755,17 @@ interface BucketAdLibStatus {
 }
 
 export {
+	Subscriptions,
 	Slash,
+	PingEvent,
 	PongEvent,
 	HeartbeatEvent,
-	SubscriptionStatusError,
+	SubscribeEvent,
 	SubscriptionDetails,
 	SubscriptionName,
+	UnsubscribeEvent,
 	SubscriptionStatus,
+	SubscriptionStatusError,
 	SubscriptionStatusSuccess,
 	StudioEvent,
 	PlaylistStatus,

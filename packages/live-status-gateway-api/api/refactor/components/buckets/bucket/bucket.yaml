@@ -1,0 +1,16 @@
+title: BucketStatus
+type: object
+properties:
+  id:
+    description: Unique id of the bucket
+    type: string
+  name:
+    description: The user defined bucket name
+    type: string
+  adLibs:
+    description: The AdLibs in this bucket
+    type: array
+    items:
+      $ref: '../../adLibs/bucketAdlib/bucketAdLib.yaml'
+required: [id, name, adLibs]
+additionalProperties: false

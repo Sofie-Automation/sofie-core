@@ -1,0 +1,6 @@
+description: Topic for server heartbeat messages
+subscribe:
+  operationId: receiveHeartbeat
+  message:
+    oneOf:
+      - $ref: '../../components/connection/messages/heartbeat.yaml#/components/messages/heartbeat'

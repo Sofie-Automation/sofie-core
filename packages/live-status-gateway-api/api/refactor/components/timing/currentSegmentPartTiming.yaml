@@ -1,0 +1,9 @@
+$defs:
+  currentSegmentPartTiming:
+    type: object
+    title: CurrentSegmentPartTiming
+    properties:
+      expectedDurationMs:
+        description: Expected duration of the part
+        type: number
+    required: [id, name, timing]

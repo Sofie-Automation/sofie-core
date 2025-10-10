@@ -1,0 +1,6 @@
+type: string
+title: SubscriptionStatus
+description: The current status of the subscription
+enum:
+  - subscribed
+  - unsubscribed

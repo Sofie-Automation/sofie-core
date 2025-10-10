@@ -1,0 +1,7 @@
+components:
+  messages:
+    adLibs:
+      messageId: adLibs
+      title: AdLibs Event Message
+      payload:
+        $ref: '../adLibs.yaml#/$defs/adLibs'

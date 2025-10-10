@@ -1,0 +1,8 @@
+components:
+  messages:
+    heartbeat:
+      name: heartbeat
+      messageId: heartbeat
+      description: Server heartbeat sent if no subscription traffic within 1 second (approximately)
+      payload:
+        $ref: '../heartbeat/heartbeat.yaml'
