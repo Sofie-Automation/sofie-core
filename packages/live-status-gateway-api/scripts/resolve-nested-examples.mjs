@@ -146,7 +146,6 @@ function copyAndResolve(src, dest) {
 			// Use full, deep resolution for dedicated example files.
 			const resolved = resolveRefs(content, path.dirname(src))
 			fs.writeFileSync(dest, YAML.stringify(resolved), 'utf-8')
-			console.log(`Resolved example file: ${path.relative(ROOT_DIR, src)}`)
 		} else {
 			// 2. Resolve only under 'examples:' property for all other files.
 			const contentRaw = fs.readFileSync(src, 'utf-8')
@@ -156,7 +155,6 @@ function copyAndResolve(src, dest) {
 					// Use selective resolution for API spec files.
 					const resolved = resolveExamplesOnly(content, path.dirname(src))
 					fs.writeFileSync(dest, YAML.stringify(resolved), 'utf-8')
-					console.log(`Resolved 'examples' property: ${path.relative(ROOT_DIR, src)}`)
 					return
 				}
 			} catch {
@@ -181,7 +179,7 @@ function main() {
 	// Start the copy and resolution process.
 	copyAndResolve(ROOT_DIR, RESOLVED_DIST_DIR)
 
-	console.log(`Project fully copied with resolved examples to: ${RESOLVED_DIST_DIR}`)
+	console.log(`Project copied with resolved examples to: ${RESOLVED_DIST_DIR}`)
 }
 
 main()
