@@ -61,7 +61,7 @@ const generator = new TypeScriptGenerator({
 })
 
 const parser = new Parser()
-const asyncApiDoc = await fromFile(parser, 'api/refactor/index.yaml').parse()
+const asyncApiDoc = await fromFile(parser, 'dist/api/refactor/index.yaml').parse()
 if (!asyncApiDoc.document) {
 	// Ignore the expected legacy version error
 	const filteredDiagnostics = asyncApiDoc.diagnostics.filter((d) => d.code !== 'asyncapi-latest-version')
