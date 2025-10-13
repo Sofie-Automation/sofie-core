@@ -2,4 +2,6 @@ $defs:
   globalAdLibStatus:
     title: GlobalAdLibStatus
     allOf:
-      - $ref: '../adLibBase.yaml#/$defs/adLibBase'
+      - $ref: '../adLibBase/adLibBase.yaml#/$defs/adLibBase'
+    examples:
+      - $ref: './globalAdLibStatus-example.yaml'

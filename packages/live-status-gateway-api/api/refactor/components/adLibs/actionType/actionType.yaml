@@ -11,3 +11,5 @@ $defs:
         description: The label for the AdLib type
     required: [name, label]
     additionalProperties: false
+    examples:
+      - $ref: './actionType-example.yaml'

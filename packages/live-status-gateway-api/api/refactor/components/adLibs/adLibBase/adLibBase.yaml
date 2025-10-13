@@ -19,7 +19,7 @@ $defs:
         type: array
         description: The available action type names that can be used to modify the execution of the AdLib
         items:
-          $ref: './actionType/actionType.yaml#/$defs/adLibActionType'
+          $ref: '../actionType/actionType.yaml#/$defs/adLibActionType'
       tags:
         type: array
         description: Tags attached to this AdLib
@@ -31,3 +31,5 @@ $defs:
         type: string
         description: JSON schema definition of the adLib properties that can be modified using the adLibOptions property in executeAdLib
     required: [id, name, sourceLayer, actionType]
+    examples:
+      - $ref: './adlibBase-example.yaml'

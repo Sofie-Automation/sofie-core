@@ -4,4 +4,5 @@ subscribe:
   operationId: publishAdLibs
   summary: Client publishes AdLibs updates
   message:
-    $ref: '../../components/adLibs/messages/adLibs.yaml#/components/messages/adLibs'
+    oneOf:
+      - $ref: '../../components/adLibs/messages/adLibsMessage.yaml#/components/messages/adLibs'

@@ -11,7 +11,7 @@ properties:
     title: SubscribeSubscription
     properties:
       name:
-        $ref: '../../topicName.yaml'
+        $ref: '../../subscriptionName.yaml'
     required: [name]
     additionalProperties: false
 required: [event, reqid, subscription]

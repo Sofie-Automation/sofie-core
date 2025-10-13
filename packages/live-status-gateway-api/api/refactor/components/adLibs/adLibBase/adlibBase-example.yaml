@@ -1,0 +1,9 @@
+id: 'C6K_yIMuGFUk8X_L9A9_jRT6aq4_'
+name: Music video clip
+sourceLayer: Video Clip
+actionType:
+  - $ref: '../actionType/actionType-example.yaml'
+tags: ['music_video']
+publicData:
+  fileName: MV000123.mxf
+optionsSchema: '{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Play Video Clip","type":"object","properties":{"type":"adlib_action_video_clip","label":{"type":"string"},"clipId":{"type":"string"},"vo":{"type":"boolean"},"target":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Object Id","description":"Id of an object sent to Sofie","type":"string"},"duration":{"type":"number","exclusiveMinimum":0},"takeType":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"AdLib Action Take Type","type":"string","enum":["take_immediate","queue"]},"transition":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"AdLib Action Transition Type","oneOf":[{"type":"object","properties":{"type":"cut"},"required":["type"],"additionalProperties":false},{"type":"object","properties":{"type":"mix","duration":{"type":"number","exclusiveMinimum":0,"description":"Duration in ms"}},"required":["type","duration"],"additionalProperties":false},{"type":"object","properties":{"type":"wipe","duration":{"type":"number","exclusiveMinimum":0,"description":"Duration in ms"},"patternId":{"type":"string","description":"Type of wipe to use"}},"required":["type","duration","patternId"],"additionalProperties":false},{"type":"object","properties":{"type":"macro","macroId":{"type":"string","description":"Macro template to recall"}},"required":["type","macroId"],"additionalProperties":false}]}},"required":["type","clipId","vo","target"],"additionalProperties":false}"'
