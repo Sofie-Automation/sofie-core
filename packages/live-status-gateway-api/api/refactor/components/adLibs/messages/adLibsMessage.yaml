@@ -1,6 +1,6 @@
 components:
   messages:
-    adLibs:
+    adLibsMessage:
       messageId: adLibs
       title: AdLibs Event Message
       payload:

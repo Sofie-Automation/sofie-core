@@ -48,7 +48,7 @@ channels:
   packages:
     $ref: './topics/packages/packages.yaml'
   buckets:
-    $ref: './topics/buckets/buckets.yaml'
+    $ref: './topics/buckets/bucketsTopic.yaml'
 
   # Needed to retain the types from the old schema structure. Eventually this should be removed.
   /:
@@ -80,10 +80,10 @@ channels:
               $ref: './components/segment/messages/segments/message.yaml#/components/messages/segments/payload'
           - messageId: adLibs-typeGen
             payload:
-              $ref: './components/adLibs/messages/adLibsMessage.yaml#/components/messages/adLibs/payload'
+              $ref: './components/adLibs/messages/adLibsMessage.yaml#/components/messages/adLibsMessage/payload'
           - messageId: packages-typeGen
             payload:
               $ref: './components/packages/messages/packages.yaml#/components/messages/packages/payload'
           - messageId: buckets-typeGen
             payload:
-              $ref: './components/buckets/messages/buckets.yaml#/components/messages/buckets/payload'
+              $ref: './components/buckets/messages/bucketsMessage.yaml#/components/messages/bucketsMessage/payload'

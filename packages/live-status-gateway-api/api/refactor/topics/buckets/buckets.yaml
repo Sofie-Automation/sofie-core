@@ -1,6 +1,0 @@
-description: Buckets schema for websocket subscriptions
-subscribe:
-  operationId: receiveBucketsUpdate
-  message:
-    oneOf:
-      - $ref: '../../components/buckets/messages/buckets.yaml#/components/messages/buckets'

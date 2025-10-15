@@ -1,3 +1,0 @@
-event: buckets
-buckets:
-  - $ref: 'bucket/example.yaml'

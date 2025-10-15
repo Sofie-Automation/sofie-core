@@ -1,0 +1,17 @@
+$defs:
+  bucketsEvent:
+    title: BucketsEvent
+    type: object
+    properties:
+      event:
+        type: string
+        const: buckets
+      buckets:
+        description: Buckets available in the Studio
+        type: array
+        items:
+          $ref: '../bucket/bucket.yaml#/$defs/bucketStatus'
+    required: [event, buckets]
+    additionalProperties: false
+    examples:
+      - $ref: './buckets-example.yaml'
