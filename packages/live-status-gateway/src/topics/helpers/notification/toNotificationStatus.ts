@@ -5,7 +5,7 @@ import { NotificationObj, NotificationSeverity } from '@sofie-automation/live-st
 import { literal, unprotectString } from '@sofie-automation/server-core-integration'
 import { toNotificationTarget } from './notificationTarget/toNotificationTarget.js'
 
-export function toNotificationStatus(dbNotification: DBNotificationObj): NotificationObj {
+export function toNotificationStatus(dbNotification: DBNotificationObj): NotificationObj | undefined {
 	return literal<NotificationObj>({
 		_id: unprotectString(dbNotification._id),
 		severity: toNotificationSeverity(dbNotification.severity),
