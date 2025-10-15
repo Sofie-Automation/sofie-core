@@ -3,4 +3,4 @@ subscribe:
   operationId: receiveHeartbeat
   message:
     oneOf:
-      - $ref: '../../components/connection/messages/heartbeat.yaml#/components/messages/heartbeat'
+      - $ref: '../../components/connection/messages/heartbeatMessage.yaml#/components/messages/heartbeatMessage'

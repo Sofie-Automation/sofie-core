@@ -30,9 +30,9 @@ tags:
 channels:
   # As the LSG is websocket only, channels only used for logical grouping for the generated docs and folder structure.
   ping:
-    $ref: './topics/ping/ping.yaml'
+    $ref: './topics/ping/pingTopic.yaml'
   heartbeat:
-    $ref: './topics/heartbeat/heartbeat.yaml'
+    $ref: './topics/heartbeat/heartbeatTopic.yaml'
   subscriptions:
     $ref: './topics/subscriptions/subscriptions.yaml'
   studio:
@@ -59,10 +59,10 @@ channels:
         oneOf:
           - messageId: pong-typeGen
             payload:
-              $ref: './components/connection/messages/pong.yaml#/components/messages/pong/payload'
+              $ref: './components/connection/messages/pongMessage.yaml#/components/messages/pongMessage/payload'
           - messageId: heartbeat-typeGen
             payload:
-              $ref: './components/connection/messages/heartbeat.yaml#/components/messages/heartbeat/payload'
+              $ref: './components/connection/messages/heartbeatMessage.yaml#/components/messages/heartbeatMessage/payload'
           - messageId: subscriptions-typeGen
             payload:
               $ref: './components/subscriptions/messages/subscriptionStatus.yaml#/components/messages/subscriptionStatus/payload'

@@ -5,6 +5,8 @@ properties:
     type: string
     const: ping
   reqid:
-    $ref: '../../reqid.yaml'
+    $ref: '../reqid/reqid.yaml'
 required: [event, reqid]
 additionalProperties: false
+examples:
+  - $ref: './ping-example.yaml'

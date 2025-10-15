@@ -5,7 +5,7 @@ properties:
     type: string
     const: unsubscribe
   reqid:
-    $ref: '../../../reqid.yaml'
+    $ref: '../../../connection/reqid/reqid.yaml'
   subscription:
     $ref: '../../subscriptionDetails.yaml#/$defs/subscriptionDetails'
 required: [event, reqid, subscription]

@@ -6,3 +6,5 @@ properties:
     const: heartbeat
 required: [event]
 additionalProperties: false
+examples:
+  - $ref: './heartbeat-example.yaml'
