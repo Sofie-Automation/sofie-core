@@ -12,8 +12,9 @@ import {
 	NotificationTargetRundown,
 	NotificationTargetRundownPlaylist,
 	NotificationTargetType,
+	NotificationTargetUnknown,
 } from '@sofie-automation/live-status-gateway-api'
-import { literal, unprotectString } from '@sofie-automation/server-core-integration'
+import { assertNever, literal, unprotectString } from '@sofie-automation/server-core-integration'
 
 type NotificationTarget =
 	| NotificationTargetRundown
@@ -21,7 +22,7 @@ type NotificationTarget =
 	| NotificationTargetPartInstance
 	| NotificationTargetPieceInstance
 
-export function toNotificationTarget(dbTarget: DBNotificationTarget): NotificationTarget {
+export function toNotificationTarget(dbTarget: DBNotificationTarget): NotificationTarget | NotificationTargetUnknown {
 	switch (dbTarget.type) {
 		case DBNotificationTargetType.PARTINSTANCE:
 			return toNotificationTargetPartInstance(dbTarget)
@@ -31,6 +32,9 @@ export function toNotificationTarget(dbTarget: DBNotificationTarget): Notificati
 			return toNotificationTargetPlaylist(dbTarget)
 		case DBNotificationTargetType.PIECEINSTANCE:
 			return toNotificationTargetPieceInstance(dbTarget)
+		default:
+			assertNever(dbTarget)
+			return literal<NotificationTargetUnknown>({ type: NotificationTargetType.UNKNOWN })
 	}
 }
 

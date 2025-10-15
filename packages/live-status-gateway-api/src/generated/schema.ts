@@ -799,6 +799,7 @@ interface NotificationObj {
 		| NotificationTargetRundownPlaylist
 		| NotificationTargetPartInstance
 		| NotificationTargetPieceInstance
+		| NotificationTargetUnknown
 	/**
 	 * Unix timestamp of creation
 	 */
@@ -835,6 +836,7 @@ enum NotificationTargetType {
 	PLAYLIST = 'playlist',
 	PART_INSTANCE = 'partInstance',
 	PIECE_INSTANCE = 'pieceInstance',
+	UNKNOWN = 'unknown',
 }
 
 interface NotificationTargetRundownPlaylist {
@@ -865,6 +867,13 @@ interface NotificationTargetPieceInstance {
 	rundownId: string
 	partInstanceId: string
 	pieceInstanceId: string
+}
+
+interface NotificationTargetUnknown {
+	/**
+	 * Possible NotificationTarget types
+	 */
+	type: NotificationTargetType
 }
 
 export type Slash =
@@ -933,4 +942,5 @@ export {
 	NotificationTargetRundownPlaylist,
 	NotificationTargetPartInstance,
 	NotificationTargetPieceInstance,
+	NotificationTargetUnknown,
 }

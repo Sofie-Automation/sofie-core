@@ -79,11 +79,13 @@ $defs:
       - $ref: '#/$defs/NotificationTargetRundownPlaylist'
       - $ref: '#/$defs/NotificationTargetPartInstance'
       - $ref: '#/$defs/NotificationTargetPieceInstance'
+      - $ref: '#/$defs/NotificationTargetUnknown'
     examples:
       - $ref: '#/$defs/NotificationTargetRundown/examples/0'
       - $ref: '#/$defs/NotificationTargetRundownPlaylist/examples/0'
       - $ref: '#/$defs/NotificationTargetPartInstance/examples/0'
       - $ref: '#/$defs/NotificationTargetPieceInstance/examples/0'
+      - $ref: '#/$defs/NotificationTargetUnknown/examples/0'
 
   NotificationTargetType:
     type: string
@@ -94,6 +96,7 @@ $defs:
       - playlist
       - partInstance
       - pieceInstance
+      - unknown
 
   NotificationTargetRundown:
     type: object
@@ -175,3 +178,15 @@ $defs:
         rundownId: rd123
         partInstanceId: pi789
         pieceInstanceId: pc1011
+
+  NotificationTargetUnknown:
+    type: object
+    title: NotificationTargetUnknown
+    required: [type]
+    properties:
+      type:
+        $ref: '#/$defs/NotificationTargetType'
+        enum: [unknown]
+    additionalProperties: false
+    examples:
+      - type: unknown

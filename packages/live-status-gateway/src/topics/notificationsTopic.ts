@@ -27,7 +27,9 @@ export class NotificationsTopic extends WebSocketTopicBase implements WebSocketT
 	sendStatus(subscribers: Iterable<WebSocket>): void {
 		const message = literal<NotificationsEvent>({
 			event: 'notifications',
-			activeNotifications: this._notifications.map(toNotificationStatus),
+			activeNotifications: this._notifications
+				.map(toNotificationStatus)
+				.filter((notification) => notification !== undefined),
 		})
 
 		this.sendMessage(subscribers, message)
