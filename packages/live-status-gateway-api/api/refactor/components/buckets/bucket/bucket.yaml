@@ -1,3 +1,4 @@
+# TODO: rename this file to bucketStatus.yaml
 $defs:
   bucketStatus:
     title: BucketStatus

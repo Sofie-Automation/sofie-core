@@ -20,7 +20,7 @@ $defs:
         description: All pieces in this part
         type: array
         items:
-          $ref: '../../piece/piece.yaml#/$defs/piece'
+          $ref: '../../piece/pieceStatus/pieceStatus.yaml#/$defs/pieceStatus'
       publicData:
         description: Optional arbitrary data
     required: [id, name, segmentId, pieces]

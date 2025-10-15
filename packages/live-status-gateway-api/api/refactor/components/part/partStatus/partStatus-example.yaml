@@ -3,6 +3,6 @@ name: 'Intro'
 segmentId: 'n1mOVd5_K5tt4sfk6HYfTuwumGQ_'
 autoNext: false
 pieces:
-  - $ref: '../../piece/piece.yaml#/$defs/piece/examples/0'
+  - $ref: '../../piece/pieceStatus/pieceStatus.yaml#/$defs/pieceStatus/examples/0'
 publicData:
   partType: 'intro'

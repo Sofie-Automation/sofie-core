@@ -1,7 +1,5 @@
-title: Active Pieces
-description: Active Pieces schema for websocket subscriptions
 $defs:
-  activePieces:
+  activePiecesEvent:
     type: object
     title: ActivePiecesEvent
     properties:
@@ -17,11 +15,8 @@ $defs:
         description: Pieces that are currently active (on air)
         type: array
         items:
-          $ref: '../piece.yaml#/$defs/piece'
+          $ref: '../pieceStatus/pieceStatus.yaml#/$defs/pieceStatus'
     required: [event, rundownPlaylistId, activePieces]
     additionalProperties: false
     examples:
-      - event: activePieces
-        rundownPlaylistId: 'OKAgZmZ0Buc99lE_2uPPSKVbMrQ_'
-        activePieces:
-          - $ref: '../piece.yaml#/$defs/piece/examples/0'
+      - $ref: './activePiecesEvent-example.yaml'

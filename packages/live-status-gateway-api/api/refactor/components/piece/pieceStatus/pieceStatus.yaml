@@ -1,5 +1,5 @@
 $defs:
-  piece:
+  pieceStatus:
     type: object
     title: PieceStatus
     properties:
@@ -25,10 +25,4 @@ $defs:
     required: [id, name, sourceLayer, outputLayer]
     additionalProperties: false
     examples:
-      - id: 'H5CBGYjThrMSmaYvRaa5FVKJIzk_'
-        name: 'Camera 1'
-        sourceLayer: 'Camera'
-        outputLayer: 'PGM'
-        tags: ['camera']
-        publicData:
-          switcherSource: 1
+      - $ref: './pieceStatus-example.yaml'

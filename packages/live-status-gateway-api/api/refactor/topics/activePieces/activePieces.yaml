@@ -5,4 +5,4 @@ subscribe:
   summary: Server sends active pieces events
   message:
     oneOf:
-      - $ref: '../../components/piece/activePieces/message.yaml#/components/messages/activePiecesMessage'
+      - $ref: '../../components/piece/messages/activePiecesMessage.yaml#/components/messages/activePiecesMessage'

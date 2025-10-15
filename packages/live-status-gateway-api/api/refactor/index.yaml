@@ -74,7 +74,7 @@ channels:
               $ref: './components/playlist/messages/activePlaylist/activePlaylist.yaml#/components/messages/activePlaylist/payload'
           - messageId: activePieces-typeGen
             payload:
-              $ref: './components/piece/activePieces/message.yaml#/components/messages/activePiecesMessage/payload'
+              $ref: './components/piece/messages/activePiecesMessage.yaml#/components/messages/activePiecesMessage/payload'
           - messageId: segments-typeGen
             payload:
               $ref: './components/segment/messages/segments/message.yaml#/components/messages/segments/payload'
