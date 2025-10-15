@@ -3,16 +3,18 @@ $defs:
     type: object
     title: CurrentPartTiming
     description: Timing information about the current part
-    properties:
-      startTime:
-        description: Unix timestamp of when the part started (milliseconds)
-        type: number
-      expectedDurationMs:
-        description: Expected duration of the part (milliseconds)
-        type: number
-      projectedEndTime:
-        description: Unix timestamp of when the part is projected to end (milliseconds). A sum of `startTime` and `expectedDurationMs`.
-        type: number
+    allOf:
+      - $ref: '../currentSegmentPartTiming/currentSegmentPartTiming.yaml#/$defs/currentSegmentPartTiming'
+      - type: object
+        title: CurrentPartTiming
+        description: Timing information about the current part
+        properties:
+          startTime:
+            description: Unix timestamp of when the part started (milliseconds)
+            type: number
+          projectedEndTime:
+            description: Unix timestamp of when the part is projected to end (milliseconds). A sum of `startTime` and `expectedDurationMs`.
+            type: number
     required: [startTime, expectedDurationMs, projectedEndTime]
     examples:
       - $ref: './currentPartTiming-example.yaml'

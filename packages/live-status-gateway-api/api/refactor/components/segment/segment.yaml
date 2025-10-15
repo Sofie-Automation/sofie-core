@@ -1,29 +1,4 @@
 $defs:
-  # TODO: Move this into the parts folder
-  currentSegmentPart:
-    title: CurrentSegmentPart
-    type: object
-    properties:
-      id:
-        description: Unique id of the part
-        type: string
-      name:
-        description: User-presentable name of the part
-        type: string
-      autoNext:
-        description: If this part will progress to the next automatically
-        type: boolean
-        default: false
-      timing:
-        $ref: '../timing/currentSegmentPartTiming.yaml#/$defs/currentSegmentPartTiming'
-    required: [id, name, timing]
-    examples:
-      - id: 'H5CBGYjThrMSmaYvRaa5FVKJIzk_'
-        name: 'Intro'
-        timing:
-          expectedDurationMs: 15000
-    additionalProperties: false
-
   # TODO: move this into it's own folder
   currentSegment:
     title: CurrentSegment
@@ -37,7 +12,7 @@ $defs:
       parts:
         type: array
         items:
-          $ref: '#/$defs/currentSegmentPart'
+          $ref: '../part/currentSegmentPart/currentSegmentPart.yaml#/$defs/currentSegmentPart'
     required: [id, timing, parts]
     additionalProperties: false
 

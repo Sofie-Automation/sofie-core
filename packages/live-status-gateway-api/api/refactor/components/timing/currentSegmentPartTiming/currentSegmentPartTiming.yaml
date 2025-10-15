@@ -4,6 +4,5 @@ $defs:
     title: CurrentSegmentPartTiming
     properties:
       expectedDurationMs:
-        description: Expected duration of the part
+        description: Expected duration of the part (milliseconds)
         type: number
-    required: [id, name, timing]

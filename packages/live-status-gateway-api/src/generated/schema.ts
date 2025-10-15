@@ -194,17 +194,17 @@ interface CurrentPartStatus {
 	 */
 	id: string
 	/**
-	 * User name of the part
+	 * User-presentable name of the part
 	 */
 	name: string
-	/**
-	 * Unique id of the segment this part belongs to
-	 */
-	segmentId: string
 	/**
 	 * If this part will progress to the next automatically
 	 */
 	autoNext?: boolean
+	/**
+	 * Unique id of the segment this part belongs to
+	 */
+	segmentId: string
 	/**
 	 * All pieces in this part
 	 */
@@ -252,13 +252,13 @@ interface PieceStatus {
  */
 interface CurrentPartTiming {
 	/**
-	 * Unix timestamp of when the part started (milliseconds)
-	 */
-	startTime: number
-	/**
 	 * Expected duration of the part (milliseconds)
 	 */
 	expectedDurationMs: number
+	/**
+	 * Unix timestamp of when the part started (milliseconds)
+	 */
+	startTime: number
 	/**
 	 * Unix timestamp of when the part is projected to end (milliseconds). A sum of `startTime` and `expectedDurationMs`.
 	 */
@@ -327,7 +327,7 @@ interface CurrentSegmentPart {
 
 interface CurrentSegmentPartTiming {
 	/**
-	 * Expected duration of the part
+	 * Expected duration of the part (milliseconds)
 	 */
 	expectedDurationMs?: number
 	additionalProperties?: Record<string, any>
@@ -339,17 +339,17 @@ interface PartStatus {
 	 */
 	id: string
 	/**
-	 * User name of the part
+	 * User-presentable name of the part
 	 */
 	name: string
-	/**
-	 * Unique id of the segment this part belongs to
-	 */
-	segmentId: string
 	/**
 	 * If this part will progress to the next automatically
 	 */
 	autoNext?: boolean
+	/**
+	 * Unique id of the segment this part belongs to
+	 */
+	segmentId: string
 	/**
 	 * All pieces in this part
 	 */

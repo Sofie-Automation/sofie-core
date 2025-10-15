@@ -2,27 +2,21 @@ $defs:
   partStatus:
     type: object
     title: PartStatus
-    properties:
-      id:
-        description: Unique id of the part
-        type: string
-      name:
-        description: User name of the part
-        type: string
-      segmentId:
-        description: Unique id of the segment this part belongs to
-        type: string
-      autoNext:
-        description: If this part will progress to the next automatically
-        type: boolean
-        default: false
-      pieces:
-        description: All pieces in this part
-        type: array
-        items:
-          $ref: '../../piece/pieceStatus/pieceStatus.yaml#/$defs/pieceStatus'
-      publicData:
-        description: Optional arbitrary data
-    required: [id, name, segmentId, pieces]
+    allOf:
+      - $ref: '../partBase/partBase.yaml#/$defs/partBase'
+      - type: object
+        title: PartStatus
+        properties:
+          segmentId:
+            description: Unique id of the segment this part belongs to
+            type: string
+          pieces:
+            description: All pieces in this part
+            type: array
+            items:
+              $ref: '../../piece/pieceStatus/pieceStatus.yaml#/$defs/pieceStatus'
+          publicData:
+            description: Optional arbitrary data
+        required: [id, name, segmentId, pieces]
     examples:
       - $ref: './partStatus-example.yaml'
