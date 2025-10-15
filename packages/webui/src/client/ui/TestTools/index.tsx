@@ -9,7 +9,7 @@ import { DeviceTriggersDeviceSelect, DeviceTriggersView } from './DeviceTriggers
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
-import { IngestRundownStatusSelect, IngestRundownStatusView } from './IngestRundownStatus'
+import { IngestRundownStatusSelect, IngestRundownStatusView } from './IngestRundownStatus.jsx'
 import Container from 'react-bootstrap/esm/Container'
 
 function StatusMenu() {

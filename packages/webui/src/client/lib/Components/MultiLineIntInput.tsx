@@ -1,4 +1,4 @@
-import { IntInputControl } from './IntInput'
+import { IntInputControl } from './IntInput.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { useMemo } from 'react'

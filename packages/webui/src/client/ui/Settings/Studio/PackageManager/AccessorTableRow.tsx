@@ -17,7 +17,7 @@ import { TextInputControl } from '../../../../lib/Components/TextInput.js'
 import { DropdownInputControl, getDropdownInputOptions } from '../../../../lib/Components/DropdownInput.js'
 import { OverrideOpHelper, WrappedOverridableItemNormal } from '../../util/OverrideOpHelper.js'
 import { CheckboxControl } from '../../../../lib/Components/Checkbox.js'
-import { IntInputControl } from '../../../../lib/Components/IntInput'
+import { IntInputControl } from '../../../../lib/Components/IntInput.js'
 import Button from 'react-bootstrap/Button'
 
 interface AccessorTableRowProps {

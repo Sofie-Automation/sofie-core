@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { NotificationCenter, NoticeLevel, Notification } from '../../lib/notifications/notifications'
-import { doUserAction, UserAction } from '../../lib/clientUserAction'
-import { MeteorCall } from '../../lib/meteorApi'
+import { NotificationCenter, NoticeLevel, Notification } from '../../lib/notifications/notifications.js'
+import { doUserAction, UserAction } from '../../lib/clientUserAction.js'
+import { MeteorCall } from '../../lib/meteorApi.js'
 import { PartInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
-import { AdLibPieceUi, AdlibSegmentUi } from '../../lib/shelf'
+import { AdLibPieceUi, AdlibSegmentUi } from '../../lib/shelf.js'
 import { ExecuteActionResult } from '@sofie-automation/corelib/dist/worker/studio'
 import { PartInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { useTranslation } from 'react-i18next'
@@ -17,10 +17,10 @@ import {
 	MiniShelfQueueAdLibEvent,
 	RundownViewEvents,
 } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
-import { useRundownViewEventBusListener } from '../../lib/lib'
-import { RundownLayoutsAPI } from '../../lib/rundownLayouts'
-import { matchFilter } from '../Shelf/AdLibListView'
-import { useFetchAndFilter } from '../Shelf/AdLibPanel'
+import { useRundownViewEventBusListener } from '../../lib/lib.js'
+import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
+import { matchFilter } from '../Shelf/AdLibListView.js'
+import { useFetchAndFilter } from '../Shelf/AdLibPanel.js'
 import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 
 export type QueueMiniShelfAdlibFunction = (e: any, forward: boolean) => void

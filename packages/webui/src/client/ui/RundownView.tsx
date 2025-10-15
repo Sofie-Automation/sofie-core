@@ -27,7 +27,7 @@ import {
 	maintainFocusOnPartInstance,
 	scrollToPartInstance,
 	getHeaderHeight,
-} from '../lib/viewPort'
+} from '../lib/viewPort.js'
 import { AfterBroadcastForm } from './AfterBroadcastForm.js'
 import { RundownRightHandControls } from './RundownView/RundownRightHandControls.js'
 import { PeripheralDevicesAPI } from '../lib/clientAPI.js'
@@ -38,7 +38,7 @@ import {
 } from './RundownView/RundownNotifier.js'
 import { NotificationCenterPanel } from '../lib/notifications/NotificationCenterPanel.js'
 import { NotificationCenter, NoticeLevel, Notification } from '../lib/notifications/notifications.js'
-import { SupportPopUp } from './SupportPopUp'
+import { SupportPopUp } from './SupportPopUp.js'
 import { KeyboardFocusIndicator } from '../lib/KeyboardFocusIndicator.js'
 import { PeripheralDeviceType } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { doUserAction, UserAction } from '../lib/clientUserAction.js'

@@ -1,20 +1,20 @@
-import { RundownPlaylists, Rundowns } from '../../../collections'
+import { RundownPlaylists, Rundowns } from '../../../collections/index.js'
 import {
 	ReloadRundownPlaylistResponse,
 	TriggerReloadDataResponse,
 } from '@sofie-automation/meteor-lib/dist/api/userActions'
 import _ from 'underscore'
-import { RundownPlaylistCollectionUtil } from '../../../collections/rundownPlaylistUtil'
+import { RundownPlaylistCollectionUtil } from '../../../collections/rundownPlaylistUtil.js'
 import * as i18next from 'i18next'
-import { UserPermissions } from '../../UserPermissions'
-import { NoticeLevel, Notification, NotificationCenter } from '../../../lib/notifications/notifications'
+import { UserPermissions } from '../../UserPermissions.js'
+import { NoticeLevel, Notification, NotificationCenter } from '../../../lib/notifications/notifications.js'
 import { RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { getRundownNrcsName } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { UserAction } from '@sofie-automation/meteor-lib/dist/userAction'
 import { Tracker } from 'meteor/tracker'
-import { doUserAction } from '../../../lib/clientUserAction'
-import { MeteorCall } from '../../../lib/meteorApi'
-import { doModalDialog } from '../../../lib/ModalDialog'
+import { doUserAction } from '../../../lib/clientUserAction.js'
+import { MeteorCall } from '../../../lib/meteorApi.js'
+import { doModalDialog } from '../../../lib/ModalDialog.js'
 
 export function handleRundownPlaylistReloadResponse(
 	t: i18next.TFunction,

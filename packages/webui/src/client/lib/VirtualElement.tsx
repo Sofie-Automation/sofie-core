@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react'
 import { InView } from 'react-intersection-observer'
-import { getViewPortScrollingState } from './viewPort'
+import { getViewPortScrollingState } from './viewPort.js'
 
 interface IElementMeasurements {
 	width: string | number

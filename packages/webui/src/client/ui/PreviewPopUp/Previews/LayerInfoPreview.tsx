@@ -1,5 +1,5 @@
 import { PreviewContent } from '@sofie-automation/blueprints-integration'
-import { RundownUtils } from '../../../lib/rundown'
+import { RundownUtils } from '../../../lib/rundown.js'
 import { useTranslation } from 'react-i18next'
 import classNames from 'classnames'
 
