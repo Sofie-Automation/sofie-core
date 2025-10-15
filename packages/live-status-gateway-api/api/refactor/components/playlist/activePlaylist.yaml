@@ -27,13 +27,17 @@ $defs:
         items:
           type: string
       currentPart:
-        $ref: '../part/part.yaml#/$defs/currentPart'
+        oneOf:
+          - $ref: '../part/currentPart/currentPartStatus.yaml#/$defs/currentPartStatus'
+          - type: 'null'
       currentSegment:
         oneOf:
           - $ref: '../segment/segment.yaml#/$defs/currentSegment'
           - type: 'null'
       nextPart:
-        $ref: '../part/part.yaml#/$defs/part'
+        oneOf:
+          - $ref: '../part/partStatus/partStatus.yaml#/$defs/partStatus'
+          - type: 'null'
       publicData:
         description: Optional arbitrary data
       timing:

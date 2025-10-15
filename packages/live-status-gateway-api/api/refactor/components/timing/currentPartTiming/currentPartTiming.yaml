@@ -14,3 +14,5 @@ $defs:
         description: Unix timestamp of when the part is projected to end (milliseconds). A sum of `startTime` and `expectedDurationMs`.
         type: number
     required: [startTime, expectedDurationMs, projectedEndTime]
+    examples:
+      - $ref: './currentPartTiming-example.yaml'
