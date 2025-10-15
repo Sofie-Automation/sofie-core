@@ -5,7 +5,7 @@ components:
       messageId: heartbeat
       description: Server heartbeat sent if no subscription traffic within 1 second (approximately)
       payload:
-        $ref: '../heartbeat/heartbeat.yaml'
+        $ref: '../heartbeatEvent/heartbeatEvent.yaml'
       examples:
         - payload:
-            $ref: '../heartbeat/heartbeat-example.yaml'
+            $ref: '../heartbeatEvent/heartbeatEvent-example.yaml'

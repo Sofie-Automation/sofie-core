@@ -83,7 +83,7 @@ channels:
               $ref: './components/adLibs/messages/adLibsMessage.yaml#/components/messages/adLibsMessage/payload'
           - messageId: packages-typeGen
             payload:
-              $ref: './components/packages/messages/packages.yaml#/components/messages/packages/payload'
+              $ref: './components/packages/messages/packagesMessage.yaml#/components/messages/packagesMessage/payload'
           - messageId: buckets-typeGen
             payload:
               $ref: './components/buckets/messages/bucketsMessage.yaml#/components/messages/bucketsMessage/payload'

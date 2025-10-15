@@ -1,8 +1,8 @@
 components:
   messages:
-    packages:
+    packagesMessage:
       name: packages
       messageId: packages
       description: Status of Packages expected by Pieces
       payload:
-        $ref: '../packages.yaml'
+        $ref: '../packagesEvent/packagesEvent.yaml'

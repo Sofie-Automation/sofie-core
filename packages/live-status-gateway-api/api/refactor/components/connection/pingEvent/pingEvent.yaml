@@ -9,4 +9,4 @@ properties:
 required: [event, reqid]
 additionalProperties: false
 examples:
-  - $ref: './ping-example.yaml'
+  - $ref: './pingEvent-example.yaml'

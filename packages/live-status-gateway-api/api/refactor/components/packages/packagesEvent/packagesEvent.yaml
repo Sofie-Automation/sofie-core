@@ -13,6 +13,8 @@ properties:
     description: The Package statuses for this playlist
     type: array
     items:
-      $ref: './packageInfoStatus.yaml'
+      $ref: '../packageInfoStatus/packageInfoStatus.yaml'
 required: [event, rundownPlaylistId, packages]
 additionalProperties: false
+examples:
+  - $ref: './packagesEvent-example.yaml'

@@ -3,4 +3,4 @@ subscribe:
   operationId: receivePackagesUpdate
   message:
     oneOf:
-      - $ref: '../../components/packages/messages/packages.yaml#/components/messages/packages'
+      - $ref: '../../components/packages/messages/packagesMessage.yaml#/components/messages/packagesMessage'

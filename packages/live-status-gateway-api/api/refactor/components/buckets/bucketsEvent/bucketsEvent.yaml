@@ -14,4 +14,4 @@ $defs:
     required: [event, buckets]
     additionalProperties: false
     examples:
-      - $ref: './buckets-example.yaml'
+      - $ref: './bucketsEvent-example.yaml'

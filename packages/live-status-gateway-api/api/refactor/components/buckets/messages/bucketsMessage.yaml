@@ -4,7 +4,7 @@ components:
       messageId: buckets
       title: Buckets in Studio
       payload:
-        $ref: '../buckets/buckets.yaml#/$defs/bucketsEvent'
+        $ref: '../bucketsEvent/bucketsEvent.yaml#/$defs/bucketsEvent'
       examples:
         - payload:
-            $ref: '../buckets/buckets-example.yaml'
+            $ref: '../bucketsEvent/bucketsEvent-example.yaml'

@@ -5,7 +5,7 @@ properties:
     description: Name of the package
     type: string
   status:
-    $ref: './packageStatus.yaml'
+    $ref: '../packageStatus/packageStatus.yaml'
   rundownId:
     description: Id of the Rundown that a Piece (or AdLib) expecting this package belongs to
     type: string
@@ -26,3 +26,5 @@ properties:
     type: string
 required: [status, rundownId, pieceOrAdLibId]
 additionalProperties: false
+examples:
+  - $ref: './packageInfoStatus-example.yaml'
