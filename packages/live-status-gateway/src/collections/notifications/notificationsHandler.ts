@@ -46,12 +46,8 @@ export class NotificationsHandler extends PublicationCollection<
 		this._rundownNotificationsHandler =
 			handlers.rundownNotificationsHandler as unknown as RundownNotificationsHandler
 
-		if (this._playlistNotificationsHandler) {
-			this._playlistNotificationsHandler.subscribe(this.onSourceUpdated)
-		}
-		if (this._rundownNotificationsHandler) {
-			this._rundownNotificationsHandler.subscribe(this.onSourceUpdated)
-		}
+		this._playlistNotificationsHandler.subscribe(this.onSourceUpdated)
+		this._rundownNotificationsHandler.subscribe(this.onSourceUpdated)
 	}
 
 	protected changed(): void {
