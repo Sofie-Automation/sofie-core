@@ -7,7 +7,7 @@ import { Logger } from 'winston'
 import { CoreHandler } from '../../coreHandler.js'
 import { CollectionHandlers } from '../../liveStatusServer.js'
 import { PublicationCollection } from '../../publicationCollection.js'
-import { DBNotificationObj } from '@sofie-automation/corelib/dist/dataModel/Notifications'
+import { DBNotificationObj, DBNotificationTargetRundown } from '@sofie-automation/corelib/dist/dataModel/Notifications'
 import { PickKeys } from '@sofie-automation/shared-lib/dist/lib/types'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 
@@ -47,7 +47,17 @@ export class RundownNotificationsHandler extends PublicationCollection<
 
 	private updateCollectionData() {
 		const collection = this.getCollectionOrFail()
-		this._collectionData = collection.find({})
+		this._collectionData = collection.find((doc: DBNotificationObj) => {
+			const relatedTo: DBNotificationTargetRundown | undefined = (doc.relatedTo as any).rundownId
+				? (doc.relatedTo as DBNotificationTargetRundown)
+				: undefined
+
+			return (
+				relatedTo &&
+				this._currentRundownIds.includes(relatedTo.rundownId) &&
+				this._studioId === relatedTo.studioId
+			)
+		})
 	}
 
 	private clearCollectionData() {

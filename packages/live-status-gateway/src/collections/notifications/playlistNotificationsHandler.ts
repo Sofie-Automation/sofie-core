@@ -8,7 +8,10 @@ import { Logger } from 'winston'
 import { CoreHandler } from '../../coreHandler.js'
 import { CollectionHandlers } from '../../liveStatusServer.js'
 import { PublicationCollection } from '../../publicationCollection.js'
-import { DBNotificationObj } from '@sofie-automation/corelib/dist/dataModel/Notifications'
+import {
+	DBNotificationObj,
+	DBNotificationTargetRundownPlaylist,
+} from '@sofie-automation/corelib/dist/dataModel/Notifications'
 
 const PLAYLIST_KEYS = ['_id'] as const
 type Playlist = PickKeys<DBRundownPlaylist, typeof PLAYLIST_KEYS>
@@ -44,7 +47,15 @@ export class PlaylistNotificationsHandler extends PublicationCollection<
 
 	private updateCollectionData() {
 		const collection = this.getCollectionOrFail()
-		this._collectionData = collection.find({})
+		this._collectionData = collection.find((doc: DBNotificationObj) => {
+			const relatedTo: DBNotificationTargetRundownPlaylist | undefined = (doc.relatedTo as any).playlistId
+				? (doc.relatedTo as DBNotificationTargetRundownPlaylist)
+				: undefined
+
+			return (
+				relatedTo && relatedTo.playlistId === this._currentPlaylistId && this._studioId === relatedTo.studioId
+			)
+		})
 	}
 
 	private clearCollectionData() {
