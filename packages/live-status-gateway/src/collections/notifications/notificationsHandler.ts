@@ -8,7 +8,6 @@ import { DBNotificationObj } from '@sofie-automation/corelib/dist/dataModel/Noti
 import { PlaylistNotificationsHandler } from './playlistNotificationsHandler.js'
 import { RundownNotificationsHandler } from './rundownNotificationsHandler.js'
 import _ from 'underscore'
-import { unprotectString } from '@sofie-automation/server-core-integration'
 
 const THROTTLE_PERIOD_MS = 100
 
@@ -59,33 +58,18 @@ export class NotificationsHandler extends PublicationCollection<
 	}
 
 	private updateCollectionData(): boolean {
-		const merged = new Map<string, DBNotificationObj>()
+		let merged: DBNotificationObj[] = []
 
-		// Pull data from the playlist notifications handler's collection
-		if (this._playlistNotificationsHandler) {
-			const playlistDocs = this._playlistNotificationsHandler.getPublishedDocs()
-			for (const d of playlistDocs) {
-				if (d._id && !merged.has(unprotectString(d._id))) {
-					merged.set(unprotectString(d._id), d)
-				}
-			}
+		if (this._playlistNotificationsHandler && this._rundownNotificationsHandler) {
+			merged = [
+				...this._playlistNotificationsHandler.getPublishedDocs(),
+				...this._rundownNotificationsHandler.getPublishedDocs(),
+			]
 		}
 
-		// Pull data from the rundown notifications handler's collection
-		if (this._rundownNotificationsHandler) {
-			const rundownDocs = this._rundownNotificationsHandler.getPublishedDocs()
-			for (const d of rundownDocs) {
-				if (d._id && !merged.has(unprotectString(d._id))) {
-					merged.set(unprotectString(d._id), d)
-				}
-			}
-		}
-
-		const newNotifications = Array.from(merged.values())
-
-		const hasAnythingChanged = !_.isEqual(this._collectionData, newNotifications)
+		const hasAnythingChanged = !_.isEqual(this._collectionData, merged)
 		if (hasAnythingChanged) {
-			this._collectionData = newNotifications
+			this._collectionData = merged
 		}
 
 		return hasAnythingChanged
