@@ -36,17 +36,17 @@ channels:
   subscriptions:
     $ref: './topics/subscriptions/subscriptions.yaml'
   studio:
-    $ref: './topics/studio/studio.yaml'
+    $ref: './topics/studio/studioTopic.yaml'
   activePlaylist:
     $ref: './topics/activePlaylist/activePlaylist.yaml'
   activePieces:
     $ref: './topics/activePieces/activePieces.yaml'
   segments:
-    $ref: './topics/segments/segments.yaml'
+    $ref: './topics/segments/segmentsTopic.yaml'
   adLibs:
     $ref: './topics/adLibs/adLibsTopic.yaml'
   packages:
-    $ref: './topics/packages/packages.yaml'
+    $ref: './topics/packages/packagesTopic.yaml'
   buckets:
     $ref: './topics/buckets/bucketsTopic.yaml'
 

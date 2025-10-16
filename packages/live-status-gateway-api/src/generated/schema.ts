@@ -123,6 +123,7 @@ interface StudioEvent {
 	 * The playlists that are currently loaded in the studio
 	 */
 	playlists: PlaylistStatus[]
+	additionalProperties?: Record<string, any>
 }
 
 interface PlaylistStatus {

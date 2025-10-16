@@ -1,0 +1,14 @@
+$defs:
+  studioEvent:
+    title: StudioEvent
+    type: object
+    allOf:
+      - title: StudioEvent
+        type: object
+        properties:
+          event:
+            type: string
+            const: studio
+        required: [event]
+      - $ref: '../studioStatus/studioStatus.yaml#/$defs/studioStatus'
+    required: [event, id, name, playlists]

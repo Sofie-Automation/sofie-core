@@ -5,4 +5,7 @@ components:
       messageId: studioUpdate
       description: Studio status
       payload:
-        $ref: '../studio.yaml'
+        $ref: '../studioEvent/studioEvent.yaml#/$defs/studioEvent'
+      examples:
+        - payload:
+            $ref: '../studioEvent/studioEvent-example.yaml'

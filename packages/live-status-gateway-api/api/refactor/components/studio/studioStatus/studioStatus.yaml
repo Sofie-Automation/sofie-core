@@ -1,0 +1,19 @@
+$defs:
+  studioStatus:
+    title: StudioStatus
+    type: object
+    properties:
+      id:
+        description: Unique id of the studio
+        oneOf:
+          - type: string
+          - type: 'null'
+      name:
+        description: User-presentable name for the studio installation
+        type: string
+      playlists:
+        description: The playlists that are currently loaded in the studio
+        type: array
+        items:
+          $ref: '../../playlist/playlist.yaml'
+    required: [id, name, playlists]
