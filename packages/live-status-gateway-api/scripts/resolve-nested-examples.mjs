@@ -75,7 +75,8 @@ function resolveRefs(obj, baseDir) {
 
 			// Merge the resolved content with the original object's properties.
 			if (typeof resolvedContent === 'object' && resolvedContent !== null) {
-				return shallowMerge(resolvedContent, originalObj)
+				const merged = shallowMerge(resolvedContent, originalObj)
+				return resolveRefs(merged, path.dirname(absoluteRef))
 			}
 
 			// If resolved content is a primitive (string, number, etc.), just return it.
