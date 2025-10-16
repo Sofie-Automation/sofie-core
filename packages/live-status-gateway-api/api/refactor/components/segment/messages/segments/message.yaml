@@ -1,7 +1,0 @@
-components:
-  messages:
-    segments:
-      messageId: segments
-      title: Segments Event Message
-      payload:
-        $ref: './segments.yaml#/$defs/segments'

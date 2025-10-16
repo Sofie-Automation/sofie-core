@@ -271,42 +271,17 @@ interface CurrentSegment {
 	 * Unique id of the segment
 	 */
 	id: string
-	/**
-	 * Timing information about the current segment
-	 */
 	timing: CurrentSegmentTiming
 	parts: CurrentSegmentPart[]
+	additionalProperties?: Record<string, any>
 }
 
-/**
- * Timing information about the current segment
- */
 interface CurrentSegmentTiming {
-	/**
-	 * Expected duration of the segment
-	 */
-	expectedDurationMs: number
-	/**
-	 * Budget duration of the segment
-	 */
-	budgetDurationMs?: number
 	/**
 	 * Unix timestamp of when the segment is projected to end (milliseconds). The time this segment started, offset by its budget duration, if the segment has a defined budget duration. Otherwise, the time the current part started, offset by the difference between expected durations of all parts in this segment and the as-played durations of the parts that already stopped.
 	 */
 	projectedEndTime: number
-	/**
-	 * Countdown type within the segment. Default: `part_expected_duration`
-	 */
-	countdownType?: SegmentCountdownType
 	additionalProperties?: Record<string, any>
-}
-
-/**
- * Countdown type within the segment. Default: `part_expected_duration`
- */
-enum SegmentCountdownType {
-	PART_EXPECTED_DURATION = 'part_expected_duration',
-	SEGMENT_BUDGET_DURATION = 'segment_budget_duration',
 }
 
 interface CurrentSegmentPart {
@@ -465,6 +440,7 @@ interface SegmentsEvent {
 	 * The segments that are in the currently active rundown playlist, in order
 	 */
 	segments: Segment[]
+	additionalProperties?: Record<string, any>
 }
 
 interface Segment {
@@ -489,6 +465,7 @@ interface Segment {
 	 * Optional arbitrary data
 	 */
 	publicData?: any
+	additionalProperties?: Record<string, any>
 }
 
 interface SegmentTiming {
@@ -505,6 +482,14 @@ interface SegmentTiming {
 	 */
 	countdownType?: SegmentCountdownType
 	additionalProperties?: Record<string, any>
+}
+
+/**
+ * Countdown type within the segment. Default: `part_expected_duration`
+ */
+enum SegmentCountdownType {
+	PART_EXPECTED_DURATION = 'part_expected_duration',
+	SEGMENT_BUDGET_DURATION = 'segment_budget_duration',
 }
 
 interface AdLibsEvent {
@@ -776,7 +761,6 @@ export {
 	CurrentPartTiming,
 	CurrentSegment,
 	CurrentSegmentTiming,
-	SegmentCountdownType,
 	CurrentSegmentPart,
 	CurrentSegmentPartTiming,
 	PartStatus,
@@ -789,6 +773,7 @@ export {
 	SegmentsEvent,
 	Segment,
 	SegmentTiming,
+	SegmentCountdownType,
 	AdLibsEvent,
 	AdLibStatus,
 	AdLibActionType,

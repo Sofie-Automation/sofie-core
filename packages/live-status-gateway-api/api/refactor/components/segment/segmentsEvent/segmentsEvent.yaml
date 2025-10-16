@@ -1,7 +1,7 @@
 title: Segments
 description: Segments schema for websocket subscriptions
 $defs:
-  segments:
+  segmentsEvent:
     type: object
     title: SegmentsEvent
     properties:
@@ -17,11 +17,5 @@ $defs:
         description: The segments that are in the currently active rundown playlist, in order
         type: array
         items:
-          $ref: '../../segment.yaml#/$defs/segment'
+          $ref: '../segment/segment.yaml#/$defs/segment'
     required: [event, rundownPlaylistId, segments]
-    additionalProperties: false
-    examples:
-      - event: segments
-        rundownPlaylistId: 'OKAgZmZ0Buc99lE_2uPPSKVbMrQ_'
-        segments:
-          - $ref: '../../segment.yaml#/$defs/segment/examples/0'

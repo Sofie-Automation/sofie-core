@@ -33,7 +33,7 @@ $defs:
           - type: 'null'
       currentSegment:
         oneOf:
-          - $ref: '../segment/segment.yaml#/$defs/currentSegment'
+          - $ref: '../segment/currentSegment/currentSegment.yaml#/$defs/currentSegment'
           - type: 'null'
       nextPart:
         oneOf:

@@ -1,5 +1,4 @@
 $defs:
-  # TODO: Move this into the parts folder
   currentSegmentPart:
     title: CurrentSegmentPart
     type: object
@@ -13,5 +12,5 @@ $defs:
         additionalProperties: false
     required: [id, name, timing]
     additionalProperties: false
-  examples:
-    - $ref: './currentSegmentPart-example.yaml'
+    examples:
+      - $ref: './currentSegmentPart-example.yaml'

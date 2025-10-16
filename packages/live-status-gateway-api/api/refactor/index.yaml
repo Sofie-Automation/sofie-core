@@ -77,7 +77,7 @@ channels:
               $ref: './components/piece/messages/activePiecesMessage.yaml#/components/messages/activePiecesMessage/payload'
           - messageId: segments-typeGen
             payload:
-              $ref: './components/segment/messages/segments/message.yaml#/components/messages/segments/payload'
+              $ref: './components/segment/messages/segmentsMessage.yaml#/components/messages/segmentsMessage/payload'
           - messageId: adLibs-typeGen
             payload:
               $ref: './components/adLibs/messages/adLibsMessage.yaml#/components/messages/adLibsMessage/payload'

@@ -4,4 +4,4 @@ subscribe:
   operationId: receiveSegments
   summary: Server publishes Segment updates
   message:
-    $ref: '../../components/segment/messages/segments/message.yaml#/components/messages/segments'
+    $ref: '../../components/segment/messages/segmentsMessage.yaml#/components/messages/segmentsMessage'
