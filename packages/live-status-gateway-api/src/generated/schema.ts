@@ -283,17 +283,43 @@ interface CurrentSegment {
 	 * Unique id of the segment
 	 */
 	id: string
+	/**
+	 * Timing information about the current segment
+	 */
 	timing: CurrentSegmentTiming
 	parts: CurrentSegmentPart[]
 	additionalProperties?: Record<string, any>
 }
 
+/**
+ * Timing information about the current segment
+ */
 interface CurrentSegmentTiming {
+	/**
+	 * Expected duration of the segment (milliseconds)
+	 */
+	expectedDurationMs: number
+	/**
+	 * Budget duration of the segment (milliseconds)
+	 */
+	budgetDurationMs?: number
+	/**
+	 * Countdown type within the segment. Default: `part_expected_duration`
+	 */
+	countdownType?: SegmentCountdownType
 	/**
 	 * Unix timestamp of when the segment is projected to end (milliseconds). The time this segment started, offset by its budget duration, if the segment has a defined budget duration. Otherwise, the time the current part started, offset by the difference between expected durations of all parts in this segment and the as-played durations of the parts that already stopped.
 	 */
 	projectedEndTime: number
 	additionalProperties?: Record<string, any>
+}
+
+/**
+ * Countdown type within the segment. Default: `part_expected_duration`
+ */
+enum SegmentCountdownType {
+	PART_EXPECTED_DURATION = 'part_expected_duration',
+	SEGMENT_BUDGET_DURATION = 'segment_budget_duration',
 }
 
 interface CurrentSegmentPart {
@@ -495,14 +521,6 @@ interface SegmentTiming {
 	 */
 	countdownType?: SegmentCountdownType
 	additionalProperties?: Record<string, any>
-}
-
-/**
- * Countdown type within the segment. Default: `part_expected_duration`
- */
-enum SegmentCountdownType {
-	PART_EXPECTED_DURATION = 'part_expected_duration',
-	SEGMENT_BUDGET_DURATION = 'segment_budget_duration',
 }
 
 interface AdLibsEvent {
@@ -775,6 +793,7 @@ export {
 	CurrentPartTiming,
 	CurrentSegment,
 	CurrentSegmentTiming,
+	SegmentCountdownType,
 	CurrentSegmentPart,
 	CurrentSegmentPartTiming,
 	PartStatus,
@@ -787,7 +806,6 @@ export {
 	SegmentsEvent,
 	Segment,
 	SegmentTiming,
-	SegmentCountdownType,
 	AdLibsEvent,
 	AdLibStatus,
 	AdLibActionType,
