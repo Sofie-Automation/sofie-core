@@ -32,4 +32,4 @@ $defs:
         description: JSON schema definition of the adLib properties that can be modified using the adLibOptions property in executeAdLib
     required: [id, name, sourceLayer, actionType]
     examples:
-      - $ref: './adlibBase-example.yaml'
+      - $ref: './adLibBase-example.yaml'

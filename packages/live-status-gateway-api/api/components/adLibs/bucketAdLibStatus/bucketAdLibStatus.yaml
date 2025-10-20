@@ -8,7 +8,7 @@ $defs:
         properties:
           externalId:
             type: string
-            description: Id of the adlib recognizable by the external source. Unique within a bucket.
+            description: Id of the adLib recognizable by the external source. Unique within a bucket.
         required: [externalId]
     examples:
       - $ref: './bucketAdLibStatus-example.yaml'
