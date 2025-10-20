@@ -28,7 +28,7 @@ tags:
   - name: broadcast
 
 channels:
-  # As the LSG is websocket only, channels only used for logical grouping for the generated docs and folder structure.
+  # As the LSG is websocket only, channels are only used for logical grouping for the generated docs and folder structure.
   ping:
     $ref: './topics/ping/pingTopic.yaml'
   heartbeat:
@@ -38,7 +38,7 @@ channels:
   studio:
     $ref: './topics/studio/studioTopic.yaml'
   activePlaylist:
-    $ref: './topics/activePlaylist/activePlaylist.yaml'
+    $ref: './topics/activePlaylist/activePlaylistTopic.yaml'
   activePieces:
     $ref: './topics/activePieces/activePiecesTopic.yaml'
   segments:
@@ -74,7 +74,7 @@ channels:
               $ref: './components/studio/messages/studioUpdate.yaml#/components/messages/studioUpdate/payload'
           - messageId: activePlaylist-typeGen
             payload:
-              $ref: './components/playlist/messages/activePlaylist/activePlaylist.yaml#/components/messages/activePlaylist/payload'
+              $ref: './components/playlist/messages/activePlaylistMessage.yaml#/components/messages/activePlaylistMessage/payload'
           - messageId: activePieces-typeGen
             payload:
               $ref: './components/piece/messages/activePiecesMessage.yaml#/components/messages/activePiecesMessage/payload'

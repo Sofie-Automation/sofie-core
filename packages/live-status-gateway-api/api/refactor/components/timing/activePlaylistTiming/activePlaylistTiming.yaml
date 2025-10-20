@@ -20,3 +20,5 @@ $defs:
         type: number
     required: [timingMode]
     additionalProperties: false
+    examples:
+      - $ref: './activePlaylistTiming-example.yaml'

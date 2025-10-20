@@ -5,4 +5,4 @@ subscribe:
   summary: Server sends active playlist events
   message:
     oneOf:
-      - $ref: '../../components/playlist/messages/activePlaylist/activePlaylist.yaml#/components/messages/activePlaylist'
+      - $ref: '../../components/playlist/messages/activePlaylistMessage.yaml#/components/messages/activePlaylistMessage'

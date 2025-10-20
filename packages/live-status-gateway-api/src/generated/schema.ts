@@ -314,6 +314,7 @@ interface CurrentSegmentPart {
 	 */
 	autoNext?: boolean
 	timing: CurrentSegmentPartTiming
+	additionalProperties?: Record<string, any>
 }
 
 interface CurrentSegmentPartTiming {

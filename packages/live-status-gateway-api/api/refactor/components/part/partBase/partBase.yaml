@@ -13,7 +13,6 @@ $defs:
         description: If this part will progress to the next automatically
         type: boolean
         default: false
-    required: [id, name, segmentId, pieces]
-    additionalProperties: false
+    required: [id, name]
     examples:
       - $ref: './partBase-example.yaml'

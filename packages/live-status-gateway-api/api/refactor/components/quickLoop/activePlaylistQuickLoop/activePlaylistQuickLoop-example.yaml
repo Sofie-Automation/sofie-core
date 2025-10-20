@@ -1,0 +1,6 @@
+locked: false
+running: true
+start:
+  $ref: '../quickLoopMarker/quickLoopMarker-example.yaml'
+end:
+  $ref: '../quickLoopMarker/quickLoopMarker-example.yaml'

@@ -15,7 +15,7 @@ $defs:
         description: The playlists that are currently loaded in the studio
         type: array
         items:
-          $ref: '../../playlist/playlist.yaml'
+          $ref: '../../playlist/playlistStatus/playlistStatus.yaml#/$defs/playlistStatus'
     required: [id, name, playlists]
     examples:
       - ref: './studioStatus-example.yaml'

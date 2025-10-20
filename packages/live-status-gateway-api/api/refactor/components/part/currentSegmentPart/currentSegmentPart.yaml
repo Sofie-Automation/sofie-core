@@ -9,8 +9,6 @@ $defs:
         properties:
           timing:
             $ref: '../../timing/currentSegmentPartTiming/currentSegmentPartTiming.yaml#/$defs/currentSegmentPartTiming'
-        additionalProperties: false
     required: [id, name, timing]
-    additionalProperties: false
     examples:
       - $ref: './currentSegmentPart-example.yaml'

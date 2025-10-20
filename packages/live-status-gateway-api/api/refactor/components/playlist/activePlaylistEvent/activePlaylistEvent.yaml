@@ -1,8 +1,7 @@
-# TODO: don't forget this
 title: Active Playlist
 description: Active Playlist schema for websocket subscriptions
 $defs:
-  activePlaylist:
+  activePlaylistEvent:
     type: object
     title: ActivePlaylistEvent
     properties:
@@ -29,21 +28,23 @@ $defs:
           type: string
       currentPart:
         oneOf:
-          - $ref: '../part/currentPart/currentPartStatus.yaml#/$defs/currentPartStatus'
+          - $ref: '../../part/currentPart/currentPartStatus.yaml#/$defs/currentPartStatus'
           - type: 'null'
       currentSegment:
         oneOf:
-          - $ref: '../segment/currentSegment/currentSegment.yaml#/$defs/currentSegment'
+          - $ref: '../../segment/currentSegment/currentSegment.yaml#/$defs/currentSegment'
           - type: 'null'
       nextPart:
         oneOf:
-          - $ref: '../part/partStatus/partStatus.yaml#/$defs/partStatus'
+          - $ref: '../../part/partStatus/partStatus.yaml#/$defs/partStatus'
           - type: 'null'
       publicData:
         description: Optional arbitrary data
       timing:
-        $ref: '../timing/activePlaylistTiming.yaml#/$defs/activePlaylistTiming'
+        $ref: '../../timing/activePlaylistTiming/activePlaylistTiming.yaml#/$defs/activePlaylistTiming'
       quickLoop:
-        $ref: './quickLoop/quickLoop.yaml#/$defs/activePlaylistQuickLoop'
+        $ref: '../../quickLoop/activePlaylistQuickLoop/activePlaylistQuickLoop.yaml#/$defs/activePlaylistQuickLoop'
     required: [event, id, externalId, name, rundownIds, currentPart, currentSegment, nextPart, timing]
     additionalProperties: false
+    examples:
+      - $ref: './activePlaylistEvent-example.yaml'
