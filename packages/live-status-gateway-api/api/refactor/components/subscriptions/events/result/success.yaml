@@ -1,3 +1,0 @@
-title: SubscriptionStatusSuccess
-allOf:
-  - $ref: './common.yaml'

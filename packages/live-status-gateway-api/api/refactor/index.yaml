@@ -34,7 +34,7 @@ channels:
   heartbeat:
     $ref: './topics/heartbeat/heartbeatTopic.yaml'
   subscriptions:
-    $ref: './topics/subscriptions/subscriptions.yaml'
+    $ref: './topics/subscriptions/subscriptionsTopic.yaml'
   studio:
     $ref: './topics/studio/studioTopic.yaml'
   activePlaylist:
@@ -63,9 +63,12 @@ channels:
           - messageId: heartbeat-typeGen
             payload:
               $ref: './components/connection/messages/heartbeatMessage.yaml#/components/messages/heartbeatMessage/payload'
-          - messageId: subscriptions-typeGen
+          - messageId: subscriptionStatusSuccess-typeGen
             payload:
-              $ref: './components/subscriptions/messages/subscriptionStatus.yaml#/components/messages/subscriptionStatus/payload'
+              $ref: './components/subscriptions/messages/subscriptionStatusSuccessMessage.yaml#/components/messages/subscriptionStatusSuccessMessage/payload'
+          - messageId: subscriptionStatusError-typeGen
+            payload:
+              $ref: './components/subscriptions/messages/subscriptionStatusErrorMessage.yaml#/components/messages/subscriptionStatusErrorMessage/payload'
           - messageId: studioUpdate-typeGen
             payload:
               $ref: './components/studio/messages/studioUpdate.yaml#/components/messages/studioUpdate/payload'

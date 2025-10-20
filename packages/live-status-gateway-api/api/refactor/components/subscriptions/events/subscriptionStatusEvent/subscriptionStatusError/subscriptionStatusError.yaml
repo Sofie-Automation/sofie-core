@@ -1,0 +1,14 @@
+$defs:
+  subscriptionStatusError:
+    type: object
+    title: SubscriptionStatusError
+    allOf:
+      - type: object
+        title: SubscriptionStatusError
+        properties:
+          errorMessage:
+            type: string
+        required: [errorMessage]
+      - $ref: '../subscriptionStatusSuccess/subscriptionStatusSuccess.yaml#/$defs/subscriptionStatusSuccess'
+    examples:
+      - $ref: './subscriptionStatusError-example.yaml'

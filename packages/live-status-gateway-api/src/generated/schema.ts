@@ -5,13 +5,13 @@
  * and run "yarn generate-schema-types" to regenerate this file.
  */
 
-type Subscriptions = SubscribeEvent | UnsubscribeEvent
+type Subscriptions = SubscriptionStatusError | SubscriptionStatusSuccess
 
 type Slash =
 	| PongEvent
 	| HeartbeatEvent
-	| SubscriptionStatusError
 	| SubscriptionStatusSuccess
+	| SubscriptionStatusError
 	| StudioEvent
 	| ActivePlaylistEvent
 	| ActivePiecesEvent
@@ -41,15 +41,26 @@ interface HeartbeatEvent {
 }
 
 interface SubscribeEvent {
-	event: 'subscribe'
+	/**
+	 * Name of the event when subscribing or unsubscribing to topics.
+	 */
+	event: SubscriptionEventName
 	/**
 	 * Client originated ID reflected in response message.
 	 */
 	reqid: number
-	subscription: SubscriptionDetails
+	subscription: SubscriptionRequestDetails
 }
 
-interface SubscriptionDetails {
+/**
+ * Name of the event when subscribing or unsubscribing to topics.
+ */
+enum SubscriptionEventName {
+	SUBSCRIBE = 'subscribe',
+	UNSUBSCRIBE = 'unsubscribe',
+}
+
+interface SubscriptionRequestDetails {
 	/**
 	 * The name of the topic related to this status.
 	 */
@@ -57,7 +68,7 @@ interface SubscriptionDetails {
 	/**
 	 * The current status of the subscription
 	 */
-	status: SubscriptionStatus
+	status?: SubscriptionStatus
 }
 
 /**
@@ -71,15 +82,6 @@ enum SubscriptionName {
 	AD_LIBS = 'adLibs',
 	BUCKETS = 'buckets',
 	RESERVED_PACKAGES = 'packages',
-}
-
-interface UnsubscribeEvent {
-	event: 'unsubscribe'
-	/**
-	 * Client originated ID reflected in response message.
-	 */
-	reqid: number
-	subscription: SubscriptionDetails
 }
 
 /**
@@ -98,6 +100,18 @@ interface SubscriptionStatusError {
 	 */
 	reqid: number
 	subscription: SubscriptionDetails
+	additionalProperties?: Record<string, any>
+}
+
+interface SubscriptionDetails {
+	/**
+	 * The name of the topic related to this status.
+	 */
+	name: SubscriptionName
+	/**
+	 * The current status of the subscription
+	 */
+	status: SubscriptionStatus
 }
 
 interface SubscriptionStatusSuccess {
@@ -107,6 +121,7 @@ interface SubscriptionStatusSuccess {
 	 */
 	reqid: number
 	subscription: SubscriptionDetails
+	additionalProperties?: Record<string, any>
 }
 
 interface StudioEvent {
@@ -747,11 +762,12 @@ export {
 	PongEvent,
 	HeartbeatEvent,
 	SubscribeEvent,
-	SubscriptionDetails,
+	SubscriptionEventName,
+	SubscriptionRequestDetails,
 	SubscriptionName,
-	UnsubscribeEvent,
 	SubscriptionStatus,
 	SubscriptionStatusError,
+	SubscriptionDetails,
 	SubscriptionStatusSuccess,
 	StudioEvent,
 	PlaylistStatus,

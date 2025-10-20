@@ -1,0 +1,10 @@
+$defs:
+  subscriptionRequestDetails:
+    type: object
+    title: SubscriptionRequestDetails
+    properties:
+      $ref: '../subscriptionDetails/subscriptionDetails.yaml#/$defs/subscriptionDetails/properties'
+    required: [name]
+    additionalProperties: false
+    examples:
+      - $ref: '../subscriptionDetails/subscriptionDetails-example.yaml'

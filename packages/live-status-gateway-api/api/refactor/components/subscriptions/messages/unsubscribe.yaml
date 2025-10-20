@@ -1,7 +1,0 @@
-components:
-  messages:
-    unsubscribe:
-      messageId: unsubscribe
-      title: Unsubscribe Event Message
-      payload:
-        $ref: '../events/unsubscribe/unsubscribe.yaml'

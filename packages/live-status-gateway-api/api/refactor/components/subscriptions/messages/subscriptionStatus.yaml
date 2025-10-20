@@ -1,8 +1,0 @@
-components:
-  messages:
-    subscriptionStatus:
-      messageId: subscriptionStatus
-      description: Subscription status response to subscribe or unsubscribe
-      title: Subscription Status Event
-      payload:
-        $ref: '../events/status/status.yaml'
