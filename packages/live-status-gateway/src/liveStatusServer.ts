@@ -130,7 +130,7 @@ export class LiveStatusServer {
 		rootChannel.addTopic(SubscriptionName.RESERVED_PACKAGES, packageStatusTopic)
 		rootChannel.addTopic(SubscriptionName.BUCKETS, bucketsTopic)
 
-		const wss = new WebSocketServer({ port: 9090 })
+		const wss = new WebSocketServer({ port: 8080 })
 		wss.on('connection', (ws, request) => {
 			this._logger.info(`WebSocket connection requested for path '${request.url}'`)
 
