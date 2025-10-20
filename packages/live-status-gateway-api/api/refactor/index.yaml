@@ -40,7 +40,7 @@ channels:
   activePlaylist:
     $ref: './topics/activePlaylist/activePlaylist.yaml'
   activePieces:
-    $ref: './topics/activePieces/activePieces.yaml'
+    $ref: './topics/activePieces/activePiecesTopic.yaml'
   segments:
     $ref: './topics/segments/segmentsTopic.yaml'
   adLibs:
