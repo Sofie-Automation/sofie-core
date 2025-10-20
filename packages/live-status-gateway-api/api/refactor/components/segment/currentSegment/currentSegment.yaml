@@ -15,3 +15,5 @@ $defs:
               $ref: '../../part/currentSegmentPart/currentSegmentPart.yaml#/$defs/currentSegmentPart'
         required: [timing, parts]
     required: [id, timing, parts]
+    examples:
+      - $ref: './currentSegment-example.yaml'

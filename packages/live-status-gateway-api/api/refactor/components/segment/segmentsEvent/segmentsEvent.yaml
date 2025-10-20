@@ -19,4 +19,5 @@ $defs:
         items:
           $ref: '../segment/segment.yaml#/$defs/segment'
     required: [event, rundownPlaylistId, segments]
-# TODO: add examples back to segment definitions
+    examples:
+      - $ref: './segmentsEvent-example.yaml'

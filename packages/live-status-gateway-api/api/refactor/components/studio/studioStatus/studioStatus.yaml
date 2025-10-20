@@ -17,3 +17,5 @@ $defs:
         items:
           $ref: '../../playlist/playlist.yaml'
     required: [id, name, playlists]
+    examples:
+      - ref: './studioStatus-example.yaml'

@@ -12,3 +12,5 @@ $defs:
         required: [event]
       - $ref: '../studioStatus/studioStatus.yaml#/$defs/studioStatus'
     required: [event, id, name, playlists]
+    examples:
+      - $ref: './studioEvent-example.yaml'

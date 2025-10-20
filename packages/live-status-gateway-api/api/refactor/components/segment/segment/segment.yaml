@@ -22,3 +22,5 @@ $defs:
             description: Optional arbitrary data
         required: [rundownId, name, timing]
     required: [id, rundownId, name, timing]
+    examples:
+      - $ref: './segment-example.yaml'
