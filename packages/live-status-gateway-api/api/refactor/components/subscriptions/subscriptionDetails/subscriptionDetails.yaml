@@ -4,9 +4,9 @@ $defs:
     title: SubscriptionDetails
     properties:
       name:
-        $ref: '../subscriptionName.yaml'
+        $ref: '../subscriptionName.yaml#/$defs/subscriptionName'
       status:
-        $ref: '../subscriptionStatusName.yaml'
+        $ref: '../subscriptionStatusName.yaml#/$defs/subscriptionStatusName'
     required: [name, status]
     additionalProperties: false
     examples:

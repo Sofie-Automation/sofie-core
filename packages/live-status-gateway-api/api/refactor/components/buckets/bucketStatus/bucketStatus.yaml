@@ -13,7 +13,7 @@ $defs:
         description: The AdLibs in this bucket
         type: array
         items:
-          $ref: '../../adLibs/bucketAdlib/bucketAdLib.yaml'
+          $ref: '../../adLibs/bucketAdlibStatus/bucketAdLibStatus.yaml#/$defs/bucketAdLibStatus'
     required: [id, name, adLibs]
     additionalProperties: false
     examples:

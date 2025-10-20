@@ -4,9 +4,9 @@ $defs:
     title: SubscribeEvent
     properties:
       event:
-        $ref: '../../subscriptionEventName.yaml'
+        $ref: '../../subscriptionEventName.yaml#/$defs/subscriptionEventName'
       reqid:
-        $ref: '../../../connection/reqid/reqid.yaml'
+        $ref: '../../../connection/reqid/reqid.yaml#/$defs/reqid'
       subscription:
         $ref: '../../subscriptionRequestDetails/subscriptionRequestDetails.yaml#/$defs/subscriptionRequestDetails'
     required: [event, reqid, subscription]

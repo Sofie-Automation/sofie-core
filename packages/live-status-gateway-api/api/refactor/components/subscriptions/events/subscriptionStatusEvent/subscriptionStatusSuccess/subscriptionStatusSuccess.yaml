@@ -7,7 +7,7 @@ $defs:
         type: string
         const: subscriptionStatus
       reqid:
-        $ref: '../../../../connection/reqid/reqid.yaml'
+        $ref: '../../../../connection/reqid/reqid.yaml#/$defs/reqid'
       subscription:
         $ref: '../../../subscriptionDetails/subscriptionDetails.yaml#/$defs/subscriptionDetails'
         required: [name, status]
