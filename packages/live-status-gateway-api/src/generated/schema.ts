@@ -764,7 +764,7 @@ interface BucketAdLibStatus {
 	 */
 	optionsSchema?: string
 	/**
-	 * Id of the adlib recognizable by the external source. Unique within a bucket.
+	 * Id of the adLib recognizable by the external source. Unique within a bucket.
 	 */
 	externalId: string
 	additionalProperties?: Record<string, any>
