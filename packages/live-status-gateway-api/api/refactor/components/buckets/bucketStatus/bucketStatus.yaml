@@ -1,4 +1,3 @@
-# TODO: rename this file to bucketStatus.yaml
 $defs:
   bucketStatus:
     title: BucketStatus
@@ -18,4 +17,4 @@ $defs:
     required: [id, name, adLibs]
     additionalProperties: false
     examples:
-      - $ref: './bucket-example.yaml'
+      - $ref: './bucketStatus-example.yaml'

@@ -1,3 +1,3 @@
 event: buckets
 buckets:
-  - $ref: '../bucket/bucket-example.yaml'
+  - $ref: '../bucketStatus/bucketStatus-example.yaml'

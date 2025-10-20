@@ -10,7 +10,7 @@ $defs:
         description: Buckets available in the Studio
         type: array
         items:
-          $ref: '../bucket/bucket.yaml#/$defs/bucketStatus'
+          $ref: '../bucketStatus/bucketStatus.yaml#/$defs/bucketStatus'
     required: [event, buckets]
     additionalProperties: false
     examples:
