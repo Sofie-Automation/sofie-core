@@ -10,8 +10,6 @@ info:
   contact:
     name: Sofie TV Automation
     url: https://github.com/Sofie-Automation/sofie-core/issues
-    # TODO: Remove example email
-    email: example@example.com
 
 servers:
   development:
@@ -50,10 +48,11 @@ channels:
   buckets:
     $ref: './topics/buckets/bucketsTopic.yaml'
 
-  # Needed to retain the types from the old schema structure. Eventually this should be removed.
+  # Needed to retain the Slash type from the old schema structure. Eventually this should be removed.
   /:
     subscribe:
-      description: Messages that are received from the API
+      summary: Slash Messages
+      description: Messages that are received from the API - This channel is needed to retain the generated Slash type from the old schema structure. Eventually this should be removed.
       operationId: sendRootMessage
       message:
         oneOf:

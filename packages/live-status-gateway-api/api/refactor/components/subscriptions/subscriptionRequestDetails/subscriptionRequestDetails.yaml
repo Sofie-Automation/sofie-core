@@ -3,7 +3,8 @@ $defs:
     type: object
     title: SubscriptionRequestDetails
     properties:
-      $ref: '../subscriptionDetails/subscriptionDetails.yaml#/$defs/subscriptionDetails/properties'
+      name:
+        $ref: '../subscriptionDetails/subscriptionDetails.yaml#/$defs/subscriptionDetails/properties/name'
     required: [name]
     additionalProperties: false
     examples:

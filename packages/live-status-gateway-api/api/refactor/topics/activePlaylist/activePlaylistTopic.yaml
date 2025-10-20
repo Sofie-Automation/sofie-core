@@ -2,7 +2,7 @@ description: Topic for active playlist updates
 
 subscribe:
   operationId: receiveActivePlaylist
-  summary: Server sends active playlist events
+  description: Server sends active playlist events
   message:
     oneOf:
       - $ref: '../../components/playlist/messages/activePlaylistMessage.yaml#/components/messages/activePlaylistMessage'

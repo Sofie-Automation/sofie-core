@@ -2,7 +2,7 @@ description: Topic for active pieces updates
 
 subscribe:
   operationId: receiveActivePieces
-  summary: Server sends active pieces events
+  description: Server sends active pieces events
   message:
     oneOf:
       - $ref: '../../components/piece/messages/activePiecesMessage.yaml#/components/messages/activePiecesMessage'

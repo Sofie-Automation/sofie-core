@@ -65,10 +65,6 @@ interface SubscriptionRequestDetails {
 	 * The name of the topic related to this status.
 	 */
 	name: SubscriptionName
-	/**
-	 * The current status of the subscription
-	 */
-	status?: SubscriptionStatus
 }
 
 /**
@@ -82,14 +78,6 @@ enum SubscriptionName {
 	AD_LIBS = 'adLibs',
 	BUCKETS = 'buckets',
 	RESERVED_PACKAGES = 'packages',
-}
-
-/**
- * The current status of the subscription
- */
-enum SubscriptionStatus {
-	SUBSCRIBED = 'subscribed',
-	UNSUBSCRIBED = 'unsubscribed',
 }
 
 interface SubscriptionStatusError {
@@ -112,6 +100,14 @@ interface SubscriptionDetails {
 	 * The current status of the subscription
 	 */
 	status: SubscriptionStatus
+}
+
+/**
+ * The current status of the subscription
+ */
+enum SubscriptionStatus {
+	SUBSCRIBED = 'subscribed',
+	UNSUBSCRIBED = 'unsubscribed',
 }
 
 interface SubscriptionStatusSuccess {
@@ -766,9 +762,9 @@ export {
 	SubscriptionEventName,
 	SubscriptionRequestDetails,
 	SubscriptionName,
-	SubscriptionStatus,
 	SubscriptionStatusError,
 	SubscriptionDetails,
+	SubscriptionStatus,
 	SubscriptionStatusSuccess,
 	StudioEvent,
 	PlaylistStatus,
