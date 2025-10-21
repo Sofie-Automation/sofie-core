@@ -1,8 +1,11 @@
-name: Publish prerelease libraries
+name: Publish libraries
 
 on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+  push:
+    tags:
+      - "v**"
 
 permissions:
   contents: read
@@ -149,6 +152,7 @@ jobs:
         env:
           CI: true
       - name: Bump version
+        if: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
           cd packages
           COMMIT_TIMESTAMP=$(git log -1 --pretty=format:%ct HEAD)
@@ -239,16 +243,28 @@ jobs:
             echo "No NPM token provided, using trusted publishing"
           fi
 
+          corepack enable
+
+          # make dependencies of `determine-npm-tag` available
+          yarn install --mode=skip-build
+
           cd packages
 
-          corepack enable
           yarn install
 
-          yarn lerna publish from-package --tag-version-prefix='' --dist-tag nightly --yes
+          NPM_TAG=nightly
+          if [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
+            PACKAGE_NAME=$(node -p "require('./shared-lib/package.json').name")
+            PUBLISHED_VERSION=$(yarn npm info --json $PACKAGE_NAME | jq -c '.version' -r)
+            THIS_VERSION=$(node -p "require('./lerna.json').version")
+            NPM_TAG=$(node ../scripts/determine-npm-tag.js "$PUBLISHED_VERSION" "$THIS_VERSION")
+          fi
+
+          yarn lerna publish from-package --tag-version-prefix='' --dist-tag $NPM_TAG --yes
 
           NEW_VERSION=$(node -p "require('./lerna.json').version")
           echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
-          echo "**Published:** $NEW_VERSION" >> $GITHUB_STEP_SUMMARY
+          echo "**Published:** $NEW_VERSION as $NPM_TAG" >> $GITHUB_STEP_SUMMARY
         env:
           NPM_CONFIG_PROVENANCE: true
           CI: true
