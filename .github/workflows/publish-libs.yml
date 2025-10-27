@@ -187,7 +187,7 @@ jobs:
           yarn install --no-immutable
 
       - name: Upload release artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: publish-dist
           path: |
