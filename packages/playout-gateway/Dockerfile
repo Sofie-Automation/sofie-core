@@ -9,7 +9,6 @@ RUN corepack enable
 RUN yarn install --immutable
 RUN yarn run pinst --disable
 RUN yarn lerna run --scope \*\*/playout-gateway --include-dependencies --stream build
-RUN yarn plugin import workspace-tools
 RUN yarn workspaces focus playout-gateway --production # purge dev-dependencies
 
 # DEPLOY IMAGE
@@ -25,4 +24,4 @@ COPY --from=0 /opt/shared-lib /opt/shared-lib
 WORKDIR /opt/playout-gateway
 RUN chown -R 1000:1000 /opt/playout-gateway
 USER 1000
-CMD ["node", "dist/index.js"]
+ENTRYPOINT ["node", "dist/index.js"]

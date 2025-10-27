@@ -2,10 +2,10 @@ import { PartHoldMode } from '@sofie-automation/blueprints-integration'
 import { RundownHoldState } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/error'
 import { ActivateHoldProps, DeactivateHoldProps } from '@sofie-automation/corelib/dist/worker/studio'
-import { JobContext } from '../jobs'
-import { runJobWithPlayoutModel } from './lock'
-import { updateTimeline } from './timeline/generate'
-import { logger } from '../logging'
+import { JobContext } from '../jobs/index.js'
+import { runJobWithPlayoutModel } from './lock.js'
+import { updateTimeline } from './timeline/generate.js'
+import { logger } from '../logging.js'
 
 /**
  * Activate Hold

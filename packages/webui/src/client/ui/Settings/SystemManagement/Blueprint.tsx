@@ -1,20 +1,20 @@
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { UIBlueprintUpgradeStatusCoreSystem } from '@sofie-automation/meteor-lib/dist/api/upgradeStatus'
 import { useTranslation } from 'react-i18next'
-import { useSubscription, useTracker } from '../../../lib/ReactMeteorData/ReactMeteorData'
-import { UIBlueprintUpgradeStatuses } from '../../Collections'
-import { getUpgradeStatusMessage, SystemUpgradeStatusButtons } from '../Upgrades/Components'
+import { useSubscription, useTracker } from '../../../lib/ReactMeteorData/ReactMeteorData.js'
+import { UIBlueprintUpgradeStatuses } from '../../Collections.js'
+import { getUpgradeStatusMessage, SystemUpgradeStatusButtons } from '../Upgrades/Components.js'
 import { ICoreSystem } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
-import { Blueprints, CoreSystem } from '../../../collections'
+import { Blueprints, CoreSystem } from '../../../collections/index.js'
 import { BlueprintManifestType } from '@sofie-automation/blueprints-integration'
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { useMemo } from 'react'
-import { LabelActual } from '../../../lib/Components/LabelAndOverrides'
-import { EditAttribute } from '../../../lib/EditAttribute'
-import { RedirectToBlueprintButton } from '../../../lib/SettingsNavigation'
+import { LabelActual } from '../../../lib/Components/LabelAndOverrides.js'
+import { EditAttribute } from '../../../lib/EditAttribute.js'
+import { RedirectToBlueprintButton } from '../../../lib/SettingsNavigation.js'
 
 interface SystemManagementBlueprintProps {
 	coreSystem: ICoreSystem | undefined
@@ -32,18 +32,24 @@ export function SystemManagementBlueprint({ coreSystem }: Readonly<SystemManagem
 			}) as UIBlueprintUpgradeStatusCoreSystem | undefined),
 		[coreSystem?._id]
 	)
-	const statusMessage = isStatusReady && status ? getUpgradeStatusMessage(t, status) ?? t('OK') : t('Loading...')
+	const statusMessage = isStatusReady && status ? (getUpgradeStatusMessage(t, status) ?? t('OK')) : t('Loading...')
 
 	return (
-		<div className="row">
-			<div className="col c12 r1-c12">
-				<SelectBlueprint coreSystem={coreSystem} />
+		<div className="properties-grid">
+			<SelectBlueprint coreSystem={coreSystem} />
 
-				<p>
-					{t('Upgrade Status')}: {statusMessage}
-					{status && <SystemUpgradeStatusButtons upgradeResult={status} />}
-				</p>
-			</div>
+			<label className="field">
+				<div className="label-actual">{t('Upgrade Status')}</div>
+				<div className="field-content">{statusMessage}</div>
+			</label>
+			{status && (
+				<div className="field">
+					<div className="label-actual"></div>
+					<div className="field-content">
+						<SystemUpgradeStatusButtons upgradeResult={status} />
+					</div>
+				</div>
+			)}
 		</div>
 	)
 }
@@ -74,26 +80,27 @@ function SelectBlueprint({ coreSystem }: Readonly<SelectBlueprintProps>): JSX.El
 	}, [allSystemBlueprints])
 
 	return (
-		<div className="mod mvs mhs">
-			<label className="field">
-				<LabelActual label={t('Blueprint')} />
+		<label className="field">
+			<LabelActual label={t('Blueprint')} />
+
+			<EditAttribute
+				attribute="blueprintId"
+				obj={coreSystem}
+				type="dropdown"
+				options={blueprintOptions}
+				collection={CoreSystem}
+			/>
+
+			<div>
 				{!coreSystem?.blueprintId ? (
 					<div className="error-notice inline">
 						{t('Blueprint not set')} <FontAwesomeIcon icon={faExclamationTriangle} />
 					</div>
 				) : null}
-
-				<EditAttribute
-					modifiedClassName="bghl"
-					attribute="blueprintId"
-					obj={coreSystem}
-					type="dropdown"
-					options={blueprintOptions}
-					collection={CoreSystem}
-					className="input text-input input-l"
-				/>
+			</div>
+			<div>
 				<RedirectToBlueprintButton id={coreSystem?.blueprintId} />
-			</label>
-		</div>
+			</div>
+		</label>
 	)
 }

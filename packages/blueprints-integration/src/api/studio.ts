@@ -1,6 +1,6 @@
-import type { IBlueprintConfig } from '../common'
+import type { IBlueprintConfig } from '../common.js'
 import type { ReadonlyDeep } from 'type-fest'
-import type { BlueprintConfigCoreConfig, BlueprintManifestBase, BlueprintManifestType, IConfigMessage } from './base'
+import type { BlueprintConfigCoreConfig, BlueprintManifestBase, BlueprintManifestType, IConfigMessage } from './base.js'
 import type { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
 import type { JSONBlob } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 import type {
@@ -9,25 +9,33 @@ import type {
 	IStudioBaselineContext,
 	IStudioUserContext,
 	IProcessIngestDataContext,
-} from '../context'
-import type { IBlueprintShowStyleBase } from '../showStyle'
+} from '../context/index.js'
+import type { IBlueprintShowStyleBase } from '../showStyle.js'
 import type {
 	ExtendedIngestRundown,
 	NrcsIngestChangeDetails,
 	IngestRundown,
 	MutableIngestRundown,
 	UserOperationChange,
-} from '../ingest'
-import type { ExpectedPlayoutItemGeneric, IBlueprintResultRundownPlaylist, IBlueprintRundownDB } from '../documents'
-import type { BlueprintMappings } from '../studio'
-import type { TimelineObjectCoreExt, TSR } from '../timeline'
-import type { ExpectedPackage } from '../package'
+} from '../ingest.js'
+import type {
+	ExpectedPlayoutItemGeneric,
+	IBlueprintResultRundownPlaylist,
+	IBlueprintRundownDB,
+} from '../documents/index.js'
+import type { BlueprintMappings } from '../studio.js'
+import type { TimelineObjectCoreExt, TSR } from '../timeline.js'
+import type { ExpectedPackage } from '../package.js'
 import type {
 	StudioRouteSet,
 	StudioRouteSetExclusivityGroup,
 } from '@sofie-automation/shared-lib/dist/core/model/StudioRouteSet'
 import type { StudioPackageContainer } from '@sofie-automation/shared-lib/dist/core/model/PackageContainer'
 import type { IStudioSettings } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
+import type { MosDeviceConfig } from '@sofie-automation/shared-lib/dist/generated/MosGatewayDevicesTypes'
+import type { MosGatewayConfig } from '@sofie-automation/shared-lib/dist/generated/MosGatewayOptionsTypes'
+import type { PlayoutGatewayConfig } from '@sofie-automation/shared-lib/dist/generated/PlayoutGatewayConfigTypes'
+import type { LiveStatusGatewayConfig } from '@sofie-automation/shared-lib/dist/generated/LiveStatusGatewayOptionsTypes'
 
 export interface StudioBlueprintManifest<TRawConfig = IBlueprintConfig, TProcessedConfig = unknown>
 	extends BlueprintManifestBase {
@@ -147,11 +155,11 @@ export interface BlueprintResultApplyStudioConfig {
 	/** Parent device settings */
 	parentDevices: Record<string, BlueprintParentDeviceSettings>
 	/** Playout-gateway subdevices */
-	playoutDevices: Record<string, TSR.DeviceOptionsAny>
+	playoutDevices: Record<string, { parentDeviceName?: string; options: TSR.DeviceOptionsAny }>
 	/** Ingest-gateway subdevices, the types here depend on the gateway you use */
-	ingestDevices: Record<string, unknown>
+	ingestDevices: Record<string, { parentDeviceName?: string; options: BlueprintMosDeviceConfig | unknown }>
 	/** Input-gateway subdevices */
-	inputDevices: Record<string, unknown>
+	inputDevices: Record<string, { parentDeviceName?: string; options: unknown }>
 	/** Route Sets */
 	routeSets?: Record<string, StudioRouteSet>
 	/** Route Set Exclusivity Groups */
@@ -169,6 +177,14 @@ export interface BlueprintParentDeviceSettings {
 
 	options: Record<string, any>
 }
+
+export type BlueprintMosGatewayConfig = MosGatewayConfig
+
+export type BlueprintMosDeviceConfig = MosDeviceConfig
+
+export type BlueprintPlayoutGatewayConfig = PlayoutGatewayConfig
+
+export type BlueprintLiveStatusGatewayConfig = LiveStatusGatewayConfig
 
 export interface IStudioConfigPreset<TConfig = IBlueprintConfig> {
 	name: string

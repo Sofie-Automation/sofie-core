@@ -1,12 +1,12 @@
 import { NoraContent } from '@sofie-automation/blueprints-integration'
-import { IModalAttributes, Modal } from '../../../../lib/ui/containers/modals/Modal'
-import { NoraItemEditor } from './NoraItemEditor'
-import { PieceUi } from '../../../SegmentTimeline/SegmentTimelineContainer'
-import { RundownUtils } from '../../../../lib/rundown'
+import { IModalAttributes, Modal } from '../../../../lib/ui/containers/modals/Modal.js'
+import { NoraItemEditor } from './NoraItemEditor.js'
+import { PieceUi } from '../../../SegmentTimeline/SegmentTimelineContainer.js'
+import { RundownUtils } from '../../../../lib/rundown.js'
 import { useTranslation } from 'react-i18next'
-import InspectorTitle from './InspectorTitle'
-import { ErrorBoundary } from '../../../../lib/ErrorBoundary'
-import { IAdLibListItem } from '../../AdLibListItem'
+import InspectorTitle from './InspectorTitle.js'
+import { ErrorBoundary } from '../../../../lib/ErrorBoundary.js'
+import { IAdLibListItem } from '../../AdLibListItem.js'
 import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { useState } from 'react'
@@ -38,8 +38,8 @@ export function NoraItemRenderer({ studio, showStyleBase, piece }: INoraSuperRen
 		<ErrorBoundary>
 			<InspectorTitle piece={piece} showStyleBase={showStyleBase} studio={studio} />
 			<div className="shelf-inspector__content">
-				<h2 className="mod mas">{actualPiece.name}</h2>
-				<div className="mod mas">
+				<h2 className="m-2">{actualPiece.name}</h2>
+				<div className="m-2">
 					<button
 						className="btn btn-primary"
 						disabled={editMode}

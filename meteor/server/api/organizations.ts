@@ -11,6 +11,7 @@ import { Blueprints, CoreSystem, Organizations, ShowStyleBases, Studios } from '
 import { getCoreSystemAsync } from '../coreSystem/collection'
 import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
 import { assertConnectionHasOneOfPermissions } from '../security/auth'
+import { BlueprintManifestType } from '@sofie-automation/blueprints-integration'
 
 const PERMISSIONS_FOR_MANAGE_ORGANIZATIONS: Array<keyof UserPermissions> = ['configure']
 
@@ -25,9 +26,9 @@ async function createDefaultEnvironmentForOrg(orgId: OrganizationId) {
 	const core = await getCoreSystemAsync()
 	const blueprints = await Blueprints.findFetchAsync({})
 	for (const blueprint of blueprints) {
-		if (blueprint.blueprintType === 'system') systemBlueprintId = blueprint._id
-		if (blueprint.blueprintType === 'studio') studioBlueprintId = blueprint._id
-		if (blueprint.blueprintType === 'showstyle') showStyleBlueprintId = blueprint._id
+		if (blueprint.blueprintType === BlueprintManifestType.SYSTEM) systemBlueprintId = blueprint._id
+		if (blueprint.blueprintType === BlueprintManifestType.STUDIO) studioBlueprintId = blueprint._id
+		if (blueprint.blueprintType === BlueprintManifestType.SHOWSTYLE) showStyleBlueprintId = blueprint._id
 	}
 
 	if (systemBlueprintId && core) await CoreSystem.updateAsync(core._id, { $set: { blueprintId: systemBlueprintId } })

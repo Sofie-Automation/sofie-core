@@ -11,7 +11,7 @@ Some parts of Sofie (specifically the Package Manager) require that [`FFmpeg`](h
 
    ![Start Menu screenshot](/img/docs/edit_system_environment_variables.jpg)
 
-4. In the System Properties menu, click the "Environment Varibles..." button at the bottom of the "Advanced" tab.
+4. In the System Properties menu, click the "Environment Variables..." button at the bottom of the "Advanced" tab.
 
    ![System Properties screenshot](/img/docs/system_properties.png)
 

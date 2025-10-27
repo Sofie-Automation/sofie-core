@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-function-type */
 import { overrideLogger } from '../server/logging'
 
 export class SupressLogMessages {
@@ -40,7 +41,6 @@ export class SupressLogMessages {
 	static expectAllMessagesToHaveBeenHandled(): void {
 		const unhandledSuppressMessages = [...SupressLogMessages.suppressMessages]
 		SupressLogMessages.suppressMessages.length = 0
-		// eslint-disable-next-line jest/no-standalone-expect
 		expect(unhandledSuppressMessages).toHaveLength(0)
 	}
 }

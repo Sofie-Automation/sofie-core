@@ -32,7 +32,6 @@ import { createAsyncOnlyMongoCollection, createAsyncOnlyReadOnlyMongoCollection 
 import { ObserveChangesForHash } from './lib'
 import { logger } from '../logging'
 import { allowOnlyFields, rejectFields } from '../security/allowDeny'
-import { checkUserIdHasOneOfPermissions } from '../security/auth'
 import { DBNotificationObj } from '@sofie-automation/corelib/dist/dataModel/Notifications'
 
 export * from './bucket'
@@ -40,9 +39,8 @@ export * from './packages-media'
 export * from './rundown'
 
 export const Blueprints = createAsyncOnlyMongoCollection<Blueprint>(CollectionName.Blueprints, {
-	update(userId, doc, fields, _modifier) {
-		if (!checkUserIdHasOneOfPermissions(userId, CollectionName.Blueprints, 'configure')) return false
-
+	requiredPermissions: ['configure'],
+	update(_permissions, doc, fields, _modifier) {
 		return allowOnlyFields(doc, fields, ['name', 'disableVersionChecks'])
 	},
 })
@@ -51,9 +49,8 @@ registerIndex(Blueprints, {
 })
 
 export const CoreSystem = createAsyncOnlyMongoCollection<ICoreSystem>(CollectionName.CoreSystem, {
-	async update(userId, doc, fields, _modifier) {
-		if (!checkUserIdHasOneOfPermissions(userId, CollectionName.CoreSystem, 'configure')) return false
-
+	requiredPermissions: ['configure'],
+	async update(_permissions, doc, fields, _modifier) {
 		return allowOnlyFields(doc, fields, [
 			'systemInfo',
 			'name',
@@ -62,6 +59,7 @@ export const CoreSystem = createAsyncOnlyMongoCollection<ICoreSystem>(Collection
 			'logo',
 			'blueprintId',
 			'settingsWithOverrides',
+			'enableMonitorBlockedThread',
 		])
 	},
 })
@@ -110,9 +108,8 @@ registerIndex(Notifications, {
 })
 
 export const Organizations = createAsyncOnlyMongoCollection<DBOrganization>(CollectionName.Organizations, {
-	async update(userId, doc, fields, _modifier) {
-		if (!checkUserIdHasOneOfPermissions(userId, CollectionName.Organizations, 'configure')) return false
-
+	requiredPermissions: ['configure'],
+	async update(_permissions, doc, fields, _modifier) {
 		return allowOnlyFields(doc, fields, ['userRoles'])
 	},
 })
@@ -126,9 +123,8 @@ registerIndex(PeripheralDeviceCommands, {
 })
 
 export const PeripheralDevices = createAsyncOnlyMongoCollection<PeripheralDevice>(CollectionName.PeripheralDevices, {
-	update(userId, doc, fields, _modifier) {
-		if (!checkUserIdHasOneOfPermissions(userId, CollectionName.PeripheralDevices, 'configure')) return false
-
+	requiredPermissions: ['configure'],
+	update(_permissions, doc, fields, _modifier) {
 		return allowOnlyFields(doc, fields, [
 			'name',
 			'deviceName',
@@ -151,9 +147,8 @@ registerIndex(PeripheralDevices, {
 })
 
 export const RundownLayouts = createAsyncOnlyMongoCollection<RundownLayoutBase>(CollectionName.RundownLayouts, {
-	async update(userId, doc, fields) {
-		if (!checkUserIdHasOneOfPermissions(userId, CollectionName.RundownLayouts, 'configure')) return false
-
+	requiredPermissions: ['configure'],
+	async update(_permissions, doc, fields) {
 		return rejectFields(doc, fields, ['_id', 'showStyleBaseId'])
 	},
 })
@@ -168,9 +163,8 @@ registerIndex(RundownLayouts, {
 })
 
 export const ShowStyleBases = createAsyncOnlyMongoCollection<DBShowStyleBase>(CollectionName.ShowStyleBases, {
-	async update(userId, doc, fields) {
-		if (!checkUserIdHasOneOfPermissions(userId, CollectionName.ShowStyleBases, 'configure')) return false
-
+	requiredPermissions: ['configure'],
+	async update(_permissions, doc, fields) {
 		return rejectFields(doc, fields, ['_id'])
 	},
 })
@@ -179,9 +173,8 @@ registerIndex(ShowStyleBases, {
 })
 
 export const ShowStyleVariants = createAsyncOnlyMongoCollection<DBShowStyleVariant>(CollectionName.ShowStyleVariants, {
-	async update(userId, doc, fields) {
-		if (!checkUserIdHasOneOfPermissions(userId, CollectionName.ShowStyleVariants, 'configure')) return false
-
+	requiredPermissions: ['configure'],
+	async update(_permissions, doc, fields) {
 		return rejectFields(doc, fields, ['showStyleBaseId'])
 	},
 })
@@ -191,9 +184,8 @@ registerIndex(ShowStyleVariants, {
 })
 
 export const Snapshots = createAsyncOnlyMongoCollection<SnapshotItem>(CollectionName.Snapshots, {
-	update(userId, doc, fields, _modifier) {
-		if (!checkUserIdHasOneOfPermissions(userId, CollectionName.Snapshots, 'configure')) return false
-
+	requiredPermissions: ['configure'],
+	update(_permissions, doc, fields, _modifier) {
 		return allowOnlyFields(doc, fields, ['comment'])
 	},
 })
@@ -205,9 +197,8 @@ registerIndex(Snapshots, {
 })
 
 export const Studios = createAsyncOnlyMongoCollection<DBStudio>(CollectionName.Studios, {
-	async update(userId, doc, fields, _modifier) {
-		if (!checkUserIdHasOneOfPermissions(userId, CollectionName.Studios, 'configure')) return false
-
+	requiredPermissions: ['configure'],
+	async update(_permissions, doc, fields, _modifier) {
 		return rejectFields(doc, fields, ['_id'])
 	},
 })
@@ -234,9 +225,8 @@ export const TranslationsBundles = createAsyncOnlyMongoCollection<TranslationsBu
 )
 
 export const TriggeredActions = createAsyncOnlyMongoCollection<DBTriggeredActions>(CollectionName.TriggeredActions, {
-	async update(userId, doc, fields) {
-		if (!checkUserIdHasOneOfPermissions(userId, CollectionName.TriggeredActions, 'configure')) return false
-
+	requiredPermissions: ['configure'],
+	async update(_permissions, doc, fields) {
 		return rejectFields(doc, fields, ['_id'])
 	},
 })

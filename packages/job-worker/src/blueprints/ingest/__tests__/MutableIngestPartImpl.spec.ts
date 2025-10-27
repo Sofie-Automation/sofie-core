@@ -1,5 +1,5 @@
 import { SofieIngestPart } from '@sofie-automation/blueprints-integration'
-import { MutableIngestPartImpl } from '../MutableIngestPartImpl'
+import { MutableIngestPartImpl } from '../MutableIngestPartImpl.js'
 import { clone } from '@sofie-automation/corelib/dist/lib'
 
 describe('MutableIngestPartImpl', () => {

@@ -1,4 +1,4 @@
-import * as _ from 'underscore'
+import _ from 'underscore'
 import { MigrationStepCore } from '@sofie-automation/blueprints-integration'
 import { objectPathGet, ProtectedString } from '../lib/tempLib'
 import { Meteor } from 'meteor/meteor'

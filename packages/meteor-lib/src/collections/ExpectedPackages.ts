@@ -1,7 +1,7 @@
 import { ExpectedPackage } from '@sofie-automation/blueprints-integration'
 import { assertNever, literal } from '@sofie-automation/corelib/dist/lib'
 import { StudioLight } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import * as deepExtend from 'deep-extend'
+import deepExtend from 'deep-extend'
 import {
 	htmlTemplateGetSteps,
 	htmlTemplateGetFileNamesFromSteps,

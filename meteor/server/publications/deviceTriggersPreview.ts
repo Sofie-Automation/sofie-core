@@ -98,8 +98,8 @@ async function createObserverForDeviceTriggersPreviewsPublication(
 	return setUpOptimizedObserverArray<
 		UIDeviceTriggerPreview,
 		DeviceTriggersPreviewArgs,
-		DeviceTriggersUpdateProps,
-		{}
+		Record<string, never>,
+		DeviceTriggersUpdateProps
 	>(
 		`pub_${observerId}_${studioId}`,
 		{ studioId },
@@ -112,7 +112,7 @@ async function createObserverForDeviceTriggersPreviewsPublication(
 
 async function manipulateMountedTriggersPublicationData(
 	_args: ReadonlyDeep<DeviceTriggersPreviewArgs>,
-	_state: Partial<{}>,
+	_state: Partial<Record<string, never>>,
 	newProps: ReadonlyDeep<Partial<DeviceTriggersUpdateProps> | undefined>
 ): Promise<UIDeviceTriggerPreview[]> {
 	const triggers: UIDeviceTriggerPreview[] = Array.from(newProps?.triggers ?? [])

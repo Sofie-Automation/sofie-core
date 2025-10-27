@@ -6,20 +6,21 @@ import {
 } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { OnGenerateTimelineObjExt } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { endTrace, sendTrace, startTrace } from '@sofie-automation/corelib/dist/influxdb'
-import { WrappedShowStyleBlueprint } from '../../blueprints/cache'
+import { WrappedShowStyleBlueprint } from '../../blueprints/cache.js'
 import { ReadonlyDeep } from 'type-fest'
-import { JobContext, ProcessedShowStyleCompound } from '../../jobs'
-import { getCurrentTime } from '../../lib'
-import { resolveAbAssignmentsFromRequests, SessionRequest } from './abPlaybackResolver'
-import { calculateSessionTimeRanges } from './abPlaybackSessions'
-import { applyAbPlayerObjectAssignments } from './applyAssignments'
-import { AbSessionHelper } from './abSessionHelper'
-import { ShowStyleContext } from '../../blueprints/context'
-import { logger } from '../../logging'
+import { JobContext, ProcessedShowStyleCompound } from '../../jobs/index.js'
+import { getCurrentTime } from '../../lib/index.js'
+import { resolveAbAssignmentsFromRequests, SessionRequest } from './abPlaybackResolver.js'
+import { calculateSessionTimeRanges } from './abPlaybackSessions.js'
+import { applyAbPlayerObjectAssignments } from './applyAssignments.js'
+import { AbSessionHelper } from './abSessionHelper.js'
+import { ShowStyleContext } from '../../blueprints/context/index.js'
+import { logger } from '../../logging.js'
 import { ABPlayerDefinition, NoteSeverity } from '@sofie-automation/blueprints-integration'
-import { abPoolFilterDisabled, findPlayersInRouteSets } from './routeSetDisabling'
-import type { INotification } from '../../notifications/NotificationsModel'
+import { abPoolFilterDisabled, findPlayersInRouteSets } from './routeSetDisabling.js'
+import type { INotification } from '../../notifications/NotificationsModel.js'
 import { generateTranslation } from '@sofie-automation/corelib/dist/lib'
+import _ from 'underscore'
 
 export interface ABPlaybackResult {
 	assignments: Record<string, ABSessionAssignments>
@@ -68,7 +69,7 @@ export function applyAbPlaybackForTimeline(
 		for (const assignment of Object.values<ABSessionAssignment | undefined>(assignments)) {
 			if (assignment) {
 				logger.silly(
-					`ABPlayback: Previous assignment "${pool}"-"${assignment.sessionId}" to player "${assignment.playerId}"`
+					`ABPlayback: Previous assignment "${pool}"-"${assignment.sessionId}" (${assignment.sessionName}) to player "${assignment.playerId}"`
 				)
 			}
 		}
@@ -109,34 +110,43 @@ export function applyAbPlaybackForTimeline(
 
 		for (const assignment of Object.values<SessionRequest>(assignments.requests)) {
 			logger.silly(
-				`ABPlayback resolved session "${poolName}"-"${assignment.id}" to player "${
+				`ABPlayback resolved session "${poolName}"-"${assignment.id}" (${assignment.name}) to player "${
 					assignment.playerId
 				}" (${JSON.stringify(assignment)})`
 			)
 		}
-		if (assignments.failedRequired.length > 0) {
+		for (const failedSession of assignments.failedRequired) {
+			const uniqueNames = _.uniq(failedSession.pieceNames).join(', ')
 			logger.warn(
-				`ABPlayback failed to assign sessions for "${poolName}": ${JSON.stringify(assignments.failedRequired)}`
+				`ABPlayback failed to assign session for "${poolName}"-"${failedSession.id}" (${failedSession.name}): ${uniqueNames}`
 			)
+
+			// Ignore lookahead
+			if (failedSession.pieceNames.length === 0) continue
+
 			notifications.push({
 				id: `failedRequired-${poolName}`,
 				severity: NoteSeverity.ERROR,
-				message: generateTranslation('Failed to assign players for {{count}} sessions', {
-					count: assignments.failedRequired.length,
+				message: generateTranslation('Failed to assign AB player for {{pieceNames}}', {
+					pieceNames: uniqueNames,
 				}),
 			})
 		}
-		if (assignments.failedOptional.length > 0) {
+
+		for (const failedSession of assignments.failedOptional) {
+			const uniqueNames = _.uniq(failedSession.pieceNames).join(', ')
 			logger.info(
-				`ABPlayback failed to assign optional sessions for "${poolName}": ${JSON.stringify(
-					assignments.failedOptional
-				)}`
+				`ABPlayback failed to assign optional session for "${poolName}"-"${failedSession.id}" (${failedSession.name}): ${uniqueNames}`
 			)
+
+			// Ignore lookahead
+			if (failedSession.pieceNames.length === 0) continue
+
 			notifications.push({
-				id: `failedOptional-${poolName}`,
+				id: `failedRequired-${poolName}`,
 				severity: NoteSeverity.WARNING,
-				message: generateTranslation('Failed to assign players for {{count}} non-critical sessions', {
-					count: assignments.failedOptional.length,
+				message: generateTranslation('Failed to assign non-critical AB player for {{pieceNames}}', {
+					pieceNames: uniqueNames,
 				}),
 			})
 		}

@@ -26,7 +26,7 @@ export namespace MediaScannerIntegration {
 					collectionId: collectionId,
 				},
 				{
-					fields: {
+					projection: {
 						_id: 1,
 						objId: 1,
 						_rev: 1,

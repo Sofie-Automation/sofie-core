@@ -1,10 +1,10 @@
-import * as _ from 'underscore'
-import { unprotectString } from '../../../lib/tempLib'
-import { ISourceLayerUi } from '../SegmentTimelineContainer'
+import _ from 'underscore'
+import { unprotectString } from '../../../lib/tempLib.js'
+import { ISourceLayerUi } from '../SegmentTimelineContainer.js'
 import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'
-import { SourceLayerItemContainer } from '../SourceLayerItemContainer'
-import { ISourceLayerPropsBase, useMouseContext } from './SourceLayer'
-import { ISourceLayerExtended } from '../../../lib/RundownResolver'
+import { SourceLayerItemContainer } from '../SourceLayerItemContainer.js'
+import { ISourceLayerPropsBase, useMouseContext } from './SourceLayer.js'
+import { ISourceLayerExtended } from '../../../lib/RundownResolver.js'
 
 interface IFlattenedSourceLayerProps extends ISourceLayerPropsBase {
 	layers: ISourceLayerUi[]
@@ -33,7 +33,7 @@ export function FlattenedSourceLayers(props: Readonly<IFlattenedSourceLayerProps
 							// filter only pieces belonging to this part
 							return piece.instance.partInstanceId === props.part.instance._id
 								? // filter only pieces, that have not been hidden from the UI
-								  piece.instance.piece.virtual !== true
+									piece.instance.piece.virtual !== true
 								: false
 						})
 					)

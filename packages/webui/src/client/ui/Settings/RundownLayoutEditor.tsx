@@ -1,7 +1,7 @@
-import React, { useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import ClassNames from 'classnames'
-import { EditAttribute } from '../../lib/EditAttribute'
-import { Translated, useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data'
+import { EditAttribute } from '../../lib/EditAttribute.js'
+import { Translated, useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
 import { faUpload, faPlus, faCheck, faPencilAlt, faDownload, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
@@ -18,26 +18,29 @@ import {
 	CustomizableRegionLayout,
 	CustomizableRegionSettingsManifest,
 	RundownLayoutsAPI,
-} from '../../lib/rundownLayouts'
+} from '../../lib/rundownLayouts.js'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { getRandomString, literal, unprotectString } from '../../lib/tempLib'
-import { UploadButton } from '../../lib/uploadButton'
-import { doModalDialog } from '../../lib/ModalDialog'
-import { NotificationCenter, Notification, NoticeLevel } from '../../lib/notifications/notifications'
-import { catchError, fetchFrom } from '../../lib/lib'
+import { getRandomString, literal, unprotectString } from '../../lib/tempLib.js'
+import { UploadButton } from '../../lib/uploadButton.js'
+import { doModalDialog } from '../../lib/ModalDialog.js'
+import { NotificationCenter, Notification, NoticeLevel } from '../../lib/notifications/notifications.js'
+import { catchError, fetchFrom } from '../../lib/lib.js'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { Link } from 'react-router-dom'
-import { MeteorCall } from '../../lib/meteorApi'
-import { defaultColorPickerPalette } from '../../lib/colorPicker'
-import FilterEditor from './components/FilterEditor'
-import ShelfLayoutSettings from './components/rundownLayouts/ShelfLayoutSettings'
-import RundownHeaderLayoutSettings from './components/rundownLayouts/RundownHeaderLayoutSettings'
-import RundownViewLayoutSettings from './components/rundownLayouts/RundownViewLayoutSettings'
+import { MeteorCall } from '../../lib/meteorApi.js'
+import { defaultColorPickerPalette } from '../../lib/colorPicker.js'
+import FilterEditor from './components/FilterEditor.js'
+import ShelfLayoutSettings from './components/rundownLayouts/ShelfLayoutSettings.js'
+import RundownHeaderLayoutSettings from './components/rundownLayouts/RundownHeaderLayoutSettings.js'
+import RundownViewLayoutSettings from './components/rundownLayouts/RundownViewLayoutSettings.js'
 import { RundownLayoutId, ShowStyleBaseId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { OutputLayers, SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { RundownLayouts } from '../../collections'
-import { LabelActual } from '../../lib/Components/LabelAndOverrides'
-import { withTranslation } from 'react-i18next'
+import { RundownLayouts } from '../../collections/index.js'
+import { LabelActual } from '../../lib/Components/LabelAndOverrides.js'
+import { useTranslation, withTranslation } from 'react-i18next'
+import Button from 'react-bootstrap/esm/Button'
+import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
+import { createPrivateApiPath } from '../../url.js'
 
 export interface IProps {
 	showStyleBaseId: ShowStyleBaseId
@@ -49,7 +52,6 @@ export interface IProps {
 
 interface IState {
 	editedItems: RundownLayoutId[]
-	uploadFileKey: number
 }
 
 interface ITrackedProps {
@@ -82,7 +84,6 @@ const RundownLayoutEditorContent = withTranslation()(
 
 			this.state = {
 				editedItems: [],
-				uploadFileKey: Date.now(),
 			}
 		}
 
@@ -174,7 +175,7 @@ const RundownLayoutEditorContent = withTranslation()(
 		}
 
 		downloadItem = (item: RundownLayoutBase) => {
-			window.location.replace(`/api/private/shelfLayouts/download/${item._id}`)
+			window.location.replace(createPrivateApiPath(`shelfLayouts/download/${item._id}`))
 		}
 
 		finishEditItem = (item: RundownLayoutBase) => {
@@ -207,99 +208,85 @@ const RundownLayoutEditorContent = withTranslation()(
 
 			return (
 				<React.Fragment>
-					<h4 className="mod mhs">{t('Action Buttons')}</h4>
+					<h4 className="my-2">{t('Action Buttons')}</h4>
 					{item.actionButtons &&
 						item.actionButtons.map((button, index) => (
-							<div className="rundown-layout-editor-filter mod pan mas" key={button._id}>
-								<button className="action-btn right mod man pas" onClick={() => this.onRemoveButton(item, button)}>
-									<FontAwesomeIcon icon={faTrash} />
-								</button>
+							<div className="rundown-layout-editor-filter card m-2 p-2 grid-buttons-right" key={button._id}>
 								<div className="properties-grid">
 									<label className="field">
 										<LabelActual label={t('Label')} />
 										<EditAttribute
-											modifiedClassName="bghl"
 											attribute={`actionButtons.${index}.label`}
 											obj={item}
 											type="text"
 											collection={RundownLayouts}
-											className="input text-input input-l"
 										/>
 									</label>
 
 									<label className="field">
 										<LabelActual label={t('Toggled Label')} />
 										<EditAttribute
-											modifiedClassName="bghl"
 											attribute={`actionButtons.${index}.labelToggled`}
 											obj={item}
 											type="text"
 											collection={RundownLayouts}
-											className="input text-input input-l"
 										/>
 									</label>
 
 									<label className="field">
 										<LabelActual label={t('Type')} />
 										<EditAttribute
-											modifiedClassName="bghl"
 											attribute={`actionButtons.${index}.type`}
 											obj={item}
 											type="dropdown"
 											options={ActionButtonType}
 											collection={RundownLayouts}
-											className="input text-input input-l"
 										/>
 									</label>
 
 									<label className="field">
 										<LabelActual label={t('X')} />
 										<EditAttribute
-											modifiedClassName="bghl"
 											attribute={`actionButtons.${index}.x`}
 											obj={item}
 											type="int"
 											collection={RundownLayouts}
-											className="input text-input input-l"
 										/>
 									</label>
 
 									<label className="field">
 										<LabelActual label={t('Y')} />
 										<EditAttribute
-											modifiedClassName="bghl"
 											attribute={`actionButtons.${index}.y`}
 											obj={item}
 											type="int"
 											collection={RundownLayouts}
-											className="input text-input input-l"
 										/>
 									</label>
 
 									<label className="field">
 										<LabelActual label={t('Width')} />
 										<EditAttribute
-											modifiedClassName="bghl"
 											attribute={`actionButtons.${index}.width`}
 											obj={item}
 											type="float"
 											collection={RundownLayouts}
-											className="input text-input input-l"
 										/>
 									</label>
 
 									<label className="field">
 										<LabelActual label={t('Height')} />
 										<EditAttribute
-											modifiedClassName="bghl"
 											attribute={`actionButtons.${index}.height`}
 											obj={item}
 											type="float"
 											collection={RundownLayouts}
-											className="input text-input input-l"
 										/>
 									</label>
 								</div>
+								<button className="action-btn" onClick={() => this.onRemoveButton(item, button)}>
+									<FontAwesomeIcon icon={faTrash} />
+								</button>
 							</div>
 						))}
 				</React.Fragment>
@@ -317,38 +304,27 @@ const RundownLayoutEditorContent = withTranslation()(
 				<React.Fragment>
 					<label className="field">
 						<LabelActual label={t('Icon')} />
-						<EditAttribute
-							modifiedClassName="bghl"
-							attribute={'icon'}
-							obj={item}
-							type="iconpicker"
-							collection={RundownLayouts}
-							className="input text-input input-s"
-						></EditAttribute>
+						<EditAttribute attribute={'icon'} obj={item} type="iconpicker" collection={RundownLayouts}></EditAttribute>
 					</label>
 
 					<label className="field">
 						<LabelActual label={t('Icon color')} />
 						<EditAttribute
-							modifiedClassName="bghl"
 							attribute={'iconColor'}
 							obj={item}
 							options={defaultColorPickerPalette}
 							type="colorpicker"
 							collection={RundownLayouts}
-							className="input text-input input-s"
 						></EditAttribute>
 					</label>
 
 					<label className="field">
 						<LabelActual label={t('Use as default')} />
 						<EditAttribute
-							modifiedClassName="bghl"
 							attribute={'isDefaultLayout'}
 							obj={item}
 							type="checkbox"
 							collection={RundownLayouts}
-							className="mod mas"
 						></EditAttribute>
 					</label>
 					{isShelfLayout && <ShelfLayoutSettings item={item} />}
@@ -362,9 +338,9 @@ const RundownLayoutEditorContent = withTranslation()(
 					)}
 					{RundownLayoutsAPI.isLayoutWithFilters(item) && layout?.supportedFilters.length ? (
 						<React.Fragment>
-							<h4 className="mod mhs">{layout?.filtersTitle ?? t('Filters')}</h4>
+							<h4 className="my-2">{layout?.filtersTitle ?? t('Filters')}</h4>
 							{item.filters.length === 0 ? (
-								<p className="text-s dimmed field-hint mhs">{t('There are no filters set up yet')}</p>
+								<p className="text-s dimmed field-hint mx-2">{t('There are no filters set up yet')}</p>
 							) : null}
 						</React.Fragment>
 					) : null}
@@ -431,60 +407,61 @@ const RundownLayoutEditorContent = withTranslation()(
 											<label className="field">
 												<LabelActual label={t('Name')} />
 												<EditAttribute
-													modifiedClassName="bghl"
 													attribute={'name'}
 													obj={item}
 													type="text"
 													collection={RundownLayouts}
-													className="input text-input input-l"
 												></EditAttribute>
 											</label>
 											<label className="field">
 												<LabelActual label={t('Type')} />
 												<EditAttribute
-													modifiedClassName="bghl"
 													attribute={'type'}
 													obj={item}
 													options={this.props.layoutTypes}
 													type="dropdown"
 													collection={RundownLayouts}
-													className="input text-input input-l"
 												></EditAttribute>
 											</label>
 											{this.renderElements(item, layout)}
 										</div>
 
 										{layout?.supportedFilters.length ? (
-											<div className="mod mls">
-												<button className="btn btn-secondary" onClick={() => this.onAddElement(item)}>
+											<div className="my-2">
+												<Button variant="outline-secondary" onClick={() => this.onAddElement(item)}>
 													<FontAwesomeIcon icon={faPlus} />
 													&nbsp;
 													{layout?.filtersTitle
 														? t('Add {{filtersTitle}}', { filtersTitle: layout?.filtersTitle })
 														: t(`Add filter`)}
-												</button>
+												</Button>
 											</div>
 										) : null}
 										{item.type === RundownLayoutType.DASHBOARD_LAYOUT ? (
 											<>
 												<div>{RundownLayoutsAPI.isDashboardLayout(item) ? this.renderActionButtons(item) : null}</div>
-												<div className="mod mls">
-													<button className="btn btn-primary right" onClick={() => this.finishEditItem(item)}>
-														<FontAwesomeIcon icon={faCheck} />
-													</button>
-													<button className="btn btn-secondary" onClick={() => this.onAddButton(item)}>
-														<FontAwesomeIcon icon={faPlus} />
-														&nbsp;
-														{t('Add button')}
-													</button>
+												<div className="my-2 grid-buttons-right">
+													<div>
+														<Button variant="outline-secondary" className="mx-1" onClick={() => this.onAddButton(item)}>
+															<FontAwesomeIcon icon={faPlus} />
+															&nbsp;
+															{t('Add button')}
+														</Button>
+													</div>
+
+													<div>
+														<Button variant="primary" className="mx-1" onClick={() => this.finishEditItem(item)}>
+															<FontAwesomeIcon icon={faCheck} />
+														</Button>
+													</div>
 												</div>
 											</>
 										) : (
 											<>
-												<div className="mod mls">
-													<button className="btn btn-primary right" onClick={() => this.finishEditItem(item)}>
+												<div className="my-2 text-end">
+													<Button variant="primary" onClick={() => this.finishEditItem(item)}>
 														<FontAwesomeIcon icon={faCheck} />
-													</button>
+													</Button>
 												</div>
 											</>
 										)}
@@ -496,100 +473,100 @@ const RundownLayoutEditorContent = withTranslation()(
 				})
 		}
 
-		onUploadFile(e: React.ChangeEvent<HTMLInputElement>) {
-			const { t } = this.props
-
-			const file = e.target.files?.[0]
-			if (!file) {
-				return
-			}
-
-			const reader = new FileReader()
-			reader.onload = (e2) => {
-				// On file upload
-
-				this.setState({
-					uploadFileKey: Date.now(),
-				})
-
-				const uploadFileContents = (e2.target as any).result
-
-				doModalDialog({
-					title: t('Upload Layout?'),
-					yes: t('Upload'),
-					no: t('Cancel'),
-					message: (
-						<React.Fragment>
-							<p>
-								{t('Are you sure you want to upload the shelf layout from the file "{{fileName}}"?', {
-									fileName: file.name,
-								})}
-							</p>
-							,
-						</React.Fragment>
-					),
-					onAccept: () => {
-						if (uploadFileContents) {
-							fetchFrom(`/api/private/shelfLayouts/upload/${this.props.showStyleBaseId}`, {
-								method: 'POST',
-								body: uploadFileContents,
-								headers: {
-									'content-type': 'application/json',
-								},
-							})
-								.then(() => {
-									NotificationCenter.push(
-										new Notification(
-											undefined,
-											NoticeLevel.NOTIFICATION,
-											t('Shelf layout uploaded successfully.'),
-											'RundownLayouts'
-										)
-									)
-								})
-								.catch((err) => {
-									NotificationCenter.push(
-										new Notification(
-											undefined,
-											NoticeLevel.WARNING,
-											t('Failed to upload shelf layout: {{errorMessage}}', { errorMessage: err + '' }),
-											'RundownLayouts'
-										)
-									)
-								})
-						}
-					},
-					onSecondary: () => {
-						this.setState({
-							uploadFileKey: Date.now(),
-						})
-					},
-				})
-			}
-			reader.readAsText(file)
-		}
-
 		render(): JSX.Element {
 			return (
 				<div className="studio-edit rundown-layout-editor">
-					<h2 className="mhn">{this.props.customRegion.title}</h2>
+					<h2 className="mb-4">{this.props.customRegion.title}</h2>
 					<table className="expando settings-studio-rundown-layouts-table">
 						<tbody>{this.renderItems()}</tbody>
 					</table>
-					<div className="mod mhs">
-						<button className="btn btn-primary" onClick={this.onAddLayout}>
+					<div className="my-1 mx-2">
+						<Button variant="primary" className="mx-1" onClick={this.onAddLayout}>
 							<FontAwesomeIcon icon={faPlus} />
-						</button>
-						<UploadButton
-							className="btn btn-secondary mls"
-							onChange={(e) => this.onUploadFile(e)}
-							accept="application/json,.json"
-						>
-							<FontAwesomeIcon icon={faUpload} />
-						</UploadButton>
+						</Button>
+						<ImportRundownLayoutsButton showStyleBaseId={this.props.showStyleBaseId} />
 					</div>
 				</div>
 			)
 		}
 	}
 )
+
+function ImportRundownLayoutsButton({ showStyleBaseId }: { showStyleBaseId: ShowStyleBaseId }) {
+	const { t } = useTranslation()
+
+	const onUploadContents = useCallback(
+		(fileContents: string, file: File) => {
+			doModalDialog({
+				title: t('Upload Layout?'),
+				yes: t('Upload'),
+				no: t('Cancel'),
+				message: (
+					<React.Fragment>
+						<p>
+							{t('Are you sure you want to upload the shelf layout from the file "{{fileName}}"?', {
+								fileName: file.name,
+							})}
+						</p>
+						,
+					</React.Fragment>
+				),
+				onAccept: () => {
+					fetchFrom(createPrivateApiPath(`/shelfLayouts/upload/${showStyleBaseId}`), {
+						method: 'POST',
+						body: fileContents,
+						headers: {
+							'content-type': 'application/json',
+						},
+					})
+						.then(() => {
+							NotificationCenter.push(
+								new Notification(
+									undefined,
+									NoticeLevel.NOTIFICATION,
+									t('Shelf layout uploaded successfully.'),
+									'RundownLayouts'
+								)
+							)
+						})
+						.catch((err) => {
+							NotificationCenter.push(
+								new Notification(
+									undefined,
+									NoticeLevel.WARNING,
+									t('Failed to upload shelf layout: {{errorMessage}}', { errorMessage: err + '' }),
+									'RundownLayouts'
+								)
+							)
+						})
+				},
+			})
+		},
+		[t, showStyleBaseId]
+	)
+
+	const onUploadError = useCallback(
+		(err: Error) => {
+			NotificationCenter.push(
+				new Notification(
+					undefined,
+					NoticeLevel.WARNING,
+					t('Failed to upload shelf layout: {{errorMessage}}', { errorMessage: stringifyError(err) }),
+					'RundownLayouts'
+				)
+			)
+		},
+		[t]
+	)
+
+	return (
+		<UploadButton
+			className="btn btn-outline-secondary mx-1"
+			onUploadContents={onUploadContents}
+			onUploadError={onUploadError}
+			accept="application/json,.json"
+		>
+			<FontAwesomeIcon icon={faUpload} />
+		</UploadButton>
+	)
+}

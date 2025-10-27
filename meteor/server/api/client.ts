@@ -34,11 +34,10 @@ import { assertConnectionHasOneOfPermissions } from '../security/auth'
 
 function rewrapError(methodName: string, e: any): ClientAPI.ClientResponseError {
 	const userError = UserError.fromUnknown(e)
-
 	logger.info(`UserAction "${methodName}" failed: ${userError.toErrorString()}`)
 
 	// Forward the error to the caller
-	return ClientAPI.responseError(userError, userError.errorCode)
+	return ClientAPI.responseError(userError)
 }
 
 export namespace ServerClientAPI {
@@ -199,7 +198,6 @@ export namespace ServerClientAPI {
 				// Just run and return right away:
 				try {
 					const result = await fcn({})
-
 					return ClientAPI.responseSuccess(result)
 				} catch (e) {
 					return rewrapError(methodName, e)
@@ -251,7 +249,7 @@ export namespace ServerClientAPI {
 
 					const wrappedError = rewrapError(methodName, e)
 					const wrappedErrorStr = `ClientResponseError: ${translateMessage(
-						wrappedError.error.message,
+						wrappedError.error.userMessage,
 						interpollateTranslation
 					)}`
 
@@ -314,7 +312,7 @@ export namespace ServerClientAPI {
 			return makeCall().catch(async (e) => {
 				logger.error(stringifyError(e))
 				// allow the exception to be handled by the Client code
-				return Promise.reject(e)
+				return Promise.reject(e instanceof Error ? e : new Error(e))
 			})
 		}
 
@@ -359,7 +357,7 @@ export namespace ServerClientAPI {
 				})
 
 				// allow the exception to be handled by the Client code
-				return Promise.reject(err)
+				return Promise.reject(err instanceof Error ? err : new Error(err))
 			})
 	}
 
@@ -385,7 +383,7 @@ export namespace ServerClientAPI {
 			}).catch(async (e) => {
 				logger.error(stringifyError(e))
 				// allow the exception to be handled by the Client code
-				return Promise.reject(e)
+				return Promise.reject(e instanceof Error ? e : new Error(e))
 			})
 		}
 
@@ -399,7 +397,7 @@ export namespace ServerClientAPI {
 			const errMsg = stringifyError(err)
 			logger.error(errMsg)
 			// allow the exception to be handled by the Client code
-			return Promise.reject(err)
+			return Promise.reject(err instanceof Error ? err : new Error(err))
 		})
 	}
 }

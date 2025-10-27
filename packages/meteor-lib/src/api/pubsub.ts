@@ -8,23 +8,21 @@ import {
 	ShowStyleBaseId,
 	StudioId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { Bucket } from '../collections/Buckets'
-import { ICoreSystem } from '../collections/CoreSystem'
-import { Evaluation } from '../collections/Evaluations'
+import { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
+import { ICoreSystem } from '../collections/CoreSystem.js'
+import { Evaluation } from '../collections/Evaluations.js'
 import { ExpectedPlayoutItem } from '@sofie-automation/corelib/dist/dataModel/ExpectedPlayoutItem'
-import { MediaWorkFlow } from '@sofie-automation/shared-lib/dist/core/model/MediaWorkFlows'
-import { MediaWorkFlowStep } from '@sofie-automation/shared-lib/dist/core/model/MediaWorkFlowSteps'
-import { DBOrganization } from '../collections/Organization'
-import { RundownLayoutBase } from '../collections/RundownLayouts'
-import { SnapshotItem } from '../collections/Snapshots'
-import { TranslationsBundle } from '../collections/TranslationsBundles'
-import { DBTriggeredActions, UITriggeredActionsObj } from '../collections/TriggeredActions'
-import { UserActionsLogItem } from '../collections/UserActionsLog'
-import { UIBucketContentStatus, UIPieceContentStatus, UISegmentPartNote } from './rundownNotifications'
-import { UIShowStyleBase } from './showStyles'
-import { UIStudio } from './studios'
-import { UIDeviceTriggerPreview } from './MountedTriggers'
-import { UIBlueprintUpgradeStatus } from './upgradeStatus'
+import { DBOrganization } from '../collections/Organization.js'
+import { RundownLayoutBase } from '../collections/RundownLayouts.js'
+import { SnapshotItem } from '../collections/Snapshots.js'
+import { TranslationsBundle } from '../collections/TranslationsBundles.js'
+import { DBTriggeredActions, UITriggeredActionsObj } from '../collections/TriggeredActions.js'
+import { UserActionsLogItem } from '../collections/UserActionsLog.js'
+import { UIBucketContentStatus, UISegmentPartNote } from './rundownNotifications.js'
+import { UIShowStyleBase } from './showStyles.js'
+import { UIStudio } from './studios.js'
+import { UIDeviceTriggerPreview } from './MountedTriggers.js'
+import { UIBlueprintUpgradeStatus } from './upgradeStatus.js'
 import {
 	PeripheralDevicePubSub,
 	PeripheralDevicePubSubTypes,
@@ -34,7 +32,7 @@ import {
 import { CorelibPubSub, CorelibPubSubCollections, CorelibPubSubTypes } from '@sofie-automation/corelib/dist/pubsub'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { PartInstance } from '../collections/PartInstances'
+import { PartInstance } from '../collections/PartInstances.js'
 import type { DBNotificationObj } from '@sofie-automation/corelib/dist/dataModel/Notifications'
 
 /**
@@ -76,16 +74,6 @@ export enum MeteorPubSub {
 	 */
 	userActionsLog = 'userActionsLog',
 	/**
-	 * Fetch all MediaManager workflows in the system
-	 * @deprecated
-	 */
-	mediaWorkFlows = 'mediaWorkFlows',
-	/**
-	 * Fetch all MediaManager workflow steps in the system
-	 * @deprecated
-	 */
-	mediaWorkFlowSteps = 'mediaWorkFlowSteps',
-	/**
 	 * Fetch either all RundownLayouts or limited to the specified ShowStyleBases
 	 */
 	rundownLayouts = 'rundownLayouts',
@@ -94,10 +82,6 @@ export enum MeteorPubSub {
 	 * If null is provided, nothing will be returned
 	 */
 	organization = 'organization',
-	/**
-	 * Fetch either all buckets for the given Studio, or the Bucket specified.
-	 */
-	buckets = 'buckets',
 	/**
 	 * Fetch all translation bundles
 	 */
@@ -148,11 +132,6 @@ export enum MeteorPubSub {
 	 */
 	uiSegmentPartNotes = 'uiSegmentPartNotes',
 	/**
-	 * Fetch the Pieces content-status in the given RundownPlaylist
-	 * If the id is null, nothing will be returned
-	 */
-	uiPieceContentStatuses = 'uiPieceContentStatuses',
-	/**
 	 * Fetch the Pieces content-status in the given Bucket
 	 */
 	uiBucketContentStatuses = 'uiBucketContentStatuses',
@@ -200,17 +179,12 @@ export interface MeteorPubSubTypes {
 	) => CollectionName.TriggeredActions
 	[MeteorPubSub.snapshots]: (token?: string) => CollectionName.Snapshots
 	[MeteorPubSub.userActionsLog]: (dateFrom: number, dateTo: number, token?: string) => CollectionName.UserActionsLog
-	/** @deprecated */
-	[MeteorPubSub.mediaWorkFlows]: (token?: string) => CollectionName.MediaWorkFlows
-	/** @deprecated */
-	[MeteorPubSub.mediaWorkFlowSteps]: (token?: string) => CollectionName.MediaWorkFlowSteps
 	[MeteorPubSub.rundownLayouts]: (
 		/** ShowStyleBaseIds to fetch for, or null to fetch all */
 		showStyleBaseIds: ShowStyleBaseId[] | null,
 		token?: string
 	) => CollectionName.RundownLayouts
 	[MeteorPubSub.organization]: (organizationId: OrganizationId | null, token?: string) => CollectionName.Organizations
-	[MeteorPubSub.buckets]: (studioId: StudioId, bucketId: BucketId | null, token?: string) => CollectionName.Buckets
 	[MeteorPubSub.translationsBundles]: (token?: string) => CollectionName.TranslationsBundles
 	[MeteorPubSub.notificationsForRundown]: (studioId: StudioId, rundownId: RundownId) => CollectionName.Notifications
 	[MeteorPubSub.notificationsForRundownPlaylist]: (
@@ -242,9 +216,6 @@ export interface MeteorPubSubTypes {
 
 	/** Custom publications for the UI */
 	[MeteorPubSub.uiSegmentPartNotes]: (playlistId: RundownPlaylistId | null) => CustomCollectionName.UISegmentPartNotes
-	[MeteorPubSub.uiPieceContentStatuses]: (
-		rundownPlaylistId: RundownPlaylistId | null
-	) => CustomCollectionName.UIPieceContentStatuses
 	[MeteorPubSub.uiBucketContentStatuses]: (
 		studioId: StudioId,
 		bucketId: BucketId
@@ -288,9 +259,6 @@ export type MeteorPubSubCollections = {
 	[CollectionName.TranslationsBundles]: TranslationsBundle
 	[CollectionName.ExpectedPlayoutItems]: ExpectedPlayoutItem
 	[CollectionName.Notifications]: DBNotificationObj
-
-	[CollectionName.MediaWorkFlows]: MediaWorkFlow
-	[CollectionName.MediaWorkFlowSteps]: MediaWorkFlowStep
 } & MeteorPubSubCustomCollections
 
 export type MeteorPubSubCustomCollections = {
@@ -299,7 +267,6 @@ export type MeteorPubSubCustomCollections = {
 	[CustomCollectionName.UITriggeredActions]: UITriggeredActionsObj
 	[CustomCollectionName.UIDeviceTriggerPreviews]: UIDeviceTriggerPreview
 	[CustomCollectionName.UISegmentPartNotes]: UISegmentPartNote
-	[CustomCollectionName.UIPieceContentStatuses]: UIPieceContentStatus
 	[CustomCollectionName.UIBucketContentStatuses]: UIBucketContentStatus
 	[CustomCollectionName.UIBlueprintUpgradeStatuses]: UIBlueprintUpgradeStatus
 	[CustomCollectionName.UIParts]: DBPart

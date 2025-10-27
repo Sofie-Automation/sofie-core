@@ -1,6 +1,6 @@
 import { ITranslatableMessage, SomeAction } from '@sofie-automation/blueprints-integration'
 import { ShowStyleBaseId, TriggeredActionId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { DBBlueprintTrigger } from '../collections/TriggeredActions'
+import { DBBlueprintTrigger } from '../collections/TriggeredActions.js'
 
 export interface NewTriggeredActionsAPI {
 	createTriggeredActions(

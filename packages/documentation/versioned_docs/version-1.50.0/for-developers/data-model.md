@@ -24,7 +24,7 @@ Currently, there is not a very clearly defined flow for modifying these document
 This includes:
 
 - [Blueprints](https://github.com/nrkno/sofie-core/blob/master/packages/corelib/src/dataModel/Blueprint.ts)
-- [Buckets](https://github.com/nrkno/sofie-core/blob/master/meteor/lib/collections/Buckets.ts)
+- [Buckets](https://github.com/nrkno/sofie-core/blob/master/packages/corelib/src/dataModel/Bucket.ts)
 - [CoreSystem](https://github.com/nrkno/sofie-core/blob/master/meteor/lib/collections/CoreSystem.ts)
 - [Evaluations](https://github.com/nrkno/sofie-core/blob/master/meteor/lib/collections/Evaluations.ts)
 - [ExternalMessageQueue](https://github.com/nrkno/sofie-core/blob/master/packages/corelib/src/dataModel/ExternalMessageQueue.ts)

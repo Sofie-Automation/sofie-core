@@ -1,11 +1,11 @@
 import * as React from 'react'
 import { DragLayerMonitor, useDragLayer, XYCoord } from 'react-dnd'
-import { IRundownDragObject, RundownListDragDropTypes } from './DragAndDropTypes'
-import { Rundowns } from '../../collections'
-import RundownListItemView from './RundownListItemView'
-import { getElementWidth } from '../../utils/dimensions'
-import { HTML_ID_PREFIX } from './RundownListItem'
-import { UIShowStyleBases } from '../Collections'
+import { IRundownDragObject, RundownListDragDropTypes } from './DragAndDropTypes.js'
+import { Rundowns } from '../../collections/index.js'
+import RundownListItemView from './RundownListItemView.js'
+import { getElementWidth } from '../../utils/dimensions.js'
+import { HTML_ID_PREFIX } from './RundownListItem.js'
+import { UIShowStyleBases } from '../Collections.js'
 
 export default function RundownPlaylistDragLayer({
 	draggedClassNames,

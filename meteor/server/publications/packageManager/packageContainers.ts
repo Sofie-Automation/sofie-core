@@ -52,7 +52,7 @@ async function setupExpectedPackagesPublicationObservers(
 				removed: () => triggerUpdate({}),
 			},
 			{
-				fields: studioFieldSpecifier,
+				projection: studioFieldSpecifier,
 			}
 		),
 	]
@@ -67,7 +67,7 @@ async function manipulateExpectedPackagesPublicationData(
 
 	// Future: this may want to cache on the state, but with only a single observer there feels little point
 
-	const studio = (await Studios.findOneAsync(args.studioId, { fields: studioFieldSpecifier })) as
+	const studio = (await Studios.findOneAsync(args.studioId, { projection: studioFieldSpecifier })) as
 		| Pick<DBStudio, StudioFields>
 		| undefined
 

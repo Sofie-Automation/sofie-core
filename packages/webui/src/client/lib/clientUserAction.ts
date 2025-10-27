@@ -1,11 +1,11 @@
 import * as i18next from 'i18next'
 import _ from 'underscore'
-import { NotificationCenter, Notification, NoticeLevel } from './notifications/notifications'
+import { NotificationCenter, Notification, NoticeLevel } from './notifications/notifications.js'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { Meteor } from 'meteor/meteor'
-import { logger } from './logging'
-import { assertNever, Time } from './tempLib'
-import { getCurrentTime, systemTime } from './systemTime'
+import { logger } from './logging.js'
+import { assertNever, Time } from './tempLib.js'
+import { getCurrentTime, systemTime } from './systemTime.js'
 import { UserAction } from '@sofie-automation/meteor-lib/dist/userAction'
 import { translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 
@@ -131,7 +131,7 @@ function userActionToLabel(userAction: UserAction, t: i18next.TFunction) {
 }
 
 /**
- * Handle a the experience arround a back-end method call - display a "Waiting for action" message, when the call takes
+ * Handle a the experience around a back-end method call - display a "Waiting for action" message, when the call takes
  * long to return a result/error and show an error message when the call fails.
  *
  * @export
@@ -180,7 +180,7 @@ export function doUserAction<Result>(
 		} else {
 			try {
 				timeoutMessage.drop()
-			} catch (e) {
+			} catch (_e) {
 				// message was already dropped, that's fine
 			}
 		}
@@ -202,7 +202,7 @@ export function doUserAction<Result>(
 							undefined,
 							NoticeLevel.CRITICAL,
 							t('Action {{actionName}} failed: {{error}}', {
-								error: translateMessage(res.error.message || res.error, t),
+								error: translateMessage(res.error.userMessage || res.error, t),
 								actionName: actionName,
 							}),
 							'userAction'

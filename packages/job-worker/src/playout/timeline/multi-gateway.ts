@@ -3,17 +3,17 @@ import { PieceInstanceInfiniteId } from '@sofie-automation/corelib/dist/dataMode
 import { PeripheralDeviceType } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { TimelineObjRundown } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { normalizeArray } from '@sofie-automation/corelib/dist/lib'
-import { PieceTimelineMetadata } from './pieceGroup'
-import { StudioPlayoutModelBase } from '../../studio/model/StudioPlayoutModel'
-import { logger } from '../../logging'
-import { JobContext } from '../../jobs'
-import { getCurrentTime } from '../../lib'
-import { PlayoutModel } from '../model/PlayoutModel'
-import { RundownTimelineTimingContext, getInfinitePartGroupId } from './rundown'
+import { PieceTimelineMetadata } from './pieceGroup.js'
+import { StudioPlayoutModelBase } from '../../studio/model/StudioPlayoutModel.js'
+import { logger } from '../../logging.js'
+import { JobContext } from '../../jobs/index.js'
+import { getCurrentTime } from '../../lib/index.js'
+import { PlayoutModel } from '../model/PlayoutModel.js'
+import { RundownTimelineTimingContext, getInfinitePartGroupId } from './rundown.js'
 import { getExpectedLatency } from '@sofie-automation/corelib/dist/studio/playout'
 import { getPieceControlObjectId } from '@sofie-automation/corelib/dist/playout/ids'
-import { PlayoutPartInstanceModel } from '../model/PlayoutPartInstanceModel'
-import { PlayoutPieceInstanceModel } from '../model/PlayoutPieceInstanceModel'
+import { PlayoutPartInstanceModel } from '../model/PlayoutPartInstanceModel.js'
+import { PlayoutPieceInstanceModel } from '../model/PlayoutPieceInstanceModel.js'
 
 /**
  * We want it to be possible to generate a timeline without it containing any `start: 'now'`.
@@ -213,7 +213,7 @@ function deNowifyInfinites(
 
 		obj.enable = { start: targetNowTime - parentStartTime }
 		logger.silly(
-			`deNowifyInfinites: Setting "${obj.id}" enable.start = ${obj.enable.start}, ${targetNowTime} ${parentStartTime} parentObject: "${parentObject.id}"`
+			`deNowifyInfinites: Setting "${obj.id}" enable.start = ${JSON.stringify(obj.enable.start)}, ${targetNowTime} ${parentStartTime} parentObject: "${parentObject.id}"`
 		)
 	}
 }

@@ -1,5 +1,5 @@
-import { ControllerAbstract, LONGPRESS_TIME } from './lib'
-import { PrompterViewContent, PrompterConfigMode } from '../PrompterView'
+import { ControllerAbstract, LONGPRESS_TIME } from './lib.js'
+import { PrompterViewContent, PrompterConfigMode } from '../PrompterView.js'
 
 const LOCALSTORAGE_MODE = 'prompter-controller-arrowkeys'
 
@@ -163,7 +163,7 @@ export class KeyboardController extends ControllerAbstract {
 				const stopAcceleration = Math.sign(this._currentSpeed) * this._acceleration
 				const distanceToStop = this._getDistanceToStop(this._currentSpeed, stopAcceleration)
 				if (Math.abs(dp) <= Math.abs(distanceToStop)) {
-					// We should deccelerate
+					// We should decelerate
 
 					const actualStopAcceleration = this._getAccelerationToStopInTime(
 						this._currentSpeed,
@@ -194,9 +194,9 @@ export class KeyboardController extends ControllerAbstract {
 				const speed = Math.round(this._currentSpeed)
 				if (speed === 0 && Math.abs(dp) < 100) {
 					// go directly to target position:
-					window.scrollBy(0, dp)
+					window.scrollBy({ top: dp, behavior: 'instant' })
 				} else {
-					window.scrollBy(0, speed)
+					window.scrollBy({ top: speed, behavior: 'instant' })
 				}
 
 				const scrollPosition = window.scrollY

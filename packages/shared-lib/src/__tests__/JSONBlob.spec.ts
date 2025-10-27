@@ -1,4 +1,4 @@
-import { JSONBlobParse, JSONBlobStringify } from '../lib/JSONBlob'
+import { JSONBlobParse, JSONBlobStringify } from '../lib/JSONBlob.js'
 
 test('JSONBlob', () => {
 	// Unit test:

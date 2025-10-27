@@ -43,6 +43,9 @@ export interface IStudioSettings {
 	/** Preserve unsynced segments position in the rundown, relative to the other segments */
 	preserveOrphanedSegmentPositionInRundown?: boolean
 
+	/** Allow inifite adlibs from adlib testing mode to persist in the rundown */
+	allowTestingAdlibsToPersist?: boolean
+
 	/**
 	 * The minimum amount of time, in milliseconds, that must pass after a take before another take may be performed.
 	 * Default: 1000
@@ -91,4 +94,9 @@ export interface IStudioSettings {
 	 * Doubleclick changes behaviour as selector for userediting
 	 */
 	enableUserEdits?: boolean
+
+	/**
+	 * Override the piece content statuses with fake info - used for developing the UI
+	 */
+	mockPieceContentStatus?: boolean
 }

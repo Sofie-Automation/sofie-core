@@ -1,6 +1,6 @@
-import { JobContext } from '../jobs'
-import { regenerateSegmentsFromIngestData } from './generationSegment'
-import { CommitIngestData } from './lock'
+import { JobContext } from '../jobs/index.js'
+import { regenerateSegmentsFromIngestData } from './generationSegment.js'
+import { CommitIngestData } from './lock.js'
 import { SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import {
@@ -10,13 +10,13 @@ import {
 	IngestUpdateSegmentRanksProps,
 	RemoveOrphanedSegmentsProps,
 } from '@sofie-automation/corelib/dist/worker/ingest'
-import { IngestUpdateOperationFunction, UpdateIngestRundownChange, UpdateIngestRundownResult } from './runOperation'
+import { IngestUpdateOperationFunction, UpdateIngestRundownChange, UpdateIngestRundownResult } from './runOperation.js'
 import {
 	IngestChangeType,
 	NrcsIngestSegmentChangeDetailsEnum,
 	SofieIngestRundown,
 } from '@sofie-automation/blueprints-integration'
-import { IngestModel } from './model/IngestModel'
+import { IngestModel } from './model/IngestModel.js'
 import { IngestRundownWithSource } from '@sofie-automation/corelib/dist/dataModel/NrcsIngestDataCache'
 
 /**

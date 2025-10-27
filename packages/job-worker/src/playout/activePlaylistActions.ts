@@ -2,27 +2,27 @@ import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { ReadonlyDeep } from 'type-fest'
-import { RundownActivationContext } from '../blueprints/context/RundownActivationContext'
-import { JobContext } from '../jobs'
-import { getCurrentTime } from '../lib'
-import { logger } from '../logging'
-import { getActiveRundownPlaylistsInStudioFromDb } from '../studio/lib'
-import { cleanTimelineDatastore } from './datastore'
-import { resetRundownPlaylist } from './lib'
-import { PlayoutModel } from './model/PlayoutModel'
-import { selectNextPart } from './selectNextPart'
-import { setNextPart } from './setNext'
-import { updateStudioTimeline, updateTimeline } from './timeline/generate'
+import { RundownActivationContext } from '../blueprints/context/RundownActivationContext.js'
+import { JobContext } from '../jobs/index.js'
+import { getCurrentTime } from '../lib/index.js'
+import { logger } from '../logging.js'
+import { getActiveRundownPlaylistsInStudioFromDb } from '../studio/lib.js'
+import { cleanTimelineDatastore } from './datastore.js'
+import { getActivationContextState, resetRundownPlaylist } from './lib.js'
+import { PlayoutModel } from './model/PlayoutModel.js'
+import { selectNextPart } from './selectNextPart.js'
+import { setNextPart } from './setNext.js'
+import { updateStudioTimeline, updateTimeline } from './timeline/generate.js'
 
 export async function activateRundownPlaylist(
 	context: JobContext,
 	playoutModel: PlayoutModel,
-	rehearsal: boolean
+	rehearsal: boolean,
+	forceReset?: boolean
 ): Promise<void> {
 	logger.info('Activating rundown ' + playoutModel.playlist._id + (rehearsal ? ' (Rehearsal)' : ''))
 
 	rehearsal = !!rehearsal
-	const wasActive = !!playoutModel.playlist.activationId
 
 	const anyOtherActiveRundowns = await getActiveRundownPlaylistsInStudioFromDb(
 		context,
@@ -37,8 +37,10 @@ export async function activateRundownPlaylist(
 				JSON.stringify(otherActiveIds)
 		)
 	}
+	// Get the ActivationContext state, for later use. (This must be done before any actions are done on the PlayoutModel)
+	const previousState = getActivationContextState(playoutModel)
 
-	if (!playoutModel.playlist.activationId) {
+	if (!playoutModel.playlist.activationId || forceReset) {
 		// Reset the playlist if it wasnt already active
 		await resetRundownPlaylist(context, playoutModel)
 	}
@@ -93,6 +95,9 @@ export async function activateRundownPlaylist(
 
 	await updateTimeline(context, playoutModel)
 
+	// Get the ActivationContext state, for later use. (This must be done after all actions are done on the PlayoutModel)
+	const currentState = getActivationContextState(playoutModel)
+
 	playoutModel.deferBeforeSave(async () => {
 		if (!rundown) return // if the proper rundown hasn't been found, there's little point doing anything else
 		const showStyle = await context.getShowStyleCompound(rundown.showStyleVariantId, rundown.showStyleBaseId)
@@ -100,9 +105,15 @@ export async function activateRundownPlaylist(
 
 		try {
 			if (blueprint.blueprint.onRundownActivate) {
-				const blueprintContext = new RundownActivationContext(context, playoutModel, showStyle, rundown)
+				const blueprintContext = new RundownActivationContext(context, {
+					playoutModel,
+					showStyle,
+					rundown,
+					previousState,
+					currentState,
+				})
 
-				await blueprint.blueprint.onRundownActivate(blueprintContext, wasActive)
+				await blueprint.blueprint.onRundownActivate(blueprintContext)
 			}
 		} catch (err) {
 			logger.error(`Error in showStyleBlueprint.onRundownActivate: ${stringifyError(err)}`)
@@ -110,11 +121,17 @@ export async function activateRundownPlaylist(
 	})
 }
 export async function deactivateRundownPlaylist(context: JobContext, playoutModel: PlayoutModel): Promise<void> {
+	// Get the ActivationContext state, for later use. (This must be done before any actions are done on the PlayoutModel)
+	const previousState = getActivationContextState(playoutModel)
+
 	const rundown = await deactivateRundownPlaylistInner(context, playoutModel)
 
 	await updateStudioTimeline(context, playoutModel)
 
 	await cleanTimelineDatastore(context, playoutModel)
+
+	// Get the ActivationContext state, for later use. (This must be done after all actions are done on the PlayoutModel)
+	const currentState = getActivationContextState(playoutModel)
 
 	playoutModel.deferBeforeSave(async () => {
 		if (rundown) {
@@ -123,7 +140,13 @@ export async function deactivateRundownPlaylist(context: JobContext, playoutMode
 
 			try {
 				if (blueprint.blueprint.onRundownDeActivate) {
-					const blueprintContext = new RundownActivationContext(context, playoutModel, showStyle, rundown)
+					const blueprintContext = new RundownActivationContext(context, {
+						playoutModel,
+						showStyle,
+						rundown,
+						previousState,
+						currentState,
+					})
 					await blueprint.blueprint.onRundownDeActivate(blueprintContext)
 				}
 			} catch (err) {

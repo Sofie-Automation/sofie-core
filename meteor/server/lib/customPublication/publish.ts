@@ -32,7 +32,10 @@ export class CustomPublishMeteor<DBObj extends { _id: ProtectedString<any> }> {
 	#onStop: (() => void) | undefined
 	#isReady = false
 
-	constructor(private _meteorSubscription: SubscriptionContext, private _collectionName: string) {
+	constructor(
+		private _meteorSubscription: SubscriptionContext,
+		private _collectionName: string
+	) {
 		this._meteorSubscription.onStop(() => {
 			if (this.#onStop) this.#onStop()
 		})

@@ -2,12 +2,12 @@ import { ISourceLayer } from '@sofie-automation/blueprints-integration'
 import { SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { RundownLayoutsAPI } from '../../../../lib/rundownLayouts'
-import { RundownLayouts } from '../../../../collections'
+import { RundownLayoutsAPI } from '../../../../lib/rundownLayouts.js'
+import { RundownLayouts } from '../../../../collections/index.js'
 import { RundownLayoutBase } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import { unprotectString } from '../../../../lib/tempLib'
-import { EditAttribute } from '../../../../lib/EditAttribute'
-import { LabelActual } from '../../../../lib/Components/LabelAndOverrides'
+import { unprotectString } from '../../../../lib/tempLib.js'
+import { EditAttribute } from '../../../../lib/EditAttribute.js'
+import { LabelActual } from '../../../../lib/Components/LabelAndOverrides.js'
 
 function filterLayouts(
 	rundownLayouts: RundownLayoutBase[],
@@ -39,76 +39,64 @@ export default function RundownViewLayoutSettings({ sourceLayers, item, layouts 
 			<label className="field">
 				<LabelActual label={t('Expose as user selectable layout')} />
 				<EditAttribute
-					modifiedClassName="bghl"
 					attribute={'exposeAsSelectableLayout'}
 					obj={item}
 					type="checkbox"
 					collection={RundownLayouts}
-					className="mod mas"
 				></EditAttribute>
 			</label>
 
 			<label className="field">
 				<LabelActual label={t('Shelf Layout')} />
 				<EditAttribute
-					modifiedClassName="bghl"
 					attribute={'shelfLayout'}
 					obj={item}
 					options={filterLayouts(layouts, RundownLayoutsAPI.isLayoutForShelf)}
 					type="dropdown"
 					collection={RundownLayouts}
-					className="input text-input input-l dropdown"
 				></EditAttribute>
 			</label>
 
 			<label className="field">
 				<LabelActual label={t('Mini Shelf Layout')} />
 				<EditAttribute
-					modifiedClassName="bghl"
 					attribute={'miniShelfLayout'}
 					obj={item}
 					options={filterLayouts(layouts, RundownLayoutsAPI.isLayoutForMiniShelf)}
 					type="dropdown"
 					collection={RundownLayouts}
-					className="input text-input input-l dropdown"
 				></EditAttribute>
 			</label>
 
 			<label className="field">
 				<LabelActual label={t('Rundown Header Layout')} />
 				<EditAttribute
-					modifiedClassName="bghl"
 					attribute={'rundownHeaderLayout'}
 					obj={item}
 					options={filterLayouts(layouts, RundownLayoutsAPI.isLayoutForRundownHeader)}
 					type="dropdown"
 					collection={RundownLayouts}
-					className="input text-input input-l dropdown"
 				></EditAttribute>
 			</label>
 
 			<label className="field">
 				<LabelActual label={t('Live line countdown requires Source Layer')} />
-				<div>
+				<div className="checkbox-enable-before">
 					<EditAttribute
-						modifiedClassName="bghl"
 						attribute={`liveLineProps.requiredLayerIds`}
 						obj={item}
 						type="checkbox"
 						collection={RundownLayouts}
-						className="mhs mvxs"
 						mutateDisplayValue={(v) => !(v === undefined || v.length === 0)}
 						mutateUpdateValue={() => undefined}
 					/>
 					<EditAttribute
-						modifiedClassName="bghl"
 						attribute={`liveLineProps.requiredLayerIds`}
 						obj={item}
 						options={sourceLayerOptions}
 						type="multiselect"
 						label={t('Disabled')}
 						collection={RundownLayouts}
-						className="input text-input input-l dropdown"
 						mutateUpdateValue={(v) => (v && v.length > 0 ? v : undefined)}
 					/>
 				</div>
@@ -119,26 +107,22 @@ export default function RundownViewLayoutSettings({ sourceLayers, item, layouts 
 
 			<label className="field">
 				<LabelActual label={t('Also Require Source Layers')} />
-				<div>
+				<div className="checkbox-enable-before">
 					<EditAttribute
-						modifiedClassName="bghl"
 						attribute={`liveLineProps.additionalLayers`}
 						obj={item}
 						type="checkbox"
 						collection={RundownLayouts}
-						className="mhs mvxs"
 						mutateDisplayValue={(v) => !(v === undefined || v.length === 0)}
 						mutateUpdateValue={() => undefined}
 					/>
 					<EditAttribute
-						modifiedClassName="bghl"
 						attribute={`liveLineProps.additionalLayers`}
 						obj={item}
 						options={sourceLayerOptions}
 						type="multiselect"
 						label={t('Disabled')}
 						collection={RundownLayouts}
-						className="input text-input input-l dropdown"
 						mutateUpdateValue={(v) => (v && v.length > 0 ? v : undefined)}
 					/>
 				</div>
@@ -150,12 +134,10 @@ export default function RundownViewLayoutSettings({ sourceLayers, item, layouts 
 			<label className="field">
 				<LabelActual label={t('Require All Additional Source Layers')} />
 				<EditAttribute
-					modifiedClassName="bghl"
 					attribute={`liveLineProps.requireAllAdditionalSourcelayers`}
 					obj={item}
 					type="checkbox"
 					collection={RundownLayouts}
-					className="mod mas"
 				/>
 				<span className="text-s dimmed field-hint">{t('All additional source layers must have active pieces')}</span>
 			</label>
@@ -163,12 +145,10 @@ export default function RundownViewLayoutSettings({ sourceLayers, item, layouts 
 			<label className="field">
 				<LabelActual label={t('Hide Rundown Divider')} />
 				<EditAttribute
-					modifiedClassName="bghl"
 					attribute={'hideRundownDivider'}
 					obj={item}
 					type="checkbox"
 					collection={RundownLayouts}
-					className="mod mas"
 				></EditAttribute>
 				<span className="text-s dimmed field-hint">{t('Hide rundown divider between rundowns in a playlist')}</span>
 			</label>
@@ -176,37 +156,31 @@ export default function RundownViewLayoutSettings({ sourceLayers, item, layouts 
 			<label className="field">
 				<LabelActual label={t('Show Breaks as Segments')} />
 				<EditAttribute
-					modifiedClassName="bghl"
 					attribute={'showBreaksAsSegments'}
 					obj={item}
 					type="checkbox"
 					collection={RundownLayouts}
-					className="mod mas"
 				></EditAttribute>
 			</label>
 
 			<label className="field">
 				<LabelActual label={t('Segment countdown requires source layer')} />
-				<div>
+				<div className="checkbox-enable-before">
 					<EditAttribute
-						modifiedClassName="bghl"
 						attribute={`countdownToSegmentRequireLayers`}
 						obj={item}
 						type="checkbox"
 						collection={RundownLayouts}
-						className="mhs mvxs"
 						mutateDisplayValue={(v) => !(v === undefined || v.length === 0)}
 						mutateUpdateValue={() => undefined}
 					/>
 					<EditAttribute
-						modifiedClassName="bghl"
 						attribute={`countdownToSegmentRequireLayers`}
 						obj={item}
 						options={sourceLayerOptions}
 						type="multiselect"
 						label={t('Disabled')}
 						collection={RundownLayouts}
-						className="input text-input input-l dropdown"
 						mutateUpdateValue={(v) => (v && v.length > 0 ? v : undefined)}
 					/>
 				</div>
@@ -218,12 +192,10 @@ export default function RundownViewLayoutSettings({ sourceLayers, item, layouts 
 			<label className="field">
 				<LabelActual label={t('Fixed duration in Segment header')} />
 				<EditAttribute
-					modifiedClassName="bghl"
 					attribute={'fixedSegmentDuration'}
 					obj={item}
 					type="checkbox"
 					collection={RundownLayouts}
-					className="mod mas"
 				></EditAttribute>
 				<span className="text-s dimmed field-hint">
 					{t(
@@ -235,53 +207,45 @@ export default function RundownViewLayoutSettings({ sourceLayers, item, layouts 
 			<label className="field">
 				<LabelActual label={t('Select visible Source Layers')} />
 				<EditAttribute
-					modifiedClassName="bghl"
 					attribute={'visibleSourceLayers'}
 					obj={item}
 					options={sourceLayerOptions}
 					type="multiselect"
 					mutateUpdateValue={undefinedOnEmptyArray}
 					collection={RundownLayouts}
-					className="input text-input input-l dropdown"
 				></EditAttribute>
 			</label>
 
 			<label className="field">
 				<LabelActual label={t('Select visible Output Groups')} />
 				<EditAttribute
-					modifiedClassName="bghl"
 					attribute={'visibleOutputLayers'}
 					obj={item}
 					options={sourceLayerOptions}
 					type="multiselect"
 					mutateUpdateValue={undefinedOnEmptyArray}
 					collection={RundownLayouts}
-					className="input text-input input-l dropdown"
 				></EditAttribute>
 			</label>
 
 			<label className="field">
 				<LabelActual label={t('Display piece duration for source layers')} />
-				<div>
+				<div className="checkbox-enable-before">
 					<EditAttribute
-						modifiedClassName="bghl"
 						attribute={`showDurationSourceLayers`}
 						obj={item}
 						type="checkbox"
 						collection={RundownLayouts}
-						className="mhs mvxs"
 						mutateDisplayValue={(v) => !(v === undefined || v.length === 0)}
 						mutateUpdateValue={() => undefined}
 					/>
 					<EditAttribute
-						modifiedClassName="bghl"
 						attribute={`showDurationSourceLayers`}
 						obj={item}
 						options={sourceLayerOptions}
 						type="multiselect"
 						label={t('Disabled')}
 						collection={RundownLayouts}
-						className="input text-input input-l dropdown"
 						mutateUpdateValue={(v) => (v && v.length > 0 ? v : undefined)}
 					/>
 				</div>

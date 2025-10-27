@@ -25,7 +25,7 @@ meteorPublish(
 		const selector: MongoQuery<DBOrganization> = { _id: organizationId }
 
 		const modifier: FindOptions<DBOrganization> = {
-			fields: {
+			projection: {
 				name: 1,
 				applications: 1,
 				broadcastMediums: 1,
@@ -52,7 +52,7 @@ meteorPublish(
 		if (blueprintIds) selector._id = { $in: blueprintIds }
 
 		return Blueprints.findWithCursor(selector, {
-			fields: {
+			projection: {
 				code: 0,
 			},
 		})

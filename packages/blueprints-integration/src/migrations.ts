@@ -1,4 +1,4 @@
-import { IBlueprintTriggeredActions } from './triggers'
+import { IBlueprintTriggeredActions } from './triggers.js'
 
 export interface MigrationStepInput {
 	stepId?: string // automatically filled in later
@@ -49,7 +49,7 @@ export type MigrationContextSystem = MigrationContextWithTriggeredActions
 export interface MigrationStepBase<
 	TValidate extends ValidateFunction,
 	TMigrate extends MigrateFunction,
-	TInput extends InputFunction
+	TInput extends InputFunction,
 > {
 	/** Unique id for this step */
 	id: string
@@ -82,7 +82,7 @@ export interface MigrationStepBase<
 export interface MigrationStep<
 	TValidate extends ValidateFunction,
 	TMigrate extends MigrateFunction,
-	TInput extends InputFunction
+	TInput extends InputFunction,
 > extends MigrationStepBase<TValidate, TMigrate, TInput> {
 	/** The version this Step applies to */
 	version: string

@@ -1,9 +1,9 @@
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { AnyBulkWriteOperation } from 'mongodb'
-import { ICollection, MongoQuery } from './collections'
-import _ = require('underscore')
+import { ICollection, MongoQuery } from './collections.js'
+import _ from 'underscore'
 import { deleteAllUndefinedProperties, normalizeArrayToMap } from '@sofie-automation/corelib/dist/lib'
-import { JobContext } from '../jobs'
+import { JobContext } from '../jobs/index.js'
 
 /**
  * Object describe a collection write event

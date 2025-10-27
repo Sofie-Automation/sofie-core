@@ -25,7 +25,7 @@ It is possible for both the playout and ingest threads to lock a RudownPlaylist.
 
 This is necessary as they both need to take ownership of a playlist at points. The playout thread locks the active playlist for the duration of its operation. The ingest thread locks the playlist for the 'commit' phase of its operation.
 
-The locks are coordinated by the main thread over IPC. This keeps the implemntation simple as we do not need the locks to be distributed, as we know all the threads for a studio will be in the one process.
+The locks are coordinated by the main thread over IPC. This keeps the implementation simple as we do not need the locks to be distributed, as we know all the threads for a studio will be in the one process.
 
 ### Meteor
 

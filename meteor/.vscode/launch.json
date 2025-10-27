@@ -1,34 +1,34 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "type": "chrome",
-            "request": "launch",
-            "name": "Meteor: Chrome",
-            "url": "http://localhost:3000",
-            "webRoot": "${workspaceFolder}"
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Meteor: Node",
-            "runtimeExecutable": "npm",
-            "runtimeArgs": ["run", "debug"],
-            "port": 9229,
-            "timeout": 240000
-        },
-        {
-            "type": "node",
-            "request": "attach",
-            "name": "Meteor: Attach Node",
-            "port": 9229,
-            "timeout": 240000
-        }
-    ],
-    "compounds": [
-        {
-            "name": "Meteor: All",
-            "configurations": ["Meteor: Node", "Meteor: Chrome"]
-        }
-    ]
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "chrome",
+			"request": "launch",
+			"name": "Meteor: Chrome",
+			"url": "http://localhost:3000",
+			"webRoot": "${workspaceFolder}"
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Meteor: Node",
+			"runtimeExecutable": "npm",
+			"runtimeArgs": ["run", "debug"],
+			"port": 9229,
+			"timeout": 240000
+		},
+		{
+			"type": "node",
+			"request": "attach",
+			"name": "Meteor: Attach Node",
+			"port": 9229,
+			"timeout": 240000
+		}
+	],
+	"compounds": [
+		{
+			"name": "Meteor: All",
+			"configurations": ["Meteor: Node", "Meteor: Chrome"]
+		}
+	]
 }

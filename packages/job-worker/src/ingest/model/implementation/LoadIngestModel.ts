@@ -1,16 +1,15 @@
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { JobContext } from '../../../jobs'
+import { JobContext } from '../../../jobs/index.js'
 import { ReadonlyDeep } from 'type-fest'
-import { RundownLock } from '../../../jobs/lock'
-import { IngestModel } from '../IngestModel'
-import { DatabasePersistedModel } from '../../../modelBase'
-import { getRundownId } from '../../lib'
-import { ExpectedMediaItemRundown } from '@sofie-automation/corelib/dist/dataModel/ExpectedMediaItem'
+import { RundownLock } from '../../../jobs/lock.js'
+import { IngestModel } from '../IngestModel.js'
+import { DatabasePersistedModel } from '../../../modelBase.js'
+import { getRundownId } from '../../lib.js'
 import { ExpectedPlayoutItemRundown } from '@sofie-automation/corelib/dist/dataModel/ExpectedPlayoutItem'
 import { RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { IngestModelImpl, IngestModelImplExistingData } from './IngestModelImpl'
+import { IngestModelImpl, IngestModelImplExistingData } from './IngestModelImpl.js'
 import { clone } from '@sofie-automation/corelib/dist/lib'
 
 /**
@@ -87,44 +86,33 @@ async function loadExistingRundownData(
 	context: JobContext,
 	rundownId: RundownId
 ): Promise<Omit<IngestModelImplExistingData, 'rundown'>> {
-	const [
-		segments,
-		parts,
-		pieces,
-		adLibPieces,
-		adLibActions,
-		expectedMediaItems,
-		expectedPlayoutItems,
-		expectedPackages,
-	] = await Promise.all([
-		context.directCollections.Segments.findFetch({
-			rundownId: rundownId,
-			orphaned: { $ne: SegmentOrphanedReason.ADLIB_TESTING },
-		}),
-		context.directCollections.Parts.findFetch({
-			rundownId: rundownId,
-		}),
-		context.directCollections.Pieces.findFetch({
-			startRundownId: rundownId,
-		}),
+	const [segments, parts, pieces, adLibPieces, adLibActions, expectedPlayoutItems, expectedPackages] =
+		await Promise.all([
+			context.directCollections.Segments.findFetch({
+				rundownId: rundownId,
+				orphaned: { $ne: SegmentOrphanedReason.ADLIB_TESTING },
+			}),
+			context.directCollections.Parts.findFetch({
+				rundownId: rundownId,
+			}),
+			context.directCollections.Pieces.findFetch({
+				startRundownId: rundownId,
+			}),
 
-		context.directCollections.AdLibPieces.findFetch({
-			rundownId: rundownId,
-		}),
-		context.directCollections.AdLibActions.findFetch({
-			rundownId: rundownId,
-		}),
+			context.directCollections.AdLibPieces.findFetch({
+				rundownId: rundownId,
+			}),
+			context.directCollections.AdLibActions.findFetch({
+				rundownId: rundownId,
+			}),
 
-		context.directCollections.ExpectedMediaItems.findFetch({
-			rundownId: rundownId,
-		}) as Promise<ExpectedMediaItemRundown[]>,
-		context.directCollections.ExpectedPlayoutItems.findFetch({
-			rundownId: rundownId,
-		}) as Promise<ExpectedPlayoutItemRundown[]>,
-		context.directCollections.ExpectedPackages.findFetch({
-			rundownId: rundownId,
-		}),
-	])
+			context.directCollections.ExpectedPlayoutItems.findFetch({
+				rundownId: rundownId,
+			}) as Promise<ExpectedPlayoutItemRundown[]>,
+			context.directCollections.ExpectedPackages.findFetch({
+				rundownId: rundownId,
+			}),
+		])
 
 	return {
 		segments,
@@ -133,7 +121,6 @@ async function loadExistingRundownData(
 		adLibPieces,
 		adLibActions,
 
-		expectedMediaItems,
 		expectedPlayoutItems,
 		expectedPackages,
 	}

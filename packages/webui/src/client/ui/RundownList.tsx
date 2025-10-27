@@ -2,25 +2,25 @@ import Tooltip from 'rc-tooltip'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { GENESIS_SYSTEM_VERSION } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { getHelpMode } from '../lib/localStorage'
-import { literal, unprotectString } from '../lib/tempLib'
-import { useSubscription, useTracker } from '../lib/ReactMeteorData/react-meteor-data'
-import { Spinner } from '../lib/Spinner'
-import { GettingStarted } from './RundownList/GettingStarted'
-import { RegisterHelp } from './RundownList/RegisterHelp'
-import { RundownDropZone } from './RundownList/RundownDropZone'
-import { RundownListFooter } from './RundownList/RundownListFooter'
-import RundownPlaylistDragLayer from './RundownList/RundownPlaylistDragLayer'
-import { RundownPlaylistUi } from './RundownList/RundownPlaylistUi'
-import { RundownLayoutsAPI } from '../lib/rundownLayouts'
-import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
-import { getCoreSystem, RundownLayouts, RundownPlaylists, Rundowns } from '../collections'
-import { RundownPlaylistCollectionUtil } from '../collections/rundownPlaylistUtil'
+import { getHelpMode } from '../lib/localStorage.js'
+import { literal, unprotectString } from '../lib/tempLib.js'
+import { useSubscription, useTracker } from '../lib/ReactMeteorData/react-meteor-data.js'
+import { Spinner } from '../lib/Spinner.js'
+import { GettingStarted } from './RundownList/GettingStarted.js'
+import { RegisterHelp } from './RundownList/RegisterHelp.js'
+import { RundownDropZone } from './RundownList/RundownDropZone.js'
+import { RundownListFooter } from './RundownList/RundownListFooter.js'
+import RundownPlaylistDragLayer from './RundownList/RundownPlaylistDragLayer.js'
+import { RundownPlaylistUi } from './RundownList/RundownPlaylistUi.js'
+import { RundownLayoutsAPI } from '../lib/rundownLayouts.js'
+import { getCoreSystem, RundownLayouts, RundownPlaylists, Rundowns } from '../collections/index.js'
+import { RundownPlaylistCollectionUtil } from '../collections/rundownPlaylistUtil.js'
 import { useEffect, useMemo, useState, useContext } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
-import { CreateAdlibTestingRundownPanel } from './RundownList/CreateAdlibTestingRundownPanel'
-import { UserPermissionsContext } from './UserPermissions'
+import { CreateAdlibTestingRundownPanel } from './RundownList/CreateAdlibTestingRundownPanel.js'
+import { UserPermissionsContext } from './UserPermissions.js'
+import Container from 'react-bootstrap/esm/Container'
 
 export enum ToolTipStep {
 	TOOLTIP_START_HERE = 'TOOLTIP_START_HERE',
@@ -126,7 +126,7 @@ export function RundownList(): JSX.Element {
 
 	function renderRundownPlaylists() {
 		if (rundownPlaylists.length < 1) {
-			return <p>{t('There are no rundowns ingested into Sofie.')}</p>
+			return <p className="px-2 py-2">{t('There are no rundowns ingested into Sofie.')}</p>
 		}
 
 		return (
@@ -139,18 +139,19 @@ export function RundownList(): JSX.Element {
 	}
 
 	return (
-		<div className="container-fluid header-clear">
+		<Container fluid className="header-clear">
 			{coreSystem ? <RegisterHelp step={step} /> : null}
 
 			{showGettingStarted === true ? <GettingStarted step={step} /> : null}
 
-			<section className="mtl gutter has-statusbar">
-				<header className="mvs">
+			<section className="mt-5 mx-5 has-statusbar">
+				<header className="my-2">
 					<h1>{t('Rundowns')}</h1>
 				</header>
 				{subsReady ? (
-					<section className="mod mvl rundown-list" role="treegrid">
+					<section className="my-5 rundown-list" role="treegrid">
 						<header className="rundown-list__header">
+							<span>{/* Spacer */}</span>
 							<span className="rundown-list-item__name" role="columnheader">
 								<Tooltip
 									overlay={t('Click on a rundown to control your studio')}
@@ -164,11 +165,7 @@ export function RundownList(): JSX.Element {
 							<span role="columnheader">{t('Show Style')}</span>
 							<span role="columnheader">{t('On Air Start Time')}</span>
 							<span role="columnheader">{t('Duration')}</span>
-							{rundownPlaylists.some(
-								(p) =>
-									!!PlaylistTiming.getExpectedEnd(p.timing) ||
-									p.rundowns.some((r) => PlaylistTiming.getExpectedEnd(r.timing))
-							) && <span role="columnheader">{t('Expected End Time')}</span>}
+							<span role="columnheader">{t('Expected End Time')}</span>
 							<span role="columnheader">{t('Last updated')}</span>
 							{rundownLayouts.some(
 								(l) =>
@@ -191,6 +188,6 @@ export function RundownList(): JSX.Element {
 			{userPermissions.studio && <CreateAdlibTestingRundownPanel />}
 
 			<RundownListFooter />
-		</div>
+		</Container>
 	)
 }

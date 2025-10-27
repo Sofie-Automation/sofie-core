@@ -1,4 +1,4 @@
-import * as _ from 'underscore'
+import _ from 'underscore'
 import { Time } from '../lib/tempLib'
 import { sleep, getCurrentTime } from '../lib/lib'
 import { registerClassToMeteorMethods } from '../methods'

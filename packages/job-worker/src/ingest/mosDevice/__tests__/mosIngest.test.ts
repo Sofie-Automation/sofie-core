@@ -1,4 +1,4 @@
-import { mockRO } from './mock-mos-data'
+import { mockRO } from './mock-mos-data.js'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
@@ -11,30 +11,30 @@ import {
 	handleMosInsertStories,
 	handleMosMoveStories,
 	handleMosSwapStories,
-} from '../mosStoryJobs'
-import { handleMosRundownData, handleMosRundownReadyToAir, handleMosRundownStatus } from '../mosRundownJobs'
-import { getMosIngestSegmentExternalId, parseMosString } from '../lib'
-import { MockJobContext, setupDefaultJobEnvironment } from '../../../__mocks__/context'
-import { setupMockIngestDevice, setupMockShowStyleCompound } from '../../../__mocks__/presetCollections'
-import { fixSnapshot } from '../../../__mocks__/helpers/snapshot'
+} from '../mosStoryJobs.js'
+import { handleMosRundownData, handleMosRundownReadyToAir, handleMosRundownStatus } from '../mosRundownJobs.js'
+import { getMosIngestSegmentExternalId, parseMosString } from '../lib.js'
+import { MockJobContext, setupDefaultJobEnvironment } from '../../../__mocks__/context.js'
+import { setupMockIngestDevice, setupMockShowStyleCompound } from '../../../__mocks__/presetCollections.js'
+import { fixSnapshot } from '../../../__mocks__/helpers/snapshot.js'
 import { DBRundown, RundownOrphanedReason, RundownSource } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { MongoQuery } from '../../../db'
-import { handleRemovedRundown } from '../../ingestRundownJobs'
+import { MongoQuery } from '../../../db/index.js'
+import { handleRemovedRundown } from '../../ingestRundownJobs.js'
 import { MOS } from '@sofie-automation/corelib'
 import { groupByToMap, literal, normalizeArrayToMap, omit } from '@sofie-automation/corelib/dist/lib'
 import { NrcsIngestCacheType } from '@sofie-automation/corelib/dist/dataModel/NrcsIngestDataCache'
-import { getPartId } from '../../lib'
+import { getPartId } from '../../lib.js'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
-import { handleSetNextPart } from '../../../playout/setNextJobs'
-import { handleTakeNextPart } from '../../../playout/take'
-import { handleActivateRundownPlaylist, handleDeactivateRundownPlaylist } from '../../../playout/activePlaylistJobs'
-import { removeRundownPlaylistFromDb } from '../../__tests__/lib'
+import { handleSetNextPart } from '../../../playout/setNextJobs.js'
+import { handleTakeNextPart } from '../../../playout/take.js'
+import { handleActivateRundownPlaylist, handleDeactivateRundownPlaylist } from '../../../playout/activePlaylistJobs.js'
+import { removeRundownPlaylistFromDb } from '../../__tests__/lib.js'
 import { UserErrorMessage } from '@sofie-automation/corelib/dist/error'
-import { wrapCustomIngestJob, wrapGenericIngestJob, wrapMosIngestJob } from '../../jobWrappers'
+import { wrapCustomIngestJob, wrapGenericIngestJob, wrapMosIngestJob } from '../../jobWrappers.js'
 
 jest.mock('../../updateNext')
-import { ensureNextPartIsValid } from '../../updateNext'
+import { ensureNextPartIsValid } from '../../updateNext.js'
 type TensureNextPartIsValid = jest.MockedFunction<typeof ensureNextPartIsValid>
 const ensureNextPartIsValidMock = ensureNextPartIsValid as TensureNextPartIsValid
 

@@ -1,5 +1,5 @@
 import { PartId, RundownPlaylistId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { check } from 'meteor/check'
+import { check, Match } from 'meteor/check'
 import {
 	CustomPublishCollection,
 	SetupObserversResult,
@@ -144,8 +144,7 @@ export async function manipulateUIPartsPublicationData(
 		findMarkerPosition(
 			playlist.quickLoop.start,
 			-Infinity,
-			state.contentCache.Segments,
-			{ parts: state.contentCache.Parts },
+			{ segments: state.contentCache.Segments, parts: state.contentCache.Parts },
 			rundownRanks
 		)
 	const quickLoopEndPosition =
@@ -153,8 +152,7 @@ export async function manipulateUIPartsPublicationData(
 		findMarkerPosition(
 			playlist.quickLoop.end,
 			Infinity,
-			state.contentCache.Segments,
-			{ parts: state.contentCache.Parts },
+			{ segments: state.contentCache.Segments, parts: state.contentCache.Parts },
 			rundownRanks
 		)
 
@@ -189,7 +187,7 @@ meteorCustomPublish(
 	MeteorPubSub.uiParts,
 	CustomCollectionName.UIParts,
 	async function (pub, playlistId: RundownPlaylistId | null) {
-		check(playlistId, String)
+		check(playlistId, Match.Optional(String))
 
 		triggerWriteAccessBecauseNoCheckNecessary()
 
