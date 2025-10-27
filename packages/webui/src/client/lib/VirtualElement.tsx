@@ -81,10 +81,6 @@ export function VirtualElement({
 		() => ({
 			width: width ?? 'auto',
 			height: ((placeholderHeight || ref?.clientHeight) ?? '0') + 'px',
-			marginTop: 0,
-			marginLeft: 0,
-			marginRight: 0,
-			marginBottom: 0,
 			// These properties are used to ensure that if a prior element is changed from
 			// placeHolder to element, the position of visible elements are not affected.
 			contentVisibility: 'auto',
