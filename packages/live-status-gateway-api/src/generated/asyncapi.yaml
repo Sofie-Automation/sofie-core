@@ -1,3 +1,6 @@
+# This file was automatically generated using @asyncapi/parser
+# DO NOT MODIFY IT BY HAND. Instead, modify the source AsyncAPI schema files,
+# and run "yarn merge-schemas" to regenerate this file.
 asyncapi: 2.6.0
 id: sofie:live-status-gateway:server
 info:
@@ -15,7 +18,7 @@ servers:
     url: localhost
     description: Server available without authorization
     protocol: ws
-    protocolVersion: "13"
+    protocolVersion: '13'
 defaultContentType: application/json
 tags:
   - name: sofie
@@ -305,7 +308,7 @@ channels:
                       oneOf:
                         - type: string
                           x-parser-schema-id: <anonymous-schema-24>
-                        - type: "null"
+                        - type: 'null'
                           x-parser-schema-id: <anonymous-schema-25>
                       x-parser-schema-id: <anonymous-schema-23>
                     name:
@@ -408,7 +411,7 @@ channels:
                   oneOf:
                     - type: string
                       x-parser-schema-id: <anonymous-schema-36>
-                    - type: "null"
+                    - type: 'null'
                       x-parser-schema-id: <anonymous-schema-37>
                   x-parser-schema-id: <anonymous-schema-35>
                 externalId:
@@ -416,7 +419,7 @@ channels:
                   oneOf:
                     - type: string
                       x-parser-schema-id: <anonymous-schema-39>
-                    - type: "null"
+                    - type: 'null'
                       x-parser-schema-id: <anonymous-schema-40>
                   x-parser-schema-id: <anonymous-schema-38>
                 name:
@@ -611,7 +614,7 @@ channels:
                             startTime: 1600000060000
                             projectedEndTime: 1600000075000
                       x-parser-schema-id: <anonymous-schema-45>
-                    - type: "null"
+                    - type: 'null'
                       x-parser-schema-id: <anonymous-schema-70>
                   x-parser-schema-id: <anonymous-schema-44>
                 currentSegment:
@@ -655,8 +658,8 @@ channels:
                                     countdownType:
                                       type: string
                                       title: SegmentCountdownType
-                                      description: "Countdown type within the segment. Default:
-                                        `part_expected_duration`"
+                                      description: 'Countdown type within the segment. Default:
+                                        `part_expected_duration`'
                                       enum:
                                         - part_expected_duration
                                         - segment_budget_duration
@@ -738,13 +741,13 @@ channels:
                               timing:
                                 expectedDurationMs: 15000
                       x-parser-schema-id: <anonymous-schema-72>
-                    - type: "null"
+                    - type: 'null'
                       x-parser-schema-id: <anonymous-schema-86>
                   x-parser-schema-id: <anonymous-schema-71>
                 nextPart:
                   oneOf:
                     - *a6
-                    - type: "null"
+                    - type: 'null'
                       x-parser-schema-id: <anonymous-schema-88>
                   x-parser-schema-id: <anonymous-schema-87>
                 publicData:
@@ -1032,7 +1035,7 @@ channels:
                   oneOf:
                     - type: string
                       x-parser-schema-id: <anonymous-schema-107>
-                    - type: "null"
+                    - type: 'null'
                       x-parser-schema-id: <anonymous-schema-108>
                   x-parser-schema-id: <anonymous-schema-106>
                 activePieces:
@@ -1093,7 +1096,7 @@ channels:
               oneOf:
                 - type: string
                   x-parser-schema-id: <anonymous-schema-113>
-                - type: "null"
+                - type: 'null'
                   x-parser-schema-id: <anonymous-schema-114>
               x-parser-schema-id: <anonymous-schema-112>
             segments:
@@ -1206,7 +1209,7 @@ channels:
                     - type: string
                       title: Unique id of the rundown playlist
                       x-parser-schema-id: <anonymous-schema-125>
-                    - type: "null"
+                    - type: 'null'
                       title: Null if no playlist is active
                       x-parser-schema-id: <anonymous-schema-126>
                   x-parser-schema-id: <anonymous-schema-124>
@@ -1546,7 +1549,7 @@ channels:
                   oneOf:
                     - type: string
                       x-parser-schema-id: <anonymous-schema-150>
-                    - type: "null"
+                    - type: 'null'
                       x-parser-schema-id: <anonymous-schema-151>
                   x-parser-schema-id: <anonymous-schema-149>
                 packages:

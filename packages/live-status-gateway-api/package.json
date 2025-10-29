@@ -15,7 +15,7 @@
 	},
 	"homepage": "https://github.com/nrkno/sofie-core/blob/master/packages/live-status-gateway-api#readme",
 	"scripts": {
-		"build": "yarn resolve-nested-examples && yarn generate-schema-types && run -T rimraf dist && run build:main",
+		"build": "yarn generate-schema-types && run -T rimraf dist && run build:main",
 		"build:main": "run -T tsc -p tsconfig.build.json",
 		"lint:raw": "run -T eslint",
 		"lint": "run lint:raw .",
@@ -27,11 +27,11 @@
 		"validate:dependencies": "yarn npm audit --environment production && run license-validate",
 		"validate:dev-dependencies": "yarn npm audit --environment development",
 		"license-validate": "run -T sofie-licensecheck",
-		"gendocs": "yarn resolve-nested-examples && ag ./dist/api/asyncapi.yaml @asyncapi/html-template -o docs -p singleFile=true -p outFilename=liveStatus.html",
-		"genserver": "yarn resolve-nested-examples && ag ./dist/api/asyncapi.yaml @asyncapi/nodejs-ws-template -o server -p server=development",
-		"generate-schema-types": "yarn resolve-nested-examples && node scripts/generate-schema-types.mjs",
-		"resolve-nested-examples": "node scripts/resolve-nested-examples.mjs && yarn merge-schemas",
-		"merge-schemas": "node scripts/merge-schemas.mjs"
+		"gendocs": "yarn merge-schemas && ag ./src/generated/asyncapi.yaml @asyncapi/html-template -o docs -p singleFile=true -p outFilename=liveStatus.html",
+		"genserver": "yarn merge-schemas && ag ./src/generated/asyncapi.yaml @asyncapi/nodejs-ws-template -o server -p server=development",
+		"generate-schema-types": "yarn merge-schemas && node scripts/generate-schema-types.mjs",
+		"resolve-nested-examples": "node scripts/resolve-nested-examples.mjs",
+		"merge-schemas": "yarn resolve-nested-examples && node scripts/merge-schemas.mjs"
 	},
 	"engines": {
 		"node": ">=14.19"
