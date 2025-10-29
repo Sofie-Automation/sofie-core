@@ -21,7 +21,7 @@ jobs:
         env:
           TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db
         with:
-          image-ref: ghcr.io/Sofie-Automation/sofie-core-${{ matrix.image }}:latest
+          image-ref: ghcr.io/sofie-automation/sofie-core-${{ matrix.image }}:latest
           format: json
           output: "${{ matrix.image }}-trivy-scan-results.json"
 
@@ -30,7 +30,7 @@ jobs:
         env:
           TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db
         with:
-          image-ref: ghcr.io/Sofie-Automation/sofie-core-${{ matrix.image }}:latest
+          image-ref: ghcr.io/sofie-automation/sofie-core-${{ matrix.image }}:latest
           output: "${{ matrix.image }}-trivy-scan-results.txt"
 
       - name: Post all scan results to Github Summary as a table
@@ -50,7 +50,7 @@ jobs:
         with:
           format: "github"
           output: "dependency-results-${{ matrix.image }}.sbom.json"
-          image-ref: ghcr.io/Sofie-Automation/sofie-core-${{ matrix.image }}:latest
+          image-ref: ghcr.io/sofie-automation/sofie-core-${{ matrix.image }}:latest
           github-pat: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create summary of Trivy issues
