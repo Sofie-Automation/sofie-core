@@ -1,6 +1,6 @@
 ---
 title: Installing CasparCG Server for Sofie
-description: Sofie specific fork of CasparCG&nbsp;Server 2.1
+description: CasparCG&nbsp;Server
 ---
 
 # Installing CasparCG&nbsp;Server for Sofie
@@ -9,9 +9,9 @@ Although CasparCG&nbsp;Server is an open source program that is free to use for 
 
 ## Installing the CasparCG&nbsp;Server
 
-To begin, download the latest release of [CasparCG&nbsp;Server from GitHub](https://github.com/nrkno/sofie-casparcg-server/releases). There are multiple versions of CasparCG&nbsp;Server available to the public for download but, you specifically want the latest NRK version.
+To begin, download the latest release of [CasparCG&nbsp;Server from GitHub](https://github.com/casparcg/server/releases). While some Sofie users have their own fork of CasparCG, we recommend the official builds.
 
-Once downloaded, extract the files and navigate down the folders, _CasparCG&nbsp;Server_ then _Server_. This folder contains your CasparCG&nbsp;Server Configuration file, `casparcg.config`, and your CasparCG&nbsp;Server executable, `casparcg.exe`.
+Once downloaded, extract the files into a folder and navigate inside. This folder contains your CasparCG&nbsp;Server Configuration file, `casparcg.config`, and your CasparCG&nbsp;Server executable, `casparcg.exe`.
 
 How you will configure the CasparCG&nbsp;Server will depend on the number of DeckLink cards your machine contains. The first subsection for each CasparCG&nbsp;Server setup, labeled _Channels_, will contain the unique portion of the configuration. The following is the majority of the configuration file that will be consistent between setups.
 
@@ -19,9 +19,6 @@ How you will configure the CasparCG&nbsp;Server will depend on the number of Dec
 <?xml version="1.0" encoding="utf-8"?>
 <configuration>
   <log-level>debug</log-level>
-  <thumbnails>
-    <generate-thumbnails>false</generate-thumbnails>
-  </thumbnails>
   <!-- Paths to the Server Media -->
   <!-- Currently set to the same folder as this file -->
   <paths>
@@ -29,8 +26,6 @@ How you will configure the CasparCG&nbsp;Server will depend on the number of Dec
     <log-path>log/</log-path>
     <data-path>data/</data-path>
     <template-path>template/</template-path>
-    <thumbnail-path>thumbnail/</thumbnail-path>
-    <font-path>font/</font-path>
   </paths>
   <lock-clear-phrase>secret</lock-clear-phrase>
   <channels>
@@ -41,25 +36,21 @@ How you will configure the CasparCG&nbsp;Server will depend on the number of Dec
       <port>5250</port>
       <protocol>AMCP</protocol>
     </tcp>
-  <tcp>
-    <port>3250</port>
-    <protocol>LOG</protocol>
-  </tcp>
   </controllers>
+  <amcp>
+    <media-server>
+      <host>localhost</host>
+      <port>8000</port>
+    </media-server>
+  </amcp>
 </configuration>
 ```
 
 One additional note, the Server does require the configuration file be named `casparcg.config`.
 
-### Installing CasparCG Media Scanner
-
-You can use the CasparCG Media Scanner to locate and add all of your media to the _Sofie&nbsp;Core_. To install the Media Scanner, you will go to the [project's Release page](https://github.com/nrkno/sofie-media-scanner/releases) and download the `.zip` file under the latest release. Similar to the CasparCG&nbsp;Server, you want to use the NRK version.
-
-Once downloaded and extracted, move the `scanner.exe` file to the same folder as your `casparcg.exe` file.
-
 ### Installing the CasparCG Launcher
 
-You can launch both of your CasparCG applications with the[ CasparCG Launcher.](https://github.com/Sofie-Automation/sofie-casparcg-launcher) Download the `.exe` file in the latest release and once complete, move the file to the same folder as your `casparcg.exe` file.
+You can launch both of your CasparCG applications with the [CasparCG Launcher.](https://github.com/Sofie-Automation/sofie-casparcg-launcher) Download the `.exe` file in the latest release and once complete, move the file to the same folder as your `casparcg.exe` file.
 
 ## Configuring Windows
 
@@ -83,7 +74,7 @@ For _dual drives_, it is recommended to use a smaller 250gb NVMe SSD for the ope
 
 ### DeckLink Cards
 
-There are a few SDI cards made by Blackmagic Design that are supported by CasparCG. The base model, with four bi-directional input and outputs, is the [Duo 2](https://www.blackmagicdesign.com/products/decklink/techspecs/W-DLK-31). If you need additional channels, use the[ Quad 4](https://www.blackmagicdesign.com/products/decklink/techspecs/W-DLK-30) which supports eight bi-directional inputs and outputs. Be aware the BNC connections are not the standard BNC type. B&H offers [Mini BNC to BNC connecters](https://www.bhphotovideo.com/c/product/1462647-REG/canare_cal33mb018_mini_rg59_12g_sdi_4k.html). Finally, for 4k support, use the [8K Pro](https://www.blackmagicdesign.com/products/decklink/techspecs/W-DLK-34) which has four bi-directional BNC connections and one reference connection.
+There are a few SDI cards made by Blackmagic Design that are supported by CasparCG. The base model, with four bi-directional input and outputs, is the [Duo 2](https://www.blackmagicdesign.com/products/decklink/techspecs/W-DLK-31). If you need additional channels, use the [Quad 2](https://www.blackmagicdesign.com/products/decklink/techspecs/W-DLK-30) which supports eight bi-directional inputs and outputs. Be aware the BNC connections are not the standard BNC type. B&H offers [Mini BNC to BNC connecters](https://www.bhphotovideo.com/c/product/1462647-REG/canare_cal33mb018_mini_rg59_12g_sdi_4k.html). Finally, for 4k support, use the [8K Pro](https://www.blackmagicdesign.com/products/decklink/techspecs/W-DLK-34) which has four bi-directional BNC connections and one reference connection.
 
 Here is the Blackmagic Design PDF for [installing your DeckLink card \( Desktop Video Device \).](https://documents.blackmagicdesign.com/UserManuals/DesktopVideoManual.pdf)
 
@@ -207,7 +198,7 @@ Once you have setup the configuration file, you can use an online validator to c
 
 ### Launching the Server
 
-Launching the Server is the same for each hardware setup. This means you can run`casparcg-launcher.exe` and the server and media scanner will start. There will be two additional warning from Windows. The first is about the EXE file and can be bypassed by selecting _Advanced_ and then _Run Anyways_. The second menu will be about CasparCG&nbsp;Server attempting to access your firewall. You will need to allow access.
+Launching the Server is the same for each hardware setup. This means you can run `casparcg-launcher.exe` and the server and media scanner will start. There will be two additional warning from Windows. The first is about the EXE file and can be bypassed by selecting _Advanced_ and then _Run Anyways_. The second menu will be about CasparCG&nbsp;Server attempting to access your firewall. You will need to allow access.
 
 A window will open and display the status for the server and scanner. You can start, stop, and/or restart the server from here if needed. An additional window should have opened as well. This is the main output of your CasparCG&nbsp;Server and will contain nothing but a black background for now. If you have a DeckLink card installed, its output will also be black.
 

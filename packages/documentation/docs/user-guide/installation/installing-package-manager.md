@@ -9,7 +9,7 @@ sidebar_position: 7
 - [Installed and running Sofie&nbsp;Core](installing-sofie-server-core.md)
 - [Initial Sofie&nbsp;Core Setup](initial-sofie-core-setup.md)
 - [Installed and configured Demo Blueprints](https://github.com/SuperFlyTV/sofie-demo-blueprints)
-- [Installed, configured, and running CasparCG&nbsp;Server](installing-connections-and-additional-hardware/casparcg-server-installation.md)
+- [Installed, configured, and running CasparCG&nbsp;Server](installing-connections-and-additional-hardware/casparcg-server-installation.md) (Optional)
 - [`FFmpeg` and `FFprobe` available in `PATH`](installing-connections-and-additional-hardware/ffmpeg-installation.md)
 
 Package Manager is used by Sofie to copy, analyze, and process media files. It is what powers Sofie's ability to copy media files to playout devices, to know when a media file is ready for playout, and to display details about media files in the rundown view such as scene changes, black frames, freeze frames, and more.
@@ -38,13 +38,7 @@ git clone https://github.com/Sofie-Automation/sofie-package-manager.git
 cd sofie-package-manager
 yarn install
 yarn build
-yarn start:single-app -- -- --basePath "C:\your\path\to\casparcg-server\media-folder (i.e. sofie-demo-media)"
-```
-
-Note: if Powershell throws `Unknown argument: basePath` error, add one more pair of dashes (`--`) before the basePath argument:
-
-```bash
-yarn start:single-app -- -- -- --basePath "C:\your\path\to\casparcg-server\media-folder (i.e. sofie-demo-media)"
+yarn start:single-app
 ```
 
 On first startup, Package Manager will exit with the following message:
@@ -175,8 +169,12 @@ Note that each appContainer needs to use a different resourceId and will need it
    - If you don't have a `casparcg0` device, add it to the Playout Gateway under the Devices heading, then restart the Playout Gateway.
    - If you are using the distributed setup, you will likely want to repeat this step for each CasparCG machine. You will also want to set `Resource Id` to match the `resourceId` value provided in the appContainer command line.
 1. Click the plus button under "Accessors", then click the edit icon to the right of the newly-created accessor.
-1. Give this accessor an ID of `casparcgHttpProxy0`, a Label of `CasparCG HTTP Proxy Accessor`, an Accessor Type of `HTTP_PROXY`, and a Base URL of `http://localhost:8080/package`. Then, ensure that both the "Allow Read access" and "Allow Write access" boxes are checked. Finally, click the done button (checkmark icon) in the bottom right.
-1. Scroll back to the top of the page and select "CasparCG Package Container" for both "Package Containers to use for previews" and "Package Containers to use for thumbnails".
+1. Give this accessor an ID of `local`, a Label of `Local`, an Accessor Type of `LOCAL`, and a Folder path matching your CasparCG `media` folder. Then, ensure that only the "Allow Read access" boxes are checked. Finally, click the done button (checkmark icon) in the bottom right.
+1. Click the plus button under the Package Containers heading, then click the edit icon (pencil) to the right of the newly-created package container.
+1. Give this package container an ID of `httpProxy0` and a label of `Proxy for thumbnails & preview`.
+1. Click the plus button under "Accessors", then click the edit icon to the right of the newly-created accessor.
+1. Give this accessor an ID of `http0`, a Label of `HTTP`, an Accessor Type of `HTTP_PROXY`, and a Base URL of `http://localhost:8080/package`. Then, ensure that both the "Allow Read access" and "Allow Write access" boxes are checked. Finally, click the done button (checkmark icon) in the bottom right.
+1. Scroll back to the top of the page and select `Proxy for thumbnails & preview` for both "Package Containers to use for previews" and "Package Containers to use for thumbnails".
 1. Your settings should look like this once all the above steps have been completed:
    ![Package Manager demo settings](/img/docs/Package_Manager_demo_settings.png)
 1. If Package Manager `start:single-app` is running, restart it. If not, start it (see the above [Installation instructions](#installation-quick-start) for the relevant command line).
@@ -191,11 +189,11 @@ By adding `--networkIds=pm-net` (a semi colon separated list) when launching the
 Then in the Sofie UI:
 
 1. Return to the Package Manager settings under the studio
-1. Expand the `casparcgContainer` container.
-1. Edit the `casparcgHttpProxy` accessor to have a `Base URL` that is accessible from the casparcg machines.
+1. Expand the `httpProxy0` container.
+1. Edit the `http0` accessor to have a `Base URL` that is accessible from the casparcg machines.
 1. Set the `Network ID` to `pm-net` (matching what was passed in the command line)
 1. Click the plus button under "Accessors", then click the edit icon to the right of the newly-created accessor.
-1. Give this accessor an ID of `casparcgHttpProxyThumbnails0`, a Label of `CasparCG Thumbnail HTTP Proxy Accessor`, an Accessor Type of `HTTP_PROXY`, and a Base URL that is accessible to your Sofie client network. Then, ensure that only the "Allow Write access" box is checked. Finally, click the done button (checkmark icon) in the bottom right.
+1. Give this accessor an ID of `publicHttp0`, a Label of `Public HTTP Proxy Accessor`, an Accessor Type of `HTTP_PROXY`, and a Base URL that is accessible to your Sofie client network. Then, ensure that only the "Allow read access" box is checked. Finally, click the done button (checkmark icon) in the bottom right.
 
 ## Usage
 
