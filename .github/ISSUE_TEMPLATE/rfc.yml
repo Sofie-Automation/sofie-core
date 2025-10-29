@@ -10,7 +10,7 @@ body:
     attributes:
       value: |
         Before you post, be sure to read our Contribution guidelines:
-        https://sofie-automation.github.io/sofie-core//docs/for-developers/contribution-guidelines
+        https://sofie-automation.github.io/sofie-core/docs/for-developers/contribution-guidelines
 
   - type: textarea
     attributes:

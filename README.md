@@ -9,7 +9,7 @@ The _Core_ is a _Meteor/Node.JS_-based web server that serves the web GUIs as we
 ## General Sofie System Information
 
 - [_Sofie_ Documentation](https://sofie-automation.github.io/sofie-core/)
-- [_Sofie_ Releases](https://sofie-automation.github.io/sofie-core//releases)
+- [_Sofie_ Releases](https://sofie-automation.github.io/sofie-core/releases)
 - [Contribution Guidelines](CONTRIBUTING.md)
 - [License](LICENSE)
 
