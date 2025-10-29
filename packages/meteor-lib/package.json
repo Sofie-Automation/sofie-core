@@ -14,7 +14,7 @@
 	"bugs": {
 		"url": "https://github.com/nrkno/sofie-core/issues"
 	},
-	"homepage": "https://github.com/nrkno/sofie-core/blob/master/packages/corelib#readme",
+	"homepage": "https://github.com/nrkno/sofie-core/blob/main/packages/corelib#readme",
 	"scripts": {
 		"build": "run -T rimraf dist && run build:main",
 		"build:main": "run -T tsc -p tsconfig.build.json",

@@ -1,6 +1,6 @@
 # Manipulating Ingest Data
 
-In Sofie we receive the rundown from an NRCS in the form of the `IngestRundown`, `IngestSegment` and `IngestPart` types. ([Source Code](https://github.com/nrkno/sofie-core/blob/master/packages/shared-lib/src/peripheralDevice/ingest.ts))
+In Sofie we receive the rundown from an NRCS in the form of the `IngestRundown`, `IngestSegment` and `IngestPart` types. ([Source Code](https://github.com/Sofie-Automation/sofie-core/blob/master/packages/shared-lib/src/peripheralDevice/ingest.ts))
 These are passed into the `getRundown` or `getSegment` blueprints methods to transform them into a Rundown that Sofie can display and play.
 
 At times it can be useful to manipulate this data before it gets passed into these methods. This wants to be done before `getSegment` in order to limit the scope of the re-generation needed. We could have made it so that `getSegment` is able to view the whole `IngestRundown`, but that would mean that any change to the `IngestRundown` would require re-generating every segment. This would be costly and could have side effects.

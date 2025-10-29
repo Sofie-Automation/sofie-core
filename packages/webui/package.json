@@ -12,7 +12,7 @@
 	"bugs": {
 		"url": "https://github.com/nrkno/sofie-core/issues"
 	},
-	"homepage": "https://github.com/nrkno/sofie-core/blob/master/packages/webui#readme",
+	"homepage": "https://github.com/nrkno/sofie-core/blob/main/packages/webui#readme",
 	"scripts": {
 		"dev": "vite --port=3005",
 		"build": "tsc -b && vite build",
