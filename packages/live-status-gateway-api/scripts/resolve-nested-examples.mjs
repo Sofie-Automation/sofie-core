@@ -3,7 +3,7 @@ import path from 'path'
 import YAML from 'yaml'
 
 const ROOT_DIR = './api'
-const RESOLVED_DIST_DIR = './dist/api/'
+const RESOLVED_DIST_DIR = './temp/api/'
 
 /**
  * Ensures that a directory exists, creating it and all necessary parent directories

@@ -61,7 +61,7 @@ const generator = new TypeScriptGenerator({
 })
 
 const parser = new Parser()
-const asyncApiDoc = await fromFile(parser, 'dist/api/asyncapi.yaml').parse()
+const asyncApiDoc = await fromFile(parser, 'src/generated/asyncapi.yaml').parse()
 if (!asyncApiDoc.document) {
 	// Ignore the expected legacy version error
 	const filteredDiagnostics = asyncApiDoc.diagnostics.filter((d) => d.code !== 'asyncapi-latest-version')

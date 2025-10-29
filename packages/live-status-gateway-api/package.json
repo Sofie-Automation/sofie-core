@@ -29,8 +29,9 @@
 		"license-validate": "run -T sofie-licensecheck",
 		"gendocs": "yarn resolve-nested-examples && ag ./dist/api/asyncapi.yaml @asyncapi/html-template -o docs -p singleFile=true -p outFilename=liveStatus.html",
 		"genserver": "yarn resolve-nested-examples && ag ./dist/api/asyncapi.yaml @asyncapi/nodejs-ws-template -o server -p server=development",
-		"generate-schema-types": "node scripts/generate-schema-types.mjs",
-		"resolve-nested-examples": "node scripts/resolve-nested-examples.mjs"
+		"generate-schema-types": "yarn resolve-nested-examples && node scripts/generate-schema-types.mjs",
+		"resolve-nested-examples": "node scripts/resolve-nested-examples.mjs && yarn merge-schemas",
+		"merge-schemas": "node scripts/merge-schemas.mjs"
 	},
 	"engines": {
 		"node": ">=14.19"
