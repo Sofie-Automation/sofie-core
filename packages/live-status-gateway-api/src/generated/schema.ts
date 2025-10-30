@@ -767,6 +767,9 @@ interface BucketAdLibStatus {
 	additionalProperties?: Record<string, any>
 }
 
+/**
+ * Active notifications in Sofie
+ */
 interface NotificationsEvent {
 	event: 'notifications'
 	/**
@@ -792,7 +795,7 @@ interface NotificationObj {
 	 */
 	message: string
 	/**
-	 * Description of what the notification is related to
+	 * Describes what the notification is related to
 	 */
 	relatedTo:
 		| NotificationTargetRundown

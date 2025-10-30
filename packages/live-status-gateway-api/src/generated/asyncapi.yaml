@@ -18,7 +18,7 @@ servers:
     url: localhost
     description: Server available without authorization
     protocol: ws
-    protocolVersion: "13"
+    protocolVersion: '13'
 defaultContentType: application/json
 tags:
   - name: sofie
@@ -158,6 +158,7 @@ channels:
                             - activePieces
                             - segments
                             - adLibs
+                            - notifications
                             - buckets
                             - packages
                         status:
@@ -267,7 +268,7 @@ channels:
                       description: Unique id of the studio
                       oneOf:
                         - type: string
-                        - type: "null"
+                        - type: 'null'
                     name:
                       description: User-presentable name for the studio installation
                       type: string
@@ -348,12 +349,12 @@ channels:
                   description: Unique id of the active playlist
                   oneOf:
                     - type: string
-                    - type: "null"
+                    - type: 'null'
                 externalId:
                   description: Id normally sourced from the ingest system
                   oneOf:
                     - type: string
-                    - type: "null"
+                    - type: 'null'
                 name:
                   description: User-presentable name for the active playlist
                   type: string
@@ -503,7 +504,7 @@ channels:
                           id: H5CBGYjThrMSmaYvRaa5FVKJIzk_
                           name: Intro
                           autoNext: false
-                    - type: "null"
+                    - type: 'null'
                 currentSegment:
                   oneOf:
                     - type: object
@@ -539,8 +540,8 @@ channels:
                                       description: Budget duration of the segment (milliseconds)
                                       type: number
                                     countdownType:
-                                      description: "Countdown type within the segment. Default:
-                                        `part_expected_duration`"
+                                      description: 'Countdown type within the segment. Default:
+                                        `part_expected_duration`'
                                       type: string
                                       title: SegmentCountdownType
                                       enum:
@@ -609,11 +610,11 @@ channels:
                           parts:
                             - *a20
                           id: OKAgZmZ0Buc99lE_2uPPSKVbMrQ_
-                    - type: "null"
+                    - type: 'null'
                 nextPart:
                   oneOf:
                     - *a21
-                    - type: "null"
+                    - type: 'null'
                 publicData:
                   description: Optional arbitrary data
                 timing:
@@ -756,7 +757,7 @@ channels:
                   description: Unique id of the rundown playlist, or null if no playlist is active
                   oneOf:
                     - type: string
-                    - type: "null"
+                    - type: 'null'
                 activePieces:
                   description: Pieces that are currently active (on air)
                   type: array
@@ -793,7 +794,7 @@ channels:
               description: Unique id of the rundown playlist, or null if no playlist is active
               oneOf:
                 - type: string
-                - type: "null"
+                - type: 'null'
             segments:
               description: The segments that are in the currently active rundown playlist, in
                 order
@@ -873,7 +874,7 @@ channels:
                   oneOf:
                     - type: string
                       title: Unique id of the rundown playlist
-                    - type: "null"
+                    - type: 'null'
                       title: Null if no playlist is active
                 adLibs:
                   type: array
@@ -1050,7 +1051,7 @@ channels:
                   description: Unique id of the rundown playlist, or null if no playlist is active
                   oneOf:
                     - type: string
-                    - type: "null"
+                    - type: 'null'
                 packages:
                   description: The Package statuses for this playlist
                   type: array
@@ -1243,6 +1244,330 @@ channels:
                 - &a47
                   event: buckets
                   buckets:
-                    - *a46
+                    - id: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
+                      name: My Bucket
+                      adLibs:
+                        - id: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
+                          name: Music video clip
+                          sourceLayer: Video Clip
+                          actionType:
+                            - name: pvw
+                              label: Preview
+                          tags:
+                            - music_video
+                          publicData:
+                            fileName: MV000123.mxf
+                          optionsSchema: '{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Play
+                            Video
+                            Clip","type":"object","properties":{"type":"adlib_action_video_clip","label":{"type":"string"},"clipId":{"type":"string"},"vo":{"type":"boolean"},"target":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Object
+                            Id","description":"Id of an object sent to
+                            Sofie","type":"string"},"duration":{"type":"number","exclusiveMinimum":0},"takeType":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"AdLib
+                            Action Take
+                            Type","type":"string","enum":["take_immediate","queue"]},"transition":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"AdLib
+                            Action Transition
+                            Type","oneOf":[{"type":"object","properties":{"type":"cut"},"required":["type"],"additionalProperties":false},{"type":"object","properties":{"type":"mix","duration":{"type":"number","exclusiveMinimum":0,"description":"Duration
+                            in
+                            ms"}},"required":["type","duration"],"additionalProperties":false},{"type":"object","properties":{"type":"wipe","duration":{"type":"number","exclusiveMinimum":0,"description":"Duration
+                            in
+                            ms"},"patternId":{"type":"string","description":"Type
+                            of wipe to
+                            use"}},"required":["type","duration","patternId"],"additionalProperties":false},{"type":"object","properties":{"type":"macro","macroId":{"type":"string","description":"Macro
+                            template to
+                            recall"}},"required":["type","macroId"],"additionalProperties":false}]}},"required":["type","clipId","vo","target"],"additionalProperties":false}"'
+                          externalId: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
+            x-parser-message-name: buckets
+  notifications:
+    description: Notifications topic for websocket subscriptions.
+    subscribe:
+      operationId: receiveNotifications
+      description: Server sends notifications updates
+      message:
+        oneOf:
+          - messageId: notificationsUpdate
+            title: Active notifications in Sofie
+            payload: &a23
+              type: object
+              title: NotificationsEvent
+              description: Active notifications in Sofie
+              properties:
+                event:
+                  type: string
+                  const: notifications
+                  x-parser-schema-id: <anonymous-schema-173>
+                activeNotifications:
+                  description: Active notifications in Sofie
+                  type: array
+                  items:
+                    type: object
+                    title: NotificationObj
+                    description: This describes a notification that should be shown to a user. These
+                      can come from various sources, and are added and removed
+                      dynamically during system usage
+                    required:
+                      - _id
+                      - severity
+                      - message
+                      - relatedTo
+                      - created
+                    properties:
+                      _id:
+                        type: string
+                        description: Unique identifier for the notification
+                        x-parser-schema-id: <anonymous-schema-176>
+                      severity:
+                        type: string
+                        title: NotificationSeverity
+                        description: Severity level of the notification.
+                        enum:
+                          - warning
+                          - error
+                          - info
+                        x-parser-schema-id: <anonymous-schema-177>
+                      message:
+                        type: string
+                        description: The message of the notification
+                        x-parser-schema-id: <anonymous-schema-178>
+                      relatedTo:
+                        title: NotificationTarget
+                        description: Describes what the notification is related to
+                        oneOf:
+                          - type: object
+                            title: NotificationTargetRundown
+                            required:
+                              - type
+                              - studioId
+                              - rundownId
+                            properties:
+                              type: &a12
+                                type: string
+                                title: NotificationTargetType
+                                description: Possible NotificationTarget types
+                                enum:
+                                  - rundown
+                                  - playlist
+                                  - partInstance
+                                  - pieceInstance
+                                  - unknown
+                                x-parser-schema-id: <anonymous-schema-181>
+                              studioId:
+                                type: string
+                                x-parser-schema-id: <anonymous-schema-182>
+                              rundownId:
+                                type: string
+                                x-parser-schema-id: <anonymous-schema-183>
+                            additionalProperties: false
+                            examples:
+                              - type: rundown
+                                studioId: studio01
+                                rundownId: rd123
+                            x-parser-schema-id: <anonymous-schema-180>
+                          - type: object
+                            title: NotificationTargetRundownPlaylist
+                            required:
+                              - type
+                              - studioId
+                              - playlistId
+                            properties:
+                              type: *a12
+                              studioId:
+                                type: string
+                                x-parser-schema-id: <anonymous-schema-185>
+                              playlistId:
+                                type: string
+                                x-parser-schema-id: <anonymous-schema-186>
+                            additionalProperties: false
+                            examples:
+                              - type: playlist
+                                studioId: studio01
+                                playlistId: pl456
+                            x-parser-schema-id: <anonymous-schema-184>
+                          - type: object
+                            title: NotificationTargetPartInstance
+                            required:
+                              - type
+                              - studioId
+                              - rundownId
+                              - partInstanceId
+                            properties:
+                              type: *a12
+                              studioId:
+                                type: string
+                                x-parser-schema-id: <anonymous-schema-188>
+                              rundownId:
+                                type: string
+                                x-parser-schema-id: <anonymous-schema-189>
+                              partInstanceId:
+                                type: string
+                                x-parser-schema-id: <anonymous-schema-190>
+                            additionalProperties: false
+                            examples:
+                              - type: partInstance
+                                studioId: studio01
+                                rundownId: rd123
+                                partInstanceId: pi789
+                            x-parser-schema-id: <anonymous-schema-187>
+                          - type: object
+                            title: NotificationTargetPieceInstance
+                            required:
+                              - type
+                              - studioId
+                              - rundownId
+                              - partInstanceId
+                              - pieceInstanceId
+                            properties:
+                              type: *a12
+                              studioId:
+                                type: string
+                                x-parser-schema-id: <anonymous-schema-192>
+                              rundownId:
+                                type: string
+                                x-parser-schema-id: <anonymous-schema-193>
+                              partInstanceId:
+                                type: string
+                                x-parser-schema-id: <anonymous-schema-194>
+                              pieceInstanceId:
+                                type: string
+                                x-parser-schema-id: <anonymous-schema-195>
+                            additionalProperties: false
+                            examples:
+                              - type: pieceInstance
+                                studioId: studio01
+                                rundownId: rd123
+                                partInstanceId: pi789
+                                pieceInstanceId: pc1011
+                            x-parser-schema-id: <anonymous-schema-191>
+                          - type: object
+                            title: NotificationTargetUnknown
+                            required:
+                              - type
+                            properties:
+                              type: *a12
+                            additionalProperties: false
+                            examples:
+                              - type: unknown
+                            x-parser-schema-id: <anonymous-schema-196>
+                        examples:
+                          - type: rundown
+                            studioId: studio01
+                            rundownId: rd123
+                          - type: playlist
+                            studioId: studio01
+                            playlistId: pl456
+                          - type: partInstance
+                            studioId: studio01
+                            rundownId: rd123
+                            partInstanceId: pi789
+                          - type: pieceInstance
+                            studioId: studio01
+                            rundownId: rd123
+                            partInstanceId: pi789
+                            pieceInstanceId: pc1011
+                          - type: unknown
+                        x-parser-schema-id: <anonymous-schema-179>
+                      created:
+                        type: integer
+                        format: int64
+                        description: Unix timestamp of creation
+                        x-parser-schema-id: <anonymous-schema-197>
+                      modified:
+                        type: integer
+                        format: int64
+                        description: Unix timestamp of last modification
+                        x-parser-schema-id: <anonymous-schema-198>
+                    additionalProperties: false
+                    examples:
+                      - _id: notif123
+                        severity: error
+                        message: disk.space.low
+                        relatedTo:
+                          type: pieceInstance
+                          studioId: studio01
+                          rundownId: rd123
+                          partInstanceId: pi789
+                          pieceInstanceId: pc1011
+                        created: 1694784932
+                        modified: 1694784950
+                    x-parser-schema-id: <anonymous-schema-175>
+                  x-parser-schema-id: <anonymous-schema-174>
+              required:
+                - event
+                - activeNotifications
+              additionalProperties: false
+              examples:
+                - event: notifications
+                  activeNotifications:
+                    - _id: notif123
+                      severity: error
+                      message: disk.space.low
+                      relatedTo:
+                        type: pieceInstance
+                        studioId: studio01
+                        rundownId: rd123
+                        partInstanceId: pi789
+                        pieceInstanceId: pc1011
+                      created: 1694784932
+                      modified: 1694784950
+              x-parser-schema-id: <anonymous-schema-172>
             examples:
-              - payload: *a47
+              - payload:
+                  event: notifications
+                  activeNotifications:
+                    - _id: notif123
+                      severity: error
+                      message: disk.space.low
+                      relatedTo:
+                        type: pieceInstance
+                        studioId: studio01
+                        rundownId: rd123
+                        partInstanceId: pi789
+                        pieceInstanceId: pc1011
+                      created: 1694784932
+                      modified: 1694784950
+            x-parser-message-name: notificationsUpdate
+  /:
+    subscribe:
+      summary: Slash Messages
+      description: Messages that are received from the API - This channel is needed to
+        retain the generated Slash type from the old schema structure.
+        Eventually this should be removed.
+      operationId: sendRootMessage
+      message:
+        oneOf:
+          - messageId: pong-typeGen
+            payload: *a13
+            x-parser-message-name: pong-typeGen
+          - messageId: heartbeat-typeGen
+            payload: *a14
+            x-parser-message-name: heartbeat-typeGen
+          - messageId: subscriptionStatusSuccess-typeGen
+            payload: *a2
+            x-parser-message-name: subscriptionStatusSuccess-typeGen
+          - messageId: subscriptionStatusError-typeGen
+            payload: *a15
+            x-parser-message-name: subscriptionStatusError-typeGen
+          - messageId: studioUpdate-typeGen
+            payload: *a16
+            x-parser-message-name: studioUpdate-typeGen
+          - messageId: activePlaylist-typeGen
+            payload: *a17
+            x-parser-message-name: activePlaylist-typeGen
+          - messageId: activePieces-typeGen
+            payload: *a18
+            x-parser-message-name: activePieces-typeGen
+          - messageId: segments-typeGen
+            payload: *a19
+            x-parser-message-name: segments-typeGen
+          - messageId: adLibs-typeGen
+            payload: *a20
+            x-parser-message-name: adLibs-typeGen
+          - messageId: packages-typeGen
+            payload: *a21
+            x-parser-message-name: packages-typeGen
+          - messageId: buckets-typeGen
+            payload: *a22
+            x-parser-message-name: buckets-typeGen
+          - messageId: notifications-typeGen
+            payload: *a23
+            x-parser-message-name: notifications-typeGen
+x-parser-spec-parsed: true
+x-parser-api-version: 3
