@@ -9,5 +9,6 @@ $defs:
       - activePieces
       - segments
       - adLibs
+      - notifications
       - buckets
       - packages

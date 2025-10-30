@@ -47,6 +47,8 @@ channels:
     $ref: './topics/packages/packagesTopic.yaml'
   buckets:
     $ref: './topics/buckets/bucketsTopic.yaml'
+  notifications:
+    $ref: './topics/notifications/notificationsTopic.yaml'
 
   # Needed to retain the Slash type from the old schema structure. Eventually this should be removed.
   /:
@@ -89,3 +91,6 @@ channels:
           - messageId: buckets-typeGen
             payload:
               $ref: './components/buckets/messages/bucketsMessage.yaml#/components/messages/bucketsMessage/payload'
+          - messageId: notifications-typeGen
+            payload:
+              $ref: './components/notifications/messages/notificationsMessage.yaml#/components/messages/notificationsMessage/payload'

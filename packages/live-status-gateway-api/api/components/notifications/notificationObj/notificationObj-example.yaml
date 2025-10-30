@@ -1,0 +1,7 @@
+_id: 'notif123'
+severity: error
+message: 'disk.space.low'
+relatedTo:
+  $ref: '../target/pieceInstance/notificationTargetPieceInstance-example.yaml'
+created: 1694784932
+modified: 1694784950
