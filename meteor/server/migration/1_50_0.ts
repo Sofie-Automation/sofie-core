@@ -924,7 +924,7 @@ export const addSteps = addMigrationSteps('1.50.0', [
 				PartId
 			>()
 			for (const piece of pieces) {
-				partIdLookup.set(piece._id, piece.startPartId)
+				if (piece.startPartId) partIdLookup.set(piece._id, piece.startPartId)
 			}
 			for (const adlib of adlibPieces) {
 				if (adlib.partId) partIdLookup.set(adlib._id, adlib.partId)

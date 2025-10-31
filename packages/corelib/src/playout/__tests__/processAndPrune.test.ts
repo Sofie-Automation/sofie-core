@@ -5,6 +5,8 @@ import { PieceInstance, PieceInstancePiece, ResolvedPieceInstance } from '../../
 import { literal } from '../../lib.js'
 import { protectString } from '../../protectedString.js'
 import {
+	createPartCurrentTimes,
+	PartCurrentTimes,
 	PieceInstanceWithTimings,
 	processAndPrunePieceInstanceTimings,
 	resolvePrunedPieceInstance,
@@ -44,7 +46,7 @@ describe('processAndPrunePieceInstanceTimings', () => {
 		})
 	}
 
-	function runAndTidyResult(pieceInstances: PieceInstance[], nowInPart: number, includeVirtual?: boolean) {
+	function runAndTidyResult(pieceInstances: PieceInstance[], partTimes: PartCurrentTimes, includeVirtual?: boolean) {
 		const resolvedInstances = processAndPrunePieceInstanceTimings(
 			{
 				one: {
@@ -61,7 +63,7 @@ describe('processAndPrunePieceInstanceTimings', () => {
 				},
 			},
 			pieceInstances,
-			nowInPart,
+			partTimes,
 			undefined,
 			includeVirtual
 		)
@@ -79,7 +81,7 @@ describe('processAndPrunePieceInstanceTimings', () => {
 			createPieceInstance('two', { start: 1000 }, 'two', PieceLifespan.OutOnRundownEnd),
 		]
 
-		const resolvedInstances = runAndTidyResult(pieceInstances, 500)
+		const resolvedInstances = runAndTidyResult(pieceInstances, createPartCurrentTimes(500, 0))
 		expect(resolvedInstances).toEqual([
 			{
 				_id: 'one',
@@ -101,7 +103,7 @@ describe('processAndPrunePieceInstanceTimings', () => {
 			createPieceInstance('two', { start: 1000, duration: 5000 }, 'one', PieceLifespan.OutOnRundownEnd),
 		]
 
-		const resolvedInstances = runAndTidyResult(pieceInstances, 500)
+		const resolvedInstances = runAndTidyResult(pieceInstances, createPartCurrentTimes(500, 0))
 		expect(resolvedInstances).toEqual([
 			{
 				_id: 'one',
@@ -127,7 +129,7 @@ describe('processAndPrunePieceInstanceTimings', () => {
 			createPieceInstance('five', { start: 4000 }, 'one', PieceLifespan.OutOnShowStyleEnd),
 		]
 
-		const resolvedInstances = runAndTidyResult(pieceInstances, 500)
+		const resolvedInstances = runAndTidyResult(pieceInstances, createPartCurrentTimes(500, 0))
 		expect(resolvedInstances).toEqual([
 			{
 				_id: 'zero',
@@ -177,7 +179,7 @@ describe('processAndPrunePieceInstanceTimings', () => {
 			createPieceInstance('zero', { start: 6000 }, 'one', PieceLifespan.OutOnShowStyleEnd, true),
 		]
 
-		const resolvedInstances = runAndTidyResult(pieceInstances, 500)
+		const resolvedInstances = runAndTidyResult(pieceInstances, createPartCurrentTimes(500, 0))
 		expect(resolvedInstances).toEqual([
 			{
 				_id: 'zero',
@@ -209,7 +211,7 @@ describe('processAndPrunePieceInstanceTimings', () => {
 			createPieceInstance('five', { start: 6000 }, 'one', PieceLifespan.OutOnShowStyleEnd, true),
 		]
 
-		const resolvedInstances = runAndTidyResult(pieceInstances, 500, true)
+		const resolvedInstances = runAndTidyResult(pieceInstances, createPartCurrentTimes(500, 0), true)
 		expect(resolvedInstances).toEqual([
 			{
 				_id: 'zero',
@@ -259,7 +261,7 @@ describe('processAndPrunePieceInstanceTimings', () => {
 			createPieceInstance('five', { start: 6000 }, 'one', PieceLifespan.OutOnShowStyleEnd),
 		]
 
-		const resolvedInstances = runAndTidyResult(pieceInstances, 500)
+		const resolvedInstances = runAndTidyResult(pieceInstances, createPartCurrentTimes(500, 0))
 		expect(resolvedInstances).toEqual([
 			{
 				_id: 'zero',
@@ -305,7 +307,7 @@ describe('processAndPrunePieceInstanceTimings', () => {
 			createPieceInstance('two', { start: 1000 }, 'one', PieceLifespan.OutOnSegmentEnd, 5500),
 		]
 
-		const resolvedInstances = runAndTidyResult(pieceInstances, 500)
+		const resolvedInstances = runAndTidyResult(pieceInstances, createPartCurrentTimes(500, 0))
 		expect(resolvedInstances).toEqual([
 			{
 				_id: 'one',
@@ -323,7 +325,7 @@ describe('processAndPrunePieceInstanceTimings', () => {
 			createPieceInstance('four', { start: 1000 }, 'one', PieceLifespan.OutOnRundownChange, 4000),
 		]
 
-		const resolvedInstances = runAndTidyResult(pieceInstances, 500)
+		const resolvedInstances = runAndTidyResult(pieceInstances, createPartCurrentTimes(500, 0))
 		expect(resolvedInstances).toEqual([
 			{
 				_id: 'three',
@@ -339,7 +341,7 @@ describe('processAndPrunePieceInstanceTimings', () => {
 			createPieceInstance('two', { start: 1000 }, 'one', PieceLifespan.OutOnShowStyleEnd, 5500),
 		]
 
-		const resolvedInstances = runAndTidyResult(pieceInstances, 500)
+		const resolvedInstances = runAndTidyResult(pieceInstances, createPartCurrentTimes(500, 0))
 		expect(resolvedInstances).toEqual([
 			{
 				_id: 'one',
@@ -366,7 +368,7 @@ describe('processAndPrunePieceInstanceTimings', () => {
 			}),
 		]
 
-		const resolvedInstances = runAndTidyResult(pieceInstances, 500)
+		const resolvedInstances = runAndTidyResult(pieceInstances, createPartCurrentTimes(500, 0))
 		expect(resolvedInstances).toEqual([
 			{
 				_id: 'one',
@@ -399,7 +401,7 @@ describe('processAndPrunePieceInstanceTimings', () => {
 			}),
 		]
 
-		const resolvedInstances = runAndTidyResult(pieceInstances, 500)
+		const resolvedInstances = runAndTidyResult(pieceInstances, createPartCurrentTimes(500, 0))
 		expect(resolvedInstances).toEqual([
 			{
 				_id: 'two',
@@ -427,7 +429,7 @@ describe('processAndPrunePieceInstanceTimings', () => {
 
 		pieceInstances[1].piece.virtual = true
 
-		const resolvedInstances = runAndTidyResult(pieceInstances, 500)
+		const resolvedInstances = runAndTidyResult(pieceInstances, createPartCurrentTimes(500, 0))
 
 		// don't expect virtual Pieces in the results, but 'one' should be pruned too
 		expect(resolvedInstances).toEqual([])
@@ -457,7 +459,7 @@ describe('processAndPrunePieceInstanceTimings', () => {
 		pieceInstances[0].piece.prerollDuration = 200
 		pieceInstances[1].piece.prerollDuration = 200
 
-		const resolvedInstances = runAndTidyResult(pieceInstances, 500)
+		const resolvedInstances = runAndTidyResult(pieceInstances, createPartCurrentTimes(500, 0))
 
 		expect(resolvedInstances).toEqual([
 			{
@@ -467,6 +469,100 @@ describe('processAndPrunePieceInstanceTimings', () => {
 				start: 0,
 			},
 		])
+	})
+
+	describe('absolute timed (rundown owned) pieces', () => {
+		test('simple collision', () => {
+			const now = 9000
+			const partStart = 8000
+
+			const pieceInstances = [
+				createPieceInstance('one', { start: 0 }, 'one', PieceLifespan.OutOnRundownChange),
+				createPieceInstance(
+					'two',
+					{ start: now + 2000, isAbsolute: true },
+					'one',
+					PieceLifespan.OutOnRundownChange
+				),
+				createPieceInstance('three', { start: 6000 }, 'one', PieceLifespan.OutOnRundownChange),
+			]
+
+			const resolvedInstances = runAndTidyResult(pieceInstances, createPartCurrentTimes(now, partStart))
+			expect(resolvedInstances).toEqual([
+				{
+					_id: 'one',
+					priority: 5,
+					start: 0,
+					end: 3000,
+				},
+				{
+					_id: 'two',
+					priority: 5,
+					start: partStart + 3000,
+					end: partStart + 6000,
+				},
+				{
+					_id: 'three',
+					priority: 5,
+					start: 6000,
+					end: undefined,
+				},
+			])
+		})
+
+		test('collision with same start time', () => {
+			const now = 9000
+			const partStart = 8000
+
+			const pieceInstances = [
+				createPieceInstance('one', { start: 0 }, 'one', PieceLifespan.OutOnRundownChange),
+				createPieceInstance(
+					'two',
+					{ start: partStart + 2000, isAbsolute: true },
+					'one',
+					PieceLifespan.OutOnRundownChange
+				),
+				createPieceInstance('three', { start: 2000 }, 'one', PieceLifespan.OutOnRundownChange),
+			]
+
+			const resolvedInstances = runAndTidyResult(pieceInstances, createPartCurrentTimes(now, partStart))
+			expect(resolvedInstances).toEqual([
+				{
+					_id: 'one',
+					priority: 5,
+					start: 0,
+					end: 2000,
+				},
+				{
+					_id: 'two',
+					priority: 5,
+					start: partStart + 2000,
+					end: undefined,
+				},
+			])
+
+			{
+				// check stability
+				pieceInstances[1].piece.enable = { start: 2000 }
+				pieceInstances[2].piece.enable = { start: partStart + 2000, isAbsolute: true }
+
+				const resolvedInstances = runAndTidyResult(pieceInstances, createPartCurrentTimes(now, partStart))
+				expect(resolvedInstances).toEqual([
+					{
+						_id: 'one',
+						priority: 5,
+						start: 0,
+						end: 2000,
+					},
+					{
+						_id: 'three',
+						priority: 5,
+						start: partStart + 2000,
+						end: undefined,
+					},
+				])
+			}
+		})
 	})
 })
 
@@ -503,10 +599,10 @@ describe('resolvePrunedPieceInstances', () => {
 	}
 
 	test('numeric start, no duration', async () => {
-		const nowInPart = 123
+		const partTimes = createPartCurrentTimes(123, 0)
 		const piece = createPieceInstance({ start: 2000 })
 
-		expect(resolvePrunedPieceInstance(nowInPart, clone(piece))).toStrictEqual({
+		expect(resolvePrunedPieceInstance(partTimes, clone(piece))).toStrictEqual({
 			instance: clone(piece),
 			timelinePriority: piece.priority,
 			resolvedStart: 2000,
@@ -515,10 +611,10 @@ describe('resolvePrunedPieceInstances', () => {
 	})
 
 	test('numeric start, with planned duration', async () => {
-		const nowInPart = 123
+		const partTimes = createPartCurrentTimes(123, 0)
 		const piece = createPieceInstance({ start: 2000, duration: 3400 })
 
-		expect(resolvePrunedPieceInstance(nowInPart, clone(piece))).toStrictEqual({
+		expect(resolvePrunedPieceInstance(partTimes, clone(piece))).toStrictEqual({
 			instance: clone(piece),
 			timelinePriority: piece.priority,
 			resolvedStart: 2000,
@@ -527,127 +623,127 @@ describe('resolvePrunedPieceInstances', () => {
 	})
 
 	test('now start, no duration', async () => {
-		const nowInPart = 123
+		const partTimes = createPartCurrentTimes(123, 0)
 		const piece = createPieceInstance({ start: 'now' })
 
-		expect(resolvePrunedPieceInstance(nowInPart, clone(piece))).toStrictEqual({
+		expect(resolvePrunedPieceInstance(partTimes, clone(piece))).toStrictEqual({
 			instance: clone(piece),
 			timelinePriority: piece.priority,
-			resolvedStart: nowInPart,
+			resolvedStart: partTimes.nowInPart,
 			resolvedDuration: undefined,
 		} satisfies ResolvedPieceInstance)
 	})
 
 	test('now start, with planned duration', async () => {
-		const nowInPart = 123
+		const partTimes = createPartCurrentTimes(123, 0)
 		const piece = createPieceInstance({ start: 'now', duration: 3400 })
 
-		expect(resolvePrunedPieceInstance(nowInPart, clone(piece))).toStrictEqual({
+		expect(resolvePrunedPieceInstance(partTimes, clone(piece))).toStrictEqual({
 			instance: clone(piece),
 			timelinePriority: piece.priority,
-			resolvedStart: nowInPart,
+			resolvedStart: partTimes.nowInPart,
 			resolvedDuration: 3400,
 		} satisfies ResolvedPieceInstance)
 	})
 
 	test('now start, with end cap', async () => {
-		const nowInPart = 123
+		const partTimes = createPartCurrentTimes(123, 0)
 		const piece = createPieceInstance({ start: 'now' }, 5000)
 
-		expect(resolvePrunedPieceInstance(nowInPart, clone(piece))).toStrictEqual({
+		expect(resolvePrunedPieceInstance(partTimes, clone(piece))).toStrictEqual({
 			instance: clone(piece),
 			timelinePriority: piece.priority,
-			resolvedStart: nowInPart,
-			resolvedDuration: 5000 - nowInPart,
+			resolvedStart: partTimes.nowInPart,
+			resolvedDuration: 5000 - partTimes.nowInPart,
 		} satisfies ResolvedPieceInstance)
 	})
 
 	test('now start, with end cap and longer planned duration', async () => {
-		const nowInPart = 123
+		const partTimes = createPartCurrentTimes(123, 0)
 		const piece = createPieceInstance({ start: 'now', duration: 6000 }, 5000)
 
-		expect(resolvePrunedPieceInstance(nowInPart, clone(piece))).toStrictEqual({
+		expect(resolvePrunedPieceInstance(partTimes, clone(piece))).toStrictEqual({
 			instance: clone(piece),
 			timelinePriority: piece.priority,
-			resolvedStart: nowInPart,
-			resolvedDuration: 5000 - nowInPart,
+			resolvedStart: partTimes.nowInPart,
+			resolvedDuration: 5000 - partTimes.nowInPart,
 		} satisfies ResolvedPieceInstance)
 	})
 
 	test('now start, with end cap and shorter planned duration', async () => {
-		const nowInPart = 123
+		const partTimes = createPartCurrentTimes(123, 0)
 		const piece = createPieceInstance({ start: 'now', duration: 3000 }, 5000)
 
-		expect(resolvePrunedPieceInstance(nowInPart, clone(piece))).toStrictEqual({
+		expect(resolvePrunedPieceInstance(partTimes, clone(piece))).toStrictEqual({
 			instance: clone(piece),
 			timelinePriority: piece.priority,
-			resolvedStart: nowInPart,
+			resolvedStart: partTimes.nowInPart,
 			resolvedDuration: 3000,
 		} satisfies ResolvedPieceInstance)
 	})
 
 	test('now start, with userDuration.endRelativeToPart', async () => {
-		const nowInPart = 123
+		const partTimes = createPartCurrentTimes(123, 0)
 		const piece = createPieceInstance({ start: 'now' }, undefined, {
 			endRelativeToPart: 4000,
 		})
 
-		expect(resolvePrunedPieceInstance(nowInPart, clone(piece))).toStrictEqual({
+		expect(resolvePrunedPieceInstance(partTimes, clone(piece))).toStrictEqual({
 			instance: clone(piece),
 			timelinePriority: piece.priority,
-			resolvedStart: nowInPart,
-			resolvedDuration: 4000 - nowInPart,
+			resolvedStart: partTimes.nowInPart,
+			resolvedDuration: 4000 - partTimes.nowInPart,
 		} satisfies ResolvedPieceInstance)
 	})
 
 	test('numeric start, with userDuration.endRelativeToNow', async () => {
-		const nowInPart = 123
+		const partTimes = createPartCurrentTimes(123, 0)
 		const piece = createPieceInstance({ start: 500 }, undefined, {
 			endRelativeToNow: 4000,
 		})
 
-		expect(resolvePrunedPieceInstance(nowInPart, clone(piece))).toStrictEqual({
+		expect(resolvePrunedPieceInstance(partTimes, clone(piece))).toStrictEqual({
 			instance: clone(piece),
 			timelinePriority: piece.priority,
 			resolvedStart: 500,
-			resolvedDuration: 4000 - 500 + nowInPart,
+			resolvedDuration: 4000 - 500 + partTimes.nowInPart,
 		} satisfies ResolvedPieceInstance)
 	})
 
 	test('now start, with userDuration.endRelativeToNow', async () => {
-		const nowInPart = 123
+		const partTimes = createPartCurrentTimes(123, 0)
 		const piece = createPieceInstance({ start: 'now' }, undefined, {
 			endRelativeToNow: 4000,
 		})
 
-		expect(resolvePrunedPieceInstance(nowInPart, clone(piece))).toStrictEqual({
+		expect(resolvePrunedPieceInstance(partTimes, clone(piece))).toStrictEqual({
 			instance: clone(piece),
 			timelinePriority: piece.priority,
-			resolvedStart: nowInPart,
+			resolvedStart: partTimes.nowInPart,
 			resolvedDuration: 4000,
 		} satisfies ResolvedPieceInstance)
 	})
 
 	test('now start, with end cap, planned duration and userDuration.endRelativeToPart', async () => {
-		const nowInPart = 123
+		const partTimes = createPartCurrentTimes(123, 0)
 		const piece = createPieceInstance({ start: 'now', duration: 3000 }, 5000, { endRelativeToPart: 2800 })
 
-		expect(resolvePrunedPieceInstance(nowInPart, clone(piece))).toStrictEqual({
+		expect(resolvePrunedPieceInstance(partTimes, clone(piece))).toStrictEqual({
 			instance: clone(piece),
 			timelinePriority: piece.priority,
-			resolvedStart: nowInPart,
-			resolvedDuration: 2800 - nowInPart,
+			resolvedStart: partTimes.nowInPart,
+			resolvedDuration: 2800 - partTimes.nowInPart,
 		} satisfies ResolvedPieceInstance)
 	})
 
 	test('now start, with end cap, planned duration and userDuration.endRelativeToNow', async () => {
-		const nowInPart = 123
+		const partTimes = createPartCurrentTimes(123, 0)
 		const piece = createPieceInstance({ start: 'now', duration: 3000 }, 5000, { endRelativeToNow: 2800 })
 
-		expect(resolvePrunedPieceInstance(nowInPart, clone(piece))).toStrictEqual({
+		expect(resolvePrunedPieceInstance(partTimes, clone(piece))).toStrictEqual({
 			instance: clone(piece),
 			timelinePriority: piece.priority,
-			resolvedStart: nowInPart,
+			resolvedStart: partTimes.nowInPart,
 			resolvedDuration: 2800,
 		} satisfies ResolvedPieceInstance)
 	})

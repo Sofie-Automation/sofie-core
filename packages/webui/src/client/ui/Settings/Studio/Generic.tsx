@@ -420,6 +420,23 @@ function StudioSettings({ studio }: { studio: DBStudio }): JSX.Element {
 			>
 				{(value, handleUpdate) => <CheckboxControl value={!!value} handleUpdate={handleUpdate} />}
 			</LabelAndOverridesForCheckbox>
+
+			<LabelAndOverridesForInt
+				label={t('Rundown Global Piece Prepare Time')}
+				item={wrappedItem}
+				itemKey={'rundownGlobalPiecesPrepareTime'}
+				overrideHelper={overrideHelper}
+				hint={t('How much preparation time to add to global pieces on the timeline before they are played')}
+			>
+				{(value, handleUpdate) => (
+					<IntInputControl
+						modifiedClassName="bghl"
+						classNames="input text-input input-l"
+						value={value}
+						handleUpdate={handleUpdate}
+					/>
+				)}
+			</LabelAndOverridesForInt>
 		</>
 	)
 }

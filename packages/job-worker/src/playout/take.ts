@@ -22,7 +22,10 @@ import { WrappedShowStyleBlueprint } from '../blueprints/cache.js'
 import { innerStopPieces } from './adlibUtils.js'
 import { reportPartInstanceHasStarted, reportPartInstanceHasStopped } from './timings/partPlayback.js'
 import { convertPartInstanceToBlueprints, convertResolvedPieceInstanceToBlueprints } from '../blueprints/context/lib.js'
-import { processAndPrunePieceInstanceTimings } from '@sofie-automation/corelib/dist/playout/processAndPrune'
+import {
+	createPartCurrentTimes,
+	processAndPrunePieceInstanceTimings,
+} from '@sofie-automation/corelib/dist/playout/processAndPrune'
 import { TakeNextPartProps } from '@sofie-automation/corelib/dist/worker/studio'
 import { runJobWithPlayoutModel } from './lock.js'
 import _ from 'underscore'
@@ -541,10 +544,11 @@ export function updatePartInstanceOnTake(
 	}
 
 	// calculate and cache playout timing properties, so that we don't depend on the previousPartInstance:
+	const partTimes = createPartCurrentTimes(getCurrentTime(), null)
 	const tmpTakePieces = processAndPrunePieceInstanceTimings(
 		showStyle.sourceLayers,
 		takePartInstance.pieceInstances.map((p) => p.pieceInstance),
-		0
+		partTimes
 	)
 	const partPlayoutTimings = playoutModel.calculatePartTimings(currentPartInstance, takePartInstance, tmpTakePieces)
 

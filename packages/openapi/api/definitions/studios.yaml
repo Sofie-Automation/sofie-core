@@ -561,6 +561,9 @@ components:
         allowPieceDirectPlay:
           type: boolean
           description: Whether to allow direct playing of a piece in the rundown
+        rundownGlobalPiecesPrepareTime:
+          type: number
+          description: How long before their start time a rundown owned piece be added to the timeline
 
       required:
         - frameRate

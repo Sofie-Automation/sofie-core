@@ -275,9 +275,25 @@ function generateCurrentInfinitePieceObjects(
 		return []
 	}
 
-	const infiniteGroup = createPartGroup(currentPartInfo.partInstance, {
-		start: `#${timingContext.currentPartGroup.id}.start`, // This gets overriden with a concrete time if the original piece is known to have already started
-	})
+	const { infiniteGroupEnable, pieceEnable, nowInParent } = calculateInfinitePieceEnable(
+		currentPartInfo,
+		timingContext,
+		pieceInstance,
+		currentTime,
+		currentPartInstanceTimings
+	)
+
+	const { pieceInstanceWithUpdatedEndCap, cappedInfiniteGroupEnable } = applyInfinitePieceGroupEndCap(
+		currentPartInfo,
+		timingContext,
+		pieceInstance,
+		infiniteGroupEnable,
+		currentPartInstanceTimings,
+		nextPartInstanceTimings,
+		nextPartInfinites.get(pieceInstance.infinite.infiniteInstanceId)
+	)
+
+	const infiniteGroup = createPartGroup(currentPartInfo.partInstance, cappedInfiniteGroupEnable)
 	infiniteGroup.id = getInfinitePartGroupId(pieceInstance._id) // This doesnt want to belong to a part, so force the ids
 	infiniteGroup.priority = 1
 
@@ -285,87 +301,6 @@ function generateCurrentInfinitePieceObjects(
 	// If the previousPart also contains another segment of this infinite piece, then we label our new one as such
 	if (previousPartInfinites.get(pieceInstance.infinite.infiniteInstanceId)) {
 		groupClasses.push('continues_infinite')
-	}
-
-	const pieceEnable = getPieceEnableInsidePart(
-		pieceInstance,
-		currentPartInstanceTimings,
-		timingContext.currentPartGroup.id,
-		timingContext.currentPartGroup.enable.end !== undefined ||
-			timingContext.currentPartGroup.enable.duration !== undefined
-	)
-
-	let nowInParent = currentPartInfo.nowInPart // Where is 'now' inside of the infiniteGroup?
-	if (pieceInstance.plannedStartedPlayback !== undefined) {
-		// We have a absolute start time, so we should use that.
-		let infiniteGroupStart = pieceInstance.plannedStartedPlayback
-		nowInParent = currentTime - pieceInstance.plannedStartedPlayback
-
-		// infiniteGroupStart had an actual timestamp inside and pieceEnable.start being a number
-		// means that it expects an offset from it's parent
-		// The infiniteGroupStart is a timestamp of the actual start of the piece controlObj,
-		// which includes the value of `pieceEnable.start` so we need to offset by that value and avoid trimming
-		// the start of the piece group
-		if (typeof pieceEnable.start === 'number' && pieceEnable.start !== null) {
-			infiniteGroupStart -= pieceEnable.start
-		} else {
-			// We should never hit this, but in case pieceEnable.start is "now"
-			pieceEnable.start = 0
-		}
-
-		infiniteGroup.enable = { start: infiniteGroupStart }
-
-		// If an end time has been set by a hotkey, then update the duration to be correct
-		if (pieceInstance.userDuration && pieceInstance.piece.enable.start !== 'now') {
-			if ('endRelativeToPart' in pieceInstance.userDuration) {
-				infiniteGroup.enable.duration =
-					pieceInstance.userDuration.endRelativeToPart - pieceInstance.piece.enable.start
-			} else {
-				infiniteGroup.enable.end = 'now'
-			}
-		}
-	}
-
-	// If this infinite piece continues to the next part, and has a duration then we should respect that in case it is really close to the take
-	const hasDurationOrEnd = (enable: TSR.Timeline.TimelineEnable) =>
-		enable.duration !== undefined || enable.end !== undefined
-	const infiniteInNextPart = nextPartInfinites.get(pieceInstance.infinite.infiniteInstanceId)
-	if (
-		infiniteInNextPart &&
-		!hasDurationOrEnd(infiniteGroup.enable) &&
-		hasDurationOrEnd(infiniteInNextPart.piece.enable)
-	) {
-		// infiniteGroup.enable.end = infiniteInNextPart.piece.enable.end
-		infiniteGroup.enable.duration = infiniteInNextPart.piece.enable.duration
-	}
-
-	const pieceInstanceWithUpdatedEndCap: PieceInstanceWithTimings = { ...pieceInstance }
-	// Give the infinite group and end cap when the end of the piece is known
-	if (pieceInstance.resolvedEndCap) {
-		// If the cap is a number, it is relative to the part, not the parent group so needs to be handled here
-		if (typeof pieceInstance.resolvedEndCap === 'number') {
-			infiniteGroup.enable.end = `#${timingContext.currentPartGroup.id}.start + ${pieceInstance.resolvedEndCap}`
-			delete infiniteGroup.enable.duration
-			delete pieceInstanceWithUpdatedEndCap.resolvedEndCap
-		}
-	} else if (
-		// If this piece does not continue in the next part, then set it to end with the part it belongs to
-		!infiniteInNextPart &&
-		currentPartInfo.partInstance.part.autoNext &&
-		infiniteGroup.enable.duration === undefined &&
-		infiniteGroup.enable.end === undefined
-	) {
-		let endOffset = 0
-
-		if (currentPartInstanceTimings.fromPartPostroll) endOffset -= currentPartInstanceTimings.fromPartPostroll
-
-		if (pieceInstance.piece.postrollDuration) endOffset += pieceInstance.piece.postrollDuration
-
-		if (pieceInstance.piece.excludeDuringPartKeepalive && nextPartInstanceTimings)
-			endOffset -= nextPartInstanceTimings.fromPartKeepalive
-
-		// cap relative to the currentPartGroup
-		infiniteGroup.enable.end = `#${timingContext.currentPartGroup.id}.end + ${endOffset}`
 	}
 
 	// Still show objects flagged as 'HoldMode.EXCEPT' if this is a infinite continuation as they belong to the previous too
@@ -386,6 +321,135 @@ function generateCurrentInfinitePieceObjects(
 			isOriginOfInfinite
 		),
 	]
+}
+
+function calculateInfinitePieceEnable(
+	currentPartInfo: SelectedPartInstanceTimelineInfo,
+	timingContext: RundownTimelineTimingContext,
+	pieceInstance: ReadonlyDeep<PieceInstanceWithTimings>,
+	// infiniteGroup: TimelineObjGroupPart & OnGenerateTimelineObjExt,
+	currentTime: number,
+	currentPartInstanceTimings: PartCalculatedTimings
+) {
+	const pieceEnable = getPieceEnableInsidePart(
+		pieceInstance,
+		currentPartInstanceTimings,
+		timingContext.currentPartGroup.id,
+		timingContext.currentPartGroup.enable.end !== undefined ||
+			timingContext.currentPartGroup.enable.duration !== undefined
+	)
+
+	let infiniteGroupEnable: PartEnable = {
+		start: `#${timingContext.currentPartGroup.id}.start`, // This gets overriden with a concrete time if the original piece is known to have already started
+	}
+
+	let nowInParent = currentPartInfo.partTimes.nowInPart // Where is 'now' inside of the infiniteGroup?
+	if (pieceInstance.piece.enable.isAbsolute) {
+		// Piece is absolute, so we should use the absolute time. This is a special case for pieces belonging to the rundown directly.
+
+		const infiniteGroupStart = pieceInstance.plannedStartedPlayback ?? pieceInstance.piece.enable.start
+
+		if (typeof infiniteGroupStart === 'number') {
+			nowInParent = currentTime - infiniteGroupStart
+		} else {
+			// We should never hit this, but in case start is "now"
+			nowInParent = 0
+		}
+
+		infiniteGroupEnable = { start: infiniteGroupStart }
+		pieceEnable.start = 0
+
+		// Future: should this consider the prerollDuration?
+	} else if (pieceInstance.plannedStartedPlayback !== undefined) {
+		// We have a absolute start time, so we should use that.
+		let infiniteGroupStart = pieceInstance.plannedStartedPlayback
+		nowInParent = currentTime - pieceInstance.plannedStartedPlayback
+
+		// infiniteGroupStart had an actual timestamp inside and pieceEnable.start being a number
+		// means that it expects an offset from it's parent
+		// The infiniteGroupStart is a timestamp of the actual start of the piece controlObj,
+		// which includes the value of `pieceEnable.start` so we need to offset by that value and avoid trimming
+		// the start of the piece group
+		if (typeof pieceEnable.start === 'number' && pieceEnable.start !== null) {
+			infiniteGroupStart -= pieceEnable.start
+		} else {
+			// We should never hit this, but in case pieceEnable.start is "now"
+			pieceEnable.start = 0
+		}
+
+		infiniteGroupEnable = { start: infiniteGroupStart }
+
+		// If an end time has been set by a hotkey, then update the duration to be correct
+		if (pieceInstance.userDuration && pieceInstance.piece.enable.start !== 'now') {
+			if ('endRelativeToPart' in pieceInstance.userDuration) {
+				infiniteGroupEnable.duration =
+					pieceInstance.userDuration.endRelativeToPart - pieceInstance.piece.enable.start
+			} else {
+				infiniteGroupEnable.end = 'now'
+			}
+		}
+	}
+
+	return {
+		pieceEnable,
+		infiniteGroupEnable,
+		nowInParent,
+	}
+}
+
+function applyInfinitePieceGroupEndCap(
+	currentPartInfo: SelectedPartInstanceTimelineInfo,
+	timingContext: RundownTimelineTimingContext,
+	pieceInstance: ReadonlyDeep<PieceInstanceWithTimings>,
+	infiniteGroupEnable: Readonly<PartEnable>,
+	currentPartInstanceTimings: PartCalculatedTimings,
+	nextPartInstanceTimings: PartCalculatedTimings | null,
+	infiniteInNextPart: PieceInstanceWithTimings | undefined
+) {
+	const cappedInfiniteGroupEnable: PartEnable = { ...infiniteGroupEnable }
+
+	// If this infinite piece continues to the next part, and has a duration then we should respect that in case it is really close to the take
+	const hasDurationOrEnd = (enable: TSR.Timeline.TimelineEnable) =>
+		enable.duration !== undefined || enable.end !== undefined
+	if (
+		infiniteInNextPart &&
+		!hasDurationOrEnd(cappedInfiniteGroupEnable) &&
+		hasDurationOrEnd(infiniteInNextPart.piece.enable)
+	) {
+		// infiniteGroup.enable.end = infiniteInNextPart.piece.enable.end
+		cappedInfiniteGroupEnable.duration = infiniteInNextPart.piece.enable.duration
+	}
+
+	const pieceInstanceWithUpdatedEndCap: PieceInstanceWithTimings = { ...pieceInstance }
+	// Give the infinite group and end cap when the end of the piece is known
+	if (pieceInstance.resolvedEndCap) {
+		// If the cap is a number, it is relative to the part, not the parent group so needs to be handled here
+		if (typeof pieceInstance.resolvedEndCap === 'number') {
+			cappedInfiniteGroupEnable.end = `#${timingContext.currentPartGroup.id}.start + ${pieceInstance.resolvedEndCap}`
+			delete cappedInfiniteGroupEnable.duration
+			delete pieceInstanceWithUpdatedEndCap.resolvedEndCap
+		}
+	} else if (
+		// If this piece does not continue in the next part, then set it to end with the part it belongs to
+		!infiniteInNextPart &&
+		currentPartInfo.partInstance.part.autoNext &&
+		cappedInfiniteGroupEnable.duration === undefined &&
+		cappedInfiniteGroupEnable.end === undefined
+	) {
+		let endOffset = 0
+
+		if (currentPartInstanceTimings.fromPartPostroll) endOffset -= currentPartInstanceTimings.fromPartPostroll
+
+		if (pieceInstance.piece.postrollDuration) endOffset += pieceInstance.piece.postrollDuration
+
+		if (pieceInstance.piece.excludeDuringPartKeepalive && nextPartInstanceTimings)
+			endOffset -= nextPartInstanceTimings.fromPartKeepalive
+
+		// cap relative to the currentPartGroup
+		cappedInfiniteGroupEnable.end = `#${timingContext.currentPartGroup.id}.end + ${endOffset}`
+	}
+
+	return { pieceInstanceWithUpdatedEndCap, cappedInfiniteGroupEnable }
 }
 
 function generatePreviousPartInstanceObjects(

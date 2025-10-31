@@ -56,6 +56,9 @@ export function ClipTrimDialog({
 	const handleAccept = useCallback((e: SomeEvent) => {
 		onClose?.()
 
+		const startPartId = selectedPiece.startPartId
+		if (!startPartId) return
+
 		doUserAction(
 			t,
 			e,
@@ -65,7 +68,7 @@ export function ClipTrimDialog({
 					e,
 					ts,
 					playlistId,
-					selectedPiece.startPartId,
+					startPartId,
 					selectedPiece._id,
 					state.inPoint,
 					state.duration

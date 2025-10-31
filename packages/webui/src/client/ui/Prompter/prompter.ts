@@ -15,7 +15,10 @@ import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { RundownUtils } from '../../lib/rundown.js'
 import { RundownPlaylistClientUtil } from '../../lib/rundownPlaylistUtil.js'
 import { SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { processAndPrunePieceInstanceTimings } from '@sofie-automation/corelib/dist/playout/processAndPrune'
+import {
+	createPartCurrentTimes,
+	processAndPrunePieceInstanceTimings,
+} from '@sofie-automation/corelib/dist/playout/processAndPrune'
 import _ from 'underscore'
 import { FindOptions } from '../../collections/lib.js'
 import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil.js'
@@ -23,6 +26,7 @@ import { normalizeArrayToMap, protectString } from '../../lib/tempLib.js'
 import { PieceInstances, Pieces, RundownPlaylists, Segments } from '../../collections/index.js'
 import { getPieceInstancesForPartInstance } from '../../lib/RundownResolver.js'
 import { UIShowStyleBases } from '../Collections.js'
+import { getCurrentTime } from '../../lib/systemTime.js'
 
 // export interface NewPrompterAPI {
 // 	getPrompterData (playlistId: RundownPlaylistId): Promise<PrompterData>
@@ -149,7 +153,7 @@ export namespace PrompterAPI {
 		let previousRundown: Rundown | null = null
 		const rundownIds = rundowns.map((rundown) => rundown._id)
 
-		const allPiecesCache = new Map<PartId, Piece[]>()
+		const allPiecesCache = new Map<PartId | null, Piece[]>()
 		Pieces.find({
 			startRundownId: { $in: rundownIds },
 		}).forEach((piece) => {
@@ -243,10 +247,11 @@ export namespace PrompterAPI {
 
 				const sourceLayers = rundownIdsToShowStyleBase.get(partInstance.rundownId)
 				if (sourceLayers) {
+					const partTimes = createPartCurrentTimes(getCurrentTime(), null)
 					const preprocessedPieces = processAndPrunePieceInstanceTimings(
 						sourceLayers,
 						rawPieceInstances,
-						0,
+						partTimes,
 						true
 					)
 

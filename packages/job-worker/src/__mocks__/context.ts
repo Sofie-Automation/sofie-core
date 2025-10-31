@@ -356,6 +356,7 @@ const MockShowStyleBlueprint: () => ShowStyleBlueprintManifest = () => ({
 			rundown,
 			globalAdLibPieces: [],
 			globalActions: [],
+			globalPieces: [],
 			baseline: { timelineObjects: [] },
 		}
 	},

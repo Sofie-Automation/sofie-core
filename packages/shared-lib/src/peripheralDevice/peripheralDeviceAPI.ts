@@ -26,7 +26,6 @@ export type PiecePlaybackStoppedResult = PiecePlaybackStartedResult
 
 export interface TriggerRegenerationCallbackData {
 	rundownPlaylistId: RundownPlaylistId
-	// partInstanceId: PartInstanceId
 	regenerationToken: string
 }
 

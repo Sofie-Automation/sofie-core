@@ -4,12 +4,14 @@ import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceIns
 import { PieceInstanceFields, ContentCache } from './reactiveContentCacheForPieceInstances'
 import { SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import {
+	createPartCurrentTimes,
 	PieceInstanceWithTimings,
 	processAndPrunePieceInstanceTimings,
 } from '@sofie-automation/corelib/dist/playout/processAndPrune'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { IWrappedAdLib } from '@sofie-automation/meteor-lib/dist/triggers/actionFilterChainCompilers'
 import { areSetsEqual, doSetsIntersect } from '@sofie-automation/corelib/dist/lib'
+import { getCurrentTime } from '../../lib/lib'
 
 export class TagsService {
 	protected onAirPiecesTags: Set<string> = new Set()
@@ -130,12 +132,11 @@ export class TagsService {
 	): PieceInstanceWithTimings[] {
 		// Approximate when 'now' is in the PartInstance, so that any adlibbed Pieces will be timed roughly correctly
 		const partStarted = partInstanceTimings?.plannedStartedPlayback
-		const nowInPart = partStarted === undefined ? 0 : Date.now() - partStarted
 
 		return processAndPrunePieceInstanceTimings(
 			sourceLayers,
 			pieceInstances as PieceInstance[],
-			nowInPart,
+			createPartCurrentTimes(getCurrentTime(), partStarted),
 			false,
 			false
 		)

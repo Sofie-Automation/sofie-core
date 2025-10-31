@@ -68,6 +68,7 @@ export async function innerStartOrQueueAdLibPiece(
 		await syncPlayheadInfinitesForNextPartInstance(
 			context,
 			playoutModel,
+			undefined,
 			currentPartInstance,
 			playoutModel.nextPartInstance
 		)
@@ -310,13 +311,15 @@ export function innerStopPieces(
 
 				const pieceInstanceModel = playoutModel.findPieceInstance(pieceInstance._id)
 				if (pieceInstanceModel) {
-					const newDuration: Required<PieceInstance>['userDuration'] = playoutModel.isMultiGatewayMode
-						? {
-								endRelativeToNow: offsetRelativeToNow,
-							}
-						: {
-								endRelativeToPart: relativeStopAt,
-							}
+					const newDuration: Required<PieceInstance>['userDuration'] =
+						playoutModel.isMultiGatewayMode ||
+						pieceInstanceModel.pieceInstance.pieceInstance.piece.enable.isAbsolute
+							? {
+									endRelativeToNow: offsetRelativeToNow,
+								}
+							: {
+									endRelativeToPart: relativeStopAt,
+								}
 
 					pieceInstanceModel.pieceInstance.setDuration(newDuration)
 

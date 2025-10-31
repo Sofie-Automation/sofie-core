@@ -194,6 +194,7 @@ async function pieceTakeNowAsAdlib(
 	await syncPlayheadInfinitesForNextPartInstance(
 		context,
 		playoutModel,
+		undefined,
 		playoutModel.currentPartInstance,
 		playoutModel.nextPartInstance
 	)
@@ -373,6 +374,7 @@ export async function handleStopPiecesOnSourceLayers(
 				await syncPlayheadInfinitesForNextPartInstance(
 					context,
 					playoutModel,
+					undefined,
 					playoutModel.currentPartInstance,
 					playoutModel.nextPartInstance
 				)

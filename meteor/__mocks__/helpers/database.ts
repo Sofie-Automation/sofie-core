@@ -476,6 +476,7 @@ export async function setupMockShowStyleBlueprint(
 						rundown,
 						globalAdLibPieces: [],
 						globalActions: [],
+						globalPieces: [],
 						baseline: { timelineObjects: [] },
 					}
 				},

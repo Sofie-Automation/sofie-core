@@ -458,14 +458,14 @@ function usePieceItems(partIds: PartId[], partMeta: Map<PartId, PartMeta>) {
 	const pieceItems = useTracker(
 		() =>
 			pieces.map((piece) => {
-				const meta = partMeta.get(piece.startPartId)
+				const meta = piece.startPartId && partMeta.get(piece.startPartId)
 
 				if (!meta) return
 				return getListItemFromPieceAndPartMeta(
 					piece._id,
 					piece,
 					meta,
-					piece.startPartId,
+					piece.startPartId ?? undefined,
 					undefined,
 					meta.segmentId,
 					false

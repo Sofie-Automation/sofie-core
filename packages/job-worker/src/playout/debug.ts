@@ -25,6 +25,7 @@ export async function handleDebugSyncPlayheadInfinitesForNextPartInstance(
 		await syncPlayheadInfinitesForNextPartInstance(
 			context,
 			playoutModel,
+			undefined,
 			playoutModel.currentPartInstance,
 			playoutModel.nextPartInstance
 		)
