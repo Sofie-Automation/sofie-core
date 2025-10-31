@@ -295,32 +295,6 @@ describe('Resolved Pieces', () => {
 			] satisfies StrippedResult)
 		})
 
-		test('userDuration.endRelativeToNow', async () => {
-			const sourceLayerId = Object.keys(sourceLayers)[0]
-			expect(sourceLayerId).toBeTruthy()
-
-			const piece0 = createPieceInstance(
-				sourceLayerId,
-				{ start: 1000 },
-				{},
-				{
-					userDuration: {
-						endRelativeToNow: 2000,
-					},
-				}
-			)
-
-			const resolvedPieces = getResolvedPiecesInner(sourceLayers, 2500, [piece0])
-
-			expect(stripResult(resolvedPieces)).toEqual([
-				{
-					_id: piece0._id,
-					resolvedStart: 1000,
-					resolvedDuration: 3500,
-				},
-			] satisfies StrippedResult)
-		})
-
 		test('preroll has no effect', async () => {
 			const sourceLayerId = Object.keys(sourceLayers)[0]
 			expect(sourceLayerId).toBeTruthy()
@@ -645,41 +619,6 @@ describe('Resolved Pieces', () => {
 			] satisfies StrippedResult)
 		})
 
-		test('userDuration.endRelativeToNow', async () => {
-			const sourceLayerId = Object.keys(sourceLayers)[0]
-			expect(sourceLayerId).toBeTruthy()
-
-			const piece001 = createPieceInstance(
-				sourceLayerId,
-				{ start: 4000 },
-				{},
-				{
-					userDuration: {
-						endRelativeToNow: 1300,
-					},
-				}
-			)
-
-			const now = 990000
-			const nowInPart = 7000
-			const partStarted = now - nowInPart
-
-			const currentPartInfo = createPartInstanceInfo(partStarted, nowInPart, createPartInstance(), [piece001])
-
-			const simpleResolvedPieces = getResolvedPiecesForPartInstancesOnTimeline(
-				context,
-				{ current: currentPartInfo },
-				now
-			)
-			expect(stripResult(simpleResolvedPieces)).toEqual([
-				{
-					_id: piece001._id,
-					resolvedStart: partStarted + 4000,
-					resolvedDuration: -4000 + 7000 + 1300,
-				},
-			] satisfies StrippedResult)
-		})
-
 		test('basic previousPart', async () => {
 			const sourceLayerId = Object.keys(sourceLayers)[0]
 			expect(sourceLayerId).toBeTruthy()
@@ -809,7 +748,7 @@ describe('Resolved Pieces', () => {
 				},
 				{
 					userDuration: {
-						endRelativeToNow: 3400,
+						endRelativeToPart: 5400,
 					},
 				}
 			)

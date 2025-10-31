@@ -165,12 +165,6 @@ export function getUnfinishedPieceInstancesReactive(
 							typeof pieceInstance.userDuration.endRelativeToPart === 'number'
 						) {
 							end = pieceInstance.userDuration.endRelativeToPart
-						} else if (
-							pieceInstance.userDuration &&
-							'endRelativeToNow' in pieceInstance.userDuration &&
-							typeof pieceInstance.userDuration.endRelativeToNow === 'number'
-						) {
-							end = pieceInstance.userDuration.endRelativeToNow + now
 						} else if (typeof piece.enable.duration === 'number' && pieceInstance.plannedStartedPlayback) {
 							end = piece.enable.duration + pieceInstance.plannedStartedPlayback
 						}

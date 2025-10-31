@@ -600,34 +600,6 @@ describe('resolvePrunedPieceInstances', () => {
 		} satisfies ResolvedPieceInstance)
 	})
 
-	test('numeric start, with userDuration.endRelativeToNow', async () => {
-		const nowInPart = 123
-		const piece = createPieceInstance({ start: 500 }, undefined, {
-			endRelativeToNow: 4000,
-		})
-
-		expect(resolvePrunedPieceInstance(nowInPart, clone(piece))).toStrictEqual({
-			instance: clone(piece),
-			timelinePriority: piece.priority,
-			resolvedStart: 500,
-			resolvedDuration: 4000 - 500 + nowInPart,
-		} satisfies ResolvedPieceInstance)
-	})
-
-	test('now start, with userDuration.endRelativeToNow', async () => {
-		const nowInPart = 123
-		const piece = createPieceInstance({ start: 'now' }, undefined, {
-			endRelativeToNow: 4000,
-		})
-
-		expect(resolvePrunedPieceInstance(nowInPart, clone(piece))).toStrictEqual({
-			instance: clone(piece),
-			timelinePriority: piece.priority,
-			resolvedStart: nowInPart,
-			resolvedDuration: 4000,
-		} satisfies ResolvedPieceInstance)
-	})
-
 	test('now start, with end cap, planned duration and userDuration.endRelativeToPart', async () => {
 		const nowInPart = 123
 		const piece = createPieceInstance({ start: 'now', duration: 3000 }, 5000, { endRelativeToPart: 2800 })
@@ -637,18 +609,6 @@ describe('resolvePrunedPieceInstances', () => {
 			timelinePriority: piece.priority,
 			resolvedStart: nowInPart,
 			resolvedDuration: 2800 - nowInPart,
-		} satisfies ResolvedPieceInstance)
-	})
-
-	test('now start, with end cap, planned duration and userDuration.endRelativeToNow', async () => {
-		const nowInPart = 123
-		const piece = createPieceInstance({ start: 'now', duration: 3000 }, 5000, { endRelativeToNow: 2800 })
-
-		expect(resolvePrunedPieceInstance(nowInPart, clone(piece))).toStrictEqual({
-			instance: clone(piece),
-			timelinePriority: piece.priority,
-			resolvedStart: nowInPart,
-			resolvedDuration: 2800,
 		} satisfies ResolvedPieceInstance)
 	})
 })

@@ -61,15 +61,10 @@ export interface PieceInstance {
 	dynamicallyInserted?: Time
 
 	/** This is set when the duration needs to be overriden from some user action */
-	userDuration?:
-		| {
-				/** The time relative to the part (milliseconds since start of part) */
-				endRelativeToPart: number
-		  }
-		| {
-				/** The time relative to 'now' (ms since 'now') */
-				endRelativeToNow: number
-		  }
+	userDuration?: {
+		/** The time relative to the part (milliseconds since start of part) */
+		endRelativeToPart: number
+	}
 
 	/** The time the system started playback of this part, undefined if not yet played back (milliseconds since epoch) */
 	reportedStartedPlayback?: Time

@@ -153,7 +153,7 @@ export async function updateTimeline(context: JobContext, playoutModel: PlayoutM
 	preserveOrReplaceNowTimesInObjects(playoutModel, timelineObjs)
 
 	if (playoutModel.isMultiGatewayMode) {
-		deNowifyMultiGatewayTimeline(context, playoutModel, timelineObjs, timingInfo)
+		deNowifyMultiGatewayTimeline(playoutModel, timelineObjs, timingInfo)
 
 		logAnyRemainingNowTimes(context, timelineObjs)
 	}
@@ -317,11 +317,11 @@ async function getTimelineRundown(
 				)
 			}
 
-			const currentTime = getCurrentTime()
+			const targetNowTime = playoutModel.getNowInPlayout()
 			const partInstancesInfo: SelectedPartInstancesTimelineInfo = {
-				current: getPartInstanceTimelineInfo(currentTime, showStyle.sourceLayers, currentPartInstance),
-				next: getPartInstanceTimelineInfo(currentTime, showStyle.sourceLayers, nextPartInstance),
-				previous: getPartInstanceTimelineInfo(currentTime, showStyle.sourceLayers, previousPartInstance),
+				current: getPartInstanceTimelineInfo(targetNowTime, showStyle.sourceLayers, currentPartInstance),
+				next: getPartInstanceTimelineInfo(targetNowTime, showStyle.sourceLayers, nextPartInstance),
+				previous: getPartInstanceTimelineInfo(targetNowTime, showStyle.sourceLayers, previousPartInstance),
 			}
 
 			if (partInstancesInfo.next && nextPartInstance) {
@@ -361,7 +361,7 @@ async function getTimelineRundown(
 				const resolvedPieces = getResolvedPiecesForPartInstancesOnTimeline(
 					context,
 					partInstancesInfo,
-					getCurrentTime()
+					playoutModel.getNowInPlayout()
 				)
 				const blueprintContext = new OnTimelineGenerateContext(
 					context.studio,

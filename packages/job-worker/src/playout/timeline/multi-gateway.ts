@@ -1,17 +1,11 @@
 import { Time } from '@sofie-automation/blueprints-integration'
 import { PieceInstanceInfiniteId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { PeripheralDeviceType } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { TimelineObjRundown } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { normalizeArray } from '@sofie-automation/corelib/dist/lib'
 import { PieceTimelineMetadata } from './pieceGroup.js'
-import { StudioPlayoutModelBase } from '../../studio/model/StudioPlayoutModel.js'
 import { logger } from '../../logging.js'
-import { JobContext } from '../../jobs/index.js'
-import { getCurrentTime } from '../../lib/index.js'
 import { PlayoutModel } from '../model/PlayoutModel.js'
 import { RundownTimelineTimingContext, getInfinitePartGroupId } from './rundown.js'
-import { getExpectedLatency } from '@sofie-automation/corelib/dist/studio/playout'
-import { getPieceControlObjectId } from '@sofie-automation/corelib/dist/playout/ids'
 import { PlayoutPartInstanceModel } from '../model/PlayoutPartInstanceModel.js'
 import { PlayoutPieceInstanceModel } from '../model/PlayoutPieceInstanceModel.js'
 
@@ -23,7 +17,6 @@ import { PlayoutPieceInstanceModel } from '../model/PlayoutPieceInstanceModel.js
  * This does introduce a risk of error when changes are made to how we generate the timeline, but that risk should be small.
  */
 export function deNowifyMultiGatewayTimeline(
-	context: JobContext,
 	playoutModel: PlayoutModel,
 	timelineObjs: TimelineObjRundown[],
 	timingContext: RundownTimelineTimingContext | undefined
@@ -32,8 +25,9 @@ export function deNowifyMultiGatewayTimeline(
 
 	const timelineObjsMap = normalizeArray(timelineObjs, 'id')
 
-	const nowOffsetLatency = calculateNowOffsetLatency(context, playoutModel)
-	const targetNowTime = getCurrentTime() + (nowOffsetLatency ?? 0)
+	const targetNowTime = playoutModel.getNowInPlayout()
+
+	logger.info(`deNowifyMultiGatewayTimeline: ${targetNowTime}`)
 
 	// Replace `start: 'now'` in currentPartInstance on timeline
 	const currentPartInstance = playoutModel.currentPartInstance
@@ -65,30 +59,6 @@ export function deNowifyMultiGatewayTimeline(
 			logger.error(`deNowifyMultiGatewayTimeline: "${obj.id}" still set to 'now'`)
 		}
 	}
-}
-
-/**
- * Calculate an offset to apply to the 'now' value, to compensate for delay in playout-gateway
- * The intention is that any concrete value used instead of 'now' should still be just in the future for playout-gateway
- */
-export function calculateNowOffsetLatency(
-	context: JobContext,
-	studioPlayoutModel: StudioPlayoutModelBase
-): Time | undefined {
-	/** The timestamp that "now" was set to */
-	let nowOffsetLatency: Time | undefined
-
-	if (studioPlayoutModel.isMultiGatewayMode) {
-		const playoutDevices = studioPlayoutModel.peripheralDevices.filter(
-			(device) => device.type === PeripheralDeviceType.PLAYOUT
-		)
-		const worstLatency = Math.max(0, ...playoutDevices.map((device) => getExpectedLatency(device).safe))
-		/** Add a little more latency, to account for network latency variability */
-		const ADD_SAFE_LATENCY = context.studio.settings.multiGatewayNowSafeLatency || 30
-		nowOffsetLatency = worstLatency + ADD_SAFE_LATENCY
-	}
-
-	return nowOffsetLatency
 }
 
 interface PartGroupTimings {
@@ -260,29 +230,6 @@ function deNowifyCurrentPieces(
 		}
 	}
 
-	// Ensure any pieces with an unconfirmed userDuration is confirmed
-	for (const pieceInstance of currentPartInstance.pieceInstances) {
-		if (
-			pieceInstance.pieceInstance.userDuration &&
-			'endRelativeToNow' in pieceInstance.pieceInstance.userDuration
-		) {
-			const relativeToNow = pieceInstance.pieceInstance.userDuration.endRelativeToNow
-			const endRelativeToPart = relativeToNow + nowInPart
-			pieceInstance.setDuration({ endRelativeToPart })
-
-			// Update the piece control obj
-			const controlObj = timelineObjsMap[getPieceControlObjectId(pieceInstance.pieceInstance)]
-			if (controlObj && !Array.isArray(controlObj.enable) && controlObj.enable.end === 'now') {
-				controlObj.enable.end = endRelativeToPart
-			}
-
-			// If the piece is an infinite, there may be a now in the parent group
-			const infiniteGroup = timelineObjsMap[getInfinitePartGroupId(pieceInstance.pieceInstance._id)]
-			if (infiniteGroup && !Array.isArray(infiniteGroup.enable) && infiniteGroup.enable.end === 'now') {
-				infiniteGroup.enable.end = targetNowTime + relativeToNow
-			}
-		}
-	}
 	return { objectsNotDeNowified }
 }
 

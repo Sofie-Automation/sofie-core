@@ -21,7 +21,6 @@ import { PieceLifespan } from '@sofie-automation/blueprints-integration'
 import { SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { updatePartInstanceRanksAfterAdlib } from '../updatePartInstanceRanksAndOrphanedState.js'
 import { setNextPart } from './setNext.js'
-import { calculateNowOffsetLatency } from './timeline/multi-gateway.js'
 import { logger } from '../logging.js'
 import { ReadonlyDeep } from 'type-fest'
 import { PlayoutRundownModel } from './model/PlayoutRundownModel.js'
@@ -279,8 +278,7 @@ export function innerStopPieces(
 	}
 
 	const resolvedPieces = getResolvedPiecesForCurrentPartInstance(context, sourceLayers, currentPartInstance)
-	const offsetRelativeToNow = (timeOffset || 0) + (calculateNowOffsetLatency(context, playoutModel) || 0)
-	const stopAt = getCurrentTime() + offsetRelativeToNow
+	const stopAt = playoutModel.getNowInPlayout() + (timeOffset ?? 0)
 	const relativeStopAt = stopAt - lastStartedPlayback
 
 	for (const resolvedPieceInstance of resolvedPieces) {
@@ -310,15 +308,9 @@ export function innerStopPieces(
 
 				const pieceInstanceModel = playoutModel.findPieceInstance(pieceInstance._id)
 				if (pieceInstanceModel) {
-					const newDuration: Required<PieceInstance>['userDuration'] = playoutModel.isMultiGatewayMode
-						? {
-								endRelativeToNow: offsetRelativeToNow,
-							}
-						: {
-								endRelativeToPart: relativeStopAt,
-							}
-
-					pieceInstanceModel.pieceInstance.setDuration(newDuration)
+					pieceInstanceModel.pieceInstance.setDuration({
+						endRelativeToPart: relativeStopAt,
+					})
 
 					stoppedInstances.push(pieceInstance._id)
 				} else {
