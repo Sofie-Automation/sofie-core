@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { MouseEventHandler, useCallback, useContext, useState } from 'react'
 import _ from 'underscore'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { literal, protectString, unprotectString } from '../../../lib/tempLib.js'
@@ -11,6 +11,7 @@ import { SourceLayerItemContainer } from '../SourceLayerItemContainer.js'
 import { contextMenuHoldToDisplayTime } from '../../../lib/lib.js'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { PieceInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { dragContext } from '../../RundownView/DragContext.js'
 
 export interface ISourceLayerPropsBase {
 	key: string
@@ -90,6 +91,19 @@ export function useMouseContext(props: ISourceLayerPropsBase): {
 
 export function SourceLayer(props: Readonly<ISourceLayerProps>): JSX.Element {
 	const { getPartContext, onMouseDown } = useMouseContext(props)
+	const dragCtx = useContext(dragContext)
+
+	const pieces =
+		dragCtx?.piece && dragCtx.piece.sourceLayer?._id === props.layer._id
+			? (props.layer.pieces ?? []).filter((p) => p.instance._id !== dragCtx.piece?.instance._id).concat(dragCtx.piece)
+			: props.layer.pieces
+
+	const onMouseEnter: MouseEventHandler<HTMLElement> = (e) => {
+		if (!dragCtx) return
+
+		const pos = (e.target as HTMLDivElement).getBoundingClientRect() // ugly cast here because the event handler doesn't cast for us
+		dragCtx.setHoveredPart(props.part.instance._id, props.segment._id, { x: pos.x, y: pos.y })
+	}
 
 	return (
 		<ContextMenuTrigger
@@ -99,6 +113,7 @@ export function SourceLayer(props: Readonly<ISourceLayerProps>): JSX.Element {
 				//@ts-expect-error A Data attribute is perfectly fine
 				'data-layer-id': props.layer._id,
 				onMouseDownCapture: (e) => onMouseDown(e),
+				onMouseEnter,
 				role: 'log',
 				'aria-live': 'assertive',
 				'aria-label': props.layer.name,
@@ -106,9 +121,9 @@ export function SourceLayer(props: Readonly<ISourceLayerProps>): JSX.Element {
 			holdToDisplay={contextMenuHoldToDisplayTime()}
 			collect={getPartContext}
 		>
-			{props.layer.pieces !== undefined
+			{pieces !== undefined
 				? _.chain(
-						props.layer.pieces.filter((piece) => {
+						pieces.filter((piece) => {
 							// filter only pieces belonging to this part
 							return piece.instance.partInstanceId === props.part.instance._id
 								? // filter only pieces, that have not been hidden from the UI

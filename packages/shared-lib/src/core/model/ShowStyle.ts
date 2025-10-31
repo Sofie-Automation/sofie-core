@@ -107,6 +107,7 @@ export enum ClientActions {
 	'rewindSegments' = 'rewindSegments',
 	'showEntireCurrentSegment' = 'showEntireCurrentSegment',
 	'miniShelfQueueAdLib' = 'miniShelfQueueAdLib',
+	'editMode' = 'editMode',
 }
 
 export enum DeviceActions {
