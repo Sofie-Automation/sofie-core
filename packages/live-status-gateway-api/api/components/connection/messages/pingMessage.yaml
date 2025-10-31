@@ -1,0 +1,12 @@
+components:
+  messages:
+    pingMessage:
+      name: ping
+      messageId: ping
+      summary: Ping server to determine whether connection is alive
+      description: Client can ping server to determine whether connection is alive, server responds with pong. This is an application level ping as opposed to default ping in websockets standard which is server initiated
+      payload:
+        $ref: '../pingEvent/pingEvent.yaml#/$defs/pingEvent'
+      examples:
+        - payload:
+            $ref: '../pingEvent/pingEvent-example.yaml'

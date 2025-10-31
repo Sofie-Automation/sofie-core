@@ -1,0 +1,11 @@
+description: Topic for ping/pong communication
+publish:
+  operationId: sendPing
+  message:
+    oneOf:
+      - $ref: '../../components/connection/messages/pingMessage.yaml#/components/messages/pingMessage'
+subscribe:
+  operationId: receivePong
+  message:
+    oneOf:
+      - $ref: '../../components/connection/messages/pongMessage.yaml#/components/messages/pongMessage'

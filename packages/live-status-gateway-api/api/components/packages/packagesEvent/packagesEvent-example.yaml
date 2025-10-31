@@ -1,0 +1,4 @@
+event: packages
+rundownPlaylistId: 'y9HauyWkcxQS3XaAOsW40BRLLsI_'
+packages:
+  - $ref: '../packageInfoStatus/packageInfoStatus-example.yaml'

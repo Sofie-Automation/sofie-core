@@ -116,7 +116,7 @@ export function useRundownViewSubscriptions(playlistId: RundownPlaylistId): bool
 
 	auxSubsReady.push(
 		useSubscriptionIfEnabled(
-			MeteorPubSub.notificationsForRundownPlaylist,
+			CorelibPubSub.notificationsForRundownPlaylist,
 			!!playlistId && !!playlistStudioId,
 			playlistStudioId || protectString(''),
 			playlistId
@@ -135,7 +135,7 @@ export function useRundownViewSubscriptions(playlistId: RundownPlaylistId): bool
 		).fetch() as Pick<DBRundown, '_id' | 'studioId'>[]
 
 		for (const rundown of rundowns) {
-			meteorSubscribe(MeteorPubSub.notificationsForRundown, rundown.studioId, rundown._id)
+			meteorSubscribe(CorelibPubSub.notificationsForRundown, rundown.studioId, rundown._id)
 		}
 	}, [playlistId])
 
