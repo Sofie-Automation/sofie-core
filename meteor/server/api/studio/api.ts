@@ -22,7 +22,7 @@ import {
 } from '../../collections'
 import { MethodContextAPI, MethodContext } from '../methodContext'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import { OrganizationId, PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { logger } from '../../logging'
 import { DEFAULT_MINIMUM_TAKE_SPAN } from '@sofie-automation/shared-lib/dist/core/constants'
 import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
@@ -35,14 +35,13 @@ async function insertStudio(context: MethodContext, newId?: StudioId): Promise<S
 
 	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_MANAGE_STUDIOS)
 
-	return insertStudioInner(null, newId)
+	return insertStudioInner(newId)
 }
-export async function insertStudioInner(organizationId: OrganizationId | null, newId?: StudioId): Promise<StudioId> {
+export async function insertStudioInner(newId?: StudioId): Promise<StudioId> {
 	return Studios.insertAsync(
 		literal<DBStudio>({
 			_id: newId || getRandomId(),
 			name: 'New Studio',
-			organizationId: organizationId,
 			// blueprintId?: BlueprintId
 			mappingsWithOverrides: wrapDefaultObject({}),
 			supportedShowStyleBase: [],

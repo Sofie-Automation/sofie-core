@@ -241,7 +241,6 @@ export function produceRundownPlaylistInfoFromRundown(
 
 			_id: playlistId,
 			externalId: playlistExternalId,
-			organizationId: context.studio.organizationId,
 			studioId: context.studioId,
 			name: playlistInfo.playlist.name,
 			timing: playlistInfo.playlist.timing,
@@ -336,7 +335,6 @@ function defaultPlaylistForRundown(
 
 		...clone<DBRundownPlaylist | undefined>(existingPlaylist),
 
-		organizationId: studio.organizationId,
 		studioId: studio._id,
 		name: rundown.name,
 		timing: rundown.timing,

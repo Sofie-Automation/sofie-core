@@ -41,7 +41,6 @@ describe('Test blueprint management api', () => {
 			const blueprint: Blueprint = {
 				_id: getRandomId(),
 				name: 'Fake blueprint',
-				organizationId: null,
 				hasCode: true,
 				code: `({default: (() => 5)()})`,
 				created: 0,
@@ -304,7 +303,6 @@ describe('Test blueprint management api', () => {
 				literal<Omit<Blueprint, 'created' | 'modified' | 'databaseVersion' | 'blueprintHash'>>({
 					_id: protectString('tmp_showstyle'),
 					name: 'tmp_showstyle',
-					organizationId: null,
 					blueprintType: BLUEPRINT_TYPE,
 					blueprintId: 'ss1',
 					blueprintVersion: '0.1.0',
@@ -344,7 +342,6 @@ describe('Test blueprint management api', () => {
 				literal<Omit<Blueprint, 'created' | 'modified' | 'databaseVersion' | 'blueprintHash'>>({
 					_id: protectString('tmp_studio'),
 					name: 'tmp name',
-					organizationId: null,
 					blueprintId: '',
 					blueprintType: BLUEPRINT_TYPE,
 					blueprintVersion: '0.1.0',
@@ -385,7 +382,6 @@ describe('Test blueprint management api', () => {
 				literal<Omit<Blueprint, 'created' | 'modified' | 'databaseVersion' | 'blueprintHash'>>({
 					_id: protectString('tmp_system'),
 					name: 'tmp name',
-					organizationId: null,
 					blueprintId: 'sys',
 					blueprintType: BLUEPRINT_TYPE,
 					blueprintVersion: '0.1.0',
@@ -429,7 +425,6 @@ describe('Test blueprint management api', () => {
 				literal<Omit<Blueprint, 'created' | 'modified' | 'databaseVersion' | 'blueprintHash'>>({
 					_id: existingBlueprint._id,
 					name: existingBlueprint.name,
-					organizationId: null,
 					blueprintId: '',
 					blueprintType: BLUEPRINT_TYPE,
 					blueprintVersion: '0.1.0',
@@ -475,7 +470,6 @@ describe('Test blueprint management api', () => {
 				literal<Omit<Blueprint, 'created' | 'modified' | 'databaseVersion' | 'blueprintHash'>>({
 					_id: existingBlueprint._id,
 					name: existingBlueprint.name,
-					organizationId: null,
 					blueprintId: 'ss1',
 					blueprintType: BLUEPRINT_TYPE,
 					blueprintVersion: '0.1.0',

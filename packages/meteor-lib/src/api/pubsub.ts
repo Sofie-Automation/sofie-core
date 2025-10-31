@@ -1,6 +1,5 @@
 import {
 	BucketId,
-	OrganizationId,
 	PartId,
 	RundownId,
 	RundownPlaylistActivationId,
@@ -12,7 +11,6 @@ import { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
 import { ICoreSystem } from '../collections/CoreSystem.js'
 import { Evaluation } from '../collections/Evaluations.js'
 import { ExpectedPlayoutItem } from '@sofie-automation/corelib/dist/dataModel/ExpectedPlayoutItem'
-import { DBOrganization } from '../collections/Organization.js'
 import { RundownLayoutBase } from '../collections/RundownLayouts.js'
 import { SnapshotItem } from '../collections/Snapshots.js'
 import { TranslationsBundle } from '../collections/TranslationsBundles.js'
@@ -77,11 +75,6 @@ export enum MeteorPubSub {
 	 * Fetch either all RundownLayouts or limited to the specified ShowStyleBases
 	 */
 	rundownLayouts = 'rundownLayouts',
-	/**
-	 * Fetch information about a specified organization.
-	 * If null is provided, nothing will be returned
-	 */
-	organization = 'organization',
 	/**
 	 * Fetch all translation bundles
 	 */
@@ -184,7 +177,6 @@ export interface MeteorPubSubTypes {
 		showStyleBaseIds: ShowStyleBaseId[] | null,
 		token?: string
 	) => CollectionName.RundownLayouts
-	[MeteorPubSub.organization]: (organizationId: OrganizationId | null, token?: string) => CollectionName.Organizations
 	[MeteorPubSub.translationsBundles]: (token?: string) => CollectionName.TranslationsBundles
 	[MeteorPubSub.notificationsForRundown]: (studioId: StudioId, rundownId: RundownId) => CollectionName.Notifications
 	[MeteorPubSub.notificationsForRundownPlaylist]: (
@@ -254,7 +246,6 @@ export type MeteorPubSubCollections = {
 	[CollectionName.Snapshots]: SnapshotItem
 	[CollectionName.UserActionsLog]: UserActionsLogItem
 	[CollectionName.RundownLayouts]: RundownLayoutBase
-	[CollectionName.Organizations]: DBOrganization
 	[CollectionName.Buckets]: Bucket
 	[CollectionName.TranslationsBundles]: TranslationsBundle
 	[CollectionName.ExpectedPlayoutItems]: ExpectedPlayoutItem

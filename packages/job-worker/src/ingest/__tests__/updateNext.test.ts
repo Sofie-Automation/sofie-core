@@ -47,7 +47,6 @@ async function createMockRO(context: MockJobContext): Promise<RundownId> {
 		modified: 0,
 		importVersions: {} as any,
 		playlistId: rundownPlaylistId,
-		organizationId: protectString(''),
 		timing: {
 			type: 'none' as any,
 		},

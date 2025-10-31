@@ -17,7 +17,7 @@ import {
 	wrapDefaultObject,
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { IBlueprintConfig } from '@sofie-automation/blueprints-integration'
-import { OrganizationId, ShowStyleBaseId, ShowStyleVariantId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { ShowStyleBaseId, ShowStyleVariantId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { RundownLayouts, ShowStyleBases, ShowStyleVariants, Studios } from '../collections'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
@@ -78,14 +78,13 @@ export function createShowStyleCompound(
 export async function insertShowStyleBase(context: MethodContext): Promise<ShowStyleBaseId> {
 	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_MANAGE_SHOWSTYLES)
 
-	return insertShowStyleBaseInner(null)
+	return insertShowStyleBaseInner()
 }
 
-export async function insertShowStyleBaseInner(organizationId: OrganizationId | null): Promise<ShowStyleBaseId> {
+export async function insertShowStyleBaseInner(): Promise<ShowStyleBaseId> {
 	const showStyleBase: DBShowStyleBase = {
 		_id: getRandomId(),
 		name: 'New Show Style',
-		organizationId: organizationId,
 		blueprintId: protectString(''),
 		outputLayersWithOverrides: wrapDefaultObject({}),
 		sourceLayersWithOverrides: wrapDefaultObject({}),

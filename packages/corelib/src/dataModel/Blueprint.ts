@@ -7,14 +7,13 @@ import {
 import { JSONBlob } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 import { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
 import { ProtectedString } from '../protectedString.js'
-import { BlueprintId, OrganizationId } from './Ids.js'
+import { BlueprintId } from './Ids.js'
 import type { PackageStatusMessage } from '@sofie-automation/shared-lib/dist/packageStatusMessages'
 
 export type BlueprintHash = ProtectedString<'BlueprintHash'>
 
 export interface Blueprint {
 	_id: BlueprintId
-	organizationId: OrganizationId | null
 	name: string
 	/** String containing the Code for the blueprint */
 	code: string

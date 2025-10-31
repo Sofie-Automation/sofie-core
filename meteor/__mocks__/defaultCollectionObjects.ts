@@ -36,7 +36,6 @@ export function defaultRundownPlaylist(_id: RundownPlaylistId, studioId: StudioI
 		_id: _id,
 
 		externalId: 'MOCK_RUNDOWNPLAYLIST',
-		organizationId: null,
 		studioId: studioId,
 
 		name: 'Default RundownPlaylist',
@@ -66,8 +65,6 @@ export function defaultRundown(
 		studioId: studioId,
 		showStyleBaseId: showStyleBaseId,
 		showStyleVariantId: showStyleVariantId,
-
-		organizationId: null,
 
 		playlistId: playlistId,
 
@@ -101,7 +98,6 @@ export function defaultStudio(_id: StudioId): DBStudio {
 		_id: _id,
 
 		name: 'mockStudio',
-		organizationId: null,
 		mappingsWithOverrides: wrapDefaultObject({}),
 		supportedShowStyleBase: [],
 		blueprintConfigWithOverrides: wrapDefaultObject({}),

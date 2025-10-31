@@ -39,9 +39,6 @@ export type SofieIngestDataCacheObjId = ProtectedString<'SofieIngestDataCacheObj
 /** A string, identifying a DBNotificationObj */
 export type NotificationId = ProtectedString<'NotificationId'>
 
-/** A string, identifying a Organization */
-export type OrganizationId = ProtectedString<'OrganizationId'>
-
 export type PackageInfoId = ProtectedString<'PackageInfoId'>
 
 /** Id of a package container */

@@ -31,15 +31,13 @@ describe('User Actions - Disable Peripheral SubDevice', () => {
 	const mockSubDeviceId = 'mockSubDevice0'
 
 	beforeEach(async () => {
-		const organizationId = null
-		env = await setupDefaultStudioEnvironment(organizationId)
+		env = await setupDefaultStudioEnvironment()
 		pDevice = await setupMockPeripheralDevice(
 			PeripheralDeviceCategory.PLAYOUT,
 			PeripheralDeviceType.PLAYOUT,
 			PERIPHERAL_SUBTYPE_PROCESS,
 			env.studio,
 			{
-				organizationId,
 				configManifest: {
 					deviceConfigSchema: JSONBlobStringify({}), // unused
 					subdeviceManifest: {
@@ -163,7 +161,6 @@ describe('User Actions - Disable Peripheral SubDevice', () => {
 			PERIPHERAL_SUBTYPE_PROCESS,
 			env.studio,
 			{
-				organizationId: null,
 				configManifest: {
 					deviceConfigSchema: JSONBlobStringify({}), // unused
 					subdeviceManifest: {

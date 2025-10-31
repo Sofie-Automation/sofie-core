@@ -75,7 +75,6 @@ describe('Test external message queue static methods', () => {
 				blueprint: 'on',
 				core: 'plate',
 			},
-			organizationId: protectString(''),
 			timing: {
 				type: PlaylistTimingType.None,
 			},
@@ -169,7 +168,6 @@ describe('Test sending messages to mocked endpoints', () => {
 				blueprint: 'on',
 				core: 'plate',
 			},
-			organizationId: protectString(''),
 			timing: {
 				type: PlaylistTimingType.None,
 			},

@@ -1,7 +1,6 @@
 import { RundownPlaylistTiming, Time } from '@sofie-automation/blueprints-integration'
 import {
 	RundownId,
-	OrganizationId,
 	StudioId,
 	ShowStyleBaseId,
 	PeripheralDeviceId,
@@ -30,8 +29,6 @@ export interface RundownImportVersions {
 
 export interface Rundown {
 	_id: RundownId
-	/** ID of the organization that owns the rundown */
-	organizationId: OrganizationId | null
 	/** The id of the Studio this rundown is in */
 	studioId: StudioId
 

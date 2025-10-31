@@ -1,6 +1,6 @@
 import { Time } from '@sofie-automation/blueprints-integration'
 import { DeviceConfigManifest } from '../deviceConfig.js'
-import { OrganizationId, PeripheralDeviceId, StudioId } from './Ids.js'
+import { PeripheralDeviceId, StudioId } from './Ids.js'
 import type {
 	IngestDeviceSecretSettings,
 	IngestDeviceSecretSettingsStatus,
@@ -46,9 +46,6 @@ export interface PeripheralDevice {
 	/** When the device was initially created [unix-timestamp] */
 	created: number
 	status: PeripheralDeviceStatusObject
-
-	/** If set, this device is owned by that organization */
-	organizationId: OrganizationId | null
 
 	/** Versions reported from the device */
 	versions?: {

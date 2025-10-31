@@ -1,7 +1,7 @@
 import { IBlueprintConfig, IOutputLayer, ISourceLayer, SourceLayerType } from '@sofie-automation/blueprints-integration'
 import { ObjectWithOverrides } from '../settings/objectWithOverrides.js'
 import { BlueprintHash, LastBlueprintConfig } from './Blueprint.js'
-import { BlueprintId, OrganizationId, ShowStyleBaseId } from './Ids.js'
+import { BlueprintId, ShowStyleBaseId } from './Ids.js'
 
 export interface HotkeyDefinition {
 	_id: string
@@ -36,9 +36,6 @@ export interface DBShowStyleBase {
 	blueprintConfigPresetId?: string
 	/** Whether blueprintConfigPresetId is invalid, and does not match a currently exposed preset from the Blueprint */
 	blueprintConfigPresetIdUnlinked?: boolean
-
-	/** If set, the Organization that owns this ShowStyleBase */
-	organizationId: OrganizationId | null
 
 	/** A list of hotkeys, used to display a legend of hotkeys for the user in GUI */
 	hotkeyLegend?: Array<HotkeyDefinition>

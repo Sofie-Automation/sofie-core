@@ -109,7 +109,6 @@ describe('Migrations', () => {
 					await Studios.insertAsync({
 						_id: protectString('studioMock2'),
 						name: 'Default studio',
-						organizationId: null,
 						supportedShowStyleBase: [],
 						settingsWithOverrides: wrapDefaultObject({
 							mediaPreviewsUrl: '',
@@ -152,7 +151,6 @@ describe('Migrations', () => {
 					await Studios.insertAsync({
 						_id: protectString('studioMock3'),
 						name: 'Default studio',
-						organizationId: null,
 						supportedShowStyleBase: [],
 						settingsWithOverrides: wrapDefaultObject({
 							mediaPreviewsUrl: '',
@@ -195,7 +193,6 @@ describe('Migrations', () => {
 					await Studios.insertAsync({
 						_id: protectString('studioMock1'),
 						name: 'Default studio',
-						organizationId: null,
 						supportedShowStyleBase: [],
 						settingsWithOverrides: wrapDefaultObject({
 							mediaPreviewsUrl: '',
@@ -246,7 +243,6 @@ describe('Migrations', () => {
 		await ShowStyleBases.insertAsync({
 			_id: protectString('showStyle0'),
 			name: '',
-			organizationId: null,
 			blueprintId: protectString('showStyle0'),
 			outputLayersWithOverrides: wrapDefaultObject({}),
 			sourceLayersWithOverrides: wrapDefaultObject({}),

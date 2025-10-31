@@ -62,7 +62,6 @@ import { JSONBlobParse, JSONBlobStringify } from '@sofie-automation/shared-lib/d
 import {
 	BlueprintId,
 	ExpectedPackageId,
-	OrganizationId,
 	PeripheralDeviceId,
 	RundownPlaylistId,
 	ShowStyleBaseId,
@@ -156,10 +155,7 @@ type AnySnapshot = RundownPlaylistSnapshot | SystemSnapshot | DebugSnapshot
  * If studioId is provided, only return items related to that studio
  * @param studioId (Optional) Only generate for a certain studio
  */
-async function createSystemSnapshot(
-	options: SystemSnapshotOptions,
-	organizationId: OrganizationId | null
-): Promise<SystemSnapshot> {
+async function createSystemSnapshot(options: SystemSnapshotOptions): Promise<SystemSnapshot> {
 	const snapshotId: SnapshotId = getRandomId()
 	const studioId = options.studioId ?? null
 	logger.info(`Generating System snapshot "${snapshotId}"` + (studioId ? `for studio "${studioId}"` : ''))
@@ -176,7 +172,6 @@ async function createSystemSnapshot(
 	let queryBlueprints: MongoQuery<Blueprint> = {}
 
 	if (studioId) queryStudio = { _id: studioId }
-	else if (organizationId) queryStudio = { organizationId: organizationId }
 	const studios = await Studios.findFetchAsync(queryStudio)
 
 	if (studioId) {
@@ -187,8 +182,6 @@ async function createSystemSnapshot(
 		queryShowStyleBases = {
 			_id: { $in: ids },
 		}
-	} else if (organizationId) {
-		queryShowStyleBases = { organizationId: organizationId }
 	}
 	const showStyleBases = await ShowStyleBases.findFetchAsync(queryShowStyleBases)
 
@@ -199,7 +192,6 @@ async function createSystemSnapshot(
 	queryTriggeredActions = { showStyleBaseIds: { $in: [null, ...showStyleBaseIds] } }
 
 	if (studioId) queryDevices = { 'studioAndConfigId.studioId': studioId }
-	else if (organizationId) queryDevices = { organizationId: organizationId }
 
 	const [showStyleVariants, rundownLayouts, devices, triggeredActions] = await Promise.all([
 		ShowStyleVariants.findFetchAsync(queryShowStyleVariants),
@@ -215,10 +207,6 @@ async function createSystemSnapshot(
 		}
 		queryBlueprints = {
 			_id: { $in: blueprintIds },
-		}
-	} else if (organizationId) {
-		queryBlueprints = {
-			organizationId: organizationId,
 		}
 	}
 	const blueprints = await Blueprints.findFetchAsync(queryBlueprints)
@@ -237,7 +225,6 @@ async function createSystemSnapshot(
 		studioId: studioId,
 		snapshot: {
 			_id: snapshotId,
-			organizationId: organizationId,
 			type: SnapshotType.SYSTEM,
 			created: getCurrentTime(),
 			name: `System` + (studioId ? `_${studioId}` : '') + `_${formatDateTime(getCurrentTime())}`,
@@ -260,14 +247,14 @@ async function createSystemSnapshot(
  * Create a snapshot of active rundowns related to a studio and all related data, for debug purposes
  * @param studioId
  */
-async function createDebugSnapshot(studioId: StudioId, organizationId: OrganizationId | null): Promise<DebugSnapshot> {
+async function createDebugSnapshot(studioId: StudioId): Promise<DebugSnapshot> {
 	const snapshotId: SnapshotId = getRandomId()
 	logger.info(`Generating Debug snapshot "${snapshotId}" for studio "${studioId}"`)
 
 	const studio = await Studios.findOneAsync(studioId)
 	if (!studio) throw new Meteor.Error(404, `Studio ${studioId} not found`)
 
-	const systemSnapshot = await createSystemSnapshot({ studioId, withDeviceSnapshots: true }, organizationId)
+	const systemSnapshot = await createSystemSnapshot({ studioId, withDeviceSnapshots: true })
 
 	const activePlaylists = await RundownPlaylists.findFetchAsync({
 		studioId: studio._id,
@@ -294,7 +281,6 @@ async function createDebugSnapshot(studioId: StudioId, organizationId: Organizat
 		studioId: studioId,
 		snapshot: {
 			_id: snapshotId,
-			organizationId: organizationId,
 			type: SnapshotType.DEBUG,
 			created: getCurrentTime(),
 			name: `Debug_${studioId}_${formatDateTime(getCurrentTime())}`,
@@ -419,7 +405,6 @@ async function createRundownPlaylistSnapshot(
 		versionExtended: PackageInfo.versionExtended || PackageInfo.version || 'UNKNOWN',
 		snapshot: {
 			_id: snapshotId,
-			organizationId: playlist.organizationId ?? null,
 			created: getCurrentTime(),
 			type: SnapshotType.RUNDOWNPLAYLIST,
 			playlistId: playlist._id,
@@ -437,11 +422,7 @@ async function createRundownPlaylistSnapshot(
 	}
 }
 
-async function storeSnaphot(
-	snapshot: { snapshot: SnapshotBase },
-	organizationId: OrganizationId | null,
-	comment: string
-): Promise<SnapshotId> {
+async function storeSnaphot(snapshot: { snapshot: SnapshotBase }, comment: string): Promise<SnapshotId> {
 	const storePath = getSystemStorePath()
 	const fileName = fixValidPath(snapshot.snapshot.name) + '.json'
 	const filePath = Path.join(storePath, fileName)
@@ -457,7 +438,6 @@ async function storeSnaphot(
 
 	const id = await Snapshots.insertAsync({
 		_id: protectString(fileName),
-		organizationId: organizationId,
 		fileName: fileName,
 		type: snapshot.snapshot.type,
 		created: snapshot.snapshot.created,
@@ -705,18 +685,14 @@ export async function storeSystemSnapshot(
 
 	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_SNAPSHOT_MANAGEMENT)
 
-	return internalStoreSystemSnapshot(null, options, reason)
+	return internalStoreSystemSnapshot(options, reason)
 }
 /** Take and store a system snapshot. For internal use only, performs no access control. */
-export async function internalStoreSystemSnapshot(
-	organizationId: OrganizationId | null,
-	options: SystemSnapshotOptions,
-	reason: string
-): Promise<SnapshotId> {
+export async function internalStoreSystemSnapshot(options: SystemSnapshotOptions, reason: string): Promise<SnapshotId> {
 	check(options.studioId, Match.Optional(String))
 
-	const s = await createSystemSnapshot(options, organizationId)
-	return storeSnaphot(s, organizationId, reason)
+	const s = await createSystemSnapshot(options)
+	return storeSnaphot(s, reason)
 }
 export async function storeRundownPlaylistSnapshot(
 	playlist: VerifiedRundownPlaylistForUserAction,
@@ -724,7 +700,7 @@ export async function storeRundownPlaylistSnapshot(
 	reason: string
 ): Promise<SnapshotId> {
 	const s = await createRundownPlaylistSnapshot(playlist, options)
-	return storeSnaphot(s, playlist.organizationId ?? null, reason)
+	return storeSnaphot(s, reason)
 }
 export async function internalStoreRundownPlaylistSnapshot(
 	playlist: DBRundownPlaylist,
@@ -732,7 +708,7 @@ export async function internalStoreRundownPlaylistSnapshot(
 	reason: string
 ): Promise<SnapshotId> {
 	const s = await createRundownPlaylistSnapshot(playlist, options)
-	return storeSnaphot(s, playlist.organizationId ?? null, reason)
+	return storeSnaphot(s, reason)
 }
 export async function storeDebugSnapshot(
 	context: MethodContext,
@@ -748,8 +724,8 @@ export async function storeDebugSnapshot(
 
 	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_SNAPSHOT_MANAGEMENT)
 
-	const s = await createDebugSnapshot(studioId, null)
-	return storeSnaphot(s, null, reason)
+	const s = await createDebugSnapshot(studioId)
+	return storeSnaphot(s, reason)
 }
 export async function restoreSnapshot(
 	context: MethodContext,

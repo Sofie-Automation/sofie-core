@@ -178,7 +178,6 @@ describe('handleUserUnsyncRundown', () => {
 	async function createRundown(context: MockJobContext, fragment?: Partial<DBRundown>) {
 		await context.mockCollections.Rundowns.insertOne({
 			_id: rundownId,
-			organizationId: protectString('organization0'),
 			studioId: context.studioId,
 			showStyleBaseId: protectString('showStyleBase0'),
 			showStyleVariantId: protectString('showStyleVariant0'),

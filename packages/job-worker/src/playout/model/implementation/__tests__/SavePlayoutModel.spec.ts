@@ -15,7 +15,6 @@ describe('SavePlayoutModel', () => {
 	function createRundownModel(segments?: DBSegment[]): PlayoutRundownModelImpl {
 		const rundown: DBRundown = {
 			_id: protectString('rd0'),
-			organizationId: null,
 			studioId: protectString('studio0'),
 			showStyleBaseId: protectString('ssb0'),
 			showStyleVariantId: protectString('ssv0'),

@@ -92,7 +92,6 @@ describe('Infinites', () => {
 			return literal<DBRundown>({
 				_id: id,
 				externalId,
-				organizationId: protectString('test'),
 				name,
 				showStyleVariantId: protectString('test-variant'),
 				showStyleBaseId: protectString('test-base'),

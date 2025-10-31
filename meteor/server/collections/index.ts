@@ -12,7 +12,6 @@ import { WorkerThreadStatus } from '@sofie-automation/corelib/dist/dataModel/Wor
 import { Meteor } from 'meteor/meteor'
 import { ICoreSystem } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
 import { Evaluation } from '@sofie-automation/meteor-lib/dist/collections/Evaluations'
-import { DBOrganization } from '@sofie-automation/meteor-lib/dist/collections/Organization'
 import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { RundownLayoutBase } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
@@ -44,9 +43,6 @@ export const Blueprints = createAsyncOnlyMongoCollection<Blueprint>(CollectionNa
 		return allowOnlyFields(doc, fields, ['name', 'disableVersionChecks'])
 	},
 })
-registerIndex(Blueprints, {
-	organizationId: 1,
-})
 
 export const CoreSystem = createAsyncOnlyMongoCollection<ICoreSystem>(CollectionName.CoreSystem, {
 	requiredPermissions: ['configure'],
@@ -66,7 +62,6 @@ export const CoreSystem = createAsyncOnlyMongoCollection<ICoreSystem>(Collection
 
 export const Evaluations = createAsyncOnlyMongoCollection<Evaluation>(CollectionName.Evaluations, false)
 registerIndex(Evaluations, {
-	organizationId: 1,
 	timestamp: 1,
 })
 
@@ -107,13 +102,6 @@ registerIndex(Notifications, {
 	'relatedTo.rundownId': 1,
 })
 
-export const Organizations = createAsyncOnlyMongoCollection<DBOrganization>(CollectionName.Organizations, {
-	requiredPermissions: ['configure'],
-	async update(_permissions, doc, fields, _modifier) {
-		return allowOnlyFields(doc, fields, ['userRoles'])
-	},
-})
-
 export const PeripheralDeviceCommands = createAsyncOnlyMongoCollection<PeripheralDeviceCommand>(
 	CollectionName.PeripheralDeviceCommands,
 	false
@@ -125,19 +113,8 @@ registerIndex(PeripheralDeviceCommands, {
 export const PeripheralDevices = createAsyncOnlyMongoCollection<PeripheralDevice>(CollectionName.PeripheralDevices, {
 	requiredPermissions: ['configure'],
 	update(_permissions, doc, fields, _modifier) {
-		return allowOnlyFields(doc, fields, [
-			'name',
-			'deviceName',
-			'organizationId',
-			'disableVersionChecks',
-			'nrcsName',
-			'ignore',
-		])
+		return allowOnlyFields(doc, fields, ['name', 'deviceName', 'disableVersionChecks', 'nrcsName', 'ignore'])
 	},
-})
-registerIndex(PeripheralDevices, {
-	organizationId: 1,
-	studioAndConfigId: 1,
 })
 registerIndex(PeripheralDevices, {
 	studioAndConfigId: 1,
@@ -168,9 +145,6 @@ export const ShowStyleBases = createAsyncOnlyMongoCollection<DBShowStyleBase>(Co
 		return rejectFields(doc, fields, ['_id'])
 	},
 })
-registerIndex(ShowStyleBases, {
-	organizationId: 1,
-})
 
 export const ShowStyleVariants = createAsyncOnlyMongoCollection<DBShowStyleVariant>(CollectionName.ShowStyleVariants, {
 	requiredPermissions: ['configure'],
@@ -190,9 +164,6 @@ export const Snapshots = createAsyncOnlyMongoCollection<SnapshotItem>(Collection
 	},
 })
 registerIndex(Snapshots, {
-	organizationId: 1,
-})
-registerIndex(Snapshots, {
 	created: 1,
 })
 
@@ -201,9 +172,6 @@ export const Studios = createAsyncOnlyMongoCollection<DBStudio>(CollectionName.S
 	async update(_permissions, doc, fields, _modifier) {
 		return rejectFields(doc, fields, ['_id'])
 	},
-})
-registerIndex(Studios, {
-	organizationId: 1,
 })
 
 export const Timeline = createAsyncOnlyReadOnlyMongoCollection<TimelineComplete>(CollectionName.Timelines)
@@ -236,7 +204,6 @@ registerIndex(TriggeredActions, {
 
 export const UserActionsLog = createAsyncOnlyMongoCollection<UserActionsLogItem>(CollectionName.UserActionsLog, false)
 registerIndex(UserActionsLog, {
-	organizationId: 1,
 	timestamp: 1,
 })
 registerIndex(UserActionsLog, {

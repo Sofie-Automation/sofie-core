@@ -20,12 +20,11 @@ Gateways are applications that connect to Sofie&nbsp;Core and exchange data; suc
 An example of a gateway is the [Spreadsheet Gateway](https://github.com/SuperFlyTV/spreadsheet-gateway).
 All gateways use the [Core Integration Library](https://github.com/Sofie-Automation/sofie-core/tree/master/packages/server-core-integration) to communicate with Core.
 
-## System, \(Organization\), Studio & Show Style
+## System, Studio & Show Style
 
-To be able to facilitate various different kinds of show, Sofie&nbsp;Core has the concepts of "System", "Organization", "Studio" and "Show Style".
+To be able to facilitate various different kinds of show, Sofie&nbsp;Core has the concepts of "System", "Studio" and "Show Style".
 
 - The **System** defines the whole of the Sofie&nbsp;Core
-- The **Organization** \(only available if user accounts are enabled\) defines things that are common for an organization. An organization consists of: **Users, Studios** and **ShowStyles**.
 - The **Studio** contains things that are related to the "hardware" or "rig". Technically, a Studio is defined as an entity that can have one \(or none\) rundown active at any given time. In most cases, this will be a representation of your gallery, with cameras, video playback and graphics systems, external inputs, sound mixers, lighting controls and so on. A single System can easily control multiple Studios.
 - The **Show Style** contains settings for the "show", for example if there's a "Morning Show" and an "Afternoon Show" - produced in the same gallery - they might be two different Show Styles \(played in the same Studio\). Most importantly, the Show Style decides the "look and feel" of the Show towards the producer/director, dictating how data ingested from the NRCS will be interpreted and how the user will interact with the system during playback (see: [Show Style](configuration/settings-view#show-style) in Settings).
   - A **Show Style Variant** is a set of Show Style _Blueprint_ configuration values, that allows to use the same interaction model across multiple Shows with potentially different assets, changing the outward look of the Show: for example news programs with different hosts produced from the same Studio, but with different light setups, backscreen and overlay graphics.
@@ -74,7 +73,7 @@ Inside of the pieces are the [timeline-objects](#what-is-the-timeline) which con
 Tip! If you want to manually play a certain piece \(for example a graphics overlay\), you can at any time double-click it in the GUI, and it will be copied and played at your play head, just like an [AdLib](#adlib-pieces) would!
 :::
 
-See also: [Showstyle](#system-organization-studio--show-style)
+See also: [Showstyle](#system-studio--show-style)
 
 ### AdLib Piece
 

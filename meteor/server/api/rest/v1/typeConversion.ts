@@ -116,7 +116,6 @@ export async function showStyleBaseFrom(
 		name: apiShowStyleBase.name,
 		blueprintId: protectString(apiShowStyleBase.blueprintId),
 		blueprintConfigPresetId: apiShowStyleBase.blueprintConfigPresetId,
-		organizationId: null,
 		outputLayersWithOverrides: outputLayers,
 		sourceLayersWithOverrides: sourceLayers,
 		blueprintConfigWithOverrides: blueprintConfig,
@@ -340,7 +339,6 @@ export async function studioFrom(apiStudio: APIStudio, existingId?: StudioId): P
 			? updateOverrides(studio.settingsWithOverrides, studioSettings)
 			: wrapDefaultObject(studioSettings),
 		supportedShowStyleBase: apiStudio.supportedShowStyleBase?.map((id) => protectString<ShowStyleBaseId>(id)) ?? [],
-		organizationId: null,
 		mappingsWithOverrides: wrapDefaultObject({}),
 		routeSetsWithOverrides: wrapDefaultObject({}),
 		_rundownVersionHash: '',
