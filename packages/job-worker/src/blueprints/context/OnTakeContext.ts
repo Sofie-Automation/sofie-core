@@ -30,6 +30,7 @@ import { convertPartToBlueprints } from './lib.js'
 
 export class OnTakeContext extends ShowStyleUserContext implements IOnTakeContext, IEventContext {
 	public isTakeAborted: boolean
+	public partToQueue: { rawPart: IBlueprintPart; rawPieces: IBlueprintPiece[] } | undefined
 
 	public get quickLoopInfo(): BlueprintQuickLookInfo | null {
 		return this.partAndPieceInstanceService.quickLoopInfo
@@ -157,6 +158,10 @@ export class OnTakeContext extends ShowStyleUserContext implements IOnTakeContex
 		payload: Record<string, any>
 	): Promise<TSR.ActionExecutionResult> {
 		return executePeripheralDeviceAction(this._context, deviceId, null, actionId, payload)
+	}
+
+	queuePartAfterTake(rawPart: IBlueprintPart, rawPieces: IBlueprintPiece[]): void {
+		this.partToQueue = { rawPart, rawPieces }
 	}
 
 	getCurrentTime(): number {
