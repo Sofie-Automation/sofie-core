@@ -1,0 +1,1912 @@
+# This file was automatically generated using @asyncapi/parser
+# DO NOT MODIFY IT BY HAND. Instead, modify the source AsyncAPI schema files,
+# and run "yarn merge-schemas" to regenerate this file.
+asyncapi: 2.6.0
+id: sofie:live-status-gateway:server
+info:
+  title: Sofie Live Status Service
+  version: 2.0.1
+  description: This service provides subscriptions for status updates from Sofie
+  license:
+    name: MIT License
+    url: http://opensource.org/licenses/MIT
+  contact:
+    name: Sofie TV Automation
+    url: https://github.com/Sofie-Automation/sofie-core/issues
+servers:
+  development:
+    url: localhost
+    description: Server available without authorization
+    protocol: ws
+    protocolVersion: '13'
+defaultContentType: application/json
+tags:
+  - name: sofie
+  - name: tv-automation
+  - name: broadcast
+channels:
+  ping:
+    description: Topic for ping/pong communication
+    publish:
+      operationId: sendPing
+      message:
+        oneOf:
+          - name: ping
+            messageId: ping
+            summary: Ping server to determine whether connection is alive
+            description: Client can ping server to determine whether connection is alive,
+              server responds with pong. This is an application level ping as
+              opposed to default ping in websockets standard which is server
+              initiated
+            payload:
+              title: PingEvent
+              type: object
+              properties:
+                event:
+                  type: string
+                  const: ping
+                  x-parser-schema-id: <anonymous-schema-2>
+                reqid: &a1
+                  type: integer
+                  description: Client originated ID reflected in response message.
+                  x-parser-schema-id: <anonymous-schema-3>
+              required:
+                - event
+                - reqid
+              additionalProperties: false
+              examples:
+                - event: ping
+                  reqid: 27
+              x-parser-schema-id: <anonymous-schema-1>
+            examples:
+              - payload:
+                  event: ping
+                  reqid: 27
+    subscribe:
+      operationId: receivePong
+      message:
+        oneOf:
+          - name: pong
+            messageId: pong
+            summary: Pong is a response to ping message
+            description: Server pong response to a ping to determine whether connection is
+              alive. This is an application level pong as opposed to default
+              pong in websockets standard which is sent by client in response to
+              a ping
+            payload: &a12
+              title: PongEvent
+              type: object
+              properties:
+                event:
+                  type: string
+                  const: pong
+                  x-parser-schema-id: <anonymous-schema-5>
+                reqid: *a1
+              required:
+                - event
+                - reqid
+              additionalProperties: false
+              examples:
+                - event: pong
+                  reqid: 27
+              x-parser-schema-id: <anonymous-schema-4>
+            examples:
+              - payload:
+                  event: pong
+                  reqid: 27
+  heartbeat:
+    description: Topic for server heartbeat messages
+    subscribe:
+      operationId: receiveHeartbeat
+      description: Server sends heartbeat messages when no other communication is happening.
+      message:
+        oneOf:
+          - name: heartbeat
+            messageId: heartbeat
+            description: Server heartbeat sent if no subscription traffic within 1 second
+              (approximately)
+            payload: &a13
+              title: HeartbeatEvent
+              type: object
+              properties:
+                event:
+                  type: string
+                  const: heartbeat
+                  x-parser-schema-id: <anonymous-schema-7>
+              required:
+                - event
+              additionalProperties: false
+              examples:
+                - event: heartbeat
+              x-parser-schema-id: <anonymous-schema-6>
+            examples:
+              - payload:
+                  event: heartbeat
+  subscriptions:
+    description: Topic for managing subscription events.
+    subscribe:
+      operationId: receiveSubscriptionStatus
+      description: Server sends subscription status updates
+      message:
+        oneOf:
+          - messageId: subscriptionStatusError
+            description: Subscription status response to subscribe or unsubscribe
+            payload: &a14
+              type: object
+              title: SubscriptionStatusError
+              allOf:
+                - type: object
+                  title: SubscriptionStatusError
+                  properties:
+                    errorMessage:
+                      type: string
+                      x-parser-schema-id: <anonymous-schema-14>
+                  required:
+                    - errorMessage
+                  x-parser-schema-id: <anonymous-schema-13>
+                - &a2
+                  type: object
+                  title: SubscriptionStatusSuccess
+                  properties:
+                    event:
+                      type: string
+                      const: subscriptionStatus
+                      x-parser-schema-id: <anonymous-schema-16>
+                    reqid: *a1
+                    subscription:
+                      type: object
+                      title: SubscriptionDetails
+                      properties:
+                        name: &a3
+                          type: string
+                          title: SubscriptionName
+                          description: The name of the topic related to this status.
+                          enum:
+                            - studio
+                            - activePlaylist
+                            - activePieces
+                            - segments
+                            - adLibs
+                            - buckets
+                            - packages
+                          x-parser-schema-id: <anonymous-schema-11>
+                        status:
+                          type: string
+                          title: SubscriptionStatus
+                          description: The current status of the subscription
+                          enum:
+                            - subscribed
+                            - unsubscribed
+                          x-parser-schema-id: <anonymous-schema-18>
+                      required:
+                        - name
+                        - status
+                      additionalProperties: false
+                      examples:
+                        - name: studio
+                          status: subscribed
+                      x-parser-schema-id: <anonymous-schema-17>
+                  required:
+                    - event
+                    - reqid
+                    - subscription
+                  examples:
+                    - event: subscriptionStatus
+                      reqid: 27
+                      subscription:
+                        name: studio
+                        status: subscribed
+                  x-parser-schema-id: <anonymous-schema-15>
+              examples:
+                - event: subscriptionStatus
+                  reqid: 27
+                  subscription:
+                    name: studio
+                    status: subscribed
+                  errorMessage: Subscribe to studio topic failed
+              x-parser-schema-id: <anonymous-schema-12>
+            examples:
+              - payload:
+                  event: subscriptionStatus
+                  reqid: 27
+                  subscription:
+                    name: studio
+                    status: subscribed
+                  errorMessage: Subscribe to studio topic failed
+            x-parser-message-name: subscriptionStatusError
+          - messageId: subscriptionStatusSuccess
+            description: Subscription status response to subscribe or unsubscribe
+            payload: *a2
+            examples:
+              - payload:
+                  event: subscriptionStatus
+                  reqid: 27
+                  subscription:
+                    name: studio
+                    status: subscribed
+            x-parser-message-name: subscriptionStatusSuccess
+    publish:
+      operationId: sendSubscriptionRequest
+      description: Client publishes subscription requests (subscribe/unsubscribe)
+      message:
+        oneOf:
+          - name: subscribe
+            messageId: subscribe
+            title: Subscribe Event Message
+            description: Subscribe or unsubscribe to a topic
+            payload:
+              type: object
+              title: SubscribeEvent
+              properties:
+                event:
+                  type: string
+                  title: SubscriptionEventName
+                  description: Name of the event when subscribing or unsubscribing to topics.
+                  enum:
+                    - subscribe
+                    - unsubscribe
+                  x-parser-schema-id: <anonymous-schema-9>
+                reqid: *a1
+                subscription:
+                  type: object
+                  title: SubscriptionRequestDetails
+                  properties:
+                    name: *a3
+                  required:
+                    - name
+                  additionalProperties: false
+                  examples:
+                    - name: studio
+                      status: subscribed
+                  x-parser-schema-id: <anonymous-schema-10>
+              required:
+                - event
+                - reqid
+                - subscription
+              additionalProperties: false
+              examples:
+                - event: subscribe
+                  reqid: 27
+                  subscription:
+                    name: studio
+              x-parser-schema-id: <anonymous-schema-8>
+            examples:
+              - payload:
+                  event: subscribe
+                  reqid: 27
+                  subscription:
+                    name: studio
+  studio:
+    description: Studio topic for websocket subscriptions
+    subscribe:
+      operationId: receiveStudioUpdate
+      description: Server sends studio status updates
+      message:
+        oneOf:
+          - name: studio
+            messageId: studioUpdate
+            description: Studio status
+            payload: &a15
+              title: StudioEvent
+              type: object
+              allOf:
+                - title: StudioEvent
+                  type: object
+                  properties:
+                    event:
+                      type: string
+                      const: studio
+                      x-parser-schema-id: <anonymous-schema-21>
+                  required:
+                    - event
+                  x-parser-schema-id: <anonymous-schema-20>
+                - title: StudioStatus
+                  type: object
+                  properties:
+                    id:
+                      description: Unique id of the studio
+                      oneOf:
+                        - type: string
+                          x-parser-schema-id: <anonymous-schema-24>
+                        - type: 'null'
+                          x-parser-schema-id: <anonymous-schema-25>
+                      x-parser-schema-id: <anonymous-schema-23>
+                    name:
+                      description: User-presentable name for the studio installation
+                      type: string
+                      x-parser-schema-id: <anonymous-schema-26>
+                    playlists:
+                      description: The playlists that are currently loaded in the studio
+                      type: array
+                      items:
+                        title: PlaylistStatus
+                        type: object
+                        properties:
+                          id:
+                            description: Unique id of the playlist
+                            type: string
+                            x-parser-schema-id: <anonymous-schema-29>
+                          externalId:
+                            description: Id normally sourced from the ingest system
+                            type: string
+                            x-parser-schema-id: <anonymous-schema-30>
+                          name:
+                            description: The user defined playlist name
+                            type: string
+                            x-parser-schema-id: <anonymous-schema-31>
+                          activationStatus:
+                            description: Whether this playlist is currently active or in rehearsal
+                            type: string
+                            title: PlaylistActivationStatus
+                            enum:
+                              - deactivated
+                              - rehearsal
+                              - activated
+                            x-parser-schema-id: <anonymous-schema-32>
+                        required:
+                          - id
+                          - externalId
+                          - name
+                          - activationStatus
+                        additionalProperties: false
+                        examples:
+                          - id: OKAgZmZ0Buc99lE_2uPPSKVbMrQ_
+                            externalId: 1ZIYVYL1aEkNEJbeGsmRXr5s8wtkyxfPRjNSTxZfcoEI
+                            name: Playlist 0
+                            activationStatus: rehearsal
+                        x-parser-schema-id: <anonymous-schema-28>
+                      x-parser-schema-id: <anonymous-schema-27>
+                  required:
+                    - id
+                    - name
+                    - playlists
+                  examples:
+                    - ref: ./studioStatus-example.yaml
+                  x-parser-schema-id: <anonymous-schema-22>
+              required:
+                - event
+                - id
+                - name
+                - playlists
+              examples:
+                - id: B0avqzSM41UJDpbyf3U28
+                  name: Studio 0
+                  playlists:
+                    - id: OKAgZmZ0Buc99lE_2uPPSKVbMrQ_
+                      externalId: 1ZIYVYL1aEkNEJbeGsmRXr5s8wtkyxfPRjNSTxZfcoEI
+                      name: Playlist 0
+                      activationStatus: rehearsal
+                  event: studio
+              x-parser-schema-id: <anonymous-schema-19>
+            examples:
+              - payload:
+                  id: B0avqzSM41UJDpbyf3U28
+                  name: Studio 0
+                  playlists:
+                    - id: OKAgZmZ0Buc99lE_2uPPSKVbMrQ_
+                      externalId: 1ZIYVYL1aEkNEJbeGsmRXr5s8wtkyxfPRjNSTxZfcoEI
+                      name: Playlist 0
+                      activationStatus: rehearsal
+                  event: studio
+  activePlaylist:
+    description: Topic for active playlist updates
+    subscribe:
+      operationId: receiveActivePlaylist
+      description: Server sends active playlist events
+      message:
+        oneOf:
+          - name: activePlaylist
+            messageId: activePlaylistUpdate
+            description: Active Playlist status
+            payload: &a16
+              type: object
+              title: ActivePlaylistEvent
+              properties:
+                event:
+                  type: string
+                  const: activePlaylist
+                  x-parser-schema-id: <anonymous-schema-34>
+                id:
+                  description: Unique id of the active playlist
+                  oneOf:
+                    - type: string
+                      x-parser-schema-id: <anonymous-schema-36>
+                    - type: 'null'
+                      x-parser-schema-id: <anonymous-schema-37>
+                  x-parser-schema-id: <anonymous-schema-35>
+                externalId:
+                  description: Id normally sourced from the ingest system
+                  oneOf:
+                    - type: string
+                      x-parser-schema-id: <anonymous-schema-39>
+                    - type: 'null'
+                      x-parser-schema-id: <anonymous-schema-40>
+                  x-parser-schema-id: <anonymous-schema-38>
+                name:
+                  description: User-presentable name for the active playlist
+                  type: string
+                  x-parser-schema-id: <anonymous-schema-41>
+                rundownIds:
+                  description: The set of rundownIds in the active playlist, in order
+                  type: array
+                  items:
+                    type: string
+                    x-parser-schema-id: <anonymous-schema-43>
+                  x-parser-schema-id: <anonymous-schema-42>
+                currentPart:
+                  oneOf:
+                    - title: CurrentPartStatus
+                      allOf:
+                        - &a6
+                          type: object
+                          title: PartStatus
+                          allOf:
+                            - &a4
+                              type: object
+                              title: PartBase
+                              properties:
+                                id:
+                                  description: Unique id of the part
+                                  type: string
+                                  x-parser-schema-id: <anonymous-schema-48>
+                                name:
+                                  description: User-presentable name of the part
+                                  type: string
+                                  x-parser-schema-id: <anonymous-schema-49>
+                                autoNext:
+                                  description: If this part will progress to the next automatically
+                                  type: boolean
+                                  default: false
+                                  x-parser-schema-id: <anonymous-schema-50>
+                              required:
+                                - id
+                                - name
+                              examples:
+                                - id: H5CBGYjThrMSmaYvRaa5FVKJIzk_
+                                  name: Intro
+                                  autoNext: false
+                              x-parser-schema-id: <anonymous-schema-47>
+                            - type: object
+                              title: PartStatus
+                              properties:
+                                segmentId:
+                                  description: Unique id of the segment this part belongs to
+                                  type: string
+                                  x-parser-schema-id: <anonymous-schema-52>
+                                pieces:
+                                  description: All pieces in this part
+                                  type: array
+                                  items: &a8
+                                    type: object
+                                    title: PieceStatus
+                                    properties:
+                                      id:
+                                        description: Unique id of the Piece
+                                        type: string
+                                        x-parser-schema-id: <anonymous-schema-55>
+                                      name:
+                                        description: User-facing name of the Piece
+                                        type: string
+                                        x-parser-schema-id: <anonymous-schema-56>
+                                      sourceLayer:
+                                        description: The source layer name for this Piece
+                                        type: string
+                                        x-parser-schema-id: <anonymous-schema-57>
+                                      outputLayer:
+                                        description: The output layer name for this Piece
+                                        type: string
+                                        x-parser-schema-id: <anonymous-schema-58>
+                                      tags:
+                                        description: Tags attached to this Piece
+                                        type: array
+                                        items:
+                                          type: string
+                                          x-parser-schema-id: <anonymous-schema-60>
+                                        x-parser-schema-id: <anonymous-schema-59>
+                                      publicData:
+                                        description: Optional arbitrary data
+                                        x-parser-schema-id: <anonymous-schema-61>
+                                    required:
+                                      - id
+                                      - name
+                                      - sourceLayer
+                                      - outputLayer
+                                    additionalProperties: false
+                                    examples:
+                                      - id: H5CBGYjThrMSmaYvRaa5FVKJIzk_
+                                        name: Camera 1
+                                        sourceLayer: Camera
+                                        outputLayer: PGM
+                                        tags:
+                                          - camera
+                                        publicData:
+                                          switcherSource: 1
+                                    x-parser-schema-id: <anonymous-schema-54>
+                                  x-parser-schema-id: <anonymous-schema-53>
+                                publicData:
+                                  description: Optional arbitrary data
+                                  x-parser-schema-id: <anonymous-schema-62>
+                              required:
+                                - id
+                                - name
+                                - segmentId
+                                - pieces
+                              x-parser-schema-id: <anonymous-schema-51>
+                          examples:
+                            - id: H5CBGYjThrMSmaYvRaa5FVKJIzk_
+                              name: Intro
+                              autoNext: false
+                              segmentId: n1mOVd5_K5tt4sfk6HYfTuwumGQ_
+                              pieces:
+                                - id: H5CBGYjThrMSmaYvRaa5FVKJIzk_
+                                  name: Camera 1
+                                  sourceLayer: Camera
+                                  outputLayer: PGM
+                                  tags:
+                                    - camera
+                                  publicData:
+                                    switcherSource: 1
+                              publicData:
+                                partType: intro
+                          x-parser-schema-id: <anonymous-schema-46>
+                        - type: object
+                          title: CurrentPartStatus
+                          properties:
+                            timing:
+                              type: object
+                              title: CurrentPartTiming
+                              description: Timing information about the current part
+                              allOf:
+                                - &a5
+                                  type: object
+                                  title: CurrentSegmentPartTiming
+                                  properties:
+                                    expectedDurationMs:
+                                      description: Expected duration of the part (milliseconds)
+                                      type: number
+                                      x-parser-schema-id: <anonymous-schema-66>
+                                  x-parser-schema-id: <anonymous-schema-65>
+                                - type: object
+                                  title: CurrentPartTiming
+                                  description: Timing information about the current part
+                                  properties:
+                                    startTime:
+                                      description: Unix timestamp of when the part started (milliseconds)
+                                      type: number
+                                      x-parser-schema-id: <anonymous-schema-68>
+                                    projectedEndTime:
+                                      description: Unix timestamp of when the part is projected to end (milliseconds).
+                                        A sum of `startTime` and
+                                        `expectedDurationMs`.
+                                      type: number
+                                      x-parser-schema-id: <anonymous-schema-69>
+                                  x-parser-schema-id: <anonymous-schema-67>
+                              required:
+                                - startTime
+                                - expectedDurationMs
+                                - projectedEndTime
+                              examples:
+                                - expectedDurationMs: 15000
+                                  startTime: 1600000060000
+                                  projectedEndTime: 1600000075000
+                              x-parser-schema-id: <anonymous-schema-64>
+                          required:
+                            - timing
+                          x-parser-schema-id: <anonymous-schema-63>
+                      examples:
+                        - id: H5CBGYjThrMSmaYvRaa5FVKJIzk_
+                          name: Intro
+                          autoNext: false
+                          segmentId: n1mOVd5_K5tt4sfk6HYfTuwumGQ_
+                          pieces:
+                            - id: H5CBGYjThrMSmaYvRaa5FVKJIzk_
+                              name: Camera 1
+                              sourceLayer: Camera
+                              outputLayer: PGM
+                              tags:
+                                - camera
+                              publicData:
+                                switcherSource: 1
+                          publicData:
+                            partType: intro
+                          timing:
+                            expectedDurationMs: 15000
+                            startTime: 1600000060000
+                            projectedEndTime: 1600000075000
+                      x-parser-schema-id: <anonymous-schema-45>
+                    - type: 'null'
+                      x-parser-schema-id: <anonymous-schema-70>
+                  x-parser-schema-id: <anonymous-schema-44>
+                currentSegment:
+                  oneOf:
+                    - type: object
+                      title: CurrentSegment
+                      allOf:
+                        - &a9
+                          title: SegmentBase
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              description: Unique id of the segment
+                              x-parser-schema-id: <anonymous-schema-74>
+                          required:
+                            - id
+                          examples:
+                            - id: OKAgZmZ0Buc99lE_2uPPSKVbMrQ_
+                          x-parser-schema-id: <anonymous-schema-73>
+                        - title: CurrentSegment
+                          type: object
+                          properties:
+                            timing:
+                              type: object
+                              title: CurrentSegmentTiming
+                              description: Timing information about the current segment
+                              allOf:
+                                - &a10
+                                  type: object
+                                  title: SegmentTiming
+                                  properties:
+                                    expectedDurationMs:
+                                      description: Expected duration of the segment (milliseconds)
+                                      type: number
+                                      x-parser-schema-id: <anonymous-schema-78>
+                                    budgetDurationMs:
+                                      description: Budget duration of the segment (milliseconds)
+                                      type: number
+                                      x-parser-schema-id: <anonymous-schema-79>
+                                    countdownType:
+                                      type: string
+                                      title: SegmentCountdownType
+                                      description: 'Countdown type within the segment. Default:
+                                        `part_expected_duration`'
+                                      enum:
+                                        - part_expected_duration
+                                        - segment_budget_duration
+                                      x-parser-schema-id: <anonymous-schema-80>
+                                  required:
+                                    - expectedDurationMs
+                                  examples:
+                                    - ref: ./segmentTiming-example.yaml
+                                  x-parser-schema-id: <anonymous-schema-77>
+                                - type: object
+                                  title: CurrentSegmentTiming
+                                  properties:
+                                    projectedEndTime:
+                                      description: Unix timestamp of when the segment is projected to end
+                                        (milliseconds). The time this segment
+                                        started, offset by its budget duration,
+                                        if the segment has a defined budget
+                                        duration. Otherwise, the time the
+                                        current part started, offset by the
+                                        difference between expected durations of
+                                        all parts in this segment and the
+                                        as-played durations of the parts that
+                                        already stopped.
+                                      type: number
+                                      x-parser-schema-id: <anonymous-schema-82>
+                                  x-parser-schema-id: <anonymous-schema-81>
+                              required:
+                                - expectedDurationMs
+                                - projectedEndTime
+                              examples:
+                                - expectedDurationMs: 15000
+                                  budgetDurationMs: 20000
+                                  countdownType: segment_budget_duration
+                                  projectedEndTime: 1600000075000
+                              x-parser-schema-id: <anonymous-schema-76>
+                            parts:
+                              type: array
+                              items:
+                                title: CurrentSegmentPart
+                                type: object
+                                allOf:
+                                  - *a4
+                                  - type: object
+                                    title: CurrentSegmentPart
+                                    properties:
+                                      timing: *a5
+                                    x-parser-schema-id: <anonymous-schema-85>
+                                required:
+                                  - id
+                                  - name
+                                  - timing
+                                examples:
+                                  - id: H5CBGYjThrMSmaYvRaa5FVKJIzk_
+                                    name: Intro
+                                    autoNext: false
+                                    timing:
+                                      expectedDurationMs: 15000
+                                x-parser-schema-id: <anonymous-schema-84>
+                              x-parser-schema-id: <anonymous-schema-83>
+                          required:
+                            - timing
+                            - parts
+                          x-parser-schema-id: <anonymous-schema-75>
+                      required:
+                        - id
+                        - timing
+                        - parts
+                      examples:
+                        - id: OKAgZmZ0Buc99lE_2uPPSKVbMrQ_
+                          timing:
+                            expectedDurationMs: 15000
+                            budgetDurationMs: 20000
+                            countdownType: segment_budget_duration
+                            projectedEndTime: 1600000075000
+                          parts:
+                            - id: H5CBGYjThrMSmaYvRaa5FVKJIzk_
+                              name: Intro
+                              autoNext: false
+                              timing:
+                                expectedDurationMs: 15000
+                      x-parser-schema-id: <anonymous-schema-72>
+                    - type: 'null'
+                      x-parser-schema-id: <anonymous-schema-86>
+                  x-parser-schema-id: <anonymous-schema-71>
+                nextPart:
+                  oneOf:
+                    - *a6
+                    - type: 'null'
+                      x-parser-schema-id: <anonymous-schema-88>
+                  x-parser-schema-id: <anonymous-schema-87>
+                publicData:
+                  description: Optional arbitrary data
+                  x-parser-schema-id: <anonymous-schema-89>
+                timing:
+                  type: object
+                  title: ActivePlaylistTiming
+                  description: Timing information about the active playlist
+                  properties:
+                    timingMode:
+                      type: string
+                      title: ActivePlaylistTimingMode
+                      description: Timing mode for the playlist.
+                      enum:
+                        - none
+                        - forward-time
+                        - back-time
+                      x-parser-schema-id: <anonymous-schema-91>
+                    startedPlayback:
+                      description: Unix timestamp of when the playlist started (milliseconds)
+                      type: number
+                      x-parser-schema-id: <anonymous-schema-92>
+                    expectedStart:
+                      description: Unix timestamp of when the playlist is expected to start
+                        (milliseconds). Required when the timingMode is set to
+                        forward-time.
+                      type: number
+                      x-parser-schema-id: <anonymous-schema-93>
+                    expectedDurationMs:
+                      description: Duration of the playlist in ms
+                      type: number
+                      x-parser-schema-id: <anonymous-schema-94>
+                    expectedEnd:
+                      description: Unix timestamp of when the playlist is expected to end
+                        (milliseconds) Required when the timingMode is set to
+                        back-time.
+                      type: number
+                      x-parser-schema-id: <anonymous-schema-95>
+                  required:
+                    - timingMode
+                  additionalProperties: false
+                  examples:
+                    - timingMode: forward-time
+                      expectedStart: 1728895750727
+                      expectedDurationMs: 180000
+                  x-parser-schema-id: <anonymous-schema-90>
+                quickLoop:
+                  description: Information about the current quickLoop, if any
+                  type: object
+                  title: ActivePlaylistQuickLoop
+                  properties:
+                    locked:
+                      description: Whether the user is allowed to make alterations to the Start/End
+                        markers
+                      type: boolean
+                      x-parser-schema-id: <anonymous-schema-97>
+                    running:
+                      description: Whether the loop has two valid markers and is currently running
+                      type: boolean
+                      x-parser-schema-id: <anonymous-schema-98>
+                    start: &a7
+                      type: object
+                      title: QuickLoopMarker
+                      properties:
+                        markerType:
+                          type: string
+                          title: QuickLoopMarkerType
+                          description: The type of entity the marker is locked to
+                          enum:
+                            - playlist
+                            - rundown
+                            - segment
+                            - part
+                          x-parser-schema-id: <anonymous-schema-100>
+                        rundownId:
+                          description: The rundown that this marker references. This will be set for
+                            rundown, segment and part markers
+                          type: string
+                          x-parser-schema-id: <anonymous-schema-101>
+                        segmentId:
+                          description: The segment that this marker references. This will be set for
+                            segment and part markers
+                          type: string
+                          x-parser-schema-id: <anonymous-schema-102>
+                        partId:
+                          description: The part that this marker references. This will be set for only
+                            part markers
+                          type: string
+                          x-parser-schema-id: <anonymous-schema-103>
+                      required:
+                        - markerType
+                      examples:
+                        - markerType: rundown
+                          rundownId: y9HauyWkcxQS3XaAOsW40BRLLsI_
+                      x-parser-schema-id: <anonymous-schema-99>
+                    end: *a7
+                  required:
+                    - locked
+                    - running
+                  examples:
+                    - locked: false
+                      running: true
+                      start:
+                        markerType: rundown
+                        rundownId: y9HauyWkcxQS3XaAOsW40BRLLsI_
+                      end:
+                        markerType: rundown
+                        rundownId: y9HauyWkcxQS3XaAOsW40BRLLsI_
+                  x-parser-schema-id: <anonymous-schema-96>
+              required:
+                - event
+                - id
+                - externalId
+                - name
+                - rundownIds
+                - currentPart
+                - currentSegment
+                - nextPart
+                - timing
+              additionalProperties: false
+              examples:
+                - event: activePlaylist
+                  id: OKAgZmZ0Buc99lE_2uPPSKVbMrQ_
+                  externalId: 1ZIYVYL1aEkNEJbeGsmRXr5s8wtkyxfPRjNSTxZfcoEI
+                  name: Playlist 0
+                  rundownIds:
+                    - y9HauyWkcxQS3XaAOsW40BRLLsI_
+                  currentPart:
+                    id: H5CBGYjThrMSmaYvRaa5FVKJIzk_
+                    name: Intro
+                    autoNext: false
+                    segmentId: n1mOVd5_K5tt4sfk6HYfTuwumGQ_
+                    pieces:
+                      - id: H5CBGYjThrMSmaYvRaa5FVKJIzk_
+                        name: Camera 1
+                        sourceLayer: Camera
+                        outputLayer: PGM
+                        tags:
+                          - camera
+                        publicData:
+                          switcherSource: 1
+                    publicData:
+                      partType: intro
+                    timing:
+                      expectedDurationMs: 15000
+                      startTime: 1600000060000
+                      projectedEndTime: 1600000075000
+                  currentSegment:
+                    id: OKAgZmZ0Buc99lE_2uPPSKVbMrQ_
+                    timing:
+                      expectedDurationMs: 15000
+                      budgetDurationMs: 20000
+                      countdownType: segment_budget_duration
+                      projectedEndTime: 1600000075000
+                    parts:
+                      - id: H5CBGYjThrMSmaYvRaa5FVKJIzk_
+                        name: Intro
+                        autoNext: false
+                        timing:
+                          expectedDurationMs: 15000
+                  nextPart:
+                    id: H5CBGYjThrMSmaYvRaa5FVKJIzk_
+                    name: Intro
+                    autoNext: false
+                    segmentId: n1mOVd5_K5tt4sfk6HYfTuwumGQ_
+                    pieces:
+                      - id: H5CBGYjThrMSmaYvRaa5FVKJIzk_
+                        name: Camera 1
+                        sourceLayer: Camera
+                        outputLayer: PGM
+                        tags:
+                          - camera
+                        publicData:
+                          switcherSource: 1
+                    publicData:
+                      partType: intro
+                  publicData:
+                    category: Evening News
+                  timing:
+                    timingMode: forward-time
+                    expectedStart: 1728895750727
+                    expectedDurationMs: 180000
+                  quickLoop:
+                    locked: false
+                    running: true
+                    start:
+                      markerType: rundown
+                      rundownId: y9HauyWkcxQS3XaAOsW40BRLLsI_
+                    end:
+                      markerType: rundown
+                      rundownId: y9HauyWkcxQS3XaAOsW40BRLLsI_
+              x-parser-schema-id: <anonymous-schema-33>
+            examples:
+              - payload:
+                  event: activePlaylist
+                  id: OKAgZmZ0Buc99lE_2uPPSKVbMrQ_
+                  externalId: 1ZIYVYL1aEkNEJbeGsmRXr5s8wtkyxfPRjNSTxZfcoEI
+                  name: Playlist 0
+                  rundownIds:
+                    - y9HauyWkcxQS3XaAOsW40BRLLsI_
+                  currentPart:
+                    id: H5CBGYjThrMSmaYvRaa5FVKJIzk_
+                    name: Intro
+                    autoNext: false
+                    segmentId: n1mOVd5_K5tt4sfk6HYfTuwumGQ_
+                    pieces:
+                      - id: H5CBGYjThrMSmaYvRaa5FVKJIzk_
+                        name: Camera 1
+                        sourceLayer: Camera
+                        outputLayer: PGM
+                        tags:
+                          - camera
+                        publicData:
+                          switcherSource: 1
+                    publicData:
+                      partType: intro
+                    timing:
+                      expectedDurationMs: 15000
+                      startTime: 1600000060000
+                      projectedEndTime: 1600000075000
+                  currentSegment:
+                    id: OKAgZmZ0Buc99lE_2uPPSKVbMrQ_
+                    timing:
+                      expectedDurationMs: 15000
+                      budgetDurationMs: 20000
+                      countdownType: segment_budget_duration
+                      projectedEndTime: 1600000075000
+                    parts:
+                      - id: H5CBGYjThrMSmaYvRaa5FVKJIzk_
+                        name: Intro
+                        autoNext: false
+                        timing:
+                          expectedDurationMs: 15000
+                  nextPart:
+                    id: H5CBGYjThrMSmaYvRaa5FVKJIzk_
+                    name: Intro
+                    autoNext: false
+                    segmentId: n1mOVd5_K5tt4sfk6HYfTuwumGQ_
+                    pieces:
+                      - id: H5CBGYjThrMSmaYvRaa5FVKJIzk_
+                        name: Camera 1
+                        sourceLayer: Camera
+                        outputLayer: PGM
+                        tags:
+                          - camera
+                        publicData:
+                          switcherSource: 1
+                    publicData:
+                      partType: intro
+                  publicData:
+                    category: Evening News
+                  timing:
+                    timingMode: forward-time
+                    expectedStart: 1728895750727
+                    expectedDurationMs: 180000
+                  quickLoop:
+                    locked: false
+                    running: true
+                    start:
+                      markerType: rundown
+                      rundownId: y9HauyWkcxQS3XaAOsW40BRLLsI_
+                    end:
+                      markerType: rundown
+                      rundownId: y9HauyWkcxQS3XaAOsW40BRLLsI_
+  activePieces:
+    description: Topic for active pieces updates
+    subscribe:
+      operationId: receiveActivePieces
+      description: Server sends active pieces events
+      message:
+        oneOf:
+          - messageId: activePieces
+            title: Active Pieces Event Message
+            payload: &a17
+              type: object
+              title: ActivePiecesEvent
+              properties:
+                event:
+                  type: string
+                  const: activePieces
+                  x-parser-schema-id: <anonymous-schema-105>
+                rundownPlaylistId:
+                  description: Unique id of the rundown playlist, or null if no playlist is active
+                  oneOf:
+                    - type: string
+                      x-parser-schema-id: <anonymous-schema-107>
+                    - type: 'null'
+                      x-parser-schema-id: <anonymous-schema-108>
+                  x-parser-schema-id: <anonymous-schema-106>
+                activePieces:
+                  description: Pieces that are currently active (on air)
+                  type: array
+                  items: *a8
+                  x-parser-schema-id: <anonymous-schema-109>
+              required:
+                - event
+                - rundownPlaylistId
+                - activePieces
+              additionalProperties: false
+              examples:
+                - event: activePieces
+                  rundownPlaylistId: OKAgZmZ0Buc99lE_2uPPSKVbMrQ_
+                  activePieces:
+                    - id: H5CBGYjThrMSmaYvRaa5FVKJIzk_
+                      name: Camera 1
+                      sourceLayer: Camera
+                      outputLayer: PGM
+                      tags:
+                        - camera
+                      publicData:
+                        switcherSource: 1
+              x-parser-schema-id: <anonymous-schema-104>
+            examples:
+              - payload:
+                  event: activePieces
+                  rundownPlaylistId: OKAgZmZ0Buc99lE_2uPPSKVbMrQ_
+                  activePieces:
+                    - id: H5CBGYjThrMSmaYvRaa5FVKJIzk_
+                      name: Camera 1
+                      sourceLayer: Camera
+                      outputLayer: PGM
+                      tags:
+                        - camera
+                      publicData:
+                        switcherSource: 1
+            x-parser-message-name: activePieces
+  segments:
+    description: Topic for Segment updates
+    subscribe:
+      operationId: receiveSegments
+      description: Server publishes Segment updates
+      message:
+        messageId: segments
+        title: Segments Event Message
+        payload: &a18
+          type: object
+          title: SegmentsEvent
+          properties:
+            event:
+              type: string
+              const: segments
+              x-parser-schema-id: <anonymous-schema-111>
+            rundownPlaylistId:
+              description: Unique id of the rundown playlist, or null if no playlist is active
+              oneOf:
+                - type: string
+                  x-parser-schema-id: <anonymous-schema-113>
+                - type: 'null'
+                  x-parser-schema-id: <anonymous-schema-114>
+              x-parser-schema-id: <anonymous-schema-112>
+            segments:
+              description: The segments that are in the currently active rundown playlist, in
+                order
+              type: array
+              items:
+                type: object
+                title: Segment
+                allOf:
+                  - *a9
+                  - type: object
+                    title: Segment
+                    properties:
+                      identifier:
+                        description: User-facing identifier that can be used to identify the contents of
+                          a segment in the Rundown source system
+                        type: string
+                        x-parser-schema-id: <anonymous-schema-118>
+                      rundownId:
+                        description: Unique id of the rundown this segment belongs to
+                        type: string
+                        x-parser-schema-id: <anonymous-schema-119>
+                      name:
+                        description: Name of the segment
+                        type: string
+                        x-parser-schema-id: <anonymous-schema-120>
+                      timing: *a10
+                      publicData:
+                        description: Optional arbitrary data
+                        x-parser-schema-id: <anonymous-schema-121>
+                    required:
+                      - rundownId
+                      - name
+                      - timing
+                    x-parser-schema-id: <anonymous-schema-117>
+                required:
+                  - id
+                  - rundownId
+                  - name
+                  - timing
+                examples:
+                  - id: OKAgZmZ0Buc99lE_2uPPSKVbMrQ_
+                    identifier: Segment 0 identifier
+                    rundownId: y9HauyWkcxQS3XaAOsW40BRLLsI_
+                    name: Segment 0
+                    timing:
+                      expectedDurationMs: 15000
+                      budgetDurationMs: 20000
+                      countdownType: segment_budget_duration
+                    publicData:
+                      containsLiveSource: true
+                x-parser-schema-id: <anonymous-schema-116>
+              x-parser-schema-id: <anonymous-schema-115>
+          required:
+            - event
+            - rundownPlaylistId
+            - segments
+          examples:
+            - event: segments
+              rundownPlaylistId: OKAgZmZ0Buc99lE_2uPPSKVbMrQ_
+              segments:
+                - id: OKAgZmZ0Buc99lE_2uPPSKVbMrQ_
+                  identifier: Segment 0 identifier
+                  rundownId: y9HauyWkcxQS3XaAOsW40BRLLsI_
+                  name: Segment 0
+                  timing:
+                    expectedDurationMs: 15000
+                    budgetDurationMs: 20000
+                    countdownType: segment_budget_duration
+                  publicData:
+                    containsLiveSource: true
+          x-parser-schema-id: <anonymous-schema-110>
+        examples:
+          - payload:
+              event: segments
+              rundownPlaylistId: OKAgZmZ0Buc99lE_2uPPSKVbMrQ_
+              segments:
+                - id: OKAgZmZ0Buc99lE_2uPPSKVbMrQ_
+                  identifier: Segment 0 identifier
+                  rundownId: y9HauyWkcxQS3XaAOsW40BRLLsI_
+                  name: Segment 0
+                  timing:
+                    expectedDurationMs: 15000
+                    budgetDurationMs: 20000
+                    countdownType: segment_budget_duration
+                  publicData:
+                    containsLiveSource: true
+        x-parser-message-name: segments
+  adLibs:
+    description: Topic for AdLibs updates
+    subscribe:
+      operationId: receiveAdLibs
+      description: Server publishes AdLibs updates
+      message:
+        oneOf:
+          - messageId: adLibs
+            title: AdLibs Event Message
+            payload: &a19
+              type: object
+              title: AdLibsEvent
+              properties:
+                event:
+                  type: string
+                  const: adLibs
+                  x-parser-schema-id: <anonymous-schema-123>
+                rundownPlaylistId:
+                  description: Unique id of the rundown playlist, or null if no playlist is active
+                  oneOf:
+                    - type: string
+                      title: Unique id of the rundown playlist
+                      x-parser-schema-id: <anonymous-schema-125>
+                    - type: 'null'
+                      title: Null if no playlist is active
+                      x-parser-schema-id: <anonymous-schema-126>
+                  x-parser-schema-id: <anonymous-schema-124>
+                adLibs:
+                  type: array
+                  description: The available AdLibs for this playlist
+                  items:
+                    title: AdLibStatus
+                    allOf:
+                      - &a11
+                        title: AdLibBase
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            description: Unique id of the AdLib
+                            x-parser-schema-id: <anonymous-schema-130>
+                          name:
+                            type: string
+                            description: The user defined AdLib name
+                            x-parser-schema-id: <anonymous-schema-131>
+                          sourceLayer:
+                            type: string
+                            description: The source layer name for this AdLib
+                            x-parser-schema-id: <anonymous-schema-132>
+                          outputLayer:
+                            type: string
+                            description: The output layer name for this AdLib
+                            x-parser-schema-id: <anonymous-schema-133>
+                          actionType:
+                            type: array
+                            description: The available action type names that can be used to modify the
+                              execution of the AdLib
+                            items:
+                              title: AdLibActionType
+                              type: object
+                              properties:
+                                name:
+                                  type: string
+                                  description: The string to be passed to the ExecuteAdlib function
+                                  x-parser-schema-id: <anonymous-schema-136>
+                                label:
+                                  type: string
+                                  description: The label for the AdLib type
+                                  x-parser-schema-id: <anonymous-schema-137>
+                              required:
+                                - name
+                                - label
+                              additionalProperties: false
+                              examples:
+                                - name: pvw
+                                  label: Preview
+                              x-parser-schema-id: <anonymous-schema-135>
+                            x-parser-schema-id: <anonymous-schema-134>
+                          tags:
+                            type: array
+                            description: Tags attached to this AdLib
+                            items:
+                              type: string
+                              x-parser-schema-id: <anonymous-schema-139>
+                            x-parser-schema-id: <anonymous-schema-138>
+                          publicData:
+                            description: Optional arbitrary data
+                            x-parser-schema-id: <anonymous-schema-140>
+                          optionsSchema:
+                            type: string
+                            description: JSON schema definition of the adLib properties that can be modified
+                              using the adLibOptions property in executeAdLib
+                            x-parser-schema-id: <anonymous-schema-141>
+                        required:
+                          - id
+                          - name
+                          - sourceLayer
+                          - actionType
+                        examples:
+                          - id: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
+                            name: Music video clip
+                            sourceLayer: Video Clip
+                            actionType:
+                              - name: pvw
+                                label: Preview
+                            tags:
+                              - music_video
+                            publicData:
+                              fileName: MV000123.mxf
+                            optionsSchema: '{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Play
+                              Video
+                              Clip","type":"object","properties":{"type":"adlib_action_video_clip","label":{"type":"string"},"clipId":{"type":"string"},"vo":{"type":"boolean"},"target":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Object
+                              Id","description":"Id of an object sent to
+                              Sofie","type":"string"},"duration":{"type":"number","exclusiveMinimum":0},"takeType":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"AdLib
+                              Action Take
+                              Type","type":"string","enum":["take_immediate","queue"]},"transition":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"AdLib
+                              Action Transition
+                              Type","oneOf":[{"type":"object","properties":{"type":"cut"},"required":["type"],"additionalProperties":false},{"type":"object","properties":{"type":"mix","duration":{"type":"number","exclusiveMinimum":0,"description":"Duration
+                              in
+                              ms"}},"required":["type","duration"],"additionalProperties":false},{"type":"object","properties":{"type":"wipe","duration":{"type":"number","exclusiveMinimum":0,"description":"Duration
+                              in
+                              ms"},"patternId":{"type":"string","description":"Type
+                              of wipe to
+                              use"}},"required":["type","duration","patternId"],"additionalProperties":false},{"type":"object","properties":{"type":"macro","macroId":{"type":"string","description":"Macro
+                              template to
+                              recall"}},"required":["type","macroId"],"additionalProperties":false}]}},"required":["type","clipId","vo","target"],"additionalProperties":false}"'
+                        x-parser-schema-id: <anonymous-schema-129>
+                      - type: object
+                        title: AdLibStatus
+                        properties:
+                          segmentId:
+                            description: Unique id of the segment this adLib belongs to
+                            type: string
+                            x-parser-schema-id: <anonymous-schema-143>
+                          partId:
+                            description: Unique id of the part this adLib belongs to
+                            type: string
+                            x-parser-schema-id: <anonymous-schema-144>
+                        required:
+                          - segmentId
+                          - partId
+                        x-parser-schema-id: <anonymous-schema-142>
+                    examples:
+                      - id: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
+                        name: Music video clip
+                        sourceLayer: Video Clip
+                        actionType:
+                          - name: pvw
+                            label: Preview
+                        tags:
+                          - music_video
+                        publicData:
+                          fileName: MV000123.mxf
+                        optionsSchema: '{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Play
+                          Video
+                          Clip","type":"object","properties":{"type":"adlib_action_video_clip","label":{"type":"string"},"clipId":{"type":"string"},"vo":{"type":"boolean"},"target":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Object
+                          Id","description":"Id of an object sent to
+                          Sofie","type":"string"},"duration":{"type":"number","exclusiveMinimum":0},"takeType":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"AdLib
+                          Action Take
+                          Type","type":"string","enum":["take_immediate","queue"]},"transition":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"AdLib
+                          Action Transition
+                          Type","oneOf":[{"type":"object","properties":{"type":"cut"},"required":["type"],"additionalProperties":false},{"type":"object","properties":{"type":"mix","duration":{"type":"number","exclusiveMinimum":0,"description":"Duration
+                          in
+                          ms"}},"required":["type","duration"],"additionalProperties":false},{"type":"object","properties":{"type":"wipe","duration":{"type":"number","exclusiveMinimum":0,"description":"Duration
+                          in
+                          ms"},"patternId":{"type":"string","description":"Type
+                          of wipe to
+                          use"}},"required":["type","duration","patternId"],"additionalProperties":false},{"type":"object","properties":{"type":"macro","macroId":{"type":"string","description":"Macro
+                          template to
+                          recall"}},"required":["type","macroId"],"additionalProperties":false}]}},"required":["type","clipId","vo","target"],"additionalProperties":false}"'
+                        segmentId: HsD8_QwE1ZmR5vN3XcK_Ab7y
+                        partId: JkL3_OpR6WxT1bF8Vq2_Zy9u
+                    x-parser-schema-id: <anonymous-schema-128>
+                  x-parser-schema-id: <anonymous-schema-127>
+                globalAdLibs:
+                  type: array
+                  description: The available Global AdLibs for this playlist
+                  items:
+                    title: GlobalAdLibStatus
+                    allOf:
+                      - *a11
+                    examples:
+                      - id: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
+                        name: Music video clip
+                        sourceLayer: Video Clip
+                        actionType:
+                          - name: pvw
+                            label: Preview
+                        tags:
+                          - music_video
+                        publicData:
+                          fileName: MV000123.mxf
+                        optionsSchema: '{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Play
+                          Video
+                          Clip","type":"object","properties":{"type":"adlib_action_video_clip","label":{"type":"string"},"clipId":{"type":"string"},"vo":{"type":"boolean"},"target":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Object
+                          Id","description":"Id of an object sent to
+                          Sofie","type":"string"},"duration":{"type":"number","exclusiveMinimum":0},"takeType":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"AdLib
+                          Action Take
+                          Type","type":"string","enum":["take_immediate","queue"]},"transition":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"AdLib
+                          Action Transition
+                          Type","oneOf":[{"type":"object","properties":{"type":"cut"},"required":["type"],"additionalProperties":false},{"type":"object","properties":{"type":"mix","duration":{"type":"number","exclusiveMinimum":0,"description":"Duration
+                          in
+                          ms"}},"required":["type","duration"],"additionalProperties":false},{"type":"object","properties":{"type":"wipe","duration":{"type":"number","exclusiveMinimum":0,"description":"Duration
+                          in
+                          ms"},"patternId":{"type":"string","description":"Type
+                          of wipe to
+                          use"}},"required":["type","duration","patternId"],"additionalProperties":false},{"type":"object","properties":{"type":"macro","macroId":{"type":"string","description":"Macro
+                          template to
+                          recall"}},"required":["type","macroId"],"additionalProperties":false}]}},"required":["type","clipId","vo","target"],"additionalProperties":false}"'
+                    x-parser-schema-id: <anonymous-schema-146>
+                  x-parser-schema-id: <anonymous-schema-145>
+              required:
+                - event
+                - rundownPlaylistId
+                - adLibs
+                - globalAdLibs
+              additionalProperties: false
+              examples:
+                - event: adLibs
+                  rundownPlaylistId: OKAgZmZ0Buc99lE_2uPPSKVbMrQ_
+                  adLibs:
+                    - id: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
+                      name: Music video clip
+                      sourceLayer: Video Clip
+                      actionType:
+                        - name: pvw
+                          label: Preview
+                      tags:
+                        - music_video
+                      publicData:
+                        fileName: MV000123.mxf
+                      optionsSchema: '{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Play
+                        Video
+                        Clip","type":"object","properties":{"type":"adlib_action_video_clip","label":{"type":"string"},"clipId":{"type":"string"},"vo":{"type":"boolean"},"target":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Object
+                        Id","description":"Id of an object sent to
+                        Sofie","type":"string"},"duration":{"type":"number","exclusiveMinimum":0},"takeType":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"AdLib
+                        Action Take
+                        Type","type":"string","enum":["take_immediate","queue"]},"transition":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"AdLib
+                        Action Transition
+                        Type","oneOf":[{"type":"object","properties":{"type":"cut"},"required":["type"],"additionalProperties":false},{"type":"object","properties":{"type":"mix","duration":{"type":"number","exclusiveMinimum":0,"description":"Duration
+                        in
+                        ms"}},"required":["type","duration"],"additionalProperties":false},{"type":"object","properties":{"type":"wipe","duration":{"type":"number","exclusiveMinimum":0,"description":"Duration
+                        in ms"},"patternId":{"type":"string","description":"Type
+                        of wipe to
+                        use"}},"required":["type","duration","patternId"],"additionalProperties":false},{"type":"object","properties":{"type":"macro","macroId":{"type":"string","description":"Macro
+                        template to
+                        recall"}},"required":["type","macroId"],"additionalProperties":false}]}},"required":["type","clipId","vo","target"],"additionalProperties":false}"'
+                      segmentId: HsD8_QwE1ZmR5vN3XcK_Ab7y
+                      partId: JkL3_OpR6WxT1bF8Vq2_Zy9u
+                  globalAdLibs:
+                    - id: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
+                      name: Music video clip
+                      sourceLayer: Video Clip
+                      actionType:
+                        - name: pvw
+                          label: Preview
+                      tags:
+                        - music_video
+                      publicData:
+                        fileName: MV000123.mxf
+                      optionsSchema: '{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Play
+                        Video
+                        Clip","type":"object","properties":{"type":"adlib_action_video_clip","label":{"type":"string"},"clipId":{"type":"string"},"vo":{"type":"boolean"},"target":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Object
+                        Id","description":"Id of an object sent to
+                        Sofie","type":"string"},"duration":{"type":"number","exclusiveMinimum":0},"takeType":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"AdLib
+                        Action Take
+                        Type","type":"string","enum":["take_immediate","queue"]},"transition":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"AdLib
+                        Action Transition
+                        Type","oneOf":[{"type":"object","properties":{"type":"cut"},"required":["type"],"additionalProperties":false},{"type":"object","properties":{"type":"mix","duration":{"type":"number","exclusiveMinimum":0,"description":"Duration
+                        in
+                        ms"}},"required":["type","duration"],"additionalProperties":false},{"type":"object","properties":{"type":"wipe","duration":{"type":"number","exclusiveMinimum":0,"description":"Duration
+                        in ms"},"patternId":{"type":"string","description":"Type
+                        of wipe to
+                        use"}},"required":["type","duration","patternId"],"additionalProperties":false},{"type":"object","properties":{"type":"macro","macroId":{"type":"string","description":"Macro
+                        template to
+                        recall"}},"required":["type","macroId"],"additionalProperties":false}]}},"required":["type","clipId","vo","target"],"additionalProperties":false}"'
+              x-parser-schema-id: <anonymous-schema-122>
+            examples:
+              - payload:
+                  event: adLibs
+                  rundownPlaylistId: OKAgZmZ0Buc99lE_2uPPSKVbMrQ_
+                  adLibs:
+                    - id: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
+                      name: Music video clip
+                      sourceLayer: Video Clip
+                      actionType:
+                        - name: pvw
+                          label: Preview
+                      tags:
+                        - music_video
+                      publicData:
+                        fileName: MV000123.mxf
+                      optionsSchema: '{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Play
+                        Video
+                        Clip","type":"object","properties":{"type":"adlib_action_video_clip","label":{"type":"string"},"clipId":{"type":"string"},"vo":{"type":"boolean"},"target":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Object
+                        Id","description":"Id of an object sent to
+                        Sofie","type":"string"},"duration":{"type":"number","exclusiveMinimum":0},"takeType":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"AdLib
+                        Action Take
+                        Type","type":"string","enum":["take_immediate","queue"]},"transition":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"AdLib
+                        Action Transition
+                        Type","oneOf":[{"type":"object","properties":{"type":"cut"},"required":["type"],"additionalProperties":false},{"type":"object","properties":{"type":"mix","duration":{"type":"number","exclusiveMinimum":0,"description":"Duration
+                        in
+                        ms"}},"required":["type","duration"],"additionalProperties":false},{"type":"object","properties":{"type":"wipe","duration":{"type":"number","exclusiveMinimum":0,"description":"Duration
+                        in ms"},"patternId":{"type":"string","description":"Type
+                        of wipe to
+                        use"}},"required":["type","duration","patternId"],"additionalProperties":false},{"type":"object","properties":{"type":"macro","macroId":{"type":"string","description":"Macro
+                        template to
+                        recall"}},"required":["type","macroId"],"additionalProperties":false}]}},"required":["type","clipId","vo","target"],"additionalProperties":false}"'
+                      segmentId: HsD8_QwE1ZmR5vN3XcK_Ab7y
+                      partId: JkL3_OpR6WxT1bF8Vq2_Zy9u
+                  globalAdLibs:
+                    - id: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
+                      name: Music video clip
+                      sourceLayer: Video Clip
+                      actionType:
+                        - name: pvw
+                          label: Preview
+                      tags:
+                        - music_video
+                      publicData:
+                        fileName: MV000123.mxf
+                      optionsSchema: '{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Play
+                        Video
+                        Clip","type":"object","properties":{"type":"adlib_action_video_clip","label":{"type":"string"},"clipId":{"type":"string"},"vo":{"type":"boolean"},"target":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Object
+                        Id","description":"Id of an object sent to
+                        Sofie","type":"string"},"duration":{"type":"number","exclusiveMinimum":0},"takeType":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"AdLib
+                        Action Take
+                        Type","type":"string","enum":["take_immediate","queue"]},"transition":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"AdLib
+                        Action Transition
+                        Type","oneOf":[{"type":"object","properties":{"type":"cut"},"required":["type"],"additionalProperties":false},{"type":"object","properties":{"type":"mix","duration":{"type":"number","exclusiveMinimum":0,"description":"Duration
+                        in
+                        ms"}},"required":["type","duration"],"additionalProperties":false},{"type":"object","properties":{"type":"wipe","duration":{"type":"number","exclusiveMinimum":0,"description":"Duration
+                        in ms"},"patternId":{"type":"string","description":"Type
+                        of wipe to
+                        use"}},"required":["type","duration","patternId"],"additionalProperties":false},{"type":"object","properties":{"type":"macro","macroId":{"type":"string","description":"Macro
+                        template to
+                        recall"}},"required":["type","macroId"],"additionalProperties":false}]}},"required":["type","clipId","vo","target"],"additionalProperties":false}"'
+            x-parser-message-name: adLibs
+  packages:
+    description: Packages topic for websocket subscriptions. Packages are assets
+      that need to be prepared by Sofie Package Manager or third-party systems
+      to make AdLibs and Pieces playable.
+    subscribe:
+      operationId: receivePackagesUpdate
+      description: Server sends packages updates
+      message:
+        oneOf:
+          - name: packages
+            messageId: packages
+            description: Status of Packages expected by Pieces
+            payload: &a20
+              title: PackagesEvent
+              type: object
+              properties:
+                event:
+                  type: string
+                  const: packages
+                  x-parser-schema-id: <anonymous-schema-148>
+                rundownPlaylistId:
+                  description: Unique id of the rundown playlist, or null if no playlist is active
+                  oneOf:
+                    - type: string
+                      x-parser-schema-id: <anonymous-schema-150>
+                    - type: 'null'
+                      x-parser-schema-id: <anonymous-schema-151>
+                  x-parser-schema-id: <anonymous-schema-149>
+                packages:
+                  description: The Package statuses for this playlist
+                  type: array
+                  items:
+                    title: PackageInfoStatus
+                    type: object
+                    properties:
+                      packageName:
+                        description: Name of the package
+                        type: string
+                        x-parser-schema-id: <anonymous-schema-154>
+                      status:
+                        title: PackageStatus
+                        type: string
+                        description: >
+                          Status:
+
+                          * `unknown` - status not determined (yet)
+
+                          * `ok` - no faults, can be played
+
+                          * `source_broken` - the source is present, but should
+                          not be played due to a technical malfunction (file is
+                          broken, camera robotics failed, REMOTE input is just
+                          bars, etc.)
+
+                          * `source_has_issues` - technically it can be played,
+                          but some issues with it were detected
+
+                          * `source_missing` - the source (file, live input) is
+                          missing and cannot be played
+
+                          * `source_not_ready` - can't be played for a
+                          non-technical reason (e.g. a placeholder clip with no
+                          content)
+
+                          * `source_not_set` - missing a file path
+
+                          * `source_unknown_state` - reported, but unrecognized
+                          state
+                        enum:
+                          - unknown
+                          - ok
+                          - source_broken
+                          - source_has_issues
+                          - source_missing
+                          - source_not_ready
+                          - source_not_set
+                          - source_unknown_state
+                        x-parser-schema-id: <anonymous-schema-155>
+                      rundownId:
+                        description: Id of the Rundown that a Piece (or AdLib) expecting this package
+                          belongs to
+                        type: string
+                        x-parser-schema-id: <anonymous-schema-156>
+                      partId:
+                        description: Id of the Part that a Piece (or AdLib) expecting this package
+                          belongs to. It could be an Id of a Part from the
+                          Active Playlist topic, or a Part not exposed otherwise
+                          by the LSG.
+                        type: string
+                        x-parser-schema-id: <anonymous-schema-157>
+                      segmentId:
+                        description: Id of the Segment that a Piece (or AdLib) expecting this package
+                          belongs to
+                        type: string
+                        x-parser-schema-id: <anonymous-schema-158>
+                      pieceOrAdLibId:
+                        description: Id of the Piece or AdLib that expects this package. It could be an
+                          Id of a Piece from the Active Pieces and Active
+                          Playlist topics, or an Id of an AdLib from the AdLibs
+                          topic. It could also be an Id of a Piece not exposed
+                          otherwise by the LSG, but still relevant, e.g. to
+                          summarize the status of packages within a specific
+                          Part/Segment.
+                        type: string
+                        x-parser-schema-id: <anonymous-schema-159>
+                      thumbnailUrl:
+                        description: URL where the thumbnail can be accessed
+                        type: string
+                        x-parser-schema-id: <anonymous-schema-160>
+                      previewUrl:
+                        description: URL where the preview can be accessed
+                        type: string
+                        x-parser-schema-id: <anonymous-schema-161>
+                    required:
+                      - status
+                      - rundownId
+                      - pieceOrAdLibId
+                    additionalProperties: false
+                    examples:
+                      - packageName: MV000123.mxf
+                        status: ok
+                        rundownId: y9HauyWkcxQS3XaAOsW40BRLLsI_
+                        partId: H5CBGYjThrMSmaYvRaa5FVKJIzk_
+                        segmentId: H5CBGYjThrMSmaYvRaa5FVKJIzk_
+                        pieceOrAdLibId: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
+                        thumbnailUrl: https://package-manager.local/package/MV000123.mov_thumbnail.jpg
+                        previewUrl: https://package-manager.local/package/MV000123.mov_preview
+                    x-parser-schema-id: <anonymous-schema-153>
+                  x-parser-schema-id: <anonymous-schema-152>
+              required:
+                - event
+                - rundownPlaylistId
+                - packages
+              additionalProperties: false
+              examples:
+                - event: packages
+                  rundownPlaylistId: y9HauyWkcxQS3XaAOsW40BRLLsI_
+                  packages:
+                    - packageName: MV000123.mxf
+                      status: ok
+                      rundownId: y9HauyWkcxQS3XaAOsW40BRLLsI_
+                      partId: H5CBGYjThrMSmaYvRaa5FVKJIzk_
+                      segmentId: H5CBGYjThrMSmaYvRaa5FVKJIzk_
+                      pieceOrAdLibId: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
+                      thumbnailUrl: https://package-manager.local/package/MV000123.mov_thumbnail.jpg
+                      previewUrl: https://package-manager.local/package/MV000123.mov_preview
+              x-parser-schema-id: <anonymous-schema-147>
+  buckets:
+    description: Buckets schema for websocket subscriptions
+    subscribe:
+      operationId: receiveBucketsUpdate
+      description: Server publishes Buckets updates
+      message:
+        oneOf:
+          - messageId: buckets
+            title: Buckets in Studio
+            payload: &a21
+              title: BucketsEvent
+              type: object
+              properties:
+                event:
+                  type: string
+                  const: buckets
+                  x-parser-schema-id: <anonymous-schema-163>
+                buckets:
+                  description: Buckets available in the Studio
+                  type: array
+                  items:
+                    title: BucketStatus
+                    type: object
+                    properties:
+                      id:
+                        description: Unique id of the bucket
+                        type: string
+                        x-parser-schema-id: <anonymous-schema-166>
+                      name:
+                        description: The user defined bucket name
+                        type: string
+                        x-parser-schema-id: <anonymous-schema-167>
+                      adLibs:
+                        description: The AdLibs in this bucket
+                        type: array
+                        items:
+                          title: BucketAdLibStatus
+                          allOf:
+                            - *a11
+                            - type: object
+                              title: BucketAdLibStatus
+                              properties:
+                                externalId:
+                                  type: string
+                                  description: Id of the adLib recognizable by the external source. Unique within
+                                    a bucket.
+                                  x-parser-schema-id: <anonymous-schema-171>
+                              required:
+                                - externalId
+                              x-parser-schema-id: <anonymous-schema-170>
+                          examples:
+                            - id: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
+                              name: Music video clip
+                              sourceLayer: Video Clip
+                              actionType:
+                                - name: pvw
+                                  label: Preview
+                              tags:
+                                - music_video
+                              publicData:
+                                fileName: MV000123.mxf
+                              optionsSchema: '{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Play
+                                Video
+                                Clip","type":"object","properties":{"type":"adlib_action_video_clip","label":{"type":"string"},"clipId":{"type":"string"},"vo":{"type":"boolean"},"target":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Object
+                                Id","description":"Id of an object sent to
+                                Sofie","type":"string"},"duration":{"type":"number","exclusiveMinimum":0},"takeType":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"AdLib
+                                Action Take
+                                Type","type":"string","enum":["take_immediate","queue"]},"transition":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"AdLib
+                                Action Transition
+                                Type","oneOf":[{"type":"object","properties":{"type":"cut"},"required":["type"],"additionalProperties":false},{"type":"object","properties":{"type":"mix","duration":{"type":"number","exclusiveMinimum":0,"description":"Duration
+                                in
+                                ms"}},"required":["type","duration"],"additionalProperties":false},{"type":"object","properties":{"type":"wipe","duration":{"type":"number","exclusiveMinimum":0,"description":"Duration
+                                in
+                                ms"},"patternId":{"type":"string","description":"Type
+                                of wipe to
+                                use"}},"required":["type","duration","patternId"],"additionalProperties":false},{"type":"object","properties":{"type":"macro","macroId":{"type":"string","description":"Macro
+                                template to
+                                recall"}},"required":["type","macroId"],"additionalProperties":false}]}},"required":["type","clipId","vo","target"],"additionalProperties":false}"'
+                              externalId: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
+                          x-parser-schema-id: <anonymous-schema-169>
+                        x-parser-schema-id: <anonymous-schema-168>
+                    required:
+                      - id
+                      - name
+                      - adLibs
+                    additionalProperties: false
+                    examples:
+                      - id: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
+                        name: My Bucket
+                        adLibs:
+                          - id: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
+                            name: Music video clip
+                            sourceLayer: Video Clip
+                            actionType:
+                              - name: pvw
+                                label: Preview
+                            tags:
+                              - music_video
+                            publicData:
+                              fileName: MV000123.mxf
+                            optionsSchema: '{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Play
+                              Video
+                              Clip","type":"object","properties":{"type":"adlib_action_video_clip","label":{"type":"string"},"clipId":{"type":"string"},"vo":{"type":"boolean"},"target":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Object
+                              Id","description":"Id of an object sent to
+                              Sofie","type":"string"},"duration":{"type":"number","exclusiveMinimum":0},"takeType":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"AdLib
+                              Action Take
+                              Type","type":"string","enum":["take_immediate","queue"]},"transition":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"AdLib
+                              Action Transition
+                              Type","oneOf":[{"type":"object","properties":{"type":"cut"},"required":["type"],"additionalProperties":false},{"type":"object","properties":{"type":"mix","duration":{"type":"number","exclusiveMinimum":0,"description":"Duration
+                              in
+                              ms"}},"required":["type","duration"],"additionalProperties":false},{"type":"object","properties":{"type":"wipe","duration":{"type":"number","exclusiveMinimum":0,"description":"Duration
+                              in
+                              ms"},"patternId":{"type":"string","description":"Type
+                              of wipe to
+                              use"}},"required":["type","duration","patternId"],"additionalProperties":false},{"type":"object","properties":{"type":"macro","macroId":{"type":"string","description":"Macro
+                              template to
+                              recall"}},"required":["type","macroId"],"additionalProperties":false}]}},"required":["type","clipId","vo","target"],"additionalProperties":false}"'
+                            externalId: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
+                    x-parser-schema-id: <anonymous-schema-165>
+                  x-parser-schema-id: <anonymous-schema-164>
+              required:
+                - event
+                - buckets
+              additionalProperties: false
+              examples:
+                - event: buckets
+                  buckets:
+                    - id: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
+                      name: My Bucket
+                      adLibs:
+                        - id: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
+                          name: Music video clip
+                          sourceLayer: Video Clip
+                          actionType:
+                            - name: pvw
+                              label: Preview
+                          tags:
+                            - music_video
+                          publicData:
+                            fileName: MV000123.mxf
+                          optionsSchema: '{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Play
+                            Video
+                            Clip","type":"object","properties":{"type":"adlib_action_video_clip","label":{"type":"string"},"clipId":{"type":"string"},"vo":{"type":"boolean"},"target":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Object
+                            Id","description":"Id of an object sent to
+                            Sofie","type":"string"},"duration":{"type":"number","exclusiveMinimum":0},"takeType":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"AdLib
+                            Action Take
+                            Type","type":"string","enum":["take_immediate","queue"]},"transition":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"AdLib
+                            Action Transition
+                            Type","oneOf":[{"type":"object","properties":{"type":"cut"},"required":["type"],"additionalProperties":false},{"type":"object","properties":{"type":"mix","duration":{"type":"number","exclusiveMinimum":0,"description":"Duration
+                            in
+                            ms"}},"required":["type","duration"],"additionalProperties":false},{"type":"object","properties":{"type":"wipe","duration":{"type":"number","exclusiveMinimum":0,"description":"Duration
+                            in
+                            ms"},"patternId":{"type":"string","description":"Type
+                            of wipe to
+                            use"}},"required":["type","duration","patternId"],"additionalProperties":false},{"type":"object","properties":{"type":"macro","macroId":{"type":"string","description":"Macro
+                            template to
+                            recall"}},"required":["type","macroId"],"additionalProperties":false}]}},"required":["type","clipId","vo","target"],"additionalProperties":false}"'
+                          externalId: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
+              x-parser-schema-id: <anonymous-schema-162>
+            examples:
+              - payload:
+                  event: buckets
+                  buckets:
+                    - id: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
+                      name: My Bucket
+                      adLibs:
+                        - id: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
+                          name: Music video clip
+                          sourceLayer: Video Clip
+                          actionType:
+                            - name: pvw
+                              label: Preview
+                          tags:
+                            - music_video
+                          publicData:
+                            fileName: MV000123.mxf
+                          optionsSchema: '{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Play
+                            Video
+                            Clip","type":"object","properties":{"type":"adlib_action_video_clip","label":{"type":"string"},"clipId":{"type":"string"},"vo":{"type":"boolean"},"target":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Object
+                            Id","description":"Id of an object sent to
+                            Sofie","type":"string"},"duration":{"type":"number","exclusiveMinimum":0},"takeType":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"AdLib
+                            Action Take
+                            Type","type":"string","enum":["take_immediate","queue"]},"transition":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"AdLib
+                            Action Transition
+                            Type","oneOf":[{"type":"object","properties":{"type":"cut"},"required":["type"],"additionalProperties":false},{"type":"object","properties":{"type":"mix","duration":{"type":"number","exclusiveMinimum":0,"description":"Duration
+                            in
+                            ms"}},"required":["type","duration"],"additionalProperties":false},{"type":"object","properties":{"type":"wipe","duration":{"type":"number","exclusiveMinimum":0,"description":"Duration
+                            in
+                            ms"},"patternId":{"type":"string","description":"Type
+                            of wipe to
+                            use"}},"required":["type","duration","patternId"],"additionalProperties":false},{"type":"object","properties":{"type":"macro","macroId":{"type":"string","description":"Macro
+                            template to
+                            recall"}},"required":["type","macroId"],"additionalProperties":false}]}},"required":["type","clipId","vo","target"],"additionalProperties":false}"'
+                          externalId: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
+            x-parser-message-name: buckets
+  /:
+    subscribe:
+      summary: Slash Messages
+      description: Messages that are received from the API - This channel is needed to
+        retain the generated Slash type from the old schema structure.
+        Eventually this should be removed.
+      operationId: sendRootMessage
+      message:
+        oneOf:
+          - messageId: pong-typeGen
+            payload: *a12
+            x-parser-message-name: pong-typeGen
+          - messageId: heartbeat-typeGen
+            payload: *a13
+            x-parser-message-name: heartbeat-typeGen
+          - messageId: subscriptionStatusSuccess-typeGen
+            payload: *a2
+            x-parser-message-name: subscriptionStatusSuccess-typeGen
+          - messageId: subscriptionStatusError-typeGen
+            payload: *a14
+            x-parser-message-name: subscriptionStatusError-typeGen
+          - messageId: studioUpdate-typeGen
+            payload: *a15
+            x-parser-message-name: studioUpdate-typeGen
+          - messageId: activePlaylist-typeGen
+            payload: *a16
+            x-parser-message-name: activePlaylist-typeGen
+          - messageId: activePieces-typeGen
+            payload: *a17
+            x-parser-message-name: activePieces-typeGen
+          - messageId: segments-typeGen
+            payload: *a18
+            x-parser-message-name: segments-typeGen
+          - messageId: adLibs-typeGen
+            payload: *a19
+            x-parser-message-name: adLibs-typeGen
+          - messageId: packages-typeGen
+            payload: *a20
+            x-parser-message-name: packages-typeGen
+          - messageId: buckets-typeGen
+            payload: *a21
+            x-parser-message-name: buckets-typeGen
+x-parser-spec-parsed: true
+x-parser-api-version: 3

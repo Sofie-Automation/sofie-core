@@ -5,11 +5,13 @@
  * and run "yarn generate-schema-types" to regenerate this file.
  */
 
+type Subscriptions = SubscriptionStatusError | SubscriptionStatusSuccess
+
 type Slash =
 	| PongEvent
 	| HeartbeatEvent
-	| SubscriptionStatusError
 	| SubscriptionStatusSuccess
+	| SubscriptionStatusError
 	| StudioEvent
 	| ActivePlaylistEvent
 	| ActivePiecesEvent
@@ -17,6 +19,14 @@ type Slash =
 	| AdLibsEvent
 	| PackagesEvent
 	| BucketsEvent
+
+interface PingEvent {
+	event: 'ping'
+	/**
+	 * Client originated ID reflected in response message.
+	 */
+	reqid: number
+}
 
 interface PongEvent {
 	event: 'pong'
@@ -30,25 +40,31 @@ interface HeartbeatEvent {
 	event: 'heartbeat'
 }
 
-interface SubscriptionStatusError {
-	errorMessage: string
-	event: 'subscriptionStatus'
+interface SubscribeEvent {
+	/**
+	 * Name of the event when subscribing or unsubscribing to topics.
+	 */
+	event: SubscriptionEventName
 	/**
 	 * Client originated ID reflected in response message.
 	 */
 	reqid: number
-	subscription: SubscriptionDetails
+	subscription: SubscriptionRequestDetails
 }
 
-interface SubscriptionDetails {
+/**
+ * Name of the event when subscribing or unsubscribing to topics.
+ */
+enum SubscriptionEventName {
+	SUBSCRIBE = 'subscribe',
+	UNSUBSCRIBE = 'unsubscribe',
+}
+
+interface SubscriptionRequestDetails {
 	/**
 	 * The name of the topic related to this status.
 	 */
 	name: SubscriptionName
-	/**
-	 * The current status of the subscription
-	 */
-	status: SubscriptionStatus
 }
 
 /**
@@ -62,6 +78,28 @@ enum SubscriptionName {
 	AD_LIBS = 'adLibs',
 	BUCKETS = 'buckets',
 	RESERVED_PACKAGES = 'packages',
+}
+
+interface SubscriptionStatusError {
+	errorMessage: string
+	event: 'subscriptionStatus'
+	/**
+	 * Client originated ID reflected in response message.
+	 */
+	reqid: number
+	subscription: SubscriptionDetails
+	additionalProperties?: Record<string, any>
+}
+
+interface SubscriptionDetails {
+	/**
+	 * The name of the topic related to this status.
+	 */
+	name: SubscriptionName
+	/**
+	 * The current status of the subscription
+	 */
+	status: SubscriptionStatus
 }
 
 /**
@@ -79,6 +117,7 @@ interface SubscriptionStatusSuccess {
 	 */
 	reqid: number
 	subscription: SubscriptionDetails
+	additionalProperties?: Record<string, any>
 }
 
 interface StudioEvent {
@@ -95,6 +134,7 @@ interface StudioEvent {
 	 * The playlists that are currently loaded in the studio
 	 */
 	playlists: PlaylistStatus[]
+	additionalProperties?: Record<string, any>
 }
 
 interface PlaylistStatus {
@@ -166,17 +206,17 @@ interface CurrentPartStatus {
 	 */
 	id: string
 	/**
-	 * User name of the part
+	 * User-presentable name of the part
 	 */
 	name: string
-	/**
-	 * Unique id of the segment this part belongs to
-	 */
-	segmentId: string
 	/**
 	 * If this part will progress to the next automatically
 	 */
 	autoNext?: boolean
+	/**
+	 * Unique id of the segment this part belongs to
+	 */
+	segmentId: string
 	/**
 	 * All pieces in this part
 	 */
@@ -224,13 +264,13 @@ interface PieceStatus {
  */
 interface CurrentPartTiming {
 	/**
-	 * Unix timestamp of when the part started (milliseconds)
-	 */
-	startTime: number
-	/**
 	 * Expected duration of the part (milliseconds)
 	 */
 	expectedDurationMs: number
+	/**
+	 * Unix timestamp of when the part started (milliseconds)
+	 */
+	startTime: number
 	/**
 	 * Unix timestamp of when the part is projected to end (milliseconds). A sum of `startTime` and `expectedDurationMs`.
 	 */
@@ -248,6 +288,7 @@ interface CurrentSegment {
 	 */
 	timing: CurrentSegmentTiming
 	parts: CurrentSegmentPart[]
+	additionalProperties?: Record<string, any>
 }
 
 /**
@@ -255,21 +296,21 @@ interface CurrentSegment {
  */
 interface CurrentSegmentTiming {
 	/**
-	 * Expected duration of the segment
+	 * Expected duration of the segment (milliseconds)
 	 */
 	expectedDurationMs: number
 	/**
-	 * Budget duration of the segment
+	 * Budget duration of the segment (milliseconds)
 	 */
 	budgetDurationMs?: number
-	/**
-	 * Unix timestamp of when the segment is projected to end (milliseconds). The time this segment started, offset by its budget duration, if the segment has a defined budget duration. Otherwise, the time the current part started, offset by the difference between expected durations of all parts in this segment and the as-played durations of the parts that already stopped.
-	 */
-	projectedEndTime: number
 	/**
 	 * Countdown type within the segment. Default: `part_expected_duration`
 	 */
 	countdownType?: SegmentCountdownType
+	/**
+	 * Unix timestamp of when the segment is projected to end (milliseconds). The time this segment started, offset by its budget duration, if the segment has a defined budget duration. Otherwise, the time the current part started, offset by the difference between expected durations of all parts in this segment and the as-played durations of the parts that already stopped.
+	 */
+	projectedEndTime: number
 	additionalProperties?: Record<string, any>
 }
 
@@ -295,11 +336,12 @@ interface CurrentSegmentPart {
 	 */
 	autoNext?: boolean
 	timing: CurrentSegmentPartTiming
+	additionalProperties?: Record<string, any>
 }
 
 interface CurrentSegmentPartTiming {
 	/**
-	 * Expected duration of the part
+	 * Expected duration of the part (milliseconds)
 	 */
 	expectedDurationMs?: number
 	additionalProperties?: Record<string, any>
@@ -311,17 +353,17 @@ interface PartStatus {
 	 */
 	id: string
 	/**
-	 * User name of the part
+	 * User-presentable name of the part
 	 */
 	name: string
-	/**
-	 * Unique id of the segment this part belongs to
-	 */
-	segmentId: string
 	/**
 	 * If this part will progress to the next automatically
 	 */
 	autoNext?: boolean
+	/**
+	 * Unique id of the segment this part belongs to
+	 */
+	segmentId: string
 	/**
 	 * All pieces in this part
 	 */
@@ -437,6 +479,7 @@ interface SegmentsEvent {
 	 * The segments that are in the currently active rundown playlist, in order
 	 */
 	segments: Segment[]
+	additionalProperties?: Record<string, any>
 }
 
 interface Segment {
@@ -461,6 +504,7 @@ interface Segment {
 	 * Optional arbitrary data
 	 */
 	publicData?: any
+	additionalProperties?: Record<string, any>
 }
 
 interface SegmentTiming {
@@ -720,19 +764,24 @@ interface BucketAdLibStatus {
 	 */
 	optionsSchema?: string
 	/**
-	 * Id of the adlib recognizable by the external source. Unique within a bucket.
+	 * Id of the adLib recognizable by the external source. Unique within a bucket.
 	 */
 	externalId: string
 	additionalProperties?: Record<string, any>
 }
 
 export {
+	Subscriptions,
 	Slash,
+	PingEvent,
 	PongEvent,
 	HeartbeatEvent,
+	SubscribeEvent,
+	SubscriptionEventName,
+	SubscriptionRequestDetails,
+	SubscriptionName,
 	SubscriptionStatusError,
 	SubscriptionDetails,
-	SubscriptionName,
 	SubscriptionStatus,
 	SubscriptionStatusSuccess,
 	StudioEvent,

@@ -1,0 +1,11 @@
+components:
+  messages:
+    studioUpdate:
+      name: studio
+      messageId: studioUpdate
+      description: Studio status
+      payload:
+        $ref: '../studioEvent/studioEvent.yaml#/$defs/studioEvent'
+      examples:
+        - payload:
+            $ref: '../studioEvent/studioEvent-example.yaml'

@@ -1,0 +1,19 @@
+$defs:
+  quickLoopMarker:
+    type: object
+    title: QuickLoopMarker
+    properties:
+      markerType:
+        $ref: '../quickLoopMarkerType.yaml#/$defs/quickLoopMarkerType'
+      rundownId:
+        description: The rundown that this marker references. This will be set for rundown, segment and part markers
+        type: string
+      segmentId:
+        description: The segment that this marker references. This will be set for segment and part markers
+        type: string
+      partId:
+        description: The part that this marker references. This will be set for only part markers
+        type: string
+    required: [markerType]
+    examples:
+      - $ref: './quickLoopMarker-example.yaml'
