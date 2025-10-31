@@ -50,7 +50,7 @@ export function GenericSubDevicesTable({
 				device._id,
 				literal<PeripheralDeviceTranslated>({
 					_id: device._id,
-					name: device.name || unprotectString(device._id),
+					name: device.studioAndConfigId?.configId || device.name || unprotectString(device._id),
 					subdeviceConfigSchema: device.configManifest?.subdeviceConfigSchema,
 					subdeviceManifest: device.configManifest?.subdeviceManifest ?? {},
 				})
@@ -115,7 +115,7 @@ export function GenericSubDevicesTable({
 			<thead>
 				<tr className="hl">
 					<th key="ID">ID</th>
-					<th key="Parent">{t('Parent')}</th>
+					<th key="Parent">{t('Parent Config ID')}</th>
 					<th key="Type">{t('Type')}</th>
 					<th key="action">&nbsp;</th>
 				</tr>
@@ -282,7 +282,7 @@ function SubDeviceEditRow({
 			<td colSpan={99}>
 				<div className="properties-grid">
 					<LabelAndOverridesForDropdown
-						label={t('Peripheral Device ID')}
+						label={t('Parent Config ID')}
 						item={item}
 						overrideHelper={overrideHelper}
 						itemKey={'peripheralDeviceId'}

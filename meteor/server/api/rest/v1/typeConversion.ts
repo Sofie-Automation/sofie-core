@@ -120,7 +120,7 @@ export async function showStyleBaseFrom(
 		outputLayersWithOverrides: outputLayers,
 		sourceLayersWithOverrides: sourceLayers,
 		blueprintConfigWithOverrides: blueprintConfig,
-		_rundownVersionHash: '',
+		_rundownVersionHash: showStyleBase?._rundownVersionHash ?? '',
 		lastBlueprintConfig: undefined,
 		lastBlueprintFixUpHash: undefined,
 	}
@@ -343,7 +343,7 @@ export async function studioFrom(apiStudio: APIStudio, existingId?: StudioId): P
 		organizationId: null,
 		mappingsWithOverrides: wrapDefaultObject({}),
 		routeSetsWithOverrides: wrapDefaultObject({}),
-		_rundownVersionHash: '',
+		_rundownVersionHash: studio?._rundownVersionHash ?? '',
 		routeSetExclusivityGroupsWithOverrides: wrapDefaultObject({}),
 		packageContainersWithOverrides: wrapDefaultObject({}),
 		previewContainerIds: [],

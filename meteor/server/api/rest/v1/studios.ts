@@ -9,7 +9,7 @@ import { Meteor } from 'meteor/meteor'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { PeripheralDevices, RundownPlaylists, Studios } from '../../../collections'
 import { APIStudioFrom, studioFrom, validateAPIBlueprintConfigForStudio } from './typeConversion'
-import { runUpgradeForStudio, validateConfigForStudio } from '../../../migration/upgrades'
+import { runUpgradeForStudio, updateStudioBaseline, validateConfigForStudio } from '../../../migration/upgrades'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { ServerClientAPI } from '../../client'
 import { assertNever, literal } from '../../../lib/tempLib'
@@ -57,6 +57,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 		checkValidation(`addStudio ${newStudioId}`, validation.messages)
 
 		await runUpgradeForStudio(newStudioId)
+		await updateStudioBaseline(newStudioId)
 		return ClientAPI.responseSuccess(unprotectString(newStudioId), 200)
 	}
 
@@ -76,7 +77,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 		_event: string,
 		studioId: StudioId,
 		apiStudio: APIStudio
-	): Promise<ClientAPI.ClientResponse<void>> {
+	): Promise<ClientAPI.ClientResponse<string | false>> {
 		const blueprintConfigValidation = await validateAPIBlueprintConfigForStudio(apiStudio)
 		checkValidation(`addOrUpdateStudio ${studioId}`, blueprintConfigValidation)
 
@@ -106,7 +107,15 @@ class StudiosServerAPI implements StudiosRestAPI {
 		const validation = await validateConfigForStudio(studioId)
 		checkValidation(`addOrUpdateStudio ${studioId}`, validation.messages)
 
-		return ClientAPI.responseSuccess(await runUpgradeForStudio(studioId))
+		return ClientAPI.responseSuccess(
+			await new Promise<string | false>((resolve) =>
+				// wait for the upsert to complete before upgrade
+				setTimeout(async () => {
+					await runUpgradeForStudio(studioId)
+					resolve(await updateStudioBaseline(studioId))
+				}, 200)
+			)
+		)
 	}
 
 	async getStudioConfig(
@@ -125,7 +134,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 		_event: string,
 		studioId: StudioId,
 		config: object
-	): Promise<ClientAPI.ClientResponse<void>> {
+	): Promise<ClientAPI.ClientResponse<string | false>> {
 		const existingStudio = await Studios.findOneAsync(studioId)
 		if (!existingStudio) {
 			throw new Meteor.Error(404, `Studio ${studioId} not found`)
@@ -148,7 +157,15 @@ class StudiosServerAPI implements StudiosRestAPI {
 		const validation = await validateConfigForStudio(studioId)
 		checkValidation(`updateStudioConfig ${studioId}`, validation.messages)
 
-		return ClientAPI.responseSuccess(await runUpgradeForStudio(studioId))
+		return ClientAPI.responseSuccess(
+			await new Promise<string | false>((resolve) =>
+				// wait for the upsert to complete before upgrade
+				setTimeout(async () => {
+					await runUpgradeForStudio(studioId)
+					resolve(await updateStudioBaseline(studioId))
+				}, 200)
+			)
+		)
 	}
 
 	async deleteStudio(
@@ -400,7 +417,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<StudiosRestAPI>): 
 		}
 	)
 
-	registerRoute<{ studioId: string }, APIStudio, void>(
+	registerRoute<{ studioId: string }, APIStudio, string | false>(
 		'put',
 		'/studios/:studioId',
 		new Map([
@@ -431,7 +448,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<StudiosRestAPI>): 
 		}
 	)
 
-	registerRoute<{ studioId: string }, object, void>(
+	registerRoute<{ studioId: string }, object, string | false>(
 		'put',
 		'/studios/:studioId/config',
 		new Map([

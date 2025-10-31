@@ -44,10 +44,10 @@
 					"default": 10542
 				}
 			},
-			"required": ["lower", "upper", "query"],
+			"required": [],
 			"additionalProperties": false
 		}
 	},
-	"required": ["mosId"],
+	"required": ["mosId", "ports"],
 	"additionalProperties": false
 }
