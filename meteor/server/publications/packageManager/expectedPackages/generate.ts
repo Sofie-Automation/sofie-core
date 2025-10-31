@@ -194,9 +194,9 @@ function generateExpectedPackageForDevice(
 		if (lookedUpSource) {
 			combinedSources.push(calculateCombinedSource(packageSource, lookedUpSource))
 		} else {
-			logger.warn(
-				`Pub.expectedPackagesForDevice: Source package container "${packageSource.containerId}" not found`
-			)
+			// This can happen if the blueprints reference a Package Container that is for another studio.
+			// checkPieceContentStatus will formulate a proper status for this situation
+
 			// Add a placeholder source, it's used to provide users with a hint of what's wrong
 			combinedSources.push({
 				containerId: packageSource.containerId,
