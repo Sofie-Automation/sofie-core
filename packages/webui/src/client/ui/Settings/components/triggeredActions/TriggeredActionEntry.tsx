@@ -13,7 +13,7 @@ import { DBBlueprintTrigger } from '@sofie-automation/meteor-lib/dist/collection
 import { useTracker, useTrackerAsync } from '../../../../lib/ReactMeteorData/ReactMeteorData.js'
 import { ActionEditor } from './actionEditors/ActionEditor.js'
 import { OutputLayers, SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { flatten, getRandomString } from '../../../../lib/tempLib.js'
+import { flatten, getRandomString } from '@sofie-automation/corelib/dist/lib'
 import {
 	createAction,
 	isPreviewableAction,

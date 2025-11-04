@@ -3,7 +3,8 @@ import _ from 'underscore'
 import { Tracker } from 'meteor/tracker'
 import { Meteor } from 'meteor/meteor'
 import { EventEmitter } from 'events'
-import { Time, assertNever, getRandomString } from '../tempLib.js'
+import { assertNever, getRandomString } from '@sofie-automation/corelib/dist/lib'
+import type { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
 import {
 	ProtectedString,
 	unprotectString,

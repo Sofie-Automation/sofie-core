@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
 import Moment from 'react-moment'
-import { Time } from '../../lib/tempLib.js'
+import type { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { Evaluation } from '@sofie-automation/meteor-lib/dist/collections/Evaluations'
 import { DatePickerFromTo } from '../../lib/datePicker.js'

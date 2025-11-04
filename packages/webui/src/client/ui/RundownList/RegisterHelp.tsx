@@ -1,6 +1,6 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { literal } from '../../lib/tempLib.js'
+import { literal } from '@sofie-automation/corelib/dist/lib'
 import { ReactNotification } from '../../lib/notifications/ReactNotification.js'
 import { ToolTipStep } from '../RundownList.js'
 import { NotificationAction } from '../../lib/notifications/notifications.js'

@@ -4,7 +4,7 @@ import { PartInstance, wrapPartToTemporaryInstance } from '@sofie-automation/met
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { literal } from '../tempLib.js'
+import { literal } from '@sofie-automation/corelib/dist/lib'
 import { unprotectString, protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { RundownTimingCalculator, RundownTimingContext, findPartInstancesInQuickLoop } from '../rundownTiming.js'
 import { PlaylistTimingType, SegmentTimingInfo } from '@sofie-automation/blueprints-integration'

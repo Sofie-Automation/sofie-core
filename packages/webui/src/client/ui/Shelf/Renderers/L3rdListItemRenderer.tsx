@@ -7,7 +7,7 @@ import { NoraContent, PieceLifespan } from '@sofie-automation/blueprints-integra
 import { getElementDocumentOffset, OffsetPosition } from '../../../utils/positions.js'
 import { getElementWidth } from '../../../utils/dimensions.js'
 import { StyledTimecode } from '../../../lib/StyledTimecode.js'
-import { assertNever } from '../../../lib/tempLib.js'
+import { assertNever } from '@sofie-automation/corelib/dist/lib'
 import { AdLibPieceUi } from '../../../lib/shelf.js'
 import { ActionAdLibHotkeyPreview } from '../../../lib/triggers/ActionAdLibHotkeyPreview.js'
 import {

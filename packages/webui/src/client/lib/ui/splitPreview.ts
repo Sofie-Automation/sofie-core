@@ -3,7 +3,7 @@ import {
 	SplitsContentBoxContent,
 	SplitsContentBoxProperties,
 } from '@sofie-automation/blueprints-integration'
-import { literal } from '../tempLib.js'
+import { literal } from '@sofie-automation/corelib/dist/lib'
 import { ReadonlyDeep } from 'type-fest'
 
 const DEFAULT_POSITIONS = [

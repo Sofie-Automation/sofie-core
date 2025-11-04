@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Meteor } from 'meteor/meteor'
 import _ from 'underscore'
-import { Time } from './tempLib.js'
+import type { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { getCurrentTime, systemTime } from './systemTime.js'
 import { logger } from './logging.js'
 import shajs from 'sha.js'

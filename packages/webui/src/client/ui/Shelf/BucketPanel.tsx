@@ -27,7 +27,7 @@ import {
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { doUserAction, getEventTimestamp, UserAction } from '../../lib/clientUserAction.js'
 import { NotificationCenter, Notification, NoticeLevel } from '../../lib/notifications/notifications.js'
-import { literal } from '../../lib/tempLib.js'
+import { literal } from '@sofie-automation/corelib/dist/lib'
 import { unprotectString, protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { contextMenuHoldToDisplayTime, UserAgentPointer, USER_AGENT_POINTER_PROPERTY } from '../../lib/lib.js'
 import { IDashboardPanelTrackedProps } from './DashboardPanel.js'

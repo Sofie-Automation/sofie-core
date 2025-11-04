@@ -2,7 +2,7 @@ import { isPromise } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { Meteor } from 'meteor/meteor'
 import { Tracker } from 'meteor/tracker'
 import _ from 'underscore'
-import { getRandomString } from './tempLib.js'
+import { getRandomString } from '@sofie-automation/corelib/dist/lib'
 
 const isolatedAutorunsMem: {
 	[key: string]: {
