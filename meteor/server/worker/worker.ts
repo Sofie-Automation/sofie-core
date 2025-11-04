@@ -8,7 +8,7 @@ import { FORCE_CLEAR_CACHES_JOB, IS_INSPECTOR_ENABLED } from '@sofie-automation/
 import { threadedClass, Promisify, ThreadedClassManager } from 'threadedclass'
 import type { JobSpec } from '@sofie-automation/job-worker/dist/main'
 import type { IpcJobWorker } from '@sofie-automation/job-worker/dist/ipc'
-import { createManualPromise, getRandomString, ManualPromise, Time } from '../lib/tempLib'
+import { getRandomString, Time } from '../lib/tempLib'
 import { getCurrentTime } from '../lib/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { UserActionsLogItem } from '@sofie-automation/meteor-lib/dist/collections/UserActionsLog'
@@ -53,7 +53,7 @@ const metricsQueueErrorsCounter = new MetricsCounter({
 interface JobQueue {
 	jobs: Array<JobEntry | null>
 	/** Notify that there is a job waiting (aka worker is long-polling) */
-	notifyWorker: ManualPromise<void> | null
+	notifyWorker: PromiseWithResolvers<void> | null
 
 	metricsTotal: MetricsCounter.Internal
 	metricsSuccess: MetricsCounter.Internal
@@ -129,7 +129,7 @@ async function waitForNextJob(queueName: string): Promise<void> {
 		Meteor.defer(() => {
 			try {
 				// Notify the worker in the background
-				oldNotify.manualReject(new Error('new workerThread, replacing the old'))
+				oldNotify.reject(new Error('new workerThread, replacing the old'))
 			} catch (_e) {
 				// Ignore
 			}
@@ -137,8 +137,8 @@ async function waitForNextJob(queueName: string): Promise<void> {
 	}
 
 	// Wait to be notified about a job
-	queue.notifyWorker = createManualPromise()
-	return queue.notifyWorker
+	queue.notifyWorker = Promise.withResolvers()
+	return queue.notifyWorker.promise
 }
 /** This is called by each Worker Thread, when it thinks there is a job to execute */
 async function getNextJob(queueName: string): Promise<JobSpec | null> {
@@ -170,7 +170,7 @@ async function interruptJobStream(queueName: string): Promise<void> {
 		Meteor.defer(() => {
 			try {
 				// Notify the worker in the background
-				oldNotify.manualResolve()
+				oldNotify.resolve()
 			} catch (_e) {
 				// Ignore
 			}
@@ -205,7 +205,7 @@ function queueJobInner(queueName: string, jobToQueue: JobEntry): void {
 		Meteor.defer(() => {
 			try {
 				// Notify the worker in the background
-				notify.manualResolve()
+				notify.resolve()
 			} catch (e) {
 				// Queue failed
 				logger.error(`Error in notifyWorker: ${stringifyError(e)}`)
@@ -510,8 +510,8 @@ function generateCompletionHandler<TRes>(
 ): { result: WorkerJob<TRes>; completionHandler: JobCompletionHandler } {
 	// logger.debug(`Queued job #${job.id} of "${name}" to "${queue.name}"`)
 
-	const complete = createManualPromise<TRes>()
-	const getTimings = createManualPromise<JobTimings>()
+	const complete = Promise.withResolvers<TRes>()
+	const getTimings = Promise.withResolvers<JobTimings>()
 
 	// TODO: Worker - timeouts
 
@@ -520,17 +520,17 @@ function generateCompletionHandler<TRes>(
 		try {
 			if (err) {
 				logger.debug(`Completed job #${jobId} with error`)
-				complete.manualReject(err)
+				complete.reject(err)
 			} else {
 				logger.debug(`Completed job #${jobId} with success`)
-				complete.manualResolve(res)
+				complete.resolve(res)
 			}
 		} catch (e) {
 			logger.error(`Job completion failed: ${stringifyError(e)}`)
 		}
 
 		try {
-			getTimings.manualResolve({
+			getTimings.resolve({
 				queueTime,
 				startedTime,
 
@@ -544,8 +544,8 @@ function generateCompletionHandler<TRes>(
 
 	return {
 		result: {
-			complete,
-			getTimings,
+			complete: complete.promise,
+			getTimings: getTimings.promise,
 		},
 		completionHandler,
 	}

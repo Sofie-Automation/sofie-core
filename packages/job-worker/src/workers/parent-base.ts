@@ -1,11 +1,5 @@
 import { StudioId, WorkerId, WorkerThreadId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import {
-	ManualPromise,
-	createManualPromise,
-	assertNever,
-	getRandomString,
-	deferAsync,
-} from '@sofie-automation/corelib/dist/lib'
+import { assertNever, getRandomString, deferAsync } from '@sofie-automation/corelib/dist/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { startTransaction } from '../profiler.js'
@@ -71,7 +65,7 @@ export abstract class WorkerParentBase {
 	readonly #mongoDbName: string
 	readonly #locksManager: LocksManager
 
-	#terminate: ManualPromise<void> | undefined
+	#terminate: PromiseWithResolvers<void> | undefined
 
 	readonly #jobManager: JobManager
 	readonly #jobStream: JobStream
@@ -345,7 +339,7 @@ export abstract class WorkerParentBase {
 					}
 
 					// Mark completed
-					this.#terminate.manualResolve()
+					this.#terminate.resolve()
 				},
 				(e: unknown) => {
 					deferAsync(
@@ -356,11 +350,11 @@ export abstract class WorkerParentBase {
 
 							// Ensure the termination is tracked
 							if (!this.#terminate) {
-								this.#terminate = createManualPromise()
+								this.#terminate = Promise.withResolvers()
 							}
 
 							// Mark completed
-							this.#terminate.manualResolve()
+							this.#terminate.resolve()
 						},
 						(e2: unknown) => {
 							logger.error(`Worker thread errored while terminating: ${stringifyError(e2)}`)
@@ -447,10 +441,10 @@ export abstract class WorkerParentBase {
 		await this.#locksManager.releaseAllForThread(this.#queueName)
 
 		if (!this.#terminate) {
-			this.#terminate = createManualPromise()
+			this.#terminate = Promise.withResolvers()
 		}
 		// wait for the work loop to exit
-		await this.#terminate
+		await this.#terminate.promise
 
 		// stop the thread
 		await this.terminateWorkerThread()
