@@ -1,6 +1,6 @@
 import ClassNames from 'classnames'
 import { ISourceLayer, IBlueprintActionTriggerMode } from '@sofie-automation/blueprints-integration'
-import { unprotectString } from '../../lib/tempLib.js'
+import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import renderItem from './Renderers/ItemRendererFactory.js'
 import { useContentStatusForAdlibPiece } from '../SegmentTimeline/withMediaObjectStatus.js'
 import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'

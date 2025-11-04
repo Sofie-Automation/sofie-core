@@ -6,7 +6,7 @@ import {
 } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { TFunction, useTranslation } from 'react-i18next'
 import Moment from 'react-moment'
-import { unprotectString } from '../../../lib/tempLib.js'
+import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { getCurrentTime } from '../../../lib/systemTime.js'
 import { Link } from 'react-router-dom'
 import Tooltip from 'rc-tooltip'

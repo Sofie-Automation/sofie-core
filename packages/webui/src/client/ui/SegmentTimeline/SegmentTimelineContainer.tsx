@@ -11,7 +11,7 @@ import { PartExtended } from '../../lib/RundownResolver.js'
 import { SpeechSynthesiser } from '../../lib/speechSynthesis.js'
 import { getElementWidth } from '../../utils/dimensions.js'
 import { isMaintainingFocus, scrollToSegment, getHeaderHeight } from '../../lib/viewPort.js'
-import { unprotectString } from '../../lib/tempLib.js'
+import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { equivalentArrays } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { Settings } from '../../lib/Settings.js'
 import RundownViewEventBus, {

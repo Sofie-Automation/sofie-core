@@ -6,12 +6,6 @@
 // Legacy compatibility
 // Note: These have to be named explicitly, to satisfy Vite
 export type { Time, TimeDuration } from '@sofie-automation/shared-lib/dist/lib/lib'
-export type { ProtectedString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
-export {
-	protectString,
-	unprotectString,
-	isProtectedString,
-} from '@sofie-automation/shared-lib/dist/lib/protectedString'
 export {
 	stringifyObjects,
 	normalizeArray,

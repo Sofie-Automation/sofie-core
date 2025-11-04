@@ -1,5 +1,5 @@
 import { SEGMENT_TIMELINE_ELEMENT_ID } from '../ui/SegmentTimeline/SegmentTimeline.js'
-import { isProtectedString } from './tempLib.js'
+import { isProtectedString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import RundownViewEventBus, { RundownViewEvents } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
 import { Settings } from '../lib/Settings.js'
 import { PartId, PartInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'

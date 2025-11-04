@@ -1,5 +1,6 @@
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { clone, protectString, unprotectString } from '../client/lib/tempLib.js'
+import { clone } from '../client/lib/tempLib.js'
+import { unprotectString, protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'

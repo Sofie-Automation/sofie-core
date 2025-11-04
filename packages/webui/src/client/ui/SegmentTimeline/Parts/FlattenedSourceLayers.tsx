@@ -1,5 +1,5 @@
 import _ from 'underscore'
-import { unprotectString } from '../../../lib/tempLib.js'
+import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { ISourceLayerUi } from '../SegmentTimelineContainer.js'
 import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'
 import { SourceLayerItemContainer } from '../SourceLayerItemContainer.js'

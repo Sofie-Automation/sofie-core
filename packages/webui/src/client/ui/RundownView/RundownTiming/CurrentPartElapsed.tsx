@@ -1,6 +1,6 @@
 import { TimingDataResolution, TimingTickResolution, useTiming } from './withTiming.js'
 import { RundownUtils } from '../../../lib/rundown.js'
-import { unprotectString } from '../../../lib/tempLib.js'
+import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 interface IPartElapsedProps {

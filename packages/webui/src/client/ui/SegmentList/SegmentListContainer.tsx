@@ -8,7 +8,7 @@ import {
 } from '../SegmentContainer/withResolvedSegment.js'
 import { SpeechSynthesiser } from '../../lib/speechSynthesis.js'
 import { SegmentList } from './SegmentList.js'
-import { unprotectString } from '../../lib/tempLib.js'
+import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { LIVELINE_HISTORY_SIZE as TIMELINE_LIVELINE_HISTORY_SIZE } from '../SegmentTimeline/Constants.js'
 import { Segments } from '../../collections/index.js'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'

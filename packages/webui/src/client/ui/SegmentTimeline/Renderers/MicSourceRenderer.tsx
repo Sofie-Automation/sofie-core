@@ -6,7 +6,7 @@ import _ from 'underscore'
 
 import { getElementWidth } from '../../../utils/dimensions.js'
 import { calculatePartInstanceExpectedDurationWithTransition } from '@sofie-automation/corelib/dist/playout/timings'
-import { unprotectString } from '../../../lib/tempLib.js'
+import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { logger } from '../../../lib/logging.js'
 
 type IProps = ICustomLayerItemProps
