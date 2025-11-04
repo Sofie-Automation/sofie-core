@@ -1,4 +1,5 @@
-import { getHash, protectString, unprotectString, clone, Complete } from '../../lib/tempLib'
+import { getHash, clone, Complete } from '../../lib/tempLib'
+import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { Meteor } from 'meteor/meteor'
 import {
 	MigrationContextSystem as IMigrationContextSystem,

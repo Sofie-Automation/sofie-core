@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor'
 import { AllPubSubTypes } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { ProtectedString, unprotectString } from '../tempLib'
+import { ProtectedString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { PublishDocType, SubscriptionContext, meteorPublishUnsafe } from '../../publications/lib/lib'
 
 export interface CustomPublishChanges<T extends { _id: ProtectedString<any> }> {

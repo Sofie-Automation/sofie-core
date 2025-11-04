@@ -21,7 +21,7 @@ import {
 	DBTriggeredActions,
 	UITriggeredActionsObj,
 } from '@sofie-automation/meteor-lib/dist/collections/TriggeredActions'
-import { protectString } from '../../lib/tempLib'
+import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { StudioActionManager, StudioActionManagers } from './StudioActionManagers'
 import { DeviceTriggerMountedActionAdlibsPreview, DeviceTriggerMountedActions } from './observer'
 import { ContentCache } from './reactiveContentCache'

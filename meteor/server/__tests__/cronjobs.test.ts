@@ -2,7 +2,8 @@ import '../../__mocks__/_extendJest'
 import { runAllTimers, waitUntil } from '../../__mocks__/helpers/jest'
 import { MeteorMock } from '../../__mocks__/meteor'
 import { logger } from '../logging'
-import { getRandomId, getRandomString, literal, protectString } from '../lib/tempLib'
+import { getRandomId, getRandomString, literal } from '../lib/tempLib'
+import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { SnapshotType } from '@sofie-automation/meteor-lib/dist/collections/Snapshots'
 import {
 	IBlueprintPieceType,

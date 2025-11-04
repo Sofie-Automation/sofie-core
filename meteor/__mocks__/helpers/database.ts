@@ -39,15 +39,8 @@ import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
 import { ICoreSystem, SYSTEM_ID } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
 import { stripVersion } from '../../server/systemStatus/semverUtils'
 import { internalUploadBlueprint } from '../../server/api/blueprints/api'
-import {
-	literal,
-	protectString,
-	unprotectString,
-	getRandomId,
-	getRandomString,
-	Complete,
-	normalizeArray,
-} from '../../server/lib/tempLib'
+import { literal, getRandomId, getRandomString, Complete, normalizeArray } from '../../server/lib/tempLib'
+import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'

@@ -8,7 +8,8 @@ import {
 import { Meteor } from 'meteor/meteor'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
-import { protectString, getRandomId, omit } from '../lib/tempLib'
+import { getRandomId, omit } from '../lib/tempLib'
+import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { MethodContextAPI, MethodContext } from './methodContext'
 import deepmerge from 'deepmerge'
 import {

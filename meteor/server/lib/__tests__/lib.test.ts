@@ -7,7 +7,7 @@ import {
 	deserializeTimelineBlob,
 	serializeTimelineBlob,
 } from '@sofie-automation/corelib/dist/dataModel/Timeline'
-import { protectString } from '../tempLib'
+import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { Timeline } from '../../collections'
 import { SaveIntoDbHooks, saveIntoDb, sumChanges, anythingChanged } from '../database'
 
