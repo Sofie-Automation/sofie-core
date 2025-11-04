@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor'
-import { getHash } from '../../lib/tempLib'
+import { getHash } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { getCurrentTime } from '../../lib/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'

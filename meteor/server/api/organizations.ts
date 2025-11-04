@@ -1,4 +1,4 @@
-import { literal, getRandomId } from '../lib/tempLib'
+import { literal, getRandomId } from '@sofie-automation/corelib/dist/lib'
 import { getCurrentTime } from '../lib/lib'
 import { MethodContextAPI, MethodContext } from './methodContext'
 import { NewOrganizationAPI, OrganizationAPIMethods } from '@sofie-automation/meteor-lib/dist/api/organization'

@@ -1,6 +1,6 @@
 import _ from 'underscore'
 import { setupDefaultStudioEnvironment, packageBlueprint } from '../../../../__mocks__/helpers/database'
-import { literal, getRandomId } from '../../../lib/tempLib'
+import { literal, getRandomId } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
 import { BlueprintManifestType } from '@sofie-automation/blueprints-integration'

@@ -1,6 +1,6 @@
 import { RandomMock } from '../../__mocks__/random'
 import { MongoMock } from '../../__mocks__/mongo'
-import { getRandomString } from '../lib/tempLib'
+import { getRandomString } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { sleep } from '../lib/lib'
 import {

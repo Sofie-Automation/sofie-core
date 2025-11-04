@@ -1,5 +1,6 @@
 import { check } from '../lib/check'
-import { literal, Time, getRandomId } from '../lib/tempLib'
+import { literal, getRandomId } from '@sofie-automation/corelib/dist/lib'
+import type { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { getCurrentTime } from '../lib/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { logger } from '../logging'

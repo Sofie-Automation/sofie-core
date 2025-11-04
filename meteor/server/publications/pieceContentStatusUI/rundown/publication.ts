@@ -23,7 +23,7 @@ import {
 	RundownPlaylists,
 	Studios,
 } from '../../../collections'
-import { literal } from '../../../lib/tempLib'
+import { literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import {
 	CustomPublishCollection,

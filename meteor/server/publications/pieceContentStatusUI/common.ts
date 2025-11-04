@@ -7,7 +7,7 @@ import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settin
 import { MediaObject } from '@sofie-automation/shared-lib/dist/core/model/MediaObjects'
 import { ReadonlyDeep } from 'type-fest'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { literal } from '../../lib/tempLib'
+import { literal } from '@sofie-automation/corelib/dist/lib'
 import { Studios } from '../../collections'
 import { PieceContentStatusStudio } from './checkPieceContentStatus'
 

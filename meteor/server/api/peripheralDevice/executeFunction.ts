@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor'
 import { PeripheralDeviceCommandId, PeripheralDeviceId } from '@sofie-automation/shared-lib/dist/core/model/Ids'
-import { getRandomId } from '../../lib/tempLib'
+import { getRandomId } from '@sofie-automation/corelib/dist/lib'
 import { getCurrentTime } from '../../lib/lib'
 import { PeripheralDeviceCommands } from '../../collections'
 import { logger } from '../../logging'

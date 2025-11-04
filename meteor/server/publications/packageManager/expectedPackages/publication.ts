@@ -6,7 +6,7 @@ import {
 	CustomPublishCollection,
 	SetupObserversResult,
 } from '../../../lib/customPublication'
-import { literal, omit } from '../../../lib/tempLib'
+import { literal, omit } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { logger } from '../../../logging'
 import { ReadonlyDeep } from 'type-fest'

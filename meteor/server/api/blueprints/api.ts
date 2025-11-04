@@ -1,7 +1,7 @@
 import _ from 'underscore'
 import path from 'path'
 import { ReadStream, createReadStream, promises as fsp } from 'fs'
-import { getRandomId } from '../../lib/tempLib'
+import { getRandomId } from '@sofie-automation/corelib/dist/lib'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { getCurrentTime } from '../../lib/lib'
 import { logger } from '../../logging'

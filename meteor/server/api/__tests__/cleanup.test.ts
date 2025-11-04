@@ -1,4 +1,4 @@
-import { getRandomId } from '../../lib/tempLib'
+import { getRandomId } from '@sofie-automation/corelib/dist/lib'
 
 import '../../collections' // include this in order to get all of the collection set up
 import { cleanupOldDataInner } from '../cleanup'

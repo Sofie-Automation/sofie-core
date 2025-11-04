@@ -1,6 +1,6 @@
 import '../../../../__mocks__/_extendJest'
 import { setupDefaultStudioEnvironment } from '../../../../__mocks__/helpers/database'
-import { literal } from '../../../lib/tempLib'
+import { literal } from '@sofie-automation/corelib/dist/lib'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import {
 	TriggerType,

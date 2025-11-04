@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor'
 import { check, Match } from '../lib/check'
 import { registerClassToMeteorMethods, ReplaceOptionalWithNullInMethodArguments } from '../methods'
-import { literal, getRandomId, Complete } from '../lib/tempLib'
+import { literal, getRandomId, Complete } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { logger } from '../logging'
 import { MethodContext, MethodContextAPI } from './methodContext'

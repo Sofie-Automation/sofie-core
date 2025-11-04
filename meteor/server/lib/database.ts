@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor'
 import type { AnyBulkWriteOperation } from 'mongodb'
 import _ from 'underscore'
-import { normalizeArrayToMap, deleteAllUndefinedProperties } from './tempLib'
+import { normalizeArrayToMap, deleteAllUndefinedProperties } from '@sofie-automation/corelib/dist/lib'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { profiler } from '../api/profiler'

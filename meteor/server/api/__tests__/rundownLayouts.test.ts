@@ -1,6 +1,6 @@
 import '../../../__mocks__/_extendJest'
 import { setupDefaultStudioEnvironment, DefaultEnvironment } from '../../../__mocks__/helpers/database'
-import { literal, getRandomString } from '../../lib/tempLib'
+import { literal, getRandomString } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import {
 	RundownLayoutType,

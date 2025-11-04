@@ -4,7 +4,7 @@ import { ICoreSystem, GENESIS_SYSTEM_VERSION } from '@sofie-automation/meteor-li
 import { clearMigrationSteps, addMigrationSteps, prepareMigration, PreparedMigration } from '../databaseMigration'
 import { CURRENT_SYSTEM_VERSION } from '../currentSystemVersion'
 import { RunMigrationResult, GetMigrationStatusResult } from '@sofie-automation/meteor-lib/dist/api/migration'
-import { literal } from '../../lib/tempLib'
+import { literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { MigrationStepInputResult } from '@sofie-automation/blueprints-integration'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'

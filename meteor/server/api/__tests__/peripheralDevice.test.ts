@@ -6,7 +6,8 @@ import {
 	PeripheralDeviceType,
 } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { EmptyPieceTimelineObjectsBlob } from '@sofie-automation/corelib/dist/dataModel/Piece'
-import { literal, getRandomId, LogLevel, getRandomString } from '../../lib/tempLib'
+import { literal, getRandomId, getRandomString } from '@sofie-automation/corelib/dist/lib'
+import { LogLevel } from '@sofie-automation/meteor-lib/dist/lib'
 import { protectString, ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { getCurrentTime } from '../../lib/lib'
 import { waitUntil } from '../../../__mocks__/helpers/jest'

@@ -4,7 +4,8 @@ import {
 	TriggerTrackerComputation,
 } from '@sofie-automation/meteor-lib/dist/triggers/triggersContext'
 import { SINGLE_USE_TOKEN_SALT } from '@sofie-automation/meteor-lib/dist/api/userActions'
-import { assertNever, getHash, Time } from '../../lib/tempLib'
+import { assertNever, getHash } from '@sofie-automation/corelib/dist/lib'
+import type { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { getCurrentTime } from '../../lib/lib'
 import { MeteorCall } from '../methods'

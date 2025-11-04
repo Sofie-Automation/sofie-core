@@ -1,6 +1,6 @@
 import _ from 'underscore'
 import { MigrationStepCore } from '@sofie-automation/blueprints-integration'
-import { objectPathGet } from '../lib/tempLib'
+import { objectPathGet } from '@sofie-automation/corelib/dist/lib'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { Meteor } from 'meteor/meteor'
 import { logger } from '../logging'

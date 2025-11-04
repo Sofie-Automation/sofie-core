@@ -9,7 +9,7 @@ import {
 	TranslationsBundle as BlueprintTranslationsbundle,
 	TranslationsBundleType,
 } from '@sofie-automation/blueprints-integration'
-import { getHash } from '../lib/tempLib'
+import { getHash } from '@sofie-automation/corelib/dist/lib'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import {
 	BlueprintId,
