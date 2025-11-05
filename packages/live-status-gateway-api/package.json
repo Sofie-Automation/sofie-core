@@ -30,8 +30,7 @@
 		"gendocs": "yarn merge-schemas && ag ./src/generated/asyncapi.yaml @asyncapi/html-template -o docs -p singleFile=true -p outFilename=liveStatus.html",
 		"genserver": "yarn merge-schemas && ag ./src/generated/asyncapi.yaml @asyncapi/nodejs-ws-template -o server -p server=development",
 		"generate-schema-types": "yarn merge-schemas && node scripts/generate-schema-types.mjs",
-		"resolve-nested-examples": "node scripts/resolve-nested-examples.mjs",
-		"merge-schemas": "yarn resolve-nested-examples && node scripts/merge-schemas.mjs"
+		"merge-schemas": "node scripts/merge-schemas.mjs"
 	},
 	"engines": {
 		"node": ">=14.19"
@@ -47,6 +46,7 @@
 		"tslib": "^2.6.2"
 	},
 	"devDependencies": {
+		"@apidevtools/json-schema-ref-parser": "^14.2.1",
 		"@asyncapi/generator": "^2.6.0",
 		"@asyncapi/html-template": "^3.2.0",
 		"@asyncapi/modelina": "^4.0.4",

@@ -7,19 +7,6 @@
 
 type Subscriptions = SubscriptionStatusError | SubscriptionStatusSuccess
 
-type Slash =
-	| PongEvent
-	| HeartbeatEvent
-	| SubscriptionStatusSuccess
-	| SubscriptionStatusError
-	| StudioEvent
-	| ActivePlaylistEvent
-	| ActivePiecesEvent
-	| SegmentsEvent
-	| AdLibsEvent
-	| PackagesEvent
-	| BucketsEvent
-
 interface PingEvent {
 	event: 'ping'
 	/**
@@ -422,11 +409,20 @@ interface ActivePlaylistQuickLoop {
 	 * Whether the loop has two valid markers and is currently running
 	 */
 	running: boolean
+	/**
+	 * The start of the loop
+	 */
 	start?: QuickLoopMarker
+	/**
+	 * The end of the loop
+	 */
 	end?: QuickLoopMarker
 	additionalProperties?: Record<string, any>
 }
 
+/**
+ * The end of the loop
+ */
 interface QuickLoopMarker {
 	/**
 	 * The type of entity the marker is locked to
@@ -770,9 +766,21 @@ interface BucketAdLibStatus {
 	additionalProperties?: Record<string, any>
 }
 
+export type Slash =
+	| ActivePiecesEvent
+	| ActivePlaylistEvent
+	| AdLibsEvent
+	| BucketsEvent
+	| HeartbeatEvent
+	| PackagesEvent
+	| PongEvent
+	| SegmentsEvent
+	| StudioEvent
+	| SubscriptionStatusError
+	| SubscriptionStatusSuccess
+
 export {
 	Subscriptions,
-	Slash,
 	PingEvent,
 	PongEvent,
 	HeartbeatEvent,

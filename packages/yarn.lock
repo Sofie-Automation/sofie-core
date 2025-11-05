@@ -283,6 +283,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@apidevtools/json-schema-ref-parser@npm:^14.2.1":
+  version: 14.2.1
+  resolution: "@apidevtools/json-schema-ref-parser@npm:14.2.1"
+  dependencies:
+    js-yaml: "npm:^4.1.0"
+  peerDependencies:
+    "@types/json-schema": ^7.0.15
+  checksum: 10/c3f6d97c0e885f9543b0654258ee16b2dd75463c8496499563c278089043317f89010e89eb51699c7fb38dfb83cc8592f0b0c4983b764b56789dc3329b25ebfd
+  languageName: node
+  linkType: hard
+
 "@apidevtools/openapi-schemas@npm:^2.1.0":
   version: 2.1.0
   resolution: "@apidevtools/openapi-schemas@npm:2.1.0"
@@ -6312,6 +6323,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@sofie-automation/live-status-gateway-api@workspace:live-status-gateway-api"
   dependencies:
+    "@apidevtools/json-schema-ref-parser": "npm:^14.2.1"
     "@asyncapi/generator": "npm:^2.6.0"
     "@asyncapi/html-template": "npm:^3.2.0"
     "@asyncapi/modelina": "npm:^4.0.4"

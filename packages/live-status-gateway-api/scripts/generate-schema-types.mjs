@@ -73,9 +73,30 @@ if (!asyncApiDoc.document) {
 	process.exit(5)
 }
 
+// Extract message types from subscribe operations
+const messageEventTypes = new Set()
+const channels = asyncApiDoc.document.json().channels || {}
+for (const channel of Object.values(channels)) {
+	if (channel.subscribe?.message) {
+		const message = channel.subscribe.message
+		// Handle oneOf array
+		if (message.oneOf && Array.isArray(message.oneOf)) {
+			for (const msg of message.oneOf) {
+				if (msg.payload?.title) {
+					messageEventTypes.add(msg.payload.title)
+				}
+			}
+		} else if (message.payload?.title) {
+			// Handle single message
+			messageEventTypes.add(message.payload.title)
+		}
+	}
+}
+
 const models = await generator.generate(asyncApiDoc.document)
 const allModelNames = []
 const allmodelContent = []
+
 for (const model of models) {
 	allModelNames.push(model.modelName)
 	allmodelContent.push(model.result)
@@ -84,8 +105,19 @@ for (const model of models) {
 		throw new Error(`Anonymous model found: ${model.modelName}\n\n${JSON.stringify(model.result, null, 2)}`)
 }
 
+// Create a union type of all message event types from subscribe operations
+const slashTypeDefinition =
+	messageEventTypes.size > 0 ? `export type Slash = ${Array.from(messageEventTypes).sort().join(' | ')}` : ''
+
 const allModelsString =
-	BANNER + '\n\n' + allmodelContent.join('\n\n') + '\n\n' + 'export {' + allModelNames.join(', ') + '};'
+	BANNER +
+	'\n\n' +
+	allmodelContent.join('\n\n') +
+	(slashTypeDefinition ? '\n\n' + slashTypeDefinition : '') +
+	'\n\n' +
+	'export {' +
+	allModelNames.join(', ') +
+	'};'
 
 const fileName = path.resolve('src/generated/schema.ts')
 await fs.writeFile(fileName, allModelsString)

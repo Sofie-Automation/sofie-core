@@ -1,26 +1,25 @@
 import fs from 'fs'
 import path from 'path'
 import YAML from 'yaml'
-import { fromFile, Parser } from '@asyncapi/parser'
+import $RefParser from '@apidevtools/json-schema-ref-parser'
 
-const ROOT_FILE = './temp/api/asyncapi.yaml'
+const ROOT_FILE = './api/asyncapi.yaml'
 const OUTPUT_FILE = './src/generated/asyncapi.yaml'
 
 const BANNER =
-	'# This file was automatically generated using @asyncapi/parser\n' +
+	'# This file was automatically generated using @apidevtools/json-schema-ref-parser\n' +
 	'# DO NOT MODIFY IT BY HAND. Instead, modify the source AsyncAPI schema files,\n' +
 	'# and run "yarn merge-schemas" to regenerate this file.\n'
 
 async function main() {
 	try {
-		const parser = new Parser()
-		const { document } = await fromFile(parser, ROOT_FILE).parse()
+		// Use @apidevtools/json-schema-ref-parser to dereference all $refs
+		const resolved = await $RefParser.dereference(ROOT_FILE, {
+			dereference: {
+				circular: 'ignore'
+			}
+		})
 
-		if (!document) {
-			throw new Error('Failed to parse the AsyncAPI document.')
-		}
-
-		const resolved = document.json()
 		fs.mkdirSync(path.dirname(OUTPUT_FILE), { recursive: true })
 
 		// Prepend banner to YAML output
