@@ -16,8 +16,8 @@ async function main() {
 		// Use @apidevtools/json-schema-ref-parser to dereference all $refs
 		const resolved = await $RefParser.dereference(ROOT_FILE, {
 			dereference: {
-				circular: 'ignore'
-			}
+				circular: 'ignore',
+			},
 		})
 
 		fs.mkdirSync(path.dirname(OUTPUT_FILE), { recursive: true })
