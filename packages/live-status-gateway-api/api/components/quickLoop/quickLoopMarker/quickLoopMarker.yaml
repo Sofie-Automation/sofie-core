@@ -2,6 +2,7 @@ $defs:
   quickLoopMarker:
     type: object
     title: QuickLoopMarker
+    description: Represents a positional marker used to define the start or end of a Quick Loop by referencing a rundown, segment, or part.
     properties:
       markerType:
         $ref: '../quickLoopMarkerType.yaml#/$defs/quickLoopMarkerType'

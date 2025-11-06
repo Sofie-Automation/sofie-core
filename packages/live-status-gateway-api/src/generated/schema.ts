@@ -410,18 +410,18 @@ interface ActivePlaylistQuickLoop {
 	 */
 	running: boolean
 	/**
-	 * The start of the loop
+	 * Represents a positional marker used to define the start or end of a Quick Loop by referencing a rundown, segment, or part.
 	 */
 	start?: QuickLoopMarker
 	/**
-	 * The end of the loop
+	 * Represents a positional marker used to define the start or end of a Quick Loop by referencing a rundown, segment, or part.
 	 */
 	end?: QuickLoopMarker
 	additionalProperties?: Record<string, any>
 }
 
 /**
- * The end of the loop
+ * Represents a positional marker used to define the start or end of a Quick Loop by referencing a rundown, segment, or part.
  */
 interface QuickLoopMarker {
 	/**
