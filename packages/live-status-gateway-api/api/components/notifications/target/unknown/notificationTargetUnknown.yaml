@@ -6,7 +6,7 @@ $defs:
     properties:
       type:
         $ref: '../notificationTargetType.yaml#/$defs/NotificationTargetType'
-        enum: [unknown]
+        const: unknown
     additionalProperties: false
     examples:
       - $ref: './notificationTargetUnknown-example.yaml'

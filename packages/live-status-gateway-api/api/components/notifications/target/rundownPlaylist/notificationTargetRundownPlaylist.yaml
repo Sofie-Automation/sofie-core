@@ -6,7 +6,7 @@ $defs:
     properties:
       type:
         $ref: '../notificationTargetType.yaml#/$defs/NotificationTargetType'
-        enum: [playlist]
+        const: playlist
       studioId:
         type: string
       playlistId:

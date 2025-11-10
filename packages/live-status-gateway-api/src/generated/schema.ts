@@ -826,7 +826,7 @@ interface NotificationTargetRundown {
 	/**
 	 * Possible NotificationTarget types
 	 */
-	type: NotificationTargetType
+	type: NotificationTargetType.RUNDOWN
 	studioId: string
 	rundownId: string
 }
@@ -846,7 +846,7 @@ interface NotificationTargetRundownPlaylist {
 	/**
 	 * Possible NotificationTarget types
 	 */
-	type: NotificationTargetType
+	type: NotificationTargetType.PLAYLIST
 	studioId: string
 	playlistId: string
 }
@@ -855,7 +855,7 @@ interface NotificationTargetPartInstance {
 	/**
 	 * Possible NotificationTarget types
 	 */
-	type: NotificationTargetType
+	type: NotificationTargetType.PART_INSTANCE
 	studioId: string
 	rundownId: string
 	partInstanceId: string
@@ -865,7 +865,7 @@ interface NotificationTargetPieceInstance {
 	/**
 	 * Possible NotificationTarget types
 	 */
-	type: NotificationTargetType
+	type: NotificationTargetType.PIECE_INSTANCE
 	studioId: string
 	rundownId: string
 	partInstanceId: string
@@ -876,7 +876,7 @@ interface NotificationTargetUnknown {
 	/**
 	 * Possible NotificationTarget types
 	 */
-	type: NotificationTargetType
+	type: NotificationTargetType.UNKNOWN
 }
 
 export type Slash =
@@ -885,6 +885,7 @@ export type Slash =
 	| AdLibsEvent
 	| BucketsEvent
 	| HeartbeatEvent
+	| NotificationsEvent
 	| PackagesEvent
 	| PongEvent
 	| SegmentsEvent

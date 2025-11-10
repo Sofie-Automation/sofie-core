@@ -6,7 +6,7 @@ $defs:
     properties:
       type:
         $ref: '../notificationTargetType.yaml#/$defs/NotificationTargetType'
-        enum: [pieceInstance]
+        const: pieceInstance
       studioId:
         type: string
       rundownId:

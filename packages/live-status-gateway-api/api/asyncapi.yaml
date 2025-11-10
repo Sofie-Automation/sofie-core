@@ -47,3 +47,5 @@ channels:
     $ref: './topics/packages/packagesTopic.yaml'
   buckets:
     $ref: './topics/buckets/bucketsTopic.yaml'
+  notifications:
+    $ref: './topics/notifications/notificationsTopic.yaml'
