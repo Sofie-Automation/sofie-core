@@ -38,41 +38,25 @@ export function toNotificationTarget(dbTarget: DBNotificationTarget): Notificati
 	}
 }
 
-function toNotificationTargetBase(dbTarget: DBNotificationTarget): Pick<NotificationTarget, 'type' | 'studioId'> {
-	return literal<Pick<NotificationTarget, 'type' | 'studioId'>>({
-		type: toNotificationTargetType(dbTarget.type),
+function toNotificationTargetBase(dbTarget: DBNotificationTarget): Pick<NotificationTarget, 'studioId'> {
+	return literal<Pick<NotificationTarget, 'studioId'>>({
 		studioId: unprotectString(dbTarget.studioId),
 	})
-}
-
-function toNotificationTargetType(dbTargetType: DBNotificationTargetType): NotificationTargetType {
-	switch (dbTargetType) {
-		case DBNotificationTargetType.PARTINSTANCE:
-			return NotificationTargetType.PART_INSTANCE
-		case DBNotificationTargetType.PIECEINSTANCE:
-			return NotificationTargetType.PART_INSTANCE
-		case DBNotificationTargetType.RUNDOWN:
-			return NotificationTargetType.RUNDOWN
-		case DBNotificationTargetType.PLAYLIST:
-			return NotificationTargetType.PLAYLIST
-	}
 }
 
 function toNotificationTargetRundown(dbTarget: DBNotificationTargetRundown): NotificationTargetRundown {
 	return literal<NotificationTargetRundown>({
 		...toNotificationTargetBase(dbTarget),
+		type: NotificationTargetType.RUNDOWN,
 		rundownId: unprotectString(dbTarget.rundownId),
 	})
 }
 
 function toNotificationTargetPartInstance(dbTarget: DBNotificationTargetPartInstance): NotificationTargetPartInstance {
 	return literal<NotificationTargetPartInstance>({
-		...toNotificationTargetRundown({
-			type: DBNotificationTargetType.RUNDOWN,
-			studioId: dbTarget.studioId,
-			rundownId: dbTarget.rundownId,
-		}),
+		...toNotificationTargetBase(dbTarget),
 		type: NotificationTargetType.PART_INSTANCE,
+		rundownId: unprotectString(dbTarget.rundownId),
 		partInstanceId: unprotectString(dbTarget.partInstanceId),
 	})
 }
@@ -81,13 +65,10 @@ function toNotificationTargetPieceInstance(
 	dbTarget: DBNotificationTargetPieceInstance
 ): NotificationTargetPieceInstance {
 	return literal<NotificationTargetPieceInstance>({
-		...toNotificationTargetPartInstance({
-			type: DBNotificationTargetType.PARTINSTANCE,
-			studioId: dbTarget.studioId,
-			rundownId: dbTarget.rundownId,
-			partInstanceId: dbTarget.partInstanceId,
-		}),
+		...toNotificationTargetBase(dbTarget),
 		type: NotificationTargetType.PIECE_INSTANCE,
+		rundownId: unprotectString(dbTarget.rundownId),
+		partInstanceId: unprotectString(dbTarget.partInstanceId),
 		pieceInstanceId: unprotectString(dbTarget.pieceInstanceId),
 	})
 }
@@ -97,6 +78,7 @@ function toNotificationTargetPlaylist(
 ): NotificationTargetRundownPlaylist {
 	return literal<NotificationTargetRundownPlaylist>({
 		...toNotificationTargetBase(dbTarget),
+		type: NotificationTargetType.PLAYLIST,
 		playlistId: unprotectString(dbTarget.playlistId),
 	})
 }
