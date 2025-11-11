@@ -100,7 +100,7 @@ export class RundownContentObserver {
 					orphaned: { $exists: false },
 				},
 				cache.PartInstances.link(),
-				{ fields: partInstanceFieldSpecifier },
+				{ projection: partInstanceFieldSpecifier },
 				{
 					nonMutatingCallbacks: true,
 				}
