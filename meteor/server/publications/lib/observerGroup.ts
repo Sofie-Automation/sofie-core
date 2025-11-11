@@ -15,10 +15,12 @@ const REACTIVITY_DEBOUNCE = 20
 /**
  * Helper to trigger reactivity inside of an OptimisedObserver whenever one of the other Mongo observers changes
  * Note: care needs to be taken when using this, as Mongo observers call `added` for every document when they start. It is very easy to form an infinite loop of observer invalidations
+ * @param debugName A name for debugging purposes
  * @param generator Function to generate the `LiveQueryHandle`s
  * @returns Handle to stop and restart the observer group
  */
 export async function ReactiveMongoObserverGroup(
+	debugName: string,
 	generator: () => Promise<Array<Promise<LiveQueryHandle>>>
 ): Promise<ReactiveMongoObserverGroupHandle> {
 	let running = true
@@ -33,13 +35,13 @@ export async function ReactiveMongoObserverGroup(
 		}
 	}
 
-	const id = `ReactiveMongoObserverGroup:${getRandomString()}`
+	const id = `ReactiveMongoObserverGroup:${getRandomString()}:${debugName}`
 
 	let checkRunning = false
 	const runCheck = async () => {
 		let result: ManualPromise<void> | undefined
 		try {
-			if (!running) throw new Meteor.Error(500, 'ObserverGroup has been stopped!')
+			if (!running) throw new Meteor.Error(500, `ReactiveMongoObserverGroup "${debugName}" has been stopped!`)
 
 			if (checkRunning) return
 			checkRunning = true
@@ -90,7 +92,7 @@ export async function ReactiveMongoObserverGroup(
 
 	const handle: ReactiveMongoObserverGroupHandle = {
 		stop: async () => {
-			if (!running) throw new Meteor.Error(500, 'ReactiveMongoObserverGroup is not running!')
+			if (!running) throw new Meteor.Error(500, `ReactiveMongoObserverGroup "${debugName}" is not running!`)
 
 			pendingStop = pendingStop || createManualPromise<void>()
 
@@ -100,10 +102,10 @@ export async function ReactiveMongoObserverGroup(
 			await pendingStop
 		},
 		restart: () => {
-			if (!running) throw new Meteor.Error(500, 'ReactiveMongoObserverGroup is not running!')
+			if (!running) throw new Meteor.Error(500, `ReactiveMongoObserverGroup "${debugName}" is not running!`)
 
 			// Ensure there is not a pending stop
-			if (pendingStop) throw new Meteor.Error(500, 'ReactiveMongoObserverGroup has been stopped')
+			if (pendingStop) throw new Meteor.Error(500, `ReactiveMongoObserverGroup "${debugName}" has been stopped`)
 
 			pendingRestart = true
 

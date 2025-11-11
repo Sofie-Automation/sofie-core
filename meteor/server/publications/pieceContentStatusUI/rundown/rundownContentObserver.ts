@@ -67,8 +67,8 @@ export class RundownContentObserver {
 
 		const observer = new RundownContentObserver(cache)
 
-		await observer.initShowStyleBaseIdObserver()
-		await observer.initBlueprintIdObserver()
+		await observer.initShowStyleBaseIdObserver(rundownIds)
+		await observer.initBlueprintIdObserver(rundownIds)
 
 		// This takes ownership of the #showStyleBaseIdObserver, and will stop it if this throws
 		await observer.initContentObservers(rundownIds)
@@ -76,65 +76,71 @@ export class RundownContentObserver {
 		return observer
 	}
 
-	private async initShowStyleBaseIdObserver() {
+	private async initShowStyleBaseIdObserver(rundownIds: RundownId[]) {
 		// Run the ShowStyleBase query in a ReactiveMongoObserverGroup, so that it can be restarted whenever
-		this.#showStyleBaseIdObserver = await ReactiveMongoObserverGroup(async () => {
-			// Clear already cached data
-			this.#cache.ShowStyleSourceLayers.remove({})
+		this.#showStyleBaseIdObserver = await ReactiveMongoObserverGroup(
+			`RundownContentObserver.showStyleBaseIds: ${rundownIds.join(', ')}`,
+			async () => {
+				// Clear already cached data
+				this.#cache.ShowStyleSourceLayers.remove({})
 
-			logger.silly(`optimized observer restarting ${this.#showStyleBaseIds}`)
+				logger.silly(`optimized observer restarting ${this.#showStyleBaseIds}`)
 
-			return [
-				ShowStyleBases.observe(
-					{
-						// We can use the `this.#showStyleBaseIds` here, as this is restarted every time that property changes
-						_id: { $in: this.#showStyleBaseIds },
-					},
-					{
-						added: (doc) => {
-							const newDoc = convertShowStyleBase(doc)
-							this.#cache.ShowStyleSourceLayers.upsert(doc._id, { $set: newDoc as Partial<Document> })
-							this.updateBlueprintIds()
+				return [
+					ShowStyleBases.observe(
+						{
+							// We can use the `this.#showStyleBaseIds` here, as this is restarted every time that property changes
+							_id: { $in: this.#showStyleBaseIds },
 						},
-						changed: (doc) => {
-							const newDoc = convertShowStyleBase(doc)
-							this.#cache.ShowStyleSourceLayers.upsert(doc._id, { $set: newDoc as Partial<Document> })
-							this.updateBlueprintIds()
+						{
+							added: (doc) => {
+								const newDoc = convertShowStyleBase(doc)
+								this.#cache.ShowStyleSourceLayers.upsert(doc._id, { $set: newDoc as Partial<Document> })
+								this.updateBlueprintIds()
+							},
+							changed: (doc) => {
+								const newDoc = convertShowStyleBase(doc)
+								this.#cache.ShowStyleSourceLayers.upsert(doc._id, { $set: newDoc as Partial<Document> })
+								this.updateBlueprintIds()
+							},
+							removed: (doc) => {
+								this.#cache.ShowStyleSourceLayers.remove(doc._id)
+								this.updateBlueprintIds()
+							},
 						},
-						removed: (doc) => {
-							this.#cache.ShowStyleSourceLayers.remove(doc._id)
-							this.updateBlueprintIds()
-						},
-					},
-					{
-						projection: showStyleBaseFieldSpecifier,
-					}
-				),
-			]
-		})
+						{
+							projection: showStyleBaseFieldSpecifier,
+						}
+					),
+				]
+			}
+		)
 	}
 
-	private async initBlueprintIdObserver() {
+	private async initBlueprintIdObserver(rundownIds: RundownId[]) {
 		// Run the Blueprint query in a ReactiveMongoObserverGroup, so that it can be restarted whenever
-		this.#blueprintIdObserver = await ReactiveMongoObserverGroup(async () => {
-			// Clear already cached data
-			this.#cache.Blueprints.remove({})
+		this.#blueprintIdObserver = await ReactiveMongoObserverGroup(
+			`RundownContentObserver.blueprintIds: ${rundownIds.join(', ')}`,
+			async () => {
+				// Clear already cached data
+				this.#cache.Blueprints.remove({})
 
-			logger.silly(`optimized observer restarting ${this.#blueprintIds}`)
+				logger.silly(`optimized observer restarting ${this.#blueprintIds}`)
 
-			return [
-				Blueprints.observeChanges(
-					{
-						// We can use the `this.#blueprintIds` here, as this is restarted every time that property changes
-						_id: { $in: this.#blueprintIds },
-					},
-					this.#cache.Blueprints.link(),
-					{
-						projection: blueprintFieldSpecifier,
-					}
-				),
-			]
-		})
+				return [
+					Blueprints.observeChanges(
+						{
+							// We can use the `this.#blueprintIds` here, as this is restarted every time that property changes
+							_id: { $in: this.#blueprintIds },
+						},
+						this.#cache.Blueprints.link(),
+						{
+							projection: blueprintFieldSpecifier,
+						}
+					),
+				]
+			}
+		)
 	}
 
 	private async initContentObservers(rundownIds: RundownId[]) {

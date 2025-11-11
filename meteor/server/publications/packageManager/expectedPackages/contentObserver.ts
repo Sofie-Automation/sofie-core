@@ -36,23 +36,26 @@ export class ExpectedPackagesContentObserver implements Meteor.LiveQueryHandle {
 		const observer = new ExpectedPackagesContentObserver(cache)
 
 		// Run the ShowStyleBase query in a ReactiveMongoObserverGroup, so that it can be restarted whenever
-		observer.#partInstanceIdObserver = await ReactiveMongoObserverGroup(async () => {
-			// Clear already cached data
-			cache.PieceInstances.remove({})
+		observer.#partInstanceIdObserver = await ReactiveMongoObserverGroup(
+			`ExpectedPackagesContentObserver.partInstanceIds: ${studioId}`,
+			async () => {
+				// Clear already cached data
+				cache.PieceInstances.remove({})
 
-			return [
-				PieceInstances.observeChanges(
-					{
-						// We can use the `this.#partInstanceIds` here, as this is restarted every time that property changes
-						partInstanceId: { $in: observer.#partInstanceIds },
-					},
-					cache.PieceInstances.link(),
-					{
-						projection: pieceInstanceFieldsSpecifier,
-					}
-				),
-			]
-		})
+				return [
+					PieceInstances.observeChanges(
+						{
+							// We can use the `this.#partInstanceIds` here, as this is restarted every time that property changes
+							partInstanceId: { $in: observer.#partInstanceIds },
+						},
+						cache.PieceInstances.link(),
+						{
+							projection: pieceInstanceFieldsSpecifier,
+						}
+					),
+				]
+			}
+		)
 
 		// Subscribe to the database, and pipe any updates into the ReactiveCacheCollections
 		// This takes ownership of the #partInstanceIdObserver, and will stop it if this throws

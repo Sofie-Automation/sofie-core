@@ -49,59 +49,65 @@ export class BucketContentObserver implements Meteor.LiveQueryHandle {
 		const observer = new BucketContentObserver(cache)
 
 		// Run the ShowStyleBase query in a ReactiveMongoObserverGroup, so that it can be restarted whenever
-		observer.#showStyleBaseIdObserver = await ReactiveMongoObserverGroup(async () => {
-			// Clear already cached data
-			cache.ShowStyleSourceLayers.remove({})
+		observer.#showStyleBaseIdObserver = await ReactiveMongoObserverGroup(
+			`BucketContentObserver.showStyleBaseIds: ${bucketId}`,
+			async () => {
+				// Clear already cached data
+				cache.ShowStyleSourceLayers.remove({})
 
-			return [
-				ShowStyleBases.observe(
-					{
-						// We can use the `this.#showStyleBaseIds` here, as this is restarted every time that property changes
-						_id: { $in: observer.#showStyleBaseIds },
-					},
-					{
-						added: (doc) => {
-							const newDoc = convertShowStyleBase(doc)
-							cache.ShowStyleSourceLayers.upsert(doc._id, { $set: newDoc as Partial<Document> })
-							observer.updateBlueprintIds()
+				return [
+					ShowStyleBases.observe(
+						{
+							// We can use the `this.#showStyleBaseIds` here, as this is restarted every time that property changes
+							_id: { $in: observer.#showStyleBaseIds },
 						},
-						changed: (doc) => {
-							const newDoc = convertShowStyleBase(doc)
-							cache.ShowStyleSourceLayers.upsert(doc._id, { $set: newDoc as Partial<Document> })
-							observer.updateBlueprintIds()
+						{
+							added: (doc) => {
+								const newDoc = convertShowStyleBase(doc)
+								cache.ShowStyleSourceLayers.upsert(doc._id, { $set: newDoc as Partial<Document> })
+								observer.updateBlueprintIds()
+							},
+							changed: (doc) => {
+								const newDoc = convertShowStyleBase(doc)
+								cache.ShowStyleSourceLayers.upsert(doc._id, { $set: newDoc as Partial<Document> })
+								observer.updateBlueprintIds()
+							},
+							removed: (doc) => {
+								cache.ShowStyleSourceLayers.remove(doc._id)
+								observer.updateBlueprintIds()
+							},
 						},
-						removed: (doc) => {
-							cache.ShowStyleSourceLayers.remove(doc._id)
-							observer.updateBlueprintIds()
-						},
-					},
-					{
-						projection: showStyleBaseFieldSpecifier,
-					}
-				),
-			]
-		})
+						{
+							projection: showStyleBaseFieldSpecifier,
+						}
+					),
+				]
+			}
+		)
 
 		// Run the Blueprint query in a ReactiveMongoObserverGroup, so that it can be restarted whenever
-		observer.#blueprintIdObserver = await ReactiveMongoObserverGroup(async () => {
-			// Clear already cached data
-			cache.Blueprints.remove({})
+		observer.#blueprintIdObserver = await ReactiveMongoObserverGroup(
+			`BucketContentObserver.blueprintIds: ${bucketId}`,
+			async () => {
+				// Clear already cached data
+				cache.Blueprints.remove({})
 
-			logger.silly(`optimized observer restarting ${observer.#blueprintIds}`)
+				logger.silly(`optimized observer restarting ${observer.#blueprintIds}`)
 
-			return [
-				Blueprints.observeChanges(
-					{
-						// We can use the `this.#blueprintIds` here, as this is restarted every time that property changes
-						_id: { $in: observer.#blueprintIds },
-					},
-					cache.Blueprints.link(),
-					{
-						projection: blueprintFieldSpecifier,
-					}
-				),
-			]
-		})
+				return [
+					Blueprints.observeChanges(
+						{
+							// We can use the `this.#blueprintIds` here, as this is restarted every time that property changes
+							_id: { $in: observer.#blueprintIds },
+						},
+						cache.Blueprints.link(),
+						{
+							projection: blueprintFieldSpecifier,
+						}
+					),
+				]
+			}
+		)
 
 		// Subscribe to the database, and pipe any updates into the ReactiveCacheCollections
 		// This takes ownership of the #showStyleBaseIdObserver, and will stop it if this throws

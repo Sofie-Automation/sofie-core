@@ -12,7 +12,7 @@ describe('ReactiveMongoObserverGroup', () => {
 		const handle: LiveQueryHandle = { stop: jest.fn() }
 		const generator = jest.fn(async () => [Promise.resolve(handle)])
 
-		const observerGroup = await ReactiveMongoObserverGroup(generator)
+		const observerGroup = await ReactiveMongoObserverGroup('myDebugName', generator)
 
 		// Ensure we got a sane response
 		expect(observerGroup).toBeTruthy()
@@ -41,7 +41,7 @@ describe('ReactiveMongoObserverGroup', () => {
 		const handle: LiveQueryHandle = { stop: jest.fn() }
 		const generator = jest.fn(async () => [Promise.resolve(handle)])
 
-		const observerGroup = await ReactiveMongoObserverGroup(generator)
+		const observerGroup = await ReactiveMongoObserverGroup('myDebugName', generator)
 
 		// Ensure we got a sane response
 		expect(observerGroup).toBeTruthy()
@@ -82,7 +82,7 @@ describe('ReactiveMongoObserverGroup', () => {
 		const handle: LiveQueryHandle = { stop: jest.fn() }
 		const generator = jest.fn(async () => [Promise.resolve(handle)])
 
-		const observerGroup = await ReactiveMongoObserverGroup(generator)
+		const observerGroup = await ReactiveMongoObserverGroup('myDebugName', generator)
 
 		// Ensure we got a sane response
 		expect(observerGroup).toBeTruthy()
