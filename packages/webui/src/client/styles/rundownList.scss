@@ -74,13 +74,12 @@
 	}
 
 	.rundown-list-item__name {
-		display: inline-block;
-		align-self: center;
+		display: inline-flex;
 		align-items: center;
 		letter-spacing: inherit;
 
 		.rundown-name {
-			font-weight: bold;
+			font-weight: 500;
 			> a > svg {
 				margin-right: 0;
 			}
@@ -93,6 +92,17 @@
 	.rundown-list-description__icon {
 		margin-left: 1em;
 		vertical-align: top;
+	}
+	.rundown-list-item__indicator {
+		align-self: stretch;
+		flex: 1 0;
+		display: grid;
+		align-items: center;
+		justify-content: end;
+
+		> .origo-pulse {
+			top: unset;
+		}
 	}
 	.rundown-list-item__text {
 		display: inline-flex;
@@ -132,6 +142,7 @@
 
 	.rundown-list-item__actions {
 		display: inline-grid;
+		margin-left: 1em;
 		grid-column: -1;
 		grid-template-columns: 1fr 1fr;
 		align-items: center;
@@ -286,10 +297,6 @@
 					margin-bottom: 0;
 					position: relative;
 
-					> .rundown-list-item__name > b {
-						font-weight: 500;
-					}
-
 					&::before,
 					&::after {
 						content: '';
@@ -338,9 +345,12 @@
 		grid-template-columns:
 			var(--dragHandleWidth)
 			var(--nameColumnWidth) var(--showStyleColumnWidth) var(--airTimeColumnWidth)
-			var(--durationColumnWidth) var(--expectedEndColumnWidth) var(--lastModifiedColumnWidth) var(--layoutSelectionColumnWidth);
+			var(--durationColumnWidth) var(--expectedEndColumnWidth) var(--lastModifiedColumnWidth) var(
+				--layoutSelectionColumnWidth
+			);
 
 		.rundown-list-item__actions {
+			margin-left: 1em;
 			padding: 0 0 3px; // cater for icons being larger than the font
 		}
 

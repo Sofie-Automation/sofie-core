@@ -1,0 +1,14 @@
+diff --git a/package.json b/package.json
+index 84163d39aceca9a127cd07253a6880748bd70348..3b4ae6153884a7a715c987024edb8cf80414e389 100644
+--- a/package.json
++++ b/package.json
+@@ -12,8 +12,7 @@
+     "lint": "eslint lib",
+     "test": "mocha --require ts-node/register 'lib/**/*.spec.ts'",
+     "build": "rollup --config rollup.config.js",
+-    "prepublishOnly": "npm run build",
+-    "postinstall": "node -e \"require('fs').rmSync('dist', { recursive: true })\""
++    "prepublishOnly": "npm run build"
+   },
+   "repository": "github:hyperjump-io/hyperjump-pact",
+   "keywords": [

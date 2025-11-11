@@ -27,6 +27,7 @@ export interface StatusResponseBase {
 
 	statusMessage?: string // Tekstlig beskrivelse av status. (Eks: OK, Running, Standby, Completed successfully, 2/3 nodes running, Slow response time).
 	instanceId?: ProtectedString<any>
+	parentId?: ProtectedString<any>
 	utilises?: Array<string>
 	consumers?: Array<string>
 	version?: '3' // version of healthcheck

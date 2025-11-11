@@ -1,8 +1,8 @@
 import React from 'react'
 import { SourceLayerType } from '@sofie-automation/blueprints-integration'
-import { ISourceLayerExtended, PartExtended } from '../../lib/RundownResolver'
-import { IOutputLayerUi } from '../SegmentContainer/withResolvedSegment'
-import { StoryboardSourceLayer } from './StoryboardPartSecondaryPieces/StoryboardSourceLayer'
+import { ISourceLayerExtended, PartExtended } from '../../lib/RundownResolver.js'
+import { IOutputLayerUi } from '../SegmentContainer/withResolvedSegment.js'
+import { StoryboardSourceLayer } from './StoryboardPartSecondaryPieces/StoryboardSourceLayer.js'
 
 interface IProps {
 	part: PartExtended

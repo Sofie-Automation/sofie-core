@@ -52,7 +52,7 @@ try {
 				name: "METEOR-INSTALL",
 				prefixColor: "red",
 			},
-			// Install packages depencencies
+			// Install packages dependencies
 			{
 				command: "yarn install:packages",
 				name: "PACKAGES-INSTALL",
@@ -99,7 +99,7 @@ function signalHandler(signal) {
 	process.exit();
 }
 
-// Make sure to exit on interupt
+// Make sure to exit on interrupt
 process.on("SIGINT", signalHandler);
 process.on("SIGTERM", signalHandler);
 process.on("SIGQUIT", signalHandler);

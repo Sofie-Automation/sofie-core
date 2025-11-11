@@ -1,23 +1,23 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { meteorSubscribe } from '../../lib/meteorApi'
-import { useSubscription, useTracker } from '../../lib/ReactMeteorData/ReactMeteorData'
+import { meteorSubscribe } from '../../lib/meteorApi.js'
+import { useSubscription, useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import {
 	// PartUi,
 	withResolvedSegment,
 	IResolvedSegmentProps,
 	ITrackedResolvedSegmentProps,
-} from '../SegmentContainer/withResolvedSegment'
-import { SpeechSynthesiser } from '../../lib/speechSynthesis'
-import { SegmentStoryboard } from './SegmentStoryboard'
-import { unprotectString } from '../../lib/tempLib'
-import { LIVELINE_HISTORY_SIZE as TIMELINE_LIVELINE_HISTORY_SIZE } from '../SegmentTimeline/Constants'
-import { Segments } from '../../collections'
+} from '../SegmentContainer/withResolvedSegment.js'
+import { SpeechSynthesiser } from '../../lib/speechSynthesis.js'
+import { SegmentStoryboard } from './SegmentStoryboard.js'
+import { unprotectString } from '../../lib/tempLib.js'
+import { LIVELINE_HISTORY_SIZE as TIMELINE_LIVELINE_HISTORY_SIZE } from '../SegmentTimeline/Constants.js'
+import { Segments } from '../../collections/index.js'
 import { literal } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { MongoFieldSpecifierOnes } from '@sofie-automation/corelib/dist/mongo'
 import { PartInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
-import { UIPartInstances, UIParts } from '../Collections'
-import { RundownViewShelf } from '../RundownView/RundownViewShelf'
+import { UIPartInstances, UIParts } from '../Collections.js'
+import { RundownViewShelf } from '../RundownView/RundownViewShelf.js'
 
 export const LIVELINE_HISTORY_SIZE = TIMELINE_LIVELINE_HISTORY_SIZE
 
@@ -77,13 +77,14 @@ export const SegmentStoryboardContainer = withResolvedSegment<IProps>(function S
 				_rank: 1,
 			},
 		})
-		segment &&
-			meteorSubscribe(
-				CorelibPubSub.piecesInfiniteStartingBefore,
-				rundownId,
-				Array.from(segmentsIdsBefore.values()),
-				Array.from(rundownIdsBefore.values())
-			)
+		if (!segment) return
+
+		meteorSubscribe(
+			CorelibPubSub.piecesInfiniteStartingBefore,
+			rundownId,
+			Array.from(segmentsIdsBefore.values()),
+			Array.from(rundownIdsBefore.values())
+		)
 	}, [segmentId, rundownId, segmentsIdsBefore.values(), rundownIdsBefore.values()])
 
 	const isLiveSegment = useTracker(

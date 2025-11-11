@@ -8,10 +8,10 @@ import {
 	getRandomId,
 	normalizeArrayToMap,
 } from '@sofie-automation/corelib/dist/lib'
-import { JobContext } from './jobs'
-import { getCurrentTime } from './lib'
-import { logger } from './logging'
-import { PlayoutModel } from './playout/model/PlayoutModel'
+import { JobContext } from './jobs/index.js'
+import { getCurrentTime } from './lib/index.js'
+import { logger } from './logging.js'
+import { PlayoutModel } from './playout/model/PlayoutModel.js'
 import { literal } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { SubdeviceAction } from '@sofie-automation/corelib/dist/deviceConfig'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'

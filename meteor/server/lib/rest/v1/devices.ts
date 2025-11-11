@@ -56,16 +56,7 @@ export interface APIPeripheralDevice {
 	name: string
 	status: 'unknown' | 'good' | 'warning_major' | 'marning_minor' | 'bad' | 'fatal'
 	messages: string[]
-	deviceType:
-		| 'unknown'
-		| 'mos'
-		| 'spreadsheet'
-		| 'inews'
-		| 'playout'
-		| 'media_manager'
-		| 'package_manager'
-		| 'live_status'
-		| 'input'
+	deviceType: 'unknown' | 'mos' | 'spreadsheet' | 'inews' | 'playout' | 'package_manager' | 'live_status' | 'input'
 	connected: boolean
 }
 

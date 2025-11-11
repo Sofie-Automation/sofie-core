@@ -1,12 +1,12 @@
 import * as React from 'react'
 import { DBStudio, StudioPackageContainer } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { EditAttribute } from '../../../../lib/EditAttribute'
+import { EditAttribute } from '../../../../lib/EditAttribute.js'
 import { useTranslation } from 'react-i18next'
 import { Accessor } from '@sofie-automation/blueprints-integration'
-import { Studios } from '../../../../collections'
-import { DropdownInputOption } from '../../../../lib/Components/DropdownInput'
-import { WrappedOverridableItem } from '../../util/OverrideOpHelper'
-import { LabelActual } from '../../../../lib/Components/LabelAndOverrides'
+import { Studios } from '../../../../collections/index.js'
+import { DropdownInputOption } from '../../../../lib/Components/DropdownInput.js'
+import { WrappedOverridableItem } from '../../util/OverrideOpHelper.js'
+import { LabelActual } from '../../../../lib/Components/LabelAndOverrides.js'
 
 interface PackageContainersPickersProps {
 	studio: DBStudio

@@ -1,12 +1,14 @@
 import * as React from 'react'
 import ClassNames from 'classnames'
-import { useTracker } from '../lib/ReactMeteorData/ReactMeteorData'
-import { SupportIcon } from '../lib/ui/icons/supportIcon'
+import { useTracker } from '../lib/ReactMeteorData/ReactMeteorData.js'
+import { SupportIcon } from '../lib/ui/icons/supportIcon.js'
 import { useTranslation } from 'react-i18next'
-import { getHelpMode } from '../lib/localStorage'
-import { CoreSystem } from '../collections'
+import { getHelpMode } from '../lib/localStorage.js'
+import { CoreSystem } from '../collections/index.js'
 import { SYSTEM_ID } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
+import { PopUpPanel } from './RundownView/PopUpPanel.js'
+import { RundownRightHandButton } from './RundownView/RundownRightHandButton.js'
 
 interface IProps {}
 
@@ -31,12 +33,15 @@ export function SupportPopUp({ children }: Readonly<React.PropsWithChildren<IPro
 	)
 
 	return (
-		<div className="support-pop-up-panel" role="dialog">
-			<h2 className="m-0">{t('Help & Support')}</h2>
-			{children && <div className="support-pop-up-panel__actions">{children}</div>}
-			{!supportMessage && <DocumentationLink />}
-			<div dangerouslySetInnerHTML={supportMessageHTML} />
-		</div>
+		<>
+			<PopUpPanel className="support-pop-up-panel" role="dialog">
+				<h2 className="m-0">{t('Help & Support')}</h2>
+
+				{children && <div className="support-pop-up-panel__actions">{children}</div>}
+				{!supportMessage && <DocumentationLink />}
+				<div dangerouslySetInnerHTML={supportMessageHTML} />
+			</PopUpPanel>
+		</>
 	)
 }
 
@@ -48,7 +53,7 @@ interface IToggleProps {
 
 export function SupportPopUpToggle({ isOpen, title, onClick }: Readonly<IToggleProps>): JSX.Element {
 	return (
-		<button
+		<RundownRightHandButton
 			className={ClassNames('status-bar__controls__button', 'support__toggle-button', {
 				'status-bar__controls__button--open': isOpen,
 				// 'status-bar__controls__button--has-messages': this.getMessages() !== ''
@@ -61,7 +66,7 @@ export function SupportPopUpToggle({ isOpen, title, onClick }: Readonly<IToggleP
 			aria-pressed={isOpen ? 'true' : 'false'}
 		>
 			<SupportIcon />
-		</button>
+		</RundownRightHandButton>
 	)
 }
 
@@ -83,7 +88,7 @@ export function DocumentationLink(): JSX.Element {
 			)}
 			<p>
 				{t('More documentation available at:')}&nbsp;
-				<a href="https://nrkno.github.io/sofie-core/">https://nrkno.github.io/sofie-core/</a>
+				<a href="https://sofie-automation.github.io/sofie-core/">https://sofie-automation.github.io/sofie-core/</a>
 			</p>
 		</div>
 	)

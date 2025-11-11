@@ -1,15 +1,15 @@
 import { Logger } from 'winston'
-import { CoreHandler } from '../coreHandler'
-import { PublicationCollection } from '../publicationCollection'
+import { CoreHandler } from '../coreHandler.js'
+import { PublicationCollection } from '../publicationCollection.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 import areElementsShallowEqual from '@sofie-automation/shared-lib/dist/lib/isShallowEqual'
-import _ = require('underscore')
+import _ from 'underscore'
 import throttleToNextTick from '@sofie-automation/shared-lib/dist/lib/throttleToNextTick'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { RundownId, RundownPlaylistActivationId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { CollectionHandlers } from '../liveStatusServer'
+import { CollectionHandlers } from '../liveStatusServer.js'
 import { PickKeys } from '@sofie-automation/shared-lib/dist/lib/types'
 
 export interface SelectedPartInstances {

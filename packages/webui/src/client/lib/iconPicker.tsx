@@ -1,12 +1,12 @@
 import * as React from 'react'
-import * as _ from 'underscore'
+import _ from 'underscore'
 import ClassNames from 'classnames'
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { fas, IconName, IconPack, IconDefinition } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { withTranslation } from 'react-i18next'
-import { Translated } from './ReactMeteorData/ReactMeteorData'
+import { Translated } from './ReactMeteorData/ReactMeteorData.js'
 import { Manager, Popper, Reference } from 'react-popper'
 import Form from 'react-bootstrap/esm/Form'
 
@@ -114,7 +114,7 @@ export const IconPicker = withTranslation()(
 			return this.state.searchText
 				? _.pick(this.state.iconPack, (value: IconDefinition) => {
 						return value.iconName.includes(this.state.searchText)
-				  })
+					})
 				: this.state.iconPack
 		}
 

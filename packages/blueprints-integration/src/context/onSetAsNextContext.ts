@@ -9,8 +9,8 @@ import {
 	IBlueprintSegment,
 	IEventContext,
 	IShowStyleUserContext,
-} from '..'
-import { BlueprintQuickLookInfo } from './quickLoopInfo'
+} from '../index.js'
+import { BlueprintQuickLookInfo } from './quickLoopInfo.js'
 
 /**
  * Context in which 'current' is the part currently on air, and 'next' is the partInstance being set as Next
@@ -19,6 +19,9 @@ import { BlueprintQuickLookInfo } from './quickLoopInfo'
 export interface IOnSetAsNextContext extends IShowStyleUserContext, IEventContext {
 	/** Information about the current loop, if there is one */
 	readonly quickLoopInfo: BlueprintQuickLookInfo | null
+
+	/** Whether the part being set as next was selected as a result of user's actions */
+	readonly manuallySelected: boolean
 
 	/**
 	 * Data fetching

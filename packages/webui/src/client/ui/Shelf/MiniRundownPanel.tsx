@@ -1,37 +1,28 @@
-import * as React from 'react'
-import * as _ from 'underscore'
+import React, { memo, useEffect } from 'react'
+import _ from 'underscore'
 import ClassNames from 'classnames'
 import {
 	RundownLayoutBase,
 	DashboardLayoutMiniRundown,
 	RundownLayoutMiniRundown,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import { RundownLayoutsAPI } from '../../lib/rundownLayouts'
-import { withTracker } from '../../lib/ReactMeteorData/ReactMeteorData'
+import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
+import { useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { PartInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { dashboardElementStyle } from './DashboardPanel'
+import { dashboardElementStyle } from './DashboardPanel.js'
 import { Meteor } from 'meteor/meteor'
 import { PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { UIPartInstances } from '../Collections'
-import { RundownPlaylistClientUtil } from '../../lib/rundownPlaylistUtil'
+import { UIPartInstances } from '../Collections.js'
+import { RundownPlaylistClientUtil } from '../../lib/rundownPlaylistUtil.js'
 
 interface IMiniRundownPanelProps {
-	key: string
 	visible?: boolean
 	layout: RundownLayoutBase
 	panel: RundownLayoutMiniRundown
 	playlist: DBRundownPlaylist
 }
-
-interface IMiniRundownPanelTrackedProps {
-	currentPartInstance?: PartInstance
-	nextPartInstance?: PartInstance
-	allSegments?: DBSegment[]
-}
-
-interface IState {}
 
 interface MiniRundownSegment {
 	identifier: string
@@ -39,56 +30,68 @@ interface MiniRundownSegment {
 	cssClass: string
 }
 
-export class MiniRundownPanelInner extends React.Component<IMiniRundownPanelProps & IMiniRundownPanelTrackedProps> {
-	static currentSegmentCssClass = 'current-segment'
-	static nextSegmentCssClass = 'next-segment'
-	static panelContainerId = 'mini-rundown-panel__container'
-	static nextSegmentId = 'mini-rundown__next-segment'
-	static currentSegmentId = 'mini-rundown__current-segment'
+const MiniRundownPanelClassesAndIds = {
+	currentSegmentCssClass: 'current-segment',
+	nextSegmentCssClass: 'next-segment',
+	panelContainerId: 'mini-rundown-panel__container',
+	nextSegmentId: 'mini-rundown__next-segment',
+	currentSegmentId: 'mini-rundown__current-segment',
+}
 
-	componentDidMount(): void {
-		this.scrollIntoView()
-	}
+export const MiniRundownPanel = memo(
+	function MiniRundownPanelInner2(props: IMiniRundownPanelProps) {
+		// Trigger on mount, or when any props change
+		useEffect(() => {
+			Meteor.setTimeout(() => {
+				const container = document.getElementById(MiniRundownPanelClassesAndIds.panelContainerId)
+				if (!container) return
+				const nextElement = document.getElementById(MiniRundownPanelClassesAndIds.nextSegmentId)
+				const currentElement = document.getElementById(MiniRundownPanelClassesAndIds.currentSegmentId)
+				if (nextElement) {
+					container.scrollTop = nextElement.offsetTop - nextElement.clientHeight
+				} else if (currentElement) {
+					container.scrollTop = currentElement.offsetTop
+				}
+			}, 500)
+		}, [...Object.values<any>(props)])
 
-	componentDidUpdate(): void {
-		this.scrollIntoView()
-	}
-
-	private scrollIntoView() {
-		Meteor.setTimeout(() => {
-			const container = document.getElementById(MiniRundownPanelInner.panelContainerId)
-			if (!container) return
-			const nextElement = document.getElementById(MiniRundownPanelInner.nextSegmentId)
-			const currentElement = document.getElementById(MiniRundownPanelInner.currentSegmentId)
-			if (nextElement) {
-				container.scrollTop = nextElement.offsetTop - nextElement.clientHeight
-			} else if (currentElement) {
-				container.scrollTop = currentElement.offsetTop
-			}
-		}, 500)
-	}
-
-	render(): JSX.Element {
-		const isDashboardLayout = RundownLayoutsAPI.isDashboardLayout(this.props.layout)
-		const style = getElementStyle(this.props, isDashboardLayout)
-
-		const miniRundowns: MiniRundownSegment[] = getMiniRundownList(
-			this.props.allSegments,
-			this.props.currentPartInstance,
-			this.props.nextPartInstance
+		const currentPartInstanceId: PartInstanceId | undefined = props.playlist.currentPartInfo?.partInstanceId
+		const currentPartInstance = useTracker(
+			() => currentPartInstanceId && UIPartInstances.findOne(currentPartInstanceId),
+			[currentPartInstanceId]
 		)
+
+		const nextPartInstanceId: PartInstanceId | undefined = props.playlist.nextPartInfo?.partInstanceId
+		const nextPartInstance = useTracker(
+			() => nextPartInstanceId && UIPartInstances.findOne(nextPartInstanceId),
+			[nextPartInstanceId]
+		)
+
+		const allSegments: DBSegment[] = useTracker(
+			() => RundownPlaylistClientUtil.getSegments(props.playlist),
+			[props.playlist._id, props.playlist.rundownIdsInOrder],
+			[]
+		)
+
+		const isDashboardLayout = RundownLayoutsAPI.isDashboardLayout(props.layout)
+		const style = getElementStyle(props, isDashboardLayout)
+
+		const miniRundowns: MiniRundownSegment[] = getMiniRundownList(allSegments, currentPartInstance, nextPartInstance)
 
 		return (
 			<div
 				key={'miniRundownContainer'}
-				className={ClassNames('dashboard-panel mini-rundown-panel', getContainerClass(this.props, isDashboardLayout))}
-				style={getContainerStyle(this.props, isDashboardLayout)}
+				className={ClassNames('dashboard-panel mini-rundown-panel', getContainerClass(props, isDashboardLayout))}
+				style={getContainerStyle(props, isDashboardLayout)}
 			>
 				<span className="mini-rundown-panel__name" style={style} key={'miniRundownHeader'}>
-					{this.props.panel.name}{' '}
+					{props.panel.name}{' '}
 				</span>
 
-				<div className={MiniRundownPanelInner.panelContainerId} id={MiniRundownPanelInner.panelContainerId}>
+				<div
+					className={MiniRundownPanelClassesAndIds.panelContainerId}
+					id={MiniRundownPanelClassesAndIds.panelContainerId}
+				>
 					{miniRundowns.map((miniRundown: MiniRundownSegment, index: number) => (
 						<div
 							className={miniRundown.cssClass}
@@ -113,31 +116,9 @@ export class MiniRundownPanelInner extends React.Component<IMiniRundownPanelProp
 				</div>
 			</div>
 		)
-	}
-}
-
-export const MiniRundownPanel = withTracker<IMiniRundownPanelProps, IState, IMiniRundownPanelTrackedProps>(
-	(props: IMiniRundownPanelProps & IMiniRundownPanelTrackedProps) => {
-		let currentPartInstance: PartInstance | undefined = undefined
-		let nextPartInstance: PartInstance | undefined = undefined
-
-		const currentPartInstanceId: PartInstanceId | undefined = props.playlist.currentPartInfo?.partInstanceId
-		if (currentPartInstanceId) {
-			currentPartInstance = UIPartInstances.findOne(currentPartInstanceId)
-		}
-
-		if (props.playlist.nextPartInfo) {
-			nextPartInstance = UIPartInstances.findOne(props.playlist.nextPartInfo.partInstanceId)
-		}
-
-		const allSegments: DBSegment[] = RundownPlaylistClientUtil.getSegments(props.playlist)
-
-		return { currentPartInstance, nextPartInstance, allSegments }
 	},
-	(_data, props: IMiniRundownPanelProps, nextProps: IMiniRundownPanelProps) => {
-		return !_.isEqual(props, nextProps)
-	}
-)(MiniRundownPanelInner)
+	(prevProps, nextProps) => _.isEqual(prevProps, nextProps)
+)
 
 function getMiniRundownList(
 	allSegments?: DBSegment[],
@@ -160,11 +141,11 @@ function getMiniRundownList(
 
 function getSegmentCssClass(segment: DBSegment, currentPart?: PartInstance, nextPart?: PartInstance): string {
 	if (segment._id === currentPart?.segmentId) {
-		return MiniRundownPanelInner.currentSegmentCssClass
+		return MiniRundownPanelClassesAndIds.currentSegmentCssClass
 	}
 
 	if (segment._id === nextPart?.segmentId) {
-		return MiniRundownPanelInner.nextSegmentCssClass
+		return MiniRundownPanelClassesAndIds.nextSegmentCssClass
 	}
 
 	return ''
@@ -200,10 +181,10 @@ function getElementKey(prefix: string, identifier: string, index: number): strin
 
 function getIdAttributeForNextSegment(cssClass: string) {
 	switch (cssClass) {
-		case MiniRundownPanelInner.nextSegmentCssClass:
-			return { id: MiniRundownPanelInner.nextSegmentId }
-		case MiniRundownPanelInner.currentSegmentCssClass:
-			return { id: MiniRundownPanelInner.currentSegmentId }
+		case MiniRundownPanelClassesAndIds.nextSegmentCssClass:
+			return { id: MiniRundownPanelClassesAndIds.nextSegmentId }
+		case MiniRundownPanelClassesAndIds.currentSegmentCssClass:
+			return { id: MiniRundownPanelClassesAndIds.currentSegmentId }
 		default:
 			return {}
 	}

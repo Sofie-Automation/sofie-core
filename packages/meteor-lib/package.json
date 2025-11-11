@@ -18,7 +18,7 @@
 	"scripts": {
 		"build": "run -T rimraf dist && run build:main",
 		"build:main": "run -T tsc -p tsconfig.build.json",
-		"lint:raw": "run -T eslint --ext .ts --ext .js --ignore-pattern dist",
+		"lint:raw": "run -T eslint",
 		"lint": "run lint:raw .",
 		"unit": "run -T jest",
 		"test": "run lint && run unit",
@@ -30,7 +30,7 @@
 		"license-validate": "run -T sofie-licensecheck"
 	},
 	"engines": {
-		"node": ">=22.13.1"
+		"node": ">=22.20.0"
 	},
 	"files": [
 		"/dist",
@@ -39,7 +39,7 @@
 		"/LICENSE"
 	],
 	"dependencies": {
-		"@mos-connection/helper": "^4.2.2",
+		"@mos-connection/helper": "^4.3.1",
 		"@sofie-automation/blueprints-integration": "1.53.0-in-development",
 		"@sofie-automation/corelib": "1.53.0-in-development",
 		"@sofie-automation/shared-lib": "1.53.0-in-development",
@@ -55,7 +55,7 @@
 	},
 	"peerDependencies": {
 		"i18next": "^21.10.0",
-		"mongodb": "^5.5.0"
+		"mongodb": "^6.12.0"
 	},
 	"prettier": "@sofie-automation/code-standard-preset/.prettierrc.json",
 	"lint-staged": {
@@ -66,5 +66,5 @@
 			"yarn lint:raw"
 		]
 	},
-	"packageManager": "yarn@4.6.0"
+	"packageManager": "yarn@4.10.3"
 }

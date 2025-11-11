@@ -1,9 +1,9 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { RundownLayouts } from '../../../../collections'
+import { RundownLayouts } from '../../../../collections/index.js'
 import { RundownLayoutBase, RundownLayoutType } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import { EditAttribute } from '../../../../lib/EditAttribute'
-import { LabelActual } from '../../../../lib/Components/LabelAndOverrides'
+import { EditAttribute } from '../../../../lib/EditAttribute.js'
+import { LabelActual } from '../../../../lib/Components/LabelAndOverrides.js'
 
 interface IProps {
 	item: RundownLayoutBase

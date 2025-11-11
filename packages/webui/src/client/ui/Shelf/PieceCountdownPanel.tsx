@@ -1,20 +1,20 @@
 import * as React from 'react'
-import * as _ from 'underscore'
+import _ from 'underscore'
 import ClassNames from 'classnames'
 import {
 	RundownLayoutBase,
 	RundownLayoutPieceCountdown,
 	DashboardLayoutPieceCountdown,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import { RundownLayoutsAPI } from '../../lib/rundownLayouts'
-import { dashboardElementStyle } from './DashboardPanel'
-import { withTracker } from '../../lib/ReactMeteorData/ReactMeteorData'
-import { RundownUtils } from '../../lib/rundown'
-import { RundownTiming, TimingEvent } from '../RundownView/RundownTiming/RundownTiming'
+import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
+import { dashboardElementStyle } from './DashboardPanel.js'
+import { withTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
+import { RundownUtils } from '../../lib/rundown.js'
+import { RundownTiming, TimingEvent } from '../RundownView/RundownTiming/RundownTiming.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { VTContent } from '@sofie-automation/blueprints-integration'
-import { getUnfinishedPieceInstancesReactive } from '../../lib/rundownLayouts'
+import { getUnfinishedPieceInstancesReactive } from '../../lib/rundownLayouts.js'
 import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { ReadonlyDeep } from 'type-fest'
 interface IPieceCountdownPanelProps {
@@ -113,7 +113,7 @@ export const PieceCountdownPanel = withTracker<IPieceCountdownPanelProps, IState
 							(props.panel.sourceLayerIds || []).indexOf(piece.piece.sourceLayerId) !== -1 &&
 							piece.partInstanceId === props.playlist.currentPartInfo?.partInstanceId
 						)
-				  })
+					})
 				: undefined
 		return { livePieceInstance }
 	},

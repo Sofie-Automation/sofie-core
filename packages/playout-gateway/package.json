@@ -6,13 +6,13 @@
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/nrkno/sofie-core.git",
+		"url": "git+https://github.com/Sofie-Automation/sofie-core.git",
 		"directory": "packages/playout-gateway"
 	},
 	"bugs": {
-		"url": "https://github.com/nrkno/sofie-core/issues"
+		"url": "https://github.com/Sofie-Automation/sofie-core/issues"
 	},
-	"homepage": "https://github.com/nrkno/sofie-core/blob/master/packages/playout-gateway#readme",
+	"homepage": "https://github.com/Sofie-Automation/sofie-core/blob/main/packages/playout-gateway#readme",
 	"author": {
 		"name": "Johan Nyman",
 		"email": "johan@superfly.tv",
@@ -24,7 +24,7 @@
 		"buildstart": "run build && run dev",
 		"buildinspect": "run build && run inspect",
 		"build:main": "run -T tsc -p tsconfig.build.json",
-		"lint:raw": "run -T eslint --ext .ts --ext .js --ignore-pattern dist",
+		"lint:raw": "run -T eslint",
 		"lint": "run lint:raw .",
 		"unit": "run -T jest",
 		"test": "run lint && run unit",
@@ -40,7 +40,7 @@
 		"license-validate": "run -T sofie-licensecheck"
 	},
 	"engines": {
-		"node": ">=22.13.1"
+		"node": ">=22.20.0"
 	},
 	"keywords": [
 		"broadcast",
@@ -60,7 +60,7 @@
 		"@sofie-automation/shared-lib": "1.53.0-in-development",
 		"debug": "^4.4.0",
 		"influx": "^5.9.7",
-		"timeline-state-resolver": "9.3.0-release52.0",
+		"timeline-state-resolver": "10.0.0-nightly-release53-20250908-063535-af36ced74.0",
 		"tslib": "^2.8.1",
 		"underscore": "^1.13.7",
 		"winston": "^3.17.0"
@@ -73,5 +73,5 @@
 			"yarn lint:raw"
 		]
 	},
-	"packageManager": "yarn@4.6.0"
+	"packageManager": "yarn@4.10.3"
 }

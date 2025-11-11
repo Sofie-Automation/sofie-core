@@ -1,15 +1,15 @@
 import * as React from 'react'
 import { ExpectedPackageWorkStatus } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackageWorkStatuses'
-import { assertNever, unprotectString } from '../../../lib/tempLib'
+import { assertNever, unprotectString } from '../../../lib/tempLib.js'
 import { ExpectedPackageDB } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
 import Tooltip from 'rc-tooltip'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons'
 import ClassNames from 'classnames'
-import { ExpectedPackage } from '@sofie-automation/blueprints-integration'
+import { ExpectedPackage, ExpectedPackageStatusAPI } from '@sofie-automation/blueprints-integration'
 import { useTranslation } from 'react-i18next'
-import { DisplayFormattedTime } from '../../RundownList/DisplayFormattedTime'
-import { PackageWorkStatus } from './PackageWorkStatus'
+import { DisplayFormattedTime } from '../../RundownList/DisplayFormattedTime.js'
+import { PackageWorkStatus } from './PackageWorkStatus.js'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 
@@ -153,7 +153,7 @@ export const PackageStatus: React.FC<{
 			{isOpen
 				? statuses.map((status) => {
 						return <PackageWorkStatus key={unprotectString(status._id)} status={status} connected={connected} />
-				  })
+					})
 				: null}
 		</React.Fragment>
 	)
@@ -262,9 +262,9 @@ function getProgress(statuses: ExpectedPackageWorkStatus[], onlyRequired: boolea
 			continue
 		}
 		count++
-		if (status.status === 'fulfilled') {
+		if (status.status === ExpectedPackageStatusAPI.WorkStatusState.FULFILLED) {
 			progress += 1
-		} else if (status.status === 'working') {
+		} else if (status.status === ExpectedPackageStatusAPI.WorkStatusState.WORKING) {
 			progress += status.progress || 0.1
 		} else {
 			progress += 0

@@ -74,18 +74,24 @@ export async function showStyleBaseFrom(
 	let showStyleBase: DBShowStyleBase | undefined
 	if (existingId) showStyleBase = await ShowStyleBases.findOneAsync(existingId)
 
-	const newOutputLayers = apiShowStyleBase.outputLayers.reduce<Record<string, IOutputLayer>>((acc, op) => {
-		acc[op.id] = { _id: op.id, name: op.name, _rank: op.rank, isPGM: op.isPgm }
-		return acc
-	}, {} as Record<string, IOutputLayer>)
+	const newOutputLayers = apiShowStyleBase.outputLayers.reduce<Record<string, IOutputLayer>>(
+		(acc, op) => {
+			acc[op.id] = { _id: op.id, name: op.name, _rank: op.rank, isPGM: op.isPgm }
+			return acc
+		},
+		{} as Record<string, IOutputLayer>
+	)
 	const outputLayers = showStyleBase
 		? updateOverrides(showStyleBase.outputLayersWithOverrides, newOutputLayers)
 		: wrapDefaultObject({})
 
-	const newSourceLayers = apiShowStyleBase.sourceLayers.reduce<Record<string, ISourceLayer>>((acc, op) => {
-		acc[op.id] = sourceLayerFrom(op)
-		return acc
-	}, {} as Record<string, ISourceLayer>)
+	const newSourceLayers = apiShowStyleBase.sourceLayers.reduce<Record<string, ISourceLayer>>(
+		(acc, op) => {
+			acc[op.id] = sourceLayerFrom(op)
+			return acc
+		},
+		{} as Record<string, ISourceLayer>
+	)
 	const sourceLayers = showStyleBase
 		? updateOverrides(showStyleBase.sourceLayersWithOverrides, newSourceLayers)
 		: wrapDefaultObject({})
@@ -101,7 +107,7 @@ export async function showStyleBaseFrom(
 			? updateOverrides(
 					showStyleBase.blueprintConfigWithOverrides,
 					await ShowStyleBaseBlueprintConfigFromAPI(apiShowStyleBase, blueprintManifest)
-			  )
+				)
 			: convertObjectIntoOverrides(await ShowStyleBaseBlueprintConfigFromAPI(apiShowStyleBase, blueprintManifest))
 	}
 
@@ -318,7 +324,7 @@ export async function studioFrom(apiStudio: APIStudio, existingId?: StudioId): P
 			? updateOverrides(
 					studio.blueprintConfigWithOverrides,
 					await StudioBlueprintConfigFromAPI(apiStudio, blueprintManifest)
-			  )
+				)
 			: convertObjectIntoOverrides(await StudioBlueprintConfigFromAPI(apiStudio, blueprintManifest))
 	}
 
@@ -378,6 +384,7 @@ export function studioSettingsFrom(apiStudioSettings: APIStudioSettings): Comple
 		multiGatewayNowSafeLatency: apiStudioSettings.multiGatewayNowSafeLatency,
 		allowRundownResetOnAir: apiStudioSettings.allowRundownResetOnAir,
 		preserveOrphanedSegmentPositionInRundown: apiStudioSettings.preserveOrphanedSegmentPositionInRundown,
+		allowTestingAdlibsToPersist: apiStudioSettings.allowTestingAdlibsToPersist,
 		minimumTakeSpan: apiStudioSettings.minimumTakeSpan ?? DEFAULT_MINIMUM_TAKE_SPAN,
 		enableQuickLoop: apiStudioSettings.enableQuickLoop,
 		forceQuickLoopAutoNext: forceQuickLoopAutoNextFrom(apiStudioSettings.forceQuickLoopAutoNext),
@@ -388,6 +395,7 @@ export function studioSettingsFrom(apiStudioSettings: APIStudioSettings): Comple
 		allowPieceDirectPlay: apiStudioSettings.allowPieceDirectPlay ?? true, // Backwards compatible
 		enableBuckets: apiStudioSettings.enableBuckets ?? true, // Backwards compatible
 		enableEvaluationForm: apiStudioSettings.enableEvaluationForm ?? true, // Backwards compatible
+		mockPieceContentStatus: apiStudioSettings.mockPieceContentStatus,
 	}
 }
 
@@ -409,10 +417,12 @@ export function APIStudioSettingsFrom(settings: IStudioSettings): Complete<APISt
 		fallbackPartDuration: settings.fallbackPartDuration,
 		enableUserEdits: settings.enableUserEdits,
 		allowAdlibTestingSegment: settings.allowAdlibTestingSegment,
+		allowTestingAdlibsToPersist: settings.allowTestingAdlibsToPersist,
 		allowHold: settings.allowHold,
 		allowPieceDirectPlay: settings.allowPieceDirectPlay,
 		enableBuckets: settings.enableBuckets,
 		enableEvaluationForm: settings.enableEvaluationForm,
+		mockPieceContentStatus: settings.mockPieceContentStatus,
 	}
 }
 
@@ -482,9 +492,6 @@ export function APIPeripheralDeviceFrom(device: PeripheralDevice): APIPeripheral
 		case PeripheralDeviceType.LIVE_STATUS:
 			deviceType = 'live_status'
 			break
-		case PeripheralDeviceType.MEDIA_MANAGER:
-			deviceType = 'media_manager'
-			break
 		case PeripheralDeviceType.MOS:
 			deviceType = 'mos'
 			break
@@ -542,7 +549,7 @@ async function getBlueprint(
 		? await Blueprints.findOneAsync({
 				_id: blueprintId,
 				blueprintType,
-		  })
+			})
 		: undefined
 	if (!blueprint) throw new Meteor.Error(404, `Blueprint "${blueprintId}" not found!`)
 

@@ -20,7 +20,7 @@ export function getVersions(logger: Winston.Logger): { [packageName: string]: st
 	try {
 		for (const pkgName of pkgNames) {
 			try {
-				// eslint-disable-next-line @typescript-eslint/no-var-requires
+				// eslint-disable-next-line @typescript-eslint/no-require-imports
 				const pkgInfo = require(`${pkgName}/package.json`)
 				versions[pkgName] = pkgInfo.version || 'N/A'
 			} catch (e) {

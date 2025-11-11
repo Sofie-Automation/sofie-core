@@ -16,7 +16,9 @@ const basePath = path.resolve('./packages')
  * Argument allowing to override the default package scope in forks
  * Will change the package names from @sofie-automation/<package-name> to <scopeOverride>/<package-name>
  */
-const scopeOverride = process.argv[2]
+const repositoryName = process.argv[2] // eg nrkno/sofie-nrk-core
+const scopeOverride = process.argv[3] // eg nrk
+const prefixSofie = !!process.argv[4] // eg 1
 
 ;(async() => {
 
@@ -34,11 +36,12 @@ const scopeOverride = process.argv[2]
         // exists?
         if (!await exists(packagePath)) continue
 
-        const package = require(packagePath)
+        const pkgJson = require(packagePath)
         packages.push({
             packagePath,
-            package,
-            originalName: package.name
+			dirName: dir.name,
+            package: pkgJson,
+            originalName: pkgJson.name
         })
     }
 
@@ -50,17 +53,28 @@ const scopeOverride = process.argv[2]
 
             const foundPackage = packages.find(p => p.originalName === depName)
             if (foundPackage) {
-                if (p.package.dependencies[depName] !== foundPackage.package.version) {
-                    modifyDependency(depName, p.package.dependencies, foundPackage.package.version)
-                    changed = true
-                }
+				modifyDependency(depName, p.package.dependencies, foundPackage.package.version)
+				changed = true
             }
         }
-        const packageName = p.package.name.split('/')
-        if (scopeOverride && packageName.length === 2) {
-            p.package.name = `${scopeOverride}/${packageName[1]}`
-            changed = true
-        }
+
+		// Update any references to github repository, some of this is needed for provenance
+		if (repositoryName){
+			if (p.package.repository) {
+				p.package.repository.url = `https://github.com/${repositoryName}.git`
+			}
+			if (p.package.bugs) {
+				p.package.bugs.url = `https://github.com/${repositoryName}/issues`
+			}
+			p.package.homepage = `https://github.com/${repositoryName}/blob/main/packages/${p.dirName}#readme`
+			changed = true
+		}
+
+		const newName = translatePackageName(p.package.name)
+		if (newName && newName !== p.package.name) {
+			p.package.name = newName
+			changed = true
+		}
         if (changed) {
             await fsp.writeFile(p.packagePath, JSON.stringify(p.package, null, '\t')+'\n')
             console.log(`Updated ${p.originalName !== p.package.name ? p.originalName + ' -> ' : ''}${p.package.name}`)
@@ -74,12 +88,25 @@ const scopeOverride = process.argv[2]
 })
 
 
+function translatePackageName(name) {
+	const packageName = name.split('/')
+	if (scopeOverride && packageName.length === 2) {
+		let nameSuffix = packageName[1]
+		if (prefixSofie && !nameSuffix.startsWith('sofie-')) nameSuffix = 'sofie-' + nameSuffix
+
+		return `@${scopeOverride}/${nameSuffix}`
+	} else {
+		return null
+	}
+}
 
 function modifyDependency(depName, dependencies, version) {
-    const oldDepName = depName.split('/')
-    dependencies[depName] = scopeOverride && oldDepName.length === 2
-        ? `npm:${scopeOverride}/${oldDepName[1]}@${version}`
-        : version
+	const newName = translatePackageName(depName)
+	if (newName) {
+		dependencies[depName] = `npm:${newName}@${version}`
+	} else {
+		dependencies[depName] = version
+	}
 }
 
 async function exists(checkPath) {

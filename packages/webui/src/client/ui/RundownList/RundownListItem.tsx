@@ -1,20 +1,20 @@
 import { useContext, useEffect } from 'react'
 import classNames from 'classnames'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { useTracker } from '../../lib/ReactMeteorData/ReactMeteorData'
-import { confirmDeleteRundown, confirmReSyncRundown, getShowStyleBaseLink } from './util'
+import { useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
+import { confirmDeleteRundown, confirmReSyncRundown, getShowStyleBaseLink } from './util.js'
 import { useDrag, useDrop } from 'react-dnd'
-import { IRundownDragObject, IRundownPlaylistUiAction, RundownListDragDropTypes } from './DragAndDropTypes'
+import { IRundownDragObject, IRundownPlaylistUiAction, RundownListDragDropTypes } from './DragAndDropTypes.js'
 import { getEmptyImage } from 'react-dnd-html5-backend'
-import { unprotectString } from '../../lib/tempLib'
-import RundownListItemView from './RundownListItemView'
+import { unprotectString } from '../../lib/tempLib.js'
+import RundownListItemView from './RundownListItemView.js'
 import { RundownLayoutBase } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import { RundownId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { ShowStyleBases, ShowStyleVariants } from '../../collections'
+import { ShowStyleBases, ShowStyleVariants } from '../../collections/index.js'
 import { useTranslation } from 'react-i18next'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
-import { UserPermissionsContext } from '../UserPermissions'
+import { UserPermissionsContext } from '../UserPermissions.js'
 
 export const HTML_ID_PREFIX = 'rundown-'
 
@@ -97,8 +97,8 @@ export function RundownListItem({
 			? t('{{showStyleVariant}} – {{showStyleBase}}', {
 					showStyleVariant: showStyleVariant.name,
 					showStyleBase: showStyleBase.name,
-			  })
-			: showStyleBase?.name ?? ''
+				})
+			: (showStyleBase?.name ?? '')
 
 	return (
 		<RundownListItemView

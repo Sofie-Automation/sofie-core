@@ -1,17 +1,19 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { useTracker } from '../../lib/ReactMeteorData/ReactMeteorData'
-import Escape from './../../lib/Escape'
+import { useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
+import Escape from './../../lib/Escape.js'
 import { ContextMenu, MenuItem } from '@jstarpl/react-contextmenu'
 import { ReactiveVar } from 'meteor/reactive-var'
 import { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
-import { BucketAdLibItem, BucketAdLibActionUi } from './RundownViewBuckets'
+import { BucketAdLibItem, BucketAdLibActionUi } from './RundownViewBuckets.js'
 import RundownViewEventBus, { RundownViewEvents } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
-import { IAdLibListItem } from './AdLibListItem'
-import { isActionItem } from './Inspector/ItemRenderers/ActionItemRenderer'
-import { AdLibPieceUi, ShelfDisplayOptions } from '../../lib/shelf'
+import { IAdLibListItem } from './AdLibListItem.js'
+import { isActionItem } from './Inspector/ItemRenderers/ActionItemRenderer.js'
+import { AdLibPieceUi, ShelfDisplayOptions } from '../../lib/shelf.js'
 import { IBlueprintActionTriggerMode } from '@sofie-automation/blueprints-integration'
 import { translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
+import { BlueprintAssetIcon } from '../../lib/Components/BlueprintAssetIcon.js'
+import { CreateNewBucket, Delete, EmptyBucket, Rename } from '../../lib/ui/icons/shelf.js'
 
 export enum ContextType {
 	BUCKET = 'bucket',
@@ -110,6 +112,7 @@ export default function ShelfContextMenu(props: Readonly<ShelfContextMenuProps>)
 						}}
 						disabled={item.disabled}
 					>
+						{mode.display.icon ? <BlueprintAssetIcon src={mode.display.icon} className="svg" /> : null}
 						{translateMessage(mode.display.label, t)}
 					</MenuItem>
 				))
@@ -160,42 +163,27 @@ export default function ShelfContextMenu(props: Readonly<ShelfContextMenuProps>)
 		context?.type === ContextType.ADLIB
 			? renderStartExecuteAdLib(context.details)
 			: context?.type === ContextType.BUCKET_ADLIB
-			? renderStartExecuteAdLib(context.details)
-			: null
+				? renderStartExecuteAdLib(context.details)
+				: null
 
 	return (
 		<Escape to="viewport">
 			<ContextMenu id="shelf-context-menu" onHide={clearContext}>
-				{context && context.type === ContextType.BUCKET && (
+				{context?.type === ContextType.BUCKET && (
 					<div className="react-contextmenu-label">{context.details.bucket.name}</div>
 				)}
-				{context && (context.type === ContextType.BUCKET_ADLIB || context.type === ContextType.ADLIB) && (
+				{(context?.type === ContextType.BUCKET_ADLIB || context?.type === ContextType.ADLIB) && (
 					<>
-						{(startExecuteMenuItems !== null ||
-							props.shelfDisplayOptions.enableInspector ||
-							context.type === ContextType.BUCKET_ADLIB) && (
+						{(startExecuteMenuItems !== null || context.type === ContextType.BUCKET_ADLIB) && (
 							<>
 								<div className="react-contextmenu-label">{context.details.adLib.name}</div>
 								{startExecuteMenuItems}
 								<hr />
 							</>
 						)}
-						{props.shelfDisplayOptions.enableInspector && (
-							<MenuItem
-								onClick={(e) => {
-									e.persist()
-									RundownViewEventBus.emit(RundownViewEvents.SELECT_PIECE, {
-										piece: context.details.adLib,
-										context: e,
-									})
-								}}
-							>
-								{t('Inspect this AdLib')}
-							</MenuItem>
-						)}
 					</>
 				)}
-				{context && context.type === ContextType.BUCKET_ADLIB && (
+				{context?.type === ContextType.BUCKET_ADLIB && (
 					<>
 						<MenuItem
 							onClick={(e) => {
@@ -207,6 +195,7 @@ export default function ShelfContextMenu(props: Readonly<ShelfContextMenuProps>)
 								})
 							}}
 						>
+							<Rename className="svg" />
 							{t('Rename this AdLib')}
 						</MenuItem>
 						<MenuItem
@@ -219,12 +208,13 @@ export default function ShelfContextMenu(props: Readonly<ShelfContextMenuProps>)
 								})
 							}}
 						>
+							<Delete className="svg" />
 							{t('Delete this AdLib')}
 						</MenuItem>
 						<hr />
 					</>
 				)}
-				{context && (context.type === ContextType.BUCKET || context.type === ContextType.BUCKET_ADLIB) && (
+				{context?.type === ContextType.BUCKET && (
 					<>
 						<MenuItem
 							onClick={(e) => {
@@ -235,6 +225,7 @@ export default function ShelfContextMenu(props: Readonly<ShelfContextMenuProps>)
 								})
 							}}
 						>
+							<EmptyBucket className="svg" />
 							{t('Empty this Bucket')}
 						</MenuItem>
 						<MenuItem
@@ -246,6 +237,7 @@ export default function ShelfContextMenu(props: Readonly<ShelfContextMenuProps>)
 								})
 							}}
 						>
+							<Rename className="svg" />
 							{t('Rename this Bucket')}
 						</MenuItem>
 						<MenuItem
@@ -257,12 +249,13 @@ export default function ShelfContextMenu(props: Readonly<ShelfContextMenuProps>)
 								})
 							}}
 						>
+							<Delete className="svg" />
 							{t('Delete this Bucket')}
 						</MenuItem>
 						<hr />
 					</>
 				)}
-				{props.shelfDisplayOptions.enableBuckets && (
+				{props.shelfDisplayOptions.enableBuckets && context?.type !== ContextType.BUCKET_ADLIB && (
 					<MenuItem
 						onClick={(e) => {
 							e.persist()
@@ -271,6 +264,7 @@ export default function ShelfContextMenu(props: Readonly<ShelfContextMenuProps>)
 							})
 						}}
 					>
+						<CreateNewBucket className="svg" />
 						{t('Create new Bucket')}
 					</MenuItem>
 				)}

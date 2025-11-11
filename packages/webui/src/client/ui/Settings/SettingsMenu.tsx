@@ -1,29 +1,29 @@
 import React, { useCallback, useMemo } from 'react'
-import { useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data'
-import { unprotectString } from '../../lib/tempLib'
-import { doModalDialog } from '../../lib/ModalDialog'
+import { useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
+import { unprotectString } from '../../lib/tempLib.js'
+import { doModalDialog } from '../../lib/ModalDialog.js'
 import { NavLink, useLocation } from 'react-router-dom'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { PeripheralDevice, PERIPHERAL_SUBTYPE_PROCESS } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
-import { NotificationCenter, Notification, NoticeLevel } from '../../lib/notifications/notifications'
+import { NotificationCenter, Notification, NoticeLevel } from '../../lib/notifications/notifications.js'
 import { faPlus, faTrash, faExclamationTriangle, faCaretRight, faCaretDown } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
-import { MeteorCall } from '../../lib/meteorApi'
+import { MeteorCall } from '../../lib/meteorApi.js'
 import { IOutputLayer, StatusCode } from '@sofie-automation/blueprints-integration'
 import { TFunction, useTranslation } from 'react-i18next'
-import { RundownLayoutsAPI } from '../../lib/rundownLayouts'
-import { Blueprints, PeripheralDevices, ShowStyleBases, Studios } from '../../collections'
+import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
+import { Blueprints, PeripheralDevices, ShowStyleBases, Studios } from '../../collections/index.js'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import { catchError } from '../../lib/lib'
+import { catchError } from '../../lib/lib.js'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 
 export function SettingsMenu(): JSX.Element {
 	const { t } = useTranslation()
 
 	return (
-		<div className="tight-xs htight-xs text-s">
+		<div className="tight-xs htight-xs">
 			<SettingsMenuStudios />
 
 			<SettingsMenuShowStyles />
@@ -232,7 +232,7 @@ function SettingsCollapsibleGroup({
 						>
 							<h4>{link.label}</h4>
 						</NavLink>
-				  ))
+					))
 				: ''}
 			<hr className="vsubtle" />
 		</>
@@ -446,10 +446,10 @@ function SettingsMenuBlueprint({ blueprint }: Readonly<SettingsMenuBlueprintProp
 					</div>
 				</div>
 
-				<p>
+				<p className="text-s">
 					{t('Type')} {(blueprint.blueprintType ?? '').toUpperCase()}
 				</p>
-				<p>
+				<p className="text-s">
 					{t('Version')} {blueprint.blueprintVersion}
 				</p>
 			</NavLink>

@@ -1,8 +1,8 @@
 import { Meteor } from 'meteor/meteor'
-import { logger } from './logging'
+import { logger } from './logging.js'
 import { AllPubSubTypes } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { MakeMeteorCall } from '@sofie-automation/meteor-lib/dist/api/methods'
-import { MeteorApply } from './MeteorApply'
+import { MeteorApply } from './MeteorApply.js'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 
 /**

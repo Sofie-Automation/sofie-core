@@ -22,6 +22,7 @@ import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { UserActionsLog } from '../collections'
 import { MetricsCounter } from '@sofie-automation/corelib/dist/prometheus'
 import { isInTestWrite } from '../security/securityVerify'
+import { UserError } from '@sofie-automation/corelib/dist/error'
 
 const FREEZE_LIMIT = 1000 // how long to wait for a response to a Ping
 const RESTART_TIMEOUT = 30000 // how long to wait for a restart to complete before throwing an error
@@ -107,7 +108,8 @@ async function jobFinished(
 		}
 
 		if (job.completionHandler) {
-			job.completionHandler(startedTime, finishedTime, err, result)
+			const userError = err ? UserError.tryFromJSON(err) || new Error(err) : undefined
+			job.completionHandler(startedTime, finishedTime, userError, result)
 		}
 	}
 }
@@ -128,7 +130,7 @@ async function waitForNextJob(queueName: string): Promise<void> {
 			try {
 				// Notify the worker in the background
 				oldNotify.manualReject(new Error('new workerThread, replacing the old'))
-			} catch (e) {
+			} catch (_e) {
 				// Ignore
 			}
 		})
@@ -169,7 +171,7 @@ async function interruptJobStream(queueName: string): Promise<void> {
 			try {
 				// Notify the worker in the background
 				oldNotify.manualResolve()
-			} catch (e) {
+			} catch (_e) {
 				// Ignore
 			}
 		})
@@ -264,12 +266,13 @@ async function logLine(msg: LogEntry): Promise<void> {
 
 let worker: Promisify<IpcJobWorker> | undefined
 Meteor.startup(async () => {
+	if (Meteor.isTest) return // Don't start the worker
+
 	if (Meteor.isDevelopment) {
 		// Ensure meteor restarts when the _force_restart file changes
 		try {
-			// eslint-disable-next-line node/no-missing-require, node/no-unpublished-require
 			require('../_force_restart')
-		} catch (e) {
+		} catch (_e) {
 			// ignore
 		}
 	}

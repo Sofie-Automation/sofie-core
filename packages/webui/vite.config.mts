@@ -26,9 +26,15 @@ await Promise.all([
 	findCommonJsPathsForLibrary('@sofie-automation/meteor-lib/dist', '../meteor-lib/dist'),
 ])
 
+const basePath = process.env.SOFIE_BASE_PATH || ''
+
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ command }) => ({
 	plugins: [react(), tsconfigPaths(), nodePolyfills()],
+
+	// In production, build relative so that paths inside the scss files are correct. This makes a mess in the html, but we can fix that on the fly
+	// In dev, use the specified base path
+	base: command === 'build' ? '' : basePath || '/',
 
 	optimizeDeps: {
 		include: [
@@ -60,11 +66,11 @@ export default defineConfig({
 	server: {
 		allowedHosts: true,
 		proxy: {
-			'/api': 'http://127.0.0.1:3000',
-			'/site.webmanifest': 'http://127.0.0.1:3000',
-			'/meteor-runtime-config.js': 'http://127.0.0.1:3000',
-			'/images/sofie-logo.svg': 'http://127.0.0.1:3000',
-			'/websocket': {
+			[basePath + '/api']: 'http://127.0.0.1:3000',
+			[basePath + '/site.webmanifest']: 'http://127.0.0.1:3000',
+			[basePath + '/meteor-runtime-config.js']: 'http://127.0.0.1:3000',
+			[basePath + '/images/sofie-logo.svg']: 'http://127.0.0.1:3000',
+			[basePath + '/websocket']: {
 				target: `ws://127.0.0.1:3000`,
 				ws: true,
 			},
@@ -80,4 +86,4 @@ export default defineConfig({
 	// 		"@sofie-automation/shared-lib": "legacy"
 	// 	}
 	// }
-})
+}))

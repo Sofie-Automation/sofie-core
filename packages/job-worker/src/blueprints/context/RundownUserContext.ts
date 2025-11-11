@@ -1,6 +1,6 @@
 import { NoteSeverity, IRundownUserContext } from '@sofie-automation/blueprints-integration'
 import { INoteBase } from '@sofie-automation/corelib/dist/dataModel/Notes'
-import { RundownContext } from './RundownContext'
+import { RundownContext } from './RundownContext.js'
 
 export class RundownUserContext extends RundownContext implements IRundownUserContext {
 	public readonly notes: INoteBase[] = []

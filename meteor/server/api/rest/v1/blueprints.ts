@@ -32,8 +32,12 @@ class BlueprintsServerAPI implements BlueprintsRestAPI {
 		const blueprint = await Blueprints.findOneAsync(blueprintId)
 		if (!blueprint) {
 			return ClientAPI.responseError(
-				UserError.from(new Error(`Blueprint ${blueprintId} not found`), UserErrorMessage.BlueprintNotFound),
-				404
+				UserError.from(
+					new Error(`Blueprint ${blueprintId} not found`),
+					UserErrorMessage.BlueprintNotFound,
+					undefined,
+					404
+				)
 			)
 		}
 

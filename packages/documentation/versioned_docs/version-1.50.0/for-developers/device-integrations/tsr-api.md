@@ -12,7 +12,7 @@ Regarding status there are 2 important methods to be implemented, one is a gette
 
 ## State and commands
 
-The second part is where the bulk of the work happens. First your implementation for `convertTimelineStateToDeviceState` will be called with a Timeline State and the mappings for your integration. You are ought to return a "Device State" here which is an object representing the state of your device as inferred from the Timeline State and mappings. Then the next implementation is  of the `diffStates` method, which will be called with 2 Device States as you've generated them earlier. The purpose of this method is to generate commands such that a state change from Device State A to Device State B can be executed. Hence it is called a "diff". The last important method here is `sendCommand` which will be called with the commands you've generated earlier when the TSR wants to transitition from State A to State B.
+The second part is where the bulk of the work happens. First your implementation for `convertTimelineStateToDeviceState` will be called with a Timeline State and the mappings for your integration. You are ought to return a "Device State" here which is an object representing the state of your device as inferred from the Timeline State and mappings. Then the next implementation is of the `diffStates` method, which will be called with 2 Device States as you've generated them earlier. The purpose of this method is to generate commands such that a state change from Device State A to Device State B can be executed. Hence it is called a "diff". The last important method here is `sendCommand` which will be called with the commands you've generated earlier when the TSR wants to transitition from State A to State B.
 
 Another thing to implement is the `actions` property. You can leave it as an empty object initially or read more about it in [TSR Actions](./tsr-actions.md).
 
@@ -22,7 +22,7 @@ Logging is done through an event emitter as is described in the DeviceEvents int
 
 ## Best practices
 
- - The `init` method is asynchronous but you should not use it to wait for timeouts in your connection to reject it. Instead the rest of your integration should gracefully deal with a (initially) disconnected device.
- - The result of the `getStatus` method is displayed in the UI of Sofie so try to put helpful information in the messages and only elevate to a "bad" status if something is really wrong, like being fully disconnected from a device.
- - Be aware for side effects in your implementations of `convertTimelineStateToDeviceState` and `diffStates` they are _not_ guaranteed to be chronological and the states changes may never actually be executed.
- - If you need to do any time aware commands (such as seeking in a media file) use the time from the Timeline State to do your calculations for these
+- The `init` method is asynchronous but you should not use it to wait for timeouts in your connection to reject it. Instead the rest of your integration should gracefully deal with a (initially) disconnected device.
+- The result of the `getStatus` method is displayed in the UI of Sofie so try to put helpful information in the messages and only elevate to a "bad" status if something is really wrong, like being fully disconnected from a device.
+- Be aware for side effects in your implementations of `convertTimelineStateToDeviceState` and `diffStates` they are _not_ guaranteed to be chronological and the states changes may never actually be executed.
+- If you need to do any time aware commands (such as seeking in a media file) use the time from the Timeline State to do your calculations for these

@@ -1,14 +1,14 @@
 import { Logger } from 'winston'
-import { CoreHandler } from '../coreHandler'
-import { PublicationCollection } from '../publicationCollection'
+import { CoreHandler } from '../coreHandler.js'
+import { PublicationCollection } from '../publicationCollection.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { RundownId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
-import { RundownsHandler } from './rundownsHandler'
+import { RundownsHandler } from './rundownsHandler.js'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { unprotectString } from '@sofie-automation/server-core-integration'
-import { CollectionHandlers } from '../liveStatusServer'
+import { CollectionHandlers } from '../liveStatusServer.js'
 import { PickKeys } from '@sofie-automation/shared-lib/dist/lib/types'
 
 const PLAYLIST_KEYS = ['_id', 'currentPartInfo', 'nextPartInfo'] as const
@@ -22,7 +22,11 @@ export class RundownHandler extends PublicationCollection<
 	private _currentPlaylistId: RundownPlaylistId | undefined
 	private _currentRundownId: RundownId | undefined
 
-	constructor(logger: Logger, coreHandler: CoreHandler, private _rundownsHandler?: RundownsHandler) {
+	constructor(
+		logger: Logger,
+		coreHandler: CoreHandler,
+		private _rundownsHandler?: RundownsHandler
+	) {
 		super(CollectionName.Rundowns, CorelibPubSub.rundownsInPlaylists, logger, coreHandler)
 	}
 

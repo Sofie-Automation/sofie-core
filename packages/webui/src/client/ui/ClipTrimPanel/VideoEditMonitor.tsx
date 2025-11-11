@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { withTranslation } from 'react-i18next'
-import { Translated } from '../../lib/ReactMeteorData/ReactMeteorData'
+import { Translated } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import ClassNames from 'classnames'
-import { catchError } from '../../lib/lib'
+import { catchError } from '../../lib/lib.js'
 
 export interface IProps {
 	currentTime?: number

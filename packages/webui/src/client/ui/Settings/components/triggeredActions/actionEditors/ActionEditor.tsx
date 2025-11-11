@@ -7,17 +7,17 @@ import {
 	PlayoutActions,
 	SomeAction,
 } from '@sofie-automation/blueprints-integration'
-import { AdLibFilter } from './filterPreviews/AdLibFilter'
-import { literal } from '../../../../../lib/tempLib'
-import { ViewFilter } from './filterPreviews/ViewFilter'
-import { RundownPlaylistFilter } from './filterPreviews/RundownPlaylistFilter'
+import { AdLibFilter } from './filterPreviews/AdLibFilter.js'
+import { literal } from '../../../../../lib/tempLib.js'
+import { ViewFilter } from './filterPreviews/ViewFilter.js'
+import { RundownPlaylistFilter } from './filterPreviews/RundownPlaylistFilter.js'
 import { OutputLayers, SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faExclamationTriangle, faPlus } from '@fortawesome/free-solid-svg-icons'
-import { ActionSelector } from './actionSelector/ActionSelector'
+import { ActionSelector } from './actionSelector/ActionSelector.js'
 import Tooltip from 'rc-tooltip'
 import { useTranslation } from 'react-i18next'
-import { OverrideOpHelper } from '../../../util/OverrideOpHelper'
+import { OverrideOpHelper } from '../../../util/OverrideOpHelper.js'
 
 interface IProps {
 	action: SomeAction
@@ -83,10 +83,10 @@ export const ActionEditor: React.FC<IProps> = function ActionEditor({
 							object: 'adLib',
 							field: 'label',
 							value: [],
-					  })
+						})
 					: literal<IGUIContextFilterLink>({
 							object: 'view',
-					  })
+						})
 
 			action.filterChain.splice(filterIndex + 1, 0, obj)
 
@@ -120,16 +120,16 @@ export const ActionEditor: React.FC<IProps> = function ActionEditor({
 	}
 
 	const onRemove = useCallback(() => onRemoveAction(actionId), [actionId])
-	const onOuterClose = useCallback(() => onOuterCloseAction && onOuterCloseAction(actionId), [actionId])
+	const onOuterClose = useCallback(() => onOuterCloseAction?.(actionId), [actionId])
 	const onActionFocus = useCallback(() => {
-		onOuterActionFocus && onOuterActionFocus(actionId)
-		onFocus && onFocus(actionId)
+		onOuterActionFocus?.(actionId)
+		onFocus?.(actionId)
 	}, [onOuterActionFocus, onFocus, actionId])
 	const onSetFilter = useCallback(() => onFilterInsertNext(-1), [onFilterInsertNext])
 	const onFilterFocus = useCallback(
 		(chainIndex: number) => {
 			setOpenFilterIndex(chainIndex)
-			onFocus && onFocus(actionId)
+			onFocus?.(actionId)
 		},
 		[onFocus, actionId]
 	)

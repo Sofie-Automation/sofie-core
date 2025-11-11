@@ -554,7 +554,7 @@ var isArguments = baseIsArguments(
 	? baseIsArguments
 	: function (value) {
 			return isObject(value) && typeof value.callee === 'function'
-	  }
+		}
 
 module.exports = {
 	check,

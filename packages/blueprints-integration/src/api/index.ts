@@ -1,11 +1,11 @@
-import type { SystemBlueprintManifest } from './system'
-import type { StudioBlueprintManifest } from './studio'
-import type { ShowStyleBlueprintManifest } from './showStyle'
+import type { SystemBlueprintManifest } from './system.js'
+import type { StudioBlueprintManifest } from './studio.js'
+import type { ShowStyleBlueprintManifest } from './showStyle.js'
 
-export * from './base'
-export * from './showStyle'
-export * from './studio'
-export * from './system'
+export * from './base.js'
+export * from './showStyle.js'
+export * from './studio.js'
+export * from './system.js'
 
 export interface BlueprintManifestSet {
 	blueprints: {

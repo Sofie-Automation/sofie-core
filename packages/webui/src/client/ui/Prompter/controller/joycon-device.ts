@@ -1,7 +1,7 @@
-import { ControllerAbstract } from './lib'
-import { PrompterConfigMode, PrompterViewContent } from '../PrompterView'
+import { ControllerAbstract } from './lib.js'
+import { PrompterConfigMode, PrompterViewContent } from '../PrompterView.js'
 import Spline from 'cubic-spline'
-import { logger } from '../../../lib/logging'
+import { logger } from '../../../lib/logging.js'
 
 type JoyconWithData = { index: number; timestamp: number; mode: JoyconMode; axes: readonly number[]; buttons: number[] }
 type JoyconMode = 'L' | 'R' | 'LR' | null
@@ -14,7 +14,7 @@ export class JoyConController extends ControllerAbstract {
 
 	private invertJoystick = false // change scrolling direction for joystick
 	private rangeRevMin = -1 // pedal "all back" position, the max-reverse-position
-	private rangeNeutralMin = -0.25 // pedal "back" position where reverse-range transistions to the neutral x
+	private rangeNeutralMin = -0.25 // pedal "back" position where reverse-range transitions to the neutral x
 	private rangeNeutralMax = 0.25 // pedal "front" position where scrolling starts, the 0 speed origin
 	private rangeFwdMax = 1 // pedal "all front" position where scrolling is maxed out
 	private rightHandOffset = 1.4 // factor increased by 1.4 to account for the R joystick being less sensitive than L
@@ -126,7 +126,7 @@ export class JoyConController extends ControllerAbstract {
 					break
 				case '2':
 					// go to top
-					window.scrollTo(0, 0)
+					window.scrollTo({ top: 0, behavior: 'instant' })
 					break
 				case '3':
 					// go to following
@@ -152,7 +152,7 @@ export class JoyConController extends ControllerAbstract {
 					break
 				case '1':
 					// go to top
-					window.scrollTo(0, 0)
+					window.scrollTo({ top: 0, behavior: 'instant' })
 					break
 				case '0':
 					// go to following
@@ -183,7 +183,7 @@ export class JoyConController extends ControllerAbstract {
 				case '12':
 				case '3':
 					// go to top
-					window.scrollTo(0, 0)
+					window.scrollTo({ top: 0, behavior: 'instant' })
 					break
 				case '15':
 				case '1':
@@ -217,10 +217,10 @@ export class JoyConController extends ControllerAbstract {
 						o.axes.length === 4
 							? 'LR' // for documentation: L+R mode is also identified as Vendor: 057e Product: 200e
 							: o.id.match('Product: 2006')
-							? 'L'
-							: o.id.match('Product: 2007')
-							? 'R'
-							: null
+								? 'L'
+								: o.id.match('Product: 2007')
+									? 'R'
+									: null
 					joyconInputs.push({
 						index: o.index,
 						timestamp: o.timestamp,
@@ -314,7 +314,7 @@ export class JoyConController extends ControllerAbstract {
 		const { rangeRevMin, rangeNeutralMin, rangeNeutralMax, rangeFwdMax } = this
 		let inputValue = this.getActiveInputsOfJoycons(inputs)
 
-		// start by clamping value to the leagal range
+		// start by clamping value to the legal range
 		inputValue = Math.min(Math.max(inputValue, rangeRevMin), rangeFwdMax) // clamps in between rangeRevMin and rangeFwdMax
 		// stores only for debugging
 		this.lastInputValue = inputValue.toFixed(2)
@@ -352,7 +352,7 @@ export class JoyConController extends ControllerAbstract {
 		const speed = this.calculateSpeed(joycons)
 
 		// update scroll position
-		window.scrollBy(0, speed)
+		window.scrollBy({ top: speed, behavior: 'instant' })
 
 		const scrollPosition = window.scrollY
 		// check for reached end-of-scroll:

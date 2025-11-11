@@ -4,9 +4,9 @@ import React, { useContext, useState } from 'react'
 import { useLayoutEffect } from 'react'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { SorensenContext } from '../../../../../lib/SorensenContext'
-import { codesToKeyLabels } from '../../../../../lib/triggers/codesToKeyLabels'
-import { ToggleSwitchControl } from '../../../../../lib/Components/ToggleSwitch'
+import { SorensenContext } from '../../../../../lib/SorensenContext.js'
+import { codesToKeyLabels } from '../../../../../lib/triggers/codesToKeyLabels.js'
+import { ToggleSwitchControl } from '../../../../../lib/Components/ToggleSwitch.js'
 import Form from 'react-bootstrap/esm/Form'
 
 interface IProps {

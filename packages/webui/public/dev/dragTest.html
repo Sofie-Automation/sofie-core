@@ -1,0 +1,103 @@
+<!--
+This page emulates a MOS plugin (typically) provided by the MAM system that can provide
+MOS-items to the UI to be imported into the Blueprints either as Bucket items or in conjunction
+with the user-editing features (i.e. drag on top of a part)
+-->
+
+<html>
+	<head>
+		<style>
+			:root {
+				color: white;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Drag&Drop Test page</h1>
+
+		<button id="btn" draggable="true">Media Item #1</button>
+
+		<script>
+			const btn = document.getElementById('btn')
+			btn.addEventListener('dragstart', ({ dataTransfer }) => {
+				const ncsItem = createNcsItem()
+
+				dataTransfer.setData('text', new XMLSerializer().serializeToString(ncsItem))
+			})
+
+			function createNcsItem() {
+				return objectToXml(
+					{
+						ncsItem: {
+							item: {
+								itemID: 'OM_2.18516582,10.8570667.23',
+								itemSlug: 'TEST/SOFIE PKG 1/1519/23/9',
+								objID: '105.20913908',
+								objSlug: 'TEST/SOFIE PKG 1/1519/23/9',
+								objDur: 1315,
+								objTB: 25,
+								mosID: 'BIGTED.NBH.BBC.MOS',
+								mosPlugInID: 'BIGTED.NBH.BBC.MOS',
+								itemEdDur: 1325,
+								mosExternalMetadata: {
+									mosScope: 'PLAYLIST',
+									mosSchema: '',
+									mosPayload: {
+										ModTime: '2024-09-23T14:21:08.905Z',
+										ModBy: 'ActiveXWeb',
+										Creator: 'ActiveXWeb',
+									},
+								},
+							},
+						},
+					},
+					'mos'
+				)
+			}
+
+			function objectToXml(obj, rootName) {
+				const doc = new Document()
+				const root = doc.createElement(rootName)
+
+				addNodes(obj, root)
+
+				doc.appendChild(root)
+				return doc
+			}
+
+			function addNodes(obj, rootNode) {
+				const doc = rootNode.ownerDocument
+
+				for (const name of Object.keys(obj)) {
+					const value = obj[name]
+
+					if (Array.isArray(value)) {
+						value.forEach((element) => {
+							rootNode.appendChild(createNode(name, element, doc))
+						})
+					} else if (name.startsWith('@')) {
+						rootNode.setAttribute(name.substring(1), String(value))
+					} else {
+						rootNode.appendChild(createNode(name, value, doc))
+					}
+				}
+			}
+
+			function createNode(name, value, doc) {
+				if (name === '#textContent') {
+					return doc.createTextNode(String(value))
+				}
+
+				const node = doc.createElement(name)
+
+				if (typeof value === 'object' && value !== null) {
+					addNodes(value, node)
+				} else {
+					node.textContent = value
+				}
+
+				return node
+			}
+		</script>
+	</body>
+</html>

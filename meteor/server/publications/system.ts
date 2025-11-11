@@ -10,7 +10,7 @@ meteorPublish(MeteorPubSub.coreSystem, async function (_token: string | undefine
 	triggerWriteAccessBecauseNoCheckNecessary()
 
 	return CoreSystem.findWithCursor(SYSTEM_ID, {
-		fields: {
+		projection: {
 			// Include only specific fields in the result documents:
 			_id: 1,
 			systemInfo: 1,
@@ -21,6 +21,7 @@ meteorPublish(MeteorPubSub.coreSystem, async function (_token: string | undefine
 			blueprintId: 1,
 			logo: 1,
 			settingsWithOverrides: 1,
+			enableMonitorBlockedThread: 1,
 		},
 	})
 })

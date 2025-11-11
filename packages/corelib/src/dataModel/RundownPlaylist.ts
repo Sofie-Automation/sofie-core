@@ -9,8 +9,8 @@ import {
 	RundownPlaylistId,
 	StudioId,
 	RundownId,
-} from './Ids'
-import { RundownPlaylistNote } from './Notes'
+} from './Ids.js'
+import { RundownPlaylistNote } from './Notes.js'
 import { ForceQuickLoopAutoNext } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 
 /** Details of an ab-session requested by the blueprints in onTimelineGenerate */
@@ -31,6 +31,7 @@ export interface ABSessionInfo {
 
 export interface ABSessionAssignment {
 	sessionId: string
+	sessionName: string
 	playerId: number | string
 	lookahead: boolean // purely informational for debugging
 }

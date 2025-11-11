@@ -1,3 +1,4 @@
+@use 'sass:color';
 
 .status-bar {
 	position: fixed;
@@ -43,11 +44,17 @@
 		position: relative;
 		display: block;
 		border: none;
-		background: transparentize(#fff, 1);
+		background: color.scale(#fff, $alpha: -100%);
 		width: $fullscreen-controls__button--radius;
 		height: $fullscreen-controls__button--radius;
 		border-radius: 100%;
-		transition: 0.3s background-color, 0.3s border-radius, 0.3s color, 0.3s margin-left, 0.3s right, 0.3s width;
+		transition:
+			0.3s background-color,
+			0.3s border-radius,
+			0.3s color,
+			0.3s margin-left,
+			0.3s right,
+			0.3s width;
 		margin-bottom: 0.5rem;
 		font-size: 1em;
 		box-sizing: border-box;
@@ -74,7 +81,7 @@
 			right: 0;
 			width: $fullscreen-controls__button--radius;
 			height: $fullscreen-controls__button--radius;
-			background: transparentize(#4b4b4b, 0.45);
+			background: color.scale(#4b4b4b, $alpha: -45%);
 			transition: 0.3s background-color;
 		}
 
@@ -169,6 +176,10 @@
 	z-index: 2000;
 	background: $ui-dark-color;
 	border-left: none;
+
+	&.status-bar--no-rundown-header {
+		top: 0;
+	}
 
 	.status-bar__controls__button {
 		border: none;

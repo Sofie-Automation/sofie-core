@@ -49,7 +49,7 @@ async function setupUIShowStyleBasePublicationObservers(
 				removed: () => triggerUpdate({ invalidateShowStyle: true }),
 			},
 			{
-				fields: fieldSpecifier,
+				projection: fieldSpecifier,
 			}
 		),
 	]

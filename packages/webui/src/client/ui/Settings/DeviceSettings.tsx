@@ -5,26 +5,26 @@ import {
 	PERIPHERAL_SUBTYPE_PROCESS,
 	PeripheralDeviceCategory,
 } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
-import { EditAttribute } from '../../lib/EditAttribute'
-import { doModalDialog } from '../../lib/ModalDialog'
-import { Translated, translateWithTracker } from '../../lib/ReactMeteorData/react-meteor-data'
-import { Spinner } from '../../lib/Spinner'
-import { PeripheralDevicesAPI } from '../../lib/clientAPI'
+import { EditAttribute } from '../../lib/EditAttribute.js'
+import { doModalDialog } from '../../lib/ModalDialog.js'
+import { Translated, translateWithTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
+import { Spinner } from '../../lib/Spinner.js'
+import { PeripheralDevicesAPI } from '../../lib/clientAPI.js'
 
-import { NotificationCenter, Notification, NoticeLevel } from '../../lib/notifications/notifications'
-import { StatusCodePill } from '../Status/StatusCodePill'
+import { NotificationCenter, Notification, NoticeLevel } from '../../lib/notifications/notifications.js'
+import { StatusCodePill } from '../Status/StatusCodePill.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons'
 import {
 	GenericAttahcedSubDeviceSettingsComponent,
 	GenericDeviceSettingsComponent,
-} from './components/GenericDeviceSettingsComponent'
-import { DevicePackageManagerSettings } from './DevicePackageManagerSettings'
+} from './components/GenericDeviceSettingsComponent.js'
+import { DevicePackageManagerSettings } from './DevicePackageManagerSettings.js'
 import { getExpectedLatency } from '@sofie-automation/corelib/dist/studio/playout'
 import { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { PeripheralDevices } from '../../collections'
+import { PeripheralDevices } from '../../collections/index.js'
 import { useTranslation } from 'react-i18next'
-import { LabelActual } from '../../lib/Components/LabelAndOverrides'
+import { LabelActual } from '../../lib/Components/LabelAndOverrides.js'
 import Button from 'react-bootstrap/esm/Button'
 
 interface IDeviceSettingsProps {
@@ -196,7 +196,9 @@ export default translateWithTracker<IDeviceSettingsProps, IDeviceSettingsState, 
 						</div>
 					</div>
 
-					<GenericAttahcedSubDeviceSettingsComponent device={device} subDevices={this.props.subDevices} />
+					{!device.parentDeviceId && (
+						<GenericAttahcedSubDeviceSettingsComponent device={device} subDevices={this.props.subDevices} />
+					)}
 
 					{device &&
 					device.type === PeripheralDeviceType.PACKAGE_MANAGER &&

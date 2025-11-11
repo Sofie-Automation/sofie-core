@@ -1,9 +1,9 @@
 import * as React from 'react'
-import { createMosObjectXmlStringNoraBluePrintPiece } from '../../../../lib/data/nora/browser-plugin-data'
-import { parseMosPluginMessageXml, MosPluginMessage } from '../../../../lib/parsers/mos/mosXml2Js'
+import { createMosObjectXmlStringNoraBluePrintPiece } from '../../../../lib/data/nora/browser-plugin-data.js'
+import { parseMosPluginMessageXml, MosPluginMessage } from '../../../../lib/parsers/mos/mosXml2Js.js'
 import { PieceGeneric } from '@sofie-automation/corelib/dist/dataModel/Piece'
-import { createMosAppInfoXmlString } from '../../../../lib/data/mos/plugin-support'
-import { logger } from '../../../../lib/logging'
+import { createMosAppInfoXmlString } from '../../../../lib/data/mos/plugin-support.js'
+import { logger } from '../../../../lib/logging.js'
 import { ReadonlyDeep } from 'type-fest'
 
 //TODO: figure out what the origin should be

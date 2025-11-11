@@ -1,6 +1,6 @@
 import * as Path from 'path'
 import { Meteor } from 'meteor/meteor'
-import * as _ from 'underscore'
+import _ from 'underscore'
 import Koa from 'koa'
 import KoaRouter from '@koa/router'
 import bodyParser from 'koa-bodyparser'
@@ -95,6 +95,7 @@ import {
 	NrcsIngestDataCacheObjRundown,
 	NrcsIngestDataCacheObjSegment,
 	NrcsIngestDataCacheObjPart,
+	NrcsIngestCacheType,
 } from '@sofie-automation/corelib/dist/dataModel/NrcsIngestDataCache'
 import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
 import { assertConnectionHasOneOfPermissions, RequestCredentials } from '../security/auth'
@@ -542,9 +543,13 @@ async function ingestFromSnapshot(
 		// Read the ingestData from the snapshot
 		const ingestData = playlistSnapshot.ingestData
 
-		const rundownData = ingestData.filter((e) => e.type === 'rundown') as NrcsIngestDataCacheObjRundown[]
-		const segmentData = ingestData.filter((e) => e.type === 'segment') as NrcsIngestDataCacheObjSegment[]
-		const partData = ingestData.filter((e) => e.type === 'part') as NrcsIngestDataCacheObjPart[]
+		const rundownData = ingestData.filter(
+			(e) => e.type === NrcsIngestCacheType.RUNDOWN
+		) as NrcsIngestDataCacheObjRundown[]
+		const segmentData = ingestData.filter(
+			(e) => e.type === NrcsIngestCacheType.SEGMENT
+		) as NrcsIngestDataCacheObjSegment[]
+		const partData = ingestData.filter((e) => e.type === NrcsIngestCacheType.PART) as NrcsIngestDataCacheObjPart[]
 
 		if (rundownData.length === 0) throw new Meteor.Error(402, `No rundowns found in ingestData`)
 

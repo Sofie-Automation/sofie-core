@@ -3,6 +3,7 @@ import type { MosDeviceStatusesConfig } from '@sofie-automation/shared-lib/dist/
 import {
 	IngestPartNotifyItemReady,
 	IngestPartPlaybackStatus,
+	IngestRundownActiveStatus,
 	type IngestPartStatus,
 	type IngestRundownStatus,
 } from '@sofie-automation/shared-lib/dist/ingest/rundownStatus'
@@ -115,7 +116,7 @@ export function diffStatuses(
 							previousStatus.playbackStatus,
 							previousItemStatus.ready,
 							previousStatuses?.active
-					  )
+						)
 					: null
 
 			if ((newMosStatus !== null || previousMosStatus !== null) && previousMosStatus !== newMosStatus) {
@@ -151,10 +152,10 @@ function buildMosStatus(
 	config: MosDeviceStatusesConfig,
 	playbackStatus: IngestPartPlaybackStatus,
 	isReady: boolean | null | undefined,
-	active: IngestRundownStatus['active'] | undefined
+	active: IngestRundownActiveStatus | undefined
 ): IMOSObjectStatus | null {
-	if (active === 'inactive') return MOS_STATUS_UNKNOWN
-	if (active === 'rehearsal' && !config.sendInRehearsal) return null
+	if (active === IngestRundownActiveStatus.INACTIVE) return MOS_STATUS_UNKNOWN
+	if (active === IngestRundownActiveStatus.REHEARSAL && !config.sendInRehearsal) return null
 
 	switch (playbackStatus) {
 		case IngestPartPlaybackStatus.PLAY:

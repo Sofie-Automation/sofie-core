@@ -1,13 +1,12 @@
 import { WorkerId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { UserError } from '@sofie-automation/corelib/dist/error'
-import { JobSpec } from './main'
+import { JobSpec } from './main.js'
 
 export interface JobManager {
 	jobFinished: (
 		id: string,
 		startedTime: number,
 		finishedTime: number,
-		error: null | Error | UserError,
+		error: null | string, // Stringified UserError
 		result: any
 	) => Promise<void>
 	// getNextJob: (queueName: string) => Promise<JobSpec>

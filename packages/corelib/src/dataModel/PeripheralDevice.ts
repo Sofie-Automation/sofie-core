@@ -1,6 +1,6 @@
 import { Time } from '@sofie-automation/blueprints-integration'
-import { DeviceConfigManifest } from '../deviceConfig'
-import { OrganizationId, PeripheralDeviceId, StudioId } from './Ids'
+import { DeviceConfigManifest } from '../deviceConfig.js'
+import { OrganizationId, PeripheralDeviceId, StudioId } from './Ids.js'
 import type {
 	IngestDeviceSecretSettings,
 	IngestDeviceSecretSettingsStatus,
@@ -79,7 +79,10 @@ export interface PeripheralDevice {
 	/** Ignore this device when computing status in the GUI (other status reports are unaffected) */
 	ignore?: boolean
 
-	configManifest: DeviceConfigManifest
+	/**
+	 * If this device is a parent-device, the config manifest for the device
+	 */
+	configManifest: DeviceConfigManifest | undefined
 
 	/** If this is an ingest gateway, the last tiem data was received */
 	lastDataReceived?: Time

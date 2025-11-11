@@ -1,5 +1,5 @@
 import { ProtectedString, protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { getDocumentChanges } from '../utils'
+import { getDocumentChanges } from '../utils.js'
 
 interface Doc {
 	_id: ProtectedString<any>

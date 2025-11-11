@@ -1,4 +1,4 @@
-import { iterateDeeply, iterateDeeplyAsync, iterateDeeplyEnum } from '../util'
+import { iterateDeeply, iterateDeeplyAsync, iterateDeeplyEnum } from '../util.js'
 
 describe('Util', () => {
 	test('iterateDeeply', () => {

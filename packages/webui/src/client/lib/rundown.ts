@@ -1,7 +1,7 @@
-import * as _ from 'underscore'
-import { PieceUi, PartUi } from '../ui/SegmentTimeline/SegmentTimelineContainer'
+import _ from 'underscore'
+import { PieceUi, PartUi } from '../ui/SegmentTimeline/SegmentTimelineContainer.js'
 import { Timecode } from '@sofie-automation/corelib/dist/index'
-import { Settings } from '../lib/Settings'
+import { Settings } from '../lib/Settings.js'
 import {
 	SourceLayerType,
 	PieceLifespan,
@@ -19,33 +19,34 @@ import {
 	ISourceLayerExtended,
 	PartInstanceLimited,
 	isLoopRunning,
-} from './RundownResolver'
+} from './RundownResolver.js'
 import { PartInstance, wrapPartToTemporaryInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { literal, protectString, groupByToMap } from './tempLib'
-import { getCurrentTime } from './systemTime'
+import { literal, protectString, groupByToMap } from './tempLib.js'
+import { getCurrentTime } from './systemTime.js'
 import {
 	processAndPrunePieceInstanceTimings,
 	resolvePrunedPieceInstance,
 } from '@sofie-automation/corelib/dist/playout/processAndPrune'
 import { PieceInstance, PieceInstancePiece } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
-import { IAdLibListItem } from '../ui/Shelf/AdLibListItem'
-import { BucketAdLibItem, BucketAdLibUi } from '../ui/Shelf/RundownViewBuckets'
-import { FindOptions } from '../collections/lib'
-import { getShowHiddenSourceLayers } from './localStorage'
+import { IAdLibListItem } from '../ui/Shelf/AdLibListItem.js'
+import { BucketAdLibItem, BucketAdLibUi } from '../ui/Shelf/RundownViewBuckets.js'
+import { FindOptions } from '../collections/lib.js'
+import { getShowHiddenSourceLayers } from './localStorage.js'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { IStudioSettings } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { calculatePartInstanceExpectedDurationWithTransition } from '@sofie-automation/corelib/dist/playout/timings'
-import { AdLibPieceUi } from './shelf'
+import { AdLibPieceUi } from './shelf.js'
 import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { PartId, PieceId, RundownId, SegmentId, ShowStyleBaseId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { PieceInstances, Segments } from '../collections'
+import { PieceInstances, Segments } from '../collections/index.js'
 import { PieceStatusCode } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { assertNever } from '@sofie-automation/shared-lib/dist/lib/lib'
+import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { RundownPlaylistClientUtil } from './rundownPlaylistUtil'
+import { RundownPlaylistClientUtil } from './rundownPlaylistUtil.js'
 
 export namespace RundownUtils {
 	export function padZeros(input: number, places?: number): string {
@@ -182,11 +183,11 @@ export namespace RundownUtils {
 				? minusPrefix !== undefined
 					? minusPrefix
 					: enDashAsMinus
-					? '\u2013'
-					: '-'
+						? '\u2013'
+						: '-'
 				: showPlus && milliseconds > 0
-				? '+'
-				: '') +
+					? '+'
+					: '') +
 			(showHours || (useSmartHours && hours > 0) ? padZeros(hours) + ':' : '') +
 			padZeros(minutes) +
 			':' +
@@ -212,7 +213,7 @@ export namespace RundownUtils {
 			(partStartsAt || part.startsAt || 0) +
 				(piece !== undefined
 					? (piece.renderedInPoint || 0) +
-					  (piece.renderedDuration ||
+						(piece.renderedDuration ||
 							(part.instance.timings?.duration !== undefined
 								? part.instance.timings.duration + (part.instance.timings?.playOffset || 0)
 								: (partDuration ||
@@ -220,8 +221,8 @@ export namespace RundownUtils {
 										calculatePartInstanceExpectedDurationWithTransition(part.instance) ||
 										0) - (piece.renderedInPoint || 0)))
 					: part.instance.timings?.duration !== undefined
-					? part.instance.timings.duration + (part.instance.timings?.playOffset || 0)
-					: partDuration || part.renderedDuration || 0)
+						? part.instance.timings.duration + (part.instance.timings?.playOffset || 0)
+						: partDuration || part.renderedDuration || 0)
 		) {
 			return false
 		}
@@ -263,11 +264,12 @@ export namespace RundownUtils {
 	 * It simulates the operations done by the playout operations in core and playout-gateway
 	 * and produces a list of Pieces across Parts timed relatively.
 	 *
-	 * This method is primarly used by the GUI to visualize segments, but other functions
+	 * This method is primarily used by the GUI to visualize segments, but other functions
 	 * utilize it as well when information about timing & time placement is needed.
 	 *
 	 * @export
 	 * @param {ShowStyleBase} showStyleBase
+	 * @param {UIStudio} studio
 	 * @param {DBRundownPlaylist} playlist
 	 * @param {DBSegment} segment
 	 * @param {Set<SegmentId>} segmentsToReceiveOnRundownEndFromSet
@@ -278,18 +280,19 @@ export namespace RundownUtils {
 	 * 		PartInstance, whose contents are being streamed in. When ran in a reactive context, the computation will
 	 * 		be eventually invalidated so that the actual data can be streamed in (to show that the part is actually empty)
 	 * @param {boolean} [includeDisabledPieces=false] In some uses (like when previewing a Segment in the GUI) it's needed
-	 * 		to consider disabled Piecess as where they are, insted of stripping them out. When enabled, the method will
+	 * 		to consider disabled Piecess as where they are, instead of stripping them out. When enabled, the method will
 	 * 		keep them in the result set.
 	 * @return {*}  {({
 	 */
 	export function getResolvedSegment(
 		showStyleBase: UIShowStyleBase,
+		studio: UIStudio | undefined,
 		playlist: DBRundownPlaylist,
 		rundown: Pick<Rundown, '_id' | 'showStyleBaseId'>,
 		segment: DBSegment,
 		segmentsToReceiveOnRundownEndFromSet: Set<SegmentId>,
 		rundownsToReceiveOnShowStyleEndFrom: RundownId[],
-		rundownsToShowstyles: Map<RundownId, ShowStyleBaseId>,
+		rundownsToShowstyles: ReadonlyMap<RundownId, ShowStyleBaseId>,
 		orderedAllPartIds: PartId[],
 		currentPartInstance: PartInstance | undefined,
 		nextPartInstance: PartInstance | undefined,
@@ -484,7 +487,7 @@ export namespace RundownUtils {
 									_id: 1,
 									orphaned: 1,
 								},
-						  }) as Pick<DBSegment, '_id' | 'orphaned'> | undefined)
+							}) as Pick<DBSegment, '_id' | 'orphaned'> | undefined)
 						: undefined,
 					currentPartInstance
 						? PieceInstances.find(
@@ -492,8 +495,9 @@ export namespace RundownUtils {
 									partInstanceId: currentPartInstance._id,
 								},
 								pieceInstanceFieldOptions
-						  ).fetch()
+							).fetch()
 						: undefined,
+					studio?.settings.allowTestingAdlibsToPersist ?? false,
 					undefined,
 					pieceInstanceFieldOptions,
 					pieceInstanceSimulation

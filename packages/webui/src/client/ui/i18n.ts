@@ -4,16 +4,18 @@ import { TFunction } from 'react-i18next'
 import Backend from 'i18next-http-backend'
 import LanguageDetector from 'i18next-browser-languagedetector'
 import { initReactI18next } from 'react-i18next'
-import { WithManagedTracker } from '../lib/reactiveData/reactiveDataHelper'
+import { WithManagedTracker } from '../lib/reactiveData/reactiveDataHelper.js'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { Translation, TranslationsBundle } from '@sofie-automation/meteor-lib/dist/collections/TranslationsBundles'
 import { I18NextData } from '@sofie-automation/blueprints-integration'
-import { MeteorCall } from '../lib/meteorApi'
+import { MeteorCall } from '../lib/meteorApi.js'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { interpollateTranslation } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { TranslationsBundleId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { TranslationsBundles } from '../collections'
-import { catchError } from '../lib/lib'
+import { TranslationsBundles } from '../collections/index.js'
+import { catchError } from '../lib/lib.js'
+import { relativeToSiteRootUrl } from '../url.js'
+import { UserError } from '@sofie-automation/corelib/dist/error'
 
 const i18nOptions = {
 	fallbackLng: {
@@ -45,7 +47,7 @@ const i18nOptions = {
 	},
 
 	backend: {
-		loadPath: '/locales/{{lng}}/{{ns}}.json',
+		loadPath: relativeToSiteRootUrl('/locales/{{lng}}/{{ns}}.json'),
 	},
 
 	detection: {
@@ -66,15 +68,15 @@ async function getAndCacheTranslationBundle(bundleId: TranslationsBundleId) {
 	return new Promise<TranslationsBundle>((resolve, reject) => {
 		MeteorCall.system.getTranslationBundle(bundleId).then(
 			(response) => {
-				if (ClientAPI.isClientResponseSuccess(response) && response.result) {
+				if (ClientAPI.isClientResponseSuccess(response)) {
 					localStorage.setItem(`i18n.translationBundles.${bundleId}`, JSON.stringify(response.result))
 					resolve(response.result)
 				} else {
-					reject(response)
+					reject(UserError.fromUnknown(response.error))
 				}
 			},
 			(reason) => {
-				reject(reason)
+				reject(reason instanceof Error ? reason : new Error(reason))
 			}
 		)
 	})
@@ -167,7 +169,7 @@ export { i18nTranslator }
 	})
 
  * How to use in script:
-	import { i18nTranslator } from '../i18n'
+	import { i18nTranslator } from '../i18n.js'
 	const t = i18nTranslator
 	return t('My name is {{name}}', {name: 'foobar'})
  */

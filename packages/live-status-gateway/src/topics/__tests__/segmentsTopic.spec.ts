@@ -1,8 +1,9 @@
-import { SegmentsStatus, SegmentsTopic } from '../segmentsTopic'
+import { SegmentsTopic } from '../segmentsTopic.js'
 import { protectString, unprotectString } from '@sofie-automation/server-core-integration'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { makeMockHandlers, makeMockLogger, makeMockSubscriber, makeTestPlaylist } from './utils'
+import { makeMockHandlers, makeMockLogger, makeMockSubscriber, makeTestPlaylist } from './utils.js'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
+import { SegmentsEvent } from '@sofie-automation/live-status-gateway-api'
 
 const RUNDOWN_1_ID = 'RUNDOWN_1'
 const RUNDOWN_2_ID = 'RUNDOWN_2'
@@ -53,7 +54,7 @@ describe('SegmentsTopic', () => {
 
 		topic.addSubscriber(mockSubscriber)
 
-		const expectedStatus: SegmentsStatus = {
+		const expectedStatus: SegmentsEvent = {
 			event: 'segments',
 			rundownPlaylistId: null,
 			segments: [],
@@ -73,7 +74,7 @@ describe('SegmentsTopic', () => {
 		const testPlaylist = makeTestPlaylist()
 		handlers.playlistHandler.notify(testPlaylist)
 
-		const expectedStatus: SegmentsStatus = {
+		const expectedStatus: SegmentsEvent = {
 			event: 'segments',
 			rundownPlaylistId: unprotectString(testPlaylist._id),
 			segments: [],
@@ -97,7 +98,7 @@ describe('SegmentsTopic', () => {
 		handlers.playlistHandler.notify(testPlaylist2)
 		jest.advanceTimersByTime(THROTTLE_PERIOD_MS)
 
-		const expectedStatus2: SegmentsStatus = {
+		const expectedStatus2: SegmentsEvent = {
 			event: 'segments',
 			rundownPlaylistId: unprotectString(testPlaylist2._id),
 			segments: [],
@@ -124,7 +125,7 @@ describe('SegmentsTopic', () => {
 		])
 		jest.advanceTimersByTime(THROTTLE_PERIOD_MS)
 
-		const expectedStatus: SegmentsStatus = {
+		const expectedStatus: SegmentsEvent = {
 			event: 'segments',
 			rundownPlaylistId: unprotectString(testPlaylist._id),
 			segments: [
@@ -183,7 +184,7 @@ describe('SegmentsTopic', () => {
 		handlers.playlistHandler.notify(testPlaylist2)
 		jest.advanceTimersByTime(THROTTLE_PERIOD_MS)
 
-		const expectedStatus: SegmentsStatus = {
+		const expectedStatus: SegmentsEvent = {
 			event: 'segments',
 			rundownPlaylistId: unprotectString(testPlaylist._id),
 			segments: [
@@ -252,7 +253,7 @@ describe('SegmentsTopic', () => {
 		])
 		jest.advanceTimersByTime(THROTTLE_PERIOD_MS)
 
-		const expectedStatus: SegmentsStatus = {
+		const expectedStatus: SegmentsEvent = {
 			event: 'segments',
 			rundownPlaylistId: unprotectString(testPlaylist._id),
 			segments: [
@@ -340,7 +341,7 @@ describe('SegmentsTopic', () => {
 		])
 		jest.advanceTimersByTime(THROTTLE_PERIOD_MS)
 
-		const expectedStatus: SegmentsStatus = {
+		const expectedStatus: SegmentsEvent = {
 			event: 'segments',
 			rundownPlaylistId: unprotectString(testPlaylist._id),
 			segments: [
@@ -397,14 +398,14 @@ describe('SegmentsTopic', () => {
 		handlers.playlistHandler.notify(testPlaylist2)
 		jest.advanceTimersByTime(THROTTLE_PERIOD_MS)
 
-		const expectedStatus: SegmentsStatus = {
+		const expectedStatus: SegmentsEvent = {
 			event: 'segments',
 			rundownPlaylistId: unprotectString(testPlaylist._id),
 			segments: [
 				{ id: '1_1', rundownId: RUNDOWN_1_ID, name: 'Segment 1_1' },
 				{ id: '1_2', rundownId: RUNDOWN_1_ID, name: 'Segment 1_2', identifier: 'SomeIdentifier' },
 			],
-		} as SegmentsStatus
+		} as SegmentsEvent
 		expect(JSON.parse(mockSubscriber.send.mock.calls[0][0] as string)).toMatchObject(
 			JSON.parse(JSON.stringify(expectedStatus))
 		)

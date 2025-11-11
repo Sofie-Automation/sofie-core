@@ -1,4 +1,4 @@
-import _ = require('underscore')
+import _ from 'underscore'
 
 export function arePropertiesShallowEqual<T extends Record<string, any>>(
 	a: T,
@@ -14,15 +14,15 @@ export function arePropertiesShallowEqual<T extends Record<string, any>>(
 		omitProperties
 			? (key) => !omitProperties.includes(key)
 			: selectProperties
-			? (key) => selectProperties.includes(key)
-			: () => true
+				? (key) => selectProperties.includes(key)
+				: () => true
 	)
 	const keysB = Object.keys(b).filter(
 		omitProperties
 			? (key) => !omitProperties.includes(key)
 			: selectProperties
-			? (key) => selectProperties.includes(key)
-			: () => true
+				? (key) => selectProperties.includes(key)
+				: () => true
 	)
 
 	if (keysA.length !== keysB.length) return false
@@ -50,15 +50,15 @@ export function arePropertiesDeepEqual<T extends Record<string, any>>(
 		omitProperties
 			? (key) => !omitProperties.includes(key)
 			: selectProperties
-			? (key) => selectProperties.includes(key)
-			: () => true
+				? (key) => selectProperties.includes(key)
+				: () => true
 	)
 	const keysB = Object.keys(b).filter(
 		omitProperties
 			? (key) => !omitProperties.includes(key)
 			: selectProperties
-			? (key) => selectProperties.includes(key)
-			: () => true
+				? (key) => selectProperties.includes(key)
+				: () => true
 	)
 
 	if (keysA.length !== keysB.length) {

@@ -1,18 +1,18 @@
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import classNames from 'classnames'
 import { useContext } from 'react'
-import { AreaZoom } from '.'
+import { AreaZoom } from './index.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { PieceExtended } from '../../../lib/RundownResolver'
-import { getAllowSpeaking, getAllowVibrating } from '../../../lib/localStorage'
-import { getPartInstanceTimingValue } from '../../../lib/rundownTiming'
-import { AutoNextStatus } from '../../RundownView/RundownTiming/AutoNextStatus'
-import { CurrentPartOrSegmentRemaining } from '../../RundownView/RundownTiming/CurrentPartOrSegmentRemaining'
-import { PartCountdown } from '../../RundownView/RundownTiming/PartCountdown'
-import { PartDisplayDuration } from '../../RundownView/RundownTiming/PartDuration'
-import { TimingDataResolution, TimingTickResolution, withTiming } from '../../RundownView/RundownTiming/withTiming'
-import { PartUi } from '../../SegmentContainer/withResolvedSegment'
-import { Piece } from './Piece'
+import { PieceExtended } from '../../../lib/RundownResolver.js'
+import { getAllowSpeaking, getAllowVibrating } from '../../../lib/localStorage.js'
+import { getPartInstanceTimingValue } from '../../../lib/rundownTiming.js'
+import { AutoNextStatus } from '../../RundownView/RundownTiming/AutoNextStatus.js'
+import { CurrentPartOrSegmentRemaining } from '../../RundownView/RundownTiming/CurrentPartOrSegmentRemaining.js'
+import { PartCountdown } from '../../RundownView/RundownTiming/PartCountdown.js'
+import { PartDisplayDuration } from '../../RundownView/RundownTiming/PartDuration.js'
+import { TimingDataResolution, TimingTickResolution, useTiming } from '../../RundownView/RundownTiming/withTiming.js'
+import { PartUi } from '../../SegmentContainer/withResolvedSegment.js'
+import { Piece } from './Piece.js'
 
 interface IProps {
 	part: PartUi
@@ -22,11 +22,10 @@ interface IProps {
 	isNext: boolean
 }
 
-export const Part = withTiming<IProps, {}>({
-	tickResolution: TimingTickResolution.High,
-	dataResolution: TimingDataResolution.High,
-})(function Part({ playlist, part, piece, timingDurations, isLive, isNext }): JSX.Element | null {
+export function Part({ playlist, part, piece, isLive, isNext }: IProps): JSX.Element | null {
 	const areaZoom = useContext(AreaZoom)
+
+	const timingDurations = useTiming(TimingTickResolution.High, TimingDataResolution.High)
 
 	let left =
 		(timingDurations.partCountdown?.[unprotectString(part.partId)] ?? 0) -
@@ -82,4 +81,4 @@ export const Part = withTiming<IProps, {}>({
 			</div>
 		</div>
 	)
-})
+}

@@ -27,7 +27,7 @@ export async function getBlueprintVersions(): Promise<{
 	const pStudios = Studios.findFetchAsync(
 		{ blueprintId: { $exists: true } },
 		{
-			fields: {
+			projection: {
 				_id: 1,
 				blueprintId: 1,
 			},
@@ -37,7 +37,7 @@ export async function getBlueprintVersions(): Promise<{
 	const pShowStyleBases = ShowStyleBases.findFetchAsync(
 		{ blueprintId: { $exists: true } },
 		{
-			fields: {
+			projection: {
 				_id: 1,
 
 				blueprintId: 1,
@@ -66,7 +66,7 @@ export async function getBlueprintVersions(): Promise<{
 			_id: { $in: blueprintIds },
 		},
 		{
-			fields: {
+			projection: {
 				_id: 1,
 				name: 1,
 				blueprintVersion: 1,

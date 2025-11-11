@@ -1,9 +1,9 @@
-/* eslint-disable no-process-exit */
-// eslint-disable-next-line node/no-extraneous-import
+/* eslint-disable n/no-process-exit */
+// eslint-disable-next-line n/no-extraneous-import
 import { Atem } from 'atem-connection'
 import * as fs from 'fs'
 import { AtemMediaPoolAsset, AtemMediaPoolType } from 'timeline-state-resolver'
-import * as _ from 'underscore'
+import _ from 'underscore'
 import * as path from 'path'
 
 /**
@@ -31,12 +31,8 @@ export class AtemUploadScript {
 
 	public async connect(ip: string): Promise<void> {
 		return new Promise<void>((resolve, reject) => {
-			this.connection.once('connected', () => {
-				resolve()
-			})
-			this.connection.connect(ip).catch((err) => {
-				reject(err)
-			})
+			this.connection.once('connected', resolve)
+			this.connection.connect(ip).catch(reject)
 		})
 	}
 

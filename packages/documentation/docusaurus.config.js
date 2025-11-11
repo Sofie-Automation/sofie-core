@@ -7,12 +7,12 @@ module.exports = {
 	title: 'Sofie TV Automation Documentation',
 	tagline:
 		'Sofie is a web-based, open\xa0source TV\xa0automation system for studios and live shows, used in daily live\xa0TV\xa0news productions by the Norwegian public\xa0service broadcaster NRK since September\xa02018.',
-	url: 'https://nrkno.github.io',
+	url: 'https://sofie-automation.github.io',
 	baseUrl: '/sofie-core/',
 	onBrokenLinks: 'warn',
 	onBrokenMarkdownLinks: 'warn',
 	favicon: 'img/favicon.ico',
-	organizationName: 'nrkno',
+	organizationName: 'Sofie-Automation',
 	projectName: 'sofie-core',
 	markdown: {
 		mermaid: true,
@@ -48,7 +48,7 @@ module.exports = {
 					docsPluginId: 'default',
 				},
 				{
-					href: 'https://github.com/nrkno/sofie-core',
+					href: 'https://github.com/Sofie-Automation/sofie-core',
 					label: 'GitHub',
 					position: 'right',
 				},
@@ -87,7 +87,7 @@ module.exports = {
 						// },
 						{
 							label: 'GitHub',
-							href: 'https://github.com/nrkno?q=tv-automation-&type=source&language=&sort=',
+							href: 'https://github.com/Sofie-Automation?q=sofie-&type=source&language=&sort=',
 						},
 					],
 				},
@@ -121,7 +121,7 @@ module.exports = {
 			{
 				docs: {
 					sidebarPath: require.resolve('./sidebars.js'),
-					editUrl: 'https://github.com/nrkno/sofie-core/edit/master/packages/documentation/',
+					editUrl: 'https://github.com/Sofie-Automation/sofie-core/edit/main/packages/documentation/',
 					// default to the 'next' docs
 					lastVersion: 'current',
 					versions: {

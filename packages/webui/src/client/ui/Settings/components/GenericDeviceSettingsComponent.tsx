@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next'
 import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
-import { DeviceItem } from '../../Status/SystemStatus/DeviceItem'
-import { ConfigManifestOAuthFlowComponent } from './ConfigManifestOAuthFlow'
-import { unprotectString } from '../../../lib/tempLib'
-import { useDebugStatesForPlayoutDevice } from './useDebugStatesForPlayoutDevice'
+import { DeviceItem } from '../../Status/SystemStatus/DeviceItem.js'
+import { ConfigManifestOAuthFlowComponent } from './ConfigManifestOAuthFlow.js'
+import { unprotectString } from '../../../lib/tempLib.js'
+import { useDebugStatesForPlayoutDevice } from './useDebugStatesForPlayoutDevice.js'
 
 interface IGenericDeviceSettingsComponentProps {
 	device: PeripheralDevice
@@ -53,7 +53,7 @@ export function GenericAttahcedSubDeviceSettingsComponent({
 
 	return (
 		<>
-			{Object.keys(device.configManifest.subdeviceManifest ?? {}).length > 0 && (
+			{Object.keys(device.configManifest?.subdeviceManifest ?? {}).length > 0 && (
 				<>
 					<h2 className="mb-4">{t('Attached Subdevices')}</h2>
 

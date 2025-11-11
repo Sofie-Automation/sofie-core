@@ -7,7 +7,7 @@ import {
 	type IMOSDevice,
 } from '@mos-connection/connector'
 import type { MosDeviceStatusesConfig } from '@sofie-automation/shared-lib/dist/generated/MosGatewayDevicesTypes'
-import type { CoreMosDeviceHandler } from '../CoreMosDeviceHandler'
+import type { CoreMosDeviceHandler } from '../CoreMosDeviceHandler.js'
 import {
 	assertNever,
 	type Observer,
@@ -18,9 +18,9 @@ import {
 } from '@sofie-automation/server-core-integration'
 import type { IngestRundownStatus } from '@sofie-automation/shared-lib/dist/ingest/rundownStatus'
 import type { RundownId } from '@sofie-automation/shared-lib/dist/core/model/Ids'
-import type winston = require('winston')
+import type * as winston from 'winston'
 import { Queue } from '@sofie-automation/server-core-integration/dist/lib/queue'
-import { diffStatuses } from './diff'
+import { diffStatuses } from './diff.js'
 
 export class MosStatusHandler {
 	readonly #logger: winston.Logger

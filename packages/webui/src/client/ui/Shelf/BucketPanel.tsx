@@ -1,7 +1,12 @@
 import { Meteor } from 'meteor/meteor'
 import * as React from 'react'
-import { Translated, useSubscription, useSubscriptions, useTracker } from '../../lib/ReactMeteorData/react-meteor-data'
-import { IAdLibListItem } from './AdLibListItem'
+import {
+	Translated,
+	useSubscription,
+	useSubscriptions,
+	useTracker,
+} from '../../lib/ReactMeteorData/react-meteor-data.js'
+import { IAdLibListItem } from './AdLibListItem.js'
 import ClassNames from 'classnames'
 import {
 	DragSource,
@@ -12,8 +17,6 @@ import {
 	DropTargetMonitor,
 	ConnectDragPreview,
 } from 'react-dnd'
-import { faBars } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { OutputLayers, SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import {
 	ISourceLayer,
@@ -22,47 +25,47 @@ import {
 	SomeContent,
 } from '@sofie-automation/blueprints-integration'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { doUserAction, getEventTimestamp, UserAction } from '../../lib/clientUserAction'
-import { NotificationCenter, Notification, NoticeLevel } from '../../lib/notifications/notifications'
-import { literal, unprotectString, protectString } from '../../lib/tempLib'
-import { contextMenuHoldToDisplayTime, UserAgentPointer, USER_AGENT_POINTER_PROPERTY } from '../../lib/lib'
-import { IDashboardPanelTrackedProps } from './DashboardPanel'
+import { doUserAction, getEventTimestamp, UserAction } from '../../lib/clientUserAction.js'
+import { NotificationCenter, Notification, NoticeLevel } from '../../lib/notifications/notifications.js'
+import { literal, unprotectString, protectString } from '../../lib/tempLib.js'
+import { contextMenuHoldToDisplayTime, UserAgentPointer, USER_AGENT_POINTER_PROPERTY } from '../../lib/lib.js'
+import { IDashboardPanelTrackedProps } from './DashboardPanel.js'
 import { BucketAdLib } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibPiece'
 import { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
-import { Events as MOSEvents } from '../../lib/data/mos/plugin-support'
+import { Events as MOSEvents } from '../../lib/data/mos/plugin-support.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { MeteorCall } from '../../lib/meteorApi'
-import { DragDropItemTypes } from '../DragDropItemTypes'
-import { BucketPieceButton, IBucketPieceDropResult } from './BucketPieceButton'
+import { MeteorCall } from '../../lib/meteorApi.js'
+import { DragDropItemTypes } from '../DragDropItemTypes.js'
+import { BucketPieceButton, IBucketPieceDropResult } from './BucketPieceButton.js'
 import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'
 import update from 'immutability-helper'
 import { PartInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import { BucketAdLibAction } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibAction'
-import { RundownUtils } from '../../lib/rundown'
-import { BucketAdLibItem, BucketAdLibActionUi, isAdLibAction, isAdLib, BucketAdLibUi } from './RundownViewBuckets'
-import { PieceUi } from '../SegmentTimeline/SegmentTimelineContainer'
+import { RundownUtils } from '../../lib/rundown.js'
+import { BucketAdLibItem, BucketAdLibActionUi, isAdLibAction, isAdLib, BucketAdLibUi } from './RundownViewBuckets.js'
+import { PieceUi } from '../SegmentTimeline/SegmentTimelineContainer.js'
 import { PieceDisplayStyle } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import RundownViewEventBus, {
 	RundownViewEvents,
 	RevealInShelfEvent,
 	ToggleShelfDropzoneEvent,
 } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
-import { setShelfContextMenuContext, ContextType } from './ShelfContextMenu'
+import { setShelfContextMenuContext, ContextType } from './ShelfContextMenu.js'
 import { translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
-import { i18nTranslator } from '../i18n'
+import { i18nTranslator } from '../i18n.js'
 import {
 	AdLibPieceUi,
 	getNextPieceInstancesGrouped,
 	getUnfinishedPieceInstancesGrouped,
 	isAdLibDisplayedAsOnAir,
 	isAdLibOnAir,
-} from '../../lib/shelf'
+} from '../../lib/shelf.js'
 import { MongoFieldSpecifierOnes } from '@sofie-automation/corelib/dist/mongo'
-import { BucketAdLibActions, BucketAdLibs, Rundowns } from '../../collections'
+import { BucketAdLibActions, BucketAdLibs, Rundowns } from '../../collections/index.js'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
-import { UIPartInstances, UIStudios } from '../Collections'
+import { UIPartInstances, UIStudios } from '../Collections.js'
 import {
 	AdLibActionId,
 	BucketId,
@@ -70,11 +73,12 @@ import {
 	ShowStyleBaseId,
 	ShowStyleVariantId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil'
+import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil.js'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { withTranslation } from 'react-i18next'
-import { useRundownAndShowStyleIdsForPlaylist } from '../util/useRundownAndShowStyleIdsForPlaylist'
+import { useRundownAndShowStyleIdsForPlaylist } from '../util/useRundownAndShowStyleIdsForPlaylist.js'
 import _ from 'underscore'
+import { BucketHandle } from '../../lib/ui/icons/shelf.js'
 
 interface IBucketPanelDragObject {
 	id: BucketId
@@ -171,10 +175,10 @@ const bucketTarget = {
 				monitor.getItemType() === DragDropItemTypes.BUCKET
 					? 'reorder'
 					: monitor.getItemType() === DragDropItemTypes.BUCKET_ADLIB_PIECE
-					? monitor.getItem().bucketId === props.bucket._id
-						? 'reorder'
-						: 'move'
-					: undefined,
+						? monitor.getItem().bucketId === props.bucket._id
+							? 'reorder'
+							: 'move'
+						: undefined,
 		}
 	},
 }
@@ -578,14 +582,14 @@ const BucketPanelContent = withTranslation()(
 								bucketName: this.props.bucket.name,
 							},
 							() => {
-								this._nameTextBox && this._nameTextBox.blur()
+								this._nameTextBox?.blur()
 							}
 						)
 						e.preventDefault()
 						e.stopPropagation()
 						e.stopImmediatePropagation()
 					} else if (e.key === 'Enter') {
-						this._nameTextBox && this._nameTextBox.blur()
+						this._nameTextBox?.blur()
 						e.preventDefault()
 						e.stopPropagation()
 						e.stopImmediatePropagation()
@@ -599,11 +603,11 @@ const BucketPanelContent = withTranslation()(
 								bucketName: this.props.bucket.name,
 							},
 							() => {
-								this.props.onNameChanged && this.props.onNameChanged(e, this.state.bucketName)
+								this.props.onNameChanged?.(e, this.state.bucketName)
 							}
 						)
 					} else {
-						this.props.onNameChanged && this.props.onNameChanged(e, this.state.bucketName)
+						this.props.onNameChanged?.(e, this.state.bucketName)
 					}
 				}
 
@@ -780,7 +784,7 @@ const BucketPanelContent = withTranslation()(
 						const style = window.getComputedStyle(this._panel)
 						// check if a special variable is set through CSS to indicate that we shouldn't expect
 						// double clicks to trigger AdLibs
-						const value = style.getPropertyValue(USER_AGENT_POINTER_PROPERTY)
+						const value = style.getPropertyValue(USER_AGENT_POINTER_PROPERTY) as UserAgentPointer | undefined
 						if (this.state.singleClickMode !== (value === UserAgentPointer.NO_POINTER)) {
 							this.setState({
 								singleClickMode: value === UserAgentPointer.NO_POINTER,
@@ -859,7 +863,7 @@ const BucketPanelContent = withTranslation()(
 										<h4 className="dashboard-panel__header">
 											{connectDragSource(
 												<span className="dashboard-panel__handle">
-													<FontAwesomeIcon icon={faBars} />
+													<BucketHandle />
 												</span>
 											)}
 											&nbsp;

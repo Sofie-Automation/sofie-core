@@ -1,8 +1,12 @@
-import { ScriptContent, SourceLayerType } from '@sofie-automation/blueprints-integration'
-import { useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { PieceExtended } from '../../../lib/RundownResolver'
-import { IFloatingInspectorPosition } from '../../FloatingInspectors/IFloatingInspectorPosition'
-import { MicFloatingInspector } from '../../FloatingInspectors/MicFloatingInspector'
+import { SourceLayerType } from '@sofie-automation/blueprints-integration'
+import { useContext, useMemo, useRef } from 'react'
+import { PieceExtended } from '../../../lib/RundownResolver.js'
+import {
+	PreviewPopUpContext,
+	IPreviewPopUpSession,
+	convertSourceLayerItemToPreview,
+} from '../../PreviewPopUp/PreviewPopUpContext.js'
+import { useContentStatusForPieceInstance } from '../../SegmentTimeline/withMediaObjectStatus.js'
 
 interface IProps {
 	pieces: PieceExtended[]
@@ -10,13 +14,6 @@ interface IProps {
 
 export function LinePartScriptPiece({ pieces }: IProps): JSX.Element {
 	const pieceEl = useRef<HTMLDivElement>(null)
-	const [miniInspectorPosition, setMiniInspectorPosition] = useState<IFloatingInspectorPosition>({
-		position: 'bottom',
-		anchor: 'start',
-		left: 0,
-		top: 0,
-	})
-	const [isHover, setHover] = useState(false)
 	const thisPieces = useMemo(
 		() =>
 			pieces.filter(
@@ -27,25 +24,31 @@ export function LinePartScriptPiece({ pieces }: IProps): JSX.Element {
 			),
 		[pieces]
 	)
-	useLayoutEffect(() => {
-		if (!pieceEl.current) return
 
-		const { top, left, width } = pieceEl.current.getBoundingClientRect()
-
-		setMiniInspectorPosition({
-			top: top + window.scrollY,
-			left: left + width / 2 + window.scrollX,
-			position: 'bottom',
-			anchor: 'start',
+	const previewContext = useContext(PreviewPopUpContext)
+	const previewSession = useRef<IPreviewPopUpSession | null>(null)
+	const contentStatus = useContentStatusForPieceInstance(thisPieces?.[0]?.instance)
+	const previewProps =
+		thisPieces[0] &&
+		convertSourceLayerItemToPreview(thisPieces[0].sourceLayer?.type, thisPieces[0].instance.piece, contentStatus, {
+			in: thisPieces[0].renderedInPoint,
+			dur: thisPieces[0].renderedDuration,
 		})
-	}, [])
 
-	function onMouseEnter() {
-		setHover(true)
+	function onMouseEnter(e: React.PointerEvent<HTMLDivElement>) {
+		// setHover(true)
+		if (previewProps?.contents && previewProps.contents.length > 0)
+			previewSession.current = previewContext.requestPreview(e.target as any, previewProps.contents, {
+				...previewProps.options,
+				initialOffsetX: e.screenX,
+			})
 	}
 
 	function onMouseLeave() {
-		setHover(false)
+		if (previewSession.current) {
+			previewSession.current.close()
+			previewSession.current = null
+		}
 	}
 
 	const hasPiece = thisPieces[0]
@@ -71,15 +74,6 @@ export function LinePartScriptPiece({ pieces }: IProps): JSX.Element {
 				<div className="segment-opl__piece-indicator segment-opl__piece-indicator--script script">{scriptLabel}</div>
 			)}
 			{!hasPiece && <div className="segment-opl__piece-indicator"></div>}
-			{hasPiece && hasPiece.instance.piece.content && (
-				<MicFloatingInspector
-					content={hasPiece.instance.piece.content as ScriptContent}
-					position={miniInspectorPosition}
-					itemElement={pieceEl.current}
-					showMiniInspector={isHover}
-					typeClass={'script'}
-				/>
-			)}
 		</div>
 	)
 }

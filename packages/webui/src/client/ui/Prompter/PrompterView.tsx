@@ -5,14 +5,14 @@ import ClassNames from 'classnames'
 import { Meteor } from 'meteor/meteor'
 import { parse as queryStringParse } from 'query-string'
 import { Route } from 'react-router-dom'
-import Velocity from 'velocity-animate'
+import { animate, AnimationPlaybackControls } from 'motion'
 import {
 	Translated,
 	useGlobalDelayedTrackerUpdateState,
 	useSubscription,
 	useSubscriptions,
 	useTracker,
-} from '../../lib/ReactMeteorData/ReactMeteorData'
+} from '../../lib/ReactMeteorData/ReactMeteorData.js'
 
 import { PartInstanceId, PieceId, RundownPlaylistId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
@@ -20,21 +20,21 @@ import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { withTranslation } from 'react-i18next'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
-import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil'
-import { firstIfArray } from '../../lib/lib'
+import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil.js'
+import { firstIfArray } from '../../lib/lib.js'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { logger } from '../../lib/logging'
-import { RundownPlaylists, Rundowns } from '../../collections'
-import { documentTitle } from '../../lib/DocumentTitleProvider'
-import { Spinner } from '../../lib/Spinner'
-import { UIStudios } from '../Collections'
-import { RundownTimingProvider } from '../RundownView/RundownTiming/RundownTimingProvider'
-import { StudioScreenSaver } from '../StudioScreenSaver/StudioScreenSaver'
-import { PrompterControlManager } from './controller/manager'
-import { OverUnderTimer } from './OverUnderTimer'
-import { PrompterAPI, PrompterData, PrompterDataPart } from './prompter'
-import { doUserAction, UserAction } from '../../lib/clientUserAction'
-import { MeteorCall } from '../../lib/meteorApi'
+import { logger } from '../../lib/logging.js'
+import { RundownPlaylists, Rundowns } from '../../collections/index.js'
+import { documentTitle } from '../../lib/DocumentTitleProvider.js'
+import { Spinner } from '../../lib/Spinner.js'
+import { UIStudios } from '../Collections.js'
+import { RundownTimingProvider } from '../RundownView/RundownTiming/RundownTimingProvider.js'
+import { StudioScreenSaver } from '../StudioScreenSaver/StudioScreenSaver.js'
+import { PrompterControlManager } from './controller/manager.js'
+import { OverUnderTimer } from './OverUnderTimer.js'
+import { PrompterAPI, PrompterData, PrompterDataPart } from './prompter.js'
+import { doUserAction, UserAction } from '../../lib/clientUserAction.js'
+import { MeteorCall } from '../../lib/meteorApi.js'
 
 const DEFAULT_UPDATE_THROTTLE = 250 //ms
 const PIECE_MISSING_UPDATE_THROTTLE = 2000 //ms
@@ -121,6 +121,8 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 
 	// @ts-expect-error The manager inspects this instance
 	private _controller: PrompterControlManager
+
+	private _lastAnimation: AnimationPlaybackControls | null = null
 
 	private checkWindowScroll: number | null = null
 
@@ -318,29 +320,29 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 		const scrollMargin = this.calculateScrollPosition()
 		const target = document.querySelector<HTMLElement>(`[data-part-instance-id="${partInstanceId}"]`)
 
-		if (target) {
-			Velocity(document.body, 'finish')
-			Velocity(target, 'scroll', { offset: -1 * scrollMargin, duration: 400, easing: 'ease-out' })
-		}
+		if (!target) return
+
+		const targetOffsetTop = target.getBoundingClientRect().top + window.scrollY
+		this.animateScrollTo(targetOffsetTop - scrollMargin)
 	}
 	scrollToLive(): void {
 		const scrollMargin = this.calculateScrollPosition()
 		const current =
 			document.querySelector<HTMLElement>('.prompter .live') || document.querySelector<HTMLElement>('.prompter .next')
 
-		if (current) {
-			Velocity(document.body, 'finish')
-			Velocity(current, 'scroll', { offset: -1 * scrollMargin, duration: 400, easing: 'ease-out' })
-		}
+		if (!current) return
+
+		const targetOffsetTop = current.getBoundingClientRect().top + window.scrollY
+		this.animateScrollTo(targetOffsetTop - scrollMargin)
 	}
 	scrollToNext(): void {
 		const scrollMargin = this.calculateScrollPosition()
 		const next = document.querySelector<HTMLElement>('.prompter .next')
 
-		if (next) {
-			Velocity(document.body, 'finish')
-			Velocity(next, 'scroll', { offset: -1 * scrollMargin, duration: 400, easing: 'ease-out' })
-		}
+		if (!next) return
+
+		const targetOffsetTop = next.getBoundingClientRect().top + window.scrollY
+		this.animateScrollTo(targetOffsetTop - scrollMargin)
 	}
 	scrollToPrevious(): void {
 		const scrollMargin = this.calculateScrollPosition()
@@ -349,12 +351,8 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 		const target = anchors[anchors.length - 2] || anchors[0]
 		if (!target) return
 
-		Velocity(document.body, 'finish')
-		Velocity(document.body, 'scroll', {
-			offset: window.scrollY - scrollMargin + target[0],
-			duration: 200,
-			easing: 'ease-out',
-		})
+		const targetOffsetTop = target[0] + window.scrollY
+		this.animateScrollTo(targetOffsetTop - scrollMargin)
 	}
 	scrollToFollowing(): void {
 		const scrollMargin = this.calculateScrollPosition()
@@ -363,11 +361,19 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 		const target = anchors[0]
 		if (!target) return
 
-		Velocity(document.body, 'finish')
-		Velocity(document.body, 'scroll', {
-			offset: window.scrollY - scrollMargin + target[0],
-			duration: 200,
-			easing: 'ease-out',
+		const targetOffsetTop = target[0] + window.scrollY
+		this.animateScrollTo(targetOffsetTop - scrollMargin)
+	}
+	private animateScrollTo(scrollToPosition: number) {
+		this._lastAnimation?.stop()
+		this._lastAnimation = animate(window.scrollY, scrollToPosition, {
+			duration: 0.4,
+			ease: 'easeOut',
+			onUpdate: (latest: number) =>
+				window.scrollTo({
+					top: latest,
+					behavior: 'instant',
+				}),
 		})
 	}
 	listAnchorPositions(startY: number, endY: number, sortDirection = 1): [number, Element][] {
@@ -538,7 +544,11 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 				) : this.props.rundownPlaylist ? (
 					<>
 						<RundownTimingProvider playlist={this.props.rundownPlaylist}>
-							<Prompter rundownPlaylistId={this.props.rundownPlaylist._id} config={this.configOptions}>
+							<Prompter
+								rundownPlaylistId={this.props.rundownPlaylist._id}
+								config={this.configOptions}
+								allowTestingAdlibsToPersist={this.props.studio?.settings.allowTestingAdlibsToPersist ?? false}
+							>
 								{this.configOptions.showOverUnder && (
 									<OverUnderTimer rundownPlaylist={this.props.rundownPlaylist} style={overUnderStyle} />
 								)}
@@ -558,7 +568,7 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 						{this.renderAccessRequestButtons()}
 					</>
 				) : this.props.studio ? (
-					<StudioScreenSaver studioId={this.props.studio._id} />
+					<StudioScreenSaver studioId={this.props.studio._id} screenName={t('Prompter Screen')} />
 				) : this.props.studioId ? (
 					this.renderMessage(t("This studio doesn't exist."))
 				) : (
@@ -627,6 +637,7 @@ export function PrompterView(props: Readonly<IProps>): JSX.Element {
 interface IPrompterProps {
 	rundownPlaylistId: RundownPlaylistId
 	config: PrompterConfig
+	allowTestingAdlibsToPersist: boolean
 }
 interface IPrompterTrackedProps {
 	prompterData: PrompterData | null
@@ -679,7 +690,7 @@ function Prompter(props: Readonly<PropsWithChildren<IPrompterProps>>): JSX.Eleme
 	)
 
 	const nextTrackedProps = useTracker(
-		() => PrompterAPI.getPrompterData(props.rundownPlaylistId),
+		() => PrompterAPI.getPrompterData(props.rundownPlaylistId, props.allowTestingAdlibsToPersist),
 		[props.rundownPlaylistId],
 		null
 	)
@@ -801,24 +812,26 @@ const PrompterContent = withTranslation()(
 				const { top } = anchor.getBoundingClientRect()
 
 				if (scrollAnchor.offset !== null) {
-					this.props.config.debug &&
+					if (this.props.config.debug)
 						logger.debug(
 							`Selected anchor ${scrollAnchor.anchorId} as anchor element in view, restoring position ${scrollAnchor.offset}`
 						)
 
 					window.scrollBy({
 						top: top - scrollAnchor.offset,
+						behavior: 'instant',
 					})
 					// We've scrolled, exit the function!
 					return
 				} else {
-					this.props.config.debug &&
+					if (this.props.config.debug)
 						logger.debug(`Selected anchor ${scrollAnchor.anchorId} as anchor element outside of view, jumping to it`)
 
 					// Note: config.margin does not have to be taken into account here,
 					// the css margins magically does it for us.
 					window.scrollBy({
 						top: top - readPosition,
+						behavior: 'instant',
 					})
 					// We've scrolled, exit the function!
 					return
@@ -1066,18 +1079,18 @@ const PrompterContent = withTranslation()(
 								this.props.config.marker === 'center'
 									? '50vh'
 									: this.props.config.marker === 'bottom'
-									? '100vh'
-									: this.props.config.margin
-									? this.props.config.margin + 'vh'
-									: undefined,
+										? '100vh'
+										: this.props.config.margin
+											? this.props.config.margin + 'vh'
+											: undefined,
 							paddingBottom:
 								this.props.config.marker === 'center'
 									? '50vh'
 									: this.props.config.marker === 'top'
-									? '100vh'
-									: this.props.config.margin
-									? this.props.config.margin + 'vh'
-									: undefined,
+										? '100vh'
+										: this.props.config.margin
+											? this.props.config.margin + 'vh'
+											: undefined,
 						}}
 					>
 						<div className="prompter-break begin">{this.props.prompterData.title}</div>

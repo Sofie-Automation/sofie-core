@@ -1,5 +1,5 @@
-import type { NoteSeverity } from '../lib'
-import type { ITranslatableMessage } from '../translations'
+import type { NoteSeverity } from '../lib.js'
+import type { ITranslatableMessage } from '../translations.js'
 
 export enum BlueprintManifestType {
 	SYSTEM = 'system',

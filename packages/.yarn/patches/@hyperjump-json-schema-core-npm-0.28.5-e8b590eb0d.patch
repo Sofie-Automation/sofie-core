@@ -1,0 +1,14 @@
+diff --git a/package.json b/package.json
+index b096ad62306dd5a18b8750b5087e3363b2a377fd..33a88927bcc50a7d72ea3f1ea4f55bfb31764bce 100644
+--- a/package.json
++++ b/package.json
+@@ -15,8 +15,7 @@
+     "lint": "eslint lib",
+     "test": "mocha --require ts-node/register 'lib/**/*.spec.ts'",
+     "build": "rollup --config rollup.config.js",
+-    "prepublishOnly": "npm run build",
+-    "postinstall": "node -e \"require('fs').rmSync('dist', { recursive: true })\""
++    "prepublishOnly": "npm run build"
+   },
+   "repository": "github:hyperjump-io/json-schema-core",
+   "keywords": [

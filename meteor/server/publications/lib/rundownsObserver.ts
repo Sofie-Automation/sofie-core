@@ -9,6 +9,8 @@ import { Rundowns } from '../../collections'
 import { PromiseDebounce } from './PromiseDebounce'
 import type { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import type { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
+import { logger } from '../../logging'
+import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 
 const REACTIVITY_DEBOUNCE = 20
 
@@ -27,17 +29,21 @@ export class RundownsObserver implements Meteor.LiveQueryHandle {
 	#disposed = false
 
 	readonly #triggerUpdateRundownContent = new PromiseDebounce(async () => {
-		if (this.#disposed) return
-		if (!this.#changed) return
-		this.#cleanup?.()
-		this.#cleanup = undefined
-
-		const changed = this.#changed
-		this.#cleanup = await changed(this.rundownIds)
-
-		if (this.#disposed) {
+		try {
+			if (this.#disposed) return
+			if (!this.#changed) return
 			this.#cleanup?.()
 			this.#cleanup = undefined
+
+			const changed = this.#changed
+			this.#cleanup = await changed(this.rundownIds)
+
+			if (this.#disposed) {
+				this.#cleanup?.()
+				this.#cleanup = undefined
+			}
+		} catch (e) {
+			logger.error(`Error in RundownsObserver triggerUpdateRundownContent: ${stringifyError(e)}`)
 		}
 	}, REACTIVITY_DEBOUNCE)
 

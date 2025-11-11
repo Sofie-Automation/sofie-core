@@ -4,13 +4,14 @@ import { getAbsolutePath } from './lib'
 import { LogLevel } from './lib/tempLib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { Meteor } from 'meteor/meteor'
-import * as _ from 'underscore'
+import _ from 'underscore'
 import { LoggerInstanceFixed } from '@sofie-automation/corelib/dist/logging'
 
 export function getLogLevel(): LogLevel {
 	return logger.level as LogLevel
 }
 export function setLogLevel(level: LogLevel, startup = false): void {
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
 	if (logger.level !== level || startup) {
 		logger.level = level
 		if (transports.console) {

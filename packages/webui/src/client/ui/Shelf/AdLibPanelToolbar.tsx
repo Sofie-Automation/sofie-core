@@ -15,7 +15,7 @@ export function AdLibPanelToolbar(props: Readonly<IToolbarPropsHeader>): JSX.Ele
 
 	function searchInputChanged(e?: React.ChangeEvent<HTMLInputElement>) {
 		const newValue = e?.target.value
-		props.onFilterChange && typeof props.onFilterChange === 'function' && props.onFilterChange(newValue)
+		if (props.onFilterChange && typeof props.onFilterChange === 'function') props.onFilterChange(newValue)
 	}
 
 	function searchInputKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {

@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { ExpectedPackageWorkStatus } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackageWorkStatuses'
 import { useTranslation } from 'react-i18next'
+import { ExpectedPackageStatusAPI } from '@sofie-automation/blueprints-integration'
 
 export const JobStatusIcon: React.FC<{ status: ExpectedPackageWorkStatus; connected: boolean }> = ({
 	status,
@@ -10,10 +11,10 @@ export const JobStatusIcon: React.FC<{ status: ExpectedPackageWorkStatus; connec
 
 	let progress: number
 	let label: string
-	if (status.status === 'fulfilled') {
+	if (status.status === ExpectedPackageStatusAPI.WorkStatusState.FULFILLED) {
 		progress = 1
 		label = t('Done')
-	} else if (status.status === 'working') {
+	} else if (status.status === ExpectedPackageStatusAPI.WorkStatusState.WORKING) {
 		progress = status.progress || 0
 		label = Math.floor(progress * 100) + '%'
 	} else {

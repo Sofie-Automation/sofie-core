@@ -1,6 +1,6 @@
-import { IEventContext, IShowStyleUserContext, Time } from '..'
-import { IPartAndPieceActionContext } from './partsAndPieceActionContext'
-import { IExecuteTSRActionsContext } from './executeTsrActionContext'
+import { IEventContext, IShowStyleUserContext, Time } from '../index.js'
+import { IPartAndPieceActionContext } from './partsAndPieceActionContext.js'
+import { IExecuteTSRActionsContext } from './executeTsrActionContext.js'
 
 /**
  * Context in which 'current' is the partInstance we're leaving, and 'next' is the partInstance we're taking

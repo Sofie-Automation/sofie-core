@@ -3,12 +3,12 @@ import { protectString, unprotectString } from '@sofie-automation/corelib/dist/p
 import classNames from 'classnames'
 import { useMemo } from 'react'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { Studios } from '../../../../../collections'
-import { getCurrentTime } from '../../../../../lib/systemTime'
+import { Studios } from '../../../../../collections/index.js'
+import { getCurrentTime } from '../../../../../lib/systemTime.js'
 import { UIDeviceTriggerPreview } from '@sofie-automation/meteor-lib/dist/api/MountedTriggers'
-import { useSubscriptionIfEnabled, useTracker } from '../../../../../lib/ReactMeteorData/ReactMeteorData'
-import { DeviceTriggersPreviews } from '../../../../Collections'
-import { DeviceTrigger } from './DeviceTrigger'
+import { useSubscriptionIfEnabled, useTracker } from '../../../../../lib/ReactMeteorData/ReactMeteorData.js'
+import { DeviceTriggersPreviews } from '../../../../Collections.js'
+import { DeviceTrigger } from './DeviceTrigger.js'
 import Form from 'react-bootstrap/esm/Form'
 
 interface IProps {

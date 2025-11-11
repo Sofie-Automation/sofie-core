@@ -20,6 +20,8 @@ import { registerRoutes as registerSystemRoutes } from './system'
 import { registerRoutes as registerBucketsRoutes } from './buckets'
 import { registerRoutes as registerSnapshotRoutes } from './snapshots'
 import { APIFactory, ServerAPIContext } from './types'
+import { getSystemStatus } from '../../../systemStatus/systemStatus'
+import { Component, ExternalStatus } from '@sofie-automation/meteor-lib/dist/api/systemStatus'
 
 function restAPIUserEvent(
 	ctx: Koa.ParameterizedContext<
@@ -48,8 +50,8 @@ koaRouter.use(bodyParser())
 
 function extractErrorCode(e: unknown): number {
 	if (ClientAPI.isClientResponseError(e)) {
-		return e.errorCode
-	} else if (UserError.isUserError(e)) {
+		return e.error.errorCode
+	} else if (UserError.isSerializedUserErrorObject(e) || e instanceof UserError) {
 		return e.errorCode
 	} else if ((e as Meteor.Error).error && typeof (e as Meteor.Error).error === 'number') {
 		return (e as Meteor.Error).error as number
@@ -58,11 +60,19 @@ function extractErrorCode(e: unknown): number {
 	}
 }
 
-function extractErrorMessage(e: unknown): string {
+function validateUserError(e: unknown): UserError | undefined {
+	if (e instanceof UserError) {
+		return e
+	} else if (UserError.isSerializedUserErrorObject(e)) {
+		return UserError.fromUnknown(e)
+	}
+}
+
+function extractErrorUserMessage(e: unknown): string {
 	if (ClientAPI.isClientResponseError(e)) {
-		return translateMessage(e.error.message, interpollateTranslation)
-	} else if (UserError.isUserError(e)) {
-		return translateMessage(e.message, interpollateTranslation)
+		return translateMessage(e.error.userMessage, interpollateTranslation)
+	} else if (UserError.isSerializedUserErrorObject(e) || e instanceof UserError) {
+		return translateMessage(e.userMessage, interpollateTranslation)
 	} else if ((e as Meteor.Error).reason && typeof (e as Meteor.Error).reason === 'string') {
 		return (e as Meteor.Error).reason as string
 	} else {
@@ -117,7 +127,7 @@ interface APIRequestError {
 function sofieAPIRequest<API, Params, Body, Response>(
 	method: 'get' | 'post' | 'put' | 'delete',
 	route: string,
-	errMsgs: Map<number, UserErrorMessage[]>,
+	errMsgFallbacks: Map<number, UserErrorMessage[]>,
 	serverAPIFactory: APIFactory<API>,
 	handler: (
 		serverAPI: API,
@@ -138,27 +148,36 @@ function sofieAPIRequest<API, Params, Body, Response>(
 				ctx.params as unknown as Params,
 				ctx.request.body as unknown as Body
 			)
-			if (ClientAPI.isClientResponseError(response)) throw response
+			if (ClientAPI.isClientResponseError(response)) {
+				throw UserError.fromSerialized(response.error)
+			}
 			ctx.body = JSON.stringify({ status: response.success, result: response.result })
 			ctx.status = response.success
 		} catch (e) {
+			const userError = validateUserError(e)
 			const errCode = extractErrorCode(e)
-			let errMsg = extractErrorMessage(e)
-			const msgs = errMsgs.get(errCode)
-			if (msgs) {
+			let errMsg = extractErrorUserMessage(e)
+			// Get the fallback messages of the endpoint
+			const fallbackMsgs = errMsgFallbacks.get(errCode)
+
+			if (fallbackMsgs && (userError?.message === errMsg || userError?.message === '')) {
+				// If no detailed error message is provided then return the fallback error messages.
 				const msgConcat = {
-					key: msgs
-						.map((msg) => UserError.create(msg, undefined, errCode).message.key)
-						.reduce((acc, msg) => acc + (acc.length ? ' or ' : '') + msg, ''),
+					key: fallbackMsgs
+						.map((msg) => UserError.create(msg, undefined, errCode).userMessage.key)
+						.reduce((acc, msg) => acc + (acc.length ? ' or ' : '') + msg, errMsg),
 				}
 				errMsg = translateMessage(msgConcat, interpollateTranslation)
-			} else {
-				logger.error(
-					`${method.toUpperCase()} for route ${route} returned unexpected error code ${errCode} - ${errMsg}`
-				)
+			} else if (userError?.message) {
+				// If we have a detailed arbitrary error message then return that together with the standard error message.
+				errMsg = `${errMsg}${userError.message !== errMsg && userError.message !== '' ? ` - ${userError?.message}` : ''}`
 			}
 
-			logger.error(`${method.toUpperCase()} failed for route ${route}: ${errCode} - ${errMsg}`)
+			// Log unknown error codes
+			logger.error(
+				`${method.toUpperCase()} failed for route ${route}:${!fallbackMsgs ? ' returned unexpected error code' : ''} ${errCode} - ${errMsg}`
+			)
+
 			ctx.type = 'application/json'
 			const bodyObj: APIRequestError = { status: errCode, message: errMsg }
 			const details = extractErrorDetails(e)
@@ -188,6 +207,82 @@ koaRouter.get('/', async (ctx, next) => {
 	ctx.type = 'application/json'
 	const server = new IndexServerAPI()
 	const response = ClientAPI.responseSuccess(await server.index())
+	ctx.body = JSON.stringify({ status: response.success, result: response.result })
+	ctx.status = response.success
+	await next()
+})
+
+koaRouter.get('/health', async (ctx, next) => {
+	ctx.type = 'application/json'
+	const systemStatus = await getSystemStatus(null)
+	const coreVersion = systemStatus._internal.versions['core'] ?? 'unknown'
+	const blueprint = Object.keys(systemStatus._internal.versions).find((component) =>
+		component.startsWith('blueprint')
+	)
+	const blueprintsVersion = blueprint ? systemStatus._internal.versions[blueprint] : 'unknown'
+
+	interface ComponentStatus {
+		name: string
+		updated: string
+		status: ExternalStatus
+		version?: string
+		components?: ComponentStatus[]
+		statusMessage?: string
+	}
+
+	// Array of all devices that have a parentId
+	const subComponents =
+		systemStatus.components?.filter((c) => c.instanceId !== undefined && c.parentId !== undefined) ?? []
+
+	function mapComponents(components?: Component[]): ComponentStatus[] | undefined {
+		return (
+			components?.map((c) => {
+				const version = c._internal.versions['_process']
+				const children = subComponents.filter((sub) => sub.parentId === c.instanceId)
+				return {
+					name: c.name,
+					updated: c.updated,
+					status: c.status,
+					version: version ?? undefined,
+					components: children.length ? mapComponents(children) : undefined,
+					statusMessage: c.statusMessage?.length ? c.statusMessage : undefined,
+				}
+			}) ?? undefined
+		)
+	}
+
+	// Patch the component statusMessage to be from the _internal field if required
+	const allComponentsPatched = systemStatus.components?.map((c) => {
+		return {
+			...c,
+			statusMessage: c.statusMessage ?? (c.status !== 'OK' ? c._internal.messages.join(', ') : undefined),
+		}
+	})
+
+	// Report status for all devices that are not children and any non-devices that are not OK
+	const componentStatus =
+		mapComponents(
+			allComponentsPatched?.filter(
+				(c) => (c.instanceId !== undefined || c.status !== 'OK') && c.parentId === undefined
+			)
+		) ?? []
+
+	const allStatusMessages =
+		allComponentsPatched // include children by not using componentStatus here
+			?.filter((c) => c.statusMessage !== undefined)
+			.map((c) => `${c.name}: ${c.statusMessage}`)
+			.join('; ') ?? ''
+
+	const response = ClientAPI.responseSuccess({
+		name: systemStatus.name,
+		updated: systemStatus.updated,
+		status: systemStatus.status,
+		version: coreVersion,
+		blueprintsVersion: blueprintsVersion,
+		components: componentStatus,
+		statusMessage: allStatusMessages,
+	})
+
 	ctx.body = JSON.stringify({ status: response.success, result: response.result })
 	ctx.status = response.success
 	await next()

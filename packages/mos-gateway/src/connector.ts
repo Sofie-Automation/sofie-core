@@ -1,11 +1,14 @@
-import { MosHandler, MosConfig } from './mosHandler'
-import { CoreHandler, CoreConfig } from './coreHandler'
+import { MosHandler, MosConfig } from './mosHandler.js'
+import { CoreHandler, CoreConfig } from './coreHandler.js'
 import * as Winston from 'winston'
 import {
 	PeripheralDeviceId,
 	loadCertificatesFromDisk,
 	CertificatesConfig,
 	stringifyError,
+	HealthConfig,
+	HealthEndpoints,
+	IConnector,
 } from '@sofie-automation/server-core-integration'
 
 export interface Config {
@@ -13,12 +16,16 @@ export interface Config {
 	device: DeviceConfig
 	core: CoreConfig
 	mos: MosConfig
+	health: HealthConfig
 }
 export interface DeviceConfig {
 	deviceId: PeripheralDeviceId
 	deviceToken: string
 }
-export class Connector {
+export class Connector implements IConnector {
+	public initialized = false
+	public initializedError: string | undefined = undefined
+
 	private mosHandler: MosHandler | undefined
 	private coreHandler: CoreHandler | undefined
 	private _config: Config | undefined
@@ -44,11 +51,18 @@ export class Connector {
 				this._config.device
 			)
 
+			if (!this.coreHandler) throw Error('coreHandler is undefined!')
+
+			new HealthEndpoints(this, this.coreHandler, config.health)
+
 			this._logger.info('Initializing Mos...')
 			this.mosHandler = await MosHandler.create(this._logger, this._config.mos, this.coreHandler)
 
 			this._logger.info('Initialization done')
+			this.initialized = true
 		} catch (e: any) {
+			this.initializedError = stringifyError(e)
+
 			this._logger.error(`Error during initialization: ${stringifyError(e)}`, e.stack)
 
 			this._logger.info('Shutting down in 10 seconds!')
@@ -56,7 +70,7 @@ export class Connector {
 			this.dispose().catch((e2) => this._logger.error(stringifyError(e2)))
 
 			setTimeout(() => {
-				// eslint-disable-next-line no-process-exit
+				// eslint-disable-next-line n/no-process-exit
 				process.exit(0)
 			}, 10 * 1000)
 		}

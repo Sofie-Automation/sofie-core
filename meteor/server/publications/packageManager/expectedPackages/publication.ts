@@ -101,7 +101,7 @@ async function setupExpectedPackagesPublicationObservers(
 				removed: () => triggerUpdate({ invalidateStudio: true }),
 			},
 			{
-				fields: {
+				projection: {
 					// mappingsHash gets updated when either of these omitted fields changes
 					...omit(studioFieldSpecifier, 'mappingsWithOverrides', 'routeSetsWithOverrides'),
 					mappingsHash: 1,
@@ -137,7 +137,7 @@ async function manipulateExpectedPackagesPublicationData(
 
 	// Reload the studio, and the layerNameToDeviceIds lookup
 	if (!updateProps || updateProps.invalidateStudio) {
-		state.studio = (await Studios.findOneAsync(args.studioId, { fields: studioFieldSpecifier })) as
+		state.studio = (await Studios.findOneAsync(args.studioId, { projection: studioFieldSpecifier })) as
 			| Pick<DBStudio, StudioFields>
 			| undefined
 		if (!state.studio) {

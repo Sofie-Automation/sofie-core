@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { faTrash, faPlus, faDownload, faUpload } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
@@ -10,20 +10,21 @@ import {
 import { MappingsExt } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { useTranslation } from 'react-i18next'
-import { MeteorCall } from '../../../lib/meteorApi'
+import { MeteorCall } from '../../../lib/meteorApi.js'
 import { DBShowStyleBase, SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
-import { doModalDialog } from '../../../lib/ModalDialog'
+import { doModalDialog } from '../../../lib/ModalDialog.js'
 import { ShowStyleVariantId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { NoticeLevel, NotificationCenter, Notification } from '../../../lib/notifications/notifications'
-import { UploadButton } from '../../../lib/uploadButton'
+import { NoticeLevel, NotificationCenter, Notification } from '../../../lib/notifications/notifications.js'
+import { UploadButton } from '../../../lib/uploadButton.js'
 import update from 'immutability-helper'
-import { VariantListItem } from './VariantListItem'
-import { downloadBlob } from '../../../lib/downloadBlob'
+import { VariantListItem } from './VariantListItem.js'
+import { downloadBlob } from '../../../lib/downloadBlob.js'
 import { SomeObjectOverrideOp } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import { useTracker } from '../../../lib/ReactMeteorData/ReactMeteorData'
-import { Blueprints, ShowStyleVariants } from '../../../collections'
+import { useTracker } from '../../../lib/ReactMeteorData/ReactMeteorData.js'
+import { Blueprints, ShowStyleVariants } from '../../../collections/index.js'
 import Button from 'react-bootstrap/esm/Button'
+import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 
 interface IShowStyleVariantsProps {
 	showStyleBase: DBShowStyleBase
@@ -46,7 +47,6 @@ export const ShowStyleVariantsSettings = ({
 }: Readonly<IShowStyleVariantsProps>): JSX.Element => {
 	const [localVariants, setLocalVariants] = useState<DBShowStyleVariant[]>([])
 	const [editedVariants, setEditedVariants] = useState<ShowStyleVariantId[]>([])
-	const [timestampedFileKey, setTimestampedFileKey] = useState(0)
 	const { t } = useTranslation()
 
 	useEffect(() => {
@@ -80,69 +80,6 @@ export const ShowStyleVariantsSettings = ({
 		},
 		[showStyleBase],
 		[]
-	)
-
-	const importShowStyleVariantsFromArray = useCallback(
-		(showStyleVariants: DBShowStyleVariant[]): void => {
-			showStyleVariants.forEach((showStyleVariant: DBShowStyleVariant, index: number) => {
-				const rank = localVariants.length
-				showStyleVariant._rank = rank + index
-				MeteorCall.showstyles.importShowStyleVariant(showStyleVariant).catch(() => {
-					NotificationCenter.push(
-						new Notification(
-							undefined,
-							NoticeLevel.CRITICAL,
-							t('Failed to import Show Style Variant {{name}}. Make sure it is not already imported.', {
-								name: showStyleVariant.name,
-							}),
-							'VariantSettings'
-						)
-					)
-				})
-			})
-		},
-		[localVariants]
-	)
-
-	const importShowStyleVariants = useCallback(
-		(event: React.ChangeEvent<HTMLInputElement>): void => {
-			const file = event.target.files?.[0]
-			if (!file) {
-				return
-			}
-
-			const reader = new FileReader()
-
-			reader.onload = () => {
-				setTimestampedFileKey(Date.now())
-
-				const fileContents = reader.result as string
-
-				const newShowStyleVariants: DBShowStyleVariant[] = []
-				try {
-					JSON.parse(fileContents).map((showStyleVariant: DBShowStyleVariant) =>
-						newShowStyleVariants.push(showStyleVariant)
-					)
-					if (!Array.isArray(newShowStyleVariants)) {
-						throw new Error('Imported file did not contain an array')
-					}
-				} catch (error) {
-					NotificationCenter.push(
-						new Notification(
-							undefined,
-							NoticeLevel.CRITICAL,
-							t('Failed to import new Show Style Variants: {{errorMessage}}', { errorMessage: error + '' }),
-							'VariantSettings'
-						)
-					)
-					return
-				}
-
-				importShowStyleVariantsFromArray(newShowStyleVariants)
-			}
-			reader.readAsText(file)
-		},
-		[importShowStyleVariantsFromArray]
 	)
 
 	const onCopyShowStyleVariant = useCallback(
@@ -363,21 +300,73 @@ export const ShowStyleVariantsSettings = ({
 				</Button>
 				<Button variant="outline-secondary" className="mx-1" onClick={onDownloadAllShowStyleVariants}>
 					<FontAwesomeIcon icon={faDownload} />
-					&nbsp;{t('Export')}
+					<span>{t('Export')}</span>
 				</Button>
-				<UploadButton
-					className="btn btn-outline-secondary mx-1"
-					accept="application/json,.json"
-					onChange={importShowStyleVariants}
-					key={timestampedFileKey}
-				>
-					<FontAwesomeIcon icon={faUpload} />
-					&nbsp;{t('Import')}
-				</UploadButton>
+				<ImportVariantsButton localVariantCount={localVariants.length} />
 				<Button variant="outline-secondary" className="mx-1" onClick={onRemoveAllShowStyleVariants}>
 					<FontAwesomeIcon icon={faTrash} />
 				</Button>
 			</div>
 		</div>
+	)
+}
+
+function ImportVariantsButton({ localVariantCount }: { localVariantCount: number }) {
+	const { t } = useTranslation()
+
+	const importShowStyleVariantsError = useCallback((err: Error): void => {
+		NotificationCenter.push(
+			new Notification(
+				undefined,
+				NoticeLevel.CRITICAL,
+				t('Failed to import new Show Style Variants: {{errorMessage}}', { errorMessage: stringifyError(err) }),
+				'VariantSettings'
+			)
+		)
+	}, [])
+
+	const importShowStyleVariantsFromArray = useCallback(
+		(showStyleVariants: DBShowStyleVariant[]): void => {
+			showStyleVariants.forEach((showStyleVariant: DBShowStyleVariant, index: number) => {
+				showStyleVariant._rank = localVariantCount + index
+				MeteorCall.showstyles.importShowStyleVariant(showStyleVariant).catch(() => {
+					NotificationCenter.push(
+						new Notification(
+							undefined,
+							NoticeLevel.CRITICAL,
+							t('Failed to import Show Style Variant {{name}}. Make sure it is not already imported.', {
+								name: showStyleVariant.name,
+							}),
+							'VariantSettings'
+						)
+					)
+				})
+			})
+		},
+		[localVariantCount]
+	)
+
+	const importShowStyleVariantsContents = useCallback(
+		(fileContents: string): void => {
+			const newShowStyleVariants: DBShowStyleVariant[] = JSON.parse(fileContents)
+			if (!Array.isArray(newShowStyleVariants)) {
+				throw new Error('Imported file did not contain an array')
+			}
+
+			importShowStyleVariantsFromArray(newShowStyleVariants)
+		},
+		[importShowStyleVariantsFromArray]
+	)
+
+	return (
+		<UploadButton
+			className="btn btn-outline-secondary mx-1"
+			accept="application/json,.json"
+			onUploadError={importShowStyleVariantsError}
+			onUploadContents={importShowStyleVariantsContents}
+		>
+			<FontAwesomeIcon icon={faUpload} />
+			<span>{t('Import')}</span>
+		</UploadButton>
 	)
 }

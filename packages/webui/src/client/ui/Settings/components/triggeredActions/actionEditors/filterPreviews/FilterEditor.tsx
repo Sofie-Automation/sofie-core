@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react'
 import classNames from 'classnames'
 import { usePopper } from 'react-popper'
-import { EditAttribute, EditAttributeType } from '../../../../../../lib/EditAttribute'
+import { EditAttribute, EditAttributeType } from '../../../../../../lib/EditAttribute.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAngleRight, faCheck, faTrash } from '@fortawesome/free-solid-svg-icons'
-import { sameWidth } from '../../../../../../lib/popperUtils'
-import { catchError } from '../../../../../../lib/lib'
+import { sameWidth } from '../../../../../../lib/popperUtils.js'
+import { catchError } from '../../../../../../lib/lib.js'
 import { preventOverflow } from '@popperjs/core'
-import { DropdownInputControl, getDropdownInputOptions } from '../../../../../../lib/Components/DropdownInput'
+import { DropdownInputControl, getDropdownInputOptions } from '../../../../../../lib/Components/DropdownInput.js'
 import Button from 'react-bootstrap/esm/Button'
 
 interface IProps {
@@ -72,7 +72,7 @@ export const FilterEditor: React.FC<IProps> = function FilterEditor(props: IProp
 	}, [popperElement, referenceElement, opened, index])
 
 	useLayoutEffect(() => {
-		update && update().catch(catchError('FilterEditor update'))
+		update?.().catch(catchError('FilterEditor update'))
 	}, [props.fieldLabel, props.valueLabel])
 
 	return (
@@ -86,7 +86,7 @@ export const FilterEditor: React.FC<IProps> = function FilterEditor(props: IProp
 				ref={setReferenceElement}
 				tabIndex={0}
 				role="button"
-				onClick={() => !props.readonly && onFocus && onFocus(index)}
+				onClick={() => !props.readonly && onFocus?.(index)}
 			>
 				<dt>{props.fieldLabel}</dt>
 				<dd>{props.valueLabel}</dd>
@@ -120,13 +120,13 @@ export const FilterEditor: React.FC<IProps> = function FilterEditor(props: IProp
 
 					<div className="grid-buttons-right">
 						<div>
-							<Button variant="outline-secondary" size="sm" onClick={() => props.onRemove && props.onRemove(index)}>
+							<Button variant="outline-secondary" size="sm" onClick={() => props.onRemove?.(index)}>
 								<FontAwesomeIcon icon={faTrash} />
 							</Button>
 						</div>
 						<div>
 							{!props.final ? (
-								<Button variant="primary" size="sm" onClick={() => props.onInsertNext && props.onInsertNext(index)}>
+								<Button variant="primary" size="sm" onClick={() => props.onInsertNext?.(index)}>
 									<FontAwesomeIcon icon={faAngleRight} />
 								</Button>
 							) : (

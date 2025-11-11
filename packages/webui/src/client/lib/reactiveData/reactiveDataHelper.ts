@@ -1,6 +1,6 @@
 import { Tracker } from 'meteor/tracker'
 import { AllPubSubTypes } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { meteorSubscribe } from '../meteorApi'
+import { meteorSubscribe } from '../meteorApi.js'
 import { Meteor } from 'meteor/meteor'
 
 /**
@@ -77,7 +77,8 @@ export abstract class WithManagedTracker {
 
 	protected autorun(
 		func: (comp: Tracker.Computation) => void,
-		options?: { onError: Function | undefined } | undefined
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+		options?: { onError: Function | undefined }
 	): Tracker.Computation {
 		return Tracker.nonreactive(() => {
 			const comp = Tracker.autorun(func, options)

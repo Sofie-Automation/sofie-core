@@ -28,3 +28,13 @@ interface ITranslatableMessage {
 	key: string
 	args?: { [key: string]: any }
 }
+
+export function isITranslatableMessage(obj: unknown): obj is ITranslatableMessage {
+	return (
+		typeof obj === 'object' &&
+		obj !== null &&
+		'key' in obj &&
+		typeof (obj as any).key === 'string' &&
+		(!('args' in obj) || (typeof (obj as any).args === 'object' && (obj as any).args !== null))
+	)
+}

@@ -7,7 +7,7 @@ import {
 	HourglassIconSmall,
 	OKIconSmall,
 	WarningIconSmallWorkingOnIt,
-} from '../../lib/ui/icons/notifications'
+} from '../../lib/ui/icons/notifications.js'
 
 export const MediaStatusIndicator = React.memo(function MediaStatusIndicator({
 	status,

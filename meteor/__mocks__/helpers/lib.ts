@@ -1,4 +1,4 @@
-import * as _ from 'underscore'
+import _ from 'underscore'
 import { LogLevel, ProtectedString } from '../../server/lib/tempLib'
 import { AsyncOnlyMongoCollection } from '../../server/collections/collection'
 import { getLogLevel, setLogLevel } from '../../server/logging'

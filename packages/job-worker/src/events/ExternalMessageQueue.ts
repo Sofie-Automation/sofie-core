@@ -4,17 +4,17 @@ import {
 	Time,
 } from '@sofie-automation/blueprints-integration'
 import { ExternalMessageQueueObj } from '@sofie-automation/corelib/dist/dataModel/ExternalMessageQueue'
-import { IChangeStream, IDirectCollections } from '../db'
-import { getCurrentTime } from '../lib'
-import { sendRabbitMQMessage } from './integration/rabbitMQ'
+import { IChangeStream, IDirectCollections } from '../db/index.js'
+import { getCurrentTime } from '../lib/index.js'
+import { sendRabbitMQMessage } from './integration/rabbitMQ.js'
 import { stringify } from 'querystring'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
-import { sendSlackMessageToWebhook } from './integration/slack'
-import { StudioCacheContext } from '../jobs'
-import { InvalidateWorkerDataCache, WorkerDataCacheWrapper } from '../workers/caches'
+import { sendSlackMessageToWebhook } from './integration/slack.js'
+import { StudioCacheContext } from '../jobs/index.js'
+import { InvalidateWorkerDataCache, WorkerDataCacheWrapper } from '../workers/caches.js'
 import { ReadonlyDeep } from 'type-fest'
-import pTimeout = require('p-timeout')
-import { logger } from '../logging'
+import pTimeout from 'p-timeout'
+import { logger } from '../logging.js'
 
 const TRIGGER_DELAY_DEFAULT = 1000 // TODO: Now that this is in its own thread, does it need a delay?
 const TRIGGER_DELAY_STARTUP = 5000

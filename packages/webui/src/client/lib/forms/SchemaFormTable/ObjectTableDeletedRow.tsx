@@ -2,7 +2,7 @@ import { faSync } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { objectPathGet } from '@sofie-automation/corelib/dist/lib'
 import { useCallback } from 'react'
-import { SchemaSummaryField } from '../schemaFormUtil'
+import { SchemaSummaryField } from '../schemaFormUtil.js'
 
 interface ObjectTableDeletedRowProps {
 	summaryFields: SchemaSummaryField[]

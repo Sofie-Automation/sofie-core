@@ -1,21 +1,21 @@
 import { RundownPlaylistId, AdLibActionId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { UserErrorMessage } from '@sofie-automation/corelib/dist/error'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context'
-import { setupDefaultRundownPlaylist, setupMockShowStyleCompound } from '../../__mocks__/presetCollections'
-import { handleTakeNextPart } from '../take'
-import { handleExecuteAdlibAction } from '../adlibAction'
-import { handleActivateRundownPlaylist } from '../activePlaylistJobs'
-import { ActionExecutionContext } from '../../blueprints/context/adlibActions'
-import { ActionPartChange } from '../../blueprints/context/services/PartAndPieceInstanceActionService'
-import * as Infinites from '../../playout/infinites'
-import * as TakeApi from '../../playout/take'
+import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context.js'
+import { setupDefaultRundownPlaylist, setupMockShowStyleCompound } from '../../__mocks__/presetCollections.js'
+import { handleTakeNextPart } from '../take.js'
+import { handleExecuteAdlibAction } from '../adlibAction.js'
+import { handleActivateRundownPlaylist } from '../activePlaylistJobs.js'
+import { ActionExecutionContext } from '../../blueprints/context/adlibActions.js'
+import { ActionPartChange } from '../../blueprints/context/services/PartAndPieceInstanceActionService.js'
+import * as Infinites from '../../playout/infinites.js'
+import * as TakeApi from '../../playout/take.js'
 
 const syncPlayheadInfinitesForNextPartInstanceMock = jest.spyOn(Infinites, 'syncPlayheadInfinitesForNextPartInstance')
 const takeNextPartMock = jest.spyOn(TakeApi, 'performTakeToNextedPart')
 
 jest.mock('../timeline/generate')
-import { updateTimeline } from '../timeline/generate'
+import { updateTimeline } from '../timeline/generate.js'
 type TupdateTimeline = jest.MockedFunction<typeof updateTimeline>
 const updateTimelineMock = updateTimeline as TupdateTimeline
 

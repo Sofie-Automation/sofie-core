@@ -6,9 +6,9 @@ import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import throttleToNextTick from '@sofie-automation/shared-lib/dist/lib/throttleToNextTick'
 import { PickKeys } from '@sofie-automation/shared-lib/dist/lib/types'
 import { Logger } from 'winston'
-import { CoreHandler } from '../coreHandler'
-import { CollectionHandlers } from '../liveStatusServer'
-import { PublicationCollection } from '../publicationCollection'
+import { CoreHandler } from '../coreHandler.js'
+import { CollectionHandlers } from '../liveStatusServer.js'
+import { PublicationCollection } from '../publicationCollection.js'
 
 const PLAYLIST_KEYS = ['_id'] as const
 type Playlist = PickKeys<DBRundownPlaylist, typeof PLAYLIST_KEYS>

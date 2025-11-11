@@ -1,7 +1,7 @@
 import { IBlueprintConfig, TSR } from '@sofie-automation/blueprints-integration'
-import { ObjectWithOverrides } from '../settings/objectWithOverrides'
-import { StudioId, OrganizationId, BlueprintId, ShowStyleBaseId, MappingsHash, PeripheralDeviceId } from './Ids'
-import { BlueprintHash, LastBlueprintConfig } from './Blueprint'
+import { ObjectWithOverrides } from '../settings/objectWithOverrides.js'
+import { StudioId, OrganizationId, BlueprintId, ShowStyleBaseId, MappingsHash, PeripheralDeviceId } from './Ids.js'
+import { BlueprintHash, LastBlueprintConfig } from './Blueprint.js'
 import { MappingsExt, MappingExt } from '@sofie-automation/shared-lib/dist/core/model/Timeline'
 import {
 	ResultingMappingRoute,

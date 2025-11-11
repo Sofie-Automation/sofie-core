@@ -9,12 +9,12 @@ import {
 	QueueNextSegmentProps,
 	QueueNextSegmentResult,
 } from '@sofie-automation/corelib/dist/worker/studio'
-import { JobContext } from '../jobs'
-import { runJobWithPlayoutModel } from './lock'
-import { setNextPartFromPart, setNextSegment, queueNextSegment } from './setNext'
-import { selectNewPartWithOffsets } from './moveNextPart'
-import { updateTimeline } from './timeline/generate'
-import { PlayoutSegmentModel } from './model/PlayoutSegmentModel'
+import { JobContext } from '../jobs/index.js'
+import { runJobWithPlayoutModel } from './lock.js'
+import { setNextPartFromPart, setNextSegment, queueNextSegment } from './setNext.js'
+import { selectNewPartWithOffsets } from './moveNextPart.js'
+import { updateTimeline } from './timeline/generate.js'
+import { PlayoutSegmentModel } from './model/PlayoutSegmentModel.js'
 import { ReadonlyDeep } from 'type-fest'
 
 /**

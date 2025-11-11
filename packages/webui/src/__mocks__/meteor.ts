@@ -1,4 +1,5 @@
-import * as _ from 'underscore'
+/* eslint-disable @typescript-eslint/no-unsafe-function-type, @typescript-eslint/only-throw-error */
+import _ from 'underscore'
 import type { DDP } from 'meteor/ddp'
 
 let controllableDefer = false
@@ -97,7 +98,10 @@ export namespace MeteorMock {
 	}
 	export class Error {
 		private _stack?: string
-		constructor(public error: number, public reason?: string) {
+		constructor(
+			public error: number,
+			public reason?: string
+		) {
 			const e = new $.Error('')
 			let stack: string = e.stack || ''
 

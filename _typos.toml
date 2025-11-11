@@ -1,0 +1,20 @@
+[default]
+extend-ignore-identifiers-re = [
+	# Short Git hashes contained in square brackets
+    "[a-f0-9]{7}",
+]
+
+# [default.extend-identifiers]
+# # *sigh* this just isn't worth the cost of fixing
+# AttributeIDSupressMenu = "AttributeIDSupressMenu"
+
+[default.extend-words]
+ndi = "ndi"
+nd = "nd"
+anc = "anc"
+nexting = "nexting"
+loggin = "loggin"
+
+
+[files]
+extend-exclude = ["packages/documentation/versioned_docs", "packages/webui/public/locales", "*.po"]

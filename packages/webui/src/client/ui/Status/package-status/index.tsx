@@ -1,28 +1,29 @@
 import React, { useMemo } from 'react'
-import { useSubscription, useTracker } from '../../../lib/ReactMeteorData/react-meteor-data'
+import { useSubscription, useTracker } from '../../../lib/ReactMeteorData/react-meteor-data.js'
 import { ExpectedPackageWorkStatus } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackageWorkStatuses'
-import { normalizeArrayToMap, unprotectString } from '../../../lib/tempLib'
+import { normalizeArrayToMap, unprotectString } from '../../../lib/tempLib.js'
 import { ExpectedPackageDB } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
-import { MeteorCall } from '../../../lib/meteorApi'
-import { doUserAction, UserAction } from '../../../lib/clientUserAction'
+import { MeteorCall } from '../../../lib/meteorApi.js'
+import { doUserAction, UserAction } from '../../../lib/clientUserAction.js'
 import { Meteor } from 'meteor/meteor'
-import { PackageStatus } from './PackageStatus'
-import { PackageContainerStatus } from './PackageContainerStatus'
-import { Spinner } from '../../../lib/Spinner'
+import { PackageStatus } from './PackageStatus.js'
+import { PackageContainerStatus } from './PackageContainerStatus.js'
+import { Spinner } from '../../../lib/Spinner.js'
 import { useTranslation } from 'react-i18next'
-import { UIStudios } from '../../Collections'
+import { UIStudios } from '../../Collections.js'
 import {
 	ExpectedPackages,
 	ExpectedPackageWorkStatuses,
 	PackageContainerStatuses,
 	PeripheralDevices,
-} from '../../../collections'
+} from '../../../collections/index.js'
 import { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Button from 'react-bootstrap/Button'
+import { ExpectedPackageStatusAPI } from '@sofie-automation/blueprints-integration'
 
 export const ExpectedPackagesStatus: React.FC<{}> = function ExpectedPackagesStatus(_props: {}) {
 	const { t } = useTranslation()
@@ -104,7 +105,7 @@ export const ExpectedPackagesStatus: React.FC<{}> = function ExpectedPackagesSta
 
 			let incompleteRank = 999
 			for (const status of p.statuses) {
-				if (status.status !== 'fulfilled') {
+				if (status.status !== ExpectedPackageStatusAPI.WorkStatusState.FULFILLED) {
 					if (status.requiredForPlayout) {
 						incompleteRank = Math.min(incompleteRank, 0)
 					} else {

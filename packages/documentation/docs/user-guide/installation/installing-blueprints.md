@@ -11,9 +11,9 @@ sidebar_position: 4
 
 Blueprints are little plug-in programs that runs inside _Sofie_. They are the logic that determines how _Sofie_ interacts with rundowns, hardware, and media.
 
-Blueprints are custom scripts that you create yourself \(or download an existing one\). There are a set of example Blueprints for the Spreadsheet Gateway available for use here: [https://github.com/SuperFlyTV/sofie-demo-blueprints](https://github.com/SuperFlyTV/sofie-demo-blueprints).
+Blueprints are custom scripts that you can download or create yourself. There is a set of example Blueprints for the [Rundown Editor](https://github.com/SuperFlyTV/sofie-automation-rundown-editor) or the [Spreadsheet Gateway](https://github.com/SuperFlyTV/spreadsheet-gateway) available for use here: [https://github.com/SuperFlyTV/sofie-demo-blueprints](https://github.com/SuperFlyTV/sofie-demo-blueprints).
 
-To begin installing any Blueprint, navigate to the _Settings page_. Getting there is covered in the [Access Levels](../features/access-levels.md) page.
+To begin installing any Blueprint, navigate to the _Settings page_. ( [http://localhost:3000/settings/?admin=1](http://localhost:3000/settings/?admin=1>) ), otherwise see the [Sofie Access Level](../features/access-levels.md) page for assistance getting there.
 
 ![The Settings Page](/img/docs/getting-started/settings-page.jpg)
 
@@ -40,7 +40,3 @@ After having installed the Blueprint, the Studio's baseline will need to be relo
 _Show Style Blueprints determine how your show will look / feel._
 
 After you've uploaded the your show-style-blueprint js-file, navigate to a Show Style in the settings and assign the new Blueprint to it \(under the label _Blueprint_ \).
-
-### Further Reading
-
-- [Blueprints Supporting the Spreadsheet Gateway](https://github.com/SuperFlyTV/sofie-demo-blueprints)

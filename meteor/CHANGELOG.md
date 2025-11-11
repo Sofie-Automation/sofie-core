@@ -2,6 +2,45 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.52.0](///compare/v1.52.0-in-testing.1...v1.52.0) (2025-06-30)
+
+
+### Bug Fixes
+
+* blueprint fetch method missing a9491d3
+* eventlistener on segmentBlock wasn't cleaned up 823e9c2
+* Memoryleak fixed in @jstarpl/react-contextmenu 2.15.1 ea0c4d4
+* missing fetch for blueprints, and minor logging changes ([#1471](undefined/undefined/undefined/issues/1471)) 4cec82b
+* system evaluations form message not saving SOFIE-4010 d89b35e
+
+## [1.52.0-in-testing.1](https://github.com/nrkno/sofie-core/compare/v1.51.7...v1.52.0-in-testing.1) (2025-06-05)
+
+
+### Bug Fixes
+
+* add `getCurrentTime` to `SyncIngestUpdateToPartInstanceContext` ([bb35893](https://github.com/nrkno/sofie-core/commit/bb358938937433af7157d7f821400badf6f10c2b))
+* Bring back onExit callback check ([8c5dd70](https://github.com/nrkno/sofie-core/commit/8c5dd705734fde8bcb341162b2065f5fe840e4a8))
+* change owner of application files, run as non-root user, linting ([2de99a2](https://github.com/nrkno/sofie-core/commit/2de99a2226edb0c8c0bdc92d823e072957a108e1))
+* **Dialog:** resolve issue with dialog sizing ([70a6059](https://github.com/nrkno/sofie-core/commit/70a60591cbd6d790ca3c89c9dbcaaa80fd6b06b9))
+* **EAV-513:** prevent queued Part from hijacking infinite Pieces from the following Part(s) ([f222545](https://github.com/nrkno/sofie-core/commit/f222545db5a68de63ce45ecff3c839b1b8a86311))
+* **EAV-514:** omit privateData in bucket adlib pieces and actions publications ([7c45ad8](https://github.com/nrkno/sofie-core/commit/7c45ad86a4a1a93237f95080bf17caca2226d509))
+* **EAV-524:** stringify error in executeAction ([b2d584e](https://github.com/nrkno/sofie-core/commit/b2d584ef018dfaf60e342a11bef02c12cb9633b2))
+* **EAV-534:** duration of pieces with 'now' start time ([031b96e](https://github.com/nrkno/sofie-core/commit/031b96e235547a23e1fe1e87c751ca49dabc000b))
+* **EAV-555:** make prompter animations compatible with bootstrap ([02b3559](https://github.com/nrkno/sofie-core/commit/02b3559339f6693c0784d706b75ffcf4e21d4300)), closes [#1429](https://github.com/nrkno/sofie-core/issues/1429)
+* **EAV-555:** make prompter scroll ([a6805ae](https://github.com/nrkno/sofie-core/commit/a6805aea45f251ff9aecc328fe7653b10b12c307)), closes [#1400](https://github.com/nrkno/sofie-core/issues/1400)
+* lost errors in some publications ([04b3998](https://github.com/nrkno/sofie-core/commit/04b399839792832dc2d5d50508e7764cbc60394c))
+* **migrations:** migrations migrate options as overrides instead of defaults ([dbc3bca](https://github.com/nrkno/sofie-core/commit/dbc3bcaf31dd89dcf8fee8fe392d7b8e7ce53e60))
+* **OverlayScreenSaver:** resolve issue with animation ([15ba776](https://github.com/nrkno/sofie-core/commit/15ba776edc076da69f2d17db963f61ba5d979f93))
+* reimplement `removePartInstance` flow for `syncChangesToPartInstances` ([ab2023c](https://github.com/nrkno/sofie-core/commit/ab2023c2aa54fa57a3f874a1453b2eeeb8defd31))
+* remove `velocity-animate` uses ([e13433e](https://github.com/nrkno/sofie-core/commit/e13433e6a43952be6da2aaa05a2a4ee99f60f574))
+* remove deprecated `velocity-react` and `velocity-animate` ([f071414](https://github.com/nrkno/sofie-core/commit/f071414ff1e526df739969c3f2553c6ad2ba33cb))
+* resolve typing issue in syncChangesToPartInstance.test.ts ([17106c7](https://github.com/nrkno/sofie-core/commit/17106c7e58c161cb68425e6750c5cd0acf7c4bc1))
+* **Segment Storyboard:** source layers aren't sorted accoring to rank ([d9d4d4c](https://github.com/nrkno/sofie-core/commit/d9d4d4c1ec62ad5018a1840225800153aa4410f1))
+* some snapshots not restoring correctly due to id generation order ([c7d4a4d](https://github.com/nrkno/sofie-core/commit/c7d4a4d7cb0bfbe9c8d6ea47ec167da2025e9b27))
+* take into account a situation when .duration is 0. resolves [#1414](https://github.com/nrkno/sofie-core/issues/1414) ([32e12f6](https://github.com/nrkno/sofie-core/commit/32e12f66cd38838d0450b0a4313db6b3552bc2ac))
+* take Part preroll into account when stopping a Piece with another Piece. ([014a7b4](https://github.com/nrkno/sofie-core/commit/014a7b4c9a1ad31d02c11ba161ebde5196e28dbe))
+* update TSR dependency, to update the timeline library to 9.0.3 to resolve [#1395](https://github.com/nrkno/sofie-core/issues/1395) ([a757a66](https://github.com/nrkno/sofie-core/commit/a757a66882a4dc7bcc35a5747d1a7cd09b3e6c09))
+
 ## [1.52.0-in-testing.0](https://github.com/nrkno/sofie-core/compare/v1.51.6...v1.52.0-in-testing.0) (2025-02-04)
 
 
@@ -110,7 +149,6 @@ All notable changes to this project will be documented in this file. See [standa
 * rundown reset resets quickloop markers ([5c78889](https://github.com/nrkno/sofie-core/commit/5c78889e16d2612a21efc322d1c8f7cf83a660ad))
 * sofie logo not showing in dev ([8704ff8](https://github.com/nrkno/sofie-core/commit/8704ff819e895d8d60a5a24628c286677eb07735))
 * **SOFIE-69:** wrong defaults in calls to selectNextPart ([5fbea60](https://github.com/nrkno/sofie-core/commit/5fbea60255c33a8207777893c548cda459e47930))
-* solution in b1045f99 was actually wrong, we should protect the Segment from being removed if it's nexted, it's going to be removed later ([74136f1](https://github.com/nrkno/sofie-core/commit/74136f18d1b58ee97aa9982c71e9fd71da66c4ec))
 * some styling bugs ([5dc59ed](https://github.com/nrkno/sofie-core/commit/5dc59ed6da8bee9f0573ed90329ba0003b6d6ed8))
 * the scss structure was reimporting colors and variable multiple places. This is now replaced to be only in main.scss ([8b926ac](https://github.com/nrkno/sofie-core/commit/8b926ac23a92f36eb838eeecbd583fa9f535b0e0))
 * track segmentStartedPlayback against `SegmentPlayoutId` instead of `SegmentId` ([22b4a3c](https://github.com/nrkno/sofie-core/commit/22b4a3c9f6af7c6371ba2987157fcd5e4f24506e))
@@ -120,1026 +158,1106 @@ All notable changes to this project will be documented in this file. See [standa
 * unable to remove peripheralDevice ([3d559f1](https://github.com/nrkno/sofie-core/commit/3d559f177b80168661a52c7b66f80e8122891b91))
 * update mos-connection dependency (SOFIE-3006) ([#1251](https://github.com/nrkno/sofie-core/issues/1251)) ([d5c2cad](https://github.com/nrkno/sofie-core/commit/d5c2cad8e154703df2a9fb7698d54c35ef3f17f8))
 * update mos-connection dependency: fixes an issue where ExternalMetadata.MosPayload was not passed through if content is a string ([d499893](https://github.com/nrkno/sofie-core/commit/d4998939b463de518c7e12f32462cb77b6a40975))
-* **updateNext:** do the flow for no nextPartInstance or oprhaned === 'deleted' first ([b480cc8](https://github.com/nrkno/sofie-core/commit/b480cc8cff28a91ac8be540794e5f7b29dc073de))
 * use segment budget duration for segment duration counter ([#15](https://github.com/nrkno/sofie-core/issues/15)) ([a498d90](https://github.com/nrkno/sofie-core/commit/a498d90da50d4edb01fc4344129ebdd535935658))
 * webui eslint failure ([339f8cb](https://github.com/nrkno/sofie-core/commit/339f8cbac8975f7f76f007e84210831e3348b32f))
 
-### [1.51.6](///compare/v1.51.5...v1.51.6) (2025-01-14)
+## [1.52.0-in-testing.0](https://github.com/nrkno/sofie-core/compare/v1.51.6...v1.52.0-in-testing.0) (2025-02-04)
 
+### ⚠ BREAKING CHANGES
+
+- remove showstyle and studio blueprint migrations
 
 ### Features
 
-* add more logging 8c16ce8
-
+- add `notes` to `RundownPlaylist` and pipe notes from blueprints from `getRundownPlaylistInfo` and `getShowStyleId` ([c5b833d](https://github.com/nrkno/sofie-core/commit/c5b833dee263ba44a895cd1a39442185e40801ab))
+- add ignoreQuickLoop as an optional attr in the openAPI ([cf72b49](https://github.com/nrkno/sofie-core/commit/cf72b495b1694715473d415be285125126312ad6))
+- add in-out words to the VT type ([7bec461](https://github.com/nrkno/sofie-core/commit/7bec4619836cb92ab85331afe130d0ed54ca976e))
+- add RemoteSpeak source layer type ([a9b98e7](https://github.com/nrkno/sofie-core/commit/a9b98e7a544f5dab90c6cc17713abbdc5b930744))
+- add segment timing countdownType ([9aaa2dd](https://github.com/nrkno/sofie-core/commit/9aaa2dd48e841177f32a8d16a2e6c37706c6c2ae))
+- add snapshot creation to Stable API ([806b0db](https://github.com/nrkno/sofie-core/commit/806b0dbd589c63382c245c79c4af76e5a8106938))
+- allow ab sessions to declare themselves as 'globally unique' ([02be272](https://github.com/nrkno/sofie-core/commit/02be2726ea3b5d86ea61b92bbc1b1bfad54abb53))
+- allow adlib-actions to remove pieces from the current partInstance ([33514b1](https://github.com/nrkno/sofie-core/commit/33514b1d648d72f65670d195c4766e89f21624c9))
+- allow adlib-actions to remove pieces from the current partInstance ([902e7ff](https://github.com/nrkno/sofie-core/commit/902e7fffe6cc23c48f7bd86e23595d83f74d84fa))
+- allow drag from mos-plugin to part ([d51ba2f](https://github.com/nrkno/sofie-core/commit/d51ba2fe8b8effa6037f379534b357d5320cc3c7))
+- always add `dnt=gateway` header for gateway connections ([c7bdfe6](https://github.com/nrkno/sofie-core/commit/c7bdfe6787b76a5d23eb841764abf7b0cc799028))
+- clearer message on deactivate on-air ([8087506](https://github.com/nrkno/sofie-core/commit/8087506e728e80215cb3934ba59d82d61d1d76d4))
+- config package manager from blueprints ([685364d](https://github.com/nrkno/sofie-core/commit/685364d5fd4af690a55292ba99ff8ecff386f893))
+- configure Core system/studio settings via blueprints ([ef14c8f](https://github.com/nrkno/sofie-core/commit/ef14c8f4f139be273ce8a8a3c21e6cc0f580d297))
+- configure peripheral device settings from blueprints ([878214b](https://github.com/nrkno/sofie-core/commit/878214bf983ed12fe82822b47b9c629727d4c20d))
+- consistent rundown activation ([f14f212](https://github.com/nrkno/sofie-core/commit/f14f212a600984679157dc331a03af0bde8a7df0))
+- convert action-triggers computation to async ([c2a6522](https://github.com/nrkno/sofie-core/commit/c2a6522b45ebc4bc65ef61f5e048fa5de3929ddd))
+- css UI align hover preview ([b17ec63](https://github.com/nrkno/sofie-core/commit/b17ec63a8fcd41ddf26fc2633b644e428a11bc95))
+- customizable package status messages ([2ac7cb1](https://github.com/nrkno/sofie-core/commit/2ac7cb1eb95edc8f901168066396110b2cd71faa))
+- discardAsPrimary option in ModalDialog ([f259d95](https://github.com/nrkno/sofie-core/commit/f259d957b0a18b37f3d5a442de54be3a1d5364a0))
+- dummy VT preview on ON AIR playhead when arg ignore_piece_content_status=1 ([6d7bdeb](https://github.com/nrkno/sofie-core/commit/6d7bdebb0725f663612fbeedeebca96a64bcb514))
+- **EAV-297:** add Shuttle WebHID prompter controller support ([4f40cea](https://github.com/nrkno/sofie-core/commit/4f40cea44e8a2db1b4359ab27d2466479adbb7b8))
+- **EAV-323:** allow Take from Shuttle connected to Prompter View ([cc230ca](https://github.com/nrkno/sofie-core/commit/cc230ca6c1d3cf5b028f6431097a38d55fe3f417))
+- Evaluation form is optional in studio settings, with default turned on. ([e9f21fb](https://github.com/nrkno/sofie-core/commit/e9f21fbbc4c1b64c17cfb984fae1514aa87a3465))
+- exclude pieces from part keepalive ([74bea6c](https://github.com/nrkno/sofie-core/commit/74bea6cf3a978410bc5e79b325a6fe8b0b190ba9))
+- hack add in out work in floating inspector for testing without styling ([8c2eabd](https://github.com/nrkno/sofie-core/commit/8c2eabda0f47cba18975afc24a4aebf735f964ab))
+- list routesets from blueprints adlib action ([c228251](https://github.com/nrkno/sofie-core/commit/c22825130793c843f7290d3ee844b805bf2788f1))
+- meteor 2.16 ([91e6a40](https://github.com/nrkno/sofie-core/commit/91e6a40ffa2f86d1149cdb6594cd15f5486964b1))
+- meteor 3.0.4 ([8670727](https://github.com/nrkno/sofie-core/commit/8670727bba5ac9cffe0e5d36b4bd45d6664482be))
+- modify datastore in `onRundownActivate` SOFIE-3310 ([#1240](https://github.com/nrkno/sofie-core/issues/1240)) ([8a0759f](https://github.com/nrkno/sofie-core/commit/8a0759f610497e37493e8a798aa0dd13f4f57119))
+- move next part should respect quickloop bounds ([8f0153e](https://github.com/nrkno/sofie-core/commit/8f0153e294a4f4842e333cc3c4e2bacbf6c4c236))
+- option to disable HOLD & direct play ([#32](https://github.com/nrkno/sofie-core/issues/32)) ([b0daf75](https://github.com/nrkno/sofie-core/commit/b0daf75d72303bc54ded557ab113dceb80c19556))
+- option to disable/enable buckets ([#36](https://github.com/nrkno/sofie-core/issues/36)) ([ea2cae1](https://github.com/nrkno/sofie-core/commit/ea2cae16a5cf82ca01161cd7688d28bd5ac9c70d))
+- options for reset/no reset on air in oneMinuteBeforeAction ([d2b30f0](https://github.com/nrkno/sofie-core/commit/d2b30f0374c5c38d87f63c60d5adab3bb7462091))
+- processIngestData & userEditOperations ([e69a4fc](https://github.com/nrkno/sofie-core/commit/e69a4fc2f4e3d1e6c6b287e34a3b2f55080ce0c4))
+- quickloop improvements ([f1f77fa](https://github.com/nrkno/sofie-core/commit/f1f77fa11b50fe93afc50631988d7c2aa6306f13))
+- reimplement model `switchRouteSet` to perform operation on `context` to simplify persistence and future access of studio ([4a1c882](https://github.com/nrkno/sofie-core/commit/4a1c882aa3bd9fc0949277a430fdaf1a88fbad42))
+- remove broken accounts and auth in ui SOFIE-3326 ([#1241](https://github.com/nrkno/sofie-core/issues/1241)) ([3339dbd](https://github.com/nrkno/sofie-core/commit/3339dbdc9a70565159503bf3f913d13afdf7527f))
+- remove showstyle and studio blueprint migrations ([5a58f71](https://github.com/nrkno/sofie-core/commit/5a58f71ec158f879c8dbd4aab96c5b79ea9d026c))
+- rework user permissions in the ui to use a react context ([81bf9cb](https://github.com/nrkno/sofie-core/commit/81bf9cb36c694d1222350d28981b1bcda5487f06))
+- routeset config defined in blueprints ([e839b97](https://github.com/nrkno/sofie-core/commit/e839b97c0205df38e5bc7ab816a9c79406a7d767))
+- routeset controlled ab player assignment ([5120882](https://github.com/nrkno/sofie-core/commit/5120882f9595e808a37a53dc293d0f07903a81c1))
+- Server-side notifications [#1193](https://github.com/nrkno/sofie-core/issues/1193) ([d9fafe0](https://github.com/nrkno/sofie-core/commit/d9fafe0acafeb3fb73cbf785081e3a5f959049c7))
+- Sofie Core Groups with Trusted header SOFIE-95 ([c4b8da5](https://github.com/nrkno/sofie-core/commit/c4b8da5357b56aa0a21ac4ede2e355cea2260c02))
+- support for http header in packagemanager ([1e5bbc6](https://github.com/nrkno/sofie-core/commit/1e5bbc669fe67fedf48027524232ad6696fc8909))
+- update meteor to 3.1 and node to 22 ([61b6854](https://github.com/nrkno/sofie-core/commit/61b6854261a03f04e81416b9d37ee995e3a10108))
+- vite deduplicate meteor lib SOFIE-3360 ([#1235](https://github.com/nrkno/sofie-core/issues/1235)) ([caa2a38](https://github.com/nrkno/sofie-core/commit/caa2a38abec732fac79f4ffa39ee1a1a4616bdca))
+- vite reduce reliance on copied Meteor code ([#1239](https://github.com/nrkno/sofie-core/issues/1239)) ([3bbeb56](https://github.com/nrkno/sofie-core/commit/3bbeb568b1428e474671bad2d4a0ceff12439aaf))
+- vt - inout add text in preview window ([d234a78](https://github.com/nrkno/sofie-core/commit/d234a7836466df1ff67d0962eba0c10c9f812729))
 
 ### Bug Fixes
 
-* Include previousPartInstance in check to orphan segments rather than remove them. 51b7104
-* only run onPart/PiecePlaybackStarted/Stopped on current, next or previous parts a9fe401
-* **PoGw:** filter log output to ensure that message field in JSONL output is never an object 0d2b844
-* set nextPartInstance to null if it's referring to a Segment that has been removed b1045f9
-* updatePartInstancesSegmentIds: take into account when multiple segments have been merged into one. b769157
+- `queuedSegmentId` ignored when taking last part of the rundown ([d7a216d](https://github.com/nrkno/sofie-core/commit/d7a216d7627087588acdd4b71084d58cfbe21bce))
+- action triggers editor not showing previews ([005a0e5](https://github.com/nrkno/sofie-core/commit/005a0e5aa2bb015148dd0e4970865daacfa3a3f1))
+- **AdLibPanel:** support hidden on AdLibPieces ([175b5ff](https://github.com/nrkno/sofie-core/commit/175b5ffde08f1f9aeb0d240d96d943df999ca696))
+- asyncapi-generator-react-sdk patch ([43e0564](https://github.com/nrkno/sofie-core/commit/43e0564af15e7010db0cdb9c4b1e3348b9272c05))
+- avoid excessive applyAndValidateOverrides ([5ef7c34](https://github.com/nrkno/sofie-core/commit/5ef7c3432bc11270b26bb34dd1c3cb42d9c46b21))
+- consistent active onair ([e1a95bd](https://github.com/nrkno/sofie-core/commit/e1a95bda05f77a9154751f5ee819e412c077e8cf))
+- **Cronjob:** don't restart CasparCG using the nightly cronjob if there's a Rundown active in the Studio ([eb35f0e](https://github.com/nrkno/sofie-core/commit/eb35f0e5fe424cc50c3dea7de473460957560177))
+- css VT hover align in and out words ([c3f0761](https://github.com/nrkno/sofie-core/commit/c3f076106fe0e7e5830ee783ccf028546bd5b5d6))
+- dis-/en-able heartbeat when openMediaHotStandby ([e2fe446](https://github.com/nrkno/sofie-core/commit/e2fe4467df8b578661c74c5755c110f730f3c3d4))
+- **EAV-297:** prompter imports ([587ad1a](https://github.com/nrkno/sofie-core/commit/587ad1a0fc774e4a0251a0038bb90f0f7c4f4f6a))
+- **EAV-491:** remove leftover publication names ([21de23c](https://github.com/nrkno/sofie-core/commit/21de23c07f517407e89da7151503302b66f7b189))
+- ensure ab sessions get reordered when adlibbing a fixed duration piece ([f4e61fa](https://github.com/nrkno/sofie-core/commit/f4e61fa7aeef376d03f940b8b77e235c9b29ca65))
+- ensure pieces don't claim to have durations when their end has not yet been decided ([250b5d7](https://github.com/nrkno/sofie-core/commit/250b5d7dc8986201ed29c3c665740f2af3e79be9))
+- ensure timeline is regenerated after switching routeset affecting ab players ([99533aa](https://github.com/nrkno/sofie-core/commit/99533aa1b3c1fe83d9a7bcb6941f098297cfa6fb))
+- fixed width on inspector ([c77b6a5](https://github.com/nrkno/sofie-core/commit/c77b6a55b7b2b97022b395962dd4692928c38489))
+- go to renderDataMissing() is rundown is not found - and revert previous implementation ([92b9e85](https://github.com/nrkno/sofie-core/commit/92b9e852453c23c1f69cde35a92060dced720eb3))
+- handle durations of onRundownChange infinites correctly when spanning into another part ([bb4c22b](https://github.com/nrkno/sofie-core/commit/bb4c22b33062a6bf26a23a9f6b0e241d3206b517))
+- implement editor ui ([954a05a](https://github.com/nrkno/sofie-core/commit/954a05ad2c2c6aa14b709a2bc875ded4521cd804))
+- In kiosk mode, rundown page gets stalled if rundown is removed while on the page. ([298c0fd](https://github.com/nrkno/sofie-core/commit/298c0fd7e2c7be2ef0d958c567b95170bb2a65a2))
+- in out words on VT should always be white ([4346290](https://github.com/nrkno/sofie-core/commit/43462900bd31a6b19a5e3f50c6b586f6c9d4a94a))
+- koa not serving app for non-root url ([c7c1d10](https://github.com/nrkno/sofie-core/commit/c7c1d10f1a1b605b969656b425d8f38b104bc3fb))
+- make openMediaHotStandby option pr subdevice, and rename from hotStandby to openMediaHotStandby ([ce68543](https://github.com/nrkno/sofie-core/commit/ce6854336f4df8fc4f4b512a3de1f039fc0f1309))
+- make reset and activate primary button ([7274b8c](https://github.com/nrkno/sofie-core/commit/7274b8c0b2d0ac1fcd105ea004404945704767bd))
+- missing font once packaged with vite ([88fc61d](https://github.com/nrkno/sofie-core/commit/88fc61d34a406cec3d8965bd664607211a275375))
+- missing roboto font after scss cleanup ([ddab6df](https://github.com/nrkno/sofie-core/commit/ddab6dff7e714a0d0d53a8e1925b6e7c6307f409))
+- MosGateway hotstandby - send message for both servers if both connections are offline ([72c765f](https://github.com/nrkno/sofie-core/commit/72c765f56f4acf991bbb566fefb2b99106536587))
+- no quickloop autotake on parts that were running for a long time ([e8826c1](https://github.com/nrkno/sofie-core/commit/e8826c194ff1658e8c88201009cc06c8e591e099))
+- **NotificationPopUp:** buttons have no margins ([d60dfc4](https://github.com/nrkno/sofie-core/commit/d60dfc4d30bbd0497e67636c72e09f2791e5dd99))
+- package-manager publications forcing arguments ([44b475e](https://github.com/nrkno/sofie-core/commit/44b475eb894efa31b5994c616b35d00dc412bc54))
+- patch `timecode` dependency to work once packaged with vite ([7438176](https://github.com/nrkno/sofie-core/commit/74381767551407911818fe0516f13c225252507b))
+- prefer field_order from package info stream over deepscan ([3b4cdda](https://github.com/nrkno/sofie-core/commit/3b4cddaf7d3ee171712fa5d1d884efcb90892d99))
+- prompter skipped pieces ([df0dc95](https://github.com/nrkno/sofie-core/commit/df0dc951782e92af5183b7cc271df2fbe40b205b))
+- publications not becoming ready when returning null ([c593560](https://github.com/nrkno/sofie-core/commit/c593560758efeedc952259477650cd22d7d1f399))
+- quickloop rundown reset ([6950fea](https://github.com/nrkno/sofie-core/commit/6950fea28664033e56710a3e9c57c373484ce17d))
+- re-implement setReady to false in useSubscriptionIfEnabled() ([7c4f1ae](https://github.com/nrkno/sofie-core/commit/7c4f1ae6241adba53de4d64f2fb9861641f53b9c))
+- remove Meteor.absoluteUrl and proxy ddp through vite. ([8292d96](https://github.com/nrkno/sofie-core/commit/8292d9656ac40fb111078966d511f16a977bca38))
+- remove unused `rundownIds` parameter from `MeteorPubSub.uiPartInstances` publication ([c9e739d](https://github.com/nrkno/sofie-core/commit/c9e739d2afd07709b36c6b92ebea230eeaae7777))
+- remove unused meteor ui packages ([ed82e6b](https://github.com/nrkno/sofie-core/commit/ed82e6b49e9c8b75622078207e3ac0dbf3ccd07f))
+- removing parts/segments with quickloop markers ([f94db28](https://github.com/nrkno/sofie-core/commit/f94db289ef8ca2fb6804d661aeed5ae5e37c6876))
+- reset segments when added to an active loop ([52ede26](https://github.com/nrkno/sofie-core/commit/52ede268c1bfa888065ef97b4bee20d6c56f419c))
+- restore test ([474e0d3](https://github.com/nrkno/sofie-core/commit/474e0d3122b999314a5f76fee3359dd38a1cbc76))
+- review comments ([752a30a](https://github.com/nrkno/sofie-core/commit/752a30a69ea4a864239a438b278c3b53d06a12a2))
+- rework versionExtended flow to be done via meteor runtime_config ([8e16b94](https://github.com/nrkno/sofie-core/commit/8e16b940fa14eee1ea83cdb765cce3e436f7e18c))
+- rundown reset resets quickloop markers ([5c78889](https://github.com/nrkno/sofie-core/commit/5c78889e16d2612a21efc322d1c8f7cf83a660ad))
+- sofie logo not showing in dev ([8704ff8](https://github.com/nrkno/sofie-core/commit/8704ff819e895d8d60a5a24628c286677eb07735))
+- **SOFIE-69:** wrong defaults in calls to selectNextPart ([5fbea60](https://github.com/nrkno/sofie-core/commit/5fbea60255c33a8207777893c548cda459e47930))
+- solution in b1045f99 was actually wrong, we should protect the Segment from being removed if it's nexted, it's going to be removed later ([74136f1](https://github.com/nrkno/sofie-core/commit/74136f18d1b58ee97aa9982c71e9fd71da66c4ec))
+- some styling bugs ([5dc59ed](https://github.com/nrkno/sofie-core/commit/5dc59ed6da8bee9f0573ed90329ba0003b6d6ed8))
+- the scss structure was reimporting colors and variable multiple places. This is now replaced to be only in main.scss ([8b926ac](https://github.com/nrkno/sofie-core/commit/8b926ac23a92f36eb838eeecbd583fa9f535b0e0))
+- track segmentStartedPlayback against `SegmentPlayoutId` instead of `SegmentId` ([22b4a3c](https://github.com/nrkno/sofie-core/commit/22b4a3c9f6af7c6371ba2987157fcd5e4f24506e))
+- type mismatch and confusing ui for enabling/disabling ab players ([082b1d8](https://github.com/nrkno/sofie-core/commit/082b1d8e47b652254797dfffe3120fb31bf90c17))
+- **ui:** timing in quickloop ([425d229](https://github.com/nrkno/sofie-core/commit/425d229bf8e4a7b78e6993596cbb50689a15886f))
+- Unable to clear infinites ([a9daca2](https://github.com/nrkno/sofie-core/commit/a9daca27a23f3b34b0deb1ec42dab5bd78ed4bd3))
+- unable to remove peripheralDevice ([3d559f1](https://github.com/nrkno/sofie-core/commit/3d559f177b80168661a52c7b66f80e8122891b91))
+- update mos-connection dependency (SOFIE-3006) ([#1251](https://github.com/nrkno/sofie-core/issues/1251)) ([d5c2cad](https://github.com/nrkno/sofie-core/commit/d5c2cad8e154703df2a9fb7698d54c35ef3f17f8))
+- update mos-connection dependency: fixes an issue where ExternalMetadata.MosPayload was not passed through if content is a string ([d499893](https://github.com/nrkno/sofie-core/commit/d4998939b463de518c7e12f32462cb77b6a40975))
+- **updateNext:** do the flow for no nextPartInstance or orphaned === 'deleted' first ([b480cc8](https://github.com/nrkno/sofie-core/commit/b480cc8cff28a91ac8be540794e5f7b29dc073de))
+- use segment budget duration for segment duration counter ([#15](https://github.com/nrkno/sofie-core/issues/15)) ([a498d90](https://github.com/nrkno/sofie-core/commit/a498d90da50d4edb01fc4344129ebdd535935658))
+- webui eslint failure ([339f8cb](https://github.com/nrkno/sofie-core/commit/339f8cbac8975f7f76f007e84210831e3348b32f))
+
+### [1.51.6](///compare/v1.51.5...v1.51.6) (2025-01-14)
+
+### Features
+
+- add more logging 8c16ce8
+
+### Bug Fixes
+
+- Include previousPartInstance in check to orphan segments rather than remove them. 51b7104
+- only run onPart/PiecePlaybackStarted/Stopped on current, next or previous parts a9fe401
+- **PoGw:** filter log output to ensure that message field in JSONL output is never an object 0d2b844
+- set nextPartInstance to null if it's referring to a Segment that has been removed b1045f9
+- updatePartInstancesSegmentIds: take into account when multiple segments have been merged into one. b769157
 
 ### [1.51.5](///compare/v1.51.4...v1.51.5) (2025-01-07)
 
-
 ### Bug Fixes
 
-* **job-worker/playout:** Hold mode doesn't work at all a7d6999
+- **job-worker/playout:** Hold mode doesn't work at all a7d6999
 
 ### [1.51.4](///compare/v1.51.3...v1.51.4) (2024-12-04)
 
-
 ### Bug Fixes
 
-* Device Action Studio Context gets lost, Adlib previews are unstable 193815d
-* Live Status Gateway Dockerfile (regular) still uses yarn to start 0ae53c4
-* release scripts broken on Windows 9636051
-* RundownView shows spinner when unMOSing a Rundown from a Playlist 874e85c
+- Device Action Studio Context gets lost, Adlib previews are unstable 193815d
+- Live Status Gateway Dockerfile (regular) still uses yarn to start 0ae53c4
+- release scripts broken on Windows 9636051
+- RundownView shows spinner when unMOSing a Rundown from a Playlist 874e85c
 
 ### [1.51.2](https://github.com/nrkno/tv-automation-server-core/compare/v1.51.1...v1.51.2) (2024-11-21)
 
-
 ### Bug Fixes
 
-* Include previousPartInstance in check to orphan segments rather than remove them. ([2c113b5](https://github.com/nrkno/tv-automation-server-core/commit/2c113b58b205198d13f0fc7e2114704311eb915b))
-* updatePartInstancesSegmentIds: take into account when multiple segments have been merged into one. ([bdab8c4](https://github.com/nrkno/tv-automation-server-core/commit/bdab8c4e4ee1e67a3568cccc98106bb7f1258673))
+- Include previousPartInstance in check to orphan segments rather than remove them. ([2c113b5](https://github.com/nrkno/tv-automation-server-core/commit/2c113b58b205198d13f0fc7e2114704311eb915b))
+- updatePartInstancesSegmentIds: take into account when multiple segments have been merged into one. ([bdab8c4](https://github.com/nrkno/tv-automation-server-core/commit/bdab8c4e4ee1e67a3568cccc98106bb7f1258673))
 
 ## [1.51.0-in-testing.3](https://github.com/nrkno/sofie-core/compare/v1.51.0-in-testing.2...v1.51.0-in-testing.3) (2024-09-25)
 
 ## [1.51.0-in-testing.2](https://github.com/nrkno/sofie-core/compare/v1.51.0-in-testing.1...v1.51.0-in-testing.2) (2024-09-24)
 
-
 ### Bug Fixes
 
-* allow replacement in replaceInfinitesFromPreviousPlayhead ([ebb154d](https://github.com/nrkno/sofie-core/commit/ebb154d6b59369588da400d8d921a00e41b84dc8))
-* **BucketPanel:** Bucket AdLibs don't trigger when created before Rundown activation (SOFIE-3478) ([a16d977](https://github.com/nrkno/sofie-core/commit/a16d9777a301a6d7d69ea00be02b70c53cb9bdcc))
-* **LinePartTimeline:** make rules for findMainPiece consistent, make infinite graphics Pieces display correctly ([153d100](https://github.com/nrkno/sofie-core/commit/153d100fb659546201a654af5c566b513951df88))
-* **NoraFloatingInspector:** prevent Segment crash when trying to show a Piece with an invalid Nora `previewPayload` ([4a3a2e7](https://github.com/nrkno/sofie-core/commit/4a3a2e779c144b1c9e88c187cce2e5c80d34626d))
-* resolve an issue with prompter moving when Parts become PartInstances and the prompter position is juuuust right ([a670a73](https://github.com/nrkno/sofie-core/commit/a670a73fa6bfb8331921a2bedd9c927952cfffcf))
+- allow replacement in replaceInfinitesFromPreviousPlayhead ([ebb154d](https://github.com/nrkno/sofie-core/commit/ebb154d6b59369588da400d8d921a00e41b84dc8))
+- **BucketPanel:** Bucket AdLibs don't trigger when created before Rundown activation (SOFIE-3478) ([a16d977](https://github.com/nrkno/sofie-core/commit/a16d9777a301a6d7d69ea00be02b70c53cb9bdcc))
+- **LinePartTimeline:** make rules for findMainPiece consistent, make infinite graphics Pieces display correctly ([153d100](https://github.com/nrkno/sofie-core/commit/153d100fb659546201a654af5c566b513951df88))
+- **NoraFloatingInspector:** prevent Segment crash when trying to show a Piece with an invalid Nora `previewPayload` ([4a3a2e7](https://github.com/nrkno/sofie-core/commit/4a3a2e779c144b1c9e88c187cce2e5c80d34626d))
+- resolve an issue with prompter moving when Parts become PartInstances and the prompter position is juuuust right ([a670a73](https://github.com/nrkno/sofie-core/commit/a670a73fa6bfb8331921a2bedd9c927952cfffcf))
 
 ## [1.51.0-in-testing.0](https://github.com/nrkno/sofie-core/compare/v1.50.4...v1.51.0-in-testing.0) (2024-08-19)
 
-
 ### Features
 
-* Ensure peripheralDevice subdevice removal when requested ([#1227](https://github.com/nrkno/sofie-core/issues/1227)) ([d5cafe8](https://github.com/nrkno/sofie-core/commit/d5cafe8db5e453f87f8d46262f23e118b580d4d5))
-
+- Ensure peripheralDevice subdevice removal when requested ([#1227](https://github.com/nrkno/sofie-core/issues/1227)) ([d5cafe8](https://github.com/nrkno/sofie-core/commit/d5cafe8db5e453f87f8d46262f23e118b580d4d5))
 
 ### Bug Fixes
 
-* update sorensen dep ([d4cc0f7](https://github.com/nrkno/sofie-core/commit/d4cc0f7d508c0fcbe516be5babcbdf17cca05c9d))
+- update sorensen dep ([d4cc0f7](https://github.com/nrkno/sofie-core/commit/d4cc0f7d508c0fcbe516be5babcbdf17cca05c9d))
 
 ### [1.50.5-LSG-updates](https://github.com/nrkno/sofie-core/compare/v1.50.4-LSG-updates...v1.50.5-LSG-updates) (2024-08-08)
 
-
 ### Bug Fixes
 
-* compensate for piece preroll for adlibbed pieces SOFIE-3369 ([#1236](https://github.com/nrkno/sofie-core/issues/1236)) ([195a7d9](https://github.com/nrkno/sofie-core/commit/195a7d98242d6377dac9f1efc69f861fc3b554e5))
-* refactor Rundown orphaned property SOFIE-2963 [#1210](https://github.com/nrkno/sofie-core/issues/1210) ([#1217](https://github.com/nrkno/sofie-core/issues/1217)) ([cf9fa15](https://github.com/nrkno/sofie-core/commit/cf9fa159b7385614a879ee215b3093a7e708bb7d))
-* rundown timing drifting when playing parts with preroll SOFIE-3291 ([#1234](https://github.com/nrkno/sofie-core/issues/1234)) ([beee11a](https://github.com/nrkno/sofie-core/commit/beee11a21a44a3e3e75c8189061b74ae45f9068a))
-* unexpected timeline updates while playing final part in rundown SOFIE-3371 ([#1237](https://github.com/nrkno/sofie-core/issues/1237)) ([0fe74b4](https://github.com/nrkno/sofie-core/commit/0fe74b45d2c09e2e08e942c49dae55ceb1ef698c))
-* use same piece timing as timeline in LSG SOFIE-3305 ([#1219](https://github.com/nrkno/sofie-core/issues/1219)) ([bf48f17](https://github.com/nrkno/sofie-core/commit/bf48f171719452eb6e309964b3779bb8ad2992e9))
+- compensate for piece preroll for adlibbed pieces SOFIE-3369 ([#1236](https://github.com/nrkno/sofie-core/issues/1236)) ([195a7d9](https://github.com/nrkno/sofie-core/commit/195a7d98242d6377dac9f1efc69f861fc3b554e5))
+- refactor Rundown orphaned property SOFIE-2963 [#1210](https://github.com/nrkno/sofie-core/issues/1210) ([#1217](https://github.com/nrkno/sofie-core/issues/1217)) ([cf9fa15](https://github.com/nrkno/sofie-core/commit/cf9fa159b7385614a879ee215b3093a7e708bb7d))
+- rundown timing drifting when playing parts with preroll SOFIE-3291 ([#1234](https://github.com/nrkno/sofie-core/issues/1234)) ([beee11a](https://github.com/nrkno/sofie-core/commit/beee11a21a44a3e3e75c8189061b74ae45f9068a))
+- unexpected timeline updates while playing final part in rundown SOFIE-3371 ([#1237](https://github.com/nrkno/sofie-core/issues/1237)) ([0fe74b4](https://github.com/nrkno/sofie-core/commit/0fe74b45d2c09e2e08e942c49dae55ceb1ef698c))
+- use same piece timing as timeline in LSG SOFIE-3305 ([#1219](https://github.com/nrkno/sofie-core/issues/1219)) ([bf48f17](https://github.com/nrkno/sofie-core/commit/bf48f171719452eb6e309964b3779bb8ad2992e9))
 
 ### [1.50.4-LSG-updates](https://github.com/nrkno/sofie-core/compare/v1.50.3-LSG-updates...v1.50.4-LSG-updates) (2024-07-30)
 
-
 ### Features
 
-* create adlib testing rundowns SOFIE-2963 ([#1211](https://github.com/nrkno/sofie-core/issues/1211)) ([a831989](https://github.com/nrkno/sofie-core/commit/a8319898c73d7233a2a665fd0bf5b9d6da83d713))
-* move `contentStatus` to separate property ([02d49bd](https://github.com/nrkno/sofie-core/commit/02d49bd30b7b2ae05ffd143986b119470c75249b))
-* Rundown `source` property SOFIE-2963 ([#1210](https://github.com/nrkno/sofie-core/issues/1210)) ([de6ee9b](https://github.com/nrkno/sofie-core/commit/de6ee9b3590cbdb6270c291cc41ad15c23652726))
-
+- create adlib testing rundowns SOFIE-2963 ([#1211](https://github.com/nrkno/sofie-core/issues/1211)) ([a831989](https://github.com/nrkno/sofie-core/commit/a8319898c73d7233a2a665fd0bf5b9d6da83d713))
+- move `contentStatus` to separate property ([02d49bd](https://github.com/nrkno/sofie-core/commit/02d49bd30b7b2ae05ffd143986b119470c75249b))
+- Rundown `source` property SOFIE-2963 ([#1210](https://github.com/nrkno/sofie-core/issues/1210)) ([de6ee9b](https://github.com/nrkno/sofie-core/commit/de6ee9b3590cbdb6270c291cc41ad15c23652726))
 
 ### Bug Fixes
 
-* `Cannot replace infinite PieceInstance` during normal operation SOFIE-3305 ([13264bb](https://github.com/nrkno/sofie-core/commit/13264bb5a48056d895f9bd206437554b3b2499fd))
-* further improve stringifyError ([0233073](https://github.com/nrkno/sofie-core/commit/02330735fd4f3b03f9bff84e4c41fb9199a4623e))
-* improve error logging: use stringifyError() ([8da63de](https://github.com/nrkno/sofie-core/commit/8da63dec44915439ea436eee9697f3774241537b))
-* **LSG:** fix async-api generation ([faaf202](https://github.com/nrkno/sofie-core/commit/faaf202703fe6c7829cd2216882ed96c6d2a1e26))
-* **LSG:** make AsyncAPI stuff build again ([53bea2a](https://github.com/nrkno/sofie-core/commit/53bea2a75f366f0c2ef487da13195fb6f7f70a36))
-* **LSG:** Token "examples" does not exist when running `yarn gendocs` ([87065d7](https://github.com/nrkno/sofie-core/commit/87065d7af229cd2e3bf1db1f9217d6d8b8945fee))
-* **LSG:** Token "examples" does not exist when running `yarn gendocs` ([a0ea9b4](https://github.com/nrkno/sofie-core/commit/a0ea9b48997fe39e8db5ababef744c103a68509f))
-* make stringifyError handle UserError better ([e2ecc7e](https://github.com/nrkno/sofie-core/commit/e2ecc7eb48b9ad6c0d95b299d954abac577e70a7))
-* move `UIDeviceTriggerPreview` to remove cross-boundary access ([1de77fc](https://github.com/nrkno/sofie-core/commit/1de77fc7544559c8425bc03bca4c98f22eb8b99a))
-* refactor VirtualElement to be a FC ([0dd6a1f](https://github.com/nrkno/sofie-core/commit/0dd6a1f61be57f0177b0b1953c489ee9c28f9215))
-* remove remaining usages of `withMediaObjectStatus` ([598b932](https://github.com/nrkno/sofie-core/commit/598b93201c09ef0a8860ebf2b0886e0f3c0d3519))
+- `Cannot replace infinite PieceInstance` during normal operation SOFIE-3305 ([13264bb](https://github.com/nrkno/sofie-core/commit/13264bb5a48056d895f9bd206437554b3b2499fd))
+- further improve stringifyError ([0233073](https://github.com/nrkno/sofie-core/commit/02330735fd4f3b03f9bff84e4c41fb9199a4623e))
+- improve error logging: use stringifyError() ([8da63de](https://github.com/nrkno/sofie-core/commit/8da63dec44915439ea436eee9697f3774241537b))
+- **LSG:** fix async-api generation ([faaf202](https://github.com/nrkno/sofie-core/commit/faaf202703fe6c7829cd2216882ed96c6d2a1e26))
+- **LSG:** make AsyncAPI stuff build again ([53bea2a](https://github.com/nrkno/sofie-core/commit/53bea2a75f366f0c2ef487da13195fb6f7f70a36))
+- **LSG:** Token "examples" does not exist when running `yarn gendocs` ([87065d7](https://github.com/nrkno/sofie-core/commit/87065d7af229cd2e3bf1db1f9217d6d8b8945fee))
+- **LSG:** Token "examples" does not exist when running `yarn gendocs` ([a0ea9b4](https://github.com/nrkno/sofie-core/commit/a0ea9b48997fe39e8db5ababef744c103a68509f))
+- make stringifyError handle UserError better ([e2ecc7e](https://github.com/nrkno/sofie-core/commit/e2ecc7eb48b9ad6c0d95b299d954abac577e70a7))
+- move `UIDeviceTriggerPreview` to remove cross-boundary access ([1de77fc](https://github.com/nrkno/sofie-core/commit/1de77fc7544559c8425bc03bca4c98f22eb8b99a))
+- refactor VirtualElement to be a FC ([0dd6a1f](https://github.com/nrkno/sofie-core/commit/0dd6a1f61be57f0177b0b1953c489ee9c28f9215))
+- remove remaining usages of `withMediaObjectStatus` ([598b932](https://github.com/nrkno/sofie-core/commit/598b93201c09ef0a8860ebf2b0886e0f3c0d3519))
 
 ### [1.50.3-LSG-updates](https://github.com/nrkno/sofie-core/compare/v1.50.3...v1.50.3-LSG-updates) (2024-06-24)
 
-
 ### ⚠ BREAKING CHANGES
 
-* remove `metaData` from various interfaces
-* Remove unused config manifest types
+- remove `metaData` from various interfaces
+- Remove unused config manifest types
 
 ### Features
 
-* A/B player Ids as strings ([#1054](https://github.com/nrkno/sofie-core/issues/1054)) ([d9dee47](https://github.com/nrkno/sofie-core/commit/d9dee473068c4d96d15a6ef799ace830cf1fe1c0))
-* a11ly WIP ([3df556c](https://github.com/nrkno/sofie-core/commit/3df556c35ece15d1f3b7c192bda5c73422af3952))
-* **a11ly:** add :focus-visible outline ([3adcd49](https://github.com/nrkno/sofie-core/commit/3adcd49cbb3e42c3371e41abb8cdbd59bf43a9fd))
-* **a11ly:** replace systemActionKeys with stopPropagation on action listeners ([0fe2d24](https://github.com/nrkno/sofie-core/commit/0fe2d24152236b79e7b99e8e95502ff4d7a444d8))
-* **a11y:** add role properties to the RundownList components ([91113fc](https://github.com/nrkno/sofie-core/commit/91113fc6ee3706c583efc4b9641485c0fd03f4aa))
-* **a11y:** make buttons into buttons, add keyboard handler for shelf Handle ([44bfca2](https://github.com/nrkno/sofie-core/commit/44bfca293fec139fb0771261283a51db803968ca))
-* action triggers styleClassNames SOFIE-3138 ([#1192](https://github.com/nrkno/sofie-core/issues/1192)) ([fa306dc](https://github.com/nrkno/sofie-core/commit/fa306dc16d5f6ee31418e282180d4c704f5d9feb))
-* action triggers styleClassNames SOFIE-3138 ([#1192](https://github.com/nrkno/sofie-core/issues/1192)) ([49274d6](https://github.com/nrkno/sofie-core/commit/49274d64bdc0532f294be34b0a4413d848321e40))
-* add "processing" warning notification ([d123037](https://github.com/nrkno/sofie-core/commit/d123037ec455743d3e5fbe54a886a5cc7d287dd1))
-* add import/export support to config object tables SOFIE-3138 ([#1194](https://github.com/nrkno/sofie-core/issues/1194)) ([306d31e](https://github.com/nrkno/sofie-core/commit/306d31e03a63539035fce9d8f3f303122c13cbb3))
-* add import/export support to config object tables SOFIE-3138 ([#1194](https://github.com/nrkno/sofie-core/issues/1194)) ([3daaff0](https://github.com/nrkno/sofie-core/commit/3daaff052db261abdccdb30e170dbe2f91ecf2d8))
-* add onTake and onSetAsNext blueprint callbacks SOFIE-2897 SOFIE-2808 ([#1117](https://github.com/nrkno/sofie-core/issues/1117)) ([0bd621c](https://github.com/nrkno/sofie-core/commit/0bd621c13b08cb20c923ea573baca9db003c7df1))
-* add SourceLayer.STUDIO_SCREEN ([158e660](https://github.com/nrkno/sofie-core/commit/158e6603eda370e97e4b2fdaf23b5df229e8ff4a))
-* allow executing bucket adlibs by `externalId` ([af4e5e2](https://github.com/nrkno/sofie-core/commit/af4e5e2fe83d01afb3fb28c5b841e571a345bc0b))
-* backport of release51 live-status-gateway onto release50 ([0a87a95](https://github.com/nrkno/sofie-core/commit/0a87a9519ca1f344429e9b4d47a44c1a9acddff2))
-* base64 image input control SOFIE-3138 ([#1191](https://github.com/nrkno/sofie-core/issues/1191)) ([1a6f2ff](https://github.com/nrkno/sofie-core/commit/1a6f2ff51c98a80a6049959a68a15f5a4bbf7739))
-* base64 image input control SOFIE-3138 ([#1191](https://github.com/nrkno/sofie-core/issues/1191)) ([3a8ef45](https://github.com/nrkno/sofie-core/commit/3a8ef454b3675a56b1f05ce08c19d48eb3eacce1))
-* blueprint config fixup step SOFIE-2258 ([#1050](https://github.com/nrkno/sofie-core/issues/1050)) ([ea6c343](https://github.com/nrkno/sofie-core/commit/ea6c3435079172c682dd1e23d7813ae33fcdee78))
-* break out of maintain focus on wheel event ([bfcf08e](https://github.com/nrkno/sofie-core/commit/bfcf08e2fe2629b9c25a6c8a1fce256858d86e00))
-* Buckets in the HTTP API (SOFIE-2795) ([#1070](https://github.com/nrkno/sofie-core/issues/1070)) ([5d94d8a](https://github.com/nrkno/sofie-core/commit/5d94d8a0f3d0ef09894ccb03e1987638d1ad3573))
-* change sort icons ([6ee9282](https://github.com/nrkno/sofie-core/commit/6ee928230463eedfe496cc5f6c3951e72e1ef744))
-* check if segment should be immediately regenerated during ingest SOFIE-2887 ([64fb1da](https://github.com/nrkno/sofie-core/commit/64fb1da27e041e91a9faf70a30d602f017131764))
-* cleanup deprecations ([#996](https://github.com/nrkno/sofie-core/issues/996)) ([f04f18f](https://github.com/nrkno/sofie-core/commit/f04f18f8e94b706dd1a3da1525feb9787f6eb85f))
-* **Device Triggers:** add support for setting shift register operations ([aa19fcc](https://github.com/nrkno/sofie-core/commit/aa19fcc3b5bfad05158677701b838673578a4dcb))
-* **Device Triggers:** add support for setting shift register operations SOFIE-3136 ([c5a6292](https://github.com/nrkno/sofie-core/commit/c5a6292a85821d67653eebef75bbd929ff0cd44d))
-* document publications and remove mongo queries from parameters SOFIE-1183 ([#1062](https://github.com/nrkno/sofie-core/issues/1062)) ([17bb2e3](https://github.com/nrkno/sofie-core/commit/17bb2e3225db22505244b98a0c9c95fe54bef083))
-* Dynamic message in Evaluation form SOFIE-2766 ([#1101](https://github.com/nrkno/sofie-core/issues/1101)) ([2dc6b42](https://github.com/nrkno/sofie-core/commit/2dc6b4245fc416d87147b7b49d7dd5e52908af6c))
-* **EAV-31:** add blueprintsData on adlib actions ([114c064](https://github.com/nrkno/sofie-core/commit/114c06466ff1f35660454b66d1e35b3d339b9a80))
-* Editable fields as JSON ([ddfb66a](https://github.com/nrkno/sofie-core/commit/ddfb66a1ef8afbd507535037d12752742c7dfeda))
-* have both part and partInstance timings in rundownTiming context ([91c07c8](https://github.com/nrkno/sofie-core/commit/91c07c8410039c0527f3b09f11a5b9e64cc7737f))
-* have withResolvedSegment return Parts in correct order ([7362b52](https://github.com/nrkno/sofie-core/commit/7362b5216d89b8ed6061448ac73b30393c8caa57))
-* implement `loop` content property for Graphics ([2cf38ba](https://github.com/nrkno/sofie-core/commit/2cf38baadd5e7ba16d624b9ad75cfff9d48297a6))
-* implement partInstance-based timing calculator input ([6d77853](https://github.com/nrkno/sofie-core/commit/6d77853170b9da0db69c54ce0d63f4a6a874df95))
-* introduce `privateData` and `publicData` ([d94f1aa](https://github.com/nrkno/sofie-core/commit/d94f1aa82cec779c7eebddae42e1c4fab91ac494))
-* **live-status-gateway:** add partId and segmentId to adLibs ([a51e9f7](https://github.com/nrkno/sofie-core/commit/a51e9f7e6d0a3eb9b12b7d0c2073fba2892fd90e))
-* **live-status-gw:** expose publicData ([a7ab6e4](https://github.com/nrkno/sofie-core/commit/a7ab6e428b05e678d3def3df124b76d35040942b))
-* **LSG:** sort adlibs to match GUI ([167a625](https://github.com/nrkno/sofie-core/commit/167a6252fa7036ae5c1239f8af35292c8147e7de))
-* Media Status WIP ([fa3747e](https://github.com/nrkno/sofie-core/commit/fa3747ec1cc7965ecc12670022844513fea212e2))
-* Media Status WIP ([65f543a](https://github.com/nrkno/sofie-core/commit/65f543ad59d218dd5336bb293fa6621c3703f8a4))
-* MediaStatus WIP ([4468458](https://github.com/nrkno/sofie-core/commit/4468458be41fe975c687ef44cad1a6e12f562b6b))
-* **MediaStatus:** filter on part and segment identifiers, but require to start from filter string ([d407a9c](https://github.com/nrkno/sofie-core/commit/d407a9c0c64effbb45ae19503666bf911a11db50))
-* **MediaStatusList:** finish CSS ([4d081ab](https://github.com/nrkno/sofie-core/commit/4d081ab8c3252067d87a6e5f40b4309076edd99a))
-* **MediaStatusList:** search box clear button ([7e4edfd](https://github.com/nrkno/sofie-core/commit/7e4edfd6963f63916d2c4fe0d766896919c9a654))
-* **MediaStatusPopUp/MediaStatus:** add filter debounce for a better typing experience ([c312b43](https://github.com/nrkno/sofie-core/commit/c312b43a88b9b451402919fef0ff0d488f9d252b))
-* **MediaStatusPopUp:** finish styling, icons, etc. ([5b5c1c2](https://github.com/nrkno/sofie-core/commit/5b5c1c22f2998b05ec0aa9ff9ea171ae253145fa))
-* **MediaStatusPopUp:** WIP ([fbb0bc7](https://github.com/nrkno/sofie-core/commit/fbb0bc7e622afd6309b020fcc48c9f4469f37da9))
-* **MediaStatusPopUp:** WIP ([8e2ce74](https://github.com/nrkno/sofie-core/commit/8e2ce7430f060fefb0937ee11e67658765bef918))
-* **MediaStatus:** Rundown panel WIP ([e574bbb](https://github.com/nrkno/sofie-core/commit/e574bbb09e62e34ddacea80d326e3087e539edec))
-* **MediaStatus:** WIP ([e8acba2](https://github.com/nrkno/sofie-core/commit/e8acba2d43f7da396fb2d15fdb90e19fe9872fb6))
-* new style for step GFX pill ([869d301](https://github.com/nrkno/sofie-core/commit/869d3012bd3bbf891e9c701f23f42e31cb3e7ff0))
-* publication for blueprint upgrade status SOFIE-2258 ([#1049](https://github.com/nrkno/sofie-core/issues/1049)) ([48dbda2](https://github.com/nrkno/sofie-core/commit/48dbda2573bc9b48f252d3220c8d154c352cc255))
-* refactor server-core-integration subscription handling to reduce duplication ([8eaedd2](https://github.com/nrkno/sofie-core/commit/8eaedd22e8efb9750f00ff472301c6b3f2d0f0af))
-* remove some usages of `DbCacheWriteCollection` SOFIE-2672 ([#1106](https://github.com/nrkno/sofie-core/issues/1106)) ([ff1f730](https://github.com/nrkno/sofie-core/commit/ff1f730dacf82154e809e01766974e6955c29cf7))
-* remove supertimeline from Parts and Pieces resolving SOFIE-2373 ([#983](https://github.com/nrkno/sofie-core/issues/983)) ([55e02cb](https://github.com/nrkno/sofie-core/commit/55e02cb1a0b6d237ae9bcd02ebf54e06cf08fb26))
-* rename internal 'scratchpad' naming to 'adlib testing' SOFIE-3015 ([afb2f43](https://github.com/nrkno/sofie-core/commit/afb2f43c8f199ff5da4ea6c3ccc3bd1e97a80f4f))
-* reorder elements in Media Status lists ([4e77241](https://github.com/nrkno/sofie-core/commit/4e77241080b7e20320607ea74e4566ca4a76970b))
-* replace user facing 'scratchpad' references to 'rehearsal mode' and 'adlib testing' SOFIE-3015 ([251b1cc](https://github.com/nrkno/sofie-core/commit/251b1ccd83c0f3686fa3dc698002e758c00488bd))
-* Rework `CacheForIngest` to `IngestModel` SOFIE-2672 ([#1108](https://github.com/nrkno/sofie-core/issues/1108)) ([825b523](https://github.com/nrkno/sofie-core/commit/825b5231d7afe6fd13393b44e4f39a41e6093adb))
-* rework CacheForPlayout as structured objects SOFIE-2513 ([d28511a](https://github.com/nrkno/sofie-core/commit/d28511a0501254d9c432cf0a751b8b43e86f3661))
-* rework CacheForPlayout as structured objects SOFIE-2513 ([2b032f3](https://github.com/nrkno/sofie-core/commit/2b032f3cb695fb5fb361a016cdb542a309097c1f))
-* rework CacheForPlayout as structured objects SOFIE-2513 ([f2281bd](https://github.com/nrkno/sofie-core/commit/f2281bda6e61808e4417edeb1a7cba834e752cbd))
-* rework CacheForPlayout merge conflicts SOFIE-2513 ([dff6d2c](https://github.com/nrkno/sofie-core/commit/dff6d2ce87da66adf43662aabdd5a0f007058181))
-* rundown scratchpad SOFIE-2432 ([5e16632](https://github.com/nrkno/sofie-core/commit/5e16632908b8dd62e4470a9ba6089a56aa571b9f))
-* **RundownView:** add an h1 element for the playlist name ([b9292e6](https://github.com/nrkno/sofie-core/commit/b9292e6fbb09fe54b52a151549fb25fb29e658a6))
-* support packageinfo update flow for buckets and studio baseline SOFIE-2655 ([#1051](https://github.com/nrkno/sofie-core/issues/1051)) ([df7ed0c](https://github.com/nrkno/sofie-core/commit/df7ed0c653b897774f01a33c9e60a5e22fac99e4))
-* typed publications in gateways/peripheraldevices SOFIE-1183 ([#1056](https://github.com/nrkno/sofie-core/issues/1056)) ([0c3c1bf](https://github.com/nrkno/sofie-core/commit/0c3c1bfd2bb779034976dc34e49aa6e664ea874b))
-* update meteor to 2.12 SOFIE-2368 ([#931](https://github.com/nrkno/sofie-core/issues/931)) ([d7dfb71](https://github.com/nrkno/sofie-core/commit/d7dfb71d19405267cab5e2abc39794a80acb30b1))
-* upgrades docusaurus to 3.2.1 ([b025be4](https://github.com/nrkno/sofie-core/commit/b025be4c43a7742745427d6da4306086e053f657))
-
+- A/B player Ids as strings ([#1054](https://github.com/nrkno/sofie-core/issues/1054)) ([d9dee47](https://github.com/nrkno/sofie-core/commit/d9dee473068c4d96d15a6ef799ace830cf1fe1c0))
+- a11ly WIP ([3df556c](https://github.com/nrkno/sofie-core/commit/3df556c35ece15d1f3b7c192bda5c73422af3952))
+- **a11ly:** add :focus-visible outline ([3adcd49](https://github.com/nrkno/sofie-core/commit/3adcd49cbb3e42c3371e41abb8cdbd59bf43a9fd))
+- **a11ly:** replace systemActionKeys with stopPropagation on action listeners ([0fe2d24](https://github.com/nrkno/sofie-core/commit/0fe2d24152236b79e7b99e8e95502ff4d7a444d8))
+- **a11y:** add role properties to the RundownList components ([91113fc](https://github.com/nrkno/sofie-core/commit/91113fc6ee3706c583efc4b9641485c0fd03f4aa))
+- **a11y:** make buttons into buttons, add keyboard handler for shelf Handle ([44bfca2](https://github.com/nrkno/sofie-core/commit/44bfca293fec139fb0771261283a51db803968ca))
+- action triggers styleClassNames SOFIE-3138 ([#1192](https://github.com/nrkno/sofie-core/issues/1192)) ([fa306dc](https://github.com/nrkno/sofie-core/commit/fa306dc16d5f6ee31418e282180d4c704f5d9feb))
+- action triggers styleClassNames SOFIE-3138 ([#1192](https://github.com/nrkno/sofie-core/issues/1192)) ([49274d6](https://github.com/nrkno/sofie-core/commit/49274d64bdc0532f294be34b0a4413d848321e40))
+- add "processing" warning notification ([d123037](https://github.com/nrkno/sofie-core/commit/d123037ec455743d3e5fbe54a886a5cc7d287dd1))
+- add import/export support to config object tables SOFIE-3138 ([#1194](https://github.com/nrkno/sofie-core/issues/1194)) ([306d31e](https://github.com/nrkno/sofie-core/commit/306d31e03a63539035fce9d8f3f303122c13cbb3))
+- add import/export support to config object tables SOFIE-3138 ([#1194](https://github.com/nrkno/sofie-core/issues/1194)) ([3daaff0](https://github.com/nrkno/sofie-core/commit/3daaff052db261abdccdb30e170dbe2f91ecf2d8))
+- add onTake and onSetAsNext blueprint callbacks SOFIE-2897 SOFIE-2808 ([#1117](https://github.com/nrkno/sofie-core/issues/1117)) ([0bd621c](https://github.com/nrkno/sofie-core/commit/0bd621c13b08cb20c923ea573baca9db003c7df1))
+- add SourceLayer.STUDIO_SCREEN ([158e660](https://github.com/nrkno/sofie-core/commit/158e6603eda370e97e4b2fdaf23b5df229e8ff4a))
+- allow executing bucket adlibs by `externalId` ([af4e5e2](https://github.com/nrkno/sofie-core/commit/af4e5e2fe83d01afb3fb28c5b841e571a345bc0b))
+- backport of release51 live-status-gateway onto release50 ([0a87a95](https://github.com/nrkno/sofie-core/commit/0a87a9519ca1f344429e9b4d47a44c1a9acddff2))
+- base64 image input control SOFIE-3138 ([#1191](https://github.com/nrkno/sofie-core/issues/1191)) ([1a6f2ff](https://github.com/nrkno/sofie-core/commit/1a6f2ff51c98a80a6049959a68a15f5a4bbf7739))
+- base64 image input control SOFIE-3138 ([#1191](https://github.com/nrkno/sofie-core/issues/1191)) ([3a8ef45](https://github.com/nrkno/sofie-core/commit/3a8ef454b3675a56b1f05ce08c19d48eb3eacce1))
+- blueprint config fixup step SOFIE-2258 ([#1050](https://github.com/nrkno/sofie-core/issues/1050)) ([ea6c343](https://github.com/nrkno/sofie-core/commit/ea6c3435079172c682dd1e23d7813ae33fcdee78))
+- break out of maintain focus on wheel event ([bfcf08e](https://github.com/nrkno/sofie-core/commit/bfcf08e2fe2629b9c25a6c8a1fce256858d86e00))
+- Buckets in the HTTP API (SOFIE-2795) ([#1070](https://github.com/nrkno/sofie-core/issues/1070)) ([5d94d8a](https://github.com/nrkno/sofie-core/commit/5d94d8a0f3d0ef09894ccb03e1987638d1ad3573))
+- change sort icons ([6ee9282](https://github.com/nrkno/sofie-core/commit/6ee928230463eedfe496cc5f6c3951e72e1ef744))
+- check if segment should be immediately regenerated during ingest SOFIE-2887 ([64fb1da](https://github.com/nrkno/sofie-core/commit/64fb1da27e041e91a9faf70a30d602f017131764))
+- cleanup deprecations ([#996](https://github.com/nrkno/sofie-core/issues/996)) ([f04f18f](https://github.com/nrkno/sofie-core/commit/f04f18f8e94b706dd1a3da1525feb9787f6eb85f))
+- **Device Triggers:** add support for setting shift register operations ([aa19fcc](https://github.com/nrkno/sofie-core/commit/aa19fcc3b5bfad05158677701b838673578a4dcb))
+- **Device Triggers:** add support for setting shift register operations SOFIE-3136 ([c5a6292](https://github.com/nrkno/sofie-core/commit/c5a6292a85821d67653eebef75bbd929ff0cd44d))
+- document publications and remove mongo queries from parameters SOFIE-1183 ([#1062](https://github.com/nrkno/sofie-core/issues/1062)) ([17bb2e3](https://github.com/nrkno/sofie-core/commit/17bb2e3225db22505244b98a0c9c95fe54bef083))
+- Dynamic message in Evaluation form SOFIE-2766 ([#1101](https://github.com/nrkno/sofie-core/issues/1101)) ([2dc6b42](https://github.com/nrkno/sofie-core/commit/2dc6b4245fc416d87147b7b49d7dd5e52908af6c))
+- **EAV-31:** add blueprintsData on adlib actions ([114c064](https://github.com/nrkno/sofie-core/commit/114c06466ff1f35660454b66d1e35b3d339b9a80))
+- Editable fields as JSON ([ddfb66a](https://github.com/nrkno/sofie-core/commit/ddfb66a1ef8afbd507535037d12752742c7dfeda))
+- have both part and partInstance timings in rundownTiming context ([91c07c8](https://github.com/nrkno/sofie-core/commit/91c07c8410039c0527f3b09f11a5b9e64cc7737f))
+- have withResolvedSegment return Parts in correct order ([7362b52](https://github.com/nrkno/sofie-core/commit/7362b5216d89b8ed6061448ac73b30393c8caa57))
+- implement `loop` content property for Graphics ([2cf38ba](https://github.com/nrkno/sofie-core/commit/2cf38baadd5e7ba16d624b9ad75cfff9d48297a6))
+- implement partInstance-based timing calculator input ([6d77853](https://github.com/nrkno/sofie-core/commit/6d77853170b9da0db69c54ce0d63f4a6a874df95))
+- introduce `privateData` and `publicData` ([d94f1aa](https://github.com/nrkno/sofie-core/commit/d94f1aa82cec779c7eebddae42e1c4fab91ac494))
+- **live-status-gateway:** add partId and segmentId to adLibs ([a51e9f7](https://github.com/nrkno/sofie-core/commit/a51e9f7e6d0a3eb9b12b7d0c2073fba2892fd90e))
+- **live-status-gw:** expose publicData ([a7ab6e4](https://github.com/nrkno/sofie-core/commit/a7ab6e428b05e678d3def3df124b76d35040942b))
+- **LSG:** sort adlibs to match GUI ([167a625](https://github.com/nrkno/sofie-core/commit/167a6252fa7036ae5c1239f8af35292c8147e7de))
+- Media Status WIP ([fa3747e](https://github.com/nrkno/sofie-core/commit/fa3747ec1cc7965ecc12670022844513fea212e2))
+- Media Status WIP ([65f543a](https://github.com/nrkno/sofie-core/commit/65f543ad59d218dd5336bb293fa6621c3703f8a4))
+- MediaStatus WIP ([4468458](https://github.com/nrkno/sofie-core/commit/4468458be41fe975c687ef44cad1a6e12f562b6b))
+- **MediaStatus:** filter on part and segment identifiers, but require to start from filter string ([d407a9c](https://github.com/nrkno/sofie-core/commit/d407a9c0c64effbb45ae19503666bf911a11db50))
+- **MediaStatusList:** finish CSS ([4d081ab](https://github.com/nrkno/sofie-core/commit/4d081ab8c3252067d87a6e5f40b4309076edd99a))
+- **MediaStatusList:** search box clear button ([7e4edfd](https://github.com/nrkno/sofie-core/commit/7e4edfd6963f63916d2c4fe0d766896919c9a654))
+- **MediaStatusPopUp/MediaStatus:** add filter debounce for a better typing experience ([c312b43](https://github.com/nrkno/sofie-core/commit/c312b43a88b9b451402919fef0ff0d488f9d252b))
+- **MediaStatusPopUp:** finish styling, icons, etc. ([5b5c1c2](https://github.com/nrkno/sofie-core/commit/5b5c1c22f2998b05ec0aa9ff9ea171ae253145fa))
+- **MediaStatusPopUp:** WIP ([fbb0bc7](https://github.com/nrkno/sofie-core/commit/fbb0bc7e622afd6309b020fcc48c9f4469f37da9))
+- **MediaStatusPopUp:** WIP ([8e2ce74](https://github.com/nrkno/sofie-core/commit/8e2ce7430f060fefb0937ee11e67658765bef918))
+- **MediaStatus:** Rundown panel WIP ([e574bbb](https://github.com/nrkno/sofie-core/commit/e574bbb09e62e34ddacea80d326e3087e539edec))
+- **MediaStatus:** WIP ([e8acba2](https://github.com/nrkno/sofie-core/commit/e8acba2d43f7da396fb2d15fdb90e19fe9872fb6))
+- new style for step GFX pill ([869d301](https://github.com/nrkno/sofie-core/commit/869d3012bd3bbf891e9c701f23f42e31cb3e7ff0))
+- publication for blueprint upgrade status SOFIE-2258 ([#1049](https://github.com/nrkno/sofie-core/issues/1049)) ([48dbda2](https://github.com/nrkno/sofie-core/commit/48dbda2573bc9b48f252d3220c8d154c352cc255))
+- refactor server-core-integration subscription handling to reduce duplication ([8eaedd2](https://github.com/nrkno/sofie-core/commit/8eaedd22e8efb9750f00ff472301c6b3f2d0f0af))
+- remove some usages of `DbCacheWriteCollection` SOFIE-2672 ([#1106](https://github.com/nrkno/sofie-core/issues/1106)) ([ff1f730](https://github.com/nrkno/sofie-core/commit/ff1f730dacf82154e809e01766974e6955c29cf7))
+- remove supertimeline from Parts and Pieces resolving SOFIE-2373 ([#983](https://github.com/nrkno/sofie-core/issues/983)) ([55e02cb](https://github.com/nrkno/sofie-core/commit/55e02cb1a0b6d237ae9bcd02ebf54e06cf08fb26))
+- rename internal 'scratchpad' naming to 'adlib testing' SOFIE-3015 ([afb2f43](https://github.com/nrkno/sofie-core/commit/afb2f43c8f199ff5da4ea6c3ccc3bd1e97a80f4f))
+- reorder elements in Media Status lists ([4e77241](https://github.com/nrkno/sofie-core/commit/4e77241080b7e20320607ea74e4566ca4a76970b))
+- replace user facing 'scratchpad' references to 'rehearsal mode' and 'adlib testing' SOFIE-3015 ([251b1cc](https://github.com/nrkno/sofie-core/commit/251b1ccd83c0f3686fa3dc698002e758c00488bd))
+- Rework `CacheForIngest` to `IngestModel` SOFIE-2672 ([#1108](https://github.com/nrkno/sofie-core/issues/1108)) ([825b523](https://github.com/nrkno/sofie-core/commit/825b5231d7afe6fd13393b44e4f39a41e6093adb))
+- rework CacheForPlayout as structured objects SOFIE-2513 ([d28511a](https://github.com/nrkno/sofie-core/commit/d28511a0501254d9c432cf0a751b8b43e86f3661))
+- rework CacheForPlayout as structured objects SOFIE-2513 ([2b032f3](https://github.com/nrkno/sofie-core/commit/2b032f3cb695fb5fb361a016cdb542a309097c1f))
+- rework CacheForPlayout as structured objects SOFIE-2513 ([f2281bd](https://github.com/nrkno/sofie-core/commit/f2281bda6e61808e4417edeb1a7cba834e752cbd))
+- rework CacheForPlayout merge conflicts SOFIE-2513 ([dff6d2c](https://github.com/nrkno/sofie-core/commit/dff6d2ce87da66adf43662aabdd5a0f007058181))
+- rundown scratchpad SOFIE-2432 ([5e16632](https://github.com/nrkno/sofie-core/commit/5e16632908b8dd62e4470a9ba6089a56aa571b9f))
+- **RundownView:** add an h1 element for the playlist name ([b9292e6](https://github.com/nrkno/sofie-core/commit/b9292e6fbb09fe54b52a151549fb25fb29e658a6))
+- support packageinfo update flow for buckets and studio baseline SOFIE-2655 ([#1051](https://github.com/nrkno/sofie-core/issues/1051)) ([df7ed0c](https://github.com/nrkno/sofie-core/commit/df7ed0c653b897774f01a33c9e60a5e22fac99e4))
+- typed publications in gateways/peripheraldevices SOFIE-1183 ([#1056](https://github.com/nrkno/sofie-core/issues/1056)) ([0c3c1bf](https://github.com/nrkno/sofie-core/commit/0c3c1bfd2bb779034976dc34e49aa6e664ea874b))
+- update meteor to 2.12 SOFIE-2368 ([#931](https://github.com/nrkno/sofie-core/issues/931)) ([d7dfb71](https://github.com/nrkno/sofie-core/commit/d7dfb71d19405267cab5e2abc39794a80acb30b1))
+- upgrades docusaurus to 3.2.1 ([b025be4](https://github.com/nrkno/sofie-core/commit/b025be4c43a7742745427d6da4306086e053f657))
 
 ### Bug Fixes
 
-* `DataCloneError: [object Object] could not be cloned` when propogating some errors from job-worker SOFIE-2903 ([7f618c7](https://github.com/nrkno/sofie-core/commit/7f618c75bb6a94e28e4a9c00db4688a77a1bc184))
-* `DataCloneError: [object Object] could not be cloned` when propogating some errors from job-worker SOFIE-2903 ([c1bb47f](https://github.com/nrkno/sofie-core/commit/c1bb47fe3958c245b708f9698c458b3d94055a3b))
-* `UIBlueprintUpgradeStatuses` crashing if no playlists in the system ([3491ec5](https://github.com/nrkno/sofie-core/commit/3491ec5c509adf6b83362973821d93a66595e828))
-* **a11y/ModalDialog:** reduce behavioral changes after refactoring ([02ecaad](https://github.com/nrkno/sofie-core/commit/02ecaad0a210e1f7f8b7c932d38cbe7ba097f7b1))
-* **a11y:** some button layout/tabbing order ([3bd2085](https://github.com/nrkno/sofie-core/commit/3bd2085417b9a32bf148cb30640a8eb9d965ebea))
-* **a11y:** trap focus within ModalDialog ([9edd110](https://github.com/nrkno/sofie-core/commit/9edd11075111471b5a72b64dc6b3210183ef6911))
-* action triggers disappearing when adlibbing and immediately taking a part [#1197](https://github.com/nrkno/sofie-core/issues/1197) SOFIE-3182 ([d01cd99](https://github.com/nrkno/sofie-core/commit/d01cd991865485d97435ffb1065c574653bf508f))
-* action triggers disappearing when adlibbing and immediately taking a part [#1197](https://github.com/nrkno/sofie-core/issues/1197) SOFIE-3182 ([1a44ff8](https://github.com/nrkno/sofie-core/commit/1a44ff8bea971922fc55fbb03686467e9bd3b0c9))
-* activate scratchpad segment failing ([3cd426f](https://github.com/nrkno/sofie-core/commit/3cd426ff7e6d7b28aef65bfb31f4874c34bae509))
-* add `count` method to job-worker `ICollection` ([9f6be1d](https://github.com/nrkno/sofie-core/commit/9f6be1d51fa46d7853f2c95c48fcb8298306db98))
-* add `RundownOrphanedReason` enum ([b4648d2](https://github.com/nrkno/sofie-core/commit/b4648d2e03cce09eb1fff8e3b9292dc1c8739801))
-* add a way to take a heap snapshot. ([ef918c2](https://github.com/nrkno/sofie-core/commit/ef918c2390c8af46caa1cd0ff08bab45af2f8380))
-* Add missing metadata types ([71eb739](https://github.com/nrkno/sofie-core/commit/71eb739bc87f64db50f06ab4647cb6972e58c7fa))
-* Add missing piece metadata types ([#1133](https://github.com/nrkno/sofie-core/issues/1133)) ([70c5739](https://github.com/nrkno/sofie-core/commit/70c5739c5e9848e57c21bde78ee16d4c78da8e1a))
-* add missing SourceLayerType cases ([45eefce](https://github.com/nrkno/sofie-core/commit/45eefcef737e8e8a5a7e425f9fdd713487ab4a59))
-* add missing SourceLayerType cases ([1c4bd0a](https://github.com/nrkno/sofie-core/commit/1c4bd0a36885cb582af88c2750b155de9b23fa2a))
-* add PromiseButton component ([4fa9f72](https://github.com/nrkno/sofie-core/commit/4fa9f72fe277c55449b28384abd77de538a99ea2))
-* **AfterBroadcastForm:** refactor the form to have a semantically-correct layout ([9e4f2b6](https://github.com/nrkno/sofie-core/commit/9e4f2b65fd2e30d04bae1cd37304a33ab744fc11))
-* allow blueprint assets to be gif SOFIE-3183 ([1d8bed7](https://github.com/nrkno/sofie-core/commit/1d8bed77e4262a12bba46eecf0631cbcae96fb34))
-* allow blueprint assets to be gif SOFIE-3183 ([afc20d8](https://github.com/nrkno/sofie-core/commit/afc20d87f62cf0098510f6ca0ce2c663d8154778))
-* allways show trigger popups ([68172c5](https://github.com/nrkno/sofie-core/commit/68172c565af3aaea7a2517abc9623b2eefd77fba))
-* also sort on "own" rank ([4224b02](https://github.com/nrkno/sofie-core/commit/4224b02be70851ca2058d85c73571d9085cbf97f))
-* AMQP connection issues logging SOFIE-2597 ([#1066](https://github.com/nrkno/sofie-core/issues/1066)) ([de04512](https://github.com/nrkno/sofie-core/commit/de045127a0b64e67d31bba7dbe42f4e0f5caadaf))
-* asyncapi generation ([e4d45b6](https://github.com/nrkno/sofie-core/commit/e4d45b6e5142e8ae71a75edf0fd5dcbeeec86f45))
-* avoid adding `originalId` to timeline-objects during lookahead ([282cbec](https://github.com/nrkno/sofie-core/commit/282cbec6e9de1948bbb6d82ccd3f0f56efa7fc64))
-* blueprint-integration missed typing in [#1077](https://github.com/nrkno/sofie-core/issues/1077) ([bd5e36f](https://github.com/nrkno/sofie-core/commit/bd5e36f9c0b390999ef465a5e1554b8faa2c456f))
-* broken link ([08e5130](https://github.com/nrkno/sofie-core/commit/08e513048d9b4660dd89ae37c1ae29a20ab48880))
-* bucket selectors and unhandled promises ([26ae99e](https://github.com/nrkno/sofie-core/commit/26ae99ed00b5f2310439697a1a3b59d44be42f46))
-* build errors ([020d3cf](https://github.com/nrkno/sofie-core/commit/020d3cfd2c112b57667d6612d19472570f8455b9))
-* build server-core image on alpine 3.19 ([#1160](https://github.com/nrkno/sofie-core/issues/1160)) ([0f73bed](https://github.com/nrkno/sofie-core/commit/0f73bedbeb0490417c0643e521465a8112c2e444))
-* **CameraView:** broken countdowns after RundownTimingCalculator modifications ([d5ed171](https://github.com/nrkno/sofie-core/commit/d5ed171f8ab99ddea16707c7a34e51dae0f71ea8))
-* clear Scratchpad when activating Rundown ([b629fe9](https://github.com/nrkno/sofie-core/commit/b629fe95ccac283c0229d7e0753d330455e795d7))
-* **Core System Settings:** Cron Job Settings are duplicated ([1b52f5e](https://github.com/nrkno/sofie-core/commit/1b52f5ecf1a7397182b476c6b76a1991697e1185))
-* core-integration: handle error when subscribing ([3ad0c73](https://github.com/nrkno/sofie-core/commit/3ad0c73dd7fa4d9572cc00a7ffa9987fed0df4e3))
-* create new mosTimes correctly ([e8cec88](https://github.com/nrkno/sofie-core/commit/e8cec88f8b9d8c298f1b2ddec8d45f6f80fea9bf))
-* **DashboardPieceButton:** hover previews are not positioned correctly ([e5a022a](https://github.com/nrkno/sofie-core/commit/e5a022a7f2b8b0e9abeb792d48bab741beeac567))
-* **DashboardPieceButton:** hover previews are not positioned correctly ([8f8d147](https://github.com/nrkno/sofie-core/commit/8f8d147a42b3e80f87f9d9f575f81a048521d989))
-* **DeviceTriggers:** improve code clarity ([a1dddb9](https://github.com/nrkno/sofie-core/commit/a1dddb9d817b644ff66f2d1ef0061daf769b4f13))
-* display adjustments ([bcfeb99](https://github.com/nrkno/sofie-core/commit/bcfeb99bc82c5dd9d849efdb1ea85d3a9ce20501))
-* displayDurationGroup calculations ([0c07924](https://github.com/nrkno/sofie-core/commit/0c0792460ed1a73beaf4bd754e1ea1adf46167b6))
-* don't log UserError messages at error level from the job-worker SOFIE-2592 ([#1026](https://github.com/nrkno/sofie-core/issues/1026)) ([a146d65](https://github.com/nrkno/sofie-core/commit/a146d65ea9adf14dea92c62923fdadce85306fc5))
-* **EAV-95:** interface inconsistencies ([cc3044b](https://github.com/nrkno/sofie-core/commit/cc3044b15733df599f6e3cc80133c73f8c0b3133))
-* emit ddp publciation remove messages before add SOFIE-3172 ([1b17a1d](https://github.com/nrkno/sofie-core/commit/1b17a1d946fb0b23b720b110e1f714324901dde5))
-* emit ddp publciation remove messages before add SOFIE-3172 ([348a6e6](https://github.com/nrkno/sofie-core/commit/348a6e60b23e7ef6ed8117740915f32654ce8c1e))
-* ensure that Shift register Ids are only positive integers ([16895bc](https://github.com/nrkno/sofie-core/commit/16895bc41e8b8571109a915f48846f6bd52d522e))
-* expose metaData as publicData as a temporary solution for R50 ([aa79096](https://github.com/nrkno/sofie-core/commit/aa790960e86f850baec1842c80e136fad2ed9e67))
-* expose metaData propery to liveStatusGateway ([596ab8d](https://github.com/nrkno/sofie-core/commit/596ab8ddbde3d590b62558c80ef675f24d1ad28c))
-* extract `PlayoutPieceInstanceModel` from `PlayoutPartInstanceModel` ([9e07ed9](https://github.com/nrkno/sofie-core/commit/9e07ed9bb8851f84364753173a7053102cc0dac5))
-* filter out virtual pieces in isPieceInstanceActive ([188c985](https://github.com/nrkno/sofie-core/commit/188c9855ce4398076960daa8a14f0f4009b145eb))
-* group sends together, for increased performance ([fb0d2c8](https://github.com/nrkno/sofie-core/commit/fb0d2c8ef2e316bfe53cfa7160711101ede29ac4))
-* **HelpPanel:** invalid child React error ([5682379](https://github.com/nrkno/sofie-core/commit/5682379d85df92b1b1a6d2f08e1a485f701387e1))
-* hide create playlist drop box when dragging a rundown not in a multi-rundown playlist SOFIE-2462 ([#1181](https://github.com/nrkno/sofie-core/issues/1181)) ([79ae7f4](https://github.com/nrkno/sofie-core/commit/79ae7f4207459310a84778b8fe1474c05c12ce89))
-* improve UX of object table, to indicate which rows have overrides and are custom ([68b1374](https://github.com/nrkno/sofie-core/commit/68b137489b1f3cfb6af290fe7ae542ac8448f50c))
-* improve UX of object table, to indicate which rows have overrides and are custom ([c39311d](https://github.com/nrkno/sofie-core/commit/c39311d4a8b194cde683a112b55ff10a76b1b8a3))
-* include timestamp when logging to file ([#1207](https://github.com/nrkno/sofie-core/issues/1207)) ([2dcca21](https://github.com/nrkno/sofie-core/commit/2dcca215403cc0256c78f5f8f5f6befa2a1ca683))
-* IngestDataCache not being populated correctly SOFIE-2672 [#1106](https://github.com/nrkno/sofie-core/issues/1106) ([33394a7](https://github.com/nrkno/sofie-core/commit/33394a7e494e1e2a32d8f8cc55b34df6e52747fb))
-* introduce MeteorApply as alternative to Meteor.apply, to log when a method is sent late, due to other blocking methods on the client. ([0425d8f](https://github.com/nrkno/sofie-core/commit/0425d8f5a8b289922d146d0fe5241e08ade06935))
-* invalidate deviceTriggerPreviews when the filterChain changes SOFIE-3172 ([c4e2ad0](https://github.com/nrkno/sofie-core/commit/c4e2ad0282a7b683f3d19b8b9b5b541bf6518cbe))
-* invalidate deviceTriggerPreviews when the filterChain changes SOFIE-3172 ([082f334](https://github.com/nrkno/sofie-core/commit/082f3344fe19f080489dbde8ff155513a1c203b8))
-* invalidate deviceTriggers when changing triggermode SOFIE-3253 ([50e8cd2](https://github.com/nrkno/sofie-core/commit/50e8cd26b8da3394eaa9f5fd9909d3f5d8dfe73c))
-* live status gateway including pieces which have been pruned and will never be played SOFIE-3301 ([#1206](https://github.com/nrkno/sofie-core/issues/1206)) ([65d0d35](https://github.com/nrkno/sofie-core/commit/65d0d35c586e080a08f5837e18e4583ef940770c))
-* live status gateway including pieces which have been pruned and will never be played SOFIE-3301 ([#1206](https://github.com/nrkno/sofie-core/issues/1206)) ([8682eca](https://github.com/nrkno/sofie-core/commit/8682eca8004aedb092a1dca7f7c856c0814eaf66))
-* live-status-gateway ignored settings from Core, so logLevel ended up always being the default ([58261e5](https://github.com/nrkno/sofie-core/commit/58261e54ffe87e448b0de80b007ddf7a06dd924b))
-* **live-status-gw:** active piece conditions ([89f155c](https://github.com/nrkno/sofie-core/commit/89f155c4ae903920af91cbc586c34eb222946623))
-* **live-status-gw:** adLibs having invalid layers before the first take ([4dd5231](https://github.com/nrkno/sofie-core/commit/4dd5231055cc907cee37453ef723906258d54044))
-* **live-status-gw:** adLibs having invalid layers before the first take ([566e0b8](https://github.com/nrkno/sofie-core/commit/566e0b89952afbd8a2c95703cea4e53b270810e4))
-* **live-status-gw:** missing handlers ([0eb19ac](https://github.com/nrkno/sofie-core/commit/0eb19ac3d8c05e791e7ef910db717731e3af8bde))
-* **live-status-gw:** not sending updates when relevant data has actually changed ([748b7a0](https://github.com/nrkno/sofie-core/commit/748b7a0aca8ef290d58ebb6f56bc5a323b9566a4))
-* **live-status-gw:** prevent incomplete data to arriving at topics ([a90688c](https://github.com/nrkno/sofie-core/commit/a90688ca24175dbeadc0ccd1b0c5a918c97fee6e))
-* **live-status-gw:** wrong pieces in nextPart ([56059f4](https://github.com/nrkno/sofie-core/commit/56059f401a2f3cdfaf62901cae8bd5734e408fb1))
-* looks for the correct property itemSlug on ncsItems ([45d233f](https://github.com/nrkno/sofie-core/commit/45d233f3b71cde6b8c0d09ab53bb1aee3ceca133))
-* **LSG:** further optimize sending of messages ([ae1adeb](https://github.com/nrkno/sofie-core/commit/ae1adeba0c9f992797a59a7a3ec1697897b5bd45))
-* **LSG:** sorting, make getRank return undefined if rank could not be established ([5667c0f](https://github.com/nrkno/sofie-core/commit/5667c0ffc4f28a92f477d4c2927875bec04a4301))
-* make content sorting consistent with Core ([67d5916](https://github.com/nrkno/sofie-core/commit/67d5916f64f0a543ebf8e93caee3243917458bd7))
-* Media Status PopUp panel filtering doesn't work ([471ad59](https://github.com/nrkno/sofie-core/commit/471ad593af5d2679eb1750f864c3984b40b6e82a))
-* **MediaStatus PopUp:** improve scroll to Part ([cc9401a](https://github.com/nrkno/sofie-core/commit/cc9401a9f5abf7ee387c654a729a5e6fc254bd3c))
-* **MediaStatus:** letter spacing ([a6494bd](https://github.com/nrkno/sofie-core/commit/a6494bdc1fe46ab402203a63e3cfbf93bcc11a1e))
-* **MediaStatus:** use lobby playlist sorting in Media Status view ([e8f3734](https://github.com/nrkno/sofie-core/commit/e8f3734ddac305c1b4d41823cb34a9ddb254a2fb))
-* Mounted AdLibs on DeviceTriggers don't refresh correctly after a Rundown Reset operation ([dbfc4a1](https://github.com/nrkno/sofie-core/commit/dbfc4a190019712f248e141074ada74226ef5897))
-* only load packages during ingest which have `listenToPackageInfoUpdates: true` ([fdf189d](https://github.com/nrkno/sofie-core/commit/fdf189dd9a059c72298afcdd8865ddb636e26e20))
-* **OpenAPI:** `showStyleVariant` schema has non-existent property `blueprintId` listed as required ([dc22c58](https://github.com/nrkno/sofie-core/commit/dc22c58e771afff6f591b0ffbadd437627299ecd))
-* **openapi:** buckets definitions and tests ([e502ed1](https://github.com/nrkno/sofie-core/commit/e502ed194ba6a2fa829c10c172fee349157c4d84))
-* **openapi:** incorrect return type ([65539b9](https://github.com/nrkno/sofie-core/commit/65539b93a63d0dccd44c8cd118a4eac1c9496a55))
-* **openapi:** missing and incorrect parameter definition ([abed9ec](https://github.com/nrkno/sofie-core/commit/abed9ecdf7fb4e9a9390cc20f9919faa4a32e198))
-* **openapi:** url parameter name ([4bd22b1](https://github.com/nrkno/sofie-core/commit/4bd22b12ccdca25f837374fd0bdd903ec1bedb8a))
-* Playout ignores 'Play from here' offset SOFIE-2356 ([#1063](https://github.com/nrkno/sofie-core/issues/1063)) ([479154a](https://github.com/nrkno/sofie-core/commit/479154a8029a076f0e76c79efd89922cd286f9e5))
-* **playout-gateway:** improve handling and typing of TSR events (fixes some logging issues) ([26a8613](https://github.com/nrkno/sofie-core/commit/26a8613cd64d7e077dfd7ff2092555c1b7805f4d))
-* PromiseButton: use Spinner ([8098aa2](https://github.com/nrkno/sofie-core/commit/8098aa26aeba35fb50d9ccaeb4faeac4291c31dc))
-* refactor ingest.test.ts to remove dependencies between tests ([#1172](https://github.com/nrkno/sofie-core/issues/1172)) ([2dbe0dd](https://github.com/nrkno/sofie-core/commit/2dbe0dd3e7cc7fc43d06690d608691c3c08c3b4b))
-* refactor part generation, to remove some 'owned' properties from the `replacePart` method signature ([4e3a359](https://github.com/nrkno/sofie-core/commit/4e3a359c4e0216b4b360d2a9d3e9ad439a8bc1da))
-* refactor VirtualElement to be a FC ([bf81baf](https://github.com/nrkno/sofie-core/commit/bf81baf9ff520ad6a9fc9b6378ce6ceeac320645))
-* remove adlib action's publicData from userLog SOFIE-2939 ([#1137](https://github.com/nrkno/sofie-core/issues/1137)) ([d92bf8d](https://github.com/nrkno/sofie-core/commit/d92bf8d030dbfd160cfced407f671fe7e1a58a8e))
-* remove duplicated migration ([c10d27d](https://github.com/nrkno/sofie-core/commit/c10d27d1c57d89d996a9f4addbb260318e7b763b))
-* Remove inspector for editable fields ([66561b8](https://github.com/nrkno/sofie-core/commit/66561b81accf03e5df8267311c171966e95b3a65))
-* rename 'onPresenterScreen' description in GUI ([43dfa10](https://github.com/nrkno/sofie-core/commit/43dfa10874c42a1d0cb2925e06cae52f0d0eec04))
-* replace `vm2` with builtin `vm` SOFIE-2535 ([#1136](https://github.com/nrkno/sofie-core/issues/1136)) ([64bf4d5](https://github.com/nrkno/sofie-core/commit/64bf4d55abd3d16a56c2a43392929ac927585e5a))
-* REST API UserAction log entries are incorrect and in ([813ae80](https://github.com/nrkno/sofie-core/commit/813ae80e2a0d21b7bee07a17365f5f90dfa9753e))
-* REST API UserAction log entries are incorrect and in ([65102f6](https://github.com/nrkno/sofie-core/commit/65102f67cd941c38c268d6edbed502b3f9c02524))
-* restore ALL data from snapshot, for debugging ([2464744](https://github.com/nrkno/sofie-core/commit/24647442de293cb72563635a6ee4f4f029218ee7))
-* **RundownView:** preserve scroll position is not preserved when Segments are moved around before the live Segment ([1b79d82](https://github.com/nrkno/sofie-core/commit/1b79d8211bf176946eb27b58db2fb8ffe29d8a67))
-* **RundownView:** split subscriptions into required and not-required ([8dcd844](https://github.com/nrkno/sofie-core/commit/8dcd844c7e6352d02288e70adaf8ad953f8c7975))
-* **RundownView:** subscriptions are considered ready too soon ([5bfda8f](https://github.com/nrkno/sofie-core/commit/5bfda8ff85ad343ed9728be2f726ff0b6a8bf063))
-* save to database when starting a piece ([6c2a1bf](https://github.com/nrkno/sofie-core/commit/6c2a1bf3c010fe882f0ef91f829ede183d43375a))
-* **SegmentContextMenu:** change the collection of mouse position from mouseUp to mouseDown ([d008bcf](https://github.com/nrkno/sofie-core/commit/d008bcfbe87afdd8ad1f2fe1d0e4654f55445247))
-* **SegmentContextMenu:** don't block play from here on current Part ([6967e9c](https://github.com/nrkno/sofie-core/commit/6967e9c2cd5ef168e67b0375c52f4773c6a8e8c8))
-* **SegmentTimeline:** prevent accidentally opening browser context menu ([4227ba2](https://github.com/nrkno/sofie-core/commit/4227ba20f73d7bcff34771269bdcf4c289147c8f))
-* **ShowStyleVariants:** the additionalProperties and required properties were mis-indented ([4403da5](https://github.com/nrkno/sofie-core/commit/4403da5a26adff9674bdbb699d2ef9a82fd4a1af))
-* simplify splits for DoS-safety ([8b4bb5d](https://github.com/nrkno/sofie-core/commit/8b4bb5d47ab3d0a945a322ec563bb704e57667dd))
-* simplify splits for DoS-safety ([c5d8c7e](https://github.com/nrkno/sofie-core/commit/c5d8c7e7a78c59d316950dcac648fb312284a04f))
-* **SupportPopUp:** invalid child React error ([230cb9a](https://github.com/nrkno/sofie-core/commit/230cb9afcd64aa76d7b1283abbaf80e6f3214640))
-* test ([43763fe](https://github.com/nrkno/sofie-core/commit/43763fe1bdb3228c542de7412291f173b4e1b525))
-* tests ([4f60881](https://github.com/nrkno/sofie-core/commit/4f60881e04392b2c2584c144bc32087dade8d20e))
-* transition piece hover preview SOFIE-3183 ([63939cd](https://github.com/nrkno/sofie-core/commit/63939cd9eea06ffb2d018b918b57dc648a679593))
-* transition piece hover preview SOFIE-3183 ([0fc20d9](https://github.com/nrkno/sofie-core/commit/0fc20d9d0234925498f4939924351907f5f4f347))
-* type fix ([f448092](https://github.com/nrkno/sofie-core/commit/f448092459ce5d5ae26e952a8aa0df966a230c1a))
-* update timeline to v9 ([15ff3ee](https://github.com/nrkno/sofie-core/commit/15ff3eef1760066f6f0a648f441fdd36f37e418b))
-* use helper function to keep the scope of 'unsafe' code small ([c58a6de](https://github.com/nrkno/sofie-core/commit/c58a6de80597373e158316d33661ac0e8a07956a))
-* Use PromiseButton for Take a Snapshot button ([e329935](https://github.com/nrkno/sofie-core/commit/e329935697b1969f5b8a79e2384282f7dfdb428d))
-* userEvent for REST API calls does not look sensible ([cfc178a](https://github.com/nrkno/sofie-core/commit/cfc178a36f21f1ccc98c8bcd208a02ea04d13f3a))
-* userEvent for REST API calls does not look sensible ([70ddd11](https://github.com/nrkno/sofie-core/commit/70ddd11431771b4cb71d74851c3d56161a8a1490))
-* validating studio blueprint config fails with DataCloneError ([d5f9221](https://github.com/nrkno/sofie-core/commit/d5f92213bee771d6cf78e4d51007f27e05b9fa98))
+- `DataCloneError: [object Object] could not be cloned` when propagating some errors from job-worker SOFIE-2903 ([7f618c7](https://github.com/nrkno/sofie-core/commit/7f618c75bb6a94e28e4a9c00db4688a77a1bc184))
+- `DataCloneError: [object Object] could not be cloned` when propagating some errors from job-worker SOFIE-2903 ([c1bb47f](https://github.com/nrkno/sofie-core/commit/c1bb47fe3958c245b708f9698c458b3d94055a3b))
+- `UIBlueprintUpgradeStatuses` crashing if no playlists in the system ([3491ec5](https://github.com/nrkno/sofie-core/commit/3491ec5c509adf6b83362973821d93a66595e828))
+- **a11y/ModalDialog:** reduce behavioral changes after refactoring ([02ecaad](https://github.com/nrkno/sofie-core/commit/02ecaad0a210e1f7f8b7c932d38cbe7ba097f7b1))
+- **a11y:** some button layout/tabbing order ([3bd2085](https://github.com/nrkno/sofie-core/commit/3bd2085417b9a32bf148cb30640a8eb9d965ebea))
+- **a11y:** trap focus within ModalDialog ([9edd110](https://github.com/nrkno/sofie-core/commit/9edd11075111471b5a72b64dc6b3210183ef6911))
+- action triggers disappearing when adlibbing and immediately taking a part [#1197](https://github.com/nrkno/sofie-core/issues/1197) SOFIE-3182 ([d01cd99](https://github.com/nrkno/sofie-core/commit/d01cd991865485d97435ffb1065c574653bf508f))
+- action triggers disappearing when adlibbing and immediately taking a part [#1197](https://github.com/nrkno/sofie-core/issues/1197) SOFIE-3182 ([1a44ff8](https://github.com/nrkno/sofie-core/commit/1a44ff8bea971922fc55fbb03686467e9bd3b0c9))
+- activate scratchpad segment failing ([3cd426f](https://github.com/nrkno/sofie-core/commit/3cd426ff7e6d7b28aef65bfb31f4874c34bae509))
+- add `count` method to job-worker `ICollection` ([9f6be1d](https://github.com/nrkno/sofie-core/commit/9f6be1d51fa46d7853f2c95c48fcb8298306db98))
+- add `RundownOrphanedReason` enum ([b4648d2](https://github.com/nrkno/sofie-core/commit/b4648d2e03cce09eb1fff8e3b9292dc1c8739801))
+- add a way to take a heap snapshot. ([ef918c2](https://github.com/nrkno/sofie-core/commit/ef918c2390c8af46caa1cd0ff08bab45af2f8380))
+- Add missing metadata types ([71eb739](https://github.com/nrkno/sofie-core/commit/71eb739bc87f64db50f06ab4647cb6972e58c7fa))
+- Add missing piece metadata types ([#1133](https://github.com/nrkno/sofie-core/issues/1133)) ([70c5739](https://github.com/nrkno/sofie-core/commit/70c5739c5e9848e57c21bde78ee16d4c78da8e1a))
+- add missing SourceLayerType cases ([45eefce](https://github.com/nrkno/sofie-core/commit/45eefcef737e8e8a5a7e425f9fdd713487ab4a59))
+- add missing SourceLayerType cases ([1c4bd0a](https://github.com/nrkno/sofie-core/commit/1c4bd0a36885cb582af88c2750b155de9b23fa2a))
+- add PromiseButton component ([4fa9f72](https://github.com/nrkno/sofie-core/commit/4fa9f72fe277c55449b28384abd77de538a99ea2))
+- **AfterBroadcastForm:** refactor the form to have a semantically-correct layout ([9e4f2b6](https://github.com/nrkno/sofie-core/commit/9e4f2b65fd2e30d04bae1cd37304a33ab744fc11))
+- allow blueprint assets to be gif SOFIE-3183 ([1d8bed7](https://github.com/nrkno/sofie-core/commit/1d8bed77e4262a12bba46eecf0631cbcae96fb34))
+- allow blueprint assets to be gif SOFIE-3183 ([afc20d8](https://github.com/nrkno/sofie-core/commit/afc20d87f62cf0098510f6ca0ce2c663d8154778))
+- always show trigger popups ([68172c5](https://github.com/nrkno/sofie-core/commit/68172c565af3aaea7a2517abc9623b2eefd77fba))
+- also sort on "own" rank ([4224b02](https://github.com/nrkno/sofie-core/commit/4224b02be70851ca2058d85c73571d9085cbf97f))
+- AMQP connection issues logging SOFIE-2597 ([#1066](https://github.com/nrkno/sofie-core/issues/1066)) ([de04512](https://github.com/nrkno/sofie-core/commit/de045127a0b64e67d31bba7dbe42f4e0f5caadaf))
+- asyncapi generation ([e4d45b6](https://github.com/nrkno/sofie-core/commit/e4d45b6e5142e8ae71a75edf0fd5dcbeeec86f45))
+- avoid adding `originalId` to timeline-objects during lookahead ([282cbec](https://github.com/nrkno/sofie-core/commit/282cbec6e9de1948bbb6d82ccd3f0f56efa7fc64))
+- blueprint-integration missed typing in [#1077](https://github.com/nrkno/sofie-core/issues/1077) ([bd5e36f](https://github.com/nrkno/sofie-core/commit/bd5e36f9c0b390999ef465a5e1554b8faa2c456f))
+- broken link ([08e5130](https://github.com/nrkno/sofie-core/commit/08e513048d9b4660dd89ae37c1ae29a20ab48880))
+- bucket selectors and unhandled promises ([26ae99e](https://github.com/nrkno/sofie-core/commit/26ae99ed00b5f2310439697a1a3b59d44be42f46))
+- build errors ([020d3cf](https://github.com/nrkno/sofie-core/commit/020d3cfd2c112b57667d6612d19472570f8455b9))
+- build server-core image on alpine 3.19 ([#1160](https://github.com/nrkno/sofie-core/issues/1160)) ([0f73bed](https://github.com/nrkno/sofie-core/commit/0f73bedbeb0490417c0643e521465a8112c2e444))
+- **CameraView:** broken countdowns after RundownTimingCalculator modifications ([d5ed171](https://github.com/nrkno/sofie-core/commit/d5ed171f8ab99ddea16707c7a34e51dae0f71ea8))
+- clear Scratchpad when activating Rundown ([b629fe9](https://github.com/nrkno/sofie-core/commit/b629fe95ccac283c0229d7e0753d330455e795d7))
+- **Core System Settings:** Cron Job Settings are duplicated ([1b52f5e](https://github.com/nrkno/sofie-core/commit/1b52f5ecf1a7397182b476c6b76a1991697e1185))
+- core-integration: handle error when subscribing ([3ad0c73](https://github.com/nrkno/sofie-core/commit/3ad0c73dd7fa4d9572cc00a7ffa9987fed0df4e3))
+- create new mosTimes correctly ([e8cec88](https://github.com/nrkno/sofie-core/commit/e8cec88f8b9d8c298f1b2ddec8d45f6f80fea9bf))
+- **DashboardPieceButton:** hover previews are not positioned correctly ([e5a022a](https://github.com/nrkno/sofie-core/commit/e5a022a7f2b8b0e9abeb792d48bab741beeac567))
+- **DashboardPieceButton:** hover previews are not positioned correctly ([8f8d147](https://github.com/nrkno/sofie-core/commit/8f8d147a42b3e80f87f9d9f575f81a048521d989))
+- **DeviceTriggers:** improve code clarity ([a1dddb9](https://github.com/nrkno/sofie-core/commit/a1dddb9d817b644ff66f2d1ef0061daf769b4f13))
+- display adjustments ([bcfeb99](https://github.com/nrkno/sofie-core/commit/bcfeb99bc82c5dd9d849efdb1ea85d3a9ce20501))
+- displayDurationGroup calculations ([0c07924](https://github.com/nrkno/sofie-core/commit/0c0792460ed1a73beaf4bd754e1ea1adf46167b6))
+- don't log UserError messages at error level from the job-worker SOFIE-2592 ([#1026](https://github.com/nrkno/sofie-core/issues/1026)) ([a146d65](https://github.com/nrkno/sofie-core/commit/a146d65ea9adf14dea92c62923fdadce85306fc5))
+- **EAV-95:** interface inconsistencies ([cc3044b](https://github.com/nrkno/sofie-core/commit/cc3044b15733df599f6e3cc80133c73f8c0b3133))
+- emit ddp publciation remove messages before add SOFIE-3172 ([1b17a1d](https://github.com/nrkno/sofie-core/commit/1b17a1d946fb0b23b720b110e1f714324901dde5))
+- emit ddp publciation remove messages before add SOFIE-3172 ([348a6e6](https://github.com/nrkno/sofie-core/commit/348a6e60b23e7ef6ed8117740915f32654ce8c1e))
+- ensure that Shift register Ids are only positive integers ([16895bc](https://github.com/nrkno/sofie-core/commit/16895bc41e8b8571109a915f48846f6bd52d522e))
+- expose metaData as publicData as a temporary solution for R50 ([aa79096](https://github.com/nrkno/sofie-core/commit/aa790960e86f850baec1842c80e136fad2ed9e67))
+- expose metaData propery to liveStatusGateway ([596ab8d](https://github.com/nrkno/sofie-core/commit/596ab8ddbde3d590b62558c80ef675f24d1ad28c))
+- extract `PlayoutPieceInstanceModel` from `PlayoutPartInstanceModel` ([9e07ed9](https://github.com/nrkno/sofie-core/commit/9e07ed9bb8851f84364753173a7053102cc0dac5))
+- filter out virtual pieces in isPieceInstanceActive ([188c985](https://github.com/nrkno/sofie-core/commit/188c9855ce4398076960daa8a14f0f4009b145eb))
+- group sends together, for increased performance ([fb0d2c8](https://github.com/nrkno/sofie-core/commit/fb0d2c8ef2e316bfe53cfa7160711101ede29ac4))
+- **HelpPanel:** invalid child React error ([5682379](https://github.com/nrkno/sofie-core/commit/5682379d85df92b1b1a6d2f08e1a485f701387e1))
+- hide create playlist drop box when dragging a rundown not in a multi-rundown playlist SOFIE-2462 ([#1181](https://github.com/nrkno/sofie-core/issues/1181)) ([79ae7f4](https://github.com/nrkno/sofie-core/commit/79ae7f4207459310a84778b8fe1474c05c12ce89))
+- improve UX of object table, to indicate which rows have overrides and are custom ([68b1374](https://github.com/nrkno/sofie-core/commit/68b137489b1f3cfb6af290fe7ae542ac8448f50c))
+- improve UX of object table, to indicate which rows have overrides and are custom ([c39311d](https://github.com/nrkno/sofie-core/commit/c39311d4a8b194cde683a112b55ff10a76b1b8a3))
+- include timestamp when logging to file ([#1207](https://github.com/nrkno/sofie-core/issues/1207)) ([2dcca21](https://github.com/nrkno/sofie-core/commit/2dcca215403cc0256c78f5f8f5f6befa2a1ca683))
+- IngestDataCache not being populated correctly SOFIE-2672 [#1106](https://github.com/nrkno/sofie-core/issues/1106) ([33394a7](https://github.com/nrkno/sofie-core/commit/33394a7e494e1e2a32d8f8cc55b34df6e52747fb))
+- introduce MeteorApply as alternative to Meteor.apply, to log when a method is sent late, due to other blocking methods on the client. ([0425d8f](https://github.com/nrkno/sofie-core/commit/0425d8f5a8b289922d146d0fe5241e08ade06935))
+- invalidate deviceTriggerPreviews when the filterChain changes SOFIE-3172 ([c4e2ad0](https://github.com/nrkno/sofie-core/commit/c4e2ad0282a7b683f3d19b8b9b5b541bf6518cbe))
+- invalidate deviceTriggerPreviews when the filterChain changes SOFIE-3172 ([082f334](https://github.com/nrkno/sofie-core/commit/082f3344fe19f080489dbde8ff155513a1c203b8))
+- invalidate deviceTriggers when changing triggermode SOFIE-3253 ([50e8cd2](https://github.com/nrkno/sofie-core/commit/50e8cd26b8da3394eaa9f5fd9909d3f5d8dfe73c))
+- live status gateway including pieces which have been pruned and will never be played SOFIE-3301 ([#1206](https://github.com/nrkno/sofie-core/issues/1206)) ([65d0d35](https://github.com/nrkno/sofie-core/commit/65d0d35c586e080a08f5837e18e4583ef940770c))
+- live status gateway including pieces which have been pruned and will never be played SOFIE-3301 ([#1206](https://github.com/nrkno/sofie-core/issues/1206)) ([8682eca](https://github.com/nrkno/sofie-core/commit/8682eca8004aedb092a1dca7f7c856c0814eaf66))
+- live-status-gateway ignored settings from Core, so logLevel ended up always being the default ([58261e5](https://github.com/nrkno/sofie-core/commit/58261e54ffe87e448b0de80b007ddf7a06dd924b))
+- **live-status-gw:** active piece conditions ([89f155c](https://github.com/nrkno/sofie-core/commit/89f155c4ae903920af91cbc586c34eb222946623))
+- **live-status-gw:** adLibs having invalid layers before the first take ([4dd5231](https://github.com/nrkno/sofie-core/commit/4dd5231055cc907cee37453ef723906258d54044))
+- **live-status-gw:** adLibs having invalid layers before the first take ([566e0b8](https://github.com/nrkno/sofie-core/commit/566e0b89952afbd8a2c95703cea4e53b270810e4))
+- **live-status-gw:** missing handlers ([0eb19ac](https://github.com/nrkno/sofie-core/commit/0eb19ac3d8c05e791e7ef910db717731e3af8bde))
+- **live-status-gw:** not sending updates when relevant data has actually changed ([748b7a0](https://github.com/nrkno/sofie-core/commit/748b7a0aca8ef290d58ebb6f56bc5a323b9566a4))
+- **live-status-gw:** prevent incomplete data to arriving at topics ([a90688c](https://github.com/nrkno/sofie-core/commit/a90688ca24175dbeadc0ccd1b0c5a918c97fee6e))
+- **live-status-gw:** wrong pieces in nextPart ([56059f4](https://github.com/nrkno/sofie-core/commit/56059f401a2f3cdfaf62901cae8bd5734e408fb1))
+- looks for the correct property itemSlug on ncsItems ([45d233f](https://github.com/nrkno/sofie-core/commit/45d233f3b71cde6b8c0d09ab53bb1aee3ceca133))
+- **LSG:** further optimize sending of messages ([ae1adeb](https://github.com/nrkno/sofie-core/commit/ae1adeba0c9f992797a59a7a3ec1697897b5bd45))
+- **LSG:** sorting, make getRank return undefined if rank could not be established ([5667c0f](https://github.com/nrkno/sofie-core/commit/5667c0ffc4f28a92f477d4c2927875bec04a4301))
+- make content sorting consistent with Core ([67d5916](https://github.com/nrkno/sofie-core/commit/67d5916f64f0a543ebf8e93caee3243917458bd7))
+- Media Status PopUp panel filtering doesn't work ([471ad59](https://github.com/nrkno/sofie-core/commit/471ad593af5d2679eb1750f864c3984b40b6e82a))
+- **MediaStatus PopUp:** improve scroll to Part ([cc9401a](https://github.com/nrkno/sofie-core/commit/cc9401a9f5abf7ee387c654a729a5e6fc254bd3c))
+- **MediaStatus:** letter spacing ([a6494bd](https://github.com/nrkno/sofie-core/commit/a6494bdc1fe46ab402203a63e3cfbf93bcc11a1e))
+- **MediaStatus:** use lobby playlist sorting in Media Status view ([e8f3734](https://github.com/nrkno/sofie-core/commit/e8f3734ddac305c1b4d41823cb34a9ddb254a2fb))
+- Mounted AdLibs on DeviceTriggers don't refresh correctly after a Rundown Reset operation ([dbfc4a1](https://github.com/nrkno/sofie-core/commit/dbfc4a190019712f248e141074ada74226ef5897))
+- only load packages during ingest which have `listenToPackageInfoUpdates: true` ([fdf189d](https://github.com/nrkno/sofie-core/commit/fdf189dd9a059c72298afcdd8865ddb636e26e20))
+- **OpenAPI:** `showStyleVariant` schema has non-existent property `blueprintId` listed as required ([dc22c58](https://github.com/nrkno/sofie-core/commit/dc22c58e771afff6f591b0ffbadd437627299ecd))
+- **openapi:** buckets definitions and tests ([e502ed1](https://github.com/nrkno/sofie-core/commit/e502ed194ba6a2fa829c10c172fee349157c4d84))
+- **openapi:** incorrect return type ([65539b9](https://github.com/nrkno/sofie-core/commit/65539b93a63d0dccd44c8cd118a4eac1c9496a55))
+- **openapi:** missing and incorrect parameter definition ([abed9ec](https://github.com/nrkno/sofie-core/commit/abed9ecdf7fb4e9a9390cc20f9919faa4a32e198))
+- **openapi:** url parameter name ([4bd22b1](https://github.com/nrkno/sofie-core/commit/4bd22b12ccdca25f837374fd0bdd903ec1bedb8a))
+- Playout ignores 'Play from here' offset SOFIE-2356 ([#1063](https://github.com/nrkno/sofie-core/issues/1063)) ([479154a](https://github.com/nrkno/sofie-core/commit/479154a8029a076f0e76c79efd89922cd286f9e5))
+- **playout-gateway:** improve handling and typing of TSR events (fixes some logging issues) ([26a8613](https://github.com/nrkno/sofie-core/commit/26a8613cd64d7e077dfd7ff2092555c1b7805f4d))
+- PromiseButton: use Spinner ([8098aa2](https://github.com/nrkno/sofie-core/commit/8098aa26aeba35fb50d9ccaeb4faeac4291c31dc))
+- refactor ingest.test.ts to remove dependencies between tests ([#1172](https://github.com/nrkno/sofie-core/issues/1172)) ([2dbe0dd](https://github.com/nrkno/sofie-core/commit/2dbe0dd3e7cc7fc43d06690d608691c3c08c3b4b))
+- refactor part generation, to remove some 'owned' properties from the `replacePart` method signature ([4e3a359](https://github.com/nrkno/sofie-core/commit/4e3a359c4e0216b4b360d2a9d3e9ad439a8bc1da))
+- refactor VirtualElement to be a FC ([bf81baf](https://github.com/nrkno/sofie-core/commit/bf81baf9ff520ad6a9fc9b6378ce6ceeac320645))
+- remove adlib action's publicData from userLog SOFIE-2939 ([#1137](https://github.com/nrkno/sofie-core/issues/1137)) ([d92bf8d](https://github.com/nrkno/sofie-core/commit/d92bf8d030dbfd160cfced407f671fe7e1a58a8e))
+- remove duplicated migration ([c10d27d](https://github.com/nrkno/sofie-core/commit/c10d27d1c57d89d996a9f4addbb260318e7b763b))
+- Remove inspector for editable fields ([66561b8](https://github.com/nrkno/sofie-core/commit/66561b81accf03e5df8267311c171966e95b3a65))
+- rename 'onPresenterScreen' description in GUI ([43dfa10](https://github.com/nrkno/sofie-core/commit/43dfa10874c42a1d0cb2925e06cae52f0d0eec04))
+- replace `vm2` with builtin `vm` SOFIE-2535 ([#1136](https://github.com/nrkno/sofie-core/issues/1136)) ([64bf4d5](https://github.com/nrkno/sofie-core/commit/64bf4d55abd3d16a56c2a43392929ac927585e5a))
+- REST API UserAction log entries are incorrect and in ([813ae80](https://github.com/nrkno/sofie-core/commit/813ae80e2a0d21b7bee07a17365f5f90dfa9753e))
+- REST API UserAction log entries are incorrect and in ([65102f6](https://github.com/nrkno/sofie-core/commit/65102f67cd941c38c268d6edbed502b3f9c02524))
+- restore ALL data from snapshot, for debugging ([2464744](https://github.com/nrkno/sofie-core/commit/24647442de293cb72563635a6ee4f4f029218ee7))
+- **RundownView:** preserve scroll position is not preserved when Segments are moved around before the live Segment ([1b79d82](https://github.com/nrkno/sofie-core/commit/1b79d8211bf176946eb27b58db2fb8ffe29d8a67))
+- **RundownView:** split subscriptions into required and not-required ([8dcd844](https://github.com/nrkno/sofie-core/commit/8dcd844c7e6352d02288e70adaf8ad953f8c7975))
+- **RundownView:** subscriptions are considered ready too soon ([5bfda8f](https://github.com/nrkno/sofie-core/commit/5bfda8ff85ad343ed9728be2f726ff0b6a8bf063))
+- save to database when starting a piece ([6c2a1bf](https://github.com/nrkno/sofie-core/commit/6c2a1bf3c010fe882f0ef91f829ede183d43375a))
+- **SegmentContextMenu:** change the collection of mouse position from mouseUp to mouseDown ([d008bcf](https://github.com/nrkno/sofie-core/commit/d008bcfbe87afdd8ad1f2fe1d0e4654f55445247))
+- **SegmentContextMenu:** don't block play from here on current Part ([6967e9c](https://github.com/nrkno/sofie-core/commit/6967e9c2cd5ef168e67b0375c52f4773c6a8e8c8))
+- **SegmentTimeline:** prevent accidentally opening browser context menu ([4227ba2](https://github.com/nrkno/sofie-core/commit/4227ba20f73d7bcff34771269bdcf4c289147c8f))
+- **ShowStyleVariants:** the additionalProperties and required properties were mis-indented ([4403da5](https://github.com/nrkno/sofie-core/commit/4403da5a26adff9674bdbb699d2ef9a82fd4a1af))
+- simplify splits for DoS-safety ([8b4bb5d](https://github.com/nrkno/sofie-core/commit/8b4bb5d47ab3d0a945a322ec563bb704e57667dd))
+- simplify splits for DoS-safety ([c5d8c7e](https://github.com/nrkno/sofie-core/commit/c5d8c7e7a78c59d316950dcac648fb312284a04f))
+- **SupportPopUp:** invalid child React error ([230cb9a](https://github.com/nrkno/sofie-core/commit/230cb9afcd64aa76d7b1283abbaf80e6f3214640))
+- test ([43763fe](https://github.com/nrkno/sofie-core/commit/43763fe1bdb3228c542de7412291f173b4e1b525))
+- tests ([4f60881](https://github.com/nrkno/sofie-core/commit/4f60881e04392b2c2584c144bc32087dade8d20e))
+- transition piece hover preview SOFIE-3183 ([63939cd](https://github.com/nrkno/sofie-core/commit/63939cd9eea06ffb2d018b918b57dc648a679593))
+- transition piece hover preview SOFIE-3183 ([0fc20d9](https://github.com/nrkno/sofie-core/commit/0fc20d9d0234925498f4939924351907f5f4f347))
+- type fix ([f448092](https://github.com/nrkno/sofie-core/commit/f448092459ce5d5ae26e952a8aa0df966a230c1a))
+- update timeline to v9 ([15ff3ee](https://github.com/nrkno/sofie-core/commit/15ff3eef1760066f6f0a648f441fdd36f37e418b))
+- use helper function to keep the scope of 'unsafe' code small ([c58a6de](https://github.com/nrkno/sofie-core/commit/c58a6de80597373e158316d33661ac0e8a07956a))
+- Use PromiseButton for Take a Snapshot button ([e329935](https://github.com/nrkno/sofie-core/commit/e329935697b1969f5b8a79e2384282f7dfdb428d))
+- userEvent for REST API calls does not look sensible ([cfc178a](https://github.com/nrkno/sofie-core/commit/cfc178a36f21f1ccc98c8bcd208a02ea04d13f3a))
+- userEvent for REST API calls does not look sensible ([70ddd11](https://github.com/nrkno/sofie-core/commit/70ddd11431771b4cb71d74851c3d56161a8a1490))
+- validating studio blueprint config fails with DataCloneError ([d5f9221](https://github.com/nrkno/sofie-core/commit/d5f92213bee771d6cf78e4d51007f27e05b9fa98))
 
-
-* remove `metaData` from various interfaces ([2a9e416](https://github.com/nrkno/sofie-core/commit/2a9e416b8836857bc645252180098823d4252933))
-* Remove unused config manifest types ([1ec0ea7](https://github.com/nrkno/sofie-core/commit/1ec0ea7773e91fa6fc8c85c96de25a150b093ba0))
+- remove `metaData` from various interfaces ([2a9e416](https://github.com/nrkno/sofie-core/commit/2a9e416b8836857bc645252180098823d4252933))
+- Remove unused config manifest types ([1ec0ea7](https://github.com/nrkno/sofie-core/commit/1ec0ea7773e91fa6fc8c85c96de25a150b093ba0))
 
 ### [1.50.5](///compare/v1.50.4-LSG-updates...v1.50.5) (2024-08-08)
 
-
 ### Bug Fixes
 
-* compensate for piece preroll for adlibbed pieces SOFIE-3369 ([#1236](undefined/undefined/undefined/issues/1236)) 195a7d9
-* rundown timing drifting when playing parts with preroll SOFIE-3291 ([#1234](undefined/undefined/undefined/issues/1234)) beee11a
-* unexpected timeline updates while playing final part in rundown SOFIE-3371 ([#1237](undefined/undefined/undefined/issues/1237)) 0fe74b4
+- compensate for piece preroll for adlibbed pieces SOFIE-3369 ([#1236](undefined/undefined/undefined/issues/1236)) 195a7d9
+- rundown timing drifting when playing parts with preroll SOFIE-3291 ([#1234](undefined/undefined/undefined/issues/1234)) beee11a
+- unexpected timeline updates while playing final part in rundown SOFIE-3371 ([#1237](undefined/undefined/undefined/issues/1237)) 0fe74b4
 
 ### [1.50.4](https://github.com/nrkno/sofie-core/compare/v1.50.3-LSG-updates...v1.50.4) (2024-07-30)
 
-
 ### Bug Fixes
 
-* further improve stringifyError ([0233073](https://github.com/nrkno/sofie-core/commit/02330735fd4f3b03f9bff84e4c41fb9199a4623e))
-* improve error logging: use stringifyError() ([8da63de](https://github.com/nrkno/sofie-core/commit/8da63dec44915439ea436eee9697f3774241537b))
-* **LSG:** Token "examples" does not exist when running `yarn gendocs` ([a0ea9b4](https://github.com/nrkno/sofie-core/commit/a0ea9b48997fe39e8db5ababef744c103a68509f))
-* make stringifyError handle UserError better ([e2ecc7e](https://github.com/nrkno/sofie-core/commit/e2ecc7eb48b9ad6c0d95b299d954abac577e70a7))
-* refactor VirtualElement to be a FC ([bf81baf](https://github.com/nrkno/sofie-core/commit/bf81baf9ff520ad6a9fc9b6378ce6ceeac320645))
+- further improve stringifyError ([0233073](https://github.com/nrkno/sofie-core/commit/02330735fd4f3b03f9bff84e4c41fb9199a4623e))
+- improve error logging: use stringifyError() ([8da63de](https://github.com/nrkno/sofie-core/commit/8da63dec44915439ea436eee9697f3774241537b))
+- **LSG:** Token "examples" does not exist when running `yarn gendocs` ([a0ea9b4](https://github.com/nrkno/sofie-core/commit/a0ea9b48997fe39e8db5ababef744c103a68509f))
+- make stringifyError handle UserError better ([e2ecc7e](https://github.com/nrkno/sofie-core/commit/e2ecc7eb48b9ad6c0d95b299d954abac577e70a7))
+- refactor VirtualElement to be a FC ([bf81baf](https://github.com/nrkno/sofie-core/commit/bf81baf9ff520ad6a9fc9b6378ce6ceeac320645))
 
 ### [1.50.3](https://github.com/nrkno/sofie-core/compare/v1.50.2...v1.50.3) (2024-06-24)
 
-
 ### Bug Fixes
 
-* **DashboardPieceButton:** hover previews are not positioned correctly ([89fd219](https://github.com/nrkno/sofie-core/commit/89fd219d57fb775ed140ed2eaf5326a80194661f))
-* input gateway devices lose rundown actions on reset SOFIE-3134 ([#1190](https://github.com/nrkno/sofie-core/issues/1190)) ([aa69e5d](https://github.com/nrkno/sofie-core/commit/aa69e5d2df512f0e79bb1ada51ed61560258c0cd))
+- **DashboardPieceButton:** hover previews are not positioned correctly ([89fd219](https://github.com/nrkno/sofie-core/commit/89fd219d57fb775ed140ed2eaf5326a80194661f))
+- input gateway devices lose rundown actions on reset SOFIE-3134 ([#1190](https://github.com/nrkno/sofie-core/issues/1190)) ([aa69e5d](https://github.com/nrkno/sofie-core/commit/aa69e5d2df512f0e79bb1ada51ed61560258c0cd))
 
 ### [1.50.2](///compare/v1.49.6...v1.50.2) (2024-05-15)
 
-
 ### Bug Fixes
 
-* add { multi: true } to updates that can affect multiple documents f9294dd
-* add a way to take a heap snapshot. b73e4ea
-* deleting a segment can get stuck as orphaned hidden SOFIE-3048 ([#1183](undefined/undefined/undefined/issues/1183)) d4c4ba2
-* new algorithm for tieing the Prompter scroll position to content. ba54622
-* peripheraldevice child device pings not starting upon first connection SOFIE-3047 0379304
-* second try on Prompter scroll algorithm b6256cc
+- add { multi: true } to updates that can affect multiple documents f9294dd
+- add a way to take a heap snapshot. b73e4ea
+- deleting a segment can get stuck as orphaned hidden SOFIE-3048 ([#1183](undefined/undefined/undefined/issues/1183)) d4c4ba2
+- new algorithm for tying the Prompter scroll position to content. ba54622
+- peripheraldevice child device pings not starting upon first connection SOFIE-3047 0379304
+- second try on Prompter scroll algorithm b6256cc
 
 ### [1.50.1](///compare/v1.49.5-0...v1.50.1) (2024-03-11)
 
-
 ### Bug Fixes
 
-* strip unused node dependencies from docker images ([#1159](undefined/undefined/undefined/issues/1159)) 6d86132
+- strip unused node dependencies from docker images ([#1159](undefined/undefined/undefined/issues/1159)) 6d86132
 
 ### [1.50.1-0](///compare/v1.50.0...v1.50.1-0) (2024-03-05)
 
-
 ### Features
 
-* support external url dropzones 489c17b
-* support prompter-editor SOFIE-2846 ([#1151](undefined/undefined/undefined/issues/1151)) fd936d0
-
+- support external url dropzones 489c17b
+- support prompter-editor SOFIE-2846 ([#1151](undefined/undefined/undefined/issues/1151)) fd936d0
 
 ### Bug Fixes
 
-* bucket content status publication SOFIE-2993 f361c89
-* content status for PieceInstances can be under the id of the PieceInstance or the wrapped Piece SOFIE-2993 a5e7af4
-* **GUI:** remove Piece dependency for Part duration calculation c862582
-* PieceInstance ExpectedPackages generated with incorrect id 89880fe
-* statuses for PieceInstances should copy from the Piece until package-manager catches up 3158b09
-* thumbnail and scrub previews being reported as available too early 391bfc4
-* use the PartInstance instead of Part for PieceInstance content status SOFIE-2993 5d3a610
+- bucket content status publication SOFIE-2993 f361c89
+- content status for PieceInstances can be under the id of the PieceInstance or the wrapped Piece SOFIE-2993 a5e7af4
+- **GUI:** remove Piece dependency for Part duration calculation c862582
+- PieceInstance ExpectedPackages generated with incorrect id 89880fe
+- statuses for PieceInstances should copy from the Piece until package-manager catches up 3158b09
+- thumbnail and scrub previews being reported as available too early 391bfc4
+- use the PartInstance instead of Part for PieceInstance content status SOFIE-2993 5d3a610
 
 ## [1.50.0](///compare/v1.49.4...v1.50.0) (2024-02-23)
 
-
 ### Features
 
-* add `node-fetch` as a global to blueprint execution SOFIE-1367 ([#1135](undefined/undefined/undefined/issues/1135)) 061d03a
-* allow blueprints to specify a custom resolution for NORA hover preview SOFIE-2840 ([#1123](undefined/undefined/undefined/issues/1123)) d2f3cef
-* **api:** allow setting segment as "immediate" next 2177b46
-* **EAV-23:** add budget and expected duration to segments topic acfaf84
-* **live-status-gw:** add `segments` topic 7a125ce
-* **live-status-gw:** add segments handler throttling 9a63519
-* **live-status-gw:** Expose AdLib tags in the `activePlaylist` topic ([#1038](undefined/undefined/undefined/issues/1038)) 1fd4ec4
-* **live-status-gw:** segment identifiers ([#1068](undefined/undefined/undefined/issues/1068)) ca592bf
-* provide a sensible notification to user when rate-limited on Snapshots 596be73
-
+- add `node-fetch` as a global to blueprint execution SOFIE-1367 ([#1135](undefined/undefined/undefined/issues/1135)) 061d03a
+- allow blueprints to specify a custom resolution for NORA hover preview SOFIE-2840 ([#1123](undefined/undefined/undefined/issues/1123)) d2f3cef
+- **api:** allow setting segment as "immediate" next 2177b46
+- **EAV-23:** add budget and expected duration to segments topic acfaf84
+- **live-status-gw:** add `segments` topic 7a125ce
+- **live-status-gw:** add segments handler throttling 9a63519
+- **live-status-gw:** Expose AdLib tags in the `activePlaylist` topic ([#1038](undefined/undefined/undefined/issues/1038)) 1fd4ec4
+- **live-status-gw:** segment identifiers ([#1068](undefined/undefined/undefined/issues/1068)) ca592bf
+- provide a sensible notification to user when rate-limited on Snapshots 596be73
 
 ### Bug Fixes
 
-* `rundownsForDevice` publication always failing 55bc10f
-* add handling for error 503 when generating single use token 0d1a315
-* AdLibs don't appear in Live Status Gateway until first take ([#1036](undefined/undefined/undefined/issues/1036)) bd5dbd3
-* **api:** type issues 358fba7
-* avoid doing `[0]` on a promise instead of on the awaited result ([#1047](undefined/undefined/undefined/issues/1047)) b8a79bc
-* CasparCG restart error: Timeout after 10000ms SOFIE-2588 ([#1042](undefined/undefined/undefined/issues/1042)) 394aa47
-* clear queued segment when setting one as next f79a6a5
-* debounce update of PeripheralDevice.lastSeen a63aca4
-* don't rely on winston types in `server-core-integration`, have own logger interface b418530
-* ensure `Studio.peripheralDeviceSettings` field is populated correctly by migrations aaa5606
-* ensure ExpectedPackageId values do not contain unsafe characters SOFIE-2825 fbb0431
-* expectedPackages from pieceInstances never producing ok status 3c5e11e
-* importing a snapshot loses rundown ordering SOFIE-2669 [#1034](undefined/undefined/undefined/issues/1034) c6fb01c
-* improve disposal of core connection dc52fe5
-* json-schema object-tables not handling nested tables correctly b6ae91b
-* **live-status-gw:** AdLib Pieces were missing in `activePlaylist` topic ([#1040](undefined/undefined/undefined/issues/1040)) 94857af
-* **live-status-gw:** do not include hidden segments in `segments` topic 1fae633
-* **live-status-gw:** exception in SegmentHandler 6e7edf3
-* log client side connection statuses 1d25a31
-* log connected client info, server side 56e0be0
-* merge error 685ddb6
-* missing usage of queueNextSegment 4f17b74
-* nora hoverscrub not showing content on first load SOFIE-2819 (r50) ([#1120](undefined/undefined/undefined/issues/1120)) 71892a8
-* **openapi:** change setNextSegment method to POST instead of PUT ([#1055](undefined/undefined/undefined/issues/1055)) 2436066
-* package-manager expectedPackages not removing documents when source documents are deleted d4eddcc
-* persist events to produce usable event info, add better log information when event context can't be constructed 6c4c135
-* playout device config changes not being detected a28eae9
-* prevent stale data when segments or parts are removed d133131
-* remove duplicated segment identifier 7cea357
-* rework Studio peripheralDeviceSettings definition migration to ensure it is structured correctly d3bb155
-* update influxdb to use app_host bae04f0
-* update tsr 673e631
-* use reportedStartedPlayback primarily eafabf7
-* zero duration pieces breaking ab resolver ([#1007](undefined/undefined/undefined/issues/1007)) df8aa59
+- `rundownsForDevice` publication always failing 55bc10f
+- add handling for error 503 when generating single use token 0d1a315
+- AdLibs don't appear in Live Status Gateway until first take ([#1036](undefined/undefined/undefined/issues/1036)) bd5dbd3
+- **api:** type issues 358fba7
+- avoid doing `[0]` on a promise instead of on the awaited result ([#1047](undefined/undefined/undefined/issues/1047)) b8a79bc
+- CasparCG restart error: Timeout after 10000ms SOFIE-2588 ([#1042](undefined/undefined/undefined/issues/1042)) 394aa47
+- clear queued segment when setting one as next f79a6a5
+- debounce update of PeripheralDevice.lastSeen a63aca4
+- don't rely on winston types in `server-core-integration`, have own logger interface b418530
+- ensure `Studio.peripheralDeviceSettings` field is populated correctly by migrations aaa5606
+- ensure ExpectedPackageId values do not contain unsafe characters SOFIE-2825 fbb0431
+- expectedPackages from pieceInstances never producing ok status 3c5e11e
+- importing a snapshot loses rundown ordering SOFIE-2669 [#1034](undefined/undefined/undefined/issues/1034) c6fb01c
+- improve disposal of core connection dc52fe5
+- json-schema object-tables not handling nested tables correctly b6ae91b
+- **live-status-gw:** AdLib Pieces were missing in `activePlaylist` topic ([#1040](undefined/undefined/undefined/issues/1040)) 94857af
+- **live-status-gw:** do not include hidden segments in `segments` topic 1fae633
+- **live-status-gw:** exception in SegmentHandler 6e7edf3
+- log client side connection statuses 1d25a31
+- log connected client info, server side 56e0be0
+- merge error 685ddb6
+- missing usage of queueNextSegment 4f17b74
+- nora hoverscrub not showing content on first load SOFIE-2819 (r50) ([#1120](undefined/undefined/undefined/issues/1120)) 71892a8
+- **openapi:** change setNextSegment method to POST instead of PUT ([#1055](undefined/undefined/undefined/issues/1055)) 2436066
+- package-manager expectedPackages not removing documents when source documents are deleted d4eddcc
+- persist events to produce usable event info, add better log information when event context can't be constructed 6c4c135
+- playout device config changes not being detected a28eae9
+- prevent stale data when segments or parts are removed d133131
+- remove duplicated segment identifier 7cea357
+- rework Studio peripheralDeviceSettings definition migration to ensure it is structured correctly d3bb155
+- update influxdb to use app_host bae04f0
+- update tsr 673e631
+- use reportedStartedPlayback primarily eafabf7
+- zero duration pieces breaking ab resolver ([#1007](undefined/undefined/undefined/issues/1007)) df8aa59
 
 ## [1.50.0-in-testing.5](///compare/v1.50.0-in-testing.4...v1.50.0-in-testing.5) (2023-08-25)
 
 ## [1.50.0-in-testing.4](///compare/v1.49.0-in-testing.7...v1.50.0-in-testing.4) (2023-08-23)
 
-
 ### Features
 
-* respect json schema required field in ui SOFIE-2436 ([#995](undefined/undefined/undefined/issues/995)) 35a95c7
-
+- respect json schema required field in ui SOFIE-2436 ([#995](undefined/undefined/undefined/issues/995)) 35a95c7
 
 ### Bug Fixes
 
-* **CameraView:** resolve issue after `remainingTimeOnCurrentPart` was reversed 695cc4c
-* **LiveStatus:** interpolate adlib names 3fcb186
-* **SegmentTimeline:** Parts don't display Part identifier labels 3f51ec7
+- **CameraView:** resolve issue after `remainingTimeOnCurrentPart` was reversed 695cc4c
+- **LiveStatus:** interpolate adlib names 3fcb186
+- **SegmentTimeline:** Parts don't display Part identifier labels 3f51ec7
 
 ## [1.50.0-in-testing.2](///compare/v1.50.0-in-testing.1...v1.50.0-in-testing.2) (2023-07-17)
 
-
 ### Bug Fixes
 
-* **RundownList:** vertical line does not line up with horizontal on last Rundown in a Playlist d511ff6
-* **server-core-integration:** `autosubscribe` will resubscribe to collections using the same subscriptionId as when initially subscribed f0f3383
-* simplify executeFunction triggerWriteAccess() check 0579716
-* some layout problems in the Settings that are only apparent when running in a clean system bac963d
-* terminate live-status-gateway if device has no studioId 3303a99
-* typo in live-status-gateway peripheralDeviceForDevice subscription b311602
+- **RundownList:** vertical line does not line up with horizontal on last Rundown in a Playlist d511ff6
+- **server-core-integration:** `autosubscribe` will resubscribe to collections using the same subscriptionId as when initially subscribed f0f3383
+- simplify executeFunction triggerWriteAccess() check 0579716
+- some layout problems in the Settings that are only apparent when running in a clean system bac963d
+- terminate live-status-gateway if device has no studioId 3303a99
+- typo in live-status-gateway peripheralDeviceForDevice subscription b311602
 
 ## [1.50.0-in-testing.1](///compare/v1.50.0-in-testing.0...v1.50.0-in-testing.1) (2023-07-05)
 
-
 ### Bug Fixes
 
-* tsr actions not showing in peripheral device settings page ff85a93
-* tsr actions not showing in system status page 1c26b0a
-* webmanifest getLocale 3f98f66
+- tsr actions not showing in peripheral device settings page ff85a93
+- tsr actions not showing in system status page 1c26b0a
+- webmanifest getLocale 3f98f66
 
 ## [1.50.0-in-testing.0](///compare/v1.49.0-in-testing.4...v1.50.0-in-testing.0) (2023-07-03)
 
-
 ### ⚠ BREAKING CHANGES
 
-* mark `priority` as a required property in timeline objects, to prevent footguns (#961)
-* clean up deprecated Databases and DataTypes (#899)
-* json schemas for device config and mappings (#837)
+- mark `priority` as a required property in timeline objects, to prevent footguns (#961)
+- clean up deprecated Databases and DataTypes (#899)
+- json schemas for device config and mappings (#837)
 
 ### Features
 
-* add `prompterTitle` property SOFIE-2404 ([#975](undefined/undefined/undefined/issues/975)) 6f0567d
-* add a hook to resolve Inspector position request to a position in document space c74c8a5
-* add centralized redirect to latest API d6f08b9
-* add milestone timing 5950fd5
-* Add ouputLayer to adlib actions cb0457e
-* add theoretical support for forward time 47db6fb
-* add will-change to Piece labels e132355
-* allow getting the Source and Output layers from the ShowStyle context ([#979](undefined/undefined/undefined/issues/979)) ab57fb4
-* allow nested config tables 544d32e
-* Allow specifying the part instance to take from 13491e6
-* always show end time if segment is live b355eb2
-* Better API structure 3286b9f
-* Better error handling for API f55bbcc
-* Better user events c8db0b9
-* blueprint settings overhaul ([#878](undefined/undefined/undefined/issues/878)) ee3307c
-* bumps nightly tsr and types 77f0bf2
-* clean up deprecated Databases and DataTypes ([#899](undefined/undefined/undefined/issues/899)) a9ccf3f
-* clean up typings 561531b
-* clear sourcelayer / recall sticky piece 57c07b1
-* continue work to use Popper for Hover Inspectors (WIP) cb034ba
-* correctly support Storyboard view with hoverscrub pop-ups f2e5090
-* disable user-select, add black browser theme, fullscreen, screen wake lock 299d27d
-* expose MOS ports in mos-gateway settings ([#917](undefined/undefined/undefined/issues/917)) 4cb1649
-* fallback to cumetime if no backtime 2cafbab
-* Implement new API structure 66d52dc
-* implement single-use tokens for heavy operations 1799825
-* improve the styling of Test Tools d695c16
-* improve the visual layout of all settings pages 687755a
-* json schemas for device config and mappings ([#837](undefined/undefined/undefined/issues/837)) fb8f1c3
-* Live status gateway example ba3774f
-* make it easier to determine Rundown is on air (SOFIE-1167) ([#896](undefined/undefined/undefined/issues/896)) 3c23fcd
-* Make live status gateway complain if it is not attached to a studio 2bcd291
-* make some job-worker collections readonly c9c61ce
-* make some meteor collections readonly 4472e94
-* make the minimum take span configurable on a per-studio basis ([#967](undefined/undefined/undefined/issues/967)) c7731a9
-* memoize RundownListItemView 42764d4
-* Migrations for DeviceType 8381522
-* Migrations from API 1c041f4
-* Migrations post bd14aa8
-* move `checkPieceContentStatus` calls to server in custom publication SOFIE-1281 ([#942](undefined/undefined/undefined/issues/942)) b09da5e
-* move blueprint ab logic into sofie SOFIE-2403 ([#946](undefined/undefined/undefined/issues/946)) cc37b75
-* move gateway settings onto Studio SOFIE-1330 ([#907](undefined/undefined/undefined/issues/907)) 523c061
-* optimize Parts completely when not in viewport c27d359
-* peripheral device tidying ([#906](undefined/undefined/undefined/issues/906)) 0795ae5
-* re-implement Escape using portals d2dd13b
-* Redirect /latest to latest API version 9f5c31f
-* refactor to use Popper for Hover Inspectors (WIP) e669a9b
-* remove MediaObjects collection from client SOFIE-2402 ([#964](undefined/undefined/undefined/issues/964)) a89a1d2
-* Remove remaining client side usage of `PackageContainerPackageStatuses` collection SOFIE-2401 ([#953](undefined/undefined/undefined/issues/953)) 8f3b8cf
-* Report adlib pieces e05e7bd
-* report inability to remove rundown to the caller SOFIE-1131 ([#886](undefined/undefined/undefined/issues/886)) 249ecc7
-* rework `/api` redirects to koa 8526b36
-* rework actionTriggers api to koa 6248e6d
-* rework blueprint http api to koa f9644ff
-* rework ingest http api to koa 1049282
-* rework peripheraldevice http api to koa (untested) f207070
-* rework rest v0 api to koa. remove picker 33d66ad
-* rework servicemessages api to koa (untested) 9cdd150
-* rework shelfLayouts api to koa 38f15a5
-* rework snapshots http api to koa 935bb3a
-* rework systemStatus api to koa 382bbc8
-* rework webmanifest api to koa 982e6dd
-* **SchemaForm:** a header component for Tables and objects 514f8e9
-* setup collection security at time of creating the server collection 5db4576
-* some intial work on CameraScreen 16da85c
-* Spinner when loading Rundown 31bdb4b
-* split package-manager publication into multiple more optimal publications SOFIE-1926 d1bb788
-* support resizing camera view efd8a8d
-* trs actions in blueprints rundown hooks bb5e442
-* upgrade react to 18.2 a7c9200
-* use transactions in job-worker a431a3f
-* working implementation of camera view cc900b8
-
+- add `prompterTitle` property SOFIE-2404 ([#975](undefined/undefined/undefined/issues/975)) 6f0567d
+- add a hook to resolve Inspector position request to a position in document space c74c8a5
+- add centralized redirect to latest API d6f08b9
+- add milestone timing 5950fd5
+- Add outputLayer to adlib actions cb0457e
+- add theoretical support for forward time 47db6fb
+- add will-change to Piece labels e132355
+- allow getting the Source and Output layers from the ShowStyle context ([#979](undefined/undefined/undefined/issues/979)) ab57fb4
+- allow nested config tables 544d32e
+- Allow specifying the part instance to take from 13491e6
+- always show end time if segment is live b355eb2
+- Better API structure 3286b9f
+- Better error handling for API f55bbcc
+- Better user events c8db0b9
+- blueprint settings overhaul ([#878](undefined/undefined/undefined/issues/878)) ee3307c
+- bumps nightly tsr and types 77f0bf2
+- clean up deprecated Databases and DataTypes ([#899](undefined/undefined/undefined/issues/899)) a9ccf3f
+- clean up typings 561531b
+- clear sourcelayer / recall sticky piece 57c07b1
+- continue work to use Popper for Hover Inspectors (WIP) cb034ba
+- correctly support Storyboard view with hoverscrub pop-ups f2e5090
+- disable user-select, add black browser theme, fullscreen, screen wake lock 299d27d
+- expose MOS ports in mos-gateway settings ([#917](undefined/undefined/undefined/issues/917)) 4cb1649
+- fallback to cumetime if no backtime 2cafbab
+- Implement new API structure 66d52dc
+- implement single-use tokens for heavy operations 1799825
+- improve the styling of Test Tools d695c16
+- improve the visual layout of all settings pages 687755a
+- json schemas for device config and mappings ([#837](undefined/undefined/undefined/issues/837)) fb8f1c3
+- Live status gateway example ba3774f
+- make it easier to determine Rundown is on air (SOFIE-1167) ([#896](undefined/undefined/undefined/issues/896)) 3c23fcd
+- Make live status gateway complain if it is not attached to a studio 2bcd291
+- make some job-worker collections readonly c9c61ce
+- make some meteor collections readonly 4472e94
+- make the minimum take span configurable on a per-studio basis ([#967](undefined/undefined/undefined/issues/967)) c7731a9
+- memoize RundownListItemView 42764d4
+- Migrations for DeviceType 8381522
+- Migrations from API 1c041f4
+- Migrations post bd14aa8
+- move `checkPieceContentStatus` calls to server in custom publication SOFIE-1281 ([#942](undefined/undefined/undefined/issues/942)) b09da5e
+- move blueprint ab logic into sofie SOFIE-2403 ([#946](undefined/undefined/undefined/issues/946)) cc37b75
+- move gateway settings onto Studio SOFIE-1330 ([#907](undefined/undefined/undefined/issues/907)) 523c061
+- optimize Parts completely when not in viewport c27d359
+- peripheral device tidying ([#906](undefined/undefined/undefined/issues/906)) 0795ae5
+- re-implement Escape using portals d2dd13b
+- Redirect /latest to latest API version 9f5c31f
+- refactor to use Popper for Hover Inspectors (WIP) e669a9b
+- remove MediaObjects collection from client SOFIE-2402 ([#964](undefined/undefined/undefined/issues/964)) a89a1d2
+- Remove remaining client side usage of `PackageContainerPackageStatuses` collection SOFIE-2401 ([#953](undefined/undefined/undefined/issues/953)) 8f3b8cf
+- Report adlib pieces e05e7bd
+- report inability to remove rundown to the caller SOFIE-1131 ([#886](undefined/undefined/undefined/issues/886)) 249ecc7
+- rework `/api` redirects to koa 8526b36
+- rework actionTriggers api to koa 6248e6d
+- rework blueprint http api to koa f9644ff
+- rework ingest http api to koa 1049282
+- rework peripheraldevice http api to koa (untested) f207070
+- rework rest v0 api to koa. remove picker 33d66ad
+- rework servicemessages api to koa (untested) 9cdd150
+- rework shelfLayouts api to koa 38f15a5
+- rework snapshots http api to koa 935bb3a
+- rework systemStatus api to koa 382bbc8
+- rework webmanifest api to koa 982e6dd
+- **SchemaForm:** a header component for Tables and objects 514f8e9
+- setup collection security at time of creating the server collection 5db4576
+- some initial work on CameraScreen 16da85c
+- Spinner when loading Rundown 31bdb4b
+- split package-manager publication into multiple more optimal publications SOFIE-1926 d1bb788
+- support resizing camera view efd8a8d
+- trs actions in blueprints rundown hooks bb5e442
+- upgrade react to 18.2 a7c9200
+- use transactions in job-worker a431a3f
+- working implementation of camera view cc900b8
 
 ### Bug Fixes
 
-* `latest` api path alias 2dc7b18
-* accept a token generated in the previous validity period 459101a
-* add a migration for Peripheral Devices missing a deviceConfigSchema 897a49e
-* add transactions to some fetches 984cb5b
-* adjust budget gap line to account for new transform-based layout, which ensures that it doesn't go past the editorial line 5cb67b6
-* Adlib action find 2082825
-* AdLib find 49d236d
-* Allow JSON objects in config presets ([#949](undefined/undefined/undefined/issues/949)) 4e5a797
-* animations, timing e95f51b
-* Avoid async in process.nextTick 55411d9
-* basic parameter validation for custom publications c95ee10
-* blueprint upload f093576
-* Broken tests 5269f94
-* Broken tests 45f5bef
-* Build errors 721dbd3
-* cap on-air part duration of autonext part 6c37af9
-* **ClockView:** lower reactivity of of currentPartInstance, nextPartInstance 9cfb076
-* closer... a2f0db7
-* closer... 0ccb52c
-* consider current part when getting next rundown anchor 6b9237a
-* correct logic around end times and DRY it 9a1afc2
-* correctly working flipped hover inspectors for VTs 0fafa28
-* custom publications overly reactive ([#976](undefined/undefined/undefined/issues/976)) 3a4b184
-* Dependency links 0adf047
-* **DeviceTriggers:** make the cached Action invalidation faster 28e44b5
-* don't error when flattening timeline group children ([#944](undefined/undefined/undefined/issues/944)) 3635924
-* Don't expose rest API over DDP, reduce repeated code a29d006
-* don't show future shade on autoNext parts e8d131a
-* expectedPackage publication should be using `replace` not `insert` 3f01e1e
-* expose `deviceType` in `listPlayoutDevices` to blueprints 2b32c72
-* Expose OAuth credentials to peripheral device ([#950](undefined/undefined/undefined/issues/950)) 5d795f6
-* extract objects when source has been determined 6beefe7
-* Failing test 25e5db0
-* Failing test a32aa14
-* Failing test 92a1914
-* **FilterEditor:** some layouting of multiple components in a single properties-grid cell 13157b3
-* Generate interfaces on prepare 661c954
-* get rid of some tiny gaps between parts 757e7f4
-* getting closer 0caa097
-* handle promises in observeChanges/observe callbacks correctly 413007b
-* Headers type 0ed98e8
-* hide countdown and icicles on looping media 43da033
-* ignore `@sofie-automation/openapi` for local development 5c0acb2
-* Ignore openapi pacakge for node 14 092c345
-* Improve API responses f3cbded
-* improve timeOffset logic 405cf2e
-* Insert and update peripheralDevice type as number ([#895](undefined/undefined/undefined/issues/895)) 1e77c0a
-* install_swagger.js a6bfefc
-* Installing package for node 14 5a8dd81
-* **InvalidFloatingInspector:** resolve conditional hook execution af1e74f
-* Koa paths, blueprint tests work with Sofie da01557
-* label for OutOnRundownEnd is the same as for OutOnRundownChange AdLibs 9279d1b
-* label styling 55d62e2
-* lighten color to match existing grays on the page 3798344
-* lint b5a90b8
-* lint 024d8f5
-* Lint 259e8b6
-* linter errors 9444ade
-* make `uiPieceContentStatuses` publication be less reactive to changes in irrelevant properties on packages and mediaobjects e0eac19
-* Make DeviceType migration dependent on device migration 912ba8f
-* make openapi test port configurable and random by default. run tests in ci 888a3d0
-* make properties required but allow undefined c2d24f9
-* Make rest API independent of meteor methods class 409f97d
-* mark `priority` as a required property in timeline objects, to prevent footguns ([#961](undefined/undefined/undefined/issues/961)) 41f67ae
-* meteor crash during some http requests c992402
-* meteor ui crash with yarn3 SOFIE-2251 140619e
-* migrations for devicetype failing on some overrides [#955](undefined/undefined/undefined/issues/955) a1b8d22
-* Missing data 82038cb
-* more care with error returns, more testing 0287651
-* more correctness and fixes aff63fd
-* more test updates to run against Sofie 08a19e3
-* Move checks into API try blocks dffa23b
-* Move more type conversions to conversions file 9ef4931
-* Move server-side stuff to the server d239a2d
-* New yarn runner 4419d3f
-* Node 14 (again) 143117b
-* on some terminals, hasColors is undefined ([#924](undefined/undefined/undefined/issues/924)) 5dc3d5b
-* package status page styling ab2972f
-* package-container and package stauses should change when their Package Manager is offline 6f7ad7b
-* peripheralDeviceForDevice is not reactive on Studio changes 7684055
-* Piece preroll in Part preroll calculations ([#890](undefined/undefined/undefined/issues/890)) fc993a9
-* place the code in a blender; pulse until smooth. f41bb0a
-* playlist tests with Sofie server, logging for test errors bb45ae3
-* popper modifiers working correctly 20f0455
-* possibly closer, possibly a lateral move a72eeeb
-* reduce the amount of visual jitter on a playing timeline 83c222e
-* remove `mosRoStoryStatus` handler and `Part.status` property SOFIE-1478 ([#915](undefined/undefined/undefined/issues/915)) 5a53944
-* Remove `yarn` from script 4c3c4c1
-* Remove unused property 2901f83
-* Remove use of npx c72607a
-* remove virtual duration stuff which messes with alignment and timings c883063
-* require blueprint baseline objects to be of type `TimelineObjectCoreExt` instead of `TSR.TSRTimelineObj` [#961](undefined/undefined/undefined/issues/961) b8d0cf3
-* resetting old PartInstances and PieceInstances can affect other rundowns c364bb3
-* revert some greedy changes f611363
-* right behind you 59d508e
-* rundown view break 46bd22b
-* RundownList missing ShowStyle name. ([#971](undefined/undefined/undefined/issues/971)) 931c12c
-* **RundownList:** Tooltip alignment 20246e6
-* security warning on startup about generateSingleUseToken f99a0a0
-* seek time for hoverscrub while playing 98a17a8
-* **SegmentList:** indicator placement 470df23
-* servicemessages api tests 404c947
-* set a proper length for TOKEN_SECRET 609cf2d
-* setNextSegment behavior ([#930](undefined/undefined/undefined/issues/930)) c9dede2
-* **ShowStyleBaseSettings:** remove two-column layout in layer settings 80c7cf5
-* simplify, don't try to fix unrelated bugs 61fb201
-* simulate transactions in tests 356e480
-* small parts layout f244892
-* small parts positioning (WIP) 4c8d7f9
-* SmallPart Flag position during playback 4ecf963
-* some content-type issues c9ba4bb
-* StudioId should be undefined ([#923](undefined/undefined/undefined/issues/923)) 04953c4
-* subscription to uiSegmentPartNotes/uiPieceContentStatuses causes a crash if playlist can't be found c78cbd9
-* tests 40ee099
-* tests & add tests for nonzero default Part duration ae24924
-* tests and undo some reverted changes 84c23d6
-* throw when verifyHashedToken is false a473f37
-* **Timing:** expectedDuration=0 members of displayDuration groups countdown doesn't inherit displayDurationGroup duration 2bd5802
-* Tooltip arrow placement is incorrect cd29cea
-* Translate user errors e41b005
-* type error 8d23ab5
-* ui component crash a4f3d7d
-* use CollectionName, separate out colelction and publication 6f07428
-* use useCurrentTime b89a61a
-* Use yarn-exclude to ignore openapi f5878c0
-* usePopper placement of Inspectors b6dc9b8
-* verifyHashedToken compatible with securityVerify 7052f3d
-* working re-layouting of hover inspectors 87811a9
+- `latest` api path alias 2dc7b18
+- accept a token generated in the previous validity period 459101a
+- add a migration for Peripheral Devices missing a deviceConfigSchema 897a49e
+- add transactions to some fetches 984cb5b
+- adjust budget gap line to account for new transform-based layout, which ensures that it doesn't go past the editorial line 5cb67b6
+- Adlib action find 2082825
+- AdLib find 49d236d
+- Allow JSON objects in config presets ([#949](undefined/undefined/undefined/issues/949)) 4e5a797
+- animations, timing e95f51b
+- Avoid async in process.nextTick 55411d9
+- basic parameter validation for custom publications c95ee10
+- blueprint upload f093576
+- Broken tests 5269f94
+- Broken tests 45f5bef
+- Build errors 721dbd3
+- cap on-air part duration of autonext part 6c37af9
+- **ClockView:** lower reactivity of of currentPartInstance, nextPartInstance 9cfb076
+- closer... a2f0db7
+- closer... 0ccb52c
+- consider current part when getting next rundown anchor 6b9237a
+- correct logic around end times and DRY it 9a1afc2
+- correctly working flipped hover inspectors for VTs 0fafa28
+- custom publications overly reactive ([#976](undefined/undefined/undefined/issues/976)) 3a4b184
+- Dependency links 0adf047
+- **DeviceTriggers:** make the cached Action invalidation faster 28e44b5
+- don't error when flattening timeline group children ([#944](undefined/undefined/undefined/issues/944)) 3635924
+- Don't expose rest API over DDP, reduce repeated code a29d006
+- don't show future shade on autoNext parts e8d131a
+- expectedPackage publication should be using `replace` not `insert` 3f01e1e
+- expose `deviceType` in `listPlayoutDevices` to blueprints 2b32c72
+- Expose OAuth credentials to peripheral device ([#950](undefined/undefined/undefined/issues/950)) 5d795f6
+- extract objects when source has been determined 6beefe7
+- Failing test 25e5db0
+- Failing test a32aa14
+- Failing test 92a1914
+- **FilterEditor:** some layouting of multiple components in a single properties-grid cell 13157b3
+- Generate interfaces on prepare 661c954
+- get rid of some tiny gaps between parts 757e7f4
+- getting closer 0caa097
+- handle promises in observeChanges/observe callbacks correctly 413007b
+- Headers type 0ed98e8
+- hide countdown and icicles on looping media 43da033
+- ignore `@sofie-automation/openapi` for local development 5c0acb2
+- Ignore openapi package for node 14 092c345
+- Improve API responses f3cbded
+- improve timeOffset logic 405cf2e
+- Insert and update peripheralDevice type as number ([#895](undefined/undefined/undefined/issues/895)) 1e77c0a
+- install_swagger.js a6bfefc
+- Installing package for node 14 5a8dd81
+- **InvalidFloatingInspector:** resolve conditional hook execution af1e74f
+- Koa paths, blueprint tests work with Sofie da01557
+- label for OutOnRundownEnd is the same as for OutOnRundownChange AdLibs 9279d1b
+- label styling 55d62e2
+- lighten color to match existing grays on the page 3798344
+- lint b5a90b8
+- lint 024d8f5
+- Lint 259e8b6
+- linter errors 9444ade
+- make `uiPieceContentStatuses` publication be less reactive to changes in irrelevant properties on packages and mediaobjects e0eac19
+- Make DeviceType migration dependent on device migration 912ba8f
+- make openapi test port configurable and random by default. run tests in ci 888a3d0
+- make properties required but allow undefined c2d24f9
+- Make rest API independent of meteor methods class 409f97d
+- mark `priority` as a required property in timeline objects, to prevent footguns ([#961](undefined/undefined/undefined/issues/961)) 41f67ae
+- meteor crash during some http requests c992402
+- meteor ui crash with yarn3 SOFIE-2251 140619e
+- migrations for devicetype failing on some overrides [#955](undefined/undefined/undefined/issues/955) a1b8d22
+- Missing data 82038cb
+- more care with error returns, more testing 0287651
+- more correctness and fixes aff63fd
+- more test updates to run against Sofie 08a19e3
+- Move checks into API try blocks dffa23b
+- Move more type conversions to conversions file 9ef4931
+- Move server-side stuff to the server d239a2d
+- New yarn runner 4419d3f
+- Node 14 (again) 143117b
+- on some terminals, hasColors is undefined ([#924](undefined/undefined/undefined/issues/924)) 5dc3d5b
+- package status page styling ab2972f
+- package-container and package stauses should change when their Package Manager is offline 6f7ad7b
+- peripheralDeviceForDevice is not reactive on Studio changes 7684055
+- Piece preroll in Part preroll calculations ([#890](undefined/undefined/undefined/issues/890)) fc993a9
+- place the code in a blender; pulse until smooth. f41bb0a
+- playlist tests with Sofie server, logging for test errors bb45ae3
+- popper modifiers working correctly 20f0455
+- possibly closer, possibly a lateral move a72eeeb
+- reduce the amount of visual jitter on a playing timeline 83c222e
+- remove `mosRoStoryStatus` handler and `Part.status` property SOFIE-1478 ([#915](undefined/undefined/undefined/issues/915)) 5a53944
+- Remove `yarn` from script 4c3c4c1
+- Remove unused property 2901f83
+- Remove use of npx c72607a
+- remove virtual duration stuff which messes with alignment and timings c883063
+- require blueprint baseline objects to be of type `TimelineObjectCoreExt` instead of `TSR.TSRTimelineObj` [#961](undefined/undefined/undefined/issues/961) b8d0cf3
+- resetting old PartInstances and PieceInstances can affect other rundowns c364bb3
+- revert some greedy changes f611363
+- right behind you 59d508e
+- rundown view break 46bd22b
+- RundownList missing ShowStyle name. ([#971](undefined/undefined/undefined/issues/971)) 931c12c
+- **RundownList:** Tooltip alignment 20246e6
+- security warning on startup about generateSingleUseToken f99a0a0
+- seek time for hoverscrub while playing 98a17a8
+- **SegmentList:** indicator placement 470df23
+- servicemessages api tests 404c947
+- set a proper length for TOKEN_SECRET 609cf2d
+- setNextSegment behavior ([#930](undefined/undefined/undefined/issues/930)) c9dede2
+- **ShowStyleBaseSettings:** remove two-column layout in layer settings 80c7cf5
+- simplify, don't try to fix unrelated bugs 61fb201
+- simulate transactions in tests 356e480
+- small parts layout f244892
+- small parts positioning (WIP) 4c8d7f9
+- SmallPart Flag position during playback 4ecf963
+- some content-type issues c9ba4bb
+- StudioId should be undefined ([#923](undefined/undefined/undefined/issues/923)) 04953c4
+- subscription to uiSegmentPartNotes/uiPieceContentStatuses causes a crash if playlist can't be found c78cbd9
+- tests 40ee099
+- tests & add tests for nonzero default Part duration ae24924
+- tests and undo some reverted changes 84c23d6
+- throw when verifyHashedToken is false a473f37
+- **Timing:** expectedDuration=0 members of displayDuration groups countdown doesn't inherit displayDurationGroup duration 2bd5802
+- Tooltip arrow placement is incorrect cd29cea
+- Translate user errors e41b005
+- type error 8d23ab5
+- ui component crash a4f3d7d
+- use CollectionName, separate out collection and publication 6f07428
+- use useCurrentTime b89a61a
+- Use yarn-exclude to ignore openapi f5878c0
+- usePopper placement of Inspectors b6dc9b8
+- verifyHashedToken compatible with securityVerify 7052f3d
+- working re-layouting of hover inspectors 87811a9
 
 ### [1.50.1](///compare/v1.50.1-0...v1.50.1) (2024-03-11)
 
-
 ### Bug Fixes
 
-* strip unused node dependencies from docker images ([#1159](undefined/undefined/undefined/issues/1159)) 6d86132
+- strip unused node dependencies from docker images ([#1159](undefined/undefined/undefined/issues/1159)) 6d86132
 
 ### [1.50.1-0](///compare/v1.50.0...v1.50.1-0) (2024-03-05)
 
-
 ### Features
 
-* support external url dropzones 489c17b
-* support prompter-editor SOFIE-2846 ([#1151](undefined/undefined/undefined/issues/1151)) fd936d0
-
+- support external url dropzones 489c17b
+- support prompter-editor SOFIE-2846 ([#1151](undefined/undefined/undefined/issues/1151)) fd936d0
 
 ### Bug Fixes
 
-* bucket content status publication SOFIE-2993 f361c89
-* content status for PieceInstances can be under the id of the PieceInstance or the wrapped Piece SOFIE-2993 a5e7af4
-* **GUI:** remove Piece dependency for Part duration calculation c862582
-* PieceInstance ExpectedPackages generated with incorrect id 89880fe
-* statuses for PieceInstances should copy from the Piece until package-manager catches up 3158b09
-* thumbnail and scrub previews being reported as available too early 391bfc4
-* use the PartInstance instead of Part for PieceInstance content status SOFIE-2993 5d3a610
+- bucket content status publication SOFIE-2993 f361c89
+- content status for PieceInstances can be under the id of the PieceInstance or the wrapped Piece SOFIE-2993 a5e7af4
+- **GUI:** remove Piece dependency for Part duration calculation c862582
+- PieceInstance ExpectedPackages generated with incorrect id 89880fe
+- statuses for PieceInstances should copy from the Piece until package-manager catches up 3158b09
+- thumbnail and scrub previews being reported as available too early 391bfc4
+- use the PartInstance instead of Part for PieceInstance content status SOFIE-2993 5d3a610
 
 ## [1.50.0](///compare/v1.49.4...v1.50.0) (2024-02-23)
 
-
 ### Features
 
-* add `node-fetch` as a global to blueprint execution SOFIE-1367 ([#1135](undefined/undefined/undefined/issues/1135)) 061d03a
-* allow blueprints to specify a custom resolution for NORA hover preview SOFIE-2840 ([#1123](undefined/undefined/undefined/issues/1123)) d2f3cef
-* **api:** allow setting segment as "immediate" next 2177b46
-* **EAV-23:** add budget and expected duration to segments topic acfaf84
-* **live-status-gw:** add `segments` topic 7a125ce
-* **live-status-gw:** add segments handler throttling 9a63519
-* **live-status-gw:** Expose AdLib tags in the `activePlaylist` topic ([#1038](undefined/undefined/undefined/issues/1038)) 1fd4ec4
-* **live-status-gw:** segment identifiers ([#1068](undefined/undefined/undefined/issues/1068)) ca592bf
-* provide a sensible notification to user when rate-limited on Snapshots 596be73
-
+- add `node-fetch` as a global to blueprint execution SOFIE-1367 ([#1135](undefined/undefined/undefined/issues/1135)) 061d03a
+- allow blueprints to specify a custom resolution for NORA hover preview SOFIE-2840 ([#1123](undefined/undefined/undefined/issues/1123)) d2f3cef
+- **api:** allow setting segment as "immediate" next 2177b46
+- **EAV-23:** add budget and expected duration to segments topic acfaf84
+- **live-status-gw:** add `segments` topic 7a125ce
+- **live-status-gw:** add segments handler throttling 9a63519
+- **live-status-gw:** Expose AdLib tags in the `activePlaylist` topic ([#1038](undefined/undefined/undefined/issues/1038)) 1fd4ec4
+- **live-status-gw:** segment identifiers ([#1068](undefined/undefined/undefined/issues/1068)) ca592bf
+- provide a sensible notification to user when rate-limited on Snapshots 596be73
 
 ### Bug Fixes
 
-* `rundownsForDevice` publication always failing 55bc10f
-* add handling for error 503 when generating single use token 0d1a315
-* AdLibs don't appear in Live Status Gateway until first take ([#1036](undefined/undefined/undefined/issues/1036)) bd5dbd3
-* **api:** type issues 358fba7
-* avoid doing `[0]` on a promise instead of on the awaited result ([#1047](undefined/undefined/undefined/issues/1047)) b8a79bc
-* CasparCG restart error: Timeout after 10000ms SOFIE-2588 ([#1042](undefined/undefined/undefined/issues/1042)) 394aa47
-* clear queued segment when setting one as next f79a6a5
-* core-integration: handle error when subscribing e9beb34
-* debounce update of PeripheralDevice.lastSeen a63aca4
-* don't rely on winston types in `server-core-integration`, have own logger interface b418530
-* ensure `Studio.peripheralDeviceSettings` field is populated correctly by migrations aaa5606
-* ensure ExpectedPackageId values do not contain unsafe characters SOFIE-2825 fbb0431
-* expectedPackages from pieceInstances never producing ok status 3c5e11e
-* importing a snapshot loses rundown ordering SOFIE-2669 [#1034](undefined/undefined/undefined/issues/1034) c6fb01c
-* improve disposal of core connection dc52fe5
-* json-schema object-tables not handling nested tables correctly b6ae91b
-* **live-status-gw:** AdLib Pieces were missing in `activePlaylist` topic ([#1040](undefined/undefined/undefined/issues/1040)) 94857af
-* **live-status-gw:** do not include hidden segments in `segments` topic 1fae633
-* **live-status-gw:** exception in SegmentHandler 6e7edf3
-* log client side connection statuses 1d25a31
-* log connected client info, server side 56e0be0
-* merge error 685ddb6
-* missing usage of queueNextSegment 4f17b74
-* nora hoverscrub not showing content on first load SOFIE-2819 ([#1119](undefined/undefined/undefined/issues/1119)) 590c372
-* nora hoverscrub not showing content on first load SOFIE-2819 (r50) ([#1120](undefined/undefined/undefined/issues/1120)) 71892a8
-* **openapi:** change setNextSegment method to POST instead of PUT ([#1055](undefined/undefined/undefined/issues/1055)) 2436066
-* package-manager expectedPackages not removing documents when source documents are deleted d4eddcc
-* persist events to produce usable event info, add better log information when event context can't be constructed 6c4c135
-* playout device config changes not being detected a28eae9
-* prevent stale data when segments or parts are removed d133131
-* remove duplicated segment identifier 7cea357
-* rework Studio peripheralDeviceSettings definition migration to ensure it is structured correctly d3bb155
-* update influxdb to use app_host bae04f0
-* update tsr 673e631
-* use reportedStartedPlayback primarily eafabf7
-* zero duration pieces breaking ab resolver ([#1007](undefined/undefined/undefined/issues/1007)) df8aa59
+- `rundownsForDevice` publication always failing 55bc10f
+- add handling for error 503 when generating single use token 0d1a315
+- AdLibs don't appear in Live Status Gateway until first take ([#1036](undefined/undefined/undefined/issues/1036)) bd5dbd3
+- **api:** type issues 358fba7
+- avoid doing `[0]` on a promise instead of on the awaited result ([#1047](undefined/undefined/undefined/issues/1047)) b8a79bc
+- CasparCG restart error: Timeout after 10000ms SOFIE-2588 ([#1042](undefined/undefined/undefined/issues/1042)) 394aa47
+- clear queued segment when setting one as next f79a6a5
+- core-integration: handle error when subscribing e9beb34
+- debounce update of PeripheralDevice.lastSeen a63aca4
+- don't rely on winston types in `server-core-integration`, have own logger interface b418530
+- ensure `Studio.peripheralDeviceSettings` field is populated correctly by migrations aaa5606
+- ensure ExpectedPackageId values do not contain unsafe characters SOFIE-2825 fbb0431
+- expectedPackages from pieceInstances never producing ok status 3c5e11e
+- importing a snapshot loses rundown ordering SOFIE-2669 [#1034](undefined/undefined/undefined/issues/1034) c6fb01c
+- improve disposal of core connection dc52fe5
+- json-schema object-tables not handling nested tables correctly b6ae91b
+- **live-status-gw:** AdLib Pieces were missing in `activePlaylist` topic ([#1040](undefined/undefined/undefined/issues/1040)) 94857af
+- **live-status-gw:** do not include hidden segments in `segments` topic 1fae633
+- **live-status-gw:** exception in SegmentHandler 6e7edf3
+- log client side connection statuses 1d25a31
+- log connected client info, server side 56e0be0
+- merge error 685ddb6
+- missing usage of queueNextSegment 4f17b74
+- nora hoverscrub not showing content on first load SOFIE-2819 ([#1119](undefined/undefined/undefined/issues/1119)) 590c372
+- nora hoverscrub not showing content on first load SOFIE-2819 (r50) ([#1120](undefined/undefined/undefined/issues/1120)) 71892a8
+- **openapi:** change setNextSegment method to POST instead of PUT ([#1055](undefined/undefined/undefined/issues/1055)) 2436066
+- package-manager expectedPackages not removing documents when source documents are deleted d4eddcc
+- persist events to produce usable event info, add better log information when event context can't be constructed 6c4c135
+- playout device config changes not being detected a28eae9
+- prevent stale data when segments or parts are removed d133131
+- remove duplicated segment identifier 7cea357
+- rework Studio peripheralDeviceSettings definition migration to ensure it is structured correctly d3bb155
+- update influxdb to use app_host bae04f0
+- update tsr 673e631
+- use reportedStartedPlayback primarily eafabf7
+- zero duration pieces breaking ab resolver ([#1007](undefined/undefined/undefined/issues/1007)) df8aa59
 
 ## [1.50.0-in-testing.5](///compare/v1.50.0-in-testing.4...v1.50.0-in-testing.5) (2023-08-25)
 
 ## [1.50.0-in-testing.4](///compare/v1.49.0-in-testing.7...v1.50.0-in-testing.4) (2023-08-23)
 
-
 ### Features
 
-* respect json schema required field in ui SOFIE-2436 ([#995](undefined/undefined/undefined/issues/995)) 35a95c7
-
+- respect json schema required field in ui SOFIE-2436 ([#995](undefined/undefined/undefined/issues/995)) 35a95c7
 
 ### Bug Fixes
 
-* **CameraView:** resolve issue after `remainingTimeOnCurrentPart` was reversed 695cc4c
-* **LiveStatus:** interpolate adlib names 3fcb186
-* **SegmentTimeline:** Parts don't display Part identifier labels 3f51ec7
+- **CameraView:** resolve issue after `remainingTimeOnCurrentPart` was reversed 695cc4c
+- **LiveStatus:** interpolate adlib names 3fcb186
+- **SegmentTimeline:** Parts don't display Part identifier labels 3f51ec7
 
 ## [1.50.0-in-testing.2](///compare/v1.50.0-in-testing.1...v1.50.0-in-testing.2) (2023-07-17)
 
-
 ### Bug Fixes
 
-* **RundownList:** vertical line does not line up with horizontal on last Rundown in a Playlist d511ff6
-* **server-core-integration:** `autosubscribe` will resubscribe to collections using the same subscriptionId as when initially subscribed f0f3383
-* simplify executeFunction triggerWriteAccess() check 0579716
-* some layout problems in the Settings that are only apparent when running in a clean system bac963d
-* terminate live-status-gateway if device has no studioId 3303a99
-* typo in live-status-gateway peripheralDeviceForDevice subscription b311602
+- **RundownList:** vertical line does not line up with horizontal on last Rundown in a Playlist d511ff6
+- **server-core-integration:** `autosubscribe` will resubscribe to collections using the same subscriptionId as when initially subscribed f0f3383
+- simplify executeFunction triggerWriteAccess() check 0579716
+- some layout problems in the Settings that are only apparent when running in a clean system bac963d
+- terminate live-status-gateway if device has no studioId 3303a99
+- typo in live-status-gateway peripheralDeviceForDevice subscription b311602
 
 ## [1.50.0-in-testing.1](///compare/v1.50.0-in-testing.0...v1.50.0-in-testing.1) (2023-07-05)
 
-
 ### Bug Fixes
 
-* tsr actions not showing in peripheral device settings page ff85a93
-* tsr actions not showing in system status page 1c26b0a
-* webmanifest getLocale 3f98f66
+- tsr actions not showing in peripheral device settings page ff85a93
+- tsr actions not showing in system status page 1c26b0a
+- webmanifest getLocale 3f98f66
 
 ## [1.50.0-in-testing.0](///compare/v1.49.0-in-testing.4...v1.50.0-in-testing.0) (2023-07-03)
 
-
 ### ⚠ BREAKING CHANGES
 
-* mark `priority` as a required property in timeline objects, to prevent footguns (#961)
-* clean up deprecated Databases and DataTypes (#899)
-* json schemas for device config and mappings (#837)
+- mark `priority` as a required property in timeline objects, to prevent footguns (#961)
+- clean up deprecated Databases and DataTypes (#899)
+- json schemas for device config and mappings (#837)
 
 ### Features
 
-* add `prompterTitle` property SOFIE-2404 ([#975](undefined/undefined/undefined/issues/975)) 6f0567d
-* add a hook to resolve Inspector position request to a position in document space c74c8a5
-* add centralized redirect to latest API d6f08b9
-* add milestone timing 5950fd5
-* Add ouputLayer to adlib actions cb0457e
-* add theoretical support for forward time 47db6fb
-* add will-change to Piece labels e132355
-* allow getting the Source and Output layers from the ShowStyle context ([#979](undefined/undefined/undefined/issues/979)) ab57fb4
-* allow nested config tables 544d32e
-* Allow specifying the part instance to take from 13491e6
-* always show end time if segment is live b355eb2
-* Better API structure 3286b9f
-* Better error handling for API f55bbcc
-* Better user events c8db0b9
-* blueprint settings overhaul ([#878](undefined/undefined/undefined/issues/878)) ee3307c
-* bumps nightly tsr and types 77f0bf2
-* clean up deprecated Databases and DataTypes ([#899](undefined/undefined/undefined/issues/899)) a9ccf3f
-* clean up typings 561531b
-* clear sourcelayer / recall sticky piece 57c07b1
-* continue work to use Popper for Hover Inspectors (WIP) cb034ba
-* correctly support Storyboard view with hoverscrub pop-ups f2e5090
-* disable user-select, add black browser theme, fullscreen, screen wake lock 299d27d
-* expose MOS ports in mos-gateway settings ([#917](undefined/undefined/undefined/issues/917)) 4cb1649
-* fallback to cumetime if no backtime 2cafbab
-* Implement new API structure 66d52dc
-* implement single-use tokens for heavy operations 1799825
-* improve the styling of Test Tools d695c16
-* improve the visual layout of all settings pages 687755a
-* json schemas for device config and mappings ([#837](undefined/undefined/undefined/issues/837)) fb8f1c3
-* Live status gateway example ba3774f
-* make it easier to determine Rundown is on air (SOFIE-1167) ([#896](undefined/undefined/undefined/issues/896)) 3c23fcd
-* Make live status gateway complain if it is not attached to a studio 2bcd291
-* make some job-worker collections readonly c9c61ce
-* make some meteor collections readonly 4472e94
-* make the minimum take span configurable on a per-studio basis ([#967](undefined/undefined/undefined/issues/967)) c7731a9
-* memoize RundownListItemView 42764d4
-* Migrations for DeviceType 8381522
-* Migrations from API 1c041f4
-* Migrations post bd14aa8
-* move `checkPieceContentStatus` calls to server in custom publication SOFIE-1281 ([#942](undefined/undefined/undefined/issues/942)) b09da5e
-* move blueprint ab logic into sofie SOFIE-2403 ([#946](undefined/undefined/undefined/issues/946)) cc37b75
-* move gateway settings onto Studio SOFIE-1330 ([#907](undefined/undefined/undefined/issues/907)) 523c061
-* optimize Parts completely when not in viewport c27d359
-* peripheral device tidying ([#906](undefined/undefined/undefined/issues/906)) 0795ae5
-* re-implement Escape using portals d2dd13b
-* Redirect /latest to latest API version 9f5c31f
-* refactor to use Popper for Hover Inspectors (WIP) e669a9b
-* remove MediaObjects collection from client SOFIE-2402 ([#964](undefined/undefined/undefined/issues/964)) a89a1d2
-* Remove remaining client side usage of `PackageContainerPackageStatuses` collection SOFIE-2401 ([#953](undefined/undefined/undefined/issues/953)) 8f3b8cf
-* Report adlib pieces e05e7bd
-* report inability to remove rundown to the caller SOFIE-1131 ([#886](undefined/undefined/undefined/issues/886)) 249ecc7
-* rework `/api` redirects to koa 8526b36
-* rework actionTriggers api to koa 6248e6d
-* rework blueprint http api to koa f9644ff
-* rework ingest http api to koa 1049282
-* rework peripheraldevice http api to koa (untested) f207070
-* rework rest v0 api to koa. remove picker 33d66ad
-* rework servicemessages api to koa (untested) 9cdd150
-* rework shelfLayouts api to koa 38f15a5
-* rework snapshots http api to koa 935bb3a
-* rework systemStatus api to koa 382bbc8
-* rework webmanifest api to koa 982e6dd
-* **SchemaForm:** a header component for Tables and objects 514f8e9
-* setup collection security at time of creating the server collection 5db4576
-* some intial work on CameraScreen 16da85c
-* Spinner when loading Rundown 31bdb4b
-* split package-manager publication into multiple more optimal publications SOFIE-1926 d1bb788
-* support resizing camera view efd8a8d
-* trs actions in blueprints rundown hooks bb5e442
-* upgrade react to 18.2 a7c9200
-* use transactions in job-worker a431a3f
-* working implementation of camera view cc900b8
-
+- add `prompterTitle` property SOFIE-2404 ([#975](undefined/undefined/undefined/issues/975)) 6f0567d
+- add a hook to resolve Inspector position request to a position in document space c74c8a5
+- add centralized redirect to latest API d6f08b9
+- add milestone timing 5950fd5
+- Add outputLayer to adlib actions cb0457e
+- add theoretical support for forward time 47db6fb
+- add will-change to Piece labels e132355
+- allow getting the Source and Output layers from the ShowStyle context ([#979](undefined/undefined/undefined/issues/979)) ab57fb4
+- allow nested config tables 544d32e
+- Allow specifying the part instance to take from 13491e6
+- always show end time if segment is live b355eb2
+- Better API structure 3286b9f
+- Better error handling for API f55bbcc
+- Better user events c8db0b9
+- blueprint settings overhaul ([#878](undefined/undefined/undefined/issues/878)) ee3307c
+- bumps nightly tsr and types 77f0bf2
+- clean up deprecated Databases and DataTypes ([#899](undefined/undefined/undefined/issues/899)) a9ccf3f
+- clean up typings 561531b
+- clear sourcelayer / recall sticky piece 57c07b1
+- continue work to use Popper for Hover Inspectors (WIP) cb034ba
+- correctly support Storyboard view with hoverscrub pop-ups f2e5090
+- disable user-select, add black browser theme, fullscreen, screen wake lock 299d27d
+- expose MOS ports in mos-gateway settings ([#917](undefined/undefined/undefined/issues/917)) 4cb1649
+- fallback to cumetime if no backtime 2cafbab
+- Implement new API structure 66d52dc
+- implement single-use tokens for heavy operations 1799825
+- improve the styling of Test Tools d695c16
+- improve the visual layout of all settings pages 687755a
+- json schemas for device config and mappings ([#837](undefined/undefined/undefined/issues/837)) fb8f1c3
+- Live status gateway example ba3774f
+- make it easier to determine Rundown is on air (SOFIE-1167) ([#896](undefined/undefined/undefined/issues/896)) 3c23fcd
+- Make live status gateway complain if it is not attached to a studio 2bcd291
+- make some job-worker collections readonly c9c61ce
+- make some meteor collections readonly 4472e94
+- make the minimum take span configurable on a per-studio basis ([#967](undefined/undefined/undefined/issues/967)) c7731a9
+- memoize RundownListItemView 42764d4
+- Migrations for DeviceType 8381522
+- Migrations from API 1c041f4
+- Migrations post bd14aa8
+- move `checkPieceContentStatus` calls to server in custom publication SOFIE-1281 ([#942](undefined/undefined/undefined/issues/942)) b09da5e
+- move blueprint ab logic into sofie SOFIE-2403 ([#946](undefined/undefined/undefined/issues/946)) cc37b75
+- move gateway settings onto Studio SOFIE-1330 ([#907](undefined/undefined/undefined/issues/907)) 523c061
+- optimize Parts completely when not in viewport c27d359
+- peripheral device tidying ([#906](undefined/undefined/undefined/issues/906)) 0795ae5
+- re-implement Escape using portals d2dd13b
+- Redirect /latest to latest API version 9f5c31f
+- refactor to use Popper for Hover Inspectors (WIP) e669a9b
+- remove MediaObjects collection from client SOFIE-2402 ([#964](undefined/undefined/undefined/issues/964)) a89a1d2
+- Remove remaining client side usage of `PackageContainerPackageStatuses` collection SOFIE-2401 ([#953](undefined/undefined/undefined/issues/953)) 8f3b8cf
+- Report adlib pieces e05e7bd
+- report inability to remove rundown to the caller SOFIE-1131 ([#886](undefined/undefined/undefined/issues/886)) 249ecc7
+- rework `/api` redirects to koa 8526b36
+- rework actionTriggers api to koa 6248e6d
+- rework blueprint http api to koa f9644ff
+- rework ingest http api to koa 1049282
+- rework peripheraldevice http api to koa (untested) f207070
+- rework rest v0 api to koa. remove picker 33d66ad
+- rework servicemessages api to koa (untested) 9cdd150
+- rework shelfLayouts api to koa 38f15a5
+- rework snapshots http api to koa 935bb3a
+- rework systemStatus api to koa 382bbc8
+- rework webmanifest api to koa 982e6dd
+- **SchemaForm:** a header component for Tables and objects 514f8e9
+- setup collection security at time of creating the server collection 5db4576
+- some initial work on CameraScreen 16da85c
+- Spinner when loading Rundown 31bdb4b
+- split package-manager publication into multiple more optimal publications SOFIE-1926 d1bb788
+- support resizing camera view efd8a8d
+- trs actions in blueprints rundown hooks bb5e442
+- upgrade react to 18.2 a7c9200
+- use transactions in job-worker a431a3f
+- working implementation of camera view cc900b8
 
 ### Bug Fixes
 
-* `latest` api path alias 2dc7b18
-* accept a token generated in the previous validity period 459101a
-* add a migration for Peripheral Devices missing a deviceConfigSchema 897a49e
-* add transactions to some fetches 984cb5b
-* adjust budget gap line to account for new transform-based layout, which ensures that it doesn't go past the editorial line 5cb67b6
-* Adlib action find 2082825
-* AdLib find 49d236d
-* Allow JSON objects in config presets ([#949](undefined/undefined/undefined/issues/949)) 4e5a797
-* animations, timing e95f51b
-* Avoid async in process.nextTick 55411d9
-* basic parameter validation for custom publications c95ee10
-* blueprint upload f093576
-* Broken tests 5269f94
-* Broken tests 45f5bef
-* Build errors 721dbd3
-* cap on-air part duration of autonext part 6c37af9
-* **ClockView:** lower reactivity of of currentPartInstance, nextPartInstance 9cfb076
-* closer... a2f0db7
-* closer... 0ccb52c
-* consider current part when getting next rundown anchor 6b9237a
-* correct logic around end times and DRY it 9a1afc2
-* correctly working flipped hover inspectors for VTs 0fafa28
-* custom publications overly reactive ([#976](undefined/undefined/undefined/issues/976)) 3a4b184
-* Dependency links 0adf047
-* **DeviceTriggers:** make the cached Action invalidation faster 28e44b5
-* don't error when flattening timeline group children ([#944](undefined/undefined/undefined/issues/944)) 3635924
-* Don't expose rest API over DDP, reduce repeated code a29d006
-* don't show future shade on autoNext parts e8d131a
-* expectedPackage publication should be using `replace` not `insert` 3f01e1e
-* expose `deviceType` in `listPlayoutDevices` to blueprints 2b32c72
-* Expose OAuth credentials to peripheral device ([#950](undefined/undefined/undefined/issues/950)) 5d795f6
-* extract objects when source has been determined 6beefe7
-* Failing test 25e5db0
-* Failing test a32aa14
-* Failing test 92a1914
-* **FilterEditor:** some layouting of multiple components in a single properties-grid cell 13157b3
-* Generate interfaces on prepare 661c954
-* get rid of some tiny gaps between parts 757e7f4
-* getting closer 0caa097
-* handle promises in observeChanges/observe callbacks correctly 413007b
-* Headers type 0ed98e8
-* hide countdown and icicles on looping media 43da033
-* ignore `@sofie-automation/openapi` for local development 5c0acb2
-* Ignore openapi pacakge for node 14 092c345
-* Improve API responses f3cbded
-* improve timeOffset logic 405cf2e
-* Insert and update peripheralDevice type as number ([#895](undefined/undefined/undefined/issues/895)) 1e77c0a
-* install_swagger.js a6bfefc
-* Installing package for node 14 5a8dd81
-* **InvalidFloatingInspector:** resolve conditional hook execution af1e74f
-* Koa paths, blueprint tests work with Sofie da01557
-* label for OutOnRundownEnd is the same as for OutOnRundownChange AdLibs 9279d1b
-* label styling 55d62e2
-* lighten color to match existing grays on the page 3798344
-* lint b5a90b8
-* lint 024d8f5
-* Lint 259e8b6
-* linter errors 9444ade
-* make `uiPieceContentStatuses` publication be less reactive to changes in irrelevant properties on packages and mediaobjects e0eac19
-* Make DeviceType migration dependent on device migration 912ba8f
-* make openapi test port configurable and random by default. run tests in ci 888a3d0
-* make properties required but allow undefined c2d24f9
-* Make rest API independent of meteor methods class 409f97d
-* mark `priority` as a required property in timeline objects, to prevent footguns ([#961](undefined/undefined/undefined/issues/961)) 41f67ae
-* meteor crash during some http requests c992402
-* meteor ui crash with yarn3 SOFIE-2251 140619e
-* migrations for devicetype failing on some overrides [#955](undefined/undefined/undefined/issues/955) a1b8d22
-* Missing data 82038cb
-* more care with error returns, more testing 0287651
-* more correctness and fixes aff63fd
-* more test updates to run against Sofie 08a19e3
-* Move checks into API try blocks dffa23b
-* Move more type conversions to conversions file 9ef4931
-* Move server-side stuff to the server d239a2d
-* New yarn runner 4419d3f
-* Node 14 (again) 143117b
-* on some terminals, hasColors is undefined ([#924](undefined/undefined/undefined/issues/924)) 5dc3d5b
-* package status page styling ab2972f
-* package-container and package stauses should change when their Package Manager is offline 6f7ad7b
-* peripheralDeviceForDevice is not reactive on Studio changes 7684055
-* Piece preroll in Part preroll calculations ([#890](undefined/undefined/undefined/issues/890)) fc993a9
-* place the code in a blender; pulse until smooth. f41bb0a
-* playlist tests with Sofie server, logging for test errors bb45ae3
-* popper modifiers working correctly 20f0455
-* possibly closer, possibly a lateral move a72eeeb
-* reduce the amount of visual jitter on a playing timeline 83c222e
-* remove `mosRoStoryStatus` handler and `Part.status` property SOFIE-1478 ([#915](undefined/undefined/undefined/issues/915)) 5a53944
-* Remove `yarn` from script 4c3c4c1
-* Remove unused property 2901f83
-* Remove use of npx c72607a
-* remove virtual duration stuff which messes with alignment and timings c883063
-* require blueprint baseline objects to be of type `TimelineObjectCoreExt` instead of `TSR.TSRTimelineObj` [#961](undefined/undefined/undefined/issues/961) b8d0cf3
-* resetting old PartInstances and PieceInstances can affect other rundowns c364bb3
-* revert some greedy changes f611363
-* right behind you 59d508e
-* rundown view break 46bd22b
-* RundownList missing ShowStyle name. ([#971](undefined/undefined/undefined/issues/971)) 931c12c
-* **RundownList:** Tooltip alignment 20246e6
-* security warning on startup about generateSingleUseToken f99a0a0
-* seek time for hoverscrub while playing 98a17a8
-* **SegmentList:** indicator placement 470df23
-* servicemessages api tests 404c947
-* set a proper length for TOKEN_SECRET 609cf2d
-* setNextSegment behavior ([#930](undefined/undefined/undefined/issues/930)) c9dede2
-* **ShowStyleBaseSettings:** remove two-column layout in layer settings 80c7cf5
-* simplify, don't try to fix unrelated bugs 61fb201
-* simulate transactions in tests 356e480
-* small parts layout f244892
-* small parts positioning (WIP) 4c8d7f9
-* SmallPart Flag position during playback 4ecf963
-* some content-type issues c9ba4bb
-* StudioId should be undefined ([#923](undefined/undefined/undefined/issues/923)) 04953c4
-* subscription to uiSegmentPartNotes/uiPieceContentStatuses causes a crash if playlist can't be found c78cbd9
-* tests 40ee099
-* tests & add tests for nonzero default Part duration ae24924
-* tests and undo some reverted changes 84c23d6
-* throw when verifyHashedToken is false a473f37
-* **Timing:** expectedDuration=0 members of displayDuration groups countdown doesn't inherit displayDurationGroup duration 2bd5802
-* Tooltip arrow placement is incorrect cd29cea
-* Translate user errors e41b005
-* type error 8d23ab5
-* ui component crash a4f3d7d
-* use CollectionName, separate out colelction and publication 6f07428
-* use useCurrentTime b89a61a
-* Use yarn-exclude to ignore openapi f5878c0
-* usePopper placement of Inspectors b6dc9b8
-* verifyHashedToken compatible with securityVerify 7052f3d
-* working re-layouting of hover inspectors 87811a9
+- `latest` api path alias 2dc7b18
+- accept a token generated in the previous validity period 459101a
+- add a migration for Peripheral Devices missing a deviceConfigSchema 897a49e
+- add transactions to some fetches 984cb5b
+- adjust budget gap line to account for new transform-based layout, which ensures that it doesn't go past the editorial line 5cb67b6
+- Adlib action find 2082825
+- AdLib find 49d236d
+- Allow JSON objects in config presets ([#949](undefined/undefined/undefined/issues/949)) 4e5a797
+- animations, timing e95f51b
+- Avoid async in process.nextTick 55411d9
+- basic parameter validation for custom publications c95ee10
+- blueprint upload f093576
+- Broken tests 5269f94
+- Broken tests 45f5bef
+- Build errors 721dbd3
+- cap on-air part duration of autonext part 6c37af9
+- **ClockView:** lower reactivity of of currentPartInstance, nextPartInstance 9cfb076
+- closer... a2f0db7
+- closer... 0ccb52c
+- consider current part when getting next rundown anchor 6b9237a
+- correct logic around end times and DRY it 9a1afc2
+- correctly working flipped hover inspectors for VTs 0fafa28
+- custom publications overly reactive ([#976](undefined/undefined/undefined/issues/976)) 3a4b184
+- Dependency links 0adf047
+- **DeviceTriggers:** make the cached Action invalidation faster 28e44b5
+- don't error when flattening timeline group children ([#944](undefined/undefined/undefined/issues/944)) 3635924
+- Don't expose rest API over DDP, reduce repeated code a29d006
+- don't show future shade on autoNext parts e8d131a
+- expectedPackage publication should be using `replace` not `insert` 3f01e1e
+- expose `deviceType` in `listPlayoutDevices` to blueprints 2b32c72
+- Expose OAuth credentials to peripheral device ([#950](undefined/undefined/undefined/issues/950)) 5d795f6
+- extract objects when source has been determined 6beefe7
+- Failing test 25e5db0
+- Failing test a32aa14
+- Failing test 92a1914
+- **FilterEditor:** some layouting of multiple components in a single properties-grid cell 13157b3
+- Generate interfaces on prepare 661c954
+- get rid of some tiny gaps between parts 757e7f4
+- getting closer 0caa097
+- handle promises in observeChanges/observe callbacks correctly 413007b
+- Headers type 0ed98e8
+- hide countdown and icicles on looping media 43da033
+- ignore `@sofie-automation/openapi` for local development 5c0acb2
+- Ignore openapi package for node 14 092c345
+- Improve API responses f3cbded
+- improve timeOffset logic 405cf2e
+- Insert and update peripheralDevice type as number ([#895](undefined/undefined/undefined/issues/895)) 1e77c0a
+- install_swagger.js a6bfefc
+- Installing package for node 14 5a8dd81
+- **InvalidFloatingInspector:** resolve conditional hook execution af1e74f
+- Koa paths, blueprint tests work with Sofie da01557
+- label for OutOnRundownEnd is the same as for OutOnRundownChange AdLibs 9279d1b
+- label styling 55d62e2
+- lighten color to match existing grays on the page 3798344
+- lint b5a90b8
+- lint 024d8f5
+- Lint 259e8b6
+- linter errors 9444ade
+- make `uiPieceContentStatuses` publication be less reactive to changes in irrelevant properties on packages and mediaobjects e0eac19
+- Make DeviceType migration dependent on device migration 912ba8f
+- make openapi test port configurable and random by default. run tests in ci 888a3d0
+- make properties required but allow undefined c2d24f9
+- Make rest API independent of meteor methods class 409f97d
+- mark `priority` as a required property in timeline objects, to prevent footguns ([#961](undefined/undefined/undefined/issues/961)) 41f67ae
+- meteor crash during some http requests c992402
+- meteor ui crash with yarn3 SOFIE-2251 140619e
+- migrations for devicetype failing on some overrides [#955](undefined/undefined/undefined/issues/955) a1b8d22
+- Missing data 82038cb
+- more care with error returns, more testing 0287651
+- more correctness and fixes aff63fd
+- more test updates to run against Sofie 08a19e3
+- Move checks into API try blocks dffa23b
+- Move more type conversions to conversions file 9ef4931
+- Move server-side stuff to the server d239a2d
+- New yarn runner 4419d3f
+- Node 14 (again) 143117b
+- on some terminals, hasColors is undefined ([#924](undefined/undefined/undefined/issues/924)) 5dc3d5b
+- package status page styling ab2972f
+- package-container and package stauses should change when their Package Manager is offline 6f7ad7b
+- peripheralDeviceForDevice is not reactive on Studio changes 7684055
+- Piece preroll in Part preroll calculations ([#890](undefined/undefined/undefined/issues/890)) fc993a9
+- place the code in a blender; pulse until smooth. f41bb0a
+- playlist tests with Sofie server, logging for test errors bb45ae3
+- popper modifiers working correctly 20f0455
+- possibly closer, possibly a lateral move a72eeeb
+- reduce the amount of visual jitter on a playing timeline 83c222e
+- remove `mosRoStoryStatus` handler and `Part.status` property SOFIE-1478 ([#915](undefined/undefined/undefined/issues/915)) 5a53944
+- Remove `yarn` from script 4c3c4c1
+- Remove unused property 2901f83
+- Remove use of npx c72607a
+- remove virtual duration stuff which messes with alignment and timings c883063
+- require blueprint baseline objects to be of type `TimelineObjectCoreExt` instead of `TSR.TSRTimelineObj` [#961](undefined/undefined/undefined/issues/961) b8d0cf3
+- resetting old PartInstances and PieceInstances can affect other rundowns c364bb3
+- revert some greedy changes f611363
+- right behind you 59d508e
+- rundown view break 46bd22b
+- RundownList missing ShowStyle name. ([#971](undefined/undefined/undefined/issues/971)) 931c12c
+- **RundownList:** Tooltip alignment 20246e6
+- security warning on startup about generateSingleUseToken f99a0a0
+- seek time for hoverscrub while playing 98a17a8
+- **SegmentList:** indicator placement 470df23
+- servicemessages api tests 404c947
+- set a proper length for TOKEN_SECRET 609cf2d
+- setNextSegment behavior ([#930](undefined/undefined/undefined/issues/930)) c9dede2
+- **ShowStyleBaseSettings:** remove two-column layout in layer settings 80c7cf5
+- simplify, don't try to fix unrelated bugs 61fb201
+- simulate transactions in tests 356e480
+- small parts layout f244892
+- small parts positioning (WIP) 4c8d7f9
+- SmallPart Flag position during playback 4ecf963
+- some content-type issues c9ba4bb
+- StudioId should be undefined ([#923](undefined/undefined/undefined/issues/923)) 04953c4
+- subscription to uiSegmentPartNotes/uiPieceContentStatuses causes a crash if playlist can't be found c78cbd9
+- tests 40ee099
+- tests & add tests for nonzero default Part duration ae24924
+- tests and undo some reverted changes 84c23d6
+- throw when verifyHashedToken is false a473f37
+- **Timing:** expectedDuration=0 members of displayDuration groups countdown doesn't inherit displayDurationGroup duration 2bd5802
+- Tooltip arrow placement is incorrect cd29cea
+- Translate user errors e41b005
+- type error 8d23ab5
+- ui component crash a4f3d7d
+- use CollectionName, separate out collection and publication 6f07428
+- use useCurrentTime b89a61a
+- Use yarn-exclude to ignore openapi f5878c0
+- usePopper placement of Inspectors b6dc9b8
+- verifyHashedToken compatible with securityVerify 7052f3d
+- working re-layouting of hover inspectors 87811a9
 
 ## [1.50.0-in-testing.5](https://github.com/nrkno/tv-automation-server-core/compare/v1.50.0-in-testing.4...v1.50.0-in-testing.5) (2023-08-25)
+
 - **RundownList:** vertical line does not line up with horizontal on last Rundown in a Playlist ([d511ff6](https://github.com/nrkno/sofie-core/commit/d511ff6fb1484ec91cbe1703b7e01721087c2f4e))
 - **server-core-integration:** `autosubscribe` will resubscribe to collections using the same subscriptionId as when initially subscribed ([f0f3383](https://github.com/nrkno/sofie-core/commit/f0f33837b07b944abe320ae4a378641bba167a3c))
 - simplify executeFunction triggerWriteAccess() check ([0579716](https://github.com/nrkno/sofie-core/commit/0579716377294e35996511cc92f6a3672535d7d5))
@@ -1169,7 +1287,7 @@ All notable changes to this project will be documented in this file. See [standa
 - add a hook to resolve Inspector position request to a position in document space ([c74c8a5](https://github.com/nrkno/sofie-core/commit/c74c8a5ca72481f213b56ed51554402e5781c896))
 - add centralized redirect to latest API ([d6f08b9](https://github.com/nrkno/sofie-core/commit/d6f08b9c0d8295bc67911a27e742f6982cb835c4))
 - add milestone timing ([5950fd5](https://github.com/nrkno/sofie-core/commit/5950fd5e202cfab5e7f5b36942ffb7525c713e0a))
-- Add ouputLayer to adlib actions ([cb0457e](https://github.com/nrkno/sofie-core/commit/cb0457ea6cc45902baad3a5251670c748ab0ed34))
+- Add outputLayer to adlib actions ([cb0457e](https://github.com/nrkno/sofie-core/commit/cb0457ea6cc45902baad3a5251670c748ab0ed34))
 - add theoretical support for forward time ([47db6fb](https://github.com/nrkno/sofie-core/commit/47db6fbdc444eb98ddccaa9fdc5b6286f965592e))
 - add will-change to Piece labels ([e132355](https://github.com/nrkno/sofie-core/commit/e1323553040052bed988be8e0870f50c6861c8e3))
 - allow getting the Source and Output layers from the ShowStyle context ([#979](https://github.com/nrkno/sofie-core/issues/979)) ([ab57fb4](https://github.com/nrkno/sofie-core/commit/ab57fb4871bf23e37b99e73f5f809738fd8fdd1b))
@@ -1229,7 +1347,7 @@ All notable changes to this project will be documented in this file. See [standa
 - rework webmanifest api to koa ([982e6dd](https://github.com/nrkno/sofie-core/commit/982e6ddaa95f5845764d206b4b5d681cf4bc5f34))
 - **SchemaForm:** a header component for Tables and objects ([514f8e9](https://github.com/nrkno/sofie-core/commit/514f8e9effa1d88cebcb150ee6310e2cea4adeec))
 - setup collection security at time of creating the server collection ([5db4576](https://github.com/nrkno/sofie-core/commit/5db4576c69025ac0eb62d98f5d2fe0c126b49cfb))
-- some intial work on CameraScreen ([16da85c](https://github.com/nrkno/sofie-core/commit/16da85c12dcb340513cbe8c154113b2cbf010045))
+- some initial work on CameraScreen ([16da85c](https://github.com/nrkno/sofie-core/commit/16da85c12dcb340513cbe8c154113b2cbf010045))
 - Spinner when loading Rundown ([31bdb4b](https://github.com/nrkno/sofie-core/commit/31bdb4b019bb2a1d1a9fc20ef9e4c7e6844e9dbb))
 - split package-manager publication into multiple more optimal publications SOFIE-1926 ([d1bb788](https://github.com/nrkno/sofie-core/commit/d1bb7886675eb3b2329e26be419007f68c889546))
 - support resizing camera view ([efd8a8d](https://github.com/nrkno/sofie-core/commit/efd8a8dd0bccd06e0d41782ee5033d5516096acf))
@@ -1283,7 +1401,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Headers type ([0ed98e8](https://github.com/nrkno/sofie-core/commit/0ed98e872d666838c566c6aa022791508f58292a))
 - hide countdown and icicles on looping media ([43da033](https://github.com/nrkno/sofie-core/commit/43da033b543e91ae7aef71ffa14be838c376c4a8))
 - ignore `@sofie-automation/openapi` for local development ([5c0acb2](https://github.com/nrkno/sofie-core/commit/5c0acb2dfbfa0b87b4fb088fdc526859dc65411e))
-- Ignore openapi pacakge for node 14 ([092c345](https://github.com/nrkno/sofie-core/commit/092c3453e4dc8872d395a783d1316eec134e4c1e))
+- Ignore openapi package for node 14 ([092c345](https://github.com/nrkno/sofie-core/commit/092c3453e4dc8872d395a783d1316eec134e4c1e))
 - Improve API responses ([f3cbded](https://github.com/nrkno/sofie-core/commit/f3cbdedcc7abbe3a48227d42486e708e39bb289e))
 - improve timeOffset logic ([405cf2e](https://github.com/nrkno/sofie-core/commit/405cf2e845b6bbba9897b357cf0478aa7052b6a7))
 - Insert and update peripheralDevice type as number ([#895](https://github.com/nrkno/sofie-core/issues/895)) ([1e77c0a](https://github.com/nrkno/sofie-core/commit/1e77c0aeb687a7ee0a2909cc91c0d13e768d2467))
@@ -1362,7 +1480,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Translate user errors ([e41b005](https://github.com/nrkno/sofie-core/commit/e41b00527eb5ea83fd50780c5f5f0e663e61094e))
 - type error ([8d23ab5](https://github.com/nrkno/sofie-core/commit/8d23ab535502af7d574e53c23cc89de84c9f6e80))
 - ui component crash ([a4f3d7d](https://github.com/nrkno/sofie-core/commit/a4f3d7dbb8a07f91ee93890dffad15919f579ea5))
-- use CollectionName, separate out colelction and publication ([6f07428](https://github.com/nrkno/sofie-core/commit/6f0742863b0f042fc9f30caea2534bb7fb08d40c))
+- use CollectionName, separate out collection and publication ([6f07428](https://github.com/nrkno/sofie-core/commit/6f0742863b0f042fc9f30caea2534bb7fb08d40c))
 - use useCurrentTime ([b89a61a](https://github.com/nrkno/sofie-core/commit/b89a61a9a7342f6d3b9197dbb188371db474eab9))
 - Use yarn-exclude to ignore openapi ([f5878c0](https://github.com/nrkno/sofie-core/commit/f5878c0ba68f0680b0410e54f6d14e8b3e863c01))
 - usePopper placement of Inspectors ([b6dc9b8](https://github.com/nrkno/sofie-core/commit/b6dc9b8ca7c6e35bff09159130cfdb073535a8a8))
@@ -1371,19 +1489,17 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### [1.49.3](https://github.com/nrkno/sofie-core/compare/v1.49.2...v1.49.3) (2023-12-21)
 
-
 ### Bug Fixes
 
-* Cannot read properties of undefined (reading 'parentElement') at startLive SOFIE-2772 ([#1080](https://github.com/nrkno/sofie-core/issues/1080)) ([9c1331a](https://github.com/nrkno/sofie-core/commit/9c1331a88ac9b8d19f2700a1acebedca63ce37a2))
-* cleanup for deviceTriggers RundownContentObserver failing SOFIE-2834 ([#1107](https://github.com/nrkno/sofie-core/issues/1107)) ([2432e4f](https://github.com/nrkno/sofie-core/commit/2432e4f4318ad9ebc691208c51cdba742c63143d))
-* suppress quantel disconnection warnings temporarily ([f9c1dae](https://github.com/nrkno/sofie-core/commit/f9c1dae2fcc346cb2c10d89ccf1a812aec6d0bc0))
+- Cannot read properties of undefined (reading 'parentElement') at startLive SOFIE-2772 ([#1080](https://github.com/nrkno/sofie-core/issues/1080)) ([9c1331a](https://github.com/nrkno/sofie-core/commit/9c1331a88ac9b8d19f2700a1acebedca63ce37a2))
+- cleanup for deviceTriggers RundownContentObserver failing SOFIE-2834 ([#1107](https://github.com/nrkno/sofie-core/issues/1107)) ([2432e4f](https://github.com/nrkno/sofie-core/commit/2432e4f4318ad9ebc691208c51cdba742c63143d))
+- suppress quantel disconnection warnings temporarily ([f9c1dae](https://github.com/nrkno/sofie-core/commit/f9c1dae2fcc346cb2c10d89ccf1a812aec6d0bc0))
 
 ### [1.49.2](https://github.com/nrkno/sofie-core/compare/v1.49.1...v1.49.2) (2023-11-29)
 
-
 ### Bug Fixes
 
-* rundown view fails to load when playlist does not exist SOFIE-2815 ([551541e](https://github.com/nrkno/sofie-core/commit/551541e27e7cff3a297203469cca4a77ba942c24))
+- rundown view fails to load when playlist does not exist SOFIE-2815 ([551541e](https://github.com/nrkno/sofie-core/commit/551541e27e7cff3a297203469cca4a77ba942c24))
 
 ### [1.49.1](https://github.com/nrkno/sofie-core/compare/v1.49.0...v1.49.1) (2023-10-20)
 
@@ -1527,7 +1643,7 @@ All notable changes to this project will be documented in this file. See [standa
 - don't give out the same lookahead AB session ID to sessions with different names ([#862](https://github.com/nrkno/sofie-core/issues/862)) ([f378380](https://github.com/nrkno/sofie-core/commit/f3783800734ceda8846dcff0cd527f8edc35e542))
 - downgrade type-fest (again) ([82346cc](https://github.com/nrkno/sofie-core/commit/82346cc9fc01a251c6dcb4d2f86ea954601ada32))
 - expose custom publications in client `window.PublicationCollections` object ([9357b29](https://github.com/nrkno/sofie-core/commit/9357b29942fbfe374e2699f740fb3eb7f45737bb))
-- forward `removeDelay` paremeter in `PeripheralDeviceApi.removePackageInfo` ([d21006f](https://github.com/nrkno/sofie-core/commit/d21006f0cef1ce4add382b1f96d7daf143ad5890))
+- forward `removeDelay` parameter in `PeripheralDeviceApi.removePackageInfo` ([d21006f](https://github.com/nrkno/sofie-core/commit/d21006f0cef1ce4add382b1f96d7daf143ad5890))
 - improve package warning messages ([bd0f6e5](https://github.com/nrkno/sofie-core/commit/bd0f6e51865ea56d30caa1f6286e5a4c18210629))
 - indicate which layers/mappings have overrides ([#854](https://github.com/nrkno/sofie-core/issues/854)) ([18bbad0](https://github.com/nrkno/sofie-core/commit/18bbad027af66ca3b88385bc0059928ccc9e4d9c))
 - infinite Piece timings can be inconsistent across runs of timelineGenerate when a pre-roll is present ([939efb5](https://github.com/nrkno/sofie-core/commit/939efb5560ccdca611c7cf9fefbde687cb298dc8))
@@ -1665,7 +1781,7 @@ All notable changes to this project will be documented in this file. See [standa
 - handle incomplete peripheralDeviceCommands ([40f691e](https://github.com/nrkno/sofie-core/commit/40f691e0e9fca1def233b67d2cd3f1cded7152ca))
 - Implements some of the suggestions in VariantSettings.tsx as well as some missing types ([d241467](https://github.com/nrkno/sofie-core/commit/d2414678e7c35a818b51c43e3500cf79843b31df))
 - Import, copy,remove, add and edit now work in sync with the new ordering ([42d79aa](https://github.com/nrkno/sofie-core/commit/42d79aa0d416f11fac37a7cdc87b1167ab60faf4))
-- modify zebra hightlights ([c9a33ca](https://github.com/nrkno/sofie-core/commit/c9a33cad851e70223ac053e9852c0ef28488fae8))
+- modify zebra highlights ([c9a33ca](https://github.com/nrkno/sofie-core/commit/c9a33cad851e70223ac053e9852c0ef28488fae8))
 - observergroup should be async ([141b14a](https://github.com/nrkno/sofie-core/commit/141b14ad8958aec7bbbd414a6062b83f7dde1920))
 - prefix blueprint translation namespace ([a1bad7e](https://github.com/nrkno/sofie-core/commit/a1bad7e3bd1dbea8a4da3173d8a50131fdd6bf15))
 - Proper handling of the upsertAsync ([bdca13f](https://github.com/nrkno/sofie-core/commit/bdca13f1582000c57ba1e731951c0cd0637fa2d3))
@@ -1681,7 +1797,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Timeout now only clears on WillUnmount to ensure no lost updates happening. Also includes refactors of the update method ([e1f4d82](https://github.com/nrkno/sofie-core/commit/e1f4d827725afa4fcf791080e28fa8aa5c5dd30f))
 - **TriggeredActionEntry:** modify the correct db object key ([e4a4b3b](https://github.com/nrkno/sofie-core/commit/e4a4b3b209d17aa059d4130ca431010567b7e83b))
 - typo ([55adb8c](https://github.com/nrkno/sofie-core/commit/55adb8c1d0973a66c05456b6ea98e266b1ad7815))
-- update ErrorBoundrary message to be more user-friendly ([458ae5f](https://github.com/nrkno/sofie-core/commit/458ae5ff193508d6ff76b76aac5b38db54c44039))
+- update ErrorBoundary message to be more user-friendly ([458ae5f](https://github.com/nrkno/sofie-core/commit/458ae5ff193508d6ff76b76aac5b38db54c44039))
 - use more optimal mongo observe method in custom publications ([be38e66](https://github.com/nrkno/sofie-core/commit/be38e66f2d5050580b3364989c599a7f8ccd3e2c))
 - use more optimal mongo observe method in custom publications ([6745f05](https://github.com/nrkno/sofie-core/commit/6745f0585588bb448b0792f37816fcf19a77ba6e))
 - wait for first observer setup when creating observer group ([d65d028](https://github.com/nrkno/sofie-core/commit/d65d028befc5f1c61abb4bb6638e6abe2f981205))
@@ -1783,7 +1899,7 @@ All notable changes to this project will be documented in this file. See [standa
 - don't give out the same lookahead AB session ID to sessions with different names ([#862](https://github.com/nrkno/sofie-core/issues/862)) ([f378380](https://github.com/nrkno/sofie-core/commit/f3783800734ceda8846dcff0cd527f8edc35e542))
 - downgrade type-fest (again) ([82346cc](https://github.com/nrkno/sofie-core/commit/82346cc9fc01a251c6dcb4d2f86ea954601ada32))
 - expose custom publications in client `window.PublicationCollections` object ([9357b29](https://github.com/nrkno/sofie-core/commit/9357b29942fbfe374e2699f740fb3eb7f45737bb))
-- forward `removeDelay` paremeter in `PeripheralDeviceApi.removePackageInfo` ([d21006f](https://github.com/nrkno/sofie-core/commit/d21006f0cef1ce4add382b1f96d7daf143ad5890))
+- forward `removeDelay` parameter in `PeripheralDeviceApi.removePackageInfo` ([d21006f](https://github.com/nrkno/sofie-core/commit/d21006f0cef1ce4add382b1f96d7daf143ad5890))
 - improve package warning messages ([bd0f6e5](https://github.com/nrkno/sofie-core/commit/bd0f6e51865ea56d30caa1f6286e5a4c18210629))
 - indicate which layers/mappings have overrides ([#854](https://github.com/nrkno/sofie-core/issues/854)) ([18bbad0](https://github.com/nrkno/sofie-core/commit/18bbad027af66ca3b88385bc0059928ccc9e4d9c))
 - infinite Piece timings can be inconsistent across runs of timelineGenerate when a pre-roll is present ([939efb5](https://github.com/nrkno/sofie-core/commit/939efb5560ccdca611c7cf9fefbde687cb298dc8))
@@ -1921,7 +2037,7 @@ All notable changes to this project will be documented in this file. See [standa
 - handle incomplete peripheralDeviceCommands ([40f691e](https://github.com/nrkno/sofie-core/commit/40f691e0e9fca1def233b67d2cd3f1cded7152ca))
 - Implements some of the suggestions in VariantSettings.tsx as well as some missing types ([d241467](https://github.com/nrkno/sofie-core/commit/d2414678e7c35a818b51c43e3500cf79843b31df))
 - Import, copy,remove, add and edit now work in sync with the new ordering ([42d79aa](https://github.com/nrkno/sofie-core/commit/42d79aa0d416f11fac37a7cdc87b1167ab60faf4))
-- modify zebra hightlights ([c9a33ca](https://github.com/nrkno/sofie-core/commit/c9a33cad851e70223ac053e9852c0ef28488fae8))
+- modify zebra highlights ([c9a33ca](https://github.com/nrkno/sofie-core/commit/c9a33cad851e70223ac053e9852c0ef28488fae8))
 - observergroup should be async ([141b14a](https://github.com/nrkno/sofie-core/commit/141b14ad8958aec7bbbd414a6062b83f7dde1920))
 - prefix blueprint translation namespace ([a1bad7e](https://github.com/nrkno/sofie-core/commit/a1bad7e3bd1dbea8a4da3173d8a50131fdd6bf15))
 - Proper handling of the upsertAsync ([bdca13f](https://github.com/nrkno/sofie-core/commit/bdca13f1582000c57ba1e731951c0cd0637fa2d3))
@@ -1937,7 +2053,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Timeout now only clears on WillUnmount to ensure no lost updates happening. Also includes refactors of the update method ([e1f4d82](https://github.com/nrkno/sofie-core/commit/e1f4d827725afa4fcf791080e28fa8aa5c5dd30f))
 - **TriggeredActionEntry:** modify the correct db object key ([e4a4b3b](https://github.com/nrkno/sofie-core/commit/e4a4b3b209d17aa059d4130ca431010567b7e83b))
 - typo ([55adb8c](https://github.com/nrkno/sofie-core/commit/55adb8c1d0973a66c05456b6ea98e266b1ad7815))
-- update ErrorBoundrary message to be more user-friendly ([458ae5f](https://github.com/nrkno/sofie-core/commit/458ae5ff193508d6ff76b76aac5b38db54c44039))
+- update ErrorBoundary message to be more user-friendly ([458ae5f](https://github.com/nrkno/sofie-core/commit/458ae5ff193508d6ff76b76aac5b38db54c44039))
 - use more optimal mongo observe method in custom publications ([be38e66](https://github.com/nrkno/sofie-core/commit/be38e66f2d5050580b3364989c599a7f8ccd3e2c))
 - use more optimal mongo observe method in custom publications ([6745f05](https://github.com/nrkno/sofie-core/commit/6745f0585588bb448b0792f37816fcf19a77ba6e))
 - wait for first observer setup when creating observer group ([d65d028](https://github.com/nrkno/sofie-core/commit/d65d028befc5f1c61abb4bb6638e6abe2f981205))
@@ -2018,7 +2134,7 @@ All notable changes to this project will be documented in this file. See [standa
 - don't give out the same lookahead AB session ID to sessions with different names ([#862](https://github.com/nrkno/sofie-core/issues/862)) ([f378380](https://github.com/nrkno/sofie-core/commit/f3783800734ceda8846dcff0cd527f8edc35e542))
 - downgrade type-fest (again) ([82346cc](https://github.com/nrkno/sofie-core/commit/82346cc9fc01a251c6dcb4d2f86ea954601ada32))
 - expose custom publications in client `window.PublicationCollections` object ([9357b29](https://github.com/nrkno/sofie-core/commit/9357b29942fbfe374e2699f740fb3eb7f45737bb))
-- forward `removeDelay` paremeter in `PeripheralDeviceApi.removePackageInfo` ([d21006f](https://github.com/nrkno/sofie-core/commit/d21006f0cef1ce4add382b1f96d7daf143ad5890))
+- forward `removeDelay` parameter in `PeripheralDeviceApi.removePackageInfo` ([d21006f](https://github.com/nrkno/sofie-core/commit/d21006f0cef1ce4add382b1f96d7daf143ad5890))
 - improve package warning messages ([bd0f6e5](https://github.com/nrkno/sofie-core/commit/bd0f6e51865ea56d30caa1f6286e5a4c18210629))
 - indicate which layers/mappings have overrides ([#854](https://github.com/nrkno/sofie-core/issues/854)) ([18bbad0](https://github.com/nrkno/sofie-core/commit/18bbad027af66ca3b88385bc0059928ccc9e4d9c))
 - infinite Piece timings can be inconsistent across runs of timelineGenerate when a pre-roll is present ([939efb5](https://github.com/nrkno/sofie-core/commit/939efb5560ccdca611c7cf9fefbde687cb298dc8))
@@ -2153,7 +2269,7 @@ All notable changes to this project will be documented in this file. See [standa
 - handle incomplete peripheralDeviceCommands ([40f691e](https://github.com/nrkno/sofie-core/commit/40f691e0e9fca1def233b67d2cd3f1cded7152ca))
 - Implements some of the suggestions in VariantSettings.tsx as well as some missing types ([d241467](https://github.com/nrkno/sofie-core/commit/d2414678e7c35a818b51c43e3500cf79843b31df))
 - Import, copy,remove, add and edit now work in sync with the new ordering ([42d79aa](https://github.com/nrkno/sofie-core/commit/42d79aa0d416f11fac37a7cdc87b1167ab60faf4))
-- modify zebra hightlights ([c9a33ca](https://github.com/nrkno/sofie-core/commit/c9a33cad851e70223ac053e9852c0ef28488fae8))
+- modify zebra highlights ([c9a33ca](https://github.com/nrkno/sofie-core/commit/c9a33cad851e70223ac053e9852c0ef28488fae8))
 - observergroup should be async ([141b14a](https://github.com/nrkno/sofie-core/commit/141b14ad8958aec7bbbd414a6062b83f7dde1920))
 - prefix blueprint translation namespace ([a1bad7e](https://github.com/nrkno/sofie-core/commit/a1bad7e3bd1dbea8a4da3173d8a50131fdd6bf15))
 - Proper handling of the upsertAsync ([bdca13f](https://github.com/nrkno/sofie-core/commit/bdca13f1582000c57ba1e731951c0cd0637fa2d3))
@@ -2169,7 +2285,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Timeout now only clears on WillUnmount to ensure no lost updates happening. Also includes refactors of the update method ([e1f4d82](https://github.com/nrkno/sofie-core/commit/e1f4d827725afa4fcf791080e28fa8aa5c5dd30f))
 - **TriggeredActionEntry:** modify the correct db object key ([e4a4b3b](https://github.com/nrkno/sofie-core/commit/e4a4b3b209d17aa059d4130ca431010567b7e83b))
 - typo ([55adb8c](https://github.com/nrkno/sofie-core/commit/55adb8c1d0973a66c05456b6ea98e266b1ad7815))
-- update ErrorBoundrary message to be more user-friendly ([458ae5f](https://github.com/nrkno/sofie-core/commit/458ae5ff193508d6ff76b76aac5b38db54c44039))
+- update ErrorBoundary message to be more user-friendly ([458ae5f](https://github.com/nrkno/sofie-core/commit/458ae5ff193508d6ff76b76aac5b38db54c44039))
 - use more optimal mongo observe method in custom publications ([be38e66](https://github.com/nrkno/sofie-core/commit/be38e66f2d5050580b3364989c599a7f8ccd3e2c))
 - use more optimal mongo observe method in custom publications ([6745f05](https://github.com/nrkno/sofie-core/commit/6745f0585588bb448b0792f37816fcf19a77ba6e))
 - wait for first observer setup when creating observer group ([d65d028](https://github.com/nrkno/sofie-core/commit/d65d028befc5f1c61abb4bb6638e6abe2f981205))
@@ -2201,7 +2317,7 @@ All notable changes to this project will be documented in this file. See [standa
 - downgrade type-fest (again) ([82346cc](https://github.com/nrkno/sofie-core/commit/82346cc9fc01a251c6dcb4d2f86ea954601ada32))
 - ensure keyframes have unique ids ([#871](https://github.com/nrkno/sofie-core/issues/871)) ([2236c3b](https://github.com/nrkno/sofie-core/commit/2236c3bdf8d4a91c8200218d3ba13fcbe3070253))
 - expose custom publications in client `window.PublicationCollections` object ([9357b29](https://github.com/nrkno/sofie-core/commit/9357b29942fbfe374e2699f740fb3eb7f45737bb))
-- forward `removeDelay` paremeter in `PeripheralDeviceApi.removePackageInfo` ([d21006f](https://github.com/nrkno/sofie-core/commit/d21006f0cef1ce4add382b1f96d7daf143ad5890))
+- forward `removeDelay` parameter in `PeripheralDeviceApi.removePackageInfo` ([d21006f](https://github.com/nrkno/sofie-core/commit/d21006f0cef1ce4add382b1f96d7daf143ad5890))
 - improve package warning messages ([bd0f6e5](https://github.com/nrkno/sofie-core/commit/bd0f6e51865ea56d30caa1f6286e5a4c18210629))
 - indicate which layers/mappings have overrides ([#854](https://github.com/nrkno/sofie-core/issues/854)) ([18bbad0](https://github.com/nrkno/sofie-core/commit/18bbad027af66ca3b88385bc0059928ccc9e4d9c))
 - infinite Piece timings can be inconsistent across runs of timelineGenerate when a pre-roll is present ([939efb5](https://github.com/nrkno/sofie-core/commit/939efb5560ccdca611c7cf9fefbde687cb298dc8))
@@ -2335,7 +2451,7 @@ All notable changes to this project will be documented in this file. See [standa
 - handle incomplete peripheralDeviceCommands ([40f691e](https://github.com/nrkno/sofie-core/commit/40f691e0e9fca1def233b67d2cd3f1cded7152ca))
 - Implements some of the suggestions in VariantSettings.tsx as well as some missing types ([d241467](https://github.com/nrkno/sofie-core/commit/d2414678e7c35a818b51c43e3500cf79843b31df))
 - Import, copy,remove, add and edit now work in sync with the new ordering ([42d79aa](https://github.com/nrkno/sofie-core/commit/42d79aa0d416f11fac37a7cdc87b1167ab60faf4))
-- modify zebra hightlights ([c9a33ca](https://github.com/nrkno/sofie-core/commit/c9a33cad851e70223ac053e9852c0ef28488fae8))
+- modify zebra highlights ([c9a33ca](https://github.com/nrkno/sofie-core/commit/c9a33cad851e70223ac053e9852c0ef28488fae8))
 - observergroup should be async ([141b14a](https://github.com/nrkno/sofie-core/commit/141b14ad8958aec7bbbd414a6062b83f7dde1920))
 - prefix blueprint translation namespace ([a1bad7e](https://github.com/nrkno/sofie-core/commit/a1bad7e3bd1dbea8a4da3173d8a50131fdd6bf15))
 - Proper handling of the upsertAsync ([bdca13f](https://github.com/nrkno/sofie-core/commit/bdca13f1582000c57ba1e731951c0cd0637fa2d3))
@@ -2351,7 +2467,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Timeout now only clears on WillUnmount to ensure no lost updates happening. Also includes refactors of the update method ([e1f4d82](https://github.com/nrkno/sofie-core/commit/e1f4d827725afa4fcf791080e28fa8aa5c5dd30f))
 - **TriggeredActionEntry:** modify the correct db object key ([e4a4b3b](https://github.com/nrkno/sofie-core/commit/e4a4b3b209d17aa059d4130ca431010567b7e83b))
 - typo ([55adb8c](https://github.com/nrkno/sofie-core/commit/55adb8c1d0973a66c05456b6ea98e266b1ad7815))
-- update ErrorBoundrary message to be more user-friendly ([458ae5f](https://github.com/nrkno/sofie-core/commit/458ae5ff193508d6ff76b76aac5b38db54c44039))
+- update ErrorBoundary message to be more user-friendly ([458ae5f](https://github.com/nrkno/sofie-core/commit/458ae5ff193508d6ff76b76aac5b38db54c44039))
 - use more optimal mongo observe method in custom publications ([be38e66](https://github.com/nrkno/sofie-core/commit/be38e66f2d5050580b3364989c599a7f8ccd3e2c))
 - use more optimal mongo observe method in custom publications ([6745f05](https://github.com/nrkno/sofie-core/commit/6745f0585588bb448b0792f37816fcf19a77ba6e))
 - wait for first observer setup when creating observer group ([d65d028](https://github.com/nrkno/sofie-core/commit/d65d028befc5f1c61abb4bb6638e6abe2f981205))
@@ -2377,7 +2493,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 - Failing tests ([ea09e77](https://github.com/nrkno/sofie-core/commit/ea09e7751bcce79b82d9e2f85bb6ebc2d8558c45))
 - Out of sync playhead countdown ([baa2761](https://github.com/nrkno/sofie-core/commit/baa27612f4dbf815b338c261068587d35a8484c4))
-- PieceInstance.`plannedStartedPlayback` not being propogated for infinites ([17399a6](https://github.com/nrkno/sofie-core/commit/17399a68566238d736f7cd9504fbfd421dca2811))
+- PieceInstance.`plannedStartedPlayback` not being propagated for infinites ([17399a6](https://github.com/nrkno/sofie-core/commit/17399a68566238d736f7cd9504fbfd421dca2811))
 - Reinstate syncedEventTImeNow ([21e8ed8](https://github.com/nrkno/sofie-core/commit/21e8ed8b358fd931aaf8601dd412174c91875238))
 
 ### [1.47.1-0](https://github.com/nrkno/sofie-core/compare/v1.47.0...v1.47.1-0) (2023-03-30)
@@ -2467,7 +2583,7 @@ All notable changes to this project will be documented in this file. See [standa
 - add state for rundownSegmentViewMode ([4c01c40](https://github.com/nrkno/sofie-core/commit/4c01c40e30bae1e119d18cb709fe7a4a7ab241d6))
 - add transition Pieces ([b88d15b](https://github.com/nrkno/sofie-core/commit/b88d15b75a76995e15cc7a6a7dcde652a93f97d6))
 - adlib actions can set timeline datastore ([0cd2f62](https://github.com/nrkno/sofie-core/commit/0cd2f62ba1a079ea0cc5b17c13846ead26ae7a21))
-- alow to disable hover scrub on dashboard per-panel ([0670d63](https://github.com/nrkno/sofie-core/commit/0670d635c47323868e6414b2299a1208bc7687be))
+- allow to disable hover scrub on dashboard per-panel ([0670d63](https://github.com/nrkno/sofie-core/commit/0670d635c47323868e6414b2299a1208bc7687be))
 - change interaction model for PieceIndicatorMenu to be click + somewhat of a context menu ([c4b1348](https://github.com/nrkno/sofie-core/commit/c4b1348128972cce4c30c9c78b0e4442303c2059))
 - change some publications to not use mongo queries to better handle the ui state of a missing id ([b127778](https://github.com/nrkno/sofie-core/commit/b127778ce951e9c9703c65ca60e99e241cfe52a8))
 - custom PieceIndicatorMenu ([9af8204](https://github.com/nrkno/sofie-core/commit/9af8204e7d8863cbcf1b30ffcaabc674222bf2de))
@@ -2483,7 +2599,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **OPL:** enable hover inspector on Pieces ([988e9ef](https://github.com/nrkno/sofie-core/commit/988e9ef01bd63a36583b278a9513b20b5663f9ca))
 - **OPL:** Piece Indicators ([a3f683f](https://github.com/nrkno/sofie-core/commit/a3f683fadf8d87228da6eb4ec48070de07a5fe82))
 - **OPL:** Placeholder invalid Part display ([0418129](https://github.com/nrkno/sofie-core/commit/04181290602afab4bba288269e4180f6aca668a7))
-- **OPL:** timed graphcis ([c13f562](https://github.com/nrkno/sofie-core/commit/c13f562329febaf3eb53c281bf1705d0e1c4947c))
+- **OPL:** timed graphics ([c13f562](https://github.com/nrkno/sofie-core/commit/c13f562329febaf3eb53c281bf1705d0e1c4947c))
 - part-level history shade ([96cd054](https://github.com/nrkno/sofie-core/commit/96cd05444644295575efd51acc2bd2d063ddfd3c))
 - PieceIndicatorMenu ([2e19ef8](https://github.com/nrkno/sofie-core/commit/2e19ef86d66744c5830cfe6d61aed819a35c312b))
 - prototype (WIP) ([01a2b8b](https://github.com/nrkno/sofie-core/commit/01a2b8bda9ad395f1a1bcdc2c246d16808240261))
@@ -2515,7 +2631,7 @@ All notable changes to this project will be documented in this file. See [standa
 - show freeze frame indicator ([d03cab1](https://github.com/nrkno/sofie-core/commit/d03cab1a6d8fbf559784e306fb38cebf2602a44a))
 - SOF-767 add option to hide default Start/Execute context menu options for adlibs ([8b8db6d](https://github.com/nrkno/sofie-core/commit/8b8db6d161c0b82e196e38fc23964aa324025cd9))
 - SOF-978 add config manifest entry showing a (multi)select with values from a table's column ([34e96e0](https://github.com/nrkno/sofie-core/commit/34e96e0ba2e62c9b149daf2c42bc7198cd757cf9))
-- SOF-978 add indication of mising options in dropdowns and optimize tables ([333a74d](https://github.com/nrkno/sofie-core/commit/333a74daefe80221f1451f6f7b1a9bbba6c4f520))
+- SOF-978 add indication of missing options in dropdowns and optimize tables ([333a74d](https://github.com/nrkno/sofie-core/commit/333a74daefe80221f1451f6f7b1a9bbba6c4f520))
 - some touchups ([a766660](https://github.com/nrkno/sofie-core/commit/a7666605d75bc61ddc5f25f16b361600c14910cf))
 - split ShowStyleBaseSettings into multiple tabs ([e1148d1](https://github.com/nrkno/sofie-core/commit/e1148d176ca8ac65b530855c7b86299fc39b5df7))
 - split studio settings into tabs ([23c969e](https://github.com/nrkno/sofie-core/commit/23c969e42f33cd59c1af30dc4a3c70c122779821))
@@ -2576,7 +2692,7 @@ All notable changes to this project will be documented in this file. See [standa
 - log the event when queueing minishelf adlibs ([43c2b3b](https://github.com/nrkno/sofie-core/commit/43c2b3b018f12fc58f65640cba3a17d3034d5cbc))
 - lookahead not making keyframe ids unique ([b95cc67](https://github.com/nrkno/sofie-core/commit/b95cc679193e320f5584f5f5dbdfdee314ae7c5d))
 - lowered logging level for a pair of log calls. ([9e6939d](https://github.com/nrkno/sofie-core/commit/9e6939de7acc2f656944db9a2d1240e9bd9f79a7))
-- made a custom funtion to find piece with script ([a762962](https://github.com/nrkno/sofie-core/commit/a762962db5dd943708d0412cdeff12b94bb2be38))
+- made a custom function to find piece with script ([a762962](https://github.com/nrkno/sofie-core/commit/a762962db5dd943708d0412cdeff12b94bb2be38))
 - make header sticky on all pages ([eac9620](https://github.com/nrkno/sofie-core/commit/eac9620acb3d0ad45b332af6b06453c2e6e39ab2))
 - make overlay prop optional ([d18a8b1](https://github.com/nrkno/sofie-core/commit/d18a8b136080b0e57a59b5e04af12cbb988c95c1))
 - Make PR instead of silently failing. ([2e99b8e](https://github.com/nrkno/sofie-core/commit/2e99b8ed1c103fb2ce9ca0d556c1333846c82b71))
@@ -2615,7 +2731,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **SegmentList:** only show tooltips on Part Title overflow ([b2c8c4a](https://github.com/nrkno/sofie-core/commit/b2c8c4a1f6efb96b5dd6ca44086619ab4db4d08f))
 - **SegmentList:** overflowing Pieces ([3f61d6d](https://github.com/nrkno/sofie-core/commit/3f61d6d804f1130e9bdddca78234bce94a118181))
 - **SegmentList:** overtime counter can wrap ([fa1b55b](https://github.com/nrkno/sofie-core/commit/fa1b55b9559b551e1aa63c58e10a36587e2177cb))
-- **SegmentList:** overtime counter far to the righht ([70ad149](https://github.com/nrkno/sofie-core/commit/70ad14922c54a48308937ee38d47a6cb70ed908b))
+- **SegmentList:** overtime counter far to the right ([70ad149](https://github.com/nrkno/sofie-core/commit/70ad14922c54a48308937ee38d47a6cb70ed908b))
 - **SegmentList:** overtime shadow ([0523a4e](https://github.com/nrkno/sofie-core/commit/0523a4ee0a7a9b027b00ed5e5585f7219bb37300))
 - **SegmentList:** Part context menu ([2e29f2a](https://github.com/nrkno/sofie-core/commit/2e29f2a677174128f9d0af5ac8340141be0347d6))
 - **SegmentList:** Part name tooltip ([851d6c9](https://github.com/nrkno/sofie-core/commit/851d6c970b952c5019e1e57fdd75d8c1ad354e07))
@@ -2738,7 +2854,7 @@ All notable changes to this project will be documented in this file. See [standa
 - differentiate user/default settings datastructure changes ([#772](https://github.com/nrkno/sofie-core/issues/772)) ([b39067d](https://github.com/nrkno/sofie-core/commit/b39067d9e4e7b87e7e00a80bdca19aade8b3bc04))
 - multi gateway mode ([#760](https://github.com/nrkno/sofie-core/issues/760)) ([9f23148](https://github.com/nrkno/sofie-core/commit/9f231486c47f414008f0f0f80ed4b665a2115b4a))
 - SOF-978 add config manifest entry showing a (multi)select with values from a table's column ([34e96e0](https://github.com/nrkno/sofie-core/commit/34e96e0ba2e62c9b149daf2c42bc7198cd757cf9))
-- SOF-978 add indication of mising options in dropdowns and optimize tables ([333a74d](https://github.com/nrkno/sofie-core/commit/333a74daefe80221f1451f6f7b1a9bbba6c4f520))
+- SOF-978 add indication of missing options in dropdowns and optimize tables ([333a74d](https://github.com/nrkno/sofie-core/commit/333a74daefe80221f1451f6f7b1a9bbba6c4f520))
 - tl datastore collection and testtool ([c4a7a17](https://github.com/nrkno/sofie-core/commit/c4a7a17bc0b4b7b2e5ff2af0f039d9674151d57f))
 
 ### Bug Fixes
@@ -2801,7 +2917,7 @@ All notable changes to this project will be documented in this file. See [standa
 - differentiate user/default settings datastructure changes ([#772](https://github.com/nrkno/sofie-core/issues/772)) ([b39067d](https://github.com/nrkno/sofie-core/commit/b39067d9e4e7b87e7e00a80bdca19aade8b3bc04))
 - multi gateway mode ([#760](https://github.com/nrkno/sofie-core/issues/760)) ([9f23148](https://github.com/nrkno/sofie-core/commit/9f231486c47f414008f0f0f80ed4b665a2115b4a))
 - SOF-978 add config manifest entry showing a (multi)select with values from a table's column ([34e96e0](https://github.com/nrkno/sofie-core/commit/34e96e0ba2e62c9b149daf2c42bc7198cd757cf9))
-- SOF-978 add indication of mising options in dropdowns and optimize tables ([333a74d](https://github.com/nrkno/sofie-core/commit/333a74daefe80221f1451f6f7b1a9bbba6c4f520))
+- SOF-978 add indication of missing options in dropdowns and optimize tables ([333a74d](https://github.com/nrkno/sofie-core/commit/333a74daefe80221f1451f6f7b1a9bbba6c4f520))
 - tl datastore collection and testtool ([c4a7a17](https://github.com/nrkno/sofie-core/commit/c4a7a17bc0b4b7b2e5ff2af0f039d9674151d57f))
 
 ### Bug Fixes
@@ -2857,7 +2973,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **SegmentList:** stick header to last Part ([791e823](https://github.com/nrkno/sofie-core/commit/791e823000b4e0e6c4c996d9da70512c02033559))
 - SOF-767 add option to hide default Start/Execute context menu options for adlibs ([8b8db6d](https://github.com/nrkno/sofie-core/commit/8b8db6d161c0b82e196e38fc23964aa324025cd9))
 - SOF-978 add config manifest entry showing a (multi)select with values from a table's column ([34e96e0](https://github.com/nrkno/sofie-core/commit/34e96e0ba2e62c9b149daf2c42bc7198cd757cf9))
-- SOF-978 add indication of mising options in dropdowns and optimize tables ([333a74d](https://github.com/nrkno/sofie-core/commit/333a74daefe80221f1451f6f7b1a9bbba6c4f520))
+- SOF-978 add indication of missing options in dropdowns and optimize tables ([333a74d](https://github.com/nrkno/sofie-core/commit/333a74daefe80221f1451f6f7b1a9bbba6c4f520))
 - split ShowStyleBaseSettings into multiple tabs ([e1148d1](https://github.com/nrkno/sofie-core/commit/e1148d176ca8ac65b530855c7b86299fc39b5df7))
 - split studio settings into tabs ([23c969e](https://github.com/nrkno/sofie-core/commit/23c969e42f33cd59c1af30dc4a3c70c122779821))
 - support doubleclick in Indicator menu ([d11fd29](https://github.com/nrkno/sofie-core/commit/d11fd29f963e8eca8c2e01640580b634ef622e09))
@@ -3002,7 +3118,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **SegmentList:** change hit target area from ::before to ::after ([64b4d75](https://github.com/nrkno/sofie-core/commit/64b4d758983c8402ab0558bf893551dc860a818a))
 - **SegmentList:** freeze marker on untimed Parts ([5be8215](https://github.com/nrkno/sofie-core/commit/5be8215ffe877ccd17787f8a0d388d7a3acb3b09))
 - **SegmentList:** overflowing Pieces ([3f61d6d](https://github.com/nrkno/sofie-core/commit/3f61d6d804f1130e9bdddca78234bce94a118181))
-- **SegmentList:** overtime counter far to the righht ([70ad149](https://github.com/nrkno/sofie-core/commit/70ad14922c54a48308937ee38d47a6cb70ed908b))
+- **SegmentList:** overtime counter far to the right ([70ad149](https://github.com/nrkno/sofie-core/commit/70ad14922c54a48308937ee38d47a6cb70ed908b))
 - **SegmentList:** Part context menu ([2e29f2a](https://github.com/nrkno/sofie-core/commit/2e29f2a677174128f9d0af5ac8340141be0347d6))
 - **SegmentList:** take line tweaks ([e27ac24](https://github.com/nrkno/sofie-core/commit/e27ac24fe12269855377d55119462cd14fe3b0d1))
 - show not present on AdLibs ([e65a8cc](https://github.com/nrkno/sofie-core/commit/e65a8cc524b2d7370f1ac1cc9c646beb2b8327a5))
@@ -3026,7 +3142,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Features
 
-- alow to disable hover scrub on dashboard per-panel ([0670d63](https://github.com/nrkno/sofie-core/commit/0670d635c47323868e6414b2299a1208bc7687be))
+- allow to disable hover scrub on dashboard per-panel ([0670d63](https://github.com/nrkno/sofie-core/commit/0670d635c47323868e6414b2299a1208bc7687be))
 - **OPL:** enable hover inspector on Pieces ([988e9ef](https://github.com/nrkno/sofie-core/commit/988e9ef01bd63a36583b278a9513b20b5663f9ca))
 - **OPL:** Placeholder invalid Part display ([0418129](https://github.com/nrkno/sofie-core/commit/04181290602afab4bba288269e4180f6aca668a7))
 - some touchups ([a766660](https://github.com/nrkno/sofie-core/commit/a7666605d75bc61ddc5f25f16b361600c14910cf))
@@ -3054,7 +3170,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 - add transition Pieces ([b88d15b](https://github.com/nrkno/sofie-core/commit/b88d15b75a76995e15cc7a6a7dcde652a93f97d6))
 - **OPL:** Piece Indicators ([a3f683f](https://github.com/nrkno/sofie-core/commit/a3f683fadf8d87228da6eb4ec48070de07a5fe82))
-- **OPL:** timed graphcis ([c13f562](https://github.com/nrkno/sofie-core/commit/c13f562329febaf3eb53c281bf1705d0e1c4947c))
+- **OPL:** timed graphics ([c13f562](https://github.com/nrkno/sofie-core/commit/c13f562329febaf3eb53c281bf1705d0e1c4947c))
 - part-level history shade ([96cd054](https://github.com/nrkno/sofie-core/commit/96cd05444644295575efd51acc2bd2d063ddfd3c))
 - prototype (WIP) ([01a2b8b](https://github.com/nrkno/sofie-core/commit/01a2b8bda9ad395f1a1bcdc2c246d16808240261))
 - Set log level from LOG_LEVEL env var. ([f4614d8](https://github.com/nrkno/sofie-core/commit/f4614d84dea41cb447cd5954d4510d7a32a705a5))
@@ -3079,7 +3195,7 @@ All notable changes to this project will be documented in this file. See [standa
 ### Bug Fixes
 
 - Bumped Sorensen for fixing preventDefaultDown not respecting global. ([acb6e85](https://github.com/nrkno/sofie-core/commit/acb6e85d0df093c3ab6424309b8ffbc2d404d9af))
-- made a custom funtion to find piece with script ([a762962](https://github.com/nrkno/sofie-core/commit/a762962db5dd943708d0412cdeff12b94bb2be38))
+- made a custom function to find piece with script ([a762962](https://github.com/nrkno/sofie-core/commit/a762962db5dd943708d0412cdeff12b94bb2be38))
 - Use AnyEnter instead of Enter for modals. ([7c77e95](https://github.com/nrkno/sofie-core/commit/7c77e9597fcec699b3a0846abda05f820598a62e))
 
 ## [42.0.0-dev](https://github.com/nrkno/sofie-core/compare/v1.42.5...v42.0.0-dev) (2022-05-03)
@@ -3288,7 +3404,7 @@ All notable changes to this project will be documented in this file. See [standa
 - change how we parameters are fed into function, in order to avoid garbage collection ([df89ecc](https://github.com/nrkno/sofie-core/commit/df89eccdd364cf48b5fe39d8d436354a4cca7c25))
 - Cherry-picked configurable poisonkey. ([ec60933](https://github.com/nrkno/sofie-core/commit/ec60933c91ecd0ae23fc27331c990423dc6c65d1))
 - Cherry-picked Sorensen preventDefaultDown option. ([b90f1b3](https://github.com/nrkno/sofie-core/commit/b90f1b3fa168b6d9ee72eac4a947fa5dc79fbbf3))
-- clarify featching of PartInstances ([89cabed](https://github.com/nrkno/sofie-core/commit/89cabed7c0a4ca52fe13064025bd614c84370f0a))
+- clarify fetching of PartInstances ([89cabed](https://github.com/nrkno/sofie-core/commit/89cabed7c0a4ca52fe13064025bd614c84370f0a))
 - convert Timeline collection on cache to be a single object, as it uses StudioId as id ([4931046](https://github.com/nrkno/sofie-core/commit/49310467580c62d9663eea5e7d1234b4fc873e8c))
 - expose versionExtended (git hash) in package.json on CI build ([#711](https://github.com/nrkno/sofie-core/issues/711)) ([ee12285](https://github.com/nrkno/sofie-core/commit/ee12285e0fad7103b51cfabc7015f35829509009))
 - hide keyboardPreview settings behind a feature flag. ([a48ad31](https://github.com/nrkno/sofie-core/commit/a48ad3109566f25f161be5ad3195ce039fa1a589))
@@ -3932,7 +4048,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Add missing settings ([99296e4](https://github.com/nrkno/sofie-core/commit/99296e403bffe29ac0c7c9a9d2f6b24807ee96d3))
 - Add Numpad keyboard layout ([43d5e4f](https://github.com/nrkno/sofie-core/commit/43d5e4f9485332ba02f4f9e3c7ecf0f7357b37c0))
 - add options for TSR-vizMSE device ([61220ba](https://github.com/nrkno/sofie-core/commit/61220bab39b5874b71a0a6e28c5363f2227f04a7))
-- Add property Piece.definitelyEnded to be used to easilly filter out old and cropped pieces. ([a695d71](https://github.com/nrkno/sofie-core/commit/a695d71b824894ba9621e7b97a2eca176b51cdad))
+- Add property Piece.definitelyEnded to be used to easily filter out old and cropped pieces. ([a695d71](https://github.com/nrkno/sofie-core/commit/a695d71b824894ba9621e7b97a2eca176b51cdad))
 - Add spacing to Rundown List table header ([8b11d6c](https://github.com/nrkno/sofie-core/commit/8b11d6cb95472895c1914e08a7dc32c0f6bfd41d))
 - Add startedPlayback to dashboard status query ([37335e4](https://github.com/nrkno/sofie-core/commit/37335e4257b81a0c38169702773857f07a69719c))
 - Add uniquenessId to adlib piece ([50f30a8](https://github.com/nrkno/sofie-core/commit/50f30a841dfca6211771de2e9b0895b0f62761cc))
@@ -4049,7 +4165,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **dashboard status:** use userDuration.end for infinites fallback ([cbddb04](https://github.com/nrkno/sofie-core/commit/cbddb04e302dc18dbf5105c115ceb5a43ca9eb7e))
 - **dashboard:** always trigger adlib if clearKeyaboardHotkey is not set ([b8fd6fb](https://github.com/nrkno/sofie-core/commit/b8fd6fbba63161e51e127ed2470623f89a8ccbf0))
 - DashboardPieceButton label in offtubes ([3727186](https://github.com/nrkno/sofie-core/commit/37271867f75fb34605373664796a76272290a3c5))
-- Defualt -> Default ([1eea3ea](https://github.com/nrkno/sofie-core/commit/1eea3eaed0fe40548324826435550d49eaaa9604))
+- Default -> Default ([1eea3ea](https://github.com/nrkno/sofie-core/commit/1eea3eaed0fe40548324826435550d49eaaa9604))
 - delay scroll to part after take so that we don't lose follow live line ([865139c](https://github.com/nrkno/sofie-core/commit/865139c2f816e7bf4e5ed5a425692b5c35d6ac00))
 - Dependency versions ([ff1920d](https://github.com/nrkno/sofie-core/commit/ff1920d67bf35012fab19676a7faa30dceb0e162))
 - disable browser context menu in standalone shelf ([75a8b14](https://github.com/nrkno/sofie-core/commit/75a8b140f5fb5c7df58de7179ca957f3d7ec97d3))
@@ -4405,7 +4521,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Sisyfos mapping types ([23fca29](https://github.com/nrkno/sofie-core/commit/23fca29b7c27c0f746252636e3a4fbb8ffdbb745))
 - snapshot import failing if collection was missing ([721134c](https://github.com/nrkno/sofie-core/commit/721134c1cfafd1698befaa02115bc36e776e68de))
 - some keys in the AHK Keyboard Map ([31e2f23](https://github.com/nrkno/sofie-core/commit/31e2f2393f29cf80f5c543bdb42fb240817b4bc9))
-- some virtual infinites would not propogate properly. onRundownEnd infinites from the same segment would not propogate. ui resolving future parts incorrectly ([58f3b38](https://github.com/nrkno/sofie-core/commit/58f3b384152f44f61021554a7d0ed3e8a614db4b))
+- some virtual infinites would not propagate properly. onRundownEnd infinites from the same segment would not propagate. ui resolving future parts incorrectly ([58f3b38](https://github.com/nrkno/sofie-core/commit/58f3b384152f44f61021554a7d0ed3e8a614db4b))
 - Sort adlibs and actions by rank for display ([f2f5be3](https://github.com/nrkno/sofie-core/commit/f2f5be328c36c9618ed7dc8dde4c42ea4903ca18))
 - Sort adlibs as last step ([2192224](https://github.com/nrkno/sofie-core/commit/21922243c6715e9fc681854bf5f7214a2fe95978))
 - Split DashboardPieceButton label into multiple lines ([1630fe4](https://github.com/nrkno/sofie-core/commit/1630fe45bde36df6d5950f74adf12fea4fc895f9))
@@ -4580,7 +4696,7 @@ All notable changes to this project will be documented in this file. See [standa
 - change how we parameters are fed into function, in order to avoid garbage collection ([df89ecc](https://github.com/nrkno/tv-automation-server-core/commit/df89eccdd364cf48b5fe39d8d436354a4cca7c25))
 - Cherry-picked configurable poisonkey. ([ec60933](https://github.com/nrkno/tv-automation-server-core/commit/ec60933c91ecd0ae23fc27331c990423dc6c65d1))
 - Cherry-picked Sorensen preventDefaultDown option. ([b90f1b3](https://github.com/nrkno/tv-automation-server-core/commit/b90f1b3fa168b6d9ee72eac4a947fa5dc79fbbf3))
-- clarify featching of PartInstances ([89cabed](https://github.com/nrkno/tv-automation-server-core/commit/89cabed7c0a4ca52fe13064025bd614c84370f0a))
+- clarify fetching of PartInstances ([89cabed](https://github.com/nrkno/tv-automation-server-core/commit/89cabed7c0a4ca52fe13064025bd614c84370f0a))
 - convert Timeline collection on cache to be a single object, as it uses StudioId as id ([4931046](https://github.com/nrkno/tv-automation-server-core/commit/49310467580c62d9663eea5e7d1234b4fc873e8c))
 - expose versionExtended (git hash) in package.json on CI build ([#711](https://github.com/nrkno/tv-automation-server-core/issues/711)) ([ee12285](https://github.com/nrkno/tv-automation-server-core/commit/ee12285e0fad7103b51cfabc7015f35829509009))
 - hide keyboardPreview settings behind a feature flag. ([a48ad31](https://github.com/nrkno/tv-automation-server-core/commit/a48ad3109566f25f161be5ad3195ce039fa1a589))
@@ -5224,7 +5340,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Add missing settings ([99296e4](https://github.com/nrkno/tv-automation-server-core/commit/99296e403bffe29ac0c7c9a9d2f6b24807ee96d3))
 - Add Numpad keyboard layout ([43d5e4f](https://github.com/nrkno/tv-automation-server-core/commit/43d5e4f9485332ba02f4f9e3c7ecf0f7357b37c0))
 - add options for TSR-vizMSE device ([61220ba](https://github.com/nrkno/tv-automation-server-core/commit/61220bab39b5874b71a0a6e28c5363f2227f04a7))
-- Add property Piece.definitelyEnded to be used to easilly filter out old and cropped pieces. ([a695d71](https://github.com/nrkno/tv-automation-server-core/commit/a695d71b824894ba9621e7b97a2eca176b51cdad))
+- Add property Piece.definitelyEnded to be used to easily filter out old and cropped pieces. ([a695d71](https://github.com/nrkno/tv-automation-server-core/commit/a695d71b824894ba9621e7b97a2eca176b51cdad))
 - Add spacing to Rundown List table header ([8b11d6c](https://github.com/nrkno/tv-automation-server-core/commit/8b11d6cb95472895c1914e08a7dc32c0f6bfd41d))
 - Add startedPlayback to dashboard status query ([37335e4](https://github.com/nrkno/tv-automation-server-core/commit/37335e4257b81a0c38169702773857f07a69719c))
 - Add uniquenessId to adlib piece ([50f30a8](https://github.com/nrkno/tv-automation-server-core/commit/50f30a841dfca6211771de2e9b0895b0f62761cc))
@@ -5341,7 +5457,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **dashboard status:** use userDuration.end for infinites fallback ([cbddb04](https://github.com/nrkno/tv-automation-server-core/commit/cbddb04e302dc18dbf5105c115ceb5a43ca9eb7e))
 - **dashboard:** always trigger adlib if clearKeyaboardHotkey is not set ([b8fd6fb](https://github.com/nrkno/tv-automation-server-core/commit/b8fd6fbba63161e51e127ed2470623f89a8ccbf0))
 - DashboardPieceButton label in offtubes ([3727186](https://github.com/nrkno/tv-automation-server-core/commit/37271867f75fb34605373664796a76272290a3c5))
-- Defualt -> Default ([1eea3ea](https://github.com/nrkno/tv-automation-server-core/commit/1eea3eaed0fe40548324826435550d49eaaa9604))
+- Default -> Default ([1eea3ea](https://github.com/nrkno/tv-automation-server-core/commit/1eea3eaed0fe40548324826435550d49eaaa9604))
 - delay scroll to part after take so that we don't lose follow live line ([865139c](https://github.com/nrkno/tv-automation-server-core/commit/865139c2f816e7bf4e5ed5a425692b5c35d6ac00))
 - Dependency versions ([ff1920d](https://github.com/nrkno/tv-automation-server-core/commit/ff1920d67bf35012fab19676a7faa30dceb0e162))
 - disable browser context menu in standalone shelf ([75a8b14](https://github.com/nrkno/tv-automation-server-core/commit/75a8b140f5fb5c7df58de7179ca957f3d7ec97d3))
@@ -5697,7 +5813,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Sisyfos mapping types ([23fca29](https://github.com/nrkno/tv-automation-server-core/commit/23fca29b7c27c0f746252636e3a4fbb8ffdbb745))
 - snapshot import failing if collection was missing ([721134c](https://github.com/nrkno/tv-automation-server-core/commit/721134c1cfafd1698befaa02115bc36e776e68de))
 - some keys in the AHK Keyboard Map ([31e2f23](https://github.com/nrkno/tv-automation-server-core/commit/31e2f2393f29cf80f5c543bdb42fb240817b4bc9))
-- some virtual infinites would not propogate properly. onRundownEnd infinites from the same segment would not propogate. ui resolving future parts incorrectly ([58f3b38](https://github.com/nrkno/tv-automation-server-core/commit/58f3b384152f44f61021554a7d0ed3e8a614db4b))
+- some virtual infinites would not propagate properly. onRundownEnd infinites from the same segment would not propagate. ui resolving future parts incorrectly ([58f3b38](https://github.com/nrkno/tv-automation-server-core/commit/58f3b384152f44f61021554a7d0ed3e8a614db4b))
 - Sort adlibs and actions by rank for display ([f2f5be3](https://github.com/nrkno/tv-automation-server-core/commit/f2f5be328c36c9618ed7dc8dde4c42ea4903ca18))
 - Sort adlibs as last step ([2192224](https://github.com/nrkno/tv-automation-server-core/commit/21922243c6715e9fc681854bf5f7214a2fe95978))
 - Split DashboardPieceButton label into multiple lines ([1630fe4](https://github.com/nrkno/tv-automation-server-core/commit/1630fe45bde36df6d5950f74adf12fea4fc895f9))
@@ -5806,7 +5922,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **docs:** add Ctrl+K hotkey for jumping to search text box ([1d16c1e](https://github.com/nrkno/tv-automation-server-core/commit/1d16c1e3d57a0cebfd10c962b3816ba558bb9976))
 - meteor 2.7. reenable meteor apm ([e989244](https://github.com/nrkno/tv-automation-server-core/commit/e98924407a3f0b791f48b852b9ef09902a90280d))
 - move more logic into workers ([#718](https://github.com/nrkno/tv-automation-server-core/issues/718)) ([3376826](https://github.com/nrkno/tv-automation-server-core/commit/3376826e4029985e3975d6d5a85f9ab1f06a9dd4))
-- **Prompter:** Suppoert for multiple Joycon controller for prompter ([f915320](https://github.com/nrkno/tv-automation-server-core/commit/f915320d1c7f78dd4692140dbcf46fb5a289d16b))
+- **Prompter:** Support for multiple Joycon controller for prompter ([f915320](https://github.com/nrkno/tv-automation-server-core/commit/f915320d1c7f78dd4692140dbcf46fb5a289d16b))
 - use Sorensen prevent default down option and configurable poison key ([1311e3e](https://github.com/nrkno/tv-automation-server-core/commit/1311e3e4a15c955293123da758492d594960e159))
 
 ### Bug Fixes
@@ -5844,8 +5960,8 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Features
 
-- add machine id to notifcations report ([f47f0ca](https://github.com/nrkno/tv-automation-server-core/commit/f47f0cadc487a8f64107a6eee9ffa3c7f9e613e7))
-- option to log user notifcations in core ([46a14a4](https://github.com/nrkno/tv-automation-server-core/commit/46a14a4508b5f98274c08ebf2face9356173b662))
+- add machine id to notifications report ([f47f0ca](https://github.com/nrkno/tv-automation-server-core/commit/f47f0cadc487a8f64107a6eee9ffa3c7f9e613e7))
+- option to log user notifications in core ([46a14a4](https://github.com/nrkno/tv-automation-server-core/commit/46a14a4508b5f98274c08ebf2face9356173b662))
 - piece postroll ([674d7c5](https://github.com/nrkno/tv-automation-server-core/commit/674d7c588998e59a794b1da64276f73637ae8556))
 - store user event timestamps ([#716](https://github.com/nrkno/tv-automation-server-core/issues/716)) ([8a45898](https://github.com/nrkno/tv-automation-server-core/commit/8a45898b1f5a666128e0b8ca516524d818de3a1d))
 - **UserLog:** highlight linked log entry ([4e9407d](https://github.com/nrkno/tv-automation-server-core/commit/4e9407d4ec840f2a4ece43fa6063a4ff38b98bd0))
@@ -5912,7 +6028,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Features
 
-- **Prompter:** Suppoert for multiple Joycon controller for prompter ([f915320](https://github.com/nrkno/sofie-core/commit/f915320d1c7f78dd4692140dbcf46fb5a289d16b))
+- **Prompter:** Support for multiple Joycon controller for prompter ([f915320](https://github.com/nrkno/sofie-core/commit/f915320d1c7f78dd4692140dbcf46fb5a289d16b))
 
 ### Bug Fixes
 
@@ -5950,8 +6066,8 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Features
 
-- add machine id to notifcations report ([f47f0ca](https://github.com/nrkno/sofie-core/commit/f47f0cadc487a8f64107a6eee9ffa3c7f9e613e7))
-- option to log user notifcations in core ([46a14a4](https://github.com/nrkno/sofie-core/commit/46a14a4508b5f98274c08ebf2face9356173b662))
+- add machine id to notifications report ([f47f0ca](https://github.com/nrkno/sofie-core/commit/f47f0cadc487a8f64107a6eee9ffa3c7f9e613e7))
+- option to log user notifications in core ([46a14a4](https://github.com/nrkno/sofie-core/commit/46a14a4508b5f98274c08ebf2face9356173b662))
 
 ### Bug Fixes
 
@@ -6001,7 +6117,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 - add "allVariants" property to IBlueprintActionManifest and showStyleBaseId to AdlibActions/AdlibPiece ([2a8db5a](https://github.com/nrkno/sofie-core/commit/2a8db5a83c6a8c3a21c8a0935092e67135caae12))
 - add and use uniquenessId for bucket adlibs ([ff04c1b](https://github.com/nrkno/sofie-core/commit/ff04c1b07c3f9ec7e118fdd9e1f4ca6c25a61594))
-- better handling of non-unqiue externalId for pieces and other types ([#685](https://github.com/nrkno/sofie-core/issues/685)) ([02a891e](https://github.com/nrkno/sofie-core/commit/02a891e66dd8c9aa01b2ceb1634ac425ab18217d))
+- better handling of non-unique externalId for pieces and other types ([#685](https://github.com/nrkno/sofie-core/issues/685)) ([02a891e](https://github.com/nrkno/sofie-core/commit/02a891e66dd8c9aa01b2ceb1634ac425ab18217d))
 - MigrationContextWithTriggeredActions exposes getTriggeredActionsId ([7bba681](https://github.com/nrkno/sofie-core/commit/7bba681a7eb628a8d476f6802e79c77153d69239))
 - no default tabs when using Shelf Layout ([#684](https://github.com/nrkno/sofie-core/issues/684)) ([ba3a75f](https://github.com/nrkno/sofie-core/commit/ba3a75f55254e9f2df6732e0820eccdd78fb7164))
 
@@ -6186,7 +6302,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Features
 
-- better handling of non-unqiue externalId for pieces and other types ([#685](https://github.com/nrkno/sofie-core/issues/685)) ([02a891e](https://github.com/nrkno/sofie-core/commit/02a891e66dd8c9aa01b2ceb1634ac425ab18217d))
+- better handling of non-unique externalId for pieces and other types ([#685](https://github.com/nrkno/sofie-core/issues/685)) ([02a891e](https://github.com/nrkno/sofie-core/commit/02a891e66dd8c9aa01b2ceb1634ac425ab18217d))
 - First-class Sofie PWA ([#670](https://github.com/nrkno/sofie-core/issues/670)) ([c413d8a](https://github.com/nrkno/sofie-core/commit/c413d8ae8a5e70a4c5b0cd4fd6924900b69f6f4c))
 - no default tabs when using Shelf Layout ([#684](https://github.com/nrkno/sofie-core/issues/684)) ([ba3a75f](https://github.com/nrkno/sofie-core/commit/ba3a75f55254e9f2df6732e0820eccdd78fb7164))
 - **Timeline+Storyboard:** Invalid Parts show hover inspector with invalidReason ([#679](https://github.com/nrkno/sofie-core/issues/679)) ([43ba126](https://github.com/nrkno/sofie-core/commit/43ba126b986d3c185212d49433739804350cc084))
@@ -6678,7 +6794,7 @@ All notable changes to this project will be documented in this file. See [standa
 - make pieceIds generate without relying on the segmentId, so that they are stable when parts are moved between segments ([#626](https://github.com/nrkno/tv-automation-server-core/issues/626)) ([1a36ec5](https://github.com/nrkno/tv-automation-server-core/commit/1a36ec5672ccb7a04ed05434f6f00c363e3fd214))
 - make some types stricter ([0b53dea](https://github.com/nrkno/tv-automation-server-core/commit/0b53deab879f70dcecf1d2cfd260a8b3b6907d5a))
 - migration collection cleanup removing all system TriggeredActions ([d304490](https://github.com/nrkno/tv-automation-server-core/commit/d3044907f1c3d4e351fe58308c785a6679393b80))
-- minor fix inoptimizedObserver, for direct execution when lazynessDuration is 0 ([757aef6](https://github.com/nrkno/tv-automation-server-core/commit/757aef6e1679e9370229850d53966bc837509255))
+- minor fix inoptimizedObserver, for direct execution when lazinessDuration is 0 ([757aef6](https://github.com/nrkno/tv-automation-server-core/commit/757aef6e1679e9370229850d53966bc837509255))
 - minor fixes after feedback in PR ([386b8a7](https://github.com/nrkno/tv-automation-server-core/commit/386b8a75ee1ffe041919e1a952779cd5e68ff004))
 - Missing media notifications shown while media subscription is not yet ready ([d290727](https://github.com/nrkno/tv-automation-server-core/commit/d290727f641e71a39f071e79be0af9aa5ac0a259))
 - more usable results from cleanupOldDataInner() and add this check as a last step when doing migrations ([bb9cbca](https://github.com/nrkno/tv-automation-server-core/commit/bb9cbcad90567ce80b6ce934a9bcf843faa1c18a))
@@ -6700,7 +6816,7 @@ All notable changes to this project will be documented in this file. See [standa
 - sort Adlibs on part.\_rank, then on piece.\_rank ([22eb916](https://github.com/nrkno/tv-automation-server-core/commit/22eb9162e9a76f2f73a817a4a136947f385bb4c4))
 - trigger fast-track observer inside timelineTriggerTimeInner ([1f8f821](https://github.com/nrkno/tv-automation-server-core/commit/1f8f82185db3afa99bb13a761d83960200bc847f))
 - update code-preset, lints only changed files ([10fb7dc](https://github.com/nrkno/tv-automation-server-core/commit/10fb7dc9e024ffebd67c4accdf82d6bb0369893e))
-- Updated documenation link. ([7034ed7](https://github.com/nrkno/tv-automation-server-core/commit/7034ed7a2fcf9c1b131d4f4588a4af4416902e6f))
+- Updated documentation link. ([7034ed7](https://github.com/nrkno/tv-automation-server-core/commit/7034ed7a2fcf9c1b131d4f4588a4af4416902e6f))
 - use correct filter when fetching data ([0bc1686](https://github.com/nrkno/tv-automation-server-core/commit/0bc1686cc51fb25f44f80120a0083ac64c9ae248))
 - use StudioId instead of StudioLight where possible ([46ae1fe](https://github.com/nrkno/tv-automation-server-core/commit/46ae1fe758dc98d9b9f0cef2aed2ce77c9637064))
 - wrap all calls to blueprints in try/catch-blocks ([82dc985](https://github.com/nrkno/tv-automation-server-core/commit/82dc985863baeb82f67ec683aecd2a6dcf72490f))
@@ -6753,7 +6869,7 @@ All notable changes to this project will be documented in this file. See [standa
 - make pieceIds generate without relying on the segmentId, so that they are stable when parts are moved between segments ([#626](https://github.com/nrkno/tv-automation-server-core/issues/626)) ([1a36ec5](https://github.com/nrkno/tv-automation-server-core/commit/1a36ec5672ccb7a04ed05434f6f00c363e3fd214))
 - make some types stricter ([0b53dea](https://github.com/nrkno/tv-automation-server-core/commit/0b53deab879f70dcecf1d2cfd260a8b3b6907d5a))
 - migration collection cleanup removing all system TriggeredActions ([d304490](https://github.com/nrkno/tv-automation-server-core/commit/d3044907f1c3d4e351fe58308c785a6679393b80))
-- minor fix inoptimizedObserver, for direct execution when lazynessDuration is 0 ([757aef6](https://github.com/nrkno/tv-automation-server-core/commit/757aef6e1679e9370229850d53966bc837509255))
+- minor fix inoptimizedObserver, for direct execution when lazinessDuration is 0 ([757aef6](https://github.com/nrkno/tv-automation-server-core/commit/757aef6e1679e9370229850d53966bc837509255))
 - minor fixes after feedback in PR ([386b8a7](https://github.com/nrkno/tv-automation-server-core/commit/386b8a75ee1ffe041919e1a952779cd5e68ff004))
 - more usable results from cleanupOldDataInner() and add this check as a last step when doing migrations ([bb9cbca](https://github.com/nrkno/tv-automation-server-core/commit/bb9cbcad90567ce80b6ce934a9bcf843faa1c18a))
 - npm publish tag for prerelease git tags ([94e132d](https://github.com/nrkno/tv-automation-server-core/commit/94e132d2b56b14ac6c3874a7f6f6b7ccb7542f36))
@@ -6827,7 +6943,7 @@ All notable changes to this project will be documented in this file. See [standa
 - add sisyfos channel by label mapping 6e6d997
 - allow setting a fileflow URL for Quantel Accessors 22c6af5
 - cache local storage UI flags ([#587](undefined/undefined/undefined/issues/587)) df4edae
-- don't track preceeding Parts for labels, just skip labels if not statring in a given Part 5b8da8f
+- don't track preceeding Parts for labels, just skip labels if not starting in a given Part 5b8da8f
 - ignore media statuses 76f8f01
 - implement notInVision 3d30dba
 - improve hoverscrub inspector for Pilot items e22da7d
@@ -6845,16 +6961,16 @@ All notable changes to this project will be documented in this file. See [standa
 
 - "reset rundown" Triggered Action doesn't cause the Rundown View to scroll to top, like it used to with hotkeys c417989
 - 0 freeze frame detected within the clip (apply 75c042705454c850605c28cc3cffd64a53cac884 for package-manager 6aea2fc
-- add bucketId property to ExpectedPackages, so that they are easilly removed when removing a Bucket ad9f948
+- add bucketId property to ExpectedPackages, so that they are easily removed when removing a Bucket ad9f948
 - add option on each device to debug-log that separately bc113b6
 - add priority & prevStatusReasons into package workStatuses de73fd1
 - add studioId to MediaObjects queries to ensure that db-indexes are used in MongoDB c6080f6
-- add try-catch blacks to catch possible GUI erros ab7536a
+- add try-catch blacks to catch possible GUI errors ab7536a
 - adlibs with `currentPieceTags` being an empty array always shown as on-air 91bac55
-- allways show left label on live parts of super-infinite pieces d90511d
+- always show left label on live parts of super-infinite pieces d90511d
 - bug in snapshot restore f646ce3
 - clean out bucket-adlib-actions upon emptying of bucket 428b1fc
-- don't emit slowFullfilledCommands as errors 7b9b2ef
+- don't emit slowFulfilledCommands as errors 7b9b2ef
 - double-click to take adlib not detecting pieces having stopped properly ab53cfa
 - enable scrolling of panels in standalone shelf views f99c88e
 - filtersTitle swapped for dashboard and rundown layouts ([#595](undefined/undefined/undefined/issues/595)) 13885d2
@@ -7833,7 +7949,7 @@ All notable changes to this project will be documented in this file. See [standa
 ### Bug Fixes
 
 - Failing tests ([a786d24](https://github.com/nrkno/tv-automation-server-core/commit/a786d242b87ca2b3bafa64761691ed07e44d0d8b))
-- pieces not being propogated when hold is started ([ee44a44](https://github.com/nrkno/tv-automation-server-core/commit/ee44a44b616d501bd38b5f66495730d07dcec64f))
+- pieces not being propagated when hold is started ([ee44a44](https://github.com/nrkno/tv-automation-server-core/commit/ee44a44b616d501bd38b5f66495730d07dcec64f))
 - **TimelineGrid:** timeline labels are non-monotonous under some conditions ([e1381de](https://github.com/nrkno/tv-automation-server-core/commit/e1381defa8162069e5c2efcb492b6eb873f306d5))
 - [object Object] in UI ([5d5c097](https://github.com/nrkno/tv-automation-server-core/commit/5d5c09770c67d1704e4a960a0703871afc0c72e7))
 - allow deleting orphaned rundowns if delete was requested by the user (and not from mos) ([45b18c9](https://github.com/nrkno/tv-automation-server-core/commit/45b18c92c614d71a56179e894eae323f5317a3a3))
@@ -7889,7 +8005,7 @@ All notable changes to this project will be documented in this file. See [standa
 - package-management: GUI: add support for expectedPackages, for media info, previews, thumbnails etc.. (wip) ([6ac6ad8](https://github.com/nrkno/tv-automation-server-core/commit/6ac6ad89111b8d89f16e301e989a315e26261bc0))
 - packageManager: modify publication to emit expectedPackages from next & current PartInstance as well ([3444a3d](https://github.com/nrkno/tv-automation-server-core/commit/3444a3d8afd9edf80c27061e26e8d05dfcb4d842))
 - performance tweaks ([22c3aaf](https://github.com/nrkno/tv-automation-server-core/commit/22c3aaf786614d486770b0a3b0b746045397b5d8))
-- ReactiveStore class, to be used as a performance enhancer on the clien-side. ([6366d10](https://github.com/nrkno/tv-automation-server-core/commit/6366d108aead80d91c5a94ba65955512c6feb8e8))
+- ReactiveStore class, to be used as a performance enhancer on the client-side. ([6366d10](https://github.com/nrkno/tv-automation-server-core/commit/6366d108aead80d91c5a94ba65955512c6feb8e8))
 - refactor playout to use new lockFunction and cache flow ([acf14d1](https://github.com/nrkno/tv-automation-server-core/commit/acf14d14be8e2fa9a5ca8b33d18b0f8b4ec452bf))
 - remove AsRunLog collection ([#477](https://github.com/nrkno/tv-automation-server-core/issues/477)) ([1826f79](https://github.com/nrkno/tv-automation-server-core/commit/1826f79bb12732006cb174f8a7e915560b755a31))
 - reset segments upon leaving ([#473](https://github.com/nrkno/tv-automation-server-core/issues/473)) ([f854774](https://github.com/nrkno/tv-automation-server-core/commit/f8547740ba32c53d3f9cd3532bc0ef05f3e50b5c))
@@ -7905,7 +8021,7 @@ All notable changes to this project will be documented in this file. See [standa
 - add delay & batch update functionality to ReactiveStore ([678cfad](https://github.com/nrkno/tv-automation-server-core/commit/678cfad172c8552c67b7920d1c3cc8fc99a45ddb))
 - add expectedPackages to snapshot ([220465a](https://github.com/nrkno/tv-automation-server-core/commit/220465a28939fb890dfd7191ca0e79b6867bde28))
 - add missing migrations ([d98827c](https://github.com/nrkno/tv-automation-server-core/commit/d98827c270e1d8d7975ad82ce9a3e28d5145800c))
-- add optional parameter for lazynessDuration in optimizedObserver ([1b7bdcd](https://github.com/nrkno/tv-automation-server-core/commit/1b7bdcdecbafe787505113b82326bcd2dfa910f4))
+- add optional parameter for lazinessDuration in optimizedObserver ([1b7bdcd](https://github.com/nrkno/tv-automation-server-core/commit/1b7bdcdecbafe787505113b82326bcd2dfa910f4))
 - adLib actions in dashboard panels were not correctly filtered according to live segment ([acc6c15](https://github.com/nrkno/tv-automation-server-core/commit/acc6c15166def5f3dc8f0a19b8057921ab842bcc))
 - blueprint-integration: add expectedPackages properties to Adlib actions ([b45df41](https://github.com/nrkno/tv-automation-server-core/commit/b45df419140aa3c4280cc8832368b69ea2790085))
 - bug fix in publication ([04244de](https://github.com/nrkno/tv-automation-server-core/commit/04244de20d4a129fbd77d52172d50a1cf6b93ab0))
@@ -8090,7 +8206,7 @@ All notable changes to this project will be documented in this file. See [standa
 - package-management: GUI: add support for expectedPackages, for media info, previews, thumbnails etc.. (wip) ([6ac6ad8](https://github.com/nrkno/tv-automation-server-core/commit/6ac6ad89111b8d89f16e301e989a315e26261bc0))
 - packageManager: modify publication to emit expectedPackages from next & current PartInstance as well ([3444a3d](https://github.com/nrkno/tv-automation-server-core/commit/3444a3d8afd9edf80c27061e26e8d05dfcb4d842))
 - performance tweaks ([22c3aaf](https://github.com/nrkno/tv-automation-server-core/commit/22c3aaf786614d486770b0a3b0b746045397b5d8))
-- ReactiveStore class, to be used as a performance enhancer on the clien-side. ([6366d10](https://github.com/nrkno/tv-automation-server-core/commit/6366d108aead80d91c5a94ba65955512c6feb8e8))
+- ReactiveStore class, to be used as a performance enhancer on the client-side. ([6366d10](https://github.com/nrkno/tv-automation-server-core/commit/6366d108aead80d91c5a94ba65955512c6feb8e8))
 - refactor playout to use new lockFunction and cache flow ([acf14d1](https://github.com/nrkno/tv-automation-server-core/commit/acf14d14be8e2fa9a5ca8b33d18b0f8b4ec452bf))
 - remove getIngestDataFor\* methods from AsRunEventContext ([97e5632](https://github.com/nrkno/tv-automation-server-core/commit/97e563250056a011e6c94ab81fa81fc041b8bcc1))
 - remove or reset orphaned once they are no longer current or nexted ([8823fe4](https://github.com/nrkno/tv-automation-server-core/commit/8823fe460b34443e91f538ef3490ed5b5fecfc5e))
@@ -8107,7 +8223,7 @@ All notable changes to this project will be documented in this file. See [standa
 - add expectedPackages to snapshot ([220465a](https://github.com/nrkno/tv-automation-server-core/commit/220465a28939fb890dfd7191ca0e79b6867bde28))
 - add missing contexts to blueprint api methods [publish] ([#454](https://github.com/nrkno/tv-automation-server-core/issues/454)) ([2cef36c](https://github.com/nrkno/tv-automation-server-core/commit/2cef36c3f2e70ee722b5b890f5619d36fb7fa36d))
 - add missing migrations ([d98827c](https://github.com/nrkno/tv-automation-server-core/commit/d98827c270e1d8d7975ad82ce9a3e28d5145800c))
-- add optional parameter for lazynessDuration in optimizedObserver ([1b7bdcd](https://github.com/nrkno/tv-automation-server-core/commit/1b7bdcdecbafe787505113b82326bcd2dfa910f4))
+- add optional parameter for lazinessDuration in optimizedObserver ([1b7bdcd](https://github.com/nrkno/tv-automation-server-core/commit/1b7bdcdecbafe787505113b82326bcd2dfa910f4))
 - better notifications for unavailable clips ([2200fd7](https://github.com/nrkno/tv-automation-server-core/commit/2200fd723a666a38c855ae623fda6c9be5b16fcf))
 - blueprint-integration: add expectedPackages properties to Adlib actions ([b45df41](https://github.com/nrkno/tv-automation-server-core/commit/b45df419140aa3c4280cc8832368b69ea2790085))
 - bug fix in publication ([04244de](https://github.com/nrkno/tv-automation-server-core/commit/04244de20d4a129fbd77d52172d50a1cf6b93ab0))
@@ -8195,7 +8311,7 @@ All notable changes to this project will be documented in this file. See [standa
 - package-management: GUI: add support for expectedPackages, for media info, previews, thumbnails etc.. (wip) ([6ac6ad8](https://github.com/nrkno/tv-automation-server-core/commit/6ac6ad89111b8d89f16e301e989a315e26261bc0))
 - packageManager: modify publication to emit expectedPackages from next & current PartInstance as well ([3444a3d](https://github.com/nrkno/tv-automation-server-core/commit/3444a3d8afd9edf80c27061e26e8d05dfcb4d842))
 - performance tweaks ([22c3aaf](https://github.com/nrkno/tv-automation-server-core/commit/22c3aaf786614d486770b0a3b0b746045397b5d8))
-- ReactiveStore class, to be used as a performance enhancer on the clien-side. ([6366d10](https://github.com/nrkno/tv-automation-server-core/commit/6366d108aead80d91c5a94ba65955512c6feb8e8))
+- ReactiveStore class, to be used as a performance enhancer on the client-side. ([6366d10](https://github.com/nrkno/tv-automation-server-core/commit/6366d108aead80d91c5a94ba65955512c6feb8e8))
 - refactor playout to use new lockFunction and cache flow ([acf14d1](https://github.com/nrkno/tv-automation-server-core/commit/acf14d14be8e2fa9a5ca8b33d18b0f8b4ec452bf))
 - remove getIngestDataFor\* methods from AsRunEventContext ([97e5632](https://github.com/nrkno/tv-automation-server-core/commit/97e563250056a011e6c94ab81fa81fc041b8bcc1))
 - remove or reset orphaned once they are no longer current or nexted ([8823fe4](https://github.com/nrkno/tv-automation-server-core/commit/8823fe460b34443e91f538ef3490ed5b5fecfc5e))
@@ -8212,7 +8328,7 @@ All notable changes to this project will be documented in this file. See [standa
 - add expectedPackages to snapshot ([220465a](https://github.com/nrkno/tv-automation-server-core/commit/220465a28939fb890dfd7191ca0e79b6867bde28))
 - add missing contexts to blueprint api methods [publish] ([#454](https://github.com/nrkno/tv-automation-server-core/issues/454)) ([2cef36c](https://github.com/nrkno/tv-automation-server-core/commit/2cef36c3f2e70ee722b5b890f5619d36fb7fa36d))
 - add missing migrations ([d98827c](https://github.com/nrkno/tv-automation-server-core/commit/d98827c270e1d8d7975ad82ce9a3e28d5145800c))
-- add optional parameter for lazynessDuration in optimizedObserver ([1b7bdcd](https://github.com/nrkno/tv-automation-server-core/commit/1b7bdcdecbafe787505113b82326bcd2dfa910f4))
+- add optional parameter for lazinessDuration in optimizedObserver ([1b7bdcd](https://github.com/nrkno/tv-automation-server-core/commit/1b7bdcdecbafe787505113b82326bcd2dfa910f4))
 - better notifications for unavailable clips ([2200fd7](https://github.com/nrkno/tv-automation-server-core/commit/2200fd723a666a38c855ae623fda6c9be5b16fcf))
 - blueprint-integration: add expectedPackages properties to Adlib actions ([b45df41](https://github.com/nrkno/tv-automation-server-core/commit/b45df419140aa3c4280cc8832368b69ea2790085))
 - bug fix in publication ([04244de](https://github.com/nrkno/tv-automation-server-core/commit/04244de20d4a129fbd77d52172d50a1cf6b93ab0))
@@ -8305,7 +8421,7 @@ All notable changes to this project will be documented in this file. See [standa
 - bring back context argument for ShowStyleBlueprintManifest.getEndStateForPart ([903c6ab](https://github.com/nrkno/tv-automation-server-core/commit/903c6ab49f495fea7f25287826f854b96b3419a1))
 - change back to non user contexts for ShowStyleBlueprintManifest.onTimelineGenerate and onAsRunEvent ([cfc0a1b](https://github.com/nrkno/tv-automation-server-core/commit/cfc0a1b40d23e59cfa3d2965f1480893c59f2204))
 - clarify all activation actions to be either rehearsal or on-air ([bed3579](https://github.com/nrkno/tv-automation-server-core/commit/bed3579e38d20f716218260c6980f609d9c52890))
-- do not show the spinner after the inital subscriptions were fulfilled ([822d82a](https://github.com/nrkno/tv-automation-server-core/commit/822d82aa74cb35abb878c5a9df3e9efc46f00b67))
+- do not show the spinner after the initial subscriptions were fulfilled ([822d82a](https://github.com/nrkno/tv-automation-server-core/commit/822d82aa74cb35abb878c5a9df3e9efc46f00b67))
 - enable looping playlists ([be26d22](https://github.com/nrkno/tv-automation-server-core/commit/be26d22d15045a8f634911eb0db5b3e6caba1b3e))
 - ensure that header badge is white ([2653ef5](https://github.com/nrkno/tv-automation-server-core/commit/2653ef5c7c8881305612ec089d3b6845e04e1af4))
 - expectedMediaItems should use adlibs from the cache, not the db ([e638a4f](https://github.com/nrkno/tv-automation-server-core/commit/e638a4f7d0d63d4d28dba848bbd0a8c0b6ab7c8c))
@@ -8324,7 +8440,7 @@ All notable changes to this project will be documented in this file. See [standa
 - pieces for display should be sorted based on priority ([cc89b79](https://github.com/nrkno/tv-automation-server-core/commit/cc89b79943aab786427b2e22065e976f3d2653a6))
 - regenerateRundown not using syncFunction ([8d01e41](https://github.com/nrkno/tv-automation-server-core/commit/8d01e41988f327b624769b03821a177df0a4d0f3))
 - reject ingest updates when rundown or segment are orphaned ([4240656](https://github.com/nrkno/tv-automation-server-core/commit/424065697f412c9f089b3f9bd9637712144a818d))
-- remove debug log statements used under developement, commented parts of the code that aren't immediately intuitive ([181b31c](https://github.com/nrkno/tv-automation-server-core/commit/181b31ca608845630646cb1270e70d267d451b60))
+- remove debug log statements used under development, commented parts of the code that aren't immediately intuitive ([181b31c](https://github.com/nrkno/tv-automation-server-core/commit/181b31ca608845630646cb1270e70d267d451b60))
 - remove unused context argument from StudioBlueprintManifest.getRundownPlaylistInfo, StudioBlueprintManifest.preprocessConfig and ShowStyleBlueprintManifest.getShowStyleVariantId ([0e30711](https://github.com/nrkno/tv-automation-server-core/commit/0e30711831ce11366be5ea1fecb595c3279805ac))
 - remove unused import (linting error) ([970c8ea](https://github.com/nrkno/tv-automation-server-core/commit/970c8ea155fb6229c02c410afe0da3c8f78fdfdd))
 - reordering rundowns in lobby would result in incorrect calls to backend ([96d1597](https://github.com/nrkno/tv-automation-server-core/commit/96d1597d8d00a410aaef815b31f1a2960f4abe10))
@@ -8631,7 +8747,7 @@ All notable changes to this project will be documented in this file. See [standa
 - unsynced rundown backgrounds in rundown lobby less appaling ([44a1602](https://github.com/nrkno/tv-automation-server-core/commit/44a16025300ca0cbfbf1bd97f090ab6d857301a1))
 - update test failing after renaming method in c966be162d503bff77909174f980eb8f82169876 ([e872ded](https://github.com/nrkno/tv-automation-server-core/commit/e872dedbd3296a0458332e9090354c7885c94066))
 - wire up restoreRundownOrder to userAction ([40e0a05](https://github.com/nrkno/tv-automation-server-core/commit/40e0a050cb4525c5638ec0cc9f8f8e060291df70))
-- **screeen saver:** check both vector components ([96dc780](https://github.com/nrkno/tv-automation-server-core/commit/96dc7800fae2eee64854ebb192e2841a5f494c2d))
+- **screen saver:** check both vector components ([96dc780](https://github.com/nrkno/tv-automation-server-core/commit/96dc7800fae2eee64854ebb192e2841a5f494c2d))
 - use updated icons for RundownListItem ([d38b94d](https://github.com/nrkno/tv-automation-server-core/commit/d38b94d66c33bcf54c9253fd6b170c3e8edb0222))
 
 ## [1.15.0-in-testing-R27.1](https://github.com/nrkno/tv-automation-server-core/compare/v1.14.1...v1.15.0-in-testing-R27.1) (2020-11-16)
@@ -8699,7 +8815,7 @@ All notable changes to this project will be documented in this file. See [standa
 - unsynced rundown backgrounds in rundown lobby less appaling ([44a1602](https://github.com/nrkno/tv-automation-server-core/commit/44a16025300ca0cbfbf1bd97f090ab6d857301a1))
 - update test failing after renaming method in c966be162d503bff77909174f980eb8f82169876 ([e872ded](https://github.com/nrkno/tv-automation-server-core/commit/e872dedbd3296a0458332e9090354c7885c94066))
 - wire up restoreRundownOrder to userAction ([40e0a05](https://github.com/nrkno/tv-automation-server-core/commit/40e0a050cb4525c5638ec0cc9f8f8e060291df70))
-- **screeen saver:** check both vector components ([96dc780](https://github.com/nrkno/tv-automation-server-core/commit/96dc7800fae2eee64854ebb192e2841a5f494c2d))
+- **screen saver:** check both vector components ([96dc780](https://github.com/nrkno/tv-automation-server-core/commit/96dc7800fae2eee64854ebb192e2841a5f494c2d))
 - use updated icons for RundownListItem ([d38b94d](https://github.com/nrkno/tv-automation-server-core/commit/d38b94d66c33bcf54c9253fd6b170c3e8edb0222))
 
 ### [1.14.2](https://github.com/nrkno/tv-automation-server-core/compare/v1.14.1...v1.14.2) (2020-11-16)
@@ -8905,7 +9021,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Multiline config manifest entry + device manifest entry ([61dea23](https://github.com/nrkno/tv-automation-server-core/commit/61dea239497619a7237d5088b185d8bfe78016ba))
 - refactor methods from server/api/playout/infinites so that they can be used in the GUI ([84f27e6](https://github.com/nrkno/tv-automation-server-core/commit/84f27e6be1ca5d02698130b991c9fa7204534ef2))
 - remove some underscore use in often-used classes and methods to speed up GUI rendering ([715d82c](https://github.com/nrkno/tv-automation-server-core/commit/715d82c298de00632c780b13ee1311626421e861))
-- remove some unneccessary underscore use, subscribe to past infinites ([39806ae](https://github.com/nrkno/tv-automation-server-core/commit/39806ae66e852729e04cd5b2dd903465d41a3ca6))
+- remove some unnecessary underscore use, subscribe to past infinites ([39806ae](https://github.com/nrkno/tv-automation-server-core/commit/39806ae66e852729e04cd5b2dd903465d41a3ca6))
 - rewrite updatePartRanks to preserve the ingest rank of parts ([90f1e92](https://github.com/nrkno/tv-automation-server-core/commit/90f1e92d0c0ab197690ae1b9959c84de9e7d53bc))
 - routed mappings & routed timeline ([27ac53a](https://github.com/nrkno/tv-automation-server-core/commit/27ac53a2bae26e18bc8e5dfb40bd66d689ff740d))
 - solve some GUI typing issues with new infinites model ([54fff7b](https://github.com/nrkno/tv-automation-server-core/commit/54fff7bd16b228ac93928114b93cd098ca1f6c00))
@@ -8992,7 +9108,7 @@ All notable changes to this project will be documented in this file. See [standa
 - increase the timeout time for reloading Rundowns, in order to avoid timeouts. ([a3b5278](https://github.com/nrkno/tv-automation-server-core/commit/a3b527886da7aba74905777cb3bb1835d8cb9294))
 - increase the timeout time for reloading Rundowns, in order to avoid timeouts. ([afdc36a](https://github.com/nrkno/tv-automation-server-core/commit/afdc36ab33f5778d75fbf39c08332ad9a80f0a49))
 - infinite pieces not ending at the correct time ([b61d4a4](https://github.com/nrkno/tv-automation-server-core/commit/b61d4a4d54f0fb48e59a6030eeb1cfa46f4763b1))
-- infinite propogation with adlibs, and initial onEnd infinite adlibs ([ec1021b](https://github.com/nrkno/tv-automation-server-core/commit/ec1021b4961ed29adcb35672c7468daddff95f62))
+- infinite propagation with adlibs, and initial onEnd infinite adlibs ([ec1021b](https://github.com/nrkno/tv-automation-server-core/commit/ec1021b4961ed29adcb35672c7468daddff95f62))
 - infinites failing ([458a383](https://github.com/nrkno/tv-automation-server-core/commit/458a383eafd1b198f0c9c6be9f40a26951633fbf))
 - infinites pruning prioritizing the wrong pieces ([6c565f7](https://github.com/nrkno/tv-automation-server-core/commit/6c565f71570534ef8e53ab017beedaf8a19fc8d4))
 - ingest inserting a new next part would result in an empty part-instance ([cf65524](https://github.com/nrkno/tv-automation-server-core/commit/cf655244fc2876f9e62ee70357a1bb3d96b746f3))
@@ -9003,7 +9119,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Layout options display order ([58653bc](https://github.com/nrkno/tv-automation-server-core/commit/58653bc1c8dd97cb4fd1a4817b3cabe41713c7c9))
 - logging format when in dev ([710da05](https://github.com/nrkno/tv-automation-server-core/commit/710da05ac8d79d764f9fbbbefbfe1ecd72174823))
 - logging of metadata in dev-mode ([1472250](https://github.com/nrkno/tv-automation-server-core/commit/147225022022b0b112ee5b12d160b324893da0ac))
-- login fowards user to orginally requested page or lobby ([47a0201](https://github.com/nrkno/tv-automation-server-core/commit/47a02011630755ea4983e6b8529f9eb52c4af865))
+- login forwards user to originally requested page or lobby ([47a0201](https://github.com/nrkno/tv-automation-server-core/commit/47a02011630755ea4983e6b8529f9eb52c4af865))
 - lookahead not loading caspar clips with the in-transitions. definitelyEnded requires the parts to have an absolute time, otherwise the pruning is done off of estimates which can cause glitching ([37acdc7](https://github.com/nrkno/tv-automation-server-core/commit/37acdc7bcdae415f73a14503a4b3a9c9f7be9aff))
 - lookahead not running processAndPrunePieceInstanceTimings before using the pieceInstances ([0e3d333](https://github.com/nrkno/tv-automation-server-core/commit/0e3d333d316427d13679093e96ca9c0d733f2bd3))
 - Make dropdown button easier to click ([53b63a9](https://github.com/nrkno/tv-automation-server-core/commit/53b63a975184f7ebc99afa3e91d03acdbc6809b0))
@@ -9034,7 +9150,7 @@ All notable changes to this project will be documented in this file. See [standa
 - not generating lookahead for current part before it has started playback ([6aefdf5](https://github.com/nrkno/tv-automation-server-core/commit/6aefdf5c6a4292a3b643f574dae9e08af51d433c))
 - not generating lookahead for current part before it has started playback ([da89bdb](https://github.com/nrkno/tv-automation-server-core/commit/da89bdb24028d37e69a28bde8d08195b8bf6a543))
 - notifications scrolling ([aff59ed](https://github.com/nrkno/tv-automation-server-core/commit/aff59ed16583bac48ead61ba1b5333fcd142fb4e))
-- onChange adlibs not being propogated (partial fix) ([72c0849](https://github.com/nrkno/tv-automation-server-core/commit/72c08492aa4eda56ef2b093cb3b0684ab9292a08))
+- onChange adlibs not being propagated (partial fix) ([72c0849](https://github.com/nrkno/tv-automation-server-core/commit/72c08492aa4eda56ef2b093cb3b0684ab9292a08))
 - open NoraEditor from inspector would crash shelf ([cc3aa36](https://github.com/nrkno/tv-automation-server-core/commit/cc3aa3686a786d2510fdb78489788c0f6e345ede))
 - opening the Buckets context menu would throw an error in GUI console ([7216fc8](https://github.com/nrkno/tv-automation-server-core/commit/7216fc8b79ec2b2256efeb905362c8756036a5b5))
 - optimize DatabaseCache for when doing single-document lookups ([22dd98c](https://github.com/nrkno/tv-automation-server-core/commit/22dd98c1b6c7752a4416f6e7f5b50ae4b4df676b))
@@ -9074,7 +9190,7 @@ All notable changes to this project will be documented in this file. See [standa
 - return configs as unknown ([b7ec529](https://github.com/nrkno/tv-automation-server-core/commit/b7ec5291889a6fa11878a3d53eecedebe6dc9cf7))
 - revert change to syncFunctionInner callback. ([8be5707](https://github.com/nrkno/tv-automation-server-core/commit/8be57077d66f6b934408ee53859a8abdebcbdb8c)), closes [/github.com/nrkno/tv-automation-server-core/pull/262#discussion_r453453481](https://github.com/nrkno//github.com/nrkno/tv-automation-server-core/pull/262/issues/discussion_r453453481)
 - save the correct cache ([a88aa32](https://github.com/nrkno/tv-automation-server-core/commit/a88aa32da777c5df7a82b47713f7366d6b2dfe10))
-- scroll to part immediately, since no vertical scroll is probably neccessary ([3c0ae98](https://github.com/nrkno/tv-automation-server-core/commit/3c0ae987eee5e0b1d411230fb35659cb62f2282e))
+- scroll to part immediately, since no vertical scroll is probably necessary ([3c0ae98](https://github.com/nrkno/tv-automation-server-core/commit/3c0ae987eee5e0b1d411230fb35659cb62f2282e))
 - security methods to better handle a not-logged-in user ([afcf89d](https://github.com/nrkno/tv-automation-server-core/commit/afcf89d6d27753e4780719bcf8afd4e1aeb1a4e4))
 - service messages types ([#269](https://github.com/nrkno/tv-automation-server-core/issues/269)) ([84d8dee](https://github.com/nrkno/tv-automation-server-core/commit/84d8deef36617bba6911cc3fe8f1c939336fe095))
 - serviceMessage api not being loaded ([99caafe](https://github.com/nrkno/tv-automation-server-core/commit/99caafe8081ef1b04b22067d6535a4754a61f610))
@@ -9094,7 +9210,7 @@ All notable changes to this project will be documented in this file. See [standa
 - some stuck migrations and force core migrations to run as separate phase ([d28d93e](https://github.com/nrkno/tv-automation-server-core/commit/d28d93e8d9356c9d1cbcd88e48bc4417000ac2c5))
 - some todos ([d3deb9f](https://github.com/nrkno/tv-automation-server-core/commit/d3deb9fa3076c92db974dc8c538ff91f7de3b5da))
 - some typings ([8ae6879](https://github.com/nrkno/tv-automation-server-core/commit/8ae68799c0b92ccc8b18d6f7068ee84de4634807))
-- some virtual infinites would not propogate properly. onRundownEnd infinites from the same segment would not propogate. ui resolving future parts incorrectly ([2824e0e](https://github.com/nrkno/tv-automation-server-core/commit/2824e0e3389731653f7103cfe1a9568ba7d9fe0f))
+- some virtual infinites would not propagate properly. onRundownEnd infinites from the same segment would not propagate. ui resolving future parts incorrectly ([2824e0e](https://github.com/nrkno/tv-automation-server-core/commit/2824e0e3389731653f7103cfe1a9568ba7d9fe0f))
 - Sort adlibs and actions by rank for display ([6725deb](https://github.com/nrkno/tv-automation-server-core/commit/6725deb9c3e3826b4405cb0a786509001a07b819))
 - Sort adlibs as last step ([8d808b7](https://github.com/nrkno/tv-automation-server-core/commit/8d808b75f676ba4f9f8fc586826b9137461cc28e))
 - SplitDropdown styling ([c284bee](https://github.com/nrkno/tv-automation-server-core/commit/c284bee60a9c628ff0b9647b8a5607008c80db0a))
@@ -9193,7 +9309,7 @@ All notable changes to this project will be documented in this file. See [standa
 - refactor methods from server/api/playout/infinites so that they can be used in the GUI ([84f27e6](https://github.com/nrkno/tv-automation-server-core/commit/84f27e6be1ca5d02698130b991c9fa7204534ef2))
 - remove remaining runtime arguments bits ([#301](https://github.com/nrkno/tv-automation-server-core/issues/301)) ([93bcb7d](https://github.com/nrkno/tv-automation-server-core/commit/93bcb7dd446b90e089d44ba05588ca596da72e2d))
 - remove some underscore use in often-used classes and methods to speed up GUI rendering ([715d82c](https://github.com/nrkno/tv-automation-server-core/commit/715d82c298de00632c780b13ee1311626421e861))
-- remove some unneccessary underscore use, subscribe to past infinites ([39806ae](https://github.com/nrkno/tv-automation-server-core/commit/39806ae66e852729e04cd5b2dd903465d41a3ca6))
+- remove some unnecessary underscore use, subscribe to past infinites ([39806ae](https://github.com/nrkno/tv-automation-server-core/commit/39806ae66e852729e04cd5b2dd903465d41a3ca6))
 - Replace MOS with nrcsName ([ac2ca95](https://github.com/nrkno/tv-automation-server-core/commit/ac2ca95195668ef24aa60ed8cad2e17361b43f0f))
 - rework routing/publications to with with single-object-timeline. Also add Studios.mappedHash property ([8521f88](https://github.com/nrkno/tv-automation-server-core/commit/8521f88bb633eec8edd8d98d8938021b99c1dbad))
 - rewrite updatePartRanks to preserve the ingest rank of parts ([90f1e92](https://github.com/nrkno/tv-automation-server-core/commit/90f1e92d0c0ab197690ae1b9959c84de9e7d53bc))
@@ -9268,7 +9384,7 @@ All notable changes to this project will be documented in this file. See [standa
 - include adlib-actions in snapshots ([706f8d6](https://github.com/nrkno/tv-automation-server-core/commit/706f8d6c913d10b8b9f5508168b330bd4ee8f94c))
 - include rundown notes in reactiveRundownStatus ([100a27d](https://github.com/nrkno/tv-automation-server-core/commit/100a27d77fbb293b098eb58a83d7c386d718a232))
 - infinite pieces not ending at the correct time ([b61d4a4](https://github.com/nrkno/tv-automation-server-core/commit/b61d4a4d54f0fb48e59a6030eeb1cfa46f4763b1))
-- infinite propogation with adlibs, and initial onEnd infinite adlibs ([ec1021b](https://github.com/nrkno/tv-automation-server-core/commit/ec1021b4961ed29adcb35672c7468daddff95f62))
+- infinite propagation with adlibs, and initial onEnd infinite adlibs ([ec1021b](https://github.com/nrkno/tv-automation-server-core/commit/ec1021b4961ed29adcb35672c7468daddff95f62))
 - infinites failing ([458a383](https://github.com/nrkno/tv-automation-server-core/commit/458a383eafd1b198f0c9c6be9f40a26951633fbf))
 - ingest inserting a new next part would result in an empty part-instance ([cf65524](https://github.com/nrkno/tv-automation-server-core/commit/cf655244fc2876f9e62ee70357a1bb3d96b746f3))
 - issue with the user not having been created when creating org ([9e57c2d](https://github.com/nrkno/tv-automation-server-core/commit/9e57c2da8575d99aeff6da55bf20532c52b6955f))
@@ -9278,7 +9394,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Layout options display order ([58653bc](https://github.com/nrkno/tv-automation-server-core/commit/58653bc1c8dd97cb4fd1a4817b3cabe41713c7c9))
 - logging format when in dev ([710da05](https://github.com/nrkno/tv-automation-server-core/commit/710da05ac8d79d764f9fbbbefbfe1ecd72174823))
 - logging of metadata in dev-mode ([1472250](https://github.com/nrkno/tv-automation-server-core/commit/147225022022b0b112ee5b12d160b324893da0ac))
-- login fowards user to orginally requested page or lobby ([47a0201](https://github.com/nrkno/tv-automation-server-core/commit/47a02011630755ea4983e6b8529f9eb52c4af865))
+- login forwards user to originally requested page or lobby ([47a0201](https://github.com/nrkno/tv-automation-server-core/commit/47a02011630755ea4983e6b8529f9eb52c4af865))
 - lookahead not running processAndPrunePieceInstanceTimings before using the pieceInstances ([0e3d333](https://github.com/nrkno/tv-automation-server-core/commit/0e3d333d316427d13679093e96ca9c0d733f2bd3))
 - Make dropdown button easier to click ([53b63a9](https://github.com/nrkno/tv-automation-server-core/commit/53b63a975184f7ebc99afa3e91d03acdbc6809b0))
 - measure HEADER_HEIGHT value for viewPort intersection and scrollTo ([80d7f3c](https://github.com/nrkno/tv-automation-server-core/commit/80d7f3cb243c1fd7b8f87251a2f1b49fe61d3797))
@@ -9301,7 +9417,7 @@ All notable changes to this project will be documented in this file. See [standa
 - moving the cache.defer() execution to AFTER database saves, instead of before. ([250e43c](https://github.com/nrkno/tv-automation-server-core/commit/250e43c198497dfb0815588180828695ea1d862c))
 - nora preview renderer cross-origin requests ([ea483e7](https://github.com/nrkno/tv-automation-server-core/commit/ea483e7aadb5b559655237b70e356f6e9fa7b85d))
 - notifications scrolling ([aff59ed](https://github.com/nrkno/tv-automation-server-core/commit/aff59ed16583bac48ead61ba1b5333fcd142fb4e))
-- onChange adlibs not being propogated (partial fix) ([72c0849](https://github.com/nrkno/tv-automation-server-core/commit/72c08492aa4eda56ef2b093cb3b0684ab9292a08))
+- onChange adlibs not being propagated (partial fix) ([72c0849](https://github.com/nrkno/tv-automation-server-core/commit/72c08492aa4eda56ef2b093cb3b0684ab9292a08))
 - optimize DatabaseCache for when doing single-document lookups ([22dd98c](https://github.com/nrkno/tv-automation-server-core/commit/22dd98c1b6c7752a4416f6e7f5b50ae4b4df676b))
 - optimize getSelectedPartInstancesFromCache ([5952413](https://github.com/nrkno/tv-automation-server-core/commit/59524136542fb6daef5bd4f32cb3899048c233ab))
 - parent parenthesis is supposedly superfluous ([b5ea2d2](https://github.com/nrkno/tv-automation-server-core/commit/b5ea2d2ec159a056a769618a4626f453509adf03))
@@ -9464,7 +9580,7 @@ All notable changes to this project will be documented in this file. See [standa
 ### Features
 
 - a more performant way of displaying RundownDividerHeaders ([ae91117](https://github.com/nrkno/tv-automation-server-core/commit/ae9111768d66f70ab69b1b74b9345d43b576468c))
-- add rehersal property on PartInstance ([14e17f8](https://github.com/nrkno/tv-automation-server-core/commit/14e17f8a0b2413ecee8498d40a297426a6e048d2))
+- add rehearsal property on PartInstance ([14e17f8](https://github.com/nrkno/tv-automation-server-core/commit/14e17f8a0b2413ecee8498d40a297426a6e048d2))
 - GUI preliminary implementation of rundown-diviers ([09a2490](https://github.com/nrkno/tv-automation-server-core/commit/09a24905203569480fa7193c6c4bfd1a3bd7d1cf))
 - improved rundownPlaylist handling, allowing blueprint to see some core-attributes of rundown ([5059a32](https://github.com/nrkno/tv-automation-server-core/commit/5059a3237b9d0a9c4eb8962fa8c32a81319ac7da))
 - per-studio playFromAnywhere enable switch ([b471639](https://github.com/nrkno/tv-automation-server-core/commit/b471639c371b1000d4175936c1f471ce06381d12))
@@ -9638,9 +9754,9 @@ All notable changes to this project will be documented in this file. See [standa
 - hide some more logging during tests ([eac7730](https://github.com/nrkno/tv-automation-server-core/commit/eac77307105a3d2b7a4ebbf5e2ea2e01cb11a928))
 - ignore some packages in the versions table ([9f62e1e](https://github.com/nrkno/tv-automation-server-core/commit/9f62e1ea818ee98ba8ee4bee51207ad9258f8917))
 - implementation of mongoFindOptions and unit tests for it ([389bd34](https://github.com/nrkno/tv-automation-server-core/commit/389bd34d7f1af92d1efa36b4e123e459557750cf))
-- infinite propogation not setting infiniteId of original piece properly ([0334520](https://github.com/nrkno/tv-automation-server-core/commit/033452038403ba9f9afe94434521484367b968d5))
+- infinite propagation not setting infiniteId of original piece properly ([0334520](https://github.com/nrkno/tv-automation-server-core/commit/033452038403ba9f9afe94434521484367b968d5))
 - infinites being mangled on subsequent updates ([45e84a8](https://github.com/nrkno/tv-automation-server-core/commit/45e84a831ce0a5157b23c4579de55223db259a67))
-- infinites not propogating through rundown correctly ([6562fd5](https://github.com/nrkno/tv-automation-server-core/commit/6562fd5082c093c5672761857192161d3a874a65))
+- infinites not propagating through rundown correctly ([6562fd5](https://github.com/nrkno/tv-automation-server-core/commit/6562fd5082c093c5672761857192161d3a874a65))
 - isAdlibOnAir ([acfd4e3](https://github.com/nrkno/tv-automation-server-core/commit/acfd4e30a8d9a7983ee10b4767c338604f332faa))
 - isDbCacheCollection: handle null ([cb52de1](https://github.com/nrkno/tv-automation-server-core/commit/cb52de1e39c88f8646d70d38105562cfd6d99b77))
 - Issue where timeline objects inherited piece start time ([ee0de9e](https://github.com/nrkno/tv-automation-server-core/commit/ee0de9eeaeca5973617dc8bbf62476eed621b16c))
@@ -9720,7 +9836,7 @@ All notable changes to this project will be documented in this file. See [standa
 - timeline object table treating content with a 'length' property as an array ([212e5e0](https://github.com/nrkno/tv-automation-server-core/commit/212e5e0488e5c8eb19a60ac8b9a53553fdad9cee))
 - type errors ([e1c868c](https://github.com/nrkno/tv-automation-server-core/commit/e1c868c5152b5cc8603e1b4af4cd38c658289284))
 - type errors ([c0f5186](https://github.com/nrkno/tv-automation-server-core/commit/c0f518641fc8e6c1771a48255d9d1490acd1a0d7))
-- typing erorrs ([38cf2f2](https://github.com/nrkno/tv-automation-server-core/commit/38cf2f27b4270ab62d9683aa736526b1c2d7202b))
+- typing errors ([38cf2f2](https://github.com/nrkno/tv-automation-server-core/commit/38cf2f27b4270ab62d9683aa736526b1c2d7202b))
 - typings errors ([69d7a80](https://github.com/nrkno/tv-automation-server-core/commit/69d7a8051982ebfdd23c9feea3738f349f9d1934))
 - typings for xml2js, also when running tests ([af2c6e5](https://github.com/nrkno/tv-automation-server-core/commit/af2c6e57d8a69799f011175d44bebafd901dd135))
 - typo ([e25790c](https://github.com/nrkno/tv-automation-server-core/commit/e25790c5edbf1a87515c7e38448ca8bd6d94d531))
@@ -9773,7 +9889,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Give next highlight higher priority over on-air ([43e03e3](https://github.com/nrkno/tv-automation-server-core/commit/43e03e3))
 - implementation of mongoFindOptions and unit tests for it ([389bd34](https://github.com/nrkno/tv-automation-server-core/commit/389bd34))
 - infinites being mangled on subsequent updates ([45e84a8](https://github.com/nrkno/tv-automation-server-core/commit/45e84a8))
-- infinites not propogating through rundown correctly ([6562fd5](https://github.com/nrkno/tv-automation-server-core/commit/6562fd5))
+- infinites not propagating through rundown correctly ([6562fd5](https://github.com/nrkno/tv-automation-server-core/commit/6562fd5))
 - isDbCacheCollection: handle null ([cb52de1](https://github.com/nrkno/tv-automation-server-core/commit/cb52de1))
 - Issue where timeline objects inherited piece start time ([ee0de9e](https://github.com/nrkno/tv-automation-server-core/commit/ee0de9e))
 - label placement-sticking to on air line ([c30b8e7](https://github.com/nrkno/tv-automation-server-core/commit/c30b8e7))
@@ -9881,7 +9997,7 @@ All notable changes to this project will be documented in this file. See [standa
 - add definitelyEnded to properties that is to be reset on Pieces ([00f37bb](https://github.com/nrkno/tv-automation-server-core/commit/00f37bb))
 - add options for TSR-vizMSE device ([a8fa66d](https://github.com/nrkno/tv-automation-server-core/commit/a8fa66d))
 - **dashboard status:** use userDuration.end for infinites fallback ([128b60f](https://github.com/nrkno/tv-automation-server-core/commit/128b60f))
-- Add property Piece.definitelyEnded to be used to easilly filter out old and cropped pieces. ([202a968](https://github.com/nrkno/tv-automation-server-core/commit/202a968))
+- Add property Piece.definitelyEnded to be used to easily filter out old and cropped pieces. ([202a968](https://github.com/nrkno/tv-automation-server-core/commit/202a968))
 - Add startedPlayback to dashboard status query ([c678625](https://github.com/nrkno/tv-automation-server-core/commit/c678625))
 - add viz autoLoadInternalElements option ([7141a78](https://github.com/nrkno/tv-automation-server-core/commit/7141a78))
 - add vizMSE device setting ([5a61cb3](https://github.com/nrkno/tv-automation-server-core/commit/5a61cb3))
@@ -10095,13 +10211,13 @@ All notable changes to this project will be documented in this file. See [standa
 - **settings ui:** lawo mapping type is a string enum ([9c5cea8](https://github.com/nrkno/tv-automation-server-core/commit/9c5cea8))
 - add an isScratch property to the PartInstance to mark that the PieceInstances may not be finished being inserted ([2df5baf](https://github.com/nrkno/tv-automation-server-core/commit/2df5baf))
 - add missing context.getNotes() method ([acec358](https://github.com/nrkno/tv-automation-server-core/commit/acec358))
-- Add option for the dontUseQueryPort property on MOS-devices, used to supress errors when the query port is not open on the MOS server. ([7dc3952](https://github.com/nrkno/tv-automation-server-core/commit/7dc3952))
+- Add option for the dontUseQueryPort property on MOS-devices, used to suppress errors when the query port is not open on the MOS server. ([7dc3952](https://github.com/nrkno/tv-automation-server-core/commit/7dc3952))
 - add placeholder option to INT, FLOAT and TEXT inputs ([e5a3716](https://github.com/nrkno/tv-automation-server-core/commit/e5a3716))
 - add typings declaration for react-time-hoc and fix typings issue ([616958c](https://github.com/nrkno/tv-automation-server-core/commit/616958c))
 - all adlibs missing from shelf ([4291857](https://github.com/nrkno/tv-automation-server-core/commit/4291857))
 - asrunevents: store partInstance.\_id, not partinstance.part.\_id ([1b08d53](https://github.com/nrkno/tv-automation-server-core/commit/1b08d53))
 - bug fix: GUI error when segment is removed ([7c54776](https://github.com/nrkno/tv-automation-server-core/commit/7c54776))
-- bug when takeing the last part in a rundown ([849a76c](https://github.com/nrkno/tv-automation-server-core/commit/849a76c))
+- bug when taking the last part in a rundown ([849a76c](https://github.com/nrkno/tv-automation-server-core/commit/849a76c))
 - catch notification already dropped exception ([0689aaa](https://github.com/nrkno/tv-automation-server-core/commit/0689aaa))
 - change isScratch: false to unset: isScratch ([4f32e05](https://github.com/nrkno/tv-automation-server-core/commit/4f32e05))
 - changing segment externalId would reset any playing parts ([f75eeed](https://github.com/nrkno/tv-automation-server-core/commit/f75eeed))
@@ -10168,7 +10284,7 @@ All notable changes to this project will be documented in this file. See [standa
 - some tests ([225c456](https://github.com/nrkno/tv-automation-server-core/commit/225c456))
 - some updates ([e5328f9](https://github.com/nrkno/tv-automation-server-core/commit/e5328f9))
 - sorting parts of rundown getting order wrong when over 10 segments ([ecbf1be](https://github.com/nrkno/tv-automation-server-core/commit/ecbf1be))
-- supress errors for if dynamically inserted pieces aren't found, in callbacks ([9a3e692](https://github.com/nrkno/tv-automation-server-core/commit/9a3e692))
+- suppress errors for if dynamically inserted pieces aren't found, in callbacks ([9a3e692](https://github.com/nrkno/tv-automation-server-core/commit/9a3e692))
 - sync ingest changes to instances ([8edc8d0](https://github.com/nrkno/tv-automation-server-core/commit/8edc8d0))
 - synchronous version of Rundown.getSegmentsAndParts, to be used client-side ([f30614c](https://github.com/nrkno/tv-automation-server-core/commit/f30614c))
 - tests ([427b98b](https://github.com/nrkno/tv-automation-server-core/commit/427b98b))
@@ -10360,7 +10476,7 @@ All notable changes to this project will be documented in this file. See [standa
 ### Bug Fixes
 
 - removed call to afterIngestChangedData, as it is called from inside updateSegmentsFromIngestData anyway ([dcad22a](https://github.com/nrkno/tv-automation-server-core/commit/dcad22a))
-- removed unneccesary calls to ensureNextPartIsValid, as it is called in other places as well ([4bd19bd](https://github.com/nrkno/tv-automation-server-core/commit/4bd19bd))
+- removed unnecessary calls to ensureNextPartIsValid, as it is called in other places as well ([4bd19bd](https://github.com/nrkno/tv-automation-server-core/commit/4bd19bd))
 
 ## [1.4.0-0](https://github.com/nrkno/tv-automation-server-core/compare/v1.3.0...v1.4.0-0) (2019-12-09)
 
@@ -10522,7 +10638,7 @@ All notable changes to this project will be documented in this file. See [standa
 - bugfix: error in typings for waitForPromiseAll ([64a2cba](https://github.com/nrkno/tv-automation-server-core/commit/64a2cba))
 - bugfix: executeFunction didn't really time out ([acba08c](https://github.com/nrkno/tv-automation-server-core/commit/acba08c))
 - bugfix: since moveNextPart could call itself recursively, it would halt in a deadlock, due to being a syncFunction. ([489d18e](https://github.com/nrkno/tv-automation-server-core/commit/489d18e))
-- bugfix: timeline wasn't updated when going rehersal => roResetAndActivate ([ca76732](https://github.com/nrkno/tv-automation-server-core/commit/ca76732))
+- bugfix: timeline wasn't updated when going rehearsal => roResetAndActivate ([ca76732](https://github.com/nrkno/tv-automation-server-core/commit/ca76732))
 - bugfix: undefined storePath ([cbfdde5](https://github.com/nrkno/tv-automation-server-core/commit/cbfdde5))
 - bugfix: update local object when updating database ([9d3b05b](https://github.com/nrkno/tv-automation-server-core/commit/9d3b05b))
 - bugfix: updateExpectedMediaItems used all segmentLineItems in RO, not just in segmmentLine ([406829b](https://github.com/nrkno/tv-automation-server-core/commit/406829b))
@@ -10599,7 +10715,7 @@ All notable changes to this project will be documented in this file. See [standa
 - disable runtimeFunction caching during code-test & save ([74d6d34](https://github.com/nrkno/tv-automation-server-core/commit/74d6d34))
 - disable switch UI visuals ([08866f5](https://github.com/nrkno/tv-automation-server-core/commit/08866f5))
 - Display warning when array has been emptied by deletion ([507af75](https://github.com/nrkno/tv-automation-server-core/commit/507af75))
-- do full rundown update when recieve rundown metadata ([11ae325](https://github.com/nrkno/tv-automation-server-core/commit/11ae325))
+- do full rundown update when receive rundown metadata ([11ae325](https://github.com/nrkno/tv-automation-server-core/commit/11ae325))
 - Do not allow queue ad lib during hold mode ([c378fc8](https://github.com/nrkno/tv-automation-server-core/commit/c378fc8))
 - do not allow toggling sl arguments during hold mode ([3311f0a](https://github.com/nrkno/tv-automation-server-core/commit/3311f0a))
 - do not display notification count if = 0 ([1fe9a39](https://github.com/nrkno/tv-automation-server-core/commit/1fe9a39))
@@ -10686,7 +10802,7 @@ All notable changes to this project will be documented in this file. See [standa
 - getHash undefined exception in asRunLog ([8faab78](https://github.com/nrkno/tv-automation-server-core/commit/8faab78))
 - getSnapshot: don't ask devices of type OTHER ([ea874d4](https://github.com/nrkno/tv-automation-server-core/commit/ea874d4))
 - getting monaco to work runtime while still having typings ([5db8218](https://github.com/nrkno/tv-automation-server-core/commit/5db8218))
-- global ad-lib order was wrong, basline blueprint did not set \_rank ([ffbacc8](https://github.com/nrkno/tv-automation-server-core/commit/ffbacc8))
+- global ad-lib order was wrong, baseline blueprint did not set \_rank ([ffbacc8](https://github.com/nrkno/tv-automation-server-core/commit/ffbacc8))
 - global hotkeys ([ddd292d](https://github.com/nrkno/tv-automation-server-core/commit/ddd292d))
 - global hotkeys ([f2bce37](https://github.com/nrkno/tv-automation-server-core/commit/f2bce37))
 - guard against negative width of liveline shade ([cc58f11](https://github.com/nrkno/tv-automation-server-core/commit/cc58f11))
@@ -10726,7 +10842,7 @@ All notable changes to this project will be documented in this file. See [standa
 - holdState = 0 displayed a status ([49c7ead](https://github.com/nrkno/tv-automation-server-core/commit/49c7ead))
 - hot fix for rehearsal activation when an RO is already active ([648c02d](https://github.com/nrkno/tv-automation-server-core/commit/648c02d))
 - hotkeys didn't work ([aded27b](https://github.com/nrkno/tv-automation-server-core/commit/aded27b))
-- houskeeping: remove uneccessary logs ([0c054f9](https://github.com/nrkno/tv-automation-server-core/commit/0c054f9))
+- housekeeping: remove unnecessary logs ([0c054f9](https://github.com/nrkno/tv-automation-server-core/commit/0c054f9))
 - if the next:ed segment is removed, instead next the one in its place ([22597b3](https://github.com/nrkno/tv-automation-server-core/commit/22597b3))
 - ignore custom dependencies ([b9db526](https://github.com/nrkno/tv-automation-server-core/commit/b9db526))
 - ignore timing of invalid parts ([6780944](https://github.com/nrkno/tv-automation-server-core/commit/6780944))
@@ -10770,7 +10886,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Invalid ids in PeripheralDeviceCommand responses. Not using cached ingest data when reloadingRundown. Adds tests for reloadingRundown ([cb59bbc](https://github.com/nrkno/tv-automation-server-core/commit/cb59bbc))
 - inverted if statement ([83fd6a1](https://github.com/nrkno/tv-automation-server-core/commit/83fd6a1))
 - isClientResponseSuccess returned wrong values ([ce0b44e](https://github.com/nrkno/tv-automation-server-core/commit/ce0b44e))
-- issue with a dissapearing part when updating some part durations from MOS ([ceb5618](https://github.com/nrkno/tv-automation-server-core/commit/ceb5618))
+- issue with a disappearing part when updating some part durations from MOS ([ceb5618](https://github.com/nrkno/tv-automation-server-core/commit/ceb5618))
 - Issue with duplicate ids ([ed27041](https://github.com/nrkno/tv-automation-server-core/commit/ed27041))
 - issue with keys on segment/part lines ([7a751ba](https://github.com/nrkno/tv-automation-server-core/commit/7a751ba))
 - issue with rehearsal double-activation warning ([17b4e95](https://github.com/nrkno/tv-automation-server-core/commit/17b4e95))
@@ -10829,8 +10945,8 @@ All notable changes to this project will be documented in this file. See [standa
 - make sure that expectedMediaItems are purged along with the RO ([0d9dda1](https://github.com/nrkno/tv-automation-server-core/commit/0d9dda1))
 - make sure that the ad-lib drawer isn't obstructed by the right-hand bar ([8783819](https://github.com/nrkno/tv-automation-server-core/commit/8783819))
 - make sure that the OnAir line connects to the label ([3788672](https://github.com/nrkno/tv-automation-server-core/commit/3788672))
-- make sure that viewport intersection is tested before destorying component ([9b1643a](https://github.com/nrkno/tv-automation-server-core/commit/9b1643a))
-- make sure that viewport intersection is tested before destorying component ([a608018](https://github.com/nrkno/tv-automation-server-core/commit/a608018))
+- make sure that viewport intersection is tested before destroying component ([9b1643a](https://github.com/nrkno/tv-automation-server-core/commit/9b1643a))
+- make sure that viewport intersection is tested before destroying component ([a608018](https://github.com/nrkno/tv-automation-server-core/commit/a608018))
 - make the context menu available in the entire header ([0590f9d](https://github.com/nrkno/tv-automation-server-core/commit/0590f9d))
 - make the FullScreen detection more lenient ([28b689a](https://github.com/nrkno/tv-automation-server-core/commit/28b689a))
 - make the FullScreen detection more lenient ([215d73c](https://github.com/nrkno/tv-automation-server-core/commit/215d73c))
@@ -10991,8 +11107,8 @@ All notable changes to this project will be documented in this file. See [standa
 - remove systemStatus when removing blueprint ([1aa9b44](https://github.com/nrkno/tv-automation-server-core/commit/1aa9b44))
 - Remove timestamps from blueprint backups ([74fa1b3](https://github.com/nrkno/tv-automation-server-core/commit/74fa1b3))
 - remove trigger from the AdLibPieceUi setup in AdLibPanel ([847edb5](https://github.com/nrkno/tv-automation-server-core/commit/847edb5))
-- remove unneccessary margin in some headers ([b47ea11](https://github.com/nrkno/tv-automation-server-core/commit/b47ea11))
-- remove unneccessary margin in some headers ([32874a1](https://github.com/nrkno/tv-automation-server-core/commit/32874a1))
+- remove unnecessary margin in some headers ([b47ea11](https://github.com/nrkno/tv-automation-server-core/commit/b47ea11))
+- remove unnecessary margin in some headers ([32874a1](https://github.com/nrkno/tv-automation-server-core/commit/32874a1))
 - remove unused imports ([5fe6ac3](https://github.com/nrkno/tv-automation-server-core/commit/5fe6ac3))
 - remove unused imports ([59041fc](https://github.com/nrkno/tv-automation-server-core/commit/59041fc))
 - remove unused translation helper ([e545a9e](https://github.com/nrkno/tv-automation-server-core/commit/e545a9e))
@@ -11072,7 +11188,7 @@ All notable changes to this project will be documented in this file. See [standa
 - ro-reset does not reset properly ([6367658](https://github.com/nrkno/tv-automation-server-core/commit/6367658))
 - roReset should reset holdItems and infinites ([bdf8385](https://github.com/nrkno/tv-automation-server-core/commit/bdf8385))
 - run afterUpdateTimeline after timelineTriggerTime ([98ece60](https://github.com/nrkno/tv-automation-server-core/commit/98ece60))
-- Rundown name dissappearing from view ([91dcc21](https://github.com/nrkno/tv-automation-server-core/commit/91dcc21))
+- Rundown name disappearing from view ([91dcc21](https://github.com/nrkno/tv-automation-server-core/commit/91dcc21))
 - running blueprint migrations ([fe1e7fd](https://github.com/nrkno/tv-automation-server-core/commit/fe1e7fd))
 - Running blueprints and migrations ([3b29df3](https://github.com/nrkno/tv-automation-server-core/commit/3b29df3))
 - running order closing prompt ([3024543](https://github.com/nrkno/tv-automation-server-core/commit/3024543))
@@ -11155,8 +11271,8 @@ All notable changes to this project will be documented in this file. See [standa
 - systemStatus versions ([62bfa9a](https://github.com/nrkno/tv-automation-server-core/commit/62bfa9a))
 - take action should not throw as nasty errors when called by user. ([6791d50](https://github.com/nrkno/tv-automation-server-core/commit/6791d50))
 - take playOffset into account for timing ([422783a](https://github.com/nrkno/tv-automation-server-core/commit/422783a))
-- templates with wipe. Readd seperate audio file ([5be2802](https://github.com/nrkno/tv-automation-server-core/commit/5be2802))
-- temporary fix for the "UnhandledPromiseRejectionWarning" bug, supressing the error when used ([7aa7cf8](https://github.com/nrkno/tv-automation-server-core/commit/7aa7cf8))
+- templates with wipe. Readd separate audio file ([5be2802](https://github.com/nrkno/tv-automation-server-core/commit/5be2802))
+- temporary fix for the "UnhandledPromiseRejectionWarning" bug, suppressing the error when used ([7aa7cf8](https://github.com/nrkno/tv-automation-server-core/commit/7aa7cf8))
 - temporary fix of typing error ([73bf56d](https://github.com/nrkno/tv-automation-server-core/commit/73bf56d))
 - temporary ignore typings issue ([abb5d71](https://github.com/nrkno/tv-automation-server-core/commit/abb5d71))
 - test-tools decklink input format dropdown has no options ([b02f447](https://github.com/nrkno/tv-automation-server-core/commit/b02f447))
@@ -11257,7 +11373,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **iterateDeeply:** typos ([c9198f1](https://github.com/nrkno/tv-automation-server-core/commit/c9198f1))
 - **L3rd pop-up:** filter out properties starting with @ ([c85ebeb](https://github.com/nrkno/tv-automation-server-core/commit/c85ebeb))
 - **L3rd pop-up:** filter out properties starting with @ ([19977e7](https://github.com/nrkno/tv-automation-server-core/commit/19977e7))
-- **lawo:** changes tempaltes to new structure ([29bf666](https://github.com/nrkno/tv-automation-server-core/commit/29bf666))
+- **lawo:** changes templates to new structure ([29bf666](https://github.com/nrkno/tv-automation-server-core/commit/29bf666))
 - **lawo:** more generic timeline object ([b0418ab](https://github.com/nrkno/tv-automation-server-core/commit/b0418ab))
 - **lookahead:** clear inGroup in a better fashion ([60541cc](https://github.com/nrkno/tv-automation-server-core/commit/60541cc))
 - **lookahead:** consider transitions properly in lookahead ([c78c6fa](https://github.com/nrkno/tv-automation-server-core/commit/c78c6fa))
@@ -11280,12 +11396,12 @@ All notable changes to this project will be documented in this file. See [standa
 - **media manager ui:** display work step labels correctly ([05cce78](https://github.com/nrkno/tv-automation-server-core/commit/05cce78))
 - **media manager ui:** fix task list layout issue ([9902dc1](https://github.com/nrkno/tv-automation-server-core/commit/9902dc1))
 - **media manager ui:** media manager flow order ([1eb1c48](https://github.com/nrkno/tv-automation-server-core/commit/1eb1c48))
-- **media scanner integration:** better way for checking upercase mediaId ([30afac8](https://github.com/nrkno/tv-automation-server-core/commit/30afac8))
+- **media scanner integration:** better way for checking uppercase mediaId ([30afac8](https://github.com/nrkno/tv-automation-server-core/commit/30afac8))
 - **media scanner integration:** throw an error when mediaId contains lowercase characters ([3afe36e](https://github.com/nrkno/tv-automation-server-core/commit/3afe36e))
 - **mediaObject subscriptions:** subscribe to the mediaObjects from RundownNotifier in case the subscriptions aren't made by other UI components ([d798f89](https://github.com/nrkno/tv-automation-server-core/commit/d798f89))
 - Translate 'add child devices' tooltip ([0018dd3](https://github.com/nrkno/tv-automation-server-core/commit/0018dd3))
 - Translate reload hint ([231c173](https://github.com/nrkno/tv-automation-server-core/commit/231c173))
-- Tweaked styling of evaluation form, warning messages, color of the next lines, translations, capialized warning icon file name, and optimized png and svg icons. ([50d2753](https://github.com/nrkno/tv-automation-server-core/commit/50d2753))
+- Tweaked styling of evaluation form, warning messages, color of the next lines, translations, capitalized warning icon file name, and optimized png and svg icons. ([50d2753](https://github.com/nrkno/tv-automation-server-core/commit/50d2753))
 - tweaks on externalMessage send function, limiting the number of messages sent in one go ([046ae38](https://github.com/nrkno/tv-automation-server-core/commit/046ae38))
 - type bug ([de43835](https://github.com/nrkno/tv-automation-server-core/commit/de43835))
 - type error in SegmentTimelineContainer ([c4d6b4d](https://github.com/nrkno/tv-automation-server-core/commit/c4d6b4d))
@@ -11312,7 +11428,7 @@ All notable changes to this project will be documented in this file. See [standa
 - ui manualPlayback key ([5d4e49f](https://github.com/nrkno/tv-automation-server-core/commit/5d4e49f))
 - ui manualPlayback key ([ca1a943](https://github.com/nrkno/tv-automation-server-core/commit/ca1a943))
 - UI tweaks for messages status view. so it doesn't break when having long error messages ([ca1e3ae](https://github.com/nrkno/tv-automation-server-core/commit/ca1e3ae))
-- UI: improve shapshot comment edit field ([093e6cb](https://github.com/nrkno/tv-automation-server-core/commit/093e6cb))
+- UI: improve snapshot comment edit field ([093e6cb](https://github.com/nrkno/tv-automation-server-core/commit/093e6cb))
 - upd meteor typings ([53f17d2](https://github.com/nrkno/tv-automation-server-core/commit/53f17d2))
 - upd query-string dependency & fixed typings issue ([e0d3f12](https://github.com/nrkno/tv-automation-server-core/commit/e0d3f12))
 - update all data in roReplaceMetadata ([8a5a671](https://github.com/nrkno/tv-automation-server-core/commit/8a5a671))
@@ -11384,7 +11500,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **migrations:** Uncomment mos check migration ([c262fff](https://github.com/nrkno/tv-automation-server-core/commit/c262fff))
 - **migrations:** Various problems when running from empty ([11d1d0b](https://github.com/nrkno/tv-automation-server-core/commit/11d1d0b))
 - **mos:** Mos ingest typing errors ([8f08f6e](https://github.com/nrkno/tv-automation-server-core/commit/8f08f6e))
-- **mos:** move stories. Refactor updating next-part to be seperately testable ([19b2d05](https://github.com/nrkno/tv-automation-server-core/commit/19b2d05))
+- **mos:** move stories. Refactor updating next-part to be separately testable ([19b2d05](https://github.com/nrkno/tv-automation-server-core/commit/19b2d05))
 - **mos:** Segment externalId is now based on externalId of first part, instead of rank ([0916113](https://github.com/nrkno/tv-automation-server-core/commit/0916113))
 - **mos:** Set next part logic after story updates ([2b8cf47](https://github.com/nrkno/tv-automation-server-core/commit/2b8cf47))
 - **notification center:** fix notification center toggle button in RO view ([894c1e2](https://github.com/nrkno/tv-automation-server-core/commit/894c1e2))
@@ -11421,7 +11537,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **prompter:** replace strange part title with the hard coded text "FULL" for full variatnTypes. ([902f909](https://github.com/nrkno/tv-automation-server-core/commit/902f909))
 - **prompter:** use a nicer transformation of anchor className ([deabc53](https://github.com/nrkno/tv-automation-server-core/commit/deabc53))
 - **prompter:** use an emdash in place of minus at the end of script ([034c024](https://github.com/nrkno/tv-automation-server-core/commit/034c024))
-- **rabbitmq:** send persistant messages ([ff8d375](https://github.com/nrkno/tv-automation-server-core/commit/ff8d375))
+- **rabbitmq:** send persistent messages ([ff8d375](https://github.com/nrkno/tv-automation-server-core/commit/ff8d375))
 - **record:** CR changes ([b3adbec](https://github.com/nrkno/tv-automation-server-core/commit/b3adbec))
 - **record:** Hide internal layer mappings ([24dfef1](https://github.com/nrkno/tv-automation-server-core/commit/24dfef1))
 - **refactor:** existing runningOrders were not migrated to the new data structure ([b20bc2d](https://github.com/nrkno/tv-automation-server-core/commit/b20bc2d))
@@ -11429,7 +11545,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **ro list:** translatify & hide 'Unsynced from MOS' label when no unsynced items ([11b0f29](https://github.com/nrkno/tv-automation-server-core/commit/11b0f29))
 - **ro list:** translatify & hide 'Unsynced from MOS' label when no unsynced items ([fa56ecd](https://github.com/nrkno/tv-automation-server-core/commit/fa56ecd))
 - **RO view:** Always persist original event in user-action methods ([6ba7df8](https://github.com/nrkno/tv-automation-server-core/commit/6ba7df8))
-- **rundown layout:** don't display segment headers when currentSegemnt filter is on ([9b09858](https://github.com/nrkno/tv-automation-server-core/commit/9b09858))
+- **rundown layout:** don't display segment headers when currentSegment filter is on ([9b09858](https://github.com/nrkno/tv-automation-server-core/commit/9b09858))
 - **rundown layouts:** issue with layer type filtering ([c41bd5a](https://github.com/nrkno/tv-automation-server-core/commit/c41bd5a))
 - **RundownView:** don't wrap on system status header ([0daaa6a](https://github.com/nrkno/tv-automation-server-core/commit/0daaa6a))
 - **runtimeArgs:** Removing infinite items from changed sl and anything following ([28ffd5d](https://github.com/nrkno/tv-automation-server-core/commit/28ffd5d))
@@ -11644,7 +11760,7 @@ All notable changes to this project will be documented in this file. See [standa
 - blueprint migration, continued implementation ([ff507ab](https://github.com/nrkno/tv-automation-server-core/commit/ff507ab))
 - blueprintMigrations ([9527cae](https://github.com/nrkno/tv-automation-server-core/commit/9527cae))
 - blueprints context: handle notes externally (to ro notes) or internally (to logger) ([63640f2](https://github.com/nrkno/tv-automation-server-core/commit/63640f2))
-- Break nrk templates into seperate files. Parse KAM templates better ([2ec0433](https://github.com/nrkno/tv-automation-server-core/commit/2ec0433))
+- Break nrk templates into separate files. Parse KAM templates better ([2ec0433](https://github.com/nrkno/tv-automation-server-core/commit/2ec0433))
 - bump blueprints-integration version ([6f2c46d](https://github.com/nrkno/tv-automation-server-core/commit/6f2c46d))
 - Button to assign/unassign system blueprint ([edef22a](https://github.com/nrkno/tv-automation-server-core/commit/edef22a))
 - change heavy-light display style ([91a1931](https://github.com/nrkno/tv-automation-server-core/commit/91a1931))
@@ -11692,7 +11808,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Device hierarchy restructuring ([08e41f4](https://github.com/nrkno/tv-automation-server-core/commit/08e41f4))
 - disable in next segmentLine & refactoring ([669166c](https://github.com/nrkno/tv-automation-server-core/commit/669166c))
 - disable shortcut-keys when modalDialog is open ([24bab3f](https://github.com/nrkno/tv-automation-server-core/commit/24bab3f))
-- dismiss all notifcations ([896dbb5](https://github.com/nrkno/tv-automation-server-core/commit/896dbb5))
+- dismiss all notifications ([896dbb5](https://github.com/nrkno/tv-automation-server-core/commit/896dbb5))
 - display ms in user activity log ([5172f2e](https://github.com/nrkno/tv-automation-server-core/commit/5172f2e))
 - display ms in user activity log ([7fc2744](https://github.com/nrkno/tv-automation-server-core/commit/7fc2744))
 - display piece name instead of fileName in media notifications ([efbf460](https://github.com/nrkno/tv-automation-server-core/commit/efbf460))
@@ -11734,7 +11850,7 @@ All notable changes to this project will be documented in this file. See [standa
 - implement Panasonic PTZ device ([42d8534](https://github.com/nrkno/tv-automation-server-core/commit/42d8534))
 - implement Panasonic PTZ settings ([f7840da](https://github.com/nrkno/tv-automation-server-core/commit/f7840da))
 - implement some more mocks ([768f0fd](https://github.com/nrkno/tv-automation-server-core/commit/768f0fd))
-- implement spliting long scripts into beginning and end in popup ([9fa8006](https://github.com/nrkno/tv-automation-server-core/commit/9fa8006))
+- implement splitting long scripts into beginning and end in popup ([9fa8006](https://github.com/nrkno/tv-automation-server-core/commit/9fa8006))
 - implement support for Spreadsheet gateway ([44dab01](https://github.com/nrkno/tv-automation-server-core/commit/44dab01))
 - implement timeline-visualizer view ([e725618](https://github.com/nrkno/tv-automation-server-core/commit/e725618))
 - implementation of blueprint migrations ([5fec7a2](https://github.com/nrkno/tv-automation-server-core/commit/5fec7a2))
@@ -11764,7 +11880,7 @@ All notable changes to this project will be documented in this file. See [standa
 - KAM SLUTT variant ([e819269](https://github.com/nrkno/tv-automation-server-core/commit/e819269))
 - List, start and stop test recordings ([df552ab](https://github.com/nrkno/tv-automation-server-core/commit/df552ab))
 - load atem ssrc background when activating RO ([0eda9b4](https://github.com/nrkno/tv-automation-server-core/commit/0eda9b4))
-- log ClientResonseErrors as errors in userActionLog ([4bc10b5](https://github.com/nrkno/tv-automation-server-core/commit/4bc10b5))
+- log ClientResponseErrors as errors in userActionLog ([4bc10b5](https://github.com/nrkno/tv-automation-server-core/commit/4bc10b5))
 - log message on startup ([c715266](https://github.com/nrkno/tv-automation-server-core/commit/c715266))
 - log warning message when trying to access a studio.config value that hasn't been set. ([7e706c6](https://github.com/nrkno/tv-automation-server-core/commit/7e706c6))
 - log WorkFlow success or failure ([8e7d9d7](https://github.com/nrkno/tv-automation-server-core/commit/8e7d9d7))
@@ -11813,7 +11929,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Option to disable devices in playout-gateway ([b36e48f](https://github.com/nrkno/tv-automation-server-core/commit/b36e48f))
 - output evaluation to log ([7deca0f](https://github.com/nrkno/tv-automation-server-core/commit/7deca0f))
 - output evaluation to log ([f95cfbf](https://github.com/nrkno/tv-automation-server-core/commit/f95cfbf))
-- Part EndState persistance ([a84f74b](https://github.com/nrkno/tv-automation-server-core/commit/a84f74b))
+- Part EndState persistence ([a84f74b](https://github.com/nrkno/tv-automation-server-core/commit/a84f74b))
 - place all collections in Collections object, for debugging purposes ([9682a89](https://github.com/nrkno/tv-automation-server-core/commit/9682a89))
 - playout device debugLogging (wip) ([7ab4ec6](https://github.com/nrkno/tv-automation-server-core/commit/7ab4ec6))
 - preliminary mongo mock implementation ([498b88f](https://github.com/nrkno/tv-automation-server-core/commit/498b88f))
@@ -11839,7 +11955,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Refactor story template code to use new blueprint structure ([104982b](https://github.com/nrkno/tv-automation-server-core/commit/104982b))
 - refactor systemStatus & add status messages on front page ([14da61a](https://github.com/nrkno/tv-automation-server-core/commit/14da61a))
 - refactor to use relative durations. affects infinite segmentlineitems, autonext, segmentline overlapduration property ([67c5444](https://github.com/nrkno/tv-automation-server-core/commit/67c5444))
-- refactored initDB into 2 separate methods, so we can easilly update just the layers and not the infrastructure ([d4fcc3f](https://github.com/nrkno/tv-automation-server-core/commit/d4fcc3f))
+- refactored initDB into 2 separate methods, so we can easily update just the layers and not the infrastructure ([d4fcc3f](https://github.com/nrkno/tv-automation-server-core/commit/d4fcc3f))
 - Reference blueprints-integration api file ([dc1cdb8](https://github.com/nrkno/tv-automation-server-core/commit/dc1cdb8))
 - Reference blueprints-integration utils file ([d94c97b](https://github.com/nrkno/tv-automation-server-core/commit/d94c97b))
 - Reference device options in tsr-types ([049b9bc](https://github.com/nrkno/tv-automation-server-core/commit/049b9bc))
@@ -11934,7 +12050,7 @@ All notable changes to this project will be documented in this file. See [standa
 - take snapshot when saving evaluation form ([df318bb](https://github.com/nrkno/tv-automation-server-core/commit/df318bb))
 - **asRunLog:** collection implementation ([0e63c36](https://github.com/nrkno/tv-automation-server-core/commit/0e63c36))
 - **asRunLog:** implementation of asRunLog ([62f5b8c](https://github.com/nrkno/tv-automation-server-core/commit/62f5b8c))
-- **aux:** Adds tecnical error aux 2 ([34ce710](https://github.com/nrkno/tv-automation-server-core/commit/34ce710))
+- **aux:** Adds technical error aux 2 ([34ce710](https://github.com/nrkno/tv-automation-server-core/commit/34ce710))
 - **AUX:** adds clock aux ([45479da](https://github.com/nrkno/tv-automation-server-core/commit/45479da))
 - **AUXes:** New AUX-mapping introducing more previews and moves the cleanfeed ([548bd8c](https://github.com/nrkno/tv-automation-server-core/commit/548bd8c))
 - **blueprint:** refactor getConfigValue into the blueprints, with context exposing the raw array as getConfig instead ([5b0ac39](https://github.com/nrkno/tv-automation-server-core/commit/5b0ac39))
@@ -12012,7 +12128,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **playout:** Add class to sli first_object to indicate if sli is from the current or previous sl ([8de6004](https://github.com/nrkno/tv-automation-server-core/commit/8de6004))
 - **playout:** Add class to sli first_object when the sli is a continuation of another ([d53f06b](https://github.com/nrkno/tv-automation-server-core/commit/d53f06b))
 - **playout:** Add classes to sl-firstobject from the current and prev sl. This will allow for some logical triggers which can be influenced by the prev sl ([632326f](https://github.com/nrkno/tv-automation-server-core/commit/632326f))
-- **playout:** Add object to timeline to indicate whether ro is active or in rehersal ([d0e850d](https://github.com/nrkno/tv-automation-server-core/commit/d0e850d))
+- **playout:** Add object to timeline to indicate whether ro is active or in rehearsal ([d0e850d](https://github.com/nrkno/tv-automation-server-core/commit/d0e850d))
 - **playout:** Block take during transitions ([d0628a2](https://github.com/nrkno/tv-automation-server-core/commit/d0628a2))
 - **prompter:** add anchor points & movement tweaks ([c4ababe](https://github.com/nrkno/tv-automation-server-core/commit/c4ababe))
 - **prompter:** Add keyboard-controller, for control by keyboard-like devices ([c6e307d](https://github.com/nrkno/tv-automation-server-core/commit/c6e307d))
@@ -12041,14 +12157,14 @@ All notable changes to this project will be documented in this file. See [standa
 - **settings:** clicking pencil on edited item closes panel ([35c9fc3](https://github.com/nrkno/tv-automation-server-core/commit/35c9fc3))
 - **settings:** playout devices have threadUsage ([b74410c](https://github.com/nrkno/tv-automation-server-core/commit/b74410c))
 - **shortcuts:** adds shortcuts to remove various graphic layers ([0d1a83d](https://github.com/nrkno/tv-automation-server-core/commit/0d1a83d))
-- **shortcuts:** standarize shortcut label display, support numpad ([4c5ba74](https://github.com/nrkno/tv-automation-server-core/commit/4c5ba74))
+- **shortcuts:** standardize shortcut label display, support numpad ([4c5ba74](https://github.com/nrkno/tv-automation-server-core/commit/4c5ba74))
 - **snapshot:** continued implementation ([009e9e5](https://github.com/nrkno/tv-automation-server-core/commit/009e9e5))
 - templates: added format functions for timecode ([ea38081](https://github.com/nrkno/tv-automation-server-core/commit/ea38081))
 - this did not look right button ([1e01a10](https://github.com/nrkno/tv-automation-server-core/commit/1e01a10))
 - timeline-visualizer: add details-on-click ([c81243c](https://github.com/nrkno/tv-automation-server-core/commit/c81243c))
 - timings page ([6bc325a](https://github.com/nrkno/tv-automation-server-core/commit/6bc325a))
 - toggle running order argument on an SL with a hotkey ([258c3b3](https://github.com/nrkno/tv-automation-server-core/commit/258c3b3))
-- Transition as a seperate SegmentLineItem, which is not run if the first SegmentLine in the show, or the previous SegmentLine instructs it to not ([e676a43](https://github.com/nrkno/tv-automation-server-core/commit/e676a43))
+- Transition as a separate SegmentLineItem, which is not run if the first SegmentLine in the show, or the previous SegmentLine instructs it to not ([e676a43](https://github.com/nrkno/tv-automation-server-core/commit/e676a43))
 - translation improvements ([d3a535d](https://github.com/nrkno/tv-automation-server-core/commit/d3a535d))
 - Treat sli marked as virtual solely as markers for the timeline. They are hidden from the ui and are not allowed to place any contents on the timeline ([25e0f42](https://github.com/nrkno/tv-automation-server-core/commit/25e0f42))
 - trim config values (strings) ([d41e07e](https://github.com/nrkno/tv-automation-server-core/commit/d41e07e))
@@ -12174,7 +12290,7 @@ All notable changes to this project will be documented in this file. See [standa
 ### Bug Fixes
 
 - **timing:** allow a custom function to filter the timing info for refreshing the durations ([954bd3a](https://github.com/nrkno/tv-automation-server-core/commit/954bd3a))
-- issue with a dissapearing part when updating some part durations from MOS ([ceb5618](https://github.com/nrkno/tv-automation-server-core/commit/ceb5618))
+- issue with a disappearing part when updating some part durations from MOS ([ceb5618](https://github.com/nrkno/tv-automation-server-core/commit/ceb5618))
 - make most properties of MediaObjects.mediainfo optional, to make compatible with most playout systems ([5f9ec2e](https://github.com/nrkno/tv-automation-server-core/commit/5f9ec2e))
 
 <a name="1.1.0"></a>
@@ -12307,7 +12423,7 @@ All notable changes to this project will be documented in this file. See [standa
 - bugfix: error in typings for waitForPromiseAll ([64a2cba](https://github.com/nrkno/tv-automation-server-core/commit/64a2cba))
 - bugfix: executeFunction didn't really time out ([acba08c](https://github.com/nrkno/tv-automation-server-core/commit/acba08c))
 - bugfix: since moveNextPart could call itself recursively, it would halt in a deadlock, due to being a syncFunction. ([489d18e](https://github.com/nrkno/tv-automation-server-core/commit/489d18e))
-- bugfix: timeline wasn't updated when going rehersal => roResetAndActivate ([ca76732](https://github.com/nrkno/tv-automation-server-core/commit/ca76732))
+- bugfix: timeline wasn't updated when going rehearsal => roResetAndActivate ([ca76732](https://github.com/nrkno/tv-automation-server-core/commit/ca76732))
 - bugfix: undefined storePath ([cbfdde5](https://github.com/nrkno/tv-automation-server-core/commit/cbfdde5))
 - bugfix: update local object when updating database ([9d3b05b](https://github.com/nrkno/tv-automation-server-core/commit/9d3b05b))
 - bugfix: updateExpectedMediaItems used all segmentLineItems in RO, not just in segmmentLine ([406829b](https://github.com/nrkno/tv-automation-server-core/commit/406829b))
@@ -12378,7 +12494,7 @@ All notable changes to this project will be documented in this file. See [standa
 - disable runtimeFunction caching during code-test & save ([74d6d34](https://github.com/nrkno/tv-automation-server-core/commit/74d6d34))
 - disable switch UI visuals ([08866f5](https://github.com/nrkno/tv-automation-server-core/commit/08866f5))
 - Display warning when array has been emptied by deletion ([507af75](https://github.com/nrkno/tv-automation-server-core/commit/507af75))
-- do full rundown update when recieve rundown metadata ([11ae325](https://github.com/nrkno/tv-automation-server-core/commit/11ae325))
+- do full rundown update when receive rundown metadata ([11ae325](https://github.com/nrkno/tv-automation-server-core/commit/11ae325))
 - Do not allow queue ad lib during hold mode ([c378fc8](https://github.com/nrkno/tv-automation-server-core/commit/c378fc8))
 - do not allow toggling sl arguments during hold mode ([3311f0a](https://github.com/nrkno/tv-automation-server-core/commit/3311f0a))
 - do not display notification count if = 0 ([1fe9a39](https://github.com/nrkno/tv-automation-server-core/commit/1fe9a39))
@@ -12462,7 +12578,7 @@ All notable changes to this project will be documented in this file. See [standa
 - getHash undefined exception in asRunLog ([8faab78](https://github.com/nrkno/tv-automation-server-core/commit/8faab78))
 - getSnapshot: don't ask devices of type OTHER ([ea874d4](https://github.com/nrkno/tv-automation-server-core/commit/ea874d4))
 - getting monaco to work runtime while still having typings ([5db8218](https://github.com/nrkno/tv-automation-server-core/commit/5db8218))
-- global ad-lib order was wrong, basline blueprint did not set \_rank ([ffbacc8](https://github.com/nrkno/tv-automation-server-core/commit/ffbacc8))
+- global ad-lib order was wrong, baseline blueprint did not set \_rank ([ffbacc8](https://github.com/nrkno/tv-automation-server-core/commit/ffbacc8))
 - Guard against there being no next segmentline ([849d97f](https://github.com/nrkno/tv-automation-server-core/commit/849d97f))
 - GUI externalMessages json formatting ([0b7cd2c](https://github.com/nrkno/tv-automation-server-core/commit/0b7cd2c))
 - GUI support for studio blueprint configs ([a3b1626](https://github.com/nrkno/tv-automation-server-core/commit/a3b1626))
@@ -12497,7 +12613,7 @@ All notable changes to this project will be documented in this file. See [standa
 - holdState = 0 displayed a status ([aacd140](https://github.com/nrkno/tv-automation-server-core/commit/aacd140))
 - hot fix for rehearsal activation when an RO is already active ([648c02d](https://github.com/nrkno/tv-automation-server-core/commit/648c02d))
 - hotkeys didn't work ([aded27b](https://github.com/nrkno/tv-automation-server-core/commit/aded27b))
-- houskeeping: remove uneccessary logs ([0c054f9](https://github.com/nrkno/tv-automation-server-core/commit/0c054f9))
+- housekeeping: remove unnecessary logs ([0c054f9](https://github.com/nrkno/tv-automation-server-core/commit/0c054f9))
 - if the next:ed segment is removed, instead next the one in its place ([22597b3](https://github.com/nrkno/tv-automation-server-core/commit/22597b3))
 - ignore custom dependencies ([b9db526](https://github.com/nrkno/tv-automation-server-core/commit/b9db526))
 - ignore timing of invalid parts ([6780944](https://github.com/nrkno/tv-automation-server-core/commit/6780944))
@@ -12586,8 +12702,8 @@ All notable changes to this project will be documented in this file. See [standa
 - make sure that expectedMediaItems are purged along with the RO ([0d9dda1](https://github.com/nrkno/tv-automation-server-core/commit/0d9dda1))
 - make sure that the ad-lib drawer isn't obstructed by the right-hand bar ([8783819](https://github.com/nrkno/tv-automation-server-core/commit/8783819))
 - make sure that the OnAir line connects to the label ([3788672](https://github.com/nrkno/tv-automation-server-core/commit/3788672))
-- make sure that viewport intersection is tested before destorying component ([a608018](https://github.com/nrkno/tv-automation-server-core/commit/a608018))
-- make sure that viewport intersection is tested before destorying component ([9b1643a](https://github.com/nrkno/tv-automation-server-core/commit/9b1643a))
+- make sure that viewport intersection is tested before destroying component ([a608018](https://github.com/nrkno/tv-automation-server-core/commit/a608018))
+- make sure that viewport intersection is tested before destroying component ([9b1643a](https://github.com/nrkno/tv-automation-server-core/commit/9b1643a))
 - make the context menu available in the entire header ([0590f9d](https://github.com/nrkno/tv-automation-server-core/commit/0590f9d))
 - make the FullScreen detection more lenient ([28b689a](https://github.com/nrkno/tv-automation-server-core/commit/28b689a))
 - make the FullScreen detection more lenient ([215d73c](https://github.com/nrkno/tv-automation-server-core/commit/215d73c))
@@ -12743,8 +12859,8 @@ All notable changes to this project will be documented in this file. See [standa
 - remove some console.logs ([a9f3f53](https://github.com/nrkno/tv-automation-server-core/commit/a9f3f53))
 - remove systemStatus when removing blueprint ([1aa9b44](https://github.com/nrkno/tv-automation-server-core/commit/1aa9b44))
 - remove trigger from the AdLibPieceUi setup in AdLibPanel ([847edb5](https://github.com/nrkno/tv-automation-server-core/commit/847edb5))
-- remove unneccessary margin in some headers ([b47ea11](https://github.com/nrkno/tv-automation-server-core/commit/b47ea11))
-- remove unneccessary margin in some headers ([32874a1](https://github.com/nrkno/tv-automation-server-core/commit/32874a1))
+- remove unnecessary margin in some headers ([b47ea11](https://github.com/nrkno/tv-automation-server-core/commit/b47ea11))
+- remove unnecessary margin in some headers ([32874a1](https://github.com/nrkno/tv-automation-server-core/commit/32874a1))
 - remove unused imports ([59041fc](https://github.com/nrkno/tv-automation-server-core/commit/59041fc))
 - remove unused imports ([5fe6ac3](https://github.com/nrkno/tv-automation-server-core/commit/5fe6ac3))
 - remove unused translation helper ([e545a9e](https://github.com/nrkno/tv-automation-server-core/commit/e545a9e))
@@ -12817,7 +12933,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **iterateDeeply:** typos ([c9198f1](https://github.com/nrkno/tv-automation-server-core/commit/c9198f1))
 - **L3rd pop-up:** filter out properties starting with @ ([19977e7](https://github.com/nrkno/tv-automation-server-core/commit/19977e7))
 - **L3rd pop-up:** filter out properties starting with @ ([c85ebeb](https://github.com/nrkno/tv-automation-server-core/commit/c85ebeb))
-- **lawo:** changes tempaltes to new structure ([29bf666](https://github.com/nrkno/tv-automation-server-core/commit/29bf666))
+- **lawo:** changes templates to new structure ([29bf666](https://github.com/nrkno/tv-automation-server-core/commit/29bf666))
 - **lawo:** more generic timeline object ([b0418ab](https://github.com/nrkno/tv-automation-server-core/commit/b0418ab))
 - **lookahead:** clear inGroup in a better fashion ([60541cc](https://github.com/nrkno/tv-automation-server-core/commit/60541cc))
 - **lookahead:** consider transitions properly in lookahead ([c78c6fa](https://github.com/nrkno/tv-automation-server-core/commit/c78c6fa))
@@ -12840,7 +12956,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **media manager ui:** display work step labels correctly ([05cce78](https://github.com/nrkno/tv-automation-server-core/commit/05cce78))
 - **media manager ui:** fix task list layout issue ([9902dc1](https://github.com/nrkno/tv-automation-server-core/commit/9902dc1))
 - **media manager ui:** media manager flow order ([1eb1c48](https://github.com/nrkno/tv-automation-server-core/commit/1eb1c48))
-- **media scanner integration:** better way for checking upercase mediaId ([30afac8](https://github.com/nrkno/tv-automation-server-core/commit/30afac8))
+- **media scanner integration:** better way for checking uppercase mediaId ([30afac8](https://github.com/nrkno/tv-automation-server-core/commit/30afac8))
 - **media scanner integration:** throw an error when mediaId contains lowercase characters ([3afe36e](https://github.com/nrkno/tv-automation-server-core/commit/3afe36e))
 - **mediaObject subscriptions:** subscribe to the mediaObjects from RundownNotifier in case the subscriptions aren't made by other UI components ([d798f89](https://github.com/nrkno/tv-automation-server-core/commit/d798f89))
 - **migration:** Missing studio0_audio_bed ([1c6edcc](https://github.com/nrkno/tv-automation-server-core/commit/1c6edcc))
@@ -12856,7 +12972,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **migrations:** Uncomment mos check migration ([c262fff](https://github.com/nrkno/tv-automation-server-core/commit/c262fff))
 - **migrations:** Various problems when running from empty ([11d1d0b](https://github.com/nrkno/tv-automation-server-core/commit/11d1d0b))
 - **mos:** Mos ingest typing errors ([8f08f6e](https://github.com/nrkno/tv-automation-server-core/commit/8f08f6e))
-- **mos:** move stories. Refactor updating next-part to be seperately testable ([19b2d05](https://github.com/nrkno/tv-automation-server-core/commit/19b2d05))
+- **mos:** move stories. Refactor updating next-part to be separately testable ([19b2d05](https://github.com/nrkno/tv-automation-server-core/commit/19b2d05))
 - **mos:** Segment externalId is now based on externalId of first part, instead of rank ([0916113](https://github.com/nrkno/tv-automation-server-core/commit/0916113))
 - **mos:** Set next part logic after story updates ([2b8cf47](https://github.com/nrkno/tv-automation-server-core/commit/2b8cf47))
 - **notification center:** fix notification center toggle button in RO view ([894c1e2](https://github.com/nrkno/tv-automation-server-core/commit/894c1e2))
@@ -12888,7 +13004,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **playout:** Use original sli id when adding infinite to the timeline, to ensure that any triggers on other objects resolve ([c0382ec](https://github.com/nrkno/tv-automation-server-core/commit/c0382ec))
 - **presenter screen:** display hours correctly ([e242a9e](https://github.com/nrkno/tv-automation-server-core/commit/e242a9e))
 - **presenter screen:** split background + text spacing ([9aad750](https://github.com/nrkno/tv-automation-server-core/commit/9aad750))
-- **rabbitmq:** send persistant messages ([ff8d375](https://github.com/nrkno/tv-automation-server-core/commit/ff8d375))
+- **rabbitmq:** send persistent messages ([ff8d375](https://github.com/nrkno/tv-automation-server-core/commit/ff8d375))
 - **record:** CR changes ([b3adbec](https://github.com/nrkno/tv-automation-server-core/commit/b3adbec))
 - **record:** Hide internal layer mappings ([24dfef1](https://github.com/nrkno/tv-automation-server-core/commit/24dfef1))
 - **refactor:** existing runningOrders were not migrated to the new data structure ([b20bc2d](https://github.com/nrkno/tv-automation-server-core/commit/b20bc2d))
@@ -12966,7 +13082,7 @@ All notable changes to this project will be documented in this file. See [standa
 - ro-reset does not reset properly ([6367658](https://github.com/nrkno/tv-automation-server-core/commit/6367658))
 - roReset should reset holdItems and infinites ([bdf8385](https://github.com/nrkno/tv-automation-server-core/commit/bdf8385))
 - run afterUpdateTimeline after timelineTriggerTime ([98ece60](https://github.com/nrkno/tv-automation-server-core/commit/98ece60))
-- Rundown name dissappearing from view ([91dcc21](https://github.com/nrkno/tv-automation-server-core/commit/91dcc21))
+- Rundown name disappearing from view ([91dcc21](https://github.com/nrkno/tv-automation-server-core/commit/91dcc21))
 - running blueprint migrations ([fe1e7fd](https://github.com/nrkno/tv-automation-server-core/commit/fe1e7fd))
 - Running blueprints and migrations ([3b29df3](https://github.com/nrkno/tv-automation-server-core/commit/3b29df3))
 - running order closing prompt ([7074cc3](https://github.com/nrkno/tv-automation-server-core/commit/7074cc3))
@@ -13045,8 +13161,8 @@ All notable changes to this project will be documented in this file. See [standa
 - systemStatus versions ([62bfa9a](https://github.com/nrkno/tv-automation-server-core/commit/62bfa9a))
 - take action should not throw as nasty errors when called by user. ([6791d50](https://github.com/nrkno/tv-automation-server-core/commit/6791d50))
 - take playOffset into account for timing ([422783a](https://github.com/nrkno/tv-automation-server-core/commit/422783a))
-- templates with wipe. Readd seperate audio file ([5be2802](https://github.com/nrkno/tv-automation-server-core/commit/5be2802))
-- temporary fix for the "UnhandledPromiseRejectionWarning" bug, supressing the error when used ([7aa7cf8](https://github.com/nrkno/tv-automation-server-core/commit/7aa7cf8))
+- templates with wipe. Readd separate audio file ([5be2802](https://github.com/nrkno/tv-automation-server-core/commit/5be2802))
+- temporary fix for the "UnhandledPromiseRejectionWarning" bug, suppressing the error when used ([7aa7cf8](https://github.com/nrkno/tv-automation-server-core/commit/7aa7cf8))
 - temporary fix of typing error ([73bf56d](https://github.com/nrkno/tv-automation-server-core/commit/73bf56d))
 - temporary ignore typings issue ([abb5d71](https://github.com/nrkno/tv-automation-server-core/commit/abb5d71))
 - test-tools decklink input format dropdown has no options ([b02f447](https://github.com/nrkno/tv-automation-server-core/commit/b02f447))
@@ -13074,7 +13190,7 @@ All notable changes to this project will be documented in this file. See [standa
 - top RO overview labels clipped in wrong places ([5e5c228](https://github.com/nrkno/tv-automation-server-core/commit/5e5c228))
 - Translate 'add child devices' tooltip ([0018dd3](https://github.com/nrkno/tv-automation-server-core/commit/0018dd3))
 - Translate reload hint ([231c173](https://github.com/nrkno/tv-automation-server-core/commit/231c173))
-- Tweaked styling of evaluation form, warning messages, color of the next lines, translations, capialized warning icon file name, and optimized png and svg icons. ([50d2753](https://github.com/nrkno/tv-automation-server-core/commit/50d2753))
+- Tweaked styling of evaluation form, warning messages, color of the next lines, translations, capitalized warning icon file name, and optimized png and svg icons. ([50d2753](https://github.com/nrkno/tv-automation-server-core/commit/50d2753))
 - tweaks on externalMessage send function, limiting the number of messages sent in one go ([046ae38](https://github.com/nrkno/tv-automation-server-core/commit/046ae38))
 - typo in rank calculation ([4575a37](https://github.com/nrkno/tv-automation-server-core/commit/4575a37))
 - **zoom:** moved zoom modifier for scroll action to ctrl ([863d81e](https://github.com/nrkno/tv-automation-server-core/commit/863d81e))
@@ -13099,7 +13215,7 @@ All notable changes to this project will be documented in this file. See [standa
 - ui manualPlayback key ([ca1a943](https://github.com/nrkno/tv-automation-server-core/commit/ca1a943))
 - ui manualPlayback key ([5d4e49f](https://github.com/nrkno/tv-automation-server-core/commit/5d4e49f))
 - UI tweaks for messages status view. so it doesn't break when having long error messages ([ca1e3ae](https://github.com/nrkno/tv-automation-server-core/commit/ca1e3ae))
-- UI: improve shapshot comment edit field ([093e6cb](https://github.com/nrkno/tv-automation-server-core/commit/093e6cb))
+- UI: improve snapshot comment edit field ([093e6cb](https://github.com/nrkno/tv-automation-server-core/commit/093e6cb))
 - upd meteor typings ([53f17d2](https://github.com/nrkno/tv-automation-server-core/commit/53f17d2))
 - upd query-string dependency & fixed typings issue ([e0d3f12](https://github.com/nrkno/tv-automation-server-core/commit/e0d3f12))
 - update all data in roReplaceMetadata ([8a5a671](https://github.com/nrkno/tv-automation-server-core/commit/8a5a671))
@@ -13180,7 +13296,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **template:** Reduce volume of head wipes ([b2092cc](https://github.com/nrkno/tv-automation-server-core/commit/b2092cc))
 - write back TimeBase with EditorialStart/Duration ([96f8e21](https://github.com/nrkno/tv-automation-server-core/commit/96f8e21))
 - **RO view:** Always persist original event in user-action methods ([6ba7df8](https://github.com/nrkno/tv-automation-server-core/commit/6ba7df8))
-- **rundown layout:** don't display segment headers when currentSegemnt filter is on ([9b09858](https://github.com/nrkno/tv-automation-server-core/commit/9b09858))
+- **rundown layout:** don't display segment headers when currentSegment filter is on ([9b09858](https://github.com/nrkno/tv-automation-server-core/commit/9b09858))
 - **rundown layouts:** issue with layer type filtering ([c41bd5a](https://github.com/nrkno/tv-automation-server-core/commit/c41bd5a))
 - **RundownView:** don't wrap on system status header ([0daaa6a](https://github.com/nrkno/tv-automation-server-core/commit/0daaa6a))
 - **runtimeArgs:** Removing infinite items from changed sl and anything following ([28ffd5d](https://github.com/nrkno/tv-automation-server-core/commit/28ffd5d))
@@ -13362,7 +13478,7 @@ All notable changes to this project will be documented in this file. See [standa
 - blueprint migration, continued implementation ([ff507ab](https://github.com/nrkno/tv-automation-server-core/commit/ff507ab))
 - blueprintMigrations ([9527cae](https://github.com/nrkno/tv-automation-server-core/commit/9527cae))
 - blueprints context: handle notes externally (to ro notes) or internally (to logger) ([63640f2](https://github.com/nrkno/tv-automation-server-core/commit/63640f2))
-- Break nrk templates into seperate files. Parse KAM templates better ([2ec0433](https://github.com/nrkno/tv-automation-server-core/commit/2ec0433))
+- Break nrk templates into separate files. Parse KAM templates better ([2ec0433](https://github.com/nrkno/tv-automation-server-core/commit/2ec0433))
 - bump blueprints-integration version ([6f2c46d](https://github.com/nrkno/tv-automation-server-core/commit/6f2c46d))
 - Button to assign/unassign system blueprint ([edef22a](https://github.com/nrkno/tv-automation-server-core/commit/edef22a))
 - change heavy-light display style ([329e2c6](https://github.com/nrkno/tv-automation-server-core/commit/329e2c6))
@@ -13409,7 +13525,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Device hierarchy restructuring ([08e41f4](https://github.com/nrkno/tv-automation-server-core/commit/08e41f4))
 - disable in next segmentLine & refactoring ([669166c](https://github.com/nrkno/tv-automation-server-core/commit/669166c))
 - disable shortcut-keys when modalDialog is open ([24bab3f](https://github.com/nrkno/tv-automation-server-core/commit/24bab3f))
-- dismiss all notifcations ([896dbb5](https://github.com/nrkno/tv-automation-server-core/commit/896dbb5))
+- dismiss all notifications ([896dbb5](https://github.com/nrkno/tv-automation-server-core/commit/896dbb5))
 - display ms in user activity log ([5172f2e](https://github.com/nrkno/tv-automation-server-core/commit/5172f2e))
 - display ms in user activity log ([7fc2744](https://github.com/nrkno/tv-automation-server-core/commit/7fc2744))
 - display piece name instead of fileName in media notifications ([efbf460](https://github.com/nrkno/tv-automation-server-core/commit/efbf460))
@@ -13450,7 +13566,7 @@ All notable changes to this project will be documented in this file. See [standa
 - implement mosRoStoryMove ([ab76cfb](https://github.com/nrkno/tv-automation-server-core/commit/ab76cfb))
 - implement Panasonic PTZ device ([42d8534](https://github.com/nrkno/tv-automation-server-core/commit/42d8534))
 - implement Panasonic PTZ settings ([f7840da](https://github.com/nrkno/tv-automation-server-core/commit/f7840da))
-- implement spliting long scripts into beginning and end in popup ([9fa8006](https://github.com/nrkno/tv-automation-server-core/commit/9fa8006))
+- implement splitting long scripts into beginning and end in popup ([9fa8006](https://github.com/nrkno/tv-automation-server-core/commit/9fa8006))
 - implement support for Spreadsheet gateway ([44dab01](https://github.com/nrkno/tv-automation-server-core/commit/44dab01))
 - implement timeline-visualizer view ([e725618](https://github.com/nrkno/tv-automation-server-core/commit/e725618))
 - implementation of blueprint migrations ([5fec7a2](https://github.com/nrkno/tv-automation-server-core/commit/5fec7a2))
@@ -13480,7 +13596,7 @@ All notable changes to this project will be documented in this file. See [standa
 - KAM SLUTT variant ([e819269](https://github.com/nrkno/tv-automation-server-core/commit/e819269))
 - List, start and stop test recordings ([df552ab](https://github.com/nrkno/tv-automation-server-core/commit/df552ab))
 - load atem ssrc background when activating RO ([0eda9b4](https://github.com/nrkno/tv-automation-server-core/commit/0eda9b4))
-- log ClientResonseErrors as errors in userActionLog ([4bc10b5](https://github.com/nrkno/tv-automation-server-core/commit/4bc10b5))
+- log ClientResponseErrors as errors in userActionLog ([4bc10b5](https://github.com/nrkno/tv-automation-server-core/commit/4bc10b5))
 - log message on startup ([c715266](https://github.com/nrkno/tv-automation-server-core/commit/c715266))
 - log warning message when trying to access a studio.config value that hasn't been set. ([7e706c6](https://github.com/nrkno/tv-automation-server-core/commit/7e706c6))
 - log WorkFlow success or failure ([8e7d9d7](https://github.com/nrkno/tv-automation-server-core/commit/8e7d9d7))
@@ -13525,7 +13641,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Option to disable devices in playout-gateway ([b36e48f](https://github.com/nrkno/tv-automation-server-core/commit/b36e48f))
 - output evaluation to log ([7deca0f](https://github.com/nrkno/tv-automation-server-core/commit/7deca0f))
 - output evaluation to log ([f95cfbf](https://github.com/nrkno/tv-automation-server-core/commit/f95cfbf))
-- Part EndState persistance ([a84f74b](https://github.com/nrkno/tv-automation-server-core/commit/a84f74b))
+- Part EndState persistence ([a84f74b](https://github.com/nrkno/tv-automation-server-core/commit/a84f74b))
 - place all collections in Collections object, for debugging purposes ([9682a89](https://github.com/nrkno/tv-automation-server-core/commit/9682a89))
 - playout device debugLogging (wip) ([7ab4ec6](https://github.com/nrkno/tv-automation-server-core/commit/7ab4ec6))
 - preliminary mongo mock implementation ([498b88f](https://github.com/nrkno/tv-automation-server-core/commit/498b88f))
@@ -13550,7 +13666,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Refactor story template code to use new blueprint structure ([104982b](https://github.com/nrkno/tv-automation-server-core/commit/104982b))
 - refactor systemStatus & add status messages on front page ([14da61a](https://github.com/nrkno/tv-automation-server-core/commit/14da61a))
 - refactor to use relative durations. affects infinite segmentlineitems, autonext, segmentline overlapduration property ([67c5444](https://github.com/nrkno/tv-automation-server-core/commit/67c5444))
-- refactored initDB into 2 separate methods, so we can easilly update just the layers and not the infrastructure ([d4fcc3f](https://github.com/nrkno/tv-automation-server-core/commit/d4fcc3f))
+- refactored initDB into 2 separate methods, so we can easily update just the layers and not the infrastructure ([d4fcc3f](https://github.com/nrkno/tv-automation-server-core/commit/d4fcc3f))
 - Reference blueprints-integration api file ([dc1cdb8](https://github.com/nrkno/tv-automation-server-core/commit/dc1cdb8))
 - Reference blueprints-integration utils file ([d94c97b](https://github.com/nrkno/tv-automation-server-core/commit/d94c97b))
 - Reference device options in tsr-types ([049b9bc](https://github.com/nrkno/tv-automation-server-core/commit/049b9bc))
@@ -13646,7 +13762,7 @@ All notable changes to this project will be documented in this file. See [standa
 - timeline-visualizer: add details-on-click ([c81243c](https://github.com/nrkno/tv-automation-server-core/commit/c81243c))
 - timings page ([6bc325a](https://github.com/nrkno/tv-automation-server-core/commit/6bc325a))
 - toggle running order argument on an SL with a hotkey ([258c3b3](https://github.com/nrkno/tv-automation-server-core/commit/258c3b3))
-- Transition as a seperate SegmentLineItem, which is not run if the first SegmentLine in the show, or the previous SegmentLine instructs it to not ([e676a43](https://github.com/nrkno/tv-automation-server-core/commit/e676a43))
+- Transition as a separate SegmentLineItem, which is not run if the first SegmentLine in the show, or the previous SegmentLine instructs it to not ([e676a43](https://github.com/nrkno/tv-automation-server-core/commit/e676a43))
 - translation improvements ([d3a535d](https://github.com/nrkno/tv-automation-server-core/commit/d3a535d))
 - Treat sli marked as virtual solely as markers for the timeline. They are hidden from the ui and are not allowed to place any contents on the timeline ([25e0f42](https://github.com/nrkno/tv-automation-server-core/commit/25e0f42))
 - trim config values (strings) ([d41e07e](https://github.com/nrkno/tv-automation-server-core/commit/d41e07e))
@@ -13660,7 +13776,7 @@ All notable changes to this project will be documented in this file. See [standa
 - update dependencies ([6766d18](https://github.com/nrkno/tv-automation-server-core/commit/6766d18))
 - **asRunLog:** collection implementation ([0e63c36](https://github.com/nrkno/tv-automation-server-core/commit/0e63c36))
 - **asRunLog:** implementation of asRunLog ([62f5b8c](https://github.com/nrkno/tv-automation-server-core/commit/62f5b8c))
-- **aux:** Adds tecnical error aux 2 ([34ce710](https://github.com/nrkno/tv-automation-server-core/commit/34ce710))
+- **aux:** Adds technical error aux 2 ([34ce710](https://github.com/nrkno/tv-automation-server-core/commit/34ce710))
 - **AUX:** adds clock aux ([45479da](https://github.com/nrkno/tv-automation-server-core/commit/45479da))
 - **AUXes:** New AUX-mapping introducing more previews and moves the cleanfeed ([548bd8c](https://github.com/nrkno/tv-automation-server-core/commit/548bd8c))
 - **blueprint:** refactor getConfigValue into the blueprints, with context exposing the raw array as getConfig instead ([5b0ac39](https://github.com/nrkno/tv-automation-server-core/commit/5b0ac39))
@@ -13739,7 +13855,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **playout:** Add class to sli first_object to indicate if sli is from the current or previous sl ([8de6004](https://github.com/nrkno/tv-automation-server-core/commit/8de6004))
 - **playout:** Add class to sli first_object when the sli is a continuation of another ([d53f06b](https://github.com/nrkno/tv-automation-server-core/commit/d53f06b))
 - **playout:** Add classes to sl-firstobject from the current and prev sl. This will allow for some logical triggers which can be influenced by the prev sl ([632326f](https://github.com/nrkno/tv-automation-server-core/commit/632326f))
-- **playout:** Add object to timeline to indicate whether ro is active or in rehersal ([d0e850d](https://github.com/nrkno/tv-automation-server-core/commit/d0e850d))
+- **playout:** Add object to timeline to indicate whether ro is active or in rehearsal ([d0e850d](https://github.com/nrkno/tv-automation-server-core/commit/d0e850d))
 - **playout:** Block take during transitions ([d0628a2](https://github.com/nrkno/tv-automation-server-core/commit/d0628a2))
 - **prompter:** add anchor points & movement tweaks ([c4ababe](https://github.com/nrkno/tv-automation-server-core/commit/c4ababe))
 - **prompter:** Add keyboard-controller, for control by keyboard-like devices ([c6e307d](https://github.com/nrkno/tv-automation-server-core/commit/c6e307d))
@@ -13761,7 +13877,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **settings:** clicking pencil on edited item closes panel ([35c9fc3](https://github.com/nrkno/tv-automation-server-core/commit/35c9fc3))
 - **settings:** playout devices have threadUsage ([b74410c](https://github.com/nrkno/tv-automation-server-core/commit/b74410c))
 - **shortcuts:** adds shortcuts to remove various graphic layers ([0d1a83d](https://github.com/nrkno/tv-automation-server-core/commit/0d1a83d))
-- **shortcuts:** standarize shortcut label display, support numpad ([4c5ba74](https://github.com/nrkno/tv-automation-server-core/commit/4c5ba74))
+- **shortcuts:** standardize shortcut label display, support numpad ([4c5ba74](https://github.com/nrkno/tv-automation-server-core/commit/4c5ba74))
 - Update template to use correct media files and durations. Adjust transitions from head to kam ([18f6c44](https://github.com/nrkno/tv-automation-server-core/commit/18f6c44))
 - **snapshot:** continued implementation ([009e9e5](https://github.com/nrkno/tv-automation-server-core/commit/009e9e5))
 - update meteor typings ([49b6969](https://github.com/nrkno/tv-automation-server-core/commit/49b6969))

@@ -1,22 +1,22 @@
 import React, { ReactNode, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import classNames from 'classnames'
 import { DBRundownPlaylist, RundownHoldState } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { UIStateStorage } from '../../lib/UIStateStorage'
-import { PartUi, PieceUi, SegmentNoteCounts, SegmentUi } from '../SegmentContainer/withResolvedSegment'
-import { IContextMenuContext } from '../RundownView'
-import { useCombinedRefs } from '../../lib/lib'
+import { UIStateStorage } from '../../lib/UIStateStorage.js'
+import { PartUi, PieceUi, SegmentNoteCounts, SegmentUi } from '../SegmentContainer/withResolvedSegment.js'
+import { IContextMenuContext } from '../RundownView.js'
+import { useCombinedRefs } from '../../lib/lib.js'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { isPartPlayable } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { LinePart } from './LinePart'
+import { LinePart } from './LinePart.js'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { ISourceLayerExtended } from '../../lib/RundownResolver'
-import { SegmentViewMode } from '../SegmentContainer/SegmentViewModes'
-import { SegmentListHeader } from './SegmentListHeader'
+import { ISourceLayerExtended } from '../../lib/RundownResolver.js'
+import { SegmentViewMode } from '../SegmentContainer/SegmentViewModes.js'
+import { SegmentListHeader } from './SegmentListHeader.js'
 import { useInView } from 'react-intersection-observer'
-import { getHeaderHeight } from '../../lib/viewPort'
+import { getHeaderHeight } from '../../lib/viewPort.js'
 import { SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { NoteSeverity } from '@sofie-automation/blueprints-integration'
-import * as RundownResolver from '../../lib/RundownResolver'
+import * as RundownResolver from '../../lib/RundownResolver.js'
 
 interface IProps {
 	id: string
@@ -39,6 +39,8 @@ interface IProps {
 	onContextMenu?: (contextMenuContext: IContextMenuContext) => void
 	onSwitchViewMode?: (newViewMode: SegmentViewMode) => void
 	onPieceDoubleClick?: (item: PieceUi, e: React.MouseEvent<HTMLDivElement>) => void
+
+	hideRundownHeader?: boolean
 }
 
 const SegmentListInner = React.forwardRef<HTMLDivElement, IProps>(function SegmentList(props, ref) {
@@ -238,6 +240,7 @@ const SegmentListInner = React.forwardRef<HTMLDivElement, IProps>(function Segme
 				onTimeUntilClick={onTimeUntilClick}
 				onSwitchViewMode={props.onSwitchViewMode}
 				onHeaderNoteClick={props.onHeaderNoteClick}
+				hideRundownHeader={props.hideRundownHeader}
 			/>
 			<div className="segment-opl__part-list">{parts}</div>
 		</div>

@@ -1,5 +1,5 @@
-import type { UserEditingDefinition } from '../userEditing'
-import type { RundownPlaylistTiming } from './playlistTiming'
+import type { UserEditingDefinition } from '../userEditing.js'
+import type { RundownPlaylistTiming } from './playlistTiming.js'
 
 /** The Rundown generated from Blueprint */
 

@@ -23,8 +23,8 @@ import {
 } from '@mos-connection/connector'
 
 import * as Winston from 'winston'
-import { CoreHandler } from './coreHandler'
-import { CoreMosDeviceHandler } from './CoreMosDeviceHandler'
+import { CoreHandler } from './coreHandler.js'
+import { CoreMosDeviceHandler } from './CoreMosDeviceHandler.js'
 import {
 	Observer,
 	PeripheralDevicePubSubCollectionsNames,
@@ -37,8 +37,8 @@ import {
 import { MosGatewayConfig } from '@sofie-automation/shared-lib/dist/generated/MosGatewayOptionsTypes'
 import { MosDeviceConfig } from '@sofie-automation/shared-lib/dist/generated/MosGatewayDevicesTypes'
 import { PeripheralDeviceForDevice } from '@sofie-automation/server-core-integration'
-import _ = require('underscore')
-import { MosStatusHandler } from './mosStatus/handler'
+import _ from 'underscore'
+import { MosStatusHandler } from './mosStatus/handler.js'
 import { isPromise } from 'util/types'
 
 export interface MosConfig {
@@ -175,10 +175,9 @@ export class MosHandler {
 
 		this._deviceOptionsChanged()
 	}
-	// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-	debugLog(msg: any, ...args: any[]): void {
+	debugLog(msg: string, args?: Record<string, string>): void {
 		if (this.debugLogging) {
-			this._logger.debug(msg, ...args)
+			this._logger.debug(msg, args)
 		}
 	}
 	get strict(): boolean {
@@ -243,7 +242,7 @@ export class MosHandler {
 			if (`${message}`.indexOf('<heartbeat') >= 0) {
 				return
 			}
-			this.debugLog('rawMessage', source, type, message)
+			this.debugLog(`rawMessage`, { source, type, rawMessage: message })
 		})
 		this.mos.on('info', (message, data) => {
 			this._logger.info(message, data)
@@ -430,6 +429,11 @@ export class MosHandler {
 			// Profile 3: -------------------------------------------------
 			// Profile 4: -------------------------------------------------
 			// onStory: (cb: (story: IMOSROFullStory) => Promise<any>) => void
+			mosDevice.onRequestAllRunningOrders(async () => {
+				// MOSDevice >>>> Core
+				// Not implemented, as Sofie does not support this feature.
+				return []
+			})
 			mosDevice.onRunningOrderStory(async (story: IMOSROFullStory) => {
 				// MOSDevice >>>> Core
 				return this._getROAck(story.RunningOrderId, coreMosHandler.mosRoFullStory(story))

@@ -116,7 +116,7 @@ export namespace TrackerMock {
 
 		TrackerMock.currentComputation.onInvalidate(clb)
 	}
-	export function afterFlush(_clb: Function): void {
+	export function afterFlush(_clb: () => void): void {
 		throw new Error(`Tracker.afterFlush() is not implemented in the mock Tracker`)
 	}
 }

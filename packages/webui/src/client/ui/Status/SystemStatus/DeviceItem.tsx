@@ -6,30 +6,30 @@ import {
 } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { TFunction, useTranslation } from 'react-i18next'
 import Moment from 'react-moment'
-import { unprotectString } from '../../../lib/tempLib'
-import { getCurrentTime } from '../../../lib/systemTime'
+import { unprotectString } from '../../../lib/tempLib.js'
+import { getCurrentTime } from '../../../lib/systemTime.js'
 import { Link } from 'react-router-dom'
 import Tooltip from 'rc-tooltip'
 import { faTrash, faEye } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { doModalDialog } from '../../../lib/ModalDialog'
-import { callPeripheralDeviceAction, PeripheralDevicesAPI } from '../../../lib/clientAPI'
-import { NotificationCenter, NoticeLevel, Notification } from '../../../lib/notifications/notifications'
-import { getHelpMode } from '../../../lib/localStorage'
+import { doModalDialog } from '../../../lib/ModalDialog.js'
+import { callPeripheralDeviceAction, PeripheralDevicesAPI } from '../../../lib/clientAPI.js'
+import { NotificationCenter, NoticeLevel, Notification } from '../../../lib/notifications/notifications.js'
+import { getHelpMode } from '../../../lib/localStorage.js'
 import ClassNames from 'classnames'
 import { TSR } from '@sofie-automation/blueprints-integration'
-import { MeteorCall } from '../../../lib/meteorApi'
+import { MeteorCall } from '../../../lib/meteorApi.js'
 import { DEFAULT_TSR_ACTION_TIMEOUT_TIME } from '@sofie-automation/shared-lib/dist/core/constants'
 import { SubdeviceAction } from '@sofie-automation/shared-lib/dist/core/deviceConfigManifest'
-import { StatusCodePill } from '../StatusCodePill'
+import { StatusCodePill } from '../StatusCodePill.js'
 import { isTranslatableMessage, translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
-import { i18nTranslator } from '../../i18n'
-import { SchemaFormInPlace } from '../../../lib/forms/SchemaFormInPlace'
-import { PeripheralDevices } from '../../../collections'
-import { DebugStateTable } from '../DebugState'
+import { i18nTranslator } from '../../i18n.js'
+import { SchemaFormInPlace } from '../../../lib/forms/SchemaFormInPlace.js'
+import { PeripheralDevices } from '../../../collections/index.js'
+import { DebugStateTable } from '../DebugState.js'
 import { JSONBlobParse } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
-import { catchError } from '../../../lib/lib'
-import { UserPermissionsContext } from '../../UserPermissions'
+import { catchError } from '../../../lib/lib.js'
+import { UserPermissionsContext } from '../../UserPermissions.js'
 import Button from 'react-bootstrap/Button'
 
 interface IDeviceItemProps {
@@ -253,11 +253,11 @@ function onExecuteAction(event: any, t: TFunction, device: PeripheralDevice, act
 							actionName: action.name,
 							deviceName: device.name,
 							response: translateMessage(r.response, i18nTranslator),
-					  })
+						})
 					: t('Executed {{actionName}} on device "{{deviceName}}"...', {
 							actionName: action.name,
 							deviceName: device.name,
-					  }),
+						}),
 				'SystemStatus'
 			)
 		)

@@ -1,18 +1,18 @@
 .end-words-panel {
-    overflow: hidden;
-    position: absolute;
+	overflow: hidden;
+	position: absolute;
 
-    .timing-clock {
-        width: 100%;
-    }
+	.timing-clock {
+		width: 100%;
+	}
 
-    .text {
-        text-overflow: ellipsis;
-        text-align: left;
-        direction: rtl;
-        overflow: hidden;
-        white-space: nowrap;
-        display: inline-block;
-        width: 100%;
-    }
+	.text {
+		text-overflow: ellipsis;
+		text-align: left;
+		direction: rtl;
+		overflow: hidden;
+		white-space: nowrap;
+		display: inline-block;
+		width: 100%;
+	}
 }

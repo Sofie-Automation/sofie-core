@@ -1,6 +1,6 @@
-import { JobContext } from '../jobs'
+import { JobContext } from '../jobs/index.js'
 import { IngestRemovePartProps, IngestUpdatePartProps } from '@sofie-automation/corelib/dist/worker/ingest'
-import { UpdateIngestRundownChange } from './runOperation'
+import { UpdateIngestRundownChange } from './runOperation.js'
 import { IngestChangeType, NrcsIngestPartChangeDetails } from '@sofie-automation/blueprints-integration'
 import { IngestRundownWithSource } from '@sofie-automation/corelib/dist/dataModel/NrcsIngestDataCache'
 

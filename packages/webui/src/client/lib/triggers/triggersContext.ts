@@ -3,10 +3,10 @@ import {
 	TriggersContext,
 	TriggerTrackerComputation,
 } from '@sofie-automation/meteor-lib/dist/triggers/triggersContext'
-import { hashSingleUseToken } from '../lib'
-import { MeteorCall } from '../meteorApi'
+import { hashSingleUseToken } from '../lib.js'
+import { MeteorCall } from '../meteorApi.js'
 import { IBaseFilterLink } from '@sofie-automation/blueprints-integration'
-import { doUserAction } from '../clientUserAction'
+import { doUserAction } from '../clientUserAction.js'
 import { Tracker } from 'meteor/tracker'
 import {
 	AdLibActions,
@@ -17,16 +17,16 @@ import {
 	RundownPlaylists,
 	Rundowns,
 	Segments,
-} from '../../collections'
-import { logger } from '../logging'
+} from '../../collections/index.js'
+import { logger } from '../logging.js'
 import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ReactivePlaylistActionContext } from '@sofie-automation/meteor-lib/dist/triggers/actionFactory'
-import { FindOneOptions, MongoReadOnlyCollection } from '../../collections/lib'
-import { ProtectedString } from '../tempLib'
+import { FindOneOptions, MongoReadOnlyCollection } from '../../collections/lib.js'
+import { ProtectedString } from '../tempLib.js'
 import { ReactiveVar as MeteorReactiveVar } from 'meteor/reactive-var'
 import { TriggerReactiveVar } from '@sofie-automation/meteor-lib/dist/triggers/reactive-var'
 import { FindOptions, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
-import { memoizedIsolatedAutorunAsync } from '../memoizedIsolatedAutorun'
+import { memoizedIsolatedAutorunAsync } from '../memoizedIsolatedAutorun.js'
 
 class UiTriggersCollectionWrapper<DBInterface extends { _id: ProtectedString<any> }>
 	implements TriggersAsyncCollection<DBInterface>

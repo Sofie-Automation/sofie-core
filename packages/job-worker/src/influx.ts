@@ -1,4 +1,4 @@
-import { getSystemVersion } from './lib'
+import { getSystemVersion } from './lib/index.js'
 import { initInfluxdb } from '@sofie-automation/corelib/dist/influxdb'
 
 const config = {

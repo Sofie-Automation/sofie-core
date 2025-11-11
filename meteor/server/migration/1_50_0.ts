@@ -34,7 +34,13 @@ import { DEFAULT_MINIMUM_TAKE_SPAN } from '@sofie-automation/shared-lib/dist/cor
 import { PartId } from '@sofie-automation/shared-lib/dist/core/model/Ids'
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { ExpectedPackageDBType } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
-import { AdLibActionId, PieceId, RundownBaselineAdLibActionId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import {
+	AdLibActionId,
+	BucketAdLibActionId,
+	BucketAdLibId,
+	PieceId,
+	RundownBaselineAdLibActionId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
@@ -341,21 +347,19 @@ export const addSteps = addMigrationSteps('1.50.0', [
 				let documentationUrl = ''
 
 				if (device.type === PeripheralDeviceType.MOS) {
-					documentationUrl = 'https://github.com/nrkno/sofie-core'
+					documentationUrl = 'https://github.com/Sofie-Automation/sofie-core'
 				} else if (device.type === PeripheralDeviceType.SPREADSHEET) {
 					documentationUrl = 'https://github.com/SuperFlyTV/spreadsheet-gateway'
 				} else if (device.type === PeripheralDeviceType.PLAYOUT) {
-					documentationUrl = 'https://github.com/nrkno/sofie-core'
-				} else if (device.type === PeripheralDeviceType.MEDIA_MANAGER) {
-					documentationUrl = 'https://github.com/nrkno/sofie-media-management'
+					documentationUrl = 'https://github.com/Sofie-Automation/sofie-core'
 				} else if (device.type === PeripheralDeviceType.INEWS) {
 					documentationUrl = 'https://github.com/olzzon/tv2-inews-ftp-gateway'
 				} else if (device.type === PeripheralDeviceType.PACKAGE_MANAGER) {
-					documentationUrl = 'https://github.com/nrkno/sofie-package-manager'
+					documentationUrl = 'https://github.com/Sofie-Automation/sofie-package-manager'
 				} else if (device.type === PeripheralDeviceType.INPUT) {
-					documentationUrl = 'https://github.com/nrkno/sofie-input-gateway'
+					documentationUrl = 'https://github.com/Sofie-Automation/sofie-input-gateway'
 				} else if (device.type === PeripheralDeviceType.LIVE_STATUS) {
-					documentationUrl = 'https://nrkno.github.io/sofie-core/'
+					documentationUrl = 'https://sofie-automation.github.io/sofie-core/'
 				} else {
 					assertNever(device.type)
 				}
@@ -697,7 +701,7 @@ export const addSteps = addMigrationSteps('1.50.0', [
 					$set: playlist.nextPartInfo
 						? {
 								'nextPartInfo.manuallySelected': nextPartManual,
-						  }
+							}
 						: undefined,
 					$unset: {
 						nextPartManual: 1,
@@ -876,9 +880,9 @@ export const addSteps = addMigrationSteps('1.50.0', [
 				partId: { $exists: false },
 			})
 
-			const neededPieceIds: Array<PieceId | AdLibActionId | RundownBaselineAdLibActionId> = _.compact(
-				objects.map((obj) => obj.pieceId)
-			)
+			const neededPieceIds: Array<
+				PieceId | AdLibActionId | RundownBaselineAdLibActionId | BucketAdLibId | BucketAdLibActionId
+			> = _.compact(objects.map((obj) => obj.pieceId))
 			const [pieces, adlibPieces, adlibActions] = await Promise.all([
 				Pieces.findFetchAsync(
 					{
@@ -915,7 +919,10 @@ export const addSteps = addMigrationSteps('1.50.0', [
 				) as Promise<Pick<AdLibAction, '_id' | 'partId'>[]>,
 			])
 
-			const partIdLookup = new Map<PieceId | AdLibActionId | RundownBaselineAdLibActionId, PartId>()
+			const partIdLookup = new Map<
+				PieceId | AdLibActionId | RundownBaselineAdLibActionId | BucketAdLibId | BucketAdLibActionId,
+				PartId
+			>()
 			for (const piece of pieces) {
 				partIdLookup.set(piece._id, piece.startPartId)
 			}

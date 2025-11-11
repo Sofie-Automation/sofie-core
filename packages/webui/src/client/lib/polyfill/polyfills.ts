@@ -1,3 +1,3 @@
-import './requestIdleCallback'
-import './vibrate'
-import './promise.allSettled'
+import './requestIdleCallback.js'
+import './vibrate.js'
+import './promise.allSettled.js'

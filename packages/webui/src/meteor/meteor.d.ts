@@ -1,4 +1,4 @@
-import { Mongo } from './mongo'
+import { Mongo } from './mongo.js'
 import { EJSONable, EJSONableProperty } from 'meteor/ejson'
 import { Blaze } from 'meteor/blaze'
 import { DDP } from 'meteor/ddp'

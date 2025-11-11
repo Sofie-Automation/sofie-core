@@ -3,22 +3,22 @@ import type {
 	CreateAdlibTestingRundownForShowStyleVariantProps,
 	IngestUpdateRundownProps,
 } from '@sofie-automation/corelib/dist/worker/ingest'
-import type { JobContext } from '../jobs'
-import { convertShowStyleVariantToBlueprints } from '../blueprints/context/lib'
-import { ShowStyleUserContext } from '../blueprints/context'
-import { WatchedPackagesHelper } from '../blueprints/context/watchedPackages'
+import type { JobContext } from '../jobs/index.js'
+import { convertShowStyleVariantToBlueprints } from '../blueprints/context/lib.js'
+import { ShowStyleUserContext } from '../blueprints/context/index.js'
+import { WatchedPackagesHelper } from '../blueprints/context/watchedPackages.js'
 import type {
 	IShowStyleUserContext,
 	IBlueprintShowStyleVariant,
 	IngestRundown,
 } from '@sofie-automation/blueprints-integration'
-import { logger } from '../logging'
-import { NotificationsModelHelper } from '../notifications/NotificationsModelHelper'
+import { logger } from '../logging.js'
+import { NotificationsModelHelper } from '../notifications/NotificationsModelHelper.js'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { convertNoteToNotification } from '../notifications/util'
+import { convertNoteToNotification } from '../notifications/util.js'
 import { RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { handleUpdatedRundown } from './ingestRundownJobs'
-import { runIngestUpdateOperation } from './runOperation'
+import { handleUpdatedRundown } from './ingestRundownJobs.js'
+import { runIngestUpdateOperation } from './runOperation.js'
 
 export async function handleCreateAdlibTestingRundownForShowStyleVariant(
 	context: JobContext,

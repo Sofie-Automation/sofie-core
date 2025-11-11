@@ -17,7 +17,7 @@ serviceMessagesRouter.get('/', async function getHandler(ctx) {
 		const valuesArray = await readAllMessages()
 		ctx.response.type = 'application/json;charset=utf8'
 		ctx.body = JSON.stringify(valuesArray)
-	} catch (error) {
+	} catch (_error) {
 		ctx.response.status = 500
 		ctx.body = 'Unable to list service messages'
 	}
@@ -38,7 +38,7 @@ serviceMessagesRouter.delete('/:id', async function deleteHandler(ctx) {
 			ctx.response.status = 404
 			ctx.body = `Message with id ${id} can not be found`
 		}
-	} catch (error) {
+	} catch (_error) {
 		ctx.response.status = 500
 		ctx.body = `Unable to delete service message ${id}`
 	}
@@ -59,7 +59,7 @@ serviceMessagesRouter.delete('/:id', async function getMessageHandler(ctx) {
 			ctx.response.status = 404
 			ctx.body = `Message with id ${id} can not be found`
 		}
-	} catch (error) {
+	} catch (_error) {
 		ctx.response.status = 500
 		ctx.body = `Unable to retrieve service message ${id}`
 	}

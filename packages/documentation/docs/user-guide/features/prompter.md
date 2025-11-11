@@ -2,11 +2,11 @@
 sidebar_position: 3
 ---
 
-# Prompter
+# Prompter Screen
 
-See [Sofie views](sofie-views.mdx#prompter-view) for how to access the prompter page.
+See [Sofie Views and Screens](sofie-views-and-screens.mdx#prompter-screen) to learn how to access the Prompter Screen.
 
-![Prompter screen before the first Part is taken](/img/docs/main/features/prompter-view.png)
+![Prompter Screen before the first Part is taken](/img/docs/main/features/prompter-view.png)
 
 The prompter will display the script for the Rundown currently active in the Studio. On Air and Next parts and segments are highlighted - in red and green, respectively - to aid in navigation. In top-right corner of the screen, a Diff clock is shown, showing the difference between planned playback and what has been actually produced. This allows the host to know how far behind/ahead they are in regards to planned execution.
 
@@ -16,7 +16,7 @@ If the user scrolls the prompter ahead or behind the On Air part, helpful indica
 
 ## Customize looks
 
-The prompter UI can be configured using query parameters:
+The Prompter Screen can be configured using query parameters:
 
 | Query parameter | Type   | Description                                                                                                                                                         | Default |
 | :-------------- | :----- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :------ |
@@ -43,7 +43,7 @@ The prompter can be controlled by different types of controllers. The control mo
 | `?mode=mouse`           | Controlled by mouse only. [See configuration details](prompter.md#control-using-mouse-scroll-wheel)                                                                                                                                            |
 | `?mode=keyboard`        | Controlled by keyboard only. [See configuration details](prompter.md#control-using-keyboard)                                                                                                                                                   |
 | `?mode=shuttlekeyboard` | Controlled by a Contour Design ShuttleXpress, X-keys Jog and Shuttle or any compatible, configured as keyboard-ish device. [See configuration details](prompter.md#control-using-contour-shuttlexpress-or-x-keys)                              |
-| `?mode=shuttlewebhid`   | Controlled by a Contour Design ShuttleXpress, using the browser's WebHID API [See configuration details](prompter.md#control-using-contour-shuttlexpress-via-webhid)                                                                               |
+| `?mode=shuttlewebhid`   | Controlled by a Contour Design ShuttleXpress, using the browser's WebHID API [See configuration details](prompter.md#control-using-contour-shuttlexpress-via-webhid)                                                                           |
 | `?mode=pedal`           | Controlled by any MIDI device outputting note values between 0 - 127 of CC notes on channel 8. Analogue Expression pedals work well with TRS-USB midi-converters. [See configuration details](prompter.md#control-using-midi-input-mode-pedal) |
 | `?mode=joycon`          | Controlled by Nintendo Switch Joycon, using the HTML5 GamePad API. [See configuration details](prompter.md#control-using-nintendo-joycon-gamepad)                                                                                              |
 
@@ -51,11 +51,11 @@ The prompter can be controlled by different types of controllers. The control mo
 
 The prompter can be controlled in multiple ways when using the scroll wheel:
 
-| Query parameter             | Description                                                                                                                                                                              |
-| :-------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `?controlmode=normal`       | Scrolling of the mouse works as "normal scrolling"                                                                                                                                       |
-| `?controlmode=speed`        | Scrolling of the mouse changes the speed of scolling. Left-click to toggle, right-click to rewind                                                                                        |
-| `?controlmode=smoothscroll` | Scrolling the mouse wheel starts continous scrolling. Small speed adjustments can then be made by nudging the scroll wheel. Stop the scrolling by making a "larger scroll" on the wheel. |
+| Query parameter             | Description                                                                                                                                                                               |
+| :-------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `?controlmode=normal`       | Scrolling of the mouse works as "normal scrolling"                                                                                                                                        |
+| `?controlmode=speed`        | Scrolling of the mouse changes the speed of scrolling. Left-click to toggle, right-click to rewind                                                                                        |
+| `?controlmode=smoothscroll` | Scrolling the mouse wheel starts continuous scrolling. Small speed adjustments can then be made by nudging the scroll wheel. Stop the scrolling by making a "larger scroll" on the wheel. |
 
 has several operating modes, described further below. All modes are intended to be controlled by a computer mouse or similar, such as a presenter tool.
 
@@ -72,7 +72,7 @@ Keyboard control is intended to be used when having a "keyboard"-device, such as
 
 #### Control using Contour ShuttleXpress or X-keys \(_?mode=shuttlekeyboard_\)
 
-This mode is intended to be used when having a Contour ShuttleXpress or X-keys device, configured to work as a keyboard device. These devices have jog/shuttle wheels, and their software/firmware allow them to map scroll movement to keystrokes from any key-combination. Since we only listen for key combinations, it effectively means that any device outputing keystrokes will work in this mode.
+This mode is intended to be used when having a Contour ShuttleXpress or X-keys device, configured to work as a keyboard device. These devices have jog/shuttle wheels, and their software/firmware allow them to map scroll movement to keystrokes from any key-combination. Since we only listen for key combinations, it effectively means that any device outputting keystrokes will work in this mode.
 
 | Query parameter    | Type             | Description                                                                                                                                                                                                                                                                                  | Default                    |
 | :----------------- | :--------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------- |
@@ -92,8 +92,8 @@ This mode is intended to be used when having a Contour ShuttleXpress or X-keys d
 
 Configuration files that can be used in their respective driver software:
 
-- [Contour ShuttleXpress](https://github.com/nrkno/sofie-core/blob/release26/resources/prompter_layout_shuttlexpress.pref)
-- [X-keys](https://github.com/nrkno/sofie-core/blob/release26/resources/prompter_layout_xkeys.mw3)
+- [Contour ShuttleXpress](https://github.com/Sofie-Automation/sofie-core/blob/release26/resources/prompter_layout_shuttlexpress.pref)
+- [X-keys](https://github.com/Sofie-Automation/sofie-core/blob/release26/resources/prompter_layout_xkeys.mw3)
 
 #### Control using Contour ShuttleXpress via WebHID
 
@@ -139,7 +139,7 @@ Any movement within forward range will map to the `pedal_speedMap` with interpol
 | _"I can't rest my foot without it starting to run"_                                       | Increase `pedal_rangeNeutralMax`                                                                                                                                                                                                           |
 | _"I have to push too far before it starts moving"_                                        | Decrease `pedal_rangeNeutralMax`                                                                                                                                                                                                           |
 | _"It starts out fine, but runs too fast if I push too hard"_                              | Add more weight to the lower part of the `pedal_speedMap` by adding more low values early in the map, compared to the large numbers in the end.                                                                                            |
-| _"I have to go too far back to reverse"_                                                  | Increse `pedal_rangeNeutralMin`                                                                                                                                                                                                            |
+| _"I have to go too far back to reverse"_                                                  | Increase `pedal_rangeNeutralMin`                                                                                                                                                                                                           |
 | _"As I find a good speed, it varies a bit in speed up/down even if I hold my foot still"_ | Use `?debug=1` to see what speed is calculated in the position the presenter wants to rest the foot in. Add more of that number in a sequence in the `pedal_speedMap` to flatten out the speed curve, i.e. `[1, 2, 3, 4, 4, 4, 4, 5, ...]` |
 
 **Note:** The default values are set up to work with the _Yamaha FC7_ expression pedal, and will probably not be good for pedals with one continuous linear range from fully released to fully depressed. A suggested configuration for such pedals \(i.e. the _Mission Engineering EP-1_\) will be like:
@@ -173,7 +173,7 @@ The Joycons can operate in 3 modes, the L-stick, the R-stick or both L+R sticks 
 - `joycon_rangeNeutralMax` has to be greater than `joycon_rangeNeutralMin`
 - `joycon_rangeFwdMax` has to be greater than `joycon_rangeNeutralMax`
 
-![Nintendo Swith Joycons](/img/docs/main/features/nintendo-switch-joycons.jpg)
+![Nintendo Switch Joycons](/img/docs/main/features/nintendo-switch-joycons.jpg)
 
 You can turn on `?debug=1` to see how your input maps to an output.
 

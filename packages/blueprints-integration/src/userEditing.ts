@@ -1,8 +1,8 @@
 import type { JSONBlob } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
-import type { ITranslatableMessage } from './translations'
+import type { ITranslatableMessage } from './translations.js'
 import { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
-import { SourceLayerType } from './content'
-import { DefaultUserOperationsTypes } from './ingest'
+import { SourceLayerType } from './content.js'
+import { DefaultUserOperationsTypes } from './ingest.js'
 
 /**
  * Description of a user performed editing operation allowed on an document
@@ -21,10 +21,16 @@ export interface UserEditingDefinitionAction {
 	id: string
 	/** Label to show to the user for this operation */
 	label: ITranslatableMessage
-	/** Icon to show when this action is 'active' */
-	svgIcon?: string
-	/** Icon to show when this action is 'disabled' */
-	svgIconInactive?: string
+	/** Icon to show when this action is 'active'
+	 *
+	 * This can either be a relative URL to an image in the Blueprints assets or a `data:` URL
+	 */
+	icon?: string
+	/** Icon to show when this action is 'disabled'
+	 *
+	 * This can either be a relative URL to an image in the Blueprints assets or a `data:` URL
+	 */
+	iconInactive?: string
 	/** Whether this action should be indicated as being active */
 	isActive?: boolean
 }

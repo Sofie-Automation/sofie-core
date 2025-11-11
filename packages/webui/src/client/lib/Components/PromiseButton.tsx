@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import ClassNames from 'classnames'
-import { logger } from '../logging'
+import { logger } from '../logging.js'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { faCheck } from '@fortawesome/free-solid-svg-icons'
 
 import './PromiseButton.scss'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Spinner } from '../Spinner'
-import { WarningIcon } from '../ui/icons/notifications'
+import { Spinner } from '../Spinner.js'
+import { WarningIcon } from '../ui/icons/notifications.js'
 
 /** The PromiseButton renders a button which when clicked, disables the button while the onClick-promise is resolving. */
 export const PromiseButton: React.FC<{

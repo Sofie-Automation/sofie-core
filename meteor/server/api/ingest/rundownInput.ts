@@ -366,7 +366,7 @@ Meteor.startup(async () => {
 			added: onMediaObjectChanged,
 			changed: onMediaObjectChanged,
 		},
-		{ fields: { _id: 1, mediaId: 1, mediainfo: 1, studioId: 1 } }
+		{ projection: { _id: 1, mediaId: 1, mediainfo: 1, studioId: 1 } }
 	)
 })
 
@@ -382,7 +382,7 @@ async function onMediaObjectChanged(newDocument: MediaObject, oldDocument?: Medi
 			oldDocument.mediainfo?.format?.duration !== newDocument.mediainfo.format.duration)
 	) {
 		const rundownIdsInStudio = (
-			await Rundowns.findFetchAsync({ studioId: newDocument.studioId }, { fields: { _id: 1 } })
+			await Rundowns.findFetchAsync({ studioId: newDocument.studioId }, { projection: { _id: 1 } })
 		).map((rundown) => rundown._id)
 
 		const updateIds: MediaObjectUpdatedIds[] = (
@@ -392,7 +392,7 @@ async function onMediaObjectChanged(newDocument: MediaObject, oldDocument?: Medi
 					'hackListenToMediaObjectUpdates.mediaId': newDocument.mediaId,
 				},
 				{
-					fields: {
+					projection: {
 						rundownId: 1,
 						segmentId: 1,
 					},
@@ -415,7 +415,7 @@ async function onMediaObjectChanged(newDocument: MediaObject, oldDocument?: Medi
 						rundownId: { $in: updateIds.map((obj) => obj.rundownId) },
 					},
 					{
-						fields: {
+						projection: {
 							segmentId: 1,
 						},
 					}

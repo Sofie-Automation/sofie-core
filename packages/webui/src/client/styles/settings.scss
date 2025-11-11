@@ -6,7 +6,10 @@
 
 	button {
 		align-self: start;
-		margin: 0.25rem;
+	}
+
+	button + button {
+		margin-left: 0.25rem;
 	}
 }
 

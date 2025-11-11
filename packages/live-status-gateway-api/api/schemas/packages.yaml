@@ -1,0 +1,82 @@
+title: Packages
+description: Packages schema for websocket subscriptions. Packages are assets that need to be prepared by Sofie Package Manager or third-party systems to make AdLibs and Pieces playable.
+$defs:
+  packages:
+    type: object
+    title: PackagesEvent
+    properties:
+      event:
+        type: string
+        const: packages
+      rundownPlaylistId:
+        description: Unique id of the rundown playlist, or null if no playlist is active
+        oneOf:
+          - type: string
+          - type: 'null'
+      packages:
+        description: The Package statuses for this playlist
+        type: array
+        items:
+          $ref: '#/$defs/package'
+    required: [event, rundownPlaylistId, packages]
+    additionalProperties: false
+    examples:
+      - event: packages
+        rundownPlaylistId: 'OKAgZmZ0Buc99lE_2uPPSKVbMrQ_'
+        packages:
+          $ref: '#/$defs/package/examples'
+  package:
+    type: object
+    title: PackageInfoStatus
+    properties:
+      packageName:
+        description: Name of the package
+        type: string
+      status:
+        type: string
+        title: PackageStatus
+        enum:
+          - unknown
+          - ok
+          - source_broken
+          - source_has_issues
+          - source_missing
+          - source_not_ready
+          - source_not_set
+          - source_unknown_state
+        description: |
+          Status:
+          * `unknown` - status not determined (yet)
+          * `ok` - no faults, can be played
+          * `source_broken` - the source is present, but should not be played due to a technical malfunction (file is broken, camera robotics failed, REMOTE input is just bars, etc.)
+          * `source_has_issues` - technically it can be played, but some issues with it were detected
+          * `source_missing` - the source (file, live input) is missing and cannot be played
+          * `source_not_ready` - can't be played for a non-technical reason (e.g. a placeholder clip with no content)
+          * `source_not_set` - missing a file path
+          * `source_unknown_state` - reported, but unrecognized state
+      rundownId:
+        description: Id of the Rundown that a Piece (or AdLib) expecting this package belongs to
+        type: string
+      partId:
+        description: Id of the Part that a Piece (or AdLib) expecting this package belongs to. It could be an Id of a Part from the Active Playlist topic, or a Part not exposed otherwise by the LSG.
+        type: string
+      segmentId:
+        description: Id of the Segment that a Piece (or AdLib) expecting this package belongs to
+        type: string
+      pieceOrAdLibId:
+        description: Id of the Piece or AdLib that expects this package. It could be an Id of a Piece from the Active Pieces and Active Playlist topics, or an Id of an AdLib from the AdLibs topic. It could also be an Id of a Piece not exposed otherwise by the LSG, but still relevant, e.g. to summarize the status of packages within a specific Part/Segment.
+        type: string
+      thumbnailUrl:
+        description: URL where the thumbnail can be accessed
+        type: string
+      previewUrl:
+        description: URL where the preview can be accessed
+        type: string
+    required: [status, rundownId, pieceOrAdLibId]
+    additionalProperties: false
+    examples:
+      - packageName: 'MV000123.mxf'
+        status: ok
+        rundownId: 'y9HauyWkcxQS3XaAOsW40BRLLsI_'
+        pieceOrAdLibId: 'C6K_yIMuGFUk8X_L9A9_jRT6aq4_'
+        thumbnailUrl: 'https://package-manager.local/package/MV000123.mov_thumbnail.jpg'

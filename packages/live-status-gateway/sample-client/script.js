@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+
 const ws = new WebSocket(`ws://localhost:8080`)
 ws.addEventListener('message', (message) => {
 	const data = JSON.parse(message.data)

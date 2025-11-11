@@ -5,38 +5,41 @@ import {
 	JSONSchema,
 	SubdeviceManifest,
 } from '@sofie-automation/server-core-integration'
-import { manifest as TSRManifest, TSRDevicesManifestEntry } from 'timeline-state-resolver'
-
-import Translations = require('timeline-state-resolver/dist/translations.json')
+import type { TSRDevicesManifestEntry } from 'timeline-state-resolver'
+import { TSRDeviceRegistry } from './tsrDeviceRegistry.js'
 
 import ConfigSchema = require('./$schemas/options.json')
 
-const subdeviceManifest: SubdeviceManifest = Object.fromEntries(
-	Object.entries<TSRDevicesManifestEntry>(TSRManifest.subdevices).map(([id, dev]) => {
-		return [
-			id,
-			{
-				displayName: dev.displayName,
-				configSchema: stringToJsonBlob(dev.configSchema),
-				playoutMappings: Object.fromEntries<JSONBlob<JSONSchema>>(
-					Object.entries<string>(dev.mappingsSchemas).map(([id, str]) => [id, stringToJsonBlob(str)])
-				),
-				actions: dev.actions?.map((action) => ({
-					...action,
-					payload: action.payload ? stringToJsonBlob(action.payload) : undefined,
-				})),
-			},
-		]
-	})
-)
+export function compilePlayoutGatewayConfigManifest(): DeviceConfigManifest {
+	const tsrManifest = TSRDeviceRegistry.manifest
 
-export const PLAYOUT_DEVICE_CONFIG: DeviceConfigManifest = {
-	deviceConfigSchema: JSONBlobStringify<JSONSchema>(ConfigSchema as any),
+	const subdeviceManifest: SubdeviceManifest = Object.fromEntries(
+		Object.entries<TSRDevicesManifestEntry>(tsrManifest.subdevices).map(([id, dev]) => {
+			return [
+				id,
+				{
+					displayName: dev.displayName,
+					configSchema: stringToJsonBlob(dev.configSchema),
+					playoutMappings: Object.fromEntries<JSONBlob<JSONSchema>>(
+						Object.entries<string>(dev.mappingsSchemas).map(([id, str]) => [id, stringToJsonBlob(str)])
+					),
+					actions: dev.actions?.map((action) => ({
+						...action,
+						payload: action.payload ? stringToJsonBlob(action.payload) : undefined,
+					})),
+				},
+			]
+		})
+	)
 
-	subdeviceConfigSchema: stringToJsonBlob(TSRManifest.commonOptions),
-	subdeviceManifest,
+	return {
+		deviceConfigSchema: JSONBlobStringify<JSONSchema>(ConfigSchema as any),
 
-	translations: Translations as any,
+		subdeviceConfigSchema: stringToJsonBlob(tsrManifest.commonOptions),
+		subdeviceManifest,
+
+		translations: TSRDeviceRegistry.translations,
+	}
 }
 
 function stringToJsonBlob(str: string): JSONBlob<JSONSchema> {

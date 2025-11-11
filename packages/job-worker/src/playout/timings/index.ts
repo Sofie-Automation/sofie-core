@@ -1,15 +1,15 @@
 import { OnPlayoutPlaybackChangedProps } from '@sofie-automation/corelib/dist/worker/studio'
-import { logger } from '../../logging'
-import { JobContext } from '../../jobs'
-import { runJobWithPlayoutModel } from '../lock'
+import { logger } from '../../logging.js'
+import { JobContext } from '../../jobs/index.js'
+import { runJobWithPlayoutModel } from '../lock.js'
 import { assertNever } from '@sofie-automation/corelib/dist/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { PlayoutChangedType } from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI'
-import { onPiecePlaybackStarted, onPiecePlaybackStopped } from './piecePlayback'
-import { onPartPlaybackStarted, onPartPlaybackStopped } from './partPlayback'
-import { updateTimeline } from '../timeline/generate'
+import { onPiecePlaybackStarted, onPiecePlaybackStopped } from './piecePlayback.js'
+import { onPartPlaybackStarted, onPartPlaybackStopped } from './partPlayback.js'
+import { updateTimeline } from '../timeline/generate.js'
 
-export { handleTimelineTriggerTime } from './timelineTriggerTime'
+export { handleTimelineTriggerTime } from './timelineTriggerTime.js'
 
 /**
  * Called by playout-gateway when playback timings of any Parts or Pieces on the timeline have changed

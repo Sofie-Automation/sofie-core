@@ -1,6 +1,6 @@
 import Tooltip from 'rc-tooltip'
 import { useTranslation } from 'react-i18next'
-import { TOOLTIP_DEFAULT_DELAY } from '../../lib/lib'
+import { TOOLTIP_DEFAULT_DELAY } from '../../lib/lib.js'
 
 export interface IPlaylistRankMethodToggleProps {
 	manualSortingActive: boolean

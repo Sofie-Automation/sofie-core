@@ -60,7 +60,7 @@ export async function setUpOptimizedObserverInner<
 	PublicationDoc extends { _id: ProtectedString<any> },
 	Args,
 	State extends Record<string, any>,
-	UpdateProps extends Record<string, any>
+	UpdateProps extends Record<string, any>,
 >(
 	identifier: string,
 	args0: ReadonlyDeep<Args>,
@@ -180,7 +180,7 @@ async function createOptimizedObserverWorker<
 	PublicationDoc extends { _id: ProtectedString<any> },
 	Args,
 	State extends Record<string, any>,
-	UpdateProps extends Record<string, any>
+	UpdateProps extends Record<string, any>,
 >(
 	identifier: string,
 	thisObserverWrapper: OptimizedObserverWrapper<PublicationDoc, Args, State>,

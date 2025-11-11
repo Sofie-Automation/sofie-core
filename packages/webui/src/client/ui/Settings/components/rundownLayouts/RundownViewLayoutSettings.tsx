@@ -2,12 +2,12 @@ import { ISourceLayer } from '@sofie-automation/blueprints-integration'
 import { SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { RundownLayoutsAPI } from '../../../../lib/rundownLayouts'
-import { RundownLayouts } from '../../../../collections'
+import { RundownLayoutsAPI } from '../../../../lib/rundownLayouts.js'
+import { RundownLayouts } from '../../../../collections/index.js'
 import { RundownLayoutBase } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import { unprotectString } from '../../../../lib/tempLib'
-import { EditAttribute } from '../../../../lib/EditAttribute'
-import { LabelActual } from '../../../../lib/Components/LabelAndOverrides'
+import { unprotectString } from '../../../../lib/tempLib.js'
+import { EditAttribute } from '../../../../lib/EditAttribute.js'
+import { LabelActual } from '../../../../lib/Components/LabelAndOverrides.js'
 
 function filterLayouts(
 	rundownLayouts: RundownLayoutBase[],

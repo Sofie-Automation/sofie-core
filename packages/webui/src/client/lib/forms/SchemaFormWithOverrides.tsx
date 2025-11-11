@@ -1,30 +1,39 @@
 import { joinObjectPathFragments, literal } from '@sofie-automation/corelib/dist/lib'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { WrappedOverridableItemNormal, OverrideOpHelperForItemContents } from '../../ui/Settings/util/OverrideOpHelper'
-import { CheckboxControl } from '../Components/Checkbox'
-import { DropdownInputOption, DropdownInputControl } from '../Components/DropdownInput'
-import { FloatInputControl } from '../Components/FloatInput'
-import { IntInputControl } from '../Components/IntInput'
-import { JsonTextInputControl } from '../Components/JsonTextInput'
+import {
+	WrappedOverridableItemNormal,
+	OverrideOpHelperForItemContents,
+} from '../../ui/Settings/util/OverrideOpHelper.js'
+import { CheckboxControl } from '../Components/Checkbox.js'
+import { DropdownInputOption, DropdownInputControl } from '../Components/DropdownInput.js'
+import { FloatInputControl } from '../Components/FloatInput.js'
+import { IntInputControl } from '../Components/IntInput.js'
+import { JsonTextInputControl } from '../Components/JsonTextInput.js'
 import {
 	LabelAndOverrides,
 	LabelAndOverridesForBase64Image,
 	LabelAndOverridesForCheckbox,
 	LabelAndOverridesForDropdown,
 	LabelAndOverridesForInt,
-} from '../Components/LabelAndOverrides'
-import { MultiLineTextInputControl } from '../Components/MultiLineTextInput'
-import { TextInputControl } from '../Components/TextInput'
+} from '../Components/LabelAndOverrides.js'
+import { MultiLineTextInputControl } from '../Components/MultiLineTextInput.js'
+import { TextInputControl } from '../Components/TextInput.js'
 import { JSONSchema, TypeName } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
-import { SchemaFormArrayTable } from './SchemaFormTable/ArrayTable'
-import { SchemaFormCommonProps, SchemaFormSofieEnumDefinition, translateStringIfHasNamespaces } from './schemaFormUtil'
-import { MultiSelectInputControl } from '../Components/MultiSelectInput'
-import { SchemaFormObjectTable } from './SchemaFormTable/ObjectTable'
+import { SchemaFormArrayTable } from './SchemaFormTable/ArrayTable.js'
+import {
+	SchemaFormCommonProps,
+	SchemaFormSofieEnumDefinition,
+	translateStringIfHasNamespaces,
+} from './schemaFormUtil.js'
+import { MultiSelectInputControl } from '../Components/MultiSelectInput.js'
+import { SchemaFormObjectTable } from './SchemaFormTable/ObjectTable.js'
 import { getSchemaUIField, SchemaFormUIField } from '@sofie-automation/blueprints-integration'
-import { SchemaFormSectionHeader } from './SchemaFormSectionHeader'
-import { Base64ImageInputControl } from '../Components/Base64ImageInput'
-import { ToggleSwitchControl } from '../Components/ToggleSwitch'
+import { SchemaFormSectionHeader } from './SchemaFormSectionHeader.js'
+import { Base64ImageInputControl } from '../Components/Base64ImageInput.js'
+import { MultiLineIntInputControl } from '../Components/MultiLineIntInput.js'
+import { ToggleSwitchControl } from '../Components/ToggleSwitch.js'
+import { BreadCrumbTextInput } from '../Components/BreadCrumbTextInput.js'
 
 interface SchemaFormWithOverridesProps extends SchemaFormCommonProps {
 	/** Base path of the schema within the document */
@@ -92,7 +101,14 @@ export function SchemaFormWithOverrides(props: Readonly<SchemaFormWithOverridesP
 
 	switch (props.schema.type) {
 		case TypeName.Array:
-			return <ArrayFormWithOverrides {...props} />
+			if (
+				getSchemaUIField(props.schema, SchemaFormUIField.DisplayType) === 'bread-crumbs' ||
+				props.schema.items?.type === TypeName.String
+			) {
+				return <BreadCrumbsFormWithOverrides {...childProps} />
+			} else {
+				return <ArrayFormWithOverrides {...props} />
+			}
 		case TypeName.Object:
 			if (getSchemaUIField(props.schema, SchemaFormUIField.DisplayType) === 'json') {
 				return <JsonFormWithOverrides {...childProps} />
@@ -160,6 +176,9 @@ const ArrayFormWithOverrides = (props: Readonly<SchemaFormWithOverridesProps>) =
 			} else {
 				return <StringArrayFormWithOverrides {...childProps} />
 			}
+		case TypeName.Number:
+		case TypeName.Integer:
+			return <IntArrayFormWithOverrides {...childProps} />
 		case TypeName.Object:
 			if (props.allowTables) {
 				return <SchemaFormArrayTable {...props} />
@@ -378,6 +397,22 @@ const StringArrayFormWithOverrides = ({ schema, commonAttrs }: Readonly<FormComp
 	)
 }
 
+const IntArrayFormWithOverrides = ({ schema, commonAttrs }: Readonly<FormComponentProps>) => {
+	return (
+		<LabelAndOverrides {...commonAttrs}>
+			{(values, handleUpdate) => (
+				<MultiLineIntInputControl
+					placeholder={schema.default}
+					values={values || []}
+					handleUpdate={handleUpdate}
+					min={schema.minimum}
+					max={schema.maximum}
+				/>
+			)}
+		</LabelAndOverrides>
+	)
+}
+
 const JsonFormWithOverrides = ({ schema, commonAttrs }: Readonly<FormComponentProps>) => {
 	return (
 		<LabelAndOverrides {...commonAttrs}>
@@ -393,5 +428,13 @@ const Base64ImagePickerWithOverrides = ({ commonAttrs }: FormComponentProps) => 
 		<LabelAndOverridesForBase64Image {...commonAttrs}>
 			{(value, handleUpdate) => <Base64ImageInputControl value={value} handleUpdate={handleUpdate} />}
 		</LabelAndOverridesForBase64Image>
+	)
+}
+
+const BreadCrumbsFormWithOverrides = ({ commonAttrs }: Readonly<FormComponentProps>) => {
+	return (
+		<LabelAndOverrides {...commonAttrs}>
+			{(value, handleUpdate) => <BreadCrumbTextInput value={value || []} handleUpdate={handleUpdate} />}
+		</LabelAndOverrides>
 	)
 }

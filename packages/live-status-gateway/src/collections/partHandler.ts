@@ -1,14 +1,14 @@
 import { Logger } from 'winston'
-import { CoreHandler } from '../coreHandler'
-import { PublicationCollection } from '../publicationCollection'
+import { CoreHandler } from '../coreHandler.js'
+import { PublicationCollection } from '../publicationCollection.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { SelectedPartInstances } from './partInstancesHandler'
-import { PartsHandler } from './partsHandler'
+import { SelectedPartInstances } from './partInstancesHandler.js'
+import { PartsHandler } from './partsHandler.js'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
-import { CollectionHandlers } from '../liveStatusServer'
+import { CollectionHandlers } from '../liveStatusServer.js'
 import { PickKeys } from '@sofie-automation/shared-lib/dist/lib/types'
 
 const PLAYLIST_KEYS = ['_id', 'rundownIdsInOrder'] as const
@@ -21,7 +21,11 @@ export class PartHandler extends PublicationCollection<DBPart, CorelibPubSub.par
 	private _activePlaylist: Playlist | undefined
 	private _currentPartInstance: DBPartInstance | undefined
 
-	constructor(logger: Logger, coreHandler: CoreHandler, private _partsHandler: PartsHandler) {
+	constructor(
+		logger: Logger,
+		coreHandler: CoreHandler,
+		private _partsHandler: PartsHandler
+	) {
 		super(CollectionName.Parts, CorelibPubSub.parts, logger, coreHandler)
 	}
 

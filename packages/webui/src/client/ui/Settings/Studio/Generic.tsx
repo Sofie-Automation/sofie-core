@@ -3,34 +3,34 @@ import { DBStudio, IStudioSettings } from '@sofie-automation/corelib/dist/dataMo
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons'
 import { useTranslation } from 'react-i18next'
-import { EditAttribute } from '../../../lib/EditAttribute'
-import { StudioBaselineStatus } from './Baseline'
+import { EditAttribute } from '../../../lib/EditAttribute.js'
+import { StudioBaselineStatus } from './Baseline.js'
 import { ShowStyleBaseId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { ShowStyleBases, Studios } from '../../../collections'
+import { ShowStyleBases, Studios } from '../../../collections/index.js'
 import { useHistory } from 'react-router-dom'
-import { MeteorCall } from '../../../lib/meteorApi'
+import { MeteorCall } from '../../../lib/meteorApi.js'
 import {
 	LabelActual,
 	LabelAndOverrides,
 	LabelAndOverridesForCheckbox,
 	LabelAndOverridesForDropdown,
 	LabelAndOverridesForInt,
-} from '../../../lib/Components/LabelAndOverrides'
-import { catchError } from '../../../lib/lib'
+} from '../../../lib/Components/LabelAndOverrides.js'
+import { catchError } from '../../../lib/lib.js'
 import { ForceQuickLoopAutoNext } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 import {
 	applyAndValidateOverrides,
 	ObjectWithOverrides,
 	SomeObjectOverrideOp,
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import { useOverrideOpHelper, WrappedOverridableItemNormal } from '../util/OverrideOpHelper'
-import { IntInputControl } from '../../../lib/Components/IntInput'
+import { useOverrideOpHelper, WrappedOverridableItemNormal } from '../util/OverrideOpHelper.js'
+import { IntInputControl } from '../../../lib/Components/IntInput.js'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { useMemo } from 'react'
-import { CheckboxControl } from '../../../lib/Components/Checkbox'
-import { TextInputControl } from '../../../lib/Components/TextInput'
-import { DropdownInputControl, DropdownInputOption } from '../../../lib/Components/DropdownInput'
-import { useTracker } from '../../../lib/ReactMeteorData/ReactMeteorData'
+import { CheckboxControl } from '../../../lib/Components/Checkbox.js'
+import { TextInputControl } from '../../../lib/Components/TextInput.js'
+import { DropdownInputControl, DropdownInputOption } from '../../../lib/Components/DropdownInput.js'
+import { useTracker } from '../../../lib/ReactMeteorData/ReactMeteorData.js'
 import Button from 'react-bootstrap/Button'
 
 interface IStudioGenericPropertiesProps {
@@ -321,6 +321,15 @@ function StudioSettings({ studio }: { studio: DBStudio }): JSX.Element {
 			</LabelAndOverridesForCheckbox>
 
 			<LabelAndOverridesForCheckbox
+				label={t('Allow infinites from AdLib testing to persist')}
+				item={wrappedItem}
+				itemKey={'allowTestingAdlibsToPersist'}
+				overrideHelper={overrideHelper}
+			>
+				{(value, handleUpdate) => <CheckboxControl value={!!value} handleUpdate={handleUpdate} />}
+			</LabelAndOverridesForCheckbox>
+
+			<LabelAndOverridesForCheckbox
 				label={t('Enable Buckets')}
 				item={wrappedItem}
 				itemKey={'enableBuckets'}
@@ -360,7 +369,7 @@ function StudioSettings({ studio }: { studio: DBStudio }): JSX.Element {
 			</LabelAndOverridesForCheckbox>
 
 			<LabelAndOverridesForDropdown
-				label={t('Source Type')}
+				label={t('AutoNext in QuickLoop behavior')}
 				item={wrappedItem}
 				itemKey={'forceQuickLoopAutoNext'}
 				overrideHelper={overrideHelper}
@@ -396,6 +405,18 @@ function StudioSettings({ studio }: { studio: DBStudio }): JSX.Element {
 				itemKey={'allowPieceDirectPlay'}
 				overrideHelper={overrideHelper}
 				hint={t('When enabled, double clicking on certain pieces in the GUI will play them as adlibs')}
+			>
+				{(value, handleUpdate) => <CheckboxControl value={!!value} handleUpdate={handleUpdate} />}
+			</LabelAndOverridesForCheckbox>
+
+			<LabelAndOverridesForCheckbox
+				label={t('Mock Piece Content Status')}
+				item={wrappedItem}
+				itemKey={'mockPieceContentStatus'}
+				overrideHelper={overrideHelper}
+				hint={t(
+					'When enabled, this will override the piece content statuses to have no errors or warnings and display a mock preview. This should only be used for development!'
+				)}
 			>
 				{(value, handleUpdate) => <CheckboxControl value={!!value} handleUpdate={handleUpdate} />}
 			</LabelAndOverridesForCheckbox>

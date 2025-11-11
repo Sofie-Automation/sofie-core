@@ -64,7 +64,7 @@ export const partInstanceFieldSpecifier = literal<
 	part: 1, // This could be stricter, but this is unlikely to be changed once the PartInstance is created
 })
 
-export type PieceInstanceFields = '_id' | 'rundownId' | 'partInstanceId' | 'piece'
+export type PieceInstanceFields = '_id' | 'rundownId' | 'partInstanceId' | 'piece' | 'infinite'
 export const pieceInstanceFieldSpecifier = literal<
 	MongoFieldSpecifierOnesStrict<Pick<PieceInstance, PieceInstanceFields>>
 >({
@@ -72,6 +72,7 @@ export const pieceInstanceFieldSpecifier = literal<
 	rundownId: 1,
 	partInstanceId: 1,
 	piece: 1, // This could be stricter, but this is unlikely to be changed once the PieceInstance is created
+	infinite: 1, // This could be stricter, but this is temporary and should never change once set
 })
 
 export type AdLibPieceFields =

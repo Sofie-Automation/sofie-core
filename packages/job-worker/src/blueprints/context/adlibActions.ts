@@ -18,20 +18,22 @@ import {
 } from '@sofie-automation/blueprints-integration'
 import { PartInstanceId, PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ReadonlyDeep } from 'type-fest'
-import { PlayoutModel } from '../../playout/model/PlayoutModel'
-import { ContextInfo } from './CommonContext'
-import { ShowStyleUserContext } from './ShowStyleUserContext'
-import { WatchedPackagesHelper } from './watchedPackages'
-import { getCurrentTime } from '../../lib'
-import { JobContext, ProcessedShowStyleCompound } from '../../jobs'
-import { selectNewPartWithOffsets } from '../../playout/moveNextPart'
-import { ProcessedShowStyleConfig } from '../config'
+import { PlayoutModel } from '../../playout/model/PlayoutModel.js'
+import { ContextInfo } from './CommonContext.js'
+import { ShowStyleUserContext } from './ShowStyleUserContext.js'
+import { WatchedPackagesHelper } from './watchedPackages.js'
+import { getCurrentTime } from '../../lib/index.js'
+import { JobContext, ProcessedShowStyleCompound } from '../../jobs/index.js'
+import { selectNewPartWithOffsets } from '../../playout/moveNextPart.js'
+import { ProcessedShowStyleConfig } from '../config.js'
 import { DatastorePersistenceMode } from '@sofie-automation/shared-lib/dist/core/model/TimelineDatastore'
-import { removeTimelineDatastoreValue, setTimelineDatastoreValue } from '../../playout/datastore'
-import { executePeripheralDeviceAction, listPlayoutDevices } from '../../peripheralDevice'
-import { ActionPartChange, PartAndPieceInstanceActionService } from './services/PartAndPieceInstanceActionService'
+import { removeTimelineDatastoreValue, setTimelineDatastoreValue } from '../../playout/datastore.js'
+import { executePeripheralDeviceAction, listPlayoutDevices } from '../../peripheralDevice.js'
+import { ActionPartChange, PartAndPieceInstanceActionService } from './services/PartAndPieceInstanceActionService.js'
 import { BlueprintQuickLookInfo } from '@sofie-automation/blueprints-integration/dist/context/quickLoopInfo'
-import { setNextPartFromPart } from '../../playout/setNext'
+import { setNextPartFromPart } from '../../playout/setNext.js'
+import { getOrderedPartsAfterPlayhead } from '../../playout/lookahead/util.js'
+import { convertPartToBlueprints } from './lib.js'
 
 export class DatastoreActionExecutionContext
 	extends ShowStyleUserContext
@@ -100,6 +102,10 @@ export class ActionExecutionContext extends ShowStyleUserContext implements IAct
 		private readonly partAndPieceInstanceService: PartAndPieceInstanceActionService
 	) {
 		super(contextInfo, _context, showStyle, watchedPackages)
+	}
+
+	async getUpcomingParts(limit: number = 5): Promise<ReadonlyDeep<IBlueprintPart[]>> {
+		return getOrderedPartsAfterPlayhead(this._context, this._playoutModel, limit).map(convertPartToBlueprints)
 	}
 
 	async getPartInstance(part: 'current' | 'next'): Promise<IBlueprintPartInstance | undefined> {
@@ -180,11 +186,11 @@ export class ActionExecutionContext extends ShowStyleUserContext implements IAct
 		return this.partAndPieceInstanceService.updatePartInstance(part, props)
 	}
 
-	async stopPiecesOnLayers(sourceLayerIds: string[], timeOffset?: number | undefined): Promise<string[]> {
+	async stopPiecesOnLayers(sourceLayerIds: string[], timeOffset?: number): Promise<string[]> {
 		return this.partAndPieceInstanceService.stopPiecesOnLayers(sourceLayerIds, timeOffset)
 	}
 
-	async stopPieceInstances(pieceInstanceIds: string[], timeOffset?: number | undefined): Promise<string[]> {
+	async stopPieceInstances(pieceInstanceIds: string[], timeOffset?: number): Promise<string[]> {
 		return this.partAndPieceInstanceService.stopPieceInstances(pieceInstanceIds, timeOffset)
 	}
 

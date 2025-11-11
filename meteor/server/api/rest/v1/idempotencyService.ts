@@ -1,7 +1,10 @@
 export class IdempotencyService {
 	private requestRecords: Map<string, number> = new Map()
 
-	constructor(private idempotencyPeriodMs: number, private cleanupIntervalMs: number) {
+	constructor(
+		private idempotencyPeriodMs: number,
+		private cleanupIntervalMs: number
+	) {
 		this.scheduleCleanup()
 	}
 

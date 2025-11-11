@@ -1,0 +1,40 @@
+<!--
+This page emulates an HTML preview coming from the graphics system to
+be rendered inside the Sofie UI as a hover preview.
+-->
+
+<html>
+	<head>
+		<style>
+			body {
+				width: 1920;
+				height: 1080;
+				overflow: hidden;
+			}
+
+			#test {
+				position: absolute;
+				width: 500px;
+				height: 80px;
+				font-size: 2.5em;
+				background: #fff;
+				bottom: 120px;
+				left: 80px;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="test">Test Box</div>
+
+		<script>
+			const el = document.getElementById('test')
+
+			window.addEventListener('message', (ev) => {
+				console.log('recv', ev.data)
+				if (ev.data.event === 'sofie-update') {
+					el.innerText = ev.data.payload
+				}
+			})
+		</script>
+	</body>
+</html>

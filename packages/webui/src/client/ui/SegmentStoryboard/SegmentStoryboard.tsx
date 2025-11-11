@@ -1,42 +1,51 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { NoteSeverity } from '@sofie-automation/blueprints-integration'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { IContextMenuContext } from '../RundownView'
-import { IOutputLayerUi, PartUi, PieceUi, SegmentNoteCounts, SegmentUi } from '../SegmentContainer/withResolvedSegment'
+import { IContextMenuContext } from '../RundownView.js'
+import {
+	IOutputLayerUi,
+	PartUi,
+	PieceUi,
+	SegmentNoteCounts,
+	SegmentUi,
+} from '../SegmentContainer/withResolvedSegment.js'
 import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'
-import { CriticalIconSmall, WarningIconSmall } from '../../lib/ui/icons/notifications'
-import { SegmentDuration } from '../RundownView/RundownTiming/SegmentDuration'
-import { PartCountdown } from '../RundownView/RundownTiming/PartCountdown'
-import { contextMenuHoldToDisplayTime, useCombinedRefs } from '../../lib/lib'
+import { CriticalIconSmall, WarningIconSmall } from '../../lib/ui/icons/notifications.js'
+import { SegmentDuration } from '../RundownView/RundownTiming/SegmentDuration.js'
+import { PartCountdown } from '../RundownView/RundownTiming/PartCountdown.js'
+import { contextMenuHoldToDisplayTime, useCombinedRefs, useRundownViewEventBusListener } from '../../lib/lib.js'
 import { isPartPlayable } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { useTranslation } from 'react-i18next'
-import { UIStateStorage } from '../../lib/UIStateStorage'
-import { literal, unprotectString } from '../../lib/tempLib'
-import { lockPointer, scrollToPart, unlockPointer } from '../../lib/viewPort'
-import { StoryboardPart } from './StoryboardPart'
+import { UIStateStorage } from '../../lib/UIStateStorage.js'
+import { literal, unprotectString } from '../../lib/tempLib.js'
+import { lockPointer, scrollToPart, unlockPointer } from '../../lib/viewPort.js'
+import { StoryboardPart } from './StoryboardPart.js'
 import classNames from 'classnames'
-import RundownViewEventBus, {
+import {
 	GoToPartEvent,
 	GoToPartInstanceEvent,
 	HighlightEvent,
 	RundownViewEvents,
 } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
-import { getElementWidth } from '../../utils/dimensions'
-import { HOVER_TIMEOUT } from '../Shelf/DashboardPieceButton'
+import { getElementWidth } from '../../utils/dimensions.js'
+import { HOVER_TIMEOUT } from '../Shelf/DashboardPieceButton.js'
 import { Meteor } from 'meteor/meteor'
-import { hidePointerLockCursor, showPointerLockCursor } from '../../lib/PointerLockCursor'
-import { SegmentScrollbar } from './SegmentScrollbar'
-import { OptionalVelocityComponent } from '../../lib/utilComponents'
-import { filterSecondarySourceLayers } from './StoryboardPartSecondaryPieces/StoryboardPartSecondaryPieces'
-import { SegmentViewMode } from '../SegmentContainer/SegmentViewModes'
-import { ErrorBoundary } from '../../lib/ErrorBoundary'
-import { SwitchViewModeButton } from '../SegmentContainer/SwitchViewModeButton'
+import { hidePointerLockCursor, showPointerLockCursor } from '../../lib/PointerLockCursor.js'
+import { SegmentScrollbar } from './SegmentScrollbar.js'
+import {
+	filterSecondaryOutputLayers,
+	filterSecondarySourceLayers,
+} from './StoryboardPartSecondaryPieces/StoryboardPartSecondaryPieces.js'
+import { motion } from 'motion/react'
+import { SegmentViewMode } from '../SegmentContainer/SegmentViewModes.js'
+import { ErrorBoundary } from '../../lib/ErrorBoundary.js'
+import { SwitchViewModeButton } from '../SegmentContainer/SwitchViewModeButton.js'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { PartId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { RundownHoldState } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { SegmentTimeAnchorTime } from '../RundownView/RundownTiming/SegmentTimeAnchorTime'
-import * as RundownResolver from '../../lib/RundownResolver'
-import { logger } from '../../lib/logging'
+import { SegmentTimeAnchorTime } from '../RundownView/RundownTiming/SegmentTimeAnchorTime.js'
+import * as RundownResolver from '../../lib/RundownResolver.js'
+import { logger } from '../../lib/logging.js'
 
 interface IProps {
 	id: string
@@ -105,7 +114,7 @@ export const SegmentStoryboard = React.memo(
 					? {
 							partId: p.partId,
 							ident: p.instance.part.identifier,
-					  }
+						}
 					: null
 			)
 			.filter((entry) => entry !== null) as Array<{ partId: PartId; ident?: string }>
@@ -239,8 +248,8 @@ export const SegmentStoryboard = React.memo(
 								? 'background'
 								: undefined
 							: squishedHover === index
-							? 'hover'
-							: undefined
+								? 'hover'
+								: undefined
 					}
 					style={
 						needsToBeSquished && squishedPartCardStride
@@ -252,7 +261,7 @@ export const SegmentStoryboard = React.memo(
 												? renderedParts.length + index
 												: renderedParts.length - index
 											: undefined,
-							  }
+								}
 							: undefined
 					}
 					onHoverOver={() => needsToBeSquished && setSquishedHover(index)}
@@ -320,19 +329,11 @@ export const SegmentStoryboard = React.memo(
 				if (highlightTimeout.current) Meteor.clearTimeout(highlightTimeout.current)
 			}
 		}, [])
-		useEffect(() => {
-			RundownViewEventBus.on(RundownViewEvents.REWIND_SEGMENTS, onRewindSegment)
-			RundownViewEventBus.on(RundownViewEvents.GO_TO_PART, onGoToPart)
-			RundownViewEventBus.on(RundownViewEvents.GO_TO_PART_INSTANCE, onGoToPartInstance)
-			RundownViewEventBus.on(RundownViewEvents.HIGHLIGHT, onHighlight)
 
-			return () => {
-				RundownViewEventBus.off(RundownViewEvents.REWIND_SEGMENTS, onRewindSegment)
-				RundownViewEventBus.off(RundownViewEvents.GO_TO_PART, onGoToPart)
-				RundownViewEventBus.off(RundownViewEvents.GO_TO_PART_INSTANCE, onGoToPartInstance)
-				RundownViewEventBus.off(RundownViewEvents.HIGHLIGHT, onHighlight)
-			}
-		}, [onRewindSegment, onGoToPart, onGoToPartInstance, onHighlight])
+		useRundownViewEventBusListener(RundownViewEvents.REWIND_SEGMENTS, onRewindSegment)
+		useRundownViewEventBusListener(RundownViewEvents.GO_TO_PART, onGoToPart)
+		useRundownViewEventBusListener(RundownViewEvents.GO_TO_PART_INSTANCE, onGoToPartInstance)
+		useRundownViewEventBusListener(RundownViewEvents.HIGHLIGHT, onHighlight)
 
 		useLayoutEffect(() => {
 			if (!listRef.current) return
@@ -578,9 +579,7 @@ export const SegmentStoryboard = React.memo(
 							{criticalNotes > 0 && (
 								<div
 									className="segment-timeline__title__notes__note segment-timeline__title__notes__note--critical"
-									onClick={() =>
-										props.onHeaderNoteClick && props.onHeaderNoteClick(props.segment._id, NoteSeverity.ERROR)
-									}
+									onClick={() => props.onHeaderNoteClick?.(props.segment._id, NoteSeverity.ERROR)}
 									aria-label={t('Critical problems')}
 								>
 									<CriticalIconSmall />
@@ -590,9 +589,7 @@ export const SegmentStoryboard = React.memo(
 							{warningNotes > 0 && (
 								<div
 									className="segment-timeline__title__notes__note segment-timeline__title__notes__note--warning"
-									onClick={() =>
-										props.onHeaderNoteClick && props.onHeaderNoteClick(props.segment._id, NoteSeverity.WARNING)
-									}
+									onClick={() => props.onHeaderNoteClick?.(props.segment._id, NoteSeverity.WARNING)}
 									aria-label={t('Warnings')}
 								>
 									<WarningIconSmall />
@@ -658,57 +655,46 @@ export const SegmentStoryboard = React.memo(
 
 				<div className="segment-timeline__mos-id">{props.segment.externalId}</div>
 				<div className="segment-timeline__source-layers" role="tree" aria-label={t('Sources')}>
-					{Object.values<IOutputLayerUi>(props.segment.outputLayers)
-						.filter((outputGroup) => outputGroup.used)
-						.map((outputGroup) => (
-							<div className="segment-timeline__output-group" key={outputGroup._id}>
-								{filterSecondarySourceLayers(outputGroup.sourceLayers).map((sourceLayer) =>
-									sourceLayer.pieces.length > 0 ? (
-										<div className="segment-timeline__source-layer" key={sourceLayer._id} role="treeitem">
-											{sourceLayer.name}
-										</div>
-									) : null
-								)}
-							</div>
-						))}
+					{filterSecondaryOutputLayers(Object.values<IOutputLayerUi>(props.segment.outputLayers)).map((outputGroup) => (
+						<div className="segment-timeline__output-group" key={outputGroup._id}>
+							{filterSecondarySourceLayers(outputGroup.sourceLayers).map((sourceLayer) =>
+								sourceLayer.pieces.length > 0 ? (
+									<div className="segment-timeline__source-layer" key={sourceLayer._id} role="treeitem">
+										{sourceLayer.name}
+									</div>
+								) : null
+							)}
+						</div>
+					))}
 				</div>
 				<ErrorBoundary>
 					<SwitchViewModeButton currentMode={SegmentViewMode.Storyboard} onSwitchViewMode={props.onSwitchViewMode} />
 				</ErrorBoundary>
 				<div className="segment-storyboard__part-list__container" ref={listRef} onPointerDown={onListPointerDown}>
-					<OptionalVelocityComponent
-						animation={{
-							translateX: `-${scrollLeft}px`,
+					<motion.div
+						className={classNames('segment-storyboard__part-list', {
+							loading: !props.subscriptionsReady,
+						})}
+						animate={{
+							translateX: Math.min(0, scrollLeft * -1),
 						}}
-						duration={100}
-						shouldAnimate={animateScrollLeft}
+						transition={{ duration: animateScrollLeft ? 0.1 : 0, bounce: 0 }}
 					>
+						{parts}
 						<div
-							className={classNames('segment-storyboard__part-list', {
-								loading: !props.subscriptionsReady,
+							className={classNames('segment-storyboard__part-list', 'segment-storyboard__part-list--squished-parts', {
+								hover: squishedHover !== null,
 							})}
-							style={!animateScrollLeft ? { transform: `translateX(-${scrollLeft}px)` } : undefined}
+							style={{
+								minWidth: `${spaceLeft}px`,
+							}}
+							onPointerEnter={onSquishedPointerEnter}
+							onPointerLeave={onSquishedPointerLeave}
+							onPointerMove={onSquishedPointerMove}
 						>
-							{parts}
-							<div
-								className={classNames(
-									'segment-storyboard__part-list',
-									'segment-storyboard__part-list--squished-parts',
-									{
-										hover: squishedHover !== null,
-									}
-								)}
-								style={{
-									minWidth: `${spaceLeft}px`,
-								}}
-								onPointerEnter={onSquishedPointerEnter}
-								onPointerLeave={onSquishedPointerLeave}
-								onPointerMove={onSquishedPointerMove}
-							>
-								{squishedParts}
-							</div>
+							{squishedParts}
 						</div>
-					</OptionalVelocityComponent>
+					</motion.div>
 					<div
 						className="segment-storyboard__history-shade"
 						style={{

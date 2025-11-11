@@ -1,54 +1,25 @@
 import { Logger } from 'winston'
 import { WebSocket } from 'ws'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { WebSocketTopicBase, WebSocketTopic } from '../wsHandler'
+import { WebSocketTopicBase, WebSocketTopic } from '../wsHandler.js'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
 import { RundownBaselineAdLibAction } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibAction'
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import { RundownBaselineAdLibItem } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibPiece'
-import { IBlueprintActionManifestDisplayContent } from '@sofie-automation/blueprints-integration'
-import { ShowStyleBaseExt } from '../collections/showStyleBaseHandler'
+import { IBlueprintActionManifestDisplayContent, JSONBlob } from '@sofie-automation/blueprints-integration'
+import { ShowStyleBaseExt } from '../collections/showStyleBaseHandler.js'
 import { interpollateTranslation } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { PartId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { WithSortingMetadata, getRank, sortContent } from './helpers/contentSorting'
+import { WithSortingMetadata, getRank, sortContent } from './helpers/contentSorting.js'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { CollectionHandlers } from '../liveStatusServer'
+import { AdLibsEvent, AdLibActionType, AdLibStatus, GlobalAdLibStatus } from '@sofie-automation/live-status-gateway-api'
+import { CollectionHandlers } from '../liveStatusServer.js'
 import { PickKeys } from '@sofie-automation/shared-lib/dist/lib/types'
 
 const THROTTLE_PERIOD_MS = 100
-
-export interface AdLibsStatus {
-	event: 'adLibs'
-	rundownPlaylistId: string | null
-	adLibs: AdLibStatus[]
-	globalAdLibs: GlobalAdLibStatus[]
-}
-
-export interface AdLibActionType {
-	name: string
-	label: string
-}
-
-export interface AdLibStatus extends AdLibStatusBase {
-	segmentId: string
-	partId: string
-}
-
-type GlobalAdLibStatus = AdLibStatusBase
-
-interface AdLibStatusBase {
-	id: string
-	name: string
-	sourceLayer: string
-	outputLayer: string
-	actionType: AdLibActionType[]
-	tags?: string[]
-	publicData: unknown
-	optionsSchema?: any
-}
 
 const PLAYLIST_KEYS = ['_id', 'rundownIdsInOrder', 'activationId'] as const
 type Playlist = PickKeys<DBRundownPlaylist, typeof PLAYLIST_KEYS>
@@ -99,7 +70,7 @@ export class AdLibsTopic extends WebSocketTopicBase implements WebSocketTopic {
 									name: t.data,
 									label: interpollateTranslation(t.display.label.key, t.display.label.args),
 								})
-						  )
+							)
 						: []
 					const segmentId = this._parts.get(action.partId)?.segmentId
 					const name = interpollateTranslation(action.display.label.key, action.display.label.args)
@@ -114,7 +85,7 @@ export class AdLibsTopic extends WebSocketTopicBase implements WebSocketTopic {
 							actionType: triggerModes,
 							tags: action.display.tags,
 							publicData: action.publicData,
-							optionsSchema: action.userDataManifest.optionsSchema,
+							optionsSchema: unprotectJsonBlob(action.userDataManifest.optionsSchema),
 						},
 						id: unprotectString(action._id),
 						label: name,
@@ -171,7 +142,7 @@ export class AdLibsTopic extends WebSocketTopicBase implements WebSocketTopic {
 									name: t.data,
 									label: interpollateTranslation(t.display.label.key, t.display.label.args),
 								})
-						  )
+							)
 						: []
 					const name = interpollateTranslation(action.display.label.key, action.display.label.args)
 					return literal<WithSortingMetadata<GlobalAdLibStatus>>({
@@ -183,7 +154,7 @@ export class AdLibsTopic extends WebSocketTopicBase implements WebSocketTopic {
 							actionType: triggerModes,
 							tags: action.display.tags,
 							publicData: action.publicData,
-							optionsSchema: action.userDataManifest.optionsSchema,
+							optionsSchema: unprotectJsonBlob(action.userDataManifest.optionsSchema),
 						},
 						id: unprotectString(action._id),
 						label: name,
@@ -218,13 +189,13 @@ export class AdLibsTopic extends WebSocketTopicBase implements WebSocketTopic {
 			)
 		}
 
-		const adLibsStatus: AdLibsStatus = this._activePlaylist
+		const adLibsStatus: AdLibsEvent = this._activePlaylist
 			? {
 					event: 'adLibs',
 					rundownPlaylistId: unprotectString(this._activePlaylist._id),
 					adLibs: sortContent(adLibs),
 					globalAdLibs: sortContent(globalAdLibs),
-			  }
+				}
 			: { event: 'adLibs', rundownPlaylistId: null, adLibs: [], globalAdLibs: [] }
 
 		this.sendMessage(subscribers, adLibsStatus)
@@ -291,4 +262,8 @@ export class AdLibsTopic extends WebSocketTopicBase implements WebSocketTopic {
 		this._parts = newParts
 		this.throttledSendStatusToAll()
 	}
+}
+
+function unprotectJsonBlob(blob: JSONBlob<any> | undefined): string | undefined {
+	return blob as string | undefined
 }

@@ -1,5 +1,5 @@
 export const WebAppMock = {
-	rawHandlers: {
+	rawConnectHandlers: {
 		use: (): void => {
 			// No web server to setup
 		},

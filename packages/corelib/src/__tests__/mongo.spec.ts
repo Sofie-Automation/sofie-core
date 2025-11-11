@@ -1,5 +1,5 @@
-import { protectString, ProtectedString } from '../protectedString'
-import { FindOptions, mongoFindOptions, MongoQuery, mongoWhere } from '../mongo'
+import { protectString, ProtectedString } from '../protectedString.js'
+import { FindOptions, mongoFindOptions, MongoQuery, mongoWhere } from '../mongo.js'
 
 describe('mongoFindOptions', () => {
 	const rawDocs = ['1', '2', '3', '4', '5', '6', '7'].map((s) => ({ _id: protectString(s) }))

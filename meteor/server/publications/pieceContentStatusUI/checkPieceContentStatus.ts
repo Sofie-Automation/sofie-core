@@ -48,6 +48,7 @@ import {
 import { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
 import { PieceContentStatusMessageFactory, PieceContentStatusMessageRequiredArgs } from './messageFactory'
 import { PackageStatusMessage } from '@sofie-automation/shared-lib/dist/packageStatusMessages'
+import { BucketAdLib } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibPiece'
 
 const DEFAULT_MESSAGE_FACTORY = new PieceContentStatusMessageFactory(undefined)
 
@@ -192,8 +193,15 @@ export function getMediaObjectMediaId(
 	return undefined
 }
 
-export type PieceContentStatusPiece = Pick<PieceGeneric, '_id' | 'content' | 'expectedPackages' | 'name'> & {
+export type PieceContentStatusPiece = Pick<
+	PieceGeneric | BucketAdLib,
+	'_id' | 'content' | 'expectedPackages' | 'name'
+> & {
 	pieceInstanceId?: PieceInstanceId
+	/**
+	 * If this is an infinite continuation, check the previous PieceInstance to fill the gap when package-manager has not processed an adlibbed part
+	 */
+	previousPieceInstanceId?: PieceInstanceId
 }
 export interface PieceContentStatusStudio
 	extends Pick<DBStudio, '_id' | 'previewContainerIds' | 'thumbnailContainerIds'> {
@@ -219,6 +227,27 @@ export async function checkPieceContentStatusAndDependencies(
 		mediaObjects: [],
 		packageInfos: [],
 		packageContainerPackageStatuses: [],
+	}
+
+	if (studio.settings.mockPieceContentStatus) {
+		return [
+			{
+				status: PieceStatusCode.OK,
+				messages: [],
+				progress: undefined,
+
+				freezes: [],
+				blacks: [],
+				scenes: [],
+
+				thumbnailUrl: undefined,
+				previewUrl: '/dev/fakePreview.mp4',
+
+				packageName: null,
+				contentDuration: 30 * 1000,
+			},
+			pieceDependencies,
+		]
 	}
 
 	const ignoreMediaStatus = piece.content && piece.content.ignoreMediaObjectStatus
@@ -631,6 +660,33 @@ async function checkPieceContentExpectedPackageStatus(
 				if (piece.pieceInstanceId) {
 					// If this is a PieceInstance, try looking up the PieceInstance first
 					expectedPackageIds.unshift(getExpectedPackageId(piece.pieceInstanceId, expectedPackage._id))
+
+					if (piece.previousPieceInstanceId) {
+						// Also try the previous PieceInstance, when this is an infinite continuation in case package-manager needs to catchup
+						expectedPackageIds.unshift(
+							getExpectedPackageId(piece.previousPieceInstanceId, expectedPackage._id)
+						)
+					}
+				}
+
+				const fileName = getExpectedPackageFileName(expectedPackage) ?? ''
+
+				// Check if any of the sources exist and are valid
+				// Future: This might be better to do by passing packageManager an 'forcedError' property in the publication, but this direct check is simpler and enough for now
+				const hasValidSources =
+					expectedPackage.sources &&
+					(expectedPackage.sources.length === 0 ||
+						!expectedPackage.sources.find((source) => !studio.packageContainers[source.containerId]))
+				if (!hasValidSources) {
+					// The expected package has no valid sources
+
+					pushOrMergeMessage({
+						status: PieceStatusCode.SOURCE_MISSING,
+						message: PackageStatusMessage.FILE_MISSING_SOURCE_CONTAINERS,
+						fileName: fileName,
+						packageContainers: expectedPackage.sources.map((s) => s.containerId), // Ideally this would be labels, but the containers are missing
+					})
+					continue
 				}
 
 				let warningMessage: ContentMessageLight | null = null
@@ -676,7 +732,6 @@ async function checkPieceContentExpectedPackageStatus(
 					break
 				}
 
-				const fileName = getExpectedPackageFileName(expectedPackage) ?? ''
 				const containerLabel = matchedPackageContainer[1].container.label
 
 				if (!matchedExpectedPackageId || warningMessage) {

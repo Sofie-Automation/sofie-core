@@ -20,8 +20,8 @@ import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { DEFAULT_MINIMUM_TAKE_SPAN } from '@sofie-automation/shared-lib/dist/core/constants'
-import { getRundownId } from '../ingest/lib'
-import { getCurrentTime } from '../lib'
+import { getRundownId } from '../ingest/lib.js'
+import { getCurrentTime } from '../lib/index.js'
 
 export function defaultRundownPlaylist(_id: RundownPlaylistId, studioId: StudioId): DBRundownPlaylist {
 	return {
@@ -86,10 +86,10 @@ export function defaultRundown(
 					type: 'nrcs',
 					peripheralDeviceId: ingestDeviceId,
 					nrcsName: 'mock',
-			  }
+				}
 			: {
 					type: 'http',
-			  },
+				},
 	}
 }
 

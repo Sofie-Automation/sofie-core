@@ -1,4 +1,4 @@
-import type { RundownId } from '../core/model/Ids'
+import type { RundownId } from '../core/model/Ids.js'
 
 export interface IngestRundownStatus {
 	_id: RundownId

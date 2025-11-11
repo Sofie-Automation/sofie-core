@@ -41,7 +41,6 @@ export async function waitUntil(expectFcn: () => void | Promise<void>, maxWaitTi
 	const iterateInterval = maxWaitTime < 100 ? 10 : 100
 
 	const startTime = Date.now()
-	// eslint-disable-next-line no-constant-condition
 	while (true) {
 		await waitTime(iterateInterval)
 		try {

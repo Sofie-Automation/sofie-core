@@ -1,5 +1,5 @@
-import { protectString } from '../../../lib/tempLib'
-import { isRundownDragObject, isRundownPlaylistUiAction, RundownPlaylistUiActionTypes } from '../DragAndDropTypes'
+import { protectString } from '../../../lib/tempLib.js'
+import { isRundownDragObject, isRundownPlaylistUiAction, RundownPlaylistUiActionTypes } from '../DragAndDropTypes.js'
 
 describe('ui/RundownList/DragAndDropTypes', () => {
 	describe('isRundownDragObject', () => {

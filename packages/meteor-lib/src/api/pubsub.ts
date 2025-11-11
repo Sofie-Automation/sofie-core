@@ -10,22 +10,20 @@ import {
 	StudioId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
-import { ICoreSystem } from '../collections/CoreSystem'
-import { Evaluation } from '../collections/Evaluations'
+import { ICoreSystem } from '../collections/CoreSystem.js'
+import { Evaluation } from '../collections/Evaluations.js'
 import { ExpectedPlayoutItem } from '@sofie-automation/corelib/dist/dataModel/ExpectedPlayoutItem'
-import { MediaWorkFlow } from '@sofie-automation/shared-lib/dist/core/model/MediaWorkFlows'
-import { MediaWorkFlowStep } from '@sofie-automation/shared-lib/dist/core/model/MediaWorkFlowSteps'
-import { DBOrganization } from '../collections/Organization'
-import { RundownLayoutBase } from '../collections/RundownLayouts'
-import { SnapshotItem } from '../collections/Snapshots'
-import { TranslationsBundle } from '../collections/TranslationsBundles'
-import { DBTriggeredActions, UITriggeredActionsObj } from '../collections/TriggeredActions'
-import { UserActionsLogItem } from '../collections/UserActionsLog'
-import { UIBucketContentStatus, UISegmentPartNote } from './rundownNotifications'
-import { UIShowStyleBase } from './showStyles'
-import { UIStudio } from './studios'
-import { UIDeviceTriggerPreview } from './MountedTriggers'
-import { UIBlueprintUpgradeStatus } from './upgradeStatus'
+import { DBOrganization } from '../collections/Organization.js'
+import { RundownLayoutBase } from '../collections/RundownLayouts.js'
+import { SnapshotItem } from '../collections/Snapshots.js'
+import { TranslationsBundle } from '../collections/TranslationsBundles.js'
+import { DBTriggeredActions, UITriggeredActionsObj } from '../collections/TriggeredActions.js'
+import { UserActionsLogItem } from '../collections/UserActionsLog.js'
+import { UIBucketContentStatus, UISegmentPartNote } from './rundownNotifications.js'
+import { UIShowStyleBase } from './showStyles.js'
+import { UIStudio } from './studios.js'
+import { UIDeviceTriggerPreview } from './MountedTriggers.js'
+import { UIBlueprintUpgradeStatus } from './upgradeStatus.js'
 import {
 	PeripheralDevicePubSub,
 	PeripheralDevicePubSubTypes,
@@ -35,7 +33,7 @@ import {
 import { CorelibPubSub, CorelibPubSubCollections, CorelibPubSubTypes } from '@sofie-automation/corelib/dist/pubsub'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { PartInstance } from '../collections/PartInstances'
+import { PartInstance } from '../collections/PartInstances.js'
 import type { DBNotificationObj } from '@sofie-automation/corelib/dist/dataModel/Notifications'
 
 /**
@@ -76,16 +74,6 @@ export enum MeteorPubSub {
 	 * Fetch all User Action Log entries for the specified time range
 	 */
 	userActionsLog = 'userActionsLog',
-	/**
-	 * Fetch all MediaManager workflows in the system
-	 * @deprecated
-	 */
-	mediaWorkFlows = 'mediaWorkFlows',
-	/**
-	 * Fetch all MediaManager workflow steps in the system
-	 * @deprecated
-	 */
-	mediaWorkFlowSteps = 'mediaWorkFlowSteps',
 	/**
 	 * Fetch either all RundownLayouts or limited to the specified ShowStyleBases
 	 */
@@ -197,10 +185,6 @@ export interface MeteorPubSubTypes {
 	) => CollectionName.TriggeredActions
 	[MeteorPubSub.snapshots]: (token?: string) => CollectionName.Snapshots
 	[MeteorPubSub.userActionsLog]: (dateFrom: number, dateTo: number, token?: string) => CollectionName.UserActionsLog
-	/** @deprecated */
-	[MeteorPubSub.mediaWorkFlows]: (token?: string) => CollectionName.MediaWorkFlows
-	/** @deprecated */
-	[MeteorPubSub.mediaWorkFlowSteps]: (token?: string) => CollectionName.MediaWorkFlowSteps
 	[MeteorPubSub.rundownLayouts]: (
 		/** ShowStyleBaseIds to fetch for, or null to fetch all */
 		showStyleBaseIds: ShowStyleBaseId[] | null,
@@ -286,9 +270,6 @@ export type MeteorPubSubCollections = {
 	[CollectionName.TranslationsBundles]: TranslationsBundle
 	[CollectionName.ExpectedPlayoutItems]: ExpectedPlayoutItem
 	[CollectionName.Notifications]: DBNotificationObj
-
-	[CollectionName.MediaWorkFlows]: MediaWorkFlow
-	[CollectionName.MediaWorkFlowSteps]: MediaWorkFlowStep
 } & MeteorPubSubCustomCollections
 
 export type MeteorPubSubCustomCollections = {

@@ -97,7 +97,7 @@ export async function ObserveChangesHelper<DBInterface extends { _id: ProtectedS
 				}
 			},
 		},
-		{ fields: projection }
+		{ projection }
 	)
 
 	if (!skipEnsureUpdatedOnStart) {

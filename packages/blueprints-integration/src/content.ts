@@ -1,7 +1,8 @@
 import { JSONBlob } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
-import { Time } from './common'
-import { TSR, TimelineObjectCoreExt } from './timeline'
+import { Time } from './common.js'
+import { TSR, TimelineObjectCoreExt } from './timeline.js'
 import { SourceLayerType } from '@sofie-automation/shared-lib/dist/core/model/ShowStyle'
+import { PopupPreview } from './previews.js'
 
 export type WithTimeline<T extends BaseContent> = T & {
 	timelineObjects: TimelineObjectCoreExt<TSR.TSRTimelineContent>[]
@@ -19,9 +20,14 @@ export interface BaseContent {
 	ignoreBlackFrames?: boolean
 	ignoreFreezeFrame?: boolean
 	ignoreAudioFormat?: boolean
+
+	/**
+	 * Overwrite any default hover previews in Sofie
+	 */
+	popUpPreview?: PopupPreview
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface BaseEditableParameters {}
 
 export interface VTEditableParameters extends BaseEditableParameters {
@@ -37,12 +43,15 @@ export type SomeContent =
 	| ScriptContent
 	| NoraContent
 	| SplitsContent
+	// eslint-disable-next-line @typescript-eslint/no-duplicate-type-constituents
 	| LiveSpeakContent
 	| TransitionContent
 	| GraphicsContent
 	| UnknownContent
 	| EvsContent
+	// eslint-disable-next-line @typescript-eslint/no-duplicate-type-constituents
 	| RemoteSpeakContent
+	// eslint-disable-next-line @typescript-eslint/no-duplicate-type-constituents
 	| LightingContent
 
 export type UnknownContent = BaseContent
@@ -50,9 +59,6 @@ export type UnknownContent = BaseContent
 export interface VTContent extends BaseContent {
 	fileName: string
 	path: string
-	/** Frame that media manager should grab for thumbnail preview */
-	previewFrame?: number
-	mediaFlowIds?: string[]
 	seek?: number
 	/** Duration of extra content past sourceDuration. Not planned to play back but present on the media and playable. */
 	postrollDuration?: number
@@ -66,7 +72,6 @@ export interface VTContent extends BaseContent {
 export interface GraphicsContent extends BaseContent {
 	fileName: string
 	path: string
-	mediaFlowIds?: string[]
 	thumbnail?: string
 	templateData?: Record<string, any>
 }

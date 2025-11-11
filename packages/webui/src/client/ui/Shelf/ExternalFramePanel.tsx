@@ -1,46 +1,46 @@
 import * as React from 'react'
 import { Meteor } from 'meteor/meteor'
-import * as _ from 'underscore'
+import _ from 'underscore'
 import ClassNames from 'classnames'
 import {
 	RundownLayoutExternalFrame,
 	RundownLayoutBase,
 	DashboardLayoutExternalFrame,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import { RundownLayoutsAPI } from '../../lib/rundownLayouts'
-import { dashboardElementStyle } from './DashboardPanel'
-import { assertNever, getRandomString, literal, protectString } from '../../lib/tempLib'
+import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
+import { dashboardElementStyle } from './DashboardPanel.js'
+import { assertNever, getRandomString, literal, protectString } from '../../lib/tempLib.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { PartInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
-import { parseMosPluginMessageXml, MosPluginMessage } from '../../lib/parsers/mos/mosXml2Js'
+import { parseMosPluginMessageXml, MosPluginMessage } from '../../lib/parsers/mos/mosXml2Js.js'
 import {
 	createMosAppInfoXmlString,
 	UIMetric as MOSUIMetric,
 	UIMetricMode as MOSUIMetricMode,
 	Events as MOSEvents,
-} from '../../lib/data/mos/plugin-support'
-import { doUserAction, UserAction } from '../../lib/clientUserAction'
+} from '../../lib/data/mos/plugin-support.js'
+import { doUserAction, UserAction } from '../../lib/clientUserAction.js'
 import { withTranslation } from 'react-i18next'
-import { Translated } from '../../lib/ReactMeteorData/ReactMeteorData'
+import { Translated } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import {
 	DefaultUserOperationImportMOSItem,
 	DefaultUserOperationsTypes,
 	IngestAdlib,
 	UserEditingType,
 } from '@sofie-automation/blueprints-integration'
-import { MeteorCall } from '../../lib/meteorApi'
-import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { Buckets, Rundowns, Segments } from '../../collections'
+import { MeteorCall } from '../../lib/meteorApi.js'
+import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown.js'
+import { Buckets, Rundowns, Segments } from '../../collections/index.js'
 import { BucketId, PartInstanceId, RundownId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { MOS_DATA_IS_STRICT } from '@sofie-automation/meteor-lib/dist/mos'
 import { mosTypes, MOS } from '@sofie-automation/meteor-lib/dist/mos'
-import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil'
-import { logger } from '../../lib/logging'
+import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil.js'
+import { logger } from '../../lib/logging.js'
 import RundownViewEventBus, {
 	ItemDroppedEvent,
 	RundownViewEvents,
 } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
-import { UIPartInstances, UIParts } from '../Collections'
+import { UIPartInstances, UIParts } from '../Collections.js'
 
 interface IProps {
 	layout: RundownLayoutBase
@@ -113,7 +113,9 @@ export const ExternalFramePanel = withTranslation()(
 
 		awaitingReply: {
 			[key: string]: {
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 				resolve: Function
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 				reject: Function
 			}
 		} = {}
@@ -331,8 +333,8 @@ export const ExternalFramePanel = withTranslation()(
 			const name = mosItem.Slug
 				? mosTypes.mosString128.stringify(mosItem.Slug)
 				: mosItem.ObjectSlug
-				? mosTypes.mosString128.stringify(mosItem.ObjectSlug)
-				: ''
+					? mosTypes.mosString128.stringify(mosItem.ObjectSlug)
+					: ''
 
 			doUserAction(t, e, UserAction.INGEST_BUCKET_ADLIB, (e, ts) =>
 				MeteorCall.userAction.bucketAdlibImport(
@@ -656,8 +658,8 @@ export const ExternalFramePanel = withTranslation()(
 					const name = mosItem.Slug
 						? mosTypes.mosString128.stringify(mosItem.Slug)
 						: mosItem.ObjectSlug
-						? mosTypes.mosString128.stringify(mosItem.ObjectSlug)
-						: ''
+							? mosTypes.mosString128.stringify(mosItem.ObjectSlug)
+							: ''
 
 					return MeteorCall.userAction.bucketAdlibImport(
 						e,

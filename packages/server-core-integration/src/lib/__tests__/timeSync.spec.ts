@@ -1,4 +1,4 @@
-import { TimeSync } from '../timeSync'
+import { TimeSync } from '../timeSync.js'
 
 test('timeSync', async () => {
 	const serverDiff = -5000

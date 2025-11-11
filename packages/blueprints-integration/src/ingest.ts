@@ -1,7 +1,7 @@
 import { IngestPart, IngestSegment } from '@sofie-automation/shared-lib/dist/peripheralDevice/ingest'
-import { IBlueprintRundownDBData } from './documents'
+import { IBlueprintRundownDBData } from './documents/index.js'
 import { ReadonlyDeep } from 'type-fest'
-import { SofieIngestRundown } from './ingest-types'
+import { SofieIngestRundown } from './ingest-types.js'
 
 export {
 	IngestPart,
@@ -443,7 +443,7 @@ export type TransformPayloadFunction<T> = (payload: any, oldPayload: ReadonlyDee
 export interface IngestDefaultChangesOptions<
 	TRundownPayload = unknown,
 	TSegmentPayload = unknown,
-	TPartPayload = unknown
+	TPartPayload = unknown,
 > {
 	/**
 	 * A custom transform for the payload of a Rundown.

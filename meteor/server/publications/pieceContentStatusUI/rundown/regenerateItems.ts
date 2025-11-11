@@ -166,6 +166,18 @@ export async function regenerateForPieceInstanceIds(
 			const sourceLayer =
 				pieceDoc.piece.sourceLayerId && sourceLayersForRundown?.sourceLayers?.[pieceDoc.piece.sourceLayerId]
 
+			let previousPieceInstanceId: PieceInstanceId | undefined
+			if (pieceDoc.infinite) {
+				// Note: this is a temporary solution, until single packages can be owned by multiple PieceInstances
+				// This shouldn't need to be reactive upon this PieceInstance, as this is filling a brief gap until package-manager catches up.
+				// That assumption could be wrong, but trying to track this dependency will be messy so would be nice to avoid.
+				const previousPieceInstance = contentCache.PieceInstances.findOne({
+					'infinite.infiniteInstanceId': pieceDoc.infinite.infiniteInstanceId,
+					'infinite.infiniteInstanceIndex': pieceDoc.infinite.infiniteInstanceIndex - 1,
+				})
+				previousPieceInstanceId = previousPieceInstance?._id
+			}
+
 			if (partInstance && segment && sourceLayer) {
 				const [status, dependencies] = await checkPieceContentStatusAndDependencies(
 					uiStudio,
@@ -173,6 +185,7 @@ export async function regenerateForPieceInstanceIds(
 					{
 						...pieceDoc.piece,
 						pieceInstanceId: pieceDoc._id,
+						previousPieceInstanceId,
 					},
 					sourceLayer
 				)

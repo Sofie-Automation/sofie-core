@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/only-throw-error */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import * as _ from 'underscore'
+import _ from 'underscore'
 import { literal, ProtectedString, unprotectString, protectString, getRandomString } from '../server/lib/tempLib'
 import { RandomMock } from './random'
 import { MeteorMock } from './meteor'
@@ -22,7 +23,7 @@ import type {
 	MinimalMeteorMongoCollection,
 	MinimalMongoCursor,
 } from '../server/collections/implementations/asyncCollection'
-const clone = require('fast-clone')
+import clone from 'fast-clone'
 
 export namespace MongoMock {
 	interface ObserverEntry<T extends CollectionObject> {

@@ -4,16 +4,16 @@ import {
 	RundownLayoutBase,
 	RundownLayoutEndWords,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import { RundownLayoutsAPI } from '../../lib/rundownLayouts'
-import { dashboardElementStyle } from './DashboardPanel'
-import { useTracker } from '../../lib/ReactMeteorData/ReactMeteorData'
+import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
+import { dashboardElementStyle } from './DashboardPanel.js'
+import { useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { ScriptContent } from '@sofie-automation/blueprints-integration'
-import { getUnfinishedPieceInstancesReactive } from '../../lib/rundownLayouts'
-import { getScriptPreview } from '../../lib/ui/scriptPreview'
+import { getUnfinishedPieceInstancesReactive } from '../../lib/rundownLayouts.js'
+import { getScriptPreview } from '../../lib/ui/scriptPreview.js'
 import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
-import { PieceInstances } from '../../collections'
+import { PieceInstances } from '../../collections/index.js'
 import { ReadonlyDeep } from 'type-fest'
 import { useTranslation } from 'react-i18next'
 
@@ -89,7 +89,7 @@ function getPieceWithScript(
 		? PieceInstances.find({
 				partInstanceId: currentPartInstanceId,
 				playlistActivationId: playlist.activationId,
-		  }).fetch()
+			}).fetch()
 		: []
 
 	return panel.requiredLayerIds && panel.requiredLayerIds.length
@@ -98,6 +98,6 @@ function getPieceWithScript(
 					(panel.requiredLayerIds || []).indexOf(piece.piece.sourceLayerId) !== -1 &&
 					piece.partInstanceId === playlist.currentPartInfo?.partInstanceId
 				)
-		  })
+			})
 		: undefined
 }

@@ -1,9 +1,9 @@
-import * as _ from 'underscore'
+import _ from 'underscore'
 import { ISettings, DEFAULT_SETTINGS } from '@sofie-automation/meteor-lib/dist/Settings'
 
 /**
  * This is an object specifying installation-wide, User Interface settings.
- * There are default values for these settings that will be used, unless overriden
+ * There are default values for these settings that will be used, unless overridden
  * through Meteor.settings functionality.
  *
  * You can use METEOR_SETTING to inject the settings JSON or you can use the
