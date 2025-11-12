@@ -32,7 +32,7 @@ export function transformPartIntoTimeline(
 ): Array<TimelineObjRundown & OnGenerateTimelineObjExt> {
 	const span = context.startSpan('transformPartIntoTimeline')
 
-	const nowInParentGroup = partInfo.nowInPart
+	const nowInParentGroup = partInfo.partTimes.nowInPart
 	const partTimings = partInfo.calculatedTimings
 	const outTransition = partInfo.partInstance.part.outTransition ?? null
 

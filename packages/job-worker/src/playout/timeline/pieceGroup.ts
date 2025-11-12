@@ -137,7 +137,7 @@ export function createPieceGroupAndCap(
 	// If the start has been adjusted, the end needs to be updated to compensate
 	if (typeof pieceInstance.resolvedEndCap === 'number') {
 		resolvedEndCap = pieceInstance.resolvedEndCap + (pieceStartOffset ?? 0)
-	} else if (pieceInstance.resolvedEndCap) {
+	} else if (pieceInstance.resolvedEndCap || controlObj.enable.end === 'now') {
 		// TODO - there could already be a piece with a cap of 'now' that we could use as our end time
 		// As the cap is for 'now', rather than try to get tsr to understand `end: 'now'`, we can create a 'now' object to tranlate it
 		const nowObj = literal<TimelineObjRundown & OnGenerateTimelineObjExt<PieceTimelineMetadata>>({
@@ -157,7 +157,13 @@ export function createPieceGroupAndCap(
 			priority: 0,
 		})
 		capObjs.push(nowObj)
-		resolvedEndCap = `#${nowObj.id}.start + ${pieceInstance.resolvedEndCap.offsetFromNow}`
+
+		resolvedEndCap = `#${nowObj.id}.start + ${pieceInstance.resolvedEndCap?.offsetFromNow ?? 0}`
+
+		// If the object has an end of now, we can remove it as it will be replaced by the `resolvedEndCap`
+		if (controlObj.enable.end === 'now') {
+			delete controlObj.enable.end
+		}
 	}
 
 	if (controlObj.enable.duration !== undefined || controlObj.enable.end !== undefined) {

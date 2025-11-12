@@ -8,6 +8,7 @@ import { PlayoutPartInstanceModel } from './model/PlayoutPartInstanceModel.js'
 import { PlayoutSegmentModel } from './model/PlayoutSegmentModel.js'
 import {
 	fetchPiecesThatMayBeActiveForPart,
+	getBaselineInfinitesForPart,
 	getPieceInstancesForPart,
 	syncPlayheadInfinitesForNextPartInstance,
 } from './infinites.js'
@@ -283,7 +284,13 @@ async function prepareExistingPartInstanceForBeingNexted(
 	playoutModel: PlayoutModel,
 	instance: PlayoutPartInstanceModel
 ): Promise<PlayoutPartInstanceModel> {
-	await syncPlayheadInfinitesForNextPartInstance(context, playoutModel, playoutModel.currentPartInstance, instance)
+	await syncPlayheadInfinitesForNextPartInstance(
+		context,
+		playoutModel,
+		undefined, // Any ingest model must have been fully written before we get here
+		playoutModel.currentPartInstance,
+		instance
+	)
 
 	return instance
 }
@@ -297,6 +304,8 @@ async function preparePartInstanceForPartBeingNexted(
 	const rundown = playoutModel.getRundown(nextPart.rundownId)
 	if (!rundown) throw new Error(`Could not find rundown ${nextPart.rundownId}`)
 
+	const partInstanceId = protectString('') // Replaced inside playoutModel.createInstanceForPart
+
 	const possiblePieces = await fetchPiecesThatMayBeActiveForPart(context, playoutModel, undefined, nextPart)
 	const newPieceInstances = getPieceInstancesForPart(
 		context,
@@ -305,8 +314,20 @@ async function preparePartInstanceForPartBeingNexted(
 		rundown,
 		nextPart,
 		possiblePieces,
-		protectString('') // Replaced inside playoutModel.createInstanceForPart
+		partInstanceId
 	)
+
+	if (currentPartInstance === null) {
+		// This is the first take of the rundown, ensure the baseline infinites are loaded
+		const baselineInfinites = await getBaselineInfinitesForPart(
+			context,
+			playoutModel,
+			undefined, // Any ingest model must have been fully written before we get here
+			nextPart,
+			partInstanceId
+		)
+		newPieceInstances.push(...baselineInfinites)
+	}
 
 	return playoutModel.createInstanceForPart(nextPart, newPieceInstances)
 }

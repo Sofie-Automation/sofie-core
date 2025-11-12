@@ -206,6 +206,7 @@ export function getPlayheadTrackingInfinitesForPart(
 						case PieceLifespan.OutOnSegmentEnd:
 							isValid =
 								currentPartInstance.segmentId === intoPart.segmentId &&
+								!!candidatePiece.piece.startPartId &&
 								partsToReceiveOnSegmentEndFromSet.has(candidatePiece.piece.startPartId)
 							break
 						case PieceLifespan.OutOnRundownEnd:
@@ -243,13 +244,16 @@ export function getPlayheadTrackingInfinitesForPart(
 			markPieceInstanceAsContinuation(p, instance)
 
 			if (p.infinite) {
-				// This was copied from before, so we know we can force the time to 0
-				instance.piece = {
-					...instance.piece,
-					enable: {
-						start: 0,
-					},
+				if (!instance.piece.enable.isAbsolute) {
+					// This was copied from before, so we know we can force the time to 0
+					instance.piece = {
+						...instance.piece,
+						enable: {
+							start: 0,
+						},
+					}
 				}
+
 				instance.infinite = {
 					...p.infinite,
 					infiniteInstanceIndex: p.infinite.infiniteInstanceIndex + 1,
@@ -299,11 +303,16 @@ export function isPiecePotentiallyActiveInPart(
 			return false
 		case PieceLifespan.OutOnSegmentEnd:
 			return (
+				!!pieceToCheck.startPartId &&
 				pieceToCheck.startSegmentId === part.segmentId &&
 				partsToReceiveOnSegmentEndFrom.has(pieceToCheck.startPartId)
 			)
 		case PieceLifespan.OutOnRundownEnd:
-			if (pieceToCheck.startRundownId === part.rundownId) {
+			if (
+				pieceToCheck.startRundownId === part.rundownId &&
+				pieceToCheck.startPartId &&
+				pieceToCheck.startSegmentId
+			) {
 				if (pieceToCheck.startSegmentId === part.segmentId) {
 					return partsToReceiveOnSegmentEndFrom.has(pieceToCheck.startPartId)
 				} else {
@@ -320,6 +329,7 @@ export function isPiecePotentiallyActiveInPart(
 			} else {
 				// Predicting what will happen at arbitrary point in the future
 				return (
+					!!pieceToCheck.startPartId &&
 					pieceToCheck.startSegmentId === part.segmentId &&
 					partsToReceiveOnSegmentEndFrom.has(pieceToCheck.startPartId)
 				)
@@ -332,6 +342,7 @@ export function isPiecePotentiallyActiveInPart(
 			} else {
 				// Predicting what will happen at arbitrary point in the future
 				return (
+					!!pieceToCheck.startSegmentId &&
 					pieceToCheck.startRundownId === part.rundownId &&
 					segmentsToReceiveOnRundownEndFrom.has(pieceToCheck.startSegmentId)
 				)
@@ -395,8 +406,8 @@ export function getPieceInstancesForPart(
 		if (pieceA.startPartId === pieceB.startPartId) {
 			return pieceA.enable.start < pieceB.enable.start
 		}
-		const pieceAIndex = orderedPartIds.indexOf(pieceA.startPartId)
-		const pieceBIndex = orderedPartIds.indexOf(pieceB.startPartId)
+		const pieceAIndex = pieceA.startPartId === null ? -2 : orderedPartIds.indexOf(pieceA.startPartId)
+		const pieceBIndex = pieceB.startPartId === null ? -2 : orderedPartIds.indexOf(pieceB.startPartId)
 
 		if (pieceAIndex === -1) {
 			return false
@@ -535,6 +546,16 @@ export function isCandidateMoreImportant(
 	best: ReadonlyDeep<PieceInstance>,
 	candidate: ReadonlyDeep<PieceInstance>
 ): boolean | undefined {
+	// If one is absolute timed, prefer that
+	if (best.piece.enable.isAbsolute && !candidate.piece.enable.isAbsolute) {
+		// Prefer the absolute best
+		return false
+	}
+	if (!best.piece.enable.isAbsolute && candidate.piece.enable.isAbsolute) {
+		// Prefer the absolute candidate
+		return true
+	}
+
 	// Prioritise the one from this part over previous part
 	if (best.infinite?.fromPreviousPart && !candidate.infinite?.fromPreviousPart) {
 		// Prefer the candidate as it is not from previous

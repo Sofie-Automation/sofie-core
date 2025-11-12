@@ -23,24 +23,19 @@ export function onPiecePlaybackStarted(
 ): void {
 	const playlist = playoutModel.playlist
 
+	if (!playlist.activationId) {
+		logger.warn(`onPiecePlaybackStarted: Received for inactive RundownPlaylist "${playlist._id}"`)
+		return
+	}
+
 	const partInstance = playoutModel.getPartInstance(data.partInstanceId)
 	if (!partInstance) {
-		if (!playlist.activationId) {
-			logger.warn(`onPiecePlaybackStarted: Received for inactive RundownPlaylist "${playlist._id}"`)
-		} else {
-			throw new Error(`PartInstance "${data.partInstanceId}" in RundownPlaylist "${playlist._id}" not found!`)
-		}
-		return
+		throw new Error(`PartInstance "${data.partInstanceId}" in RundownPlaylist "${playlist._id}" not found!`)
 	}
 
 	const pieceInstance = partInstance.getPieceInstance(data.pieceInstanceId)
 	if (!pieceInstance) {
-		if (!playlist.activationId) {
-			logger.warn(`onPiecePlaybackStarted: Received for inactive RundownPlaylist "${playlist._id}"`)
-		} else {
-			throw new Error(`PieceInstance "${data.partInstanceId}" in RundownPlaylist "${playlist._id}" not found!`)
-		}
-		return
+		throw new Error(`PieceInstance "${data.partInstanceId}" in RundownPlaylist "${playlist._id}" not found!`)
 	}
 
 	const isPlaying = !!(
@@ -75,6 +70,11 @@ export function onPiecePlaybackStopped(
 ): void {
 	const playlist = playoutModel.playlist
 
+	if (!playlist.activationId) {
+		logger.warn(`onPiecePlaybackStopped: Received for inactive RundownPlaylist "${playlist._id}"`)
+		return
+	}
+
 	const partInstance = playoutModel.getPartInstance(data.partInstanceId)
 	if (!partInstance) {
 		// PartInstance not found, so we can rely on the onPartPlaybackStopped callback erroring
@@ -83,12 +83,7 @@ export function onPiecePlaybackStopped(
 
 	const pieceInstance = partInstance.getPieceInstance(data.pieceInstanceId)
 	if (!pieceInstance) {
-		if (!playlist.activationId) {
-			logger.warn(`onPiecePlaybackStopped: Received for inactive RundownPlaylist "${playlist._id}"`)
-		} else {
-			throw new Error(`PieceInstance "${data.partInstanceId}" in RundownPlaylist "${playlist._id}" not found!`)
-		}
-		return
+		throw new Error(`PieceInstance "${data.partInstanceId}" in RundownPlaylist "${playlist._id}" not found!`)
 	}
 
 	const isPlaying = !!(
@@ -171,6 +166,8 @@ function reportPieceHasStopped(
 			pieceInstance.setPlannedStoppedPlayback(timestamp)
 		}
 
-		playoutModel.queuePartInstanceTimingEvent(pieceInstance.pieceInstance.partInstanceId)
+		if (pieceInstance.pieceInstance.partInstanceId) {
+			playoutModel.queuePartInstanceTimingEvent(pieceInstance.pieceInstance.partInstanceId)
+		}
 	}
 }
