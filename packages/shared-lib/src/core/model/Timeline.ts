@@ -105,9 +105,26 @@ export interface RoutedTimeline {
 }
 
 export enum LookaheadMode {
+	// System documentation for lookaheads: https://sofie-automation.github.io/sofie-core/docs/for-developers/for-blueprint-developers/lookahead
+
+	/**
+	 * Disable lookahead for this layer
+	 */
 	NONE = 0,
+
+	/**
+	 * Preload content with a secondary layer.
+	 * This requires support from the TSR device, to allow for preloading on a resource at the same time as it being on air.
+	 * For example, this allows for your TimelineObjects to control the foreground of a CasparCG layer, with lookahead controlling the background of the same layer.
+	 */
 	PRELOAD = 1,
+
 	// RETAIN = 2, // Removed due to complexity and it being possible to emulate with WHEN_CLEAR and infinites
+
+	/**
+	 * Fill the gaps between the planned objects on a layer.
+	 * This is the primary lookahead mode, and appears to TSR devices as a single layer of simple objects.
+	 */
 	WHEN_CLEAR = 3,
 }
 

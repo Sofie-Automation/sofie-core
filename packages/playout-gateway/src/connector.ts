@@ -6,6 +6,10 @@ import {
 	CertificatesConfig,
 	PeripheralDeviceId,
 	loadCertificatesFromDisk,
+	stringifyError,
+	HealthConfig,
+	HealthEndpoints,
+	IConnector,
 } from '@sofie-automation/server-core-integration'
 
 export interface Config {
@@ -14,13 +18,17 @@ export interface Config {
 	core: CoreConfig
 	tsr: TSRConfig
 	influx: InfluxConfig
+	health: HealthConfig
 }
 
 export interface DeviceConfig {
 	deviceId: PeripheralDeviceId
 	deviceToken: string
 }
-export class Connector {
+export class Connector implements IConnector {
+	public initialized = false
+	public initializedError: string | undefined = undefined
+
 	private tsrHandler: TSRHandler | undefined
 	private coreHandler: CoreHandler | undefined
 	private _logger: Logger
@@ -38,6 +46,8 @@ export class Connector {
 
 			this._logger.info('Initializing Core...')
 			this.coreHandler = new CoreHandler(this._logger, config.device)
+			new HealthEndpoints(this, this.coreHandler, config.health)
+
 			await this.coreHandler.init(config.core, this._certificates)
 			this._logger.info('Core initialized')
 
@@ -47,11 +57,14 @@ export class Connector {
 			this._logger.info('TSR initialized')
 
 			this._logger.info('Initialization done')
+			this.initialized = true
 			return
 		} catch (e: any) {
 			this._logger.error('Error during initialization:')
 			this._logger.error(e)
 			this._logger.error(e.stack)
+
+			this.initializedError = stringifyError(e)
 
 			try {
 				if (this.coreHandler) {

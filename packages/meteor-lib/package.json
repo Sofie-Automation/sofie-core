@@ -30,7 +30,7 @@
 		"license-validate": "run -T sofie-licensecheck"
 	},
 	"engines": {
-		"node": ">=22.13.1"
+		"node": ">=22.20.0"
 	},
 	"files": [
 		"/dist",
@@ -39,7 +39,7 @@
 		"/LICENSE"
 	],
 	"dependencies": {
-		"@mos-connection/helper": "^4.2.2",
+		"@mos-connection/helper": "^4.3.1",
 		"@sofie-automation/blueprints-integration": "1.53.0-in-development",
 		"@sofie-automation/corelib": "1.53.0-in-development",
 		"@sofie-automation/shared-lib": "1.53.0-in-development",

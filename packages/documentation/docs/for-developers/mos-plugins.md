@@ -1,10 +1,11 @@
 ---
 title: MOS-plugins
+sidebar_position: 20
 ---
 
 # iFrames MOS-plugins
 
-**The usage of MOS-plugins allow micro frontends to be injected into Sofie for the purpuse of adding content to the production without turning away from the Sofie UI.**
+**The usage of MOS-plugins allow micro frontends to be injected into Sofie for the purpose of adding content to the production without turning away from the Sofie UI.**
 
 Example use cases can be browsing and playing clips straight from a video server, or the creation of lower third graphics without storing it in the NRCS.
 
@@ -26,7 +27,7 @@ The user can create one or more Buckets. From the plugin they can drag-and-drop 
 ## Cross-origin drag-and-drop
 
 :::note Bucket workflow without drag-and-drop
-The plugin iFrame can send a `postMessage` call with an `ncsItem` payload to programatically create an ncsItem without the drag-and-drop interaction. This is a viable solution which avoids cross-origin drag-and-drop problems.
+The plugin iFrame can send a `postMessage` call with an `ncsItem` payload to programmatically create an ncsItem without the drag-and-drop interaction. This is a viable solution which avoids cross-origin drag-and-drop problems.
 :::
 
 ### The problem
@@ -60,10 +61,10 @@ As you can tell from the table, you need to exactly match both the protocol, dom
 
 _The proxy idea_ is to use rewrite-rules in a proxy server (e.g. NGINX) to serve the plugin from a path on the Sofie server's domain. As this can't be done as subdomains, that leaves the option of having a folder underneath the top level of the Sofie server's domain.
 
-An example of this would be to serve Sofie at `https://mysofie.com` and then host the plugin (directly or via a proxy) at `https://mysofie.com/myplugin`. Technically this will work, but this solution is fragile. All links within the plugin will have to be either absolute or truly relative links that take the URL structure into account. This is doable if the plugin is being developed with this in mind. But it leads to a fragile tight coupling between the plugin and the host application (Sofie) which can break with any inconsiderate udate in the future.
+An example of this would be to serve Sofie at `https://mysofie.com` and then host the plugin (directly or via a proxy) at `https://mysofie.com/myplugin`. Technically this will work, but this solution is fragile. All links within the plugin will have to be either absolute or truly relative links that take the URL structure into account. This is doable if the plugin is being developed with this in mind. But it leads to a fragile tight coupling between the plugin and the host application (Sofie) which can break with any inconsiderate update in the future.
 
 :::note Example of linking from a (potentially proxied) subfolder
-**Case:** `https://mysofie.com/myplugin/index.html` wants to acccess `https://mysofie.com/myplugin/static/images/logo.png`.
+**Case:** `https://mysofie.com/myplugin/index.html` wants to access `https://mysofie.com/myplugin/static/images/logo.png`.
 
 Normally the plugin would be developed and bundled to work standalone, resulting in a link relative to its own base path, giving `/static/images/logo.png` which here wrongly resolves to `https://mysofie.com/static/images/logo.png`.
 

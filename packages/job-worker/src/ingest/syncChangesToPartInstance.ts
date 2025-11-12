@@ -267,70 +267,86 @@ export function findInstancesToSync(
 
 	const instancesToSync: PartInstanceToSync[] = []
 	if (currentPartInstance) {
-		// If the currentPartInstance is adlibbed we probably also need to find the earliest
-		// non-adlibbed Part within this segment and check it for updates too. It may have something
-		// changed (like timing) that will affect what's going on.
-		// The previous "planned" Part Instance needs to be inserted into the `instances` first, so that
-		// it's ran first through the blueprints.
-		if (currentPartInstance.partInstance.orphaned === 'adlib-part') {
-			const partAndPartInstance = findLastUnorphanedPartInstanceInSegment(
-				playoutModel,
-				currentPartInstance.partInstance
-			)
-			if (partAndPartInstance) {
-				const lastPartRundownModel = findPlayoutRundownModel(
-					playoutRundownModel,
+		try {
+			// If the currentPartInstance is adlibbed we probably also need to find the earliest
+			// non-adlibbed Part within this segment and check it for updates too. It may have something
+			// changed (like timing) that will affect what's going on.
+			// The previous "planned" Part Instance needs to be inserted into the `instances` first, so that
+			// it's ran first through the blueprints.
+			if (currentPartInstance.partInstance.orphaned === 'adlib-part') {
+				const partAndPartInstance = findLastUnorphanedPartInstanceInSegment(
 					playoutModel,
-					partAndPartInstance.partInstance.partInstance.part.rundownId
+					currentPartInstance.partInstance
 				)
+				if (partAndPartInstance) {
+					try {
+						const lastPartRundownModel = findPlayoutRundownModel(
+							playoutRundownModel,
+							playoutModel,
+							partAndPartInstance.partInstance.partInstance.part.rundownId
+						)
 
-				insertToSyncedInstanceCandidates(
-					context,
-					instancesToSync,
-					playoutModel,
-					lastPartRundownModel,
-					ingestModel,
-					partAndPartInstance.partInstance,
-					null,
-					partAndPartInstance.part,
-					'previous'
-				)
+						insertToSyncedInstanceCandidates(
+							context,
+							instancesToSync,
+							playoutModel,
+							lastPartRundownModel,
+							ingestModel,
+							partAndPartInstance.partInstance,
+							null,
+							partAndPartInstance.part,
+							'previous'
+						)
+					} catch (err) {
+						logger.error(
+							`Failed to prepare previousPartInstance for syncChangesToPartInstances: ${stringifyError(
+								err
+							)}`
+						)
+					}
+				}
 			}
-		}
 
-		// We can now run the current Part Instance.
-		const currentPartRundownModel = findPlayoutRundownModel(
-			playoutRundownModel,
-			playoutModel,
-			currentPartInstance.partInstance.part.rundownId
-		)
-		findPartAndInsertToSyncedInstanceCandidates(
-			context,
-			instancesToSync,
-			playoutModel,
-			currentPartRundownModel,
-			ingestModel,
-			currentPartInstance,
-			previousPartInstance,
-			'current'
-		)
+			// We can now run the current Part Instance.
+			const currentPartRundownModel = findPlayoutRundownModel(
+				playoutRundownModel,
+				playoutModel,
+				currentPartInstance.partInstance.part.rundownId
+			)
+			findPartAndInsertToSyncedInstanceCandidates(
+				context,
+				instancesToSync,
+				playoutModel,
+				currentPartRundownModel,
+				ingestModel,
+				currentPartInstance,
+				previousPartInstance,
+				'current'
+			)
+		} catch (err) {
+			logger.error(`Failed to prepare currentPartInstance for syncChangesToPartInstances: ${stringifyError(err)}`)
+		}
 	}
 	if (nextPartInstance) {
-		const nextPartRundownModel = findPlayoutRundownModel(
-			playoutRundownModel,
-			playoutModel,
-			nextPartInstance.partInstance.part.rundownId
-		)
-		findPartAndInsertToSyncedInstanceCandidates(
-			context,
-			instancesToSync,
-			playoutModel,
-			nextPartRundownModel,
-			ingestModel,
-			nextPartInstance,
-			currentPartInstance,
-			currentPartInstance?.isTooCloseToAutonext(false) ? 'current' : 'next'
-		)
+		try {
+			const nextPartRundownModel = findPlayoutRundownModel(
+				playoutRundownModel,
+				playoutModel,
+				nextPartInstance.partInstance.part.rundownId
+			)
+			findPartAndInsertToSyncedInstanceCandidates(
+				context,
+				instancesToSync,
+				playoutModel,
+				nextPartRundownModel,
+				ingestModel,
+				nextPartInstance,
+				currentPartInstance,
+				currentPartInstance?.isTooCloseToAutonext(false) ? 'current' : 'next'
+			)
+		} catch (err) {
+			logger.error(`Failed to prepare nextPartInstance for syncChangesToPartInstances: ${stringifyError(err)}`)
+		}
 	}
 
 	return instancesToSync

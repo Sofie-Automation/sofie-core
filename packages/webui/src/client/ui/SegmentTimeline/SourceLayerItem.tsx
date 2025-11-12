@@ -515,7 +515,7 @@ export const SourceLayerItem = (props: Readonly<ISourceLayerItemProps>): JSX.Ele
 		return {}
 	}
 	const setAnchoredElsWidths = (leftAnchoredWidth: number, rightAnchoredWidth: number) => {
-		// anchored labels will sometimes errorneously report some width. Discard if it's marginal.
+		// anchored labels will sometimes erroneously report some width. Discard if it's marginal.
 		setLeftAnchoredWidth(leftAnchoredWidth > MARGINAL_ANCHORED_WIDTH ? leftAnchoredWidth : 0)
 		setRightAnchoredWidth(rightAnchoredWidth > MARGINAL_ANCHORED_WIDTH ? rightAnchoredWidth : 0)
 	}

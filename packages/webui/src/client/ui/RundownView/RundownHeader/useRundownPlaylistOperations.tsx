@@ -355,7 +355,7 @@ class RundownPlaylistOperationsService {
 						},
 					})
 				} else {
-					// Already in rehersal, do nothing
+					// Already in rehearsal, do nothing
 				}
 			} else {
 				// The broadcast has started
@@ -443,7 +443,7 @@ class RundownPlaylistOperationsService {
 			)
 		}
 		if (this.playlist.activationId && !this.playlist.rehearsal && !this.studio.settings.allowRundownResetOnAir) {
-			// The rundown is active and not in rehersal
+			// The rundown is active and not in rehearsal
 			doModalDialog({
 				title: 'Reset Rundown',
 				message: t('The rundown can not be reset while it is active'),

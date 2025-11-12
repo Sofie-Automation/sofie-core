@@ -31,7 +31,7 @@ export const DeviceTriggersPreviews = createSyncCustomPublicationMongoCollection
 )
 
 /**
- * Pre-generated notes to be converted into notificiations.
+ * Pre-generated notes to be converted into notifications.
  */
 export const UISegmentPartNotes = createSyncCustomPublicationMongoCollection(CustomCollectionName.UISegmentPartNotes)
 

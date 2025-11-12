@@ -7,7 +7,7 @@ At times it can be useful to manipulate this data before it gets passed into the
 
 A new method `processIngestData` was added to transform the `NRCSIngestRundown` into a `SofieIngestRundown`. The types of the two are the same, so implementing the `processIngestData` method is optional, with the default being to pass through the NRCS rundown unchanged. (There is an exception here for MOS, which is explained below).
 
-The basic implementation of this method which simply propogates nrcs changes is:
+The basic implementation of this method which simply propagates nrcs changes is:
 
 ```ts
 function processIngestData(

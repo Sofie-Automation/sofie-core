@@ -1,6 +1,8 @@
 export * from './lib/coreConnection.js'
 export * from './lib/configManifest.js'
 export * from './lib/ddpClient.js'
+export * from './lib/gateway-types.js'
+export * from './lib/health.js'
 export * from './lib/methods.js'
 export * from './lib/process.js'
 export { SubscriptionId } from './lib/subscriptions.js'

@@ -28,7 +28,7 @@
 	},
 	"prettier": "@sofie-automation/code-standard-preset/.prettierrc.json",
 	"engines": {
-		"node": ">=22.13.1"
+		"node": ">=22.20.0"
 	},
 	"files": [
 		"/api",
@@ -52,6 +52,9 @@
 		"*.{ts,tsx,js,jsx,yaml}": [
 			"yarn lint:raw"
 		]
+	},
+	"publishConfig": {
+		"access": "public"
 	},
 	"packageManager": "yarn@4.10.3"
 }

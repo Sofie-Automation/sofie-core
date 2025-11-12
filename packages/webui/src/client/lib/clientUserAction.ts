@@ -131,7 +131,7 @@ function userActionToLabel(userAction: UserAction, t: i18next.TFunction) {
 }
 
 /**
- * Handle a the experience arround a back-end method call - display a "Waiting for action" message, when the call takes
+ * Handle a the experience around a back-end method call - display a "Waiting for action" message, when the call takes
  * long to return a result/error and show an error message when the call fails.
  *
  * @export

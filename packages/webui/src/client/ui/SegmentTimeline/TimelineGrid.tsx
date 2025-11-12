@@ -230,14 +230,14 @@ export class TimelineGrid extends React.Component<ITimelineGridProps> {
 		// We want to ensure that we draw at least n+1 (where n is the amount of ticks fitting on the display)
 		// "large" ticks (one's with label), so we divide the display width by the amount of large steps (step / interStep)
 		// and then after getting the ceil of the value, multiply it back for all the inter-steps,
-		// beacuse we do the paint iteration for every line
+		// because we do the paint iteration for every line
 		const maxTicks = Math.ceil(this.width / (step * interStep)) * interStep + interStep
 
 		// We store the x-position of the 0-th line to know if a particular section is N or N+1
 		// and switch between base and baseN
 		// let breakX = 0
 
-		// Go up to (width / step) + 1, to allow for the grid line + text, dissapearing on the left
+		// Go up to (width / step) + 1, to allow for the grid line + text, disappearing on the left
 		// in effect, we are rendering +1 grid lines than there should fit inside the area
 		let i = 0
 		for (i = 0; i < maxTicks; i++) {

@@ -84,31 +84,54 @@ An example `docker-compose` of the setup is as follows:
 
 ```
 services:
+  # Fix Ownership of HTTP Server
+  # Because docker volumes are owned by root by default
+  # And our images follow best-practise and don't run as root
+  change-vol-ownerships:
+    image: node:22-alpine3.22
+    user: 'root'
+    volumes:
+      - http-server-data:/data/http-server
+    entrypoint: ['sh', '-c', 'chown -R node:node /data/http-server']
+
   http-server:
-    build:
-      context: .
-      dockerfile: sofietv/package-manager-http-server
+    image: ghcr.io/sofie-automation/sofie-package-manager-http-server:v1.52.0
     environment:
       HTTP_SERVER_BASE_PATH: '/data/http-server'
     ports:
       - '8080:8080'
     volumes:
       - http-server-data:/data/http-server
+    depends_on:
+      change-vol-ownerships:
+        condition: service_completed_successfully
 
   workforce:
-    build:
-      context: .
-      dockerfile: sofietv/package-manager-workforce
+    image: ghcr.io/sofie-automation/sofie-package-manager-workforce:v1.52.0
     ports:
       - '8070:8070' # this needs to be exposed so that the workers can connect back to it
+    # environment:
+    #   - WORKFORCE_ALLOW_NO_APP_CONTAINERS=1 # Uncomment this if your workers are in docker, to disable the check for no appContainers
+
+  # You can deploy workers in docker too, which requires some additional configuration of your containers.
+  # This does not support FILESHARE accessors, they must be explicitly mounted as volumes
+  # You will likely want to deploy more than 1 worker
+  # worker0:
+  #   image: ghcr.io/sofie-automation/sofie-package-manager-worker:v1.52.0
+  #   command:
+  #     - --logLevel=debug
+  #     - --workforceURL=ws://workforce:8070
+  #     - --costMultiplier=0.5
+  #     - --resourceId=docker
+  #     - --networkIds=networkDocker
+  #   volumes:
+  #     - ./media-source:/data/source:ro
 
   package-manager:
     depends_on:
       - http-server
       - workforce
-    build:
-      context: .
-      dockerfile: sofietv/package-manager-package-manager
+    image: ghcr.io/sofie-automation/sofie-package-manager-package-manager:v1.52.0
     environment:
       CORE_HOST: '172.18.0.1' # the address for connecting back to Sofie core from this image
       CORE_PORT: '3000'
@@ -116,7 +139,7 @@ services:
       DEVICE_TOKEN: 'some-secret'
       WORKFORCE_URL: 'ws://workforce:8070' # referencing the workforce component above
       PACKAGE_MANAGER_PORT: '8060'
-      PACKAGE_MANAGER_URL: 'ws://insert-service-ip-here:8060' # the workers connect back to this address, so it needs to be accessible from CasparCG
+      PACKAGE_MANAGER_URL: 'ws://insert-service-ip-here:8060' # the workers connect back to this address, so it needs to be accessible from the workers
       # CONCURRENCY: 10 # How many expectation states can be evaluated at the same time
     ports:
       - '8060:8060'

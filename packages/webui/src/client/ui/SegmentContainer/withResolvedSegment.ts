@@ -291,7 +291,7 @@ export function withResolvedSegment<T extends IResolvedSegmentProps, IState = {}
 			props: IResolvedSegmentProps,
 			nextProps: IResolvedSegmentProps
 		): boolean => {
-			// This is a potentailly very dangerous hook into the React component lifecycle. Re-use with caution.
+			// This is a potentially very dangerous hook into the React component lifecycle. Re-use with caution.
 			// Check obvious primitive changes
 			if (
 				props.followLiveSegments !== nextProps.followLiveSegments ||

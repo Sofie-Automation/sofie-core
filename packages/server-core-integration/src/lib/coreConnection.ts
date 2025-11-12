@@ -211,6 +211,16 @@ export class CoreConnection<
 	async createChild(coreOptions: ChildCoreOptions): Promise<CoreConnectionChild<PubSubTypes, PubSubCollections>> {
 		const child = new CoreConnectionChild<PubSubTypes, PubSubCollections>(coreOptions)
 
+		this._children.push(child)
+
+		// Set the max listeners to a higher value, so that we don't get warnings:
+		this.setMaxListeners(
+			// Base count, can be increased if needed:
+			10 +
+				// Each child adds 2 listeners:
+				this._children.length * 2
+		)
+
 		await child.init(this, this._coreOptions)
 
 		return child

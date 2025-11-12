@@ -111,7 +111,7 @@ const SIMULATION_INVALIDATION = 3000
  * @param {boolean} allowTestingAdlibsToPersist Studio config parameter to allow infinite adlibs from adlib testing to persist in the rundown
  * @param {FindOptions<PieceInstance>} [options]
  * @param {boolean} [pieceInstanceSimulation] If there are no PieceInstances in the PartInstance, create temporary
- * 		PieceInstances based on the Pieces collection and register a reactive dependancy to recalculate the current
+ * 		PieceInstances based on the Pieces collection and register a reactive dependency to recalculate the current
  * 		computation after some time to return the actual PieceInstances for the PartInstance.
  * @return {*}
  */

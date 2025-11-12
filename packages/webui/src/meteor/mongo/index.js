@@ -122,7 +122,7 @@ Object.assign(Mongo.Collection.prototype, {
 				//When the server's mergebox is disabled for a collection, the client must gracefully handle it when:
 				// *We receive an added message for a document that is already there. Instead, it will be changed
 				// *We reeive a change message for a document that is not there. Instead, it will be added
-				// *We receive a removed messsage for a document that is not there. Instead, noting wil happen.
+				// *We receive a removed message for a document that is not there. Instead, noting wil happen.
 
 				//Code is derived from client-side code originally in peerlibrary:control-mergebox
 				//https://github.com/peerlibrary/meteor-control-mergebox/blob/master/client.coffee

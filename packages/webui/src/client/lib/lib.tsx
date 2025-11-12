@@ -237,7 +237,7 @@ export function firstIfArray<T>(value: T | T[] | null): T | null
 export function firstIfArray<T>(value: T | T[] | undefined): T | undefined
 export function firstIfArray<T>(value: T | T[]): T
 export function firstIfArray<T>(value: unknown): T {
-	return _.isArray(value) ? _.first(value) : value
+	return _.isArray(value) ? _.first(value) : (value as T)
 }
 
 export const TOOLTIP_DEFAULT_DELAY = 0.5
@@ -270,4 +270,19 @@ export function useRundownViewEventBusListener<TEvent extends RundownViewEvents>
 			RundownViewEventBus.off(name, cb as any)
 		}
 	}, [name, cb])
+}
+
+export function getAllAncestors(el: HTMLElement): HTMLElement[] {
+	const ancestors: HTMLElement[] = []
+	let currentElement: HTMLElement | null = el
+
+	while (currentElement) {
+		ancestors.push(currentElement)
+		if (currentElement.parentElement === currentElement) {
+			return ancestors
+		}
+		currentElement = currentElement.parentElement
+	}
+
+	return ancestors
 }

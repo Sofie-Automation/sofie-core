@@ -132,7 +132,7 @@ export async function memoizedIsolatedAutorunAsync<TArgs extends any[], TRes>(
 			// If the old value is an unresolved promise, we can't compare it
 			const oldRealValue = isPromise(oldValue) ? null : oldValue
 
-			// If the values are different, invalidate the dependancy
+			// If the values are different, invalidate the dependency
 			// Do this even for the first run, as other listeners might have joined while the promise was resolving
 			if (!_.isEqual(oldRealValue, newValue)) {
 				dep.changed()

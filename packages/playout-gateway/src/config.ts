@@ -20,6 +20,8 @@ let influxUser: string | undefined = process.env.INFLUX_USER || 'sofie'
 let influxPassword: string | undefined = process.env.INFLUX_PASSWORD || undefined
 let influxDatabase: string | undefined = process.env.INFLUX_DB || 'sofie'
 
+let healthPort: number | undefined = parseInt(process.env.HEALTH_PORT + '') || undefined
+
 let prevProcessArg = ''
 process.argv.forEach((val) => {
 	val = val + ''
@@ -50,6 +52,8 @@ process.argv.forEach((val) => {
 		influxPassword = val
 	} else if (prevProcessArg.match(/-influxDatabase/i)) {
 		influxDatabase = val
+	} else if (prevProcessArg.match(/-healthPort/i)) {
+		healthPort = parseInt(val)
 
 		// arguments with no options:
 	} else if (val.match(/-disableWatchdog/i)) {
@@ -57,7 +61,9 @@ process.argv.forEach((val) => {
 	} else if (val.match(/-disableAtemUpload/i)) {
 		disableAtemUpload = true
 	} else if (val.match(/-unsafeSSL/i)) {
-		// Will cause the Node applocation to blindly accept all certificates. Not recommenced unless in local, controlled networks.
+		// Will cause the Node application to blindly accept all certificates.
+		// Not recommenced unless in local, controlled networks.
+		// Instead use "-certificates cert1 cert2"
 		unsafeSSL = true
 	}
 	prevProcessArg = nextPrevProcessArg + ''
@@ -84,6 +90,9 @@ const config: Config = {
 		user: influxUser,
 		password: influxPassword,
 		database: influxDatabase,
+	},
+	health: {
+		port: healthPort,
 	},
 }
 

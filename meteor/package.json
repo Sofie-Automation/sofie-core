@@ -3,7 +3,7 @@
 	"version": "1.53.0-in-development",
 	"private": true,
 	"engines": {
-		"node": ">=22.13.1"
+		"node": ">=22.20.0"
 	},
 	"scripts": {
 		"preinstall": "node -v",
@@ -40,7 +40,7 @@
 		"@babel/runtime": "^7.26.7",
 		"@koa/cors": "^5.0.0",
 		"@koa/router": "^13.1.0",
-		"@mos-connection/helper": "^4.2.2",
+		"@mos-connection/helper": "^4.3.1",
 		"@slack/webhook": "^7.0.4",
 		"@sofie-automation/blueprints-integration": "portal:../packages/blueprints-integration",
 		"@sofie-automation/corelib": "portal:../packages/corelib",
@@ -119,6 +119,7 @@
 		]
 	},
 	"meteor": {
+		"modern": true,
 		"mainModule": {
 			"server": "server/main.ts"
 		}

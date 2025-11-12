@@ -48,7 +48,7 @@ export const SegmentTimelinePartElementId = 'rundown__segment__part__'
 /** The width at which a Part is too small to attempt displaying text labels on Pieces, in pixels */
 export const BREAKPOINT_TOO_SMALL_FOR_TEXT = 30
 
-/** The width at whcih a Part is too small to be drawn at all, in pixels */
+/** The width at which a Part is too small to be drawn at all, in pixels */
 export const BREAKPOINT_TOO_SMALL_FOR_DISPLAY = 6
 
 interface IProps {
@@ -181,7 +181,7 @@ export class SegmentTimelinePartClass extends React.Component<Translated<WithTim
 
 		let liveDuration = 0
 		if (!isDurationSettling) {
-			// if the duration isn't settling, calculate the live line postion and add some liveLive time padding
+			// if the duration isn't settling, calculate the live line position and add some liveLive time padding
 			if (isLive && !nextProps.autoNextPart && !nextPartInstance.part.autoNext) {
 				liveDuration = Math.max(
 					(startedPlayback &&

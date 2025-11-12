@@ -669,6 +669,26 @@ async function checkPieceContentExpectedPackageStatus(
 					}
 				}
 
+				const fileName = getExpectedPackageFileName(expectedPackage) ?? ''
+
+				// Check if any of the sources exist and are valid
+				// Future: This might be better to do by passing packageManager an 'forcedError' property in the publication, but this direct check is simpler and enough for now
+				const hasValidSources =
+					expectedPackage.sources &&
+					(expectedPackage.sources.length === 0 ||
+						!expectedPackage.sources.find((source) => !studio.packageContainers[source.containerId]))
+				if (!hasValidSources) {
+					// The expected package has no valid sources
+
+					pushOrMergeMessage({
+						status: PieceStatusCode.SOURCE_MISSING,
+						message: PackageStatusMessage.FILE_MISSING_SOURCE_CONTAINERS,
+						fileName: fileName,
+						packageContainers: expectedPackage.sources.map((s) => s.containerId), // Ideally this would be labels, but the containers are missing
+					})
+					continue
+				}
+
 				let warningMessage: ContentMessageLight | null = null
 				let matchedExpectedPackageId: ExpectedPackageId | null = null
 				for (const expectedPackageId of expectedPackageIds) {
@@ -712,7 +732,6 @@ async function checkPieceContentExpectedPackageStatus(
 					break
 				}
 
-				const fileName = getExpectedPackageFileName(expectedPackage) ?? ''
 				const containerLabel = matchedPackageContainer[1].container.label
 
 				if (!matchedExpectedPackageId || warningMessage) {

@@ -1057,7 +1057,7 @@ function pointToArray(point) {
 // an error
 
 // Some rules (found mainly with trial & error, so there might be more):
-// - handle all childs of $and (or implicit $and)
+// - handle all children of $and (or implicit $and)
 // - handle $or nodes with exactly 1 child
 // - ignore $or nodes with more than 1 child
 // - ignore $nor and $not nodes

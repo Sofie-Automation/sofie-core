@@ -1,0 +1,28 @@
+.input-breadcrumbtext {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.input-breadcrumbtext-input {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+}
+
+.input-breadcrumbtext-sizer {
+	flex: 0 1;
+	white-space: pre;
+	position: relative;
+}
+
+.input-breadcrumbtext-sizer::after {
+	display: inline-block;
+	content: attr(data-value) ' ';
+    visibility: hidden;
+    white-space: pre;
+	padding: 0.5rem 0.75rem;
+	letter-spacing: normal;
+	min-width: 3em;
+}

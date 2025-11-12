@@ -20,7 +20,7 @@ Before any playout operation can proceed a studio and playlist lock must be crea
   - Check that no other rundown playlist in the studio is active
   - Reset the rundown if previously inactive
   - Set activationId and rehearsal mode on the playlist
-  - If there is no currenly active partInstance, set the first part as next
+  - If there is no currently active partInstance, set the first part as next
   - Update the timeline
   - Call the blueprints `onRundownActive` callback
 
@@ -147,7 +147,7 @@ _Prerequisites for activate: active playlist, current part, next part and hold s
 - Set the playlist hold state to PENDING
 - Update the timeline
 
-_Prerequisites for deactive: hold state is Pending_
+_Prerequisites for deactivate: hold state is Pending_
 
 - Set the playlist hold state to NONE
 - Update the timeline

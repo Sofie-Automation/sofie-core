@@ -37,6 +37,16 @@ services:
     networks:
       - sofie
 
+  # Fix Ownership Snapshots mount
+  # Because docker volumes are owned by root by default
+  # And our images follow best-practise and don't run as root
+  change-vol-ownerships:
+    image: node:22-alpine
+    user: 'root'
+    volumes:
+      - sofie-store:/mnt/sofie-store
+    entrypoint: ['sh', '-c', 'chown -R node:node /mnt/sofie-store']
+
   core:
     hostname: core
     image: sofietv/tv-automation-server-core:release53
@@ -54,7 +64,10 @@ services:
     volumes:
       - sofie-store:/mnt/sofie-store
     depends_on:
-      - db
+      change-vol-ownerships:
+        condition: service_completed_successfully
+      db:
+        condition: service_healthy
 
   playout-gateway:
     image: sofietv/tv-automation-playout-gateway:release53

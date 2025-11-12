@@ -33,6 +33,7 @@ import { SchemaFormSectionHeader } from './SchemaFormSectionHeader.js'
 import { Base64ImageInputControl } from '../Components/Base64ImageInput.js'
 import { MultiLineIntInputControl } from '../Components/MultiLineIntInput.js'
 import { ToggleSwitchControl } from '../Components/ToggleSwitch.js'
+import { BreadCrumbTextInput } from '../Components/BreadCrumbTextInput.js'
 
 interface SchemaFormWithOverridesProps extends SchemaFormCommonProps {
 	/** Base path of the schema within the document */
@@ -100,7 +101,14 @@ export function SchemaFormWithOverrides(props: Readonly<SchemaFormWithOverridesP
 
 	switch (props.schema.type) {
 		case TypeName.Array:
-			return <ArrayFormWithOverrides {...props} />
+			if (
+				getSchemaUIField(props.schema, SchemaFormUIField.DisplayType) === 'bread-crumbs' ||
+				props.schema.items?.type === TypeName.String
+			) {
+				return <BreadCrumbsFormWithOverrides {...childProps} />
+			} else {
+				return <ArrayFormWithOverrides {...props} />
+			}
 		case TypeName.Object:
 			if (getSchemaUIField(props.schema, SchemaFormUIField.DisplayType) === 'json') {
 				return <JsonFormWithOverrides {...childProps} />
@@ -420,5 +428,13 @@ const Base64ImagePickerWithOverrides = ({ commonAttrs }: FormComponentProps) => 
 		<LabelAndOverridesForBase64Image {...commonAttrs}>
 			{(value, handleUpdate) => <Base64ImageInputControl value={value} handleUpdate={handleUpdate} />}
 		</LabelAndOverridesForBase64Image>
+	)
+}
+
+const BreadCrumbsFormWithOverrides = ({ commonAttrs }: Readonly<FormComponentProps>) => {
+	return (
+		<LabelAndOverrides {...commonAttrs}>
+			{(value, handleUpdate) => <BreadCrumbTextInput value={value || []} handleUpdate={handleUpdate} />}
+		</LabelAndOverrides>
 	)
 }

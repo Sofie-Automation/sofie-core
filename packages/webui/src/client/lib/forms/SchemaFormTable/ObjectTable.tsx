@@ -65,7 +65,7 @@ export const SchemaFormObjectTable = ({
 
 	const wrappedRows = useMemo(() => {
 		if (item.defaults) {
-			// Table can be overriden with granularity
+			// Table can be overridden with granularity
 
 			const rawRows = (attr ? objectPathGet(item.defaults, attr) : item.defaults) || {}
 
@@ -87,7 +87,7 @@ export const SchemaFormObjectTable = ({
 					defaults: rawRows,
 					overrides: ops,
 				},
-				(a, b) => a[0].localeCompare(b[0]) // TODO - better comparitor?
+				(a, b) => a[0].localeCompare(b[0]) // TODO - better comparator?
 			)
 
 			return wrappedRows
@@ -102,7 +102,7 @@ export const SchemaFormObjectTable = ({
 				if (obj) validItems.push([id, obj])
 			}
 
-			validItems.sort((a, b) => a[0].localeCompare(b[0])) // TODO - better comparitor?
+			validItems.sort((a, b) => a[0].localeCompare(b[0])) // TODO - better comparator?
 
 			// Sort and wrap in the return type
 			return validItems.map(([id, obj]) =>

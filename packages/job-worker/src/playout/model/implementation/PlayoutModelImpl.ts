@@ -346,6 +346,15 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 		this.#playlistHasChanged = true
 	}
 
+	clearPreviousPartInstance(): void {
+		this.playlistImpl.previousPartInfo = null
+
+		// Make sure that a hold isn't running. We can't block it here, so abort it immediately instead
+		this.playlistImpl.holdState = RundownHoldState.NONE
+
+		this.#playlistHasChanged = true
+	}
+
 	calculatePartTimings(
 		fromPartInstance: PlayoutPartInstanceModel | null,
 		toPartInstance: PlayoutPartInstanceModel,

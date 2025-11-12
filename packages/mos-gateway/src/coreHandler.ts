@@ -10,6 +10,7 @@ import {
 	stringifyError,
 	PeripheralDevicePubSub,
 	PeripheralDevicePubSubCollectionsNames,
+	ICoreHandler,
 } from '@sofie-automation/server-core-integration'
 import * as Winston from 'winston'
 
@@ -29,14 +30,16 @@ export interface CoreConfig {
 /**
  * Represents a connection between mos-integration and Core
  */
-export class CoreHandler {
+export class CoreHandler implements ICoreHandler {
 	core: CoreConnection | undefined
 	logger: Winston.Logger
 	public _observers: Array<Observer<any>> = []
+	public connectedToCore = false
 	private _deviceOptions: DeviceConfig
 	private _coreMosHandlers: Array<CoreMosDeviceHandler> = []
 	private _onConnected?: () => any
 	private _isInitialized = false
+	private _isDestroyed = false
 	private _executedFunctions = new Set<PeripheralDeviceCommandId>()
 	private _coreConfig?: CoreConfig
 	private _certificates?: Buffer[]
@@ -54,10 +57,12 @@ export class CoreHandler {
 
 		this.core.onConnected(() => {
 			this.logger.info('Core Connected!')
+			this.connectedToCore = true
 			if (this._isInitialized) this.onConnectionRestored()
 		})
 		this.core.onDisconnected(() => {
 			this.logger.info('Core Disconnected!')
+			this.connectedToCore = false
 		})
 		this.core.onError((err) => {
 			this.logger.error('Core Error: ' + (typeof err === 'string' ? err : err.message || err.toString()))
@@ -74,31 +79,45 @@ export class CoreHandler {
 		}
 		await this.core.init(ddpConfig)
 
-		if (!this.core) {
-			throw Error('core is undefined!')
-		}
-
-		this.core
-			.setStatus({
-				statusCode: StatusCode.GOOD,
-				// messages: []
-			})
-			.catch((e) => this.logger.warn('Error when setting status:' + e))
-		// nothing
-
 		await this.setupSubscriptionsAndObservers()
 
 		this._isInitialized = true
+
+		await this.updateCoreStatus()
 	}
+	getCoreStatus(): {
+		statusCode: StatusCode
+		messages: string[]
+	} {
+		let statusCode = StatusCode.GOOD
+		const messages: string[] = []
+
+		if (!this._isInitialized) {
+			statusCode = StatusCode.BAD
+			messages.push('Starting up...')
+		}
+		if (this._isDestroyed) {
+			statusCode = StatusCode.FATAL
+			messages.push('Shut down')
+		}
+		return {
+			statusCode,
+			messages,
+		}
+	}
+	async updateCoreStatus(): Promise<void> {
+		if (!this.core) throw Error('core is undefined!')
+
+		await this.core.setStatus(this.getCoreStatus())
+	}
+
 	async dispose(): Promise<void> {
+		this._isDestroyed = true
 		if (!this.core) {
 			throw Error('core is undefined!')
 		}
 
-		await this.core.setStatus({
-			statusCode: StatusCode.FATAL,
-			messages: ['Shutting down'],
-		})
+		await this.updateCoreStatus()
 
 		await Promise.all(
 			this._coreMosHandlers.map(async (cmh: CoreMosDeviceHandler) => {
@@ -205,7 +224,10 @@ export class CoreHandler {
 	executeFunction(cmd: PeripheralDeviceCommand, fcnObject: CoreHandler | CoreMosDeviceHandler): void {
 		if (cmd) {
 			if (this._executedFunctions.has(cmd._id)) return // prevent it from running multiple times
-			this.logger.debug(cmd.functionName || cmd.actionId || '', cmd.args)
+			this.logger.debug(
+				`Executing function "${cmd.functionName || cmd.actionId || ''}", args: ${JSON.stringify(cmd.args)}`
+			)
+
 			this._executedFunctions.add(cmd._id)
 			// console.log('executeFunction', cmd)
 			const cb = (errStr: string | null, res?: any) => {
@@ -224,7 +246,7 @@ export class CoreHandler {
 						// console.log('cb done')
 					})
 					.catch((e) => {
-						this.logger.error(e)
+						this.logger.error(stringifyError(e))
 					})
 			}
 			// eslint-disable-next-line @typescript-eslint/ban-ts-comment

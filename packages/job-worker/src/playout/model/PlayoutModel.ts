@@ -227,6 +227,12 @@ export interface PlayoutModel extends PlayoutModelReadonly, StudioPlayoutModelBa
 	clearSelectedPartInstances(): void
 
 	/**
+	 * Clear the currently selected previousPartInstance.
+	 * This can be useful if it references a Rundown that has been removed from the Playlist
+	 */
+	clearPreviousPartInstance(): void
+
+	/**
 	 * Insert an adlibbed PartInstance into the RundownPlaylist
 	 * @param part Part to insert
 	 * @param pieces Planned Pieces to insert into Part

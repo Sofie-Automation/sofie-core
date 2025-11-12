@@ -140,7 +140,7 @@ export function LinePart({
 					'segment-opl__part--invalid': part.instance.part.invalid,
 					'segment-opl__part--timing-sibling': isPreceededByTimingGroupSibling,
 				}),
-				//@ts-expect-error A Data attribue is perfectly fine
+				//@ts-expect-error A Data attribute is perfectly fine
 				'data-part-instance-id': part.instance._id,
 				id: SegmentTimelinePartElementId + part.instance._id,
 				role: 'region',

@@ -130,7 +130,7 @@ This is not available in all places we use this schema. For example, Mappings ar
 
 ## Examples
 
-Below is an example of a simple schema for a gateway configuration. The subdevices are handled separetely, with their own schema.
+Below is an example of a simple schema for a gateway configuration. The subdevices are handled separately, with their own schema.
 
 ```json
 {

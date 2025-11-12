@@ -29,7 +29,7 @@
 		"license-validate": "run -T sofie-licensecheck"
 	},
 	"engines": {
-		"node": ">=22.13.1"
+		"node": ">=22.20.0"
 	},
 	"files": [
 		"/dist",
@@ -38,7 +38,7 @@
 		"/LICENSE"
 	],
 	"dependencies": {
-		"@mos-connection/model": "^4.2.2",
+		"@mos-connection/model": "^4.3.1",
 		"timeline-state-resolver-types": "10.0.0-nightly-release53-20250908-063535-af36ced74.0",
 		"tslib": "^2.8.1",
 		"type-fest": "^4.33.0"
@@ -51,6 +51,9 @@
 		"*.{ts,tsx}": [
 			"yarn lint:raw"
 		]
+	},
+	"publishConfig": {
+		"access": "public"
 	},
 	"packageManager": "yarn@4.10.3"
 }

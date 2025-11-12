@@ -1,5 +1,5 @@
 import { PartId, RundownPlaylistId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { check } from 'meteor/check'
+import { check, Match } from 'meteor/check'
 import {
 	CustomPublishCollection,
 	SetupObserversResult,
@@ -187,7 +187,7 @@ meteorCustomPublish(
 	MeteorPubSub.uiParts,
 	CustomCollectionName.UIParts,
 	async function (pub, playlistId: RundownPlaylistId | null) {
-		check(playlistId, String)
+		check(playlistId, Match.Optional(String))
 
 		triggerWriteAccessBecauseNoCheckNecessary()
 

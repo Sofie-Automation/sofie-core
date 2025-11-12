@@ -19,7 +19,7 @@ import { PartInstance } from '@sofie-automation/meteor-lib/dist/collections/Part
 import _ from 'underscore'
 
 export class RundownPlaylistClientUtil {
-	/** Returns all segments joined with their rundowns in their correct oreder for this RundownPlaylist */
+	/** Returns all segments joined with their rundowns in their correct order for this RundownPlaylist */
 	static getRundownsAndSegments(
 		playlist: Pick<DBRundownPlaylist, '_id' | 'rundownIdsInOrder'>,
 		selector?: MongoQuery<DBSegment>,

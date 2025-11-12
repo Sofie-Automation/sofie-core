@@ -15,7 +15,7 @@ RUN yarn install && yarn build
 
 # BUILD IMAGE
 FROM node:22
-RUN curl "https://install.meteor.com/?release=3.1.2" | sh
+RUN curl "https://install.meteor.com/?release=3.3.2" | sh
 
 # Temporary change the NODE_ENV env variable, so that all libraries are installed:
 ENV NODE_ENV_TMP $NODE_ENV

@@ -147,7 +147,7 @@ export function StoryboardPart({
 					},
 					className
 				),
-				//@ts-expect-error A Data attribue is perfectly fine
+				//@ts-expect-error A Data attribute is perfectly fine
 				'data-layer-id': part.instance._id,
 				id: SegmentTimelinePartElementId + part.instance._id,
 				style: style,
