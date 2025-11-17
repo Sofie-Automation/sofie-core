@@ -1,5 +1,5 @@
 import { useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data'
-import { unprotectString } from '../../lib/tempLib'
+import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { makeTableOfObject } from '../../lib/utilComponents'
 import { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { useTranslation } from 'react-i18next'
