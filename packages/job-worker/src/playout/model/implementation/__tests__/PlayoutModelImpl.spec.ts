@@ -242,7 +242,6 @@ function setupMockPlayoutGateway(id: PeripheralDeviceId): PeripheralDevice {
 		lastConnected: TIME_CONNECTED,
 		lastSeen: TIME_PING,
 		name: `Dummy ${id}`,
-		organizationId: null,
 		status: {
 			statusCode: StatusCode.GOOD,
 			messages: [],
