@@ -22,7 +22,7 @@ import { evalBlueprint } from './cache'
 import { removeSystemStatus } from '../../systemStatus/systemStatus'
 import { MethodContext, MethodContextAPI } from '../methodContext'
 import { generateTranslationBundleOriginId, upsertBundles } from '../translationsBundles'
-import { BlueprintId, OrganizationId, ShowStyleBaseId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { BlueprintId, ShowStyleBaseId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { Blueprints, CoreSystem, ShowStyleBases, ShowStyleVariants, Studios } from '../../collections'
 import { fetchBlueprintLight, BlueprintLight } from '../../serverOptimisations'
 import { getSystemStorePath } from '../../coreSystem'
@@ -44,7 +44,6 @@ export async function insertBlueprint(
 
 	return Blueprints.insertAsync({
 		_id: getRandomId(),
-		organizationId: null,
 		name: name || 'New Blueprint',
 		hasCode: false,
 		code: '',
@@ -103,7 +102,7 @@ export async function uploadBlueprint(
 	if (!blueprintId) throw new Meteor.Error(400, `Blueprint id "${blueprintId}" is not valid`)
 	const blueprint = await fetchBlueprintLight(blueprintId)
 
-	return innerUploadBlueprint(null, blueprint, blueprintId, body, options)
+	return innerUploadBlueprint(blueprint, blueprintId, body, options)
 }
 export async function uploadBlueprintAsset(cred: RequestCredentials, fileId: string, body: string): Promise<void> {
 	check(fileId, String)
@@ -134,16 +133,13 @@ export function retrieveBlueprintAsset(_cred: RequestCredentials, fileId: string
 export async function internalUploadBlueprint(
 	blueprintId: BlueprintId,
 	body: string,
-	options?: UploadBlueprintOptions,
-	organizationId?: OrganizationId | null
+	options?: UploadBlueprintOptions
 ): Promise<Blueprint> {
-	organizationId = organizationId || null
 	const blueprint = await fetchBlueprintLight(blueprintId)
 
-	return innerUploadBlueprint(organizationId, blueprint, blueprintId, body, options)
+	return innerUploadBlueprint(blueprint, blueprintId, body, options)
 }
 async function innerUploadBlueprint(
-	organizationId: OrganizationId | null,
 	blueprint: BlueprintLight | undefined,
 	blueprintId: BlueprintId,
 	body: string,
@@ -151,7 +147,6 @@ async function innerUploadBlueprint(
 ): Promise<Blueprint> {
 	const newBlueprint: Blueprint = {
 		_id: blueprintId,
-		organizationId: organizationId,
 		name: blueprint ? blueprint.name : options?.blueprintName || unprotectString(blueprintId),
 		created: blueprint ? blueprint.created : getCurrentTime(),
 		code: body,

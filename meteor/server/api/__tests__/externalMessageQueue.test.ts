@@ -65,7 +65,6 @@ describe('Test external message queue static methods', () => {
 				peripheralDeviceId: studioEnv.ingestDevice._id,
 				nrcsName: 'mockNRCS',
 			},
-			organizationId: protectString(''),
 			timing: {
 				type: PlaylistTimingType.None,
 			},

@@ -4,13 +4,11 @@ import {
 	StudioId,
 	RundownPlaylistId,
 	SnapshotId,
-	OrganizationId,
 	UserId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 export interface Evaluation extends EvaluationBase {
 	_id: EvaluationId
-	organizationId: OrganizationId | null
 	userId: UserId | null
 	timestamp: Time
 }

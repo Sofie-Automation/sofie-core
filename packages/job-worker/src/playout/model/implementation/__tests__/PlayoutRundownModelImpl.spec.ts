@@ -12,7 +12,6 @@ describe('PlayoutRundownModelImpl', () => {
 	function createBasicDBRundown(): DBRundown {
 		return {
 			_id: protectString('rd0'),
-			organizationId: null,
 			studioId: protectString('studio0'),
 			showStyleBaseId: protectString('ssb0'),
 			showStyleVariantId: protectString('ssv0'),

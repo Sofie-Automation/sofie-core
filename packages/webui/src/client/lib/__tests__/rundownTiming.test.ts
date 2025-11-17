@@ -17,7 +17,6 @@ function makeMockPlaylist(): DBRundownPlaylist {
 	return literal<DBRundownPlaylist>({
 		_id: protectString('mock-playlist'),
 		externalId: 'mock-playlist',
-		organizationId: protectString('test'),
 		studioId: protectString('studio0'),
 		name: 'Mock Playlist',
 		created: 0,
@@ -82,7 +81,6 @@ function makeMockRundown(id: string, playlist: DBRundownPlaylist) {
 			peripheralDeviceId: protectString(''),
 			nrcsName: 'mockNRCS',
 		},
-		organizationId: protectString(''),
 		playlistId: playlist._id,
 	})
 }

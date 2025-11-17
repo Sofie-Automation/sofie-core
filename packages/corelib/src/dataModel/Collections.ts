@@ -16,7 +16,6 @@ export enum CollectionName {
 	SofieIngestDataCache = 'sofieIngestDataCache',
 	MediaObjects = 'mediaObjects',
 	Notifications = 'notifications',
-	Organizations = 'organizations',
 	PartInstances = 'partInstances',
 	PackageInfos = 'packageInfos',
 	PackageContainerPackageStatuses = 'packageContainerPackageStatuses',

@@ -210,7 +210,6 @@ export namespace ServerClientAPI {
 					literal<UserActionsLogItem>({
 						_id: actionId,
 						clientAddress: context.connection.clientAddress,
-						organizationId: null,
 						userId: null,
 						context: userEvent,
 						method: methodName,
@@ -324,7 +323,6 @@ export namespace ServerClientAPI {
 			literal<UserActionsLogItem>({
 				_id: actionId,
 				clientAddress: methodContext.connection ? methodContext.connection.clientAddress : '',
-				organizationId: null,
 				userId: null,
 				context: context,
 				method: `${deviceId}: ${method}`,

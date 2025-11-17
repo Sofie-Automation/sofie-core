@@ -62,7 +62,6 @@ import {
 import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import {
 	BlueprintId,
-	OrganizationId,
 	RundownId,
 	RundownPlaylistId,
 	ShowStyleBaseId,
@@ -119,7 +118,6 @@ export async function setupMockPeripheralDevice(
 	const defaultDevice: PeripheralDevice = {
 		_id: protectString('mockDevice' + dbI++),
 		name: 'mockDevice',
-		organizationId: null,
 		studioAndConfigId: studio ? { studioId: studio._id, configId: 'test' } : undefined,
 
 		category: category,
@@ -252,7 +250,6 @@ export async function setupMockShowStyleBase(
 	const defaultShowStyleBase: DBShowStyleBase = {
 		_id: protectString('mockShowStyleBase' + dbI++),
 		name: 'mockShowStyleBase',
-		organizationId: null,
 		outputLayersWithOverrides: wrapDefaultObject(
 			normalizeArray(
 				[
@@ -347,10 +344,7 @@ export function packageBlueprint<T extends BlueprintManifestBase>(
 	})
 	return `({default: (${code})()})`
 }
-export async function setupMockStudioBlueprint(
-	showStyleBaseId: ShowStyleBaseId,
-	organizationId: OrganizationId | null = null
-): Promise<Blueprint> {
+export async function setupMockStudioBlueprint(showStyleBaseId: ShowStyleBaseId): Promise<Blueprint> {
 	const { INTEGRATION_VERSION, TSR_VERSION } = getBlueprintDependencyVersions()
 
 	const BLUEPRINT_TYPE = BlueprintManifestType.STUDIO
@@ -394,20 +388,12 @@ export async function setupMockStudioBlueprint(
 	const blueprintId: BlueprintId = protectString('mockBlueprint' + dbI++)
 	const blueprintName = 'mockBlueprint'
 
-	return internalUploadBlueprint(
-		blueprintId,
-		code,
-		{
-			blueprintName,
-			ignoreIdChange: true,
-		},
-		organizationId
-	)
+	return internalUploadBlueprint(blueprintId, code, {
+		blueprintName,
+		ignoreIdChange: true,
+	})
 }
-export async function setupMockShowStyleBlueprint(
-	showStyleVariantId: ShowStyleVariantId,
-	organizationId?: OrganizationId | null
-): Promise<Blueprint> {
+export async function setupMockShowStyleBlueprint(showStyleVariantId: ShowStyleVariantId): Promise<Blueprint> {
 	const { INTEGRATION_VERSION, TSR_VERSION } = getBlueprintDependencyVersions()
 
 	const BLUEPRINT_TYPE = BlueprintManifestType.SHOWSTYLE
@@ -533,15 +519,10 @@ export async function setupMockShowStyleBlueprint(
 	const blueprintId: BlueprintId = protectString('mockBlueprint' + dbI++)
 	const blueprintName = 'mockBlueprint'
 
-	return internalUploadBlueprint(
-		blueprintId,
-		code,
-		{
-			blueprintName,
-			ignoreIdChange: true,
-		},
-		organizationId
-	)
+	return internalUploadBlueprint(blueprintId, code, {
+		blueprintName,
+		ignoreIdChange: true,
+	})
 }
 export interface DefaultEnvironment {
 	showStyleBaseId: ShowStyleBaseId
@@ -560,21 +541,18 @@ export interface DefaultEnvironment {
 
 	ingestDevice: PeripheralDevice
 }
-export async function setupDefaultStudioEnvironment(
-	organizationId: OrganizationId | null = null
-): Promise<DefaultEnvironment> {
+export async function setupDefaultStudioEnvironment(): Promise<DefaultEnvironment> {
 	const core = await setupMockCore({})
 	const systemTriggeredActions = await setupMockTriggeredActions()
 
 	const showStyleBaseId: ShowStyleBaseId = getRandomId()
 	const showStyleVariantId: ShowStyleVariantId = getRandomId()
 
-	const studioBlueprint = await setupMockStudioBlueprint(showStyleBaseId, organizationId)
-	const showStyleBlueprint = await setupMockShowStyleBlueprint(showStyleVariantId, organizationId)
+	const studioBlueprint = await setupMockStudioBlueprint(showStyleBaseId)
+	const showStyleBlueprint = await setupMockShowStyleBlueprint(showStyleVariantId)
 
 	const showStyleBase = await setupMockShowStyleBase(showStyleBlueprint._id, {
 		_id: showStyleBaseId,
-		organizationId: organizationId,
 	})
 	const triggeredActions = await setupMockTriggeredActions(showStyleBase._id)
 	const showStyleVariant = await setupMockShowStyleVariant(showStyleBase._id, { _id: showStyleVariantId })
@@ -582,14 +560,12 @@ export async function setupDefaultStudioEnvironment(
 	const studio = await setupMockStudio({
 		blueprintId: studioBlueprint._id,
 		supportedShowStyleBase: [showStyleBaseId],
-		organizationId: organizationId,
 	})
 	const ingestDevice = await setupMockPeripheralDevice(
 		PeripheralDeviceCategory.INGEST,
 		PeripheralDeviceType.MOS,
 		PERIPHERAL_SUBTYPE_PROCESS,
-		studio,
-		{ organizationId: organizationId }
+		studio
 	)
 	const { worker, workerThreadStatuses } = await setupMockWorker()
 
@@ -641,7 +617,6 @@ export async function setupDefaultRundown(
 	const sourceLayerIds = Object.keys(applyAndValidateOverrides(env.showStyleBase.sourceLayersWithOverrides).obj)
 
 	const rundown: DBRundown = {
-		organizationId: null,
 		studioId: env.studio._id,
 		showStyleBaseId: env.showStyleBase._id,
 		showStyleVariantId: env.showStyleVariant._id,

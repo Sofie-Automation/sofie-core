@@ -11,7 +11,6 @@ import { NewSnapshotAPI, SnapshotAPIMethods } from './shapshot.js'
 import { NewSystemStatusAPI, SystemStatusAPIMethods } from './systemStatus.js'
 import { NewUserActionAPI, UserActionAPIMethods } from './userActions.js'
 import { StudiosAPIMethods, NewStudiosAPI } from './studios.js'
-import { NewOrganizationAPI, OrganizationAPIMethods } from './organization.js'
 import { NewUserAPI, UserAPIMethods } from './user.js'
 import { SystemAPIMethods, SystemAPI } from './system.js'
 import { NewTriggeredActionsAPI, TriggeredActionsAPIMethods } from './triggeredActions.js'
@@ -38,7 +37,6 @@ export interface IMeteorCall {
 	systemStatus: NewSystemStatusAPI
 	user: NewUserAPI
 	userAction: NewUserActionAPI
-	organization: NewOrganizationAPI
 	system: SystemAPI
 	mongo: MongoAPI
 }
@@ -81,7 +79,6 @@ export function MakeMeteorCall(makeMethodCall: MakeMeteorMethodCall): IMeteorCal
 		systemStatus: makeMethods(SystemStatusAPIMethods),
 		user: makeMethods(UserAPIMethods),
 		userAction: makeMethods(UserActionAPIMethods, ['storeRundownSnapshot']),
-		organization: makeMethods(OrganizationAPIMethods),
 		system: makeMethods(SystemAPIMethods),
 		mongo: makeMethods(MongoAPIMethods),
 	}

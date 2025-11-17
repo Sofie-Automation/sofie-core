@@ -5,7 +5,6 @@ import {
 	PartInstanceId,
 	SegmentId,
 	RundownPlaylistActivationId,
-	OrganizationId,
 	RundownPlaylistId,
 	StudioId,
 	RundownId,
@@ -99,8 +98,6 @@ export interface DBRundownPlaylist {
 	_id: RundownPlaylistId
 	/** External ID (source) of the playlist */
 	externalId: string
-	/** ID of the organization that owns the playlist */
-	organizationId?: OrganizationId | null
 	/** Studio that this playlist is assigned to */
 	studioId: StudioId
 

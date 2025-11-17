@@ -19,7 +19,6 @@ export async function saveEvaluation(
 	await Evaluations.insertAsync({
 		...evaluation,
 		_id: getRandomId(),
-		organizationId: null,
 		userId: null,
 		timestamp: getCurrentTime(),
 	})

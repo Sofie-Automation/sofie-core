@@ -1,11 +1,5 @@
 import { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
-import {
-	SnapshotId,
-	StudioId,
-	RundownId,
-	RundownPlaylistId,
-	OrganizationId,
-} from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { SnapshotId, StudioId, RundownId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 export enum SnapshotType {
 	RUNDOWNPLAYLIST = 'rundownplaylist',
@@ -15,8 +9,6 @@ export enum SnapshotType {
 
 export interface SnapshotBase {
 	_id: SnapshotId
-	/** If set, the organization the owns this Snapshot */
-	organizationId: OrganizationId | null
 
 	type: SnapshotType
 	created: Time

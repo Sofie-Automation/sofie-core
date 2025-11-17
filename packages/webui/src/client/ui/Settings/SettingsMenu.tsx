@@ -86,12 +86,16 @@ function SettingsMenuStudios() {
 		MeteorCall.studio.insertStudio().catch(catchError('studio.insertStudio'))
 	}, [])
 
+	// An installation should have only one studio https://github.com/Sofie-Automation/sofie-core/issues/1450
+	const canAddStudio = studios.length === 0
+	const canDeleteStudio = studios.length > 1
+
 	return (
 		<>
-			<SectionHeading title={t('Studios')} addClick={onAddStudio} />
+			<SectionHeading title={t('Studios')} addClick={canAddStudio ? onAddStudio : undefined} />
 
 			{studios.map((studio) => (
-				<SettingsMenuStudio key={unprotectString(studio._id)} studio={studio} />
+				<SettingsMenuStudio key={unprotectString(studio._id)} studio={studio} canDelete={canDeleteStudio} />
 			))}
 		</>
 	)
@@ -241,8 +245,9 @@ function SettingsCollapsibleGroup({
 
 interface SettingsMenuStudioProps {
 	studio: DBStudio
+	canDelete: boolean
 }
-function SettingsMenuStudio({ studio }: Readonly<SettingsMenuStudioProps>) {
+function SettingsMenuStudio({ studio, canDelete }: Readonly<SettingsMenuStudioProps>) {
 	const { t } = useTranslation()
 
 	const onDeleteStudio = React.useCallback(
@@ -291,9 +296,11 @@ function SettingsMenuStudio({ studio }: Readonly<SettingsMenuStudioProps>) {
 					<FontAwesomeIcon icon={faExclamationTriangle} />
 				</button>
 			) : null}
-			<button className="action-btn" onClick={onDeleteStudio}>
-				<FontAwesomeIcon icon={faTrash} />
-			</button>
+			{canDelete && (
+				<button className="action-btn" onClick={onDeleteStudio}>
+					<FontAwesomeIcon icon={faTrash} />
+				</button>
+			)}
 		</SettingsCollapsibleGroup>
 	)
 }

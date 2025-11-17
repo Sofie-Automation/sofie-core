@@ -455,7 +455,7 @@ export async function runMigration(
 		const storePath = getSystemStorePath()
 		if (storePath) {
 			try {
-				snapshotId = await internalStoreSystemSnapshot(null, {}, `Automatic, taken before migration`)
+				snapshotId = await internalStoreSystemSnapshot({}, `Automatic, taken before migration`)
 			} catch (e) {
 				warningMessages.push(`Error when taking snapshot:${stringifyError(e)}`)
 				logger.error(e)
