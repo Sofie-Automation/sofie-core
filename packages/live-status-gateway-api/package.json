@@ -27,9 +27,10 @@
 		"validate:dependencies": "yarn npm audit --environment production && run license-validate",
 		"validate:dev-dependencies": "yarn npm audit --environment development",
 		"license-validate": "run -T sofie-licensecheck",
-		"gendocs": "run -T rimraf docs && ag ./api/asyncapi.yaml @asyncapi/html-template -o docs -p singleFile=true -p outFilename=liveStatus.html",
-		"genserver": "run -T rimraf server && ag ./api/asyncapi.yaml @asyncapi/nodejs-ws-template -o server -p server=development",
-		"generate-schema-types": "node scripts/generate-schema-types.mjs"
+		"gendocs": "yarn merge-schemas && ag ./src/generated/asyncapi.yaml @asyncapi/html-template -o docs -p singleFile=true -p outFilename=liveStatus.html",
+		"genserver": "yarn merge-schemas && ag ./src/generated/asyncapi.yaml @asyncapi/nodejs-ws-template -o server -p server=development",
+		"generate-schema-types": "yarn merge-schemas && node scripts/generate-schema-types.mjs",
+		"merge-schemas": "node scripts/merge-schemas.mjs"
 	},
 	"engines": {
 		"node": ">=14.19"
@@ -45,11 +46,13 @@
 		"tslib": "^2.6.2"
 	},
 	"devDependencies": {
+		"@apidevtools/json-schema-ref-parser": "^14.2.1",
 		"@asyncapi/generator": "^2.6.0",
 		"@asyncapi/html-template": "^3.2.0",
 		"@asyncapi/modelina": "^4.0.4",
 		"@asyncapi/nodejs-ws-template": "^0.10.0",
-		"@asyncapi/parser": "^3.4.0"
+		"@asyncapi/parser": "^3.4.0",
+		"yaml": "^2.8.1"
 	},
 	"prettier": "@sofie-automation/code-standard-preset/.prettierrc.json",
 	"lint-staged": {

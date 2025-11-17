@@ -5,18 +5,15 @@
  * and run "yarn generate-schema-types" to regenerate this file.
  */
 
-type Slash =
-	| PongEvent
-	| HeartbeatEvent
-	| SubscriptionStatusError
-	| SubscriptionStatusSuccess
-	| StudioEvent
-	| ActivePlaylistEvent
-	| ActivePiecesEvent
-	| SegmentsEvent
-	| AdLibsEvent
-	| PackagesEvent
-	| BucketsEvent
+type Subscriptions = SubscriptionStatusError | SubscriptionStatusSuccess
+
+interface PingEvent {
+	event: 'ping'
+	/**
+	 * Client originated ID reflected in response message.
+	 */
+	reqid: number
+}
 
 interface PongEvent {
 	event: 'pong'
@@ -30,25 +27,31 @@ interface HeartbeatEvent {
 	event: 'heartbeat'
 }
 
-interface SubscriptionStatusError {
-	errorMessage: string
-	event: 'subscriptionStatus'
+interface SubscribeEvent {
+	/**
+	 * Name of the event when subscribing or unsubscribing to topics.
+	 */
+	event: SubscriptionEventName
 	/**
 	 * Client originated ID reflected in response message.
 	 */
 	reqid: number
-	subscription: SubscriptionDetails
+	subscription: SubscriptionRequestDetails
 }
 
-interface SubscriptionDetails {
+/**
+ * Name of the event when subscribing or unsubscribing to topics.
+ */
+enum SubscriptionEventName {
+	SUBSCRIBE = 'subscribe',
+	UNSUBSCRIBE = 'unsubscribe',
+}
+
+interface SubscriptionRequestDetails {
 	/**
 	 * The name of the topic related to this status.
 	 */
 	name: SubscriptionName
-	/**
-	 * The current status of the subscription
-	 */
-	status: SubscriptionStatus
 }
 
 /**
@@ -60,8 +63,31 @@ enum SubscriptionName {
 	ACTIVE_PIECES = 'activePieces',
 	SEGMENTS = 'segments',
 	AD_LIBS = 'adLibs',
+	NOTIFICATIONS = 'notifications',
 	BUCKETS = 'buckets',
 	RESERVED_PACKAGES = 'packages',
+}
+
+interface SubscriptionStatusError {
+	errorMessage: string
+	event: 'subscriptionStatus'
+	/**
+	 * Client originated ID reflected in response message.
+	 */
+	reqid: number
+	subscription: SubscriptionDetails
+	additionalProperties?: Record<string, any>
+}
+
+interface SubscriptionDetails {
+	/**
+	 * The name of the topic related to this status.
+	 */
+	name: SubscriptionName
+	/**
+	 * The current status of the subscription
+	 */
+	status: SubscriptionStatus
 }
 
 /**
@@ -79,6 +105,7 @@ interface SubscriptionStatusSuccess {
 	 */
 	reqid: number
 	subscription: SubscriptionDetails
+	additionalProperties?: Record<string, any>
 }
 
 interface StudioEvent {
@@ -95,6 +122,7 @@ interface StudioEvent {
 	 * The playlists that are currently loaded in the studio
 	 */
 	playlists: PlaylistStatus[]
+	additionalProperties?: Record<string, any>
 }
 
 interface PlaylistStatus {
@@ -166,17 +194,17 @@ interface CurrentPartStatus {
 	 */
 	id: string
 	/**
-	 * User name of the part
+	 * User-presentable name of the part
 	 */
 	name: string
-	/**
-	 * Unique id of the segment this part belongs to
-	 */
-	segmentId: string
 	/**
 	 * If this part will progress to the next automatically
 	 */
 	autoNext?: boolean
+	/**
+	 * Unique id of the segment this part belongs to
+	 */
+	segmentId: string
 	/**
 	 * All pieces in this part
 	 */
@@ -224,13 +252,13 @@ interface PieceStatus {
  */
 interface CurrentPartTiming {
 	/**
-	 * Unix timestamp of when the part started (milliseconds)
-	 */
-	startTime: number
-	/**
 	 * Expected duration of the part (milliseconds)
 	 */
 	expectedDurationMs: number
+	/**
+	 * Unix timestamp of when the part started (milliseconds)
+	 */
+	startTime: number
 	/**
 	 * Unix timestamp of when the part is projected to end (milliseconds). A sum of `startTime` and `expectedDurationMs`.
 	 */
@@ -248,6 +276,7 @@ interface CurrentSegment {
 	 */
 	timing: CurrentSegmentTiming
 	parts: CurrentSegmentPart[]
+	additionalProperties?: Record<string, any>
 }
 
 /**
@@ -255,21 +284,21 @@ interface CurrentSegment {
  */
 interface CurrentSegmentTiming {
 	/**
-	 * Expected duration of the segment
+	 * Expected duration of the segment (milliseconds)
 	 */
 	expectedDurationMs: number
 	/**
-	 * Budget duration of the segment
+	 * Budget duration of the segment (milliseconds)
 	 */
 	budgetDurationMs?: number
-	/**
-	 * Unix timestamp of when the segment is projected to end (milliseconds). The time this segment started, offset by its budget duration, if the segment has a defined budget duration. Otherwise, the time the current part started, offset by the difference between expected durations of all parts in this segment and the as-played durations of the parts that already stopped.
-	 */
-	projectedEndTime: number
 	/**
 	 * Countdown type within the segment. Default: `part_expected_duration`
 	 */
 	countdownType?: SegmentCountdownType
+	/**
+	 * Unix timestamp of when the segment is projected to end (milliseconds). The time this segment started, offset by its budget duration, if the segment has a defined budget duration. Otherwise, the time the current part started, offset by the difference between expected durations of all parts in this segment and the as-played durations of the parts that already stopped.
+	 */
+	projectedEndTime: number
 	additionalProperties?: Record<string, any>
 }
 
@@ -295,11 +324,12 @@ interface CurrentSegmentPart {
 	 */
 	autoNext?: boolean
 	timing: CurrentSegmentPartTiming
+	additionalProperties?: Record<string, any>
 }
 
 interface CurrentSegmentPartTiming {
 	/**
-	 * Expected duration of the part
+	 * Expected duration of the part (milliseconds)
 	 */
 	expectedDurationMs?: number
 	additionalProperties?: Record<string, any>
@@ -311,17 +341,17 @@ interface PartStatus {
 	 */
 	id: string
 	/**
-	 * User name of the part
+	 * User-presentable name of the part
 	 */
 	name: string
-	/**
-	 * Unique id of the segment this part belongs to
-	 */
-	segmentId: string
 	/**
 	 * If this part will progress to the next automatically
 	 */
 	autoNext?: boolean
+	/**
+	 * Unique id of the segment this part belongs to
+	 */
+	segmentId: string
 	/**
 	 * All pieces in this part
 	 */
@@ -380,11 +410,20 @@ interface ActivePlaylistQuickLoop {
 	 * Whether the loop has two valid markers and is currently running
 	 */
 	running: boolean
+	/**
+	 * Represents a positional marker used to define the start or end of a Quick Loop by referencing a rundown, segment, or part.
+	 */
 	start?: QuickLoopMarker
+	/**
+	 * Represents a positional marker used to define the start or end of a Quick Loop by referencing a rundown, segment, or part.
+	 */
 	end?: QuickLoopMarker
 	additionalProperties?: Record<string, any>
 }
 
+/**
+ * Represents a positional marker used to define the start or end of a Quick Loop by referencing a rundown, segment, or part.
+ */
 interface QuickLoopMarker {
 	/**
 	 * The type of entity the marker is locked to
@@ -437,6 +476,7 @@ interface SegmentsEvent {
 	 * The segments that are in the currently active rundown playlist, in order
 	 */
 	segments: Segment[]
+	additionalProperties?: Record<string, any>
 }
 
 interface Segment {
@@ -461,6 +501,7 @@ interface Segment {
 	 * Optional arbitrary data
 	 */
 	publicData?: any
+	additionalProperties?: Record<string, any>
 }
 
 interface SegmentTiming {
@@ -720,19 +761,149 @@ interface BucketAdLibStatus {
 	 */
 	optionsSchema?: string
 	/**
-	 * Id of the adlib recognizable by the external source. Unique within a bucket.
+	 * Id of the adLib recognizable by the external source. Unique within a bucket.
 	 */
 	externalId: string
 	additionalProperties?: Record<string, any>
 }
 
+/**
+ * Active notifications in Sofie
+ */
+interface NotificationsEvent {
+	event: 'notifications'
+	/**
+	 * Active notifications in Sofie
+	 */
+	activeNotifications: NotificationObj[]
+}
+
+/**
+ * This describes a notification that should be shown to a user. These can come from various sources, and are added and removed dynamically during system usage
+ */
+interface NotificationObj {
+	/**
+	 * Unique identifier for the notification
+	 */
+	_id: string
+	/**
+	 * Severity level of the notification.
+	 */
+	severity: NotificationSeverity
+	/**
+	 * The message of the notification
+	 */
+	message: string
+	/**
+	 * Describes what the notification is related to
+	 */
+	relatedTo:
+		| NotificationTargetRundown
+		| NotificationTargetRundownPlaylist
+		| NotificationTargetPartInstance
+		| NotificationTargetPieceInstance
+		| NotificationTargetUnknown
+	/**
+	 * Unix timestamp of creation
+	 */
+	created: number
+	/**
+	 * Unix timestamp of last modification
+	 */
+	modified?: number
+}
+
+/**
+ * Severity level of the notification.
+ */
+enum NotificationSeverity {
+	WARNING = 'warning',
+	ERROR = 'error',
+	INFO = 'info',
+}
+
+interface NotificationTargetRundown {
+	/**
+	 * Possible NotificationTarget types
+	 */
+	type: NotificationTargetType.RUNDOWN
+	studioId: string
+	rundownId: string
+}
+
+/**
+ * Possible NotificationTarget types
+ */
+enum NotificationTargetType {
+	RUNDOWN = 'rundown',
+	PLAYLIST = 'playlist',
+	PART_INSTANCE = 'partInstance',
+	PIECE_INSTANCE = 'pieceInstance',
+	UNKNOWN = 'unknown',
+}
+
+interface NotificationTargetRundownPlaylist {
+	/**
+	 * Possible NotificationTarget types
+	 */
+	type: NotificationTargetType.PLAYLIST
+	studioId: string
+	playlistId: string
+}
+
+interface NotificationTargetPartInstance {
+	/**
+	 * Possible NotificationTarget types
+	 */
+	type: NotificationTargetType.PART_INSTANCE
+	studioId: string
+	rundownId: string
+	partInstanceId: string
+}
+
+interface NotificationTargetPieceInstance {
+	/**
+	 * Possible NotificationTarget types
+	 */
+	type: NotificationTargetType.PIECE_INSTANCE
+	studioId: string
+	rundownId: string
+	partInstanceId: string
+	pieceInstanceId: string
+}
+
+interface NotificationTargetUnknown {
+	/**
+	 * Possible NotificationTarget types
+	 */
+	type: NotificationTargetType.UNKNOWN
+}
+
+export type Slash =
+	| ActivePiecesEvent
+	| ActivePlaylistEvent
+	| AdLibsEvent
+	| BucketsEvent
+	| HeartbeatEvent
+	| NotificationsEvent
+	| PackagesEvent
+	| PongEvent
+	| SegmentsEvent
+	| StudioEvent
+	| SubscriptionStatusError
+	| SubscriptionStatusSuccess
+
 export {
-	Slash,
+	Subscriptions,
+	PingEvent,
 	PongEvent,
 	HeartbeatEvent,
+	SubscribeEvent,
+	SubscriptionEventName,
+	SubscriptionRequestDetails,
+	SubscriptionName,
 	SubscriptionStatusError,
 	SubscriptionDetails,
-	SubscriptionName,
 	SubscriptionStatus,
 	SubscriptionStatusSuccess,
 	StudioEvent,
@@ -767,4 +938,13 @@ export {
 	BucketsEvent,
 	BucketStatus,
 	BucketAdLibStatus,
+	NotificationsEvent,
+	NotificationObj,
+	NotificationSeverity,
+	NotificationTargetRundown,
+	NotificationTargetType,
+	NotificationTargetRundownPlaylist,
+	NotificationTargetPartInstance,
+	NotificationTargetPieceInstance,
+	NotificationTargetUnknown,
 }

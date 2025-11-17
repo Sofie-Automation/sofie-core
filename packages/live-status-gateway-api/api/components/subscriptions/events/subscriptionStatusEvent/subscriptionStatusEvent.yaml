@@ -1,0 +1,10 @@
+$defs:
+  subscriptionStatusEvent:
+    type: object
+    title: SubscriptionStatus
+    oneOf:
+      - $ref: './subscriptionStatusError/subscriptionStatusError.yaml#/$defs/subscriptionStatusError'
+      - $ref: './subscriptionStatusSuccess/subscriptionStatusSuccess.yaml#/$defs/subscriptionStatusSuccess'
+    examples:
+      - $ref: './subscriptionStatusEvent-example.yaml#/examples/0'
+      - $ref: './subscriptionStatusEvent-example.yaml#/examples/1'

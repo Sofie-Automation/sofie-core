@@ -1,0 +1,5 @@
+$ref: '../segmentBase/segmentBase-example.yaml'
+timing:
+  $ref: '../../timing/currentSegmentTiming/currentSegmentTiming-example.yaml'
+parts:
+  - $ref: '../../part/currentSegmentPart/currentSegmentPart-example.yaml'

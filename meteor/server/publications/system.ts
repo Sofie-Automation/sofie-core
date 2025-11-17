@@ -5,6 +5,7 @@ import { RundownId, RundownPlaylistId, StudioId } from '@sofie-automation/coreli
 import { check } from 'meteor/check'
 import { SYSTEM_ID } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
 import { triggerWriteAccessBecauseNoCheckNecessary } from '../security/securityVerify'
+import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 
 meteorPublish(MeteorPubSub.coreSystem, async function (_token: string | undefined) {
 	triggerWriteAccessBecauseNoCheckNecessary()
@@ -26,7 +27,7 @@ meteorPublish(MeteorPubSub.coreSystem, async function (_token: string | undefine
 	})
 })
 
-meteorPublish(MeteorPubSub.notificationsForRundown, async function (studioId: StudioId, rundownId: RundownId) {
+meteorPublish(CorelibPubSub.notificationsForRundown, async function (studioId: StudioId, rundownId: RundownId) {
 	// HACK: This should do real auth
 	triggerWriteAccessBecauseNoCheckNecessary()
 
@@ -41,7 +42,7 @@ meteorPublish(MeteorPubSub.notificationsForRundown, async function (studioId: St
 })
 
 meteorPublish(
-	MeteorPubSub.notificationsForRundownPlaylist,
+	CorelibPubSub.notificationsForRundownPlaylist,
 	async function (studioId: StudioId, playlistId: RundownPlaylistId) {
 		// HACK: This should do real auth
 		triggerWriteAccessBecauseNoCheckNecessary()

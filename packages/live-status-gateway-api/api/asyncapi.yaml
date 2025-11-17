@@ -1,20 +1,20 @@
-asyncapi: 2.6.0
-id: 'urn:nrk:no:sofie:live-status-gateway:server'
+asyncapi: '2.6.0'
+id: 'sofie:live-status-gateway:server'
 info:
   title: Sofie Live Status Service
+  version: '2.0.1'
   description: This service provides subscriptions for status updates from Sofie
-  version: 2.0.0
   license:
     name: MIT License
     url: http://opensource.org/licenses/MIT
   contact:
-    name: Sofie TV Automation - NRK Team
+    name: Sofie TV Automation
     url: https://github.com/Sofie-Automation/sofie-core/issues
 
 servers:
   development:
     url: localhost
-    description: Server available without authorisation
+    description: Server available without authorization
     protocol: ws
     protocolVersion: '13'
 
@@ -26,114 +26,26 @@ tags:
   - name: broadcast
 
 channels:
-  /:
-    publish:
-      description: Send messages to the root API
-      operationId: processRootMessage
-      message:
-        oneOf:
-          - $ref: '#/components/messages/ping'
-          - $ref: '#/components/messages/subscribe'
-          - $ref: '#/components/messages/unsubscribe'
-    subscribe:
-      description: Messages that are received from the API
-      operationId: sendRootMessage
-      message:
-        oneOf:
-          - $ref: '#/components/messages/pong'
-          - $ref: '#/components/messages/heartbeat'
-          - $ref: '#/components/messages/subscriptionStatus'
-          - $ref: '#/components/messages/studio'
-          - $ref: '#/components/messages/activePlaylist'
-          - $ref: '#/components/messages/activePieces'
-          - $ref: '#/components/messages/segments'
-          - $ref: '#/components/messages/adLibs'
-          - $ref: '#/components/messages/packages'
-          - $ref: '#/components/messages/buckets'
-components:
-  messages:
-    ping:
-      name: ping
-      messageId: ping
-      summary: Ping server to determine whether connection is alive
-      description: Client can ping server to determine whether connection is alive, server responds with pong. This is an application level ping as opposed to default ping in websockets standard which is server initiated
-      payload:
-        $ref: './schemas/root.yaml#/$defs/ping'
-      x-response:
-        $ref: '#/components/messages/pong'
-    pong:
-      name: pong
-      messageId: pong
-      summary: Pong is a response to ping message
-      description: Server pong response to a ping to determine whether connection is alive. This is an application level pong as opposed to default pong in websockets standard which is sent by client in response to a ping
-      payload:
-        $ref: './schemas/root.yaml#/$defs/pong'
-    heartbeat:
-      name: heartbeat
-      messageId: heartbeat
-      description: Server heartbeat sent if no subscription traffic within 1 second (approximately)
-      payload:
-        $ref: './schemas/root.yaml#/$defs/heartbeat'
-    subscribe:
-      name: subscribe
-      messageId: subscribe
-      description: Subscribe to a topic
-      payload:
-        $ref: './schemas/root.yaml#/$defs/subscribe'
-      x-response:
-        $ref: './schemas/root.yaml#/$defs/subscriptionStatus'
-    unsubscribe:
-      name: unsubscribe
-      messageId: unsubscribe
-      description: Unsubscribe from a topic
-      payload:
-        $ref: './schemas/root.yaml#/$defs/unsubscribe'
-      x-response:
-        $ref: './schemas/root.yaml#/$defs/subscriptionStatus'
-    subscriptionStatus:
-      messageId: subscriptionStatus
-      description: Subscription status response to subscribe or unsubscribe
-      payload:
-        $ref: './schemas/root.yaml#/$defs/subscriptionStatus'
-    studio:
-      name: studio
-      messageId: studioUpdate
-      description: Studio status
-      payload:
-        $ref: './schemas/studio.yaml#/$defs/studio'
-    activePlaylist:
-      name: activePlaylist
-      messageId: activePlaylistUpdate
-      description: Active Playlist status
-      payload:
-        $ref: './schemas/activePlaylist.yaml#/$defs/activePlaylist'
-    activePieces:
-      name: activePieces
-      messageId: activePiecesUpdate
-      summary: Active Pieces status
-      description: Pieces from the active Playlist that are currently active (on air)
-      payload:
-        $ref: './schemas/activePieces.yaml#/$defs/activePieces'
-    segments:
-      name: segments
-      messageId: segmentsUpdate
-      description: Segments in active Playlist
-      payload:
-        $ref: './schemas/segments.yaml#/$defs/segments'
-    adLibs:
-      name: adLibs
-      messageId: adLibsUpdate
-      description: AdLibs in active Playlist
-      payload:
-        $ref: './schemas/adLibs.yaml#/$defs/adLibs'
-    packages:
-      name: packages
-      messageId: packages
-      description: Status of Packages expected by Pieces
-      payload:
-        $ref: './schemas/packages.yaml#/$defs/packages'
-    buckets:
-      name: buckets
-      description: Buckets in Studio
-      payload:
-        $ref: './schemas/buckets.yaml#/$defs/buckets'
+  # As the LSG is websocket only, channels are only used for logical grouping for the generated docs and folder structure.
+  ping:
+    $ref: './topics/ping/pingTopic.yaml'
+  heartbeat:
+    $ref: './topics/heartbeat/heartbeatTopic.yaml'
+  subscriptions:
+    $ref: './topics/subscriptions/subscriptionsTopic.yaml'
+  studio:
+    $ref: './topics/studio/studioTopic.yaml'
+  activePlaylist:
+    $ref: './topics/activePlaylist/activePlaylistTopic.yaml'
+  activePieces:
+    $ref: './topics/activePieces/activePiecesTopic.yaml'
+  segments:
+    $ref: './topics/segments/segmentsTopic.yaml'
+  adLibs:
+    $ref: './topics/adLibs/adLibsTopic.yaml'
+  packages:
+    $ref: './topics/packages/packagesTopic.yaml'
+  buckets:
+    $ref: './topics/buckets/bucketsTopic.yaml'
+  notifications:
+    $ref: './topics/notifications/notificationsTopic.yaml'

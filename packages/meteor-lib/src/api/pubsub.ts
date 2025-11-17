@@ -1,7 +1,6 @@
 import {
 	BucketId,
 	PartId,
-	RundownId,
 	RundownPlaylistActivationId,
 	RundownPlaylistId,
 	ShowStyleBaseId,
@@ -31,7 +30,6 @@ import { CorelibPubSub, CorelibPubSubCollections, CorelibPubSubTypes } from '@so
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { PartInstance } from '../collections/PartInstances.js'
-import type { DBNotificationObj } from '@sofie-automation/corelib/dist/dataModel/Notifications'
 
 /**
  * Ids of possible DDP subscriptions for the UI only
@@ -79,14 +77,6 @@ export enum MeteorPubSub {
 	 * Fetch all translation bundles
 	 */
 	translationsBundles = 'translationsBundles',
-	/**
-	 * Fetch notifications for playlist
-	 */
-	notificationsForRundownPlaylist = 'notificationsForRundownPlaylist',
-	/**
-	 * Fetch notifications for rundown
-	 */
-	notificationsForRundown = 'notificationsForRundown',
 
 	// custom publications:
 
@@ -178,11 +168,6 @@ export interface MeteorPubSubTypes {
 		token?: string
 	) => CollectionName.RundownLayouts
 	[MeteorPubSub.translationsBundles]: (token?: string) => CollectionName.TranslationsBundles
-	[MeteorPubSub.notificationsForRundown]: (studioId: StudioId, rundownId: RundownId) => CollectionName.Notifications
-	[MeteorPubSub.notificationsForRundownPlaylist]: (
-		studioId: StudioId,
-		playlistId: RundownPlaylistId
-	) => CollectionName.Notifications
 
 	// custom publications:
 
@@ -249,7 +234,6 @@ export type MeteorPubSubCollections = {
 	[CollectionName.Buckets]: Bucket
 	[CollectionName.TranslationsBundles]: TranslationsBundle
 	[CollectionName.ExpectedPlayoutItems]: ExpectedPlayoutItem
-	[CollectionName.Notifications]: DBNotificationObj
 } & MeteorPubSubCustomCollections
 
 export type MeteorPubSubCustomCollections = {

@@ -1,0 +1,11 @@
+$defs:
+  segmentBase:
+    title: SegmentBase
+    type: object
+    properties:
+      id:
+        type: string
+        description: Unique id of the segment
+    required: [id]
+    examples:
+      - $ref: './segmentBase-example.yaml'
