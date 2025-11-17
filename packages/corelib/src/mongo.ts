@@ -44,6 +44,15 @@ export interface FindOneOptions<TDoc> {
 export interface FindOptions<TDoc> extends FindOneOptions<TDoc> {
 	limit?: number
 }
+
+export interface ObserveChangesOptions {
+	/**
+	 * If your observer functions do not mutate the passed arguments, you can set this to true, which
+	 * improves performance by reducing the amount of data copies.
+	 */
+	nonMutatingCallbacks?: boolean | undefined
+}
+
 /**
  * Subset of MongoSelector, only allows direct queries, not QueryWithModifiers such as $explain etc.
  * Used for simplified expressions (ie not using $and, $or etc..)

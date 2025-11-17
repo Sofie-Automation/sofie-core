@@ -1,4 +1,4 @@
-import { FindOptions, MongoModifier, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
+import { FindOptions, MongoModifier, MongoQuery, ObserveChangesOptions } from '@sofie-automation/corelib/dist/mongo'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { Meteor } from 'meteor/meteor'
 import { Mongo } from 'meteor/mongo'
@@ -235,7 +235,7 @@ export interface AsyncOnlyReadOnlyMongoCollection<DBInterface extends { _id: Pro
 		selector: MongoQuery<DBInterface> | DBInterface['_id'],
 		callbacks: PromisifyCallbacks<ObserveChangesCallbacks<DBInterface>>,
 		findOptions?: Omit<FindOptions<DBInterface>, 'fields'>,
-		callbackOptions?: { nonMutatingCallbacks?: boolean | undefined }
+		callbackOptions?: ObserveChangesOptions
 	): Promise<Meteor.LiveQueryHandle>
 
 	/**
