@@ -23,12 +23,16 @@ import { WatchedPackagesHelper } from './watchedPackages.js'
 import { getCurrentTime } from '../../lib/index.js'
 import { JobContext, ProcessedShowStyleCompound } from '../../jobs/index.js'
 import { executePeripheralDeviceAction, listPlayoutDevices } from '../../peripheralDevice.js'
-import { ActionPartChange, PartAndPieceInstanceActionService } from './services/PartAndPieceInstanceActionService.js'
+import {
+	ActionPartChange,
+	PartAndPieceInstanceActionService,
+	QueueablePartAndPieces,
+} from './services/PartAndPieceInstanceActionService.js'
 import { BlueprintQuickLookInfo } from '@sofie-automation/blueprints-integration/dist/context/quickLoopInfo'
 
 export class OnTakeContext extends ShowStyleUserContext implements IOnTakeContext, IEventContext {
 	public isTakeAborted: boolean
-	public partToQueue: { rawPart: IBlueprintPart; rawPieces: IBlueprintPiece[] } | undefined
+	public partToQueueAfterTake: QueueablePartAndPieces | undefined
 
 	public get quickLoopInfo(): BlueprintQuickLookInfo | null {
 		return this.partAndPieceInstanceService.quickLoopInfo
@@ -155,7 +159,16 @@ export class OnTakeContext extends ShowStyleUserContext implements IOnTakeContex
 	}
 
 	queuePartAfterTake(rawPart: IBlueprintPart, rawPieces: IBlueprintPiece[]): void {
-		this.partToQueue = { rawPart, rawPieces }
+		const currentPartInstance = this._playoutModel.currentPartInstance
+		if (!currentPartInstance) {
+			throw new Error('Cannot queue part when no current partInstance')
+		}
+		this.partToQueueAfterTake = this.partAndPieceInstanceService.processPartAndPiecesToQueueOrFail(
+			rawPart,
+			rawPieces,
+			this._playoutModel.currentPartInstance.partInstance.rundownId,
+			this._playoutModel.currentPartInstance.partInstance.segmentId
+		)
 	}
 
 	getCurrentTime(): number {
