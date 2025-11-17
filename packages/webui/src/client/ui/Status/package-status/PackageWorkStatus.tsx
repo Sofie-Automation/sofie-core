@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { ExpectedPackageWorkStatus } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackageWorkStatuses'
-import { unprotectString } from '../../../lib/tempLib.js'
+import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import Tooltip from 'rc-tooltip'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faRedo, faStopCircle, faChevronDown, faChevronRight, faExclamation } from '@fortawesome/free-solid-svg-icons'

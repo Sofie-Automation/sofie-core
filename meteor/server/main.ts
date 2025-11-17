@@ -38,7 +38,6 @@ import './performanceMonitor'
 import './systemStatus/api'
 import './systemStatus/prometheusHealthGauge'
 import './api/user'
-import './api/organizations'
 import './api/serviceMessages/api'
 import './webmanifest'
 

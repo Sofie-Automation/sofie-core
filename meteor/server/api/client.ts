@@ -1,5 +1,6 @@
 import { check } from '../lib/check'
-import { literal, Time, getRandomId } from '../lib/tempLib'
+import { literal, getRandomId } from '@sofie-automation/corelib/dist/lib'
+import type { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { getCurrentTime } from '../lib/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { logger } from '../logging'
@@ -209,7 +210,6 @@ export namespace ServerClientAPI {
 					literal<UserActionsLogItem>({
 						_id: actionId,
 						clientAddress: context.connection.clientAddress,
-						organizationId: null,
 						userId: null,
 						context: userEvent,
 						method: methodName,
@@ -323,7 +323,6 @@ export namespace ServerClientAPI {
 			literal<UserActionsLogItem>({
 				_id: actionId,
 				clientAddress: methodContext.connection ? methodContext.connection.clientAddress : '',
-				organizationId: null,
 				userId: null,
 				context: context,
 				method: `${deviceId}: ${method}`,

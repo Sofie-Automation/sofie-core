@@ -4,7 +4,8 @@ import { ICoreSystem, GENESIS_SYSTEM_VERSION } from '@sofie-automation/meteor-li
 import { clearMigrationSteps, addMigrationSteps, prepareMigration, PreparedMigration } from '../databaseMigration'
 import { CURRENT_SYSTEM_VERSION } from '../currentSystemVersion'
 import { RunMigrationResult, GetMigrationStatusResult } from '@sofie-automation/meteor-lib/dist/api/migration'
-import { literal, protectString } from '../../lib/tempLib'
+import { literal } from '@sofie-automation/corelib/dist/lib'
+import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { MigrationStepInputResult } from '@sofie-automation/blueprints-integration'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { MeteorCall } from '../../api/methods'
@@ -109,7 +110,6 @@ describe('Migrations', () => {
 					await Studios.insertAsync({
 						_id: protectString('studioMock2'),
 						name: 'Default studio',
-						organizationId: null,
 						supportedShowStyleBase: [],
 						settingsWithOverrides: wrapDefaultObject({
 							mediaPreviewsUrl: '',
@@ -152,7 +152,6 @@ describe('Migrations', () => {
 					await Studios.insertAsync({
 						_id: protectString('studioMock3'),
 						name: 'Default studio',
-						organizationId: null,
 						supportedShowStyleBase: [],
 						settingsWithOverrides: wrapDefaultObject({
 							mediaPreviewsUrl: '',
@@ -195,7 +194,6 @@ describe('Migrations', () => {
 					await Studios.insertAsync({
 						_id: protectString('studioMock1'),
 						name: 'Default studio',
-						organizationId: null,
 						supportedShowStyleBase: [],
 						settingsWithOverrides: wrapDefaultObject({
 							mediaPreviewsUrl: '',
@@ -246,7 +244,6 @@ describe('Migrations', () => {
 		await ShowStyleBases.insertAsync({
 			_id: protectString('showStyle0'),
 			name: '',
-			organizationId: null,
 			blueprintId: protectString('showStyle0'),
 			outputLayersWithOverrides: wrapDefaultObject({}),
 			sourceLayersWithOverrides: wrapDefaultObject({}),

@@ -1,13 +1,7 @@
 import { IBlueprintPlayoutDevice, TSR } from '@sofie-automation/blueprints-integration'
 import { PeripheralDeviceCommandId, PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PeripheralDeviceType } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
-import {
-	clone,
-	Complete,
-	createManualPromise,
-	getRandomId,
-	normalizeArrayToMap,
-} from '@sofie-automation/corelib/dist/lib'
+import { clone, Complete, getRandomId, normalizeArrayToMap } from '@sofie-automation/corelib/dist/lib'
 import { JobContext } from './jobs/index.js'
 import { getCurrentTime } from './lib/index.js'
 import { logger } from './logging.js'
@@ -61,7 +55,7 @@ async function executePeripheralDeviceGenericFunction(
 
 	const commandId: PeripheralDeviceCommandId = getRandomId()
 
-	const result = createManualPromise<any>()
+	const result = Promise.withResolvers<any>()
 
 	// logger.debug('command created: ' + functionName)
 
@@ -117,9 +111,9 @@ async function executePeripheralDeviceGenericFunction(
 						completed = true
 						// Handle result
 						if (cmd.replyError) {
-							result.manualReject(cmd.replyError)
+							result.reject(cmd.replyError)
 						} else {
-							result.manualResolve(cmd.reply)
+							result.resolve(cmd.reply)
 						}
 					}
 				} else if (getCurrentTime() - (cmd.time || 0) >= timeoutTime) {
@@ -130,7 +124,7 @@ async function executePeripheralDeviceGenericFunction(
 
 					if (!completed) {
 						completed = true
-						result.manualReject(
+						result.reject(
 							new Error(
 								`Timeout after ${timeoutTime} ms when executing the function "${cmd.functionName}" on device "${cmd.deviceId}"`
 							)
@@ -169,7 +163,7 @@ async function executePeripheralDeviceGenericFunction(
 
 		if (!completed) {
 			completed = true
-			result.manualReject(err)
+			result.reject(err)
 		}
 	})
 
@@ -190,7 +184,7 @@ async function executePeripheralDeviceGenericFunction(
 		throw e
 	}
 
-	return result
+	return result.promise
 }
 
 export async function listPlayoutDevices(

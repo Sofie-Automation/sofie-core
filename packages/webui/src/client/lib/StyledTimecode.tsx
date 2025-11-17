@@ -1,6 +1,7 @@
 import React from 'react'
 import ClassNames from 'classnames'
-import { Time, formatDurationAsTimecode } from './tempLib.js'
+import { formatDurationAsTimecode } from '@sofie-automation/corelib/dist/lib'
+import type { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { IStudioSettings } from '@sofie-automation/corelib/dist/dataModel/Studio'
 
 interface IProps {

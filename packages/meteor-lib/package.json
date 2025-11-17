@@ -39,7 +39,7 @@
 		"/LICENSE"
 	],
 	"dependencies": {
-		"@mos-connection/helper": "^4.3.1",
+		"@mos-connection/helper": "^5.0.0-alpha.0",
 		"@sofie-automation/blueprints-integration": "1.53.0-in-development",
 		"@sofie-automation/corelib": "1.53.0-in-development",
 		"@sofie-automation/shared-lib": "1.53.0-in-development",

@@ -423,7 +423,6 @@ export class IngestModelImpl implements IngestModel, DatabasePersistedModel {
 			notes: clone(rundownNotes),
 			_id: this.rundownId,
 			externalId: this.rundownExternalId,
-			organizationId: this.context.studio.organizationId,
 			studioId: this.context.studio._id,
 			showStyleVariantId: showStyleVariant._id,
 			showStyleBaseId: showStyleBase._id,

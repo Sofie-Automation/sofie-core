@@ -3,15 +3,14 @@ import _ from 'underscore'
 import { Tracker } from 'meteor/tracker'
 import { Meteor } from 'meteor/meteor'
 import { EventEmitter } from 'events'
+import { assertNever, getRandomString } from '@sofie-automation/corelib/dist/lib'
+import type { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
 import {
-	Time,
 	ProtectedString,
 	unprotectString,
 	isProtectedString,
 	protectString,
-	assertNever,
-	getRandomString,
-} from '../tempLib.js'
+} from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { isTranslatableMessage, ITranslatableMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { PieceStatusCode } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { MeteorCall } from '../../lib/meteorApi.js'

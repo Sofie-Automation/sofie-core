@@ -1,5 +1,6 @@
 import _ from 'underscore'
-import { LogLevel, ProtectedString } from '../../server/lib/tempLib'
+import { LogLevel } from '@sofie-automation/meteor-lib/dist/lib'
+import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { AsyncOnlyMongoCollection } from '../../server/collections/collection'
 import { getLogLevel, setLogLevel } from '../../server/logging'
 

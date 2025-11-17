@@ -17,7 +17,7 @@ import {
 	DashboardPanelInnerProps,
 	useDashboardPanelTrackedProps,
 } from './DashboardPanel.js'
-import { unprotectString } from '../../lib/tempLib.js'
+import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { RundownUtils } from '../../lib/rundown.js'
 import { AdLibPieceUi } from '../../lib/shelf.js'
 import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'

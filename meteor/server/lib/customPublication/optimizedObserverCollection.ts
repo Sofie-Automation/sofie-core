@@ -1,5 +1,5 @@
 import { ReadonlyDeep } from 'type-fest'
-import { ProtectedString } from '../tempLib'
+import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { CustomPublishCollection } from './customPublishCollection'
 import { SetupObserversResult, TriggerUpdate, setUpOptimizedObserverInner } from './optimizedObserverBase'
 import { CustomPublish } from './publish'

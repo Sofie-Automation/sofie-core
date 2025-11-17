@@ -1,5 +1,6 @@
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { clone, protectString, unprotectString } from '../client/lib/tempLib.js'
+import { clone } from '@sofie-automation/corelib/dist/lib'
+import { unprotectString, protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
@@ -32,7 +33,6 @@ export function defaultRundownPlaylist(_id: RundownPlaylistId, studioId: StudioI
 		_id: _id,
 
 		externalId: 'MOCK_RUNDOWNPLAYLIST',
-		organizationId: null,
 		studioId: studioId,
 
 		name: 'Default RundownPlaylist',
@@ -62,8 +62,6 @@ export function defaultRundown(
 		studioId: studioId,
 		showStyleBaseId: showStyleBaseId,
 		showStyleVariantId: showStyleVariantId,
-
-		organizationId: null,
 
 		playlistId: playlistId,
 
@@ -97,7 +95,6 @@ export function defaultStudio(_id: StudioId): DBStudio {
 		_id: _id,
 
 		name: 'mockStudio',
-		organizationId: null,
 		mappingsWithOverrides: wrapDefaultObject({}),
 		supportedShowStyleBase: [],
 		blueprintConfigWithOverrides: wrapDefaultObject({}),

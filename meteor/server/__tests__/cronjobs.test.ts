@@ -2,7 +2,8 @@ import '../../__mocks__/_extendJest'
 import { runAllTimers, waitUntil } from '../../__mocks__/helpers/jest'
 import { MeteorMock } from '../../__mocks__/meteor'
 import { logger } from '../logging'
-import { getRandomId, getRandomString, literal, protectString } from '../lib/tempLib'
+import { getRandomId, getRandomString, literal } from '@sofie-automation/corelib/dist/lib'
+import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { SnapshotType } from '@sofie-automation/meteor-lib/dist/collections/Snapshots'
 import {
 	IBlueprintPieceType,
@@ -423,7 +424,6 @@ describe('cronjobs', () => {
 			const userAction0 = protectString<UserActionsLogItemId>(getRandomString())
 			await UserActionsLog.insertAsync({
 				_id: userAction0,
-				organizationId: null,
 				userId: null,
 				args: '',
 				clientAddress: '',
@@ -436,7 +436,6 @@ describe('cronjobs', () => {
 			const userAction1 = protectString<UserActionsLogItemId>(getRandomString())
 			await UserActionsLog.insertAsync({
 				_id: userAction1,
-				organizationId: null,
 				userId: null,
 				args: '',
 				clientAddress: '',
@@ -457,7 +456,6 @@ describe('cronjobs', () => {
 			const snapshot0 = protectString<SnapshotId>(getRandomString())
 			await Snapshots.insertAsync({
 				_id: snapshot0,
-				organizationId: null,
 				comment: '',
 				fileName: '',
 				name: '',
@@ -470,7 +468,6 @@ describe('cronjobs', () => {
 			const snapshot1 = protectString<SnapshotId>(getRandomString())
 			await Snapshots.insertAsync({
 				_id: snapshot1,
-				organizationId: null,
 				comment: '',
 				fileName: '',
 				name: '',
@@ -497,7 +494,6 @@ describe('cronjobs', () => {
 			const deviceId = protectString<PeripheralDeviceId>(getRandomString())
 			await PeripheralDevices.insertAsync({
 				_id: deviceId,
-				organizationId: null,
 				type: PeripheralDeviceType.PLAYOUT,
 				category: PeripheralDeviceCategory.PLAYOUT,
 				configManifest: {
@@ -577,7 +573,6 @@ describe('cronjobs', () => {
 			const studioId = protectString<StudioId>(getRandomString())
 			await Studios.insertAsync({
 				_id: studioId,
-				organizationId: null,
 				name: 'Studio',
 				blueprintConfigWithOverrides: newObjectWithOverrides({}),
 				_rundownVersionHash: '',

@@ -1,5 +1,5 @@
 import { EvaluationBase } from '@sofie-automation/meteor-lib/dist/collections/Evaluations'
-import { getRandomId, getSofieHostUrl } from '../lib/tempLib'
+import { getRandomId, getSofieHostUrl } from '@sofie-automation/corelib/dist/lib'
 import { getCurrentTime } from '../lib/lib'
 import { deferAsync } from '../lib/lib'
 import { logger } from '../logging'
@@ -19,7 +19,6 @@ export async function saveEvaluation(
 	await Evaluations.insertAsync({
 		...evaluation,
 		_id: getRandomId(),
-		organizationId: null,
 		userId: null,
 		timestamp: getCurrentTime(),
 	})

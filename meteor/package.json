@@ -40,7 +40,7 @@
 		"@babel/runtime": "^7.26.7",
 		"@koa/cors": "^5.0.0",
 		"@koa/router": "^13.1.0",
-		"@mos-connection/helper": "^4.3.1",
+		"@mos-connection/helper": "^5.0.0-alpha.0",
 		"@slack/webhook": "^7.0.4",
 		"@sofie-automation/blueprints-integration": "portal:../packages/blueprints-integration",
 		"@sofie-automation/corelib": "portal:../packages/corelib",

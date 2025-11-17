@@ -1,6 +1,7 @@
 import { useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
 import _ from 'underscore'
-import { omit, unprotectString } from '../../lib/tempLib.js'
+import { omit } from '@sofie-automation/corelib/dist/lib'
+import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { makeTableOfObject } from '../../lib/utilComponents.js'
 import { StudioSelect } from './StudioSelect.js'

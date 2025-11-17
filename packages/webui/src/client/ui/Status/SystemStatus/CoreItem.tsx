@@ -1,6 +1,6 @@
 import { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
-import { unprotectString } from '../../../lib/tempLib.js'
+import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { doModalDialog } from '../../../lib/ModalDialog.js'
 import { NotificationCenter, NoticeLevel, Notification } from '../../../lib/notifications/notifications.js'
 import ClassNames from 'classnames'

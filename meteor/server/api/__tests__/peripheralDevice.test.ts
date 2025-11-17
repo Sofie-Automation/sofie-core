@@ -6,7 +6,9 @@ import {
 	PeripheralDeviceType,
 } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { EmptyPieceTimelineObjectsBlob } from '@sofie-automation/corelib/dist/dataModel/Piece'
-import { literal, protectString, ProtectedString, getRandomId, LogLevel, getRandomString } from '../../lib/tempLib'
+import { literal, getRandomId, getRandomString } from '@sofie-automation/corelib/dist/lib'
+import { LogLevel } from '@sofie-automation/meteor-lib/dist/lib'
+import { protectString, ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { getCurrentTime } from '../../lib/lib'
 import { waitUntil } from '../../../__mocks__/helpers/jest'
 import { setupDefaultStudioEnvironment, DefaultEnvironment } from '../../../__mocks__/helpers/database'
@@ -99,7 +101,6 @@ describe('test peripheralDevice general API methods', () => {
 				peripheralDeviceId: env.ingestDevice._id,
 				nrcsName: 'mockNRCS',
 			},
-			organizationId: protectString(''),
 			timing: {
 				type: PlaylistTimingType.None,
 			},
@@ -630,7 +631,6 @@ describe('test peripheralDevice general API methods', () => {
 			env = await setupDefaultStudioEnvironment()
 			await PeripheralDevices.insertAsync({
 				_id: deviceId,
-				organizationId: null,
 				name: 'Mock Media Manager',
 				deviceName: 'Media Manager',
 				studioAndConfigId: {

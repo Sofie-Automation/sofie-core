@@ -34,7 +34,8 @@ import {
 	getSideEffect,
 } from '@sofie-automation/meteor-lib/dist/collections/ExpectedPackages'
 import { getActiveRoutes, getRoutedMappings } from '@sofie-automation/meteor-lib/dist/collections/Studios'
-import { ensureHasTrailingSlash, unprotectString } from '../../lib/tempLib'
+import { ensureHasTrailingSlash } from '@sofie-automation/corelib/dist/lib'
+import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { MediaObjects, PackageContainerPackageStatuses, PackageInfos } from '../../collections'
 import {
 	mediaObjectFieldSpecifier,

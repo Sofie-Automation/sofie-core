@@ -1,4 +1,4 @@
-import { Time } from './tempLib.js'
+import type { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { getCurrentTime } from './systemTime.js'
 import { Meteor } from 'meteor/meteor'
 import { Tracker } from 'meteor/tracker'

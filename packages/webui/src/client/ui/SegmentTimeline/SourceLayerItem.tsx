@@ -11,7 +11,7 @@ import { LocalLayerItemRenderer } from './Renderers/LocalLayerItemRenderer.js'
 
 import { DEBUG_MODE } from './SegmentTimelineDebugMode.js'
 import { getElementDocumentOffset, OffsetPosition } from '../../utils/positions.js'
-import { unprotectString } from '../../lib/tempLib.js'
+import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { RundownViewEvents, HighlightEvent } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
 import { pieceUiClassNames } from '../../lib/ui/pieceUiClassNames.js'
 import { TransitionSourceRenderer } from './Renderers/TransitionSourceRenderer.js'

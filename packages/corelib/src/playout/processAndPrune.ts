@@ -247,11 +247,7 @@ export function resolvePrunedPieceInstance(
 
 	// Consider the playout userDuration
 	if (pieceInstance.userDuration) {
-		if ('endRelativeToPart' in pieceInstance.userDuration) {
-			caps.push(pieceInstance.userDuration.endRelativeToPart - resolvedStart)
-		} else if ('endRelativeToNow' in pieceInstance.userDuration) {
-			caps.push(nowInPart + pieceInstance.userDuration.endRelativeToNow - resolvedStart)
-		}
+		caps.push(pieceInstance.userDuration.endRelativeToPart - resolvedStart)
 	}
 
 	return {

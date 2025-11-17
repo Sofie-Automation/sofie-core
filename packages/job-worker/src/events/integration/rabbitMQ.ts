@@ -3,7 +3,6 @@ import * as AMQP from 'amqplib'
 import { logger } from '../../logging.js'
 import { ExternalMessageQueueObjRabbitMQ } from '@sofie-automation/blueprints-integration'
 import { ExternalMessageQueueObjId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { createManualPromise, ManualPromise } from '@sofie-automation/corelib/dist/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { FatalExternalMessageError } from '../ExternalMessageQueue.js'
@@ -17,7 +16,7 @@ interface Message {
 	routingKey: string
 	headers: { [header: string]: string } | undefined
 	message: string
-	promise: ManualPromise<void>
+	promise: PromiseWithResolvers<void>
 }
 abstract class Manager {
 	protected open = false
@@ -183,7 +182,7 @@ class ChannelManager extends Manager {
 
 		await this.channel.assertExchange(exchangeTopic, 'topic', { durable: true })
 
-		const promise = createManualPromise<void>()
+		const promise = Promise.withResolvers<void>()
 
 		this.outgoingQueue.push({
 			_id: messageId,
@@ -198,7 +197,7 @@ class ChannelManager extends Manager {
 			this.triggerHandleOutgoingQueue()
 		})
 
-		return promise
+		return promise.promise
 	}
 
 	private triggerHandleOutgoingQueue() {
@@ -235,9 +234,9 @@ class ChannelManager extends Manager {
 				},
 				(err, _ok) => {
 					if (err) {
-						messageToSend.promise.manualReject(err)
+						messageToSend.promise.reject(err)
 					} else {
-						messageToSend.promise.manualResolve()
+						messageToSend.promise.resolve()
 					}
 					// Trigger handling the next message
 					this.triggerHandleOutgoingQueue()

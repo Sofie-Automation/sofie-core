@@ -8,7 +8,7 @@ import {
 } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
 import { PackageInfoDB } from '@sofie-automation/corelib/dist/dataModel/PackageInfos'
 import { ExpectedPackages, Rundowns } from '../../collections'
-import { assertNever } from '../../lib/tempLib'
+import { assertNever } from '@sofie-automation/corelib/dist/lib'
 import { lazyIgnore } from '../../lib/lib'
 import { logger } from '../../logging'
 import { runIngestOperation } from './lib'

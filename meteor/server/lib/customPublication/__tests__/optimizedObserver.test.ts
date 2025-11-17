@@ -1,4 +1,3 @@
-import { createManualPromise } from '@sofie-automation/corelib/dist/lib'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { optimizedObserverCountSubscribers, setUpOptimizedObserverInner, TriggerUpdate } from '../optimizedObserverBase'
 import { CustomPublish, CustomPublishChanges } from '../publish'
@@ -110,8 +109,8 @@ describe('optimizedObserver base', () => {
 			expect(optimizedObserverCountSubscribers('test2')).toBe(2)
 
 			expect(manipulateData).toHaveBeenCalledTimes(1)
-			const manualPromise = createManualPromise<ManipulateDataRes>()
-			manipulateData.mockImplementationOnce(async () => manualPromise)
+			const manualPromise = Promise.withResolvers<ManipulateDataRes>()
+			manipulateData.mockImplementationOnce(async () => manualPromise.promise)
 
 			// Let the async run
 			await sleep(0)
@@ -132,7 +131,7 @@ describe('optimizedObserver base', () => {
 			expect(optimizedObserverCountSubscribers('test2')).toBe(1)
 
 			// Lets unblock
-			manualPromise.manualResolve([[], emptyChanges()])
+			manualPromise.resolve([[], emptyChanges()])
 			await sleep(0)
 
 			// Check the receiver calls

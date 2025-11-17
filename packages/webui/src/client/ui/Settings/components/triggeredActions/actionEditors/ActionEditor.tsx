@@ -8,7 +8,7 @@ import {
 	SomeAction,
 } from '@sofie-automation/blueprints-integration'
 import { AdLibFilter } from './filterPreviews/AdLibFilter.js'
-import { literal } from '../../../../../lib/tempLib.js'
+import { literal } from '@sofie-automation/corelib/dist/lib'
 import { ViewFilter } from './filterPreviews/ViewFilter.js'
 import { RundownPlaylistFilter } from './filterPreviews/RundownPlaylistFilter.js'
 import { OutputLayers, SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'

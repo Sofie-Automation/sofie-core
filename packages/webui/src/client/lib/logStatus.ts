@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor'
 import { Tracker } from 'meteor/tracker'
-import { getRandomString } from './tempLib.js'
+import { getRandomString } from '@sofie-automation/corelib/dist/lib'
 import { logger } from './logging.js'
 import { getLocalAllowStudio } from './localStorage.js'
 
