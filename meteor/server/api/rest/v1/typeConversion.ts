@@ -341,14 +341,15 @@ export async function studioFrom(apiStudio: APIStudio, existingId?: StudioId): P
 			: wrapDefaultObject(studioSettings),
 		supportedShowStyleBase: apiStudio.supportedShowStyleBase?.map((id) => protectString<ShowStyleBaseId>(id)) ?? [],
 		organizationId: null,
-		mappingsWithOverrides: wrapDefaultObject({}),
-		routeSetsWithOverrides: wrapDefaultObject({}),
+		mappingsWithOverrides: studio?.mappingsWithOverrides ?? wrapDefaultObject({}),
+		mappingsHash: studio?.mappingsHash,
+		routeSetsWithOverrides: studio?.routeSetsWithOverrides ?? wrapDefaultObject({}),
 		_rundownVersionHash: studio?._rundownVersionHash ?? '',
 		routeSetExclusivityGroupsWithOverrides: wrapDefaultObject({}),
 		packageContainersWithOverrides: wrapDefaultObject({}),
 		previewContainerIds: [],
 		thumbnailContainerIds: [],
-		peripheralDeviceSettings: {
+		peripheralDeviceSettings: studio?.peripheralDeviceSettings ?? {
 			deviceSettings: wrapDefaultObject({}),
 			playoutDevices: wrapDefaultObject({}),
 			ingestDevices: wrapDefaultObject({}),

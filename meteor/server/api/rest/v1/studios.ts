@@ -101,21 +101,15 @@ class StudiosServerAPI implements StudiosRestAPI {
 
 		await Studios.upsertAsync(studioId, newStudio)
 
-		// wait for the upsert to complete before validation and upgrade read from the studios collection
-		await new Promise<void>((resolve) => setTimeout(() => resolve(), 200))
-
 		const validation = await validateConfigForStudio(studioId)
 		checkValidation(`addOrUpdateStudio ${studioId}`, validation.messages)
 
-		return ClientAPI.responseSuccess(
-			await new Promise<string | false>((resolve) =>
-				// wait for the upsert to complete before upgrade
-				setTimeout(async () => {
-					await runUpgradeForStudio(studioId)
-					resolve(await updateStudioBaseline(studioId))
-				}, 200)
-			)
-		)
+		// wait for the upsert to complete before upgrade
+		await new Promise<void>((resolve) => setTimeout(() => resolve(), 200))
+
+		await runUpgradeForStudio(studioId)
+
+		return ClientAPI.responseSuccess(await updateStudioBaseline(studioId))
 	}
 
 	async getStudioConfig(
@@ -151,21 +145,15 @@ class StudiosServerAPI implements StudiosRestAPI {
 
 		await Studios.upsertAsync(studioId, newStudio)
 
-		// wait for the upsert to complete before validation and upgrade read from the studios collection
-		await new Promise<void>((resolve) => setTimeout(() => resolve(), 200))
-
 		const validation = await validateConfigForStudio(studioId)
 		checkValidation(`updateStudioConfig ${studioId}`, validation.messages)
 
-		return ClientAPI.responseSuccess(
-			await new Promise<string | false>((resolve) =>
-				// wait for the upsert to complete before upgrade
-				setTimeout(async () => {
-					await runUpgradeForStudio(studioId)
-					resolve(await updateStudioBaseline(studioId))
-				}, 200)
-			)
-		)
+		// wait for the upsert to complete before upgrade
+		await new Promise<void>((resolve) => setTimeout(() => resolve(), 200))
+
+		await runUpgradeForStudio(studioId)
+
+		return ClientAPI.responseSuccess(await updateStudioBaseline(studioId))
 	}
 
 	async deleteStudio(
