@@ -1,7 +1,11 @@
 import ClassNames from 'classnames'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { PartUi } from '../SegmentTimeline/SegmentTimelineContainer.js'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import {
+	DBRundownPlaylist,
+	ABSessionAssignment,
+	ABSessionAssignments,
+} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { useTiming } from '../RundownView/RundownTiming/withTiming.js'
 import {
@@ -17,7 +21,7 @@ import { PieceIconContainer } from './ClockViewPieceIcons/ClockViewPieceIcon.js'
 import { PieceNameContainer } from './ClockViewPieceIcons/ClockViewPieceName.js'
 import { Timediff } from './Timediff.js'
 import { RundownUtils } from '../../lib/rundown.js'
-import { PieceLifespan } from '@sofie-automation/blueprints-integration'
+import { PieceLifespan, SourceLayerType } from '@sofie-automation/blueprints-integration'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { PieceFreezeContainer } from './ClockViewPieceIcons/ClockViewFreezeCount.js'
 import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
@@ -181,7 +185,7 @@ const getDirectorScreenReactive = (props: DirectorScreenProps): DirectorScreenTr
 				modified: 0,
 				previousPersistentState: 0,
 				rundownRanksAreSetInSofie: 0,
-				trackedAbSessions: 0,
+				// Note: Do not exclude assignedAbSessions/trackedAbSessions so they stay reactive
 				restoredFromSnapshotId: 0,
 			},
 		})
@@ -346,6 +350,7 @@ function DirectorScreenRender({
 	playlist,
 	segments,
 	currentShowStyleBaseId,
+	currentShowStyleBase,
 	nextShowStyleBaseId,
 	playlistId,
 	currentPartInstance,
@@ -366,6 +371,136 @@ function DirectorScreenRender({
 		const now = timingDurations.currentTime ?? getCurrentTime()
 
 		const overUnderClock = getPlaylistTimingDiff(playlist, timingDurations) ?? 0
+		// Prepare AB session assignment data for rendering
+		const assigned: Record<string, ABSessionAssignments> | undefined =
+			(playlist.assignedAbSessions as unknown as Record<string, ABSessionAssignments>) || undefined
+		const abPools: Array<[string, ABSessionAssignments]> = []
+		if (assigned) {
+			const poolNames = Object.keys(assigned).sort((a, b) => a.localeCompare(b))
+			for (const poolName of poolNames) {
+				const a = assigned[poolName]
+				abPools.push([poolName, a])
+			}
+		}
+
+		// Precompute conditional blocks to satisfy linting rules (avoid nested ternaries)
+		let expectedStartCountdown: JSX.Element | null = null
+		if (!(currentPartInstance && currentShowStyleBaseId) && expectedStart) {
+			expectedStartCountdown = (
+				<div className="director-screen__body__rundown-countdown">
+					<Timediff time={expectedStart - getCurrentTime()} />
+				</div>
+			)
+		}
+
+		// Compute current and next clip player ids (for VT pieces)
+		const currentClipPlayer: string | undefined = useTracker(() => {
+			if (!currentPartInstance || !currentShowStyleBase || !playlist?.assignedAbSessions) return undefined
+			const instances = PieceInstances.find({
+				partInstanceId: currentPartInstance.instance._id,
+				reset: { $ne: true },
+			}).fetch()
+			for (const pi of instances) {
+				const sl = currentShowStyleBase.sourceLayers?.[pi.piece.sourceLayerId]
+				// Only consider VT and LIVE_SPEAK on the PGM output layer
+				const ol = currentShowStyleBase.outputLayers?.[pi.piece.outputLayerId]
+				if ((sl?.type === SourceLayerType.VT || sl?.type === SourceLayerType.LIVE_SPEAK) && ol?.isPGM) {
+					const ab = (pi.piece as unknown as { abSessions?: Array<{ poolName: string; sessionName: string }> })
+						.abSessions
+					if (!ab || ab.length === 0) continue
+					for (const s of ab) {
+						const pool = playlist.assignedAbSessions?.[s.poolName]
+						if (!pool) continue
+						const matches: ABSessionAssignment[] = []
+						for (const key in pool) {
+							const a = pool[key]
+							if (a && a.sessionName === s.sessionName) matches.push(a)
+						}
+						const live = matches.find((m) => !m.lookahead)
+						const la = matches.find((m) => m.lookahead)
+						if (live) return String(live.playerId)
+						if (la) return String(la.playerId)
+					}
+				}
+			}
+			return undefined
+		}, [currentPartInstance?.instance._id, currentShowStyleBase?._id, playlist?.assignedAbSessions])
+
+		const nextClipPlayer: string | undefined = useTracker(() => {
+			if (!nextPartInstance || !nextShowStyleBaseId || !playlist?.assignedAbSessions) return undefined
+			// We need the ShowStyleBase to resolve sourceLayer types
+			const ssb = UIShowStyleBases.findOne(nextShowStyleBaseId)
+			if (!ssb) return undefined
+			const instances = PieceInstances.find({
+				partInstanceId: nextPartInstance.instance._id,
+				reset: { $ne: true },
+			}).fetch()
+			for (const pi of instances) {
+				const sl = ssb.sourceLayers?.[pi.piece.sourceLayerId]
+				// Only consider VT and LIVE_SPEAK on the PGM output layer
+				const ol = ssb.outputLayers?.[pi.piece.outputLayerId]
+				if ((sl?.type === SourceLayerType.VT || sl?.type === SourceLayerType.LIVE_SPEAK) && ol?.isPGM) {
+					const ab = (pi.piece as unknown as { abSessions?: Array<{ poolName: string; sessionName: string }> })
+						.abSessions
+					if (!ab || ab.length === 0) continue
+					for (const s of ab) {
+						const pool = playlist.assignedAbSessions?.[s.poolName]
+						if (!pool) continue
+						const matches: ABSessionAssignment[] = []
+						for (const key in pool) {
+							const a = pool[key]
+							if (a && a.sessionName === s.sessionName) matches.push(a)
+						}
+						const live = matches.find((m) => !m.lookahead)
+						const la = matches.find((m) => m.lookahead)
+						if (live) return String(live.playerId)
+						if (la) return String(la.playerId)
+					}
+				}
+			}
+			return undefined
+		}, [nextPartInstance?.instance._id, nextShowStyleBaseId, playlist?.assignedAbSessions])
+
+		// Precompute player icon elements to avoid nested ternaries in JSX
+		let currentPlayerEl: JSX.Element | null = null
+		if (currentClipPlayer) {
+			const pid = String(currentClipPlayer).toUpperCase()
+			if (pid === 'A' || pid === 'B' || pid === 'C' || pid === 'D') {
+				currentPlayerEl = (
+					<span className="director-screen__body__part__player">
+						<img
+							className="player-icon"
+							src={`/icons/${pid}.png`}
+							alt={t('Server {{id}}', { id: currentClipPlayer })}
+						/>
+					</span>
+				)
+			} else {
+				currentPlayerEl = (
+					<span className="director-screen__body__part__player">
+						{t('Server')}: {currentClipPlayer}
+					</span>
+				)
+			}
+		}
+
+		let nextPlayerEl: JSX.Element | null = null
+		if (nextClipPlayer) {
+			const pid = String(nextClipPlayer).toUpperCase()
+			if (pid === 'A' || pid === 'B' || pid === 'C' || pid === 'D') {
+				nextPlayerEl = (
+					<span className="director-screen__body__part__player">
+						<img className="player-icon" src={`/icons/${pid}.png`} alt={t('Server {{id}}', { id: nextClipPlayer })} />
+					</span>
+				)
+			} else {
+				nextPlayerEl = (
+					<span className="director-screen__body__part__player">
+						{t('Server')}: {nextClipPlayer}
+					</span>
+				)
+			}
+		}
 
 		return (
 			<div className="director-screen">
@@ -460,6 +595,7 @@ function DirectorScreenRender({
 												defaultOpticalSize: 100,
 											}}
 										/>
+										{currentPlayerEl}
 									</div>
 									<div className="director-screen__body__part__piece-countdown">
 										<CurrentPartOrSegmentRemaining
@@ -485,11 +621,8 @@ function DirectorScreenRender({
 									</div>
 								</div>
 							</>
-						) : expectedStart ? (
-							<div className="director-screen__body__rundown-countdown">
-								<Timediff time={expectedStart - getCurrentTime()} />
-							</div>
 						) : null}
+						{expectedStartCountdown}
 					</div>
 					{
 						// Next Part:
@@ -501,7 +634,7 @@ function DirectorScreenRender({
 								notext: nextSegment === undefined || nextSegment?._id === currentSegment?._id,
 							})}
 						>
-							{nextSegment?._id !== currentSegment?._id ? (
+							{nextSegment?._id === currentSegment?._id ? undefined : (
 								<AdjustLabelFit
 									label={nextSegment?.name || ''}
 									width={'80vw'}
@@ -513,11 +646,11 @@ function DirectorScreenRender({
 									useLetterSpacing={false}
 									hardCutText={true}
 								/>
-							) : undefined}
+							)}
 						</div>
 						{nextPartInstance && nextShowStyleBaseId ? (
 							<>
-								{currentPartInstance && currentPartInstance.instance.part.autoNext ? (
+								{currentPartInstance?.instance.part.autoNext ? (
 									<span
 										className={ClassNames('director-screen__body__part__auto-icon', {
 											'director-screen__body__part__auto-icon--notext':
@@ -567,6 +700,7 @@ function DirectorScreenRender({
 										) : (
 											'_'
 										)}
+										{nextPlayerEl}
 									</div>
 								</div>
 							</>
