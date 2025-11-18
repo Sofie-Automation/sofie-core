@@ -19,7 +19,8 @@ Installing a gateway is a two part process. To begin, you will [add the required
 - [iNEWS Gateway](rundown-or-newsroom-system-connection/inews-gateway.md)
 - [MOS Gateway](rundown-or-newsroom-system-connection/mos-gateway.md)
 
-### Playout & Media Manager Gateways
+### Playout & Package Manager Gateways
 
 - [Playout Gateway](playout-gateway.md)
-- [Media Manager](../media-manager.md)
+- [Package Manager](../installing-package-manager.md)
+- [Input Gateway](../installing-input-gateway.md)

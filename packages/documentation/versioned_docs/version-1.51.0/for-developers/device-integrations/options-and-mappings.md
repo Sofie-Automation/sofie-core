@@ -1,6 +1,6 @@
 # Options and mappings
 
-For an end user to configure the system from the Sofie UI we have to expose options and mappings from the TSR. This is done through [JSON config schemas](../json-config-schema.html) in the `$schemas` folder of your integration.
+For an end user to configure the system from the Sofie UI we have to expose options and mappings from the TSR. This is done through [JSON config schemas](../json-config-schema) in the `$schemas` folder of your integration.
 
 ## Options
 

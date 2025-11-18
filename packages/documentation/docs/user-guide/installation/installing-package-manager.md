@@ -162,7 +162,7 @@ In addition to this, you will need to run the appContainer and workers on each w
 
 You can get the windows executables from [Releases](https://github.com/Sofie-Automation/sofie-package-manager/releases) GitHub repository page for Package Manager. You'll need the `appContainer-node.exe` and `worker.exe`. Put them in a folder of your choice. You can also place `ffmpeg.exe` and `ffprobe.exe` alongside them, if you don't want to make them available in `PATH`.
 
-Note that each appContainer needs to use a different resourceId and will need its own package containers set to use the same resourceIds if they need to access the local disk. This is how package-manager knows which workers have access to which machines.
+Note that each appContainer needs to use a different resourceId and will need its own package containers set to use the same resourceIds if they need to access the local disk. This is how package-manager knows which workers have access to which machines.w
 
 ## Configuration
 
@@ -179,7 +179,7 @@ Note that each appContainer needs to use a different resourceId and will need it
 1. Scroll back to the top of the page and select "CasparCG Package Container" for both "Package Containers to use for previews" and "Package Containers to use for thumbnails".
 1. Your settings should look like this once all the above steps have been completed:
    ![Package Manager demo settings](/img/docs/Package_Manager_demo_settings.png)
-1. If Package Manager `start:single-app` is running, restart it. If not, start it (see the above [Installation instructions](#installation-quick-start) for the relevant command line).
+1. If Package Manager `start:single-app` is running, restart it. If not, start it (see the above [Installation instructions](#installation-for-development-quick-start) for the relevant command line).
 
 ### Separate HTTP proxy server
 
