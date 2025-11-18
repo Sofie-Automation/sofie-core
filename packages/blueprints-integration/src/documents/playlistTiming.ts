@@ -10,7 +10,7 @@ export interface PlaylistTimingBase {
 	type: PlaylistTimingType
 }
 
-export interface PlaylistTimingNone extends PlaylistTimingBas {
+export interface PlaylistTimingNone extends PlaylistTimingBase {
 	type: PlaylistTimingType.None
 	/** Expected duration of the rundown playlist
 	 *  If set, the over/under diff will be calculated based on this value. Otherwise it will be planned content duration - played out duration.
