@@ -258,16 +258,6 @@ export async function performTakeToNextedPart(
 	const wasLooping = playoutModel.playlist.quickLoop?.running
 	playoutModel.updateQuickLoopState()
 
-	const nextPart = selectNextPart(
-		context,
-		playoutModel.playlist,
-		takePartInstance.partInstance,
-		null,
-		playoutModel.getAllOrderedSegments(),
-		playoutModel.getAllOrderedParts(),
-		{ ignoreUnplayable: true, ignoreQuickLoop: false }
-	)
-
 	takePartInstance.setTaken(now, timeOffset)
 
 	if (wasLooping) {
@@ -286,6 +276,15 @@ export async function performTakeToNextedPart(
 		)
 	} else {
 		// Once everything is synced, we can choose the next part
+		const nextPart = selectNextPart(
+			context,
+			playoutModel.playlist,
+			takePartInstance.partInstance,
+			null,
+			playoutModel.getAllOrderedSegments(),
+			playoutModel.getAllOrderedParts(),
+			{ ignoreUnplayable: true, ignoreQuickLoop: false }
+		)
 		await setNextPart(context, playoutModel, nextPart, false)
 	}
 
