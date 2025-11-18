@@ -10,13 +10,15 @@ module.exports = {
 	url: 'https://sofie-automation.github.io',
 	baseUrl: '/sofie-core/',
 	onBrokenLinks: 'throw',
-	onBrokenMarkdownLinks: 'throw',
 	// onBrokenAnchors: 'throw',
 	favicon: 'img/favicon.ico',
 	organizationName: 'Sofie-Automation',
 	projectName: 'sofie-core',
 	markdown: {
 		mermaid: true,
+		hooks: {
+			onBrokenMarkdownLinks: 'throw',
+		},
 	},
 	themes: ['@docusaurus/theme-mermaid'],
 	themeConfig: {
