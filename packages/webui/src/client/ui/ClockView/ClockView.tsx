@@ -1,4 +1,4 @@
-import { Switch, Route, Redirect } from 'react-router-dom'
+import { Switch, Route } from 'react-router-dom'
 import { useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
 
 import { RundownTimingProvider } from '../RundownView/RundownTiming/RundownTimingProvider.js'
@@ -13,6 +13,7 @@ import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { CameraScreen } from './CameraScreen/index.js'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { useTranslation } from 'react-i18next'
+import { ClockViewIndex } from './ClockViewIndex.js'
 
 export function ClockView({ studioId }: Readonly<{ studioId: StudioId }>): JSX.Element {
 	useSubscription(MeteorPubSub.rundownPlaylistForStudio, studioId, true)
@@ -61,8 +62,8 @@ export function ClockView({ studioId }: Readonly<{ studioId: StudioId }>): JSX.E
 					<CameraScreen playlist={playlist} studioId={studioId} />
 				</RundownTimingProvider>
 			</Route>
-			<Route>
-				<Redirect to="/" />
+			<Route path="/countdowns/:studioId">
+				<ClockViewIndex studioId={studioId} />
 			</Route>
 		</Switch>
 	)
