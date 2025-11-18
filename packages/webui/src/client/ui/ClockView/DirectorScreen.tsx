@@ -455,7 +455,7 @@ function DirectorScreenRender({
 					<span className="director-screen__body__part__player">
 						<img
 							className="player-icon"
-							src={`/icons/${pid}.png`}
+							src={`/icons/channels/${pid}.svg`}
 							alt={t('Server {{id}}', { id: currentClipPlayer })}
 						/>
 					</span>
@@ -475,7 +475,11 @@ function DirectorScreenRender({
 			if (pid === 'A' || pid === 'B' || pid === 'C' || pid === 'D') {
 				nextPlayerEl = (
 					<span className="director-screen__body__part__player">
-						<img className="player-icon" src={`/icons/${pid}.png`} alt={t('Server {{id}}', { id: nextClipPlayer })} />
+						<img
+							className="player-icon"
+							src={`/icons/channels/${pid}.svg`}
+							alt={t('Server {{id}}', { id: nextClipPlayer })}
+						/>
 					</span>
 				)
 			} else {
