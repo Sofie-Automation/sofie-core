@@ -9,6 +9,7 @@ import { DeviceTriggersDeviceSelect, DeviceTriggersView } from './DeviceTriggers
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
+import { IngestRundownStatusSelect, IngestRundownStatusView } from './IngestRundownStatus'
 import Container from 'react-bootstrap/esm/Container'
 
 function StatusMenu() {
@@ -44,6 +45,13 @@ function StatusMenu() {
 			>
 				<h3>{t('Device Triggers')}</h3>
 			</NavLink>
+			<NavLink
+				activeClassName="selectable-selected"
+				className="testTools-menu__testTools-menu-item selectable clickable"
+				to={'/testTools/ingestRundownStatus'}
+			>
+				<h3>{t('Ingest Rundown Statuses')}</h3>
+			</NavLink>
 		</div>
 	)
 }
@@ -70,7 +78,9 @@ export default function Status(): JSX.Element {
 							<Route path="/testTools/timelinedatastore/:studioId" component={TimelineDatastoreView} />
 							<Route path="/testTools/timelinedatastore" component={TimelineDatastoreStudioSelect} />
 							<Route path="/testTools/devicetriggers/:peripheralDeviceId" component={DeviceTriggersView} />
-							<Route path="/testTools/devicetriggers" component={DeviceTriggersDeviceSelect} />{' '}
+							<Route path="/testTools/devicetriggers" component={DeviceTriggersDeviceSelect} />
+							<Route path="/testTools/ingestRundownStatus/:peripheralDeviceId" component={IngestRundownStatusView} />
+							<Route path="/testTools/ingestRundownStatus" component={IngestRundownStatusSelect} />
 							<Redirect to="/testTools/timeline" />
 						</Switch>
 					</Col>

@@ -64,6 +64,7 @@ import {
 } from '@sofie-automation/blueprints-integration/dist/userEditing'
 import type { PlayoutMutatablePart } from '../../playout/model/PlayoutPartInstanceModel.js'
 import { BlueprintQuickLookInfo } from '@sofie-automation/blueprints-integration/dist/context/quickLoopInfo'
+import { IngestPartNotifyItemReady } from '@sofie-automation/shared-lib/dist/ingest/rundownStatus'
 
 /**
  * Convert an object to have all the values of all keys (including optionals) be 'true'
@@ -119,6 +120,9 @@ export const PlayoutMutatablePartSampleKeys = allKeysOfObject<PlayoutMutatablePa
 	expectedDuration: true,
 	holdMode: true,
 	shouldNotifyCurrentPlayingPart: true,
+	ingestNotifyPartExternalId: true,
+	ingestNotifyPartReady: true,
+	ingestNotifyItemsReady: true,
 	classes: true,
 	classesForNext: true,
 	displayDurationGroup: true,
@@ -280,6 +284,9 @@ export function convertPartToBlueprints(part: ReadonlyDeep<DBPart>): IBlueprintP
 		expectedDuration: part.expectedDuration,
 		holdMode: part.holdMode,
 		shouldNotifyCurrentPlayingPart: part.shouldNotifyCurrentPlayingPart,
+		ingestNotifyPartExternalId: part.ingestNotifyPartExternalId,
+		ingestNotifyPartReady: part.ingestNotifyPartReady,
+		ingestNotifyItemsReady: clone<IngestPartNotifyItemReady[] | undefined>(part.ingestNotifyItemsReady),
 		classes: clone<string[] | undefined>(part.classes),
 		classesForNext: clone<string[] | undefined>(part.classesForNext),
 		displayDurationGroup: part.displayDurationGroup,

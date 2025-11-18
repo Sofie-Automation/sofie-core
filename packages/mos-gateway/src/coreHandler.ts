@@ -44,12 +44,23 @@ export class CoreHandler implements ICoreHandler {
 	private _coreConfig?: CoreConfig
 	private _certificates?: Buffer[]
 
-	constructor(logger: Winston.Logger, deviceOptions: DeviceConfig) {
+	public static async create(
+		logger: Winston.Logger,
+		config: CoreConfig,
+		certificates: Buffer[],
+		deviceOptions: DeviceConfig
+	): Promise<CoreHandler> {
+		const handler = new CoreHandler(logger, deviceOptions)
+		await handler.init(config, certificates)
+		return handler
+	}
+
+	private constructor(logger: Winston.Logger, deviceOptions: DeviceConfig) {
 		this.logger = logger
 		this._deviceOptions = deviceOptions
 	}
 
-	async init(config: CoreConfig, certificates: Buffer[]): Promise<void> {
+	private async init(config: CoreConfig, certificates: Buffer[]): Promise<void> {
 		// this.logger.info('========')
 		this._coreConfig = config
 		this._certificates = certificates

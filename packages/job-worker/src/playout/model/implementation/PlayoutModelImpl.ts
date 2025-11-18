@@ -56,11 +56,9 @@ import { DatabasePersistedModel } from '../../../modelBase.js'
 import { ExpectedPackageDBFromStudioBaselineObjects } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
 import { ExpectedPlayoutItemStudio } from '@sofie-automation/corelib/dist/dataModel/ExpectedPlayoutItem'
 import { StudioBaselineHelper } from '../../../studio/model/StudioBaselineHelper.js'
-import { EventsJobs } from '@sofie-automation/corelib/dist/worker/events'
 import { QuickLoopService } from '../services/QuickLoopService.js'
 import { calculatePartTimings, PartCalculatedTimings } from '@sofie-automation/corelib/dist/playout/timings'
 import { PieceInstanceWithTimings } from '@sofie-automation/corelib/dist/playout/processAndPrune'
-import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { NotificationsModelHelper } from '../../../notifications/NotificationsModelHelper.js'
 import { getExpectedLatency } from '@sofie-automation/corelib/dist/studio/playout'
 
@@ -309,7 +307,6 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 	#timelineHasChanged = false
 
 	#pendingPartInstanceTimingEvents = new Set<PartInstanceId>()
-	#pendingNotifyCurrentlyPlayingPartEvent = new Map<RundownId, string | null>()
 
 	get hackDeletedPartInstanceIds(): PartInstanceId[] {
 		const result: PartInstanceId[] = []
@@ -563,14 +560,6 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 		this.#pendingPartInstanceTimingEvents.add(partInstanceId)
 	}
 
-	queueNotifyCurrentlyPlayingPartEvent(rundownId: RundownId, partInstance: PlayoutPartInstanceModel | null): void {
-		if (partInstance && partInstance.partInstance.part.shouldNotifyCurrentPlayingPart) {
-			this.#pendingNotifyCurrentlyPlayingPartEvent.set(rundownId, partInstance.partInstance.part.externalId)
-		} else if (!partInstance) {
-			this.#pendingNotifyCurrentlyPlayingPartEvent.set(rundownId, null)
-		}
-	}
-
 	removeAllRehearsalPartInstances(): void {
 		const partInstancesToRemove: PartInstanceId[] = []
 
@@ -737,21 +726,6 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 			queuePartInstanceTimingEvent(this.context, this.playlistId, partInstanceId)
 		}
 		this.#pendingPartInstanceTimingEvents.clear()
-
-		for (const [rundownId, partExternalId] of this.#pendingNotifyCurrentlyPlayingPartEvent) {
-			// This is low-prio, defer so that it's executed well after publications has been updated,
-			// so that the playout gateway has had the chance to learn about the timeline changes
-			this.context
-				.queueEventJob(EventsJobs.NotifyCurrentlyPlayingPart, {
-					rundownId: rundownId,
-					isRehearsal: !!this.playlist.rehearsal,
-					partExternalId: partExternalId,
-				})
-				.catch((e) => {
-					logger.warn(`Failed to queue NotifyCurrentlyPlayingPart job: ${stringifyError(e)}`)
-				})
-		}
-		this.#pendingNotifyCurrentlyPlayingPartEvent.clear()
 
 		if (span) span.end()
 	}

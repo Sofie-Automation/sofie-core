@@ -65,48 +65,54 @@ async function setupUISegmentPartNotesPublicationObservers(
 	})) as Pick<DBRundownPlaylist, RundownPlaylistFields> | undefined
 	if (!playlist) throw new Error(`RundownPlaylist "${args.playlistId}" not found!`)
 
-	const rundownsObserver = await RundownsObserver.create(playlist.studioId, playlist._id, async (rundownIds) => {
-		logger.silly(`Creating new RundownContentObserver`)
+	const rundownsObserver = await RundownsObserver.createForPlaylist(
+		playlist.studioId,
+		playlist._id,
+		async (rundownIds) => {
+			logger.silly(`Creating new RundownContentObserver`)
 
-		// TODO - can this be done cheaper?
-		const cache = createReactiveContentCache()
+			// TODO - can this be done cheaper?
+			const cache = createReactiveContentCache()
 
-		// Push update
-		triggerUpdate({ newCache: cache })
+			// Push update
+			triggerUpdate({ newCache: cache })
 
-		const obs1 = await RundownContentObserver.create(rundownIds, cache)
+			const obs1 = await RundownContentObserver.create(rundownIds, cache)
 
-		const innerQueries = [
-			cache.Segments.find({}).observeChanges({
-				added: (id) => triggerUpdate({ invalidateSegmentIds: [protectString(id)] }),
-				changed: (id) => triggerUpdate({ invalidateSegmentIds: [protectString(id)] }),
-				removed: (id) => triggerUpdate({ invalidateSegmentIds: [protectString(id)] }),
-			}),
-			cache.Parts.find({}).observe({
-				added: (doc) => triggerUpdate({ invalidateSegmentIds: [doc.segmentId] }),
-				changed: (doc, oldDoc) => triggerUpdate({ invalidateSegmentIds: [doc.segmentId, oldDoc.segmentId] }),
-				removed: (doc) => triggerUpdate({ invalidateSegmentIds: [doc.segmentId] }),
-			}),
-			cache.DeletedPartInstances.find({}).observe({
-				added: (doc) => triggerUpdate({ invalidateSegmentIds: [doc.segmentId] }),
-				changed: (doc, oldDoc) => triggerUpdate({ invalidateSegmentIds: [doc.segmentId, oldDoc.segmentId] }),
-				removed: (doc) => triggerUpdate({ invalidateSegmentIds: [doc.segmentId] }),
-			}),
-			cache.Rundowns.find({}).observeChanges({
-				added: (id) => triggerUpdate({ invalidateRundownIds: [protectString(id)] }),
-				changed: (id) => triggerUpdate({ invalidateRundownIds: [protectString(id)] }),
-				removed: (id) => triggerUpdate({ invalidateRundownIds: [protectString(id)] }),
-			}),
-		]
+			const innerQueries = [
+				cache.Segments.find({}).observeChanges({
+					added: (id) => triggerUpdate({ invalidateSegmentIds: [protectString(id)] }),
+					changed: (id) => triggerUpdate({ invalidateSegmentIds: [protectString(id)] }),
+					removed: (id) => triggerUpdate({ invalidateSegmentIds: [protectString(id)] }),
+				}),
+				cache.Parts.find({}).observe({
+					added: (doc) => triggerUpdate({ invalidateSegmentIds: [doc.segmentId] }),
+					changed: (doc, oldDoc) =>
+						triggerUpdate({ invalidateSegmentIds: [doc.segmentId, oldDoc.segmentId] }),
+					removed: (doc) => triggerUpdate({ invalidateSegmentIds: [doc.segmentId] }),
+				}),
+				cache.DeletedPartInstances.find({}).observe({
+					added: (doc) => triggerUpdate({ invalidateSegmentIds: [doc.segmentId] }),
+					changed: (doc, oldDoc) =>
+						triggerUpdate({ invalidateSegmentIds: [doc.segmentId, oldDoc.segmentId] }),
+					removed: (doc) => triggerUpdate({ invalidateSegmentIds: [doc.segmentId] }),
+				}),
+				cache.Rundowns.find({}).observeChanges({
+					added: (id) => triggerUpdate({ invalidateRundownIds: [protectString(id)] }),
+					changed: (id) => triggerUpdate({ invalidateRundownIds: [protectString(id)] }),
+					removed: (id) => triggerUpdate({ invalidateRundownIds: [protectString(id)] }),
+				}),
+			]
 
-		return () => {
-			obs1.dispose()
+			return () => {
+				obs1.dispose()
 
-			for (const query of innerQueries) {
-				query.stop()
+				for (const query of innerQueries) {
+					query.stop()
+				}
 			}
 		}
-	})
+	)
 
 	// Set up observers:
 	return [rundownsObserver]

@@ -554,15 +554,13 @@ export function updatePartInstanceOnTake(
 export async function afterTake(
 	context: JobContext,
 	playoutModel: PlayoutModel,
-	takePartInstance: PlayoutPartInstanceModel
+	_takePartInstance: PlayoutPartInstanceModel
 ): Promise<void> {
 	const span = context.startSpan('afterTake')
 	// This function should be called at the end of a "take" event (when the Parts have been updated)
 	// or after a new part has started playing
 
 	await updateTimeline(context, playoutModel)
-
-	playoutModel.queueNotifyCurrentlyPlayingPartEvent(takePartInstance.partInstance.rundownId, takePartInstance)
 
 	if (span) span.end()
 }

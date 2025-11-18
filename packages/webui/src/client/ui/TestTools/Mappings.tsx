@@ -7,16 +7,11 @@ import { makeTableOfObject } from '../../lib/utilComponents.js'
 import { StudioSelect } from './StudioSelect.js'
 import { MappingExt } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { LookaheadMode, TSR } from '@sofie-automation/blueprints-integration'
-import { createSyncPeripheralDeviceCustomPublicationMongoCollection } from '../../collections/lib.js'
 import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { PeripheralDevicePubSubCollectionsNames } from '@sofie-automation/shared-lib/dist/pubsub/peripheralDevice'
 import { useTranslation } from 'react-i18next'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
-
-const StudioMappings = createSyncPeripheralDeviceCustomPublicationMongoCollection(
-	PeripheralDevicePubSubCollectionsNames.studioMappings
-)
+import { StudioMappings } from './collections'
 
 interface IMappingsViewProps {
 	match?: {

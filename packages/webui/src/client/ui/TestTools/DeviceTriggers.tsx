@@ -1,7 +1,5 @@
 import React, { Fragment, useState } from 'react'
-import { useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
-import { Mongo } from 'meteor/mongo'
-import {} from '@sofie-automation/meteor-lib/dist/api/pubsub'
+import { useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router-dom'
@@ -9,20 +7,11 @@ import { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids
 import { DeviceTriggerMountedAction, PreviewWrappedAdLib } from '@sofie-automation/meteor-lib/dist/api/MountedTriggers'
 import { PeripheralDevices } from '../../collections/index.js'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
-import {
-	PeripheralDevicePubSub,
-	PeripheralDevicePubSubCollectionsNames,
-} from '@sofie-automation/shared-lib/dist/pubsub/peripheralDevice'
+import { PeripheralDevicePubSub } from '@sofie-automation/shared-lib/dist/pubsub/peripheralDevice'
+import { MountedTriggers, MountedTriggersPreviews } from './collections'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Form from 'react-bootstrap/Form'
-
-const MountedTriggers = new Mongo.Collection<DeviceTriggerMountedAction>(
-	PeripheralDevicePubSubCollectionsNames.mountedTriggers
-)
-const MountedTriggersPreviews = new Mongo.Collection<PreviewWrappedAdLib>(
-	PeripheralDevicePubSubCollectionsNames.mountedTriggersPreviews
-)
 
 interface DeviceTriggersViewRouteParams {
 	peripheralDeviceId: string

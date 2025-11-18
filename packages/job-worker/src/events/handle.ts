@@ -1,8 +1,4 @@
-import {
-	NotifyCurrentlyPlayingPartProps,
-	PartInstanceTimingsProps,
-	RundownDataChangedProps,
-} from '@sofie-automation/corelib/dist/worker/events'
+import { PartInstanceTimingsProps, RundownDataChangedProps } from '@sofie-automation/corelib/dist/worker/events'
 import { getCurrentTime } from '../lib/index.js'
 import { JobContext } from '../jobs/index.js'
 import { logger } from '../logging.js'
@@ -17,16 +13,7 @@ import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyE
 import { ExternalMessageQueueObj } from '@sofie-automation/corelib/dist/dataModel/ExternalMessageQueue'
 import { ICollection, MongoModifier } from '../db/index.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { ExternalMessageQueueObjId, PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { runWithRundownLock } from '../ingest/lock.js'
-import {
-	PeripheralDevice,
-	PeripheralDeviceCategory,
-	PeripheralDeviceType,
-} from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
-import { MOS } from '@sofie-automation/corelib'
-import { executePeripheralDeviceFunction } from '../peripheralDevice.js'
-import { DEFAULT_MOS_TIMEOUT_TIME } from '@sofie-automation/shared-lib/dist/core/constants'
+import { ExternalMessageQueueObjId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 async function getBlueprintAndDependencies(context: JobContext, rundown: ReadonlyDeep<DBRundown>) {
 	const pShowStyle = context.getShowStyleCompound(rundown.showStyleVariantId, rundown.showStyleBaseId)
@@ -225,121 +212,4 @@ export async function handleRundownDataHasChanged(context: JobContext, data: Run
 	} catch (err) {
 		logger.error(`Error in showStyleBlueprint.onRundownDataChangedEvent: ${stringifyError(err)}`)
 	}
-}
-
-export async function handleNotifyCurrentlyPlayingPart(
-	context: JobContext,
-	data: NotifyCurrentlyPlayingPartProps
-): Promise<void> {
-	const rundown = await context.directCollections.Rundowns.findOne(data.rundownId)
-	if (!rundown) {
-		logger.warn(`Rundown "${data.rundownId} is missing. Skipping notifyCurrentPlayingPart`)
-		return
-	}
-
-	if (rundown.source.type !== 'nrcs') {
-		logger.warn(`Rundown "${rundown._id} has no peripheralDevice. Skipping notifyCurrentPlayingPart`)
-		return
-	}
-
-	const device = await context.directCollections.PeripheralDevices.findOne({
-		_id: rundown.source.peripheralDeviceId,
-		// Future: we really should be constraining this to the studio, but that is often only defined on the parent of this device
-		// studioId: context.studioId,
-		parentDeviceId: { $exists: true },
-	})
-	if (!device || !device.parentDeviceId) {
-		logger.warn(
-			`PeripheralDevice "${rundown.source.peripheralDeviceId}" for Rundown "${rundown._id} not found. Skipping notifyCurrentPlayingPart`
-		)
-		return
-	}
-	const parentDevice = await context.directCollections.PeripheralDevices.findOne({
-		_id: device.parentDeviceId,
-		'studioAndConfigId.studioId': context.studioId,
-		parentDeviceId: { $exists: false },
-	})
-	if (!parentDevice) {
-		logger.warn(
-			`PeripheralDevice "${rundown.source.peripheralDeviceId}" for Rundown "${rundown._id} not found. Skipping notifyCurrentPlayingPart`
-		)
-		return
-	}
-
-	const previousPlayingPartExternalId: string | null = rundown.notifiedCurrentPlayingPartExternalId || null
-	const currentPlayingPartExternalId: string | null = data.isRehearsal ? null : data.partExternalId
-
-	// Lock the rundown so that we are allowed to write to it
-	// This is technically a bit of a race condition, but is really low risk and low impact if it does
-	await runWithRundownLock(context, rundown._id, async (rundown0) => {
-		if (rundown0) {
-			if (currentPlayingPartExternalId) {
-				await context.directCollections.Rundowns.update(rundown._id, {
-					$set: {
-						notifiedCurrentPlayingPartExternalId: currentPlayingPartExternalId,
-					},
-				})
-			} else {
-				await context.directCollections.Rundowns.update(rundown._id, {
-					$unset: {
-						notifiedCurrentPlayingPartExternalId: 1,
-					},
-				})
-			}
-		}
-	})
-
-	// TODO: refactor this to be non-mos centric
-	if (device.category === PeripheralDeviceCategory.INGEST && device.type === PeripheralDeviceType.MOS) {
-		// Note: rundown may not be up to date anymore
-		await notifyCurrentPlayingPartMOS(
-			context,
-			device,
-			rundown.externalId,
-			previousPlayingPartExternalId,
-			currentPlayingPartExternalId
-		)
-	}
-}
-
-async function notifyCurrentPlayingPartMOS(
-	context: JobContext,
-	peripheralDevice: PeripheralDevice,
-	rundownExternalId: string,
-	oldPlayingPartExternalId: string | null,
-	newPlayingPartExternalId: string | null
-): Promise<void> {
-	if (oldPlayingPartExternalId !== newPlayingPartExternalId) {
-		// New implementation 2022 only sends PLAY, never stop, after getting advice from AP
-		// Reason 1: NRK ENPS "sendt tid" (elapsed time) stopped working in ENPS 8/9 when doing STOP prior to PLAY
-		// Reason 2: there's a delay between the STOP (yellow line disappears) and PLAY (yellow line re-appears), which annoys the users
-		if (newPlayingPartExternalId) {
-			try {
-				await setStoryStatusMOS(
-					context,
-					peripheralDevice._id,
-					rundownExternalId,
-					newPlayingPartExternalId,
-					MOS.IMOSObjectStatus.PLAY
-				)
-			} catch (error) {
-				logger.error(`Error in setStoryStatus PLAY: ${stringifyError(error)}`)
-			}
-		}
-	}
-}
-
-async function setStoryStatusMOS(
-	context: JobContext,
-	deviceId: PeripheralDeviceId,
-	rundownExternalId: string,
-	storyId: string,
-	status: MOS.IMOSObjectStatus
-): Promise<void> {
-	logger.debug('setStoryStatus', { deviceId, externalId: rundownExternalId, storyId, status })
-	return executePeripheralDeviceFunction(context, deviceId, DEFAULT_MOS_TIMEOUT_TIME + 1000, 'setStoryStatus', [
-		rundownExternalId,
-		storyId,
-		status,
-	])
 }

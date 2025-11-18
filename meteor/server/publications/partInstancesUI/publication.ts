@@ -66,60 +66,64 @@ async function setupUIPartInstancesPublicationObservers(
 	)) as Pick<DBRundownPlaylist, RundownPlaylistFields> | undefined
 	if (!playlist) throw new Error(`RundownPlaylist with activationId="${args.playlistActivationId}" not found!`)
 
-	const rundownsObserver = await RundownsObserver.create(playlist.studioId, playlist._id, async (rundownIds) => {
-		logger.silly(`Creating new RundownContentObserver`)
+	const rundownsObserver = await RundownsObserver.createForPlaylist(
+		playlist.studioId,
+		playlist._id,
+		async (rundownIds) => {
+			logger.silly(`Creating new RundownContentObserver`)
 
-		const cache = createReactiveContentCache()
+			const cache = createReactiveContentCache()
 
-		// Push update
-		triggerUpdate({ newCache: cache })
+			// Push update
+			triggerUpdate({ newCache: cache })
 
-		const obs1 = await RundownContentObserver.create(
-			playlist.studioId,
-			args.playlistActivationId,
-			rundownIds,
-			cache
-		)
+			const obs1 = await RundownContentObserver.create(
+				playlist.studioId,
+				args.playlistActivationId,
+				rundownIds,
+				cache
+			)
 
-		const innerQueries = [
-			cache.Segments.find({}).observeChanges({
-				added: (id) => triggerUpdate({ invalidateSegmentIds: [protectString(id)] }),
-				changed: (id) => triggerUpdate({ invalidateSegmentIds: [protectString(id)] }),
-				removed: (id) => triggerUpdate({ invalidateSegmentIds: [protectString(id)] }),
-			}),
-			cache.PartInstances.find({}).observe({
-				added: (doc) => triggerUpdate({ invalidatePartInstanceIds: [doc._id] }),
-				changed: (doc, oldDoc) => {
-					if (doc.part._rank !== oldDoc.part._rank) {
-						// with part rank change we need to invalidate the entire segment,
-						// as the order may affect which unchanged parts are/aren't in quickLoop
-						triggerUpdate({ invalidateSegmentIds: [doc.segmentId] })
-					} else {
-						triggerUpdate({ invalidatePartInstanceIds: [doc._id] })
-					}
-				},
-				removed: (doc) => triggerUpdate({ invalidatePartInstanceIds: [doc._id] }),
-			}),
-			cache.RundownPlaylists.find({}).observeChanges({
-				added: () => triggerUpdate({ invalidateQuickLoop: true }),
-				changed: () => triggerUpdate({ invalidateQuickLoop: true }),
-				removed: () => triggerUpdate({ invalidateQuickLoop: true }),
-			}),
-			cache.StudioSettings.find({}).observeChanges({
-				added: () => triggerUpdate({ invalidateQuickLoop: true }),
-				changed: () => triggerUpdate({ invalidateQuickLoop: true }),
-				removed: () => triggerUpdate({ invalidateQuickLoop: true }),
-			}),
-		]
+			const innerQueries = [
+				cache.Segments.find({}).observeChanges({
+					added: (id) => triggerUpdate({ invalidateSegmentIds: [protectString(id)] }),
+					changed: (id) => triggerUpdate({ invalidateSegmentIds: [protectString(id)] }),
+					removed: (id) => triggerUpdate({ invalidateSegmentIds: [protectString(id)] }),
+				}),
+				cache.PartInstances.find({}).observe({
+					added: (doc) => triggerUpdate({ invalidatePartInstanceIds: [doc._id] }),
+					changed: (doc, oldDoc) => {
+						if (doc.part._rank !== oldDoc.part._rank) {
+							// with part rank change we need to invalidate the entire segment,
+							// as the order may affect which unchanged parts are/aren't in quickLoop
+							triggerUpdate({ invalidateSegmentIds: [doc.segmentId] })
+						} else {
+							triggerUpdate({ invalidatePartInstanceIds: [doc._id] })
+						}
+					},
+					removed: (doc) => triggerUpdate({ invalidatePartInstanceIds: [doc._id] }),
+				}),
+				cache.RundownPlaylists.find({}).observeChanges({
+					added: () => triggerUpdate({ invalidateQuickLoop: true }),
+					changed: () => triggerUpdate({ invalidateQuickLoop: true }),
+					removed: () => triggerUpdate({ invalidateQuickLoop: true }),
+				}),
+				cache.StudioSettings.find({}).observeChanges({
+					added: () => triggerUpdate({ invalidateQuickLoop: true }),
+					changed: () => triggerUpdate({ invalidateQuickLoop: true }),
+					removed: () => triggerUpdate({ invalidateQuickLoop: true }),
+				}),
+			]
 
-		return () => {
-			obs1.dispose()
+			return () => {
+				obs1.dispose()
 
-			for (const query of innerQueries) {
-				query.stop()
+				for (const query of innerQueries) {
+					query.stop()
+				}
 			}
 		}
-	})
+	)
 
 	// Set up observers:
 	return [rundownsObserver]

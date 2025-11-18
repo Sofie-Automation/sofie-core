@@ -4,6 +4,7 @@ import {
 	protectString,
 	Observer,
 	PeripheralDevicePubSub,
+	stringifyError,
 } from '@sofie-automation/server-core-integration'
 import {
 	IMOSConnectionStatus,
@@ -21,7 +22,6 @@ import {
 	IMOSItem,
 	IMOSROReadyToAir,
 	IMOSROFullStory,
-	IMOSObjectStatus,
 	IMOSROAck,
 	getMosTypes,
 	MosTypes,
@@ -112,9 +112,7 @@ export class CoreMosDeviceHandler {
 			deviceName: this._mosDevice.idPrimary,
 		})
 		this.core.on('error', (err) => {
-			this._coreParentHandler.logger.error(
-				'Core Error: ' + (typeof err === 'string' ? err : err.message || err.toString())
-			)
+			this._coreParentHandler.logger.error(`Core Error: ${stringifyError(err)}`)
 		})
 
 		this.setupSubscriptionsAndObservers()
@@ -138,7 +136,7 @@ export class CoreMosDeviceHandler {
 		Promise.all([
 			this.core.autoSubscribe(PeripheralDevicePubSub.peripheralDeviceCommands, this.core.deviceId),
 		]).catch((e) => {
-			this._coreParentHandler.logger.error(e)
+			this._coreParentHandler.logger.error(stringifyError(e))
 		})
 
 		this._coreParentHandler.logger.info('CoreMos: Setting up observers..')
@@ -348,42 +346,6 @@ export class CoreMosDeviceHandler {
 
 		// console.log('GOT REPLY', results)
 		return this.fixMosData(ro)
-	}
-	async setROStatus(roId: string, status: IMOSObjectStatus): Promise<any> {
-		// console.log('setStoryStatus')
-		const result = await this._mosDevice.sendRunningOrderStatus({
-			ID: this.mosTypes.mosString128.create(roId),
-			Status: status,
-			Time: this.mosTypes.mosTime.create(new Date()),
-		})
-
-		// console.log('got result', result)
-		return this.fixMosData(result)
-	}
-	async setStoryStatus(roId: string, storyId: string, status: IMOSObjectStatus): Promise<any> {
-		// console.log('setStoryStatus')
-		const result = await this._mosDevice.sendStoryStatus({
-			RunningOrderId: this.mosTypes.mosString128.create(roId),
-			ID: this.mosTypes.mosString128.create(storyId),
-			Status: status,
-			Time: this.mosTypes.mosTime.create(new Date()),
-		})
-
-		// console.log('got result', result)
-		return this.fixMosData(result)
-	}
-	async setItemStatus(roId: string, storyId: string, itemId: string, status: IMOSObjectStatus): Promise<any> {
-		// console.log('setStoryStatus')
-		const result = await this._mosDevice.sendItemStatus({
-			RunningOrderId: this.mosTypes.mosString128.create(roId),
-			StoryId: this.mosTypes.mosString128.create(storyId),
-			ID: this.mosTypes.mosString128.create(itemId),
-			Status: status,
-			Time: this.mosTypes.mosTime.create(new Date()),
-		})
-
-		// console.log('got result', result)
-		return this.fixMosData(result)
 	}
 	async replaceStoryItem(
 		roID: string,

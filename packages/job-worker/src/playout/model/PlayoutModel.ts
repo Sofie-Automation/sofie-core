@@ -296,13 +296,6 @@ export interface PlayoutModel extends PlayoutModelReadonly, StudioPlayoutModelBa
 	queuePartInstanceTimingEvent(partInstanceId: PartInstanceId): void
 
 	/**
-	 * Queue a `NotifyCurrentlyPlayingPart` operation to be performed upon completion of this Playout operation
-	 * @param rundownId The Rundown to report the notification to
-	 * @param partInstance The PartInstance the event is in relation to
-	 */
-	queueNotifyCurrentlyPlayingPartEvent(rundownId: RundownId, partInstance: PlayoutPartInstanceModel | null): void
-
-	/**
 	 * Remove all loaded PartInstances marked as `rehearsal` from this RundownPlaylist
 	 */
 	removeAllRehearsalPartInstances(): void

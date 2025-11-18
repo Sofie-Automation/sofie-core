@@ -1,7 +1,14 @@
 import { Meteor } from 'meteor/meteor'
-import { RundownId, RundownPlaylistId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type {
+	PeripheralDeviceId,
+	RundownId,
+	RundownPlaylistId,
+	StudioId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { Rundowns } from '../../collections'
 import { PromiseDebounce } from './PromiseDebounce'
+import type { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
+import type { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { logger } from '../../logging'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 
@@ -44,24 +51,39 @@ export class RundownsObserver implements Meteor.LiveQueryHandle {
 		this.#changed = onChanged
 	}
 
-	static async create(
+	static async createForPlaylist(
 		studioId: StudioId,
 		playlistId: RundownPlaylistId,
 		onChanged: ChangedHandler
 	): Promise<RundownsObserver> {
 		const observer = new RundownsObserver(onChanged)
 
-		await observer.init(studioId, playlistId)
+		await observer.init({
+			playlistId,
+			studioId,
+		})
 
 		return observer
 	}
 
-	private async init(studioId: StudioId, playlistId: RundownPlaylistId) {
+	static async createForPeripheralDevice(
+		// studioId: StudioId, // TODO - this?
+		deviceId: PeripheralDeviceId,
+		onChanged: ChangedHandler
+	): Promise<RundownsObserver> {
+		const observer = new RundownsObserver(onChanged)
+
+		await observer.init({
+			'source.type': 'nrcs',
+			'source.peripheralDeviceId': deviceId,
+		})
+
+		return observer
+	}
+
+	private async init(query: MongoQuery<Rundown>) {
 		this.#rundownsLiveQuery = await Rundowns.observe(
-			{
-				playlistId,
-				studioId,
-			},
+			query,
 			{
 				added: (doc) => {
 					this.#rundownIds.add(doc._id)
@@ -97,5 +119,6 @@ export class RundownsObserver implements Meteor.LiveQueryHandle {
 		this.#rundownsLiveQuery.stop()
 		this.#changed = undefined
 		this.#cleanup?.()
+		this.#cleanup = undefined
 	}
 }

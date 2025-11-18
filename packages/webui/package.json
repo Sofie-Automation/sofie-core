@@ -14,7 +14,7 @@
 	},
 	"homepage": "https://github.com/nrkno/sofie-core/blob/master/packages/webui#readme",
 	"scripts": {
-		"dev": "vite --port=3005",
+		"dev": "vite --port=3005 --force",
 		"build": "tsc -b && vite build",
 		"build:main": "tsc -p tsconfig.app.json --noEmit",
 		"check-types": "tsc -p tsconfig.app.json --noEmit",

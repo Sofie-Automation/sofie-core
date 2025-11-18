@@ -3,7 +3,6 @@ import { PartInstanceId, RundownId, RundownPlaylistId, StudioId } from '../dataM
 export enum EventsJobs {
 	PartInstanceTimings = 'partInstanceTimings',
 	RundownDataChanged = 'rundownDataChanged',
-	NotifyCurrentlyPlayingPart = 'notifyCurrentlyPlayingPart',
 }
 
 export interface PartInstanceTimingsProps {
@@ -16,12 +15,6 @@ export interface RundownDataChangedProps {
 	rundownId: RundownId
 }
 
-export interface NotifyCurrentlyPlayingPartProps {
-	rundownId: RundownId
-	isRehearsal: boolean
-	partExternalId: string | null
-}
-
 /**
  * Set of valid functions, of form:
  * `id: (data) => return`
@@ -29,7 +22,6 @@ export interface NotifyCurrentlyPlayingPartProps {
 export type EventsJobFunc = {
 	[EventsJobs.PartInstanceTimings]: (data: PartInstanceTimingsProps) => void
 	[EventsJobs.RundownDataChanged]: (data: RundownDataChangedProps) => void
-	[EventsJobs.NotifyCurrentlyPlayingPart]: (data: NotifyCurrentlyPlayingPartProps) => void
 }
 
 export function getEventsQueueName(id: StudioId): string {

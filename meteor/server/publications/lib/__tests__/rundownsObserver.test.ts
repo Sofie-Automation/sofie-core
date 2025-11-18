@@ -1,4 +1,9 @@
-import { RundownId, RundownPlaylistId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import {
+	PeripheralDeviceId,
+	RundownId,
+	RundownPlaylistId,
+	StudioId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { Rundowns } from '../../../collections'
@@ -25,7 +30,7 @@ describe('RundownsObserver', () => {
 		// should not be any observers yet
 		expect(RundownsMock.observers).toHaveLength(0)
 
-		const observer = await RundownsObserver.create(studioId, playlistId, onChanged)
+		const observer = await RundownsObserver.createForPlaylist(studioId, playlistId, onChanged)
 		try {
 			// should now be an observer
 			expect(RundownsMock.observers).toHaveLength(1)
@@ -78,7 +83,7 @@ describe('RundownsObserver', () => {
 		// should not be any observers yet
 		expect(RundownsMock.observers).toHaveLength(0)
 
-		const observer = await RundownsObserver.create(studioId, playlistId, onChanged)
+		const observer = await RundownsObserver.createForPlaylist(studioId, playlistId, onChanged)
 		try {
 			// ensure starts correct
 			await waitUntil(async () => {
@@ -132,7 +137,7 @@ describe('RundownsObserver', () => {
 		// should not be any observers yet
 		expect(RundownsMock.observers).toHaveLength(0)
 
-		const observer = await RundownsObserver.create(studioId, playlistId, onChanged)
+		const observer = await RundownsObserver.createForPlaylist(studioId, playlistId, onChanged)
 		try {
 			// ensure starts correct
 			// ensure starts correct
@@ -186,7 +191,7 @@ describe('RundownsObserver', () => {
 		// should not be any observers yet
 		expect(RundownsMock.observers).toHaveLength(0)
 
-		const observer = await RundownsObserver.create(studioId, playlistId, onChanged)
+		const observer = await RundownsObserver.createForPlaylist(studioId, playlistId, onChanged)
 		try {
 			// ensure starts correct
 			// ensure starts correct
@@ -261,6 +266,58 @@ describe('RundownsObserver', () => {
 		} finally {
 			// Make sure to cleanup
 			observer.stop()
+		}
+	})
+
+	test('create and destroy observer - for peripheraldevice', async () => {
+		const deviceId = protectString<PeripheralDeviceId>('device0')
+
+		const onChangedCleanup = jest.fn()
+		const onChanged = jest.fn(async () => onChangedCleanup)
+
+		// should not be any observers yet
+		expect(RundownsMock.observers).toHaveLength(0)
+
+		const observer = await RundownsObserver.createForPeripheralDevice(deviceId, onChanged)
+		try {
+			// should now be an observer
+			expect(RundownsMock.observers).toHaveLength(1)
+
+			// Before debounce
+			expect(onChanged).toHaveBeenCalledTimes(0)
+
+			// After debounce
+			await waitUntil(async () => {
+				// Run timers, so that promises in the observer has a chance to resolve:
+				await runAllTimers()
+				expect(onChanged).toHaveBeenCalledTimes(1)
+				expect(onChangedCleanup).toHaveBeenCalledTimes(0)
+			}, MAX_WAIT_TIME)
+
+			// still got an observer
+			expect(RundownsMock.observers).toHaveLength(1)
+
+			// get the mock observer, and ensure to looks sane
+			expect(RundownsMock.observers).toHaveLength(1)
+			const mockObserver = RundownsMock.observers[0]
+			expect(mockObserver).toBeTruthy()
+			expect(mockObserver.callbacksChanges).toBeFalsy()
+			expect(mockObserver.callbacksObserve).toBeTruthy()
+			expect(mockObserver.callbacksObserve?.added).toBeTruthy()
+			expect(mockObserver.callbacksObserve?.changed).toBeTruthy()
+			expect(mockObserver.callbacksObserve?.removed).toBeTruthy()
+			expect(mockObserver.query).toEqual({
+				'source.peripheralDeviceId': 'device0',
+				'source.type': 'nrcs',
+			})
+		} finally {
+			// Make sure to cleanup
+			observer.stop()
+
+			// Check it stopped
+			expect(onChanged).toHaveBeenCalledTimes(1)
+			expect(onChangedCleanup).toHaveBeenCalledTimes(1)
+			expect(RundownsMock.observers).toHaveLength(0)
 		}
 	})
 })

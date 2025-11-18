@@ -20,7 +20,7 @@ export function getVersions(logger: Winston.Logger): { [packageName: string]: st
 			}
 		}
 	} catch (e) {
-		logger.error(e)
+		logger.error(stringifyError(e))
 	}
 	return versions
 }

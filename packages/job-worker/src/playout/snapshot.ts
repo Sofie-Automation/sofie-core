@@ -193,7 +193,6 @@ export async function handleRestorePlaylistSnapshot(
 			rundownId: rd._id,
 		}
 		rd.studioId = snapshot.playlist.studioId
-		rd.notifiedCurrentPlayingPartExternalId = undefined
 	}
 
 	// TODO: This is too naive. Ideally we should unset it if it isnt valid, as anything other than a match is likely to have issues.

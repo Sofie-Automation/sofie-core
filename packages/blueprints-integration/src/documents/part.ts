@@ -1,6 +1,7 @@
 import { UserEditingDefinition, UserEditingProperties } from '../userEditing.js'
 import type { NoteSeverity } from '../lib.js'
 import type { ITranslatableMessage } from '../translations.js'
+import type { IngestPartNotifyItemReady } from '@sofie-automation/shared-lib/dist/ingest/rundownStatus'
 
 /** Timings for the inTransition, when supported and allowed */
 export interface IBlueprintPartInTransition {
@@ -58,8 +59,17 @@ export interface IBlueprintMutatablePart<TPrivateData = unknown, TPublicData = u
 	/** Whether this segment line supports being used in HOLD */
 	holdMode?: PartHoldMode
 
+	/** The externalId of the part as expected by the NRCS. If not set, the externalId property will be used */
+	ingestNotifyPartExternalId?: string
+
 	/** Set to true if ingest-device should be notified when this part starts playing */
 	shouldNotifyCurrentPlayingPart?: boolean
+
+	/** Whether part should be reported as ready to the ingest-device. Set to undefined/null to disable this reporting */
+	ingestNotifyPartReady?: boolean | null
+
+	/** Report items as ready to the ingest-device. Only named items will be reported, using the boolean value provided */
+	ingestNotifyItemsReady?: IngestPartNotifyItemReady[]
 
 	/** Classes to set on the TimelineGroupObj for this part */
 	classes?: string[]

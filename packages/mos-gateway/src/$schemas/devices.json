@@ -140,8 +140,36 @@
 			},
 			"required": ["id", "host"],
 			"additionalProperties": false
+		},
+		"statuses": {
+			"type": "object",
+			"ui:title": "Statuses",
+			"title": "MosDeviceStatusesConfig",
+			"properties": {
+				"enabled": {
+					"type": "boolean",
+					"ui:title": "Write Statuses to NRCS",
+					"ui:description": "",
+					"ui:summaryTitle": "Statuses",
+					"default": true
+				},
+				"sendInRehearsal": {
+					"type": "boolean",
+					"ui:title": "Send when in Rehearsal mode",
+					"ui:description": "",
+					"default": false
+				},
+				"onlySendPlay": {
+					"type": "boolean",
+					"ui:title": "Only send PLAY statuses",
+					"ui:description": "",
+					"default": false
+				}
+			},
+			"required": ["enabled"],
+			"additionalProperties": false
 		}
 	},
-	"required": ["primary"],
+	"required": ["primary", "statuses"],
 	"additionalProperties": false
 }

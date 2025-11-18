@@ -502,16 +502,19 @@ jobs:
           - node-version: 22.x
             package-name: job-worker
             send-coverage: true
-          # No tests for the gateways yet
+          # No tests for some gateways yet
           # - node-version: 22.x
           #   package-name: playout-gateway
-          # - node-version: 22.x
-          #   package-name: mos-gateway
+          #   send-coverage: true
+          - node-version: 22.x
+            package-name: mos-gateway
+            send-coverage: true
           - node-version: 22.x
             package-name: live-status-gateway
             send-coverage: true
           - node-version: 22.x
             package-name: webui
+            send-coverage: true
           # manual meteor-lib as it only needs a couple of versions
           - node-version: 22.x
             package-name: meteor-lib
