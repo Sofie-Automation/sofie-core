@@ -1,7 +1,7 @@
 import * as Winston from 'winston'
 import * as fs from 'fs'
 import { getAbsolutePath } from './lib'
-import { LogLevel } from './lib/tempLib'
+import { LogLevel } from '@sofie-automation/meteor-lib/dist/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { Meteor } from 'meteor/meteor'
 import _ from 'underscore'

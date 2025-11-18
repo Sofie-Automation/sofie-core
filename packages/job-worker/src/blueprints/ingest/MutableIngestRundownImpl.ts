@@ -346,11 +346,7 @@ export class MutableIngestRundownImpl<TRundownPayload = unknown, TSegmentPayload
 			}
 
 			// Regenerate the segment if there are substantial changes
-			if (
-				segmentInfo.segmentHasChanges ||
-				segmentInfo.partOrderHasChanged ||
-				segmentInfo.partIdsWithChanges.length > 0
-			) {
+			if (segmentInfo.segmentHasChanges || segmentInfo.partIdsWithChanges.length > 0) {
 				segmentsToRegenerate.push(ingestSegment)
 			}
 		})

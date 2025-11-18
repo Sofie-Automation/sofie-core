@@ -12,7 +12,8 @@ import {
 	ReactivePlaylistActionContext,
 	createAction as libCreateAction,
 } from '@sofie-automation/meteor-lib/dist/triggers/actionFactory'
-import { flatten, protectString } from '../tempLib.js'
+import { flatten } from '@sofie-automation/corelib/dist/lib'
+import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { IWrappedAdLib } from '@sofie-automation/meteor-lib/dist/triggers/actionFilterChainCompilers'
 import { ReactiveVar } from 'meteor/reactive-var'
 import { preventDefault } from '../SorensenContext.js'

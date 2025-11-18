@@ -32,6 +32,7 @@ import { PlayoutPieceInstanceModel } from './PlayoutPieceInstanceModel.js'
 import { PieceInstanceWithTimings } from '@sofie-automation/corelib/dist/playout/processAndPrune'
 import { PartCalculatedTimings } from '@sofie-automation/corelib/dist/playout/timings'
 import type { INotificationsModel } from '../../notifications/NotificationsModel.js'
+import { Time } from '@sofie-automation/blueprints-integration'
 
 export type DeferredFunction = (playoutModel: PlayoutModel) => void | Promise<void>
 export type DeferredAfterSaveFunction = (playoutModel: PlayoutModelReadonly) => void | Promise<void>
@@ -227,6 +228,12 @@ export interface PlayoutModel extends PlayoutModelReadonly, StudioPlayoutModelBa
 	clearSelectedPartInstances(): void
 
 	/**
+	 * Clear the currently selected previousPartInstance.
+	 * This can be useful if it references a Rundown that has been removed from the Playlist
+	 */
+	clearPreviousPartInstance(): void
+
+	/**
 	 * Insert an adlibbed PartInstance into the RundownPlaylist
 	 * @param part Part to insert
 	 * @param pieces Planned Pieces to insert into Part
@@ -379,6 +386,13 @@ export interface PlayoutModel extends PlayoutModelReadonly, StudioPlayoutModelBa
 		toPartInstance: PlayoutPartInstanceModel,
 		toPieceInstances: PieceInstanceWithTimings[]
 	): PartCalculatedTimings
+
+	/**
+	 * Return an expected "now" value (i.e. the closest moment in time that can be safely addressed),
+	 * considering any playout latency. Every call will return a value greater or equal than previous,
+	 * meaning that this function is monotonic.
+	 */
+	getNowInPlayout(): Time
 
 	/** Lifecycle */
 

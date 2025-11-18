@@ -46,7 +46,7 @@ import {
 	RundownViewLayout,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { literal } from './tempLib.js'
+import { literal } from '@sofie-automation/corelib/dist/lib'
 import { getCurrentTime } from './systemTime.js'
 import { invalidateAt } from './invalidatingTime.js'
 import { memoizedIsolatedAutorun } from './memoizedIsolatedAutorun.js'
@@ -165,12 +165,6 @@ export function getUnfinishedPieceInstancesReactive(
 							typeof pieceInstance.userDuration.endRelativeToPart === 'number'
 						) {
 							end = pieceInstance.userDuration.endRelativeToPart
-						} else if (
-							pieceInstance.userDuration &&
-							'endRelativeToNow' in pieceInstance.userDuration &&
-							typeof pieceInstance.userDuration.endRelativeToNow === 'number'
-						) {
-							end = pieceInstance.userDuration.endRelativeToNow + now
 						} else if (typeof piece.enable.duration === 'number' && pieceInstance.plannedStartedPlayback) {
 							end = piece.enable.duration + pieceInstance.plannedStartedPlayback
 						}

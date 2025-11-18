@@ -6,7 +6,6 @@
 
 
 import { RedisOptions } from 'bullmq'
-import { createManualPromise } from '@sofie-automation/corelib/dist/lib'
 import { parseRedisEnvVariables } from '@sofie-automation/corelib/dist/redis'
 import { JobWorker } from './main'
 
@@ -20,7 +19,7 @@ const worker = new JobWorker(() => {
 	// TODO
 })
 
-const shutdownPromise = createManualPromise<void>() // Future: this should be .resolve/.reject in some places
+const shutdownPromise = Promise.withResolvers<void>() // Future: this should be .resolve/.reject in some places
 
 
 void (async () => {

@@ -2,7 +2,8 @@ import deepmerge from 'deepmerge'
 import { Meteor } from 'meteor/meteor'
 import { Mongo } from 'meteor/mongo'
 import { ReadonlyDeep } from 'type-fest'
-import { clone, createManualPromise, ProtectedString } from '../tempLib'
+import { clone } from '@sofie-automation/corelib/dist/lib'
+import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { profiler } from '../../api/profiler'
 import { logger } from '../../logging'
@@ -116,14 +117,14 @@ export async function setUpOptimizedObserverInner<
 		// Wait for the observer to be ready
 		await thisObserverWrapper.worker
 	} else {
-		const resultingOptimizedObserver = createManualPromise<OptimizedObserverWorker<PublicationDoc, Args, State>>()
-		resultingOptimizedObserver.catch(() => null) // ensure resultingOptimizedObserver doesn't go uncaught
+		const resultingOptimizedObserver = Promise.withResolvers<OptimizedObserverWorker<PublicationDoc, Args, State>>()
+		resultingOptimizedObserver.promise.catch(() => null) // ensure resultingOptimizedObserver doesn't go uncaught
 
 		// Store the optimizedObserver, so that other subscribers can join onto this without creating their own
 		thisObserverWrapper = optimizedObservers[identifier] = {
 			newSubscribers: [receiver],
 			activeSubscribers: [],
-			worker: resultingOptimizedObserver,
+			worker: resultingOptimizedObserver.promise,
 		}
 		receiver.onStop(() => removeReceiver())
 
@@ -141,7 +142,7 @@ export async function setUpOptimizedObserverInner<
 			)
 
 			Meteor.defer(() => {
-				resultingOptimizedObserver.manualResolve(observerWorker)
+				resultingOptimizedObserver.resolve(observerWorker)
 			})
 		} catch (e: any) {
 			// The setup failed, so delete and cleanup the in-progress observer
@@ -149,7 +150,7 @@ export async function setUpOptimizedObserverInner<
 
 			Meteor.defer(() => {
 				// Propogate to other susbcribers
-				resultingOptimizedObserver.manualReject(e)
+				resultingOptimizedObserver.reject(e)
 			})
 
 			// Propogate to the susbcriber that started this

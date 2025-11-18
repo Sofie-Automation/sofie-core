@@ -1,4 +1,4 @@
-import { isProtectedString } from '../../lib/tempLib.js'
+import { isProtectedString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { RundownLayoutBase } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import { RundownId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 

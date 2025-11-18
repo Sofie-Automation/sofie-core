@@ -1,7 +1,7 @@
 import React, { PropsWithChildren } from 'react'
 import { Meteor } from 'meteor/meteor'
 import { withTracker } from '../../../lib/ReactMeteorData/react-meteor-data.js'
-import { protectString } from '../../../lib/tempLib.js'
+import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { PartInstance, wrapPartToTemporaryInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import { RundownTiming, TimeEventArgs } from './RundownTiming.js'

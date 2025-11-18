@@ -53,5 +53,8 @@
 			"yarn lint:raw"
 		]
 	},
+	"publishConfig": {
+		"access": "public"
+	},
 	"packageManager": "yarn@4.10.3"
 }

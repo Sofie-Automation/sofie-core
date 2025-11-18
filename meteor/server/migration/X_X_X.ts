@@ -1,6 +1,7 @@
 import { addMigrationSteps } from './databaseMigration'
 import { CURRENT_SYSTEM_VERSION } from './currentSystemVersion'
 import { MongoInternals } from 'meteor/mongo'
+import { Studios } from '../collections'
 
 /*
  * **************************************************************************************
@@ -42,6 +43,20 @@ export const addSteps = addMigrationSteps(CURRENT_SYSTEM_VERSION, [
 			for (const c of collectionsToDrop) {
 				await MongoInternals.defaultRemoteCollectionDriver().mongo.db.dropCollection(c.name)
 			}
+		},
+	},
+
+	{
+		id: 'Ensure a single studio',
+		canBeRunAutomatically: true,
+		validate: async () => {
+			const studioCount = await Studios.countDocuments()
+			if (studioCount === 0) return `No studios found`
+			if (studioCount > 1) return `There are ${studioCount} studios, but only one is supported`
+			return false
+		},
+		migrate: async () => {
+			// Do nothing, the user will have to resolve this manually
 		},
 	},
 ])

@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor'
 import { ReadonlyDeep } from 'type-fest'
-import { clone, ProtectedString } from '../tempLib'
+import { clone } from '@sofie-automation/corelib/dist/lib'
+import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { SetupObserversResult, TriggerUpdate, setUpOptimizedObserverInner } from './optimizedObserverBase'
 import { CustomPublish, CustomPublishChanges } from './publish'
 import { diffObject } from './lib'

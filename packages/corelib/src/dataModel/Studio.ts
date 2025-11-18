@@ -1,6 +1,6 @@
 import { IBlueprintConfig, TSR } from '@sofie-automation/blueprints-integration'
 import { ObjectWithOverrides } from '../settings/objectWithOverrides.js'
-import { StudioId, OrganizationId, BlueprintId, ShowStyleBaseId, MappingsHash, PeripheralDeviceId } from './Ids.js'
+import { StudioId, BlueprintId, ShowStyleBaseId, MappingsHash, PeripheralDeviceId } from './Ids.js'
 import { BlueprintHash, LastBlueprintConfig } from './Blueprint.js'
 import { MappingsExt, MappingExt } from '@sofie-automation/shared-lib/dist/core/model/Timeline'
 import {
@@ -37,8 +37,6 @@ export type StudioLight = Omit<DBStudio, 'mappingsWithOverrides' | 'blueprintCon
 /** A set of available layer groups in a given installation */
 export interface DBStudio {
 	_id: StudioId
-	/** If set, this studio is owned by that organization */
-	organizationId: OrganizationId | null
 
 	/** User-presentable name for the studio installation */
 	name: string

@@ -277,6 +277,7 @@ export class TSRHandler {
 		this.tsr.connectionManager.on('connectionEvent:connectionChanged', (id, status) => {
 			const coreTsrHandler = this._coreTsrHandlers[id]
 			if (!coreTsrHandler) return
+			if (!coreTsrHandler._device) return // Not initialized yet
 
 			coreTsrHandler.statusChanged(status)
 

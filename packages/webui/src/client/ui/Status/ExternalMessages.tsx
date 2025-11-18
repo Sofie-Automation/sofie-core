@@ -1,6 +1,7 @@
 import React, { useCallback, useContext, useState } from 'react'
 import { useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
-import { Time, unprotectString } from '../../lib/tempLib.js'
+import type { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
+import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { getCurrentTime } from '../../lib/systemTime.js'
 import { MomentFromNow } from '../../lib/Moment.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'

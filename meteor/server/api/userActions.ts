@@ -1,7 +1,7 @@
 import { check, Match } from '../lib/check'
 import { Meteor } from 'meteor/meteor'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
-import { Time } from '../lib/tempLib'
+import type { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { ServerPlayoutAPI } from './playout/playout'
 import { NewUserActionAPI, UserActionAPIMethods } from '@sofie-automation/meteor-lib/dist/api/userActions'
 import { EvaluationBase } from '@sofie-automation/meteor-lib/dist/collections/Evaluations'

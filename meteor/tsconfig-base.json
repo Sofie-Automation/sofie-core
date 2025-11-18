@@ -3,12 +3,12 @@
 	"compilerOptions": {
 		/* At the time of writing we are not ready for stricter rules */
 		"strict": true,
-		"target": "es2022",
+		"target": "es2024",
 		"allowImportingTsExtensions": true,
 		"skipLibCheck": true,
 		"sourceMap": true,
 		"allowJs": false,
-		"lib": ["dom", "es2022", "dom.iterable", "scripthost"],
+		"lib": ["dom", "es2024", "dom.iterable", "scripthost"],
 		"paths": {
 			"meteor/*": [
 				//   "./node_modules/@types/meteor/*",

@@ -62,6 +62,7 @@ import { calculatePartTimings, PartCalculatedTimings } from '@sofie-automation/c
 import { PieceInstanceWithTimings } from '@sofie-automation/corelib/dist/playout/processAndPrune'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { NotificationsModelHelper } from '../../../notifications/NotificationsModelHelper.js'
+import { getExpectedLatency } from '@sofie-automation/corelib/dist/studio/playout'
 
 export class PlayoutModelReadonlyImpl implements PlayoutModelReadonly {
 	public readonly playlistId: RundownPlaylistId
@@ -264,6 +265,31 @@ export class PlayoutModelReadonlyImpl implements PlayoutModelReadonly {
 		}
 		return this.#isMultiGatewayMode
 	}
+
+	public get multiGatewayNowSafeLatency(): number | undefined {
+		return this.context.studio.settings.multiGatewayNowSafeLatency
+	}
+
+	/**
+	 * Calculate an offset to apply to the 'now' value, to compensate for delay in playout-gateway
+	 * The intention is that any concrete value used instead of 'now' should still be just in the future for playout-gateway
+	 */
+	protected getNowOffsetLatency(): number | undefined {
+		/** The timestamp that "now" was set to */
+		let nowOffsetLatency: number | undefined
+
+		if (this.isMultiGatewayMode) {
+			const playoutDevices = this.peripheralDevices.filter(
+				(device) => device.type === PeripheralDeviceType.PLAYOUT
+			)
+			const worstLatency = Math.max(0, ...playoutDevices.map((device) => getExpectedLatency(device).safe))
+			/** Add a little more latency, to account for network latency variability */
+			const ADD_SAFE_LATENCY = this.multiGatewayNowSafeLatency || 30
+			nowOffsetLatency = worstLatency + ADD_SAFE_LATENCY
+		}
+
+		return nowOffsetLatency
+	}
 }
 
 /**
@@ -342,6 +368,15 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 
 		delete this.playlistImpl.lastTakeTime
 		delete this.playlistImpl.queuedSegmentId
+
+		this.#playlistHasChanged = true
+	}
+
+	clearPreviousPartInstance(): void {
+		this.playlistImpl.previousPartInfo = null
+
+		// Make sure that a hold isn't running. We can't block it here, so abort it immediately instead
+		this.playlistImpl.holdState = RundownHoldState.NONE
 
 		this.#playlistHasChanged = true
 	}
@@ -848,6 +883,15 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 	updateQuickLoopState(): void {
 		this.playlistImpl.quickLoop = this.quickLoopService.getUpdatedProps()
 		this.#playlistHasChanged = true
+	}
+
+	#lastMonotonicNowInPlayout = getCurrentTime()
+	getNowInPlayout(): number {
+		const nowOffsetLatency = this.getNowOffsetLatency() ?? 0
+		const targetNowTime = getCurrentTime() + nowOffsetLatency
+		const result = Math.max(this.#lastMonotonicNowInPlayout, targetNowTime)
+		this.#lastMonotonicNowInPlayout = result
+		return result
 	}
 
 	/** Notifications */

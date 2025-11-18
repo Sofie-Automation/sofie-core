@@ -5,7 +5,7 @@ import {
 	SystemStatusAPIMethods,
 } from '@sofie-automation/meteor-lib/dist/api/systemStatus'
 import { getDebugStates, getSystemStatus } from './systemStatus'
-import { protectString } from '../lib/tempLib'
+import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { MethodContextAPI } from '../api/methodContext'
 import { profiler } from '../api/profiler'
 import { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'

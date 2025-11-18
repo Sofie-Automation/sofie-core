@@ -63,6 +63,7 @@ export enum UserErrorMessage {
 	IdempotencyKeyMissing = 47,
 	IdempotencyKeyAlreadyUsed = 48,
 	RateLimitExceeded = 49,
+	SystemSingleStudio = 50,
 }
 
 const UserErrorMessagesTranslations: { [key in UserErrorMessage]: string } = {
@@ -124,6 +125,7 @@ const UserErrorMessagesTranslations: { [key in UserErrorMessage]: string } = {
 	[UserErrorMessage.IdempotencyKeyMissing]: t(`Idempotency-Key is missing`),
 	[UserErrorMessage.IdempotencyKeyAlreadyUsed]: t(`Idempotency-Key is already used`),
 	[UserErrorMessage.RateLimitExceeded]: t(`Rate limit exceeded`),
+	[UserErrorMessage.SystemSingleStudio]: t(`System must have exactly one studio`),
 }
 
 export interface SerializedUserError {

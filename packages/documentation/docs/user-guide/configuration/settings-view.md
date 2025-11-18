@@ -8,7 +8,7 @@ sidebar_position: 2
 The settings views are only visible to users with the correct [access level](../features/access-levels.md)!
 :::
 
-Recommended read before diving into the settings: [System, \(Organization\), Studio & Show Style](../concepts-and-architecture.md#system-organization-studio-and-show-style).
+Recommended read before diving into the settings: [System, Studio & Show Style](../concepts-and-architecture.md#system-studio-and-show-style).
 
 ## System
 

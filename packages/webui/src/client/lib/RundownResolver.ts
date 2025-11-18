@@ -9,7 +9,8 @@ import {
 	buildPastInfinitePiecesForThisPartQuery,
 } from '@sofie-automation/corelib/dist/playout/infinites'
 import { invalidateAfter } from './invalidatingTime.js'
-import { groupByToMap, protectString } from './tempLib.js'
+import { groupByToMap } from '@sofie-automation/corelib/dist/lib'
+import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { getCurrentTime } from './systemTime.js'
 import { DBRundownPlaylist, QuickLoopMarkerType } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'

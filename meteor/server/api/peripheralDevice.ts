@@ -3,7 +3,8 @@ import { check, Match } from '../lib/check'
 import _ from 'underscore'
 import { PeripheralDeviceType, PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { PeripheralDeviceCommands, PeripheralDevices, Rundowns, Studios, UserActionsLog } from '../collections'
-import { protectString, stringifyObjects, literal, unprotectString } from '../lib/tempLib'
+import { stringifyObjects, literal } from '@sofie-automation/corelib/dist/lib'
+import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { getCurrentTime } from '../lib/lib'
 import { logger } from '../logging'
 import { TimelineHash } from '@sofie-automation/corelib/dist/dataModel/Timeline'
@@ -137,7 +138,6 @@ export namespace ServerPeripheralDeviceAPI {
 		} else {
 			await PeripheralDevices.insertAsync({
 				_id: deviceId,
-				organizationId: null,
 				created: getCurrentTime(),
 				status: {
 					statusCode: StatusCode.UNKNOWN,

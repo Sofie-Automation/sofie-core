@@ -26,10 +26,7 @@ export function hasPieceInstanceDefinitelyEnded(
 	}
 
 	if (pieceInstance.userDuration) {
-		const userDurationEnd =
-			'endRelativeToPart' in pieceInstance.userDuration
-				? pieceInstance.userDuration.endRelativeToPart
-				: pieceInstance.userDuration.endRelativeToNow + nowInPart
+		const userDurationEnd = pieceInstance.userDuration.endRelativeToPart
 
 		relativeEnd = relativeEnd === undefined ? userDurationEnd : Math.min(relativeEnd, userDurationEnd)
 	}

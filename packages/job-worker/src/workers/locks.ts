@@ -1,4 +1,3 @@
-import { createManualPromise, ManualPromise } from '@sofie-automation/corelib/dist/lib'
 import { logger } from '../logging.js'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 
@@ -20,7 +19,7 @@ const TimeoutReleaseLock = 5000
 export class LocksManager {
 	readonly #emitLockEvent: (event: AnyLockEvent) => Promise<void>
 	/** These are locks that we are waiting to aquire/release */
-	readonly pendingLocks: Map<string, ManualPromise<boolean>>
+	readonly pendingLocks: Map<string, PromiseWithResolvers<boolean>>
 
 	constructor(emitLockEvent: (event: AnyLockEvent) => Promise<void>) {
 		this.#emitLockEvent = emitLockEvent
@@ -35,7 +34,7 @@ export class LocksManager {
 				if (!lock) throw new Error('Lock not waiting!')
 
 				// Pass on the result for processing
-				lock.manualResolve(locked)
+				lock.resolve(locked)
 			} catch (e) {
 				logger.error(`LockChange "${lockId}":${locked} failed: ${stringifyError(e)}`)
 			}
@@ -45,7 +44,7 @@ export class LocksManager {
 	async aquire(lockId: string, resourceId: string): Promise<void> {
 		if (this.pendingLocks.has(lockId)) throw new Error(`Lock "${lockId}" is already pending`)
 
-		const completedPromise = createManualPromise<boolean>()
+		const completedPromise = Promise.withResolvers<boolean>()
 		this.pendingLocks.set(lockId, completedPromise)
 
 		// inform parent
@@ -57,17 +56,15 @@ export class LocksManager {
 
 		const timeout = setTimeout(() => {
 			try {
-				if (!completedPromise.isResolved) {
-					// Aquire timed out!
-					this.pendingLocks.delete(lockId)
-					completedPromise.manualReject(new Error('Lock aquire timed out!'))
-				}
+				// Aquire timed out!
+				this.pendingLocks.delete(lockId)
+				completedPromise.reject(new Error('Lock aquire timed out!'))
 			} catch (e) {
 				logger.error(`Unexpected error when timing out acquiring a lock: "${lockId}": ${stringifyError(e)}`)
 			}
 		}, TimeoutAquireLock)
 
-		return completedPromise.then((locked) => {
+		return completedPromise.promise.then((locked) => {
 			clearTimeout(timeout)
 
 			this.pendingLocks.delete(lockId)
@@ -79,7 +76,7 @@ export class LocksManager {
 	async release(lockId: string, resourceId: string): Promise<void> {
 		if (this.pendingLocks.has(lockId)) throw new Error(`Lock "${lockId}" is already pending`)
 
-		const completedPromise = createManualPromise<boolean>()
+		const completedPromise = Promise.withResolvers<boolean>()
 		this.pendingLocks.set(lockId, completedPromise)
 
 		// inform parent
@@ -91,16 +88,14 @@ export class LocksManager {
 
 		const timeout = setTimeout(() => {
 			try {
-				if (!completedPromise.isResolved) {
-					// Release timed out
-					completedPromise.manualResolve(true)
-				}
+				// Release timed out
+				completedPromise.resolve(true)
 			} catch (e) {
 				logger.error(`Unexpected error when timing out releasing a lock: "${lockId}": ${stringifyError(e)}`)
 			}
 		}, TimeoutReleaseLock)
 
-		return completedPromise.then((locked) => {
+		return completedPromise.promise.then((locked) => {
 			clearTimeout(timeout)
 
 			this.pendingLocks.delete(lockId)

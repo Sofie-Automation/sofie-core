@@ -20,7 +20,6 @@ export interface MutableIngestSegmentChanges {
 	allCacheObjectIds: SofieIngestDataCacheObjId[]
 	segmentHasChanges: boolean
 	partIdsWithChanges: string[]
-	partOrderHasChanged: boolean
 	originalExternalId: string
 }
 
@@ -131,11 +130,13 @@ export class MutableIngestSegmentImpl<TSegmentPayload = unknown, TPartPayload = 
 			if (beforeIndex === -1) throw new Error(`Part "${beforePartExternalId}" not found`)
 
 			this.#parts.splice(beforeIndex, 0, newPart)
+
+			this.#partOrderHasChanged = true
 		} else {
 			this.#parts.push(newPart)
-		}
 
-		this.#partOrderHasChanged = true
+			// If inserting at the end, the order hasn't changed
+		}
 
 		return newPart
 	}
@@ -233,14 +234,13 @@ export class MutableIngestSegmentImpl<TSegmentPayload = unknown, TPartPayload = 
 			allCacheObjectIds.push(generator.getPartObjectId(ingestPart.externalId))
 			ingestParts.push(ingestPart)
 
-			if (part.checkAndClearChangesFlags()) {
+			if (this.#partOrderHasChanged || part.checkAndClearChangesFlags()) {
 				changedCacheObjects.push(generator.generatePartObject(segmentId, ingestPart))
 				partIdsWithChanges.push(ingestPart.externalId)
 			}
 		})
 
 		const segmentHasChanges = this.#segmentHasChanges
-		const partOrderHasChanged = this.#partOrderHasChanged
 		const originalExternalId = this.#originalExternalId
 
 		// clear flags
@@ -254,7 +254,6 @@ export class MutableIngestSegmentImpl<TSegmentPayload = unknown, TPartPayload = 
 			allCacheObjectIds,
 			segmentHasChanges,
 			partIdsWithChanges,
-			partOrderHasChanged,
 			originalExternalId,
 		}
 	}

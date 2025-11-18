@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/only-throw-error */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import _ from 'underscore'
-import { literal, ProtectedString, unprotectString, protectString, getRandomString } from '../server/lib/tempLib'
+import { literal, getRandomString } from '@sofie-automation/corelib/dist/lib'
+import { protectString, unprotectString, ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { RandomMock } from './random'
 import { MeteorMock } from './meteor'
 import { Random } from 'meteor/random'

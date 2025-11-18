@@ -51,7 +51,6 @@ describe('getOrderedPartsAfterPlayhead', () => {
 			activationId: protectString('active'),
 		})
 		await context.mockCollections.Rundowns.insertOne({
-			organizationId: null,
 			studioId: context.studioId,
 			showStyleBaseId: protectString('showStyleBase0'),
 			showStyleVariantId: protectString('showStyleVariante0'),

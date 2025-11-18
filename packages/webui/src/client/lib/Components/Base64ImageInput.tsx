@@ -20,10 +20,17 @@ export function Base64ImageInputControl({
 	const { t } = useTranslation()
 
 	const handleSelectFile = useCallback(
-		(fileContent: string) => {
-			if (typeof fileContent !== 'string' || !fileContent) return
+		(_fileContent: string, file: File) => {
+			if (!file) return
 
-			handleUpdate(fileContent)
+			const reader = new FileReader()
+			reader.readAsDataURL(file)
+			reader.onload = () => {
+				handleUpdate(reader.result as string)
+			}
+			reader.onerror = (error) => {
+				console.error('Error reading file:', error)
+			}
 		},
 		[handleUpdate]
 	)

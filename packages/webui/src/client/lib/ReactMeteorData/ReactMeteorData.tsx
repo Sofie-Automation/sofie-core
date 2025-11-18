@@ -5,7 +5,7 @@ import { Tracker } from 'meteor/tracker'
 import { withTranslation, WithTranslation } from 'react-i18next'
 import { AllPubSubTypes } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { meteorSubscribe } from '../meteorApi.js'
-import { stringifyObjects } from '../tempLib.js'
+import { stringifyObjects } from '@sofie-automation/corelib/dist/lib'
 import _ from 'underscore'
 
 const globalTrackerQueue: Array<() => void> = []

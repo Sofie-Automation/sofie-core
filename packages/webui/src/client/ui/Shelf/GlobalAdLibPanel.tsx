@@ -4,7 +4,7 @@ import { IAdLibListItem } from './AdLibListItem.js'
 import { AdLibPanel } from './AdLibPanel.js'
 import { PieceUi } from '../SegmentTimeline/SegmentTimelineContainer.js'
 import { BucketAdLibActionUi, BucketAdLibUi } from './RundownViewBuckets.js'
-import { literal } from '../../lib/tempLib.js'
+import { literal } from '@sofie-automation/corelib/dist/lib'
 import {
 	PieceDisplayStyle,
 	RundownLayoutElementType,

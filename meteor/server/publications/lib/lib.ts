@@ -1,7 +1,7 @@
 import { Meteor, Subscription } from 'meteor/meteor'
 import { AllPubSubCollections, AllPubSubTypes } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { extractFunctionSignature } from '../../lib'
-import { protectStringObject } from '../../lib/tempLib'
+import { protectStringObject } from '@sofie-automation/corelib/dist/protectedString'
 import { MetricsGauge } from '@sofie-automation/corelib/dist/prometheus'
 import { MinimalMongoCursor } from '../../collections/implementations/asyncCollection'
 

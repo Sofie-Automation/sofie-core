@@ -336,34 +336,6 @@ function objectOrRank<T extends { _rank: number }>(obj: T | number): number {
 	}
 }
 
-export interface ManualPromise<T> extends Promise<T> {
-	isResolved: boolean
-	manualResolve(res: T): void
-	manualReject(e: Error): void
-}
-// eslint-disable-next-line @typescript-eslint/promise-function-async
-export function createManualPromise<T>(): ManualPromise<T> {
-	let resolve: (val: T) => void = () => null
-	let reject: (err: Error) => void = () => null
-	const promise = new Promise<T>((resolve0, reject0) => {
-		resolve = resolve0
-		reject = reject0
-	})
-
-	const manualPromise: ManualPromise<T> = promise as any
-	manualPromise.isResolved = false
-	manualPromise.manualReject = (err) => {
-		manualPromise.isResolved = true
-		return reject(err)
-	}
-	manualPromise.manualResolve = (val) => {
-		manualPromise.isResolved = true
-		return resolve(val)
-	}
-
-	return manualPromise
-}
-
 export function formatDateAsTimecode(settings: ReadonlyDeep<Pick<IStudioSettings, 'frameRate'>>, date: Date): string {
 	const tc = Timecode.init({
 		framerate: settings.frameRate + '',

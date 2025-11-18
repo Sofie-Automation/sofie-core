@@ -5,6 +5,10 @@ import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { getSegmentId } from '../../../ingest/lib.js'
 import { MutableIngestPartImpl } from '../MutableIngestPartImpl.js'
 import { IngestPart, IngestSegment, SofieIngestSegment } from '@sofie-automation/blueprints-integration'
+import {
+	SofieIngestCacheType,
+	SofieIngestDataCacheObjPart,
+} from '@sofie-automation/corelib/dist/dataModel/SofieIngestDataCache'
 
 describe('MutableIngestSegmentImpl', () => {
 	function getBasicIngestSegment(): SofieIngestSegment<any> {
@@ -70,7 +74,6 @@ describe('MutableIngestSegmentImpl', () => {
 			allCacheObjectIds: ingestSegment.parts.map((p) => ingestObjectGenerator.getPartObjectId(p.externalId)),
 			segmentHasChanges: false,
 			partIdsWithChanges: [],
-			partOrderHasChanged: false,
 			originalExternalId: ingestSegment.externalId,
 		}
 	}
@@ -85,6 +88,17 @@ describe('MutableIngestSegmentImpl', () => {
 	}
 	function getPartIdOrder(mutableSegment: MutableIngestSegmentImpl): string[] {
 		return mutableSegment.parts.map((p) => p.externalId)
+	}
+
+	function pushAllPartsToChanges(
+		expectedChanges: MutableIngestSegmentChanges,
+		ingestSegment: SofieIngestSegment
+	): void {
+		const segmentId = getSegmentId(ingestObjectGenerator.rundownId, ingestSegment.externalId)
+		for (const ingestPart of ingestSegment.parts) {
+			expectedChanges.partIdsWithChanges.push(ingestPart.externalId)
+			expectedChanges.changedCacheObjects.push(ingestObjectGenerator.generatePartObject(segmentId, ingestPart))
+		}
 	}
 
 	test('create basic', () => {
@@ -114,11 +128,7 @@ describe('MutableIngestSegmentImpl', () => {
 		// check it has no changes
 		const expectedChanges = createNoChangesObject(ingestSegment)
 		expectedChanges.segmentHasChanges = true
-		const segmentId = getSegmentId(ingestObjectGenerator.rundownId, ingestSegment.externalId)
-		for (const ingestPart of ingestSegment.parts) {
-			expectedChanges.partIdsWithChanges.push(ingestPart.externalId)
-			expectedChanges.changedCacheObjects.push(ingestObjectGenerator.generatePartObject(segmentId, ingestPart))
-		}
+		pushAllPartsToChanges(expectedChanges, ingestSegment)
 		expect(mutableSegment.intoChangesInfo(ingestObjectGenerator)).toEqual(expectedChanges)
 
 		// check changes have been cleared
@@ -279,7 +289,7 @@ describe('MutableIngestSegmentImpl', () => {
 			const expectedIngestSegment = clone(ingestSegment)
 			removePartFromIngestSegment(expectedIngestSegment, 'part1')
 			const expectedChanges = createNoChangesObject(expectedIngestSegment)
-			expectedChanges.partOrderHasChanged = true
+			pushAllPartsToChanges(expectedChanges, expectedIngestSegment)
 			expect(mutableSegment.intoChangesInfo(ingestObjectGenerator)).toEqual(expectedChanges)
 
 			// try removing a second time
@@ -347,14 +357,13 @@ describe('MutableIngestSegmentImpl', () => {
 			expectedIngestSegment.parts.push({ ...newPart, rank: 3, userEditStates: {} })
 
 			const expectedChanges = createNoChangesObject(expectedIngestSegment)
-			expectedChanges.partOrderHasChanged = true
-			expectedChanges.partIdsWithChanges.push('part1')
-			expectedChanges.changedCacheObjects.push(
-				ingestObjectGenerator.generatePartObject(
-					getSegmentId(ingestObjectGenerator.rundownId, ingestSegment.externalId),
-					{ ...newPart, rank: 3, userEditStates: {} }
-				)
+			pushAllPartsToChanges(expectedChanges, expectedIngestSegment)
+			const generatedCacheObject = expectedChanges.changedCacheObjects.find(
+				(o): o is SofieIngestDataCacheObjPart =>
+					o.type === SofieIngestCacheType.PART && o.data.externalId === 'part1'
 			)
+			expect(generatedCacheObject).toBeDefined()
+			expect(generatedCacheObject?.data.rank).toBe(3)
 
 			expect(mutableSegment.intoChangesInfo(ingestObjectGenerator)).toEqual(expectedChanges)
 		})
@@ -386,7 +395,6 @@ describe('MutableIngestSegmentImpl', () => {
 			expectedIngestSegment.parts.push({ ...newPart, rank: 4, userEditStates: {} })
 
 			const expectedChanges = createNoChangesObject(expectedIngestSegment)
-			expectedChanges.partOrderHasChanged = true
 			expectedChanges.partIdsWithChanges.push('partX')
 			expectedChanges.changedCacheObjects.push(
 				ingestObjectGenerator.generatePartObject(
@@ -425,8 +433,14 @@ describe('MutableIngestSegmentImpl', () => {
 			expect(mutableSegment.replacePart(newPart, 'part2')).toBeDefined()
 			expect(getPartIdOrder(mutableSegment)).toEqual(['part0', 'part1', 'partX', 'part2', 'part3'])
 
-			// Only the one should have changes
-			expect(mutableSegment.intoChangesInfo(ingestObjectGenerator).partIdsWithChanges).toEqual(['partX'])
+			// All should report changes because of their rank property
+			expect(mutableSegment.intoChangesInfo(ingestObjectGenerator).partIdsWithChanges).toEqual([
+				'part0',
+				'part1',
+				'partX',
+				'part2',
+				'part3',
+			])
 
 			// Try inserting before itself
 			expect(() => mutableSegment.replacePart(newPart, newPart.externalId)).toThrow(
@@ -470,7 +484,7 @@ describe('MutableIngestSegmentImpl', () => {
 
 			// Only the one should have changes
 			const expectedChanges = createNoChangesObject(ingestSegment)
-			expectedChanges.partOrderHasChanged = true
+			pushAllPartsToChanges(expectedChanges, ingestSegment)
 			expect(mutableSegment.intoChangesInfo(ingestObjectGenerator)).toEqual(expectedChanges)
 
 			// Try inserting before itself
@@ -511,9 +525,9 @@ describe('MutableIngestSegmentImpl', () => {
 			mutableSegment.movePartAfter('part1', 'part0')
 			expect(getPartIdOrder(mutableSegment)).toEqual(['part0', 'part1', 'part2', 'part3'])
 
-			// Only the one should have changes
+			// All the parts should be reported as having changed
 			const expectedChanges = createNoChangesObject(ingestSegment)
-			expectedChanges.partOrderHasChanged = true
+			pushAllPartsToChanges(expectedChanges, ingestSegment)
 			expect(mutableSegment.intoChangesInfo(ingestObjectGenerator)).toEqual(expectedChanges)
 
 			// Try inserting before itself

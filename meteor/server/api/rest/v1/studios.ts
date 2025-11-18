@@ -12,7 +12,7 @@ import { APIStudioFrom, studioFrom, validateAPIBlueprintConfigForStudio } from '
 import { runUpgradeForStudio, updateStudioBaseline, validateConfigForStudio } from '../../../migration/upgrades'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { ServerClientAPI } from '../../client'
-import { assertNever, literal } from '../../../lib/tempLib'
+import { assertNever, literal } from '@sofie-automation/corelib/dist/lib'
 import { getCurrentTime } from '../../../lib/lib'
 import { StudioJobs } from '@sofie-automation/corelib/dist/worker/studio'
 import { DBStudio, StudioDeviceSettings } from '@sofie-automation/corelib/dist/dataModel/Studio'
@@ -45,6 +45,11 @@ class StudiosServerAPI implements StudiosRestAPI {
 		_event: string,
 		apiStudio: APIStudio
 	): Promise<ClientAPI.ClientResponse<string>> {
+		const studioCount = await Studios.countDocuments()
+		if (studioCount > 0) {
+			return ClientAPI.responseError(UserError.create(UserErrorMessage.SystemSingleStudio, {}, 400))
+		}
+
 		const blueprintConfigValidation = await validateAPIBlueprintConfigForStudio(apiStudio)
 		checkValidation(`addStudio`, blueprintConfigValidation)
 
@@ -161,6 +166,14 @@ class StudiosServerAPI implements StudiosRestAPI {
 		event: string,
 		studioId: StudioId
 	): Promise<ClientAPI.ClientResponse<void>> {
+		const studioCount = await Studios.countDocuments()
+		if (studioCount === 1) {
+			throw new Meteor.Error(
+				400,
+				`The last studio in the system cannot be deleted (there must be at least one studio)`
+			)
+		}
+
 		const existingStudio = await Studios.findOneAsync(studioId)
 		if (existingStudio) {
 			const playlists = (await RundownPlaylists.findFetchAsync(

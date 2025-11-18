@@ -1,5 +1,5 @@
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { unprotectString } from '../../lib/tempLib.js'
+import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { doModalDialog } from '../../lib/ModalDialog.js'
 import { doUserAction, UserAction } from '../../lib/clientUserAction.js'
 import { MeteorCall } from '../../lib/meteorApi.js'

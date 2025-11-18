@@ -1,7 +1,7 @@
 import _ from 'underscore'
 import { Meteor } from 'meteor/meteor'
 import { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
-import { getRandomId, getRandomString, literal } from '../lib/tempLib'
+import { getRandomId, getRandomString, literal } from '@sofie-automation/corelib/dist/lib'
 import { BucketAdLib } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibPiece'
 import { AdLibAction, AdLibActionCommon } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
 import { BucketAdLibAction } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibAction'

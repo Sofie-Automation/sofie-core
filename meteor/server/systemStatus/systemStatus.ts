@@ -1,5 +1,6 @@
 import { PeripheralDevice, PERIPHERAL_SUBTYPE_PROCESS } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
-import { Time, getRandomId, literal } from '../lib/tempLib'
+import { getRandomId, literal } from '@sofie-automation/corelib/dist/lib'
+import type { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { getCurrentTime } from '../lib/lib'
 import {
 	parseVersion,

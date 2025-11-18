@@ -5,7 +5,7 @@ import { MultiSelect, MultiSelectEvent, MultiSelectOptions } from './multiSelect
 import ClassNames from 'classnames'
 import { ColorPickerEvent, ColorPicker } from './colorPicker.js'
 import { IconPicker, IconPickerEvent } from './iconPicker.js'
-import { assertNever } from './tempLib.js'
+import { assertNever } from '@sofie-automation/corelib/dist/lib'
 import { MongoCollection } from '../collections/lib.js'
 import { CheckboxControl } from './Components/Checkbox.js'
 import { TextInputControl } from './Components/TextInput.js'

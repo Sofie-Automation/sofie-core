@@ -241,7 +241,6 @@ export function produceRundownPlaylistInfoFromRundown(
 
 			_id: playlistId,
 			externalId: playlistExternalId,
-			organizationId: context.studio.organizationId,
 			studioId: context.studioId,
 			name: playlistInfo.playlist.name,
 			timing: playlistInfo.playlist.timing,
@@ -336,7 +335,6 @@ function defaultPlaylistForRundown(
 
 		...clone<DBRundownPlaylist | undefined>(existingPlaylist),
 
-		organizationId: studio.organizationId,
 		studioId: studio._id,
 		name: rundown.name,
 		timing: rundown.timing,
@@ -489,7 +487,13 @@ export async function handleMoveRundownIntoPlaylist(
 					}
 
 					// If the playlist is active this could have changed lookahead
-					await updatePlayoutAfterChangingRundownInPlaylist(context, newPlaylist, intoPlaylistLock, rundown)
+					await updatePlayoutAfterChangingRundownInPlaylist(
+						context,
+						newPlaylist,
+						intoPlaylistLock,
+						rundown,
+						null
+					)
 				}
 			)
 		} else {
@@ -539,7 +543,7 @@ export async function handleRestoreRundownsInPlaylistToDefaultOrder(
 
 			if (updatedPlaylist) {
 				// If the playlist is active this could have changed lookahead
-				await updatePlayoutAfterChangingRundownInPlaylist(context, updatedPlaylist, playlistLock, null)
+				await updatePlayoutAfterChangingRundownInPlaylist(context, updatedPlaylist, playlistLock, null, null)
 			}
 		}
 	})

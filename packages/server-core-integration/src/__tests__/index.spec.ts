@@ -482,21 +482,21 @@ describe('coreConnection', () => {
 		})
 
 		// Set child connection:
-		const coreChild = await coreParent.createChild({
+		const coreChild0 = await coreParent.createChild({
 			deviceId: protectString('JestTestChild'),
 			deviceSubType: PERIPHERAL_SUBTYPE_PROCESS,
 			deviceName: 'Jest test framework child',
 		})
 
 		const onChildError = jest.fn()
-		coreChild.on('error', onChildError)
+		coreChild0.on('error', onChildError)
 
-		expect(coreChild.connected).toEqual(true)
+		expect(coreChild0.connected).toEqual(true)
 
 		// Close parent connection:
-		await coreParent.destroy()
+		await coreParent.destroy() // This will also close all children
 
-		expect(coreChild.connected).toEqual(false)
+		expect(coreChild0.connected).toEqual(false)
 
 		// connect parent again:
 
@@ -505,10 +505,20 @@ describe('coreConnection', () => {
 			port: corePort,
 		})
 
-		expect(coreChild.connected).toEqual(true)
+		// Create a new child connection:
+		const coreChild2 = await coreParent.createChild({
+			deviceId: protectString('JestTestChild'),
+			deviceSubType: PERIPHERAL_SUBTYPE_PROCESS,
+			deviceName: 'Jest test framework child',
+		})
+
+		const onChildError2 = jest.fn()
+		coreChild2.on('error', onChildError2)
+
+		expect(coreChild2.connected).toEqual(true)
 
 		await coreParent.destroy()
-		await coreChild.destroy()
+		await coreChild2.destroy()
 
 		expect(onChildError).toHaveBeenCalledTimes(0)
 		expect(onParentError).toHaveBeenCalledTimes(0)
