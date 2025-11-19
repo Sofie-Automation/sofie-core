@@ -14,6 +14,7 @@ import { CameraScreen } from './CameraScreen/index.js'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { useTranslation } from 'react-i18next'
 import { ClockViewIndex } from './ClockViewIndex.js'
+import { MultiviewScreen } from './MultiviewScreen.js'
 
 export function ClockView({ studioId }: Readonly<{ studioId: StudioId }>): JSX.Element {
 	useSubscription(MeteorPubSub.rundownPlaylistForStudio, studioId, true)
@@ -61,6 +62,9 @@ export function ClockView({ studioId }: Readonly<{ studioId: StudioId }>): JSX.E
 				<RundownTimingProvider playlist={playlist}>
 					<CameraScreen playlist={playlist} studioId={studioId} />
 				</RundownTimingProvider>
+			</Route>
+			<Route path="/countdowns/:studioId/multiview">
+				<MultiviewScreen studioId={studioId} />
 			</Route>
 			<Route path="/countdowns/:studioId">
 				<ClockViewIndex studioId={studioId} />

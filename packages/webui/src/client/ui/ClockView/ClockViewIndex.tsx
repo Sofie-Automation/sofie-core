@@ -32,6 +32,9 @@ export function ClockViewIndex({ studioId }: Readonly<{ studioId: StudioId }>): 
 						<li>
 							<Link to={`/activeRundown/${studioId}`}>{t('Active Rundown')}</Link>
 						</li>
+						<li>
+							<Link to={`/countdowns/${studioId}/multiview`}>{t('Multiview (All Screens)')}</Link>
+						</li>
 					</ul>
 				</section>
 			</section>
