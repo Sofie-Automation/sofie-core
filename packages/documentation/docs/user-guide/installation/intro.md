@@ -1,5 +1,5 @@
 ---
-sidebar_position: 1
+sidebar_position: 10
 ---
 # Getting Started
 
@@ -7,7 +7,7 @@ _Sofie_ can be installed in many different ways, depending on which platforms, n
 
 There are four minimum required components to get a Sofie system up and running. First you need the [_Sofie Core_](installing-sofie-server-core.md), which is the brains of the operation. Then a set of [_Blueprints_](installing-blueprints.md) to handle and interpret incoming and outgoing data. Next, an [_Ingest Gateway_](installing-a-gateway/rundown-or-newsroom-system-connection/intro.md) to fetch the data for the Blueprints. Then finally, a [_Playout Gateway_](installing-a-gateway/playout-gateway.md) to send the data to your playout device of choice.
 
-
+If you're looking to quickly evaluate Sofie to see if it's a good match for your needs, you can jump into our [Quick Install guide](./quick-install.md).
 
 ## Sofie Core View
 
@@ -33,5 +33,5 @@ Gateways are separate applications that bridge the gap between the _Sofie&nbsp;C
 
 ### Blueprints
 
-Blueprints can be described as the logic that determines how a studio and show should interact with one another. They interpret the data coming in from the rundowns and transform them into a rich set of playable elements \(_Segments_, _Parts_, _AdLibs,_ etcetera\). The _Sofie&nbsp;Core_ has three main blueprint types, _System Blueprints_, _Studio Blueprints_, and _Showstyle Blueprints_. Installing _Sofie_ does not require you understand what these blueprints do, just that they are required for the _Sofie&nbsp;Core_ to work. If you would like to gain a deeper understand of how _Blueprints_ work, please visit the [Blueprints](#blueprints) section.
+Blueprints can be described as the logic that determines how a studio and show should interact with one another. They interpret the data coming in from the rundowns and transform them into a rich set of playable elements \(_Segments_, _Parts_, _AdLibs,_ etc.\). The _Sofie&nbsp;Core_ has three main blueprint types, _System Blueprints_, _Studio Blueprints_, and _Showstyle Blueprints_. Installing _Sofie_ does not require you understand what these blueprints do, just that they are required for the _Sofie&nbsp;Core_ to work. If you would like to gain a deeper understand of how _Blueprints_ work, please visit the [Blueprints](../../for-developers/for-blueprint-developers/intro.md) section.
 
