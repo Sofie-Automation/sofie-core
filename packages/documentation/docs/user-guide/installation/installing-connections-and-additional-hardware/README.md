@@ -2,7 +2,7 @@
 
 #### Prerequisites
 
-* [Installed and running Sofie&nbsp;Core](../installing-sofie-server-core.md)
+* [Installed and running Sofie&nbsp;Core](../quick-install.md)
 * [Installed Playout Gateway](../installing-a-gateway/playout-gateway.md)
 * [Installed and configured Studio Blueprints](../installing-blueprints.md#installing-a-studio-blueprint)
 

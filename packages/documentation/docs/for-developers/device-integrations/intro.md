@@ -1,6 +1,6 @@
 # Introduction
 
-Device integrations in Sofie are part of the Timeline State Resolver (TSR) library. A device integration has a couple of responsibilites in the Sofie eco system. First and foremost it should establish a connection with a foreign device. It should also be able to convert Sofie's idea of what the device should be doing into commands to control the device. And lastly it should export interfaces to be used by the blueprints developer.
+Device integrations in Sofie are part of the Timeline State Resolver (TSR) library. A device integration has a couple of responsibilities in the Sofie eco-system. First and foremost it should establish a connection with a foreign device. It should also be able to convert Sofie's idea of what the device should be doing into commands to control the device. And lastly it should export interfaces to be used by the blueprints developer.
 
 In order to understand all about writing TSR integrations there are some concepts to familiarise yourself with, in this documentation we will attempt to explain these.
 

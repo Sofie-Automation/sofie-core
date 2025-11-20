@@ -167,7 +167,7 @@ Clicking on the action and filter pills allows you to edit the action parameters
 
 ##### Shift Registers
 
-Shift Register modification actions are a special type of an Action, that modifies an internal state memory of the [Input Gateway](../installation/installing-input-gateway.md) and allows combination triggers, pagination, etc. on devices that don't natively support them or combining multiple devices into a single Control Surface. Refer to _Input Gateway_ documentation for more information on Shift Registers.
+Shift Register modification actions are a special type of an Action, that modifies an internal state memory of the [Input Gateway](../installation/installing-a-gateway/input-gateway.md) and allows combination triggers, pagination, etc. on devices that don't natively support them or combining multiple devices into a single Control Surface. Refer to _Input Gateway_ documentation for more information on Shift Registers.
 
 Shift Register actions have no effect in the browser, triggered from a _Hotkey_.
 

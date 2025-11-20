@@ -215,7 +215,7 @@ A window will open and display the status for the server and scanner. You can st
 
 Now that your CasparCG&nbsp;Server software is running, you can connect it to the _Sofie&nbsp;Core_. Navigate back to the _Settings page_ and in the menu, select the _Playout Gateway_. If the _Playout Gateway's_ status does not read _Good_, then please review the [Installing and Setting up the Playout Gateway](../installing-a-gateway/playout-gateway.md) section of this guide.
 
-Under the Sub Devices section, you can add a new device with the _+_ button. Then select the pencil \( edit \) icon on the new device to open the sub device's settings. Select the _Device Type_ option and choose _CasparCG_ from the drop down menu. Some additional fields will be added to the form.
+Under the Sub Devices section, you can add a new device with the _+_ button. Then select the pencil \( edit \) icon on the new device to open the sub device's settings. Select the _Device Type_ option and choose _CasparCG_ from the drop-down menu. Some additional fields will be added to the form.
 
 The _Host_ and _Launcher Host_ fields will be _localhost_. The _Port_ will be CasparCG's TCP port responsible for handling the AMCP commands. It defaults to 5052 in the `casparcg.config` file. The _Launcher Port_ will be the CasparCG Launcher's port for handling HTTP requests. It will default to 8005 and can be changed in the _Launcher's settings page_. Once all four fields are filled out, you can click the check mark to save the device.
 
