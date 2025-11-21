@@ -11,6 +11,9 @@
 	}
 
 	.dashboard-panel__panel__button {
+		margin-top: 10px;
+		height: 110px;
+		max-width: 170px !important;
 		> .dashboard-panel__panel__button__content {
 			display: grid;
 			grid-template-columns: 1fr min-content;
@@ -31,7 +34,7 @@
 
 			> .dashboard-panel__panel__button__thumbnail {
 				position: relative;
-				height: auto;
+				height: 85px;
 				z-index: 1;
 				overflow: hidden;
 				grid-column: auto / span 2;
