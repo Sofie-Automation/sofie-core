@@ -525,27 +525,27 @@ function translateUserEditsToBlueprint(
 		userEdits.map((userEdit) => {
 			switch (userEdit.type) {
 				case UserEditingType.ACTION:
-					return {
+					return literal<UserEditingDefinitionAction>({
 						type: UserEditingType.ACTION,
 						id: userEdit.id,
 						label: omit(userEdit.label, 'namespaces'),
 						icon: userEdit.icon,
 						iconInactive: userEdit.iconInactive,
 						isActive: userEdit.isActive,
-					} satisfies Complete<UserEditingDefinitionAction>
+					})
 				case UserEditingType.FORM:
-					return {
+					return literal<UserEditingDefinitionForm>({
 						type: UserEditingType.FORM,
 						id: userEdit.id,
 						label: omit(userEdit.label, 'namespaces'),
 						schema: clone(userEdit.schema),
 						currentValues: clone(userEdit.currentValues),
-					} satisfies Complete<UserEditingDefinitionForm>
+					})
 				case UserEditingType.SOFIE:
-					return {
+					return literal<UserEditingDefinitionSofieDefault>({
 						type: UserEditingType.SOFIE,
 						id: userEdit.id,
-					} satisfies Complete<UserEditingDefinitionSofieDefault>
+					})
 				default:
 					assertNever(userEdit)
 					return undefined
@@ -587,28 +587,28 @@ export function translateUserEditsFromBlueprint(
 		userEdits.map((userEdit) => {
 			switch (userEdit.type) {
 				case UserEditingType.ACTION:
-					return {
+					return literal<CoreUserEditingDefinitionAction>({
 						type: UserEditingType.ACTION,
 						id: userEdit.id,
 						label: wrapTranslatableMessageFromBlueprints(userEdit.label, blueprintIds),
 						icon: userEdit.icon,
 						iconInactive: userEdit.iconInactive,
 						isActive: userEdit.isActive,
-					} satisfies Complete<CoreUserEditingDefinitionAction>
+					})
 				case UserEditingType.FORM:
-					return {
+					return literal<CoreUserEditingDefinitionForm>({
 						type: UserEditingType.FORM,
 						id: userEdit.id,
 						label: wrapTranslatableMessageFromBlueprints(userEdit.label, blueprintIds),
 						schema: clone(userEdit.schema),
 						currentValues: clone(userEdit.currentValues),
 						translationNamespaces: unprotectStringArray(blueprintIds),
-					} satisfies Complete<CoreUserEditingDefinitionForm>
+					})
 				case UserEditingType.SOFIE:
-					return {
+					return literal<CoreUserEditingDefinitionSofie>({
 						type: UserEditingType.SOFIE,
 						id: userEdit.id,
-					} satisfies Complete<CoreUserEditingDefinitionSofie>
+					})
 				default:
 					assertNever(userEdit)
 					return undefined
