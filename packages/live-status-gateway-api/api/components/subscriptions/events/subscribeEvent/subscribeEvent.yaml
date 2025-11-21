@@ -1,0 +1,15 @@
+$defs:
+  subscribeEvent:
+    type: object
+    title: SubscribeEvent
+    properties:
+      event:
+        $ref: '../../subscriptionEventName.yaml#/$defs/subscriptionEventName'
+      reqid:
+        $ref: '../../../connection/reqid/reqid.yaml#/$defs/reqid'
+      subscription:
+        $ref: '../../subscriptionRequestDetails/subscriptionRequestDetails.yaml#/$defs/subscriptionRequestDetails'
+    required: [event, reqid, subscription]
+    additionalProperties: false
+    examples:
+      - $ref: './subscribeEvent-example.yaml'

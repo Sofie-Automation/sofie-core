@@ -1,0 +1,14 @@
+$defs:
+  bucketAdLibStatus:
+    title: BucketAdLibStatus
+    allOf:
+      - $ref: '../adLibBase/adLibBase.yaml#/$defs/adLibBase'
+      - type: object
+        title: BucketAdLibStatus
+        properties:
+          externalId:
+            type: string
+            description: Id of the adLib recognizable by the external source. Unique within a bucket.
+        required: [externalId]
+    examples:
+      - $ref: './bucketAdLibStatus-example.yaml'

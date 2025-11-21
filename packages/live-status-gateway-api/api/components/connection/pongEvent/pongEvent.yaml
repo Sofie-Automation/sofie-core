@@ -1,0 +1,14 @@
+$defs:
+  pongEvent:
+    title: PongEvent
+    type: object
+    properties:
+      event:
+        type: string
+        const: pong
+      reqid:
+        $ref: '../reqid/reqid.yaml#/$defs/reqid'
+    required: [event, reqid]
+    additionalProperties: false
+    examples:
+      - $ref: './pongEvent-example.yaml'

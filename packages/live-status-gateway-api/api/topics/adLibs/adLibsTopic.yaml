@@ -1,0 +1,8 @@
+description: Topic for AdLibs updates
+
+subscribe:
+  operationId: receiveAdLibs
+  description: Server publishes AdLibs updates
+  message:
+    oneOf:
+      - $ref: '../../components/adLibs/messages/adLibsMessage.yaml#/components/messages/adLibsMessage'

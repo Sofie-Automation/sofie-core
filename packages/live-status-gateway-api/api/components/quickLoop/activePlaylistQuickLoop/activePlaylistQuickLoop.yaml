@@ -1,0 +1,19 @@
+$defs:
+  activePlaylistQuickLoop:
+    description: Information about the current quickLoop, if any
+    type: object
+    title: ActivePlaylistQuickLoop
+    properties:
+      locked:
+        description: Whether the user is allowed to make alterations to the Start/End markers
+        type: boolean
+      running:
+        description: Whether the loop has two valid markers and is currently running
+        type: boolean
+      start:
+        $ref: '../quickLoopMarker/quickLoopMarker.yaml#/$defs/quickLoopMarker'
+      end:
+        $ref: '../quickLoopMarker/quickLoopMarker.yaml#/$defs/quickLoopMarker'
+    required: [locked, running]
+    examples:
+      - $ref: './activePlaylistQuickLoop-example.yaml'
