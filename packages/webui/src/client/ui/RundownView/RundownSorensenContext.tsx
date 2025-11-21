@@ -3,14 +3,14 @@ import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/Rund
 import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { useContext } from 'react'
-import { isEventInInputField } from '../../lib/lib'
-import { isModalShowing } from '../../lib/ModalDialog'
-import { useTracker } from '../../lib/ReactMeteorData/ReactMeteorData'
-import { RundownPlaylistClientUtil } from '../../lib/rundownPlaylistUtil'
-import { SorensenContext } from '../../lib/SorensenContext'
-import { TriggersHandler } from '../../lib/triggers/TriggersHandler'
-import { UIParts } from '../Collections'
-import { UserPermissionsContext } from '../UserPermissions'
+import { isEventInInputField } from '../../lib/lib.js'
+import { isModalShowing } from '../../lib/ModalDialog.js'
+import { useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
+import { RundownPlaylistClientUtil } from '../../lib/rundownPlaylistUtil.js'
+import { SorensenContext } from '../../lib/SorensenContext.js'
+import { TriggersHandler } from '../../lib/triggers/TriggersHandler.js'
+import { UIParts } from '../Collections.js'
+import { UserPermissionsContext } from '../UserPermissions.js'
 
 interface RundownSorensenContextProps {
 	playlist: DBRundownPlaylist

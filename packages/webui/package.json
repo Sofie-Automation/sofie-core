@@ -107,6 +107,7 @@
 		"@welldone-software/why-did-you-render": "^4.3.2",
 		"@xmldom/xmldom": "^0.8.10",
 		"babel-jest": "^29.7.0",
+		"eslint-plugin-import-extensions": "^0.1.5",
 		"globals": "^15.14.0",
 		"sass": "^1.83.4",
 		"sinon": "^14.0.2",
