@@ -19,7 +19,7 @@ Follow these instructions to start up Sofie Core in development mode. (For produ
 ### Prerequisites
 
 - Install [Node.js](https://nodejs.org) 20 (using [nvm](https://github.com/nvm-sh/nvm) or [nvm-windows](https://github.com/coreybutler/nvm-windows) is the recommended way to install Node.js)
-- Install [Meteor](https://www.meteor.com/install) (`npm install --global meteor`)
+- Install [Meteor](https://docs.meteor.com/about/install.html) (`npx meteor`)
 - Enable [corepack](https://nodejs.org/api/corepack.html#corepack) (`corepack enable`) as administrator/root. If `corepack` is not found, you may need to install it first with `npm install --global corepack`
 
 - If on Windows, you may need to `npm install --global windows-build-tools` but this is not always necessary
