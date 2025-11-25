@@ -5,6 +5,10 @@ on:
   schedule:
     - cron: "12 14 * * *"
 
+permissions:
+  contents: read
+  packages: write
+  
 jobs:
   prune-container-images:
     if: ${{ github.repository_owner == 'Sofie-Automation' }}

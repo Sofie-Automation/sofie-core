@@ -9,6 +9,9 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   lint-core:
     name: Typecheck and Lint Core
@@ -103,6 +106,11 @@ jobs:
     name: Build Core and publish docker image
     runs-on: ubuntu-latest
     timeout-minutes: 30
+
+    permissions:
+      contents: read
+      packages: write
+      
     steps:
       - uses: actions/checkout@v6
         with:
@@ -282,6 +290,10 @@ jobs:
       fail-fast: false
       matrix:
         gateway-name: [playout-gateway, mos-gateway, "live-status-gateway"]
+
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - uses: actions/checkout@v6
@@ -613,12 +625,12 @@ jobs:
         env:
           CI: true
 
-  publish-docs:
-    name: Publish Docs
+  build-docs:
+    name: Build Docs
     runs-on: ubuntu-latest
-    continue-on-error: true
     timeout-minutes: 15
 
+    # This is just to ensure the docs build, another job performs the build & publish
     steps:
       - uses: actions/checkout@v6
         with:
@@ -656,13 +668,6 @@ jobs:
           cp docs documentation/build/typedoc -R
         env:
           CI: true
-      - name: Publish
-        if: github.ref == 'refs/heads/main' # always publish for just the main branch
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./packages/documentation/build
-          force_orphan: true
 
   check-for-multiple-library-versions:
     name: Check for multiple library versions
