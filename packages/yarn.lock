@@ -23283,6 +23283,11 @@ asn1@evs-broadcast/node-asn1:
     ts-node: "npm:^10.9.2"
     typedoc: "npm:^0.27.6"
     typescript: "npm:~5.7.3"
+  dependenciesMeta:
+    esbuild:
+      built: true
+    nx:
+      built: true
   languageName: unknown
   linkType: soft
 

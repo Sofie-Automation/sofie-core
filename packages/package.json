@@ -77,5 +77,13 @@
 		"@hyperjump/json-pointer@^0.9.4": "patch:@hyperjump/json-pointer@npm%3A0.9.8#./.yarn/patches/@hyperjump-json-pointer-npm-0.9.8-edc0d22296.patch",
 		"@hyperjump/json-pointer@^0.9.2": "patch:@hyperjump/json-pointer@npm%3A0.9.8#./.yarn/patches/@hyperjump-json-pointer-npm-0.9.8-edc0d22296.patch",
 		"@hyperjump/pact@^0.2.3": "patch:@hyperjump/pact@npm%3A0.2.5#./.yarn/patches/@hyperjump-pact-npm-0.2.5-a816d03fba.patch"
+	},
+	"dependenciesMeta": {
+		"esbuild": {
+			"built": true
+		},
+		"nx": {
+			"built": true
+		}
 	}
 }
