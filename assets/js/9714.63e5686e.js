@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunksofie_documentation=self.webpackChunksofie_documentation||[]).push([[9714],{39714:(e,a,o)=>{o.r(a),o.d(a,{DocSearchModal:()=>c.a1});var c=o(55044)}}]);
