@@ -9,6 +9,9 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   lint-core:
     name: Typecheck and Lint Core
@@ -103,6 +106,11 @@ jobs:
     name: Build Core and publish docker image
     runs-on: ubuntu-latest
     timeout-minutes: 30
+
+    permissions:
+      contents: read
+      packages: write
+      
     steps:
       - uses: actions/checkout@v6
         with:
@@ -282,6 +290,10 @@ jobs:
       fail-fast: false
       matrix:
         gateway-name: [playout-gateway, mos-gateway, "live-status-gateway"]
+
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - uses: actions/checkout@v6
@@ -618,6 +630,9 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     timeout-minutes: 15
+
+    permissions:
+      contents: write
 
     steps:
       - uses: actions/checkout@v6

@@ -9,6 +9,9 @@ on:
     types: [opened, synchronize, reopened]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 name: SonarCloud analysis
 jobs:
   sonarqube:

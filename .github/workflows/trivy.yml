@@ -4,6 +4,10 @@ on:
   schedule:
     - cron: "0 10 * * 1"
 
+permissions:
+  contents: read
+  packages: read
+
 jobs:
   trivy:
     if: ${{ github.repository_owner == 'Sofie-Automation' }}
