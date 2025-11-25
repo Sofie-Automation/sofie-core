@@ -625,15 +625,12 @@ jobs:
         env:
           CI: true
 
-  publish-docs:
-    name: Publish Docs
+  build-docs:
+    name: Build Docs
     runs-on: ubuntu-latest
-    continue-on-error: true
     timeout-minutes: 15
 
-    permissions:
-      contents: write
-
+    # This is just to ensure the docs build, another job performs the build & publish
     steps:
       - uses: actions/checkout@v6
         with:
@@ -671,13 +668,6 @@ jobs:
           cp docs documentation/build/typedoc -R
         env:
           CI: true
-      - name: Publish
-        if: github.ref == 'refs/heads/main' # always publish for just the main branch
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./packages/documentation/build
-          force_orphan: true
 
   check-for-multiple-library-versions:
     name: Check for multiple library versions
