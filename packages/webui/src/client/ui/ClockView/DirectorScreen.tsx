@@ -450,7 +450,8 @@ function DirectorScreenRender({
 		let currentPlayerEl: JSX.Element | null = null
 		if (currentClipPlayer) {
 			const pid = String(currentClipPlayer).toUpperCase()
-			if (pid === 'A' || pid === 'B' || pid === 'C' || pid === 'D') {
+			// Check if it's a single alphanumeric character (0-9, A-Z)
+			if (/^[A-Z0-9]$/.test(pid)) {
 				currentPlayerEl = (
 					<span className="director-screen__body__part__player">
 						<img
@@ -472,7 +473,8 @@ function DirectorScreenRender({
 		let nextPlayerEl: JSX.Element | null = null
 		if (nextClipPlayer) {
 			const pid = String(nextClipPlayer).toUpperCase()
-			if (pid === 'A' || pid === 'B' || pid === 'C' || pid === 'D') {
+			// Check if it's a single alphanumeric character (0-9, A-Z)
+			if (/^[A-Z0-9]$/.test(pid)) {
 				nextPlayerEl = (
 					<span className="director-screen__body__part__player">
 						<img
