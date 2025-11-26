@@ -554,6 +554,7 @@ export function convertToUIShowStyleBase(showStyleBase: DBShowStyleBase): UIShow
 		hotkeyLegend: showStyleBase.hotkeyLegend,
 		sourceLayers: applyAndValidateOverrides(showStyleBase.sourceLayersWithOverrides).obj,
 		outputLayers: applyAndValidateOverrides(showStyleBase.outputLayersWithOverrides).obj,
+		abChannelDisplay: showStyleBase.abChannelDisplay,
 	})
 }
 export function convertToUIStudio(studio: DBStudio): UIStudio {
