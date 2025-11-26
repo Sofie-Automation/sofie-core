@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.52.12-nrk](https://github.com/Sofie-Automation/sofie-core/compare/v1.52.11-nrk...v1.52.12-nrk) (2025-11-26)
+
 ### [1.52.11-nrk](https://github.com/Sofie-Automation/sofie-core/compare/v1.52.10-nrk...v1.52.11-nrk) (2025-11-20)
 
 ### Features

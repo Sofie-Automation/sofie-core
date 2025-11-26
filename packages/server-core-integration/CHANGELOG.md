@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.52.11-nrk.0](https://github.com/Sofie-Automation/sofie-core/compare/v1.52.11-nrk...v1.52.11-nrk.0) (2025-11-26)
+
+**Note:** Version bump only for package @sofie-automation/server-core-integration
+
+
+
+
+
 ## [1.52.11-nrk](https://github.com/Sofie-Automation/sofie-core/compare/v1.52.10-nrk...v1.52.11-nrk) (2025-11-20)
 
 **Note:** Version bump only for package @sofie-automation/server-core-integration
