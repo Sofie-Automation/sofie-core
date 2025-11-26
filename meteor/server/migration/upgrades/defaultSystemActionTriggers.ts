@@ -127,6 +127,11 @@ export const DEFAULT_CORE_TRIGGERS: IBlueprintDefaultCoreSystemTriggers = {
 				keys: 'F12',
 				up: true,
 			},
+			'2': {
+				type: TriggerType.hotkey,
+				keys: 'Space',
+				up: true,
+			},
 		},
 		_rank: ++j * 1000,
 		name: t('Take'),
