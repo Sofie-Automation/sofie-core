@@ -3,11 +3,11 @@ import {
 	DBNotificationTarget,
 	DBNotificationTargetType,
 } from '@sofie-automation/corelib/dist/dataModel/Notifications'
-import { setupDefaultJobEnvironment } from '../../__mocks__/context'
-import { NotificationsModelHelper } from '../NotificationsModelHelper'
+import { setupDefaultJobEnvironment } from '../../__mocks__/context.js'
+import { NotificationsModelHelper } from '../NotificationsModelHelper.js'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { NoteSeverity } from '@sofie-automation/blueprints-integration'
-import { INotificationWithTarget } from '../NotificationsModel'
+import { INotificationWithTarget } from '../NotificationsModel.js'
 import { generateTranslation } from '@sofie-automation/corelib/dist/lib'
 
 describe('NotificationsModelHelper', () => {

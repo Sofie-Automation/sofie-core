@@ -1,7 +1,7 @@
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
-import { interceptLogging, LogEntry, logger } from './logging'
-import { FastTrackTimelineFunc, JobSpec, JobWorkerBase } from './main'
-import { JobManager, JobStream } from './manager'
+import { interceptLogging, LogEntry, logger } from './logging.js'
+import { FastTrackTimelineFunc, JobSpec, JobWorkerBase } from './main.js'
+import { JobManager, JobStream } from './manager.js'
 import { WorkerId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { getPrometheusMetricsString, setupPrometheusMetrics } from '@sofie-automation/corelib/dist/prometheus'
 

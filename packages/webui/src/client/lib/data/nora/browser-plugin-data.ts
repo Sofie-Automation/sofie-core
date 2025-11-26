@@ -1,10 +1,13 @@
 import { JSONBlobParse, NoraContent } from '@sofie-automation/blueprints-integration'
 import { PieceGeneric } from '@sofie-automation/corelib/dist/dataModel/Piece'
-import { objectToXML } from '../util/object-to-xml'
+import { objectToXML } from '../util/object-to-xml.js'
+import { ReadonlyDeep } from 'type-fest'
 
 export { createMosObjectXmlStringNoraBluePrintPiece }
 
-function createMosObjectXmlStringNoraBluePrintPiece(piece: Pick<PieceGeneric, 'content' | 'externalId'>): string {
+function createMosObjectXmlStringNoraBluePrintPiece(
+	piece: ReadonlyDeep<Pick<PieceGeneric, 'content' | 'externalId'>>
+): string {
 	const noraContent = piece.content as NoraContent | undefined
 	const noraPayload = noraContent?.previewPayload ? JSONBlobParse(noraContent.previewPayload) : undefined
 	if (!noraContent || !noraPayload) {

@@ -1,4 +1,4 @@
-import { IngestPart, IngestPlaylist, IngestRundown, IngestSegment } from './ingest'
+import { IngestPart, IngestPlaylist, IngestRundown, IngestSegment } from './ingest.js'
 
 export interface SofieIngestPlaylist extends IngestPlaylist {
 	/** Ingest cache of rundowns in this playlist. */

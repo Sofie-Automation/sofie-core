@@ -1,14 +1,16 @@
 import { useTranslation } from 'react-i18next'
 import Moment from 'react-moment'
-import { RundownUtils } from '../../lib/rundown'
-import { WithTiming, withTiming } from '../RundownView/RundownTiming/withTiming'
+import { RundownUtils } from '../../lib/rundown.js'
+import { useTiming } from '../RundownView/RundownTiming/withTiming.js'
 
 interface IProps {
 	breakTime: number | undefined
 }
 
-function BreakSegmentInner({ breakTime, timingDurations }: WithTiming<IProps>): JSX.Element {
+export function BreakSegment({ breakTime }: IProps): JSX.Element {
 	const { t } = useTranslation()
+
+	const timingDurations = useTiming()
 
 	const displayTimecode = breakTime && timingDurations.currentTime ? breakTime - timingDurations.currentTime : undefined
 
@@ -31,5 +33,3 @@ function BreakSegmentInner({ breakTime, timingDurations }: WithTiming<IProps>): 
 		</div>
 	)
 }
-
-export const BreakSegment = withTiming<IProps, {}>()(BreakSegmentInner)

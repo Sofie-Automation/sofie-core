@@ -9,7 +9,7 @@ The pages below are intended for developers of any of the Sofie-related repos an
 
 A read-through of the [Concepts & Architectures](../user-guide/concepts-and-architecture) is recommended, before diving too deep into development.
 
-* [Libraries](libraries)
-* [Contribution Guidelines](contribution-guidelines)
-* [For Blueprint Developers](for-blueprint-developers/intro)
-* [API Documentation](api-documentation)
+- [Libraries](libraries)
+- [Contribution Guidelines](contribution-guidelines)
+- [For Blueprint Developers](for-blueprint-developers/intro)
+- [API Documentation](api-documentation)

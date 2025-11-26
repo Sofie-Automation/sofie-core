@@ -2,7 +2,12 @@ const path = require('path')
 
 const commonConfig = {
 	modulePaths: ['<rootDir>/node_modules/'],
-	moduleNameMapper: {},
+	moduleNameMapper: {
+		// Ensure libraries that would match the extension rule are still resolved
+		'bignumber.js': 'bignumber.js',
+		// Drop file extensions in imports
+		'(.+)\\.js$': '$1',
+	},
 	unmockedModulePathPatterns: ['/^imports\\/.*\\.jsx?$/', '/^node_modules/'],
 	globals: {},
 	moduleFileExtensions: ['ts', 'js', 'json'],

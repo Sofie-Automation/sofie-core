@@ -96,7 +96,6 @@ export class JobQueueWithClasses {
 		Promise.resolve()
 			.then(async () => {
 				this.#paused = false
-				// eslint-disable-next-line no-constant-condition
 				while (true) {
 					const firstIn = this.#queue.shift()
 					if (!firstIn) {

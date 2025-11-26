@@ -1,5 +1,3 @@
-/* eslint-disable jest/no-export, jest/valid-title, jest/expect-expect, jest/no-focused-tests */
-
 const orgSetTimeout = setTimeout
 const DateOrg = Date
 export async function runAllTimers(): Promise<void> {
@@ -20,7 +18,7 @@ export async function runTimersUntilNow(): Promise<void> {
 	}
 }
 
-/** Returns a Promise that resolves after a speficied number of milliseconds */
+/** Returns a Promise that resolves after a specified number of milliseconds */
 export async function waitTime(ms: number): Promise<void> {
 	return new Promise((resolve) => orgSetTimeout(resolve, ms))
 }
@@ -43,7 +41,6 @@ export async function waitUntil(expectFcn: () => void | Promise<void>, maxWaitTi
 	const iterateInterval = maxWaitTime < 100 ? 10 : 100
 
 	const startTime = Date.now()
-	// eslint-disable-next-line no-constant-condition
 	while (true) {
 		await waitTime(iterateInterval)
 		try {

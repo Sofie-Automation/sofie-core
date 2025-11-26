@@ -1,7 +1,5 @@
-import { faCheckSquare, faSquare } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { useCallback } from 'react'
-import ClassNames from 'classnames'
+import Form from 'react-bootstrap/Form'
 
 interface ICheckboxControlProps {
 	classNames?: string
@@ -26,21 +24,13 @@ export function CheckboxControl({
 	)
 
 	return (
-		<span className={ClassNames('checkbox', classNames)}>
-			<input
-				type="checkbox"
-				className="form-control"
-				checked={value}
-				onChange={handleChange}
-				disabled={disabled}
-				title={title}
-			/>
-			<span className="checkbox-checked" title={title}>
-				<FontAwesomeIcon icon={faCheckSquare} />
-			</span>
-			<span className="checkbox-unchecked" title={title}>
-				<FontAwesomeIcon icon={faSquare} />
-			</span>
-		</span>
+		<Form.Check
+			type="checkbox"
+			className={classNames}
+			checked={value}
+			onChange={handleChange}
+			disabled={disabled}
+			title={title}
+		/>
 	)
 }

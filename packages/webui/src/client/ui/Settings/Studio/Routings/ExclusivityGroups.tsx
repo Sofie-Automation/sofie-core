@@ -5,27 +5,27 @@ import {
 	StudioRouteSet,
 	StudioRouteSetExclusivityGroup,
 } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { doModalDialog } from '../../../../lib/ModalDialog'
+import { doModalDialog } from '../../../../lib/ModalDialog.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash, faPencilAlt, faCheck, faSync, faPlus } from '@fortawesome/free-solid-svg-icons'
 import { useTranslation } from 'react-i18next'
-import { Studios } from '../../../../collections'
-import { LabelActual, LabelAndOverrides } from '../../../../lib/Components/LabelAndOverrides'
+import { Studios } from '../../../../collections/index.js'
+import { LabelActual, LabelAndOverrides } from '../../../../lib/Components/LabelAndOverrides.js'
 import {
 	OverrideOpHelper,
 	WrappedOverridableItem,
 	WrappedOverridableItemDeleted,
 	WrappedOverridableItemNormal,
 	useOverrideOpHelper,
-} from '../../util/OverrideOpHelper'
+} from '../../util/OverrideOpHelper.js'
 import {
 	applyAndValidateOverrides,
 	ObjectOverrideSetOp,
 	SomeObjectOverrideOp,
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import { TextInputControl } from '../../../../lib/Components/TextInput'
+import { TextInputControl } from '../../../../lib/Components/TextInput.js'
 import { literal } from '@sofie-automation/corelib/dist/lib'
-import { useToggleExpandHelper } from '../../../util/useToggleExpandHelper'
+import { useToggleExpandHelper } from '../../../util/useToggleExpandHelper.js'
 
 interface ExclusivityGroupsTableProps {
 	studio: DBStudio
@@ -93,7 +93,7 @@ export function ExclusivityGroupsTable({
 				<tbody>
 					{exclusivityGroupsFromOverrides.length === 0 ? (
 						<tr>
-							<td className="mhn dimmed">{t('There are no exclusivity groups set up.')}</td>
+							<td className="dimmed">{t('There are no exclusivity groups set up.')}</td>
 						</tr>
 					) : (
 						exclusivityGroupsFromOverrides.map(
@@ -118,7 +118,7 @@ export function ExclusivityGroupsTable({
 					)}
 				</tbody>
 			</table>
-			<div className="mod mhs">
+			<div className="my-1 mx-2">
 				<button className="btn btn-primary" onClick={addNewExclusivityGroup}>
 					<FontAwesomeIcon icon={faPlus} />
 				</button>
@@ -212,8 +212,6 @@ function ExclusivityGroupRow({
 							<label className="field">
 								<LabelActual label={t('Exclusivity Group ID')} />
 								<TextInputControl
-									modifiedClassName="bghl"
-									classNames="input text-input input-l"
 									value={exclusivityGroup.id}
 									handleUpdate={updateExclusivityGroupId}
 									disabled={!!exclusivityGroup.defaults}
@@ -225,17 +223,10 @@ function ExclusivityGroupRow({
 								itemKey={'name'}
 								overrideHelper={exclusivityOverrideHelper}
 							>
-								{(value, handleUpdate) => (
-									<TextInputControl
-										modifiedClassName="bghl"
-										classNames="input text-input input-l"
-										value={value}
-										handleUpdate={handleUpdate}
-									/>
-								)}
+								{(value, handleUpdate) => <TextInputControl value={value} handleUpdate={handleUpdate} />}
 							</LabelAndOverrides>
 						</div>
-						<div className="mod alright">
+						<div className="m-1 me-2 text-end">
 							<button className="btn btn-primary" onClick={() => toggleExpanded(exclusivityGroup.id)}>
 								<FontAwesomeIcon icon={faCheck} />
 							</button>

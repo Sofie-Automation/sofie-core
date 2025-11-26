@@ -1,0 +1,18 @@
+$defs:
+  partBase:
+    type: object
+    title: PartBase
+    properties:
+      id:
+        description: Unique id of the part
+        type: string
+      name:
+        description: User-presentable name of the part
+        type: string
+      autoNext:
+        description: If this part will progress to the next automatically
+        type: boolean
+        default: false
+    required: [id, name]
+    examples:
+      - $ref: './partBase-example.yaml'

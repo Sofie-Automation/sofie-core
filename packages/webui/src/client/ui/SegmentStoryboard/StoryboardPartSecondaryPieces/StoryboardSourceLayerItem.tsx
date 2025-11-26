@@ -1,8 +1,8 @@
 import { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PieceExtended } from '@sofie-automation/meteor-lib/dist/uiTypes/Piece'
 import { ISourceLayerExtended } from '@sofie-automation/meteor-lib/dist/uiTypes/SourceLayer'
-import StudioContext from '../../RundownView/StudioContext'
-import { StoryboardSecondaryPiece } from './StoryboardSecondaryPiece'
+import StudioContext from '../../RundownView/StudioContext.js'
+import { StoryboardSecondaryPiece } from './StoryboardSecondaryPiece.js'
 import classNames from 'classnames'
 import { useMemo } from 'react'
 

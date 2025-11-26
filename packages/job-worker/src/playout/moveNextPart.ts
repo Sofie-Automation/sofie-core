@@ -1,9 +1,9 @@
 import { groupByToMap } from '@sofie-automation/corelib/dist/lib'
 import { DBPart, isPartPlayable } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { JobContext } from '../jobs'
-import { PlayoutModelReadonly } from './model/PlayoutModel'
+import { JobContext } from '../jobs/index.js'
+import { PlayoutModelReadonly } from './model/PlayoutModel.js'
 import { sortPartsInSortedSegments } from '@sofie-automation/corelib/dist/playout/playlist'
-import { logger } from '../logging'
+import { logger } from '../logging.js'
 import { SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { ReadonlyDeep } from 'type-fest'
 

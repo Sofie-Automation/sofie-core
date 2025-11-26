@@ -1,31 +1,31 @@
-import * as React from 'react'
-import { withTranslation } from 'react-i18next'
+import React, { useContext, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import ClassNames from 'classnames'
 
 import { faBars } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
-import { Translated } from '../../lib/ReactMeteorData/ReactMeteorData'
-import { PieceUi } from '../SegmentTimeline/SegmentTimelineContainer'
+import { Translated, useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
+import { PieceUi } from '../SegmentTimeline/SegmentTimelineContainer.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { getElementDocumentOffset } from '../../utils/positions'
+import { getElementDocumentOffset } from '../../utils/positions.js'
 import {
 	DashboardLayoutExternalFrame,
 	RundownLayoutElementType,
 	RundownLayoutFilter,
 	RundownLayoutShelfBase,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import { UIStateStorage } from '../../lib/UIStateStorage'
-import { RundownLayoutsAPI } from '../../lib/rundownLayouts'
-import { contextMenuHoldToDisplayTime } from '../../lib/lib'
-import { ErrorBoundary } from '../../lib/ErrorBoundary'
-import { ShelfRundownLayout } from './ShelfRundownLayout'
-import { ShelfDashboardLayout } from './ShelfDashboardLayout'
-import { Bucket } from '@sofie-automation/meteor-lib/dist/collections/Buckets'
-import { RundownViewBuckets, BucketAdLibItem } from './RundownViewBuckets'
+import { UIStateStorage } from '../../lib/UIStateStorage.js'
+import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
+import { contextMenuHoldToDisplayTime } from '../../lib/lib.js'
+import { ErrorBoundary } from '../../lib/ErrorBoundary.js'
+import { ShelfRundownLayout } from './ShelfRundownLayout.js'
+import { ShelfDashboardLayout } from './ShelfDashboardLayout.js'
+import { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
+import { RundownViewBuckets, BucketAdLibItem } from './RundownViewBuckets.js'
 import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'
-import { ShelfInspector } from './Inspector/ShelfInspector'
+import { ShelfInspector } from './Inspector/ShelfInspector.js'
 import RundownViewEventBus, {
 	IEventContext,
 	RundownViewEvents,
@@ -33,25 +33,29 @@ import RundownViewEventBus, {
 	ShelfStateEvent,
 	SwitchToShelfTabEvent,
 } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
-import { IAdLibListItem } from './AdLibListItem'
-import ShelfContextMenu from './ShelfContextMenu'
-import { doUserAction, UserAction } from '../../lib/clientUserAction'
-import { MeteorCall } from '../../lib/meteorApi'
-import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
+import { IAdLibListItem } from './AdLibListItem.js'
+import ShelfContextMenu from './ShelfContextMenu.js'
+import { doUserAction, UserAction } from '../../lib/clientUserAction.js'
+import { MeteorCall } from '../../lib/meteorApi.js'
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
-import { ShelfDisplayOptions } from '../../lib/shelf'
+import { ShelfDisplayOptions } from '../../lib/shelf.js'
 import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
+import { Buckets } from '../../collections'
+import { UserPermissionsContext } from '../UserPermissions'
+import { useLocation } from 'react-router'
+import { IStudioSettings } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import { Settings } from '../../lib/Settings'
+import { ParsedQuery, parse as queryStringParse } from 'query-string'
 
 import { ShelfTabs } from '@sofie-automation/meteor-lib/dist/uiTypes/ShelfTabs'
 
 export { ShelfTabs } from '@sofie-automation/meteor-lib/dist/uiTypes/ShelfTabs'
 
-export interface IShelfProps extends React.ComponentPropsWithRef<any> {
+export interface IShelfProps {
 	isExpanded: boolean
 	buckets: Array<Bucket>
 	playlist: DBRundownPlaylist
-	currentRundown: Rundown
 	studio: UIStudio
 	showStyleBase: UIShowStyleBase
 	showStyleVariant: DBShowStyleVariant
@@ -64,9 +68,8 @@ export interface IShelfProps extends React.ComponentPropsWithRef<any> {
 	fullViewport?: boolean
 	shelfDisplayOptions: ShelfDisplayOptions
 	bucketDisplayFilter: number[] | undefined
-	showInspector: boolean
 
-	onChangeExpanded: (value: boolean) => void
+	onChangeExpanded?: (value: boolean) => void
 	onChangeBottomMargin?: (newBottomMargin: string) => void
 }
 
@@ -74,7 +77,7 @@ interface IState {
 	shelfHeight: string
 	overrideHeight: number | undefined
 	moving: boolean
-	selectedTab: string | undefined
+	selectedTab: string | ShelfTabs | undefined
 	shouldQueue: boolean
 	selectedPiece: BucketAdLibItem | IAdLibListItem | PieceUi | undefined
 	localStorageName: string
@@ -116,6 +119,7 @@ export class ShelfBase extends React.Component<Translated<IShelfProps>, IState> 
 			overrideHeight: undefined,
 			selectedTab: UIStateStorage.getItem(`rundownView.${props.playlist._id}`, 'shelfTab', undefined) as
 				| string
+				| ShelfTabs
 				| undefined,
 			shouldQueue: false,
 			selectedPiece: undefined,
@@ -204,8 +208,8 @@ export class ShelfBase extends React.Component<Translated<IShelfProps>, IState> 
 		return this.state.overrideHeight
 			? (this.state.overrideHeight / window.innerHeight) * 100 + 'vh'
 			: (newState !== undefined ? newState : this.props.isExpanded)
-			? this.state.shelfHeight
-			: undefined
+				? this.state.shelfHeight
+				: undefined
 	}
 
 	private getStyle() {
@@ -219,7 +223,7 @@ export class ShelfBase extends React.Component<Translated<IShelfProps>, IState> 
 		try {
 			// @ts-expect-error blur isnt always valid
 			document.activeElement.blur()
-		} catch (e) {
+		} catch (_e) {
 			// do nothing
 		}
 	}
@@ -300,7 +304,7 @@ export class ShelfBase extends React.Component<Translated<IShelfProps>, IState> 
 
 	private toggleHandle = (e: React.KeyboardEvent<HTMLButtonElement>) => {
 		if (e.key !== 'Enter') return
-		this.props.onChangeExpanded(!this.props.isExpanded)
+		this.props.onChangeExpanded?.(!this.props.isExpanded)
 	}
 
 	private endResize = () => {
@@ -326,7 +330,7 @@ export class ShelfBase extends React.Component<Translated<IShelfProps>, IState> 
 
 		document.body.style.cursor = ''
 
-		this.props.onChangeExpanded(shouldBeExpanded)
+		this.props.onChangeExpanded?.(shouldBeExpanded)
 		this.blurActiveElement()
 
 		localStorage.setItem(`${this.state.localStorageName}.shelfHeight`, this.state.shelfHeight)
@@ -353,7 +357,7 @@ export class ShelfBase extends React.Component<Translated<IShelfProps>, IState> 
 
 	private onShelfStateChange = (e: ShelfStateEvent) => {
 		this.blurActiveElement()
-		this.props.onChangeExpanded(e.state === 'toggle' ? !this.props.isExpanded : e.state)
+		this.props.onChangeExpanded?.(e.state === 'toggle' ? !this.props.isExpanded : e.state)
 	}
 
 	private onSwitchShelfTab = (e: SwitchToShelfTabEvent) => {
@@ -481,7 +485,6 @@ export class ShelfBase extends React.Component<Translated<IShelfProps>, IState> 
 								fullViewport={
 									!!this.props.fullViewport &&
 									this.props.shelfDisplayOptions.enableBuckets === true &&
-									this.props.shelfDisplayOptions.enableInspector === false &&
 									this.props.shelfDisplayOptions.enableLayout === false
 								}
 								displayBuckets={this.props.bucketDisplayFilter}
@@ -513,6 +516,82 @@ export class ShelfBase extends React.Component<Translated<IShelfProps>, IState> 
 	}
 }
 
-export const Shelf = withTranslation(undefined, {
-	withRef: true,
-})(ShelfBase)
+export function Shelf(
+	props: Omit<IShelfProps, 'buckets' | 'studioMode' | 'shelfDisplayOptions' | 'bucketDisplayFilter' | 'hotkeys'>
+): JSX.Element {
+	const i18n = useTranslation()
+
+	const userPermissions = useContext(UserPermissionsContext)
+
+	const { search } = useLocation()
+	const { shelfDisplayOptions, bucketDisplayFilter } = useMemo(() => {
+		const params = queryStringParse(search)
+		return {
+			shelfDisplayOptions: getShelfDisplayOptions(props.studio?.settings, params),
+			bucketDisplayFilter: getBucketDisplayFilter(params),
+		}
+	}, [search, props.studio?.settings])
+
+	const studioId = props.playlist?.studioId
+	const buckets = useTracker(
+		() =>
+			(studioId &&
+				Buckets.find(
+					{
+						studioId: studioId,
+					},
+					{
+						sort: {
+							_rank: 1,
+						},
+					}
+				).fetch()) ||
+			[],
+		[studioId],
+		[]
+	)
+
+	const poisonKey = Settings.poisonKey
+	const hotkeys = [
+		// Register additional hotkeys or legend entries
+		...(poisonKey
+			? [
+					{
+						key: poisonKey,
+						label: i18n.t('Cancel currently pressed hotkey'),
+					},
+				]
+			: []),
+		{
+			key: 'F11',
+			label: i18n.t('Change to fullscreen mode'),
+		},
+	]
+
+	return (
+		<ShelfBase
+			{...props}
+			{...i18n}
+			tReady={i18n.ready}
+			buckets={buckets}
+			studioMode={userPermissions.studio}
+			hotkeys={hotkeys}
+			shelfDisplayOptions={shelfDisplayOptions}
+			bucketDisplayFilter={bucketDisplayFilter}
+		/>
+	)
+}
+
+function getShelfDisplayOptions(studioSettings: IStudioSettings | undefined, params: ParsedQuery): ShelfDisplayOptions {
+	const displayOptions = ((params['display'] as string) || Settings.defaultShelfDisplayOptions).split(',')
+
+	return {
+		// If buckets are enabled in Studiosettings, it can also be filtered in the URLs display options.
+		enableBuckets: !!studioSettings?.enableBuckets && displayOptions.includes('buckets'),
+		enableLayout: displayOptions.includes('layout') || displayOptions.includes('shelfLayout'),
+	}
+}
+
+function getBucketDisplayFilter(params: ParsedQuery): number[] | undefined {
+	return !(params['buckets'] as string) ? undefined : (params['buckets'] as string).split(',').map((v) => parseInt(v))
+}

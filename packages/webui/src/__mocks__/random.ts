@@ -27,7 +27,7 @@ export function restartRandomId(): void {
 
 export function resetRandomId(): void {
 	// move the iterator forward and tie to next 1000
-	// This will help with making the random id more consistend in tests
+	// This will help with making the random id more consistent in tests
 	RandomMock.mockI += 500
 	RandomMock.mockI += 1000 - (RandomMock.mockI % 1000)
 }

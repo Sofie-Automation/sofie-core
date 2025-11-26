@@ -1,15 +1,8 @@
 import { unprotectString } from '@sofie-automation/server-core-integration'
-import { ShowStyleBaseExt } from '../../collections/showStyleBaseHandler'
-import { PieceInstanceMin } from '../../collections/pieceInstancesHandler'
-
-export interface PieceStatus {
-	id: string
-	name: string
-	sourceLayer: string
-	outputLayer: string
-	tags: readonly string[] | undefined
-	publicData: unknown
-}
+import type { ShowStyleBaseExt } from '../../collections/showStyleBaseHandler.js'
+import type { PieceInstanceMin } from '../../collections/pieceInstancesHandler.js'
+import type { PieceStatus } from '@sofie-automation/live-status-gateway-api'
+import { clone } from '@sofie-automation/corelib/dist/lib'
 
 export function toPieceStatus(
 	pieceInstance: PieceInstanceMin,
@@ -22,7 +15,7 @@ export function toPieceStatus(
 		name: pieceInstance.piece.name,
 		sourceLayer: sourceLayerName ?? 'invalid',
 		outputLayer: outputLayerName ?? 'invalid',
-		tags: pieceInstance.piece.tags,
+		tags: clone<string[] | undefined>(pieceInstance.piece.tags),
 		publicData: pieceInstance.piece.publicData,
 	}
 }

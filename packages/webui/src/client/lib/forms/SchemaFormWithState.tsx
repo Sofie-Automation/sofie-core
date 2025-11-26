@@ -2,9 +2,9 @@ import { useCallback, useMemo } from 'react'
 import {
 	OverrideOpHelperForItemContentsBatcher,
 	WrappedOverridableItemNormal,
-} from '../../ui/Settings/util/OverrideOpHelper'
-import { SchemaFormCommonProps } from './schemaFormUtil'
-import { SchemaFormWithOverrides } from './SchemaFormWithOverrides'
+} from '../../ui/Settings/util/OverrideOpHelper.js'
+import { SchemaFormCommonProps } from './schemaFormUtil.js'
+import { SchemaFormWithOverrides } from './SchemaFormWithOverrides.js'
 import { literal, objectPathSet } from '@sofie-automation/corelib/dist/lib'
 import { AnyARecord } from 'dns'
 

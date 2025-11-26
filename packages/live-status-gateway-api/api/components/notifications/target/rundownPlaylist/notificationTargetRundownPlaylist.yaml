@@ -1,0 +1,16 @@
+$defs:
+  NotificationTargetRundownPlaylist:
+    type: object
+    title: NotificationTargetRundownPlaylist
+    required: [type, studioId, playlistId]
+    properties:
+      type:
+        $ref: '../notificationTargetType.yaml#/$defs/NotificationTargetType'
+        const: playlist
+      studioId:
+        type: string
+      playlistId:
+        type: string
+    additionalProperties: false
+    examples:
+      - $ref: './notificationTargetRundownPlaylist-example.yaml'

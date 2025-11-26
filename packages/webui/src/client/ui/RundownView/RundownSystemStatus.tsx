@@ -1,19 +1,20 @@
 import React, { useMemo } from 'react'
 import ClassNames from 'classnames'
-import { useSubscription, useTracker } from '../../lib/ReactMeteorData/ReactMeteorData'
+import { useSubscription, useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import {
 	PeripheralDevice,
 	PeripheralDeviceCategory,
 	PeripheralDeviceType,
 } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { Rundown, getRundownNrcsName } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { Time, unprotectString } from '../../lib/tempLib'
+import type { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
+import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { useTranslation } from 'react-i18next'
 import { StatusCode } from '@sofie-automation/blueprints-integration'
 import { RundownPlaylistId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { PeripheralDevices } from '../../collections'
+import { PeripheralDevices } from '../../collections/index.js'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
-import { useCurrentTime } from '../../lib/lib'
+import { useCurrentTime } from '../../lib/lib.js'
 
 interface IMOSStatusProps {
 	lastUpdate: Time
@@ -109,9 +110,7 @@ export const RundownSystemStatus = React.memo(
 		const ingest = useMemo(() => {
 			const attachedDevices = [...parentDevices, ...subDevices]
 
-			const ingestDevices = attachedDevices.filter(
-				(i) => i.category === PeripheralDeviceCategory.INGEST || i.category === PeripheralDeviceCategory.MEDIA_MANAGER
-			)
+			const ingestDevices = attachedDevices.filter((i) => i.category === PeripheralDeviceCategory.INGEST)
 
 			return calculateStatusForDevices(ingestDevices)
 		}, [parentDevices, subDevices])

@@ -1,35 +1,35 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "type": "pwa-chrome",
-            "request": "launch",
-            "name": "Launch Chrome",
-            "url": "http://localhost:3000/",
-            "sourceMaps": true,
-            "webRoot": "${workspaceFolder}/meteor",
-            "sourceMapPathOverrides": {
-                "meteor://💻app/*": "${webRoot}/*"
-            }
-        },
-        {
-            "type": "node",
-            "request": "attach",
-            "name": "Attach",
-            "port": 9229,
-            "cwd": "${workspaceFolder}/meteor",
-            "sourceMapPathOverrides": {
-                "db:///blueprint/*": "${workspaceFolder:Blueprints}/dist/*",
-                "blueprint:///*": "${workspaceFolder:Blueprints}/*"
-            },
-            "outFiles": [
-                "${workspaceFolder}/**/*.js",
-                "!**/node_modules/**",
-                "${workspaceFolder:Blueprints}/dist/*.js",
-            ]
-        }
-    ]
+	// Use IntelliSense to learn about possible attributes.
+	// Hover to view descriptions of existing attributes.
+	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "pwa-chrome",
+			"request": "launch",
+			"name": "Launch Chrome",
+			"url": "http://localhost:3000/",
+			"sourceMaps": true,
+			"webRoot": "${workspaceFolder}/meteor",
+			"sourceMapPathOverrides": {
+				"meteor://💻app/*": "${webRoot}/*"
+			}
+		},
+		{
+			"type": "node",
+			"request": "attach",
+			"name": "Attach",
+			"port": 9229,
+			"cwd": "${workspaceFolder}/meteor",
+			"sourceMapPathOverrides": {
+				"db:///blueprint/*": "${workspaceFolder:Blueprints}/dist/*",
+				"blueprint:///*": "${workspaceFolder:Blueprints}/*"
+			},
+			"outFiles": [
+				"${workspaceFolder}/**/*.js",
+				"!**/node_modules/**",
+				"${workspaceFolder:Blueprints}/dist/*.js"
+			]
+		}
+	]
 }

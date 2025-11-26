@@ -1,0 +1,4 @@
+event: subscribe
+reqid: 27
+subscription:
+  name: studio

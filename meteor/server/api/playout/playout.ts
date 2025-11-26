@@ -14,14 +14,14 @@ export namespace ServerPlayoutAPI {
 		if (studio) {
 			const activePlaylists = await RundownPlaylists.findFetchAsync(
 				{ studioId: studio._id, activationId: { $exists: true } },
-				{ fields: { _id: 1 } }
+				{ projection: { _id: 1 } }
 			)
 			if (activePlaylists.length > 0) return false
 
 			const [timeline, blueprint] = await Promise.all([
 				Timeline.findOneAsync(studio._id),
 				studio.blueprintId
-					? Blueprints.findOneAsync(studio.blueprintId, { fields: { blueprintVersion: 1 } })
+					? Blueprints.findOneAsync(studio.blueprintId, { projection: { blueprintVersion: 1 } })
 					: null,
 			])
 			if (blueprint === undefined) return 'missingBlueprint'

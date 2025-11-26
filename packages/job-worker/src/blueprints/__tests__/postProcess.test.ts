@@ -1,10 +1,10 @@
-import * as _ from 'underscore'
+import _ from 'underscore'
 import {
 	postProcessAdLibPieces,
 	postProcessPieces,
 	postProcessRundownBaselineItems,
 	postProcessStudioBaselineObjects,
-} from '../postProcess'
+} from '../postProcess.js'
 import {
 	IBlueprintAdLibPiece,
 	IBlueprintPiece,
@@ -13,7 +13,7 @@ import {
 	TSR,
 	IBlueprintPieceType,
 } from '@sofie-automation/blueprints-integration'
-import { setupDefaultJobEnvironment } from '../../__mocks__/context'
+import { setupDefaultJobEnvironment } from '../../__mocks__/context.js'
 import { clone, literal, omit } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { TimelineObjGeneric, TimelineObjType } from '@sofie-automation/corelib/dist/dataModel/Timeline'
@@ -111,7 +111,7 @@ describe('Test blueprint post-process', () => {
 
 			// Certain fields should be defined by simple rules
 			expect(res.filter((r) => r.id === '')).toHaveLength(0)
-			expect(res.filter((r) => r.objectType !== 'rundown')).toHaveLength(0)
+			expect(res.filter((r) => r.objectType !== TimelineObjType.RUNDOWN)).toHaveLength(0)
 
 			// Ensure no ids were duplicates
 			const ids = res.map((obj) => obj.id)
@@ -229,7 +229,7 @@ describe('Test blueprint post-process', () => {
 
 			// Certain fields should be defined by simple rules
 			expect(res.filter((r) => r.id === '')).toHaveLength(0)
-			expect(res.filter((r) => r.objectType !== 'rundown')).toHaveLength(0)
+			expect(res.filter((r) => r.objectType !== TimelineObjType.RUNDOWN)).toHaveLength(0)
 
 			// Ensure getHash was called as expected
 			expect(getHashMock).toHaveBeenCalledTimes(2)

@@ -3,10 +3,9 @@ import { useCallback, useMemo, useState } from 'react'
 import {
 	WrappedOverridableItemNormal,
 	OverrideOpHelperForItemContentsBatcher,
-} from '../../ui/Settings/util/OverrideOpHelper'
-import { SchemaFormCommonProps } from './schemaFormUtil'
-import { SchemaFormWithOverrides } from './SchemaFormWithOverrides'
-import './SchemaFormInPlace.scss'
+} from '../../ui/Settings/util/OverrideOpHelper.js'
+import { SchemaFormCommonProps } from './schemaFormUtil.js'
+import { SchemaFormWithOverrides } from './SchemaFormWithOverrides.js'
 
 interface SchemaFormInPlaceProps extends Omit<SchemaFormCommonProps, 'isRequired'> {
 	/** The object to be modified in place */

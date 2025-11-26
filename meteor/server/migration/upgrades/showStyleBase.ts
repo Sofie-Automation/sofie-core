@@ -147,7 +147,7 @@ export async function runUpgradeForShowStyleBase(showStyleBaseId: ShowStyleBaseI
 
 async function loadShowStyleAndBlueprint(showStyleBaseId: ShowStyleBaseId) {
 	const showStyleBase = (await ShowStyleBases.findOneAsync(showStyleBaseId, {
-		fields: {
+		projection: {
 			_id: 1,
 			blueprintId: 1,
 			blueprintConfigPresetId: 1,
@@ -172,7 +172,7 @@ async function loadShowStyleAndBlueprint(showStyleBaseId: ShowStyleBaseId) {
 		? await Blueprints.findOneAsync({
 				_id: showStyleBase.blueprintId,
 				blueprintType: BlueprintManifestType.SHOWSTYLE,
-		  })
+			})
 		: undefined
 	if (!blueprint) throw new Meteor.Error(404, `Blueprint "${showStyleBase.blueprintId}" not found!`)
 

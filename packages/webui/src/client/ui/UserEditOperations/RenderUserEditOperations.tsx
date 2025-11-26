@@ -5,10 +5,10 @@ import { CoreUserEditingDefinition } from '@sofie-automation/corelib/dist/dataMo
 import { JSONBlobParse, UserEditingType, UserOperationTarget } from '@sofie-automation/blueprints-integration'
 import { translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { MenuItem } from '@jstarpl/react-contextmenu'
-import { doModalDialog } from '../../lib/ModalDialog'
-import { SchemaFormInPlace } from '../../lib/forms/SchemaFormInPlace'
-import { doUserAction, UserAction } from '../../lib/clientUserAction'
-import { MeteorCall } from '../../lib/meteorApi'
+import { doModalDialog } from '../../lib/ModalDialog.js'
+import { SchemaFormInPlace } from '../../lib/forms/SchemaFormInPlace.js'
+import { doUserAction, UserAction } from '../../lib/clientUserAction.js'
+import { MeteorCall } from '../../lib/meteorApi.js'
 import { useTranslation } from 'react-i18next'
 
 interface UserEditOperationMenuItemsProps {

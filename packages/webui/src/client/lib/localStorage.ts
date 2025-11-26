@@ -1,7 +1,7 @@
 import {
 	setReportNotifications as libSetReportNotifications,
 	getReportNotifications as libGetReportNotifications,
-} from './notifications/notifications'
+} from './notifications/notifications.js'
 
 export enum LocalStorageProperty {
 	STUDIO = 'studioMode',

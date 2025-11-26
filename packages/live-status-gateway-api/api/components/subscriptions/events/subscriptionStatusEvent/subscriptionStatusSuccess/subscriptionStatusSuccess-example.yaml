@@ -1,0 +1,4 @@
+event: subscriptionStatus
+reqid: 27
+subscription:
+  $ref: '../../../subscriptionDetails/subscriptionDetails-example.yaml'

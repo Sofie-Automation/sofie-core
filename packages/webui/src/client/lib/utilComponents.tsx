@@ -1,5 +1,5 @@
 import * as React from 'react'
-import * as _ from 'underscore'
+import _ from 'underscore'
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function makeTableOfObject(o: any): React.ReactNode {
@@ -22,7 +22,7 @@ export function makeTableOfObject(o: any): React.ReactNode {
 							let json = ''
 							try {
 								json = JSON.parse(val)
-							} catch (e) {
+							} catch (_e) {
 								// ignore
 							}
 							if (json) {

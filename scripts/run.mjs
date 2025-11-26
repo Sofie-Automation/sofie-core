@@ -43,6 +43,9 @@ function watchMeteor() {
 		console.log('No meteor-settings.json')
 	}
 
+	// If a ROOT_URL is defined, meteor will serve under that. We should use the same for vite, to get the correct proxying
+	const rootUrl = process.env.ROOT_URL ? new URL(process.env.ROOT_URL) : null
+
 	return [
 		{
 			command: "yarn watch-types --preserveWatchOutput",
@@ -66,6 +69,9 @@ function watchMeteor() {
 			cwd: "packages/webui",
 			name: "VITE",
 			prefixColor: "yellow",
+			env: {
+				SOFIE_BASE_PATH: rootUrl && rootUrl.pathname.length > 1 ? rootUrl.pathname : '',
+			},
 		},
 	];
 }
@@ -105,7 +111,7 @@ function signalHandler(signal) {
 	process.exit();
 }
 
-// Make sure to exit on interupt
+// Make sure to exit on interrupt
 process.on("SIGINT", signalHandler);
 process.on("SIGTERM", signalHandler);
 process.on("SIGQUIT", signalHandler);

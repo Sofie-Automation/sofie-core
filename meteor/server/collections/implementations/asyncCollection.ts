@@ -1,4 +1,4 @@
-import { MongoModifier, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
+import { MongoModifier, MongoQuery, ObserveChangesOptions } from '@sofie-automation/corelib/dist/mongo'
 import { ProtectedString, protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { Meteor } from 'meteor/meteor'
 import { Mongo } from 'meteor/mongo'
@@ -141,7 +141,8 @@ export class WrappedAsyncMongoCollection<DBInterface extends { _id: ProtectedStr
 	async observeChanges(
 		selector: MongoQuery<DBInterface> | DBInterface['_id'],
 		callbacks: PromisifyCallbacks<ObserveChangesCallbacks<DBInterface>>,
-		options?: FindOptions<DBInterface>
+		findOptions?: FindOptions<DBInterface>,
+		callbackOptions?: ObserveChangesOptions
 	): Promise<Meteor.LiveQueryHandle> {
 		const span = profiler.startSpan(`MongoCollection.${this.name}.observeChanges`)
 		if (span) {
@@ -152,8 +153,8 @@ export class WrappedAsyncMongoCollection<DBInterface extends { _id: ProtectedStr
 		}
 		try {
 			const res = await this._collection
-				.find((selector ?? {}) as any, options as any)
-				.observeChangesAsync(callbacks)
+				.find((selector ?? {}) as any, findOptions as any)
+				.observeChangesAsync(callbacks, callbackOptions)
 			if (span) span.end()
 			return res
 		} catch (e) {

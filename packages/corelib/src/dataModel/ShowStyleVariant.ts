@@ -1,6 +1,6 @@
 import { IBlueprintConfig } from '@sofie-automation/blueprints-integration'
-import { ObjectWithOverrides } from '../settings/objectWithOverrides'
-import { ShowStyleVariantId, ShowStyleBaseId } from './Ids'
+import { ObjectWithOverrides } from '../settings/objectWithOverrides.js'
+import { ShowStyleVariantId, ShowStyleBaseId } from './Ids.js'
 
 export interface DBShowStyleVariant {
 	_id: ShowStyleVariantId

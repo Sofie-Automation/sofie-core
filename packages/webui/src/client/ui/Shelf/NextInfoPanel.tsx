@@ -1,17 +1,17 @@
-import * as _ from 'underscore'
+import _ from 'underscore'
 import ClassNames from 'classnames'
 import {
 	RundownLayoutBase,
 	DashboardLayoutNextInfo,
 	RundownLayoutNextInfo,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import { RundownLayoutsAPI } from '../../lib/rundownLayouts'
-import { useTracker } from '../../lib/ReactMeteorData/ReactMeteorData'
+import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
+import { useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { dashboardElementStyle } from './DashboardPanel'
-import { Segments } from '../../collections'
-import { UIPartInstances } from '../Collections'
+import { dashboardElementStyle } from './DashboardPanel.js'
+import { Segments } from '../../collections/index.js'
+import { UIPartInstances } from '../Collections.js'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 
 interface INextInfoPanelProps {

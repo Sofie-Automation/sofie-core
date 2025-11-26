@@ -1,0 +1,7 @@
+description: Topic for Segment updates
+
+subscribe:
+  operationId: receiveSegments
+  description: Server publishes Segment updates
+  message:
+    $ref: '../../components/segment/messages/segmentsMessage.yaml#/components/messages/segmentsMessage'

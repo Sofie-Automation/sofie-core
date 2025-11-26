@@ -5,7 +5,7 @@
  *   will fetch from a MAM and copy to the media-folder of CasparCG.
  */
 
-import { StatusCode } from '../lib/status'
+import { StatusCode } from '../lib/status.js'
 
 type AccessorId = string
 type ExpectedPackageId = string
@@ -434,7 +434,7 @@ export namespace AccessorOnPackage {
 		guid?: string
 		title?: string
 	}
-	// eslint-disable-next-line @typescript-eslint/no-empty-interface
+	// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 	export interface CorePackageCollection extends Partial<Accessor.CorePackageCollection> {
 		// empty
 	}

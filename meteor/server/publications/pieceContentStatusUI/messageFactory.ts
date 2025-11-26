@@ -16,6 +16,9 @@ const DEFAULT_MESSAGES: Record<PackageStatusMessage, ITranslatableMessage> = {
 	[PackageStatusMessage.FILE_IS_MISSING]: generateTranslation('{{sourceLayer}} is missing'),
 
 	// Package manager
+	[PackageStatusMessage.FILE_MISSING_SOURCE_CONTAINERS]: generateTranslation(
+		'{{sourceLayer}} has unsupported source: {{containerLabels}}'
+	),
 	[PackageStatusMessage.FILE_CANT_BE_FOUND_ON_PLAYOUT_SYSTEM]: generateTranslation(
 		`{{sourceLayer}} can't be found on the playout system`
 	),

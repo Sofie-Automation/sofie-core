@@ -19,7 +19,7 @@ import {
 	InputFunction,
 	MigrationStepCore,
 } from '@sofie-automation/blueprints-integration'
-import * as _ from 'underscore'
+import _ from 'underscore'
 import {
 	GetMigrationStatusResult,
 	MigrationChunk,
@@ -30,7 +30,8 @@ import { logger } from '../logging'
 import { internalStoreSystemSnapshot } from '../api/snapshot'
 import { parseVersion, Version } from '../systemStatus/semverUtils'
 import { GENESIS_SYSTEM_VERSION } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
-import { clone, getHash, omit, protectString } from '../lib/tempLib'
+import { clone, getHash, omit } from '@sofie-automation/corelib/dist/lib'
+import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { evalBlueprint } from '../api/blueprints/cache'
 import { MigrationContextSystem } from '../api/blueprints/migrationContext'
@@ -354,7 +355,7 @@ export async function prepareMigration(returnAllChunks?: boolean): Promise<Prepa
 		? migrationChunks
 		: migrationChunks.filter((chunk) => {
 				return chunk._steps.length > 0
-		  })
+			})
 	const hash = getHash(stepsHash.join(','))
 
 	const steps = Object.values<MigrationStepInternal>(migrationSteps)
@@ -454,7 +455,7 @@ export async function runMigration(
 		const storePath = getSystemStorePath()
 		if (storePath) {
 			try {
-				snapshotId = await internalStoreSystemSnapshot(null, {}, `Automatic, taken before migration`)
+				snapshotId = await internalStoreSystemSnapshot({}, `Automatic, taken before migration`)
 			} catch (e) {
 				warningMessages.push(`Error when taking snapshot:${stringifyError(e)}`)
 				logger.error(e)

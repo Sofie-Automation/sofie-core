@@ -18,6 +18,7 @@ import { StudioObserver } from './StudioObserver'
 import { Studios } from '../../collections'
 import { ReactiveCacheCollection } from '../../publications/lib/ReactiveCacheCollection'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
+import { TagsService } from './TagsService'
 
 type ObserverAndManager = {
 	observer: StudioObserver
@@ -43,15 +44,25 @@ Meteor.startup(async () => {
 
 	function createObserverAndManager(studioId: StudioId) {
 		logger.debug(`Creating observer for studio "${studioId}"`)
-		const manager = new StudioDeviceTriggerManager(studioId)
-		const observer = new StudioObserver(studioId, (showStyleBaseId, cache) => {
-			logger.silly(`Studio observer updating triggers for "${studioId}":"${showStyleBaseId}"`)
-			workInQueue(async () => manager.updateTriggers(cache, showStyleBaseId))
+		const manager = new StudioDeviceTriggerManager(studioId, new TagsService())
+		const observer = new StudioObserver(
+			studioId,
+			(showStyleBaseId, cache) => {
+				logger.silly(`Studio observer updating triggers for "${studioId}":"${showStyleBaseId}"`)
+				workInQueue(async () => manager.updateTriggers(cache, showStyleBaseId))
 
-			return () => {
-				workInQueue(async () => manager.clearTriggers())
+				return () => {
+					workInQueue(async () => manager.clearTriggers())
+				}
+			},
+			(showStyleBaseId, cache) => {
+				workInQueue(async () => manager.updatePieceInstances(cache, showStyleBaseId))
+
+				return () => {
+					return
+				}
 			}
-		})
+		)
 
 		studioObserversAndManagers.set(studioId, { manager, observer })
 	}

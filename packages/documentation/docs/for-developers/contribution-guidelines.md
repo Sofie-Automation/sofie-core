@@ -30,9 +30,10 @@ Before you start, there are a few things you should know:
 **Minor changes** (most bug fixes and small features) can be submitted directly as pull requests to the appropriate official repo.
 
 However, Sofie is a big project with many differing users and use cases. **Larger changes** may be difficult to merge into an official repository if NRK and other contributors have not been made aware of their existence beforehand. Since figuring out what side-effects a new feature or a change may have for other Sofie users can be tricky, we advise opening an RFC issue (_Request for Comments_) early in your process. Good moments to open an RFC include:
-* When a user need is identified and described
-* When you have a rough idea about how a feature may be implemented
-* When you have a sketch of how a feature could look like to the user
+
+- When a user need is identified and described
+- When you have a rough idea about how a feature may be implemented
+- When you have a sketch of how a feature could look like to the user
 
 To facilitate timely handling of larger contributions, there’s a workflow intended to keep an open dialogue between all interested parties:
 

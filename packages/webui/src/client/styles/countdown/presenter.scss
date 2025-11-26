@@ -118,6 +118,10 @@ $hold-status-color: $liveline-timecode-color;
 			padding: 0 0.2em;
 			line-height: 1em;
 
+			> .overtime {
+				color: $general-late-color;
+			}
+
 			> img.freeze-icon {
 				width: 0.9em;
 				height: 0.9em;

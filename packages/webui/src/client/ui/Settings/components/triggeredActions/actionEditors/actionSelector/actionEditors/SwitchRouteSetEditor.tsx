@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
-import { useTracker } from '../../../../../../../lib/ReactMeteorData/ReactMeteorData'
-import { Studios } from '../../../../../../../collections'
-import { DropdownInputControl, DropdownInputOption } from '../../../../../../../lib/Components/DropdownInput'
+import { useTracker } from '../../../../../../../lib/ReactMeteorData/ReactMeteorData.js'
+import { Studios } from '../../../../../../../collections/index.js'
+import { DropdownInputControl, DropdownInputOption } from '../../../../../../../lib/Components/DropdownInput.js'
 import { SwitchRouteSetProps } from '@sofie-automation/corelib/dist/worker/studio'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { StudioRouteSet } from '@sofie-automation/blueprints-integration'
@@ -35,10 +35,9 @@ export function SwitchRouteSetEditor({
 
 	return (
 		<>
-			<div className="mts">
+			<div className="mt-2">
 				<label className="block">{t('Route Set')}</label>
 				<DropdownInputControl<typeof action.routeSetId>
-					classNames="input text-input input-m"
 					value={action.routeSetId}
 					options={allRouteSetOptions}
 					handleUpdate={(newVal) => {
@@ -50,10 +49,9 @@ export function SwitchRouteSetEditor({
 				/>
 			</div>
 
-			<div className="mts">
+			<div className="mt-2">
 				<label className="block">{t('State')}</label>
 				<DropdownInputControl<typeof action.state>
-					classNames="input text-input input-m"
 					value={action.state}
 					options={[
 						{
