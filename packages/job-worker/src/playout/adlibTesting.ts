@@ -47,7 +47,7 @@ export async function handleActivateAdlibTesting(context: JobContext, data: Acti
 			playoutModel.setPartInstanceAsNext(newPartInstance, true, false)
 
 			// Take into the newly created Part
-			await performTakeToNextedPart(context, playoutModel, getCurrentTime())
+			await performTakeToNextedPart(context, playoutModel, getCurrentTime(), undefined)
 		}
 	)
 }
