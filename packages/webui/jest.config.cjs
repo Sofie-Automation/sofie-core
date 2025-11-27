@@ -10,6 +10,7 @@ module.exports = {
 		'sha.js': 'sha.js',
 		'meteor/(.*)': '<rootDir>/src/meteor/$1',
 		'(.+)\\.js$': '$1',
+		'\\.(css|scss|sass)$': '<rootDir>/__mocks__/styleMock.js',
 	},
 	transform: {
 		'^.+\\.(ts|tsx)$': [

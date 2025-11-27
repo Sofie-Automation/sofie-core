@@ -1,0 +1,151 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ClockViewIndex renders with studio ID 1`] = `
+<div>
+  <div
+    class="header-clear"
+    fluid="true"
+  >
+    <section
+      class="mt-5 mx-5"
+    >
+      <header
+        class="my-2"
+      >
+        <h1>
+          Available Views for Studio studio0
+        </h1>
+      </header>
+      <section
+        class="my-5"
+      >
+        <ul>
+          <li>
+            <a
+              href="/countdowns/studio0/presenter"
+            >
+              Presenter Screen
+            </a>
+          </li>
+          <li>
+            <a
+              href="/countdowns/studio0/director"
+            >
+              Director Screen
+            </a>
+          </li>
+          <li>
+            <a
+              href="/countdowns/studio0/overlay"
+            >
+              Overlay Screen
+            </a>
+          </li>
+          <li>
+            <a
+              href="/countdowns/studio0/camera"
+            >
+              Camera Screen
+            </a>
+          </li>
+          <li>
+            <a
+              href="/prompter/studio0"
+            >
+              Prompter
+            </a>
+          </li>
+          <li>
+            <a
+              href="/activeRundown/studio0"
+            >
+              Active Rundown
+            </a>
+          </li>
+          <li>
+            <a
+              href="/countdowns/studio0/multiview"
+            >
+              Multiview (All Screens)
+            </a>
+          </li>
+        </ul>
+      </section>
+    </section>
+  </div>
+</div>
+`;
+
+exports[`MultiviewScreen renders with studio ID 1`] = `
+<div>
+  <div
+    class="multiview-grid"
+  >
+    <div
+      class="multiview-item multiview-presenter"
+    >
+      <iframe
+        src="/countdowns/studio0/presenter"
+        title="Presenter Screen"
+      />
+      <div
+        class="multiview-label"
+      >
+        Presenter Screen
+      </div>
+    </div>
+    <div
+      class="multiview-item multiview-director"
+    >
+      <iframe
+        src="/countdowns/studio0/director"
+        title="Director Screen"
+      />
+      <div
+        class="multiview-label"
+      >
+        Director Screen
+      </div>
+    </div>
+    <div
+      class="multiview-item multiview-prompter"
+    >
+      <iframe
+        src="/prompter/studio0"
+        title="Prompter"
+      />
+      <div
+        class="multiview-label"
+      >
+        Prompter
+      </div>
+    </div>
+    <div
+      class="multiview-item multiview-overlay"
+    >
+      <iframe
+        src="/countdowns/studio0/overlay"
+        title="Overlay Screen"
+      />
+      <div
+        class="multiview-label"
+      >
+        Overlay Screen
+      </div>
+    </div>
+    <div
+      class="multiview-item multiview-camera"
+    >
+      <iframe
+        src="/countdowns/studio0/camera"
+        title="Camera Screen"
+      />
+      <div
+        class="multiview-label"
+      >
+        Camera Screen
+      </div>
+    </div>
+  </div>
+</div>
+`;
