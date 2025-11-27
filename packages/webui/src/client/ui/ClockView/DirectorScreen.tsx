@@ -390,8 +390,7 @@ function DirectorScreenRender({
 				// Only consider VT and LIVE_SPEAK on the PGM output layer
 				const ol = currentShowStyleBase.outputLayers?.[pi.piece.outputLayerId]
 				if ((sl?.type === SourceLayerType.VT || sl?.type === SourceLayerType.LIVE_SPEAK) && ol?.isPGM) {
-					const ab = (pi.piece as unknown as { abSessions?: Array<{ poolName: string; sessionName: string }> })
-						.abSessions
+					const ab = pi.piece.abSessions
 					if (!ab || ab.length === 0) continue
 					for (const s of ab) {
 						const pool = playlist.assignedAbSessions?.[s.poolName]
@@ -425,8 +424,7 @@ function DirectorScreenRender({
 				// Only consider VT and LIVE_SPEAK on the PGM output layer
 				const ol = ssb.outputLayers?.[pi.piece.outputLayerId]
 				if ((sl?.type === SourceLayerType.VT || sl?.type === SourceLayerType.LIVE_SPEAK) && ol?.isPGM) {
-					const ab = (pi.piece as unknown as { abSessions?: Array<{ poolName: string; sessionName: string }> })
-						.abSessions
+					const ab = pi.piece.abSessions
 					if (!ab || ab.length === 0) continue
 					for (const s of ab) {
 						const pool = playlist.assignedAbSessions?.[s.poolName]
