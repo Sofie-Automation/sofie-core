@@ -14,7 +14,13 @@ __run_result || blueprint`,
 			filename: blueprintPath,
 		}
 	)
-	const entry = script.runInContext(context)
+
+	let entry: any
+	try {
+		entry = script.runInContext(context)
+	} catch (e) {
+		logger.error(`Error evaluating Blueprint .runInContext "${blueprint._id}": "${stringifyError(e)}"`)
+	}
 
 	const manifest: SomeBlueprintManifest = entry.default
 
