@@ -10,6 +10,7 @@ import { OutputLayerSettings } from './ShowStyle/OutputLayer.js'
 import { HotkeyLegendSettings } from './ShowStyle/HotkeyLegend.js'
 import { ShowStyleVariantsSettings } from './ShowStyle/VariantSettings.js'
 import { ShowStyleGenericProperties } from './ShowStyle/Generic.js'
+import { AbChannelDisplaySettings } from './ShowStyle/AbChannelDisplay.js'
 import { Switch, Route, Redirect } from 'react-router-dom'
 import { ErrorBoundary } from '../../lib/ErrorBoundary.js'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
@@ -128,11 +129,14 @@ export default function ShowStyleBaseSettings({ match }: IProps): JSX.Element {
 							outputLayers={outputLayers}
 						/>
 					</Route>
-					<Route path={`${match.path}/hotkey-labels`}>
-						<HotkeyLegendSettings showStyleBase={showStyleBase} />
-					</Route>
+				<Route path={`${match.path}/hotkey-labels`}>
+					<HotkeyLegendSettings showStyleBase={showStyleBase} />
+				</Route>
+				<Route path={`${match.path}/ab-channel-display`}>
+					<AbChannelDisplaySettings showStyleBase={showStyleBase} />
+				</Route>
 
-					{RundownLayoutsAPI.getSettingsManifest(t).map((region) => {
+				{RundownLayoutsAPI.getSettingsManifest(t).map((region) => {
 						return (
 							<Route key={region._id} path={`${match.path}/layouts-${region._id}`}>
 								<RundownLayoutEditor

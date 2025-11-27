@@ -45,6 +45,12 @@ export interface IBlueprintPiece<TPrivateData = unknown, TPublicData = unknown>
 	 * Whether to stop this piece before the 'keepalive' period of the part
 	 */
 	excludeDuringPartKeepalive?: boolean
+
+	/**
+	 * Whether to display AB resolver channel assignment on Director screen.
+	 * If set, overrides show style configuration for this piece.
+	 */
+	displayAbChannel?: boolean
 }
 export interface IBlueprintPieceDB<TPrivateData = unknown, TPublicData = unknown>
 	extends IBlueprintPiece<TPrivateData, TPublicData> {

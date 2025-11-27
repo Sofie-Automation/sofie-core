@@ -1,5 +1,10 @@
 import { ShowStyleBaseId, ShowStyleVariantId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { HotkeyDefinition, OutputLayers, SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
+import {
+	HotkeyDefinition,
+	OutputLayers,
+	SourceLayers,
+	type DBShowStyleBase,
+} from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
 
 export interface NewShowStylesAPI {
@@ -44,6 +49,9 @@ export interface UIShowStyleBase {
 	outputLayers: OutputLayers
 	/** "Layers" in the GUI */
 	sourceLayers: SourceLayers
+
+	/** Configuration for displaying AB resolver channels on various screens */
+	abChannelDisplay?: DBShowStyleBase['abChannelDisplay']
 }
 
 export interface CreateAdlibTestingRundownOption {
