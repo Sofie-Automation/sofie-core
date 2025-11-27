@@ -111,6 +111,7 @@
 			cursor: default;
 
 			overflow-wrap: break-word;
+			overflow: hidden; /* prevent long ids in warnings from pushng the dismiss button offscreen */
 
 			> h5 {
 				color: inherit;
