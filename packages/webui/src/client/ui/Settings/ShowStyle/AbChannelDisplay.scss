@@ -1,0 +1,15 @@
+.ab-channel-display {
+	&__section {
+		margin-top: 1rem;
+
+		&--large-gap {
+			margin-top: 2rem;
+		}
+	}
+
+	&__checkbox {
+		input[type='checkbox'] {
+			margin-right: 0.5rem;
+		}
+	}
+}

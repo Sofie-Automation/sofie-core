@@ -2,10 +2,11 @@ import { SourceLayerType } from '@sofie-automation/blueprints-integration'
 import { ShowStyleBases } from '../../../collections'
 import { useTranslation } from 'react-i18next'
 import { useCallback, useMemo } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import { DBShowStyleBase, SourceLayers, OutputLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
+import { ColumnPackedGrid, ColumnPackedGridGroup, ColumnPackedGridItem } from '../components/ColumnPackedGrid'
+import '../components/ColumnPackedGrid.scss'
+import './AbChannelDisplay.scss'
 
 interface AbChannelDisplaySettingsProps {
 	showStyleBase: DBShowStyleBase
@@ -24,37 +25,24 @@ export function AbChannelDisplaySettings({ showStyleBase }: Readonly<AbChannelDi
 		[showStyleBase.outputLayersWithOverrides]
 	)
 
-	const sourceLayerOptions = useMemo(() => {
-		return Object.entries<SourceLayers[string]>(sourceLayers).map(([id, layer]) => ({
-			value: id,
-			label: layer?.name ?? id,
-		}))
-	}, [sourceLayers])
-
-	const outputLayerOptions = useMemo(() => {
-		return Object.entries<OutputLayers[string]>(outputLayers).map(([id, layer]) => ({
-			value: id,
-			label: layer?.name ?? id,
-		}))
-	}, [outputLayers])
-
-	const sourceLayerTypeOptions = useMemo(() => {
-		return [
-			{ value: SourceLayerType.UNKNOWN, label: 'Unknown' },
-			{ value: SourceLayerType.CAMERA, label: 'Camera' },
-			{ value: SourceLayerType.VT, label: 'VT' },
-			{ value: SourceLayerType.REMOTE, label: 'Remote' },
-			{ value: SourceLayerType.SCRIPT, label: 'Script' },
-			{ value: SourceLayerType.GRAPHICS, label: 'Graphics' },
-			{ value: SourceLayerType.SPLITS, label: 'Splits' },
-			{ value: SourceLayerType.AUDIO, label: 'Audio' },
-			{ value: SourceLayerType.LOWER_THIRD, label: 'Lower Third' },
-			{ value: SourceLayerType.LIVE_SPEAK, label: 'Live Speak' },
-			{ value: SourceLayerType.TRANSITION, label: 'Transition' },
-			{ value: SourceLayerType.LIGHTS, label: 'Lights' },
-			{ value: SourceLayerType.LOCAL, label: 'Local' },
-		]
-	}, [])
+	const sourceLayerTypeLabels = useMemo<Partial<Record<SourceLayerType, string>>>(
+		() => ({
+			[SourceLayerType.UNKNOWN]: 'Unknown',
+			[SourceLayerType.CAMERA]: 'Camera',
+			[SourceLayerType.VT]: 'VT',
+			[SourceLayerType.REMOTE]: 'Remote',
+			[SourceLayerType.SCRIPT]: 'Script',
+			[SourceLayerType.GRAPHICS]: 'Graphics',
+			[SourceLayerType.SPLITS]: 'Splits',
+			[SourceLayerType.AUDIO]: 'Audio',
+			[SourceLayerType.LOWER_THIRD]: 'Lower Third',
+			[SourceLayerType.LIVE_SPEAK]: 'Live Speak',
+			[SourceLayerType.TRANSITION]: 'Transition',
+			[SourceLayerType.LIGHTS]: 'Lights',
+			[SourceLayerType.LOCAL]: 'Local',
+		}),
+		[]
+	)
 
 	const config = showStyleBase.abChannelDisplay ?? {
 		sourceLayerIds: [],
@@ -86,170 +74,125 @@ export function AbChannelDisplaySettings({ showStyleBase }: Readonly<AbChannelDi
 		updateConfig({ showOnDirectorScreen: !config.showOnDirectorScreen })
 	}, [updateConfig, config.showOnDirectorScreen])
 
-	const addSourceLayerId = useCallback(
-		(layerId: string) => {
-			if (!config.sourceLayerIds.includes(layerId)) {
-				updateConfig({ sourceLayerIds: [...config.sourceLayerIds, layerId] })
+	// Group source layers by type for the checkbox grid
+	const sourceLayerGroups = useMemo<ColumnPackedGridGroup[]>(() => {
+		// Group layers by their type
+		const grouped = new Map<SourceLayerType, string[]>()
+
+		Object.entries<SourceLayers[string]>(sourceLayers).forEach(([id, layer]) => {
+			const type = layer?.type ?? SourceLayerType.UNKNOWN
+			if (!grouped.has(type)) {
+				grouped.set(type, [])
 			}
-		},
-		[updateConfig, config.sourceLayerIds]
-	)
+			grouped.get(type)!.push(id)
+		})
 
-	const removeSourceLayerId = useCallback(
-		(layerId: string) => {
-			updateConfig({ sourceLayerIds: config.sourceLayerIds.filter((id) => id !== layerId) })
-		},
-		[updateConfig, config.sourceLayerIds]
-	)
+		// Convert to ColumnPackedGridGroup format
+		return Array.from(grouped.entries()).map(([type, layerIds]) => ({
+			id: String(type),
+			title: sourceLayerTypeLabels[type] ?? String(type),
+			itemKeys: layerIds,
+			isGroupSelected: config.sourceLayerTypes.includes(type),
+			onGroupToggle: (groupId: string, checked: boolean) => {
+				const typeValue = Number(groupId) as SourceLayerType
+				if (checked) {
+					if (!config.sourceLayerTypes.includes(typeValue)) {
+						updateConfig({ sourceLayerTypes: [...config.sourceLayerTypes, typeValue] })
+					}
+				} else {
+					updateConfig({ sourceLayerTypes: config.sourceLayerTypes.filter((t) => t !== typeValue) })
+				}
+			},
+		}))
+	}, [sourceLayers, sourceLayerTypeLabels, config.sourceLayerTypes, updateConfig])
 
-	const addSourceLayerType = useCallback(
-		(type: SourceLayerType) => {
-			if (!config.sourceLayerTypes.includes(type)) {
-				updateConfig({ sourceLayerTypes: [...config.sourceLayerTypes, type] })
+	// Prepare source layer items for rendering
+	const sourceLayerItems = useMemo<ColumnPackedGridItem<string>[]>(() => {
+		const allLayerIds = Object.keys(sourceLayers)
+		return allLayerIds.map((layerId) => {
+			const layer = sourceLayers[layerId]
+			const layerType = layer?.type ?? SourceLayerType.UNKNOWN
+			return {
+				data: layerId,
+				key: layerId,
+				label: layer?.name ?? layerId,
+				isSelected: config.sourceLayerIds.includes(layerId),
+				isGroupSelected: config.sourceLayerTypes.includes(layerType),
+				onToggle: (id: string, checked: boolean) => {
+					if (checked) {
+						if (!config.sourceLayerIds.includes(id)) {
+							updateConfig({ sourceLayerIds: [...config.sourceLayerIds, id] })
+						}
+					} else {
+						updateConfig({ sourceLayerIds: config.sourceLayerIds.filter((existingId) => existingId !== id) })
+					}
+				},
 			}
-		},
-		[updateConfig, config.sourceLayerTypes]
-	)
+		})
+	}, [sourceLayers, config.sourceLayerIds, config.sourceLayerTypes, updateConfig])
 
-	const removeSourceLayerType = useCallback(
-		(type: SourceLayerType) => {
-			updateConfig({ sourceLayerTypes: config.sourceLayerTypes.filter((t) => t !== type) })
-		},
-		[updateConfig, config.sourceLayerTypes]
-	)
-
-	const addOutputLayerId = useCallback(
-		(layerId: string) => {
-			if (!config.outputLayerIds.includes(layerId)) {
-				updateConfig({ outputLayerIds: [...config.outputLayerIds, layerId] })
+	// Prepare output layer items (no groups, just standalone items)
+	const outputLayerItems = useMemo<ColumnPackedGridItem<string>[]>(() => {
+		const allLayerIds = Object.keys(outputLayers)
+		return allLayerIds.map((layerId) => {
+			const layer = outputLayers[layerId]
+			return {
+				data: layerId,
+				key: layerId,
+				label: layer?.name ?? layerId,
+				isSelected: config.outputLayerIds.includes(layerId),
+				isGroupSelected: false,
+				onToggle: (id: string, checked: boolean) => {
+					if (checked) {
+						if (!config.outputLayerIds.includes(id)) {
+							updateConfig({ outputLayerIds: [...config.outputLayerIds, id] })
+						}
+					} else {
+						updateConfig({ outputLayerIds: config.outputLayerIds.filter((existingId) => existingId !== id) })
+					}
+				},
 			}
-		},
-		[updateConfig, config.outputLayerIds]
-	)
+		})
+	}, [outputLayers, config.outputLayerIds, updateConfig])
 
-	const removeOutputLayerId = useCallback(
-		(layerId: string) => {
-			updateConfig({ outputLayerIds: config.outputLayerIds.filter((id) => id !== layerId) })
-		},
-		[updateConfig, config.outputLayerIds]
-	)
+	// Simple height calculation (all items same height for now)
+	const getItemHeight = useCallback(() => 30, [])
 
 	return (
-		<div className="studio-edit mod mhl mvn">
-			<h2 className="mhn">{t('AB Resolver Channel Display')}</h2>
-			<p className="mhn">
+		<div className="studio-edit ab-channel-display">
+			<h2>{t('AB Resolver Channel Display')}</h2>
+			<p>
 				{t(
 					'Configure which pieces should display their assigned AB resolver channel (e.g., "Server A") on various screens. This helps operators identify which video server is playing each clip.'
 				)}
 			</p>
 
-			<div className="mod mvs mhs">
-				<label className="field">
-					<input
-						type="checkbox"
-						className="mod mas"
-						checked={config.showOnDirectorScreen}
-						onChange={toggleDirectorScreen}
-					/>
-					{t('Show on Director Screen')}
+			<div className="ab-channel-display__section">
+				<p>{t('Display AB channel assignments on:')}</p>
+				<label className="field ab-channel-display__checkbox">
+					<input type="checkbox" checked={config.showOnDirectorScreen} onChange={toggleDirectorScreen} />
+					<strong>{t('Director Screen')}</strong>
 				</label>
-				<p className="muted">{t('Display AB channel assignments on the director countdown screen')}</p>
 			</div>
 
-			<div className="mod mvs mhs">
+			<div className="ab-channel-display__section ab-channel-display__section--large-gap">
 				<h3>{t('Filter by Source Layer')}</h3>
 				<p className="muted">
 					{t(
-						'Select specific source layers that should display AB channel info. Leave empty to use type-based filtering.'
+						'Check layer types to select all layers of that type, or check individual layers for more specific filtering.'
 					)}
 				</p>
 
-				<div className="mod mvs">
-					<select
-						className="input text-input input-l"
-						title={t('Add source layer')}
-						onChange={(e) => {
-							if (e.target.value) {
-								addSourceLayerId(e.target.value)
-								e.target.value = ''
-							}
-						}}
-					>
-						<option value="">{t('Add source layer...')}</option>
-						{sourceLayerOptions
-							.filter((opt) => !config.sourceLayerIds.includes(opt.value))
-							.map((opt) => (
-								<option key={opt.value} value={opt.value}>
-									{opt.label}
-								</option>
-							))}
-					</select>
-				</div>
-
-				<table className="table expando settings-studio-source-table">
-					<tbody>
-						{config.sourceLayerIds.map((layerId) => (
-							<tr key={layerId}>
-								<td>{sourceLayers[layerId]?.name ?? layerId}</td>
-								<td className="actions">
-									<button className="action-btn" title={t('Remove')} onClick={() => removeSourceLayerId(layerId)}>
-										<FontAwesomeIcon icon={faTrash} />
-									</button>
-								</td>
-							</tr>
-						))}
-					</tbody>
-				</table>
+				<ColumnPackedGrid
+					groups={sourceLayerGroups}
+					items={sourceLayerItems}
+					emptyMessage={t('No source layers available')}
+					getItemHeight={getItemHeight}
+					targetColumns={3}
+				/>
 			</div>
 
-			<div className="mod mvs mhs">
-				<h3>{t('Filter by Source Layer Type')}</h3>
-				<p className="muted">
-					{t('Select source layer types that should display AB channel info (e.g., VT, Live Speak).')}
-				</p>
-
-				<div className="mod mvs">
-					<select
-						className="input text-input input-l"
-						title={t('Add source layer type')}
-						onChange={(e) => {
-							if (e.target.value) {
-								addSourceLayerType(Number(e.target.value) as SourceLayerType)
-								e.target.value = ''
-							}
-						}}
-					>
-						<option value="">{t('Add source layer type...')}</option>
-						{sourceLayerTypeOptions
-							.filter((opt) => !config.sourceLayerTypes.includes(opt.value))
-							.map((opt) => (
-								<option key={opt.value} value={opt.value}>
-									{opt.label}
-								</option>
-							))}
-					</select>
-				</div>
-
-				<table className="table expando settings-studio-source-table">
-					<tbody>
-						{config.sourceLayerTypes.map((type) => {
-							const option = sourceLayerTypeOptions.find((opt) => opt.value === type)
-							return (
-								<tr key={type}>
-									<td>{option?.label ?? type}</td>
-									<td className="actions">
-										<button className="action-btn" title={t('Remove')} onClick={() => removeSourceLayerType(type)}>
-											<FontAwesomeIcon icon={faTrash} />
-										</button>
-									</td>
-								</tr>
-							)
-						})}
-					</tbody>
-				</table>
-			</div>
-
-			<div className="mod mvs mhs">
+			<div className="ab-channel-display__section ab-channel-display__section--large-gap">
 				<h3>{t('Filter by Output Layer')}</h3>
 				<p className="muted">
 					{t(
@@ -257,42 +200,12 @@ export function AbChannelDisplaySettings({ showStyleBase }: Readonly<AbChannelDi
 					)}
 				</p>
 
-				<div className="mod mvs">
-					<select
-						className="input text-input input-l"
-						title={t('Add output layer')}
-						onChange={(e) => {
-							if (e.target.value) {
-								addOutputLayerId(e.target.value)
-								e.target.value = ''
-							}
-						}}
-					>
-						<option value="">{t('Add output layer...')}</option>
-						{outputLayerOptions
-							.filter((opt) => !config.outputLayerIds.includes(opt.value))
-							.map((opt) => (
-								<option key={opt.value} value={opt.value}>
-									{opt.label}
-								</option>
-							))}
-					</select>
-				</div>
-
-				<table className="table expando settings-studio-output-table">
-					<tbody>
-						{config.outputLayerIds.map((layerId) => (
-							<tr key={layerId}>
-								<td>{outputLayers[layerId]?.name ?? layerId}</td>
-								<td className="actions">
-									<button className="action-btn" title={t('Remove')} onClick={() => removeOutputLayerId(layerId)}>
-										<FontAwesomeIcon icon={faTrash} />
-									</button>
-								</td>
-							</tr>
-						))}
-					</tbody>
-				</table>
+				<ColumnPackedGrid
+					items={outputLayerItems}
+					emptyMessage={t('No output layers available')}
+					getItemHeight={getItemHeight}
+					targetColumns={3}
+				/>
 			</div>
 		</div>
 	)
