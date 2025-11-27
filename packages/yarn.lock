@@ -7142,6 +7142,7 @@ __metadata:
     cubic-spline: "npm:^3.0.3"
     deep-extend: "npm:0.6.0"
     ejson: "npm:^2.2.3"
+    eslint-plugin-import-extensions: "npm:^0.1.5"
     globals: "npm:^15.14.0"
     i18next: "npm:^21.10.0"
     i18next-browser-languagedetector: "npm:^6.1.8"
@@ -14505,6 +14506,15 @@ asn1@evs-broadcast/node-asn1:
   peerDependencies:
     eslint: ">=8"
   checksum: 10/1df8d52c4fadc06854ce801af05b05f2642aa2deb918fb7d37738596eabd70b7f21a22b150b78ec9104bac6a1b6b4fb796adea2364ede91b01d20964849ce5f7
+  languageName: node
+  linkType: hard
+
+"eslint-plugin-import-extensions@npm:^0.1.5":
+  version: 0.1.5
+  resolution: "eslint-plugin-import-extensions@npm:0.1.5"
+  peerDependencies:
+    eslint: "*"
+  checksum: 10/a65e74e8ebe3aa951d90c78687e1f32d7fe3e2a8b5b3851cc321a3002a71ca3b884c2ad7f9621bea2b10efde306df2244d8d7814fc8bb3986341afacefd8f5f4
   languageName: node
   linkType: hard
 
