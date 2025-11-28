@@ -19,7 +19,7 @@ import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyE
 import { updateTimeline } from './timeline/generate'
 import { OnTakeContext, PartEventContext, RundownContext } from '../blueprints/context'
 import { WrappedShowStyleBlueprint } from '../blueprints/cache'
-import { innerStopPieces } from './adlibUtils'
+import { innerStopPieces, insertQueuedPartWithPieces } from './adlibUtils'
 import { reportPartInstanceHasStarted, reportPartInstanceHasStopped } from './timings/partPlayback'
 import { convertPartInstanceToBlueprints, convertResolvedPieceInstanceToBlueprints } from '../blueprints/context/lib'
 import { processAndPrunePieceInstanceTimings } from '@sofie-automation/corelib/dist/playout/processAndPrune'
@@ -30,6 +30,7 @@ import { ReadonlyObjectDeep } from 'type-fest/source/readonly-deep'
 import { WatchedPackagesHelper } from '../blueprints/context/watchedPackages'
 import {
 	PartAndPieceInstanceActionService,
+	QueueablePartAndPieces,
 	applyActionSideEffects,
 } from '../blueprints/context/services/PartAndPieceInstanceActionService'
 import { PlayoutRundownModel } from './model/PlayoutRundownModel'
@@ -83,7 +84,7 @@ export async function handleTakeNextPart(context: JobContext, data: TakeNextPart
 				})
 			}
 
-			return performTakeToNextedPart(context, playoutModel, now)
+			return performTakeToNextedPart(context, playoutModel, now, undefined)
 		}
 	)
 }
@@ -97,7 +98,8 @@ export async function handleTakeNextPart(context: JobContext, data: TakeNextPart
 export async function performTakeToNextedPart(
 	context: JobContext,
 	playoutModel: PlayoutModel,
-	now: number
+	now: number,
+	partToQueueAfterTake: QueueablePartAndPieces | undefined
 ): Promise<void> {
 	const span = context.startSpan('takeNextPartInner')
 
@@ -198,13 +200,15 @@ export async function performTakeToNextedPart(
 	const showStyle = await pShowStyle
 	const blueprint = await context.getShowStyleBlueprint(showStyle._id)
 
-	const { isTakeAborted, queuePart } = await executeOnTakeCallback(
+	const { isTakeAborted, partToQueueAfterTake: partToQueueFromOnTake } = await executeOnTakeCallback(
 		context,
 		playoutModel,
 		showStyle,
 		blueprint,
 		currentRundown
 	)
+
+	partToQueueAfterTake = partToQueueAfterTake ?? partToQueueFromOnTake
 
 	if (isTakeAborted) {
 		await updateTimeline(context, playoutModel)
@@ -254,26 +258,33 @@ export async function performTakeToNextedPart(
 	const wasLooping = playoutModel.playlist.quickLoop?.running
 	playoutModel.updateQuickLoopState()
 
-	const nextPart = selectNextPart(
-		context,
-		playoutModel.playlist,
-		takePartInstance.partInstance,
-		null,
-		playoutModel.getAllOrderedSegments(),
-		playoutModel.getAllOrderedParts(),
-		{ ignoreUnplayable: true, ignoreQuickLoop: false }
-	)
-
 	takePartInstance.setTaken(now, timeOffset)
 
 	if (wasLooping) {
 		resetPreviousSegmentIfLooping(context, playoutModel)
 	}
 
-	if (queuePart) {
-		await queuePart()
+	if (partToQueueAfterTake) {
+		await insertQueuedPartWithPieces(
+			context,
+			playoutModel,
+			takeRundown,
+			takePartInstance,
+			partToQueueAfterTake.part,
+			partToQueueAfterTake.pieces,
+			undefined
+		)
 	} else {
 		// Once everything is synced, we can choose the next part
+		const nextPart = selectNextPart(
+			context,
+			playoutModel.playlist,
+			takePartInstance.partInstance,
+			null,
+			playoutModel.getAllOrderedSegments(),
+			playoutModel.getAllOrderedParts(),
+			{ ignoreUnplayable: true, ignoreQuickLoop: false }
+		)
 		await setNextPart(context, playoutModel, nextPart, false)
 	}
 
@@ -299,11 +310,11 @@ async function executeOnTakeCallback(
 	showStyle: ReadonlyObjectDeep<ProcessedShowStyleCompound>,
 	blueprint: ReadonlyObjectDeep<WrappedShowStyleBlueprint>,
 	currentRundown: PlayoutRundownModel
-): Promise<{ isTakeAborted: boolean; queuePart: (() => Promise<void>) | undefined }> {
+): Promise<{ isTakeAborted: boolean; partToQueueAfterTake: QueueablePartAndPieces | undefined }> {
 	const NOTIFICATION_CATEGORY = 'onTake'
 
 	let isTakeAborted = false
-	let queuePart: (() => Promise<void>) | undefined = undefined
+	let partToQueueAfterTake: QueueablePartAndPieces | undefined = undefined
 	if (blueprint.blueprint.onTake) {
 		const rundownId = currentRundown.rundown._id
 		const partInstanceId = playoutModel.playlist.nextPartInfo?.partInstanceId
@@ -331,11 +342,8 @@ async function executeOnTakeCallback(
 			await blueprint.blueprint.onTake(onSetAsNextContext)
 			await applyOnTakeSideEffects(context, playoutModel, onSetAsNextContext)
 			isTakeAborted = onSetAsNextContext.isTakeAborted
-			if (onSetAsNextContext.partToQueue) {
-				const partToQueue = onSetAsNextContext.partToQueue
-				queuePart = async () => {
-					await actionService.queuePart(partToQueue.rawPart, partToQueue.rawPieces)
-				}
+			if (onSetAsNextContext.partToQueueAfterTake) {
+				partToQueueAfterTake = onSetAsNextContext.partToQueueAfterTake
 			}
 
 			for (const note of onSetAsNextContext.notes) {
@@ -364,7 +372,7 @@ async function executeOnTakeCallback(
 			})
 		}
 	}
-	return { isTakeAborted, queuePart }
+	return { isTakeAborted, partToQueueAfterTake }
 }
 
 async function applyOnTakeSideEffects(context: JobContext, playoutModel: PlayoutModel, onTakeContext: OnTakeContext) {
