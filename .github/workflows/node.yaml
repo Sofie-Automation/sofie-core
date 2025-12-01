@@ -6,6 +6,8 @@ on:
       - "master"
       - "release*"
       - "EAV-*"
+    tags:
+      - "v5**" # allows our tags, but upstream v1.x.x tags are ignored
   workflow_dispatch:
 
 jobs:
@@ -36,7 +38,7 @@ jobs:
             packages/node_modules
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock', 'meteor/yarn.lock', 'meteor/.meteor/release', 'packages/yarn.lock') }}
       - uses: ./.github/actions/codeartifact-login
-        with: 
+        with:
           account-id: ${{ secrets.AWS_ACCOUNT_ID }}
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ secrets.AWS_REGION }}
@@ -86,7 +88,7 @@ jobs:
             packages/node_modules
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock', 'meteor/yarn.lock', 'meteor/.meteor/release', 'packages/yarn.lock') }}
       - uses: ./.github/actions/codeartifact-login
-        with: 
+        with:
           account-id: ${{ secrets.AWS_ACCOUNT_ID }}
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ secrets.AWS_REGION }}
@@ -180,7 +182,7 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock', 'meteor/yarn.lock', 'meteor/.meteor/release', 'packages/yarn.lock') }}
       - if: steps.ecrrepo.outputs.ecrrepo-publish == '1'
         uses: ./.github/actions/codeartifact-login
-        with: 
+        with:
           account-id: ${{ secrets.AWS_ACCOUNT_ID }}
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ secrets.AWS_REGION }}
@@ -330,7 +332,7 @@ jobs:
           node-version-file: ".node-version"
       - if: steps.ecrrepo.outputs.ecrrepo-publish == '1'
         uses: ./.github/actions/codeartifact-login
-        with: 
+        with:
           account-id: ${{ secrets.AWS_ACCOUNT_ID }}
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ secrets.AWS_REGION }}
@@ -434,7 +436,7 @@ jobs:
             packages/node_modules
           key: ${{ runner.os }}-${{ hashFiles('packages/yarn.lock') }}
       - uses: ./.github/actions/codeartifact-login
-        with: 
+        with:
           account-id: ${{ secrets.AWS_ACCOUNT_ID }}
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ secrets.AWS_REGION }}
@@ -510,7 +512,7 @@ jobs:
             packages/node_modules
           key: ${{ runner.os }}-${{ hashFiles('packages/yarn.lock') }}
       - uses: ./.github/actions/codeartifact-login
-        with: 
+        with:
           account-id: ${{ secrets.AWS_ACCOUNT_ID }}
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ secrets.AWS_REGION }}
@@ -550,7 +552,7 @@ jobs:
         with:
           node-version-file: ".node-version"
       - uses: ./.github/actions/codeartifact-login
-        with: 
+        with:
           account-id: ${{ secrets.AWS_ACCOUNT_ID }}
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ secrets.AWS_REGION }}
@@ -585,7 +587,7 @@ jobs:
         with:
           node-version-file: ".node-version"
       - uses: ./.github/actions/codeartifact-login
-        with: 
+        with:
           account-id: ${{ secrets.AWS_ACCOUNT_ID }}
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ secrets.AWS_REGION }}
@@ -634,7 +636,7 @@ jobs:
             packages/node_modules
           key: ${{ runner.os }}-${{ hashFiles('packages/yarn.lock') }}
       - uses: ./.github/actions/codeartifact-login
-        with: 
+        with:
           account-id: ${{ secrets.AWS_ACCOUNT_ID }}
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ secrets.AWS_REGION }}
@@ -692,7 +694,7 @@ jobs:
         with:
           node-version-file: ".node-version"
       - uses: ./.github/actions/codeartifact-login
-        with: 
+        with:
           account-id: ${{ secrets.AWS_ACCOUNT_ID }}
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ secrets.AWS_REGION }}
@@ -785,7 +787,7 @@ jobs:
             packages/node_modules
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock', 'meteor/yarn.lock', 'meteor/.meteor/release', 'packages/yarn.lock') }}
       - uses: ./.github/actions/codeartifact-login
-        with: 
+        with:
           account-id: ${{ secrets.AWS_ACCOUNT_ID }}
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ secrets.AWS_REGION }}
