@@ -211,6 +211,7 @@ export async function setupMockShowStyleBase(
 		blueprintConfigWithOverrides: wrapDefaultObject({}),
 		blueprintId: blueprintId,
 		// hotkeyLegend?: Array<HotkeyDefinition>
+		abChannelDisplay: undefined,
 		_rundownVersionHash: '',
 		lastBlueprintConfig: undefined,
 		lastBlueprintFixUpHash: undefined,
