@@ -1,5 +1,5 @@
 import { Time } from '@sofie-automation/blueprints-integration'
-import { protectString } from '../protectedString'
+import { protectString } from '../protectedString.js'
 import {
 	PieceInstanceInfiniteId,
 	RundownPlaylistActivationId,
@@ -7,9 +7,9 @@ import {
 	RundownId,
 	PartInstanceId,
 	PieceId,
-} from './Ids'
-import { Piece } from './Piece'
-import { omit } from '../lib'
+} from './Ids.js'
+import { Piece } from './Piece.js'
+import { omit } from '../lib.js'
 import { ReadonlyDeep } from 'type-fest'
 
 export type PieceInstancePiece = Omit<Piece, 'startRundownId' | 'startSegmentId'>
@@ -61,15 +61,10 @@ export interface PieceInstance {
 	dynamicallyInserted?: Time
 
 	/** This is set when the duration needs to be overriden from some user action */
-	userDuration?:
-		| {
-				/** The time relative to the part (milliseconds since start of part) */
-				endRelativeToPart: number
-		  }
-		| {
-				/** The time relative to 'now' (ms since 'now') */
-				endRelativeToNow: number
-		  }
+	userDuration?: {
+		/** The time relative to the part (milliseconds since start of part) */
+		endRelativeToPart: number
+	}
 
 	/** The time the system started playback of this part, undefined if not yet played back (milliseconds since epoch) */
 	reportedStartedPlayback?: Time

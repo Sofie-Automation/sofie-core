@@ -1,9 +1,4 @@
 .expco.iconpicker {
-	position: relative;
-	padding-top: 0;
-	padding-bottom: 0;
-	padding-left: 8px;
-
 	&.expco-expanded {
 		z-index: 2;
 	}
@@ -28,13 +23,13 @@
 		top: 100%;
 		background: #fff;
 		border: 1px solid #bbb;
-		padding: 0px;
+		padding: 0;
 	}
 
 	.expco-item {
-		display: inline-flex;
+		display: inline-flex !important;
 		white-space: pre;
-		margin: 4px;
+		margin: 0.25rem !important;
 		width: 24px;
 		text-align: center;
 

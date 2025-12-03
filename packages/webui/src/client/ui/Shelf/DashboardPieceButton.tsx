@@ -1,31 +1,24 @@
 import * as React from 'react'
 import { Meteor } from 'meteor/meteor'
 import ClassNames from 'classnames'
-import { RundownUtils } from '../../lib/rundown'
-import {
-	ISourceLayer,
-	IOutputLayer,
-	SourceLayerType,
-	VTContent,
-	NoraContent,
-	IBlueprintPieceType,
-} from '@sofie-automation/blueprints-integration'
+import { RundownUtils } from '../../lib/rundown.js'
+import { ISourceLayer, IOutputLayer, SourceLayerType, VTContent } from '@sofie-automation/blueprints-integration'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { IAdLibListItem } from './AdLibListItem'
-import SplitInputIcon from '../PieceIcons/Renderers/SplitInputIcon'
+import { IAdLibListItem } from './AdLibListItem.js'
+import SplitInputIcon from '../PieceIcons/Renderers/SplitInputIcon.js'
 import { PieceDisplayStyle } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import { DashboardPieceButtonSplitPreview } from './DashboardPieceButtonSplitPreview'
-import { StyledTimecode } from '../../lib/StyledTimecode'
-import { VTFloatingInspector } from '../FloatingInspectors/VTFloatingInspector'
-import { getNoticeLevelForPieceStatus } from '../../lib/notifications/notifications'
-import { L3rdFloatingInspector } from '../FloatingInspectors/L3rdFloatingInspector'
-import { useContentStatusForAdlibPiece, WithMediaObjectStatusProps } from '../SegmentTimeline/withMediaObjectStatus'
+import { DashboardPieceButtonSplitPreview } from './DashboardPieceButtonSplitPreview.js'
+import { StyledTimecode } from '../../lib/StyledTimecode.js'
+import { useContentStatusForAdlibPiece, WithMediaObjectStatusProps } from '../SegmentTimeline/withMediaObjectStatus.js'
 
-import { isTouchDevice } from '../../lib/lib'
-import { AdLibPieceUi } from '../../lib/shelf'
-import { protectString } from '../../lib/tempLib'
+import { isTouchDevice } from '../../lib/lib.js'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
-import { PieceStatusCode } from '@sofie-automation/corelib/dist/dataModel/Piece'
+import {
+	convertSourceLayerItemToPreview,
+	IPreviewPopUpContext,
+	IPreviewPopUpSession,
+	PreviewPopUpContext,
+} from '../PreviewPopUp/PreviewPopUpContext.js'
 
 export interface IDashboardButtonProps {
 	piece: IAdLibListItem
@@ -51,6 +44,9 @@ export interface IDashboardButtonProps {
 	canOverflowHorizontally?: boolean
 	lineBreak?: string
 }
+interface WithPreviewContext {
+	previewContext: IPreviewPopUpContext
+}
 export const DEFAULT_BUTTON_WIDTH = 6.40625
 export const DEFAULT_BUTTON_HEIGHT = 5.625
 export const HOVER_TIMEOUT = 5000
@@ -63,7 +59,7 @@ interface IState {
 }
 
 export class DashboardPieceButtonBase<T = {}> extends React.Component<
-	React.PropsWithChildren<IDashboardButtonProps> & T & WithMediaObjectStatusProps,
+	React.PropsWithChildren<IDashboardButtonProps> & T & WithMediaObjectStatusProps & WithPreviewContext,
 	IState
 > {
 	private element: HTMLDivElement | null = null
@@ -78,8 +74,9 @@ export class DashboardPieceButtonBase<T = {}> extends React.Component<
 	private pointerId: number | null = null
 	private hoverTimeout: number | null = null
 	protected inBucket = false
+	private previewSession: IPreviewPopUpSession | null = null
 
-	constructor(props: IDashboardButtonProps & T & WithMediaObjectStatusProps) {
+	constructor(props: IDashboardButtonProps & T & WithMediaObjectStatusProps & WithPreviewContext) {
 		super(props)
 
 		this.state = {
@@ -105,37 +102,6 @@ export class DashboardPieceButtonBase<T = {}> extends React.Component<
 		}
 	}
 
-	private renderGraphics(_renderThumbnail?: boolean) {
-		const adLib = this.props.piece as any as AdLibPieceUi
-		const noraContent = adLib.content as NoraContent | undefined
-		return (
-			<>
-				<L3rdFloatingInspector
-					showMiniInspector={this.state.isHovered}
-					content={noraContent}
-					position={{
-						top: this.positionAndSize?.top ?? 0,
-						left: this.positionAndSize?.left ?? 0,
-						anchor: 'start',
-						position: 'top',
-					}}
-					typeClass={this.props.layer && RundownUtils.getSourceLayerClassName(this.props.layer.type)}
-					itemElement={this.element}
-					piece={{
-						...adLib,
-						enable: { start: 0 },
-						startPartId: protectString(''),
-						invalid: false,
-						pieceType: IBlueprintPieceType.Normal,
-					}}
-					pieceRenderedDuration={adLib.expectedDuration || null}
-					pieceRenderedIn={null}
-					displayOn="viewport"
-				/>
-			</>
-		)
-	}
-
 	private renderVTLiveSpeak(renderThumbnail?: boolean) {
 		const thumbnailUrl = this.props.contentStatus?.thumbnailUrl
 		const vtContent = this.props.piece.content as VTContent | undefined
@@ -150,25 +116,6 @@ export class DashboardPieceButtonBase<T = {}> extends React.Component<
 						) : null}
 					</span>
 				)}
-				<VTFloatingInspector
-					status={this.props.contentStatus?.status ?? PieceStatusCode.UNKNOWN}
-					showMiniInspector={this.state.isHovered}
-					timePosition={this.state.timePosition}
-					content={vtContent}
-					position={{
-						top: this.positionAndSize?.top ?? 0,
-						left: this.positionAndSize?.left ?? 0,
-						anchor: 'start',
-						position: 'top',
-					}}
-					typeClass={this.props.layer && RundownUtils.getSourceLayerClassName(this.props.layer.type)}
-					itemElement={null}
-					noticeMessages={this.props.contentStatus?.messages || null}
-					noticeLevel={getNoticeLevelForPieceStatus(this.props.contentStatus?.status)}
-					studio={this.props.studio}
-					displayOn="viewport"
-					previewUrl={this.props.contentStatus?.previewUrl}
-				/>
 				{thumbnailUrl && renderThumbnail && (
 					<div className="dashboard-panel__panel__button__thumbnail">
 						<img src={thumbnailUrl} />
@@ -201,7 +148,7 @@ export class DashboardPieceButtonBase<T = {}> extends React.Component<
 		this.element = el
 	}
 
-	private handleOnMouseEnter = (_e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
+	private handleOnMouseEnter = (e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
 		if (this.element) {
 			const { top, left, width, height } = this.element.getBoundingClientRect()
 			this.positionAndSize = {
@@ -211,12 +158,29 @@ export class DashboardPieceButtonBase<T = {}> extends React.Component<
 				height,
 			}
 		}
-		this.setState({ isHovered: true })
+
+		const { contents: previewContents, options: previewOptions } = convertSourceLayerItemToPreview(
+			this.props.layer?.type,
+			this.props.piece,
+			this.props.contentStatus
+		)
+
+		if (!previewContents.length) return
+
+		this.previewSession = this.props.previewContext.requestPreview(e.target as any, previewContents, {
+			...previewOptions,
+			time: this.state.timePosition,
+		})
 	}
 
 	private handleOnMouseLeave = (_e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
 		this.setState({ isHovered: false })
 		this.positionAndSize = null
+
+		if (this.previewSession) {
+			this.previewSession.close()
+			this.previewSession = null
+		}
 	}
 
 	private handleOnPointerEnter = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -230,8 +194,20 @@ export class DashboardPieceButtonBase<T = {}> extends React.Component<
 			}
 		}
 		if (e.pointerType === 'mouse') {
-			this.setState({ isHovered: true })
 			this.startHoverTimeout()
+
+			const { contents: previewContents, options: previewOptions } = convertSourceLayerItemToPreview(
+				this.props.layer?.type,
+				this.props.piece,
+				this.props.contentStatus
+			)
+
+			if (!previewContents.length) return
+
+			this.previewSession = this.props.previewContext.requestPreview(e.target as any, previewContents, {
+				...previewOptions,
+				time: this.state.timePosition,
+			})
 		}
 	}
 
@@ -242,6 +218,11 @@ export class DashboardPieceButtonBase<T = {}> extends React.Component<
 			this.hoverTimeout = null
 		}
 		this.positionAndSize = null
+
+		if (this.previewSession) {
+			this.previewSession.close()
+			this.previewSession = null
+		}
 	}
 
 	private handleOnMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -267,6 +248,9 @@ export class DashboardPieceButtonBase<T = {}> extends React.Component<
 			Meteor.clearTimeout(this.hoverTimeout)
 			this.startHoverTimeout()
 		}
+		if (this.previewSession) {
+			this.previewSession.setPointerTime(timePercentage * sourceDuration)
+		}
 	}
 
 	private startHoverTimeout = () => {
@@ -289,14 +273,14 @@ export class DashboardPieceButtonBase<T = {}> extends React.Component<
 					label: this.props.piece.name,
 				},
 				() => {
-					this._labelEl && this._labelEl.blur()
+					this._labelEl?.blur()
 				}
 			)
 			e.preventDefault()
 			e.stopPropagation()
 			e.stopImmediatePropagation()
 		} else if (e.key === 'Enter') {
-			this._labelEl && this._labelEl.blur()
+			this._labelEl?.blur()
 			e.preventDefault()
 			e.stopPropagation()
 			e.stopImmediatePropagation()
@@ -311,11 +295,11 @@ export class DashboardPieceButtonBase<T = {}> extends React.Component<
 					label: this.props.piece.name,
 				},
 				() => {
-					this.props.onNameChanged && this.props.onNameChanged(e, this.state.label)
+					this.props.onNameChanged?.(e, this.state.label)
 				}
 			)
 		} else {
-			this.props.onNameChanged && this.props.onNameChanged(e, this.state.label)
+			this.props.onNameChanged?.(e, this.state.label)
 		}
 	}
 
@@ -423,8 +407,8 @@ export class DashboardPieceButtonBase<T = {}> extends React.Component<
 					width: isList
 						? 'calc(100% - 8px)'
 						: this.props.widthScale
-						? (this.props.widthScale as number) * DEFAULT_BUTTON_WIDTH + 'em'
-						: undefined,
+							? (this.props.widthScale as number) * DEFAULT_BUTTON_WIDTH + 'em'
+							: undefined,
 					height:
 						!isList && !!this.props.heightScale
 							? (this.props.heightScale as number) * DEFAULT_BUTTON_HEIGHT + 'em'
@@ -449,15 +433,11 @@ export class DashboardPieceButtonBase<T = {}> extends React.Component<
 					{this.props.disableHoverInspector || !this.props.layer
 						? null
 						: this.props.layer.type === SourceLayerType.VT || this.props.layer.type === SourceLayerType.LIVE_SPEAK
-						? // VT should have thumbnails in "Button" layout.
-						  this.renderVTLiveSpeak(isButtons || (isList && this.props.showThumbnailsInList))
-						: this.props.layer.type === SourceLayerType.SPLITS
-						? this.renderSplits(isList && this.props.showThumbnailsInList)
-						: this.props.layer.type === SourceLayerType.GRAPHICS ||
-						  this.props.layer.type === SourceLayerType.LOWER_THIRD ||
-						  this.props.layer.type === SourceLayerType.STUDIO_SCREEN
-						? this.renderGraphics(isButtons || (isList && this.props.showThumbnailsInList))
-						: null}
+							? // VT should have thumbnails in "Button" layout.
+								this.renderVTLiveSpeak(isButtons || (isList && this.props.showThumbnailsInList))
+							: this.props.layer.type === SourceLayerType.SPLITS
+								? this.renderSplits(isList && this.props.showThumbnailsInList)
+								: null}
 
 					{this.renderHotkey()}
 					<div className="dashboard-panel__panel__button__label-container">
@@ -491,6 +471,7 @@ export class DashboardPieceButtonBase<T = {}> extends React.Component<
 
 export function DashboardPieceButton(props: React.PropsWithChildren<IDashboardButtonProps>): JSX.Element {
 	const contentStatus = useContentStatusForAdlibPiece(props.piece)
+	const previewContext = React.useContext(PreviewPopUpContext)
 
-	return <DashboardPieceButtonBase {...props} contentStatus={contentStatus} />
+	return <DashboardPieceButtonBase {...props} contentStatus={contentStatus} previewContext={previewContext} />
 }

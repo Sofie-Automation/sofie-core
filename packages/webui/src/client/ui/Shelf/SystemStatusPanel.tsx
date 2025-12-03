@@ -4,14 +4,14 @@ import {
 	RundownLayoutBase,
 	RundownLayoutSytemStatus,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import { useTracker } from '../../lib/ReactMeteorData/ReactMeteorData'
-import { dashboardElementStyle } from './DashboardPanel'
-import { RundownLayoutsAPI } from '../../lib/rundownLayouts'
-import { RundownSystemStatus } from '../RundownView/RundownSystemStatus'
+import { useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
+import { dashboardElementStyle } from './DashboardPanel.js'
+import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
+import { RundownSystemStatus } from '../RundownView/RundownSystemStatus.js'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { RundownId, RundownPlaylistId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { RundownPlaylists, Rundowns } from '../../collections'
-import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil'
+import { RundownPlaylists, Rundowns } from '../../collections/index.js'
+import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil.js'
 import { useTranslation } from 'react-i18next'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 

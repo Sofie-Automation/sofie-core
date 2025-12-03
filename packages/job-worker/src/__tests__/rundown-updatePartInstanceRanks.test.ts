@@ -1,20 +1,19 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { RundownId, SegmentId, PartId, PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { updatePartInstanceRanksAndOrphanedState } from '../updatePartInstanceRanksAndOrphanedState'
+import { updatePartInstanceRanksAndOrphanedState } from '../updatePartInstanceRanksAndOrphanedState.js'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
-import { JobContext } from '../jobs'
-import { BeforePartMapItem } from '../ingest/commit'
-// eslint-disable-next-line node/no-extraneous-import
+import { JobContext } from '../jobs/index.js'
+import { BeforePartMapItem } from '../ingest/commit.js'
 import { mock } from 'jest-mock-extended'
-import { ICollection } from '../db'
-import { IngestModel } from '../ingest/model/IngestModel'
-import { IngestSegmentModel } from '../ingest/model/IngestSegmentModel'
+import { ICollection } from '../db/index.js'
+import { IngestModel } from '../ingest/model/IngestModel.js'
+import { IngestSegmentModel } from '../ingest/model/IngestSegmentModel.js'
 import { clone } from '@sofie-automation/corelib/dist/lib'
-import { IngestPartModel } from '../ingest/model/IngestPartModel'
+import { IngestPartModel } from '../ingest/model/IngestPartModel.js'
 import { AnyBulkWriteOperation } from 'mongodb'
-import _ = require('underscore')
+import _ from 'underscore'
 
 const mockOptions = {
 	fallbackMockImplementation: () => {
@@ -208,12 +207,12 @@ describe('updatePartInstanceRanks', () => {
 						...(newRank !== null
 							? {
 									'part._rank': newRank,
-							  }
+								}
 							: ''),
 						...(orphaned
 							? {
 									orphaned: orphaned,
-							  }
+								}
 							: ''),
 					},
 					...(orphaned === undefined
@@ -221,7 +220,7 @@ describe('updatePartInstanceRanks', () => {
 								$unset: {
 									orphaned: 1,
 								},
-						  }
+							}
 						: ''),
 				},
 			},

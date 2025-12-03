@@ -1,28 +1,32 @@
 .text-label-panel {
-    position: absolute;
-    margin: 0 0;
-    min-width: auto;
-    text-align: center;
-    isolation: isolate;
+	position: absolute;
+	margin: 0 0;
+	min-width: auto;
+	text-align: center;
+	isolation: isolate;
 
-    .wrapper {
-        position: relative;
-        margin-right: 1em;
-        font-family: 'Roboto', Helvetica Neue, Arial, sans-serif;
-        font-weight: 100;
-        margin-top: 0.8em;
-        word-break: keep-all;
-        white-space: nowrap;
-        text-align: left;
-        font-size: 1.5em;
+	.wrapper {
+		position: relative;
+		margin-right: 1em;
+		font-family:
+			'Roboto',
+			Helvetica Neue,
+			Arial,
+			sans-serif;
+		font-weight: 100;
+		margin-top: 0.8em;
+		word-break: keep-all;
+		white-space: nowrap;
+		text-align: left;
+		font-size: 1.5em;
 
-        .text {
-            position: absolute;
-            top: -1em;
-            color: #b8b8b8;
-            white-space: nowrap;
-            font-weight: 300;
-            font-size: 0.5em;
-        }
-    }
+		.text {
+			position: absolute;
+			top: -1em;
+			color: #b8b8b8;
+			white-space: nowrap;
+			font-weight: 300;
+			font-size: 0.5em;
+		}
+	}
 }

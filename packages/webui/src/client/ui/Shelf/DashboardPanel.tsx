@@ -1,23 +1,23 @@
 import React from 'react'
 import _ from 'underscore'
-import { Translated, useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data'
+import { Translated, useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
 import ClassNames from 'classnames'
 
-import { Spinner } from '../../lib/Spinner'
+import { Spinner } from '../../lib/Spinner.js'
 import { ISourceLayer, IBlueprintActionTriggerMode } from '@sofie-automation/blueprints-integration'
-import { doUserAction, UserAction } from '../../lib/clientUserAction'
-import { NotificationCenter, Notification, NoticeLevel } from '../../lib/notifications/notifications'
+import { doUserAction, UserAction } from '../../lib/clientUserAction.js'
+import { NotificationCenter, Notification, NoticeLevel } from '../../lib/notifications/notifications.js'
 import { DashboardLayoutFilter, DashboardPanelUnit } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import { unprotectString } from '../../lib/tempLib'
-import { IAdLibPanelProps, AdLibFetchAndFilterProps, useFetchAndFilter } from './AdLibPanel'
-import { AdLibPanelToolbar } from './AdLibPanelToolbar'
-import { matchFilter } from './AdLibListView'
-import { DashboardPieceButton } from './DashboardPieceButton'
-import { contextMenuHoldToDisplayTime, UserAgentPointer, USER_AGENT_POINTER_PROPERTY } from '../../lib/lib'
-import { MeteorCall } from '../../lib/meteorApi'
+import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
+import { IAdLibPanelProps, AdLibFetchAndFilterProps, useFetchAndFilter } from './AdLibPanel.js'
+import { AdLibPanelToolbar } from './AdLibPanelToolbar.js'
+import { matchFilter } from './AdLibListView.js'
+import { DashboardPieceButton } from './DashboardPieceButton.js'
+import { contextMenuHoldToDisplayTime, UserAgentPointer, USER_AGENT_POINTER_PROPERTY } from '../../lib/lib.js'
+import { MeteorCall } from '../../lib/meteorApi.js'
 import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'
-import { setShelfContextMenuContext, ContextType } from './ShelfContextMenu'
-import { RundownUtils } from '../../lib/rundown'
+import { setShelfContextMenuContext, ContextType } from './ShelfContextMenu.js'
+import { RundownUtils } from '../../lib/rundown.js'
 import {
 	AdLibPieceUi,
 	getNextPieceInstancesGrouped,
@@ -25,11 +25,11 @@ import {
 	isAdLibDisplayedAsOnAir,
 	isAdLibNext,
 	isAdLibOnAir,
-} from '../../lib/shelf'
+} from '../../lib/shelf.js'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
-import { UIStudios } from '../Collections'
+import { UIStudios } from '../Collections.js'
 import { PieceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil'
+import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil.js'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { useTranslation } from 'react-i18next'
 
@@ -136,7 +136,7 @@ export function filterOutAdLibsForDashboardPanel(
 	return props.rundownBaselineAdLibs
 		.concat(props.uiSegments.map((seg) => seg.pieces).flat())
 		.filter((item) =>
-			matchFilter(item, props.showStyleBase, liveSegment, props.filter, state.searchFilter, uniquenessIds)
+			matchFilter(item, props.showStyleBase.sourceLayers, liveSegment, props.filter, state.searchFilter, uniquenessIds)
 		)
 }
 
@@ -173,7 +173,7 @@ export class DashboardPanelInner extends React.Component<Translated<DashboardPan
 		) {
 			// If the local selectedAdLib is changing, inform the application that the selection has changed
 			// (this will change the inspected AdLib in the inspector)
-			this.props.onSelectPiece && this.props.onSelectPiece(selectedAdLib)
+			this.props.onSelectPiece?.(selectedAdLib)
 		} else if (
 			selectedPiece &&
 			selectedPiece !== prevProps.selectedPiece &&

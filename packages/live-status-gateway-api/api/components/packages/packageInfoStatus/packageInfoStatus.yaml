@@ -1,0 +1,32 @@
+$defs:
+  packageInfoStatus:
+    title: PackageInfoStatus
+    type: object
+    properties:
+      packageName:
+        description: Name of the package
+        type: string
+      status:
+        $ref: '../packageStatus/packageStatus.yaml#/$defs/packageStatus'
+      rundownId:
+        description: Id of the Rundown that a Piece (or AdLib) expecting this package belongs to
+        type: string
+      partId:
+        description: Id of the Part that a Piece (or AdLib) expecting this package belongs to. It could be an Id of a Part from the Active Playlist topic, or a Part not exposed otherwise by the LSG.
+        type: string
+      segmentId:
+        description: Id of the Segment that a Piece (or AdLib) expecting this package belongs to
+        type: string
+      pieceOrAdLibId:
+        description: Id of the Piece or AdLib that expects this package. It could be an Id of a Piece from the Active Pieces and Active Playlist topics, or an Id of an AdLib from the AdLibs topic. It could also be an Id of a Piece not exposed otherwise by the LSG, but still relevant, e.g. to summarize the status of packages within a specific Part/Segment.
+        type: string
+      thumbnailUrl:
+        description: URL where the thumbnail can be accessed
+        type: string
+      previewUrl:
+        description: URL where the preview can be accessed
+        type: string
+    required: [status, rundownId, pieceOrAdLibId]
+    additionalProperties: false
+    examples:
+      - $ref: './packageInfoStatus-example.yaml'

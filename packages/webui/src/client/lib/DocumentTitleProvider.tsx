@@ -1,11 +1,11 @@
 import * as React from 'react'
 
-import { translateWithTracker, Translated } from './ReactMeteorData/ReactMeteorData'
+import { translateWithTracker, Translated } from './ReactMeteorData/ReactMeteorData.js'
 import { ICoreSystem } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
 
 import { ReactiveVar } from 'meteor/reactive-var'
-import { isRunningInPWA } from './lib'
-import { CoreSystem } from '../collections'
+import { isRunningInPWA } from './lib.js'
+import { CoreSystem } from '../collections/index.js'
 
 /**
  * A reactive variable that allows setting the title of the current view.

@@ -1,14 +1,14 @@
-import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context'
+import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context.js'
 import { clone } from '@sofie-automation/corelib/dist/lib'
 import { IngestChangeType, NrcsIngestRundownChangeDetails } from '@sofie-automation/blueprints-integration'
-import { ComputedIngestChangeAction, UpdateIngestRundownChange } from '../runOperation'
+import { ComputedIngestChangeAction, UpdateIngestRundownChange } from '../runOperation.js'
 import {
 	handleRegenerateRundown,
 	handleRemovedRundown,
 	handleUpdatedRundown,
 	handleUpdatedRundownMetaData,
 	handleUserUnsyncRundown,
-} from '../ingestRundownJobs'
+} from '../ingestRundownJobs.js'
 import { RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { DBRundown, RundownOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Rundown'
@@ -178,7 +178,6 @@ describe('handleUserUnsyncRundown', () => {
 	async function createRundown(context: MockJobContext, fragment?: Partial<DBRundown>) {
 		await context.mockCollections.Rundowns.insertOne({
 			_id: rundownId,
-			organizationId: protectString('organization0'),
 			studioId: context.studioId,
 			showStyleBaseId: protectString('showStyleBase0'),
 			showStyleVariantId: protectString('showStyleVariant0'),

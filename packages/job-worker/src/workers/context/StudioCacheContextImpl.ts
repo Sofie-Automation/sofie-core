@@ -1,29 +1,29 @@
-import { IDirectCollections } from '../../db'
+import { IDirectCollections } from '../../db/index.js'
 import {
 	ProcessedShowStyleBase,
 	ProcessedShowStyleVariant,
 	ProcessedShowStyleCompound,
 	StudioCacheContext,
 	JobStudio,
-} from '../../jobs'
+} from '../../jobs/index.js'
 import { ReadonlyDeep } from 'type-fest'
-import { WorkerDataCache } from '../caches'
+import { WorkerDataCache } from '../caches.js'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { ShowStyleBaseId, ShowStyleVariantId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { parseBlueprintDocument, WrappedShowStyleBlueprint, WrappedStudioBlueprint } from '../../blueprints/cache'
+import { parseBlueprintDocument, WrappedShowStyleBlueprint, WrappedStudioBlueprint } from '../../blueprints/cache.js'
 import { ReadonlyObjectDeep } from 'type-fest/source/readonly-deep'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { clone, deepFreeze } from '@sofie-automation/corelib/dist/lib'
-import { createShowStyleCompound } from '../../showStyles'
+import { createShowStyleCompound } from '../../showStyles.js'
 import { BlueprintManifestType } from '@sofie-automation/blueprints-integration'
 import {
 	preprocessShowStyleConfig,
 	preprocessStudioConfig,
 	ProcessedShowStyleConfig,
 	ProcessedStudioConfig,
-} from '../../blueprints/config'
+} from '../../blueprints/config.js'
 
-import { processShowStyleBase, processShowStyleVariant } from '../../jobs/showStyle'
+import { processShowStyleBase, processShowStyleVariant } from '../../jobs/showStyle.js'
 
 export class StudioCacheContextImpl implements StudioCacheContext {
 	constructor(

@@ -3,14 +3,14 @@ import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartIns
 import { groupByToMap, normalizeArrayToMap } from '@sofie-automation/corelib/dist/lib'
 import { AnyBulkWriteOperation } from 'mongodb'
 import { ReadonlyDeep } from 'type-fest'
-import { BeforeIngestOperationPartMap, BeforePartMapItem } from './ingest/commit'
-import { JobContext } from './jobs'
-import { logger } from './logging'
-import _ = require('underscore')
+import { BeforeIngestOperationPartMap, BeforePartMapItem } from './ingest/commit.js'
+import { JobContext } from './jobs/index.js'
+import { logger } from './logging.js'
+import _ from 'underscore'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { PlayoutModel } from './playout/model/PlayoutModel'
-import { IngestModelReadonly } from './ingest/model/IngestModel'
-import { PlayoutPartInstanceModel } from './playout/model/PlayoutPartInstanceModel'
+import { PlayoutModel } from './playout/model/PlayoutModel.js'
+import { IngestModelReadonly } from './ingest/model/IngestModel.js'
+import { PlayoutPartInstanceModel } from './playout/model/PlayoutPartInstanceModel.js'
 
 type MinimalPartInstance = Pick<DBPartInstance, '_id' | 'segmentId' | 'orphaned'> & {
 	part: Pick<DBPart, '_id' | '_rank'>
@@ -227,7 +227,7 @@ async function updateNormalPartInstanceRanksAndFindOrphans(
 									$set: {
 										'part._rank': part._rank,
 									},
-							  }
+								}
 							: ''),
 						$unset: {
 							orphaned: 1,

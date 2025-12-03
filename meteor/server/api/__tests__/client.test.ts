@@ -2,7 +2,8 @@ import { Meteor } from 'meteor/meteor'
 import { MeteorMock } from '../../../__mocks__/meteor'
 import { UserActionsLogItem } from '@sofie-automation/meteor-lib/dist/collections/UserActionsLog'
 import { ClientAPIMethods } from '@sofie-automation/meteor-lib/dist/api/client'
-import { protectString, LogLevel } from '../../lib/tempLib'
+import { LogLevel } from '@sofie-automation/meteor-lib/dist/lib'
+import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { PeripheralDeviceCommand } from '@sofie-automation/corelib/dist/dataModel/PeripheralDeviceCommand'
 import { setLogLevel } from '../../logging'
 import {
@@ -119,7 +120,7 @@ describe('ClientAPI', () => {
 		})
 		describe('Call a failing method on the peripheralDevice', () => {
 			let logMethodName = `not set yet`
-			let promise: Promise<void>
+			let promise: Promise<unknown>
 			beforeAll(async () => {
 				logMethodName = `${mockDeviceId}: ${mockFailingFunctionName}`
 
@@ -175,7 +176,7 @@ describe('ClientAPI', () => {
 
 				// This will probably resolve after around 3s, since that is the timeout time
 				// of checkReply and the observeChanges is not implemented in the mock
-				await expect(promise).rejects.toBe('Failed')
+				await expect(promise).rejects.toThrow(/Failed/)
 
 				const log = (await UserActionsLog.findOneAsync({
 					method: logMethodName,

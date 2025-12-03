@@ -1,10 +1,10 @@
 import { SourceLayerType } from '@sofie-automation/blueprints-integration'
 import classNames from 'classnames'
 import React, { useMemo, useState } from 'react'
-import { PartExtended, PieceExtended } from '../../../lib/RundownResolver'
-import { findPieceExtendedToShowFromOrderedResolvedInstances } from '../../PieceIcons/utils'
-import StudioContext from '../../RundownView/StudioContext'
-import { StoryboardPartThumbnailInner } from './StoryboardPartThumbnailInner'
+import { PartExtended, PieceExtended } from '../../../lib/RundownResolver.js'
+import { findPieceExtendedToShowFromOrderedResolvedInstances } from '../../PieceIcons/utils.js'
+import StudioContext from '../../RundownView/StudioContext.js'
+import { StoryboardPartThumbnailInner } from './StoryboardPartThumbnailInner.js'
 
 interface IProps {
 	part: PartExtended

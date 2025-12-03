@@ -1,0 +1,12 @@
+$defs:
+  NotificationTargetUnknown:
+    type: object
+    title: NotificationTargetUnknown
+    required: [type]
+    properties:
+      type:
+        $ref: '../notificationTargetType.yaml#/$defs/NotificationTargetType'
+        const: unknown
+    additionalProperties: false
+    examples:
+      - $ref: './notificationTargetUnknown-example.yaml'

@@ -1,0 +1,35 @@
+$defs:
+  adLibBase:
+    title: AdLibBase
+    type: object
+    properties:
+      id:
+        type: string
+        description: Unique id of the AdLib
+      name:
+        type: string
+        description: The user defined AdLib name
+      sourceLayer:
+        type: string
+        description: The source layer name for this AdLib
+      outputLayer:
+        type: string
+        description: The output layer name for this AdLib
+      actionType:
+        type: array
+        description: The available action type names that can be used to modify the execution of the AdLib
+        items:
+          $ref: '../actionType/actionType.yaml#/$defs/adLibActionType'
+      tags:
+        type: array
+        description: Tags attached to this AdLib
+        items:
+          type: string
+      publicData:
+        description: Optional arbitrary data
+      optionsSchema:
+        type: string
+        description: JSON schema definition of the adLib properties that can be modified using the adLibOptions property in executeAdLib
+    required: [id, name, sourceLayer, actionType]
+    examples:
+      - $ref: './adLibBase-example.yaml'

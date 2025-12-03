@@ -1,4 +1,4 @@
-import { clone, literal, objectPathSet } from './lib'
+import { clone, literal, objectPathSet } from './lib.js'
 import {
 	SomeObjectOverrideOp,
 	ObjectWithOverrides,
@@ -7,7 +7,7 @@ import {
 	applyAndValidateOverrides,
 	filterOverrideOpsForPrefix,
 	findParentOpToUpdate,
-} from './settings/objectWithOverrides'
+} from './settings/objectWithOverrides.js'
 import { ReadonlyDeep } from 'type-fest'
 
 export interface WrappedOverridableItemDeleted<T extends object> {

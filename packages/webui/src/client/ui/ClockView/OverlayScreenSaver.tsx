@@ -1,10 +1,10 @@
 import { useEffect, useRef } from 'react'
-import { Clock } from '../StudioScreenSaver/Clock'
-import { useTracker, useSubscription } from '../../lib/ReactMeteorData/ReactMeteorData'
+import { Clock } from '../StudioScreenSaver/Clock.js'
+import { useTracker, useSubscription } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { findNextPlaylist } from '../StudioScreenSaver/StudioScreenSaver'
+import { findNextPlaylist } from '../StudioScreenSaver/StudioScreenSaver.js'
 import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { useSetDocumentClass } from '../util/useSetDocumentClass'
+import { useSetDocumentClass } from '../util/useSetDocumentClass.js'
 import { AnimationPlaybackControls, animate as motionAnimate } from 'motion'
 
 export function OverlayScreenSaver({ studioId }: Readonly<{ studioId: StudioId }>): JSX.Element {
@@ -37,7 +37,7 @@ export function OverlayScreenSaver({ studioId }: Readonly<{ studioId: StudioId }
 				parentWidth = parentRect.width
 			}
 
-			// try and find a nice random position, thats significanlty different from the last postion
+			// try and find a nice random position, thats significantly different from the last position
 			do {
 				position = Math.random() * ((parentWidth * 5) / 6 - width)
 			} while (Math.abs(position - lastPosition) < 200 && i++ < 10)

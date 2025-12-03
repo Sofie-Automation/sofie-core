@@ -1,6 +1,7 @@
 import { addMigrationSteps } from './databaseMigration'
 import { logger } from '../logging'
-import { getRandomId, protectString } from '../lib/tempLib'
+import { getRandomId } from '@sofie-automation/corelib/dist/lib'
+import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { ShowStyleVariantId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ShowStyleBases, ShowStyleVariants, Studios } from '../collections'
@@ -27,7 +28,6 @@ export const addSteps = addMigrationSteps('0.1.0', [
 			await Studios.insertAsync({
 				_id: protectString('studio0'),
 				name: 'Default studio',
-				organizationId: null,
 				supportedShowStyleBase: [],
 				settingsWithOverrides: wrapDefaultObject({
 					frameRate: 25,
@@ -78,7 +78,6 @@ export const addSteps = addMigrationSteps('0.1.0', [
 				await ShowStyleBases.insertAsync({
 					_id: id,
 					name: 'Default ShowStyle',
-					organizationId: null,
 					blueprintId: protectString(''),
 					outputLayersWithOverrides: wrapDefaultObject({}),
 					sourceLayersWithOverrides: wrapDefaultObject({}),
@@ -114,7 +113,6 @@ export const addSteps = addMigrationSteps('0.1.0', [
 				await ShowStyleBases.insertAsync({
 					_id: id,
 					name: 'Default ShowStyle',
-					organizationId: null,
 					blueprintId: protectString(''),
 					outputLayersWithOverrides: wrapDefaultObject({}),
 					sourceLayersWithOverrides: wrapDefaultObject({}),

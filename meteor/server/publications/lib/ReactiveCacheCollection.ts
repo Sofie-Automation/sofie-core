@@ -13,7 +13,10 @@ export class ReactiveCacheCollection<Document extends { _id: ProtectedString<any
 	 */
 	readonly #collection: Mongo.Collection<Document>
 
-	constructor(public collectionName: string, private reaction?: Reaction) {
+	constructor(
+		public collectionName: string,
+		private reaction?: Reaction
+	) {
 		this.#collection = new Mongo.Collection<Document>(null)
 	}
 

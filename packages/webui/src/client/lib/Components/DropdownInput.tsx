@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo } from 'react'
 import ClassNames from 'classnames'
+import Form from 'react-bootstrap/esm/Form'
 
 export interface DropdownInputOption<TValue> {
 	value: TValue
@@ -126,8 +127,8 @@ export function DropdownInputControl<TValue>({
 
 	return (
 		<div className="select focusable">
-			<select
-				className={ClassNames('form-control', classNames, {
+			<Form.Select
+				className={ClassNames(classNames, {
 					'option-missing': currentOptionMissing,
 				})}
 				value={value + ''}
@@ -149,7 +150,7 @@ export function DropdownInputControl<TValue>({
 						</option>
 					)
 				)}
-			</select>
+			</Form.Select>
 		</div>
 	)
 }

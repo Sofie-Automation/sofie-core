@@ -5,8 +5,8 @@ import {
 	PeripheralDeviceType,
 	PERIPHERAL_SUBTYPE_PROCESS,
 } from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI'
-import { CoreConnection, PeripheralDevicePubSub, PeripheralDevicePubSubCollectionsNames } from '../index'
-import { DDPConnectorOptions } from '../lib/ddpClient'
+import { CoreConnection, PeripheralDevicePubSub, PeripheralDevicePubSubCollectionsNames } from '../index.js'
+import { DDPConnectorOptions } from '../lib/ddpClient.js'
 jest.mock('faye-websocket')
 jest.mock('got')
 
@@ -368,7 +368,7 @@ describe('coreConnection', () => {
 
 		// temporary scramble the ddp host:
 		options.host = '127.0.0.9'
-		core.ddp.ddpClient && core.ddp.ddpClient.resetOptions(options)
+		core.ddp.ddpClient?.resetOptions(options)
 		// Force-close the socket:
 		core.ddp.ddpClient?.socket?.close()
 
@@ -379,7 +379,7 @@ describe('coreConnection', () => {
 
 		// restore ddp host:
 		options.host = '127.0.0.1'
-		core.ddp.ddpClient && core.ddp.ddpClient.resetOptions(options)
+		core.ddp.ddpClient?.resetOptions(options)
 		await wait(1000)
 		// should have reconnected by now
 
@@ -482,21 +482,21 @@ describe('coreConnection', () => {
 		})
 
 		// Set child connection:
-		const coreChild = await coreParent.createChild({
+		const coreChild0 = await coreParent.createChild({
 			deviceId: protectString('JestTestChild'),
 			deviceSubType: PERIPHERAL_SUBTYPE_PROCESS,
 			deviceName: 'Jest test framework child',
 		})
 
 		const onChildError = jest.fn()
-		coreChild.on('error', onChildError)
+		coreChild0.on('error', onChildError)
 
-		expect(coreChild.connected).toEqual(true)
+		expect(coreChild0.connected).toEqual(true)
 
 		// Close parent connection:
-		await coreParent.destroy()
+		await coreParent.destroy() // This will also close all children
 
-		expect(coreChild.connected).toEqual(false)
+		expect(coreChild0.connected).toEqual(false)
 
 		// connect parent again:
 
@@ -505,10 +505,20 @@ describe('coreConnection', () => {
 			port: corePort,
 		})
 
-		expect(coreChild.connected).toEqual(true)
+		// Create a new child connection:
+		const coreChild2 = await coreParent.createChild({
+			deviceId: protectString('JestTestChild'),
+			deviceSubType: PERIPHERAL_SUBTYPE_PROCESS,
+			deviceName: 'Jest test framework child',
+		})
+
+		const onChildError2 = jest.fn()
+		coreChild2.on('error', onChildError2)
+
+		expect(coreChild2.connected).toEqual(true)
 
 		await coreParent.destroy()
-		await coreChild.destroy()
+		await coreChild2.destroy()
 
 		expect(onChildError).toHaveBeenCalledTimes(0)
 		expect(onParentError).toHaveBeenCalledTimes(0)

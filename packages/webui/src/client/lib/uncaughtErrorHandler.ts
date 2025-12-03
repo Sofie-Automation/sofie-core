@@ -1,9 +1,9 @@
 import { Meteor } from 'meteor/meteor'
 import { Tracker } from 'meteor/tracker'
 import { Time } from '@sofie-automation/blueprints-integration'
-import { getCurrentTime } from './systemTime'
+import { getCurrentTime } from './systemTime.js'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
-import { MeteorCall } from '../lib/meteorApi'
+import { MeteorCall } from '../lib/meteorApi.js'
 
 interface LoggedError {
 	location: string
@@ -16,7 +16,7 @@ const MAX_ERROR_CACHE_COUNT = 10
 
 try {
 	errorCache = JSON.parse(localStorage.getItem('errorCache') || '[]')
-} catch (e) {
+} catch (_e) {
 	errorCache = []
 }
 
@@ -79,7 +79,7 @@ const originalConsoleError = console.error
 console.error = (...args: any[]) => {
 	try {
 		uncaughtErrorHandler(args, 'console.error')
-	} catch (e) {
+	} catch (_e) {
 		// well, we can't do much then...
 	}
 	originalConsoleError(...args)
@@ -95,6 +95,7 @@ const IGNORED_ERRORS = [
 const originalOnError = window.onerror
 window.onerror = (event, source, line, col, error) => {
 	if (event) {
+		// eslint-disable-next-line @typescript-eslint/no-base-to-string
 		const eventString = event.toString()
 		const ignored = IGNORED_ERRORS.find((errorPattern) => !!eventString.match(errorPattern))
 		if (ignored) return

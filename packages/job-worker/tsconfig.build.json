@@ -9,8 +9,11 @@
 			"*": ["./node_modules/*"],
 			"@sofie-automation/job-worker": ["./src/index.ts"]
 		},
+		"target": "es2024",
+		"lib": ["es2024"],
 		"resolveJsonModule": true,
 		"types": ["node"],
-		"skipLibCheck": true
+		"skipLibCheck": true,
+		"esModuleInterop": true
 	}
 }

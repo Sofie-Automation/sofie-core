@@ -1,7 +1,7 @@
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import Moment from 'react-moment'
-import { TimingDataResolution, TimingTickResolution, withTiming, WithTiming } from './RundownTiming/withTiming'
-import { RundownUtils } from '../../lib/rundown'
+import { TimingDataResolution, TimingTickResolution, useTiming } from './RundownTiming/withTiming.js'
+import { RundownUtils } from '../../lib/rundown.js'
 import { useTranslation } from 'react-i18next'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
@@ -22,16 +22,14 @@ interface MarkerCountdownProps {
  * This is a countdown to the rundown's Expected Start or Expected End time. It shows nothing if the expectedStart is undefined
  * or the time to Expected Start/End from now is larger than 6 hours.
  */
-const MarkerCountdownText = withTiming<MarkerCountdownProps, {}>({
-	filter: 'currentTime',
-	tickResolution: TimingTickResolution.Low,
-	dataResolution: TimingDataResolution.Synced,
-})(function MarkerCountdown(props: WithTiming<MarkerCountdownProps>) {
+function MarkerCountdownText(props: MarkerCountdownProps) {
 	const { t } = useTranslation()
+
+	const timingDurations = useTiming(TimingTickResolution.Low, TimingDataResolution.Synced, 'currentTime')
 
 	if (props.markerTimestamp === undefined) return null
 
-	const time = props.markerTimestamp - (props.timingDurations.currentTime || 0)
+	const time = props.markerTimestamp - (timingDurations.currentTime || 0)
 
 	if (time < QUATER_DAY) {
 		return (
@@ -39,15 +37,15 @@ const MarkerCountdownText = withTiming<MarkerCountdownProps, {}>({
 				{time > 0
 					? t('(in: {{time}})', {
 							time: RundownUtils.formatDiffToTimecode(time, false, true, true, true, true),
-					  })
+						})
 					: t('({{time}} ago)', {
 							time: RundownUtils.formatDiffToTimecode(time, false, true, true, true, true),
-					  })}
+						})}
 			</span>
 		)
 	}
 	return null
-})
+}
 
 /**
  * This is a component for showing the title of the rundown, it's expectedStart and expectedDuration and

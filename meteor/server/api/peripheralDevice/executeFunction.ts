@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor'
 import { PeripheralDeviceCommandId, PeripheralDeviceId } from '@sofie-automation/shared-lib/dist/core/model/Ids'
-import { createManualPromise, getRandomId } from '../../lib/tempLib'
+import { getRandomId } from '@sofie-automation/corelib/dist/lib'
 import { getCurrentTime } from '../../lib/lib'
 import { PeripheralDeviceCommands } from '../../collections'
 import { logger } from '../../logging'
@@ -37,7 +37,7 @@ export async function executePeripheralDeviceFunctionWithCustomTimeout(
 
 	const commandId: PeripheralDeviceCommandId = getRandomId()
 
-	const result = createManualPromise<any>()
+	const result = Promise.withResolvers<any>()
 
 	// logger.debug('command created: ' + functionName)
 
@@ -88,9 +88,9 @@ export async function executePeripheralDeviceFunctionWithCustomTimeout(
 						completed = true
 						// Handle result
 						if (cmd.replyError) {
-							result.manualReject(cmd.replyError)
+							result.reject(cmd.replyError)
 						} else {
-							result.manualResolve(cmd.reply)
+							result.resolve(cmd.reply)
 						}
 					}
 				} else if (getCurrentTime() - (cmd.time || 0) >= timeoutTime) {
@@ -101,7 +101,7 @@ export async function executePeripheralDeviceFunctionWithCustomTimeout(
 
 					if (!completed) {
 						completed = true
-						result.manualReject(
+						result.reject(
 							new Error(
 								`Timeout after ${timeoutTime} ms when executing the function "${
 									cmd.functionName ?? cmd.actionId
@@ -150,7 +150,7 @@ export async function executePeripheralDeviceFunctionWithCustomTimeout(
 		throw e
 	}
 
-	return result
+	return result.promise
 }
 
 /** Same as executeFunction, but returns a promise instead */

@@ -1,6 +1,6 @@
 import { TranslationsBundleId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { TranslationsBundle } from '../collections/TranslationsBundles'
-import { ClientAPI } from './client'
+import { TranslationsBundle } from '../collections/TranslationsBundles.js'
+import { ClientAPI } from './client.js'
 
 export interface CollectionCleanupResult {
 	[index: string]: {

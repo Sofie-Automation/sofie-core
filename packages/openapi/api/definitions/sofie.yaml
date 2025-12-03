@@ -131,6 +131,21 @@ resources:
                     type: string
         500:
           $ref: '#/components/responses/internalServerError'
+  health:
+    get:
+      operationId: getHealth
+      tags:
+        - sofie
+      summary: Gets the current health status of Sofie and all its components
+      responses:
+        200:
+          description: Command successfully handled - returns an object with detailed health status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/healthStatus'
+        500:
+          $ref: '#/components/responses/internalServerError'
 components:
   schemas:
     migrationInputs:
@@ -203,6 +218,88 @@ components:
         - stepId
         - attributeId
         - migrationValue
+      additionalProperties: false
+    healthStatus:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the running system
+          example: Sofie Automation system
+        updated:
+          type: string
+          format: date-time
+          description: Time when the status of Sofie was updated
+          example: '2023-11-29T16:50:06.057Z'
+        status:
+          type: string
+          enum: [OK, FAIL, WARNING, UNDEFINED]
+          description: Sofie status string
+          example: OK
+        version:
+          type: string
+          description: Sofie core software version
+          example: '1.50.10'
+        blueprintsVersion:
+          type: string
+          description: Sofie blueprints version
+          example: '1.0.60'
+        components:
+          type: array
+          description: Array of components that are part of the Sofie software
+          items:
+            $ref: '#/components/schemas/healthComponentStatus'
+        statusMessage:
+          type: string
+          description: Concatenation of Sofie status and all component statuses, separated by semicolons
+          example: 'Playout gateway: Disconnected'
+      required:
+        - name
+        - updated
+        - status
+        - version
+        - blueprintsVersion
+        - components
+        - statusMessage
+      additionalProperties: false
+    healthComponentStatus:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the component
+          example: Playout Gateway
+        updated:
+          type: string
+          format: date-time
+          description: Time when the component status was updated
+        status:
+          type: string
+          enum: [OK, FAIL, WARNING, UNDEFINED]
+          description: Component status string
+          example: OK
+        version:
+          type: string
+          description: Component software version
+          example: '0.1.13'
+        components:
+          type: array
+          description: Array of components that are children of this component. Can recurse - components with no child will have no components member
+          items:
+            type: object
+            description: Components conforming to the same definition as the parent object
+          example:
+            - name: atem
+              updated: '2023-11-28T15:17:21.712Z'
+              status: OK
+        statusMessage:
+          type: string
+          description: Status messages for this component
+          example: Disconnected
+      required:
+        - name
+        - updated
+        - status
       additionalProperties: false
   responses:
     postSuccess:

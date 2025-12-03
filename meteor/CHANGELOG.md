@@ -180,7 +180,7 @@ All notable changes to this project will be documented in this file. See [standa
 - allow adlib-actions to remove pieces from the current partInstance ([902e7ff](https://github.com/nrkno/sofie-core/commit/902e7fffe6cc23c48f7bd86e23595d83f74d84fa))
 - allow drag from mos-plugin to part ([d51ba2f](https://github.com/nrkno/sofie-core/commit/d51ba2fe8b8effa6037f379534b357d5320cc3c7))
 - always add `dnt=gateway` header for gateway connections ([c7bdfe6](https://github.com/nrkno/sofie-core/commit/c7bdfe6787b76a5d23eb841764abf7b0cc799028))
-- clearer message on deactive on-air ([8087506](https://github.com/nrkno/sofie-core/commit/8087506e728e80215cb3934ba59d82d61d1d76d4))
+- clearer message on deactivate on-air ([8087506](https://github.com/nrkno/sofie-core/commit/8087506e728e80215cb3934ba59d82d61d1d76d4))
 - config package manager from blueprints ([685364d](https://github.com/nrkno/sofie-core/commit/685364d5fd4af690a55292ba99ff8ecff386f893))
 - configure Core system/studio settings via blueprints ([ef14c8f](https://github.com/nrkno/sofie-core/commit/ef14c8f4f139be273ce8a8a3c21e6cc0f580d297))
 - configure peripheral device settings from blueprints ([878214b](https://github.com/nrkno/sofie-core/commit/878214bf983ed12fe82822b47b9c629727d4c20d))
@@ -236,7 +236,7 @@ All notable changes to this project will be documented in this file. See [standa
 - ensure pieces don't claim to have durations when their end has not yet been decided ([250b5d7](https://github.com/nrkno/sofie-core/commit/250b5d7dc8986201ed29c3c665740f2af3e79be9))
 - ensure timeline is regenerated after switching routeset affecting ab players ([99533aa](https://github.com/nrkno/sofie-core/commit/99533aa1b3c1fe83d9a7bcb6941f098297cfa6fb))
 - fixed width on inspector ([c77b6a5](https://github.com/nrkno/sofie-core/commit/c77b6a55b7b2b97022b395962dd4692928c38489))
-- go to renderDataMissing() is rundown is not found - and revert previous implentation ([92b9e85](https://github.com/nrkno/sofie-core/commit/92b9e852453c23c1f69cde35a92060dced720eb3))
+- go to renderDataMissing() is rundown is not found - and revert previous implementation ([92b9e85](https://github.com/nrkno/sofie-core/commit/92b9e852453c23c1f69cde35a92060dced720eb3))
 - handle durations of onRundownChange infinites correctly when spanning into another part ([bb4c22b](https://github.com/nrkno/sofie-core/commit/bb4c22b33062a6bf26a23a9f6b0e241d3206b517))
 - implement editor ui ([954a05a](https://github.com/nrkno/sofie-core/commit/954a05ad2c2c6aa14b709a2bc875ded4521cd804))
 - In kiosk mode, rundown page gets stalled if rundown is removed while on the page. ([298c0fd](https://github.com/nrkno/sofie-core/commit/298c0fd7e2c7be2ef0d958c567b95170bb2a65a2))
@@ -277,7 +277,7 @@ All notable changes to this project will be documented in this file. See [standa
 - unable to remove peripheralDevice ([3d559f1](https://github.com/nrkno/sofie-core/commit/3d559f177b80168661a52c7b66f80e8122891b91))
 - update mos-connection dependency (SOFIE-3006) ([#1251](https://github.com/nrkno/sofie-core/issues/1251)) ([d5c2cad](https://github.com/nrkno/sofie-core/commit/d5c2cad8e154703df2a9fb7698d54c35ef3f17f8))
 - update mos-connection dependency: fixes an issue where ExternalMetadata.MosPayload was not passed through if content is a string ([d499893](https://github.com/nrkno/sofie-core/commit/d4998939b463de518c7e12f32462cb77b6a40975))
-- **updateNext:** do the flow for no nextPartInstance or oprhaned === 'deleted' first ([b480cc8](https://github.com/nrkno/sofie-core/commit/b480cc8cff28a91ac8be540794e5f7b29dc073de))
+- **updateNext:** do the flow for no nextPartInstance or orphaned === 'deleted' first ([b480cc8](https://github.com/nrkno/sofie-core/commit/b480cc8cff28a91ac8be540794e5f7b29dc073de))
 - use segment budget duration for segment duration counter ([#15](https://github.com/nrkno/sofie-core/issues/15)) ([a498d90](https://github.com/nrkno/sofie-core/commit/a498d90da50d4edb01fc4344129ebdd535935658))
 - webui eslint failure ([339f8cb](https://github.com/nrkno/sofie-core/commit/339f8cbac8975f7f76f007e84210831e3348b32f))
 
@@ -451,8 +451,8 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Bug Fixes
 
-- `DataCloneError: [object Object] could not be cloned` when propogating some errors from job-worker SOFIE-2903 ([7f618c7](https://github.com/nrkno/sofie-core/commit/7f618c75bb6a94e28e4a9c00db4688a77a1bc184))
-- `DataCloneError: [object Object] could not be cloned` when propogating some errors from job-worker SOFIE-2903 ([c1bb47f](https://github.com/nrkno/sofie-core/commit/c1bb47fe3958c245b708f9698c458b3d94055a3b))
+- `DataCloneError: [object Object] could not be cloned` when propagating some errors from job-worker SOFIE-2903 ([7f618c7](https://github.com/nrkno/sofie-core/commit/7f618c75bb6a94e28e4a9c00db4688a77a1bc184))
+- `DataCloneError: [object Object] could not be cloned` when propagating some errors from job-worker SOFIE-2903 ([c1bb47f](https://github.com/nrkno/sofie-core/commit/c1bb47fe3958c245b708f9698c458b3d94055a3b))
 - `UIBlueprintUpgradeStatuses` crashing if no playlists in the system ([3491ec5](https://github.com/nrkno/sofie-core/commit/3491ec5c509adf6b83362973821d93a66595e828))
 - **a11y/ModalDialog:** reduce behavioral changes after refactoring ([02ecaad](https://github.com/nrkno/sofie-core/commit/02ecaad0a210e1f7f8b7c932d38cbe7ba097f7b1))
 - **a11y:** some button layout/tabbing order ([3bd2085](https://github.com/nrkno/sofie-core/commit/3bd2085417b9a32bf148cb30640a8eb9d965ebea))
@@ -471,7 +471,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **AfterBroadcastForm:** refactor the form to have a semantically-correct layout ([9e4f2b6](https://github.com/nrkno/sofie-core/commit/9e4f2b65fd2e30d04bae1cd37304a33ab744fc11))
 - allow blueprint assets to be gif SOFIE-3183 ([1d8bed7](https://github.com/nrkno/sofie-core/commit/1d8bed77e4262a12bba46eecf0631cbcae96fb34))
 - allow blueprint assets to be gif SOFIE-3183 ([afc20d8](https://github.com/nrkno/sofie-core/commit/afc20d87f62cf0098510f6ca0ce2c663d8154778))
-- allways show trigger popups ([68172c5](https://github.com/nrkno/sofie-core/commit/68172c565af3aaea7a2517abc9623b2eefd77fba))
+- always show trigger popups ([68172c5](https://github.com/nrkno/sofie-core/commit/68172c565af3aaea7a2517abc9623b2eefd77fba))
 - also sort on "own" rank ([4224b02](https://github.com/nrkno/sofie-core/commit/4224b02be70851ca2058d85c73571d9085cbf97f))
 - AMQP connection issues logging SOFIE-2597 ([#1066](https://github.com/nrkno/sofie-core/issues/1066)) ([de04512](https://github.com/nrkno/sofie-core/commit/de045127a0b64e67d31bba7dbe42f4e0f5caadaf))
 - asyncapi generation ([e4d45b6](https://github.com/nrkno/sofie-core/commit/e4d45b6e5142e8ae71a75edf0fd5dcbeeec86f45))
@@ -608,7 +608,7 @@ All notable changes to this project will be documented in this file. See [standa
 - add { multi: true } to updates that can affect multiple documents f9294dd
 - add a way to take a heap snapshot. b73e4ea
 - deleting a segment can get stuck as orphaned hidden SOFIE-3048 ([#1183](undefined/undefined/undefined/issues/1183)) d4c4ba2
-- new algorithm for tieing the Prompter scroll position to content. ba54622
+- new algorithm for tying the Prompter scroll position to content. ba54622
 - peripheraldevice child device pings not starting upon first connection SOFIE-3047 0379304
 - second try on Prompter scroll algorithm b6256cc
 
@@ -733,7 +733,7 @@ All notable changes to this project will be documented in this file. See [standa
 - add a hook to resolve Inspector position request to a position in document space c74c8a5
 - add centralized redirect to latest API d6f08b9
 - add milestone timing 5950fd5
-- Add ouputLayer to adlib actions cb0457e
+- Add outputLayer to adlib actions cb0457e
 - add theoretical support for forward time 47db6fb
 - add will-change to Piece labels e132355
 - allow getting the Source and Output layers from the ShowStyle context ([#979](undefined/undefined/undefined/issues/979)) ab57fb4
@@ -793,7 +793,7 @@ All notable changes to this project will be documented in this file. See [standa
 - rework webmanifest api to koa 982e6dd
 - **SchemaForm:** a header component for Tables and objects 514f8e9
 - setup collection security at time of creating the server collection 5db4576
-- some intial work on CameraScreen 16da85c
+- some initial work on CameraScreen 16da85c
 - Spinner when loading Rundown 31bdb4b
 - split package-manager publication into multiple more optimal publications SOFIE-1926 d1bb788
 - support resizing camera view efd8a8d
@@ -847,7 +847,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Headers type 0ed98e8
 - hide countdown and icicles on looping media 43da033
 - ignore `@sofie-automation/openapi` for local development 5c0acb2
-- Ignore openapi pacakge for node 14 092c345
+- Ignore openapi package for node 14 092c345
 - Improve API responses f3cbded
 - improve timeOffset logic 405cf2e
 - Insert and update peripheralDevice type as number ([#895](undefined/undefined/undefined/issues/895)) 1e77c0a
@@ -926,7 +926,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Translate user errors e41b005
 - type error 8d23ab5
 - ui component crash a4f3d7d
-- use CollectionName, separate out colelction and publication 6f07428
+- use CollectionName, separate out collection and publication 6f07428
 - use useCurrentTime b89a61a
 - Use yarn-exclude to ignore openapi f5878c0
 - usePopper placement of Inspectors b6dc9b8
@@ -1056,7 +1056,7 @@ All notable changes to this project will be documented in this file. See [standa
 - add a hook to resolve Inspector position request to a position in document space c74c8a5
 - add centralized redirect to latest API d6f08b9
 - add milestone timing 5950fd5
-- Add ouputLayer to adlib actions cb0457e
+- Add outputLayer to adlib actions cb0457e
 - add theoretical support for forward time 47db6fb
 - add will-change to Piece labels e132355
 - allow getting the Source and Output layers from the ShowStyle context ([#979](undefined/undefined/undefined/issues/979)) ab57fb4
@@ -1116,7 +1116,7 @@ All notable changes to this project will be documented in this file. See [standa
 - rework webmanifest api to koa 982e6dd
 - **SchemaForm:** a header component for Tables and objects 514f8e9
 - setup collection security at time of creating the server collection 5db4576
-- some intial work on CameraScreen 16da85c
+- some initial work on CameraScreen 16da85c
 - Spinner when loading Rundown 31bdb4b
 - split package-manager publication into multiple more optimal publications SOFIE-1926 d1bb788
 - support resizing camera view efd8a8d
@@ -1170,7 +1170,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Headers type 0ed98e8
 - hide countdown and icicles on looping media 43da033
 - ignore `@sofie-automation/openapi` for local development 5c0acb2
-- Ignore openapi pacakge for node 14 092c345
+- Ignore openapi package for node 14 092c345
 - Improve API responses f3cbded
 - improve timeOffset logic 405cf2e
 - Insert and update peripheralDevice type as number ([#895](undefined/undefined/undefined/issues/895)) 1e77c0a
@@ -1249,7 +1249,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Translate user errors e41b005
 - type error 8d23ab5
 - ui component crash a4f3d7d
-- use CollectionName, separate out colelction and publication 6f07428
+- use CollectionName, separate out collection and publication 6f07428
 - use useCurrentTime b89a61a
 - Use yarn-exclude to ignore openapi f5878c0
 - usePopper placement of Inspectors b6dc9b8
@@ -1287,7 +1287,7 @@ All notable changes to this project will be documented in this file. See [standa
 - add a hook to resolve Inspector position request to a position in document space ([c74c8a5](https://github.com/nrkno/sofie-core/commit/c74c8a5ca72481f213b56ed51554402e5781c896))
 - add centralized redirect to latest API ([d6f08b9](https://github.com/nrkno/sofie-core/commit/d6f08b9c0d8295bc67911a27e742f6982cb835c4))
 - add milestone timing ([5950fd5](https://github.com/nrkno/sofie-core/commit/5950fd5e202cfab5e7f5b36942ffb7525c713e0a))
-- Add ouputLayer to adlib actions ([cb0457e](https://github.com/nrkno/sofie-core/commit/cb0457ea6cc45902baad3a5251670c748ab0ed34))
+- Add outputLayer to adlib actions ([cb0457e](https://github.com/nrkno/sofie-core/commit/cb0457ea6cc45902baad3a5251670c748ab0ed34))
 - add theoretical support for forward time ([47db6fb](https://github.com/nrkno/sofie-core/commit/47db6fbdc444eb98ddccaa9fdc5b6286f965592e))
 - add will-change to Piece labels ([e132355](https://github.com/nrkno/sofie-core/commit/e1323553040052bed988be8e0870f50c6861c8e3))
 - allow getting the Source and Output layers from the ShowStyle context ([#979](https://github.com/nrkno/sofie-core/issues/979)) ([ab57fb4](https://github.com/nrkno/sofie-core/commit/ab57fb4871bf23e37b99e73f5f809738fd8fdd1b))
@@ -1347,7 +1347,7 @@ All notable changes to this project will be documented in this file. See [standa
 - rework webmanifest api to koa ([982e6dd](https://github.com/nrkno/sofie-core/commit/982e6ddaa95f5845764d206b4b5d681cf4bc5f34))
 - **SchemaForm:** a header component for Tables and objects ([514f8e9](https://github.com/nrkno/sofie-core/commit/514f8e9effa1d88cebcb150ee6310e2cea4adeec))
 - setup collection security at time of creating the server collection ([5db4576](https://github.com/nrkno/sofie-core/commit/5db4576c69025ac0eb62d98f5d2fe0c126b49cfb))
-- some intial work on CameraScreen ([16da85c](https://github.com/nrkno/sofie-core/commit/16da85c12dcb340513cbe8c154113b2cbf010045))
+- some initial work on CameraScreen ([16da85c](https://github.com/nrkno/sofie-core/commit/16da85c12dcb340513cbe8c154113b2cbf010045))
 - Spinner when loading Rundown ([31bdb4b](https://github.com/nrkno/sofie-core/commit/31bdb4b019bb2a1d1a9fc20ef9e4c7e6844e9dbb))
 - split package-manager publication into multiple more optimal publications SOFIE-1926 ([d1bb788](https://github.com/nrkno/sofie-core/commit/d1bb7886675eb3b2329e26be419007f68c889546))
 - support resizing camera view ([efd8a8d](https://github.com/nrkno/sofie-core/commit/efd8a8dd0bccd06e0d41782ee5033d5516096acf))
@@ -1401,7 +1401,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Headers type ([0ed98e8](https://github.com/nrkno/sofie-core/commit/0ed98e872d666838c566c6aa022791508f58292a))
 - hide countdown and icicles on looping media ([43da033](https://github.com/nrkno/sofie-core/commit/43da033b543e91ae7aef71ffa14be838c376c4a8))
 - ignore `@sofie-automation/openapi` for local development ([5c0acb2](https://github.com/nrkno/sofie-core/commit/5c0acb2dfbfa0b87b4fb088fdc526859dc65411e))
-- Ignore openapi pacakge for node 14 ([092c345](https://github.com/nrkno/sofie-core/commit/092c3453e4dc8872d395a783d1316eec134e4c1e))
+- Ignore openapi package for node 14 ([092c345](https://github.com/nrkno/sofie-core/commit/092c3453e4dc8872d395a783d1316eec134e4c1e))
 - Improve API responses ([f3cbded](https://github.com/nrkno/sofie-core/commit/f3cbdedcc7abbe3a48227d42486e708e39bb289e))
 - improve timeOffset logic ([405cf2e](https://github.com/nrkno/sofie-core/commit/405cf2e845b6bbba9897b357cf0478aa7052b6a7))
 - Insert and update peripheralDevice type as number ([#895](https://github.com/nrkno/sofie-core/issues/895)) ([1e77c0a](https://github.com/nrkno/sofie-core/commit/1e77c0aeb687a7ee0a2909cc91c0d13e768d2467))
@@ -1480,7 +1480,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Translate user errors ([e41b005](https://github.com/nrkno/sofie-core/commit/e41b00527eb5ea83fd50780c5f5f0e663e61094e))
 - type error ([8d23ab5](https://github.com/nrkno/sofie-core/commit/8d23ab535502af7d574e53c23cc89de84c9f6e80))
 - ui component crash ([a4f3d7d](https://github.com/nrkno/sofie-core/commit/a4f3d7dbb8a07f91ee93890dffad15919f579ea5))
-- use CollectionName, separate out colelction and publication ([6f07428](https://github.com/nrkno/sofie-core/commit/6f0742863b0f042fc9f30caea2534bb7fb08d40c))
+- use CollectionName, separate out collection and publication ([6f07428](https://github.com/nrkno/sofie-core/commit/6f0742863b0f042fc9f30caea2534bb7fb08d40c))
 - use useCurrentTime ([b89a61a](https://github.com/nrkno/sofie-core/commit/b89a61a9a7342f6d3b9197dbb188371db474eab9))
 - Use yarn-exclude to ignore openapi ([f5878c0](https://github.com/nrkno/sofie-core/commit/f5878c0ba68f0680b0410e54f6d14e8b3e863c01))
 - usePopper placement of Inspectors ([b6dc9b8](https://github.com/nrkno/sofie-core/commit/b6dc9b8ca7c6e35bff09159130cfdb073535a8a8))
@@ -1643,7 +1643,7 @@ All notable changes to this project will be documented in this file. See [standa
 - don't give out the same lookahead AB session ID to sessions with different names ([#862](https://github.com/nrkno/sofie-core/issues/862)) ([f378380](https://github.com/nrkno/sofie-core/commit/f3783800734ceda8846dcff0cd527f8edc35e542))
 - downgrade type-fest (again) ([82346cc](https://github.com/nrkno/sofie-core/commit/82346cc9fc01a251c6dcb4d2f86ea954601ada32))
 - expose custom publications in client `window.PublicationCollections` object ([9357b29](https://github.com/nrkno/sofie-core/commit/9357b29942fbfe374e2699f740fb3eb7f45737bb))
-- forward `removeDelay` paremeter in `PeripheralDeviceApi.removePackageInfo` ([d21006f](https://github.com/nrkno/sofie-core/commit/d21006f0cef1ce4add382b1f96d7daf143ad5890))
+- forward `removeDelay` parameter in `PeripheralDeviceApi.removePackageInfo` ([d21006f](https://github.com/nrkno/sofie-core/commit/d21006f0cef1ce4add382b1f96d7daf143ad5890))
 - improve package warning messages ([bd0f6e5](https://github.com/nrkno/sofie-core/commit/bd0f6e51865ea56d30caa1f6286e5a4c18210629))
 - indicate which layers/mappings have overrides ([#854](https://github.com/nrkno/sofie-core/issues/854)) ([18bbad0](https://github.com/nrkno/sofie-core/commit/18bbad027af66ca3b88385bc0059928ccc9e4d9c))
 - infinite Piece timings can be inconsistent across runs of timelineGenerate when a pre-roll is present ([939efb5](https://github.com/nrkno/sofie-core/commit/939efb5560ccdca611c7cf9fefbde687cb298dc8))
@@ -1781,7 +1781,7 @@ All notable changes to this project will be documented in this file. See [standa
 - handle incomplete peripheralDeviceCommands ([40f691e](https://github.com/nrkno/sofie-core/commit/40f691e0e9fca1def233b67d2cd3f1cded7152ca))
 - Implements some of the suggestions in VariantSettings.tsx as well as some missing types ([d241467](https://github.com/nrkno/sofie-core/commit/d2414678e7c35a818b51c43e3500cf79843b31df))
 - Import, copy,remove, add and edit now work in sync with the new ordering ([42d79aa](https://github.com/nrkno/sofie-core/commit/42d79aa0d416f11fac37a7cdc87b1167ab60faf4))
-- modify zebra hightlights ([c9a33ca](https://github.com/nrkno/sofie-core/commit/c9a33cad851e70223ac053e9852c0ef28488fae8))
+- modify zebra highlights ([c9a33ca](https://github.com/nrkno/sofie-core/commit/c9a33cad851e70223ac053e9852c0ef28488fae8))
 - observergroup should be async ([141b14a](https://github.com/nrkno/sofie-core/commit/141b14ad8958aec7bbbd414a6062b83f7dde1920))
 - prefix blueprint translation namespace ([a1bad7e](https://github.com/nrkno/sofie-core/commit/a1bad7e3bd1dbea8a4da3173d8a50131fdd6bf15))
 - Proper handling of the upsertAsync ([bdca13f](https://github.com/nrkno/sofie-core/commit/bdca13f1582000c57ba1e731951c0cd0637fa2d3))
@@ -1797,7 +1797,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Timeout now only clears on WillUnmount to ensure no lost updates happening. Also includes refactors of the update method ([e1f4d82](https://github.com/nrkno/sofie-core/commit/e1f4d827725afa4fcf791080e28fa8aa5c5dd30f))
 - **TriggeredActionEntry:** modify the correct db object key ([e4a4b3b](https://github.com/nrkno/sofie-core/commit/e4a4b3b209d17aa059d4130ca431010567b7e83b))
 - typo ([55adb8c](https://github.com/nrkno/sofie-core/commit/55adb8c1d0973a66c05456b6ea98e266b1ad7815))
-- update ErrorBoundrary message to be more user-friendly ([458ae5f](https://github.com/nrkno/sofie-core/commit/458ae5ff193508d6ff76b76aac5b38db54c44039))
+- update ErrorBoundary message to be more user-friendly ([458ae5f](https://github.com/nrkno/sofie-core/commit/458ae5ff193508d6ff76b76aac5b38db54c44039))
 - use more optimal mongo observe method in custom publications ([be38e66](https://github.com/nrkno/sofie-core/commit/be38e66f2d5050580b3364989c599a7f8ccd3e2c))
 - use more optimal mongo observe method in custom publications ([6745f05](https://github.com/nrkno/sofie-core/commit/6745f0585588bb448b0792f37816fcf19a77ba6e))
 - wait for first observer setup when creating observer group ([d65d028](https://github.com/nrkno/sofie-core/commit/d65d028befc5f1c61abb4bb6638e6abe2f981205))
@@ -1899,7 +1899,7 @@ All notable changes to this project will be documented in this file. See [standa
 - don't give out the same lookahead AB session ID to sessions with different names ([#862](https://github.com/nrkno/sofie-core/issues/862)) ([f378380](https://github.com/nrkno/sofie-core/commit/f3783800734ceda8846dcff0cd527f8edc35e542))
 - downgrade type-fest (again) ([82346cc](https://github.com/nrkno/sofie-core/commit/82346cc9fc01a251c6dcb4d2f86ea954601ada32))
 - expose custom publications in client `window.PublicationCollections` object ([9357b29](https://github.com/nrkno/sofie-core/commit/9357b29942fbfe374e2699f740fb3eb7f45737bb))
-- forward `removeDelay` paremeter in `PeripheralDeviceApi.removePackageInfo` ([d21006f](https://github.com/nrkno/sofie-core/commit/d21006f0cef1ce4add382b1f96d7daf143ad5890))
+- forward `removeDelay` parameter in `PeripheralDeviceApi.removePackageInfo` ([d21006f](https://github.com/nrkno/sofie-core/commit/d21006f0cef1ce4add382b1f96d7daf143ad5890))
 - improve package warning messages ([bd0f6e5](https://github.com/nrkno/sofie-core/commit/bd0f6e51865ea56d30caa1f6286e5a4c18210629))
 - indicate which layers/mappings have overrides ([#854](https://github.com/nrkno/sofie-core/issues/854)) ([18bbad0](https://github.com/nrkno/sofie-core/commit/18bbad027af66ca3b88385bc0059928ccc9e4d9c))
 - infinite Piece timings can be inconsistent across runs of timelineGenerate when a pre-roll is present ([939efb5](https://github.com/nrkno/sofie-core/commit/939efb5560ccdca611c7cf9fefbde687cb298dc8))
@@ -2037,7 +2037,7 @@ All notable changes to this project will be documented in this file. See [standa
 - handle incomplete peripheralDeviceCommands ([40f691e](https://github.com/nrkno/sofie-core/commit/40f691e0e9fca1def233b67d2cd3f1cded7152ca))
 - Implements some of the suggestions in VariantSettings.tsx as well as some missing types ([d241467](https://github.com/nrkno/sofie-core/commit/d2414678e7c35a818b51c43e3500cf79843b31df))
 - Import, copy,remove, add and edit now work in sync with the new ordering ([42d79aa](https://github.com/nrkno/sofie-core/commit/42d79aa0d416f11fac37a7cdc87b1167ab60faf4))
-- modify zebra hightlights ([c9a33ca](https://github.com/nrkno/sofie-core/commit/c9a33cad851e70223ac053e9852c0ef28488fae8))
+- modify zebra highlights ([c9a33ca](https://github.com/nrkno/sofie-core/commit/c9a33cad851e70223ac053e9852c0ef28488fae8))
 - observergroup should be async ([141b14a](https://github.com/nrkno/sofie-core/commit/141b14ad8958aec7bbbd414a6062b83f7dde1920))
 - prefix blueprint translation namespace ([a1bad7e](https://github.com/nrkno/sofie-core/commit/a1bad7e3bd1dbea8a4da3173d8a50131fdd6bf15))
 - Proper handling of the upsertAsync ([bdca13f](https://github.com/nrkno/sofie-core/commit/bdca13f1582000c57ba1e731951c0cd0637fa2d3))
@@ -2053,7 +2053,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Timeout now only clears on WillUnmount to ensure no lost updates happening. Also includes refactors of the update method ([e1f4d82](https://github.com/nrkno/sofie-core/commit/e1f4d827725afa4fcf791080e28fa8aa5c5dd30f))
 - **TriggeredActionEntry:** modify the correct db object key ([e4a4b3b](https://github.com/nrkno/sofie-core/commit/e4a4b3b209d17aa059d4130ca431010567b7e83b))
 - typo ([55adb8c](https://github.com/nrkno/sofie-core/commit/55adb8c1d0973a66c05456b6ea98e266b1ad7815))
-- update ErrorBoundrary message to be more user-friendly ([458ae5f](https://github.com/nrkno/sofie-core/commit/458ae5ff193508d6ff76b76aac5b38db54c44039))
+- update ErrorBoundary message to be more user-friendly ([458ae5f](https://github.com/nrkno/sofie-core/commit/458ae5ff193508d6ff76b76aac5b38db54c44039))
 - use more optimal mongo observe method in custom publications ([be38e66](https://github.com/nrkno/sofie-core/commit/be38e66f2d5050580b3364989c599a7f8ccd3e2c))
 - use more optimal mongo observe method in custom publications ([6745f05](https://github.com/nrkno/sofie-core/commit/6745f0585588bb448b0792f37816fcf19a77ba6e))
 - wait for first observer setup when creating observer group ([d65d028](https://github.com/nrkno/sofie-core/commit/d65d028befc5f1c61abb4bb6638e6abe2f981205))
@@ -2134,7 +2134,7 @@ All notable changes to this project will be documented in this file. See [standa
 - don't give out the same lookahead AB session ID to sessions with different names ([#862](https://github.com/nrkno/sofie-core/issues/862)) ([f378380](https://github.com/nrkno/sofie-core/commit/f3783800734ceda8846dcff0cd527f8edc35e542))
 - downgrade type-fest (again) ([82346cc](https://github.com/nrkno/sofie-core/commit/82346cc9fc01a251c6dcb4d2f86ea954601ada32))
 - expose custom publications in client `window.PublicationCollections` object ([9357b29](https://github.com/nrkno/sofie-core/commit/9357b29942fbfe374e2699f740fb3eb7f45737bb))
-- forward `removeDelay` paremeter in `PeripheralDeviceApi.removePackageInfo` ([d21006f](https://github.com/nrkno/sofie-core/commit/d21006f0cef1ce4add382b1f96d7daf143ad5890))
+- forward `removeDelay` parameter in `PeripheralDeviceApi.removePackageInfo` ([d21006f](https://github.com/nrkno/sofie-core/commit/d21006f0cef1ce4add382b1f96d7daf143ad5890))
 - improve package warning messages ([bd0f6e5](https://github.com/nrkno/sofie-core/commit/bd0f6e51865ea56d30caa1f6286e5a4c18210629))
 - indicate which layers/mappings have overrides ([#854](https://github.com/nrkno/sofie-core/issues/854)) ([18bbad0](https://github.com/nrkno/sofie-core/commit/18bbad027af66ca3b88385bc0059928ccc9e4d9c))
 - infinite Piece timings can be inconsistent across runs of timelineGenerate when a pre-roll is present ([939efb5](https://github.com/nrkno/sofie-core/commit/939efb5560ccdca611c7cf9fefbde687cb298dc8))
@@ -2269,7 +2269,7 @@ All notable changes to this project will be documented in this file. See [standa
 - handle incomplete peripheralDeviceCommands ([40f691e](https://github.com/nrkno/sofie-core/commit/40f691e0e9fca1def233b67d2cd3f1cded7152ca))
 - Implements some of the suggestions in VariantSettings.tsx as well as some missing types ([d241467](https://github.com/nrkno/sofie-core/commit/d2414678e7c35a818b51c43e3500cf79843b31df))
 - Import, copy,remove, add and edit now work in sync with the new ordering ([42d79aa](https://github.com/nrkno/sofie-core/commit/42d79aa0d416f11fac37a7cdc87b1167ab60faf4))
-- modify zebra hightlights ([c9a33ca](https://github.com/nrkno/sofie-core/commit/c9a33cad851e70223ac053e9852c0ef28488fae8))
+- modify zebra highlights ([c9a33ca](https://github.com/nrkno/sofie-core/commit/c9a33cad851e70223ac053e9852c0ef28488fae8))
 - observergroup should be async ([141b14a](https://github.com/nrkno/sofie-core/commit/141b14ad8958aec7bbbd414a6062b83f7dde1920))
 - prefix blueprint translation namespace ([a1bad7e](https://github.com/nrkno/sofie-core/commit/a1bad7e3bd1dbea8a4da3173d8a50131fdd6bf15))
 - Proper handling of the upsertAsync ([bdca13f](https://github.com/nrkno/sofie-core/commit/bdca13f1582000c57ba1e731951c0cd0637fa2d3))
@@ -2285,7 +2285,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Timeout now only clears on WillUnmount to ensure no lost updates happening. Also includes refactors of the update method ([e1f4d82](https://github.com/nrkno/sofie-core/commit/e1f4d827725afa4fcf791080e28fa8aa5c5dd30f))
 - **TriggeredActionEntry:** modify the correct db object key ([e4a4b3b](https://github.com/nrkno/sofie-core/commit/e4a4b3b209d17aa059d4130ca431010567b7e83b))
 - typo ([55adb8c](https://github.com/nrkno/sofie-core/commit/55adb8c1d0973a66c05456b6ea98e266b1ad7815))
-- update ErrorBoundrary message to be more user-friendly ([458ae5f](https://github.com/nrkno/sofie-core/commit/458ae5ff193508d6ff76b76aac5b38db54c44039))
+- update ErrorBoundary message to be more user-friendly ([458ae5f](https://github.com/nrkno/sofie-core/commit/458ae5ff193508d6ff76b76aac5b38db54c44039))
 - use more optimal mongo observe method in custom publications ([be38e66](https://github.com/nrkno/sofie-core/commit/be38e66f2d5050580b3364989c599a7f8ccd3e2c))
 - use more optimal mongo observe method in custom publications ([6745f05](https://github.com/nrkno/sofie-core/commit/6745f0585588bb448b0792f37816fcf19a77ba6e))
 - wait for first observer setup when creating observer group ([d65d028](https://github.com/nrkno/sofie-core/commit/d65d028befc5f1c61abb4bb6638e6abe2f981205))
@@ -2317,7 +2317,7 @@ All notable changes to this project will be documented in this file. See [standa
 - downgrade type-fest (again) ([82346cc](https://github.com/nrkno/sofie-core/commit/82346cc9fc01a251c6dcb4d2f86ea954601ada32))
 - ensure keyframes have unique ids ([#871](https://github.com/nrkno/sofie-core/issues/871)) ([2236c3b](https://github.com/nrkno/sofie-core/commit/2236c3bdf8d4a91c8200218d3ba13fcbe3070253))
 - expose custom publications in client `window.PublicationCollections` object ([9357b29](https://github.com/nrkno/sofie-core/commit/9357b29942fbfe374e2699f740fb3eb7f45737bb))
-- forward `removeDelay` paremeter in `PeripheralDeviceApi.removePackageInfo` ([d21006f](https://github.com/nrkno/sofie-core/commit/d21006f0cef1ce4add382b1f96d7daf143ad5890))
+- forward `removeDelay` parameter in `PeripheralDeviceApi.removePackageInfo` ([d21006f](https://github.com/nrkno/sofie-core/commit/d21006f0cef1ce4add382b1f96d7daf143ad5890))
 - improve package warning messages ([bd0f6e5](https://github.com/nrkno/sofie-core/commit/bd0f6e51865ea56d30caa1f6286e5a4c18210629))
 - indicate which layers/mappings have overrides ([#854](https://github.com/nrkno/sofie-core/issues/854)) ([18bbad0](https://github.com/nrkno/sofie-core/commit/18bbad027af66ca3b88385bc0059928ccc9e4d9c))
 - infinite Piece timings can be inconsistent across runs of timelineGenerate when a pre-roll is present ([939efb5](https://github.com/nrkno/sofie-core/commit/939efb5560ccdca611c7cf9fefbde687cb298dc8))
@@ -2451,7 +2451,7 @@ All notable changes to this project will be documented in this file. See [standa
 - handle incomplete peripheralDeviceCommands ([40f691e](https://github.com/nrkno/sofie-core/commit/40f691e0e9fca1def233b67d2cd3f1cded7152ca))
 - Implements some of the suggestions in VariantSettings.tsx as well as some missing types ([d241467](https://github.com/nrkno/sofie-core/commit/d2414678e7c35a818b51c43e3500cf79843b31df))
 - Import, copy,remove, add and edit now work in sync with the new ordering ([42d79aa](https://github.com/nrkno/sofie-core/commit/42d79aa0d416f11fac37a7cdc87b1167ab60faf4))
-- modify zebra hightlights ([c9a33ca](https://github.com/nrkno/sofie-core/commit/c9a33cad851e70223ac053e9852c0ef28488fae8))
+- modify zebra highlights ([c9a33ca](https://github.com/nrkno/sofie-core/commit/c9a33cad851e70223ac053e9852c0ef28488fae8))
 - observergroup should be async ([141b14a](https://github.com/nrkno/sofie-core/commit/141b14ad8958aec7bbbd414a6062b83f7dde1920))
 - prefix blueprint translation namespace ([a1bad7e](https://github.com/nrkno/sofie-core/commit/a1bad7e3bd1dbea8a4da3173d8a50131fdd6bf15))
 - Proper handling of the upsertAsync ([bdca13f](https://github.com/nrkno/sofie-core/commit/bdca13f1582000c57ba1e731951c0cd0637fa2d3))
@@ -2467,7 +2467,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Timeout now only clears on WillUnmount to ensure no lost updates happening. Also includes refactors of the update method ([e1f4d82](https://github.com/nrkno/sofie-core/commit/e1f4d827725afa4fcf791080e28fa8aa5c5dd30f))
 - **TriggeredActionEntry:** modify the correct db object key ([e4a4b3b](https://github.com/nrkno/sofie-core/commit/e4a4b3b209d17aa059d4130ca431010567b7e83b))
 - typo ([55adb8c](https://github.com/nrkno/sofie-core/commit/55adb8c1d0973a66c05456b6ea98e266b1ad7815))
-- update ErrorBoundrary message to be more user-friendly ([458ae5f](https://github.com/nrkno/sofie-core/commit/458ae5ff193508d6ff76b76aac5b38db54c44039))
+- update ErrorBoundary message to be more user-friendly ([458ae5f](https://github.com/nrkno/sofie-core/commit/458ae5ff193508d6ff76b76aac5b38db54c44039))
 - use more optimal mongo observe method in custom publications ([be38e66](https://github.com/nrkno/sofie-core/commit/be38e66f2d5050580b3364989c599a7f8ccd3e2c))
 - use more optimal mongo observe method in custom publications ([6745f05](https://github.com/nrkno/sofie-core/commit/6745f0585588bb448b0792f37816fcf19a77ba6e))
 - wait for first observer setup when creating observer group ([d65d028](https://github.com/nrkno/sofie-core/commit/d65d028befc5f1c61abb4bb6638e6abe2f981205))
@@ -2493,7 +2493,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 - Failing tests ([ea09e77](https://github.com/nrkno/sofie-core/commit/ea09e7751bcce79b82d9e2f85bb6ebc2d8558c45))
 - Out of sync playhead countdown ([baa2761](https://github.com/nrkno/sofie-core/commit/baa27612f4dbf815b338c261068587d35a8484c4))
-- PieceInstance.`plannedStartedPlayback` not being propogated for infinites ([17399a6](https://github.com/nrkno/sofie-core/commit/17399a68566238d736f7cd9504fbfd421dca2811))
+- PieceInstance.`plannedStartedPlayback` not being propagated for infinites ([17399a6](https://github.com/nrkno/sofie-core/commit/17399a68566238d736f7cd9504fbfd421dca2811))
 - Reinstate syncedEventTImeNow ([21e8ed8](https://github.com/nrkno/sofie-core/commit/21e8ed8b358fd931aaf8601dd412174c91875238))
 
 ### [1.47.1-0](https://github.com/nrkno/sofie-core/compare/v1.47.0...v1.47.1-0) (2023-03-30)
@@ -2583,7 +2583,7 @@ All notable changes to this project will be documented in this file. See [standa
 - add state for rundownSegmentViewMode ([4c01c40](https://github.com/nrkno/sofie-core/commit/4c01c40e30bae1e119d18cb709fe7a4a7ab241d6))
 - add transition Pieces ([b88d15b](https://github.com/nrkno/sofie-core/commit/b88d15b75a76995e15cc7a6a7dcde652a93f97d6))
 - adlib actions can set timeline datastore ([0cd2f62](https://github.com/nrkno/sofie-core/commit/0cd2f62ba1a079ea0cc5b17c13846ead26ae7a21))
-- alow to disable hover scrub on dashboard per-panel ([0670d63](https://github.com/nrkno/sofie-core/commit/0670d635c47323868e6414b2299a1208bc7687be))
+- allow to disable hover scrub on dashboard per-panel ([0670d63](https://github.com/nrkno/sofie-core/commit/0670d635c47323868e6414b2299a1208bc7687be))
 - change interaction model for PieceIndicatorMenu to be click + somewhat of a context menu ([c4b1348](https://github.com/nrkno/sofie-core/commit/c4b1348128972cce4c30c9c78b0e4442303c2059))
 - change some publications to not use mongo queries to better handle the ui state of a missing id ([b127778](https://github.com/nrkno/sofie-core/commit/b127778ce951e9c9703c65ca60e99e241cfe52a8))
 - custom PieceIndicatorMenu ([9af8204](https://github.com/nrkno/sofie-core/commit/9af8204e7d8863cbcf1b30ffcaabc674222bf2de))
@@ -2599,7 +2599,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **OPL:** enable hover inspector on Pieces ([988e9ef](https://github.com/nrkno/sofie-core/commit/988e9ef01bd63a36583b278a9513b20b5663f9ca))
 - **OPL:** Piece Indicators ([a3f683f](https://github.com/nrkno/sofie-core/commit/a3f683fadf8d87228da6eb4ec48070de07a5fe82))
 - **OPL:** Placeholder invalid Part display ([0418129](https://github.com/nrkno/sofie-core/commit/04181290602afab4bba288269e4180f6aca668a7))
-- **OPL:** timed graphcis ([c13f562](https://github.com/nrkno/sofie-core/commit/c13f562329febaf3eb53c281bf1705d0e1c4947c))
+- **OPL:** timed graphics ([c13f562](https://github.com/nrkno/sofie-core/commit/c13f562329febaf3eb53c281bf1705d0e1c4947c))
 - part-level history shade ([96cd054](https://github.com/nrkno/sofie-core/commit/96cd05444644295575efd51acc2bd2d063ddfd3c))
 - PieceIndicatorMenu ([2e19ef8](https://github.com/nrkno/sofie-core/commit/2e19ef86d66744c5830cfe6d61aed819a35c312b))
 - prototype (WIP) ([01a2b8b](https://github.com/nrkno/sofie-core/commit/01a2b8bda9ad395f1a1bcdc2c246d16808240261))
@@ -2631,7 +2631,7 @@ All notable changes to this project will be documented in this file. See [standa
 - show freeze frame indicator ([d03cab1](https://github.com/nrkno/sofie-core/commit/d03cab1a6d8fbf559784e306fb38cebf2602a44a))
 - SOF-767 add option to hide default Start/Execute context menu options for adlibs ([8b8db6d](https://github.com/nrkno/sofie-core/commit/8b8db6d161c0b82e196e38fc23964aa324025cd9))
 - SOF-978 add config manifest entry showing a (multi)select with values from a table's column ([34e96e0](https://github.com/nrkno/sofie-core/commit/34e96e0ba2e62c9b149daf2c42bc7198cd757cf9))
-- SOF-978 add indication of mising options in dropdowns and optimize tables ([333a74d](https://github.com/nrkno/sofie-core/commit/333a74daefe80221f1451f6f7b1a9bbba6c4f520))
+- SOF-978 add indication of missing options in dropdowns and optimize tables ([333a74d](https://github.com/nrkno/sofie-core/commit/333a74daefe80221f1451f6f7b1a9bbba6c4f520))
 - some touchups ([a766660](https://github.com/nrkno/sofie-core/commit/a7666605d75bc61ddc5f25f16b361600c14910cf))
 - split ShowStyleBaseSettings into multiple tabs ([e1148d1](https://github.com/nrkno/sofie-core/commit/e1148d176ca8ac65b530855c7b86299fc39b5df7))
 - split studio settings into tabs ([23c969e](https://github.com/nrkno/sofie-core/commit/23c969e42f33cd59c1af30dc4a3c70c122779821))
@@ -2692,7 +2692,7 @@ All notable changes to this project will be documented in this file. See [standa
 - log the event when queueing minishelf adlibs ([43c2b3b](https://github.com/nrkno/sofie-core/commit/43c2b3b018f12fc58f65640cba3a17d3034d5cbc))
 - lookahead not making keyframe ids unique ([b95cc67](https://github.com/nrkno/sofie-core/commit/b95cc679193e320f5584f5f5dbdfdee314ae7c5d))
 - lowered logging level for a pair of log calls. ([9e6939d](https://github.com/nrkno/sofie-core/commit/9e6939de7acc2f656944db9a2d1240e9bd9f79a7))
-- made a custom funtion to find piece with script ([a762962](https://github.com/nrkno/sofie-core/commit/a762962db5dd943708d0412cdeff12b94bb2be38))
+- made a custom function to find piece with script ([a762962](https://github.com/nrkno/sofie-core/commit/a762962db5dd943708d0412cdeff12b94bb2be38))
 - make header sticky on all pages ([eac9620](https://github.com/nrkno/sofie-core/commit/eac9620acb3d0ad45b332af6b06453c2e6e39ab2))
 - make overlay prop optional ([d18a8b1](https://github.com/nrkno/sofie-core/commit/d18a8b136080b0e57a59b5e04af12cbb988c95c1))
 - Make PR instead of silently failing. ([2e99b8e](https://github.com/nrkno/sofie-core/commit/2e99b8ed1c103fb2ce9ca0d556c1333846c82b71))
@@ -2731,7 +2731,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **SegmentList:** only show tooltips on Part Title overflow ([b2c8c4a](https://github.com/nrkno/sofie-core/commit/b2c8c4a1f6efb96b5dd6ca44086619ab4db4d08f))
 - **SegmentList:** overflowing Pieces ([3f61d6d](https://github.com/nrkno/sofie-core/commit/3f61d6d804f1130e9bdddca78234bce94a118181))
 - **SegmentList:** overtime counter can wrap ([fa1b55b](https://github.com/nrkno/sofie-core/commit/fa1b55b9559b551e1aa63c58e10a36587e2177cb))
-- **SegmentList:** overtime counter far to the righht ([70ad149](https://github.com/nrkno/sofie-core/commit/70ad14922c54a48308937ee38d47a6cb70ed908b))
+- **SegmentList:** overtime counter far to the right ([70ad149](https://github.com/nrkno/sofie-core/commit/70ad14922c54a48308937ee38d47a6cb70ed908b))
 - **SegmentList:** overtime shadow ([0523a4e](https://github.com/nrkno/sofie-core/commit/0523a4ee0a7a9b027b00ed5e5585f7219bb37300))
 - **SegmentList:** Part context menu ([2e29f2a](https://github.com/nrkno/sofie-core/commit/2e29f2a677174128f9d0af5ac8340141be0347d6))
 - **SegmentList:** Part name tooltip ([851d6c9](https://github.com/nrkno/sofie-core/commit/851d6c970b952c5019e1e57fdd75d8c1ad354e07))
@@ -2854,7 +2854,7 @@ All notable changes to this project will be documented in this file. See [standa
 - differentiate user/default settings datastructure changes ([#772](https://github.com/nrkno/sofie-core/issues/772)) ([b39067d](https://github.com/nrkno/sofie-core/commit/b39067d9e4e7b87e7e00a80bdca19aade8b3bc04))
 - multi gateway mode ([#760](https://github.com/nrkno/sofie-core/issues/760)) ([9f23148](https://github.com/nrkno/sofie-core/commit/9f231486c47f414008f0f0f80ed4b665a2115b4a))
 - SOF-978 add config manifest entry showing a (multi)select with values from a table's column ([34e96e0](https://github.com/nrkno/sofie-core/commit/34e96e0ba2e62c9b149daf2c42bc7198cd757cf9))
-- SOF-978 add indication of mising options in dropdowns and optimize tables ([333a74d](https://github.com/nrkno/sofie-core/commit/333a74daefe80221f1451f6f7b1a9bbba6c4f520))
+- SOF-978 add indication of missing options in dropdowns and optimize tables ([333a74d](https://github.com/nrkno/sofie-core/commit/333a74daefe80221f1451f6f7b1a9bbba6c4f520))
 - tl datastore collection and testtool ([c4a7a17](https://github.com/nrkno/sofie-core/commit/c4a7a17bc0b4b7b2e5ff2af0f039d9674151d57f))
 
 ### Bug Fixes
@@ -2917,7 +2917,7 @@ All notable changes to this project will be documented in this file. See [standa
 - differentiate user/default settings datastructure changes ([#772](https://github.com/nrkno/sofie-core/issues/772)) ([b39067d](https://github.com/nrkno/sofie-core/commit/b39067d9e4e7b87e7e00a80bdca19aade8b3bc04))
 - multi gateway mode ([#760](https://github.com/nrkno/sofie-core/issues/760)) ([9f23148](https://github.com/nrkno/sofie-core/commit/9f231486c47f414008f0f0f80ed4b665a2115b4a))
 - SOF-978 add config manifest entry showing a (multi)select with values from a table's column ([34e96e0](https://github.com/nrkno/sofie-core/commit/34e96e0ba2e62c9b149daf2c42bc7198cd757cf9))
-- SOF-978 add indication of mising options in dropdowns and optimize tables ([333a74d](https://github.com/nrkno/sofie-core/commit/333a74daefe80221f1451f6f7b1a9bbba6c4f520))
+- SOF-978 add indication of missing options in dropdowns and optimize tables ([333a74d](https://github.com/nrkno/sofie-core/commit/333a74daefe80221f1451f6f7b1a9bbba6c4f520))
 - tl datastore collection and testtool ([c4a7a17](https://github.com/nrkno/sofie-core/commit/c4a7a17bc0b4b7b2e5ff2af0f039d9674151d57f))
 
 ### Bug Fixes
@@ -2973,7 +2973,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **SegmentList:** stick header to last Part ([791e823](https://github.com/nrkno/sofie-core/commit/791e823000b4e0e6c4c996d9da70512c02033559))
 - SOF-767 add option to hide default Start/Execute context menu options for adlibs ([8b8db6d](https://github.com/nrkno/sofie-core/commit/8b8db6d161c0b82e196e38fc23964aa324025cd9))
 - SOF-978 add config manifest entry showing a (multi)select with values from a table's column ([34e96e0](https://github.com/nrkno/sofie-core/commit/34e96e0ba2e62c9b149daf2c42bc7198cd757cf9))
-- SOF-978 add indication of mising options in dropdowns and optimize tables ([333a74d](https://github.com/nrkno/sofie-core/commit/333a74daefe80221f1451f6f7b1a9bbba6c4f520))
+- SOF-978 add indication of missing options in dropdowns and optimize tables ([333a74d](https://github.com/nrkno/sofie-core/commit/333a74daefe80221f1451f6f7b1a9bbba6c4f520))
 - split ShowStyleBaseSettings into multiple tabs ([e1148d1](https://github.com/nrkno/sofie-core/commit/e1148d176ca8ac65b530855c7b86299fc39b5df7))
 - split studio settings into tabs ([23c969e](https://github.com/nrkno/sofie-core/commit/23c969e42f33cd59c1af30dc4a3c70c122779821))
 - support doubleclick in Indicator menu ([d11fd29](https://github.com/nrkno/sofie-core/commit/d11fd29f963e8eca8c2e01640580b634ef622e09))
@@ -3118,7 +3118,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **SegmentList:** change hit target area from ::before to ::after ([64b4d75](https://github.com/nrkno/sofie-core/commit/64b4d758983c8402ab0558bf893551dc860a818a))
 - **SegmentList:** freeze marker on untimed Parts ([5be8215](https://github.com/nrkno/sofie-core/commit/5be8215ffe877ccd17787f8a0d388d7a3acb3b09))
 - **SegmentList:** overflowing Pieces ([3f61d6d](https://github.com/nrkno/sofie-core/commit/3f61d6d804f1130e9bdddca78234bce94a118181))
-- **SegmentList:** overtime counter far to the righht ([70ad149](https://github.com/nrkno/sofie-core/commit/70ad14922c54a48308937ee38d47a6cb70ed908b))
+- **SegmentList:** overtime counter far to the right ([70ad149](https://github.com/nrkno/sofie-core/commit/70ad14922c54a48308937ee38d47a6cb70ed908b))
 - **SegmentList:** Part context menu ([2e29f2a](https://github.com/nrkno/sofie-core/commit/2e29f2a677174128f9d0af5ac8340141be0347d6))
 - **SegmentList:** take line tweaks ([e27ac24](https://github.com/nrkno/sofie-core/commit/e27ac24fe12269855377d55119462cd14fe3b0d1))
 - show not present on AdLibs ([e65a8cc](https://github.com/nrkno/sofie-core/commit/e65a8cc524b2d7370f1ac1cc9c646beb2b8327a5))
@@ -3142,7 +3142,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Features
 
-- alow to disable hover scrub on dashboard per-panel ([0670d63](https://github.com/nrkno/sofie-core/commit/0670d635c47323868e6414b2299a1208bc7687be))
+- allow to disable hover scrub on dashboard per-panel ([0670d63](https://github.com/nrkno/sofie-core/commit/0670d635c47323868e6414b2299a1208bc7687be))
 - **OPL:** enable hover inspector on Pieces ([988e9ef](https://github.com/nrkno/sofie-core/commit/988e9ef01bd63a36583b278a9513b20b5663f9ca))
 - **OPL:** Placeholder invalid Part display ([0418129](https://github.com/nrkno/sofie-core/commit/04181290602afab4bba288269e4180f6aca668a7))
 - some touchups ([a766660](https://github.com/nrkno/sofie-core/commit/a7666605d75bc61ddc5f25f16b361600c14910cf))
@@ -3170,7 +3170,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 - add transition Pieces ([b88d15b](https://github.com/nrkno/sofie-core/commit/b88d15b75a76995e15cc7a6a7dcde652a93f97d6))
 - **OPL:** Piece Indicators ([a3f683f](https://github.com/nrkno/sofie-core/commit/a3f683fadf8d87228da6eb4ec48070de07a5fe82))
-- **OPL:** timed graphcis ([c13f562](https://github.com/nrkno/sofie-core/commit/c13f562329febaf3eb53c281bf1705d0e1c4947c))
+- **OPL:** timed graphics ([c13f562](https://github.com/nrkno/sofie-core/commit/c13f562329febaf3eb53c281bf1705d0e1c4947c))
 - part-level history shade ([96cd054](https://github.com/nrkno/sofie-core/commit/96cd05444644295575efd51acc2bd2d063ddfd3c))
 - prototype (WIP) ([01a2b8b](https://github.com/nrkno/sofie-core/commit/01a2b8bda9ad395f1a1bcdc2c246d16808240261))
 - Set log level from LOG_LEVEL env var. ([f4614d8](https://github.com/nrkno/sofie-core/commit/f4614d84dea41cb447cd5954d4510d7a32a705a5))
@@ -3195,7 +3195,7 @@ All notable changes to this project will be documented in this file. See [standa
 ### Bug Fixes
 
 - Bumped Sorensen for fixing preventDefaultDown not respecting global. ([acb6e85](https://github.com/nrkno/sofie-core/commit/acb6e85d0df093c3ab6424309b8ffbc2d404d9af))
-- made a custom funtion to find piece with script ([a762962](https://github.com/nrkno/sofie-core/commit/a762962db5dd943708d0412cdeff12b94bb2be38))
+- made a custom function to find piece with script ([a762962](https://github.com/nrkno/sofie-core/commit/a762962db5dd943708d0412cdeff12b94bb2be38))
 - Use AnyEnter instead of Enter for modals. ([7c77e95](https://github.com/nrkno/sofie-core/commit/7c77e9597fcec699b3a0846abda05f820598a62e))
 
 ## [42.0.0-dev](https://github.com/nrkno/sofie-core/compare/v1.42.5...v42.0.0-dev) (2022-05-03)
@@ -3404,7 +3404,7 @@ All notable changes to this project will be documented in this file. See [standa
 - change how we parameters are fed into function, in order to avoid garbage collection ([df89ecc](https://github.com/nrkno/sofie-core/commit/df89eccdd364cf48b5fe39d8d436354a4cca7c25))
 - Cherry-picked configurable poisonkey. ([ec60933](https://github.com/nrkno/sofie-core/commit/ec60933c91ecd0ae23fc27331c990423dc6c65d1))
 - Cherry-picked Sorensen preventDefaultDown option. ([b90f1b3](https://github.com/nrkno/sofie-core/commit/b90f1b3fa168b6d9ee72eac4a947fa5dc79fbbf3))
-- clarify featching of PartInstances ([89cabed](https://github.com/nrkno/sofie-core/commit/89cabed7c0a4ca52fe13064025bd614c84370f0a))
+- clarify fetching of PartInstances ([89cabed](https://github.com/nrkno/sofie-core/commit/89cabed7c0a4ca52fe13064025bd614c84370f0a))
 - convert Timeline collection on cache to be a single object, as it uses StudioId as id ([4931046](https://github.com/nrkno/sofie-core/commit/49310467580c62d9663eea5e7d1234b4fc873e8c))
 - expose versionExtended (git hash) in package.json on CI build ([#711](https://github.com/nrkno/sofie-core/issues/711)) ([ee12285](https://github.com/nrkno/sofie-core/commit/ee12285e0fad7103b51cfabc7015f35829509009))
 - hide keyboardPreview settings behind a feature flag. ([a48ad31](https://github.com/nrkno/sofie-core/commit/a48ad3109566f25f161be5ad3195ce039fa1a589))
@@ -4048,7 +4048,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Add missing settings ([99296e4](https://github.com/nrkno/sofie-core/commit/99296e403bffe29ac0c7c9a9d2f6b24807ee96d3))
 - Add Numpad keyboard layout ([43d5e4f](https://github.com/nrkno/sofie-core/commit/43d5e4f9485332ba02f4f9e3c7ecf0f7357b37c0))
 - add options for TSR-vizMSE device ([61220ba](https://github.com/nrkno/sofie-core/commit/61220bab39b5874b71a0a6e28c5363f2227f04a7))
-- Add property Piece.definitelyEnded to be used to easilly filter out old and cropped pieces. ([a695d71](https://github.com/nrkno/sofie-core/commit/a695d71b824894ba9621e7b97a2eca176b51cdad))
+- Add property Piece.definitelyEnded to be used to easily filter out old and cropped pieces. ([a695d71](https://github.com/nrkno/sofie-core/commit/a695d71b824894ba9621e7b97a2eca176b51cdad))
 - Add spacing to Rundown List table header ([8b11d6c](https://github.com/nrkno/sofie-core/commit/8b11d6cb95472895c1914e08a7dc32c0f6bfd41d))
 - Add startedPlayback to dashboard status query ([37335e4](https://github.com/nrkno/sofie-core/commit/37335e4257b81a0c38169702773857f07a69719c))
 - Add uniquenessId to adlib piece ([50f30a8](https://github.com/nrkno/sofie-core/commit/50f30a841dfca6211771de2e9b0895b0f62761cc))
@@ -4165,7 +4165,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **dashboard status:** use userDuration.end for infinites fallback ([cbddb04](https://github.com/nrkno/sofie-core/commit/cbddb04e302dc18dbf5105c115ceb5a43ca9eb7e))
 - **dashboard:** always trigger adlib if clearKeyaboardHotkey is not set ([b8fd6fb](https://github.com/nrkno/sofie-core/commit/b8fd6fbba63161e51e127ed2470623f89a8ccbf0))
 - DashboardPieceButton label in offtubes ([3727186](https://github.com/nrkno/sofie-core/commit/37271867f75fb34605373664796a76272290a3c5))
-- Defualt -> Default ([1eea3ea](https://github.com/nrkno/sofie-core/commit/1eea3eaed0fe40548324826435550d49eaaa9604))
+- Default -> Default ([1eea3ea](https://github.com/nrkno/sofie-core/commit/1eea3eaed0fe40548324826435550d49eaaa9604))
 - delay scroll to part after take so that we don't lose follow live line ([865139c](https://github.com/nrkno/sofie-core/commit/865139c2f816e7bf4e5ed5a425692b5c35d6ac00))
 - Dependency versions ([ff1920d](https://github.com/nrkno/sofie-core/commit/ff1920d67bf35012fab19676a7faa30dceb0e162))
 - disable browser context menu in standalone shelf ([75a8b14](https://github.com/nrkno/sofie-core/commit/75a8b140f5fb5c7df58de7179ca957f3d7ec97d3))
@@ -4521,7 +4521,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Sisyfos mapping types ([23fca29](https://github.com/nrkno/sofie-core/commit/23fca29b7c27c0f746252636e3a4fbb8ffdbb745))
 - snapshot import failing if collection was missing ([721134c](https://github.com/nrkno/sofie-core/commit/721134c1cfafd1698befaa02115bc36e776e68de))
 - some keys in the AHK Keyboard Map ([31e2f23](https://github.com/nrkno/sofie-core/commit/31e2f2393f29cf80f5c543bdb42fb240817b4bc9))
-- some virtual infinites would not propogate properly. onRundownEnd infinites from the same segment would not propogate. ui resolving future parts incorrectly ([58f3b38](https://github.com/nrkno/sofie-core/commit/58f3b384152f44f61021554a7d0ed3e8a614db4b))
+- some virtual infinites would not propagate properly. onRundownEnd infinites from the same segment would not propagate. ui resolving future parts incorrectly ([58f3b38](https://github.com/nrkno/sofie-core/commit/58f3b384152f44f61021554a7d0ed3e8a614db4b))
 - Sort adlibs and actions by rank for display ([f2f5be3](https://github.com/nrkno/sofie-core/commit/f2f5be328c36c9618ed7dc8dde4c42ea4903ca18))
 - Sort adlibs as last step ([2192224](https://github.com/nrkno/sofie-core/commit/21922243c6715e9fc681854bf5f7214a2fe95978))
 - Split DashboardPieceButton label into multiple lines ([1630fe4](https://github.com/nrkno/sofie-core/commit/1630fe45bde36df6d5950f74adf12fea4fc895f9))
@@ -4696,7 +4696,7 @@ All notable changes to this project will be documented in this file. See [standa
 - change how we parameters are fed into function, in order to avoid garbage collection ([df89ecc](https://github.com/nrkno/tv-automation-server-core/commit/df89eccdd364cf48b5fe39d8d436354a4cca7c25))
 - Cherry-picked configurable poisonkey. ([ec60933](https://github.com/nrkno/tv-automation-server-core/commit/ec60933c91ecd0ae23fc27331c990423dc6c65d1))
 - Cherry-picked Sorensen preventDefaultDown option. ([b90f1b3](https://github.com/nrkno/tv-automation-server-core/commit/b90f1b3fa168b6d9ee72eac4a947fa5dc79fbbf3))
-- clarify featching of PartInstances ([89cabed](https://github.com/nrkno/tv-automation-server-core/commit/89cabed7c0a4ca52fe13064025bd614c84370f0a))
+- clarify fetching of PartInstances ([89cabed](https://github.com/nrkno/tv-automation-server-core/commit/89cabed7c0a4ca52fe13064025bd614c84370f0a))
 - convert Timeline collection on cache to be a single object, as it uses StudioId as id ([4931046](https://github.com/nrkno/tv-automation-server-core/commit/49310467580c62d9663eea5e7d1234b4fc873e8c))
 - expose versionExtended (git hash) in package.json on CI build ([#711](https://github.com/nrkno/tv-automation-server-core/issues/711)) ([ee12285](https://github.com/nrkno/tv-automation-server-core/commit/ee12285e0fad7103b51cfabc7015f35829509009))
 - hide keyboardPreview settings behind a feature flag. ([a48ad31](https://github.com/nrkno/tv-automation-server-core/commit/a48ad3109566f25f161be5ad3195ce039fa1a589))
@@ -5340,7 +5340,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Add missing settings ([99296e4](https://github.com/nrkno/tv-automation-server-core/commit/99296e403bffe29ac0c7c9a9d2f6b24807ee96d3))
 - Add Numpad keyboard layout ([43d5e4f](https://github.com/nrkno/tv-automation-server-core/commit/43d5e4f9485332ba02f4f9e3c7ecf0f7357b37c0))
 - add options for TSR-vizMSE device ([61220ba](https://github.com/nrkno/tv-automation-server-core/commit/61220bab39b5874b71a0a6e28c5363f2227f04a7))
-- Add property Piece.definitelyEnded to be used to easilly filter out old and cropped pieces. ([a695d71](https://github.com/nrkno/tv-automation-server-core/commit/a695d71b824894ba9621e7b97a2eca176b51cdad))
+- Add property Piece.definitelyEnded to be used to easily filter out old and cropped pieces. ([a695d71](https://github.com/nrkno/tv-automation-server-core/commit/a695d71b824894ba9621e7b97a2eca176b51cdad))
 - Add spacing to Rundown List table header ([8b11d6c](https://github.com/nrkno/tv-automation-server-core/commit/8b11d6cb95472895c1914e08a7dc32c0f6bfd41d))
 - Add startedPlayback to dashboard status query ([37335e4](https://github.com/nrkno/tv-automation-server-core/commit/37335e4257b81a0c38169702773857f07a69719c))
 - Add uniquenessId to adlib piece ([50f30a8](https://github.com/nrkno/tv-automation-server-core/commit/50f30a841dfca6211771de2e9b0895b0f62761cc))
@@ -5457,7 +5457,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **dashboard status:** use userDuration.end for infinites fallback ([cbddb04](https://github.com/nrkno/tv-automation-server-core/commit/cbddb04e302dc18dbf5105c115ceb5a43ca9eb7e))
 - **dashboard:** always trigger adlib if clearKeyaboardHotkey is not set ([b8fd6fb](https://github.com/nrkno/tv-automation-server-core/commit/b8fd6fbba63161e51e127ed2470623f89a8ccbf0))
 - DashboardPieceButton label in offtubes ([3727186](https://github.com/nrkno/tv-automation-server-core/commit/37271867f75fb34605373664796a76272290a3c5))
-- Defualt -> Default ([1eea3ea](https://github.com/nrkno/tv-automation-server-core/commit/1eea3eaed0fe40548324826435550d49eaaa9604))
+- Default -> Default ([1eea3ea](https://github.com/nrkno/tv-automation-server-core/commit/1eea3eaed0fe40548324826435550d49eaaa9604))
 - delay scroll to part after take so that we don't lose follow live line ([865139c](https://github.com/nrkno/tv-automation-server-core/commit/865139c2f816e7bf4e5ed5a425692b5c35d6ac00))
 - Dependency versions ([ff1920d](https://github.com/nrkno/tv-automation-server-core/commit/ff1920d67bf35012fab19676a7faa30dceb0e162))
 - disable browser context menu in standalone shelf ([75a8b14](https://github.com/nrkno/tv-automation-server-core/commit/75a8b140f5fb5c7df58de7179ca957f3d7ec97d3))
@@ -5813,7 +5813,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Sisyfos mapping types ([23fca29](https://github.com/nrkno/tv-automation-server-core/commit/23fca29b7c27c0f746252636e3a4fbb8ffdbb745))
 - snapshot import failing if collection was missing ([721134c](https://github.com/nrkno/tv-automation-server-core/commit/721134c1cfafd1698befaa02115bc36e776e68de))
 - some keys in the AHK Keyboard Map ([31e2f23](https://github.com/nrkno/tv-automation-server-core/commit/31e2f2393f29cf80f5c543bdb42fb240817b4bc9))
-- some virtual infinites would not propogate properly. onRundownEnd infinites from the same segment would not propogate. ui resolving future parts incorrectly ([58f3b38](https://github.com/nrkno/tv-automation-server-core/commit/58f3b384152f44f61021554a7d0ed3e8a614db4b))
+- some virtual infinites would not propagate properly. onRundownEnd infinites from the same segment would not propagate. ui resolving future parts incorrectly ([58f3b38](https://github.com/nrkno/tv-automation-server-core/commit/58f3b384152f44f61021554a7d0ed3e8a614db4b))
 - Sort adlibs and actions by rank for display ([f2f5be3](https://github.com/nrkno/tv-automation-server-core/commit/f2f5be328c36c9618ed7dc8dde4c42ea4903ca18))
 - Sort adlibs as last step ([2192224](https://github.com/nrkno/tv-automation-server-core/commit/21922243c6715e9fc681854bf5f7214a2fe95978))
 - Split DashboardPieceButton label into multiple lines ([1630fe4](https://github.com/nrkno/tv-automation-server-core/commit/1630fe45bde36df6d5950f74adf12fea4fc895f9))
@@ -5922,7 +5922,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **docs:** add Ctrl+K hotkey for jumping to search text box ([1d16c1e](https://github.com/nrkno/tv-automation-server-core/commit/1d16c1e3d57a0cebfd10c962b3816ba558bb9976))
 - meteor 2.7. reenable meteor apm ([e989244](https://github.com/nrkno/tv-automation-server-core/commit/e98924407a3f0b791f48b852b9ef09902a90280d))
 - move more logic into workers ([#718](https://github.com/nrkno/tv-automation-server-core/issues/718)) ([3376826](https://github.com/nrkno/tv-automation-server-core/commit/3376826e4029985e3975d6d5a85f9ab1f06a9dd4))
-- **Prompter:** Suppoert for multiple Joycon controller for prompter ([f915320](https://github.com/nrkno/tv-automation-server-core/commit/f915320d1c7f78dd4692140dbcf46fb5a289d16b))
+- **Prompter:** Support for multiple Joycon controller for prompter ([f915320](https://github.com/nrkno/tv-automation-server-core/commit/f915320d1c7f78dd4692140dbcf46fb5a289d16b))
 - use Sorensen prevent default down option and configurable poison key ([1311e3e](https://github.com/nrkno/tv-automation-server-core/commit/1311e3e4a15c955293123da758492d594960e159))
 
 ### Bug Fixes
@@ -5960,8 +5960,8 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Features
 
-- add machine id to notifcations report ([f47f0ca](https://github.com/nrkno/tv-automation-server-core/commit/f47f0cadc487a8f64107a6eee9ffa3c7f9e613e7))
-- option to log user notifcations in core ([46a14a4](https://github.com/nrkno/tv-automation-server-core/commit/46a14a4508b5f98274c08ebf2face9356173b662))
+- add machine id to notifications report ([f47f0ca](https://github.com/nrkno/tv-automation-server-core/commit/f47f0cadc487a8f64107a6eee9ffa3c7f9e613e7))
+- option to log user notifications in core ([46a14a4](https://github.com/nrkno/tv-automation-server-core/commit/46a14a4508b5f98274c08ebf2face9356173b662))
 - piece postroll ([674d7c5](https://github.com/nrkno/tv-automation-server-core/commit/674d7c588998e59a794b1da64276f73637ae8556))
 - store user event timestamps ([#716](https://github.com/nrkno/tv-automation-server-core/issues/716)) ([8a45898](https://github.com/nrkno/tv-automation-server-core/commit/8a45898b1f5a666128e0b8ca516524d818de3a1d))
 - **UserLog:** highlight linked log entry ([4e9407d](https://github.com/nrkno/tv-automation-server-core/commit/4e9407d4ec840f2a4ece43fa6063a4ff38b98bd0))
@@ -6028,7 +6028,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Features
 
-- **Prompter:** Suppoert for multiple Joycon controller for prompter ([f915320](https://github.com/nrkno/sofie-core/commit/f915320d1c7f78dd4692140dbcf46fb5a289d16b))
+- **Prompter:** Support for multiple Joycon controller for prompter ([f915320](https://github.com/nrkno/sofie-core/commit/f915320d1c7f78dd4692140dbcf46fb5a289d16b))
 
 ### Bug Fixes
 
@@ -6066,8 +6066,8 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Features
 
-- add machine id to notifcations report ([f47f0ca](https://github.com/nrkno/sofie-core/commit/f47f0cadc487a8f64107a6eee9ffa3c7f9e613e7))
-- option to log user notifcations in core ([46a14a4](https://github.com/nrkno/sofie-core/commit/46a14a4508b5f98274c08ebf2face9356173b662))
+- add machine id to notifications report ([f47f0ca](https://github.com/nrkno/sofie-core/commit/f47f0cadc487a8f64107a6eee9ffa3c7f9e613e7))
+- option to log user notifications in core ([46a14a4](https://github.com/nrkno/sofie-core/commit/46a14a4508b5f98274c08ebf2face9356173b662))
 
 ### Bug Fixes
 
@@ -6117,7 +6117,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 - add "allVariants" property to IBlueprintActionManifest and showStyleBaseId to AdlibActions/AdlibPiece ([2a8db5a](https://github.com/nrkno/sofie-core/commit/2a8db5a83c6a8c3a21c8a0935092e67135caae12))
 - add and use uniquenessId for bucket adlibs ([ff04c1b](https://github.com/nrkno/sofie-core/commit/ff04c1b07c3f9ec7e118fdd9e1f4ca6c25a61594))
-- better handling of non-unqiue externalId for pieces and other types ([#685](https://github.com/nrkno/sofie-core/issues/685)) ([02a891e](https://github.com/nrkno/sofie-core/commit/02a891e66dd8c9aa01b2ceb1634ac425ab18217d))
+- better handling of non-unique externalId for pieces and other types ([#685](https://github.com/nrkno/sofie-core/issues/685)) ([02a891e](https://github.com/nrkno/sofie-core/commit/02a891e66dd8c9aa01b2ceb1634ac425ab18217d))
 - MigrationContextWithTriggeredActions exposes getTriggeredActionsId ([7bba681](https://github.com/nrkno/sofie-core/commit/7bba681a7eb628a8d476f6802e79c77153d69239))
 - no default tabs when using Shelf Layout ([#684](https://github.com/nrkno/sofie-core/issues/684)) ([ba3a75f](https://github.com/nrkno/sofie-core/commit/ba3a75f55254e9f2df6732e0820eccdd78fb7164))
 
@@ -6302,7 +6302,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Features
 
-- better handling of non-unqiue externalId for pieces and other types ([#685](https://github.com/nrkno/sofie-core/issues/685)) ([02a891e](https://github.com/nrkno/sofie-core/commit/02a891e66dd8c9aa01b2ceb1634ac425ab18217d))
+- better handling of non-unique externalId for pieces and other types ([#685](https://github.com/nrkno/sofie-core/issues/685)) ([02a891e](https://github.com/nrkno/sofie-core/commit/02a891e66dd8c9aa01b2ceb1634ac425ab18217d))
 - First-class Sofie PWA ([#670](https://github.com/nrkno/sofie-core/issues/670)) ([c413d8a](https://github.com/nrkno/sofie-core/commit/c413d8ae8a5e70a4c5b0cd4fd6924900b69f6f4c))
 - no default tabs when using Shelf Layout ([#684](https://github.com/nrkno/sofie-core/issues/684)) ([ba3a75f](https://github.com/nrkno/sofie-core/commit/ba3a75f55254e9f2df6732e0820eccdd78fb7164))
 - **Timeline+Storyboard:** Invalid Parts show hover inspector with invalidReason ([#679](https://github.com/nrkno/sofie-core/issues/679)) ([43ba126](https://github.com/nrkno/sofie-core/commit/43ba126b986d3c185212d49433739804350cc084))
@@ -6794,7 +6794,7 @@ All notable changes to this project will be documented in this file. See [standa
 - make pieceIds generate without relying on the segmentId, so that they are stable when parts are moved between segments ([#626](https://github.com/nrkno/tv-automation-server-core/issues/626)) ([1a36ec5](https://github.com/nrkno/tv-automation-server-core/commit/1a36ec5672ccb7a04ed05434f6f00c363e3fd214))
 - make some types stricter ([0b53dea](https://github.com/nrkno/tv-automation-server-core/commit/0b53deab879f70dcecf1d2cfd260a8b3b6907d5a))
 - migration collection cleanup removing all system TriggeredActions ([d304490](https://github.com/nrkno/tv-automation-server-core/commit/d3044907f1c3d4e351fe58308c785a6679393b80))
-- minor fix inoptimizedObserver, for direct execution when lazynessDuration is 0 ([757aef6](https://github.com/nrkno/tv-automation-server-core/commit/757aef6e1679e9370229850d53966bc837509255))
+- minor fix inoptimizedObserver, for direct execution when lazinessDuration is 0 ([757aef6](https://github.com/nrkno/tv-automation-server-core/commit/757aef6e1679e9370229850d53966bc837509255))
 - minor fixes after feedback in PR ([386b8a7](https://github.com/nrkno/tv-automation-server-core/commit/386b8a75ee1ffe041919e1a952779cd5e68ff004))
 - Missing media notifications shown while media subscription is not yet ready ([d290727](https://github.com/nrkno/tv-automation-server-core/commit/d290727f641e71a39f071e79be0af9aa5ac0a259))
 - more usable results from cleanupOldDataInner() and add this check as a last step when doing migrations ([bb9cbca](https://github.com/nrkno/tv-automation-server-core/commit/bb9cbcad90567ce80b6ce934a9bcf843faa1c18a))
@@ -6816,7 +6816,7 @@ All notable changes to this project will be documented in this file. See [standa
 - sort Adlibs on part.\_rank, then on piece.\_rank ([22eb916](https://github.com/nrkno/tv-automation-server-core/commit/22eb9162e9a76f2f73a817a4a136947f385bb4c4))
 - trigger fast-track observer inside timelineTriggerTimeInner ([1f8f821](https://github.com/nrkno/tv-automation-server-core/commit/1f8f82185db3afa99bb13a761d83960200bc847f))
 - update code-preset, lints only changed files ([10fb7dc](https://github.com/nrkno/tv-automation-server-core/commit/10fb7dc9e024ffebd67c4accdf82d6bb0369893e))
-- Updated documenation link. ([7034ed7](https://github.com/nrkno/tv-automation-server-core/commit/7034ed7a2fcf9c1b131d4f4588a4af4416902e6f))
+- Updated documentation link. ([7034ed7](https://github.com/nrkno/tv-automation-server-core/commit/7034ed7a2fcf9c1b131d4f4588a4af4416902e6f))
 - use correct filter when fetching data ([0bc1686](https://github.com/nrkno/tv-automation-server-core/commit/0bc1686cc51fb25f44f80120a0083ac64c9ae248))
 - use StudioId instead of StudioLight where possible ([46ae1fe](https://github.com/nrkno/tv-automation-server-core/commit/46ae1fe758dc98d9b9f0cef2aed2ce77c9637064))
 - wrap all calls to blueprints in try/catch-blocks ([82dc985](https://github.com/nrkno/tv-automation-server-core/commit/82dc985863baeb82f67ec683aecd2a6dcf72490f))
@@ -6869,7 +6869,7 @@ All notable changes to this project will be documented in this file. See [standa
 - make pieceIds generate without relying on the segmentId, so that they are stable when parts are moved between segments ([#626](https://github.com/nrkno/tv-automation-server-core/issues/626)) ([1a36ec5](https://github.com/nrkno/tv-automation-server-core/commit/1a36ec5672ccb7a04ed05434f6f00c363e3fd214))
 - make some types stricter ([0b53dea](https://github.com/nrkno/tv-automation-server-core/commit/0b53deab879f70dcecf1d2cfd260a8b3b6907d5a))
 - migration collection cleanup removing all system TriggeredActions ([d304490](https://github.com/nrkno/tv-automation-server-core/commit/d3044907f1c3d4e351fe58308c785a6679393b80))
-- minor fix inoptimizedObserver, for direct execution when lazynessDuration is 0 ([757aef6](https://github.com/nrkno/tv-automation-server-core/commit/757aef6e1679e9370229850d53966bc837509255))
+- minor fix inoptimizedObserver, for direct execution when lazinessDuration is 0 ([757aef6](https://github.com/nrkno/tv-automation-server-core/commit/757aef6e1679e9370229850d53966bc837509255))
 - minor fixes after feedback in PR ([386b8a7](https://github.com/nrkno/tv-automation-server-core/commit/386b8a75ee1ffe041919e1a952779cd5e68ff004))
 - more usable results from cleanupOldDataInner() and add this check as a last step when doing migrations ([bb9cbca](https://github.com/nrkno/tv-automation-server-core/commit/bb9cbcad90567ce80b6ce934a9bcf843faa1c18a))
 - npm publish tag for prerelease git tags ([94e132d](https://github.com/nrkno/tv-automation-server-core/commit/94e132d2b56b14ac6c3874a7f6f6b7ccb7542f36))
@@ -6943,7 +6943,7 @@ All notable changes to this project will be documented in this file. See [standa
 - add sisyfos channel by label mapping 6e6d997
 - allow setting a fileflow URL for Quantel Accessors 22c6af5
 - cache local storage UI flags ([#587](undefined/undefined/undefined/issues/587)) df4edae
-- don't track preceeding Parts for labels, just skip labels if not statring in a given Part 5b8da8f
+- don't track preceeding Parts for labels, just skip labels if not starting in a given Part 5b8da8f
 - ignore media statuses 76f8f01
 - implement notInVision 3d30dba
 - improve hoverscrub inspector for Pilot items e22da7d
@@ -6961,16 +6961,16 @@ All notable changes to this project will be documented in this file. See [standa
 
 - "reset rundown" Triggered Action doesn't cause the Rundown View to scroll to top, like it used to with hotkeys c417989
 - 0 freeze frame detected within the clip (apply 75c042705454c850605c28cc3cffd64a53cac884 for package-manager 6aea2fc
-- add bucketId property to ExpectedPackages, so that they are easilly removed when removing a Bucket ad9f948
+- add bucketId property to ExpectedPackages, so that they are easily removed when removing a Bucket ad9f948
 - add option on each device to debug-log that separately bc113b6
 - add priority & prevStatusReasons into package workStatuses de73fd1
 - add studioId to MediaObjects queries to ensure that db-indexes are used in MongoDB c6080f6
-- add try-catch blacks to catch possible GUI erros ab7536a
+- add try-catch blacks to catch possible GUI errors ab7536a
 - adlibs with `currentPieceTags` being an empty array always shown as on-air 91bac55
-- allways show left label on live parts of super-infinite pieces d90511d
+- always show left label on live parts of super-infinite pieces d90511d
 - bug in snapshot restore f646ce3
 - clean out bucket-adlib-actions upon emptying of bucket 428b1fc
-- don't emit slowFullfilledCommands as errors 7b9b2ef
+- don't emit slowFulfilledCommands as errors 7b9b2ef
 - double-click to take adlib not detecting pieces having stopped properly ab53cfa
 - enable scrolling of panels in standalone shelf views f99c88e
 - filtersTitle swapped for dashboard and rundown layouts ([#595](undefined/undefined/undefined/issues/595)) 13885d2
@@ -7949,7 +7949,7 @@ All notable changes to this project will be documented in this file. See [standa
 ### Bug Fixes
 
 - Failing tests ([a786d24](https://github.com/nrkno/tv-automation-server-core/commit/a786d242b87ca2b3bafa64761691ed07e44d0d8b))
-- pieces not being propogated when hold is started ([ee44a44](https://github.com/nrkno/tv-automation-server-core/commit/ee44a44b616d501bd38b5f66495730d07dcec64f))
+- pieces not being propagated when hold is started ([ee44a44](https://github.com/nrkno/tv-automation-server-core/commit/ee44a44b616d501bd38b5f66495730d07dcec64f))
 - **TimelineGrid:** timeline labels are non-monotonous under some conditions ([e1381de](https://github.com/nrkno/tv-automation-server-core/commit/e1381defa8162069e5c2efcb492b6eb873f306d5))
 - [object Object] in UI ([5d5c097](https://github.com/nrkno/tv-automation-server-core/commit/5d5c09770c67d1704e4a960a0703871afc0c72e7))
 - allow deleting orphaned rundowns if delete was requested by the user (and not from mos) ([45b18c9](https://github.com/nrkno/tv-automation-server-core/commit/45b18c92c614d71a56179e894eae323f5317a3a3))
@@ -8005,7 +8005,7 @@ All notable changes to this project will be documented in this file. See [standa
 - package-management: GUI: add support for expectedPackages, for media info, previews, thumbnails etc.. (wip) ([6ac6ad8](https://github.com/nrkno/tv-automation-server-core/commit/6ac6ad89111b8d89f16e301e989a315e26261bc0))
 - packageManager: modify publication to emit expectedPackages from next & current PartInstance as well ([3444a3d](https://github.com/nrkno/tv-automation-server-core/commit/3444a3d8afd9edf80c27061e26e8d05dfcb4d842))
 - performance tweaks ([22c3aaf](https://github.com/nrkno/tv-automation-server-core/commit/22c3aaf786614d486770b0a3b0b746045397b5d8))
-- ReactiveStore class, to be used as a performance enhancer on the clien-side. ([6366d10](https://github.com/nrkno/tv-automation-server-core/commit/6366d108aead80d91c5a94ba65955512c6feb8e8))
+- ReactiveStore class, to be used as a performance enhancer on the client-side. ([6366d10](https://github.com/nrkno/tv-automation-server-core/commit/6366d108aead80d91c5a94ba65955512c6feb8e8))
 - refactor playout to use new lockFunction and cache flow ([acf14d1](https://github.com/nrkno/tv-automation-server-core/commit/acf14d14be8e2fa9a5ca8b33d18b0f8b4ec452bf))
 - remove AsRunLog collection ([#477](https://github.com/nrkno/tv-automation-server-core/issues/477)) ([1826f79](https://github.com/nrkno/tv-automation-server-core/commit/1826f79bb12732006cb174f8a7e915560b755a31))
 - reset segments upon leaving ([#473](https://github.com/nrkno/tv-automation-server-core/issues/473)) ([f854774](https://github.com/nrkno/tv-automation-server-core/commit/f8547740ba32c53d3f9cd3532bc0ef05f3e50b5c))
@@ -8021,7 +8021,7 @@ All notable changes to this project will be documented in this file. See [standa
 - add delay & batch update functionality to ReactiveStore ([678cfad](https://github.com/nrkno/tv-automation-server-core/commit/678cfad172c8552c67b7920d1c3cc8fc99a45ddb))
 - add expectedPackages to snapshot ([220465a](https://github.com/nrkno/tv-automation-server-core/commit/220465a28939fb890dfd7191ca0e79b6867bde28))
 - add missing migrations ([d98827c](https://github.com/nrkno/tv-automation-server-core/commit/d98827c270e1d8d7975ad82ce9a3e28d5145800c))
-- add optional parameter for lazynessDuration in optimizedObserver ([1b7bdcd](https://github.com/nrkno/tv-automation-server-core/commit/1b7bdcdecbafe787505113b82326bcd2dfa910f4))
+- add optional parameter for lazinessDuration in optimizedObserver ([1b7bdcd](https://github.com/nrkno/tv-automation-server-core/commit/1b7bdcdecbafe787505113b82326bcd2dfa910f4))
 - adLib actions in dashboard panels were not correctly filtered according to live segment ([acc6c15](https://github.com/nrkno/tv-automation-server-core/commit/acc6c15166def5f3dc8f0a19b8057921ab842bcc))
 - blueprint-integration: add expectedPackages properties to Adlib actions ([b45df41](https://github.com/nrkno/tv-automation-server-core/commit/b45df419140aa3c4280cc8832368b69ea2790085))
 - bug fix in publication ([04244de](https://github.com/nrkno/tv-automation-server-core/commit/04244de20d4a129fbd77d52172d50a1cf6b93ab0))
@@ -8206,7 +8206,7 @@ All notable changes to this project will be documented in this file. See [standa
 - package-management: GUI: add support for expectedPackages, for media info, previews, thumbnails etc.. (wip) ([6ac6ad8](https://github.com/nrkno/tv-automation-server-core/commit/6ac6ad89111b8d89f16e301e989a315e26261bc0))
 - packageManager: modify publication to emit expectedPackages from next & current PartInstance as well ([3444a3d](https://github.com/nrkno/tv-automation-server-core/commit/3444a3d8afd9edf80c27061e26e8d05dfcb4d842))
 - performance tweaks ([22c3aaf](https://github.com/nrkno/tv-automation-server-core/commit/22c3aaf786614d486770b0a3b0b746045397b5d8))
-- ReactiveStore class, to be used as a performance enhancer on the clien-side. ([6366d10](https://github.com/nrkno/tv-automation-server-core/commit/6366d108aead80d91c5a94ba65955512c6feb8e8))
+- ReactiveStore class, to be used as a performance enhancer on the client-side. ([6366d10](https://github.com/nrkno/tv-automation-server-core/commit/6366d108aead80d91c5a94ba65955512c6feb8e8))
 - refactor playout to use new lockFunction and cache flow ([acf14d1](https://github.com/nrkno/tv-automation-server-core/commit/acf14d14be8e2fa9a5ca8b33d18b0f8b4ec452bf))
 - remove getIngestDataFor\* methods from AsRunEventContext ([97e5632](https://github.com/nrkno/tv-automation-server-core/commit/97e563250056a011e6c94ab81fa81fc041b8bcc1))
 - remove or reset orphaned once they are no longer current or nexted ([8823fe4](https://github.com/nrkno/tv-automation-server-core/commit/8823fe460b34443e91f538ef3490ed5b5fecfc5e))
@@ -8223,7 +8223,7 @@ All notable changes to this project will be documented in this file. See [standa
 - add expectedPackages to snapshot ([220465a](https://github.com/nrkno/tv-automation-server-core/commit/220465a28939fb890dfd7191ca0e79b6867bde28))
 - add missing contexts to blueprint api methods [publish] ([#454](https://github.com/nrkno/tv-automation-server-core/issues/454)) ([2cef36c](https://github.com/nrkno/tv-automation-server-core/commit/2cef36c3f2e70ee722b5b890f5619d36fb7fa36d))
 - add missing migrations ([d98827c](https://github.com/nrkno/tv-automation-server-core/commit/d98827c270e1d8d7975ad82ce9a3e28d5145800c))
-- add optional parameter for lazynessDuration in optimizedObserver ([1b7bdcd](https://github.com/nrkno/tv-automation-server-core/commit/1b7bdcdecbafe787505113b82326bcd2dfa910f4))
+- add optional parameter for lazinessDuration in optimizedObserver ([1b7bdcd](https://github.com/nrkno/tv-automation-server-core/commit/1b7bdcdecbafe787505113b82326bcd2dfa910f4))
 - better notifications for unavailable clips ([2200fd7](https://github.com/nrkno/tv-automation-server-core/commit/2200fd723a666a38c855ae623fda6c9be5b16fcf))
 - blueprint-integration: add expectedPackages properties to Adlib actions ([b45df41](https://github.com/nrkno/tv-automation-server-core/commit/b45df419140aa3c4280cc8832368b69ea2790085))
 - bug fix in publication ([04244de](https://github.com/nrkno/tv-automation-server-core/commit/04244de20d4a129fbd77d52172d50a1cf6b93ab0))
@@ -8311,7 +8311,7 @@ All notable changes to this project will be documented in this file. See [standa
 - package-management: GUI: add support for expectedPackages, for media info, previews, thumbnails etc.. (wip) ([6ac6ad8](https://github.com/nrkno/tv-automation-server-core/commit/6ac6ad89111b8d89f16e301e989a315e26261bc0))
 - packageManager: modify publication to emit expectedPackages from next & current PartInstance as well ([3444a3d](https://github.com/nrkno/tv-automation-server-core/commit/3444a3d8afd9edf80c27061e26e8d05dfcb4d842))
 - performance tweaks ([22c3aaf](https://github.com/nrkno/tv-automation-server-core/commit/22c3aaf786614d486770b0a3b0b746045397b5d8))
-- ReactiveStore class, to be used as a performance enhancer on the clien-side. ([6366d10](https://github.com/nrkno/tv-automation-server-core/commit/6366d108aead80d91c5a94ba65955512c6feb8e8))
+- ReactiveStore class, to be used as a performance enhancer on the client-side. ([6366d10](https://github.com/nrkno/tv-automation-server-core/commit/6366d108aead80d91c5a94ba65955512c6feb8e8))
 - refactor playout to use new lockFunction and cache flow ([acf14d1](https://github.com/nrkno/tv-automation-server-core/commit/acf14d14be8e2fa9a5ca8b33d18b0f8b4ec452bf))
 - remove getIngestDataFor\* methods from AsRunEventContext ([97e5632](https://github.com/nrkno/tv-automation-server-core/commit/97e563250056a011e6c94ab81fa81fc041b8bcc1))
 - remove or reset orphaned once they are no longer current or nexted ([8823fe4](https://github.com/nrkno/tv-automation-server-core/commit/8823fe460b34443e91f538ef3490ed5b5fecfc5e))
@@ -8328,7 +8328,7 @@ All notable changes to this project will be documented in this file. See [standa
 - add expectedPackages to snapshot ([220465a](https://github.com/nrkno/tv-automation-server-core/commit/220465a28939fb890dfd7191ca0e79b6867bde28))
 - add missing contexts to blueprint api methods [publish] ([#454](https://github.com/nrkno/tv-automation-server-core/issues/454)) ([2cef36c](https://github.com/nrkno/tv-automation-server-core/commit/2cef36c3f2e70ee722b5b890f5619d36fb7fa36d))
 - add missing migrations ([d98827c](https://github.com/nrkno/tv-automation-server-core/commit/d98827c270e1d8d7975ad82ce9a3e28d5145800c))
-- add optional parameter for lazynessDuration in optimizedObserver ([1b7bdcd](https://github.com/nrkno/tv-automation-server-core/commit/1b7bdcdecbafe787505113b82326bcd2dfa910f4))
+- add optional parameter for lazinessDuration in optimizedObserver ([1b7bdcd](https://github.com/nrkno/tv-automation-server-core/commit/1b7bdcdecbafe787505113b82326bcd2dfa910f4))
 - better notifications for unavailable clips ([2200fd7](https://github.com/nrkno/tv-automation-server-core/commit/2200fd723a666a38c855ae623fda6c9be5b16fcf))
 - blueprint-integration: add expectedPackages properties to Adlib actions ([b45df41](https://github.com/nrkno/tv-automation-server-core/commit/b45df419140aa3c4280cc8832368b69ea2790085))
 - bug fix in publication ([04244de](https://github.com/nrkno/tv-automation-server-core/commit/04244de20d4a129fbd77d52172d50a1cf6b93ab0))
@@ -8421,7 +8421,7 @@ All notable changes to this project will be documented in this file. See [standa
 - bring back context argument for ShowStyleBlueprintManifest.getEndStateForPart ([903c6ab](https://github.com/nrkno/tv-automation-server-core/commit/903c6ab49f495fea7f25287826f854b96b3419a1))
 - change back to non user contexts for ShowStyleBlueprintManifest.onTimelineGenerate and onAsRunEvent ([cfc0a1b](https://github.com/nrkno/tv-automation-server-core/commit/cfc0a1b40d23e59cfa3d2965f1480893c59f2204))
 - clarify all activation actions to be either rehearsal or on-air ([bed3579](https://github.com/nrkno/tv-automation-server-core/commit/bed3579e38d20f716218260c6980f609d9c52890))
-- do not show the spinner after the inital subscriptions were fulfilled ([822d82a](https://github.com/nrkno/tv-automation-server-core/commit/822d82aa74cb35abb878c5a9df3e9efc46f00b67))
+- do not show the spinner after the initial subscriptions were fulfilled ([822d82a](https://github.com/nrkno/tv-automation-server-core/commit/822d82aa74cb35abb878c5a9df3e9efc46f00b67))
 - enable looping playlists ([be26d22](https://github.com/nrkno/tv-automation-server-core/commit/be26d22d15045a8f634911eb0db5b3e6caba1b3e))
 - ensure that header badge is white ([2653ef5](https://github.com/nrkno/tv-automation-server-core/commit/2653ef5c7c8881305612ec089d3b6845e04e1af4))
 - expectedMediaItems should use adlibs from the cache, not the db ([e638a4f](https://github.com/nrkno/tv-automation-server-core/commit/e638a4f7d0d63d4d28dba848bbd0a8c0b6ab7c8c))
@@ -8440,7 +8440,7 @@ All notable changes to this project will be documented in this file. See [standa
 - pieces for display should be sorted based on priority ([cc89b79](https://github.com/nrkno/tv-automation-server-core/commit/cc89b79943aab786427b2e22065e976f3d2653a6))
 - regenerateRundown not using syncFunction ([8d01e41](https://github.com/nrkno/tv-automation-server-core/commit/8d01e41988f327b624769b03821a177df0a4d0f3))
 - reject ingest updates when rundown or segment are orphaned ([4240656](https://github.com/nrkno/tv-automation-server-core/commit/424065697f412c9f089b3f9bd9637712144a818d))
-- remove debug log statements used under developement, commented parts of the code that aren't immediately intuitive ([181b31c](https://github.com/nrkno/tv-automation-server-core/commit/181b31ca608845630646cb1270e70d267d451b60))
+- remove debug log statements used under development, commented parts of the code that aren't immediately intuitive ([181b31c](https://github.com/nrkno/tv-automation-server-core/commit/181b31ca608845630646cb1270e70d267d451b60))
 - remove unused context argument from StudioBlueprintManifest.getRundownPlaylistInfo, StudioBlueprintManifest.preprocessConfig and ShowStyleBlueprintManifest.getShowStyleVariantId ([0e30711](https://github.com/nrkno/tv-automation-server-core/commit/0e30711831ce11366be5ea1fecb595c3279805ac))
 - remove unused import (linting error) ([970c8ea](https://github.com/nrkno/tv-automation-server-core/commit/970c8ea155fb6229c02c410afe0da3c8f78fdfdd))
 - reordering rundowns in lobby would result in incorrect calls to backend ([96d1597](https://github.com/nrkno/tv-automation-server-core/commit/96d1597d8d00a410aaef815b31f1a2960f4abe10))
@@ -8747,7 +8747,7 @@ All notable changes to this project will be documented in this file. See [standa
 - unsynced rundown backgrounds in rundown lobby less appaling ([44a1602](https://github.com/nrkno/tv-automation-server-core/commit/44a16025300ca0cbfbf1bd97f090ab6d857301a1))
 - update test failing after renaming method in c966be162d503bff77909174f980eb8f82169876 ([e872ded](https://github.com/nrkno/tv-automation-server-core/commit/e872dedbd3296a0458332e9090354c7885c94066))
 - wire up restoreRundownOrder to userAction ([40e0a05](https://github.com/nrkno/tv-automation-server-core/commit/40e0a050cb4525c5638ec0cc9f8f8e060291df70))
-- **screeen saver:** check both vector components ([96dc780](https://github.com/nrkno/tv-automation-server-core/commit/96dc7800fae2eee64854ebb192e2841a5f494c2d))
+- **screen saver:** check both vector components ([96dc780](https://github.com/nrkno/tv-automation-server-core/commit/96dc7800fae2eee64854ebb192e2841a5f494c2d))
 - use updated icons for RundownListItem ([d38b94d](https://github.com/nrkno/tv-automation-server-core/commit/d38b94d66c33bcf54c9253fd6b170c3e8edb0222))
 
 ## [1.15.0-in-testing-R27.1](https://github.com/nrkno/tv-automation-server-core/compare/v1.14.1...v1.15.0-in-testing-R27.1) (2020-11-16)
@@ -8815,7 +8815,7 @@ All notable changes to this project will be documented in this file. See [standa
 - unsynced rundown backgrounds in rundown lobby less appaling ([44a1602](https://github.com/nrkno/tv-automation-server-core/commit/44a16025300ca0cbfbf1bd97f090ab6d857301a1))
 - update test failing after renaming method in c966be162d503bff77909174f980eb8f82169876 ([e872ded](https://github.com/nrkno/tv-automation-server-core/commit/e872dedbd3296a0458332e9090354c7885c94066))
 - wire up restoreRundownOrder to userAction ([40e0a05](https://github.com/nrkno/tv-automation-server-core/commit/40e0a050cb4525c5638ec0cc9f8f8e060291df70))
-- **screeen saver:** check both vector components ([96dc780](https://github.com/nrkno/tv-automation-server-core/commit/96dc7800fae2eee64854ebb192e2841a5f494c2d))
+- **screen saver:** check both vector components ([96dc780](https://github.com/nrkno/tv-automation-server-core/commit/96dc7800fae2eee64854ebb192e2841a5f494c2d))
 - use updated icons for RundownListItem ([d38b94d](https://github.com/nrkno/tv-automation-server-core/commit/d38b94d66c33bcf54c9253fd6b170c3e8edb0222))
 
 ### [1.14.2](https://github.com/nrkno/tv-automation-server-core/compare/v1.14.1...v1.14.2) (2020-11-16)
@@ -9021,7 +9021,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Multiline config manifest entry + device manifest entry ([61dea23](https://github.com/nrkno/tv-automation-server-core/commit/61dea239497619a7237d5088b185d8bfe78016ba))
 - refactor methods from server/api/playout/infinites so that they can be used in the GUI ([84f27e6](https://github.com/nrkno/tv-automation-server-core/commit/84f27e6be1ca5d02698130b991c9fa7204534ef2))
 - remove some underscore use in often-used classes and methods to speed up GUI rendering ([715d82c](https://github.com/nrkno/tv-automation-server-core/commit/715d82c298de00632c780b13ee1311626421e861))
-- remove some unneccessary underscore use, subscribe to past infinites ([39806ae](https://github.com/nrkno/tv-automation-server-core/commit/39806ae66e852729e04cd5b2dd903465d41a3ca6))
+- remove some unnecessary underscore use, subscribe to past infinites ([39806ae](https://github.com/nrkno/tv-automation-server-core/commit/39806ae66e852729e04cd5b2dd903465d41a3ca6))
 - rewrite updatePartRanks to preserve the ingest rank of parts ([90f1e92](https://github.com/nrkno/tv-automation-server-core/commit/90f1e92d0c0ab197690ae1b9959c84de9e7d53bc))
 - routed mappings & routed timeline ([27ac53a](https://github.com/nrkno/tv-automation-server-core/commit/27ac53a2bae26e18bc8e5dfb40bd66d689ff740d))
 - solve some GUI typing issues with new infinites model ([54fff7b](https://github.com/nrkno/tv-automation-server-core/commit/54fff7bd16b228ac93928114b93cd098ca1f6c00))
@@ -9108,7 +9108,7 @@ All notable changes to this project will be documented in this file. See [standa
 - increase the timeout time for reloading Rundowns, in order to avoid timeouts. ([a3b5278](https://github.com/nrkno/tv-automation-server-core/commit/a3b527886da7aba74905777cb3bb1835d8cb9294))
 - increase the timeout time for reloading Rundowns, in order to avoid timeouts. ([afdc36a](https://github.com/nrkno/tv-automation-server-core/commit/afdc36ab33f5778d75fbf39c08332ad9a80f0a49))
 - infinite pieces not ending at the correct time ([b61d4a4](https://github.com/nrkno/tv-automation-server-core/commit/b61d4a4d54f0fb48e59a6030eeb1cfa46f4763b1))
-- infinite propogation with adlibs, and initial onEnd infinite adlibs ([ec1021b](https://github.com/nrkno/tv-automation-server-core/commit/ec1021b4961ed29adcb35672c7468daddff95f62))
+- infinite propagation with adlibs, and initial onEnd infinite adlibs ([ec1021b](https://github.com/nrkno/tv-automation-server-core/commit/ec1021b4961ed29adcb35672c7468daddff95f62))
 - infinites failing ([458a383](https://github.com/nrkno/tv-automation-server-core/commit/458a383eafd1b198f0c9c6be9f40a26951633fbf))
 - infinites pruning prioritizing the wrong pieces ([6c565f7](https://github.com/nrkno/tv-automation-server-core/commit/6c565f71570534ef8e53ab017beedaf8a19fc8d4))
 - ingest inserting a new next part would result in an empty part-instance ([cf65524](https://github.com/nrkno/tv-automation-server-core/commit/cf655244fc2876f9e62ee70357a1bb3d96b746f3))
@@ -9119,7 +9119,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Layout options display order ([58653bc](https://github.com/nrkno/tv-automation-server-core/commit/58653bc1c8dd97cb4fd1a4817b3cabe41713c7c9))
 - logging format when in dev ([710da05](https://github.com/nrkno/tv-automation-server-core/commit/710da05ac8d79d764f9fbbbefbfe1ecd72174823))
 - logging of metadata in dev-mode ([1472250](https://github.com/nrkno/tv-automation-server-core/commit/147225022022b0b112ee5b12d160b324893da0ac))
-- login fowards user to orginally requested page or lobby ([47a0201](https://github.com/nrkno/tv-automation-server-core/commit/47a02011630755ea4983e6b8529f9eb52c4af865))
+- login forwards user to originally requested page or lobby ([47a0201](https://github.com/nrkno/tv-automation-server-core/commit/47a02011630755ea4983e6b8529f9eb52c4af865))
 - lookahead not loading caspar clips with the in-transitions. definitelyEnded requires the parts to have an absolute time, otherwise the pruning is done off of estimates which can cause glitching ([37acdc7](https://github.com/nrkno/tv-automation-server-core/commit/37acdc7bcdae415f73a14503a4b3a9c9f7be9aff))
 - lookahead not running processAndPrunePieceInstanceTimings before using the pieceInstances ([0e3d333](https://github.com/nrkno/tv-automation-server-core/commit/0e3d333d316427d13679093e96ca9c0d733f2bd3))
 - Make dropdown button easier to click ([53b63a9](https://github.com/nrkno/tv-automation-server-core/commit/53b63a975184f7ebc99afa3e91d03acdbc6809b0))
@@ -9150,7 +9150,7 @@ All notable changes to this project will be documented in this file. See [standa
 - not generating lookahead for current part before it has started playback ([6aefdf5](https://github.com/nrkno/tv-automation-server-core/commit/6aefdf5c6a4292a3b643f574dae9e08af51d433c))
 - not generating lookahead for current part before it has started playback ([da89bdb](https://github.com/nrkno/tv-automation-server-core/commit/da89bdb24028d37e69a28bde8d08195b8bf6a543))
 - notifications scrolling ([aff59ed](https://github.com/nrkno/tv-automation-server-core/commit/aff59ed16583bac48ead61ba1b5333fcd142fb4e))
-- onChange adlibs not being propogated (partial fix) ([72c0849](https://github.com/nrkno/tv-automation-server-core/commit/72c08492aa4eda56ef2b093cb3b0684ab9292a08))
+- onChange adlibs not being propagated (partial fix) ([72c0849](https://github.com/nrkno/tv-automation-server-core/commit/72c08492aa4eda56ef2b093cb3b0684ab9292a08))
 - open NoraEditor from inspector would crash shelf ([cc3aa36](https://github.com/nrkno/tv-automation-server-core/commit/cc3aa3686a786d2510fdb78489788c0f6e345ede))
 - opening the Buckets context menu would throw an error in GUI console ([7216fc8](https://github.com/nrkno/tv-automation-server-core/commit/7216fc8b79ec2b2256efeb905362c8756036a5b5))
 - optimize DatabaseCache for when doing single-document lookups ([22dd98c](https://github.com/nrkno/tv-automation-server-core/commit/22dd98c1b6c7752a4416f6e7f5b50ae4b4df676b))
@@ -9190,7 +9190,7 @@ All notable changes to this project will be documented in this file. See [standa
 - return configs as unknown ([b7ec529](https://github.com/nrkno/tv-automation-server-core/commit/b7ec5291889a6fa11878a3d53eecedebe6dc9cf7))
 - revert change to syncFunctionInner callback. ([8be5707](https://github.com/nrkno/tv-automation-server-core/commit/8be57077d66f6b934408ee53859a8abdebcbdb8c)), closes [/github.com/nrkno/tv-automation-server-core/pull/262#discussion_r453453481](https://github.com/nrkno//github.com/nrkno/tv-automation-server-core/pull/262/issues/discussion_r453453481)
 - save the correct cache ([a88aa32](https://github.com/nrkno/tv-automation-server-core/commit/a88aa32da777c5df7a82b47713f7366d6b2dfe10))
-- scroll to part immediately, since no vertical scroll is probably neccessary ([3c0ae98](https://github.com/nrkno/tv-automation-server-core/commit/3c0ae987eee5e0b1d411230fb35659cb62f2282e))
+- scroll to part immediately, since no vertical scroll is probably necessary ([3c0ae98](https://github.com/nrkno/tv-automation-server-core/commit/3c0ae987eee5e0b1d411230fb35659cb62f2282e))
 - security methods to better handle a not-logged-in user ([afcf89d](https://github.com/nrkno/tv-automation-server-core/commit/afcf89d6d27753e4780719bcf8afd4e1aeb1a4e4))
 - service messages types ([#269](https://github.com/nrkno/tv-automation-server-core/issues/269)) ([84d8dee](https://github.com/nrkno/tv-automation-server-core/commit/84d8deef36617bba6911cc3fe8f1c939336fe095))
 - serviceMessage api not being loaded ([99caafe](https://github.com/nrkno/tv-automation-server-core/commit/99caafe8081ef1b04b22067d6535a4754a61f610))
@@ -9210,7 +9210,7 @@ All notable changes to this project will be documented in this file. See [standa
 - some stuck migrations and force core migrations to run as separate phase ([d28d93e](https://github.com/nrkno/tv-automation-server-core/commit/d28d93e8d9356c9d1cbcd88e48bc4417000ac2c5))
 - some todos ([d3deb9f](https://github.com/nrkno/tv-automation-server-core/commit/d3deb9fa3076c92db974dc8c538ff91f7de3b5da))
 - some typings ([8ae6879](https://github.com/nrkno/tv-automation-server-core/commit/8ae68799c0b92ccc8b18d6f7068ee84de4634807))
-- some virtual infinites would not propogate properly. onRundownEnd infinites from the same segment would not propogate. ui resolving future parts incorrectly ([2824e0e](https://github.com/nrkno/tv-automation-server-core/commit/2824e0e3389731653f7103cfe1a9568ba7d9fe0f))
+- some virtual infinites would not propagate properly. onRundownEnd infinites from the same segment would not propagate. ui resolving future parts incorrectly ([2824e0e](https://github.com/nrkno/tv-automation-server-core/commit/2824e0e3389731653f7103cfe1a9568ba7d9fe0f))
 - Sort adlibs and actions by rank for display ([6725deb](https://github.com/nrkno/tv-automation-server-core/commit/6725deb9c3e3826b4405cb0a786509001a07b819))
 - Sort adlibs as last step ([8d808b7](https://github.com/nrkno/tv-automation-server-core/commit/8d808b75f676ba4f9f8fc586826b9137461cc28e))
 - SplitDropdown styling ([c284bee](https://github.com/nrkno/tv-automation-server-core/commit/c284bee60a9c628ff0b9647b8a5607008c80db0a))
@@ -9309,7 +9309,7 @@ All notable changes to this project will be documented in this file. See [standa
 - refactor methods from server/api/playout/infinites so that they can be used in the GUI ([84f27e6](https://github.com/nrkno/tv-automation-server-core/commit/84f27e6be1ca5d02698130b991c9fa7204534ef2))
 - remove remaining runtime arguments bits ([#301](https://github.com/nrkno/tv-automation-server-core/issues/301)) ([93bcb7d](https://github.com/nrkno/tv-automation-server-core/commit/93bcb7dd446b90e089d44ba05588ca596da72e2d))
 - remove some underscore use in often-used classes and methods to speed up GUI rendering ([715d82c](https://github.com/nrkno/tv-automation-server-core/commit/715d82c298de00632c780b13ee1311626421e861))
-- remove some unneccessary underscore use, subscribe to past infinites ([39806ae](https://github.com/nrkno/tv-automation-server-core/commit/39806ae66e852729e04cd5b2dd903465d41a3ca6))
+- remove some unnecessary underscore use, subscribe to past infinites ([39806ae](https://github.com/nrkno/tv-automation-server-core/commit/39806ae66e852729e04cd5b2dd903465d41a3ca6))
 - Replace MOS with nrcsName ([ac2ca95](https://github.com/nrkno/tv-automation-server-core/commit/ac2ca95195668ef24aa60ed8cad2e17361b43f0f))
 - rework routing/publications to with with single-object-timeline. Also add Studios.mappedHash property ([8521f88](https://github.com/nrkno/tv-automation-server-core/commit/8521f88bb633eec8edd8d98d8938021b99c1dbad))
 - rewrite updatePartRanks to preserve the ingest rank of parts ([90f1e92](https://github.com/nrkno/tv-automation-server-core/commit/90f1e92d0c0ab197690ae1b9959c84de9e7d53bc))
@@ -9384,7 +9384,7 @@ All notable changes to this project will be documented in this file. See [standa
 - include adlib-actions in snapshots ([706f8d6](https://github.com/nrkno/tv-automation-server-core/commit/706f8d6c913d10b8b9f5508168b330bd4ee8f94c))
 - include rundown notes in reactiveRundownStatus ([100a27d](https://github.com/nrkno/tv-automation-server-core/commit/100a27d77fbb293b098eb58a83d7c386d718a232))
 - infinite pieces not ending at the correct time ([b61d4a4](https://github.com/nrkno/tv-automation-server-core/commit/b61d4a4d54f0fb48e59a6030eeb1cfa46f4763b1))
-- infinite propogation with adlibs, and initial onEnd infinite adlibs ([ec1021b](https://github.com/nrkno/tv-automation-server-core/commit/ec1021b4961ed29adcb35672c7468daddff95f62))
+- infinite propagation with adlibs, and initial onEnd infinite adlibs ([ec1021b](https://github.com/nrkno/tv-automation-server-core/commit/ec1021b4961ed29adcb35672c7468daddff95f62))
 - infinites failing ([458a383](https://github.com/nrkno/tv-automation-server-core/commit/458a383eafd1b198f0c9c6be9f40a26951633fbf))
 - ingest inserting a new next part would result in an empty part-instance ([cf65524](https://github.com/nrkno/tv-automation-server-core/commit/cf655244fc2876f9e62ee70357a1bb3d96b746f3))
 - issue with the user not having been created when creating org ([9e57c2d](https://github.com/nrkno/tv-automation-server-core/commit/9e57c2da8575d99aeff6da55bf20532c52b6955f))
@@ -9394,7 +9394,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Layout options display order ([58653bc](https://github.com/nrkno/tv-automation-server-core/commit/58653bc1c8dd97cb4fd1a4817b3cabe41713c7c9))
 - logging format when in dev ([710da05](https://github.com/nrkno/tv-automation-server-core/commit/710da05ac8d79d764f9fbbbefbfe1ecd72174823))
 - logging of metadata in dev-mode ([1472250](https://github.com/nrkno/tv-automation-server-core/commit/147225022022b0b112ee5b12d160b324893da0ac))
-- login fowards user to orginally requested page or lobby ([47a0201](https://github.com/nrkno/tv-automation-server-core/commit/47a02011630755ea4983e6b8529f9eb52c4af865))
+- login forwards user to originally requested page or lobby ([47a0201](https://github.com/nrkno/tv-automation-server-core/commit/47a02011630755ea4983e6b8529f9eb52c4af865))
 - lookahead not running processAndPrunePieceInstanceTimings before using the pieceInstances ([0e3d333](https://github.com/nrkno/tv-automation-server-core/commit/0e3d333d316427d13679093e96ca9c0d733f2bd3))
 - Make dropdown button easier to click ([53b63a9](https://github.com/nrkno/tv-automation-server-core/commit/53b63a975184f7ebc99afa3e91d03acdbc6809b0))
 - measure HEADER_HEIGHT value for viewPort intersection and scrollTo ([80d7f3c](https://github.com/nrkno/tv-automation-server-core/commit/80d7f3cb243c1fd7b8f87251a2f1b49fe61d3797))
@@ -9417,7 +9417,7 @@ All notable changes to this project will be documented in this file. See [standa
 - moving the cache.defer() execution to AFTER database saves, instead of before. ([250e43c](https://github.com/nrkno/tv-automation-server-core/commit/250e43c198497dfb0815588180828695ea1d862c))
 - nora preview renderer cross-origin requests ([ea483e7](https://github.com/nrkno/tv-automation-server-core/commit/ea483e7aadb5b559655237b70e356f6e9fa7b85d))
 - notifications scrolling ([aff59ed](https://github.com/nrkno/tv-automation-server-core/commit/aff59ed16583bac48ead61ba1b5333fcd142fb4e))
-- onChange adlibs not being propogated (partial fix) ([72c0849](https://github.com/nrkno/tv-automation-server-core/commit/72c08492aa4eda56ef2b093cb3b0684ab9292a08))
+- onChange adlibs not being propagated (partial fix) ([72c0849](https://github.com/nrkno/tv-automation-server-core/commit/72c08492aa4eda56ef2b093cb3b0684ab9292a08))
 - optimize DatabaseCache for when doing single-document lookups ([22dd98c](https://github.com/nrkno/tv-automation-server-core/commit/22dd98c1b6c7752a4416f6e7f5b50ae4b4df676b))
 - optimize getSelectedPartInstancesFromCache ([5952413](https://github.com/nrkno/tv-automation-server-core/commit/59524136542fb6daef5bd4f32cb3899048c233ab))
 - parent parenthesis is supposedly superfluous ([b5ea2d2](https://github.com/nrkno/tv-automation-server-core/commit/b5ea2d2ec159a056a769618a4626f453509adf03))
@@ -9580,7 +9580,7 @@ All notable changes to this project will be documented in this file. See [standa
 ### Features
 
 - a more performant way of displaying RundownDividerHeaders ([ae91117](https://github.com/nrkno/tv-automation-server-core/commit/ae9111768d66f70ab69b1b74b9345d43b576468c))
-- add rehersal property on PartInstance ([14e17f8](https://github.com/nrkno/tv-automation-server-core/commit/14e17f8a0b2413ecee8498d40a297426a6e048d2))
+- add rehearsal property on PartInstance ([14e17f8](https://github.com/nrkno/tv-automation-server-core/commit/14e17f8a0b2413ecee8498d40a297426a6e048d2))
 - GUI preliminary implementation of rundown-diviers ([09a2490](https://github.com/nrkno/tv-automation-server-core/commit/09a24905203569480fa7193c6c4bfd1a3bd7d1cf))
 - improved rundownPlaylist handling, allowing blueprint to see some core-attributes of rundown ([5059a32](https://github.com/nrkno/tv-automation-server-core/commit/5059a3237b9d0a9c4eb8962fa8c32a81319ac7da))
 - per-studio playFromAnywhere enable switch ([b471639](https://github.com/nrkno/tv-automation-server-core/commit/b471639c371b1000d4175936c1f471ce06381d12))
@@ -9754,9 +9754,9 @@ All notable changes to this project will be documented in this file. See [standa
 - hide some more logging during tests ([eac7730](https://github.com/nrkno/tv-automation-server-core/commit/eac77307105a3d2b7a4ebbf5e2ea2e01cb11a928))
 - ignore some packages in the versions table ([9f62e1e](https://github.com/nrkno/tv-automation-server-core/commit/9f62e1ea818ee98ba8ee4bee51207ad9258f8917))
 - implementation of mongoFindOptions and unit tests for it ([389bd34](https://github.com/nrkno/tv-automation-server-core/commit/389bd34d7f1af92d1efa36b4e123e459557750cf))
-- infinite propogation not setting infiniteId of original piece properly ([0334520](https://github.com/nrkno/tv-automation-server-core/commit/033452038403ba9f9afe94434521484367b968d5))
+- infinite propagation not setting infiniteId of original piece properly ([0334520](https://github.com/nrkno/tv-automation-server-core/commit/033452038403ba9f9afe94434521484367b968d5))
 - infinites being mangled on subsequent updates ([45e84a8](https://github.com/nrkno/tv-automation-server-core/commit/45e84a831ce0a5157b23c4579de55223db259a67))
-- infinites not propogating through rundown correctly ([6562fd5](https://github.com/nrkno/tv-automation-server-core/commit/6562fd5082c093c5672761857192161d3a874a65))
+- infinites not propagating through rundown correctly ([6562fd5](https://github.com/nrkno/tv-automation-server-core/commit/6562fd5082c093c5672761857192161d3a874a65))
 - isAdlibOnAir ([acfd4e3](https://github.com/nrkno/tv-automation-server-core/commit/acfd4e30a8d9a7983ee10b4767c338604f332faa))
 - isDbCacheCollection: handle null ([cb52de1](https://github.com/nrkno/tv-automation-server-core/commit/cb52de1e39c88f8646d70d38105562cfd6d99b77))
 - Issue where timeline objects inherited piece start time ([ee0de9e](https://github.com/nrkno/tv-automation-server-core/commit/ee0de9eeaeca5973617dc8bbf62476eed621b16c))
@@ -9836,7 +9836,7 @@ All notable changes to this project will be documented in this file. See [standa
 - timeline object table treating content with a 'length' property as an array ([212e5e0](https://github.com/nrkno/tv-automation-server-core/commit/212e5e0488e5c8eb19a60ac8b9a53553fdad9cee))
 - type errors ([e1c868c](https://github.com/nrkno/tv-automation-server-core/commit/e1c868c5152b5cc8603e1b4af4cd38c658289284))
 - type errors ([c0f5186](https://github.com/nrkno/tv-automation-server-core/commit/c0f518641fc8e6c1771a48255d9d1490acd1a0d7))
-- typing erorrs ([38cf2f2](https://github.com/nrkno/tv-automation-server-core/commit/38cf2f27b4270ab62d9683aa736526b1c2d7202b))
+- typing errors ([38cf2f2](https://github.com/nrkno/tv-automation-server-core/commit/38cf2f27b4270ab62d9683aa736526b1c2d7202b))
 - typings errors ([69d7a80](https://github.com/nrkno/tv-automation-server-core/commit/69d7a8051982ebfdd23c9feea3738f349f9d1934))
 - typings for xml2js, also when running tests ([af2c6e5](https://github.com/nrkno/tv-automation-server-core/commit/af2c6e57d8a69799f011175d44bebafd901dd135))
 - typo ([e25790c](https://github.com/nrkno/tv-automation-server-core/commit/e25790c5edbf1a87515c7e38448ca8bd6d94d531))
@@ -9889,7 +9889,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Give next highlight higher priority over on-air ([43e03e3](https://github.com/nrkno/tv-automation-server-core/commit/43e03e3))
 - implementation of mongoFindOptions and unit tests for it ([389bd34](https://github.com/nrkno/tv-automation-server-core/commit/389bd34))
 - infinites being mangled on subsequent updates ([45e84a8](https://github.com/nrkno/tv-automation-server-core/commit/45e84a8))
-- infinites not propogating through rundown correctly ([6562fd5](https://github.com/nrkno/tv-automation-server-core/commit/6562fd5))
+- infinites not propagating through rundown correctly ([6562fd5](https://github.com/nrkno/tv-automation-server-core/commit/6562fd5))
 - isDbCacheCollection: handle null ([cb52de1](https://github.com/nrkno/tv-automation-server-core/commit/cb52de1))
 - Issue where timeline objects inherited piece start time ([ee0de9e](https://github.com/nrkno/tv-automation-server-core/commit/ee0de9e))
 - label placement-sticking to on air line ([c30b8e7](https://github.com/nrkno/tv-automation-server-core/commit/c30b8e7))
@@ -9997,7 +9997,7 @@ All notable changes to this project will be documented in this file. See [standa
 - add definitelyEnded to properties that is to be reset on Pieces ([00f37bb](https://github.com/nrkno/tv-automation-server-core/commit/00f37bb))
 - add options for TSR-vizMSE device ([a8fa66d](https://github.com/nrkno/tv-automation-server-core/commit/a8fa66d))
 - **dashboard status:** use userDuration.end for infinites fallback ([128b60f](https://github.com/nrkno/tv-automation-server-core/commit/128b60f))
-- Add property Piece.definitelyEnded to be used to easilly filter out old and cropped pieces. ([202a968](https://github.com/nrkno/tv-automation-server-core/commit/202a968))
+- Add property Piece.definitelyEnded to be used to easily filter out old and cropped pieces. ([202a968](https://github.com/nrkno/tv-automation-server-core/commit/202a968))
 - Add startedPlayback to dashboard status query ([c678625](https://github.com/nrkno/tv-automation-server-core/commit/c678625))
 - add viz autoLoadInternalElements option ([7141a78](https://github.com/nrkno/tv-automation-server-core/commit/7141a78))
 - add vizMSE device setting ([5a61cb3](https://github.com/nrkno/tv-automation-server-core/commit/5a61cb3))
@@ -10211,13 +10211,13 @@ All notable changes to this project will be documented in this file. See [standa
 - **settings ui:** lawo mapping type is a string enum ([9c5cea8](https://github.com/nrkno/tv-automation-server-core/commit/9c5cea8))
 - add an isScratch property to the PartInstance to mark that the PieceInstances may not be finished being inserted ([2df5baf](https://github.com/nrkno/tv-automation-server-core/commit/2df5baf))
 - add missing context.getNotes() method ([acec358](https://github.com/nrkno/tv-automation-server-core/commit/acec358))
-- Add option for the dontUseQueryPort property on MOS-devices, used to supress errors when the query port is not open on the MOS server. ([7dc3952](https://github.com/nrkno/tv-automation-server-core/commit/7dc3952))
+- Add option for the dontUseQueryPort property on MOS-devices, used to suppress errors when the query port is not open on the MOS server. ([7dc3952](https://github.com/nrkno/tv-automation-server-core/commit/7dc3952))
 - add placeholder option to INT, FLOAT and TEXT inputs ([e5a3716](https://github.com/nrkno/tv-automation-server-core/commit/e5a3716))
 - add typings declaration for react-time-hoc and fix typings issue ([616958c](https://github.com/nrkno/tv-automation-server-core/commit/616958c))
 - all adlibs missing from shelf ([4291857](https://github.com/nrkno/tv-automation-server-core/commit/4291857))
 - asrunevents: store partInstance.\_id, not partinstance.part.\_id ([1b08d53](https://github.com/nrkno/tv-automation-server-core/commit/1b08d53))
 - bug fix: GUI error when segment is removed ([7c54776](https://github.com/nrkno/tv-automation-server-core/commit/7c54776))
-- bug when takeing the last part in a rundown ([849a76c](https://github.com/nrkno/tv-automation-server-core/commit/849a76c))
+- bug when taking the last part in a rundown ([849a76c](https://github.com/nrkno/tv-automation-server-core/commit/849a76c))
 - catch notification already dropped exception ([0689aaa](https://github.com/nrkno/tv-automation-server-core/commit/0689aaa))
 - change isScratch: false to unset: isScratch ([4f32e05](https://github.com/nrkno/tv-automation-server-core/commit/4f32e05))
 - changing segment externalId would reset any playing parts ([f75eeed](https://github.com/nrkno/tv-automation-server-core/commit/f75eeed))
@@ -10284,7 +10284,7 @@ All notable changes to this project will be documented in this file. See [standa
 - some tests ([225c456](https://github.com/nrkno/tv-automation-server-core/commit/225c456))
 - some updates ([e5328f9](https://github.com/nrkno/tv-automation-server-core/commit/e5328f9))
 - sorting parts of rundown getting order wrong when over 10 segments ([ecbf1be](https://github.com/nrkno/tv-automation-server-core/commit/ecbf1be))
-- supress errors for if dynamically inserted pieces aren't found, in callbacks ([9a3e692](https://github.com/nrkno/tv-automation-server-core/commit/9a3e692))
+- suppress errors for if dynamically inserted pieces aren't found, in callbacks ([9a3e692](https://github.com/nrkno/tv-automation-server-core/commit/9a3e692))
 - sync ingest changes to instances ([8edc8d0](https://github.com/nrkno/tv-automation-server-core/commit/8edc8d0))
 - synchronous version of Rundown.getSegmentsAndParts, to be used client-side ([f30614c](https://github.com/nrkno/tv-automation-server-core/commit/f30614c))
 - tests ([427b98b](https://github.com/nrkno/tv-automation-server-core/commit/427b98b))
@@ -10476,7 +10476,7 @@ All notable changes to this project will be documented in this file. See [standa
 ### Bug Fixes
 
 - removed call to afterIngestChangedData, as it is called from inside updateSegmentsFromIngestData anyway ([dcad22a](https://github.com/nrkno/tv-automation-server-core/commit/dcad22a))
-- removed unneccesary calls to ensureNextPartIsValid, as it is called in other places as well ([4bd19bd](https://github.com/nrkno/tv-automation-server-core/commit/4bd19bd))
+- removed unnecessary calls to ensureNextPartIsValid, as it is called in other places as well ([4bd19bd](https://github.com/nrkno/tv-automation-server-core/commit/4bd19bd))
 
 ## [1.4.0-0](https://github.com/nrkno/tv-automation-server-core/compare/v1.3.0...v1.4.0-0) (2019-12-09)
 
@@ -10638,7 +10638,7 @@ All notable changes to this project will be documented in this file. See [standa
 - bugfix: error in typings for waitForPromiseAll ([64a2cba](https://github.com/nrkno/tv-automation-server-core/commit/64a2cba))
 - bugfix: executeFunction didn't really time out ([acba08c](https://github.com/nrkno/tv-automation-server-core/commit/acba08c))
 - bugfix: since moveNextPart could call itself recursively, it would halt in a deadlock, due to being a syncFunction. ([489d18e](https://github.com/nrkno/tv-automation-server-core/commit/489d18e))
-- bugfix: timeline wasn't updated when going rehersal => roResetAndActivate ([ca76732](https://github.com/nrkno/tv-automation-server-core/commit/ca76732))
+- bugfix: timeline wasn't updated when going rehearsal => roResetAndActivate ([ca76732](https://github.com/nrkno/tv-automation-server-core/commit/ca76732))
 - bugfix: undefined storePath ([cbfdde5](https://github.com/nrkno/tv-automation-server-core/commit/cbfdde5))
 - bugfix: update local object when updating database ([9d3b05b](https://github.com/nrkno/tv-automation-server-core/commit/9d3b05b))
 - bugfix: updateExpectedMediaItems used all segmentLineItems in RO, not just in segmmentLine ([406829b](https://github.com/nrkno/tv-automation-server-core/commit/406829b))
@@ -10715,7 +10715,7 @@ All notable changes to this project will be documented in this file. See [standa
 - disable runtimeFunction caching during code-test & save ([74d6d34](https://github.com/nrkno/tv-automation-server-core/commit/74d6d34))
 - disable switch UI visuals ([08866f5](https://github.com/nrkno/tv-automation-server-core/commit/08866f5))
 - Display warning when array has been emptied by deletion ([507af75](https://github.com/nrkno/tv-automation-server-core/commit/507af75))
-- do full rundown update when recieve rundown metadata ([11ae325](https://github.com/nrkno/tv-automation-server-core/commit/11ae325))
+- do full rundown update when receive rundown metadata ([11ae325](https://github.com/nrkno/tv-automation-server-core/commit/11ae325))
 - Do not allow queue ad lib during hold mode ([c378fc8](https://github.com/nrkno/tv-automation-server-core/commit/c378fc8))
 - do not allow toggling sl arguments during hold mode ([3311f0a](https://github.com/nrkno/tv-automation-server-core/commit/3311f0a))
 - do not display notification count if = 0 ([1fe9a39](https://github.com/nrkno/tv-automation-server-core/commit/1fe9a39))
@@ -10802,7 +10802,7 @@ All notable changes to this project will be documented in this file. See [standa
 - getHash undefined exception in asRunLog ([8faab78](https://github.com/nrkno/tv-automation-server-core/commit/8faab78))
 - getSnapshot: don't ask devices of type OTHER ([ea874d4](https://github.com/nrkno/tv-automation-server-core/commit/ea874d4))
 - getting monaco to work runtime while still having typings ([5db8218](https://github.com/nrkno/tv-automation-server-core/commit/5db8218))
-- global ad-lib order was wrong, basline blueprint did not set \_rank ([ffbacc8](https://github.com/nrkno/tv-automation-server-core/commit/ffbacc8))
+- global ad-lib order was wrong, baseline blueprint did not set \_rank ([ffbacc8](https://github.com/nrkno/tv-automation-server-core/commit/ffbacc8))
 - global hotkeys ([ddd292d](https://github.com/nrkno/tv-automation-server-core/commit/ddd292d))
 - global hotkeys ([f2bce37](https://github.com/nrkno/tv-automation-server-core/commit/f2bce37))
 - guard against negative width of liveline shade ([cc58f11](https://github.com/nrkno/tv-automation-server-core/commit/cc58f11))
@@ -10842,7 +10842,7 @@ All notable changes to this project will be documented in this file. See [standa
 - holdState = 0 displayed a status ([49c7ead](https://github.com/nrkno/tv-automation-server-core/commit/49c7ead))
 - hot fix for rehearsal activation when an RO is already active ([648c02d](https://github.com/nrkno/tv-automation-server-core/commit/648c02d))
 - hotkeys didn't work ([aded27b](https://github.com/nrkno/tv-automation-server-core/commit/aded27b))
-- houskeeping: remove uneccessary logs ([0c054f9](https://github.com/nrkno/tv-automation-server-core/commit/0c054f9))
+- housekeeping: remove unnecessary logs ([0c054f9](https://github.com/nrkno/tv-automation-server-core/commit/0c054f9))
 - if the next:ed segment is removed, instead next the one in its place ([22597b3](https://github.com/nrkno/tv-automation-server-core/commit/22597b3))
 - ignore custom dependencies ([b9db526](https://github.com/nrkno/tv-automation-server-core/commit/b9db526))
 - ignore timing of invalid parts ([6780944](https://github.com/nrkno/tv-automation-server-core/commit/6780944))
@@ -10886,7 +10886,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Invalid ids in PeripheralDeviceCommand responses. Not using cached ingest data when reloadingRundown. Adds tests for reloadingRundown ([cb59bbc](https://github.com/nrkno/tv-automation-server-core/commit/cb59bbc))
 - inverted if statement ([83fd6a1](https://github.com/nrkno/tv-automation-server-core/commit/83fd6a1))
 - isClientResponseSuccess returned wrong values ([ce0b44e](https://github.com/nrkno/tv-automation-server-core/commit/ce0b44e))
-- issue with a dissapearing part when updating some part durations from MOS ([ceb5618](https://github.com/nrkno/tv-automation-server-core/commit/ceb5618))
+- issue with a disappearing part when updating some part durations from MOS ([ceb5618](https://github.com/nrkno/tv-automation-server-core/commit/ceb5618))
 - Issue with duplicate ids ([ed27041](https://github.com/nrkno/tv-automation-server-core/commit/ed27041))
 - issue with keys on segment/part lines ([7a751ba](https://github.com/nrkno/tv-automation-server-core/commit/7a751ba))
 - issue with rehearsal double-activation warning ([17b4e95](https://github.com/nrkno/tv-automation-server-core/commit/17b4e95))
@@ -10945,8 +10945,8 @@ All notable changes to this project will be documented in this file. See [standa
 - make sure that expectedMediaItems are purged along with the RO ([0d9dda1](https://github.com/nrkno/tv-automation-server-core/commit/0d9dda1))
 - make sure that the ad-lib drawer isn't obstructed by the right-hand bar ([8783819](https://github.com/nrkno/tv-automation-server-core/commit/8783819))
 - make sure that the OnAir line connects to the label ([3788672](https://github.com/nrkno/tv-automation-server-core/commit/3788672))
-- make sure that viewport intersection is tested before destorying component ([9b1643a](https://github.com/nrkno/tv-automation-server-core/commit/9b1643a))
-- make sure that viewport intersection is tested before destorying component ([a608018](https://github.com/nrkno/tv-automation-server-core/commit/a608018))
+- make sure that viewport intersection is tested before destroying component ([9b1643a](https://github.com/nrkno/tv-automation-server-core/commit/9b1643a))
+- make sure that viewport intersection is tested before destroying component ([a608018](https://github.com/nrkno/tv-automation-server-core/commit/a608018))
 - make the context menu available in the entire header ([0590f9d](https://github.com/nrkno/tv-automation-server-core/commit/0590f9d))
 - make the FullScreen detection more lenient ([28b689a](https://github.com/nrkno/tv-automation-server-core/commit/28b689a))
 - make the FullScreen detection more lenient ([215d73c](https://github.com/nrkno/tv-automation-server-core/commit/215d73c))
@@ -11107,8 +11107,8 @@ All notable changes to this project will be documented in this file. See [standa
 - remove systemStatus when removing blueprint ([1aa9b44](https://github.com/nrkno/tv-automation-server-core/commit/1aa9b44))
 - Remove timestamps from blueprint backups ([74fa1b3](https://github.com/nrkno/tv-automation-server-core/commit/74fa1b3))
 - remove trigger from the AdLibPieceUi setup in AdLibPanel ([847edb5](https://github.com/nrkno/tv-automation-server-core/commit/847edb5))
-- remove unneccessary margin in some headers ([b47ea11](https://github.com/nrkno/tv-automation-server-core/commit/b47ea11))
-- remove unneccessary margin in some headers ([32874a1](https://github.com/nrkno/tv-automation-server-core/commit/32874a1))
+- remove unnecessary margin in some headers ([b47ea11](https://github.com/nrkno/tv-automation-server-core/commit/b47ea11))
+- remove unnecessary margin in some headers ([32874a1](https://github.com/nrkno/tv-automation-server-core/commit/32874a1))
 - remove unused imports ([5fe6ac3](https://github.com/nrkno/tv-automation-server-core/commit/5fe6ac3))
 - remove unused imports ([59041fc](https://github.com/nrkno/tv-automation-server-core/commit/59041fc))
 - remove unused translation helper ([e545a9e](https://github.com/nrkno/tv-automation-server-core/commit/e545a9e))
@@ -11188,7 +11188,7 @@ All notable changes to this project will be documented in this file. See [standa
 - ro-reset does not reset properly ([6367658](https://github.com/nrkno/tv-automation-server-core/commit/6367658))
 - roReset should reset holdItems and infinites ([bdf8385](https://github.com/nrkno/tv-automation-server-core/commit/bdf8385))
 - run afterUpdateTimeline after timelineTriggerTime ([98ece60](https://github.com/nrkno/tv-automation-server-core/commit/98ece60))
-- Rundown name dissappearing from view ([91dcc21](https://github.com/nrkno/tv-automation-server-core/commit/91dcc21))
+- Rundown name disappearing from view ([91dcc21](https://github.com/nrkno/tv-automation-server-core/commit/91dcc21))
 - running blueprint migrations ([fe1e7fd](https://github.com/nrkno/tv-automation-server-core/commit/fe1e7fd))
 - Running blueprints and migrations ([3b29df3](https://github.com/nrkno/tv-automation-server-core/commit/3b29df3))
 - running order closing prompt ([3024543](https://github.com/nrkno/tv-automation-server-core/commit/3024543))
@@ -11271,8 +11271,8 @@ All notable changes to this project will be documented in this file. See [standa
 - systemStatus versions ([62bfa9a](https://github.com/nrkno/tv-automation-server-core/commit/62bfa9a))
 - take action should not throw as nasty errors when called by user. ([6791d50](https://github.com/nrkno/tv-automation-server-core/commit/6791d50))
 - take playOffset into account for timing ([422783a](https://github.com/nrkno/tv-automation-server-core/commit/422783a))
-- templates with wipe. Readd seperate audio file ([5be2802](https://github.com/nrkno/tv-automation-server-core/commit/5be2802))
-- temporary fix for the "UnhandledPromiseRejectionWarning" bug, supressing the error when used ([7aa7cf8](https://github.com/nrkno/tv-automation-server-core/commit/7aa7cf8))
+- templates with wipe. Readd separate audio file ([5be2802](https://github.com/nrkno/tv-automation-server-core/commit/5be2802))
+- temporary fix for the "UnhandledPromiseRejectionWarning" bug, suppressing the error when used ([7aa7cf8](https://github.com/nrkno/tv-automation-server-core/commit/7aa7cf8))
 - temporary fix of typing error ([73bf56d](https://github.com/nrkno/tv-automation-server-core/commit/73bf56d))
 - temporary ignore typings issue ([abb5d71](https://github.com/nrkno/tv-automation-server-core/commit/abb5d71))
 - test-tools decklink input format dropdown has no options ([b02f447](https://github.com/nrkno/tv-automation-server-core/commit/b02f447))
@@ -11373,7 +11373,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **iterateDeeply:** typos ([c9198f1](https://github.com/nrkno/tv-automation-server-core/commit/c9198f1))
 - **L3rd pop-up:** filter out properties starting with @ ([c85ebeb](https://github.com/nrkno/tv-automation-server-core/commit/c85ebeb))
 - **L3rd pop-up:** filter out properties starting with @ ([19977e7](https://github.com/nrkno/tv-automation-server-core/commit/19977e7))
-- **lawo:** changes tempaltes to new structure ([29bf666](https://github.com/nrkno/tv-automation-server-core/commit/29bf666))
+- **lawo:** changes templates to new structure ([29bf666](https://github.com/nrkno/tv-automation-server-core/commit/29bf666))
 - **lawo:** more generic timeline object ([b0418ab](https://github.com/nrkno/tv-automation-server-core/commit/b0418ab))
 - **lookahead:** clear inGroup in a better fashion ([60541cc](https://github.com/nrkno/tv-automation-server-core/commit/60541cc))
 - **lookahead:** consider transitions properly in lookahead ([c78c6fa](https://github.com/nrkno/tv-automation-server-core/commit/c78c6fa))
@@ -11396,12 +11396,12 @@ All notable changes to this project will be documented in this file. See [standa
 - **media manager ui:** display work step labels correctly ([05cce78](https://github.com/nrkno/tv-automation-server-core/commit/05cce78))
 - **media manager ui:** fix task list layout issue ([9902dc1](https://github.com/nrkno/tv-automation-server-core/commit/9902dc1))
 - **media manager ui:** media manager flow order ([1eb1c48](https://github.com/nrkno/tv-automation-server-core/commit/1eb1c48))
-- **media scanner integration:** better way for checking upercase mediaId ([30afac8](https://github.com/nrkno/tv-automation-server-core/commit/30afac8))
+- **media scanner integration:** better way for checking uppercase mediaId ([30afac8](https://github.com/nrkno/tv-automation-server-core/commit/30afac8))
 - **media scanner integration:** throw an error when mediaId contains lowercase characters ([3afe36e](https://github.com/nrkno/tv-automation-server-core/commit/3afe36e))
 - **mediaObject subscriptions:** subscribe to the mediaObjects from RundownNotifier in case the subscriptions aren't made by other UI components ([d798f89](https://github.com/nrkno/tv-automation-server-core/commit/d798f89))
 - Translate 'add child devices' tooltip ([0018dd3](https://github.com/nrkno/tv-automation-server-core/commit/0018dd3))
 - Translate reload hint ([231c173](https://github.com/nrkno/tv-automation-server-core/commit/231c173))
-- Tweaked styling of evaluation form, warning messages, color of the next lines, translations, capialized warning icon file name, and optimized png and svg icons. ([50d2753](https://github.com/nrkno/tv-automation-server-core/commit/50d2753))
+- Tweaked styling of evaluation form, warning messages, color of the next lines, translations, capitalized warning icon file name, and optimized png and svg icons. ([50d2753](https://github.com/nrkno/tv-automation-server-core/commit/50d2753))
 - tweaks on externalMessage send function, limiting the number of messages sent in one go ([046ae38](https://github.com/nrkno/tv-automation-server-core/commit/046ae38))
 - type bug ([de43835](https://github.com/nrkno/tv-automation-server-core/commit/de43835))
 - type error in SegmentTimelineContainer ([c4d6b4d](https://github.com/nrkno/tv-automation-server-core/commit/c4d6b4d))
@@ -11428,7 +11428,7 @@ All notable changes to this project will be documented in this file. See [standa
 - ui manualPlayback key ([5d4e49f](https://github.com/nrkno/tv-automation-server-core/commit/5d4e49f))
 - ui manualPlayback key ([ca1a943](https://github.com/nrkno/tv-automation-server-core/commit/ca1a943))
 - UI tweaks for messages status view. so it doesn't break when having long error messages ([ca1e3ae](https://github.com/nrkno/tv-automation-server-core/commit/ca1e3ae))
-- UI: improve shapshot comment edit field ([093e6cb](https://github.com/nrkno/tv-automation-server-core/commit/093e6cb))
+- UI: improve snapshot comment edit field ([093e6cb](https://github.com/nrkno/tv-automation-server-core/commit/093e6cb))
 - upd meteor typings ([53f17d2](https://github.com/nrkno/tv-automation-server-core/commit/53f17d2))
 - upd query-string dependency & fixed typings issue ([e0d3f12](https://github.com/nrkno/tv-automation-server-core/commit/e0d3f12))
 - update all data in roReplaceMetadata ([8a5a671](https://github.com/nrkno/tv-automation-server-core/commit/8a5a671))
@@ -11500,7 +11500,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **migrations:** Uncomment mos check migration ([c262fff](https://github.com/nrkno/tv-automation-server-core/commit/c262fff))
 - **migrations:** Various problems when running from empty ([11d1d0b](https://github.com/nrkno/tv-automation-server-core/commit/11d1d0b))
 - **mos:** Mos ingest typing errors ([8f08f6e](https://github.com/nrkno/tv-automation-server-core/commit/8f08f6e))
-- **mos:** move stories. Refactor updating next-part to be seperately testable ([19b2d05](https://github.com/nrkno/tv-automation-server-core/commit/19b2d05))
+- **mos:** move stories. Refactor updating next-part to be separately testable ([19b2d05](https://github.com/nrkno/tv-automation-server-core/commit/19b2d05))
 - **mos:** Segment externalId is now based on externalId of first part, instead of rank ([0916113](https://github.com/nrkno/tv-automation-server-core/commit/0916113))
 - **mos:** Set next part logic after story updates ([2b8cf47](https://github.com/nrkno/tv-automation-server-core/commit/2b8cf47))
 - **notification center:** fix notification center toggle button in RO view ([894c1e2](https://github.com/nrkno/tv-automation-server-core/commit/894c1e2))
@@ -11537,7 +11537,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **prompter:** replace strange part title with the hard coded text "FULL" for full variatnTypes. ([902f909](https://github.com/nrkno/tv-automation-server-core/commit/902f909))
 - **prompter:** use a nicer transformation of anchor className ([deabc53](https://github.com/nrkno/tv-automation-server-core/commit/deabc53))
 - **prompter:** use an emdash in place of minus at the end of script ([034c024](https://github.com/nrkno/tv-automation-server-core/commit/034c024))
-- **rabbitmq:** send persistant messages ([ff8d375](https://github.com/nrkno/tv-automation-server-core/commit/ff8d375))
+- **rabbitmq:** send persistent messages ([ff8d375](https://github.com/nrkno/tv-automation-server-core/commit/ff8d375))
 - **record:** CR changes ([b3adbec](https://github.com/nrkno/tv-automation-server-core/commit/b3adbec))
 - **record:** Hide internal layer mappings ([24dfef1](https://github.com/nrkno/tv-automation-server-core/commit/24dfef1))
 - **refactor:** existing runningOrders were not migrated to the new data structure ([b20bc2d](https://github.com/nrkno/tv-automation-server-core/commit/b20bc2d))
@@ -11545,7 +11545,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **ro list:** translatify & hide 'Unsynced from MOS' label when no unsynced items ([11b0f29](https://github.com/nrkno/tv-automation-server-core/commit/11b0f29))
 - **ro list:** translatify & hide 'Unsynced from MOS' label when no unsynced items ([fa56ecd](https://github.com/nrkno/tv-automation-server-core/commit/fa56ecd))
 - **RO view:** Always persist original event in user-action methods ([6ba7df8](https://github.com/nrkno/tv-automation-server-core/commit/6ba7df8))
-- **rundown layout:** don't display segment headers when currentSegemnt filter is on ([9b09858](https://github.com/nrkno/tv-automation-server-core/commit/9b09858))
+- **rundown layout:** don't display segment headers when currentSegment filter is on ([9b09858](https://github.com/nrkno/tv-automation-server-core/commit/9b09858))
 - **rundown layouts:** issue with layer type filtering ([c41bd5a](https://github.com/nrkno/tv-automation-server-core/commit/c41bd5a))
 - **RundownView:** don't wrap on system status header ([0daaa6a](https://github.com/nrkno/tv-automation-server-core/commit/0daaa6a))
 - **runtimeArgs:** Removing infinite items from changed sl and anything following ([28ffd5d](https://github.com/nrkno/tv-automation-server-core/commit/28ffd5d))
@@ -11760,7 +11760,7 @@ All notable changes to this project will be documented in this file. See [standa
 - blueprint migration, continued implementation ([ff507ab](https://github.com/nrkno/tv-automation-server-core/commit/ff507ab))
 - blueprintMigrations ([9527cae](https://github.com/nrkno/tv-automation-server-core/commit/9527cae))
 - blueprints context: handle notes externally (to ro notes) or internally (to logger) ([63640f2](https://github.com/nrkno/tv-automation-server-core/commit/63640f2))
-- Break nrk templates into seperate files. Parse KAM templates better ([2ec0433](https://github.com/nrkno/tv-automation-server-core/commit/2ec0433))
+- Break nrk templates into separate files. Parse KAM templates better ([2ec0433](https://github.com/nrkno/tv-automation-server-core/commit/2ec0433))
 - bump blueprints-integration version ([6f2c46d](https://github.com/nrkno/tv-automation-server-core/commit/6f2c46d))
 - Button to assign/unassign system blueprint ([edef22a](https://github.com/nrkno/tv-automation-server-core/commit/edef22a))
 - change heavy-light display style ([91a1931](https://github.com/nrkno/tv-automation-server-core/commit/91a1931))
@@ -11808,7 +11808,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Device hierarchy restructuring ([08e41f4](https://github.com/nrkno/tv-automation-server-core/commit/08e41f4))
 - disable in next segmentLine & refactoring ([669166c](https://github.com/nrkno/tv-automation-server-core/commit/669166c))
 - disable shortcut-keys when modalDialog is open ([24bab3f](https://github.com/nrkno/tv-automation-server-core/commit/24bab3f))
-- dismiss all notifcations ([896dbb5](https://github.com/nrkno/tv-automation-server-core/commit/896dbb5))
+- dismiss all notifications ([896dbb5](https://github.com/nrkno/tv-automation-server-core/commit/896dbb5))
 - display ms in user activity log ([5172f2e](https://github.com/nrkno/tv-automation-server-core/commit/5172f2e))
 - display ms in user activity log ([7fc2744](https://github.com/nrkno/tv-automation-server-core/commit/7fc2744))
 - display piece name instead of fileName in media notifications ([efbf460](https://github.com/nrkno/tv-automation-server-core/commit/efbf460))
@@ -11850,7 +11850,7 @@ All notable changes to this project will be documented in this file. See [standa
 - implement Panasonic PTZ device ([42d8534](https://github.com/nrkno/tv-automation-server-core/commit/42d8534))
 - implement Panasonic PTZ settings ([f7840da](https://github.com/nrkno/tv-automation-server-core/commit/f7840da))
 - implement some more mocks ([768f0fd](https://github.com/nrkno/tv-automation-server-core/commit/768f0fd))
-- implement spliting long scripts into beginning and end in popup ([9fa8006](https://github.com/nrkno/tv-automation-server-core/commit/9fa8006))
+- implement splitting long scripts into beginning and end in popup ([9fa8006](https://github.com/nrkno/tv-automation-server-core/commit/9fa8006))
 - implement support for Spreadsheet gateway ([44dab01](https://github.com/nrkno/tv-automation-server-core/commit/44dab01))
 - implement timeline-visualizer view ([e725618](https://github.com/nrkno/tv-automation-server-core/commit/e725618))
 - implementation of blueprint migrations ([5fec7a2](https://github.com/nrkno/tv-automation-server-core/commit/5fec7a2))
@@ -11880,7 +11880,7 @@ All notable changes to this project will be documented in this file. See [standa
 - KAM SLUTT variant ([e819269](https://github.com/nrkno/tv-automation-server-core/commit/e819269))
 - List, start and stop test recordings ([df552ab](https://github.com/nrkno/tv-automation-server-core/commit/df552ab))
 - load atem ssrc background when activating RO ([0eda9b4](https://github.com/nrkno/tv-automation-server-core/commit/0eda9b4))
-- log ClientResonseErrors as errors in userActionLog ([4bc10b5](https://github.com/nrkno/tv-automation-server-core/commit/4bc10b5))
+- log ClientResponseErrors as errors in userActionLog ([4bc10b5](https://github.com/nrkno/tv-automation-server-core/commit/4bc10b5))
 - log message on startup ([c715266](https://github.com/nrkno/tv-automation-server-core/commit/c715266))
 - log warning message when trying to access a studio.config value that hasn't been set. ([7e706c6](https://github.com/nrkno/tv-automation-server-core/commit/7e706c6))
 - log WorkFlow success or failure ([8e7d9d7](https://github.com/nrkno/tv-automation-server-core/commit/8e7d9d7))
@@ -11929,7 +11929,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Option to disable devices in playout-gateway ([b36e48f](https://github.com/nrkno/tv-automation-server-core/commit/b36e48f))
 - output evaluation to log ([7deca0f](https://github.com/nrkno/tv-automation-server-core/commit/7deca0f))
 - output evaluation to log ([f95cfbf](https://github.com/nrkno/tv-automation-server-core/commit/f95cfbf))
-- Part EndState persistance ([a84f74b](https://github.com/nrkno/tv-automation-server-core/commit/a84f74b))
+- Part EndState persistence ([a84f74b](https://github.com/nrkno/tv-automation-server-core/commit/a84f74b))
 - place all collections in Collections object, for debugging purposes ([9682a89](https://github.com/nrkno/tv-automation-server-core/commit/9682a89))
 - playout device debugLogging (wip) ([7ab4ec6](https://github.com/nrkno/tv-automation-server-core/commit/7ab4ec6))
 - preliminary mongo mock implementation ([498b88f](https://github.com/nrkno/tv-automation-server-core/commit/498b88f))
@@ -11955,7 +11955,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Refactor story template code to use new blueprint structure ([104982b](https://github.com/nrkno/tv-automation-server-core/commit/104982b))
 - refactor systemStatus & add status messages on front page ([14da61a](https://github.com/nrkno/tv-automation-server-core/commit/14da61a))
 - refactor to use relative durations. affects infinite segmentlineitems, autonext, segmentline overlapduration property ([67c5444](https://github.com/nrkno/tv-automation-server-core/commit/67c5444))
-- refactored initDB into 2 separate methods, so we can easilly update just the layers and not the infrastructure ([d4fcc3f](https://github.com/nrkno/tv-automation-server-core/commit/d4fcc3f))
+- refactored initDB into 2 separate methods, so we can easily update just the layers and not the infrastructure ([d4fcc3f](https://github.com/nrkno/tv-automation-server-core/commit/d4fcc3f))
 - Reference blueprints-integration api file ([dc1cdb8](https://github.com/nrkno/tv-automation-server-core/commit/dc1cdb8))
 - Reference blueprints-integration utils file ([d94c97b](https://github.com/nrkno/tv-automation-server-core/commit/d94c97b))
 - Reference device options in tsr-types ([049b9bc](https://github.com/nrkno/tv-automation-server-core/commit/049b9bc))
@@ -12050,7 +12050,7 @@ All notable changes to this project will be documented in this file. See [standa
 - take snapshot when saving evaluation form ([df318bb](https://github.com/nrkno/tv-automation-server-core/commit/df318bb))
 - **asRunLog:** collection implementation ([0e63c36](https://github.com/nrkno/tv-automation-server-core/commit/0e63c36))
 - **asRunLog:** implementation of asRunLog ([62f5b8c](https://github.com/nrkno/tv-automation-server-core/commit/62f5b8c))
-- **aux:** Adds tecnical error aux 2 ([34ce710](https://github.com/nrkno/tv-automation-server-core/commit/34ce710))
+- **aux:** Adds technical error aux 2 ([34ce710](https://github.com/nrkno/tv-automation-server-core/commit/34ce710))
 - **AUX:** adds clock aux ([45479da](https://github.com/nrkno/tv-automation-server-core/commit/45479da))
 - **AUXes:** New AUX-mapping introducing more previews and moves the cleanfeed ([548bd8c](https://github.com/nrkno/tv-automation-server-core/commit/548bd8c))
 - **blueprint:** refactor getConfigValue into the blueprints, with context exposing the raw array as getConfig instead ([5b0ac39](https://github.com/nrkno/tv-automation-server-core/commit/5b0ac39))
@@ -12128,7 +12128,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **playout:** Add class to sli first_object to indicate if sli is from the current or previous sl ([8de6004](https://github.com/nrkno/tv-automation-server-core/commit/8de6004))
 - **playout:** Add class to sli first_object when the sli is a continuation of another ([d53f06b](https://github.com/nrkno/tv-automation-server-core/commit/d53f06b))
 - **playout:** Add classes to sl-firstobject from the current and prev sl. This will allow for some logical triggers which can be influenced by the prev sl ([632326f](https://github.com/nrkno/tv-automation-server-core/commit/632326f))
-- **playout:** Add object to timeline to indicate whether ro is active or in rehersal ([d0e850d](https://github.com/nrkno/tv-automation-server-core/commit/d0e850d))
+- **playout:** Add object to timeline to indicate whether ro is active or in rehearsal ([d0e850d](https://github.com/nrkno/tv-automation-server-core/commit/d0e850d))
 - **playout:** Block take during transitions ([d0628a2](https://github.com/nrkno/tv-automation-server-core/commit/d0628a2))
 - **prompter:** add anchor points & movement tweaks ([c4ababe](https://github.com/nrkno/tv-automation-server-core/commit/c4ababe))
 - **prompter:** Add keyboard-controller, for control by keyboard-like devices ([c6e307d](https://github.com/nrkno/tv-automation-server-core/commit/c6e307d))
@@ -12157,14 +12157,14 @@ All notable changes to this project will be documented in this file. See [standa
 - **settings:** clicking pencil on edited item closes panel ([35c9fc3](https://github.com/nrkno/tv-automation-server-core/commit/35c9fc3))
 - **settings:** playout devices have threadUsage ([b74410c](https://github.com/nrkno/tv-automation-server-core/commit/b74410c))
 - **shortcuts:** adds shortcuts to remove various graphic layers ([0d1a83d](https://github.com/nrkno/tv-automation-server-core/commit/0d1a83d))
-- **shortcuts:** standarize shortcut label display, support numpad ([4c5ba74](https://github.com/nrkno/tv-automation-server-core/commit/4c5ba74))
+- **shortcuts:** standardize shortcut label display, support numpad ([4c5ba74](https://github.com/nrkno/tv-automation-server-core/commit/4c5ba74))
 - **snapshot:** continued implementation ([009e9e5](https://github.com/nrkno/tv-automation-server-core/commit/009e9e5))
 - templates: added format functions for timecode ([ea38081](https://github.com/nrkno/tv-automation-server-core/commit/ea38081))
 - this did not look right button ([1e01a10](https://github.com/nrkno/tv-automation-server-core/commit/1e01a10))
 - timeline-visualizer: add details-on-click ([c81243c](https://github.com/nrkno/tv-automation-server-core/commit/c81243c))
 - timings page ([6bc325a](https://github.com/nrkno/tv-automation-server-core/commit/6bc325a))
 - toggle running order argument on an SL with a hotkey ([258c3b3](https://github.com/nrkno/tv-automation-server-core/commit/258c3b3))
-- Transition as a seperate SegmentLineItem, which is not run if the first SegmentLine in the show, or the previous SegmentLine instructs it to not ([e676a43](https://github.com/nrkno/tv-automation-server-core/commit/e676a43))
+- Transition as a separate SegmentLineItem, which is not run if the first SegmentLine in the show, or the previous SegmentLine instructs it to not ([e676a43](https://github.com/nrkno/tv-automation-server-core/commit/e676a43))
 - translation improvements ([d3a535d](https://github.com/nrkno/tv-automation-server-core/commit/d3a535d))
 - Treat sli marked as virtual solely as markers for the timeline. They are hidden from the ui and are not allowed to place any contents on the timeline ([25e0f42](https://github.com/nrkno/tv-automation-server-core/commit/25e0f42))
 - trim config values (strings) ([d41e07e](https://github.com/nrkno/tv-automation-server-core/commit/d41e07e))
@@ -12290,7 +12290,7 @@ All notable changes to this project will be documented in this file. See [standa
 ### Bug Fixes
 
 - **timing:** allow a custom function to filter the timing info for refreshing the durations ([954bd3a](https://github.com/nrkno/tv-automation-server-core/commit/954bd3a))
-- issue with a dissapearing part when updating some part durations from MOS ([ceb5618](https://github.com/nrkno/tv-automation-server-core/commit/ceb5618))
+- issue with a disappearing part when updating some part durations from MOS ([ceb5618](https://github.com/nrkno/tv-automation-server-core/commit/ceb5618))
 - make most properties of MediaObjects.mediainfo optional, to make compatible with most playout systems ([5f9ec2e](https://github.com/nrkno/tv-automation-server-core/commit/5f9ec2e))
 
 <a name="1.1.0"></a>
@@ -12423,7 +12423,7 @@ All notable changes to this project will be documented in this file. See [standa
 - bugfix: error in typings for waitForPromiseAll ([64a2cba](https://github.com/nrkno/tv-automation-server-core/commit/64a2cba))
 - bugfix: executeFunction didn't really time out ([acba08c](https://github.com/nrkno/tv-automation-server-core/commit/acba08c))
 - bugfix: since moveNextPart could call itself recursively, it would halt in a deadlock, due to being a syncFunction. ([489d18e](https://github.com/nrkno/tv-automation-server-core/commit/489d18e))
-- bugfix: timeline wasn't updated when going rehersal => roResetAndActivate ([ca76732](https://github.com/nrkno/tv-automation-server-core/commit/ca76732))
+- bugfix: timeline wasn't updated when going rehearsal => roResetAndActivate ([ca76732](https://github.com/nrkno/tv-automation-server-core/commit/ca76732))
 - bugfix: undefined storePath ([cbfdde5](https://github.com/nrkno/tv-automation-server-core/commit/cbfdde5))
 - bugfix: update local object when updating database ([9d3b05b](https://github.com/nrkno/tv-automation-server-core/commit/9d3b05b))
 - bugfix: updateExpectedMediaItems used all segmentLineItems in RO, not just in segmmentLine ([406829b](https://github.com/nrkno/tv-automation-server-core/commit/406829b))
@@ -12494,7 +12494,7 @@ All notable changes to this project will be documented in this file. See [standa
 - disable runtimeFunction caching during code-test & save ([74d6d34](https://github.com/nrkno/tv-automation-server-core/commit/74d6d34))
 - disable switch UI visuals ([08866f5](https://github.com/nrkno/tv-automation-server-core/commit/08866f5))
 - Display warning when array has been emptied by deletion ([507af75](https://github.com/nrkno/tv-automation-server-core/commit/507af75))
-- do full rundown update when recieve rundown metadata ([11ae325](https://github.com/nrkno/tv-automation-server-core/commit/11ae325))
+- do full rundown update when receive rundown metadata ([11ae325](https://github.com/nrkno/tv-automation-server-core/commit/11ae325))
 - Do not allow queue ad lib during hold mode ([c378fc8](https://github.com/nrkno/tv-automation-server-core/commit/c378fc8))
 - do not allow toggling sl arguments during hold mode ([3311f0a](https://github.com/nrkno/tv-automation-server-core/commit/3311f0a))
 - do not display notification count if = 0 ([1fe9a39](https://github.com/nrkno/tv-automation-server-core/commit/1fe9a39))
@@ -12578,7 +12578,7 @@ All notable changes to this project will be documented in this file. See [standa
 - getHash undefined exception in asRunLog ([8faab78](https://github.com/nrkno/tv-automation-server-core/commit/8faab78))
 - getSnapshot: don't ask devices of type OTHER ([ea874d4](https://github.com/nrkno/tv-automation-server-core/commit/ea874d4))
 - getting monaco to work runtime while still having typings ([5db8218](https://github.com/nrkno/tv-automation-server-core/commit/5db8218))
-- global ad-lib order was wrong, basline blueprint did not set \_rank ([ffbacc8](https://github.com/nrkno/tv-automation-server-core/commit/ffbacc8))
+- global ad-lib order was wrong, baseline blueprint did not set \_rank ([ffbacc8](https://github.com/nrkno/tv-automation-server-core/commit/ffbacc8))
 - Guard against there being no next segmentline ([849d97f](https://github.com/nrkno/tv-automation-server-core/commit/849d97f))
 - GUI externalMessages json formatting ([0b7cd2c](https://github.com/nrkno/tv-automation-server-core/commit/0b7cd2c))
 - GUI support for studio blueprint configs ([a3b1626](https://github.com/nrkno/tv-automation-server-core/commit/a3b1626))
@@ -12613,7 +12613,7 @@ All notable changes to this project will be documented in this file. See [standa
 - holdState = 0 displayed a status ([aacd140](https://github.com/nrkno/tv-automation-server-core/commit/aacd140))
 - hot fix for rehearsal activation when an RO is already active ([648c02d](https://github.com/nrkno/tv-automation-server-core/commit/648c02d))
 - hotkeys didn't work ([aded27b](https://github.com/nrkno/tv-automation-server-core/commit/aded27b))
-- houskeeping: remove uneccessary logs ([0c054f9](https://github.com/nrkno/tv-automation-server-core/commit/0c054f9))
+- housekeeping: remove unnecessary logs ([0c054f9](https://github.com/nrkno/tv-automation-server-core/commit/0c054f9))
 - if the next:ed segment is removed, instead next the one in its place ([22597b3](https://github.com/nrkno/tv-automation-server-core/commit/22597b3))
 - ignore custom dependencies ([b9db526](https://github.com/nrkno/tv-automation-server-core/commit/b9db526))
 - ignore timing of invalid parts ([6780944](https://github.com/nrkno/tv-automation-server-core/commit/6780944))
@@ -12702,8 +12702,8 @@ All notable changes to this project will be documented in this file. See [standa
 - make sure that expectedMediaItems are purged along with the RO ([0d9dda1](https://github.com/nrkno/tv-automation-server-core/commit/0d9dda1))
 - make sure that the ad-lib drawer isn't obstructed by the right-hand bar ([8783819](https://github.com/nrkno/tv-automation-server-core/commit/8783819))
 - make sure that the OnAir line connects to the label ([3788672](https://github.com/nrkno/tv-automation-server-core/commit/3788672))
-- make sure that viewport intersection is tested before destorying component ([a608018](https://github.com/nrkno/tv-automation-server-core/commit/a608018))
-- make sure that viewport intersection is tested before destorying component ([9b1643a](https://github.com/nrkno/tv-automation-server-core/commit/9b1643a))
+- make sure that viewport intersection is tested before destroying component ([a608018](https://github.com/nrkno/tv-automation-server-core/commit/a608018))
+- make sure that viewport intersection is tested before destroying component ([9b1643a](https://github.com/nrkno/tv-automation-server-core/commit/9b1643a))
 - make the context menu available in the entire header ([0590f9d](https://github.com/nrkno/tv-automation-server-core/commit/0590f9d))
 - make the FullScreen detection more lenient ([28b689a](https://github.com/nrkno/tv-automation-server-core/commit/28b689a))
 - make the FullScreen detection more lenient ([215d73c](https://github.com/nrkno/tv-automation-server-core/commit/215d73c))
@@ -12859,8 +12859,8 @@ All notable changes to this project will be documented in this file. See [standa
 - remove some console.logs ([a9f3f53](https://github.com/nrkno/tv-automation-server-core/commit/a9f3f53))
 - remove systemStatus when removing blueprint ([1aa9b44](https://github.com/nrkno/tv-automation-server-core/commit/1aa9b44))
 - remove trigger from the AdLibPieceUi setup in AdLibPanel ([847edb5](https://github.com/nrkno/tv-automation-server-core/commit/847edb5))
-- remove unneccessary margin in some headers ([b47ea11](https://github.com/nrkno/tv-automation-server-core/commit/b47ea11))
-- remove unneccessary margin in some headers ([32874a1](https://github.com/nrkno/tv-automation-server-core/commit/32874a1))
+- remove unnecessary margin in some headers ([b47ea11](https://github.com/nrkno/tv-automation-server-core/commit/b47ea11))
+- remove unnecessary margin in some headers ([32874a1](https://github.com/nrkno/tv-automation-server-core/commit/32874a1))
 - remove unused imports ([59041fc](https://github.com/nrkno/tv-automation-server-core/commit/59041fc))
 - remove unused imports ([5fe6ac3](https://github.com/nrkno/tv-automation-server-core/commit/5fe6ac3))
 - remove unused translation helper ([e545a9e](https://github.com/nrkno/tv-automation-server-core/commit/e545a9e))
@@ -12933,7 +12933,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **iterateDeeply:** typos ([c9198f1](https://github.com/nrkno/tv-automation-server-core/commit/c9198f1))
 - **L3rd pop-up:** filter out properties starting with @ ([19977e7](https://github.com/nrkno/tv-automation-server-core/commit/19977e7))
 - **L3rd pop-up:** filter out properties starting with @ ([c85ebeb](https://github.com/nrkno/tv-automation-server-core/commit/c85ebeb))
-- **lawo:** changes tempaltes to new structure ([29bf666](https://github.com/nrkno/tv-automation-server-core/commit/29bf666))
+- **lawo:** changes templates to new structure ([29bf666](https://github.com/nrkno/tv-automation-server-core/commit/29bf666))
 - **lawo:** more generic timeline object ([b0418ab](https://github.com/nrkno/tv-automation-server-core/commit/b0418ab))
 - **lookahead:** clear inGroup in a better fashion ([60541cc](https://github.com/nrkno/tv-automation-server-core/commit/60541cc))
 - **lookahead:** consider transitions properly in lookahead ([c78c6fa](https://github.com/nrkno/tv-automation-server-core/commit/c78c6fa))
@@ -12956,7 +12956,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **media manager ui:** display work step labels correctly ([05cce78](https://github.com/nrkno/tv-automation-server-core/commit/05cce78))
 - **media manager ui:** fix task list layout issue ([9902dc1](https://github.com/nrkno/tv-automation-server-core/commit/9902dc1))
 - **media manager ui:** media manager flow order ([1eb1c48](https://github.com/nrkno/tv-automation-server-core/commit/1eb1c48))
-- **media scanner integration:** better way for checking upercase mediaId ([30afac8](https://github.com/nrkno/tv-automation-server-core/commit/30afac8))
+- **media scanner integration:** better way for checking uppercase mediaId ([30afac8](https://github.com/nrkno/tv-automation-server-core/commit/30afac8))
 - **media scanner integration:** throw an error when mediaId contains lowercase characters ([3afe36e](https://github.com/nrkno/tv-automation-server-core/commit/3afe36e))
 - **mediaObject subscriptions:** subscribe to the mediaObjects from RundownNotifier in case the subscriptions aren't made by other UI components ([d798f89](https://github.com/nrkno/tv-automation-server-core/commit/d798f89))
 - **migration:** Missing studio0_audio_bed ([1c6edcc](https://github.com/nrkno/tv-automation-server-core/commit/1c6edcc))
@@ -12972,7 +12972,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **migrations:** Uncomment mos check migration ([c262fff](https://github.com/nrkno/tv-automation-server-core/commit/c262fff))
 - **migrations:** Various problems when running from empty ([11d1d0b](https://github.com/nrkno/tv-automation-server-core/commit/11d1d0b))
 - **mos:** Mos ingest typing errors ([8f08f6e](https://github.com/nrkno/tv-automation-server-core/commit/8f08f6e))
-- **mos:** move stories. Refactor updating next-part to be seperately testable ([19b2d05](https://github.com/nrkno/tv-automation-server-core/commit/19b2d05))
+- **mos:** move stories. Refactor updating next-part to be separately testable ([19b2d05](https://github.com/nrkno/tv-automation-server-core/commit/19b2d05))
 - **mos:** Segment externalId is now based on externalId of first part, instead of rank ([0916113](https://github.com/nrkno/tv-automation-server-core/commit/0916113))
 - **mos:** Set next part logic after story updates ([2b8cf47](https://github.com/nrkno/tv-automation-server-core/commit/2b8cf47))
 - **notification center:** fix notification center toggle button in RO view ([894c1e2](https://github.com/nrkno/tv-automation-server-core/commit/894c1e2))
@@ -13004,7 +13004,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **playout:** Use original sli id when adding infinite to the timeline, to ensure that any triggers on other objects resolve ([c0382ec](https://github.com/nrkno/tv-automation-server-core/commit/c0382ec))
 - **presenter screen:** display hours correctly ([e242a9e](https://github.com/nrkno/tv-automation-server-core/commit/e242a9e))
 - **presenter screen:** split background + text spacing ([9aad750](https://github.com/nrkno/tv-automation-server-core/commit/9aad750))
-- **rabbitmq:** send persistant messages ([ff8d375](https://github.com/nrkno/tv-automation-server-core/commit/ff8d375))
+- **rabbitmq:** send persistent messages ([ff8d375](https://github.com/nrkno/tv-automation-server-core/commit/ff8d375))
 - **record:** CR changes ([b3adbec](https://github.com/nrkno/tv-automation-server-core/commit/b3adbec))
 - **record:** Hide internal layer mappings ([24dfef1](https://github.com/nrkno/tv-automation-server-core/commit/24dfef1))
 - **refactor:** existing runningOrders were not migrated to the new data structure ([b20bc2d](https://github.com/nrkno/tv-automation-server-core/commit/b20bc2d))
@@ -13082,7 +13082,7 @@ All notable changes to this project will be documented in this file. See [standa
 - ro-reset does not reset properly ([6367658](https://github.com/nrkno/tv-automation-server-core/commit/6367658))
 - roReset should reset holdItems and infinites ([bdf8385](https://github.com/nrkno/tv-automation-server-core/commit/bdf8385))
 - run afterUpdateTimeline after timelineTriggerTime ([98ece60](https://github.com/nrkno/tv-automation-server-core/commit/98ece60))
-- Rundown name dissappearing from view ([91dcc21](https://github.com/nrkno/tv-automation-server-core/commit/91dcc21))
+- Rundown name disappearing from view ([91dcc21](https://github.com/nrkno/tv-automation-server-core/commit/91dcc21))
 - running blueprint migrations ([fe1e7fd](https://github.com/nrkno/tv-automation-server-core/commit/fe1e7fd))
 - Running blueprints and migrations ([3b29df3](https://github.com/nrkno/tv-automation-server-core/commit/3b29df3))
 - running order closing prompt ([7074cc3](https://github.com/nrkno/tv-automation-server-core/commit/7074cc3))
@@ -13161,8 +13161,8 @@ All notable changes to this project will be documented in this file. See [standa
 - systemStatus versions ([62bfa9a](https://github.com/nrkno/tv-automation-server-core/commit/62bfa9a))
 - take action should not throw as nasty errors when called by user. ([6791d50](https://github.com/nrkno/tv-automation-server-core/commit/6791d50))
 - take playOffset into account for timing ([422783a](https://github.com/nrkno/tv-automation-server-core/commit/422783a))
-- templates with wipe. Readd seperate audio file ([5be2802](https://github.com/nrkno/tv-automation-server-core/commit/5be2802))
-- temporary fix for the "UnhandledPromiseRejectionWarning" bug, supressing the error when used ([7aa7cf8](https://github.com/nrkno/tv-automation-server-core/commit/7aa7cf8))
+- templates with wipe. Readd separate audio file ([5be2802](https://github.com/nrkno/tv-automation-server-core/commit/5be2802))
+- temporary fix for the "UnhandledPromiseRejectionWarning" bug, suppressing the error when used ([7aa7cf8](https://github.com/nrkno/tv-automation-server-core/commit/7aa7cf8))
 - temporary fix of typing error ([73bf56d](https://github.com/nrkno/tv-automation-server-core/commit/73bf56d))
 - temporary ignore typings issue ([abb5d71](https://github.com/nrkno/tv-automation-server-core/commit/abb5d71))
 - test-tools decklink input format dropdown has no options ([b02f447](https://github.com/nrkno/tv-automation-server-core/commit/b02f447))
@@ -13190,7 +13190,7 @@ All notable changes to this project will be documented in this file. See [standa
 - top RO overview labels clipped in wrong places ([5e5c228](https://github.com/nrkno/tv-automation-server-core/commit/5e5c228))
 - Translate 'add child devices' tooltip ([0018dd3](https://github.com/nrkno/tv-automation-server-core/commit/0018dd3))
 - Translate reload hint ([231c173](https://github.com/nrkno/tv-automation-server-core/commit/231c173))
-- Tweaked styling of evaluation form, warning messages, color of the next lines, translations, capialized warning icon file name, and optimized png and svg icons. ([50d2753](https://github.com/nrkno/tv-automation-server-core/commit/50d2753))
+- Tweaked styling of evaluation form, warning messages, color of the next lines, translations, capitalized warning icon file name, and optimized png and svg icons. ([50d2753](https://github.com/nrkno/tv-automation-server-core/commit/50d2753))
 - tweaks on externalMessage send function, limiting the number of messages sent in one go ([046ae38](https://github.com/nrkno/tv-automation-server-core/commit/046ae38))
 - typo in rank calculation ([4575a37](https://github.com/nrkno/tv-automation-server-core/commit/4575a37))
 - **zoom:** moved zoom modifier for scroll action to ctrl ([863d81e](https://github.com/nrkno/tv-automation-server-core/commit/863d81e))
@@ -13215,7 +13215,7 @@ All notable changes to this project will be documented in this file. See [standa
 - ui manualPlayback key ([ca1a943](https://github.com/nrkno/tv-automation-server-core/commit/ca1a943))
 - ui manualPlayback key ([5d4e49f](https://github.com/nrkno/tv-automation-server-core/commit/5d4e49f))
 - UI tweaks for messages status view. so it doesn't break when having long error messages ([ca1e3ae](https://github.com/nrkno/tv-automation-server-core/commit/ca1e3ae))
-- UI: improve shapshot comment edit field ([093e6cb](https://github.com/nrkno/tv-automation-server-core/commit/093e6cb))
+- UI: improve snapshot comment edit field ([093e6cb](https://github.com/nrkno/tv-automation-server-core/commit/093e6cb))
 - upd meteor typings ([53f17d2](https://github.com/nrkno/tv-automation-server-core/commit/53f17d2))
 - upd query-string dependency & fixed typings issue ([e0d3f12](https://github.com/nrkno/tv-automation-server-core/commit/e0d3f12))
 - update all data in roReplaceMetadata ([8a5a671](https://github.com/nrkno/tv-automation-server-core/commit/8a5a671))
@@ -13296,7 +13296,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **template:** Reduce volume of head wipes ([b2092cc](https://github.com/nrkno/tv-automation-server-core/commit/b2092cc))
 - write back TimeBase with EditorialStart/Duration ([96f8e21](https://github.com/nrkno/tv-automation-server-core/commit/96f8e21))
 - **RO view:** Always persist original event in user-action methods ([6ba7df8](https://github.com/nrkno/tv-automation-server-core/commit/6ba7df8))
-- **rundown layout:** don't display segment headers when currentSegemnt filter is on ([9b09858](https://github.com/nrkno/tv-automation-server-core/commit/9b09858))
+- **rundown layout:** don't display segment headers when currentSegment filter is on ([9b09858](https://github.com/nrkno/tv-automation-server-core/commit/9b09858))
 - **rundown layouts:** issue with layer type filtering ([c41bd5a](https://github.com/nrkno/tv-automation-server-core/commit/c41bd5a))
 - **RundownView:** don't wrap on system status header ([0daaa6a](https://github.com/nrkno/tv-automation-server-core/commit/0daaa6a))
 - **runtimeArgs:** Removing infinite items from changed sl and anything following ([28ffd5d](https://github.com/nrkno/tv-automation-server-core/commit/28ffd5d))
@@ -13478,7 +13478,7 @@ All notable changes to this project will be documented in this file. See [standa
 - blueprint migration, continued implementation ([ff507ab](https://github.com/nrkno/tv-automation-server-core/commit/ff507ab))
 - blueprintMigrations ([9527cae](https://github.com/nrkno/tv-automation-server-core/commit/9527cae))
 - blueprints context: handle notes externally (to ro notes) or internally (to logger) ([63640f2](https://github.com/nrkno/tv-automation-server-core/commit/63640f2))
-- Break nrk templates into seperate files. Parse KAM templates better ([2ec0433](https://github.com/nrkno/tv-automation-server-core/commit/2ec0433))
+- Break nrk templates into separate files. Parse KAM templates better ([2ec0433](https://github.com/nrkno/tv-automation-server-core/commit/2ec0433))
 - bump blueprints-integration version ([6f2c46d](https://github.com/nrkno/tv-automation-server-core/commit/6f2c46d))
 - Button to assign/unassign system blueprint ([edef22a](https://github.com/nrkno/tv-automation-server-core/commit/edef22a))
 - change heavy-light display style ([329e2c6](https://github.com/nrkno/tv-automation-server-core/commit/329e2c6))
@@ -13525,7 +13525,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Device hierarchy restructuring ([08e41f4](https://github.com/nrkno/tv-automation-server-core/commit/08e41f4))
 - disable in next segmentLine & refactoring ([669166c](https://github.com/nrkno/tv-automation-server-core/commit/669166c))
 - disable shortcut-keys when modalDialog is open ([24bab3f](https://github.com/nrkno/tv-automation-server-core/commit/24bab3f))
-- dismiss all notifcations ([896dbb5](https://github.com/nrkno/tv-automation-server-core/commit/896dbb5))
+- dismiss all notifications ([896dbb5](https://github.com/nrkno/tv-automation-server-core/commit/896dbb5))
 - display ms in user activity log ([5172f2e](https://github.com/nrkno/tv-automation-server-core/commit/5172f2e))
 - display ms in user activity log ([7fc2744](https://github.com/nrkno/tv-automation-server-core/commit/7fc2744))
 - display piece name instead of fileName in media notifications ([efbf460](https://github.com/nrkno/tv-automation-server-core/commit/efbf460))
@@ -13566,7 +13566,7 @@ All notable changes to this project will be documented in this file. See [standa
 - implement mosRoStoryMove ([ab76cfb](https://github.com/nrkno/tv-automation-server-core/commit/ab76cfb))
 - implement Panasonic PTZ device ([42d8534](https://github.com/nrkno/tv-automation-server-core/commit/42d8534))
 - implement Panasonic PTZ settings ([f7840da](https://github.com/nrkno/tv-automation-server-core/commit/f7840da))
-- implement spliting long scripts into beginning and end in popup ([9fa8006](https://github.com/nrkno/tv-automation-server-core/commit/9fa8006))
+- implement splitting long scripts into beginning and end in popup ([9fa8006](https://github.com/nrkno/tv-automation-server-core/commit/9fa8006))
 - implement support for Spreadsheet gateway ([44dab01](https://github.com/nrkno/tv-automation-server-core/commit/44dab01))
 - implement timeline-visualizer view ([e725618](https://github.com/nrkno/tv-automation-server-core/commit/e725618))
 - implementation of blueprint migrations ([5fec7a2](https://github.com/nrkno/tv-automation-server-core/commit/5fec7a2))
@@ -13596,7 +13596,7 @@ All notable changes to this project will be documented in this file. See [standa
 - KAM SLUTT variant ([e819269](https://github.com/nrkno/tv-automation-server-core/commit/e819269))
 - List, start and stop test recordings ([df552ab](https://github.com/nrkno/tv-automation-server-core/commit/df552ab))
 - load atem ssrc background when activating RO ([0eda9b4](https://github.com/nrkno/tv-automation-server-core/commit/0eda9b4))
-- log ClientResonseErrors as errors in userActionLog ([4bc10b5](https://github.com/nrkno/tv-automation-server-core/commit/4bc10b5))
+- log ClientResponseErrors as errors in userActionLog ([4bc10b5](https://github.com/nrkno/tv-automation-server-core/commit/4bc10b5))
 - log message on startup ([c715266](https://github.com/nrkno/tv-automation-server-core/commit/c715266))
 - log warning message when trying to access a studio.config value that hasn't been set. ([7e706c6](https://github.com/nrkno/tv-automation-server-core/commit/7e706c6))
 - log WorkFlow success or failure ([8e7d9d7](https://github.com/nrkno/tv-automation-server-core/commit/8e7d9d7))
@@ -13641,7 +13641,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Option to disable devices in playout-gateway ([b36e48f](https://github.com/nrkno/tv-automation-server-core/commit/b36e48f))
 - output evaluation to log ([7deca0f](https://github.com/nrkno/tv-automation-server-core/commit/7deca0f))
 - output evaluation to log ([f95cfbf](https://github.com/nrkno/tv-automation-server-core/commit/f95cfbf))
-- Part EndState persistance ([a84f74b](https://github.com/nrkno/tv-automation-server-core/commit/a84f74b))
+- Part EndState persistence ([a84f74b](https://github.com/nrkno/tv-automation-server-core/commit/a84f74b))
 - place all collections in Collections object, for debugging purposes ([9682a89](https://github.com/nrkno/tv-automation-server-core/commit/9682a89))
 - playout device debugLogging (wip) ([7ab4ec6](https://github.com/nrkno/tv-automation-server-core/commit/7ab4ec6))
 - preliminary mongo mock implementation ([498b88f](https://github.com/nrkno/tv-automation-server-core/commit/498b88f))
@@ -13666,7 +13666,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Refactor story template code to use new blueprint structure ([104982b](https://github.com/nrkno/tv-automation-server-core/commit/104982b))
 - refactor systemStatus & add status messages on front page ([14da61a](https://github.com/nrkno/tv-automation-server-core/commit/14da61a))
 - refactor to use relative durations. affects infinite segmentlineitems, autonext, segmentline overlapduration property ([67c5444](https://github.com/nrkno/tv-automation-server-core/commit/67c5444))
-- refactored initDB into 2 separate methods, so we can easilly update just the layers and not the infrastructure ([d4fcc3f](https://github.com/nrkno/tv-automation-server-core/commit/d4fcc3f))
+- refactored initDB into 2 separate methods, so we can easily update just the layers and not the infrastructure ([d4fcc3f](https://github.com/nrkno/tv-automation-server-core/commit/d4fcc3f))
 - Reference blueprints-integration api file ([dc1cdb8](https://github.com/nrkno/tv-automation-server-core/commit/dc1cdb8))
 - Reference blueprints-integration utils file ([d94c97b](https://github.com/nrkno/tv-automation-server-core/commit/d94c97b))
 - Reference device options in tsr-types ([049b9bc](https://github.com/nrkno/tv-automation-server-core/commit/049b9bc))
@@ -13762,7 +13762,7 @@ All notable changes to this project will be documented in this file. See [standa
 - timeline-visualizer: add details-on-click ([c81243c](https://github.com/nrkno/tv-automation-server-core/commit/c81243c))
 - timings page ([6bc325a](https://github.com/nrkno/tv-automation-server-core/commit/6bc325a))
 - toggle running order argument on an SL with a hotkey ([258c3b3](https://github.com/nrkno/tv-automation-server-core/commit/258c3b3))
-- Transition as a seperate SegmentLineItem, which is not run if the first SegmentLine in the show, or the previous SegmentLine instructs it to not ([e676a43](https://github.com/nrkno/tv-automation-server-core/commit/e676a43))
+- Transition as a separate SegmentLineItem, which is not run if the first SegmentLine in the show, or the previous SegmentLine instructs it to not ([e676a43](https://github.com/nrkno/tv-automation-server-core/commit/e676a43))
 - translation improvements ([d3a535d](https://github.com/nrkno/tv-automation-server-core/commit/d3a535d))
 - Treat sli marked as virtual solely as markers for the timeline. They are hidden from the ui and are not allowed to place any contents on the timeline ([25e0f42](https://github.com/nrkno/tv-automation-server-core/commit/25e0f42))
 - trim config values (strings) ([d41e07e](https://github.com/nrkno/tv-automation-server-core/commit/d41e07e))
@@ -13776,7 +13776,7 @@ All notable changes to this project will be documented in this file. See [standa
 - update dependencies ([6766d18](https://github.com/nrkno/tv-automation-server-core/commit/6766d18))
 - **asRunLog:** collection implementation ([0e63c36](https://github.com/nrkno/tv-automation-server-core/commit/0e63c36))
 - **asRunLog:** implementation of asRunLog ([62f5b8c](https://github.com/nrkno/tv-automation-server-core/commit/62f5b8c))
-- **aux:** Adds tecnical error aux 2 ([34ce710](https://github.com/nrkno/tv-automation-server-core/commit/34ce710))
+- **aux:** Adds technical error aux 2 ([34ce710](https://github.com/nrkno/tv-automation-server-core/commit/34ce710))
 - **AUX:** adds clock aux ([45479da](https://github.com/nrkno/tv-automation-server-core/commit/45479da))
 - **AUXes:** New AUX-mapping introducing more previews and moves the cleanfeed ([548bd8c](https://github.com/nrkno/tv-automation-server-core/commit/548bd8c))
 - **blueprint:** refactor getConfigValue into the blueprints, with context exposing the raw array as getConfig instead ([5b0ac39](https://github.com/nrkno/tv-automation-server-core/commit/5b0ac39))
@@ -13855,7 +13855,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **playout:** Add class to sli first_object to indicate if sli is from the current or previous sl ([8de6004](https://github.com/nrkno/tv-automation-server-core/commit/8de6004))
 - **playout:** Add class to sli first_object when the sli is a continuation of another ([d53f06b](https://github.com/nrkno/tv-automation-server-core/commit/d53f06b))
 - **playout:** Add classes to sl-firstobject from the current and prev sl. This will allow for some logical triggers which can be influenced by the prev sl ([632326f](https://github.com/nrkno/tv-automation-server-core/commit/632326f))
-- **playout:** Add object to timeline to indicate whether ro is active or in rehersal ([d0e850d](https://github.com/nrkno/tv-automation-server-core/commit/d0e850d))
+- **playout:** Add object to timeline to indicate whether ro is active or in rehearsal ([d0e850d](https://github.com/nrkno/tv-automation-server-core/commit/d0e850d))
 - **playout:** Block take during transitions ([d0628a2](https://github.com/nrkno/tv-automation-server-core/commit/d0628a2))
 - **prompter:** add anchor points & movement tweaks ([c4ababe](https://github.com/nrkno/tv-automation-server-core/commit/c4ababe))
 - **prompter:** Add keyboard-controller, for control by keyboard-like devices ([c6e307d](https://github.com/nrkno/tv-automation-server-core/commit/c6e307d))
@@ -13877,7 +13877,7 @@ All notable changes to this project will be documented in this file. See [standa
 - **settings:** clicking pencil on edited item closes panel ([35c9fc3](https://github.com/nrkno/tv-automation-server-core/commit/35c9fc3))
 - **settings:** playout devices have threadUsage ([b74410c](https://github.com/nrkno/tv-automation-server-core/commit/b74410c))
 - **shortcuts:** adds shortcuts to remove various graphic layers ([0d1a83d](https://github.com/nrkno/tv-automation-server-core/commit/0d1a83d))
-- **shortcuts:** standarize shortcut label display, support numpad ([4c5ba74](https://github.com/nrkno/tv-automation-server-core/commit/4c5ba74))
+- **shortcuts:** standardize shortcut label display, support numpad ([4c5ba74](https://github.com/nrkno/tv-automation-server-core/commit/4c5ba74))
 - Update template to use correct media files and durations. Adjust transitions from head to kam ([18f6c44](https://github.com/nrkno/tv-automation-server-core/commit/18f6c44))
 - **snapshot:** continued implementation ([009e9e5](https://github.com/nrkno/tv-automation-server-core/commit/009e9e5))
 - update meteor typings ([49b6969](https://github.com/nrkno/tv-automation-server-core/commit/49b6969))

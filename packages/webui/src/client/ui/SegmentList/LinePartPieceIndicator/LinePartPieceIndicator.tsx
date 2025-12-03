@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react'
-import { ISourceLayerExtended, PieceExtended } from '../../../lib/RundownResolver'
+import { ISourceLayerExtended, PieceExtended } from '../../../lib/RundownResolver.js'
 import { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import StudioContext from '../../RundownView/StudioContext'
-import { LinePartIndicator } from './LinePartIndicator'
-import { PieceIndicatorMenu } from './PieceIndicatorMenu'
-import { PieceUi } from '../../SegmentContainer/withResolvedSegment'
+import StudioContext from '../../RundownView/StudioContext.js'
+import { LinePartIndicator } from './LinePartIndicator.js'
+import { PieceIndicatorMenu } from './PieceIndicatorMenu.js'
+import { PieceUi } from '../../SegmentContainer/withResolvedSegment.js'
 
 interface IProps {
 	partId: PartId

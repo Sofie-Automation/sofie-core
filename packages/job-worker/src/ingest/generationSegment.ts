@@ -3,14 +3,14 @@ import { SegmentNote, PartNote } from '@sofie-automation/corelib/dist/dataModel/
 import { DBSegment, SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
-import { RawPartNote, SegmentUserContext } from '../blueprints/context'
-import { WatchedPackagesHelper } from '../blueprints/context/watchedPackages'
-import { postProcessAdLibActions, postProcessAdLibPieces, postProcessPieces } from '../blueprints/postProcess'
-import { logger } from '../logging'
-import { IngestModel, IngestModelReadonly, IngestReplaceSegmentType } from './model/IngestModel'
-import { getSegmentId, canSegmentBeUpdated } from './lib'
-import { JobContext, ProcessedShowStyleCompound } from '../jobs'
-import { CommitIngestData } from './lock'
+import { RawPartNote, SegmentUserContext } from '../blueprints/context/index.js'
+import { WatchedPackagesHelper } from '../blueprints/context/watchedPackages.js'
+import { postProcessAdLibActions, postProcessAdLibPieces, postProcessPieces } from '../blueprints/postProcess.js'
+import { logger } from '../logging.js'
+import { IngestModel, IngestModelReadonly, IngestReplaceSegmentType } from './model/IngestModel.js'
+import { getSegmentId, canSegmentBeUpdated } from './lib.js'
+import { JobContext, ProcessedShowStyleCompound } from '../jobs/index.js'
+import { CommitIngestData } from './lock.js'
 import {
 	BlueprintResultPart,
 	BlueprintResultSegment,
@@ -19,12 +19,12 @@ import {
 	SofieIngestSegment,
 } from '@sofie-automation/blueprints-integration'
 import { wrapTranslatableMessageFromBlueprints } from '@sofie-automation/corelib/dist/TranslatableMessage'
-import { updateExpectedPackagesForPartModel } from './expectedPackages'
-import { IngestReplacePartType, IngestSegmentModel } from './model/IngestSegmentModel'
+import { updateExpectedPackagesForPartModel } from './expectedPackages.js'
+import { IngestReplacePartType, IngestSegmentModel } from './model/IngestSegmentModel.js'
 import { ReadonlyDeep } from 'type-fest'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { WrappedShowStyleBlueprint } from '../blueprints/cache'
-import { translateUserEditPropertiesFromBlueprint, translateUserEditsFromBlueprint } from '../blueprints/context/lib'
+import { WrappedShowStyleBlueprint } from '../blueprints/cache.js'
+import { translateUserEditPropertiesFromBlueprint, translateUserEditsFromBlueprint } from '../blueprints/context/lib.js'
 
 async function getWatchedPackagesHelper(
 	context: JobContext,
@@ -376,7 +376,7 @@ function updateModelWithGeneratedPart(
 					message: wrapTranslatableMessageFromBlueprints(blueprintPart.part.invalidReason.message, [
 						blueprintId,
 					]),
-			  }
+				}
 			: undefined,
 		userEditOperations: translateUserEditsFromBlueprint(blueprintPart.part.userEditOperations, [blueprintId]),
 		userEditProperties: translateUserEditPropertiesFromBlueprint(blueprintPart.part.userEditProperties, [

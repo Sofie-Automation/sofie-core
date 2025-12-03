@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 import Tooltip from 'rc-tooltip'
-import { getHelpMode } from '../../lib/localStorage'
+import { getHelpMode } from '../../lib/localStorage.js'
 import { StatusResponse } from '@sofie-automation/meteor-lib/dist/api/systemStatus'
-import { TOOLTIP_DEFAULT_DELAY } from '../../lib/lib'
+import { TOOLTIP_DEFAULT_DELAY } from '../../lib/lib.js'
 import { useTranslation } from 'react-i18next'
-import { MeteorCall } from '../../lib/meteorApi'
-import { NoticeLevel, Notification, NotificationCenter } from '../../lib/notifications/notifications'
-import { APP_VERSION_EXTENDED } from '../../lib/Settings'
+import { MeteorCall } from '../../lib/meteorApi.js'
+import { NoticeLevel, Notification, NotificationCenter } from '../../lib/notifications/notifications.js'
+import { APP_VERSION_EXTENDED } from '../../lib/Settings.js'
 
 export function RundownListFooter(): JSX.Element {
 	const { t } = useTranslation()
@@ -44,14 +44,14 @@ export function RundownListFooter(): JSX.Element {
 	const versionExtended = APP_VERSION_EXTENDED || version
 
 	return (
-		<div className="mtl gutter version-info">
+		<div className="mt-5 mx-5 version-info">
 			<p>
 				{t('Sofie Automation')} {t('version')}:&nbsp;
 				<Tooltip overlay={versionExtended} placement="top" mouseEnterDelay={TOOLTIP_DEFAULT_DELAY}>
 					<span>{version}</span>
 				</Tooltip>
 			</p>
-			<div className="mod">
+			<div>
 				{systemStatus ? (
 					<>
 						<div>

@@ -1,4 +1,4 @@
-import { translateStringIfHasNamespaces } from './schemaFormUtil'
+import { translateStringIfHasNamespaces } from './schemaFormUtil.js'
 
 export function SchemaFormSectionHeader({
 	title,
@@ -13,7 +13,7 @@ export function SchemaFormSectionHeader({
 
 	return (
 		<>
-			<h3 className="mhn mbn">{translateStringIfHasNamespaces(title, translationNamespaces)}</h3>
+			<h3 className="m-0">{translateStringIfHasNamespaces(title, translationNamespaces)}</h3>
 			{description ? (
 				<p className="text-s subtle">{translateStringIfHasNamespaces(description, translationNamespaces)}</p>
 			) : null}

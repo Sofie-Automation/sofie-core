@@ -1,0 +1,33 @@
+$defs:
+  NotificationObj:
+    type: object
+    title: NotificationObj
+    description: This describes a notification that should be shown to a user. These can come from various sources, and are added and removed dynamically during system usage
+    required:
+      - _id
+      - severity
+      - message
+      - relatedTo
+      - created
+    properties:
+      _id:
+        type: string
+        description: Unique identifier for the notification
+      severity:
+        $ref: '../notificationSeverity.yaml#/$defs/severity'
+      message:
+        type: string
+        description: The message of the notification
+      relatedTo:
+        $ref: '../target/notificationTarget.yaml#/$defs/NotificationTarget'
+      created:
+        type: integer
+        format: int64
+        description: Unix timestamp of creation
+      modified:
+        type: integer
+        format: int64
+        description: Unix timestamp of last modification
+    additionalProperties: false
+    examples:
+      - $ref: './notificationObj-example.yaml'

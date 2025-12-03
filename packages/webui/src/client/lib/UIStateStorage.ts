@@ -1,4 +1,4 @@
-import * as _ from 'underscore'
+import _ from 'underscore'
 
 export namespace UIStateStorage {
 	let _collapsedState: {
@@ -18,7 +18,7 @@ export namespace UIStateStorage {
 	localStorage.removeItem('collapsedItems')
 	try {
 		_collapsedState = JSON.parse(localStorage.getItem(NAMESPACE) || '') || {}
-	} catch (e) {
+	} catch (_e) {
 		_collapsedState = {}
 	}
 	_cleanUp()
@@ -53,7 +53,8 @@ export namespace UIStateStorage {
 
 	export function getItemString(scope: string, tag: string, defaultValue: string): string {
 		return typeof (_collapsedState[scope] || {})[tag] === 'string'
-			? String(_collapsedState[scope][tag])
+			? // eslint-disable-next-line @typescript-eslint/no-base-to-string
+				String(_collapsedState[scope][tag])
 			: defaultValue
 	}
 

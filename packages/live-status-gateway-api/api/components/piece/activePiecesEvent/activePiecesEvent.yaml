@@ -1,0 +1,22 @@
+$defs:
+  activePiecesEvent:
+    type: object
+    title: ActivePiecesEvent
+    properties:
+      event:
+        type: string
+        const: activePieces
+      rundownPlaylistId:
+        description: Unique id of the rundown playlist, or null if no playlist is active
+        oneOf:
+          - type: string
+          - type: 'null'
+      activePieces:
+        description: Pieces that are currently active (on air)
+        type: array
+        items:
+          $ref: '../pieceStatus/pieceStatus.yaml#/$defs/pieceStatus'
+    required: [event, rundownPlaylistId, activePieces]
+    additionalProperties: false
+    examples:
+      - $ref: './activePiecesEvent-example.yaml'

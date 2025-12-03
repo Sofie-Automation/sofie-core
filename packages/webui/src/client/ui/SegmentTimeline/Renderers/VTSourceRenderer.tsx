@@ -1,28 +1,26 @@
 import * as React from 'react'
 import ReactDOM from 'react-dom'
 
-import { getElementWidth } from '../../../utils/dimensions'
+import { getElementWidth } from '../../../utils/dimensions.js'
 
 import ClassNames from 'classnames'
-import { CustomLayerItemRenderer, ICustomLayerItemProps } from './CustomLayerItemRenderer'
+import { CustomLayerItemRenderer, ICustomLayerItemProps } from './CustomLayerItemRenderer.js'
 
 import { withTranslation, WithTranslation } from 'react-i18next'
 import { VTContent } from '@sofie-automation/blueprints-integration'
-import { PieceStatusIcon } from '../../../lib/ui/PieceStatusIcon'
-import { NoticeLevel, getNoticeLevelForPieceStatus } from '../../../lib/notifications/notifications'
-import { VTFloatingInspector } from '../../FloatingInspectors/VTFloatingInspector'
-import { RundownUtils } from '../../../lib/rundown'
-import { FreezeFrameIcon } from '../../../lib/ui/icons/freezeFrame'
-import StudioContext from '../../RundownView/StudioContext'
-import { Settings } from '../../../lib/Settings'
+import { PieceStatusIcon } from '../../../lib/ui/PieceStatusIcon.js'
+import { NoticeLevel, getNoticeLevelForPieceStatus } from '../../../lib/notifications/notifications.js'
+import { RundownUtils } from '../../../lib/rundown.js'
+import { FreezeFrameIcon } from '../../../lib/ui/icons/freezeFrame.js'
+import StudioContext from '../../RundownView/StudioContext.js'
+import { Settings } from '../../../lib/Settings.js'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { PieceStatusCode } from '@sofie-automation/corelib/dist/dataModel/Piece'
-import { HourglassIconSmall } from '../../../lib/ui/icons/notifications'
-import { IFloatingInspectorPosition } from '../../FloatingInspectors/IFloatingInspectorPosition'
-import { logger } from '../../../lib/logging'
+import { HourglassIconSmall } from '../../../lib/ui/icons/notifications.js'
+import { logger } from '../../../lib/logging.js'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { ReadonlyDeep } from 'type-fest'
-import { PieceContentStatusObj } from '@sofie-automation/meteor-lib/dist/api/pieceContentStatus'
+import { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
 
 interface IProps extends ICustomLayerItemProps {
 	studio: UIStudio | undefined
@@ -367,21 +365,10 @@ class VTSourceRendererBase extends CustomLayerItemRenderer<IProps & WithTranslat
 		return this.countdownContainer && ReactDOM.createPortal(countdown, this.countdownContainer)
 	}
 
-	protected getFloatingInspectorStyle(): IFloatingInspectorPosition {
-		return {
-			left: this.props.elementPosition.left + this.props.cursorPosition.left,
-			top: this.props.elementPosition.top,
-			anchor: 'start',
-			position: 'top-start',
-		}
-	}
-
 	render(): JSX.Element {
 		const itemDuration = this.getItemDuration()
 		const vtContent = this.props.piece.instance.piece.content as VTContent | undefined
 		const seek = vtContent && vtContent.seek ? vtContent.seek : 0
-
-		const realCursorTimePosition = this.props.cursorTimePosition + seek
 
 		if ((!this.props.relative && !this.props.isTooSmallForText) || this.props.isPreview) {
 			this.leftLabelNodes = this.renderLeftLabel()
@@ -445,20 +432,6 @@ class VTSourceRendererBase extends CustomLayerItemRenderer<IProps & WithTranslat
 				)}
 				{this.leftLabelNodes}
 				{this.rightLabelContainer && ReactDOM.createPortal(this.rightLabelNodes, this.rightLabelContainer)}
-				<VTFloatingInspector
-					status={this.props.contentStatus?.status}
-					position={this.getFloatingInspectorStyle()}
-					content={vtContent}
-					itemElement={this.props.itemElement}
-					noticeLevel={this.state.noticeLevel}
-					showMiniInspector={this.props.showMiniInspector}
-					timePosition={realCursorTimePosition}
-					typeClass={this.props.typeClass}
-					noticeMessages={this.props.contentStatus?.messages || []}
-					renderedDuration={this.props.piece.renderedDuration || undefined}
-					studio={this.props.studio}
-					previewUrl={this.props.contentStatus?.previewUrl}
-				/>
 			</React.Fragment>
 		)
 	}

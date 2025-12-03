@@ -7,27 +7,27 @@ import { getRandomString, literal } from '@sofie-automation/corelib/dist/lib'
 import Tooltip from 'rc-tooltip'
 import { useTranslation } from 'react-i18next'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { getHelpMode } from '../../../lib/localStorage'
-import { doModalDialog } from '../../../lib/ModalDialog'
-import { findHighestRank } from '../StudioSettings'
+import { getHelpMode } from '../../../lib/localStorage.js'
+import { doModalDialog } from '../../../lib/ModalDialog.js'
+import { findHighestRank } from '../StudioSettings.js'
 import { ObjectOverrideSetOp, SomeObjectOverrideOp } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import { CheckboxControl } from '../../../lib/Components/Checkbox'
+import { CheckboxControl } from '../../../lib/Components/Checkbox.js'
 import {
 	useOverrideOpHelper,
 	getAllCurrentAndDeletedItemsFromOverrides,
 	OverrideOpHelper,
 	WrappedOverridableItemNormal,
-} from '../util/OverrideOpHelper'
-import { TextInputControl } from '../../../lib/Components/TextInput'
-import { IntInputControl } from '../../../lib/Components/IntInput'
-import { useToggleExpandHelper } from '../../util/useToggleExpandHelper'
+} from '../util/OverrideOpHelper.js'
+import { TextInputControl } from '../../../lib/Components/TextInput.js'
+import { IntInputControl } from '../../../lib/Components/IntInput.js'
+import { useToggleExpandHelper } from '../../util/useToggleExpandHelper.js'
 import {
 	LabelActual,
 	LabelAndOverrides,
 	LabelAndOverridesForCheckbox,
 	LabelAndOverridesForInt,
-} from '../../../lib/Components/LabelAndOverrides'
-import { ShowStyleBases } from '../../../collections'
+} from '../../../lib/Components/LabelAndOverrides.js'
+import { ShowStyleBases } from '../../../collections/index.js'
 
 interface IOutputSettingsProps {
 	showStyleBase: DBShowStyleBase
@@ -99,7 +99,7 @@ export function OutputLayerSettings({ showStyleBase }: Readonly<IOutputSettingsP
 
 	return (
 		<div>
-			<h2 className="mhn">
+			<h2 className="mb-4">
 				<Tooltip
 					overlay={t('Output channels are required for your studio to work')}
 					visible={getHelpMode() && !sortedOutputLayers.length}
@@ -135,7 +135,7 @@ export function OutputLayerSettings({ showStyleBase }: Readonly<IOutputSettingsP
 					)}
 				</tbody>
 			</table>
-			<div className="mod mhs">
+			<div className="my-1 mx-2">
 				<button className="btn btn-primary" onClick={onAddOutput}>
 					<FontAwesomeIcon icon={faPlus} />
 				</button>
@@ -271,24 +271,11 @@ function OutputLayerEntry({ item, isExpanded, toggleExpanded, overrideHelper }: 
 					<td colSpan={4}>
 						<div className="properties-grid">
 							<LabelAndOverrides label={t('Channel Name')} item={item} itemKey={'name'} overrideHelper={overrideHelper}>
-								{(value, handleUpdate) => (
-									<TextInputControl
-										modifiedClassName="bghl"
-										classNames="input text-input input-l"
-										value={value}
-										handleUpdate={handleUpdate}
-									/>
-								)}
+								{(value, handleUpdate) => <TextInputControl value={value} handleUpdate={handleUpdate} />}
 							</LabelAndOverrides>
 							<label className="field">
 								<LabelActual label={t('Internal ID')} />
-								<TextInputControl
-									modifiedClassName="bghl"
-									classNames="input text-input input-l"
-									value={item.id}
-									handleUpdate={doChangeItemId}
-									disabled={!!item.defaults}
-								/>
+								<TextInputControl value={item.id} handleUpdate={doChangeItemId} disabled={!!item.defaults} />
 							</label>
 							<LabelAndOverridesForCheckbox
 								label={t('Is PGM Output')}
@@ -304,14 +291,7 @@ function OutputLayerEntry({ item, isExpanded, toggleExpanded, overrideHelper }: 
 								itemKey={'_rank'}
 								overrideHelper={overrideHelper}
 							>
-								{(value, handleUpdate) => (
-									<IntInputControl
-										modifiedClassName="bghl"
-										classNames="input text-input input-l"
-										value={value}
-										handleUpdate={handleUpdate}
-									/>
-								)}
+								{(value, handleUpdate) => <IntInputControl value={value} handleUpdate={handleUpdate} />}
 							</LabelAndOverridesForInt>
 							<LabelAndOverridesForCheckbox
 								label={t('Is collapsed by default')}
@@ -330,7 +310,7 @@ function OutputLayerEntry({ item, isExpanded, toggleExpanded, overrideHelper }: 
 								{(value, handleUpdate) => <CheckboxControl value={!!value} handleUpdate={handleUpdate} />}
 							</LabelAndOverridesForCheckbox>
 						</div>
-						<div className="mod alright">
+						<div className="m-1 me-2 text-end">
 							{item.defaults && (
 								<button className="btn btn-primary" onClick={doResetItem} title="Reset to defaults">
 									<FontAwesomeIcon icon={faSync} />

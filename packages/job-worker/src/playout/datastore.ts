@@ -2,8 +2,8 @@ import { DatastorePersistenceMode, TSR } from '@sofie-automation/blueprints-inte
 import { StudioId, TimelineDatastoreEntryId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { deserializeTimelineBlob } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { JobContext } from '../jobs'
-import { PlayoutModel } from './model/PlayoutModel'
+import { JobContext } from '../jobs/index.js'
+import { PlayoutModel } from './model/PlayoutModel.js'
 
 export function getDatastoreId(studioId: StudioId, key: string): TimelineDatastoreEntryId {
 	return protectString<TimelineDatastoreEntryId>(`${studioId}_${key}`)

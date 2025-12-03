@@ -1,11 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Meteor } from 'meteor/meteor'
 import _ from 'underscore'
-import { Time } from './tempLib'
-import { getCurrentTime, systemTime } from './systemTime'
-import { logger } from './logging'
+import type { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
+import { getCurrentTime, systemTime } from './systemTime.js'
+import { logger } from './logging.js'
 import shajs from 'sha.js'
 import { SINGLE_USE_TOKEN_SALT } from '@sofie-automation/meteor-lib/dist/api/userActions'
+import RundownViewEventBus, {
+	RundownViewEventBusEvents,
+	RundownViewEvents,
+} from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
 
 export { multilineText, isEventInInputField }
 
@@ -174,16 +178,33 @@ export function useDebounce<K>(value: K, delay: number, shouldUpdate?: (oldVal: 
 	return debouncedValue
 }
 
+/**
+ * This hook returns the current time and updates it at the specified refresh period.
+ * It uses a timeout to schedule the next update based on the refresh period.
+ * The time is calculated as the current time in milliseconds since the Unix epoch.
+ * The hook also cleans up the timeout when the component using it unmounts.
+ *
+ * @param refreshPeriod - The period in milliseconds at which the current time should be refreshed.
+ * @returns The current time in milliseconds since the Unix epoch.
+ */
 export function useCurrentTime(refreshPeriod = 1000): number {
 	const [time, setTime] = useState(getCurrentTime())
+	const timeoutId = useRef<ReturnType<typeof setTimeout> | null>(null)
 
 	useEffect(() => {
-		const interval = setInterval(() => {
-			setTime(getCurrentTime())
-		}, refreshPeriod)
+		function updateTime() {
+			const current = getCurrentTime()
+			setTime(current)
+			const delay = refreshPeriod - (current % refreshPeriod)
+			timeoutId.current = setTimeout(updateTime, delay)
+		}
+
+		updateTime() // Initial call to start the timer
 
 		return () => {
-			clearInterval(interval)
+			if (timeoutId.current) {
+				clearTimeout(timeoutId.current) // Cleanup on unmount
+			}
 		}
 	}, [refreshPeriod])
 
@@ -216,7 +237,7 @@ export function firstIfArray<T>(value: T | T[] | null): T | null
 export function firstIfArray<T>(value: T | T[] | undefined): T | undefined
 export function firstIfArray<T>(value: T | T[]): T
 export function firstIfArray<T>(value: unknown): T {
-	return _.isArray(value) ? _.first(value) : value
+	return _.isArray(value) ? _.first(value) : (value as T)
 }
 
 export const TOOLTIP_DEFAULT_DELAY = 0.5
@@ -236,4 +257,32 @@ export function hashSingleUseToken(token: string): string {
 		.update(SINGLE_USE_TOKEN_SALT + token)
 		.digest('base64')
 		.replace(/[+/=]/g, '_')
+}
+
+export function useRundownViewEventBusListener<TEvent extends RundownViewEvents>(
+	name: TEvent,
+	cb: (...args: RundownViewEventBusEvents[TEvent]) => void
+): void {
+	useEffect(() => {
+		// We need to force the cb type, typescript can't infer this through the generic
+		RundownViewEventBus.on(name, cb as any)
+		return () => {
+			RundownViewEventBus.off(name, cb as any)
+		}
+	}, [name, cb])
+}
+
+export function getAllAncestors(el: HTMLElement): HTMLElement[] {
+	const ancestors: HTMLElement[] = []
+	let currentElement: HTMLElement | null = el
+
+	while (currentElement) {
+		ancestors.push(currentElement)
+		if (currentElement.parentElement === currentElement) {
+			return ancestors
+		}
+		currentElement = currentElement.parentElement
+	}
+
+	return ancestors
 }

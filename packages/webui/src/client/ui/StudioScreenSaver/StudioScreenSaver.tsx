@@ -1,24 +1,25 @@
 import * as React from 'react'
-import { Translated, useSubscription, useTracker } from '../../lib/ReactMeteorData/ReactMeteorData'
+import { Translated, useSubscription, useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { getCurrentTime } from '../../lib/systemTime'
-import { invalidateAfter } from '../../lib/invalidatingTime'
+import { getCurrentTime } from '../../lib/systemTime.js'
+import { invalidateAfter } from '../../lib/invalidatingTime.js'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import classNames from 'classnames'
-import { Clock } from './Clock'
-import { Countdown } from './Countdown'
+import { Clock } from './Clock.js'
+import { Countdown } from './Countdown.js'
 import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
-import { UIStudios } from '../Collections'
+import { UIStudios } from '../Collections.js'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { RundownPlaylists } from '../../collections'
+import { RundownPlaylists } from '../../collections/index.js'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { withTranslation } from 'react-i18next'
+import { relativeToSiteRootUrl } from '../../url.js'
 
 interface IProps {
 	// the studio to be displayed in the screen saver
 	studioId: StudioId
-
+	screenName?: string
 	ownBackground?: boolean
 }
 
@@ -141,6 +142,7 @@ const StudioScreenSaverContent = withTranslation()(
 		componentDidMount(): void {
 			if (this.props.ownBackground) {
 				document.body.classList.add('dark', 'xdark')
+				document.body.setAttribute('data-bs-theme', 'dark')
 			}
 
 			window.addEventListener('resize', this.measureElement)
@@ -161,9 +163,10 @@ const StudioScreenSaverContent = withTranslation()(
 		componentWillUnmount(): void {
 			if (this.props.ownBackground) {
 				document.body.classList.remove('dark', 'xdark')
+				document.body.removeAttribute('data-bs-theme')
 			}
 
-			this._nextAnimationFrameRequest && window.cancelAnimationFrame(this._nextAnimationFrameRequest)
+			if (this._nextAnimationFrameRequest) window.cancelAnimationFrame(this._nextAnimationFrameRequest)
 			window.removeEventListener('resize', this.measureElement)
 		}
 
@@ -337,7 +340,7 @@ const StudioScreenSaverContent = withTranslation()(
 				>
 					<object
 						className="studio-screen-saver__bkg"
-						data="/images/screen-saver-bkg.svg"
+						data={relativeToSiteRootUrl('/images/screen-saver-bkg.svg')}
 						type="image/svg+xml"
 					></object>
 					<div
@@ -357,6 +360,9 @@ const StudioScreenSaverContent = withTranslation()(
 							this.props.studio?.name && (
 								<div className="studio-screen-saver__info__rundown">{this.props.studio?.name}</div>
 							)
+						)}
+						{this.props.screenName && (
+							<div className="studio-screen-saver__info__screen-name">{this.props.screenName}</div>
 						)}
 					</div>
 				</div>

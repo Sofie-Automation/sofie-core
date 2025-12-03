@@ -4,7 +4,7 @@ import { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
 import Sorensen from '@sofie-automation/sorensen'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { useSubscription, useTracker } from '../ReactMeteorData/ReactMeteorData'
+import { useSubscription, useTracker } from '../ReactMeteorData/ReactMeteorData.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { PlayoutActions, SomeAction, SomeBlueprintTrigger, TriggerType } from '@sofie-automation/blueprints-integration'
 import {
@@ -12,20 +12,18 @@ import {
 	ReactivePlaylistActionContext,
 	createAction as libCreateAction,
 } from '@sofie-automation/meteor-lib/dist/triggers/actionFactory'
-import { flatten, protectString } from '../tempLib'
+import { flatten } from '@sofie-automation/corelib/dist/lib'
+import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { IWrappedAdLib } from '@sofie-automation/meteor-lib/dist/triggers/actionFilterChainCompilers'
 import { ReactiveVar } from 'meteor/reactive-var'
-import { preventDefault } from '../SorensenContext'
-import { getFinalKey } from './codesToKeyLabels'
-import RundownViewEventBus, {
-	RundownViewEvents,
-	TriggerActionEvent,
-} from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
+import { preventDefault } from '../SorensenContext.js'
+import { getFinalKey } from './codesToKeyLabels.js'
+import { RundownViewEvents, TriggerActionEvent } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
 import { Tracker } from 'meteor/tracker'
-import { Settings } from '../../lib/Settings'
-import { createInMemorySyncMongoCollection } from '../../collections/lib'
-import { RundownPlaylists } from '../../collections'
-import { UIShowStyleBases, UITriggeredActions } from '../../ui/Collections'
+import { Settings } from '../../lib/Settings.js'
+import { createInMemorySyncMongoCollection } from '../../collections/lib.js'
+import { RundownPlaylists } from '../../collections/index.js'
+import { UIShowStyleBases, UITriggeredActions } from '../../ui/Collections.js'
 import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import {
 	PartId,
@@ -41,11 +39,11 @@ import {
 	MountedHotkeyMixin,
 } from '@sofie-automation/meteor-lib/dist/api/MountedTriggers'
 import { isHotkeyTrigger } from '@sofie-automation/meteor-lib/dist/triggers/triggerTypeSelectors'
-import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil'
-import { catchError } from '../lib'
-import { logger } from '../logging'
+import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil.js'
+import { catchError, useRundownViewEventBusListener } from '../lib.js'
+import { logger } from '../logging.js'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
-import { toTriggersComputation, toTriggersReactiveVar, UiTriggersContext } from './triggersContext'
+import { toTriggersComputation, toTriggersReactiveVar, UiTriggersContext } from './triggersContext.js'
 
 type HotkeyTriggerListener = (e: KeyboardEvent) => void
 
@@ -314,12 +312,7 @@ export const TriggersHandler: React.FC<IProps> = function TriggersHandler(
 		}
 	}, [initialized]) // run once once Sorensen is initialized
 
-	useEffect(() => {
-		RundownViewEventBus.on(RundownViewEvents.TRIGGER_ACTION, triggerAction)
-		return () => {
-			RundownViewEventBus.removeListener(RundownViewEvents.TRIGGER_ACTION, triggerAction)
-		}
-	}, [])
+	useRundownViewEventBusListener(RundownViewEvents.TRIGGER_ACTION, triggerAction)
 
 	useEffect(() => {
 		Tracker.nonreactive(() => {

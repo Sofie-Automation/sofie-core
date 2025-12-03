@@ -1,5 +1,5 @@
 import { LastBlueprintConfig } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
-import { LogLevel } from '../lib'
+import { LogLevel } from '../lib.js'
 import { CoreSystemId, BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { ObjectWithOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
