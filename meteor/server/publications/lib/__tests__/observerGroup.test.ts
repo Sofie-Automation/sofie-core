@@ -31,7 +31,7 @@ describe('ReactiveMongoObserverGroup', () => {
 		// Call stop again and it should complain but do nothing
 		await expect(async () => observerGroup.stop()).rejects.toThrowMeteor(
 			500,
-			'ReactiveMongoObserverGroup is not running!'
+			'ReactiveMongoObserverGroup "myDebugName" is not running!'
 		)
 		expect(generator).toHaveBeenCalledTimes(1)
 		expect(handle.stop).toHaveBeenCalledTimes(1)
@@ -72,7 +72,7 @@ describe('ReactiveMongoObserverGroup', () => {
 		// Restart it again
 		await expect(async () => observerGroup.restart()).rejects.toThrowMeteor(
 			500,
-			'ReactiveMongoObserverGroup is not running!'
+			'ReactiveMongoObserverGroup "myDebugName" is not running!'
 		)
 		expect(generator).toHaveBeenCalledTimes(3)
 		expect(handle.stop).toHaveBeenCalledTimes(3)
