@@ -3,17 +3,17 @@ import {
 	useSubscriptionIfEnabledReadyOnce,
 	useSubscriptions,
 	useTracker,
-} from '../../lib/ReactMeteorData/react-meteor-data'
+} from '../../lib/ReactMeteorData/react-meteor-data.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { meteorSubscribe } from '../../lib/meteorApi'
+import { meteorSubscribe } from '../../lib/meteorApi.js'
 import { PartInstanceId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { RundownPlaylists, Rundowns } from '../../collections'
-import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil'
+import { RundownPlaylists, Rundowns } from '../../collections/index.js'
+import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil.js'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
-import { useRundownAndShowStyleIdsForPlaylist } from '../util/useRundownAndShowStyleIdsForPlaylist'
+import { useRundownAndShowStyleIdsForPlaylist } from '../util/useRundownAndShowStyleIdsForPlaylist.js'
 
 export function useRundownViewSubscriptions(playlistId: RundownPlaylistId): boolean {
 	const requiredSubsReady: boolean[] = []

@@ -1,4 +1,4 @@
-import { useCurrentTime } from '../lib' // Adjust the import path as needed
+import { useCurrentTime } from '../lib.js' // Adjust the import path as needed
 import { act, renderHook } from '@testing-library/react'
 
 describe('useCurrentTime Hook', () => {
