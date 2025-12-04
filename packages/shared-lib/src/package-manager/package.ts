@@ -6,10 +6,18 @@
  */
 
 import { StatusCode } from '../lib/status.js'
+import { MediaRamRecRef, MediaStillRef } from 'kairos-lib'
 
 type AccessorId = string
 type ExpectedPackageId = string
 type PackageContainerId = string
+
+/**
+ * An ExpectedPackage is sent from Core to the Package Manager, to signal that a Package (ie a Media file) should be copied to a playout-device.
+ * It used by core to describe what Packages are needed on various sources.
+ * Example: A piece uses a media file for playout in CasparCG. The media file will then be an ExpectedPackage, which the Package Manager
+ *   will fetch from a MAM and copy to the media-folder of CasparCG.
+ */
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace ExpectedPackage {
@@ -83,6 +91,12 @@ export namespace ExpectedPackage {
 			/** Should the package be scanned for loudness */
 			loudnessPackageSettings?: SideEffectLoudnessSettings
 
+			/** Should the package be scanned for I-frames */
+			iframes?: SideEffectIframesScanSettings
+
+			/** Should the package be loaded into the RAM on a KAIROS vision mixer */
+			kairosLoadToRam?: SideEffectKairosLoadToRamSettings
+
 			/** Other custom configuration */
 			[key: string]: any
 		}
@@ -118,6 +132,16 @@ export namespace ExpectedPackage {
 
 	export type SideEffectLoudnessSettingsChannelSpec = `${number}` | `${number}+${number}`
 
+	export type SideEffectIframesScanSettings = Record<string, never>
+
+	export type SideEffectKairosLoadToRamSettings = {
+		/**
+		 * PackageContainer for the Kairos.
+		 * This must be pointing towards a Kairos-Accessor!
+		 */
+		containerId: PackageContainerId
+	}
+
 	export interface ExpectedPackageMediaFile extends Base {
 		type: PackageType.MEDIA_FILE
 		content: {
@@ -129,6 +153,7 @@ export namespace ExpectedPackage {
 			modifiedDate?: number // timestamp (ms)
 			checksum?: string
 			checkSumType?: 'sha' | 'md5' | 'whatever'
+			conversions?: ConversionStep[]
 		}
 		sources: {
 			containerId: PackageContainerId
@@ -140,6 +165,83 @@ export namespace ExpectedPackage {
 					| AccessorOnPackage.HTTPProxy
 					| AccessorOnPackage.Quantel
 			}
+		}[]
+	}
+
+	export interface ConversionStep {
+		/**
+		 * The executable to run. Note: This executable must be available on the worker running the expectation using the --executableAliases option.
+		 */
+		executable: string
+		/**
+		 * Arguments to the executable.
+		 * Supported placeholders:
+		 * - {SOURCE} - replaced with the full path of the source file
+		 * - {TARGET} - replaced with the full path of the target file
+		 * - {PRECHECK.0.REGEX.1} replaced with capture group from preCheck
+		 */
+		args: string[]
+
+		/**
+		 * Set to true if the executable needs the source to be locally available
+		 * (So PM will copy the source to a local temp folder before running the executable)
+		 */
+		needsLocalSource?: boolean
+		/**
+		 * Set to true if the executable needs the target to be locally available
+		 * (So PM will create the target in a local temp folder, and then copy it to the actual target when done)
+		 */
+		needsLocalTarget?: boolean
+
+		/**
+		 * Force the output filename from this step.
+		 * This can be useful in multi-step scenarios where you want to specify the inter-step filename.
+		 * This property is ignored in the final step.
+		 */
+		outputFileName?: string
+
+		/**
+		 * If set, defines one or more operation to run _before_ a conversion step,
+		 * in order to gather information used to modify the conversion step or potentially skip it.
+		 */
+		preChecks?: {
+			/**
+			 * The executable to run. Note: This executable must be available on the worker running the expectation using the --executableAliases option.
+			 */
+			executable: string
+			/**
+			 * Arguments to the executable.
+			 * Supported placeholders:
+			 * - {SOURCE} - replaced with the full path of the source file
+			 */
+			args: string[]
+			/**
+			 * Set to true if the executable needs the source to be locally available
+			 * (So PM will copy the source to a local temp folder before running the executable)
+			 */
+			needsLocalSource?: boolean
+
+			/**  */
+			handleOutput: {
+				source: 'stdout' | 'stderr'
+
+				/**
+				 * Regular Expression to run the source into
+				 * You can use capturing groups here, to be used in the conversion step args
+				 * like so: "{PRECHECK.0.REGEX.1}" (first index is the handleOutput index, second is the capture group index)
+				 * */
+				regex: string
+
+				/** Options to use with for the Regular Expression (i/g/m) */
+				regexFlags?: string // igm
+
+				effect?: {
+					/** If true, will only run this conversion step if regex matches. (If undefined, step will run by default) */
+					onlyRunStepIfMatch?: boolean
+					/** If true, will only run this conversion step if regex doesn't match. (If undefined, step will run by default) */
+					onlyRunStepIfNoMatch?: boolean
+				}
+			}[]
 		}[]
 	}
 	export interface ExpectedPackageQuantelClip extends Base {
@@ -190,71 +292,15 @@ export namespace ExpectedPackage {
 			path: string
 		}
 		version: {
-			renderer?: {
-				/** Renderer width, defaults to 1920 */
-				width?: number
-				/** Renderer height, defaults to 1080 */
-				height?: number
-				/**
-				 * Scale the rendered width and height with this value, and also zoom the content accordingly.
-				 * For example, if the width is 1920 and scale is 0.5, the width will be scaled to 960.
-				 * (Defaults to 1)
-				 */
-				scale?: number
-				/** Background color, #RRGGBB, CSS-string, "transparent" or "default" (defaults to "default") */
-				background?: string
-				userAgent?: string
-			}
+			renderer?: HTMLRendererOptions
 
 			/**
 			 * Convenience settings for a template that follows the typical CasparCG steps;
 			 * update(data); play(); stop();
 			 * If this is set, steps are overridden */
-			casparCG?: {
-				/**
-				 * Data to send into the update() function of a CasparCG Template.
-				 * Strings will be piped through as-is, objects will be JSON.stringified.
-				 */
-				data: { [key: string]: any } | null | string
+			casparCG?: HTMLRendererCasparCGOptions
 
-				/** How long to wait between each action in a CasparCG template, (default: 1000ms) */
-				delay?: number
-			}
-
-			steps?: (
-				| { do: 'waitForLoad' }
-				| { do: 'sleep'; duration: number }
-				| {
-						do: 'sendHTTPCommand'
-						url: string
-						/** GET, POST, PUT etc.. */
-						method: string
-						body?: ArrayBuffer | ArrayBufferView | NodeJS.ReadableStream | string | URLSearchParams
-
-						headers?: Record<string, string>
-				  }
-				| { do: 'takeScreenshot'; fileName: string }
-				| { do: 'startRecording'; fileName: string }
-				| { do: 'stopRecording' }
-				| { do: 'cropRecording'; fileName: string }
-				| { do: 'executeJs'; js: string }
-				// Store an object in memory
-				| {
-						do: 'storeObject'
-						key: string
-						/** The value to store into memory. Either an object, or a JSON-stringified object */
-						value: Record<string, any> | string
-				  }
-				// Modify an object in memory. Path is a dot-separated string
-				| { do: 'modifyObject'; key: string; path: string; value: any }
-				// Send an object to the renderer as a postMessage (so basically does a executeJs: window.postMessage(memory[key]))
-				| {
-						do: 'injectObject'
-						key: string
-						/** The method to receive the value. Defaults to window.postMessage */
-						receivingFunction?: string
-				  }
-			)[]
+			steps?: HTMLRendererStep[]
 		}
 		sources: {
 			containerId: PackageContainerId
@@ -267,6 +313,64 @@ export namespace ExpectedPackage {
 			}
 		}[]
 	}
+	export interface HTMLRendererOptions {
+		/** Renderer width, defaults to 1920 */
+		width?: number
+		/** Renderer height, defaults to 1080 */
+		height?: number
+		/**
+		 * Scale the rendered width and height with this value, and also zoom the content accordingly.
+		 * For example, if the width is 1920 and scale is 0.5, the width will be scaled to 960.
+		 * (Defaults to 1)
+		 */
+		scale?: number
+		/** Background color, #RRGGBB, CSS-string, "transparent" or "default" (defaults to "default") */
+		background?: string
+		userAgent?: string
+	}
+	export interface HTMLRendererCasparCGOptions {
+		/**
+		 * Data to send into the update() function of a CasparCG Template.
+		 * Strings will be piped through as-is, objects will be JSON.stringified.
+		 */
+		data: { [key: string]: any } | null | string
+
+		/** How long to wait between each action in a CasparCG template, (default: 1000ms) */
+		delay?: number
+	}
+	export type HTMLRendererStep =
+		| { do: 'waitForLoad' }
+		| { do: 'sleep'; duration: number }
+		| {
+				do: 'sendHTTPCommand'
+				url: string
+				/** GET, POST, PUT etc.. */
+				method: string
+				body?: ArrayBuffer | ArrayBufferView | NodeJS.ReadableStream | string | URLSearchParams
+
+				headers?: Record<string, string>
+		  }
+		| { do: 'takeScreenshot'; fileName: string }
+		| { do: 'startRecording'; fileName: string }
+		| { do: 'stopRecording' }
+		| { do: 'cropRecording'; fileName: string }
+		| { do: 'executeJs'; js: string }
+		// Store an object in memory
+		| {
+				do: 'storeObject'
+				key: string
+				/** The value to store into memory. Either an object, or a JSON-stringified object */
+				value: Record<string, any> | string
+		  }
+		// Modify an object in memory. Path is a dot-separated string
+		| { do: 'modifyObject'; key: string; path: string; value: any }
+		// Send an object to the renderer as a postMessage (so basically does a executeJs: window.postMessage(memory[key]))
+		| {
+				do: 'injectObject'
+				key: string
+				/** The method to receive the value. Defaults to window.postMessage */
+				receivingFunction?: string
+		  }
 }
 
 /** A PackageContainer defines a place that contains Packages, that can be read or written to.
@@ -288,7 +392,16 @@ export interface PackageContainer {
  */
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Accessor {
-	export type Any = LocalFolder | FileShare | HTTP | HTTPProxy | Quantel | CorePackageCollection | AtemMediaStore
+	export type Any =
+		| LocalFolder
+		| FileShare
+		| HTTP
+		| HTTPProxy
+		| Quantel
+		| CorePackageCollection
+		| AtemMediaStore
+		| FTP
+		| KairosClip
 
 	export enum AccessType {
 		LOCAL_FOLDER = 'local_folder',
@@ -298,6 +411,8 @@ export namespace Accessor {
 		QUANTEL = 'quantel',
 		CORE_PACKAGE_INFO = 'core_package_info',
 		ATEM_MEDIA_STORE = 'atem_media_store',
+		FTP = 'ftp',
+		KAIROS_CLIP = 'kairos_clip',
 	}
 
 	/** Generic (used in extends) */
@@ -387,6 +502,15 @@ export namespace Accessor {
 		/** FileFlow Export profile name. Used for copying clips into CIFS file shares */
 		fileflowProfile?: string
 	}
+	export interface KairosClip extends Base {
+		type: AccessType.KAIROS_CLIP
+
+		/** IP address / host to the Kairos vision mixer */
+		host: string
+
+		/** Defaults to 3005 */
+		port?: number
+	}
 	/** Virtual PackageContainer used for piping data into core */
 	export interface CorePackageCollection extends Base {
 		type: Accessor.AccessType.CORE_PACKAGE_INFO
@@ -405,6 +529,43 @@ export namespace Accessor {
 		/** What type of bank */
 		mediaType: 'clip' | 'still'
 	}
+	/** Definition of access to a generic FTP/SFTP endpoint. (Read-access only) */
+	export interface FTP extends Base {
+		type: AccessType.FTP
+
+		/** The type of FTP server:
+		 * - 'ftp': plain ftp
+		 * - 'ftps': FTP over TLS (explicit / "AUTH TLS" extension)
+		 * - 'ftp'-ssl: FTP over SSL (implicit)
+		 * - 'sftp': SFTP over SSH
+		 */
+		serverType:
+			| 'ftp' // plain ftp
+			| 'ftps' // FTP over TLS (explicit / "AUTH TLS" extension)
+			| 'ftp-ssl' // FTP over SSL (implicit)
+			| 'sftp' // SFTP over SSH
+
+		/** Hostname/IP Address to the host server */
+		host: string
+
+		/** Port to the host server */
+		port?: number
+
+		/** Username to the server */
+		username: string
+
+		/** Password to the server */
+		password: string
+
+		/** If true, allows any certificates (like self-signed certificates) */
+		allowAnyCertificate?: boolean
+
+		/** Path to base folder at the server, (defaults to '/')*/
+		basePath?: string
+
+		/** Name/Id of the network the share exists on. Used to differ between different local networks. Leave empty if globally accessible. */
+		networkId?: string
+	}
 }
 /**
  * AccessorOnPackage contains interfaces for Accessor definitions that are put ON the Package.
@@ -412,7 +573,16 @@ export namespace Accessor {
  */
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace AccessorOnPackage {
-	export type Any = LocalFolder | FileShare | HTTP | HTTPProxy | Quantel | CorePackageCollection | AtemMediaStore
+	export type Any =
+		| LocalFolder
+		| FileShare
+		| HTTP
+		| HTTPProxy
+		| Quantel
+		| CorePackageCollection
+		| AtemMediaStore
+		| FTP
+		| KairosClip
 
 	export interface LocalFolder extends Partial<Accessor.LocalFolder> {
 		/** Path to the file (starting from .folderPath). If not set, the filePath of the ExpectedPackage will be used */
@@ -440,6 +610,13 @@ export namespace AccessorOnPackage {
 	}
 	export interface AtemMediaStore extends Partial<Accessor.AtemMediaStore> {
 		filePath?: string
+	}
+	export interface FTP extends Partial<Accessor.FTP> {
+		/** path to resource (combined with .basePath gives the full path), for example: /folder/myFile */
+		path?: string
+	}
+	export interface KairosClip extends Partial<Accessor.KairosClip> {
+		ref?: MediaRamRecRef | MediaStillRef
 	}
 }
 
