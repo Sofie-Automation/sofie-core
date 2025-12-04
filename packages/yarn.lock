@@ -7085,6 +7085,7 @@ __metadata:
   resolution: "@sofie-automation/shared-lib@workspace:shared-lib"
   dependencies:
     "@mos-connection/model": "npm:^5.0.0-alpha.0"
+    kairos-lib: "npm:^0.2.3"
     timeline-state-resolver-types: "npm:10.0.0-nightly-release53-20251030-091938-982ec3103.0"
     tslib: "npm:^2.8.1"
     type-fest: "npm:^4.33.0"
@@ -19146,6 +19147,15 @@ asn1@evs-broadcast/node-asn1:
   version: 6.2.0
   resolution: "just-extend@npm:6.2.0"
   checksum: 10/1f487b074b9e5773befdd44dc5d1b446f01f24f7d4f1f255d51c0ef7f686e8eb5f95d983b792b9ca5c8b10cd7e60a924d64103725759eddbd7f18bcb22743f92
+  languageName: node
+  linkType: hard
+
+"kairos-lib@npm:^0.2.3":
+  version: 0.2.3
+  resolution: "kairos-lib@npm:0.2.3"
+  dependencies:
+    tslib: "npm:^2.8.1"
+  checksum: 10/d1be6e208896839ea693924b26f185a6b7e7dff9b1f964e4283df2e2d438554f396b4cad7cb696dcd111a2a554c12c9642bf92f7037bd8059e96a118c3a4c2c9
   languageName: node
   linkType: hard
 
