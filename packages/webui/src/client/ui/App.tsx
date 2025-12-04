@@ -159,7 +159,8 @@ export const App: React.FC = function App() {
 					<ErrorBoundary>
 						<Switch>
 							<Route path="/rundown/:playlistId" component={NullComponent} />
-							<Route path="/countdowns/:studioId" component={NullComponent} />
+							{/* The ClockView index should show heders. Any pages inside should not */}
+							<Route path="/countdowns/:studioId/:page" component={NullComponent} />
 							<Route path="/activeRundown" component={NullComponent} />
 							<Route path="/prompter/:studioId" component={NullComponent} />
 							<Route
