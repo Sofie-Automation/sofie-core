@@ -6,8 +6,7 @@
  */
 
 import { StatusCode } from '../lib/status'
-// eslint-disable-next-line node/no-missing-import
-import type { MediaRamRecRef, MediaStillRef } from 'kairos-lib' // Future: can this be imported via TSR-types, to avoid risk of version drift?
+import type { MediaRamRecRef, MediaStillRef } from 'timeline-state-resolver-types'
 
 type AccessorId = string
 type ExpectedPackageId = string
