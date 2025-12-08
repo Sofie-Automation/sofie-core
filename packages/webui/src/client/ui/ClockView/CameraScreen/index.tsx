@@ -14,7 +14,7 @@ import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { PieceExtended } from '../../../lib/RundownResolver'
 import { Rundowns } from '../../../collections'
-import { useSubscription, useTracker } from '../../../lib/ReactMeteorData/ReactMeteorData'
+import { useSubscription, useSubscriptionIfEnabled, useTracker } from '../../../lib/ReactMeteorData/ReactMeteorData'
 import { UIPartInstances, UIStudios } from '../../Collections'
 import { Rundown as RundownComponent } from './Rundown'
 import { useLocation } from 'react-router-dom'
@@ -102,17 +102,17 @@ export function CameraScreen({ playlist, studioId }: Readonly<IProps>): JSX.Elem
 	const rundownIds = useMemo(() => rundowns.map((rundown) => rundown._id), [rundowns])
 	const showStyleBaseIds = useMemo(() => rundowns.map((rundown) => rundown.showStyleBaseId), [rundowns])
 
-	const rundownsReady = useSubscription(CorelibPubSub.rundownsInPlaylists, playlistIds)
-	useSubscription(CorelibPubSub.segments, rundownIds, {})
+	const rundownsReady = useSubscriptionIfEnabled(CorelibPubSub.rundownsInPlaylists, playlistIds.length > 0, playlistIds)
+	useSubscriptionIfEnabled(CorelibPubSub.segments, rundownIds.length > 0, rundownIds, {})
 
 	const studioReady = useSubscription(MeteorPubSub.uiStudio, studioId)
-	useSubscription(MeteorPubSub.uiPartInstances, playlist?.activationId ?? null)
+	useSubscriptionIfEnabled(MeteorPubSub.uiPartInstances, !!playlist?.activationId, playlist?.activationId ?? null)
 
-	useSubscription(CorelibPubSub.parts, rundownIds, null)
+	useSubscriptionIfEnabled(CorelibPubSub.parts, rundownIds.length > 0, rundownIds, null)
 
-	useSubscription(CorelibPubSub.pieceInstancesSimple, rundownIds, null)
+	useSubscriptionIfEnabled(CorelibPubSub.pieceInstancesSimple, rundownIds.length > 0, rundownIds, null)
 
-	const piecesReady = useSubscription(CorelibPubSub.pieces, rundownIds, null)
+	const piecesReady = useSubscriptionIfEnabled(CorelibPubSub.pieces, rundownIds.length > 0, rundownIds, null)
 
 	const [piecesReadyOnce, setPiecesReadyOnce] = useState(false)
 	useEffect(() => {

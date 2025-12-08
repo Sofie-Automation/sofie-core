@@ -10,6 +10,7 @@ import {
 	Translated,
 	useGlobalDelayedTrackerUpdateState,
 	useSubscription,
+	useSubscriptionIfEnabled,
 	useSubscriptions,
 	useTracker,
 } from '../../lib/ReactMeteorData/ReactMeteorData'
@@ -653,11 +654,11 @@ function Prompter(props: Readonly<PropsWithChildren<IPrompterProps>>): JSX.Eleme
 		[props.rundownPlaylistId]
 	)
 	const rundownIDs = playlist ? RundownPlaylistCollectionUtil.getRundownUnorderedIDs(playlist) : []
-	useSubscription(CorelibPubSub.segments, rundownIDs, {})
+	useSubscriptionIfEnabled(CorelibPubSub.segments, rundownIDs.length > 0, rundownIDs, {})
 	useSubscription(MeteorPubSub.uiParts, props.rundownPlaylistId)
-	useSubscription(MeteorPubSub.uiPartInstances, playlist?.activationId ?? null)
-	useSubscription(CorelibPubSub.pieces, rundownIDs, null)
-	useSubscription(CorelibPubSub.pieceInstancesSimple, rundownIDs, null)
+	useSubscriptionIfEnabled(MeteorPubSub.uiPartInstances, !!playlist?.activationId, playlist?.activationId ?? null)
+	useSubscriptionIfEnabled(CorelibPubSub.pieces, rundownIDs.length > 0, rundownIDs, null)
+	useSubscriptionIfEnabled(CorelibPubSub.pieceInstancesSimple, rundownIDs.length > 0, rundownIDs, null)
 
 	const rundowns = useTracker(
 		() =>
@@ -1011,7 +1012,11 @@ const PrompterContent = withTranslation()(
 			}
 
 			if (hasInsertedScript) {
-				lines.push(<div className="prompter-break end">—{t('End of script')}—</div>)
+				lines.push(
+					<div key="end-of-script" className="prompter-break end">
+						—{t('End of script')}—
+					</div>
+				)
 			}
 
 			return lines

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import { useSubscription, useTracker } from '../../../lib/ReactMeteorData/react-meteor-data'
+import { useSubscriptionIfEnabled, useTracker } from '../../../lib/ReactMeteorData/react-meteor-data'
 import { ExpectedPackageWorkStatus } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackageWorkStatuses'
 import { normalizeArrayToMap, unprotectString } from '../../../lib/tempLib'
 import { ExpectedPackageDB } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
@@ -29,15 +29,16 @@ export const ExpectedPackagesStatus: React.FC<{}> = function ExpectedPackagesSta
 			UIStudios.find()
 				.fetch()
 				.map((studio) => studio._id),
+		[],
 		[]
 	)
 
 	const allSubsReady: boolean =
 		[
-			useSubscription(CorelibPubSub.expectedPackageWorkStatuses, studioIds ?? []),
-			useSubscription(CorelibPubSub.expectedPackages, studioIds ?? []),
-			useSubscription(CorelibPubSub.packageContainerStatuses, studioIds ?? []),
-			studioIds && studioIds.length > 0,
+			useSubscriptionIfEnabled(CorelibPubSub.expectedPackageWorkStatuses, studioIds.length > 0, studioIds),
+			useSubscriptionIfEnabled(CorelibPubSub.expectedPackages, studioIds.length > 0, studioIds),
+			useSubscriptionIfEnabled(CorelibPubSub.packageContainerStatuses, studioIds.length > 0, studioIds),
+			studioIds.length > 0,
 		].reduce((memo, value) => memo && value, true) || false
 
 	const expectedPackageWorkStatuses = useTracker(() => ExpectedPackageWorkStatuses.find({}).fetch(), [], [])
@@ -50,7 +51,11 @@ export const ExpectedPackagesStatus: React.FC<{}> = function ExpectedPackagesSta
 		expectedPackageWorkStatuses.forEach((epws) => devices.add(epws.deviceId))
 		return Array.from(devices)
 	}, [packageContainerStatuses, expectedPackageWorkStatuses])
-	const peripheralDeviceSubReady = useSubscription(CorelibPubSub.peripheralDevices, deviceIds)
+	const peripheralDeviceSubReady = useSubscriptionIfEnabled(
+		CorelibPubSub.peripheralDevices,
+		deviceIds.length > 0,
+		deviceIds
+	)
 	const peripheralDevices = useTracker(() => PeripheralDevices.find().fetch(), [], [])
 	const peripheralDevicesMap = normalizeArrayToMap(peripheralDevices, '_id')
 
