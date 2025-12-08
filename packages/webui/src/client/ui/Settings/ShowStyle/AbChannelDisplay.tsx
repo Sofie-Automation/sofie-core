@@ -5,6 +5,8 @@ import { useCallback, useMemo } from 'react'
 import { DBShowStyleBase, SourceLayers, OutputLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { ColumnPackedGrid, ColumnPackedGridGroup, ColumnPackedGridItem } from '../components/ColumnPackedGrid'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faSync } from '@fortawesome/free-solid-svg-icons'
 import '../components/ColumnPackedGrid.scss'
 import './AbChannelDisplay.scss'
 
@@ -44,12 +46,27 @@ export function AbChannelDisplaySettings({ showStyleBase }: Readonly<AbChannelDi
 		[]
 	)
 
-	const config = showStyleBase.abChannelDisplay ?? {
-		sourceLayerIds: [],
-		sourceLayerTypes: [SourceLayerType.VT, SourceLayerType.LIVE_SPEAK],
-		outputLayerIds: [],
-		showOnDirectorScreen: false,
-	}
+	const blueprintDefault = showStyleBase.blueprintAbChannelDisplay
+	const config = showStyleBase.abChannelDisplay ??
+		blueprintDefault ?? {
+			sourceLayerIds: [],
+			sourceLayerTypes: [SourceLayerType.VT, SourceLayerType.LIVE_SPEAK],
+			outputLayerIds: [],
+			showOnDirectorScreen: false,
+		}
+
+	// Check if current config differs from blueprint default
+	const hasOverrides = useMemo(() => {
+		if (!blueprintDefault || !showStyleBase.abChannelDisplay) return false
+
+		const current = showStyleBase.abChannelDisplay
+		return (
+			JSON.stringify(current.sourceLayerIds.sort()) !== JSON.stringify(blueprintDefault.sourceLayerIds.sort()) ||
+			JSON.stringify(current.sourceLayerTypes.sort()) !== JSON.stringify(blueprintDefault.sourceLayerTypes.sort()) ||
+			JSON.stringify(current.outputLayerIds.sort()) !== JSON.stringify(blueprintDefault.outputLayerIds.sort()) ||
+			current.showOnDirectorScreen !== blueprintDefault.showOnDirectorScreen
+		)
+	}, [showStyleBase.abChannelDisplay, blueprintDefault])
 
 	const updateConfig = useCallback(
 		(updates: Partial<NonNullable<DBShowStyleBase['abChannelDisplay']>>) => {
@@ -69,6 +86,14 @@ export function AbChannelDisplaySettings({ showStyleBase }: Readonly<AbChannelDi
 		},
 		[showStyleBase._id, config]
 	)
+
+	const resetToBlueprint = useCallback(() => {
+		ShowStyleBases.update(showStyleBase._id, {
+			$unset: {
+				abChannelDisplay: 1,
+			},
+		})
+	}, [showStyleBase._id])
 
 	const toggleDirectorScreen = useCallback(() => {
 		updateConfig({ showOnDirectorScreen: !config.showOnDirectorScreen })
@@ -160,7 +185,21 @@ export function AbChannelDisplaySettings({ showStyleBase }: Readonly<AbChannelDi
 
 	return (
 		<div className="studio-edit ab-channel-display">
-			<h2>{t('AB Resolver Channel Display')}</h2>
+			<div className="ab-channel-display__header">
+				<h2>{t('AB Resolver Channel Display')}</h2>
+				{blueprintDefault && (
+					<button
+						type="button"
+						className="btn btn-primary"
+						onClick={resetToBlueprint}
+						title={t('Reset to default')}
+						disabled={!hasOverrides}
+					>
+						<span>{t('Reset')}</span>
+						<FontAwesomeIcon icon={faSync} />
+					</button>
+				)}
+			</div>
 			<p>
 				{t(
 					'Configure which pieces should display their assigned AB resolver channel (e.g., "Server A") on various screens. This helps operators identify which video server is playing each clip.'

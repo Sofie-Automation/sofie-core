@@ -61,6 +61,14 @@ export interface DBShowStyleBase {
 		// Future: showOnPresenterScreen, showOnCameraScreen when those views are implemented
 	}
 
+	/** Blueprint default for abChannelDisplay (saved during blueprint upgrade) */
+	blueprintAbChannelDisplay?: {
+		sourceLayerIds: string[]
+		sourceLayerTypes: SourceLayerType[]
+		outputLayerIds: string[]
+		showOnDirectorScreen: boolean
+	}
+
 	_rundownVersionHash: string
 
 	/** Details on the last blueprint used to generate the defaults values for this */
