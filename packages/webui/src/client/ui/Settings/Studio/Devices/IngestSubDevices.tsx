@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Studios } from '../../../../collections/index.js'
 import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { useTracker } from '../../../../lib/ReactMeteorData/ReactMeteorData.js'
@@ -30,6 +30,13 @@ export function StudioIngestSubDevices({
 
 	const studio = useTracker(() => Studios.findOne(studioId), [studioId])
 
+	const [unsavedOverrides, setUnsavedOverrides] = useState<SomeObjectOverrideOp[] | undefined>(undefined)
+
+	const baseSettings = useMemo(
+		() => studio?.peripheralDeviceSettings?.ingestDevices ?? wrapDefaultObject({}),
+		[studio?.peripheralDeviceSettings?.ingestDevices]
+	)
+
 	const saveOverrides = useCallback(
 		(newOps: SomeObjectOverrideOp[]) => {
 			if (studio?._id) {
@@ -43,17 +50,25 @@ export function StudioIngestSubDevices({
 		[studio?._id]
 	)
 
-	const baseSettings = useMemo(
-		() => studio?.peripheralDeviceSettings?.ingestDevices ?? wrapDefaultObject({}),
-		[studio?.peripheralDeviceSettings?.ingestDevices]
-	)
+	const settingsWithOverrides = useMemo(() => {
+		if (unsavedOverrides) {
+			return {
+				...baseSettings,
+				overrides: unsavedOverrides,
+			}
+		}
+		return baseSettings
+	}, [baseSettings, unsavedOverrides])
 
-	const overrideHelper = useOverrideOpHelper(saveOverrides, baseSettings)
+	const batchedOverrideHelper = useOverrideOpHelper(setUnsavedOverrides, settingsWithOverrides)
+	const instantSaveOverrideHelper = useOverrideOpHelper(saveOverrides, settingsWithOverrides)
 
 	const wrappedSubDevices = useMemo(
 		() =>
-			getAllCurrentAndDeletedItemsFromOverrides<StudioIngestDevice>(baseSettings, (a, b) => a[0].localeCompare(b[0])),
-		[baseSettings]
+			getAllCurrentAndDeletedItemsFromOverrides<StudioIngestDevice>(settingsWithOverrides, (a, b) =>
+				a[0].localeCompare(b[0])
+			),
+		[settingsWithOverrides]
 	)
 
 	const filteredPeripheralDevices = useMemo(
@@ -85,7 +100,42 @@ export function StudioIngestSubDevices({
 				'peripheralDeviceSettings.ingestDevices.overrides': addOp,
 			},
 		})
-	}, [studioId, wrappedSubDevices])
+	}, [wrappedSubDevices, settingsWithOverrides.overrides])
+
+	// key is subDevice's old id, value is it's new id if it was changed
+	const [updatedIds, setUpdatedIds] = useState(new Map<string, string>())
+
+	const updateObjectId = useCallback(
+		(oldId: string, newId: string) => {
+			if (oldId === newId) return
+
+			batchedOverrideHelper().changeItemId(oldId, newId).commit()
+			setUpdatedIds((prev) => new Map(prev).set(oldId, newId))
+		},
+		[batchedOverrideHelper, setUpdatedIds]
+	)
+
+	const discardChanges = useCallback(() => {
+		setUnsavedOverrides(undefined)
+		setUpdatedIds(new Map<string, string>())
+	}, [])
+
+	const saveChanges = useCallback(() => {
+		if (studio?._id && unsavedOverrides) {
+			Studios.update(studio._id, {
+				$set: {
+					'peripheralDeviceSettings.ingestDevices.overrides': unsavedOverrides,
+				},
+			})
+			setUnsavedOverrides(undefined)
+		}
+
+		if (updatedIds.size > 0) {
+			setUpdatedIds(new Map<string, string>())
+		}
+	}, [studio?._id, unsavedOverrides])
+
+	const hasUnsavedChanges = useMemo(() => !!unsavedOverrides || updatedIds.size > 0, [unsavedOverrides, updatedIds])
 
 	return (
 		<div className="mb-4">
@@ -101,8 +151,14 @@ export function StudioIngestSubDevices({
 
 			<GenericSubDevicesTable
 				subDevices={wrappedSubDevices}
-				overrideHelper={overrideHelper}
+				overrideHelper={batchedOverrideHelper}
 				peripheralDevices={filteredPeripheralDevices}
+				hasUnsavedChanges={!!unsavedOverrides}
+				instantSaveOverrideHelper={instantSaveOverrideHelper}
+				saveChanges={saveChanges}
+				discardChanges={discardChanges}
+				updateObjectId={updateObjectId}
+				updatedIds={updatedIds}
 			/>
 
 			<div className="my-1 mx-2">
