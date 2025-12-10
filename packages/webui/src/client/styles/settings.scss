@@ -1,5 +1,34 @@
 @import 'colorScheme';
 
+.grid-buttons-right {
+	display: grid;
+	grid-template-columns: 1fr auto;
+
+	button {
+		align-self: start;
+	}
+
+	button + button {
+		margin-left: 0.25rem;
+	}
+}
+
+.checkbox-enable-before {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	column-gap: 0.25rem;
+
+	align-items: center;
+}
+
+.secondary-control-after {
+	display: grid;
+	grid-template-columns: 1fr auto;
+	column-gap: 0.25rem;
+
+	align-items: center;
+}
+
 .settings-menu {
 	.settings-menu__settings-menu-item {
 		display: block;
@@ -12,8 +41,6 @@
 
 		button.action-btn {
 			padding: 0 5px;
-			margin-top: 0.6em;
-			margin-right: 0.7em;
 		}
 
 		&.menu-item-child {
@@ -21,6 +48,27 @@
 				padding-left: 1.2rem;
 			}
 		}
+	}
+
+	.settings-menu__settings-menu-item-heading {
+		display: grid;
+		grid-template-columns: 1fr auto;
+
+		> div {
+			margin-top: 0.1rem;
+		}
+
+		.icon.action-item {
+			display: inline-block;
+			width: 20px;
+		}
+	}
+
+	.settings-menu__settings-menu-section-heading {
+		display: grid;
+		grid-template-columns: 1fr auto;
+
+		align-items: center;
 	}
 
 	h2 {
@@ -34,6 +82,14 @@
 		.svg-inline--fa {
 			color: $color-status-warning;
 		}
+	}
+
+	hr {
+		margin: 0.1rem 0;
+	}
+
+	p {
+		margin: 0.5rem 0;
 	}
 }
 
@@ -238,8 +294,4 @@
 	select.option-missing {
 		border-color: $color-status-fatal;
 	}
-}
-
-.btn-add-new {
-	max-width: 20%;
 }

@@ -11,6 +11,7 @@
 			"@sofie-automation/corelib": ["./src/index.ts"]
 		},
 		"resolveJsonModule": true,
-		"types": ["node"]
+		"types": ["node"],
+		"esModuleInterop": true
 	}
 }

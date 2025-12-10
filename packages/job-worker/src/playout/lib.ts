@@ -1,18 +1,18 @@
 import { TimelineObjGeneric } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { applyToArray, clone } from '@sofie-automation/corelib/dist/lib'
-import { TSR } from '@sofie-automation/blueprints-integration'
-import { JobContext } from '../jobs'
+import { TSR, IRundownActivationContextState } from '@sofie-automation/blueprints-integration'
+import { JobContext } from '../jobs/index.js'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { PlayoutModel } from './model/PlayoutModel'
-import { logger } from '../logging'
-import { MongoQuery } from '../db'
+import { PlayoutModel } from './model/PlayoutModel.js'
+import { logger } from '../logging.js'
+import { MongoQuery } from '../db/index.js'
 import { mongoWhere } from '@sofie-automation/corelib/dist/mongo'
-import { setNextPart } from './setNext'
-import { selectNextPart } from './selectNextPart'
-import { StudioPlayoutModel } from '../studio/model/StudioPlayoutModel'
-import { runJobWithPlayoutModel } from './lock'
-import { updateTimeline, updateStudioTimeline } from './timeline/generate'
+import { setNextPart } from './setNext.js'
+import { selectNextPart } from './selectNextPart.js'
+import { StudioPlayoutModel } from '../studio/model/StudioPlayoutModel.js'
+import { runJobWithPlayoutModel } from './lock.js'
+import { updateTimeline, updateStudioTimeline } from './timeline/generate.js'
 
 /**
  * Reset the rundownPlaylist (all of the rundowns within the playlist):
@@ -104,7 +104,7 @@ export function resetPartInstancesWithPieceInstances(
 								reset: true,
 							},
 						}
-				  )
+					)
 				: undefined,
 			allToReset.length
 				? context.directCollections.PieceInstances.update(
@@ -118,14 +118,14 @@ export function resetPartInstancesWithPieceInstances(
 								reset: true,
 							},
 						}
-				  )
+					)
 				: undefined,
 			allToReset.length > 0
 				? context.directCollections.Notifications.remove({
 						'relatedTo.studioId': context.studioId,
 						'relatedTo.rundownId': { $in: rundownIds },
 						'relatedTo.partInstanceId': { $in: allToReset },
-				  })
+					})
 				: undefined,
 		])
 	})
@@ -201,5 +201,12 @@ export async function updateTimelineFromStudioPlayoutModel(
 		})
 	} else {
 		await updateStudioTimeline(context, studioPlayoutModel)
+	}
+}
+export function getActivationContextState(playoutModel: PlayoutModel): IRundownActivationContextState {
+	return {
+		active: playoutModel.playlist.activationId ? true : false,
+		rehearsal: playoutModel.playlist.rehearsal ? true : false,
+		resetTime: playoutModel.playlist.resetTime,
 	}
 }

@@ -1,0 +1,16 @@
+description: Topic for managing subscription events.
+
+subscribe:
+  operationId: receiveSubscriptionStatus
+  description: Server sends subscription status updates
+  message:
+    oneOf:
+      - $ref: '../../components/subscriptions/messages/subscriptionStatusErrorMessage.yaml#/components/messages/subscriptionStatusErrorMessage'
+      - $ref: '../../components/subscriptions/messages/subscriptionStatusSuccessMessage.yaml#/components/messages/subscriptionStatusSuccessMessage'
+
+publish:
+  operationId: sendSubscriptionRequest
+  description: Client publishes subscription requests (subscribe/unsubscribe)
+  message:
+    oneOf:
+      - $ref: '../../components/subscriptions/messages/subscribeMessage.yaml#/components/messages/subscribeMessage'

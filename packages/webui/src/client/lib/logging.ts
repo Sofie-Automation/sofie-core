@@ -1,5 +1,5 @@
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
-import { MeteorCall } from './meteorApi'
+import { MeteorCall } from './meteorApi.js'
 import { LoggerInstanceFixed } from '@sofie-automation/corelib/dist/logging'
 
 const getLogMethod = (type: string) => {

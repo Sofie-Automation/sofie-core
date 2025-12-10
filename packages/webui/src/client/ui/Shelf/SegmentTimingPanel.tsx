@@ -1,28 +1,29 @@
-import * as _ from 'underscore'
+import _ from 'underscore'
 import ClassNames from 'classnames'
 import {
 	DashboardLayoutSegmentCountDown,
 	RundownLayoutBase,
 	RundownLayoutSegmentTiming,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import { withTracker } from '../../lib/ReactMeteorData/ReactMeteorData'
-import { RundownUtils } from '../../lib/rundown'
+import { withTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
+import { RundownUtils } from '../../lib/rundown.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { SegmentDuration } from '../RundownView/RundownTiming/SegmentDuration'
-import { PartExtended } from '../../lib/RundownResolver'
-import { memoizedIsolatedAutorun } from '../../lib/memoizedIsolatedAutorun'
-import { slowDownReactivity } from '../../lib/reactiveData/reactiveDataHelper'
+import { SegmentDuration } from '../RundownView/RundownTiming/SegmentDuration.js'
+import { PartExtended } from '../../lib/RundownResolver.js'
+import { memoizedIsolatedAutorun } from '../../lib/memoizedIsolatedAutorun.js'
+import { slowDownReactivity } from '../../lib/reactiveData/reactiveDataHelper.js'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { PartInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
-import { dashboardElementStyle } from './DashboardPanel'
-import { RundownLayoutsAPI } from '../../lib/rundownLayouts'
-import { getIsFilterActive } from '../../lib/rundownLayouts'
+import { dashboardElementStyle } from './DashboardPanel.js'
+import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
+import { getIsFilterActive } from '../../lib/rundownLayouts.js'
 import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { PartId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil'
-import { RundownPlaylistClientUtil } from '../../lib/rundownPlaylistUtil'
+import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil.js'
+import { RundownPlaylistClientUtil } from '../../lib/rundownPlaylistUtil.js'
 import { useTranslation } from 'react-i18next'
+import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 
 interface ISegmentTimingPanelProps {
 	visible?: boolean
@@ -30,6 +31,7 @@ interface ISegmentTimingPanelProps {
 	panel: RundownLayoutSegmentTiming
 	playlist: DBRundownPlaylist
 	showStyleBase: UIShowStyleBase
+	studio: UIStudio
 }
 
 interface ISegmentTimingPanelTrackedProps {
@@ -112,7 +114,7 @@ export const SegmentTimingPanel = withTracker<ISegmentTimingPanelProps, {}, ISeg
 						),
 					] as [
 						PartId[],
-						{ currentPartInstance: PartInstance | undefined; nextPartInstance: PartInstance | undefined }
+						{ currentPartInstance: PartInstance | undefined; nextPartInstance: PartInstance | undefined },
 					],
 				// if the rundown isn't active, run the changes ASAP, we don't care if there's going to be jank
 				// if this is the current or next segment (will have those two properties defined), run the changes ASAP,
@@ -136,6 +138,7 @@ export const SegmentTimingPanel = withTracker<ISegmentTimingPanelProps, {}, ISeg
 
 			const o = RundownUtils.getResolvedSegment(
 				props.showStyleBase,
+				props.studio,
 				props.playlist,
 				rundown,
 				liveSegment,

@@ -1,5 +1,5 @@
-import * as Agent from 'elastic-apm-node'
-import { logger } from './logging'
+import Agent from 'elastic-apm-node'
+import { logger } from './logging.js'
 
 let active = false
 export function setupApmAgent(): void {

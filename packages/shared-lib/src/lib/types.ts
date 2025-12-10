@@ -38,3 +38,32 @@ export type KeysByType<TObj, TVal> = Diff<
 	}[keyof TObj],
 	undefined
 >
+
+/**
+ * Creates a new type by picking properties from `T` using an array of keys.
+ *
+ * @template T - The source type.
+ * @template K - An array of keys from `T` to pick.
+ *
+ * @example
+ * ```ts
+ * type User = {
+ *   id: number;
+ *   name: string;
+ *   email: string;
+ *   age: number;
+ * };
+ *
+ * // Using an inline tuple:
+ * type PickedInline = PickKeys<User, ['id', 'name']>;
+ * // Equivalent to:
+ * // type PickedInline = { id: number; name: string };
+ *
+ * // Using a separate constant array:
+ * const userKeys = ['id', 'name'] as const;
+ * type PickedFromConst = PickKeys<User, typeof userKeys>;
+ * // Equivalent to:
+ * // type PickedFromConst = { id: number; name: string };
+ * ```
+ */
+export type PickKeys<T, K extends readonly (keyof T)[]> = Pick<T, K[number]>

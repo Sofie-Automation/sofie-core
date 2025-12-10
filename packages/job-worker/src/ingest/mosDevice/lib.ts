@@ -1,6 +1,6 @@
 import { MOS } from '@sofie-automation/corelib'
 import { IngestRundown, IngestSegment } from '@sofie-automation/blueprints-integration'
-import _ = require('underscore')
+import _ from 'underscore'
 
 export function fixIllegalObject(o: unknown): void {
 	if (_.isArray(o)) {

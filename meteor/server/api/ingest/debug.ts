@@ -49,7 +49,7 @@ MeteorDebugMethods({
 	},
 	/**
 	 * Regenerate all the expected packages for all rundowns in the system.
-	 * Additionally it will recreate any expectedMediaItems and expectedPlayoutItems.
+	 * Additionally it will recreate any expectedPlayoutItems.
 	 * This shouldn't be necessary as ingest will do this for each rundown as part of its workflow
 	 */
 	debug_recreateExpectedPackages: async () => {

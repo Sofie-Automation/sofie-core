@@ -5,9 +5,9 @@ import {
 	TimelineObjectCoreExt,
 	SomeContent,
 } from '@sofie-automation/blueprints-integration'
-import { ProtectedString, protectString, unprotectString } from '../protectedString'
-import { PieceId, RundownId, SegmentId, PartId } from './Ids'
-import { CoreUserEditingDefinition, CoreUserEditingProperties } from './UserEditingDefinitions'
+import { ProtectedString, protectString, unprotectString } from '../protectedString.js'
+import { PieceId, RundownId, SegmentId, PartId } from './Ids.js'
+import { CoreUserEditingDefinition, CoreUserEditingProperties } from './UserEditingDefinitions.js'
 
 /** A generic list of playback availability statuses for a Piece */
 export enum PieceStatusCode {

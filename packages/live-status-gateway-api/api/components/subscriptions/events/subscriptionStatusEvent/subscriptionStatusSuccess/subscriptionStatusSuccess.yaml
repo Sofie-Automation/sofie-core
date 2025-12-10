@@ -1,0 +1,16 @@
+$defs:
+  subscriptionStatusSuccess:
+    type: object
+    title: SubscriptionStatusSuccess
+    properties:
+      event:
+        type: string
+        const: subscriptionStatus
+      reqid:
+        $ref: '../../../../connection/reqid/reqid.yaml#/$defs/reqid'
+      subscription:
+        $ref: '../../../subscriptionDetails/subscriptionDetails.yaml#/$defs/subscriptionDetails'
+        required: [name, status]
+    required: [event, reqid, subscription]
+    examples:
+      - $ref: './subscriptionStatusSuccess-example.yaml'

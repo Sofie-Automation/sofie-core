@@ -22,6 +22,9 @@ module.exports = {
 		],
 		'^.+\\.(js|jsx|mjs)$': path.resolve('./scripts/babel-jest.mjs'),
 	},
+	moduleNameMapper: {
+		'(.+)\\.js$': '$1',
+	},
 	transformIgnorePatterns: ['node_modules/(?!(debounce-fn|p-queue|p-timeout)/)', '\\.pnp\\.[^\\/]+$'],
 	globalSetup: './src/__mocks__/global-setup.js',
 	setupFilesAfterEnv: ['./src/__mocks__/_setupMocks.ts'],

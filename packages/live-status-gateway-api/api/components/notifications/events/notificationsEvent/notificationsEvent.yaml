@@ -1,0 +1,18 @@
+$defs:
+  notificationsEvent:
+    type: object
+    title: NotificationsEvent
+    description: Active notifications in Sofie
+    properties:
+      event:
+        type: string
+        const: notifications
+      activeNotifications:
+        description: Active notifications in Sofie
+        type: array
+        items:
+          $ref: '../../notificationObj/notificationObj.yaml#/$defs/NotificationObj'
+    required: [event, activeNotifications]
+    additionalProperties: false
+    examples:
+      - $ref: './notificationsEvent-example.yaml'

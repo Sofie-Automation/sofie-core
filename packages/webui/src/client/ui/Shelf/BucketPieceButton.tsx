@@ -1,5 +1,5 @@
-import React from 'react'
-import { IDashboardButtonProps, DashboardPieceButtonBase } from './DashboardPieceButton'
+import React, { useContext } from 'react'
+import { IDashboardButtonProps, DashboardPieceButtonBase } from './DashboardPieceButton.js'
 
 import {
 	ConnectDragSource,
@@ -10,12 +10,13 @@ import {
 	useDrop,
 	useDrag,
 } from 'react-dnd'
-import { DragDropItemTypes } from '../DragDropItemTypes'
+import { DragDropItemTypes } from '../DragDropItemTypes.js'
 import { BucketAdLib } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibPiece'
-import { useContentStatusForItem } from '../SegmentTimeline/withMediaObjectStatus'
-import { BucketAdLibActionUi, BucketAdLibItem } from './RundownViewBuckets'
+import { useContentStatusForItem } from '../SegmentTimeline/withMediaObjectStatus.js'
+import { BucketAdLibActionUi, BucketAdLibItem } from './RundownViewBuckets.js'
 import { IBlueprintActionTriggerMode } from '@sofie-automation/blueprints-integration'
 import { BucketId, PieceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { PreviewPopUpContext } from '../PreviewPopUp/PreviewPopUpContext.js'
 
 interface IBucketPieceDragObject {
 	id: PieceId
@@ -128,9 +129,12 @@ export function BucketPieceButton(
 		}),
 	})
 
+	const previewContext = useContext(PreviewPopUpContext)
+
 	return (
 		<BucketPieceButtonBase
 			{...props}
+			previewContext={previewContext}
 			contentStatus={contentStatus}
 			connectDropTarget={connectDropTarget}
 			connectDragPreview={connectDragPreview}

@@ -1,5 +1,5 @@
-import { useCallback, useRef } from 'react'
-import ClassNames from 'classnames'
+import { ChangeEvent, useCallback, useRef } from 'react'
+import Form from 'react-bootstrap/esm/Form'
 
 interface IToggleSwitchControlProps {
 	classNames?: string
@@ -8,7 +8,7 @@ interface IToggleSwitchControlProps {
 	label?: string
 
 	value: boolean
-	handleUpdate: (value: boolean) => void
+	handleUpdate: (value: boolean, e: ChangeEvent<HTMLInputElement>) => void
 }
 export function ToggleSwitchControl({
 	classNames,
@@ -21,30 +21,22 @@ export function ToggleSwitchControl({
 	const currentValue = useRef(value)
 	currentValue.current = value
 
-	const handleChange = useCallback(() => {
-		if (disabled) return
-		handleUpdate(!currentValue.current)
-	}, [handleUpdate, disabled])
+	const handleChange = useCallback(
+		(e: ChangeEvent<HTMLInputElement>) => {
+			if (disabled) return
+			handleUpdate(!currentValue.current, e)
+		},
+		[handleUpdate, disabled]
+	)
 
 	return (
-		<div className="mvs">
-			<a
-				className={ClassNames('switch-button', 'mrs', classNames, disabled ? 'disabled' : '', {
-					'sb-on': value,
-				})}
-				role="button"
-				onClick={handleChange}
-				tabIndex={0}
-			>
-				<div className="sb-content">
-					<div className="sb-label">
-						<span className="mls">&nbsp;</span>
-						<span className="mrs right">&nbsp;</span>
-					</div>
-					<div className="sb-switch"></div>
-				</div>
-			</a>
-			<span>{label}</span>
-		</div>
+		<Form.Check
+			type="switch"
+			className={classNames}
+			disabled={disabled}
+			checked={value}
+			onChange={handleChange}
+			label={label}
+		/>
 	)
 }

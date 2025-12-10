@@ -1,4 +1,4 @@
-/** These are extra packages in the mono-repo, not neccessary for Sofie Core development */
+/** These are extra packages in the mono-repo, not necessary for Sofie Core development */
 const EXTRA_PACKAGES = [
 	"@sofie-automation/openapi",
 	"live-status-gateway",

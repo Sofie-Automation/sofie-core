@@ -53,7 +53,7 @@ async function setupExpectedPackagesPublicationObservers(
 				removed: () => triggerUpdate({}),
 			},
 			{
-				fields: rundownPlaylistFieldSpecifier,
+				projection: rundownPlaylistFieldSpecifier,
 			}
 		),
 	]
@@ -73,7 +73,7 @@ async function manipulateExpectedPackagesPublicationData(
 			studioId: args.studioId,
 			activationId: { $exists: true },
 		},
-		{ fields: rundownPlaylistFieldSpecifier }
+		{ projection: rundownPlaylistFieldSpecifier }
 	)) as RundownPlaylistCompact | undefined
 
 	const activeRundowns = activePlaylist
@@ -82,9 +82,9 @@ async function manipulateExpectedPackagesPublicationData(
 					playlistId: activePlaylist._id,
 				},
 				{
-					fields: { _id: 1 },
+					projection: { _id: 1 },
 				}
-		  )) as Pick<DBRundown, '_id'>[])
+			)) as Pick<DBRundown, '_id'>[])
 		: []
 
 	return literal<PackageManagerPlayoutContext[]>([
@@ -95,7 +95,7 @@ async function manipulateExpectedPackagesPublicationData(
 						_id: activePlaylist._id,
 						active: !!activePlaylist.activationId,
 						rehearsal: !!activePlaylist.rehearsal,
-				  }
+					}
 				: null,
 			activeRundowns: activeRundowns.map((rundown) => {
 				return {

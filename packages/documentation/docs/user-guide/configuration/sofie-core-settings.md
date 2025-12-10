@@ -97,7 +97,7 @@ There are various settings you can set for an installation. See the list below:
 | `followOnAirSegmentsHistory`  | How many segments of history to show when scrolling back in time (0 = show current segment only)                              | `0`                                    |
 | `maximumDataAge`              | Clean up stuff that are older than this [ms])                                                                                 | 100 days                               |
 | `poisonKey`                   | Enable the use of poison key if present and use the key specified.                                                            | `'Escape'`                             |
-| `enableNTPTimeChecker`        | If set, enables a check to ensure that the system time doesn't differ too much from the speficied NTP server time.            | `null`                                 |
+| `enableNTPTimeChecker`        | If set, enables a check to ensure that the system time doesn't differ too much from the specified NTP server time.            | `null`                                 |
 | `defaultShelfDisplayOptions`  | Default value used to toggle Shelf options when the 'display' URL argument is not provided.                                   | `buckets,layout,shelfLayout,inspector` |
 | `enableKeyboardPreview`       | The KeyboardPreview is a feature that is not implemented in the main Fork, and is kept here for compatibility                 | `false`                                |
 | `keyboardMapLayout`           | Keyboard map layout (what physical layout to use for the keyboard)                                                            | STANDARD_102_TKL                       |

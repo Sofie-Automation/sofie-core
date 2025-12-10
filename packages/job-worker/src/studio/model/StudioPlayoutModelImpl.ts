@@ -7,17 +7,17 @@ import {
 	TimelineCompleteGenerationVersions,
 	TimelineObjGeneric,
 } from '@sofie-automation/corelib/dist/dataModel/Timeline'
-import { JobContext } from '../../jobs'
+import { JobContext } from '../../jobs/index.js'
 import { ReadonlyDeep } from 'type-fest'
 import { getRandomId } from '@sofie-automation/corelib/dist/lib'
-import { getCurrentTime } from '../../lib'
-import { IS_PRODUCTION } from '../../environment'
-import { logger } from '../../logging'
-import { StudioPlayoutModel } from './StudioPlayoutModel'
-import { DatabasePersistedModel } from '../../modelBase'
+import { getCurrentTime } from '../../lib/index.js'
+import { IS_PRODUCTION } from '../../environment.js'
+import { logger } from '../../logging.js'
+import { StudioPlayoutModel } from './StudioPlayoutModel.js'
+import { DatabasePersistedModel } from '../../modelBase.js'
 import { ExpectedPackageDBFromStudioBaselineObjects } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
 import { ExpectedPlayoutItemStudio } from '@sofie-automation/corelib/dist/dataModel/ExpectedPlayoutItem'
-import { StudioBaselineHelper } from './StudioBaselineHelper'
+import { StudioBaselineHelper } from './StudioBaselineHelper.js'
 
 /**
  * This is a model used for studio operations.
@@ -78,6 +78,10 @@ export class StudioPlayoutModelImpl implements StudioPlayoutModel {
 		return this.#isMultiGatewayMode
 	}
 
+	public get multiGatewayNowSafeLatency(): number | undefined {
+		return this.context.studio.settings.multiGatewayNowSafeLatency
+	}
+
 	setExpectedPackagesForStudioBaseline(packages: ExpectedPackageDBFromStudioBaselineObjects[]): void {
 		this.#baselineHelper.setExpectedPackages(packages)
 	}
@@ -87,7 +91,8 @@ export class StudioPlayoutModelImpl implements StudioPlayoutModel {
 
 	setTimeline(
 		timelineObjs: TimelineObjGeneric[],
-		generationVersions: TimelineCompleteGenerationVersions
+		generationVersions: TimelineCompleteGenerationVersions,
+		regenerateTimelineToken: string | undefined
 	): ReadonlyDeep<TimelineComplete> {
 		this.#timeline = {
 			_id: this.context.studioId,
@@ -95,6 +100,7 @@ export class StudioPlayoutModelImpl implements StudioPlayoutModel {
 			generated: getCurrentTime(),
 			timelineBlob: serializeTimelineBlob(timelineObjs),
 			generationVersions: generationVersions,
+			regenerateTimelineToken: regenerateTimelineToken,
 		}
 		this.#timelineHasChanged = true
 

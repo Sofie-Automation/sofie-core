@@ -1,25 +1,19 @@
 import { StudioId, WorkerId, WorkerThreadId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import {
-	ManualPromise,
-	createManualPromise,
-	assertNever,
-	getRandomString,
-	deferAsync,
-} from '@sofie-automation/corelib/dist/lib'
+import { assertNever, getRandomString, deferAsync } from '@sofie-automation/corelib/dist/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { startTransaction } from '../profiler'
+import { startTransaction } from '../profiler.js'
 import { MongoClient } from 'mongodb'
-import { createInvalidateWorkerDataCache, InvalidateWorkerDataCache } from './caches'
-import { logger } from '../logging'
-import { LocksManager } from '../locks'
+import { createInvalidateWorkerDataCache, InvalidateWorkerDataCache } from './caches.js'
+import { logger } from '../logging.js'
+import { LocksManager } from '../locks.js'
 import { FORCE_CLEAR_CACHES_JOB } from '@sofie-automation/corelib/dist/worker/shared'
-import { JobManager, JobStream } from '../manager'
+import { JobManager, JobStream } from '../manager.js'
 import { Promisify, ThreadedClassManager } from 'threadedclass'
 import { StatusCode } from '@sofie-automation/blueprints-integration'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 import { WorkerThreadStatus } from '@sofie-automation/corelib/dist/dataModel/WorkerThreads'
-import { UserError } from '@sofie-automation/corelib/dist/error'
+import { UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/error'
 import { sleep } from '@sofie-automation/shared-lib/dist/lib/lib'
 
 export enum ThreadStatus {
@@ -71,7 +65,7 @@ export abstract class WorkerParentBase {
 	readonly #mongoDbName: string
 	readonly #locksManager: LocksManager
 
-	#terminate: ManualPromise<void> | undefined
+	#terminate: PromiseWithResolvers<void> | undefined
 
 	readonly #jobManager: JobManager
 	readonly #jobStream: JobStream
@@ -306,9 +300,7 @@ export abstract class WorkerParentBase {
 										job.id,
 										startTime,
 										endTime,
-										result.error
-											? UserError.tryFromJSON(result.error) ?? new Error(result.error)
-											: null,
+										result.error,
 										result.result
 									)
 
@@ -324,7 +316,13 @@ export abstract class WorkerParentBase {
 									logger.error(`Job errored ${job.id} "${job.name}": ${stringifyError(e)}`)
 
 									this.#watchdogJobStarted = undefined
-									await this.#jobManager.jobFinished(job.id, startTime, Date.now(), error, null)
+									await this.#jobManager.jobFinished(
+										job.id,
+										startTime,
+										Date.now(),
+										UserError.toJSON(UserError.from(error, UserErrorMessage.InternalError)),
+										null
+									)
 								}
 
 								// Ensure all locks have been freed after the job
@@ -341,7 +339,7 @@ export abstract class WorkerParentBase {
 					}
 
 					// Mark completed
-					this.#terminate.manualResolve()
+					this.#terminate.resolve()
 				},
 				(e: unknown) => {
 					deferAsync(
@@ -352,11 +350,11 @@ export abstract class WorkerParentBase {
 
 							// Ensure the termination is tracked
 							if (!this.#terminate) {
-								this.#terminate = createManualPromise()
+								this.#terminate = Promise.withResolvers()
 							}
 
 							// Mark completed
-							this.#terminate.manualResolve()
+							this.#terminate.resolve()
 						},
 						(e2: unknown) => {
 							logger.error(`Worker thread errored while terminating: ${stringifyError(e2)}`)
@@ -443,10 +441,10 @@ export abstract class WorkerParentBase {
 		await this.#locksManager.releaseAllForThread(this.#queueName)
 
 		if (!this.#terminate) {
-			this.#terminate = createManualPromise()
+			this.#terminate = Promise.withResolvers()
 		}
 		// wait for the work loop to exit
-		await this.#terminate
+		await this.#terminate.promise
 
 		// stop the thread
 		await this.terminateWorkerThread()

@@ -1,12 +1,12 @@
 import { PackageInfo, ISegmentUserContext, NoteSeverity } from '@sofie-automation/blueprints-integration'
 import { ReadonlyDeep } from 'type-fest'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { WatchedPackagesHelper } from './watchedPackages'
-import { JobContext, ProcessedShowStyleCompound } from '../../jobs'
-import { ContextInfo } from './CommonContext'
-import { RundownContext } from './RundownContext'
+import { WatchedPackagesHelper } from './watchedPackages.js'
+import { JobContext, ProcessedShowStyleCompound } from '../../jobs/index.js'
+import { ContextInfo } from './CommonContext.js'
+import { RundownContext } from './RundownContext.js'
 import { INoteBase } from '@sofie-automation/corelib/dist/dataModel/Notes'
-import { getMediaObjectDuration } from './lib'
+import { getMediaObjectDuration } from './lib.js'
 
 export interface RawPartNote extends INoteBase {
 	partExternalId: string | undefined

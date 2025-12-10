@@ -1,5 +1,9 @@
 import { CustomCollectionName } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { createSyncCustomPublicationMongoCollection } from '../collections/lib'
+import { CustomCollectionName as CustomCorelibCollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
+import {
+	createSyncCorelibCustomPublicationMongoCollection,
+	createSyncCustomPublicationMongoCollection,
+} from '../collections/lib.js'
 
 /**
  * A playout UI version of ShowStyleBases.
@@ -27,15 +31,15 @@ export const DeviceTriggersPreviews = createSyncCustomPublicationMongoCollection
 )
 
 /**
- * Pre-generated notes to be converted into notificiations.
+ * Pre-generated notes to be converted into notifications.
  */
 export const UISegmentPartNotes = createSyncCustomPublicationMongoCollection(CustomCollectionName.UISegmentPartNotes)
 
 /**
  * Pre-processed MediaObjectIssue for Pieces in the Rundowns
  */
-export const UIPieceContentStatuses = createSyncCustomPublicationMongoCollection(
-	CustomCollectionName.UIPieceContentStatuses
+export const UIPieceContentStatuses = createSyncCorelibCustomPublicationMongoCollection(
+	CustomCorelibCollectionName.UIPieceContentStatuses
 )
 
 /**

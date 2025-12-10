@@ -18,10 +18,11 @@ This docker-compose file automates the basic setup of the [Sofie-Core applicatio
 ```yaml
 # This is NOT recommended to be used for a production deployment.
 # It aims to quickly get an evaluation version of Sofie running and serve as a basis for how to set up a production deployment.
+name: Sofie
 services:
   db:
     hostname: mongo
-    image: mongo:6.0
+    image: mongo:8
     restart: always
     entrypoint: ['/usr/bin/mongod', '--replSet', 'rs0', '--bind_ip_all']
     # the healthcheck avoids the need to initiate the replica set
@@ -48,7 +49,7 @@ services:
 
   core:
     hostname: core
-    image: sofietv/tv-automation-server-core:release52
+    image: sofietv/tv-automation-server-core:release53
     restart: always
     ports:
       - '3000:3000' # Same port as meteor uses by default
@@ -69,10 +70,24 @@ services:
         condition: service_healthy
 
   playout-gateway:
-    image: sofietv/tv-automation-playout-gateway:release52
+    image: sofietv/tv-automation-playout-gateway:release53
     restart: always
     environment:
-      DEVICE_ID: playoutGateway0
+      DEVICE_ID: playoutGateway
+      CORE_HOST: core
+      CORE_PORT: '3000'
+    networks:
+      - sofie
+    depends_on:
+      - core
+
+  live-status-gateway:
+    image: sofietv/tv-automation-live-status-gateway:release53
+    restart: always
+    ports:
+      - '8080:8080'
+    environment:
+      DEVICE_ID: liveStatusGateway
       CORE_HOST: core
       CORE_PORT: '3000'
     networks:
@@ -81,44 +96,82 @@ services:
     depends_on:
       - core
 
+  package-manager:
+    image: sofietv/package-manager-package-manager:latest
+    restart: always
+    environment:
+      DEVICE_ID: packageManager
+      CORE_HOST: core
+      CORE_PORT: '3000'
+      PACKAGE_MANAGER_URL: ws://package-manager:8060
+      WORKFORCE_URL: ws://package-manager-workforce:8070
+    networks:
+      - sofie
+    depends_on:
+      - core
+      - package-manager-workforce
+
+  package-manager-http-server:
+    image: sofietv/package-manager-http-server:latest
+    restart: always
+    ports:
+      - '8081:8080'
+    environment:
+      HTTP_SERVER_BASE_PATH: /mnt/package-manager-store
+    networks:
+      - sofie
+    volumes:
+      - package-manager-store:/mnt/package-manager-store
+
+  package-manager-workforce:
+    image: sofietv/package-manager-workforce:latest
+    restart: always
+    ports:
+      - '8070:8070'
+    networks:
+      - sofie
+
   # Choose one of the following images, depending on which type of ingest gateway is wanted.
 
-  # spreadsheet-gateway:
-  #   image: superflytv/sofie-spreadsheet-gateway:latest
-  #   restart: always
-  #   environment:
-  #     DEVICE_ID: spreadsheetGateway0
-  #     CORE_HOST: core
-  #     CORE_PORT: '3000'
-  #   networks:
-  #     - sofie
-  #   depends_on:
-  #     - core
+  spreadsheet-gateway:
+    image: superflytv/sofie-spreadsheet-gateway:latest
+    restart: always
+    environment:
+      DEVICE_ID: spreadsheetGateway
+      CORE_HOST: core
+      CORE_PORT: '3000'
+    networks:
+      - sofie
+    depends_on:
+      - core
+    profiles: [spreadsheet-gateway]
 
-  # mos-gateway:
-  #   image: sofietv/tv-automation-mos-gateway:release52
-  #   restart: always
-  #   ports:
-  #     - "10540:10540" # MOS Lower port
-  #     - "10541:10541" # MOS Upper port
-  #     # - "10542:10542" # MOS query port - not used
-  #   environment:
-  #     DEVICE_ID: mosGateway0
-  #     CORE_HOST: core
-  #     CORE_PORT: '3000'
-  #   networks:
-  #     - sofie
-  #   depends_on:
-  #     - core
+  mos-gateway:
+    image: sofietv/tv-automation-mos-gateway:release53
+    restart: always
+    ports:
+      - '10540:10540' # MOS Lower port
+      - '10541:10541' # MOS Upper port
+      # - '10542:10542' # MOS query port - not used
+    environment:
+      DEVICE_ID: mosGateway
+      CORE_HOST: core
+      CORE_PORT: '3000'
+    networks:
+      - sofie
+    depends_on:
+      - core
+    profiles: [mos-gateway]
 
-  # inews-gateway:
-  #   image: tv2media/inews-ftp-gateway:1.37.0-in-testing.20
-  #   restart: always
-  #   command: yarn start -host core -port 3000 -id inewsGateway0
-  #   networks:
-  #     - sofie
-  #   depends_on:
-  #     - core
+  inews-gateway:
+    image: tv2media/inews-ftp-gateway:1.37.0-in-testing.20
+    restart: always
+    command: yarn start -host core -port 3000 -id inewsGateway
+    networks:
+      - sofie
+    depends_on:
+      - core
+    profiles: [inews-gateway]
 
   # rundown-editor:
   #   image: ghcr.io/superflytv/sofie-automation-rundown-editor:v2.2.4
@@ -134,19 +187,26 @@ services:
 
 networks:
   sofie:
-  lan_access:
-    driver: bridge
 
 volumes:
   db-data:
   sofie-store:
+  package-manager-store:
 ```
 
 Create a `Sofie` folder, copy the above content, and save it as `docker-compose.yaml` within the `Sofie` folder.
 
-Visit [Rundowns & Newsroom Systems](installing-a-gateway/rundown-or-newsroom-system-connection/intro.md) to see which _Ingest Gateway_ can be used in your specific production environment. If you don't have an NRCS that you would like to integrate with, you can use the [Rundown Editor](rundown-editor) as a simple Rundown creation utility. Navigate to the _ingest-gateway_ section of `docker-compose.yaml` and select which type of _ingest-gateway_ you'd like installed by uncommenting it. Save your changes.
+Visit [Rundowns & Newsroom Systems](installing-a-gateway/rundown-or-newsroom-system-connection/intro.md) to see which _Ingest Gateway_ can be used in your specific production environment. If you don't have an NRCS that you would like to integrate with, you can use the [Rundown Editor](rundown-editor) as a simple Rundown creation utility.
 
-Open a terminal, execute `cd Sofie` and `sudo docker-compose up` \(or just `docker-compose up` on Windows\). This will download MongoDB and Sofie components' container images and start them up. The installation will be done when your terminal window will be filled with messages coming from `playout-gateway_1` and `core_1`.
+Select the ingest gateway by creating using docker compose profiles. Create a file called `.env` in the same folder as docker compose with the contents:
+
+```
+COMPOSE_PROFILES=ingest-profile-name
+```
+
+But replacing `ingest-profile-name` with one of `spreadsheet-gateway`, `mos-gateway` or `inews-gateway`, or a comma separated list of more than one. For more information, see the [docker documentation on Compose profiles](https://docs.docker.com/compose/how-tos/profiles/).
+
+Then open a terminal, `cd your-sofie-folder` and `sudo docker-compose up` \(just `docker-compose up` on Windows or MacOS\). This will download MongoDB and Sofie components' container images and start them up. The installation will be done when your terminal window will be filled with messages coming from `playout-gateway_1` and `core_1`.
 
 Once the installation is done, Sofie should be running on [http://localhost:3000](http://localhost:3000). Next, you need to make sure that the Playout Gateway and Ingest Gateway are connected to the default Studio that has been automatically created. Open the Sofie User Interface with [Configuration Access level](../features/access-levels#browser-based) by opening [http://localhost:3000/?admin=1](http://localhost:3000/?admin=1) in your Web Browser and navigate to _Settings_&nbsp;🡒 _Studios_&nbsp;🡒 _Default Studio_&nbsp;🡒 _Peripheral Devices_. In the _Parent Devices_ section, create a new Device using the **+** button, rename the device to _Playout Gateway_ and select _Playout gateway_ from the _Peripheral Device_ drop down menu. Repeat this process for your _Ingest Gateway_ or _Sofie Rundown Editor_.
 

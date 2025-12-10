@@ -1,0 +1,3 @@
+timingMode: 'forward-time'
+expectedStart: 1728895750727
+expectedDurationMs: 180000

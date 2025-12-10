@@ -29,17 +29,23 @@ export function findPartPosition(
 }
 
 export function stringsToIndexLookup(strings: string[]): Record<string, number> {
-	return strings.reduce((result, str, index) => {
-		result[str] = index
-		return result
-	}, {} as Record<string, number>)
+	return strings.reduce(
+		(result, str, index) => {
+			result[str] = index
+			return result
+		},
+		{} as Record<string, number>
+	)
 }
 
 export function extractRanks(docs: { _id: ProtectedString<any>; _rank: number }[]): Record<string, number> {
-	return docs.reduce((result, doc) => {
-		result[doc._id as unknown as string] = doc._rank
-		return result
-	}, {} as Record<string, number>)
+	return docs.reduce(
+		(result, doc) => {
+			result[doc._id as unknown as string] = doc._rank
+			return result
+		},
+		{} as Record<string, number>
+	)
 }
 
 export function modifyPartForQuickLoop(
@@ -117,22 +123,22 @@ export function modifyPartInstanceForQuickLoop(
 export function findMarkerPosition(
 	marker: QuickLoopMarker,
 	fallback: number,
-	segmentCache: ReadonlyObjectDeep<ReactiveCacheCollection<Pick<DBSegment, '_id' | '_rank' | 'rundownId'>>>,
-	partCache:
-		| { parts: ReadonlyObjectDeep<ReactiveCacheCollection<Pick<DBPart, '_id' | '_rank' | 'segmentId'>>> }
-		| { partInstances: ReadonlyObjectDeep<ReactiveCacheCollection<DBPartInstance>> },
+	contentCache: {
+		segments: ReadonlyObjectDeep<ReactiveCacheCollection<Pick<DBSegment, '_id' | '_rank' | 'rundownId'>>>
+		parts: ReadonlyObjectDeep<ReactiveCacheCollection<Pick<DBPart, '_id' | '_rank' | 'segmentId'>>>
+		partInstances?: ReadonlyObjectDeep<ReactiveCacheCollection<DBPartInstance>>
+	},
 	rundownRanks: Record<string, number>
 ): MarkerPosition {
 	const part =
 		marker.type === QuickLoopMarkerType.PART
-			? 'parts' in partCache
-				? partCache.parts.findOne(marker.id)
-				: partCache.partInstances.findOne({ 'part._id': marker.id })?.part
+			? (contentCache.partInstances?.findOne({ 'part._id': marker.id })?.part ??
+				contentCache.parts?.findOne(marker.id))
 			: undefined
 	const partRank = part?._rank ?? fallback
 
 	const segmentId = marker.type === QuickLoopMarkerType.SEGMENT ? marker.id : part?.segmentId
-	const segment = segmentId && segmentCache.findOne(segmentId)
+	const segment = segmentId && contentCache.segments.findOne(segmentId)
 	const segmentRank = segment?._rank ?? fallback
 
 	const rundownId = marker.type === QuickLoopMarkerType.RUNDOWN ? marker.id : segment?.rundownId

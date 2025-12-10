@@ -1,12 +1,13 @@
 import Moment, { MomentProps } from 'react-moment'
 import moment from 'moment'
-import { getCurrentTime } from './systemTime'
-import timer from 'react-timer-hoc'
+import { useCurrentTime } from './lib'
 
 /**
  * Use instead of <Moment fromNow></Moment>, its result is synced with getCurrentTime()
  * @param args same as for Moment
  */
-export const MomentFromNow = timer(60000)(function MomentFromNow(args: MomentProps) {
-	return <Moment {...args} from={moment(getCurrentTime())} interval={0}></Moment>
-})
+export function MomentFromNow(args: MomentProps): JSX.Element {
+	const time = useCurrentTime(60000)
+
+	return <Moment {...args} from={moment(time)} interval={0}></Moment>
+}

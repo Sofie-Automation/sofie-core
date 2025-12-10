@@ -1,4 +1,4 @@
-import { escapeHtml } from '../lib'
+import { escapeHtml } from '../lib.js'
 
 describe('lib', () => {
 	test('escapeHtml', () => {
