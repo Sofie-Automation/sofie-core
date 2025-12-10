@@ -1,4 +1,4 @@
-import { BlueprintId, TimelineHash } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { JobContext, JobStudio } from '../../jobs'
 import { ReadonlyDeep } from 'type-fest'
 import {
@@ -126,7 +126,7 @@ export async function updateStudioTimeline(
 		logAnyRemainingNowTimes(context, baselineObjects)
 	}
 
-	const timelineHash = saveTimeline(context, playoutModel, baselineObjects, versions)
+	const timelineHash = playoutModel.setTimeline(baselineObjects, versions).timelineHash
 
 	if (studioBaseline) {
 		updateBaselineExpectedPackagesOnStudio(context, playoutModel, studioBaseline)
@@ -156,7 +156,7 @@ export async function updateTimeline(context: JobContext, playoutModel: PlayoutM
 		logAnyRemainingNowTimes(context, timelineObjs)
 	}
 
-	const timelineHash = saveTimeline(context, playoutModel, timelineObjs, versions)
+	const timelineHash = playoutModel.setTimeline(timelineObjs, versions).timelineHash
 	logger.verbose(`updateTimeline done, hash: "${timelineHash}"`)
 
 	if (span) span.end()
@@ -220,21 +220,6 @@ function hasNow(obj: TimelineEnableExt | TimelineEnableExt[]) {
 		if (enable.start === 'now' || enable.end === 'now') res = true
 	})
 	return res
-}
-
-/** Store the timelineobjects into the model, and perform any post-save actions */
-export function saveTimeline(
-	context: JobContext,
-	studioPlayoutModel: StudioPlayoutModelBase,
-	timelineObjs: TimelineObjGeneric[],
-	generationVersions: TimelineCompleteGenerationVersions
-): TimelineHash {
-	const newTimeline = studioPlayoutModel.setTimeline(timelineObjs, generationVersions)
-
-	// Also do a fast-track for the timeline to be published faster:
-	context.hackPublishTimelineToFastTrack(newTimeline)
-
-	return newTimeline.timelineHash
 }
 
 export interface SelectedPartInstancesTimelineInfo {

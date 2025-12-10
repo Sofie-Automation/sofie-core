@@ -121,6 +121,9 @@ export class StudioPlayoutModelImpl implements StudioPlayoutModel {
 
 		// Prioritise the timeline for publication reasons
 		if (this.#timelineHasChanged && this.#timeline) {
+			// Do a fast-track for the timeline to be published faster:
+			this.context.hackPublishTimelineToFastTrack(this.#timeline)
+
 			await this.context.directCollections.Timelines.replace(this.#timeline)
 		}
 		this.#timelineHasChanged = false

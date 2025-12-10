@@ -662,6 +662,9 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 
 		// Prioritise the timeline for publication reasons
 		if (this.#timelineHasChanged && this.timelineImpl) {
+			// Do a fast-track for the timeline to be published faster:
+			this.context.hackPublishTimelineToFastTrack(this.timelineImpl)
+
 			await this.context.directCollections.Timelines.replace(this.timelineImpl)
 			if (!process.env.JEST_WORKER_ID) {
 				// Wait a little bit before saving the rest.
