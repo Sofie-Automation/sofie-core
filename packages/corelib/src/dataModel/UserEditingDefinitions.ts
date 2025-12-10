@@ -47,6 +47,12 @@ export interface CoreUserEditingDefinitionForm {
 	translationNamespaces: string[]
 }
 
+export interface CoreUserEditingDefinitionSofie {
+	type: UserEditingType.SOFIE
+	/** Id of this operation */
+	id: DefaultUserOperationsTypes
+}
+
 export interface CoreUserEditingProperties {
 	/**
 	 * These properties are dependent on the (primary) piece type, the user will get the option

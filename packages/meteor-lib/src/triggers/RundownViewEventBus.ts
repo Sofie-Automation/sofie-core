@@ -29,6 +29,7 @@ export enum RundownViewEvents {
 	REVEAL_IN_SHELF = 'revealInShelf',
 	SWITCH_SHELF_TAB = 'switchShelfTab',
 	SHELF_STATE = 'shelfState',
+	EDIT_MODE = 'editMode',
 	MINI_SHELF_QUEUE_ADLIB = 'miniShelfQueueAdLib',
 	GO_TO_PART = 'goToPart',
 	GO_TO_PART_INSTANCE = 'goToPartInstance',
@@ -71,6 +72,10 @@ export interface SwitchToShelfTabEvent extends IEventContext {
 }
 
 export interface ShelfStateEvent extends IEventContext {
+	state: boolean | 'toggle'
+}
+
+export interface EditModeEvent extends IEventContext {
 	state: boolean | 'toggle'
 }
 
@@ -139,6 +144,7 @@ export interface RundownViewEventBusEvents {
 	[RundownViewEvents.SEGMENT_ZOOM_ON]: []
 	[RundownViewEvents.SEGMENT_ZOOM_OFF]: []
 	[RundownViewEvents.SHELF_STATE]: [e: ShelfStateEvent]
+	[RundownViewEvents.EDIT_MODE]: [e: EditModeEvent]
 	[RundownViewEvents.REVEAL_IN_SHELF]: [e: RevealInShelfEvent]
 	[RundownViewEvents.SWITCH_SHELF_TAB]: [e: SwitchToShelfTabEvent]
 	[RundownViewEvents.MINI_SHELF_QUEUE_ADLIB]: [e: MiniShelfQueueAdLibEvent]
