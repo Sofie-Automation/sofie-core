@@ -132,13 +132,13 @@ export const SegmentContextMenu = withTranslation()(
 								</MenuItem>
 								{startsAt !== null && part && this.props.enablePlayFromAnywhere ? (
 									<>
-										{/* <MenuItem
+										<MenuItem
 											onClick={(e) => this.onSetAsNextFromHere(part.instance.part, e)}
 											disabled={isCurrentPart || !!part.instance.orphaned || !canSetAsNext}
 										>
 											<span dangerouslySetInnerHTML={{ __html: t('Set <strong>Next</strong> Here') }}></span> (
 											{RundownUtils.formatTimeToShortTime(Math.floor((startsAt + timecode) / 1000) * 1000)})
-										</MenuItem> */}
+										</MenuItem>
 										<MenuItem
 											onClick={(e) => this.onPlayFromHere(part.instance.part, e)}
 											disabled={!!part.instance.orphaned || !canSetAsNext}
@@ -252,10 +252,10 @@ export const SegmentContextMenu = withTranslation()(
 			}
 		}
 
-		// private onSetAsNextFromHere = (part: DBPart, e) => {
-		// 	const offset = this.getTimePosition()
-		// 	this.props.onSetNext(part, e, offset || 0)
-		// }
+		private onSetAsNextFromHere = (part: DBPart, e: React.MouseEvent | React.TouchEvent) => {
+			const offset = this.getTimePosition()
+			this.props.onSetNext(part, e, offset || 0)
+		}
 
 		private onPlayFromHere = (part: DBPart, e: React.MouseEvent | React.TouchEvent) => {
 			const offset = this.getTimePosition()
