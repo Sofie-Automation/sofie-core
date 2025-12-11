@@ -31,7 +31,7 @@ $hold-status-color: $liveline-timecode-color;
 		align-items: center;
 		background-color: #3f3f3f;
 		color: #888;
-		font-size: 2.6em;
+		font-size: 3.8vh;
 		padding: 0 0.2em;
 		text-transform: uppercase;
 
@@ -46,12 +46,14 @@ $hold-status-color: $liveline-timecode-color;
 		.director-screen__top__planned-to {
 			text-align: center;
 		}
-		.director-screen__top__planned-since {
-			margin-left: -50px;
-		}
 
 		.director-screen__top__over-under {
 			margin-left: 5vw;
+		}
+
+		.director-screen__top__planned-container {
+			display: flex;
+			flex-direction: column;
 		}
 	}
 
@@ -73,10 +75,7 @@ $hold-status-color: $liveline-timecode-color;
 
 		.director-screen__body__part {
 			display: grid;
-			grid-template:
-				24em
-				80em
-				20em / min(13vw, 27vh) auto;
+			grid-template: 24em 80em 20em / max(13vw, 27vh) auto;
 			white-space: nowrap;
 
 			.director-screen__body__segment-name {
@@ -88,7 +87,8 @@ $hold-status-color: $liveline-timecode-color;
 				align-items: center;
 				color: #fff;
 				position: relative;
-				font-size: 100px;
+				font-size: 8vh;
+				line-height: 11vh;
 				height: 11vh;
 				letter-spacing: 0.01em;
 				font-feature-settings:
@@ -128,7 +128,7 @@ $hold-status-color: $liveline-timecode-color;
 					align-items: center;
 					padding-right: 30px;
 
-					font-size: 110px;
+					font-size: 10vh;
 					color: $general-countdown-to-next-color;
 					font-variation-settings:
 						'GRAD' 0,
@@ -208,14 +208,14 @@ $hold-status-color: $liveline-timecode-color;
 				text-align: center;
 				width: 100vw;
 				margin-left: -13vw;
-				
+
 				.director-screen__body__part__timeto-name {
 					color: #888;
 					font-size: 9.63em;
 					text-transform: uppercase;
 					margin-top: -2vh;
 				}
-				
+
 				.director-screen__body__part__timeto-countdown {
 					margin-top: 4vh;
 					grid-row: inherit;
@@ -456,10 +456,9 @@ $hold-status-color: $liveline-timecode-color;
 				grid-column: 1;
 				margin-top: -50px;
 				text-align: left;
-				font-size: 2.2rem;
+				font-size: clamp(1.5rem, 1.8vw, 2.2rem);
 				font-weight: 900;
 				color: #000;
-				padding-top: 5px;
 				padding-left: 8px;
 				padding-right: 20px;
 				width: fit-content;
@@ -480,5 +479,10 @@ $hold-status-color: $liveline-timecode-color;
 		.clocks-counter-heavy {
 			font-weight: 600;
 		}
+	}
+
+	.clock-view-piece-icon,
+	.clock-view-piece-icon > span {
+		width: 10.78vw !important;
 	}
 }
