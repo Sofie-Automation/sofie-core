@@ -1,10 +1,10 @@
 import { Logger } from 'winston'
-import { CoreHandler } from '../coreHandler'
-import { PublicationCollection } from '../publicationCollection'
+import { CoreHandler } from '../coreHandler.js'
+import { PublicationCollection } from '../publicationCollection.js'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 import { BucketAdLibAction } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibAction'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
-import { CollectionHandlers } from '../liveStatusServer'
+import { CollectionHandlers } from '../liveStatusServer.js'
 
 export class BucketAdLibActionsHandler extends PublicationCollection<
 	BucketAdLibAction[],

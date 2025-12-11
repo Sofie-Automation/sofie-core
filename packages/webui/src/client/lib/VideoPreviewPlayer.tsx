@@ -1,7 +1,7 @@
 import { IStudioSettings } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import classNames from 'classnames'
 import { useEffect, useRef } from 'react'
-import { StyledTimecode } from './StyledTimecode'
+import { StyledTimecode } from './StyledTimecode.js'
 
 function setVideoElementPosition(
 	vEl: HTMLVideoElement,

@@ -1,4 +1,4 @@
-/* SASS statring point. Import styles from here on: */
+/* SASS starting point. Import styles from here on: */
 
 /* body {
 	user-select: none;
@@ -53,6 +53,8 @@ input {
 
 @import 'countdown/overlay';
 @import 'countdown/presenter';
+@import 'countdown/director';
+@import 'counterComponents';
 
 @import 'customizations/nrk/shelf/taPanel';
 
@@ -106,6 +108,7 @@ input {
 @import '../ui/SegmentList/LinePartSecondaryPiece/LinePartSecondaryPiece.scss';
 @import '../ui/PieceIcons/IconColors.scss';
 @import '../ui/PieceIcons/PieceIcons';
+@import '../ui/ClockView/ClockViewPieceIcons/ClockViewPieceIcons';
 @import '../ui/ClockView/CameraScreen/CameraScreen.scss';
 @import '../ui/RundownView/MediaStatusPopUp/MediaStatusPopUpItem.scss';
 @import '../ui/RundownView/MediaStatusPopUp/MediaStatusPopUp.scss';
@@ -120,6 +123,12 @@ body {
 	touch-action: pan-x pan-y;
 
 	letter-spacing: 0.5px;
+}
+
+// By default an a-tag has underlined text - and Link components are rendered as a-tags
+// So the default behaviour set to none, and then we can override it in the components that need it:
+a {
+	text-decoration: none;
 }
 
 :fullscreen ::-webkit-scrollbar {

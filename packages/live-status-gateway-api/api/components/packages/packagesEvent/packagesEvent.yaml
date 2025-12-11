@@ -1,0 +1,20 @@
+title: PackagesEvent
+type: object
+properties:
+  event:
+    type: string
+    const: packages
+  rundownPlaylistId:
+    description: Unique id of the rundown playlist, or null if no playlist is active
+    oneOf:
+      - type: string
+      - type: 'null'
+  packages:
+    description: The Package statuses for this playlist
+    type: array
+    items:
+      $ref: '../packageInfoStatus/packageInfoStatus.yaml#/$defs/packageInfoStatus'
+required: [event, rundownPlaylistId, packages]
+additionalProperties: false
+examples:
+  - $ref: './packagesEvent-example.yaml'

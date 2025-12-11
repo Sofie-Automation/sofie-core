@@ -5,13 +5,13 @@ import {
 	ObjectOverrideSetOp,
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { useCallback, useMemo } from 'react'
-import { MongoCollection } from '../../collections/lib'
+import { MongoCollection } from '../../collections/lib.js'
 import {
 	WrappedOverridableItemNormal,
 	OverrideOpHelperForItemContentsBatcher,
-} from '../../ui/Settings/util/OverrideOpHelper'
-import { SchemaFormCommonProps } from './schemaFormUtil'
-import { SchemaFormWithOverrides } from './SchemaFormWithOverrides'
+} from '../../ui/Settings/util/OverrideOpHelper.js'
+import { SchemaFormCommonProps } from './schemaFormUtil.js'
+import { SchemaFormWithOverrides } from './SchemaFormWithOverrides.js'
 import { MongoModifier } from '@sofie-automation/corelib/dist/mongo'
 
 interface SchemaFormForCollectionProps extends Omit<SchemaFormCommonProps, 'isRequired'> {
@@ -58,12 +58,12 @@ export function SchemaFormForCollection({
 					? literal<ObjectOverrideDeleteOp>({
 							op: 'delete',
 							path: `0.${key}`,
-					  })
+						})
 					: literal<ObjectOverrideSetOp>({
 							op: 'set',
 							path: `0.${key}`,
 							value: val,
-					  })
+						})
 			)
 
 			return literal<WrappedOverridableItemNormal<any>>({

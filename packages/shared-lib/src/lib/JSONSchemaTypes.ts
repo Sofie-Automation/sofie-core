@@ -33,7 +33,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
 export const draft = '2020-12' as const
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
 export const $schema = 'https://json-schema.org/draft/2020-12/schema' as const
 
 type MaybeReadonlyArray<T> = Array<T> | ReadonlyArray<T>
@@ -47,16 +49,16 @@ export type JSONSchema<
 	SchemaType = Value extends boolean
 		? 'boolean'
 		: Value extends null
-		? 'null'
-		: Value extends number
-		? 'number' | 'integer'
-		: Value extends string
-		? 'string'
-		: Value extends unknown[]
-		? 'array'
-		: Value extends Record<string | number, unknown>
-		? 'object'
-		: JSONSchema.TypeValue
+			? 'null'
+			: Value extends number
+				? 'number' | 'integer'
+				: Value extends string
+					? 'string'
+					: Value extends unknown[]
+						? 'array'
+						: Value extends Record<string | number, unknown>
+							? 'object'
+							: JSONSchema.TypeValue,
 > = {
 	/**
 	 * Using JSON Pointer fragments requires knowledge of the structure of the

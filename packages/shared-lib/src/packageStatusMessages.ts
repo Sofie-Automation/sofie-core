@@ -34,6 +34,10 @@ export enum PackageStatusMessage {
 
 	// Package manager
 	/**
+	 * The file has no valid source package containers
+	 */
+	FILE_MISSING_SOURCE_CONTAINERS = 'FILE_MISSING_SOURCE_CONTAINERS',
+	/**
 	 * The file can't be found on the playout system
 	 */
 	FILE_CANT_BE_FOUND_ON_PLAYOUT_SYSTEM = 'FILE_CANT_BE_FOUND_ON_PLAYOUT_SYSTEM',

@@ -1,5 +1,5 @@
-import type { Time } from '../common'
-import type { IBlueprintPieceDB } from './piece'
+import type { Time } from '../common.js'
+import type { IBlueprintPieceDB } from './piece.js'
 
 export interface IBlueprintPieceInstance<TPrivateData = unknown, TPublicData = unknown> {
 	_id: string

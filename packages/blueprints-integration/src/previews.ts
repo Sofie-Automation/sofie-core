@@ -1,6 +1,6 @@
-import { SplitsContentBoxContent, SplitsContentBoxProperties } from './content'
-import { NoteSeverity } from './lib'
-import { ITranslatableMessage } from './translations'
+import { SplitsContentBoxContent, SplitsContentBoxProperties } from './content.js'
+import { NoteSeverity } from './lib.js'
+import { ITranslatableMessage } from './translations.js'
 
 export interface PopupPreview<P extends Previews = Previews> {
 	name?: string

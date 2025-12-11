@@ -6,17 +6,17 @@ sidebar_position: 3
 
 ## Permissions
 
-There are a few different access levels that users can be assigned. They are not heirarchical, you will often need to enable multiple for each user.
+There are a few different access levels that users can be assigned. They are not hierarchical, you will often need to enable multiple for each user.
 Any client that can access Sofie always has at least view-only access to the rundowns, and system status pages.
 
-| Level         | Summary                                                                                                                                          |
-| :------------ | :----------------------------------------------------------------------------------------------------------------------------------------------- |
-| **studio**    | Grants access to operate a studio for playout of a rundown.                                                                                      |
-| **configure** | Grants access to the settings pages of Sofie, and other abilities to configure the system.                                                       |
-| **developer** | Grants access to some tools useful to developers. This also changes some ui behaviours to be less agressive in what is shown in the rundown view |
-| **testing**   | Enables the page Test Tools, which contains various tools useful for testing the system during development                                       |
-| **service**   | Grants access to the external message status page, and some additional rundown management options that are not commonly needed                   |
-| **gateway**   | Grants access to various APIs intended for use by the various gateways that connect Sofie to other systems.                                      |
+| Level         | Summary                                                                                                                                           |
+| :------------ | :------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **studio**    | Grants access to operate a studio for playout of a rundown.                                                                                       |
+| **configure** | Grants access to the settings pages of Sofie, and other abilities to configure the system.                                                        |
+| **developer** | Grants access to some tools useful to developers. This also changes some ui behaviours to be less aggressive in what is shown in the rundown view |
+| **testing**   | Enables the page Test Tools, which contains various tools useful for testing the system during development                                        |
+| **service**   | Grants access to the external message status page, and some additional rundown management options that are not commonly needed                    |
+| **gateway**   | Grants access to various APIs intended for use by the various gateways that connect Sofie to other systems.                                       |
 
 ## Authentication providers
 

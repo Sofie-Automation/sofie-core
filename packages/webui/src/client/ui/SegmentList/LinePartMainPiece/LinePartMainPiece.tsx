@@ -1,24 +1,24 @@
 import { EvsContent, SourceLayerType } from '@sofie-automation/blueprints-integration'
 import React, { useContext, useMemo, useRef, useState } from 'react'
-import { PieceExtended } from '../../../lib/RundownResolver'
+import { PieceExtended } from '../../../lib/RundownResolver.js'
 // TODO: Move to a shared lib file
 import { PartId, PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import classNames from 'classnames'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
-import { getNoticeLevelForPieceStatus } from '../../../lib/notifications/notifications'
-import { LoopingPieceIcon } from '../../../lib/ui/icons/looping'
-import { PieceStatusIcon } from '../../../lib/ui/PieceStatusIcon'
-import { getElementWidth } from '../../../utils/dimensions'
-import { getElementDocumentOffset, OffsetPosition } from '../../../utils/positions'
-import { getSplitItems } from '../../SegmentContainer/getSplitItems'
-import { PieceElement } from '../../SegmentContainer/PieceElement'
-import { getPieceSteps, PieceMultistepChevron } from '../../SegmentContainer/PieceMultistepChevron'
-import { useContentStatusForPieceInstance } from '../../SegmentTimeline/withMediaObjectStatus'
+import { getNoticeLevelForPieceStatus } from '../../../lib/notifications/notifications.js'
+import { LoopingPieceIcon } from '../../../lib/ui/icons/looping.js'
+import { PieceStatusIcon } from '../../../lib/ui/PieceStatusIcon.js'
+import { getElementWidth } from '../../../utils/dimensions.js'
+import { getElementDocumentOffset, OffsetPosition } from '../../../utils/positions.js'
+import { getSplitItems } from '../../SegmentContainer/getSplitItems.js'
+import { PieceElement } from '../../SegmentContainer/PieceElement.js'
+import { getPieceSteps, PieceMultistepChevron } from '../../SegmentContainer/PieceMultistepChevron.js'
+import { useContentStatusForPieceInstance } from '../../SegmentTimeline/withMediaObjectStatus.js'
 import {
 	convertSourceLayerItemToPreview,
 	IPreviewPopUpSession,
 	PreviewPopUpContext,
-} from '../../PreviewPopUp/PreviewPopUpContext'
+} from '../../PreviewPopUp/PreviewPopUpContext.js'
 
 interface IProps {
 	partId: PartId
@@ -39,14 +39,14 @@ function getPieceDuration(
 ): number {
 	return capToPartDuration
 		? // capToPartDuration is something that can be used when the part is Auto and there is no chance of the Piece
-		  // being extended
-		  Math.min(piece.renderedDuration ?? partDuration, partDuration)
+			// being extended
+			Math.min(piece.renderedDuration ?? partDuration, partDuration)
 		: Math.max(
 				// renderedDuration can be null. If there is a sourceDuration, use that, if not, use timelineBase
 				piece.renderedDuration ??
 					(piece.instance.piece.content?.sourceDuration && !piece.instance.piece.content?.loop ? 0 : timelineBase),
 				piece.instance.piece.content?.sourceDuration ?? 0
-		  )
+			)
 }
 
 function widthInBase(pieceMaxDuration: number, timelineBase: number): number {

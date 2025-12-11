@@ -1,23 +1,21 @@
 import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
-import { ExpectedMediaItem } from '@sofie-automation/corelib/dist/dataModel/ExpectedMediaItem'
 import { ExpectedPackageDB } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
 import { ExpectedPlayoutItem } from '@sofie-automation/corelib/dist/dataModel/ExpectedPlayoutItem'
 import { RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { JobContext } from '../../../jobs'
-import { ExpectedPackagesStore } from './ExpectedPackagesStore'
-import { IngestSegmentModelImpl } from './IngestSegmentModelImpl'
-import { DocumentChangeTracker } from './DocumentChangeTracker'
-import { logger } from '../../../logging'
+import { JobContext } from '../../../jobs/index.js'
+import { ExpectedPackagesStore } from './ExpectedPackagesStore.js'
+import { IngestSegmentModelImpl } from './IngestSegmentModelImpl.js'
+import { DocumentChangeTracker } from './DocumentChangeTracker.js'
+import { logger } from '../../../logging.js'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 
 export class SaveIngestModelHelper {
 	#expectedPackages = new DocumentChangeTracker<ExpectedPackageDB>()
 	#expectedPlayoutItems = new DocumentChangeTracker<ExpectedPlayoutItem>()
-	#expectedMediaItems = new DocumentChangeTracker<ExpectedMediaItem>()
 
 	#segments = new DocumentChangeTracker<DBSegment>()
 	#parts = new DocumentChangeTracker<DBPart>()
@@ -31,7 +29,6 @@ export class SaveIngestModelHelper {
 	): void {
 		this.#expectedPackages.addChanges(store.expectedPackagesChanges, deleteAll ?? false)
 		this.#expectedPlayoutItems.addChanges(store.expectedPlayoutItemsChanges, deleteAll ?? false)
-		this.#expectedMediaItems.addChanges(store.expectedMediaItemsChanges, deleteAll ?? false)
 	}
 	addSegment(segment: IngestSegmentModelImpl, segmentIsDeleted: boolean): void {
 		if (segmentIsDeleted) {
@@ -61,7 +58,6 @@ export class SaveIngestModelHelper {
 		const deletedIds: { [key: string]: ProtectedString<any>[] } = {
 			expectedPackages: this.#expectedPackages.getDeletedIds(),
 			expectedPlayoutItems: this.#expectedPlayoutItems.getDeletedIds(),
-			expectedMediaItems: this.#expectedMediaItems.getDeletedIds(),
 			segments: this.#segments.getDeletedIds(),
 			parts: this.#parts.getDeletedIds(),
 			pieces: this.#pieces.getDeletedIds(),
@@ -77,7 +73,6 @@ export class SaveIngestModelHelper {
 		return [
 			context.directCollections.ExpectedPackages.bulkWrite(this.#expectedPackages.generateWriteOps()),
 			context.directCollections.ExpectedPlayoutItems.bulkWrite(this.#expectedPlayoutItems.generateWriteOps()),
-			context.directCollections.ExpectedMediaItems.bulkWrite(this.#expectedMediaItems.generateWriteOps()),
 
 			context.directCollections.Segments.bulkWrite(this.#segments.generateWriteOps()),
 			context.directCollections.Parts.bulkWrite(this.#parts.generateWriteOps()),

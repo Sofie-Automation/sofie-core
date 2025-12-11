@@ -1,6 +1,6 @@
-import { getCurrentTime } from '../lib'
-import type { JobContext } from '../jobs'
-import type { INotificationsModel, INotificationTarget, INotificationWithTarget } from './NotificationsModel'
+import { getCurrentTime } from '../lib/index.js'
+import type { JobContext } from '../jobs/index.js'
+import type { INotificationsModel, INotificationTarget, INotificationWithTarget } from './NotificationsModel.js'
 import {
 	DBNotificationTarget,
 	DBNotificationTargetType,

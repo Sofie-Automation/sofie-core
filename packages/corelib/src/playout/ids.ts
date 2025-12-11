@@ -1,7 +1,7 @@
-import { PartInstanceId, PieceInstanceId } from '../dataModel/Ids'
-import { DBPartInstance } from '../dataModel/PartInstance'
-import { PieceInstance } from '../dataModel/PieceInstance'
-import { isProtectedString } from '../protectedString'
+import { PartInstanceId, PieceInstanceId } from '../dataModel/Ids.js'
+import { DBPartInstance } from '../dataModel/PartInstance.js'
+import { PieceInstance } from '../dataModel/PieceInstance.js'
+import { isProtectedString } from '../protectedString.js'
 
 enum PlayoutTimelinePrefixes {
 	PART_GROUP_PREFIX = 'part_group_',

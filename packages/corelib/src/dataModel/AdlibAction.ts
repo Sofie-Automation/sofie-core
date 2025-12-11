@@ -1,8 +1,8 @@
 import { IBlueprintActionManifest } from '@sofie-automation/blueprints-integration'
-import { ArrayElement } from '../lib'
-import { ITranslatableMessage } from '../TranslatableMessage'
-import { ProtectedStringProperties } from '../protectedString'
-import { RundownId, AdLibActionId, PartId } from './Ids'
+import { ArrayElement } from '../lib.js'
+import { ITranslatableMessage } from '../TranslatableMessage.js'
+import { ProtectedStringProperties } from '../protectedString.js'
+import { RundownId, AdLibActionId, PartId } from './Ids.js'
 
 /** The following extended interface allows assigning namespace information to the actions as they are stored in the
  *  database after being emitted from the blueprints

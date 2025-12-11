@@ -1,0 +1,26 @@
+$defs:
+  playlistStatus:
+    title: PlaylistStatus
+    type: object
+    properties:
+      id:
+        description: Unique id of the playlist
+        type: string
+      externalId:
+        description: Id normally sourced from the ingest system
+        type: string
+      name:
+        description: The user defined playlist name
+        type: string
+      activationStatus:
+        description: Whether this playlist is currently active or in rehearsal
+        type: string
+        title: PlaylistActivationStatus
+        enum:
+          - deactivated
+          - rehearsal
+          - activated
+    required: [id, externalId, name, activationStatus]
+    additionalProperties: false
+    examples:
+      - $ref: './playlistStatus-example.yaml'

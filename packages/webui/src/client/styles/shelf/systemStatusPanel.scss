@@ -1,14 +1,14 @@
 .system-status-panel {
-    position: absolute;
-    isolation: isolate;
+	position: absolute;
+	isolation: isolate;
 
-    .rundown-system-status {
-        top: 0.2em !important;
-        transform: unset !important;
-        left: unset !important;
+	.rundown-system-status {
+		top: 0.2em !important;
+		transform: unset !important;
+		left: unset !important;
 
-        .rundown-system-status__indicators {
-            justify-content: unset !important;
-        }
-    }
+		.rundown-system-status__indicators {
+			justify-content: unset !important;
+		}
+	}
 }

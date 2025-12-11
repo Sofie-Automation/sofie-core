@@ -1,9 +1,10 @@
 import { Meteor } from 'meteor/meteor'
 import { check, Match } from '../lib/check'
-import * as _ from 'underscore'
+import _ from 'underscore'
 import { PeripheralDeviceType, PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { PeripheralDeviceCommands, PeripheralDevices, Rundowns, Studios, UserActionsLog } from '../collections'
-import { protectString, stringifyObjects, literal, unprotectString } from '../lib/tempLib'
+import { stringifyObjects, literal } from '@sofie-automation/corelib/dist/lib'
+import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { getCurrentTime } from '../lib/lib'
 import { logger } from '../logging'
 import { TimelineHash } from '@sofie-automation/corelib/dist/dataModel/Timeline'
@@ -20,9 +21,6 @@ import {
 import { MosIntegration } from './ingest/mosDevice/mosIntegration'
 import { MediaScannerIntegration } from './integration/media-scanner'
 import { MediaObject } from '@sofie-automation/shared-lib/dist/core/model/MediaObjects'
-import { MediaManagerIntegration } from './integration/mediaWorkFlows'
-import { MediaWorkFlow } from '@sofie-automation/shared-lib/dist/core/model/MediaWorkFlows'
-import { MediaWorkFlowStep } from '@sofie-automation/shared-lib/dist/core/model/MediaWorkFlowSteps'
 import { MOS } from '@sofie-automation/corelib'
 import { determineDiffTime } from './systemTime/systemTime'
 import { getTimeDiff } from './systemTime/api'
@@ -34,7 +32,6 @@ import { PackageManagerIntegration } from './integration/expectedPackages'
 import { profiler } from './profiler'
 import { QueueStudioJob } from '../worker/worker'
 import { StudioJobs } from '@sofie-automation/corelib/dist/worker/studio'
-import { DeviceConfigManifest } from '@sofie-automation/corelib/dist/deviceConfig'
 import {
 	PlayoutChangedResults,
 	PeripheralDeviceInitOptions,
@@ -45,8 +42,6 @@ import { checkStudioExists } from '../optimizations'
 import {
 	ExpectedPackageId,
 	ExpectedPackageWorkStatusId,
-	MediaWorkFlowId,
-	MediaWorkFlowStepId,
 	PeripheralDeviceCommandId,
 	PeripheralDeviceId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
@@ -58,7 +53,7 @@ import { insertInputDeviceTriggerIntoPreview } from '../publications/deviceTrigg
 import { receiveInputDeviceTrigger } from './deviceTriggers/observer'
 import { upsertBundles, generateTranslationBundleOriginId } from './translationsBundles'
 import { isTranslatableMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
-import { JSONBlobParse, JSONBlobStringify } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
+import { JSONBlobParse } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 import {
 	applyAndValidateOverrides,
 	SomeObjectOverrideOp,
@@ -69,6 +64,7 @@ import KoaRouter from '@koa/router'
 import bodyParser from 'koa-bodyparser'
 import { assertConnectionHasOneOfPermissions } from '../security/auth'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import { getRootSubpath } from '../lib'
 
 const apmNamespace = 'peripheralDevice'
 export namespace ServerPeripheralDeviceAPI {
@@ -127,22 +123,21 @@ export namespace ServerPeripheralDeviceAPI {
 						? {
 								...options.configManifest,
 								translations: undefined, // unset the translations
-						  }
+							}
 						: undefined,
 
 					documentationUrl: options.documentationUrl,
-				},
+				} satisfies Partial<PeripheralDevice>,
 				$unset:
 					newVersionsStr !== oldVersionsStr
 						? {
 								disableVersionChecks: 1,
-						  }
+							}
 						: undefined,
 			})
 		} else {
 			await PeripheralDevices.insertAsync({
 				_id: deviceId,
-				organizationId: null,
 				created: getCurrentTime(),
 				status: {
 					statusCode: StatusCode.UNKNOWN,
@@ -166,11 +161,8 @@ export namespace ServerPeripheralDeviceAPI {
 					? {
 							...options.configManifest,
 							translations: undefined,
-					  }
-					: literal<DeviceConfigManifest>({
-							deviceConfigSchema: JSONBlobStringify({}),
-							subdeviceManifest: {},
-					  }),
+						}
+					: undefined,
 
 				documentationUrl: options.documentationUrl,
 			})
@@ -357,7 +349,7 @@ export namespace ServerPeripheralDeviceAPI {
 		if (really) {
 			logger.info('KillProcess command received from ' + peripheralDevice._id + ', shutting down in 1000ms!')
 			setTimeout(() => {
-				// eslint-disable-next-line no-process-exit
+				// eslint-disable-next-line n/no-process-exit
 				process.exit(0)
 			}, 1000)
 			return true
@@ -455,7 +447,7 @@ export namespace ServerPeripheralDeviceAPI {
 
 		// Fetch the relevant studio
 		const studioForDevice = (await Studios.findOneAsync(peripheralDevice.studioAndConfigId.studioId, {
-			fields: {
+			projection: {
 				peripheralDeviceSettings: 1,
 			},
 		})) as Pick<DBStudio, 'peripheralDeviceSettings'> | undefined
@@ -579,7 +571,7 @@ export namespace ServerPeripheralDeviceAPI {
 				timelineHash: timelineHash,
 			},
 			{
-				fields: {
+				projection: {
 					timelineGenerated: 1,
 				},
 			}
@@ -680,7 +672,7 @@ peripheralDeviceRouter.get('/:deviceId/oauthResponse', async (ctx) => {
 				.catch(logger.error)
 		}
 
-		ctx.redirect(`/settings/peripheralDevice/${deviceId}`)
+		ctx.redirect(`${getRootSubpath()}/settings/peripheralDevice/${deviceId}`)
 	} catch (e) {
 		ctx.response.type = 'text/plain'
 		ctx.response.status = 500
@@ -1133,7 +1125,7 @@ class ServerPeripheralDeviceAPIClass extends MethodContextAPI implements NewPeri
 	async mosRoFullStory(deviceId: PeripheralDeviceId, deviceToken: string, story: MOS.IMOSROFullStory) {
 		return MosIntegration.mosRoFullStory(this, deviceId, deviceToken, story)
 	}
-	// ------- Media Manager (Media Scanner)
+	// ------- Expected Playout Items (Previously: Media Manager (Media Scanner))
 	async getMediaObjectRevisions(deviceId: PeripheralDeviceId, deviceToken: string, collectionId: string) {
 		return MediaScannerIntegration.getMediaObjectRevisions(this, deviceId, deviceToken, collectionId)
 	}
@@ -1149,29 +1141,7 @@ class ServerPeripheralDeviceAPIClass extends MethodContextAPI implements NewPeri
 	async clearMediaObjectCollection(deviceId: PeripheralDeviceId, deviceToken: string, collectionId: string) {
 		return MediaScannerIntegration.clearMediaObjectCollection(this, deviceId, deviceToken, collectionId)
 	}
-	// ------- Media Manager --------------
-	async getMediaWorkFlowRevisions(deviceId: PeripheralDeviceId, deviceToken: string) {
-		return MediaManagerIntegration.getMediaWorkFlowRevisions(this, deviceId, deviceToken)
-	}
-	async getMediaWorkFlowStepRevisions(deviceId: PeripheralDeviceId, deviceToken: string) {
-		return MediaManagerIntegration.getMediaWorkFlowStepRevisions(this, deviceId, deviceToken)
-	}
-	async updateMediaWorkFlow(
-		deviceId: PeripheralDeviceId,
-		deviceToken: string,
-		workFlowId: MediaWorkFlowId,
-		obj: MediaWorkFlow | null
-	) {
-		return MediaManagerIntegration.updateMediaWorkFlow(this, deviceId, deviceToken, workFlowId, obj)
-	}
-	async updateMediaWorkFlowStep(
-		deviceId: PeripheralDeviceId,
-		deviceToken: string,
-		docId: MediaWorkFlowStepId,
-		obj: MediaWorkFlowStep | null
-	) {
-		return MediaManagerIntegration.updateMediaWorkFlowStep(this, deviceId, deviceToken, docId, obj)
-	}
+	// ------- Package Manager --------------
 	async updateExpectedPackageWorkStatuses(
 		deviceId: PeripheralDeviceId,
 		deviceToken: string,

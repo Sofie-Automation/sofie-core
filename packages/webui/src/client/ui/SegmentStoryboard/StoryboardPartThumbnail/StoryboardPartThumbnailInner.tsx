@@ -1,18 +1,18 @@
 import React, { useContext, useRef, useState } from 'react'
 import { ISourceLayer } from '@sofie-automation/blueprints-integration'
-import { PieceExtended } from '../../../lib/RundownResolver'
-import { getElementDocumentOffset, OffsetPosition } from '../../../utils/positions'
-import { getElementHeight, getElementWidth } from '../../../utils/dimensions'
-import { ThumbnailRenderer } from './Renderers/ThumbnailRendererFactory'
-import { PieceElement } from '../../SegmentContainer/PieceElement'
+import { PieceExtended } from '../../../lib/RundownResolver.js'
+import { getElementDocumentOffset, OffsetPosition } from '../../../utils/positions.js'
+import { getElementHeight, getElementWidth } from '../../../utils/dimensions.js'
+import { ThumbnailRenderer } from './Renderers/ThumbnailRendererFactory.js'
+import { PieceElement } from '../../SegmentContainer/PieceElement.js'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { PartId, PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { useContentStatusForPieceInstance } from '../../SegmentTimeline/withMediaObjectStatus'
+import { useContentStatusForPieceInstance } from '../../SegmentTimeline/withMediaObjectStatus.js'
 import {
 	convertSourceLayerItemToPreview,
 	IPreviewPopUpSession,
 	PreviewPopUpContext,
-} from '../../PreviewPopUp/PreviewPopUpContext'
+} from '../../PreviewPopUp/PreviewPopUpContext.js'
 
 interface IProps {
 	partId: PartId

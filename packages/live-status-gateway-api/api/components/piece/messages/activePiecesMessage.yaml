@@ -1,0 +1,10 @@
+components:
+  messages:
+    activePiecesMessage:
+      messageId: activePieces
+      title: Active Pieces Event Message
+      payload:
+        $ref: '../activePiecesEvent/activePiecesEvent.yaml#/$defs/activePiecesEvent'
+      examples:
+        - payload:
+            $ref: '../activePiecesEvent/activePiecesEvent-example.yaml'

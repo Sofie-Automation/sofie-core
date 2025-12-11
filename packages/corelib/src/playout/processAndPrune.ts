@@ -1,10 +1,10 @@
 import { ISourceLayer, PieceLifespan } from '@sofie-automation/blueprints-integration'
 import { literal } from '@sofie-automation/shared-lib/dist/lib/lib'
-import { PieceInstance, ResolvedPieceInstance } from '../dataModel/PieceInstance'
-import { SourceLayers } from '../dataModel/ShowStyleBase'
-import { assertNever, groupByToMapFunc } from '../lib'
-import _ = require('underscore')
-import { isCandidateBetterToBeContinued, isCandidateMoreImportant } from './infinites'
+import { PieceInstance, ResolvedPieceInstance } from '../dataModel/PieceInstance.js'
+import { SourceLayers } from '../dataModel/ShowStyleBase.js'
+import { assertNever, groupByToMapFunc } from '../lib.js'
+import _ from 'underscore'
+import { isCandidateBetterToBeContinued, isCandidateMoreImportant } from './infinites.js'
 import { ReadonlyDeep } from 'type-fest'
 
 /**
@@ -15,15 +15,7 @@ function getPieceStartTimeAsReference(newPieceStart: number | 'now'): number | R
 }
 
 function getPieceStartTimeWithinPart(p: ReadonlyDeep<PieceInstance>): 'now' | number {
-	// If the piece is dynamically inserted, then its preroll should be factored into its start time, but not for any infinite continuations
-	const isStartOfAdlib =
-		!!p.dynamicallyInserted && !(p.infinite?.fromPreviousPart || p.infinite?.fromPreviousPlayhead)
-
-	if (isStartOfAdlib && p.piece.enable.start !== 'now') {
-		return p.piece.enable.start + (p.piece.prerollDuration ?? 0)
-	} else {
-		return p.piece.enable.start
-	}
+	return p.piece.enable.start
 }
 
 function isClear(piece?: ReadonlyDeep<PieceInstance>): boolean {
@@ -255,11 +247,7 @@ export function resolvePrunedPieceInstance(
 
 	// Consider the playout userDuration
 	if (pieceInstance.userDuration) {
-		if ('endRelativeToPart' in pieceInstance.userDuration) {
-			caps.push(pieceInstance.userDuration.endRelativeToPart - resolvedStart)
-		} else if ('endRelativeToNow' in pieceInstance.userDuration) {
-			caps.push(nowInPart + pieceInstance.userDuration.endRelativeToNow - resolvedStart)
-		}
+		caps.push(pieceInstance.userDuration.endRelativeToPart - resolvedStart)
 	}
 
 	return {

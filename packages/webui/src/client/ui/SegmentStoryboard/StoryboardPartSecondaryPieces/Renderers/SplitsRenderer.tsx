@@ -1,5 +1,5 @@
-import { IDefaultRendererProps } from './DefaultRenderer'
-import { getSplitItems } from '../../../SegmentContainer/getSplitItems'
+import { IDefaultRendererProps } from './DefaultRenderer.js'
+import { getSplitItems } from '../../../SegmentContainer/getSplitItems.js'
 
 export function SplitsRenderer({ piece: pieceInstance }: Readonly<IDefaultRendererProps>): JSX.Element {
 	const splitItems = getSplitItems(pieceInstance, 'segment-storyboard__part__piece__contents__item')

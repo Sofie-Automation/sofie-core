@@ -9,7 +9,7 @@ import { ShowStyleBases, Studios } from './collections'
  */
 export async function fetchStudioLight(studioId: StudioId): Promise<StudioLight | undefined> {
 	return Studios.findOneAsync(studioId, {
-		fields: {
+		projection: {
 			mappingsWithOverrides: 0,
 			blueprintConfigWithOverrides: 0,
 		},
@@ -18,7 +18,7 @@ export async function fetchStudioLight(studioId: StudioId): Promise<StudioLight 
 
 export async function fetchStudioIds(selector: MongoQuery<DBStudio>): Promise<StudioId[]> {
 	const studios = await Studios.findFetchAsync(selector, {
-		fields: {
+		projection: {
 			_id: 1,
 		},
 	})
@@ -29,7 +29,7 @@ export async function fetchStudioIds(selector: MongoQuery<DBStudio>): Promise<St
 /** Checks if a studio exists */
 export async function checkStudioExists(studioId: StudioId): Promise<boolean> {
 	const studio = await Studios.findOneAsync(studioId, {
-		fields: {
+		projection: {
 			_id: 1,
 		},
 	})
@@ -42,7 +42,7 @@ export async function checkStudioExists(studioId: StudioId): Promise<boolean> {
  */
 export async function fetchShowStyleBaseLight(showStyleId: ShowStyleBaseId): Promise<ShowStyleBaseLight | undefined> {
 	return ShowStyleBases.findOneAsync(showStyleId, {
-		fields: {
+		projection: {
 			blueprintConfigWithOverrides: 0,
 			outputLayersWithOverrides: 0,
 			sourceLayersWithOverrides: 0,
@@ -51,7 +51,7 @@ export async function fetchShowStyleBaseLight(showStyleId: ShowStyleBaseId): Pro
 }
 export async function fetchShowStyleBasesLight(selector: MongoQuery<DBShowStyleBase>): Promise<ShowStyleBaseLight[]> {
 	return ShowStyleBases.findFetchAsync(selector, {
-		fields: {
+		projection: {
 			blueprintConfigWithOverrides: 0,
 			outputLayersWithOverrides: 0,
 			sourceLayersWithOverrides: 0,

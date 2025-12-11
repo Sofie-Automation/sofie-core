@@ -1,0 +1,12 @@
+components:
+  messages:
+    pongMessage:
+      name: pong
+      messageId: pong
+      summary: Pong is a response to ping message
+      description: Server pong response to a ping to determine whether connection is alive. This is an application level pong as opposed to default pong in websockets standard which is sent by client in response to a ping
+      payload:
+        $ref: '../pongEvent/pongEvent.yaml#/$defs/pongEvent'
+      examples:
+        - payload:
+            $ref: '../pongEvent/pongEvent-example.yaml'

@@ -1,5 +1,5 @@
-import type { Time } from '../common'
-import type { RundownPlaylistTiming } from './playlistTiming'
+import type { Time } from '../common.js'
+import type { RundownPlaylistTiming } from './playlistTiming.js'
 
 /** Playlist, as generated from Blueprints */
 

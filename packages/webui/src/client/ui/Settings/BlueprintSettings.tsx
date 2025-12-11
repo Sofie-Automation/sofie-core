@@ -1,8 +1,8 @@
 import * as React from 'react'
-import { EditAttribute } from '../../lib/EditAttribute'
-import { Translated, translateWithTracker } from '../../lib/ReactMeteorData/react-meteor-data'
-import { Spinner } from '../../lib/Spinner'
-import { doModalDialog } from '../../lib/ModalDialog'
+import { EditAttribute } from '../../lib/EditAttribute.js'
+import { Translated, translateWithTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
+import { Spinner } from '../../lib/Spinner.js'
+import { doModalDialog } from '../../lib/ModalDialog.js'
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
 import Moment from 'react-moment'
 import { Link } from 'react-router-dom'
@@ -10,24 +10,25 @@ import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { ICoreSystem } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
 import { BlueprintManifestType } from '@sofie-automation/blueprints-integration'
-import { NotificationCenter, Notification, NoticeLevel } from '../../lib/notifications/notifications'
-import { catchError, fetchFrom } from '../../lib/lib'
-import { UploadButton } from '../../lib/uploadButton'
+import { NotificationCenter, Notification, NoticeLevel } from '../../lib/notifications/notifications.js'
+import { catchError, fetchFrom } from '../../lib/lib.js'
+import { UploadButton } from '../../lib/uploadButton.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUpload, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons'
-import { unprotectString } from '../../lib/tempLib'
-import { MeteorCall } from '../../lib/meteorApi'
+import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
+import { MeteorCall } from '../../lib/meteorApi.js'
 import { BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { Blueprints, CoreSystem, ShowStyleBases, Studios } from '../../collections'
-import { LabelActual } from '../../lib/Components/LabelAndOverrides'
+import { Blueprints, CoreSystem, ShowStyleBases, Studios } from '../../collections/index.js'
+import { LabelActual } from '../../lib/Components/LabelAndOverrides.js'
 import Button from 'react-bootstrap/esm/Button'
+import { useTranslation } from 'react-i18next'
+import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
+import { createPrivateApiPath } from '../../url.js'
 
 interface IProps {
 	blueprintId: BlueprintId
 }
-interface IState {
-	uploadFileKey: number // Used to force clear the input after use
-}
+interface IState {}
 interface ITrackedProps {
 	blueprint?: Blueprint
 	assignedStudios: DBStudio[]
@@ -47,144 +48,7 @@ export default translateWithTracker<IProps, IState, ITrackedProps>((props: IProp
 	class BlueprintSettings extends React.Component<Translated<IProps & ITrackedProps>, IState> {
 		constructor(props: Translated<IProps & ITrackedProps>) {
 			super(props)
-			this.state = {
-				uploadFileKey: Date.now(),
-			}
-		}
-
-		onUploadFile(e: React.ChangeEvent<HTMLInputElement>) {
-			const { t } = this.props
-
-			const file = e.target.files?.[0]
-			if (!file) {
-				return
-			}
-
-			const reader = new FileReader()
-			reader.onload = (e2) => {
-				// On file upload
-
-				this.setState({
-					uploadFileKey: Date.now(),
-				})
-
-				const uploadFileContents = (e2.target as any).result
-				const blueprint = this.props.blueprint
-
-				// First attempt
-				doModalDialog({
-					title: t('Update Blueprints?'),
-					yes: t('Update'),
-					no: t('Cancel'),
-					message: (
-						<React.Fragment>
-							<p>
-								{t('Are you sure you want to update the blueprints from the file "{{fileName}}"?', {
-									fileName: file.name,
-								})}
-							</p>
-							<p>{t('Please note: This action is irreversible!')}</p>
-						</React.Fragment>
-					),
-					onAccept: () => {
-						if (uploadFileContents && blueprint) {
-							fetchFrom(`/api/private/blueprints/restore/${blueprint._id}`, {
-								method: 'POST',
-								body: uploadFileContents,
-								headers: {
-									'content-type': 'text/javascript',
-									// authorization: 'id ' + this.props.userId,
-								},
-							})
-								.then(() => {
-									NotificationCenter.push(
-										new Notification(
-											undefined,
-											NoticeLevel.NOTIFICATION,
-											t('Blueprints updated successfully.'),
-											'BlueprintSettings'
-										)
-									)
-								})
-								.catch((err) => {
-									if (err && err.toString().endsWith('[422]')) {
-										// Needs a force flag
-
-										// Try again as a replace
-										doModalDialog({
-											title: t('Replace Blueprints?'),
-											yes: t('Replace'),
-											no: t('Cancel'),
-											warning: true,
-											message: (
-												<React.Fragment>
-													<p>
-														{t('Are you sure you want to replace the blueprints with the file "{{fileName}}"?', {
-															fileName: file.name,
-														})}
-													</p>
-													<p>{t('Please note: This action is irreversible!')}</p>
-												</React.Fragment>
-											),
-											onAccept: () => {
-												if (uploadFileContents && blueprint) {
-													fetchFrom(`/api/private/blueprints/restore/${blueprint._id}?force=1`, {
-														method: 'POST',
-														body: uploadFileContents,
-														headers: {
-															'content-type': 'text/javascript',
-															// authorization: 'id ' + this.props.userId,
-														},
-													})
-														.then(() => {
-															NotificationCenter.push(
-																new Notification(
-																	undefined,
-																	NoticeLevel.NOTIFICATION,
-																	t('Blueprints updated successfully.'),
-																	'BlueprintSettings'
-																)
-															)
-														})
-														.catch((err: string) => {
-															NotificationCenter.push(
-																new Notification(
-																	undefined,
-																	NoticeLevel.WARNING,
-																	t('Failed to update blueprints: {{errorMessage}}', { errorMessage: err + '' }),
-																	'BlueprintSettings'
-																)
-															)
-														})
-												}
-											},
-											onSecondary: () => {
-												this.setState({
-													uploadFileKey: Date.now(),
-												})
-											},
-										})
-									} else {
-										NotificationCenter.push(
-											new Notification(
-												undefined,
-												NoticeLevel.WARNING,
-												t('Failed to update blueprints: {{errorMessage}}', { errorMessage: err + '' }),
-												'BlueprintSettings'
-											)
-										)
-									}
-								})
-						}
-					},
-					onSecondary: () => {
-						this.setState({
-							uploadFileKey: Date.now(),
-						})
-					},
-				})
-			}
-			reader.readAsText(file)
+			this.state = {}
 		}
 
 		assignSystemBlueprint(id: BlueprintId | undefined) {
@@ -207,7 +71,7 @@ export default translateWithTracker<IProps, IState, ITrackedProps>((props: IProp
 													{showStyleBase.name}
 												</Link>
 											</span>
-									  ))
+										))
 									: t('This Blueprint is not being used by any Show Style')}
 							</div>
 						</div>
@@ -224,7 +88,7 @@ export default translateWithTracker<IProps, IState, ITrackedProps>((props: IProp
 													{i.name}
 												</Link>
 											</span>
-									  ))
+										))
 									: t('This Blueprint is not compatible with any Studio')}
 							</div>
 						</div>
@@ -335,15 +199,7 @@ export default translateWithTracker<IProps, IState, ITrackedProps>((props: IProp
 						<div className="field">
 							<LabelActual label="" />
 							<div className="field-content">
-								<UploadButton
-									className="btn btn-primary"
-									accept="text/javascript,.js"
-									onChange={(e) => this.onUploadFile(e)}
-									key={this.state.uploadFileKey}
-								>
-									<FontAwesomeIcon icon={faUpload} />
-									<span>{t('Upload Blueprints')}</span>
-								</UploadButton>
+								<ImportConfigButton blueprintId={blueprint._id} />
 							</div>
 						</div>
 					</div>
@@ -360,3 +216,137 @@ export default translateWithTracker<IProps, IState, ITrackedProps>((props: IProp
 		}
 	}
 )
+
+function ImportConfigButton({ blueprintId }: { blueprintId: BlueprintId }) {
+	const { t } = useTranslation()
+
+	const onUploadFile = React.useCallback(
+		(uploadFileContents: string, file: File) => {
+			// First attempt
+			doModalDialog({
+				title: t('Update Blueprints?'),
+				yes: t('Update'),
+				no: t('Cancel'),
+				message: (
+					<React.Fragment>
+						<p>
+							{t('Are you sure you want to update the blueprints from the file "{{fileName}}"?', {
+								fileName: file.name,
+							})}
+						</p>
+						<p>{t('Please note: This action is irreversible!')}</p>
+					</React.Fragment>
+				),
+				onAccept: () => {
+					fetchFrom(createPrivateApiPath(`blueprints/restore/${blueprintId}`), {
+						method: 'POST',
+						body: uploadFileContents,
+						headers: {
+							'content-type': 'text/javascript',
+							// authorization: 'id ' + this.props.userId,
+						},
+					})
+						.then(() => {
+							NotificationCenter.push(
+								new Notification(
+									undefined,
+									NoticeLevel.NOTIFICATION,
+									t('Blueprints updated successfully.'),
+									'BlueprintSettings'
+								)
+							)
+						})
+						.catch((err) => {
+							if (err && err.toString().endsWith('[422]')) {
+								// Needs a force flag
+
+								// Try again as a replace
+								doModalDialog({
+									title: t('Replace Blueprints?'),
+									yes: t('Replace'),
+									no: t('Cancel'),
+									warning: true,
+									message: (
+										<React.Fragment>
+											<p>
+												{t('Are you sure you want to replace the blueprints with the file "{{fileName}}"?', {
+													fileName: file.name,
+												})}
+											</p>
+											<p>{t('Please note: This action is irreversible!')}</p>
+										</React.Fragment>
+									),
+									onAccept: () => {
+										fetchFrom(createPrivateApiPath(`blueprints/restore/${blueprintId}?force=1`), {
+											method: 'POST',
+											body: uploadFileContents,
+											headers: {
+												'content-type': 'text/javascript',
+												// authorization: 'id ' + this.props.userId,
+											},
+										})
+											.then(() => {
+												NotificationCenter.push(
+													new Notification(
+														undefined,
+														NoticeLevel.NOTIFICATION,
+														t('Blueprints updated successfully.'),
+														'BlueprintSettings'
+													)
+												)
+											})
+											.catch((err: string) => {
+												NotificationCenter.push(
+													new Notification(
+														undefined,
+														NoticeLevel.WARNING,
+														t('Failed to update blueprints: {{errorMessage}}', { errorMessage: err + '' }),
+														'BlueprintSettings'
+													)
+												)
+											})
+									},
+								})
+							} else {
+								NotificationCenter.push(
+									new Notification(
+										undefined,
+										NoticeLevel.WARNING,
+										t('Failed to update blueprints: {{errorMessage}}', { errorMessage: err + '' }),
+										'BlueprintSettings'
+									)
+								)
+							}
+						})
+				},
+			})
+		},
+		[t, blueprintId]
+	)
+
+	const onUploadError = React.useCallback(
+		(err: Error) => {
+			NotificationCenter.push(
+				new Notification(
+					undefined,
+					NoticeLevel.WARNING,
+					t('Failed to update blueprints: {{errorMessage}}', { errorMessage: stringifyError(err) }),
+					'BlueprintSettings'
+				)
+			)
+		},
+		[t]
+	)
+
+	return (
+		<UploadButton
+			className="btn btn-primary"
+			accept="text/javascript,.js"
+			onUploadContents={onUploadFile}
+			onUploadError={onUploadError}
+		>
+			<FontAwesomeIcon icon={faUpload} />
+			<span>{t('Upload Blueprints')}</span>
+		</UploadButton>
+	)
+}

@@ -1,30 +1,26 @@
 import {
 	BucketId,
-	OrganizationId,
 	PartId,
-	RundownId,
+	PeripheralDeviceId,
 	RundownPlaylistActivationId,
 	RundownPlaylistId,
 	ShowStyleBaseId,
 	StudioId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
-import { ICoreSystem } from '../collections/CoreSystem'
-import { Evaluation } from '../collections/Evaluations'
+import { ICoreSystem } from '../collections/CoreSystem.js'
+import { Evaluation } from '../collections/Evaluations.js'
 import { ExpectedPlayoutItem } from '@sofie-automation/corelib/dist/dataModel/ExpectedPlayoutItem'
-import { MediaWorkFlow } from '@sofie-automation/shared-lib/dist/core/model/MediaWorkFlows'
-import { MediaWorkFlowStep } from '@sofie-automation/shared-lib/dist/core/model/MediaWorkFlowSteps'
-import { DBOrganization } from '../collections/Organization'
-import { RundownLayoutBase } from '../collections/RundownLayouts'
-import { SnapshotItem } from '../collections/Snapshots'
-import { TranslationsBundle } from '../collections/TranslationsBundles'
-import { DBTriggeredActions, UITriggeredActionsObj } from '../collections/TriggeredActions'
-import { UserActionsLogItem } from '../collections/UserActionsLog'
-import { UIBucketContentStatus, UISegmentPartNote } from './rundownNotifications'
-import { UIShowStyleBase } from './showStyles'
-import { UIStudio } from './studios'
-import { UIDeviceTriggerPreview } from './MountedTriggers'
-import { UIBlueprintUpgradeStatus } from './upgradeStatus'
+import { RundownLayoutBase } from '../collections/RundownLayouts.js'
+import { SnapshotItem } from '../collections/Snapshots.js'
+import { TranslationsBundle } from '../collections/TranslationsBundles.js'
+import { DBTriggeredActions, UITriggeredActionsObj } from '../collections/TriggeredActions.js'
+import { UserActionsLogItem } from '../collections/UserActionsLog.js'
+import { UIBucketContentStatus, UISegmentPartNote } from './rundownNotifications.js'
+import { UIShowStyleBase } from './showStyles.js'
+import { UIStudio } from './studios.js'
+import { UIDeviceTriggerPreview } from './MountedTriggers.js'
+import { UIBlueprintUpgradeStatus } from './upgradeStatus.js'
 import {
 	PeripheralDevicePubSub,
 	PeripheralDevicePubSubTypes,
@@ -34,8 +30,7 @@ import {
 import { CorelibPubSub, CorelibPubSubCollections, CorelibPubSubTypes } from '@sofie-automation/corelib/dist/pubsub'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { PartInstance } from '../collections/PartInstances'
-import type { DBNotificationObj } from '@sofie-automation/corelib/dist/dataModel/Notifications'
+import { PartInstance } from '../collections/PartInstances.js'
 
 /**
  * Ids of possible DDP subscriptions for the UI only
@@ -76,36 +71,13 @@ export enum MeteorPubSub {
 	 */
 	userActionsLog = 'userActionsLog',
 	/**
-	 * Fetch all MediaManager workflows in the system
-	 * @deprecated
-	 */
-	mediaWorkFlows = 'mediaWorkFlows',
-	/**
-	 * Fetch all MediaManager workflow steps in the system
-	 * @deprecated
-	 */
-	mediaWorkFlowSteps = 'mediaWorkFlowSteps',
-	/**
 	 * Fetch either all RundownLayouts or limited to the specified ShowStyleBases
 	 */
 	rundownLayouts = 'rundownLayouts',
 	/**
-	 * Fetch information about a specified organization.
-	 * If null is provided, nothing will be returned
-	 */
-	organization = 'organization',
-	/**
 	 * Fetch all translation bundles
 	 */
 	translationsBundles = 'translationsBundles',
-	/**
-	 * Fetch notifications for playlist
-	 */
-	notificationsForRundownPlaylist = 'notificationsForRundownPlaylist',
-	/**
-	 * Fetch notifications for rundown
-	 */
-	notificationsForRundown = 'notificationsForRundown',
 
 	// custom publications:
 
@@ -117,6 +89,11 @@ export enum MeteorPubSub {
 	 * Fetch the simplified timeline for a given studio
 	 */
 	timelineForStudio = 'timelineForStudio',
+
+	/**
+	 * Ingest status of rundowns for a PeripheralDevice
+	 */
+	ingestDeviceRundownStatusTestTool = 'ingestDeviceRundownStatusTestTool',
 
 	/**
 	 * Fetch the simplified playout UI view of the specified ShowStyleBase
@@ -191,22 +168,12 @@ export interface MeteorPubSubTypes {
 	) => CollectionName.TriggeredActions
 	[MeteorPubSub.snapshots]: (token?: string) => CollectionName.Snapshots
 	[MeteorPubSub.userActionsLog]: (dateFrom: number, dateTo: number, token?: string) => CollectionName.UserActionsLog
-	/** @deprecated */
-	[MeteorPubSub.mediaWorkFlows]: (token?: string) => CollectionName.MediaWorkFlows
-	/** @deprecated */
-	[MeteorPubSub.mediaWorkFlowSteps]: (token?: string) => CollectionName.MediaWorkFlowSteps
 	[MeteorPubSub.rundownLayouts]: (
 		/** ShowStyleBaseIds to fetch for, or null to fetch all */
 		showStyleBaseIds: ShowStyleBaseId[] | null,
 		token?: string
 	) => CollectionName.RundownLayouts
-	[MeteorPubSub.organization]: (organizationId: OrganizationId | null, token?: string) => CollectionName.Organizations
 	[MeteorPubSub.translationsBundles]: (token?: string) => CollectionName.TranslationsBundles
-	[MeteorPubSub.notificationsForRundown]: (studioId: StudioId, rundownId: RundownId) => CollectionName.Notifications
-	[MeteorPubSub.notificationsForRundownPlaylist]: (
-		studioId: StudioId,
-		playlistId: RundownPlaylistId
-	) => CollectionName.Notifications
 
 	// custom publications:
 
@@ -218,6 +185,11 @@ export interface MeteorPubSubTypes {
 		studioId: StudioId,
 		token?: string
 	) => PeripheralDevicePubSubCollectionsNames.studioTimeline
+
+	[MeteorPubSub.ingestDeviceRundownStatusTestTool]: (
+		peripheralDeviceId: PeripheralDeviceId
+	) => PeripheralDevicePubSubCollectionsNames.ingestRundownStatus
+
 	[MeteorPubSub.uiShowStyleBase]: (showStyleBaseId: ShowStyleBaseId) => CustomCollectionName.UIShowStyleBase
 	/** Subscribe to one or all studios */
 	[MeteorPubSub.uiStudio]: (studioId: StudioId | null) => CustomCollectionName.UIStudio
@@ -270,14 +242,9 @@ export type MeteorPubSubCollections = {
 	[CollectionName.Snapshots]: SnapshotItem
 	[CollectionName.UserActionsLog]: UserActionsLogItem
 	[CollectionName.RundownLayouts]: RundownLayoutBase
-	[CollectionName.Organizations]: DBOrganization
 	[CollectionName.Buckets]: Bucket
 	[CollectionName.TranslationsBundles]: TranslationsBundle
 	[CollectionName.ExpectedPlayoutItems]: ExpectedPlayoutItem
-	[CollectionName.Notifications]: DBNotificationObj
-
-	[CollectionName.MediaWorkFlows]: MediaWorkFlow
-	[CollectionName.MediaWorkFlowSteps]: MediaWorkFlowStep
 } & MeteorPubSubCustomCollections
 
 export type MeteorPubSubCustomCollections = {

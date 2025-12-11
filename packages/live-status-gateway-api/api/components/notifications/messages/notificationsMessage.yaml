@@ -1,0 +1,10 @@
+components:
+  messages:
+    notificationsMessage:
+      messageId: notificationsUpdate
+      title: Active notifications in Sofie
+      payload:
+        $ref: '../events/notificationsEvent/notificationsEvent.yaml#/$defs/notificationsEvent'
+      examples:
+        - payload:
+            $ref: '../events/notificationsEvent/notificationsEvent-example.yaml'

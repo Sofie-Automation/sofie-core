@@ -1,13 +1,13 @@
 import * as React from 'react'
 
-import { ISourceLayerUi, IOutputLayerUi, PartUi, PieceUi } from '../SegmentTimelineContainer'
+import { ISourceLayerUi, IOutputLayerUi, PartUi, PieceUi } from '../SegmentTimelineContainer.js'
 
-import { RundownUtils } from '../../../lib/rundown'
+import { RundownUtils } from '../../../lib/rundown.js'
 import { faCut } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { PieceLifespan, VTContent } from '@sofie-automation/blueprints-integration'
-import { OffsetPosition } from '../../../utils/positions'
-import { LoopingPieceIcon } from '../../../lib/ui/icons/looping'
+import { OffsetPosition } from '../../../utils/positions.js'
+import { LoopingPieceIcon } from '../../../lib/ui/icons/looping.js'
 
 export type SourceDurationLabelAlignment = 'left' | 'right'
 
@@ -156,9 +156,9 @@ export class CustomLayerItemRenderer<IProps extends ICustomLayerItemProps, IStat
 							? (
 									((vtContent.sourceDuration + postrollDuration - seek) / (this.getItemDuration() || 1)) *
 									100
-							  ).toString() + '%'
+								).toString() + '%'
 							: Math.round((vtContent.sourceDuration + postrollDuration - seek) * this.props.timeScale).toString() +
-							  'px',
+								'px',
 					}}
 				></div>
 			)

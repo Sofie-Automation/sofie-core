@@ -3,7 +3,7 @@ import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { ReadonlyDeep } from 'type-fest'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { RundownBaselineObj } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineObj'
-import { PlayoutSegmentModel } from './PlayoutSegmentModel'
+import { PlayoutSegmentModel } from './PlayoutSegmentModel.js'
 
 /**
  * Wrap a Rundown and its Segments in a readonly and simplified view for Playout operations

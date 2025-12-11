@@ -6,10 +6,10 @@ import { ReadonlyDeep } from 'type-fest'
 import { unprotectObjectArray } from '@sofie-automation/corelib/dist/protectedString'
 import { formatDateAsTimecode, formatDurationAsTimecode } from '@sofie-automation/corelib/dist/lib'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { getCurrentTime } from '../../lib'
-import { JobContext, ProcessedShowStyleCompound } from '../../jobs'
-import { ContextInfo } from './CommonContext'
-import { RundownContext } from './RundownContext'
+import { getCurrentTime } from '../../lib/index.js'
+import { JobContext, ProcessedShowStyleCompound } from '../../jobs/index.js'
+import { ContextInfo } from './CommonContext.js'
+import { RundownContext } from './RundownContext.js'
 
 export class RundownDataChangedEventContext extends RundownContext implements IRundownDataChangedEventContext {
 	constructor(

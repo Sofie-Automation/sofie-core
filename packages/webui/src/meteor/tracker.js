@@ -45,10 +45,10 @@ function _debugFunc() {
 	return typeof Meteor !== 'undefined'
 		? Meteor._debug
 		: typeof console !== 'undefined' && console.error
-		? function () {
-				console.error.apply(console, arguments)
-		  }
-		: function () {}
+			? function () {
+					console.error.apply(console, arguments)
+				}
+			: function () {}
 }
 
 function _throwOrLog(from, e) {

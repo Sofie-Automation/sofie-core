@@ -1,0 +1,24 @@
+$defs:
+  activePlaylistTiming:
+    type: object
+    title: ActivePlaylistTiming
+    description: Timing information about the active playlist
+    properties:
+      timingMode:
+        $ref: './activePlaylistTimingMode.yaml'
+      startedPlayback:
+        description: Unix timestamp of when the playlist started (milliseconds)
+        type: number
+      expectedStart:
+        description: Unix timestamp of when the playlist is expected to start (milliseconds). Required when the timingMode is set to forward-time.
+        type: number
+      expectedDurationMs:
+        description: Duration of the playlist in ms
+        type: number
+      expectedEnd:
+        description: Unix timestamp of when the playlist is expected to end (milliseconds) Required when the timingMode is set to back-time.
+        type: number
+    required: [timingMode]
+    additionalProperties: false
+    examples:
+      - $ref: './activePlaylistTiming-example.yaml'

@@ -12,7 +12,7 @@ import { ReadonlyDeep } from 'type-fest'
 import _ from 'underscore'
 import { getSideEffect } from '@sofie-automation/meteor-lib/dist/collections/ExpectedPackages'
 import { DBStudio, StudioLight, StudioPackageContainer } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { clone, omit } from '../../../lib/tempLib'
+import { clone, omit } from '@sofie-automation/corelib/dist/lib'
 import { CustomPublishCollection } from '../../../lib/customPublication'
 import { logger } from '../../../logging'
 import { ExpectedPackagesContentCache } from './contentCache'
@@ -194,9 +194,9 @@ function generateExpectedPackageForDevice(
 		if (lookedUpSource) {
 			combinedSources.push(calculateCombinedSource(packageSource, lookedUpSource))
 		} else {
-			logger.warn(
-				`Pub.expectedPackagesForDevice: Source package container "${packageSource.containerId}" not found`
-			)
+			// This can happen if the blueprints reference a Package Container that is for another studio.
+			// checkPieceContentStatus will formulate a proper status for this situation
+
 			// Add a placeholder source, it's used to provide users with a hint of what's wrong
 			combinedSources.push({
 				containerId: packageSource.containerId,

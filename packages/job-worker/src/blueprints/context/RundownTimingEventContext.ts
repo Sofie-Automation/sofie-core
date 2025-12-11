@@ -9,11 +9,11 @@ import { protectString, protectStringArray, unDeepString } from '@sofie-automati
 import { PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { JobContext, ProcessedShowStyleCompound } from '../../jobs'
-import { MongoQuery } from '../../db'
-import { convertPartInstanceToBlueprints, convertPieceInstanceToBlueprints, convertSegmentToBlueprints } from './lib'
-import { ContextInfo } from './CommonContext'
-import { RundownDataChangedEventContext } from './RundownDataChangedEventContext'
+import { JobContext, ProcessedShowStyleCompound } from '../../jobs/index.js'
+import { MongoQuery } from '../../db/index.js'
+import { convertPartInstanceToBlueprints, convertPieceInstanceToBlueprints, convertSegmentToBlueprints } from './lib.js'
+import { ContextInfo } from './CommonContext.js'
+import { RundownDataChangedEventContext } from './RundownDataChangedEventContext.js'
 
 export class RundownTimingEventContext extends RundownDataChangedEventContext implements IRundownTimingEventContext {
 	readonly previousPart: Readonly<IBlueprintPartInstance<unknown>> | undefined

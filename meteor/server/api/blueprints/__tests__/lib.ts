@@ -1,5 +1,6 @@
 import { BlueprintManifestType, SomeBlueprintManifest } from '@sofie-automation/blueprints-integration'
-import { getRandomId, literal, protectString } from '../../../lib/tempLib'
+import { getRandomId, literal } from '@sofie-automation/corelib/dist/lib'
+import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
 import { JSONBlobStringify } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 
@@ -28,7 +29,6 @@ export function generateFakeBlueprint(
 	return literal<Blueprint>({
 		_id: protectString(id),
 		name: 'Fake blueprint',
-		organizationId: null,
 		hasCode: true,
 		code: `({default: (${codeFcnString})()})`,
 		created: 0,

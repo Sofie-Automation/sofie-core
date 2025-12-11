@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { catchError } from '../../../lib/lib'
+import { catchError } from '../../../lib/lib.js'
 
 export function useWakeLock(): void {
 	const wakeLockRef = useRef<WakeLockSentinel | null>(null)

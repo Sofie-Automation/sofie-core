@@ -1,4 +1,4 @@
-import * as _ from 'underscore'
+import _ from 'underscore'
 import { check } from '../lib/check'
 import { logger } from '../logging'
 import { registerClassToMeteorMethods } from '../methods'
@@ -85,7 +85,7 @@ export namespace ClientRundownAPI {
 				if (rundown.importVersions.core !== PackageInfo.version) return 'coreVersion'
 
 				const showStyleVariant = (await ShowStyleVariants.findOneAsync(rundown.showStyleVariantId, {
-					fields: {
+					projection: {
 						_id: 1,
 						_rundownVersionHash: 1,
 					},
@@ -95,7 +95,7 @@ export namespace ClientRundownAPI {
 					return 'showStyleVariant'
 
 				const showStyleBase = (await ShowStyleBases.findOneAsync(rundown.showStyleBaseId, {
-					fields: {
+					projection: {
 						_id: 1,
 						_rundownVersionHash: 1,
 						blueprintId: 1,
@@ -106,7 +106,7 @@ export namespace ClientRundownAPI {
 					return 'showStyleBase'
 
 				const blueprint = (await Blueprints.findOneAsync(showStyleBase.blueprintId, {
-					fields: {
+					projection: {
 						_id: 1,
 						blueprintVersion: 1,
 					},
@@ -115,7 +115,7 @@ export namespace ClientRundownAPI {
 				if (rundown.importVersions.blueprint !== (blueprint.blueprintVersion || 0)) return 'blueprint'
 
 				const studio = (await Studios.findOneAsync(rundown.studioId, {
-					fields: {
+					projection: {
 						_id: 1,
 						_rundownVersionHash: 1,
 					},

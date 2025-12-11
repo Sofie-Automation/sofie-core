@@ -1,5 +1,5 @@
 import * as React from 'react'
-import * as _ from 'underscore'
+import _ from 'underscore'
 import ClassNames from 'classnames'
 import { Manager, Popper, Reference } from 'react-popper'
 

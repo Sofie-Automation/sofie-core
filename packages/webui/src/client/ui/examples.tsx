@@ -1,12 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { useTracker } from '../lib/ReactMeteorData/ReactMeteorData'
+import { useTracker } from '../lib/ReactMeteorData/ReactMeteorData.js'
 import * as React from 'react'
-import {
-	TimingDataResolution,
-	TimingTickResolution,
-	withTiming,
-	WithTiming,
-} from './RundownView/RundownTiming/withTiming'
+import { TimingDataResolution, TimingTickResolution, useTiming } from './RundownView/RundownTiming/withTiming.js'
 import { useTranslation } from 'react-i18next'
 import { Meteor } from 'meteor/meteor'
 
@@ -57,13 +51,9 @@ export function ReactiveComponent(props: Readonly<ReactiveComponentProps>): JSX.
 interface WithTimingComponentProps {
 	myProp0: string
 }
-interface WithTimingComponentState {
-	myState0: string
-}
-export const WithTimingComponent = withTiming<WithTimingComponentProps, WithTimingComponentState>({
-	dataResolution: TimingDataResolution.Synced,
-	tickResolution: TimingTickResolution.Synced,
-})(function WithTimingComponent({ myProp0, timingDurations }: Readonly<WithTiming<WithTimingComponentProps>>) {
+export function WithTimingComponent({ myProp0 }: Readonly<WithTimingComponentProps>): JSX.Element {
+	const timingDurations = useTiming(TimingTickResolution.Synced, TimingDataResolution.Synced)
+
 	return (
 		<div>
 			{myProp0}
@@ -72,4 +62,4 @@ export const WithTimingComponent = withTiming<WithTimingComponentProps, WithTimi
 			{/* {this.state.asdf} invalid argument */}
 		</div>
 	)
-})
+}

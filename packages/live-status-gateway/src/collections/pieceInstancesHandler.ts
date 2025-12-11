@@ -1,11 +1,11 @@
 import { Logger } from 'winston'
-import { CoreHandler } from '../coreHandler'
-import { PublicationCollection } from '../publicationCollection'
+import { CoreHandler } from '../coreHandler.js'
+import { PublicationCollection } from '../publicationCollection.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 import areElementsShallowEqual from '@sofie-automation/shared-lib/dist/lib/isShallowEqual'
-import _ = require('underscore')
+import _ from 'underscore'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import {
@@ -13,12 +13,12 @@ import {
 	processAndPrunePieceInstanceTimings,
 	resolvePrunedPieceInstance,
 } from '@sofie-automation/corelib/dist/playout/processAndPrune'
-import { ShowStyleBaseExt } from './showStyleBaseHandler'
+import { ShowStyleBaseExt } from './showStyleBaseHandler.js'
 import { SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { SelectedPartInstances } from './partInstancesHandler'
+import { SelectedPartInstances } from './partInstancesHandler.js'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
-import { arePropertiesDeepEqual } from '../helpers/equality'
-import { CollectionHandlers } from '../liveStatusServer'
+import { arePropertiesDeepEqual } from '../helpers/equality.js'
+import { CollectionHandlers } from '../liveStatusServer.js'
 import { ReadonlyDeep } from 'type-fest'
 import { PickKeys } from '@sofie-automation/shared-lib/dist/lib/types'
 
@@ -122,21 +122,21 @@ export class PieceInstancesHandler extends PublicationCollection<
 					this._partInstances?.previous,
 					collection.find({ partInstanceId: this._currentPlaylist.previousPartInfo.partInstanceId }),
 					true
-			  )
+				)
 			: []
 		const inCurrentPartInstance = this._currentPlaylist?.currentPartInfo?.partInstanceId
 			? this.processAndPrunePieceInstanceTimings(
 					this._partInstances?.current,
 					collection.find({ partInstanceId: this._currentPlaylist.currentPartInfo.partInstanceId }),
 					true
-			  )
+				)
 			: []
 		const inNextPartInstance = this._currentPlaylist?.nextPartInfo?.partInstanceId
 			? this.processAndPrunePieceInstanceTimings(
 					undefined,
 					collection.find({ partInstanceId: this._currentPlaylist.nextPartInfo.partInstanceId }),
 					false
-			  )
+				)
 			: []
 
 		const active = [...inCurrentPartInstance]
@@ -223,7 +223,7 @@ export class PieceInstancesHandler extends PublicationCollection<
 						this._currentPlaylist.nextPartInfo?.partInstanceId,
 						this._currentPlaylist.currentPartInfo?.partInstanceId,
 					].sort()
-			  )
+				)
 			: []
 		if (this._currentPlaylist && this._partInstanceIds.length && this._currentPlaylist?.activationId) {
 			const sameSubscription =

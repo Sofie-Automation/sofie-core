@@ -1,9 +1,9 @@
 import { SegmentId, PartInstanceId, RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { JobContext } from '../../jobs'
+import { JobContext } from '../../jobs/index.js'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { BeforeIngestOperationPartMap } from '../commit'
-import { IngestModelReadonly } from '../model/IngestModel'
+import { BeforeIngestOperationPartMap } from '../commit.js'
+import { IngestModelReadonly } from '../model/IngestModel.js'
 
 async function fetchOrphanedPartInstancesInRundown(context: JobContext, rundownId: RundownId) {
 	const orphanedPartInstances = (await context.directCollections.PartInstances.findFetch(

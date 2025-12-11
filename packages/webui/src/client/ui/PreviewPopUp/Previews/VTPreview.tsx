@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef } from 'react'
-import { StyledTimecode } from '../../../lib/StyledTimecode'
+import { StyledTimecode } from '../../../lib/StyledTimecode.js'
 import classNames from 'classnames'
-import StudioContext from '../../RundownView/StudioContext'
+import StudioContext from '../../RundownView/StudioContext.js'
 
 interface VTPreviewProps {
 	content: {
@@ -36,16 +36,18 @@ export function VTPreviewElement({ content, time }: VTPreviewProps): React.React
 	const studioContext = useContext(StudioContext)
 
 	useEffect(() => {
-		if (!videoElement.current) return
+		// Create a stable reference to the video element:
+		const currentVideoElement = videoElement.current
+		if (!currentVideoElement) return
 
 		setVideoElementPosition(
-			videoElement.current,
+			currentVideoElement,
 			time ?? 0,
 			content.itemDuration ?? 0,
 			content.seek ?? 0,
 			content.loop ?? false
 		)
-	}, [videoElement.current, time])
+	}, [time, content.itemDuration, content.seek, content.loop])
 
 	const itemDuration = content.itemDuration ?? 0
 	const offsetTimePosition = (time ?? 0) + (content.seek ?? 0)

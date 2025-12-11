@@ -8,7 +8,6 @@ export enum CollectionName {
 	Buckets = 'buckets',
 	CoreSystem = 'coreSystem',
 	Evaluations = 'evaluations',
-	ExpectedMediaItems = 'expectedMediaItems',
 	ExpectedPackages = 'expectedPackages',
 	ExpectedPackageWorkStatuses = 'expectedPackageWorkStatuses',
 	ExpectedPlayoutItems = 'expectedPlayoutItems',
@@ -16,10 +15,7 @@ export enum CollectionName {
 	NrcsIngestDataCache = 'ingestDataCache', // Future: this could be renamed to nrcsIngestDataCache
 	SofieIngestDataCache = 'sofieIngestDataCache',
 	MediaObjects = 'mediaObjects',
-	MediaWorkFlows = 'mediaWorkFlows',
-	MediaWorkFlowSteps = 'mediaWorkFlowSteps',
 	Notifications = 'notifications',
-	Organizations = 'organizations',
 	PartInstances = 'partInstances',
 	PackageInfos = 'packageInfos',
 	PackageContainerPackageStatuses = 'packageContainerPackageStatuses',

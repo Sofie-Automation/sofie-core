@@ -1,0 +1,16 @@
+$defs:
+  currentSegmentTiming:
+    type: object
+    title: CurrentSegmentTiming
+    description: Timing information about the current segment
+    allOf:
+      - $ref: '../segmentTiming/segmentTiming.yaml#/$defs/segmentTiming'
+      - type: object
+        title: CurrentSegmentTiming
+        properties:
+          projectedEndTime:
+            description: Unix timestamp of when the segment is projected to end (milliseconds). The time this segment started, offset by its budget duration, if the segment has a defined budget duration. Otherwise, the time the current part started, offset by the difference between expected durations of all parts in this segment and the as-played durations of the parts that already stopped.
+            type: number
+    required: [expectedDurationMs, projectedEndTime]
+    examples:
+      - $ref: './currentSegmentTiming-example.yaml'

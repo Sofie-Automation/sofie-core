@@ -8,16 +8,16 @@ import {
 	IngestRundownWithSource,
 } from '@sofie-automation/corelib/dist/dataModel/NrcsIngestDataCache'
 import { ProtectedString, protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import _ = require('underscore')
+import _ from 'underscore'
 import { IngestPart, IngestSegment } from '@sofie-automation/blueprints-integration'
-import { JobContext } from '../jobs'
-import { getPartId, getSegmentId } from './lib'
+import { JobContext } from '../jobs/index.js'
+import { getPartId, getSegmentId } from './lib.js'
 import { SetOptional } from 'type-fest'
 import { groupByToMap, normalizeArrayToMap } from '@sofie-automation/corelib/dist/lib'
 import { AnyBulkWriteOperation } from 'mongodb'
-import { diffAndReturnLatestObjects } from './model/implementation/utils'
-import { ICollection } from '../db'
-import { getCurrentTime } from '../lib'
+import { diffAndReturnLatestObjects } from './model/implementation/utils.js'
+import { ICollection } from '../db/index.js'
+import { getCurrentTime } from '../lib/index.js'
 
 /**
  * Represents a Rundown in the NRCSIngestDataCache collection and provides methods for interacting with it.

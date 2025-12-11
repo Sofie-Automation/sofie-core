@@ -9,8 +9,8 @@ import {
 	TimelineObjType,
 } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { JobContext } from '../../jobs'
-import { PartAndPieces, PieceInstanceWithObjectMap } from './util'
+import { JobContext } from '../../jobs/index.js'
+import { PartAndPieces, PieceInstanceWithObjectMap } from './util.js'
 import { deserializePieceTimelineObjectsBlob } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { ReadonlyDeep, SetRequired } from 'type-fest'
 

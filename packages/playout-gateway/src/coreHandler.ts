@@ -11,17 +11,18 @@ import {
 	stringifyError,
 	PeripheralDevicePubSub,
 	PeripheralDevicePubSubCollectionsNames,
+	ICoreHandler,
 } from '@sofie-automation/server-core-integration'
 import { MediaObject, DeviceOptionsAny, ActionExecutionResult } from 'timeline-state-resolver'
-import * as _ from 'underscore'
-import { DeviceConfig } from './connector'
-import { TSRHandler } from './tsrHandler'
+import _ from 'underscore'
+import { DeviceConfig } from './connector.js'
+import { TSRHandler } from './tsrHandler.js'
 import { Logger } from 'winston'
-// eslint-disable-next-line node/no-extraneous-import
+// eslint-disable-next-line n/no-extraneous-import
 import { MemUsageReport as ThreadMemUsageReport } from 'threadedclass'
-import { PLAYOUT_DEVICE_CONFIG } from './configManifest'
+import { compilePlayoutGatewayConfigManifest } from './configManifest.js'
 import { BaseRemoteDeviceIntegration } from 'timeline-state-resolver/dist/service/remoteDeviceInstance'
-import { getVersions } from './versions'
+import { getVersions } from './versions.js'
 import { CoreConnectionChild } from '@sofie-automation/server-core-integration/dist/lib/CoreConnectionChild'
 import { PlayoutGatewayConfig } from '@sofie-automation/shared-lib/dist/generated/PlayoutGatewayConfigTypes'
 import { PeripheralDeviceCommandId } from '@sofie-automation/shared-lib/dist/core/model/Ids'
@@ -40,7 +41,7 @@ export interface MemoryUsageReport {
 /**
  * Represents a connection between the Gateway and Core
  */
-export class CoreHandler {
+export class CoreHandler implements ICoreHandler {
 	core!: CoreConnection
 	logger: Logger
 	public _observers: Array<Observer<any>> = []
@@ -59,6 +60,8 @@ export class CoreHandler {
 	private _statusInitialized = false
 	private _statusDestroyed = false
 
+	public connectedToCore = false
+
 	constructor(logger: Logger, deviceOptions: DeviceConfig) {
 		this.logger = logger
 		this._deviceOptions = deviceOptions
@@ -73,11 +76,13 @@ export class CoreHandler {
 
 		this.core.onConnected(() => {
 			this.logger.info('Core Connected!')
+			this.connectedToCore = true
 
 			if (this._onConnected) this._onConnected()
 		})
 		this.core.onDisconnected(() => {
 			this.logger.warn('Core Disconnected!')
+			this.connectedToCore = false
 		})
 		this.core.onError((err: any) => {
 			this.logger.error('Core Error: ' + (typeof err === 'string' ? err : err.message || err.toString() || err))
@@ -156,11 +161,11 @@ export class CoreHandler {
 			deviceName: 'Playout gateway',
 			watchDog: this._coreConfig ? this._coreConfig.watchdog : true,
 
-			configManifest: PLAYOUT_DEVICE_CONFIG,
+			configManifest: compilePlayoutGatewayConfigManifest(),
 
 			versions: getVersions(this.logger),
 
-			documentationUrl: 'https://github.com/nrkno/sofie-core',
+			documentationUrl: 'https://github.com/Sofie-Automation/sofie-core',
 		}
 
 		if (!options.deviceToken) {
@@ -228,7 +233,7 @@ export class CoreHandler {
 					this.logger.error(`executeFunction error: ${errStr}`)
 				}
 				fcnObject.core.coreMethods.functionReply(cmd._id, errStr, res).catch((error: any) => {
-					this.logger.error(error)
+					this.logger.error(stringifyError(error))
 				})
 			}
 
@@ -239,7 +244,7 @@ export class CoreHandler {
 				}
 				this._executedFunctions.add(cmd._id)
 				// @ts-expect-error Untyped bunch of functions
-				// eslint-disable-next-line @typescript-eslint/ban-types
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 				const fcn: Function = fcnObject[cmd.functionName]
 				try {
 					if (!fcn) throw Error(`Function "${cmd.functionName}" not found on device "${cmd.deviceId}"!`)
@@ -261,7 +266,7 @@ export class CoreHandler {
 				fcnObject
 					.executeAction(cmd.actionId, cmd.payload)
 					.then((result) => cb(null, result))
-					.catch((e) => cb(e.toString, null))
+					.catch((e) => cb(stringifyError(e), null))
 			} else if (cmd.actionId) {
 				this.logger.warning(`Could not execute action "${cmd.actionId}", because there is no handler`)
 				cb(`Could not execute action "${cmd.actionId}", because there is no handler`)
@@ -311,23 +316,9 @@ export class CoreHandler {
 	killProcess(): void {
 		this.logger.info('KillProcess command received, shutting down in 1000ms!')
 		setTimeout(() => {
-			// eslint-disable-next-line no-process-exit
+			// eslint-disable-next-line n/no-process-exit
 			process.exit(0)
 		}, 1000)
-	}
-	async devicesMakeReady(okToDestroyStuff?: boolean, activeRundownId?: string): Promise<any> {
-		if (this._tsrHandler) {
-			return this._tsrHandler.tsr.devicesMakeReady(okToDestroyStuff, activeRundownId)
-		} else {
-			throw Error('TSR not set up!')
-		}
-	}
-	async devicesStandDown(okToDestroyStuff?: boolean): Promise<any> {
-		if (this._tsrHandler) {
-			return this._tsrHandler.tsr.devicesStandDown(okToDestroyStuff)
-		} else {
-			throw Error('TSR not set up!')
-		}
 	}
 	pingResponse(message: string): void {
 		this.core.setPingResponse(message)
@@ -389,9 +380,12 @@ export class CoreHandler {
 
 		return Object.fromEntries(this._tsrHandler.getDebugStates().entries())
 	}
-	async updateCoreStatus(): Promise<any> {
+	getCoreStatus(): {
+		statusCode: StatusCode
+		messages: string[]
+	} {
 		let statusCode = StatusCode.GOOD
-		const messages: Array<string> = []
+		const messages: string[] = []
 
 		if (!this._statusInitialized) {
 			statusCode = StatusCode.BAD
@@ -401,11 +395,13 @@ export class CoreHandler {
 			statusCode = StatusCode.BAD
 			messages.push('Shut down')
 		}
-
-		return this.core.setStatus({
-			statusCode: statusCode,
-			messages: messages,
-		})
+		return {
+			statusCode,
+			messages,
+		}
+	}
+	async updateCoreStatus(): Promise<any> {
+		return this.core.setStatus(this.getCoreStatus())
 	}
 }
 
@@ -557,6 +553,6 @@ export class CoreTSRDeviceHandler {
 		this._coreParentHandler.logger.info(`Exec ${actionId} on ${this._deviceId}`)
 		const device = this._device.device
 
-		return device.executeAction(actionId, payload)
+		return device.executeAction(actionId, payload || {})
 	}
 }

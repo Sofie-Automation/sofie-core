@@ -1,0 +1,3 @@
+event: buckets
+buckets:
+  - $ref: '../bucketStatus/bucketStatus-example.yaml'

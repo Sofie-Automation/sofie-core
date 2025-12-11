@@ -1,0 +1,9 @@
+$defs:
+  severity:
+    type: string
+    title: NotificationSeverity
+    description: Severity level of the notification.
+    enum:
+      - warning
+      - error
+      - info

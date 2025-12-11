@@ -1,5 +1,5 @@
 import { ABResolverOptions } from '@sofie-automation/blueprints-integration'
-import { AssignmentResult, resolveAbAssignmentsFromRequests, SessionRequest } from '../abPlaybackResolver'
+import { AssignmentResult, resolveAbAssignmentsFromRequests, SessionRequest } from '../abPlaybackResolver.js'
 
 const resolverOptions: ABResolverOptions = {
 	idealGapBefore: 1000,

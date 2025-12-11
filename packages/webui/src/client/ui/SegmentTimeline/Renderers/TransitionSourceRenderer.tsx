@@ -1,8 +1,9 @@
-import { getElementWidth } from '../../../utils/dimensions'
+import { getElementWidth } from '../../../utils/dimensions.js'
 
 import { TransitionContent } from '@sofie-automation/blueprints-integration'
 
-import { CustomLayerItemRenderer, ICustomLayerItemProps } from './CustomLayerItemRenderer'
+import { CustomLayerItemRenderer, ICustomLayerItemProps } from './CustomLayerItemRenderer.js'
+import { createPrivateApiPath } from '../../../url.js'
 
 type IProps = ICustomLayerItemProps
 interface IState {
@@ -35,7 +36,7 @@ export class TransitionSourceRenderer extends CustomLayerItemRenderer<IProps, IS
 		this.updateAnchoredElsWidths()
 	}
 
-	// this will be triggered if the SVG icon for the transiton will 404.
+	// this will be triggered if the SVG icon for the transition will 404.
 	private iconFailed = () => {
 		this.setState({
 			iconFailed: true,
@@ -65,7 +66,7 @@ export class TransitionSourceRenderer extends CustomLayerItemRenderer<IProps, IS
 						{this.props.piece.instance.piece.name}
 						{content?.icon && !this.state.iconFailed && (
 							<img
-								src={'/api/private/blueprints/assets/' + content.icon}
+								src={createPrivateApiPath('blueprints/assets/' + content.icon)}
 								className="segment-timeline__piece__label__transition-icon"
 								onError={this.iconFailed}
 								alt={this.props.piece.instance.piece.name}

@@ -1,10 +1,10 @@
 import classNames from 'classnames'
 import { ReactNode } from 'react'
-import { withTiming, WithTiming } from './withTiming'
-import { RundownUtils } from '../../../lib/rundown'
-import { PartUi } from '../../SegmentTimeline/SegmentTimelineContainer'
+import { useTiming } from './withTiming.js'
+import { RundownUtils } from '../../../lib/rundown.js'
+import { PartUi } from '../../SegmentTimeline/SegmentTimelineContainer.js'
 import { calculatePartInstanceExpectedDurationWithTransition } from '@sofie-automation/corelib/dist/playout/timings'
-import { getPartInstanceTimingId } from '../../../lib/rundownTiming'
+import { getPartInstanceTimingId } from '../../../lib/rundownTiming.js'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { CountdownType } from '@sofie-automation/blueprints-integration'
 
@@ -22,12 +22,10 @@ interface ISegmentDurationProps {
 /**
  * A presentational component that will render a counter that will show how much content
  * is left in a segment consisting of given parts
- * @function SegmentDuration
- * @extends React.Component<WithTiming<ISegmentDurationProps>>
  */
-export const SegmentDuration = withTiming<ISegmentDurationProps, {}>()(function SegmentDuration(
-	props: WithTiming<ISegmentDurationProps>
-) {
+export function SegmentDuration(props: ISegmentDurationProps): JSX.Element | null {
+	const timingDurations = useTiming()
+
 	let duration: number | undefined = undefined
 	let playedOut = 0
 
@@ -40,14 +38,14 @@ export const SegmentDuration = withTiming<ISegmentDurationProps, {}>()(function 
 	if (segmentTimingType === CountdownType.SEGMENT_BUDGET_DURATION) {
 		hardFloor = true
 
-		if (props.timingDurations.currentSegmentId === props.segment._id) {
-			duration = props.timingDurations.remainingBudgetOnCurrentSegment ?? segmentBudgetDuration ?? 0
+		if (timingDurations.currentSegmentId === props.segment._id) {
+			duration = timingDurations.remainingBudgetOnCurrentSegment ?? segmentBudgetDuration ?? 0
 		} else {
 			duration = segmentBudgetDuration ?? 0
 		}
 	} else {
-		if (props.parts && props.timingDurations.partPlayed) {
-			const { partPlayed } = props.timingDurations
+		if (props.parts && timingDurations.partPlayed) {
+			const { partPlayed } = timingDurations
 
 			for (const part of props.parts) {
 				playedOut += (!part.instance.part.untimed ? partPlayed[getPartInstanceTimingId(part.instance)] : 0) || 0
@@ -90,4 +88,4 @@ export const SegmentDuration = withTiming<ISegmentDurationProps, {}>()(function 
 	}
 
 	return null
-})
+}

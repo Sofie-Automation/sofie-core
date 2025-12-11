@@ -2,18 +2,18 @@ import { useCallback, useEffect, useLayoutEffect, useState } from 'react'
 import { TFunction } from 'i18next'
 import { SomeBlueprintTrigger, TriggerType } from '@sofie-automation/blueprints-integration'
 import { DBBlueprintTrigger } from '@sofie-automation/meteor-lib/dist/collections/TriggeredActions'
-import { HotkeyTrigger } from './HotkeyTrigger'
+import { HotkeyTrigger } from './HotkeyTrigger.js'
 import { usePopper } from 'react-popper'
-import { sameWidth } from '../../../../../lib/popperUtils'
+import { sameWidth } from '../../../../../lib/popperUtils.js'
 import { useTranslation } from 'react-i18next'
-import { HotkeyEditor } from './HotkeyEditor'
+import { HotkeyEditor } from './HotkeyEditor.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { isDeviceTrigger, isHotkeyTrigger } from '@sofie-automation/meteor-lib/dist/triggers/triggerTypeSelectors'
-import { DeviceTrigger } from './DeviceTrigger'
-import { DeviceEditor } from './DeviceEditor'
+import { DeviceTrigger } from './DeviceTrigger.js'
+import { DeviceEditor } from './DeviceEditor.js'
 import { faCheck, faSync, faTrash } from '@fortawesome/free-solid-svg-icons'
-import { DropdownInputControl, DropdownInputOption } from '../../../../../lib/Components/DropdownInput'
-import { catchError } from '../../../../../lib/lib'
+import { DropdownInputControl, DropdownInputOption } from '../../../../../lib/Components/DropdownInput.js'
+import { catchError } from '../../../../../lib/lib.js'
 import { preventOverflow } from '@popperjs/core'
 import Button from 'react-bootstrap/esm/Button'
 
@@ -146,7 +146,7 @@ export const TriggerEditor = function TriggerEditor({
 	) : null
 
 	useLayoutEffect(() => {
-		update && update().catch(catchError('TriggerEditor update'))
+		update?.().catch(catchError('TriggerEditor update'))
 	}, [trigger])
 
 	useEffect(() => {

@@ -1,23 +1,23 @@
-import React, { useContext, useRef, useState } from 'react'
-import { RundownUtils } from '../../../lib/rundown'
+import React, { RefObject, useImperativeHandle, useContext, useRef, useState } from 'react'
+import { RundownUtils } from '../../../lib/rundown.js'
 import { ISourceLayer, SourceLayerType } from '@sofie-automation/blueprints-integration'
-import { PieceUi } from '../../SegmentContainer/withResolvedSegment'
-import { DefaultRenderer } from './Renderers/DefaultRenderer'
-import { assertNever } from '../../../lib/tempLib'
-import { ScriptRenderer } from './Renderers/ScriptRenderer'
-import { getElementDocumentOffset } from '../../../utils/positions'
-import { getElementWidth } from '../../../utils/dimensions'
-import { GraphicsRenderer } from './Renderers/GraphicsRenderer'
-import { SplitsRenderer } from './Renderers/SplitsRenderer'
-import { PieceElement } from '../../SegmentContainer/PieceElement'
+import { PieceUi } from '../../SegmentContainer/withResolvedSegment.js'
+import { DefaultRenderer } from './Renderers/DefaultRenderer.js'
+import { assertNever } from '@sofie-automation/corelib/dist/lib'
+import { ScriptRenderer } from './Renderers/ScriptRenderer.js'
+import { getElementDocumentOffset } from '../../../utils/positions.js'
+import { getElementWidth } from '../../../utils/dimensions.js'
+import { GraphicsRenderer } from './Renderers/GraphicsRenderer.js'
+import { SplitsRenderer } from './Renderers/SplitsRenderer.js'
+import { PieceElement } from '../../SegmentContainer/PieceElement.js'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { useContentStatusForPieceInstance } from '../../SegmentTimeline/withMediaObjectStatus'
+import { useContentStatusForPieceInstance } from '../../SegmentTimeline/withMediaObjectStatus.js'
 import {
 	convertSourceLayerItemToPreview,
 	IPreviewPopUpSession,
 	PreviewPopUpContext,
-} from '../../PreviewPopUp/PreviewPopUpContext'
+} from '../../PreviewPopUp/PreviewPopUpContext.js'
 
 interface IProps {
 	layer: ISourceLayer
@@ -27,6 +27,7 @@ interface IProps {
 	studio: UIStudio | undefined
 	className?: string
 	style?: React.CSSProperties
+	ref?: RefObject<HTMLDivElement | null>
 	onPointerEnter?: React.EventHandler<React.PointerEvent<HTMLDivElement>>
 	onPointerLeave?: React.EventHandler<React.PointerEvent<HTMLDivElement>>
 	onClick?: React.EventHandler<React.MouseEvent<HTMLDivElement>>
@@ -71,6 +72,7 @@ type MousePagePosition = { pageX: number; pageY: number }
 
 export function StoryboardSecondaryPiece(props: IProps): JSX.Element {
 	const {
+		ref,
 		piece,
 		partId,
 		style,
@@ -83,6 +85,9 @@ export function StoryboardSecondaryPiece(props: IProps): JSX.Element {
 
 	const [highlight] = useState(false)
 	const element = useRef<HTMLDivElement>(null)
+
+	useImperativeHandle(ref, () => element.current)
+
 	const [hovering, setHovering] = useState<MousePagePosition | null>(null)
 	const [elementOffset, setElementOffset] = useState<{ top: number; left: number; width: number } | undefined>(
 		undefined

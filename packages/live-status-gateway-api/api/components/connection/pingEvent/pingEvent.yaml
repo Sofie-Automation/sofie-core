@@ -1,0 +1,14 @@
+$defs:
+  pingEvent:
+    title: PingEvent
+    type: object
+    properties:
+      event:
+        type: string
+        const: ping
+      reqid:
+        $ref: '../reqid/reqid.yaml#/$defs/reqid'
+    required: [event, reqid]
+    additionalProperties: false
+    examples:
+      - $ref: './pingEvent-example.yaml'

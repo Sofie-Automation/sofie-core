@@ -1,10 +1,10 @@
 import { IEventContext } from '@sofie-automation/blueprints-integration'
 import { ReadonlyDeep } from 'type-fest'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { getCurrentTime } from '../../lib'
-import { ProcessedStudioConfig, ProcessedShowStyleConfig } from '../config'
-import { JobStudio, ProcessedShowStyleCompound } from '../../jobs'
-import { RundownContext } from './RundownContext'
+import { getCurrentTime } from '../../lib/index.js'
+import { ProcessedStudioConfig, ProcessedShowStyleConfig } from '../config.js'
+import { JobStudio, ProcessedShowStyleCompound } from '../../jobs/index.js'
+import { RundownContext } from './RundownContext.js'
 
 export class RundownEventContext extends RundownContext implements IEventContext {
 	constructor(

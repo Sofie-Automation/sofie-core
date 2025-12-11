@@ -1,0 +1,29 @@
+$defs:
+  adLibsEvent:
+    type: object
+    title: AdLibsEvent
+    properties:
+      event:
+        type: string
+        const: adLibs
+      rundownPlaylistId:
+        description: Unique id of the rundown playlist, or null if no playlist is active
+        oneOf:
+          - type: string
+            title: Unique id of the rundown playlist
+          - type: 'null'
+            title: Null if no playlist is active
+      adLibs:
+        type: array
+        description: The available AdLibs for this playlist
+        items:
+          $ref: '../adLibStatus/adLibStatus.yaml#/$defs/adLibStatus'
+      globalAdLibs:
+        type: array
+        description: The available Global AdLibs for this playlist
+        items:
+          $ref: '../globalAdLibStatus/globalAdLibStatus.yaml#/$defs/globalAdLibStatus'
+    required: [event, rundownPlaylistId, adLibs, globalAdLibs]
+    additionalProperties: false
+    examples:
+      - $ref: './adLibsEvent-example.yaml'

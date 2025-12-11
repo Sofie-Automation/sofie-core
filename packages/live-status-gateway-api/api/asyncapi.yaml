@@ -1,0 +1,51 @@
+asyncapi: '2.6.0'
+id: 'sofie:live-status-gateway:server'
+info:
+  title: Sofie Live Status Service
+  version: '2.0.1'
+  description: This service provides subscriptions for status updates from Sofie
+  license:
+    name: MIT License
+    url: http://opensource.org/licenses/MIT
+  contact:
+    name: Sofie TV Automation
+    url: https://github.com/Sofie-Automation/sofie-core/issues
+
+servers:
+  development:
+    url: localhost
+    description: Server available without authorization
+    protocol: ws
+    protocolVersion: '13'
+
+defaultContentType: application/json
+
+tags:
+  - name: sofie
+  - name: tv-automation
+  - name: broadcast
+
+channels:
+  # As the LSG is websocket only, channels are only used for logical grouping for the generated docs and folder structure.
+  ping:
+    $ref: './topics/ping/pingTopic.yaml'
+  heartbeat:
+    $ref: './topics/heartbeat/heartbeatTopic.yaml'
+  subscriptions:
+    $ref: './topics/subscriptions/subscriptionsTopic.yaml'
+  studio:
+    $ref: './topics/studio/studioTopic.yaml'
+  activePlaylist:
+    $ref: './topics/activePlaylist/activePlaylistTopic.yaml'
+  activePieces:
+    $ref: './topics/activePieces/activePiecesTopic.yaml'
+  segments:
+    $ref: './topics/segments/segmentsTopic.yaml'
+  adLibs:
+    $ref: './topics/adLibs/adLibsTopic.yaml'
+  packages:
+    $ref: './topics/packages/packagesTopic.yaml'
+  buckets:
+    $ref: './topics/buckets/bucketsTopic.yaml'
+  notifications:
+    $ref: './topics/notifications/notificationsTopic.yaml'

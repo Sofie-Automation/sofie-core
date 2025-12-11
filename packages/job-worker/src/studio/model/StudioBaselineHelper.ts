@@ -1,11 +1,11 @@
-import { JobContext } from '../../jobs'
+import { JobContext } from '../../jobs/index.js'
 import {
 	ExpectedPackageDB,
 	ExpectedPackageDBFromStudioBaselineObjects,
 	ExpectedPackageDBType,
 } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
 import { ExpectedPlayoutItemStudio } from '@sofie-automation/corelib/dist/dataModel/ExpectedPlayoutItem'
-import { saveIntoDb } from '../../db/changes'
+import { saveIntoDb } from '../../db/changes.js'
 
 export class StudioBaselineHelper {
 	readonly #context: JobContext
@@ -36,7 +36,7 @@ export class StudioBaselineHelper {
 						this.#context.directCollections.ExpectedPlayoutItems,
 						{ studioId: this.#context.studioId, baseline: 'studio' },
 						this.#pendingExpectedPlayoutItems
-				  )
+					)
 				: undefined,
 			this.#pendingExpectedPackages
 				? saveIntoDb<ExpectedPackageDB>(
@@ -47,7 +47,7 @@ export class StudioBaselineHelper {
 							fromPieceType: ExpectedPackageDBType.STUDIO_BASELINE_OBJECTS,
 						},
 						this.#pendingExpectedPackages
-				  )
+					)
 				: undefined,
 		])
 

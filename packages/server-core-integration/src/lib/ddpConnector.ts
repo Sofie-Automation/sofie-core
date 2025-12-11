@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events'
-import { DDPClient, DDPConnectorOptions } from './ddpClient'
+import { DDPClient, DDPConnectorOptions } from './ddpClient.js'
 
 export type DDPConnectorEvents = {
 	error: [e: any]

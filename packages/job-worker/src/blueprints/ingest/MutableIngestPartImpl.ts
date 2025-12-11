@@ -1,7 +1,7 @@
 import type { SofieIngestPart, MutableIngestPart } from '@sofie-automation/blueprints-integration'
 import { clone } from '@sofie-automation/corelib/dist/lib'
 import { ReadonlyDeep } from 'type-fest'
-import _ = require('underscore')
+import _ from 'underscore'
 
 export class MutableIngestPartImpl<TPartPayload = unknown> implements MutableIngestPart<TPartPayload> {
 	readonly #ingestPart: Omit<SofieIngestPart<TPartPayload>, 'rank'>
@@ -51,7 +51,6 @@ export class MutableIngestPartImpl<TPartPayload = unknown> implements MutableIng
 		}
 
 		if (this.#hasChanges || !_.isEqual(this.#ingestPart.payload[key], value)) {
-			// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
 			;(this.#ingestPart.payload as any)[key] = clone(value)
 			this.#hasChanges = true
 		}

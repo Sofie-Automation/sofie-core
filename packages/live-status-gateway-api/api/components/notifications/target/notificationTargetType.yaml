@@ -1,0 +1,11 @@
+$defs:
+  NotificationTargetType:
+    type: string
+    title: NotificationTargetType
+    description: Possible NotificationTarget types
+    enum:
+      - rundown
+      - playlist
+      - partInstance
+      - pieceInstance
+      - unknown

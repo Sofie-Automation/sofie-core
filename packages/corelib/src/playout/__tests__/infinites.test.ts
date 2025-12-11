@@ -1,14 +1,14 @@
 import { IBlueprintPieceType, PieceLifespan, PlaylistTimingType } from '@sofie-automation/blueprints-integration'
-import { DBPartInstance } from '../../dataModel/PartInstance'
-import { PartId, PartInstanceId, RundownId, RundownPlaylistId } from '../../dataModel/Ids'
-import { DBPart } from '../../dataModel/Part'
-import { EmptyPieceTimelineObjectsBlob, Piece } from '../../dataModel/Piece'
-import { PieceInstance, PieceInstancePiece } from '../../dataModel/PieceInstance'
-import { Rundown, DBRundown } from '../../dataModel/Rundown'
-import { literal } from '../../lib'
-import { protectString } from '../../protectedString'
-import { getPlayheadTrackingInfinitesForPart } from '../infinites'
-import { DBSegment, SegmentOrphanedReason } from '../../dataModel/Segment'
+import { DBPartInstance } from '../../dataModel/PartInstance.js'
+import { PartId, PartInstanceId, RundownId, RundownPlaylistId } from '../../dataModel/Ids.js'
+import { DBPart } from '../../dataModel/Part.js'
+import { EmptyPieceTimelineObjectsBlob, Piece } from '../../dataModel/Piece.js'
+import { PieceInstance, PieceInstancePiece } from '../../dataModel/PieceInstance.js'
+import { Rundown, DBRundown } from '../../dataModel/Rundown.js'
+import { literal } from '../../lib.js'
+import { protectString } from '../../protectedString.js'
+import { getPlayheadTrackingInfinitesForPart } from '../infinites.js'
+import { DBSegment, SegmentOrphanedReason } from '../../dataModel/Segment.js'
 
 describe('Infinites', () => {
 	describe('getPlayheadTrackingInfinitesForPart', () => {
@@ -35,6 +35,7 @@ describe('Infinites', () => {
 				segment,
 				newInstanceId,
 				true,
+				false,
 				false
 			)
 			return resolvedInstances.map((p) => ({
@@ -91,7 +92,6 @@ describe('Infinites', () => {
 			return literal<DBRundown>({
 				_id: id,
 				externalId,
-				organizationId: protectString('test'),
 				name,
 				showStyleVariantId: protectString('test-variant'),
 				showStyleBaseId: protectString('test-base'),

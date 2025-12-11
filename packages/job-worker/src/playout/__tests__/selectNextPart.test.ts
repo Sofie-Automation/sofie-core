@@ -4,10 +4,10 @@ import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartIns
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { ReadonlyDeep } from 'type-fest'
-import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context'
-import { PlayoutSegmentModelImpl } from '../model/implementation/PlayoutSegmentModelImpl'
-import { PlayoutSegmentModel } from '../model/PlayoutSegmentModel'
-import { selectNextPart } from '../selectNextPart'
+import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context.js'
+import { PlayoutSegmentModelImpl } from '../model/implementation/PlayoutSegmentModelImpl.js'
+import { PlayoutSegmentModel } from '../model/PlayoutSegmentModel.js'
+import { selectNextPart } from '../selectNextPart.js'
 import { QuickLoopMarkerType } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { ForceQuickLoopAutoNext } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 
@@ -32,7 +32,10 @@ class MockPart {
 	}
 }
 class MockSegment {
-	constructor(public _id: SegmentId, public _rank: number) {}
+	constructor(
+		public _id: SegmentId,
+		public _rank: number
+	) {}
 }
 
 describe('selectNextPart', () => {

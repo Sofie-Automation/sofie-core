@@ -1,2 +1,2 @@
-* [Changelog for _Sofie Core_](meteor/CHANGELOG.md)
-* [_Sofie_ Releases](https://nrkno.github.io/sofie-core/releases)
+- [Changelog for _Sofie Core_](meteor/CHANGELOG.md)
+- [_Sofie_ Releases](https://sofie-automation.github.io/sofie-core/releases)

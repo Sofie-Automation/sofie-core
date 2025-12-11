@@ -1,0 +1,14 @@
+$defs:
+  subscriptionName:
+    type: string
+    title: SubscriptionName
+    description: The name of the topic related to this status.
+    enum:
+      - studio
+      - activePlaylist
+      - activePieces
+      - segments
+      - adLibs
+      - notifications
+      - buckets
+      - packages

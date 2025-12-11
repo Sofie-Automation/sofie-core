@@ -1,0 +1,4 @@
+title: Subscription Status Event Examples
+examples:
+  - $ref: './subscriptionStatusError/subscriptionStatusError-example.yaml'
+  - $ref: './subscriptionStatusSuccess/subscriptionStatusSuccess-example.yaml'

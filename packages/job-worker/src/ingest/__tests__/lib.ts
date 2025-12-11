@@ -1,8 +1,8 @@
-import { removeRundownFromDb } from '../../rundownPlaylists'
-import { RundownLock } from '../../jobs/lock'
+import { removeRundownFromDb } from '../../rundownPlaylists.js'
+import { RundownLock } from '../../jobs/lock.js'
 import { RundownId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { MockJobContext } from '../../__mocks__/context'
+import { MockJobContext } from '../../__mocks__/context.js'
 
 class FakeRundownLock extends RundownLock {
 	constructor(rundownId: RundownId) {

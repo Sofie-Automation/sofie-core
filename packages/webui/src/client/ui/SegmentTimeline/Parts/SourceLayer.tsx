@@ -1,14 +1,15 @@
 import React, { useCallback, useState } from 'react'
 import _ from 'underscore'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { literal, protectString, unprotectString } from '../../../lib/tempLib'
-import { getElementDocumentOffset, OffsetPosition } from '../../../utils/positions'
-import { IContextMenuContext } from '../../RundownView'
-import { IOutputLayerUi, ISourceLayerUi, PartUi, PieceUi, SegmentUi } from '../SegmentTimelineContainer'
-import { SegmentTimelinePartElementId } from './SegmentTimelinePart'
+import { literal } from '@sofie-automation/corelib/dist/lib'
+import { protectString, unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
+import { getElementDocumentOffset, OffsetPosition } from '../../../utils/positions.js'
+import { IContextMenuContext } from '../../RundownView.js'
+import { IOutputLayerUi, ISourceLayerUi, PartUi, PieceUi, SegmentUi } from '../SegmentTimelineContainer.js'
+import { SegmentTimelinePartElementId } from './SegmentTimelinePart.js'
 import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'
-import { SourceLayerItemContainer } from '../SourceLayerItemContainer'
-import { contextMenuHoldToDisplayTime } from '../../../lib/lib'
+import { SourceLayerItemContainer } from '../SourceLayerItemContainer.js'
+import { contextMenuHoldToDisplayTime } from '../../../lib/lib.js'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { PieceInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
@@ -96,7 +97,7 @@ export function SourceLayer(props: Readonly<ISourceLayerProps>): JSX.Element {
 			id="segment-timeline-context-menu"
 			attributes={{
 				className: 'segment-timeline__layer',
-				//@ts-expect-error A Data attribue is perfectly fine
+				//@ts-expect-error A Data attribute is perfectly fine
 				'data-layer-id': props.layer._id,
 				onMouseDownCapture: (e) => onMouseDown(e),
 				role: 'log',
@@ -112,10 +113,10 @@ export function SourceLayer(props: Readonly<ISourceLayerProps>): JSX.Element {
 							// filter only pieces belonging to this part
 							return piece.instance.partInstanceId === props.part.instance._id
 								? // filter only pieces, that have not been hidden from the UI
-								  piece.instance.piece.virtual !== true
+									piece.instance.piece.virtual !== true
 								: false
 						})
-				  )
+					)
 						.sortBy((it) => it.renderedInPoint)
 						.sortBy((it) => it.cropped)
 						.map((piece) => {

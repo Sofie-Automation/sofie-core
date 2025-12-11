@@ -1,5 +1,5 @@
 import { clone, objectPathSet } from '@sofie-automation/corelib/dist/lib'
-import { OverrideOpHelperForItemContentsBatcher } from '../../../ui/Settings/util/OverrideOpHelper'
+import { OverrideOpHelperForItemContentsBatcher } from '../../../ui/Settings/util/OverrideOpHelper.js'
 
 /**
  * The OverrideOp system does not support Arrays currently.

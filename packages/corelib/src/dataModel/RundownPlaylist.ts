@@ -5,12 +5,11 @@ import {
 	PartInstanceId,
 	SegmentId,
 	RundownPlaylistActivationId,
-	OrganizationId,
 	RundownPlaylistId,
 	StudioId,
 	RundownId,
-} from './Ids'
-import { RundownPlaylistNote } from './Notes'
+} from './Ids.js'
+import { RundownPlaylistNote } from './Notes.js'
 import { ForceQuickLoopAutoNext } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 
 /** Details of an ab-session requested by the blueprints in onTimelineGenerate */
@@ -99,8 +98,6 @@ export interface DBRundownPlaylist {
 	_id: RundownPlaylistId
 	/** External ID (source) of the playlist */
 	externalId: string
-	/** ID of the organization that owns the playlist */
-	organizationId?: OrganizationId | null
 	/** Studio that this playlist is assigned to */
 	studioId: StudioId
 

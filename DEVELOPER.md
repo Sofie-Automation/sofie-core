@@ -6,20 +6,20 @@ Before you start, be sure to read the [Contribution guidelines](CONTRIBUTING.md)
 
 ### Documentation
 
-The documentation can be found at [Sofie TV Automation Documentation](https://nrkno.github.io/sofie-core/) and its for subsection [For Developers](https://nrkno.github.io/sofie-core/docs/for-developers/intro). Specific _Sofie Core_ information can also be in `DOCS.md` and `DEVELOPER.md` in the subfolders of this git project, for example [meteor/server/api/playout](meteor/server/api/playout/DOCS.md).
+The documentation can be found at [Sofie TV Automation Documentation](https://sofie-automation.github.io/sofie-core/) and its for subsection [For Developers](https://sofie-automation.github.io/sofie-core/docs/for-developers/intro). Specific _Sofie Core_ information can also be in `DOCS.md` and `DEVELOPER.md` in the subfolders of this git project, for example [meteor/server/api/playout](meteor/server/api/playout/DOCS.md).
 
 ### Monorepo Layout
 
-This repository is a monorepo and contains both the main application (usually called server-core) as well as multiple auxiliary projects. In the `meteor` folder you will find the main Meteor application with `server` and `client` sub folders for the server-side application and front end. The `packages` folder contains other libraries and apps used together with Sofie Core.
+This repository is a monorepo and contains both the main application (usually called server-core) as well as multiple auxiliary projects. In the `meteor` folder you will find the main Meteor application with `server` for the server-side application. The `packages` folder contains the frontend, other libraries and apps used together with Sofie Core.
 
 ## Getting Started with Local Development
 
-Follow these instructions to start up Sofie Core in development mode. (For production deploys, see [System documentation](https://nrkno.github.io/sofie-core/docs/user-guide/installation/intro).)
+Follow these instructions to start up Sofie Core in development mode. (For production deploys, see [System documentation](https://sofie-automation.github.io/sofie-core/docs/user-guide/installation/intro).)
 
 ### Prerequisites
 
-- Install [Node.js](https://nodejs.org) 20 (using [nvm](https://github.com/nvm-sh/nvm) or [nvm-windows](https://github.com/coreybutler/nvm-windows) is the recommended way to install Node.js)
-- Install [Meteor](https://www.meteor.com/install) (`npm install --global meteor`)
+- Install [Node.js](https://nodejs.org) 22 (using [nvm](https://github.com/nvm-sh/nvm) or [nvm-windows](https://github.com/coreybutler/nvm-windows) is the recommended way to install Node.js)
+- Install [Meteor](https://docs.meteor.com/about/install.html) (`npx meteor`)
 - Enable [corepack](https://nodejs.org/api/corepack.html#corepack) (`corepack enable`) as administrator/root. If `corepack` is not found, you may need to install it first with `npm install --global corepack`
 
 - If on Windows, you may need to `npm install --global windows-build-tools` but this is not always necessary
@@ -27,7 +27,7 @@ Follow these instructions to start up Sofie Core in development mode. (For produ
 ### Quick Start
 
 ```bash
-git clone -b master https://github.com/nrkno/sofie-core.git
+git clone -b main https://github.com/Sofie-Automation/sofie-core.git
 cd sofie-core
 yarn
 yarn start
@@ -42,7 +42,7 @@ The Sofie ui (served by Vite) can be accessed at `http://localhost:3005`. The me
 1. Clone the repository (for development, it is recommended to base your work on the latest unstable release branch)
 
    ```bash
-   git clone -b releaseXYZ https://github.com/nrkno/sofie-core.git
+   git clone -b releaseXYZ https://github.com/Sofie-Automation/sofie-core.git
    ```
 
 2. Go into the cloned directory
@@ -72,7 +72,7 @@ The Sofie ui (served by Vite) can be accessed at `http://localhost:3005`. The me
 
 ### Lowering memory, CPU footprint in development
 
-If you find yourself in a situation where running Sofie in development mode is too heavy, but you're not planning on modifying any of the low-level packages in the `packages` directory, you may want to run Sofie in the _UI-only mode_, in which only meteor will be rebuilt and type-checked on modification:
+If you find yourself in a situation where running Sofie in development mode is too heavy, but you're not planning on modifying any of the low-level packages in the `packages` directory, you may want to run Sofie in the _UI-only mode_, in which only meteor and the ui will be rebuilt and type-checked on modification:
 
 ```bash
 yarn dev --ui-only
@@ -89,7 +89,7 @@ yarn start # Set up, install and run in dev mode
 
 ## Editing the Code
 
-The code is formatted and linted using prettier/eslint. The shared config can be found in the [code-standard-preset](https://github.com/nrkno/tv-automation-sofie-code-standard-preset) project. We recommend using VS code with the Prettier plugin and "format-on-save" enabled.
+The code is formatted and linted using prettier/eslint. The shared config can be found in the [code-standard-preset](https://github.com/Sofie-Automation/sofie-code-standard-preset) project. We recommend using VS code with the Prettier plugin and "format-on-save" enabled.
 
 ### When Using the Visual Studio Code IDE
 
@@ -144,10 +144,6 @@ However, one usage by AdlibActions for their userDataManifest remains as this is
 
 In R52, the replacement flow of `validateConfig` and `applyConfig` was extended to the system blueprint
 It is no longer recommended to use the old migrations flow for system blueprints.
-
-### ExpectedMediaItems
-
-These are used for Media-manager which is no longer being developed.
 
 ### Blueprints: getPieceABSessionId & getTimelineObjectAbSessionId
 

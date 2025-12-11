@@ -1,17 +1,17 @@
 import { useCallback, useMemo } from 'react'
 import { JSONSchema } from '@sofie-automation/blueprints-integration'
-import { BlueprintConfigSchemaSettings } from '../../BlueprintConfigSchema'
+import { BlueprintConfigSchemaSettings } from '../../BlueprintConfigSchema/index.js'
 import { SomeObjectOverrideOp } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import { ShowStyleBases } from '../../../../collections'
+import { ShowStyleBases } from '../../../../collections/index.js'
 import { useTranslation } from 'react-i18next'
 import { MappingsExt } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { DBShowStyleBase, SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { SelectConfigPreset } from './SelectConfigPreset'
-import { SelectBlueprint } from './SelectBlueprint'
+import { SelectConfigPreset } from './SelectConfigPreset.js'
+import { SelectBlueprint } from './SelectBlueprint.js'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { useSubscription, useTracker } from '../../../../lib/ReactMeteorData/ReactMeteorData'
-import { UIBlueprintUpgradeStatuses } from '../../../Collections'
-import { getUpgradeStatusMessage, UpgradeStatusButtons } from '../../Upgrades/Components'
+import { useSubscription, useTracker } from '../../../../lib/ReactMeteorData/ReactMeteorData.js'
+import { UIBlueprintUpgradeStatuses } from '../../../Collections.js'
+import { getUpgradeStatusMessage, UpgradeStatusButtons } from '../../Upgrades/Components.js'
 import { UIBlueprintUpgradeStatusShowStyle } from '@sofie-automation/meteor-lib/dist/api/upgradeStatus'
 
 interface ShowStyleBaseBlueprintConfigurationSettingsProps {
@@ -37,7 +37,7 @@ export function ShowStyleBaseBlueprintConfigurationSettings(
 			}) as UIBlueprintUpgradeStatusShowStyle | undefined,
 		[props.showStyleBase._id]
 	)
-	const statusMessage = isStatusReady && status ? getUpgradeStatusMessage(t, status) ?? t('OK') : t('Loading...')
+	const statusMessage = isStatusReady && status ? (getUpgradeStatusMessage(t, status) ?? t('OK')) : t('Loading...')
 
 	const translationNamespaces = useMemo(
 		() => ['blueprint_' + props.showStyleBase.blueprintId],

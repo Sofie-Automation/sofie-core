@@ -5,11 +5,11 @@ import {
 	RundownLayoutPlaylistName,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { dashboardElementStyle } from './DashboardPanel'
-import { RundownLayoutsAPI } from '../../lib/rundownLayouts'
-import { useTracker } from '../../lib/ReactMeteorData/ReactMeteorData'
+import { dashboardElementStyle } from './DashboardPanel.js'
+import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
+import { useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { Rundowns } from '../../collections'
+import { Rundowns } from '../../collections/index.js'
 
 interface IPlaylistNamePanelProps {
 	layout: RundownLayoutBase

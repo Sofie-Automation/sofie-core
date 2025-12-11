@@ -1,0 +1,6 @@
+event: 'adLibs'
+rundownPlaylistId: 'OKAgZmZ0Buc99lE_2uPPSKVbMrQ_'
+adLibs:
+  - $ref: '../adLibStatus/adLibStatus-example.yaml'
+globalAdLibs:
+  - $ref: '../globalAdLibStatus/globalAdLibStatus-example.yaml'

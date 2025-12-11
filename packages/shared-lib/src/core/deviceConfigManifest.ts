@@ -11,10 +11,10 @@
  * describe some properties to be rendered inside this table
  */
 
-import { JSONBlob } from '../lib/JSONBlob'
+import { JSONBlob } from '../lib/JSONBlob.js'
 import { TSRActionSchema } from 'timeline-state-resolver-types'
-import { TranslationsBundle } from '../lib/translations'
-import { JSONSchema } from '../lib/JSONSchemaTypes'
+import { TranslationsBundle } from '../lib/translations.js'
+import { JSONSchema } from '../lib/JSONSchemaTypes.js'
 
 export interface DeviceConfigManifest {
 	/**

@@ -1,15 +1,15 @@
 import * as React from 'react'
-import * as _ from 'underscore'
-import renderItem from './ItemRenderers/ItemRendererFactory'
-import { PieceUi } from '../../SegmentTimeline/SegmentTimelineContainer'
+import _ from 'underscore'
+import renderItem from './ItemRenderers/ItemRendererFactory.js'
+import { PieceUi } from '../../SegmentTimeline/SegmentTimelineContainer.js'
 import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'
-import { contextMenuHoldToDisplayTime } from '../../../lib/lib'
-import { BucketAdLibItem } from '../RundownViewBuckets'
+import { contextMenuHoldToDisplayTime } from '../../../lib/lib.js'
+import { BucketAdLibItem } from '../RundownViewBuckets.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { IAdLibListItem } from '../AdLibListItem'
+import { IAdLibListItem } from '../AdLibListItem.js'
 import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
-import { useContentStatusForItem } from '../../SegmentTimeline/withMediaObjectStatus'
+import { useContentStatusForItem } from '../../SegmentTimeline/withMediaObjectStatus.js'
 
 interface IShelfInspectorProps {
 	selected: BucketAdLibItem | IAdLibListItem | PieceUi | undefined

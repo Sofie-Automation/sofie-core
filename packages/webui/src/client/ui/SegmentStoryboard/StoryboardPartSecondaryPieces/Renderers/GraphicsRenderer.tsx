@@ -1,6 +1,6 @@
-import { PieceMultistepChevron } from '../../../SegmentContainer/PieceMultistepChevron'
-import { IDefaultRendererProps } from './DefaultRenderer'
-import { LoopingPieceIcon } from '../../../../lib/ui/icons/looping'
+import { PieceMultistepChevron } from '../../../SegmentContainer/PieceMultistepChevron.js'
+import { IDefaultRendererProps } from './DefaultRenderer.js'
+import { LoopingPieceIcon } from '../../../../lib/ui/icons/looping.js'
 
 export function GraphicsRenderer({ piece: pieceInstance, hovering }: Readonly<IDefaultRendererProps>): JSX.Element {
 	return (

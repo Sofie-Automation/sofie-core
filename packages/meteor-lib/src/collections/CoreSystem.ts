@@ -1,5 +1,5 @@
 import { LastBlueprintConfig } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
-import { LogLevel } from '../lib'
+import { LogLevel } from '../lib.js'
 import { CoreSystemId, BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { ObjectWithOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
@@ -10,7 +10,7 @@ export const SYSTEM_ID: CoreSystemId = protectString('core')
 /**
  * Criticality level for service messages. Specification of criticality in server
  * messages from sofie-monitor:
- * https://github.com/nrkno/sofie-monitor/blob/master/src/data/serviceMessages/ServiceMessage.ts
+ * https://github.com/nrkno/sofie-monitor/blob/main/src/data/serviceMessages/ServiceMessage.ts
  *
  * @export
  * @enum {number}

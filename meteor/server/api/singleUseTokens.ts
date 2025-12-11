@@ -49,9 +49,12 @@ export function verifyHashedToken(token: string, secret: string = TOKEN_SECRET, 
 	if (valid) {
 		usedTokensShortTermMemory.set(token, timestamp)
 		// we can forget that the token has been used after the validity window has passed, because it will be invalid anyway
-		setTimeout(() => {
-			usedTokensShortTermMemory.delete(token)
-		}, 3 * 1000 * VALIDITY_PERIOD)
+		setTimeout(
+			() => {
+				usedTokensShortTermMemory.delete(token)
+			},
+			3 * 1000 * VALIDITY_PERIOD
+		)
 	}
 	return valid
 }

@@ -1,35 +1,29 @@
 import { RundownImportVersions } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { ShowStyleUserContext } from '../../blueprints/context'
+import { ShowStyleUserContext } from '../../blueprints/context/index.js'
 import {
 	IBlueprintActionManifest,
 	IBlueprintAdLibPiece,
 	IngestAdlib,
 	NoteSeverity,
 } from '@sofie-automation/blueprints-integration'
-import { WatchedPackagesHelper } from '../../blueprints/context/watchedPackages'
-import { JobContext, ProcessedShowStyleCompound } from '../../jobs'
-import { getSystemVersion } from '../../lib'
+import { WatchedPackagesHelper } from '../../blueprints/context/watchedPackages.js'
+import { JobContext, ProcessedShowStyleCompound } from '../../jobs/index.js'
+import { getSystemVersion } from '../../lib/index.js'
 import { BucketItemImportProps, BucketItemRegenerateProps } from '@sofie-automation/corelib/dist/worker/ingest'
 import {
 	cleanUpExpectedPackagesForBucketAdLibs,
 	cleanUpExpectedPackagesForBucketAdLibsActions,
 	updateExpectedPackagesForBucketAdLibPiece,
 	updateExpectedPackagesForBucketAdLibAction,
-} from '../expectedPackages'
-import {
-	cleanUpExpectedMediaItemForBucketAdLibActions,
-	cleanUpExpectedMediaItemForBucketAdLibPiece,
-	updateExpectedMediaItemForBucketAdLibAction,
-	updateExpectedMediaItemForBucketAdLibPiece,
-} from '../expectedMediaItems'
-import { postProcessBucketAction, postProcessBucketAdLib } from '../../blueprints/postProcess'
+} from '../expectedPackages.js'
+import { postProcessBucketAction, postProcessBucketAdLib } from '../../blueprints/postProcess.js'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { BucketAdLib, BucketAdLibIngestInfo } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibPiece'
 import { BucketAdLibAction } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibAction'
-import { logger } from '../../logging'
-import { createShowStyleCompound } from '../../showStyles'
-import { isAdlibAction } from './util'
-import { WrappedShowStyleBlueprint } from '../../blueprints/cache'
+import { logger } from '../../logging.js'
+import { createShowStyleCompound } from '../../showStyles.js'
+import { isAdlibAction } from './util.js'
+import { WrappedShowStyleBlueprint } from '../../blueprints/cache.js'
 import { ReadonlyDeep } from 'type-fest'
 import { BucketId, ShowStyleBaseId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ExpectedPackageDBType } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
@@ -195,7 +189,6 @@ async function regenerateBucketItemFromIngestInfo(
 
 				ps.push(
 					context.directCollections.BucketAdLibActions.replace(action),
-					updateExpectedMediaItemForBucketAdLibAction(context, action),
 					updateExpectedPackagesForBucketAdLibAction(context, action)
 				)
 
@@ -216,7 +209,6 @@ async function regenerateBucketItemFromIngestInfo(
 
 				ps.push(
 					context.directCollections.BucketAdLibPieces.replace(adlib),
-					updateExpectedMediaItemForBucketAdLibPiece(context, adlib),
 					updateExpectedPackagesForBucketAdLibPiece(context, adlib)
 				)
 
@@ -237,7 +229,6 @@ async function regenerateBucketItemFromIngestInfo(
 		const adlibIdsToRemoveArray = Array.from(adlibIdsToRemove)
 
 		ps.push(
-			cleanUpExpectedMediaItemForBucketAdLibPiece(context, adlibIdsToRemoveArray),
 			cleanUpExpectedPackagesForBucketAdLibs(context, adlibIdsToRemoveArray),
 			context.directCollections.BucketAdLibPieces.remove({ _id: { $in: adlibIdsToRemoveArray } })
 		)
@@ -246,7 +237,6 @@ async function regenerateBucketItemFromIngestInfo(
 		const actionIdsToRemoveArray = Array.from(actionIdsToRemove)
 
 		ps.push(
-			cleanUpExpectedMediaItemForBucketAdLibActions(context, actionIdsToRemoveArray),
 			cleanUpExpectedPackagesForBucketAdLibsActions(context, actionIdsToRemoveArray),
 			context.directCollections.BucketAdLibActions.remove({ _id: { $in: actionIdsToRemoveArray } })
 		)

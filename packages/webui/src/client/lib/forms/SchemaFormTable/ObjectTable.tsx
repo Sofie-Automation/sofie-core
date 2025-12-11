@@ -1,21 +1,21 @@
 import { faDownload, faPlus, faUpload } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { getRandomString, joinObjectPathFragments, literal, objectPathGet } from '@sofie-automation/corelib/dist/lib'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
 	WrappedOverridableItemNormal,
 	OverrideOpHelperForItemContents,
 	getAllCurrentAndDeletedItemsFromOverrides,
 	WrappedOverridableItem,
-} from '../../../ui/Settings/util/OverrideOpHelper'
-import { useToggleExpandHelper } from '../../../ui/util/useToggleExpandHelper'
-import { doModalDialog } from '../../ModalDialog'
+} from '../../../ui/Settings/util/OverrideOpHelper.js'
+import { useToggleExpandHelper } from '../../../ui/util/useToggleExpandHelper.js'
+import { doModalDialog } from '../../ModalDialog.js'
 import {
 	getSchemaSummaryFieldsForObject,
 	SchemaFormSofieEnumDefinition,
 	translateStringIfHasNamespaces,
-} from '../schemaFormUtil'
+} from '../schemaFormUtil.js'
 import { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
 import {
 	getSchemaDefaultValues,
@@ -23,13 +23,15 @@ import {
 	SchemaFormUIField,
 } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaUtil'
 import { SomeObjectOverrideOp } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import { SchemaFormTableEditRow } from './TableEditRow'
-import { SchemaTableSummaryRow } from '../SchemaTableSummaryRow'
-import { OverrideOpHelperObjectTable } from './ObjectTableOpHelper'
-import { ObjectTableDeletedRow } from './ObjectTableDeletedRow'
-import { SchemaFormSectionHeader } from '../SchemaFormSectionHeader'
-import { UploadButton } from '../../uploadButton'
+import { SchemaFormTableEditRow } from './TableEditRow.js'
+import { SchemaTableSummaryRow } from '../SchemaTableSummaryRow.js'
+import { OverrideOpHelperObjectTable } from './ObjectTableOpHelper.js'
+import { ObjectTableDeletedRow } from './ObjectTableDeletedRow.js'
+import { SchemaFormSectionHeader } from '../SchemaFormSectionHeader.js'
+import { UploadButton } from '../../uploadButton.js'
 import Tooltip from 'rc-tooltip'
+import { NoticeLevel, Notification, NotificationCenter } from '../../notifications/notifications.js'
+import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 
 interface SchemaFormObjectTableProps {
 	/** Schema for each row in the table */
@@ -63,7 +65,7 @@ export const SchemaFormObjectTable = ({
 
 	const wrappedRows = useMemo(() => {
 		if (item.defaults) {
-			// Table can be overriden with granularity
+			// Table can be overridden with granularity
 
 			const rawRows = (attr ? objectPathGet(item.defaults, attr) : item.defaults) || {}
 
@@ -85,7 +87,7 @@ export const SchemaFormObjectTable = ({
 					defaults: rawRows,
 					overrides: ops,
 				},
-				(a, b) => a[0].localeCompare(b[0]) // TODO - better comparitor?
+				(a, b) => a[0].localeCompare(b[0]) // TODO - better comparator?
 			)
 
 			return wrappedRows
@@ -100,7 +102,7 @@ export const SchemaFormObjectTable = ({
 				if (obj) validItems.push([id, obj])
 			}
 
-			validItems.sort((a, b) => a[0].localeCompare(b[0])) // TODO - better comparitor?
+			validItems.sort((a, b) => a[0].localeCompare(b[0])) // TODO - better comparator?
 
 			// Sort and wrap in the return type
 			return validItems.map(([id, obj]) =>
@@ -293,8 +295,6 @@ interface ImportExportButtonsProps {
 function ImportExportButtons({ schema, overrideHelper, wrappedRows }: Readonly<ImportExportButtonsProps>) {
 	const { t } = useTranslation()
 
-	const [uploadFileKey, setUploadFileKey] = useState(0)
-
 	const exportTable = () => {
 		const exportObject: Record<string, any> = {}
 		for (const obj of wrappedRows) {
@@ -319,78 +319,78 @@ function ImportExportButtons({ schema, overrideHelper, wrappedRows }: Readonly<I
 		URL.revokeObjectURL(url)
 	}
 
-	const importTable = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const file = e.target.files?.[0]
-		if (!file) return
+	const importTable = (uploadFileContents: string, file: File) => {
+		const newRows = JSON.parse(uploadFileContents)
+		if (!newRows || typeof newRows !== 'object') return
 
-		const reader = new FileReader()
-		reader.onload = (e2) => {
-			// On file upload
-			setUploadFileKey(Date.now())
+		doModalDialog({
+			title: t('Import file?'),
+			yes: t('Replace rows'),
+			no: t('Cancel'),
+			message: (
+				<p>
+					{t('Are you sure you want to import the contents of the file "{{fileName}}"?', {
+						fileName: file.name,
+					})}
+				</p>
+			),
+			onAccept: () => {
+				const batch = overrideHelper()
 
-			const uploadFileContents = e2.target?.result
-			if (!uploadFileContents) return
+				for (const row of wrappedRows) {
+					batch.deleteRow(row.id)
+				}
 
-			const newRows = JSON.parse(uploadFileContents as string)
-			if (!newRows || typeof newRows !== 'object') return
+				for (const [rowId, row] of Object.entries<unknown>(newRows)) {
+					batch.insertRow(rowId, row)
+				}
 
-			doModalDialog({
-				title: t('Import file?'),
-				yes: t('Replace rows'),
-				no: t('Cancel'),
-				message: (
-					<p>
-						{t('Are you sure you want to import the contents of the file "{{fileName}}"?', {
-							fileName: file.name,
-						})}
-					</p>
-				),
-				onAccept: () => {
-					const batch = overrideHelper()
+				batch.commit()
+			},
+			actions: [
+				{
+					label: t('Append rows'),
+					on: () => {
+						const batch = overrideHelper()
 
-					for (const row of wrappedRows) {
-						batch.deleteRow(row.id)
-					}
+						for (const [rowId, row] of Object.entries<unknown>(newRows)) {
+							batch.insertRow(rowId, row)
+						}
 
-					for (const [rowId, row] of Object.entries<unknown>(newRows)) {
-						batch.insertRow(rowId, row)
-					}
-
-					batch.commit()
-				},
-				actions: [
-					{
-						label: t('Append rows'),
-						on: () => {
-							const batch = overrideHelper()
-
-							for (const [rowId, row] of Object.entries<unknown>(newRows)) {
-								batch.insertRow(rowId, row)
-							}
-
-							batch.commit()
-						},
-						classNames: 'btn-secondary',
+						batch.commit()
 					},
-				],
-			})
-		}
-		reader.readAsText(file)
+					classNames: 'btn-secondary',
+				},
+			],
+		})
 	}
+	const importError = useCallback(
+		(err: Error) => {
+			NotificationCenter.push(
+				new Notification(
+					undefined,
+					NoticeLevel.WARNING,
+					t('Import error: {{errorMessage}}', { errorMessage: stringifyError(err) }),
+					'ConfigManifestSettings'
+				)
+			)
+		},
+		[t]
+	)
 
 	return (
 		<>
 			<Tooltip overlay={t('Import')} placement="top">
-				<span className="inline-block">
+				<div className="d-inline-block">
 					<UploadButton
-						key={uploadFileKey}
 						className="btn btn-secondary"
-						onChange={importTable}
+						onUploadContents={importTable}
+						onUploadError={importError}
 						accept="application/json,.json"
 					>
 						<FontAwesomeIcon icon={faUpload} />
 					</UploadButton>
-				</span>
+				</div>
 			</Tooltip>
 
 			<Tooltip overlay={t('Export')} placement="top">

@@ -1,6 +1,6 @@
-import { JobContext, ProcessedShowStyleCompound } from '../../jobs'
-import { ContextInfo } from './CommonContext'
-import { ShowStyleUserContext } from './ShowStyleUserContext'
+import { JobContext, ProcessedShowStyleCompound } from '../../jobs/index.js'
+import { ContextInfo } from './CommonContext.js'
+import { ShowStyleUserContext } from './ShowStyleUserContext.js'
 import {
 	IBlueprintMutatablePart,
 	IBlueprintPart,
@@ -17,15 +17,15 @@ import {
 	ActionPartChange,
 	IPartAndPieceInstanceActionContext,
 	PartAndPieceInstanceActionService,
-} from './services/PartAndPieceInstanceActionService'
-import { WatchedPackagesHelper } from './watchedPackages'
-import { PlayoutModel } from '../../playout/model/PlayoutModel'
+} from './services/PartAndPieceInstanceActionService.js'
+import { WatchedPackagesHelper } from './watchedPackages.js'
+import { PlayoutModel } from '../../playout/model/PlayoutModel.js'
 import { ReadonlyDeep } from 'type-fest'
-import { getCurrentTime } from '../../lib'
+import { getCurrentTime } from '../../lib/index.js'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { BlueprintQuickLookInfo } from '@sofie-automation/blueprints-integration/dist/context/quickLoopInfo'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { selectNewPartWithOffsets } from '../../playout/moveNextPart'
+import { selectNewPartWithOffsets } from '../../playout/moveNextPart.js'
 
 export class OnSetAsNextContext
 	extends ShowStyleUserContext
@@ -39,7 +39,8 @@ export class OnSetAsNextContext
 		private playoutModel: PlayoutModel,
 		showStyle: ReadonlyDeep<ProcessedShowStyleCompound>,
 		watchedPackages: WatchedPackagesHelper,
-		private partAndPieceInstanceService: PartAndPieceInstanceActionService
+		private partAndPieceInstanceService: PartAndPieceInstanceActionService,
+		public readonly manuallySelected: boolean
 	) {
 		super(contextInfo, context, showStyle, watchedPackages)
 	}

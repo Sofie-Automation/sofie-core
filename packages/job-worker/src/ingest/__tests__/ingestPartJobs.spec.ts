@@ -1,8 +1,8 @@
-import { setupDefaultJobEnvironment } from '../../__mocks__/context'
-import { handleRemovedPart, handleUpdatedPart } from '../ingestPartJobs'
+import { setupDefaultJobEnvironment } from '../../__mocks__/context.js'
+import { handleRemovedPart, handleUpdatedPart } from '../ingestPartJobs.js'
 import { clone } from '@sofie-automation/corelib/dist/lib'
 import { IngestChangeType, IngestPart, NrcsIngestPartChangeDetails } from '@sofie-automation/blueprints-integration'
-import { UpdateIngestRundownChange } from '../runOperation'
+import { UpdateIngestRundownChange } from '../runOperation.js'
 import { IngestRundownWithSource } from '@sofie-automation/corelib/dist/dataModel/NrcsIngestDataCache'
 
 function getDefaultIngestRundown(): IngestRundownWithSource {
@@ -288,27 +288,4 @@ describe('handleUpdatedPart', () => {
 			},
 		} satisfies UpdateIngestRundownChange)
 	})
-
-	// TODO: should this be a test case?
-	// it('part belongs to different segment', () => {
-	// 	const context = setupDefaultJobEnvironment()
-
-	// 	const ingestRundown = getDefaultIngestRundown()
-
-	// 	const newIngestPart2 = { ...newIngestPart, externalId: 'part0' }
-
-	// 	expect(() =>
-	// 		handleUpdatedPart(
-	// 			context,
-	// 			{
-	// 				peripheralDeviceId: null,
-	// 				rundownExternalId: 'rundown0',
-	// 				segmentExternalId: 'segment1',
-	// 				ingestPart: clone(newIngestPart2),
-	// 				isCreateAction: true,
-	// 			},
-	// 			clone(ingestRundown)
-	// 		)
-	// 	).toThrow('TODO fill out this error')
-	// })
 })

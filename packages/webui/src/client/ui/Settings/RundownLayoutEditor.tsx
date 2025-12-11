@@ -1,7 +1,7 @@
-import React, { useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import ClassNames from 'classnames'
-import { EditAttribute } from '../../lib/EditAttribute'
-import { Translated, useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data'
+import { EditAttribute } from '../../lib/EditAttribute.js'
+import { Translated, useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
 import { faUpload, faPlus, faCheck, faPencilAlt, faDownload, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
@@ -18,27 +18,30 @@ import {
 	CustomizableRegionLayout,
 	CustomizableRegionSettingsManifest,
 	RundownLayoutsAPI,
-} from '../../lib/rundownLayouts'
+} from '../../lib/rundownLayouts.js'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { getRandomString, literal, unprotectString } from '../../lib/tempLib'
-import { UploadButton } from '../../lib/uploadButton'
-import { doModalDialog } from '../../lib/ModalDialog'
-import { NotificationCenter, Notification, NoticeLevel } from '../../lib/notifications/notifications'
-import { catchError, fetchFrom } from '../../lib/lib'
+import { getRandomString, literal } from '@sofie-automation/corelib/dist/lib'
+import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
+import { UploadButton } from '../../lib/uploadButton.js'
+import { doModalDialog } from '../../lib/ModalDialog.js'
+import { NotificationCenter, Notification, NoticeLevel } from '../../lib/notifications/notifications.js'
+import { catchError, fetchFrom } from '../../lib/lib.js'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { Link } from 'react-router-dom'
-import { MeteorCall } from '../../lib/meteorApi'
-import { defaultColorPickerPalette } from '../../lib/colorPicker'
-import FilterEditor from './components/FilterEditor'
-import ShelfLayoutSettings from './components/rundownLayouts/ShelfLayoutSettings'
-import RundownHeaderLayoutSettings from './components/rundownLayouts/RundownHeaderLayoutSettings'
-import RundownViewLayoutSettings from './components/rundownLayouts/RundownViewLayoutSettings'
+import { MeteorCall } from '../../lib/meteorApi.js'
+import { defaultColorPickerPalette } from '../../lib/colorPicker.js'
+import FilterEditor from './components/FilterEditor.js'
+import ShelfLayoutSettings from './components/rundownLayouts/ShelfLayoutSettings.js'
+import RundownHeaderLayoutSettings from './components/rundownLayouts/RundownHeaderLayoutSettings.js'
+import RundownViewLayoutSettings from './components/rundownLayouts/RundownViewLayoutSettings.js'
 import { RundownLayoutId, ShowStyleBaseId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { OutputLayers, SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { RundownLayouts } from '../../collections'
-import { LabelActual } from '../../lib/Components/LabelAndOverrides'
-import { withTranslation } from 'react-i18next'
+import { RundownLayouts } from '../../collections/index.js'
+import { LabelActual } from '../../lib/Components/LabelAndOverrides.js'
+import { useTranslation, withTranslation } from 'react-i18next'
 import Button from 'react-bootstrap/esm/Button'
+import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
+import { createPrivateApiPath } from '../../url.js'
 
 export interface IProps {
 	showStyleBaseId: ShowStyleBaseId
@@ -50,7 +53,6 @@ export interface IProps {
 
 interface IState {
 	editedItems: RundownLayoutId[]
-	uploadFileKey: number
 }
 
 interface ITrackedProps {
@@ -83,7 +85,6 @@ const RundownLayoutEditorContent = withTranslation()(
 
 			this.state = {
 				editedItems: [],
-				uploadFileKey: Date.now(),
 			}
 		}
 
@@ -175,7 +176,7 @@ const RundownLayoutEditorContent = withTranslation()(
 		}
 
 		downloadItem = (item: RundownLayoutBase) => {
-			window.location.replace(`/api/private/shelfLayouts/download/${item._id}`)
+			window.location.replace(createPrivateApiPath(`shelfLayouts/download/${item._id}`))
 		}
 
 		finishEditItem = (item: RundownLayoutBase) => {
@@ -473,79 +474,6 @@ const RundownLayoutEditorContent = withTranslation()(
 				})
 		}
 
-		onUploadFile(e: React.ChangeEvent<HTMLInputElement>) {
-			const { t } = this.props
-
-			const file = e.target.files?.[0]
-			if (!file) {
-				return
-			}
-
-			const reader = new FileReader()
-			reader.onload = (e2) => {
-				// On file upload
-
-				this.setState({
-					uploadFileKey: Date.now(),
-				})
-
-				const uploadFileContents = (e2.target as any).result
-
-				doModalDialog({
-					title: t('Upload Layout?'),
-					yes: t('Upload'),
-					no: t('Cancel'),
-					message: (
-						<React.Fragment>
-							<p>
-								{t('Are you sure you want to upload the shelf layout from the file "{{fileName}}"?', {
-									fileName: file.name,
-								})}
-							</p>
-							,
-						</React.Fragment>
-					),
-					onAccept: () => {
-						if (uploadFileContents) {
-							fetchFrom(`/api/private/shelfLayouts/upload/${this.props.showStyleBaseId}`, {
-								method: 'POST',
-								body: uploadFileContents,
-								headers: {
-									'content-type': 'application/json',
-								},
-							})
-								.then(() => {
-									NotificationCenter.push(
-										new Notification(
-											undefined,
-											NoticeLevel.NOTIFICATION,
-											t('Shelf layout uploaded successfully.'),
-											'RundownLayouts'
-										)
-									)
-								})
-								.catch((err) => {
-									NotificationCenter.push(
-										new Notification(
-											undefined,
-											NoticeLevel.WARNING,
-											t('Failed to upload shelf layout: {{errorMessage}}', { errorMessage: err + '' }),
-											'RundownLayouts'
-										)
-									)
-								})
-						}
-					},
-					onSecondary: () => {
-						this.setState({
-							uploadFileKey: Date.now(),
-						})
-					},
-				})
-			}
-			reader.readAsText(file)
-		}
-
 		render(): JSX.Element {
 			return (
 				<div className="studio-edit rundown-layout-editor">
@@ -557,16 +485,89 @@ const RundownLayoutEditorContent = withTranslation()(
 						<Button variant="primary" className="mx-1" onClick={this.onAddLayout}>
 							<FontAwesomeIcon icon={faPlus} />
 						</Button>
-						<UploadButton
-							className="btn btn-outline-secondary mx-1"
-							onChange={(e) => this.onUploadFile(e)}
-							accept="application/json,.json"
-						>
-							<FontAwesomeIcon icon={faUpload} />
-						</UploadButton>
+						<ImportRundownLayoutsButton showStyleBaseId={this.props.showStyleBaseId} />
 					</div>
 				</div>
 			)
 		}
 	}
 )
+
+function ImportRundownLayoutsButton({ showStyleBaseId }: { showStyleBaseId: ShowStyleBaseId }) {
+	const { t } = useTranslation()
+
+	const onUploadContents = useCallback(
+		(fileContents: string, file: File) => {
+			doModalDialog({
+				title: t('Upload Layout?'),
+				yes: t('Upload'),
+				no: t('Cancel'),
+				message: (
+					<React.Fragment>
+						<p>
+							{t('Are you sure you want to upload the shelf layout from the file "{{fileName}}"?', {
+								fileName: file.name,
+							})}
+						</p>
+						,
+					</React.Fragment>
+				),
+				onAccept: () => {
+					fetchFrom(createPrivateApiPath(`/shelfLayouts/upload/${showStyleBaseId}`), {
+						method: 'POST',
+						body: fileContents,
+						headers: {
+							'content-type': 'application/json',
+						},
+					})
+						.then(() => {
+							NotificationCenter.push(
+								new Notification(
+									undefined,
+									NoticeLevel.NOTIFICATION,
+									t('Shelf layout uploaded successfully.'),
+									'RundownLayouts'
+								)
+							)
+						})
+						.catch((err) => {
+							NotificationCenter.push(
+								new Notification(
+									undefined,
+									NoticeLevel.WARNING,
+									t('Failed to upload shelf layout: {{errorMessage}}', { errorMessage: err + '' }),
+									'RundownLayouts'
+								)
+							)
+						})
+				},
+			})
+		},
+		[t, showStyleBaseId]
+	)
+
+	const onUploadError = useCallback(
+		(err: Error) => {
+			NotificationCenter.push(
+				new Notification(
+					undefined,
+					NoticeLevel.WARNING,
+					t('Failed to upload shelf layout: {{errorMessage}}', { errorMessage: stringifyError(err) }),
+					'RundownLayouts'
+				)
+			)
+		},
+		[t]
+	)
+
+	return (
+		<UploadButton
+			className="btn btn-outline-secondary mx-1"
+			onUploadContents={onUploadContents}
+			onUploadError={onUploadError}
+			accept="application/json,.json"
+		>
+			<FontAwesomeIcon icon={faUpload} />
+		</UploadButton>
+	)
+}

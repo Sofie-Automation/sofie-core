@@ -1,5 +1,6 @@
 import { PeripheralDevice, PERIPHERAL_SUBTYPE_PROCESS } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
-import { Time, getRandomId, literal } from '../lib/tempLib'
+import { getRandomId, literal } from '@sofie-automation/corelib/dist/lib'
+import type { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { getCurrentTime } from '../lib/lib'
 import {
 	parseVersion,
@@ -34,7 +35,6 @@ const integrationVersionAllowPrerelease = isPrerelease(PackageInfo.version)
 // Any libraries that if a gateway uses should match a certain version
 const expectedLibraryVersions: { [libName: string]: string } = {
 	'superfly-timeline': stripVersion(require('superfly-timeline/package.json').version),
-	// eslint-disable-next-line node/no-extraneous-require
 	'@mos-connection/helper': stripVersion(require('@mos-connection/helper/package.json').version),
 }
 
@@ -138,6 +138,7 @@ function getSystemStatusForDevice(device: PeripheralDevice): StatusResponse {
 	const so: StatusResponse = {
 		name: device.name,
 		instanceId: device._id,
+		parentId: device.parentDeviceId ?? undefined,
 		status: 'UNDEFINED',
 		updated: new Date(device.lastSeen).toISOString(),
 		_status: deviceStatus,
@@ -191,7 +192,7 @@ export async function getSystemStatus(_cred: RequestCredentials | null, studioId
 		updated: new Date(getCurrentTime()).toISOString(),
 		status: 'UNDEFINED',
 		_status: StatusCode.UNKNOWN,
-		documentation: 'https://github.com/nrkno/sofie-core',
+		documentation: 'https://github.com/Sofie-Automation/sofie-core',
 		_internal: {
 			// this _internal is set later
 			statusCodeString: StatusCode[StatusCode.UNKNOWN],

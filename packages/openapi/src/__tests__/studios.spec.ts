@@ -1,7 +1,6 @@
-// eslint-disable-next-line node/no-missing-import
-import { Configuration, GetStudioConfig200ResponseResult, Studio, StudiosApi } from '../../client/ts'
-import { checkServer } from '../checkServer'
-import Logging from '../httpLogging'
+import { Configuration, GetStudioConfig200ResponseResult, Studio, StudiosApi } from '../../client/ts/index.js'
+import { checkServer } from '../checkServer.js'
+import Logging from '../httpLogging.js'
 
 const httpLogging = false
 let testServer

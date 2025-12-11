@@ -722,8 +722,11 @@ components:
       properties:
         id:
           type: string
+        externalId:
+          type: string
       required:
         - id
+        - externalId
       additionalProperties: false
   responses:
     putSuccess:

@@ -1,0 +1,16 @@
+$defs:
+  NotificationTargetRundown:
+    type: object
+    title: NotificationTargetRundown
+    required: [type, studioId, rundownId]
+    properties:
+      type:
+        $ref: '../notificationTargetType.yaml#/$defs/NotificationTargetType'
+        const: rundown
+      studioId:
+        type: string
+      rundownId:
+        type: string
+    additionalProperties: false
+    examples:
+      - $ref: './notificationTargetRundown-example.yaml'

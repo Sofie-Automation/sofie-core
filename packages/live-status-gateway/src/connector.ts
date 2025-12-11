@@ -1,8 +1,8 @@
-import { CoreHandler, CoreConfig } from './coreHandler'
+import { CoreHandler, CoreConfig } from './coreHandler.js'
 import { Logger } from 'winston'
-import { Process } from './process'
+import { Process } from './process.js'
 import { PeripheralDeviceId } from '@sofie-automation/shared-lib/dist/core/model/Ids'
-import { LiveStatusServer } from './liveStatusServer'
+import { LiveStatusServer } from './liveStatusServer.js'
 
 export interface Config {
 	process: ProcessConfig
@@ -64,7 +64,7 @@ export class Connector {
 
 			this._logger.info('Shutting down in 10 seconds!')
 			setTimeout(() => {
-				// eslint-disable-next-line no-process-exit
+				// eslint-disable-next-line n/no-process-exit
 				process.exit(0)
 			}, 10 * 1000)
 			return

@@ -1,5 +1,5 @@
-import { PackageInfo } from '../../package-manager/packageInfo'
-import { MediaObjId, StudioId } from './Ids'
+import { PackageInfo } from '../../package-manager/packageInfo.js'
+import { MediaObjId, StudioId } from './Ids.js'
 
 export interface MediaObject0 {
 	_id: MediaObjId

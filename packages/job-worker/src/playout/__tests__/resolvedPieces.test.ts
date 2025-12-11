@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { setupMockShowStyleCompound } from '../../__mocks__/presetCollections'
-import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context'
+import { setupMockShowStyleCompound } from '../../__mocks__/presetCollections.js'
+import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context.js'
 import { SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { ReadonlyDeep } from 'type-fest'
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
@@ -16,10 +16,10 @@ import {
 	processAndPrunePieceInstanceTimings,
 	resolvePrunedPieceInstance,
 } from '@sofie-automation/corelib/dist/playout/processAndPrune'
-import { getResolvedPiecesForPartInstancesOnTimeline } from '../resolvedPieces'
-import { SelectedPartInstanceTimelineInfo } from '../timeline/generate'
+import { getResolvedPiecesForPartInstancesOnTimeline } from '../resolvedPieces.js'
+import { SelectedPartInstanceTimelineInfo } from '../timeline/generate.js'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
-import { setupPieceInstanceInfiniteProperties } from '../pieces'
+import { setupPieceInstanceInfiniteProperties } from '../pieces.js'
 import { getPartTimingsOrDefaults } from '@sofie-automation/corelib/dist/playout/timings'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { PieceInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
@@ -291,32 +291,6 @@ describe('Resolved Pieces', () => {
 					_id: piece0._id,
 					resolvedStart: 1000,
 					resolvedDuration: 1000,
-				},
-			] satisfies StrippedResult)
-		})
-
-		test('userDuration.endRelativeToNow', async () => {
-			const sourceLayerId = Object.keys(sourceLayers)[0]
-			expect(sourceLayerId).toBeTruthy()
-
-			const piece0 = createPieceInstance(
-				sourceLayerId,
-				{ start: 1000 },
-				{},
-				{
-					userDuration: {
-						endRelativeToNow: 2000,
-					},
-				}
-			)
-
-			const resolvedPieces = getResolvedPiecesInner(sourceLayers, 2500, [piece0])
-
-			expect(stripResult(resolvedPieces)).toEqual([
-				{
-					_id: piece0._id,
-					resolvedStart: 1000,
-					resolvedDuration: 3500,
 				},
 			] satisfies StrippedResult)
 		})
@@ -645,41 +619,6 @@ describe('Resolved Pieces', () => {
 			] satisfies StrippedResult)
 		})
 
-		test('userDuration.endRelativeToNow', async () => {
-			const sourceLayerId = Object.keys(sourceLayers)[0]
-			expect(sourceLayerId).toBeTruthy()
-
-			const piece001 = createPieceInstance(
-				sourceLayerId,
-				{ start: 4000 },
-				{},
-				{
-					userDuration: {
-						endRelativeToNow: 1300,
-					},
-				}
-			)
-
-			const now = 990000
-			const nowInPart = 7000
-			const partStarted = now - nowInPart
-
-			const currentPartInfo = createPartInstanceInfo(partStarted, nowInPart, createPartInstance(), [piece001])
-
-			const simpleResolvedPieces = getResolvedPiecesForPartInstancesOnTimeline(
-				context,
-				{ current: currentPartInfo },
-				now
-			)
-			expect(stripResult(simpleResolvedPieces)).toEqual([
-				{
-					_id: piece001._id,
-					resolvedStart: partStarted + 4000,
-					resolvedDuration: -4000 + 7000 + 1300,
-				},
-			] satisfies StrippedResult)
-		})
-
 		test('basic previousPart', async () => {
 			const sourceLayerId = Object.keys(sourceLayers)[0]
 			expect(sourceLayerId).toBeTruthy()
@@ -809,7 +748,7 @@ describe('Resolved Pieces', () => {
 				},
 				{
 					userDuration: {
-						endRelativeToNow: 3400,
+						endRelativeToPart: 5400,
 					},
 				}
 			)

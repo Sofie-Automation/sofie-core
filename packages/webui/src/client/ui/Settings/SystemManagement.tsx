@@ -1,36 +1,41 @@
 import React, { useCallback, useMemo } from 'react'
-import { useTracker, useSubscription } from '../../lib/ReactMeteorData/ReactMeteorData'
+import { useTracker, useSubscription } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import { ICoreSystem, SofieLogo } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { EditAttribute } from '../../lib/EditAttribute'
-import { doModalDialog } from '../../lib/ModalDialog'
-import { MeteorCall } from '../../lib/meteorApi'
-import { languageAnd } from '../../lib/language'
-import { TriggeredActionsEditor } from './components/triggeredActions/TriggeredActionsEditor'
+import { EditAttribute } from '../../lib/EditAttribute.js'
+import { doModalDialog } from '../../lib/ModalDialog.js'
+import { MeteorCall } from '../../lib/meteorApi.js'
+import { languageAnd } from '../../lib/language.js'
+import { TriggeredActionsEditor } from './components/triggeredActions/TriggeredActionsEditor.js'
 import { TFunction, useTranslation } from 'react-i18next'
 import { Meteor } from 'meteor/meteor'
-import { literal, LogLevel } from '../../lib/tempLib'
-import { CoreSystem } from '../../collections'
+import { literal } from '@sofie-automation/corelib/dist/lib'
+import { LogLevel } from '@sofie-automation/meteor-lib/dist/lib'
+import { CoreSystem } from '../../collections/index.js'
 import { CollectionCleanupResult } from '@sofie-automation/meteor-lib/dist/api/system'
 import {
 	LabelActual,
 	LabelAndOverrides,
 	LabelAndOverridesForCheckbox,
 	LabelAndOverridesForMultiLineText,
-} from '../../lib/Components/LabelAndOverrides'
-import { catchError } from '../../lib/lib'
-import { SystemManagementBlueprint } from './SystemManagement/Blueprint'
+} from '../../lib/Components/LabelAndOverrides.js'
+import { catchError } from '../../lib/lib.js'
+import { SystemManagementBlueprint } from './SystemManagement/Blueprint.js'
 import {
 	applyAndValidateOverrides,
 	ObjectWithOverrides,
 	SomeObjectOverrideOp,
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { ICoreSystemSettings } from '@sofie-automation/blueprints-integration'
-import { WrappedOverridableItemNormal, useOverrideOpHelper } from './util/OverrideOpHelper'
-import { CheckboxControl } from '../../lib/Components/Checkbox'
-import { CombinedMultiLineTextInputControl, MultiLineTextInputControl } from '../../lib/Components/MultiLineTextInput'
-import { TextInputControl } from '../../lib/Components/TextInput'
+import { WrappedOverridableItemNormal, useOverrideOpHelper } from './util/OverrideOpHelper.js'
+import { CheckboxControl } from '../../lib/Components/Checkbox.js'
+import {
+	CombinedMultiLineTextInputControl,
+	MultiLineTextInputControl,
+} from '../../lib/Components/MultiLineTextInput.js'
+import { TextInputControl } from '../../lib/Components/TextInput.js'
 import Button from 'react-bootstrap/esm/Button'
+import { createPrivateApiPath } from '../../url.js'
 
 interface WithCoreSystemProps {
 	coreSystem: ICoreSystem
@@ -174,7 +179,7 @@ function SystemManagementEvaluationsMessage({ coreSystem }: Readonly<WithCoreSys
 					label={t('Enabled')}
 					item={wrappedItem}
 					// @ts-expect-error deep property
-					itemKey={'evaluations.enabled'}
+					itemKey={'evaluationsMessage.enabled'}
 					overrideHelper={overrideHelper}
 				>
 					{(value, handleUpdate) => <CheckboxControl value={!!value} handleUpdate={handleUpdate} />}
@@ -184,7 +189,7 @@ function SystemManagementEvaluationsMessage({ coreSystem }: Readonly<WithCoreSys
 					label={t('Heading')}
 					item={wrappedItem}
 					// @ts-expect-error deep property
-					itemKey={'evaluations.heading'}
+					itemKey={'evaluationsMessage.heading'}
 					overrideHelper={overrideHelper}
 				>
 					{(value, handleUpdate) => <TextInputControl value={value} handleUpdate={handleUpdate} />}
@@ -194,7 +199,7 @@ function SystemManagementEvaluationsMessage({ coreSystem }: Readonly<WithCoreSys
 					label={t('Message')}
 					item={wrappedItem}
 					// @ts-expect-error deep property
-					itemKey={'evaluations.message'}
+					itemKey={'evaluationsMessage.message'}
 					overrideHelper={overrideHelper}
 					hint={t('Message shown to users in the Evaluations form')}
 				>
@@ -310,7 +315,6 @@ function SystemManagementCleanup() {
 		MeteorCall.system
 			.cleanupIndexes(false)
 			.then((indexesToRemove) => {
-				console.log(indexesToRemove)
 				doModalDialog({
 					title: t('Remove indexes'),
 					message: t('This will remove {{indexCount}} old indexes, do you want to continue?', {
@@ -344,11 +348,11 @@ function SystemManagementCleanup() {
 		<>
 			<h2 className="my-4">{t('Cleanup')}</h2>
 			<div>
-				<Button className="mx-1" onClick={cleanUpOldDatabaseIndexes}>
+				<Button onClick={cleanUpOldDatabaseIndexes} variant="secondary" className="me-1 btn-outline-secondary">
 					{t('Cleanup old database indexes')}
 				</Button>
 
-				<Button className="mx-1" onClick={localCheckForOldDataAndCleanUp}>
+				<Button onClick={localCheckForOldDataAndCleanUp} variant="secondary" className="me-1 btn-outline-secondary">
 					{t('Cleanup old data')}
 				</Button>
 			</div>
@@ -422,8 +426,6 @@ export function checkForOldDataAndCleanUp(t: TFunction, retriesLeft = 0): void {
 							MeteorCall.system
 								.cleanupOldData(true)
 								.then((results) => {
-									console.log(results)
-
 									if (typeof results === 'string') {
 										doModalDialog({
 											title: t('Error'),
@@ -490,13 +492,19 @@ function SystemManagementHeapSnapshot() {
 					<>
 						<div>{t(`Are you sure? This will cause the whole Sofie system to be unresponsive several seconds!`)}</div>
 
-						<a className="btn btn-primary" href="/api/private/heapSnapshot/retrieve?areYouSure=yes" onClick={onConfirm}>
+						<a
+							className="btn btn-primary"
+							href={createPrivateApiPath('heapSnapshot/retrieve?areYouSure=yes')}
+							onClick={onConfirm}
+						>
 							{t(`Yes, Take and Download Memory Heap Snapshot`)}
 						</a>
 						<Button onClick={onReset}>{t(`No`)}</Button>
 					</>
 				) : (
-					<Button onClick={onAreYouSure}>{t(`Take and Download Memory Heap Snapshot`)}</Button>
+					<Button onClick={onAreYouSure} variant="secondary" className="btn-outline-secondary">
+						{t(`Take and Download Memory Heap Snapshot`)}
+					</Button>
 				)}
 			</div>
 			<div>

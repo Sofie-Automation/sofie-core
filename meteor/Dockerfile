@@ -15,7 +15,7 @@ RUN yarn install && yarn build
 
 # BUILD IMAGE
 FROM node:22
-RUN curl "https://install.meteor.com/?release=3.1.2" | sh
+RUN curl "https://install.meteor.com/?release=3.3.2" | sh
 
 # Temporary change the NODE_ENV env variable, so that all libraries are installed:
 ENV NODE_ENV_TMP $NODE_ENV
@@ -60,4 +60,6 @@ COPY --from=1 /opt/bundle /opt/core
 COPY meteor/docker-entrypoint.sh /opt
 
 WORKDIR /opt/core/
-CMD ["/opt/docker-entrypoint.sh"]
+RUN chown -R 1000:1000 /opt/core
+USER 1000
+ENTRYPOINT ["/opt/docker-entrypoint.sh"]

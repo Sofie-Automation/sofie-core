@@ -60,7 +60,7 @@ export function checkDatabaseVersions(): void {
 				const blueprints = (await Blueprints.findFetchAsync(
 					{},
 					{
-						fields: {
+						projection: {
 							_id: 1,
 							blueprintVersion: 1,
 							databaseVersion: 1,

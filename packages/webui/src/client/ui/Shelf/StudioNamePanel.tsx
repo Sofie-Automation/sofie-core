@@ -4,8 +4,8 @@ import {
 	RundownLayoutBase,
 	RundownLayoutStudioName,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import { dashboardElementStyle } from './DashboardPanel'
-import { RundownLayoutsAPI } from '../../lib/rundownLayouts'
+import { dashboardElementStyle } from './DashboardPanel.js'
+import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
 import { useTranslation } from 'react-i18next'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 

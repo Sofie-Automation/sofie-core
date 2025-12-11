@@ -1,7 +1,7 @@
 import { JSX } from 'react'
 import classNames from 'classnames'
 import { useTranslation } from 'react-i18next'
-import { SortOrderButton } from '../../MediaStatus/SortOrderButton'
+import { SortOrderButton } from '../../MediaStatus/SortOrderButton.js'
 
 export function MediaStatusListHeader({
 	sortOrder,

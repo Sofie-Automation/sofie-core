@@ -1,15 +1,10 @@
-import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
-
-export interface PartTiming {
-	startTime: number
-	expectedDurationMs: number
-	projectedEndTime: number
-}
+import type { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
+import type { CurrentPartTiming } from '@sofie-automation/live-status-gateway-api'
 
 export function calculateCurrentPartTiming(
 	currentPartInstance: DBPartInstance,
 	segmentPartInstances: DBPartInstance[]
-): PartTiming {
+): CurrentPartTiming {
 	const isMemberOfDisplayDurationGroup = currentPartInstance.part.displayDurationGroup !== undefined
 	let expectedDuration = currentPartInstance.part.expectedDuration ?? 0
 

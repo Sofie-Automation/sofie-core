@@ -1,0 +1,15 @@
+$defs:
+  adLibActionType:
+    title: AdLibActionType
+    type: object
+    properties:
+      name:
+        type: string
+        description: The string to be passed to the ExecuteAdlib function
+      label:
+        type: string
+        description: The label for the AdLib type
+    required: [name, label]
+    additionalProperties: false
+    examples:
+      - $ref: './actionType-example.yaml'

@@ -1,0 +1,7 @@
+description: Packages topic for websocket subscriptions. Packages are assets that need to be prepared by Sofie Package Manager or third-party systems to make AdLibs and Pieces playable.
+subscribe:
+  operationId: receivePackagesUpdate
+  description: Server sends packages updates
+  message:
+    oneOf:
+      - $ref: '../../components/packages/messages/packagesMessage.yaml#/components/messages/packagesMessage'

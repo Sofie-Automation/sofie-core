@@ -10,7 +10,7 @@ import { Blueprints } from './collections'
 
 export async function fetchBlueprintLight(blueprintId: BlueprintId): Promise<BlueprintLight | undefined> {
 	return Blueprints.findOneAsync(blueprintId, {
-		fields: {
+		projection: {
 			code: 0,
 		},
 	})

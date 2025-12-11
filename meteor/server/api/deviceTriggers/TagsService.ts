@@ -69,21 +69,21 @@ export class TagsService {
 					cache.PartInstances.findOne(previousPartInstanceId)?.timings,
 					cache.PieceInstances.find({ partInstanceId: previousPartInstanceId }).fetch(),
 					resolvedSourceLayers
-			  )
+				)
 			: []
 		const inCurrentPartInstance = currentPartInstanceId
 			? this.processAndPrunePieceInstanceTimings(
 					cache.PartInstances.findOne(currentPartInstanceId)?.timings,
 					cache.PieceInstances.find({ partInstanceId: currentPartInstanceId }).fetch(),
 					resolvedSourceLayers
-			  )
+				)
 			: []
 		const inNextPartInstance = nextPartInstanceId
 			? this.processAndPrunePieceInstanceTimings(
 					undefined,
 					cache.PieceInstances.find({ partInstanceId: nextPartInstanceId }).fetch(),
 					resolvedSourceLayers
-			  )
+				)
 			: []
 
 		const activePieceInstances = [...inPreviousPartInstance, ...inCurrentPartInstance].filter((pieceInstance) =>

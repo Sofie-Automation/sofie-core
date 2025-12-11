@@ -11,6 +11,6 @@ Technically, a Blueprint is a JavaScript object, implementing one of the `Bluepr
 
 Currently, there are three types of Blueprints:
 
-* [Show Style Blueprints](https://nrkno.github.io/sofie-core/typedoc/interfaces/_sofie_automation_blueprints_integration.ShowStyleBlueprintManifest.html) - handling converting NRCS Rundown data into Sofie Rundowns and content.
-* [Studio Blueprints](https://nrkno.github.io/sofie-core/typedoc/interfaces/_sofie_automation_blueprints_integration.StudioBlueprintManifest.html) - handling selecting ShowStyles for a given NRCS Rundown and assigning NRCS Rundowns to Sofie Playlists
-* [System Blueprints](https://nrkno.github.io/sofie-core/typedoc/interfaces/_sofie_automation_blueprints_integration.SystemBlueprintManifest.html) - handling system provisioning and global configuration
+- [Show Style Blueprints](https://nrkno.github.io/sofie-core/typedoc/interfaces/_sofie_automation_blueprints_integration.ShowStyleBlueprintManifest.html) - handling converting NRCS Rundown data into Sofie Rundowns and content.
+- [Studio Blueprints](https://nrkno.github.io/sofie-core/typedoc/interfaces/_sofie_automation_blueprints_integration.StudioBlueprintManifest.html) - handling selecting ShowStyles for a given NRCS Rundown and assigning NRCS Rundowns to Sofie Playlists
+- [System Blueprints](https://nrkno.github.io/sofie-core/typedoc/interfaces/_sofie_automation_blueprints_integration.SystemBlueprintManifest.html) - handling system provisioning and global configuration

@@ -1,29 +1,31 @@
 on:
-  # Trigger analysis when pushing in master or pull requests, and when creating
+  # Trigger analysis when pushing in main or pull requests, and when creating
   # a pull request.
   push:
     branches:
-      - master
+      - main
       - release**
   pull_request:
     types: [opened, synchronize, reopened]
-name: SonarCloud
+  workflow_dispatch:
+
+name: SonarCloud analysis
 jobs:
-  sonarcloud:
-    name: SonarCloud
+  sonarqube:
+    name: SonarQube
     runs-on: ubuntu-latest
-    if: ${{ github.repository_owner == 'nrkno' && !github.event.pull_request.head.repo.fork }}
+    if: ${{ github.repository_owner == 'Sofie-Automation' && !github.event.pull_request.head.repo.fork }}
     timeout-minutes: 15
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           # Disabling shallow clone is recommended for improving relevancy of reporting
           fetch-depth: 0
           persist-credentials: false
 
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: ".node-version"
       - uses: ./.github/actions/setup-meteor
@@ -38,14 +40,13 @@ jobs:
       - name: Prepare Environment
         run: |
           corepack enable
-          
+
+          yarn config set cacheFolder /home/runner/lint-core-cache
           yarn
           yarn build:packages
         env:
           CI: true
-
-      - name: SonarCloud Scan
-        uses: sonarsource/sonarcloud-github-action@master
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v6
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

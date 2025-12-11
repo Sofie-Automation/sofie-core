@@ -1,8 +1,8 @@
 import { SplitsContentBoxContent, SplitsContentBoxProperties } from '@sofie-automation/blueprints-integration'
 import classNames from 'classnames'
 import { useMemo } from 'react'
-import { RundownUtils } from '../../../lib/rundown'
-import { getSplitPreview, SplitRole } from '../../../lib/ui/splitPreview'
+import { RundownUtils } from '../../../lib/rundown.js'
+import { getSplitPreview, SplitRole } from '../../../lib/ui/splitPreview.js'
 import { ReadonlyDeep } from 'type-fest'
 
 interface BoxLayoutPreviewProps {
@@ -51,7 +51,7 @@ export function BoxLayoutPreview({ content }: BoxLayoutPreviewProps): React.Reac
 						clipPath: item.content?.crop
 							? `inset(${item.content.crop.top * 100}% ${item.content.crop.right * 100}% ${
 									item.content.crop.bottom * 100
-							  }% ${item.content.crop.left * 100}%)`
+								}% ${item.content.crop.left * 100}%)`
 							: undefined,
 					}}
 				>

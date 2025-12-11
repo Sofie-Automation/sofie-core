@@ -24,18 +24,14 @@ export async function checkAccessToPlaylist(
 		projection: {
 			_id: 1,
 			studioId: 1,
-			organizationId: 1,
 			name: 1,
 		},
-	})) as Pick<DBRundownPlaylist, '_id' | 'studioId' | 'organizationId' | 'name'> | undefined
+	})) as Pick<DBRundownPlaylist, '_id' | 'studioId' | 'name'> | undefined
 	if (!playlist) throw new Meteor.Error(404, `RundownPlaylist "${playlistId}" not found`)
 
 	return playlist
 }
-export type VerifiedRundownPlaylistForUserAction = Pick<
-	DBRundownPlaylist,
-	'_id' | 'studioId' | 'organizationId' | 'name'
->
+export type VerifiedRundownPlaylistForUserAction = Pick<DBRundownPlaylist, '_id' | 'studioId' | 'name'>
 
 /**
  * Check that the current user has write access to the specified rundown, and ensure that the rundown exists

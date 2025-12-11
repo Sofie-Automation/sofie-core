@@ -9,7 +9,7 @@ import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { EmptyPieceTimelineObjectsBlob, Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { RundownBaselineAdLibItem } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibPiece'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { getCurrentTime, getSystemVersion } from '../lib'
+import { getCurrentTime, getSystemVersion } from '../lib/index.js'
 import {
 	IBlueprintPieceType,
 	IOutputLayer,
@@ -19,12 +19,12 @@ import {
 	SourceLayerType,
 	StatusCode,
 } from '@sofie-automation/blueprints-integration'
-import { ProcessedShowStyleCompound } from '../jobs'
+import { ProcessedShowStyleCompound } from '../jobs/index.js'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
 import { getRandomId, literal, normalizeArray } from '@sofie-automation/corelib/dist/lib'
-import _ = require('underscore')
-import { defaultRundownPlaylist } from './defaultCollectionObjects'
+import _ from 'underscore'
+import { defaultRundownPlaylist } from './defaultCollectionObjects.js'
 import {
 	PeripheralDeviceCategory,
 	PeripheralDeviceType,
@@ -32,12 +32,12 @@ import {
 	PeripheralDeviceSubType,
 	PERIPHERAL_SUBTYPE_PROCESS,
 } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
-import { createShowStyleCompound } from '../showStyles'
+import { createShowStyleCompound } from '../showStyles.js'
 import { ReadonlyDeep } from 'type-fest'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import { processShowStyleBase, processShowStyleVariant } from '../jobs/showStyle'
+import { processShowStyleBase, processShowStyleVariant } from '../jobs/showStyle.js'
 import { JSONBlobStringify } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
-import { MockJobContext } from './context'
+import { MockJobContext } from './context.js'
 
 export enum LAYER_IDS {
 	SOURCE_CAM0 = 'cam0',
@@ -72,7 +72,6 @@ export async function setupMockShowStyleBase(
 	const defaultShowStyleBase: DBShowStyleBase = {
 		_id: protectString('mockShowStyleBase' + dbI),
 		name: 'mockShowStyleBase',
-		organizationId: null,
 		outputLayersWithOverrides: wrapDefaultObject(
 			normalizeArray(
 				[
@@ -188,7 +187,6 @@ export async function setupDefaultRundown(
 	const sourceLayerIds = Object.keys(showStyleCompound.sourceLayers)
 
 	await context.mockCollections.Rundowns.insertOne({
-		organizationId: null,
 		studioId: context.studioId,
 		showStyleBaseId: showStyleCompound._id,
 		showStyleVariantId: showStyleCompound.showStyleVariantId,
@@ -419,7 +417,6 @@ export async function setupMockPeripheralDevice(
 		_id: protectString('mockDevice' + dbI),
 		name: 'mockDevice',
 		deviceName: 'Mock Gateway',
-		organizationId: null,
 		studioAndConfigId: {
 			studioId: context.studioId,
 			configId: 'test',

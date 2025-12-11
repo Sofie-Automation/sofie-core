@@ -1,21 +1,17 @@
-import { useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data'
-import * as _ from 'underscore'
-import { omit, unprotectString } from '../../lib/tempLib'
+import { useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
+import _ from 'underscore'
+import { omit } from '@sofie-automation/corelib/dist/lib'
+import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { makeTableOfObject } from '../../lib/utilComponents'
-import { StudioSelect } from './StudioSelect'
+import { makeTableOfObject } from '../../lib/utilComponents.js'
+import { StudioSelect } from './StudioSelect.js'
 import { MappingExt } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { LookaheadMode, TSR } from '@sofie-automation/blueprints-integration'
-import { createSyncPeripheralDeviceCustomPublicationMongoCollection } from '../../collections/lib'
 import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { PeripheralDevicePubSubCollectionsNames } from '@sofie-automation/shared-lib/dist/pubsub/peripheralDevice'
 import { useTranslation } from 'react-i18next'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
-
-const StudioMappings = createSyncPeripheralDeviceCustomPublicationMongoCollection(
-	PeripheralDevicePubSubCollectionsNames.studioMappings
-)
+import { StudioMappings } from './collections'
 
 interface IMappingsViewProps {
 	match?: {

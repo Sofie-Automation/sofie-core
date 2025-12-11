@@ -1,0 +1,7 @@
+description: Topic for server heartbeat messages
+subscribe:
+  operationId: receiveHeartbeat
+  description: Server sends heartbeat messages when no other communication is happening.
+  message:
+    oneOf:
+      - $ref: '../../components/connection/messages/heartbeatMessage.yaml#/components/messages/heartbeatMessage'

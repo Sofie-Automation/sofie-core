@@ -1,5 +1,5 @@
 import { ISourceLayer, IOutputLayer } from '@sofie-automation/shared-lib/dist/core/model/ShowStyle'
-import { IBlueprintConfig } from './common'
+import { IBlueprintConfig } from './common.js'
 
 export interface IBlueprintShowStyleBase {
 	_id: string

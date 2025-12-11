@@ -28,7 +28,7 @@ export async function getExpiredRemovedPackageInfos(): Promise<PackageInfoDB['_i
 			removeTime: { $lte: getCurrentTime() },
 		},
 		{
-			fields: {
+			projection: {
 				_id: 1,
 			},
 		}
@@ -38,7 +38,7 @@ export async function getExpiredRemovedPackageInfos(): Promise<PackageInfoDB['_i
 
 /** Returns a list of PackageInfos which are missing their parent ExpectedPackage */
 export async function getOrphanedPackageInfos(): Promise<PackageInfoDB['_id'][]> {
-	const knownExpectedPackageIds = (await ExpectedPackages.findFetchAsync({}, { fields: { _id: 1 } })).map(
+	const knownExpectedPackageIds = (await ExpectedPackages.findFetchAsync({}, { projection: { _id: 1 } })).map(
 		(pkg) => pkg._id
 	)
 
@@ -49,7 +49,7 @@ export async function getOrphanedPackageInfos(): Promise<PackageInfoDB['_id'][]>
 			removeTime: { $exists: false },
 		},
 		{
-			fields: {
+			projection: {
 				_id: 1,
 			},
 		}
@@ -90,7 +90,7 @@ export async function getStudioIdFromDevice(peripheralDevice: PeripheralDevice):
 	if (peripheralDevice.parentDeviceId) {
 		// Also check the parent device:
 		const parentDevice = (await PeripheralDevices.findOneAsync(peripheralDevice.parentDeviceId, {
-			fields: {
+			projection: {
 				_id: 1,
 				studioAndConfigId: 1,
 			},

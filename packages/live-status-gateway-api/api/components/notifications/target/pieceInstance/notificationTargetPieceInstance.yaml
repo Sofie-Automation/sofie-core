@@ -1,0 +1,20 @@
+$defs:
+  NotificationTargetPieceInstance:
+    type: object
+    title: NotificationTargetPieceInstance
+    required: [type, studioId, rundownId, partInstanceId, pieceInstanceId]
+    properties:
+      type:
+        $ref: '../notificationTargetType.yaml#/$defs/NotificationTargetType'
+        const: pieceInstance
+      studioId:
+        type: string
+      rundownId:
+        type: string
+      partInstanceId:
+        type: string
+      pieceInstanceId:
+        type: string
+    additionalProperties: false
+    examples:
+      - $ref: './notificationTargetPieceInstance-example.yaml'

@@ -1,4 +1,4 @@
-import { DDPClient, DDPConnectorOptions } from '../../index'
+import { DDPClient, DDPConnectorOptions } from '../../index.js'
 jest.mock('faye-websocket')
 
 const wait = async (t: number): Promise<void> =>

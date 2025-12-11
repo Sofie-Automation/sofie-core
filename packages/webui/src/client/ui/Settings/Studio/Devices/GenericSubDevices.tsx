@@ -6,19 +6,19 @@ import {
 	WrappedOverridableItem,
 	WrappedOverridableItemDeleted,
 	WrappedOverridableItemNormal,
-} from '../../util/OverrideOpHelper'
+} from '../../util/OverrideOpHelper.js'
 import { faCheck, faPencilAlt, faSync, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { JSONBlob, JSONBlobParse, JSONSchema } from '@sofie-automation/blueprints-integration'
-import { DropdownInputControl, DropdownInputOption } from '../../../../lib/Components/DropdownInput'
-import { useToggleExpandHelper } from '../../../util/useToggleExpandHelper'
-import { doModalDialog } from '../../../../lib/ModalDialog'
+import { DropdownInputControl, DropdownInputOption } from '../../../../lib/Components/DropdownInput.js'
+import { useToggleExpandHelper } from '../../../util/useToggleExpandHelper.js'
+import { doModalDialog } from '../../../../lib/ModalDialog.js'
 import classNames from 'classnames'
 import { SubdeviceManifest } from '@sofie-automation/corelib/dist/deviceConfig'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { TextInputControl } from '../../../../lib/Components/TextInput'
-import { SchemaFormWithOverrides } from '../../../../lib/forms/SchemaFormWithOverrides'
-import { LabelActual, LabelAndOverridesForDropdown } from '../../../../lib/Components/LabelAndOverrides'
+import { TextInputControl } from '../../../../lib/Components/TextInput.js'
+import { SchemaFormWithOverrides } from '../../../../lib/forms/SchemaFormWithOverrides.js'
+import { LabelActual, LabelAndOverridesForDropdown } from '../../../../lib/Components/LabelAndOverrides.js'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 
@@ -50,9 +50,9 @@ export function GenericSubDevicesTable({
 				device._id,
 				literal<PeripheralDeviceTranslated>({
 					_id: device._id,
-					name: device.name || unprotectString(device._id),
-					subdeviceConfigSchema: device.configManifest.subdeviceConfigSchema,
-					subdeviceManifest: device.configManifest.subdeviceManifest,
+					name: device.studioAndConfigId?.configId || device.name || unprotectString(device._id),
+					subdeviceConfigSchema: device.configManifest?.subdeviceConfigSchema,
+					subdeviceManifest: device.configManifest?.subdeviceManifest ?? {},
 				})
 			)
 		}
@@ -115,7 +115,7 @@ export function GenericSubDevicesTable({
 			<thead>
 				<tr className="hl">
 					<th key="ID">ID</th>
-					<th key="Parent">{t('Parent')}</th>
+					<th key="Parent">{t('Parent Config ID')}</th>
 					<th key="Type">{t('Type')}</th>
 					<th key="action">&nbsp;</th>
 				</tr>
@@ -182,7 +182,7 @@ function SummaryRow({
 	const removeItem = useCallback(() => removeItemWithId(item.id), [removeItemWithId, item.id])
 
 	const deviceType = peripheralDevice
-		? peripheralDevice.subdeviceManifest?.[item.computed.options.type]?.displayName ?? '-'
+		? (peripheralDevice.subdeviceManifest?.[item.computed.options.type]?.displayName ?? '-')
 		: '-'
 
 	return (
@@ -224,7 +224,7 @@ function DeletedSummaryRow({
 	const undeleteItem = useCallback(() => undeleteItemWithId(item.id), [undeleteItemWithId, item.id])
 
 	const deviceType = peripheralDevice
-		? peripheralDevice.subdeviceManifest[item.defaults.options.type]?.displayName ?? '-'
+		? (peripheralDevice.subdeviceManifest[item.defaults.options.type]?.displayName ?? '-')
 		: '-'
 
 	return (
@@ -282,7 +282,7 @@ function SubDeviceEditRow({
 			<td colSpan={99}>
 				<div className="properties-grid">
 					<LabelAndOverridesForDropdown
-						label={t('Peripheral Device ID')}
+						label={t('Parent Config ID')}
 						item={item}
 						overrideHelper={overrideHelper}
 						itemKey={'peripheralDeviceId'}

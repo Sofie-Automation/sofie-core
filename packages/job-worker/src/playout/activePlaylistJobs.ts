@@ -6,16 +6,15 @@ import {
 	PrepareRundownForBroadcastProps,
 	ResetRundownPlaylistProps,
 } from '@sofie-automation/corelib/dist/worker/studio'
-import { JobContext } from '../jobs'
-import { runJobWithPlayoutModel } from './lock'
-import { resetRundownPlaylist } from './lib'
-import { updateTimeline } from './timeline/generate'
-import { getActiveRundownPlaylistsInStudioFromDb } from '../studio/lib'
+import { JobContext } from '../jobs/index.js'
+import { runJobWithPlayoutModel } from './lock.js'
+import { resetRundownPlaylist } from './lib.js'
+import { getActiveRundownPlaylistsInStudioFromDb } from '../studio/lib.js'
 import {
 	activateRundownPlaylist,
 	deactivateRundownPlaylist,
 	deactivateRundownPlaylistInner,
-} from './activePlaylistActions'
+} from './activePlaylistActions.js'
 import { ReadonlyDeep } from 'type-fest'
 
 async function checkNoOtherPlaylistsActive(
@@ -53,9 +52,7 @@ export async function handlePrepareRundownPlaylistForBroadcast(
 			await checkNoOtherPlaylistsActive(context, playlist)
 		},
 		async (playoutModel) => {
-			await resetRundownPlaylist(context, playoutModel)
-
-			await activateRundownPlaylist(context, playoutModel, true) // Activate rundownPlaylist (rehearsal)
+			await activateRundownPlaylist(context, playoutModel, true, true) // Activate rundownPlaylist (rehearsal)
 		}
 	)
 }
@@ -110,14 +107,16 @@ export async function handleResetRundownPlaylist(context: JobContext, data: Rese
 			}
 		},
 		async (playoutModel) => {
-			await resetRundownPlaylist(context, playoutModel)
+			if (playoutModel.playlist.activationId || data.activate !== undefined) {
+				const goToRehearsal =
+					data.activate === undefined
+						? (playoutModel.playlist.rehearsal ?? false)
+						: data.activate === 'rehearsal'
 
-			if (data.activate) {
-				// Do the activation
-				await activateRundownPlaylist(context, playoutModel, data.activate !== 'active') // Activate rundown
-			} else if (playoutModel.playlist.activationId) {
-				// Only update the timeline if this is the active playlist
-				await updateTimeline(context, playoutModel)
+				await activateRundownPlaylist(context, playoutModel, goToRehearsal, true) // Activate rundown
+			} else {
+				// If the Playlist is inactive, and we are not activating it, just reset it:
+				await resetRundownPlaylist(context, playoutModel)
 			}
 		}
 	)

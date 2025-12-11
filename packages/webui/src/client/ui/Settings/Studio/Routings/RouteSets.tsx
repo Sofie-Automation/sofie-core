@@ -10,26 +10,26 @@ import {
 	MappingExt,
 	DBStudio,
 } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { doModalDialog } from '../../../../lib/ModalDialog'
+import { doModalDialog } from '../../../../lib/ModalDialog.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash, faPencilAlt, faCheck, faPlus, faSync } from '@fortawesome/free-solid-svg-icons'
 import { useTranslation } from 'react-i18next'
 import { TSR } from '@sofie-automation/blueprints-integration'
 import { ReadonlyDeep } from 'type-fest'
-import { MappingsSettingsManifest, MappingsSettingsManifests } from '../Mappings'
+import { MappingsSettingsManifest, MappingsSettingsManifests } from '../Mappings.js'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import {
 	DropdownInputControl,
 	DropdownInputOption,
 	getDropdownInputOptions,
-} from '../../../../lib/Components/DropdownInput'
+} from '../../../../lib/Components/DropdownInput.js'
 import { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
 import {
 	LabelActual,
 	LabelAndOverrides,
 	LabelAndOverridesForCheckbox,
 	LabelAndOverridesForDropdown,
-} from '../../../../lib/Components/LabelAndOverrides'
+} from '../../../../lib/Components/LabelAndOverrides.js'
 import {
 	OverrideOpHelper,
 	OverrideOpHelperForItemContents,
@@ -37,20 +37,20 @@ import {
 	WrappedOverridableItem,
 	WrappedOverridableItemDeleted,
 	WrappedOverridableItemNormal,
-} from '../../util/OverrideOpHelper'
-import { TextInputControl } from '../../../../lib/Components/TextInput'
-import { CheckboxControl } from '../../../../lib/Components/Checkbox'
-import { OverrideOpHelperArrayTable } from '../../../../lib/forms/SchemaFormTable/ArrayTableOpHelper'
-import { hasOpWithPath } from '../../../../lib/Components/util'
-import { SchemaFormWithOverrides } from '../../../../lib/forms/SchemaFormWithOverrides'
+} from '../../util/OverrideOpHelper.js'
+import { TextInputControl } from '../../../../lib/Components/TextInput.js'
+import { CheckboxControl } from '../../../../lib/Components/Checkbox.js'
+import { OverrideOpHelperArrayTable } from '../../../../lib/forms/SchemaFormTable/ArrayTableOpHelper.js'
+import { hasOpWithPath } from '../../../../lib/Components/util.js'
+import { SchemaFormWithOverrides } from '../../../../lib/forms/SchemaFormWithOverrides.js'
 import {
 	applyAndValidateOverrides,
 	ObjectOverrideSetOp,
 	SomeObjectOverrideOp,
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import { Studios } from '../../../../collections'
-import { useToggleExpandHelper } from '../../../util/useToggleExpandHelper'
-import { RouteSetAbPlayers } from './RouteSetAbPlayers'
+import { Studios } from '../../../../collections/index.js'
+import { useToggleExpandHelper } from '../../../util/useToggleExpandHelper.js'
+import { RouteSetAbPlayers } from './RouteSetAbPlayers.js'
 import Button from 'react-bootstrap/esm/Button'
 
 interface RouteSetsTable {
@@ -370,8 +370,7 @@ function RouteSetRow({
 									title="Reset to default"
 									disabled={!routesIsOverridden}
 								>
-									{t('Reset')}
-									&nbsp;
+									<span>{t('Reset')}</span>
 									<FontAwesomeIcon icon={faSync} />
 								</Button>
 							)}
@@ -389,8 +388,7 @@ function RouteSetRow({
 									title="Reset to default"
 									disabled={!abPlayerIsOverridden}
 								>
-									{t('Reset')}
-									&nbsp;
+									<span>{t('Reset')}</span>
 									<FontAwesomeIcon icon={faSync} />
 								</Button>
 							)}
@@ -531,8 +529,8 @@ function RenderRoutesRow({
 		rawRoute.routeType === StudioRouteType.REMAP
 			? rawRoute.deviceType
 			: rawRoute.mappedLayer
-			? deviceTypeFromMappedLayer
-			: rawRoute.deviceType
+				? deviceTypeFromMappedLayer
+				: rawRoute.deviceType
 
 	const routeMappingSchema = manifest[(routeDeviceType ?? rawRoute.remapping?.device) as TSR.DeviceType]
 

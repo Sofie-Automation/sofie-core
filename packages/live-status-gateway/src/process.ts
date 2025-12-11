@@ -1,6 +1,6 @@
 import { Logger } from 'winston'
 import * as fs from 'fs'
-import { ProcessConfig } from './connector'
+import { ProcessConfig } from './connector.js'
 
 export class Process {
 	logger: Logger

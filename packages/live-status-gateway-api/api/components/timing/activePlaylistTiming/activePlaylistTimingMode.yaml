@@ -1,0 +1,7 @@
+type: string
+title: ActivePlaylistTimingMode
+description: Timing mode for the playlist.
+enum:
+  - none
+  - forward-time
+  - back-time

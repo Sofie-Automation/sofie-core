@@ -12,6 +12,7 @@ import {
 	NrcsIngestPartChangeDetails,
 	IngestPart,
 	MutableIngestPart,
+	IngestChangeType,
 } from '@sofie-automation/blueprints-integration'
 import { assertNever, normalizeArrayToMap } from '@sofie-automation/corelib/dist/lib'
 import { ReadonlyDeep } from 'type-fest'
@@ -29,7 +30,7 @@ export function defaultApplyIngestChanges<TRundownPayload, TSegmentPayload, TPar
 	ingestChanges: NrcsIngestChangeDetails,
 	options: IngestDefaultChangesOptions<TRundownPayload, TSegmentPayload, TPartPayload>
 ): void {
-	if (ingestChanges.source !== 'ingest')
+	if (ingestChanges.source !== IngestChangeType.Ingest)
 		throw new Error(`Changes passed to defaultApplyIngestChanges must be from ingest source`)
 
 	const payloadTransformers = new PayloadTransformers(options, mutableIngestRundown)
@@ -186,7 +187,7 @@ function applyAllSegmentChanges<TRundownPayload, TSegmentPayload, TPartPayload>(
 	segmentsToInsert.sort((a, b) => nrcsSegmentIds.indexOf(b.externalId) - nrcsSegmentIds.indexOf(a.externalId))
 	for (const nrcsSegment of segmentsToInsert) {
 		const segmentIndex = nrcsSegmentIds.indexOf(nrcsSegment.externalId)
-		const beforeSegmentId = segmentIndex !== -1 ? nrcsSegmentIds[segmentIndex + 1] ?? null : null
+		const beforeSegmentId = segmentIndex !== -1 ? (nrcsSegmentIds[segmentIndex + 1] ?? null) : null
 
 		mutableIngestRundown.replaceSegment(
 			payloadTransformers.transformPayloadsOnSegmentAndParts(
@@ -274,7 +275,7 @@ function applyChangesObjectForSingleSegment<TRundownPayload, TSegmentPayload, TP
 		partsToInsert.sort((a, b) => nrcsPartIds.indexOf(b.externalId) - nrcsPartIds.indexOf(a.externalId))
 		for (const nrcsPart of partsToInsert) {
 			const partIndex = nrcsPartIds.indexOf(nrcsPart.externalId)
-			const beforePartId = partIndex !== -1 ? nrcsPartIds[partIndex + 1] ?? null : null
+			const beforePartId = partIndex !== -1 ? (nrcsPartIds[partIndex + 1] ?? null) : null
 
 			mutableSegment.replacePart(
 				payloadTransformers.transformPayloadOnPart(nrcsPart, mutableSegment.getPart(nrcsPart.externalId)),

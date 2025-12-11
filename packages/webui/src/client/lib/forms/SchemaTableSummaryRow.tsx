@@ -3,8 +3,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { objectPathGet } from '@sofie-automation/corelib/dist/lib'
 import classNames from 'classnames'
 import { useCallback } from 'react'
-import { SchemaSummaryField } from './schemaFormUtil'
-import { WrappedOverridableItemNormal } from '../../ui/Settings/util/OverrideOpHelper'
+import { SchemaSummaryField } from './schemaFormUtil.js'
+import { WrappedOverridableItemNormal } from '../../ui/Settings/util/OverrideOpHelper.js'
 import { useTranslation } from 'react-i18next'
 
 interface SchemaTableSummaryRowProps<T extends string | number> {

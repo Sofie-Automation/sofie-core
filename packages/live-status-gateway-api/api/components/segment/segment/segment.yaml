@@ -1,0 +1,26 @@
+$defs:
+  segment:
+    type: object
+    title: Segment
+    allOf:
+      - $ref: '../segmentBase/segmentBase.yaml#/$defs/segmentBase'
+      - type: object
+        title: Segment
+        properties:
+          identifier:
+            description: User-facing identifier that can be used to identify the contents of a segment in the Rundown source system
+            type: string
+          rundownId:
+            description: Unique id of the rundown this segment belongs to
+            type: string
+          name:
+            description: Name of the segment
+            type: string
+          timing:
+            $ref: '../../timing/segmentTiming/segmentTiming.yaml#/$defs/segmentTiming'
+          publicData:
+            description: Optional arbitrary data
+        required: [rundownId, name, timing]
+    required: [id, rundownId, name, timing]
+    examples:
+      - $ref: './segment-example.yaml'

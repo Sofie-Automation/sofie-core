@@ -1,0 +1,19 @@
+title: Segment Timing
+description: Timing information for a segment
+$defs:
+  segmentTiming:
+    type: object
+    title: SegmentTiming
+    properties:
+      expectedDurationMs:
+        description: Expected duration of the segment (milliseconds)
+        type: number
+      budgetDurationMs:
+        description: Budget duration of the segment (milliseconds)
+        type: number
+      countdownType:
+        description: 'Countdown type within the segment. Default: `part_expected_duration`'
+        $ref: '../segmentCountdownType.yaml'
+    required: [expectedDurationMs]
+    examples:
+      - ref: './segmentTiming-example.yaml'

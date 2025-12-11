@@ -24,25 +24,25 @@ import {
 	IBlueprintRundown,
 	NoteSeverity,
 } from '@sofie-automation/blueprints-integration'
-import { JobContext, JobStudio } from './jobs'
-import { logger } from './logging'
-import { resetRundownPlaylist } from './playout/lib'
-import { runJobWithPlaylistLock, runWithPlayoutModel } from './playout/lock'
-import { updateTimeline } from './playout/timeline/generate'
-import { WrappedStudioBlueprint } from './blueprints/cache'
-import { StudioUserContext } from './blueprints/context'
-import { getCurrentTime } from './lib'
+import { JobContext, JobStudio } from './jobs/index.js'
+import { logger } from './logging.js'
+import { resetRundownPlaylist } from './playout/lib.js'
+import { runJobWithPlaylistLock, runWithPlayoutModel } from './playout/lock.js'
+import { updateTimeline } from './playout/timeline/generate.js'
+import { WrappedStudioBlueprint } from './blueprints/cache.js'
+import { StudioUserContext } from './blueprints/context/index.js'
+import { getCurrentTime } from './lib/index.js'
 import {
 	regeneratePlaylistAndRundownOrder,
 	removeRundownFromPlaylistAndUpdatePlaylist,
 	updatePlayoutAfterChangingRundownInPlaylist,
-} from './ingest/commit'
-import { allowedToMoveRundownOutOfPlaylist } from './rundown'
+} from './ingest/commit.js'
+import { allowedToMoveRundownOutOfPlaylist } from './rundown.js'
 import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
 import { UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/error'
-import { PlaylistLock, RundownLock } from './jobs/lock'
-import { runWithRundownLock } from './ingest/lock'
-import { convertRundownToBlueprints } from './blueprints/context/lib'
+import { PlaylistLock, RundownLock } from './jobs/lock.js'
+import { runWithRundownLock } from './ingest/lock.js'
+import { convertRundownToBlueprints } from './blueprints/context/lib.js'
 import { sortRundownIDsInPlaylist } from '@sofie-automation/corelib/dist/playout/playlist'
 import { INoteBase } from '@sofie-automation/corelib/dist/dataModel/Notes'
 
@@ -155,7 +155,6 @@ export async function removeRundownFromDb(context: JobContext, lock: RundownLock
 		context.directCollections.Rundowns.remove({ _id: rundownId }),
 		context.directCollections.AdLibActions.remove({ rundownId: rundownId }),
 		context.directCollections.AdLibPieces.remove({ rundownId: rundownId }),
-		context.directCollections.ExpectedMediaItems.remove({ rundownId: rundownId }),
 		context.directCollections.ExpectedPlayoutItems.remove({ rundownId: rundownId }),
 		context.directCollections.ExpectedPackages.remove({ rundownId: rundownId }),
 		context.directCollections.SofieIngestDataCache.remove({ rundownId: rundownId }),
@@ -242,7 +241,6 @@ export function produceRundownPlaylistInfoFromRundown(
 
 			_id: playlistId,
 			externalId: playlistExternalId,
-			organizationId: context.studio.organizationId,
 			studioId: context.studioId,
 			name: playlistInfo.playlist.name,
 			timing: playlistInfo.playlist.timing,
@@ -337,7 +335,6 @@ function defaultPlaylistForRundown(
 
 		...clone<DBRundownPlaylist | undefined>(existingPlaylist),
 
-		organizationId: studio.organizationId,
 		studioId: studio._id,
 		name: rundown.name,
 		timing: rundown.timing,
@@ -490,7 +487,13 @@ export async function handleMoveRundownIntoPlaylist(
 					}
 
 					// If the playlist is active this could have changed lookahead
-					await updatePlayoutAfterChangingRundownInPlaylist(context, newPlaylist, intoPlaylistLock, rundown)
+					await updatePlayoutAfterChangingRundownInPlaylist(
+						context,
+						newPlaylist,
+						intoPlaylistLock,
+						rundown,
+						null
+					)
 				}
 			)
 		} else {
@@ -540,7 +543,7 @@ export async function handleRestoreRundownsInPlaylistToDefaultOrder(
 
 			if (updatedPlaylist) {
 				// If the playlist is active this could have changed lookahead
-				await updatePlayoutAfterChangingRundownInPlaylist(context, updatedPlaylist, playlistLock, null)
+				await updatePlayoutAfterChangingRundownInPlaylist(context, updatedPlaylist, playlistLock, null, null)
 			}
 		}
 	})

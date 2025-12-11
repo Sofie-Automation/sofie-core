@@ -3,7 +3,7 @@ import { CustomCollectionName as CustomCorelibCollectionName } from '@sofie-auto
 import {
 	createSyncCorelibCustomPublicationMongoCollection,
 	createSyncCustomPublicationMongoCollection,
-} from '../collections/lib'
+} from '../collections/lib.js'
 
 /**
  * A playout UI version of ShowStyleBases.
@@ -31,7 +31,7 @@ export const DeviceTriggersPreviews = createSyncCustomPublicationMongoCollection
 )
 
 /**
- * Pre-generated notes to be converted into notificiations.
+ * Pre-generated notes to be converted into notifications.
  */
 export const UISegmentPartNotes = createSyncCustomPublicationMongoCollection(CustomCollectionName.UISegmentPartNotes)
 

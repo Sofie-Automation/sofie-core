@@ -1,9 +1,9 @@
 import * as React from 'react'
 import { useTranslation, TFunction } from 'react-i18next'
-import { assertNever } from '../../lib/tempLib'
+import { assertNever } from '@sofie-automation/corelib/dist/lib'
 import ClassNames from 'classnames'
 import { StatusCode } from '@sofie-automation/blueprints-integration'
-import {} from './SystemStatus/SystemStatus'
+import {} from './SystemStatus/SystemStatus.js'
 
 export function statusCodeToString(t: TFunction, statusCode: StatusCode): string {
 	switch (statusCode) {
@@ -29,7 +29,7 @@ export const StatusCodePill: React.FC<{
 	connected: boolean
 	statusCode: StatusCode
 	messages?: string[]
-}> = function ExpectedPackagesStatus(props) {
+}> = function StatusCodePill(props) {
 	const { t } = useTranslation()
 
 	function statusCodeString() {

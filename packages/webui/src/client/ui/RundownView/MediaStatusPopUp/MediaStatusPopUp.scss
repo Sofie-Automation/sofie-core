@@ -5,6 +5,8 @@
 	overflow-y: auto;
 	overscroll-behavior: contain;
 	position: relative;
+
+	scrollbar-color: var(--org-color-gray-500) var(--panel-background);
 }
 
 .media-status-panel__table {
@@ -27,15 +29,15 @@
 	left: auto;
 	opacity: 0.5;
 	visibility: visible;
-	transition: opacity 200ms, visibility 0ms 0ms;
+	transition:
+		opacity 200ms,
+		visibility 0ms 0ms;
+
+	> a {
+		color: var(--org-color-gray-500);
+	}
 
 	&:hover {
 		opacity: 1;
 	}
-}
-
-.media-status-panel.velocity-animating .media-status-panel__pop-out {
-	opacity: 0;
-	visibility: hidden;
-	transition: opacity 200ms, visibility 0ms 200ms;
 }

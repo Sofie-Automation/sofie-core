@@ -1,7 +1,7 @@
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { Meteor } from 'meteor/meteor'
 import { Simplify } from 'type-fest'
-import { assertNever } from '../../lib/tempLib'
+import { assertNever } from '@sofie-automation/corelib/dist/lib'
 import { logger } from '../../logging'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { MinimalMongoCursor } from '../../collections/implementations/asyncCollection'
@@ -25,7 +25,7 @@ type Link<T> = {
 	end: (complete: (state: T | null) => void) => Meteor.LiveQueryHandle
 }
 
-export function observerChain(): Pick<Link<{}>, 'next'> {
+export function observerChain(): Pick<Link<unknown>, 'next'> {
 	function createNextLink(baseCollectorObject: Record<string, any>, liveQueryHandle: Meteor.LiveQueryHandle) {
 		let mode: 'next' | 'end' | undefined
 		let chainedCursor: (state: Record<string, any>) => Promise<MinimalMongoCursor<any> | null>

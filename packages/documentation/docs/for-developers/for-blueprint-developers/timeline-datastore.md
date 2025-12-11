@@ -1,6 +1,6 @@
 # Timeline Datastore
 
-The timeline datastore is a key-value store that can be used in conjuction with the timeline. The benefit of modifying values in the datastore is that the timings in the timeline are not modified so we can skip a lot of complicated calculations which reduces the system response time. An example usecase of the datastore feature is a fastpath for cutting cameras.
+The timeline datastore is a key-value store that can be used in conjunction with the timeline. The benefit of modifying values in the datastore is that the timings in the timeline are not modified so we can skip a lot of complicated calculations which reduces the system response time. An example usecase of the datastore feature is a fastpath for cutting cameras.
 
 ## API
 

@@ -1,6 +1,6 @@
 import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { useCurrentTime } from '../../lib/lib'
+import { useCurrentTime } from '../../lib/lib.js'
 
 export function ActiveProgressBar({
 	rundownPlaylist,

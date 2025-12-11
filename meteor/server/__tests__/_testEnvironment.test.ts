@@ -1,18 +1,16 @@
 import { RandomMock } from '../../__mocks__/random'
 import { MongoMock } from '../../__mocks__/mongo'
-import { protectString, getRandomString } from '../lib/tempLib'
+import { getRandomString } from '@sofie-automation/corelib/dist/lib'
+import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { sleep } from '../lib/lib'
 import {
 	AdLibPieces,
 	Blueprints,
 	CoreSystem,
 	Evaluations,
-	ExpectedMediaItems,
 	ExternalMessageQueue,
 	NrcsIngestDataCache,
 	MediaObjects,
-	MediaWorkFlows,
-	MediaWorkFlowSteps,
 	Parts,
 	PeripheralDeviceCommands,
 	PeripheralDevices,
@@ -48,17 +46,11 @@ describe('Basic test of test environment', () => {
 		// @ts-ignore
 		expect(Evaluations._isMock).toBeTruthy()
 		// @ts-ignore
-		expect(ExpectedMediaItems._isMock).toBeTruthy()
-		// @ts-ignore
 		expect(ExternalMessageQueue._isMock).toBeTruthy()
 		// @ts-ignore
 		expect(NrcsIngestDataCache._isMock).toBeTruthy()
 		// @ts-ignore
 		expect(MediaObjects._isMock).toBeTruthy()
-		// @ts-ignore
-		expect(MediaWorkFlows._isMock).toBeTruthy()
-		// @ts-ignore
-		expect(MediaWorkFlowSteps._isMock).toBeTruthy()
 		// @ts-ignore
 		expect(Parts._isMock).toBeTruthy()
 		// @ts-ignore

@@ -1,13 +1,13 @@
-import * as _ from 'underscore'
+import _ from 'underscore'
 import { ReadonlyDeep } from 'type-fest'
-import fastClone = require('fast-clone')
-import { ProtectedString, protectString } from './protectedString'
+import fastClone from 'fast-clone'
+import { ProtectedString, protectString } from './protectedString.js'
 import * as objectPath from 'object-path'
 import { Timecode } from 'timecode'
 import { iterateDeeply, iterateDeeplyEnum, Time } from '@sofie-automation/blueprints-integration'
-import { IStudioSettings } from './dataModel/Studio'
+import { IStudioSettings } from './dataModel/Studio.js'
 import { customAlphabet as createNanoid } from 'nanoid'
-import type { ITranslatableMessage } from './TranslatableMessage'
+import type { ITranslatableMessage } from './TranslatableMessage.js'
 import { ReadonlyObjectDeep } from 'type-fest/source/readonly-deep'
 
 /**
@@ -21,7 +21,7 @@ const UNMISTAKABLE_CHARS = '23456789ABCDEFGHJKLMNPQRSTWXYZabcdefghijkmnopqrstuvw
 // The probability for a collision is around 1.5e-6 in a set of 1e12 items
 const nanoid = createNanoid(UNMISTAKABLE_CHARS, 17)
 
-export * from './hash'
+export * from './hash.js'
 
 export type { Complete, ArrayElement, Subtract } from '@sofie-automation/shared-lib/dist/lib/types'
 export { assertNever, literal } from '@sofie-automation/shared-lib/dist/lib/lib'
@@ -41,7 +41,7 @@ export function flatten<T>(vals: Array<T[] | undefined>): T[] {
 	return _.flatten(
 		vals.filter((v) => v !== undefined),
 		true
-	) as T[]
+	)
 }
 
 export function max<T>(vals: T[], iterator: _.ListIterator<T, any>): T | undefined {
@@ -334,34 +334,6 @@ function objectOrRank<T extends { _rank: number }>(obj: T | number): number {
 	} else {
 		return obj._rank
 	}
-}
-
-export interface ManualPromise<T> extends Promise<T> {
-	isResolved: boolean
-	manualResolve(res: T): void
-	manualReject(e: Error): void
-}
-// eslint-disable-next-line @typescript-eslint/promise-function-async
-export function createManualPromise<T>(): ManualPromise<T> {
-	let resolve: (val: T) => void = () => null
-	let reject: (err: Error) => void = () => null
-	const promise = new Promise<T>((resolve0, reject0) => {
-		resolve = resolve0
-		reject = reject0
-	})
-
-	const manualPromise: ManualPromise<T> = promise as any
-	manualPromise.isResolved = false
-	manualPromise.manualReject = (err) => {
-		manualPromise.isResolved = true
-		return reject(err)
-	}
-	manualPromise.manualResolve = (val) => {
-		manualPromise.isResolved = true
-		return resolve(val)
-	}
-
-	return manualPromise
 }
 
 export function formatDateAsTimecode(settings: ReadonlyDeep<Pick<IStudioSettings, 'frameRate'>>, date: Date): string {

@@ -1,7 +1,13 @@
-import { ActivePlaylistStatus, ActivePlaylistTopic } from '../activePlaylistTopic'
-import { makeMockHandlers, makeMockLogger, makeMockSubscriber, makeTestPlaylist, makeTestShowStyleBase } from './utils'
-import { ShowStyleBaseExt } from '../../collections/showStyleBaseHandler'
-import { SelectedPartInstances } from '../../collections/partInstancesHandler'
+import { ActivePlaylistTopic } from '../activePlaylistTopic.js'
+import {
+	makeMockHandlers,
+	makeMockLogger,
+	makeMockSubscriber,
+	makeTestPlaylist,
+	makeTestShowStyleBase,
+} from './utils.js'
+import { ShowStyleBaseExt } from '../../collections/showStyleBaseHandler.js'
+import { SelectedPartInstances } from '../../collections/partInstancesHandler.js'
 import { protectString, unprotectString, unprotectStringArray } from '@sofie-automation/server-core-integration/dist'
 import { PartialDeep } from 'type-fest'
 import { literal } from '@sofie-automation/corelib/dist/lib'
@@ -9,7 +15,11 @@ import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartIns
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { CountdownType } from '@sofie-automation/blueprints-integration'
-import { PlaylistTimingType } from '@sofie-automation/blueprints-integration'
+import {
+	ActivePlaylistEvent,
+	ActivePlaylistTimingMode,
+	SegmentCountdownType,
+} from '@sofie-automation/live-status-gateway-api'
 
 function makeEmptyTestPartInstances(): SelectedPartInstances {
 	return {
@@ -39,17 +49,18 @@ describe('ActivePlaylistTopic', () => {
 
 		topic.addSubscriber(mockSubscriber)
 
-		const expectedStatus: ActivePlaylistStatus = {
+		const expectedStatus: ActivePlaylistEvent = {
 			event: 'activePlaylist',
 			name: playlist.name,
 			id: unprotectString(playlist._id),
+			externalId: 'NCS_PLAYLIST_1',
 			currentPart: null,
 			nextPart: null,
 			currentSegment: null,
 			rundownIds: unprotectStringArray(playlist.rundownIdsInOrder),
 			publicData: undefined,
 			timing: {
-				timingMode: PlaylistTimingType.None,
+				timingMode: ActivePlaylistTimingMode.NONE,
 			},
 			quickLoop: undefined,
 		}
@@ -115,10 +126,11 @@ describe('ActivePlaylistTopic', () => {
 
 		topic.addSubscriber(mockSubscriber)
 
-		const expectedStatus: ActivePlaylistStatus = {
+		const expectedStatus: ActivePlaylistEvent = {
 			event: 'activePlaylist',
 			name: playlist.name,
 			id: unprotectString(playlist._id),
+			externalId: 'NCS_PLAYLIST_1',
 			currentPart: {
 				id: 'PART_1',
 				name: 'Test Part',
@@ -149,7 +161,7 @@ describe('ActivePlaylistTopic', () => {
 			rundownIds: unprotectStringArray(playlist.rundownIdsInOrder),
 			publicData: { a: 'b' },
 			timing: {
-				timingMode: PlaylistTimingType.None,
+				timingMode: ActivePlaylistTimingMode.NONE,
 			},
 			quickLoop: undefined,
 		}
@@ -218,10 +230,11 @@ describe('ActivePlaylistTopic', () => {
 
 		topic.addSubscriber(mockSubscriber)
 
-		const expectedStatus: ActivePlaylistStatus = {
+		const expectedStatus: ActivePlaylistEvent = {
 			event: 'activePlaylist',
 			name: playlist.name,
 			id: unprotectString(playlist._id),
+			externalId: 'NCS_PLAYLIST_1',
 			currentPart: {
 				id: 'PART_1',
 				name: 'Test Part',
@@ -238,7 +251,7 @@ describe('ActivePlaylistTopic', () => {
 					expectedDurationMs: 10000,
 					budgetDurationMs: 12300,
 					projectedEndTime: 1600000072300,
-					countdownType: 'segment_budget_duration',
+					countdownType: SegmentCountdownType.SEGMENT_BUDGET_DURATION,
 				},
 				parts: [
 					{
@@ -254,7 +267,7 @@ describe('ActivePlaylistTopic', () => {
 			rundownIds: unprotectStringArray(playlist.rundownIdsInOrder),
 			publicData: { a: 'b' },
 			timing: {
-				timingMode: PlaylistTimingType.None,
+				timingMode: ActivePlaylistTimingMode.NONE,
 			},
 			quickLoop: undefined,
 		}

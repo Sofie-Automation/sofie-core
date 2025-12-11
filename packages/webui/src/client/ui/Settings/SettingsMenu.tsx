@@ -1,29 +1,29 @@
 import React, { useCallback, useMemo } from 'react'
-import { useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data'
-import { unprotectString } from '../../lib/tempLib'
-import { doModalDialog } from '../../lib/ModalDialog'
+import { useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
+import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
+import { doModalDialog } from '../../lib/ModalDialog.js'
 import { NavLink, useLocation } from 'react-router-dom'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { PeripheralDevice, PERIPHERAL_SUBTYPE_PROCESS } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
-import { NotificationCenter, Notification, NoticeLevel } from '../../lib/notifications/notifications'
+import { NotificationCenter, Notification, NoticeLevel } from '../../lib/notifications/notifications.js'
 import { faPlus, faTrash, faExclamationTriangle, faCaretRight, faCaretDown } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
-import { MeteorCall } from '../../lib/meteorApi'
+import { MeteorCall } from '../../lib/meteorApi.js'
 import { IOutputLayer, StatusCode } from '@sofie-automation/blueprints-integration'
 import { TFunction, useTranslation } from 'react-i18next'
-import { RundownLayoutsAPI } from '../../lib/rundownLayouts'
-import { Blueprints, PeripheralDevices, ShowStyleBases, Studios } from '../../collections'
+import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
+import { Blueprints, PeripheralDevices, ShowStyleBases, Studios } from '../../collections/index.js'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import { catchError } from '../../lib/lib'
+import { catchError } from '../../lib/lib.js'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 
 export function SettingsMenu(): JSX.Element {
 	const { t } = useTranslation()
 
 	return (
-		<div className="tight-xs htight-xs text-s">
+		<div className="tight-xs htight-xs">
 			<SettingsMenuStudios />
 
 			<SettingsMenuShowStyles />
@@ -86,12 +86,16 @@ function SettingsMenuStudios() {
 		MeteorCall.studio.insertStudio().catch(catchError('studio.insertStudio'))
 	}, [])
 
+	// An installation should have only one studio https://github.com/Sofie-Automation/sofie-core/issues/1450
+	const canAddStudio = studios.length === 0
+	const canDeleteStudio = studios.length > 1
+
 	return (
 		<>
-			<SectionHeading title={t('Studios')} addClick={onAddStudio} />
+			<SectionHeading title={t('Studios')} addClick={canAddStudio ? onAddStudio : undefined} />
 
 			{studios.map((studio) => (
-				<SettingsMenuStudio key={unprotectString(studio._id)} studio={studio} />
+				<SettingsMenuStudio key={unprotectString(studio._id)} studio={studio} canDelete={canDeleteStudio} />
 			))}
 		</>
 	)
@@ -232,7 +236,7 @@ function SettingsCollapsibleGroup({
 						>
 							<h4>{link.label}</h4>
 						</NavLink>
-				  ))
+					))
 				: ''}
 			<hr className="vsubtle" />
 		</>
@@ -241,8 +245,9 @@ function SettingsCollapsibleGroup({
 
 interface SettingsMenuStudioProps {
 	studio: DBStudio
+	canDelete: boolean
 }
-function SettingsMenuStudio({ studio }: Readonly<SettingsMenuStudioProps>) {
+function SettingsMenuStudio({ studio, canDelete }: Readonly<SettingsMenuStudioProps>) {
 	const { t } = useTranslation()
 
 	const onDeleteStudio = React.useCallback(
@@ -291,9 +296,11 @@ function SettingsMenuStudio({ studio }: Readonly<SettingsMenuStudioProps>) {
 					<FontAwesomeIcon icon={faExclamationTriangle} />
 				</button>
 			) : null}
-			<button className="action-btn" onClick={onDeleteStudio}>
-				<FontAwesomeIcon icon={faTrash} />
-			</button>
+			{canDelete && (
+				<button className="action-btn" onClick={onDeleteStudio}>
+					<FontAwesomeIcon icon={faTrash} />
+				</button>
+			)}
 		</SettingsCollapsibleGroup>
 	)
 }
@@ -446,10 +453,10 @@ function SettingsMenuBlueprint({ blueprint }: Readonly<SettingsMenuBlueprintProp
 					</div>
 				</div>
 
-				<p>
+				<p className="text-s">
 					{t('Type')} {(blueprint.blueprintType ?? '').toUpperCase()}
 				</p>
-				<p>
+				<p className="text-s">
 					{t('Version')} {blueprint.blueprintVersion}
 				</p>
 			</NavLink>
@@ -523,6 +530,7 @@ function SettingsMenuPeripheralDevice({ device }: Readonly<SettingsMenuPeriphera
 				<p>
 					{device.connected ? t('Connected') : t('Disconnected')}, {t('Status')}:{' '}
 					{statusCodeString(t, device.status.statusCode)}
+					{configIdString(t, device.studioAndConfigId?.configId)}
 				</p>
 			</NavLink>
 			<hr className="vsubtle" />
@@ -550,4 +558,9 @@ function statusCodeString(t: TFunction, statusCode: StatusCode): string {
 		case StatusCode.FATAL:
 			return t('Fatal')
 	}
+}
+
+function configIdString(t: TFunction, configId: string | undefined): string {
+	if (configId) return t(', Config ID: ') + configId
+	else return t(', Unconfigured')
 }

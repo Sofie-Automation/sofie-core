@@ -1,0 +1,4 @@
+id: 'C6K_yIMuGFUk8X_L9A9_jRT6aq4_'
+name: My Bucket
+adLibs:
+  - $ref: '../../adLibs/bucketAdLibStatus/bucketAdLibStatus-example.yaml'

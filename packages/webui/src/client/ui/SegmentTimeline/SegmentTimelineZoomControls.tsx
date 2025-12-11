@@ -1,9 +1,9 @@
 import * as React from 'react'
-import { getElementWidth } from '../../utils/dimensions'
-import { getElementDocumentOffset } from '../../utils/positions'
-import { onElementResize, offElementResize } from '../../lib/resizeObserver'
-import { LeftArrow, RightArrow } from '../../lib/ui/icons/segment'
-import { LIVELINE_HISTORY_SIZE } from './Constants'
+import { getElementWidth } from '../../utils/dimensions.js'
+import { getElementDocumentOffset } from '../../utils/positions.js'
+import { onElementResize, offElementResize } from '../../lib/resizeObserver.js'
+import { LeftArrow, RightArrow } from '../../lib/ui/icons/segment.js'
+import { LIVELINE_HISTORY_SIZE } from './Constants.js'
 
 interface IPropsHeader {
 	scrollLeft: number

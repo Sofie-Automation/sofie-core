@@ -1,4 +1,4 @@
-import { ProtectedString } from '../../lib/protectedString'
+import { ProtectedString } from '../../lib/protectedString.js'
 
 /** A string, identifying a Studio */
 export type StudioId = ProtectedString<'StudioId'>
@@ -25,12 +25,6 @@ export type RundownPlaylistId = ProtectedString<'RundownPlaylistId'>
 
 /** A string, identifying a MediaObj */
 export type MediaObjId = ProtectedString<'MediaObjId'>
-
-/** A string, identifying a MediaWorkFlow */
-export type MediaWorkFlowId = ProtectedString<'MediaWorkFlowId'>
-
-/** A string, identifying a MediaWorkFlowStep */
-export type MediaWorkFlowStepId = ProtectedString<'MediaWorkFlowStepId'>
 
 export type ExpectedPackageId = ProtectedString<'ExpectedPackageId'>
 

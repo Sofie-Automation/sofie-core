@@ -23,7 +23,8 @@ import {
 	RundownPlaylists,
 	Studios,
 } from '../../../collections'
-import { literal, protectString } from '../../../lib/tempLib'
+import { literal } from '@sofie-automation/corelib/dist/lib'
+import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import {
 	CustomPublishCollection,
 	meteorCustomPublish,
@@ -125,86 +126,90 @@ async function setupUIPieceContentStatusesPublicationObservers(
 	})) as Pick<DBRundownPlaylist, RundownPlaylistFields> | undefined
 	if (!playlist) throw new Error(`RundownPlaylist "${args.rundownPlaylistId}" not found!`)
 
-	const rundownsObserver = await RundownsObserver.create(playlist.studioId, playlist._id, async (rundownIds) => {
-		logger.silly(`Creating new RundownContentObserver`)
+	const rundownsObserver = await RundownsObserver.createForPlaylist(
+		playlist.studioId,
+		playlist._id,
+		async (rundownIds) => {
+			logger.silly(`Creating new RundownContentObserver`)
 
-		// TODO - can this be done cheaper?
-		const contentCache = createReactiveContentCache()
-		triggerUpdate({ newCache: contentCache })
+			// TODO - can this be done cheaper?
+			const contentCache = createReactiveContentCache()
+			triggerUpdate({ newCache: contentCache })
 
-		const obs1 = await RundownContentObserver.create(rundownIds, contentCache)
+			const obs1 = await RundownContentObserver.create(rundownIds, contentCache)
 
-		const innerQueries = [
-			contentCache.Segments.find({}).observeChanges({
-				added: (id) => triggerUpdate({ updatedSegmentIds: [protectString(id)] }),
-				changed: (id) => triggerUpdate({ updatedSegmentIds: [protectString(id)] }),
-				removed: (id) => triggerUpdate({ updatedSegmentIds: [protectString(id)] }),
-			}),
-			contentCache.Parts.find({}).observeChanges({
-				added: (id) => triggerUpdate({ updatedPartIds: [protectString(id)] }),
-				changed: (id) => triggerUpdate({ updatedPartIds: [protectString(id)] }),
-				removed: (id) => triggerUpdate({ updatedPartIds: [protectString(id)] }),
-			}),
-			contentCache.Pieces.find({}).observeChanges({
-				added: (id) => triggerUpdate({ updatedPieceIds: [protectString(id)] }),
-				changed: (id) => triggerUpdate({ updatedPieceIds: [protectString(id)] }),
-				removed: (id) => triggerUpdate({ updatedPieceIds: [protectString(id)] }),
-			}),
-			contentCache.PartInstances.find({}).observeChanges({
-				added: (id) => triggerUpdate({ updatedPartInstanceIds: [protectString(id)] }),
-				changed: (id) => triggerUpdate({ updatedPartInstanceIds: [protectString(id)] }),
-				removed: (id) => triggerUpdate({ updatedPartInstanceIds: [protectString(id)] }),
-			}),
-			contentCache.PieceInstances.find({}).observeChanges({
-				added: (id) => triggerUpdate({ updatedPieceInstanceIds: [protectString(id)] }),
-				changed: (id) => triggerUpdate({ updatedPieceInstanceIds: [protectString(id)] }),
-				removed: (id) => triggerUpdate({ updatedPieceInstanceIds: [protectString(id)] }),
-			}),
-			contentCache.AdLibPieces.find({}).observeChanges({
-				added: (id) => triggerUpdate({ updatedAdlibPieceIds: [protectString(id)] }),
-				changed: (id) => triggerUpdate({ updatedAdlibPieceIds: [protectString(id)] }),
-				removed: (id) => triggerUpdate({ updatedAdlibPieceIds: [protectString(id)] }),
-			}),
-			contentCache.AdLibActions.find({}).observeChanges({
-				added: (id) => triggerUpdate({ updatedAdlibActionIds: [protectString(id)] }),
-				changed: (id) => triggerUpdate({ updatedAdlibActionIds: [protectString(id)] }),
-				removed: (id) => triggerUpdate({ updatedAdlibActionIds: [protectString(id)] }),
-			}),
-			contentCache.BaselineAdLibPieces.find({}).observeChanges({
-				added: (id) => triggerUpdate({ updatedBaselineAdlibPieceIds: [protectString(id)] }),
-				changed: (id) => triggerUpdate({ updatedBaselineAdlibPieceIds: [protectString(id)] }),
-				removed: (id) => triggerUpdate({ updatedBaselineAdlibPieceIds: [protectString(id)] }),
-			}),
-			contentCache.BaselineAdLibActions.find({}).observeChanges({
-				added: (id) => triggerUpdate({ updatedBaselineAdlibActionIds: [protectString(id)] }),
-				changed: (id) => triggerUpdate({ updatedBaselineAdlibActionIds: [protectString(id)] }),
-				removed: (id) => triggerUpdate({ updatedBaselineAdlibActionIds: [protectString(id)] }),
-			}),
-			contentCache.Rundowns.find({}).observeChanges({
-				added: () => triggerUpdate({ invalidateAll: true }),
-				changed: () => triggerUpdate({ invalidateAll: true }),
-				removed: () => triggerUpdate({ invalidateAll: true }),
-			}),
-			contentCache.Blueprints.find({}).observeChanges({
-				added: () => triggerUpdate({ invalidateAll: true }),
-				changed: () => triggerUpdate({ invalidateAll: true }),
-				removed: () => triggerUpdate({ invalidateAll: true }),
-			}),
-			contentCache.ShowStyleSourceLayers.find({}).observeChanges({
-				added: () => triggerUpdate({ invalidateAll: true }),
-				changed: () => triggerUpdate({ invalidateAll: true }),
-				removed: () => triggerUpdate({ invalidateAll: true }),
-			}),
-		]
+			const innerQueries = [
+				contentCache.Segments.find({}).observeChanges({
+					added: (id) => triggerUpdate({ updatedSegmentIds: [protectString(id)] }),
+					changed: (id) => triggerUpdate({ updatedSegmentIds: [protectString(id)] }),
+					removed: (id) => triggerUpdate({ updatedSegmentIds: [protectString(id)] }),
+				}),
+				contentCache.Parts.find({}).observeChanges({
+					added: (id) => triggerUpdate({ updatedPartIds: [protectString(id)] }),
+					changed: (id) => triggerUpdate({ updatedPartIds: [protectString(id)] }),
+					removed: (id) => triggerUpdate({ updatedPartIds: [protectString(id)] }),
+				}),
+				contentCache.Pieces.find({}).observeChanges({
+					added: (id) => triggerUpdate({ updatedPieceIds: [protectString(id)] }),
+					changed: (id) => triggerUpdate({ updatedPieceIds: [protectString(id)] }),
+					removed: (id) => triggerUpdate({ updatedPieceIds: [protectString(id)] }),
+				}),
+				contentCache.PartInstances.find({}).observeChanges({
+					added: (id) => triggerUpdate({ updatedPartInstanceIds: [protectString(id)] }),
+					changed: (id) => triggerUpdate({ updatedPartInstanceIds: [protectString(id)] }),
+					removed: (id) => triggerUpdate({ updatedPartInstanceIds: [protectString(id)] }),
+				}),
+				contentCache.PieceInstances.find({}).observeChanges({
+					added: (id) => triggerUpdate({ updatedPieceInstanceIds: [protectString(id)] }),
+					changed: (id) => triggerUpdate({ updatedPieceInstanceIds: [protectString(id)] }),
+					removed: (id) => triggerUpdate({ updatedPieceInstanceIds: [protectString(id)] }),
+				}),
+				contentCache.AdLibPieces.find({}).observeChanges({
+					added: (id) => triggerUpdate({ updatedAdlibPieceIds: [protectString(id)] }),
+					changed: (id) => triggerUpdate({ updatedAdlibPieceIds: [protectString(id)] }),
+					removed: (id) => triggerUpdate({ updatedAdlibPieceIds: [protectString(id)] }),
+				}),
+				contentCache.AdLibActions.find({}).observeChanges({
+					added: (id) => triggerUpdate({ updatedAdlibActionIds: [protectString(id)] }),
+					changed: (id) => triggerUpdate({ updatedAdlibActionIds: [protectString(id)] }),
+					removed: (id) => triggerUpdate({ updatedAdlibActionIds: [protectString(id)] }),
+				}),
+				contentCache.BaselineAdLibPieces.find({}).observeChanges({
+					added: (id) => triggerUpdate({ updatedBaselineAdlibPieceIds: [protectString(id)] }),
+					changed: (id) => triggerUpdate({ updatedBaselineAdlibPieceIds: [protectString(id)] }),
+					removed: (id) => triggerUpdate({ updatedBaselineAdlibPieceIds: [protectString(id)] }),
+				}),
+				contentCache.BaselineAdLibActions.find({}).observeChanges({
+					added: (id) => triggerUpdate({ updatedBaselineAdlibActionIds: [protectString(id)] }),
+					changed: (id) => triggerUpdate({ updatedBaselineAdlibActionIds: [protectString(id)] }),
+					removed: (id) => triggerUpdate({ updatedBaselineAdlibActionIds: [protectString(id)] }),
+				}),
+				contentCache.Rundowns.find({}).observeChanges({
+					added: () => triggerUpdate({ invalidateAll: true }),
+					changed: () => triggerUpdate({ invalidateAll: true }),
+					removed: () => triggerUpdate({ invalidateAll: true }),
+				}),
+				contentCache.Blueprints.find({}).observeChanges({
+					added: () => triggerUpdate({ invalidateAll: true }),
+					changed: () => triggerUpdate({ invalidateAll: true }),
+					removed: () => triggerUpdate({ invalidateAll: true }),
+				}),
+				contentCache.ShowStyleSourceLayers.find({}).observeChanges({
+					added: () => triggerUpdate({ invalidateAll: true }),
+					changed: () => triggerUpdate({ invalidateAll: true }),
+					removed: () => triggerUpdate({ invalidateAll: true }),
+				}),
+			]
 
-		return () => {
-			obs1.dispose()
+			return () => {
+				obs1.dispose()
 
-			for (const query of innerQueries) {
-				query.stop()
+				for (const query of innerQueries) {
+					query.stop()
+				}
 			}
 		}
-	})
+	)
 
 	// Set up observers:
 	return [

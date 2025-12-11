@@ -1,6 +1,6 @@
 import React, { useContext, useRef } from 'react'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { IPreviewPopUpSession, PreviewPopUpContext } from '../../PreviewPopUp/PreviewPopUpContext'
+import { IPreviewPopUpSession, PreviewPopUpContext } from '../../PreviewPopUp/PreviewPopUpContext.js'
 
 interface IProps {
 	className?: string

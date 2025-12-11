@@ -6,24 +6,24 @@ import { useTranslation } from 'react-i18next'
 import {
 	WrappedOverridableItemNormal,
 	OverrideOpHelperForItemContents,
-} from '../../../ui/Settings/util/OverrideOpHelper'
-import { useToggleExpandHelper } from '../../../ui/util/useToggleExpandHelper'
-import { doModalDialog } from '../../ModalDialog'
+} from '../../../ui/Settings/util/OverrideOpHelper.js'
+import { useToggleExpandHelper } from '../../../ui/util/useToggleExpandHelper.js'
+import { doModalDialog } from '../../ModalDialog.js'
 import {
 	getSchemaSummaryFieldsForObject,
 	SchemaFormSofieEnumDefinition,
 	translateStringIfHasNamespaces,
-} from '../schemaFormUtil'
+} from '../schemaFormUtil.js'
 import { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
 import {
 	getSchemaDefaultValues,
 	getSchemaUIField,
 	SchemaFormUIField,
 } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaUtil'
-import { hasOpWithPath } from '../../Components/util'
-import { ArrayTableRow } from './ArrayTableRow'
-import { OverrideOpHelperArrayTable } from './ArrayTableOpHelper'
-import { SchemaFormSectionHeader } from '../SchemaFormSectionHeader'
+import { hasOpWithPath } from '../../Components/util.js'
+import { ArrayTableRow } from './ArrayTableRow.js'
+import { OverrideOpHelperArrayTable } from './ArrayTableOpHelper.js'
+import { SchemaFormSectionHeader } from '../SchemaFormSectionHeader.js'
 
 interface SchemaFormArrayTableProps {
 	/** Schema for each row in the table */
@@ -163,8 +163,7 @@ export const SchemaFormArrayTable = ({
 				&nbsp;
 				{item.defaults && (
 					<button className="btn btn-primary" onClick={resyncTable} title="Reset to default" disabled={!isOverridden}>
-						{t('Reset')}
-						&nbsp;
+						<span>{t('Reset')}</span>
 						<FontAwesomeIcon icon={faSync} />
 					</button>
 				)}

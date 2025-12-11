@@ -58,7 +58,7 @@ export class RundownContentObserver {
 					},
 				},
 				{
-					fields: studioFieldSpecifier,
+					projection: studioFieldSpecifier,
 				}
 			),
 			RundownPlaylists.observeChanges(
@@ -67,7 +67,7 @@ export class RundownContentObserver {
 				},
 				cache.RundownPlaylists.link(),
 				{
-					fields: rundownPlaylistFieldSpecifier,
+					projection: rundownPlaylistFieldSpecifier,
 				}
 			),
 			Segments.observeChanges(

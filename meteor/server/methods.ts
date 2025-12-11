@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor'
-import * as _ from 'underscore'
+import _ from 'underscore'
 import { logger } from './logging'
 import { extractFunctionSignature } from './lib'
 import { MethodContext, MethodContextAPI } from './api/methodContext'
@@ -59,6 +59,7 @@ export function registerClassToMeteorMethods(
 	methodEnum: any,
 	orgClass: typeof MethodContextAPI,
 	secret?: boolean,
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 	wrapper?: (methodContext: MethodContext, methodName: string, args: any[], fcn: Function) => any
 ): void {
 	const methods: MethodsInner = {}
@@ -121,6 +122,7 @@ function setMeteorMethods(orgMethods: MethodsInner, secret?: boolean): void {
 								if (!_suppressExtraErrorLogging) {
 									logger.error(stringifyError(err))
 								}
+								// eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
 								return Promise.reject(err)
 							})
 					} else {

@@ -1,0 +1,4 @@
+event: segments
+rundownPlaylistId: 'OKAgZmZ0Buc99lE_2uPPSKVbMrQ_'
+segments:
+  - $ref: '../segment/segment-example.yaml'

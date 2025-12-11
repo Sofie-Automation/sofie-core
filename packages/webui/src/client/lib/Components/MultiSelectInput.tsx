@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react'
-import { MultiSelect, MultiSelectEvent, MultiSelectOptions } from '../multiSelect'
-import { DropdownInputOption } from './DropdownInput'
+import { MultiSelect, MultiSelectEvent, MultiSelectOptions } from '../multiSelect.js'
+import { DropdownInputOption } from './DropdownInput.js'
 import ClassNames from 'classnames'
 
 interface IMultiSelectInputControlProps {
@@ -40,7 +40,7 @@ export function MultiSelectInputControl({
 					currentOptionMissing = true
 				}
 			}
-		} catch (e) {
+		} catch (_e) {
 			// `value` is probably invalid. We can't do much
 		}
 

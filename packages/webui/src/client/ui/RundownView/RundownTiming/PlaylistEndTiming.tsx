@@ -1,13 +1,13 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import Moment from 'react-moment'
-import { getCurrentTime } from '../../../lib/systemTime'
-import { RundownUtils } from '../../../lib/rundown'
-import { withTiming, WithTiming } from './withTiming'
+import { getCurrentTime } from '../../../lib/systemTime.js'
+import { RundownUtils } from '../../../lib/rundown.js'
+import { useTiming } from './withTiming.js'
 import ClassNames from 'classnames'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { getPlaylistTimingDiff } from '../../../lib/rundownTiming'
-import { isLoopRunning } from '../../../lib/RundownResolver'
+import { getPlaylistTimingDiff } from '../../../lib/rundownTiming.js'
+import { isLoopRunning } from '../../../lib/RundownResolver.js'
 
 interface IEndTimingProps {
 	rundownPlaylist: DBRundownPlaylist
@@ -23,7 +23,7 @@ interface IEndTimingProps {
 	hideDiff?: boolean
 }
 
-export const PlaylistEndTiming = withTiming<IEndTimingProps, {}>()(function PlaylistEndTiming({
+export function PlaylistEndTiming({
 	rundownPlaylist,
 	loop,
 	expectedStart,
@@ -35,9 +35,10 @@ export const PlaylistEndTiming = withTiming<IEndTimingProps, {}>()(function Play
 	hidePlannedEnd,
 	hideCountdown,
 	hideDiff,
-	timingDurations,
-}: WithTiming<IEndTimingProps>): JSX.Element {
+}: IEndTimingProps): JSX.Element {
 	const { t } = useTranslation()
+
+	const timingDurations = useTiming()
 
 	const overUnderClock = getPlaylistTimingDiff(rundownPlaylist, timingDurations) ?? 0
 	const now = timingDurations.currentTime ?? getCurrentTime()
@@ -114,4 +115,4 @@ export const PlaylistEndTiming = withTiming<IEndTimingProps, {}>()(function Play
 			) : null}
 		</React.Fragment>
 	)
-})
+}

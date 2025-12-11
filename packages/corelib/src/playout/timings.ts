@@ -1,9 +1,9 @@
 import { IBlueprintPartInTransition, IBlueprintPieceType } from '@sofie-automation/blueprints-integration'
-import { DBPartInstance } from '../dataModel/PartInstance'
-import { DBPart } from '../dataModel/Part'
-import { PieceInstance, PieceInstancePiece } from '../dataModel/PieceInstance'
-import { Piece } from '../dataModel/Piece'
-import { RundownHoldState } from '../dataModel/RundownPlaylist'
+import { DBPartInstance } from '../dataModel/PartInstance.js'
+import { DBPart } from '../dataModel/Part.js'
+import { PieceInstance, PieceInstancePiece } from '../dataModel/PieceInstance.js'
+import { Piece } from '../dataModel/Piece.js'
+import { RundownHoldState } from '../dataModel/RundownPlaylist.js'
 import { ReadonlyDeep } from 'type-fest'
 
 /**

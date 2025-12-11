@@ -1,13 +1,13 @@
 import { IngestPropsBase } from '@sofie-automation/corelib/dist/worker/ingest'
-import { JobContext } from '../jobs'
+import { JobContext } from '../jobs/index.js'
 import {
 	IngestUpdateOperationFunction,
 	UpdateIngestRundownResult,
 	runCustomIngestUpdateOperation,
 	runIngestUpdateOperation,
-} from './runOperation'
-import { CommitIngestData } from './lock'
-import { IngestModel } from './model/IngestModel'
+} from './runOperation.js'
+import { CommitIngestData } from './lock.js'
+import { IngestModel } from './model/IngestModel.js'
 import { IngestRundownWithSource } from '@sofie-automation/corelib/dist/dataModel/NrcsIngestDataCache'
 import { SofieIngestRundownWithSource } from '@sofie-automation/corelib/dist/dataModel/SofieIngestDataCache'
 

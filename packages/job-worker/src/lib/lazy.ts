@@ -1,4 +1,4 @@
-import PLazy = require('p-lazy')
+import PLazy from 'p-lazy'
 
 export interface LazyInitialiseReadonly<T> {
 	/** Return the value, loading it if required */

@@ -1,4 +1,4 @@
-import { Time } from '../common'
+import { Time } from '../common.js'
 
 export enum PlaylistTimingType {
 	None = 'none',
@@ -10,7 +10,7 @@ export interface PlaylistTimingBase {
 	type: PlaylistTimingType
 }
 
-export interface PlaylistTimingNone {
+export interface PlaylistTimingNone extends PlaylistTimingBase {
 	type: PlaylistTimingType.None
 	/** Expected duration of the rundown playlist
 	 *  If set, the over/under diff will be calculated based on this value. Otherwise it will be planned content duration - played out duration.

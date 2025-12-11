@@ -1,4 +1,4 @@
-import { setupDefaultJobEnvironment } from '../../../__mocks__/context'
+import { setupDefaultJobEnvironment } from '../../../__mocks__/context.js'
 import { clone } from '@sofie-automation/corelib/dist/lib'
 import {
 	IngestChangeType,
@@ -12,8 +12,8 @@ import {
 	handleMosInsertStories,
 	handleMosMoveStories,
 	handleMosSwapStories,
-} from '../mosStoryJobs'
-import { IngestUpdateOperationFunction, UpdateIngestRundownChange } from '../../runOperation'
+} from '../mosStoryJobs.js'
+import { IngestUpdateOperationFunction, UpdateIngestRundownChange } from '../../runOperation.js'
 import { IngestRundownWithSource } from '@sofie-automation/corelib/dist/dataModel/NrcsIngestDataCache'
 
 function getDefaultIngestRundown(): IngestRundownWithSource {

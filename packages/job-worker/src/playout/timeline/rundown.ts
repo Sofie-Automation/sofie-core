@@ -18,15 +18,15 @@ import { getPartGroupId } from '@sofie-automation/corelib/dist/playout/ids'
 import { PieceInstanceWithTimings } from '@sofie-automation/corelib/dist/playout/processAndPrune'
 import { PartCalculatedTimings } from '@sofie-automation/corelib/dist/playout/timings'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { JobContext } from '../../jobs'
+import { JobContext } from '../../jobs/index.js'
 import { ReadonlyDeep } from 'type-fest'
-import { SelectedPartInstancesTimelineInfo, SelectedPartInstanceTimelineInfo } from './generate'
-import { createPartGroup, createPartGroupFirstObject, PartEnable, transformPartIntoTimeline } from './part'
+import { SelectedPartInstancesTimelineInfo, SelectedPartInstanceTimelineInfo } from './generate.js'
+import { createPartGroup, createPartGroupFirstObject, PartEnable, transformPartIntoTimeline } from './part.js'
 import { literal, normalizeArrayToMapFunc } from '@sofie-automation/corelib/dist/lib'
-import { getCurrentTime } from '../../lib'
-import _ = require('underscore')
-import { getPieceEnableInsidePart, transformPieceGroupAndObjects } from './piece'
-import { logger } from '../../logging'
+import { getCurrentTime } from '../../lib/index.js'
+import _ from 'underscore'
+import { getPieceEnableInsidePart, transformPieceGroupAndObjects } from './piece.js'
+import { logger } from '../../logging.js'
 
 /**
  * Some additional data used by the timeline generation process
@@ -81,16 +81,18 @@ export function buildTimelineObjsForRundown(
 	// Fetch the nextPart first, because that affects how the currentPart will be treated
 	if (activePlaylist.nextPartInfo) {
 		// We may be at the end of a show, where there is no next part
-		if (!partInstancesInfo.next) throw new Error(`PartInstance "${activePlaylist.nextPartInfo}" not found!`)
+		if (!partInstancesInfo.next)
+			throw new Error(`PartInstance "${activePlaylist.nextPartInfo?.partInstanceId}" not found!`)
 	}
 	if (activePlaylist.currentPartInfo) {
 		// We may be before the beginning of a show, and there can be no currentPart and we are waiting for the user to Take
-		if (!partInstancesInfo.current) throw new Error(`PartInstance "${activePlaylist.currentPartInfo}" not found!`)
+		if (!partInstancesInfo.current)
+			throw new Error(`PartInstance "${activePlaylist.currentPartInfo?.partInstanceId}" not found!`)
 	}
 	if (activePlaylist.previousPartInfo) {
 		// We may be at the beginning of a show, where there is no previous part
 		if (!partInstancesInfo.previous)
-			logger.warn(`Previous PartInstance "${activePlaylist.previousPartInfo}" not found!`)
+			logger.warn(`Previous PartInstance "${activePlaylist.previousPartInfo?.partInstanceId}" not found!`)
 	}
 
 	if (!partInstancesInfo.next && !partInstancesInfo.current) {
@@ -127,7 +129,7 @@ export function buildTimelineObjsForRundown(
 		partInstancesInfo.previous
 			? normalizeArrayToMapFunc(partInstancesInfo.previous.pieceInstances, (inst) =>
 					inst.infinite ? inst.infinite.infiniteInstanceId : undefined
-			  )
+				)
 			: new Map()
 
 	// The startTime of this start is used as the reference point for the calculated timings, so we can use 'now' and everything will lie after this point

@@ -1,0 +1,12 @@
+$defs:
+  heartbeatEvent:
+    title: HeartbeatEvent
+    type: object
+    properties:
+      event:
+        type: string
+        const: heartbeat
+    required: [event]
+    additionalProperties: false
+    examples:
+      - $ref: './heartbeatEvent-example.yaml'

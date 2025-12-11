@@ -1,10 +1,10 @@
 import { IOutputLayer, IShowStyleContext, ISourceLayer } from '@sofie-automation/blueprints-integration'
 import { ReadonlyDeep } from 'type-fest'
-import { ProcessedStudioConfig, ProcessedShowStyleConfig } from '../config'
-import { getShowStyleConfigRef } from '../configRefs'
-import { JobStudio, ProcessedShowStyleCompound } from '../../jobs'
-import { ContextInfo } from './CommonContext'
-import { StudioContext } from './StudioContext'
+import { ProcessedStudioConfig, ProcessedShowStyleConfig } from '../config.js'
+import { getShowStyleConfigRef } from '../configRefs.js'
+import { JobStudio, ProcessedShowStyleCompound } from '../../jobs/index.js'
+import { ContextInfo } from './CommonContext.js'
+import { StudioContext } from './StudioContext.js'
 
 /** Show Style Variant */
 

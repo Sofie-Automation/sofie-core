@@ -1,0 +1,8 @@
+$ref: '../segmentBase/segmentBase-example.yaml'
+identifier: 'Segment 0 identifier'
+rundownId: 'y9HauyWkcxQS3XaAOsW40BRLLsI_'
+name: 'Segment 0'
+timing:
+  $ref: '../../timing/segmentTiming/segmentTiming-example.yaml'
+publicData:
+  containsLiveSource: true

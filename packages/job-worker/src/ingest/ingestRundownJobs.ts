@@ -1,8 +1,8 @@
-import { JobContext } from '../jobs'
-import { logger } from '../logging'
-import { runWithRundownLock } from './lock'
-import { getRundownId } from './lib'
-import { removeRundownFromDb } from '../rundownPlaylists'
+import { JobContext } from '../jobs/index.js'
+import { logger } from '../logging.js'
+import { runWithRundownLock } from './lock.js'
+import { getRundownId } from './lib.js'
+import { removeRundownFromDb } from '../rundownPlaylists.js'
 import { DBRundown, RundownOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import {
 	IngestRegenerateRundownProps,
@@ -12,13 +12,13 @@ import {
 	UserRemoveRundownProps,
 	UserUnsyncRundownProps,
 } from '@sofie-automation/corelib/dist/worker/ingest'
-import { ComputedIngestChangeAction, UpdateIngestRundownChange, UpdateIngestRundownResult } from './runOperation'
+import { ComputedIngestChangeAction, UpdateIngestRundownChange, UpdateIngestRundownResult } from './runOperation.js'
 import {
 	IngestChangeType,
 	IngestRundown,
 	NrcsIngestRundownChangeDetails,
 } from '@sofie-automation/blueprints-integration'
-import { wrapGenericIngestJob } from './jobWrappers'
+import { wrapGenericIngestJob } from './jobWrappers.js'
 import { IngestRundownWithSource } from '@sofie-automation/corelib/dist/dataModel/NrcsIngestDataCache'
 
 /**

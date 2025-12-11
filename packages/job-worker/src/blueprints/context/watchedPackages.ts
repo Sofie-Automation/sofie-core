@@ -4,12 +4,12 @@ import {
 	ExpectedPackageFromRundown,
 } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
 import { PackageInfoDB } from '@sofie-automation/corelib/dist/dataModel/PackageInfos'
-import { JobContext } from '../../jobs'
+import { JobContext } from '../../jobs/index.js'
 import { ExpectedPackageId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { Filter as FilterQuery } from 'mongodb'
 import { PackageInfo } from '@sofie-automation/blueprints-integration'
 import { unprotectObjectArray } from '@sofie-automation/corelib/dist/protectedString'
-import { ExpectedPackageForIngestModel, IngestModelReadonly } from '../../ingest/model/IngestModel'
+import { ExpectedPackageForIngestModel, IngestModelReadonly } from '../../ingest/model/IngestModel.js'
 import { ReadonlyDeep } from 'type-fest'
 
 /**
@@ -116,7 +116,7 @@ export class WatchedPackagesHelper {
 				? await context.directCollections.PackageInfos.findFetch({
 						studioId: context.studio._id,
 						packageId: { $in: packages.map((p) => p._id) },
-				  })
+					})
 				: []
 
 		return new WatchedPackagesHelper(packages, watchedPackageInfos)

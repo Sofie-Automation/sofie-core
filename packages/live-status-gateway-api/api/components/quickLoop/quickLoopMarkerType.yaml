@@ -1,0 +1,10 @@
+$defs:
+  quickLoopMarkerType:
+    type: string
+    title: QuickLoopMarkerType
+    description: The type of entity the marker is locked to
+    enum:
+      - playlist
+      - rundown
+      - segment
+      - part

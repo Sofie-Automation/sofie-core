@@ -30,24 +30,22 @@ import {
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { RundownBaselineAdLibAction } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibAction'
 import { RundownBaselineAdLibItem } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibPiece'
-import { saveIntoDb } from '../db/changes'
-import { PlayoutModel } from '../playout/model/PlayoutModel'
-import { StudioPlayoutModel } from '../studio/model/StudioPlayoutModel'
+import { saveIntoDb } from '../db/changes.js'
+import { PlayoutModel } from '../playout/model/PlayoutModel.js'
+import { StudioPlayoutModel } from '../studio/model/StudioPlayoutModel.js'
 import { ReadonlyDeep } from 'type-fest'
 import { ExpectedPackage, BlueprintResultBaseline } from '@sofie-automation/blueprints-integration'
-import { updateExpectedMediaItemsForPartModel, updateExpectedMediaItemsForRundownBaseline } from './expectedMediaItems'
 import {
 	updateBaselineExpectedPlayoutItemsOnStudio,
 	updateExpectedPlayoutItemsForPartModel,
 	updateExpectedPlayoutItemsForRundownBaseline,
-} from './expectedPlayoutItems'
-import { JobContext, JobStudio } from '../jobs'
-import { ExpectedPackageForIngestModelBaseline, IngestModel } from './model/IngestModel'
-import { IngestPartModel } from './model/IngestPartModel'
+} from './expectedPlayoutItems.js'
+import { JobContext, JobStudio } from '../jobs/index.js'
+import { ExpectedPackageForIngestModelBaseline, IngestModel } from './model/IngestModel.js'
+import { IngestPartModel } from './model/IngestPartModel.js'
 import { clone } from '@sofie-automation/corelib/dist/lib'
 
 export function updateExpectedPackagesForPartModel(context: JobContext, part: IngestPartModel): void {
-	updateExpectedMediaItemsForPartModel(context, part)
 	updateExpectedPlayoutItemsForPartModel(context, part)
 
 	const expectedPackages: ExpectedPackageFromRundown[] = [
@@ -82,7 +80,6 @@ export async function updateExpectedPackagesForRundownBaseline(
 	baseline: BlueprintResultBaseline | undefined,
 	forceBaseline = false
 ): Promise<void> {
-	await updateExpectedMediaItemsForRundownBaseline(context, ingestModel)
 	await updateExpectedPlayoutItemsForRundownBaseline(context, ingestModel, baseline)
 
 	const expectedPackages: ExpectedPackageForIngestModelBaseline[] = []
@@ -336,7 +333,10 @@ export async function updateExpectedPackagesForBucketAdLibAction(
 
 	await saveIntoDb(context, context.directCollections.ExpectedPackages, { pieceId: action._id }, packages)
 }
-export async function cleanUpExpectedPackagesForBucketAdLibs(context: JobContext, adLibIds: PieceId[]): Promise<void> {
+export async function cleanUpExpectedPackagesForBucketAdLibs(
+	context: JobContext,
+	adLibIds: BucketAdLibId[]
+): Promise<void> {
 	if (adLibIds.length > 0) {
 		await context.directCollections.ExpectedPackages.remove({
 			pieceId: {
@@ -347,7 +347,7 @@ export async function cleanUpExpectedPackagesForBucketAdLibs(context: JobContext
 }
 export async function cleanUpExpectedPackagesForBucketAdLibsActions(
 	context: JobContext,
-	adLibIds: AdLibActionId[]
+	adLibIds: BucketAdLibActionId[]
 ): Promise<void> {
 	if (adLibIds.length > 0) {
 		await context.directCollections.ExpectedPackages.remove({

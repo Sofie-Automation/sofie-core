@@ -552,6 +552,9 @@ components:
         allowAdlibTestingSegment:
           type: boolean
           description: Whether to allow adlib testing mode, before a Part is playing in a Playlist
+        allowTestingAdlibsToPersist:
+          type: boolean
+          description: Whether to allow infinite adlib from adlib testing mode to persist in the rundown
         allowHold:
           type: boolean
           description: Whether to allow hold operations for Rundowns in this Studio

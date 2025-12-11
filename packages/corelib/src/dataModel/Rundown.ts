@@ -1,16 +1,15 @@
 import { RundownPlaylistTiming, Time } from '@sofie-automation/blueprints-integration'
 import {
 	RundownId,
-	OrganizationId,
 	StudioId,
 	ShowStyleBaseId,
 	PeripheralDeviceId,
 	RundownPlaylistId,
 	ShowStyleVariantId,
-} from './Ids'
-import { RundownNote } from './Notes'
+} from './Ids.js'
+import { RundownNote } from './Notes.js'
 import { ReadonlyDeep } from 'type-fest'
-import { CoreUserEditingDefinition } from './UserEditingDefinitions'
+import { CoreUserEditingDefinition } from './UserEditingDefinitions.js'
 
 export enum RundownOrphanedReason {
 	/** Rundown is deleted from the source but we still need it */
@@ -30,8 +29,6 @@ export interface RundownImportVersions {
 
 export interface Rundown {
 	_id: RundownId
-	/** ID of the organization that owns the rundown */
-	organizationId: OrganizationId | null
 	/** The id of the Studio this rundown is in */
 	studioId: StudioId
 
@@ -56,9 +53,6 @@ export interface Rundown {
 	 * This can be because the rundown was deleted from the source, or because the user manually unsynced it
 	 */
 	orphaned?: RundownOrphanedReason
-
-	/** Last sent storyStatus to ingestDevice (MOS) */
-	notifiedCurrentPlayingPartExternalId?: string
 
 	/** Holds notes (warnings / errors) thrown by the blueprints during creation */
 	notes?: Array<RundownNote>

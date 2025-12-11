@@ -1,5 +1,5 @@
-import * as _ from 'underscore'
-import { Time } from '../lib/tempLib'
+import _ from 'underscore'
+import type { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { sleep, getCurrentTime } from '../lib/lib'
 import { registerClassToMeteorMethods } from '../methods'
 import { MethodContextAPI, MethodContext } from './methodContext'

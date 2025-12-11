@@ -1,0 +1,50 @@
+title: Active Playlist
+description: Active Playlist schema for websocket subscriptions
+$defs:
+  activePlaylistEvent:
+    type: object
+    title: ActivePlaylistEvent
+    properties:
+      event:
+        type: string
+        const: activePlaylist
+      id:
+        description: Unique id of the active playlist
+        oneOf:
+          - type: string
+          - type: 'null'
+      externalId:
+        description: Id normally sourced from the ingest system
+        oneOf:
+          - type: string
+          - type: 'null'
+      name:
+        description: User-presentable name for the active playlist
+        type: string
+      rundownIds:
+        description: The set of rundownIds in the active playlist, in order
+        type: array
+        items:
+          type: string
+      currentPart:
+        oneOf:
+          - $ref: '../../part/currentPart/currentPartStatus.yaml#/$defs/currentPartStatus'
+          - type: 'null'
+      currentSegment:
+        oneOf:
+          - $ref: '../../segment/currentSegment/currentSegment.yaml#/$defs/currentSegment'
+          - type: 'null'
+      nextPart:
+        oneOf:
+          - $ref: '../../part/partStatus/partStatus.yaml#/$defs/partStatus'
+          - type: 'null'
+      publicData:
+        description: Optional arbitrary data
+      timing:
+        $ref: '../../timing/activePlaylistTiming/activePlaylistTiming.yaml#/$defs/activePlaylistTiming'
+      quickLoop:
+        $ref: '../../quickLoop/activePlaylistQuickLoop/activePlaylistQuickLoop.yaml#/$defs/activePlaylistQuickLoop'
+    required: [event, id, externalId, name, rundownIds, currentPart, currentSegment, nextPart, timing]
+    additionalProperties: false
+    examples:
+      - $ref: './activePlaylistEvent-example.yaml'

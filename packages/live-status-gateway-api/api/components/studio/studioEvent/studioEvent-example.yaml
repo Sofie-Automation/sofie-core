@@ -1,0 +1,2 @@
+event: studio
+$ref: '../studioStatus/studioStatus-example.yaml'

@@ -16,11 +16,11 @@ jobs:
     continue-on-error: true
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: ".node-version"
       - uses: ./.github/actions/setup-meteor
@@ -57,11 +57,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: ".node-version"
       - uses: ./.github/actions/setup-meteor
@@ -104,14 +104,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Determine if images should be published to DockerHub
         id: dockerhub
         run: |
-          # check if a release branch, or master, or a tag
-          if [[ "${{ github.ref }}" =~ ^refs/heads/release([0-9]+)$ || "${{ github.ref }}" == "refs/heads/master" || "${{ github.ref }}" == refs/tags/* ]]
+          # check if a release branch, or main, or a tag
+          if [[ "${{ github.ref }}" =~ ^refs/heads/release([0-9]+)$ || "${{ github.ref }}" == "refs/heads/main" || "${{ github.ref }}" == refs/tags/* ]]
           then
             DOCKERHUB_PUBLISH="1"
           else
@@ -161,7 +161,7 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
       - name: Use Node.js
         if: steps.check-build-and-push.outputs.enable == 'true'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: ".node-version"
       - uses: ./.github/actions/setup-meteor
@@ -252,7 +252,7 @@ jobs:
           echo "image=$image" >> $GITHUB_OUTPUT
       - name: Trivy scanning
         if: steps.check-build-and-push.outputs.enable == 'true' && steps.check-ghcr.outputs.enable == 'true' && steps.ghcr-tag.outputs.tags != 0
-        uses: aquasecurity/trivy-action@0.29.0
+        uses: aquasecurity/trivy-action@0.33.1
         env:
           TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db
         with:
@@ -284,14 +284,14 @@ jobs:
         gateway-name: [playout-gateway, mos-gateway, "live-status-gateway"]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Determine if images should be published to DockerHub
         id: dockerhub
         run: |
-          # check if a release branch, or master, or a tag
-          if [[ "${{ github.ref }}" =~ ^refs/heads/release([0-9]+)$ || "${{ github.ref }}" == "refs/heads/master" || "${{ github.ref }}" == "refs/tags/*" ]]
+          # check if a release branch, or main, or a tag
+          if [[ "${{ github.ref }}" =~ ^refs/heads/release([0-9]+)$ || "${{ github.ref }}" == "refs/heads/main" || "${{ github.ref }}" == "refs/tags/*" ]]
           then
             DOCKERHUB_PUBLISH="1"
           else
@@ -340,7 +340,7 @@ jobs:
             type=ref,event=tag
             type=raw,value=latest,enable={{is_default_branch}}
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         if: steps.check-build-and-push.outputs.enable == 'true'
         with:
           node-version-file: ".node-version"
@@ -405,7 +405,7 @@ jobs:
           echo "image=$image" >> $GITHUB_OUTPUT
       - name: Trivy scanning
         if: steps.check-build-and-push.outputs.enable == 'true' && steps.check-ghcr.outputs.enable == 'true' && steps.ghcr-tag.outputs.tags != 0
-        uses: aquasecurity/trivy-action@0.29.0
+        uses: aquasecurity/trivy-action@0.33.1
         env:
           TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db
         with:
@@ -446,13 +446,14 @@ jobs:
           - openapi
           - live-status-gateway
           - webui
+          - live-status-gateway-api
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: ".node-version"
       - name: restore node_modules
@@ -479,7 +480,7 @@ jobs:
           CI: true
 
   test-packages:
-    name: Test Package
+    name: Test Package (main)
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -490,6 +491,7 @@ jobs:
           - blueprints-integration
           - server-core-integration
           - shared-lib
+          # - live-status-gateway-api # no tests yet
           - openapi
         node-version: [22.x]
         include:
@@ -500,27 +502,30 @@ jobs:
           - node-version: 22.x
             package-name: job-worker
             send-coverage: true
-          # No tests for the gateways yet
+          # No tests for some gateways yet
           # - node-version: 22.x
           #   package-name: playout-gateway
-          # - node-version: 22.x
-          #   package-name: mos-gateway
+          #   send-coverage: true
+          - node-version: 22.x
+            package-name: mos-gateway
+            send-coverage: true
           - node-version: 22.x
             package-name: live-status-gateway
             send-coverage: true
           - node-version: 22.x
             package-name: webui
+            send-coverage: true
           # manual meteor-lib as it only needs a couple of versions
           - node-version: 22.x
             package-name: meteor-lib
             send-coverage: true
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
       - name: restore node_modules
@@ -546,8 +551,8 @@ jobs:
         env:
           CI: true
       - name: Send coverage
-        if: (matrix.node-version == '18.x' || matrix.send-coverage == true) && ((github.event_name == 'pull_request') && ((!startsWith(github.head_ref, 'release'))) || ((github.event_name == 'push') && (!startsWith(github.ref_name, 'release'))))
-        uses: codecov/codecov-action@v4
+        if: (matrix.node-version == '22.x' || matrix.send-coverage == true) && (((github.event_name == 'pull_request') && (!startsWith(github.head_ref, 'release'))) || ((github.event_name == 'push') && (!startsWith(github.ref_name, 'release'))))
+        uses: codecov/codecov-action@v5
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
@@ -556,11 +561,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: ".node-version"
       - name: Prepare Environment
@@ -573,10 +578,12 @@ jobs:
           CI: true
       - name: Run generator
         run: |
-          cd packages/live-status-gateway
+          cd packages/live-status-gateway-api
 
           yarn gendocs
           yarn genserver
+
+          yarn generate-schema-types
         env:
           CI: true
   openapi-generation:
@@ -584,11 +591,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: ".node-version"
       - name: Prepare Environment
@@ -620,11 +627,11 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: ".node-version"
       - name: restore node_modules
@@ -657,96 +664,12 @@ jobs:
         env:
           CI: true
       - name: Publish
-        if: github.ref == 'refs/heads/master' # always publish for just the master branch
+        if: github.ref == 'refs/heads/main' # always publish for just the main branch
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./packages/documentation/build
-
-  release-libs:
-    name: Release Lib
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-
-    # only run for tags
-    if: contains(github.ref, 'refs/tags/')
-
-    needs:
-      - test-packages
-      # core must be published first
-      - build-core
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: ".node-version"
-      - name: Prepare Environment # have to run this first to make sure the semver lib is available
-        run: |
-          corepack enable
-
-          yarn config set cacheFolder /home/runner/release-libs-cache
-
-          cd packages
-          yarn install
-        env:
-          CI: true
-      - name: Check release is desired
-        id: do-publish
-        run: |
-          if [ -z "${{ secrets.NPM_TOKEN }}" ]; then
-            echo "No Token"
-          else
-            # make dependencies of `determine-npm-tag` available
-            yarn install --mode=skip-build
-
-            cd packages
-            PACKAGE_NAME="@sofie-automation/shared-lib"
-            PUBLISHED_VERSION=$(yarn npm info --json $PACKAGE_NAME | jq -c '.version' -r)
-            THIS_VERSION=$(node -p "require('./lerna.json').version")
-            NPM_TAG=$(node ../scripts/determine-npm-tag.js $PUBLISHED_VERSION $THIS_VERSION)
-
-            echo "Publishing $NPM_TAG"
-            echo "tag=$NPM_TAG" >> $GITHUB_OUTPUT
-
-          fi
-      - name: Build
-        if: ${{ steps.do-publish.outputs.tag }}
-        run: |
-          cd packages
-          yarn build
-        env:
-          CI: true
-      - name: Build OpenAPI client library
-        if: ${{ steps.do-publish.outputs.tag }}
-        run: |
-          cd packages/openapi
-          yarn build
-        env:
-          CI: true
-      - name: Modify dependencies to use npm packages
-        run: node scripts/prepublish.js
-      - name: Publish to NPM
-        if: ${{ steps.do-publish.outputs.tag }}
-        run: |
-          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
-
-          # hack as it can sometimes have unexpected changes
-          git checkout .yarnrc.yml
-
-          cd packages
-          git checkout .yarnrc.yml
-
-          yarn lerna publish from-package --tag-version-prefix='' --dist-tag ${{ steps.do-publish.outputs.tag }} --yes --no-verify-access
-
-          NEW_VERSION=$(node -p "require('./package.json').version")
-          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
-          echo "**Published:** $NEW_VERSION" >> $GITHUB_STEP_SUMMARY
-        env:
-          CI: true
+          force_orphan: true
 
   check-for-multiple-library-versions:
     name: Check for multiple library versions
@@ -754,11 +677,11 @@ jobs:
     continue-on-error: true
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: ".node-version"
       - uses: ./.github/actions/setup-meteor
@@ -773,7 +696,7 @@ jobs:
       - name: Prepare Environment
         run: |
           corepack enable
-          
+
           yarn config set cacheFolder /home/runner/check-for-multiple-library-versions-cache
           yarn
         env:

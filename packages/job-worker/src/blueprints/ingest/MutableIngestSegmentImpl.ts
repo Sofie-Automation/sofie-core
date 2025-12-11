@@ -7,10 +7,10 @@ import type {
 } from '@sofie-automation/blueprints-integration'
 import { Complete, clone, omit } from '@sofie-automation/corelib/dist/lib'
 import { ReadonlyDeep } from 'type-fest'
-import _ = require('underscore')
-import { MutableIngestPartImpl } from './MutableIngestPartImpl'
-import { SofieIngestRundownDataCacheGenerator } from '../../ingest/sofieIngestCache'
-import { getSegmentId } from '../../ingest/lib'
+import _ from 'underscore'
+import { MutableIngestPartImpl } from './MutableIngestPartImpl.js'
+import { SofieIngestRundownDataCacheGenerator } from '../../ingest/sofieIngestCache.js'
+import { getSegmentId } from '../../ingest/lib.js'
 import { SofieIngestDataCacheObjId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { SofieIngestDataCacheObj } from '@sofie-automation/corelib/dist/dataModel/SofieIngestDataCache'
 
@@ -20,7 +20,6 @@ export interface MutableIngestSegmentChanges {
 	allCacheObjectIds: SofieIngestDataCacheObjId[]
 	segmentHasChanges: boolean
 	partIdsWithChanges: string[]
-	partOrderHasChanged: boolean
 	originalExternalId: string
 }
 
@@ -131,11 +130,13 @@ export class MutableIngestSegmentImpl<TSegmentPayload = unknown, TPartPayload = 
 			if (beforeIndex === -1) throw new Error(`Part "${beforePartExternalId}" not found`)
 
 			this.#parts.splice(beforeIndex, 0, newPart)
+
+			this.#partOrderHasChanged = true
 		} else {
 			this.#parts.push(newPart)
-		}
 
-		this.#partOrderHasChanged = true
+			// If inserting at the end, the order hasn't changed
+		}
 
 		return newPart
 	}
@@ -200,7 +201,6 @@ export class MutableIngestSegmentImpl<TSegmentPayload = unknown, TPartPayload = 
 		}
 
 		if (this.#segmentHasChanges || !_.isEqual(this.#ingestSegment.payload[key], value)) {
-			// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
 			;(this.#ingestSegment.payload as any)[key] = clone(value)
 			this.#segmentHasChanges = true
 		}
@@ -234,14 +234,13 @@ export class MutableIngestSegmentImpl<TSegmentPayload = unknown, TPartPayload = 
 			allCacheObjectIds.push(generator.getPartObjectId(ingestPart.externalId))
 			ingestParts.push(ingestPart)
 
-			if (part.checkAndClearChangesFlags()) {
+			if (this.#partOrderHasChanged || part.checkAndClearChangesFlags()) {
 				changedCacheObjects.push(generator.generatePartObject(segmentId, ingestPart))
 				partIdsWithChanges.push(ingestPart.externalId)
 			}
 		})
 
 		const segmentHasChanges = this.#segmentHasChanges
-		const partOrderHasChanged = this.#partOrderHasChanged
 		const originalExternalId = this.#originalExternalId
 
 		// clear flags
@@ -255,7 +254,6 @@ export class MutableIngestSegmentImpl<TSegmentPayload = unknown, TPartPayload = 
 			allCacheObjectIds,
 			segmentHasChanges,
 			partIdsWithChanges,
-			partOrderHasChanged,
 			originalExternalId,
 		}
 	}

@@ -4,12 +4,12 @@ import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { PeripheralDeviceType } from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI'
 import { useState, useEffect, useContext } from 'react'
-import { MeteorCall } from '../../../lib/meteorApi'
+import { MeteorCall } from '../../../lib/meteorApi.js'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import { Studios } from '../../../collections'
-import { useTracker } from '../../../lib/ReactMeteorData/ReactMeteorData'
-import { UserPermissionsContext } from '../../UserPermissions'
+import { Studios } from '../../../collections/index.js'
+import { useTracker } from '../../../lib/ReactMeteorData/ReactMeteorData.js'
+import { UserPermissionsContext } from '../../UserPermissions.js'
 
 export function useDebugStatesForPlayoutDevice(device: PeripheralDevice): ReadonlyMap<PeripheralDeviceId, object> {
 	const [debugStates, setDebugStates] = useState(() => new Map<PeripheralDeviceId, object>())

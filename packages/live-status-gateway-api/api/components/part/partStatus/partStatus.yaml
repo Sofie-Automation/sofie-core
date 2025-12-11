@@ -1,0 +1,22 @@
+$defs:
+  partStatus:
+    type: object
+    title: PartStatus
+    allOf:
+      - $ref: '../partBase/partBase.yaml#/$defs/partBase'
+      - type: object
+        title: PartStatus
+        properties:
+          segmentId:
+            description: Unique id of the segment this part belongs to
+            type: string
+          pieces:
+            description: All pieces in this part
+            type: array
+            items:
+              $ref: '../../piece/pieceStatus/pieceStatus.yaml#/$defs/pieceStatus'
+          publicData:
+            description: Optional arbitrary data
+        required: [id, name, segmentId, pieces]
+    examples:
+      - $ref: './partStatus-example.yaml'

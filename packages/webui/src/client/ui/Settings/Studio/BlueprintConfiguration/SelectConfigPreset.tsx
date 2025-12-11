@@ -1,13 +1,13 @@
 import { useMemo } from 'react'
-import { Studios } from '../../../../collections'
+import { Studios } from '../../../../collections/index.js'
 import { useTranslation } from 'react-i18next'
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { EditAttribute } from '../../../../lib/EditAttribute'
+import { EditAttribute } from '../../../../lib/EditAttribute.js'
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { IStudioConfigPreset } from '@sofie-automation/blueprints-integration'
-import { LabelActual } from '../../../../lib/Components/LabelAndOverrides'
+import { LabelActual } from '../../../../lib/Components/LabelAndOverrides.js'
 
 interface SelectConfigPresetProps {
 	studio: DBStudio

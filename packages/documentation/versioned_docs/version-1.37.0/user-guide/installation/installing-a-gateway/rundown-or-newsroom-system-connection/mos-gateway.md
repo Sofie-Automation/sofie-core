@@ -5,5 +5,3 @@ The MOS Gateway communicates with a device that supports the [MOS protocol](http
 The setup for the MOS Gateway is handled in the Docker Compose in the [Quick Install](../../installing-sofie-server-core) page.
 
 One thing to note if managing the mos-gateway manually: It needs a few ports open \(10540, 10541\) for MOS-messages to be pushed to it from the NCS.
-
-

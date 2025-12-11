@@ -18,18 +18,20 @@ import {
 	StudioRouteSetExclusivityGroup,
 } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { Complete, clone, literal } from '@sofie-automation/corelib/dist/lib'
-import { protectString } from '@sofie-automation/corelib/dist/protectedString'
+import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { wrapTranslatableMessageFromBlueprints } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import {
 	BlueprintFixUpConfigForStudioResult,
 	BlueprintValidateConfigForStudioResult,
 } from '@sofie-automation/corelib/dist/worker/studio'
-import { compileCoreConfigValues } from '../blueprints/config'
-import { CommonContext } from '../blueprints/context'
-import { JobContext } from '../jobs'
+import { compileCoreConfigValues } from '../blueprints/config.js'
+import { CommonContext } from '../blueprints/context/index.js'
+import { JobContext } from '../jobs/index.js'
 import { FixUpBlueprintConfigContext } from '@sofie-automation/corelib/dist/fixUpBlueprintConfig/context'
 import { DEFAULT_MINIMUM_TAKE_SPAN } from '@sofie-automation/shared-lib/dist/core/constants'
+import { PERIPHERAL_SUBTYPE_PROCESS, PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
+import { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 /**
  * Run the Blueprint applyConfig for the studio
@@ -58,37 +60,91 @@ export async function handleBlueprintUpgradeForStudio(context: JobContext, _data
 			dev[0],
 			literal<Complete<StudioDeviceSettings>>({
 				name: dev[1].name ?? '',
-				options: dev[1],
+				options: dev[1].options ?? {},
 			}),
 		])
 	)
+
+	const allPeripheralDevices = (await context.directCollections.PeripheralDevices.findFetch(
+		{ subType: PERIPHERAL_SUBTYPE_PROCESS },
+		{ projection: { _id: 1, studioAndConfigId: 1 } }
+	)) as Array<Pick<PeripheralDevice, '_id' | 'studioAndConfigId'>>
+
+	const configIdMap = new Map<string, PeripheralDeviceId>() // configId -> deviceId
+	for (const pd of allPeripheralDevices) {
+		if (pd.studioAndConfigId) configIdMap.set(pd.studioAndConfigId.configId, pd._id)
+	}
+
+	// Assign configId and name to peripheral devices
+	for (const configId in parentDevices) {
+		const peripheralDevice = allPeripheralDevices.find((pd) => unprotectString(pd._id).startsWith(configId))
+		if (peripheralDevice) {
+			if (configIdMap.has(configId)) {
+				// Need to ensure there is only one reference to a configId in the peripheralDevices collection
+				const existingPeripheralDeviceId = configIdMap.get(configId)
+				await context.directCollections.PeripheralDevices.update(
+					{
+						studioAndConfigId: { studioId: context.studioId, configId: configId },
+						_id: { $ne: existingPeripheralDeviceId ?? protectString('') },
+					},
+					{
+						$unset: {
+							studioAndConfigId: 1,
+						},
+					}
+				)
+				configIdMap.delete(configId)
+			}
+			await context.directCollections.PeripheralDevices.update(peripheralDevice._id, {
+				$set: {
+					studioAndConfigId: { studioId: context.studioId, configId: configId },
+				},
+			})
+			configIdMap.set(configId, peripheralDevice._id)
+		}
+	}
+
 	const playoutDevices = Object.fromEntries(
-		Object.entries<TSR.DeviceOptionsAny>(result.playoutDevices ?? {}).map((dev) => [
-			dev[0],
-			literal<Complete<StudioPlayoutDevice>>({
-				peripheralDeviceId: undefined,
-				options: dev[1],
-			}),
-		])
+		Object.entries<{ parentConfigId?: string; options: TSR.DeviceOptionsAny }>(result.playoutDevices ?? {}).map(
+			(dev) => {
+				const parentConfigId = dev[1].parentConfigId
+				return [
+					dev[0],
+					literal<Complete<StudioPlayoutDevice>>({
+						peripheralDeviceId: parentConfigId ? configIdMap.get(parentConfigId) : undefined,
+						options: dev[1].options,
+					}),
+				]
+			}
+		)
 	)
+
 	const ingestDevices = Object.fromEntries(
-		Object.entries<unknown>(result.ingestDevices ?? {}).map((dev) => [
-			dev[0],
-			literal<Complete<StudioIngestDevice>>({
-				peripheralDeviceId: undefined,
-				options: dev[1],
-			}),
-		])
+		Object.entries<{ parentConfigId?: string; options: unknown }>(result.ingestDevices ?? {}).map((dev) => {
+			const parentConfigId = dev[1].parentConfigId
+			return [
+				dev[0],
+				literal<Complete<StudioIngestDevice>>({
+					peripheralDeviceId: parentConfigId ? configIdMap.get(parentConfigId) : undefined,
+					options: dev[1].options,
+				}),
+			]
+		})
 	)
+
 	const inputDevices = Object.fromEntries(
-		Object.entries<unknown>(result.inputDevices ?? {}).map((dev) => [
-			dev[0],
-			literal<Complete<StudioInputDevice>>({
-				peripheralDeviceId: undefined,
-				options: dev[1],
-			}),
-		])
+		Object.entries<{ parentConfigId?: string; options: unknown }>(result.inputDevices ?? {}).map((dev) => {
+			const parentConfigId = dev[1].parentConfigId
+			return [
+				dev[0],
+				literal<Complete<StudioInputDevice>>({
+					peripheralDeviceId: parentConfigId ? configIdMap.get(parentConfigId) : undefined,
+					options: dev[1].options,
+				}),
+			]
+		})
 	)
+
 	const routeSets = Object.fromEntries(
 		Object.entries<Partial<StudioRouteSet>>(result.routeSets ?? {}).map((dev) => [
 			dev[0],

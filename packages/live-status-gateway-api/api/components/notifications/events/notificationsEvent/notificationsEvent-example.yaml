@@ -1,0 +1,3 @@
+event: notifications
+activeNotifications:
+  - $ref: '../../notificationObj/notificationObj-example.yaml'

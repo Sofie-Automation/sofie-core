@@ -5,18 +5,18 @@ import {
 	sortItems,
 	SortBy,
 	SortOrder,
-} from '../../MediaStatus/MediaStatus'
-import { useSubscription, useTracker } from '../../../lib/ReactMeteorData/ReactMeteorData'
-import { RundownPlaylists } from '../../../collections'
-import { Spinner } from '../../../lib/Spinner'
-import { MediaStatusListItem } from './MediaStatusListItem'
+} from '../../MediaStatus/MediaStatus.js'
+import { useSubscription, useTracker } from '../../../lib/ReactMeteorData/ReactMeteorData.js'
+import { RundownPlaylists } from '../../../collections/index.js'
+import { Spinner } from '../../../lib/Spinner.js'
+import { MediaStatusListItem } from './MediaStatusListItem.js'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { useTranslation } from 'react-i18next'
-import { MediaStatusListHeader } from './MediaStatusListHeader'
+import { MediaStatusListHeader } from './MediaStatusListHeader.js'
 import { translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
-import { mapOrFallback, useDebounce } from '../../../lib/lib'
+import { mapOrFallback, useDebounce } from '../../../lib/lib.js'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import Form from 'react-bootstrap/Form'
 

@@ -1,7 +1,7 @@
 import classNames from 'classnames'
-import { SegmentUi } from '../../SegmentTimeline/SegmentTimelineContainer'
+import { SegmentUi } from '../../SegmentTimeline/SegmentTimelineContainer.js'
 import { useTranslation } from 'react-i18next'
-import { useCurrentTime } from '../../../lib/lib'
+import { useCurrentTime } from '../../../lib/lib.js'
 import Moment from 'react-moment'
 
 interface ISegmentTimeAnchorTimeProps {

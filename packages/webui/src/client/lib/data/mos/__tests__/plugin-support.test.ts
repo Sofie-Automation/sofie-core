@@ -1,4 +1,4 @@
-import { createMosAppInfoXmlString } from '../plugin-support'
+import { createMosAppInfoXmlString } from '../plugin-support.js'
 import { parseStringPromise } from 'xml2js'
 
 describe('createMosAppInfoXmlString', () => {

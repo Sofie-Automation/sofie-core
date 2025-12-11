@@ -1,0 +1,11 @@
+components:
+  messages:
+    activePlaylistMessage:
+      name: activePlaylist
+      messageId: activePlaylistUpdate
+      description: Active Playlist status
+      payload:
+        $ref: '../activePlaylistEvent/activePlaylistEvent.yaml#/$defs/activePlaylistEvent'
+      examples:
+        - payload:
+            $ref: '../activePlaylistEvent/activePlaylistEvent-example.yaml'

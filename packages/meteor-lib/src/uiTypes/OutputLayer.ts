@@ -1,5 +1,5 @@
 import type { IOutputLayer } from '@sofie-automation/shared-lib/dist/core/model/ShowStyle'
-import type { ISourceLayerExtended } from './SourceLayer'
+import type { ISourceLayerExtended } from './SourceLayer.js'
 
 export interface IOutputLayerExtended extends IOutputLayer {
 	/** Is this output layer used in this segment */

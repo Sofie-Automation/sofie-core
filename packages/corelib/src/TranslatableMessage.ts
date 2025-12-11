@@ -1,7 +1,7 @@
 import { ITranslatableMessage as IBlueprintTranslatableMessage } from '@sofie-automation/blueprints-integration'
 import { TFunction } from 'i18next'
 import { ReadonlyDeep } from 'type-fest'
-import { BlueprintId } from './dataModel/Ids'
+import { BlueprintId } from './dataModel/Ids.js'
 
 /**
  * @enum - A translatable message (i18next)
@@ -44,6 +44,7 @@ export function interpollateTranslation(key: unknown, ...args: any[]): string {
 	}
 
 	if (typeof args[0] === 'string') {
+		// eslint-disable-next-line @typescript-eslint/no-base-to-string
 		return String(key || args[0])
 	}
 
@@ -117,7 +118,7 @@ export function wrapTranslatableMessageFromBlueprintsIfNotString(
 		: {
 				...message,
 				namespaces: blueprintIds.map((id) => `blueprint_${id}`),
-		  }
+			}
 }
 
 function checkArgs(args: any): args is { [key: string]: any } {

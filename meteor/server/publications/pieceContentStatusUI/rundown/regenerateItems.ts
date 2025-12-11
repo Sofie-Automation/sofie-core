@@ -8,7 +8,8 @@ import {
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ReadonlyDeep } from 'type-fest'
 import { UIPieceContentStatus } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
-import { literal, protectString } from '../../../lib/tempLib'
+import { literal } from '@sofie-automation/corelib/dist/lib'
+import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { CustomPublishCollection } from '../../../lib/customPublication'
 import { ContentCache } from './reactiveContentCache'
 import { wrapTranslatableMessageFromBlueprintsIfNotString } from '@sofie-automation/corelib/dist/TranslatableMessage'
@@ -166,6 +167,18 @@ export async function regenerateForPieceInstanceIds(
 			const sourceLayer =
 				pieceDoc.piece.sourceLayerId && sourceLayersForRundown?.sourceLayers?.[pieceDoc.piece.sourceLayerId]
 
+			let previousPieceInstanceId: PieceInstanceId | undefined
+			if (pieceDoc.infinite) {
+				// Note: this is a temporary solution, until single packages can be owned by multiple PieceInstances
+				// This shouldn't need to be reactive upon this PieceInstance, as this is filling a brief gap until package-manager catches up.
+				// That assumption could be wrong, but trying to track this dependency will be messy so would be nice to avoid.
+				const previousPieceInstance = contentCache.PieceInstances.findOne({
+					'infinite.infiniteInstanceId': pieceDoc.infinite.infiniteInstanceId,
+					'infinite.infiniteInstanceIndex': pieceDoc.infinite.infiniteInstanceIndex - 1,
+				})
+				previousPieceInstanceId = previousPieceInstance?._id
+			}
+
 			if (partInstance && segment && sourceLayer) {
 				const [status, dependencies] = await checkPieceContentStatusAndDependencies(
 					uiStudio,
@@ -173,6 +186,7 @@ export async function regenerateForPieceInstanceIds(
 					{
 						...pieceDoc.piece,
 						pieceInstanceId: pieceDoc._id,
+						previousPieceInstanceId,
 					},
 					sourceLayer
 				)

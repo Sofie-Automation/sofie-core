@@ -1,5 +1,5 @@
-import { IProps } from './ThumbnailRendererFactory'
-import { getSplitItems } from '../../../SegmentContainer/getSplitItems'
+import { IProps } from './ThumbnailRendererFactory.js'
+import { getSplitItems } from '../../../SegmentContainer/getSplitItems.js'
 
 export function SplitsThumbnailRenderer({ pieceInstance }: Readonly<IProps>): JSX.Element {
 	const splitItems = getSplitItems(pieceInstance, 'segment-storyboard__thumbnail__item')

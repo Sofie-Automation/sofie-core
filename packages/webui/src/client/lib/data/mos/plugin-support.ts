@@ -1,4 +1,4 @@
-import { objectToXML } from '../util/object-to-xml'
+import { objectToXML } from '../util/object-to-xml.js'
 
 export enum AckStatus {
 	ACK = 'ACK',
@@ -75,7 +75,7 @@ export function createMosAppInfoXmlString(uiMetrics?: UIMetric[]): string {
 										num: index.toString(),
 									},
 								})
-						  })
+							})
 						: undefined,
 				},
 			},

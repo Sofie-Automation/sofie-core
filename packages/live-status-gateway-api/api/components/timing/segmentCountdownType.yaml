@@ -1,0 +1,6 @@
+type: string
+title: SegmentCountdownType
+description: 'Countdown type within the segment. Default: `part_expected_duration`'
+enum:
+  - part_expected_duration
+  - segment_budget_duration

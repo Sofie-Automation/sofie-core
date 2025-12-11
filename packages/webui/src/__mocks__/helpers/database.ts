@@ -1,4 +1,4 @@
-import * as _ from 'underscore'
+import _ from 'underscore'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import {
 	PieceLifespan,
@@ -10,7 +10,8 @@ import {
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
 import { ICoreSystem, SYSTEM_ID } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
-import { literal, protectString, getRandomId, Complete, normalizeArray } from '../../client/lib/tempLib'
+import { literal, getRandomId, Complete, normalizeArray } from '@sofie-automation/corelib/dist/lib'
+import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
@@ -18,17 +19,17 @@ import { EmptyPieceTimelineObjectsBlob, Piece } from '@sofie-automation/corelib/
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { RundownBaselineAdLibItem } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibPiece'
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
-import { restartRandomId } from '../random'
-import { MongoMock } from '../mongo'
-import { defaultRundownPlaylist, defaultStudio } from '../defaultCollectionObjects'
+import { restartRandomId } from '../random.js'
+import { MongoMock } from '../mongo.js'
+import { defaultRundownPlaylist, defaultStudio } from '../defaultCollectionObjects.js'
 import {
 	applyAndValidateOverrides,
 	wrapDefaultObject,
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
+import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import {
 	BlueprintId,
-	OrganizationId,
 	RundownId,
 	RundownPlaylistId,
 	ShowStyleBaseId,
@@ -46,7 +47,7 @@ import {
 	ShowStyleBases,
 	ShowStyleVariants,
 	Studios,
-} from '../../client/collections'
+} from '../../client/collections/index.js'
 
 export enum LAYER_IDS {
 	SOURCE_CAM0 = 'cam0',
@@ -161,7 +162,6 @@ export async function setupMockShowStyleBase(
 	const defaultShowStyleBase: DBShowStyleBase = {
 		_id: protectString('mockShowStyleBase' + dbI++),
 		name: 'mockShowStyleBase',
-		organizationId: null,
 		outputLayersWithOverrides: wrapDefaultObject(
 			normalizeArray(
 				[
@@ -251,9 +251,7 @@ export interface DefaultEnvironment {
 	core: ICoreSystem
 	// systemTriggeredActions: DBTriggeredActions[]
 }
-export async function setupDefaultStudioEnvironment(
-	organizationId: OrganizationId | null = null
-): Promise<DefaultEnvironment> {
+export async function setupDefaultStudioEnvironment(): Promise<DefaultEnvironment> {
 	const core = await setupMockCore({})
 	// const systemTriggeredActions = await setupMockTriggeredActions()
 
@@ -262,7 +260,6 @@ export async function setupDefaultStudioEnvironment(
 
 	const showStyleBase = await setupMockShowStyleBase(protectString('blueprint0'), {
 		_id: showStyleBaseId,
-		organizationId: organizationId,
 	})
 	// const triggeredActions = await setupMockTriggeredActions(showStyleBase._id)
 	const showStyleVariant = await setupMockShowStyleVariant(showStyleBase._id, { _id: showStyleVariantId })
@@ -270,7 +267,6 @@ export async function setupDefaultStudioEnvironment(
 	const studio = await setupMockStudio({
 		blueprintId: protectString('blueprint0'),
 		supportedShowStyleBase: [showStyleBaseId],
-		organizationId: organizationId,
 	})
 
 	return {
@@ -318,7 +314,6 @@ export async function setupDefaultRundown(
 	const sourceLayerIds = Object.keys(applyAndValidateOverrides(env.showStyleBase.sourceLayersWithOverrides).obj)
 
 	const rundown: DBRundown = {
-		organizationId: null,
 		studioId: env.studio._id,
 		showStyleBaseId: env.showStyleBase._id,
 		showStyleVariantId: env.showStyleVariant._id,
@@ -559,5 +554,15 @@ export function convertToUIShowStyleBase(showStyleBase: DBShowStyleBase): UIShow
 		hotkeyLegend: showStyleBase.hotkeyLegend,
 		sourceLayers: applyAndValidateOverrides(showStyleBase.sourceLayersWithOverrides).obj,
 		outputLayers: applyAndValidateOverrides(showStyleBase.outputLayersWithOverrides).obj,
+	})
+}
+export function convertToUIStudio(studio: DBStudio): UIStudio {
+	return literal<Complete<UIStudio>>({
+		_id: studio._id,
+		settings: applyAndValidateOverrides(studio.settingsWithOverrides).obj,
+		name: studio.name,
+		routeSets: applyAndValidateOverrides(studio.routeSetsWithOverrides).obj,
+		routeSetExclusivityGroups: applyAndValidateOverrides(studio.routeSetExclusivityGroupsWithOverrides).obj,
+		mappings: {},
 	})
 }

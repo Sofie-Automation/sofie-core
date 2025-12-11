@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { PreviewPopUp, PreviewPopUpHandle } from './PreviewPopUp'
+import React, { useRef, useState } from 'react'
+import { PreviewPopUp, PreviewPopUpHandle } from './PreviewPopUp.js'
 import { Padding, Placement } from '@popperjs/core'
-import { PreviewPopUpContent } from './PreviewPopUpContent'
+import { PreviewPopUpContent } from './PreviewPopUpContent.js'
 import {
 	JSONBlobParse,
 	NoraPayload,
@@ -19,8 +19,9 @@ import { ReadonlyDeep, ReadonlyObjectDeep } from 'type-fest/source/readonly-deep
 import { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
 import { ITranslatableMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import _ from 'underscore'
-import { IAdLibListItem } from '../Shelf/AdLibListItem'
+import { IAdLibListItem } from '../Shelf/AdLibListItem.js'
 import { PieceInstancePiece } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
+import { createPrivateApiPath } from '../../url.js'
 
 type VirtualElement = {
 	getBoundingClientRect: () => DOMRect
@@ -46,7 +47,10 @@ export function convertSourceLayerItemToPreview(
 		if (popupPreview.preview) {
 			switch (popupPreview.preview.type) {
 				case PreviewType.BlueprintImage:
-					contents.push({ type: 'image', src: '/api/private/blueprints/assets/' + popupPreview.preview.image })
+					contents.push({
+						type: 'image',
+						src: createPrivateApiPath('/blueprints/assets/' + popupPreview.preview.image),
+					})
 					break
 				case PreviewType.HTML:
 					contents.push({
@@ -76,7 +80,7 @@ export function convertSourceLayerItemToPreview(
 					contents.push({
 						type: 'boxLayout',
 						boxSourceConfiguration: popupPreview.preview.boxes,
-						backgroundArtSrc: '/api/private/blueprints/assets/' + popupPreview.preview.background,
+						backgroundArtSrc: createPrivateApiPath('/blueprints/assets/' + popupPreview.preview.background),
 					})
 					break
 				case PreviewType.Table:
@@ -94,23 +98,25 @@ export function convertSourceLayerItemToPreview(
 					}
 					break
 				case PreviewType.VT:
-					if (contentStatus?.previewUrl) {
-						contents.push({
-							type: 'video',
-							src: contentStatus?.previewUrl,
-						})
-					} else if (contentStatus?.thumbnailUrl) {
-						contents.push({
-							type: 'image',
-							src: contentStatus.thumbnailUrl,
-						})
-					}
 					if (popupPreview.preview.outWords) {
 						contents.push({
 							type: 'inOutWords',
 							in: popupPreview.preview.inWords,
 							out: popupPreview.preview.outWords,
 						})
+					}
+					if (contentStatus?.previewUrl) {
+						contents.push({
+							type: 'video',
+							src: contentStatus?.previewUrl,
+						})
+						options.size = 'large'
+					} else if (contentStatus?.thumbnailUrl) {
+						contents.push({
+							type: 'image',
+							src: contentStatus.thumbnailUrl,
+						})
+						options.size = 'large'
 					}
 					break
 			}
@@ -135,24 +141,32 @@ export function convertSourceLayerItemToPreview(
 					type: 'title',
 					content: content.fileName,
 				},
+				content.lastWords
+					? {
+							type: 'inOutWords',
+							in: content.firstWords,
+							out: content.lastWords,
+						}
+					: undefined,
 				contentStatus?.previewUrl
 					? {
 							type: 'video',
 							src: contentStatus.previewUrl,
-					  }
+						}
 					: contentStatus?.thumbnailUrl
-					? {
-							type: 'image',
-							src: contentStatus.thumbnailUrl,
-					  }
-					: undefined,
-				// todo - add in-out words after rebasing
+						? {
+								type: 'image',
+								src: contentStatus.thumbnailUrl,
+							}
+						: undefined,
 				...(contentStatus?.messages?.map<PreviewContent>((m) => ({
 					type: 'warning',
 					content: m as any,
 				})) || []),
 			]) as PreviewContent[],
-			options: {},
+			options: {
+				size: contentStatus?.previewUrl ? 'large' : undefined,
+			},
 		}
 	} else if (
 		(sourceLayerType === SourceLayerType.GRAPHICS || sourceLayerType === SourceLayerType.LOWER_THIRD) &&
@@ -160,13 +174,15 @@ export function convertSourceLayerItemToPreview(
 	) {
 		try {
 			const payload = JSONBlobParse<NoraPayload>(item.content.previewPayload)
-			const tableProps = Object.entries<unknown>(payload.content)
-				.filter(([key, value]) => !(key.startsWith('_') || key.startsWith('@') || value === ''))
-				.map(([key, value]) => ({ key, value }))
+			const tableProps = payload.content
+				? Object.entries<unknown>(payload.content)
+						.filter(([key, value]) => !(key.startsWith('_') || key.startsWith('@') || value === ''))
+						.map(([key, value]) => ({ key, value }))
+				: []
 
 			return {
 				contents: _.compact([
-					item.content.previewRenderer
+					item.content.previewRenderer && payload.template
 						? {
 								type: 'iframe',
 								href: item.content.previewRenderer,
@@ -194,11 +210,11 @@ export function convertSourceLayerItemToPreview(
 										step: payload.step,
 									},
 								},
-						  }
+							}
 						: {
 								type: 'data',
 								content: tableProps,
-						  },
+							},
 					item.content.step && {
 						type: 'stepCount',
 						current: item.content.step.current,
@@ -208,7 +224,7 @@ export function convertSourceLayerItemToPreview(
 				options: { size: 'large' },
 			}
 		} catch (e) {
-			console.error(`Failed to generate preview PopUp payload:`, e, item.content.previewPayload)
+			console.error(`Failed to generate preview PopUp payload:`, e, item.content.previewPayload, item)
 
 			return {
 				contents: _.compact([
@@ -249,6 +265,7 @@ export function convertSourceLayerItemToPreview(
 				{
 					type: 'script',
 					script: content.fullScript,
+					firstWords: content.firstWords,
 					lastWords: content.lastWords,
 					comment: content.comment,
 					lastModified: content.lastModified ?? undefined,
@@ -262,7 +279,10 @@ export function convertSourceLayerItemToPreview(
 	} else if (sourceLayerType === SourceLayerType.TRANSITION) {
 		const content = item.content as TransitionContent
 		if (content.preview)
-			return { contents: [{ type: 'image', src: '/api/private/blueprints/assets/' + content.preview }], options: {} }
+			return {
+				contents: [{ type: 'image', src: createPrivateApiPath('/blueprints/assets/' + content.preview) }],
+				options: {},
+			}
 	}
 
 	return { contents: [], options: {} }
@@ -286,6 +306,7 @@ export type PreviewContent =
 	| {
 			type: 'script'
 			script?: string
+			firstWords?: string
 			lastWords?: string
 			comment?: string
 			lastModified?: number
@@ -433,10 +454,6 @@ export function PreviewPopUpContextProvider({ children }: React.PropsWithChildre
 			return handle
 		},
 	}
-
-	useEffect(() => {
-		console.log(previewSession)
-	}, [previewSession])
 
 	return (
 		<PreviewPopUpContext.Provider value={context}>

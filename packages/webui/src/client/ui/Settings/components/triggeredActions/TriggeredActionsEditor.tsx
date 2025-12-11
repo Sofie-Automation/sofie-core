@@ -1,36 +1,39 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useSubscription, useTracker } from '../../../../lib/ReactMeteorData/ReactMeteorData'
+import { useSubscription, useTracker } from '../../../../lib/ReactMeteorData/ReactMeteorData.js'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { faCaretDown, faCaretRight, faDownload, faPlus, faUpload } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { TriggeredActionEntry, TRIGGERED_ACTION_ENTRY_DRAG_TYPE } from './TriggeredActionEntry'
-import { literal, unprotectString } from '../../../../lib/tempLib'
-import { TriggersHandler } from '../../../../lib/triggers/TriggersHandler'
+import { TriggeredActionEntry, TRIGGERED_ACTION_ENTRY_DRAG_TYPE } from './TriggeredActionEntry.js'
+import { literal } from '@sofie-automation/corelib/dist/lib'
+import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
+import { TriggersHandler } from '../../../../lib/triggers/TriggersHandler.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { MeteorCall } from '../../../../lib/meteorApi'
-import { UploadButton } from '../../../../lib/uploadButton'
-import { ErrorBoundary } from '../../../../lib/ErrorBoundary'
-import { SorensenContext } from '../../../../lib/SorensenContext'
+import { MeteorCall } from '../../../../lib/meteorApi.js'
+import { UploadButton } from '../../../../lib/uploadButton.js'
+import { ErrorBoundary } from '../../../../lib/ErrorBoundary.js'
+import { SorensenContext } from '../../../../lib/SorensenContext.js'
 import Tooltip from 'rc-tooltip'
 import { useDrop } from 'react-dnd'
 import { TriggerType } from '@sofie-automation/blueprints-integration'
-import { keyLabelsToCodes } from '../../../../lib/triggers/codesToKeyLabels'
+import { keyLabelsToCodes } from '../../../../lib/triggers/codesToKeyLabels.js'
 import classNames from 'classnames'
-import { catchError, fetchFrom } from '../../../../lib/lib'
-import { NotificationCenter, Notification, NoticeLevel } from '../../../../lib/notifications/notifications'
-import { doModalDialog } from '../../../../lib/ModalDialog'
+import { catchError, fetchFrom } from '../../../../lib/lib.js'
+import { NotificationCenter, Notification, NoticeLevel } from '../../../../lib/notifications/notifications.js'
+import { doModalDialog } from '../../../../lib/ModalDialog.js'
 import { PartId, RundownId, ShowStyleBaseId, TriggeredActionId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { RundownPlaylists, Rundowns, TriggeredActions } from '../../../../collections'
+import { RundownPlaylists, Rundowns, TriggeredActions } from '../../../../collections/index.js'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { SourceLayers, OutputLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { RundownPlaylistCollectionUtil } from '../../../../collections/rundownPlaylistUtil'
+import { RundownPlaylistCollectionUtil } from '../../../../collections/rundownPlaylistUtil.js'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
-import { UIPartInstances, UIParts } from '../../../Collections'
+import { UIPartInstances, UIParts } from '../../../Collections.js'
 import Form from 'react-bootstrap/esm/Form'
 import Button from 'react-bootstrap/esm/Button'
+import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
+import { createPrivateApiPath } from '../../../../url.js'
 
 export interface PreviewContext {
 	rundownPlaylist: DBRundownPlaylist | null
@@ -51,7 +54,6 @@ export const TriggeredActionsEditor: React.FC<IProps> = function TriggeredAction
 	props: IProps
 ): React.ReactElement | null {
 	const sorensen = useContext(SorensenContext)
-	const [uploadFileKey, setUploadFileKey] = useState(Date.now())
 	const [systemWideCollapsed, setSystemWideCollapsed] = useState(true)
 	const [selectedTriggeredActionId, setSelectedTriggeredActionId] = useState<null | TriggeredActionId>(null)
 	const [triggerFilter, setTriggerFilter] = useState('')
@@ -98,21 +100,25 @@ export const TriggeredActionsEditor: React.FC<IProps> = function TriggeredAction
 	const systemTriggeredActionIds = useTracker(
 		() =>
 			TriggeredActions.find(
-				Object.assign(
-					{
-						showStyleBaseId: null,
-					},
-					parsedTriggerFilter
-						? {
-								triggers: {
-									$elemMatch: {
-										type: TriggerType.hotkey,
-										keys: { $regex: `${parsedTriggerFilter}`, $options: 'i' },
+				parsedTriggerFilter
+					? {
+							$or: [
+								{
+									triggersWithOverrides: {
+										defaults: {
+											0: {
+												type: TriggerType.hotkey,
+												keys: { $regex: `${parsedTriggerFilter}`, $options: 'i' },
+											},
+										},
 									},
+									showStyleBaseId: null,
 								},
-						  }
-						: undefined
-				),
+							],
+						}
+					: {
+							showStyleBaseId: null,
+						},
 				{
 					sort: {
 						_rank: 1,
@@ -127,21 +133,25 @@ export const TriggeredActionsEditor: React.FC<IProps> = function TriggeredAction
 	const showTriggeredActionIds = useTracker(
 		() =>
 			TriggeredActions.find(
-				Object.assign(
-					{
-						showStyleBaseId: showStyleBaseId,
-					},
-					parsedTriggerFilter
-						? {
-								triggers: {
-									$elemMatch: {
-										type: TriggerType.hotkey,
-										keys: { $regex: `${parsedTriggerFilter}`, $options: 'i' },
+				parsedTriggerFilter
+					? {
+							$or: [
+								{
+									triggersWithOverrides: {
+										defaults: {
+											0: {
+												type: TriggerType.hotkey,
+												keys: { $regex: `${parsedTriggerFilter}`, $options: 'i' },
+											},
+										},
 									},
+									showStyleBaseId,
 								},
-						  }
-						: undefined
-				),
+							],
+						}
+					: {
+							showStyleBaseId,
+						},
 				{
 					sort: {
 						_rank: 1,
@@ -318,72 +328,8 @@ export const TriggeredActionsEditor: React.FC<IProps> = function TriggeredAction
 	)
 
 	const onDownloadActions = useCallback(() => {
-		window.location.replace(`/api/private/actionTriggers/download/${showStyleBaseId ?? ''}`)
+		window.location.replace(createPrivateApiPath(`actionTriggers/download/${showStyleBaseId ?? ''}`))
 	}, [showStyleBaseId])
-
-	const onUploadActions = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-		const file = e.target.files && e.target.files[0]
-		if (!file) {
-			return
-		}
-
-		const reader = new FileReader()
-		reader.onload = (e2) => {
-			// On file upload
-
-			setUploadFileKey(Date.now())
-
-			const uploadFileContents = (e2.target as any).result
-
-			if (uploadFileContents) {
-				function uploadStoredTriggeredActions(replace?: boolean) {
-					fetchFrom(`/api/private/actionTriggers/upload/${showStyleBaseId ?? ''}${replace ? '?replace' : ''}`, {
-						method: 'POST',
-						body: uploadFileContents,
-						headers: {
-							'content-type': 'application/json',
-							// authorization: 'id ' + Meteor.userId(),
-						},
-					})
-						.then(() => {
-							NotificationCenter.push(
-								new Notification(
-									undefined,
-									NoticeLevel.NOTIFICATION,
-									t('Triggered Actions uploaded successfully.'),
-									'TriggeredActions'
-								)
-							)
-						})
-						.catch((err) => {
-							NotificationCenter.push(
-								new Notification(
-									undefined,
-									NoticeLevel.WARNING,
-									t('Triggered Actions failed to upload: {{errorMessage}}', { errorMessage: err + '' }),
-									'TriggeredActions'
-								)
-							)
-						})
-				}
-
-				doModalDialog({
-					title: t('Append or Replace'),
-					message: t('Do you want to append these to existing Action Triggers, or do you want to replace them?'),
-					no: t('Append'),
-					yes: t('Replace'),
-					warning: true,
-					onAccept: () => {
-						uploadStoredTriggeredActions(true)
-					},
-					onSecondary: () => {
-						uploadStoredTriggeredActions(false)
-					},
-				})
-			}
-		}
-		reader.readAsText(file)
-	}, [])
 
 	return (
 		<div>
@@ -469,7 +415,7 @@ export const TriggeredActionsEditor: React.FC<IProps> = function TriggeredAction
 										}
 										onFocus={setSelectedTriggeredActionId}
 									/>
-							  ))
+								))
 							: null}
 
 						{!systemWideCollapsed && !parsedTriggerFilter && systemTriggeredActionIds?.length === 0 && (
@@ -485,16 +431,9 @@ export const TriggeredActionsEditor: React.FC<IProps> = function TriggeredAction
 					</Button>
 				</Tooltip>
 				<Tooltip overlay={t('Upload stored Action Triggers')} placement="top">
-					<span className="inline-block">
-						<UploadButton
-							className="btn btn-outline-secondary mx-1"
-							key={uploadFileKey}
-							onChange={onUploadActions}
-							accept="application/json,.json"
-						>
-							<FontAwesomeIcon icon={faUpload} />
-						</UploadButton>
-					</span>
+					<div className="d-inline-block">
+						<ImportTriggeredActionsButton showStyleBaseId={showStyleBaseId} />
+					</div>
 				</Tooltip>
 				<Tooltip overlay={t('Download Action Triggers')} placement="top">
 					<Button variant="outline-secondary" className="mx-1" onClick={onDownloadActions}>
@@ -503,5 +442,84 @@ export const TriggeredActionsEditor: React.FC<IProps> = function TriggeredAction
 				</Tooltip>
 			</div>
 		</div>
+	)
+}
+
+function ImportTriggeredActionsButton({ showStyleBaseId }: { showStyleBaseId: ShowStyleBaseId | null }) {
+	const { t } = useTranslation()
+
+	const onUploadActions = useCallback(
+		(uploadFileContents: string) => {
+			function uploadStoredTriggeredActions(replace?: boolean) {
+				fetchFrom(createPrivateApiPath(`actionTriggers/upload/${showStyleBaseId ?? ''}${replace ? '?replace' : ''}`), {
+					method: 'POST',
+					body: uploadFileContents,
+					headers: {
+						'content-type': 'application/json',
+						// authorization: 'id ' + Meteor.userId(),
+					},
+				})
+					.then(() => {
+						NotificationCenter.push(
+							new Notification(
+								undefined,
+								NoticeLevel.NOTIFICATION,
+								t('Triggered Actions uploaded successfully.'),
+								'TriggeredActions'
+							)
+						)
+					})
+					.catch((err) => {
+						NotificationCenter.push(
+							new Notification(
+								undefined,
+								NoticeLevel.WARNING,
+								t('Triggered Actions failed to upload: {{errorMessage}}', { errorMessage: err + '' }),
+								'TriggeredActions'
+							)
+						)
+					})
+			}
+
+			doModalDialog({
+				title: t('Append or Replace'),
+				message: t('Do you want to append these to existing Action Triggers, or do you want to replace them?'),
+				no: t('Append'),
+				yes: t('Replace'),
+				warning: true,
+				onAccept: () => {
+					uploadStoredTriggeredActions(true)
+				},
+				onSecondary: () => {
+					uploadStoredTriggeredActions(false)
+				},
+			})
+		},
+		[t, showStyleBaseId]
+	)
+
+	const onUploadError = useCallback(
+		(err: Error) => {
+			NotificationCenter.push(
+				new Notification(
+					undefined,
+					NoticeLevel.WARNING,
+					t('Triggered Actions failed to upload: {{errorMessage}}', { errorMessage: stringifyError(err) }),
+					'TriggeredActions'
+				)
+			)
+		},
+		[t]
+	)
+
+	return (
+		<UploadButton
+			className="btn btn-outline-secondary mx-1"
+			onUploadContents={onUploadActions}
+			onUploadError={onUploadError}
+			accept="application/json,.json"
+		>
+			<FontAwesomeIcon icon={faUpload} />
+		</UploadButton>
 	)
 }

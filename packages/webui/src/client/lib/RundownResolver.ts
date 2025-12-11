@@ -8,9 +8,10 @@ import {
 	buildPiecesStartingInThisPartQuery,
 	buildPastInfinitePiecesForThisPartQuery,
 } from '@sofie-automation/corelib/dist/playout/infinites'
-import { invalidateAfter } from './invalidatingTime'
-import { groupByToMap, protectString } from './tempLib'
-import { getCurrentTime } from './systemTime'
+import { invalidateAfter } from './invalidatingTime.js'
+import { groupByToMap } from '@sofie-automation/corelib/dist/lib'
+import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
+import { getCurrentTime } from './systemTime.js'
 import { DBRundownPlaylist, QuickLoopMarkerType } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { mongoWhereFilter, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
@@ -22,8 +23,8 @@ import {
 	SegmentId,
 	ShowStyleBaseId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { RundownPlaylistClientUtil } from './rundownPlaylistUtil'
-import { PieceInstances, Pieces } from '../collections/index'
+import { RundownPlaylistClientUtil } from './rundownPlaylistUtil.js'
+import { PieceInstances, Pieces } from '../collections/index.js'
 
 import { PieceExtended } from '@sofie-automation/meteor-lib/dist/uiTypes/Piece'
 import { ISourceLayerExtended } from '@sofie-automation/meteor-lib/dist/uiTypes/SourceLayer'
@@ -108,9 +109,10 @@ const SIMULATION_INVALIDATION = 3000
  * @param {boolean} nextPartIsAfterCurrentPart
  * @param {(PartInstance | undefined)} currentPartInstance
  * @param {(PieceInstance[] | undefined)} currentPartInstancePieceInstances
+ * @param {boolean} allowTestingAdlibsToPersist Studio config parameter to allow infinite adlibs from adlib testing to persist in the rundown
  * @param {FindOptions<PieceInstance>} [options]
  * @param {boolean} [pieceInstanceSimulation] If there are no PieceInstances in the PartInstance, create temporary
- * 		PieceInstances based on the Pieces collection and register a reactive dependancy to recalculate the current
+ * 		PieceInstances based on the Pieces collection and register a reactive dependency to recalculate the current
  * 		computation after some time to return the actual PieceInstances for the PartInstance.
  * @return {*}
  */
@@ -122,12 +124,13 @@ export function getPieceInstancesForPartInstance(
 	partsToReceiveOnSegmentEndFromSet: Set<PartId>,
 	segmentsToReceiveOnRundownEndFromSet: Set<SegmentId>,
 	rundownsToReceiveOnShowStyleEndFrom: RundownId[],
-	rundownsToShowstyles: Map<RundownId, ShowStyleBaseId>,
+	rundownsToShowstyles: ReadonlyMap<RundownId, ShowStyleBaseId>,
 	orderedAllParts: PartId[],
 	nextPartIsAfterCurrentPart: boolean,
 	currentPartInstance: PartInstance | undefined,
 	currentSegment: Pick<DBSegment, '_id' | 'orphaned'> | undefined,
 	currentPartInstancePieceInstances: PieceInstance[] | undefined,
+	allowTestingAdlibsToPersist: boolean,
 	/** Map of Pieces on Parts, passed through for performance */
 	allPiecesCache?: Map<PartId, Piece[]>,
 	options?: FindOptions<PieceInstance>,
@@ -162,7 +165,8 @@ export function getPieceInstancesForPartInstance(
 			orderedAllParts,
 			partInstance._id,
 			nextPartIsAfterCurrentPart,
-			partInstance.isTemporary
+			partInstance.isTemporary,
+			allowTestingAdlibsToPersist
 		)
 	} else {
 		const results =
@@ -209,7 +213,8 @@ export function getPieceInstancesForPartInstance(
 				orderedAllParts,
 				partInstance._id,
 				nextPartIsAfterCurrentPart,
-				true
+				true,
+				allowTestingAdlibsToPersist
 			)
 		} else {
 			// otherwise, return results as they are

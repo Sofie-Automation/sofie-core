@@ -1,13 +1,13 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react'
-import Escape from './../../../lib/Escape'
-import { PieceExtended } from '../../../lib/RundownResolver'
+import Escape from './../../../lib/Escape.js'
+import { PieceExtended } from '../../../lib/RundownResolver.js'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { usePopper } from 'react-popper'
 import { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { StoryboardSecondaryPiece } from '../../SegmentStoryboard/StoryboardPartSecondaryPieces/StoryboardSecondaryPiece'
-import StudioContext from '../../RundownView/StudioContext'
-import { PieceUi } from '../../SegmentContainer/withResolvedSegment'
-import { catchError } from '../../../lib/lib'
+import { StoryboardSecondaryPiece } from '../../SegmentStoryboard/StoryboardPartSecondaryPieces/StoryboardSecondaryPiece.js'
+import StudioContext from '../../RundownView/StudioContext.js'
+import { PieceUi } from '../../SegmentContainer/withResolvedSegment.js'
+import { catchError } from '../../../lib/lib.js'
 
 export function PieceIndicatorMenu({
 	pieces,
@@ -28,7 +28,7 @@ export function PieceIndicatorMenu({
 	const { styles, attributes, update } = usePopper(parentEl, indicatorMenuEl, POPPER_OPTIONS)
 
 	useLayoutEffect(() => {
-		update && update().catch(catchError('pieceIndicatorMenu popper update'))
+		update?.().catch(catchError('pieceIndicatorMenu popper update'))
 	}, [pieces.length])
 
 	useEffect(() => {
@@ -93,8 +93,8 @@ export function PieceIndicatorMenu({
 											partId={partId}
 											studio={studio}
 											isLiveLine={false}
-											onClick={(e) => onPieceClick && onPieceClick(piece, e)}
-											onDoubleClick={(e) => onPieceDoubleClick && onPieceDoubleClick(piece, e)}
+											onClick={(e) => onPieceClick?.(piece, e)}
+											onDoubleClick={(e) => onPieceDoubleClick?.(piece, e)}
 										/>
 									)
 							)}

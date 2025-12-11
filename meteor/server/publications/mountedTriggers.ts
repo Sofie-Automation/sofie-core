@@ -35,7 +35,8 @@ meteorCustomPublish(
 				deviceId: {
 					$in: deviceIds,
 				},
-			})
+			}),
+			PeripheralDevicePubSub.mountedTriggersForDevice
 		)
 	}
 )
@@ -55,7 +56,8 @@ meteorCustomPublish(
 			pub,
 			DeviceTriggerMountedActionAdlibsPreview.find({
 				studioId,
-			})
+			}),
+			PeripheralDevicePubSub.mountedTriggersForDevicePreview
 		)
 	}
 )
@@ -66,7 +68,11 @@ interface CustomOptimizedPublishChanges<DBObj extends { _id: ProtectedString<any
 	removed: Set<DBObj['_id']>
 }
 
-function cursorCustomPublish<T extends { _id: ProtectedString<any> }>(pub: CustomPublish<T>, cursor: Mongo.Cursor<T>) {
+function cursorCustomPublish<T extends { _id: ProtectedString<any> }>(
+	pub: CustomPublish<T>,
+	cursor: Mongo.Cursor<T>,
+	publicationName: PeripheralDevicePubSub
+) {
 	function createEmptyBuffer(): CustomOptimizedPublishChanges<T> {
 		return {
 			added: new Map(),
@@ -88,7 +94,7 @@ function cursorCustomPublish<T extends { _id: ProtectedString<any> }>(pub: Custo
 				removed: Array.from(bufferToSend.removed.values()),
 			})
 		} catch (e) {
-			logger.error(`Error while updating publication: ${stringifyError(e)}`)
+			logger.error(`Error while updating publication ${publicationName}: ${stringifyError(e)}`)
 		}
 	}, PUBLICATION_DEBOUNCE)
 
@@ -115,10 +121,14 @@ function cursorCustomPublish<T extends { _id: ProtectedString<any> }>(pub: Custo
 		removed: (doc) => {
 			if (!pub.isReady) return
 			const id = doc._id
-			buffer.removed.add(id)
-			// if the document with the same id has been added before, clear the addition
-			buffer.changed.delete(id)
-			buffer.added.delete(id)
+			if (buffer.added.has(id)) {
+				// if the document with the same id has been added before, clear the addition
+				buffer.added.delete(id)
+			} else {
+				// if not, mark the deletion and clear any possible changes
+				buffer.removed.add(id)
+				buffer.changed.delete(id)
+			}
 			bufferChanged()
 		},
 	})
@@ -127,5 +137,6 @@ function cursorCustomPublish<T extends { _id: ProtectedString<any> }>(pub: Custo
 
 	pub.onStop(() => {
 		observer.stop()
+		bufferChanged.cancel()
 	})
 }

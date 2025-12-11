@@ -1,11 +1,14 @@
 import type { RundownId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { PlaylistLock, RundownLock } from '../../jobs/lock'
-import { logger } from '../../logging'
+import { PlaylistLock, RundownLock } from '../../jobs/lock.js'
+import { logger } from '../../logging.js'
 
 export class PlaylistLockImpl extends PlaylistLock {
 	#isLocked = true
 
-	public constructor(playlistId: RundownPlaylistId, private readonly doRelease: () => Promise<void>) {
+	public constructor(
+		playlistId: RundownPlaylistId,
+		private readonly doRelease: () => Promise<void>
+	) {
 		super(playlistId)
 	}
 
@@ -37,7 +40,10 @@ export class PlaylistLockImpl extends PlaylistLock {
 export class RundownLockImpl extends RundownLock {
 	#isLocked = true
 
-	public constructor(rundownId: RundownId, private readonly doRelease: () => Promise<void>) {
+	public constructor(
+		rundownId: RundownId,
+		private readonly doRelease: () => Promise<void>
+	) {
 		super(rundownId)
 	}
 

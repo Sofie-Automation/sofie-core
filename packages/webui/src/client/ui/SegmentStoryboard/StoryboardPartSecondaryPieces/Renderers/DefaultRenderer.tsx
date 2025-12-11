@@ -1,7 +1,7 @@
 import { ISourceLayer } from '@sofie-automation/blueprints-integration'
 import { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
-import { PieceUi } from '../../../SegmentContainer/withResolvedSegment'
+import { PieceUi } from '../../../SegmentContainer/withResolvedSegment.js'
 
 export interface IDefaultRendererProps {
 	layer: ISourceLayer
