@@ -33,7 +33,7 @@ This allows the producer to skip ahead or move backwards in a show, without the 
 
 ### Modular Data Ingest
 
-Sofie features a modular ingest data-flow, allowing multiple types of input data to base rundowns on. Currently there is support for [MOS-based](http://mosprotocol.com) systems such as ENPS and iNEWS, as well as [Google Spreadsheets](installation/installing-a-gateway/rundown-or-newsroom-system-connection/installing-sofie-with-google-spreadsheet-support), and more is in development.
+Sofie features a modular ingest data-flow, allowing multiple types of input data to base rundowns on. Currently there is support for [MOS-based](http://mosprotocol.com) systems such as ENPS and iNEWS, as well as [Google Spreadsheets](installation/installing-a-gateway/rundown-or-newsroom-system-connection/google-spreadsheet.md), and more is in development.
 
 ### Blueprints
 

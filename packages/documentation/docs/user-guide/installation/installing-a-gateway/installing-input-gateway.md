@@ -1,3 +1,7 @@
+---
+sidebar_position: 40
+---
+
 # Input Gateway
 
 The Input Gateway handles control devices that are not capable of running a Web Browser. This allows Sofie to integrate directly with devices such as: Hardware Panels, GPI input, MIDI devices and external systems being able to send an HTTP Request.
@@ -31,13 +35,17 @@ Currently, input gateway supports:
 
 ### Shift Registers
 
-Input Gateway supports the concept of _Shift Registers_. A Shift Register is an internal variable/state that can be modified using Actions, from within [Action Triggers](../configuration/settings-view.md#actions). This allows for things such as pagination, _Hold Shift + Another Button_ scenarios, and others on input devices that don't support these features natively. _Shift Registers_ are also global for all devices attached to a single Input Gateway. This allows combining multiple Input devices into a single Control Surface.
+Input Gateway supports the concept of _Shift Registers_. A Shift Register is an internal variable/state that can be modified using Actions, from within [Action Triggers](../../configuration/settings-view.md#actions). This allows for things such as pagination, _Hold Shift + Another Button_ scenarios, and others on input devices that don't support these features natively. _Shift Registers_ are also global for all devices attached to a single Input Gateway. This allows combining multiple Input devices into a single Control Surface.
 
 When one of the _Shift Registers_ is set to a value other than `0` (their default state), all triggers sent from that Input Gateway become prefixed with a serialized state of the state registers, making the combination of a _Shift Registers_ state and a trigger unique.
 
 If you would like to have the same trigger cause the same action in various Shift Register states, add multiple Triggers to the same Action, with different Shift Register combinations.
 
 Input Gateway supports an unlimited number of Shift Registers, Shift Register numbering starts at 0.
+
+### AdLib Tally
+
+
 
 ### Further Reading
 
