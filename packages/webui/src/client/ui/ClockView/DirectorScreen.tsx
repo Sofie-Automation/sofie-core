@@ -1,11 +1,7 @@
 import ClassNames from 'classnames'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { PartUi } from '../SegmentTimeline/SegmentTimelineContainer.js'
-import {
-	DBRundownPlaylist,
-	ABSessionAssignment,
-	ABSessionAssignments,
-} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist, ABSessionAssignment } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { useTiming } from '../RundownView/RundownTiming/withTiming.js'
 import {
@@ -371,17 +367,6 @@ function DirectorScreenRender({
 		const now = timingDurations.currentTime ?? getCurrentTime()
 
 		const overUnderClock = getPlaylistTimingDiff(playlist, timingDurations) ?? 0
-		// Prepare AB session assignment data for rendering
-		const assigned: Record<string, ABSessionAssignments> | undefined =
-			(playlist.assignedAbSessions as unknown as Record<string, ABSessionAssignments>) || undefined
-		const abPools: Array<[string, ABSessionAssignments]> = []
-		if (assigned) {
-			const poolNames = Object.keys(assigned).sort((a, b) => a.localeCompare(b))
-			for (const poolName of poolNames) {
-				const a = assigned[poolName]
-				abPools.push([poolName, a])
-			}
-		}
 
 		// Precompute conditional blocks to satisfy linting rules (avoid nested ternaries)
 		let expectedStartCountdown: JSX.Element | null = null
