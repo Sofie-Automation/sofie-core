@@ -6,7 +6,7 @@
 .counter-component__over-under {
 	font-family: 'Roboto Flex';
 	font-style: normal;
-	font-size: 7.5rem;
+	font-size: clamp(3rem, 5dvw + 1rem, 7.5rem);
 	font-weight: 500;
 	line-height: 100%;
 	font-feature-settings:

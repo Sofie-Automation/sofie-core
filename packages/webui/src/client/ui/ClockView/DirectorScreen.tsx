@@ -379,7 +379,7 @@ function DirectorScreenRender({
 						</div>
 					) : null}
 					{expectedEnd ? (
-						<div>
+						<div className="director-screen__top__time-to director-screen__top__planned-container">
 							<div>
 								<TimeToPlannedEndComponent value={now - expectedEnd} />
 							</div>
@@ -387,7 +387,7 @@ function DirectorScreenRender({
 						</div>
 					) : (
 						<div>
-							<div>
+							<div className="director-screen__top__planned-container">
 								<TimeSincePlannedEndComponent value={getCurrentTime() - (expectedStart + expectedDuration)} />
 								<span className="director-screen__top__planned-since">{t('Time since planned end')}</span>
 							</div>
