@@ -26,13 +26,20 @@ interface UIShowStyleBaseUpdateProps {
 	invalidateShowStyle: boolean
 }
 
-type ShowStyleBaseFields = '_id' | 'name' | 'outputLayersWithOverrides' | 'sourceLayersWithOverrides' | 'hotkeyLegend'
+type ShowStyleBaseFields =
+	| '_id'
+	| 'name'
+	| 'outputLayersWithOverrides'
+	| 'sourceLayersWithOverrides'
+	| 'hotkeyLegend'
+	| 'abChannelDisplay'
 const fieldSpecifier = literal<MongoFieldSpecifierOnesStrict<Pick<DBShowStyleBase, ShowStyleBaseFields>>>({
 	_id: 1,
 	name: 1,
 	outputLayersWithOverrides: 1,
 	sourceLayersWithOverrides: 1,
 	hotkeyLegend: 1,
+	abChannelDisplay: 1,
 })
 
 async function setupUIShowStyleBasePublicationObservers(
@@ -78,6 +85,7 @@ async function manipulateUIShowStyleBasePublicationData(
 			sourceLayers: resolvedSourceLayers,
 			outputLayers: resolvedOutputLayers,
 			hotkeyLegend: showStyleBase.hotkeyLegend,
+			abChannelDisplay: showStyleBase.abChannelDisplay,
 		}),
 	]
 }

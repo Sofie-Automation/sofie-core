@@ -129,17 +129,28 @@ export async function runUpgradeForShowStyleBase(showStyleBaseId: ShowStyleBaseI
 
 	const result = blueprintManifest.applyConfig(blueprintContext, rawBlueprintConfig)
 
-	await ShowStyleBases.updateAsync(showStyleBaseId, {
-		$set: {
-			'sourceLayersWithOverrides.defaults': normalizeArray(result.sourceLayers, '_id'),
-			'outputLayersWithOverrides.defaults': normalizeArray(result.outputLayers, '_id'),
-			lastBlueprintConfig: {
-				blueprintHash: blueprint.blueprintHash,
-				blueprintId: blueprint._id,
-				blueprintConfigPresetId: showStyleBase.blueprintConfigPresetId ?? '',
-				config: rawBlueprintConfig,
-			},
+	const updateSet: Record<string, any> = {
+		'sourceLayersWithOverrides.defaults': normalizeArray(result.sourceLayers, '_id'),
+		'outputLayersWithOverrides.defaults': normalizeArray(result.outputLayers, '_id'),
+		lastBlueprintConfig: {
+			blueprintHash: blueprint.blueprintHash,
+			blueprintId: blueprint._id,
+			blueprintConfigPresetId: showStyleBase.blueprintConfigPresetId ?? '',
+			config: rawBlueprintConfig,
 		},
+	}
+
+	// Store the blueprint-defined abChannelDisplay config if provided
+	if (result.abChannelDisplay !== undefined) {
+		updateSet.blueprintAbChannelDisplay = result.abChannelDisplay
+		// Initialize abChannelDisplay from blueprint if not already set by user
+		if (!showStyleBase.abChannelDisplay) {
+			updateSet.abChannelDisplay = result.abChannelDisplay
+		}
+	}
+
+	await ShowStyleBases.updateAsync(showStyleBaseId, {
+		$set: updateSet,
 	})
 
 	await updateTriggeredActionsForShowStyleBaseId(showStyleBaseId, result.triggeredActions)
@@ -153,6 +164,7 @@ async function loadShowStyleAndBlueprint(showStyleBaseId: ShowStyleBaseId) {
 			blueprintConfigPresetId: 1,
 			blueprintConfigWithOverrides: 1,
 			lastBlueprintFixUpHash: 1,
+			abChannelDisplay: 1,
 		},
 	})) as
 		| Pick<
@@ -161,6 +173,7 @@ async function loadShowStyleAndBlueprint(showStyleBaseId: ShowStyleBaseId) {
 				| 'blueprintId'
 				| 'blueprintConfigPresetId'
 				| 'blueprintConfigWithOverrides'
+				| 'abChannelDisplay'
 				| 'lastBlueprintFixUpHash'
 		  >
 		| undefined

@@ -37,6 +37,7 @@ import type {
 	IBlueprintPart,
 } from '../documents/index.js'
 import type { IBlueprintShowStyleVariant, IOutputLayer, ISourceLayer } from '../showStyle.js'
+import type { SourceLayerType } from '../content.js'
 import type { TSR, OnGenerateTimelineObj, TimelineObjectCoreExt } from '../timeline.js'
 import type { IBlueprintConfig } from '../common.js'
 import type { ReadonlyDeep } from 'type-fest'
@@ -322,6 +323,19 @@ export interface BlueprintResultApplyShowStyleConfig {
 	outputLayers: IOutputLayer[]
 
 	triggeredActions: IBlueprintTriggeredActions[]
+
+	/** Configuration for displaying AB resolver channel assignments */
+	abChannelDisplay?: {
+		/** Source layer IDs that should show AB channel info */
+		sourceLayerIds: string[]
+		/** Configure by source layer type */
+		sourceLayerTypes: SourceLayerType[]
+		/** Only show for specific output layers (e.g., only PGM) */
+		outputLayerIds: string[]
+		/** Enable display on Director screen */
+		showOnDirectorScreen: boolean
+		// Future: showOnPresenterScreen, showOnCameraScreen when those views are implemented
+	}
 }
 
 export interface IShowStyleConfigPreset<TConfig = IBlueprintConfig> {
