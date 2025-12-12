@@ -500,9 +500,14 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 				this.props.playlist.nextPartInfo
 			) {
 				// scroll to next after activation
-				scrollToPartInstance(this.props.playlist.nextPartInfo.partInstanceId).catch((error) => {
-					if (!error.toString().match(/another scroll/)) console.warn(error)
-				})
+				// add small delay to ensure the nextPartInfo is available
+				setTimeout(() => {
+					if (this.props.playlist && this.props.playlist.nextPartInfo) {
+						scrollToPartInstance(this.props.playlist.nextPartInfo.partInstanceId).catch((error) => {
+							if (!error.toString().match(/another scroll/)) console.warn(error)
+						})
+					}
+				}, 120)
 			} else if (
 				// after take
 				this.props.playlist &&
@@ -639,24 +644,36 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 			}
 		}
 
-		private onWheelScrollInner = _.debounce(() => {
-			if (this.state.followLiveSegments && this.props.playlist && this.props.playlist.activationId) {
-				const liveSegmentComponent = document.querySelector('.segment-timeline.live')
-				if (liveSegmentComponent) {
-					const offsetPosition = liveSegmentComponent.getBoundingClientRect()
-					// if it's closer to the top edge than the headerHeight
-					const segmentComponentTooHigh = offsetPosition.top < getHeaderHeight()
-					// or if it's closer to the bottom edge than very close to the top
-					const segmentComponentTooLow =
-						offsetPosition.bottom < window.innerHeight - getHeaderHeight() - 20 - (offsetPosition.height * 3) / 2
-					if (segmentComponentTooHigh || segmentComponentTooLow) {
-						this.setState({
-							followLiveSegments: false,
-						})
+		onWheelScrollInner = _.throttle(
+			() => {
+				if (this.state.followLiveSegments && this.props.playlist && this.props.playlist.activationId) {
+					const liveSegmentComponent = document.querySelector('.segment-timeline.live')
+					if (liveSegmentComponent) {
+						const offsetPosition = liveSegmentComponent.getBoundingClientRect()
+						const headerHeight = getHeaderHeight()
+
+						// Use a buffer zone to prevent oscillation
+						const topBuffer = headerHeight + 10
+						const bottomBuffer = window.innerHeight - headerHeight - 20 - (offsetPosition.height * 3) / 2
+
+						// Check if segment is outside the comfortable viewing area
+						const segmentComponentTooHigh = offsetPosition.top < topBuffer
+						const segmentComponentTooLow = offsetPosition.bottom < bottomBuffer
+
+						if (segmentComponentTooHigh || segmentComponentTooLow) {
+							// Only change state if we need to
+							if (this.state.followLiveSegments) {
+								this.setState({
+									followLiveSegments: false,
+								})
+							}
+						}
 					}
 				}
-			}
-		}, 250)
+			},
+			100,
+			{ leading: true, trailing: true }
+		)
 
 		private onWheel = (e: React.WheelEvent<HTMLDivElement>) => {
 			if (e.deltaX === 0 && e.deltaY !== 0 && !e.altKey && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
@@ -689,9 +706,14 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 				this.setState({
 					followLiveSegments: true,
 				})
-				scrollToPartInstance(this.props.playlist.nextPartInfo.partInstanceId, true).catch((error) => {
-					if (!error.toString().match(/another scroll/)) console.warn(error)
-				})
+				// Small delay to ensure the nextPartInfo is available
+				setTimeout(() => {
+					if (this.props.playlist && this.props.playlist.nextPartInfo) {
+						scrollToPartInstance(this.props.playlist.nextPartInfo.partInstanceId, true).catch((error) => {
+							if (!error.toString().match(/another scroll/)) console.warn(error)
+						})
+					}
+				}, 120)
 				setTimeout(() => {
 					this.setState({
 						followLiveSegments: true,
@@ -984,6 +1006,27 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 								const isLastSegment =
 									rundownIndex === rundownArray.length - 1 && segmentIndex === segmentArray.length - 1
 
+								// Calculate placeholder height based on segment properties
+								const calculatePlaceholderHeight = (segment: DBSegment): number => {
+									// Base height for a normal segment timeline
+									const BASE_SEGMENT_HEIGHT = 260
+									// Approximate height for dashboard panel (mini-shelf) when displayed
+									const DASHBOARD_PANEL_HEIGHT = 200
+									// Minimum height for hidden segments to prevent layout issues
+									const HIDDEN_SEGMENT_MIN_HEIGHT = 10
+
+									if (segment.isHidden) {
+										// Hidden segments don't render the timeline at all
+										// They only render the dashboard panel if showShelf is true
+										return segment.showShelf ? DASHBOARD_PANEL_HEIGHT : HIDDEN_SEGMENT_MIN_HEIGHT
+									}
+
+									// Normal segment: base timeline height + optional dashboard panel
+									return segment.showShelf ? BASE_SEGMENT_HEIGHT + DASHBOARD_PANEL_HEIGHT : BASE_SEGMENT_HEIGHT
+								}
+
+								const segmentPlaceholderHeight = calculatePlaceholderHeight(segment)
+
 								return (
 									<ErrorBoundary key={unprotectString(segment._id)}>
 										<VirtualElement
@@ -993,8 +1036,8 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 											})}
 											id={SEGMENT_TIMELINE_ELEMENT_ID + segment._id}
 											margin={'100% 0px 100% 0px'}
-											initialShow={globalIndex++ < window.innerHeight / 260}
-											placeholderHeight={260}
+											initialShow={globalIndex++ < window.innerHeight / segmentPlaceholderHeight}
+											placeholderHeight={segmentPlaceholderHeight}
 											placeholderClassName="placeholder-shimmer-element segment-timeline-placeholder"
 											width="auto"
 										>
