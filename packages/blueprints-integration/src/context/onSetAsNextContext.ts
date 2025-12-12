@@ -11,6 +11,7 @@ import {
 	IShowStyleUserContext,
 } from '../index.js'
 import { BlueprintQuickLookInfo } from './quickLoopInfo.js'
+import { ReadonlyDeep } from 'type-fest'
 
 /**
  * Context in which 'current' is the part currently on air, and 'next' is the partInstance being set as Next
@@ -55,6 +56,13 @@ export interface IOnSetAsNextContext extends IShowStyleUserContext, IEventContex
 	getPartForPreviousPiece(piece: IBlueprintPieceDB): Promise<IBlueprintPart | undefined>
 	/** Gets the Segment. This primarily allows for accessing metadata */
 	getSegment(segment: 'current' | 'next'): Promise<IBlueprintSegment | undefined>
+
+	/** Get a list of the upcoming Parts in the Rundown, in the order that they will be Taken
+	 *
+	 * @param limit The max number of parts returned. Default is 5.
+	 * @returns An array of Parts. If there is no next part, the array will be empty.
+	 */
+	getUpcomingParts(limit?: number): Promise<ReadonlyDeep<IBlueprintPart[]>>
 
 	/**
 	 * Creative actions
