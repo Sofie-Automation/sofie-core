@@ -28,7 +28,7 @@ jobs:
           node-version-file: ".node-version"
       - uses: ./.github/actions/setup-meteor
       - name: restore node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             node_modules
@@ -69,7 +69,7 @@ jobs:
           node-version-file: ".node-version"
       - uses: ./.github/actions/setup-meteor
       - name: restore node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             node_modules
@@ -175,7 +175,7 @@ jobs:
       - uses: ./.github/actions/setup-meteor
         if: steps.check-build-and-push.outputs.enable == 'true'
       - name: restore node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         if: steps.check-build-and-push.outputs.enable == 'true'
         with:
           path: |
@@ -358,7 +358,7 @@ jobs:
           node-version-file: ".node-version"
       - name: restore node_modules
         if: steps.check-build-and-push.outputs.enable == 'true'
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             packages/node_modules
@@ -468,7 +468,7 @@ jobs:
         with:
           node-version-file: ".node-version"
       - name: restore node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             packages/node_modules
@@ -536,7 +536,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - name: restore node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             packages/node_modules
@@ -640,7 +640,7 @@ jobs:
         with:
           node-version-file: ".node-version"
       - name: restore node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             packages/node_modules
@@ -684,7 +684,7 @@ jobs:
           node-version-file: ".node-version"
       - uses: ./.github/actions/setup-meteor
       - name: restore node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             node_modules
