@@ -48,6 +48,27 @@ export interface DBShowStyleBase {
 	/** Config values are used by the Blueprints */
 	blueprintConfigWithOverrides: ObjectWithOverrides<IBlueprintConfig>
 
+	/** Configuration for displaying AB resolver channel assignments across different screens */
+	abChannelDisplay?: {
+		/** Source layer IDs that should show AB channel info */
+		sourceLayerIds: string[]
+		/** Configure by source layer type */
+		sourceLayerTypes: SourceLayerType[]
+		/** Only show for specific output layers (e.g., only PGM) */
+		outputLayerIds: string[]
+		/** Enable display on Director screen */
+		showOnDirectorScreen: boolean
+		// Future: showOnPresenterScreen, showOnCameraScreen when those views are implemented
+	}
+
+	/** Blueprint default for abChannelDisplay (saved during blueprint upgrade) */
+	blueprintAbChannelDisplay?: {
+		sourceLayerIds: string[]
+		sourceLayerTypes: SourceLayerType[]
+		outputLayerIds: string[]
+		showOnDirectorScreen: boolean
+	}
+
 	_rundownVersionHash: string
 
 	/** Details on the last blueprint used to generate the defaults values for this */

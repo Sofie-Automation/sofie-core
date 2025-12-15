@@ -1,0 +1,21 @@
+.ab-channel-display {
+	&__header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	&__section {
+		margin-top: 1rem;
+
+		&--large-gap {
+			margin-top: 2rem;
+		}
+	}
+
+	&__checkbox {
+		input[type='checkbox'] {
+			margin-right: 0.5rem;
+		}
+	}
+}
