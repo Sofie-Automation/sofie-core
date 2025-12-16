@@ -340,19 +340,16 @@ export function VirtualElement({
 					measurements
 						? {
 								height: measurements.clientHeight + 'px',
-						  }
+							}
 						: !isShowingChildren
-						? {
-								height: ((placeholderHeight || ref?.clientHeight) ?? 0) + 'px',
-						  }
-						: undefined
+							? {
+									height: ((placeholderHeight || ref?.clientHeight) ?? 0) + 'px',
+								}
+							: undefined
 				}
 			>
 				{!isShowingChildren ? (
-					<div
-						className={`virtual-element-placeholder ${placeholderClassName}`}
-						style={styleObj}
-					></div>
+					<div className={`virtual-element-placeholder ${placeholderClassName}`} style={styleObj}></div>
 				) : (
 					children
 				)}
