@@ -3,6 +3,33 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.52.13-nrk](https://github.com/Sofie-Automation/sofie-core/compare/v1.52.12-nrk...v1.52.13-nrk) (2025-12-05)
+
+**Note:** Version bump only for package @sofie-automation/blueprints-integration
+
+
+
+
+
+## [1.52.11-nrk.0](https://github.com/Sofie-Automation/sofie-core/compare/v1.52.11-nrk...v1.52.11-nrk.0) (2025-11-26)
+
+**Note:** Version bump only for package @sofie-automation/blueprints-integration
+
+
+
+
+
+## [1.52.11-nrk](https://github.com/Sofie-Automation/sofie-core/compare/v1.52.10-nrk...v1.52.11-nrk) (2025-11-20)
+
+
+### Features
+
+* kairos ([fe2ab51](https://github.com/Sofie-Automation/sofie-core/commit/fe2ab512121b1bd1b7e2b6c54af7c9939e71b619))
+
+
+
+
+
 ## [1.52.10-nrk](https://github.com/Sofie-Automation/sofie-core/compare/v1.52.9-nrk...v1.52.10-nrk) (2025-10-29)
 
 **Note:** Version bump only for package @sofie-automation/blueprints-integration

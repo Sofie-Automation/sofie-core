@@ -10,6 +10,7 @@
 			"@sofie-automation/blueprints-integration": ["./src/index.ts"]
 		},
 		"resolveJsonModule": true,
-		"types": ["node"]
+		"types": ["node"],
+		"moduleResolution": "node16"
 	}
 }

@@ -1078,7 +1078,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@sofie-automation/blueprints-integration@portal:../packages/blueprints-integration::locator=automation-core%40workspace%3A."
   dependencies:
-    "@sofie-automation/shared-lib": "npm:1.52.10-nrk"
+    "@sofie-automation/shared-lib": "npm:1.52.13-nrk"
     tslib: "npm:^2.8.1"
     type-fest: "npm:^4.33.0"
   languageName: node
@@ -1119,8 +1119,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@sofie-automation/corelib@portal:../packages/corelib::locator=automation-core%40workspace%3A."
   dependencies:
-    "@sofie-automation/blueprints-integration": "npm:1.52.10-nrk"
-    "@sofie-automation/shared-lib": "npm:1.52.10-nrk"
+    "@sofie-automation/blueprints-integration": "npm:1.52.13-nrk"
+    "@sofie-automation/shared-lib": "npm:1.52.13-nrk"
     fast-clone: "npm:^1.5.13"
     i18next: "npm:^21.10.0"
     influx: "npm:^5.9.7"
@@ -1151,9 +1151,9 @@ __metadata:
   resolution: "@sofie-automation/job-worker@portal:../packages/job-worker::locator=automation-core%40workspace%3A."
   dependencies:
     "@slack/webhook": "npm:^7.0.4"
-    "@sofie-automation/blueprints-integration": "npm:1.52.10-nrk"
-    "@sofie-automation/corelib": "npm:1.52.10-nrk"
-    "@sofie-automation/shared-lib": "npm:1.52.10-nrk"
+    "@sofie-automation/blueprints-integration": "npm:1.52.13-nrk"
+    "@sofie-automation/corelib": "npm:1.52.13-nrk"
+    "@sofie-automation/shared-lib": "npm:1.52.13-nrk"
     amqplib: "npm:^0.10.5"
     deepmerge: "npm:^4.3.1"
     elastic-apm-node: "npm:^4.11.0"
@@ -1173,9 +1173,9 @@ __metadata:
   resolution: "@sofie-automation/meteor-lib@portal:../packages/meteor-lib::locator=automation-core%40workspace%3A."
   dependencies:
     "@mos-connection/helper": "npm:^4.3.1"
-    "@sofie-automation/blueprints-integration": "npm:1.52.10-nrk"
-    "@sofie-automation/corelib": "npm:1.52.10-nrk"
-    "@sofie-automation/shared-lib": "npm:1.52.10-nrk"
+    "@sofie-automation/blueprints-integration": "npm:1.52.13-nrk"
+    "@sofie-automation/corelib": "npm:1.52.13-nrk"
+    "@sofie-automation/shared-lib": "npm:1.52.13-nrk"
     deep-extend: "npm:0.6.0"
     semver: "npm:^7.6.3"
     type-fest: "npm:^4.33.0"
@@ -1191,7 +1191,7 @@ __metadata:
   resolution: "@sofie-automation/shared-lib@portal:../packages/shared-lib::locator=automation-core%40workspace%3A."
   dependencies:
     "@mos-connection/model": "npm:^4.3.1"
-    timeline-state-resolver-types: "npm:9.3.1-nrk.1"
+    timeline-state-resolver-types: "npm:9.3.1-nightly-feat-nrk-r52-kairos-20251126-075602-278d812c4.0"
     tslib: "npm:^2.8.1"
     type-fest: "npm:^4.33.0"
   languageName: node
@@ -6733,6 +6733,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"kairos-lib@npm:0.2.3":
+  version: 0.2.3
+  resolution: "kairos-lib@npm:0.2.3"
+  dependencies:
+    tslib: "npm:^2.8.1"
+  checksum: 10/d1be6e208896839ea693924b26f185a6b7e7dff9b1f964e4283df2e2d438554f396b4cad7cb696dcd111a2a554c12c9642bf92f7037bd8059e96a118c3a4c2c9
+  languageName: node
+  linkType: hard
+
 "keygrip@npm:~1.1.0":
   version: 1.1.0
   resolution: "keygrip@npm:1.1.0"
@@ -10234,12 +10243,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"timeline-state-resolver-types@npm:9.3.1-nrk.1":
-  version: 9.3.1-nrk.1
-  resolution: "timeline-state-resolver-types@npm:9.3.1-nrk.1"
+"timeline-state-resolver-types@npm:9.3.1-nightly-feat-nrk-r52-kairos-20251126-075602-278d812c4.0":
+  version: 9.3.1-nightly-feat-nrk-r52-kairos-20251126-075602-278d812c4.0
+  resolution: "timeline-state-resolver-types@npm:9.3.1-nightly-feat-nrk-r52-kairos-20251126-075602-278d812c4.0"
   dependencies:
+    kairos-lib: "npm:0.2.3"
     tslib: "npm:^2.6.3"
-  checksum: 10/9d4737302ac4ec96e597fe4cab10cffced3bc66d016439de8c282d7a5582bd8c54cea3a46ce09234594301b199f9c30aa115d1e38ac7a3caefbc4f2ffb6f2c35
+  checksum: 10/c79bf7d189ab778851165b27afc841d3c4879ad3b7195fab44cc845d35ae5d579924f8e9e9053ea9a11bcc7979025e8357b77002288450212a5538494897913e
   languageName: node
   linkType: hard
 

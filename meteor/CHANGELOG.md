@@ -2,8 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-### [1.52.10-nrk](///compare/v1.52.9-nrk...v1.52.10-nrk) (2025-10-29)
+### [1.52.13-nrk](///compare/v1.52.12-nrk...v1.52.13-nrk) (2025-12-05)
 
+### [1.52.12-nrk](https://github.com/Sofie-Automation/sofie-core/compare/v1.52.11-nrk...v1.52.12-nrk) (2025-11-26)
+
+### [1.52.11-nrk](https://github.com/Sofie-Automation/sofie-core/compare/v1.52.10-nrk...v1.52.11-nrk) (2025-11-20)
+
+### Features
+
+- kairos ([fe2ab51](https://github.com/Sofie-Automation/sofie-core/commit/fe2ab512121b1bd1b7e2b6c54af7c9939e71b619))
+
+### [1.52.10-nrk](///compare/v1.52.9-nrk...v1.52.10-nrk) (2025-10-29)
 
 ### Features
 

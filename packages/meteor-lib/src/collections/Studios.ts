@@ -7,6 +7,7 @@ import {
 } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { omit } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
+import { ReadonlyDeep } from 'type-fest'
 
 export function getActiveRoutes(routeSets: Record<string, StudioRouteSet>): ResultingMappingRoutes {
 	const routes: ResultingMappingRoutes = {
@@ -47,7 +48,7 @@ export function getActiveRoutes(routeSets: Record<string, StudioRouteSet>): Resu
 
 	return routes
 }
-export function getRoutedMappings<M extends MappingExt>(
+export function getRoutedMappings<M extends ReadonlyDeep<MappingExt>>(
 	inputMappings: { [layerName: string]: M },
 	mappingRoutes: ResultingMappingRoutes
 ): { [layerName: string]: M } {

@@ -11,6 +11,7 @@
 		"types": ["node"],
 		// TSR throws some typings issues
 		"skipLibCheck": true,
-		"resolveJsonModule": true
+		"resolveJsonModule": true,
+		"moduleResolution": "node16"
 	}
 }

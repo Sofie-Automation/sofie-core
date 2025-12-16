@@ -18,6 +18,7 @@ import { DropdownInputControl, getDropdownInputOptions } from '../../../../lib/C
 import { OverrideOpHelper, WrappedOverridableItemNormal } from '../../util/OverrideOpHelper'
 import { CheckboxControl } from '../../../../lib/Components/Checkbox'
 import { IntInputControl } from '../../../../lib/Components/IntInput'
+import { assertNever } from '@sofie-automation/corelib/dist/lib'
 
 interface AccessorTableRowProps {
 	packageContainer: WrappedOverridableItemNormal<StudioPackageContainer>
@@ -608,7 +609,241 @@ export function AccessorTableRow({
 										}}
 									</LabelAndOverridesForDropdown>
 								</>
-							) : null}
+							) : accessor.type === Accessor.AccessType.FTP ? (
+								<>
+									<LabelAndOverrides
+										label={t('Resource Id')}
+										hint={t('(Optional) This could be the name of the compute')}
+										item={packageContainer}
+										//@ts-expect-error can't be 4 levels deep
+										itemKey={`container.accessors.${accessorId}.resourceId`}
+										overrideHelper={overrideHelper}
+									>
+										{(value, handleUpdate) => (
+											<TextInputControl
+												modifiedClassName="bghl"
+												classNames="input text-input input-l"
+												value={value}
+												handleUpdate={handleUpdate}
+											/>
+										)}
+									</LabelAndOverrides>
+									<LabelAndOverrides
+										label={t('Network Id')}
+										hint={t('(Optional) A name/identifier of the local network where the Atem is located')}
+										item={packageContainer}
+										//@ts-expect-error can't be 4 levels deep
+										itemKey={`container.accessors.${accessorId}.networkId`}
+										overrideHelper={overrideHelper}
+									>
+										{(value, handleUpdate) => (
+											<TextInputControl
+												modifiedClassName="bghl"
+												classNames="input text-input input-l"
+												value={value}
+												handleUpdate={handleUpdate}
+											/>
+										)}
+									</LabelAndOverrides>
+
+									<LabelAndOverridesForDropdown
+										label={t('Server Type')}
+										hint={t('What FTP protocol to use')}
+										item={packageContainer}
+										//@ts-expect-error can't be 4 levels deep
+										itemKey={`container.accessors.${accessorId}.serverType`}
+										overrideHelper={overrideHelper}
+										options={getDropdownInputOptions(['ftp', 'ftps', 'ftp-ssl', 'sftp'])}
+									>
+										{(value, handleUpdate, options) => {
+											return (
+												<DropdownInputControl
+													classNames="input text-input input-l"
+													options={options}
+													value={value}
+													handleUpdate={handleUpdate}
+												/>
+											)
+										}}
+									</LabelAndOverridesForDropdown>
+
+									<LabelAndOverrides
+										label={t('Host address')}
+										hint={t('Server host address')}
+										item={packageContainer}
+										//@ts-expect-error can't be 4 levels deep
+										itemKey={`container.accessors.${accessorId}.host`}
+										overrideHelper={overrideHelper}
+									>
+										{(value, handleUpdate) => (
+											<TextInputControl
+												modifiedClassName="bghl"
+												classNames="input text-input input-l"
+												value={value}
+												handleUpdate={handleUpdate}
+											/>
+										)}
+									</LabelAndOverrides>
+									<LabelAndOverrides
+										label={t('Host port')}
+										hint={t('Server port')}
+										item={packageContainer}
+										//@ts-expect-error can't be 4 levels deep
+										itemKey={`container.accessors.${accessorId}.port`}
+										overrideHelper={overrideHelper}
+									>
+										{(value, handleUpdate) => (
+											<IntInputControl
+												modifiedClassName="bghl"
+												classNames="input text-input input-l"
+												value={value}
+												handleUpdate={handleUpdate}
+											/>
+										)}
+									</LabelAndOverrides>
+
+									<LabelAndOverrides
+										label={t('FTP username')}
+										hint={t('FTP username')}
+										item={packageContainer}
+										//@ts-expect-error can't be 4 levels deep
+										itemKey={`container.accessors.${accessorId}.username`}
+										overrideHelper={overrideHelper}
+									>
+										{(value, handleUpdate) => (
+											<TextInputControl
+												modifiedClassName="bghl"
+												classNames="input text-input input-l"
+												value={value}
+												handleUpdate={handleUpdate}
+											/>
+										)}
+									</LabelAndOverrides>
+									<LabelAndOverrides
+										label={t('FTP password')}
+										hint={t('FTP password')}
+										item={packageContainer}
+										//@ts-expect-error can't be 4 levels deep
+										itemKey={`container.accessors.${accessorId}.password`}
+										overrideHelper={overrideHelper}
+									>
+										{(value, handleUpdate) => (
+											<TextInputControl
+												modifiedClassName="bghl"
+												classNames="input text-input input-l"
+												value={value}
+												handleUpdate={handleUpdate}
+											/>
+										)}
+									</LabelAndOverrides>
+
+									<LabelAndOverridesForCheckbox
+										label={t('Allow any certificate')}
+										item={packageContainer}
+										//@ts-expect-error can't be 4 levels deep
+										itemKey={`container.accessors.${accessorId}.allowAnyCertificate`}
+										overrideHelper={overrideHelper}
+									>
+										{(value, handleUpdate) => <CheckboxControl value={!!value} handleUpdate={handleUpdate} />}
+									</LabelAndOverridesForCheckbox>
+
+									<LabelAndOverrides
+										label={t('FTP Base Path')}
+										hint={t('FTP Base Path')}
+										item={packageContainer}
+										//@ts-expect-error can't be 4 levels deep
+										itemKey={`container.accessors.${accessorId}.basePath`}
+										overrideHelper={overrideHelper}
+									>
+										{(value, handleUpdate) => (
+											<TextInputControl
+												modifiedClassName="bghl"
+												classNames="input text-input input-l"
+												value={value}
+												handleUpdate={handleUpdate}
+											/>
+										)}
+									</LabelAndOverrides>
+								</>
+							) : accessor.type === Accessor.AccessType.KAIROS_CLIP ? (
+								<>
+									<LabelAndOverrides
+										label={t('Resource Id')}
+										hint={t('(Optional) This could be the name of the compute')}
+										item={packageContainer}
+										//@ts-expect-error can't be 4 levels deep
+										itemKey={`container.accessors.${accessorId}.resourceId`}
+										overrideHelper={overrideHelper}
+									>
+										{(value, handleUpdate) => (
+											<TextInputControl
+												modifiedClassName="bghl"
+												classNames="input text-input input-l"
+												value={value}
+												handleUpdate={handleUpdate}
+											/>
+										)}
+									</LabelAndOverrides>
+									<LabelAndOverrides
+										label={t('Network Id')}
+										hint={t('(Optional) A name/identifier of the local network where the Atem is located')}
+										item={packageContainer}
+										//@ts-expect-error can't be 4 levels deep
+										itemKey={`container.accessors.${accessorId}.networkId`}
+										overrideHelper={overrideHelper}
+									>
+										{(value, handleUpdate) => (
+											<TextInputControl
+												modifiedClassName="bghl"
+												classNames="input text-input input-l"
+												value={value}
+												handleUpdate={handleUpdate}
+											/>
+										)}
+									</LabelAndOverrides>
+
+									<LabelAndOverrides
+										label={t('Host address')}
+										hint={t('Server host address')}
+										item={packageContainer}
+										//@ts-expect-error can't be 4 levels deep
+										itemKey={`container.accessors.${accessorId}.host`}
+										overrideHelper={overrideHelper}
+									>
+										{(value, handleUpdate) => (
+											<TextInputControl
+												modifiedClassName="bghl"
+												classNames="input text-input input-l"
+												value={value}
+												handleUpdate={handleUpdate}
+											/>
+										)}
+									</LabelAndOverrides>
+									<LabelAndOverrides
+										label={t('Host port')}
+										hint={t('Server port')}
+										item={packageContainer}
+										//@ts-expect-error can't be 4 levels deep
+										itemKey={`container.accessors.${accessorId}.port`}
+										overrideHelper={overrideHelper}
+									>
+										{(value, handleUpdate) => (
+											<IntInputControl
+												modifiedClassName="bghl"
+												classNames="input text-input input-l"
+												value={value}
+												handleUpdate={handleUpdate}
+											/>
+										)}
+									</LabelAndOverrides>
+								</>
+							) : accessor.type === Accessor.AccessType.CORE_PACKAGE_INFO ? (
+								<>No settings</>
+							) : (
+								<>
+									Unknown type {`${(accessor as any).type}`} {assertNever(accessor)}
+								</>
+							)}
 
 							<LabelAndOverridesForCheckbox
 								label={t('Allow Read access')}

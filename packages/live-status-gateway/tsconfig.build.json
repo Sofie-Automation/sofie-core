@@ -10,6 +10,7 @@
 			"live-status-gateway": ["./src/index.ts"]
 		},
 		"types": ["node"],
-		"resolveJsonModule": true
+		"resolveJsonModule": true,
+		"moduleResolution": "node16"
 	},
 }
