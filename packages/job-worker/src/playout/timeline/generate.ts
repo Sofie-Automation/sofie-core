@@ -64,25 +64,17 @@ function generateTimelineVersions(
 	}
 }
 
-export async function updateStudioTimeline(
+/**
+ * Generate timeline objects for a studio (when no playlist is active)
+ */
+export async function getStudioTimeline(
 	context: JobContext,
 	playoutModel: StudioPlayoutModel | PlayoutModel
-): Promise<void> {
-	const span = context.startSpan('updateStudioTimeline')
-	logger.debug('updateStudioTimeline running...')
+): Promise<{
+	objs: Array<TimelineObjRundown>
+	versions: TimelineCompleteGenerationVersions
+}> {
 	const studio = context.studio
-	// Ensure there isn't a playlist active, as that should be using a different function call
-	if (isModelForStudio(playoutModel)) {
-		const activePlaylists = playoutModel.getActiveRundownPlaylists()
-		if (activePlaylists.length > 0) {
-			throw new Error(`Studio has an active playlist`)
-		}
-	} else {
-		if (playoutModel.playlist.activationId) {
-			throw new Error(`Studio has an active playlist`)
-		}
-	}
-
 	let baselineObjects: TimelineObjRundown[] = []
 	let studioBaseline: BlueprintResultBaseline | undefined
 
@@ -116,22 +108,36 @@ export async function updateStudioTimeline(
 		studioBlueprint?.blueprint?.blueprintVersion ?? '-'
 	)
 
-	flattenAndProcessTimelineObjects(context, baselineObjects)
-
-	// Future: We should handle any 'now' objects that are at the root of this timeline
-	preserveOrReplaceNowTimesInObjects(playoutModel, baselineObjects)
-
-	if (playoutModel.isMultiGatewayMode) {
-		logAnyRemainingNowTimes(context, baselineObjects)
-	}
-
-	const timelineHash = playoutModel.setTimeline(baselineObjects, versions).timelineHash
-
 	if (studioBaseline) {
 		updateBaselineExpectedPackagesOnStudio(context, playoutModel, studioBaseline)
 	}
 
-	logger.verbose(`updateStudioTimeline done, hash: "${timelineHash}"`)
+	return {
+		objs: baselineObjects,
+		versions,
+	}
+}
+
+export async function updateStudioTimeline(
+	context: JobContext,
+	playoutModel: StudioPlayoutModel | PlayoutModel
+): Promise<void> {
+	const span = context.startSpan('updateStudioTimeline')
+	logger.debug('updateStudioTimeline: marking studio as needing timeline update')
+	// Ensure there isn't a playlist active, as that should be using a different function call
+	if (isModelForStudio(playoutModel)) {
+		const activePlaylists = playoutModel.getActiveRundownPlaylists()
+		if (activePlaylists.length > 0) {
+			throw new Error(`Studio has an active playlist`)
+		}
+	} else {
+		if (playoutModel.playlist.activationId) {
+			throw new Error(`Studio has an active playlist`)
+		}
+	}
+
+	playoutModel.markTimelineNeedsUpdate()
+
 	if (span) span.end()
 }
 
