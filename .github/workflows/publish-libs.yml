@@ -6,6 +6,9 @@ on:
   push:
     tags:
       - "v**"
+  schedule:
+    # Run nightly at 1 AM UTC
+    - cron: '0 1 * * *'
 
 permissions:
   contents: read
@@ -154,8 +157,78 @@ jobs:
           yarn install
         env:
           CI: true
-      - name: Bump version
-        if: ${{ github.event_name == 'workflow_dispatch' }}
+      - name: Build
+        run: |
+          cd packages
+          yarn build
+        env:
+          CI: true
+      - name: Check for changes and bump versions (scheduled builds only)
+        if: ${{ github.event_name == 'schedule' }}
+        run: |
+          cd packages
+          
+          # Check each package for changes
+          PACKAGES="blueprints-integration server-core-integration shared-lib live-status-gateway-api openapi"
+          HAS_ANY_CHANGES=0
+
+          echo "## Package Change Detection" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          for PKG in $PACKAGES; do
+            # Get current package name
+            if [ "${{ env.IS_UPSTREAM }}" = "true" ]; then
+              PACKAGE_NAME="@sofie-automation/$PKG"
+            else
+              PACKAGE_NAME="@${{ env.NPM_PACKAGE_SCOPE }}/${{ env.NPM_PACKAGE_PREFIX }}$PKG"
+            fi
+
+            # Get latest nightly version from npm
+            LATEST_NIGHTLY=$(npm view $PACKAGE_NAME dist-tags.nightly 2>/dev/null || echo "")
+
+            if [ -z "$LATEST_NIGHTLY" ]; then
+              echo "📦 **$PKG**: No nightly found, will publish" >> $GITHUB_STEP_SUMMARY
+              HAS_ANY_CHANGES=1
+              continue
+            fi
+
+            # Extract dist hash from version (format: X.Y.Z-nightly-branch-YYYYMMDD-HHMMSS-githash-disthash)
+            LAST_DIST_HASH=$(echo "$LATEST_NIGHTLY" | grep -oP '[0-9a-f]{8}$' || echo "")
+
+            if [ -z "$LAST_DIST_HASH" ]; then
+              echo "📦 **$PKG**: Old version format ($LATEST_NIGHTLY), will publish" >> $GITHUB_STEP_SUMMARY
+              HAS_ANY_CHANGES=1
+              continue
+            fi
+
+            # Compute current dist hash for this package
+            if [ -d "$PKG/dist" ]; then
+              CURRENT_DIST_HASH=$(find "$PKG/dist" -type f | sort | xargs cat | sha256sum | cut -c1-8)
+            else
+              echo "📦 **$PKG**: No dist folder, will publish" >> $GITHUB_STEP_SUMMARY
+              HAS_ANY_CHANGES=1
+              continue
+            fi
+
+            if [ "$LAST_DIST_HASH" = "$CURRENT_DIST_HASH" ]; then
+              echo "✅ **$PKG**: No changes ($CURRENT_DIST_HASH)" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "📦 **$PKG**: Changed ($LAST_DIST_HASH → $CURRENT_DIST_HASH)" >> $GITHUB_STEP_SUMMARY
+              HAS_ANY_CHANGES=1
+            fi
+          done
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ $HAS_ANY_CHANGES -eq 0 ]; then
+            echo "**Result**: No packages changed, skipping publish" >> $GITHUB_STEP_SUMMARY
+            exit 1  # Fail the step to stop the workflow
+          fi
+          
+          echo "**Result**: Will publish changed packages" >> $GITHUB_STEP_SUMMARY
+        env:
+          CI: true
+      - name: Bump version with per-package dist hashes
+        if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' }}
         run: |
           cd packages
           COMMIT_TIMESTAMP=$(git log -1 --pretty=format:%ct HEAD)
@@ -166,13 +239,47 @@ jobs:
           git config --global user.email "info@superfly.tv"
           git config --global user.name "superflytvab"
 
-          yarn set-version-and-commit prerelease --preid $PRERELEASE_TAG-$COMMIT_DATE-$GIT_HASH
-        env:
-          CI: true
-      - name: Build
-        run: |
-          cd packages
-          yarn build
+          # Update each package version with its own dist hash
+          for PKG_DIR in blueprints-integration server-core-integration shared-lib live-status-gateway-api openapi; do
+            if [ -d "$PKG_DIR/dist" ]; then
+              # Compute dist hash for this specific package
+              DIST_HASH=$(find "$PKG_DIR/dist" -type f | sort | xargs cat | sha256sum | cut -c1-8)
+
+              # Get current version from package.json
+              CURRENT_VERSION=$(node -p "require('./$PKG_DIR/package.json').version")
+
+              # Compute new prerelease version
+              NEW_VERSION=$(node -e "
+                const semver = require('semver');
+                const current = '$CURRENT_VERSION';
+                const parsed = semver.parse(current);
+                const newVersion = \`\${parsed.major}.\${parsed.minor}.\${parsed.patch}-$PRERELEASE_TAG-$COMMIT_DATE-$GIT_HASH-$DIST_HASH\`;
+                console.log(newVersion);
+              ")
+
+              # Update package.json
+              node -e "
+                const fs = require('fs');
+                const path = './$PKG_DIR/package.json';
+                const pkg = JSON.parse(fs.readFileSync(path, 'utf8'));
+                pkg.version = '$NEW_VERSION';
+                fs.writeFileSync(path, JSON.stringify(pkg, null, 2) + '\n');
+              "
+
+              echo "Updated $PKG_DIR to $NEW_VERSION"
+            fi
+          done
+
+          # Also update lerna.json with a representative version (use blueprints-integration)
+          if [ -f "blueprints-integration/package.json" ]; then
+            LERNA_VERSION=$(node -p "require('./blueprints-integration/package.json').version")
+            node -e "
+              const fs = require('fs');
+              const lerna = JSON.parse(fs.readFileSync('./lerna.json', 'utf8'));
+              lerna.version = '$LERNA_VERSION';
+              fs.writeFileSync('./lerna.json', JSON.stringify(lerna, null, 2) + '\n');
+            "
+          fi
         env:
           CI: true
 
@@ -256,7 +363,7 @@ jobs:
           yarn install
 
           NPM_TAG=nightly
-          if [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
+          if [ "${{ github.event_name }}" != "workflow_dispatch" ] && [ "${{ github.event_name }}" != "schedule" ]; then
             PACKAGE_NAME=$(node -p "require('./shared-lib/package.json').name")
             PUBLISHED_VERSION=$(yarn npm info --json $PACKAGE_NAME | jq -c '.version' -r)
             THIS_VERSION=$(node -p "require('./lerna.json').version")
