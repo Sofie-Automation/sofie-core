@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.52.14-nrk](///compare/v1.52.13-nrk...v1.52.14-nrk) (2025-12-16)
+
+
+### Bug Fixes
+
+* disable some null subscriptions ([#15](undefined/undefined/undefined/issues/15)) 0f5e9c5
+
 ### [1.52.13-nrk](///compare/v1.52.12-nrk...v1.52.13-nrk) (2025-12-05)
 
 ### [1.52.12-nrk](https://github.com/Sofie-Automation/sofie-core/compare/v1.52.11-nrk...v1.52.12-nrk) (2025-11-26)

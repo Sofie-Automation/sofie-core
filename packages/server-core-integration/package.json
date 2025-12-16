@@ -1,6 +1,6 @@
 {
 	"name": "@sofie-automation/server-core-integration",
-	"version": "1.52.13-nrk",
+	"version": "1.52.14-nrk",
 	"description": "Library for connecting to Core",
 	"main": "dist/index.js",
 	"typings": "dist/index.d.ts",
@@ -75,7 +75,7 @@
 	},
 	"dependencies": {
 		"@koa/router": "^14.0.0",
-		"@sofie-automation/shared-lib": "1.52.13-nrk",
+		"@sofie-automation/shared-lib": "1.52.14-nrk",
 		"ejson": "^2.2.3",
 		"faye-websocket": "^0.11.4",
 		"got": "^11.8.6",
