@@ -123,6 +123,11 @@ export type IRundownPlaylistFilterLink =
 			field: 'name'
 			value: string
 	  }
+	| {
+			object: 'rundownPlaylist'
+			field: 'rehearsal'
+			value: boolean
+	  }
 
 export type IGUIContextFilterLink = {
 	object: 'view'
@@ -166,6 +171,8 @@ export type IAdLibFilterLink =
 			field: 'type'
 			value: 'adLib' | 'adLibAction' | 'clear' | 'sticky'
 	  }
+
+export type FilterType = (IRundownPlaylistFilterLink | IGUIContextFilterLink | IAdLibFilterLink)['object']
 
 export interface IAdlibPlayoutActionArguments {
 	triggerMode: string

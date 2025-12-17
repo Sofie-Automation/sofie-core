@@ -4,7 +4,7 @@ import {
 	TriggerTrackerComputation,
 } from '@sofie-automation/meteor-lib/dist/triggers/triggersContext'
 import { SINGLE_USE_TOKEN_SALT } from '@sofie-automation/meteor-lib/dist/api/userActions'
-import { assertNever, getHash, ProtectedString, Time } from '../../lib/tempLib'
+import { assertNever, getHash, ProtectedString, protectString, Time } from '../../lib/tempLib'
 import { getCurrentTime } from '../../lib/lib'
 import { MeteorCall } from '../methods'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
@@ -207,9 +207,12 @@ async function rundownPlaylistFilter(
 			case 'studioId':
 				selector['$and']?.push({
 					studioId: {
-						$regex: link.value as any,
+						$eq: protectString(link.value),
 					},
 				})
+				break
+			case 'rehearsal':
+				selector['rehearsal'] = link.value
 				break
 			default:
 				assertNever(link)
