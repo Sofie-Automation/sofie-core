@@ -26,11 +26,12 @@ import { MountedAdLibTriggerType } from '../api/MountedTriggers.js'
 import { assertNever, generateTranslation } from '@sofie-automation/corelib/dist/lib'
 import { FindOptions } from '../collections/lib.js'
 import { TriggersContext, TriggerTrackerComputation } from './triggersContext.js'
+import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 
 export type AdLibFilterChainLink = IRundownPlaylistFilterLink | IGUIContextFilterLink | IAdLibFilterLink
 
 /** This is a compiled Filter type, targetting a particular MongoCollection */
-type CompiledFilter<T> = {
+type CompiledAdLibFilter<T> = {
 	selector: MongoQuery<T>
 	options: FindOptions<T>
 	pick: number | undefined
@@ -306,7 +307,7 @@ type AdLibActionType = RundownBaselineAdLibAction | AdLibAction
 function compileAdLibActionFilter(
 	filterChain: IAdLibFilterLink[],
 	sourceLayers: SourceLayers
-): CompiledFilter<AdLibActionType> {
+): CompiledAdLibFilter<AdLibActionType> {
 	const selector: MongoQuery<AdLibActionType> = {}
 	const options: FindOptions<AdLibActionType> = {}
 	let pick: number | undefined = undefined
@@ -405,7 +406,7 @@ type AdLibPieceType =
 function compileAdLibPieceFilter(
 	filterChain: IAdLibFilterLink[],
 	sourceLayers: SourceLayers
-): CompiledFilter<AdLibPieceType> {
+): CompiledAdLibFilter<AdLibPieceType> {
 	const selector: MongoQuery<AdLibPieceType> = {}
 	const options: FindOptions<AdLibPieceType> = {}
 	let pick: number | undefined = undefined
@@ -496,6 +497,61 @@ function compileAdLibPieceFilter(
 	}
 }
 
+type RundownSelector = {
+	activationId: boolean | undefined
+	name: RegExp | undefined
+	studioId: string | undefined
+	rehearsal: boolean | undefined
+}
+
+function compileRundownPlaylistFilter(filterChain: IRundownPlaylistFilterLink[]): {
+	selector: RundownSelector
+	/**
+	 * The query compiler has determined that this filter will always match
+	 * it's safe to skip it entirely.
+	 */
+	matchAll?: true
+} {
+	const selector: RundownSelector = {
+		activationId: undefined,
+		name: undefined,
+		studioId: undefined,
+		rehearsal: undefined,
+	}
+
+	if (filterChain.length === 0) {
+		// no filter, accept all
+		return {
+			selector,
+			matchAll: true,
+		}
+	}
+
+	filterChain.forEach((link) => {
+		switch (link.field) {
+			case 'activationId':
+				selector.activationId = link.value
+				return
+			case 'name':
+				selector.name = new RegExp(link.value)
+				return
+			case 'studioId':
+				selector.studioId = link.value
+				return
+			case 'rehearsal':
+				selector.rehearsal = link.value
+				return
+			default:
+				assertNever(link)
+				return
+		}
+	})
+
+	return {
+		selector,
+	}
+}
+
 /**
  * Compile the filter chain and return a reactive function that will return the result set for this adLib filter
  * @param filterChain
@@ -508,6 +564,13 @@ export function compileAdLibFilter(
 	sourceLayers: SourceLayers
 ): (context: ReactivePlaylistActionContext, computation: TriggerTrackerComputation | null) => Promise<IWrappedAdLib[]> {
 	const onlyAdLibLinks = filterChain.filter((link) => link.object === 'adLib') as IAdLibFilterLink[]
+	const onlyRundownPlaylistLinks = filterChain.filter(
+		(link) => link.object === 'rundownPlaylist'
+	) as IRundownPlaylistFilterLink[]
+
+	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+	// @ts-ignore ignore unused
+	const rundownPlaylistFilter = compileRundownPlaylistFilter(onlyRundownPlaylistLinks)
 	const adLibPieceTypeFilter = compileAdLibPieceFilter(onlyAdLibLinks, sourceLayers)
 	const adLibActionTypeFilter = compileAdLibActionFilter(onlyAdLibLinks, sourceLayers)
 
@@ -553,6 +616,38 @@ export function compileAdLibFilter(
 				partFilter = [singlePartId]
 			} else {
 				partFilter = []
+			}
+		}
+
+		{
+			const matchAll = rundownPlaylistFilter.matchAll
+			const currentRundownPlaylist = context.rundownPlaylist.get(computation)
+
+			const activationStateMatches =
+				rundownPlaylistFilter.selector.activationId !== undefined
+					? (currentRundownPlaylist?.activationId !== undefined) ===
+						rundownPlaylistFilter.selector.activationId
+					: true
+			const nameMatches =
+				rundownPlaylistFilter.selector.name !== undefined
+					? currentRundownPlaylist?.name.match(rundownPlaylistFilter.selector.name) !== null
+					: true
+			const studioMatches =
+				rundownPlaylistFilter.selector.studioId !== undefined
+					? unprotectString(currentRundownPlaylist?.studioId) === rundownPlaylistFilter.selector.studioId
+					: true
+			const rehearsalMatches =
+				rundownPlaylistFilter.selector.rehearsal !== undefined
+					? currentRundownPlaylist?.rehearsal === rundownPlaylistFilter.selector.rehearsal
+					: true
+
+			if (!matchAll) {
+				if (!activationStateMatches || !nameMatches || !studioMatches || !rehearsalMatches) {
+					adLibPieceTypeFilter.skip = true
+					adLibActionTypeFilter.skip = true
+					clearAdLibs.length = 0
+					stickyAdLibs.length = 0
+				}
 			}
 		}
 

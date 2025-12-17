@@ -323,8 +323,15 @@ export const TriggersHandler: React.FC<IProps> = function TriggersHandler(
 					activationId: 1,
 					nextPartInfo: 1,
 					currentPartInfo: 1,
+					studioId: 1,
+					rehearsal: 1,
 				},
-			}) as Pick<DBRundownPlaylist, '_id' | 'name' | 'activationId' | 'nextPartInfo' | 'currentPartInfo'> | undefined
+			}) as
+				| Pick<
+						DBRundownPlaylist,
+						'_id' | 'name' | 'activationId' | 'studioId' | 'rehearsal' | 'nextPartInfo' | 'currentPartInfo'
+				  >
+				| undefined
 			if (playlist) {
 				let context = rundownPlaylistContext.get()
 				if (context === null) {
