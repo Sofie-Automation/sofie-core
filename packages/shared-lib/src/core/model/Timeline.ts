@@ -36,7 +36,7 @@ export enum TimelineObjHoldMode {
 }
 
 export interface TimelineObjectCoreExt<
-	TContent extends { deviceType: TSR.DeviceType },
+	TContent extends { deviceType: TSR.DeviceTypeExt },
 	TMetadata = unknown,
 	TKeyframeMetadata = unknown,
 > extends TSR.TSRTimelineObj<TContent> {
@@ -58,8 +58,10 @@ export interface TimelineObjectCoreExt<
 	priority: number
 }
 
-export interface TimelineKeyframeCoreExt<TContent extends { deviceType: TSR.DeviceType }, TKeyframeMetadata = unknown>
-	extends TSR.Timeline.TimelineKeyframe<Partial<TContent>> {
+export interface TimelineKeyframeCoreExt<
+	TContent extends { deviceType: TSR.DeviceTypeExt },
+	TKeyframeMetadata = unknown,
+> extends TSR.Timeline.TimelineKeyframe<Partial<TContent>> {
 	metaData?: TKeyframeMetadata
 	/** Whether to keep this keyframe when the object is copied for lookahead. By default all keyframes are removed */
 	preserveForLookahead?: boolean

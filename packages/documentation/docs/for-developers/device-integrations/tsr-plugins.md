@@ -78,3 +78,47 @@ FROM sofietv/tv-automation-playout-gateway:release53
 ENV TSR_PLUGIN_PATHS=/opt/tsr-plugin-example
 COPY --from=0 /opt/tsr-plugin-example /opt/tsr-plugin-example
 ```
+
+## Using in Sofie blueprints
+
+To use a TSR plugin in your blueprints, make sure you have your content types available in the blueprints.
+
+You can create a file in your src folder such as `tsr-types.d.ts` with content being something like:
+
+```ts
+import type { FakeDeviceType, TimelineContentFakeAny } from './test-types.js'
+
+declare module 'timeline-state-resolver-types' {
+	interface TimelineContentMap {
+		[FakeDeviceType]: TimelineContentFakeAny
+	}
+}
+```
+
+The `FakeDeviceType` should be defined as `export const FakeDeviceType = 'fake' as const` and should be used as the deviceType property of your types.
+
+A minimal example of the types is:
+
+```ts
+export const FakeDeviceType = 'fake' as const
+
+export declare enum TimelineContentTypeFake {
+	AUX = 'aux',
+}
+
+export type TimelineContentFakeAny = TimelineContentFakeAUX
+
+export interface TimelineContentFakeBase {
+	deviceType: typeof FakeDeviceType
+	type: TimelineContentTypeFake
+}
+
+export interface TimelineContentFakeAUX extends TimelineContentFakeBase {
+	type: TimelineContentTypeFake.AUX
+	aux: {
+		input: number
+	}
+}
+```
+
+With this, all of the sofie timeline object and tsr types will accept your custom types as well as the default ones.
