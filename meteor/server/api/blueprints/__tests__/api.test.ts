@@ -217,9 +217,8 @@ describe('Test blueprint management api', () => {
 			)
 		})
 		test('empty body', async () => {
-			await expect(uploadBlueprint(DEFAULT_CONNECTION, protectString('blueprint99'), '')).rejects.toThrowMeteor(
-				400,
-				'Blueprint blueprint99 failed to parse'
+			await expect(uploadBlueprint(DEFAULT_CONNECTION, protectString('blueprint99'), '')).rejects.toMatchToString(
+				/Error evaluating Blueprint "blueprint99"(.+)/
 			)
 		})
 		test('body not a manifest', async () => {
