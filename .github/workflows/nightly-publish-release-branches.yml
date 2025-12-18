@@ -1,0 +1,71 @@
+name: Nightly publish release branches
+
+on:
+  schedule:
+    # Run nightly at 1 AM UTC
+    - cron: '0 1 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  dispatch:
+    name: Dispatch publish workflow
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch publish-libs on release branches
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const workflowId = 'publish-libs.yml'
+            const branches = ['release53', 'release52']
+
+            core.info(`Evaluating branches for nightly publish: ${branches.join(', ')}`)
+
+            for (const ref of branches) {
+              // Get current HEAD SHA for the branch
+              const branchInfo = await github.rest.repos.getBranch({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                branch: ref,
+              })
+              const headSha = branchInfo.data?.commit?.sha
+              if (!headSha) {
+                core.warning(`Could not determine HEAD SHA for ${ref}, dispatching anyway`)
+              }
+
+              // Find the latest publish-libs run on that branch (workflow_dispatch)
+              const runs = await github.rest.actions.listWorkflowRuns({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: workflowId,
+                branch: ref,
+                event: 'workflow_dispatch',
+                per_page: 1,
+              })
+
+              const latest = runs.data?.workflow_runs?.[0]
+              const latestSha = latest?.head_sha
+              const latestConclusion = latest?.conclusion
+
+              if (headSha && latestSha === headSha && latestConclusion === 'success') {
+                core.info(`Skipping ${ref}: HEAD ${headSha.substring(0, 7)} already published successfully in last run ${latest.id}`)
+                continue
+              }
+
+              core.info(
+                `Dispatching ${ref}: HEAD=${headSha ? headSha.substring(0, 7) : 'unknown'} (last=${latestSha ? latestSha.substring(0, 7) : 'none'}, conclusion=${latestConclusion ?? 'none'})`
+              )
+
+              await github.rest.actions.createWorkflowDispatch({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: workflowId,
+                ref,
+                inputs: {
+                  nightly_mode: 'true',
+                },
+              })
+            }
