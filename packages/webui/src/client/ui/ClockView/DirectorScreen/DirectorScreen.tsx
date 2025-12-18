@@ -1,25 +1,24 @@
 import ClassNames from 'classnames'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { PartUi } from '../SegmentTimeline/SegmentTimelineContainer.js'
+import { PartUi } from '../../SegmentTimeline/SegmentTimelineContainer.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { useTiming } from '../RundownView/RundownTiming/withTiming.js'
 import {
 	useSubscription,
 	useSubscriptions,
 	useTracker,
 	withTracker,
-} from '../../lib/ReactMeteorData/ReactMeteorData.js'
-import { getCurrentTime } from '../../lib/systemTime.js'
+} from '../../../lib/ReactMeteorData/ReactMeteorData.js'
+import { getCurrentTime } from '../../../lib/systemTime.js'
 import { PartInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { PieceIconContainer } from './ClockViewPieceIcons/ClockViewPieceIcon.js'
-import { PieceNameContainer } from './ClockViewPieceIcons/ClockViewPieceName.js'
-import { Timediff } from './Timediff.js'
-import { RundownUtils } from '../../lib/rundown.js'
+import { PieceIconContainer } from '../ClockViewPieceIcons/ClockViewPieceIcon.js'
+import { PieceNameContainer } from '../ClockViewPieceIcons/ClockViewPieceName.js'
+import { Timediff } from '../Timediff.js'
+import { RundownUtils } from '../../../lib/rundown.js'
 import { PieceLifespan } from '@sofie-automation/blueprints-integration'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { PieceFreezeContainer } from './ClockViewPieceIcons/ClockViewFreezeCount.js'
+import { PieceFreezeContainer } from '../ClockViewPieceIcons/ClockViewFreezeCount.js'
 import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
 import {
 	RundownId,
@@ -30,26 +29,21 @@ import {
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
 import { calculatePartInstanceExpectedDurationWithTransition } from '@sofie-automation/corelib/dist/playout/timings'
-import { getPlaylistTimingDiff } from '../../lib/rundownTiming.js'
 import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
-import { UIShowStyleBases, UIStudios } from '../Collections.js'
+import { UIShowStyleBases, UIStudios } from '../../Collections.js'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
-import { PieceInstances, RundownPlaylists, Rundowns, ShowStyleVariants } from '../../collections/index.js'
-import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil.js'
+import { PieceInstances, RundownPlaylists, Rundowns, ShowStyleVariants } from '../../../collections/index.js'
+import { RundownPlaylistCollectionUtil } from '../../../collections/rundownPlaylistUtil.js'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
-import { useSetDocumentClass } from '../util/useSetDocumentClass.js'
-import { useRundownAndShowStyleIdsForPlaylist } from '../util/useRundownAndShowStyleIdsForPlaylist.js'
-import { RundownPlaylistClientUtil } from '../../lib/rundownPlaylistUtil.js'
-import { CurrentPartOrSegmentRemaining } from '../RundownView/RundownTiming/CurrentPartOrSegmentRemaining.js'
-import {
-	OverUnderClockComponent,
-	PlannedEndComponent,
-	TimeSincePlannedEndComponent,
-	TimeToPlannedEndComponent,
-} from '../../lib/Components/CounterComponents.js'
-import { AdjustLabelFit } from '../util/AdjustLabelFit.js'
-import { AutoNextStatus } from '../RundownView/RundownTiming/AutoNextStatus.js'
+import { useSetDocumentClass } from '../../util/useSetDocumentClass.js'
+import { useRundownAndShowStyleIdsForPlaylist } from '../../util/useRundownAndShowStyleIdsForPlaylist.js'
+import { RundownPlaylistClientUtil } from '../../../lib/rundownPlaylistUtil.js'
+import { CurrentPartOrSegmentRemaining } from '../../RundownView/RundownTiming/CurrentPartOrSegmentRemaining.js'
+
+import { AdjustLabelFit } from '../../util/AdjustLabelFit.js'
+import { AutoNextStatus } from '../../RundownView/RundownTiming/AutoNextStatus.js'
 import { useTranslation } from 'react-i18next'
+import { DirectorScreenTop } from './DirectorScreenTop.js'
 
 interface SegmentUi extends DBSegment {
 	items: Array<PartUi>
@@ -80,6 +74,7 @@ export interface DirectorScreenTrackedProps {
 	nextShowStyleBaseId: ShowStyleBaseId | undefined
 	showStyleBaseIds: ShowStyleBaseId[]
 	rundownIds: RundownId[]
+	firstTakenPartInstance: PartInstance | undefined
 }
 
 function getShowStyleBaseIdSegmentPartUi(
@@ -185,6 +180,7 @@ const getDirectorScreenReactive = (props: DirectorScreenProps): DirectorScreenTr
 				restoredFromSnapshotId: 0,
 			},
 		})
+
 	const segments: Array<SegmentUi> = []
 	let showStyleBaseIds: ShowStyleBaseId[] = []
 	let rundowns: Rundown[] = []
@@ -200,17 +196,24 @@ const getDirectorScreenReactive = (props: DirectorScreenProps): DirectorScreenTr
 	let nextSegment: SegmentUi | undefined = undefined
 	let nextPartInstanceUi: PartUi | undefined = undefined
 	let nextShowStyleBaseId: ShowStyleBaseId | undefined = undefined
+	let firstTakenPartInstanceUi: PartInstance | undefined = undefined
 
 	if (playlist) {
 		rundowns = RundownPlaylistCollectionUtil.getRundownsOrdered(playlist)
+
 		const orderedSegmentsAndParts = RundownPlaylistClientUtil.getSegmentsAndPartsSync(playlist)
 		rundownIds = rundowns.map((rundown) => rundown._id)
 		const rundownsToShowstyles: Map<RundownId, ShowStyleBaseId> = new Map()
 		for (const rundown of rundowns) {
 			rundownsToShowstyles.set(rundown._id, rundown.showStyleBaseId)
 		}
+
 		showStyleBaseIds = rundowns.map((rundown) => rundown.showStyleBaseId)
-		const { currentPartInstance, nextPartInstance } = RundownPlaylistClientUtil.getSelectedPartInstances(playlist)
+		const { currentPartInstance, nextPartInstance, firstTakenPartInstance } =
+			RundownPlaylistClientUtil.getSelectedPartInstances(playlist)
+
+		firstTakenPartInstanceUi = firstTakenPartInstance
+
 		const partInstance = currentPartInstance ?? nextPartInstance
 		if (partInstance) {
 			// This is to register a reactive dependency on Rundown-spanning PieceInstances, that we may miss otherwise.
@@ -262,6 +265,7 @@ const getDirectorScreenReactive = (props: DirectorScreenProps): DirectorScreenTr
 			}
 		}
 	}
+
 	return {
 		studio,
 		segments,
@@ -278,6 +282,7 @@ const getDirectorScreenReactive = (props: DirectorScreenProps): DirectorScreenTr
 		nextSegment,
 		nextPartInstance: nextPartInstanceUi,
 		nextShowStyleBaseId,
+		firstTakenPartInstance: firstTakenPartInstanceUi,
 	}
 }
 
@@ -309,7 +314,7 @@ function useDirectorScreenSubscriptions(props: DirectorScreenProps): void {
 	useSubscription(CorelibPubSub.showStyleVariants, null, showStyleVariantIds)
 	useSubscription(MeteorPubSub.rundownLayouts, showStyleBaseIds)
 
-	const { currentPartInstance, nextPartInstance } = useTracker(
+	const { currentPartInstance, nextPartInstance, firstTakenPartInstance } = useTracker(
 		() => {
 			const playlist = RundownPlaylists.findOne(props.playlistId, {
 				fields: {
@@ -323,16 +328,27 @@ function useDirectorScreenSubscriptions(props: DirectorScreenProps): void {
 			if (playlist) {
 				return RundownPlaylistClientUtil.getSelectedPartInstances(playlist)
 			} else {
-				return { currentPartInstance: undefined, nextPartInstance: undefined, previousPartInstance: undefined }
+				return {
+					currentPartInstance: undefined,
+					nextPartInstance: undefined,
+					previousPartInstance: undefined,
+					firstTakenPartInstance: undefined,
+				}
 			}
 		},
 		[props.playlistId],
-		{ currentPartInstance: undefined, nextPartInstance: undefined, previousPartInstance: undefined }
+		{
+			currentPartInstance: undefined,
+			nextPartInstance: undefined,
+			previousPartInstance: undefined,
+			firstTakenPartInstance: undefined,
+		}
 	)
 
 	useSubscriptions(CorelibPubSub.pieceInstances, [
 		currentPartInstance && [[currentPartInstance.rundownId], [currentPartInstance._id], {}],
 		nextPartInstance && [[nextPartInstance.rundownId], [nextPartInstance._id], {}],
+		firstTakenPartInstance && [[firstTakenPartInstance.rundownId], [firstTakenPartInstance._id], {}],
 	])
 }
 
@@ -353,19 +369,13 @@ function DirectorScreenRender({
 	nextPartInstance,
 	nextSegment,
 	rundownIds,
+	firstTakenPartInstance,
 }: Readonly<DirectorScreenProps & DirectorScreenTrackedProps>) {
 	useSetDocumentClass('dark', 'xdark')
 	const { t } = useTranslation()
 
-	const timingDurations = useTiming()
-
 	if (playlist && playlistId && segments) {
 		const expectedStart = PlaylistTiming.getExpectedStart(playlist.timing) || 0
-		const expectedEnd = PlaylistTiming.getExpectedEnd(playlist.timing)
-		const expectedDuration = PlaylistTiming.getExpectedDuration(playlist.timing) || 0
-		const now = timingDurations.currentTime ?? getCurrentTime()
-
-		const overUnderClock = getPlaylistTimingDiff(playlist, timingDurations) ?? 0
 
 		// Show countdown if it is the first segment and the current part is untimed:
 		const currentSegmentIsFirst = currentSegment?._rank === 0
@@ -375,37 +385,7 @@ function DirectorScreenRender({
 
 		return (
 			<div className="director-screen">
-				<div className="director-screen__top">
-					{expectedEnd ? (
-						<div className="director-screen__top__planned-end">
-							<div>
-								<PlannedEndComponent value={expectedEnd} />
-							</div>
-							{t('Planned End')}
-						</div>
-					) : null}
-					{expectedEnd ? (
-						<div className="director-screen__top__time-to">
-							<div>
-								<TimeToPlannedEndComponent value={now - expectedEnd} />
-							</div>
-							<span className="director-screen__top__planned-to">{t('Time to planned end')}</span>
-						</div>
-					) : (
-						<div>
-							<div>
-								<TimeSincePlannedEndComponent value={getCurrentTime() - (expectedStart + expectedDuration)} />
-								<span className="director-screen__top__planned-since">{t('Time since planned end')}</span>
-							</div>
-						</div>
-					)}
-					<div>
-						<div>
-							<OverUnderClockComponent value={overUnderClock} />
-						</div>
-						<span className="director-screen__top__over-under">{t('Over/Under')}</span>
-					</div>
-				</div>
+				<DirectorScreenTop firstTakenPartInstance={firstTakenPartInstance} playlist={playlist} />
 				<div className="director-screen__body">
 					{
 						// Current Part:
