@@ -141,6 +141,9 @@ jobs:
 
     if: ${{ needs.check-publish.outputs.can-publish == '1' }}
 
+    outputs:
+      should_publish: ${{ steps.detect.outputs.should_publish }}
+
     steps:
       - uses: actions/checkout@v6
         with:
@@ -163,10 +166,16 @@ jobs:
           yarn build
         env:
           CI: true
-      - name: Check for changes and bump versions (scheduled builds only)
-        if: ${{ github.event_name == 'schedule' }}
+      - name: Decide whether to publish (scheduled builds may skip)
+        id: detect
         run: |
           cd packages
+
+          # Default: publish for non-scheduled events
+          if [ "${{ github.event_name }}" != "schedule" ]; then
+            echo "should_publish=1" >> $GITHUB_OUTPUT
+            exit 0
+          fi
           
           # Check each package for changes
           PACKAGES="blueprints-integration server-core-integration shared-lib live-status-gateway-api openapi"
@@ -203,7 +212,7 @@ jobs:
 
             # Compute current dist hash for this package
             if [ -d "$PKG/dist" ]; then
-              CURRENT_DIST_HASH=$(find "$PKG/dist" -type f | sort | xargs cat | sha256sum | cut -c1-8)
+              CURRENT_DIST_HASH=$(find "$PKG/dist" -type f -print0 | sort -z | xargs -0 cat | sha256sum | cut -c1-8)
             else
               echo "📦 **$PKG**: No dist folder, will publish" >> $GITHUB_STEP_SUMMARY
               HAS_ANY_CHANGES=1
@@ -221,14 +230,16 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           if [ $HAS_ANY_CHANGES -eq 0 ]; then
             echo "**Result**: No packages changed, skipping publish" >> $GITHUB_STEP_SUMMARY
-            exit 1  # Fail the step to stop the workflow
+            echo "should_publish=0" >> $GITHUB_OUTPUT
+            exit 0
           fi
           
           echo "**Result**: Will publish changed packages" >> $GITHUB_STEP_SUMMARY
+          echo "should_publish=1" >> $GITHUB_OUTPUT
         env:
           CI: true
       - name: Bump version with per-package dist hashes
-        if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' }}
+        if: ${{ (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule') && steps.detect.outputs.should_publish == '1' }}
         run: |
           cd packages
           COMMIT_TIMESTAMP=$(git log -1 --pretty=format:%ct HEAD)
@@ -243,7 +254,7 @@ jobs:
           for PKG_DIR in blueprints-integration server-core-integration shared-lib live-status-gateway-api openapi; do
             if [ -d "$PKG_DIR/dist" ]; then
               # Compute dist hash for this specific package
-              DIST_HASH=$(find "$PKG_DIR/dist" -type f | sort | xargs cat | sha256sum | cut -c1-8)
+              DIST_HASH=$(find "$PKG_DIR/dist" -type f -print0 | sort -z | xargs -0 cat | sha256sum | cut -c1-8)
 
               # Get current version from package.json
               CURRENT_VERSION=$(node -p "require('./$PKG_DIR/package.json').version")
@@ -284,12 +295,14 @@ jobs:
           CI: true
 
       - name: Build OpenAPI client library
+        if: ${{ github.event_name != 'schedule' || steps.detect.outputs.should_publish == '1' }}
         run: |
           cd packages/openapi
           yarn build
         env:
           CI: true
       - name: Modify dependencies to use npm packages
+        if: ${{ github.event_name != 'schedule' || steps.detect.outputs.should_publish == '1' }}
         run: |
           node scripts/prepublish.js "${{ github.repository }}" "${{ env.NPM_PACKAGE_SCOPE }}" ${{ env.NPM_PACKAGE_PREFIX }}
 
@@ -297,6 +310,7 @@ jobs:
           yarn install --no-immutable
 
       - name: Upload release artifact
+        if: ${{ github.event_name != 'schedule' || steps.detect.outputs.should_publish == '1' }}
         uses: actions/upload-artifact@v5
         with:
           name: publish-dist
@@ -316,6 +330,8 @@ jobs:
     needs:
       - prepare-publish
       - test-packages
+
+    if: ${{ github.event_name != 'schedule' || needs.prepare-publish.outputs.should_publish == '1' }}
 
     permissions:
       contents: write
