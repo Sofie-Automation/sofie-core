@@ -5,7 +5,7 @@ import { RundownTimingProvider } from '../RundownView/RundownTiming/RundownTimin
 
 import { StudioScreenSaver } from '../StudioScreenSaver/StudioScreenSaver.js'
 import { PresenterScreen } from './PresenterScreen.js'
-import { DirectorScreen } from './DirectorScreen.js'
+import { DirectorScreen } from './DirectorScreen/DirectorScreen'
 import { OverlayScreen } from './OverlayScreen.js'
 import { OverlayScreenSaver } from './OverlayScreenSaver.js'
 import { RundownPlaylists } from '../../collections/index.js'
