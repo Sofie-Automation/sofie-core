@@ -8,12 +8,12 @@ import {
 } from '@sofie-automation/blueprints-integration'
 import { getSofieHostUrl, objectPathGet } from '@sofie-automation/corelib/dist/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
-import _ = require('underscore')
-import { logger } from '../logging'
-import { CommonContext } from './context'
+import _ from 'underscore'
+import { logger } from '../logging.js'
+import { CommonContext } from './context/index.js'
 import { IStudioSettings } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { JobStudio, ProcessedShowStyleCompound, StudioCacheContext } from '../jobs'
+import { JobStudio, ProcessedShowStyleCompound, StudioCacheContext } from '../jobs/index.js'
 
 /**
  * Parse a string containing BlueprintConfigRefs (`${studio.studio0.myConfigField}`) to replace the refs with the current values
@@ -34,6 +34,7 @@ export async function retrieveBlueprintConfigRefs(
 	const refs = stringWithReferences.match(/\$\{[^}]+\}/g) || []
 	for (const ref of refs) {
 		if (ref) {
+			// eslint-disable-next-line @typescript-eslint/no-base-to-string
 			let value = (await retrieveBlueprintConfigRef(context, ref, bailOnError)) + ''
 			if (value) {
 				if (modifier) value = modifier(value)

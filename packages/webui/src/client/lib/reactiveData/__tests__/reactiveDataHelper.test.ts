@@ -1,5 +1,5 @@
 import { Tracker } from 'meteor/tracker'
-import { slowDownReactivity } from '../reactiveDataHelper'
+import { slowDownReactivity } from '../reactiveDataHelper.js'
 import { sleep } from '@sofie-automation/shared-lib/dist/lib/lib'
 
 describe('client/lib/reactiveData/reactiveDataHelper', () => {

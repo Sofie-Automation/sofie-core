@@ -1,27 +1,57 @@
-.glass-pane {
-	.border-box {
-		display: block;
-		padding: 0;
-		border: none;
-		pointer-events: auto;
-		min-width: 550px;
+.modal {
+	padding-top: 5em;
+	padding-bottom: 10em;
 
-		.big {
-			max-width: 550px;
-			width: 100%;
+	.modal-header {
+		&.modal-header-info {
+			background-color: var(--bs-primary);
+			color: var(--bs-light);
+		}
+		&.modal-header-danger {
+			background-color: var(--bs-danger);
+			color: var(--bs-light);
 		}
 
-		p,
-		center,
-		.table {
-			font-weight: 300;
+		.modal-title {
+			text-transform: none;
+
+			.action-btn {
+				color: inherit;
+			}
+
+			h2 {
+				color: inherit;
+				margin: 0;
+			}
 		}
 	}
 }
 
+// .glass-pane {
+// 	.border-box {
+// 		display: block;
+// 		padding: 0;
+// 		border: none;
+// 		pointer-events: auto;
+// 		min-width: 550px;
+
+// 		.big {
+// 			max-width: 550px;
+// 			width: 100%;
+// 		}
+
+// 		p,
+// 		center,
+// 		.table {
+// 			font-weight: 300;
+// 		}
+// 	}
+// }
+
 .modal-dialog-actions {
 	display: flex;
 	justify-content: space-between;
+	width: 100%;
 
 	.discard-btn {
 		margin-right: 2rem;
@@ -29,22 +59,21 @@
 	}
 }
 
-.dark .border-box {
-	color: #fff;
-}
+// .dark .border-box {
+// 	color: #fff;
+// }
 
-.btn {
-	font-weight: 100;
-	min-width: fit-content;
-}
+// .btn {
+// 	font-weight: 100;
+// 	min-width: fit-content;
+// }
 
-.btn.btn-primary {
-	font-weight: 500;
-	border: #fffcfc;
-	border-width: 1px;
-	border-style: solid;
-}
-
+// .btn.btn-primary {
+// 	font-weight: 500;
+// 	border: #fffcfc;
+// 	border-width: 1px;
+// 	border-style: solid;
+// }
 
 .btn.btn-primary.btn-warn {
 	background: #e62421;

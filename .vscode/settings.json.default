@@ -6,9 +6,11 @@
         "packages/playout-gateway",
         "packages/server-core-integration",
         "packages/corelib",
+		"packages/meteor-lib",
         "packages/shared-lib",
         "packages/job-worker",
         "packages/openapi",
+        "packages/live-status-gateway-api",
         "packages/live-status-gateway",
 		"packages/webui"
     ],

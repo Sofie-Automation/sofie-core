@@ -5,15 +5,15 @@ import {
 	MosMoveStoryProps,
 	MosSwapStoryProps,
 } from '@sofie-automation/corelib/dist/worker/ingest'
-import { logger } from '../../logging'
-import { JobContext } from '../../jobs'
+import { logger } from '../../logging.js'
+import { JobContext } from '../../jobs/index.js'
 import {
 	fixIllegalObject,
 	getMosIngestSegmentExternalId,
 	mosStoryToIngestSegment,
 	parseMosString,
 	updateRanksBasedOnOrder,
-} from './lib'
+} from './lib.js'
 import {
 	IngestChangeType,
 	IngestSegment,
@@ -22,7 +22,7 @@ import {
 	NrcsIngestSegmentChangeDetails,
 	NrcsIngestSegmentChangeDetailsEnum,
 } from '@sofie-automation/blueprints-integration'
-import { IngestUpdateOperationFunction } from '../runOperation'
+import { IngestUpdateOperationFunction } from '../runOperation.js'
 import { normalizeArrayToMap } from '@sofie-automation/corelib/dist/lib'
 import { IngestRundownWithSource } from '@sofie-automation/corelib/dist/dataModel/NrcsIngestDataCache'
 

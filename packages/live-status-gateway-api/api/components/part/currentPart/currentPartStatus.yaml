@@ -1,0 +1,13 @@
+$defs:
+  currentPartStatus:
+    title: CurrentPartStatus
+    allOf:
+      - $ref: '../partStatus/partStatus.yaml#/$defs/partStatus'
+      - type: object
+        title: CurrentPartStatus
+        properties:
+          timing:
+            $ref: '../../timing/currentPartTiming/currentPartTiming.yaml#/$defs/currentPartTiming'
+        required: [timing]
+    examples:
+      - $ref: './currentPartStatus-example.yaml'

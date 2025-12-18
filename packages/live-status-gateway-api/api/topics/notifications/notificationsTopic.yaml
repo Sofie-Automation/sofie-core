@@ -1,0 +1,7 @@
+description: Notifications topic for websocket subscriptions.
+subscribe:
+  operationId: receiveNotifications
+  description: Server sends notifications updates
+  message:
+    oneOf:
+      - $ref: '../../components/notifications/messages/notificationsMessage.yaml#/components/messages/notificationsMessage'

@@ -1,11 +1,10 @@
 import { Time, TimeDuration } from '@sofie-automation/shared-lib/dist/lib/lib'
-import { UserActionsLogItemId, OrganizationId, UserId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { UserActionsLogItemId, UserId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { TimelineHash } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 
 export interface UserActionsLogItem {
 	_id: UserActionsLogItemId
 
-	organizationId: OrganizationId | null
 	/** The user from which the action originated */
 	userId: UserId | null
 	/** The cliend address (IP-address) of the requester */

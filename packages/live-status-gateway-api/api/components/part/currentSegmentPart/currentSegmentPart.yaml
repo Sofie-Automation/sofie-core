@@ -1,0 +1,14 @@
+$defs:
+  currentSegmentPart:
+    title: CurrentSegmentPart
+    type: object
+    allOf:
+      - $ref: '../partBase/partBase.yaml#/$defs/partBase'
+      - type: object
+        title: CurrentSegmentPart
+        properties:
+          timing:
+            $ref: '../../timing/currentSegmentPartTiming/currentSegmentPartTiming.yaml#/$defs/currentSegmentPartTiming'
+    required: [id, name, timing]
+    examples:
+      - $ref: './currentSegmentPart-example.yaml'

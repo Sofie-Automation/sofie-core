@@ -4,13 +4,13 @@ import {
 	ExpectedPackagesRegenerateProps,
 	PackageInfosUpdatedRundownProps,
 } from '@sofie-automation/corelib/dist/worker/ingest'
-import { logger } from '../logging'
-import { JobContext } from '../jobs'
-import { regenerateSegmentsFromIngestData } from './generationSegment'
-import { runWithRundownLock } from './lock'
-import { updateExpectedPackagesForPartModel, updateExpectedPackagesForRundownBaseline } from './expectedPackages'
-import { loadIngestModelFromRundown } from './model/implementation/LoadIngestModel'
-import { runCustomIngestUpdateOperation } from './runOperation'
+import { logger } from '../logging.js'
+import { JobContext } from '../jobs/index.js'
+import { regenerateSegmentsFromIngestData } from './generationSegment.js'
+import { runWithRundownLock } from './lock.js'
+import { updateExpectedPackagesForPartModel, updateExpectedPackagesForRundownBaseline } from './expectedPackages.js'
+import { loadIngestModelFromRundown } from './model/implementation/LoadIngestModel.js'
+import { runCustomIngestUpdateOperation } from './runOperation.js'
 
 /**
  * Debug: Regenerate ExpectedPackages for a Rundown

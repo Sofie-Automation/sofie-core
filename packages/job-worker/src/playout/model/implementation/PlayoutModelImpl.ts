@@ -19,7 +19,7 @@ import {
 	SelectedPartInstance,
 } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { ReadonlyDeep } from 'type-fest'
-import { JobContext } from '../../../jobs'
+import { JobContext } from '../../../jobs/index.js'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import {
@@ -33,35 +33,34 @@ import {
 	TimelineCompleteGenerationVersions,
 	TimelineObjGeneric,
 } from '@sofie-automation/corelib/dist/dataModel/Timeline'
-import _ = require('underscore')
+import _ from 'underscore'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { PlaylistLock } from '../../../jobs/lock'
-import { logger } from '../../../logging'
+import { PlaylistLock } from '../../../jobs/lock.js'
+import { logger } from '../../../logging.js'
 import { clone, getRandomId, literal, normalizeArrayToMapFunc } from '@sofie-automation/corelib/dist/lib'
 import { sleep } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { sortRundownIDsInPlaylist } from '@sofie-automation/corelib/dist/playout/playlist'
-import { PlayoutRundownModel } from '../PlayoutRundownModel'
-import { PlayoutRundownModelImpl } from './PlayoutRundownModelImpl'
-import { PlayoutSegmentModel } from '../PlayoutSegmentModel'
-import { PlayoutPartInstanceModelImpl } from './PlayoutPartInstanceModelImpl'
-import { PlayoutPartInstanceModel } from '../PlayoutPartInstanceModel'
-import { getCurrentTime } from '../../../lib'
+import { PlayoutRundownModel } from '../PlayoutRundownModel.js'
+import { PlayoutRundownModelImpl } from './PlayoutRundownModelImpl.js'
+import { PlayoutSegmentModel } from '../PlayoutSegmentModel.js'
+import { PlayoutPartInstanceModelImpl } from './PlayoutPartInstanceModelImpl.js'
+import { PlayoutPartInstanceModel } from '../PlayoutPartInstanceModel.js'
+import { getCurrentTime } from '../../../lib/index.js'
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
-import { queuePartInstanceTimingEvent } from '../../timings/events'
-import { IS_PRODUCTION } from '../../../environment'
-import { DeferredAfterSaveFunction, DeferredFunction, PlayoutModel, PlayoutModelReadonly } from '../PlayoutModel'
-import { writePartInstancesAndPieceInstances, writeAdlibTestingSegments } from './SavePlayoutModel'
-import { PlayoutPieceInstanceModel } from '../PlayoutPieceInstanceModel'
-import { DatabasePersistedModel } from '../../../modelBase'
+import { queuePartInstanceTimingEvent } from '../../timings/events.js'
+import { IS_PRODUCTION } from '../../../environment.js'
+import { DeferredAfterSaveFunction, DeferredFunction, PlayoutModel, PlayoutModelReadonly } from '../PlayoutModel.js'
+import { writePartInstancesAndPieceInstances, writeAdlibTestingSegments } from './SavePlayoutModel.js'
+import { PlayoutPieceInstanceModel } from '../PlayoutPieceInstanceModel.js'
+import { DatabasePersistedModel } from '../../../modelBase.js'
 import { ExpectedPackageDBFromStudioBaselineObjects } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
 import { ExpectedPlayoutItemStudio } from '@sofie-automation/corelib/dist/dataModel/ExpectedPlayoutItem'
-import { StudioBaselineHelper } from '../../../studio/model/StudioBaselineHelper'
-import { EventsJobs } from '@sofie-automation/corelib/dist/worker/events'
-import { QuickLoopService } from '../services/QuickLoopService'
+import { StudioBaselineHelper } from '../../../studio/model/StudioBaselineHelper.js'
+import { QuickLoopService } from '../services/QuickLoopService.js'
 import { calculatePartTimings, PartCalculatedTimings } from '@sofie-automation/corelib/dist/playout/timings'
 import { PieceInstanceWithTimings } from '@sofie-automation/corelib/dist/playout/processAndPrune'
-import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
-import { NotificationsModelHelper } from '../../../notifications/NotificationsModelHelper'
+import { NotificationsModelHelper } from '../../../notifications/NotificationsModelHelper.js'
+import { getExpectedLatency } from '@sofie-automation/corelib/dist/studio/playout'
 
 export class PlayoutModelReadonlyImpl implements PlayoutModelReadonly {
 	public readonly playlistId: RundownPlaylistId
@@ -264,6 +263,31 @@ export class PlayoutModelReadonlyImpl implements PlayoutModelReadonly {
 		}
 		return this.#isMultiGatewayMode
 	}
+
+	public get multiGatewayNowSafeLatency(): number | undefined {
+		return this.context.studio.settings.multiGatewayNowSafeLatency
+	}
+
+	/**
+	 * Calculate an offset to apply to the 'now' value, to compensate for delay in playout-gateway
+	 * The intention is that any concrete value used instead of 'now' should still be just in the future for playout-gateway
+	 */
+	protected getNowOffsetLatency(): number | undefined {
+		/** The timestamp that "now" was set to */
+		let nowOffsetLatency: number | undefined
+
+		if (this.isMultiGatewayMode) {
+			const playoutDevices = this.peripheralDevices.filter(
+				(device) => device.type === PeripheralDeviceType.PLAYOUT
+			)
+			const worstLatency = Math.max(0, ...playoutDevices.map((device) => getExpectedLatency(device).safe))
+			/** Add a little more latency, to account for network latency variability */
+			const ADD_SAFE_LATENCY = this.multiGatewayNowSafeLatency || 30
+			nowOffsetLatency = worstLatency + ADD_SAFE_LATENCY
+		}
+
+		return nowOffsetLatency
+	}
 }
 
 /**
@@ -283,7 +307,6 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 	#timelineHasChanged = false
 
 	#pendingPartInstanceTimingEvents = new Set<PartInstanceId>()
-	#pendingNotifyCurrentlyPlayingPartEvent = new Map<RundownId, string | null>()
 
 	get hackDeletedPartInstanceIds(): PartInstanceId[] {
 		const result: PartInstanceId[] = []
@@ -537,14 +560,6 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 		this.#pendingPartInstanceTimingEvents.add(partInstanceId)
 	}
 
-	queueNotifyCurrentlyPlayingPartEvent(rundownId: RundownId, partInstance: PlayoutPartInstanceModel | null): void {
-		if (partInstance && partInstance.partInstance.part.shouldNotifyCurrentPlayingPart) {
-			this.#pendingNotifyCurrentlyPlayingPartEvent.set(rundownId, partInstance.partInstance.part.externalId)
-		} else if (!partInstance) {
-			this.#pendingNotifyCurrentlyPlayingPartEvent.set(rundownId, null)
-		}
-	}
-
 	removeAllRehearsalPartInstances(): void {
 		const partInstancesToRemove: PartInstanceId[] = []
 
@@ -579,20 +594,20 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 					? this.context.directCollections.PartInstances.remove({
 							_id: { $in: removeFromDb },
 							rundownId: { $in: rundownIds },
-					  })
+						})
 					: undefined,
 				allToRemove.length > 0
 					? this.context.directCollections.PieceInstances.remove({
 							partInstanceId: { $in: allToRemove },
 							rundownId: { $in: rundownIds },
-					  })
+						})
 					: undefined,
 				allToRemove.length > 0
 					? this.context.directCollections.Notifications.remove({
 							'relatedTo.studioId': this.context.studioId,
 							'relatedTo.rundownId': { $in: rundownIds },
 							'relatedTo.partInstanceId': { $in: allToRemove },
-					  })
+						})
 					: undefined,
 			])
 		})
@@ -712,21 +727,6 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 		}
 		this.#pendingPartInstanceTimingEvents.clear()
 
-		for (const [rundownId, partExternalId] of this.#pendingNotifyCurrentlyPlayingPartEvent) {
-			// This is low-prio, defer so that it's executed well after publications has been updated,
-			// so that the playout gateway has had the chance to learn about the timeline changes
-			this.context
-				.queueEventJob(EventsJobs.NotifyCurrentlyPlayingPart, {
-					rundownId: rundownId,
-					isRehearsal: !!this.playlist.rehearsal,
-					partExternalId: partExternalId,
-				})
-				.catch((e) => {
-					logger.warn(`Failed to queue NotifyCurrentlyPlayingPart job: ${stringifyError(e)}`)
-				})
-		}
-		this.#pendingNotifyCurrentlyPlayingPartEvent.clear()
-
 		if (span) span.end()
 	}
 
@@ -736,14 +736,18 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 		this.#playlistHasChanged = true
 	}
 
-	setOnTimelineGenerateResult(
-		persistentState: unknown | undefined,
+	setAbResolvingState(
 		assignedAbSessions: Record<string, ABSessionAssignments>,
 		trackedAbSessions: ABSessionInfo[]
 	): void {
-		this.playlistImpl.previousPersistentState = persistentState
 		this.playlistImpl.assignedAbSessions = assignedAbSessions
 		this.playlistImpl.trackedAbSessions = trackedAbSessions
+
+		this.#playlistHasChanged = true
+	}
+
+	setBlueprintPersistentState(persistentState: unknown | undefined): void {
+		this.playlistImpl.previousPersistentState = persistentState
 
 		this.#playlistHasChanged = true
 	}
@@ -821,7 +825,8 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 
 	setTimeline(
 		timelineObjs: TimelineObjGeneric[],
-		generationVersions: TimelineCompleteGenerationVersions
+		generationVersions: TimelineCompleteGenerationVersions,
+		regenerateTimelineToken: string | undefined
 	): ReadonlyDeep<TimelineComplete> {
 		this.timelineImpl = {
 			_id: this.context.studioId,
@@ -829,6 +834,7 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 			generated: getCurrentTime(),
 			timelineBlob: serializeTimelineBlob(timelineObjs),
 			generationVersions: generationVersions,
+			regenerateTimelineToken: regenerateTimelineToken,
 		}
 		this.#timelineHasChanged = true
 
@@ -851,6 +857,15 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 	updateQuickLoopState(): void {
 		this.playlistImpl.quickLoop = this.quickLoopService.getUpdatedProps()
 		this.#playlistHasChanged = true
+	}
+
+	#lastMonotonicNowInPlayout = getCurrentTime()
+	getNowInPlayout(): number {
+		const nowOffsetLatency = this.getNowOffsetLatency() ?? 0
+		const targetNowTime = getCurrentTime() + nowOffsetLatency
+		const result = Math.max(this.#lastMonotonicNowInPlayout, targetNowTime)
+		this.#lastMonotonicNowInPlayout = result
+		return result
 	}
 
 	/** Notifications */
@@ -950,7 +965,7 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 									? 'null'
 									: `partInstanceHasChanges: ${
 											pi.partInstanceHasChanges
-									  }, changedPieceInstanceIds: ${JSON.stringify(pi.changedPieceInstanceIds())}`)
+										}, changedPieceInstanceIds: ${JSON.stringify(pi.changedPieceInstanceIds())}`)
 						)
 					)}`
 				)

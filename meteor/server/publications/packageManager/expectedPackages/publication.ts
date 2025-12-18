@@ -6,7 +6,8 @@ import {
 	CustomPublishCollection,
 	SetupObserversResult,
 } from '../../../lib/customPublication'
-import { literal, omit, protectString } from '../../../lib/tempLib'
+import { literal, omit } from '@sofie-automation/corelib/dist/lib'
+import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { logger } from '../../../logging'
 import { ReadonlyDeep } from 'type-fest'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
@@ -101,7 +102,7 @@ async function setupExpectedPackagesPublicationObservers(
 				removed: () => triggerUpdate({ invalidateStudio: true }),
 			},
 			{
-				fields: {
+				projection: {
 					// mappingsHash gets updated when either of these omitted fields changes
 					...omit(studioFieldSpecifier, 'mappingsWithOverrides', 'routeSetsWithOverrides'),
 					mappingsHash: 1,
@@ -137,7 +138,7 @@ async function manipulateExpectedPackagesPublicationData(
 
 	// Reload the studio, and the layerNameToDeviceIds lookup
 	if (!updateProps || updateProps.invalidateStudio) {
-		state.studio = (await Studios.findOneAsync(args.studioId, { fields: studioFieldSpecifier })) as
+		state.studio = (await Studios.findOneAsync(args.studioId, { projection: studioFieldSpecifier })) as
 			| Pick<DBStudio, StudioFields>
 			| undefined
 		if (!state.studio) {

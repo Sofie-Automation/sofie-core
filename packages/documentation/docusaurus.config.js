@@ -9,13 +9,16 @@ module.exports = {
 		'Sofie is a web-based, open\xa0source TV\xa0automation system for studios and live shows, used in daily live\xa0TV\xa0news productions by the Norwegian public\xa0service broadcaster NRK since September\xa02018.',
 	url: 'https://sofie-automation.github.io',
 	baseUrl: '/sofie-core/',
-	onBrokenLinks: 'warn',
-	onBrokenMarkdownLinks: 'warn',
+	onBrokenLinks: 'throw',
+	// onBrokenAnchors: 'throw',
 	favicon: 'img/favicon.ico',
 	organizationName: 'Sofie-Automation',
 	projectName: 'sofie-core',
 	markdown: {
 		mermaid: true,
+		hooks: {
+			onBrokenMarkdownLinks: 'throw',
+		},
 	},
 	themes: ['@docusaurus/theme-mermaid'],
 	themeConfig: {

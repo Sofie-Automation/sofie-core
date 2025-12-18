@@ -1,11 +1,11 @@
 import { UpdateTimelineAfterIngestProps } from '@sofie-automation/corelib/dist/worker/studio'
-import { JobContext } from '../jobs'
-import { runJobWithPlaylistLock, runWithPlayoutModel } from './lock'
-import { updateStudioTimeline, updateTimeline } from './timeline/generate'
-import { getSystemVersion } from '../lib'
-import { runJobWithStudioPlayoutModel } from '../studio/lock'
+import { JobContext } from '../jobs/index.js'
+import { runJobWithPlaylistLock, runWithPlayoutModel } from './lock.js'
+import { updateStudioTimeline, updateTimeline } from './timeline/generate.js'
+import { getSystemVersion } from '../lib/index.js'
+import { runJobWithStudioPlayoutModel } from '../studio/lock.js'
 import { shouldUpdateStudioBaselineInner as libShouldUpdateStudioBaselineInner } from '@sofie-automation/corelib/dist/studio/baseline'
-import { StudioPlayoutModel } from '../studio/model/StudioPlayoutModel'
+import { StudioPlayoutModel } from '../studio/model/StudioPlayoutModel.js'
 
 /**
  * Update the timeline with a regenerated Studio Baseline

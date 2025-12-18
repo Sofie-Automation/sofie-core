@@ -1,10 +1,10 @@
 import { IStudioUserContext, NoteSeverity } from '@sofie-automation/blueprints-integration'
 import { ReadonlyDeep } from 'type-fest'
-import { ProcessedStudioConfig } from '../config'
+import { ProcessedStudioConfig } from '../config.js'
 import { INoteBase } from '@sofie-automation/corelib/dist/dataModel/Notes'
-import { ContextInfo } from './CommonContext'
-import { StudioContext } from './StudioContext'
-import { JobStudio } from '../../jobs'
+import { ContextInfo } from './CommonContext.js'
+import { StudioContext } from './StudioContext.js'
+import { JobStudio } from '../../jobs/index.js'
 
 export class StudioUserContext extends StudioContext implements IStudioUserContext {
 	public readonly notes: INoteBase[] = []

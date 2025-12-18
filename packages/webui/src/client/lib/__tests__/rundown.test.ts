@@ -3,26 +3,28 @@ import {
 	DefaultEnvironment,
 	setupDefaultRundownPlaylist,
 	convertToUIShowStyleBase,
-} from '../../../__mocks__/helpers/database'
-import { RundownUtils } from '../rundown'
+	convertToUIStudio,
+} from '../../../__mocks__/helpers/database.js'
+import { RundownUtils } from '../rundown.js'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
-import { defaultPartInstance, defaultPiece, defaultPieceInstance } from '../../../__mocks__/defaultCollectionObjects'
+import { defaultPartInstance, defaultPiece, defaultPieceInstance } from '../../../__mocks__/defaultCollectionObjects.js'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { PieceLifespan } from '@sofie-automation/blueprints-integration'
 import { PartInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { PartInstances, PieceInstances, Pieces, RundownPlaylists } from '../../collections'
-import { MongoMock } from '../../../__mocks__/mongo'
-import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil'
-import { RundownPlaylistClientUtil } from '../rundownPlaylistUtil'
+import { PartInstances, PieceInstances, Pieces, RundownPlaylists } from '../../collections/index.js'
+import { MongoMock } from '../../../__mocks__/mongo.js'
+import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil.js'
+import { RundownPlaylistClientUtil } from '../rundownPlaylistUtil.js'
+import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 
 const mockRundownPlaylistsCollection = MongoMock.getInnerMockCollection(RundownPlaylists)
 const mockPartInstancesCollection = MongoMock.getInnerMockCollection(PartInstances)
 const mockPieceInstancesCollection = MongoMock.getInnerMockCollection(PieceInstances)
 const mockPiecesCollection = MongoMock.getInnerMockCollection(Pieces)
 
-// This is a hack, the tests should be rewriten to not use methods unrelated to the testee
+// This is a hack, the tests should be rewritten to not use methods unrelated to the testee
 jest.mock('../../ui/Collections', () => {
 	const mockClientCollections = jest.requireActual('../../ui/Collections')
 	const mockLibCollections = jest.requireActual('../../collections/index')
@@ -36,9 +38,11 @@ jest.mock('../../ui/Collections', () => {
 describe('client/lib/rundown', () => {
 	let env: DefaultEnvironment
 	let playlistId: RundownPlaylistId
+	let studio: UIStudio
 	beforeEach(async () => {
 		env = await setupDefaultStudioEnvironment()
 		playlistId = (await setupDefaultRundownPlaylist(env)).playlistId
+		studio = convertToUIStudio(env.studio)
 	})
 	describe('RundownUtils.getResolvedSegment', () => {
 		test('Basic Segment resolution', () => {
@@ -56,6 +60,7 @@ describe('client/lib/rundown', () => {
 
 			const resolvedSegment = RundownUtils.getResolvedSegment(
 				showStyleBase,
+				studio,
 				playlist,
 				rundown,
 				segment,
@@ -117,6 +122,7 @@ describe('client/lib/rundown', () => {
 
 			const resolvedSegment = RundownUtils.getResolvedSegment(
 				showStyleBase,
+				studio,
 				playlist,
 				rundown,
 				segment,
@@ -202,6 +208,7 @@ describe('client/lib/rundown', () => {
 
 			const resolvedSegment = RundownUtils.getResolvedSegment(
 				showStyleBase,
+				studio,
 				playlist,
 				rundown,
 				segment,
@@ -352,6 +359,7 @@ describe('client/lib/rundown', () => {
 
 			const resolvedSegment = RundownUtils.getResolvedSegment(
 				showStyleBase,
+				studio,
 				playlist,
 				rundown,
 				segment,

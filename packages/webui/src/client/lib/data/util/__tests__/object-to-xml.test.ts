@@ -1,4 +1,4 @@
-import { objectToXML } from '../object-to-xml'
+import { objectToXML } from '../object-to-xml.js'
 
 describe('objectToXML', () => {
 	describe('basic canary tests', () => {

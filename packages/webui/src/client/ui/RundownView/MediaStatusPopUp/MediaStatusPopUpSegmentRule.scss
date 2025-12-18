@@ -1,14 +1,14 @@
 .media-status-popup-segment-rule__line {
-    padding-bottom: 0;
-    position: relative;
-    &::after {
-        content: ' ';
-        display: block;
-        position: absolute;
-        bottom: 2px;
-        left: 0;
-        right: 1.5em;
-        height: 1px;
-        border-bottom: 1px solid #d7d7d7;
-    }
+	padding-bottom: 0;
+	position: relative;
+	&::after {
+		content: ' ';
+		display: block;
+		position: absolute;
+		bottom: 2px;
+		left: 0;
+		right: 1.5em;
+		height: 1px;
+		border-bottom: 1px solid #d7d7d7;
+	}
 }

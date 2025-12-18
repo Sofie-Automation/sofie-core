@@ -1,5 +1,5 @@
-import { JobQueueWithClasses } from '../JobQueueWithClasses'
-import { sleep } from '../lib'
+import { JobQueueWithClasses } from '../JobQueueWithClasses.js'
+import { sleep } from '../lib.js'
 
 describe('JobQueueWithClasses', () => {
 	const defaultErrorHandler = jest.fn((e: any) => {

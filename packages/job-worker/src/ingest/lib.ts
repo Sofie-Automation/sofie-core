@@ -3,11 +3,11 @@ import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { getHash } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { ReadonlyDeep } from 'type-fest'
-import { logger } from '../logging'
+import { logger } from '../logging.js'
 import { ExtendedIngestRundown, SofieIngestRundown } from '@sofie-automation/blueprints-integration'
 import { SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { convertRundownToBlueprints } from '../blueprints/context/lib'
-import { IngestSegmentModel } from './model/IngestSegmentModel'
+import { convertRundownToBlueprints } from '../blueprints/context/lib.js'
+import { IngestSegmentModel } from './model/IngestSegmentModel.js'
 
 export function getRundownId(studioId: StudioId, rundownExternalId: string): RundownId {
 	if (!studioId) throw new Error('getRundownId: studio not set!')

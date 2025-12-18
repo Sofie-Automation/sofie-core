@@ -1,9 +1,9 @@
 import { ProtectedString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { EventEmitter } from 'events'
 import { AnyBulkWriteOperation, ChangeStream, Collection as MongoCollection, FindOptions, CountOptions } from 'mongodb'
-import { IChangeStreamEvents } from '.'
-import { startSpanManual } from '../profiler'
-import { IChangeStream, ICollection, MongoModifier, MongoQuery } from './collections'
+import { IChangeStreamEvents } from './index.js'
+import { startSpanManual } from '../profiler.js'
+import { IChangeStream, ICollection, MongoModifier, MongoQuery } from './collections.js'
 
 /** Wrap some APM and better error small query modifications around a Mongo.Collection */
 class WrappedCollection<TDoc extends { _id: ProtectedString<any> }> implements ICollection<TDoc> {

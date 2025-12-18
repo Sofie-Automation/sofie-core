@@ -1,4 +1,4 @@
-import { equalSets, equivalentArrays } from '../lib'
+import { equalSets, equivalentArrays } from '../lib.js'
 
 test('equalSets', () => {
 	expect(equalSets(new Set(['a', 'b', 'c']), new Set(['c', 'b', 'a']))).toBe(true)

@@ -1,12 +1,12 @@
 import { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { RundownPlayoutPropsBase } from '@sofie-automation/corelib/dist/worker/studio'
-import { logger } from '../logging'
+import { logger } from '../logging.js'
 import { ReadonlyDeep } from 'type-fest'
-import { JobContext } from '../jobs'
-import { PlaylistLock } from '../jobs/lock'
-import { PlayoutModel, PlayoutModelPreInit } from './model/PlayoutModel'
-import { createPlayoutModelfromInitModel, loadPlayoutModelPreInit } from './model/implementation/LoadPlayoutModel'
+import { JobContext } from '../jobs/index.js'
+import { PlaylistLock } from '../jobs/lock.js'
+import { PlayoutModel, PlayoutModelPreInit } from './model/PlayoutModel.js'
+import { createPlayoutModelfromInitModel, loadPlayoutModelPreInit } from './model/implementation/LoadPlayoutModel.js'
 
 /**
  * Run a typical playout job

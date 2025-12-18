@@ -1,4 +1,4 @@
-import type { PackageInfo } from '../packageInfo'
+import type { PackageInfo } from '../packageInfo.js'
 
 export interface IPackageInfoContext {
 	/**

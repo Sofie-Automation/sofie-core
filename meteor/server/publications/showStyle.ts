@@ -89,7 +89,7 @@ meteorPublish(
 								showStyleBaseId: { $in: showStyleBaseIds },
 							},
 						],
-				  }
+					}
 				: { showStyleBaseId: null }
 
 		return TriggeredActions.findWithCursor(selector)

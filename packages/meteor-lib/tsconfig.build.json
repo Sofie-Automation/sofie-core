@@ -8,9 +8,10 @@
 		"baseUrl": "./",
 		"paths": {
 			"*": ["./node_modules/*"],
-			"@sofie-automation/corelib": ["./src/index.ts"]
+			"@sofie-automation/meteor-lib": ["./src/index.ts"]
 		},
 		"resolveJsonModule": true,
-		"types": ["node"]
+		"types": ["node"],
+		"esModuleInterop": true
 	}
 }

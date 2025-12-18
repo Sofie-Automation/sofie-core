@@ -1,5 +1,5 @@
-import { runTimersUntilNow } from '../../../__mocks__/helpers/jest'
-import { getCurrentTime, systemTime, TimeJumpDetector } from '../systemTime'
+import { runTimersUntilNow } from '../../../__mocks__/helpers/jest.js'
+import { getCurrentTime, systemTime, TimeJumpDetector } from '../systemTime.js'
 
 test('getCurrentTime', () => {
 	systemTime.diff = 5439

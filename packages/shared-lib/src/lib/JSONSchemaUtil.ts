@@ -1,4 +1,4 @@
-import { JSONSchema, TypeName } from './JSONSchemaTypes'
+import { JSONSchema, TypeName } from './JSONSchemaTypes.js'
 
 /**
  * The custom JSONSchema properties we can use for building the UI
@@ -30,6 +30,7 @@ export enum SchemaFormUIField {
 	 * - object properties. Valid values are 'json'.
 	 * - string properties. Valid values are 'base64-image'.
 	 * - boolean properties. Valid values are 'switch'.
+	 * - array properties with items.type string. Valid values are 'bread-crumbs'.
 	 */
 	DisplayType = 'ui:displayType',
 	/**

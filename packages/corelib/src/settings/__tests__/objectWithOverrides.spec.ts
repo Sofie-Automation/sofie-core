@@ -1,10 +1,10 @@
-import { literal } from '../../lib'
+import { literal } from '../../lib.js'
 import {
 	applyAndValidateOverrides,
 	ObjectWithOverrides,
 	SomeObjectOverrideOp,
 	updateOverrides,
-} from '../objectWithOverrides'
+} from '../objectWithOverrides.js'
 
 interface BasicType {
 	valA?: string

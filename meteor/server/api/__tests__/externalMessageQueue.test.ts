@@ -3,7 +3,8 @@ import { ExternalMessageQueueObj } from '@sofie-automation/corelib/dist/dataMode
 import { ExternalMessageQueue, RundownPlaylists, Rundowns } from '../../collections'
 import { IBlueprintExternalMessageQueueType, PlaylistTimingType } from '@sofie-automation/blueprints-integration'
 import { DefaultEnvironment, setupDefaultStudioEnvironment } from '../../../__mocks__/helpers/database'
-import { getRandomId, protectString } from '../../lib/tempLib'
+import { getRandomId } from '@sofie-automation/corelib/dist/lib'
+import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { getCurrentTime } from '../../lib/lib'
 import { MeteorCall } from '../methods'
 
@@ -64,7 +65,6 @@ describe('Test external message queue static methods', () => {
 				peripheralDeviceId: studioEnv.ingestDevice._id,
 				nrcsName: 'mockNRCS',
 			},
-			organizationId: protectString(''),
 			timing: {
 				type: PlaylistTimingType.None,
 			},

@@ -1,5 +1,4 @@
-// eslint-disable-next-line node/no-missing-import
-import { Configuration, SofieApi } from '../client/ts'
+import { Configuration, SofieApi } from '../client/ts/index.js'
 
 async function wait(ms: number): Promise<void> {
 	return new Promise((resolve) => {
@@ -13,10 +12,9 @@ export async function checkServer(config: Configuration): Promise<void> {
 		try {
 			await sofieApi.index() // Throws an error if API is not available
 			return
-		} catch (
-			err
-			// eslint-disable-next-line no-empty
-		) {}
+		} catch (_err) {
+			// Ignore
+		}
 		await wait(1000)
 	}
 

@@ -30,7 +30,7 @@
 
 	&:first-child {
 		> td {
-			padding-top: 3px;	
+			padding-top: 3px;
 		}
 
 		> .media-status-popup-item__countdown {
@@ -109,6 +109,19 @@
 			color: #fff;
 			font-weight: 400;
 			font-size: 0.875em;
+			min-width: 2em;
+			text-align: center;
+		}
+
+		.media-status-popup-item__segment-identifier {
+			display: inline-block;
+			background: #095709;
+			border: none;
+			border-radius: 3px;
+			padding: 0 0.25em;
+			color: #fff;
+			font-weight: 300;
+			font-size: 0.9em;
 			min-width: 2em;
 			text-align: center;
 		}

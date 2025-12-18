@@ -6,10 +6,11 @@ import {
 	IBlueprintPieceDB,
 	IBlueprintPieceInstance,
 	IBlueprintResolvedPieceInstance,
+	IBlueprintSegment,
 	IEventContext,
 	IShowStyleUserContext,
-} from '..'
-import { BlueprintQuickLookInfo } from './quickLoopInfo'
+} from '../index.js'
+import { BlueprintQuickLookInfo } from './quickLoopInfo.js'
 
 /**
  * Context in which 'current' is the part currently on air, and 'next' is the partInstance being set as Next
@@ -18,6 +19,9 @@ import { BlueprintQuickLookInfo } from './quickLoopInfo'
 export interface IOnSetAsNextContext extends IShowStyleUserContext, IEventContext {
 	/** Information about the current loop, if there is one */
 	readonly quickLoopInfo: BlueprintQuickLookInfo | null
+
+	/** Whether the part being set as next was selected as a result of user's actions */
+	readonly manuallySelected: boolean
 
 	/**
 	 * Data fetching
@@ -49,6 +53,8 @@ export interface IOnSetAsNextContext extends IShowStyleUserContext, IEventContex
 	getPartInstanceForPreviousPiece(piece: IBlueprintPieceInstance): Promise<IBlueprintPartInstance>
 	/** Gets the Part for a Piece retrieved from findLastScriptedPieceOnLayer. This primarily allows for accessing metadata of the Part */
 	getPartForPreviousPiece(piece: IBlueprintPieceDB): Promise<IBlueprintPart | undefined>
+	/** Gets the Segment. This primarily allows for accessing metadata */
+	getSegment(segment: 'current' | 'next'): Promise<IBlueprintSegment | undefined>
 
 	/**
 	 * Creative actions

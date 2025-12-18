@@ -1,4 +1,4 @@
-import { Settings } from '../../lib/Settings'
+import { Settings } from '../../lib/Settings.js'
 
 export const MAGIC_TIME_SCALE_FACTOR = 0.03
 

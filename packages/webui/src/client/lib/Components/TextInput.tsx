@@ -1,7 +1,8 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import ClassNames from 'classnames'
-import { DropdownInputOption } from './DropdownInput'
+import { DropdownInputOption } from './DropdownInput.js'
 import { getRandomString } from '@sofie-automation/corelib/dist/lib'
+import Form from 'react-bootstrap/Form'
 
 export type TextInputSuggestion = DropdownInputOption<string>
 export interface TextInputSuggestionGroup {
@@ -75,9 +76,9 @@ export function TextInputControl({
 	const fieldId = useMemo(() => getRandomString(), [])
 
 	const textInput = (
-		<input
+		<Form.Control
 			type="text"
-			className={ClassNames('form-control', classNames, editingValue !== null && modifiedClassName)}
+			className={ClassNames(classNames, editingValue !== null && modifiedClassName)}
 			placeholder={placeholder}
 			value={editingValue ?? value ?? ''}
 			onChange={handleChange}
@@ -102,7 +103,9 @@ export function TextInputControl({
 						'options' in o ? (
 							<optgroup key={j} label={o.name}>
 								{o.options.map((v, i) => (
-									<option key={i} value={v + ''}></option>
+									<option key={i} value={v.value + ''}>
+										{v.value !== v.name ? v.name : null}
+									</option>
 								))}
 							</optgroup>
 						) : (

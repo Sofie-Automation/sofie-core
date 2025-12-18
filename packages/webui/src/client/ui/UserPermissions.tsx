@@ -10,12 +10,12 @@ import {
 	setAllowDeveloper,
 	setAllowTesting,
 	setAllowService,
-} from '../lib/localStorage'
+} from '../lib/localStorage.js'
 import { parse as queryStringParse } from 'query-string'
-import { MeteorCall } from '../lib/meteorApi'
+import { MeteorCall } from '../lib/meteorApi.js'
 import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
-import { Settings } from '../lib/Settings'
-import { useTracker } from '../lib/ReactMeteorData/ReactMeteorData'
+import { Settings } from '../lib/Settings.js'
+import { useTracker } from '../lib/ReactMeteorData/ReactMeteorData.js'
 import { Meteor } from 'meteor/meteor'
 
 export type { UserPermissions }
@@ -46,7 +46,7 @@ export function useUserPermissions(): [roles: UserPermissions, ready: boolean] {
 					testing: getLocalAllowTesting(),
 					service: getLocalAllowService(),
 					gateway: false,
-			  }
+				}
 	)
 
 	const isConnected = useTracker(() => Meteor.status().connected, [], false)

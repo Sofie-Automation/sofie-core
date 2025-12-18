@@ -7,7 +7,8 @@ import {
 	RundownLayoutBase,
 	CustomizableRegions,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import { literal, getRandomId, protectString } from '../lib/tempLib'
+import { literal, getRandomId } from '@sofie-automation/corelib/dist/lib'
+import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { logger } from '../logging'
 import { MethodContext, MethodContextAPI } from './methodContext'
 import { fetchShowStyleBaseLight } from '../optimizations'
@@ -26,7 +27,7 @@ export async function createRundownLayout(
 	showStyleBaseId: ShowStyleBaseId,
 	regionId: CustomizableRegions,
 	blueprintId: BlueprintId | undefined,
-	userId?: UserId | undefined
+	userId?: UserId
 ): Promise<RundownLayoutId> {
 	const id: RundownLayoutId = getRandomId()
 	await RundownLayouts.insertAsync(

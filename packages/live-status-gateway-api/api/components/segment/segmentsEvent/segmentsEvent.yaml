@@ -1,0 +1,23 @@
+title: Segments
+description: Segments schema for websocket subscriptions
+$defs:
+  segmentsEvent:
+    type: object
+    title: SegmentsEvent
+    properties:
+      event:
+        type: string
+        const: segments
+      rundownPlaylistId:
+        description: Unique id of the rundown playlist, or null if no playlist is active
+        oneOf:
+          - type: string
+          - type: 'null'
+      segments:
+        description: The segments that are in the currently active rundown playlist, in order
+        type: array
+        items:
+          $ref: '../segment/segment.yaml#/$defs/segment'
+    required: [event, rundownPlaylistId, segments]
+    examples:
+      - $ref: './segmentsEvent-example.yaml'

@@ -1,4 +1,4 @@
-import type { IBlueprintPieceGeneric } from './pieceGeneric'
+import type { IBlueprintPieceGeneric } from './pieceGeneric.js'
 
 export interface IBlueprintAdLibPiece<TPrivateData = unknown, TPublicData = unknown>
 	extends IBlueprintPieceGeneric<TPrivateData, TPublicData> {

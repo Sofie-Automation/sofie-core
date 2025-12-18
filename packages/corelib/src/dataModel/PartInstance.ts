@@ -1,7 +1,7 @@
 import { PartEndState, Time } from '@sofie-automation/blueprints-integration'
-import { PartCalculatedTimings } from '../playout/timings'
-import { PartInstanceId, RundownId, RundownPlaylistActivationId, SegmentId, SegmentPlayoutId } from './Ids'
-import { DBPart } from './Part'
+import { PartCalculatedTimings } from '../playout/timings.js'
+import { PartInstanceId, RundownId, RundownPlaylistActivationId, SegmentId, SegmentPlayoutId } from './Ids.js'
+import { DBPart } from './Part.js'
 
 export interface DBPartInstance {
 	_id: PartInstanceId

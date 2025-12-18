@@ -17,7 +17,8 @@ import { DEFAULT_CORE_TRIGGER_IDS } from './upgrades/defaultSystemActionTriggers
 import { ICoreSystem } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
 import { ICoreSystemSettings } from '@sofie-automation/shared-lib/dist/core/model/CoreSystemSettings'
 import { logger } from '../logging'
-import { assertNever, literal, unprotectString } from '../lib/tempLib'
+import { assertNever, literal } from '@sofie-automation/corelib/dist/lib'
+import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 
 // Release 52
 

@@ -1,6 +1,6 @@
 const ntpClient: NtpClient = require('ntp-client')
 import { DiffTimeResult } from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI'
-import { NtpClient } from '../../typings/ntp-client'
+import type { NtpClient } from '../../typings/ntp-client'
 
 /**
  * Example usage:
@@ -49,7 +49,7 @@ async function determineDiffTimeInner(config?: Config): Promise<DiffTimeResult> 
 				if (tryCount > minSampleCount) {
 					resolve(results)
 				} else {
-					reject('Max try count reached')
+					reject(new Error('Max try count reached'))
 				}
 				return
 			}
@@ -94,7 +94,7 @@ async function getServerTime(host: string, port: number, timeout?: number): Prom
 		try {
 			ntpClient.getNetworkTime(host, port, (err: any, date: Date) => {
 				if (err) {
-					reject(err)
+					reject(err instanceof Error ? err : new Error(err))
 					return
 				} else {
 					const replyTime = Date.now()
@@ -106,7 +106,7 @@ async function getServerTime(host: string, port: number, timeout?: number): Prom
 				}
 			})
 		} catch (e) {
-			reject(e)
+			reject(e instanceof Error ? e : new Error(`${e}`))
 		}
 	})
 }

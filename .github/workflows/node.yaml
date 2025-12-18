@@ -16,7 +16,6 @@ jobs:
   lint-core:
     name: Typecheck and Lint Core
     runs-on: ubuntu-latest
-    continue-on-error: true
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
@@ -440,7 +439,6 @@ jobs:
   lint-packages:
     name: Lint Package
     runs-on: ubuntu-latest
-    continue-on-error: true
     timeout-minutes: 15
 
     strategy:
@@ -458,6 +456,7 @@ jobs:
           - openapi
           - live-status-gateway
           - webui
+          - live-status-gateway-api
 
     steps:
       - uses: actions/checkout@v6
@@ -502,6 +501,7 @@ jobs:
           - blueprints-integration
           - server-core-integration
           - shared-lib
+          # - live-status-gateway-api # no tests yet
           - openapi
         node-version: [22.x]
         include:
@@ -512,16 +512,19 @@ jobs:
           - node-version: 22.x
             package-name: job-worker
             send-coverage: true
-          # No tests for the gateways yet
+          # No tests for some gateways yet
           # - node-version: 22.x
           #   package-name: playout-gateway
-          # - node-version: 22.x
-          #   package-name: mos-gateway
+          #   send-coverage: true
+          - node-version: 22.x
+            package-name: mos-gateway
+            send-coverage: true
           - node-version: 22.x
             package-name: live-status-gateway
             send-coverage: true
           - node-version: 22.x
             package-name: webui
+            send-coverage: true
           # manual meteor-lib as it only needs a couple of versions
           - node-version: 22.x
             package-name: meteor-lib
@@ -585,10 +588,12 @@ jobs:
           CI: true
       - name: Run generator
         run: |
-          cd packages/live-status-gateway
+          cd packages/live-status-gateway-api
 
           yarn gendocs
           yarn genserver
+
+          yarn generate-schema-types
         env:
           CI: true
   openapi-generation:
@@ -672,7 +677,6 @@ jobs:
   check-for-multiple-library-versions:
     name: Check for multiple library versions
     runs-on: ubuntu-latest
-    continue-on-error: true
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6

@@ -1,0 +1,45 @@
+// Override any bootstrap css variable default values here
+
+$primary: #1769ff;
+$primary-dark: #1e1e1f; // #132039;
+//$dark: #252627; // this is Origo's original dark color
+$dark-1: #171a1c;
+$dark-2: #292e32;
+$dark: $dark-1;
+$body-bg-dark: #343434;
+$modal-bg-dark: #3e4041;
+
+$font-family-sans-serif:
+	Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+$font-size-base: 1rem;
+$font-weight-base: 300; // lighter
+$dt-font-weight: 400;
+
+$link-color: $primary;
+
+$border-radius: 3px;
+
+$btn-padding-x: 0.8em;
+$btn-padding-y: 0.4em;
+$btn-font-weight: 700;
+$btn-font-size: inherit;
+$btn-disabled-opacity: 0.5;
+
+$body-tertiary-bg-dark: #343434;
+
+$navbar-brand-font-size: 1rem;
+
+$line-height-base: 1.2;
+
+$input-padding-y: 0.5rem;
+
+$modal-header-padding: 0.5rem 1rem;
+$modal-md: 550px;
+
+$danger: #e62421;
+
+$theme-colors: (
+	'primary': $primary,
+	'dark': $dark,
+);
+
