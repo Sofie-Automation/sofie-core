@@ -96,6 +96,7 @@ export class RundownPlaylistClientUtil {
 		currentPartInstance: PartInstance | undefined
 		nextPartInstance: PartInstance | undefined
 		previousPartInstance: PartInstance | undefined
+		firstTakenPartInstance: PartInstance | undefined
 	} {
 		let unorderedRundownIds = rundownIds0
 		if (!unorderedRundownIds) {
@@ -116,10 +117,22 @@ export class RundownPlaylistClientUtil {
 					}).fetch()
 				: []
 
+		const firstTakenPartInstance = UIPartInstances.findOne(
+			{
+				rundownId: { $in: unorderedRundownIds },
+				reset: { $ne: true },
+				takeCount: { $exists: true },
+			},
+			{
+				sort: { takeCount: 1 },
+			}
+		)
+
 		return {
 			currentPartInstance: instances.find((inst) => inst._id === playlist.currentPartInfo?.partInstanceId),
 			nextPartInstance: instances.find((inst) => inst._id === playlist.nextPartInfo?.partInstanceId),
 			previousPartInstance: instances.find((inst) => inst._id === playlist.previousPartInfo?.partInstanceId),
+			firstTakenPartInstance,
 		}
 	}
 
