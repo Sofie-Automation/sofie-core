@@ -26,6 +26,8 @@ import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { BlueprintQuickLookInfo } from '@sofie-automation/blueprints-integration/dist/context/quickLoopInfo'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { selectNewPartWithOffsets } from '../../playout/moveNextPart.js'
+import { getOrderedPartsAfterPlayhead } from '../../playout/lookahead/util.js'
+import { convertPartToBlueprints } from './lib.js'
 
 export class OnSetAsNextContext
 	extends ShowStyleUserContext
@@ -55,6 +57,10 @@ export class OnSetAsNextContext
 
 	public get currentPartState(): ActionPartChange {
 		return this.partAndPieceInstanceService.nextPartState
+	}
+
+	async getUpcomingParts(limit: number = 5): Promise<ReadonlyDeep<IBlueprintPart[]>> {
+		return getOrderedPartsAfterPlayhead(this.jobContext, this.playoutModel, limit).map(convertPartToBlueprints)
 	}
 
 	async getPartInstance(part: 'current' | 'next'): Promise<IBlueprintPartInstance<unknown> | undefined> {
