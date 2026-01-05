@@ -73,6 +73,7 @@ export async function getStudioTimeline(
 ): Promise<{
 	objs: Array<TimelineObjRundown>
 	versions: TimelineCompleteGenerationVersions
+	timingContext: RundownTimelineTimingContext | undefined
 }> {
 	const studio = context.studio
 	let baselineObjects: TimelineObjRundown[] = []
@@ -115,6 +116,7 @@ export async function getStudioTimeline(
 	return {
 		objs: baselineObjects,
 		versions,
+		timingContext: undefined,
 	}
 }
 
