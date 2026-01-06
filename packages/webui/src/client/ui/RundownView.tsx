@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor'
-import React, { useContext, useMemo } from 'react'
+import React, { useContext, useEffect, useMemo } from 'react'
 import { ParsedQuery, parse as queryStringParse } from 'query-string'
 import { Translated, translateWithTracker, useTracker } from '../lib/ReactMeteorData/react-meteor-data.js'
 import { VTContent, NoteSeverity, ISourceLayer } from '@sofie-automation/blueprints-integration'
@@ -1369,6 +1369,7 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 				>
 					<SelectedElementsContext.Consumer>
 						{(selectionContext) => {
+							const isPropertiesPanelOpen = selectionContext.listSelectedElements().length > 0
 							return (
 								<div
 									className={classNames('rundown-view', {
@@ -1461,13 +1462,13 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 									</ErrorBoundary>
 									<ErrorBoundary>
 										<AnimatePresence>
-											{this.state.isNotificationsCenterOpen && (
+											{!isPropertiesPanelOpen && this.state.isNotificationsCenterOpen && (
 												<NotificationCenterPanel
 													filter={this.state.isNotificationsCenterOpen}
 													hideRundownHeader={this.props.hideRundownHeader}
 												/>
 											)}
-											{!this.state.isNotificationsCenterOpen && selectionContext.listSelectedElements().length > 0 && (
+											{isPropertiesPanelOpen && (
 												<div>
 													<PropertiesPanel />
 												</div>
@@ -1518,7 +1519,10 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 											onQueueNextSegment={this.onQueueNextSegment}
 											onSetQuickLoopStart={this.onSetQuickLoopStart}
 											onSetQuickLoopEnd={this.onSetQuickLoopEnd}
-											onEditProps={(selection) => selectionContext.clearAndSetSelection(selection)}
+											onEditProps={(selection) => {
+												this.setState({ isNotificationsCenterOpen: undefined })
+												selectionContext.clearAndSetSelection(selection)
+											}}
 											studioMode={this.props.userPermissions.studio}
 											enablePlayFromAnywhere={!!studio.settings.enablePlayFromAnywhere}
 											enableQuickLoop={!!studio.settings.enableQuickLoop}

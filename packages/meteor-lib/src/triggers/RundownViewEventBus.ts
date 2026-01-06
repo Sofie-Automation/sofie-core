@@ -48,6 +48,7 @@ export enum RundownViewEvents {
 
 	TOGGLE_SHELF_DROPZONE = 'toggleShelfDropzone',
 	ITEM_DROPPED = 'itemDropped',
+	CLOSE_NOTIFICATIONS = 'closeNotifications',
 }
 
 export interface IEventContext {

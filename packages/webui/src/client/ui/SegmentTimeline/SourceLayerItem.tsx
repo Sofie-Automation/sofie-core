@@ -165,7 +165,17 @@ export const SourceLayerItem = (props: Readonly<ISourceLayerItemProps>): JSX.Ele
 	const itemDblClick = useCallback(
 		(e: React.MouseEvent<HTMLDivElement>) => {
 			if (studio?.settings.enableUserEdits && !studio?.settings.allowPieceDirectPlay) {
-				const pieceId = piece.instance.piece._id
+				const innerPiece = piece.instance.piece
+
+				const hasEditableContent = !!(
+					innerPiece.userEditOperations?.length ||
+					innerPiece.userEditProperties?.pieceTypeProperties ||
+					innerPiece.userEditProperties?.globalProperties ||
+					innerPiece.userEditProperties?.operations?.length
+				)
+				if (!hasEditableContent) return
+
+				const pieceId = innerPiece._id
 				if (!selectElementContext.isSelected(pieceId)) {
 					selectElementContext.clearAndSetSelection({ type: 'piece', elementId: pieceId })
 				} else {
