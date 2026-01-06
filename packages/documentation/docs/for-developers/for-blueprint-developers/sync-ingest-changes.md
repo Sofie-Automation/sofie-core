@@ -12,11 +12,11 @@ In this blueprint method, you are able to update almost any of the properties th
 
 ### Tips
 
-- You should make use of the `metaData` fields on each Part and Piece to help work out what has changed. At NRK, we store the parsed ingest data (after converting the MOS to an intermediary json format) for the Part here, so that we can do a detailed diff to figure out whether a change is safe to accept.
+- You should make use of the `metaData` fields on each Part and Piece to help work out what has changed. At NRK, the parsed ingest data is stored (after converting the MOS to an intermediary json format) for the Part here, so that we can do a detailed diff to figure out whether a change is safe to accept.
 
 - You should track in `metaData` whether a part has been modified by an adlib-action in a way that makes this sync unsafe.
 
-- At NRK, we differentiate the Pieces into `primary`, `secondary`, `adlib`. This allows us to control the updates more granularly.
+- At NRK, Pieces are differentiated into `primary`, `secondary`, `adlib`. This allows more granular control of updates.
 
 - `newData.part` will be `undefined` when the PartInstance is orphaned. Generally, it's useful to differentiate the behavior of the implementation of this function based on `existingPartInstance.partInstance.orphaned` state
 

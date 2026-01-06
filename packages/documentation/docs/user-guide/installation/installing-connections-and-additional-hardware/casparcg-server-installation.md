@@ -214,8 +214,8 @@ In the _Attached Sub Devices_ section, you should now see the status of the Casp
 
 ## Further Reading
 
-- [CasparCG&nbsp;Server Releases](https://github.com/nrkno/sofie-casparcg-server/releases) on GitHub.
-- [Media Scanner Releases](https://github.com/nrkno/sofie-media-scanner/releases) on GitHub.
+- [CasparCG&nbsp;Server Releases](https://github.com/CasparCG/server/releases) on GitHub.
+- [Media Scanner Releases](https://github.com/Sofie-Automation/sofie-media-scanner/releases) on GitHub.
 - [CasparCG Launcher](https://github.com/Sofie-Automation/sofie-casparcg-launcher) on GitHub.
 - [Microsoft Visual C++ 2015 Redistributable](https://www.microsoft.com/en-us/download/details.aspx?id=52685) on Microsoft's website.
 - [Blackmagic Design's DeckLink Cards](https://www.blackmagicdesign.com/products/decklink/models) on Blackmagic's website. Check the [DeckLink cards](casparcg-server-installation.md#decklink-cards) section for compatibility.
