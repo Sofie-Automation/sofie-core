@@ -58,7 +58,7 @@ export interface Piece
 		start: number | 'now' // TODO - now will be removed from this eventually, but as it is not an acceptable value 99% of the time, that is not really breaking
 		duration?: number
 
-		// Pieces owned by the Rundown should always be absolute
+		// Some pieces can be timed to be absolute (using wall time) rather than relative to the part
 		isAbsolute?: boolean
 	}
 

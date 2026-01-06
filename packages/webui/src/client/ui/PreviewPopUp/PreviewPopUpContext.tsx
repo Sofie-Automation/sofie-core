@@ -294,7 +294,7 @@ export function convertSourceLayerItemToPreview(
 	return { contents: [], options: {} }
 }
 /* PreviewContentUI is an extension of PreviewContent with some additional types used in the UI
-* These additional types are added to support some extra UI features that are not relevant for blueprints
+ * These additional types are added to support some extra UI features that are not relevant for blueprints
  */
 export type PreviewContentUI =
 	| PreviewContent

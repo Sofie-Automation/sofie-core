@@ -2,7 +2,6 @@ import { IBlueprintPieceGeneric } from './pieceGeneric.js'
 
 /**
  * A variant of a Piece, that is owned by the Rundown.
- * This
  */
 export interface IBlueprintRundownPiece<TPrivateData = unknown, TPublicData = unknown>
 	extends Omit<IBlueprintPieceGeneric<TPrivateData, TPublicData>, 'lifespan'> {

@@ -273,7 +273,7 @@ export interface BlueprintResultRundown {
 	rundown: IBlueprintRundown
 	globalAdLibPieces: IBlueprintAdLibPiece[]
 	globalActions: IBlueprintActionManifest[]
-	globalPieces: IBlueprintRundownPiece[]
+	globalPieces?: IBlueprintRundownPiece[]
 	baseline: BlueprintResultBaseline
 }
 export interface BlueprintResultSegment {
