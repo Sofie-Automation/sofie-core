@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useState } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import {
 	AdLibActionId,
 	PartId,
@@ -215,12 +215,21 @@ export function useSelectedElements(
 	const [segment, setSegment] = useState<DBSegment | undefined>(undefined)
 	const rundownId = piece ? piece.startRundownId : part ? part.rundownId : segment?.rundownId
 
+	const lastValidPiece = useRef<Piece | undefined>(undefined)
+
 	useEffect(() => {
 		clearPendingChange() // element id changed so any pending change is for an old element
 
 		const computation = Tracker.nonreactive(() =>
 			Tracker.autorun(() => {
-				const piece = Pieces.findOne(selectedElement?.elementId)
+				let piece = Pieces.findOne(selectedElement?.elementId)
+
+				if (!piece && lastValidPiece.current && lastValidPiece.current._id === selectedElement?.elementId) {
+					piece = lastValidPiece.current
+				} else if (piece) {
+					lastValidPiece.current = piece
+				}
+
 				const part = UIParts.findOne({ _id: piece?.startPartId ?? selectedElement?.elementId })
 				const segment = Segments.findOne({ _id: part ? part.segmentId : selectedElement?.elementId })
 
