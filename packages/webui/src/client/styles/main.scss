@@ -12,13 +12,12 @@ input {
 
 @use 'defaultColors';
 
-@import 'bootstrap';
+@use 'bootstrap';
 
-@import 'itemTypeColors';
+@use 'itemTypeColors';
 
-@import 'colorScheme';
-@import '_variables';
-@import '_colorScheme';
+@use 'colorScheme';
+@use 'variables';
 
 @import '_header';
 
