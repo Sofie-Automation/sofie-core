@@ -1,4 +1,4 @@
-@import '../../styles/itemTypeColors';
+@use '../../styles/itemTypeColors';
 
 .preview-popUp {
 	border: 1px solid var(--sofie-segment-layer-hover-popup-border);
@@ -115,7 +115,7 @@
 			margin-left: 2%;
 			margin-top: 7px;
 			flex-shrink: 0;
-			@include item-type-colors();
+			@include itemTypeColors.item-type-colors();
 		}
 
 		.preview-popUp__element-with-time-info__text {
@@ -404,7 +404,7 @@
 		}
 
 		& > * {
-			@include item-type-colors();
+			@include itemTypeColors.item-type-colors();
 		}
 
 		.video-preview__label {
