@@ -474,7 +474,7 @@ jobs:
         run: |
           cd packages/${{ matrix.package-name }}
           yarn lint --fix
-          git diff --exit-code || (echo "Lint errors found in package ${{ matrix.package-name }}" && exit 1)
+          git diff --exit-code . || (echo "Lint errors found in package ${{ matrix.package-name }}" && exit 1)
         env:
           CI: true
 
