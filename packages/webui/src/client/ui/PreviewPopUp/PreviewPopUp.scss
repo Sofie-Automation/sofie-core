@@ -7,26 +7,8 @@
 	border-radius: 5px;
 	overflow: hidden;
 	pointer-events: none;
-
 	z-index: 9999;
-
-	&--large {
-		width: 482px;
-		padding-bottom: 10px;
-		--preview-max-dimension: 480;
-	}
-
-	&--small {
-		width: 322px;
-		--preview-max-dimension: 320;
-	}
-
-	&--hidden {
-		visibility: none;
-	}
-
 	font-family: Roboto Flex;
-
 	font-style: normal;
 	font-weight: 500;
 	font-size: 16px;
@@ -50,6 +32,21 @@
 		'YTFI' 738,
 		'YTLC' 548,
 		'YTUC' 712;
+
+	&--large {
+		width: 482px;
+		padding-bottom: 10px;
+		--preview-max-dimension: 480;
+	}
+
+	&--small {
+		width: 322px;
+		--preview-max-dimension: 320;
+	}
+
+	&--hidden {
+		visibility: none;
+	}
 }
 
 .preview-popUp__preview {
