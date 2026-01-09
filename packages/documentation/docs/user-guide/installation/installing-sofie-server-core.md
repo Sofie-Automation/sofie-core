@@ -18,6 +18,6 @@ While Sofie is using cloud-native technologies, it's workloads do not follow typ
 
 ## Basic structure
 
-On a foundational level, Sofie Core is a [Meteor](https://docs.meteor.com/), [Node.js](https://nodejs.org/) web application that uses [MongoDB](https://www.mongodb.com) for it's data persistence.
+On a foundational level, Sofie Core is a [Meteor](https://docs.meteor.com/), [Node.js](https://nodejs.org/) web application that uses [MongoDB](https://www.mongodb.com) for its data persistence.
 
 Both the Sofie Gateways and User Agents using the Web User Interface connect to it via DDP, a WebSocket-based, Meteor-specific protocol. This protocol is used both for RPC and shared state synchronization.
