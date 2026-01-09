@@ -45,7 +45,7 @@ Input Gateway supports an unlimited number of Shift Registers, Shift Register nu
 
 ### AdLib Tally
 
-Starting with version 0.5.0, Input Gateway can show additional infromation about the playout state of AdLibs. Select device integrations within Input Gateway support *Styles* which allow elements of the HID devices to be specifically styled. These Style classes are mached with [Action Triggers](../../configuration/settings-view.md#action-triggers) using Style class names. You can configure additional *Style classes* when a given AdLib is "active" (currently playing) or "next" (i.e. will be playing after a take) appending a prefix `:active` and `:next` to a Style class name.
+Starting with version 0.5.0, Input Gateway can show additional infromation about the playout state of AdLibs. Select device integrations within Input Gateway support *Styles* which allow elements of the HID devices to be specifically styled. These Style classes are mached with [Action Triggers](../../configuration/settings-view.md#action-triggers) using Style class names. You can configure additional *Style classes* when a given AdLib is "active" (currently playing) or "next" (i.e. will be playing after a take) appending a suffix `:active` and `:next` to a Style class name.
 
 ### Further Reading
 
