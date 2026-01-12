@@ -530,8 +530,8 @@ function SettingsMenuPeripheralDevice({ device }: Readonly<SettingsMenuPeriphera
 				<p>
 					{device.connected ? t('Connected') : t('Disconnected')}, {t('Status')}:{' '}
 					{statusCodeString(t, device.status.statusCode)}
-					{configIdString(t, device.studioAndConfigId?.configId)}
 				</p>
+				<p className="text-s">{configIdString(t, device.studioAndConfigId?.configId)}</p>
 			</NavLink>
 			<hr className="vsubtle" />
 		</>
@@ -561,6 +561,6 @@ function statusCodeString(t: TFunction, statusCode: StatusCode): string {
 }
 
 function configIdString(t: TFunction, configId: string | undefined): string {
-	if (configId) return t(', Config ID: ') + configId
-	else return t(', Unconfigured')
+	if (configId) return t('Config ID: ') + configId
+	else return t('Unconfigured')
 }

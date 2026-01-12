@@ -221,7 +221,7 @@ function GenericParentDevicesTable({
 		for (const device of allParentDevices) {
 			options.push({
 				value: device._id,
-				name: device.studioAndConfigId?.configId || unprotectString(device._id),
+				name: device.name || unprotectString(device._id),
 				i: options.length,
 			})
 		}
@@ -239,8 +239,8 @@ function GenericParentDevicesTable({
 			<thead>
 				<tr className="hl">
 					<th key="Name">{t('Name')}</th>
+					<th key="ConfigID">{t('ID')}</th>
 					<th key="GatewayID">{t('Gateway')}</th>
-					<th key="ConfigID">{t('Config ID')}</th>
 					<th key="LastSeen">{t('Last Seen')}</th>
 					<th key="action">&nbsp;</th>
 				</tr>
@@ -318,9 +318,9 @@ function SummaryRow({
 		>
 			<th className="settings-studio-device__name c2">{item.computed.name}</th>
 
-			<th className="settings-studio-device__parent c2">{peripheralDevice?.deviceType || '-'}</th>
+			<th className="settings-studio-device__configID c2">{item.id}</th>
 
-			<th className="settings-studio-device__configID c2">{peripheralDevice?.configId || '-'}</th>
+			<th className="settings-studio-device__parent c2">{peripheralDevice?.deviceType || '-'}</th>
 
 			<th className="settings-studio-device__type c2">
 				{peripheralDevice ? <MomentFromNow date={peripheralDevice.lastSeen} /> : '-'}
@@ -349,9 +349,9 @@ function DeletedSummaryRow({ item, undeleteItemWithId }: Readonly<DeletedSummary
 		<tr>
 			<th className="settings-studio-device__name c2 deleted">{item.defaults.name}</th>
 
-			<th className="settings-studio-device__gateway c2 deleted">-</th>
+			<th className="settings-studio-device__configID c2 deleted">{item.id}</th>
 
-			<th className="settings-studio-device__configID c2 deleted">-</th>
+			<th className="settings-studio-device__gateway c2 deleted">-</th>
 
 			<th className="settings-studio-device__last_seen c2 deleted">-</th>
 
@@ -376,9 +376,9 @@ function OrphanedSummaryRow({ configId, device, createItemWithId }: Readonly<Orp
 		<tr>
 			<th className="settings-studio-device__name c2 deleted">-</th>
 
-			<th className="settings-studio-device__gateway c2 deleted">{device.deviceName || unprotectString(device._id)}</th>
+			<th className="settings-studio-device__configID c2 deleted">{configId}</th>
 
-			<th className="settings-studio-device__configID c2 deleted">{device.studioAndConfigId?.configId || '-'}</th>
+			<th className="settings-studio-device__gateway c2 deleted">{device.deviceName || unprotectString(device._id)}</th>
 
 			<th className="settings-studio-device__last_seen c2 deleted">{<MomentFromNow date={device.lastSeen} />}</th>
 
@@ -415,6 +415,11 @@ function ParentDeviceEditRow({
 		<tr className="expando-details hl" key={item.id + '-details'}>
 			<td colSpan={99}>
 				<div className="properties-grid">
+					<label className="field">
+						<LabelActual label={t('ID')} />
+						{item.id}
+					</label>
+
 					<LabelAndOverrides label={t('Name')} item={item} overrideHelper={overrideHelper} itemKey={'name'}>
 						{(value, handleUpdate) => <TextInputControl value={value} handleUpdate={handleUpdate} />}
 					</LabelAndOverrides>
@@ -466,7 +471,7 @@ function AssignPeripheralDeviceConfigId({
 
 	return (
 		<label className="field">
-			<LabelActual label={'Config ID'} />
+			<LabelActual label={'Peripheral Device'} />
 			<div className="field-content">
 				<DropdownInputControl<PeripheralDeviceId | undefined>
 					options={peripheralDeviceOptions}
