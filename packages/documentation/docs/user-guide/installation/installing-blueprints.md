@@ -25,13 +25,13 @@ There are 3 types of blueprints: System, Studio and Show Style:
 
 _System Blueprints handles some basic functionality on how the Sofie system will operate._
 
-After you've uploaded the your system-blueprint JS bundle, click _Assign_ in the blueprint-page to assign it as system-blueprint.
+After you've uploaded your System Blueprint JS bundle, click _Assign_ in the blueprint-page to assign it as system-blueprint.
 
 ### Studio Blueprint
 
 _Studio Blueprints determine how Sofie will interact with the hardware in your studio._
 
-After you've uploaded the your studio-blueprint JS bundle, navigate to a Studio in the settings and assign the new Blueprint to it \(under the label _Blueprint_ \).
+After you've uploaded your Studio Blueprint JS bundle, navigate to a Studio in the settings and assign the new Blueprint to it \(under the label _Blueprint_ \).
 
 After having installed the Blueprint, the Studio's baseline will need to be reloaded. On the Studio page, click the button _Reload Baseline_. This will also be needed whenever you have changed any settings.
 
@@ -39,7 +39,7 @@ After having installed the Blueprint, the Studio's baseline will need to be relo
 
 _Show Style Blueprints determine how your show will look / feel._
 
-After you've uploaded your show-style-blueprint JS bundle, navigate to a Show Style in the settings and assign the new Blueprint to it \(under the label _Blueprint_ \).
+After you've uploaded your Show Style Blueprint JS bundle, navigate to a Show Style in the settings and assign the new Blueprint to it \(under the label _Blueprint_ \).
 
 ### Further Reading
 
