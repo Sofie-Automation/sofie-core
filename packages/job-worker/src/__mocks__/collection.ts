@@ -231,6 +231,8 @@ export class MockMongoCollection<TDoc extends { _id: ProtectedString<any> }> imp
 				await this.updateInner(op.updateOne.filter, op.updateOne.update, true)
 			} else if ('replaceOne' in op) {
 				await this.replace(op.replaceOne.replacement as any)
+			} else if ('insertOne' in op) {
+				await this.insertOne(op.insertOne.document as any)
 			} else if ('deleteMany' in op) {
 				await this.remove(op.deleteMany.filter)
 			} else {

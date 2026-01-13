@@ -10,14 +10,12 @@ import {
 } from '@sofie-automation/corelib/dist/worker/ingest'
 import {
 	cleanUpExpectedPackagesForBucketAdLibs,
-	cleanUpExpectedPackagesForBucketAdLibsActions,
 	updateExpectedPackagesForBucketAdLibPiece,
 	updateExpectedPackagesForBucketAdLibAction,
 } from '../expectedPackages.js'
 import { omit } from '@sofie-automation/corelib/dist/lib'
 import { BucketAdLib } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibPiece'
 import { BucketAdLibAction } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibAction'
-import { ExpectedPackageDBType } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
 import { MongoQuery } from '../../db/index.js'
 
 export async function handleBucketRemoveAdlibPiece(
@@ -34,7 +32,7 @@ export async function handleBucketRemoveAdlibPiece(
 
 	await Promise.all([
 		context.directCollections.BucketAdLibPieces.remove({ _id: { $in: idsToUpdate } }),
-		cleanUpExpectedPackagesForBucketAdLibs(context, idsToUpdate),
+		cleanUpExpectedPackagesForBucketAdLibs(context, piece.bucketId, idsToUpdate),
 	])
 }
 
@@ -52,7 +50,7 @@ export async function handleBucketRemoveAdlibAction(
 
 	await Promise.all([
 		context.directCollections.BucketAdLibActions.remove({ _id: { $in: idsToUpdate } }),
-		cleanUpExpectedPackagesForBucketAdLibsActions(context, idsToUpdate),
+		cleanUpExpectedPackagesForBucketAdLibs(context, action.bucketId, idsToUpdate),
 	])
 }
 
@@ -64,12 +62,6 @@ export async function handleBucketEmpty(context: JobContext, data: BucketEmptyPr
 		context.directCollections.BucketAdLibActions.remove({ bucketId: id, studioId: context.studioId }),
 		context.directCollections.ExpectedPackages.remove({
 			studioId: context.studioId,
-			fromPieceType: ExpectedPackageDBType.BUCKET_ADLIB,
-			bucketId: id,
-		}),
-		context.directCollections.ExpectedPackages.remove({
-			studioId: context.studioId,
-			fromPieceType: ExpectedPackageDBType.BUCKET_ADLIB_ACTION,
 			bucketId: id,
 		}),
 	])

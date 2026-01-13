@@ -40,7 +40,7 @@ export namespace ExpectedPackage {
 
 	/** Generic (used in extends) */
 	export interface Base {
-		/** Unique id of the expectedPackage */
+		/** Unique id within the blueprints for the rundown */
 		_id: ExpectedPackageId
 		/** Reference to which timeline-layer(s) the Package is going to be used in.
 		 * (Used to route the package to the right playout-device (targets))

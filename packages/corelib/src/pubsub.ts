@@ -18,7 +18,7 @@ import { Blueprint } from './dataModel/Blueprint.js'
 import { BucketAdLibAction } from './dataModel/BucketAdLibAction.js'
 import { BucketAdLib } from './dataModel/BucketAdLibPiece.js'
 import { ExpectedPackageWorkStatus } from './dataModel/ExpectedPackageWorkStatuses.js'
-import { ExpectedPackageDBBase } from './dataModel/ExpectedPackages.js'
+import { ExpectedPackageDB } from './dataModel/ExpectedPackages.js'
 import { ExternalMessageQueueObj } from './dataModel/ExternalMessageQueue.js'
 import { PackageContainerStatusDB } from './dataModel/PackageContainerStatus.js'
 import { PeripheralDevice } from './dataModel/PeripheralDevice.js'
@@ -356,7 +356,7 @@ export type CorelibPubSubCollections = {
 	[CollectionName.Buckets]: Bucket
 	[CollectionName.BucketAdLibActions]: BucketAdLibAction
 	[CollectionName.BucketAdLibPieces]: BucketAdLib
-	[CollectionName.ExpectedPackages]: ExpectedPackageDBBase
+	[CollectionName.ExpectedPackages]: ExpectedPackageDB
 	[CollectionName.ExpectedPackageWorkStatuses]: ExpectedPackageWorkStatus
 	[CollectionName.ExternalMessageQueue]: ExternalMessageQueueObj
 	[CollectionName.Notifications]: DBNotificationObj

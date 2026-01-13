@@ -14,15 +14,17 @@ export const ExpectedPackages = createAsyncOnlyReadOnlyMongoCollection<ExpectedP
 )
 registerIndex(ExpectedPackages, {
 	studioId: 1,
-	fromPieceType: 1,
 })
 registerIndex(ExpectedPackages, {
 	studioId: 1,
-	pieceId: 1,
+	rundownId: 1,
+})
+registerIndex(ExpectedPackages, {
+	studioId: 1,
+	bucketId: 1,
 })
 registerIndex(ExpectedPackages, {
 	rundownId: 1,
-	pieceId: 1,
 })
 
 export const ExpectedPackageWorkStatuses = createAsyncOnlyMongoCollection<ExpectedPackageWorkStatus>(

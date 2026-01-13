@@ -28,15 +28,22 @@ export const pieceInstanceFieldsSpecifier = literal<MongoFieldSpecifierOnesStric
 	},
 })
 
+export type ExpectedPackageDBCompact = Pick<ExpectedPackageDB, '_id' | 'package'>
+
+export const expectedPackageDBFieldsSpecifier = literal<MongoFieldSpecifierOnesStrict<ExpectedPackageDB>>({
+	_id: 1,
+	package: 1,
+})
+
 export interface ExpectedPackagesContentCache {
-	ExpectedPackages: ReactiveCacheCollection<ExpectedPackageDB>
+	ExpectedPackages: ReactiveCacheCollection<ExpectedPackageDBCompact>
 	RundownPlaylists: ReactiveCacheCollection<RundownPlaylistCompact>
 	PieceInstances: ReactiveCacheCollection<PieceInstanceCompact>
 }
 
 export function createReactiveContentCache(): ExpectedPackagesContentCache {
 	const cache: ExpectedPackagesContentCache = {
-		ExpectedPackages: new ReactiveCacheCollection<ExpectedPackageDB>('expectedPackages'),
+		ExpectedPackages: new ReactiveCacheCollection<ExpectedPackageDBCompact>('expectedPackages'),
 		RundownPlaylists: new ReactiveCacheCollection<RundownPlaylistCompact>('rundownPlaylists'),
 		PieceInstances: new ReactiveCacheCollection<PieceInstanceCompact>('pieceInstances'),
 	}
