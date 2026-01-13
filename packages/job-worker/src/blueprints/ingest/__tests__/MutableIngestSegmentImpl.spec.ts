@@ -1,11 +1,14 @@
 import { clone } from '@sofie-automation/corelib/dist/lib'
-import { MutableIngestSegmentChanges, MutableIngestSegmentImpl } from '../MutableIngestSegmentImpl'
-import { SofieIngestRundownDataCacheGenerator } from '../../../ingest/sofieIngestCache'
+import { MutableIngestSegmentChanges, MutableIngestSegmentImpl } from '../MutableIngestSegmentImpl.js'
+import { SofieIngestRundownDataCacheGenerator } from '../../../ingest/sofieIngestCache.js'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { getSegmentId } from '../../../ingest/lib'
-import { MutableIngestPartImpl } from '../MutableIngestPartImpl'
+import { getSegmentId } from '../../../ingest/lib.js'
+import { MutableIngestPartImpl } from '../MutableIngestPartImpl.js'
 import { IngestPart, IngestSegment, SofieIngestSegment } from '@sofie-automation/blueprints-integration'
-import { SofieIngestDataCacheObjPart } from '@sofie-automation/corelib/dist/dataModel/SofieIngestDataCache'
+import {
+	SofieIngestCacheType,
+	SofieIngestDataCacheObjPart,
+} from '@sofie-automation/corelib/dist/dataModel/SofieIngestDataCache'
 
 describe('MutableIngestSegmentImpl', () => {
 	function getBasicIngestSegment(): SofieIngestSegment<any> {
@@ -356,7 +359,8 @@ describe('MutableIngestSegmentImpl', () => {
 			const expectedChanges = createNoChangesObject(expectedIngestSegment)
 			pushAllPartsToChanges(expectedChanges, expectedIngestSegment)
 			const generatedCacheObject = expectedChanges.changedCacheObjects.find(
-				(o): o is SofieIngestDataCacheObjPart => o.type === 'part' && o.data.externalId === 'part1'
+				(o): o is SofieIngestDataCacheObjPart =>
+					o.type === SofieIngestCacheType.PART && o.data.externalId === 'part1'
 			)
 			expect(generatedCacheObject).toBeDefined()
 			expect(generatedCacheObject?.data.rank).toBe(3)

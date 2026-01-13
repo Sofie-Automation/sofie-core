@@ -1,0 +1,16 @@
+$defs:
+  NotificationTarget:
+    title: NotificationTarget
+    description: Describes what the notification is related to
+    oneOf:
+      - $ref: './rundown/notificationTargetRundown.yaml#/$defs/NotificationTargetRundown'
+      - $ref: './rundownPlaylist/notificationTargetRundownPlaylist.yaml#/$defs/NotificationTargetRundownPlaylist'
+      - $ref: './partInstance/notificationTargetPartInstance.yaml#/$defs/NotificationTargetPartInstance'
+      - $ref: './pieceInstance/notificationTargetPieceInstance.yaml#/$defs/NotificationTargetPieceInstance'
+      - $ref: './unknown/notificationTargetUnknown.yaml#/$defs/NotificationTargetUnknown'
+    examples:
+      - $ref: './rundown/notificationTargetRundown-example.yaml'
+      - $ref: './rundownPlaylist/notificationTargetRundownPlaylist-example.yaml'
+      - $ref: './partInstance/notificationTargetPartInstance-example.yaml'
+      - $ref: './pieceInstance/notificationTargetPieceInstance-example.yaml'
+      - $ref: './unknown/notificationTargetUnknown-example.yaml'

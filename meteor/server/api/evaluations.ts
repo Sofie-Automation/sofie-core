@@ -1,10 +1,10 @@
 import { EvaluationBase } from '@sofie-automation/meteor-lib/dist/collections/Evaluations'
-import { getRandomId, getSofieHostUrl } from '../lib/tempLib'
+import { getRandomId, getSofieHostUrl } from '@sofie-automation/corelib/dist/lib'
 import { getCurrentTime } from '../lib/lib'
 import { deferAsync } from '../lib/lib'
 import { logger } from '../logging'
 import { Meteor } from 'meteor/meteor'
-import * as _ from 'underscore'
+import _ from 'underscore'
 import { fetchStudioLight } from '../optimizations'
 import { sendSlackMessageToWebhook } from './integration/slack'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
@@ -19,7 +19,6 @@ export async function saveEvaluation(
 	await Evaluations.insertAsync({
 		...evaluation,
 		_id: getRandomId(),
-		organizationId: null,
 		userId: null,
 		timestamp: getCurrentTime(),
 	})
@@ -63,7 +62,7 @@ export async function saveEvaluation(
 			// only send message for evaluations with content
 			if (evaluationMessage) {
 				const playlist = (await RundownPlaylists.findOneAsync(evaluation.playlistId, {
-					fields: {
+					projection: {
 						_id: 1,
 						name: 1,
 					},

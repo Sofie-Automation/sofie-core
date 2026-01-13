@@ -1,6 +1,6 @@
-import { ExpectedPackage, PackageContainer, PackageContainerOnPackage } from './package'
-import { PeripheralDeviceId, PieceInstanceId, RundownId, RundownPlaylistId } from '../core/model/Ids'
-import { ProtectedString } from '../lib/protectedString'
+import { ExpectedPackage, PackageContainer, PackageContainerOnPackage } from './package.js'
+import { PeripheralDeviceId, PieceInstanceId, RundownId, RundownPlaylistId } from '../core/model/Ids.js'
+import { ProtectedString } from '../lib/protectedString.js'
 
 export interface PackageManagerPlayoutContext {
 	_id: PeripheralDeviceId

@@ -1,0 +1,12 @@
+components:
+  messages:
+    subscribeMessage:
+      name: subscribe
+      messageId: subscribe
+      title: Subscribe Event Message
+      description: Subscribe or unsubscribe to a topic
+      payload:
+        $ref: '../events/subscribeEvent/subscribeEvent.yaml#/$defs/subscribeEvent'
+      examples:
+        - payload:
+            $ref: '../events/subscribeEvent/subscribeEvent-example.yaml'

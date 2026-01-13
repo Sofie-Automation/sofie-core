@@ -1,0 +1,8 @@
+$defs:
+  subscriptionEventName:
+    type: string
+    title: SubscriptionEventName
+    description: Name of the event when subscribing or unsubscribing to topics.
+    enum:
+      - subscribe
+      - unsubscribe

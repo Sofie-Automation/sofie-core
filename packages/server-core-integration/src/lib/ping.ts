@@ -3,7 +3,10 @@ export class CorePinger {
 	private _connected = false
 	private _destroyed = false
 
-	constructor(private readonly emitError: (err: string) => void, private readonly doPing: () => Promise<void>) {}
+	constructor(
+		private readonly emitError: (err: string) => void,
+		private readonly doPing: () => Promise<void>
+	) {}
 
 	public setConnectedAndTriggerPing(connected: boolean): void {
 		this._connected = connected

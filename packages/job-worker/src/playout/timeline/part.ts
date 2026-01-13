@@ -12,12 +12,12 @@ import {
 import { assertNever, literal } from '@sofie-automation/corelib/dist/lib'
 import { getPartGroupId, getPartFirstObjectId } from '@sofie-automation/corelib/dist/playout/ids'
 import { PieceInstanceWithTimings } from '@sofie-automation/corelib/dist/playout/processAndPrune'
-import { PieceTimelineMetadata } from './pieceGroup'
-import { JobContext } from '../../jobs'
+import { PieceTimelineMetadata } from './pieceGroup.js'
+import { JobContext } from '../../jobs/index.js'
 import { ReadonlyDeep } from 'type-fest'
-import { getPieceEnableInsidePart, transformPieceGroupAndObjects } from './piece'
+import { getPieceEnableInsidePart, transformPieceGroupAndObjects } from './piece.js'
 import { PlayoutChangedType } from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI'
-import { SelectedPartInstanceTimelineInfo } from './generate'
+import { SelectedPartInstanceTimelineInfo } from './generate.js'
 import { PartCalculatedTimings } from '@sofie-automation/corelib/dist/playout/timings'
 
 export function transformPartIntoTimeline(
@@ -32,7 +32,7 @@ export function transformPartIntoTimeline(
 ): Array<TimelineObjRundown & OnGenerateTimelineObjExt> {
 	const span = context.startSpan('transformPartIntoTimeline')
 
-	const nowInParentGroup = partInfo.nowInPart
+	const nowInParentGroup = partInfo.partTimes.nowInPart
 	const partTimings = partInfo.calculatedTimings
 	const outTransition = partInfo.partInstance.part.outTransition ?? null
 
@@ -99,10 +99,7 @@ function getPieceEnableForPieceInstance(
 			if (!outTransition) return undefined
 
 			const pieceEnable: TSR.Timeline.TimelineEnable = {
-				start: `#${parentGroup.id}.end - ${outTransition.duration}`,
-			}
-			if (partTimings.toPartPostroll) {
-				pieceEnable.start += ' - ' + partTimings.toPartPostroll
+				start: `#${parentGroup.id}.end - ${outTransition.duration + partTimings.toPartPostroll}`,
 			}
 
 			return pieceEnable

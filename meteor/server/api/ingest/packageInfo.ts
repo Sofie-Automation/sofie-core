@@ -8,7 +8,7 @@ import {
 } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
 import { PackageInfoDB } from '@sofie-automation/corelib/dist/dataModel/PackageInfos'
 import { ExpectedPackages, Rundowns } from '../../collections'
-import { assertNever } from '../../lib/tempLib'
+import { assertNever } from '@sofie-automation/corelib/dist/lib'
 import { lazyIgnore } from '../../lib/lib'
 import { logger } from '../../logging'
 import { runIngestOperation } from './lib'
@@ -35,6 +35,7 @@ export async function onUpdatedPackageInfo(packageId: ExpectedPackageId, _doc: P
 			case ExpectedPackageDBType.ADLIB_ACTION:
 			case ExpectedPackageDBType.BASELINE_ADLIB_PIECE:
 			case ExpectedPackageDBType.BASELINE_ADLIB_ACTION:
+			case ExpectedPackageDBType.BASELINE_PIECE:
 			case ExpectedPackageDBType.RUNDOWN_BASELINE_OBJECTS:
 				onUpdatedPackageInfoForRundownDebounce(pkg)
 				break

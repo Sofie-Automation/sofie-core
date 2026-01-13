@@ -8,8 +8,8 @@ import {
 	PieceInstancePiece,
 } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { clone, getRandomId } from '@sofie-automation/corelib/dist/lib'
-import { getCurrentTime } from '../../../lib'
-import { setupPieceInstanceInfiniteProperties } from '../../pieces'
+import { getCurrentTime } from '../../../lib/index.js'
+import { setupPieceInstanceInfiniteProperties } from '../../pieces.js'
 import {
 	calculatePartExpectedDurationWithTransition,
 	PartCalculatedTimings,
@@ -19,15 +19,15 @@ import {
 	PlayoutMutatablePart,
 	PlayoutPartInstanceModel,
 	PlayoutPartInstanceModelSnapshot,
-} from '../PlayoutPartInstanceModel'
+} from '../PlayoutPartInstanceModel.js'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { PlayoutPieceInstanceModel } from '../PlayoutPieceInstanceModel'
-import { PlayoutPieceInstanceModelImpl } from './PlayoutPieceInstanceModelImpl'
+import { PlayoutPieceInstanceModel } from '../PlayoutPieceInstanceModel.js'
+import { PlayoutPieceInstanceModelImpl } from './PlayoutPieceInstanceModelImpl.js'
 import { EmptyPieceTimelineObjectsBlob } from '@sofie-automation/corelib/dist/dataModel/Piece'
-import _ = require('underscore')
+import _ from 'underscore'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { PlayoutMutatablePartSampleKeys } from '../../../blueprints/context/lib'
-import { QuickLoopService } from '../services/QuickLoopService'
+import { PlayoutMutatablePartSampleKeys } from '../../../blueprints/context/lib.js'
+import { QuickLoopService } from '../services/QuickLoopService.js'
 
 /**
  * time in ms before an autotake when we don't accept takes/updates

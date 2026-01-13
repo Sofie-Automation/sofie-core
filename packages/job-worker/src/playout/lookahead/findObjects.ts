@@ -9,8 +9,8 @@ import {
 	TimelineObjType,
 } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { JobContext } from '../../jobs'
-import { PartAndPieces, PieceInstanceWithObjectMap } from './util'
+import { JobContext } from '../../jobs/index.js'
+import { PartAndPieces, PieceInstanceWithObjectMap } from './util.js'
 import { deserializePieceTimelineObjectsBlob } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { ReadonlyDeep, SetRequired } from 'type-fest'
 
@@ -19,7 +19,7 @@ function getBestPieceInstanceId(piece: ReadonlyDeep<PieceInstance>): string {
 		return unprotectString(piece._id)
 	}
 	// Something is needed, and it must be distant future here, so accuracy is not important
-	return unprotectString(piece.piece.startPartId)
+	return unprotectString(piece.piece.startPartId ?? piece.rundownId)
 }
 
 function tryActivateKeyframesForObject(

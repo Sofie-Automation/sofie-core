@@ -5,12 +5,11 @@ import {
 	PartInstanceId,
 	SegmentId,
 	RundownPlaylistActivationId,
-	OrganizationId,
 	RundownPlaylistId,
 	StudioId,
 	RundownId,
-} from './Ids'
-import { RundownPlaylistNote } from './Notes'
+} from './Ids.js'
+import { RundownPlaylistNote } from './Notes.js'
 import { ForceQuickLoopAutoNext } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 
 /** Details of an ab-session requested by the blueprints in onTimelineGenerate */
@@ -31,6 +30,7 @@ export interface ABSessionInfo {
 
 export interface ABSessionAssignment {
 	sessionId: string
+	sessionName: string
 	playerId: number | string
 	lookahead: boolean // purely informational for debugging
 }
@@ -98,8 +98,6 @@ export interface DBRundownPlaylist {
 	_id: RundownPlaylistId
 	/** External ID (source) of the playlist */
 	externalId: string
-	/** ID of the organization that owns the playlist */
-	organizationId?: OrganizationId | null
 	/** Studio that this playlist is assigned to */
 	studioId: StudioId
 
@@ -169,7 +167,10 @@ export interface DBRundownPlaylist {
 	/** If the order of rundowns in this playlist has ben set manually by a user/blueprints in Sofie */
 	rundownIdsInOrder: RundownId[]
 
-	/** Previous state persisted from ShowStyleBlueprint.onTimelineGenerate */
+	/**
+	 * Persistent state belong to blueprint playout methods
+	 * This can be accessed and modified by the blueprints in various methods
+	 */
 	previousPersistentState?: TimelinePersistentState
 	/** AB playback sessions calculated in the last timeline genertaion */
 	trackedAbSessions?: ABSessionInfo[]

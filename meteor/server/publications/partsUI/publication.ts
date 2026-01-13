@@ -1,5 +1,5 @@
 import { PartId, RundownPlaylistId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { check } from 'meteor/check'
+import { check, Match } from 'meteor/check'
 import {
 	CustomPublishCollection,
 	SetupObserversResult,
@@ -57,55 +57,59 @@ async function setupUIPartsPublicationObservers(
 	})) as Pick<DBRundownPlaylist, RundownPlaylistFields> | undefined
 	if (!playlist) throw new Error(`RundownPlaylist "${args.playlistId}" not found!`)
 
-	const rundownsObserver = await RundownsObserver.create(playlist.studioId, playlist._id, async (rundownIds) => {
-		logger.silly(`Creating new RundownContentObserver`)
+	const rundownsObserver = await RundownsObserver.createForPlaylist(
+		playlist.studioId,
+		playlist._id,
+		async (rundownIds) => {
+			logger.silly(`Creating new RundownContentObserver`)
 
-		const cache = createReactiveContentCache()
+			const cache = createReactiveContentCache()
 
-		// Push update
-		triggerUpdate({ newCache: cache })
+			// Push update
+			triggerUpdate({ newCache: cache })
 
-		const obs1 = await RundownContentObserver.create(playlist.studioId, playlist._id, rundownIds, cache)
+			const obs1 = await RundownContentObserver.create(playlist.studioId, playlist._id, rundownIds, cache)
 
-		const innerQueries = [
-			cache.Segments.find({}).observeChanges({
-				added: (id) => triggerUpdate({ invalidateSegmentIds: [protectString(id)] }),
-				changed: (id) => triggerUpdate({ invalidateSegmentIds: [protectString(id)] }),
-				removed: (id) => triggerUpdate({ invalidateSegmentIds: [protectString(id)] }),
-			}),
-			cache.Parts.find({}).observe({
-				added: (doc) => triggerUpdate({ invalidatePartIds: [doc._id] }),
-				changed: (doc, oldDoc) => {
-					if (doc._rank !== oldDoc._rank) {
-						// with part rank change we need to invalidate the entire segment,
-						// as the order may affect which unchanged parts are/aren't in quickLoop
-						triggerUpdate({ invalidateSegmentIds: [doc.segmentId] })
-					} else {
-						triggerUpdate({ invalidatePartIds: [doc._id] })
-					}
-				},
-				removed: (doc) => triggerUpdate({ invalidatePartIds: [doc._id] }),
-			}),
-			cache.RundownPlaylists.find({}).observeChanges({
-				added: () => triggerUpdate({ invalidateQuickLoop: true }),
-				changed: () => triggerUpdate({ invalidateQuickLoop: true }),
-				removed: () => triggerUpdate({ invalidateQuickLoop: true }),
-			}),
-			cache.StudioSettings.find({}).observeChanges({
-				added: () => triggerUpdate({ invalidateQuickLoop: true }),
-				changed: () => triggerUpdate({ invalidateQuickLoop: true }),
-				removed: () => triggerUpdate({ invalidateQuickLoop: true }),
-			}),
-		]
+			const innerQueries = [
+				cache.Segments.find({}).observeChanges({
+					added: (id) => triggerUpdate({ invalidateSegmentIds: [protectString(id)] }),
+					changed: (id) => triggerUpdate({ invalidateSegmentIds: [protectString(id)] }),
+					removed: (id) => triggerUpdate({ invalidateSegmentIds: [protectString(id)] }),
+				}),
+				cache.Parts.find({}).observe({
+					added: (doc) => triggerUpdate({ invalidatePartIds: [doc._id] }),
+					changed: (doc, oldDoc) => {
+						if (doc._rank !== oldDoc._rank) {
+							// with part rank change we need to invalidate the entire segment,
+							// as the order may affect which unchanged parts are/aren't in quickLoop
+							triggerUpdate({ invalidateSegmentIds: [doc.segmentId] })
+						} else {
+							triggerUpdate({ invalidatePartIds: [doc._id] })
+						}
+					},
+					removed: (doc) => triggerUpdate({ invalidatePartIds: [doc._id] }),
+				}),
+				cache.RundownPlaylists.find({}).observeChanges({
+					added: () => triggerUpdate({ invalidateQuickLoop: true }),
+					changed: () => triggerUpdate({ invalidateQuickLoop: true }),
+					removed: () => triggerUpdate({ invalidateQuickLoop: true }),
+				}),
+				cache.StudioSettings.find({}).observeChanges({
+					added: () => triggerUpdate({ invalidateQuickLoop: true }),
+					changed: () => triggerUpdate({ invalidateQuickLoop: true }),
+					removed: () => triggerUpdate({ invalidateQuickLoop: true }),
+				}),
+			]
 
-		return () => {
-			obs1.dispose()
+			return () => {
+				obs1.dispose()
 
-			for (const query of innerQueries) {
-				query.stop()
+				for (const query of innerQueries) {
+					query.stop()
+				}
 			}
 		}
-	})
+	)
 
 	// Set up observers:
 	return [rundownsObserver]
@@ -144,8 +148,7 @@ export async function manipulateUIPartsPublicationData(
 		findMarkerPosition(
 			playlist.quickLoop.start,
 			-Infinity,
-			state.contentCache.Segments,
-			{ parts: state.contentCache.Parts },
+			{ segments: state.contentCache.Segments, parts: state.contentCache.Parts },
 			rundownRanks
 		)
 	const quickLoopEndPosition =
@@ -153,8 +156,7 @@ export async function manipulateUIPartsPublicationData(
 		findMarkerPosition(
 			playlist.quickLoop.end,
 			Infinity,
-			state.contentCache.Segments,
-			{ parts: state.contentCache.Parts },
+			{ segments: state.contentCache.Segments, parts: state.contentCache.Parts },
 			rundownRanks
 		)
 
@@ -189,7 +191,7 @@ meteorCustomPublish(
 	MeteorPubSub.uiParts,
 	CustomCollectionName.UIParts,
 	async function (pub, playlistId: RundownPlaylistId | null) {
-		check(playlistId, String)
+		check(playlistId, Match.Optional(String))
 
 		triggerWriteAccessBecauseNoCheckNecessary()
 

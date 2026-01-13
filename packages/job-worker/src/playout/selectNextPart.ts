@@ -1,11 +1,11 @@
 import { DBPart, isPartPlayable } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { JobContext } from '../jobs'
+import { JobContext } from '../jobs/index.js'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { DBRundownPlaylist, QuickLoopMarkerType } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { ForceQuickLoopAutoNext } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 import { SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ReadonlyDeep } from 'type-fest'
-import { PlayoutSegmentModel } from './model/PlayoutSegmentModel'
+import { PlayoutSegmentModel } from './model/PlayoutSegmentModel.js'
 
 /**
  * This wraps a Part which has been selected to be next, to include some additional data about that choice

@@ -11,7 +11,7 @@ meteorPublish(MeteorPubSub.translationsBundles, async (_token: string | undefine
 	triggerWriteAccessBecauseNoCheckNecessary()
 
 	return TranslationsBundles.findWithCursor(selector, {
-		fields: {
+		projection: {
 			data: 0,
 		},
 	})

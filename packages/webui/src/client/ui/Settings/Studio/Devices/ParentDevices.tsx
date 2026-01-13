@@ -8,17 +8,17 @@ import {
 	WrappedOverridableItem,
 	WrappedOverridableItemDeleted,
 	WrappedOverridableItemNormal,
-} from '../../util/OverrideOpHelper'
+} from '../../util/OverrideOpHelper.js'
 import { faCheck, faPencilAlt, faPlus, faSync, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { JSONBlob, JSONBlobParse, JSONSchema } from '@sofie-automation/blueprints-integration'
-import { DropdownInputControl, DropdownInputOption } from '../../../../lib/Components/DropdownInput'
-import { useToggleExpandHelper } from '../../../util/useToggleExpandHelper'
-import { doModalDialog } from '../../../../lib/ModalDialog'
+import { DropdownInputControl, DropdownInputOption } from '../../../../lib/Components/DropdownInput.js'
+import { useToggleExpandHelper } from '../../../util/useToggleExpandHelper.js'
+import { doModalDialog } from '../../../../lib/ModalDialog.js'
 import classNames from 'classnames'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { SchemaFormWithOverrides } from '../../../../lib/forms/SchemaFormWithOverrides'
-import { LabelActual, LabelAndOverrides } from '../../../../lib/Components/LabelAndOverrides'
+import { SchemaFormWithOverrides } from '../../../../lib/forms/SchemaFormWithOverrides.js'
+import { LabelActual, LabelAndOverrides } from '../../../../lib/Components/LabelAndOverrides.js'
 import { getRandomString, literal } from '@sofie-automation/corelib/dist/lib'
 import { StudioDeviceSettings } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import {
@@ -27,12 +27,12 @@ import {
 	ObjectOverrideSetOp,
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import Tooltip from 'rc-tooltip'
-import { PeripheralDevices, Studios } from '../../../../collections'
-import { getHelpMode } from '../../../../lib/localStorage'
-import { useTracker } from '../../../../lib/ReactMeteorData/ReactMeteorData'
-import { TextInputControl } from '../../../../lib/Components/TextInput'
-import { MomentFromNow } from '../../../../lib/Moment'
-import { MeteorCall } from '../../../../lib/meteorApi'
+import { PeripheralDevices, Studios } from '../../../../collections/index.js'
+import { getHelpMode } from '../../../../lib/localStorage.js'
+import { useTracker } from '../../../../lib/ReactMeteorData/ReactMeteorData.js'
+import { TextInputControl } from '../../../../lib/Components/TextInput.js'
+import { MomentFromNow } from '../../../../lib/Moment.js'
+import { MeteorCall } from '../../../../lib/meteorApi.js'
 import { ReadonlyDeep } from 'type-fest'
 import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 
@@ -101,8 +101,8 @@ export function StudioParentDevices({ studioId }: Readonly<StudioParentDevicesPr
 	const hasCurrentDevice = wrappedDeviceSettings.find((d) => d.type === 'normal')
 
 	return (
-		<div>
-			<h2 className="mhn">
+		<div className="mb-4">
+			<h2 className="mb-2">
 				<Tooltip
 					overlay={t('No gateways are configured')}
 					visible={getHelpMode() && !hasCurrentDevice}
@@ -119,7 +119,7 @@ export function StudioParentDevices({ studioId }: Readonly<StudioParentDevicesPr
 				createItemWithId={addNewItem}
 			/>
 
-			<div className="mod mhs">
+			<div className="my-1 mx-2">
 				<button className="btn btn-primary" onClick={addNewItemClick}>
 					<FontAwesomeIcon icon={faPlus} />
 				</button>
@@ -130,9 +130,11 @@ export function StudioParentDevices({ studioId }: Readonly<StudioParentDevicesPr
 
 interface PeripheralDeviceTranslated {
 	_id: PeripheralDeviceId
+	configId: string
 	name: string
+	deviceType: string
 	lastSeen: number
-	deviceConfigSchema: JSONBlob<JSONSchema>
+	deviceConfigSchema: JSONBlob<JSONSchema> | undefined
 }
 
 interface ParentDevicesTableProps {
@@ -170,9 +172,11 @@ function GenericParentDevicesTable({
 				device.studioAndConfigId.configId,
 				literal<PeripheralDeviceTranslated>({
 					_id: device._id,
-					name: device.name || unprotectString(device._id),
+					configId: device.studioAndConfigId.configId,
+					name: device.name,
+					deviceType: device.deviceName,
 					lastSeen: device.lastSeen,
-					deviceConfigSchema: device.configManifest.deviceConfigSchema,
+					deviceConfigSchema: device.configManifest?.deviceConfigSchema,
 				})
 			)
 		}
@@ -235,6 +239,7 @@ function GenericParentDevicesTable({
 			<thead>
 				<tr className="hl">
 					<th key="Name">{t('Name')}</th>
+					<th key="ConfigID">{t('ID')}</th>
 					<th key="GatewayID">{t('Gateway')}</th>
 					<th key="LastSeen">{t('Last Seen')}</th>
 					<th key="action">&nbsp;</th>
@@ -313,7 +318,9 @@ function SummaryRow({
 		>
 			<th className="settings-studio-device__name c2">{item.computed.name}</th>
 
-			<th className="settings-studio-device__parent c2">{peripheralDevice?.name || '-'}</th>
+			<th className="settings-studio-device__configID c2">{item.id}</th>
+
+			<th className="settings-studio-device__parent c2">{peripheralDevice?.deviceType || '-'}</th>
 
 			<th className="settings-studio-device__type c2">
 				{peripheralDevice ? <MomentFromNow date={peripheralDevice.lastSeen} /> : '-'}
@@ -342,6 +349,8 @@ function DeletedSummaryRow({ item, undeleteItemWithId }: Readonly<DeletedSummary
 		<tr>
 			<th className="settings-studio-device__name c2 deleted">{item.defaults.name}</th>
 
+			<th className="settings-studio-device__configID c2 deleted">{item.id}</th>
+
 			<th className="settings-studio-device__gateway c2 deleted">-</th>
 
 			<th className="settings-studio-device__last_seen c2 deleted">-</th>
@@ -367,7 +376,9 @@ function OrphanedSummaryRow({ configId, device, createItemWithId }: Readonly<Orp
 		<tr>
 			<th className="settings-studio-device__name c2 deleted">-</th>
 
-			<th className="settings-studio-device__gateway c2 deleted">{device.name || unprotectString(device._id)}</th>
+			<th className="settings-studio-device__configID c2 deleted">{configId}</th>
+
+			<th className="settings-studio-device__gateway c2 deleted">{device.deviceName || unprotectString(device._id)}</th>
 
 			<th className="settings-studio-device__last_seen c2 deleted">{<MomentFromNow date={device.lastSeen} />}</th>
 
@@ -404,15 +415,13 @@ function ParentDeviceEditRow({
 		<tr className="expando-details hl" key={item.id + '-details'}>
 			<td colSpan={99}>
 				<div className="properties-grid">
+					<label className="field">
+						<LabelActual label={t('ID')} />
+						{item.id}
+					</label>
+
 					<LabelAndOverrides label={t('Name')} item={item} overrideHelper={overrideHelper} itemKey={'name'}>
-						{(value, handleUpdate) => (
-							<TextInputControl
-								modifiedClassName="bghl"
-								classNames="input text-input input-l"
-								value={value}
-								handleUpdate={handleUpdate}
-							/>
-						)}
+						{(value, handleUpdate) => <TextInputControl value={value} handleUpdate={handleUpdate} />}
 					</LabelAndOverrides>
 
 					<AssignPeripheralDeviceConfigId
@@ -428,7 +437,7 @@ function ParentDeviceEditRow({
 						<ParentDeviceEditForm peripheralDevice={peripheralDevice} item={item} overrideHelper={overrideHelper} />
 					)}
 				</div>
-				<div className="mod alright">
+				<div className="m-1 me-2 text-end">
 					<button className={classNames('btn btn-primary')} onClick={finishEditItem}>
 						<FontAwesomeIcon icon={faCheck} />
 					</button>
@@ -465,7 +474,6 @@ function AssignPeripheralDeviceConfigId({
 			<LabelActual label={'Peripheral Device'} />
 			<div className="field-content">
 				<DropdownInputControl<PeripheralDeviceId | undefined>
-					classNames="input text-input input-l"
 					options={peripheralDeviceOptions}
 					value={value}
 					handleUpdate={handleUpdate}

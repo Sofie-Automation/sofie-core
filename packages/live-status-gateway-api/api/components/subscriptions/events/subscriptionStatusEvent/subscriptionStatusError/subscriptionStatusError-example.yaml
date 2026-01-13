@@ -1,0 +1,2 @@
+errorMessage: 'Subscribe to studio topic failed'
+$ref: '../subscriptionStatusSuccess/subscriptionStatusSuccess-example.yaml'

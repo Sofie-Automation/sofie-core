@@ -18,15 +18,15 @@ import {
 	RestorePlaylistSnapshotProps,
 	RestorePlaylistSnapshotResult,
 } from '@sofie-automation/corelib/dist/worker/studio'
-import { getCurrentTime, getSystemVersion } from '../lib'
-import { JobContext } from '../jobs'
-import { runWithPlaylistLock } from './lock'
+import { getCurrentTime, getSystemVersion } from '../lib/index.js'
+import { JobContext } from '../jobs/index.js'
+import { runWithPlaylistLock } from './lock.js'
 import { CoreRundownPlaylistSnapshot } from '@sofie-automation/corelib/dist/snapshots'
 import { unprotectString, ProtectedString, protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { saveIntoDb } from '../db/changes'
-import { getPartId, getSegmentId } from '../ingest/lib'
+import { saveIntoDb } from '../db/changes.js'
+import { getPartId, getSegmentId } from '../ingest/lib.js'
 import { assertNever, getRandomId, literal } from '@sofie-automation/corelib/dist/lib'
-import { logger } from '../logging'
+import { logger } from '../logging.js'
 import { JSONBlobParse, JSONBlobStringify } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { RundownOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Rundown'
@@ -97,7 +97,7 @@ export async function handleGeneratePlaylistSnapshot(
 							{ 'timings.plannedStoppedPlayback': { $gte: validTime }, reset: true },
 							{ reset: { $ne: true } },
 						],
-				  }
+					}
 		)
 		const pieces = await context.directCollections.Pieces.findFetch({ startRundownId: { $in: rundownIds } })
 		const pieceInstances = await context.directCollections.PieceInstances.findFetch(
@@ -106,7 +106,7 @@ export async function handleGeneratePlaylistSnapshot(
 				: {
 						rundownId: { $in: rundownIds },
 						$or: [{ partInstanceId: { $in: partInstances.map((p) => p._id) } }, { reset: { $ne: true } }],
-				  }
+					}
 		)
 		const adLibPieces = await context.directCollections.AdLibPieces.findFetch({ rundownId: { $in: rundownIds } })
 		const baselineAdlibs = await context.directCollections.RundownBaselineAdLibPieces.findFetch({
@@ -117,9 +117,6 @@ export async function handleGeneratePlaylistSnapshot(
 			rundownId: { $in: rundownIds },
 		})
 
-		const expectedMediaItems = await context.directCollections.ExpectedMediaItems.findFetch({
-			partId: { $in: parts.map((i) => i._id) },
-		})
 		const expectedPlayoutItems = await context.directCollections.ExpectedPlayoutItems.findFetch({
 			rundownId: { $in: rundownIds },
 		})
@@ -134,7 +131,7 @@ export async function handleGeneratePlaylistSnapshot(
 			playlist.activationId && props.withTimeline
 				? await context.directCollections.Timelines.findOne({
 						_id: playlist.studioId,
-				  })
+					})
 				: undefined
 
 		logger.info(`Snapshot generation done`)
@@ -155,7 +152,6 @@ export async function handleGeneratePlaylistSnapshot(
 			adLibPieces,
 			adLibActions,
 			baselineAdLibActions,
-			expectedMediaItems,
 			expectedPlayoutItems,
 			expectedPackages,
 			timeline,
@@ -197,7 +193,6 @@ export async function handleRestorePlaylistSnapshot(
 			rundownId: rd._id,
 		}
 		rd.studioId = snapshot.playlist.studioId
-		rd.notifiedCurrentPlayingPartExternalId = undefined
 	}
 
 	// TODO: This is too naive. Ideally we should unset it if it isnt valid, as anything other than a match is likely to have issues.
@@ -240,9 +235,10 @@ export async function handleRestorePlaylistSnapshot(
 			delete pieceOld.rundownId
 		}
 		if (pieceOld.partId) {
-			piece.startPartId = pieceOld.partId
+			const partId = pieceOld.partId
+			piece.startPartId = partId
 			delete pieceOld.partId
-			piece.startSegmentId = partSegmentIds[unprotectString(piece.startPartId)]
+			piece.startSegmentId = partSegmentIds[unprotectString(partId)]
 		}
 	}
 
@@ -289,14 +285,18 @@ export async function handleRestorePlaylistSnapshot(
 	for (const piece of snapshot.pieces) {
 		const oldId = piece._id
 		piece.startRundownId = getNewRundownId(piece.startRundownId)
-		piece.startPartId = partIdMap.getOrGenerateAndWarn(
-			piece.startPartId,
-			`piece.startPartId=${piece.startPartId} of piece=${piece._id}`
-		)
-		piece.startSegmentId = segmentIdMap.getOrGenerateAndWarn(
-			piece.startSegmentId,
-			`piece.startSegmentId=${piece.startSegmentId} of piece=${piece._id}`
-		)
+		if (piece.startPartId) {
+			piece.startPartId = partIdMap.getOrGenerateAndWarn(
+				piece.startPartId,
+				`piece.startPartId=${piece.startPartId} of piece=${piece._id}`
+			)
+		}
+		if (piece.startSegmentId) {
+			piece.startSegmentId = segmentIdMap.getOrGenerateAndWarn(
+				piece.startSegmentId,
+				`piece.startSegmentId=${piece.startSegmentId} of piece=${piece._id}`
+			)
+		}
 		piece._id = getRandomId()
 		pieceIdMap.set(oldId, piece._id)
 	}
@@ -348,7 +348,8 @@ export async function handleRestorePlaylistSnapshot(
 			case ExpectedPackageDBType.ADLIB_PIECE:
 			case ExpectedPackageDBType.ADLIB_ACTION:
 			case ExpectedPackageDBType.BASELINE_ADLIB_PIECE:
-			case ExpectedPackageDBType.BASELINE_ADLIB_ACTION: {
+			case ExpectedPackageDBType.BASELINE_ADLIB_ACTION:
+			case ExpectedPackageDBType.BASELINE_PIECE: {
 				expectedPackage.pieceId = pieceIdMap.getOrGenerateAndWarn(
 					expectedPackage.pieceId,
 					`expectedPackage.pieceId=${expectedPackage.pieceId}`
@@ -395,7 +396,7 @@ export async function handleRestorePlaylistSnapshot(
 			segmentId?: SegmentId
 			part?: unknown
 			piece?: unknown
-		}
+		},
 	>(objs: undefined | T[], updateId: boolean): T[] {
 		const updateIds = (obj: T, updateOwnId: boolean) => {
 			if (obj.rundownId) {
@@ -502,12 +503,6 @@ export async function handleRestorePlaylistSnapshot(
 			context.directCollections.AdLibActions,
 			{ rundownId: { $in: rundownIds } },
 			updateItemIds(snapshot.adLibActions, false)
-		),
-		saveIntoDb(
-			context,
-			context.directCollections.ExpectedMediaItems,
-			{ partId: { $in: Array.from(partIdMap.keys()) } },
-			updateItemIds(snapshot.expectedMediaItems, true)
 		),
 		saveIntoDb(
 			context,

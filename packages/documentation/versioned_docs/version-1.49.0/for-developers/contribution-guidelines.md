@@ -17,7 +17,6 @@ The Sofie team at NRK is responsible for development and maintenance. We also do
 
 The Sofie team welcomes open source contributions and will actively work towards enabling contributions to become mergeable into the Sofie repositories. However, as main stakeholder and maintainer we reserve the right to refuse any contributions.
 
-
 ## About Contributions
 
 Thank you for considering contributing to the Sofie project!
@@ -36,6 +35,7 @@ However, Sofie is a big project with many differing users and use cases. **Large
 4. The contributor references the RFC when a pull request is ready.
 
 ### Base contributions on the in-development branch (or the master branch)
+
 In order to facilitate merging, we ask that contributions are based on the latest (at the time of the pull request) _in-development_ branch (often named `release*`), alternatively the stable (eg. `master`) branch. NRK will take responsibility for rebasing stable contributions to the latest in-development branch if needed.
 See **CONTRIBUTING.md** in each official repository for details on which branch to use as a base for contributions.
 
@@ -59,12 +59,13 @@ We rely on two types of documentation; the [Sofie documentation](https://nrkno.g
 
 We don't aim to have the "absolute perfect documentation possible", BUT we do try to improve and add documentation to have a good-enough-to-be-comprehensible standard. We think that:
 
-* _What_ something does is not as important – we can read the code for that.
-* _Why_ something does something, **is** important. Implied usage, side-effects, descriptions of the context etcetera...
+- _What_ something does is not as important – we can read the code for that.
+- _Why_ something does something, **is** important. Implied usage, side-effects, descriptions of the context etcetera...
 
 When you contribute, we ask you to also update any documentation where needed.
 
 ### Updating Dependencies​
+
 When updating dependencies in a library, it is preferred to do so via `yarn upgrade-interactive --latest` whenever possible. This is so that the versions in `package.json` are also updated as we have no guarantee that the library will work with versions lower than that used in the `yarn.lock` file, even if it is compatible with the semver range in `package.json`. After this, a `yarn upgrade` can be used to update any child dependencies
 
 Be careful when bumping across major versions.

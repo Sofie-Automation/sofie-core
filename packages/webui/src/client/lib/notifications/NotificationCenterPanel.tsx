@@ -2,16 +2,17 @@ import * as React from 'react'
 import * as CoreIcon from '@nrk/core-icons/jsx'
 import ClassNames from 'classnames'
 import { motion, AnimatePresence, HTMLMotionProps } from 'motion/react'
-import { translateWithTracker, Translated, useTracker } from '../ReactMeteorData/ReactMeteorData'
-import { NotificationCenter, Notification, NoticeLevel, NotificationAction } from './notifications'
+import { translateWithTracker, Translated, useTracker } from '../ReactMeteorData/ReactMeteorData.js'
+import { NotificationCenter, Notification, NoticeLevel, NotificationAction } from './notifications.js'
 import { ContextMenuTrigger, ContextMenu, MenuItem } from '@jstarpl/react-contextmenu'
 import { translateMessage, isTranslatableMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
-import { CriticalIcon, WarningIcon, CollapseChevrons, InformationIcon } from '../ui/icons/notifications'
+import { CriticalIcon, WarningIcon, CollapseChevrons, InformationIcon } from '../ui/icons/notifications.js'
 import update from 'immutability-helper'
-import { i18nTranslator } from '../../ui/i18n'
+import { i18nTranslator } from '../../ui/i18n.js'
 import { RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { useTranslation } from 'react-i18next'
-import { PopUpPanel } from '../../ui/RundownView/PopUpPanel'
+import { PopUpPanel } from '../../ui/RundownView/PopUpPanel.js'
+import classNames from 'classnames'
 
 interface IPopUpProps {
 	id?: string
@@ -106,7 +107,7 @@ class NotificationPopUp extends React.Component<IPopUpProps> {
 												className={ClassNames(
 													'btn',
 													['default', 'primary'].indexOf(action.type) ? 'btn-primary' : 'btn-default',
-													'mls'
+													'ms-1'
 												)}
 												onClick={(e) => this.triggerEvent(action, e)}
 											>
@@ -469,8 +470,16 @@ function NotificationCenterElement(props: HTMLMotionProps<'div'>) {
  * Presentational component that displays a panel containing the NotificationCenterPopUps list containing
  * the snoozed items and an 'Empty' label if no notifications are present.
  */
-export const NotificationCenterPanel = (props: { limitCount?: number; filter?: NoticeLevel }): JSX.Element => (
-	<PopUpPanel className="notification-center-panel">
+export const NotificationCenterPanel = (props: {
+	limitCount?: number
+	filter?: NoticeLevel
+	hideRundownHeader?: boolean
+}): JSX.Element => (
+	<PopUpPanel
+		className={classNames('notification-center-panel', {
+			'notification-center-panel--no-rundown-header': props.hideRundownHeader,
+		})}
+	>
 		<NotificationCenterPopUps
 			initialAnimation={false}
 			showEmptyListLabel={true}

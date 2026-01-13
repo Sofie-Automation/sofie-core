@@ -3,19 +3,19 @@ import React, { useCallback, useMemo } from 'react'
 import Tooltip from 'rc-tooltip'
 import { getActiveRoutes } from '@sofie-automation/meteor-lib/dist/collections/Studios'
 import { DBStudio, MappingExt, ResultingMappingRoutes } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { doModalDialog } from '../../../lib/ModalDialog'
+import { doModalDialog } from '../../../lib/ModalDialog.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash, faPencilAlt, faCheck, faPlus, faSync } from '@fortawesome/free-solid-svg-icons'
 import { useTranslation } from 'react-i18next'
 import { LookaheadMode, TSR } from '@sofie-automation/blueprints-integration'
 import { LOOKAHEAD_DEFAULT_SEARCH_DISTANCE } from '@sofie-automation/shared-lib/dist/core/constants'
-import { useToggleExpandHelper } from '../../util/useToggleExpandHelper'
+import { useToggleExpandHelper } from '../../util/useToggleExpandHelper.js'
 import {
 	getAllCurrentAndDeletedItemsFromOverrides,
 	OverrideOpHelper,
 	useOverrideOpHelper,
 	WrappedOverridableItemNormal,
-} from '../util/OverrideOpHelper'
+} from '../util/OverrideOpHelper.js'
 import {
 	applyAndValidateOverrides,
 	ObjectOverrideSetOp,
@@ -23,27 +23,27 @@ import {
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { literal, objectPathGet } from '@sofie-automation/corelib/dist/lib'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { TextInputControl } from '../../../lib/Components/TextInput'
-import { IntInputControl } from '../../../lib/Components/IntInput'
+import { TextInputControl } from '../../../lib/Components/TextInput.js'
+import { IntInputControl } from '../../../lib/Components/IntInput.js'
 import {
 	DropdownInputControl,
 	DropdownInputOption,
 	getDropdownInputOptions,
-} from '../../../lib/Components/DropdownInput'
+} from '../../../lib/Components/DropdownInput.js'
 import {
 	LabelActual,
 	LabelAndOverrides,
 	LabelAndOverridesForDropdown,
 	LabelAndOverridesForInt,
-} from '../../../lib/Components/LabelAndOverrides'
+} from '../../../lib/Components/LabelAndOverrides.js'
 import { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
-import { SchemaFormWithOverrides } from '../../../lib/forms/SchemaFormWithOverrides'
+import { SchemaFormWithOverrides } from '../../../lib/forms/SchemaFormWithOverrides.js'
 import {
 	getSchemaSummaryFields,
 	SchemaSummaryField,
 	translateStringIfHasNamespaces,
-} from '../../../lib/forms/schemaFormUtil'
-import { Studios } from '../../../collections'
+} from '../../../lib/forms/schemaFormUtil.js'
+import { Studios } from '../../../collections/index.js'
 
 export interface MappingsSettingsManifest {
 	displayName: string
@@ -137,7 +137,7 @@ export function StudioMappings({
 
 	return (
 		<div>
-			<h2 className="mhn">{t('Layer Mappings')}</h2>
+			<h2 className="mb-4">{t('Layer Mappings')}</h2>
 			{!manifest ? (
 				<span>{t('Add a playout device to the studio in order to edit the layer mappings')}</span>
 			) : (
@@ -172,7 +172,7 @@ export function StudioMappings({
 							)}
 						</tbody>
 					</table>
-					<div className="mod mhs">
+					<div className="my-1 mx-2">
 						<button className="btn btn-primary" onClick={addNewLayer}>
 							<FontAwesomeIcon icon={faPlus} />
 						</button>
@@ -417,13 +417,7 @@ function StudioMappingsEntry({
 						<div className="properties-grid">
 							<label className="field">
 								<LabelActual label={t('Layer ID')} />
-								<TextInputControl
-									modifiedClassName="bghl"
-									classNames="input text-input input-l"
-									value={item.id}
-									handleUpdate={doChangeItemId}
-									disabled={!!item.defaults}
-								/>
+								<TextInputControl value={item.id} handleUpdate={doChangeItemId} disabled={!!item.defaults} />
 								<span className="text-s dimmed field-hint">{t('ID of the timeline-layer to map to some output')}</span>
 							</label>
 
@@ -434,14 +428,7 @@ function StudioMappingsEntry({
 								itemKey={'layerName'}
 								overrideHelper={overrideHelper}
 							>
-								{(value, handleUpdate) => (
-									<TextInputControl
-										modifiedClassName="bghl"
-										classNames="input text-input input-l"
-										value={value}
-										handleUpdate={handleUpdate}
-									/>
-								)}
+								{(value, handleUpdate) => <TextInputControl value={value} handleUpdate={handleUpdate} />}
 							</LabelAndOverrides>
 
 							<LabelAndOverridesForDropdown
@@ -453,12 +440,7 @@ function StudioMappingsEntry({
 								options={deviceTypeOptions}
 							>
 								{(value, handleUpdate, options) => (
-									<DropdownInputControl
-										classNames="input text-input input-l"
-										options={options}
-										value={value + ''}
-										handleUpdate={handleUpdate}
-									/>
+									<DropdownInputControl options={options} value={value + ''} handleUpdate={handleUpdate} />
 								)}
 							</LabelAndOverridesForDropdown>
 
@@ -469,14 +451,7 @@ function StudioMappingsEntry({
 								itemKey={'deviceId'}
 								overrideHelper={overrideHelper}
 							>
-								{(value, handleUpdate) => (
-									<TextInputControl
-										modifiedClassName="bghl"
-										classNames="input text-input input-l"
-										value={value}
-										handleUpdate={handleUpdate}
-									/>
-								)}
+								{(value, handleUpdate) => <TextInputControl value={value} handleUpdate={handleUpdate} />}
 							</LabelAndOverrides>
 
 							<LabelAndOverridesForDropdown
@@ -487,12 +462,7 @@ function StudioMappingsEntry({
 								options={getDropdownInputOptions(LookaheadMode)}
 							>
 								{(value, handleUpdate, options) => (
-									<DropdownInputControl
-										classNames="input text-input input-l"
-										options={options}
-										value={value}
-										handleUpdate={handleUpdate}
-									/>
+									<DropdownInputControl options={options} value={value} handleUpdate={handleUpdate} />
 								)}
 							</LabelAndOverridesForDropdown>
 
@@ -502,14 +472,7 @@ function StudioMappingsEntry({
 								itemKey={'lookaheadDepth'}
 								overrideHelper={overrideHelper}
 							>
-								{(value, handleUpdate) => (
-									<IntInputControl
-										modifiedClassName="bghl"
-										classNames="input text-input input-l"
-										value={value}
-										handleUpdate={handleUpdate}
-									/>
-								)}
+								{(value, handleUpdate) => <IntInputControl value={value} handleUpdate={handleUpdate} />}
 							</LabelAndOverridesForInt>
 
 							<LabelAndOverridesForInt
@@ -520,14 +483,7 @@ function StudioMappingsEntry({
 								itemKey={'lookaheadMaxSearchDistance'}
 								overrideHelper={overrideHelper}
 							>
-								{(value, handleUpdate) => (
-									<IntInputControl
-										modifiedClassName="bghl"
-										classNames="input text-input input-l"
-										value={value}
-										handleUpdate={handleUpdate}
-									/>
-								)}
+								{(value, handleUpdate) => <IntInputControl value={value} handleUpdate={handleUpdate} />}
 							</LabelAndOverridesForInt>
 
 							{mappingTypeOptions.length > 0 && (
@@ -541,12 +497,7 @@ function StudioMappingsEntry({
 										options={mappingTypeOptions}
 									>
 										{(value, handleUpdate, options) => (
-											<DropdownInputControl
-												classNames="input text-input input-l"
-												options={options}
-												value={value + ''}
-												handleUpdate={handleUpdate}
-											/>
+											<DropdownInputControl options={options} value={value + ''} handleUpdate={handleUpdate} />
 										)}
 									</LabelAndOverridesForDropdown>
 
@@ -565,7 +516,7 @@ function StudioMappingsEntry({
 								</>
 							)}
 						</div>
-						<div className="mod alright">
+						<div className="m-1 me-2 text-end">
 							<button className={ClassNames('btn btn-primary')} onClick={toggleEditItem}>
 								<FontAwesomeIcon icon={faCheck} />
 							</button>

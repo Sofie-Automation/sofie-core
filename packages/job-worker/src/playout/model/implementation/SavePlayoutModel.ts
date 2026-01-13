@@ -4,9 +4,9 @@ import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceIns
 import { DBSegment, SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { AnyBulkWriteOperation } from 'mongodb'
-import { JobContext } from '../../../jobs'
-import { PlayoutPartInstanceModelImpl } from './PlayoutPartInstanceModelImpl'
-import { PlayoutRundownModelImpl } from './PlayoutRundownModelImpl'
+import { JobContext } from '../../../jobs/index.js'
+import { PlayoutPartInstanceModelImpl } from './PlayoutPartInstanceModelImpl.js'
+import { PlayoutRundownModelImpl } from './PlayoutRundownModelImpl.js'
 
 /**
  * Save any changed AdlibTesting Segments

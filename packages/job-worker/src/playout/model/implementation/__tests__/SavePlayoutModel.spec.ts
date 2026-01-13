@@ -1,21 +1,20 @@
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { PlayoutSegmentModelImpl } from '../PlayoutSegmentModelImpl'
+import { PlayoutSegmentModelImpl } from '../PlayoutSegmentModelImpl.js'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { PlayoutRundownModelImpl } from '../PlayoutRundownModelImpl'
-import { setupDefaultJobEnvironment } from '../../../../__mocks__/context'
-import { writePartInstancesAndPieceInstances, writeAdlibTestingSegments } from '../SavePlayoutModel'
-import { PlayoutPartInstanceModelImpl } from '../PlayoutPartInstanceModelImpl'
+import { PlayoutRundownModelImpl } from '../PlayoutRundownModelImpl.js'
+import { setupDefaultJobEnvironment } from '../../../../__mocks__/context.js'
+import { writePartInstancesAndPieceInstances, writeAdlibTestingSegments } from '../SavePlayoutModel.js'
+import { PlayoutPartInstanceModelImpl } from '../PlayoutPartInstanceModelImpl.js'
 import { PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { mock } from 'jest-mock-extended'
-import { QuickLoopService } from '../../services/QuickLoopService'
+import { QuickLoopService } from '../../services/QuickLoopService.js'
 
 describe('SavePlayoutModel', () => {
 	function createRundownModel(segments?: DBSegment[]): PlayoutRundownModelImpl {
 		const rundown: DBRundown = {
 			_id: protectString('rd0'),
-			organizationId: null,
 			studioId: protectString('studio0'),
 			showStyleBaseId: protectString('ssb0'),
 			showStyleVariantId: protectString('ssv0'),

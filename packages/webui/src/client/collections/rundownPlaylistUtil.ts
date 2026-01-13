@@ -4,8 +4,8 @@ import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/Rund
 import { normalizeArrayToMap } from '@sofie-automation/corelib/dist/lib'
 import { sortRundownIDsInPlaylist } from '@sofie-automation/corelib/dist/playout/playlist'
 import _ from 'underscore'
-import { Rundowns } from './index'
-import { FindOptions } from './lib'
+import { Rundowns } from './index.js'
+import { FindOptions } from './lib.js'
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 
 /**

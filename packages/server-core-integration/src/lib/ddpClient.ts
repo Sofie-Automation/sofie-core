@@ -405,7 +405,7 @@ export class DDPClient extends EventEmitter<DDPClientEvents> {
 	constructor(opts?: DDPConnectorOptions) {
 		super()
 
-		opts || (opts = { host: '127.0.0.1', port: 3000, tlsOpts: {} })
+		opts = opts || { host: '127.0.0.1', port: 3000, tlsOpts: {} }
 
 		this.resetOptions(opts)
 		this.ddpVersionInt = opts.ddpVersion || '1'
@@ -810,7 +810,7 @@ export class DDPClient extends EventEmitter<DDPClientEvents> {
 
 	close(): void {
 		this.isClosing = true
-		this.socket && this.socket.close() // with mockJS connection, might not get created
+		this.socket?.close() // with mockJS connection, might not get created
 		this.removeAllListeners('connected')
 		this.removeAllListeners('failed')
 	}

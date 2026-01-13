@@ -2,7 +2,11 @@ import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibActio
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
-import { deserializePieceTimelineObjectsBlob, PieceGeneric } from '@sofie-automation/corelib/dist/dataModel/Piece'
+import {
+	deserializePieceTimelineObjectsBlob,
+	Piece,
+	PieceGeneric,
+} from '@sofie-automation/corelib/dist/dataModel/Piece'
 import {
 	PieceInstance,
 	PieceInstancePiece,
@@ -17,7 +21,7 @@ import {
 	CoreUserEditingDefinitionSofie,
 } from '@sofie-automation/corelib/dist/dataModel/UserEditingDefinitions'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { assertNever, clone, Complete, literal, omit } from '@sofie-automation/corelib/dist/lib'
+import { assertNever, clone, cloneObject, Complete, literal, omit } from '@sofie-automation/corelib/dist/lib'
 import { unprotectString, unprotectStringArray } from '@sofie-automation/corelib/dist/protectedString'
 import { ReadonlyDeep } from 'type-fest'
 import {
@@ -39,6 +43,7 @@ import {
 	IBlueprintPieceInstance,
 	IBlueprintResolvedPieceInstance,
 	IBlueprintRundownDB,
+	IBlueprintRundownPieceDB,
 	IBlueprintRundownPlaylist,
 	IBlueprintSegmentDB,
 	IBlueprintSegmentRundown,
@@ -49,9 +54,9 @@ import {
 	PieceAbSessionInfo,
 	RundownPlaylistTiming,
 } from '@sofie-automation/blueprints-integration'
-import { JobContext, ProcessedShowStyleBase, ProcessedShowStyleVariant } from '../../jobs'
+import { JobContext, ProcessedShowStyleBase, ProcessedShowStyleVariant } from '../../jobs/index.js'
 import { DBRundownPlaylist, QuickLoopMarkerType } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import _ = require('underscore')
+import _ from 'underscore'
 import { BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { wrapTranslatableMessageFromBlueprints } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import {
@@ -62,8 +67,9 @@ import {
 	UserEditingDefinitionSofieDefault,
 	UserEditingType,
 } from '@sofie-automation/blueprints-integration/dist/userEditing'
-import type { PlayoutMutatablePart } from '../../playout/model/PlayoutPartInstanceModel'
+import type { PlayoutMutatablePart } from '../../playout/model/PlayoutPartInstanceModel.js'
 import { BlueprintQuickLookInfo } from '@sofie-automation/blueprints-integration/dist/context/quickLoopInfo'
+import { IngestPartNotifyItemReady } from '@sofie-automation/shared-lib/dist/ingest/rundownStatus'
 
 /**
  * Convert an object to have all the values of all keys (including optionals) be 'true'
@@ -119,6 +125,9 @@ export const PlayoutMutatablePartSampleKeys = allKeysOfObject<PlayoutMutatablePa
 	expectedDuration: true,
 	holdMode: true,
 	shouldNotifyCurrentPlayingPart: true,
+	ingestNotifyPartExternalId: true,
+	ingestNotifyPartReady: true,
+	ingestNotifyItemsReady: true,
 	classes: true,
 	classesForNext: true,
 	displayDurationGroup: true,
@@ -150,7 +159,7 @@ function convertPieceInstanceToBlueprintsInner(
 					fromHold: pieceInstance.infinite.fromHold,
 					fromPreviousPart: pieceInstance.infinite.fromPreviousPart,
 					fromPreviousPlayhead: pieceInstance.infinite.fromPreviousPlayhead,
-			  })
+				})
 			: undefined,
 		piece: convertPieceToBlueprints(pieceInstance.piece),
 	}
@@ -222,7 +231,7 @@ function convertPieceGenericToBlueprintsInner(piece: ReadonlyDeep<PieceGeneric>)
 		expectedPackages: clone<ExpectedPackage.Any[] | undefined>(piece.expectedPackages),
 		hasSideEffects: piece.hasSideEffects,
 		content: {
-			...clone(piece.content),
+			...cloneObject(piece.content),
 			timelineObjects: deserializePieceTimelineObjectsBlob(piece.timelineObjectsString),
 		},
 		abSessions: clone<PieceAbSessionInfo[] | undefined>(piece.abSessions),
@@ -254,6 +263,27 @@ export function convertPieceToBlueprints(piece: ReadonlyDeep<PieceInstancePiece>
 }
 
 /**
+ * Convert a Rundown owned Piece into IBlueprintAdLibPieceDB, for passing into the blueprints
+ * Note: This does not check whether has the correct ownership
+ * @param piece the Piece to convert
+ * @returns a cloned complete and clean IBlueprintRundownPieceDB
+ */
+export function convertRundownPieceToBlueprints(piece: ReadonlyDeep<Piece>): IBlueprintRundownPieceDB {
+	const obj: Complete<IBlueprintRundownPieceDB> = {
+		...convertPieceGenericToBlueprintsInner(piece),
+		_id: unprotectString(piece._id),
+		enable: {
+			...piece.enable,
+			start: piece.enable.start === 'now' ? 0 : piece.enable.start,
+			isAbsolute: true,
+		},
+		virtual: piece.virtual,
+		notInVision: piece.notInVision,
+	}
+	return obj
+}
+
+/**
  * Convert a DBPart into IBlueprintPartDB, for passing into the blueprints
  * @param part the Part to convert
  * @returns a cloned complete and clean IBlueprintPartDB
@@ -280,6 +310,9 @@ export function convertPartToBlueprints(part: ReadonlyDeep<DBPart>): IBlueprintP
 		expectedDuration: part.expectedDuration,
 		holdMode: part.holdMode,
 		shouldNotifyCurrentPlayingPart: part.shouldNotifyCurrentPlayingPart,
+		ingestNotifyPartExternalId: part.ingestNotifyPartExternalId,
+		ingestNotifyPartReady: part.ingestNotifyPartReady,
+		ingestNotifyItemsReady: clone<IngestPartNotifyItemReady[] | undefined>(part.ingestNotifyItemsReady),
 		classes: clone<string[] | undefined>(part.classes),
 		classesForNext: clone<string[] | undefined>(part.classesForNext),
 		displayDurationGroup: part.displayDurationGroup,
@@ -522,8 +555,8 @@ function translateUserEditsToBlueprint(
 						type: UserEditingType.ACTION,
 						id: userEdit.id,
 						label: omit(userEdit.label, 'namespaces'),
-						svgIcon: userEdit.svgIcon,
-						svgIconInactive: userEdit.svgIconInactive,
+						icon: userEdit.icon,
+						iconInactive: userEdit.iconInactive,
 						isActive: userEdit.isActive,
 					} satisfies Complete<UserEditingDefinitionAction>
 				case UserEditingType.FORM:
@@ -562,10 +595,10 @@ function translateUserEditPropertiesToBlueprint(
 					type: UserEditingType.ACTION,
 					id: userEdit.id,
 					label: omit(userEdit.label, 'namespaces'),
-					svgIcon: userEdit.svgIcon,
-					svgIconInactive: userEdit.svgIconInactive,
+					icon: userEdit.icon,
+					iconInactive: userEdit.iconInactive,
 					isActive: userEdit.isActive,
-				} satisfies Complete<UserEditingDefinitionAction>)
+				}) satisfies Complete<UserEditingDefinitionAction>
 		),
 	}
 }
@@ -584,8 +617,8 @@ export function translateUserEditsFromBlueprint(
 						type: UserEditingType.ACTION,
 						id: userEdit.id,
 						label: wrapTranslatableMessageFromBlueprints(userEdit.label, blueprintIds),
-						svgIcon: userEdit.svgIcon,
-						svgIconInactive: userEdit.svgIconInactive,
+						icon: userEdit.icon,
+						iconInactive: userEdit.iconInactive,
 						isActive: userEdit.isActive,
 					} satisfies Complete<CoreUserEditingDefinitionAction>
 				case UserEditingType.FORM:
@@ -626,10 +659,10 @@ export function translateUserEditPropertiesFromBlueprint(
 					type: UserEditingType.ACTION,
 					id: userEdit.id,
 					label: wrapTranslatableMessageFromBlueprints(userEdit.label, blueprintIds),
-					svgIcon: userEdit.svgIcon,
-					svgIconInactive: userEdit.svgIconInactive,
+					icon: userEdit.icon,
+					iconInactive: userEdit.iconInactive,
 					isActive: userEdit.isActive,
-				} satisfies Complete<UserEditingDefinitionAction>)
+				}) satisfies Complete<UserEditingDefinitionAction>
 		),
 
 		translationNamespaces: blueprintIds.map((id) => `blueprint_${id}`),

@@ -1,7 +1,7 @@
 import { SegmentId, RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { JobContext } from '../jobs'
+import { JobContext } from '../jobs/index.js'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { RundownLock } from '../jobs/lock'
+import { RundownLock } from '../jobs/lock.js'
 
 /**
  * The result of the initial stage of an Ingest operation

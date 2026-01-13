@@ -1,34 +1,40 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion, @typescript-eslint/unbound-method */
+/* eslint-disable @typescript-eslint/unbound-method */
 import { IBlueprintMutatablePart, IBlueprintPiece } from '@sofie-automation/blueprints-integration'
-import { PlayoutModel } from '../../playout/model/PlayoutModel'
-import { WatchedPackagesHelper } from '../context/watchedPackages'
-import { JobContext, ProcessedShowStyleCompound } from '../../jobs'
+import { PlayoutModel } from '../../playout/model/PlayoutModel.js'
+import { WatchedPackagesHelper } from '../context/watchedPackages.js'
+import { JobContext, ProcessedShowStyleCompound } from '../../jobs/index.js'
 import { mock } from 'jest-mock-extended'
-import { PartAndPieceInstanceActionService } from '../context/services/PartAndPieceInstanceActionService'
-import { OnSetAsNextContext } from '../context'
+import { PartAndPieceInstanceActionService } from '../context/services/PartAndPieceInstanceActionService.js'
+import { OnSetAsNextContext } from '../context/index.js'
+import { protectString } from '@sofie-automation/corelib/dist/protectedString'
+import { PartId, RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 
 describe('Test blueprint api context', () => {
-	async function getTestee() {
+	async function getTestee(setManually = false) {
 		const mockActionService = mock<PartAndPieceInstanceActionService>()
+		const mockPlayoutModel = mock<PlayoutModel>()
 		const context = new OnSetAsNextContext(
 			{
 				name: 'fakeContext',
 				identifier: 'action',
 			},
 			mock<JobContext>(),
-			mock<PlayoutModel>(),
+			mockPlayoutModel,
 			mock<ProcessedShowStyleCompound>(),
 			mock<WatchedPackagesHelper>(),
-			mockActionService
+			mockActionService,
+			setManually
 		)
 
 		return {
 			context,
 			mockActionService,
+			mockPlayoutModel,
 		}
 	}
 
-	describe('ActionExecutionContext', () => {
+	describe('OnSetAsNextContext', () => {
 		test('getPartInstance', async () => {
 			const { context, mockActionService } = await getTestee()
 
@@ -51,6 +57,14 @@ describe('Test blueprint api context', () => {
 			await context.getResolvedPieceInstances('current')
 			expect(mockActionService.getResolvedPieceInstances).toHaveBeenCalledTimes(1)
 			expect(mockActionService.getResolvedPieceInstances).toHaveBeenCalledWith('current')
+		})
+
+		test('getSegment', async () => {
+			const { context, mockActionService } = await getTestee()
+
+			await context.getSegment('current')
+			expect(mockActionService.getSegment).toHaveBeenCalledTimes(1)
+			expect(mockActionService.getSegment).toHaveBeenCalledWith('current')
 		})
 
 		test('findLastPieceOnLayer', async () => {
@@ -91,6 +105,42 @@ describe('Test blueprint api context', () => {
 			expect(mockActionService.getPartForPreviousPiece).toHaveBeenCalledWith({ _id: 'pieceId' })
 		})
 
+		test('getUpcomingParts', async () => {
+			const { context, mockPlayoutModel } = await getTestee()
+
+			mockPlayoutModel.getAllOrderedParts.mockReturnValue(
+				mock([
+					{
+						_id: protectString<PartId>('part1'),
+						title: 'Part 1',
+						invalid: false,
+						floated: false,
+						_rank: 1,
+						rundownId: protectString<RundownId>('rundown1'),
+						externalId: 'ext1',
+						segmentId: protectString<SegmentId>('seg1'),
+						expectedDurationWithTransition: 1000,
+						userEditOperations: [],
+					} as DBPart,
+					{
+						_id: protectString<PartId>('part2'),
+						title: 'Part 2',
+						invalid: false,
+						floated: false,
+						_rank: 1,
+						rundownId: protectString<RundownId>('rundown1'),
+						externalId: 'ext1',
+						segmentId: protectString<SegmentId>('seg1'),
+						expectedDurationWithTransition: 1000,
+						userEditOperations: [],
+					} as unknown as DBPart,
+				])
+			)
+
+			const parts = await context.getUpcomingParts()
+			expect(parts.map((i) => i.title)).toEqual(['Part 1', 'Part 2'])
+		})
+
 		test('insertPiece', async () => {
 			const { context, mockActionService } = await getTestee()
 
@@ -125,6 +175,18 @@ describe('Test blueprint api context', () => {
 			await context.updatePartInstance('next', { title: 'My Part' } as Partial<IBlueprintMutatablePart<unknown>>)
 			expect(mockActionService.updatePartInstance).toHaveBeenCalledTimes(1)
 			expect(mockActionService.updatePartInstance).toHaveBeenCalledWith('next', { title: 'My Part' })
+		})
+
+		test('manuallySelected when false', async () => {
+			const { context } = await getTestee(false)
+
+			expect(context.manuallySelected).toBe(false)
+		})
+
+		test('manuallySelected when true', async () => {
+			const { context } = await getTestee(true)
+
+			expect(context.manuallySelected).toBe(true)
 		})
 	})
 })

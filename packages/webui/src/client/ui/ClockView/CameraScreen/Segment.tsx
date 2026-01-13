@@ -1,14 +1,14 @@
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import classNames from 'classnames'
 import { useContext, useMemo } from 'react'
-import { ActivePartInstancesContext, PieceFilter } from '.'
+import { ActivePartInstancesContext, PieceFilter } from './index.js'
 import {
 	withResolvedSegment,
 	IResolvedSegmentProps as IWithResolvedSegmentProps,
 	ITrackedResolvedSegmentProps as IWithResolvedSegmentInjectedProps,
-} from '../../SegmentContainer/withResolvedSegment'
-import { OrderedPartsContext } from './OrderedPartsProvider'
-import { Part } from './Part'
+} from '../../SegmentContainer/withResolvedSegment.js'
+import { OrderedPartsContext } from './OrderedPartsProvider.js'
+import { Part } from './Part.js'
 
 interface IProps extends IWithResolvedSegmentProps {
 	index: number

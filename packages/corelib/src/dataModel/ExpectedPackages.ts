@@ -1,6 +1,6 @@
 import { ExpectedPackage, Time } from '@sofie-automation/blueprints-integration'
-import { protectString } from '../protectedString'
-import { getHash, hashObj } from '../lib'
+import { protectString } from '../protectedString.js'
+import { getHash, hashObj } from '../lib.js'
 import {
 	AdLibActionId,
 	BucketAdLibActionId,
@@ -14,7 +14,7 @@ import {
 	RundownId,
 	SegmentId,
 	StudioId,
-} from './Ids'
+} from './Ids.js'
 import { ReadonlyDeep } from 'type-fest'
 
 /*
@@ -32,6 +32,7 @@ export type ExpectedPackageFromRundownBaseline =
 	| ExpectedPackageDBFromBaselineAdLibAction
 	| ExpectedPackageDBFromBaselineAdLibPiece
 	| ExpectedPackageDBFromRundownBaselineObjects
+	| ExpectedPackageDBFromBaselinePiece
 
 export type ExpectedPackageDBFromBucket = ExpectedPackageDBFromBucketAdLib | ExpectedPackageDBFromBucketAdLibAction
 
@@ -47,6 +48,7 @@ export enum ExpectedPackageDBType {
 	ADLIB_ACTION = 'adlib_action',
 	BASELINE_ADLIB_PIECE = 'baseline_adlib_piece',
 	BASELINE_ADLIB_ACTION = 'baseline_adlib_action',
+	BASELINE_PIECE = 'baseline_piece',
 	BUCKET_ADLIB = 'bucket_adlib',
 	BUCKET_ADLIB_ACTION = 'bucket_adlib_action',
 	RUNDOWN_BASELINE_OBJECTS = 'rundown_baseline_objects',
@@ -76,6 +78,13 @@ export interface ExpectedPackageDBFromPiece extends ExpectedPackageDBBase {
 	partId: PartId
 	/** The Segment this package belongs to */
 	segmentId: SegmentId
+	/** The rundown of the Piece this package belongs to */
+	rundownId: RundownId
+}
+export interface ExpectedPackageDBFromBaselinePiece extends ExpectedPackageDBBase {
+	fromPieceType: ExpectedPackageDBType.BASELINE_PIECE
+	/** The Piece this package belongs to */
+	pieceId: PieceId
 	/** The rundown of the Piece this package belongs to */
 	rundownId: RundownId
 }

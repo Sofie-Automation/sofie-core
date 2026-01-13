@@ -13,17 +13,19 @@ import {
 	PieceLifespan,
 	IBlueprintPieceType,
 	ITranslatableMessage,
+	IBlueprintRundownPiece,
 } from '@sofie-automation/blueprints-integration'
 import {
-	AdLibActionId,
 	BlueprintId,
+	BucketAdLibActionId,
+	BucketAdLibId,
 	BucketId,
 	PartId,
 	PieceId,
 	RundownId,
 	SegmentId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { JobContext, ProcessedShowStyleCompound } from '../jobs'
+import { JobContext, ProcessedShowStyleCompound } from '../jobs/index.js'
 import {
 	EmptyPieceTimelineObjectsBlob,
 	Piece,
@@ -40,11 +42,11 @@ import {
 	interpollateTranslation,
 	wrapTranslatableMessageFromBlueprints,
 } from '@sofie-automation/corelib/dist/TranslatableMessage'
-import { setDefaultIdOnExpectedPackages } from '../ingest/expectedPackages'
-import { logger } from '../logging'
+import { setDefaultIdOnExpectedPackages } from '../ingest/expectedPackages.js'
+import { logger } from '../logging.js'
 import { validateTimeline } from 'superfly-timeline'
 import { ReadonlyDeep } from 'type-fest'
-import { translateUserEditPropertiesFromBlueprint, translateUserEditsFromBlueprint } from './context/lib'
+import { translateUserEditPropertiesFromBlueprint, translateUserEditsFromBlueprint } from './context/lib.js'
 
 function getIdHash(docType: string, usedIds: Map<string, number>, uniqueId: string): string {
 	const count = usedIds.get(uniqueId)
@@ -161,7 +163,7 @@ function isNow(enable: TimelineObjectCoreExt<any>['enable']): boolean {
  * @param timelineUniqueIds Optional Set of ids that are not allowed. Ids of processed objects will be added to ths set
  */
 export function postProcessTimelineObjects(
-	pieceId: PieceId,
+	pieceId: PieceId | BucketAdLibId,
 	blueprintId: BlueprintId,
 	timelineObjects: TimelineObjectCoreExt<TSR.TSRTimelineContent>[],
 	timelineUniqueIds: Set<string> = new Set<string>()
@@ -334,7 +336,7 @@ export function postProcessAdLibActions(
 	return adlibActions.map((action) => {
 		if (!action.externalId)
 			throw new Error(
-				`Error in blueprint "${blueprintId}" externalId not set for adlib action in ${partId}! ("${action.display.label}")`
+				`Error in blueprint "${blueprintId}" externalId not set for adlib action in ${partId}! ("${typeof action.display.label === 'string' ? action.display.label : action.display.label.key}")`
 			)
 
 		const docId = getIdHash(
@@ -355,6 +357,85 @@ export function postProcessAdLibActions(
 			...processAdLibActionITranslatableMessages(action, blueprintId),
 		})
 	})
+}
+
+/**
+ * Process and validate some IBlueprintRundownPiece into Piece
+ * @param context Context from the job queue
+ * @param pieces IBlueprintPiece to process
+ * @param blueprintId Id of the Blueprint the Pieces are from
+ * @param rundownId Id of the Rundown the Pieces belong to
+ * @param setInvalid If true all Pieces will be marked as `invalid`, this should be set to match the owning Part
+ */
+export function postProcessGlobalPieces(
+	context: JobContext,
+	pieces: Array<IBlueprintRundownPiece>,
+	blueprintId: BlueprintId,
+	rundownId: RundownId,
+	setInvalid?: boolean
+): Piece[] {
+	const span = context.startSpan('blueprints.postProcess.postProcessPieces')
+
+	const uniqueIds = new Map<string, number>()
+	const timelineUniqueIds = new Set<string>()
+
+	const processedPieces = pieces.map((orgPiece: IBlueprintRundownPiece) => {
+		if (!orgPiece.externalId)
+			throw new Error(
+				`Error in blueprint "${blueprintId}" externalId not set for rundown piece ("${orgPiece.name}")`
+			)
+
+		const docId = getIdHash(
+			'Piece',
+			uniqueIds,
+			`${rundownId}_${blueprintId}_rundown_piece_${orgPiece.sourceLayerId}_${orgPiece.externalId}`
+		)
+
+		const piece: Piece = {
+			...orgPiece,
+			content: omit(orgPiece.content, 'timelineObjects'),
+
+			pieceType: IBlueprintPieceType.Normal,
+			lifespan: PieceLifespan.OutOnRundownChange,
+
+			_id: protectString(docId),
+			startRundownId: rundownId,
+			startSegmentId: null,
+			startPartId: null,
+			invalid: setInvalid ?? false,
+			timelineObjectsString: EmptyPieceTimelineObjectsBlob,
+		}
+
+		if (piece.pieceType !== IBlueprintPieceType.Normal) {
+			// transition pieces must not be infinite, lets enforce that
+			piece.lifespan = PieceLifespan.WithinPart
+		}
+		if (piece.extendOnHold) {
+			// HOLD pieces must not be infinite, as they become that when being held
+			piece.lifespan = PieceLifespan.WithinPart
+		}
+
+		if (piece.enable.start === 'now')
+			throw new Error(
+				`Error in blueprint "${blueprintId}" rundown piece cannot have a start of 'now'! ("${piece.name}")`
+			)
+
+		const timelineObjects = postProcessTimelineObjects(
+			piece._id,
+			blueprintId,
+			orgPiece.content.timelineObjects,
+			timelineUniqueIds
+		)
+		piece.timelineObjectsString = serializePieceTimelineObjectsBlob(timelineObjects)
+
+		// Fill in ids of unnamed expectedPackages
+		setDefaultIdOnExpectedPackages(piece.expectedPackages)
+
+		return piece
+	})
+
+	span?.end()
+	return processedPieces
 }
 
 /**
@@ -403,7 +484,7 @@ export function postProcessBucketAdLib(
 	name: string | undefined,
 	importVersions: RundownImportVersions
 ): BucketAdLib {
-	const id: PieceId = protectString(
+	const id: BucketAdLibId = protectString(
 		getHash(
 			`${showStyleCompound.showStyleVariantId}_${context.studioId}_${bucketId}_bucket_adlib_${ingestInfo.payload.externalId}`
 		)
@@ -454,7 +535,7 @@ export function postProcessBucketAction(
 	label: string | undefined,
 	importVersions: RundownImportVersions
 ): BucketAdLibAction {
-	const id: AdLibActionId = protectString(
+	const id: BucketAdLibActionId = protectString(
 		getHash(
 			`${showStyleCompound.showStyleVariantId}_${context.studioId}_${bucketId}_bucket_adlib_${ingestInfo.payload.externalId}`
 		)
@@ -503,7 +584,7 @@ function processAdLibActionITranslatableMessages<
 			}
 		})[]
 	},
-	T extends IBlueprintActionManifest
+	T extends IBlueprintActionManifest,
 >(itemOrig: T, blueprintId: BlueprintId, rank?: number, label?: string): Pick<K, 'display' | 'triggerModes'> {
 	return {
 		display: {

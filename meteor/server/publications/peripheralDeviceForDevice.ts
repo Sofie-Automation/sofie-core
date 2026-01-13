@@ -106,7 +106,6 @@ export function convertPeripheralDeviceForGateway(
 
 				break
 			}
-			case PeripheralDeviceCategory.MEDIA_MANAGER:
 			case PeripheralDeviceCategory.PACKAGE_MANAGER:
 			case PeripheralDeviceCategory.LIVE_STATUS:
 				// No subdevices to re-export
@@ -136,7 +135,7 @@ async function setupPeripheralDevicePublicationObservers(
 ): Promise<SetupObserversResult> {
 	const studioObserver = await ReactiveMongoObserverGroup(async () => {
 		const peripheralDeviceCompact = (await PeripheralDevices.findOneAsync(args.deviceId, {
-			fields: { studioAndConfigId: 1 },
+			projection: { studioAndConfigId: 1 },
 		})) as Pick<PeripheralDevice, 'studioAndConfigId'> | undefined
 
 		if (peripheralDeviceCompact?.studioAndConfigId?.studioId) {
@@ -149,7 +148,7 @@ async function setupPeripheralDevicePublicationObservers(
 						removed: () => triggerUpdate({ invalidatePublication: true }),
 					},
 					{
-						fields: studioFieldsSpecifier,
+						projection: studioFieldsSpecifier,
 					}
 				),
 			]
@@ -179,7 +178,7 @@ async function setupPeripheralDevicePublicationObservers(
 				},
 			},
 			{
-				fields: peripheralDeviceFieldsSpecifier,
+				projection: peripheralDeviceFieldsSpecifier,
 			}
 		),
 		studioObserver,

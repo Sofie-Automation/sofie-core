@@ -1,4 +1,4 @@
-import { UserEditingDefinition, UserEditingProperties } from '../userEditing'
+import { UserEditingDefinition, UserEditingProperties } from '../userEditing.js'
 
 export enum SegmentDisplayMode {
 	Timeline = 'timeline',

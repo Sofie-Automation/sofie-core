@@ -1,7 +1,7 @@
-import { ExpectedMediaItemRundown } from '@sofie-automation/corelib/dist/dataModel/ExpectedMediaItem'
 import {
 	ExpectedPackageDBFromBaselineAdLibAction,
 	ExpectedPackageDBFromBaselineAdLibPiece,
+	ExpectedPackageDBFromBaselinePiece,
 	ExpectedPackageDBFromRundownBaselineObjects,
 	ExpectedPackageFromRundown,
 } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
@@ -18,25 +18,26 @@ import { DBRundown, RundownOrphanedReason, RundownSource } from '@sofie-automati
 import { CoreUserEditingDefinition } from '@sofie-automation/corelib/dist/dataModel/UserEditingDefinitions'
 import { RundownBaselineAdLibAction } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibAction'
 import { RundownBaselineAdLibItem } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibPiece'
-import { LazyInitialiseReadonly } from '../../lib/lazy'
-import { RundownLock } from '../../jobs/lock'
-import { IngestSegmentModel, IngestSegmentModelReadonly } from './IngestSegmentModel'
-import { IngestPartModel, IngestPartModelReadonly } from './IngestPartModel'
+import { LazyInitialiseReadonly } from '../../lib/lazy.js'
+import { RundownLock } from '../../jobs/lock.js'
+import { IngestSegmentModel, IngestSegmentModelReadonly } from './IngestSegmentModel.js'
+import { IngestPartModel, IngestPartModelReadonly } from './IngestPartModel.js'
 import { ReadonlyDeep } from 'type-fest'
-import { BaseModel } from '../../modelBase'
+import { BaseModel } from '../../modelBase.js'
 import { Piece, PieceTimelineObjectsBlob } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import { RundownNote } from '@sofie-automation/corelib/dist/dataModel/Notes'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { ProcessedShowStyleBase, ProcessedShowStyleVariant } from '../../jobs/showStyle'
-import { WrappedShowStyleBlueprint } from '../../blueprints/cache'
+import { ProcessedShowStyleBase, ProcessedShowStyleVariant } from '../../jobs/showStyle.js'
+import { WrappedShowStyleBlueprint } from '../../blueprints/cache.js'
 import { IBlueprintRundown } from '@sofie-automation/blueprints-integration'
-import type { INotificationsModel } from '../../notifications/NotificationsModel'
+import type { INotificationsModel } from '../../notifications/NotificationsModel.js'
 
 export type ExpectedPackageForIngestModelBaseline =
 	| ExpectedPackageDBFromBaselineAdLibAction
 	| ExpectedPackageDBFromBaselineAdLibPiece
 	| ExpectedPackageDBFromRundownBaselineObjects
+	| ExpectedPackageDBFromBaselinePiece
 export type ExpectedPackageForIngestModel = ExpectedPackageFromRundown | ExpectedPackageForIngestModelBaseline
 
 export interface IngestModelReadonly {
@@ -52,11 +53,6 @@ export interface IngestModelReadonly {
 	 * Reference to the lock for the Rundown
 	 */
 	readonly rundownLock: RundownLock
-
-	/**
-	 * The ExpectedMediaItems for the baseline of this Rundown
-	 */
-	readonly expectedMediaItemsForRundownBaseline: ReadonlyDeep<ExpectedMediaItemRundown>[]
 
 	/**
 	 * The ExpectedPlayoutItems for the baseline of this Rundown
@@ -129,6 +125,11 @@ export interface IngestModelReadonly {
 	 * Get the Pieces in this Rundown, in no particular order
 	 */
 	getAllPieces(): ReadonlyDeep<Piece>[]
+
+	/**
+	 * Get the Pieces which belong to the Rundown, not a Part
+	 */
+	getGlobalPieces(): ReadonlyDeep<Piece>[]
 
 	/**
 	 * Search for a Part through the whole Rundown
@@ -209,12 +210,6 @@ export interface IngestModel extends IngestModelReadonly, BaseModel, INotificati
 	setExpectedPlayoutItemsForRundownBaseline(expectedPlayoutItems: ExpectedPlayoutItemRundown[]): void
 
 	/**
-	 * Set the ExpectedMediaItems for the baseline of this Rundown
-	 * @param expectedMediaItems The new ExpectedMediaItems
-	 */
-	setExpectedMediaItemsForRundownBaseline(expectedMediaItems: ExpectedMediaItemRundown[]): void
-
-	/**
 	 * Set the ExpectedPackages for the baseline of this Rundown
 	 * @param expectedPackages The new ExpectedPackages
 	 */
@@ -245,11 +240,13 @@ export interface IngestModel extends IngestModelReadonly, BaseModel, INotificati
 	 * @param timelineObjectsBlob Rundown baseline timeline objects
 	 * @param adlibPieces Rundown adlib pieces
 	 * @param adlibActions Rundown adlib actions
+	 * @param pieces Rundown owned pieces
 	 */
 	setRundownBaseline(
 		timelineObjectsBlob: PieceTimelineObjectsBlob,
 		adlibPieces: RundownBaselineAdLibItem[],
-		adlibActions: RundownBaselineAdLibAction[]
+		adlibActions: RundownBaselineAdLibAction[],
+		pieces: Piece[]
 	): Promise<void>
 
 	/**

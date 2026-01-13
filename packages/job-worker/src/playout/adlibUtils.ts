@@ -1,30 +1,29 @@
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import { BucketAdLib } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibPiece'
-import { PartInstanceId, PieceId, PieceInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { BucketAdLibId, PartInstanceId, PieceId, PieceInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { PieceInstance, PieceInstancePiece } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { assertNever, getRandomId, getRank } from '@sofie-automation/corelib/dist/lib'
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
-import { getCurrentTime } from '../lib'
-import { JobContext } from '../jobs'
-import { PlayoutModel } from './model/PlayoutModel'
-import { PlayoutPartInstanceModel } from './model/PlayoutPartInstanceModel'
+import { getCurrentTime } from '../lib/index.js'
+import { JobContext } from '../jobs/index.js'
+import { PlayoutModel } from './model/PlayoutModel.js'
+import { PlayoutPartInstanceModel } from './model/PlayoutPartInstanceModel.js'
 import {
 	fetchPiecesThatMayBeActiveForPart,
 	getPieceInstancesForPart,
 	syncPlayheadInfinitesForNextPartInstance,
-} from './infinites'
-import { convertAdLibToGenericPiece } from './pieces'
-import { getResolvedPiecesForCurrentPartInstance } from './resolvedPieces'
-import { updateTimeline } from './timeline/generate'
+} from './infinites.js'
+import { convertAdLibToGenericPiece } from './pieces.js'
+import { getResolvedPiecesForCurrentPartInstance } from './resolvedPieces.js'
+import { updateTimeline } from './timeline/generate.js'
 import { PieceLifespan } from '@sofie-automation/blueprints-integration'
 import { SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { updatePartInstanceRanksAfterAdlib } from '../updatePartInstanceRanksAndOrphanedState'
-import { setNextPart } from './setNext'
-import { calculateNowOffsetLatency } from './timeline/multi-gateway'
-import { logger } from '../logging'
+import { updatePartInstanceRanksAfterAdlib } from '../updatePartInstanceRanksAndOrphanedState.js'
+import { setNextPart } from './setNext.js'
+import { logger } from '../logging.js'
 import { ReadonlyDeep } from 'type-fest'
-import { PlayoutRundownModel } from './model/PlayoutRundownModel'
+import { PlayoutRundownModel } from './model/PlayoutRundownModel.js'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { QuickLoopMarkerType } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
@@ -68,6 +67,7 @@ export async function innerStartOrQueueAdLibPiece(
 		await syncPlayheadInfinitesForNextPartInstance(
 			context,
 			playoutModel,
+			undefined,
 			currentPartInstance,
 			playoutModel.nextPartInstance
 		)
@@ -193,7 +193,7 @@ export async function insertQueuedPartWithPieces(
 	currentPartInstance: PlayoutPartInstanceModel,
 	newPart: Omit<DBPart, 'segmentId' | 'rundownId' | '_rank'>,
 	initialPieces: Omit<PieceInstancePiece, 'startPartId'>[],
-	fromAdlibId: PieceId | undefined
+	fromAdlibId: PieceId | BucketAdLibId | undefined
 ): Promise<PlayoutPartInstanceModel> {
 	const span = context.startSpan('insertQueuedPartWithPieces')
 
@@ -279,8 +279,7 @@ export function innerStopPieces(
 	}
 
 	const resolvedPieces = getResolvedPiecesForCurrentPartInstance(context, sourceLayers, currentPartInstance)
-	const offsetRelativeToNow = (timeOffset || 0) + (calculateNowOffsetLatency(context, playoutModel) || 0)
-	const stopAt = getCurrentTime() + offsetRelativeToNow
+	const stopAt = playoutModel.getNowInPlayout() + (timeOffset ?? 0)
 	const relativeStopAt = stopAt - lastStartedPlayback
 
 	for (const resolvedPieceInstance of resolvedPieces) {
@@ -310,15 +309,9 @@ export function innerStopPieces(
 
 				const pieceInstanceModel = playoutModel.findPieceInstance(pieceInstance._id)
 				if (pieceInstanceModel) {
-					const newDuration: Required<PieceInstance>['userDuration'] = playoutModel.isMultiGatewayMode
-						? {
-								endRelativeToNow: offsetRelativeToNow,
-						  }
-						: {
-								endRelativeToPart: relativeStopAt,
-						  }
-
-					pieceInstanceModel.pieceInstance.setDuration(newDuration)
+					pieceInstanceModel.pieceInstance.setDuration({
+						endRelativeToPart: relativeStopAt,
+					})
 
 					stoppedInstances.push(pieceInstance._id)
 				} else {

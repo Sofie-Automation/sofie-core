@@ -69,7 +69,9 @@ $timeline-layer-height: 1em;
 	&.segment-timeline__timeline-container--grabbable {
 		cursor: ew-resize;
 		cursor: url(/images/cursor_zoom_area_move.png), ew-resize;
-		cursor: url(/images/cursor_zoom_area_move.png) 15 8, ew-resize;
+		cursor:
+			url(/images/cursor_zoom_area_move.png) 15 8,
+			ew-resize;
 	}
 
 	.segment-timeline__timeline {
@@ -122,6 +124,10 @@ $timeline-layer-height: 1em;
 	.segment-timeline__small-parts-flag__part {
 		flex: 0 0;
 		white-space: nowrap;
+
+		> .piece-icon {
+			height: 1.35em;
+		}
 	}
 }
 .segment-timeline__part {

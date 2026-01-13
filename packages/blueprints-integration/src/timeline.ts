@@ -18,9 +18,9 @@ export enum TimelineObjClassesCore {
 
 /** TimelineObject extension for additional fields needed by onTimelineGenerate */
 export interface OnGenerateTimelineObj<
-	TContent extends { deviceType: TSR.DeviceType },
+	TContent extends { deviceType: TSR.DeviceTypeExt },
 	TMetadata = unknown,
-	TKeyframeMetadata = unknown
+	TKeyframeMetadata = unknown,
 > extends TimelineObjectCoreExt<TContent, TMetadata, TKeyframeMetadata> {
 	pieceInstanceId?: string
 }

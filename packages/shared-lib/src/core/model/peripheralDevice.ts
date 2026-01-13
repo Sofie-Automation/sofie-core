@@ -1,5 +1,5 @@
-import { TSR } from '../../tsr'
-import { PeripheralDeviceId, StudioId } from './Ids'
+import { TSR } from '../../tsr.js'
+import { PeripheralDeviceId, StudioId } from './Ids.js'
 
 export interface IngestDeviceSecretSettingsStatus {
 	/** OAuth: Set to true when secret value exists */

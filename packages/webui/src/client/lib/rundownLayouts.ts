@@ -4,7 +4,10 @@ import {
 	RundownPlaylistActivationId,
 	StudioId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { processAndPrunePieceInstanceTimings } from '@sofie-automation/corelib/dist/playout/processAndPrune'
+import {
+	createPartCurrentTimes,
+	processAndPrunePieceInstanceTimings,
+} from '@sofie-automation/corelib/dist/playout/processAndPrune'
 import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import {
@@ -46,15 +49,15 @@ import {
 	RundownViewLayout,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { literal } from './tempLib'
-import { getCurrentTime } from './systemTime'
-import { invalidateAt } from './invalidatingTime'
-import { memoizedIsolatedAutorun } from './memoizedIsolatedAutorun'
-import { PieceInstances } from '../collections'
+import { literal } from '@sofie-automation/corelib/dist/lib'
+import { getCurrentTime } from './systemTime.js'
+import { invalidateAt } from './invalidatingTime.js'
+import { memoizedIsolatedAutorun } from './memoizedIsolatedAutorun.js'
+import { PieceInstances } from '../collections/index.js'
 import { ReadonlyDeep } from 'type-fest'
 import { TFunction } from 'i18next'
 import _ from 'underscore'
-import { UIPartInstances } from '../ui/Collections'
+import { UIPartInstances } from '../ui/Collections.js'
 
 export interface LayoutDescriptor {
 	supportedFilters: RundownLayoutElementType[]
@@ -62,7 +65,7 @@ export interface LayoutDescriptor {
 }
 
 export interface CustomizableRegionSettingsManifest {
-	_id: string
+	_id: CustomizableRegions
 	title: string
 	layouts: Array<CustomizableRegionLayout>
 	navigationLink: (studioId: StudioId, layoutId: RundownLayoutId) => string
@@ -92,8 +95,8 @@ export function getIsFilterActive(
 	const containsRequiredLayer = containsEveryRequiredLayer
 		? true
 		: panel.additionalLayers && panel.additionalLayers.length
-		? panel.additionalLayers.some((s) => activeLayers.includes(s))
-		: false
+			? panel.additionalLayers.some((s) => activeLayers.includes(s))
+			: false
 
 	if (
 		(!panel.requireAllAdditionalSourcelayers || containsEveryRequiredLayer) &&
@@ -106,7 +109,7 @@ export function getIsFilterActive(
 							(panel.requiredLayerIds || []).indexOf(piece.piece.sourceLayerId) !== -1 &&
 							piece.partInstanceId === playlist.currentPartInfo?.partInstanceId
 						)
-				  })
+					})
 				: undefined
 	}
 	return {
@@ -138,13 +141,11 @@ export function getUnfinishedPieceInstancesReactive(
 						playlistActivationId: playlistActivationId,
 					}).fetch()
 
-					const nowInPart = partInstance.timings?.plannedStartedPlayback
-						? now - partInstance.timings.plannedStartedPlayback
-						: 0
+					const partTimes = createPartCurrentTimes(now, partInstance.timings?.plannedStartedPlayback)
 					prospectivePieces = processAndPrunePieceInstanceTimings(
 						showStyleBase.sourceLayers,
 						prospectivePieces,
-						nowInPart
+						partTimes
 					)
 
 					let nearestEnd = Number.POSITIVE_INFINITY
@@ -165,12 +166,6 @@ export function getUnfinishedPieceInstancesReactive(
 							typeof pieceInstance.userDuration.endRelativeToPart === 'number'
 						) {
 							end = pieceInstance.userDuration.endRelativeToPart
-						} else if (
-							pieceInstance.userDuration &&
-							'endRelativeToNow' in pieceInstance.userDuration &&
-							typeof pieceInstance.userDuration.endRelativeToNow === 'number'
-						) {
-							end = pieceInstance.userDuration.endRelativeToNow + now
 						} else if (typeof piece.enable.duration === 'number' && pieceInstance.plannedStartedPlayback) {
 							end = piece.enable.duration + pieceInstance.plannedStartedPlayback
 						}

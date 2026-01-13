@@ -5,7 +5,7 @@ import { ReadonlyDeep } from 'type-fest'
 import { CustomCollectionName, MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { Complete, literal } from '../lib/tempLib'
+import { Complete, literal } from '@sofie-automation/corelib/dist/lib'
 import {
 	meteorCustomPublish,
 	SetupObserversResult,
@@ -49,7 +49,7 @@ async function setupUIShowStyleBasePublicationObservers(
 				removed: () => triggerUpdate({ invalidateShowStyle: true }),
 			},
 			{
-				fields: fieldSpecifier,
+				projection: fieldSpecifier,
 			}
 		),
 	]

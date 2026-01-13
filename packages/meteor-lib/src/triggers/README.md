@@ -17,7 +17,7 @@ include Rundown and RundownBaseline AdLibs and AdLib Actions, Source Layer Clear
 > 2021-08-31
 
 An action takes a `ActionContext` context object that describes the context in which a given action is being executed.
-This allows to limit the amount of reactivity and observers registed onto collections, while still allowing `.preview()`
+This allows to limit the amount of reactivity and observers registered onto collections, while still allowing `.preview()`
 to be fully reactive within a given context.
 
 ## actionFilterChainCompilers
@@ -28,10 +28,10 @@ description of what particular objects a given action should target. This filter
 into a simple reactive function that registers a minimal amount of observers on collections and/or does a minimal amount
 of DB operations. In order to make that step as quick as possible and fetch as little data as possible, the
 `actionFilterChainCompilers` converts the `filterChain[]` into a reactive function that then can be executed within a
-context. What sort of a context is neccessary depends on the Action type.
+context. What sort of a context is necessary depends on the Action type.
 
 ## universalDoUserActionAdapter
 
 Because the idea for Action Triggers is that it allows setting up both client- and server-side triggers, a unified way
-of executing methods was neccessary. `universalDoUserActionAdapter` provides an isometric implementation of
+of executing methods was necessary. `universalDoUserActionAdapter` provides an isometric implementation of
 `doUserAction` that works both client- and server-side.

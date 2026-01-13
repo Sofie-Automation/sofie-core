@@ -2,10 +2,10 @@ import { PieceLifespan, SourceLayerType } from '@sofie-automation/blueprints-int
 import { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PieceStatusCode } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import classNames from 'classnames'
-import { PieceUi } from '../../ui/SegmentContainer/withResolvedSegment'
-import { RundownUtils } from '../rundown'
+import { PieceUi } from '../../ui/SegmentContainer/withResolvedSegment.js'
+import { RundownUtils } from '../rundown.js'
 import { ReadonlyDeep } from 'type-fest'
-import { PieceContentStatusObj } from '@sofie-automation/meteor-lib/dist/api/pieceContentStatus'
+import { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
 
 export function pieceUiClassNames(
 	pieceInstance: PieceUi,
@@ -32,10 +32,12 @@ export function pieceUiClassNames(
 				: undefined,
 
 		'super-infinite':
+			!innerPiece.enable.isAbsolute &&
 			innerPiece.lifespan !== PieceLifespan.WithinPart &&
 			innerPiece.lifespan !== PieceLifespan.OutOnSegmentChange &&
 			innerPiece.lifespan !== PieceLifespan.OutOnSegmentEnd,
 		'infinite-starts':
+			!innerPiece.enable.isAbsolute &&
 			innerPiece.lifespan !== PieceLifespan.WithinPart &&
 			innerPiece.lifespan !== PieceLifespan.OutOnSegmentChange &&
 			innerPiece.lifespan !== PieceLifespan.OutOnSegmentEnd &&

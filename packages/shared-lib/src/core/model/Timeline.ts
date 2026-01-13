@@ -1,6 +1,6 @@
-import { unprotectString, protectString } from '../../lib/protectedString'
-import { TSR } from '../../tsr'
-import { MappingsHash, PeripheralDeviceId, StudioId, TimelineBlob, TimelineHash } from './Ids'
+import { unprotectString, protectString } from '../../lib/protectedString.js'
+import { TSR } from '../../tsr.js'
+import { MappingsHash, PeripheralDeviceId, StudioId, TimelineBlob, TimelineHash } from './Ids.js'
 
 /**
  * This defines a session, indicating that this TimelineObject uses an AB player
@@ -36,9 +36,9 @@ export enum TimelineObjHoldMode {
 }
 
 export interface TimelineObjectCoreExt<
-	TContent extends { deviceType: TSR.DeviceType },
+	TContent extends { deviceType: TSR.DeviceTypeExt },
 	TMetadata = unknown,
-	TKeyframeMetadata = unknown
+	TKeyframeMetadata = unknown,
 > extends TSR.TSRTimelineObj<TContent> {
 	/**
 	 * AB playback sessions needed for this Object
@@ -58,8 +58,10 @@ export interface TimelineObjectCoreExt<
 	priority: number
 }
 
-export interface TimelineKeyframeCoreExt<TContent extends { deviceType: TSR.DeviceType }, TKeyframeMetadata = unknown>
-	extends TSR.Timeline.TimelineKeyframe<Partial<TContent>> {
+export interface TimelineKeyframeCoreExt<
+	TContent extends { deviceType: TSR.DeviceTypeExt },
+	TKeyframeMetadata = unknown,
+> extends TSR.Timeline.TimelineKeyframe<Partial<TContent>> {
 	metaData?: TKeyframeMetadata
 	/** Whether to keep this keyframe when the object is copied for lookahead. By default all keyframes are removed */
 	preserveForLookahead?: boolean
@@ -105,9 +107,26 @@ export interface RoutedTimeline {
 }
 
 export enum LookaheadMode {
+	// System documentation for lookaheads: https://sofie-automation.github.io/sofie-core/docs/for-developers/for-blueprint-developers/lookahead
+
+	/**
+	 * Disable lookahead for this layer
+	 */
 	NONE = 0,
+
+	/**
+	 * Preload content with a secondary layer.
+	 * This requires support from the TSR device, to allow for preloading on a resource at the same time as it being on air.
+	 * For example, this allows for your TimelineObjects to control the foreground of a CasparCG layer, with lookahead controlling the background of the same layer.
+	 */
 	PRELOAD = 1,
+
 	// RETAIN = 2, // Removed due to complexity and it being possible to emulate with WHEN_CLEAR and infinites
+
+	/**
+	 * Fill the gaps between the planned objects on a layer.
+	 * This is the primary lookahead mode, and appears to TSR devices as a single layer of simple objects.
+	 */
 	WHEN_CLEAR = 3,
 }
 

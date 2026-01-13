@@ -1,0 +1,10 @@
+components:
+  messages:
+    subscriptionStatusSuccessMessage:
+      messageId: subscriptionStatusSuccess
+      description: Subscription status response to subscribe or unsubscribe
+      payload:
+        $ref: '../events/subscriptionStatusEvent/subscriptionStatusSuccess/subscriptionStatusSuccess.yaml#/$defs/subscriptionStatusSuccess'
+      examples:
+        - payload:
+            $ref: '../events/subscriptionStatusEvent/subscriptionStatusSuccess/subscriptionStatusSuccess-example.yaml'

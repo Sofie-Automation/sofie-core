@@ -3,10 +3,10 @@ import {
 	NewPeripheralDeviceAPI,
 	PeripheralDeviceAPIMethods,
 } from '@sofie-automation/shared-lib/dist/peripheralDevice/methodsAPI'
-import _ = require('underscore')
-import { CoreConnection, CoreCredentials } from './coreConnection'
-import { DDPError } from './ddpClient'
-import { DDPConnector } from './ddpConnector'
+import _ from 'underscore'
+import { CoreConnection, CoreCredentials } from './coreConnection.js'
+import { DDPError } from './ddpClient.js'
+import { DDPConnector } from './ddpConnector.js'
 
 export function makeMethods(connection: Pick<CoreConnection, 'callMethodRaw'>, methods: object): any {
 	const o: any = {}
@@ -76,7 +76,7 @@ export class ConnectionMethodsQueue {
 	async callMethodRaw(methodName: string, attrs: Array<any>): Promise<any> {
 		return new Promise((resolve, reject) => {
 			if (!methodName) {
-				reject('callMethod: argument missing: methodName')
+				reject(new Error('callMethod: argument missing: methodName'))
 				return
 			}
 
@@ -84,7 +84,7 @@ export class ConnectionMethodsQueue {
 
 			this._timeLastMethodCall = Date.now()
 			if (!this._ddp.ddpClient) {
-				reject('callMehod: DDP client has not been initialized')
+				reject(new Error('callMehod: DDP client has not been initialized'))
 				return
 			}
 			const timeout = setTimeout(() => {
@@ -92,7 +92,9 @@ export class ConnectionMethodsQueue {
 				console.error(`Timeout "${methodName}"`)
 				console.error(JSON.stringify(fullAttrs))
 				reject(
-					`Timeout when calling method "${methodName}", arguments: ${JSON.stringify(fullAttrs).slice(0, 200)}`
+					new Error(
+						`Timeout when calling method "${methodName}", arguments: ${JSON.stringify(fullAttrs).slice(0, 200)}`
+					)
 				)
 			}, 10 * 1000) // 10 seconds
 			this._ddp.ddpClient.call(methodName, fullAttrs, (err: DDPError | undefined, result: any) => {
@@ -109,6 +111,8 @@ export class ConnectionMethodsQueue {
 							}
 						}
 					}
+
+					// eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
 					reject(err)
 				} else {
 					resolve(result)

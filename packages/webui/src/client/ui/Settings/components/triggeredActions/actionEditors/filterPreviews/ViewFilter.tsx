@@ -3,10 +3,11 @@ import { useTranslation } from 'react-i18next'
 import { IGUIContextFilterLink } from '@sofie-automation/blueprints-integration'
 import classNames from 'classnames'
 import { usePopper } from 'react-popper'
-import { sameWidth } from '../../../../../../lib/popperUtils'
+import { sameWidth } from '../../../../../../lib/popperUtils.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAngleRight, faCheck, faTrash } from '@fortawesome/free-solid-svg-icons'
-import { catchError } from '../../../../../../lib/lib'
+import { catchError } from '../../../../../../lib/lib.js'
+import Button from 'react-bootstrap/Button'
 
 interface IProps {
 	index: number
@@ -69,7 +70,7 @@ export const ViewFilter: React.FC<IProps> = function ViewFilter({
 	}, [popperElement, referenceElement, opened, index])
 
 	useLayoutEffect(() => {
-		update && update().catch(catchError('ViewFilter update'))
+		update?.().catch(catchError('ViewFilter update'))
 	}, [link])
 
 	return (
@@ -89,25 +90,30 @@ export const ViewFilter: React.FC<IProps> = function ViewFilter({
 			</dl>
 			{opened ? (
 				<div
-					className="expco expco-expanded expco-popper mod pas ptl expco-popper-rounded triggered-action-entry__action__filter-editor"
+					className="expco expco-expanded expco-popper  expco-popper-rounded triggered-action-entry__action__filter-editor"
 					ref={setPopperElement}
 					style={styles.popper}
 					{...attributes.popper}
 				>
-					<p className="man">{t('Executes within the currently open Rundown, requires a Client-side trigger.')}</p>
-					<div className="mts">
-						{!final ? (
-							<button className="btn right btn-tight btn-primary" onClick={() => onInsertNext(index)}>
-								<FontAwesomeIcon icon={faAngleRight} />
-							</button>
-						) : (
-							<button className="btn right btn-tight btn-primary" onClick={() => onClose(index)}>
-								<FontAwesomeIcon icon={faCheck} />
-							</button>
-						)}
-						<button className="btn btn-tight btn-secondary" onClick={() => onRemove(index)}>
-							<FontAwesomeIcon icon={faTrash} />
-						</button>
+					<p className="m-0">{t('Executes within the currently open Rundown, requires a Client-side trigger.')}</p>
+
+					<div className="grid-buttons-right">
+						<div>
+							<Button variant="outline-secondary" size="sm" onClick={() => onRemove(index)}>
+								<FontAwesomeIcon icon={faTrash} />
+							</Button>
+						</div>
+						<div>
+							{!final ? (
+								<Button variant="primary" size="sm" onClick={() => onInsertNext(index)}>
+									<FontAwesomeIcon icon={faAngleRight} />
+								</Button>
+							) : (
+								<Button variant="primary" size="sm" onClick={() => onClose(index)}>
+									<FontAwesomeIcon icon={faCheck} />
+								</Button>
+							)}
+						</div>
 					</div>
 				</div>
 			) : null}

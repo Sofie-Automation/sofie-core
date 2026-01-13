@@ -9,13 +9,13 @@ import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { RundownBaselineAdLibAction } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibAction'
 import { clone, getRandomId, literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { PlayoutModel } from '../playout/model/PlayoutModel'
-import { StudioPlayoutModel } from '../studio/model/StudioPlayoutModel'
+import { PlayoutModel } from '../playout/model/PlayoutModel.js'
+import { StudioPlayoutModel } from '../studio/model/StudioPlayoutModel.js'
 import { BlueprintResultBaseline, ExpectedPlayoutItemGeneric } from '@sofie-automation/blueprints-integration'
-import { JobContext } from '../jobs'
-import { IngestModel } from './model/IngestModel'
+import { JobContext } from '../jobs/index.js'
+import { IngestModel } from './model/IngestModel.js'
 import { ReadonlyDeep } from 'type-fest'
-import { IngestPartModel } from './model/IngestPartModel'
+import { IngestPartModel } from './model/IngestPartModel.js'
 
 function extractExpectedPlayoutItems(
 	studioId: StudioId,
@@ -62,6 +62,9 @@ export async function updateExpectedPlayoutItemsForRundownBaseline(
 	for (const action of baselineAdlibActions) {
 		baselineExpectedPlayoutItems.push(...extractExpectedPlayoutItems(studioId, rundownId, undefined, action))
 	}
+	for (const piece of ingestModel.getGlobalPieces()) {
+		baselineExpectedPlayoutItems.push(...extractExpectedPlayoutItems(studioId, rundownId, undefined, piece))
+	}
 
 	if (baseline) {
 		for (const item of baseline.expectedPlayoutItems ?? []) {
@@ -93,7 +96,7 @@ export function updateExpectedPlayoutItemsForPartModel(context: JobContext, part
 	const expectedPlayoutItems: ExpectedPlayoutItemRundown[] = []
 	for (const piece of part.pieces) {
 		expectedPlayoutItems.push(
-			...extractExpectedPlayoutItems(studioId, part.part.rundownId, piece.startPartId, piece)
+			...extractExpectedPlayoutItems(studioId, part.part.rundownId, piece.startPartId ?? undefined, piece)
 		)
 	}
 	for (const piece of part.adLibPieces) {

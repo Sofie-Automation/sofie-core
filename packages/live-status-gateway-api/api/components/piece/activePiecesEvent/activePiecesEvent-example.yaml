@@ -1,0 +1,4 @@
+event: activePieces
+rundownPlaylistId: 'OKAgZmZ0Buc99lE_2uPPSKVbMrQ_'
+activePieces:
+  - $ref: '../pieceStatus/pieceStatus-example.yaml'

@@ -10,7 +10,7 @@ export function tryParseJson(str: string | undefined): { parsed: object } | unde
 	try {
 		const parsed = JSON.parse(str2)
 		if (typeof parsed === 'object') return { parsed: parsed }
-	} catch (err) {
+	} catch (_err) {
 		// ignore
 	}
 	return undefined

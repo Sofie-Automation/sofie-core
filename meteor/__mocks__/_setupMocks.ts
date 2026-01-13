@@ -1,6 +1,6 @@
 import { setLogLevel } from '../server/logging'
 import { resetRandomId } from './random'
-import { LogLevel } from '../server/lib/tempLib'
+import { LogLevel } from '@sofie-automation/meteor-lib/dist/lib'
 import { SupressLogMessages } from './suppressLogging'
 
 // This file is run before all tests start.
@@ -39,3 +39,6 @@ afterEach(() => {
 	// Expect all log messages that have been explicitly supressed, to have been handled:
 	SupressLogMessages.expectAllMessagesToHaveBeenHandled()
 })
+
+// @ts-expect-error mock meteor runtime config
+global.__meteor_runtime_config__ = {}

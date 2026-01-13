@@ -1,0 +1,4 @@
+id: 'B0avqzSM41UJDpbyf3U28'
+name: 'Studio 0'
+playlists:
+  - $ref: '../../playlist/playlistStatus/playlistStatus-example.yaml'
