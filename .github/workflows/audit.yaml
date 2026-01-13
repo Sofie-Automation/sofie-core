@@ -4,6 +4,9 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   validate-prod-core-dependencies:
     name: Validate Core production dependencies
@@ -11,16 +14,16 @@ jobs:
     continue-on-error: true
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: ".node-version"
       - uses: ./.github/actions/setup-meteor
       - name: restore node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             meteor/node_modules
@@ -41,16 +44,16 @@ jobs:
     continue-on-error: true
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: ".node-version"
       - uses: ./.github/actions/setup-meteor
       - name: restore node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             meteor/node_modules
@@ -83,11 +86,11 @@ jobs:
           - live-status-gateway
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: ".node-version"
       - name: Prepare Environment
@@ -116,11 +119,11 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: ".node-version"
       - name: Prepare Environment

@@ -50,5 +50,9 @@
 		"*.{ts,tsx,js,jsx,yaml}": [
 			"yarn lint:raw"
 		]
-	}
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"packageManager": "yarn@4.10.3"
 }

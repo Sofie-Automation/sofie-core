@@ -9,6 +9,9 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   lint-core:
     name: Typecheck and Lint Core
@@ -16,16 +19,16 @@ jobs:
     continue-on-error: true
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: ".node-version"
       - uses: ./.github/actions/setup-meteor
       - name: restore node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             node_modules
@@ -57,16 +60,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: ".node-version"
       - uses: ./.github/actions/setup-meteor
       - name: restore node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             node_modules
@@ -103,8 +106,13 @@ jobs:
     name: Build Core and publish docker image
     runs-on: ubuntu-latest
     timeout-minutes: 30
+
+    permissions:
+      contents: read
+      packages: write
+      
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Determine if images should be published to DockerHub
@@ -161,13 +169,13 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
       - name: Use Node.js
         if: steps.check-build-and-push.outputs.enable == 'true'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: ".node-version"
       - uses: ./.github/actions/setup-meteor
         if: steps.check-build-and-push.outputs.enable == 'true'
       - name: restore node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         if: steps.check-build-and-push.outputs.enable == 'true'
         with:
           path: |
@@ -283,8 +291,12 @@ jobs:
       matrix:
         gateway-name: [playout-gateway, mos-gateway, "live-status-gateway"]
 
+    permissions:
+      contents: read
+      packages: write
+
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Determine if images should be published to DockerHub
@@ -340,13 +352,13 @@ jobs:
             type=ref,event=tag
             type=raw,value=latest,enable={{is_default_branch}}
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         if: steps.check-build-and-push.outputs.enable == 'true'
         with:
           node-version-file: ".node-version"
       - name: restore node_modules
         if: steps.check-build-and-push.outputs.enable == 'true'
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             packages/node_modules
@@ -448,15 +460,15 @@ jobs:
           - webui
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: ".node-version"
       - name: restore node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             packages/node_modules
@@ -516,15 +528,15 @@ jobs:
             send-coverage: true
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
       - name: restore node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             packages/node_modules
@@ -556,11 +568,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: ".node-version"
       - name: Prepare Environment
@@ -584,11 +596,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: ".node-version"
       - name: Prepare Environment
@@ -613,22 +625,22 @@ jobs:
         env:
           CI: true
 
-  publish-docs:
-    name: Publish Docs
+  build-docs:
+    name: Build Docs
     runs-on: ubuntu-latest
-    continue-on-error: true
     timeout-minutes: 15
 
+    # This is just to ensure the docs build, another job performs the build & publish
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: ".node-version"
       - name: restore node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             packages/node_modules
@@ -656,98 +668,6 @@ jobs:
           cp docs documentation/build/typedoc -R
         env:
           CI: true
-      - name: Publish
-        if: github.ref == 'refs/heads/main' # always publish for just the main branch
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./packages/documentation/build
-          force_orphan: true
-
-  release-libs:
-    name: Release Lib
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-
-    # only run for tags
-    if: contains(github.ref, 'refs/tags/')
-
-    needs:
-      - test-packages
-      # core must be published first
-      - build-core
-
-    steps:
-      - uses: actions/checkout@v5
-        with:
-          persist-credentials: false
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: ".node-version"
-      - name: Prepare Environment # have to run this first to make sure the semver lib is available
-        run: |
-          corepack enable
-
-          yarn config set cacheFolder /home/runner/release-libs-cache
-
-          cd packages
-          yarn install
-        env:
-          CI: true
-      - name: Check release is desired
-        id: do-publish
-        run: |
-          if [ -z "${{ secrets.NPM_TOKEN }}" ]; then
-            echo "No Token"
-          else
-            # make dependencies of `determine-npm-tag` available
-            yarn install --mode=skip-build
-
-            cd packages
-            PACKAGE_NAME="@sofie-automation/shared-lib"
-            PUBLISHED_VERSION=$(yarn npm info --json $PACKAGE_NAME | jq -c '.version' -r)
-            THIS_VERSION=$(node -p "require('./lerna.json').version")
-            NPM_TAG=$(node ../scripts/determine-npm-tag.js $PUBLISHED_VERSION $THIS_VERSION)
-
-            echo "Publishing $NPM_TAG"
-            echo "tag=$NPM_TAG" >> $GITHUB_OUTPUT
-
-          fi
-      - name: Build
-        if: ${{ steps.do-publish.outputs.tag }}
-        run: |
-          cd packages
-          yarn build
-        env:
-          CI: true
-      - name: Build OpenAPI client library
-        if: ${{ steps.do-publish.outputs.tag }}
-        run: |
-          cd packages/openapi
-          yarn build
-        env:
-          CI: true
-      - name: Modify dependencies to use npm packages
-        run: node scripts/prepublish.js
-      - name: Publish to NPM
-        if: ${{ steps.do-publish.outputs.tag }}
-        run: |
-          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
-
-          # hack as it can sometimes have unexpected changes
-          git checkout .yarnrc.yml
-
-          cd packages
-          git checkout .yarnrc.yml
-
-          yarn lerna publish from-package --tag-version-prefix='' --dist-tag ${{ steps.do-publish.outputs.tag }} --yes --no-verify-access
-
-          NEW_VERSION=$(node -p "require('./package.json').version")
-          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
-          echo "**Published:** $NEW_VERSION" >> $GITHUB_STEP_SUMMARY
-        env:
-          CI: true
 
   check-for-multiple-library-versions:
     name: Check for multiple library versions
@@ -755,16 +675,16 @@ jobs:
     continue-on-error: true
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: ".node-version"
       - uses: ./.github/actions/setup-meteor
       - name: restore node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             node_modules
