@@ -44,7 +44,7 @@ import {
 	PieceTimelineObjectsBlob,
 	serializePieceTimelineObjectsBlob,
 } from '@sofie-automation/corelib/dist/dataModel/Piece'
-import { PartInstanceId, PieceInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { PartInstanceId, PieceInstanceId, RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import {
 	protectString,
 	unprotectString,
@@ -68,6 +68,11 @@ export enum ActionPartChange {
 export interface IPartAndPieceInstanceActionContext {
 	readonly currentPartState: ActionPartChange
 	readonly nextPartState: ActionPartChange
+}
+
+export interface QueueablePartAndPieces {
+	part: Omit<DBPart, 'segmentId' | 'rundownId' | '_rank'>
+	pieces: Piece[]
 }
 
 export class PartAndPieceInstanceActionService {
@@ -390,11 +395,41 @@ export class PartAndPieceInstanceActionService {
 			throw new Error('Too close to an autonext to queue a part')
 		}
 
+		const { part, pieces } = this.processPartAndPiecesToQueueOrFail(
+			rawPart,
+			rawPieces,
+			currentPartInstance.partInstance.rundownId,
+			currentPartInstance.partInstance.segmentId
+		)
+
+		// Do the work
+		const newPartInstance = await insertQueuedPartWithPieces(
+			this._context,
+			this._playoutModel,
+			this._rundown,
+			currentPartInstance,
+			part,
+			pieces,
+			undefined
+		)
+
+		this.nextPartState = ActionPartChange.SAFE_CHANGE
+		this.queuedPartInstanceId = newPartInstance.partInstance._id
+
+		return convertPartInstanceToBlueprints(newPartInstance.partInstance)
+	}
+
+	public processPartAndPiecesToQueueOrFail(
+		rawPart: IBlueprintPart<unknown, unknown>,
+		rawPieces: IBlueprintPiece<unknown, unknown>[],
+		rundownId: RundownId,
+		segmentId: SegmentId
+	): QueueablePartAndPieces {
 		if (rawPieces.length === 0) {
 			throw new Error('New part must contain at least one piece')
 		}
 
-		const newPart: Omit<DBPart, 'segmentId' | 'rundownId' | '_rank'> = {
+		const part: Omit<DBPart, 'segmentId' | 'rundownId' | '_rank'> = {
 			...rawPart,
 			_id: getRandomId(),
 			notes: [],
@@ -410,31 +445,17 @@ export class PartAndPieceInstanceActionService {
 			this._context,
 			rawPieces,
 			this.showStyleCompound.blueprintId,
-			currentPartInstance.partInstance.rundownId,
-			currentPartInstance.partInstance.segmentId,
-			newPart._id,
+			rundownId,
+			segmentId,
+			part._id,
 			false
 		)
 
-		if (!isPartPlayable(newPart)) {
+		if (!isPartPlayable(part)) {
 			throw new Error('Cannot queue a part which is not playable')
 		}
 
-		// Do the work
-		const newPartInstance = await insertQueuedPartWithPieces(
-			this._context,
-			this._playoutModel,
-			this._rundown,
-			currentPartInstance,
-			newPart,
-			pieces,
-			undefined
-		)
-
-		this.nextPartState = ActionPartChange.SAFE_CHANGE
-		this.queuedPartInstanceId = newPartInstance.partInstance._id
-
-		return convertPartInstanceToBlueprints(newPartInstance.partInstance)
+		return { part, pieces }
 	}
 
 	async stopPiecesOnLayers(sourceLayerIds: string[], timeOffset: number | undefined): Promise<string[]> {
