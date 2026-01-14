@@ -10,8 +10,15 @@ import {
 	SourceLayerType,
 	VTContent,
 } from '@sofie-automation/blueprints-integration'
-import { getExpectedPackageId } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
-import { ExpectedPackageId, PeripheralDeviceId, PieceInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { getExpectedPackageIdForPieceInstance } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
+import {
+	BucketId,
+	ExpectedPackageId,
+	PeripheralDeviceId,
+	PieceInstanceId,
+	RundownId,
+	StudioId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 import {
 	getPackageContainerPackageId,
 	PackageContainerPackageStatusDB,
@@ -26,7 +33,7 @@ import {
 	StudioPackageContainer,
 	StudioRouteSet,
 } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { literal, Complete, assertNever, omit } from '@sofie-automation/corelib/dist/lib'
+import { literal, Complete, assertNever, omit, getHash } from '@sofie-automation/corelib/dist/lib'
 import { ReadonlyDeep } from 'type-fest'
 import _ from 'underscore'
 import {
@@ -35,7 +42,7 @@ import {
 } from '@sofie-automation/meteor-lib/dist/collections/ExpectedPackages'
 import { getActiveRoutes, getRoutedMappings } from '@sofie-automation/meteor-lib/dist/collections/Studios'
 import { ensureHasTrailingSlash } from '@sofie-automation/corelib/dist/lib'
-import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
+import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { MediaObjects, PackageContainerPackageStatuses, PackageInfos } from '../../collections'
 import {
 	mediaObjectFieldSpecifier,
@@ -220,6 +227,7 @@ export interface PieceContentStatusStudio
 
 export async function checkPieceContentStatusAndDependencies(
 	studio: PieceContentStatusStudio,
+	packageOwnerId: RundownId | BucketId | StudioId,
 	messageFactory: PieceContentStatusMessageFactory | undefined,
 	piece: PieceContentStatusPiece,
 	sourceLayer: ISourceLayer
@@ -290,6 +298,7 @@ export async function checkPieceContentStatusAndDependencies(
 				piece,
 				sourceLayer,
 				studio,
+				packageOwnerId,
 				getPackageInfos,
 				getPackageContainerPackageStatus,
 				messageFactory || DEFAULT_MESSAGE_FACTORY
@@ -589,6 +598,7 @@ async function checkPieceContentExpectedPackageStatus(
 	piece: PieceContentStatusPiece,
 	sourceLayer: ISourceLayer,
 	studio: PieceContentStatusStudio,
+	packageOwnerId: RundownId | BucketId | StudioId,
 	getPackageInfos: (packageId: ExpectedPackageId) => Promise<PackageInfoLight[]>,
 	getPackageContainerPackageStatus: (
 		packageContainerId: string,
@@ -657,15 +667,21 @@ async function checkPieceContentExpectedPackageStatus(
 
 				checkedPackageContainers.add(matchedPackageContainer[0])
 
-				const expectedPackageIds = [getExpectedPackageId(piece._id, expectedPackage._id)]
+				const expectedPackageIds = [
+					// Synthesize the expected packageId from the piece
+					// Note: this needs to match the output of getExpectedPackageIdFromIngestSource, but will be reworked properly as part of shared ownership
+					protectString(`${packageOwnerId}_${piece._id}_${getHash(expectedPackage._id)}`),
+				]
 				if (piece.pieceInstanceId) {
 					// If this is a PieceInstance, try looking up the PieceInstance first
-					expectedPackageIds.unshift(getExpectedPackageId(piece.pieceInstanceId, expectedPackage._id))
+					expectedPackageIds.unshift(
+						getExpectedPackageIdForPieceInstance(piece.pieceInstanceId, expectedPackage._id)
+					)
 
 					if (piece.previousPieceInstanceId) {
 						// Also try the previous PieceInstance, when this is an infinite continuation in case package-manager needs to catchup
 						expectedPackageIds.unshift(
-							getExpectedPackageId(piece.previousPieceInstanceId, expectedPackage._id)
+							getExpectedPackageIdForPieceInstance(piece.previousPieceInstanceId, expectedPackage._id)
 						)
 					}
 				}

@@ -119,7 +119,14 @@ export function mongoWhere<T>(o: Record<string, any>, selector: MongoQuery<T>): 
 				const oAttr = o[key]
 
 				if (_.isObject(s)) {
-					if (_.has(s, '$gt')) {
+					if (_.has(s, '$elemMatch')) {
+						// Handle $elemMatch for array fields
+						if (Array.isArray(oAttr)) {
+							ok = oAttr.some((item) => mongoWhere(item, s.$elemMatch))
+						} else {
+							ok = false
+						}
+					} else if (_.has(s, '$gt')) {
 						ok = oAttr > s.$gt
 					} else if (_.has(s, '$gte')) {
 						ok = oAttr >= s.$gte

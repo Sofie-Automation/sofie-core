@@ -67,6 +67,19 @@ export function setValuesAndTrackChanges<T extends { _id: ProtectedString<any> }
 	}
 }
 
+export function setValuesAndTrackChangesFunc<T extends { _id: ProtectedString<any> }>(
+	changedIds: Set<T['_id']>,
+	objects: readonly T[],
+	mutator: (obj: T) => boolean
+): void {
+	for (const obj of objects) {
+		const mutatorChanged = mutator(obj)
+
+		// The doc changed, track it as such
+		if (mutatorChanged) changedIds.add(obj._id)
+	}
+}
+
 export function addManyToSet<T>(set: Set<T>, iter: Iterable<T>): void {
 	for (const val of iter) {
 		set.add(val)

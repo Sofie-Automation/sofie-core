@@ -19,7 +19,7 @@ import {
 	SofieIngestSegment,
 } from '@sofie-automation/blueprints-integration'
 import { wrapTranslatableMessageFromBlueprints } from '@sofie-automation/corelib/dist/TranslatableMessage'
-import { updateExpectedPackagesForPartModel } from './expectedPackages.js'
+import { updateExpectedMediaAndPlayoutItemsForPartModel } from './expectedPackages.js'
 import { IngestReplacePartType, IngestSegmentModel } from './model/IngestSegmentModel.js'
 import { ReadonlyDeep } from 'type-fest'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
@@ -107,7 +107,7 @@ async function regenerateSegmentAndUpdateModelFull(
 	const segmentId = ingestModel.getSegmentIdFromExternalId(ingestSegment.externalId)
 	const segmentWatchedPackages = allRundownWatchedPackages.filter(
 		context,
-		(p) => 'segmentId' in p && p.segmentId === segmentId
+		(p) => 'segmentId' in p.source && p.source.segmentId === segmentId
 	)
 
 	let updatedSegmentModel = await regenerateSegmentAndUpdateModel(
@@ -191,9 +191,8 @@ async function checkIfSegmentReferencesUnloadedPackageInfos(
 	// check if there are any updates right away?
 	for (const part of segmentModel.parts) {
 		for (const expectedPackage of part.expectedPackages) {
-			if (expectedPackage.listenToPackageInfoUpdates) {
-				const loadedPackage = segmentWatchedPackages.getPackage(expectedPackage._id)
-				if (!loadedPackage) {
+			if (expectedPackage.package.listenToPackageInfoUpdates) {
+				if (!segmentWatchedPackages.hasPackage(expectedPackage._id)) {
 					// The package didn't exist prior to the blueprint running
 					expectedPackageIdsToCheck.add(expectedPackage._id)
 				}
@@ -411,7 +410,7 @@ function updateModelWithGeneratedPart(
 	)
 
 	const partModel = segmentModel.replacePart(part, processedPieces, adlibPieces, adlibActions)
-	updateExpectedPackagesForPartModel(context, partModel)
+	updateExpectedMediaAndPlayoutItemsForPartModel(context, partModel)
 }
 
 /**

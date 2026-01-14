@@ -33,7 +33,6 @@ import { JSONBlobStringify, JSONSchema, TSR } from '@sofie-automation/blueprints
 import { DEFAULT_MINIMUM_TAKE_SPAN } from '@sofie-automation/shared-lib/dist/core/constants'
 import { PartId } from '@sofie-automation/shared-lib/dist/core/model/Ids'
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
-import { ExpectedPackageDBType } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
 import {
 	AdLibActionId,
 	BucketAdLibActionId,
@@ -44,6 +43,7 @@ import {
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
+import * as PackagesPreR53 from '@sofie-automation/corelib/dist/dataModel/Old/ExpectedPackagesR52'
 
 // Release 50
 
@@ -161,9 +161,9 @@ const oldDeviceTypeToNewMapping = {
 }
 
 const EXPECTED_PACKAGE_TYPES_ADDED_PART_ID = [
-	ExpectedPackageDBType.PIECE,
-	ExpectedPackageDBType.ADLIB_PIECE,
-	ExpectedPackageDBType.ADLIB_ACTION,
+	PackagesPreR53.ExpectedPackageDBType.PIECE,
+	PackagesPreR53.ExpectedPackageDBType.ADLIB_PIECE,
+	PackagesPreR53.ExpectedPackageDBType.ADLIB_ACTION,
 ]
 
 export const addSteps = addMigrationSteps('1.50.0', [
@@ -875,10 +875,10 @@ export const addSteps = addMigrationSteps('1.50.0', [
 			return false
 		},
 		migrate: async () => {
-			const objects = await ExpectedPackages.findFetchAsync({
+			const objects = (await ExpectedPackages.findFetchAsync({
 				fromPieceType: { $in: EXPECTED_PACKAGE_TYPES_ADDED_PART_ID as any }, // Force the types, as the query does not match due to the interfaces
 				partId: { $exists: false },
-			})
+			})) as unknown as Array<PackagesPreR53.ExpectedPackageDB>
 
 			const neededPieceIds: Array<
 				PieceId | AdLibActionId | RundownBaselineAdLibActionId | BucketAdLibId | BucketAdLibActionId

@@ -91,7 +91,7 @@ export async function updateStudioTimeline(
 
 	const studioBlueprint = context.studioBlueprint
 	if (studioBlueprint) {
-		const watchedPackages = await WatchedPackagesHelper.create(context, {
+		const watchedPackages = await WatchedPackagesHelper.create(context, null, null, {
 			fromPieceType: ExpectedPackageDBType.STUDIO_BASELINE_OBJECTS,
 		})
 

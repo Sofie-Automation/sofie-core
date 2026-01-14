@@ -5,6 +5,7 @@ import {
 	ExpectedPackagesContentCache,
 	rundownPlaylistFieldSpecifier,
 	pieceInstanceFieldsSpecifier,
+	expectedPackageDBFieldsSpecifier,
 } from './contentCache'
 import { ExpectedPackages, PieceInstances, RundownPlaylists } from '../../../collections'
 import { ReactiveMongoObserverGroup, ReactiveMongoObserverGroupHandle } from '../../lib/observerGroup'
@@ -61,7 +62,10 @@ export class ExpectedPackagesContentObserver implements Meteor.LiveQueryHandle {
 				{
 					studioId: studioId,
 				},
-				cache.ExpectedPackages.link()
+				cache.ExpectedPackages.link(),
+				{
+					projection: expectedPackageDBFieldsSpecifier,
+				}
 			),
 
 			RundownPlaylists.observeChanges(

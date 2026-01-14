@@ -1,16 +1,21 @@
 import { JobContext } from '../../jobs/index.js'
 import {
-	ExpectedPackageDB,
-	ExpectedPackageDBFromStudioBaselineObjects,
 	ExpectedPackageDBType,
+	ExpectedPackageIngestSource,
+	ExpectedPackageIngestSourceStudioBaseline,
+	getExpectedPackageIdFromIngestSource,
 } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
 import { ExpectedPlayoutItemStudio } from '@sofie-automation/corelib/dist/dataModel/ExpectedPlayoutItem'
 import { saveIntoDb } from '../../db/changes.js'
+import { ExpectedPackage } from '@sofie-automation/blueprints-integration'
+import type { IngestExpectedPackage } from '../../ingest/model/IngestExpectedPackage.js'
+import { setDefaultIdOnExpectedPackages } from '../../ingest/expectedPackages.js'
+import { writeExpectedPackagesChangesForRundown } from '../../ingest/model/implementation/SaveIngestModel.js'
 
 export class StudioBaselineHelper {
 	readonly #context: JobContext
 
-	#pendingExpectedPackages: ExpectedPackageDBFromStudioBaselineObjects[] | undefined
+	#pendingExpectedPackages: IngestExpectedPackage<ExpectedPackageIngestSourceStudioBaseline>[] | undefined
 	#pendingExpectedPlayoutItems: ExpectedPlayoutItemStudio[] | undefined
 
 	constructor(context: JobContext) {
@@ -21,8 +26,21 @@ export class StudioBaselineHelper {
 		return !!this.#pendingExpectedPackages || !!this.#pendingExpectedPlayoutItems
 	}
 
-	setExpectedPackages(packages: ExpectedPackageDBFromStudioBaselineObjects[]): void {
-		this.#pendingExpectedPackages = packages
+	setExpectedPackages(packages: ExpectedPackage.Any[]): void {
+		const source: ExpectedPackageIngestSource = { fromPieceType: ExpectedPackageDBType.STUDIO_BASELINE_OBJECTS }
+
+		setDefaultIdOnExpectedPackages(packages)
+
+		this.#pendingExpectedPackages = packages.map(
+			(expectedPackage) =>
+				({
+					_id: getExpectedPackageIdFromIngestSource(this.#context.studioId, source, expectedPackage._id),
+
+					package: expectedPackage,
+
+					source: source,
+				}) satisfies IngestExpectedPackage<ExpectedPackageIngestSourceStudioBaseline>
+		)
 	}
 	setExpectedPlayoutItems(playoutItems: ExpectedPlayoutItemStudio[]): void {
 		this.#pendingExpectedPlayoutItems = playoutItems
@@ -39,15 +57,7 @@ export class StudioBaselineHelper {
 					)
 				: undefined,
 			this.#pendingExpectedPackages
-				? saveIntoDb<ExpectedPackageDB>(
-						this.#context,
-						this.#context.directCollections.ExpectedPackages,
-						{
-							studioId: this.#context.studioId,
-							fromPieceType: ExpectedPackageDBType.STUDIO_BASELINE_OBJECTS,
-						},
-						this.#pendingExpectedPackages
-					)
+				? writeExpectedPackagesChangesForRundown(this.#context, null, this.#pendingExpectedPackages)
 				: undefined,
 		])
 

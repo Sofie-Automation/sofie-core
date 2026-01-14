@@ -203,7 +203,7 @@ async function setDefaultDatatoDB(env: DefaultEnvironment, now: number) {
 		startSegmentId: segmentId,
 		timelineObjectsString: '' as any,
 	}
-	const pieceId = await Pieces.mutableCollection.insertAsync(piece)
+	await Pieces.mutableCollection.insertAsync(piece)
 
 	await AdLibActions.mutableCollection.insertAsync({
 		_id: getRandomId(),
@@ -265,22 +265,12 @@ async function setDefaultDatatoDB(env: DefaultEnvironment, now: number) {
 	})
 	const packageId = await ExpectedPackages.mutableCollection.insertAsync({
 		_id: getRandomId(),
-		blueprintPackageId: '',
-		// @ts-expect-error bucketId is not a part of all ExpectedPackageDBs
-		bucketId,
-		content: {} as any,
-		contentVersionHash: '',
-		created: 0,
-		fromPieceType: '' as any,
-		layers: [],
-		pieceId,
-		rundownId,
-		segmentId,
-		sideEffect: {} as any,
 		studioId,
-		sources: {} as any,
-		type: '' as any,
-		version: {} as any,
+		rundownId,
+		bucketId: null,
+		created: 0,
+		package: {} as any,
+		ingestSources: [] as any,
 	})
 	await ExpectedPackageWorkStatuses.insertAsync({
 		_id: getRandomId(),

@@ -29,7 +29,7 @@ import {
 	handleUpdatedSegment,
 	handleUpdatedSegmentRanks,
 } from '../../ingest/ingestSegmentJobs.js'
-import { handleExpectedPackagesRegenerate, handleUpdatedPackageInfoForRundown } from '../../ingest/packageInfo.js'
+import { handleUpdatedPackageInfoForRundown } from '../../ingest/packageInfo.js'
 import {
 	handleBucketActionModify,
 	handleBucketActionRegenerateExpectedPackages,
@@ -81,7 +81,6 @@ export const ingestJobHandlers: IngestJobHandlers = {
 	[IngestJobs.MosMoveStory]: wrapMosIngestJob(handleMosMoveStories),
 	[IngestJobs.MosSwapStory]: wrapMosIngestJob(handleMosSwapStories),
 
-	[IngestJobs.ExpectedPackagesRegenerate]: handleExpectedPackagesRegenerate,
 	[IngestJobs.PackageInfosUpdatedRundown]: handleUpdatedPackageInfoForRundown,
 
 	[IngestJobs.UserRemoveRundown]: handleUserRemoveRundown,

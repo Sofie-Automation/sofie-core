@@ -1,8 +1,8 @@
 import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
-import { ExpectedPackageDB } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
+import { ExpectedPackageDB, ExpectedPackageDBType } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
 import { ExpectedPlayoutItem } from '@sofie-automation/corelib/dist/dataModel/ExpectedPlayoutItem'
-import { PieceId, RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { PieceId, ExpectedPackageId, RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
@@ -12,9 +12,14 @@ import { IngestSegmentModelImpl } from './IngestSegmentModelImpl.js'
 import { DocumentChangeTracker } from './DocumentChangeTracker.js'
 import { logger } from '../../../logging.js'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
+import { IngestExpectedPackage } from '../IngestExpectedPackage.js'
+import { AnyBulkWriteOperation } from 'mongodb'
+import { Complete, normalizeArrayToMap } from '@sofie-automation/corelib/dist/lib'
 
 export class SaveIngestModelHelper {
-	#expectedPackages = new DocumentChangeTracker<ExpectedPackageDB>()
+	readonly #rundownId: RundownId
+
+	#expectedPackages = new DocumentChangeTracker<IngestExpectedPackage<any>>()
 	#expectedPlayoutItems = new DocumentChangeTracker<ExpectedPlayoutItem>()
 
 	#segments = new DocumentChangeTracker<DBSegment>()
@@ -23,8 +28,12 @@ export class SaveIngestModelHelper {
 	#adLibPieces = new DocumentChangeTracker<AdLibPiece>()
 	#adLibActions = new DocumentChangeTracker<AdLibAction>()
 
-	addExpectedPackagesStore(
-		store: ExpectedPackagesStore<ExpectedPackageDB & { rundownId: RundownId }>,
+	constructor(rundownId: RundownId) {
+		this.#rundownId = rundownId
+	}
+
+	addExpectedPackagesStore<TPackageSource extends { fromPieceType: ExpectedPackageDBType }>(
+		store: ExpectedPackagesStore<TPackageSource>,
 		deleteAll?: boolean
 	): void {
 		this.#expectedPackages.addChanges(store.expectedPackagesChanges, deleteAll ?? false)
@@ -84,7 +93,11 @@ export class SaveIngestModelHelper {
 		}
 
 		return [
-			context.directCollections.ExpectedPackages.bulkWrite(this.#expectedPackages.generateWriteOps()),
+			writeExpectedPackagesChangesForRundown(
+				context,
+				this.#rundownId,
+				Array.from(this.#expectedPackages.getDocumentsToSave().values())
+			),
 			context.directCollections.ExpectedPlayoutItems.bulkWrite(this.#expectedPlayoutItems.generateWriteOps()),
 
 			context.directCollections.Segments.bulkWrite(this.#segments.generateWriteOps()),
@@ -94,4 +107,88 @@ export class SaveIngestModelHelper {
 			context.directCollections.AdLibActions.bulkWrite(this.#adLibActions.generateWriteOps()),
 		]
 	}
+}
+
+export async function writeExpectedPackagesChangesForRundown(
+	context: JobContext,
+	rundownId: RundownId | null,
+	documentsToSave: IngestExpectedPackage<any>[]
+): Promise<void> {
+	const existingDocs = (await context.directCollections.ExpectedPackages.findFetch(
+		{
+			studioId: context.studioId,
+			rundownId: rundownId,
+			bucketId: null,
+		},
+		{
+			projection: {
+				_id: 1,
+				// Future: playoutSources
+			},
+		}
+	)) as Pick<ExpectedPackageDB, '_id' | 'created'>[]
+	const existingDocsMap = normalizeArrayToMap(existingDocs, '_id')
+
+	// Generate any insert and update operations
+	const ops: AnyBulkWriteOperation<ExpectedPackageDB>[] = []
+	for (const doc of documentsToSave) {
+		const newDbDoc: Complete<Omit<ExpectedPackageDB, '_id'>> = {
+			// Future: omit 'playoutSources from this doc
+			studioId: context.studioId,
+			rundownId: rundownId,
+			bucketId: null,
+			created: Date.now(),
+			package: doc.package,
+			ingestSources: [doc.source],
+		}
+
+		const existingDoc = existingDocsMap.get(doc._id)
+		if (existingDoc) {
+			// Document already exists, perform an update to preserve other fields
+			ops.push({
+				updateOne: {
+					filter: { _id: doc._id },
+					update: {
+						$set: {
+							// Update every field that we want to define
+							...newDbDoc,
+						},
+					},
+				},
+			})
+		} else {
+			// Insert this new document
+			ops.push({
+				insertOne: {
+					document: {
+						...newDbDoc,
+						_id: doc._id,
+					},
+				},
+			})
+		}
+	}
+
+	// Look over the existing documents, and see is no longer referenced
+	const documentsToSaveMap = normalizeArrayToMap(documentsToSave, '_id')
+	const idsToDelete: ExpectedPackageId[] = []
+
+	for (const doc of existingDocs) {
+		// Skip if this document is in the list of documents to save
+		if (documentsToSaveMap.has(doc._id)) continue
+
+		// Future: check for playoutSources
+		idsToDelete.push(doc._id)
+	}
+
+	// const idsToDelete = changeTracker.getDeletedIds()
+	if (idsToDelete.length > 0) {
+		ops.push({
+			deleteMany: {
+				filter: { _id: { $in: idsToDelete as any } },
+			},
+		})
+	}
+
+	if (ops.length > 0) await context.directCollections.ExpectedPackages.bulkWrite(ops)
 }

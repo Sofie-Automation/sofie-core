@@ -1,4 +1,9 @@
-import { ExpectedPackageDBType, getExpectedPackageId } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
+import {
+	ExpectedPackageDB,
+	ExpectedPackageDBType,
+	ExpectedPackageIngestSource,
+	getExpectedPackageIdFromIngestSource,
+} from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
 import {
 	AdLibActionId,
 	ExpectedPackageId,
@@ -25,12 +30,14 @@ import { CoreRundownPlaylistSnapshot } from '@sofie-automation/corelib/dist/snap
 import { unprotectString, ProtectedString, protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { saveIntoDb } from '../db/changes.js'
 import { getPartId, getSegmentId } from '../ingest/lib.js'
-import { assertNever, getRandomId, literal } from '@sofie-automation/corelib/dist/lib'
+import { assertNever, getRandomId, literal, omit } from '@sofie-automation/corelib/dist/lib'
 import { logger } from '../logging.js'
 import { JSONBlobParse, JSONBlobStringify } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { RundownOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { SofieIngestDataCacheObj } from '@sofie-automation/corelib/dist/dataModel/SofieIngestDataCache'
+import * as PackagesPreR53 from '@sofie-automation/corelib/dist/dataModel/Old/ExpectedPackagesR52'
+import { ExpectedPackage } from '@sofie-automation/blueprints-integration'
 
 class IdMapWithGenerator<V extends ProtectedString<any>> extends Map<V, V> {
 	getOrGenerate(key: V): V {
@@ -243,7 +250,7 @@ export async function handleRestorePlaylistSnapshot(
 	}
 
 	// List any ids that need updating on other documents
-	const rundownIdMap = new Map<RundownId, RundownId>()
+	const rundownIdMap = new IdMapWithGenerator<RundownId>()
 	const getNewRundownId = (oldRundownId: RundownId) => {
 		const rundownId = rundownIdMap.get(oldRundownId)
 		if (!rundownId) {
@@ -340,47 +347,179 @@ export async function handleRestorePlaylistSnapshot(
 	)
 
 	const expectedPackageIdMap = new Map<ExpectedPackageId, ExpectedPackageId>()
-	for (const expectedPackage of snapshot.expectedPackages) {
-		const oldId = expectedPackage._id
+	snapshot.expectedPackages = snapshot.expectedPackages.map((expectedPackage0): ExpectedPackageDB => {
+		if ('fromPieceType' in expectedPackage0) {
+			const expectedPackage = expectedPackage0 as unknown as PackagesPreR53.ExpectedPackageDB
 
-		switch (expectedPackage.fromPieceType) {
-			case ExpectedPackageDBType.PIECE:
-			case ExpectedPackageDBType.ADLIB_PIECE:
-			case ExpectedPackageDBType.ADLIB_ACTION:
-			case ExpectedPackageDBType.BASELINE_ADLIB_PIECE:
-			case ExpectedPackageDBType.BASELINE_ADLIB_ACTION:
-			case ExpectedPackageDBType.BASELINE_PIECE: {
-				expectedPackage.pieceId = pieceIdMap.getOrGenerateAndWarn(
-					expectedPackage.pieceId,
-					`expectedPackage.pieceId=${expectedPackage.pieceId}`
-				)
+			let source: ExpectedPackageIngestSource | undefined
 
-				expectedPackage._id = getExpectedPackageId(expectedPackage.pieceId, expectedPackage.blueprintPackageId)
+			switch (expectedPackage.fromPieceType) {
+				case PackagesPreR53.ExpectedPackageDBType.PIECE:
+				case PackagesPreR53.ExpectedPackageDBType.ADLIB_PIECE:
+				case PackagesPreR53.ExpectedPackageDBType.ADLIB_ACTION:
+					source = {
+						fromPieceType: expectedPackage.fromPieceType,
+						pieceId: pieceIdMap.getOrGenerateAndWarn(
+							expectedPackage.pieceId,
+							`expectedPackage.pieceId=${expectedPackage.pieceId}`
+						) as any,
+						partId: partIdMap.getOrGenerateAndWarn(
+							expectedPackage.partId,
+							`expectedPackage.partId=${expectedPackage.partId}`
+						),
+						segmentId: segmentIdMap.getOrGenerateAndWarn(
+							expectedPackage.segmentId,
+							`expectedPackage.segmentId=${expectedPackage.segmentId}`
+						),
+					}
 
-				break
+					break
+				case PackagesPreR53.ExpectedPackageDBType.BASELINE_ADLIB_PIECE:
+				case PackagesPreR53.ExpectedPackageDBType.BASELINE_ADLIB_ACTION: {
+					source = {
+						fromPieceType: expectedPackage.fromPieceType,
+						pieceId: pieceIdMap.getOrGenerateAndWarn(
+							expectedPackage.pieceId,
+							`expectedPackage.pieceId=${expectedPackage.pieceId}`
+						) as any,
+					}
+
+					break
+				}
+
+				case PackagesPreR53.ExpectedPackageDBType.RUNDOWN_BASELINE_OBJECTS: {
+					source = {
+						fromPieceType: expectedPackage.fromPieceType,
+					}
+					break
+				}
+				case PackagesPreR53.ExpectedPackageDBType.BUCKET_ADLIB:
+				case PackagesPreR53.ExpectedPackageDBType.BUCKET_ADLIB_ACTION:
+				case PackagesPreR53.ExpectedPackageDBType.STUDIO_BASELINE_OBJECTS: {
+					// ignore, these are not present in the rundown snapshot anyway.
+					logger.warn(`Unexpected ExpectedPackage in snapshot: ${JSON.stringify(expectedPackage)}`)
+					break
+				}
+
+				default:
+					assertNever(expectedPackage)
+					break
 			}
-			case ExpectedPackageDBType.RUNDOWN_BASELINE_OBJECTS: {
-				expectedPackage._id = getExpectedPackageId(
-					expectedPackage.rundownId,
-					expectedPackage.blueprintPackageId
-				)
-				break
-			}
-			case ExpectedPackageDBType.BUCKET_ADLIB:
-			case ExpectedPackageDBType.BUCKET_ADLIB_ACTION:
-			case ExpectedPackageDBType.STUDIO_BASELINE_OBJECTS: {
-				// ignore, these are not present in the rundown snapshot anyway.
-				logger.warn(`Unexpected ExpectedPackage in snapshot: ${JSON.stringify(expectedPackage)}`)
-				break
+
+			if (!source) {
+				logger.warn(`Failed to fixup ExpectedPackage in snapshot: ${JSON.stringify(expectedPackage)}`)
+				// Define a fake source, so that it gets imported.
+				source = {
+					fromPieceType: ExpectedPackageDBType.PIECE,
+					pieceId: protectString('fakePiece'),
+					partId: protectString('fakePart'),
+					segmentId: protectString('fakeSegment'),
+				}
 			}
 
-			default:
-				assertNever(expectedPackage)
-				break
+			const packageRundownId: RundownId | null =
+				'rundownId' in expectedPackage
+					? rundownIdMap.getOrGenerateAndWarn(
+							expectedPackage.rundownId,
+							`expectedPackage.rundownId=${expectedPackage.rundownId}`
+						)
+					: null
+			const newPackageId = getExpectedPackageIdFromIngestSource(
+				packageRundownId || context.studioId,
+				source,
+				expectedPackage.blueprintPackageId
+			)
+
+			const newExpectedPackage: ExpectedPackageDB = {
+				_id: newPackageId,
+				studioId: context.studioId,
+				rundownId: packageRundownId,
+				bucketId: null,
+				created: expectedPackage.created,
+				package: {
+					...(omit(
+						expectedPackage,
+						'_id',
+						'studioId',
+						'fromPieceType',
+						'blueprintPackageId',
+						'contentVersionHash',
+						// @ts-expect-error only sometimes present
+						'rundownId',
+						'pieceId',
+						'partId',
+						'segmentId',
+						'pieceExternalId'
+					) as ExpectedPackage.Any),
+					_id: expectedPackage.blueprintPackageId,
+				},
+
+				ingestSources: [source],
+			}
+
+			expectedPackageIdMap.set(expectedPackage._id, newExpectedPackage._id)
+			return newExpectedPackage
+		} else {
+			const expectedPackage = expectedPackage0
+			const oldId = expectedPackage._id
+
+			for (const source of expectedPackage.ingestSources) {
+				switch (source.fromPieceType) {
+					case ExpectedPackageDBType.PIECE:
+					case ExpectedPackageDBType.ADLIB_PIECE:
+					case ExpectedPackageDBType.ADLIB_ACTION:
+						source.pieceId = pieceIdMap.getOrGenerateAndWarn(
+							source.pieceId,
+							`expectedPackage.pieceId=${source.pieceId}`
+						) as any
+						source.partId = partIdMap.getOrGenerateAndWarn(
+							source.partId,
+							`expectedPackage.partId=${source.partId}`
+						)
+						source.segmentId = segmentIdMap.getOrGenerateAndWarn(
+							source.segmentId,
+							`expectedPackage.segmentId=${source.segmentId}`
+						)
+
+						break
+					case ExpectedPackageDBType.BASELINE_PIECE:
+					case ExpectedPackageDBType.BASELINE_ADLIB_PIECE:
+					case ExpectedPackageDBType.BASELINE_ADLIB_ACTION: {
+						source.pieceId = pieceIdMap.getOrGenerateAndWarn(
+							source.pieceId,
+							`expectedPackage.pieceId=${source.pieceId}`
+						) as any
+
+						break
+					}
+					case ExpectedPackageDBType.RUNDOWN_BASELINE_OBJECTS: {
+						// No properties to update
+						break
+					}
+					case ExpectedPackageDBType.BUCKET_ADLIB:
+					case ExpectedPackageDBType.BUCKET_ADLIB_ACTION:
+					case ExpectedPackageDBType.STUDIO_BASELINE_OBJECTS: {
+						// ignore, these are not present in the rundown snapshot anyway.
+						logger.warn(`Unexpected ExpectedPackage in snapshot: ${JSON.stringify(expectedPackage)}`)
+						break
+					}
+					default:
+						assertNever(source)
+						break
+				}
+			}
+
+			// Regenerate the ID from the new rundownId and packageId
+			expectedPackage._id = getExpectedPackageIdFromIngestSource(
+				expectedPackage.rundownId || expectedPackage.studioId,
+				expectedPackage.ingestSources[0],
+				expectedPackage.package._id
+			)
+
+			expectedPackageIdMap.set(oldId, expectedPackage._id)
+			return expectedPackage
 		}
-
-		expectedPackageIdMap.set(oldId, expectedPackage._id)
-	}
+	})
 
 	snapshot.playlist.rundownIdsInOrder = snapshot.playlist.rundownIdsInOrder.map((id) => rundownIdMap.get(id) ?? id)
 

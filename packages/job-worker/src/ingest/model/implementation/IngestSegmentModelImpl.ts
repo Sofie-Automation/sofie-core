@@ -1,4 +1,4 @@
-import { PartId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { PartId, RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ReadonlyDeep } from 'type-fest'
 import { DBSegment, SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { IngestReplacePartType, IngestSegmentModel } from '../IngestSegmentModel.js'
@@ -12,6 +12,13 @@ import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { calculatePartExpectedDurationWithTransition } from '@sofie-automation/corelib/dist/playout/timings'
 import { clone } from '@sofie-automation/corelib/dist/lib'
 import { getPartId } from '../../lib.js'
+import {
+	ExpectedPackageDBType,
+	getExpectedPackageIdFromIngestSource,
+	ExpectedPackageIngestSourcePart,
+} from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
+import type { ExpectedPackage } from '@sofie-automation/blueprints-integration'
+import type { IngestExpectedPackage } from '../IngestExpectedPackage.js'
 
 /**
  * A light wrapper around the IngestPartModel, so that we can track the deletions while still accessing the contents
@@ -207,7 +214,7 @@ export class IngestSegmentModelImpl implements IngestSegmentModel {
 	replacePart(
 		rawPart: IngestReplacePartType,
 		pieces: Piece[],
-		adLibPiece: AdLibPiece[],
+		adLibPieces: AdLibPiece[],
 		adLibActions: AdLibAction[]
 	): IngestPartModel {
 		const part: DBPart = {
@@ -224,14 +231,23 @@ export class IngestSegmentModelImpl implements IngestSegmentModel {
 
 		const oldPart = this.partsImpl.get(part._id)
 
+		const expectedPackages = generateExpectedPackagesForPart(
+			part.rundownId,
+			part.segmentId,
+			part._id,
+			pieces,
+			adLibPieces,
+			adLibActions
+		)
+
 		const partModel = new IngestPartModelImpl(
 			!oldPart,
 			clone(part),
 			clone(pieces),
-			clone(adLibPiece),
+			clone(adLibPieces),
 			clone(adLibActions),
 			[],
-			[]
+			expectedPackages
 		)
 		partModel.setOwnerIds(this.segment.rundownId, this.segment._id)
 
@@ -241,4 +257,71 @@ export class IngestSegmentModelImpl implements IngestSegmentModel {
 
 		return partModel
 	}
+}
+
+function generateExpectedPackagesForPart(
+	rundownId: RundownId,
+	segmentId: SegmentId,
+	partId: PartId,
+	pieces: Piece[],
+	adLibPieces: AdLibPiece[],
+	adLibActions: AdLibAction[]
+): IngestExpectedPackage<ExpectedPackageIngestSourcePart>[] {
+	const packages: IngestExpectedPackage<ExpectedPackageIngestSourcePart>[] = []
+
+	const wrapPackage = (
+		expectedPackage: ReadonlyDeep<ExpectedPackage.Any>,
+		source: ExpectedPackageIngestSourcePart
+	): IngestExpectedPackage<ExpectedPackageIngestSourcePart> => {
+		return {
+			_id: getExpectedPackageIdFromIngestSource(rundownId, source, expectedPackage._id),
+
+			package: expectedPackage,
+
+			source: source,
+		}
+	}
+
+	// Future: this will need to deduplicate packages with the same content
+	// For now, we just generate a package for each expectedPackage
+
+	// Populate the ingestSources
+	for (const piece of pieces) {
+		for (const expectedPackage of piece.expectedPackages || []) {
+			packages.push(
+				wrapPackage(expectedPackage, {
+					fromPieceType: ExpectedPackageDBType.PIECE,
+					pieceId: piece._id,
+					partId: partId,
+					segmentId: segmentId,
+				})
+			)
+		}
+	}
+	for (const piece of adLibPieces) {
+		for (const expectedPackage of piece.expectedPackages || []) {
+			packages.push(
+				wrapPackage(expectedPackage, {
+					fromPieceType: ExpectedPackageDBType.ADLIB_PIECE,
+					pieceId: piece._id,
+					partId: partId,
+					segmentId: segmentId,
+				})
+			)
+		}
+	}
+	for (const piece of adLibActions) {
+		for (const expectedPackage of piece.expectedPackages || []) {
+			packages.push(
+				wrapPackage(expectedPackage, {
+					fromPieceType: ExpectedPackageDBType.ADLIB_ACTION,
+					pieceId: piece._id,
+					partId: partId,
+					segmentId: segmentId,
+				})
+			)
+		}
+	}
+
+	return packages
 }

@@ -1,10 +1,7 @@
 import {
-	ExpectedPackageDBFromBucketAdLib,
-	ExpectedPackageDBFromBucketAdLibAction,
-	ExpectedPackageDBFromStudioBaselineObjects,
 	ExpectedPackageDBType,
-	ExpectedPackageFromRundown,
-	ExpectedPackageFromRundownBaseline,
+	ExpectedPackageDB,
+	ExpectedPackageIngestSourceBucket,
 } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
 import { PackageInfoDB } from '@sofie-automation/corelib/dist/dataModel/PackageInfos'
 import { ExpectedPackages, Rundowns } from '../../collections'
@@ -28,52 +25,59 @@ export async function onUpdatedPackageInfo(packageId: ExpectedPackageId, _doc: P
 		return
 	}
 
-	if (pkg.listenToPackageInfoUpdates) {
-		switch (pkg.fromPieceType) {
-			case ExpectedPackageDBType.PIECE:
-			case ExpectedPackageDBType.ADLIB_PIECE:
-			case ExpectedPackageDBType.ADLIB_ACTION:
-			case ExpectedPackageDBType.BASELINE_ADLIB_PIECE:
-			case ExpectedPackageDBType.BASELINE_ADLIB_ACTION:
-			case ExpectedPackageDBType.BASELINE_PIECE:
-			case ExpectedPackageDBType.RUNDOWN_BASELINE_OBJECTS:
-				onUpdatedPackageInfoForRundownDebounce(pkg)
-				break
-			case ExpectedPackageDBType.BUCKET_ADLIB:
-			case ExpectedPackageDBType.BUCKET_ADLIB_ACTION:
-				onUpdatedPackageInfoForBucketItemDebounce(pkg)
-				break
-			case ExpectedPackageDBType.STUDIO_BASELINE_OBJECTS:
-				onUpdatedPackageInfoForStudioBaselineDebounce(pkg)
-				break
-			default:
-				assertNever(pkg)
-				break
+	if (pkg.package.listenToPackageInfoUpdates) {
+		for (const source of pkg.ingestSources) {
+			switch (source.fromPieceType) {
+				case ExpectedPackageDBType.PIECE:
+				case ExpectedPackageDBType.ADLIB_PIECE:
+				case ExpectedPackageDBType.ADLIB_ACTION:
+				case ExpectedPackageDBType.BASELINE_ADLIB_PIECE:
+				case ExpectedPackageDBType.BASELINE_ADLIB_ACTION:
+				case ExpectedPackageDBType.BASELINE_PIECE:
+				case ExpectedPackageDBType.RUNDOWN_BASELINE_OBJECTS:
+					onUpdatedPackageInfoForRundownDebounce(pkg)
+					break
+				case ExpectedPackageDBType.BUCKET_ADLIB:
+				case ExpectedPackageDBType.BUCKET_ADLIB_ACTION:
+					onUpdatedPackageInfoForBucketItemDebounce(pkg, source)
+					break
+				case ExpectedPackageDBType.STUDIO_BASELINE_OBJECTS:
+					onUpdatedPackageInfoForStudioBaselineDebounce(pkg)
+					break
+				default:
+					assertNever(source)
+					break
+			}
 		}
 	}
 }
 
 const pendingRundownPackageUpdates = new Map<RundownId, Array<ExpectedPackageId>>()
-function onUpdatedPackageInfoForRundownDebounce(pkg: ExpectedPackageFromRundown | ExpectedPackageFromRundownBaseline) {
-	const existingEntry = pendingRundownPackageUpdates.get(pkg.rundownId)
+function onUpdatedPackageInfoForRundownDebounce(pkg: ExpectedPackageDB) {
+	if (!pkg.rundownId) {
+		logger.error(`Updating ExpectedPackage "${pkg._id}" for Rundown "${pkg.rundownId}" not possible`)
+		return
+	}
+
+	const rundownId = pkg.rundownId
+
+	const existingEntry = pendingRundownPackageUpdates.get(rundownId)
 	if (existingEntry) {
 		// already queued, add to the batch
 		existingEntry.push(pkg._id)
 	} else {
-		pendingRundownPackageUpdates.set(pkg.rundownId, [pkg._id])
+		pendingRundownPackageUpdates.set(rundownId, [pkg._id])
 	}
 
 	// TODO: Scaling - this won't batch correctly if package manager directs calls to multiple instances
 	lazyIgnore(
-		`onUpdatedPackageInfoForRundown_${pkg.rundownId}`,
+		`onUpdatedPackageInfoForRundown_${rundownId}`,
 		() => {
-			const packageIds = pendingRundownPackageUpdates.get(pkg.rundownId)
+			const packageIds = pendingRundownPackageUpdates.get(rundownId)
 			if (packageIds) {
-				pendingRundownPackageUpdates.delete(pkg.rundownId)
-				onUpdatedPackageInfoForRundown(pkg.rundownId, packageIds).catch((e) => {
-					logger.error(
-						`Updating ExpectedPackages for Rundown "${pkg.rundownId}" failed: ${stringifyError(e)}`
-					)
+				pendingRundownPackageUpdates.delete(rundownId)
+				onUpdatedPackageInfoForRundown(rundownId, packageIds).catch((e) => {
+					logger.error(`Updating ExpectedPackages for Rundown "${rundownId}" failed: ${stringifyError(e)}`)
 				})
 			}
 		},
@@ -108,19 +112,24 @@ async function onUpdatedPackageInfoForRundown(
 	})
 }
 
-function onUpdatedPackageInfoForBucketItemDebounce(
-	pkg: ExpectedPackageDBFromBucketAdLib | ExpectedPackageDBFromBucketAdLibAction
-) {
+function onUpdatedPackageInfoForBucketItemDebounce(pkg: ExpectedPackageDB, source: ExpectedPackageIngestSourceBucket) {
+	if (!pkg.bucketId) {
+		logger.error(`Updating ExpectedPackage "${pkg._id}" for Bucket "${pkg.bucketId}" not possible`)
+		return
+	}
+
+	const bucketId = pkg.bucketId
+
 	lazyIgnore(
-		`onUpdatedPackageInfoForBucket_${pkg.studioId}_${pkg.bucketId}_${pkg.pieceExternalId}`,
+		`onUpdatedPackageInfoForBucket_${pkg.studioId}_${bucketId}_${source.pieceExternalId}`,
 		() => {
 			runIngestOperation(pkg.studioId, IngestJobs.BucketItemRegenerate, {
-				bucketId: pkg.bucketId,
-				externalId: pkg.pieceExternalId,
+				bucketId: bucketId,
+				externalId: source.pieceExternalId,
 			}).catch((err) => {
 				logger.error(
-					`Updating ExpectedPackages for Bucket "${pkg.bucketId}" Item "${
-						pkg.pieceExternalId
+					`Updating ExpectedPackages for Bucket "${bucketId}" Item "${
+						source.pieceExternalId
 					}" failed: ${stringifyError(err)}`
 				)
 			})
@@ -129,7 +138,7 @@ function onUpdatedPackageInfoForBucketItemDebounce(
 	)
 }
 
-function onUpdatedPackageInfoForStudioBaselineDebounce(pkg: ExpectedPackageDBFromStudioBaselineObjects) {
+function onUpdatedPackageInfoForStudioBaselineDebounce(pkg: ExpectedPackageDB) {
 	lazyIgnore(
 		`onUpdatedPackageInfoForStudioBaseline_${pkg.studioId}`,
 		() => {
