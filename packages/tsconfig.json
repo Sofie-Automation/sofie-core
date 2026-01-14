@@ -11,6 +11,7 @@
 		{ "path": "./openapi/tsconfig.json" },
 		{ "path": "./live-status-gateway/tsconfig.json" },
 		{ "path": "./meteor-lib/tsconfig.json" },
-		{ "path": "./webui/tsconfig.json" }
+		{ "path": "./webui/tsconfig.json" },
+		{ "path": "../meteor/tsconfig.json" }
 	]
 }

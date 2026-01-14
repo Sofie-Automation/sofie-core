@@ -12,7 +12,7 @@ function watchPackages() {
 		{
 			command: 'yarn watch --preserveWatchOutput',
 			cwd: "packages",
-			name: "PACKAGES-TSC",
+			name: "TSC",
 			prefixColor: "red",
 		},
 	];
@@ -41,12 +41,6 @@ function watchMeteor() {
 	const rootUrl = process.env.ROOT_URL ? new URL(process.env.ROOT_URL) : null
 
 	return [
-		{
-			command: "yarn watch-types --preserveWatchOutput",
-			cwd: "meteor",
-			name: "METEOR-TSC",
-			prefixColor: "blue",
-		},
 		{
 			command: joinCommand(
 				'yarn debug',
