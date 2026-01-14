@@ -172,7 +172,7 @@ Note that each appContainer needs to use a different resourceId and will need it
 1. Scroll back to the top of the page and select `Proxy for thumbnails & preview` for both "Package Containers to use for previews" and "Package Containers to use for thumbnails".
 1. Your settings should look like this once all the above steps have been completed:
    ![Package Manager demo settings](/img/docs/Package_Manager_demo_settings.png)
-1. If Package Manager `start:single-app` is running, restart it. If not, start it (see the above [Installation instructions](#installation-quick-start) for the relevant command line).
+1. If Package Manager `start:single-app` is running, restart it. If not, start it (see the above [Installation instructions](#installation-for-development-quick-start) for the relevant command line).
 
 ### Separate HTTP proxy server
 
