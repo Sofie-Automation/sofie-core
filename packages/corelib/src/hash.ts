@@ -8,7 +8,15 @@ export function getHash(str: string): string {
 /** Creates a hash based on the object properties (excluding ordering of properties) */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function hashObj(obj: any): string {
-	if (typeof obj === 'object') {
+	if (obj === null) return 'null'
+	if (obj === undefined) return 'undefined'
+
+	if (Array.isArray(obj)) {
+		// For arrays, we care about the order, and should preserve undefined
+		const strs = obj.map((val, i) => hashObj(`${i}:${hashObj(val)}`))
+
+		return getHash(strs.join('|'))
+	} else if (typeof obj === 'object') {
 		const keys = Object.keys(obj).sort((a, b) => {
 			if (a > b) return 1
 			if (a < b) return -1
@@ -17,7 +25,11 @@ export function hashObj(obj: any): string {
 
 		const strs: string[] = []
 		for (const key of keys) {
-			strs.push(hashObj(obj[key]))
+			const val = obj[key]
+			// Skip undefined values to make {a: undefined} hash the same as {}, matching how JSON/mongo serialization will behave
+			if (val !== undefined) {
+				strs.push(`${key}:${hashObj(val)}`)
+			}
 		}
 		return getHash(strs.join('|'))
 	}

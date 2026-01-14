@@ -48,6 +48,7 @@ import { handleClearQuickLoopMarkers, handleSetQuickLoopMarker } from '../../pla
 import { handleActivateAdlibTesting } from '../../playout/adlibTesting.js'
 import { handleExecuteBucketAdLibOrAction } from '../../playout/bucketAdlibJobs.js'
 import { handleSwitchRouteSet } from '../../studio/routeSet.js'
+import { handleCleanupOrphanedExpectedPackageReferences } from '../../playout/expectedPackages.js'
 
 type ExecutableFunction<T extends keyof StudioJobFunc> = (
 	context: JobContext,
@@ -110,4 +111,6 @@ export const studioJobHandlers: StudioJobHandlers = {
 	[StudioJobs.ClearQuickLoopMarkers]: handleClearQuickLoopMarkers,
 
 	[StudioJobs.SwitchRouteSet]: handleSwitchRouteSet,
+
+	[StudioJobs.CleanupOrphanedExpectedPackageReferences]: handleCleanupOrphanedExpectedPackageReferences,
 }

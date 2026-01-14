@@ -205,6 +205,12 @@ export enum StudioJobs {
 	 * for use in ad.lib actions and other triggers
 	 */
 	SwitchRouteSet = 'switchRouteSet',
+
+	/**
+	 * Cleanup any expected packages playout references that are orphaned
+	 * During playout it is hard to track removal of PieceInstances (particularly when resetting PieceInstances)
+	 */
+	CleanupOrphanedExpectedPackageReferences = 'cleanupOrphanedExpectedPackageReferences',
 }
 
 export interface RundownPlayoutPropsBase {
@@ -369,6 +375,11 @@ export interface SwitchRouteSetProps {
 	state: boolean | 'toggle'
 }
 
+export interface CleanupOrphanedExpectedPackageReferencesProps {
+	playlistId: RundownPlaylistId
+	rundownId: RundownId
+}
+
 /**
  * Set of valid functions, of form:
  * `id: (data) => return`
@@ -425,6 +436,8 @@ export type StudioJobFunc = {
 	[StudioJobs.ClearQuickLoopMarkers]: (data: ClearQuickLoopMarkersProps) => void
 
 	[StudioJobs.SwitchRouteSet]: (data: SwitchRouteSetProps) => void
+
+	[StudioJobs.CleanupOrphanedExpectedPackageReferences]: (data: CleanupOrphanedExpectedPackageReferencesProps) => void
 }
 
 export function getStudioQueueName(id: StudioId): string {

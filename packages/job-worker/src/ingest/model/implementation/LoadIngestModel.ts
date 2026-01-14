@@ -3,8 +3,7 @@ import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { JobContext } from '../../../jobs/index.js'
 import { ReadonlyDeep } from 'type-fest'
 import { RundownLock } from '../../../jobs/lock.js'
-import { IngestModel } from '../IngestModel.js'
-import { DatabasePersistedModel } from '../../../modelBase.js'
+import { IngestDatabasePersistedModel, IngestModel } from '../IngestModel.js'
 import { getRundownId } from '../../lib.js'
 import { ExpectedPlayoutItemRundown } from '@sofie-automation/corelib/dist/dataModel/ExpectedPlayoutItem'
 import { RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
@@ -23,7 +22,7 @@ export async function loadIngestModelFromRundown(
 	context: JobContext,
 	rundownLock: RundownLock,
 	rundown: ReadonlyDeep<DBRundown>
-): Promise<IngestModel & DatabasePersistedModel> {
+): Promise<IngestModel & IngestDatabasePersistedModel> {
 	const span = context.startSpan('IngestModel.loadFromRundown')
 	if (span) span.setLabel('rundownId', unprotectString(rundown._id))
 
@@ -57,7 +56,7 @@ export async function loadIngestModelFromRundownExternalId(
 	context: JobContext,
 	rundownLock: RundownLock,
 	rundownExternalId: string
-): Promise<IngestModel & DatabasePersistedModel> {
+): Promise<IngestModel & IngestDatabasePersistedModel> {
 	const span = context.startSpan('IngestModel.loadFromExternalId')
 	if (span) span.setLabel('externalId', rundownExternalId)
 

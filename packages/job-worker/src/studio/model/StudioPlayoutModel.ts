@@ -1,15 +1,15 @@
-import { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import {
+import type { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import type {
 	TimelineComplete,
 	TimelineCompleteGenerationVersions,
 	TimelineObjGeneric,
 } from '@sofie-automation/corelib/dist/dataModel/Timeline'
-import { BaseModel } from '../../modelBase.js'
-import { ReadonlyDeep } from 'type-fest'
-import { ExpectedPackageDBFromStudioBaselineObjects } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
-import { ExpectedPlayoutItemStudio } from '@sofie-automation/corelib/dist/dataModel/ExpectedPlayoutItem'
+import type { BaseModel } from '../../modelBase.js'
+import type { ReadonlyDeep } from 'type-fest'
+import type { ExpectedPlayoutItemStudio } from '@sofie-automation/corelib/dist/dataModel/ExpectedPlayoutItem'
+import type { ExpectedPackage } from '@sofie-automation/blueprints-integration'
 
 export interface StudioPlayoutModelBaseReadonly {
 	/**
@@ -35,7 +35,7 @@ export interface StudioPlayoutModelBase extends StudioPlayoutModelBaseReadonly {
 	 * Update the ExpectedPackages for the StudioBaseline of the current Studio
 	 * @param packages ExpectedPackages to store
 	 */
-	setExpectedPackagesForStudioBaseline(packages: ExpectedPackageDBFromStudioBaselineObjects[]): void
+	setExpectedPackagesForStudioBaseline(packages: ExpectedPackage.Any[]): void
 	/**
 	 * Update the ExpectedPlayoutItems for the StudioBaseline of the current Studio
 	 * @param playoutItems ExpectedPlayoutItems to store

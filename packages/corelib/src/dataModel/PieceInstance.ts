@@ -7,6 +7,7 @@ import {
 	RundownId,
 	PartInstanceId,
 	PieceId,
+	ExpectedPackageId,
 } from './Ids.js'
 import { Piece } from './Piece.js'
 import { omit } from '../lib.js'
@@ -74,6 +75,8 @@ export interface PieceInstance {
 	reportedStoppedPlayback?: Time
 	plannedStartedPlayback?: Time
 	plannedStoppedPlayback?: Time
+
+	neededExpectedPackageIds?: ExpectedPackageId[]
 }
 
 export interface ResolvedPieceInstance {

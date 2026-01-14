@@ -11,7 +11,14 @@ import {
 	VTContent,
 } from '@sofie-automation/blueprints-integration'
 import { getExpectedPackageId } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
-import { ExpectedPackageId, PeripheralDeviceId, PieceInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import {
+	BucketId,
+	ExpectedPackageId,
+	PeripheralDeviceId,
+	PieceInstanceId,
+	RundownId,
+	StudioId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 import {
 	getPackageContainerPackageId,
 	PackageContainerPackageStatusDB,
@@ -220,6 +227,7 @@ export interface PieceContentStatusStudio
 
 export async function checkPieceContentStatusAndDependencies(
 	studio: PieceContentStatusStudio,
+	packageOwnerId: RundownId | BucketId | StudioId,
 	messageFactory: PieceContentStatusMessageFactory | undefined,
 	piece: PieceContentStatusPiece,
 	sourceLayer: ISourceLayer
@@ -290,6 +298,7 @@ export async function checkPieceContentStatusAndDependencies(
 				piece,
 				sourceLayer,
 				studio,
+				packageOwnerId,
 				getPackageInfos,
 				getPackageContainerPackageStatus,
 				messageFactory || DEFAULT_MESSAGE_FACTORY
@@ -589,6 +598,7 @@ async function checkPieceContentExpectedPackageStatus(
 	piece: PieceContentStatusPiece,
 	sourceLayer: ISourceLayer,
 	studio: PieceContentStatusStudio,
+	packageOwnerId: RundownId | BucketId | StudioId,
 	getPackageInfos: (packageId: ExpectedPackageId) => Promise<PackageInfoLight[]>,
 	getPackageContainerPackageStatus: (
 		packageContainerId: string,
@@ -657,20 +667,8 @@ async function checkPieceContentExpectedPackageStatus(
 
 				checkedPackageContainers.add(matchedPackageContainer[0])
 
-				const expectedPackageIds = [getExpectedPackageId(piece._id, expectedPackage._id)]
-				if (piece.pieceInstanceId) {
-					// If this is a PieceInstance, try looking up the PieceInstance first
-					expectedPackageIds.unshift(getExpectedPackageId(piece.pieceInstanceId, expectedPackage._id))
-
-					if (piece.previousPieceInstanceId) {
-						// Also try the previous PieceInstance, when this is an infinite continuation in case package-manager needs to catchup
-						expectedPackageIds.unshift(
-							getExpectedPackageId(piece.previousPieceInstanceId, expectedPackage._id)
-						)
-					}
-				}
-
 				const fileName = getExpectedPackageFileName(expectedPackage) ?? ''
+				const containerLabel = matchedPackageContainer[1].container.label
 
 				// Check if any of the sources exist and are valid
 				// Future: This might be better to do by passing packageManager an 'forcedError' property in the publication, but this direct check is simpler and enough for now
@@ -690,55 +688,51 @@ async function checkPieceContentExpectedPackageStatus(
 					continue
 				}
 
-				let warningMessage: ContentMessageLight | null = null
-				let matchedExpectedPackageId: ExpectedPackageId | null = null
-				for (const expectedPackageId of expectedPackageIds) {
-					const packageOnPackageContainer = await getPackageContainerPackageStatus(
-						matchedPackageContainer[0],
-						expectedPackageId
-					)
-					if (!packageOnPackageContainer) continue
+				const candidatePackageId = getExpectedPackageId(packageOwnerId, expectedPackage)
+				const packageOnPackageContainer = await getPackageContainerPackageStatus(
+					matchedPackageContainer[0],
+					candidatePackageId
+				)
+				if (!packageOnPackageContainer) {
+					// If no package matched, we must have a warning
 
-					matchedExpectedPackageId = expectedPackageId
+					pushOrMergeMessage({
+						...getPackageSourceMissingWarning(),
+						fileName: fileName,
+						packageContainers: [containerLabel],
+					})
 
-					if (!thumbnailUrl) {
-						const sideEffect = getSideEffect(expectedPackage, studio)
-
-						thumbnailUrl = await getAssetUrlFromPackageContainerStatus(
-							studio.packageContainers,
-							getPackageContainerPackageStatus,
-							expectedPackageId,
-							sideEffect.thumbnailContainerId,
-							sideEffect.thumbnailPackageSettings?.path
-						)
-					}
-
-					if (!previewUrl) {
-						const sideEffect = getSideEffect(expectedPackage, studio)
-
-						previewUrl = await getAssetUrlFromPackageContainerStatus(
-							studio.packageContainers,
-							getPackageContainerPackageStatus,
-							expectedPackageId,
-							sideEffect.previewContainerId,
-							sideEffect.previewPackageSettings?.path
-						)
-					}
-
-					warningMessage = getPackageWarningMessage(packageOnPackageContainer.status)
-
-					progress = getPackageProgress(packageOnPackageContainer.status) ?? undefined
-
-					// Found a packageOnPackageContainer
-					break
+					continue
 				}
 
-				const containerLabel = matchedPackageContainer[1].container.label
+				if (!thumbnailUrl) {
+					const sideEffect = getSideEffect(expectedPackage, studio)
 
-				if (!matchedExpectedPackageId || warningMessage) {
-					// If no package matched, we must have a warning
-					warningMessage = warningMessage ?? getPackageSourceMissingWarning()
+					thumbnailUrl = await getAssetUrlFromPackageContainerStatus(
+						studio.packageContainers,
+						getPackageContainerPackageStatus,
+						candidatePackageId,
+						sideEffect.thumbnailContainerId,
+						sideEffect.thumbnailPackageSettings?.path
+					)
+				}
 
+				if (!previewUrl) {
+					const sideEffect = getSideEffect(expectedPackage, studio)
+
+					previewUrl = await getAssetUrlFromPackageContainerStatus(
+						studio.packageContainers,
+						getPackageContainerPackageStatus,
+						candidatePackageId,
+						sideEffect.previewContainerId,
+						sideEffect.previewPackageSettings?.path
+					)
+				}
+
+				progress = getPackageProgress(packageOnPackageContainer.status) ?? undefined
+
+				const warningMessage = getPackageWarningMessage(packageOnPackageContainer.status)
+				if (warningMessage) {
 					pushOrMergeMessage({
 						...warningMessage,
 						fileName: fileName,
@@ -753,7 +747,7 @@ async function checkPieceContentExpectedPackageStatus(
 						containerLabel,
 					}
 					// Fetch scan-info about the package:
-					const dbPackageInfos = await getPackageInfos(matchedExpectedPackageId)
+					const dbPackageInfos = await getPackageInfos(candidatePackageId)
 					for (const packageInfo of dbPackageInfos) {
 						if (packageInfo.type === PackageInfo.Type.SCAN) {
 							packageInfos[expectedPackage._id].scan = packageInfo.payload

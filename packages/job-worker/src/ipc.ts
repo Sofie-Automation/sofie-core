@@ -10,14 +10,8 @@ import { getPrometheusMetricsString, setupPrometheusMetrics } from '@sofie-autom
  */
 class IpcJobManager implements JobManager {
 	constructor(
-		public readonly jobFinished: (
-			id: string,
-			startedTime: number,
-			finishedTime: number,
-			error: any,
-			result: any
-		) => Promise<void>,
-		public readonly queueJob: (queueName: string, jobName: string, jobData: unknown) => Promise<void>,
+		public readonly jobFinished: JobManager['jobFinished'],
+		public readonly queueJob: JobManager['queueJob'],
 		private readonly interruptJobStream: (queueName: string) => Promise<void>,
 		private readonly waitForNextJob: (queueName: string) => Promise<void>,
 		private readonly getNextJob: (queueName: string) => Promise<JobSpec | null>
@@ -43,11 +37,11 @@ class IpcJobManager implements JobManager {
 export class IpcJobWorker extends JobWorkerBase {
 	constructor(
 		workerId: WorkerId,
-		jobFinished: (id: string, startedTime: number, finishedTime: number, error: any, result: any) => Promise<void>,
+		jobFinished: JobManager['jobFinished'],
 		interruptJobStream: (queueName: string) => Promise<void>,
 		waitForNextJob: (queueName: string) => Promise<void>,
 		getNextJob: (queueName: string) => Promise<JobSpec | null>,
-		queueJob: (queueName: string, jobName: string, jobData: unknown) => Promise<void>,
+		queueJob: JobManager['queueJob'],
 		logLine: (msg: LogEntry) => Promise<void>,
 		fastTrackTimeline: FastTrackTimelineFunc,
 		enableFreezeLimit: boolean

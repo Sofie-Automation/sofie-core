@@ -1477,6 +1477,7 @@ describe('Test blueprint api context', () => {
 					expect(resultPiece).toEqual(convertPieceInstanceToBlueprints(pieceInstance1.pieceInstance))
 					const pieceInstance0After = {
 						...pieceInstance0Before,
+						neededExpectedPackageIds: [],
 						piece: {
 							...pieceInstance0Before.piece,
 							...omit(pieceInstance0Delta, 'badProperty', '_id'),

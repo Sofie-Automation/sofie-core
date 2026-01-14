@@ -1,6 +1,5 @@
 import { ExpectedPackageStatusAPI, Time } from '@sofie-automation/blueprints-integration'
-import { ExpectedPackageDBBase } from './ExpectedPackages.js'
-import { ExpectedPackageWorkStatusId, PeripheralDeviceId } from './Ids.js'
+import { ExpectedPackageId, ExpectedPackageWorkStatusId, PeripheralDeviceId, StudioId } from './Ids.js'
 
 /**
  * ExpectedPackageWorkStatus contains statuses about Work that is being performed on expected packages
@@ -10,7 +9,7 @@ import { ExpectedPackageWorkStatusId, PeripheralDeviceId } from './Ids.js'
 export interface ExpectedPackageWorkStatus extends Omit<ExpectedPackageStatusAPI.WorkStatus, 'fromPackages'> {
 	_id: ExpectedPackageWorkStatusId
 
-	studioId: ExpectedPackageDBBase['studioId']
+	studioId: StudioId
 	fromPackages: ExpectedPackageWorkStatusFromPackage[]
 
 	/** Which PeripheralDevice this update came from */
@@ -20,5 +19,5 @@ export interface ExpectedPackageWorkStatus extends Omit<ExpectedPackageStatusAPI
 }
 export interface ExpectedPackageWorkStatusFromPackage
 	extends Omit<ExpectedPackageStatusAPI.WorkBaseInfoFromPackage, 'id'> {
-	id: ExpectedPackageDBBase['_id']
+	id: ExpectedPackageId
 }
