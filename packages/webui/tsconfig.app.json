@@ -27,5 +27,11 @@
 			"meteor/*": ["./src/meteor/*"]
 		}
 	},
-	"include": ["src"]
+	"include": ["src"],
+	"references": [
+		{ "path": "../shared-lib" },
+		{ "path": "../meteor-lib" },
+		{ "path": "../blueprints-integration" },
+		{ "path": "../corelib" }
+	]
 }

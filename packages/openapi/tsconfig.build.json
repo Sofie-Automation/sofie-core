@@ -1,7 +1,7 @@
 {
 	"extends": "@sofie-automation/code-standard-preset/ts/tsconfig.lib",
 	"include": ["client/ts/**/*.ts", "src/**/*.ts", "index.ts"],
-	"exclude": ["node_modules/**", "src/**/*spec.ts", "src/**/__tests__/*", "src/**/__mocks__/*"],
+	"exclude": ["node_modules/**", "**/*spec.ts", "**/__tests__/*", "**/__mocks__/*"],
 	"compilerOptions": {
 		"outDir": "./dist",
 		"baseUrl": "./",

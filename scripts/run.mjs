@@ -1,7 +1,7 @@
 import process from "process";
 import fs from "fs";
 import concurrently from "concurrently";
-import { EXTRA_PACKAGES, config } from "./lib.js";
+import { config } from "./lib.js";
 
 function joinCommand(...parts) {
 	return parts.filter((part) => !!part).join(" ");
@@ -10,13 +10,7 @@ function joinCommand(...parts) {
 function watchPackages() {
 	return [
 		{
-			command: joinCommand('yarn watch',
-				config.uiOnly
-					? EXTRA_PACKAGES.map((pkg) => `--ignore ${pkg}`).join(
-						" "
-					)
-					: "",
-			),
+			command: 'yarn watch --preserveWatchOutput',
 			cwd: "packages",
 			name: "PACKAGES-TSC",
 			prefixColor: "red",

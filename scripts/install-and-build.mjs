@@ -1,7 +1,6 @@
 import cp from "child_process";
 import process from "process";
 import concurrently from "concurrently";
-import { EXTRA_PACKAGES, config } from "./lib.js";
 
 function hr() {
 	// write regular dashes if this is a "simple" output stream ()
@@ -70,15 +69,10 @@ try {
 	console.log(" 🪛  Build packages...");
 	console.log(hr());
 
-	const buildArgs = ["--ignore @sofie-automation/webui"];
-	if (config.uiOnly) {
-		buildArgs.push(...EXTRA_PACKAGES.map((pkg) => `--ignore ${pkg}`));
-	}
-
 	await concurrently(
 		[
 			{
-				command: `yarn build:try ${buildArgs.join(" ")}`,
+				command: `yarn build:try`,
 				cwd: "packages",
 				name: "PACKAGES-BUILD",
 				prefixColor: "yellow",

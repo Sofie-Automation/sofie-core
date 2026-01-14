@@ -1,9 +1,10 @@
 {
 	"extends": "@sofie-automation/code-standard-preset/ts/tsconfig.bin",
 	"include": ["src/**/*.ts"],
-	"exclude": ["node_modules/**", "src/**/*spec.ts", "src/**/__tests__/*", "src/**/__mocks__/*"],
+	"exclude": ["node_modules/**", "**/*spec.ts", "**/__tests__/*", "**/__mocks__/*"],
 	"compilerOptions": {
 		"outDir": "./dist",
+		"rootDir": "./src",
 		"baseUrl": "./",
 		"paths": {
 			"*": ["./node_modules/*"],
@@ -13,5 +14,12 @@
 		"resolveJsonModule": true,
 		"skipLibCheck": true,
 		"esModuleInterop": true
-	}
+	},
+	"references": [
+		{ "path": "../shared-lib" },
+		{ "path": "../live-status-gateway-api" },
+		{ "path": "../blueprints-integration" },
+		{ "path": "../server-core-integration" },
+		{ "path": "../corelib" }
+	]
 }
