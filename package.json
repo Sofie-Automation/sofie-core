@@ -19,7 +19,7 @@
 		"test:packages": "cd packages && run test",
 		"lint:packages": "cd packages && run lint",
 		"unit:packages": "cd packages && run unit",
-		"check-types:meteor": "cd meteor && run check-types",
+		"check-types": "cd packages && run build",
 		"test:meteor": "cd meteor && run test",
 		"lint:meteor": "cd meteor && yarn lint",
 		"unit:meteor": "cd meteor && yarn unit",
@@ -33,7 +33,7 @@
 		"meteor": "cd meteor && meteor",
 		"docs:serve": "cd packages && run docs:serve",
 		"reset": "node scripts/reset.mjs",
-		"test-all": "yarn install && run install-and-build && run check-types:meteor && run lint:packages && run lint:meteor && run test:packages && run test:meteor"
+		"test-all": "yarn install && run install-and-build && run check-types && run lint:packages && run lint:meteor && run test:packages && run test:meteor"
 	},
 	"devDependencies": {
 		"concurrently": "^9.1.2",

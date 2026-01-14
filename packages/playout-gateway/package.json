@@ -20,10 +20,6 @@
 	},
 	"contributors": [],
 	"scripts": {
-		"build": "run -T rimraf dist && run build:main",
-		"buildstart": "run build && run dev",
-		"buildinspect": "run build && run inspect",
-		"build:main": "run -T tsc -p tsconfig.build.json",
 		"lint:raw": "run -T eslint",
 		"lint": "run lint:raw .",
 		"unit": "run -T jest",

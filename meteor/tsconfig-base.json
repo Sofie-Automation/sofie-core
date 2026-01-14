@@ -14,8 +14,16 @@
 				//   "./node_modules/@types/meteor/*",
 				"./.meteor/local/types/packages.d.ts"
 			]
-		}
+		},
+		"noEmit": true
 	},
 	"include": ["client/**/*", "server/**/*", "lib/**/*", "__mocks__/**/*", "tslint-rules/**/*"],
-	"exclude": ["node_modules", "**/.coverage/**/*"]
+	"exclude": ["node_modules", "**/.coverage/**/*"],
+	"references": [
+		{ "path": "../shared-lib" },
+		{ "path": "../blueprints-integration" },
+		{ "path": "../corelib" },
+		{ "path": "../meteor-lib" },
+		{ "path": "../job-worker" }
+	]
 }

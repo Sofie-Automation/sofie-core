@@ -16,9 +16,7 @@
 	"scripts": {
 		"dev": "vite --port=3005 --force",
 		"build": "tsc -b && vite build",
-		"build:main": "tsc -p tsconfig.app.json --noEmit",
 		"check-types": "tsc -p tsconfig.app.json --noEmit",
-		"watch-types": "run check-types --watch",
 		"preview": "vite preview",
 		"lint:raw": "run -T eslint",
 		"lint": "run lint:raw .",
