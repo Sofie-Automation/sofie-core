@@ -8,14 +8,14 @@ An example setup for the MOS Gateway is included in the example Docker Compose f
 
 You can activate the profile by setting `COMPOSE_PROFILES=mos-gateway` as an environment variable or by writing that to a file called `.env` in the same folder as the docker-compose file. For more information, see the [docker documentation on Compose profiles](https://docs.docker.com/compose/how-tos/profiles/).
 
-Development of the MOS gateway is done as a package in the [sofie-core repository on GitHub](https://github.com/nrkno/sofie-core/tree/master/packages/mos-gateway).
+Development of the MOS gateway is done as a package in the [sofie-core repository on GitHub](https://github.com/Sofie-Automation/sofie-core/tree/master/packages/mos-gateway).
 
 One thing to note if managing the mos-gateway manually: It needs a few ports open \(10540, 10541\) for MOS-messages to be pushed to it from the NCS.
 
 ## Status Reporting
 
 :::warning
-Behaviour of this has changed In R53 as part of expanding the reporting ability.  
+Behaviour of this has changed In R53 as part of expanding the reporting ability.
 If you were using this prior to that change, you can restore previous behaviour by enabling `Write Statuses to NRCS` and `Only send PLAY statuses` in the MOS gateway settings.
 :::
 
