@@ -1,6 +1,12 @@
 import * as React from 'react'
 import { ISourceLayerUi, IOutputLayerUi, PartUi, PieceUi } from './SegmentTimelineContainer.js'
-import { SourceLayerType, PieceLifespan, IBlueprintPieceType } from '@sofie-automation/blueprints-integration'
+import {
+	SourceLayerType,
+	PieceLifespan,
+	IBlueprintPieceType,
+	UserEditingType,
+	DefaultUserOperationsTypes,
+} from '@sofie-automation/blueprints-integration'
 import { RundownUtils } from '../../lib/rundown.js'
 import { DefaultLayerItemRenderer } from './Renderers/DefaultLayerItemRenderer.js'
 import { MicSourceRenderer } from './Renderers/MicSourceRenderer.js'
@@ -20,6 +26,7 @@ import { ReadonlyDeep } from 'type-fest'
 import { useSelectedElementsContext } from '../RundownView/SelectedElementsContext.js'
 import { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
 import { useCallback, useRef, useState, useEffect, useContext } from 'react'
+import { dragContext } from '../RundownView/DragContext.js'
 import {
 	convertSourceLayerItemToPreview,
 	IPreviewPopUpSession,
@@ -114,6 +121,11 @@ export const SourceLayerItem = (props: Readonly<ISourceLayerItemProps>): JSX.Ele
 	const [leftAnchoredWidth, setLeftAnchoredWidth] = useState<number>(0)
 	const [rightAnchoredWidth, setRightAnchoredWidth] = useState<number>(0)
 
+	const dragCtx = useContext(dragContext)
+	const hasDraggableElement = !!piece.instance.piece.userEditOperations?.find(
+		(op) => op.type === UserEditingType.SOFIE && op.id === DefaultUserOperationsTypes.RETIME_PIECE
+	)
+
 	const state = {
 		highlight,
 		showPreviewPopUp,
@@ -164,6 +176,9 @@ export const SourceLayerItem = (props: Readonly<ISourceLayerItemProps>): JSX.Ele
 	)
 	const itemDblClick = useCallback(
 		(e: React.MouseEvent<HTMLDivElement>) => {
+			e.preventDefault()
+			e.stopPropagation()
+
 			if (studio?.settings.enableUserEdits && !studio?.settings.allowPieceDirectPlay) {
 				const pieceId = piece.instance.piece._id
 				if (!selectElementContext.isSelected(pieceId)) {
@@ -171,23 +186,42 @@ export const SourceLayerItem = (props: Readonly<ISourceLayerItemProps>): JSX.Ele
 				} else {
 					selectElementContext.clearSelections()
 				}
-				// Until a proper data structure, the only reference is a part.
-				// const partId = this.props.part.instance.part._id
-				// if (!selectElementContext.isSelected(partId)) {
-				// 	selectElementContext.clearAndSetSelection({ type: 'part', elementId: partId })
-				// } else {
-				// 	selectElementContext.clearSelections()
-				// }
 			} else if (typeof onDoubleClick === 'function') {
 				onDoubleClick(piece, e)
 			}
 		},
 		[piece]
 	)
-	const itemMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-		e.preventDefault()
-		e.stopPropagation()
-	}, [])
+	const itemMouseDown = useCallback(
+		(e: React.MouseEvent<HTMLDivElement>) => {
+			if (!hasDraggableElement) return
+
+			if (dragCtx && dragCtx.enabled) {
+				e.preventDefault()
+				e.stopPropagation()
+
+				const targetPos = (e.target as HTMLDivElement).getBoundingClientRect()
+				const retimeOp = piece.instance.piece.userEditOperations?.find(
+					(op) => op.type === UserEditingType.SOFIE && op.id === DefaultUserOperationsTypes.RETIME_PIECE
+				) as any
+
+				const limitToPart = retimeOp?.limitToCurrentPart ? piece.instance.partInstanceId : undefined
+
+				dragCtx.startDrag(
+					piece,
+					timeScale,
+					{
+						x: e.clientX,
+						y: e.clientY,
+					},
+					targetPos.x - e.clientX,
+					limitToPart,
+					part.instance.segmentId
+				)
+			}
+		},
+		[piece, timeScale, dragCtx, part]
+	)
 	const itemMouseUp = useCallback((e: any) => {
 		const eM = e as MouseEvent
 		if (eM.ctrlKey === true) {
@@ -531,29 +565,31 @@ export const SourceLayerItem = (props: Readonly<ISourceLayerItemProps>): JSX.Ele
 			...props,
 			...state,
 		}
+		// Key cannot be part of a spread operator, therefore needs to be kept out of elProps
+		const elKey = unprotectString(piece.instance._id)
 
 		switch (layer.type) {
 			case SourceLayerType.SCRIPT:
 				// case SourceLayerType.MIC:
-				return <MicSourceRenderer key={unprotectString(piece.instance._id)} {...elProps} />
+				return <MicSourceRenderer key={elKey} {...elProps} />
 			case SourceLayerType.VT:
 			case SourceLayerType.LIVE_SPEAK:
-				return <VTSourceRenderer key={unprotectString(piece.instance._id)} {...elProps} />
+				return <VTSourceRenderer key={elKey} {...elProps} />
 			case SourceLayerType.GRAPHICS:
 			case SourceLayerType.LOWER_THIRD:
 			case SourceLayerType.STUDIO_SCREEN:
-				return <L3rdSourceRenderer key={unprotectString(piece.instance._id)} {...elProps} />
+				return <L3rdSourceRenderer key={elKey} {...elProps} />
 			case SourceLayerType.SPLITS:
-				return <SplitsSourceRenderer key={unprotectString(piece.instance._id)} {...elProps} />
+				return <SplitsSourceRenderer key={elKey} {...elProps} />
 
 			case SourceLayerType.TRANSITION:
 				// TODOSYNC: TV2 uses other renderers, to be discussed.
 
-				return <TransitionSourceRenderer key={unprotectString(piece.instance._id)} {...elProps} />
+				return <TransitionSourceRenderer key={elKey} {...elProps} />
 			case SourceLayerType.LOCAL:
-				return <LocalLayerItemRenderer key={unprotectString(piece.instance._id)} {...elProps} />
+				return <LocalLayerItemRenderer key={elKey} {...elProps} />
 			default:
-				return <DefaultLayerItemRenderer key={unprotectString(piece.instance._id)} {...elProps} />
+				return <DefaultLayerItemRenderer key={elKey} {...elProps} />
 		}
 	}
 
@@ -575,8 +611,10 @@ export const SourceLayerItem = (props: Readonly<ISourceLayerItemProps>): JSX.Ele
 					layer.type,
 					part.partId,
 					highlight,
-					elementWidth
+					elementWidth,
 					// this.state
+					undefined,
+					hasDraggableElement && dragCtx?.enabled
 				)}
 				data-obj-id={piece.instance._id}
 				ref={setRef}
