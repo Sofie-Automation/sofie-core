@@ -67,6 +67,7 @@ import { PlayoutPartInstanceModel } from '../model/PlayoutPartInstanceModel.js'
 import { PlayoutPartInstanceModelImpl } from '../model/implementation/PlayoutPartInstanceModelImpl.js'
 import { mock } from 'jest-mock-extended'
 import { QuickLoopService } from '../model/services/QuickLoopService.js'
+import { getCurrentTime } from '../../lib/time.js'
 
 /**
  * An object used to represent the simplified timeline structure.
@@ -266,7 +267,7 @@ function checkTimingsRaw(
 	}
 }
 
-/** Perform a take and check the selected part ids are as expected */
+/** Perform a take and check the selected part ids are as expected. Wait for 1500ms before doing a take. */
 async function doTakePart(
 	context: MockJobContext,
 	playlistId: RundownPlaylistId,
@@ -1636,6 +1637,386 @@ describe('Timeline', () => {
 							},
 							previousOutTransition: undefined,
 						})
+					}
+				))
+		})
+	})
+	describe('Multi-gateway mode', () => {
+		let context: MockJobContext
+		let showStyle: ReadonlyDeep<ProcessedShowStyleCompound>
+
+		const playoutLatency = 5
+		const latencySafetyMargin = 10
+
+		beforeEach(async () => {
+			restartRandomId()
+
+			context = setupDefaultJobEnvironment(undefined, {
+				forceMultiGatewayMode: true,
+				multiGatewayNowSafeLatency: latencySafetyMargin,
+			})
+
+			useFakeCurrentTime(10000)
+
+			showStyle = await setupMockShowStyleCompound(context)
+
+			// Ignore calls to queueEventJob, they are expected
+			context.queueEventJob = async () => Promise.resolve()
+		})
+		afterEach(() => {
+			useRealCurrentTime()
+		})
+
+		/**
+		 * Perform a test to check how a transition is formed on the timeline.
+		 * This simulates two takes then allows for analysis of the state.
+		 * @param name Name of the test
+		 * @param customRundownFactory Factory to produce the rundown to play
+		 * @param checkFcn Function used to check the resulting timeline
+		 * @param timeout Override the timeout of the test
+		 */
+		function testTransitionTimings(
+			name: string,
+			customRundownFactory: (
+				context: MockJobContext,
+				playlistId: RundownPlaylistId,
+				rundownId: RundownId,
+				showStyle: ReadonlyDeep<ProcessedShowStyleCompound>
+			) => Promise<RundownId>,
+			checkFcn: (
+				rundownId: RundownId,
+				timeline: null,
+				currentPartInstance: DBPartInstance,
+				previousPartInstance: DBPartInstance,
+				checkTimings: (timings: PartTimelineTimings) => Promise<void>,
+				previousTakeTime: number
+			) => Promise<void>,
+			timeout?: number
+		) {
+			// eslint-disable-next-line jest/expect-expect
+			test(
+				// eslint-disable-next-line jest/valid-title
+				name,
+				async () =>
+					runTimelineTimings(
+						customRundownFactory,
+						async (playlistId, rundownId, parts, _getPartInstances, checkTimings) => {
+							// Take the first Part:
+							const { currentPartInstance: currentPartInstance0 } = await doTakePart(
+								context,
+								playlistId,
+								null,
+								parts[0]._id,
+								parts[1]._id
+							)
+
+							const afterFirstTakeTime = getCurrentTime()
+
+							// Report the first part as having started playback
+							await doAutoPlayoutPlaybackChangedForPart(
+								context,
+								playlistId,
+								currentPartInstance0!._id,
+								getCurrentTime()
+							)
+
+							// Take the second Part:
+							const { currentPartInstance, previousPartInstance } = await doTakePart(
+								context,
+								playlistId,
+								parts[0]._id,
+								parts[1]._id,
+								null
+							)
+
+							// Report the second part as having started playback
+							await doAutoPlayoutPlaybackChangedForPart(
+								context,
+								playlistId,
+								currentPartInstance!._id,
+								getCurrentTime()
+							)
+
+							// Run the result check
+							await checkFcn(
+								rundownId,
+								null,
+								currentPartInstance!,
+								previousPartInstance!,
+								checkTimings,
+								afterFirstTakeTime + playoutLatency + latencySafetyMargin
+							)
+						}
+					),
+				timeout
+			)
+		}
+
+		/**
+		 * Perform a test to check how a timeline is formed
+		 * This simulates two takes then allows for analysis of the state.
+		 * @param customRundownFactory Factory to produce the rundown to play
+		 * @param fcn Function to perform some playout operations and check the results
+		 */
+		async function runTimelineTimings(
+			customRundownFactory: (
+				context: MockJobContext,
+				playlistId: RundownPlaylistId,
+				rundownId: RundownId,
+				showStyle: ReadonlyDeep<ProcessedShowStyleCompound>
+			) => Promise<RundownId>,
+			fcn: (
+				playlistId: RundownPlaylistId,
+				rundownId: RundownId,
+				parts: DBPart[],
+				getPartInstances: () => Promise<SelectedPartInstances>,
+				checkTimings: (timings: PartTimelineTimings) => Promise<void>
+			) => Promise<void>
+		) {
+			await setupMockPeripheralDevice(
+				context,
+				PeripheralDeviceCategory.PLAYOUT,
+				PeripheralDeviceType.PLAYOUT,
+				PERIPHERAL_SUBTYPE_PROCESS,
+				{
+					latencies: [playoutLatency],
+				}
+			)
+
+			const rundownId0: RundownId = getRandomId()
+			const playlistId0 = await context.mockCollections.RundownPlaylists.insertOne(
+				defaultRundownPlaylist(protectString('playlist_' + rundownId0), context.studioId)
+			)
+
+			const rundownId = await customRundownFactory(context, playlistId0, rundownId0, showStyle)
+			expect(rundownId0).toBe(rundownId)
+
+			const rundown = (await context.directCollections.Rundowns.findOne(rundownId0)) as Rundown
+			expect(rundown).toBeTruthy()
+
+			{
+				const playlist = (await context.directCollections.RundownPlaylists.findOne(
+					playlistId0
+				)) as DBRundownPlaylist
+				expect(playlist).toBeTruthy()
+
+				// Ensure this is defined to something, for the jest matcher
+				playlist.activationId = playlist.activationId ?? undefined
+
+				expect(playlist).toMatchObject({
+					activationId: undefined,
+					rehearsal: false,
+				})
+			}
+
+			const parts = await getSortedPartsForRundown(context, rundown._id)
+
+			// Prepare and activate in rehersal:
+			await doActivatePlaylist(context, playlistId0, parts[0]._id)
+
+			const getPartInstances = async (): Promise<SelectedPartInstances> => {
+				const playlist = (await context.directCollections.RundownPlaylists.findOne(
+					playlistId0
+				)) as DBRundownPlaylist
+				expect(playlist).toBeTruthy()
+				const res = await getSelectedPartInstances(context, playlist)
+
+				async function wrapPartInstance(
+					partInstance: DBPartInstance | null
+				): Promise<PlayoutPartInstanceModel | undefined> {
+					if (!partInstance) return undefined
+
+					const pieceInstances = await context.directCollections.PieceInstances.findFetch({
+						partInstanceId: partInstance?._id,
+					})
+					return new PlayoutPartInstanceModelImpl(
+						partInstance,
+						pieceInstances,
+						false,
+						mock<QuickLoopService>()
+					)
+				}
+
+				return {
+					currentPartInstance: await wrapPartInstance(res.currentPartInstance),
+					nextPartInstance: await wrapPartInstance(res.nextPartInstance),
+					previousPartInstance: await wrapPartInstance(res.previousPartInstance),
+				}
+			}
+
+			const checkTimings = async (timings: PartTimelineTimings) => {
+				// Check the calculated timings
+				const timeline = await context.directCollections.Timelines.findOne(context.studio._id)
+				expect(timeline).toBeTruthy()
+
+				const { currentPartInstance, previousPartInstance } = await getPartInstances()
+				return checkTimingsRaw(rundownId0, timeline, currentPartInstance!, previousPartInstance, timings)
+			}
+
+			// Run the required steps
+			await fcn(playlistId0, rundownId0, parts, getPartInstances, checkTimings)
+
+			// Deactivate rundown:
+			await doDeactivatePlaylist(context, playlistId0)
+
+			const timelinesEnd = await context.directCollections.Timelines.findFetch()
+			expect(fixSnapshot(timelinesEnd)).toMatchSnapshot()
+		}
+
+		describe('In transitions', () => {
+			testTransitionTimings(
+				'inTransition with existing infinites',
+				setupRundownWithInTransitionExistingInfinite,
+				async (
+					_rundownId0,
+					_timeline,
+					currentPartInstance,
+					_previousPartInstance,
+					checkTimings,
+					firstPartTakeTime
+				) => {
+					await checkTimings({
+						// old part is extended due to transition keepalive
+						previousPart: { end: `#${getPartGroupId(currentPartInstance)}.start + 1000` },
+						currentPieces: {
+							// pieces are delayed by the content delay
+							piece010: {
+								controlObj: { start: 500 },
+								childGroup: { preroll: 0, postroll: 0 },
+							},
+							// transition piece
+							piece011: {
+								controlObj: { start: 0 },
+								childGroup: { preroll: 0, postroll: 0 },
+							},
+						},
+						currentInfinitePieces: {
+							piece002: {
+								// Should still be based on the time of previousPart
+								partGroup: { start: firstPartTakeTime },
+								pieceGroup: {
+									controlObj: { start: 500 },
+									childGroup: { preroll: 0, postroll: 0 },
+								},
+							},
+						},
+						previousOutTransition: undefined,
+					})
+				}
+			)
+		})
+
+		describe('Infinite Pieces', () => {
+			test('Infinite Piece has stable timing across timeline regenerations after onPlayoutPlaybackChanged', async () =>
+				runTimelineTimings(
+					async (
+						context: MockJobContext,
+						playlistId: RundownPlaylistId,
+						rundownId: RundownId,
+						showStyle: ReadonlyDeep<ProcessedShowStyleCompound>
+					): Promise<RundownId> => {
+						const sourceLayerIds = Object.keys(showStyle.sourceLayers)
+
+						await setupRundownBase(
+							context,
+							playlistId,
+							rundownId,
+							showStyle,
+							{},
+							{
+								piece0: { prerollDuration: 500 },
+								piece1: {
+									prerollDuration: 50,
+									sourceLayerId: sourceLayerIds[3],
+									lifespan: PieceLifespan.OutOnSegmentEnd,
+								},
+							}
+						)
+
+						return rundownId
+					},
+					async (playlistId, rundownId, parts, getPartInstances, checkTimings) => {
+						useFakeCurrentTime(10000)
+
+						// Take the only Part:
+						await doTakePart(context, playlistId, null, parts[0]._id, null) // this moves 1500ms forward in fake time before doing a take
+						const afterTakeTime = 11500 // getCurrentTime()
+						const plannedStartedPlayback = afterTakeTime + playoutLatency + latencySafetyMargin // 11515 = 11500 + 5 + 10
+
+						const { currentPartInstance } = await getPartInstances()
+						expect(currentPartInstance).toBeTruthy()
+						if (!currentPartInstance) throw new Error('currentPartInstance must be defined')
+
+						const expectedTimeline = {
+							previousPart: null,
+							currentPieces: {
+								piece000: {
+									// This one gave the preroll
+									controlObj: {
+										start: 500,
+									},
+									childGroup: {
+										preroll: 500,
+										postroll: 0,
+									},
+								},
+							},
+							currentInfinitePieces: {
+								piece001: {
+									pieceGroup: {
+										childGroup: {
+											preroll: 50,
+											postroll: 0,
+										},
+										controlObj: {
+											start: 500,
+										},
+									},
+									partGroup: {
+										start: plannedStartedPlayback,
+									},
+								},
+							},
+							previousOutTransition: undefined,
+						} as const
+
+						// Should look normal for now
+						await checkTimings(expectedTimeline)
+
+						await doUpdateTimeline(context, playlistId)
+
+						// Should look normal for now
+						await checkTimings(expectedTimeline)
+
+						const currentPieceInstances = currentPartInstance.pieceInstances
+						const pieceInstance0 = currentPieceInstances.find(
+							(instance) => instance.pieceInstance.piece._id === protectString(`${rundownId}_piece000`)
+						)
+						if (!pieceInstance0) throw new Error('pieceInstance0 must be defined')
+						const pieceInstance1 = currentPieceInstances.find(
+							(instance) => instance.pieceInstance.piece._id === protectString(`${rundownId}_piece001`)
+						)
+						if (!pieceInstance1) throw new Error('pieceInstance1 must be defined')
+
+						// actual playback starts a bit later than planned
+						const actualStartedPlayback = plannedStartedPlayback + 3
+
+						// reception of the onPlayoutPlaybackChanged event also takes some time
+						adjustFakeTime(200)
+
+						await doOnPlayoutPlaybackChanged(context, playlistId, {
+							baseTime: actualStartedPlayback,
+							partId: currentPartInstance.partInstance._id,
+							includePart: true,
+							pieceOffsets: {
+								[unprotectString(pieceInstance0.pieceInstance._id)]: 500,
+								[unprotectString(pieceInstance1.pieceInstance._id)]: 500,
+							},
+						})
+
+						await doUpdateTimeline(context, playlistId)
+
+						await checkTimings(expectedTimeline)
 					}
 				))
 		})
