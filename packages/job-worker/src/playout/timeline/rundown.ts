@@ -40,6 +40,8 @@ export interface RundownTimelineTimingContext {
 
 	nextPartGroup?: TimelineObjGroupPart
 	nextPartOverlap?: number
+
+	multiGatewayMode: boolean
 }
 export interface RundownTimelineResult {
 	timeline: (TimelineObjRundown & OnGenerateTimelineObjExt)[]
@@ -49,7 +51,8 @@ export interface RundownTimelineResult {
 export function buildTimelineObjsForRundown(
 	context: JobContext,
 	activePlaylist: ReadonlyDeep<DBRundownPlaylist>,
-	partInstancesInfo: SelectedPartInstancesTimelineInfo
+	partInstancesInfo: SelectedPartInstancesTimelineInfo,
+	multiGatewayMode: boolean
 ): RundownTimelineResult {
 	const span = context.startSpan('buildTimelineObjsForRundown')
 	const timelineObjs: Array<TimelineObjRundown & OnGenerateTimelineObjExt> = []
@@ -137,6 +140,7 @@ export function buildTimelineObjsForRundown(
 	const timingContext: RundownTimelineTimingContext = {
 		currentPartGroup,
 		currentPartDuration: currentPartEnable.duration,
+		multiGatewayMode,
 	}
 
 	// Start generating objects
@@ -294,10 +298,23 @@ function generateCurrentInfinitePieceObjects(
 	)
 
 	let nowInParent = currentPartInfo.nowInPart // Where is 'now' inside of the infiniteGroup?
-	if (pieceInstance.plannedStartedPlayback !== undefined) {
+
+	// We have a absolute start time, so we should use that.
+	if (!timingContext.multiGatewayMode && pieceInstance.reportedStartedPlayback !== undefined) {
+		nowInParent = currentTime - pieceInstance.reportedStartedPlayback
+
+		// If an end time has been set by a hotkey, then update the duration to be correct
+		if (pieceInstance.userDuration && pieceInstance.piece.enable.start !== 'now') {
+			if ('endRelativeToPart' in pieceInstance.userDuration) {
+				infiniteGroup.enable.duration =
+					pieceInstance.userDuration.endRelativeToPart - pieceInstance.piece.enable.start
+			} else {
+				infiniteGroup.enable.end = 'now'
+			}
+		}
+
 		// We have a absolute start time, so we should use that.
-		let infiniteGroupStart = pieceInstance.plannedStartedPlayback
-		nowInParent = currentTime - pieceInstance.plannedStartedPlayback
+		let infiniteGroupStart = pieceInstance.reportedStartedPlayback
 
 		// infiniteGroupStart had an actual timestamp inside and pieceEnable.start being a number
 		// means that it expects an offset from it's parent
@@ -312,16 +329,6 @@ function generateCurrentInfinitePieceObjects(
 		}
 
 		infiniteGroup.enable = { start: infiniteGroupStart }
-
-		// If an end time has been set by a hotkey, then update the duration to be correct
-		if (pieceInstance.userDuration && pieceInstance.piece.enable.start !== 'now') {
-			if ('endRelativeToPart' in pieceInstance.userDuration) {
-				infiniteGroup.enable.duration =
-					pieceInstance.userDuration.endRelativeToPart - pieceInstance.piece.enable.start
-			} else {
-				infiniteGroup.enable.end = 'now'
-			}
-		}
 	}
 
 	// If this infinite piece continues to the next part, and has a duration then we should respect that in case it is really close to the take
