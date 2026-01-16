@@ -262,6 +262,12 @@ export class TSRHandler {
 			const device = this._coreTsrHandlers[id]?._device
 			const name = `Device "${device?.deviceName ?? id}" (${device?.instanceId ?? 'instance unknown'})`
 
+			if (!e || !('message' in e)) {
+				return {
+					message: name + ': ' + 'Unknown error: ' + JSON.stringify(e),
+				}
+			}
+
 			return {
 				message: e.message && name + ': ' + e.message,
 				name: e.name && name + ': ' + e.name,
@@ -368,7 +374,7 @@ export class TSRHandler {
 		this.tsr.connectionManager.on('connectionEvent:debug', (id, ...args) => {
 			const device = this._coreTsrHandlers[id]?._device
 
-			if (!device?.debugLogging && !this._coreHandler.logDebug) {
+			if (!this._coreHandler.logDebug) {
 				return
 			}
 			if (args.length === 0) {
