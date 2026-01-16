@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Studios } from '../../../../collections/index.js'
 import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { useTracker } from '../../../../lib/ReactMeteorData/ReactMeteorData.js'
@@ -30,6 +30,7 @@ export function StudioPlayoutSubDevices({
 	const { t } = useTranslation()
 
 	const studio = useTracker(() => Studios.findOne(studioId), [studioId])
+	const [unsavedOverrides, setUnsavedOverrides] = useState<SomeObjectOverrideOp[] | undefined>(undefined)
 
 	const saveOverrides = useCallback(
 		(newOps: SomeObjectOverrideOp[]) => {
@@ -49,12 +50,26 @@ export function StudioPlayoutSubDevices({
 		[studio?.peripheralDeviceSettings?.playoutDevices]
 	)
 
-	const overrideHelper = useOverrideOpHelper(saveOverrides, baseSettings)
+	const deviceSettings = useMemo(() => {
+		if (unsavedOverrides) {
+			return {
+				...baseSettings,
+				overrides: unsavedOverrides,
+			}
+		}
+		return baseSettings
+	}, [baseSettings, unsavedOverrides])
+
+	const batchedOverridesHelper = useOverrideOpHelper(setUnsavedOverrides, deviceSettings)
+
+	const instantSaveOverrideHelper = useOverrideOpHelper(saveOverrides, deviceSettings)
 
 	const wrappedSubDevices = useMemo(
 		() =>
-			getAllCurrentAndDeletedItemsFromOverrides<StudioPlayoutDevice>(baseSettings, (a, b) => a[0].localeCompare(b[0])),
-		[baseSettings]
+			getAllCurrentAndDeletedItemsFromOverrides<StudioPlayoutDevice>(deviceSettings, (a, b) =>
+				a[0].localeCompare(b[0])
+			),
+		[deviceSettings]
 	)
 
 	const filteredPeripheralDevices = useMemo(
@@ -90,6 +105,40 @@ export function StudioPlayoutSubDevices({
 		})
 	}, [studioId, wrappedSubDevices])
 
+	const [updatedIds, setUpdatedIds] = useState(new Map<string, string>())
+
+	const updateObjectId = useCallback(
+		(oldId: string, newId: string) => {
+			if (oldId === newId) return
+
+			batchedOverridesHelper().changeItemId(oldId, newId).commit()
+			setUpdatedIds((prev) => new Map(prev).set(oldId, newId))
+		},
+		[batchedOverridesHelper, setUpdatedIds]
+	)
+
+	const discardChanges = useCallback(() => {
+		setUnsavedOverrides(undefined)
+		setUpdatedIds(new Map<string, string>())
+	}, [])
+
+	const saveChanges = useCallback(() => {
+		if (studio?._id && unsavedOverrides) {
+			Studios.update(studio._id, {
+				$set: {
+					'peripheralDeviceSettings.playoutDevices.overrides': unsavedOverrides,
+				},
+			})
+			setUnsavedOverrides(undefined)
+		}
+
+		if (updatedIds.size > 0) {
+			setUpdatedIds(new Map<string, string>())
+		}
+	}, [studio?._id, unsavedOverrides])
+
+	const hasUnsavedChanges = useMemo(() => !!unsavedOverrides || updatedIds.size > 0, [unsavedOverrides, updatedIds])
+
 	return (
 		<div className="mb-4">
 			<h2 className="mb-2">
@@ -104,8 +153,14 @@ export function StudioPlayoutSubDevices({
 
 			<GenericSubDevicesTable
 				subDevices={wrappedSubDevices}
-				overrideHelper={overrideHelper}
+				overrideHelper={batchedOverridesHelper}
+				instantSaveOverrideHelper={instantSaveOverrideHelper}
 				peripheralDevices={filteredPeripheralDevices}
+				hasUnsavedChanges={hasUnsavedChanges}
+				saveChanges={saveChanges}
+				discardChanges={discardChanges}
+				updateObjectId={updateObjectId}
+				updatedIds={updatedIds}
 			/>
 
 			<div className="my-1 mx-2">
