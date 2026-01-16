@@ -5,6 +5,7 @@
 			"live-status-gateway-api",
 			"*-integration",
 			"*-gateway",
+			"logging",
 			"corelib",
 			"openapi",
 			"shared-lib",

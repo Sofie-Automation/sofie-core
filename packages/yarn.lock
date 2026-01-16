@@ -4848,6 +4848,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@logtape/file@npm:^1.2.3":
+  version: 1.3.6
+  resolution: "@logtape/file@npm:1.3.6"
+  peerDependencies:
+    "@logtape/logtape": ^1.3.6
+  checksum: 10/642d2894d4c494df4659f90285c0e346c1268fda6d4cb633365dd3bd0db2ce860ef5da48e736551daec8ac0ca0b8f225721249a0480c3dfaec8247930f8c0bcf
+  languageName: node
+  linkType: hard
+
+"@logtape/logtape@npm:^1.3.6":
+  version: 1.3.6
+  resolution: "@logtape/logtape@npm:1.3.6"
+  checksum: 10/5be3e6476958ca31c95843b9c0b9f9647fe87e0feef8abc396894c87e0a69ef976756266d55ac39c9e558e2bb256f022e3958176376beb0339722dd52991aa9b
+  languageName: node
+  linkType: hard
+
 "@lukeed/csprng@npm:^1.0.0":
   version: 1.1.0
   resolution: "@lukeed/csprng@npm:1.1.0"
@@ -7026,6 +7042,16 @@ __metadata:
     "@asyncapi/parser": "npm:^3.4.0"
     tslib: "npm:^2.6.2"
     yaml: "npm:^2.8.1"
+  languageName: unknown
+  linkType: soft
+
+"@sofie-automation/logger@workspace:logging":
+  version: 0.0.0-use.local
+  resolution: "@sofie-automation/logger@workspace:logging"
+  dependencies:
+    "@logtape/file": "npm:^1.2.3"
+    "@logtape/logtape": "npm:^1.3.6"
+    tslib: "npm:^2.8.1"
   languageName: unknown
   linkType: soft
 
