@@ -1,4 +1,5 @@
 import { literal } from '../../lib.js'
+import clone from 'fast-clone'
 import {
 	applyAndValidateOverrides,
 	ObjectWithOverrides,
@@ -186,8 +187,8 @@ describe('applyAndValidateOverrides', () => {
 					},
 				},
 				overrides: [
-					{ op: 'set', path: 'valA', value: 'def' },
 					{ op: 'set', path: 'valB.valD', value: 'uvw' },
+					{ op: 'set', path: 'valA', value: 'def' },
 					{ op: 'set', path: 'valB.valC', value: 6 },
 				],
 			})
@@ -231,6 +232,191 @@ describe('applyAndValidateOverrides', () => {
 				overrides: [
 					{ op: 'set', path: 'valA', value: 'ghi' },
 					{ op: 'set', path: 'valB.valC', value: 7 },
+				],
+			})
+		)
+	})
+
+	test('update overrides - add to existing overrides', () => {
+		const inputObj: BasicType = {
+			valA: 'abc',
+			valB: {
+				valC: 5,
+				valD: 'foo',
+			},
+		}
+
+		const inputObjWithOverrides: ObjectWithOverrides<BasicType> = {
+			defaults: inputObj,
+			overrides: [
+				{ op: 'set', path: 'valA', value: 'def' },
+				{ op: 'set', path: 'valB.valC', value: 6 },
+			],
+		}
+
+		const updateObj: BasicType = {
+			valA: 'ghi',
+			valB: {
+				valC: 7,
+				valD: 'bar',
+			},
+		}
+
+		const res = updateOverrides(inputObjWithOverrides, updateObj)
+		expect(res).toBeTruthy()
+
+		expect(res).toStrictEqual(
+			literal<ObjectWithOverrides<BasicType>>({
+				defaults: {
+					valA: 'abc',
+					valB: {
+						valC: 5,
+						valD: 'foo',
+					},
+				},
+				overrides: [
+					{ op: 'set', path: 'valA', value: 'ghi' },
+					{ op: 'set', path: 'valB.valC', value: 7 },
+					{ op: 'set', path: 'valB.valD', value: 'bar' },
+				],
+			})
+		)
+	})
+
+	test('update overrides - add to existing overrides #2', () => {
+		const inputObj = {
+			valA: 'abc',
+			valB: {
+				'0': { propA: 35, propB: 'Mic 1' },
+				'1': { propA: 36, propB: 'Mic 2' },
+				'2': { propA: 37, propB: 'Mic 3' },
+			},
+		}
+
+		const inputObjWithOverrides: ObjectWithOverrides<any> = {
+			defaults: inputObj,
+			overrides: [
+				{
+					op: 'set',
+					path: 'valB.0.propC',
+					value: true,
+				},
+				{
+					op: 'set',
+					path: 'valB.0.propD',
+					value: true,
+				},
+				{ op: 'set', path: 'valB.1.propC', value: true },
+			],
+		}
+
+		const updateObj = {
+			valA: 'abc',
+			valB: {
+				'0': { propA: 35, propB: 'Mic 1', propC: true, propD: true },
+				'1': { propA: 36, propB: 'Mic 2', propC: true },
+				'2': { propA: 37, propB: 'Mic 3', propC: true },
+			},
+		}
+
+		const res = updateOverrides(inputObjWithOverrides, updateObj)
+		expect(res).toBeTruthy()
+
+		expect(res).toStrictEqual(
+			literal<ObjectWithOverrides<any>>({
+				defaults: clone(inputObj),
+				overrides: [
+					{
+						op: 'set',
+						path: 'valB.0.propC',
+						value: true,
+					},
+					{
+						op: 'set',
+						path: 'valB.0.propD',
+						value: true,
+					},
+					{ op: 'set', path: 'valB.1.propC', value: true },
+					{ op: 'set', path: 'valB.2.propC', value: true },
+				],
+			})
+		)
+	})
+
+	test('update overrides - delete key', () => {
+		const inputObj = {
+			valA: 'abc',
+			valB: {
+				'0': { propA: 35, propB: 'Mic 1' },
+				'1': { propA: 36, propB: 'Mic 2' },
+				'2': { propA: 37, propB: 'Mic 3' },
+			},
+		}
+
+		const inputObjWithOverrides: ObjectWithOverrides<any> = {
+			defaults: inputObj,
+			overrides: [],
+		}
+
+		const updateObj = {
+			valA: 'abc',
+			valB: {
+				'0': { propA: 35, propB: 'Mic 1' },
+				'1': { propA: 36, propB: 'Mic 2' },
+			},
+		}
+
+		const res = updateOverrides(inputObjWithOverrides, updateObj)
+		expect(res).toBeTruthy()
+
+		expect(res).toStrictEqual(
+			literal<ObjectWithOverrides<any>>({
+				defaults: clone(inputObj),
+				overrides: [
+					{
+						op: 'delete',
+						path: 'valB.2',
+					},
+				],
+			})
+		)
+	})
+
+	test('update overrides - delete value', () => {
+		const inputObj = {
+			valA: 'abc',
+			valB: {
+				'0': { propA: 35, propB: 'Mic 1' },
+				'1': { propA: 36, propB: 'Mic 2' },
+				'2': { propA: 37, propB: 'Mic 3' },
+			},
+		}
+
+		const inputObjWithOverrides: ObjectWithOverrides<any> = {
+			defaults: inputObj,
+			overrides: [],
+		}
+
+		const updateObj = {
+			valA: 'abc',
+			valB: {
+				'0': { propA: 35, propB: 'Mic 1' },
+				'1': { propA: 36, propB: 'Mic 2' },
+				'2': { propA: 37 },
+			},
+		}
+
+		const res = updateOverrides(inputObjWithOverrides, updateObj)
+		expect(res).toBeTruthy()
+
+		expect(res).toStrictEqual(
+			literal<ObjectWithOverrides<any>>({
+				defaults: clone(inputObj),
+				overrides: [
+					{
+						op: 'delete',
+						path: 'valB.2.propB',
+					},
 				],
 			})
 		)

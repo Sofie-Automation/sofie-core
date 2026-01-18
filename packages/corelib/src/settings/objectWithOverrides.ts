@@ -2,6 +2,7 @@ import * as objectPath from 'object-path'
 import { ReadonlyDeep } from 'type-fest'
 import _ from 'underscore'
 import { assertNever, clone, literal } from '../lib.js'
+import { ReadonlyObjectDeep } from 'type-fest/source/readonly-deep'
 
 /**
  * This is an object which allows for overrides to be tracked and reapplied
@@ -88,55 +89,96 @@ export function updateOverrides<T extends object>(
 	curObj: ReadonlyDeep<ObjectWithOverrides<T>>,
 	rawObj: ReadonlyDeep<T>
 ): ObjectWithOverrides<T> {
-	const result: ObjectWithOverrides<T> = { defaults: clone(curObj.defaults), overrides: [] }
-	for (const [key, value] of Object.entries<any>(rawObj)) {
-		const override = curObj.overrides.find((ov) => {
-			const parentPath = getParentObjectPath(ov.path)
-			return key === (parentPath ? parentPath : ov.path)
-		})
-		if (override) {
-			// Some or all members of the property are already overridden in curObj
-			if (objectPath.has(rawObj, override.path)) {
-				const rawValue = objectPath.get(rawObj, override.path)
-				if (override.op === 'delete' || (override.op === 'set' && _.isEqual(rawValue, override.value))) {
-					// Preserve all existing delete overrides and any set overrides where the value is not updated
-					result.overrides.push(override)
-				}
-			}
-		}
+	const overrides = getOverridesToPreserve(curObj, rawObj)
 
-		// check the values of the raw object against the current object, generating an override for each difference
-		const appliedCurObj = applyAndValidateOverrides(curObj).obj
-		for (const [curKey, curValue] of Object.entries<any>(appliedCurObj)) {
-			if (key === curKey && !_.isEqual(value, curValue)) {
-				// Some or all members of the property have been modified
-				if (typeof value === 'object') {
-					// check one level down info the potentially modified object
-					for (const [rawKey, rawValue] of Object.entries<any>(value)) {
-						if (!_.isEqual(rawValue, curValue[rawKey])) {
-							result.overrides.push(
-								literal<ObjectOverrideSetOp>({
-									op: 'set',
-									path: `${key}.${rawKey}`,
-									value: rawValue,
-								})
-							)
-						}
-					}
-				} else {
-					result.overrides.push(
-						literal<ObjectOverrideSetOp>({
-							op: 'set',
-							path: key,
-							value: value,
-						})
-					)
-				}
-			}
+	// apply preserved overrides on top of the defaults
+	const tmpObj: ReadonlyDeep<ObjectWithOverrides<any>> = { defaults: clone(curObj.defaults), overrides: overrides }
+	const flattenedObjWithPreservedOverrides = applyAndValidateOverrides(tmpObj).obj
+
+	// calculate overrides that are still missing
+	recursivelyGenerateOverrides(flattenedObjWithPreservedOverrides, rawObj, [], overrides)
+
+	return { defaults: clone(curObj.defaults), overrides: overrides }
+}
+
+function getOverridesToPreserve<T extends object>(
+	curObj: ReadonlyObjectDeep<ObjectWithOverrides<T>>,
+	rawObj: ReadonlyDeep<T>
+) {
+	const overrides: SomeObjectOverrideOp[] = []
+	curObj.overrides.forEach((override) => {
+		const rawValue = objectPath.get(rawObj, override.path)
+		if (
+			(override.op === 'delete' && rawValue === undefined) ||
+			(override.op === 'set' && _.isEqual(rawValue, override.value))
+		) {
+			// what was deleted, remains deleted, or what was set remaines equal
+			overrides.push(override)
+			return
 		}
-		// }
+		const defaultValue = objectPath.get(curObj.defaults, override.path)
+		if (override.op === 'delete') {
+			if (_.isEqual(rawValue, defaultValue)) {
+				// previously deleted, brought back to defaults
+				return
+			}
+			// was deleted, but is brought to non-default value
+			overrides.push({
+				op: 'set',
+				path: override.path,
+				value: rawValue,
+			})
+		}
+	})
+	return overrides
+}
+
+function recursivelyGenerateOverrides<T extends object>(
+	curObj: ReadonlyDeep<T>,
+	rawObj: ReadonlyDeep<T>,
+	path: string[],
+	outOverrides: SomeObjectOverrideOp[]
+) {
+	for (const [curKey, curValue] of Object.entries<any>(curObj)) {
+		const rawValue = objectPath.get(rawObj, curKey)
+		const fullKeyPath = [...path, curKey]
+		const fullKeyPathString = fullKeyPath.join('.')
+		if (curValue !== undefined && rawValue === undefined) {
+			outOverrides.push({
+				op: 'delete',
+				path: fullKeyPathString,
+			})
+			continue
+		}
+		if (Array.isArray(rawValue) && !_.isEqual(curValue, rawValue)) {
+			outOverrides.push({
+				op: 'set',
+				path: fullKeyPathString,
+				value: rawValue,
+			})
+		}
+		if (typeof curValue === 'object' && curValue !== null && typeof rawValue === 'object' && rawValue !== null) {
+			recursivelyGenerateOverrides(curValue, rawValue, fullKeyPath, outOverrides)
+			continue
+		}
+		if (curValue !== rawValue) {
+			outOverrides.push({
+				op: 'set',
+				path: fullKeyPathString,
+				value: rawValue,
+			})
+		}
 	}
-	return result
+	for (const [rawKey, rawValue] of Object.entries<any>(rawObj)) {
+		const curValue = objectPath.get(curObj, rawKey)
+		if (curValue === undefined && rawValue !== undefined) {
+			outOverrides.push({
+				op: 'set',
+				path: [...path, rawKey].join('.'),
+				value: rawValue,
+			})
+		}
+	}
 }
 
 /**
