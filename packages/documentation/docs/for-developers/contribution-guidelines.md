@@ -19,6 +19,10 @@ The Sofie Governance organisation are responsible for development and maintenanc
 
 The Sofie team welcomes open source contributions and will actively work towards enabling contributions to become mergeable into the Sofie repositories. However, we reserve the right to refuse any contributions.
 
+Sofie releases are targeted on a quarterly release cycle and are feature frozen six weeks before the release date, after which PRs that introduce new features are no longer accepted for that release.
+
+Three weeks before release, all PRs for that release should be merged to allow for testing and bug fixing before release.
+
 ## About Contributions
 
 Thank you for considering contributing to the Sofie project!
@@ -50,6 +54,7 @@ Via the RFC process, we're looking to maximize involvement from various stakehol
 ### Base contributions on the in-development branch
 
 In order to facilitate merging, we ask that contributions are based on the latest (at the time of the pull request) _in-development_ branch (often named `release*`).
+
 See **CONTRIBUTING.md** in each official repository for details on which branch to use as a base for contributions.
 
 ## Developer Guidelines
@@ -65,6 +70,10 @@ All official Sofie repositories use TypeScript. When you contribute code, be sur
 ### Code Style & Formatting
 
 Most of the projects use a linter (eslint) and a formatter (prettier). Before submitting a pull request, please make sure it conforms to the linting rules by running yarn lint. yarn lint --fix can fix most of the issues.
+
+### Tests
+
+See **CONTRIBUTING.md** in each official repository for details on the level of unit tests required for contribution to that repository.
 
 ### Documentation
 
