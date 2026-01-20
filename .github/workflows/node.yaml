@@ -37,16 +37,16 @@ jobs:
 
           yarn config set cacheFolder /home/runner/lint-core-cache
           yarn
+
+          # setup zodern:types. No linters are setup, so this simply installs the packages
+          yarn meteor lint
+
           yarn build:packages
         env:
           CI: true
       - name: Run typecheck and linter
         run: |
           cd meteor
-
-          # setup zodern:types. No linters are setup, so this simply installs the packages
-          meteor lint
-
           yarn ci:lint
         env:
           CI: true
@@ -78,16 +78,16 @@ jobs:
 
           yarn config set cacheFolder /home/runner/test-core-cache
           yarn
+
+          # setup zodern:types. No linters are setup, so this simply installs the packages
+          yarn meteor lint
+
           yarn build:packages
         env:
           CI: true
       - name: Run Tests
         run: |
           cd meteor
-
-          # setup zodern:types. No linters are setup, so this simply installs the packages
-          meteor lint
-
           NODE_OPTIONS="--max-old-space-size=6144" yarn unitci --force-exit
         env:
           CI: true
@@ -180,6 +180,9 @@ jobs:
           corepack enable
 
           yarn install
+
+          # setup zodern:types. No linters are setup, so this simply installs the packages
+          yarn meteor lint
       - name: Build libs
         if: steps.check-build-and-push.outputs.enable == 'true'
         run: |
@@ -357,7 +360,7 @@ jobs:
 
           cd packages
           yarn install
-          yarn lerna run --scope \*\*/${{ matrix.gateway-name }} --include-dependencies --stream build
+          yarn build:single ${{ matrix.gateway-name }}/tsconfig.build.json
           yarn run pinst --disable
           yarn workspaces focus ${{ matrix.gateway-name }} --production
       - name: Set up Docker Buildx
@@ -425,7 +428,7 @@ jobs:
           echo $CODE_BLOCK >> $GITHUB_STEP_SUMMARY
 
   lint-packages:
-    name: Lint Package
+    name: Lint Package ${{ matrix.package-name }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -443,8 +446,10 @@ jobs:
           - job-worker
           - openapi
           - live-status-gateway
-          - webui
           - live-status-gateway-api
+        include:
+          - package-name: webui
+            tsconfig-name: tsconfig.json
 
     steps:
       - uses: actions/checkout@v6
@@ -467,7 +472,12 @@ jobs:
           cd packages
           yarn config set cacheFolder /home/runner/${{ matrix.package-name }}-cache
           yarn install
-          yarn lerna run --scope \*\*/${{ matrix.package-name }} --include-dependencies --stream build
+
+          if [ "${{ matrix.package-name }}" = "openapi" ]; then
+            yarn workspace @sofie-automation/openapi run build
+          else
+            yarn build:single ${{ matrix.package-name }}/${{ matrix.tsconfig-name || 'tsconfig.build.json' }}
+          fi
         env:
           CI: true
       - name: Run typecheck and linter
@@ -478,7 +488,7 @@ jobs:
           CI: true
 
   test-packages:
-    name: Test Package (main)
+    name: Test Package ${{ matrix.package-name }} (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -513,6 +523,7 @@ jobs:
           - node-version: 22.x
             package-name: webui
             send-coverage: true
+            tsconfig-name: tsconfig.json
           # manual meteor-lib as it only needs a couple of versions
           - node-version: 22.x
             package-name: meteor-lib
@@ -539,7 +550,12 @@ jobs:
           cd packages
           yarn config set cacheFolder /home/runner/test-packages-cache
           yarn install
-          yarn lerna run --scope \*\*/${{ matrix.package-name }} --include-dependencies --stream build
+
+          if [ "${{ matrix.package-name }}" = "openapi" ]; then
+            yarn workspace @sofie-automation/openapi run build
+          else
+            yarn build:single ${{ matrix.package-name }}/${{ matrix.tsconfig-name || 'tsconfig.build.json' }}
+          fi
         env:
           CI: true
       - name: Run tests
@@ -631,6 +647,7 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version-file: ".node-version"
+      - uses: ./.github/actions/setup-meteor
       - name: restore node_modules
         uses: actions/cache@v4
         with:
@@ -641,9 +658,13 @@ jobs:
         run: |
           corepack enable
 
-          cd packages
           yarn config set cacheFolder /home/runner/publish-docs-cache
           yarn install
+
+          # setup zodern:types. No linters are setup, so this simply installs the packages
+          yarn meteor lint
+
+          cd packages
           yarn build:all
         env:
           CI: true

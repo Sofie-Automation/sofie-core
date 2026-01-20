@@ -14,10 +14,10 @@
 		"unit": "jest",
 		"unitci": "jest --maxWorkers 2 --coverage",
 		"unitcov": "jest --coverage",
-		"test": "yarn check-types && yarn unit",
+		"test": "yarn unit",
 		"watch": "jest --watch",
 		"update-snapshots": "jest --updateSnapshot",
-		"ci:lint": "yarn check-types && yarn lint",
+		"ci:lint": "yarn lint",
 		"cov-open": "open-cli coverage/lcov-report/index.html",
 		"cov": "yarn unitcov && yarn cov-open",
 		"license-validate": "node ../scripts/checkLicenses.js --allowed=\"MIT,BSD,ISC,Apache,Unlicense,CC0,LGPL,CC BY 3.0,CC BY 4.0,MPL 2.0,Python 2.0\" --excludePackages=timecode,rxjs/ajax,rxjs/fetch,rxjs/internal-compatibility,nw-pre-gyp-module-test,rxjs/operators,rxjs/testing,rxjs/webSocket,undefined,i18next-conv,@fortawesome/fontawesome-common-types,argv,indexof,custom-license,private,public-domain-module,@sofie-automation/corelib,@sofie-automation/shared-lib,@sofie-automation/job-worker",
@@ -32,9 +32,7 @@
 		"prepareChangelog": "run release --prerelease --release-as patch",
 		"validate:all-dependencies": "run validate:prod-dependencies && run validate:dev-dependencies && run license-validate",
 		"validate:prod-dependencies": "yarn npm audit --environment production",
-		"validate:dev-dependencies": "yarn npm audit --environment development --severity moderate",
-		"check-types": "tsc --noEmit -p tsconfig.json",
-		"watch-types": "run check-types --watch"
+		"validate:dev-dependencies": "yarn npm audit --environment development --severity moderate"
 	},
 	"dependencies": {
 		"@babel/runtime": "^7.26.7",

@@ -27,5 +27,11 @@
 			"meteor/*": ["./src/meteor/*"]
 		}
 	},
-	"include": ["src"]
+	"include": ["src"],
+	"references": [
+		{ "path": "../shared-lib/tsconfig.build.json" },
+		{ "path": "../meteor-lib/tsconfig.build.json" },
+		{ "path": "../blueprints-integration/tsconfig.build.json" },
+		{ "path": "../corelib/tsconfig.build.json" }
+	]
 }

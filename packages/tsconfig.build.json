@@ -1,0 +1,17 @@
+{
+	"files": [],
+	"references": [
+		{ "path": "./blueprints-integration/tsconfig.build.json" },
+		{ "path": "./server-core-integration/tsconfig.build.json" },
+		{ "path": "./mos-gateway/tsconfig.build.json" },
+		{ "path": "./playout-gateway/tsconfig.build.json" },
+		{ "path": "./job-worker/tsconfig.build.json" },
+		{ "path": "./corelib/tsconfig.build.json" },
+		{ "path": "./shared-lib/tsconfig.build.json" },
+		// { "path": "./openapi/tsconfig.build.json" },
+		{ "path": "./live-status-gateway/tsconfig.build.json" },
+		{ "path": "./meteor-lib/tsconfig.build.json" },
+		{ "path": "./webui/tsconfig.app.json" },
+		{ "path": "../meteor/tsconfig.json" }
+	]
+}

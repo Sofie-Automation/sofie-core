@@ -1,10 +1,11 @@
 {
 	"extends": "@sofie-automation/code-standard-preset/ts/tsconfig.lib",
 	"include": ["src/**/*.ts"],
-	"exclude": ["node_modules/**", "src/**/*spec.ts", "src/**/__tests__/*", "src/**/__mocks__/*"],
+	"exclude": ["node_modules/**", "**/*spec.ts", "**/__tests__/*", "**/__mocks__/*"],
 	"compilerOptions": {
 		"target": "es2019",
 		"outDir": "./dist",
+		"rootDir": "./src",
 		"baseUrl": "./",
 		"paths": {
 			"*": ["./node_modules/*"],
@@ -12,6 +13,13 @@
 		},
 		"resolveJsonModule": true,
 		"types": ["node"],
-		"esModuleInterop": true
-	}
+		"esModuleInterop": true,
+		"composite": true
+	},
+	"references": [
+		//
+		{ "path": "../shared-lib/tsconfig.build.json" },
+		{ "path": "../blueprints-integration/tsconfig.build.json" },
+		{ "path": "../corelib/tsconfig.build.json" }
+	]
 }
