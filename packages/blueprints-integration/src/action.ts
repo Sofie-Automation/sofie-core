@@ -97,6 +97,9 @@ export interface IBlueprintActionManifest<TPrivateData = unknown, TPublicData = 
 	 */
 	partId?: string
 
+	/** When something bad has happened, we can mark the action as invalid, which will prevent the user from executing it */
+	invalid?: boolean
+
 	/**
 	 * Set to true if ad-lib action should can be used in any showstyle-variant. Default: false = only used by the current variant.
 	 * This is useful for actions in Buckets, so that they can be easily shared between rundowns.

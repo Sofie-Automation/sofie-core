@@ -366,6 +366,7 @@ export function convertAdLibActionToBlueprints(action: ReadonlyDeep<AdLibAction>
 		privateData: clone(action.privateData),
 		publicData: clone(action.publicData),
 		partId: unprotectString(action.partId),
+		invalid: action.invalid,
 		allVariants: action.allVariants,
 		userDataManifest: clone(action.userDataManifest),
 		display: clone<IBlueprintActionManifestDisplay | IBlueprintActionManifestDisplayContent>(action.display), // TODO - type mismatch

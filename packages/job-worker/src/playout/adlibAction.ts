@@ -103,6 +103,12 @@ export async function executeAdlibActionAndSaveModel(
 	])
 	const adLibActionDoc = adLibAction ?? baselineAdLibAction ?? bucketAdLibAction
 
+	if (adLibActionDoc && adLibActionDoc.invalid)
+		throw UserError.from(
+			new Error(`Cannot take invalid AdLib Action "${adLibActionDoc._id}"!`),
+			UserErrorMessage.AdlibUnplayable
+		)
+
 	const actionParameters: ExecuteActionParameters = {
 		actionId: data.actionId,
 		userData: data.userData,
