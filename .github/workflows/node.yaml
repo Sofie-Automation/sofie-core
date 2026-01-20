@@ -130,6 +130,10 @@ jobs:
       - name: Build libs
         run: |
           yarn build:packages
+      - name: Build webui
+        run: |
+          cd packages/webui
+          yarn build
       - name: Persist Built Version information
         run: |
           cd meteor
