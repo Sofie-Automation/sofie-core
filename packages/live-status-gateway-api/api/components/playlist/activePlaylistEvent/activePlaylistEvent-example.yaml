@@ -15,3 +15,18 @@ timing:
   $ref: '../../timing/activePlaylistTiming/activePlaylistTiming-example.yaml'
 quickLoop:
   $ref: '../../quickLoop/activePlaylistQuickLoop/activePlaylistQuickLoop-example.yaml'
+tTimers:
+  - index: 1
+    label: 'On Air Timer'
+    configured: true
+    mode:
+      $ref: '../../tTimers/tTimerMode/tTimerModeCountdown-example.yaml'
+  - index: 2
+    label: ''
+    configured: false
+    mode: null
+  - index: 3
+    label: 'Studio Clock'
+    configured: true
+    mode:
+      $ref: '../../tTimers/tTimerMode/tTimerModeFreeRun-example.yaml'

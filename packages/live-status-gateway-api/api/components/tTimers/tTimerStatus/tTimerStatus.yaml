@@ -1,0 +1,23 @@
+$defs:
+  tTimerStatus:
+    type: object
+    title: TTimerStatus
+    description: Status of a single T-timer in the playlist
+    properties:
+      index:
+        $ref: '../tTimerIndex.yaml#/$defs/tTimerIndex'
+      label:
+        description: User-defined label for the timer
+        type: string
+      configured:
+        description: Whether the timer has been configured (mode is not null)
+        type: boolean
+      mode:
+        description: Timer mode and timing state. Null if not configured.
+        oneOf:
+          - type: 'null'
+          - $ref: '../tTimerMode/tTimerMode.yaml#/$defs/tTimerMode'
+    required: [index, label, configured]
+    additionalProperties: false
+    examples:
+      - $ref: './tTimerStatus-example.yaml'

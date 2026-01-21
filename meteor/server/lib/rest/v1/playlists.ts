@@ -11,6 +11,7 @@ import {
 	SegmentId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { QueueNextSegmentResult } from '@sofie-automation/corelib/dist/worker/studio'
+import { RundownTTimerIndex } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { Meteor } from 'meteor/meteor'
 
 /* *************************************************************************
@@ -260,5 +261,79 @@ export interface PlaylistsRestAPI {
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		sourceLayerId: string
+	): Promise<ClientAPI.ClientResponse<void>>
+	/**
+	 * Configure a T-timer as a countdown.
+	 * @param connection Connection data including client and header details
+	 * @param event User event string
+	 * @param rundownPlaylistId Target Playlist.
+	 * @param timerIndex Index of the timer (1-3).
+	 * @param duration Duration in seconds.
+	 * @param stopAtZero Whether to stop at zero.
+	 * @param startPaused Whether to start paused.
+	 */
+	tTimerStartCountdown(
+		connection: Meteor.Connection,
+		event: string,
+		rundownPlaylistId: RundownPlaylistId,
+		timerIndex: RundownTTimerIndex,
+		duration: number,
+		stopAtZero?: boolean,
+		startPaused?: boolean
+	): Promise<ClientAPI.ClientResponse<void>>
+
+	/**
+	 * Configure a T-timer as a free-running timer.
+	 * @param connection Connection data including client and header details
+	 * @param event User event string
+	 * @param rundownPlaylistId Target Playlist.
+	 * @param timerIndex Index of the timer (1-3).
+	 * @param startPaused Whether to start paused.
+	 */
+	tTimerStartFreeRun(
+		connection: Meteor.Connection,
+		event: string,
+		rundownPlaylistId: RundownPlaylistId,
+		timerIndex: RundownTTimerIndex,
+		startPaused?: boolean
+	): Promise<ClientAPI.ClientResponse<void>>
+	/**
+	 * Pause a T-timer.
+	 * @param connection Connection data including client and header details
+	 * @param event User event string
+	 * @param rundownPlaylistId Target Playlist.
+	 * @param timerIndex Index of the timer (1-3).
+	 */
+	tTimerPause(
+		connection: Meteor.Connection,
+		event: string,
+		rundownPlaylistId: RundownPlaylistId,
+		timerIndex: RundownTTimerIndex
+	): Promise<ClientAPI.ClientResponse<void>>
+	/**
+	 * Resume a T-timer.
+	 * @param connection Connection data including client and header details
+	 * @param event User event string
+	 * @param rundownPlaylistId Target Playlist.
+	 * @param timerIndex Index of the timer (1-3).
+	 */
+	tTimerResume(
+		connection: Meteor.Connection,
+		event: string,
+		rundownPlaylistId: RundownPlaylistId,
+		timerIndex: RundownTTimerIndex
+	): Promise<ClientAPI.ClientResponse<void>>
+	/**
+	 * Restart a T-timer.
+	 * @param connection Connection data including client and header details
+	 * @param event User event string
+	 * @param rundownPlaylistId Target Playlist.
+	 * @param timerIndex Index of the timer (1-3).
+	 */
+	tTimerRestart(
+		connection: Meteor.Connection,
+		event: string,
+		rundownPlaylistId: RundownPlaylistId,
+		timerIndex: RundownTTimerIndex
 	): Promise<ClientAPI.ClientResponse<void>>
 }

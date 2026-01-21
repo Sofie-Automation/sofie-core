@@ -1,0 +1,5 @@
+type: countdown
+startTime: 1706371800000
+pauseTime: null
+durationMs: 120000
+stopAtZero: true

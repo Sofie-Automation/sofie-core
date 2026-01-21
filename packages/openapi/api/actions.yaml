@@ -71,6 +71,17 @@ paths:
     $ref: 'definitions/playlists.yaml#/resources/sourceLayer'
   /playlists/{playlistId}/sourceLayer/{sourceLayerId}/sticky:
     $ref: 'definitions/playlists.yaml#/resources/sourceLayer/sticky'
+  /playlists/{playlistId}/t-timers/{timerIndex}/countdown:
+    $ref: 'definitions/playlists.yaml#/resources/tTimerCountdown'
+
+  /playlists/{playlistId}/t-timers/{timerIndex}/free-run:
+    $ref: 'definitions/playlists.yaml#/resources/tTimerFreeRun'
+  /playlists/{playlistId}/t-timers/{timerIndex}/pause:
+    $ref: 'definitions/playlists.yaml#/resources/tTimerPause'
+  /playlists/{playlistId}/t-timers/{timerIndex}/resume:
+    $ref: 'definitions/playlists.yaml#/resources/tTimerResume'
+  /playlists/{playlistId}/t-timers/{timerIndex}/restart:
+    $ref: 'definitions/playlists.yaml#/resources/tTimerRestart'
   # studio operations
   /studios:
     $ref: 'definitions/studios.yaml#/resources/studios'

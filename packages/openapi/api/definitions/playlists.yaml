@@ -714,6 +714,169 @@ resources:
                       example: Rundown must be active!
           500:
             $ref: '#/components/responses/internalServerError'
+  tTimerCountdown:
+    post:
+      operationId: tTimerCountdown
+      tags:
+        - playlists
+      summary: Start a countdown timer.
+      parameters:
+        - name: playlistId
+          in: path
+          description: Target playlist.
+          required: true
+          schema:
+            type: string
+        - name: timerIndex
+          in: path
+          description: Index of the timer (1, 2, or 3).
+          required: true
+          schema:
+            type: integer
+            enum: [1, 2, 3]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                duration:
+                  type: number
+                  description: Duration in seconds.
+                stopAtZero:
+                  type: boolean
+                  description: Whether to stop the timer at zero.
+                startPaused:
+                  type: boolean
+                  description: Whether to start the timer in a paused state.
+              required:
+                - duration
+      responses:
+        200:
+          $ref: '#/components/responses/putSuccess'
+        404:
+          $ref: '#/components/responses/playlistNotFound'
+        500:
+          $ref: '#/components/responses/internalServerError'
+
+  tTimerFreeRun:
+    post:
+      operationId: tTimerFreeRun
+      tags:
+        - playlists
+      summary: Start a free-running timer.
+      parameters:
+        - name: playlistId
+          in: path
+          description: Target playlist.
+          required: true
+          schema:
+            type: string
+        - name: timerIndex
+          in: path
+          description: Index of the timer (1, 2, or 3).
+          required: true
+          schema:
+            type: integer
+            enum: [1, 2, 3]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                startPaused:
+                  type: boolean
+                  description: Whether to start the timer in a paused state.
+      responses:
+        200:
+          $ref: '#/components/responses/putSuccess'
+        404:
+          $ref: '#/components/responses/playlistNotFound'
+        500:
+          $ref: '#/components/responses/internalServerError'
+  tTimerPause:
+    post:
+      operationId: tTimerPause
+      tags:
+        - playlists
+      summary: Pause a timer.
+      parameters:
+        - name: playlistId
+          in: path
+          description: Target playlist.
+          required: true
+          schema:
+            type: string
+        - name: timerIndex
+          in: path
+          description: Index of the timer (1, 2, or 3).
+          required: true
+          schema:
+            type: integer
+            enum: [1, 2, 3]
+      responses:
+        200:
+          $ref: '#/components/responses/putSuccess'
+        404:
+          $ref: '#/components/responses/playlistNotFound'
+        500:
+          $ref: '#/components/responses/internalServerError'
+  tTimerResume:
+    post:
+      operationId: tTimerResume
+      tags:
+        - playlists
+      summary: Resume a timer.
+      parameters:
+        - name: playlistId
+          in: path
+          description: Target playlist.
+          required: true
+          schema:
+            type: string
+        - name: timerIndex
+          in: path
+          description: Index of the timer (1, 2, or 3).
+          required: true
+          schema:
+            type: integer
+            enum: [1, 2, 3]
+      responses:
+        200:
+          $ref: '#/components/responses/putSuccess'
+        404:
+          $ref: '#/components/responses/playlistNotFound'
+        500:
+          $ref: '#/components/responses/internalServerError'
+  tTimerRestart:
+    post:
+      operationId: tTimerRestart
+      tags:
+        - playlists
+      summary: Restart a timer.
+      parameters:
+        - name: playlistId
+          in: path
+          description: Target playlist.
+          required: true
+          schema:
+            type: string
+        - name: timerIndex
+          in: path
+          description: Index of the timer (1, 2, or 3).
+          required: true
+          schema:
+            type: integer
+            enum: [1, 2, 3]
+      responses:
+        200:
+          $ref: '#/components/responses/putSuccess'
+        404:
+          $ref: '#/components/responses/playlistNotFound'
+        500:
+          $ref: '#/components/responses/internalServerError'
 
 components:
   schemas:

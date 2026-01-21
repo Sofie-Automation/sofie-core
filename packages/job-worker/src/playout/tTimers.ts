@@ -58,11 +58,11 @@ export function resumeTTimer(timer: ReadonlyDeep<RundownTTimerMode> | null): Rea
  * @returns If the timer supports restarting, the restarted timer, otherwise null
  */
 export function restartTTimer(timer: ReadonlyDeep<RundownTTimerMode> | null): ReadonlyDeep<RundownTTimerMode> | null {
-	if (timer?.type === 'countdown') {
+	if (timer?.type === 'countdown' || timer?.type === 'freeRun') {
 		return {
 			...timer,
 			startTime: getCurrentTime(),
-			pauseTime: timer.pauseTime ? getCurrentTime() : null,
+			pauseTime: null, // Always unpause when restarting
 		}
 	} else {
 		return null

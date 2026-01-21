@@ -401,7 +401,7 @@ channels:
                                 pieces:
                                   description: All pieces in this part
                                   type: array
-                                  items: &a30
+                                  items: &a32
                                     type: object
                                     title: PieceStatus
                                     properties:
@@ -510,7 +510,7 @@ channels:
                     - type: object
                       title: CurrentSegment
                       allOf:
-                        - &a32
+                        - &a34
                           title: SegmentBase
                           type: object
                           properties:
@@ -529,7 +529,7 @@ channels:
                               title: CurrentSegmentTiming
                               description: Timing information about the current segment
                               allOf:
-                                - &a33
+                                - &a35
                                   type: object
                                   title: SegmentTiming
                                   properties:
@@ -709,6 +709,115 @@ channels:
                       running: true
                       start: *a23
                       end: *a23
+                tTimers:
+                  description: T-timers for the playlist. Always contains 3 elements (one for each
+                    timer slot).
+                  type: array
+                  items:
+                    type: object
+                    title: TTimerStatus
+                    description: Status of a single T-timer in the playlist
+                    properties:
+                      index:
+                        type: integer
+                        title: TTimerIndex
+                        description: Timer index (1-3). The playlist always has 3 T-timer slots.
+                        enum:
+                          - 1
+                          - 2
+                          - 3
+                      label:
+                        description: User-defined label for the timer
+                        type: string
+                      configured:
+                        description: Whether the timer has been configured (mode is not null)
+                        type: boolean
+                      mode:
+                        description: Timer mode and timing state. Null if not configured.
+                        oneOf:
+                          - type: "null"
+                          - title: TTimerMode
+                            description: The mode/state of a T-timer
+                            oneOf:
+                              - type: object
+                                title: TTimerModeCountdown
+                                description: Countdown timer mode - counts down from a duration
+                                properties:
+                                  type:
+                                    type: string
+                                    const: countdown
+                                  startTime:
+                                    description: Unix timestamp when timer started (milliseconds). May be adjusted
+                                      when pausing/resuming.
+                                    type: number
+                                  pauseTime:
+                                    description: Unix timestamp when paused (milliseconds), or null if running
+                                    oneOf:
+                                      - type: number
+                                      - type: "null"
+                                  durationMs:
+                                    description: Total countdown duration in milliseconds
+                                    type: number
+                                  stopAtZero:
+                                    description: Whether timer stops at zero or continues into negative values
+                                    type: boolean
+                                required:
+                                  - type
+                                  - startTime
+                                  - pauseTime
+                                  - durationMs
+                                  - stopAtZero
+                                additionalProperties: false
+                                examples:
+                                  - &a29
+                                    type: countdown
+                                    startTime: 1706371800000
+                                    pauseTime: null
+                                    durationMs: 120000
+                                    stopAtZero: true
+                              - type: object
+                                title: TTimerModeFreeRun
+                                description: Free-running timer mode - counts up from start time
+                                properties:
+                                  type:
+                                    type: string
+                                    const: freeRun
+                                  startTime:
+                                    description: Unix timestamp when timer started (milliseconds). May be adjusted
+                                      when pausing/resuming.
+                                    type: number
+                                  pauseTime:
+                                    description: Unix timestamp when paused (milliseconds), or null if running
+                                    oneOf:
+                                      - type: number
+                                      - type: "null"
+                                required:
+                                  - type
+                                  - startTime
+                                  - pauseTime
+                                additionalProperties: false
+                                examples:
+                                  - &a30
+                                    type: freeRun
+                                    startTime: 1706371900000
+                                    pauseTime: 1706372000000
+                    required:
+                      - index
+                      - label
+                      - configured
+                    additionalProperties: false
+                    examples:
+                      - index: 1
+                        label: Segment Timer
+                        configured: true
+                        mode:
+                          type: countdown
+                          startTime: 1706371800000
+                          pauseTime: null
+                          durationMs: 120000
+                          stopAtZero: true
+                  minItems: 3
+                  maxItems: 3
               required:
                 - event
                 - id
@@ -719,9 +828,10 @@ channels:
                 - currentSegment
                 - nextPart
                 - timing
+                - tTimers
               additionalProperties: false
               examples:
-                - &a29
+                - &a31
                   event: activePlaylist
                   id: OKAgZmZ0Buc99lE_2uPPSKVbMrQ_
                   externalId: 1ZIYVYL1aEkNEJbeGsmRXr5s8wtkyxfPRjNSTxZfcoEI
@@ -735,8 +845,21 @@ channels:
                     category: Evening News
                   timing: *a27
                   quickLoop: *a28
+                  tTimers:
+                    - index: 1
+                      label: On Air Timer
+                      configured: true
+                      mode: *a29
+                    - index: 2
+                      label: ""
+                      configured: false
+                      mode: null
+                    - index: 3
+                      label: Studio Clock
+                      configured: true
+                      mode: *a30
             examples:
-              - payload: *a29
+              - payload: *a31
   activePieces:
     description: Topic for active pieces updates
     subscribe:
@@ -761,20 +884,20 @@ channels:
                 activePieces:
                   description: Pieces that are currently active (on air)
                   type: array
-                  items: *a30
+                  items: *a32
               required:
                 - event
                 - rundownPlaylistId
                 - activePieces
               additionalProperties: false
               examples:
-                - &a31
+                - &a33
                   event: activePieces
                   rundownPlaylistId: OKAgZmZ0Buc99lE_2uPPSKVbMrQ_
                   activePieces:
                     - *a13
             examples:
-              - payload: *a31
+              - payload: *a33
   segments:
     description: Topic for Segment updates
     subscribe:
@@ -803,7 +926,7 @@ channels:
                 type: object
                 title: Segment
                 allOf:
-                  - *a32
+                  - *a34
                   - type: object
                     title: Segment
                     properties:
@@ -817,7 +940,7 @@ channels:
                       name:
                         description: Name of the segment
                         type: string
-                      timing: *a33
+                      timing: *a35
                       publicData:
                         description: Optional arbitrary data
                     required:
@@ -830,7 +953,7 @@ channels:
                   - name
                   - timing
                 examples:
-                  - &a34
+                  - &a36
                     identifier: Segment 0 identifier
                     rundownId: y9HauyWkcxQS3XaAOsW40BRLLsI_
                     name: Segment 0
@@ -846,13 +969,13 @@ channels:
             - rundownPlaylistId
             - segments
           examples:
-            - &a35
+            - &a37
               event: segments
               rundownPlaylistId: OKAgZmZ0Buc99lE_2uPPSKVbMrQ_
               segments:
-                - *a34
+                - *a36
         examples:
-          - payload: *a35
+          - payload: *a37
   adLibs:
     description: Topic for AdLibs updates
     subscribe:
@@ -882,7 +1005,7 @@ channels:
                   items:
                     title: AdLibStatus
                     allOf:
-                      - &a40
+                      - &a42
                         title: AdLibBase
                         type: object
                         properties:
@@ -917,7 +1040,7 @@ channels:
                                 - label
                               additionalProperties: false
                               examples:
-                                - &a36
+                                - &a38
                                   name: pvw
                                   label: Preview
                           tags:
@@ -937,15 +1060,15 @@ channels:
                           - sourceLayer
                           - actionType
                         examples:
-                          - &a41
+                          - &a43
                             id: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
                             name: Music video clip
                             sourceLayer: Video Clip
-                            actionType: &a37
-                              - *a36
-                            tags: &a38
+                            actionType: &a39
+                              - *a38
+                            tags: &a40
                               - music_video
-                            publicData: &a39
+                            publicData: &a41
                               fileName: MV000123.mxf
                             optionsSchema: '{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Play
                               Video
@@ -977,15 +1100,15 @@ channels:
                           - segmentId
                           - partId
                     examples:
-                      - &a42
+                      - &a44
                         segmentId: HsD8_QwE1ZmR5vN3XcK_Ab7y
                         partId: JkL3_OpR6WxT1bF8Vq2_Zy9u
                         id: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
                         name: Music video clip
                         sourceLayer: Video Clip
-                        actionType: *a37
-                        tags: *a38
-                        publicData: *a39
+                        actionType: *a39
+                        tags: *a40
+                        publicData: *a41
                         optionsSchema: '{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Play
                           Video
                           Clip","type":"object","properties":{"type":"adlib_action_video_clip","label":{"type":"string"},"clipId":{"type":"string"},"vo":{"type":"boolean"},"target":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Object
@@ -1009,9 +1132,9 @@ channels:
                   items:
                     title: GlobalAdLibStatus
                     allOf:
-                      - *a40
+                      - *a42
                     examples:
-                      - *a41
+                      - *a43
               required:
                 - event
                 - rundownPlaylistId
@@ -1019,15 +1142,15 @@ channels:
                 - globalAdLibs
               additionalProperties: false
               examples:
-                - &a43
+                - &a45
                   event: adLibs
                   rundownPlaylistId: OKAgZmZ0Buc99lE_2uPPSKVbMrQ_
                   adLibs:
-                    - *a42
+                    - *a44
                   globalAdLibs:
-                    - *a41
+                    - *a43
             examples:
-              - payload: *a43
+              - payload: *a45
   packages:
     description: Packages topic for websocket subscriptions. Packages are assets
       that need to be prepared by Sofie Package Manager or third-party systems
@@ -1135,7 +1258,7 @@ channels:
                       - pieceOrAdLibId
                     additionalProperties: false
                     examples:
-                      - &a44
+                      - &a46
                         packageName: MV000123.mxf
                         status: ok
                         rundownId: y9HauyWkcxQS3XaAOsW40BRLLsI_
@@ -1153,7 +1276,7 @@ channels:
                 - event: packages
                   rundownPlaylistId: y9HauyWkcxQS3XaAOsW40BRLLsI_
                   packages:
-                    - *a44
+                    - *a46
   buckets:
     description: Buckets schema for websocket subscriptions
     subscribe:
@@ -1189,7 +1312,7 @@ channels:
                         items:
                           title: BucketAdLibStatus
                           allOf:
-                            - *a40
+                            - *a42
                             - type: object
                               title: BucketAdLibStatus
                               properties:
@@ -1200,14 +1323,14 @@ channels:
                               required:
                                 - externalId
                           examples:
-                            - &a45
+                            - &a47
                               externalId: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
                               id: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
                               name: Music video clip
                               sourceLayer: Video Clip
-                              actionType: *a37
-                              tags: *a38
-                              publicData: *a39
+                              actionType: *a39
+                              tags: *a40
+                              publicData: *a41
                               optionsSchema: '{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Play
                                 Video
                                 Clip","type":"object","properties":{"type":"adlib_action_video_clip","label":{"type":"string"},"clipId":{"type":"string"},"vo":{"type":"boolean"},"target":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Object
@@ -1231,22 +1354,22 @@ channels:
                       - adLibs
                     additionalProperties: false
                     examples:
-                      - &a46
+                      - &a48
                         id: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
                         name: My Bucket
                         adLibs:
-                          - *a45
+                          - *a47
               required:
                 - event
                 - buckets
               additionalProperties: false
               examples:
-                - &a47
+                - &a49
                   event: buckets
                   buckets:
-                    - *a46
+                    - *a48
             examples:
-              - payload: *a47
+              - payload: *a49
   notifications:
     description: Notifications topic for websocket subscriptions.
     subscribe:
@@ -1310,7 +1433,7 @@ channels:
                                 type: string
                                 title: NotificationTargetType
                                 description: Possible NotificationTarget types
-                                enum: &a48
+                                enum: &a50
                                   - rundown
                                   - playlist
                                   - partInstance
@@ -1322,7 +1445,7 @@ channels:
                                 type: string
                             additionalProperties: false
                             examples:
-                              - &a49
+                              - &a51
                                 type: rundown
                                 studioId: studio01
                                 rundownId: rd123
@@ -1338,14 +1461,14 @@ channels:
                                 type: string
                                 title: NotificationTargetType
                                 description: Possible NotificationTarget types
-                                enum: *a48
+                                enum: *a50
                               studioId:
                                 type: string
                               playlistId:
                                 type: string
                             additionalProperties: false
                             examples:
-                              - &a50
+                              - &a52
                                 type: playlist
                                 studioId: studio01
                                 playlistId: pl456
@@ -1362,7 +1485,7 @@ channels:
                                 type: string
                                 title: NotificationTargetType
                                 description: Possible NotificationTarget types
-                                enum: *a48
+                                enum: *a50
                               studioId:
                                 type: string
                               rundownId:
@@ -1371,7 +1494,7 @@ channels:
                                 type: string
                             additionalProperties: false
                             examples:
-                              - &a51
+                              - &a53
                                 type: partInstance
                                 studioId: studio01
                                 rundownId: rd123
@@ -1390,7 +1513,7 @@ channels:
                                 type: string
                                 title: NotificationTargetType
                                 description: Possible NotificationTarget types
-                                enum: *a48
+                                enum: *a50
                               studioId:
                                 type: string
                               rundownId:
@@ -1401,7 +1524,7 @@ channels:
                                 type: string
                             additionalProperties: false
                             examples:
-                              - &a52
+                              - &a54
                                 type: pieceInstance
                                 studioId: studio01
                                 rundownId: rd123
@@ -1417,17 +1540,17 @@ channels:
                                 type: string
                                 title: NotificationTargetType
                                 description: Possible NotificationTarget types
-                                enum: *a48
+                                enum: *a50
                             additionalProperties: false
                             examples:
-                              - &a53
+                              - &a55
                                 type: unknown
                         examples:
-                          - *a49
-                          - *a50
                           - *a51
                           - *a52
                           - *a53
+                          - *a54
+                          - *a55
                       created:
                         type: integer
                         format: int64
@@ -1438,11 +1561,11 @@ channels:
                         description: Unix timestamp of last modification
                     additionalProperties: false
                     examples:
-                      - &a54
+                      - &a56
                         _id: notif123
                         severity: error
                         message: disk.space.low
-                        relatedTo: *a52
+                        relatedTo: *a54
                         created: 1694784932
                         modified: 1694784950
               required:
@@ -1450,9 +1573,9 @@ channels:
                 - activeNotifications
               additionalProperties: false
               examples:
-                - &a55
+                - &a57
                   event: notifications
                   activeNotifications:
-                    - *a54
+                    - *a56
             examples:
-              - payload: *a55
+              - payload: *a57

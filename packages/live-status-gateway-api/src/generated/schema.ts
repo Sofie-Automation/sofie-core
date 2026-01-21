@@ -186,6 +186,10 @@ interface ActivePlaylistEvent {
 	 * Information about the current quickLoop, if any
 	 */
 	quickLoop?: ActivePlaylistQuickLoop
+	/**
+	 * T-timers for the playlist. Always contains 3 elements (one for each timer slot).
+	 */
+	tTimers: TTimerStatus[]
 }
 
 interface CurrentPartStatus {
@@ -452,6 +456,75 @@ enum QuickLoopMarkerType {
 	RUNDOWN = 'rundown',
 	SEGMENT = 'segment',
 	PART = 'part',
+}
+
+/**
+ * Status of a single T-timer in the playlist
+ */
+interface TTimerStatus {
+	/**
+	 * Timer index (1-3). The playlist always has 3 T-timer slots.
+	 */
+	index: TTimerIndex
+	/**
+	 * User-defined label for the timer
+	 */
+	label: string
+	/**
+	 * Whether the timer has been configured (mode is not null)
+	 */
+	configured: boolean
+	/**
+	 * Timer mode and timing state. Null if not configured.
+	 */
+	mode?: TTimerModeCountdown | TTimerModeFreeRun | null
+}
+
+/**
+ * Timer index (1-3). The playlist always has 3 T-timer slots.
+ */
+enum TTimerIndex {
+	NUMBER_1 = 1,
+	NUMBER_2 = 2,
+	NUMBER_3 = 3,
+}
+
+/**
+ * Countdown timer mode - counts down from a duration
+ */
+interface TTimerModeCountdown {
+	type: 'countdown'
+	/**
+	 * Unix timestamp when timer started (milliseconds). May be adjusted when pausing/resuming.
+	 */
+	startTime: number
+	/**
+	 * Unix timestamp when paused (milliseconds), or null if running
+	 */
+	pauseTime: number | null
+	/**
+	 * Total countdown duration in milliseconds
+	 */
+	durationMs: number
+	/**
+	 * Whether timer stops at zero or continues into negative values
+	 */
+	stopAtZero: boolean
+}
+
+/**
+ * Free-running timer mode - counts up from start time
+ */
+interface TTimerModeFreeRun {
+	type: 'freeRun'
+	/**
+	 * Unix timestamp when timer started (milliseconds). May be adjusted when pausing/resuming.
+	 */
+	startTime: number
+	/**
+	 * Unix timestamp when paused (milliseconds), or null if running
+	 */
+	pauseTime: number | null
 }
 
 interface ActivePiecesEvent {
@@ -924,6 +997,10 @@ export {
 	ActivePlaylistQuickLoop,
 	QuickLoopMarker,
 	QuickLoopMarkerType,
+	TTimerStatus,
+	TTimerIndex,
+	TTimerModeCountdown,
+	TTimerModeFreeRun,
 	ActivePiecesEvent,
 	SegmentsEvent,
 	Segment,

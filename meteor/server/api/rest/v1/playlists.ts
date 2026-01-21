@@ -13,6 +13,7 @@ import {
 	RundownPlaylistId,
 	SegmentId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { RundownTTimerIndex } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { Match, check } from '../../../lib/check'
 import { PlaylistsRestAPI } from '../../../lib/rest/v1'
 import { Meteor } from 'meteor/meteor'
@@ -544,6 +545,133 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 			}
 		)
 	}
+
+	async tTimerStartCountdown(
+		connection: Meteor.Connection,
+		event: string,
+		rundownPlaylistId: RundownPlaylistId,
+		timerIndex: RundownTTimerIndex,
+		duration: number,
+		stopAtZero?: boolean,
+		startPaused?: boolean
+	): Promise<ClientAPI.ClientResponse<void>> {
+		return ServerClientAPI.runUserActionInLogForPlaylistOnWorker(
+			this.context.getMethodContext(connection),
+			event,
+			getCurrentTime(),
+			rundownPlaylistId,
+			() => {
+				check(rundownPlaylistId, String)
+				check(timerIndex, Number)
+				check(duration, Number)
+				check(stopAtZero, Match.Optional(Boolean))
+				check(startPaused, Match.Optional(Boolean))
+			},
+			StudioJobs.TTimerStartCountdown,
+			{
+				playlistId: rundownPlaylistId,
+				timerIndex,
+				duration,
+				stopAtZero: !!stopAtZero,
+				startPaused: !!startPaused,
+			}
+		)
+	}
+
+	async tTimerStartFreeRun(
+		connection: Meteor.Connection,
+		event: string,
+		rundownPlaylistId: RundownPlaylistId,
+		timerIndex: RundownTTimerIndex,
+		startPaused?: boolean
+	): Promise<ClientAPI.ClientResponse<void>> {
+		return ServerClientAPI.runUserActionInLogForPlaylistOnWorker(
+			this.context.getMethodContext(connection),
+			event,
+			getCurrentTime(),
+			rundownPlaylistId,
+			() => {
+				check(rundownPlaylistId, String)
+				check(timerIndex, Number)
+				check(startPaused, Match.Optional(Boolean))
+			},
+			StudioJobs.TTimerStartFreeRun,
+			{
+				playlistId: rundownPlaylistId,
+				timerIndex,
+				startPaused: !!startPaused,
+			}
+		)
+	}
+
+	async tTimerPause(
+		connection: Meteor.Connection,
+		event: string,
+		rundownPlaylistId: RundownPlaylistId,
+		timerIndex: RundownTTimerIndex
+	): Promise<ClientAPI.ClientResponse<void>> {
+		return ServerClientAPI.runUserActionInLogForPlaylistOnWorker(
+			this.context.getMethodContext(connection),
+			event,
+			getCurrentTime(),
+			rundownPlaylistId,
+			() => {
+				check(rundownPlaylistId, String)
+				check(timerIndex, Number)
+			},
+			StudioJobs.TTimerPause,
+			{
+				playlistId: rundownPlaylistId,
+				timerIndex,
+			}
+		)
+	}
+
+	async tTimerResume(
+		connection: Meteor.Connection,
+		event: string,
+		rundownPlaylistId: RundownPlaylistId,
+		timerIndex: RundownTTimerIndex
+	): Promise<ClientAPI.ClientResponse<void>> {
+		return ServerClientAPI.runUserActionInLogForPlaylistOnWorker(
+			this.context.getMethodContext(connection),
+			event,
+			getCurrentTime(),
+			rundownPlaylistId,
+			() => {
+				check(rundownPlaylistId, String)
+				check(timerIndex, Number)
+			},
+			StudioJobs.TTimerResume,
+			{
+				playlistId: rundownPlaylistId,
+				timerIndex,
+			}
+		)
+	}
+
+	async tTimerRestart(
+		connection: Meteor.Connection,
+		event: string,
+		rundownPlaylistId: RundownPlaylistId,
+		timerIndex: RundownTTimerIndex
+	): Promise<ClientAPI.ClientResponse<void>> {
+		return ServerClientAPI.runUserActionInLogForPlaylistOnWorker(
+			this.context.getMethodContext(connection),
+			event,
+			getCurrentTime(),
+			rundownPlaylistId,
+			() => {
+				check(rundownPlaylistId, String)
+				check(timerIndex, Number)
+			},
+			StudioJobs.TTimerRestart,
+			{
+				playlistId: rundownPlaylistId,
+				timerIndex,
+			}
+		)
+	}
 }
 
 class PlaylistsAPIFactory implements APIFactory<PlaylistsRestAPI> {
@@ -875,6 +1003,104 @@ export function registerRoutes(registerRoute: APIRegisterHook<PlaylistsRestAPI>)
 			check(playlistId, String)
 			check(sourceLayerId, String)
 			return await serverAPI.recallStickyPiece(connection, event, playlistId, sourceLayerId)
+		}
+	)
+
+	registerRoute<
+		{ playlistId: string; timerIndex: string },
+		{ duration: number; stopAtZero?: boolean; startPaused?: boolean },
+		void
+	>(
+		'post',
+		'/playlists/:playlistId/t-timers/:timerIndex/countdown',
+		new Map([[404, [UserErrorMessage.RundownPlaylistNotFound]]]),
+		playlistsAPIFactory,
+		async (serverAPI, connection, event, params, body) => {
+			const rundownPlaylistId = protectString<RundownPlaylistId>(params.playlistId)
+			const timerIndex = Number.parseInt(params.timerIndex) as RundownTTimerIndex
+			logger.info(`API POST: t-timer countdown ${rundownPlaylistId} ${timerIndex}`)
+
+			check(rundownPlaylistId, String)
+			check(timerIndex, Number)
+			return await serverAPI.tTimerStartCountdown(
+				connection,
+				event,
+				rundownPlaylistId,
+				timerIndex,
+				body.duration,
+				body.stopAtZero,
+				body.startPaused
+			)
+		}
+	)
+
+	registerRoute<{ playlistId: string; timerIndex: string }, { startPaused?: boolean }, void>(
+		'post',
+		'/playlists/:playlistId/t-timers/:timerIndex/free-run',
+		new Map([[404, [UserErrorMessage.RundownPlaylistNotFound]]]),
+		playlistsAPIFactory,
+		async (serverAPI, connection, event, params, body) => {
+			const rundownPlaylistId = protectString<RundownPlaylistId>(params.playlistId)
+			const timerIndex = Number.parseInt(params.timerIndex) as RundownTTimerIndex
+			logger.info(`API POST: t-timer free-run ${rundownPlaylistId} ${timerIndex}`)
+
+			check(rundownPlaylistId, String)
+			check(timerIndex, Number)
+			return await serverAPI.tTimerStartFreeRun(
+				connection,
+				event,
+				rundownPlaylistId,
+				timerIndex,
+				body.startPaused
+			)
+		}
+	)
+
+	registerRoute<{ playlistId: string; timerIndex: string }, never, void>(
+		'post',
+		'/playlists/:playlistId/t-timers/:timerIndex/pause',
+		new Map([[404, [UserErrorMessage.RundownPlaylistNotFound]]]),
+		playlistsAPIFactory,
+		async (serverAPI, connection, event, params, _) => {
+			const rundownPlaylistId = protectString<RundownPlaylistId>(params.playlistId)
+			const timerIndex = Number.parseInt(params.timerIndex) as RundownTTimerIndex
+			logger.info(`API POST: t-timer pause ${rundownPlaylistId} ${timerIndex}`)
+
+			check(rundownPlaylistId, String)
+			check(timerIndex, Number)
+			return await serverAPI.tTimerPause(connection, event, rundownPlaylistId, timerIndex)
+		}
+	)
+
+	registerRoute<{ playlistId: string; timerIndex: string }, never, void>(
+		'post',
+		'/playlists/:playlistId/t-timers/:timerIndex/resume',
+		new Map([[404, [UserErrorMessage.RundownPlaylistNotFound]]]),
+		playlistsAPIFactory,
+		async (serverAPI, connection, event, params, _) => {
+			const rundownPlaylistId = protectString<RundownPlaylistId>(params.playlistId)
+			const timerIndex = Number.parseInt(params.timerIndex) as RundownTTimerIndex
+			logger.info(`API POST: t-timer resume ${rundownPlaylistId} ${timerIndex}`)
+
+			check(rundownPlaylistId, String)
+			check(timerIndex, Number)
+			return await serverAPI.tTimerResume(connection, event, rundownPlaylistId, timerIndex)
+		}
+	)
+
+	registerRoute<{ playlistId: string; timerIndex: string }, never, void>(
+		'post',
+		'/playlists/:playlistId/t-timers/:timerIndex/restart',
+		new Map([[404, [UserErrorMessage.RundownPlaylistNotFound]]]),
+		playlistsAPIFactory,
+		async (serverAPI, connection, event, params, _) => {
+			const rundownPlaylistId = protectString<RundownPlaylistId>(params.playlistId)
+			const timerIndex = Number.parseInt(params.timerIndex) as RundownTTimerIndex
+			logger.info(`API POST: t-timer restart ${rundownPlaylistId} ${timerIndex}`)
+
+			check(rundownPlaylistId, String)
+			check(timerIndex, Number)
+			return await serverAPI.tTimerRestart(connection, event, rundownPlaylistId, timerIndex)
 		}
 	)
 }

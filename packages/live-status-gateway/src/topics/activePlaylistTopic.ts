@@ -5,6 +5,7 @@ import {
 	DBRundownPlaylist,
 	QuickLoopMarker,
 	QuickLoopMarkerType,
+	RundownTTimer,
 } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { assertNever, literal } from '@sofie-automation/shared-lib/dist/lib/lib'
@@ -30,6 +31,8 @@ import {
 	ActivePlaylistQuickLoop,
 	QuickLoopMarker as QuickLoopMarkerStatus,
 	QuickLoopMarkerType as QuickLoopMarkerStatusType,
+	TTimerStatus,
+	TTimerIndex,
 } from '@sofie-automation/live-status-gateway-api'
 
 import { CollectionHandlers } from '../liveStatusServer.js'
@@ -50,6 +53,7 @@ const PLAYLIST_KEYS = [
 	'timing',
 	'startedPlayback',
 	'quickLoop',
+	'tTimers',
 ] as const
 type Playlist = PickKeys<DBRundownPlaylist, typeof PLAYLIST_KEYS>
 
@@ -170,6 +174,7 @@ export class ActivePlaylistTopic extends WebSocketTopicBase implements WebSocket
 								? this._activePlaylist.timing.expectedEnd
 								: undefined,
 					},
+					tTimers: this.transformTTimers(this._activePlaylist.tTimers),
 				})
 			: literal<ActivePlaylistEvent>({
 					event: 'activePlaylist',
@@ -185,6 +190,7 @@ export class ActivePlaylistTopic extends WebSocketTopicBase implements WebSocket
 					timing: {
 						timingMode: ActivePlaylistTimingMode.NONE,
 					},
+					tTimers: this.transformTTimers(undefined),
 				})
 
 		this.sendMessage(subscribers, message)
@@ -201,6 +207,67 @@ export class ActivePlaylistTopic extends WebSocketTopicBase implements WebSocket
 			running: quickLoopProps.running,
 			start: this.transformQuickLoopMarkerStatus(quickLoopProps.start),
 			end: this.transformQuickLoopMarkerStatus(quickLoopProps.end),
+		}
+	}
+
+	/**
+	 * Transform T-timers from database format to API status format
+	 */
+	private transformTTimers(
+		tTimers: [RundownTTimer, RundownTTimer, RundownTTimer] | undefined
+	): [TTimerStatus, TTimerStatus, TTimerStatus] {
+		if (!tTimers) {
+			// Return 3 unconfigured timers when no playlist is active
+			return [
+				{ index: TTimerIndex.NUMBER_1, label: '', configured: false, mode: null },
+				{ index: TTimerIndex.NUMBER_2, label: '', configured: false, mode: null },
+				{ index: TTimerIndex.NUMBER_3, label: '', configured: false, mode: null },
+			]
+		}
+
+		return [this.transformTTimer(tTimers[0]), this.transformTTimer(tTimers[1]), this.transformTTimer(tTimers[2])]
+	}
+
+	/**
+	 * Transform a single T-timer from database format to API status format
+	 */
+	private transformTTimer(timer: RundownTTimer): TTimerStatus {
+		const index =
+			timer.index === 1 ? TTimerIndex.NUMBER_1 : timer.index === 2 ? TTimerIndex.NUMBER_2 : TTimerIndex.NUMBER_3
+
+		if (!timer.mode) {
+			return {
+				index,
+				label: timer.label,
+				configured: false,
+				mode: null,
+			}
+		}
+
+		if (timer.mode.type === 'countdown') {
+			return {
+				index,
+				label: timer.label,
+				configured: true,
+				mode: {
+					type: 'countdown',
+					startTime: timer.mode.startTime,
+					pauseTime: timer.mode.pauseTime,
+					durationMs: timer.mode.duration,
+					stopAtZero: timer.mode.stopAtZero,
+				},
+			}
+		} else {
+			return {
+				index,
+				label: timer.label,
+				configured: true,
+				mode: {
+					type: 'freeRun',
+					startTime: timer.mode.startTime,
+					pauseTime: timer.mode.pauseTime,
+				},
+			}
 		}
 	}
 

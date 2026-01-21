@@ -1,0 +1,55 @@
+$defs:
+  tTimerModeCountdown:
+    type: object
+    title: TTimerModeCountdown
+    description: Countdown timer mode - counts down from a duration
+    properties:
+      type:
+        type: string
+        const: countdown
+      startTime:
+        description: Unix timestamp when timer started (milliseconds). May be adjusted when pausing/resuming.
+        type: number
+      pauseTime:
+        description: Unix timestamp when paused (milliseconds), or null if running
+        oneOf:
+          - type: number
+          - type: 'null'
+      durationMs:
+        description: Total countdown duration in milliseconds
+        type: number
+      stopAtZero:
+        description: Whether timer stops at zero or continues into negative values
+        type: boolean
+    required: [type, startTime, pauseTime, durationMs, stopAtZero]
+    additionalProperties: false
+    examples:
+      - $ref: './tTimerModeCountdown-example.yaml'
+
+  tTimerModeFreeRun:
+    type: object
+    title: TTimerModeFreeRun
+    description: Free-running timer mode - counts up from start time
+    properties:
+      type:
+        type: string
+        const: freeRun
+      startTime:
+        description: Unix timestamp when timer started (milliseconds). May be adjusted when pausing/resuming.
+        type: number
+      pauseTime:
+        description: Unix timestamp when paused (milliseconds), or null if running
+        oneOf:
+          - type: number
+          - type: 'null'
+    required: [type, startTime, pauseTime]
+    additionalProperties: false
+    examples:
+      - $ref: './tTimerModeFreeRun-example.yaml'
+
+  tTimerMode:
+    title: TTimerMode
+    description: The mode/state of a T-timer
+    oneOf:
+      - $ref: '#/$defs/tTimerModeCountdown'
+      - $ref: '#/$defs/tTimerModeFreeRun'
