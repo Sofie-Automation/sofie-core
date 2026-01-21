@@ -19,7 +19,7 @@ import { JSONBlob } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 import { CoreRundownPlaylistSnapshot } from '../snapshots.js'
 import { NoteSeverity } from '@sofie-automation/blueprints-integration'
 import { ITranslatableMessage } from '../TranslatableMessage.js'
-import { QuickLoopMarker } from '../dataModel/RundownPlaylist.js'
+import { QuickLoopMarker, RundownTTimerIndex } from '../dataModel/RundownPlaylist.js'
 
 /** List of all Jobs performed by the Worker related to a certain Studio */
 export enum StudioJobs {
@@ -217,6 +217,27 @@ export enum StudioJobs {
 	 * During playout it is hard to track removal of PieceInstances (particularly when resetting PieceInstances)
 	 */
 	CleanupOrphanedExpectedPackageReferences = 'cleanupOrphanedExpectedPackageReferences',
+	/**
+	 * Configure a T-timer as a countdown
+	 */
+	TTimerStartCountdown = 'tTimerStartCountdown',
+
+	/**
+	 * Configure a T-timer as a free-running timer
+	 */
+	TTimerStartFreeRun = 'tTimerStartFreeRun',
+	/**
+	 * Pause a T-timer
+	 */
+	TTimerPause = 'tTimerPause',
+	/**
+	 * Resume a T-timer
+	 */
+	TTimerResume = 'tTimerResume',
+	/**
+	 * Restart a T-timer
+	 */
+	TTimerRestart = 'tTimerRestart',
 }
 
 export interface RundownPlayoutPropsBase {
@@ -381,6 +402,21 @@ export interface SwitchRouteSetProps {
 	routeSetId: string
 	state: boolean | 'toggle'
 }
+export interface TTimerPropsBase extends RundownPlayoutPropsBase {
+	timerIndex: RundownTTimerIndex
+}
+export interface TTimerStartCountdownProps extends TTimerPropsBase {
+	duration: number
+	stopAtZero: boolean
+	startPaused: boolean
+}
+
+export interface TTimerStartFreeRunProps extends TTimerPropsBase {
+	startPaused: boolean
+}
+export type TTimerPauseProps = TTimerPropsBase
+export type TTimerResumeProps = TTimerPropsBase
+export type TTimerRestartProps = TTimerPropsBase
 
 export interface CleanupOrphanedExpectedPackageReferencesProps {
 	playlistId: RundownPlaylistId
@@ -451,6 +487,12 @@ export type StudioJobFunc = {
 	[StudioJobs.SwitchRouteSet]: (data: SwitchRouteSetProps) => void
 
 	[StudioJobs.CleanupOrphanedExpectedPackageReferences]: (data: CleanupOrphanedExpectedPackageReferencesProps) => void
+	[StudioJobs.TTimerStartCountdown]: (data: TTimerStartCountdownProps) => void
+
+	[StudioJobs.TTimerStartFreeRun]: (data: TTimerStartFreeRunProps) => void
+	[StudioJobs.TTimerPause]: (data: TTimerPauseProps) => void
+	[StudioJobs.TTimerResume]: (data: TTimerResumeProps) => void
+	[StudioJobs.TTimerRestart]: (data: TTimerRestartProps) => void
 }
 
 export function getStudioQueueName(id: StudioId): string {
