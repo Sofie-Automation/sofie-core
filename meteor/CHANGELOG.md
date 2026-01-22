@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.52.15-nrk](https://github.com/Sofie-Automation/sofie-core/compare/v1.52.14-nrk...v1.52.15-nrk) (2026-01-22)
+
+
+### Bug Fixes
+
+* fix logic for calculating "source missing" warning message ([be32f4d](https://github.com/Sofie-Automation/sofie-core/commit/be32f4d1bcfe4463ab5ef9f78a792c855043d088))
+
 ### [1.52.14-nrk](///compare/v1.52.13-nrk...v1.52.14-nrk) (2025-12-16)
 
 
