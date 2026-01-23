@@ -15,7 +15,7 @@ The Sofie project includes a number of open source applications and libraries or
 
 A list of the "Sofie repositories" [can be found here](libraries.md). The Sofie Governance organisation owns the copyright of the contents of the official Sofie repositories, including the source code, related files, as well as the Sofie logo.
 
-The Sofie Governance organisation are responsible for development and maintenance. We also do thorough testing of each release to avoid regressions in functionality and ensure interoperability with the various hardware and software involved.
+The Sofie Governance organisation is responsible for development and maintenance. We also do thorough testing of each release to avoid regressions in functionality and ensure interoperability with the various hardware and software involved.
 
 The Sofie team welcomes open source contributions and will actively work towards enabling contributions to become mergeable into the Sofie repositories. However, we reserve the right to refuse any contributions.
 
