@@ -105,7 +105,7 @@ When updating other dependencies, it is a good idea to make sure that the resolu
 When logging, we try to adhere to the following guidelines:
 
 Usage of `console.log` and `console.error` directly is discouraged (except for quick debugging locally). Instead, use one of the logger libraries (to output JSON logs which are easier to index).
-When logging, use one of the **log level** described below:
+When logging, use one of the **log levels** described below:
 
 | Level     | Description                                                                                                                                                                                                                                                                  | Examples                                                                                                                                                                                                                                    |
 | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
