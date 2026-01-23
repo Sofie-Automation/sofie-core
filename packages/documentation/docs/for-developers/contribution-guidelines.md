@@ -13,7 +13,7 @@ _Last updated January 2026_
 
 The Sofie project includes a number of open source applications and libraries originally developed by the Norwegian public service broadcaster, [NRK](https://www.nrk.no/about/). Sofie has been used in daily live TV news productions since September 2018 by broadcasters such as [**NRK**](https://www.nrk.no/about/), the [**BBC**](https://www.bbc.com/aboutthebbc), and [**TV 2 (Norway)**](https://info.tv2.no/info/s/om-tv-2).
 
-A list of the "Sofie repositories" [can be found here](libraries.md).The Sofie Governance organisation owns the copyright of the contents of the official Sofie repositories, including the source code, related files, as well as the Sofie logo.
+A list of the "Sofie repositories" [can be found here](libraries.md). The Sofie Governance organisation owns the copyright of the contents of the official Sofie repositories, including the source code, related files, as well as the Sofie logo.
 
 The Sofie Governance organisation are responsible for development and maintenance. We also do thorough testing of each release to avoid regressions in functionality and ensure interoperability with the various hardware and software involved.
 
