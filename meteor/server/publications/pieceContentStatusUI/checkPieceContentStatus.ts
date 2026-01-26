@@ -671,12 +671,13 @@ async function checkPieceContentExpectedPackageStatus(
 				const containerLabel = matchedPackageContainer[1].container.label
 
 				// Check if any of the sources exist and are valid
+				// Note: Not all types of expectedPackages have sources, for example, if a MEDIA_FILE doesn't have sources,
+				// it'll result in a "FileVerify"-expectation (which only have target)
 				// Future: This might be better to do by passing packageManager an 'forcedError' property in the publication, but this direct check is simpler and enough for now
-				const hasValidSources =
-					expectedPackage.sources &&
-					(expectedPackage.sources.length === 0 ||
-						!expectedPackage.sources.find((source) => !studio.packageContainers[source.containerId]))
-				if (!hasValidSources) {
+				const hasSourcesDefinedButNotValid =
+					expectedPackage.sources.length > 0 &&
+					!expectedPackage.sources.find((source) => studio.packageContainers[source.containerId])
+				if (hasSourcesDefinedButNotValid) {
 					// The expected package has no valid sources
 
 					pushOrMergeMessage({
