@@ -37,7 +37,13 @@ import _ from 'underscore'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { PlaylistLock } from '../../../jobs/lock.js'
 import { logger } from '../../../logging.js'
-import { clone, getRandomId, literal, normalizeArrayToMapFunc } from '@sofie-automation/corelib/dist/lib'
+import {
+	clone,
+	getRandomId,
+	groupByToMapFunc,
+	literal,
+	normalizeArrayToMapFunc,
+} from '@sofie-automation/corelib/dist/lib'
 import { sleep } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { sortRundownIDsInPlaylist } from '@sofie-automation/corelib/dist/playout/playlist'
 import { PlayoutRundownModel } from '../PlayoutRundownModel.js'
@@ -50,10 +56,13 @@ import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedSt
 import { queuePartInstanceTimingEvent } from '../../timings/events.js'
 import { IS_PRODUCTION } from '../../../environment.js'
 import { DeferredAfterSaveFunction, DeferredFunction, PlayoutModel, PlayoutModelReadonly } from '../PlayoutModel.js'
-import { writePartInstancesAndPieceInstances, writeAdlibTestingSegments } from './SavePlayoutModel.js'
+import {
+	writePartInstancesAndPieceInstances,
+	writeAdlibTestingSegments,
+	writeExpectedPackagesForPlayoutSources,
+} from './SavePlayoutModel.js'
 import { PlayoutPieceInstanceModel } from '../PlayoutPieceInstanceModel.js'
 import { DatabasePersistedModel } from '../../../modelBase.js'
-import { ExpectedPackageDBFromStudioBaselineObjects } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
 import { ExpectedPlayoutItemStudio } from '@sofie-automation/corelib/dist/dataModel/ExpectedPlayoutItem'
 import { StudioBaselineHelper } from '../../../studio/model/StudioBaselineHelper.js'
 import { QuickLoopService } from '../services/QuickLoopService.js'
@@ -61,6 +70,7 @@ import { calculatePartTimings, PartCalculatedTimings } from '@sofie-automation/c
 import { PieceInstanceWithTimings } from '@sofie-automation/corelib/dist/playout/processAndPrune'
 import { NotificationsModelHelper } from '../../../notifications/NotificationsModelHelper.js'
 import { getExpectedLatency } from '@sofie-automation/corelib/dist/studio/playout'
+import { ExpectedPackage } from '@sofie-automation/blueprints-integration'
 
 export class PlayoutModelReadonlyImpl implements PlayoutModelReadonly {
 	public readonly playlistId: RundownPlaylistId
@@ -696,12 +706,20 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 		}
 		this.#timelineHasChanged = false
 
+		const partInstancesByRundownId = groupByToMapFunc(
+			Array.from(this.allPartInstances.values()).filter((p) => !!p),
+			(p) => p.partInstance.rundownId
+		)
+
 		await Promise.all([
 			this.#playlistHasChanged
 				? this.context.directCollections.RundownPlaylists.replace(this.playlistImpl)
 				: undefined,
 			...writePartInstancesAndPieceInstances(this.context, this.allPartInstances),
 			writeAdlibTestingSegments(this.context, this.rundownsImpl),
+			...Array.from(partInstancesByRundownId.entries()).map(async ([rundownId, partInstances]) =>
+				writeExpectedPackagesForPlayoutSources(this.context, this.playlistId, rundownId, partInstances)
+			),
 			this.#baselineHelper.saveAllToDatabase(),
 			this.#notificationsHelper.saveAllToDatabase(),
 			this.context.saveRouteSetChanges(),
@@ -841,7 +859,7 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 		return this.timelineImpl
 	}
 
-	setExpectedPackagesForStudioBaseline(packages: ExpectedPackageDBFromStudioBaselineObjects[]): void {
+	setExpectedPackagesForStudioBaseline(packages: ExpectedPackage.Any[]): void {
 		this.#baselineHelper.setExpectedPackages(packages)
 	}
 	setExpectedPlayoutItemsForStudioBaseline(playoutItems: ExpectedPlayoutItemStudio[]): void {

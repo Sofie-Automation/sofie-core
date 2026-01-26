@@ -1,36 +1,14 @@
-import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
-import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import { BucketAdLibAction } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibAction'
 import { BucketAdLib } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibPiece'
 import {
 	ExpectedPackageDBType,
-	ExpectedPackageDBFromPiece,
-	ExpectedPackageDBFromBaselineAdLibPiece,
-	ExpectedPackageDBFromAdLibAction,
-	ExpectedPackageDBFromBaselineAdLibAction,
-	ExpectedPackageDBFromBucketAdLib,
-	ExpectedPackageDBFromBucketAdLibAction,
-	ExpectedPackageDBBase,
-	ExpectedPackageDBFromRundownBaselineObjects,
-	ExpectedPackageDBFromStudioBaselineObjects,
-	getContentVersionHash,
+	ExpectedPackageDB,
+	ExpectedPackageIngestSource,
 	getExpectedPackageId,
-	ExpectedPackageFromRundown,
+	ExpectedPackageIngestSourceBucketAdlibAction,
+	ExpectedPackageIngestSourceBucketAdlibPiece,
 } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
-import {
-	SegmentId,
-	RundownId,
-	AdLibActionId,
-	PieceId,
-	RundownBaselineAdLibActionId,
-	BucketAdLibActionId,
-	BucketAdLibId,
-	StudioId,
-} from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
-import { RundownBaselineAdLibAction } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibAction'
-import { RundownBaselineAdLibItem } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibPiece'
-import { saveIntoDb } from '../db/changes.js'
+import { BucketId, BucketAdLibId, BucketAdLibActionId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PlayoutModel } from '../playout/model/PlayoutModel.js'
 import { StudioPlayoutModel } from '../studio/model/StudioPlayoutModel.js'
 import { ReadonlyDeep } from 'type-fest'
@@ -41,336 +19,247 @@ import {
 	updateExpectedPlayoutItemsForRundownBaseline,
 } from './expectedPlayoutItems.js'
 import { JobContext, JobStudio } from '../jobs/index.js'
-import { ExpectedPackageForIngestModelBaseline, IngestModel } from './model/IngestModel.js'
+import { IngestModel } from './model/IngestModel.js'
 import { IngestPartModel } from './model/IngestPartModel.js'
-import { clone } from '@sofie-automation/corelib/dist/lib'
+import { hashObj } from '@sofie-automation/corelib/dist/lib'
+import { AnyBulkWriteOperation } from 'mongodb'
 
-export function updateExpectedPackagesForPartModel(context: JobContext, part: IngestPartModel): void {
+export function updateExpectedMediaAndPlayoutItemsForPartModel(context: JobContext, part: IngestPartModel): void {
 	updateExpectedPlayoutItemsForPartModel(context, part)
-
-	const expectedPackages: ExpectedPackageFromRundown[] = [
-		...generateExpectedPackagesForPiece(
-			context.studio,
-			part.part.rundownId,
-			part.part.segmentId,
-			part.pieces,
-			ExpectedPackageDBType.PIECE
-		),
-		...generateExpectedPackagesForPiece(
-			context.studio,
-			part.part.rundownId,
-			part.part.segmentId,
-			part.adLibPieces,
-			ExpectedPackageDBType.ADLIB_PIECE
-		),
-		...generateExpectedPackagesForAdlibAction(
-			context.studio,
-			part.part.rundownId,
-			part.part.segmentId,
-			part.adLibActions
-		),
-	]
-
-	part.setExpectedPackages(expectedPackages)
 }
 
-export async function updateExpectedPackagesForRundownBaseline(
+export async function updateExpectedMediaAndPlayoutItemsForRundownBaseline(
 	context: JobContext,
 	ingestModel: IngestModel,
-	baseline: BlueprintResultBaseline | undefined,
-	forceBaseline = false
+	baseline: BlueprintResultBaseline | undefined
 ): Promise<void> {
 	await updateExpectedPlayoutItemsForRundownBaseline(context, ingestModel, baseline)
-
-	const expectedPackages: ExpectedPackageForIngestModelBaseline[] = []
-
-	const preserveTypesDuringSave = new Set<ExpectedPackageDBType>()
-
-	// Only regenerate the baseline types if they are already loaded into memory
-	// If the data isn't already loaded, then we haven't made any changes to the baseline adlibs
-	// This means we can skip regenerating them as it is guaranteed there will be no changes
-	const baselineAdlibPieceCache = forceBaseline
-		? await ingestModel.rundownBaselineAdLibPieces.get()
-		: ingestModel.rundownBaselineAdLibPieces.getIfLoaded()
-	if (baselineAdlibPieceCache) {
-		expectedPackages.push(
-			...generateExpectedPackagesForBaselineAdlibPiece(
-				context.studio,
-				ingestModel.rundownId,
-				baselineAdlibPieceCache
-			)
-		)
-	} else {
-		// We haven't regenerated anything, so preserve the values in the save
-		preserveTypesDuringSave.add(ExpectedPackageDBType.BASELINE_ADLIB_PIECE)
-	}
-	const baselineAdlibActionCache = forceBaseline
-		? await ingestModel.rundownBaselineAdLibActions.get()
-		: ingestModel.rundownBaselineAdLibActions.getIfLoaded()
-	if (baselineAdlibActionCache) {
-		expectedPackages.push(
-			...generateExpectedPackagesForBaselineAdlibAction(
-				context.studio,
-				ingestModel.rundownId,
-				baselineAdlibActionCache
-			)
-		)
-	} else {
-		// We haven't regenerated anything, so preserve the values in the save
-		preserveTypesDuringSave.add(ExpectedPackageDBType.BASELINE_ADLIB_ACTION)
-	}
-
-	if (baseline) {
-		// Fill in ids of unnamed expectedPackages
-		setDefaultIdOnExpectedPackages(baseline.expectedPackages)
-
-		const bases = generateExpectedPackageBases(
-			context.studio,
-			ingestModel.rundownId,
-			baseline.expectedPackages ?? []
-		)
-
-		expectedPackages.push(
-			...bases.map((item): ExpectedPackageDBFromRundownBaselineObjects => {
-				return {
-					...item,
-					fromPieceType: ExpectedPackageDBType.RUNDOWN_BASELINE_OBJECTS,
-					rundownId: ingestModel.rundownId,
-					pieceId: null,
-				}
-			})
-		)
-	} else {
-		// We haven't regenerated anything, so preserve the values in the save
-		preserveTypesDuringSave.add(ExpectedPackageDBType.RUNDOWN_BASELINE_OBJECTS)
-	}
-
-	// Add expected packages for global pieces
-	for (const piece of ingestModel.getGlobalPieces()) {
-		if (piece.expectedPackages) {
-			const bases = generateExpectedPackageBases(context.studio, piece._id, piece.expectedPackages)
-			for (const base of bases) {
-				expectedPackages.push({
-					...base,
-					rundownId: ingestModel.rundownId,
-					pieceId: piece._id,
-					fromPieceType: ExpectedPackageDBType.BASELINE_PIECE,
-				})
-			}
-		}
-	}
-
-	// Preserve anything existing
-	for (const expectedPackage of ingestModel.expectedPackagesForRundownBaseline) {
-		if (preserveTypesDuringSave.has(expectedPackage.fromPieceType)) {
-			expectedPackages.push(clone<ExpectedPackageForIngestModelBaseline>(expectedPackage))
-		}
-	}
-
-	ingestModel.setExpectedPackagesForRundownBaseline(expectedPackages)
 }
 
-function generateExpectedPackagesForPiece(
-	studio: ReadonlyDeep<JobStudio>,
-	rundownId: RundownId,
-	segmentId: SegmentId,
-	pieces: ReadonlyDeep<Piece | AdLibPiece>[],
-	type: ExpectedPackageDBType.PIECE | ExpectedPackageDBType.ADLIB_PIECE
-) {
-	const packages: ExpectedPackageDBFromPiece[] = []
-	for (const piece of pieces) {
-		const partId = 'startPartId' in piece ? piece.startPartId : piece.partId
-		if (piece.expectedPackages && partId) {
-			const bases = generateExpectedPackageBases(studio, piece._id, piece.expectedPackages)
-			for (const base of bases) {
-				packages.push({
-					...base,
-					rundownId,
-					segmentId,
-					partId,
-					pieceId: piece._id,
-					fromPieceType: type,
-				})
-			}
-		}
-	}
-	return packages
-}
-function generateExpectedPackagesForBaselineAdlibPiece(
-	studio: ReadonlyDeep<JobStudio>,
-	rundownId: RundownId,
-	pieces: ReadonlyDeep<RundownBaselineAdLibItem[]>
-) {
-	const packages: ExpectedPackageDBFromBaselineAdLibPiece[] = []
-	for (const piece of pieces) {
-		if (piece.expectedPackages) {
-			const bases = generateExpectedPackageBases(studio, piece._id, piece.expectedPackages)
-			for (const base of bases) {
-				packages.push({
-					...base,
-					rundownId,
-					pieceId: piece._id,
-					fromPieceType: ExpectedPackageDBType.BASELINE_ADLIB_PIECE,
-				})
-			}
-		}
-	}
-	return packages
-}
-function generateExpectedPackagesForAdlibAction(
-	studio: ReadonlyDeep<JobStudio>,
-	rundownId: RundownId,
-	segmentId: SegmentId,
-	actions: ReadonlyDeep<AdLibAction[]>
-) {
-	const packages: ExpectedPackageDBFromAdLibAction[] = []
-	for (const action of actions) {
-		if (action.expectedPackages) {
-			const bases = generateExpectedPackageBases(studio, action._id, action.expectedPackages)
-			for (const base of bases) {
-				packages.push({
-					...base,
-					rundownId,
-					segmentId,
-					partId: action.partId,
-					pieceId: action._id,
-					fromPieceType: ExpectedPackageDBType.ADLIB_ACTION,
-				})
-			}
-		}
-	}
-	return packages
-}
-function generateExpectedPackagesForBaselineAdlibAction(
-	studio: ReadonlyDeep<JobStudio>,
-	rundownId: RundownId,
-	actions: ReadonlyDeep<RundownBaselineAdLibAction[]>
-) {
-	const packages: ExpectedPackageDBFromBaselineAdLibAction[] = []
-	for (const action of actions) {
-		if (action.expectedPackages) {
-			const bases = generateExpectedPackageBases(studio, action._id, action.expectedPackages)
-			for (const base of bases) {
-				packages.push({
-					...base,
-					rundownId,
-					pieceId: action._id,
-					fromPieceType: ExpectedPackageDBType.BASELINE_ADLIB_ACTION,
-				})
-			}
-		}
-	}
-	return packages
-}
-function generateExpectedPackagesForBucketAdlib(studio: ReadonlyDeep<JobStudio>, adlibs: BucketAdLib[]) {
-	const packages: ExpectedPackageDBFromBucketAdLib[] = []
-	for (const adlib of adlibs) {
-		if (adlib.expectedPackages) {
-			const bases = generateExpectedPackageBases(studio, adlib._id, adlib.expectedPackages)
-			for (const base of bases) {
-				packages.push({
-					...base,
-					bucketId: adlib.bucketId,
+function generateExpectedPackagesForBucketAdlib(studio: ReadonlyDeep<JobStudio>, adlib: BucketAdLib) {
+	const packages: ExpectedPackageDB[] = []
+
+	if (adlib.expectedPackages) {
+		packages.push(
+			...generateBucketExpectedPackages<ExpectedPackageIngestSourceBucketAdlibPiece>(
+				studio,
+				adlib.bucketId,
+				{
+					fromPieceType: ExpectedPackageDBType.BUCKET_ADLIB,
 					pieceId: adlib._id,
 					pieceExternalId: adlib.externalId,
-					fromPieceType: ExpectedPackageDBType.BUCKET_ADLIB,
-				})
-			}
-		}
+				},
+				adlib.expectedPackages
+			)
+		)
 	}
+
 	return packages
 }
-function generateExpectedPackagesForBucketAdlibAction(
-	studio: ReadonlyDeep<JobStudio>,
-	adlibActions: BucketAdLibAction[]
-) {
-	const packages: ExpectedPackageDBFromBucketAdLibAction[] = []
-	for (const action of adlibActions) {
-		if (action.expectedPackages) {
-			const bases = generateExpectedPackageBases(studio, action._id, action.expectedPackages)
-			for (const base of bases) {
-				packages.push({
-					...base,
-					bucketId: action.bucketId,
+function generateExpectedPackagesForBucketAdlibAction(studio: ReadonlyDeep<JobStudio>, action: BucketAdLibAction) {
+	const packages: ExpectedPackageDB[] = []
+
+	if (action.expectedPackages) {
+		packages.push(
+			...generateBucketExpectedPackages<ExpectedPackageIngestSourceBucketAdlibAction>(
+				studio,
+				action.bucketId,
+				{
+					fromPieceType: ExpectedPackageDBType.BUCKET_ADLIB_ACTION,
 					pieceId: action._id,
 					pieceExternalId: action.externalId,
-					fromPieceType: ExpectedPackageDBType.BUCKET_ADLIB_ACTION,
-				})
-			}
-		}
+				},
+				action.expectedPackages
+			)
+		)
 	}
+
 	return packages
 }
-function generateExpectedPackageBases(
+function generateBucketExpectedPackages<TSource = never>(
 	studio: ReadonlyDeep<JobStudio>,
-	ownerId:
-		| PieceId
-		| AdLibActionId
-		| RundownBaselineAdLibActionId
-		| BucketAdLibId
-		| BucketAdLibActionId
-		| RundownId
-		| StudioId,
+	bucketId: BucketId,
+	source: Omit<TSource, 'blueprintPackageId' | 'listenToPackageInfoUpdates'>,
 	expectedPackages: ReadonlyDeep<ExpectedPackage.Any[]>
-) {
-	const bases: Omit<ExpectedPackageDBBase, 'pieceId' | 'fromPieceType'>[] = []
+): ExpectedPackageDB[] {
+	const bases: ExpectedPackageDB[] = []
 
 	for (let i = 0; i < expectedPackages.length; i++) {
 		const expectedPackage = expectedPackages[i]
-		const id = expectedPackage._id || '__unnamed' + i
+
+		const fullPackage: ReadonlyDeep<ExpectedPackage.Any> = {
+			...expectedPackage,
+			_id: expectedPackage._id || '__unnamed' + i,
+		}
 
 		bases.push({
-			...clone<ExpectedPackage.Any>(expectedPackage),
-			_id: getExpectedPackageId(ownerId, id),
-			blueprintPackageId: id,
-			contentVersionHash: getContentVersionHash(expectedPackage),
+			_id: getExpectedPackageId(bucketId, fullPackage),
+			package: fullPackage,
 			studioId: studio._id,
-			created: Date.now(),
+			rundownId: null,
+			bucketId: bucketId,
+			created: Date.now(), // This will be preserved during the save if needed
+			ingestSources: [
+				{
+					...(source as any), // Because this is a generic, this spread doesnt work
+					blueprintPackageId: expectedPackage._id,
+					listenToPackageInfoUpdates: expectedPackage.listenToPackageInfoUpdates,
+				},
+			],
+			playoutSources: {
+				// These don't belong to a rundown, so can't be referenced by playout
+				pieceInstanceIds: [],
+			},
 		})
 	}
+
 	return bases
+}
+
+async function writeUpdatedExpectedPackages(
+	context: JobContext,
+	bucketId: BucketId,
+	documentsToSave: ExpectedPackageDB[],
+	matchSource: Partial<ExpectedPackageIngestSource>
+): Promise<void> {
+	const writeOps: AnyBulkWriteOperation<ExpectedPackageDB>[] = []
+
+	const documentIdsToSave = documentsToSave.map((doc) => doc._id)
+
+	// Find which documents already exist in the database
+	// It would be nice to avoid this, but that would make the update operation incredibly complex
+	// There is no risk of race conditions, as bucket packages are only modified in the ingest job worker
+	const existingDocIds = new Set(
+		(
+			await context.directCollections.ExpectedPackages.findFetch(
+				{
+					_id: { $in: documentIdsToSave },
+					studioId: context.studioId,
+					bucketId: bucketId,
+				},
+				{
+					projection: {
+						_id: 1,
+					},
+				}
+			)
+		).map((doc) => doc._id)
+	)
+
+	for (const doc of documentsToSave) {
+		if (existingDocIds.has(doc._id)) {
+			// Document already exists, perform an update to merge the source into the existing document
+			writeOps.push({
+				updateOne: {
+					filter: {
+						_id: doc._id,
+						ingestSources: {
+							// This is pretty messy, but we need to make sure that we don't add the same source twice
+							$not: {
+								$elemMatch: matchSource,
+							},
+						},
+					},
+					update: {
+						$addToSet: {
+							ingestSources: doc.ingestSources[0],
+						},
+					},
+				},
+			})
+		} else {
+			// Perform a simple insert
+			writeOps.push({
+				insertOne: {
+					document: doc,
+				},
+			})
+		}
+	}
+
+	// Remove any old references from this source
+	writeOps.push({
+		updateMany: {
+			filter: {
+				studioId: context.studioId,
+				bucketId: bucketId,
+				_id: { $nin: documentIdsToSave },
+			},
+			update: {
+				$pull: {
+					ingestSources: matchSource,
+				},
+			},
+		},
+	})
+
+	await context.directCollections.ExpectedPackages.bulkWrite(writeOps)
+
+	// Check for any packages that no longer have any sources
+	await cleanUpUnusedPackagesInBucket(context, bucketId)
 }
 
 export async function updateExpectedPackagesForBucketAdLibPiece(
 	context: JobContext,
 	adlib: BucketAdLib
 ): Promise<void> {
-	const packages = generateExpectedPackagesForBucketAdlib(context.studio, [adlib])
+	const documentsToSave = generateExpectedPackagesForBucketAdlib(context.studio, adlib)
 
-	await saveIntoDb(context, context.directCollections.ExpectedPackages, { pieceId: adlib._id }, packages)
+	await writeUpdatedExpectedPackages(context, adlib.bucketId, documentsToSave, {
+		fromPieceType: ExpectedPackageDBType.BUCKET_ADLIB,
+		pieceId: adlib._id,
+	})
 }
 
 export async function updateExpectedPackagesForBucketAdLibAction(
 	context: JobContext,
 	action: BucketAdLibAction
 ): Promise<void> {
-	const packages = generateExpectedPackagesForBucketAdlibAction(context.studio, [action])
+	const documentsToSave = generateExpectedPackagesForBucketAdlibAction(context.studio, action)
 
-	await saveIntoDb(context, context.directCollections.ExpectedPackages, { pieceId: action._id }, packages)
+	await writeUpdatedExpectedPackages(context, action.bucketId, documentsToSave, {
+		fromPieceType: ExpectedPackageDBType.BUCKET_ADLIB_ACTION,
+		pieceId: action._id,
+	})
 }
+
 export async function cleanUpExpectedPackagesForBucketAdLibs(
 	context: JobContext,
-	adLibIds: BucketAdLibId[]
+	bucketId: BucketId,
+	adLibIds: Array<BucketAdLibId | BucketAdLibActionId>
 ): Promise<void> {
 	if (adLibIds.length > 0) {
-		await context.directCollections.ExpectedPackages.remove({
-			pieceId: {
-				$in: adLibIds,
+		// Remove the claim for the adlibs from any expected packages in the db
+		await context.directCollections.ExpectedPackages.update(
+			{
+				studioId: context.studioId,
+				bucketId: bucketId,
+				// Note: this could have the ingestSources match, but that feels excessive as the $pull performs the same check
 			},
-		})
+			{
+				$pull: {
+					ingestSources: {
+						fromPieceType: {
+							$in: [ExpectedPackageDBType.BUCKET_ADLIB, ExpectedPackageDBType.BUCKET_ADLIB_ACTION],
+						},
+						pieceId: { $in: adLibIds },
+					} as any, // This cast isn't nice, but is needed for some reason
+				},
+			}
+		)
+
+		// Remove any expected packages that have now have no owners
+		await cleanUpUnusedPackagesInBucket(context, bucketId)
 	}
 }
-export async function cleanUpExpectedPackagesForBucketAdLibsActions(
-	context: JobContext,
-	adLibIds: BucketAdLibActionId[]
-): Promise<void> {
-	if (adLibIds.length > 0) {
-		await context.directCollections.ExpectedPackages.remove({
-			pieceId: {
-				$in: adLibIds,
-			},
-		})
-	}
+
+async function cleanUpUnusedPackagesInBucket(context: JobContext, bucketId: BucketId) {
+	await context.directCollections.ExpectedPackages.remove({
+		studioId: context.studioId,
+		bucketId: bucketId,
+		ingestSources: { $size: 0 },
+		// Future: these currently can't be referenced by playoutSources, but they could be in the future
+	})
 }
 
 export function updateBaselineExpectedPackagesOnStudio(
@@ -380,29 +269,21 @@ export function updateBaselineExpectedPackagesOnStudio(
 ): void {
 	updateBaselineExpectedPlayoutItemsOnStudio(context, playoutModel, baseline.expectedPlayoutItems ?? [])
 
-	// Fill in ids of unnamed expectedPackages
-	setDefaultIdOnExpectedPackages(baseline.expectedPackages)
-
-	const bases = generateExpectedPackageBases(context.studio, context.studio._id, baseline.expectedPackages ?? [])
-	playoutModel.setExpectedPackagesForStudioBaseline(
-		bases.map((item): ExpectedPackageDBFromStudioBaselineObjects => {
-			return {
-				...item,
-				fromPieceType: ExpectedPackageDBType.STUDIO_BASELINE_OBJECTS,
-				pieceId: null,
-			}
-		})
-	)
+	playoutModel.setExpectedPackagesForStudioBaseline(baseline.expectedPackages ?? [])
 }
 
-export function setDefaultIdOnExpectedPackages(expectedPackages: ExpectedPackage.Any[] | undefined): void {
-	// Fill in ids of unnamed expectedPackage
+export function sanitiseExpectedPackages(expectedPackages: ExpectedPackage.Any[] | undefined): void {
 	if (expectedPackages) {
-		for (let i = 0; i < expectedPackages.length; i++) {
-			const expectedPackage = expectedPackages[i]
-			if (!expectedPackage._id) {
-				expectedPackage._id = `__index${i}`
-			}
+		for (const expectedPackage of expectedPackages) {
+			expectedPackage.contentVersionHash = getContentVersionHash(expectedPackage)
 		}
 	}
+}
+
+function getContentVersionHash(expectedPackage: ReadonlyDeep<Omit<ExpectedPackage.Any, '_id'>>): string {
+	return hashObj({
+		content: expectedPackage.content,
+		version: expectedPackage.version,
+		// todo: should expectedPackage.sources.containerId be here as well?
+	})
 }

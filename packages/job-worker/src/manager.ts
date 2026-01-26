@@ -1,5 +1,6 @@
-import { WorkerId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { JobSpec } from './main.js'
+import type { WorkerId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { JobSpec } from './main.js'
+import type { QueueJobOptions } from './jobs/index.js'
 
 export interface JobManager {
 	jobFinished: (
@@ -10,7 +11,12 @@ export interface JobManager {
 		result: any
 	) => Promise<void>
 	// getNextJob: (queueName: string) => Promise<JobSpec>
-	queueJob: (queueName: string, jobName: string, jobData: unknown) => Promise<void>
+	queueJob: (
+		queueName: string,
+		jobName: string,
+		jobData: unknown,
+		options: QueueJobOptions | undefined
+	) => Promise<void>
 	subscribeToQueue: (queueName: string, workerId: WorkerId) => JobStream
 }
 

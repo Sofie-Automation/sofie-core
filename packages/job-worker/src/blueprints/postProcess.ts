@@ -42,7 +42,7 @@ import {
 	interpollateTranslation,
 	wrapTranslatableMessageFromBlueprints,
 } from '@sofie-automation/corelib/dist/TranslatableMessage'
-import { setDefaultIdOnExpectedPackages } from '../ingest/expectedPackages.js'
+import { sanitiseExpectedPackages } from '../ingest/expectedPackages.js'
 import { logger } from '../logging.js'
 import { validateTimeline } from 'superfly-timeline'
 import { ReadonlyDeep } from 'type-fest'
@@ -137,8 +137,8 @@ export function postProcessPieces(
 		)
 		piece.timelineObjectsString = serializePieceTimelineObjectsBlob(timelineObjects)
 
-		// Fill in ids of unnamed expectedPackages
-		setDefaultIdOnExpectedPackages(piece.expectedPackages)
+		// Fill in contentVersionHash of expectedPackages
+		sanitiseExpectedPackages(piece.expectedPackages)
 
 		return piece
 	})
@@ -267,8 +267,8 @@ export function postProcessAdLibPieces(
 		)
 		piece.timelineObjectsString = serializePieceTimelineObjectsBlob(timelineObjects)
 
-		// Fill in ids of unnamed expectedPackages
-		setDefaultIdOnExpectedPackages(piece.expectedPackages)
+		// Fill in contentVersionHash of expectedPackages
+		sanitiseExpectedPackages(piece.expectedPackages)
 
 		return piece
 	})
@@ -304,8 +304,8 @@ export function postProcessGlobalAdLibActions(
 			`${rundownId}_${blueprintId}_global_adlib_action_${action.externalId}`
 		)
 
-		// Fill in ids of unnamed expectedPackages
-		setDefaultIdOnExpectedPackages(action.expectedPackages)
+		// Fill in contentVersionHash of expectedPackages
+		sanitiseExpectedPackages(action.expectedPackages)
 
 		return literal<RundownBaselineAdLibAction>({
 			...action,
@@ -345,8 +345,8 @@ export function postProcessAdLibActions(
 			`${rundownId}_${blueprintId}_${partId}_adlib_action_${action.externalId}`
 		)
 
-		// Fill in ids of unnamed expectedPackages
-		setDefaultIdOnExpectedPackages(action.expectedPackages)
+		// Fill in contentVersionHash of expectedPackages
+		sanitiseExpectedPackages(action.expectedPackages)
 
 		return literal<AdLibAction>({
 			...action,
@@ -428,8 +428,8 @@ export function postProcessGlobalPieces(
 		)
 		piece.timelineObjectsString = serializePieceTimelineObjectsBlob(timelineObjects)
 
-		// Fill in ids of unnamed expectedPackages
-		setDefaultIdOnExpectedPackages(piece.expectedPackages)
+		// Fill in contentVersionHash of expectedPackages
+		sanitiseExpectedPackages(piece.expectedPackages)
 
 		return piece
 	})
@@ -504,8 +504,8 @@ export function postProcessBucketAdLib(
 		name: name || itemOrig.name,
 		timelineObjectsString: EmptyPieceTimelineObjectsBlob,
 	}
-	// Fill in ids of unnamed expectedPackages
-	setDefaultIdOnExpectedPackages(piece.expectedPackages)
+	// Fill in contentVersionHash of expectedPackages
+	sanitiseExpectedPackages(piece.expectedPackages)
 
 	const timelineObjects = postProcessTimelineObjects(piece._id, blueprintId, itemOrig.content.timelineObjects)
 	piece.timelineObjectsString = serializePieceTimelineObjectsBlob(timelineObjects)
@@ -553,8 +553,8 @@ export function postProcessBucketAction(
 		...processAdLibActionITranslatableMessages(itemOrig, blueprintId, rank, label),
 	}
 
-	// Fill in ids of unnamed expectedPackages
-	setDefaultIdOnExpectedPackages(action.expectedPackages)
+	// Fill in contentVersionHash of expectedPackages
+	sanitiseExpectedPackages(action.expectedPackages)
 
 	return action
 }

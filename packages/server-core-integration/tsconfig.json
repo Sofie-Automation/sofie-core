@@ -3,6 +3,7 @@
 	"exclude": ["node_modules/**"],
 	"include": ["src/**/*.ts", "examples/*.ts"],
 	"compilerOptions": {
+		"rootDir": "./",
 		"types": ["jest", "node"]
 	}
 }

@@ -24,7 +24,7 @@ import { PackageManagerExpectedPackage } from '@sofie-automation/shared-lib/dist
 import { ExpectedPackagesContentObserver } from './contentObserver'
 import { createReactiveContentCache, ExpectedPackagesContentCache } from './contentCache'
 import { buildMappingsToDeviceIdMap } from './util'
-import { updateCollectionForExpectedPackageIds, updateCollectionForPieceInstanceIds } from './generate'
+import { updateCollectionForExpectedPackageIds } from './generate'
 import {
 	PeripheralDevicePubSub,
 	PeripheralDevicePubSubCollectionsNames,
@@ -162,16 +162,13 @@ async function manipulateExpectedPackagesPublicationData(
 	}
 
 	let regenerateExpectedPackageIds: Set<ExpectedPackageId>
-	let regeneratePieceInstanceIds: Set<PieceInstanceId>
 	if (invalidateAllItems) {
-		// force every piece to be regenerated
+		// force every package to be regenerated
 		collection.remove(null)
 		regenerateExpectedPackageIds = new Set(state.contentCache.ExpectedPackages.find({}).map((p) => p._id))
-		regeneratePieceInstanceIds = new Set(state.contentCache.PieceInstances.find({}).map((p) => p._id))
 	} else {
 		// only regenerate the reported changes
 		regenerateExpectedPackageIds = new Set(updateProps.invalidateExpectedPackageIds)
-		regeneratePieceInstanceIds = new Set(updateProps.invalidatePieceInstanceIds)
 	}
 
 	await updateCollectionForExpectedPackageIds(
@@ -183,15 +180,53 @@ async function manipulateExpectedPackagesPublicationData(
 		args.filterPlayoutDeviceIds,
 		regenerateExpectedPackageIds
 	)
-	await updateCollectionForPieceInstanceIds(
-		state.contentCache,
-		state.studio,
-		state.layerNameToDeviceIds,
-		state.packageContainers,
-		collection,
-		args.filterPlayoutDeviceIds,
-		regeneratePieceInstanceIds
-	)
+
+	// Ensure the priorities are correct for the packages
+	// We can do this as a post-step, as it means we can generate the packages solely based on the content
+	// If one gets regenerated, its priority will be reset to OTHER. But as it has already changed, this fixup is 'free'
+	// For those not regenerated, we can set the priority to the correct value if it has changed, without any deeper checks
+	updatePackagePriorities(state.contentCache, collection)
+}
+
+const PACKAGE_PRIORITY_PLAYOUT_CURRENT = 0
+const PACKAGE_PRIORITY_PLAYOUT_NEXT = 1
+const PACKAGE_PRIORITY_OTHER = 9
+
+function updatePackagePriorities(
+	contentCache: ReadonlyDeep<ExpectedPackagesContentCache>,
+	collection: CustomPublishCollection<PackageManagerExpectedPackage>
+) {
+	const packagePriorities = new Map<ExpectedPackageId, number>()
+
+	// Compile the map of the expected priority of each package
+	const knownPieceInstances = contentCache.PieceInstances.find({})
+	const playlist = contentCache.RundownPlaylists.findOne({})
+	const currentPartInstanceId = playlist?.currentPartInfo?.partInstanceId
+	for (const pieceInstance of knownPieceInstances) {
+		const packageIds = pieceInstance.neededExpectedPackageIds
+		if (!packageIds) continue
+
+		const packagePriority =
+			pieceInstance.partInstanceId === currentPartInstanceId
+				? PACKAGE_PRIORITY_PLAYOUT_CURRENT
+				: PACKAGE_PRIORITY_PLAYOUT_NEXT
+
+		for (const packageId of packageIds) {
+			const existingPriority = packagePriorities.get(packageId) ?? PACKAGE_PRIORITY_OTHER
+			packagePriorities.set(packageId, Math.min(existingPriority, packagePriority))
+		}
+	}
+
+	// Iterate through and update each package
+	collection.updateAll((pkg) => {
+		const expectedPriority = packagePriorities.get(pkg.expectedPackage._id) ?? PACKAGE_PRIORITY_OTHER
+		if (pkg.priority === expectedPriority) return false
+
+		return {
+			...pkg,
+			priority: expectedPriority,
+		}
+	})
 }
 
 meteorCustomPublish(

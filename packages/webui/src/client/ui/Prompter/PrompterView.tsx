@@ -62,6 +62,9 @@ interface PrompterConfig {
 	pedal_rangeNeutralMax?: number
 	pedal_rangeFwdMax?: number
 	shuttle_speedMap?: number[]
+	xbox_speedMap?: number[]
+	xbox_reverseSpeedMap?: number[]
+	xbox_triggerDeadZone?: number
 	marker?: 'center' | 'top' | 'bottom' | 'hide'
 	showMarker: boolean
 	showScroll: boolean
@@ -77,6 +80,7 @@ export enum PrompterConfigMode {
 	JOYCON = 'joycon',
 	PEDAL = 'pedal',
 	SHUTTLEWEBHID = 'shuttlewebhid',
+	XBOX = 'xbox',
 }
 
 export interface IPrompterControllerState {
@@ -175,6 +179,18 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 			pedal_rangeNeutralMin: parseInt(firstIfArray(queryParams['pedal_rangeNeutralMin']) as string, 10) || undefined,
 			pedal_rangeNeutralMax: parseInt(firstIfArray(queryParams['pedal_rangeNeutralMax']) as string, 10) || undefined,
 			pedal_rangeFwdMax: parseInt(firstIfArray(queryParams['pedal_rangeFwdMax']) as string, 10) || undefined,
+			xbox_speedMap:
+				queryParams['xbox_speedMap'] === undefined
+					? undefined
+					: asArray(queryParams['xbox_speedMap']).map((value) => Number.parseInt(value, 10)),
+			xbox_reverseSpeedMap:
+				queryParams['xbox_reverseSpeedMap'] === undefined
+					? undefined
+					: asArray(queryParams['xbox_reverseSpeedMap']).map((value) => Number.parseInt(value, 10)),
+			xbox_triggerDeadZone: (() => {
+				const val = Number.parseFloat(firstIfArray(queryParams['xbox_triggerDeadZone']) as string)
+				return Number.isNaN(val) ? undefined : val
+			})(),
 			marker: (firstIfArray(queryParams['marker']) as any) || undefined,
 			showMarker: queryParams['showmarker'] === undefined ? true : queryParams['showmarker'] === '1',
 			showScroll: queryParams['showscroll'] === undefined ? true : queryParams['showscroll'] === '1',

@@ -286,6 +286,17 @@ function createShelfAction(_filterChain: IGUIContextFilterLink[], state: boolean
 	}
 }
 
+function createEditModeAction(_filterChain: IGUIContextFilterLink[], state: boolean | 'toggle'): ExecutableAction {
+	return {
+		action: ClientActions.editMode,
+		execute: () => {
+			RundownViewEventBus.emit(RundownViewEvents.EDIT_MODE, {
+				state,
+			})
+		},
+	}
+}
+
 function createMiniShelfQueueAdLibAction(_filterChain: IGUIContextFilterLink[], forward: boolean): ExecutableAction {
 	return {
 		action: ClientActions.miniShelfQueueAdLib,
@@ -442,6 +453,8 @@ export function createAction(
 	switch (action.action) {
 		case ClientActions.shelf:
 			return createShelfAction(action.filterChain, action.state)
+		case ClientActions.editMode:
+			return createEditModeAction(action.filterChain, action.state)
 		case ClientActions.goToOnAirLine:
 			return createGoToOnAirLineAction(action.filterChain)
 		case ClientActions.rewindSegments:

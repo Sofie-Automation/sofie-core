@@ -98,6 +98,10 @@ export class DocumentChangeTracker<TDoc extends { _id: ProtectedString<any> }> {
 		return Array.from(this.#deletedIds.values())
 	}
 
+	getDocumentsToSave(): ReadonlyMap<TDoc['_id'], TDoc> {
+		return this.#documentsToSave
+	}
+
 	/**
 	 * Generate the mongodb BulkWrite operations for the documents known to this tracker
 	 * @returns mongodb BulkWrite operations

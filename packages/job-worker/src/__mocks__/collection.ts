@@ -190,6 +190,16 @@ export class MockMongoCollection<TDoc extends { _id: ProtectedString<any> }> imp
 
 		return docs.length
 	}
+	private async removeOne(selector: MongoQuery<TDoc> | TDoc['_id']): Promise<number> {
+		this.#ops.push({ type: 'removeOne', args: [selector] })
+
+		const docs: Pick<TDoc, '_id'>[] = await this.findFetchInner(selector, { projection: { _id: 1 }, limit: 1 })
+		for (const doc of docs) {
+			this.#documents.delete(doc._id)
+		}
+
+		return docs.length
+	}
 	async update(selector: MongoQuery<TDoc> | TDoc['_id'], modifier: MongoModifier<TDoc>): Promise<number> {
 		return this.updateInner(selector, modifier, false)
 	}
@@ -231,8 +241,12 @@ export class MockMongoCollection<TDoc extends { _id: ProtectedString<any> }> imp
 				await this.updateInner(op.updateOne.filter, op.updateOne.update, true)
 			} else if ('replaceOne' in op) {
 				await this.replace(op.replaceOne.replacement as any)
+			} else if ('insertOne' in op) {
+				await this.insertOne(op.insertOne.document as any)
 			} else if ('deleteMany' in op) {
 				await this.remove(op.deleteMany.filter)
+			} else if ('deleteOne' in op) {
+				await this.removeOne(op.deleteOne.filter)
 			} else {
 				// Note: implement more as we start using them
 				throw new Error(`Unknown mongo Bulk Operation: ${JSON.stringify(op)}`)

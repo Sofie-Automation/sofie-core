@@ -32,15 +32,13 @@
 		}
 	],
 	"scripts": {
-		"build": "run -T rimraf dist && run build:main && run copytypes",
-		"build:main": "run -T tsc -p tsconfig.build.json",
 		"lint:raw": "run -T eslint",
 		"lint": "run lint:raw .",
 		"unit": "run -T jest",
 		"test": "run lint && run unit",
 		"test:integration": "run lint && run -T jest --config=jest-integration.config.js",
 		"watch": "run -T jest --watch",
-		"copytypes": "copyfiles -u 1 src/types/* dist",
+		"build:prepare": "copyfiles -u 1 src/types/* dist",
 		"cov": "run -T jest --coverage; open-cli coverage/lcov-report/index.html",
 		"cov-open": "open-cli coverage/lcov-report/index.html",
 		"validate:dependencies": "yarn npm audit --environment production && run license-validate",

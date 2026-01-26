@@ -6,12 +6,12 @@ import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { defaultPart, defaultPiece, defaultAdLibPiece } from '../../__mocks__/defaultCollectionObjects.js'
 import { LAYER_IDS } from '../../__mocks__/presetCollections.js'
 import { ExpectedPackage, PieceLifespan, VTContent } from '@sofie-automation/blueprints-integration'
-import { updateExpectedPackagesForPartModel } from '../expectedPackages.js'
+import { updateExpectedMediaAndPlayoutItemsForPartModel } from '../expectedPackages.js'
 import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context.js'
 import { ReadonlyDeep } from 'type-fest'
 import { IngestPartModel } from '../model/IngestPartModel.js'
 
-describe('Expected Media Items', () => {
+describe('Expected Playout Items', () => {
 	let context: MockJobContext
 	beforeAll(async () => {
 		context = setupDefaultJobEnvironment()
@@ -111,9 +111,8 @@ describe('Expected Media Items', () => {
 		return { part, pieces, adLibPieces }
 	}
 
-	test('Generates ExpectedPackages for a Part', async () => {
+	test('Generates for a Part', async () => {
 		const setExpectedPlayoutItems = jest.fn()
-		const setExpectedPackages = jest.fn()
 
 		const { part, pieces, adLibPieces } = getMockPartContent()
 
@@ -126,16 +125,12 @@ describe('Expected Media Items', () => {
 			expectedPackages: [],
 
 			setExpectedPlayoutItems,
-			setExpectedPackages,
 			setInvalid: function (_invalid: boolean): void {
 				throw new Error('Function not implemented.')
 			},
 		}
 
-		updateExpectedPackagesForPartModel(context, partModel)
-
-		expect(setExpectedPackages).toHaveBeenCalledTimes(1)
-		expect(setExpectedPackages.mock.calls[0][0]).toHaveLength(4)
+		updateExpectedMediaAndPlayoutItemsForPartModel(context, partModel)
 
 		expect(setExpectedPlayoutItems).toHaveBeenCalledTimes(1)
 		expect(setExpectedPlayoutItems).toHaveBeenCalledWith([])

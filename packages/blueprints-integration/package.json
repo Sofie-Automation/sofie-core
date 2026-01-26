@@ -15,8 +15,6 @@
 	},
 	"homepage": "https://github.com/Sofie-Automation/sofie-core/blob/main/packages/blueprints-integration#readme",
 	"scripts": {
-		"build": "run -T rimraf dist && run build:main",
-		"build:main": "run -T tsc -p tsconfig.build.json",
 		"lint:raw": "run -T eslint",
 		"lint": "run lint:raw .",
 		"unit": "run -T jest",

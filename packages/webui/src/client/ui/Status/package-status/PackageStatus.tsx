@@ -25,7 +25,7 @@ export const PackageStatus: React.FC<{
 	const { t } = useTranslation()
 
 	const getPackageName = useCallback((): string => {
-		const p2: ExpectedPackage.Any = props.package as any
+		const p2 = props.package.package as ExpectedPackage.Any
 		if (p2.type === ExpectedPackage.PackageType.MEDIA_FILE) {
 			return p2.content.filePath || unprotectString(props.package._id)
 		} else if (p2.type === ExpectedPackage.PackageType.QUANTEL_CLIP) {
@@ -87,7 +87,7 @@ export const PackageStatus: React.FC<{
 
 			return 0
 		})
-	}, props.statuses)
+	}, [props.statuses])
 
 	let offlineReasonMessage: string | undefined = undefined
 	let connected = true

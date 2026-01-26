@@ -1,4 +1,4 @@
-import { IngestModel, IngestModelReadonly } from './model/IngestModel.js'
+import { IngestDatabasePersistedModel, IngestModel, IngestModelReadonly } from './model/IngestModel.js'
 import { BeforeIngestOperationPartMap, CommitIngestOperation } from './commit.js'
 import { SofieIngestRundownDataCache, SofieIngestRundownDataCacheGenerator } from './sofieIngestCache.js'
 import { canRundownBeUpdated, getRundownId, getSegmentId } from './lib.js'
@@ -8,7 +8,6 @@ import { UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/erro
 import { loadIngestModelFromRundownExternalId } from './model/implementation/LoadIngestModel.js'
 import { Complete, clone } from '@sofie-automation/corelib/dist/lib'
 import { CommitIngestData, runWithRundownLockWithoutFetchingRundown } from './lock.js'
-import { DatabasePersistedModel } from '../modelBase.js'
 import {
 	NrcsIngestChangeDetails,
 	IngestRundown,
@@ -352,7 +351,7 @@ function sortIngestRundown(rundown: IngestRundown): void {
 
 async function updateSofieRundownModel(
 	context: JobContext,
-	pIngestModel: Promise<IngestModel & DatabasePersistedModel>,
+	pIngestModel: Promise<IngestModel & IngestDatabasePersistedModel>,
 	computedIngestChanges: ComputedIngestChanges | null
 ) {
 	const ingestModel = await pIngestModel

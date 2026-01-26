@@ -1,4 +1,10 @@
-import { PartInstanceId, PieceInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import {
+	ExpectedPackageId,
+	PartInstanceId,
+	PieceInstanceId,
+	RundownId,
+	RundownPlaylistId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { DBSegment, SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
@@ -7,6 +13,11 @@ import { AnyBulkWriteOperation } from 'mongodb'
 import { JobContext } from '../../../jobs/index.js'
 import { PlayoutPartInstanceModelImpl } from './PlayoutPartInstanceModelImpl.js'
 import { PlayoutRundownModelImpl } from './PlayoutRundownModelImpl.js'
+import { ReadonlyDeep } from 'type-fest'
+import { ExpectedPackage } from '@sofie-automation/blueprints-integration'
+import { normalizeArrayToMap } from '@sofie-automation/corelib/dist/lib'
+import { ExpectedPackageDB } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
+import { StudioJobs } from '@sofie-automation/corelib/dist/worker/studio'
 
 /**
  * Save any changed AdlibTesting Segments
@@ -135,4 +146,144 @@ export function writePartInstancesAndPieceInstances(
 			? context.directCollections.PieceInstances.bulkWrite(pieceInstanceOps)
 			: Promise.resolve(),
 	]
+}
+
+interface ExpectedPackageEntry {
+	_id: ExpectedPackageId
+	package: ReadonlyDeep<ExpectedPackage.Base>
+
+	pieceInstanceIds: PieceInstanceId[]
+}
+
+export async function writeExpectedPackagesForPlayoutSources(
+	context: JobContext,
+	playlistId: RundownPlaylistId,
+	rundownId: RundownId,
+	partInstancesForRundown: PlayoutPartInstanceModelImpl[]
+): Promise<void> {
+	// We know we are inside the playout lock, so we can safely load from the packages and it won't be modified by another thread
+
+	const existingPackages = (await context.directCollections.ExpectedPackages.findFetch(
+		{
+			studioId: context.studioId,
+			rundownId: rundownId,
+			bucketId: null,
+		},
+		{
+			projection: {
+				_id: 1,
+				playoutSources: 1,
+			},
+		}
+	)) as Pick<ExpectedPackageDB, '_id' | 'playoutSources'>[]
+	const existingPackagesMap = normalizeArrayToMap(existingPackages, '_id')
+
+	const pieceInstancesToAddToPackages = new Map<ExpectedPackageId, PieceInstanceId[]>()
+	const packagesToInsert = new Map<ExpectedPackageId, ExpectedPackageEntry>()
+
+	let hasPieceInstanceExpectedPackageChanges = false
+
+	for (const partInstance of partInstancesForRundown) {
+		if (!partInstance) continue
+
+		for (const pieceInstance of partInstance.pieceInstancesImpl.values()) {
+			if (!pieceInstance) {
+				// PieceInstance was deleted, cleanup may be needed
+				hasPieceInstanceExpectedPackageChanges = true
+				continue
+			}
+
+			// The expectedPackages of the PieceInstance has not been modified, so there is nothing to do
+			if (!pieceInstance.updatedExpectedPackages) continue
+
+			hasPieceInstanceExpectedPackageChanges = true
+
+			// Any removed references will be removed by the debounced job
+
+			for (const [packageId, expectedPackage] of pieceInstance.updatedExpectedPackages) {
+				const existingPackage = existingPackagesMap.get(packageId)
+				if (existingPackage?.playoutSources.pieceInstanceIds.includes(pieceInstance.pieceInstance._id)) {
+					// Reference already exists, nothing to do
+					continue
+				}
+
+				if (existingPackage) {
+					// Add the pieceInstanceId to the existing package
+					const pieceInstanceIds = pieceInstancesToAddToPackages.get(packageId) ?? []
+					pieceInstanceIds.push(pieceInstance.pieceInstance._id)
+					pieceInstancesToAddToPackages.set(packageId, pieceInstanceIds)
+				} else {
+					// Record as needing a new document, or add to existing entry if already queued for insert
+					const existingEntry = packagesToInsert.get(packageId)
+					if (existingEntry) {
+						existingEntry.pieceInstanceIds.push(pieceInstance.pieceInstance._id)
+					} else {
+						packagesToInsert.set(packageId, {
+							_id: packageId,
+							package: expectedPackage,
+							pieceInstanceIds: [pieceInstance.pieceInstance._id],
+						})
+					}
+
+					// Future: If this came from a bucket, can we copy the packageInfos across to minimise latency until the status is ready?
+				}
+			}
+		}
+	}
+
+	// We now know what needs to be written (only the additive changes)
+
+	const writeOps: AnyBulkWriteOperation<ExpectedPackageDB>[] = []
+	for (const [packageId, pieceInstanceIds] of pieceInstancesToAddToPackages.entries()) {
+		writeOps.push({
+			updateOne: {
+				filter: { _id: packageId },
+				update: {
+					$addToSet: {
+						'playoutSources.pieceInstanceIds': { $each: pieceInstanceIds },
+					},
+				},
+			},
+		})
+	}
+
+	for (const packageEntry of packagesToInsert.values()) {
+		writeOps.push({
+			insertOne: {
+				document: {
+					_id: packageEntry._id,
+					studioId: context.studioId,
+					rundownId: rundownId,
+					bucketId: null,
+					created: Date.now(),
+
+					package: packageEntry.package,
+					ingestSources: [],
+					playoutSources: {
+						pieceInstanceIds: packageEntry.pieceInstanceIds,
+					},
+				},
+			},
+		})
+	}
+
+	if (writeOps.length > 0) {
+		await context.directCollections.ExpectedPackages.bulkWrite(writeOps)
+	}
+
+	// We can't easily track any references which have been deleted, so we should schedule a cleanup job to deal with that for us
+	// Only queue if there were changes to expected packages, to avoid unnecessary job scheduling
+	if (hasPieceInstanceExpectedPackageChanges) {
+		await context.queueStudioJob(
+			StudioJobs.CleanupOrphanedExpectedPackageReferences,
+			{
+				playlistId: playlistId,
+				rundownId: rundownId,
+			},
+			{
+				lowPriority: true,
+				debounce: 1000,
+			}
+		)
+	}
 }

@@ -23,38 +23,55 @@ export const DevicePackageManagerSettings: React.FC<IDevicePackageManagerSetting
 	function DevicePackageManagerSettings({ deviceId }: IDevicePackageManagerSettingsProps) {
 		const { t } = useTranslation()
 		const device = useTracker(() => PeripheralDevices.findOne(deviceId), [deviceId], undefined)
-		const reloadingNow = useRef(false)
+		const reloadingNow = useRef<PeripheralDeviceId | null>(null)
 		const [status, setStatus] = useState<Status | undefined>(undefined)
 
-		const reloadStatus = useCallback((silent = false) => {
-			if (reloadingNow.current) return // if there is a method currently being executed, skip
+		const reloadStatus = useCallback(
+			(silent = false) => {
+				if (reloadingNow.current === deviceId) return // if there is a method currently being executed, skip
 
-			reloadingNow.current = true
+				reloadingNow.current = deviceId
 
-			MeteorCall.client
-				.callBackgroundPeripheralDeviceFunction(deviceId, 1000, 'getExpetationManagerStatus')
-				.then((result: Status) => setStatus(result))
-				.catch((error) => {
-					if (silent) {
-						logger.error('callBackgroundPeripheralDeviceFunction getExpetationManagerStatus', error)
-						return
-					}
+				MeteorCall.client
+					.callBackgroundPeripheralDeviceFunction(deviceId, 1000, 'getExpetationManagerStatus')
+					.then((result: Status) => {
+						if (reloadingNow.current !== deviceId) return // if the deviceId has changed, abort
 
-					doModalDialog({
-						message: t('There was an error: {{error}}', { error: error.toString() }),
-						title: t('Error'),
-						warning: true,
-						onAccept: () => {
-							// Do nothing
-						},
+						setStatus(result)
 					})
-				})
-				.finally(() => {
-					reloadingNow.current = false
-				})
-		}, [])
+					.catch((error) => {
+						if (reloadingNow.current !== deviceId) return // if the deviceId has changed, abort
+
+						if (silent) {
+							logger.error('callBackgroundPeripheralDeviceFunction getExpetationManagerStatus', error)
+							return
+						}
+
+						doModalDialog({
+							message: t('There was an error: {{error}}', { error: error.toString() }),
+							title: t('Error'),
+							warning: true,
+							onAccept: () => {
+								// Do nothing
+							},
+						})
+					})
+					.finally(() => {
+						if (reloadingNow.current === deviceId) {
+							reloadingNow.current = null
+						}
+					})
+			},
+			[deviceId]
+		)
 
 		useEffect(() => {
+			// Clear cached status when deviceId changes
+			setStatus(undefined)
+
+			// Trigger a load now
+			reloadStatus(true)
+
 			const reloadInterval = Meteor.setInterval(() => {
 				if (deviceId) {
 					reloadStatus(true)
@@ -64,7 +81,7 @@ export const DevicePackageManagerSettings: React.FC<IDevicePackageManagerSetting
 			return () => {
 				Meteor.clearInterval(reloadInterval)
 			}
-		}, [])
+		}, [deviceId, reloadStatus])
 
 		function killApp(e: string, appId: string) {
 			MeteorCall.client

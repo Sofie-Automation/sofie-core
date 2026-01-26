@@ -57,6 +57,11 @@ export interface UserEditingDefinitionSofieDefault {
 	type: UserEditingType.SOFIE
 	/** Id of this operation */
 	id: DefaultUserOperationsTypes
+	/**
+	 * If true, the operation is limited to the current part.
+	 * Only applicable for RETIME_PIECE
+	 */
+	limitToCurrentPart?: boolean
 }
 
 export enum UserEditingType {

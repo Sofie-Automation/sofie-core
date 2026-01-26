@@ -1,5 +1,5 @@
 import { IDirectCollections } from '../../db/index.js'
-import { JobContext, JobStudio } from '../../jobs/index.js'
+import { JobContext, JobStudio, QueueJobOptions } from '../../jobs/index.js'
 import { WorkerDataCache } from '../caches.js'
 import { RundownId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { getIngestQueueName, IngestJobFunc } from '@sofie-automation/corelib/dist/worker/ingest'
@@ -137,13 +137,17 @@ export class JobContextImpl extends StudioCacheContextImpl implements JobContext
 	}
 
 	async queueIngestJob<T extends keyof IngestJobFunc>(name: T, data: Parameters<IngestJobFunc[T]>[0]): Promise<void> {
-		await this.queueJob(getIngestQueueName(this.studioId), name, data)
+		await this.queueJob(getIngestQueueName(this.studioId), name, data, undefined)
 	}
-	async queueStudioJob<T extends keyof StudioJobFunc>(name: T, data: Parameters<StudioJobFunc[T]>[0]): Promise<void> {
-		await this.queueJob(getStudioQueueName(this.studioId), name, data)
+	async queueStudioJob<T extends keyof StudioJobFunc>(
+		name: T,
+		data: Parameters<StudioJobFunc[T]>[0],
+		options?: QueueJobOptions
+	): Promise<void> {
+		await this.queueJob(getStudioQueueName(this.studioId), name, data, options)
 	}
 	async queueEventJob<T extends keyof EventsJobFunc>(name: T, data: Parameters<EventsJobFunc[T]>[0]): Promise<void> {
-		await this.queueJob(getEventsQueueName(this.studioId), name, data)
+		await this.queueJob(getEventsQueueName(this.studioId), name, data, undefined)
 	}
 
 	hackPublishTimelineToFastTrack(newTimeline: TimelineComplete): void {

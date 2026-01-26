@@ -119,7 +119,14 @@ export function mongoWhere<T>(o: Record<string, any>, selector: MongoQuery<T>): 
 				const oAttr = o[key]
 
 				if (_.isObject(s)) {
-					if (_.has(s, '$gt')) {
+					if (_.has(s, '$elemMatch')) {
+						// Handle $elemMatch for array fields
+						if (Array.isArray(oAttr)) {
+							ok = oAttr.some((item) => mongoWhere(item, s.$elemMatch))
+						} else {
+							ok = false
+						}
+					} else if (_.has(s, '$gt')) {
 						ok = oAttr > s.$gt
 					} else if (_.has(s, '$gte')) {
 						ok = oAttr >= s.$gte
@@ -222,7 +229,7 @@ export function mongoFindOptions<TDoc extends { _id: ProtectedString<any> }>(
 					const newDoc: any = {} // any since includeKeys breaks strict typings anyway
 
 					for (const key of includeKeys) {
-						objectPath.set(newDoc, key, objectPath.get(doc, key))
+						projectFieldIntoDoc(doc, newDoc, key)
 					}
 
 					return newDoc
@@ -244,6 +251,69 @@ export function mongoFindOptions<TDoc extends { _id: ProtectedString<any> }>(
 		// options.reactive // Not used server-side
 	}
 	return docs
+}
+
+/**
+ * Project a field from a source document into a target document.
+ * Handles nested paths through arrays like MongoDB does.
+ * e.g., 'items.name' on {items: [{name: 'a', value: 1}]} => {items: [{name: 'a'}]}
+ */
+function projectFieldIntoDoc(source: any, target: any, path: string): void {
+	const parts = path.split('.')
+	let currentSource = source
+	let currentTarget = target
+
+	for (let i = 0; i < parts.length; i++) {
+		const part = parts[i]
+		const isLast = i === parts.length - 1
+		const remainingPath = parts.slice(i + 1).join('.')
+
+		if (currentSource === undefined || currentSource === null) {
+			return
+		}
+
+		if (Array.isArray(currentSource)) {
+			// Handle array - project the field from each element
+			if (!Array.isArray(currentTarget)) {
+				// Initialize as empty array if not already an array
+				const parentPath = parts.slice(0, i).join('.')
+				if (parentPath) {
+					objectPath.set(target, parentPath, [])
+					currentTarget = objectPath.get(target, parentPath)
+				} else {
+					return // Can't set root to array
+				}
+			}
+
+			// Project the remaining path into each array element
+			for (let j = 0; j < currentSource.length; j++) {
+				if (currentTarget[j] === undefined) {
+					currentTarget[j] = {}
+				}
+				const subPath = isLast ? part : [part, remainingPath].join('.')
+				projectFieldIntoDoc(currentSource[j], currentTarget[j], subPath)
+			}
+			return
+		}
+
+		if (isLast) {
+			// We've reached the final part of the path
+			if (currentSource[part] !== undefined) {
+				currentTarget[part] = currentSource[part]
+			}
+		} else {
+			// Navigate deeper
+			if (currentTarget[part] === undefined) {
+				if (Array.isArray(currentSource[part])) {
+					currentTarget[part] = []
+				} else {
+					currentTarget[part] = {}
+				}
+			}
+			currentSource = currentSource[part]
+			currentTarget = currentTarget[part]
+		}
+	}
 }
 
 export function mongoModify<TDoc extends { _id: ProtectedString<any> }>(
@@ -411,17 +481,29 @@ export function pushOntoPath<T>(obj: Record<string, unknown>, path: string, valu
  * Push a value from a object, when the value matches
  * @param obj Object
  * @param path Path to array in object
- * @param valueToPush Value to push onto array
+ * @param matchValue Value to match for removal. Supports $in operator for matching multiple values.
  */
 export function pullFromPath<T>(obj: Record<string, unknown>, path: string, matchValue: T): void {
 	const mutator = (o: Record<string, unknown>, lastAttr: string) => {
 		if (_.has(o, lastAttr)) {
-			if (!_.isArray(o[lastAttr]))
+			const arrAttr = o[lastAttr]
+			if (!arrAttr || !Array.isArray(arrAttr))
 				throw new Error(
-					'Object propery "' + lastAttr + '" is not an array ("' + o[lastAttr] + '") (in path "' + path + '")'
+					'Object propery "' + lastAttr + '" is not an array ("' + arrAttr + '") (in path "' + path + '")'
 				)
 
-			return (o[lastAttr] = _.filter(o[lastAttr] as any, (entry: T) => !_.isMatch(entry, matchValue)))
+			// Handle $in operator for matching multiple values
+			if (
+				matchValue &&
+				typeof matchValue === 'object' &&
+				'$in' in matchValue &&
+				Array.isArray((matchValue as Record<string, unknown>).$in)
+			) {
+				const inValues = (matchValue as Record<string, unknown>).$in as unknown[]
+				return (o[lastAttr] = arrAttr.filter((entry: T) => !inValues.includes(entry)))
+			}
+
+			return (o[lastAttr] = arrAttr.filter((entry: T) => !_.isMatch(entry, matchValue)))
 		} else {
 			return undefined
 		}

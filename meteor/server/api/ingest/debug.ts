@@ -8,7 +8,6 @@ import { QueueStudioJob } from '../../worker/worker'
 import { StudioJobs } from '@sofie-automation/corelib/dist/worker/studio'
 import { RundownPlaylistId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { MeteorDebugMethods } from '../../methods'
-import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 
 MeteorDebugMethods({
 	/**
@@ -46,32 +45,5 @@ MeteorDebugMethods({
 			rundownExternalId: rundown.externalId,
 			segmentExternalId: segment.externalId,
 		})
-	},
-	/**
-	 * Regenerate all the expected packages for all rundowns in the system.
-	 * Additionally it will recreate any expectedPlayoutItems.
-	 * This shouldn't be necessary as ingest will do this for each rundown as part of its workflow
-	 */
-	debug_recreateExpectedPackages: async () => {
-		const rundowns = (await Rundowns.findFetchAsync(
-			{},
-			{
-				projection: {
-					_id: 1,
-					studioId: 1,
-					source: 1,
-				},
-			}
-		)) as Array<Pick<DBRundown, '_id' | 'studioId' | 'source'>>
-
-		await Promise.all(
-			rundowns
-				.filter((rundown) => rundown.source.type !== 'snapshot')
-				.map(async (rundown) =>
-					runIngestOperation(rundown.studioId, IngestJobs.ExpectedPackagesRegenerate, {
-						rundownId: rundown._id,
-					})
-				)
-		)
 	},
 })

@@ -105,10 +105,6 @@ export enum IngestJobs {
 	MosSwapStory = 'mosSwapStory',
 
 	/**
-	 * Debug: Regenerate ExpectedPackages for a Rundown
-	 */
-	ExpectedPackagesRegenerate = 'expectedPackagesRegenerate',
-	/**
 	 * Some PackageInfos have been updated, regenerate any Parts which depend on these PackageInfos
 	 */
 	PackageInfosUpdatedRundown = 'packageInfosUpdatedRundown',
@@ -229,9 +225,6 @@ export interface MosSwapStoryProps extends IngestPropsBase {
 	story1: MOS.IMOSString128
 }
 
-export interface ExpectedPackagesRegenerateProps {
-	rundownId: RundownId
-}
 export interface PackageInfosUpdatedRundownProps extends IngestPropsBase {
 	packageIds: ExpectedPackageId[]
 }
@@ -312,7 +305,6 @@ export type IngestJobFunc = {
 	[IngestJobs.MosMoveStory]: (data: MosMoveStoryProps) => void
 	[IngestJobs.MosSwapStory]: (data: MosSwapStoryProps) => void
 
-	[IngestJobs.ExpectedPackagesRegenerate]: (data: ExpectedPackagesRegenerateProps) => void
 	[IngestJobs.PackageInfosUpdatedRundown]: (data: PackageInfosUpdatedRundownProps) => void
 
 	[IngestJobs.UserRemoveRundown]: (data: UserRemoveRundownProps) => void

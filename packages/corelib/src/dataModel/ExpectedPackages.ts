@@ -18,29 +18,13 @@ import {
 import { ReadonlyDeep } from 'type-fest'
 
 /*
- Expected Packages are created from Pieces in the rundown.
+ Expected Packages are created from Pieces and other content in the rundown.
  A "Package" is a generic term for a "thing that can be played", such as media files, audio, graphics etc..
  The blueprints generate Pieces with expectedPackages on them.
  These are then picked up by a Package Manager who then tries to fullfill the expectations.
  Example: An ExpectedPackage could be a "Media file to be present on the location used by a playout device".
    The Package Manager will then copy the file to the right place.
 */
-
-export type ExpectedPackageFromRundown = ExpectedPackageDBFromPiece | ExpectedPackageDBFromAdLibAction
-
-export type ExpectedPackageFromRundownBaseline =
-	| ExpectedPackageDBFromBaselineAdLibAction
-	| ExpectedPackageDBFromBaselineAdLibPiece
-	| ExpectedPackageDBFromRundownBaselineObjects
-	| ExpectedPackageDBFromBaselinePiece
-
-export type ExpectedPackageDBFromBucket = ExpectedPackageDBFromBucketAdLib | ExpectedPackageDBFromBucketAdLibAction
-
-export type ExpectedPackageDB =
-	| ExpectedPackageFromRundown
-	| ExpectedPackageDBFromBucket
-	| ExpectedPackageFromRundownBaseline
-	| ExpectedPackageDBFromStudioBaselineObjects
 
 export enum ExpectedPackageDBType {
 	PIECE = 'piece',
@@ -54,23 +38,60 @@ export enum ExpectedPackageDBType {
 	RUNDOWN_BASELINE_OBJECTS = 'rundown_baseline_objects',
 	STUDIO_BASELINE_OBJECTS = 'studio_baseline_objects',
 }
-export interface ExpectedPackageDBBase extends Omit<ExpectedPackage.Base, '_id'> {
-	_id: ExpectedPackageId
-	/** The local package id - as given by the blueprints */
-	blueprintPackageId: string
+
+export interface ExpectedPackageDB {
+	_id: ExpectedPackageId // derived from rundownId and hash of `package`
 
 	/** The studio of the Rundown of the Piece this package belongs to */
 	studioId: StudioId
 
-	/** Hash that changes whenever the content or version changes. See getContentVersionHash() */
-	contentVersionHash: string
-
-	// pieceId: ProtectedString<any> | null
-	fromPieceType: ExpectedPackageDBType
+	/** The rundown this package belongs to, if any. Must not be set when bucketId is set */
+	rundownId: RundownId | null
+	/** The bucket this package belongs to, if any. Must not be set when rundownId is set */
+	bucketId: BucketId | null
 
 	created: Time
+
+	package: ReadonlyDeep<Omit<ExpectedPackage.Base, 'listenToPackageInfoUpdates'>>
+
+	/**
+	 * The ingest sources that generated this package.
+	 */
+	ingestSources: ExpectedPackageIngestSource[]
+
+	playoutSources: {
+		/**
+		 * Any playout PieceInstance. This can be any non-reset pieceInstance in the rundown.
+		 * Due to the update flow, this can contain some stale data for a few seconds after a playout operation.
+		 */
+		pieceInstanceIds: PieceInstanceId[]
+	}
 }
-export interface ExpectedPackageDBFromPiece extends ExpectedPackageDBBase {
+
+export interface ExpectedPackageIngestSourceBase {
+	/** The id of the package as known by the blueprints */
+	blueprintPackageId: string
+
+	/** Whether the blueprints are listening for updates to packageInfos for this package */
+	listenToPackageInfoUpdates: boolean | undefined
+}
+
+export interface ExpectedPackageIngestSourceBucketAdlibPiece extends ExpectedPackageIngestSourceBase {
+	fromPieceType: ExpectedPackageDBType.BUCKET_ADLIB
+	/** The Bucket adlib this package belongs to */
+	pieceId: BucketAdLibId
+	/** The `externalId` of the Bucket adlib this package belongs to */
+	pieceExternalId: string
+}
+export interface ExpectedPackageIngestSourceBucketAdlibAction extends ExpectedPackageIngestSourceBase {
+	fromPieceType: ExpectedPackageDBType.BUCKET_ADLIB_ACTION
+	/** The Bucket adlib-action this package belongs to */
+	pieceId: BucketAdLibActionId
+	/** The `externalId` of the Bucket adlib-action this package belongs to */
+	pieceExternalId: string
+}
+
+export interface ExpectedPackageIngestSourcePiece extends ExpectedPackageIngestSourceBase {
 	fromPieceType: ExpectedPackageDBType.PIECE | ExpectedPackageDBType.ADLIB_PIECE
 	/** The Piece this package belongs to */
 	pieceId: PieceId
@@ -78,93 +99,82 @@ export interface ExpectedPackageDBFromPiece extends ExpectedPackageDBBase {
 	partId: PartId
 	/** The Segment this package belongs to */
 	segmentId: SegmentId
-	/** The rundown of the Piece this package belongs to */
-	rundownId: RundownId
 }
-export interface ExpectedPackageDBFromBaselinePiece extends ExpectedPackageDBBase {
-	fromPieceType: ExpectedPackageDBType.BASELINE_PIECE
-	/** The Piece this package belongs to */
-	pieceId: PieceId
-	/** The rundown of the Piece this package belongs to */
-	rundownId: RundownId
-}
-
-export interface ExpectedPackageDBFromBaselineAdLibPiece extends ExpectedPackageDBBase {
-	fromPieceType: ExpectedPackageDBType.BASELINE_ADLIB_PIECE
-	/** The Piece this package belongs to */
-	pieceId: PieceId
-	/** The rundown of the Piece this package belongs to */
-	rundownId: RundownId
-}
-
-export interface ExpectedPackageDBFromAdLibAction extends ExpectedPackageDBBase {
+export interface ExpectedPackageIngestSourceAdlibAction extends ExpectedPackageIngestSourceBase {
 	fromPieceType: ExpectedPackageDBType.ADLIB_ACTION
-	/** The Adlib Action this package belongs to */
+	/** The Piece this package belongs to */
 	pieceId: AdLibActionId
 	/** The Part this package belongs to */
 	partId: PartId
 	/** The Segment this package belongs to */
 	segmentId: SegmentId
-	/** The rundown of the Piece this package belongs to */
-	rundownId: RundownId
 }
-export interface ExpectedPackageDBFromBaselineAdLibAction extends ExpectedPackageDBBase {
+export interface ExpectedPackageIngestSourceBaselinePiece extends ExpectedPackageIngestSourceBase {
+	fromPieceType: ExpectedPackageDBType.BASELINE_PIECE
+	/** The Piece this package belongs to */
+	pieceId: PieceId
+}
+export interface ExpectedPackageIngestSourceBaselineAdlibPiece extends ExpectedPackageIngestSourceBase {
+	fromPieceType: ExpectedPackageDBType.BASELINE_ADLIB_PIECE
+	/** The Piece this package belongs to */
+	pieceId: PieceId
+}
+export interface ExpectedPackageIngestSourceBaselineAdlibAction extends ExpectedPackageIngestSourceBase {
 	fromPieceType: ExpectedPackageDBType.BASELINE_ADLIB_ACTION
 	/** The Piece this package belongs to */
 	pieceId: RundownBaselineAdLibActionId
-	/** The rundown of the Piece this package belongs to */
-	rundownId: RundownId
 }
-
-export interface ExpectedPackageDBFromRundownBaselineObjects extends ExpectedPackageDBBase {
+export interface ExpectedPackageIngestSourceBaselineObjects extends ExpectedPackageIngestSourceBase {
 	fromPieceType: ExpectedPackageDBType.RUNDOWN_BASELINE_OBJECTS
-	/** The rundown of the Piece this package belongs to */
-	rundownId: RundownId
-	pieceId: null
 }
-export interface ExpectedPackageDBFromStudioBaselineObjects extends ExpectedPackageDBBase {
+
+export interface ExpectedPackageIngestSourceStudioBaseline extends ExpectedPackageIngestSourceBase {
+	// Future: Technically this is a playout source, but for now it needs to be treated as an ingest source
 	fromPieceType: ExpectedPackageDBType.STUDIO_BASELINE_OBJECTS
-	pieceId: null
 }
 
-export interface ExpectedPackageDBFromBucketAdLib extends ExpectedPackageDBBase {
-	fromPieceType: ExpectedPackageDBType.BUCKET_ADLIB
-	bucketId: BucketId
-	/** The Bucket adlib this package belongs to */
-	pieceId: BucketAdLibId
-	/** The `externalId` of the Bucket adlib this package belongs to */
-	pieceExternalId: string
-}
-export interface ExpectedPackageDBFromBucketAdLibAction extends ExpectedPackageDBBase {
-	fromPieceType: ExpectedPackageDBType.BUCKET_ADLIB_ACTION
-	bucketId: BucketId
-	/** The Bucket adlib-action this package belongs to */
-	pieceId: BucketAdLibActionId
-	/** The `externalId` of the Bucket adlib-action this package belongs to */
-	pieceExternalId: string
-}
+export type ExpectedPackageIngestSourcePart = ExpectedPackageIngestSourcePiece | ExpectedPackageIngestSourceAdlibAction
 
-export function getContentVersionHash(expectedPackage: ReadonlyDeep<Omit<ExpectedPackage.Any, '_id'>>): string {
-	return hashObj({
-		content: expectedPackage.content,
-		version: expectedPackage.version,
-		// todo: should expectedPackage.sources.containerId be here as well?
-	})
-}
+export type ExpectedPackageIngestSourceBucket =
+	| ExpectedPackageIngestSourceBucketAdlibPiece
+	| ExpectedPackageIngestSourceBucketAdlibAction
 
+export type ExpectedPackageIngestSourceRundownBaseline =
+	| ExpectedPackageIngestSourceBaselinePiece
+	| ExpectedPackageIngestSourceBaselineAdlibPiece
+	| ExpectedPackageIngestSourceBaselineAdlibAction
+	| ExpectedPackageIngestSourceBaselineObjects
+
+export type ExpectedPackageIngestSource =
+	| ExpectedPackageIngestSourcePart
+	| ExpectedPackageIngestSourceRundownBaseline
+	| ExpectedPackageIngestSourceBucket
+	| ExpectedPackageIngestSourceStudioBaseline
+
+/**
+ * Generate the expectedPackageId for the given expectedPackage.
+ * This is a stable id derived from the package and its parent. This document is expected to be owned by multiple sources.
+ */
 export function getExpectedPackageId(
-	/** _id of the owner (the piece, adlib etc..) */
-	ownerId:
-		| PieceId
-		| PieceInstanceId
-		| AdLibActionId
-		| RundownBaselineAdLibActionId
-		| BucketAdLibId
-		| BucketAdLibActionId
-		| RundownId
-		| StudioId,
+	/** Preferably a RundownId or BucketId, but StudioId is allowed when not owned by a rundown or bucket */
+	parentId: RundownId | StudioId | BucketId,
 	/** The locally unique id of the expectedPackage */
-	localExpectedPackageId: ExpectedPackage.Base['_id']
+	expectedPackage: ReadonlyDeep<Omit<ExpectedPackage.Base, 'listenToPackageInfoUpdates'>>
 ): ExpectedPackageId {
-	return protectString(`${ownerId}_${getHash(localExpectedPackageId)}`)
+	// This may be too agressive, but we don't know how to merge some of the properties
+	const objHash = hashObj({
+		...expectedPackage,
+		_id: '', // Ignore the _id, this is not guaranteed to be stable
+		listenToPackageInfoUpdates: false, // Not relevant for the hash
+	} satisfies ReadonlyDeep<ExpectedPackage.Base>)
+
+	return protectString(`${parentId}_${getHash(objHash)}`)
+}
+
+/**
+ * Returns true if the expected package is referenced by any playout PieceInstances
+ * @returns boolean
+ */
+export function isPackageReferencedByPlayout(expectedPackage: Pick<ExpectedPackageDB, 'playoutSources'>): boolean {
+	return expectedPackage.playoutSources.pieceInstanceIds.length > 0
 }

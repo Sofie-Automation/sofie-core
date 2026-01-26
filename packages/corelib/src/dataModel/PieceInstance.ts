@@ -7,6 +7,7 @@ import {
 	RundownId,
 	PartInstanceId,
 	PieceId,
+	ExpectedPackageId,
 } from './Ids.js'
 import { Piece } from './Piece.js'
 import { omit } from '../lib.js'
@@ -74,6 +75,13 @@ export interface PieceInstance {
 	reportedStoppedPlayback?: Time
 	plannedStartedPlayback?: Time
 	plannedStoppedPlayback?: Time
+
+	/**
+	 * The IDs of ExpectedPackages that are needed for this PieceInstance
+	 * This matches the data on `this.piece.expectedPackages`, resolved to the full database IDs
+	 * Future: This should replace the expectedPackages on Piece entirely
+	 */
+	neededExpectedPackageIds?: ExpectedPackageId[]
 }
 
 export interface ResolvedPieceInstance {

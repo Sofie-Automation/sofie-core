@@ -37,16 +37,16 @@ jobs:
 
           yarn config set cacheFolder /home/runner/lint-core-cache
           yarn
+
+          # setup zodern:types. No linters are setup, so this simply installs the packages
+          yarn meteor lint
+
           yarn build:packages
         env:
           CI: true
       - name: Run typecheck and linter
         run: |
           cd meteor
-
-          # setup zodern:types. No linters are setup, so this simply installs the packages
-          meteor lint
-
           yarn ci:lint
         env:
           CI: true
@@ -78,16 +78,16 @@ jobs:
 
           yarn config set cacheFolder /home/runner/test-core-cache
           yarn
+
+          # setup zodern:types. No linters are setup, so this simply installs the packages
+          yarn meteor lint
+
           yarn build:packages
         env:
           CI: true
       - name: Run Tests
         run: |
           cd meteor
-
-          # setup zodern:types. No linters are setup, so this simply installs the packages
-          meteor lint
-
           NODE_OPTIONS="--max-old-space-size=6144" yarn unitci --force-exit
         env:
           CI: true
@@ -106,6 +106,55 @@ jobs:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
+      - name: Use Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: ".node-version"
+      - uses: ./.github/actions/setup-meteor
+      - name: restore node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            meteor/node_modules
+            packages/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('yarn.lock', 'meteor/yarn.lock', 'meteor/.meteor/release', 'packages/yarn.lock') }}
+      - name: Prepare Environment
+        run: |
+          corepack enable
+
+          # setup zodern:types. No linters are setup, so this simply installs the packages
+          yarn meteor lint
+
+          yarn install
+      - name: Build libs
+        run: |
+          yarn build:packages
+      - name: Build webui
+        run: |
+          cd packages/webui
+          yarn build
+      - name: Persist Built Version information
+        run: |
+          cd meteor
+          yarn inject-git-hash
+      - name: Prepare webui for meteor build
+        run: |
+          rm -Rf meteor/public
+          cp -R packages/webui/dist meteor/public
+      - name: Meteor Build
+        run: |
+          cd meteor
+          NODE_OPTIONS="--max-old-space-size=4096" METEOR_DEBUG_BUILD=1 meteor build --allow-superuser --directory .
+          mv bundle/programs/web.browser/assets/ bundle/programs/web.browser/app/assets/ || true
+      - name: Meteor Bundle NPM Build
+        run: |
+          cd meteor/bundle/programs/server
+          meteor npm install
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Check how the image should be built and pushed
       - name: Determine if images should be published to DockerHub
         id: dockerhub
         run: |
@@ -134,6 +183,18 @@ jobs:
         run: |
           echo "Enable build and push: ${{ env.SECRET_ACCESS != '' }}"
           echo "enable=${{ env.SECRET_ACCESS != '' }}" >> $GITHUB_OUTPUT
+
+      # No-push build if no destination
+      - name: Build without push
+        if: steps.check-build-and-push.outputs.enable != 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./meteor/Dockerfile.circle
+          push: false
+          provenance: false
+
+      # GHCR build
       - name: Get the Docker tag for GHCR
         id: ghcr-tag
         if: steps.check-build-and-push.outputs.enable == 'true'
@@ -146,75 +207,6 @@ jobs:
             type=ref,event=branch
             type=ref,event=tag
             type=raw,value=latest,enable={{is_default_branch}}
-      - name: Get the Docker tag for DockerHub
-        id: dockerhub-tag
-        if: steps.check-build-and-push.outputs.enable == 'true'
-        uses: docker/metadata-action@v5
-        with:
-          images: |
-            ${{ secrets.DOCKERHUB_IMAGE_PREFIX }}server-core
-          tags: |
-            type=schedule
-            type=ref,event=branch
-            type=ref,event=tag
-            type=raw,value=latest,enable={{is_default_branch}}
-      - name: Use Node.js
-        if: steps.check-build-and-push.outputs.enable == 'true'
-        uses: actions/setup-node@v6
-        with:
-          node-version-file: ".node-version"
-      - uses: ./.github/actions/setup-meteor
-        if: steps.check-build-and-push.outputs.enable == 'true'
-      - name: restore node_modules
-        uses: actions/cache@v4
-        if: steps.check-build-and-push.outputs.enable == 'true'
-        with:
-          path: |
-            node_modules
-            meteor/node_modules
-            packages/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('yarn.lock', 'meteor/yarn.lock', 'meteor/.meteor/release', 'packages/yarn.lock') }}
-      - name: Prepare Environment
-        if: steps.check-build-and-push.outputs.enable == 'true'
-        run: |
-          corepack enable
-
-          yarn install
-      - name: Build libs
-        if: steps.check-build-and-push.outputs.enable == 'true'
-        run: |
-          yarn build:packages
-      - name: Persist Built Version information
-        if: steps.check-build-and-push.outputs.enable == 'true'
-        run: |
-          cd meteor
-          yarn inject-git-hash
-      - name: Prepare webui for meteor build
-        if: steps.check-build-and-push.outputs.enable == 'true'
-        run: |
-          rm -Rf meteor/public
-          cp -R packages/webui/dist meteor/public
-      - name: Meteor Build
-        if: steps.check-build-and-push.outputs.enable == 'true'
-        run: |
-          cd meteor
-          NODE_OPTIONS="--max-old-space-size=4096" METEOR_DEBUG_BUILD=1 meteor build --allow-superuser --directory .
-          mv bundle/programs/web.browser/assets/ bundle/programs/web.browser/app/assets/ || true
-
-      - name: Meteor Bundle NPM Build
-        if: steps.check-build-and-push.outputs.enable == 'true'
-        run: |
-          cd meteor/bundle/programs/server
-          meteor npm install
-      - name: Set up Docker Buildx
-        if: steps.check-build-and-push.outputs.enable == 'true'
-        uses: docker/setup-buildx-action@v3
-      - name: Login to DockerHub
-        if: steps.check-build-and-push.outputs.enable == 'true' && steps.dockerhub.outputs.dockerhub-publish == '1'
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Login to GitHub Container Registry
         if: steps.check-build-and-push.outputs.enable == 'true' && steps.check-ghcr.outputs.enable == 'true'
         uses: docker/login-action@v3
@@ -233,6 +225,26 @@ jobs:
           labels: ${{ steps.ghcr-tag.outputs.labels }}
           tags: "${{ steps.ghcr-tag.outputs.tags }}"
           github-token: ${{ github.token }}
+
+      # Dockerhub push
+      - name: Get the Docker tag for DockerHub
+        id: dockerhub-tag
+        if: steps.check-build-and-push.outputs.enable == 'true'
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ secrets.DOCKERHUB_IMAGE_PREFIX }}server-core
+          tags: |
+            type=schedule
+            type=ref,event=branch
+            type=ref,event=tag
+            type=raw,value=latest,enable={{is_default_branch}}
+      - name: Login to DockerHub
+        if: steps.check-build-and-push.outputs.enable == 'true' && steps.dockerhub.outputs.dockerhub-publish == '1'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push to DockerHub
         if: steps.check-build-and-push.outputs.enable == 'true' && steps.dockerhub.outputs.dockerhub-publish == '1'
         uses: docker/build-push-action@v6
@@ -243,6 +255,8 @@ jobs:
           provenance: false
           labels: ${{ steps.dockerhub-tag.outputs.labels }}
           tags: ${{ steps.dockerhub-tag.outputs.tags }}
+
+      # Trivy scanning
       - name: Get image for Trivy scanning
         id: trivy-image
         if: steps.check-build-and-push.outputs.enable == 'true' && steps.check-ghcr.outputs.enable == 'true' && steps.ghcr-tag.outputs.tags != 0
@@ -286,6 +300,30 @@ jobs:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
+
+      - name: Use Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: ".node-version"
+      - name: restore node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            packages/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('packages/yarn.lock') }}
+      - name: Build
+        run: |
+          corepack enable
+
+          cd packages
+          yarn install
+          yarn build:single ${{ matrix.gateway-name }}/tsconfig.build.json
+          yarn run pinst --disable
+          yarn workspaces focus ${{ matrix.gateway-name }} --production
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Check how the image should be built and pushed
       - name: Determine if images should be published to DockerHub
         id: dockerhub
         run: |
@@ -314,6 +352,18 @@ jobs:
         run: |
           echo "Enable build and push: ${{ env.SECRET_ACCESS != '' }}"
           echo "enable=${{ env.SECRET_ACCESS != '' }}" >> $GITHUB_OUTPUT
+
+      # No-push build if no destination
+      - name: Build without push
+        if: steps.check-build-and-push.outputs.enable != 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./packages
+          file: ./packages/${{ matrix.gateway-name }}/Dockerfile.circle
+          push: false
+          provenance: false
+
+      # GHCR build
       - name: Get the Docker tag for GHCR
         id: ghcr-tag
         if: steps.check-build-and-push.outputs.enable == 'true'
@@ -326,49 +376,6 @@ jobs:
             type=ref,event=branch
             type=ref,event=tag
             type=raw,value=latest,enable={{is_default_branch}}
-      - name: Get the Docker tag for DockerHub
-        id: dockerhub-tag
-        if: steps.check-build-and-push.outputs.enable == 'true'
-        uses: docker/metadata-action@v5
-        with:
-          images: |
-            ${{ secrets.DOCKERHUB_IMAGE_PREFIX }}${{ matrix.gateway-name }}
-          tags: |
-            type=schedule
-            type=ref,event=branch
-            type=ref,event=tag
-            type=raw,value=latest,enable={{is_default_branch}}
-      - name: Use Node.js
-        uses: actions/setup-node@v6
-        if: steps.check-build-and-push.outputs.enable == 'true'
-        with:
-          node-version-file: ".node-version"
-      - name: restore node_modules
-        if: steps.check-build-and-push.outputs.enable == 'true'
-        uses: actions/cache@v4
-        with:
-          path: |
-            packages/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('packages/yarn.lock') }}
-      - name: Build
-        if: steps.check-build-and-push.outputs.enable == 'true'
-        run: |
-          corepack enable
-
-          cd packages
-          yarn install
-          yarn lerna run --scope \*\*/${{ matrix.gateway-name }} --include-dependencies --stream build
-          yarn run pinst --disable
-          yarn workspaces focus ${{ matrix.gateway-name }} --production
-      - name: Set up Docker Buildx
-        if: steps.check-build-and-push.outputs.enable == 'true'
-        uses: docker/setup-buildx-action@v3
-      - name: Login to DockerHub
-        if: steps.check-build-and-push.outputs.enable == 'true' && steps.dockerhub.outputs.dockerhub-publish == '1'
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Login to GitHub Container Registry
         if: steps.check-build-and-push.outputs.enable == 'true' && steps.check-ghcr.outputs.enable == 'true'
         uses: docker/login-action@v3
@@ -386,6 +393,26 @@ jobs:
           provenance: false
           labels: ${{ steps.ghcr-tag.outputs.labels }}
           tags: "${{ steps.ghcr-tag.outputs.tags }}"
+
+      # Dockerhub push
+      - name: Get the Docker tag for DockerHub
+        id: dockerhub-tag
+        if: steps.check-build-and-push.outputs.enable == 'true'
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ secrets.DOCKERHUB_IMAGE_PREFIX }}${{ matrix.gateway-name }}
+          tags: |
+            type=schedule
+            type=ref,event=branch
+            type=ref,event=tag
+            type=raw,value=latest,enable={{is_default_branch}}
+      - name: Login to DockerHub
+        if: steps.check-build-and-push.outputs.enable == 'true' && steps.dockerhub.outputs.dockerhub-publish == '1'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push to DockerHub
         if: steps.check-build-and-push.outputs.enable == 'true' && steps.dockerhub.outputs.dockerhub-publish == '1'
         uses: docker/build-push-action@v6
@@ -396,6 +423,8 @@ jobs:
           provenance: false
           labels: ${{ steps.dockerhub-tag.outputs.labels }}
           tags: "${{ steps.dockerhub-tag.outputs.tags }}"
+
+      # Trivy scanning
       - name: Get image for Trivy scanning
         id: trivy-image
         if: steps.check-build-and-push.outputs.enable == 'true' && steps.check-ghcr.outputs.enable == 'true' && steps.ghcr-tag.outputs.tags != 0
@@ -425,7 +454,7 @@ jobs:
           echo $CODE_BLOCK >> $GITHUB_STEP_SUMMARY
 
   lint-packages:
-    name: Lint Package
+    name: Lint Package ${{ matrix.package-name }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -443,8 +472,10 @@ jobs:
           - job-worker
           - openapi
           - live-status-gateway
-          - webui
           - live-status-gateway-api
+        include:
+          - package-name: webui
+            tsconfig-name: tsconfig.json
 
     steps:
       - uses: actions/checkout@v6
@@ -467,7 +498,12 @@ jobs:
           cd packages
           yarn config set cacheFolder /home/runner/${{ matrix.package-name }}-cache
           yarn install
-          yarn lerna run --scope \*\*/${{ matrix.package-name }} --include-dependencies --stream build
+
+          if [ "${{ matrix.package-name }}" = "openapi" ]; then
+            yarn workspace @sofie-automation/openapi run build
+          else
+            yarn build:single ${{ matrix.package-name }}/${{ matrix.tsconfig-name || 'tsconfig.build.json' }}
+          fi
         env:
           CI: true
       - name: Run typecheck and linter
@@ -478,7 +514,7 @@ jobs:
           CI: true
 
   test-packages:
-    name: Test Package (main)
+    name: Test Package ${{ matrix.package-name }} (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -513,6 +549,7 @@ jobs:
           - node-version: 22.x
             package-name: webui
             send-coverage: true
+            tsconfig-name: tsconfig.json
           # manual meteor-lib as it only needs a couple of versions
           - node-version: 22.x
             package-name: meteor-lib
@@ -539,7 +576,12 @@ jobs:
           cd packages
           yarn config set cacheFolder /home/runner/test-packages-cache
           yarn install
-          yarn lerna run --scope \*\*/${{ matrix.package-name }} --include-dependencies --stream build
+
+          if [ "${{ matrix.package-name }}" = "openapi" ]; then
+            yarn workspace @sofie-automation/openapi run build
+          else
+            yarn build:single ${{ matrix.package-name }}/${{ matrix.tsconfig-name || 'tsconfig.build.json' }}
+          fi
         env:
           CI: true
       - name: Run tests
@@ -631,6 +673,7 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version-file: ".node-version"
+      - uses: ./.github/actions/setup-meteor
       - name: restore node_modules
         uses: actions/cache@v4
         with:
@@ -641,9 +684,13 @@ jobs:
         run: |
           corepack enable
 
-          cd packages
           yarn config set cacheFolder /home/runner/publish-docs-cache
           yarn install
+
+          # setup zodern:types. No linters are setup, so this simply installs the packages
+          yarn meteor lint
+
+          cd packages
           yarn build:all
         env:
           CI: true

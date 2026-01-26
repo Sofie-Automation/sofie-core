@@ -1,10 +1,11 @@
-import { PieceInstanceInfiniteId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { ExpectedPackageId, PieceInstanceInfiniteId, RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ReadonlyDeep } from 'type-fest'
 import { PieceInstance, PieceInstancePiece } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { clone, getRandomId } from '@sofie-automation/corelib/dist/lib'
-import { Time } from '@sofie-automation/blueprints-integration'
+import { ExpectedPackage, Time } from '@sofie-automation/blueprints-integration'
 import { PlayoutPieceInstanceModel } from '../PlayoutPieceInstanceModel.js'
 import _ from 'underscore'
+import { getExpectedPackageId } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
 
 export class PlayoutPieceInstanceModelImpl implements PlayoutPieceInstanceModel {
 	/**
@@ -12,6 +13,8 @@ export class PlayoutPieceInstanceModelImpl implements PlayoutPieceInstanceModel 
 	 * Danger: This should not be modified externally, this is exposed for cloning and saving purposes
 	 */
 	PieceInstanceImpl: PieceInstance
+
+	updatedExpectedPackages: Map<ExpectedPackageId, ReadonlyDeep<ExpectedPackage.Base>> | null
 
 	/**
 	 * Set/delete a value for this PieceInstance, and track that there are changes
@@ -26,6 +29,16 @@ export class PlayoutPieceInstanceModelImpl implements PlayoutPieceInstanceModel 
 		}
 
 		this.#hasChanges = true
+
+		// Updating the 'piece' has side effects on the expectedPackages
+		if (key === 'piece') {
+			const newPiece = newValue as PieceInstance['piece'] | undefined
+			this.updatedExpectedPackages = createExpectedPackagesMap(
+				this.PieceInstanceImpl.rundownId,
+				newPiece?.expectedPackages
+			)
+			this.PieceInstanceImpl.neededExpectedPackageIds = Array.from(this.updatedExpectedPackages.keys())
+		}
 	}
 
 	/**
@@ -57,7 +70,7 @@ export class PlayoutPieceInstanceModelImpl implements PlayoutPieceInstanceModel 
 	 * Whether this PieceInstance has unsaved changes
 	 */
 	get HasChanges(): boolean {
-		return this.#hasChanges
+		return this.#hasChanges || !!this.updatedExpectedPackages
 	}
 
 	/**
@@ -71,9 +84,19 @@ export class PlayoutPieceInstanceModelImpl implements PlayoutPieceInstanceModel 
 		return this.PieceInstanceImpl
 	}
 
-	constructor(pieceInstances: PieceInstance, hasChanges: boolean) {
-		this.PieceInstanceImpl = pieceInstances
+	constructor(pieceInstance: PieceInstance, hasChanges: boolean) {
+		this.PieceInstanceImpl = pieceInstance
 		this.#hasChanges = hasChanges
+
+		if (hasChanges) {
+			this.updatedExpectedPackages = createExpectedPackagesMap(
+				pieceInstance.rundownId,
+				pieceInstance.piece.expectedPackages
+			)
+			this.PieceInstanceImpl.neededExpectedPackageIds = Array.from(this.updatedExpectedPackages.keys())
+		} else {
+			this.updatedExpectedPackages = null
+		}
 	}
 
 	/**
@@ -136,4 +159,17 @@ export class PlayoutPieceInstanceModelImpl implements PlayoutPieceInstanceModel 
 			true
 		)
 	}
+}
+
+function createExpectedPackagesMap(
+	rundownId: RundownId,
+	packages: ExpectedPackage.Base[] | undefined
+): Map<ExpectedPackageId, ReadonlyDeep<ExpectedPackage.Base>> {
+	const map = new Map<ExpectedPackageId, ReadonlyDeep<ExpectedPackage.Base>>()
+	if (!packages) return map
+
+	for (const pkg of packages) {
+		map.set(getExpectedPackageId(rundownId, pkg), pkg)
+	}
+	return map
 }

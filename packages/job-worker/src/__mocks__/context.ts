@@ -29,7 +29,7 @@ import { clone } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { EventsJobFunc } from '@sofie-automation/corelib/dist/worker/events'
 import { IngestJobFunc } from '@sofie-automation/corelib/dist/worker/ingest'
-import { StudioJobFunc } from '@sofie-automation/corelib/dist/worker/studio'
+import { StudioJobFunc, StudioJobs } from '@sofie-automation/corelib/dist/worker/studio'
 import { ReadonlyDeep } from 'type-fest'
 import { WrappedShowStyleBlueprint, WrappedStudioBlueprint } from '../blueprints/cache.js'
 import {
@@ -46,6 +46,7 @@ import {
 	ProcessedShowStyleBase,
 	ProcessedShowStyleCompound,
 	ProcessedShowStyleVariant,
+	QueueJobOptions,
 } from '../jobs/index.js'
 import { PlaylistLock, RundownLock } from '../jobs/lock.js'
 import { BaseModel } from '../modelBase.js'
@@ -153,9 +154,14 @@ export class MockJobContext implements JobContext {
 		throw new Error('Method not implemented.')
 	}
 	async queueStudioJob<T extends keyof StudioJobFunc>(
-		_name: T,
-		_data: Parameters<StudioJobFunc[T]>[0]
+		name: T,
+		_data: Parameters<StudioJobFunc[T]>[0],
+		_options?: QueueJobOptions
 	): Promise<void> {
+		// Silently ignore the cleanup job - it's a background task that doesn't need to run in tests
+		if (name === StudioJobs.CleanupOrphanedExpectedPackageReferences) {
+			return
+		}
 		throw new Error('Method not implemented.')
 	}
 	async queueEventJob<T extends keyof EventsJobFunc>(

@@ -6,6 +6,7 @@ import {
 	htmlTemplateGetSteps,
 	htmlTemplateGetFileNamesFromSteps,
 } from '@sofie-automation/shared-lib/dist/package-manager/helpers'
+import { ReadonlyDeep } from 'type-fest'
 
 export function getPreviewPackageSettings(
 	expectedPackage: ExpectedPackage.Any
@@ -55,7 +56,7 @@ export function getThumbnailPackageSettings(
 	}
 }
 export function getSideEffect(
-	expectedPackage: ExpectedPackage.Base,
+	expectedPackage: ReadonlyDeep<ExpectedPackage.Base>,
 	studio: Pick<StudioLight, 'previewContainerIds' | 'thumbnailContainerIds'>
 ): ExpectedPackage.Base['sideEffect'] {
 	return deepExtend(

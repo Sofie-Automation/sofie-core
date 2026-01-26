@@ -93,6 +93,17 @@ function getArguments(t: TFunction, action: SomeAction): string[] {
 				assertNever(action.state)
 			}
 			break
+		case ClientActions.editMode:
+			if (action.state === true) {
+				result.push(t('Enable'))
+			} else if (action.state === false) {
+				result.push(t('Disable'))
+			} else if (action.state === 'toggle') {
+				result.push(t('Toggle'))
+			} else {
+				assertNever(action.state)
+			}
+			break
 		case ClientActions.goToOnAirLine:
 			break
 		case ClientActions.rewindSegments:
@@ -147,6 +158,8 @@ function hasArguments(action: SomeAction): boolean {
 			return false
 		case ClientActions.shelf:
 			return true
+		case ClientActions.editMode:
+			return true
 		case ClientActions.goToOnAirLine:
 			return false
 		case ClientActions.rewindSegments:
@@ -193,6 +206,8 @@ function actionToLabel(t: TFunction, action: SomeAction['action']): string {
 			return t('Switch Route Set')
 		case ClientActions.shelf:
 			return t('Shelf')
+		case ClientActions.editMode:
+			return t('Edit Mode')
 		case ClientActions.rewindSegments:
 			return t('Rewind Segments to start')
 		case ClientActions.goToOnAirLine:
@@ -358,6 +373,40 @@ function getActionParametersEditor(
 							},
 							{
 								name: t('Close'),
+								value: false,
+								i: 1,
+							},
+							{
+								name: t('Toggle'),
+								value: 'toggle',
+								i: 2,
+							},
+						]}
+						handleUpdate={(newVal) => {
+							onChange({
+								...action,
+								state: newVal,
+							})
+						}}
+					/>
+				</div>
+			)
+		case ClientActions.editMode:
+			return (
+				<div className="mts">
+					<label className="block">{t('State')}</label>
+					<DropdownInputControl<typeof action.state>
+						classNames="input text-input input-m"
+						value={action.state}
+						// placholder={t('State')}
+						options={[
+							{
+								name: t('Enable'),
+								value: true,
+								i: 0,
+							},
+							{
+								name: t('Disable'),
 								value: false,
 								i: 1,
 							},

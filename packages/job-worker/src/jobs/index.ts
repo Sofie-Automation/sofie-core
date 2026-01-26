@@ -24,6 +24,19 @@ export { ApmSpan }
 export { ProcessedShowStyleVariant, ProcessedShowStyleBase, ProcessedShowStyleCompound }
 export { JobStudio }
 
+export interface QueueJobOptions {
+	/**
+	 * The job should be run with a low priority, allowing other operations to be run first
+	 */
+	lowPriority?: boolean
+
+	/**
+	 * Debounce execution, delaying execution for at least this wait time (in ms).
+	 * If the job is already queued, it will not be queued again
+	 */
+	debounce?: number
+}
+
 /**
  * Context for any job run in the job-worker
  */
@@ -54,7 +67,11 @@ export interface JobContext extends StudioCacheContext {
 	 * @param data Data for the job
 	 * @returns Promise which resolves once successfully queued
 	 */
-	queueStudioJob<T extends keyof StudioJobFunc>(name: T, data: Parameters<StudioJobFunc[T]>[0]): Promise<void>
+	queueStudioJob<T extends keyof StudioJobFunc>(
+		name: T,
+		data: Parameters<StudioJobFunc[T]>[0],
+		options?: QueueJobOptions
+	): Promise<void>
 	/**
 	 * Queue an Event job to be run
 	 * It is not possible to wait for the result. This ensures the threads don't get deadlocked

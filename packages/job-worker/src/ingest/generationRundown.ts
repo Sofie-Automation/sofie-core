@@ -1,7 +1,14 @@
-import { ExpectedPackageDBType } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
-import { BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import {
+	ExpectedPackageDBType,
+	ExpectedPackageIngestSourceBaselineAdlibAction,
+	ExpectedPackageIngestSourceBaselineAdlibPiece,
+	ExpectedPackageIngestSourceBaselineObjects,
+	ExpectedPackageIngestSourceBaselinePiece,
+	ExpectedPackageIngestSourceRundownBaseline,
+} from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
+import { BlueprintId, RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { RundownNote } from '@sofie-automation/corelib/dist/dataModel/Notes'
-import { serializePieceTimelineObjectsBlob } from '@sofie-automation/corelib/dist/dataModel/Piece'
+import { Piece, serializePieceTimelineObjectsBlob } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { DBRundown, RundownSource } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
@@ -21,13 +28,20 @@ import { extendIngestRundownCore, canRundownBeUpdated } from './lib.js'
 import { JobContext } from '../jobs/index.js'
 import { CommitIngestData } from './lock.js'
 import { SelectedShowStyleVariant, selectShowStyleVariant } from './selectShowStyleVariant.js'
-import { updateExpectedPackagesForRundownBaseline } from './expectedPackages.js'
+import { updateExpectedMediaAndPlayoutItemsForRundownBaseline } from './expectedPackages.js'
 import { ReadonlyDeep } from 'type-fest'
-import { BlueprintResultRundown, ExtendedIngestRundown } from '@sofie-automation/blueprints-integration'
+import {
+	BlueprintResultRundown,
+	ExpectedPackage,
+	ExtendedIngestRundown,
+} from '@sofie-automation/blueprints-integration'
 import { wrapTranslatableMessageFromBlueprints } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { convertRundownToBlueprintSegmentRundown, translateUserEditsFromBlueprint } from '../blueprints/context/lib.js'
 import { calculateSegmentsAndRemovalsFromIngestData } from './generationSegment.js'
 import { SofieIngestRundownWithSource } from '@sofie-automation/corelib/dist/dataModel/SofieIngestDataCache'
+import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
+import { RundownBaselineAdLibAction } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibAction'
+import { ExpectedPackageCollector, IngestExpectedPackage } from './model/IngestExpectedPackage.js'
 
 export enum GenerateRundownMode {
 	Create = 'create',
@@ -207,8 +221,8 @@ export async function regenerateRundownAndBaselineFromIngestData(
 	const rundownBaselinePackages = allRundownWatchedPackages.filter(
 		context,
 		(pkg) =>
-			pkg.fromPieceType === ExpectedPackageDBType.BASELINE_ADLIB_ACTION ||
-			pkg.fromPieceType === ExpectedPackageDBType.RUNDOWN_BASELINE_OBJECTS
+			pkg.source.fromPieceType === ExpectedPackageDBType.BASELINE_ADLIB_ACTION ||
+			pkg.source.fromPieceType === ExpectedPackageDBType.RUNDOWN_BASELINE_OBJECTS
 	)
 
 	const blueprintContext = new GetRundownContext(
@@ -321,9 +335,59 @@ export async function regenerateRundownAndBaselineFromIngestData(
 		dbRundown._id
 	)
 
-	await ingestModel.setRundownBaseline(timelineObjectsBlob, adlibPieces, adlibActions, globalPieces)
+	const expectedPackages = generateExpectedPackagesForBaseline(
+		dbRundown._id,
+		adlibPieces,
+		adlibActions,
+		globalPieces,
+		rundownRes.baseline.expectedPackages ?? []
+	)
 
-	await updateExpectedPackagesForRundownBaseline(context, ingestModel, rundownRes.baseline)
+	await ingestModel.setRundownBaseline(timelineObjectsBlob, adlibPieces, adlibActions, globalPieces, expectedPackages)
+
+	await updateExpectedMediaAndPlayoutItemsForRundownBaseline(context, ingestModel, rundownRes.baseline)
 
 	return dbRundown
+}
+
+function generateExpectedPackagesForBaseline(
+	rundownId: RundownId,
+	adLibPieces: AdLibPiece[],
+	adLibActions: RundownBaselineAdLibAction[],
+	globalPieces: Piece[],
+	expectedPackages: ExpectedPackage.Any[]
+): IngestExpectedPackage<ExpectedPackageIngestSourceRundownBaseline>[] {
+	const collector = new ExpectedPackageCollector<ExpectedPackageIngestSourceRundownBaseline>(rundownId)
+
+	// This expects to generate multiple documents with the same packageId, these get deduplicated during saving.
+	// This should only concern itself with avoiding duplicates with the same source
+
+	collector.addPackagesWithSource<ExpectedPackageIngestSourceBaselineObjects>(expectedPackages, {
+		fromPieceType: ExpectedPackageDBType.RUNDOWN_BASELINE_OBJECTS,
+	})
+
+	// Populate the ingestSources
+	for (const piece of adLibPieces) {
+		if (piece.expectedPackages)
+			collector.addPackagesWithSource<ExpectedPackageIngestSourceBaselineAdlibPiece>(piece.expectedPackages, {
+				fromPieceType: ExpectedPackageDBType.BASELINE_ADLIB_PIECE,
+				pieceId: piece._id,
+			})
+	}
+	for (const piece of adLibActions) {
+		if (piece.expectedPackages)
+			collector.addPackagesWithSource<ExpectedPackageIngestSourceBaselineAdlibAction>(piece.expectedPackages, {
+				fromPieceType: ExpectedPackageDBType.BASELINE_ADLIB_ACTION,
+				pieceId: piece._id,
+			})
+	}
+	for (const piece of globalPieces) {
+		if (piece.expectedPackages)
+			collector.addPackagesWithSource<ExpectedPackageIngestSourceBaselinePiece>(piece.expectedPackages, {
+				fromPieceType: ExpectedPackageDBType.BASELINE_PIECE,
+				pieceId: piece._id,
+			})
+	}
+
+	return collector.finish()
 }
