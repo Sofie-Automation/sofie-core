@@ -85,12 +85,19 @@ const apmNamespace = 'peripheralDevice'
 /**
  * Resolve device error messages using the Studio blueprint's deviceErrorMessages.
  * This allows blueprints to customize error messages shown to operators.
+ *
+ * @param studioId - The studio ID to look up the blueprint
+ * @param deviceName - The peripheral device name (shorter than TSR's internal name)
+ * @param deviceId - The peripheral device ID
+ * @param errors - Structured errors from TSR
+ * @param defaultMessages - The original messages from TSR (used as fallback)
  */
 async function resolveDeviceErrorMessages(
 	studioId: StudioId,
 	deviceName: string,
 	deviceId: PeripheralDeviceId,
-	errors: DeviceStatusError[]
+	errors: DeviceStatusError[],
+	defaultMessages: string[]
 ): Promise<string[]> {
 	try {
 		// Get the studio and its blueprint
@@ -115,8 +122,13 @@ async function resolveDeviceErrorMessages(
 		// Evaluate the blueprint to get the manifest with deviceErrorMessages
 		const blueprintManifest = evalBlueprint(blueprint) as StudioBlueprintManifest
 
+		logger.debug(
+			`Blueprint ${blueprint._id} deviceErrorMessages keys: ${Object.keys(blueprintManifest.deviceErrorMessages ?? {}).join(', ')}`
+		)
+
 		if (!blueprintManifest.deviceErrorMessages) {
 			// Blueprint doesn't define any custom error messages
+			logger.debug(`Blueprint ${blueprint._id} has no deviceErrorMessages`)
 			return []
 		}
 
@@ -129,23 +141,31 @@ async function resolveDeviceErrorMessages(
 
 		// Resolve each error
 		const resolvedMessages: string[] = []
-		for (const error of errors) {
+		for (let i = 0; i < errors.length; i++) {
+			const error = errors[i]
+			// Use the original TSR message as fallback, or error code if not available
+			const defaultMessage = defaultMessages[i] ?? error.code
+
+			logger.debug(`Resolving error code: ${error.code}, context: ${JSON.stringify(error.context)}`)
 			const message = resolver.getDeviceErrorMessage(
 				error.code,
 				{
+					...error.context,
+					// Override with peripheral device info (TSR might have longer names)
 					deviceName,
 					deviceId: unprotectString(deviceId),
-					...error.context,
 				},
-				error.message // Default message from TSR
+				defaultMessage
 			)
 
 			if (message) {
 				// Interpolate the message template with context values
 				const interpolated = interpollateTranslation(message.key, message.args)
+				logger.debug(`Resolved message for ${error.code}: ${interpolated}`)
 				resolvedMessages.push(interpolated)
+			} else {
+				logger.debug(`Message suppressed for ${error.code}`)
 			}
-			// If message is null, it was suppressed by the blueprint
 		}
 
 		return resolvedMessages
@@ -293,12 +313,25 @@ export namespace ServerPeripheralDeviceAPI {
 		}
 
 		// Resolve error messages using Studio blueprint if structured errors are present
-		if (status.errors && status.errors.length > 0 && peripheralDevice.studioAndConfigId) {
+		// Child devices (like casparcg0) don't have studioAndConfigId directly - get it from parent
+		let studioId = peripheralDevice.studioAndConfigId?.studioId
+		if (!studioId && peripheralDevice.parentDeviceId) {
+			const parentDevice = await PeripheralDevices.findOneAsync(peripheralDevice.parentDeviceId, {
+				projection: { studioAndConfigId: 1 },
+			})
+			studioId = parentDevice?.studioAndConfigId?.studioId
+		}
+
+		logger.info(
+			`Device ${deviceId} setStatus: errors=${status.errors?.length ?? 'undefined'}, messages=${status.messages?.length ?? 'undefined'}, studioId=${studioId ?? 'none'}`
+		)
+		if (status.errors && status.errors.length > 0 && studioId) {
 			const resolvedMessages = await resolveDeviceErrorMessages(
-				peripheralDevice.studioAndConfigId.studioId,
+				studioId,
 				peripheralDevice.name,
 				peripheralDevice._id,
-				status.errors
+				status.errors,
+				status.messages ?? []
 			)
 			if (resolvedMessages.length > 0) {
 				// Replace the pre-formatted messages with blueprint-customized ones
