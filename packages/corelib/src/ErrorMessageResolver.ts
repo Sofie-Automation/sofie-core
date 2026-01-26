@@ -48,7 +48,6 @@ export type SystemErrorMessages = Partial<Record<SystemErrorCode | string, strin
  *
  * // Create resolver for device errors
  * const resolver = new ErrorMessageResolver(
- *   studioBlueprintId,
  *   studioManifest.deviceErrorMessages
  * )
  *
@@ -80,7 +79,7 @@ export class ErrorMessageResolver {
 	 *
 	 * @param errorCode - The error code string from TSR (e.g., 'DEVICE_ATEM_DISCONNECTED')
 	 * @param context - Context values for message interpolation (deviceName, deviceId, and TSR error context)
-	 * @param defaultMessage - The default message template from TSR (e.g., 'ATEM disconnected from {{host}}')
+	 * @param defaultMessage - The default message template from TSR (e.g., 'ATEM disconnected')
 	 * @returns ITranslatableMessage with the resolved message, or null if suppressed
 	 */
 	getDeviceErrorMessage(
@@ -92,31 +91,20 @@ export class ErrorMessageResolver {
 		if (this.#deviceErrorMessages) {
 			const blueprintMessage = this.#deviceErrorMessages[errorCode]
 
-			if (blueprintMessage === '') {
+			// Evaluate if function or use as string template
+			const result = typeof blueprintMessage === 'function' ? blueprintMessage(context) : blueprintMessage
+
+			if (result === '') {
 				// Empty string means suppress the message
 				return null
 			}
 
-			if (typeof blueprintMessage === 'function') {
-				// Function: evaluate at runtime with full context
-				const result = blueprintMessage(context)
-				if (result === undefined) {
-					// undefined means fall back to default TSR message
-					return { key: defaultMessage, args: context }
-				}
-				if (result === '') return null // Empty string suppresses the message
-
-				return this.#blueprintId
-					? wrapTranslatableMessageFromBlueprints({ key: result, args: context }, [this.#blueprintId])
-					: { key: result, args: context }
+			if (result) {
+				// Custom message from blueprint - use as-is (no prefix)
+				return { key: result, args: context }
 			}
 
-			if (blueprintMessage) {
-				// String template: use as-is with interpolation
-				return this.#blueprintId
-					? wrapTranslatableMessageFromBlueprints({ key: blueprintMessage, args: context }, [this.#blueprintId])
-					: { key: blueprintMessage, args: context }
-			}
+			// undefined or not found - fall through to default
 		}
 
 		// Use default message from TSR
