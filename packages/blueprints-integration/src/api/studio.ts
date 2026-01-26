@@ -56,8 +56,10 @@ export interface DeviceErrorContext {
 
 /**
  * A function that receives device error context and returns a custom error message.
+ * Return `undefined` to fall back to the default TSR message.
+ * Return an empty string `''` to suppress the message entirely.
  */
-export type DeviceErrorMessageFunction = (context: DeviceErrorContext) => string
+export type DeviceErrorMessageFunction = (context: DeviceErrorContext) => string | undefined
 
 export interface StudioBlueprintManifest<
 	TRawConfig = IBlueprintConfig,

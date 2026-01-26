@@ -100,7 +100,11 @@ export class ErrorMessageResolver {
 			if (typeof blueprintMessage === 'function') {
 				// Function: evaluate at runtime with full context
 				const result = blueprintMessage(context)
-				if (result === '') return null // Function can also suppress
+				if (result === undefined) {
+					// undefined means fall back to default TSR message
+					return { key: defaultMessage, args: context }
+				}
+				if (result === '') return null // Empty string suppresses the message
 
 				return this.#blueprintId
 					? wrapTranslatableMessageFromBlueprints({ key: result, args: context }, [this.#blueprintId])
