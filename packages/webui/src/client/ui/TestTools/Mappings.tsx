@@ -11,7 +11,7 @@ import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { useTranslation } from 'react-i18next'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
-import { StudioMappings } from './collections'
+import { StudioMappings } from './collections.js'
 
 interface IMappingsViewProps {
 	match?: {

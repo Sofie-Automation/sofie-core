@@ -1,5 +1,6 @@
 import { generateEslintConfig } from '@sofie-automation/code-standard-preset/eslint/main.mjs'
 import pluginReact from 'eslint-plugin-react'
+import neslint from 'eslint-plugin-n'
 import globals from 'globals'
 
 const tmpRules = {
@@ -11,6 +12,7 @@ const tmpRules = {
 	'@typescript-eslint/unbound-method': 'off',
 	'@typescript-eslint/no-misused-promises': 'off',
 	'@typescript-eslint/no-unnecessary-type-assertion': 'off',
+	'n/file-extension-in-import': 'error',
 }
 
 const extendedRules = await generateEslintConfig({
@@ -20,7 +22,13 @@ const extendedRules = await generateEslintConfig({
 })
 extendedRules.push(
 	{
+		plugins: {
+			n: neslint,
+		},
 		settings: {
+			n: {
+				tryExtensions: ['.js', '.cjs', '.mjs', '.json', '.node', '.ts', '.cts', '.mts', '.d.ts', '.tsx'],
+			},
 			react: {
 				version: 'detect',
 			},

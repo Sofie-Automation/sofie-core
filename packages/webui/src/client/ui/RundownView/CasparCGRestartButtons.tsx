@@ -7,12 +7,12 @@ import { DEFAULT_TSR_ACTION_TIMEOUT_TIME } from '@sofie-automation/shared-lib/di
 import { PeripheralDeviceType } from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI'
 import React, { memo, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { PeripheralDevices } from '../../collections'
-import { callPeripheralDeviceAction } from '../../lib/clientAPI'
-import { doModalDialog } from '../../lib/ModalDialog'
-import { NotificationCenter, NoticeLevel, Notification } from '../../lib/notifications/notifications'
-import { useTracker } from '../../lib/ReactMeteorData/ReactMeteorData'
-import { i18nTranslator } from '../i18n'
+import { PeripheralDevices } from '../../collections/index.js'
+import { callPeripheralDeviceAction } from '../../lib/clientAPI.js'
+import { doModalDialog } from '../../lib/ModalDialog.js'
+import { NotificationCenter, NoticeLevel, Notification } from '../../lib/notifications/notifications.js'
+import { useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
+import { i18nTranslator } from '../i18n.js'
 
 export const CasparCGRestartButtons = memo(function CasparCGRestartButtons({ studioId }: { studioId: StudioId }) {
 	const { t } = useTranslation()
