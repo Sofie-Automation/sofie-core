@@ -39,8 +39,12 @@ $hold-status-color: $liveline-timecode-color;
 			text-align: left;
 		}
 
+		.director-screen__top__time-to {
+			text-align: center;
+		}
+
 		.director-screen__top__planned-to {
-			text-align: left;
+			text-align: center;
 		}
 		.director-screen__top__planned-since {
 			margin-left: -50px;
@@ -92,22 +96,6 @@ $hold-status-color: $liveline-timecode-color;
 					'liga' off;
 
 				color: #ffffff;
-
-				// Default Roboto Flex settings:
-				font-variation-settings:
-					'GRAD' 0,
-					'XOPQ' 96,
-					'XTRA' 468,
-					'YOPQ' 79,
-					'YTAS' 750,
-					'YTDE' -203,
-					'YTFI' 738,
-					'YTLC' 548,
-					'YTUC' 712,
-					'opsz' 100,
-					'slnt' 0,
-					'wdth' 100,
-					'wght' 550;
 
 				text-shadow: 0px 0px 2px rgba(0, 0, 0, 0.2);
 				box-shadow: 0px 8px 12px rgba(0, 0, 0, 0.3);
@@ -211,6 +199,70 @@ $hold-status-color: $liveline-timecode-color;
 
 				> svg {
 					flex-grow: 1;
+				}
+			}
+
+			.director-screen__body__part__timeto-content {
+				grid-row: 2;
+				grid-column: 2;
+				text-align: center;
+				width: 100vw;
+				margin-left: -13vw;
+				
+				.director-screen__body__part__timeto-name {
+					color: #888;
+					font-size: 9.63em;
+					text-transform: uppercase;
+					margin-top: -2vh;
+				}
+				
+				.director-screen__body__part__timeto-countdown {
+					margin-top: 4vh;
+					grid-row: inherit;
+					text-align: center;
+					justify-content: center;
+					font-size: 60em;
+					color: $general-countdown-to-next-color;
+					font-feature-settings:
+						'liga' off,
+						'tnum' on;
+					letter-spacing: 0.01em;
+					font-variation-settings:
+						'GRAD' 0,
+						'XOPQ' 96,
+						'XTRA' 468,
+						'YOPQ' 79,
+						'YTAS' 750,
+						'YTDE' -203,
+						'YTFI' 738,
+						'YTLC' 514,
+						'YTUC' 712,
+						'opsz' 120,
+						'slnt' 0,
+						'wdth' 70,
+						'wght' 500;
+					padding: 0 0.1em;
+					line-height: 1em;
+					display: flex;
+					align-items: center;
+
+					> .overtime {
+						color: $general-late-color;
+						font-variation-settings:
+							'GRAD' 0,
+							'XOPQ' 96,
+							'XTRA' 468,
+							'YOPQ' 79,
+							'YTAS' 750,
+							'YTDE' -203,
+							'YTFI' 738,
+							'YTLC' 548,
+							'YTUC' 712,
+							'opsz' 100,
+							'slnt' 0,
+							'wdth' 70,
+							'wght' 600;
+					}
 				}
 			}
 
