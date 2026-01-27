@@ -117,6 +117,7 @@ exports[`buildTimelineObjsForRundown current and previous parts 1`] = `
       "partInstanceId": "part0",
       "priority": 5,
     },
+    "multiGatewayMode": true,
     "nextPartGroup": undefined,
     "previousPartOverlap": 0,
   },
@@ -205,6 +206,7 @@ exports[`buildTimelineObjsForRundown current part with startedPlayback 1`] = `
       "partInstanceId": "part0",
       "priority": 5,
     },
+    "multiGatewayMode": true,
     "nextPartGroup": undefined,
   },
 }
@@ -288,7 +290,7 @@ exports[`buildTimelineObjsForRundown infinite pieces infinite continuing from pr
         },
       ],
       "enable": {
-        "start": 123,
+        "start": "#part_group_part0.start",
       },
       "id": "part_group_piece6b_infinite",
       "isPieceTimeline": true,
@@ -362,6 +364,7 @@ exports[`buildTimelineObjsForRundown infinite pieces infinite continuing from pr
       "partInstanceId": "part0",
       "priority": 5,
     },
+    "multiGatewayMode": true,
     "nextPartGroup": undefined,
     "previousPartOverlap": 0,
   },
@@ -409,7 +412,7 @@ exports[`buildTimelineObjsForRundown infinite pieces infinite continuing into ne
         },
       ],
       "enable": {
-        "start": 123,
+        "start": "#part_group_part0.start",
       },
       "id": "part_group_piece6_infinite",
       "isPieceTimeline": true,
@@ -528,6 +531,7 @@ exports[`buildTimelineObjsForRundown infinite pieces infinite continuing into ne
       "partInstanceId": "part0",
       "priority": 5,
     },
+    "multiGatewayMode": true,
     "nextPartGroup": {
       "children": 3,
       "content": {
@@ -692,6 +696,7 @@ exports[`buildTimelineObjsForRundown infinite pieces infinite ending with previo
       "partInstanceId": "part0",
       "priority": 5,
     },
+    "multiGatewayMode": true,
     "nextPartGroup": undefined,
     "previousPartOverlap": 0,
   },
@@ -850,6 +855,7 @@ exports[`buildTimelineObjsForRundown infinite pieces infinite ending with previo
       "partInstanceId": "part0",
       "priority": 5,
     },
+    "multiGatewayMode": true,
     "nextPartGroup": undefined,
     "previousPartOverlap": 0,
   },
@@ -1007,6 +1013,7 @@ exports[`buildTimelineObjsForRundown infinite pieces infinite starting in curren
       "partInstanceId": "part0",
       "priority": 5,
     },
+    "multiGatewayMode": true,
     "nextPartGroup": undefined,
     "previousPartOverlap": 0,
   },
@@ -1055,7 +1062,7 @@ exports[`buildTimelineObjsForRundown infinite pieces infinite stopping in curren
       ],
       "enable": {
         "end": "#part_group_part0.end + 0",
-        "start": 123,
+        "start": "#part_group_part0.start",
       },
       "id": "part_group_piece6_infinite",
       "isPieceTimeline": true,
@@ -1174,6 +1181,7 @@ exports[`buildTimelineObjsForRundown infinite pieces infinite stopping in curren
       "partInstanceId": "part0",
       "priority": 5,
     },
+    "multiGatewayMode": true,
     "nextPartGroup": {
       "children": 3,
       "content": {
@@ -1241,7 +1249,7 @@ exports[`buildTimelineObjsForRundown infinite pieces infinite stopping in curren
       ],
       "enable": {
         "end": "#part_group_part0.end + -100",
-        "start": 123,
+        "start": "#part_group_part0.start",
       },
       "id": "part_group_piece6_infinite",
       "isPieceTimeline": true,
@@ -1360,6 +1368,7 @@ exports[`buildTimelineObjsForRundown infinite pieces infinite stopping in curren
       "partInstanceId": "part0",
       "priority": 5,
     },
+    "multiGatewayMode": true,
     "nextPartGroup": {
       "children": 3,
       "content": {
@@ -1466,6 +1475,7 @@ exports[`buildTimelineObjsForRundown next part no autonext 1`] = `
       "partInstanceId": "part0",
       "priority": 5,
     },
+    "multiGatewayMode": true,
     "nextPartGroup": undefined,
   },
 }
@@ -1597,6 +1607,7 @@ exports[`buildTimelineObjsForRundown next part with autonext 1`] = `
       "partInstanceId": "part0",
       "priority": 5,
     },
+    "multiGatewayMode": true,
     "nextPartGroup": {
       "children": 3,
       "content": {
@@ -1748,6 +1759,7 @@ exports[`buildTimelineObjsForRundown overlap and keepalive autonext into next pa
       "partInstanceId": "part0",
       "priority": 5,
     },
+    "multiGatewayMode": true,
     "nextPartGroup": {
       "children": 3,
       "content": {
@@ -1934,6 +1946,7 @@ exports[`buildTimelineObjsForRundown overlap and keepalive autonext into next pa
       "partInstanceId": "part0",
       "priority": 5,
     },
+    "multiGatewayMode": true,
     "nextPartGroup": {
       "children": 3,
       "content": {
@@ -2098,6 +2111,7 @@ exports[`buildTimelineObjsForRundown overlap and keepalive current and previous 
       "partInstanceId": "part0",
       "priority": 5,
     },
+    "multiGatewayMode": true,
     "nextPartGroup": undefined,
     "previousPartOverlap": 900,
   },
@@ -2256,6 +2270,7 @@ exports[`buildTimelineObjsForRundown overlap and keepalive current and previous 
       "partInstanceId": "part0",
       "priority": 5,
     },
+    "multiGatewayMode": true,
     "nextPartGroup": undefined,
     "previousPartOverlap": 900,
   },
@@ -2344,6 +2359,7 @@ exports[`buildTimelineObjsForRundown simple current part 1`] = `
       "partInstanceId": "part0",
       "priority": 5,
     },
+    "multiGatewayMode": true,
     "nextPartGroup": undefined,
   },
 }
