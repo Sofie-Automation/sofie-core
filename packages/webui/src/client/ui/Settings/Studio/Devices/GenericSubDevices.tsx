@@ -7,7 +7,7 @@ import {
 	WrappedOverridableItemDeleted,
 	WrappedOverridableItemNormal,
 } from '../../util/OverrideOpHelper.js'
-import { faCheck, faPencilAlt, faSync, faTrash } from '@fortawesome/free-solid-svg-icons'
+import { faCheck, faPencilAlt, faSync, faTrash, faSave, faBan } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { JSONBlob, JSONBlobParse, JSONSchema } from '@sofie-automation/blueprints-integration'
 import { DropdownInputControl, DropdownInputOption } from '../../../../lib/Components/DropdownInput.js'
@@ -32,12 +32,24 @@ interface PeripheralDeviceTranslated {
 export interface SubDevicesTableProps {
 	subDevices: WrappedOverridableItem<any>[]
 	overrideHelper: OverrideOpHelper
+	instantSaveOverrideHelper: OverrideOpHelper
 	peripheralDevices: PeripheralDevice[]
+	hasUnsavedChanges: boolean
+	saveChanges: () => void
+	discardChanges: () => void
+	updateObjectId: (oldId: string, newId: string) => void
+	updatedIds: Map<string, string>
 }
 export function GenericSubDevicesTable({
 	subDevices,
 	overrideHelper,
 	peripheralDevices,
+	hasUnsavedChanges,
+	instantSaveOverrideHelper,
+	saveChanges,
+	discardChanges,
+	updateObjectId,
+	updatedIds,
 }: Readonly<SubDevicesTableProps>): JSX.Element {
 	const { t } = useTranslation()
 	const { toggleExpanded, isExpanded } = useToggleExpandHelper()
@@ -59,7 +71,6 @@ export function GenericSubDevicesTable({
 
 		return devicesMap
 	}, [peripheralDevices])
-
 	const confirmRemove = useCallback(
 		(subdeviceId: string) => {
 			doModalDialog({
@@ -67,7 +78,7 @@ export function GenericSubDevicesTable({
 				no: t('Cancel'),
 				yes: t('Remove'),
 				onAccept: () => {
-					overrideHelper().deleteItem(subdeviceId).commit()
+					instantSaveOverrideHelper().deleteItem(subdeviceId).commit()
 				},
 				message: (
 					<React.Fragment>
@@ -82,7 +93,7 @@ export function GenericSubDevicesTable({
 				),
 			})
 		},
-		[t, overrideHelper]
+		[t, instantSaveOverrideHelper]
 	)
 
 	const peripheralDeviceOptions = useMemo(() => {
@@ -145,6 +156,7 @@ export function GenericSubDevicesTable({
 									isEdited={isExpanded(item.id)}
 									editItemWithId={toggleExpanded}
 									removeItemWithId={confirmRemove}
+									updatedIds={updatedIds}
 								/>
 								{isExpanded(item.id) && (
 									<SubDeviceEditRow
@@ -153,6 +165,11 @@ export function GenericSubDevicesTable({
 										editItemWithId={toggleExpanded}
 										item={item}
 										overrideHelper={overrideHelper}
+										hasUnsavedChanges={hasUnsavedChanges}
+										saveChanges={saveChanges}
+										discardChanges={discardChanges}
+										updateObjectId={updateObjectId}
+										updatedIds={updatedIds}
 									/>
 								)}
 							</React.Fragment>
@@ -170,6 +187,7 @@ interface SummaryRowProps {
 	isEdited: boolean
 	editItemWithId: (itemId: string) => void
 	removeItemWithId: (itemId: string) => void
+	updatedIds: Map<string, string>
 }
 function SummaryRow({
 	item,
@@ -177,6 +195,7 @@ function SummaryRow({
 	isEdited,
 	editItemWithId,
 	removeItemWithId,
+	updatedIds,
 }: Readonly<SummaryRowProps>): JSX.Element {
 	const editItem = useCallback(() => editItemWithId(item.id), [editItemWithId, item.id])
 	const removeItem = useCallback(() => removeItemWithId(item.id), [removeItemWithId, item.id])
@@ -185,13 +204,17 @@ function SummaryRow({
 		? (peripheralDevice.subdeviceManifest?.[item.computed.options.type]?.displayName ?? '-')
 		: '-'
 
+	const idChanged = Array.from(updatedIds?.entries() || []).some(([key, value]) => value === item.id || key === item.id)
+
 	return (
 		<tr
 			className={classNames({
 				hl: isEdited,
 			})}
 		>
-			<th className="settings-studio-device__name c2">{item.id}</th>
+			<th className="settings-studio-device__name c2">
+				{item.id} {idChanged && '(pending save)'}
+			</th>
 
 			<th className="settings-studio-device__parent c2">
 				{peripheralDevice?.name || item.computed.peripheralDeviceId || '-'}
@@ -252,6 +275,11 @@ interface SubDeviceEditRowProps {
 	editItemWithId: (subdeviceId: string, forceState?: boolean) => void
 	item: WrappedOverridableItemNormal<any>
 	overrideHelper: OverrideOpHelper
+	hasUnsavedChanges: boolean
+	saveChanges: () => void
+	discardChanges: () => void
+	updateObjectId: (oldId: string, newId: string) => void
+	updatedIds: Map<string, string>
 }
 function SubDeviceEditRow({
 	peripheralDevice,
@@ -259,23 +287,28 @@ function SubDeviceEditRow({
 	editItemWithId,
 	item,
 	overrideHelper,
+	hasUnsavedChanges,
+	saveChanges,
+	discardChanges,
+	updateObjectId,
+	updatedIds,
 }: Readonly<SubDeviceEditRowProps>) {
 	const { t } = useTranslation()
 
 	const finishEditItem = useCallback(() => editItemWithId(item.id, false), [editItemWithId, item.id])
 
-	const updateObjectId = useCallback(
+	const handleUpdateId = useCallback(
 		(newId: string) => {
-			if (item.id === newId) return
-
-			overrideHelper().changeItemId(item.id, newId).commit()
+			updateObjectId(item.id, newId)
 
 			// toggle ui visibility
 			editItemWithId(item.id, false)
 			editItemWithId(newId, true)
 		},
-		[item.id, overrideHelper, editItemWithId]
+		[item.id, updateObjectId]
 	)
+
+	const idToShowInInput = updatedIds?.get(item.id) || item.id
 
 	return (
 		<tr className="expando-details hl" key={item.id + '-details'}>
@@ -294,7 +327,7 @@ function SubDeviceEditRow({
 					</LabelAndOverridesForDropdown>
 					<label className="field">
 						<LabelActual label={t('Device ID')} />
-						<TextInputControl value={item.id} handleUpdate={updateObjectId} disabled={!!item.defaults} />
+						<TextInputControl value={idToShowInInput} handleUpdate={handleUpdateId} disabled={!!item.defaults} />
 					</label>
 
 					{!item.computed.peripheralDeviceId && (
@@ -308,9 +341,23 @@ function SubDeviceEditRow({
 					)}
 				</div>
 				<div className="m-1 me-2 text-end">
-					<button className={classNames('btn btn-primary')} onClick={finishEditItem}>
-						<FontAwesomeIcon icon={faCheck} />
-					</button>
+					{hasUnsavedChanges ? (
+						<>
+							<button className="btn btn-warning ms-2" onClick={discardChanges}>
+								<FontAwesomeIcon icon={faBan} />
+								&nbsp;{t('Discard')}
+							</button>
+
+							<button className="btn btn-primary ms-2" onClick={saveChanges}>
+								<FontAwesomeIcon icon={faSave} />
+								&nbsp;{t('Save')}
+							</button>
+						</>
+					) : (
+						<button className={classNames('btn btn-primary')} onClick={finishEditItem}>
+							<FontAwesomeIcon icon={faCheck} />
+						</button>
+					)}
 				</div>
 			</td>
 		</tr>
