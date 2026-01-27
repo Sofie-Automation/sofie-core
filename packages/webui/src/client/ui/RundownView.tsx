@@ -112,6 +112,7 @@ import { RundownViewContextProviders } from './RundownView/RundownViewContextPro
 import { AnimatePresence } from 'motion/react'
 import { UserError } from '@sofie-automation/corelib/dist/error'
 import { DragContextProvider } from './RundownView/DragContextProvider.js'
+import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance.js'
 
 const HIDE_NOTIFICATIONS_AFTER_MOUNT: number | undefined = 5000
 
@@ -751,7 +752,7 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 			})
 		}
 
-		private onSetNext = (part: DBPart | undefined, e: any, offset?: number, take?: boolean) => {
+		private onSetNext = (part: DBPartInstance | DBPart | undefined, e: any, offset?: number, take?: boolean) => {
 			const { t } = this.props
 			if (this.props.userPermissions.studio && part && part._id && this.props.playlist) {
 				const playlistId = this.props.playlist._id
@@ -759,7 +760,7 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 					t,
 					e,
 					UserAction.SET_NEXT,
-					(e, ts) => MeteorCall.userAction.setNext(e, ts, playlistId, part._id, offset),
+					(e, ts) => MeteorCall.userAction.setNext(e, ts, playlistId, part._id, offset, 'part' in part),
 					(err) => {
 						this.setState({
 							manualSetAsNext: true,

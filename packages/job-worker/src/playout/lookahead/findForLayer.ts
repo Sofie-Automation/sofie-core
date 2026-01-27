@@ -11,17 +11,23 @@ export interface LookaheadResult {
 	future: Array<LookaheadTimelineObject>
 }
 
+export interface PartInstanceAndPieceInstancesInfos {
+	previous?: PartInstanceAndPieceInstances
+	current?: PartInstanceAndPieceInstances
+	next?: PartInstanceAndPieceInstances
+}
+
 export function findLookaheadForLayer(
 	context: JobContext,
-	currentPartInstanceId: PartInstanceId | null,
-	partInstancesInfo: PartInstanceAndPieceInstances[],
-	previousPartInstanceInfo: PartInstanceAndPieceInstances | undefined,
+	partInstancesInfo: PartInstanceAndPieceInstancesInfos,
 	orderedPartInfos: Array<PartAndPieces>,
 	layer: string,
 	lookaheadTargetFutureObjects: number,
-	lookaheadMaxSearchDistance: number
+	lookaheadMaxSearchDistance: number,
+	nextTimeOffset?: number | null
 ): LookaheadResult {
 	const span = context.startSpan(`findLookaheadForlayer.${layer}`)
+	const currentPartId = partInstancesInfo.current?.part._id ?? null
 	const res: LookaheadResult = {
 		timed: [],
 		future: [],
@@ -29,36 +35,45 @@ export function findLookaheadForLayer(
 
 	// Track the previous info for checking how the timeline will be built
 	let previousPart: ReadonlyDeep<DBPart> | undefined
-	if (previousPartInstanceInfo) {
-		previousPart = previousPartInstanceInfo.part.part
+	if (partInstancesInfo.previous?.part.part) {
+		previousPart = partInstancesInfo.previous.part.part
 	}
 
 	// Generate timed/future objects for the partInstances
-	for (const partInstanceInfo of partInstancesInfo) {
-		if (!partInstanceInfo.onTimeline && lookaheadMaxSearchDistance <= 0) break
-
-		const partInfo: PartAndPieces = {
-			part: partInstanceInfo.part.part,
-			usesInTransition: partInstanceInfo.calculatedTimings.inTransitionStart !== null,
-			pieces: sortPieceInstancesByStart(partInstanceInfo.allPieces, partInstanceInfo.nowInPart),
-		}
-
-		const objs = findLookaheadObjectsForPart(
+	if (partInstancesInfo.current) {
+		const { objs: currentObjs, partInfo: currentPartInfo } = generatePartInstanceLookaheads(
 			context,
-			currentPartInstanceId,
+			partInstancesInfo.current,
+			partInstancesInfo.current.part._id,
 			layer,
-			previousPart,
-			partInfo,
-			partInstanceInfo.part._id
+			previousPart
 		)
 
-		if (partInstanceInfo.onTimeline) {
-			res.timed.push(...objs)
+		if (partInstancesInfo.current.onTimeline) {
+			res.timed.push(...currentObjs)
 		} else {
-			res.future.push(...objs)
+			res.future.push(...currentObjs)
 		}
+		previousPart = currentPartInfo.part
+	}
 
-		previousPart = partInfo.part
+	// for Lookaheads in the next part we need to take the nextTimeOffset into account.
+	if (partInstancesInfo.next) {
+		const { objs: nextObjs, partInfo: nextPartInfo } = generatePartInstanceLookaheads(
+			context,
+			partInstancesInfo.next,
+			currentPartId,
+			layer,
+			previousPart,
+			nextTimeOffset
+		)
+
+		if (partInstancesInfo.next?.onTimeline) {
+			res.timed.push(...nextObjs)
+		} else if (lookaheadMaxSearchDistance >= 1 && lookaheadTargetFutureObjects > 0) {
+			res.future.push(...nextObjs)
+		}
+		previousPart = nextPartInfo.part
 	}
 
 	if (lookaheadMaxSearchDistance > 1 && lookaheadTargetFutureObjects > 0) {
@@ -69,14 +84,18 @@ export function findLookaheadForLayer(
 			}
 
 			if (partInfo.pieces.length > 0 && isPartPlayable(partInfo.part)) {
-				const objs = findLookaheadObjectsForPart(
-					context,
-					currentPartInstanceId,
-					layer,
-					previousPart,
-					partInfo,
-					null
-				)
+				const objs =
+					nextTimeOffset && !partInstancesInfo.next // apply the lookahead offset to the first future if an offset is set.
+						? findLookaheadObjectsForPart(
+								context,
+								currentPartId,
+								layer,
+								previousPart,
+								partInfo,
+								null,
+								nextTimeOffset
+							)
+						: findLookaheadObjectsForPart(context, currentPartId, layer, previousPart, partInfo, null)
 				res.future.push(...objs)
 				previousPart = partInfo.part
 			}
@@ -85,4 +104,44 @@ export function findLookaheadForLayer(
 
 	if (span) span.end()
 	return res
+}
+function generatePartInstanceLookaheads(
+	context: JobContext,
+	partInstanceInfo: PartInstanceAndPieceInstances,
+	currentPartInstanceId: PartInstanceId | null,
+	layer: string,
+	previousPart: ReadonlyDeep<DBPart> | undefined,
+	nextTimeOffset?: number | null
+): { objs: LookaheadTimelineObject[]; partInfo: PartAndPieces } {
+	const partInfo: PartAndPieces = {
+		part: partInstanceInfo.part.part,
+		usesInTransition: partInstanceInfo.calculatedTimings?.inTransitionStart ? true : false,
+		pieces: sortPieceInstancesByStart(partInstanceInfo.allPieces, partInstanceInfo.nowInPart),
+	}
+	if (nextTimeOffset) {
+		return {
+			objs: findLookaheadObjectsForPart(
+				context,
+				currentPartInstanceId,
+				layer,
+				previousPart,
+				partInfo,
+				partInstanceInfo.part._id,
+				nextTimeOffset
+			),
+			partInfo,
+		}
+	} else {
+		return {
+			objs: findLookaheadObjectsForPart(
+				context,
+				currentPartInstanceId,
+				layer,
+				previousPart,
+				partInfo,
+				partInstanceInfo.part._id
+			),
+			partInfo,
+		}
+	}
 }
