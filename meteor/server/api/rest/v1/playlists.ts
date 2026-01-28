@@ -29,7 +29,7 @@ import {
 } from '../../../collections'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { ServerClientAPI } from '../../client'
-import { QueueNextSegmentResult, StudioJobs } from '@sofie-automation/corelib/dist/worker/studio'
+import { QueueNextSegmentResult, StudioJobs, TakeNextPartResult } from '@sofie-automation/corelib/dist/worker/studio'
 import { getCurrentTime } from '../../../lib/lib'
 import { TriggerReloadDataResponse } from '@sofie-automation/meteor-lib/dist/api/userActions'
 import { ServerRundownAPI } from '../../rundown'
@@ -457,7 +457,7 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		fromPartInstanceId: PartInstanceId | undefined
-	): Promise<ClientAPI.ClientResponse<void>> {
+	): Promise<ClientAPI.ClientResponse<TakeNextPartResult>> {
 		triggerWriteAccess()
 		const rundownPlaylist = await RundownPlaylists.findOneAsync(rundownPlaylistId)
 		if (!rundownPlaylist) throw new Error(`Rundown playlist ${rundownPlaylistId} does not exist`)
@@ -801,7 +801,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<PlaylistsRestAPI>)
 		}
 	)
 
-	registerRoute<{ playlistId: string }, { fromPartInstanceId?: string }, void>(
+	registerRoute<{ playlistId: string }, { fromPartInstanceId?: string }, TakeNextPartResult>(
 		'post',
 		'/playlists/:playlistId/take',
 		new Map([

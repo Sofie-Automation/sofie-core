@@ -10,7 +10,7 @@ import {
 	RundownPlaylistId,
 	SegmentId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { QueueNextSegmentResult } from '@sofie-automation/corelib/dist/worker/studio'
+import { QueueNextSegmentResult, TakeNextPartResult } from '@sofie-automation/corelib/dist/worker/studio'
 import { Meteor } from 'meteor/meteor'
 
 /* *************************************************************************
@@ -228,7 +228,7 @@ export interface PlaylistsRestAPI {
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		fromPartInstanceId: PartInstanceId | undefined
-	): Promise<ClientAPI.ClientResponse<void>>
+	): Promise<ClientAPI.ClientResponse<TakeNextPartResult>>
 	/**
 	 * Clears the specified SourceLayers.
 	 *
