@@ -18,7 +18,7 @@ import { useTranslation } from 'react-i18next'
 import { useSelectedElements, useSelectedElementsContext } from '../RundownView/SelectedElementsContext.js'
 import { RundownUtils } from '../../lib/rundown.js'
 import * as CoreIcon from '@nrk/core-icons/jsx'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { SchemaFormWithState } from '../../lib/forms/SchemaFormWithState.js'
 import { translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { BlueprintAssetIcon } from '../../lib/Components/BlueprintAssetIcon.js'
@@ -34,6 +34,21 @@ export function PropertiesPanel(): JSX.Element {
 	const hasPendingChanges = !!pendingChange
 
 	const { piece, part, segment, rundownId } = useSelectedElements(selectedElement, () => setPendingChange(undefined))
+
+	const [hadPiece, setHadPiece] = useState(false)
+
+	useEffect(() => {
+		if (piece) setHadPiece(true)
+	}, [piece])
+
+	useEffect(() => {
+		const pieceChangedId = selectedElement?.type === 'piece' && hadPiece && piece === undefined
+
+		if (pieceChangedId) {
+			setHadPiece(false)
+			clearSelections()
+		}
+	}, [selectedElement, piece, hadPiece, clearSelections])
 
 	const handleCommitChanges = async (e: React.MouseEvent) => {
 		if (!rundownId || !selectedElement || !pendingChange) return
@@ -154,7 +169,7 @@ export function PropertiesPanel(): JSX.Element {
 						title={t('Close Properties Panel')}
 						onClick={clearSelections}
 					>
-						<CoreIcon.NrkClose width="1em" height="1em" />
+						<CoreIcon.NrkClose width="1.2em" height="1.2em" />
 					</button>
 				</div>
 
@@ -182,20 +197,18 @@ export function PropertiesPanel(): JSX.Element {
 
 				<div className="propertiespanel-pop-up__footer">
 					<button
-						className="propertiespanel-pop-up__button start"
+						className="propertiespanel-pop-up__button propertiespanel-pop-up__button_restore start"
 						title={selectedElement?.type === 'segment' ? t('Restore Segment from NRCS') : t('Restore Part from NRCS')}
 						disabled={!selectedElement}
 						onClick={handleRevertChanges}
 					>
-						<span className="svg">
-							<svg viewBox="0 0 20 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path
-									d="M2 14.5251H15C16.3261 14.5251 17.5979 13.9984 18.5355 13.0607C19.4732 12.123 20 10.8512 20 9.52515C20 8.19906 19.4732 6.92729 18.5355 5.98961C17.5979 5.05193 16.3261 4.52515 15 4.52515H10V0.475147L5 5.47515L10 10.4751V6.52515H15C15.7956 6.52515 16.5587 6.84122 17.1213 7.40383C17.6839 7.96643 18 8.7295 18 9.52515C18 10.3208 17.6839 11.0839 17.1213 11.6465C16.5587 12.2091 15.7956 12.5251 15 12.5251H2V14.5251Z"
-									fill="#979797"
-								/>
-							</svg>
-						</span>
-						<span className="propertiespanel-pop-up__label">
+						<svg className="svg" viewBox="0 0 20 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path
+								d="M2 14.5251H15C16.3261 14.5251 17.5979 13.9984 18.5355 13.0607C19.4732 12.123 20 10.8512 20 9.52515C20 8.19906 19.4732 6.92729 18.5355 5.98961C17.5979 5.05193 16.3261 4.52515 15 4.52515H10V0.475147L5 5.47515L10 10.4751V6.52515H15C15.7956 6.52515 16.5587 6.84122 17.1213 7.40383C17.6839 7.96643 18 8.7295 18 9.52515C18 10.3208 17.6839 11.0839 17.1213 11.6465C16.5587 12.2091 15.7956 12.5251 15 12.5251H2V14.5251Z"
+								fill="#979797"
+							/>
+						</svg>
+						<span className="propertiespanel-pop-up__label-with-icon">
 							{selectedElement?.type === 'segment' ? t('Restore Segment from NRCS') : t('Restore Part from NRCS')}
 						</span>
 					</button>
@@ -357,7 +370,7 @@ function ActionList({
 	const { t } = useTranslation()
 
 	return (
-		<div>
+		<div className="propertiespanel-pop-up__buttons-container">
 			{actions.map((action) => (
 				<button
 					title={'User Operation: ' + translateMessage(action.label, t)}

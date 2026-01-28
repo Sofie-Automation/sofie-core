@@ -379,6 +379,7 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 
 			RundownViewEventBus.on(RundownViewEvents.GO_TO_LIVE_SEGMENT, this.onGoToLiveSegment)
 			RundownViewEventBus.on(RundownViewEvents.GO_TO_TOP, this.onGoToTop)
+			RundownViewEventBus.on(RundownViewEvents.CLOSE_NOTIFICATIONS, this.onCloseNotifications)
 
 			if (this.props.playlist) {
 				documentTitle.set(this.props.playlist.name)
@@ -622,6 +623,7 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 
 			RundownViewEventBus.off(RundownViewEvents.GO_TO_LIVE_SEGMENT, this.onGoToLiveSegment)
 			RundownViewEventBus.off(RundownViewEvents.GO_TO_TOP, this.onGoToTop)
+			RundownViewEventBus.off(RundownViewEvents.CLOSE_NOTIFICATIONS, this.onCloseNotifications)
 		}
 
 		private onBeforeUnload = (e: any) => {
@@ -903,6 +905,12 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 				},
 				isOpen ? 1 : 1000
 			)
+		}
+
+		private onCloseNotifications = () => {
+			this.setState({
+				isNotificationsCenterOpen: undefined,
+			})
 		}
 
 		private onToggleSupportPanel = () => {
@@ -1371,6 +1379,8 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 					<DragContextProvider t={t}>
 						<SelectedElementsContext.Consumer>
 							{(selectionContext) => {
+								const isPropertiesPanelOpen = selectionContext.listSelectedElements().length > 0
+
 								return (
 									<div
 										className={classNames('rundown-view', {
@@ -1463,13 +1473,14 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 										</ErrorBoundary>
 										<ErrorBoundary>
 											<AnimatePresence>
-												{this.state.isNotificationsCenterOpen && (
+												{!isPropertiesPanelOpen && this.state.isNotificationsCenterOpen && (
 													<NotificationCenterPanel
 														filter={this.state.isNotificationsCenterOpen}
 														hideRundownHeader={this.props.hideRundownHeader}
 													/>
 												)}
-												{!this.state.isNotificationsCenterOpen &&
+												{isPropertiesPanelOpen &&
+													!this.state.isNotificationsCenterOpen &&
 													selectionContext.listSelectedElements().length > 0 && (
 														<div>
 															<PropertiesPanel />
@@ -1521,7 +1532,10 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 												onQueueNextSegment={this.onQueueNextSegment}
 												onSetQuickLoopStart={this.onSetQuickLoopStart}
 												onSetQuickLoopEnd={this.onSetQuickLoopEnd}
-												onEditProps={(selection) => selectionContext.clearAndSetSelection(selection)}
+												onEditProps={(selection) => {
+													this.setState({ isNotificationsCenterOpen: undefined })
+													selectionContext.clearAndSetSelection(selection)
+												}}
 												studioMode={this.props.userPermissions.studio}
 												enablePlayFromAnywhere={!!studio.settings.enablePlayFromAnywhere}
 												enableQuickLoop={!!studio.settings.enableQuickLoop}

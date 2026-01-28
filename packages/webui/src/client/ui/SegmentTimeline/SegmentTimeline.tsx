@@ -1057,8 +1057,18 @@ export class SegmentTimelineClass extends React.Component<Translated<WithTiming<
 							<div
 								onDoubleClick={() => {
 									if (this.props.studio.settings.enableUserEdits) {
-										if (!selectElementContext.isSelected(this.props.segment._id)) {
-											selectElementContext.clearAndSetSelection({ type: 'segment', elementId: this.props.segment._id })
+										const segment = this.props.segment
+
+										const hasEditableContent = !!(
+											segment.userEditOperations?.length ||
+											segment.userEditProperties?.pieceTypeProperties ||
+											segment.userEditProperties?.globalProperties ||
+											segment.userEditProperties?.operations?.length
+										)
+										if (!hasEditableContent) return
+
+										if (!selectElementContext.isSelected(segment._id)) {
+											selectElementContext.clearAndSetSelection({ type: 'segment', elementId: segment._id })
 										} else {
 											selectElementContext.clearSelections()
 										}

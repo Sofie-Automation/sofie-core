@@ -18,7 +18,10 @@ import { LocalLayerItemRenderer } from './Renderers/LocalLayerItemRenderer.js'
 import { DEBUG_MODE } from './SegmentTimelineDebugMode.js'
 import { getElementDocumentOffset, OffsetPosition } from '../../utils/positions.js'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
-import { RundownViewEvents, HighlightEvent } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
+import RundownViewEventBus, {
+	RundownViewEvents,
+	HighlightEvent,
+} from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
 import { pieceUiClassNames } from '../../lib/ui/pieceUiClassNames.js'
 import { TransitionSourceRenderer } from './Renderers/TransitionSourceRenderer.js'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
@@ -180,8 +183,19 @@ export const SourceLayerItem = (props: Readonly<ISourceLayerItemProps>): JSX.Ele
 			e.stopPropagation()
 
 			if (studio?.settings.enableUserEdits && !studio?.settings.allowPieceDirectPlay) {
-				const pieceId = piece.instance.piece._id
+				const innerPiece = piece.instance.piece
+
+				const hasEditableContent = !!(
+					innerPiece.userEditOperations?.length ||
+					innerPiece.userEditProperties?.pieceTypeProperties ||
+					innerPiece.userEditProperties?.globalProperties ||
+					innerPiece.userEditProperties?.operations?.length
+				)
+				if (!hasEditableContent) return
+
+				const pieceId = innerPiece._id
 				if (!selectElementContext.isSelected(pieceId)) {
+					RundownViewEventBus.emit(RundownViewEvents.CLOSE_NOTIFICATIONS)
 					selectElementContext.clearAndSetSelection({ type: 'piece', elementId: pieceId })
 				} else {
 					selectElementContext.clearSelections()
