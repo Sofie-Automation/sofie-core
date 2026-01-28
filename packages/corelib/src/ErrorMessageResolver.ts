@@ -107,9 +107,9 @@ export class ErrorMessageResolver {
 			// undefined or not found - fall through to default
 		}
 
-		// Use default message from TSR
+		// Use default message from TSR with device name prefix
 		return {
-			key: defaultMessage,
+			key: `{{deviceName}}: ${defaultMessage}`,
 			args: context,
 		}
 	}
