@@ -399,9 +399,9 @@ class ServerUserActionAPI
 		userEvent: string,
 		eventTime: Time,
 		rundownPlaylistId: RundownPlaylistId,
-		actionDocId: AdLibActionId | RundownBaselineAdLibActionId | BucketAdLibActionId,
+		actionDocId: AdLibActionId | RundownBaselineAdLibActionId | BucketAdLibActionId | null,
 		actionId: string,
-		userData: ActionUserData,
+		userData: ActionUserData | null,
 		triggerMode: string | null
 	) {
 		return ServerClientAPI.runUserActionInLogForPlaylistOnWorker(
@@ -411,7 +411,7 @@ class ServerUserActionAPI
 			rundownPlaylistId,
 			() => {
 				check(rundownPlaylistId, String)
-				check(actionDocId, String)
+				check(actionDocId, Match.Maybe(String))
 				check(actionId, String)
 				check(userData, Match.Any)
 				check(triggerMode, Match.Maybe(String))

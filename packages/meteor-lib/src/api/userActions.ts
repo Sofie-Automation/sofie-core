@@ -121,9 +121,9 @@ export interface NewUserActionAPI {
 		userEvent: string,
 		eventTime: Time,
 		rundownPlaylistId: RundownPlaylistId,
-		actionDocId: AdLibActionId | RundownBaselineAdLibActionId | BucketAdLibActionId,
+		actionDocId: AdLibActionId | RundownBaselineAdLibActionId | BucketAdLibActionId | null,
 		actionId: string,
-		userData: ActionUserData,
+		userData: ActionUserData | null,
 		triggerMode?: string
 	): Promise<ClientAPI.ClientResponse<ExecuteActionResult>>
 	segmentAdLibPieceStart(
