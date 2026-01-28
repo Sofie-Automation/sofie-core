@@ -82,10 +82,8 @@ const coreMigrationSteps: Array<MigrationStepCore> = []
 export function addMigrationSteps(version: string, steps: Array<Omit<MigrationStepCore, 'version'>>) {
 	return (): void => {
 		for (const step of steps) {
-			coreMigrationSteps.push({
-				...step,
-				version: version,
-			})
+			;(step as MigrationStepCore).version = version
+			coreMigrationSteps.push(step as MigrationStepCore)
 		}
 	}
 }
@@ -135,9 +133,9 @@ export async function prepareMigration(returnAllChunks?: boolean): Promise<Prepa
 		allMigrationSteps.push({
 			id: step.id,
 			overrideSteps: step.overrideSteps,
-			validate: step.validate,
+			validate: step.validate.bind(step),
 			canBeRunAutomatically: step.canBeRunAutomatically,
-			migrate: step.migrate,
+			migrate: step.migrate?.bind(step),
 			input: step.input,
 			dependOnResultFrom: step.dependOnResultFrom,
 			version: step.version,
@@ -188,9 +186,9 @@ export async function prepareMigration(returnAllChunks?: boolean): Promise<Prepa
 							prefixIdsOnStep('blueprint_' + blueprint._id + '_system_', {
 								id: step.id,
 								overrideSteps: step.overrideSteps,
-								validate: step.validate,
+								validate: step.validate.bind(step),
 								canBeRunAutomatically: step.canBeRunAutomatically,
-								migrate: step.migrate,
+								migrate: step.migrate?.bind(step),
 								input: step.input,
 								dependOnResultFrom: step.dependOnResultFrom,
 								version: step.version,
