@@ -12,6 +12,7 @@ import {
 	IBlueprintSegment,
 	ISegmentUserContext,
 	IShowStyleContext,
+	IStudioSettings,
 	IngestSegment,
 	PlaylistTimingType,
 	ShowStyleBlueprintManifest,
@@ -59,7 +60,10 @@ import { processShowStyleBase, processShowStyleVariant } from '../jobs/showStyle
 import { defaultStudio } from './defaultCollectionObjects'
 import { convertStudioToJobStudio } from '../jobs/studio'
 
-export function setupDefaultJobEnvironment(studioId?: StudioId): MockJobContext {
+export function setupDefaultJobEnvironment(
+	studioId?: StudioId,
+	studioSettings?: Partial<IStudioSettings>
+): MockJobContext {
 	const { mockCollections, jobCollections } = getMockCollections()
 
 	// We don't bother 'saving' this to the db, as usually nothing will load it
@@ -68,6 +72,16 @@ export function setupDefaultJobEnvironment(studioId?: StudioId): MockJobContext 
 		name: 'mockStudio',
 		_rundownVersionHash: 'asdf',
 		blueprintId: protectString('studioBlueprint0'),
+	}
+
+	if (studioSettings) {
+		studio.settingsWithOverrides = {
+			...studio.settingsWithOverrides,
+			defaults: {
+				...studio.settingsWithOverrides.defaults,
+				...studioSettings,
+			},
+		}
 	}
 
 	return new MockJobContext(jobCollections, mockCollections, studio)
