@@ -120,7 +120,7 @@ $dashboard-button-height: 3.625em;
 			> svg {
 				height: 1em;
 				vertical-align: top;
-    			margin-top: 0.05em;
+				margin-top: 0.05em;
 			}
 		}
 	}
@@ -437,7 +437,9 @@ $dashboard-button-height: 3.625em;
 						1px -1px 0px rgba(0, 0, 0, 0.5),
 						0.5px 0.5px 2px rgba(0, 0, 0, 1);
 					z-index: 2;
-					text-wrap: balance;
+					word-break: break-word;
+					overflow-wrap: break-word;
+					white-space: normal;
 
 					&.dashboard-panel__panel__button__label--editable {
 						text-shadow: none;
