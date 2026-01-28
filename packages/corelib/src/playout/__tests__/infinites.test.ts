@@ -177,6 +177,47 @@ describe('Infinites', () => {
 				},
 			])
 		})
+		test('piece dynamically converted to infinite should be continued', () => {
+			const playlistId = protectString('playlist0')
+			const rundownId = protectString('rundown0')
+			const segmentId = protectString('segment0')
+			const partId = protectString('part0')
+			const previousPartInstance = { rundownId, segmentId, partId }
+			const previousSegment = { _id: previousPartInstance.segmentId }
+			const previousPartPieces: PieceInstance[] = [
+				{
+					...createPieceInstanceAsInfinite(
+						'one',
+						rundownId,
+						partId,
+						{ start: 0 },
+						'one',
+						PieceLifespan.OutOnRundownEnd
+					),
+					dynamicallyConvertedToInfinite: Date.now(),
+				},
+			]
+			const segment = { _id: segmentId }
+			const part = { rundownId, segmentId }
+			const instanceId = protectString('newInstance0')
+			const rundown = createRundown(rundownId, playlistId, 'Test Rundown', 'rundown0')
+
+			const continuedInstances = runAndTidyResult(
+				previousPartInstance,
+				previousSegment,
+				previousPartPieces,
+				rundown,
+				segment,
+				part,
+				instanceId
+			)
+			expect(continuedInstances).toEqual([
+				{
+					_id: 'newInstance0_one_p_continue',
+					start: 0,
+				},
+			])
+		})
 		test('ignore pieces that have stopped', () => {
 			const playlistId = protectString('playlist0')
 			const rundownId = protectString('rundown0')

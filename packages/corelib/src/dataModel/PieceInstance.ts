@@ -61,6 +61,9 @@ export interface PieceInstance {
 	/** If this piece has been insterted during run of rundown (such as adLibs), then this is set to the timestamp it was inserted */
 	dynamicallyInserted?: Time
 
+	/** If this piece's lifespan has been changed to infinite during run of the rundown (adLib action, onTake, ...), then this is set to the timestamp it was changed */
+	dynamicallyConvertedToInfinite?: Time
+
 	/** This is set when the duration needs to be overriden from some user action */
 	userDuration?: {
 		/** The time relative to the part (milliseconds since start of part) */

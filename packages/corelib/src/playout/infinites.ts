@@ -181,7 +181,7 @@ export function getPlayheadTrackingInfinitesForPart(
 		// Check if we should persist any adlib onEnd infinites
 		if (canContinueAdlibOnEnds) {
 			const piecesByInfiniteMode = groupByToMapFunc(
-				pieceInstances.filter((p) => p.dynamicallyInserted),
+				pieceInstances.filter((p) => p.dynamicallyInserted || p.dynamicallyConvertedToInfinite),
 				(p) => p.piece.lifespan
 			)
 			for (const mode0 of [
@@ -194,7 +194,9 @@ export function getPlayheadTrackingInfinitesForPart(
 					| PieceLifespan.OutOnSegmentEnd
 					| PieceLifespan.OutOnShowStyleEnd
 				const pieces = (piecesByInfiniteMode.get(mode) || []).filter(
-					(p) => p.infinite && (p.infinite.fromPreviousPlayhead || p.dynamicallyInserted)
+					(p) =>
+						p.infinite &&
+						(p.infinite.fromPreviousPlayhead || p.dynamicallyInserted || p.dynamicallyConvertedToInfinite)
 				)
 				// This is the piece we may copy across
 				const candidatePiece =
@@ -277,6 +279,7 @@ export function getPlayheadTrackingInfinitesForPart(
 function markPieceInstanceAsContinuation(previousInstance: ReadonlyDeep<PieceInstance>, instance: PieceInstance) {
 	instance._id = protectString(`${instance._id}_continue`)
 	instance.dynamicallyInserted = previousInstance.dynamicallyInserted
+	instance.dynamicallyConvertedToInfinite = previousInstance.dynamicallyConvertedToInfinite
 	instance.adLibSourceId = previousInstance.adLibSourceId
 	instance.reportedStartedPlayback = previousInstance.reportedStartedPlayback
 	instance.plannedStartedPlayback = previousInstance.plannedStartedPlayback

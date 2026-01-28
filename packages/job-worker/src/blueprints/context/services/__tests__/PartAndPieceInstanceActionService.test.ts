@@ -1499,6 +1499,81 @@ describe('Test blueprint api context', () => {
 					expect(service.currentPartState).toEqual(ActionPartChange.SAFE_CHANGE)
 				})
 			})
+
+			test('can update infinite piece from previous part if in current part instance', async () => {
+				const { jobContext, playlistId, allPartInstances } = await setupMyDefaultRundown()
+
+				const currentPartInstance = allPartInstances[1]
+
+				// Create an infinite piece instance continued from previous part
+				const pieceInstance: PieceInstance = {
+					_id: protectString('piece_infinite'),
+					rundownId: currentPartInstance.partInstance.rundownId,
+					partInstanceId: currentPartInstance.partInstance._id,
+					playlistActivationId: currentPartInstance.partInstance.playlistActivationId,
+					piece: {
+						_id: protectString('piece_infinite_p'),
+						externalId: '-',
+						enable: { start: 0 },
+						name: 'infinite',
+						sourceLayerId: '',
+						outputLayerId: '',
+						startPartId: allPartInstances[0].partInstance.part._id,
+						content: {},
+						timelineObjectsString: EmptyPieceTimelineObjectsBlob,
+						lifespan: PieceLifespan.OutOnRundownEnd,
+						pieceType: IBlueprintPieceType.Normal,
+						invalid: false,
+					},
+					infinite: {
+						infiniteInstanceId: getRandomId(),
+						infiniteInstanceIndex: 1,
+						infinitePieceId: protectString('piece_infinite_p'),
+						fromPreviousPart: true,
+					},
+				}
+
+				await jobContext.mockCollections.PieceInstances.insertOne(pieceInstance)
+
+				await setPartInstances(jobContext, playlistId, currentPartInstance, undefined)
+
+				await wrapWithPlayoutModel(jobContext, playlistId, async (playoutModel) => {
+					const { service } = await getTestee(jobContext, playoutModel)
+
+					// Updating it in CURRENT part should succeed
+					await expect(
+						service.updatePieceInstance(unprotectString(pieceInstance._id), { name: 'updated' })
+					).resolves.toBeTruthy()
+				})
+			})
+
+			test('updating lifespan to infinite sets dynamicallyConvertedToInfinite', async () => {
+				const { jobContext, playlistId, allPartInstances } = await setupMyDefaultRundown()
+
+				const currentPartInstance = allPartInstances[0]
+				const pieceInstance = (await jobContext.mockCollections.PieceInstances.findOne({
+					partInstanceId: currentPartInstance.partInstance._id,
+				})) as PieceInstance
+				expect(pieceInstance).toBeTruthy()
+				expect(pieceInstance.piece.lifespan).toEqual(PieceLifespan.WithinPart)
+				expect(pieceInstance.infinite).toBeUndefined()
+
+				await setPartInstances(jobContext, playlistId, currentPartInstance, undefined)
+
+				await wrapWithPlayoutModel(jobContext, playlistId, async (playoutModel) => {
+					const { service } = await getTestee(jobContext, playoutModel)
+
+					await service.updatePieceInstance(unprotectString(pieceInstance._id), {
+						lifespan: PieceLifespan.OutOnRundownEnd,
+					})
+
+					const updatedPieceInstance = playoutModel.findPieceInstance(pieceInstance._id)?.pieceInstance
+					expect(updatedPieceInstance).toBeTruthy()
+					expect(updatedPieceInstance?.pieceInstance.piece.lifespan).toEqual(PieceLifespan.OutOnRundownEnd)
+					expect(updatedPieceInstance?.pieceInstance.infinite).toBeTruthy()
+					expect(updatedPieceInstance?.pieceInstance.dynamicallyConvertedToInfinite).toBeTruthy()
+				})
+			})
 		})
 
 		describe('stopPiecesOnLayers', () => {

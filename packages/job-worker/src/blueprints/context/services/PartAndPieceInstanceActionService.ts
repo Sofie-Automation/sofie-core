@@ -313,7 +313,10 @@ export class PartAndPieceInstanceActionService {
 
 		const { pieceInstance } = foundPieceInstance
 
-		if (pieceInstance.pieceInstance.infinite?.fromPreviousPart) {
+		if (
+			pieceInstance.pieceInstance.infinite?.fromPreviousPart &&
+			pieceInstance.pieceInstance.partInstanceId === this._playoutModel.playlist.nextPartInfo?.partInstanceId
+		) {
 			throw new Error('Cannot update an infinite piece that is continued from a previous part')
 		}
 
