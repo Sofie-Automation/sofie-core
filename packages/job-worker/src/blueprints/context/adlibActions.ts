@@ -80,6 +80,10 @@ export class ActionExecutionContext extends ShowStyleUserContext implements IAct
 		return this.partAndPieceInstanceService.quickLoopInfo
 	}
 
+	public get isRehearsal(): boolean {
+		return this._playoutModel.playlist.rehearsal ?? false
+	}
+
 	public get currentPartState(): ActionPartChange {
 		return this.partAndPieceInstanceService.currentPartState
 	}

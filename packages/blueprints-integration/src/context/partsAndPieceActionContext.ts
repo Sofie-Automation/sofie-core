@@ -16,6 +16,9 @@ export interface IPartAndPieceActionContext {
 	/** Information about the current loop, if there is one */
 	readonly quickLoopInfo: BlueprintQuickLookInfo | null
 
+	/** Whether the playlist is currently in rehearsal mode */
+	readonly isRehearsal: boolean
+
 	/**
 	 * Data fetching
 	 */

@@ -35,6 +35,10 @@ export class OnTakeContext extends ShowStyleUserContext implements IOnTakeContex
 		return this.partAndPieceInstanceService.quickLoopInfo
 	}
 
+	public get isRehearsal(): boolean {
+		return this._playoutModel.playlist.rehearsal ?? false
+	}
+
 	public get currentPartState(): ActionPartChange {
 		return this.partAndPieceInstanceService.currentPartState
 	}

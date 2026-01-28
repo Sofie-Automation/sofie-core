@@ -51,6 +51,10 @@ export class OnSetAsNextContext
 		return this.partAndPieceInstanceService.quickLoopInfo
 	}
 
+	public get isRehearsal(): boolean {
+		return this.playoutModel.playlist.rehearsal ?? false
+	}
+
 	public get nextPartState(): ActionPartChange {
 		return this.partAndPieceInstanceService.nextPartState
 	}

@@ -11,9 +11,12 @@ import { PartId, RundownId, SegmentId } from '@sofie-automation/corelib/dist/dat
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 
 describe('Test blueprint api context', () => {
-	async function getTestee(setManually = false) {
+	async function getTestee(setManually = false, rehearsal?: boolean) {
 		const mockActionService = mock<PartAndPieceInstanceActionService>()
 		const mockPlayoutModel = mock<PlayoutModel>()
+		Object.defineProperty(mockPlayoutModel, 'playlist', {
+			get: () => ({ rehearsal }),
+		})
 		const context = new OnSetAsNextContext(
 			{
 				name: 'fakeContext',
@@ -187,6 +190,24 @@ describe('Test blueprint api context', () => {
 			const { context } = await getTestee(true)
 
 			expect(context.manuallySelected).toBe(true)
+		})
+
+		test('isRehearsal when true', async () => {
+			const { context } = await getTestee(false, true)
+
+			expect(context.isRehearsal).toBe(true)
+		})
+
+		test('isRehearsal when false', async () => {
+			const { context } = await getTestee(false, false)
+
+			expect(context.isRehearsal).toBe(false)
+		})
+
+		test('isRehearsal when undefined', async () => {
+			const { context } = await getTestee()
+
+			expect(context.isRehearsal).toBe(false)
 		})
 	})
 })
