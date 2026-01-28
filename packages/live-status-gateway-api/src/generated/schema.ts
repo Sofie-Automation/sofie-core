@@ -245,6 +245,25 @@ interface PieceStatus {
 	 * Optional arbitrary data
 	 */
 	publicData?: any
+	/**
+	 * AB playback session assignments for this Piece
+	 */
+	abSessions?: AbSessionAssignment[]
+}
+
+interface AbSessionAssignment {
+	/**
+	 * The name of the AB Pool this session is for
+	 */
+	poolName: string
+	/**
+	 * Name of the session
+	 */
+	sessionName: string
+	/**
+	 * The assigned player ID
+	 */
+	playerId: string | number
 }
 
 /**
@@ -912,6 +931,7 @@ export {
 	ActivePlaylistEvent,
 	CurrentPartStatus,
 	PieceStatus,
+	AbSessionAssignment,
 	CurrentPartTiming,
 	CurrentSegment,
 	CurrentSegmentTiming,

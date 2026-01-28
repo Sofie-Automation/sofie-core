@@ -14,7 +14,7 @@ import { ActivePiecesEvent } from '@sofie-automation/live-status-gateway-api'
 
 const THROTTLE_PERIOD_MS = 100
 
-const PLAYLIST_KEYS = ['_id', 'activationId'] as const
+const PLAYLIST_KEYS = ['_id', 'activationId', 'assignedAbSessions', 'trackedAbSessions'] as const
 type Playlist = PickKeys<DBRundownPlaylist, typeof PLAYLIST_KEYS>
 
 const PIECE_INSTANCES_KEYS = ['active'] as const
@@ -24,6 +24,7 @@ export class ActivePiecesTopic extends WebSocketTopicBase implements WebSocketTo
 	private _activePlaylistId: RundownPlaylistId | undefined
 	private _activePieceInstances: PieceInstanceMin[] | undefined
 	private _showStyleBaseExt: ShowStyleBaseExt | undefined
+	private _playlist: Playlist | undefined
 
 	constructor(logger: Logger, handlers: CollectionHandlers) {
 		super(ActivePiecesTopic.name, logger, THROTTLE_PERIOD_MS)
@@ -39,7 +40,9 @@ export class ActivePiecesTopic extends WebSocketTopicBase implements WebSocketTo
 					event: 'activePieces',
 					rundownPlaylistId: unprotectString(this._activePlaylistId),
 					activePieces:
-						this._activePieceInstances?.map((piece) => toPieceStatus(piece, this._showStyleBaseExt)) ?? [],
+						this._activePieceInstances?.map((piece) =>
+							toPieceStatus(piece, this._showStyleBaseExt, this._playlist)
+						) ?? [],
 				})
 			: literal<ActivePiecesEvent>({
 					event: 'activePieces',
@@ -63,6 +66,7 @@ export class ActivePiecesTopic extends WebSocketTopicBase implements WebSocketTo
 		)
 		const previousActivePlaylistId = this._activePlaylistId
 		this._activePlaylistId = unprotectString(rundownPlaylist?.activationId) ? rundownPlaylist?._id : undefined
+		this._playlist = rundownPlaylist
 
 		if (previousActivePlaylistId !== this._activePlaylistId) {
 			this.throttledSendStatusToAll()

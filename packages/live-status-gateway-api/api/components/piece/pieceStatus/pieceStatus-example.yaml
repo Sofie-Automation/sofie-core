@@ -5,3 +5,5 @@ outputLayer: 'PGM'
 tags: ['camera']
 publicData:
   switcherSource: 1
+abSessions:
+  - $ref: './abSessionAssignment-example.yaml'

@@ -424,6 +424,29 @@ channels:
                                           type: string
                                       publicData:
                                         description: Optional arbitrary data
+                                      abSessions:
+                                        description: AB playback session assignments for this Piece
+                                        type: array
+                                        items:
+                                          type: object
+                                          title: AbSessionAssignment
+                                          properties:
+                                            poolName:
+                                              description: The name of the AB Pool this session is for
+                                              type: string
+                                            sessionName:
+                                              description: Name of the session
+                                              type: string
+                                            playerId:
+                                              description: The assigned player ID
+                                              oneOf:
+                                                - type: string
+                                                - type: number
+                                          required:
+                                            - poolName
+                                            - sessionName
+                                            - playerId
+                                          additionalProperties: false
                                     required:
                                       - id
                                       - name
@@ -440,6 +463,10 @@ channels:
                                           - camera
                                         publicData:
                                           switcherSource: 1
+                                        abSessions:
+                                          - poolName: VTR
+                                            sessionName: clip_intro
+                                            playerId: 1
                                 publicData:
                                   description: Optional arbitrary data
                               required:
