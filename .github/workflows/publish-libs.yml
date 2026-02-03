@@ -64,9 +64,8 @@ jobs:
         run: |
           corepack enable
 
-          cd packages
           yarn install
-          yarn build
+          yarn build:packages
         env:
           CI: true
       - name: Run typecheck and linter
