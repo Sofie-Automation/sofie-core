@@ -14,9 +14,6 @@
 		"cov": "run unit && open-cli coverage/lcov-report/index.html",
 		"cov-open": "open-cli coverage/lcov-report/index.html",
 		"unit": "run genserver && node --experimental-fetch run_server_tests.mjs",
-		"lint:raw": "run -T eslint",
-		"lint": "run lint:raw .",
-		"lint-fix": "run lint --fix",
 		"genclient:ts": "run -T rimraf client/ts && openapi-generator-cli generate -i ./api/actions.yaml -o client/ts -g typescript-fetch -p supportsES6=true",
 		"genclient:rs": "run -T rimraf client/rs && openapi-generator-cli generate -i ./api/actions.yaml -o client/rs -g rust",
 		"genclient:cs": "run -T rimraf client/cs && openapi-generator-cli generate -i ./api/actions.yaml -o client/cs -g csharp",
@@ -43,14 +40,6 @@
 		"eslint": "^9.39.2",
 		"js-yaml": "^4.1.1",
 		"wget-improved": "^3.4.0"
-	},
-	"lint-staged": {
-		"*.{css,json,md,scss}": [
-			"yarn run -T prettier"
-		],
-		"*.{ts,tsx,js,jsx,yaml}": [
-			"yarn lint:raw"
-		]
 	},
 	"publishConfig": {
 		"access": "public"

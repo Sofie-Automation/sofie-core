@@ -90,5 +90,13 @@
 		"nx": {
 			"built": true
 		}
+	},
+	"lint-staged": {
+		"*.{css,json,md,scss}": [
+			"yarn run prettier"
+		],
+		"*.{ts,tsx,js,jsx}": [
+			"yarn lint"
+		]
 	}
 }
