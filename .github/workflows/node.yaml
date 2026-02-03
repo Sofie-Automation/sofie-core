@@ -471,25 +471,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
-    strategy:
-      fail-fast: false
-      matrix:
-        package-name:
-          - blueprints-integration
-          - server-core-integration
-          - playout-gateway
-          - mos-gateway
-          - corelib
-          - shared-lib
-          - meteor-lib
-          - job-worker
-          - openapi
-          - live-status-gateway
-          - live-status-gateway-api
-        include:
-          - package-name: webui
-            tsconfig-name: tsconfig.json
-
     steps:
       - uses: actions/checkout@v6
         with:
@@ -509,19 +490,15 @@ jobs:
           corepack enable
 
           cd packages
-          yarn config set cacheFolder /home/runner/${{ matrix.package-name }}-cache
+          yarn config set cacheFolder /home/runner/lint-packages-cache
           yarn install
 
-          if [ "${{ matrix.package-name }}" = "openapi" ]; then
-            yarn workspace @sofie-automation/openapi run build
-          else
-            yarn build:single ${{ matrix.package-name }}/${{ matrix.tsconfig-name || 'tsconfig.build.json' }}
-          fi
+          yarn build
         env:
           CI: true
       - name: Run typecheck and linter
         run: |
-          cd packages/${{ matrix.package-name }}
+          cd packages
           yarn lint
         env:
           CI: true

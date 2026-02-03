@@ -13,10 +13,8 @@ const extendedRules = await generateEslintConfig({
 		'webui/dist',
 		'webui/src/fonts',
 		'webui/src/meteor',
-		'**/*/eslint.config.mjs', // nocommit
 		'webui/vite.config.mts', // This errors because of tsconfig structure
 	],
-	// ignores: ['client', 'server'],
 })
 extendedRules.push(...pluginYaml.configs['flat/recommended'], {
 	files: ['**/*.yaml'],
