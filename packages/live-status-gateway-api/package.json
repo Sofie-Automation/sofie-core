@@ -15,6 +15,7 @@
 	},
 	"homepage": "https://github.com/nrkno/sofie-core/blob/master/packages/live-status-gateway-api#readme",
 	"scripts": {
+		"lint": "run -T lint live-status-gateway-api",
 		"build:prepare": "run generate-schema-types",
 		"unit": "run -T jest",
 		"test": "run lint && run unit",

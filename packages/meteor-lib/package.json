@@ -16,6 +16,7 @@
 	},
 	"homepage": "https://github.com/nrkno/sofie-core/blob/main/packages/corelib#readme",
 	"scripts": {
+		"lint": "run -T lint meteor-lib",
 		"unit": "run -T jest",
 		"test": "run lint && run unit",
 		"watch": "run -T jest --watch --coverage=false",

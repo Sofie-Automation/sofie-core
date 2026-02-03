@@ -15,6 +15,7 @@
 	},
 	"homepage": "https://github.com/Sofie-Automation/sofie-core/blob/main/packages/blueprints-integration#readme",
 	"scripts": {
+		"lint": "run -T lint blueprints-integration",
 		"unit": "run -T jest",
 		"test": "run lint && run unit",
 		"watch": "run -T jest --watch",

@@ -13,6 +13,7 @@
 		"build:main": "run -T tsc -p tsconfig.build.json",
 		"cov": "run unit && open-cli coverage/lcov-report/index.html",
 		"cov-open": "open-cli coverage/lcov-report/index.html",
+		"lint": "run -T lint openapi",
 		"unit": "run genserver && node --experimental-fetch run_server_tests.mjs",
 		"genclient:ts": "run -T rimraf client/ts && openapi-generator-cli generate -i ./api/actions.yaml -o client/ts -g typescript-fetch -p supportsES6=true",
 		"genclient:rs": "run -T rimraf client/rs && openapi-generator-cli generate -i ./api/actions.yaml -o client/rs -g rust",

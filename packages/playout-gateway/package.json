@@ -20,6 +20,7 @@
 	},
 	"contributors": [],
 	"scripts": {
+		"lint": "run -T lint playout-gateway",
 		"unit": "run -T jest",
 		"test": "run lint && run unit",
 		"watch": "run -T jest --watch",

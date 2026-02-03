@@ -15,6 +15,7 @@
 	},
 	"homepage": "https://github.com/nrkno/sofie-core/blob/master/packages/shared-lib#readme",
 	"scripts": {
+		"lint": "run -T lint shared-lib",
 		"unit": "run -T jest",
 		"test": "run lint && run unit",
 		"watch": "run -T jest --watch",

@@ -32,6 +32,7 @@
 		}
 	],
 	"scripts": {
+		"lint": "run -T lint server-core-integration",
 		"unit": "run -T jest",
 		"test": "run lint && run unit",
 		"test:integration": "run lint && run -T jest --config=jest-integration.config.js",

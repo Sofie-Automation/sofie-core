@@ -26,6 +26,7 @@
 		}
 	],
 	"scripts": {
+		"lint": "run -T lint mos-gateway",
 		"lint-fix": "run lint --fix",
 		"unit": "run -T jest",
 		"test": "run lint && run unit",
