@@ -11,7 +11,6 @@
 	"scripts": {
 		"build": "run -T rimraf dist && run genclient:ts && run build:main",
 		"build:main": "run -T tsc -p tsconfig.build.json",
-		"build:prepare": "run genclient:ts",
 		"cov": "run unit && open-cli coverage/lcov-report/index.html",
 		"cov-open": "open-cli coverage/lcov-report/index.html",
 		"unit": "run genserver && node --experimental-fetch run_server_tests.mjs",
