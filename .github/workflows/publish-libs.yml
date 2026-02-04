@@ -151,12 +151,16 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version-file: ".node-version"
+      - uses: ./.github/actions/setup-meteor
       - name: Prepare Environment
         run: |
           corepack enable
 
-          cd packages
-          yarn install
+          yarn config set cacheFolder /home/runner/lint-core-cache
+          yarn
+
+          # setup zodern:types. No linters are setup, so this simply installs the packages
+          yarn meteor lint
         env:
           CI: true
       - name: Bump version
