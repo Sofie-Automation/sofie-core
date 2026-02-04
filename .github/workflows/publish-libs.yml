@@ -195,7 +195,7 @@ jobs:
           yarn install --no-immutable
 
       - name: Upload release artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: publish-dist
           path: |
@@ -230,7 +230,7 @@ jobs:
           node-version-file: ".node-version"
 
       - name: Download release artifact
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: publish-dist
 
