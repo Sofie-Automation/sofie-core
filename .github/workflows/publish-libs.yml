@@ -119,7 +119,12 @@ jobs:
 
           cd packages
           yarn install
-          yarn build:single ${{ matrix.package-name }}/tsconfig.build.json
+
+          if [ "${{ matrix.package-name }}" = "openapi" ]; then
+            yarn workspace @sofie-automation/openapi run build
+          else
+            yarn build:single ${{ matrix.package-name }}/tsconfig.build.json
+          fi
         env:
           CI: true
       - name: Run tests
@@ -190,7 +195,7 @@ jobs:
           yarn install --no-immutable
 
       - name: Upload release artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v5
         with:
           name: publish-dist
           path: |
@@ -225,7 +230,7 @@ jobs:
           node-version-file: ".node-version"
 
       - name: Download release artifact
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v6
         with:
           name: publish-dist
 
