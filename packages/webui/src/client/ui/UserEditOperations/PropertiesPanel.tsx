@@ -17,7 +17,7 @@ import classNames from 'classnames'
 import { useTranslation } from 'react-i18next'
 import { useSelectedElements, useSelectedElementsContext } from '../RundownView/SelectedElementsContext.js'
 import { RundownUtils } from '../../lib/rundown.js'
-import * as CoreIcon from '@nrk/core-icons/jsx'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useCallback, useMemo, useState } from 'react'
 import { SchemaFormWithState } from '../../lib/forms/SchemaFormWithState.js'
 import { translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
@@ -154,7 +154,7 @@ export function PropertiesPanel(): JSX.Element {
 						title={t('Close Properties Panel')}
 						onClick={clearSelections}
 					>
-						<CoreIcon.NrkClose width="1em" height="1em" />
+						<FontAwesomeIcon icon="close" size="lg" />
 					</button>
 				</div>
 

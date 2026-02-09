@@ -5578,13 +5578,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nrk/core-icons@npm:^9.6.0":
-  version: 9.6.0
-  resolution: "@nrk/core-icons@npm:9.6.0"
-  checksum: 10/0384037b0b7ec21ea6bc516685a510e7f0c0acbcc86549365fb8fd90aceb15129327e59a3a36944bba93c5453f1d1482f31002311e85d1f78bd5f7ca2100894b
-  languageName: node
-  linkType: hard
-
 "@nuxt/opencollective@npm:0.4.1":
   version: 0.4.1
   resolution: "@nuxt/opencollective@npm:0.4.1"
@@ -7051,7 +7044,6 @@ __metadata:
     "@fortawesome/free-solid-svg-icons": "npm:^6.7.2"
     "@fortawesome/react-fontawesome": "npm:^0.2.2"
     "@jstarpl/react-contextmenu": "npm:^2.15.1"
-    "@nrk/core-icons": "npm:^9.6.0"
     "@popperjs/core": "npm:^2.11.8"
     "@sofie-automation/blueprints-integration": "npm:26.3.0-0"
     "@sofie-automation/corelib": "npm:26.3.0-0"

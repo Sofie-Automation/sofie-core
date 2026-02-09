@@ -1,5 +1,5 @@
 import React, { useLayoutEffect, useRef } from 'react'
-import * as CoreIcons from '@nrk/core-icons/jsx'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Escape from './Escape.js'
 // @ts-expect-error type linking issue
 import FocusBounder from 'react-focus-bounder'
@@ -164,7 +164,7 @@ export function ModalDialog({
 									onKeyUp={emulateClick}
 									aria-label={t('Dismiss')}
 								>
-									<CoreIcons.NrkClose />
+									<FontAwesomeIcon icon="close" size="xl" className="mt-2" />
 								</button>
 							</Modal.Title>
 						</Modal.Header>

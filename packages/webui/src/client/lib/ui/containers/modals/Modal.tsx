@@ -1,6 +1,6 @@
 import * as React from 'react'
 import type { Sorensen } from '@sofie-automation/sorensen'
-import * as CoreIcons from '@nrk/core-icons/jsx'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Escape from './../../../Escape.js'
 
 import { SorensenContext } from '../../../SorensenContext.js'
@@ -101,7 +101,7 @@ export class Modal extends React.Component<React.PropsWithChildren<IModalAttribu
 								<div className="flex-col horizontal-align-right vertical-align-middle">
 									<p>
 										<button className="action-btn" onClick={this.handleDiscard}>
-											<CoreIcons.NrkClose />
+											<FontAwesomeIcon icon="close" size="xl" className="mt-2" />
 										</button>
 									</p>
 								</div>
