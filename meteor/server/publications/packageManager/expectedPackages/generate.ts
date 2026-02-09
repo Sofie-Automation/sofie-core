@@ -3,7 +3,7 @@ import {
 	Accessor,
 	AccessorOnPackage,
 	ExpectedPackage,
-	StudioPackageContainerIds,
+	StudioPackageContainerSettings,
 } from '@sofie-automation/blueprints-integration'
 import { PeripheralDeviceId, ExpectedPackageId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
@@ -33,7 +33,7 @@ import { ExpectedPackageDBCompact, ExpectedPackagesContentCache } from './conten
  */
 export async function updateCollectionForExpectedPackageIds(
 	contentCache: ReadonlyDeep<ExpectedPackagesContentCache>,
-	packageContainerIds: StudioPackageContainerIds,
+	packageContainerSettings: StudioPackageContainerSettings,
 	layerNameToDeviceIds: Map<string, PeripheralDeviceId[]>,
 	packageContainers: Record<string, StudioPackageContainer>,
 	collection: CustomPublishCollection<PackageManagerExpectedPackage>,
@@ -64,7 +64,7 @@ export async function updateCollectionForExpectedPackageIds(
 			if (filterPlayoutDeviceIds && !filterPlayoutDeviceIds.includes(deviceId)) continue
 
 			const routedPackage = generateExpectedPackageForDevice(
-				packageContainerIds,
+				packageContainerSettings,
 				packageDoc,
 				deviceId,
 				packageContainers
@@ -86,7 +86,7 @@ export async function updateCollectionForExpectedPackageIds(
 }
 
 function generateExpectedPackageForDevice(
-	packageContainerIds: StudioPackageContainerIds,
+	packageContainerSettings: StudioPackageContainerSettings,
 	expectedPackage: ExpectedPackageDBCompact,
 	deviceId: PeripheralDeviceId,
 	packageContainers: Record<string, StudioPackageContainer>
@@ -120,7 +120,7 @@ function generateExpectedPackageForDevice(
 	if (!combinedTargets.length) {
 		logger.warn(`Pub.expectedPackagesForDevice: No targets found for "${expectedPackage._id}"`)
 	}
-	const packageSideEffect = getSideEffect(expectedPackage.package, packageContainerIds)
+	const packageSideEffect = getSideEffect(expectedPackage.package, packageContainerSettings)
 
 	return {
 		_id: protectString(`${expectedPackage._id}_${deviceId}`),

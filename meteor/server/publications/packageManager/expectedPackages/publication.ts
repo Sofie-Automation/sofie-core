@@ -30,7 +30,7 @@ import {
 	PeripheralDevicePubSubCollectionsNames,
 } from '@sofie-automation/shared-lib/dist/pubsub/peripheralDevice'
 import { checkAccessAndGetPeripheralDevice } from '../../../security/check'
-import { StudioPackageContainerIds } from '@sofie-automation/shared-lib/dist/core/model/PackageContainer'
+import { StudioPackageContainerSettings } from '@sofie-automation/shared-lib/dist/core/model/PackageContainer'
 
 interface ExpectedPackagesPublicationArgs {
 	readonly studioId: StudioId
@@ -51,7 +51,7 @@ interface ExpectedPackagesPublicationState {
 	studio: Pick<DBStudio, StudioFields> | undefined
 	layerNameToDeviceIds: Map<string, PeripheralDeviceId[]>
 	packageContainers: Record<string, StudioPackageContainer>
-	packageContainerIds: StudioPackageContainerIds
+	packageContainerSettings: StudioPackageContainerSettings
 
 	contentCache: ReadonlyDeep<ExpectedPackagesContentCache>
 }
@@ -61,13 +61,13 @@ export type StudioFields =
 	| 'routeSetsWithOverrides'
 	| 'mappingsWithOverrides'
 	| 'packageContainersWithOverrides'
-	| 'packageContainerIdsWithOverrides'
+	| 'packageContainerSettingsWithOverrides'
 const studioFieldSpecifier = literal<MongoFieldSpecifierOnesStrict<Pick<DBStudio, StudioFields>>>({
 	_id: 1,
 	routeSetsWithOverrides: 1,
 	mappingsWithOverrides: 1,
 	packageContainersWithOverrides: 1,
-	packageContainerIdsWithOverrides: 1,
+	packageContainerSettingsWithOverrides: 1,
 })
 
 async function setupExpectedPackagesPublicationObservers(
@@ -125,7 +125,7 @@ async function manipulateExpectedPackagesPublicationData(
 
 	if (!state.layerNameToDeviceIds) state.layerNameToDeviceIds = new Map()
 	if (!state.packageContainers) state.packageContainers = {}
-	if (!state.packageContainerIds) state.packageContainerIds = { previewContainerIds: [], thumbnailContainerIds: [] }
+	if (!state.packageContainerSettings) state.packageContainerSettings = { previewContainerIds: [], thumbnailContainerIds: [] }
 
 	if (invalidateAllItems) {
 		// Everything is invalid, reset everything
@@ -146,7 +146,7 @@ async function manipulateExpectedPackagesPublicationData(
 			logger.warn(`Pub.expectedPackagesForDevice: studio "${args.studioId}" not found!`)
 			state.layerNameToDeviceIds = new Map()
 			state.packageContainers = {}
-			state.packageContainerIds = { previewContainerIds: [], thumbnailContainerIds: [] }
+			state.packageContainerSettings = { previewContainerIds: [], thumbnailContainerIds: [] }
 		} else {
 			const studioMappings = applyAndValidateOverrides(state.studio.mappingsWithOverrides).obj
 			state.layerNameToDeviceIds = buildMappingsToDeviceIdMap(
@@ -154,7 +154,7 @@ async function manipulateExpectedPackagesPublicationData(
 				studioMappings
 			)
 			state.packageContainers = applyAndValidateOverrides(state.studio.packageContainersWithOverrides).obj
-			state.packageContainerIds = applyAndValidateOverrides(state.studio.packageContainerIdsWithOverrides).obj
+			state.packageContainerSettings = applyAndValidateOverrides(state.studio.packageContainerSettingsWithOverrides).obj
 		}
 	}
 
@@ -176,7 +176,7 @@ async function manipulateExpectedPackagesPublicationData(
 
 	await updateCollectionForExpectedPackageIds(
 		state.contentCache,
-		state.packageContainerIds,
+		state.packageContainerSettings,
 		state.layerNameToDeviceIds,
 		state.packageContainers,
 		collection,

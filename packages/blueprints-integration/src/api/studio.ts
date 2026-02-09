@@ -32,7 +32,7 @@ import type {
 } from '@sofie-automation/shared-lib/dist/core/model/StudioRouteSet'
 import type {
 	StudioPackageContainer,
-	StudioPackageContainerIds,
+	StudioPackageContainerSettings,
 } from '@sofie-automation/shared-lib/dist/core/model/PackageContainer'
 import type { IStudioSettings } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 import type { MosDeviceConfig } from '@sofie-automation/shared-lib/dist/generated/MosGatewayDevicesTypes'
@@ -172,7 +172,7 @@ export interface BlueprintResultApplyStudioConfig {
 	/** Package Containers */
 	packageContainers?: Record<string, StudioPackageContainer>
 	/** Which Package Containers are used for media previews/thumbnails in GUI */
-	packageContainerIds?: StudioPackageContainerIds
+	packageContainerSettings?: StudioPackageContainerSettings
 
 	studioSettings?: IStudioSettings
 }

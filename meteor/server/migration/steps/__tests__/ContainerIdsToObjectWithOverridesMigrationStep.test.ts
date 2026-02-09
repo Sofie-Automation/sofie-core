@@ -8,13 +8,13 @@ describe('ContainerIdsToObjectWithOverridesMigrationStep', () => {
 		await setupEmptyEnvironment()
 	})
 
-	test('migration is needed when studio is missing packageContainerIdsWithOverrides', async () => {
+	test('migration is needed when studio is missing packageContainerSettingsWithOverrides', async () => {
 		await setupMockStudio({
 			_id: protectString('studio0'),
 			// @ts-expect-error
 			previewContainerIds: ['preview1'],
 			thumbnailContainerIds: ['thumb1'],
-			packageContainerIdsWithOverrides: undefined as any,
+			packageContainerSettingsWithOverrides: undefined as any,
 		})
 
 		const step = new ContainerIdsToObjectWithOverridesMigrationStep()
@@ -27,7 +27,7 @@ describe('ContainerIdsToObjectWithOverridesMigrationStep', () => {
 
 		const studio = await Studios.findOneAsync(protectString('studio0'))
 		expect(studio).toBeTruthy()
-		expect(studio?.packageContainerIdsWithOverrides).toMatchObject({
+		expect(studio?.packageContainerSettingsWithOverrides).toMatchObject({
 			defaults: {},
 			overrides: [
 				{ op: 'set', path: 'previewContainerIds', value: ['preview1'] },
@@ -46,7 +46,7 @@ describe('ContainerIdsToObjectWithOverridesMigrationStep', () => {
 	test('migration handles missing optional old fields', async () => {
 		await setupMockStudio({
 			_id: protectString('studio1'),
-			packageContainerIdsWithOverrides: undefined as any,
+			packageContainerSettingsWithOverrides: undefined as any,
 		})
 
 		const step = new ContainerIdsToObjectWithOverridesMigrationStep()
@@ -59,7 +59,7 @@ describe('ContainerIdsToObjectWithOverridesMigrationStep', () => {
 
 		const studio = await Studios.findOneAsync(protectString('studio1'))
 		expect(studio).toBeTruthy()
-		expect(studio?.packageContainerIdsWithOverrides).toMatchObject({
+		expect(studio?.packageContainerSettingsWithOverrides).toMatchObject({
 			defaults: {},
 			overrides: [
 				{ op: 'set', path: 'previewContainerIds', value: [] },

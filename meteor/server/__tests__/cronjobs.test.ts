@@ -592,7 +592,7 @@ describe('cronjobs', () => {
 				routeSetsWithOverrides: newObjectWithOverrides({}),
 				routeSetExclusivityGroupsWithOverrides: newObjectWithOverrides({}),
 				packageContainersWithOverrides: newObjectWithOverrides({}),
-				packageContainerIdsWithOverrides: newObjectWithOverrides({
+				packageContainerSettingsWithOverrides: newObjectWithOverrides({
 					previewContainerIds: [],
 					thumbnailContainerIds: [],
 				}),

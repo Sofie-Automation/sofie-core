@@ -15,7 +15,7 @@ import {
 } from '@sofie-automation/shared-lib/dist/core/model/StudioRouteSet'
 import {
 	StudioPackageContainer,
-	StudioPackageContainerIds,
+	StudioPackageContainerSettings,
 } from '@sofie-automation/shared-lib/dist/core/model/PackageContainer'
 import { IStudioSettings } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 
@@ -78,7 +78,7 @@ export interface DBStudio {
 	packageContainersWithOverrides: ObjectWithOverrides<Record<string, StudioPackageContainer>>
 
 	/** Which package containers are used for media previews/thumbnails in GUI */
-	packageContainerIdsWithOverrides: ObjectWithOverrides<StudioPackageContainerIds>
+	packageContainerSettingsWithOverrides: ObjectWithOverrides<StudioPackageContainerSettings>
 
 	peripheralDeviceSettings: StudioPeripheralDeviceSettings
 

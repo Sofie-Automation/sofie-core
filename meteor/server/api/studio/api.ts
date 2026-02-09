@@ -69,7 +69,7 @@ export async function insertStudioInner(newId?: StudioId): Promise<StudioId> {
 			routeSetsWithOverrides: wrapDefaultObject({}),
 			routeSetExclusivityGroupsWithOverrides: wrapDefaultObject({}),
 			packageContainersWithOverrides: wrapDefaultObject({}),
-			packageContainerIdsWithOverrides: wrapDefaultObject({
+			packageContainerSettingsWithOverrides: wrapDefaultObject({
 				thumbnailContainerIds: [],
 				previewContainerIds: [],
 			}),

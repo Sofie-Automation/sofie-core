@@ -6,7 +6,7 @@ import {
 	htmlTemplateGetFileNamesFromSteps,
 } from '@sofie-automation/shared-lib/dist/package-manager/helpers'
 import { ReadonlyDeep } from 'type-fest'
-import { StudioPackageContainerIds } from '@sofie-automation/shared-lib/dist/core/model/PackageContainer'
+import { StudioPackageContainerSettings } from '@sofie-automation/shared-lib/dist/core/model/PackageContainer'
 
 export function getPreviewPackageSettings(
 	expectedPackage: ExpectedPackage.Any
@@ -57,13 +57,13 @@ export function getThumbnailPackageSettings(
 }
 export function getSideEffect(
 	expectedPackage: ReadonlyDeep<ExpectedPackage.Base>,
-	packageContainerIds: StudioPackageContainerIds
+	packageContainerSettings: StudioPackageContainerSettings
 ): ExpectedPackage.Base['sideEffect'] {
 	return deepExtend(
 		{},
 		literal<ExpectedPackage.Base['sideEffect']>({
-			previewContainerId: packageContainerIds.previewContainerIds[0], // just pick the first. Todo: something else?
-			thumbnailContainerId: packageContainerIds.thumbnailContainerIds[0], // just pick the first. Todo: something else?
+			previewContainerId: packageContainerSettings.previewContainerIds[0], // just pick the first. Todo: something else?
+			thumbnailContainerId: packageContainerSettings.thumbnailContainerIds[0], // just pick the first. Todo: something else?
 			previewPackageSettings: getPreviewPackageSettings(expectedPackage as ExpectedPackage.Any),
 			thumbnailPackageSettings: getThumbnailPackageSettings(expectedPackage as ExpectedPackage.Any),
 		}),

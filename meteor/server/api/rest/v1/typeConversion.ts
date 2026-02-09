@@ -359,7 +359,7 @@ export async function buildStudioFromResolved({
 		_rundownVersionHash: '',
 		routeSetExclusivityGroupsWithOverrides: wrapDefaultObject({}),
 		packageContainersWithOverrides: wrapDefaultObject({}),
-		packageContainerIdsWithOverrides: wrapDefaultObject({
+		packageContainerSettingsWithOverrides: wrapDefaultObject({
 			previewContainerIds: [],
 			thumbnailContainerIds: [],
 		}),

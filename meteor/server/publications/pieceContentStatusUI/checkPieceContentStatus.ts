@@ -57,7 +57,7 @@ import { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/
 import { PieceContentStatusMessageFactory, PieceContentStatusMessageRequiredArgs } from './messageFactory'
 import { PackageStatusMessage } from '@sofie-automation/shared-lib/dist/packageStatusMessages'
 import { BucketAdLib } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibPiece'
-import { StudioPackageContainerIds } from '@sofie-automation/shared-lib/dist/core/model/PackageContainer'
+import { StudioPackageContainerSettings } from '@sofie-automation/shared-lib/dist/core/model/PackageContainer'
 
 const DEFAULT_MESSAGE_FACTORY = new PieceContentStatusMessageFactory(undefined)
 
@@ -223,7 +223,7 @@ export interface PieceContentStatusStudio {
 	 */
 	packageContainers: Record<string, StudioPackageContainer>
 
-	packageContainerIds: StudioPackageContainerIds
+	packageContainerSettings: StudioPackageContainerSettings
 
 	settings: IStudioSettings
 }
@@ -710,7 +710,7 @@ async function checkPieceContentExpectedPackageStatus(
 				}
 
 				if (!thumbnailUrl) {
-					const sideEffect = getSideEffect(expectedPackage, studio.packageContainerIds)
+					const sideEffect = getSideEffect(expectedPackage, studio.packageContainerSettings)
 
 					thumbnailUrl = await getAssetUrlFromPackageContainerStatus(
 						studio.packageContainers,
@@ -722,7 +722,7 @@ async function checkPieceContentExpectedPackageStatus(
 				}
 
 				if (!previewUrl) {
-					const sideEffect = getSideEffect(expectedPackage, studio.packageContainerIds)
+					const sideEffect = getSideEffect(expectedPackage, studio.packageContainerSettings)
 
 					previewUrl = await getAssetUrlFromPackageContainerStatus(
 						studio.packageContainers,

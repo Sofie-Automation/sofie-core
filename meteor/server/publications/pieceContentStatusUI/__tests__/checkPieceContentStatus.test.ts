@@ -261,7 +261,7 @@ describe('lib/mediaObjects', () => {
 		const mockStudio: Complete<PieceContentStatusStudio> = {
 			_id: mockDefaultStudio._id,
 			settings: mockStudioSettings,
-			packageContainerIds: {
+			packageContainerSettings: {
 				previewContainerIds: ['previews0'],
 				thumbnailContainerIds: ['thumbnails0'],
 			},

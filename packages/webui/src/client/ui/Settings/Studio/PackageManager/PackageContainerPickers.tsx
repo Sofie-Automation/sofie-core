@@ -17,7 +17,7 @@ import {
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { MultiSelectInputControl } from '../../../../lib/Components/MultiSelectInput'
 import { useMemo } from 'react'
-import { StudioPackageContainerIds } from '@sofie-automation/shared-lib/dist/core/model/PackageContainer'
+import { StudioPackageContainerSettings } from '@sofie-automation/shared-lib/dist/core/model/PackageContainer'
 
 interface PackageContainersPickersProps {
 	studio: DBStudio
@@ -31,36 +31,36 @@ export function PackageContainersPickers({
 	const { t } = useTranslation()
 
 	const [wrappedItem, wrappedConfigObject] = useMemo(() => {
-		const prefixedOps = studio.packageContainerIdsWithOverrides.overrides.map((op) => ({
+		const prefixedOps = studio.packageContainerSettingsWithOverrides.overrides.map((op) => ({
 			...op,
 			// TODO: can we avoid doing this hack?
 			path: `0.${op.path}`,
 		}))
 
-		const computedValue = applyAndValidateOverrides(studio.packageContainerIdsWithOverrides).obj
+		const computedValue = applyAndValidateOverrides(studio.packageContainerSettingsWithOverrides).obj
 
-		const wrappedItem: WrappedOverridableItemNormal<StudioPackageContainerIds> = {
+		const wrappedItem: WrappedOverridableItemNormal<StudioPackageContainerSettings> = {
 			type: 'normal',
 			id: '0',
 			computed: computedValue,
-			defaults: studio.packageContainerIdsWithOverrides.defaults,
+			defaults: studio.packageContainerSettingsWithOverrides.defaults,
 			overrideOps: prefixedOps,
 		}
 
-		const wrappedConfigObject: ObjectWithOverrides<StudioPackageContainerIds> = {
-			defaults: studio.packageContainerIdsWithOverrides.defaults,
+		const wrappedConfigObject: ObjectWithOverrides<StudioPackageContainerSettings> = {
+			defaults: studio.packageContainerSettingsWithOverrides.defaults,
 			overrides: prefixedOps,
 		}
 
 		return [wrappedItem, wrappedConfigObject]
-	}, [studio.packageContainerIdsWithOverrides])
+	}, [studio.packageContainerSettingsWithOverrides])
 
 	const saveOverrides = React.useCallback(
 		(newOps: SomeObjectOverrideOp[]) => {
 			console.log('updating studio', newOps)
 			Studios.update(studio._id, {
 				$set: {
-					'packageContainerIdsWithOverrides.overrides': newOps.map((op) => ({
+					'packageContainerSettingsWithOverrides.overrides': newOps.map((op) => ({
 						...op,
 						path: op.path.startsWith('0.') ? op.path.slice(2) : op.path,
 					})),

@@ -6,7 +6,7 @@ export interface StudioPackageContainer {
 	container: PackageContainer
 }
 
-export interface StudioPackageContainerIds {
+export interface StudioPackageContainerSettings {
 	previewContainerIds: string[]
 	thumbnailContainerIds: string[]
 }

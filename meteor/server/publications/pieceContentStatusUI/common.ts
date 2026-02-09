@@ -15,14 +15,14 @@ export type StudioFields =
 	| '_id'
 	| 'settingsWithOverrides'
 	| 'packageContainersWithOverrides'
-	| 'packageContainerIdsWithOverrides'
+	| 'packageContainerSettingsWithOverrides'
 	| 'mappingsWithOverrides'
 	| 'routeSetsWithOverrides'
 export const studioFieldSpecifier = literal<MongoFieldSpecifierOnesStrict<Pick<DBStudio, StudioFields>>>({
 	_id: 1,
 	settingsWithOverrides: 1,
 	packageContainersWithOverrides: 1,
-	packageContainerIdsWithOverrides: 1,
+	packageContainerSettingsWithOverrides: 1,
 	mappingsWithOverrides: 1,
 	routeSetsWithOverrides: 1,
 })
@@ -111,7 +111,7 @@ export async function fetchStudio(studioId: StudioId): Promise<PieceContentStatu
 	return {
 		_id: studio._id,
 		settings: applyAndValidateOverrides(studio.settingsWithOverrides).obj,
-		packageContainerIds: applyAndValidateOverrides(studio.packageContainerIdsWithOverrides).obj,
+		packageContainerSettings: applyAndValidateOverrides(studio.packageContainerSettingsWithOverrides).obj,
 		mappings: applyAndValidateOverrides(studio.mappingsWithOverrides).obj,
 		routeSets: applyAndValidateOverrides(studio.routeSetsWithOverrides).obj,
 		packageContainers: applyAndValidateOverrides(studio.packageContainersWithOverrides).obj,
