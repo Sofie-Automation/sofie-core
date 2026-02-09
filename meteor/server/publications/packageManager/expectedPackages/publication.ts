@@ -125,7 +125,8 @@ async function manipulateExpectedPackagesPublicationData(
 
 	if (!state.layerNameToDeviceIds) state.layerNameToDeviceIds = new Map()
 	if (!state.packageContainers) state.packageContainers = {}
-	if (!state.packageContainerSettings) state.packageContainerSettings = { previewContainerIds: [], thumbnailContainerIds: [] }
+	if (!state.packageContainerSettings)
+		state.packageContainerSettings = { previewContainerIds: [], thumbnailContainerIds: [] }
 
 	if (invalidateAllItems) {
 		// Everything is invalid, reset everything
@@ -154,7 +155,9 @@ async function manipulateExpectedPackagesPublicationData(
 				studioMappings
 			)
 			state.packageContainers = applyAndValidateOverrides(state.studio.packageContainersWithOverrides).obj
-			state.packageContainerSettings = applyAndValidateOverrides(state.studio.packageContainerSettingsWithOverrides).obj
+			state.packageContainerSettings = applyAndValidateOverrides(
+				state.studio.packageContainerSettingsWithOverrides
+			).obj
 		}
 	}
 

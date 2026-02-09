@@ -57,7 +57,6 @@ export function PackageContainersPickers({
 
 	const saveOverrides = React.useCallback(
 		(newOps: SomeObjectOverrideOp[]) => {
-			console.log('updating studio', newOps)
 			Studios.update(studio._id, {
 				$set: {
 					'packageContainerSettingsWithOverrides.overrides': newOps.map((op) => ({
