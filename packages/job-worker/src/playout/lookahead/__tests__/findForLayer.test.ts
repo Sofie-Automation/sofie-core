@@ -12,11 +12,13 @@ type TfindLookaheadObjectsForPart = jest.MockedFunction<typeof findLookaheadObje
 const findLookaheadObjectsForPartMock = findLookaheadObjectsForPart as TfindLookaheadObjectsForPart
 findLookaheadObjectsForPartMock.mockImplementation(() => []) // Default mock
 
+const DEFAULT_PLAYOUT_STATE = { isInHold: false, isRehearsal: false }
+
 describe('findLookaheadForLayer', () => {
 	const context = setupDefaultJobEnvironment()
 
 	test('no data', () => {
-		const res = findLookaheadForLayer(context, null, [], undefined, [], 'abc', 1, 1)
+		const res = findLookaheadForLayer(context, null, [], undefined, [], 'abc', 1, 1, DEFAULT_PLAYOUT_STATE)
 		expect(res.timed).toHaveLength(0)
 		expect(res.future).toHaveLength(0)
 	})
@@ -38,7 +40,8 @@ describe('findLookaheadForLayer', () => {
 				usesInTransition: false,
 				pieces: partInstanceInfo.allPieces,
 			},
-			partInstanceInfo.part._id
+			partInstanceInfo.part._id,
+			expect.objectContaining({ isInHold: expect.any(Boolean), isRehearsal: expect.any(Boolean) })
 		)
 	}
 
@@ -88,7 +91,17 @@ describe('findLookaheadForLayer', () => {
 			.mockReturnValueOnce(['t4', 't5'] as any)
 
 		// Run it
-		const res = findLookaheadForLayer(context, null, partInstancesInfo, undefined, [], layer, 1, 1)
+		const res = findLookaheadForLayer(
+			context,
+			null,
+			partInstancesInfo,
+			undefined,
+			[],
+			layer,
+			1,
+			1,
+			DEFAULT_PLAYOUT_STATE
+		)
 		expect(res.timed).toEqual(['t0', 't1', 't2', 't3'])
 		expect(res.future).toEqual(['t4', 't5'])
 
@@ -105,7 +118,17 @@ describe('findLookaheadForLayer', () => {
 			onTimeline: true,
 		} as any
 		findLookaheadObjectsForPartMock.mockReset().mockReturnValue([])
-		findLookaheadForLayer(context, null, partInstancesInfo, previousPartInfo, [], layer, 1, 1)
+		findLookaheadForLayer(
+			context,
+			null,
+			partInstancesInfo,
+			previousPartInfo,
+			[],
+			layer,
+			1,
+			1,
+			DEFAULT_PLAYOUT_STATE
+		)
 		expect(findLookaheadObjectsForPartMock).toHaveBeenCalledTimes(3)
 		expectInstancesToMatch(1, layer, partInstancesInfo[0], previousPartInfo)
 
@@ -117,7 +140,17 @@ describe('findLookaheadForLayer', () => {
 			.mockReturnValueOnce(['t2', 't3'] as any)
 			.mockReturnValueOnce(['t4', 't5'] as any)
 
-		const res2 = findLookaheadForLayer(context, null, partInstancesInfo, undefined, [], layer, 1, 0)
+		const res2 = findLookaheadForLayer(
+			context,
+			null,
+			partInstancesInfo,
+			undefined,
+			[],
+			layer,
+			1,
+			0,
+			DEFAULT_PLAYOUT_STATE
+		)
 		expect(res2.timed).toEqual(['t0', 't1', 't2', 't3'])
 		expect(res2.future).toHaveLength(0)
 		expect(findLookaheadObjectsForPartMock).toHaveBeenCalledTimes(2)
@@ -138,7 +171,8 @@ describe('findLookaheadForLayer', () => {
 			layer,
 			previousPart,
 			partInfo,
-			null
+			null,
+			expect.objectContaining({ isInHold: expect.any(Boolean), isRehearsal: expect.any(Boolean) })
 		)
 	}
 
@@ -167,13 +201,33 @@ describe('findLookaheadForLayer', () => {
 			.mockReturnValueOnce(['t8', 't9'] as any)
 
 		// Cant search far enough
-		const res = findLookaheadForLayer(context, null, [], undefined, orderedParts, layer, 1, 1)
+		const res = findLookaheadForLayer(
+			context,
+			null,
+			[],
+			undefined,
+			orderedParts,
+			layer,
+			1,
+			1,
+			DEFAULT_PLAYOUT_STATE
+		)
 		expect(res.timed).toHaveLength(0)
 		expect(res.future).toHaveLength(0)
 		expect(findLookaheadObjectsForPartMock).toHaveBeenCalledTimes(0)
 
 		// Find the target of 1
-		const res2 = findLookaheadForLayer(context, null, [], undefined, orderedParts, layer, 1, 4)
+		const res2 = findLookaheadForLayer(
+			context,
+			null,
+			[],
+			undefined,
+			orderedParts,
+			layer,
+			1,
+			4,
+			DEFAULT_PLAYOUT_STATE
+		)
 		expect(res2.timed).toHaveLength(0)
 		expect(res2.future).toEqual(['t0', 't1'])
 		expect(findLookaheadObjectsForPartMock).toHaveBeenCalledTimes(1)
@@ -181,7 +235,17 @@ describe('findLookaheadForLayer', () => {
 
 		// Find the target of 0
 		findLookaheadObjectsForPartMock.mockReset().mockReturnValue([])
-		const res3 = findLookaheadForLayer(context, null, [], undefined, orderedParts, layer, 0, 4)
+		const res3 = findLookaheadForLayer(
+			context,
+			null,
+			[],
+			undefined,
+			orderedParts,
+			layer,
+			0,
+			4,
+			DEFAULT_PLAYOUT_STATE
+		)
 		expect(res3.timed).toHaveLength(0)
 		expect(res3.future).toHaveLength(0)
 		expect(findLookaheadObjectsForPartMock).toHaveBeenCalledTimes(0)
@@ -196,12 +260,141 @@ describe('findLookaheadForLayer', () => {
 			.mockReturnValueOnce(['t6', 't7'] as any)
 			.mockReturnValueOnce(['t8', 't9'] as any)
 
-		const res4 = findLookaheadForLayer(context, null, [], undefined, orderedParts, layer, 100, 5)
+		const res4 = findLookaheadForLayer(
+			context,
+			null,
+			[],
+			undefined,
+			orderedParts,
+			layer,
+			100,
+			5,
+			DEFAULT_PLAYOUT_STATE
+		)
 		expect(res4.timed).toHaveLength(0)
 		expect(res4.future).toEqual(['t0', 't1', 't2', 't3', 't4', 't5'])
 		expect(findLookaheadObjectsForPartMock).toHaveBeenCalledTimes(3)
 		expectPartToMatch(1, layer, orderedParts[0], undefined)
 		expectPartToMatch(2, layer, orderedParts[2], orderedParts[0].part)
 		expectPartToMatch(3, layer, orderedParts[3], orderedParts[2].part)
+	})
+
+	test('playoutState propagates to findLookaheadObjectsForPart for partInstances', () => {
+		const layer = getRandomString()
+		const partInstancesInfo: PartInstanceAndPieceInstances[] = [
+			{
+				part: { _id: '1', part: '1p' },
+				allPieces: [createFakePiece('1')],
+				onTimeline: true,
+				nowInPart: 2000,
+				calculatedTimings: { inTransitionStart: null },
+			},
+			{
+				part: { _id: '2', part: '2p' },
+				allPieces: [createFakePiece('2')],
+				onTimeline: false,
+				nowInPart: 0,
+				calculatedTimings: { inTransitionStart: null },
+			},
+		] as any
+
+		findLookaheadObjectsForPartMock.mockReset().mockReturnValue([])
+
+		// Test with isInHold: true
+		findLookaheadForLayer(context, null, partInstancesInfo, undefined, [], layer, 1, 1, {
+			isInHold: true,
+			isRehearsal: false,
+		})
+
+		expect(findLookaheadObjectsForPartMock).toHaveBeenCalledTimes(2)
+		expect(findLookaheadObjectsForPartMock).toHaveBeenNthCalledWith(
+			1,
+			context,
+			null,
+			layer,
+			undefined,
+			expect.any(Object),
+			partInstancesInfo[0].part._id,
+			{ isInHold: true, isRehearsal: false }
+		)
+		expect(findLookaheadObjectsForPartMock).toHaveBeenNthCalledWith(
+			2,
+			context,
+			null,
+			layer,
+			partInstancesInfo[0].part.part,
+			expect.any(Object),
+			partInstancesInfo[1].part._id,
+			{ isInHold: true, isRehearsal: false }
+		)
+
+		// Test with isRehearsal: true
+		findLookaheadObjectsForPartMock.mockReset().mockReturnValue([])
+		findLookaheadForLayer(context, null, partInstancesInfo, undefined, [], layer, 1, 1, {
+			isInHold: false,
+			isRehearsal: true,
+		})
+
+		expect(findLookaheadObjectsForPartMock).toHaveBeenCalledTimes(2)
+		expect(findLookaheadObjectsForPartMock).toHaveBeenNthCalledWith(
+			1,
+			context,
+			null,
+			layer,
+			undefined,
+			expect.any(Object),
+			partInstancesInfo[0].part._id,
+			{ isInHold: false, isRehearsal: true }
+		)
+		expect(findLookaheadObjectsForPartMock).toHaveBeenNthCalledWith(
+			2,
+			context,
+			null,
+			layer,
+			partInstancesInfo[0].part.part,
+			expect.any(Object),
+			partInstancesInfo[1].part._id,
+			{ isInHold: false, isRehearsal: true }
+		)
+	})
+
+	test('playoutState propagates to findLookaheadObjectsForPart for parts', () => {
+		const layer = getRandomString()
+		const orderedParts: PartAndPieces[] = [{ _id: 'p1' }, { _id: 'p2' }].map((p) => ({
+			part: p as any,
+			usesInTransition: true,
+			pieces: [{ _id: p._id + '_p1' } as any],
+		}))
+
+		findLookaheadObjectsForPartMock.mockReset().mockReturnValue([])
+
+		// Test with both flags set - orderedParts (future parts) always get isInHold: false with includeWhenNotInHoldObjects: true
+		findLookaheadForLayer(context, null, [], undefined, orderedParts, layer, 100, 5, {
+			isInHold: true,
+			isRehearsal: true,
+		})
+
+		expect(findLookaheadObjectsForPartMock).toHaveBeenCalledTimes(2)
+		// All future parts get modified playoutState (isInHold forced to false, includeWhenNotInHoldObjects added)
+		expect(findLookaheadObjectsForPartMock).toHaveBeenNthCalledWith(
+			1,
+			context,
+			null,
+			layer,
+			undefined,
+			orderedParts[0],
+			null,
+			{ isInHold: false, isRehearsal: true, includeWhenNotInHoldObjects: true }
+		)
+		expect(findLookaheadObjectsForPartMock).toHaveBeenNthCalledWith(
+			2,
+			context,
+			null,
+			layer,
+			orderedParts[0].part,
+			orderedParts[1],
+			null,
+			{ isInHold: false, isRehearsal: true, includeWhenNotInHoldObjects: true }
+		)
 	})
 })

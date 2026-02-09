@@ -34,6 +34,14 @@ export enum TimelineObjHoldMode {
 	/** The object is played when NOT doing a Hold */
 	EXCEPT = 2,
 }
+export enum TimelineObjOnAirMode {
+	/** Default: The object is played as usual (behaviour is not affected by rehearsal/on-air state)  */
+	ALWAYS = 0,
+	/** The object is played ONLY when in Rehearsal */
+	REHEARSAL = 1,
+	/** The object is played ONLY when onair */
+	ONAIR = 2,
+}
 
 export interface TimelineObjectCoreExt<
 	TContent extends { deviceType: TSR.DeviceTypeExt },
@@ -47,6 +55,8 @@ export interface TimelineObjectCoreExt<
 
 	/** Restrict object usage according to whether we are currently in a hold */
 	holdMode?: TimelineObjHoldMode
+	/** Restrict object usage according to whether we are currently in rehearsal or on-air */
+	onAirMode?: TimelineObjOnAirMode
 	/** Arbitrary data storage for plugins */
 	metaData?: TMetadata
 	/** Keyframes: Arbitrary data storage for plugins */
