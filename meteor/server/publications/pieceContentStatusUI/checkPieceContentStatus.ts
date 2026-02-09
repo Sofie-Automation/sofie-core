@@ -25,7 +25,6 @@ import {
 } from '@sofie-automation/corelib/dist/dataModel/PackageContainerPackageStatus'
 import { PieceGeneric, PieceStatusCode } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import {
-	DBStudio,
 	IStudioSettings,
 	MappingExt,
 	MappingsExt,

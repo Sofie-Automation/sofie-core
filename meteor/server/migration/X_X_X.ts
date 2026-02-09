@@ -10,7 +10,7 @@ import {
 } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
 import { BucketId, RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { assertNever, Complete } from '@sofie-automation/corelib/dist/lib'
-import { ContainerIdsToObjectWithOverridesMigrationStep } from './steps/ContainerIdsToObjectWithOverridesMigrationStep'
+import { ContainerIdsToObjectWithOverridesMigrationStep } from './steps/X_X_X/ContainerIdsToObjectWithOverridesMigrationStep'
 
 /*
  * **************************************************************************************

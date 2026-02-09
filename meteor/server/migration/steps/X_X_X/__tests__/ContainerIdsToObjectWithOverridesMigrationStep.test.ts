@@ -1,7 +1,7 @@
-import { setupEmptyEnvironment, setupMockStudio } from '../../../../__mocks__/helpers/database'
+import { setupEmptyEnvironment, setupMockStudio } from '../../../../../__mocks__/helpers/database'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { Studios } from '../../../collections'
-import { ContainerIdsToObjectWithOverridesMigrationStep } from '../ContainerIdsToObjectWithOverridesMigrationStep'
+import { Studios } from '../../../../collections'
+import { ContainerIdsToObjectWithOverridesMigrationStep } from '../../X_X_X/ContainerIdsToObjectWithOverridesMigrationStep'
 
 describe('ContainerIdsToObjectWithOverridesMigrationStep', () => {
 	beforeEach(async () => {

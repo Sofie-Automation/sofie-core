@@ -1,5 +1,5 @@
 import { MigrationStepCore } from '@sofie-automation/blueprints-integration'
-import { Studios } from '../../collections'
+import { Studios } from '../../../collections'
 import {
 	convertObjectIntoOverrides,
 	ObjectWithOverrides,
