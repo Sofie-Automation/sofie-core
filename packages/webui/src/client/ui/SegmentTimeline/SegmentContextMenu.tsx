@@ -12,15 +12,16 @@ import { Translated } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import { RundownUtils } from '../../lib/rundown.js'
 import { IContextMenuContext } from '../RundownView.js'
 import { PartUi, SegmentUi } from './SegmentTimelineContainer.js'
-import { SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { PartInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { UserEditOperationMenuItems } from '../UserEditOperations/RenderUserEditOperations.js'
 import * as RundownResolver from '../../lib/RundownResolver.js'
 import { SelectedElement } from '../RundownView/SelectedElementsContext.js'
 import { PieceExtended } from '../../lib/RundownResolver.js'
+import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance.js'
 
 interface IProps {
-	onSetNext: (part: DBPart | undefined, e: any, offset?: number, take?: boolean) => void
+	onSetNext: (partInstance: DBPartInstance | DBPart | undefined, e: any, offset?: number, take?: boolean) => void
 	onSetNextSegment: (segmentId: SegmentId, e: any) => void
 	onQueueNextSegment: (segmentId: SegmentId | null, e: any) => void
 	onSetQuickLoopStart: (marker: QuickLoopMarker | null, e: any) => void
@@ -68,6 +69,12 @@ export const SegmentContextMenu = withTranslation()(
 				part?.instance._id !== this.props.playlist.currentPartInfo?.partInstanceId &&
 				part?.instance._id !== this.props.playlist.nextPartInfo?.partInstanceId &&
 				part?.instance._id !== this.props.playlist.previousPartInfo?.partInstanceId
+
+			const isPartOrphaned: boolean | undefined = part ? part.instance.orphaned !== undefined : undefined
+
+			const isPartNext: boolean | undefined = part
+				? this.props.playlist.nextPartInfo?.partInstanceId === part.instance._id
+				: undefined
 
 			const canSetAsNext = !!this.props.playlist?.activationId
 
@@ -120,109 +127,136 @@ export const SegmentContextMenu = withTranslation()(
 								)}
 							</>
 						)}
-						{part && !part.instance.part.invalid && timecode !== null && (
-							<>
-								<MenuItem
-									onClick={(e) => this.props.onSetNext(part.instance.part, e)}
-									disabled={!!part.instance.orphaned || !canSetAsNext}
-								>
-									<span dangerouslySetInnerHTML={{ __html: t('Set this part as <strong>Next</strong>') }}></span>
-									{startsAt !== null &&
-										'\u00a0(' + RundownUtils.formatTimeToShortTime(Math.floor(startsAt / 1000) * 1000) + ')'}
-								</MenuItem>
-								{startsAt !== null && part && this.props.enablePlayFromAnywhere ? (
-									<>
-										{/* <MenuItem
-											onClick={(e) => this.onSetAsNextFromHere(part.instance.part, e)}
-											disabled={isCurrentPart || !!part.instance.orphaned || !canSetAsNext}
-										>
-											<span dangerouslySetInnerHTML={{ __html: t('Set <strong>Next</strong> Here') }}></span> (
-											{RundownUtils.formatTimeToShortTime(Math.floor((startsAt + timecode) / 1000) * 1000)})
-										</MenuItem> */}
-										<MenuItem
-											onClick={(e) => this.onPlayFromHere(part.instance.part, e)}
-											disabled={!!part.instance.orphaned || !canSetAsNext}
-										>
-											<span>{t('Play from Here')}</span> (
-											{RundownUtils.formatTimeToShortTime(Math.floor((startsAt + timecode) / 1000) * 1000)})
-										</MenuItem>
-									</>
-								) : null}
-								{this.props.enableQuickLoop && !RundownResolver.isLoopLocked(this.props.playlist) && (
-									<>
-										{RundownResolver.isQuickLoopStart(part.partId, this.props.playlist) ? (
-											<MenuItem onClick={(e) => this.props.onSetQuickLoopStart(null, e)}>
-												<span>{t('Clear QuickLoop Start')}</span>
-											</MenuItem>
-										) : (
+						{part &&
+							isPartNext !== undefined &&
+							isPartOrphaned !== undefined &&
+							!part.instance.part.invalid &&
+							timecode !== null && (
+								<>
+									<MenuItem
+										onClick={(e) => this.props.onSetNext(part.instance.part, e)}
+										disabled={!!part.instance.orphaned || !canSetAsNext}
+									>
+										<span
+											dangerouslySetInnerHTML={{
+												__html: t(`Set part as <strong>Next</strong>`),
+											}}
+										></span>
+									</MenuItem>
+									{startsAt !== null && part && this.props.enablePlayFromAnywhere ? (
+										<>
 											<MenuItem
 												onClick={(e) =>
-													this.props.onSetQuickLoopStart(
-														{ type: QuickLoopMarkerType.PART, id: part.instance.part._id },
+													this.onSetAsNextFromHere(
+														part.instance,
+														this.props.playlist?.nextPartInfo?.partInstanceId ?? null,
+														this.props.playlist?.currentPartInfo?.partInstanceId ?? null,
 														e
 													)
 												}
-												disabled={!!part.instance.orphaned || !canSetAsNext}
+												disabled={this.getIsPlayFromHereDisabled()}
 											>
-												<span>{t('Set as QuickLoop Start')}</span>
+												<span
+													dangerouslySetInnerHTML={{
+														__html: t(
+															`Set part from ${RundownUtils.formatTimeToShortTime(Math.floor(timecode / 1000) * 1000)} as <strong>Next</strong>`
+														),
+													}}
+												></span>
 											</MenuItem>
-										)}
-										{RundownResolver.isQuickLoopEnd(part.partId, this.props.playlist) ? (
-											<MenuItem onClick={(e) => this.props.onSetQuickLoopEnd(null, e)}>
-												<span>{t('Clear QuickLoop End')}</span>
-											</MenuItem>
-										) : (
 											<MenuItem
 												onClick={(e) =>
-													this.props.onSetQuickLoopEnd(
-														{ type: QuickLoopMarkerType.PART, id: part.instance.part._id },
+													this.onPlayFromHere(
+														part.instance,
+														this.props.playlist?.nextPartInfo?.partInstanceId ?? null,
 														e
 													)
 												}
-												disabled={!!part.instance.orphaned || !canSetAsNext}
+												disabled={this.getIsPlayFromHereDisabled(true)}
 											>
-												<span>{t('Set as QuickLoop End')}</span>
+												<span>
+													{t(
+														`Play part from ${RundownUtils.formatTimeToShortTime(Math.floor(timecode / 1000) * 1000)}`
+													)}
+												</span>
 											</MenuItem>
-										)}
-									</>
-								)}
+										</>
+									) : null}
+									{this.props.enableQuickLoop && !RundownResolver.isLoopLocked(this.props.playlist) && (
+										<>
+											{RundownResolver.isQuickLoopStart(part.partId, this.props.playlist) ? (
+												<MenuItem onClick={(e) => this.props.onSetQuickLoopStart(null, e)}>
+													<span>{t('Clear QuickLoop Start')}</span>
+												</MenuItem>
+											) : (
+												<MenuItem
+													onClick={(e) =>
+														this.props.onSetQuickLoopStart(
+															{ type: QuickLoopMarkerType.PART, id: part.instance.part._id },
+															e
+														)
+													}
+													disabled={!!part.instance.orphaned || !canSetAsNext}
+												>
+													<span>{t('Set as QuickLoop Start')}</span>
+												</MenuItem>
+											)}
+											{RundownResolver.isQuickLoopEnd(part.partId, this.props.playlist) ? (
+												<MenuItem onClick={(e) => this.props.onSetQuickLoopEnd(null, e)}>
+													<span>{t('Clear QuickLoop End')}</span>
+												</MenuItem>
+											) : (
+												<MenuItem
+													onClick={(e) =>
+														this.props.onSetQuickLoopEnd(
+															{ type: QuickLoopMarkerType.PART, id: part.instance.part._id },
+															e
+														)
+													}
+													disabled={!!part.instance.orphaned || !canSetAsNext}
+												>
+													<span>{t('Set as QuickLoop End')}</span>
+												</MenuItem>
+											)}
+										</>
+									)}
 
-								<UserEditOperationMenuItems
-									rundownId={part.instance.rundownId}
-									targetName={part.instance.part.title}
-									operationTarget={{
-										segmentExternalId: segment?.externalId,
-										partExternalId: part.instance.part.externalId,
-										pieceExternalId: undefined,
-									}}
-									userEditOperations={part.instance.part.userEditOperations}
-									isFormEditable={isPartEditAble}
-								/>
+									<UserEditOperationMenuItems
+										rundownId={part.instance.rundownId}
+										targetName={part.instance.part.title}
+										operationTarget={{
+											segmentExternalId: segment?.externalId,
+											partExternalId: part.instance.part.externalId,
+											pieceExternalId: undefined,
+										}}
+										userEditOperations={part.instance.part.userEditOperations}
+										isFormEditable={isPartEditAble}
+									/>
 
-								{this.props.enableUserEdits && (
-									<>
-										<hr />
-										<MenuItem
-											onClick={() => this.props.onEditProps({ type: 'segment', elementId: part.instance.segmentId })}
-										>
-											<span>{t('Edit Segment Properties')}</span>
-										</MenuItem>
-										<MenuItem
-											onClick={() => this.props.onEditProps({ type: 'part', elementId: part.instance.part._id })}
-										>
-											<span>{t('Edit Part Properties')}</span>
-										</MenuItem>
-										{piece && piece.instance.piece.userEditProperties && (
+									{this.props.enableUserEdits && (
+										<>
+											<hr />
 											<MenuItem
-												onClick={() => this.props.onEditProps({ type: 'piece', elementId: piece.instance.piece._id })}
+												onClick={() => this.props.onEditProps({ type: 'segment', elementId: part.instance.segmentId })}
 											>
-												<span>{t('Edit Piece Properties')}</span>
+												<span>{t('Edit Segment Properties')}</span>
 											</MenuItem>
-										)}
-									</>
-								)}
-							</>
-						)}
+											<MenuItem
+												onClick={() => this.props.onEditProps({ type: 'part', elementId: part.instance.part._id })}
+											>
+												<span>{t('Edit Part Properties')}</span>
+											</MenuItem>
+											{piece && piece.instance.piece.userEditProperties && (
+												<MenuItem
+													onClick={() => this.props.onEditProps({ type: 'piece', elementId: piece.instance.piece._id })}
+												>
+													<span>{t('Edit Piece Properties')}</span>
+												</MenuItem>
+											)}
+										</>
+									)}
+								</>
+							)}
 					</ContextMenu>
 				</Escape>
 			) : null
@@ -251,15 +285,55 @@ export const SegmentContextMenu = withTranslation()(
 				return null
 			}
 		}
+		private getIsPlayFromHereDisabled(take: boolean = false): boolean {
+			const offset = this.getTimePosition() ?? 0
+			const playlist = this.props.playlist
+			const partInstance = this.getPartFromContext()?.instance
+			const isSelectedTimeWithinBounds =
+				(partInstance?.part.expectedDuration ??
+					partInstance?.part.displayDuration ??
+					partInstance?.part.expectedDurationWithTransition ??
+					0) < offset
 
-		// private onSetAsNextFromHere = (part: DBPart, e) => {
-		// 	const offset = this.getTimePosition()
-		// 	this.props.onSetNext(part, e, offset || 0)
-		// }
+			if (playlist && playlist?.activationId && (!take || !!partInstance?.orphaned)) {
+				if (!partInstance) return true
+				else {
+					return (
+						(isSelectedTimeWithinBounds && partInstance._id === playlist.currentPartInfo?.partInstanceId) ||
+						(!!partInstance.orphaned && partInstance._id === playlist.currentPartInfo?.partInstanceId)
+					)
+				}
+			}
+			return false
+		}
 
-		private onPlayFromHere = (part: DBPart, e: React.MouseEvent | React.TouchEvent) => {
+		private onSetAsNextFromHere = (
+			partInstance: DBPartInstance,
+			nextPartInstanceId: PartInstanceId | null,
+			currentPartInstanceId: PartInstanceId | null,
+			e: React.MouseEvent | React.TouchEvent
+		) => {
+			const partInstanceAvailableForPlayout = partInstance.timings?.take !== undefined
+			const isCurrentPartInstance = partInstance._id === currentPartInstanceId
+			const isNextInstance = partInstance._id === nextPartInstanceId
 			const offset = this.getTimePosition()
-			this.props.onSetNext(part, e, offset || 0, true)
+			this.props.onSetNext(
+				(partInstanceAvailableForPlayout && !isCurrentPartInstance) || isNextInstance
+					? partInstance
+					: partInstance.part,
+				e,
+				offset || 0
+			)
+		}
+
+		private onPlayFromHere = (
+			partInstance: DBPartInstance,
+			nextPartInstanceId: PartInstanceId | null,
+			e: React.MouseEvent | React.TouchEvent
+		) => {
+			const isNextInstance = partInstance._id === nextPartInstanceId
+			const offset = this.getTimePosition()
+			this.props.onSetNext(isNextInstance ? partInstance : partInstance.part, e, offset || 0, true)
 		}
 
 		private getPartStartsAt = (): number | null => {

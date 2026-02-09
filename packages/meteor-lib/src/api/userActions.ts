@@ -39,8 +39,9 @@ export interface NewUserActionAPI {
 		userEvent: string,
 		eventTime: Time,
 		rundownPlaylistId: RundownPlaylistId,
-		partId: PartId,
-		timeOffset?: number
+		partOrInstanceId: PartId | PartInstanceId,
+		timeOffset?: number,
+		isInstance?: boolean
 	): Promise<ClientAPI.ClientResponse<void>>
 	setNextSegment(
 		userEvent: string,

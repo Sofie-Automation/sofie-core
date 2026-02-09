@@ -19,7 +19,7 @@ export function FlattenedSourceLayers(props: Readonly<IFlattenedSourceLayerProps
 			id="segment-timeline-context-menu"
 			attributes={{
 				className: 'segment-timeline__layer segment-timeline__layer--flattened',
-				onMouseUpCapture: (e) => onMouseDown(e),
+				onMouseDownCapture: (e) => onMouseDown(e),
 				role: 'log',
 				'aria-live': 'assertive',
 				'aria-label': props.outputLayer.name,

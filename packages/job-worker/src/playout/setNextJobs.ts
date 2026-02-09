@@ -1,5 +1,5 @@
 import { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { isPartPlayable } from '@sofie-automation/corelib/dist/dataModel/Part'
+import { DBPart, isPartPlayable } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { RundownHoldState } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/error'
 import {
@@ -16,6 +16,7 @@ import { selectNewPartWithOffsets } from './moveNextPart.js'
 import { updateTimeline } from './timeline/generate.js'
 import { PlayoutSegmentModel } from './model/PlayoutSegmentModel.js'
 import { ReadonlyDeep } from 'type-fest'
+import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 
 /**
  * Set the next Part to a specified id
@@ -26,19 +27,55 @@ export async function handleSetNextPart(context: JobContext, data: SetNextPartPr
 		data,
 		async (playoutModel) => {
 			const playlist = playoutModel.playlist
-
 			if (!playlist.activationId) throw UserError.create(UserErrorMessage.InactiveRundown, undefined, 412)
 			if (playlist.holdState && playlist.holdState !== RundownHoldState.COMPLETE) {
 				throw UserError.create(UserErrorMessage.DuringHold, undefined, 412)
 			}
 		},
 		async (playoutModel) => {
-			// Ensure the part is playable and found
-			const nextPart = playoutModel.findPart(data.nextPartId)
-			if (!nextPart) throw UserError.create(UserErrorMessage.PartNotFound, undefined, 404)
-			if (!isPartPlayable(nextPart)) throw UserError.create(UserErrorMessage.PartNotPlayable, undefined, 412)
+			const playlist = playoutModel.playlist
 
-			await setNextPartFromPart(context, playoutModel, nextPart, data.setManually ?? false, data.nextTimeOffset)
+			let nextPartOrInstance: ReadonlyDeep<DBPart> | DBPartInstance | undefined
+			let nextPartId: PartId | undefined
+
+			if (data.nextPartInstanceId) {
+				// Fetch the part instance
+				const nextPartInstance = await context.directCollections.PartInstances.findOne({
+					_id: data.nextPartInstanceId,
+				})
+				if (!nextPartInstance) throw UserError.create(UserErrorMessage.PartNotFound, undefined, 404)
+
+				// Determine if we need the part itself or can use the instance (We can't reuse the currently playing instance)
+				if (
+					!playlist.nextPartInfo?.partInstanceId ||
+					!playlist.currentPartInfo?.partInstanceId ||
+					playlist.currentPartInfo?.partInstanceId === data.nextPartInstanceId
+				) {
+					nextPartId = nextPartInstance.part._id
+				} else {
+					nextPartOrInstance = nextPartInstance
+				}
+			} else if (data.nextPartId) {
+				nextPartId = data.nextPartId
+			}
+
+			// If we have a nextPartId, resolve the actual part
+			if (nextPartId) {
+				const nextPart = playoutModel.findPart(nextPartId)
+				if (!nextPart) throw UserError.create(UserErrorMessage.PartNotFound, undefined, 404)
+				if (!isPartPlayable(nextPart)) throw UserError.create(UserErrorMessage.PartNotPlayable, undefined, 412)
+				nextPartOrInstance = nextPart
+			}
+
+			if (nextPartOrInstance) {
+				await setNextPartFromPart(
+					context,
+					playoutModel,
+					nextPartOrInstance,
+					data.setManually ?? false,
+					data.nextTimeOffset
+				)
+			}
 
 			await updateTimeline(context, playoutModel)
 		}
