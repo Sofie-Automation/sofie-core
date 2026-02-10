@@ -1,4 +1,3 @@
-import { MigrationStepInput, MigrationStepInputResult } from '@sofie-automation/blueprints-integration'
 import {
 	BlueprintId,
 	CoreSystemId,
@@ -19,7 +18,6 @@ export interface NewMigrationAPI {
 	runMigration(
 		chunks: Array<MigrationChunk>,
 		hash: string,
-		inputResults: Array<MigrationStepInputResult>,
 		isFirstOfPartialMigrations?: boolean
 	): Promise<RunMigrationResult>
 	forceMigration(chunks: Array<MigrationChunk>): Promise<void>
@@ -104,7 +102,6 @@ export interface GetMigrationStatusResult {
 
 	migration: {
 		canDoAutomaticMigration: boolean
-		manualInputs: Array<MigrationStepInput>
 		hash: string
 		automaticStepCount: number
 		manualStepCount: number

@@ -7,7 +7,6 @@ import {
 	BlueprintFixUpConfigMessage,
 } from '@sofie-automation/meteor-lib/dist/api/migration'
 import * as Migrations from './databaseMigration'
-import { MigrationStepInputResult } from '@sofie-automation/blueprints-integration'
 import { MethodContextAPI } from '../api/methodContext'
 import {
 	fixupConfigForShowStyleBase,
@@ -34,20 +33,14 @@ class ServerMigrationAPI extends MethodContextAPI implements NewMigrationAPI {
 		return Migrations.getMigrationStatus()
 	}
 
-	async runMigration(
-		chunks: Array<MigrationChunk>,
-		hash: string,
-		inputResults: Array<MigrationStepInputResult>,
-		isFirstOfPartialMigrations?: boolean | null
-	) {
+	async runMigration(chunks: Array<MigrationChunk>, hash: string, isFirstOfPartialMigrations?: boolean | null) {
 		check(chunks, Array)
 		check(hash, String)
-		check(inputResults, Array)
 		check(isFirstOfPartialMigrations, Match.Maybe(Boolean))
 
 		assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MIGRATIONS)
 
-		return Migrations.runMigration(chunks, hash, inputResults, isFirstOfPartialMigrations || false)
+		return Migrations.runMigration(chunks, hash, isFirstOfPartialMigrations || false)
 	}
 
 	async forceMigration(chunks: Array<MigrationChunk>) {

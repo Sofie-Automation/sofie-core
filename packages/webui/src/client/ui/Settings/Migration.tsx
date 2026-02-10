@@ -10,9 +10,7 @@ import {
 	RunMigrationResult,
 	MigrationChunk,
 } from '@sofie-automation/meteor-lib/dist/api/migration'
-import { MigrationStepInput, MigrationStepInputResult } from '@sofie-automation/blueprints-integration'
 import _ from 'underscore'
-import { EditAttribute } from '../../lib/EditAttribute.js'
 import { MeteorCall } from '../../lib/meteorApi.js'
 import { checkForOldDataAndCleanUp } from './SystemManagement.js'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
@@ -27,7 +25,6 @@ interface IState {
 
 	migration?: {
 		canDoAutomaticMigration: boolean
-		manualInputs: Array<MigrationStepInput>
 		hash: string
 		chunks: Array<MigrationChunk>
 		automaticStepCount: number
@@ -40,12 +37,6 @@ interface IState {
 	partialMigration: boolean
 
 	haveRunMigration: boolean
-
-	inputValues: {
-		[stepId: string]: {
-			[attribute: string]: any
-		}
-	}
 }
 interface ITrackedProps {}
 export const MigrationView = translateWithTracker<IProps, IState, ITrackedProps>((_props: IProps) => {
@@ -64,8 +55,6 @@ export const MigrationView = translateWithTracker<IProps, IState, ITrackedProps>
 				migrationCompleted: false,
 				partialMigration: false,
 				haveRunMigration: false,
-
-				inputValues: {},
 			}
 		}
 		componentDidMount(): void {
@@ -98,24 +87,9 @@ export const MigrationView = translateWithTracker<IProps, IState, ITrackedProps>
 				.then((r: GetMigrationStatusResult) => {
 					if (this.cancelRequests) return
 
-					const inputValues = this.state.inputValues
-					_.each(r.migration.manualInputs, (manualInput: MigrationStepInput) => {
-						if (manualInput.stepId && manualInput.inputType && manualInput.attribute) {
-							const stepId = manualInput.stepId
-
-							if (!inputValues[stepId]) inputValues[stepId] = {}
-
-							const value = inputValues[stepId][manualInput.attribute]
-							if (_.isUndefined(value)) {
-								inputValues[stepId][manualInput.attribute] = manualInput.defaultValue
-							}
-						}
-					})
-
 					this.setState({
 						migrationNeeded: r.migrationNeeded,
 						migration: r.migration,
-						inputValues: inputValues,
 					})
 				})
 				.catch((err) => {
@@ -124,29 +98,12 @@ export const MigrationView = translateWithTracker<IProps, IState, ITrackedProps>
 				})
 		}
 		runMigration() {
-			const inputResults: Array<MigrationStepInputResult> = []
-
 			if (this.state.migration) {
-				_.each(this.state.migration.manualInputs, (manualInput) => {
-					if (manualInput.stepId && manualInput.attribute) {
-						let value: any
-						const step = this.state.inputValues[manualInput.stepId]
-						if (step) {
-							value = step[manualInput.attribute]
-						}
-						inputResults.push({
-							stepId: manualInput.stepId,
-							attribute: manualInput.attribute,
-							value: value,
-						})
-					}
-				})
 				this.setErrorMessage('')
 				MeteorCall.migration
 					.runMigration(
 						this.state.migration.chunks,
-						this.state.migration.hash, // hash
-						inputResults // inputResults
+						this.state.migration.hash // hash
 					)
 					.then((r: RunMigrationResult) => {
 						if (this.cancelRequests) return
@@ -211,49 +168,6 @@ export const MigrationView = translateWithTracker<IProps, IState, ITrackedProps>
 		}
 		checkForOldData() {
 			checkForOldDataAndCleanUp(this.props.t, 3)
-		}
-		renderManualSteps() {
-			if (this.state.migration) {
-				let rank = 0
-				return _.map(this.state.migration.manualInputs, (manualInput: MigrationStepInput) => {
-					if (manualInput.stepId) {
-						const stepId = manualInput.stepId
-						let value
-						if (manualInput.attribute) {
-							value = (this.state.inputValues[stepId] || {})[manualInput.attribute]
-						}
-						return (
-							<div key={rank++}>
-								<h3 className="mb-1 mt-4">{manualInput.label}</h3>
-								<div>{manualInput.description}</div>
-								<div>
-									{manualInput.inputType && manualInput.attribute ? (
-										<EditAttribute
-											type={manualInput.inputType}
-											className="input-full"
-											options={manualInput.dropdownOptions}
-											overrideDisplayValue={value}
-											updateFunction={(_edit, newValue: any) => {
-												if (manualInput.attribute) {
-													const inputValues = this.state.inputValues
-													if (!inputValues[stepId]) inputValues[stepId] = {}
-													inputValues[stepId][manualInput.attribute] = newValue
-
-													this.setState({
-														inputValues: inputValues,
-													})
-												}
-											}}
-										/>
-									) : null}
-								</div>
-							</div>
-						)
-					} else {
-						return null
-					}
-				})
-			}
 		}
 		render(): JSX.Element {
 			const { t } = this.props
@@ -367,7 +281,6 @@ export const MigrationView = translateWithTracker<IProps, IState, ITrackedProps>
 										<p className="my-2">
 											{t('The migration procedure needs some help from you in order to complete, see below:')}
 										</p>
-										<div>{this.renderManualSteps()}</div>
 										<button
 											className="btn btn-primary mt-4"
 											onClick={() => {

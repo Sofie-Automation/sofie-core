@@ -1,18 +1,13 @@
 import { Meteor } from 'meteor/meteor'
 import * as semver from 'semver'
 import {
-	InputFunctionCore,
 	MigrateFunctionCore,
 	MigrationStep,
-	MigrationStepInput,
-	MigrationStepInputFilteredResult,
-	MigrationStepInputResult,
 	ValidateFunctionCore,
 	ValidateFunction,
 	MigrateFunction,
-	InputFunction,
 	MigrationStepCore,
-} from '@sofie-automation/blueprints-integration'
+} from '@sofie-automation/meteor-lib/dist/migrations'
 import _ from 'underscore'
 import {
 	GetMigrationStatusResult,
@@ -24,7 +19,7 @@ import { logger } from '../logging'
 import { internalStoreSystemSnapshot } from '../api/snapshot'
 import { parseVersion, Version } from '../systemStatus/semverUtils'
 import { GENESIS_SYSTEM_VERSION } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
-import { clone, getHash, omit } from '@sofie-automation/corelib/dist/lib'
+import { getHash, omit } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { CURRENT_SYSTEM_VERSION } from './currentSystemVersion'
@@ -57,7 +52,7 @@ export function isVersionSupported(version: Version): boolean {
 	return isSupported
 }
 
-interface MigrationStepInternal extends MigrationStep<ValidateFunction, MigrateFunction, InputFunction> {
+interface MigrationStepInternal extends MigrationStep<ValidateFunction, MigrateFunction> {
 	chunk: MigrationChunk
 	_rank: number
 	_version: Version // step version
@@ -94,7 +89,6 @@ export interface PreparedMigration {
 	automaticStepCount: number
 	manualStepCount: number
 	ignoredStepCount: number
-	manualInputs: MigrationStepInput[]
 	partialMigration: boolean
 }
 export async function prepareMigration(returnAllChunks?: boolean): Promise<PreparedMigration> {
@@ -130,7 +124,6 @@ export async function prepareMigration(returnAllChunks?: boolean): Promise<Prepa
 			validate: step.validate,
 			canBeRunAutomatically: step.canBeRunAutomatically,
 			migrate: step.migrate,
-			input: step.input,
 			dependOnResultFrom: step.dependOnResultFrom,
 			version: step.version,
 			_version: parseVersion(step.version),
@@ -167,9 +160,6 @@ export async function prepareMigration(returnAllChunks?: boolean): Promise<Prepa
 	const ignoredSteps: { [id: string]: true } = {}
 	let includesCoreStep = false
 	for (const step of allMigrationSteps) {
-		if (!step.canBeRunAutomatically && (!step.input || (Array.isArray(step.input) && !step.input.length)))
-			throw new Meteor.Error(500, `MigrationStep "${step.id}" is manual, but no input is provided`)
-
 		if (step.chunk.sourceType !== MigrationStepType.CORE && includesCoreStep) {
 			// stop here as core migrations need to be run before anything else can
 			partialMigration = true
@@ -232,39 +222,12 @@ export async function prepareMigration(returnAllChunks?: boolean): Promise<Prepa
 	// check if there are any manual steps:
 	// (this makes an automatic migration impossible)
 
-	const manualInputs: Array<MigrationStepInput> = []
 	const stepsHash: Array<string> = []
 	for (const step of Object.values<MigrationStepInternal>(migrationSteps)) {
 		stepsHash.push(step.id)
 		step.chunk._steps.push(step.id)
 		if (!step.canBeRunAutomatically) {
 			manualStepCount++
-
-			if (step.input) {
-				let input: Array<MigrationStepInput> = []
-				if (Array.isArray(step.input)) {
-					input = clone(step.input)
-				} else if (typeof step.input === 'function') {
-					if (step.chunk.sourceType === MigrationStepType.CORE) {
-						const inputFunction = step.input as InputFunctionCore
-						input = inputFunction()
-					} else throw new Meteor.Error(500, `Unknown step.chunk.sourceType "${step.chunk.sourceType}"`)
-				}
-				if (input.length) {
-					for (const i of input) {
-						if (i.label && typeof step._validateResult === 'string') {
-							i.label = (i.label + '').replace(/\$validation/g, step._validateResult)
-						}
-						if (i.description && typeof step._validateResult === 'string') {
-							i.description = (i.description + '').replace(/\$validation/g, step._validateResult)
-						}
-						manualInputs.push({
-							...i,
-							stepId: step.id,
-						})
-					}
-				}
-			}
 		} else {
 			automaticStepCount++
 		}
@@ -290,7 +253,6 @@ export async function prepareMigration(returnAllChunks?: boolean): Promise<Prepa
 		automaticStepCount: automaticStepCount,
 		manualStepCount: manualStepCount,
 		ignoredStepCount: ignoredStepCount,
-		manualInputs: manualInputs,
 		partialMigration: partialMigration,
 	}
 }
@@ -298,7 +260,6 @@ export async function prepareMigration(returnAllChunks?: boolean): Promise<Prepa
 export async function runMigration(
 	chunks: Array<MigrationChunk>,
 	hash: string,
-	inputResults: Array<MigrationStepInputResult>,
 	isFirstOfPartialMigrations = true,
 	chunksLeft = 20
 ): Promise<RunMigrationResult> {
@@ -312,18 +273,8 @@ export async function runMigration(
 	// Verify the input:
 	const migration = await prepareMigration(true)
 
-	const manualInputsWithUserPrompt = migration.manualInputs.filter((manualInput) => {
-		return !!(manualInput.stepId && manualInput.attribute)
-	})
 	if (migration.hash !== hash)
 		throw new Meteor.Error(500, `Migration input hash differ from expected: "${hash}", "${migration.hash}"`)
-
-	if (manualInputsWithUserPrompt.length !== inputResults.length) {
-		throw new Meteor.Error(
-			500,
-			`Migration manualInput lengths differ from expected: "${inputResults.length}", "${migration.manualInputs.length}"`
-		)
-	}
 
 	// Check that chunks match:
 	let unmatchedChunk = migration.chunks.find((migrationChunk) => {
@@ -375,18 +326,8 @@ export async function runMigration(
 		`Migration: ${migration.automaticStepCount} automatic and ${migration.manualStepCount} manual steps (${migration.ignoredStepCount} ignored).`
 	)
 
-	logger.debug(inputResults)
-
 	for (const step of migration.steps) {
 		try {
-			// Prepare input from user
-			const stepInput: MigrationStepInputFilteredResult = {}
-			for (const ir of inputResults) {
-				if (ir.stepId === step.id) {
-					stepInput[ir.attribute] = ir.value
-				}
-			}
-
 			// Run the migration script
 
 			if (step.migrate !== undefined) {
@@ -394,7 +335,7 @@ export async function runMigration(
 
 				if (step.chunk.sourceType === MigrationStepType.CORE) {
 					const migration = step.migrate as MigrateFunctionCore
-					await migration(stepInput)
+					await migration()
 				} else throw new Meteor.Error(500, `Unknown step.chunk.sourceType "${step.chunk.sourceType}"`)
 			}
 
@@ -433,13 +374,7 @@ export async function runMigration(
 		const s = await getMigrationStatus()
 		if (s.migration.automaticStepCount > 0 || s.migration.manualStepCount > 0) {
 			try {
-				const res = await runMigration(
-					s.migration.chunks,
-					s.migration.hash,
-					inputResults,
-					false,
-					chunksLeft - 1
-				)
+				const res = await runMigration(s.migration.chunks, s.migration.hash, false, chunksLeft - 1)
 				if (res.migrationCompleted) {
 					return res
 				}
@@ -493,7 +428,6 @@ export async function getMigrationStatus(): Promise<GetMigrationStatusResult> {
 		migration: {
 			canDoAutomaticMigration: migration.manualStepCount === 0,
 
-			manualInputs: migration.manualInputs,
 			hash: migration.hash,
 			chunks: migration.chunks,
 

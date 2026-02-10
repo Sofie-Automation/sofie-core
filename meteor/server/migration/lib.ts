@@ -1,5 +1,5 @@
 import _ from 'underscore'
-import { MigrationStepCore } from '@sofie-automation/blueprints-integration'
+import { MigrationStepCore } from '@sofie-automation/meteor-lib/dist/migrations'
 import { objectPathGet } from '@sofie-automation/corelib/dist/lib'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { Meteor } from 'meteor/meteor'
