@@ -1,5 +1,3 @@
-import { IBlueprintTriggeredActions } from './triggers.js'
-
 export interface MigrationStepInput {
 	stepId?: string // automatically filled in later
 	label: string
@@ -19,32 +17,13 @@ export interface MigrationStepInputFilteredResult {
 }
 
 export type ValidateFunctionCore = (afterMigration: boolean) => Promise<boolean | string>
-export type ValidateFunctionSystem = (
-	context: MigrationContextSystem,
-	afterMigration: boolean
-) => Promise<boolean | string>
-export type ValidateFunction = ValidateFunctionSystem | ValidateFunctionCore
+export type ValidateFunction = ValidateFunctionCore
 
 export type MigrateFunctionCore = (input: MigrationStepInputFilteredResult) => Promise<void>
-export type MigrateFunctionSystem = (
-	context: MigrationContextSystem,
-	input: MigrationStepInputFilteredResult
-) => Promise<void>
-export type MigrateFunction = MigrateFunctionSystem | MigrateFunctionCore
+export type MigrateFunction = MigrateFunctionCore
 
 export type InputFunctionCore = () => MigrationStepInput[]
-export type InputFunctionSystem = (context: MigrationContextSystem) => MigrationStepInput[]
-export type InputFunction = InputFunctionSystem | InputFunctionCore
-
-interface MigrationContextWithTriggeredActions {
-	getAllTriggeredActions: () => Promise<IBlueprintTriggeredActions[]>
-	getTriggeredAction: (triggeredActionId: string) => Promise<IBlueprintTriggeredActions | undefined>
-	getTriggeredActionId: (triggeredActionId: string) => string
-	setTriggeredAction: (triggeredActions: IBlueprintTriggeredActions) => Promise<void>
-	removeTriggeredAction: (triggeredActionId: string) => Promise<void>
-}
-
-export type MigrationContextSystem = MigrationContextWithTriggeredActions
+export type InputFunction = InputFunctionCore
 
 export interface MigrationStepBase<
 	TValidate extends ValidateFunction,
@@ -89,4 +68,3 @@ export interface MigrationStep<
 }
 
 export type MigrationStepCore = MigrationStep<ValidateFunctionCore, MigrateFunctionCore, InputFunctionCore>
-export type MigrationStepSystem = MigrationStep<ValidateFunctionSystem, MigrateFunctionSystem, InputFunctionSystem>

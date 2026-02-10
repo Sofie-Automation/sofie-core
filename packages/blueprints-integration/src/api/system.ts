@@ -1,16 +1,10 @@
 import type { IBlueprintTriggeredActions } from '../triggers.js'
-import type { MigrationStepSystem } from '../migrations.js'
 import type { BlueprintManifestBase, BlueprintManifestType } from './base.js'
 import type { ICoreSystemApplyConfigContext } from '../context/systemApplyConfigContext.js'
 import type { ICoreSystemSettings } from '@sofie-automation/shared-lib/dist/core/model/CoreSystemSettings'
 
 export interface SystemBlueprintManifest extends BlueprintManifestBase {
 	blueprintType: BlueprintManifestType.SYSTEM
-
-	/** A list of Migration steps related to the Core system
-	 * @deprecated This has been replaced with `applyConfig`
-	 */
-	coreMigrations: MigrationStepSystem[]
 
 	/** Translations connected to the studio (as stringified JSON) */
 	translations?: string
