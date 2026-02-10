@@ -1,14 +1,10 @@
 import * as React from 'react'
 import { EditAttribute } from '../../lib/EditAttribute.js'
-import { Translated, translateWithTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
+import { useTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
 import { Spinner } from '../../lib/Spinner.js'
 import { doModalDialog } from '../../lib/ModalDialog.js'
-import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
 import Moment from 'react-moment'
 import { Link } from 'react-router-dom'
-import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { ICoreSystem } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
 import { BlueprintManifestType } from '@sofie-automation/blueprints-integration'
 import { NotificationCenter, Notification, NoticeLevel } from '../../lib/notifications/notifications.js'
 import { catchError, fetchFrom } from '../../lib/lib.js'
@@ -24,198 +20,239 @@ import Button from 'react-bootstrap/esm/Button'
 import { useTranslation } from 'react-i18next'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { createPrivateApiPath } from '../../url.js'
+import { DBShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import { DBStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import { assertNever } from '@sofie-automation/corelib/src/lib.js'
 
 interface IProps {
 	blueprintId: BlueprintId
 }
-interface IState {}
-interface ITrackedProps {
-	blueprint?: Blueprint
-	assignedStudios: DBStudio[]
-	assignedShowStyles: DBShowStyleBase[]
-	assignedSystem: ICoreSystem | undefined
-}
-export default translateWithTracker<IProps, IState, ITrackedProps>((props: IProps) => {
-	const id = props.blueprintId
 
-	return {
-		blueprint: Blueprints.findOne(id),
-		assignedStudios: Studios.find({ blueprintId: id }).fetch(),
-		assignedShowStyles: ShowStyleBases.find({ blueprintId: id }).fetch(),
-		assignedSystem: CoreSystem.findOne({ blueprintId: id }),
+export default function BlueprintSettings2({ blueprintId }: IProps): JSX.Element {
+	const { t } = useTranslation()
+
+	const blueprint = useTracker(() => Blueprints.findOne(blueprintId), [blueprintId])
+
+	if (!blueprint) {
+		return <Spinner />
 	}
-})(
-	class BlueprintSettings extends React.Component<Translated<IProps & ITrackedProps>, IState> {
-		constructor(props: Translated<IProps & ITrackedProps>) {
-			super(props)
-			this.state = {}
-		}
 
-		assignSystemBlueprint(id: BlueprintId | undefined) {
-			MeteorCall.blueprint.assignSystemBlueprint(id).catch(catchError('blueprint.assignSystemBlueprint'))
-		}
+	return (
+		<div className="studio-edit mx-4">
+			<div className="properties-grid">
+				<label className="field">
+					<LabelActual label={t('Blueprint ID')} />
+					<div className="field-content">
+						<i>{unprotectString(blueprint._id)}</i>
+					</div>
+				</label>
 
-		renderAssignment(blueprint: Blueprint) {
-			const { t } = this.props
+				<label className="field">
+					<LabelActual label={t('Blueprint Name')} />
 
-			switch (blueprint.blueprintType) {
-				case BlueprintManifestType.SHOWSTYLE:
-					return (
-						<div className="field">
-							<LabelActual label={t('Assigned Show Styles')} />
-							<div className="field-content">
-								{this.props.assignedShowStyles.length > 0
-									? this.props.assignedShowStyles.map((showStyleBase) => (
-											<span key={unprotectString(showStyleBase._id)} className="pill">
-												<Link className="pill-link" to={`/settings/showStyleBase/${showStyleBase._id}`}>
-													{showStyleBase.name}
-												</Link>
-											</span>
-										))
-									: t('This Blueprint is not being used by any Show Style')}
+					<div className="field-content">
+						<EditAttribute attribute="name" obj={blueprint} type="text" collection={Blueprints} />
+					</div>
+					<div></div>
+					<div>
+						{!blueprint.name ? (
+							<div className="error-notice inline">
+								{t('No name set')} <FontAwesomeIcon icon={faExclamationTriangle} />
 							</div>
-						</div>
-					)
-				case BlueprintManifestType.STUDIO:
-					return (
-						<div className="field">
-							<LabelActual label={t('Assigned Studios')} />
-							<div className="field-content">
-								{this.props.assignedStudios.length > 0
-									? this.props.assignedStudios.map((i) => (
-											<span key={unprotectString(i._id)} className="pill">
-												<Link className="pill-link" to={`/settings/studio/${i._id}`}>
-													{i.name}
-												</Link>
-											</span>
-										))
-									: t('This Blueprint is not compatible with any Studio')}
-							</div>
-						</div>
-					)
-				case BlueprintManifestType.SYSTEM:
-					return (
-						<div className="field">
-							<LabelActual label="" />
-							<div className="field-content">
-								<Button
-									variant="primary"
-									onClick={() => this.assignSystemBlueprint(this.props.assignedSystem ? undefined : blueprint._id)}
-								>
-									{this.props.assignedSystem ? t('Unassign') : t('Assign')}
-								</Button>
-							</div>
-						</div>
-					)
-				default:
-					return null
-			}
-		}
-
-		renderEditForm(blueprint: Blueprint) {
-			const { t } = this.props
-
-			return (
-				<div className="studio-edit mx-4">
-					<div className="properties-grid">
-						<label className="field">
-							<LabelActual label={t('Blueprint ID')} />
-							<div className="field-content">
-								<i>{unprotectString(blueprint._id)}</i>
-							</div>
-						</label>
-
-						<label className="field">
-							<LabelActual label={t('Blueprint Name')} />
-
-							<div className="field-content">
-								<EditAttribute attribute="name" obj={blueprint} type="text" collection={Blueprints} />
-							</div>
-							<div></div>
-							<div>
-								{!blueprint.name ? (
-									<div className="error-notice inline">
-										{t('No name set')} <FontAwesomeIcon icon={faExclamationTriangle} />
-									</div>
-								) : null}
-							</div>
-						</label>
-
-						<label className="field">
-							<LabelActual label={t('Blueprint Type')} />
-							<div className="field-content">
-								<i>{(blueprint.blueprintType || '').toUpperCase()}</i>
-							</div>
-							<div></div>
-							<div>
-								{!blueprint.blueprintType ? (
-									<div className="error-notice inline">
-										{t('Upload a new blueprint')} <FontAwesomeIcon icon={faExclamationTriangle} />
-									</div>
-								) : null}
-							</div>
-						</label>
-
-						{this.renderAssignment(blueprint)}
-
-						<label className="field">
-							<LabelActual label={t('Last modified')} />
-							<div className="field-content">
-								<Moment format="YYYY/MM/DD HH:mm:ss">{blueprint.modified}</Moment>
-							</div>
-						</label>
-
-						{blueprint.blueprintId ? (
-							<label className="field">
-								<LabelActual label={t('Blueprint Id')} />
-								<div className="field-content">
-									<i>{blueprint.blueprintId}</i>
-								</div>
-							</label>
 						) : null}
+					</div>
+				</label>
 
-						{blueprint.blueprintVersion ? (
-							<label className="field">
-								<LabelActual label={t('Blueprint Version')} />
-								<div className="field-content">
-									<i>{blueprint.blueprintVersion}</i>
-								</div>
-							</label>
+				<label className="field">
+					<LabelActual label={t('Blueprint Type')} />
+					<div className="field-content">
+						<i>{(blueprint.blueprintType || '').toUpperCase()}</i>
+					</div>
+					<div></div>
+					<div>
+						{!blueprint.blueprintType ? (
+							<div className="error-notice inline">
+								{t('Upload a new blueprint')} <FontAwesomeIcon icon={faExclamationTriangle} />
+							</div>
 						) : null}
+					</div>
+				</label>
 
-						<label className="field">
-							<LabelActual label={t('Disable version check')} />
-							<div className="field-content">
-								<EditAttribute
-									attribute="disableVersionChecks"
-									obj={blueprint}
-									type="checkbox"
-									collection={Blueprints}
-									className="input"
-								/>
-							</div>
-						</label>
+				<AssignBlueprintButton blueprintId={blueprint._id} blueprintType={blueprint.blueprintType} />
 
-						<div className="field">
-							<LabelActual label="" />
-							<div className="field-content">
-								<ImportConfigButton blueprintId={blueprint._id} />
-							</div>
+				<label className="field">
+					<LabelActual label={t('Last modified')} />
+					<div className="field-content">
+						<Moment format="YYYY/MM/DD HH:mm:ss">{blueprint.modified}</Moment>
+					</div>
+				</label>
+
+				{blueprint.blueprintId ? (
+					<label className="field">
+						<LabelActual label={t('Blueprint Id')} />
+						<div className="field-content">
+							<i>{blueprint.blueprintId}</i>
 						</div>
+					</label>
+				) : null}
+
+				{blueprint.blueprintVersion ? (
+					<label className="field">
+						<LabelActual label={t('Blueprint Version')} />
+						<div className="field-content">
+							<i>{blueprint.blueprintVersion}</i>
+						</div>
+					</label>
+				) : null}
+
+				<label className="field">
+					<LabelActual label={t('Disable version check')} />
+					<div className="field-content">
+						<EditAttribute
+							attribute="disableVersionChecks"
+							obj={blueprint}
+							type="checkbox"
+							collection={Blueprints}
+							className="input"
+						/>
+					</div>
+				</label>
+
+				<div className="field">
+					<LabelActual label="" />
+					<div className="field-content">
+						<ImportConfigButton blueprintId={blueprint._id} />
 					</div>
 				</div>
-			)
-		}
+			</div>
+		</div>
+	)
+}
 
-		render(): JSX.Element {
-			if (this.props.blueprint) {
-				return this.renderEditForm(this.props.blueprint)
-			} else {
-				return <Spinner />
-			}
-		}
+function AssignBlueprintButton({
+	blueprintId,
+	blueprintType,
+}: {
+	blueprintId: BlueprintId
+	blueprintType: BlueprintManifestType | undefined
+}): JSX.Element | null {
+	switch (blueprintType) {
+		case BlueprintManifestType.SHOWSTYLE:
+			return <AssignShowStyleBlueprint blueprintId={blueprintId} />
+		case BlueprintManifestType.STUDIO:
+			return <AssignStudioBlueprint blueprintId={blueprintId} />
+		case BlueprintManifestType.SYSTEM:
+			return <AssignSystemBlueprint blueprintId={blueprintId} />
+		case undefined:
+			return null
+		default:
+			assertNever(blueprintType)
+			return null
 	}
-)
+}
+
+function AssignShowStyleBlueprint({ blueprintId }: { blueprintId: BlueprintId }): JSX.Element {
+	const { t } = useTranslation()
+
+	const assignedShowStyles = useTracker(
+		() =>
+			ShowStyleBases.find(
+				{ blueprintId: blueprintId },
+				{
+					projection: {
+						_id: 1,
+						name: 1,
+					},
+				}
+			).fetch() as Pick<DBShowStyleBase, '_id' | 'name'>[],
+		[blueprintId],
+		[]
+	)
+
+	return (
+		<div className="field">
+			<LabelActual label={t('Assigned Show Styles')} />
+			<div className="field-content">
+				{assignedShowStyles.length > 0
+					? assignedShowStyles.map((showStyleBase) => (
+							<span key={unprotectString(showStyleBase._id)} className="pill">
+								<Link className="pill-link" to={`/settings/showStyleBase/${showStyleBase._id}`}>
+									{showStyleBase.name}
+								</Link>
+							</span>
+						))
+					: t('This Blueprint is not being used by any Show Style')}
+			</div>
+		</div>
+	)
+}
+
+function AssignStudioBlueprint({ blueprintId }: { blueprintId: BlueprintId }): JSX.Element {
+	const { t } = useTranslation()
+
+	const assignedStudios = useTracker(
+		() =>
+			Studios.find(
+				{ blueprintId: blueprintId },
+				{
+					projection: {
+						_id: 1,
+						name: 1,
+					},
+				}
+			).fetch() as Pick<DBStudio, '_id' | 'name'>[],
+		[blueprintId],
+		[]
+	)
+
+	return (
+		<div className="field">
+			<LabelActual label={t('Assigned Studios')} />
+			<div className="field-content">
+				{assignedStudios.length > 0
+					? assignedStudios.map((i) => (
+							<span key={unprotectString(i._id)} className="pill">
+								<Link className="pill-link" to={`/settings/studio/${i._id}`}>
+									{i.name}
+								</Link>
+							</span>
+						))
+					: t('This Blueprint is not compatible with any Studio')}
+			</div>
+		</div>
+	)
+}
+function AssignSystemBlueprint({ blueprintId }: { blueprintId: BlueprintId }): JSX.Element {
+	const { t } = useTranslation()
+
+	const isAssignedToSystem = useTracker(
+		() =>
+			!!CoreSystem.findOne(
+				{ blueprintId },
+				{
+					projection: { _id: 1 },
+				}
+			),
+		[blueprintId]
+	)
+
+	const assignSystemBlueprint = () => {
+		MeteorCall.blueprint
+			.assignSystemBlueprint(isAssignedToSystem ? undefined : blueprintId)
+			.catch(catchError('blueprint.assignSystemBlueprint'))
+	}
+
+	return (
+		<div className="field">
+			<LabelActual label="" />
+			<div className="field-content">
+				<Button variant="primary" onClick={assignSystemBlueprint}>
+					{isAssignedToSystem ? t('Unassign') : t('Assign')}
+				</Button>
+			</div>
+		</div>
+	)
+}
 
 function ImportConfigButton({ blueprintId }: { blueprintId: BlueprintId }) {
 	const { t } = useTranslation()
