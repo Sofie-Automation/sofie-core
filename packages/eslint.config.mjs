@@ -8,6 +8,7 @@ const extendedRules = await generateEslintConfig({
 		'openapi/client',
 		'openapi/server',
 		'live-status-gateway/server',
+		'live-status-gateway-api/server',
 		'documentation', // Temporary?
 		'webui/public',
 		'webui/dist',
@@ -16,15 +17,24 @@ const extendedRules = await generateEslintConfig({
 		'webui/vite.config.mts', // This errors because of tsconfig structure
 	],
 })
-extendedRules.push(...pluginYaml.configs['flat/recommended'], {
-	files: ['**/*.yaml'],
+extendedRules.push(
+	...pluginYaml.configs['flat/recommended'],
+	{
+		files: ['**/*.yaml'],
 
-	rules: {
-		'yml/quotes': ['error', { prefer: 'single' }],
-		'yml/spaced-comment': ['error'],
-		'spaced-comment': ['off'],
+		rules: {
+			'yml/quotes': ['error', { prefer: 'single' }],
+			'yml/spaced-comment': ['error'],
+			'spaced-comment': ['off'],
+		},
 	},
-})
+	{
+		files: ['openapi/**/*'],
+		rules: {
+			'n/no-missing-import': 'off', // erroring on every single import
+		},
+	}
+)
 
 const tmpWebuiRules = {
 	// Temporary rules to be removed over time
