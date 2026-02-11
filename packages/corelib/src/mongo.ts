@@ -34,6 +34,32 @@ export type MongoFieldSpecifierOnesStrict<T extends Record<string, any>> = {
 			: 1
 }
 
+/**
+ * Type helper to construct a field specifier to include only the specified keys
+ */
+export type MongoProjectionStrict<TDoc> = {
+	[K in keyof TDoc]?: TDoc[K] extends Array<any>
+		? MongoProjectionStrict<TDoc[K][number]> | 1
+		: TDoc[K] extends object
+			? MongoProjectionStrict<TDoc[K]> | 1
+			: 1
+}
+/**
+ * Type helper to construct a projected document type based on the original document and the projection applied.
+ */
+export type MongoProjectedDoc<TDoc, TProjection extends MongoProjectionStrict<TDoc> | null> =
+	TProjection extends MongoProjectionStrict<TDoc>
+		? {
+				[K in keyof TDoc as K extends keyof TProjection ? K : never]: TProjection[K] extends 1
+					? TDoc[K]
+					: TProjection[K] extends MongoProjectionStrict<TDoc[K]>
+						? MongoProjectedDoc<TDoc[K], TProjection[K]>
+						: never
+			}
+		: TProjection extends null
+			? TDoc
+			: never
+
 export interface FindOneOptions<TDoc> {
 	sort?: SortSpecifier<TDoc>
 	skip?: number

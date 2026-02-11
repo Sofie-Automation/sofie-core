@@ -3,7 +3,8 @@ import { EventEmitter } from 'events'
 import { AnyBulkWriteOperation, ChangeStream, Collection as MongoCollection, FindOptions, CountOptions } from 'mongodb'
 import { IChangeStreamEvents } from './index.js'
 import { startSpanManual } from '../profiler.js'
-import { IChangeStream, ICollection, MongoModifier, MongoQuery } from './collections.js'
+import { FindOptionsExt, IChangeStream, ICollection, MongoModifier, MongoQuery } from './collections.js'
+import type { MongoProjectedDoc, MongoProjectionStrict } from '@sofie-automation/corelib/dist/mongo'
 
 /** Wrap some APM and better error small query modifications around a Mongo.Collection */
 class WrappedCollection<TDoc extends { _id: ProtectedString<any> }> implements ICollection<TDoc> {
@@ -28,7 +29,10 @@ class WrappedCollection<TDoc extends { _id: ProtectedString<any> }> implements I
 		return this.#collection
 	}
 
-	async findFetch(selector: MongoQuery<TDoc>, options?: FindOptions<TDoc>): Promise<Array<TDoc>> {
+	async findFetch<TProjection extends MongoProjectionStrict<TDoc> | null = null>(
+		selector: MongoQuery<TDoc>,
+		options?: FindOptionsExt<TDoc, TProjection>
+	): Promise<Array<MongoProjectedDoc<TDoc, TProjection>>> {
 		const span = startSpanManual('WrappedCollection.findFetch')
 		if (span) {
 			span.addLabels({
@@ -36,12 +40,20 @@ class WrappedCollection<TDoc extends { _id: ProtectedString<any> }> implements I
 				query: JSON.stringify(selector),
 			})
 		}
-		const res = await this.#collection.find(selector as any, options).toArray()
+		const res = await this.#collection
+			.find(selector as any, {
+				...options,
+				projection: this.#transformProjection(options?.projection),
+			})
+			.toArray()
 		if (span) span.end()
 		return res as any
 	}
 
-	async findOne(selector: MongoQuery<TDoc> | TDoc['_id'], options?: FindOptions<TDoc>): Promise<TDoc | undefined> {
+	async findOne<TProjection extends MongoProjectionStrict<TDoc> | null = null>(
+		selector: MongoQuery<TDoc> | TDoc['_id'],
+		options?: FindOptionsExt<TDoc, TProjection>
+	): Promise<MongoProjectedDoc<TDoc, TProjection> | undefined> {
 		const span = startSpanManual('WrappedCollection.findOne')
 		if (span) {
 			span.addLabels({
@@ -53,9 +65,35 @@ class WrappedCollection<TDoc extends { _id: ProtectedString<any> }> implements I
 		if (typeof selector === 'string') {
 			selector = { _id: selector }
 		}
-		const res = await this.#collection.findOne(selector, options)
+		const res = await this.#collection.findOne(selector, {
+			...options,
+			projection: this.#transformProjection(options?.projection),
+		})
 		if (span) span.end()
-		return res ?? undefined
+		return (res ?? undefined) as MongoProjectedDoc<TDoc, TProjection> | undefined
+	}
+
+	#transformProjection(projection: MongoProjectionStrict<TDoc> | null | undefined): FindOptions<TDoc>['projection'] {
+		if (!projection) return undefined
+
+		const transformed: FindOptions<TDoc>['projection'] = {}
+
+		const transform = (prefix: string, obj: MongoProjectionStrict<any>) => {
+			for (const key in obj) {
+				const value = obj[key]
+				const fullKey = prefix ? `${prefix}.${key}` : key
+
+				if (typeof value === 'object' && value !== null) {
+					transform(fullKey, value as any)
+				} else {
+					transformed[fullKey] = value
+				}
+			}
+		}
+
+		transform('', projection)
+
+		return transformed
 	}
 
 	async count(selector: MongoQuery<TDoc> | TDoc['_id'], options?: CountOptions): Promise<number> {

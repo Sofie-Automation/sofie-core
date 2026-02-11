@@ -329,11 +329,13 @@ async function calculateHighestRankInBucket(context: JobContext, bucketId: Bucke
 					'display._rank': -1,
 				},
 				projection: {
-					'display._rank': 1,
+					display: {
+						_rank: 1,
+					},
 				},
 				limit: 1,
 			}
-		) as Promise<Array<{ display: Pick<BucketAdLibAction['display'], '_rank'> }>>,
+		),
 	])
 
 	return Math.max(highestAdlib[0]?._rank ?? 0, highestAction[0]?.display?._rank ?? 0)

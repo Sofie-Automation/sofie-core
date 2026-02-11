@@ -353,10 +353,9 @@ export async function handleMoveRundownIntoPlaylist(
 	const studio = context.studio
 
 	if (data.intoPlaylistId) {
-		const tmpIntoPlaylist: Pick<DBRundownPlaylist, '_id' | 'studioId'> | undefined =
-			await context.directCollections.RundownPlaylists.findOne(data.intoPlaylistId, {
-				projection: { studioId: 1 },
-			})
+		const tmpIntoPlaylist = await context.directCollections.RundownPlaylists.findOne(data.intoPlaylistId, {
+			projection: { _id: 1, studioId: 1 },
+		})
 		if (!tmpIntoPlaylist || tmpIntoPlaylist.studioId !== context.studioId)
 			throw new Error(`RundownPlaylist "${data.intoPlaylistId}" not found`)
 	}

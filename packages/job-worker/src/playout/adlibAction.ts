@@ -78,16 +78,16 @@ export async function executeAdlibActionAndSaveModel(
 
 	const [adLibAction, baselineAdLibAction, bucketAdLibAction] = await Promise.all([
 		context.directCollections.AdLibActions.findOne(data.actionDocId as AdLibActionId, {
-			projection: { _id: 1, privateData: 1, publicData: 1 },
+			projection: { _id: 1, privateData: 1, publicData: 1, invalid: 1, rundownId: 1 },
 		}),
 		context.directCollections.RundownBaselineAdLibActions.findOne(
 			data.actionDocId as RundownBaselineAdLibActionId,
 			{
-				projection: { _id: 1, privateData: 1, publicData: 1 },
+				projection: { _id: 1, privateData: 1, publicData: 1, invalid: 1, rundownId: 1 },
 			}
 		),
 		context.directCollections.BucketAdLibActions.findOne(data.actionDocId as BucketAdLibActionId, {
-			projection: { _id: 1, privateData: 1, publicData: 1 },
+			projection: { _id: 1, privateData: 1, publicData: 1, invalid: 1, bucketId: 1 },
 		}),
 	])
 	const adLibActionDoc = adLibAction ?? baselineAdLibAction ?? bucketAdLibAction

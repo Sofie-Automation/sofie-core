@@ -44,17 +44,39 @@ import { ExternalMessageQueueObj } from '@sofie-automation/corelib/dist/dataMode
 import { MediaObjects } from '@sofie-automation/corelib/dist/dataModel/MediaObjects'
 import type { DBNotificationObj } from '@sofie-automation/corelib/dist/dataModel/Notifications'
 import type { EventEmitter } from 'events'
+import type { MongoProjectedDoc, MongoProjectionStrict } from '@sofie-automation/corelib/dist/mongo'
 
 export type MongoQuery<TDoc> = Filter<TDoc>
 export type MongoModifier<TDoc> = UpdateFilter<TDoc>
+
+export type FindOptionsExt<
+	TDoc extends { _id: ProtectedString<any> },
+	TProjection extends MongoProjectionStrict<TDoc> | null,
+> = Omit<FindOptions<TDoc>, 'projection'> & {
+	// Disallow extra keys in the projection object which would otherwise be missed by
+	// excess-property checks when the projection is inferred as a generic. This makes
+	// passing unknown projection keys a type error.
+	projection?: NoExtra<MongoProjectionStrict<TDoc>, TProjection>
+}
+
+// Helper type: ensure `U` has no keys outside of `T`. If it does, those keys are typed
+// `never` which produces a compile-time error when an object literal with extra keys
+// is provided.
+type NoExtra<T, U extends T | null> = U extends null ? null : U & { [K in Exclude<keyof U, keyof T>]: never }
 
 export interface IReadOnlyCollection<TDoc extends { _id: ProtectedString<any> }> {
 	readonly name: string
 
 	readonly rawCollection: MongoCollection<TDoc>
 
-	findFetch(selector?: MongoQuery<TDoc>, options?: FindOptions<TDoc>): Promise<Array<TDoc>>
-	findOne(selector?: MongoQuery<TDoc> | TDoc['_id'], options?: FindOptions<TDoc>): Promise<TDoc | undefined>
+	findFetch<TProjection extends MongoProjectionStrict<TDoc> | null = null>(
+		selector?: MongoQuery<TDoc>,
+		options?: FindOptionsExt<TDoc, TProjection>
+	): Promise<Array<MongoProjectedDoc<TDoc, TProjection>>>
+	findOne<TProjection extends MongoProjectionStrict<TDoc> | null = null>(
+		selector?: MongoQuery<TDoc> | TDoc['_id'],
+		options?: FindOptionsExt<TDoc, TProjection>
+	): Promise<MongoProjectedDoc<TDoc, TProjection> | undefined>
 	count(selector?: MongoQuery<TDoc> | TDoc['_id'], options?: CountOptions): Promise<number>
 
 	/**
@@ -83,9 +105,8 @@ export type IChangeStreamEvents<TDoc extends { _id: ProtectedString<any> }> = {
 	change: [doc: ChangeStreamDocument<TDoc>]
 }
 
-export interface IChangeStream<TDoc extends { _id: ProtectedString<any> }> extends EventEmitter<
-	IChangeStreamEvents<TDoc>
-> {
+export interface IChangeStream<TDoc extends { _id: ProtectedString<any> }>
+	extends EventEmitter<IChangeStreamEvents<TDoc>> {
 	readonly closed: boolean
 
 	close(): Promise<void>

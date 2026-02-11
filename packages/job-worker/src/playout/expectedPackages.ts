@@ -28,7 +28,7 @@ export async function handleCleanupOrphanedExpectedPackageReferences(
 						_id: 1,
 						playoutSources: 1,
 						// We only need to know if there are any entries, so project them to be as minimal as possible
-						'ingestSources.fromPieceType': 1,
+						ingestSources: { fromPieceType: 1 },
 					},
 				}
 			) as Promise<

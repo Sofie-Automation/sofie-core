@@ -1,37 +1,39 @@
 import { SegmentId, PartInstanceId, RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { JobContext } from '../../jobs/index.js'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
-import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { BeforeIngestOperationPartMap } from '../commit.js'
 import { IngestModelReadonly } from '../model/IngestModel.js'
+import { MongoProjectedDoc, MongoProjectionStrict } from '@sofie-automation/corelib/dist/mongo'
 
 async function fetchOrphanedPartInstancesInRundown(context: JobContext, rundownId: RundownId) {
-	const orphanedPartInstances = (await context.directCollections.PartInstances.findFetch(
+	const orphanedPartInstances = await context.directCollections.PartInstances.findFetch(
 		{
 			rundownId: rundownId,
 			orphaned: { $exists: true },
 			reset: { $ne: true },
 		},
 		{
-			projection: {
-				_id: 1,
-				segmentId: 1,
-				orphaned: 1,
-				'part._id': 1,
-				'part._rank': 1,
-			},
+			projection: MinimalPartInstanceProjection,
 			sort: {
 				takeCount: 1,
 			},
 		}
-	)) as Array<MinimalPartInstance>
+	)
 
 	return orphanedPartInstances
 }
 
-type MinimalPartInstance = Pick<DBPartInstance, '_id' | 'segmentId' | 'orphaned'> & {
-	part: Pick<DBPart, '_id' | '_rank'>
-}
+const MinimalPartInstanceProjection = {
+	_id: 1,
+	segmentId: 1,
+	orphaned: 1,
+	part: {
+		_id: 1,
+		_rank: 1,
+	},
+} as const satisfies MongoProjectionStrict<DBPartInstance>
+
+type MinimalPartInstance = MongoProjectedDoc<DBPartInstance, typeof MinimalPartInstanceProjection>
 
 /**
  * Ensure any adlibbed PartInstances are moved across segments when the Part before them is moved.

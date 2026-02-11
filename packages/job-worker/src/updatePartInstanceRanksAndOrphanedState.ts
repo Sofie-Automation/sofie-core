@@ -11,10 +11,19 @@ import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { PlayoutModel } from './playout/model/PlayoutModel.js'
 import { IngestModelReadonly } from './ingest/model/IngestModel.js'
 import { PlayoutPartInstanceModel } from './playout/model/PlayoutPartInstanceModel.js'
+import type { MongoProjectedDoc, MongoProjectionStrict } from '@sofie-automation/corelib/dist/mongo'
 
-type MinimalPartInstance = Pick<DBPartInstance, '_id' | 'segmentId' | 'orphaned'> & {
-	part: Pick<DBPart, '_id' | '_rank'>
-}
+const MinimalPartInstanceProjection = {
+	_id: 1,
+	segmentId: 1,
+	orphaned: 1,
+	part: {
+		_id: 1,
+		_rank: 1,
+	},
+} as const satisfies MongoProjectionStrict<DBPartInstance>
+
+type MinimalPartInstance = MongoProjectedDoc<DBPartInstance, typeof MinimalPartInstanceProjection>
 
 /**
  * Update the ranks of all PartInstances in the given segments.
@@ -180,24 +189,18 @@ async function updateNormalPartInstanceRanksAndFindOrphans(
 	const orphanedPartInstances: MinimalPartInstance[] = []
 	const writeOps: AnyBulkWriteOperation<DBPartInstance>[] = []
 
-	const partInstancesInChangedSegments = (await context.directCollections.PartInstances.findFetch(
+	const partInstancesInChangedSegments = await context.directCollections.PartInstances.findFetch(
 		{
 			reset: { $ne: true },
 			segmentId: { $in: changedSegmentIds as SegmentId[] },
 		},
 		{
-			projection: {
-				_id: 1,
-				segmentId: 1,
-				orphaned: 1,
-				'part._id': 1,
-				'part._rank': 1,
-			},
+			projection: MinimalPartInstanceProjection,
 			sort: {
 				takeCount: 1,
 			},
 		}
-	)) as Array<MinimalPartInstance>
+	)
 
 	for (const partInstance of partInstancesInChangedSegments) {
 		const part = partsMap.get(partInstance.part._id)
