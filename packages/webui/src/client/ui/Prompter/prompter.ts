@@ -57,7 +57,7 @@ export interface PrompterDataPiece {
 	id: PieceId
 	text: string
 	continuationOf?: PieceId
-	startPartId?: PartId
+	startPartId?: PartId | null
 }
 export interface PrompterData {
 	title: string

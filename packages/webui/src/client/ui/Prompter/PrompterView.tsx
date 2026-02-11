@@ -1,4 +1,4 @@
-import React, { PropsWithChildren } from 'react'
+import React, { createContext, PropsWithChildren, ReactNode, useRef } from 'react'
 import _ from 'underscore'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import ClassNames from 'classnames'
@@ -39,6 +39,7 @@ import { MeteorCall } from '../../lib/meteorApi.js'
 
 const DEFAULT_UPDATE_THROTTLE = 250 //ms
 const PIECE_MISSING_UPDATE_THROTTLE = 2000 //ms
+const FROZEN_UPDATE_THROTTLE = 50 //ms
 
 const PIECE_CONTINUATION_CLASS = 'continuation'
 
@@ -122,7 +123,24 @@ function asArray<T>(value: T | T[] | null): T[] {
 	}
 }
 
+interface PrompterStore {
+	isFrozen: boolean
+}
+
+type PrompterStoreRef = React.MutableRefObject<PrompterStore> | null
+
+const PrompterStoreContext = createContext<PrompterStoreRef>(null)
+
+export function PrompterStoreProvider({ children }: { children: ReactNode }): JSX.Element {
+	const storeRef = useRef<PrompterStore>({ isFrozen: false })
+
+	return <PrompterStoreContext.Provider value={storeRef}>{children}</PrompterStoreContext.Provider>
+}
+
 export class PrompterViewContent extends React.Component<Translated<IProps & ITrackedProps>, IState> {
+	static contextType = PrompterStoreContext
+	declare context: PrompterStoreRef
+
 	autoScrollPreviousPartInstanceId: PartInstanceId | null = null
 
 	configOptions: PrompterConfig
@@ -391,14 +409,18 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 	}
 	private animateScrollTo(scrollToPosition: number) {
 		this._lastAnimation?.stop()
+		if (this.context?.current) {
+			this.context.current.isFrozen = true
+		}
 		this._lastAnimation = animate(window.scrollY, scrollToPosition, {
 			duration: 0.4,
 			ease: 'easeOut',
-			onUpdate: (latest: number) =>
-				window.scrollTo({
-					top: latest,
-					behavior: 'instant',
-				}),
+			onUpdate: (latest) => window.scrollTo({ top: latest, behavior: 'instant' }),
+			onComplete: () => {
+				if (this.context?.current) {
+					this.context.current.isFrozen = false
+				}
+			},
 		})
 	}
 	listAnchorPositions(startY: number, endY: number, sortDirection = 1): [number, Element][] {
@@ -663,12 +685,14 @@ export function PrompterView(props: Readonly<IProps>): JSX.Element {
 	)
 
 	return (
-		<PrompterViewContentWithTranslation
-			{...props}
-			studio={studio}
-			rundownPlaylist={rundownPlaylist}
-			subsReady={allSubsReady}
-		/>
+		<PrompterStoreProvider>
+			<PrompterViewContentWithTranslation
+				{...props}
+				studio={studio}
+				rundownPlaylist={rundownPlaylist}
+				subsReady={allSubsReady}
+			/>
+		</PrompterStoreProvider>
 	)
 }
 
@@ -744,6 +768,9 @@ const PrompterContent = withTranslation()(
 		Translated<PropsWithChildren<IPrompterProps> & IPrompterTrackedProps>,
 		{}
 	> {
+		static contextType = PrompterStoreContext
+		declare context: PrompterStoreRef
+
 		private _debounceUpdate: NodeJS.Timeout | undefined
 
 		constructor(props: Translated<PropsWithChildren<IPrompterProps> & IPrompterTrackedProps>) {
@@ -989,6 +1016,15 @@ const PrompterContent = withTranslation()(
 			clearTimeout(this._debounceUpdate)
 			this._debounceUpdate = setTimeout(() => this.forceUpdate(), delay)
 			return false
+		}
+
+		forceUpdate(callback?: () => void): void {
+			if (this.context?.current.isFrozen) {
+				clearTimeout(this._debounceUpdate)
+				this._debounceUpdate = setTimeout(() => this.forceUpdate(), FROZEN_UPDATE_THROTTLE)
+				return
+			}
+			super.forceUpdate(callback)
 		}
 
 		getSnapshotBeforeUpdate(): PrompterSnapshot {
