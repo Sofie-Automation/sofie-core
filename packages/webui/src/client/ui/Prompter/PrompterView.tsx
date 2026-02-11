@@ -428,7 +428,7 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 	executeAction(e: Event | string, actionId: string, triggerMode?: string): void {
 		const { t } = this.props
 		if (!this.props.rundownPlaylist) {
-			logger.error('No active Rundown Playlist to perform a Take in')
+			logger.error('No active Rundown Playlist to execute the action in')
 			return
 		}
 		const playlist = this.props.rundownPlaylist
