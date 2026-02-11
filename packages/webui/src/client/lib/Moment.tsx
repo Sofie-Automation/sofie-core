@@ -1,6 +1,6 @@
 import Moment, { MomentProps } from 'react-moment'
 import moment from 'moment'
-import { useCurrentTime } from './lib'
+import { useCurrentTime } from './lib.js'
 
 /**
  * Use instead of <Moment fromNow></Moment>, its result is synced with getCurrentTime()

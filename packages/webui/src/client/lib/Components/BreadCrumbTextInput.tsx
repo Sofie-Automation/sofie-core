@@ -22,7 +22,7 @@ export function joinLines(v: string[] | undefined): string {
 }
 
 import './BreadCrumbTextInput.scss'
-import { getAllAncestors } from '../lib'
+import { getAllAncestors } from '../lib.jsx'
 
 interface IBreadCrumbTextInputControlProps {
 	classNames?: string

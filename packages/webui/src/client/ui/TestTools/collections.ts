@@ -1,5 +1,5 @@
 import { PeripheralDevicePubSubCollectionsNames } from '@sofie-automation/shared-lib/dist/pubsub/peripheralDevice'
-import { createSyncPeripheralDeviceCustomPublicationMongoCollection } from '../../collections/lib'
+import { createSyncPeripheralDeviceCustomPublicationMongoCollection } from '../../collections/lib.js'
 
 /**
  * These collections are not public and are for the use of the TestTools only.
