@@ -84,7 +84,7 @@ async function initializeCoreSystem() {
 		if (!isRunningInJest()) {
 			// Check what migration has to provide:
 			const migration = await prepareMigration(true)
-			if (migration.migrationNeeded && migration.manualStepCount === 0 && migration.chunks.length <= 1) {
+			if (migration.migrationNeeded && migration.chunks.length <= 1) {
 				// Since we've determined that the migration can be done automatically, and we have a fresh system, just do the migration automatically:
 				await runMigration(migration.chunks, migration.hash)
 			}

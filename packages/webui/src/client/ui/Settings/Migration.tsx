@@ -24,12 +24,10 @@ interface IState {
 	showAllSteps: boolean
 
 	migration?: {
-		canDoAutomaticMigration: boolean
 		hash: string
 		chunks: Array<MigrationChunk>
 		automaticStepCount: number
 		ignoredStepCount: number
-		manualStepCount: number
 		partialMigration: boolean
 	}
 	warnings: Array<string>
@@ -219,7 +217,7 @@ export const MigrationView = translateWithTracker<IProps, IState, ITrackedProps>
 
 								<p>
 									{t(
-										`This migration consists of ${this.state.migration.automaticStepCount} automatic steps and  ${this.state.migration.manualStepCount} manual steps (${this.state.migration.ignoredStepCount} steps are ignored).`
+										`This migration consists of ${this.state.migration.automaticStepCount} steps (${this.state.migration.ignoredStepCount} steps are ignored).`
 									)}
 								</p>
 
@@ -264,40 +262,17 @@ export const MigrationView = translateWithTracker<IProps, IState, ITrackedProps>
 										)}
 									</p>
 								) : null}
-								{this.state.migration.canDoAutomaticMigration ? (
-									<div>
-										<p>{t('The migration can be completed automatically.')}</p>
-										<Button
-											onClick={() => {
-												this.runMigration()
-											}}
-										>
-											<FontAwesomeIcon icon={faDatabase} className="me-2" />
-											<span>{t('Run automatic migration procedure')}</span>
-										</Button>
-									</div>
-								) : (
-									<div>
-										<p className="my-2">
-											{t('The migration procedure needs some help from you in order to complete, see below:')}
-										</p>
-										<button
-											className="btn btn-primary mt-4"
-											onClick={() => {
-												doModalDialog({
-													title: t('Double-check Values'),
-													message: t('Are you sure the values you have entered are correct?'),
-													onAccept: () => {
-														this.runMigration()
-													},
-												})
-											}}
-										>
-											<FontAwesomeIcon icon={faClipboardCheck} className="me-2" />
-											<span>{t('Run Migration Procedure')}</span>
-										</button>
-									</div>
-								)}
+								<div>
+									<p>{t('The migration can be completed automatically.')}</p>
+									<Button
+										onClick={() => {
+											this.runMigration()
+										}}
+									>
+										<FontAwesomeIcon icon={faDatabase} className="me-2" />
+										<span>{t('Run automatic migration procedure')}</span>
+									</Button>
+								</div>
 
 								{this.state.warnings.length ? (
 									<div>

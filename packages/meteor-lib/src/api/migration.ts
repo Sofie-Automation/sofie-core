@@ -101,10 +101,8 @@ export interface GetMigrationStatusResult {
 	migrationNeeded: boolean
 
 	migration: {
-		canDoAutomaticMigration: boolean
 		hash: string
 		automaticStepCount: number
-		manualStepCount: number
 		ignoredStepCount: number
 		partialMigration: boolean
 		chunks: Array<MigrationChunk>

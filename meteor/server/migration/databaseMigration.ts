@@ -87,7 +87,6 @@ export interface PreparedMigration {
 	steps: MigrationStepInternal[]
 	migrationNeeded: boolean
 	automaticStepCount: number
-	manualStepCount: number
 	ignoredStepCount: number
 	partialMigration: boolean
 }
@@ -150,7 +149,6 @@ export async function prepareMigration(returnAllChunks?: boolean): Promise<Prepa
 	})
 
 	let automaticStepCount = 0
-	let manualStepCount = 0
 	let ignoredStepCount = 0
 
 	let partialMigration = false
@@ -226,11 +224,8 @@ export async function prepareMigration(returnAllChunks?: boolean): Promise<Prepa
 	for (const step of Object.values<MigrationStepInternal>(migrationSteps)) {
 		stepsHash.push(step.id)
 		step.chunk._steps.push(step.id)
-		if (!step.canBeRunAutomatically) {
-			manualStepCount++
-		} else {
-			automaticStepCount++
-		}
+
+		automaticStepCount++
 	}
 
 	// Only return the chunks which has steps in them:
@@ -251,7 +246,6 @@ export async function prepareMigration(returnAllChunks?: boolean): Promise<Prepa
 		steps: steps,
 		migrationNeeded: migrationNeeded,
 		automaticStepCount: automaticStepCount,
-		manualStepCount: manualStepCount,
 		ignoredStepCount: ignoredStepCount,
 		partialMigration: partialMigration,
 	}
@@ -322,9 +316,7 @@ export async function runMigration(
 		}
 	}
 
-	logger.info(
-		`Migration: ${migration.automaticStepCount} automatic and ${migration.manualStepCount} manual steps (${migration.ignoredStepCount} ignored).`
-	)
+	logger.info(`Migration: ${migration.automaticStepCount} steps (${migration.ignoredStepCount} ignored).`)
 
 	for (const step of migration.steps) {
 		try {
@@ -367,12 +359,12 @@ export async function runMigration(
 
 	let migrationCompleted = false
 
-	if (migration.manualStepCount === 0 && !warningMessages.length) {
+	if (!warningMessages.length) {
 		// continue automatically with the next batch
 		logger.info('Migration: Automatically continuing with next batch..')
 		migration.partialMigration = false
 		const s = await getMigrationStatus()
-		if (s.migration.automaticStepCount > 0 || s.migration.manualStepCount > 0) {
+		if (s.migration.automaticStepCount > 0) {
 			try {
 				const res = await runMigration(s.migration.chunks, s.migration.hash, false, chunksLeft - 1)
 				if (res.migrationCompleted) {
@@ -426,13 +418,10 @@ export async function getMigrationStatus(): Promise<GetMigrationStatusResult> {
 		migrationNeeded: migration.migrationNeeded,
 
 		migration: {
-			canDoAutomaticMigration: migration.manualStepCount === 0,
-
 			hash: migration.hash,
 			chunks: migration.chunks,
 
 			automaticStepCount: migration.automaticStepCount,
-			manualStepCount: migration.manualStepCount,
 			ignoredStepCount: migration.ignoredStepCount,
 			partialMigration: migration.partialMigration,
 		},

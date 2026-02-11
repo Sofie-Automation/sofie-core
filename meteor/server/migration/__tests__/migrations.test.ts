@@ -47,11 +47,8 @@ describe('Migrations', () => {
 			migrationNeeded: true,
 
 			migration: {
-				canDoAutomaticMigration: true,
-				// manualInputs: [],
 				hash: expect.stringContaining(''),
 				automaticStepCount: expect.any(Number),
-				manualStepCount: expect.any(Number),
 				ignoredStepCount: expect.any(Number),
 				partialMigration: true,
 				// chunks: expect.any(Array)
