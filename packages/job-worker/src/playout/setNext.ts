@@ -229,14 +229,15 @@ async function executeOnSetAsNextCallback(
 	playoutModel.clearAllNotifications(NOTIFICATION_CATEGORY)
 
 	try {
-		const blueprintPersistentState = new PersistentPlayoutStateStore(playoutModel.playlist.previousPersistentState)
+		const blueprintPersistentState = new PersistentPlayoutStateStore(
+			playoutModel.playlist.privatePlayoutPersistentState,
+			playoutModel.playlist.publicPlayoutPersistentState
+		)
 
 		await blueprint.blueprint.onSetAsNext(onSetAsNextContext, blueprintPersistentState)
 		await applyOnSetAsNextSideEffects(context, playoutModel, onSetAsNextContext)
 
-		if (blueprintPersistentState.hasChanges) {
-			playoutModel.setBlueprintPersistentState(blueprintPersistentState.getAll())
-		}
+		blueprintPersistentState.saveToModel(playoutModel)
 
 		for (const note of onSetAsNextContext.notes) {
 			// Update the notifications. Even though these are related to a partInstance, they will be cleared on the next take

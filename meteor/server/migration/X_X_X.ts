@@ -1,7 +1,7 @@
 import { addMigrationSteps } from './databaseMigration'
 import { CURRENT_SYSTEM_VERSION } from './currentSystemVersion'
 import { MongoInternals } from 'meteor/mongo'
-import { Studios } from '../collections'
+import { RundownPlaylists, Studios } from '../collections'
 import { ExpectedPackages } from '../collections'
 import * as PackagesPreR53 from '@sofie-automation/corelib/dist/dataModel/Old/ExpectedPackagesR52'
 import {
@@ -192,6 +192,50 @@ export const addSteps = addMigrationSteps(CURRENT_SYSTEM_VERSION, [
 						},
 					} satisfies Complete<ExpectedPackageDB>)
 				}
+			}
+		},
+	},
+	{
+		id: `Rename previousPersistentState to privatePlayoutPersistentState`,
+		canBeRunAutomatically: true,
+		validate: async () => {
+			const playlists = await RundownPlaylists.countDocuments({
+				previousPersistentState: { $exists: true },
+				privatePlayoutPersistentState: { $exists: false },
+			})
+			if (playlists > 0) {
+				return 'One or more Playlists has previousPersistentState field that needs to be renamed to privatePlayoutPersistentState'
+			}
+
+			return false
+		},
+		migrate: async () => {
+			const playlists = await RundownPlaylists.findFetchAsync(
+				{
+					previousPersistentState: { $exists: true },
+					privatePlayoutPersistentState: { $exists: false },
+				},
+				{
+					projection: {
+						_id: 1,
+						// @ts-expect-error - This field is being renamed, so it won't exist on the type anymore
+						previousPersistentState: 1,
+					},
+				}
+			)
+
+			for (const playlist of playlists) {
+				// @ts-expect-error - This field is being renamed, so it won't exist on the type anymore
+				const previousPersistentState = playlist.previousPersistentState
+
+				await RundownPlaylists.mutableCollection.updateAsync(playlist._id, {
+					$set: {
+						privatePlayoutPersistentState: previousPersistentState,
+					},
+					$unset: {
+						previousPersistentState: 1,
+					},
+				})
 			}
 		},
 	},

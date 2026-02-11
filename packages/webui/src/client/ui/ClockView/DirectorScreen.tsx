@@ -242,7 +242,8 @@ const getDirectorScreenReactive = (props: DirectorScreenProps): DirectorScreenTr
 			fields: {
 				lastIncorrectPartPlaybackReported: 0,
 				modified: 0,
-				previousPersistentState: 0,
+				publicPlayoutPersistentState: 0,
+				privatePlayoutPersistentState: 0,
 				rundownRanksAreSetInSofie: 0,
 				// Note: Do not exclude assignedAbSessions/trackedAbSessions so they stay reactive
 				restoredFromSnapshotId: 0,

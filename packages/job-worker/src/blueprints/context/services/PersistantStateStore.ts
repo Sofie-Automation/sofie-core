@@ -1,32 +1,53 @@
 import type { TimelinePersistentState } from '@sofie-automation/blueprints-integration'
 import type { BlueprintPlayoutPersistentStore } from '@sofie-automation/blueprints-integration/dist/context/playoutStore'
 import { clone } from '@sofie-automation/corelib/dist/lib'
+import type { PlayoutModel } from '../../../playout/model/PlayoutModel.js'
 
 export class PersistentPlayoutStateStore implements BlueprintPlayoutPersistentStore {
-	#state: TimelinePersistentState | undefined
-	#hasChanges = false
+	#privateState: TimelinePersistentState | undefined
+	#hasPrivateChanges = false
+	#publicState: TimelinePersistentState | undefined
+	#hasPublicChanges = false
 
-	get hasChanges(): boolean {
-		return this.#hasChanges
+	constructor(privateState: TimelinePersistentState | undefined, publicState: TimelinePersistentState | undefined) {
+		this.#privateState = clone(privateState)
+		this.#publicState = clone(publicState)
 	}
 
-	constructor(state: TimelinePersistentState | undefined) {
-		this.#state = clone(state)
+	saveToModel(model: PlayoutModel): void {
+		if (this.#hasPrivateChanges) model.setBlueprintPrivatePersistentState(this.#privateState)
+		if (this.#hasPublicChanges) model.setBlueprintPublicPersistentState(this.#publicState)
 	}
 
 	getAll(): Partial<unknown> {
-		return this.#state || {}
+		return this.#privateState || {}
 	}
 	getKey<K extends never>(k: K): unknown {
-		return this.#state?.[k]
+		return this.#privateState?.[k]
 	}
 	setKey<K extends never>(k: K, v: unknown): void {
-		if (!this.#state) this.#state = {}
-		;(this.#state as any)[k] = v
-		this.#hasChanges = true
+		if (!this.#privateState) this.#privateState = {}
+		;(this.#privateState as any)[k] = v
+		this.#hasPrivateChanges = true
 	}
 	setAll(obj: unknown): void {
-		this.#state = obj
-		this.#hasChanges = true
+		this.#privateState = obj
+		this.#hasPrivateChanges = true
+	}
+
+	getAllPublic(): Partial<unknown> {
+		return this.#publicState || {}
+	}
+	getKeyPublic<K extends never>(k: K): unknown {
+		return this.#publicState?.[k]
+	}
+	setKeyPublic<K extends never>(k: K, v: unknown): void {
+		if (!this.#publicState) this.#publicState = {}
+		;(this.#publicState as any)[k] = v
+		this.#hasPublicChanges = true
+	}
+	setAllPublic(obj: unknown): void {
+		this.#publicState = obj
+		this.#hasPublicChanges = true
 	}
 }

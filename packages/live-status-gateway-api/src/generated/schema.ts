@@ -179,6 +179,10 @@ interface ActivePlaylistEvent {
 	 */
 	publicData?: any
 	/**
+	 * Blueprint-defined playout state, used to expose arbitrary information about playout
+	 */
+	playoutState?: any
+	/**
 	 * Timing information about the active playlist
 	 */
 	timing: ActivePlaylistTiming

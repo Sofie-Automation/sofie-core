@@ -343,7 +343,8 @@ async function executeOnTakeCallback(
 		)
 		try {
 			const blueprintPersistentState = new PersistentPlayoutStateStore(
-				playoutModel.playlist.previousPersistentState
+				playoutModel.playlist.privatePlayoutPersistentState,
+				playoutModel.playlist.publicPlayoutPersistentState
 			)
 
 			await blueprint.blueprint.onTake(onSetAsNextContext, blueprintPersistentState)
@@ -353,9 +354,7 @@ async function executeOnTakeCallback(
 				partToQueueAfterTake = onSetAsNextContext.partToQueueAfterTake
 			}
 
-			if (blueprintPersistentState.hasChanges) {
-				playoutModel.setBlueprintPersistentState(blueprintPersistentState.getAll())
-			}
+			blueprintPersistentState.saveToModel(playoutModel)
 
 			for (const note of onSetAsNextContext.notes) {
 				// Update the notifications. Even though these are related to a partInstance, they will be cleared on the next take
@@ -549,7 +548,8 @@ export function updatePartInstanceOnTake(
 				takeRundown
 			)
 			const blueprintPersistentState = new PersistentPlayoutStateStore(
-				playoutModel.playlist.previousPersistentState
+				playoutModel.playlist.privatePlayoutPersistentState,
+				playoutModel.playlist.publicPlayoutPersistentState
 			)
 			previousPartEndState = blueprint.blueprint.getEndStateForPart(
 				context2,
@@ -558,9 +558,8 @@ export function updatePartInstanceOnTake(
 				resolvedPieces.map(convertResolvedPieceInstanceToBlueprints),
 				time
 			)
-			if (blueprintPersistentState.hasChanges) {
-				playoutModel.setBlueprintPersistentState(blueprintPersistentState.getAll())
-			}
+			blueprintPersistentState.saveToModel(playoutModel)
+
 			if (span) span.end()
 			logger.info(`Calculated end state in ${getCurrentTime() - time}ms`)
 		} catch (err) {
