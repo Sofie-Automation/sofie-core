@@ -127,9 +127,9 @@ interface PrompterStore {
 	isFrozen: boolean
 }
 
-type PrompterStoreRef = React.MutableRefObject<PrompterStore> | null
+type PrompterStoreRef = React.MutableRefObject<PrompterStore>
 
-const PrompterStoreContext = createContext<PrompterStoreRef>(null)
+const PrompterStoreContext = createContext<PrompterStoreRef | null>(null)
 
 export function PrompterStoreProvider({ children }: { children: ReactNode }): JSX.Element {
 	const storeRef = useRef<PrompterStore>({ isFrozen: false })
@@ -283,6 +283,9 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 	componentWillUnmount(): void {
 		documentTitle.set(null)
 
+		this._lastAnimation?.stop()
+		this.context.current.isFrozen = false
+
 		const themeColor = document.head.querySelector('meta[name="theme-color"]')
 		if (themeColor) {
 			themeColor.setAttribute('content', themeColor.getAttribute('data-content') || '#ffffff')
@@ -409,17 +412,13 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 	}
 	private animateScrollTo(scrollToPosition: number) {
 		this._lastAnimation?.stop()
-		if (this.context?.current) {
-			this.context.current.isFrozen = true
-		}
+		this.context.current.isFrozen = true
 		this._lastAnimation = animate(window.scrollY, scrollToPosition, {
 			duration: 0.4,
 			ease: 'easeOut',
 			onUpdate: (latest) => window.scrollTo({ top: latest, behavior: 'instant' }),
 			onComplete: () => {
-				if (this.context?.current) {
-					this.context.current.isFrozen = false
-				}
+				this.context.current.isFrozen = false
 			},
 		})
 	}
@@ -1019,7 +1018,7 @@ const PrompterContent = withTranslation()(
 		}
 
 		forceUpdate(callback?: () => void): void {
-			if (this.context?.current.isFrozen) {
+			if (this.context.current.isFrozen) {
 				clearTimeout(this._debounceUpdate)
 				this._debounceUpdate = setTimeout(() => this.forceUpdate(), FROZEN_UPDATE_THROTTLE)
 				return
