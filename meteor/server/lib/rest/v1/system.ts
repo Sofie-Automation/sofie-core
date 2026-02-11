@@ -48,11 +48,7 @@ export interface SystemRestAPI {
 	 * @param event User event string
 	 * @param inputs Migration data to apply
 	 */
-	applyPendingMigrations(
-		connection: Meteor.Connection,
-		event: string,
-		inputs: MigrationData
-	): Promise<ClientAPI.ClientResponse<void>>
+	applyPendingMigrations(connection: Meteor.Connection, event: string): Promise<ClientAPI.ClientResponse<void>>
 }
 
 export interface PendingMigrationStep {
