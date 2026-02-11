@@ -16,6 +16,7 @@ module.exports = {
 					ignoreCodes: [
 						6133, // Declared but not used
 						6192, // All imports are unused
+						151002, // hybrid module kind (Node16/18/Next)
 					],
 				},
 			},

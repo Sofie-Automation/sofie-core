@@ -1,12 +1,12 @@
 ---
-sidebar_position: 7
+sidebar_position: 70
 ---
 
 # Installing Package Manager
 
 ### Prerequisites
 
-- [Installed and running Sofie&nbsp;Core](installing-sofie-server-core.md)
+- [Installed and running Sofie&nbsp;Core](quick-install.md)
 - [Initial Sofie&nbsp;Core Setup](initial-sofie-core-setup.md)
 - [Installed and configured Demo Blueprints](https://github.com/SuperFlyTV/sofie-demo-blueprints)
 - [Installed, configured, and running CasparCG&nbsp;Server](installing-connections-and-additional-hardware/casparcg-server-installation.md) (Optional)
@@ -23,11 +23,6 @@ If you feel like you need multiple, then you likely want to run Package Manager 
 
 :::
 
-:::caution
-
-The Package Manager worker process is primarily tested on Windows only. It does run on Linux (without support for network shares), but has not been extensively tested.
-
-:::
 
 ## Installation For Development (Quick Start)
 

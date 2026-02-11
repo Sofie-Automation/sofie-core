@@ -28,14 +28,14 @@ The Playout Gateway controls the devices and keeps track of their state and stat
 
 ### _State-based Playout_
 
-Sofie uses a state-based architecture to control playout. This means that each element in the show can be programmed independently - there's no need to take into account what has happened previously in the show; Sofie will make sure that the video is loaded and that the audio fader is tuned to the correct position, no matter what was played out previously.  
+Sofie is using a state-based architecture to control playout. This means that each element in the show can be programmed independently - there's no need to take into account what has happened previously in the show; Sofie will make sure that the video is loaded and that the audio fader is tuned to the correct position, no matter what was played out previously.  
 This allows the producer to skip ahead or move backwards in a show, without the fear of things going wrong on air.
 
 ### Modular Data Ingest
 
-Sofie features a modular ingest data-flow, allowing multiple types of input data to base rundowns on. Currently there is support for [MOS-based](http://mosprotocol.com) systems such as ENPS and iNEWS, as well as [Google Spreadsheets](installation/installing-a-gateway/rundown-or-newsroom-system-connection/installing-sofie-with-google-spreadsheet-support), and more are in development.
+Sofie features a modular ingest data-flow, allowing multiple types of input data to base rundowns on. Currently there is support for [MOS-based](http://mosprotocol.com) systems such as ENPS and iNEWS, as well as [Google Spreadsheets](installation/installing-a-gateway/rundown-or-newsroom-system-connection/google-spreadsheet.md), and more is in development.
 
 ### Blueprints
 
-The [Blueprints](concepts-and-architecture.md#blueprints) are plugins to _Sofie_, which allow for customization and tailor-made show designs.
-The way these blueprints are created varies based on the characteristics of the input data (rundowns), the desired show design, and the specific devices being controlled.
+The [Blueprints](concepts-and-architecture.md#blueprints) are plugins to _Sofie_, which allows for customization and tailor-made show designs.
+The blueprints are made different depending on how the input data \(rundowns\) look like, how the show-design look like, and what devices to control.

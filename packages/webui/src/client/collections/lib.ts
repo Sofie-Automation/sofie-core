@@ -151,9 +151,9 @@ export function createSyncPeripheralDeviceCustomPublicationMongoCollection<
 	return wrapped
 }
 
-class WrappedMongoReadOnlyCollection<DBInterface extends { _id: ProtectedString<any> }>
-	implements MongoReadOnlyCollection<DBInterface>
-{
+class WrappedMongoReadOnlyCollection<
+	DBInterface extends { _id: ProtectedString<any> },
+> implements MongoReadOnlyCollection<DBInterface> {
 	protected readonly _collection: Mongo.Collection<DBInterface>
 
 	public readonly name: string | null

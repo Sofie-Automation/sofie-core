@@ -128,6 +128,7 @@ function actionToAdLibPieceUi(
 		uniquenessId: action.display.uniquenessId,
 		lifespan: PieceLifespan.WithinPart, // value doesn't matter
 		expectedPackages: action.expectedPackages,
+		invalid: action.invalid,
 	})
 }
 

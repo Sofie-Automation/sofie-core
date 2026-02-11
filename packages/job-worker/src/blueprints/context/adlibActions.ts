@@ -29,7 +29,11 @@ import { ProcessedShowStyleConfig } from '../config.js'
 import { DatastorePersistenceMode } from '@sofie-automation/shared-lib/dist/core/model/TimelineDatastore'
 import { removeTimelineDatastoreValue, setTimelineDatastoreValue } from '../../playout/datastore.js'
 import { executePeripheralDeviceAction, listPlayoutDevices } from '../../peripheralDevice.js'
-import { ActionPartChange, PartAndPieceInstanceActionService } from './services/PartAndPieceInstanceActionService.js'
+import {
+	ActionPartChange,
+	PartAndPieceInstanceActionService,
+	QueueablePartAndPieces,
+} from './services/PartAndPieceInstanceActionService.js'
 import { BlueprintQuickLookInfo } from '@sofie-automation/blueprints-integration/dist/context/quickLoopInfo'
 import { setNextPartFromPart } from '../../playout/setNext.js'
 import { getOrderedPartsAfterPlayhead } from '../../playout/lookahead/util.js'
@@ -76,8 +80,14 @@ export class ActionExecutionContext extends ShowStyleUserContext implements IAct
 	 */
 	public forceRegenerateTimeline = false
 
+	public partToQueueAfterTake: QueueablePartAndPieces | undefined
+
 	public get quickLoopInfo(): BlueprintQuickLookInfo | null {
 		return this.partAndPieceInstanceService.quickLoopInfo
+	}
+
+	public get isRehearsal(): boolean {
+		return this._playoutModel.playlist.rehearsal ?? false
 	}
 
 	public get currentPartState(): ActionPartChange {
@@ -168,6 +178,19 @@ export class ActionExecutionContext extends ShowStyleUserContext implements IAct
 		return this.partAndPieceInstanceService.queuePart(rawPart, rawPieces)
 	}
 
+	queuePartAfterTake(rawPart: IBlueprintPart, rawPieces: IBlueprintPiece[]): void {
+		const currentPartInstance = this._playoutModel.currentPartInstance
+		if (!currentPartInstance) {
+			throw new Error('Cannot queue part when no current partInstance')
+		}
+		this.partToQueueAfterTake = this.partAndPieceInstanceService.processPartAndPiecesToQueueOrFail(
+			rawPart,
+			rawPieces,
+			this._playoutModel.currentPartInstance.partInstance.rundownId,
+			this._playoutModel.currentPartInstance.partInstance.segmentId
+		)
+	}
+
 	async moveNextPart(partDelta: number, segmentDelta: number, ignoreQuickloop?: boolean): Promise<void> {
 		const selectedPart = selectNewPartWithOffsets(
 			this._context,
@@ -237,9 +260,10 @@ export class ActionExecutionContext extends ShowStyleUserContext implements IAct
 	async executeTSRAction(
 		deviceId: PeripheralDeviceId,
 		actionId: string,
-		payload: Record<string, any>
+		payload: Record<string, any>,
+		timeoutMs?: number
 	): Promise<TSR.ActionExecutionResult> {
-		return executePeripheralDeviceAction(this._context, deviceId, null, actionId, payload)
+		return executePeripheralDeviceAction(this._context, deviceId, timeoutMs ?? null, actionId, payload)
 	}
 
 	async setTimelineDatastoreValue(key: string, value: unknown, mode: DatastorePersistenceMode): Promise<void> {

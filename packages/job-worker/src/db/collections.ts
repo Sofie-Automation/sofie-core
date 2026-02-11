@@ -83,8 +83,9 @@ export type IChangeStreamEvents<TDoc extends { _id: ProtectedString<any> }> = {
 	change: [doc: ChangeStreamDocument<TDoc>]
 }
 
-export interface IChangeStream<TDoc extends { _id: ProtectedString<any> }>
-	extends EventEmitter<IChangeStreamEvents<TDoc>> {
+export interface IChangeStream<TDoc extends { _id: ProtectedString<any> }> extends EventEmitter<
+	IChangeStreamEvents<TDoc>
+> {
 	readonly closed: boolean
 
 	close(): Promise<void>

@@ -1,9 +1,3 @@
-/** These are extra packages in the mono-repo, not necessary for Sofie Core development */
-const EXTRA_PACKAGES = [
-	"@sofie-automation/openapi",
-	"live-status-gateway",
-	"mos-gateway",
-];
 const args = process.argv.slice(2);
 
 const config = {
@@ -13,6 +7,5 @@ const config = {
 };
 
 module.exports = {
-	EXTRA_PACKAGES,
 	config,
 };

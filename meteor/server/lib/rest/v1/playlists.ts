@@ -7,6 +7,7 @@ import {
 	PartInstanceId,
 	PieceId,
 	RundownBaselineAdLibActionId,
+	RundownId,
 	RundownPlaylistId,
 	SegmentId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
@@ -43,6 +44,15 @@ export interface PlaylistsRestAPI {
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		rehearsal: boolean
+	): Promise<ClientAPI.ClientResponse<void>>
+	/**
+	 * Activates AdLibs testing mode.
+	 */
+	activateAdLibTesting(
+		connection: Meteor.Connection,
+		event: string,
+		rundownPlaylistId: RundownPlaylistId,
+		rundownId: RundownId
 	): Promise<ClientAPI.ClientResponse<void>>
 	/**
 	 * Deactivates a Playlist.

@@ -112,8 +112,10 @@ export interface HackPartMediaObjectSubscription {
 }
 
 /** The Part generated from Blueprint */
-export interface IBlueprintPart<TPrivateData = unknown, TPublicData = unknown>
-	extends IBlueprintMutatablePart<TPrivateData, TPublicData> {
+export interface IBlueprintPart<TPrivateData = unknown, TPublicData = unknown> extends IBlueprintMutatablePart<
+	TPrivateData,
+	TPublicData
+> {
 	/** Id of the part from the gateway if this part does not map directly to an IngestPart. This must be unique for each part */
 	externalId: string
 
@@ -175,8 +177,10 @@ export interface IBlueprintPart<TPrivateData = unknown, TPublicData = unknown>
 }
 
 /** The Part sent from Core */
-export interface IBlueprintPartDB<TPrivateData = unknown, TPublicData = unknown>
-	extends IBlueprintPart<TPrivateData, TPublicData> {
+export interface IBlueprintPartDB<TPrivateData = unknown, TPublicData = unknown> extends IBlueprintPart<
+	TPrivateData,
+	TPublicData
+> {
 	_id: string
 	/** The segment ("Title") this line belongs to */
 	segmentId: string

@@ -1,7 +1,7 @@
 import process from "process";
 import fs from "fs";
 import concurrently from "concurrently";
-import { EXTRA_PACKAGES, config } from "./lib.js";
+import { config } from "./lib.js";
 
 function joinCommand(...parts) {
 	return parts.filter((part) => !!part).join(" ");
@@ -10,15 +10,9 @@ function joinCommand(...parts) {
 function watchPackages() {
 	return [
 		{
-			command: joinCommand('yarn watch',
-				config.uiOnly
-					? EXTRA_PACKAGES.map((pkg) => `--ignore ${pkg}`).join(
-						" "
-					)
-					: "",
-			),
+			command: 'yarn watch --preserveWatchOutput',
 			cwd: "packages",
-			name: "PACKAGES-TSC",
+			name: "TSC",
 			prefixColor: "red",
 		},
 	];
@@ -47,12 +41,6 @@ function watchMeteor() {
 	const rootUrl = process.env.ROOT_URL ? new URL(process.env.ROOT_URL) : null
 
 	return [
-		{
-			command: "yarn watch-types --preserveWatchOutput",
-			cwd: "meteor",
-			name: "METEOR-TSC",
-			prefixColor: "blue",
-		},
 		{
 			command: joinCommand(
 				'yarn debug',

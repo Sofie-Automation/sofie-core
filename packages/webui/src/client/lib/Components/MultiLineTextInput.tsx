@@ -86,8 +86,10 @@ export function MultiLineTextInputControl({
 	)
 }
 
-interface ICombinedMultiLineTextInputControlProps
-	extends Omit<IMultiLineTextInputControlProps, 'value' | 'handleUpdate'> {
+interface ICombinedMultiLineTextInputControlProps extends Omit<
+	IMultiLineTextInputControlProps,
+	'value' | 'handleUpdate'
+> {
 	value: string
 	handleUpdate: (value: string) => void
 }

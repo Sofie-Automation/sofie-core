@@ -60,7 +60,9 @@ export interface IBlueprintSegment<TPrivateData = unknown, TPublicData = unknown
 	userEditProperties?: UserEditingProperties
 }
 /** The Segment sent from Core */
-export interface IBlueprintSegmentDB<TPrivateData = unknown, TPublicData = unknown>
-	extends IBlueprintSegment<TPrivateData, TPublicData> {
+export interface IBlueprintSegmentDB<TPrivateData = unknown, TPublicData = unknown> extends IBlueprintSegment<
+	TPrivateData,
+	TPublicData
+> {
 	_id: string
 }

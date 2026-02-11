@@ -18,7 +18,7 @@ import _ from 'underscore'
 import { DeviceConfig } from './connector.js'
 import { TSRHandler } from './tsrHandler.js'
 import { Logger } from 'winston'
-// eslint-disable-next-line n/no-extraneous-import
+
 import { MemUsageReport as ThreadMemUsageReport } from 'threadedclass'
 import { compilePlayoutGatewayConfigManifest } from './configManifest.js'
 import { BaseRemoteDeviceIntegration } from 'timeline-state-resolver/dist/service/remoteDeviceInstance'

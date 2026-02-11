@@ -45,6 +45,8 @@ paths:
     $ref: 'definitions/playlists.yaml#/resources/activate'
   /playlists/{playlistId}/deactivate:
     $ref: 'definitions/playlists.yaml#/resources/deactivate'
+  /playlists/{playlistId}/rundowns/{rundownId}/activate-adlib-testing:
+    $ref: 'definitions/playlists.yaml#/resources/activateAdlibTesting'
   /playlists/{playlistId}/execute-adlib:
     $ref: 'definitions/playlists.yaml#/resources/executeAdLib'
   /playlists/{playlistId}/execute-bucket-adlib:
@@ -111,3 +113,20 @@ paths:
   # snapshot operations
   /snapshots:
     $ref: 'definitions/snapshots.yaml#/resources/snapshots'
+  # ingest operations
+  /ingest/{studioId}/playlists:
+    $ref: 'definitions/ingest.yaml#/resources/playlists'
+  /ingest/{studioId}/playlists/{playlistId}:
+    $ref: 'definitions/ingest.yaml#/resources/playlist'
+  /ingest/{studioId}/playlists/{playlistId}/rundowns:
+    $ref: 'definitions/ingest.yaml#/resources/rundowns'
+  /ingest/{studioId}/playlists/{playlistId}/rundowns/{rundownId}:
+    $ref: 'definitions/ingest.yaml#/resources/rundown'
+  /ingest/{studioId}/playlists/{playlistId}/rundowns/{rundownId}/segments:
+    $ref: 'definitions/ingest.yaml#/resources/segments'
+  /ingest/{studioId}/playlists/{playlistId}/rundowns/{rundownId}/segments/{segmentId}:
+    $ref: 'definitions/ingest.yaml#/resources/segment'
+  /ingest/{studioId}/playlists/{playlistId}/rundowns/{rundownId}/segments/{segmentId}/parts:
+    $ref: 'definitions/ingest.yaml#/resources/parts'
+  /ingest/{studioId}/playlists/{playlistId}/rundowns/{rundownId}/segments/{segmentId}/parts/{partId}:
+    $ref: 'definitions/ingest.yaml#/resources/part'

@@ -9,6 +9,9 @@ on:
     types: [opened, synchronize, reopened]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 name: SonarCloud analysis
 jobs:
   sonarqube:
@@ -30,7 +33,7 @@ jobs:
           node-version-file: ".node-version"
       - uses: ./.github/actions/setup-meteor
       - name: restore node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             node_modules
@@ -43,10 +46,14 @@ jobs:
 
           yarn config set cacheFolder /home/runner/lint-core-cache
           yarn
+
+          # setup zodern:types. No linters are setup, so this simply installs the packages
+          yarn meteor lint
+
           yarn build:packages
         env:
           CI: true
       - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v6
+        uses: SonarSource/sonarqube-scan-action@v7
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

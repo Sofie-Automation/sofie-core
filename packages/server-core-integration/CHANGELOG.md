@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [26.3.0-0](https://github.com/Sofie-Automation/sofie-core/compare/v1.52.0...v26.3.0-0) (2026-02-04)
+
+
+### Bug Fixes
+
+* **core-integration:** use setMaxListeners on CoreConnection to avoid MaxListenersExceededWarning message ([a02ef23](https://github.com/Sofie-Automation/sofie-core/commit/a02ef236b8a396847bc467ccd5f459a0862e6abe))
+
+
+### Features
+
+* add health endpoints to MOS- and Playout-Gateway ([5b590dd](https://github.com/Sofie-Automation/sofie-core/commit/5b590ddbaf86ee90d338837867a4d3bfc2e11c97))
+* update meteor to 3.3.2 ([#1529](https://github.com/Sofie-Automation/sofie-core/issues/1529)) ([9bd232e](https://github.com/Sofie-Automation/sofie-core/commit/9bd232e8f0561a46db8cc6143c5353d7fa531206))
+
+
+
+
+
 # [1.52.0](https://github.com/Sofie-Automation/sofie-core/compare/v1.52.0-in-testing.1...v1.52.0) (2025-06-30)
 
 **Note:** Version bump only for package @sofie-automation/server-core-integration

@@ -179,7 +179,7 @@ blueprintsRouter.post(
 	}
 )
 
-blueprintsRouter.get('/assets/(.*)', async (ctx) => {
+blueprintsRouter.get('/assets/*splat', async (ctx) => {
 	logger.debug(`Blueprint Asset: ${ctx.socket.remoteAddress} GET "${ctx.url}"`)
 	// TODO - some sort of user verification
 	// for now just check it's a png to prevent snapshots being downloaded

@@ -22,6 +22,11 @@ $defs:
           type: string
       publicData:
         description: Optional arbitrary data
+      abSessions:
+        description: AB playback session assignments for this Piece
+        type: array
+        items:
+          $ref: './abSessionAssignment.yaml'
     required: [id, name, sourceLayer, outputLayer]
     additionalProperties: false
     examples:

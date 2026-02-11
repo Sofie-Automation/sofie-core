@@ -17,7 +17,9 @@ export interface ExpectedPackageWorkStatus extends Omit<ExpectedPackageStatusAPI
 
 	modified: Time
 }
-export interface ExpectedPackageWorkStatusFromPackage
-	extends Omit<ExpectedPackageStatusAPI.WorkBaseInfoFromPackage, 'id'> {
+export interface ExpectedPackageWorkStatusFromPackage extends Omit<
+	ExpectedPackageStatusAPI.WorkBaseInfoFromPackage,
+	'id'
+> {
 	id: ExpectedPackageId
 }

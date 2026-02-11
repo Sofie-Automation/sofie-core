@@ -8,7 +8,7 @@ COPY . .
 RUN corepack enable
 RUN yarn install --immutable
 RUN yarn run pinst --disable
-RUN yarn lerna run --scope \*\*/playout-gateway --include-dependencies --stream build
+RUN yarn build:single playout-gateway/tsconfig.build.json
 RUN yarn workspaces focus playout-gateway --production # purge dev-dependencies
 
 # DEPLOY IMAGE

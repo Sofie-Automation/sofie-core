@@ -2,31 +2,18 @@
 
 The MOS Gateway communicates with a device that supports the [MOS protocol](http://mosprotocol.com/wp-content/MOS-Protocol-Documents/MOS-Protocol-2.8.4-Current.htm) to ingest and remain in sync with a rundown. It can connect to any editorial system \(NRCS\) that uses version 2.8.4 of the MOS protocol, such as ENPS, and sync their rundowns with the _Sofie&nbsp;Core_. The rundowns are kept updated in real time and any changes made will be seen in the Sofie GUI.
 
-The setup for the MOS Gateway is handled in the Docker Compose in the [Quick Install](../../installing-sofie-server-core.md) page.
+MOS 2.8.4 uses TCP Sockets to send XML messages between the NRCS and the Automation Systems. This is done via two open ports on the Automation System side (the *upper* and *lower* port) and two ports on the NRCS side (*upper* and *lower* as well).
 
-An example setup for the MOS Gateway is included in the example Docker Compose file found in the [Quick install](../../installing-sofie-server-core.md) with the `mos-gateway` profile.
+The setup for the MOS Gateway is handled in the Docker Compose in the [Quick Install](../../quick-install.md) page. Remove the _\#_ symbols from the start of the section labelled `mos-gateway:` and make sure that other ingest gateway sections have a _\#_ prefix.
 
-You can activate the profile by setting `COMPOSE_PROFILES=mos-gateway` as an environment variable or by writing that to a file called `.env` in the same folder as the docker-compose file. For more information, see the [docker documentation on Compose profiles](https://docs.docker.com/compose/how-tos/profiles/).
+You will also need to configure your NRCS to connect to Sofie. Refer to your NRCS's documentation on how that needs to be done.
 
-Development of the MOS gateway is done as a package in the [sofie-core repository on GitHub](https://github.com/nrkno/sofie-core/tree/master/packages/mos-gateway).
+After the Gateway is deployed, you will need to assign it to a Studio and you will need to go into *Settings* 🡒 *Studios* 🡒 *Your studio name* -> *Peripheral Devices* 🡒 *MOS gateway* 🡒 Edit and configure the MOS ID that this Gateway will use when talking to the NRCS. This needs to match the configuration within your NRCS.
 
-One thing to note if managing the mos-gateway manually: It needs a few ports open \(10540, 10541\) for MOS-messages to be pushed to it from the NCS.
-
-## Status Reporting
+Then, in the *Ingest Devices* section of the *Peripheral Devices* page, use the **+** button to add a new *MOS device*. In *Peripheral Device ID* select *MOS gateway* and in *Device Type* select *MOS Device*. You will then be able to provide the MOS ID of your Primary and Secondary NRCS servers and enter their Hostname/IP Address and Upper and Lower Port information.
 
 :::warning
-Behaviour of this has changed In R53 as part of expanding the reporting ability.  
-If you were using this prior to that change, you can restore previous behaviour by enabling `Write Statuses to NRCS` and `Only send PLAY statuses` in the MOS gateway settings.
+One thing to note if managing the `mos-gateway` manually: It needs a few ports open \(10540, 10541 by default\) for MOS-messages to be pushed to it from the NRCS. If the defaults are changed in Peripheral Device settings, this needs to be reflected by Docker configuration changes.
 :::
 
-Sofie is able to report statuses back to stories and objects in the NRCS. It does this by having the blueprints define some properties on the Part during ingest, and the mos-gateway to consolidate this and send messages.
 
-:::tip
-This functionality requires blueprints which set some properties to enable the various states and behaviours. You can read more about that in the [developer guide](../../../../for-developers/for-blueprint-developers/mos-statuses.md)
-:::
-
-### Gateway settings
-
-- `Write Statuses to NRCS` - This is the core setting that must be enabled for any statuses to be checked or sent.
-- `Send when in Rehearsal mode` - By default statuses are not reported when in rehearsal mode.
-- `Only send PLAY statuses` - In some environments it can be desirable to only send `PLAY` messages and not `STOP`. Enabling this will stop Sofie from sending anything other than `PLAY`

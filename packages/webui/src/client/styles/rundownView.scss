@@ -1030,7 +1030,7 @@ svg.icon {
 						}
 					}
 
-					&.collapsable.collapsed {
+					&.collapsible.collapsed {
 						border-bottom: none;
 
 						.segment-timeline__layer {
@@ -2155,8 +2155,8 @@ svg.icon {
 					}
 				}
 
-				// The output group is collapsable if it has more than a single source layer attached to it
-				&.collapsable {
+				// The output group is collapsible if it has more than a single source layer attached to it
+				&.collapsible {
 					&.collapsed {
 						border-bottom: 2px solid $segment-layer-separator-color;
 
@@ -2566,8 +2566,8 @@ svg.icon {
 					0s visibility 0s;
 			}
 
-			// the output layer group is collapsable if it has more than one source layer assinged
-			&.collapsable {
+			// the output layer group is collapsible if it has more than one source layer assinged
+			&.collapsible {
 				// this is the "line" grouping source layers together
 				&::after {
 					content: ' ';
@@ -2765,7 +2765,7 @@ svg.icon {
 						}
 					}
 
-					&.collapsable.collapsed {
+					&.collapsible.collapsed {
 						border-bottom: 0px solid $segment-layer-separator-color;
 
 						.segment-timeline__layer {

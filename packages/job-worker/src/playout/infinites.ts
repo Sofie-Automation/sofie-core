@@ -158,13 +158,13 @@ export async function fetchPiecesThatMayBeActiveForPart(
 ): Promise<ReadonlyDeep<Piece>[]> {
 	const span = context.startSpan('fetchPiecesThatMayBeActiveForPart')
 
-	const piecePromises: Array<Promise<Array<Piece>> | Array<ReadonlyDeep<Piece>>> = []
+	const piecePromises: Array<Promise<Array<Piece> | Array<ReadonlyDeep<Piece>>>> = []
 
 	// Find all the pieces starting in the part
 	const thisPiecesQuery = buildPiecesStartingInThisPartQuery(part)
 	piecePromises.push(
 		unsavedIngestModel?.rundownId === part.rundownId
-			? unsavedIngestModel.getAllPieces().filter((p) => mongoWhere(p, thisPiecesQuery))
+			? Promise.resolve(unsavedIngestModel.getAllPieces().filter((p) => mongoWhere(p, thisPiecesQuery)))
 			: context.directCollections.Pieces.findFetch(thisPiecesQuery)
 	)
 
@@ -181,7 +181,9 @@ export async function fetchPiecesThatMayBeActiveForPart(
 			[] // other rundowns don't exist in the ingestModel
 		)
 		if (thisRundownPieceQuery) {
-			piecePromises.push(unsavedIngestModel.getAllPieces().filter((p) => mongoWhere(p, thisRundownPieceQuery)))
+			piecePromises.push(
+				Promise.resolve(unsavedIngestModel.getAllPieces().filter((p) => mongoWhere(p, thisRundownPieceQuery)))
+			)
 		}
 
 		// Find pieces for the previous rundowns

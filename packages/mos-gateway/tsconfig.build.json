@@ -1,7 +1,7 @@
 {
 	"extends": "@sofie-automation/code-standard-preset/ts/tsconfig.bin",
 	"include": ["src/**/*.ts"],
-	"exclude": ["node_modules/**", "src/**/*spec.ts", "src/**/__tests__/*", "src/**/__mocks__/*"],
+	"exclude": ["node_modules/**", "**/*spec.ts", "**/__tests__/*", "**/__mocks__/*"],
 	"compilerOptions": {
 		"outDir": "./dist",
 		"baseUrl": "./",
@@ -13,5 +13,10 @@
 		"resolveJsonModule": true,
 		"skipLibCheck": true,
 		"esModuleInterop": true
-	}
+	},
+	"references": [
+		//
+		{ "path": "../shared-lib/tsconfig.build.json" },
+		{ "path": "../server-core-integration/tsconfig.build.json" }
+	]
 }

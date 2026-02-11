@@ -206,7 +206,7 @@ A window will open and display the status for the server and scanner. You can st
 
 Now that your CasparCG&nbsp;Server software is running, you can connect it to the _Sofie&nbsp;Core_. Navigate back to the _Settings page_ and in the menu, select the _Playout Gateway_. If the _Playout Gateway's_ status does not read _Good_, then please review the [Installing and Setting up the Playout Gateway](../installing-a-gateway/playout-gateway.md) section of this guide.
 
-Under the Sub Devices section, you can add a new device with the _+_ button. Then select the pencil \( edit \) icon on the new device to open the sub device's settings. Select the _Device Type_ option and choose _CasparCG_ from the drop down menu. Some additional fields will be added to the form.
+Under the Sub Devices section, you can add a new device with the _+_ button. Then select the pencil \( edit \) icon on the new device to open the sub device's settings. Select the _Device Type_ option and choose _CasparCG_ from the drop-down menu. Some additional fields will be added to the form.
 
 The _Host_ and _Launcher Host_ fields will be _localhost_. The _Port_ will be CasparCG's TCP port responsible for handling the AMCP commands. It defaults to 5052 in the `casparcg.config` file. The _Launcher Port_ will be the CasparCG Launcher's port for handling HTTP requests. It will default to 8005 and can be changed in the _Launcher's settings page_. Once all four fields are filled out, you can click the check mark to save the device.
 
@@ -214,8 +214,8 @@ In the _Attached Sub Devices_ section, you should now see the status of the Casp
 
 ## Further Reading
 
-- [CasparCG&nbsp;Server Releases](https://github.com/nrkno/sofie-casparcg-server/releases) on GitHub.
-- [Media Scanner Releases](https://github.com/nrkno/sofie-media-scanner/releases) on GitHub.
+- [CasparCG&nbsp;Server Releases](https://github.com/CasparCG/server/releases) on GitHub.
+- [Media Scanner Releases](https://github.com/CasparCG/media-scanner/releases) on GitHub.
 - [CasparCG Launcher](https://github.com/Sofie-Automation/sofie-casparcg-launcher) on GitHub.
 - [Microsoft Visual C++ 2015 Redistributable](https://www.microsoft.com/en-us/download/details.aspx?id=52685) on Microsoft's website.
 - [Blackmagic Design's DeckLink Cards](https://www.blackmagicdesign.com/products/decklink/models) on Blackmagic's website. Check the [DeckLink cards](casparcg-server-installation.md#decklink-cards) section for compatibility.

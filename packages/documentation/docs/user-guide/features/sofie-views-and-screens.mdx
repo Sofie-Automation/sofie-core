@@ -11,16 +11,18 @@ import TabItem from '@theme/TabItem'
 
 - A _**View**_ is defined as a particular layout of Sofie's main user interface.
   - A _**Mode**_ is one of several ways to configure a particular "View" of Sofie's main user interface.
-  - A _**Panel**_ is defined as an expandable/collapsable area of Sofie's main user interface.
+  - A _**Panel**_ is defined as an expandable/collapsible area of Sofie's main user interface.
 - A _**Screen**_ is defined a layout intended to be used on an external display, in addition to with Sofie's main user interface.
 
-## Lobby View
+## Sofie Views
+
+### Lobby View
 
 ![Rundown View](/img/docs/lobby-view.png)
 
 All existing rundowns are listed in the _Lobby View_.
 
-## Rundown View
+### Rundown View
 
 ![Rundown View](/img/docs/main/features/active-rundown-example.png)
 
@@ -59,19 +61,17 @@ If a Piece has more or less content than the Part's expected duration allows, an
 
 Elements in the [Next point](#next-point) \(or beyond\) might be pre-loaded or "put on preview", depending on the blueprints and playout devices used. This feature is called "Lookahead".
 
-### Rundown View Modes
+#### Rundown View Modes
 
 In the top-right corner of the Segment, there's a button controlling the display style of a given Segment. The default display style of a Segment can be indicated by the [Blueprints](../concepts-and-architecture.md#blueprints), but the user can switch to a different mode at any time. You can also change the display mode of all Segments at once, using a button in the bottom-right corner of the Rundown View.
 
 All user interactions work in the Storyboard Mode and List Mode the same as in Timeline Mode: Takes, AdLibs, Holds, and moving the [Next Point](#next-point) around the Rundown.
 
-#### Timeline Mode
+##### Timeline Mode
 
 The default mode for the Rundown.
 
-#### Storyboard Mode
-
-### Storyboard Mode
+##### Storyboard Mode
 
 In the top-right corner of the Segment, there's a button controlling the display style of a given Segment. The default display style of a Segment can be indicated by the [Blueprints](../concepts-and-architecture.md#blueprints), but the User can switch to a different mode at any time. You can also change the display mode of all Segments at once, using a button in the bottom-right corner of the Rundown View.
 
@@ -83,7 +83,7 @@ Storyboard mode selects a "main" Piece of the Part, using the same logic as the 
 
 If no more Parts can be displayed in a given Segment, they are stacked in order on the right side of the Segment. The User can scroll through these Parts by click-and-dragging the Storyboard area, or using the mouse wheel - `Alt`+Wheel, if only a vertical wheel is present in the mouse.
 
-#### List Mode
+##### List Mode
 
 Another mode available to display a Segment is the List Mode. In this mode, each _Part_ and it's contents are being displayed as a mini-timeline and it's width is normalized to fit the screen, unless it's shorter than 30 seconds, in which case it will be scaled down accordingly.
 
@@ -101,7 +101,7 @@ The Segment header area also shows the expected (planned) durations for all the 
 
 All user interactions work in the Storyboard and List View mode the same as in Timeline mode: Takes, AdLibs, Holds and moving the [Next Point](#next-point) around the Rundown.
 
-### Segment Header Countdowns
+#### Segment Header Countdowns
 
 ![Each Segment has two clocks — the Segment Time Budget and a Segment Countdown](/img/docs/main/segment-budget-and-countdown.png)
 
@@ -121,7 +121,7 @@ If you click on the Segment header countdowns, you can switch the _Segment Count
 
 ![Each Segment has two clocks - the Segment Time Budget and a Segment Countdown](/img/docs/main/features/segment-header-2.png)
 
-### Rundown Dividers
+#### Rundown Dividers
 
 When using a workflow and blueprints that combine multiple NRCS Rundowns into a single Sofie Rundown \(such as when using the "Ready To Air" functionality in AP ENPS\), information about these individual NRCS Rundowns will be inserted into the Rundown View at the point where each of these incoming Rundowns start.
 
@@ -129,7 +129,7 @@ When using a workflow and blueprints that combine multiple NRCS Rundowns into a 
 
 For reference, these headers show the Name, Planned Start and Planned Duration of the individual NRCS Rundown.
 
-### Shelf
+#### Shelf
 
 The shelf contains lists of AdLibs that can be played out.
 
@@ -139,7 +139,7 @@ The shelf contains lists of AdLibs that can be played out.
 The Shelf can be opened by clicking the handle at the bottom of the screen, or by pressing the TAB key
 :::
 
-### Shelf Layouts
+#### Shelf Layouts
 
 The _Rundown View_ and the _Detached Shelf View_ UI can have multiple concurrent layouts for any given Show Style. The automatic selection mechanism works as follows:
 
@@ -168,9 +168,9 @@ _Note: the Inspector is limited in scope to a particular browser window/screen, 
 
 For the purpose of running the system in a studio environment, there are some additional views that can be used for various purposes:
 
-### Sidebar Panel
+#### Sidebar Panel
 
-#### Switchboard
+##### Switchboard
 
 ![Switchboard](/img/docs/main/switchboard.png)
 
@@ -182,7 +182,7 @@ The Switchboard panel can be accessed from the Rundown View's right-hand Toolbar
 Technically, the switchboard activates and deactivates Route Sets. The Route Sets are grouped by Exclusivity Group. If an Exclusivity Group contains exactly two elements with the `ACTIVATE_ONLY` mode, the Route Sets will be displayed on either side of the switch. Otherwise, they will be displayed separately in a list next to an _Off_ position. See also [Settings ● Route sets](../configuration/settings-view#route-sets).
 :::
 
-#### Media Status Panel
+##### Media Status Panel
 
 ![Media Status panel](/img/docs/main/features/media-status-rundown-view-panel.png)
 
@@ -194,7 +194,7 @@ Note that while the _Filter..._ text field is focused, you will not be able to
 use hotkey triggers for playout actions. You can remove the focus from the field
 by pressing the <kbd>Esc</kbd> key.
 
-## Evaluations
+### Evaluations
 
 When a broadcast is done, users can input feedback about how the show went in an evaluation form.
 
@@ -202,11 +202,74 @@ When a broadcast is done, users can input feedback about how the show went in an
 Evaluations can be configured to be sent to Slack, by setting the "Slack Webhook URL" in the [Settings View](../configuration/settings-view.md) under _Studio_.
 :::
 
-## Settings View
+### Settings View
 
 The [Settings View](../configuration/settings-view.md) is only available to users with the [Access Level](access-levels.md) set correctly.
 
-## Screens
+### Media Status View
+
+`/status/media`
+
+This view is a summary of all the media required for playback for Rundowns
+present in this System. This view allows you to see if clips are ready for
+playback or if they are still waiting to become available to be transferred
+onto a playout system.
+
+![Media Status View](/img/docs/main/features/media-status.png)
+
+By default, the Media items are sorted according to their position in the
+rundown, and the rundowns are in the same order as in the [Lobby View]
+(#lobby-view). You can change the sorting order by clicking on the buttons in
+the table header.
+
+The Rundown View also has a panel that presents this information in the [context of the current Rundown](#media-status-panel).
+
+### Available screens View
+
+`/countdowns/:studioId`
+
+The "Available screens" view provides a centralized location to discover and configure all available screens for a given studio. This page is particularly useful for setting up displays in a studio environment, as it allows you to:
+
+- Access quick links to common screens (Director, Overlay, Multiview, Active Rundown)
+- Configure screens with custom parameters before opening them
+- Generate properly formatted URLs with all desired options
+
+#### Quick Links
+
+The Quick Links section provides direct access to screens that don't require configuration:
+
+- **Director Screen** - Shows countdown timers for the director
+- **Overlay Screen** - Transparent overlay for presenter displays
+- **All Screens in a MultiViewer** - Grid view of all screens simultaneously
+- **Active Rundown View** - Currently active rundown for secondary monitors
+
+#### Configurable Screens
+
+The Configurable Screens section uses collapsible accordion panels that let you customize settings before opening a screen:
+
+**Presenter Screen Configuration**
+- Select a specific Presenter Layout from available layouts for the Show Style
+- Generates URL with `presenterLayout` parameter
+
+**Camera Screen Configuration**
+- Filter by specific Source Layer IDs (e.g., cameras, DVEs)
+- Filter by Studio Labels to show only relevant cameras
+- Enable fullscreen mode for mobile devices
+- Generates URL with `sourceLayerIds`, `studioLabels`, and `fullscreen` parameters
+
+**Prompter Configuration**
+- Configure display options (mirroring, font size, margins, read marker position)
+- Select control modes (mouse, keyboard, shuttle devices, MIDI pedal, Joy-Con, Xbox controller)
+- Fine-tune controller parameters (speed maps, dead zones, ranges)
+- Generates URL with all selected parameters
+
+Each configuration form generates a complete URL that can be copied or opened directly. This eliminates the need to manually construct query strings for complex screen configurations.
+
+:::tip
+Bookmark the "Available screens" view for your studio (e.g., `/countdowns/studio0`) for quick access when setting up displays or troubleshooting screen configurations.
+:::
+
+## Sofie Screens
 
 ### Prompter Screen
 
@@ -216,11 +279,11 @@ The [Settings View](../configuration/settings-view.md) is only available to user
 
 A fullscreen page which displays the prompter text for the currently active rundown. The prompter can be controlled and configured in various ways, see more at the [Prompter](prompter.md) documentation. If no Rundown is active in a given studio, the [Screensaver](./sofie-views-and-screens.mdx#screensaver) will be displayed.
 
-### Presenter Screen
+### Director Screen
 
 `/countdowns/:studioId/director`
 
-![Director View](/img/docs/main/features/director-screen-example.png)
+![Director Screen](/img/docs/main/features/director-screen-example.png)
 
 A fullscreen page, intended to be shown to the director. It displays countdown timers for the current and next items in the rundown. If no Rundown is active in a given studio, the [Screensaver](./sofie-views-and-screens.mdx#screensaver) will be shown.
 
@@ -234,13 +297,19 @@ The AB Channel Display appears as a small icon (A, B, C, etc.) next to clips tha
 AB Channel Display only appears for Pieces that have `abSessions` defined and where the ShowStyle's AB Channel Display configuration matches the Piece's source layer type or ID.
 :::
 
-## Presenter View
+### Presenter Screen
 
 `/countdowns/:studioId/presenter`
 
 ![Presenter Screen](/img/docs/main/features/presenter-screen-example.png)
 
 A fullscreen page, intended to be shown to the studio presenter. It displays countdown timers for the current and next items in the rundown. If no Rundown is active in a given studio, the [Screensaver](sofie-views-and-screens.mdx#screensaver) will be shown.
+
+This screen can be configured using query parameters:
+
+| Query parameter   | Type   | Description                                                                                          | Default                          |
+| :---------------- | :----- | :--------------------------------------------------------------------------------------------------- | :------------------------------- |
+| `presenterLayout` | string | The ID or partial name of a Presenter Layout to use. Matched against available layouts for the Show Style. | _(first available layout)_ |
 
 #### Presenter Screen Overlay
 
@@ -294,6 +363,20 @@ A shelf layout can be selected by modifying the query string, see [Shelf Layouts
 
 Displays the Shelf in fullscreen for a rundown.
 
+### Multiview Screen
+
+`/countdowns/:studioId/multiview`
+
+A fullscreen page that displays multiple studio screens simultaneously in a grid layout. This is useful for monitoring all screens at once on a single display. The Multiview Screen embeds the following screens:
+
+- Presenter Screen
+- Director Screen
+- Prompter Screen
+- Overlay Screen
+- Camera Screen
+
+Each embedded screen shows a label to identify it. This screen is mostly intended for debugging use by developers, but may be useful in control rooms or production environments where operators need to monitor multiple displays at a glance.
+
 ### Screensaver
 
 When big screen displays \(like Prompter Screen and the Presenter Screen\) do not have any meaningful content to show, an animated screensaver showing the current time and the next planned show will be displayed. If no Rundown is upcoming, the Studio name will be displayed.
@@ -311,22 +394,6 @@ System and devices statuses are displayed here.
 :::info
 An API endpoint for the system status is also available under the URL `/health`
 :::
-
-### Media Status Screen
-
-This screen is a summary of all the media required for playback for Rundowns
-present in this System. This view allows you to see if clips are ready for
-playback or if they are still waiting to become available to be transferred
-onto a playout system.
-
-![Media Status Screen](/img/docs/main/features/media-status.png)
-
-By default, the Media items are sorted according to their position in the
-rundown, and the rundowns are in the same order as in the [Lobby View]
-(#lobby-view). You can change the sorting order by clicking on the buttons in
-the table header.
-
-The Rundown View also has a panel that presents this information in the [context of the current Rundown](#media-status-panel).
 
 ### Message Queue Screen
 
@@ -348,7 +415,7 @@ The user activity log contains a list of the user-actions that users have previo
 
 #### Columns, explained
 
-#### Execution time
+##### Execution time
 
 The execution time column displays **coreDuration** + **gatewayDuration** \(**timelineResolveDuration**\)":
 
@@ -359,26 +426,14 @@ The execution time column displays **coreDuration** + **gatewayDuration** \(**ti
 Important to note is that **gatewayDuration** begins at the exact moment **coreDuration** ends.
 So **coreDuration + gatewayDuration** is the full time it took from beginning-of-user-action to the timeline-resolved \(plus a little extra for the final callback for reporting the measurement\).
 
-#### Action
+##### Action
 
 Describes what action the user did; e g pressed a key, clicked a button, or selected a menu item.
 
-#### Method
+##### Method
 
 The internal name in _Sofie&nbsp;Core_ of what function was called
 
-#### Status
+##### Status
 
 The result of the operation. "Success" or an error message.
-
-## Evaluations
-
-When a broadcast is done, users can input feedback about how the show went in an evaluation form.
-
-:::info
-Evaluations can be configured to be sent to Slack, by setting the "Slack Webhook URL" in the [Settings View](../configuration/settings-view.md) under _Studio_.
-:::
-
-## Settings View
-
-The [Settings View](../configuration/settings-view.md) is only available to users with the [Access Level](access-levels.md) set correctly.

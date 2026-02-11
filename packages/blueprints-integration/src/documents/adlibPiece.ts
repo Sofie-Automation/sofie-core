@@ -1,7 +1,9 @@
 import type { IBlueprintPieceGeneric } from './pieceGeneric.js'
 
-export interface IBlueprintAdLibPiece<TPrivateData = unknown, TPublicData = unknown>
-	extends IBlueprintPieceGeneric<TPrivateData, TPublicData> {
+export interface IBlueprintAdLibPiece<TPrivateData = unknown, TPublicData = unknown> extends IBlueprintPieceGeneric<
+	TPrivateData,
+	TPublicData
+> {
 	/** Used for sorting in the UI */
 	_rank: number
 	/** When something bad has happened, we can mark the AdLib as invalid, which will prevent the user from TAKE:ing it */
@@ -26,7 +28,9 @@ export interface IBlueprintAdLibPiece<TPrivateData = unknown, TPublicData = unkn
 	hidden?: boolean
 }
 /** The AdLib piece sent from Core */
-export interface IBlueprintAdLibPieceDB<TPrivateData = unknown, TPublicData = unknown>
-	extends IBlueprintAdLibPiece<TPrivateData, TPublicData> {
+export interface IBlueprintAdLibPieceDB<TPrivateData = unknown, TPublicData = unknown> extends IBlueprintAdLibPiece<
+	TPrivateData,
+	TPublicData
+> {
 	_id: string
 }

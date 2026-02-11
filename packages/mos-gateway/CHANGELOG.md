@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [26.3.0-0](https://github.com/Sofie-Automation/sofie-core/compare/v1.52.0...v26.3.0-0) (2026-02-04)
+
+
+### Bug Fixes
+
+* docker images using CMD instead of ENTRYPOINT ([e1beb6e](https://github.com/Sofie-Automation/sofie-core/commit/e1beb6e082c7c9ce4a8009feceb58eb7ef89f308))
+* hot standby was not refering to it's full name ([28b9ce1](https://github.com/Sofie-Automation/sofie-core/commit/28b9ce1893f5f495f2798123180bae9ed35cd8f2))
+* update mos-connection for missing mosID bug fix ([#9](https://github.com/Sofie-Automation/sofie-core/issues/9)) ([e8e07e3](https://github.com/Sofie-Automation/sofie-core/commit/e8e07e3e86e0a6e4d1bb5802f0e782ad323f424e))
+
+
+### Features
+
+* add health endpoints to MOS- and Playout-Gateway ([5b590dd](https://github.com/Sofie-Automation/sofie-core/commit/5b590ddbaf86ee90d338837867a4d3bfc2e11c97))
+* Add support for Gateway configuration from the studio API ([#1539](https://github.com/Sofie-Automation/sofie-core/issues/1539)) ([963542a](https://github.com/Sofie-Automation/sofie-core/commit/963542aa060f7db768d47a1d7e4e1f25367bb321))
+* mos status flow rework ([#1356](https://github.com/Sofie-Automation/sofie-core/issues/1356)) ([672f2bd](https://github.com/Sofie-Automation/sofie-core/commit/672f2bd2873ae306db9dfcbbc3064fdcc9ea1cd0))
+* move GW config types to generated in shared lib ([f54d9ca](https://github.com/Sofie-Automation/sofie-core/commit/f54d9ca63bc00a05915aac45e0be5b595c980567))
+* update meteor to 3.3.2 ([#1529](https://github.com/Sofie-Automation/sofie-core/issues/1529)) ([9bd232e](https://github.com/Sofie-Automation/sofie-core/commit/9bd232e8f0561a46db8cc6143c5353d7fa531206))
+
+
+
+
+
 # [1.52.0](https://github.com/Sofie-Automation/sofie-core/compare/v1.52.0-in-testing.1...v1.52.0) (2025-06-30)
 
 **Note:** Version bump only for package mos-gateway

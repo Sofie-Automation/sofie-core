@@ -78,6 +78,12 @@ export async function executeAdlibActionAndSaveModel(
 
 	const adLibActionDoc = await findActionDoc(context, data)
 
+	if (adLibActionDoc && adLibActionDoc.invalid)
+		throw UserError.from(
+			new Error(`Cannot take invalid AdLib Action "${adLibActionDoc._id}"!`),
+			UserErrorMessage.AdlibUnplayable
+		)
+
 	let watchedPackages = WatchedPackagesHelper.empty(context)
 	if (adLibActionDoc && 'rundownId' in adLibActionDoc) {
 		watchedPackages = await WatchedPackagesHelper.create(context, adLibActionDoc.rundownId, null, {
@@ -187,16 +193,16 @@ async function findActionDoc(context: JobContext, data: ExecuteActionProps) {
 
 	const [adLibAction, baselineAdLibAction, bucketAdLibAction] = await Promise.all([
 		context.directCollections.AdLibActions.findOne(data.actionDocId as AdLibActionId, {
-			projection: { _id: 1, privateData: 1 },
+			projection: { _id: 1, privateData: 1, publicData: 1 },
 		}),
 		context.directCollections.RundownBaselineAdLibActions.findOne(
 			data.actionDocId as RundownBaselineAdLibActionId,
 			{
-				projection: { _id: 1, privateData: 1 },
+				projection: { _id: 1, privateData: 1, publicData: 1 },
 			}
 		),
 		context.directCollections.BucketAdLibActions.findOne(data.actionDocId as BucketAdLibActionId, {
-			projection: { _id: 1, privateData: 1 },
+			projection: { _id: 1, privateData: 1, publicData: 1 },
 		}),
 	])
 	return adLibAction ?? baselineAdLibAction ?? bucketAdLibAction
@@ -288,7 +294,7 @@ async function applyAnyExecutionSideEffects(
 	await applyActionSideEffects(context, playoutModel, actionContext)
 
 	if (actionContext.takeAfterExecute) {
-		await performTakeToNextedPart(context, playoutModel, now)
+		await performTakeToNextedPart(context, playoutModel, now, actionContext.partToQueueAfterTake)
 	} else if (
 		actionContext.forceRegenerateTimeline ||
 		actionContext.currentPartState !== ActionPartChange.NONE ||

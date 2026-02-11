@@ -135,7 +135,7 @@ export function OutputGroup(props: Readonly<IOutputGroupProps>): JSX.Element {
 			className={classNames(
 				'segment-timeline__output-group',
 				{
-					collapsable: props.layer.sourceLayers && props.layer.sourceLayers.length > 1 && !props.layer.isFlattened,
+					collapsible: props.layer.sourceLayers && props.layer.sourceLayers.length > 1 && !props.layer.isFlattened,
 					collapsed: isCollapsed,
 					flattened: props.layer.isFlattened,
 				},

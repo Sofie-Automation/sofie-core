@@ -524,7 +524,7 @@ async function updatePartInstancesBasicProperties(
 		)
 	}
 
-	await Promise.all([ps])
+	await Promise.all(ps)
 }
 
 /**

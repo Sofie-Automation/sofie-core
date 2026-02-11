@@ -123,7 +123,7 @@ async function loadInitData(
 	const [peripheralDevices, reloadedPlaylist, rundowns] = await Promise.all([
 		context.directCollections.PeripheralDevices.findFetch({ 'studioAndConfigId.studioId': tmpPlaylist.studioId }),
 		reloadPlaylist
-			? await context.directCollections.RundownPlaylists.findOne(tmpPlaylist._id)
+			? context.directCollections.RundownPlaylists.findOne(tmpPlaylist._id)
 			: clone<DBRundownPlaylist>(tmpPlaylist),
 		existingRundowns ?? context.directCollections.Rundowns.findFetch({ playlistId: tmpPlaylist._id }),
 	])

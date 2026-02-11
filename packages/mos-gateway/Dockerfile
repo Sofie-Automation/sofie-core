@@ -8,7 +8,7 @@ COPY . .
 RUN corepack enable
 RUN yarn install --immutable
 RUN yarn run pinst --disable
-RUN yarn lerna run --scope \*\*/mos-gateway --include-dependencies --stream build
+RUN yarn build:single mos-gateway/tsconfig.build.json
 RUN yarn workspaces focus mos-gateway --production # purge dev-dependencies
 
 # DEPLOY IMAGE

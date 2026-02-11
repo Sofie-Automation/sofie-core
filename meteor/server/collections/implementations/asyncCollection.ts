@@ -36,9 +36,9 @@ export type MinimalMeteorMongoCollection<T extends { _id: ProtectedString<any> }
 	find: (...args: Parameters<Mongo.Collection<T>['find']>) => MinimalMongoCursor<T>
 }
 
-export class WrappedAsyncMongoCollection<DBInterface extends { _id: ProtectedString<any> }>
-	implements AsyncOnlyMongoCollection<DBInterface>
-{
+export class WrappedAsyncMongoCollection<
+	DBInterface extends { _id: ProtectedString<any> },
+> implements AsyncOnlyMongoCollection<DBInterface> {
 	protected readonly _collection: MinimalMeteorMongoCollection<DBInterface>
 
 	public readonly name: string | null

@@ -68,14 +68,14 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v6
         with:
-          node-version-file: '.node-version'
+          node-version-file: ".node-version"
       - name: Prepare Environment
         run: |
           corepack enable
 
           cd packages
           yarn install
-          yarn lerna run --scope \*\*/${{ matrix.package-name }} --include-dependencies --stream build
+          yarn build:single ${{ matrix.package-name }}/tsconfig.build.json
         env:
           CI: true
       - name: Run typecheck and linter
@@ -119,7 +119,12 @@ jobs:
 
           cd packages
           yarn install
-          yarn lerna run --scope \*\*/${{ matrix.package-name }} --include-dependencies --stream build
+
+          if [ "${{ matrix.package-name }}" = "openapi" ]; then
+            yarn workspace @sofie-automation/openapi run build
+          else
+            yarn build:single ${{ matrix.package-name }}/tsconfig.build.json
+          fi
         env:
           CI: true
       - name: Run tests
@@ -145,13 +150,17 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v6
         with:
-          node-version-file: '.node-version'
+          node-version-file: ".node-version"
+      - uses: ./.github/actions/setup-meteor
       - name: Prepare Environment
         run: |
           corepack enable
 
-          cd packages
-          yarn install
+          yarn config set cacheFolder /home/runner/lint-core-cache
+          yarn
+
+          # setup zodern:types. No linters are setup, so this simply installs the packages
+          yarn meteor lint
         env:
           CI: true
       - name: Bump version
@@ -190,7 +199,7 @@ jobs:
           yarn install --no-immutable
 
       - name: Upload release artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: publish-dist
           path: |
@@ -222,10 +231,10 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v6
         with:
-          node-version-file: '.node-version'
+          node-version-file: ".node-version"
 
       - name: Download release artifact
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: publish-dist
 

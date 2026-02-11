@@ -28,9 +28,9 @@ import { TriggerReactiveVar } from '@sofie-automation/meteor-lib/dist/triggers/r
 import { FindOptions, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { memoizedIsolatedAutorunAsync } from '../memoizedIsolatedAutorun.js'
 
-class UiTriggersCollectionWrapper<DBInterface extends { _id: ProtectedString<any> }>
-	implements TriggersAsyncCollection<DBInterface>
-{
+class UiTriggersCollectionWrapper<
+	DBInterface extends { _id: ProtectedString<any> },
+> implements TriggersAsyncCollection<DBInterface> {
 	readonly #collection: MongoReadOnlyCollection<DBInterface>
 
 	constructor(collection: MongoReadOnlyCollection<DBInterface>) {

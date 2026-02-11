@@ -112,7 +112,7 @@
 						return (
 							<div
 								className={ClassNames('segment-timeline__output-group', {
-									collapsable: layer.sourceLayers && layer.sourceLayers.length > 1,
+									collapsible: layer.sourceLayers && layer.sourceLayers.length > 1,
 									collapsed: this.props.collapsedOutputs[layer._id] === true,
 								})}
 								key={id}>

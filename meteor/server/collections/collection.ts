@@ -110,8 +110,9 @@ function wrapMeteorCollectionIntoAsyncCollection<DBInterface extends { _id: Prot
 /**
  * A minimal Async only wrapping around the base Mongo.Collection type
  */
-export interface AsyncOnlyMongoCollection<DBInterface extends { _id: ProtectedString<any> }>
-	extends AsyncOnlyReadOnlyMongoCollection<DBInterface> {
+export interface AsyncOnlyMongoCollection<
+	DBInterface extends { _id: ProtectedString<any> },
+> extends AsyncOnlyReadOnlyMongoCollection<DBInterface> {
 	/**
 	 * Insert a document
 	 * @param document The document to insert

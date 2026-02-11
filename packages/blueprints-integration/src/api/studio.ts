@@ -37,8 +37,10 @@ import type { MosGatewayConfig } from '@sofie-automation/shared-lib/dist/generat
 import type { PlayoutGatewayConfig } from '@sofie-automation/shared-lib/dist/generated/PlayoutGatewayConfigTypes'
 import type { LiveStatusGatewayConfig } from '@sofie-automation/shared-lib/dist/generated/LiveStatusGatewayOptionsTypes'
 
-export interface StudioBlueprintManifest<TRawConfig = IBlueprintConfig, TProcessedConfig = unknown>
-	extends BlueprintManifestBase {
+export interface StudioBlueprintManifest<
+	TRawConfig = IBlueprintConfig,
+	TProcessedConfig = unknown,
+> extends BlueprintManifestBase {
 	blueprintType: BlueprintManifestType.STUDIO
 
 	/** A list of config items this blueprint expects to be available on the Studio */
@@ -102,6 +104,15 @@ export interface StudioBlueprintManifest<TRawConfig = IBlueprintConfig, TProcess
 	 * Returns a list of messages to the caller that are used for logging or to throw if errors have been found.
 	 */
 	validateConfigFromAPI?: (context: ICommonContext, apiConfig: object) => Array<IConfigMessage>
+
+	/** Validate the rundown payload passed to this blueprint according to the API schema, returning a list of error messages. */
+	validateRundownPayloadFromAPI?: (context: ICommonContext, payload: unknown) => Array<string>
+
+	/** Validate the segment payload passed to this blueprint according to the API schema, returning a list of error messages. */
+	validateSegmentPayloadFromAPI?: (context: ICommonContext, payload: unknown) => Array<string>
+
+	/** Validate the part payload passed to this blueprint according to the API schema, returning a list of error messages. */
+	validatePartPayloadFromAPI?: (context: ICommonContext, payload: unknown) => Array<string>
 
 	/**
 	 * Optional method to transform from an API blueprint config to the database blueprint config if these are required to be different.

@@ -896,13 +896,13 @@ export class SegmentTimelineClass extends React.Component<Translated<WithTiming<
 				return null
 			}
 
-			const isCollapsable =
+			const isCollapsible =
 				outputLayer.sourceLayers !== undefined && outputLayer.sourceLayers.length > 1 && !outputLayer.isFlattened
 			return (
 				<div
 					key={outputLayer._id}
 					className={ClassNames('segment-timeline__output-layer-control', {
-						collapsable: isCollapsable,
+						collapsible: isCollapsible,
 						collapsed: this.isOutputGroupCollapsed(outputLayer),
 					})}
 					role="group"
@@ -913,7 +913,7 @@ export class SegmentTimelineClass extends React.Component<Translated<WithTiming<
 						className="segment-timeline__output-layer-control__label"
 						data-output-id={outputLayer._id}
 						tabIndex={0}
-						onClick={(e) => isCollapsable && this.props.onCollapseOutputToggle?.(outputLayer, e)}
+						onClick={(e) => isCollapsible && this.props.onCollapseOutputToggle?.(outputLayer, e)}
 						role="presentation"
 					>
 						{outputLayer.name}

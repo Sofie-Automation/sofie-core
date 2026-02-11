@@ -16,13 +16,13 @@ export async function getSelectedPartInstances(
 }> {
 	const [currentPartInstance, nextPartInstance, previousPartInstance] = await Promise.all([
 		playlist.currentPartInfo
-			? await context.directCollections.PartInstances.findOne(playlist.currentPartInfo.partInstanceId)
+			? context.directCollections.PartInstances.findOne(playlist.currentPartInfo.partInstanceId)
 			: null,
 		playlist.nextPartInfo
-			? await context.directCollections.PartInstances.findOne(playlist.nextPartInfo.partInstanceId)
+			? context.directCollections.PartInstances.findOne(playlist.nextPartInfo.partInstanceId)
 			: null,
 		playlist.previousPartInfo
-			? await context.directCollections.PartInstances.findOne(playlist.previousPartInfo.partInstanceId)
+			? context.directCollections.PartInstances.findOne(playlist.previousPartInfo.partInstanceId)
 			: null,
 	])
 

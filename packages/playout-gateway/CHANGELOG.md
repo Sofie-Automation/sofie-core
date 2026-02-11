@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [26.3.0-0](https://github.com/Sofie-Automation/sofie-core/compare/v1.52.0...v26.3.0-0) (2026-02-04)
+
+
+### Bug Fixes
+
+* docker images using CMD instead of ENTRYPOINT ([e1beb6e](https://github.com/Sofie-Automation/sofie-core/commit/e1beb6e082c7c9ce4a8009feceb58eb7ef89f308))
+* **PGW:** handle situation when device is not initialized yet ([6060e7e](https://github.com/Sofie-Automation/sofie-core/commit/6060e7e2645dfbc19fde263de35f545d9200e02c))
+* remove over-eager debug logging filtering from connectionManager ([#1594](https://github.com/Sofie-Automation/sofie-core/issues/1594)) ([462a27a](https://github.com/Sofie-Automation/sofie-core/commit/462a27a3c68176fbcf3c5ab3d22fa0f79037db1d))
+* update mos-connection for missing mosID bug fix ([#9](https://github.com/Sofie-Automation/sofie-core/issues/9)) ([e8e07e3](https://github.com/Sofie-Automation/sofie-core/commit/e8e07e3e86e0a6e4d1bb5802f0e782ad323f424e))
+* update tsr and remove deprecated playout-gateway methods ([#1525](https://github.com/Sofie-Automation/sofie-core/issues/1525)) ([5b9c7ad](https://github.com/Sofie-Automation/sofie-core/commit/5b9c7ad68375301722057ef4927bab13ce6896c1))
+
+
+### Features
+
+* add health endpoints to MOS- and Playout-Gateway ([5b590dd](https://github.com/Sofie-Automation/sofie-core/commit/5b590ddbaf86ee90d338837867a4d3bfc2e11c97))
+* add object to timeline to trigger a regeneration at point in time ([ad450c3](https://github.com/Sofie-Automation/sofie-core/commit/ad450c39ceef5fcf3373905dd6a55adf4dd9cbb6))
+* enable support for tsr plugins ([51a2379](https://github.com/Sofie-Automation/sofie-core/commit/51a237969092deda4972734e04e2aea01b78fe5a))
+* move GW config types to generated in shared lib ([f54d9ca](https://github.com/Sofie-Automation/sofie-core/commit/f54d9ca63bc00a05915aac45e0be5b595c980567))
+* update meteor to 3.3.2 ([#1529](https://github.com/Sofie-Automation/sofie-core/issues/1529)) ([9bd232e](https://github.com/Sofie-Automation/sofie-core/commit/9bd232e8f0561a46db8cc6143c5353d7fa531206))
+
+
+
+
+
 # [1.52.0](https://github.com/Sofie-Automation/sofie-core/compare/v1.52.0-in-testing.1...v1.52.0) (2025-06-30)
 
 **Note:** Version bump only for package playout-gateway

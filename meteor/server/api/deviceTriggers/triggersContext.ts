@@ -38,9 +38,9 @@ export function hashSingleUseToken(token: string): string {
 	return getHash(SINGLE_USE_TOKEN_SALT + token)
 }
 
-class MeteorTriggersCollectionWrapper<DBInterface extends { _id: ProtectedString<any> }>
-	implements TriggersAsyncCollection<DBInterface>
-{
+class MeteorTriggersCollectionWrapper<
+	DBInterface extends { _id: ProtectedString<any> },
+> implements TriggersAsyncCollection<DBInterface> {
 	readonly #collection: AsyncOnlyReadOnlyMongoCollection<DBInterface>
 
 	constructor(collection: AsyncOnlyReadOnlyMongoCollection<DBInterface>) {

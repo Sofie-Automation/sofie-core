@@ -3,6 +3,48 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [26.3.0-0](https://github.com/Sofie-Automation/sofie-core/compare/v1.52.0...v26.3.0-0) (2026-02-04)
+
+
+### Bug Fixes
+
+* add plannedStartedPlayback and plannedStoppedPlayback to IBlueprintPartInstanceTimings interface ([#1515](https://github.com/Sofie-Automation/sofie-core/issues/1515)) ([9e8ee71](https://github.com/Sofie-Automation/sofie-core/commit/9e8ee71863a8b00be521a2325b2375f03a32956c))
+* missing export ([7956f7b](https://github.com/Sofie-Automation/sofie-core/commit/7956f7bba509d892389bb3c564312da730c0495b))
+* remove unimplemented return type of blueprint executeAction ([5e74d4f](https://github.com/Sofie-Automation/sofie-core/commit/5e74d4ff2b5322683d6bb2bff1bc228ec9709ec8))
+
+
+### Features
+
+* add BlueprintAssetIcon component ([e05afd6](https://github.com/Sofie-Automation/sofie-core/commit/e05afd68386fbdcc7e21c23ef60f3f138048df78))
+* add getUpcomingParts method to OnSetAsNextContext ([#1577](https://github.com/Sofie-Automation/sofie-core/issues/1577)) ([aba5ed4](https://github.com/Sofie-Automation/sofie-core/commit/aba5ed42b51e7132c2d1c50878b260aa268989b3))
+* Add getUpcomingParts to action context ([#1524](https://github.com/Sofie-Automation/sofie-core/issues/1524)) ([0d1552d](https://github.com/Sofie-Automation/sofie-core/commit/0d1552dca9fc3f3dbaa94a8edb7f0f25c369f7dc))
+* Add support for Gateway configuration from the studio API ([#1539](https://github.com/Sofie-Automation/sofie-core/issues/1539)) ([963542a](https://github.com/Sofie-Automation/sofie-core/commit/963542aa060f7db768d47a1d7e4e1f25367bb321))
+* allow adlib-actions to be marked as invalid ([#1609](https://github.com/Sofie-Automation/sofie-core/issues/1609)) ([6271ffd](https://github.com/Sofie-Automation/sofie-core/commit/6271ffd8bef5abe5691fa7b726209fc7d3758341))
+* allow part to be queued from onTake ([#1497](https://github.com/Sofie-Automation/sofie-core/issues/1497)) ([1a6619f](https://github.com/Sofie-Automation/sofie-core/commit/1a6619f42d1c7621faf10238edbcde646ef2eb33))
+* Allow restricting dragging to current part ([e9f66e7](https://github.com/Sofie-Automation/sofie-core/commit/e9f66e7e21e577822eb432f85f62c80770d5a5f2))
+* **blueprints-integration:** Add isRehearsal property to action contexts ([8d923a5](https://github.com/Sofie-Automation/sofie-core/commit/8d923a5e627ea50764eefa8cd2c345373c86453f))
+* cleanup media manager support ([#1509](https://github.com/Sofie-Automation/sofie-core/issues/1509)) ([76dfbd2](https://github.com/Sofie-Automation/sofie-core/commit/76dfbd2fa8cd18bda5713484c40e5bfe5c838529))
+* **EAV-603:** add `manuallySelected` to OnSetAsNextContext ([ec1114e](https://github.com/Sofie-Automation/sofie-core/commit/ec1114e99c77bd395cf69912e92527d91afcc845))
+* edit mode for drag operations ([4347c6a](https://github.com/Sofie-Automation/sofie-core/commit/4347c6ad0762ed5081c377aa92841bebfb5800c6))
+* expose getSegment in blueprint context ([e727028](https://github.com/Sofie-Automation/sofie-core/commit/e7270281ccd3cde2ac6490f34055f039cf24404a))
+* expose persistent playout store to more methods ([ab7c6bc](https://github.com/Sofie-Automation/sofie-core/commit/ab7c6bc116b768dd030c9160a90554db37880762))
+* GW config types in Blueprints ([c8e669f](https://github.com/Sofie-Automation/sofie-core/commit/c8e669f333010cc88930d1684bd2d2795104cc88))
+* implement Bucket Panel Icon ([fbcc6e8](https://github.com/Sofie-Automation/sofie-core/commit/fbcc6e8eeb780b24f7595b5386e729ea9d1dda9a))
+* mos status flow rework ([#1356](https://github.com/Sofie-Automation/sofie-core/issues/1356)) ([672f2bd](https://github.com/Sofie-Automation/sofie-core/commit/672f2bd2873ae306db9dfcbbc3064fdcc9ea1cd0))
+* move GW config types to generated in shared lib ([f54d9ca](https://github.com/Sofie-Automation/sofie-core/commit/f54d9ca63bc00a05915aac45e0be5b595c980567))
+* optional studioLabelShort for presenters view ([cf62762](https://github.com/Sofie-Automation/sofie-core/commit/cf6276289b3bc47df3635b34ca75994ccc37713b))
+* PieceGeneric type - optional nameShort and nameTruncated ([c7d87a7](https://github.com/Sofie-Automation/sofie-core/commit/c7d87a7b463a4dbb546e967f87620badedfd0046))
+* replace `wasActive` in onRundownActivate with context ([#1514](https://github.com/Sofie-Automation/sofie-core/issues/1514)) ([007a9da](https://github.com/Sofie-Automation/sofie-core/commit/007a9da74583702b347c613e5aed8514422d5c3d))
+* retime piece user action ([385e884](https://github.com/Sofie-Automation/sofie-core/commit/385e884e8f3f9d1165fcfa06af649d5af951b516))
+* Set sub-device peripheralDeviceId from deviceOptions parentDeviceName ([#1505](https://github.com/Sofie-Automation/sofie-core/issues/1505)) ([4d34cec](https://github.com/Sofie-Automation/sofie-core/commit/4d34cecac83929d999b088423f98fd9b787c0c31))
+* support custom types from tsr plugins ([#1585](https://github.com/Sofie-Automation/sofie-core/issues/1585)) ([3bae757](https://github.com/Sofie-Automation/sofie-core/commit/3bae7576ede0e2f71cf9882e6f2c1ac5589d9b63))
+* time of day pieces ([#1406](https://github.com/Sofie-Automation/sofie-core/issues/1406)) ([2500780](https://github.com/Sofie-Automation/sofie-core/commit/25007807845e03e92c17e623c159611f89703672))
+* update meteor to 3.3.2 ([#1529](https://github.com/Sofie-Automation/sofie-core/issues/1529)) ([9bd232e](https://github.com/Sofie-Automation/sofie-core/commit/9bd232e8f0561a46db8cc6143c5353d7fa531206))
+
+
+
+
+
 # [1.52.0](https://github.com/Sofie-Automation/sofie-core/compare/v1.52.0-in-testing.1...v1.52.0) (2025-06-30)
 
 **Note:** Version bump only for package @sofie-automation/blueprints-integration

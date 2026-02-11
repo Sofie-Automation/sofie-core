@@ -1,12 +1,12 @@
 ---
-sidebar_position: 3
+sidebar_position: 30
 ---
 
 # Initial Sofie Core Setup
 
 #### Prerequisites
 
-- [Installed and running _Sofie&nbsp;Core_](installing-sofie-server-core.md)
+* [Installed and running _Sofie&nbsp;Core_](quick-install.md)
 
 Once _Sofie&nbsp;Core_ has been installed and is running you can begin setting it up. The first step is to navigate to the _Settings page_. Please review the [Sofie Access Level](../features/access-levels.md) page for assistance getting there.
 

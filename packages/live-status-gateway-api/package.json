@@ -1,6 +1,6 @@
 {
 	"name": "@sofie-automation/live-status-gateway-api",
-	"version": "1.53.0-in-development",
+	"version": "26.3.0-0",
 	"description": "Library for types & values shared by core, workers and gateways",
 	"main": "dist/index.js",
 	"typings": "dist/index.d.ts",
@@ -15,8 +15,7 @@
 	},
 	"homepage": "https://github.com/nrkno/sofie-core/blob/master/packages/live-status-gateway-api#readme",
 	"scripts": {
-		"build": "yarn generate-schema-types && run -T rimraf dist && run build:main",
-		"build:main": "run -T tsc -p tsconfig.build.json",
+		"build:prepare": "run generate-schema-types",
 		"lint:raw": "run -T eslint",
 		"lint": "run lint:raw .",
 		"unit": "run -T jest",
@@ -43,16 +42,16 @@
 		"/LICENSE"
 	],
 	"dependencies": {
-		"tslib": "^2.6.2"
+		"tslib": "^2.8.1"
 	},
 	"devDependencies": {
-		"@apidevtools/json-schema-ref-parser": "^14.2.1",
-		"@asyncapi/generator": "^2.6.0",
-		"@asyncapi/html-template": "^3.2.0",
-		"@asyncapi/modelina": "^4.0.4",
+		"@apidevtools/json-schema-ref-parser": "^15.2.2",
+		"@asyncapi/generator": "^2.11.0",
+		"@asyncapi/html-template": "^3.5.4",
+		"@asyncapi/modelina": "^5.10.1",
 		"@asyncapi/nodejs-ws-template": "^0.10.0",
-		"@asyncapi/parser": "^3.4.0",
-		"yaml": "^2.8.1"
+		"@asyncapi/parser": "^3.6.0",
+		"yaml": "^2.8.2"
 	},
 	"prettier": "@sofie-automation/code-standard-preset/.prettierrc.json",
 	"lint-staged": {
@@ -63,5 +62,5 @@
 			"yarn lint:raw"
 		]
 	},
-	"packageManager": "yarn@4.10.3"
+	"packageManager": "yarn@4.12.0"
 }

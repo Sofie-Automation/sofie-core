@@ -535,17 +535,15 @@ class RundownViewNotifier extends WithManagedTracker {
 				const newNotification = new Notification(
 					notificationId,
 					getNoticeLevelForNoteSeverity(itemType),
-					(
-						<>
-							{name || segmentName ? (
-								<h5>
-									{segmentName || name}
-									{segmentName && name ? `${SEGMENT_DELIMITER}${name}` : null}
-								</h5>
-							) : null}
-							<div>{translatedMessage || t('There is an unknown problem with the part.')}</div>
-						</>
-					),
+					<>
+						{name || segmentName ? (
+							<h5>
+								{segmentName || name}
+								{segmentName && name ? `${SEGMENT_DELIMITER}${name}` : null}
+							</h5>
+						) : null}
+						<div>{translatedMessage || t('There is an unknown problem with the part.')}</div>
+					</>,
 					origin.segmentId || origin.rundownId || 'unknown',
 					getCurrentTime(),
 					true,
@@ -613,20 +611,18 @@ class RundownViewNotifier extends WithManagedTracker {
 					newNotification = new Notification(
 						issue.pieceId,
 						getNoticeLevelForPieceStatus(status) || NoticeLevel.WARNING,
-						(
-							<>
-								<h5>{messageName}</h5>
-								<div>
-									{messages.map((msg, index) => (
-										<React.Fragment key={`${index}_${msg.key}`}>
-											{translateMessage(msg, t)}
-											<br />
-										</React.Fragment>
-									))}
-									{messages.length === 0 && t('There is an unspecified problem with the source.')}
-								</div>
-							</>
-						),
+						<>
+							<h5>{messageName}</h5>
+							<div>
+								{messages.map((msg, index) => (
+									<React.Fragment key={`${index}_${msg.key}`}>
+										{translateMessage(msg, t)}
+										<br />
+									</React.Fragment>
+								))}
+								{messages.length === 0 && t('There is an unspecified problem with the source.')}
+							</div>
+						</>,
 						issue.segmentId ? issue.segmentId : 'line_' + issue.partId,
 						getCurrentTime(),
 						true,

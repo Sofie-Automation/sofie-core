@@ -1,0 +1,16 @@
+type: object
+title: AbSessionAssignment
+properties:
+  poolName:
+    description: The name of the AB Pool this session is for
+    type: string
+  sessionName:
+    description: Name of the session
+    type: string
+  playerId:
+    description: The assigned player ID
+    oneOf:
+      - type: string
+      - type: number
+required: [poolName, sessionName, playerId]
+additionalProperties: false

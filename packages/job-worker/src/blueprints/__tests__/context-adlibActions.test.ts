@@ -9,15 +9,19 @@ import { PartAndPieceInstanceActionService } from '../context/services/PartAndPi
 import { ProcessedShowStyleConfig } from '../config.js'
 
 describe('Test blueprint api context', () => {
-	async function getTestee() {
+	async function getTestee(rehearsal?: boolean) {
 		const mockActionService = mock<PartAndPieceInstanceActionService>()
+		const mockPlayoutModel = mock<PlayoutModel>()
+		Object.defineProperty(mockPlayoutModel, 'playlist', {
+			get: () => ({ rehearsal }),
+		})
 		const context = new ActionExecutionContext(
 			{
 				name: 'fakeContext',
 				identifier: 'action',
 			},
 			mock<JobContext>(),
-			mock<PlayoutModel>(),
+			mockPlayoutModel,
 			mock<ProcessedShowStyleCompound>(),
 			mock<ProcessedShowStyleConfig>(),
 			mock<WatchedPackagesHelper>(),
@@ -27,6 +31,7 @@ describe('Test blueprint api context', () => {
 		return {
 			context,
 			mockActionService,
+			mockPlayoutModel,
 		}
 	}
 
@@ -159,6 +164,24 @@ describe('Test blueprint api context', () => {
 			await context.updatePartInstance('next', { title: 'My Part' } as Partial<IBlueprintMutatablePart<unknown>>)
 			expect(mockActionService.updatePartInstance).toHaveBeenCalledTimes(1)
 			expect(mockActionService.updatePartInstance).toHaveBeenCalledWith('next', { title: 'My Part' })
+		})
+
+		test('isRehearsal when true', async () => {
+			const { context } = await getTestee(true)
+
+			expect(context.isRehearsal).toBe(true)
+		})
+
+		test('isRehearsal when false', async () => {
+			const { context } = await getTestee(false)
+
+			expect(context.isRehearsal).toBe(false)
+		})
+
+		test('isRehearsal when undefined', async () => {
+			const { context } = await getTestee()
+
+			expect(context.isRehearsal).toBe(false)
 		})
 	})
 })

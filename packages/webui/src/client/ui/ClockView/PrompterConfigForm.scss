@@ -1,0 +1,20 @@
+.prompter-config-form {
+	// Nested section styling
+	.nested-section {
+		background: rgba(0, 0, 0, 0.03);
+		border: 1px solid rgba(0, 0, 0, 0.1);
+		border-radius: 0.375rem;
+		padding: 1rem;
+		margin-top: 0.5rem;
+		margin-left: 1.5rem;
+	}
+
+	// Info box styling
+	.info-box {
+		background: rgba(0, 0, 0, 0.02);
+		border: 1px solid rgba(0, 0, 0, 0.08);
+		border-radius: 0.375rem;
+		padding: 0.5rem;
+		margin-top: 0.75rem;
+	}
+}

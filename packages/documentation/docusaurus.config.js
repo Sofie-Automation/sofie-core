@@ -6,7 +6,7 @@ const darkCodeTheme = themes.dracula
 module.exports = {
 	title: 'Sofie TV Automation Documentation',
 	tagline:
-		'Sofie is a web-based, open\xa0source TV\xa0automation system for studios and live shows, used in daily live\xa0TV\xa0news productions by the Norwegian public\xa0service broadcaster NRK since September\xa02018.',
+		'Sofie is a web-based, open-source TV automation system for studios and live shows. Since September 2018, it has been used in daily live TV news productions by broadcasters such as NRK, the BBC, and TV 2 (Norway).',
 	url: 'https://sofie-automation.github.io',
 	baseUrl: '/sofie-core/',
 	onBrokenLinks: 'throw',

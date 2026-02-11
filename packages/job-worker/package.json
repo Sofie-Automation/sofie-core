@@ -1,6 +1,6 @@
 {
 	"name": "@sofie-automation/job-worker",
-	"version": "1.53.0-in-development",
+	"version": "26.3.0-0",
 	"description": "Worker for things",
 	"main": "dist/index.js",
 	"license": "MIT",
@@ -15,10 +15,6 @@
 	},
 	"homepage": "https://github.com/Sofie-Automation/sofie-core/blob/main/packages/job-worker#readme",
 	"scripts": {
-		"dev": "run -T nodemon --config nodemon.json src/index.ts",
-		"dev:debug": "run -T nodemon --config nodemon.json --inspect-brk src/index.ts",
-		"build": "run -T rimraf dist && run build:main",
-		"build:main": "run -T tsc -p tsconfig.build.json",
 		"lint:raw": "run -T eslint",
 		"lint": "run lint:raw .",
 		"unit": "run -T jest",
@@ -40,20 +36,20 @@
 		"/LICENSE"
 	],
 	"dependencies": {
-		"@slack/webhook": "^7.0.4",
-		"@sofie-automation/blueprints-integration": "1.53.0-in-development",
-		"@sofie-automation/corelib": "1.53.0-in-development",
-		"@sofie-automation/shared-lib": "1.53.0-in-development",
-		"amqplib": "^0.10.5",
+		"@slack/webhook": "^7.0.6",
+		"@sofie-automation/blueprints-integration": "26.3.0-0",
+		"@sofie-automation/corelib": "26.3.0-0",
+		"@sofie-automation/shared-lib": "26.3.0-0",
+		"amqplib": "0.10.5",
 		"deepmerge": "^4.3.1",
-		"elastic-apm-node": "^4.11.0",
-		"mongodb": "^6.12.0",
+		"elastic-apm-node": "^4.15.0",
+		"mongodb": "^6.21.0",
 		"p-lazy": "^3.1.0",
 		"p-timeout": "^4.1.0",
 		"superfly-timeline": "9.2.0",
-		"threadedclass": "^1.2.2",
+		"threadedclass": "^1.3.0",
 		"tslib": "^2.8.1",
-		"type-fest": "^4.33.0",
+		"type-fest": "^4.41.0",
 		"underscore": "^1.13.7"
 	},
 	"prettier": "@sofie-automation/code-standard-preset/.prettierrc.json",
@@ -65,10 +61,10 @@
 			"yarn lint:raw"
 		]
 	},
-	"packageManager": "yarn@4.10.3",
+	"packageManager": "yarn@4.12.0",
 	"devDependencies": {
-		"jest": "^29.7.0",
-		"jest-mock-extended": "^3.0.7",
+		"jest": "^30.2.0",
+		"jest-mock-extended": "^4.0.0",
 		"typescript": "~5.7.3"
 	}
 }

@@ -31,8 +31,10 @@ export interface IBlueprintPieceInstance<TPrivateData = unknown, TPublicData = u
 		fromPreviousPlayhead?: boolean
 	}
 }
-export interface IBlueprintResolvedPieceInstance<TPrivateData = unknown, TPublicData = unknown>
-	extends IBlueprintPieceInstance<TPrivateData, TPublicData> {
+export interface IBlueprintResolvedPieceInstance<
+	TPrivateData = unknown,
+	TPublicData = unknown,
+> extends IBlueprintPieceInstance<TPrivateData, TPublicData> {
 	/**
 	 * Calculated start point within the PartInstance
 	 */

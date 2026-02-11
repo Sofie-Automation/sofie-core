@@ -4,6 +4,9 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   validate-prod-core-dependencies:
     name: Validate Core production dependencies
@@ -20,7 +23,7 @@ jobs:
           node-version-file: ".node-version"
       - uses: ./.github/actions/setup-meteor
       - name: restore node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             meteor/node_modules
@@ -50,7 +53,7 @@ jobs:
           node-version-file: ".node-version"
       - uses: ./.github/actions/setup-meteor
       - name: restore node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             meteor/node_modules

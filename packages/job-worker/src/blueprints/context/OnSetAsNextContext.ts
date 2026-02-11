@@ -22,7 +22,6 @@ import { WatchedPackagesHelper } from './watchedPackages.js'
 import { PlayoutModel } from '../../playout/model/PlayoutModel.js'
 import { ReadonlyDeep } from 'type-fest'
 import { getCurrentTime } from '../../lib/index.js'
-import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { BlueprintQuickLookInfo } from '@sofie-automation/blueprints-integration/dist/context/quickLoopInfo'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { selectNewPartWithOffsets } from '../../playout/moveNextPart.js'
@@ -49,6 +48,10 @@ export class OnSetAsNextContext
 
 	public get quickLoopInfo(): BlueprintQuickLookInfo | null {
 		return this.partAndPieceInstanceService.quickLoopInfo
+	}
+
+	public get isRehearsal(): boolean {
+		return this.playoutModel.playlist.rehearsal ?? false
 	}
 
 	public get nextPartState(): ActionPartChange {
@@ -116,9 +119,6 @@ export class OnSetAsNextContext
 		pieceInstanceId: string,
 		piece: Partial<IBlueprintPiece<unknown>>
 	): Promise<IBlueprintPieceInstance<unknown>> {
-		if (protectString(pieceInstanceId) === this.playoutModel.playlist.currentPartInfo?.partInstanceId) {
-			throw new Error('Cannot update a Piece Instance from the current Part Instance')
-		}
 		return this.partAndPieceInstanceService.updatePieceInstance(pieceInstanceId, piece)
 	}
 

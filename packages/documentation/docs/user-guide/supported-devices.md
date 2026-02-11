@@ -19,7 +19,6 @@ We support almost all features of these devices except fairlight audio, camera c
 
 ## CasparCG&nbsp;Server<a id="casparcg"></a>
 
-Tested and developed against [a fork of version 2.4](https://github.com/nrkno/sofie-casparcg-server)
 
 - Video playback
 - Graphics playback

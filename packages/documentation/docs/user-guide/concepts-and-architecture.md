@@ -156,7 +156,7 @@ Another benefit of basing the playout on a timeline is that when programming the
 ### How does it work?
 
 :::tip
-Fun tip! The timeline in itself is a [separate library available on github](https://github.com/SuperFlyTV/supertimeline).
+Fun tip! The timeline in itself is a [separate library available on GitHub](https://github.com/SuperFlyTV/supertimeline).
 
 You can play around with the timeline in the browser using [JSFiddle and the timeline-visualizer](https://jsfiddle.net/nytamin/rztp517u/)!
 :::
