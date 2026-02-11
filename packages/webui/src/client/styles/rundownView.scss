@@ -161,7 +161,7 @@ $break-width: 35rem;
 	}
 
 	&.properties-panel-open {
-		padding-right: $properties-panel-width;
+		padding-right: calc(#{$properties-panel-width} - 3.5em);
 		transition: 0s padding-right 1s;
 
 		> .rundown-header .rundown-overview {
@@ -209,8 +209,13 @@ body.no-overflow {
 	bottom: 0;
 	right: 0;
 
-	background:
-		linear-gradient(-45deg, $color-status-fatal 33%, transparent 33%, transparent 66%, $color-status-fatal 66%),
+	background: linear-gradient(
+			-45deg,
+			$color-status-fatal 33%,
+			transparent 33%,
+			transparent 66%,
+			$color-status-fatal 66%
+		),
 		linear-gradient(-45deg, $color-status-fatal 33%, transparent 33%, transparent 66%, $color-status-fatal 66%),
 		linear-gradient(-45deg, $color-status-fatal 33%, transparent 33%, transparent 66%, $color-status-fatal 66%),
 		linear-gradient(-45deg, $color-status-fatal 33%, transparent 33%, transparent 66%, $color-status-fatal 66%);
@@ -1100,8 +1105,7 @@ svg.icon {
 		}
 		.segment-timeline__part {
 			.segment-timeline__part__invalid-cover {
-				background-image:
-					repeating-linear-gradient(
+				background-image: repeating-linear-gradient(
 						45deg,
 						var(--invalid-reason-color-transparent) 0%,
 						var(--invalid-reason-color-transparent) 4px,
@@ -1383,8 +1387,7 @@ svg.icon {
 						left: 2px;
 						right: 2px;
 						z-index: 3;
-						background:
-							repeating-linear-gradient(
+						background: repeating-linear-gradient(
 								45deg,
 								var(--invalid-reason-color-opaque) 0,
 								var(--invalid-reason-color-opaque) 5px,
@@ -1566,8 +1569,7 @@ svg.icon {
 				right: 1px;
 				z-index: 10;
 				pointer-events: all;
-				background-image:
-					repeating-linear-gradient(
+				background-image: repeating-linear-gradient(
 						45deg,
 						var(--invalid-reason-color-transparent) 0%,
 						var(--invalid-reason-color-transparent) 5px,

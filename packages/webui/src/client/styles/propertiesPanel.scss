@@ -32,6 +32,10 @@
 		background: linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.15) 100%);
 	}
 
+	.propertiespanel-pop-up__label-with-icon {
+		margin-left: 0.5em;
+	}
+
 	.propertiespanel-pop-up {
 		background: #2e2e2e;
 		border-radius: 1px;
@@ -64,8 +68,6 @@
 			letter-spacing: 0.5px;
 
 			> .svg {
-				width: 1em;
-				height: 1.2em;
 				flex-shrink: 0;
 			}
 			> .title {
@@ -87,11 +89,14 @@
 				flex-shrink: 0;
 			}
 			> .propertiespanel-pop-up_close {
-				height: 1em;
-				margin-left: 1em;
 				background-color: unset;
 				border: none;
 			}
+		}
+
+		.propertiespanel-pop-up__buttons-container {
+			display: flex;
+			gap: 0.5em;
 		}
 
 		> .propertiespanel-pop-up__footer {
@@ -109,7 +114,9 @@
 
 			> .propertiespanel-pop-up__button,
 			.propertiespanel-pop-up__button-group .propertiespanel-pop-up__button {
-				display: block;
+				display: flex;
+				gap: 0.5em;
+				align-items: center;
 
 				border-radius: 5px;
 				border: 1px solid #7f7f7f;
@@ -227,13 +234,13 @@
 			}
 
 			.propertiespanel-pop-up__button {
-				// margin-top: 10px;
 				background: #636363;
 				padding: 10px;
-				gap: 10px;
 				border-radius: 5px;
 				border: 1px solid #7f7f7f;
 				color: #dfdfdf;
+
+				gap: 0.5em;
 
 				font-size: 0.875em;
 				font-weight: 500;
@@ -266,63 +273,6 @@
 					width: 100%;
 				}
 
-				// // Force the base input-l class
-				// .input-l {
-				// 	width: 100% !important;
-				// 	max-width: none !important;
-				// 	margin-left: 0px;
-				// 	border: none;
-				// }
-
-				// // Force the select/text-input defaults
-				// .select,
-				// .inline-select,
-				// .text-input {
-				// 	display: block !important;
-				// 	position: relative;
-				// 	width: 100% !important;
-				// }
-
-				// .input {
-				// 	border: 1px solid #e5e7eb;
-				// 	border-radius: 0.375rem;
-				// 	padding: 0.5rem 0.75rem;
-				// 	width: 100%;
-
-				// 	&:focus {
-				// 		outline: none;
-				// 		border-color: #3b82f6;
-				// 		box-shadow: 0 0 0 1px #3b82f6;
-				// 		background-color: unset !important; // origo >.>
-				// 	}
-				// }
-
-				// .label-text {
-				// 	&:before {
-				// 		content: none !important;
-				// 	}
-				// }
-
-				// .dropdown {
-				// 	background: white;
-				// 	border: 1px solid #e5e7eb;
-				// 	border-radius: 0.375rem;
-				// 	width: 100%;
-				// 	max-width: 100%;
-
-				// 	.input,
-				// 	.input-l {
-				// 		border: none;
-				// 		outline: none;
-				// 		box-shadow: none;
-				// 	}
-
-				// 	&:focus-within {
-				// 		border-color: #3b82f6;
-				// 		box-shadow: 0 0 0 1px #3b82f6;
-				// 	}
-				// }
-
 				.form-switch {
 					margin: 0.5rem 0;
 
@@ -337,13 +287,6 @@
 					margin-bottom: 0.5rem; // Increased spacing between label and selector
 					margin-top: 0.5rem; // Clearance from the previous
 				}
-
-				// .label {
-				// 	font-size: 0.875rem;
-				// 	font-weight: 500;
-				// 	color: #374151;
-				// 	display: block;
-				// }
 			}
 		}
 	}
