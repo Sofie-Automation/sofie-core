@@ -249,7 +249,7 @@ export async function executeActionInner(
 	try {
 		const blueprintPersistentState = new PersistentPlayoutStateStore(playoutModel.playlist.previousPersistentState)
 
-		await blueprint.blueprint.executeAction(
+		const result = await blueprint.blueprint.executeAction(
 			actionContext,
 			blueprintPersistentState,
 			actionParameters.actionId,
@@ -259,6 +259,14 @@ export async function executeActionInner(
 			actionParameters.publicData,
 			actionParameters.actionOptions ?? {}
 		)
+		if (result && result.validationErrors) {
+			throw UserError.from(
+				new Error(`AdLib Action validation failed: ${JSON.stringify(result.validationErrors)}`),
+				UserErrorMessage.ValidationFailed,
+				undefined,
+				409
+			)
+		}
 
 		if (blueprintPersistentState.hasChanges) {
 			playoutModel.setBlueprintPersistentState(blueprintPersistentState.getAll())
