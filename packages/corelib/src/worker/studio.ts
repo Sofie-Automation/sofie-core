@@ -380,6 +380,10 @@ export interface CleanupOrphanedExpectedPackageReferencesProps {
 	rundownId: RundownId
 }
 
+export interface TakeNextPartResult {
+	nextTakeTime: number
+}
+
 /**
  * Set of valid functions, of form:
  * `id: (data) => return`
@@ -404,7 +408,7 @@ export type StudioJobFunc = {
 	[StudioJobs.QueueNextSegment]: (data: QueueNextSegmentProps) => QueueNextSegmentResult
 	[StudioJobs.ExecuteAction]: (data: ExecuteActionProps) => ExecuteActionResult
 	[StudioJobs.ExecuteBucketAdLibOrAction]: (data: ExecuteBucketAdLibOrActionProps) => ExecuteActionResult
-	[StudioJobs.TakeNextPart]: (data: TakeNextPartProps) => void
+	[StudioJobs.TakeNextPart]: (data: TakeNextPartProps) => TakeNextPartResult
 	[StudioJobs.DisableNextPiece]: (data: DisableNextPieceProps) => void
 	[StudioJobs.RemovePlaylist]: (data: RemovePlaylistProps) => void
 	[StudioJobs.RegeneratePlaylist]: (data: RegeneratePlaylistProps) => void
