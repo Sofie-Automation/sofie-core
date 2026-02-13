@@ -1,12 +1,13 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { IGUIContextFilterLink } from '@sofie-automation/blueprints-integration'
+import { FilterType, IGUIContextFilterLink } from '@sofie-automation/blueprints-integration'
 import classNames from 'classnames'
 import { usePopper } from 'react-popper'
 import { sameWidth } from '../../../../../../lib/popperUtils'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAngleRight, faCheck, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { catchError } from '../../../../../../lib/lib'
+import { SwitchFilterType } from './SwitchFilterType'
 
 interface IProps {
 	index: number
@@ -14,6 +15,7 @@ interface IProps {
 	final?: boolean
 	opened: boolean
 	readonly?: boolean
+	onChangeType: (index: number, newType: FilterType) => void
 	onClose: (index: number) => void
 	onFocus: (index: number) => void
 	onInsertNext: (index: number) => void
@@ -26,6 +28,7 @@ export const ViewFilter: React.FC<IProps> = function ViewFilter({
 	readonly,
 	final,
 	opened,
+	onChangeType,
 	onClose,
 	onFocus,
 	onInsertNext,
@@ -94,7 +97,18 @@ export const ViewFilter: React.FC<IProps> = function ViewFilter({
 					style={styles.popper}
 					{...attributes.popper}
 				>
-					<p className="man">{t('Executes within the currently open Rundown, requires a Client-side trigger.')}</p>
+					<div className="man mbs">
+						<SwitchFilterType
+							allowedTypes={['adLib', 'rundownPlaylist', 'view']}
+							selectedType="view"
+							onChangeType={(newType) => onChangeType(index, newType)}
+						/>
+					</div>
+					<p className="man">
+						{t(
+							'Executes within the currently open Rundown for Hotkeys, or the one that is active in the Studio for Device triggers.'
+						)}
+					</p>
 					<div className="mts">
 						{!final ? (
 							<button className="btn right btn-tight btn-primary" onClick={() => onInsertNext(index)}>

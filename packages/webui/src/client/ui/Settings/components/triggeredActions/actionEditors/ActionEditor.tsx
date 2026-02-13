@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from 'react'
 import _ from 'underscore'
 import {
+	FilterType,
 	IAdLibFilterLink,
 	IGUIContextFilterLink,
 	IRundownPlaylistFilterLink,
@@ -39,9 +40,8 @@ function isFinal(
 ): boolean {
 	if (action.action === PlayoutActions.adlib) {
 		return chainLink?.object === 'adLib' && (chainLink?.field === 'pick' || chainLink?.field === 'pickEnd')
-	} else {
-		return chainLink?.object === 'view'
 	}
+	return false
 }
 
 type ChainLink = IRundownPlaylistFilterLink | IGUIContextFilterLink | IAdLibFilterLink
@@ -69,6 +69,15 @@ export const ActionEditor: React.FC<IProps> = function ActionEditor({
 	const onFilterChange = useCallback(
 		(filterIndex: number, newVal: ChainLink) => {
 			action.filterChain.splice(filterIndex, 1, newVal)
+
+			overrideHelper().replaceItem(actionId, action).commit()
+		},
+		[action, overrideHelper]
+	)
+
+	const onChangeType = useCallback(
+		(filterIndex: number, newType: FilterType) => {
+			action.filterChain[filterIndex].object = newType
 
 			overrideHelper().replaceItem(actionId, action).commit()
 		},
@@ -154,6 +163,7 @@ export const ActionEditor: React.FC<IProps> = function ActionEditor({
 						index={chainIndex}
 						opened={openFilterIndex === chainIndex}
 						onChange={onFilterChange}
+						onChangeType={onChangeType}
 						sourceLayers={sourceLayers}
 						outputLayers={outputLayers}
 						onFocus={onFilterFocus}
@@ -173,9 +183,23 @@ export const ActionEditor: React.FC<IProps> = function ActionEditor({
 						final={action.filterChain.length === 1 && isFinal(action, chainLink)}
 						onInsertNext={onFilterInsertNext}
 						onRemove={onFilterRemove}
+						onChangeType={onChangeType}
 					/>
 				) : chainLink.object === 'rundownPlaylist' ? (
-					<RundownPlaylistFilter link={chainLink} key={chainIndex} />
+					<RundownPlaylistFilter
+						link={chainLink}
+						index={chainIndex}
+						readonly={readonly}
+						key={chainIndex}
+						opened={openFilterIndex === chainIndex}
+						onChange={onFilterChange}
+						onFocus={onFilterFocus}
+						onClose={onClose}
+						onInsertNext={onFilterInsertNext}
+						onRemove={onFilterRemove}
+						final={action.filterChain.length === 1 && isFinal(action, chainLink)}
+						onChangeType={onChangeType}
+					/>
 				) : (
 					<dl className="triggered-action-entry__action__filter" key={chainIndex}>
 						<dt>{(chainLink as any).object}</dt>

@@ -14,7 +14,14 @@ import { MongoFieldSpecifierOnesStrict } from '@sofie-automation/corelib/dist/mo
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { ReactiveCacheCollection } from '../../publications/lib/ReactiveCacheCollection'
 
-export type RundownPlaylistFields = '_id' | 'name' | 'activationId' | 'currentPartInfo' | 'nextPartInfo'
+export type RundownPlaylistFields =
+	| '_id'
+	| 'name'
+	| 'activationId'
+	| 'currentPartInfo'
+	| 'nextPartInfo'
+	| 'studioId'
+	| 'rehearsal'
 export const rundownPlaylistFieldSpecifier = literal<
 	MongoFieldSpecifierOnesStrict<Pick<DBRundownPlaylist, RundownPlaylistFields>>
 >({
@@ -23,6 +30,8 @@ export const rundownPlaylistFieldSpecifier = literal<
 	activationId: 1,
 	currentPartInfo: 1,
 	nextPartInfo: 1,
+	studioId: 1,
+	rehearsal: 1,
 })
 
 export type SegmentFields = '_id' | '_rank' | 'isHidden' | 'name' | 'rundownId' | 'identifier'
