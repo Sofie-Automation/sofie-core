@@ -18,7 +18,7 @@ In every case, any layout changes and any scheduled cleanup are performed by the
 
 This category of collections is rather loosely defined, as it ends up being everything that doesn't belong somewhere else
 
-This consists of anything that is configurable from the Sofie UI, anything needed soley for the UI and some other bits. Additionally, there are some collections which are populated by other portions of a Sofie system, such as by Package Manager, through an API over DDP.  
+This consists of anything that is configurable from the Sofie UI, anything needed solely for the UI and some other bits. Additionally, there are some collections which are populated by other portions of a Sofie system, such as by Package Manager, through an API over DDP.  
 Currently, there is not a very clearly defined flow for modifying these documents, with the UI often making changes directly with minimal or no validation.
 
 This includes:
@@ -82,7 +82,7 @@ Some of these collections are used by Package Manager to initiate work, while ot
 
 This category of collections is owned by the playout [worker threads](./worker-threads-and-locks.md), and is used to model the playout of a Rundown or set of Rundowns.
 
-During the final stage of an ingest operation, there is a period where the ingest worker aquires a `PlaylistLock`, so that it can ensure that the RundownPlaylist the Rundown is a part of is updated with any necessary changes following the ingest operation. During this lock, it will also attempt to [sync any ingest changes](./for-blueprint-developers/sync-ingest-changes) to the PartInstances and PieceInstances, if supported by the blueprints.
+During the final stage of an ingest operation, there is a period where the ingest worker acquires a `PlaylistLock`, so that it can ensure that the RundownPlaylist the Rundown is a part of is updated with any necessary changes following the ingest operation. During this lock, it will also attempt to [sync any ingest changes](./for-blueprint-developers/sync-ingest-changes) to the PartInstances and PieceInstances, if supported by the blueprints.
 
 As before, Meteor is allowed to write to these collections as part of migrations, and cleaning up old documents.
 
@@ -127,6 +127,6 @@ Our solution to some of this early on was to not regenerate certain Parts when r
 
 At this point in time, Adlib Actions did not exist in Sofie. They are able to change almost every property of a Part of Piece that ingest is able to define, which makes the resetting process harder.
 
-PartInstances and PieceInstances were added as a way for us to make a copy of each Part and Piece, as it was selected for playout, so that we could allow ingest without risking affecting playout, and to simplify the cleanup performed. The PartInstances and PieceInstances are our record of how the Rundown was played, which we can utilise to output metadata such as for chapter markers on a web player. In earlier versions of Sofie this was tracked independently with an `AsRunLog`, which resulted in odd issues such as having `AsRunLog` entries which refered to a Part which no longer existed, or whose content was very different to how it was played.
+PartInstances and PieceInstances were added as a way for us to make a copy of each Part and Piece, as it was selected for playout, so that we could allow ingest without risking affecting playout, and to simplify the cleanup performed. The PartInstances and PieceInstances are our record of how the Rundown was played, which we can utilise to output metadata such as for chapter markers on a web player. In earlier versions of Sofie this was tracked independently with an `AsRunLog`, which resulted in odd issues such as having `AsRunLog` entries which referred to a Part which no longer existed, or whose content was very different to how it was played.
 
 Later on, this separation has allowed us to more cleanly define operations as ingest or playout, and allows us to run them in parallel with more confidence that they won't accidentally wipe out each others changes. Previously, both ingest and playout operations would be modifying documents in the Piece and Part collections, making concurrent operations unsafe as they could be modifying the same Part or Piece.
