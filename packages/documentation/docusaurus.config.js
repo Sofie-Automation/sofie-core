@@ -125,15 +125,6 @@ module.exports = {
 				docs: {
 					sidebarPath: require.resolve('./sidebars.js'),
 					editUrl: 'https://github.com/Sofie-Automation/sofie-core/edit/main/packages/documentation/',
-					// default to the 'next' docs
-					lastVersion: 'current',
-					versions: {
-						// Override the rendering of the 'next' docs to be 'latest'
-						current: {
-							label: 'Latest',
-							banner: 'none',
-						},
-					},
 				},
 				// blog: {
 				//   showReadingTime: true,

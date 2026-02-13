@@ -4,7 +4,7 @@ import IconExternalLink from '@docusaurus/theme-classic/lib/theme/Icon/ExternalL
 const GITHUB_API_URL = 'https://api.github.com'
 
 export default function GitHubReleases({ org, repo, releaseLabel, state }) {
-	const [isReady, setIsReady] = useState(0) // 0 - not ready, 1 - loaded, 2 - failed permamently
+	const [isReady, setIsReady] = useState(0) // 0 - not ready, 1 - loaded, 2 - failed permanently
 	const [releases, setReleases] = useState([])
 
 	useEffect(() => {

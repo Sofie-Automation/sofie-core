@@ -2,11 +2,11 @@
 sidebar_position: 3
 ---
 
-# Prompter Screen
+# Prompter
 
-See [Sofie Views and Screens](sofie-views-and-screens.mdx#prompter-screen) to learn how to access the Prompter Screen.
+See [Sofie views](sofie-views.mdx#prompter-view) for how to access the prompter page.
 
-![Prompter Screen before the first Part is taken](/img/docs/main/features/prompter-view.png)
+![Prompter screen before the first Part is taken](/img/docs/main/features/prompter-view.png)
 
 The prompter will display the script for the Rundown currently active in the Studio. On Air and Next parts and segments are highlighted - in red and green, respectively - to aid in navigation. In top-right corner of the screen, a Diff clock is shown, showing the difference between planned playback and what has been actually produced. This allows the host to know how far behind/ahead they are in regards to planned execution.
 
@@ -16,7 +16,7 @@ If the user scrolls the prompter ahead or behind the On Air part, helpful indica
 
 ## Customize looks
 
-The Prompter Screen can be configured using query parameters:
+The prompter UI can be configured using query parameters:
 
 | Query parameter | Type   | Description                                                                                                                                                         | Default |
 | :-------------- | :----- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :------ |
@@ -37,24 +37,23 @@ Example: [http://127.0.0.1/prompter/studio0/?mode=mouse&followtake=0&fontsize=20
 
 The prompter can be controlled by different types of controllers. The control mode is set by a query parameter, like so: `?mode=mouse`.
 
-| Query parameter         | Description                                                                                                                                                                                                                                   |
-| :---------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Default                 | Controlled by both mouse and keyboard                                                                                                                                                                                                         |
-| `?mode=mouse`           | Controlled by mouse only. [See configuration details](prompter.md#control-using-mouse-scroll-wheel)                                                                                                                                           |
-| `?mode=keyboard`        | Controlled by keyboard only. [See configuration details](prompter.md#control-using-keyboard)                                                                                                                                                  |
-| `?mode=shuttlekeyboard` | Controlled by a Contour Design ShuttleXpress, X-keys Jog and Shuttle or any compatible, configured as keyboard-ish device. [See configuration details](prompter.md#control-using-contour-shuttlexpress-or-x-keys-modeshuttlekeyboard)         |
-| `?mode=shuttlewebhid`   | Controlled by a Contour Design ShuttleXpress, using the browser's WebHID API [See configuration details](prompter.md#control-using-contour-shuttlexpress-via-webhid)                                                                          |
-| `?mode=pedal`           | Controlled by any MIDI device outputting note values between 0 - 127 of CC notes on channel 8. Analogue Expression pedals work well with TRS-USB midi-converters. [See configuration details](prompter.md#control-using-midi-input-modepedal) |
-| `?mode=joycon`          | Controlled by Nintendo Switch Joycon, using the HTML5 GamePad API. [See configuration details](prompter.md#control-using-nintendo-joycon-gamepad)                                                                                             |
-| `?mode=xbox`            | Controlled by Xbox controller, using the HTML5 GamePad API. [See configuration details](prompter.md#control-using-xbox-controller-modexbox)                                                                                                   |
+| Query parameter         | Description                                                                                                                                                                                                                                    |
+| :---------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Default                 | Controlled by both mouse and keyboard                                                                                                                                                                                                          |
+| `?mode=mouse`           | Controlled by mouse only. [See configuration details](prompter.md#control-using-mouse-scroll-wheel)                                                                                                                                            |
+| `?mode=keyboard`        | Controlled by keyboard only. [See configuration details](prompter.md#control-using-keyboard)                                                                                                                                                   |
+| `?mode=shuttlekeyboard` | Controlled by a Contour Design ShuttleXpress, X-keys Jog and Shuttle or any compatible, configured as keyboard-ish device. [See configuration details](prompter.md#control-using-contour-shuttlexpress-or-x-keys)                              |
+| `?mode=shuttlewebhid`   | Controlled by a Contour Design ShuttleXpress, using the browser's WebHID API [See configuration details](prompter.md#control-using-contour-shuttlexpress-via-webhid)                                                                               |
+| `?mode=pedal`           | Controlled by any MIDI device outputting note values between 0 - 127 of CC notes on channel 8. Analogue Expression pedals work well with TRS-USB midi-converters. [See configuration details](prompter.md#control-using-midi-input-mode-pedal) |
+| `?mode=joycon`          | Controlled by Nintendo Switch Joycon, using the HTML5 GamePad API. [See configuration details](prompter.md#control-using-nintendo-joycon-gamepad)                                                                                              |
 
 #### Control using mouse \(scroll wheel\)
 
 The prompter can be controlled in multiple ways when using the scroll wheel:
 
-| Query parameter             | Description                                                                                                                                                                               |
-| :-------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `?controlmode=normal`       | Scrolling of the mouse works as "normal scrolling"                                                                                                                                        |
+| Query parameter             | Description                                                                                                                                                                              |
+| :-------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `?controlmode=normal`       | Scrolling of the mouse works as "normal scrolling"                                                                                                                                       |
 | `?controlmode=speed`        | Scrolling of the mouse changes the speed of scrolling. Left-click to toggle, right-click to rewind                                                                                        |
 | `?controlmode=smoothscroll` | Scrolling the mouse wheel starts continuous scrolling. Small speed adjustments can then be made by nudging the scroll wheel. Stop the scrolling by making a "larger scroll" on the wheel. |
 
@@ -104,21 +103,6 @@ When opening the Prompter View for the first time, it is necessary to press the 
 
 ![Contour ShuttleXpress input mapping](/img/docs/main/features/contour-shuttle-webhid.jpg)
 
-**Customizable Button Mapping:**
-
-By default, the ShuttleXpress buttons execute built-in prompter actions. However, you can customize button behavior by mapping buttons to global adlib actions using the `shuttleWebHid_buttonMap` query parameter.
-
-| Query parameter | Type | Description |
-| :--- | :--- | :--- |
-| `shuttleWebHid_buttonMap` | Comma-separated strings | Maps ShuttleXpress buttons to global adlib actions. Each entry should be in the format `buttonIndex:actionId`, where `buttonIndex` is the button number (0-indexed) and `actionId` is the ID of a global adlib action defined in your blueprints. Each custom action is triggered once on button press (trigger mode: `pressed`) and once on button release (trigger mode: `released`). Multiple mappings are comma-separated. |
-
-**Example:**
-```
-?mode=shuttlewebhid&shuttleWebHid_buttonMap=0:toggle_control_room_mics,1:make_coffee
-```
-
-Buttons without a custom mapping will use their default behavior.
-
 ####
 
 #### Control using midi input \(_?mode=pedal_\)
@@ -155,7 +139,7 @@ Any movement within forward range will map to the `pedal_speedMap` with interpol
 | _"I can't rest my foot without it starting to run"_                                       | Increase `pedal_rangeNeutralMax`                                                                                                                                                                                                           |
 | _"I have to push too far before it starts moving"_                                        | Decrease `pedal_rangeNeutralMax`                                                                                                                                                                                                           |
 | _"It starts out fine, but runs too fast if I push too hard"_                              | Add more weight to the lower part of the `pedal_speedMap` by adding more low values early in the map, compared to the large numbers in the end.                                                                                            |
-| _"I have to go too far back to reverse"_                                                  | Increase `pedal_rangeNeutralMin`                                                                                                                                                                                                           |
+| _"I have to go too far back to reverse"_                                                  | Increase `pedal_rangeNeutralMin`                                                                                                                                                                                                            |
 | _"As I find a good speed, it varies a bit in speed up/down even if I hold my foot still"_ | Use `?debug=1` to see what speed is calculated in the position the presenter wants to rest the foot in. Add more of that number in a sequence in the `pedal_speedMap` to flatten out the speed curve, i.e. `[1, 2, 3, 4, 4, 4, 4, 5, ...]` |
 
 **Note:** The default values are set up to work with the _Yamaha FC7_ expression pedal, and will probably not be good for pedals with one continuous linear range from fully released to fully depressed. A suggested configuration for such pedals \(i.e. the _Mission Engineering EP-1_\) will be like:
@@ -175,16 +159,15 @@ This mode uses the browsers Gamapad API and polls connected Joycons for their st
 
 The Joycons can operate in 3 modes, the L-stick, the R-stick or both L+R sticks together. Reconnections and jumping between modes works, with one known limitation: **Transition from L+R to a single stick blocks all input, and requires a reconnect of the sticks you want to use.** This seems to be a bug in either the Joycons themselves or in the Gamepad API in general.
 
-| Query parameter          | Type             | Description                                                                                                                                                                                                                                                                               | Default                      |
-| :----------------------- | :--------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------- |
-| `joycon_speedMap`        | Array of numbers | Speeds to scroll by \(px. pr. frame - approx 60fps\) when scrolling forwards. The beginning of the forwards-range maps to the first number in this array, and the end of the forwards-range map to the end of this array. All values in between are being interpolated in a spline curve. | `[1, 2, 3, 4, 5, 8, 12, 30]` |
-| `joycon_reverseSpeedMap` | Array of numbers | Same as `joycon_speedMap` but for the backwards range.                                                                                                                                                                                                                                    | `[1, 2, 3, 4, 5, 8, 12, 30]` |
-| `joycon_rangeRevMin`     | number           | The end of the backwards-range, full speed backwards.                                                                                                                                                                                                                                     | `-1`                         |
-| `joycon_rangeNeutralMin` | number           | The beginning of the backwards-range.                                                                                                                                                                                                                                                     | `-0.25`                      |
-| `joycon_rangeNeutralMax` | number           | The minimum input to run forward, the start of the forward-range \(min speed\). This is also the end of any "deadband" you want filter out before starting moving forwards.                                                                                                               | `0.25`                       |
-| `joycon_rangeFwdMax`     | number           | The maximum input, the end of the forward-range \(max speed\)                                                                                                                                                                                                                             | `1`                          |
-| `joycon_rightHandOffset` | number           | A ratio to increase or decrease the R Joycon joystick sensitivity relative to the L Joycon.                                                                                                                                                                                               | `1.4`                        |
-| `joycon_invertJoystick`  | 0 / 1            | Invert the joystick direction. When enabled, pushing the joystick forward scrolls up instead of down.                                                                                                                                                                                     | `1`                          |
+| Query parameter          | Type             | Description                                                                                                                                                                                                                                                                                | Default                      |
+| :----------------------- | :--------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------- |
+| `joycon_speedMap`        | Array of numbes  | Speeds to scroll by \(px. pr. frame - approx 60fps\) when scrolling forwards. The beginning of the forwards-range maps to the first number in this array, and thee end of the forwards-range map to the end of this array. All values in between are being interpolated in a spline curve. | `[1, 2, 3, 4, 5, 8, 12, 30]` |
+| `joycon_reverseSpeedMap` | Array of numbers | Same as `joycon_speedMap` but for the backwards range.                                                                                                                                                                                                                                     | `[1, 2, 3, 4, 5, 8, 12, 30]` |
+| `joycon_rangeRevMin`     | number           | The end of the backwards-range, full speed backwards.                                                                                                                                                                                                                                      | `-1`                         |
+| `joycon_rangeNeutralMin` | number           | The beginning of the backwards-range.                                                                                                                                                                                                                                                      | `-0.25`                      |
+| `joycon_rangeNeutralMax` | number           | The minimum input to run forward, the start of the forward-range \(min speed\). This is also the end of any "deadband" you want filter out before starting moving forwards.                                                                                                                | `0.25`                       |
+| `joycon_rangeFwdMax`     | number           | The maximum input, the end of the forward-range \(max speed\)                                                                                                                                                                                                                              | `1`                          |
+| `joycon_rightHandOffset` | number           | A ratio to increase or decrease the R Joycon joystick sensitivity relative to the L Joycon.                                                                                                                                                                                                | `1.4`                        |
 
 - `joycon_rangeNeutralMin` has to be greater than `joycon_rangeRevMin`
 - `joycon_rangeNeutralMax` has to be greater than `joycon_rangeNeutralMin`
@@ -214,47 +197,3 @@ You can turn on `?debug=1` to see how your input maps to an output.
 | _"I can't reach max speed backwards"_                                                       | Increase `joycon_rangeRevMin`                                                                                                                                                                                                                   |
 | _"I can't reach max speed forwards"_                                                        | Decrease `joycon_rangeFwdMax`                                                                                                                                                                                                                   |
 | _"As I find a good speed, it varies a bit in speed up/down even if I hold my finger still"_ | Use `?debug=1` to see what speed is calculated in the position the presenter wants to rest their finger in. Add more of that number in a sequence in the `joycon_speedMap` to flatten out the speed curve, i.e. `[1, 2, 3, 4, 4, 4, 4, 5, ...]` |
-
-#### Control using Xbox controller \(_?mode=xbox_\)
-
-This mode uses the browser's Gamepad API to control the prompter with an Xbox controller. It supports Xbox One, Xbox Series X|S, and compatible third-party controllers.
-
-The controller can be connected via Bluetooth or USB. **Note:** On macOS, Xbox controllers may not be recognized over USB due to driver limitations; Bluetooth is recommended.
-
-**Scroll control:**
-
-- **Right Trigger (RT):** Scroll forward - speed is proportional to trigger pressure
-- **Left Trigger (LT):** Scroll backward - speed is proportional to trigger pressure
-
-**Button map:**
-
-| **Button**        | **Action**                |
-| :---------------- | :------------------------ |
-| A                 | Take (go to next part)    |
-| B                 | Go to the "On-air" story  |
-| X                 | Go to the previous story  |
-| Y                 | Go to the following story |
-| LB (Left Bumper)  | Go to the top             |
-| RB (Right Bumper) | Go to the "Next" story    |
-| D-Pad Up          | Scroll up (fine control)  |
-| D-Pad Down        | Scroll down (fine control)|
-
-**Configuration parameters:**
-
-| Query parameter        | Type             | Description                                                                                                                                            | Default                       |
-| :--------------------- | :--------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------- |
-| `xbox_speedMap`        | Array of numbers | Speeds to scroll by (px per frame, ~60fps) when scrolling forwards. Values are interpolated using a spline curve based on trigger pressure.            | `[2, 3, 5, 6, 8, 12, 18, 45]` |
-| `xbox_reverseSpeedMap` | Array of numbers | Same as `xbox_speedMap` but for the backwards range (left trigger).                                                                                    | `[2, 3, 5, 6, 8, 12, 18, 45]` |
-| `xbox_triggerDeadZone` | number           | Dead zone for the triggers, to prevent accidental scrolling. Value between 0 and 1.                                                                    | `0.1`                         |
-
-You can turn on `?debug=1` to see how your trigger input maps to scroll speed.
-
-**Calibration guide:**
-
-| **Symptom**                                                  | **Adjustment**                                                                                                              |
-| :----------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------- |
-| _"It starts scrolling when I'm not touching the trigger"_    | Increase `xbox_triggerDeadZone` (e.g., `0.15` or `0.2`)                                                                     |
-| _"I have to press too hard before it starts moving"_         | Decrease `xbox_triggerDeadZone` (e.g., `0.05`)                                                                              |
-| _"It scrolls too fast"_                                      | Use smaller values in `xbox_speedMap`, e.g., `[1, 2, 3, 4, 5, 8, 12, 30]`                                                   |
-| _"It scrolls too slow"_                                      | Use larger values in `xbox_speedMap`, e.g., `[3, 6, 10, 15, 25, 40, 60, 100]`                                               |
-| _"Speed jumps too quickly from slow to fast"_                | Add more intermediate values to `xbox_speedMap` to create a smoother curve, e.g., `[1, 2, 3, 4, 5, 6, 8, 10, 15, 20, 30]`   |

@@ -46,7 +46,7 @@ The prompter can be controlled by different types of controllers. The control mo
 | `?mode=shuttlewebhid`   | Controlled by a Contour Design ShuttleXpress, using the browser's WebHID API [See configuration details](prompter.md#control-using-contour-shuttlexpress-via-webhid)                                                                          |
 | `?mode=pedal`           | Controlled by any MIDI device outputting note values between 0 - 127 of CC notes on channel 8. Analogue Expression pedals work well with TRS-USB midi-converters. [See configuration details](prompter.md#control-using-midi-input-modepedal) |
 | `?mode=joycon`          | Controlled by Nintendo Switch Joycon, using the HTML5 GamePad API. [See configuration details](prompter.md#control-using-nintendo-joycon-gamepad)                                                                                             |
-| `?mode=xbox`            | Controlled by Xbox controller, using the HTML5 GamePad API. [See configuration details](prompter.md#control-using-xbox-controller-modexbox)                                                                                                   |
+| `?mode=xbox`            | Controlled by Xbox controller, using the HTML5 GamePad API. [See configuration details](prompter.md#control-using-xbox-controller-modexbox)                                                                                                    |
 
 #### Control using mouse \(scroll wheel\)
 
@@ -104,21 +104,6 @@ When opening the Prompter View for the first time, it is necessary to press the 
 
 ![Contour ShuttleXpress input mapping](/img/docs/main/features/contour-shuttle-webhid.jpg)
 
-**Customizable Button Mapping:**
-
-By default, the ShuttleXpress buttons execute built-in prompter actions. However, you can customize button behavior by mapping buttons to global adlib actions using the `shuttleWebHid_buttonMap` query parameter.
-
-| Query parameter | Type | Description |
-| :--- | :--- | :--- |
-| `shuttleWebHid_buttonMap` | Comma-separated strings | Maps ShuttleXpress buttons to global adlib actions. Each entry should be in the format `buttonIndex:actionId`, where `buttonIndex` is the button number (0-indexed) and `actionId` is the ID of a global adlib action defined in your blueprints. Each custom action is triggered once on button press (trigger mode: `pressed`) and once on button release (trigger mode: `released`). Multiple mappings are comma-separated. |
-
-**Example:**
-```
-?mode=shuttlewebhid&shuttleWebHid_buttonMap=0:toggle_control_room_mics,1:make_coffee
-```
-
-Buttons without a custom mapping will use their default behavior.
-
 ####
 
 #### Control using midi input \(_?mode=pedal_\)
@@ -175,16 +160,16 @@ This mode uses the browsers Gamapad API and polls connected Joycons for their st
 
 The Joycons can operate in 3 modes, the L-stick, the R-stick or both L+R sticks together. Reconnections and jumping between modes works, with one known limitation: **Transition from L+R to a single stick blocks all input, and requires a reconnect of the sticks you want to use.** This seems to be a bug in either the Joycons themselves or in the Gamepad API in general.
 
-| Query parameter          | Type             | Description                                                                                                                                                                                                                                                                               | Default                      |
-| :----------------------- | :--------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------- |
+| Query parameter          | Type             | Description                                                                                                                                                                                                                                                                                | Default                      |
+| :----------------------- | :--------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------- |
 | `joycon_speedMap`        | Array of numbers | Speeds to scroll by \(px. pr. frame - approx 60fps\) when scrolling forwards. The beginning of the forwards-range maps to the first number in this array, and the end of the forwards-range map to the end of this array. All values in between are being interpolated in a spline curve. | `[1, 2, 3, 4, 5, 8, 12, 30]` |
-| `joycon_reverseSpeedMap` | Array of numbers | Same as `joycon_speedMap` but for the backwards range.                                                                                                                                                                                                                                    | `[1, 2, 3, 4, 5, 8, 12, 30]` |
-| `joycon_rangeRevMin`     | number           | The end of the backwards-range, full speed backwards.                                                                                                                                                                                                                                     | `-1`                         |
-| `joycon_rangeNeutralMin` | number           | The beginning of the backwards-range.                                                                                                                                                                                                                                                     | `-0.25`                      |
-| `joycon_rangeNeutralMax` | number           | The minimum input to run forward, the start of the forward-range \(min speed\). This is also the end of any "deadband" you want filter out before starting moving forwards.                                                                                                               | `0.25`                       |
-| `joycon_rangeFwdMax`     | number           | The maximum input, the end of the forward-range \(max speed\)                                                                                                                                                                                                                             | `1`                          |
-| `joycon_rightHandOffset` | number           | A ratio to increase or decrease the R Joycon joystick sensitivity relative to the L Joycon.                                                                                                                                                                                               | `1.4`                        |
-| `joycon_invertJoystick`  | 0 / 1            | Invert the joystick direction. When enabled, pushing the joystick forward scrolls up instead of down.                                                                                                                                                                                     | `1`                          |
+| `joycon_reverseSpeedMap` | Array of numbers | Same as `joycon_speedMap` but for the backwards range.                                                                                                                                                                                                                                     | `[1, 2, 3, 4, 5, 8, 12, 30]` |
+| `joycon_rangeRevMin`     | number           | The end of the backwards-range, full speed backwards.                                                                                                                                                                                                                                      | `-1`                         |
+| `joycon_rangeNeutralMin` | number           | The beginning of the backwards-range.                                                                                                                                                                                                                                                      | `-0.25`                      |
+| `joycon_rangeNeutralMax` | number           | The minimum input to run forward, the start of the forward-range \(min speed\). This is also the end of any "deadband" you want filter out before starting moving forwards.                                                                                                                | `0.25`                       |
+| `joycon_rangeFwdMax`     | number           | The maximum input, the end of the forward-range \(max speed\)                                                                                                                                                                                                                              | `1`                          |
+| `joycon_rightHandOffset` | number           | A ratio to increase or decrease the R Joycon joystick sensitivity relative to the L Joycon.                                                                                                                                                                                                | `1.4`                        |
+| `joycon_invertJoystick`  | 0 / 1            | Invert the joystick direction. When enabled, pushing the joystick forward scrolls up instead of down.                                                                                                                                                                                      | `1`                          |
 
 - `joycon_rangeNeutralMin` has to be greater than `joycon_rangeRevMin`
 - `joycon_rangeNeutralMax` has to be greater than `joycon_rangeNeutralMin`
@@ -241,11 +226,11 @@ The controller can be connected via Bluetooth or USB. **Note:** On macOS, Xbox c
 
 **Configuration parameters:**
 
-| Query parameter        | Type             | Description                                                                                                                                            | Default                       |
-| :--------------------- | :--------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------- |
+| Query parameter        | Type             | Description                                                                                                                                            | Default                      |
+| :--------------------- | :--------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------- |
 | `xbox_speedMap`        | Array of numbers | Speeds to scroll by (px per frame, ~60fps) when scrolling forwards. Values are interpolated using a spline curve based on trigger pressure.            | `[2, 3, 5, 6, 8, 12, 18, 45]` |
 | `xbox_reverseSpeedMap` | Array of numbers | Same as `xbox_speedMap` but for the backwards range (left trigger).                                                                                    | `[2, 3, 5, 6, 8, 12, 18, 45]` |
-| `xbox_triggerDeadZone` | number           | Dead zone for the triggers, to prevent accidental scrolling. Value between 0 and 1.                                                                    | `0.1`                         |
+| `xbox_triggerDeadZone` | number           | Dead zone for the triggers, to prevent accidental scrolling. Value between 0 and 1.                                                                    | `0.1`                        |
 
 You can turn on `?debug=1` to see how your trigger input maps to scroll speed.
 
