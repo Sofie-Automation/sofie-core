@@ -40,6 +40,26 @@ import type { MosGatewayConfig } from '@sofie-automation/shared-lib/dist/generat
 import type { PlayoutGatewayConfig } from '@sofie-automation/shared-lib/dist/generated/PlayoutGatewayConfigTypes'
 import type { LiveStatusGatewayConfig } from '@sofie-automation/shared-lib/dist/generated/LiveStatusGatewayOptionsTypes'
 
+/**
+ * Context provided to device error message functions.
+ * Contains the device name, device ID, and any additional context from the TSR error.
+ */
+export interface DeviceErrorContext {
+	/** Human-readable name of the device */
+	deviceName: string
+	/** Internal device ID */
+	deviceId?: string
+	/** Additional context values from the TSR error (e.g., host, port, channel, etc.) */
+	[key: string]: unknown
+}
+
+/**
+ * A function that receives device error context and returns a custom error message.
+ * Return `undefined` to fall back to the default TSR message.
+ * Return an empty string `''` to suppress the message entirely.
+ */
+export type DeviceErrorMessageFunction = (context: DeviceErrorContext) => string | undefined
+
 export interface StudioBlueprintManifest<
 	TRawConfig = IBlueprintConfig,
 	TProcessedConfig = unknown,
@@ -54,6 +74,39 @@ export interface StudioBlueprintManifest<
 
 	/** Translations connected to the studio (as stringified JSON) */
 	translations?: string
+
+	/**
+	 * Alternate device error messages, to override the default messages from TSR devices.
+	 * Keys are error code strings from TSR devices (e.g., 'DEVICE_ATEM_DISCONNECTED').
+	 *
+	 * Import error codes from 'timeline-state-resolver-types' for type safety.
+	 * Values can be:
+	 * - String templates using {{variable}} syntax for interpolation with context values
+	 * - Functions that receive DeviceErrorContext and return a custom message string
+	 * - Empty string to suppress the error message entirely
+	 *
+	 * @example
+	 * ```typescript
+	 * import { AtemErrorCode, CasparCGErrorCode } from 'timeline-state-resolver-types'
+	 *
+	 * deviceErrorMessages: {
+	 *   // String template with placeholders
+	 *   [AtemErrorCode.DISCONNECTED]: 'Vision mixer offline - check network to {{host}}',
+	 *   [AtemErrorCode.PSU_FAULT]: 'PSU {{psuNumber}} needs attention',
+	 *
+	 *   // Function for complex conditional logic
+	 *   [CasparCGErrorCode.CHANNEL_ERROR]: (context) => {
+	 *     const channel = context.channel as number
+	 *     if (channel === 1) return 'Primary graphics output failed!'
+	 *     return `Graphics channel ${channel} error on ${context.deviceName}`
+	 *   },
+	 *
+	 *   // Suppress a noisy error
+	 *   [SomeErrorCode.NOISY_ERROR]: '',
+	 * }
+	 * ```
+	 */
+	deviceErrorMessages?: Record<string, string | DeviceErrorMessageFunction | undefined>
 
 	/** Returns the items used to build the baseline (default state) of a studio, this is the baseline used when there's no active rundown */
 	getBaseline: (context: IStudioBaselineContext) => BlueprintResultStudioBaseline

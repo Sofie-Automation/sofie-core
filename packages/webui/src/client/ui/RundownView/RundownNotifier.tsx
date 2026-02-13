@@ -809,7 +809,7 @@ class RundownViewNotifier extends WithManagedTracker {
 		if (!device.connected) {
 			return t('Device {{deviceName}} is disconnected', { deviceName: device.name })
 		}
-		return `${device.name}: ` + (device.status.messages || ['']).join(', ')
+		return (device.status.messages || ['']).join(', ')
 	}
 }
 
