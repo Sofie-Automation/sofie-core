@@ -29,6 +29,7 @@ import { RundownList } from './RundownList.js'
 import { RundownView } from './RundownView.js'
 import { ActiveRundownView } from './ActiveRundownView.js'
 import { ClockView } from './ClockView/ClockView.js'
+import { FullscreenOverlay } from './ClockView/FullscreenOverlay.js'
 import { ConnectionStatusNotification } from '../lib/ConnectionStatusNotification.js'
 import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom'
 import { ErrorBoundary } from '../lib/ErrorBoundary.js'
@@ -230,6 +231,14 @@ export const App: React.FC = function App() {
 							<Route path="/countdowns/:studioId" component={NullComponent} />
 							<Route path="/prompter/:studioId" component={NullComponent} />
 							<Route path="/" component={ConnectionStatusNotification} />
+						</Switch>
+					</ErrorBoundary>
+					<ErrorBoundary>
+						<Switch>
+							{/* Screens that should show the fullscreen overlay prompt */}
+							<Route path="/countdowns/:studioId/:page" component={FullscreenOverlay} />
+							<Route path="/prompter/:studioId" component={FullscreenOverlay} />
+							<Route path="/" component={NullComponent} />
 						</Switch>
 					</ErrorBoundary>
 					<ErrorBoundary>

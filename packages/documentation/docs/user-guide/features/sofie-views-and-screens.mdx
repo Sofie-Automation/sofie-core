@@ -271,6 +271,8 @@ Bookmark the "Available screens" view for your studio (e.g., `/countdowns/studio
 
 ## Sofie Screens
 
+All Screens support a `?fullscreen=1` query parameter. When this parameter is present, the screen will display a semi-transparent overlay prompting the user to click anywhere to enter fullscreen mode. Once fullscreen is entered, the overlay disappears. If the user exits fullscreen, the overlay will reappear.
+
 ### Prompter Screen
 
 `/prompter/:studioId`
@@ -335,7 +337,6 @@ This screen can be configured using query parameters:
 | :--------------- | :----- | :--------------------------------------------------------------------------------------------------------- | :----------- |
 | `sourceLayerIds` | string | A comma-separated list of Source Layer IDs to be considered for display                                    | _(show all)_ |
 | `studioLabels`   | string | A comma-separated list of Studio Labels (Piece `.content.studioLabel` values) to be considered for display | _(show all)_ |
-| `fullscreen`     | 0 / 1  | Should the screen be shown fullscreen on the device on first user interaction                              | 0            |
 
 Example: [http://127.0.0.1/countdowns/studio0/camera?sourceLayerIds=camera0,dve0&studioLabels=1,KAM%201,K1,KAM1&fullscreen=1](http://127.0.0.1/countdowns/studio0/camera?sourceLayerIds=camera0,dve0&studioLabels=1,KAM%201,K1,KAM1&fullscreen=1)
 
