@@ -5,6 +5,7 @@ import { JobContext } from '../../jobs/index.js'
 import { sortPieceInstancesByStart } from '../pieces.js'
 import { findLookaheadObjectsForPart, LookaheadTimelineObject } from './findObjects.js'
 import { PartAndPieces, PartInstanceAndPieceInstances } from './util.js'
+import { TimelinePlayoutState } from '../timeline/lib.js'
 
 export interface LookaheadResult {
 	timed: Array<LookaheadTimelineObject>
@@ -19,7 +20,8 @@ export function findLookaheadForLayer(
 	orderedPartInfos: Array<PartAndPieces>,
 	layer: string,
 	lookaheadTargetFutureObjects: number,
-	lookaheadMaxSearchDistance: number
+	lookaheadMaxSearchDistance: number,
+	playoutState: TimelinePlayoutState
 ): LookaheadResult {
 	const span = context.startSpan(`findLookaheadForlayer.${layer}`)
 	const res: LookaheadResult = {
@@ -49,7 +51,8 @@ export function findLookaheadForLayer(
 			layer,
 			previousPart,
 			partInfo,
-			partInstanceInfo.part._id
+			partInstanceInfo.part._id,
+			playoutState
 		)
 
 		if (partInstanceInfo.onTimeline) {
@@ -75,7 +78,13 @@ export function findLookaheadForLayer(
 					layer,
 					previousPart,
 					partInfo,
-					null
+					null,
+					{
+						...playoutState,
+						// This is beyond the next part, so will be back to not being in hold
+						isInHold: false,
+						includeWhenNotInHoldObjects: true,
+					}
 				)
 				res.future.push(...objs)
 				previousPart = partInfo.part

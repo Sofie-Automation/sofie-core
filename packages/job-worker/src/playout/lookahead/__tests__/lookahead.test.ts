@@ -11,7 +11,7 @@ import { LookaheadMode, PlaylistTimingType, TSR } from '@sofie-automation/bluepr
 import { setupDefaultJobEnvironment, MockJobContext } from '../../../__mocks__/context.js'
 import { runJobWithPlayoutModel } from '../../../playout/lock.js'
 import { defaultRundownPlaylist } from '../../../__mocks__/defaultCollectionObjects.js'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist, RundownHoldState } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 
 jest.mock('../findForLayer')
 type TfindLookaheadForLayer = jest.MockedFunction<typeof findLookaheadForLayer>
@@ -25,6 +25,8 @@ import { LookaheadTimelineObject } from '../findObjects.js'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { createPartCurrentTimes } from '@sofie-automation/corelib/dist/playout/processAndPrune'
 const getOrderedPartsAfterPlayheadMock = getOrderedPartsAfterPlayhead as TgetOrderedPartsAfterPlayhead
+
+const DEFAULT_PLAYOUT_STATE = { isInHold: false, isRehearsal: false }
 
 describe('Lookahead', () => {
 	let context!: MockJobContext
@@ -142,7 +144,8 @@ describe('Lookahead', () => {
 			orderedPartsFollowingPlayhead,
 			'PRELOAD',
 			1,
-			LOOKAHEAD_DEFAULT_SEARCH_DISTANCE
+			LOOKAHEAD_DEFAULT_SEARCH_DISTANCE,
+			DEFAULT_PLAYOUT_STATE
 		)
 		expect(findLookaheadForLayerMock).toHaveBeenNthCalledWith(
 			2,
@@ -153,7 +156,8 @@ describe('Lookahead', () => {
 			orderedPartsFollowingPlayhead,
 			'WHEN_CLEAR',
 			1,
-			LOOKAHEAD_DEFAULT_SEARCH_DISTANCE
+			LOOKAHEAD_DEFAULT_SEARCH_DISTANCE,
+			DEFAULT_PLAYOUT_STATE
 		)
 		findLookaheadForLayerMock.mockClear()
 	}
@@ -339,6 +343,74 @@ describe('Lookahead', () => {
 			getLookeaheadObjects(context, playoutModel, partInstancesInfo)
 		)
 		await expectLookaheadForLayerMock(playlistId, [expectedCurrent, expectedNext], expectedPrevious, fakeParts)
+	})
+
+	test('Playlist state influences playoutState parameter', async () => {
+		const partInstancesInfo: SelectedPartInstancesTimelineInfo = {}
+		const fakeParts = partIds.map((p) => ({ part: { _id: p } as any, usesInTransition: true, pieces: [] }))
+		getOrderedPartsAfterPlayheadMock.mockReturnValue(fakeParts.map((p) => p.part))
+
+		// Test with rehearsal mode
+		await context.mockCollections.RundownPlaylists.update(playlistId, { $set: { rehearsal: true } })
+		await runJobWithPlayoutModel(context, { playlistId }, null, async (playoutModel) =>
+			getLookeaheadObjects(context, playoutModel, partInstancesInfo)
+		)
+
+		expect(findLookaheadForLayerMock).toHaveBeenCalledWith(
+			context,
+			null,
+			[],
+			undefined,
+			fakeParts,
+			'PRELOAD',
+			1,
+			LOOKAHEAD_DEFAULT_SEARCH_DISTANCE,
+			{ isInHold: false, isRehearsal: true }
+		)
+
+		findLookaheadForLayerMock.mockClear()
+
+		// Test with hold state
+		await context.mockCollections.RundownPlaylists.update(playlistId, {
+			$set: { rehearsal: false, holdState: RundownHoldState.ACTIVE },
+		})
+		await runJobWithPlayoutModel(context, { playlistId }, null, async (playoutModel) =>
+			getLookeaheadObjects(context, playoutModel, partInstancesInfo)
+		)
+
+		expect(findLookaheadForLayerMock).toHaveBeenCalledWith(
+			context,
+			null,
+			[],
+			undefined,
+			fakeParts,
+			'PRELOAD',
+			1,
+			LOOKAHEAD_DEFAULT_SEARCH_DISTANCE,
+			{ isInHold: true, isRehearsal: false }
+		)
+
+		findLookaheadForLayerMock.mockClear()
+
+		// Test with both rehearsal and hold
+		await context.mockCollections.RundownPlaylists.update(playlistId, {
+			$set: { rehearsal: true, holdState: RundownHoldState.ACTIVE },
+		})
+		await runJobWithPlayoutModel(context, { playlistId }, null, async (playoutModel) =>
+			getLookeaheadObjects(context, playoutModel, partInstancesInfo)
+		)
+
+		expect(findLookaheadForLayerMock).toHaveBeenCalledWith(
+			context,
+			null,
+			[],
+			undefined,
+			fakeParts,
+			'PRELOAD',
+			1,
+			LOOKAHEAD_DEFAULT_SEARCH_DISTANCE,
+			{ isInHold: true, isRehearsal: true }
+		)
 	})
 
 	// eslint-disable-next-line jest/no-commented-out-tests

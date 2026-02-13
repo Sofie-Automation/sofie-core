@@ -1,7 +1,13 @@
-import { IBlueprintPieceType } from '@sofie-automation/blueprints-integration'
+import {
+	IBlueprintPieceType,
+	TimelineObjectCoreExt,
+	TimelineObjHoldMode,
+	TimelineObjOnAirMode,
+} from '@sofie-automation/blueprints-integration'
 import { PieceInstanceWithTimings } from '@sofie-automation/corelib/dist/playout/processAndPrune'
 import { ReadonlyDeep } from 'type-fest'
 import { DEFINITELY_ENDED_FUTURE_DURATION } from '../infinites.js'
+import { assertNever } from '@sofie-automation/corelib/dist/lib'
 
 /**
  * Check if a PieceInstance has 'definitely ended'.
@@ -36,4 +42,62 @@ export function hasPieceInstanceDefinitelyEnded(
 	}
 
 	return relativeEnd !== undefined && relativeEnd + DEFINITELY_ENDED_FUTURE_DURATION < nowInPart
+}
+
+export interface TimelinePlayoutState {
+	/** Whether the playout is currently in rehearsal mode */
+	isRehearsal: boolean
+	/** If true, we're playing in a HOLD situation */
+	isInHold: boolean
+	/**
+	 * If true, objects with holdMode EXCEPT will be included on the timeline, even when in hold.
+	 * This is used for infinite, when their pieces belong to both sides of the HOLD
+	 */
+	includeWhenNotInHoldObjects?: boolean
+}
+
+/**
+ * Whether a timeline object should be included on the timeline
+ * This uses some specific properties on the object which define this behaviour
+ */
+export function shouldIncludeObjectOnTimeline(
+	playoutState: TimelinePlayoutState,
+	object: TimelineObjectCoreExt<any>
+): boolean {
+	// Some objects can be filtered out at times based on the holdMode of the object
+	switch (object.holdMode) {
+		case TimelineObjHoldMode.NORMAL:
+		case undefined:
+			break
+		case TimelineObjHoldMode.EXCEPT:
+			if (playoutState.isInHold && !playoutState.includeWhenNotInHoldObjects) {
+				return false
+			}
+			break
+		case TimelineObjHoldMode.ONLY:
+			if (!playoutState.isInHold) {
+				return false
+			}
+			break
+		default:
+			assertNever(object.holdMode)
+	}
+
+	// Some objects should be filtered depending on the onair mode
+	switch (object.onAirMode) {
+		case TimelineObjOnAirMode.ALWAYS:
+		case undefined:
+			break
+		case TimelineObjOnAirMode.ONAIR:
+			if (playoutState.isRehearsal) return false
+			break
+		case TimelineObjOnAirMode.REHEARSAL:
+			if (!playoutState.isRehearsal) return false
+
+			break
+		default:
+			assertNever(object.onAirMode)
+	}
+
+	return true
 }

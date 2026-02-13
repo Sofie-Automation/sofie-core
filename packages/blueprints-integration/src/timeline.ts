@@ -5,6 +5,7 @@ export { TSR }
 
 export {
 	TimelineObjHoldMode,
+	TimelineObjOnAirMode,
 	TimelineObjectCoreExt,
 	TimelineKeyframeCoreExt,
 } from '@sofie-automation/shared-lib/dist/core/model/Timeline'

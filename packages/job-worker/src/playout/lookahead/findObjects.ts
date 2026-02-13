@@ -13,6 +13,7 @@ import { JobContext } from '../../jobs/index.js'
 import { PartAndPieces, PieceInstanceWithObjectMap } from './util.js'
 import { deserializePieceTimelineObjectsBlob } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { ReadonlyDeep, SetRequired } from 'type-fest'
+import { shouldIncludeObjectOnTimeline, TimelinePlayoutState } from '../timeline/lib.js'
 
 function getBestPieceInstanceId(piece: ReadonlyDeep<PieceInstance>): string {
 	if (!piece.isTemporary || piece.partInstanceId) {
@@ -51,12 +52,17 @@ function tryActivateKeyframesForObject(
 	}
 }
 
-function getObjectMapForPiece(piece: PieceInstanceWithObjectMap): NonNullable<PieceInstanceWithObjectMap['objectMap']> {
+function getObjectMapForPiece(
+	playoutState: TimelinePlayoutState,
+	piece: PieceInstanceWithObjectMap
+): NonNullable<PieceInstanceWithObjectMap['objectMap']> {
 	if (!piece.objectMap) {
 		piece.objectMap = new Map()
 
 		const objects = deserializePieceTimelineObjectsBlob(piece.piece.timelineObjectsString)
 		for (const obj of objects) {
+			if (!shouldIncludeObjectOnTimeline(playoutState, obj)) continue
+
 			// Note: This is assuming that there is only one use of a layer in each piece.
 			if (typeof obj.layer === 'string' && !piece.objectMap.has(obj.layer)) {
 				piece.objectMap.set(obj.layer, obj)
@@ -92,7 +98,8 @@ export function findLookaheadObjectsForPart(
 	layer: string,
 	previousPart: ReadonlyDeep<DBPart> | undefined,
 	partInfo: PartAndPieces,
-	partInstanceId: PartInstanceId | null
+	partInstanceId: PartInstanceId | null,
+	playoutState: TimelinePlayoutState
 ): Array<LookaheadTimelineObject> {
 	// Sanity check, if no part to search, then abort
 	if (!partInfo || partInfo.pieces.length === 0) {
@@ -103,7 +110,7 @@ export function findLookaheadObjectsForPart(
 	for (const rawPiece of partInfo.pieces) {
 		if (shouldIgnorePiece(partInfo, rawPiece)) continue
 
-		const obj = getObjectMapForPiece(rawPiece).get(layer)
+		const obj = getObjectMapForPiece(playoutState, rawPiece).get(layer)
 		if (obj) {
 			allObjs.push(
 				literal<LookaheadTimelineObject>({
@@ -144,7 +151,7 @@ export function findLookaheadObjectsForPart(
 			},
 		]
 	} else {
-		const hasTransitionObj = transitionPiece && getObjectMapForPiece(transitionPiece).get(layer)
+		const hasTransitionObj = transitionPiece && getObjectMapForPiece(playoutState, transitionPiece).get(layer)
 
 		const res: Array<LookaheadTimelineObject> = []
 		partInfo.pieces.forEach((piece) => {
@@ -160,7 +167,7 @@ export function findLookaheadObjectsForPart(
 			}
 
 			// Note: This is assuming that there is only one use of a layer in each piece.
-			const obj = getObjectMapForPiece(piece).get(layer)
+			const obj = getObjectMapForPiece(playoutState, piece).get(layer)
 			if (obj) {
 				const patchedContent = tryActivateKeyframesForObject(obj, !!transitionPiece, classesFromPreviousPart)
 

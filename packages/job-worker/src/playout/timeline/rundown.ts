@@ -193,7 +193,10 @@ export function buildTimelineObjsForRundown(
 			currentPartGroup,
 			partInstancesInfo.current,
 			partInstancesInfo.next?.calculatedTimings ?? null,
-			activePlaylist.holdState === RundownHoldState.ACTIVE
+			{
+				isRehearsal: !!activePlaylist.rehearsal,
+				isInHold: activePlaylist.holdState === RundownHoldState.ACTIVE,
+			}
 		)
 	)
 
@@ -321,8 +324,11 @@ function generateCurrentInfinitePieceObjects(
 			pieceEnable,
 			0,
 			groupClasses,
-			isInHold,
-			isOriginOfInfinite
+			{
+				isRehearsal: !!activePlaylist.rehearsal,
+				isInHold: isInHold,
+				includeWhenNotInHoldObjects: isOriginOfInfinite,
+			}
 		),
 	]
 }
@@ -493,7 +499,10 @@ function generatePreviousPartInstanceObjects(
 				previousPartGroup,
 				previousPartInfo,
 				currentPartInstanceTimings,
-				activePlaylist.holdState === RundownHoldState.ACTIVE
+				{
+					isRehearsal: !!activePlaylist.rehearsal,
+					isInHold: activePlaylist.holdState === RundownHoldState.ACTIVE,
+				}
 			),
 		]
 	} else {
@@ -536,7 +545,10 @@ function generateNextPartInstanceObjects(
 			nextPartGroup,
 			nextPartInfo,
 			null,
-			false
+			{
+				isRehearsal: !!activePlaylist.rehearsal,
+				isInHold: false,
+			}
 		),
 	]
 }
