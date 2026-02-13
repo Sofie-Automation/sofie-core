@@ -38,7 +38,10 @@ export interface ReactivePlaylistActionContext {
 	studioId: TriggerReactiveVar<StudioId>
 	rundownPlaylistId: TriggerReactiveVar<RundownPlaylistId>
 	rundownPlaylist: TriggerReactiveVar<
-		Pick<DBRundownPlaylist, '_id' | 'name' | 'activationId' | 'nextPartInfo' | 'currentPartInfo'>
+		Pick<
+			DBRundownPlaylist,
+			'_id' | 'name' | 'activationId' | 'rehearsal' | 'nextPartInfo' | 'currentPartInfo' | 'studioId'
+		>
 	>
 
 	currentRundownId: TriggerReactiveVar<RundownId | null>

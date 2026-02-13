@@ -29,7 +29,7 @@ type PieceInstancesChangeHandler = (showStyleBaseId: ShowStyleBaseId, cache: Pie
 
 const REACTIVITY_DEBOUNCE = 20
 
-type RundownPlaylistFields = '_id' | 'nextPartInfo' | 'currentPartInfo' | 'activationId'
+type RundownPlaylistFields = '_id' | 'nextPartInfo' | 'currentPartInfo' | 'activationId' | 'rehearsal' | 'studioId'
 const rundownPlaylistFieldSpecifier = literal<
 	MongoFieldSpecifierOnesStrict<Pick<DBRundownPlaylist, RundownPlaylistFields>>
 >({
@@ -37,6 +37,8 @@ const rundownPlaylistFieldSpecifier = literal<
 	activationId: 1,
 	currentPartInfo: 1,
 	nextPartInfo: 1,
+	rehearsal: 1,
+	studioId: 1,
 })
 
 type RundownFields = '_id' | 'showStyleBaseId'

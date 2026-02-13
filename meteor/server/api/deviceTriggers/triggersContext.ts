@@ -6,7 +6,7 @@ import {
 import { SINGLE_USE_TOKEN_SALT } from '@sofie-automation/meteor-lib/dist/api/userActions'
 import { assertNever, getHash } from '@sofie-automation/corelib/dist/lib'
 import type { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
-import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
+import { ProtectedString, protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { getCurrentTime } from '../../lib/lib'
 import { MeteorCall } from '../methods'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
@@ -209,9 +209,12 @@ async function rundownPlaylistFilter(
 			case 'studioId':
 				selector['$and']?.push({
 					studioId: {
-						$regex: link.value as any,
+						$eq: protectString(link.value),
 					},
 				})
+				break
+			case 'rehearsal':
+				selector['rehearsal'] = link.value
 				break
 			default:
 				assertNever(link)

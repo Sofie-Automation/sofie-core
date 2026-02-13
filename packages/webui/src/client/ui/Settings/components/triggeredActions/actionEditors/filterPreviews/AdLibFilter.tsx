@@ -1,6 +1,12 @@
 import React from 'react'
 import _ from 'underscore'
-import { IAdLibFilterLink, IOutputLayer, ISourceLayer, SourceLayerType } from '@sofie-automation/blueprints-integration'
+import {
+	FilterType,
+	IAdLibFilterLink,
+	IOutputLayer,
+	ISourceLayer,
+	SourceLayerType,
+} from '@sofie-automation/blueprints-integration'
 import { useTranslation } from 'react-i18next'
 import { TFunction } from 'i18next'
 import { assertNever } from '@sofie-automation/corelib/dist/lib'
@@ -22,6 +28,7 @@ interface IProps {
 	outputLayers: OutputLayers | undefined
 	readonly?: boolean
 	opened: boolean
+	onChangeType: (index: number, newType: FilterType) => void
 	onChange: (index: number, newVal: IAdLibFilterLink, oldVal: IAdLibFilterLink) => void
 	onFocus?: (index: number) => void
 	onInsertNext?: (index: number) => void
@@ -92,7 +99,7 @@ function fieldToLabel(t: TFunction, field: IAdLibFilterLink['field']): string {
 			return t('Type')
 		default:
 			assertNever(field)
-			return field
+			return t('AdLib filter')
 	}
 }
 
@@ -285,6 +292,7 @@ export const AdLibFilter: React.FC<IProps> = function AdLibFilter({
 	onFocus,
 	onInsertNext,
 	onRemove,
+	onChangeType,
 }: IProps) {
 	const { t } = useTranslation()
 
@@ -329,6 +337,7 @@ export const AdLibFilter: React.FC<IProps> = function AdLibFilter({
 	return (
 		<FilterEditor
 			index={index}
+			filterType="adLib"
 			field={link.field}
 			fields={getAvailableFields(t, fields)}
 			fieldLabel={fieldToLabel(t, link.field)}
@@ -364,6 +373,7 @@ export const AdLibFilter: React.FC<IProps> = function AdLibFilter({
 			onClose={onClose}
 			onInsertNext={onInsertNext}
 			onRemove={onRemove}
+			onChangeType={(newType) => onChangeType(index, newType)}
 		/>
 	)
 }
