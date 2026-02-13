@@ -60,7 +60,7 @@ In the top-right corner of the Segment, there's a button controlling the display
 
 The **_Storyboard_** mode is an alternative to the default **_Timeline_** mode. In Storyboard mode, the accurate placement in time of each Piece is not visualized, so that more Parts can be visualized at once in a single row. This can be particularly useful in Shows without very strict timing planning or where timing is not driven by the User, but rather some external factor; or in Shows where very long Parts are joined with very short ones: sports, events and debates. This mode also does not visualize the history of the playback: rather, it only shows what is currently On Air or is planned to go On Air.
 
-Storyboard mode selects a "main" Piece of the Part, using the same logic as the [Presenter View](#presenter-view), and presents it with a larger, hover-scrub-enabled Piece for easy preview. The countdown to freeze-frame is displayed in the top-right hand corner of the Thumbnail, once less than 10 seconds remain to freeze-frame. The Transition Piece is displayed on top of the thumbnail. Other Pieces are placed below the thumbnail, stacked in order of playback. After a Piece goes off-air, it will dissapear from the view.
+Storyboard mode selects a "main" Piece of the Part, using the same logic as the [Presenter View](#presenter-view), and presents it with a larger, hover-scrub-enabled Piece for easy preview. The countdown to freeze-frame is displayed in the top-right hand corner of the Thumbnail, once less than 10 seconds remain to freeze-frame. The Transition Piece is displayed on top of the thumbnail. Other Pieces are placed below the thumbnail, stacked in order of playback. After a Piece goes off-air, it will disappear from the view.
 
 If no more Parts can be displayed in a given Segment, they are stacked in order on the right side of the Segment. The User can scroll through thse Parts by click-and-dragging the Storyboard area, or using the mouse wheel - `Alt`+Wheel, if only a vertical wheel is present in the mouse.
 
@@ -128,7 +128,7 @@ The _Rundown View_ and the _Detached Shelf View_ UI can have multiple concurrent
 2. select the first layout of any type,
 3. use the default layout \(no additional filters\), in the style of `RUNDOWN_LAYOUT`.
 
-To use a specific layout in these views, you can use the `?layout=...` query string, providing either the ID of the layout or a part of the name. This string will then be mached against all available layouts for the Show Style, and the first matching will be selected. For example, for a layout called `Stream Deck layout`, to open the currently active rundown's Detached Shelf use:
+To use a specific layout in these views, you can use the `?layout=...` query string, providing either the ID of the layout or a part of the name. This string will then be matched against all available layouts for the Show Style, and the first matching will be selected. For example, for a layout called `Stream Deck layout`, to open the currently active rundown's Detached Shelf use:
 
 `http://localhost:3000/activeRundown/studio0/shelf?layout=Stream`
 

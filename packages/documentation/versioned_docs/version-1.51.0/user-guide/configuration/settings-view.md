@@ -62,7 +62,7 @@ The Studio uses a studio-blueprint, which handles things like mapping up an inco
 
 ### Attached Devices
 
-This section allows you to add and remove Gateways that are related to this _Studio_. When a Gateway is attached to a Studio, it will react to the changes happening within it, as well as feed the neccessary data into it.
+This section allows you to add and remove Gateways that are related to this _Studio_. When a Gateway is attached to a Studio, it will react to the changes happening within it, as well as feed the necessary data into it.
 
 ### Blueprint Configuration
 
@@ -143,11 +143,11 @@ The triggers are designed to be either client-specific or issued by a peripheral
 
 Currently, the Action Triggers system supports setting up two types of triggeers: Hotkeys and Device Triggers. 
 
-Hotkeys are valid in the scope of a browser window and can be either a single key, a combination of keys (*combo*) or a *chord* - a sequnece of key combinations pressed in a particular order. *Chords* are popular in some text editing applications and vastly expand the amount of actions that can be triggered from a keyboard, at the expense of the time needed to execute them. Currently, the Hotkey editor in Sofie does not support creating *Chords*, but they can be specified by Blueprints during migrations.
+Hotkeys are valid in the scope of a browser window and can be either a single key, a combination of keys (*combo*) or a *chord* - a sequence of key combinations pressed in a particular order. *Chords* are popular in some text editing applications and vastly expand the amount of actions that can be triggered from a keyboard, at the expense of the time needed to execute them. Currently, the Hotkey editor in Sofie does not support creating *Chords*, but they can be specified by Blueprints during migrations.
 
 To edit a given trigger, click on the trigger pill on the left of the Trigger-Action set. When hovering, a **+** sign will appear, allowing you to add a new trigger to the set.
 
-Device Triggers are valid in the scope of a Studio and will be evaluated on the currently active Rundown in a given Studio. To use Device Triggers, you need to have at least a single [Input Gateway](../installation/installing-input-gateway) attached to a Studio and a Device configured in the Input Gateway. Once that's done, when selecting a **Device** trigger type in the pop-up, you can invoke triggers on your Input Device and you will see a preview of the input events shown at the bottom of the pop-up. You can select which of these events should be the trigger by clicking on one of the previews. Note, that some devices differentiate between _Up_ and _Down_ triggers, while others don't. Some may also have other activites that can be done _to_ a trigger. What they are and how they are identified is device-specific and is best discovered through interaction with the device.
+Device Triggers are valid in the scope of a Studio and will be evaluated on the currently active Rundown in a given Studio. To use Device Triggers, you need to have at least a single [Input Gateway](../installation/installing-input-gateway) attached to a Studio and a Device configured in the Input Gateway. Once that's done, when selecting a **Device** trigger type in the pop-up, you can invoke triggers on your Input Device and you will see a preview of the input events shown at the bottom of the pop-up. You can select which of these events should be the trigger by clicking on one of the previews. Note, that some devices differentiate between _Up_ and _Down_ triggers, while others don't. Some may also have other activities that can be done _to_ a trigger. What they are and how they are identified is device-specific and is best discovered through interaction with the device.
 
 If you would like to set up combination Triggers, using Device Triggers on an Input Device that does not support them natively, you may want to look into [Shift Registers](#shift-registers)
 
@@ -155,7 +155,7 @@ If you would like to set up combination Triggers, using Device Triggers on an In
 
 The actions are built using a base *action* (such as *Activate a Rundown* or *AdLib*) and a set of *filters*, limiting the scope of the *action*. Optionally, some of these *actions* can take additional *parameters*. These filters can operate on various types of objects, depending on the action in question. All actions currently require that the chain of filters starts with scoping out the Rundown the action is supposed to affect. Currently, there is only one type of Rundown-level filter supported: "The Rundown currently in view".
 
-The Action Triggers user interface guides the user in a wizzard-like fashion through the available *filter* options on a given *action*.
+The Action Triggers user interface guides the user in a wizard-like fashion through the available *filter* options on a given *action*.
 
 ![Actions can take additional parameters](/img/docs/main/features/action_triggers_2.png)
 

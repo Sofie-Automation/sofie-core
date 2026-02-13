@@ -131,7 +131,7 @@ const inTransition = {
 
 Pieces with an infinite lifespan (ie, not `lifespan: PieceLifespan.WithinPart`) get handled differently to other pieces.
 
-Only one pieceGoup is created for an infinite Piece which is present in multiple of the current, next and previous Parts.  
+Only one pieceGroup is created for an infinite Piece which is present in multiple of the current, next and previous Parts.  
 The Piece calculates and tracks its own started playback times, which is preserved and reused in future takes. On the timeline it lives outside of the partGroups, but still gets the same caps applied when appropriate.
 
 ### Interactive timings demo
