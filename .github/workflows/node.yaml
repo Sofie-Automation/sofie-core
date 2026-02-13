@@ -467,28 +467,9 @@ jobs:
           echo $CODE_BLOCK >> $GITHUB_STEP_SUMMARY
 
   lint-packages:
-    name: Lint Package ${{ matrix.package-name }}
+    name: Lint Packages
     runs-on: ubuntu-latest
     timeout-minutes: 15
-
-    strategy:
-      fail-fast: false
-      matrix:
-        package-name:
-          - blueprints-integration
-          - server-core-integration
-          - playout-gateway
-          - mos-gateway
-          - corelib
-          - shared-lib
-          - meteor-lib
-          - job-worker
-          - openapi
-          - live-status-gateway
-          - live-status-gateway-api
-        include:
-          - package-name: webui
-            tsconfig-name: tsconfig.json
 
     steps:
       - uses: actions/checkout@v6
@@ -498,30 +479,32 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version-file: ".node-version"
+      - uses: ./.github/actions/setup-meteor
       - name: restore node_modules
         uses: actions/cache@v5
         with:
           path: |
+            node_modules
+            meteor/node_modules
             packages/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('packages/yarn.lock') }}
+          key: ${{ runner.os }}-${{ hashFiles('yarn.lock', 'meteor/yarn.lock', 'meteor/.meteor/release', 'packages/yarn.lock') }}
       - name: Prepare Environment
         run: |
           corepack enable
 
-          cd packages
-          yarn config set cacheFolder /home/runner/${{ matrix.package-name }}-cache
+          yarn config set cacheFolder /home/runner/publish-docs-cache
           yarn install
 
-          if [ "${{ matrix.package-name }}" = "openapi" ]; then
-            yarn workspace @sofie-automation/openapi run build
-          else
-            yarn build:single ${{ matrix.package-name }}/${{ matrix.tsconfig-name || 'tsconfig.build.json' }}
-          fi
+          # setup zodern:types. No linters are setup, so this simply installs the packages
+          yarn meteor lint
+
+          cd packages
+          yarn build:all
         env:
           CI: true
       - name: Run typecheck and linter
         run: |
-          cd packages/${{ matrix.package-name }}
+          cd packages
           yarn lint
         env:
           CI: true

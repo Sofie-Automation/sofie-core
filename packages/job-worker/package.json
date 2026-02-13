@@ -15,8 +15,7 @@
 	},
 	"homepage": "https://github.com/Sofie-Automation/sofie-core/blob/main/packages/job-worker#readme",
 	"scripts": {
-		"lint:raw": "run -T eslint",
-		"lint": "run lint:raw .",
+		"lint": "run -T lint job-worker",
 		"unit": "run -T jest",
 		"test": "run lint && run unit",
 		"watch": "run -T jest --watch --coverage=false",
@@ -53,14 +52,6 @@
 		"underscore": "^1.13.7"
 	},
 	"prettier": "@sofie-automation/code-standard-preset/.prettierrc.json",
-	"lint-staged": {
-		"*.{js,css,json,md,scss}": [
-			"yarn run -T prettier"
-		],
-		"*.{ts,tsx}": [
-			"yarn lint:raw"
-		]
-	},
 	"packageManager": "yarn@4.12.0",
 	"devDependencies": {
 		"jest": "^30.2.0",

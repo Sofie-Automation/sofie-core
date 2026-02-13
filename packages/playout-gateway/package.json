@@ -20,8 +20,7 @@
 	},
 	"contributors": [],
 	"scripts": {
-		"lint:raw": "run -T eslint",
-		"lint": "run lint:raw .",
+		"lint": "run -T lint playout-gateway",
 		"unit": "run -T jest",
 		"test": "run lint && run unit",
 		"watch": "run -T jest --watch",
@@ -60,14 +59,6 @@
 		"tslib": "^2.8.1",
 		"underscore": "^1.13.7",
 		"winston": "^3.19.0"
-	},
-	"lint-staged": {
-		"*.{css,json,md,scss}": [
-			"yarn run -T prettier"
-		],
-		"*.{ts,tsx,js,jsx}": [
-			"yarn lint:raw"
-		]
 	},
 	"packageManager": "yarn@4.12.0"
 }

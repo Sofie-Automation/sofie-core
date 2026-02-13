@@ -1,6 +1,7 @@
 {
 	"files": [],
 	"references": [
+		{ "path": "./tsconfig.test.json" },
 		{ "path": "./blueprints-integration/tsconfig.json" },
 		{ "path": "./server-core-integration/tsconfig.json" },
 		{ "path": "./mos-gateway/tsconfig.json" },

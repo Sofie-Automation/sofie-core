@@ -43,7 +43,7 @@ jobs:
           fi
 
   lint-packages:
-    name: Lint Lib
+    name: Lint packages
     runs-on: ubuntu-latest
     continue-on-error: true
     timeout-minutes: 15
@@ -51,15 +51,6 @@ jobs:
     needs: check-publish
 
     if: ${{ needs.check-publish.outputs.can-publish == '1' }}
-
-    strategy:
-      fail-fast: false
-      matrix:
-        package-name:
-          - blueprints-integration
-          - server-core-integration
-          - shared-lib
-          - live-status-gateway-api
 
     steps:
       - uses: actions/checkout@v6
@@ -69,18 +60,24 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version-file: ".node-version"
+      - uses: ./.github/actions/setup-meteor
       - name: Prepare Environment
         run: |
           corepack enable
 
-          cd packages
+          yarn config set cacheFolder /home/runner/publish-docs-cache
           yarn install
-          yarn build:single ${{ matrix.package-name }}/tsconfig.build.json
+
+          # setup zodern:types. No linters are setup, so this simply installs the packages
+          yarn meteor lint
+
+          cd packages
+          yarn build:all
         env:
           CI: true
       - name: Run typecheck and linter
         run: |
-          cd packages/${{ matrix.package-name }}
+          cd packages
           yarn lint
         env:
           CI: true

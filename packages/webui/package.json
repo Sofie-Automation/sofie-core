@@ -14,12 +14,11 @@
 	},
 	"homepage": "https://github.com/nrkno/sofie-core/blob/main/packages/webui#readme",
 	"scripts": {
+		"lint": "run -T lint webui",
 		"dev": "vite --port=3005 --force",
 		"build": "tsc -b && vite build",
 		"check-types": "tsc -p tsconfig.app.json --noEmit",
 		"preview": "vite preview",
-		"lint:raw": "run -T eslint",
-		"lint": "run lint:raw .",
 		"unit": "run -T jest",
 		"test": "run lint && run unit",
 		"watch": "run -T jest --watch",

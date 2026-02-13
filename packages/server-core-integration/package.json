@@ -32,8 +32,7 @@
 		}
 	],
 	"scripts": {
-		"lint:raw": "run -T eslint",
-		"lint": "run lint:raw .",
+		"lint": "run -T lint server-core-integration",
 		"unit": "run -T jest",
 		"test": "run lint && run unit",
 		"test:integration": "run lint && run -T jest --config=jest-integration.config.js",
@@ -80,14 +79,6 @@
 		"koa": "^3.1.1",
 		"tslib": "^2.8.1",
 		"underscore": "^1.13.7"
-	},
-	"lint-staged": {
-		"*.{js,css,json,md,scss}": [
-			"yarn run -T prettier"
-		],
-		"*.{ts,tsx}": [
-			"yarn lint:raw"
-		]
 	},
 	"publishConfig": {
 		"access": "public"
