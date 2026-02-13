@@ -12,13 +12,12 @@ export const PreviewPopUp = React.forwardRef<
 		padding: Padding
 		placement: Placement
 		size: 'small' | 'large'
-		hidden?: boolean
 		preview?: React.ReactNode
 		initialOffsetX?: number
 		trackMouse?: boolean
 	}>
 >(function PreviewPopUp(
-	{ anchor, padding, placement, hidden, size, children, initialOffsetX, trackMouse },
+	{ anchor, padding, placement, size, children, initialOffsetX, trackMouse },
 	ref
 ): React.JSX.Element {
 	const [popperEl, setPopperEl] = useState<HTMLDivElement | null>(null)
@@ -110,7 +109,6 @@ export const PreviewPopUp = React.forwardRef<
 			className={classNames('preview-popUp', {
 				'preview-popUp--large': size === 'large',
 				'preview-popUp--small': size === 'small',
-				'preview-popUp--hidden': hidden,
 			})}
 			style={styles.popper}
 			{...attributes.popper}
