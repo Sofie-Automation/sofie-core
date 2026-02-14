@@ -159,6 +159,7 @@ describe('applyAndValidateOverrides', () => {
 				valC: 5,
 				valD: 'xyz',
 			},
+			valE: [{ valF: 27, valG: 'hij' }],
 		}
 
 		const inputObjWithOverrides: ObjectWithOverrides<BasicType> = {
@@ -172,6 +173,7 @@ describe('applyAndValidateOverrides', () => {
 				valC: 6,
 				valD: 'uvw',
 			},
+			valE: [{ valF: 32, valG: 'klm' }],
 		}
 
 		const res = updateOverrides(inputObjWithOverrides, updateObj)
@@ -185,11 +187,13 @@ describe('applyAndValidateOverrides', () => {
 						valC: 5,
 						valD: 'xyz',
 					},
+					valE: [{ valF: 27, valG: 'hij' }],
 				},
 				overrides: [
 					{ op: 'set', path: 'valB.valD', value: 'uvw' },
 					{ op: 'set', path: 'valA', value: 'def' },
 					{ op: 'set', path: 'valB.valC', value: 6 },
+					{ op: 'set', path: 'valE', value: [{ valF: 32, valG: 'klm' }] },
 				],
 			})
 		)
