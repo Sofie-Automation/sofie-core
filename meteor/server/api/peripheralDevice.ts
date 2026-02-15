@@ -44,7 +44,7 @@ import {
 	PeripheralDeviceInitOptions,
 	PeripheralDeviceStatusObject,
 	TimelineTriggerTimeResult,
-	DeviceStatusError,
+	DeviceStatusDetail,
 } from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI'
 import { checkStudioExists } from '../optimizations'
 import {
@@ -83,20 +83,20 @@ import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 const apmNamespace = 'peripheralDevice'
 
 /**
- * Resolve device error messages using the Studio blueprint's deviceErrorMessages.
+ * Resolve device status details using the Studio blueprint's deviceErrorMessages.
  * This allows blueprints to customize error messages shown to operators.
  *
  * @param studioId - The studio ID to look up the blueprint
  * @param deviceName - The peripheral device name (shorter than TSR's internal name)
  * @param deviceId - The peripheral device ID
- * @param errors - Structured errors from TSR
+ * @param statusDetails - Structured status details from TSR
  * @param defaultMessages - The original messages from TSR (used as fallback)
  */
-async function resolveDeviceErrorMessages(
+async function resolveDeviceStatusDetails(
 	studioId: StudioId,
 	deviceName: string,
 	deviceId: PeripheralDeviceId,
-	errors: DeviceStatusError[],
+	statusDetails: DeviceStatusDetail[],
 	defaultMessages: string[]
 ): Promise<string[]> {
 	try {
@@ -139,18 +139,18 @@ async function resolveDeviceErrorMessages(
 			undefined // No system error messages
 		)
 
-		// Resolve each error
+		// Resolve each status detail
 		const resolvedMessages: string[] = []
-		for (let i = 0; i < errors.length; i++) {
-			const error = errors[i]
+		for (let i = 0; i < statusDetails.length; i++) {
+			const statusDetail = statusDetails[i]
 			// Use the original TSR message as fallback, or error code if not available
-			const defaultMessage = defaultMessages[i] ?? error.code
+			const defaultMessage = defaultMessages[i] ?? statusDetail.code
 
-			logger.debug(`Resolving error code: ${error.code}, context: ${JSON.stringify(error.context)}`)
+			logger.debug(`Resolving error code: ${statusDetail.code}, context: ${JSON.stringify(statusDetail.context)}`)
 			const message = resolver.getDeviceErrorMessage(
-				error.code,
+				statusDetail.code,
 				{
-					...error.context,
+					...statusDetail.context,
 					// Override with peripheral device info (TSR might have longer names)
 					deviceName,
 					deviceId: unprotectString(deviceId),
@@ -161,10 +161,10 @@ async function resolveDeviceErrorMessages(
 			if (message) {
 				// Interpolate the message template with context values
 				const interpolated = interpollateTranslation(message.key, message.args)
-				logger.debug(`Resolved message for ${error.code}: ${interpolated}`)
+				logger.debug(`Resolved message for ${statusDetail.code}: ${interpolated}`)
 				resolvedMessages.push(interpolated)
 			} else {
-				logger.debug(`Message suppressed for ${error.code}`)
+				logger.debug(`Message suppressed for ${statusDetail.code}`)
 			}
 		}
 
@@ -323,14 +323,14 @@ export namespace ServerPeripheralDeviceAPI {
 		}
 
 		logger.info(
-			`Device ${deviceId} setStatus: errors=${status.errors?.length ?? 'undefined'}, messages=${status.messages?.length ?? 'undefined'}, studioId=${studioId ?? 'none'}`
+			`Device ${deviceId} setStatus: statusDetails=${status.statusDetails?.length ?? 'undefined'}, messages=${status.messages?.length ?? 'undefined'}, studioId=${studioId ?? 'none'}`
 		)
-		if (status.errors && status.errors.length > 0 && studioId) {
-			const resolvedMessages = await resolveDeviceErrorMessages(
+		if (status.statusDetails && status.statusDetails.length > 0 && studioId) {
+			const resolvedMessages = await resolveDeviceStatusDetails(
 				studioId,
 				peripheralDevice.name,
 				peripheralDevice._id,
-				status.errors,
+				status.statusDetails,
 				status.messages ?? []
 			)
 			if (resolvedMessages.length > 0) {
