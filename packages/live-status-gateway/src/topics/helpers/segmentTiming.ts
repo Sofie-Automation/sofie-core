@@ -4,6 +4,8 @@ import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartIns
 import { SegmentCountdownType, SegmentTiming } from '@sofie-automation/live-status-gateway-api'
 import { CountdownType } from '@sofie-automation/blueprints-integration'
 import { assertNever } from '@sofie-automation/corelib/dist/lib'
+import { unprotectString } from '@sofie-automation/server-core-integration'
+import * as _ from 'underscore'
 
 export interface CurrentSegmentTiming extends SegmentTiming {
 	projectedEndTime: number
@@ -16,7 +18,7 @@ export function calculateCurrentSegmentTiming(
 	segmentPartInstances: DBPartInstance[],
 	segmentParts: DBPart[]
 ): CurrentSegmentTiming {
-	const segmentTiming = calculateSegmentTiming(segmentTimingInfo, segmentParts)
+	const segmentTiming = calculateSegmentTiming(segmentTimingInfo, segmentPartInstances, segmentParts)
 	const playedDurations = segmentPartInstances.reduce((sum, partInstance) => {
 		return (partInstance.timings?.duration ?? 0) + sum
 	}, 0)
@@ -38,11 +40,18 @@ export function calculateCurrentSegmentTiming(
 
 export function calculateSegmentTiming(
 	segmentTimingInfo: SegmentTimingInfo | undefined,
+	segmentPartInstances: DBPartInstance[],
 	segmentParts: DBPart[]
 ): SegmentTiming {
+	// This might be a premature optimization, at least when the number of partInstances is reasonable.
+	// Should we consider a separate path dependent on the length of the array?
+	const partInstancesByPartId: Record<string, DBPartInstance> = _.indexBy(segmentPartInstances, (partInstance) =>
+		unprotectString(partInstance.part._id)
+	)
 	return {
 		budgetDurationMs: segmentTimingInfo?.budgetDuration,
 		expectedDurationMs: segmentParts.reduce<number>((sum, part): number => {
+			part = partInstancesByPartId[unprotectString(part._id)]?.part ?? part
 			return part.expectedDurationWithTransition != null && !part.untimed
 				? sum + part.expectedDurationWithTransition
 				: sum

@@ -1,6 +1,6 @@
 {
 	"name": "@sofie-automation/shared-lib",
-	"version": "26.3.0-0",
+	"version": "26.3.0-1",
 	"description": "Library for types & values shared by core, workers and gateways",
 	"main": "dist/index.js",
 	"typings": "dist/index.d.ts",

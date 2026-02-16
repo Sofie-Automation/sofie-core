@@ -7095,11 +7095,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sofie-automation/blueprints-integration@npm:26.3.0-0, @sofie-automation/blueprints-integration@workspace:blueprints-integration":
+"@sofie-automation/blueprints-integration@npm:26.3.0-1, @sofie-automation/blueprints-integration@workspace:blueprints-integration":
   version: 0.0.0-use.local
   resolution: "@sofie-automation/blueprints-integration@workspace:blueprints-integration"
   dependencies:
-    "@sofie-automation/shared-lib": "npm:26.3.0-0"
+    "@sofie-automation/shared-lib": "npm:26.3.0-1"
     tslib: "npm:^2.8.1"
     type-fest: "npm:^4.41.0"
   languageName: unknown
@@ -7132,12 +7132,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sofie-automation/corelib@npm:26.3.0-0, @sofie-automation/corelib@workspace:corelib":
+"@sofie-automation/corelib@npm:26.3.0-1, @sofie-automation/corelib@workspace:corelib":
   version: 0.0.0-use.local
   resolution: "@sofie-automation/corelib@workspace:corelib"
   dependencies:
-    "@sofie-automation/blueprints-integration": "npm:26.3.0-0"
-    "@sofie-automation/shared-lib": "npm:26.3.0-0"
+    "@sofie-automation/blueprints-integration": "npm:26.3.0-1"
+    "@sofie-automation/shared-lib": "npm:26.3.0-1"
     fast-clone: "npm:^1.5.13"
     i18next: "npm:^21.10.0"
     influx: "npm:^5.12.0"
@@ -7170,9 +7170,9 @@ __metadata:
   resolution: "@sofie-automation/job-worker@workspace:job-worker"
   dependencies:
     "@slack/webhook": "npm:^7.0.6"
-    "@sofie-automation/blueprints-integration": "npm:26.3.0-0"
-    "@sofie-automation/corelib": "npm:26.3.0-0"
-    "@sofie-automation/shared-lib": "npm:26.3.0-0"
+    "@sofie-automation/blueprints-integration": "npm:26.3.0-1"
+    "@sofie-automation/corelib": "npm:26.3.0-1"
+    "@sofie-automation/shared-lib": "npm:26.3.0-1"
     amqplib: "npm:0.10.5"
     deepmerge: "npm:^4.3.1"
     elastic-apm-node: "npm:^4.15.0"
@@ -7190,7 +7190,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@sofie-automation/live-status-gateway-api@npm:26.3.0-0, @sofie-automation/live-status-gateway-api@workspace:live-status-gateway-api":
+"@sofie-automation/live-status-gateway-api@npm:26.3.0-1, @sofie-automation/live-status-gateway-api@workspace:live-status-gateway-api":
   version: 0.0.0-use.local
   resolution: "@sofie-automation/live-status-gateway-api@workspace:live-status-gateway-api"
   dependencies:
@@ -7205,14 +7205,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@sofie-automation/meteor-lib@npm:26.3.0-0, @sofie-automation/meteor-lib@workspace:meteor-lib":
+"@sofie-automation/meteor-lib@npm:26.3.0-1, @sofie-automation/meteor-lib@workspace:meteor-lib":
   version: 0.0.0-use.local
   resolution: "@sofie-automation/meteor-lib@workspace:meteor-lib"
   dependencies:
     "@mos-connection/helper": "npm:^5.0.0-alpha.0"
-    "@sofie-automation/blueprints-integration": "npm:26.3.0-0"
-    "@sofie-automation/corelib": "npm:26.3.0-0"
-    "@sofie-automation/shared-lib": "npm:26.3.0-0"
+    "@sofie-automation/blueprints-integration": "npm:26.3.0-1"
+    "@sofie-automation/corelib": "npm:26.3.0-1"
+    "@sofie-automation/shared-lib": "npm:26.3.0-1"
     "@types/deep-extend": "npm:^0.6.2"
     "@types/semver": "npm:^7.7.1"
     "@types/underscore": "npm:^1.13.0"
@@ -7238,12 +7238,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@sofie-automation/server-core-integration@npm:26.3.0-0, @sofie-automation/server-core-integration@workspace:server-core-integration":
+"@sofie-automation/server-core-integration@npm:26.3.0-1, @sofie-automation/server-core-integration@workspace:server-core-integration":
   version: 0.0.0-use.local
   resolution: "@sofie-automation/server-core-integration@workspace:server-core-integration"
   dependencies:
     "@koa/router": "npm:^15.3.0"
-    "@sofie-automation/shared-lib": "npm:26.3.0-0"
+    "@sofie-automation/shared-lib": "npm:26.3.0-1"
     "@types/koa": "npm:^3.0.1"
     "@types/koa__router": "npm:^12.0.5"
     ejson: "npm:^2.2.3"
@@ -7255,7 +7255,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@sofie-automation/shared-lib@npm:26.3.0-0, @sofie-automation/shared-lib@workspace:shared-lib":
+"@sofie-automation/shared-lib@npm:26.3.0-1, @sofie-automation/shared-lib@workspace:shared-lib":
   version: 0.0.0-use.local
   resolution: "@sofie-automation/shared-lib@workspace:shared-lib"
   dependencies:
@@ -7287,10 +7287,10 @@ __metadata:
     "@jstarpl/react-contextmenu": "npm:^2.15.3"
     "@nrk/core-icons": "npm:^9.6.0"
     "@popperjs/core": "npm:^2.11.8"
-    "@sofie-automation/blueprints-integration": "npm:26.3.0-0"
-    "@sofie-automation/corelib": "npm:26.3.0-0"
-    "@sofie-automation/meteor-lib": "npm:26.3.0-0"
-    "@sofie-automation/shared-lib": "npm:26.3.0-0"
+    "@sofie-automation/blueprints-integration": "npm:26.3.0-1"
+    "@sofie-automation/corelib": "npm:26.3.0-1"
+    "@sofie-automation/meteor-lib": "npm:26.3.0-1"
+    "@sofie-automation/shared-lib": "npm:26.3.0-1"
     "@sofie-automation/sorensen": "npm:^1.5.11"
     "@testing-library/dom": "npm:^10.4.1"
     "@testing-library/jest-dom": "npm:^6.9.1"
@@ -19651,11 +19651,11 @@ asn1@evs-broadcast/node-asn1:
   version: 0.0.0-use.local
   resolution: "live-status-gateway@workspace:live-status-gateway"
   dependencies:
-    "@sofie-automation/blueprints-integration": "npm:26.3.0-0"
-    "@sofie-automation/corelib": "npm:26.3.0-0"
-    "@sofie-automation/live-status-gateway-api": "npm:26.3.0-0"
-    "@sofie-automation/server-core-integration": "npm:26.3.0-0"
-    "@sofie-automation/shared-lib": "npm:26.3.0-0"
+    "@sofie-automation/blueprints-integration": "npm:26.3.0-1"
+    "@sofie-automation/corelib": "npm:26.3.0-1"
+    "@sofie-automation/live-status-gateway-api": "npm:26.3.0-1"
+    "@sofie-automation/server-core-integration": "npm:26.3.0-1"
+    "@sofie-automation/shared-lib": "npm:26.3.0-1"
     debug: "npm:^4.4.3"
     fast-clone: "npm:^1.5.13"
     influx: "npm:^5.12.0"
@@ -21678,8 +21678,8 @@ asn1@evs-broadcast/node-asn1:
   resolution: "mos-gateway@workspace:mos-gateway"
   dependencies:
     "@mos-connection/connector": "npm:^5.0.0-alpha.0"
-    "@sofie-automation/server-core-integration": "npm:26.3.0-0"
-    "@sofie-automation/shared-lib": "npm:26.3.0-0"
+    "@sofie-automation/server-core-integration": "npm:26.3.0-1"
+    "@sofie-automation/shared-lib": "npm:26.3.0-1"
     tslib: "npm:^2.8.1"
     type-fest: "npm:^4.41.0"
     underscore: "npm:^1.13.7"
@@ -24011,8 +24011,8 @@ asn1@evs-broadcast/node-asn1:
   version: 0.0.0-use.local
   resolution: "playout-gateway@workspace:playout-gateway"
   dependencies:
-    "@sofie-automation/server-core-integration": "npm:26.3.0-0"
-    "@sofie-automation/shared-lib": "npm:26.3.0-0"
+    "@sofie-automation/server-core-integration": "npm:26.3.0-1"
+    "@sofie-automation/shared-lib": "npm:26.3.0-1"
     debug: "npm:^4.4.3"
     influx: "npm:^5.12.0"
     timeline-state-resolver: "npm:10.0.0-nightly-release53-20251217-143607-df590aa96.0"

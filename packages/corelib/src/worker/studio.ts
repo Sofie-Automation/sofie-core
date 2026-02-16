@@ -266,9 +266,9 @@ export interface QueueNextSegmentProps extends RundownPlayoutPropsBase {
 }
 export type QueueNextSegmentResult = { nextPartId: PartId } | { queuedSegmentId: SegmentId | null }
 export interface ExecuteActionProps extends RundownPlayoutPropsBase {
-	actionDocId: AdLibActionId | RundownBaselineAdLibActionId | BucketAdLibActionId
+	actionDocId: AdLibActionId | RundownBaselineAdLibActionId | BucketAdLibActionId | null
 	actionId: string
-	userData: any
+	userData: any | null
 	triggerMode?: string
 	actionOptions?: { [key: string]: any }
 }

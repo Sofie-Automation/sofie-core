@@ -51,6 +51,7 @@ nav.react-contextmenu {
 		flex-direction: row;
 		align-items: center;
 
+		&:hover:not(.react-contextmenu-item--disabled),
 		&.react-contextmenu-item--selected:not(.react-contextmenu-item--disabled) {
 			background: #313334;
 			color: #ffffff;

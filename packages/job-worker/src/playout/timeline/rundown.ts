@@ -40,6 +40,8 @@ export interface RundownTimelineTimingContext {
 
 	nextPartGroup?: TimelineObjGroupPart
 	nextPartOverlap?: number
+
+	multiGatewayMode: boolean
 }
 export interface RundownTimelineResult {
 	timeline: (TimelineObjRundown & OnGenerateTimelineObjExt)[]
@@ -49,7 +51,8 @@ export interface RundownTimelineResult {
 export function buildTimelineObjsForRundown(
 	context: JobContext,
 	activePlaylist: ReadonlyDeep<DBRundownPlaylist>,
-	partInstancesInfo: SelectedPartInstancesTimelineInfo
+	partInstancesInfo: SelectedPartInstancesTimelineInfo,
+	multiGatewayMode: boolean
 ): RundownTimelineResult {
 	const span = context.startSpan('buildTimelineObjsForRundown')
 	const timelineObjs: Array<TimelineObjRundown & OnGenerateTimelineObjExt> = []
@@ -139,6 +142,7 @@ export function buildTimelineObjsForRundown(
 	const timingContext: RundownTimelineTimingContext = {
 		currentPartGroup,
 		currentPartDuration: currentPartEnable.duration,
+		multiGatewayMode,
 	}
 
 	// Start generating objects
@@ -360,10 +364,10 @@ function calculateInfinitePieceEnable(
 		pieceEnable.start = 0
 
 		// Future: should this consider the prerollDuration?
-	} else if (pieceInstance.plannedStartedPlayback !== undefined) {
-		// We have a absolute start time, so we should use that.
-		let infiniteGroupStart = pieceInstance.plannedStartedPlayback
-		nowInParent = currentTime - pieceInstance.plannedStartedPlayback
+	} else if (!timingContext.multiGatewayMode && pieceInstance.reportedStartedPlayback !== undefined) {
+		// We have a absolute start time, so we should use that, but only if not in multiGatewayMode
+		let infiniteGroupStart = pieceInstance.reportedStartedPlayback
+		nowInParent = currentTime - pieceInstance.reportedStartedPlayback
 
 		// infiniteGroupStart had an actual timestamp inside and pieceEnable.start being a number
 		// means that it expects an offset from it's parent

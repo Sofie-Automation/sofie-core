@@ -79,4 +79,10 @@ export interface StudioPlayoutModel extends StudioPlayoutModelBase, BaseModel {
 	 * @returns Whether the change may affect timeline generation
 	 */
 	switchRouteSet(routeSetId: string, isActive: boolean | 'toggle'): boolean
+
+	/**
+	 * Mark the studio as needing a timeline update.
+	 * The timeline will be generated and published when model is ready to be saved.
+	 */
+	markTimelineNeedsUpdate(): void
 }

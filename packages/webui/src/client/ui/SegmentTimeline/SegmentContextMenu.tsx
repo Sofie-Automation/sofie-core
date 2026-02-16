@@ -15,6 +15,7 @@ import { PartUi, SegmentUi } from './SegmentTimelineContainer.js'
 import { SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { UserEditOperationMenuItems } from '../UserEditOperations/RenderUserEditOperations.js'
+import { CoreUserEditingDefinition } from '@sofie-automation/corelib/dist/dataModel/UserEditingDefinitions'
 import * as RundownResolver from '../../lib/RundownResolver.js'
 import { SelectedElement } from '../RundownView/SelectedElementsContext.js'
 import { PieceExtended } from '../../lib/RundownResolver.js'
@@ -198,6 +199,22 @@ export const SegmentContextMenu = withTranslation()(
 									userEditOperations={part.instance.part.userEditOperations}
 									isFormEditable={isPartEditAble}
 								/>
+
+								{piece && piece.instance.piece.userEditOperations && (
+									<UserEditOperationMenuItems
+										rundownId={part.instance.rundownId}
+										targetName={piece.instance.piece.name}
+										operationTarget={{
+											segmentExternalId: segment?.externalId,
+											partExternalId: part.instance.part.externalId,
+											pieceExternalId: piece.instance.piece.externalId,
+										}}
+										userEditOperations={
+											piece.instance.piece.userEditOperations as CoreUserEditingDefinition[] | undefined
+										}
+										isFormEditable={isPartEditAble}
+									/>
+								)}
 
 								{this.props.enableUserEdits && (
 									<>

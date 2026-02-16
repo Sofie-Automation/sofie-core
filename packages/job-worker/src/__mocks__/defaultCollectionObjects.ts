@@ -111,8 +111,10 @@ export function defaultStudio(_id: StudioId): DBStudio {
 		routeSetsWithOverrides: wrapDefaultObject({}),
 		routeSetExclusivityGroupsWithOverrides: wrapDefaultObject({}),
 		packageContainersWithOverrides: wrapDefaultObject({}),
-		previewContainerIds: [],
-		thumbnailContainerIds: [],
+		packageContainerSettingsWithOverrides: wrapDefaultObject({
+			previewContainerIds: [],
+			thumbnailContainerIds: [],
+		}),
 		peripheralDeviceSettings: {
 			deviceSettings: wrapDefaultObject({}),
 			playoutDevices: wrapDefaultObject({}),

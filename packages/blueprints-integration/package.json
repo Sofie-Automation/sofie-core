@@ -1,6 +1,6 @@
 {
 	"name": "@sofie-automation/blueprints-integration",
-	"version": "26.3.0-0",
+	"version": "26.3.0-1",
 	"description": "Library to define the interaction between core and the blueprints.",
 	"main": "dist/index.js",
 	"typings": "dist/index.d.ts",
@@ -35,7 +35,7 @@
 		"/LICENSE"
 	],
 	"dependencies": {
-		"@sofie-automation/shared-lib": "26.3.0-0",
+		"@sofie-automation/shared-lib": "26.3.0-1",
 		"tslib": "^2.8.1",
 		"type-fest": "^4.41.0"
 	},
