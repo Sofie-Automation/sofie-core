@@ -1,6 +1,6 @@
 {
 	"name": "mos-gateway",
-	"version": "26.3.0-0",
+	"version": "26.3.0-1",
 	"private": true,
 	"description": "MOS-Gateway for the Sofie project",
 	"license": "MIT",
@@ -26,8 +26,7 @@
 		}
 	],
 	"scripts": {
-		"lint:raw": "run -T eslint",
-		"lint": "run lint:raw .",
+		"lint": "run -T lint mos-gateway",
 		"lint-fix": "run lint --fix",
 		"unit": "run -T jest",
 		"test": "run lint && run unit",
@@ -62,21 +61,13 @@
 	],
 	"dependencies": {
 		"@mos-connection/connector": "^5.0.0-alpha.0",
-		"@sofie-automation/server-core-integration": "26.3.0-0",
-		"@sofie-automation/shared-lib": "26.3.0-0",
+		"@sofie-automation/server-core-integration": "26.3.0-1",
+		"@sofie-automation/shared-lib": "26.3.0-1",
 		"tslib": "^2.8.1",
 		"type-fest": "^4.41.0",
 		"underscore": "^1.13.7",
 		"winston": "^3.19.0"
 	},
 	"prettier": "@sofie-automation/code-standard-preset/.prettierrc.json",
-	"lint-staged": {
-		"*.{js,css,json,md,scss}": [
-			"yarn run -T prettier"
-		],
-		"*.{ts,tsx}": [
-			"yarn lint:raw"
-		]
-	},
 	"packageManager": "yarn@4.12.0"
 }

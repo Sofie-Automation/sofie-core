@@ -1,6 +1,6 @@
 {
 	"name": "@sofie-automation/corelib",
-	"version": "26.3.0-0",
+	"version": "26.3.0-1",
 	"private": true,
 	"description": "Internal library for some types shared by core and workers",
 	"main": "dist/index.js",
@@ -16,8 +16,7 @@
 	},
 	"homepage": "https://github.com/Sofie-Automation/sofie-core/blob/main/packages/corelib#readme",
 	"scripts": {
-		"lint:raw": "run -T eslint",
-		"lint": "run lint:raw .",
+		"lint": "run -T lint corelib",
 		"unit": "run -T jest",
 		"test": "run lint && run unit",
 		"watch": "run -T jest --watch --coverage=false",
@@ -37,8 +36,8 @@
 		"/LICENSE"
 	],
 	"dependencies": {
-		"@sofie-automation/blueprints-integration": "26.3.0-0",
-		"@sofie-automation/shared-lib": "26.3.0-0",
+		"@sofie-automation/blueprints-integration": "26.3.0-1",
+		"@sofie-automation/shared-lib": "26.3.0-1",
 		"fast-clone": "^1.5.13",
 		"i18next": "^21.10.0",
 		"influx": "^5.12.0",
@@ -54,13 +53,5 @@
 		"mongodb": "^6.12.0"
 	},
 	"prettier": "@sofie-automation/code-standard-preset/.prettierrc.json",
-	"lint-staged": {
-		"*.{js,css,json,md,scss}": [
-			"yarn run -T prettier"
-		],
-		"*.{ts,tsx}": [
-			"yarn lint:raw"
-		]
-	},
 	"packageManager": "yarn@4.12.0"
 }

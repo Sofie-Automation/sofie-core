@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import * as CoreIcon from '@nrk/core-icons/jsx'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import ClassNames from 'classnames'
 import Escape from '../../../lib/Escape'
 import Tooltip from 'rc-tooltip'
@@ -219,7 +219,7 @@ export function RundownHeader({
 						<div className="flex-col right horizontal-align-right">
 							<div className="links close">
 								<NavLink to="/rundowns" title={t('Exit')}>
-									<CoreIcon.NrkClose />
+									<FontAwesomeIcon icon="close" size="xl" />
 								</NavLink>
 							</div>
 						</div>

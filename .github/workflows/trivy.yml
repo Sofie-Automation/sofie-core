@@ -21,7 +21,7 @@ jobs:
 
     steps:
       - name: Run Trivy vulnerability scanner (json)
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@0.34.0
         env:
           TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db
         with:
@@ -30,7 +30,7 @@ jobs:
           output: "${{ matrix.image }}-trivy-scan-results.json"
 
       - name: Run Trivy vulnerability scanner (table)
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@0.34.0
         env:
           TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db
         with:
@@ -48,7 +48,7 @@ jobs:
           echo $CODE_BLOCK >> $GITHUB_STEP_SUMMARY
 
       - name: Run Trivy in GitHub SBOM mode and submit results to Dependency Graph
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@0.34.0
         env:
           TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db
         with:

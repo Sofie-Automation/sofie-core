@@ -18,6 +18,13 @@ import { DatabasePersistedModel } from '../../modelBase.js'
 import { ExpectedPlayoutItemStudio } from '@sofie-automation/corelib/dist/dataModel/ExpectedPlayoutItem'
 import { StudioBaselineHelper } from './StudioBaselineHelper.js'
 import { ExpectedPackage } from '@sofie-automation/blueprints-integration'
+import {
+	getStudioTimeline,
+	flattenAndProcessTimelineObjects,
+	preserveOrReplaceNowTimesInObjects,
+	logAnyRemainingNowTimes,
+} from '../../playout/timeline/generate.js'
+import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 
 /**
  * This is a model used for studio operations.
@@ -33,6 +40,7 @@ export class StudioPlayoutModelImpl implements StudioPlayoutModel {
 	public readonly rundownPlaylists: ReadonlyDeep<DBRundownPlaylist[]>
 
 	#timelineHasChanged = false
+	#timelineNeedsRegeneration = false
 	#timeline: TimelineComplete | null
 
 	public get timeline(): TimelineComplete | null {
@@ -111,11 +119,39 @@ export class StudioPlayoutModelImpl implements StudioPlayoutModel {
 		return this.context.setRouteSetActive(routeSetId, isActive)
 	}
 
+	markTimelineNeedsUpdate(): void {
+		this.#timelineNeedsRegeneration = true
+	}
+
 	/**
 	 * Discards all documents in this model, and marks it as unusable
 	 */
 	dispose(): void {
 		this.#disposed = true
+	}
+
+	async #regenerateStudioTimeline(): Promise<void> {
+		const span = this.context.startSpan('StudioPlayoutModelImpl.regenerateStudioTimeline')
+		logger.debug('Regenerating studio timeline...')
+
+		try {
+			const { versions, objs: timelineObjs } = await getStudioTimeline(this.context, this)
+
+			flattenAndProcessTimelineObjects(this.context, timelineObjs)
+			preserveOrReplaceNowTimesInObjects(this, timelineObjs)
+
+			if (this.isMultiGatewayMode) {
+				logAnyRemainingNowTimes(this.context, timelineObjs)
+			}
+
+			const timelineHash = this.setTimeline(timelineObjs, versions, undefined).timelineHash
+			logger.verbose(`Studio timeline regeneration done, hash: "${timelineHash}"`)
+		} catch (err) {
+			logger.error(`Error regenerating studio timeline: ${stringifyError(err)}`)
+			throw err
+		} finally {
+			if (span) span.end()
+		}
 	}
 
 	async saveAllToDatabase(): Promise<void> {
@@ -125,8 +161,17 @@ export class StudioPlayoutModelImpl implements StudioPlayoutModel {
 
 		const span = this.context.startSpan('StudioPlayoutModelImpl.saveAllToDatabase')
 
+		// Generate timeline if needed
+		if (this.#timelineNeedsRegeneration) {
+			await this.#regenerateStudioTimeline()
+			this.#timelineNeedsRegeneration = false
+		}
+
 		// Prioritise the timeline for publication reasons
 		if (this.#timelineHasChanged && this.#timeline) {
+			// Do a fast-track for the timeline to be published faster:
+			this.context.hackPublishTimelineToFastTrack(this.#timeline)
+
 			await this.context.directCollections.Timelines.replace(this.#timeline)
 		}
 		this.#timelineHasChanged = false

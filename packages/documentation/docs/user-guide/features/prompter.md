@@ -104,6 +104,21 @@ When opening the Prompter View for the first time, it is necessary to press the 
 
 ![Contour ShuttleXpress input mapping](/img/docs/main/features/contour-shuttle-webhid.jpg)
 
+**Customizable Button Mapping:**
+
+By default, the ShuttleXpress buttons execute built-in prompter actions. However, you can customize button behavior by mapping buttons to global adlib actions using the `shuttleWebHid_buttonMap` query parameter.
+
+| Query parameter | Type | Description |
+| :--- | :--- | :--- |
+| `shuttleWebHid_buttonMap` | Comma-separated strings | Maps ShuttleXpress buttons to global adlib actions. Each entry should be in the format `buttonIndex:actionId`, where `buttonIndex` is the button number (0-indexed) and `actionId` is the ID of a global adlib action defined in your blueprints. Each custom action is triggered once on button press (trigger mode: `pressed`) and once on button release (trigger mode: `released`). Multiple mappings are comma-separated. |
+
+**Example:**
+```
+?mode=shuttlewebhid&shuttleWebHid_buttonMap=0:toggle_control_room_mics,1:make_coffee
+```
+
+Buttons without a custom mapping will use their default behavior.
+
 ####
 
 #### Control using midi input \(_?mode=pedal_\)

@@ -201,12 +201,16 @@ export interface ShowStyleBlueprintManifest<
 	// Events
 
 	/**
-	 * Called when a RundownPlaylist has been activated
+	 * Called at the final stage of RundownPlaylist activation, before the updated timeline is submitted to the Playout Gateway,
+	 * This is a good place to prepare any external systems for the rundown going live.
 	 */
 	onRundownActivate?: (context: IRundownActivationContext) => Promise<void>
 	/** Called upon the first take in a RundownPlaylist */
 	onRundownFirstTake?: (context: IPartEventContext) => Promise<void>
-	/** Called when a RundownPlaylist has been deactivated */
+	/**
+	 * Called at the final stage of RundownPlaylist deactivation, before the updated timeline is submitted to the Playout Gateway,
+	 * This is a good place to prepare any external systems for the rundown going offline.
+	 */
 	onRundownDeActivate?: (context: IRundownActivationContext) => Promise<void>
 
 	/** Called before a Take action */

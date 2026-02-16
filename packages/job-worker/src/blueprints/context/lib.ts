@@ -160,6 +160,8 @@ function convertPieceInstanceToBlueprintsInner(
 					fromHold: pieceInstance.infinite.fromHold,
 					fromPreviousPart: pieceInstance.infinite.fromPreviousPart,
 					fromPreviousPlayhead: pieceInstance.infinite.fromPreviousPlayhead,
+					infiniteInstanceId: unprotectString(pieceInstance.infinite.infiniteInstanceId),
+					infiniteInstanceIndex: pieceInstance.infinite.infiniteInstanceIndex,
 				})
 			: undefined,
 		piece: convertPieceToBlueprints(pieceInstance.piece),

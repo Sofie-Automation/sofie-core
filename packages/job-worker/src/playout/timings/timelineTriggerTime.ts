@@ -4,7 +4,6 @@ import { OnTimelineTriggerTimeProps } from '@sofie-automation/corelib/dist/worke
 import { logger } from '../../logging.js'
 import { JobContext } from '../../jobs/index.js'
 import { runJobWithPlaylistLock } from '../lock.js'
-import { saveTimeline } from '../timeline/generate.js'
 import { applyToArray, normalizeArrayToMap } from '@sofie-automation/corelib/dist/lib'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { runJobWithStudioPlayoutModel } from '../../studio/lock.js'
@@ -69,7 +68,6 @@ export async function handleTimelineTriggerTime(context: JobContext, data: OnTim
 
 					// Take ownership of the playlist in the db, so that we can mutate the timeline and piece instances
 					const changes = timelineTriggerTimeInner(
-						context,
 						studioCache,
 						data.results,
 						partInstanceMap,
@@ -81,7 +79,7 @@ export async function handleTimelineTriggerTime(context: JobContext, data: OnTim
 				})
 			} else {
 				// No playlist is active. no extra lock needed
-				timelineTriggerTimeInner(context, studioCache, data.results, undefined, undefined, undefined)
+				timelineTriggerTimeInner(studioCache, data.results, undefined, undefined, undefined)
 			}
 		})
 	}
@@ -123,7 +121,6 @@ interface PieceInstancesChanges {
 }
 
 function timelineTriggerTimeInner(
-	context: JobContext,
 	studioPlayoutModel: StudioPlayoutModel,
 	results: OnTimelineTriggerTimeProps['results'],
 	partInstances: Map<PartInstanceId, Pick<DBPartInstance, '_id' | 'partPlayoutTimings'>> | undefined,
@@ -205,14 +202,11 @@ function timelineTriggerTimeInner(
 			}
 		}
 		if (tlChanged) {
-			const timelineHash = saveTimeline(
-				context,
-				studioPlayoutModel,
+			const timelineHash = studioPlayoutModel.setTimeline(
 				timelineObjs,
-				// Preserve some current values:
 				timeline.generationVersions,
 				timeline.regenerateTimelineToken
-			)
+			).timelineHash
 
 			logger.verbose(`timelineTriggerTime: Updated Timeline, hash: "${timelineHash}"`)
 		}

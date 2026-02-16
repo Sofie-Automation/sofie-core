@@ -1,6 +1,6 @@
 {
 	"name": "@sofie-automation/meteor-lib",
-	"version": "26.3.0-0",
+	"version": "26.3.0-1",
 	"private": true,
 	"description": "Temporary internal library for some types shared by meteor and webui",
 	"main": "dist/index.js",
@@ -16,8 +16,7 @@
 	},
 	"homepage": "https://github.com/nrkno/sofie-core/blob/main/packages/corelib#readme",
 	"scripts": {
-		"lint:raw": "run -T eslint",
-		"lint": "run lint:raw .",
+		"lint": "run -T lint meteor-lib",
 		"unit": "run -T jest",
 		"test": "run lint && run unit",
 		"watch": "run -T jest --watch --coverage=false",
@@ -38,9 +37,9 @@
 	],
 	"dependencies": {
 		"@mos-connection/helper": "^5.0.0-alpha.0",
-		"@sofie-automation/blueprints-integration": "26.3.0-0",
-		"@sofie-automation/corelib": "26.3.0-0",
-		"@sofie-automation/shared-lib": "26.3.0-0",
+		"@sofie-automation/blueprints-integration": "26.3.0-1",
+		"@sofie-automation/corelib": "26.3.0-1",
+		"@sofie-automation/shared-lib": "26.3.0-1",
 		"deep-extend": "0.6.0",
 		"semver": "^7.7.3",
 		"type-fest": "^4.41.0",
@@ -56,13 +55,5 @@
 		"mongodb": "^6.12.0"
 	},
 	"prettier": "@sofie-automation/code-standard-preset/.prettierrc.json",
-	"lint-staged": {
-		"*.{js,css,json,md,scss}": [
-			"yarn run -T prettier"
-		],
-		"*.{ts,tsx}": [
-			"yarn lint:raw"
-		]
-	},
 	"packageManager": "yarn@4.12.0"
 }

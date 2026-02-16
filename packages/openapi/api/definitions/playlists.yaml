@@ -89,6 +89,32 @@ resources:
           $ref: '#/components/responses/playlistNotFound'
         500:
           $ref: '#/components/responses/internalServerError'
+  activateAdlibTesting:
+    put:
+      operationId: activateAdlibTesting
+      tags:
+        - playlists
+      summary: Activates AdLib testing mode.
+      parameters:
+        - name: playlistId
+          in: path
+          description: Playlist to activate testing mode for.
+          required: true
+          schema:
+            type: string
+        - name: rundownId
+          in: path
+          description: Rundown to activate testing mode for.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: '#/components/responses/putSuccess'
+        404:
+          $ref: '#/components/responses/playlistNotFound'
+        500:
+          $ref: '#/components/responses/internalServerError'
   executeAdLib:
     post:
       operationId: executeAdLib

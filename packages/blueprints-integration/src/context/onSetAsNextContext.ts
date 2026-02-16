@@ -69,7 +69,7 @@ export interface IOnSetAsNextContext extends IShowStyleUserContext, IEventContex
 	 */
 	/** Insert a pieceInstance. Returns id of new PieceInstance. Any timelineObjects will have their ids changed, so are not safe to reference from another piece */
 	insertPiece(part: 'next', piece: IBlueprintPiece): Promise<IBlueprintPieceInstance>
-	/** Update a piecesInstance from the partInstance being set as Next */
+	/** Update a piecesInstance */
 	updatePieceInstance(pieceInstanceId: string, piece: Partial<IBlueprintPiece>): Promise<IBlueprintPieceInstance>
 
 	/** Update a partInstance */

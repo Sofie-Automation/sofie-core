@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { DBStudio, IStudioSettings } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons'
 import { useTranslation } from 'react-i18next'
@@ -18,14 +18,9 @@ import {
 } from '../../../lib/Components/LabelAndOverrides.js'
 import { catchError } from '../../../lib/lib.js'
 import { ForceQuickLoopAutoNext } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
-import {
-	applyAndValidateOverrides,
-	ObjectWithOverrides,
-	SomeObjectOverrideOp,
-} from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import { useOverrideOpHelper, WrappedOverridableItemNormal } from '../util/OverrideOpHelper.js'
+import { SomeObjectOverrideOp } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
+import { useOverrideOpHelperForSimpleObject } from '../util/OverrideOpHelper.js'
 import { IntInputControl } from '../../../lib/Components/IntInput.js'
-import { literal } from '@sofie-automation/corelib/dist/lib'
 import { useMemo } from 'react'
 import { CheckboxControl } from '../../../lib/Components/Checkbox.js'
 import { TextInputControl } from '../../../lib/Components/TextInput.js'
@@ -161,32 +156,10 @@ function StudioSettings({ studio }: { studio: DBStudio }): JSX.Element {
 		[studio._id]
 	)
 
-	const [wrappedItem, wrappedConfigObject] = useMemo(() => {
-		const prefixedOps = studio.settingsWithOverrides.overrides.map((op) => ({
-			...op,
-			// TODO: can we avoid doing this hack?
-			path: `0.${op.path}`,
-		}))
-
-		const computedValue = applyAndValidateOverrides(studio.settingsWithOverrides).obj
-
-		const wrappedItem = literal<WrappedOverridableItemNormal<IStudioSettings>>({
-			type: 'normal',
-			id: '0',
-			computed: computedValue,
-			defaults: studio.settingsWithOverrides.defaults,
-			overrideOps: prefixedOps,
-		})
-
-		const wrappedConfigObject: ObjectWithOverrides<IStudioSettings> = {
-			defaults: studio.settingsWithOverrides.defaults,
-			overrides: prefixedOps,
-		}
-
-		return [wrappedItem, wrappedConfigObject]
-	}, [studio.settingsWithOverrides])
-
-	const overrideHelper = useOverrideOpHelper(saveOverrides, wrappedConfigObject)
+	const { overrideHelper, wrappedItem } = useOverrideOpHelperForSimpleObject(
+		saveOverrides,
+		studio.settingsWithOverrides
+	)
 
 	const autoNextOptions: DropdownInputOption<ForceQuickLoopAutoNext>[] = useMemo(
 		() => [
