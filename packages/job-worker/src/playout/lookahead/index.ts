@@ -1,5 +1,5 @@
 import { getOrderedPartsAfterPlayhead, PartAndPieces, PartInstanceAndPieceInstances } from './util.js'
-import { findLookaheadForLayer, LookaheadResult } from './findForLayer.js'
+import { findLookaheadForLayer, LookaheadResult, PartInstanceAndPieceInstancesInfos } from './findForLayer.js'
 import { PlayoutModel } from '../model/PlayoutModel.js'
 import { sortPieceInstancesByStart } from '../pieces.js'
 import { MappingExt } from '@sofie-automation/corelib/dist/dataModel/Studio'
@@ -24,6 +24,7 @@ import { LookaheadTimelineObject } from './findObjects.js'
 import { hasPieceInstanceDefinitelyEnded } from '../timeline/lib.js'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { ReadonlyDeep } from 'type-fest'
+import { filterPieceInstancesForNextPartWithOffset } from './lookaheadOffset.js'
 
 const LOOKAHEAD_OBJ_PRIORITY = 0.1
 
@@ -35,7 +36,7 @@ function parseSearchDistance(rawVal: number | undefined): number {
 	}
 }
 
-function findLargestLookaheadDistance(mappings: Array<[string, MappingExt]>): number {
+export function findLargestLookaheadDistance(mappings: Array<[string, MappingExt]>): number {
 	const values = mappings.map(([_id, m]) => parseSearchDistance(m.lookaheadMaxSearchDistance))
 	return _.max(values)
 }
@@ -104,33 +105,6 @@ export async function getLookeaheadObjects(
 		},
 	})
 
-	const partInstancesInfo: PartInstanceAndPieceInstances[] = _.compact([
-		partInstancesInfo0.current
-			? removeInfiniteContinuations(
-					{
-						part: partInstancesInfo0.current.partInstance,
-						onTimeline: true,
-						nowInPart: partInstancesInfo0.current.partTimes.nowInPart,
-						allPieces: getPrunedEndedPieceInstances(partInstancesInfo0.current),
-						calculatedTimings: partInstancesInfo0.current.calculatedTimings,
-					},
-					true
-				)
-			: undefined,
-		partInstancesInfo0.next
-			? removeInfiniteContinuations(
-					{
-						part: partInstancesInfo0.next.partInstance,
-						onTimeline: !!partInstancesInfo0.current?.partInstance?.part?.autoNext, //TODO -QL
-						nowInPart: partInstancesInfo0.next.partTimes.nowInPart,
-						allPieces: partInstancesInfo0.next.pieceInstances,
-						calculatedTimings: partInstancesInfo0.next.calculatedTimings,
-					},
-					false
-				)
-			: undefined,
-	])
-
 	// Track the previous info for checking how the timeline will be built
 	let previousPartInfo: PartInstanceAndPieceInstances | undefined
 	if (partInstancesInfo0.previous) {
@@ -144,6 +118,37 @@ export async function getLookeaheadObjects(
 			},
 			false
 		)
+	}
+
+	const partInstancesInfo: PartInstanceAndPieceInstancesInfos = {
+		previous: previousPartInfo,
+		current: partInstancesInfo0.current
+			? removeInfiniteContinuations(
+					{
+						part: partInstancesInfo0.current.partInstance,
+						onTimeline: true,
+						nowInPart: partInstancesInfo0.current.partTimes.nowInPart,
+						allPieces: getPrunedEndedPieceInstances(partInstancesInfo0.current),
+						calculatedTimings: partInstancesInfo0.current.calculatedTimings,
+					},
+					true
+				)
+			: undefined,
+		next: partInstancesInfo0.next
+			? removeInfiniteContinuations(
+					{
+						part: partInstancesInfo0.next.partInstance,
+						onTimeline: !!partInstancesInfo0.current?.partInstance?.part?.autoNext, //TODO -QL
+						nowInPart: partInstancesInfo0.next.partTimes.nowInPart,
+						allPieces: filterPieceInstancesForNextPartWithOffset(
+							partInstancesInfo0.next.pieceInstances,
+							playoutModel.playlist.nextTimeOffset
+						),
+						calculatedTimings: partInstancesInfo0.next.calculatedTimings,
+					},
+					false
+				)
+			: undefined,
 	}
 
 	// TODO: Do we need to use processAndPrunePieceInstanceTimings on these pieces? In theory yes, but that gets messy and expensive.
@@ -187,16 +192,14 @@ export async function getLookeaheadObjects(
 				parseSearchDistance(mapping.lookaheadMaxSearchDistance),
 				futurePartCount
 			)
-
 			const lookaheadObjs = findLookaheadForLayer(
 				context,
-				playoutModel.playlist.currentPartInfo?.partInstanceId ?? null,
 				partInstancesInfo,
-				previousPartInfo,
 				orderedPartInfos,
 				layerId,
 				lookaheadTargetObjects,
-				lookaheadMaxSearchDistance
+				lookaheadMaxSearchDistance,
+				playoutModel.playlist.nextTimeOffset
 			)
 
 			timelineObjs.push(...processResult(lookaheadObjs, mapping.lookahead))

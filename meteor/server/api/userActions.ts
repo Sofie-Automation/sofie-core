@@ -49,6 +49,7 @@ import { IngestJobs } from '@sofie-automation/corelib/dist/worker/ingest'
 import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
 import { assertConnectionHasOneOfPermissions } from '../security/auth'
 import { checkAccessToRundown } from '../security/check'
+import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 
 const PERMISSIONS_FOR_PLAYOUT_USERACTION: Array<keyof UserPermissions> = ['studio']
 const PERMISSIONS_FOR_BUCKET_MODIFICATION: Array<keyof UserPermissions> = ['studio']
@@ -121,8 +122,9 @@ class ServerUserActionAPI
 		userEvent: string,
 		eventTime: Time,
 		rundownPlaylistId: RundownPlaylistId,
-		nextPartId: PartId,
-		timeOffset: number | null
+		nextPartOrInstanceId: PartId | PartInstanceId,
+		timeOffset: number | null,
+		isInstance: boolean | null
 	) {
 		return ServerClientAPI.runUserActionInLogForPlaylistOnWorker(
 			this,
@@ -131,12 +133,15 @@ class ServerUserActionAPI
 			rundownPlaylistId,
 			() => {
 				check(rundownPlaylistId, String)
-				check(nextPartId, String)
+				check(nextPartOrInstanceId, String)
 			},
 			StudioJobs.SetNextPart,
 			{
 				playlistId: rundownPlaylistId,
-				nextPartId,
+				nextPartId: isInstance ? undefined : protectString<PartId>(unprotectString(nextPartOrInstanceId)),
+				nextPartInstanceId: isInstance
+					? protectString<PartInstanceId>(unprotectString(nextPartOrInstanceId))
+					: undefined,
 				setManually: true,
 				nextTimeOffset: timeOffset ?? undefined,
 			}

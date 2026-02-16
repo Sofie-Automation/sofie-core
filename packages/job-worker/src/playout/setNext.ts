@@ -33,6 +33,9 @@ import {
 import { NoteSeverity } from '@sofie-automation/blueprints-integration'
 import { convertNoteToNotification } from '../notifications/util.js'
 import { PersistentPlayoutStateStore } from '../blueprints/context/services/PersistantStateStore.js'
+import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
+import { PlayoutPartInstanceModelImpl } from './model/implementation/PlayoutPartInstanceModelImpl.js'
+import { QuickLoopService } from './model/services/QuickLoopService.js'
 
 /**
  * Set or clear the nexted part, from a given PartInstance, or SelectNextPartResult
@@ -572,14 +575,14 @@ function findFirstPlayablePartOrThrow(segment: PlayoutSegmentModel): ReadonlyDee
  * Set the nexted part, from a given DBPart
  * @param context Context for the running job
  * @param playoutModel The playout model of the playlist
- * @param nextPart The Part to set as next
+ * @param nextPartOrInstance The Part to set as next
  * @param setManually Whether this was manually chosen by the user
  * @param nextTimeOffset The offset into the Part to start playback
  */
 export async function setNextPartFromPart(
 	context: JobContext,
 	playoutModel: PlayoutModel,
-	nextPart: ReadonlyDeep<DBPart>,
+	nextPartOrInstance: ReadonlyDeep<DBPart> | ReadonlyDeep<DBPartInstance>,
 	setManually: boolean,
 	nextTimeOffset?: number
 ): Promise<void> {
@@ -589,9 +592,37 @@ export async function setNextPartFromPart(
 		throw UserError.create(UserErrorMessage.DuringHold)
 	}
 
-	const consumesQueuedSegmentId = doesPartConsumeQueuedSegmentId(playoutModel, nextPart)
+	let consumesQueuedSegmentId: boolean | undefined
 
-	await setNextPart(context, playoutModel, { part: nextPart, consumesQueuedSegmentId }, setManually, nextTimeOffset)
+	if (!('part' in nextPartOrInstance)) {
+		consumesQueuedSegmentId = doesPartConsumeQueuedSegmentId(playoutModel, nextPartOrInstance)
+
+		await setNextPart(
+			context,
+			playoutModel,
+			{
+				part: nextPartOrInstance,
+				consumesQueuedSegmentId,
+			},
+			setManually,
+			nextTimeOffset
+		)
+	} else {
+		await setNextPart(
+			context,
+			playoutModel,
+			new PlayoutPartInstanceModelImpl(
+				nextPartOrInstance as DBPartInstance,
+				await context.directCollections.PieceInstances.findFetch({
+					partInstanceId: nextPartOrInstance._id,
+				}),
+				false,
+				new QuickLoopService(context, playoutModel)
+			),
+			setManually,
+			nextTimeOffset
+		)
+	}
 }
 
 function doesPartConsumeQueuedSegmentId(playoutModel: PlayoutModel, nextPart: ReadonlyDeep<DBPart>) {

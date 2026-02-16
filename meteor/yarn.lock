@@ -1411,7 +1411,7 @@ __metadata:
   dependencies:
     "@mos-connection/model": "npm:^5.0.0-alpha.0"
     kairos-lib: "npm:^0.2.3"
-    timeline-state-resolver-types: "npm:10.0.0-nightly-release53-20251217-143607-df590aa96.0"
+    timeline-state-resolver-types: "npm:10.0.0-nightly-release53-20260123-151128-04b075e87.0"
     tslib: "npm:^2.8.1"
     type-fest: "npm:^4.41.0"
   languageName: node
@@ -9831,12 +9831,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"timeline-state-resolver-types@npm:10.0.0-nightly-release53-20251217-143607-df590aa96.0":
-  version: 10.0.0-nightly-release53-20251217-143607-df590aa96.0
-  resolution: "timeline-state-resolver-types@npm:10.0.0-nightly-release53-20251217-143607-df590aa96.0"
+"timeline-state-resolver-types@npm:10.0.0-nightly-release53-20260123-151128-04b075e87.0":
+  version: 10.0.0-nightly-release53-20260123-151128-04b075e87.0
+  resolution: "timeline-state-resolver-types@npm:10.0.0-nightly-release53-20260123-151128-04b075e87.0"
   dependencies:
     tslib: "npm:^2.8.1"
-  checksum: 10/6f17030e9f10568757b3ebaae40a54ce5220ce5c2f37d9b5d8a5d286704e4779c80fbfddae500e1952a6efdf6e76b67bc18d0151211c84eb194ae3b52f78c7bf
+  checksum: 10/7322e958a35bc9deaa332c201414248b097c5894b556e481c5a97d51e292cb61c017d3d373fe1ae3bf19383965535dbfe104d8c38ca7c109eadbffc781a08ed9
   languageName: node
   linkType: hard
 

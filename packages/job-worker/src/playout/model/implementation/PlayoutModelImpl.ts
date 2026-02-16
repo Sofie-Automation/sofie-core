@@ -799,7 +799,8 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 			const storedPartInstance = this.allPartInstances.get(partInstance.partInstance._id)
 			if (!storedPartInstance) throw new Error(`PartInstance being set as next was not constructed correctly`)
 			// Make sure we were given the exact same object
-			if (storedPartInstance !== partInstance) throw new Error(`PartInstance being set as next is not current`)
+			if (storedPartInstance.partInstance._id !== partInstance.partInstance._id)
+				throw new Error(`PartInstance being set as next is not current`)
 		}
 
 		if (partInstance) {
