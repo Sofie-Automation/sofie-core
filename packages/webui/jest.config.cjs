@@ -16,6 +16,11 @@ module.exports = {
 			'ts-jest',
 			{
 				tsconfig: 'tsconfig.jest.json',
+				diagnostics: {
+					ignoreCodes: [
+						151002, // hybrid module kind (Node16/18/Next)
+					],
+				},
 			},
 		],
 		'^.+\\.(js|jsx)$': ['babel-jest', { presets: ['@babel/preset-env'] }],

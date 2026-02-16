@@ -3,6 +3,7 @@ import {
 	Accessor,
 	AccessorOnPackage,
 	ExpectedPackage,
+	StudioPackageContainerSettings,
 } from '@sofie-automation/blueprints-integration'
 import { PeripheralDeviceId, ExpectedPackageId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
@@ -15,12 +16,11 @@ import deepExtend from 'deep-extend'
 import { ReadonlyDeep } from 'type-fest'
 import _ from 'underscore'
 import { getSideEffect } from '@sofie-automation/meteor-lib/dist/collections/ExpectedPackages'
-import { DBStudio, StudioLight, StudioPackageContainer } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import { StudioPackageContainer } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { clone, omit } from '@sofie-automation/corelib/dist/lib'
 import { CustomPublishCollection } from '../../../lib/customPublication'
 import { logger } from '../../../logging'
 import { ExpectedPackageDBCompact, ExpectedPackagesContentCache } from './contentCache'
-import type { StudioFields } from './publication'
 
 /**
  * Regenerate the output for the provided ExpectedPackage `regenerateIds`, updating the data in `collection` as needed
@@ -33,7 +33,7 @@ import type { StudioFields } from './publication'
  */
 export async function updateCollectionForExpectedPackageIds(
 	contentCache: ReadonlyDeep<ExpectedPackagesContentCache>,
-	studio: Pick<DBStudio, StudioFields>,
+	packageContainerSettings: StudioPackageContainerSettings,
 	layerNameToDeviceIds: Map<string, PeripheralDeviceId[]>,
 	packageContainers: Record<string, StudioPackageContainer>,
 	collection: CustomPublishCollection<PackageManagerExpectedPackage>,
@@ -63,7 +63,12 @@ export async function updateCollectionForExpectedPackageIds(
 			// Filter, keep only the routed mappings for this device:
 			if (filterPlayoutDeviceIds && !filterPlayoutDeviceIds.includes(deviceId)) continue
 
-			const routedPackage = generateExpectedPackageForDevice(studio, packageDoc, deviceId, packageContainers)
+			const routedPackage = generateExpectedPackageForDevice(
+				packageContainerSettings,
+				packageDoc,
+				deviceId,
+				packageContainers
+			)
 
 			updatedDocIds.add(routedPackage._id)
 			collection.replace(routedPackage)
@@ -81,10 +86,7 @@ export async function updateCollectionForExpectedPackageIds(
 }
 
 function generateExpectedPackageForDevice(
-	studio: Pick<
-		StudioLight,
-		'_id' | 'packageContainersWithOverrides' | 'previewContainerIds' | 'thumbnailContainerIds'
-	>,
+	packageContainerSettings: StudioPackageContainerSettings,
 	expectedPackage: ExpectedPackageDBCompact,
 	deviceId: PeripheralDeviceId,
 	packageContainers: Record<string, StudioPackageContainer>
@@ -118,7 +120,7 @@ function generateExpectedPackageForDevice(
 	if (!combinedTargets.length) {
 		logger.warn(`Pub.expectedPackagesForDevice: No targets found for "${expectedPackage._id}"`)
 	}
-	const packageSideEffect = getSideEffect(expectedPackage.package, studio)
+	const packageSideEffect = getSideEffect(expectedPackage.package, packageContainerSettings)
 
 	return {
 		_id: protectString(`${expectedPackage._id}_${deviceId}`),

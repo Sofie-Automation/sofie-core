@@ -10,6 +10,7 @@ import {
 } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
 import { BucketId, RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { assertNever, Complete } from '@sofie-automation/corelib/dist/lib'
+import { ContainerIdsToObjectWithOverridesMigrationStep } from './steps/X_X_X/ContainerIdsToObjectWithOverridesMigrationStep'
 
 /*
  * **************************************************************************************
@@ -36,7 +37,9 @@ export const addSteps = addMigrationSteps(CURRENT_SYSTEM_VERSION, [
 				['expectedMediaItems', 'mediaWorkFlows', 'mediaWorkFlowSteps'].includes(c.name)
 			)
 			if (collectionsToDrop.length > 0) {
-				return `There are ${collectionsToDrop.length} obsolete collections to be removed: ${collectionsToDrop.map((c) => c.name).join(', ')}`
+				return `There are ${collectionsToDrop.length} obsolete collections to be removed: ${collectionsToDrop
+					.map((c) => c.name)
+					.join(', ')}`
 			}
 
 			return false
@@ -195,4 +198,7 @@ export const addSteps = addMigrationSteps(CURRENT_SYSTEM_VERSION, [
 			}
 		},
 	},
+	// Add your migration here
+
+	new ContainerIdsToObjectWithOverridesMigrationStep(),
 ])

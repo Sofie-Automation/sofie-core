@@ -23,9 +23,10 @@ export interface MutableIngestSegmentChanges {
 	originalExternalId: string
 }
 
-export class MutableIngestSegmentImpl<TSegmentPayload = unknown, TPartPayload = unknown>
-	implements MutableIngestSegment<TSegmentPayload, TPartPayload>
-{
+export class MutableIngestSegmentImpl<
+	TSegmentPayload = unknown,
+	TPartPayload = unknown,
+> implements MutableIngestSegment<TSegmentPayload, TPartPayload> {
 	readonly #ingestSegment: Omit<SofieIngestSegment<TSegmentPayload, TPartPayload>, 'rank' | 'parts'>
 	#originalExternalId: string
 	#segmentHasChanges = false

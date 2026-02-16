@@ -25,8 +25,9 @@ export interface MongoReadOnlyCollection<DBInterface extends { _id: ProtectedStr
  * A minimal MongoCollection type based on the Meteor Mongo.Collection type, but with our improved _id type safety.
  * Note: when updating method signatures, make sure to update the implementions as new properties may not be fed through without additional work
  */
-export interface MongoCollection<DBInterface extends { _id: ProtectedString<any> }>
-	extends MongoReadOnlyCollection<DBInterface> {
+export interface MongoCollection<
+	DBInterface extends { _id: ProtectedString<any> },
+> extends MongoReadOnlyCollection<DBInterface> {
 	/**
 	 * Insert a document in the collection.  Returns its unique _id.
 	 * @param doc The document to insert. May not yet have an _id attribute, in which case Meteor will generate one for you.

@@ -51,8 +51,7 @@ export interface PieceGeneric extends Omit<IBlueprintPieceGeneric, 'content'> {
 	timelineObjectsString: PieceTimelineObjectsBlob
 }
 export interface Piece
-	extends PieceGeneric,
-		Omit<IBlueprintPieceDB, '_id' | 'content' | 'userEditOperations' | 'userEditProperties'> {
+	extends PieceGeneric, Omit<IBlueprintPieceDB, '_id' | 'content' | 'userEditOperations' | 'userEditProperties'> {
 	/** Timeline enabler. When the piece should be active on the timeline. */
 	enable: {
 		start: number | 'now' // TODO - now will be removed from this eventually, but as it is not an acceptable value 99% of the time, that is not really breaking

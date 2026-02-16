@@ -1,5 +1,5 @@
 /* eslint-disable n/no-process-exit */
-// eslint-disable-next-line n/no-extraneous-import
+
 import { Atem } from 'atem-connection'
 import * as fs from 'fs'
 import { AtemMediaPoolAsset, AtemMediaPoolType } from 'timeline-state-resolver'

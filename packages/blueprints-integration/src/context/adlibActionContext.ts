@@ -21,7 +21,8 @@ export interface IDataStoreMethods {
 export interface IDataStoreActionExecutionContext extends IDataStoreMethods, IShowStyleUserContext, IEventContext {}
 
 export interface IActionExecutionContext
-	extends IShowStyleUserContext,
+	extends
+		IShowStyleUserContext,
 		IEventContext,
 		IDataStoreMethods,
 		IPartAndPieceActionContext,

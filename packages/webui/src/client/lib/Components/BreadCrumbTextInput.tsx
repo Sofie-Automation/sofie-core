@@ -330,8 +330,10 @@ export function BreadCrumbTextInput({
 	)
 }
 
-interface ICombinedMultiLineTextInputControlProps
-	extends Omit<IBreadCrumbTextInputControlProps, 'value' | 'handleUpdate'> {
+interface ICombinedMultiLineTextInputControlProps extends Omit<
+	IBreadCrumbTextInputControlProps,
+	'value' | 'handleUpdate'
+> {
 	value: string
 	handleUpdate: (value: string) => void
 }

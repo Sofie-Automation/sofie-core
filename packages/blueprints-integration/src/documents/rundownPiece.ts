@@ -3,8 +3,10 @@ import { IBlueprintPieceGeneric } from './pieceGeneric.js'
 /**
  * A variant of a Piece, that is owned by the Rundown.
  */
-export interface IBlueprintRundownPiece<TPrivateData = unknown, TPublicData = unknown>
-	extends Omit<IBlueprintPieceGeneric<TPrivateData, TPublicData>, 'lifespan'> {
+export interface IBlueprintRundownPiece<TPrivateData = unknown, TPublicData = unknown> extends Omit<
+	IBlueprintPieceGeneric<TPrivateData, TPublicData>,
+	'lifespan'
+> {
 	/** When the piece should be active on the timeline. */
 	enable: {
 		start: number
@@ -22,7 +24,9 @@ export interface IBlueprintRundownPiece<TPrivateData = unknown, TPublicData = un
 }
 
 /** The Rundown piece sent from Core */
-export interface IBlueprintRundownPieceDB<TPrivateData = unknown, TPublicData = unknown>
-	extends IBlueprintRundownPiece<TPrivateData, TPublicData> {
+export interface IBlueprintRundownPieceDB<TPrivateData = unknown, TPublicData = unknown> extends IBlueprintRundownPiece<
+	TPrivateData,
+	TPublicData
+> {
 	_id: string
 }

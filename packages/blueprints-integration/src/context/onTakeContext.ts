@@ -6,10 +6,7 @@ import { IExecuteTSRActionsContext } from './executeTsrActionContext.js'
  * Context in which 'current' is the partInstance we're leaving, and 'next' is the partInstance we're taking
  */
 export interface IOnTakeContext
-	extends IPartAndPieceActionContext,
-		IShowStyleUserContext,
-		IEventContext,
-		IExecuteTSRActionsContext {
+	extends IPartAndPieceActionContext, IShowStyleUserContext, IEventContext, IExecuteTSRActionsContext {
 	/** Inform core that a take out of the taken partinstance should be blocked until the specified time */
 	blockTakeUntil(time: Time | null): Promise<void>
 	/**

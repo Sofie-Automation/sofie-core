@@ -6,6 +6,11 @@ module.exports = {
 			'ts-jest',
 			{
 				tsconfig: 'tsconfig.json',
+				diagnostics: {
+					ignoreCodes: [
+						151002, // hybrid module kind (Node16/18/Next)
+					],
+				},
 			},
 		],
 	},

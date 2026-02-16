@@ -4,9 +4,9 @@ import type { Collection } from 'mongodb'
 import type { AsyncOnlyMongoCollection, AsyncOnlyReadOnlyMongoCollection } from '../collection'
 import type { MinimalMongoCursor } from './asyncCollection'
 
-export class WrappedReadOnlyMongoCollection<DBInterface extends { _id: ProtectedString<any> }>
-	implements AsyncOnlyReadOnlyMongoCollection<DBInterface>
-{
+export class WrappedReadOnlyMongoCollection<
+	DBInterface extends { _id: ProtectedString<any> },
+> implements AsyncOnlyReadOnlyMongoCollection<DBInterface> {
 	readonly #mutableCollection: AsyncOnlyMongoCollection<DBInterface>
 
 	constructor(collection: AsyncOnlyMongoCollection<DBInterface>) {

@@ -163,9 +163,10 @@ export class OnTakeContext extends ShowStyleUserContext implements IOnTakeContex
 	async executeTSRAction(
 		deviceId: PeripheralDeviceId,
 		actionId: string,
-		payload: Record<string, any>
+		payload: Record<string, any>,
+		timeoutMs?: number
 	): Promise<TSR.ActionExecutionResult> {
-		return executePeripheralDeviceAction(this._context, deviceId, null, actionId, payload)
+		return executePeripheralDeviceAction(this._context, deviceId, timeoutMs ?? null, actionId, payload)
 	}
 
 	queuePartAfterTake(rawPart: IBlueprintPart, rawPieces: IBlueprintPiece[]): void {

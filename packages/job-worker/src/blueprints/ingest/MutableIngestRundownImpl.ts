@@ -27,9 +27,11 @@ export interface MutableIngestRundownChanges {
 	allCacheObjectIds: SofieIngestDataCacheObjId[]
 }
 
-export class MutableIngestRundownImpl<TRundownPayload = unknown, TSegmentPayload = unknown, TPartPayload = unknown>
-	implements MutableIngestRundown<TRundownPayload, TSegmentPayload, TPartPayload>
-{
+export class MutableIngestRundownImpl<
+	TRundownPayload = unknown,
+	TSegmentPayload = unknown,
+	TPartPayload = unknown,
+> implements MutableIngestRundown<TRundownPayload, TSegmentPayload, TPartPayload> {
 	readonly ingestRundown: Omit<
 		SofieIngestRundownWithSource<TRundownPayload, TSegmentPayload, TPartPayload>,
 		'segments'

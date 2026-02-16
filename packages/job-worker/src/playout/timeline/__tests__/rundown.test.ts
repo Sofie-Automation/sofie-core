@@ -173,7 +173,7 @@ describe('buildTimelineObjsForRundown', () => {
 		const selectedPartInfos: SelectedPartInstancesTimelineInfo = {}
 
 		const playlist = createMockPlaylist(selectedPartInfos)
-		const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos)
+		const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos, true)
 
 		expect(objs.timeline).toHaveLength(1)
 		expect(objs.timingContext).toBeUndefined()
@@ -210,7 +210,7 @@ describe('buildTimelineObjsForRundown', () => {
 		}
 
 		const playlist = createMockPlaylist(selectedPartInfos)
-		const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos)
+		const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos, true)
 
 		expect(objs.timeline).toHaveLength(1)
 		expect(objs.timingContext).toBeUndefined()
@@ -230,7 +230,7 @@ describe('buildTimelineObjsForRundown', () => {
 		}
 
 		const playlist = createMockPlaylist(selectedPartInfos)
-		const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos)
+		const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos, true)
 
 		expect(objs.timeline).not.toHaveLength(0)
 		expect(objs.timingContext).not.toBeUndefined()
@@ -263,7 +263,7 @@ describe('buildTimelineObjsForRundown', () => {
 		}
 
 		const playlist = createMockPlaylist(selectedPartInfos)
-		const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos)
+		const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos, true)
 
 		expect(objs.timeline).not.toHaveLength(0)
 		expect(objs.timingContext).not.toBeUndefined()
@@ -295,7 +295,7 @@ describe('buildTimelineObjsForRundown', () => {
 		}
 
 		const playlist = createMockPlaylist(selectedPartInfos)
-		const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos)
+		const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos, true)
 
 		expect(objs.timeline).not.toHaveLength(0)
 		expect(objs.timingContext).not.toBeUndefined()
@@ -328,7 +328,7 @@ describe('buildTimelineObjsForRundown', () => {
 		}
 
 		const playlist = createMockPlaylist(selectedPartInfos)
-		const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos)
+		const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos, true)
 
 		expect(objs.timeline).not.toHaveLength(0)
 		expect(objs.timingContext).toBeTruthy()
@@ -369,7 +369,7 @@ describe('buildTimelineObjsForRundown', () => {
 		}
 
 		const playlist = createMockPlaylist(selectedPartInfos)
-		const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos)
+		const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos, true)
 
 		expect(objs.timeline).not.toHaveLength(0)
 		expect(objs.timingContext).not.toBeUndefined()
@@ -418,7 +418,7 @@ describe('buildTimelineObjsForRundown', () => {
 			}
 
 			const playlist = createMockPlaylist(selectedPartInfos)
-			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos)
+			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos, true)
 
 			expect(objs.timeline).not.toHaveLength(0)
 			expect(objs.timingContext).not.toBeUndefined()
@@ -471,7 +471,7 @@ describe('buildTimelineObjsForRundown', () => {
 			}
 
 			const playlist = createMockPlaylist(selectedPartInfos)
-			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos)
+			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos, true)
 
 			expect(objs.timeline).not.toHaveLength(0)
 			expect(objs.timingContext).not.toBeUndefined()
@@ -511,7 +511,7 @@ describe('buildTimelineObjsForRundown', () => {
 			}
 
 			const playlist = createMockPlaylist(selectedPartInfos)
-			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos)
+			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos, true)
 
 			expect(objs.timeline).not.toHaveLength(0)
 			expect(objs.timingContext).toBeTruthy()
@@ -574,7 +574,7 @@ describe('buildTimelineObjsForRundown', () => {
 			}
 
 			const playlist = createMockPlaylist(selectedPartInfos)
-			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos)
+			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos, true)
 
 			expect(objs.timeline).not.toHaveLength(0)
 			expect(objs.timingContext).not.toBeUndefined()
@@ -622,7 +622,7 @@ describe('buildTimelineObjsForRundown', () => {
 			}
 
 			const playlist = createMockPlaylist(selectedPartInfos)
-			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos)
+			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos, true)
 
 			expect(objs.timeline).not.toHaveLength(0)
 			expect(objs.timingContext).not.toBeUndefined()
@@ -650,7 +650,7 @@ describe('buildTimelineObjsForRundown', () => {
 			}
 
 			const playlist = createMockPlaylist(selectedPartInfos)
-			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos)
+			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos, true)
 
 			expect(objs.timeline).not.toHaveLength(0)
 			expect(objs.timingContext).not.toBeUndefined()
@@ -678,7 +678,7 @@ describe('buildTimelineObjsForRundown', () => {
 			}
 
 			const playlist = createMockPlaylist(selectedPartInfos)
-			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos)
+			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos, true)
 
 			expect(objs.timeline).not.toHaveLength(0)
 			expect(objs.timingContext).not.toBeUndefined()
@@ -705,7 +705,7 @@ describe('buildTimelineObjsForRundown', () => {
 			}
 
 			const playlist = createMockPlaylist(selectedPartInfos)
-			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos)
+			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos, true)
 
 			expect(objs.timeline).not.toHaveLength(0)
 			expect(objs.timingContext).not.toBeUndefined()
@@ -751,7 +751,7 @@ describe('buildTimelineObjsForRundown', () => {
 			}
 
 			const playlist = createMockPlaylist(selectedPartInfos)
-			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos)
+			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos, true)
 
 			expect(objs.timeline).not.toHaveLength(0)
 			expect(objs.timingContext).not.toBeUndefined()
@@ -798,7 +798,7 @@ describe('buildTimelineObjsForRundown', () => {
 			}
 
 			const playlist = createMockPlaylist(selectedPartInfos)
-			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos)
+			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos, true)
 
 			expect(objs.timeline).not.toHaveLength(0)
 			expect(objs.timingContext).not.toBeUndefined()
@@ -848,7 +848,7 @@ describe('buildTimelineObjsForRundown', () => {
 			}
 
 			const playlist = createMockPlaylist(selectedPartInfos)
-			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos)
+			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos, true)
 
 			expect(objs.timeline).not.toHaveLength(0)
 			expect(objs.timingContext).not.toBeUndefined()

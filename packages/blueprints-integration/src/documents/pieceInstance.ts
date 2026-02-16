@@ -29,10 +29,17 @@ export interface IBlueprintPieceInstance<TPrivateData = unknown, TPublicData = u
 		fromPreviousPart: boolean
 		/** Whether this was 'copied' from the previous PartInstance via the playhead, rather than from a Part */
 		fromPreviousPlayhead?: boolean
+
+		/** A random id for this instance of this infinite */
+		infiniteInstanceId: string
+		/** The index of this PieceInstance within the instance of the infinite (as defined by `infiniteInstanceId`) */
+		infiniteInstanceIndex: number
 	}
 }
-export interface IBlueprintResolvedPieceInstance<TPrivateData = unknown, TPublicData = unknown>
-	extends IBlueprintPieceInstance<TPrivateData, TPublicData> {
+export interface IBlueprintResolvedPieceInstance<
+	TPrivateData = unknown,
+	TPublicData = unknown,
+> extends IBlueprintPieceInstance<TPrivateData, TPublicData> {
 	/**
 	 * Calculated start point within the PartInstance
 	 */

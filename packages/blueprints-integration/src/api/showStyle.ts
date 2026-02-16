@@ -57,8 +57,10 @@ export { PackageStatusMessage }
 
 export type TimelinePersistentState = unknown
 
-export interface ShowStyleBlueprintManifest<TRawConfig = IBlueprintConfig, TProcessedConfig = unknown>
-	extends BlueprintManifestBase {
+export interface ShowStyleBlueprintManifest<
+	TRawConfig = IBlueprintConfig,
+	TProcessedConfig = unknown,
+> extends BlueprintManifestBase {
 	blueprintType: BlueprintManifestType.SHOWSTYLE
 
 	/** A list of config items this blueprint expects to be available on the ShowStyle */
@@ -199,12 +201,16 @@ export interface ShowStyleBlueprintManifest<TRawConfig = IBlueprintConfig, TProc
 	// Events
 
 	/**
-	 * Called when a RundownPlaylist has been activated
+	 * Called at the final stage of RundownPlaylist activation, before the updated timeline is submitted to the Playout Gateway,
+	 * This is a good place to prepare any external systems for the rundown going live.
 	 */
 	onRundownActivate?: (context: IRundownActivationContext) => Promise<void>
 	/** Called upon the first take in a RundownPlaylist */
 	onRundownFirstTake?: (context: IPartEventContext) => Promise<void>
-	/** Called when a RundownPlaylist has been deactivated */
+	/**
+	 * Called at the final stage of RundownPlaylist deactivation, before the updated timeline is submitted to the Playout Gateway,
+	 * This is a good place to prepare any external systems for the rundown going offline.
+	 */
 	onRundownDeActivate?: (context: IRundownActivationContext) => Promise<void>
 
 	/** Called before a Take action */

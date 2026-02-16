@@ -8,6 +8,8 @@ export interface IExecuteTSRActionsContext {
 	executeTSRAction(
 		deviceId: PeripheralDeviceId,
 		actionId: string,
-		payload: Record<string, any>
+		payload: Record<string, any>,
+		/** Timeout for the action, default: 3000 */
+		timeoutMs?: number
 	): Promise<TSR.ActionExecutionResult>
 }

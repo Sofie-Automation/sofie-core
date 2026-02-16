@@ -1,6 +1,6 @@
 {
 	"name": "@sofie-automation/server-core-integration",
-	"version": "26.3.0-0",
+	"version": "26.3.0-1",
 	"description": "Library for connecting to Core",
 	"main": "dist/index.js",
 	"typings": "dist/index.d.ts",
@@ -68,16 +68,16 @@
 		"production"
 	],
 	"devDependencies": {
-		"@types/koa": "^3.0.0",
-		"@types/koa__router": "^12.0.4"
+		"@types/koa": "^3.0.1",
+		"@types/koa__router": "^12.0.5"
 	},
 	"dependencies": {
-		"@koa/router": "^14.0.0",
-		"@sofie-automation/shared-lib": "26.3.0-0",
+		"@koa/router": "^15.3.0",
+		"@sofie-automation/shared-lib": "26.3.0-1",
 		"ejson": "^2.2.3",
 		"faye-websocket": "^0.11.4",
 		"got": "^11.8.6",
-		"koa": "^3.0.1",
+		"koa": "^3.1.1",
 		"tslib": "^2.8.1",
 		"underscore": "^1.13.7"
 	},

@@ -1,6 +1,6 @@
 {
 	"name": "@sofie-automation/shared-lib",
-	"version": "26.3.0-0",
+	"version": "26.3.0-1",
 	"description": "Library for types & values shared by core, workers and gateways",
 	"main": "dist/index.js",
 	"typings": "dist/index.d.ts",
@@ -40,7 +40,7 @@
 		"kairos-lib": "^0.2.3",
 		"timeline-state-resolver-types": "10.0.0-nightly-release53-20251217-143607-df590aa96.0",
 		"tslib": "^2.8.1",
-		"type-fest": "^4.33.0"
+		"type-fest": "^4.41.0"
 	},
 	"prettier": "@sofie-automation/code-standard-preset/.prettierrc.json",
 	"lint-staged": {

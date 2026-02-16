@@ -1,12 +1,12 @@
 import { ExpectedPackage } from '@sofie-automation/blueprints-integration'
 import { assertNever, literal } from '@sofie-automation/corelib/dist/lib'
-import { StudioLight } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import deepExtend from 'deep-extend'
 import {
 	htmlTemplateGetSteps,
 	htmlTemplateGetFileNamesFromSteps,
 } from '@sofie-automation/shared-lib/dist/package-manager/helpers'
 import { ReadonlyDeep } from 'type-fest'
+import { StudioPackageContainerSettings } from '@sofie-automation/shared-lib/dist/core/model/PackageContainer'
 
 export function getPreviewPackageSettings(
 	expectedPackage: ExpectedPackage.Any
@@ -57,13 +57,13 @@ export function getThumbnailPackageSettings(
 }
 export function getSideEffect(
 	expectedPackage: ReadonlyDeep<ExpectedPackage.Base>,
-	studio: Pick<StudioLight, 'previewContainerIds' | 'thumbnailContainerIds'>
+	packageContainerSettings: StudioPackageContainerSettings
 ): ExpectedPackage.Base['sideEffect'] {
 	return deepExtend(
 		{},
 		literal<ExpectedPackage.Base['sideEffect']>({
-			previewContainerId: studio.previewContainerIds[0], // just pick the first. Todo: something else?
-			thumbnailContainerId: studio.thumbnailContainerIds[0], // just pick the first. Todo: something else?
+			previewContainerId: packageContainerSettings.previewContainerIds[0], // just pick the first. Todo: something else?
+			thumbnailContainerId: packageContainerSettings.thumbnailContainerIds[0], // just pick the first. Todo: something else?
 			previewPackageSettings: getPreviewPackageSettings(expectedPackage as ExpectedPackage.Any),
 			thumbnailPackageSettings: getThumbnailPackageSettings(expectedPackage as ExpectedPackage.Any),
 		}),

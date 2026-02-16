@@ -29,8 +29,10 @@ export enum TimelineContentTypeOther {
 	GROUP = 'group',
 }
 
-export interface OnGenerateTimelineObjExt<TMetadata = unknown, TKeyframeMetadata = unknown>
-	extends SetRequired<OnGenerateTimelineObj<TSR.TSRTimelineContent, TMetadata, TKeyframeMetadata>, 'metaData'> {
+export interface OnGenerateTimelineObjExt<TMetadata = unknown, TKeyframeMetadata = unknown> extends SetRequired<
+	OnGenerateTimelineObj<TSR.TSRTimelineContent, TMetadata, TKeyframeMetadata>,
+	'metaData'
+> {
 	/** The id of the partInstance this object belongs to */
 	partInstanceId: PartInstanceId | null
 	/** If this is from an infinite piece, the id of the infinite instance */

@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next'
 import { getAllCurrentAndDeletedItemsFromOverrides, useOverrideOpHelper } from '../../util/OverrideOpHelper.js'
 import {
 	ObjectOverrideSetOp,
+	ObjectWithOverrides,
 	SomeObjectOverrideOp,
 	wrapDefaultObject,
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
@@ -43,7 +44,7 @@ export function StudioIngestSubDevices({
 		[studio?._id]
 	)
 
-	const baseSettings = useMemo(
+	const baseSettings = useMemo<ObjectWithOverrides<Record<string, StudioIngestDevice>>>(
 		() => studio?.peripheralDeviceSettings?.ingestDevices ?? wrapDefaultObject({}),
 		[studio?.peripheralDeviceSettings?.ingestDevices]
 	)

@@ -52,7 +52,7 @@ The clean up process in Sofie will search the database for unused data and index
 
 ## Studio
 
-A _Studio_ in Sofie-terms is a physical location, with a specific set of devices and equipment. Only one show can be on air in a studio at the same time.  
+A _Studio_ in Sofie-terms is a physical location, with a specific set of devices and equipment. Only one show can be on air in a studio at the same time.
 The _studio_ settings are settings for that specific studio, and contains settings related to hardware and playout, such as:
 
 - **Attached devices** - the Gateways related to this studio
@@ -113,7 +113,7 @@ Route Sets can also be configured with a _Default State_. This can be used to co
 
 ## Show style
 
-A _Showstyle_ is related to the looks and logic of a _show_, which in contrast to the _studio_ is not directly related to the hardware.  
+A _Showstyle_ is related to the looks and logic of a _show_, which in contrast to the _studio_ is not directly related to the hardware.
 The Showstyle contains settings like
 
 - **Source Layers** - Groups different types of content in the GUI
@@ -126,7 +126,7 @@ Please note the difference between _Source Layers_ and _timeline-layers_:
 
 [Pieces](../concepts-and-architecture.md#piece) are put onto _Source layers_, to group different types of content \(such as a VT or Camera\), they are therefore intended only as something to indicate to the user what is going to be played, not what is actually going to happen on the technical level.
 
-[Timeline-objects](../concepts-and-architecture.md#timeline-object) \(inside of the [Pieces](../concepts-and-architecture.md#piece)\) are put onto timeline-layers, which are \(through the Mappings in the studio\) mapped to physical devices and outputs.  
+[Timeline-objects](../concepts-and-architecture.md#timeline-object) \(inside of the [Pieces](../concepts-and-architecture.md#piece)\) are put onto timeline-layers, which are \(through the Mappings in the studio\) mapped to physical devices and outputs.
 The exact timeline-layer is never exposed to the user, but instead used on the technical level to control playout.
 
 An example of the difference could be when playing a VT \(that's a Source Layer\), which could involve all of the timeline-layers _video_player0_, _audio_fader_video_, _audio_fader_host_ and _mixer_pgm._
@@ -169,7 +169,7 @@ Hotkeys are valid in the scope of a browser window and can be either a single ke
 
 To edit a given trigger, click on the trigger pill on the left of the Trigger-Action set. When hovering, a **+** sign will appear, allowing you to add a new trigger to the set.
 
-Device Triggers are valid in the scope of a Studio and will be evaluated on the currently active Rundown in a given Studio. To use Device Triggers, you need to have at least a single [Input Gateway](../installation/installing-input-gateway) attached to a Studio and a Device configured in the Input Gateway. Once that's done, when selecting a **Device** trigger type in the pop-up, you can invoke triggers on your Input Device and you will see a preview of the input events shown at the bottom of the pop-up. You can select which of these events should be the trigger by clicking on one of the previews. Note, that some devices differentiate between _Up_ and _Down_ triggers, while others don't. Some may also have other activities that can be done _to_ a trigger. What they are and how they are identified is device-specific and is best discovered through interaction with the device.
+Device Triggers are valid in the scope of a Studio and will be evaluated on the currently active Rundown in a given Studio. To use Device Triggers, you need to have at least a single [Input Gateway](../installation/installing-a-gateway/input-gateway.md) attached to a Studio and a Device configured in the Input Gateway. Once that's done, when selecting a **Device** trigger type in the pop-up, you can invoke triggers on your Input Device and you will see a preview of the input events shown at the bottom of the pop-up. You can select which of these events should be the trigger by clicking on one of the previews. Note, that some devices differentiate between _Up_ and _Down_ triggers, while others don't. Some may also have other activities that can be done _to_ a trigger. What they are and how they are identified is device-specific and is best discovered through interaction with the device.
 
 If you would like to set up combination Triggers, using Device Triggers on an Input Device that does not support them natively, you may want to look into [Shift Registers](#shift-registers)
 

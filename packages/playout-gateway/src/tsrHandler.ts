@@ -56,8 +56,9 @@ export interface TSRConfig {}
 
 // ----------------------------------------------------------------------------
 
-export interface TimelineContentObjectTmp<TContent extends { deviceType: DeviceType }>
-	extends TSRTimelineObj<TContent> {
+export interface TimelineContentObjectTmp<
+	TContent extends { deviceType: DeviceType },
+> extends TSRTimelineObj<TContent> {
 	inGroup?: string
 }
 

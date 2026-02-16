@@ -30,15 +30,20 @@ import type {
 	StudioRouteSet,
 	StudioRouteSetExclusivityGroup,
 } from '@sofie-automation/shared-lib/dist/core/model/StudioRouteSet'
-import type { StudioPackageContainer } from '@sofie-automation/shared-lib/dist/core/model/PackageContainer'
+import type {
+	StudioPackageContainer,
+	StudioPackageContainerSettings,
+} from '@sofie-automation/shared-lib/dist/core/model/PackageContainer'
 import type { IStudioSettings } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 import type { MosDeviceConfig } from '@sofie-automation/shared-lib/dist/generated/MosGatewayDevicesTypes'
 import type { MosGatewayConfig } from '@sofie-automation/shared-lib/dist/generated/MosGatewayOptionsTypes'
 import type { PlayoutGatewayConfig } from '@sofie-automation/shared-lib/dist/generated/PlayoutGatewayConfigTypes'
 import type { LiveStatusGatewayConfig } from '@sofie-automation/shared-lib/dist/generated/LiveStatusGatewayOptionsTypes'
 
-export interface StudioBlueprintManifest<TRawConfig = IBlueprintConfig, TProcessedConfig = unknown>
-	extends BlueprintManifestBase {
+export interface StudioBlueprintManifest<
+	TRawConfig = IBlueprintConfig,
+	TProcessedConfig = unknown,
+> extends BlueprintManifestBase {
 	blueprintType: BlueprintManifestType.STUDIO
 
 	/** A list of config items this blueprint expects to be available on the Studio */
@@ -103,6 +108,15 @@ export interface StudioBlueprintManifest<TRawConfig = IBlueprintConfig, TProcess
 	 */
 	validateConfigFromAPI?: (context: ICommonContext, apiConfig: object) => Array<IConfigMessage>
 
+	/** Validate the rundown payload passed to this blueprint according to the API schema, returning a list of error messages. */
+	validateRundownPayloadFromAPI?: (context: ICommonContext, payload: unknown) => Array<string>
+
+	/** Validate the segment payload passed to this blueprint according to the API schema, returning a list of error messages. */
+	validateSegmentPayloadFromAPI?: (context: ICommonContext, payload: unknown) => Array<string>
+
+	/** Validate the part payload passed to this blueprint according to the API schema, returning a list of error messages. */
+	validatePartPayloadFromAPI?: (context: ICommonContext, payload: unknown) => Array<string>
+
 	/**
 	 * Optional method to transform from an API blueprint config to the database blueprint config if these are required to be different.
 	 * If this method is not defined the config object will be used directly
@@ -166,6 +180,8 @@ export interface BlueprintResultApplyStudioConfig {
 	routeSetExclusivityGroups?: Record<string, StudioRouteSetExclusivityGroup>
 	/** Package Containers */
 	packageContainers?: Record<string, StudioPackageContainer>
+	/** Which Package Containers are used for media previews/thumbnails in GUI */
+	packageContainerSettings?: StudioPackageContainerSettings
 
 	studioSettings?: IStudioSettings
 }

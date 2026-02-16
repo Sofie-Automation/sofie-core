@@ -16,11 +16,10 @@ export interface ProcessedShowStyleVariant extends Omit<DBShowStyleVariant, 'blu
 /**
  * A lightly processed version of DBShowStyleBase, with any ObjectWithOverrides<T> pre-flattened
  */
-export interface ProcessedShowStyleBase
-	extends Omit<
-		DBShowStyleBase,
-		'sourceLayersWithOverrides' | 'outputLayersWithOverrides' | 'blueprintConfigWithOverrides'
-	> {
+export interface ProcessedShowStyleBase extends Omit<
+	DBShowStyleBase,
+	'sourceLayersWithOverrides' | 'outputLayersWithOverrides' | 'blueprintConfigWithOverrides'
+> {
 	sourceLayers: SourceLayers
 	outputLayers: OutputLayers
 	blueprintConfig: IBlueprintConfig

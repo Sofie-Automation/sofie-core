@@ -36,8 +36,7 @@ export interface IBlueprintRundown<TPrivateData = unknown, TPublicData = unknown
 /** The Rundown sent from Core */
 
 export interface IBlueprintRundownDB<TPrivateData = unknown, TPublicData = unknown>
-	extends IBlueprintRundown<TPrivateData, TPublicData>,
-		IBlueprintRundownDBData {}
+	extends IBlueprintRundown<TPrivateData, TPublicData>, IBlueprintRundownDBData {}
 /** Properties added to a rundown in Core */
 
 export interface IBlueprintRundownDBData {

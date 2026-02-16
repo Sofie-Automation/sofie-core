@@ -196,11 +196,7 @@ function getClientAddrFromForwarded(forwardedVal: string | undefined): string | 
 }
 
 export const makeMeteorConnectionFromKoa = (
-	ctx: Koa.ParameterizedContext<
-		Koa.DefaultState,
-		Koa.DefaultContext & KoaRouter.RouterParamContext<Koa.DefaultState, Koa.DefaultContext>,
-		unknown
-	>
+	ctx: Koa.ParameterizedContext<Koa.DefaultState, Koa.DefaultContext, unknown>
 ): Meteor.Connection => {
 	return {
 		id: getRandomString(),

@@ -85,15 +85,13 @@ export function ClipTrimDialog({
 						new Notification(
 							undefined,
 							NoticeLevel.CRITICAL,
-							(
-								<>
-									<strong>{selectedPiece.name}</strong>:&ensp;
-									{t(
-										"Trimming this clip has timed out. It's possible that the story is currently locked for writing in {{nrcsName}} and will eventually be updated. Make sure that the story is not being edited by other users.",
-										{ nrcsName: getRundownNrcsName(rundown) }
-									)}
-								</>
-							),
+							<>
+								<strong>{selectedPiece.name}</strong>:&ensp;
+								{t(
+									"Trimming this clip has timed out. It's possible that the story is currently locked for writing in {{nrcsName}} and will eventually be updated. Make sure that the story is not being edited by other users.",
+									{ nrcsName: getRundownNrcsName(rundown) }
+								)}
+							</>,
 							protectString('ClipTrimDialog')
 						)
 					)
@@ -102,14 +100,12 @@ export function ClipTrimDialog({
 						new Notification(
 							undefined,
 							NoticeLevel.CRITICAL,
-							(
-								<>
-									<strong>{selectedPiece.name}</strong>:&ensp;
-									{t('Trimming this clip has failed due to an error: {{error}}.', {
-										error: err.message || err.error || err,
-									})}
-								</>
-							),
+							<>
+								<strong>{selectedPiece.name}</strong>:&ensp;
+								{t('Trimming this clip has failed due to an error: {{error}}.', {
+									error: err.message || err.error || err,
+								})}
+							</>,
 							protectString('ClipTrimDialog')
 						)
 					)
@@ -118,12 +114,10 @@ export function ClipTrimDialog({
 						new Notification(
 							undefined,
 							NoticeLevel.NOTIFICATION,
-							(
-								<>
-									<strong>{selectedPiece.name}</strong>:&ensp;
-									{t('Trimmed succesfully.')}
-								</>
-							),
+							<>
+								<strong>{selectedPiece.name}</strong>:&ensp;
+								{t('Trimmed succesfully.')}
+							</>,
 							protectString('ClipTrimDialog')
 						)
 					)
@@ -137,15 +131,13 @@ export function ClipTrimDialog({
 				new Notification(
 					undefined,
 					NoticeLevel.WARNING,
-					(
-						<>
-							<strong>{selectedPiece.name}</strong>:&ensp;
-							{t(
-								"Trimming this clip is taking longer than expected. It's possible that the story is locked for writing in {{nrcsName}}.",
-								{ nrcsName: getRundownNrcsName(rundown) }
-							)}
-						</>
-					),
+					<>
+						<strong>{selectedPiece.name}</strong>:&ensp;
+						{t(
+							"Trimming this clip is taking longer than expected. It's possible that the story is locked for writing in {{nrcsName}}.",
+							{ nrcsName: getRundownNrcsName(rundown) }
+						)}
+					</>,
 					protectString('ClipTrimDialog')
 				)
 			)

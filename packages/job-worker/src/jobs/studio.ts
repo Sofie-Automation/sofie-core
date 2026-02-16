@@ -10,16 +10,15 @@ import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settin
 /**
  * A lightly processed version of DBStudio, with any ObjectWithOverrides<T> pre-flattened
  */
-export interface JobStudio
-	extends Omit<
-		DBStudio,
-		| 'mappingsWithOverrides'
-		| 'blueprintConfigWithOverrides'
-		| 'settingsWithOverrides'
-		| 'routeSetsWithOverrides'
-		| 'routeSetExclusivityGroupsWithOverrides'
-		| 'packageContainersWithOverrides'
-	> {
+export interface JobStudio extends Omit<
+	DBStudio,
+	| 'mappingsWithOverrides'
+	| 'blueprintConfigWithOverrides'
+	| 'settingsWithOverrides'
+	| 'routeSetsWithOverrides'
+	| 'routeSetExclusivityGroupsWithOverrides'
+	| 'packageContainersWithOverrides'
+> {
 	/** Mappings between the physical devices / outputs and logical ones */
 	mappings: MappingsExt
 

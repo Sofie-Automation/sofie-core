@@ -7,6 +7,7 @@ import { PeripheralDeviceType } from '@sofie-automation/corelib/dist/dataModel/P
 import { IngestJobs } from '@sofie-automation/corelib/dist/worker/ingest'
 import { assertNever } from '@sofie-automation/corelib/dist/lib'
 import { VerifiedRundownForUserAction } from '../../security/check'
+import { logger } from '../../logging'
 
 /*
 This file contains actions that can be performed on an ingest-device
@@ -26,6 +27,26 @@ export namespace IngestActions {
 				})
 
 				return TriggerReloadDataResponse.COMPLETED
+			}
+			case 'restApi': {
+				const resyncUrl = rundown.source.resyncUrl
+				fetch(resyncUrl, { method: 'POST' })
+					.then(() => {
+						logger.info(`Reload rundown: resync request sent to "${resyncUrl}"`)
+					})
+					.catch((error) => {
+						if (error.cause.code === 'ECONNREFUSED' || error.cause.code === 'ENOTFOUND') {
+							logger.error(
+								`Reload rundown: could not establish connection with "${resyncUrl}" (${error.cause.code})`
+							)
+							return
+						}
+						logger.error(
+							`Reload rundown: error occured while sending resync request to "${resyncUrl}", message: ${error.message}, cause: ${JSON.stringify(error.cause)}`
+						)
+					})
+
+				return TriggerReloadDataResponse.WORKING
 			}
 			case 'testing': {
 				await runIngestOperation(rundown.studioId, IngestJobs.CreateAdlibTestingRundownForShowStyleVariant, {
