@@ -1,6 +1,6 @@
 {
 	"extends": "@sofie-automation/code-standard-preset/ts/tsconfig.lib",
-	"include": ["*/src/**/__tests__/**/*", "*/src/**/__mocks__/**/*"],
+	"include": ["*/src/**/__tests__/**/*", "*/src/**/__mocks__/**/*", "*/src/**/integrationTests/**/*"],
 	"exclude": ["node_modules/**", "webui/**", "openapi/**"],
 	"compilerOptions": {
 		"baseUrl": "./",
