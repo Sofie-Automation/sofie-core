@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { useLocation } from 'react-router-dom'
 import { parse as queryStringParse } from 'query-string'
 import { useTranslation } from 'react-i18next'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faExpand } from '@fortawesome/free-solid-svg-icons'
 import { catchError } from '../../lib/lib.js'
 
 import './FullscreenOverlay.scss'
@@ -59,7 +61,9 @@ export function FullscreenOverlay(): JSX.Element | null {
 			aria-label={t('Click or press Enter for fullscreen')}
 		>
 			<div className="fullscreen-overlay__content">
-				<div className="fullscreen-overlay__icon">⛶</div>
+				<div className="fullscreen-overlay__icon">
+					<FontAwesomeIcon icon={faExpand} />
+				</div>
 				<div className="fullscreen-overlay__text">{t('Click anywhere for fullscreen')}</div>
 			</div>
 		</button>
