@@ -47,7 +47,7 @@ Sofie contains cron jobs for restarting any casparcg servers through the casparc
 
 ### Clean up
 
-The clean up process in Sofie will search the database for unused data and indexes and removes them. If you have had an installation running for many versions this may increase database informance and is in general safe to use at any time.
+The clean up process in Sofie will search the database for unused data and indexes and removes them. If you have had an installation running for many versions this may increase database performance and is in general safe to use at any time.
 
 ## Studio
 
@@ -141,7 +141,7 @@ This is a way to set up how - outside of the Point-and-Click Graphical User Inte
 
 The triggers are designed to be either client-specific or issued by a peripheral device module.
 
-Currently, the Action Triggers system supports setting up two types of triggeers: Hotkeys and Device Triggers. 
+Currently, the Action Triggers system supports setting up two types of triggers: Hotkeys and Device Triggers. 
 
 Hotkeys are valid in the scope of a browser window and can be either a single key, a combination of keys (*combo*) or a *chord* - a sequence of key combinations pressed in a particular order. *Chords* are popular in some text editing applications and vastly expand the amount of actions that can be triggered from a keyboard, at the expense of the time needed to execute them. Currently, the Hotkey editor in Sofie does not support creating *Chords*, but they can be specified by Blueprints during migrations.
 
