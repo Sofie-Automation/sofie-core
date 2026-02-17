@@ -4,7 +4,7 @@ sidebar_position: 7
 
 # Installing Package Manager
 
-### Prerequisites
+## Prerequisites
 
 - [Installed and running Sofie&nbsp;Core](installing-sofie-server-core.md)
 - [Initial Sofie&nbsp;Core Setup](initial-sofie-core-setup.md)
@@ -18,7 +18,7 @@ Although Package Manager can be used to copy any kind of file to/from a wide arr
 
 :::caution
 
-Sofie supports only one Package Manager running for a Studio. Attaching more at a time will result in weird behaviour due to them fighting over reporting the statuses of packages.
+In the simple setup, Sofie supports only one Package Manager running for a Studio. Attaching more at a time will result in weird behaviour due to them fighting over reporting the statuses of packages.
 If you feel like you need multiple, then you likely want to run Package Manager in the distributed setup instead.
 
 :::
@@ -52,7 +52,7 @@ This first run is necessary to get the Package Manager device registered with _S
 
 ## Installation In Production
 
-Only one Package Manager can be running for a Sofie Studio. If you reached this point thinking of deploying multiple, you will want to follow the distributed setup.
+In the simple setup, only one Package Manager can be running for a Sofie Studio. If you reached this point thinking of deploying multiple, you will want to follow the distributed setup.
 
 ### Simple Setup
 
