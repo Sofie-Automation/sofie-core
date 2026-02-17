@@ -101,7 +101,7 @@ These collections are used in combination with many of the ingest collections, t
 RundownPlaylists are a Sofie invention designed to solve one problem; in some NRCS it is beneficial to build a show across multiple Rundowns, which should then be concatenated for playout.  
 In particular, MOS has no concept of a Playlist, only Rundowns, and it was here where we need to be able to combine multiple Rundowns.
 
-This functionality can be used to either break down long shows into managable chunks, or to indicate a different type of show between the each portion.
+This functionality can be used to either break down long shows into manageable chunks, or to indicate a different type of show between the each portion.
 
 Because of this, RundownPlaylists are largely missing from the ingest side of Sofie. We do not expose them in the ingest APIs, or do anything with them throughout the majority of the blueprints generating a Rundown.  
 Instead, we let the blueprints specify that a Rundown should be part of a RundownPlaylist by setting the `playlistExternalId` property, where multiple Rundowns in a Studio with the same id will be grouped into a RundownPlaylist.  
