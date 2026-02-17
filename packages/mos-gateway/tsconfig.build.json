@@ -4,6 +4,7 @@
 	"exclude": ["node_modules/**", "**/*spec.ts", "**/__tests__/*", "**/__mocks__/*"],
 	"compilerOptions": {
 		"outDir": "./dist",
+		"rootDir": "./src",
 		"baseUrl": "./",
 		"paths": {
 			"*": ["./node_modules/*"],
