@@ -153,7 +153,7 @@ You will need to add an additional consumer to your `casparcg.config` file to ou
 </channels>
 ```
 
-You may no longer need the screen consumer. If so, you can remove it and all of it's contents. This will dramatically improve overall performance.
+You may no longer need the screen consumer. If so, you can remove it and all of its contents. This will dramatically improve overall performance.
 
 ### Multiple DeckLink Cards \(Recommended Production Setup\)
 

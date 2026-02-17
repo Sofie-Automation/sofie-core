@@ -12,7 +12,7 @@ There is a also a legacy REST API available that can be used to fetch data and t
 
 ## Sofie Live Status Gateway
 
-Starting with version 1.50.0, there is also a separate service available, called _Sofie Live Status Gateway_, running as a separate process, which will connect to the _Sofie Core_ as a Peripheral Device, listen to the changes of it's state and provide a PubSub service offering a machine-readable view into the system. The WebSocket API is defined using the [AsyncAPI specification](https://v2.asyncapi.com/docs/reference/specification/v2.5.0) and the specification can be found in the `packages/live-status-gateway/api` folder.
+Starting with version 1.50.0, there is also a separate service available, called _Sofie Live Status Gateway_, running as a separate process, which will connect to the _Sofie Core_ as a Peripheral Device, listen to the changes of its state and provide a PubSub service offering a machine-readable view into the system. The WebSocket API is defined using the [AsyncAPI specification](https://v2.asyncapi.com/docs/reference/specification/v2.5.0) and the specification can be found in the `packages/live-status-gateway/api` folder.
 
 ## DDP – Core Integration
 
