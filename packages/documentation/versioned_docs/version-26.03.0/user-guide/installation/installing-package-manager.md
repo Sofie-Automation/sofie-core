@@ -4,7 +4,7 @@ sidebar_position: 70
 
 # Installing Package Manager
 
-### Prerequisites
+## Prerequisites
 
 - [Installed and running Sofie&nbsp;Core](quick-install.md)
 - [Initial Sofie&nbsp;Core Setup](initial-sofie-core-setup.md)
@@ -18,7 +18,7 @@ Although Package Manager can be used to copy any kind of file to/from a wide arr
 
 :::caution
 
-Sofie supports only one Package Manager running for a Studio. Attaching more at a time will result in weird behaviour due to them fighting over reporting the statuses of packages.
+In the simple setup, Sofie supports only one Package Manager running for a Studio. Attaching more at a time will result in weird behaviour due to them fighting over reporting the statuses of packages.
 If you feel like you need multiple, then you likely want to run Package Manager in the distributed setup instead.
 
 :::
@@ -47,7 +47,7 @@ This first run is necessary to get the Package Manager device registered with _S
 
 ## Installation In Production
 
-Only one Package Manager can be running for a Sofie Studio. If you reached this point thinking of deploying multiple, you will want to follow the distributed setup.
+In the simple setup, only one Package Manager can be running for a Sofie Studio. If you reached this point thinking of deploying multiple, you will want to follow the distributed setup.
 
 ### Simple Setup
 
@@ -151,7 +151,7 @@ In addition to this, you will need to run the appContainer and workers on each w
 
 You can get the windows executables from [Releases](https://github.com/Sofie-Automation/sofie-package-manager/releases) GitHub repository page for Package Manager. You'll need the `appContainer-node.exe` and `worker.exe`. Put them in a folder of your choice. You can also place `ffmpeg.exe` and `ffprobe.exe` alongside them, if you don't want to make them available in `PATH`.
 
-Note that each appContainer needs to use a different resourceId and will need its own package containers set to use the same resourceIds if they need to access the local disk. This is how package-manager knows which workers have access to which machines.w
+Note that each appContainer needs to use a different resourceId and will need its own package containers set to use the same resourceIds if they need to access the local disk. This is how package-manager knows which workers have access to which machines.
 
 ## Configuration
 

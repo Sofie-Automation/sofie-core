@@ -4,7 +4,7 @@ sidebar_position: 7
 
 # Installing Package Manager
 
-### Prerequisites
+## Prerequisites
 
 - [Installed and running Sofie&nbsp;Core](installing-sofie-server-core)
 - [Initial Sofie&nbsp;Core Setup](initial-sofie-core-setup)
