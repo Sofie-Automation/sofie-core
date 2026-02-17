@@ -30,7 +30,7 @@
 		"validate:dependencies": "yarn npm audit --environment production && run license-validate",
 		"validate:dev-dependencies": "yarn npm audit --environment development",
 		"license-validate": "sofie-licensecheck --allowPackages \"caniuse-lite@1.0.30001448;mos-gateway@$(node -p \"require('mos-gateway/package.json').version\");playout-gateway@$(node -p \"require('playout-gateway/package.json').version\");sofie-documentation@$(node -p \"require('sofie-documentation/package.json').version\");@sofie-automation/corelib@$(node -p \"require('@sofie-automation/corelib/package.json').version\");@sofie-automation/shared-lib@$(node -p \"require('@sofie-automation/shared-lib/package.json').version\");@sofie-automation/job-worker@$(node -p \"require('@sofie-automation/job-worker/package.json').version\");lunr-languages@1.10.0;live-status-gateway@$(node -p \"require('live-status-gateway/package.json').version\")\"",
-		"lint": "lerna run --concurrency 4 --stream lint",
+		"lint": "eslint",
 		"unit": "lerna run --concurrency 2 --stream unit --ignore @sofie-automation/openapi -- --coverage=false",
 		"test": "lerna run --concurrency 2 --stream test -- --coverage=false",
 		"docs:typedoc": "typedoc .",
@@ -56,6 +56,7 @@
 		"copyfiles": "^2.4.1",
 		"eslint": "^9.39.2",
 		"eslint-plugin-react": "^7.37.5",
+		"eslint-plugin-yml": "^3.1.2",
 		"jest": "^30.2.0",
 		"jest-environment-jsdom": "^30.2.0",
 		"jest-mock-extended": "^4.0.0",
@@ -88,5 +89,13 @@
 		"nx": {
 			"built": true
 		}
+	},
+	"lint-staged": {
+		"*.{css,json,md,scss}": [
+			"yarn run prettier"
+		],
+		"*.{ts,tsx,js,jsx}": [
+			"yarn lint"
+		]
 	}
 }

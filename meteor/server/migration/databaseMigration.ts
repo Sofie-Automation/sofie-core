@@ -1,24 +1,13 @@
 import { Meteor } from 'meteor/meteor'
 import * as semver from 'semver'
 import {
-	BlueprintManifestType,
-	InputFunctionCore,
-	InputFunctionSystem,
 	MigrateFunctionCore,
-	MigrationContextSystem as IMigrationContextSystem,
 	MigrationStep,
-	MigrationStepInput,
-	MigrationStepInputFilteredResult,
-	MigrationStepInputResult,
-	SystemBlueprintManifest,
 	ValidateFunctionCore,
-	ValidateFunctionSystem,
-	MigrateFunctionSystem,
 	ValidateFunction,
 	MigrateFunction,
-	InputFunction,
 	MigrationStepCore,
-} from '@sofie-automation/blueprints-integration'
+} from '@sofie-automation/meteor-lib/dist/migrations'
 import _ from 'underscore'
 import {
 	GetMigrationStatusResult,
@@ -30,14 +19,12 @@ import { logger } from '../logging'
 import { internalStoreSystemSnapshot } from '../api/snapshot'
 import { parseVersion, Version } from '../systemStatus/semverUtils'
 import { GENESIS_SYSTEM_VERSION } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
-import { clone, getHash, omit } from '@sofie-automation/corelib/dist/lib'
+import { getHash, omit } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
-import { evalBlueprint } from '../api/blueprints/cache'
-import { MigrationContextSystem } from '../api/blueprints/migrationContext'
 import { CURRENT_SYSTEM_VERSION } from './currentSystemVersion'
 import { SnapshotId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { Blueprints, CoreSystem } from '../collections'
+import { Blueprints } from '../collections'
 import { getSystemStorePath } from '../coreSystem'
 import { getCoreSystemAsync, setCoreSystemVersion } from '../coreSystem/collection'
 
@@ -65,7 +52,7 @@ export function isVersionSupported(version: Version): boolean {
 	return isSupported
 }
 
-interface MigrationStepInternal extends MigrationStep<ValidateFunction, MigrateFunction, InputFunction> {
+interface MigrationStepInternal extends MigrationStep<ValidateFunction, MigrateFunction> {
 	chunk: MigrationChunk
 	_rank: number
 	_version: Version // step version
@@ -82,10 +69,8 @@ const coreMigrationSteps: Array<MigrationStepCore> = []
 export function addMigrationSteps(version: string, steps: Array<Omit<MigrationStepCore, 'version'>>) {
 	return (): void => {
 		for (const step of steps) {
-			coreMigrationSteps.push({
-				...step,
-				version: version,
-			})
+			;(step as MigrationStepCore).version = version
+			coreMigrationSteps.push(step as MigrationStepCore)
 		}
 	}
 }
@@ -100,9 +85,7 @@ export interface PreparedMigration {
 	steps: MigrationStepInternal[]
 	migrationNeeded: boolean
 	automaticStepCount: number
-	manualStepCount: number
 	ignoredStepCount: number
-	manualInputs: MigrationStepInput[]
 	partialMigration: boolean
 }
 export async function prepareMigration(returnAllChunks?: boolean): Promise<PreparedMigration> {
@@ -135,10 +118,9 @@ export async function prepareMigration(returnAllChunks?: boolean): Promise<Prepa
 		allMigrationSteps.push({
 			id: step.id,
 			overrideSteps: step.overrideSteps,
-			validate: step.validate,
+			validate: step.validate.bind(step),
 			canBeRunAutomatically: step.canBeRunAutomatically,
-			migrate: step.migrate,
-			input: step.input,
+			migrate: step.migrate?.bind(step),
 			dependOnResultFrom: step.dependOnResultFrom,
 			version: step.version,
 			_version: parseVersion(step.version),
@@ -148,77 +130,11 @@ export async function prepareMigration(returnAllChunks?: boolean): Promise<Prepa
 		})
 	}
 
-	// Collect migration steps from blueprints:
-	const allBlueprints = await Blueprints.findFetchAsync({
-		blueprintType: BlueprintManifestType.SYSTEM,
-	})
-	for (const blueprint of allBlueprints) {
-		// console.log('bp', blueprint._id)
-		if (blueprint.code) {
-			const blueprintManifest = evalBlueprint(blueprint)
-
-			if (!blueprint.databaseVersion || typeof blueprint.databaseVersion === 'string')
-				blueprint.databaseVersion = { system: undefined }
-			if (!blueprint.databaseVersion.system) blueprint.databaseVersion.system = undefined
-
-			if (blueprint.blueprintType === BlueprintManifestType.SYSTEM) {
-				const bp = blueprintManifest as SystemBlueprintManifest
-
-				// If blueprint uses the new flow, don't attempt migrations
-				if (typeof bp.applyConfig === 'function') continue
-
-				// Check if the coreSystem uses this blueprint
-				const coreSystems = await CoreSystem.findFetchAsync({
-					blueprintId: blueprint._id,
-				})
-				coreSystems.forEach(() => {
-					const chunk: MigrationChunk = {
-						sourceType: MigrationStepType.SYSTEM,
-						sourceName: 'Blueprint ' + blueprint.name + ' for system',
-						sourceId: 'system',
-						blueprintId: blueprint._id,
-						_dbVersion: parseVersion(blueprint.databaseVersion.system || '0.0.0'),
-						_targetVersion: parseVersion(bp.blueprintVersion),
-						_steps: [],
-					}
-					migrationChunks.push(chunk)
-					// Add core migration steps from blueprint:
-					for (const step of bp.coreMigrations) {
-						allMigrationSteps.push(
-							prefixIdsOnStep('blueprint_' + blueprint._id + '_system_', {
-								id: step.id,
-								overrideSteps: step.overrideSteps,
-								validate: step.validate,
-								canBeRunAutomatically: step.canBeRunAutomatically,
-								migrate: step.migrate,
-								input: step.input,
-								dependOnResultFrom: step.dependOnResultFrom,
-								version: step.version,
-								_version: parseVersion(step.version),
-								_validateResult: false, // to be set later
-								_rank: rank++,
-								chunk: chunk,
-							})
-						)
-					}
-				})
-			} else {
-				// unknown blueprint type
-			}
-		} else {
-			console.log(`blueprint ${blueprint._id} has no code`)
-		}
-	}
-
 	// Sort, smallest version first:
 	allMigrationSteps.sort((a, b) => {
 		// First, sort by type:
 		if (a.chunk.sourceType === MigrationStepType.CORE && b.chunk.sourceType !== MigrationStepType.CORE) return -1
 		if (a.chunk.sourceType !== MigrationStepType.CORE && b.chunk.sourceType === MigrationStepType.CORE) return 1
-
-		if (a.chunk.sourceType === MigrationStepType.SYSTEM && b.chunk.sourceType !== MigrationStepType.SYSTEM)
-			return -1
-		if (a.chunk.sourceType !== MigrationStepType.SYSTEM && b.chunk.sourceType === MigrationStepType.SYSTEM) return 1
 
 		// Then, sort by version:
 		if (semver.gt(a._version, b._version)) return 1
@@ -231,7 +147,6 @@ export async function prepareMigration(returnAllChunks?: boolean): Promise<Prepa
 	})
 
 	let automaticStepCount = 0
-	let manualStepCount = 0
 	let ignoredStepCount = 0
 
 	let partialMigration = false
@@ -241,9 +156,6 @@ export async function prepareMigration(returnAllChunks?: boolean): Promise<Prepa
 	const ignoredSteps: { [id: string]: true } = {}
 	let includesCoreStep = false
 	for (const step of allMigrationSteps) {
-		if (!step.canBeRunAutomatically && (!step.input || (Array.isArray(step.input) && !step.input.length)))
-			throw new Meteor.Error(500, `MigrationStep "${step.id}" is manual, but no input is provided`)
-
 		if (step.chunk.sourceType !== MigrationStepType.CORE && includesCoreStep) {
 			// stop here as core migrations need to be run before anything else can
 			partialMigration = true
@@ -285,9 +197,6 @@ export async function prepareMigration(returnAllChunks?: boolean): Promise<Prepa
 				if (step.chunk.sourceType === MigrationStepType.CORE) {
 					const validate = step.validate as ValidateFunctionCore
 					step._validateResult = await validate(false)
-				} else if (step.chunk.sourceType === MigrationStepType.SYSTEM) {
-					const validate = step.validate as ValidateFunctionSystem
-					step._validateResult = await validate(getMigrationSystemContext(step.chunk), false)
 				} else throw new Meteor.Error(500, `Unknown step.chunk.sourceType "${step.chunk.sourceType}"`)
 			} catch (error) {
 				throw new Meteor.Error(500, `Error in migration step "${step.id}": ${stringifyError(error)}`)
@@ -309,45 +218,12 @@ export async function prepareMigration(returnAllChunks?: boolean): Promise<Prepa
 	// check if there are any manual steps:
 	// (this makes an automatic migration impossible)
 
-	const manualInputs: Array<MigrationStepInput> = []
 	const stepsHash: Array<string> = []
 	for (const step of Object.values<MigrationStepInternal>(migrationSteps)) {
 		stepsHash.push(step.id)
 		step.chunk._steps.push(step.id)
-		if (!step.canBeRunAutomatically) {
-			manualStepCount++
 
-			if (step.input) {
-				let input: Array<MigrationStepInput> = []
-				if (Array.isArray(step.input)) {
-					input = clone(step.input)
-				} else if (typeof step.input === 'function') {
-					if (step.chunk.sourceType === MigrationStepType.CORE) {
-						const inputFunction = step.input as InputFunctionCore
-						input = inputFunction()
-					} else if (step.chunk.sourceType === MigrationStepType.SYSTEM) {
-						const inputFunction = step.input as InputFunctionSystem
-						input = inputFunction(getMigrationSystemContext(step.chunk))
-					} else throw new Meteor.Error(500, `Unknown step.chunk.sourceType "${step.chunk.sourceType}"`)
-				}
-				if (input.length) {
-					for (const i of input) {
-						if (i.label && typeof step._validateResult === 'string') {
-							i.label = (i.label + '').replace(/\$validation/g, step._validateResult)
-						}
-						if (i.description && typeof step._validateResult === 'string') {
-							i.description = (i.description + '').replace(/\$validation/g, step._validateResult)
-						}
-						manualInputs.push({
-							...i,
-							stepId: step.id,
-						})
-					}
-				}
-			}
-		} else {
-			automaticStepCount++
-		}
+		automaticStepCount++
 	}
 
 	// Only return the chunks which has steps in them:
@@ -368,29 +244,14 @@ export async function prepareMigration(returnAllChunks?: boolean): Promise<Prepa
 		steps: steps,
 		migrationNeeded: migrationNeeded,
 		automaticStepCount: automaticStepCount,
-		manualStepCount: manualStepCount,
 		ignoredStepCount: ignoredStepCount,
-		manualInputs: manualInputs,
 		partialMigration: partialMigration,
 	}
-}
-function prefixIdsOnStep(prefix: string, step: MigrationStepInternal): MigrationStepInternal {
-	step.id = prefix + step.id
-	if (step.overrideSteps) {
-		step.overrideSteps = step.overrideSteps.map((override) => {
-			return prefix + override
-		})
-	}
-	if (step.dependOnResultFrom) {
-		step.dependOnResultFrom = prefix + step.dependOnResultFrom
-	}
-	return step
 }
 
 export async function runMigration(
 	chunks: Array<MigrationChunk>,
 	hash: string,
-	inputResults: Array<MigrationStepInputResult>,
 	isFirstOfPartialMigrations = true,
 	chunksLeft = 20
 ): Promise<RunMigrationResult> {
@@ -404,18 +265,8 @@ export async function runMigration(
 	// Verify the input:
 	const migration = await prepareMigration(true)
 
-	const manualInputsWithUserPrompt = migration.manualInputs.filter((manualInput) => {
-		return !!(manualInput.stepId && manualInput.attribute)
-	})
 	if (migration.hash !== hash)
 		throw new Meteor.Error(500, `Migration input hash differ from expected: "${hash}", "${migration.hash}"`)
-
-	if (manualInputsWithUserPrompt.length !== inputResults.length) {
-		throw new Meteor.Error(
-			500,
-			`Migration manualInput lengths differ from expected: "${inputResults.length}", "${migration.manualInputs.length}"`
-		)
-	}
 
 	// Check that chunks match:
 	let unmatchedChunk = migration.chunks.find((migrationChunk) => {
@@ -463,22 +314,10 @@ export async function runMigration(
 		}
 	}
 
-	logger.info(
-		`Migration: ${migration.automaticStepCount} automatic and ${migration.manualStepCount} manual steps (${migration.ignoredStepCount} ignored).`
-	)
-
-	logger.debug(inputResults)
+	logger.info(`Migration: ${migration.automaticStepCount} steps (${migration.ignoredStepCount} ignored).`)
 
 	for (const step of migration.steps) {
 		try {
-			// Prepare input from user
-			const stepInput: MigrationStepInputFilteredResult = {}
-			for (const ir of inputResults) {
-				if (ir.stepId === step.id) {
-					stepInput[ir.attribute] = ir.value
-				}
-			}
-
 			// Run the migration script
 
 			if (step.migrate !== undefined) {
@@ -486,10 +325,7 @@ export async function runMigration(
 
 				if (step.chunk.sourceType === MigrationStepType.CORE) {
 					const migration = step.migrate as MigrateFunctionCore
-					await migration(stepInput)
-				} else if (step.chunk.sourceType === MigrationStepType.SYSTEM) {
-					const migration = step.migrate as MigrateFunctionSystem
-					await migration(getMigrationSystemContext(step.chunk), stepInput)
+					await migration()
 				} else throw new Meteor.Error(500, `Unknown step.chunk.sourceType "${step.chunk.sourceType}"`)
 			}
 
@@ -501,9 +337,6 @@ export async function runMigration(
 			if (step.chunk.sourceType === MigrationStepType.CORE) {
 				const validate = step.validate as ValidateFunctionCore
 				validateMessage = await validate(true)
-			} else if (step.chunk.sourceType === MigrationStepType.SYSTEM) {
-				const validate = step.validate as ValidateFunctionSystem
-				validateMessage = await validate(getMigrationSystemContext(step.chunk), true)
 			} else throw new Meteor.Error(500, `Unknown step.chunk.sourceType "${step.chunk.sourceType}"`)
 
 			// let validate = step.validate as ValidateFunctionCore
@@ -524,20 +357,14 @@ export async function runMigration(
 
 	let migrationCompleted = false
 
-	if (migration.manualStepCount === 0 && !warningMessages.length) {
+	if (!warningMessages.length) {
 		// continue automatically with the next batch
 		logger.info('Migration: Automatically continuing with next batch..')
 		migration.partialMigration = false
 		const s = await getMigrationStatus()
-		if (s.migration.automaticStepCount > 0 || s.migration.manualStepCount > 0) {
+		if (s.migration.automaticStepCount > 0) {
 			try {
-				const res = await runMigration(
-					s.migration.chunks,
-					s.migration.hash,
-					inputResults,
-					false,
-					chunksLeft - 1
-				)
+				const res = await runMigration(s.migration.chunks, s.migration.hash, false, chunksLeft - 1)
 				if (res.migrationCompleted) {
 					return res
 				}
@@ -571,22 +398,6 @@ async function completeMigration(chunks: Array<MigrationChunk>) {
 	for (const chunk of chunks) {
 		if (chunk.sourceType === MigrationStepType.CORE) {
 			await setCoreSystemVersion(chunk._targetVersion)
-		} else if (chunk.sourceType === MigrationStepType.SYSTEM) {
-			if (!chunk.blueprintId) throw new Meteor.Error(500, `chunk.blueprintId missing!`)
-			if (!chunk.sourceId) throw new Meteor.Error(500, `chunk.sourceId missing!`)
-
-			const blueprint = await Blueprints.findOneAsync(chunk.blueprintId)
-			if (!blueprint) throw new Meteor.Error(404, `Blueprint "${chunk.blueprintId}" not found!`)
-
-			const m: any = {}
-			if (chunk.sourceType === MigrationStepType.SYSTEM) {
-				logger.info(
-					`Updating Blueprint "${chunk.sourceName}" version, from "${blueprint.databaseVersion.system}" to "${chunk._targetVersion}".`
-				)
-				m[`databaseVersion.system`] = chunk._targetVersion
-			} else throw new Meteor.Error(500, `Bad chunk.sourcetype: "${chunk.sourceType}"`)
-
-			await Blueprints.updateAsync(chunk.blueprintId, { $set: m })
 		} else throw new Meteor.Error(500, `Unknown chunk.sourcetype: "${chunk.sourceType}"`)
 	}
 }
@@ -605,14 +416,10 @@ export async function getMigrationStatus(): Promise<GetMigrationStatusResult> {
 		migrationNeeded: migration.migrationNeeded,
 
 		migration: {
-			canDoAutomaticMigration: migration.manualStepCount === 0,
-
-			manualInputs: migration.manualInputs,
 			hash: migration.hash,
 			chunks: migration.chunks,
 
 			automaticStepCount: migration.automaticStepCount,
-			manualStepCount: migration.manualStepCount,
 			ignoredStepCount: migration.ignoredStepCount,
 			partialMigration: migration.partialMigration,
 		},
@@ -645,12 +452,4 @@ export async function resetDatabaseVersions(): Promise<void> {
 		},
 		{ multi: true }
 	)
-}
-
-function getMigrationSystemContext(chunk: MigrationChunk): IMigrationContextSystem {
-	if (chunk.sourceType !== MigrationStepType.SYSTEM)
-		throw new Meteor.Error(500, `wrong chunk.sourceType "${chunk.sourceType}", expected SYSTEM`)
-	if (!chunk.sourceId) throw new Meteor.Error(500, `chunk.sourceId missing`)
-
-	return new MigrationContextSystem()
 }

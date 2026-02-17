@@ -44,8 +44,10 @@ export const addSteps = addMigrationSteps('0.1.0', [
 				routeSetsWithOverrides: wrapDefaultObject({}),
 				routeSetExclusivityGroupsWithOverrides: wrapDefaultObject({}),
 				packageContainersWithOverrides: wrapDefaultObject({}),
-				thumbnailContainerIds: [],
-				previewContainerIds: [],
+				packageContainerSettingsWithOverrides: wrapDefaultObject({
+					thumbnailContainerIds: [],
+					previewContainerIds: [],
+				}),
 				peripheralDeviceSettings: {
 					deviceSettings: wrapDefaultObject({}),
 					playoutDevices: wrapDefaultObject({}),

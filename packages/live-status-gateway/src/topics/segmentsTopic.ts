@@ -41,7 +41,7 @@ export class SegmentsTopic extends WebSocketTopicBase implements WebSocketTopic 
 					id: segmentId,
 					rundownId: unprotectString(segment.rundownId),
 					name: segment.name,
-					timing: calculateSegmentTiming(segment.segmentTiming, this._partsBySegment[segmentId] ?? []),
+					timing: calculateSegmentTiming(segment.segmentTiming, [], this._partsBySegment[segmentId] ?? []), // TODO: this might be inaccurate for the current/next segment, where partInstances might have some changes from adlib actions etc.
 					identifier: segment.identifier,
 					publicData: segment.publicData,
 				}

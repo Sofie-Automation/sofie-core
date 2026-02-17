@@ -130,12 +130,12 @@ function updatePartInstancePlannedTimes(
  * regeneration, items will already use the timestamps persited by `updatePlannedTimingsForPieceInstances` and will not
  * be included in `infiniteObjs`.
  */
-function deNowifyInfinites(
+export function deNowifyInfinites(
 	targetNowTime: number,
 	/** A list of objects that need to be updated */
 	infiniteObjs: TimelineObjRundown[],
 	timelineObjsMap: Record<string, TimelineObjRundown>
-) {
+): void {
 	/**
 	 * Recursively look up the absolute starttime of a timeline object
 	 * taking into account its parent's times.
@@ -163,7 +163,7 @@ function deNowifyInfinites(
 		if (Array.isArray(obj.enable) || obj.enable.start !== 'now') continue
 
 		if (!obj.inGroup) {
-			obj.enable = { start: targetNowTime }
+			obj.enable = { ...obj.enable, start: targetNowTime }
 			continue
 		}
 
@@ -181,7 +181,7 @@ function deNowifyInfinites(
 			continue
 		}
 
-		obj.enable = { start: targetNowTime - parentStartTime }
+		obj.enable = { ...obj.enable, start: targetNowTime - parentStartTime }
 		logger.silly(
 			`deNowifyInfinites: Setting "${obj.id}" enable.start = ${JSON.stringify(obj.enable.start)}, ${targetNowTime} ${parentStartTime} parentObject: "${parentObject.id}"`
 		)

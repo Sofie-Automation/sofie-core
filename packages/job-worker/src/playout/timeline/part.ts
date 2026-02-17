@@ -19,6 +19,7 @@ import { getPieceEnableInsidePart, transformPieceGroupAndObjects } from './piece
 import { PlayoutChangedType } from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI'
 import { SelectedPartInstanceTimelineInfo } from './generate.js'
 import { PartCalculatedTimings } from '@sofie-automation/corelib/dist/playout/timings'
+import { TimelinePlayoutState } from './lib.js'
 
 export function transformPartIntoTimeline(
 	context: JobContext,
@@ -28,7 +29,7 @@ export function transformPartIntoTimeline(
 	parentGroup: TimelineObjGroupPart & OnGenerateTimelineObjExt,
 	partInfo: SelectedPartInstanceTimelineInfo,
 	nextPartTimings: PartCalculatedTimings | null,
-	isInHold: boolean
+	playoutState: TimelinePlayoutState
 ): Array<TimelineObjRundown & OnGenerateTimelineObjExt> {
 	const span = context.startSpan('transformPartIntoTimeline')
 
@@ -68,8 +69,7 @@ export function transformPartIntoTimeline(
 				pieceEnable,
 				pieceInstance.dynamicallyInserted ? 0 : partTimings.toPartDelay,
 				pieceGroupFirstObjClasses,
-				isInHold,
-				false
+				playoutState
 			)
 		)
 	}

@@ -1,6 +1,40 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`Timeline Adlib pieces Current part with preroll 1`] = `
+exports[`Timeline Multi-gateway mode In transitions inTransition with existing infinites 1`] = `
+[
+  {
+    "_id": "mockStudio0",
+    "generated": 12345,
+    "generationVersions": {
+      "blueprintId": "studioBlueprint0",
+      "blueprintVersion": "0.0.0",
+      "core": "0.0.0-test",
+      "studio": "asdf",
+    },
+    "timelineBlob": "[]",
+    "timelineHash": "randomId9011",
+  },
+]
+`;
+
+exports[`Timeline Multi-gateway mode Infinite Pieces Infinite Piece has stable timing across timeline regenerations after onPlayoutPlaybackChanged 1`] = `
+[
+  {
+    "_id": "mockStudio0",
+    "generated": 12345,
+    "generationVersions": {
+      "blueprintId": "studioBlueprint0",
+      "blueprintVersion": "0.0.0",
+      "core": "0.0.0-test",
+      "studio": "asdf",
+    },
+    "timelineBlob": "[]",
+    "timelineHash": "randomId9010",
+  },
+]
+`;
+
+exports[`Timeline Single-gateway mode Adlib pieces Current part with preroll 1`] = `
 [
   {
     "_id": "mockStudio0",
@@ -17,7 +51,7 @@ exports[`Timeline Adlib pieces Current part with preroll 1`] = `
 ]
 `;
 
-exports[`Timeline Adlib pieces Current part with preroll and adlib preroll 1`] = `
+exports[`Timeline Single-gateway mode Adlib pieces Current part with preroll and adlib preroll 1`] = `
 [
   {
     "_id": "mockStudio0",
@@ -34,7 +68,7 @@ exports[`Timeline Adlib pieces Current part with preroll and adlib preroll 1`] =
 ]
 `;
 
-exports[`Timeline Basic rundown 1`] = `
+exports[`Timeline Single-gateway mode Basic rundown 1`] = `
 [
   {
     "_id": "mockStudio0",
@@ -51,7 +85,7 @@ exports[`Timeline Basic rundown 1`] = `
 ]
 `;
 
-exports[`Timeline Basic rundown 2`] = `
+exports[`Timeline Single-gateway mode Basic rundown 2`] = `
 [
   {
     "_id": "mockStudio0",
@@ -68,7 +102,7 @@ exports[`Timeline Basic rundown 2`] = `
 ]
 `;
 
-exports[`Timeline In transitions Basic inTransition 1`] = `
+exports[`Timeline Single-gateway mode In transitions Basic inTransition 1`] = `
 [
   {
     "_id": "mockStudio0",
@@ -85,7 +119,7 @@ exports[`Timeline In transitions Basic inTransition 1`] = `
 ]
 `;
 
-exports[`Timeline In transitions Basic inTransition with contentDelay + preroll 1`] = `
+exports[`Timeline Single-gateway mode In transitions Basic inTransition with contentDelay + preroll 1`] = `
 [
   {
     "_id": "mockStudio0",
@@ -102,7 +136,7 @@ exports[`Timeline In transitions Basic inTransition with contentDelay + preroll 
 ]
 `;
 
-exports[`Timeline In transitions Basic inTransition with contentDelay 1`] = `
+exports[`Timeline Single-gateway mode In transitions Basic inTransition with contentDelay 1`] = `
 [
   {
     "_id": "mockStudio0",
@@ -119,7 +153,7 @@ exports[`Timeline In transitions Basic inTransition with contentDelay 1`] = `
 ]
 `;
 
-exports[`Timeline In transitions Basic inTransition with planned pieces 1`] = `
+exports[`Timeline Single-gateway mode In transitions Basic inTransition with planned pieces 1`] = `
 [
   {
     "_id": "mockStudio0",
@@ -136,7 +170,7 @@ exports[`Timeline In transitions Basic inTransition with planned pieces 1`] = `
 ]
 `;
 
-exports[`Timeline In transitions Preroll 1`] = `
+exports[`Timeline Single-gateway mode In transitions Preroll 1`] = `
 [
   {
     "_id": "mockStudio0",
@@ -153,7 +187,7 @@ exports[`Timeline In transitions Preroll 1`] = `
 ]
 `;
 
-exports[`Timeline In transitions inTransition disabled 1`] = `
+exports[`Timeline Single-gateway mode In transitions inTransition disabled 1`] = `
 [
   {
     "_id": "mockStudio0",
@@ -170,7 +204,7 @@ exports[`Timeline In transitions inTransition disabled 1`] = `
 ]
 `;
 
-exports[`Timeline In transitions inTransition is disabled during hold 1`] = `
+exports[`Timeline Single-gateway mode In transitions inTransition is disabled during hold 1`] = `
 [
   {
     "_id": "mockStudio0",
@@ -187,7 +221,7 @@ exports[`Timeline In transitions inTransition is disabled during hold 1`] = `
 ]
 `;
 
-exports[`Timeline In transitions inTransition with existing infinites 1`] = `
+exports[`Timeline Single-gateway mode In transitions inTransition with existing infinites 1`] = `
 [
   {
     "_id": "mockStudio0",
@@ -204,7 +238,7 @@ exports[`Timeline In transitions inTransition with existing infinites 1`] = `
 ]
 `;
 
-exports[`Timeline In transitions inTransition with new infinite 1`] = `
+exports[`Timeline Single-gateway mode In transitions inTransition with new infinite 1`] = `
 [
   {
     "_id": "mockStudio0",
@@ -221,7 +255,7 @@ exports[`Timeline In transitions inTransition with new infinite 1`] = `
 ]
 `;
 
-exports[`Timeline Infinite Pieces Infinite Piece has stable timing across timeline regenerations with/without plannedStartedPlayback 1`] = `
+exports[`Timeline Single-gateway mode Infinite Pieces Infinite Piece has stable timing across timeline regenerations with/without plannedStartedPlayback 1`] = `
 [
   {
     "_id": "mockStudio0",
@@ -238,7 +272,7 @@ exports[`Timeline Infinite Pieces Infinite Piece has stable timing across timeli
 ]
 `;
 
-exports[`Timeline Out transitions Basic outTransition 1`] = `
+exports[`Timeline Single-gateway mode Out transitions Basic outTransition 1`] = `
 [
   {
     "_id": "mockStudio0",
@@ -255,7 +289,7 @@ exports[`Timeline Out transitions Basic outTransition 1`] = `
 ]
 `;
 
-exports[`Timeline Out transitions outTransition + inTransition 1`] = `
+exports[`Timeline Single-gateway mode Out transitions outTransition + inTransition 1`] = `
 [
   {
     "_id": "mockStudio0",
@@ -272,7 +306,7 @@ exports[`Timeline Out transitions outTransition + inTransition 1`] = `
 ]
 `;
 
-exports[`Timeline Out transitions outTransition + preroll (2) 1`] = `
+exports[`Timeline Single-gateway mode Out transitions outTransition + preroll (2) 1`] = `
 [
   {
     "_id": "mockStudio0",
@@ -289,7 +323,7 @@ exports[`Timeline Out transitions outTransition + preroll (2) 1`] = `
 ]
 `;
 
-exports[`Timeline Out transitions outTransition + preroll 1`] = `
+exports[`Timeline Single-gateway mode Out transitions outTransition + preroll 1`] = `
 [
   {
     "_id": "mockStudio0",
@@ -306,7 +340,7 @@ exports[`Timeline Out transitions outTransition + preroll 1`] = `
 ]
 `;
 
-exports[`Timeline Out transitions outTransition is disabled during hold 1`] = `
+exports[`Timeline Single-gateway mode Out transitions outTransition is disabled during hold 1`] = `
 [
   {
     "_id": "mockStudio0",

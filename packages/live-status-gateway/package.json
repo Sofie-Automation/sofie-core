@@ -1,6 +1,6 @@
 {
 	"name": "live-status-gateway",
-	"version": "26.3.0-0",
+	"version": "26.3.0-1",
 	"private": true,
 	"description": "Provides state from Sofie over sockets",
 	"license": "MIT",
@@ -15,8 +15,7 @@
 	"homepage": "https://github.com/Sofie-Automation/sofie-core/blob/main/packages/live-status-gateway#readme",
 	"contributors": [],
 	"scripts": {
-		"lint:raw": "run -T eslint --ignore-pattern server",
-		"lint": "run lint:raw .",
+		"lint": "run -T lint live-status-gateway",
 		"unit": "run -T jest",
 		"test": "run lint && run unit",
 		"watch": "run -T jest --watch",
@@ -47,11 +46,11 @@
 		"production"
 	],
 	"dependencies": {
-		"@sofie-automation/blueprints-integration": "26.3.0-0",
-		"@sofie-automation/corelib": "26.3.0-0",
-		"@sofie-automation/live-status-gateway-api": "26.3.0-0",
-		"@sofie-automation/server-core-integration": "26.3.0-0",
-		"@sofie-automation/shared-lib": "26.3.0-0",
+		"@sofie-automation/blueprints-integration": "26.3.0-1",
+		"@sofie-automation/corelib": "26.3.0-1",
+		"@sofie-automation/live-status-gateway-api": "26.3.0-1",
+		"@sofie-automation/server-core-integration": "26.3.0-1",
+		"@sofie-automation/shared-lib": "26.3.0-1",
 		"debug": "^4.4.3",
 		"fast-clone": "^1.5.13",
 		"influx": "^5.12.0",
@@ -62,13 +61,5 @@
 	},
 	"devDependencies": {
 		"type-fest": "^4.41.0"
-	},
-	"lint-staged": {
-		"*.{css,json,md,scss}": [
-			"yarn run -T prettier"
-		],
-		"*.{ts,tsx,js,jsx,yaml}": [
-			"yarn lint:raw"
-		]
 	}
 }

@@ -71,6 +71,15 @@ import { PieceInstanceWithTimings } from '@sofie-automation/corelib/dist/playout
 import { NotificationsModelHelper } from '../../../notifications/NotificationsModelHelper.js'
 import { getExpectedLatency } from '@sofie-automation/corelib/dist/studio/playout'
 import { ExpectedPackage } from '@sofie-automation/blueprints-integration'
+import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
+import {
+	getTimelineRundown,
+	flattenAndProcessTimelineObjects,
+	preserveOrReplaceNowTimesInObjects,
+	logAnyRemainingNowTimes,
+	getStudioTimeline,
+} from '../../timeline/generate.js'
+import { deNowifyMultiGatewayTimeline } from '../../timeline/multi-gateway.js'
 
 export class PlayoutModelReadonlyImpl implements PlayoutModelReadonly {
 	public readonly playlistId: RundownPlaylistId
@@ -315,6 +324,7 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 
 	#playlistHasChanged = false
 	#timelineHasChanged = false
+	#timelineNeedsRegeneration = false
 
 	#pendingPartInstanceTimingEvents = new Set<PartInstanceId>()
 
@@ -694,8 +704,17 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 		}
 		this.#deferredBeforeSaveFunctions.length = 0 // clear the array
 
+		// Generate timeline if needed
+		if (this.#timelineNeedsRegeneration) {
+			await this.#regenerateTimeline()
+			this.#timelineNeedsRegeneration = false
+		}
+
 		// Prioritise the timeline for publication reasons
 		if (this.#timelineHasChanged && this.timelineImpl) {
+			// Do a fast-track for the timeline to be published faster:
+			this.context.hackPublishTimelineToFastTrack(this.timelineImpl)
+
 			await this.context.directCollections.Timelines.replace(this.timelineImpl)
 			if (!process.env.JEST_WORKER_ID) {
 				// Wait a little bit before saving the rest.
@@ -886,6 +905,10 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 		return result
 	}
 
+	markTimelineNeedsUpdate(): void {
+		this.#timelineNeedsRegeneration = true
+	}
+
 	/** Notifications */
 
 	async getAllNotifications(
@@ -921,6 +944,40 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 	}
 
 	/** BaseModel */
+
+	async #regenerateTimeline(): Promise<void> {
+		const span = this.context.startSpan('PlayoutModelImpl.regenerateTimeline')
+		logger.debug('Regenerating timeline...')
+
+		try {
+			const {
+				versions,
+				objs: timelineObjs,
+				timingContext: timingInfo,
+				regenerateTimelineToken,
+			} = this.playlist.activationId
+				? await getTimelineRundown(this.context, this)
+				: await getStudioTimeline(this.context, this)
+
+			flattenAndProcessTimelineObjects(this.context, timelineObjs)
+
+			preserveOrReplaceNowTimesInObjects(this, timelineObjs)
+
+			if (this.isMultiGatewayMode) {
+				deNowifyMultiGatewayTimeline(this, timelineObjs, timingInfo)
+
+				logAnyRemainingNowTimes(this.context, timelineObjs)
+			}
+
+			const timelineHash = this.setTimeline(timelineObjs, versions, regenerateTimelineToken).timelineHash
+			logger.verbose(`Timeline regeneration done, hash: "${timelineHash}"`)
+		} catch (err) {
+			logger.error(`Error regenerating timeline: ${stringifyError(err)}`)
+			throw err
+		} finally {
+			if (span) span.end()
+		}
+	}
 
 	/**
 	 * Assert that no changes should have been made to the model, will throw an Error otherwise. This can be used in

@@ -359,8 +359,10 @@ export async function buildStudioFromResolved({
 		_rundownVersionHash: '',
 		routeSetExclusivityGroupsWithOverrides: wrapDefaultObject({}),
 		packageContainersWithOverrides: wrapDefaultObject({}),
-		previewContainerIds: [],
-		thumbnailContainerIds: [],
+		packageContainerSettingsWithOverrides: wrapDefaultObject({
+			previewContainerIds: [],
+			thumbnailContainerIds: [],
+		}),
 		peripheralDeviceSettings: {
 			deviceSettings: wrapDefaultObject({}),
 			playoutDevices: wrapDefaultObject({}),

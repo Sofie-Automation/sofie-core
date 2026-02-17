@@ -8,7 +8,6 @@ import { BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { Meteor } from 'meteor/meteor'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { MeteorCall } from '../../methods'
-import { MigrationStepInputResult } from '@sofie-automation/blueprints-integration'
 
 class SystemServerAPI implements SystemRestAPI {
 	async assignSystemBlueprint(
@@ -33,36 +32,20 @@ class SystemServerAPI implements SystemRestAPI {
 		const migrationStatus = await MeteorCall.migration.getMigrationStatus()
 		if (!migrationStatus.migrationNeeded) return ClientAPI.responseSuccess({ inputs: [] })
 
-		const requiredInputs: PendingMigrations = []
-		for (const migration of migrationStatus.migration.manualInputs) {
-			if (migration.stepId && migration.attribute) {
-				requiredInputs.push({
-					stepId: migration.stepId,
-					attributeId: migration.attribute,
-				})
-			}
-		}
-
-		return ClientAPI.responseSuccess({ inputs: requiredInputs })
+		// Inputs are no longer supported, but need to be preserved for api compatibility
+		return ClientAPI.responseSuccess({ inputs: [] })
 	}
 
 	async applyPendingMigrations(
 		_connection: Meteor.Connection,
-		_event: string,
-		inputs: MigrationData
+		_event: string
 	): Promise<ClientAPI.ClientResponse<void>> {
 		const migrationStatus = await MeteorCall.migration.getMigrationStatus()
 		if (!migrationStatus.migrationNeeded) throw new Error(`Migration does not need to be applied`)
 
-		const migrationData: MigrationStepInputResult[] = inputs.map((input) => ({
-			stepId: input.stepId,
-			attribute: input.attributeId,
-			value: input.migrationValue,
-		}))
 		const result = await MeteorCall.migration.runMigration(
 			migrationStatus.migration.chunks,
-			migrationStatus.migration.hash,
-			migrationData
+			migrationStatus.migration.hash
 		)
 		if (result.migrationCompleted) return ClientAPI.responseSuccess(undefined)
 		throw new Error(`Unknown error occurred`)
@@ -95,12 +78,10 @@ export function registerRoutes(registerRoute: APIRegisterHook<SystemRestAPI>): v
 		'/system/migrations',
 		new Map([[400, [UserErrorMessage.NoMigrationsToApply]]]),
 		systemAPIFactory,
-		async (serverAPI, connection, event, _params, body) => {
-			const inputs = body.inputs
+		async (serverAPI, connection, event, _params, _body) => {
 			logger.info(`API POST: System migrations`)
 
-			check(inputs, Array)
-			return await serverAPI.applyPendingMigrations(connection, event, inputs)
+			return await serverAPI.applyPendingMigrations(connection, event)
 		}
 	)
 
