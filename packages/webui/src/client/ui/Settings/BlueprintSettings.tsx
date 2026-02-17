@@ -20,15 +20,15 @@ import Button from 'react-bootstrap/esm/Button'
 import { useTranslation } from 'react-i18next'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { createPrivateApiPath } from '../../url.js'
-import { DBShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
-import { DBStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
-import { assertNever } from '@sofie-automation/corelib/src/lib.js'
+import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase.js'
+import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio.js'
+import { assertNever } from '@sofie-automation/corelib/dist/lib.js'
 
 interface IProps {
 	blueprintId: BlueprintId
 }
 
-export default function BlueprintSettings2({ blueprintId }: IProps): JSX.Element {
+export default function BlueprintSettings({ blueprintId }: IProps): JSX.Element {
 	const { t } = useTranslation()
 
 	const blueprint = useTracker(() => Blueprints.findOne(blueprintId), [blueprintId])
@@ -89,7 +89,7 @@ export default function BlueprintSettings2({ blueprintId }: IProps): JSX.Element
 
 				{blueprint.blueprintId ? (
 					<label className="field">
-						<LabelActual label={t('Blueprint Id')} />
+						<LabelActual label={t('Blueprint ID')} />
 						<div className="field-content">
 							<i>{blueprint.blueprintId}</i>
 						</div>

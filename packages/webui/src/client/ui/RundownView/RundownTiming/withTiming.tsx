@@ -212,7 +212,7 @@ export function useTiming(
 				setForceUpdate(Date.now())
 			}
 		}
-	}, [])
+	}, [context])
 
 	useEffect(() => {
 		window.addEventListener(rundownTimingEventFromTickResolution(tickResolution), refreshComponent)

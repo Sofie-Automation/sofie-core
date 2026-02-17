@@ -104,7 +104,7 @@ export default function SnapshotsView(): JSX.Element {
 					<span>{t('Ingest from Snapshot')}</span>
 				</SnapshotImportButton>
 				<span className="text-s vsubtle ms-2">
-					{t('Reads the ingest (NRCS) data, and pipes it throught the blueprints')}
+					{t('Reads the ingest (NRCS) data, and pipes it through the blueprints')}
 				</span>
 			</p>
 
@@ -264,16 +264,16 @@ function RestoreStoredSnapshotButton({ snapshotId }: { snapshotId: SnapshotId })
 		const snapshot = Snapshots.findOne(snapshotId)
 		if (snapshot) {
 			doModalDialog({
-				title: 'Restore Snapshot',
-				message: `Do you really want to restore the snapshot ${snapshot.name}?`,
+				title: t('Restore Snapshot'),
+				message: t('Do you really want to restore the snapshot "{{snapshotName}}"?', { snapshotName: snapshot.name }),
 				onAccept: () => {
 					MeteorCall.snapshot
 						.restoreSnapshot(snapshotId, false)
 						.then(() => {
 							// todo: replace this with something else
 							doModalDialog({
-								title: 'Restore Snapshot',
-								message: `Snapshot restored!`,
+								title: t('Restore Snapshot'),
+								message: t('Snapshot restored!'),
 								acceptOnly: true,
 								onAccept: () => {
 									// nothing
@@ -283,8 +283,8 @@ function RestoreStoredSnapshotButton({ snapshotId }: { snapshotId: SnapshotId })
 						.catch((err) => {
 							logger.error(err)
 							doModalDialog({
-								title: 'Restore Snapshot',
-								message: `Error: ${err.toString()}`,
+								title: t('Restore Snapshot'),
+								message: t('Snapshot restore failed: {{errorMessage}}', { errorMessage: stringifyError(err) }),
 								acceptOnly: true,
 								onAccept: () => {
 									// nothing
@@ -321,8 +321,8 @@ function TakeSystemSnapshotButton({ studioId }: { studioId: StudioId | null }) {
 			.catch((err) => {
 				logger.error(err)
 				doModalDialog({
-					title: 'Restore Snapshot',
-					message: `Error: ${err.toString()}`,
+					title: t('Restore Snapshot'),
+					message: t('Snapshot restore failed: {{errorMessage}}', { errorMessage: stringifyError(err) }),
 					acceptOnly: true,
 					onAccept: () => {
 						// nothing
@@ -334,7 +334,7 @@ function TakeSystemSnapshotButton({ studioId }: { studioId: StudioId | null }) {
 	const studioName = useTracker(() => (studioId ? Studios.findOne(studioId)?.name : null), [studioId])
 
 	return (
-		<Button className="btn btn-primary" onClick={takeSystemSnapshot}>
+		<Button variant="primary" onClick={takeSystemSnapshot}>
 			{studioId
 				? t('Take a Snapshot for studio "{{studioName}}" only', { studioName: studioName ?? studioId })
 				: t('Take a Full System Snapshot')}
@@ -349,14 +349,17 @@ function RemoveSnapshotButton({ snapshotId }: { snapshotId: SnapshotId }) {
 		const snapshot = Snapshots.findOne(snapshotId)
 		if (snapshot) {
 			doModalDialog({
-				title: 'Remove Snapshot',
-				message: `Are you sure, do you really want to REMOVE the Snapshot ${snapshot.name}?\r\nThis cannot be undone!!`,
+				title: t('Remove Snapshot'),
+				message: t(
+					'Are you sure, do you really want to REMOVE the Snapshot "{{snapshotName}}"?\r\nThis cannot be undone!!',
+					{ snapshotName: snapshot.name }
+				),
 				onAccept: () => {
 					MeteorCall.snapshot.removeSnapshot(snapshotId).catch((err) => {
 						logger.error(err)
 						doModalDialog({
-							title: 'Remove Snapshot',
-							message: `Error: ${err.toString()}`,
+							title: t('Remove Snapshot'),
+							message: t('Snapshot remove failed: {{errorMessage}}', { errorMessage: stringifyError(err) }),
 							acceptOnly: true,
 							onAccept: () => {
 								// nothing

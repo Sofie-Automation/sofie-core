@@ -46,7 +46,7 @@ export function PieceCountdownPanel({
 					})
 				: undefined
 		return livePieceInstance
-	}, [playlist, showStyleBase])
+	}, [playlist, showStyleBase, panel.sourceLayerIds])
 
 	useEffect(() => {
 		const updateTimecode = (e: TimingEvent) => {

@@ -124,7 +124,6 @@ export function SegmentContextMenu({
 								isFormEditable={isSegmentEditAble}
 							/>
 						)}
-						<hr />
 						{enableUserEdits && (
 							<>
 								<hr />
@@ -133,6 +132,7 @@ export function SegmentContextMenu({
 								</MenuItem>
 							</>
 						)}
+						<hr />
 					</>
 				)}
 				{part && !part.instance.part.invalid && timecode !== null && (

@@ -48,7 +48,7 @@ export function HotkeyLegendSettings({ showStyleBase }: IHotkeyLegendSettingsPro
 		document.body.appendChild(element) // Required for this to work in FireFox
 		element.click()
 		document.body.removeChild(element) // Required for this to work in FireFox
-	}, [showStyleBase])
+	}, [showStyleBase._id, showStyleBase.hotkeyLegend, showStyleBase.name])
 
 	const onDeleteHotkeyLegend = useCallback(
 		(item: HotkeyDefinition) => {
@@ -72,7 +72,7 @@ export function HotkeyLegendSettings({ showStyleBase }: IHotkeyLegendSettingsPro
 				<tbody>
 					{(showStyleBase.hotkeyLegend || []).map((item, index) => {
 						return (
-							<React.Fragment key={item.key}>
+							<React.Fragment key={item._id}>
 								<tr
 									className={ClassNames({
 										hl: isExpanded(item._id),

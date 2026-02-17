@@ -32,7 +32,6 @@ interface ISegmentTimelineSmallPartFlagProps {
 	liveLineHistorySize: number
 	isLastSegment: boolean
 	isLastInSegment: boolean
-	timelineWidth: number
 	showDurationSourceLayers?: Set<ISourceLayer['_id']>
 
 	livePosition: number
