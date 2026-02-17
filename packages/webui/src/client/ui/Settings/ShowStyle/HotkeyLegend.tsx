@@ -39,15 +39,20 @@ export function HotkeyLegendSettings({ showStyleBase }: IHotkeyLegendSettingsPro
 	}, [showStyleBase._id])
 
 	const exportHotkeyJSON = useCallback(() => {
+		if (!showStyleBase.hotkeyLegend) return
+
 		const jsonStr = JSON.stringify(showStyleBase.hotkeyLegend, undefined, 4)
 
 		const element = document.createElement('a')
-		element.href = URL.createObjectURL(new Blob([jsonStr], { type: 'application/json' }))
+		const url = URL.createObjectURL(new Blob([jsonStr], { type: 'application/json' }))
+		element.href = url
 		element.download = `${showStyleBase._id}_${showStyleBase.name.replace(/\W/g, '_')}_hotkeys.json`
 
 		document.body.appendChild(element) // Required for this to work in FireFox
 		element.click()
 		document.body.removeChild(element) // Required for this to work in FireFox
+
+		URL.revokeObjectURL(url)
 	}, [showStyleBase._id, showStyleBase.hotkeyLegend, showStyleBase.name])
 
 	const onDeleteHotkeyLegend = useCallback(
@@ -133,7 +138,12 @@ export function HotkeyLegendSettings({ showStyleBase }: IHotkeyLegendSettingsPro
 					<FontAwesomeIcon icon={faPlus} />
 				</Button>
 
-				<Button variant="outline-secondary" className="mx-1" onClick={exportHotkeyJSON}>
+				<Button
+					variant="outline-secondary"
+					className="mx-1"
+					onClick={exportHotkeyJSON}
+					disabled={!showStyleBase.hotkeyLegend || showStyleBase.hotkeyLegend.length === 0}
+				>
 					<FontAwesomeIcon icon={faDownload} />
 					<span>{t('Export')}</span>
 				</Button>

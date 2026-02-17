@@ -114,9 +114,9 @@ export default function SnapshotsView(): JSX.Element {
 					<tbody>
 						<tr>
 							<th></th>
-							<th>Type</th>
-							<th>Name</th>
-							<th>Comment</th>
+							<th>{t('Type')}</th>
+							<th>{t('Name')}</th>
+							<th>{t('Comment')}</th>
 							{removeSnapshots ? <th></th> : null}
 						</tr>
 						{snapshots.map((snapshot) => {
@@ -294,7 +294,7 @@ function RestoreStoredSnapshotButton({ snapshotId }: { snapshotId: SnapshotId })
 				},
 			})
 		}
-	}, [snapshotId])
+	}, [t, snapshotId])
 
 	return (
 		<Button variant="outline-secondary" onClick={restoreStoredSnapshot}>
@@ -321,15 +321,15 @@ function TakeSystemSnapshotButton({ studioId }: { studioId: StudioId | null }) {
 			.catch((err) => {
 				logger.error(err)
 				doModalDialog({
-					title: t('Restore Snapshot'),
-					message: t('Snapshot restore failed: {{errorMessage}}', { errorMessage: stringifyError(err) }),
+					title: t('Take System Snapshot'),
+					message: t('Take System Snapshot failed: {{errorMessage}}', { errorMessage: stringifyError(err) }),
 					acceptOnly: true,
 					onAccept: () => {
 						// nothing
 					},
 				})
 			})
-	}, [studioId])
+	}, [t, studioId])
 
 	const studioName = useTracker(() => (studioId ? Studios.findOne(studioId)?.name : null), [studioId])
 
@@ -369,7 +369,7 @@ function RemoveSnapshotButton({ snapshotId }: { snapshotId: SnapshotId }) {
 				},
 			})
 		}
-	}, [snapshotId])
+	}, [t, snapshotId])
 
 	return (
 		<Button variant="outline-secondary" onClick={removeStoredSnapshot}>
