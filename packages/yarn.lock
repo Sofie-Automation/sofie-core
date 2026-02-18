@@ -7027,7 +7027,7 @@ __metadata:
   dependencies:
     "@mos-connection/model": "npm:^5.0.0-alpha.0"
     kairos-lib: "npm:^0.2.3"
-    timeline-state-resolver-types: "npm:10.0.0-nightly-release53-20251217-143607-df590aa96.0"
+    timeline-state-resolver-types: "npm:10.0.0-nightly-release-26-03-20260212-104218-c1745408c.0"
     tslib: "npm:^2.8.1"
     type-fest: "npm:^4.33.0"
   languageName: unknown
@@ -10032,16 +10032,16 @@ asn1@evs-broadcast/node-asn1:
   languageName: node
   linkType: hard
 
-"atem-state@npm:1.2.0":
-  version: 1.2.0
-  resolution: "atem-state@npm:1.2.0"
+"atem-state@npm:1.2.1":
+  version: 1.2.1
+  resolution: "atem-state@npm:1.2.1"
   dependencies:
     deepmerge: "npm:^4.3.1"
     tslib: "npm:^2.6.2"
     type-fest: "npm:^3.13.1"
   peerDependencies:
-    atem-connection: 3.4
-  checksum: 10/9eecbc871e7e1311d05ef2a40ac620480bfef9deb93ef81ca277bd6e34700c17a6ca0a4f27d1369669ef96990745fb58baa538de388149180dbfd2394e197e02
+    atem-connection: 3.7
+  checksum: 10/be74a217e6310a4cadb8883b8bfe76c3df0bebbea30194deef63995c777cec72cd9017383faec7f760ce7033398ed9817ad1a3576d20075cfab56f761ecf2611
   languageName: node
   linkType: hard
 
@@ -19109,7 +19109,17 @@ asn1@evs-broadcast/node-asn1:
   languageName: node
   linkType: hard
 
-"kairos-lib@npm:^0.2.3":
+"kairos-connection@npm:0.2.3":
+  version: 0.2.3
+  resolution: "kairos-connection@npm:0.2.3"
+  dependencies:
+    kairos-lib: "npm:0.2.3"
+    tslib: "npm:^2.8.1"
+  checksum: 10/3efaf3d5775582362feb075bda46e10a7994ddd5981438b4a691b5d7aa5412d81e0f92199235ddfb17e814beceb5ffa589a30ae7295371465df7471bd668128f
+  languageName: node
+  linkType: hard
+
+"kairos-lib@npm:0.2.3, kairos-lib@npm:^0.2.3":
   version: 0.2.3
   resolution: "kairos-lib@npm:0.2.3"
   dependencies:
@@ -23923,7 +23933,7 @@ asn1@evs-broadcast/node-asn1:
     "@sofie-automation/shared-lib": "npm:26.3.0-1"
     debug: "npm:^4.4.0"
     influx: "npm:^5.9.7"
-    timeline-state-resolver: "npm:10.0.0-nightly-release53-20251217-143607-df590aa96.0"
+    timeline-state-resolver: "npm:10.0.0-nightly-release-26-03-20260212-104218-c1745408c.0"
     tslib: "npm:^2.8.1"
     underscore: "npm:^1.13.7"
     winston: "npm:^3.17.0"
@@ -28622,43 +28632,44 @@ asn1@evs-broadcast/node-asn1:
   languageName: node
   linkType: hard
 
-"timeline-state-resolver-api@npm:10.0.0-nightly-release53-20251217-143607-df590aa96.0":
-  version: 10.0.0-nightly-release53-20251217-143607-df590aa96.0
-  resolution: "timeline-state-resolver-api@npm:10.0.0-nightly-release53-20251217-143607-df590aa96.0"
+"timeline-state-resolver-api@npm:10.0.0-nightly-release-26-03-20260212-104218-c1745408c.0":
+  version: 10.0.0-nightly-release-26-03-20260212-104218-c1745408c.0
+  resolution: "timeline-state-resolver-api@npm:10.0.0-nightly-release-26-03-20260212-104218-c1745408c.0"
   dependencies:
     tslib: "npm:^2.8.1"
   peerDependencies:
-    timeline-state-resolver-types: 10.0.0-nightly-release53-20251217-143607-df590aa96.0
-  checksum: 10/fb174edd6694643c8ca16f851593ab09cd2ea4edbadaa70944f92bf5dad97a18aab1b5a454a353428589cb104f150f379eaba394ae57099843388c12b27c7683
+    timeline-state-resolver-types: 10.0.0-nightly-release-26-03-20260212-104218-c1745408c.0
+  checksum: 10/0e49376cd52fa073f2927e23aafce081e8c863a8a34c9ef178225a9735fc56e3fecb01ad25ddfe3607ddef142d416154644d3d871be768f65255ec6244eba3d1
   languageName: node
   linkType: hard
 
-"timeline-state-resolver-types@npm:10.0.0-nightly-release53-20251217-143607-df590aa96.0":
-  version: 10.0.0-nightly-release53-20251217-143607-df590aa96.0
-  resolution: "timeline-state-resolver-types@npm:10.0.0-nightly-release53-20251217-143607-df590aa96.0"
+"timeline-state-resolver-types@npm:10.0.0-nightly-release-26-03-20260212-104218-c1745408c.0":
+  version: 10.0.0-nightly-release-26-03-20260212-104218-c1745408c.0
+  resolution: "timeline-state-resolver-types@npm:10.0.0-nightly-release-26-03-20260212-104218-c1745408c.0"
   dependencies:
+    kairos-lib: "npm:0.2.3"
     tslib: "npm:^2.8.1"
-  checksum: 10/6f17030e9f10568757b3ebaae40a54ce5220ce5c2f37d9b5d8a5d286704e4779c80fbfddae500e1952a6efdf6e76b67bc18d0151211c84eb194ae3b52f78c7bf
+  checksum: 10/33dba430305d68ab78bddf697643c9da3b33d3a428e08e10efbd94afa6b6cd91b8a52eb7231846e58a622359f7b3d6314663ba6db440c96bff9a305d06692db1
   languageName: node
   linkType: hard
 
-"timeline-state-resolver@npm:10.0.0-nightly-release53-20251217-143607-df590aa96.0":
-  version: 10.0.0-nightly-release53-20251217-143607-df590aa96.0
-  resolution: "timeline-state-resolver@npm:10.0.0-nightly-release53-20251217-143607-df590aa96.0"
+"timeline-state-resolver@npm:10.0.0-nightly-release-26-03-20260212-104218-c1745408c.0":
+  version: 10.0.0-nightly-release-26-03-20260212-104218-c1745408c.0
+  resolution: "timeline-state-resolver@npm:10.0.0-nightly-release-26-03-20260212-104218-c1745408c.0"
   dependencies:
     "@tv2media/v-connection": "npm:^7.3.4"
     atem-connection: "npm:3.7.0"
-    atem-state: "npm:1.2.0"
+    atem-state: "npm:1.2.1"
     cacheable-lookup: "npm:^5.0.4"
     casparcg-connection: "npm:6.3.3"
     casparcg-state: "npm:3.0.4"
     debug: "npm:^4.4.3"
     deepmerge: "npm:^4.3.1"
     emberplus-connection: "npm:^0.3.1"
-    eventemitter3: "npm:^4.0.7"
     got: "npm:^11.8.6"
     hpagent: "npm:^1.2.0"
     hyperdeck-connection: "npm:2.0.1"
+    kairos-connection: "npm:0.2.3"
     klona: "npm:^2.0.6"
     obs-websocket-js: "npm:^5.0.7"
     osc: "npm:^2.4.5"
@@ -28668,16 +28679,16 @@ asn1@evs-broadcast/node-asn1:
     sprintf-js: "npm:^1.1.3"
     superfly-timeline: "npm:^9.2.0"
     threadedclass: "npm:^1.3.0"
-    timeline-state-resolver-api: "npm:10.0.0-nightly-release53-20251217-143607-df590aa96.0"
-    timeline-state-resolver-types: "npm:10.0.0-nightly-release53-20251217-143607-df590aa96.0"
+    timeline-state-resolver-api: "npm:10.0.0-nightly-release-26-03-20260212-104218-c1745408c.0"
+    timeline-state-resolver-types: "npm:10.0.0-nightly-release-26-03-20260212-104218-c1745408c.0"
     tslib: "npm:^2.8.1"
     tv-automation-quantel-gateway-client: "npm:^3.1.7"
     type-fest: "npm:^3.13.1"
     underscore: "npm:^1.13.7"
-    utf-8-validate: "npm:^6.0.5"
-    ws: "npm:^8.18.3"
+    utf-8-validate: "npm:^6.0.6"
+    ws: "npm:^8.19.0"
     xml-js: "npm:^1.6.11"
-  checksum: 10/82b22c7945946005485c38ad8fcb94314bcba99aaf3aa549ec30326bb33548e46fe3ee5f6d48c06e6b593405458cbf1bbbda8a95793f57507f0158180e441686
+  checksum: 10/fe76fdd9a89872c7bf1147e04300aa117f524e761f15830dd88b4e2fc32ad4ac905afa33f49fb9761b204d121f247bf048014c4c349cae02282c5457c172e33e
   languageName: node
   linkType: hard
 
@@ -29941,13 +29952,13 @@ asn1@evs-broadcast/node-asn1:
   languageName: node
   linkType: hard
 
-"utf-8-validate@npm:^6.0.5":
-  version: 6.0.5
-  resolution: "utf-8-validate@npm:6.0.5"
+"utf-8-validate@npm:^6.0.6":
+  version: 6.0.6
+  resolution: "utf-8-validate@npm:6.0.6"
   dependencies:
     node-gyp: "npm:latest"
     node-gyp-build: "npm:^4.3.0"
-  checksum: 10/8c96d342064d3f03d7acf616fe727e484825f4f5f7a455059122787306b2df1a4e23c2d27f16bf7ba21293f4ce6ab3e683b893fe7b4c74ac9d43b871c10001a0
+  checksum: 10/c1fa53fe5f0e3b7bf990a8ee41d890b10218b087a4ad401519a1a6353a427172fedc29c9af36b81080ea27b311802ae37b0e857b82aaa976238904398870f465
   languageName: node
   linkType: hard
 
@@ -31024,7 +31035,7 @@ asn1@evs-broadcast/node-asn1:
   languageName: node
   linkType: hard
 
-"ws@npm:^8.11.0, ws@npm:^8.13.0, ws@npm:^8.18.0, ws@npm:^8.18.3":
+"ws@npm:^8.11.0, ws@npm:^8.13.0, ws@npm:^8.18.0":
   version: 8.18.3
   resolution: "ws@npm:8.18.3"
   peerDependencies:
@@ -31036,6 +31047,21 @@ asn1@evs-broadcast/node-asn1:
     utf-8-validate:
       optional: true
   checksum: 10/725964438d752f0ab0de582cd48d6eeada58d1511c3f613485b5598a83680bedac6187c765b0fe082e2d8cc4341fc57707c813ae780feee82d0c5efe6a4c61b6
+  languageName: node
+  linkType: hard
+
+"ws@npm:^8.19.0":
+  version: 8.19.0
+  resolution: "ws@npm:8.19.0"
+  peerDependencies:
+    bufferutil: ^4.0.1
+    utf-8-validate: ">=5.0.2"
+  peerDependenciesMeta:
+    bufferutil:
+      optional: true
+    utf-8-validate:
+      optional: true
+  checksum: 10/26e4901e93abaf73af9f26a93707c95b4845e91a7a347ec8c569e6e9be7f9df066f6c2b817b2d685544e208207898a750b78461e6e8d810c11a370771450c31b
   languageName: node
   linkType: hard
 
