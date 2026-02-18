@@ -1,6 +1,6 @@
 {
 	"name": "@sofie-automation/corelib",
-	"version": "26.3.0-1",
+	"version": "26.3.0-2",
 	"private": true,
 	"description": "Internal library for some types shared by core and workers",
 	"main": "dist/index.js",
@@ -37,8 +37,8 @@
 		"/LICENSE"
 	],
 	"dependencies": {
-		"@sofie-automation/blueprints-integration": "26.3.0-1",
-		"@sofie-automation/shared-lib": "26.3.0-1",
+		"@sofie-automation/blueprints-integration": "26.3.0-2",
+		"@sofie-automation/shared-lib": "26.3.0-2",
 		"fast-clone": "^1.5.13",
 		"i18next": "^21.10.0",
 		"influx": "^5.9.7",

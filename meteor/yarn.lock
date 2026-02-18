@@ -1158,7 +1158,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@sofie-automation/blueprints-integration@portal:../packages/blueprints-integration::locator=automation-core%40workspace%3A."
   dependencies:
-    "@sofie-automation/shared-lib": "npm:26.3.0-1"
+    "@sofie-automation/shared-lib": "npm:26.3.0-2"
     tslib: "npm:^2.8.1"
     type-fest: "npm:^4.33.0"
   languageName: node
@@ -1194,8 +1194,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@sofie-automation/corelib@portal:../packages/corelib::locator=automation-core%40workspace%3A."
   dependencies:
-    "@sofie-automation/blueprints-integration": "npm:26.3.0-1"
-    "@sofie-automation/shared-lib": "npm:26.3.0-1"
+    "@sofie-automation/blueprints-integration": "npm:26.3.0-2"
+    "@sofie-automation/shared-lib": "npm:26.3.0-2"
     fast-clone: "npm:^1.5.13"
     i18next: "npm:^21.10.0"
     influx: "npm:^5.9.7"
@@ -1227,9 +1227,9 @@ __metadata:
   resolution: "@sofie-automation/job-worker@portal:../packages/job-worker::locator=automation-core%40workspace%3A."
   dependencies:
     "@slack/webhook": "npm:^7.0.4"
-    "@sofie-automation/blueprints-integration": "npm:26.3.0-1"
-    "@sofie-automation/corelib": "npm:26.3.0-1"
-    "@sofie-automation/shared-lib": "npm:26.3.0-1"
+    "@sofie-automation/blueprints-integration": "npm:26.3.0-2"
+    "@sofie-automation/corelib": "npm:26.3.0-2"
+    "@sofie-automation/shared-lib": "npm:26.3.0-2"
     amqplib: "npm:^0.10.5"
     deepmerge: "npm:^4.3.1"
     elastic-apm-node: "npm:^4.11.0"
@@ -1249,9 +1249,9 @@ __metadata:
   resolution: "@sofie-automation/meteor-lib@portal:../packages/meteor-lib::locator=automation-core%40workspace%3A."
   dependencies:
     "@mos-connection/helper": "npm:^5.0.0-alpha.0"
-    "@sofie-automation/blueprints-integration": "npm:26.3.0-1"
-    "@sofie-automation/corelib": "npm:26.3.0-1"
-    "@sofie-automation/shared-lib": "npm:26.3.0-1"
+    "@sofie-automation/blueprints-integration": "npm:26.3.0-2"
+    "@sofie-automation/corelib": "npm:26.3.0-2"
+    "@sofie-automation/shared-lib": "npm:26.3.0-2"
     deep-extend: "npm:0.6.0"
     semver: "npm:^7.6.3"
     type-fest: "npm:^4.33.0"
@@ -1268,7 +1268,7 @@ __metadata:
   dependencies:
     "@mos-connection/model": "npm:^5.0.0-alpha.0"
     kairos-lib: "npm:^0.2.3"
-    timeline-state-resolver-types: "npm:10.0.0-nightly-release53-20251217-143607-df590aa96.0"
+    timeline-state-resolver-types: "npm:10.0.0-nightly-release-26-03-20260212-104218-c1745408c.0"
     tslib: "npm:^2.8.1"
     type-fest: "npm:^4.33.0"
   languageName: node
@@ -6712,7 +6712,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"kairos-lib@npm:^0.2.3":
+"kairos-lib@npm:0.2.3, kairos-lib@npm:^0.2.3":
   version: 0.2.3
   resolution: "kairos-lib@npm:0.2.3"
   dependencies:
@@ -10043,12 +10043,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"timeline-state-resolver-types@npm:10.0.0-nightly-release53-20251217-143607-df590aa96.0":
-  version: 10.0.0-nightly-release53-20251217-143607-df590aa96.0
-  resolution: "timeline-state-resolver-types@npm:10.0.0-nightly-release53-20251217-143607-df590aa96.0"
+"timeline-state-resolver-types@npm:10.0.0-nightly-release-26-03-20260212-104218-c1745408c.0":
+  version: 10.0.0-nightly-release-26-03-20260212-104218-c1745408c.0
+  resolution: "timeline-state-resolver-types@npm:10.0.0-nightly-release-26-03-20260212-104218-c1745408c.0"
   dependencies:
+    kairos-lib: "npm:0.2.3"
     tslib: "npm:^2.8.1"
-  checksum: 10/6f17030e9f10568757b3ebaae40a54ce5220ce5c2f37d9b5d8a5d286704e4779c80fbfddae500e1952a6efdf6e76b67bc18d0151211c84eb194ae3b52f78c7bf
+  checksum: 10/33dba430305d68ab78bddf697643c9da3b33d3a428e08e10efbd94afa6b6cd91b8a52eb7231846e58a622359f7b3d6314663ba6db440c96bff9a305d06692db1
   languageName: node
   linkType: hard
 
