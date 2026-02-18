@@ -229,7 +229,8 @@ async function createSystemSnapshot(options: SystemSnapshotOptions): Promise<Sys
 			_id: snapshotId,
 			type: SnapshotType.SYSTEM,
 			created: getCurrentTime(),
-			name: `System` + (studioId ? `_${studioId}` : '') + `_${formatDateTime(getCurrentTime())}`,
+			name: `System` + (studioId ? `_${studioId}` : ''),
+			longname: `System` + (studioId ? `_${studioId}` : '') + `_${formatDateTime(getCurrentTime())}`,
 			version: CURRENT_SYSTEM_VERSION,
 		},
 		studios,
@@ -285,7 +286,8 @@ async function createDebugSnapshot(studioId: StudioId): Promise<DebugSnapshot> {
 			_id: snapshotId,
 			type: SnapshotType.DEBUG,
 			created: getCurrentTime(),
-			name: `Debug_${studioId}_${formatDateTime(getCurrentTime())}`,
+			name: `Debug: ${studioId}`,
+			longname: `Debug_${studioId}_${formatDateTime(getCurrentTime())}`,
 			version: CURRENT_SYSTEM_VERSION,
 		},
 		system: systemSnapshot,
@@ -411,7 +413,8 @@ async function createRundownPlaylistSnapshot(
 			type: SnapshotType.RUNDOWNPLAYLIST,
 			playlistId: playlist._id,
 			studioId: playlist.studioId,
-			name: `Rundown_${playlist.name}_${playlist._id}_${formatDateTime(getCurrentTime())}`,
+			name: playlist.name,
+			longname: `Rundown_${playlist.name}_${playlist._id}_${formatDateTime(getCurrentTime())}`,
 			version: CURRENT_SYSTEM_VERSION,
 		},
 
@@ -426,7 +429,7 @@ async function createRundownPlaylistSnapshot(
 
 async function storeSnaphot(snapshot: { snapshot: SnapshotBase }, comment: string): Promise<SnapshotId> {
 	const storePath = getSystemStorePath()
-	const fileName = fixValidPath(snapshot.snapshot.name) + '.json'
+	const fileName = fixValidPath(snapshot.snapshot.longname) + '.json'
 	const filePath = Path.join(storePath, fileName)
 
 	const str = JSON.stringify(snapshot)
@@ -444,6 +447,7 @@ async function storeSnaphot(snapshot: { snapshot: SnapshotBase }, comment: strin
 		type: snapshot.snapshot.type,
 		created: snapshot.snapshot.created,
 		name: snapshot.snapshot.name,
+		longname: snapshot.snapshot.longname,
 		description: snapshot.snapshot.description,
 		version: CURRENT_SYSTEM_VERSION,
 		comment: comment,

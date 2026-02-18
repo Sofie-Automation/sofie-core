@@ -1,9 +1,12 @@
 import { ProtectedString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { useState, useCallback } from 'react'
 
+export type ToggleSetExpanded = (id: ProtectedString<any> | string | number, forceState?: boolean) => void
+export type ToggleIsExpanded = (id: ProtectedString<any> | string | number) => boolean
+
 export function useToggleExpandHelper(): {
-	toggleExpanded: (id: ProtectedString<any> | string | number, forceState?: boolean) => void
-	isExpanded: (id: ProtectedString<any> | string | number) => boolean
+	toggleExpanded: ToggleSetExpanded
+	isExpanded: ToggleIsExpanded
 } {
 	const [expandedItemIds, setExpandedItemIds] = useState<Record<string, boolean>>({})
 

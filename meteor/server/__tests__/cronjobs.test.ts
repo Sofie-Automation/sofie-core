@@ -458,6 +458,7 @@ describe('cronjobs', () => {
 				_id: snapshot0,
 				comment: '',
 				fileName: '',
+				longname: '',
 				name: '',
 				type: SnapshotType.DEBUG,
 				version: '',
@@ -471,6 +472,7 @@ describe('cronjobs', () => {
 				comment: '',
 				fileName: '',
 				name: '',
+				longname: '',
 				type: SnapshotType.DEBUG,
 				version: '',
 				// Very old:

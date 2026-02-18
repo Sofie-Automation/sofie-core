@@ -6,7 +6,7 @@ import { logger } from '../../lib/logging.js'
 import { EditAttribute } from '../../lib/EditAttribute.js'
 import { faWindowClose, faUpload } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { multilineText, fetchFrom } from '../../lib/lib.js'
+import { fetchFrom } from '../../lib/lib.js'
 import { NotificationCenter, Notification, NoticeLevel } from '../../lib/notifications/notifications.js'
 import { UploadButton } from '../../lib/uploadButton.js'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
@@ -21,14 +21,15 @@ import Button from 'react-bootstrap/esm/Button'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { createPrivateApiPath } from '../../url.js'
 import { UserError } from '@sofie-automation/corelib/dist/error'
+import { SnapshotItem, SnapshotType } from '@sofie-automation/meteor-lib/src/collections/Snapshots.js'
+import { useState } from 'react'
+import { MomentFromNow } from '../../lib/Moment.js'
 
 export default function SnapshotsView(): JSX.Element {
 	const { t } = useTranslation()
 
 	const [removeSnapshots, setRemoveSnapshots] = React.useState(false)
 	const toggleRemoveView = React.useCallback(() => setRemoveSnapshots((old) => !old), [])
-
-	const [editSnapshotId, setEditSnapshotId] = React.useState<SnapshotId | null>(null)
 
 	// Subscribe to data:
 	useSubscription(MeteorPubSub.snapshots)
@@ -114,56 +115,17 @@ export default function SnapshotsView(): JSX.Element {
 					<tbody>
 						<tr>
 							<th></th>
-							<th>{t('Type')}</th>
 							<th>{t('Name')}</th>
-							<th>{t('Comment')}</th>
+							<th>{t('When')}</th>
 							{removeSnapshots ? <th></th> : null}
 						</tr>
-						{snapshots.map((snapshot) => {
-							return (
-								<tr key={unprotectString(snapshot._id)}>
-									<td>
-										<RestoreStoredSnapshotButton snapshotId={snapshot._id} />
-									</td>
-									<td>{snapshot.type}</td>
-									<td>
-										<a
-											href={createPrivateApiPath(`snapshot/retrieve/${snapshot._id}`)}
-											target="_blank"
-											rel="noreferrer"
-										>
-											{snapshot.name}
-										</a>
-									</td>
-									<td>
-										{editSnapshotId === snapshot._id ? (
-											<div className="secondary-control-after">
-												<EditAttribute collection={Snapshots} obj={snapshot} attribute="comment" type="multiline" />
-
-												<button className="action-btn" onClick={() => setEditSnapshotId(null)}>
-													<FontAwesomeIcon icon={faWindowClose} />
-												</button>
-											</div>
-										) : (
-											<a
-												href="#"
-												onClick={(e) => {
-													e.preventDefault()
-													setEditSnapshotId(snapshot._id)
-												}}
-											>
-												<span className="text-s vsubtle">{multilineText(snapshot.comment)}</span>
-											</a>
-										)}
-									</td>
-									{removeSnapshots ? (
-										<td>
-											<RemoveSnapshotButton snapshotId={snapshot._id} />
-										</td>
-									) : null}
-								</tr>
-							)
-						})}
+						{snapshots.map((snapshot) => (
+							<SnapshotRowItem
+								key={unprotectString(snapshot._id)}
+								snapshot={snapshot}
+								removeSnapshots={removeSnapshots}
+							/>
+						))}
 					</tbody>
 				</table>
 				<div>
@@ -180,6 +142,86 @@ export default function SnapshotsView(): JSX.Element {
 			</div>
 		</div>
 	)
+}
+
+function SnapshotRowItem({
+	snapshot,
+	removeSnapshots,
+}: {
+	snapshot: SnapshotItem
+	removeSnapshots: boolean
+}): JSX.Element {
+	const [isExpanded, setIsExpanded] = useState(false)
+
+	return (
+		<tr>
+			<td style={{ width: '1%' }}>
+				<RestoreStoredSnapshotButton snapshotId={snapshot._id} />
+			</td>
+			<td>
+				<div className="mb-2">
+					<SnapshotTypeIndicator snapshotType={snapshot.type} />
+					<a
+						href={createPrivateApiPath(`snapshot/retrieve/${snapshot._id}`)}
+						target="_blank"
+						rel="noreferrer"
+						title={snapshot.longname}
+						className="ms-2 "
+					>
+						{snapshot.name}
+					</a>
+				</div>
+				{isExpanded ? (
+					<div className="secondary-control-after">
+						<EditAttribute collection={Snapshots} obj={snapshot} attribute="comment" type="multiline" />
+
+						<button className="action-btn" onClick={() => setIsExpanded(false)}>
+							<FontAwesomeIcon icon={faWindowClose} />
+						</button>
+					</div>
+				) : (
+					<a
+						href="#"
+						onClick={(e) => {
+							e.preventDefault()
+							setIsExpanded(true)
+						}}
+					>
+						<span className="text-s vsubtle mb-0">
+							{(snapshot.comment + '').split('\n').map((line: string, i, arr) => {
+								return (
+									<p key={i} className={i === arr.length - 1 ? 'mb-0' : ''}>
+										{line}
+									</p>
+								)
+							})}
+						</span>
+					</a>
+				)}
+			</td>
+			<td>
+				<MomentFromNow withTitle titleFormat="YYYY-MM-DD HH:mm:ss" date={snapshot.created} />
+			</td>
+			{removeSnapshots ? (
+				<td>
+					<RemoveSnapshotButton snapshotId={snapshot._id} />
+				</td>
+			) : null}
+		</tr>
+	)
+}
+
+function SnapshotTypeIndicator({ snapshotType }: { snapshotType: SnapshotType }): JSX.Element {
+	switch (snapshotType) {
+		case SnapshotType.RUNDOWNPLAYLIST:
+			return <span className="badge bg-primary">Playlist</span>
+		case SnapshotType.SYSTEM:
+			return <span className="badge bg-primary">System</span>
+		case SnapshotType.DEBUG:
+			return <span className="badge bg-primary">Debug</span>
+		default:
+			return <span className="badge bg-primary">{snapshotType}</span>
+	}
 }
 
 function SnapshotImportButton({

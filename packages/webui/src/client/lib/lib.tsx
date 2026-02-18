@@ -11,13 +11,7 @@ import RundownViewEventBus, {
 	RundownViewEvents,
 } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
 
-export { multilineText, isEventInInputField }
-
-function multilineText(txt: string): React.ReactNode {
-	return _.map((txt + '').split('\n'), (line: string, i) => {
-		return <p key={i}>{line}</p>
-	})
-}
+export { isEventInInputField }
 
 function isEventInInputField(e: Event): boolean {
 	// @ts-expect-error localName
