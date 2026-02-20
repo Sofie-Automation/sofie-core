@@ -346,7 +346,7 @@ function setPlannedTimingsOnPieceInstance(
 
 		const userDurationEnd =
 			pieceInstance.pieceInstance.userDuration && 'endRelativeToPart' in pieceInstance.pieceInstance.userDuration
-				? pieceInstance.pieceInstance.userDuration.endRelativeToPart
+				? partPlannedStart + pieceInstance.pieceInstance.userDuration.endRelativeToPart
 				: null
 		const plannedEnd =
 			userDurationEnd ??
