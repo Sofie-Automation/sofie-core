@@ -24,7 +24,7 @@ import { UserError } from '@sofie-automation/corelib/dist/error'
 import { SnapshotItem, SnapshotType } from '@sofie-automation/meteor-lib/dist/collections/Snapshots.js'
 import { useState } from 'react'
 import { MomentFromNow } from '../../lib/Moment.js'
-import { assertNever } from '@sofie-automation/corelib/src/lib.js'
+import { assertNever } from '@sofie-automation/corelib/dist/lib.js'
 
 export default function SnapshotsView(): JSX.Element {
 	const { t } = useTranslation()
@@ -189,7 +189,7 @@ function SnapshotRowItem({
 						}}
 					>
 						<span className="text-s vsubtle mb-0">
-							{(snapshot.comment + '').split('\n').map((line: string, i, arr) => {
+							{(snapshot.comment || '').split('\n').map((line: string, i, arr) => {
 								return (
 									<p key={i} className={i === arr.length - 1 ? 'mb-0' : ''}>
 										{line}
