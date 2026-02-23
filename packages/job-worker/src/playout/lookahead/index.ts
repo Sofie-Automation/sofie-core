@@ -36,7 +36,7 @@ function parseSearchDistance(rawVal: number | undefined): number {
 	}
 }
 
-function findLargestLookaheadDistance(mappings: Array<[string, MappingExt]>): number {
+function findLargestLookaheadDistance(mappings: Array<[string, ReadonlyDeep<MappingExt>]>): number {
 	const values = mappings.map(([_id, m]) => parseSearchDistance(m.lookaheadMaxSearchDistance))
 	return _.max(values)
 }
@@ -80,7 +80,7 @@ export async function getLookeaheadObjects(
 ): Promise<Array<TimelineObjRundown & OnGenerateTimelineObjExt>> {
 	const span = context.startSpan('getLookeaheadObjects')
 	const allMappings = context.studio.mappings
-	const mappingsToConsider = Object.entries<MappingExt>(allMappings).filter(
+	const mappingsToConsider = Object.entries<ReadonlyDeep<MappingExt>>(allMappings).filter(
 		([_id, map]) => map.lookahead !== LookaheadMode.NONE && map.lookahead !== undefined
 	)
 	if (mappingsToConsider.length === 0) {
