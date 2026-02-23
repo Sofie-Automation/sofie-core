@@ -21,9 +21,10 @@ import Button from 'react-bootstrap/esm/Button'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { createPrivateApiPath } from '../../url.js'
 import { UserError } from '@sofie-automation/corelib/dist/error'
-import { SnapshotItem, SnapshotType } from '@sofie-automation/meteor-lib/src/collections/Snapshots.js'
+import { SnapshotItem, SnapshotType } from '@sofie-automation/meteor-lib/dist/collections/Snapshots.js'
 import { useState } from 'react'
 import { MomentFromNow } from '../../lib/Moment.js'
+import { assertNever } from '@sofie-automation/corelib/src/lib.js'
 
 export default function SnapshotsView(): JSX.Element {
 	const { t } = useTranslation()
@@ -165,7 +166,7 @@ function SnapshotRowItem({
 						href={createPrivateApiPath(`snapshot/retrieve/${snapshot._id}`)}
 						target="_blank"
 						rel="noreferrer"
-						title={snapshot.longname}
+						title={snapshot.longname || snapshot.name}
 						className="ms-2 "
 					>
 						{snapshot.name}
@@ -212,14 +213,17 @@ function SnapshotRowItem({
 }
 
 function SnapshotTypeIndicator({ snapshotType }: { snapshotType: SnapshotType }): JSX.Element {
+	const { t } = useTranslation()
+
 	switch (snapshotType) {
 		case SnapshotType.RUNDOWNPLAYLIST:
-			return <span className="badge bg-primary">Playlist</span>
+			return <span className="badge bg-primary">{t('Playlist')}</span>
 		case SnapshotType.SYSTEM:
-			return <span className="badge bg-primary">System</span>
+			return <span className="badge bg-primary">{t('System')}</span>
 		case SnapshotType.DEBUG:
-			return <span className="badge bg-primary">Debug</span>
+			return <span className="badge bg-primary">{t('Debug')}</span>
 		default:
+			assertNever(snapshotType)
 			return <span className="badge bg-primary">{snapshotType}</span>
 	}
 }

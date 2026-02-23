@@ -784,7 +784,7 @@ async function handleKoaResponse(
 		const snapshot = await snapshotFcn()
 
 		ctx.response.type = 'application/json'
-		ctx.response.attachment(`${snapshot.snapshot.name}.json`)
+		ctx.response.attachment(`${snapshot.snapshot.longname || snapshot.snapshot.name}.json`)
 		ctx.response.status = 200
 		ctx.response.body = JSON.stringify(snapshot, null, 4)
 	} catch (e) {
