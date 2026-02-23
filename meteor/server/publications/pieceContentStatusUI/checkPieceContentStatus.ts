@@ -1184,7 +1184,7 @@ function routeExpectedPackage(
 	expectedPackage: ExpectedPackage.Base
 ): Set<PeripheralDeviceId> {
 	// Collect the relevant mappings
-	const mappingsWithPackages: MappingsExt = {}
+	const mappingsWithPackages: { [layerName: string]: ReadonlyDeep<MappingExt> } = {}
 	for (const layerName of expectedPackage.layers) {
 		const mapping = studioMappings[layerName]
 
@@ -1199,5 +1199,5 @@ function routeExpectedPackage(
 	const routedMappings = getRoutedMappings(mappingsWithPackages, routes)
 
 	// Find the referenced deviceIds
-	return new Set(Object.values<MappingExt>(routedMappings).map((mapping) => mapping.deviceId))
+	return new Set(Object.values<ReadonlyDeep<MappingExt>>(routedMappings).map((mapping) => mapping.deviceId))
 }
