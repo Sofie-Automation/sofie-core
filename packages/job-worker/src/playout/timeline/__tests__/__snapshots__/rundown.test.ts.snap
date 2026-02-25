@@ -1683,7 +1683,7 @@ exports[`buildTimelineObjsForRundown overlap and keepalive autonext into next pa
         },
       ],
       "enable": {
-        "duration": 5000,
+        "duration": 5900,
         "start": "now",
       },
       "id": "part_group_part0",
@@ -1737,7 +1737,7 @@ exports[`buildTimelineObjsForRundown overlap and keepalive autonext into next pa
     },
   ],
   "timingContext": {
-    "currentPartDuration": 5000,
+    "currentPartDuration": 5900,
     "currentPartGroup": {
       "children": 3,
       "content": {
@@ -1746,7 +1746,7 @@ exports[`buildTimelineObjsForRundown overlap and keepalive autonext into next pa
         "type": "group",
       },
       "enable": {
-        "duration": 5000,
+        "duration": 5900,
         "start": "now",
       },
       "id": "part_group_part0",
@@ -1870,7 +1870,7 @@ exports[`buildTimelineObjsForRundown overlap and keepalive autonext into next pa
         },
       ],
       "enable": {
-        "duration": 5000,
+        "duration": 5900,
         "start": 1235,
       },
       "id": "part_group_part0",
@@ -1924,7 +1924,7 @@ exports[`buildTimelineObjsForRundown overlap and keepalive autonext into next pa
     },
   ],
   "timingContext": {
-    "currentPartDuration": 5000,
+    "currentPartDuration": 5900,
     "currentPartGroup": {
       "children": 4,
       "content": {
@@ -1933,7 +1933,7 @@ exports[`buildTimelineObjsForRundown overlap and keepalive autonext into next pa
         "type": "group",
       },
       "enable": {
-        "duration": 5000,
+        "duration": 5900,
         "start": 1235,
       },
       "id": "part_group_part0",
