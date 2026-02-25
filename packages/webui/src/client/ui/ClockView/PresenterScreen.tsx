@@ -184,7 +184,8 @@ export const getPresenterScreenReactive = (
 			fields: {
 				lastIncorrectPartPlaybackReported: 0,
 				modified: 0,
-				previousPersistentState: 0,
+				publicPlayoutPersistentState: 0,
+				privatePlayoutPersistentState: 0,
 				rundownRanksAreSetInSofie: 0,
 				trackedAbSessions: 0,
 				restoredFromSnapshotId: 0,

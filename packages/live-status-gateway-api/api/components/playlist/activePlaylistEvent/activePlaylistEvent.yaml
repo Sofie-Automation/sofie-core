@@ -40,6 +40,8 @@ $defs:
           - type: 'null'
       publicData:
         description: Optional arbitrary data
+      playoutState:
+        description: Blueprint-defined playout state, used to expose arbitrary information about playout
       timing:
         $ref: '../../timing/activePlaylistTiming/activePlaylistTiming.yaml#/$defs/activePlaylistTiming'
       quickLoop:

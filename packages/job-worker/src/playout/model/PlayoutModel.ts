@@ -328,10 +328,16 @@ export interface PlayoutModel extends PlayoutModelReadonly, StudioPlayoutModelBa
 	): void
 
 	/**
-	 * Store the blueprint persistent state
+	 * Store the blueprint private persistent state
 	 * @param persistentState Blueprint owned state
 	 */
-	setBlueprintPersistentState(persistentState: unknown | undefined): void
+	setBlueprintPrivatePersistentState(persistentState: unknown | undefined): void
+
+	/**
+	 * Store the blueprint public persistent state
+	 * @param persistentState Blueprint owned state
+	 */
+	setBlueprintPublicPersistentState(persistentState: unknown | undefined): void
 
 	/**
 	 * Set a PartInstance as the nexted PartInstance

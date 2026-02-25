@@ -644,6 +644,9 @@ channels:
                     - type: "null"
                 publicData:
                   description: Optional arbitrary data
+                playoutState:
+                  description: Blueprint-defined playout state, used to expose arbitrary
+                    information about playout
                 timing:
                   type: object
                   title: ActivePlaylistTiming

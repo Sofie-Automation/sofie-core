@@ -671,7 +671,8 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 		delete this.playlistImpl.startedPlayback
 		delete this.playlistImpl.rundownsStartedPlayback
 		delete this.playlistImpl.segmentsStartedPlayback
-		delete this.playlistImpl.previousPersistentState
+		delete this.playlistImpl.publicPlayoutPersistentState
+		delete this.playlistImpl.privatePlayoutPersistentState
 		delete this.playlistImpl.trackedAbSessions
 		delete this.playlistImpl.queuedSegmentId
 
@@ -783,8 +784,13 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 		this.#playlistHasChanged = true
 	}
 
-	setBlueprintPersistentState(persistentState: unknown | undefined): void {
-		this.playlistImpl.previousPersistentState = persistentState
+	setBlueprintPrivatePersistentState(persistentState: unknown | undefined): void {
+		this.playlistImpl.privatePlayoutPersistentState = persistentState
+
+		this.#playlistHasChanged = true
+	}
+	setBlueprintPublicPersistentState(persistentState: unknown | undefined): void {
+		this.playlistImpl.publicPlayoutPersistentState = persistentState
 
 		this.#playlistHasChanged = true
 	}

@@ -34,7 +34,7 @@ import {
 
 import { CollectionHandlers } from '../liveStatusServer.js'
 import areElementsShallowEqual from '@sofie-automation/shared-lib/dist/lib/isShallowEqual'
-import { PickKeys } from '@sofie-automation/shared-lib/dist/lib/types'
+import { Complete, PickKeys } from '@sofie-automation/shared-lib/dist/lib/types'
 
 const THROTTLE_PERIOD_MS = 100
 
@@ -45,6 +45,7 @@ const PLAYLIST_KEYS = [
 	'name',
 	'rundownIdsInOrder',
 	'publicData',
+	'publicPlayoutPersistentState',
 	'currentPartInfo',
 	'nextPartInfo',
 	'timing',
@@ -101,7 +102,7 @@ export class ActivePlaylistTopic extends WebSocketTopicBase implements WebSocket
 			(currentPart && this._partsBySegmentId[unprotectString(currentPart.segmentId)]) ?? []
 
 		const message = this._activePlaylist
-			? literal<ActivePlaylistEvent>({
+			? literal<Complete<ActivePlaylistEvent>>({
 					event: 'activePlaylist',
 					id: unprotectString(this._activePlaylist._id),
 					externalId: this._activePlaylist.externalId,
@@ -157,6 +158,7 @@ export class ActivePlaylistTopic extends WebSocketTopicBase implements WebSocket
 						: null,
 					quickLoop: this.transformQuickLoopStatus(),
 					publicData: this._activePlaylist.publicData,
+					playoutState: this._activePlaylist.publicPlayoutPersistentState,
 					timing: {
 						timingMode: translatePlaylistTimingType(this._activePlaylist.timing.type),
 						startedPlayback: this._activePlaylist.startedPlayback,
@@ -171,7 +173,7 @@ export class ActivePlaylistTopic extends WebSocketTopicBase implements WebSocket
 								: undefined,
 					},
 				})
-			: literal<ActivePlaylistEvent>({
+			: literal<Complete<ActivePlaylistEvent>>({
 					event: 'activePlaylist',
 					id: null,
 					externalId: null,
@@ -182,6 +184,7 @@ export class ActivePlaylistTopic extends WebSocketTopicBase implements WebSocket
 					nextPart: null,
 					quickLoop: undefined,
 					publicData: undefined,
+					playoutState: undefined,
 					timing: {
 						timingMode: ActivePlaylistTimingMode.NONE,
 					},

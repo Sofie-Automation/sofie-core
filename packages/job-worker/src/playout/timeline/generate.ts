@@ -415,7 +415,8 @@ export async function getTimelineRundown(
 
 					if (blueprint.blueprint.onTimelineGenerate) {
 						const blueprintPersistentState = new PersistentPlayoutStateStore(
-							playoutModel.playlist.previousPersistentState
+							playoutModel.playlist.privatePlayoutPersistentState,
+							playoutModel.playlist.publicPlayoutPersistentState
 						)
 
 						const span = context.startSpan('blueprint.onTimelineGenerate')
@@ -437,9 +438,7 @@ export async function getTimelineRundown(
 							})
 						})
 
-						if (blueprintPersistentState.hasChanges) {
-							playoutModel.setBlueprintPersistentState(blueprintPersistentState.getAll())
-						}
+						blueprintPersistentState.saveToModel(playoutModel)
 					}
 
 					playoutModel.setAbResolvingState(

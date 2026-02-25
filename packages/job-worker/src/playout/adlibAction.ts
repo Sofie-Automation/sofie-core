@@ -247,7 +247,10 @@ export async function executeActionInner(
 	)
 
 	try {
-		const blueprintPersistentState = new PersistentPlayoutStateStore(playoutModel.playlist.previousPersistentState)
+		const blueprintPersistentState = new PersistentPlayoutStateStore(
+			playoutModel.playlist.privatePlayoutPersistentState,
+			playoutModel.playlist.publicPlayoutPersistentState
+		)
 
 		await blueprint.blueprint.executeAction(
 			actionContext,
@@ -260,9 +263,7 @@ export async function executeActionInner(
 			actionParameters.actionOptions ?? {}
 		)
 
-		if (blueprintPersistentState.hasChanges) {
-			playoutModel.setBlueprintPersistentState(blueprintPersistentState.getAll())
-		}
+		blueprintPersistentState.saveToModel(playoutModel)
 	} catch (err) {
 		logger.error(`Error in showStyleBlueprint.executeAction: ${stringifyError(err)}`)
 		throw UserError.fromUnknown(err)
