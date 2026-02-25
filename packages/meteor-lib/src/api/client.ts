@@ -50,6 +50,8 @@ export namespace ClientAPI {
 		errorCode: number
 		/** On error, provide a human-readable error message */
 		error: SerializedUserError
+		/** Optional additional information about the error, forwarded from UserError args */
+		additionalInfo?: Record<string, unknown>
 	}
 
 	/**
@@ -59,7 +61,12 @@ export namespace ClientAPI {
 	 * @returns A `ClientResponseError` object containing the error and the resolved error code.
 	 */
 	export function responseError(userError: UserError): ClientResponseError {
-		return { error: UserError.serialize(userError), errorCode: userError.errorCode }
+		const args = userError.userMessage.args
+		return {
+			error: UserError.serialize(userError),
+			errorCode: userError.errorCode,
+			...(args !== undefined && Object.keys(args).length > 0 && { additionalInfo: args }),
+		}
 	}
 	export interface ClientResponseSuccess<Result> {
 		/** On success, return success code (by default, use 200) */
