@@ -7,11 +7,11 @@ import {
 } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { RewindAllSegmentsIcon } from '../../lib/ui/icons/rewindAllSegmentsIcon.js'
 
-import { Lottie } from '@crello/react-lottie'
+import Lottie, { LottieComponentProps } from 'lottie-react'
 import { NotificationCenterPanelToggle } from '../../lib/notifications/NotificationCenterPanel.js'
 
-import * as On_Air_MouseOut from './On_Air_MouseOut.json'
-import * as On_Air_MouseOver from './On_Air_MouseOver.json'
+import On_Air_MouseOut from './On_Air_MouseOut.json'
+import On_Air_MouseOver from './On_Air_MouseOver.json'
 import { SupportPopUpToggle } from '../SupportPopUp.js'
 import classNames from 'classnames'
 import { NoticeLevel } from '../../lib/notifications/notifications.js'
@@ -54,7 +54,7 @@ interface IProps {
 	hideRundownHeader?: boolean
 }
 
-const ANIMATION_TEMPLATE = {
+const ANIMATION_TEMPLATE: LottieComponentProps = {
 	loop: false,
 	autoplay: true,
 	animationData: {},
@@ -63,11 +63,11 @@ const ANIMATION_TEMPLATE = {
 	},
 }
 
-const ONAIR_OUT = {
+const ONAIR_OUT: LottieComponentProps = {
 	...ANIMATION_TEMPLATE,
 	animationData: On_Air_MouseOut,
 }
-const ONAIR_OVER = {
+const ONAIR_OVER: LottieComponentProps = {
 	...ANIMATION_TEMPLATE,
 	animationData: On_Air_MouseOver,
 }
@@ -195,7 +195,7 @@ export function RundownRightHandControls(props: Readonly<IProps>): JSX.Element {
 									tabIndex={0}
 									aria-label={t('Go to On Air Segment')}
 								>
-									{onAirHover ? <Lottie config={ONAIR_OVER} /> : <Lottie config={ONAIR_OUT} />}
+									{onAirHover ? <Lottie {...ONAIR_OVER} /> : <Lottie {...ONAIR_OUT} />}
 								</button>
 							)}
 						</div>
