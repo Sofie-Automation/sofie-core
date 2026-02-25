@@ -8,7 +8,7 @@ import {
 import { EmptyPieceTimelineObjectsBlob } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { literal, getRandomId, getRandomString } from '@sofie-automation/corelib/dist/lib'
 import { LogLevel } from '@sofie-automation/meteor-lib/dist/lib'
-import { protectString, ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
+import { protectString, ProtectedString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { getCurrentTime } from '../../lib/lib'
 import { waitUntil } from '../../../__mocks__/helpers/jest'
 import { setupDefaultStudioEnvironment, DefaultEnvironment } from '../../../__mocks__/helpers/database'
@@ -45,7 +45,9 @@ import {
 	RundownPlaylists,
 	Rundowns,
 	Segments,
+	Studios,
 } from '../../collections'
+import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { SupressLogMessages } from '../../../__mocks__/suppressLogging'
 import { JSONBlobStringify } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 import { PeripheralDeviceCommand } from '@sofie-automation/corelib/dist/dataModel/PeripheralDeviceCommand'
@@ -165,6 +167,7 @@ describe('test peripheralDevice general API methods', () => {
 			name: 'Earth',
 		})
 	})
+
 	beforeEach(async () => {
 		QueueStudioJobSpy.mockReset()
 		QueueStudioJobSpy.mockClear()
@@ -743,6 +746,52 @@ describe('test peripheralDevice general API methods', () => {
 				})
 				expect(updateMo).toBeFalsy()
 			})
+		})
+	})
+
+	describe('auto-assign devices', () => {
+		beforeEach(async () => {
+			env = await setupDefaultStudioEnvironment()
+		})
+
+		test('initialize auto-assign to single studio', async () => {
+			if (DEBUG) setLogLevel(LogLevel.DEBUG)
+
+			// Prepare a new device id, not present in the DB yet
+			const newDeviceId = getRandomId()
+			const token = getRandomString()
+			const options: PeripheralDeviceInitOptions = {
+				category: PeripheralDeviceCategory.PLAYOUT,
+				type: PeripheralDeviceType.PLAYOUT,
+				subType: 'test',
+				name: 'autoAssignDevice',
+				connectionId: 'testconn',
+				configManifest: {
+					deviceConfigSchema: JSONBlobStringify({}),
+					subdeviceManifest: {},
+				},
+				documentationUrl: 'http://example.com',
+			}
+
+			// Ensure it's not present yet
+			expect(await PeripheralDevices.findOneAsync(newDeviceId)).toBeFalsy()
+
+			// Initialize the device
+			await MeteorCall.peripheralDevice.initialize(newDeviceId, token, options)
+
+			// Ensure the device exists and is assigned to the only studio in the db
+			const initDevice = (await PeripheralDevices.findOneAsync(newDeviceId)) as PeripheralDevice
+			expect(initDevice).toBeTruthy()
+			expect(initDevice.studioAndConfigId).toBeTruthy()
+			expect(initDevice.studioAndConfigId!.studioId).toBe(env.studio._id)
+
+			// Ensure it is created in the "parent devices" mapping (deviceSettings)
+			const studio = await Studios.findOneAsync(env.studio._id)
+			const deviceSettings = applyAndValidateOverrides(studio!.peripheralDeviceSettings.deviceSettings).obj
+			expect(deviceSettings[unprotectString(newDeviceId)]).toBeTruthy()
+
+			const playoutDevices = applyAndValidateOverrides(studio!.peripheralDeviceSettings.playoutDevices).obj
+			expect(playoutDevices[unprotectString(newDeviceId)]).toBeFalsy()
 		})
 	})
 })

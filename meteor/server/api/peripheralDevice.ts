@@ -166,6 +166,10 @@ export namespace ServerPeripheralDeviceAPI {
 
 				documentationUrl: options.documentationUrl,
 			})
+
+			// If there is only one Studio, assign the device to that studio.
+			// Overall plan at the moment is to have only 1 studio per sofie instance in mid-term future
+			await assignToStudioIfOnlyOnePresent(deviceId, options)
 		}
 		if (options.configManifest?.translations) {
 			await upsertBundles(
@@ -175,6 +179,50 @@ export namespace ServerPeripheralDeviceAPI {
 		}
 		return deviceId
 	}
+
+	async function assignToStudioIfOnlyOnePresent(deviceId: PeripheralDeviceId, options: PeripheralDeviceInitOptions) {
+		if ((await Studios.countDocuments()) !== 1) {
+			return
+		}
+
+		const studio = await Studios.findOneAsync({})
+
+		if (!studio) {
+			return
+		}
+
+		const configId = unprotectString(deviceId)
+
+		// Check if configId is already defined in the device settings to avoid replacing existing config
+		const existingDeviceSettings = applyAndValidateOverrides(studio.peripheralDeviceSettings.deviceSettings).obj
+		if (existingDeviceSettings[configId]) {
+			// configId already exists, don't overwrite it
+			return
+		}
+
+		await Studios.updateAsync(studio._id, {
+			$push: {
+				[`peripheralDeviceSettings.deviceSettings.overrides`]: {
+					op: 'set',
+					path: configId,
+					value: {
+						name: options.name,
+						options: {},
+					},
+				},
+			},
+		})
+
+		await PeripheralDevices.updateAsync(deviceId, {
+			$set: {
+				studioAndConfigId: {
+					configId,
+					studioId: studio._id,
+				},
+			},
+		})
+	}
+
 	export async function unInitialize(
 		context: MethodContext,
 		deviceId: PeripheralDeviceId,
