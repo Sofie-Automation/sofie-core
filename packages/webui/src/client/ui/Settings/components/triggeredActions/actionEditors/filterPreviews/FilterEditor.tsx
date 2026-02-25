@@ -9,6 +9,8 @@ import { catchError } from '../../../../../../lib/lib.js'
 import { preventOverflow } from '@popperjs/core'
 import { DropdownInputControl, getDropdownInputOptions } from '../../../../../../lib/Components/DropdownInput.js'
 import Button from 'react-bootstrap/esm/Button'
+import { SwitchFilterType } from './SwitchFilterType'
+import { FilterType } from '@sofie-automation/blueprints-integration'
 
 interface IProps {
 	fieldLabel: string
@@ -23,6 +25,8 @@ interface IProps {
 	type: EditAttributeType
 	values?: Record<string, any>
 	index: number
+	filterType: FilterType
+	onChangeType: (newType: FilterType) => void
 	onChangeField: (newField: any) => void
 	onChange: (newValue: any) => void
 	onFocus?: (index: number) => void
@@ -32,7 +36,7 @@ interface IProps {
 }
 
 export const FilterEditor: React.FC<IProps> = function FilterEditor(props: IProps): React.ReactElement | null {
-	const { index, opened, onClose, onFocus } = props
+	const { index, opened, onClose, onFocus, filterType, onChangeType } = props
 	const [referenceElement, setReferenceElement] = useState<HTMLDListElement | null>(null)
 	const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null)
 	const { styles, attributes, update } = usePopper(referenceElement, popperElement, {
@@ -98,6 +102,13 @@ export const FilterEditor: React.FC<IProps> = function FilterEditor(props: IProp
 					style={styles.popper}
 					{...attributes.popper}
 				>
+					<SwitchFilterType
+						className="w-100 mb-2"
+						allowedTypes={['adLib', 'rundownPlaylist', 'view']}
+						selectedType={filterType}
+						onChangeType={onChangeType}
+					/>
+
 					{props.description && <p className="m-0">{props.description}</p>}
 
 					<DropdownInputControl
