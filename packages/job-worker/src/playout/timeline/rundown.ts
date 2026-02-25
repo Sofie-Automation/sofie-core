@@ -277,8 +277,21 @@ function generateCurrentInfinitePieceObjects(
 		return []
 	}
 
+	/*
+	   Notes on the "Infinite Part Group":
+	   Infinite pieces are put into a parent "infinite Part Group" object instead of the usual Part Group,
+	   because their lifetime can be outside of their Part.
+	   
+	   The Infinite Part Group's start time is set to be the start time of the Piece, but this is then complicated by
+	   the Piece.enable.start assuming that it is relative to the PartGroup it is in. This is being factored in if an
+	   absolute start time is known for the piece.
+	*/
+
 	const infiniteGroup = createPartGroup(currentPartInfo.partInstance, {
-		start: `#${timingContext.currentPartGroup.id}.start`, // This gets overriden with a concrete time if the original piece is known to have already started
+		// This gets overridden with a concrete time if the original piece is known to have already started
+		// but if not, allows the pieceEnable to be relative to the currentPartInstance's part group as normal
+		// and `nowInParent` to be correct for the piece objects inside
+		start: `#${timingContext.currentPartGroup.id}.start`,
 	})
 	infiniteGroup.id = getInfinitePartGroupId(pieceInstance._id) // This doesnt want to belong to a part, so force the ids
 	infiniteGroup.priority = 1
@@ -299,9 +312,14 @@ function generateCurrentInfinitePieceObjects(
 
 	let nowInParent = currentPartInfo.nowInPart // Where is 'now' inside of the infiniteGroup?
 
+	// This is the absolute started playback time of the piece - either decided beforehand or fed back from Playout Gateway
+	const absoluteStartedPlayback = timingContext.multiGatewayMode
+		? pieceInstance.plannedStartedPlayback
+		: pieceInstance.reportedStartedPlayback
+
 	// We have a absolute start time, so we should use that.
-	if (!timingContext.multiGatewayMode && pieceInstance.reportedStartedPlayback !== undefined) {
-		nowInParent = currentTime - pieceInstance.reportedStartedPlayback
+	if (absoluteStartedPlayback !== undefined) {
+		nowInParent = currentTime - absoluteStartedPlayback
 
 		// If an end time has been set by a hotkey, then update the duration to be correct
 		if (pieceInstance.userDuration && pieceInstance.piece.enable.start !== 'now') {
@@ -314,7 +332,7 @@ function generateCurrentInfinitePieceObjects(
 		}
 
 		// We have a absolute start time, so we should use that.
-		let infiniteGroupStart = pieceInstance.reportedStartedPlayback
+		let infiniteGroupStart = absoluteStartedPlayback
 
 		// infiniteGroupStart had an actual timestamp inside and pieceEnable.start being a number
 		// means that it expects an offset from it's parent
