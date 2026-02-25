@@ -30,7 +30,10 @@ import type {
 	StudioRouteSet,
 	StudioRouteSetExclusivityGroup,
 } from '@sofie-automation/shared-lib/dist/core/model/StudioRouteSet'
-import type { StudioPackageContainer } from '@sofie-automation/shared-lib/dist/core/model/PackageContainer'
+import type {
+	StudioPackageContainer,
+	StudioPackageContainerSettings,
+} from '@sofie-automation/shared-lib/dist/core/model/PackageContainer'
 import type { IStudioSettings } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 import type { MosDeviceConfig } from '@sofie-automation/shared-lib/dist/generated/MosGatewayDevicesTypes'
 import type { MosGatewayConfig } from '@sofie-automation/shared-lib/dist/generated/MosGatewayOptionsTypes'
@@ -177,6 +180,8 @@ export interface BlueprintResultApplyStudioConfig {
 	routeSetExclusivityGroups?: Record<string, StudioRouteSetExclusivityGroup>
 	/** Package Containers */
 	packageContainers?: Record<string, StudioPackageContainer>
+	/** Which Package Containers are used for media previews/thumbnails in GUI */
+	packageContainerSettings?: StudioPackageContainerSettings
 
 	studioSettings?: IStudioSettings
 }

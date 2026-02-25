@@ -59,6 +59,17 @@ export default defineConfig(({ command }) => ({
 		},
 	},
 
+	css: {
+		preprocessorOptions: {
+			scss: {
+				// Silence deprecation warnings from Bootstrap and other dependencies
+				// This hides warnings from dependencies but still shows warnings from our own code
+				// Bootstrap 5.x not yet fully supporting Dart Sass 2.x causes many warnings
+				quietDeps: true,
+			},
+		},
+	},
+
 	define: {
 		__APP_VERSION__: JSON.stringify(process.env.npm_package_version),
 	},

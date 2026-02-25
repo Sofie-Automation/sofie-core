@@ -4,6 +4,8 @@ import { DeviceItem } from '../../Status/SystemStatus/DeviceItem.js'
 import { ConfigManifestOAuthFlowComponent } from './ConfigManifestOAuthFlow.js'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { useDebugStatesForPlayoutDevice } from './useDebugStatesForPlayoutDevice.js'
+import { PeripheralDevices } from '../../../collections/index.js'
+import { useTracker } from '../../../lib/ReactMeteorData/ReactMeteorData.js'
 
 interface IGenericDeviceSettingsComponentProps {
 	device: PeripheralDevice
@@ -38,16 +40,16 @@ export function GenericDeviceSettingsComponent({
 	}
 }
 
-interface GenericAttahcedSubDeviceSettingsComponentProps {
+interface GenericAttachedSubDeviceSettingsComponentProps {
 	device: PeripheralDevice
-	subDevices: PeripheralDevice[] | undefined
 }
 
-export function GenericAttahcedSubDeviceSettingsComponent({
+export function GenericAttachedSubDeviceSettingsComponent({
 	device,
-	subDevices,
-}: Readonly<GenericAttahcedSubDeviceSettingsComponentProps>): JSX.Element {
+}: Readonly<GenericAttachedSubDeviceSettingsComponentProps>): JSX.Element {
 	const { t } = useTranslation()
+
+	const subDevices = useTracker(() => PeripheralDevices.find({ parentDeviceId: device._id }).fetch(), [device._id], [])
 
 	const debugStates = useDebugStatesForPlayoutDevice(device)
 
@@ -57,9 +59,9 @@ export function GenericAttahcedSubDeviceSettingsComponent({
 				<>
 					<h2 className="mb-4">{t('Attached Subdevices')}</h2>
 
-					{(!subDevices || subDevices.length === 0) && <p>{t('There are no sub-devices for this gateway')}</p>}
+					{subDevices.length === 0 && <p>{t('There are no sub-devices for this gateway')}</p>}
 
-					{subDevices?.map((subDevice) => (
+					{subDevices.map((subDevice) => (
 						<DeviceItem
 							key={unprotectString(subDevice._id)}
 							parentDevice={device}

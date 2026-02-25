@@ -1,4 +1,4 @@
-@import '../../styles/itemTypeColors';
+@use '../../styles/itemTypeColors';
 
 .preview-popUp {
 	border: 1px solid var(--sofie-segment-layer-hover-popup-border);
@@ -7,26 +7,8 @@
 	border-radius: 5px;
 	overflow: hidden;
 	pointer-events: none;
-
 	z-index: 9999;
-
-	&--large {
-		width: 482px;
-		padding-bottom: 10px;
-		--preview-max-dimension: 480;
-	}
-
-	&--small {
-		width: 322px;
-		--preview-max-dimension: 320;
-	}
-
-	&--hidden {
-		visibility: none;
-	}
-
 	font-family: Roboto Flex;
-
 	font-style: normal;
 	font-weight: 500;
 	font-size: 16px;
@@ -50,6 +32,17 @@
 		'YTFI' 738,
 		'YTLC' 548,
 		'YTUC' 712;
+
+	&--large {
+		width: 482px;
+		padding-bottom: 10px;
+		--preview-max-dimension: 480;
+	}
+
+	&--small {
+		width: 322px;
+		--preview-max-dimension: 320;
+	}
 }
 
 .preview-popUp__preview {
@@ -115,7 +108,7 @@
 			margin-left: 2%;
 			margin-top: 7px;
 			flex-shrink: 0;
-			@include item-type-colors();
+			@include itemTypeColors.item-type-colors;
 		}
 
 		.preview-popUp__element-with-time-info__text {
@@ -404,7 +397,7 @@
 		}
 
 		& > * {
-			@include item-type-colors();
+			@include itemTypeColors.item-type-colors;
 		}
 
 		.video-preview__label {

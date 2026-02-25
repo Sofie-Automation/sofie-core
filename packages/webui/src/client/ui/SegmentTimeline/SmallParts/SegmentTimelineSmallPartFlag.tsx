@@ -8,49 +8,40 @@ import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/Rund
 import { SegmentTimelinePartHoverPreview } from './SegmentTimelinePartHoverPreview.js'
 import RundownViewEventBus, { RundownViewEvents } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
-import { TimingDataResolution, TimingTickResolution, withTiming } from '../../RundownView/RundownTiming/withTiming.js'
+import { TimingDataResolution, TimingTickResolution, useTiming } from '../../RundownView/RundownTiming/withTiming.js'
 import { SegmentTimelinePartClass } from '../Parts/SegmentTimelinePart.js'
 import { PartExtended } from '../../../lib/RundownResolver.js'
 import { getPartInstanceTimingId } from '../../../lib/rundownTiming.js'
 
-export const SegmentTimelineSmallPartFlag = withTiming<
-	{
-		parts: [PartUi, number, number][]
-		followingPart: PartUi | undefined
-		firstPartInSegment: PartExtended
-		sourceLayers: {
-			[key: string]: ISourceLayer
-		}
-		timeToPixelRatio: number
+interface ISegmentTimelineSmallPartFlagProps {
+	parts: [PartUi, number, number][]
+	followingPart: PartUi | undefined
+	firstPartInSegment: PartExtended
+	sourceLayers: {
+		[key: string]: ISourceLayer
+	}
+	timeToPixelRatio: number
 
-		segment: SegmentUi
-		playlist: DBRundownPlaylist
-		studio: UIStudio
-		collapsedOutputs: {
-			[key: string]: boolean
-		}
-		autoNextPart: boolean
-		liveLineHistorySize: number
-		isLastSegment: boolean
-		isLastInSegment: boolean
-		timelineWidth: number
-		showDurationSourceLayers?: Set<ISourceLayer['_id']>
+	segment: SegmentUi
+	playlist: DBRundownPlaylist
+	studio: UIStudio
+	collapsedOutputs: {
+		[key: string]: boolean
+	}
+	autoNextPart: boolean
+	liveLineHistorySize: number
+	isLastSegment: boolean
+	isLastInSegment: boolean
+	showDurationSourceLayers?: Set<ISourceLayer['_id']>
 
-		livePosition: number
-		isLiveSegment: boolean | undefined
-		anyPriorPartWasLive: boolean | undefined
-		livePartStartsAt: number | undefined
-		livePartDisplayDuration: number | undefined
-	},
-	{}
->((props) => ({
-	dataResolution: TimingDataResolution.High,
-	tickResolution: TimingTickResolution.High,
-	filter: (timings) => [
-		timings?.partDisplayStartsAt?.[getPartInstanceTimingId(props.firstPartInSegment.instance)],
-		timings?.partDisplayStartsAt?.[getPartInstanceTimingId(props.parts[0][0].instance)],
-	],
-}))(({
+	livePosition: number
+	isLiveSegment: boolean | undefined
+	anyPriorPartWasLive: boolean | undefined
+	livePartStartsAt: number | undefined
+	livePartDisplayDuration: number | undefined
+}
+
+export const SegmentTimelineSmallPartFlag = ({
 	parts,
 	followingPart,
 	sourceLayers,
@@ -72,9 +63,12 @@ export const SegmentTimelineSmallPartFlag = withTiming<
 	anyPriorPartWasLive,
 	livePartStartsAt,
 	livePartDisplayDuration,
+}: ISegmentTimelineSmallPartFlagProps): JSX.Element => {
+	const timingDurations = useTiming(TimingTickResolution.High, TimingDataResolution.High, (timings) => [
+		timings?.partDisplayStartsAt?.[getPartInstanceTimingId(firstPartInSegment.instance)],
+		timings?.partDisplayStartsAt?.[getPartInstanceTimingId(parts[0][0].instance)],
+	])
 
-	timingDurations,
-}): JSX.Element => {
 	const flagRef = useRef<HTMLDivElement>(null)
 
 	const futureShadePaddingTime = useMemo(() => {
@@ -199,4 +193,4 @@ export const SegmentTimelineSmallPartFlag = withTiming<
 			/>
 		</div>
 	)
-})
+}

@@ -44,6 +44,7 @@ import {
 	translateStringIfHasNamespaces,
 } from '../../../lib/forms/schemaFormUtil.js'
 import { Studios } from '../../../collections/index.js'
+import { ReadonlyDeep } from 'type-fest'
 
 export interface MappingsSettingsManifest {
 	displayName: string
@@ -189,7 +190,7 @@ interface DeletedEntryProps {
 	manifestNames: Record<string | number, string>
 	translationNamespaces: string[]
 
-	mapping: MappingExt
+	mapping: ReadonlyDeep<MappingExt>
 	layerId: string
 	doUndelete: (itemId: string) => void
 }
@@ -531,7 +532,7 @@ function StudioMappingsEntry({
 interface MappingSummaryProps {
 	translationNamespaces: string[]
 	fields: SchemaSummaryField[]
-	mapping: MappingExt
+	mapping: ReadonlyDeep<MappingExt>
 }
 function MappingSummary({ translationNamespaces, fields, mapping }: Readonly<MappingSummaryProps>) {
 	if (fields.length > 0) {

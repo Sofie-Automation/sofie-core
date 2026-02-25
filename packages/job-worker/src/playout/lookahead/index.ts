@@ -21,9 +21,10 @@ import _ from 'underscore'
 import { LOOKAHEAD_DEFAULT_SEARCH_DISTANCE } from '@sofie-automation/shared-lib/dist/core/constants'
 import { prefixSingleObjectId } from '../lib.js'
 import { LookaheadTimelineObject } from './findObjects.js'
-import { hasPieceInstanceDefinitelyEnded } from '../timeline/lib.js'
+import { hasPieceInstanceDefinitelyEnded, TimelinePlayoutState } from '../timeline/lib.js'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { ReadonlyDeep } from 'type-fest'
+import { RundownHoldState } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 
 const LOOKAHEAD_OBJ_PRIORITY = 0.1
 
@@ -35,7 +36,7 @@ function parseSearchDistance(rawVal: number | undefined): number {
 	}
 }
 
-function findLargestLookaheadDistance(mappings: Array<[string, MappingExt]>): number {
+function findLargestLookaheadDistance(mappings: Array<[string, ReadonlyDeep<MappingExt>]>): number {
 	const values = mappings.map(([_id, m]) => parseSearchDistance(m.lookaheadMaxSearchDistance))
 	return _.max(values)
 }
@@ -79,7 +80,7 @@ export async function getLookeaheadObjects(
 ): Promise<Array<TimelineObjRundown & OnGenerateTimelineObjExt>> {
 	const span = context.startSpan('getLookeaheadObjects')
 	const allMappings = context.studio.mappings
-	const mappingsToConsider = Object.entries<MappingExt>(allMappings).filter(
+	const mappingsToConsider = Object.entries<ReadonlyDeep<MappingExt>>(allMappings).filter(
 		([_id, map]) => map.lookahead !== LookaheadMode.NONE && map.lookahead !== undefined
 	)
 	if (mappingsToConsider.length === 0) {
@@ -177,6 +178,11 @@ export async function getLookeaheadObjects(
 		}
 	})
 
+	const playoutState: TimelinePlayoutState = {
+		isRehearsal: !!playoutModel.playlist.rehearsal,
+		isInHold: playoutModel.playlist.holdState === RundownHoldState.ACTIVE,
+	}
+
 	const span2 = context.startSpan('getLookeaheadObjects.iterate')
 	const timelineObjs: Array<TimelineObjRundown & OnGenerateTimelineObjExt> = []
 	const futurePartCount = orderedPartInfos.length + (partInstancesInfo0.next ? 1 : 0)
@@ -196,7 +202,8 @@ export async function getLookeaheadObjects(
 				orderedPartInfos,
 				layerId,
 				lookaheadTargetObjects,
-				lookaheadMaxSearchDistance
+				lookaheadMaxSearchDistance,
+				playoutState
 			)
 
 			timelineObjs.push(...processResult(lookaheadObjs, mapping.lookahead))

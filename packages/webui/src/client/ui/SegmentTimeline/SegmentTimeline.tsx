@@ -760,7 +760,6 @@ export class SegmentTimelineClass extends React.Component<Translated<WithTiming<
 							liveLineHistorySize={this.props.liveLineHistorySize}
 							isLastSegment={this.props.isLastSegment}
 							isLastInSegment={false}
-							timelineWidth={this.state.timelineWidth}
 							showDurationSourceLayers={this.props.showDurationSourceLayers}
 							isLiveSegment={this.props.isLiveSegment}
 							anyPriorPartWasLive={anyPriorPartWasLive}
@@ -820,7 +819,6 @@ export class SegmentTimelineClass extends React.Component<Translated<WithTiming<
 							liveLineHistorySize={this.props.liveLineHistorySize}
 							isLastSegment={this.props.isLastSegment}
 							isLastInSegment={true}
-							timelineWidth={this.state.timelineWidth}
 							showDurationSourceLayers={this.props.showDurationSourceLayers}
 							isLiveSegment={this.props.isLiveSegment}
 							anyPriorPartWasLive={anyPriorPartWasLive}

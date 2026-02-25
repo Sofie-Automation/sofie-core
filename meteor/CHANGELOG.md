@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [26.3.0-2](https://github.com/Sofie-Automation/sofie-core/compare/v26.3.0-1...v26.3.0-2) (2026-02-18)
+
+
+### Bug Fixes
+
+* Add missing 'rootDir' to tsconfig ([20e7d12](https://github.com/Sofie-Automation/sofie-core/commit/20e7d12aabdf4c9cf36f8a271435fce8aa253c2d))
+* missed projection values when executing adlib action ([#1648](https://github.com/Sofie-Automation/sofie-core/issues/1648)) ([af8a7d1](https://github.com/Sofie-Automation/sofie-core/commit/af8a7d19accdc74d3cc5909b1afefd3efeeb755c))
+
+## [26.3.0-1](https://github.com/Sofie-Automation/sofie-core/compare/v26.3.0-0...v26.3.0-1) (2026-02-11)
+
 ## [26.3.0-0](https://github.com/Sofie-Automation/sofie-core/compare/v1.52.0...v26.3.0-0) (2026-02-04)
 
 

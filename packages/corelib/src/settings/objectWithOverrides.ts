@@ -150,23 +150,30 @@ function recursivelyGenerateOverrides<T extends object>(
 			})
 			continue
 		}
-		if (Array.isArray(rawValue) && !_.isEqual(curValue, rawValue)) {
-			outOverrides.push({
-				op: 'set',
-				path: fullKeyPathString,
-				value: rawValue,
-			})
-		}
-		if (typeof curValue === 'object' && curValue !== null && typeof rawValue === 'object' && rawValue !== null) {
-			recursivelyGenerateOverrides(curValue, rawValue, fullKeyPath, outOverrides)
-			continue
-		}
-		if (curValue !== rawValue) {
-			outOverrides.push({
-				op: 'set',
-				path: fullKeyPathString,
-				value: rawValue,
-			})
+		if (Array.isArray(rawValue)) {
+			if (!_.isEqual(curValue, rawValue))
+				outOverrides.push({
+					op: 'set',
+					path: fullKeyPathString,
+					value: rawValue,
+				})
+		} else {
+			if (
+				typeof curValue === 'object' &&
+				curValue !== null &&
+				typeof rawValue === 'object' &&
+				rawValue !== null
+			) {
+				recursivelyGenerateOverrides(curValue, rawValue, fullKeyPath, outOverrides)
+				continue
+			}
+			if (curValue !== rawValue) {
+				outOverrides.push({
+					op: 'set',
+					path: fullKeyPathString,
+					value: rawValue,
+				})
+			}
 		}
 	}
 	for (const [rawKey, rawValue] of Object.entries<any>(rawObj)) {

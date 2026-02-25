@@ -188,6 +188,11 @@ export async function handleBlueprintUpgradeForStudio(context: JobContext, _data
 		enableEvaluationForm: true,
 	}
 
+	const packageContainerSettings = result.packageContainerSettings ?? {
+		previewContainerIds: [],
+		thumbnailContainerIds: [],
+	}
+
 	await context.directCollections.Studios.update(context.studioId, {
 		$set: {
 			'settingsWithOverrides.defaults': studioSettings,
@@ -198,6 +203,7 @@ export async function handleBlueprintUpgradeForStudio(context: JobContext, _data
 			'peripheralDeviceSettings.inputDevices.defaults': inputDevices,
 			'routeSetsWithOverrides.defaults': routeSets,
 			'routeSetExclusivityGroupsWithOverrides.defaults': routeSetExclusivityGroups,
+			'packageContainerSettingsWithOverrides.defaults': packageContainerSettings,
 			'packageContainersWithOverrides.defaults': packageContainers,
 			lastBlueprintConfig: {
 				blueprintHash: blueprint.blueprintDoc.blueprintHash,

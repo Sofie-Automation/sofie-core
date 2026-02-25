@@ -9,7 +9,7 @@ In order to understand all about writing TSR integrations there are some concept
 - [TSR Types package](./tsr-types)
 - [TSR Actions](./tsr-actions)
 
-But to start of we will explain the general structure of the TSR. Any user of the TSR will interface primarily with the Conductor class. Primarily the user will input device configurations, mappings and timelines into the TSR. The timeline describes the entire state of all of the devices over time. It does this by putting objects on timeline layers. Every timeline layer maps to a specific part of the device, this is configured throught the mappings.
+But to start off we will explain the general structure of the TSR. Any user of the TSR will interface primarily with the Conductor class. Primarily the user will input device configurations, mappings and timelines into the TSR. The timeline describes the entire state of all of the devices over time. It does this by putting objects on timeline layers. Every timeline layer maps to a specific part of the device, this is configured through the mappings.
 
 The timeline is converted into disctinct states at different points in time, and these states are fed to the individual integrations. As an integration developer you shouldn't have to worry about keeping track of this. It is most important that you expose \(a\) a method to convert from a Timeline State to a Device State, \(b\) a method for diffing 2 device states and (c) a way to send commands to the device. We'll dive deeper into this in [TSR Integration API](./tsr-api).
 

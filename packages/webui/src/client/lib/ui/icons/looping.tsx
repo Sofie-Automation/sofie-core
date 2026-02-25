@@ -1,6 +1,6 @@
-import React, { JSX } from 'react'
-import * as loopAnimation from './icon-loop.json'
-import { Lottie } from '@crello/react-lottie'
+import React, { JSX, useEffect, useRef } from 'react'
+import loopAnimation from './icon-loop.json'
+import Lottie, { LottieComponentProps, LottieRefCurrentProps } from 'lottie-react'
 
 export function LoopingIcon(props?: Readonly<React.SVGProps<SVGSVGElement>>): JSX.Element {
 	return (
@@ -25,19 +25,34 @@ export function LoopingIcon(props?: Readonly<React.SVGProps<SVGSVGElement>>): JS
 export function LoopingPieceIcon({
 	className,
 	playing,
-}: Readonly<{ className?: string; playing: boolean }>): JSX.Element {
+}: Readonly<{ className?: string; playing?: boolean }>): JSX.Element {
+	const lottieRef = useRef<LottieRefCurrentProps>(null)
+
+	useEffect(() => {
+		if (!lottieRef.current) return
+		if (playing) {
+			lottieRef.current.play()
+		} else {
+			lottieRef.current.stop()
+		}
+	}, [playing])
+
 	return (
 		<div className={`${className} label-icon label-loop-icon`}>
-			<Lottie config={LOOPING_PIECE_ICON} width="24px" height="24px" playingState={playing ? 'playing' : 'stopped'} />
+			<Lottie lottieRef={lottieRef} {...LOOPING_PIECE_ICON} autoplay={playing} />
 		</div>
 	)
 }
 
-const LOOPING_PIECE_ICON = {
+const LOOPING_PIECE_ICON: LottieComponentProps = {
 	loop: true,
 	autoplay: false,
 	animationData: loopAnimation,
 	rendererSettings: {
 		preserveAspectRatio: 'xMidYMid slice',
+	},
+	style: {
+		width: '24px',
+		height: '24px',
 	},
 }

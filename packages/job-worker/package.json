@@ -1,6 +1,6 @@
 {
 	"name": "@sofie-automation/job-worker",
-	"version": "26.3.0-0",
+	"version": "26.3.0-2",
 	"description": "Worker for things",
 	"main": "dist/index.js",
 	"license": "MIT",
@@ -15,8 +15,7 @@
 	},
 	"homepage": "https://github.com/Sofie-Automation/sofie-core/blob/main/packages/job-worker#readme",
 	"scripts": {
-		"lint:raw": "run -T eslint",
-		"lint": "run lint:raw .",
+		"lint": "run -T lint job-worker",
 		"unit": "run -T jest",
 		"test": "run lint && run unit",
 		"watch": "run -T jest --watch --coverage=false",
@@ -37,9 +36,9 @@
 	],
 	"dependencies": {
 		"@slack/webhook": "^7.0.6",
-		"@sofie-automation/blueprints-integration": "26.3.0-0",
-		"@sofie-automation/corelib": "26.3.0-0",
-		"@sofie-automation/shared-lib": "26.3.0-0",
+		"@sofie-automation/blueprints-integration": "26.3.0-2",
+		"@sofie-automation/corelib": "26.3.0-2",
+		"@sofie-automation/shared-lib": "26.3.0-2",
 		"amqplib": "0.10.5",
 		"deepmerge": "^4.3.1",
 		"elastic-apm-node": "^4.15.0",
@@ -53,14 +52,6 @@
 		"underscore": "^1.13.7"
 	},
 	"prettier": "@sofie-automation/code-standard-preset/.prettierrc.json",
-	"lint-staged": {
-		"*.{js,css,json,md,scss}": [
-			"yarn run -T prettier"
-		],
-		"*.{ts,tsx}": [
-			"yarn lint:raw"
-		]
-	},
 	"packageManager": "yarn@4.12.0",
 	"devDependencies": {
 		"jest": "^30.2.0",

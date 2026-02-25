@@ -21,7 +21,6 @@ import type {
 } from '../context/index.js'
 import type { IngestAdlib, ExtendedIngestRundown, IngestRundown } from '../ingest.js'
 import type { IBlueprintExternalMessageQueueObj } from '../message.js'
-import type {} from '../migrations.js'
 import type {
 	IBlueprintAdLibPiece,
 	IBlueprintResolvedPieceInstance,
@@ -201,12 +200,16 @@ export interface ShowStyleBlueprintManifest<
 	// Events
 
 	/**
-	 * Called when a RundownPlaylist has been activated
+	 * Called at the final stage of RundownPlaylist activation, before the updated timeline is submitted to the Playout Gateway,
+	 * This is a good place to prepare any external systems for the rundown going live.
 	 */
 	onRundownActivate?: (context: IRundownActivationContext) => Promise<void>
 	/** Called upon the first take in a RundownPlaylist */
 	onRundownFirstTake?: (context: IPartEventContext) => Promise<void>
-	/** Called when a RundownPlaylist has been deactivated */
+	/**
+	 * Called at the final stage of RundownPlaylist deactivation, before the updated timeline is submitted to the Playout Gateway,
+	 * This is a good place to prepare any external systems for the rundown going offline.
+	 */
 	onRundownDeActivate?: (context: IRundownActivationContext) => Promise<void>
 
 	/** Called before a Take action */

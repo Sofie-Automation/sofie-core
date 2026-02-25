@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import { Lottie } from '@crello/react-lottie'
+import Lottie, { LottieComponentProps } from 'lottie-react'
 
 interface IProps {
 	inAnimation?: any
@@ -26,8 +26,8 @@ export class LottieButton extends React.Component<React.PropsWithChildren<IProps
 	}
 
 	// Setup in `buildAnimationObjects`
-	overAnimation!: { animationData: object } & object
-	outAnimation!: { animationData: object } & object
+	overAnimation!: LottieComponentProps
+	outAnimation!: LottieComponentProps
 
 	constructor(props: IProps) {
 		super(props)
@@ -77,7 +77,7 @@ export class LottieButton extends React.Component<React.PropsWithChildren<IProps
 				onClick={this.onClick}
 				tabIndex={0}
 			>
-				<Lottie config={this.state.hover ? this.overAnimation : this.outAnimation} />
+				<Lottie {...(this.state.hover ? this.overAnimation : this.outAnimation)} />
 				{this.props.children}
 				<div
 					style={{ position: 'absolute', top: '0', left: '0', right: '0', bottom: '0' }}

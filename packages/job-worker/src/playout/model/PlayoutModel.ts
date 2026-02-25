@@ -393,6 +393,12 @@ export interface PlayoutModel extends PlayoutModelReadonly, StudioPlayoutModelBa
 	 */
 	getNowInPlayout(): Time
 
+	/**
+	 * Mark the playlist as needing a timeline update.
+	 * The timeline will be generated and published when model is ready to be saved.
+	 */
+	markTimelineNeedsUpdate(): void
+
 	/** Lifecycle */
 
 	/**

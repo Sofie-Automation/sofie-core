@@ -1,9 +1,10 @@
 {
 	"extends": "@sofie-automation/code-standard-preset/ts/tsconfig.bin",
-	"include": ["src/**/*.ts"],
+	"include": ["src/**/*.ts", "src/**/*.json"],
 	"exclude": ["node_modules/**", "**/*spec.ts", "**/__tests__/*", "**/__mocks__/*"],
 	"compilerOptions": {
 		"outDir": "./dist",
+		"rootDir": "./src",
 		"baseUrl": "./",
 		"paths": {
 			"*": ["./node_modules/*"]
@@ -11,7 +12,9 @@
 		"types": ["node"],
 		// TSR throws some typings issues
 		"skipLibCheck": true,
-		"resolveJsonModule": true
+		"resolveJsonModule": true,
+		"declaration": true,
+		"composite": true
 	},
 	"references": [
 		//

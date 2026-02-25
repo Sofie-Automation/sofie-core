@@ -8,19 +8,18 @@ import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { useSubscription, useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import { ShowStyleBases } from '../../collections/index.js'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
+import { FullscreenLink } from './FullscreenLink.js'
 
 import './PrompterConfigForm.scss'
 
 interface CameraConfigState {
 	selectedSourceLayerIds: Set<string>
 	studioLabels: string
-	fullscreen: boolean
 }
 
 const initialState: CameraConfigState = {
 	selectedSourceLayerIds: new Set(),
 	studioLabels: '',
-	fullscreen: false,
 }
 
 /** Source layer types that are relevant for the camera screen */
@@ -35,9 +34,6 @@ function generateCameraUrl(studioId: StudioId, config: CameraConfigState): strin
 	}
 	if (config.studioLabels.trim()) {
 		params.set('studioLabels', config.studioLabels.trim())
-	}
-	if (config.fullscreen) {
-		params.set('fullscreen', '1')
 	}
 
 	const queryString = params.toString()
@@ -157,17 +153,6 @@ export function CameraConfigForm({ studioId }: Readonly<{ studioId: StudioId }>)
 						{t('Comma-separated list of studio labels to filter by. Leave empty for all.')}
 					</Form.Text>
 				</Form.Group>
-
-				<Form.Group className="mb-2">
-					<Form.Check
-						type="checkbox"
-						id="camera-fullscreen"
-						label={t('Fullscreen mode')}
-						checked={config.fullscreen}
-						onChange={(e) => updateConfig('fullscreen', e.target.checked)}
-					/>
-					<Form.Text className="text-muted">{t('Click anywhere on the screen to enter fullscreen.')}</Form.Text>
-				</Form.Group>
 			</div>
 
 			{/* Generated URL and Open Button */}
@@ -178,9 +163,12 @@ export function CameraConfigForm({ studioId }: Readonly<{ studioId: StudioId }>)
 					</Form.Label>
 					<Form.Control type="text" size="sm" readOnly value={generatedUrl} onClick={(e) => e.currentTarget.select()} />
 				</Form.Group>
-				<Link to={generatedUrl} className="btn btn-primary">
+				<Link to={generatedUrl} className="btn btn-primary me-2">
 					{t('Open Camera Screen')}
 				</Link>
+				<FullscreenLink to={generatedUrl} className="btn btn-secondary">
+					{t('Open Fullscreen')}
+				</FullscreenLink>
 			</div>
 		</div>
 	)
