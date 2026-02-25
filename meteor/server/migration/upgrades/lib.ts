@@ -33,6 +33,7 @@ export async function updateTriggeredActionsForShowStyleBaseId(
 						$set: {
 							_rank: newTriggeredAction._rank,
 							name: newTriggeredAction.name,
+							styleClassNames: newTriggeredAction.styleClassNames,
 							'triggersWithOverrides.defaults': newTriggeredAction.triggers,
 							'actionsWithOverrides.defaults': newTriggeredAction.actions,
 						},
