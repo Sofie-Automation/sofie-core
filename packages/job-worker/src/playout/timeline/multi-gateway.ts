@@ -385,12 +385,21 @@ function preserveOrTrackInfiniteTimings(
 	if (startedPlayback) {
 		const infinitePartGroupId = getInfinitePartGroupId(pieceInstance.pieceInstance._id)
 		const infinitePartGroupObj = timelineObjsMap[infinitePartGroupId]
+		const pieceControlObjectId = getPieceControlObjectId(pieceInstance.pieceInstance)
+		const pieceControlObj = timelineObjsMap[pieceControlObjectId]
+
+		// this replicates what generateCurrentInfinitePieceObjects() does
+		let pieceEnableStartOffset = 0
+		if (!Array.isArray(pieceControlObj.enable) && typeof pieceControlObj.enable?.start === 'number') {
+			pieceEnableStartOffset = pieceControlObj.enable.start
+		}
+
 		if (
 			infinitePartGroupObj &&
 			!Array.isArray(infinitePartGroupObj.enable) &&
 			typeof infinitePartGroupObj.enable.start === 'string'
 		) {
-			infinitePartGroupObj.enable.start = startedPlayback
+			infinitePartGroupObj.enable.start = startedPlayback - pieceEnableStartOffset
 		}
 	}
 }

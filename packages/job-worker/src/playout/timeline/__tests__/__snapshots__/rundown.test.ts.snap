@@ -290,7 +290,7 @@ exports[`buildTimelineObjsForRundown infinite pieces infinite continuing from pr
         },
       ],
       "enable": {
-        "start": "#part_group_part0.start",
+        "start": 123,
       },
       "id": "part_group_piece6b_infinite",
       "isPieceTimeline": true,
@@ -412,7 +412,7 @@ exports[`buildTimelineObjsForRundown infinite pieces infinite continuing into ne
         },
       ],
       "enable": {
-        "start": "#part_group_part0.start",
+        "start": 123,
       },
       "id": "part_group_piece6_infinite",
       "isPieceTimeline": true,
@@ -1062,7 +1062,7 @@ exports[`buildTimelineObjsForRundown infinite pieces infinite stopping in curren
       ],
       "enable": {
         "end": "#part_group_part0.end + 0",
-        "start": "#part_group_part0.start",
+        "start": 123,
       },
       "id": "part_group_piece6_infinite",
       "isPieceTimeline": true,
@@ -1249,7 +1249,7 @@ exports[`buildTimelineObjsForRundown infinite pieces infinite stopping in curren
       ],
       "enable": {
         "end": "#part_group_part0.end + -100",
-        "start": "#part_group_part0.start",
+        "start": 123,
       },
       "id": "part_group_piece6_infinite",
       "isPieceTimeline": true,
