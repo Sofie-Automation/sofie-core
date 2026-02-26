@@ -1,12 +1,14 @@
-import { useMemo } from 'react'
 import { getScriptPreview } from '../../../lib/ui/scriptPreview.js'
 import { useTranslation } from 'react-i18next'
 import Moment from 'react-moment'
+import { MdDisplay } from '../../Prompter/Formatted/MdDisplay.js'
+import classNames from 'classnames'
 
 interface ScriptPreviewProps {
 	content: {
 		type: 'script'
 		script?: string
+		scriptFormatted?: string
 		lastWords?: string
 		comment?: string
 		lastModified?: number
@@ -15,9 +17,10 @@ interface ScriptPreviewProps {
 
 export function ScriptPreview({ content }: ScriptPreviewProps): React.ReactElement {
 	const { t } = useTranslation()
-	const { startOfScript, endOfScript, breakScript } = getScriptPreview(content.script ?? '')
 
-	const fullScript = useMemo(() => content?.script?.trim(), [content?.script])
+	const fullScript = content?.script?.trim() ?? ''
+
+	const { startOfScript, endOfScript, breakScript } = getScriptPreview(fullScript)
 
 	return (
 		<div>
@@ -29,7 +32,13 @@ export function ScriptPreview({ content }: ScriptPreviewProps): React.ReactEleme
 							<span className="mini-inspector__full-text text-broken text-end">{'\u2026' + endOfScript}</span>
 						</>
 					) : (
-						<span className="mini-inspector__full-text">{fullScript}</span>
+						<span
+							className={classNames('mini-inspector__full-text', {
+								'script-text-formatted': content.scriptFormatted !== undefined,
+							})}
+						>
+							{content.scriptFormatted !== undefined ? <MdDisplay source={content.scriptFormatted} /> : fullScript}
+						</span>
 					)
 				) : content.lastWords ? (
 					<span className="mini-inspector__full-text">{'\u2026' + content.lastWords}</span>

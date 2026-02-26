@@ -72,6 +72,7 @@ export function convertSourceLayerItemToPreview(
 					contents.push({
 						type: 'script',
 						script: popupPreview.preview.fullText,
+						scriptFormatted: popupPreview.preview.fullTextFormatted,
 						lastWords: popupPreview.preview.lastWords,
 						comment: popupPreview.preview.comment,
 						lastModified: popupPreview.preview.lastModified,
@@ -271,6 +272,7 @@ export function convertSourceLayerItemToPreview(
 				{
 					type: 'script',
 					script: content.fullScript,
+					scriptFormatted: content.fullScriptFormatted,
 					firstWords: content.firstWords,
 					lastWords: content.lastWords,
 					comment: content.comment,

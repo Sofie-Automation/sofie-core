@@ -97,6 +97,7 @@ export type PreviewContent =
 			/** Show script content with timing words and metadata */
 			type: 'script'
 			script?: string
+			scriptFormatted?: string
 			firstWords?: string
 			lastWords?: string
 			comment?: string
@@ -165,6 +166,7 @@ export interface ScriptPreview extends PreviewBase {
 	type: PreviewType.Script
 
 	fullText?: string
+	fullTextFormatted?: string
 	lastWords?: string
 	comment?: string
 	lastModified?: number
