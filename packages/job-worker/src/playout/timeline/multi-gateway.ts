@@ -390,7 +390,11 @@ function preserveOrTrackInfiniteTimings(
 
 		// this replicates what generateCurrentInfinitePieceObjects() does
 		let pieceEnableStartOffset = 0
-		if (!Array.isArray(pieceControlObj.enable) && typeof pieceControlObj.enable?.start === 'number') {
+		if (
+			pieceControlObj &&
+			!Array.isArray(pieceControlObj.enable) &&
+			typeof pieceControlObj.enable?.start === 'number'
+		) {
 			pieceEnableStartOffset = pieceControlObj.enable.start
 		}
 
