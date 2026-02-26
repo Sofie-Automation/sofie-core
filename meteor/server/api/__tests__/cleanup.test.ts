@@ -403,6 +403,7 @@ async function setDefaultDatatoDB(env: DefaultEnvironment, now: number) {
 		created: now,
 		fileName: '',
 		name: '',
+		longname: '',
 		type: '' as any,
 		version: '',
 	})

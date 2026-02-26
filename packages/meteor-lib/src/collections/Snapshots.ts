@@ -13,6 +13,7 @@ export interface SnapshotBase {
 	type: SnapshotType
 	created: Time
 	name: string
+	longname: string
 	description?: string
 	/** Version of the system that took the snapshot */
 	version: string
