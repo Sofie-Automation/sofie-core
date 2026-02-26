@@ -53,19 +53,6 @@ describe('Ingest API', () => {
 		})
 	})
 
-	test('Can delete multiple playlists', async () => {
-		const result = await ingestApi.deletePlaylists({ studioId })
-		expect(result).toBe(undefined)
-	})
-
-	test('Can delete playlist by id', async () => {
-		const result = await ingestApi.deletePlaylist({
-			studioId,
-			playlistId: playlistIds[0],
-		})
-		expect(result).toBe(undefined)
-	})
-
 	/**
 	 * RUNDOWNS
 	 */
@@ -159,20 +146,6 @@ describe('Ingest API', () => {
 		expect(result).toBe(undefined)
 	})
 
-	test('Can delete multiple rundowns', async () => {
-		const result = await ingestApi.deleteRundowns({ studioId, playlistId: playlistIds[0] })
-		expect(result).toBe(undefined)
-	})
-
-	test('Can delete rundown by id', async () => {
-		const result = await ingestApi.deleteRundown({
-			studioId,
-			playlistId: playlistIds[0],
-			rundownId: updatedRundownId,
-		})
-		expect(result).toBe(undefined)
-	})
-
 	/**
 	 * INGEST SEGMENT
 	 */
@@ -258,25 +231,6 @@ describe('Ingest API', () => {
 			rundownId: rundownIds[0],
 			segmentId: updatedSegmentId,
 			segment,
-		})
-		expect(result).toBe(undefined)
-	})
-
-	test('Can delete multiple segments', async () => {
-		const result = await ingestApi.deleteSegments({
-			studioId,
-			playlistId: playlistIds[0],
-			rundownId: rundownIds[0],
-		})
-		expect(result).toBe(undefined)
-	})
-
-	test('Can delete segment by id', async () => {
-		const result = await ingestApi.deleteSegment({
-			studioId,
-			playlistId: playlistIds[0],
-			rundownId: rundownIds[0],
-			segmentId: updatedSegmentId,
 		})
 		expect(result).toBe(undefined)
 	})
@@ -401,7 +355,9 @@ describe('Ingest API', () => {
 
 	const updatedPartId = 'part2'
 	test('Can update a part', async () => {
-		newIngestPart.name = newIngestPart.name + ' added'
+		if (newIngestPart) {
+			newIngestPart.name = newIngestPart.name + ' added'
+		}
 		const result = await ingestApi.putPart({
 			studioId,
 			playlistId: playlistIds[0],
@@ -431,6 +387,9 @@ describe('Ingest API', () => {
 		expect(result).toBe(undefined)
 	})
 
+	/**
+	 * DELETIONS - All delete tests at the end to avoid breaking subsequent tests
+	 */
 	test('Can delete multiple parts', async () => {
 		const result = await ingestApi.deleteParts({
 			studioId,
@@ -448,6 +407,52 @@ describe('Ingest API', () => {
 			rundownId: rundownIds[0],
 			segmentId: segmentIds[0],
 			partId: updatedPartId,
+		})
+		expect(result).toBe(undefined)
+	})
+
+	test('Can delete multiple segments', async () => {
+		const result = await ingestApi.deleteSegments({
+			studioId,
+			playlistId: playlistIds[0],
+			rundownId: rundownIds[0],
+		})
+		expect(result).toBe(undefined)
+	})
+
+	test('Can delete segment by id', async () => {
+		const result = await ingestApi.deleteSegment({
+			studioId,
+			playlistId: playlistIds[0],
+			rundownId: rundownIds[0],
+			segmentId: updatedSegmentId,
+		})
+		expect(result).toBe(undefined)
+	})
+
+	test('Can delete multiple rundowns', async () => {
+		const result = await ingestApi.deleteRundowns({ studioId, playlistId: playlistIds[0] })
+		expect(result).toBe(undefined)
+	})
+
+	test('Can delete rundown by id', async () => {
+		const result = await ingestApi.deleteRundown({
+			studioId,
+			playlistId: playlistIds[0],
+			rundownId: updatedRundownId,
+		})
+		expect(result).toBe(undefined)
+	})
+
+	test('Can delete multiple playlists', async () => {
+		const result = await ingestApi.deletePlaylists({ studioId })
+		expect(result).toBe(undefined)
+	})
+
+	test('Can delete playlist by id', async () => {
+		const result = await ingestApi.deletePlaylist({
+			studioId,
+			playlistId: playlistIds[0],
 		})
 		expect(result).toBe(undefined)
 	})
