@@ -82,6 +82,11 @@ export class ActionExecutionContext extends ShowStyleUserContext implements IAct
 
 	public partToQueueAfterTake: QueueablePartAndPieces | undefined
 
+	/**
+	 * If set, the blueprint has rejected the request with an error message
+	 */
+	public requestError: string | undefined
+
 	public get quickLoopInfo(): BlueprintQuickLookInfo | null {
 		return this.partAndPieceInstanceService.quickLoopInfo
 	}
@@ -280,5 +285,9 @@ export class ActionExecutionContext extends ShowStyleUserContext implements IAct
 
 	getCurrentTime(): number {
 		return getCurrentTime()
+	}
+
+	rejectRequest(message: string): void {
+		this.requestError = message
 	}
 }

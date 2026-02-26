@@ -200,5 +200,28 @@ describe('Playout API', () => {
 
 			expect(takeNextPartMock).toHaveBeenCalledTimes(0)
 		})
+
+		test('rejectRequest returns error message', async () => {
+			const errorMessage = 'This action is not allowed right now'
+
+			context.updateShowStyleBlueprint({
+				executeAction: async (context) => {
+					context.rejectRequest(errorMessage)
+				},
+			})
+
+			const actionDocId: AdLibActionId = protectString('action-id')
+			const actionId = 'some-action'
+			const userData = { blobby: true }
+			const result = await handleExecuteAdlibAction(context, {
+				playlistId,
+				actionDocId,
+				actionId,
+				userData,
+			})
+
+			expect(result.errorMessage).toBe(errorMessage)
+			expect(result.taken).toBeFalsy()
+		})
 	})
 })

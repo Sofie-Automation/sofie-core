@@ -44,6 +44,13 @@ export interface IActionExecutionContext
 	/** Insert a queued part to follow the taken part */
 	queuePartAfterTake(part: IBlueprintPart, pieces: IBlueprintPiece[]): void
 
+	/**
+	 * Reject the action request with an error message.
+	 * This will cause the API to return a 400 error response.
+	 * @param message Error message to return to the client
+	 */
+	rejectRequest(message: string): void
+
 	/** Misc actions */
 	// updateAction(newManifest: Pick<IBlueprintAdLibActionManifest, 'description' | 'payload'>): void // only updates itself. to allow for the next one to do something different
 	// executePeripheralDeviceAction(deviceId: string, functionName: string, args: any[]): Promise<any>

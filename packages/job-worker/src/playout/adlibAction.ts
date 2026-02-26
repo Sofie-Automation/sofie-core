@@ -283,6 +283,7 @@ export async function executeActionInner(
 	return {
 		queuedPartInstanceId: actionContext.queuedPartInstanceId,
 		taken: actionContext.takeAfterExecute,
+		errorMessage: actionContext.requestError,
 	}
 }
 
