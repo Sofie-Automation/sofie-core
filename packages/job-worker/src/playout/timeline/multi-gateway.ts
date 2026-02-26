@@ -191,7 +191,7 @@ function deNowifyInfinites(
 		if (Array.isArray(obj.enable) || obj.enable.start !== 'now') continue
 
 		if (!obj.inGroup) {
-			obj.enable = { start: targetNowTime }
+			obj.enable = { ...obj.enable, start: targetNowTime }
 			continue
 		}
 
@@ -209,7 +209,7 @@ function deNowifyInfinites(
 			continue
 		}
 
-		obj.enable = { start: targetNowTime - parentStartTime }
+		obj.enable = { ...obj.enable, start: targetNowTime - parentStartTime }
 		logger.silly(
 			`deNowifyInfinites: Setting "${obj.id}" enable.start = ${obj.enable.start}, ${targetNowTime} ${parentStartTime} parentObject: "${parentObject.id}"`
 		)
