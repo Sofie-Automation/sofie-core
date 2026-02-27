@@ -354,10 +354,6 @@ function setPlannedTimingsOnPieceInstance(
 				? plannedStart + pieceInstance.pieceInstance.piece.enable.duration
 				: partPlannedEnd)
 
-		logger.silly(
-			`setPlannedTimingsOnPieceInstance: pieceInstance "${pieceInstance.pieceInstance._id}" plannedStart: ${plannedStart} plannedEnd: ${plannedEnd} userDurationEnd: ${userDurationEnd}`
-		)
-
 		pieceInstance.setPlannedStoppedPlayback(plannedEnd)
 	}
 }
