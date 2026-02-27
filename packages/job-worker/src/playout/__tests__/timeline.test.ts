@@ -1893,11 +1893,11 @@ describe('Timeline', () => {
 						currentInfinitePieces: {
 							piece002: {
 								// Should still be based on the time of previousPart
-								partGroup: { start: firstPartTakeTime },
 								pieceGroup: {
 									controlObj: { start: 500 },
 									childGroup: { preroll: 0, postroll: 0 },
 								},
+								partGroup: { start: firstPartTakeTime - 500 }, // this is Piece plannedStartedPlayback minus pieceGroup.controlObj.start
 							},
 						},
 						previousOutTransition: undefined,
@@ -1973,7 +1973,7 @@ describe('Timeline', () => {
 										},
 									},
 									partGroup: {
-										start: plannedStartedPlayback,
+										start: plannedStartedPlayback - 500, // this is plannedStartedPlayback minus pieceGroup.controlObj.start
 									},
 								},
 							},
