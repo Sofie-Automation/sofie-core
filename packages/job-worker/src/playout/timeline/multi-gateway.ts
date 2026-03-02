@@ -191,7 +191,7 @@ function deNowifyInfinites(
 		if (Array.isArray(obj.enable) || obj.enable.start !== 'now') continue
 
 		if (!obj.inGroup) {
-			obj.enable = { start: targetNowTime }
+			obj.enable = { ...obj.enable, start: targetNowTime }
 			continue
 		}
 
@@ -209,7 +209,7 @@ function deNowifyInfinites(
 			continue
 		}
 
-		obj.enable = { start: targetNowTime - parentStartTime }
+		obj.enable = { ...obj.enable, start: targetNowTime - parentStartTime }
 		logger.silly(
 			`deNowifyInfinites: Setting "${obj.id}" enable.start = ${obj.enable.start}, ${targetNowTime} ${parentStartTime} parentObject: "${parentObject.id}"`
 		)
@@ -346,7 +346,7 @@ function setPlannedTimingsOnPieceInstance(
 
 		const userDurationEnd =
 			pieceInstance.pieceInstance.userDuration && 'endRelativeToPart' in pieceInstance.pieceInstance.userDuration
-				? pieceInstance.pieceInstance.userDuration.endRelativeToPart
+				? partPlannedStart + pieceInstance.pieceInstance.userDuration.endRelativeToPart
 				: null
 		const plannedEnd =
 			userDurationEnd ??
@@ -381,12 +381,25 @@ function preserveOrTrackInfiniteTimings(
 	if (startedPlayback) {
 		const infinitePartGroupId = getInfinitePartGroupId(pieceInstance.pieceInstance._id)
 		const infinitePartGroupObj = timelineObjsMap[infinitePartGroupId]
+		const pieceControlObjectId = getPieceControlObjectId(pieceInstance.pieceInstance)
+		const pieceControlObj = timelineObjsMap[pieceControlObjectId]
+
+		// this replicates what generateCurrentInfinitePieceObjects() does
+		let pieceEnableStartOffset = 0
+		if (
+			pieceControlObj &&
+			!Array.isArray(pieceControlObj.enable) &&
+			typeof pieceControlObj.enable?.start === 'number'
+		) {
+			pieceEnableStartOffset = pieceControlObj.enable.start
+		}
+
 		if (
 			infinitePartGroupObj &&
 			!Array.isArray(infinitePartGroupObj.enable) &&
 			typeof infinitePartGroupObj.enable.start === 'string'
 		) {
-			infinitePartGroupObj.enable.start = startedPlayback
+			infinitePartGroupObj.enable.start = startedPlayback - pieceEnableStartOffset
 		}
 	}
 }
