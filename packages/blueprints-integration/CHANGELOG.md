@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.52.16-nrk](https://github.com/Sofie-Automation/sofie-core/compare/v1.52.15-nrk...v1.52.16-nrk) (2026-03-02)
+
+
+### Features
+
+* **core:** RundownPlaylist filters in Action Triggers ([3a41985](https://github.com/Sofie-Automation/sofie-core/commit/3a4198562baba66382b2bf0f8a21c55e8c346b8c))
+
+
+
+
+
 ## [1.52.15-nrk](https://github.com/Sofie-Automation/sofie-core/compare/v1.52.14-nrk...v1.52.15-nrk) (2026-01-22)
 
 **Note:** Version bump only for package @sofie-automation/blueprints-integration

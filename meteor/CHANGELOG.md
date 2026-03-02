@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.52.16-nrk](///compare/v1.52.15-nrk...v1.52.16-nrk) (2026-03-02)
+
+
+### Features
+
+* **core:** RundownPlaylist filters in Action Triggers 3a41985
+
+
+### Bug Fixes
+
+* backport https://github.com/Sofie-Automation/sofie-core/pull/1628 64f1655
+* **job-worker:** fix infiniteGroup mangling for multiGatewayMode e35b512
+* **job-worker:** plannedStopPlayback is wrong when set from endRelativeToPart dcebe12
+* make sure pieceControlObj exists ec1801f
+* multi-gateway timelines change timeline when regenerating 49a016e
+* preserveOrTrackInfiniteTimings needs to keep infinitePartGroupObj.enable.start in place f8cd9f9
+* remove over-eager debug logging filtering from connectionManager 567105f
+* styleClassNames are not updated when updating triggeredActions 292e02d
+
 ### [1.52.15-nrk](https://github.com/Sofie-Automation/sofie-core/compare/v1.52.14-nrk...v1.52.15-nrk) (2026-01-22)
 
 

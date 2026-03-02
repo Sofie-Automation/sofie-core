@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.52.16-nrk](https://github.com/Sofie-Automation/sofie-core/compare/v1.52.15-nrk...v1.52.16-nrk) (2026-03-02)
+
+
+### Bug Fixes
+
+* remove over-eager debug logging filtering from connectionManager ([567105f](https://github.com/Sofie-Automation/sofie-core/commit/567105f381580bf9c39b36a8d48e7ac90d3e954d))
+
+
+
+
+
 ## [1.52.15-nrk](https://github.com/Sofie-Automation/sofie-core/compare/v1.52.14-nrk...v1.52.15-nrk) (2026-01-22)
 
 **Note:** Version bump only for package playout-gateway

@@ -1078,7 +1078,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@sofie-automation/blueprints-integration@portal:../packages/blueprints-integration::locator=automation-core%40workspace%3A."
   dependencies:
-    "@sofie-automation/shared-lib": "npm:1.52.15-nrk"
+    "@sofie-automation/shared-lib": "npm:1.52.16-nrk"
     tslib: "npm:^2.8.1"
     type-fest: "npm:^4.33.0"
   languageName: node
@@ -1119,8 +1119,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@sofie-automation/corelib@portal:../packages/corelib::locator=automation-core%40workspace%3A."
   dependencies:
-    "@sofie-automation/blueprints-integration": "npm:1.52.15-nrk"
-    "@sofie-automation/shared-lib": "npm:1.52.15-nrk"
+    "@sofie-automation/blueprints-integration": "npm:1.52.16-nrk"
+    "@sofie-automation/shared-lib": "npm:1.52.16-nrk"
     fast-clone: "npm:^1.5.13"
     i18next: "npm:^21.10.0"
     influx: "npm:^5.9.7"
@@ -1151,9 +1151,9 @@ __metadata:
   resolution: "@sofie-automation/job-worker@portal:../packages/job-worker::locator=automation-core%40workspace%3A."
   dependencies:
     "@slack/webhook": "npm:^7.0.4"
-    "@sofie-automation/blueprints-integration": "npm:1.52.15-nrk"
-    "@sofie-automation/corelib": "npm:1.52.15-nrk"
-    "@sofie-automation/shared-lib": "npm:1.52.15-nrk"
+    "@sofie-automation/blueprints-integration": "npm:1.52.16-nrk"
+    "@sofie-automation/corelib": "npm:1.52.16-nrk"
+    "@sofie-automation/shared-lib": "npm:1.52.16-nrk"
     amqplib: "npm:^0.10.5"
     deepmerge: "npm:^4.3.1"
     elastic-apm-node: "npm:^4.11.0"
@@ -1173,9 +1173,9 @@ __metadata:
   resolution: "@sofie-automation/meteor-lib@portal:../packages/meteor-lib::locator=automation-core%40workspace%3A."
   dependencies:
     "@mos-connection/helper": "npm:^4.3.1"
-    "@sofie-automation/blueprints-integration": "npm:1.52.15-nrk"
-    "@sofie-automation/corelib": "npm:1.52.15-nrk"
-    "@sofie-automation/shared-lib": "npm:1.52.15-nrk"
+    "@sofie-automation/blueprints-integration": "npm:1.52.16-nrk"
+    "@sofie-automation/corelib": "npm:1.52.16-nrk"
+    "@sofie-automation/shared-lib": "npm:1.52.16-nrk"
     deep-extend: "npm:0.6.0"
     semver: "npm:^7.6.3"
     type-fest: "npm:^4.33.0"
