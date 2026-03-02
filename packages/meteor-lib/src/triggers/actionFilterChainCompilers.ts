@@ -627,10 +627,7 @@ export function compileAdLibFilter(
 
 			if (!matchAll) {
 				if (!activationStateMatches || !nameMatches || !studioMatches || !rehearsalMatches) {
-					adLibPieceTypeFilter.skip = true
-					adLibActionTypeFilter.skip = true
-					clearAdLibs.length = 0
-					stickyAdLibs.length = 0
+					return []
 				}
 			}
 		}
