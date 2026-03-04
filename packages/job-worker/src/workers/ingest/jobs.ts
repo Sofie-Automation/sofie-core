@@ -39,7 +39,7 @@ import {
 	handleBucketRemoveAdlibPiece,
 } from '../../ingest/bucket/bucketAdlibs.js'
 import { handleBucketItemImport, handleBucketItemRegenerate } from '../../ingest/bucket/import.js'
-import { handleUserExecuteChangeOperation } from '../../ingest/userOperation.js'
+import { handlePlayoutExecuteChangeOperation, handleUserExecuteChangeOperation } from '../../ingest/userOperation.js'
 import {
 	wrapCustomIngestJob,
 	wrapGenericIngestJob,
@@ -86,6 +86,7 @@ export const ingestJobHandlers: IngestJobHandlers = {
 	[IngestJobs.UserRemoveRundown]: handleUserRemoveRundown,
 	[IngestJobs.UserUnsyncRundown]: handleUserUnsyncRundown,
 	[IngestJobs.UserExecuteChangeOperation]: handleUserExecuteChangeOperation,
+	[IngestJobs.PlayoutExecuteChangeOperation]: handlePlayoutExecuteChangeOperation,
 
 	[IngestJobs.BucketItemImport]: handleBucketItemImport,
 	[IngestJobs.BucketItemRegenerate]: handleBucketItemRegenerate,

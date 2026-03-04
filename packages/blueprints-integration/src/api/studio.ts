@@ -17,6 +17,7 @@ import type {
 	IngestRundown,
 	MutableIngestRundown,
 	UserOperationChange,
+	PlayoutOperationChange,
 } from '../ingest.js'
 import type {
 	ExpectedPlayoutItemGeneric,
@@ -137,7 +138,7 @@ export interface StudioBlueprintManifest<
 		mutableIngestRundown: MutableIngestRundown<any, any, any>,
 		nrcsIngestRundown: IngestRundown,
 		previousNrcsIngestRundown: IngestRundown | undefined,
-		changes: NrcsIngestChangeDetails | UserOperationChange
+		changes: NrcsIngestChangeDetails | UserOperationChange | PlayoutOperationChange
 	) => Promise<void>
 }
 

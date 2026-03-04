@@ -84,6 +84,8 @@ export enum IngestChangeType {
 	Ingest = 'ingest',
 	/** Indicate that this change is from user operations */
 	User = 'user',
+	/** Indicate that this change is from playout operations */
+	Playout = 'playout',
 }
 
 /**
@@ -191,6 +193,19 @@ export interface UserOperationChange<TCustomBlueprintOperations extends { id: st
 	operationTarget: UserOperationTarget
 	operation: DefaultUserOperations | TCustomBlueprintOperations
 }
+export interface PlayoutOperationChange {
+	/** Indicate that this change is from playout operations */
+	source: IngestChangeType.Playout
+
+	/** If known and valid, the id of the segment when this operation occurred */
+	currentSegmentId: string | null
+	/** If known and valid, the id of the part when this operation occurred */
+	currentPartId: string | null
+
+	/** The blueprint defined payload for the operation */
+	operation: unknown
+}
+
 /**
  * The MutableIngestRundown is used to modify the contents of an IngestRundown during ingest.
  * The public properties and methods are used i blueprints to selectively apply incoming
