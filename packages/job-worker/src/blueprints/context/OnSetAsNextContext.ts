@@ -26,10 +26,7 @@ import { BlueprintQuickLookInfo } from '@sofie-automation/blueprints-integration
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { selectNewPartWithOffsets } from '../../playout/moveNextPart.js'
 import { getOrderedPartsAfterPlayhead } from '../../playout/lookahead/util.js'
-import { convertPartToBlueprints } from './lib.js'
-import { IngestJobs } from '@sofie-automation/corelib/dist/worker/ingest'
-import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
-import { logger } from '../../logging.js'
+import { convertPartToBlueprints, emitIngestOperation } from './lib.js'
 
 export class OnSetAsNextContext
 	extends ShowStyleUserContext
@@ -160,25 +157,7 @@ export class OnSetAsNextContext
 	}
 
 	async emitIngestOperation(operation: unknown): Promise<void> {
-		const refPartInstance = this.playoutModel.currentPartInstance ?? this.playoutModel.nextPartInstance
-		if (!refPartInstance)
-			throw new Error('Cannot emit ingest operation when there is no current or next partInstance')
-
-		const rundown = this.playoutModel.getRundown(refPartInstance.partInstance.rundownId)
-		if (!rundown) throw new Error('Cannot emit ingest operation when the partInstance has no rundown')
-
-		await this.jobContext
-			.queueIngestJob(IngestJobs.PlayoutExecuteChangeOperation, {
-				rundownExternalId: rundown.rundown.externalId,
-				segmentId: refPartInstance?.partInstance.segmentId ?? null,
-				partId: refPartInstance?.partInstance.part._id ?? null,
-				operation,
-			})
-			.catch((e) => {
-				logger.warn(`Failed to queue ingest operation: ${stringifyError(e)}`)
-
-				throw new Error('Internal error while queueing ingest operation')
-			})
+		await emitIngestOperation(this.jobContext, this.playoutModel, operation)
 	}
 
 	getCurrentTime(): number {

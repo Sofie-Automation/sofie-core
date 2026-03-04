@@ -5,7 +5,7 @@ import {
 import { JobContext } from '../jobs/index.js'
 import { UpdateIngestRundownResult, runIngestUpdateOperationBase } from './runOperation.js'
 import { IngestChangeType } from '@sofie-automation/blueprints-integration'
-import { unprotectString } from '@sofie-automation/corelib/dist/protectedString.js'
+import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 
 export async function handleUserExecuteChangeOperation(
 	context: JobContext,
@@ -40,7 +40,7 @@ export async function handlePlayoutExecuteChangeOperation(
 				source: IngestChangeType.Playout,
 				currentSegmentId: unprotectString(data.segmentId),
 				currentPartId: unprotectString(data.partId),
-				operation: data.operation as unknown as any,
+				operation: data.operation,
 			},
 		} satisfies UpdateIngestRundownResult
 	})
