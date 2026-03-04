@@ -43,7 +43,7 @@ export class DatastoreActionExecutionContext
 	extends ShowStyleUserContext
 	implements IDataStoreActionExecutionContext, IEventContext
 {
-	protected readonly jobContext: JobContext
+	protected readonly _context: JobContext
 
 	constructor(
 		contextInfo: ContextInfo,
@@ -52,15 +52,15 @@ export class DatastoreActionExecutionContext
 		watchedPackages: WatchedPackagesHelper
 	) {
 		super(contextInfo, context, showStyle, watchedPackages)
-		this.jobContext = context
+		this._context = context
 	}
 
 	async setTimelineDatastoreValue(key: string, value: unknown, mode: DatastorePersistenceMode): Promise<void> {
-		await setTimelineDatastoreValue(this.jobContext, key, value, mode)
+		await setTimelineDatastoreValue(this._context, key, value, mode)
 	}
 
 	async removeTimelineDatastoreValue(key: string): Promise<void> {
-		await removeTimelineDatastoreValue(this.jobContext, key)
+		await removeTimelineDatastoreValue(this._context, key)
 	}
 
 	getCurrentTime(): number {
