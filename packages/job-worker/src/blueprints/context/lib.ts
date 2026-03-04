@@ -734,8 +734,8 @@ export async function emitIngestOperation(
 	await context
 		.queueIngestJob(IngestJobs.PlayoutExecuteChangeOperation, {
 			rundownExternalId: rundown.rundown.externalId,
-			segmentId: refPartInstance?.partInstance.segmentId ?? null,
-			partId: refPartInstance?.partInstance.part._id ?? null,
+			segmentId: refPartInstance.partInstance.segmentId ?? null,
+			partId: refPartInstance.partInstance.part._id ?? null,
 			operation,
 		})
 		.catch((e) => {
