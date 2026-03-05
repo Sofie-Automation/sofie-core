@@ -589,7 +589,22 @@ resources:
                   description: May be specified to ensure that multiple take requests from the same Part do not result in multiple takes.
       responses:
         200:
-          $ref: '#/components/responses/putSuccess'
+          description: Take was successful - returns the next allowed take time.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 200
+                  result:
+                    type: object
+                    properties:
+                      nextTakeTime:
+                        type: number
+                        description: Unix timestamp (ms) of when the next take will be allowed.
+                        example: 1707024000000
         404:
           $ref: '#/components/responses/playlistNotFound'
         412:
@@ -605,6 +620,40 @@ resources:
                   message:
                     type: string
                     example: No Next point found, please set a part as Next before doing a TAKE.
+        425:
+          description: Take is blocked due to a transition or adlib action.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 425
+                  message:
+                    type: string
+                    example: Cannot take during a transition
+                  additionalInfo:
+                    type: object
+                    description: Additional error details, e.g. includes nextAllowedTakeTime (Unix timestamp ms) for blocked takes.
+                    additionalProperties: true
+        429:
+          description: Take rate limit exceeded - takes are happening too quickly.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 429
+                  message:
+                    type: string
+                    example: Ignoring TAKES that are too quick after eachother (1000 ms)
+                  additionalInfo:
+                    type: object
+                    description: Additional error details, e.g. includes nextAllowedTakeTime (Unix timestamp ms) for blocked takes.
+                    additionalProperties: true
         500:
           $ref: '#/components/responses/internalServerError'
 

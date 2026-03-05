@@ -6,7 +6,11 @@ import { BucketAdLib } from '@sofie-automation/corelib/dist/dataModel/BucketAdLi
 import { AdLibActionCommon } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
 import { BucketAdLibAction } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibAction'
 import { Time } from '@sofie-automation/blueprints-integration'
-import { ExecuteActionResult, QueueNextSegmentResult } from '@sofie-automation/corelib/dist/worker/studio'
+import {
+	ExecuteActionResult,
+	QueueNextSegmentResult,
+	TakeNextPartResult,
+} from '@sofie-automation/corelib/dist/worker/studio'
 import {
 	AdLibActionId,
 	BucketAdLibActionId,
@@ -34,7 +38,7 @@ export interface NewUserActionAPI {
 		eventTime: Time,
 		rundownPlaylistId: RundownPlaylistId,
 		fromPartInstanceId: PartInstanceId | null
-	): Promise<ClientAPI.ClientResponse<void>>
+	): Promise<ClientAPI.ClientResponse<TakeNextPartResult>>
 	setNext(
 		userEvent: string,
 		eventTime: Time,

@@ -117,6 +117,7 @@ interface APIRequestError {
 	status: number
 	message: string
 	details?: string[]
+	additionalInfo?: Record<string, unknown>
 }
 
 function sofieAPIRequest<API, Params, Body, Response>(
@@ -133,6 +134,7 @@ function sofieAPIRequest<API, Params, Body, Response>(
 	) => Promise<ClientAPI.ClientResponse<Response>>
 ) {
 	koaRouter[method](route, async (ctx, next) => {
+		let responseAdditionalInfo: Record<string, unknown> | undefined
 		try {
 			const context = new APIContext()
 			const serverAPI = serverAPIFactory.createServerAPI(context)
@@ -144,6 +146,7 @@ function sofieAPIRequest<API, Params, Body, Response>(
 				ctx.request.body as unknown as Body
 			)
 			if (ClientAPI.isClientResponseError(response)) {
+				responseAdditionalInfo = response.additionalInfo
 				throw UserError.fromSerialized(response.error)
 			}
 			ctx.body = JSON.stringify({ status: response.success, result: response.result })
@@ -176,7 +179,8 @@ function sofieAPIRequest<API, Params, Body, Response>(
 			ctx.type = 'application/json'
 			const bodyObj: APIRequestError = { status: errCode, message: errMsg }
 			const details = extractErrorDetails(e)
-			if (details) bodyObj['details'] = details
+			if (details) bodyObj.details = details
+			if (responseAdditionalInfo) bodyObj.additionalInfo = responseAdditionalInfo
 			ctx.body = JSON.stringify(bodyObj)
 			ctx.status = errCode
 		}
