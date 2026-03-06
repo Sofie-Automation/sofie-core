@@ -2,7 +2,7 @@ import type { DatastorePersistenceMode, Time } from '../common.js'
 import type { IEventContext } from './index.js'
 import type { IShowStyleUserContext } from './showStyleContext.js'
 import { IPartAndPieceActionContext } from './partsAndPieceActionContext.js'
-import { IExecuteTSRActionsContext } from './executeTsrActionContext.js'
+import { IExecuteTSRActionsContext, ITriggerIngestChangeContext } from './executeTsrActionContext.js'
 import { IBlueprintPart, IBlueprintPartInstance, IBlueprintPiece } from '../index.js'
 import { IRouteSetMethods } from './routeSetContext.js'
 
@@ -27,6 +27,7 @@ export interface IActionExecutionContext
 		IDataStoreMethods,
 		IPartAndPieceActionContext,
 		IExecuteTSRActionsContext,
+		ITriggerIngestChangeContext,
 		IRouteSetMethods {
 	/** Fetch the showstyle config for the specified part */
 	// getNextShowStyleConfig(): Readonly<{ [key: string]: ConfigItemValue }>

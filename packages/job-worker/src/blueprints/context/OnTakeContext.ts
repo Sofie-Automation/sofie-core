@@ -30,7 +30,7 @@ import {
 } from './services/PartAndPieceInstanceActionService.js'
 import { BlueprintQuickLookInfo } from '@sofie-automation/blueprints-integration/dist/context/quickLoopInfo'
 import { getOrderedPartsAfterPlayhead } from '../../playout/lookahead/util.js'
-import { convertPartToBlueprints } from './lib.js'
+import { convertPartToBlueprints, emitIngestOperation } from './lib.js'
 
 export class OnTakeContext extends ShowStyleUserContext implements IOnTakeContext, IEventContext {
 	public isTakeAborted: boolean
@@ -180,6 +180,10 @@ export class OnTakeContext extends ShowStyleUserContext implements IOnTakeContex
 			this._playoutModel.currentPartInstance.partInstance.rundownId,
 			this._playoutModel.currentPartInstance.partInstance.segmentId
 		)
+	}
+
+	async emitIngestOperation(operation: unknown): Promise<void> {
+		await emitIngestOperation(this._context, this._playoutModel, operation)
 	}
 
 	getCurrentTime(): number {

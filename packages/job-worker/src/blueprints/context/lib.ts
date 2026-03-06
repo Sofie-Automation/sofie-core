@@ -70,6 +70,10 @@ import {
 import type { PlayoutMutatablePart } from '../../playout/model/PlayoutPartInstanceModel.js'
 import { BlueprintQuickLookInfo } from '@sofie-automation/blueprints-integration/dist/context/quickLoopInfo'
 import { IngestPartNotifyItemReady } from '@sofie-automation/shared-lib/dist/ingest/rundownStatus'
+import { PlayoutModel } from '../../playout/model/PlayoutModel.js'
+import { IngestJobs } from '@sofie-automation/corelib/dist/worker/ingest'
+import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
+import { logger } from '../../logging.js'
 
 /**
  * Convert an object to have all the values of all keys (including optionals) be 'true'
@@ -714,4 +718,29 @@ export function createBlueprintQuickLoopInfo(playlist: ReadonlyDeep<DBRundownPla
 		running: playlistLoopProps.running,
 		locked: playlistLoopProps.locked,
 	}
+}
+
+export async function emitIngestOperation(
+	context: JobContext,
+	playoutModel: PlayoutModel,
+	operation: unknown
+): Promise<void> {
+	const refPartInstance = playoutModel.currentPartInstance ?? playoutModel.nextPartInstance
+	if (!refPartInstance) throw new Error('Cannot emit ingest operation when there is no current or next partInstance')
+
+	const rundown = playoutModel.getRundown(refPartInstance.partInstance.rundownId)
+	if (!rundown) throw new Error('Cannot emit ingest operation when the partInstance has no rundown')
+
+	await context
+		.queueIngestJob(IngestJobs.PlayoutExecuteChangeOperation, {
+			rundownExternalId: rundown.rundown.externalId,
+			segmentId: refPartInstance.partInstance.segmentId ?? null,
+			partId: refPartInstance.partInstance.part._id ?? null,
+			operation,
+		})
+		.catch((e) => {
+			logger.warn(`Failed to queue ingest operation: ${stringifyError(e)}`)
+
+			throw new Error('Internal error while queueing ingest operation')
+		})
 }

@@ -14,6 +14,7 @@ import {
 	UserOperationChange,
 	SofieIngestSegment,
 	IngestChangeType,
+	PlayoutOperationChange,
 } from '@sofie-automation/blueprints-integration'
 import { MutableIngestRundownImpl } from '../blueprints/ingest/MutableIngestRundownImpl.js'
 import { ProcessIngestDataContext } from '../blueprints/context/index.js'
@@ -37,7 +38,7 @@ export enum ComputedIngestChangeAction {
 
 export interface UpdateIngestRundownChange {
 	ingestRundown: IngestRundownWithSource
-	changes: NrcsIngestChangeDetails | UserOperationChange
+	changes: NrcsIngestChangeDetails | UserOperationChange | PlayoutOperationChange
 }
 
 export type UpdateIngestRundownResult = UpdateIngestRundownChange | ComputedIngestChangeAction

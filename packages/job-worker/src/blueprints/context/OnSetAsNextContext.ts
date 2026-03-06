@@ -26,7 +26,7 @@ import { BlueprintQuickLookInfo } from '@sofie-automation/blueprints-integration
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { selectNewPartWithOffsets } from '../../playout/moveNextPart.js'
 import { getOrderedPartsAfterPlayhead } from '../../playout/lookahead/util.js'
-import { convertPartToBlueprints } from './lib.js'
+import { convertPartToBlueprints, emitIngestOperation } from './lib.js'
 
 export class OnSetAsNextContext
 	extends ShowStyleUserContext
@@ -154,6 +154,10 @@ export class OnSetAsNextContext
 		}
 
 		return !!this.pendingMoveNextPart.selectedPart
+	}
+
+	async emitIngestOperation(operation: unknown): Promise<void> {
+		await emitIngestOperation(this.jobContext, this.playoutModel, operation)
 	}
 
 	getCurrentTime(): number {

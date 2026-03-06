@@ -37,7 +37,7 @@ import {
 import { BlueprintQuickLookInfo } from '@sofie-automation/blueprints-integration/dist/context/quickLoopInfo'
 import { setNextPartFromPart } from '../../playout/setNext.js'
 import { getOrderedPartsAfterPlayhead } from '../../playout/lookahead/util.js'
-import { convertPartToBlueprints } from './lib.js'
+import { convertPartToBlueprints, emitIngestOperation } from './lib.js'
 
 export class DatastoreActionExecutionContext
 	extends ShowStyleUserContext
@@ -276,6 +276,10 @@ export class ActionExecutionContext extends ShowStyleUserContext implements IAct
 		this._playoutModel.deferAfterSave(async () => {
 			await removeTimelineDatastoreValue(this._context, key)
 		})
+	}
+
+	async emitIngestOperation(operation: unknown): Promise<void> {
+		await emitIngestOperation(this._context, this._playoutModel, operation)
 	}
 
 	getCurrentTime(): number {
