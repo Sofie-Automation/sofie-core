@@ -161,7 +161,7 @@ jobs:
           cd meteor/bundle/programs/server
           meteor npm install
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       # Check how the image should be built and pushed
       - name: Determine if images should be published to DockerHub
@@ -334,7 +334,7 @@ jobs:
           yarn run pinst --disable
           yarn workspaces focus ${{ matrix.gateway-name }} --production
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       # Check how the image should be built and pushed
       - name: Determine if images should be published to DockerHub
