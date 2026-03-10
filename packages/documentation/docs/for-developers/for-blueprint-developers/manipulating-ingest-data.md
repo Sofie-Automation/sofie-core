@@ -18,7 +18,7 @@ function processIngestData(
 	changes: NrcsIngestChangeDetails | UserOperationChange
 ) {
 	if (changes.source === 'ingest') {
-		blueprintContext.defaultApplyIngestChanges(mutableIngestRundown, nrcsIngestRundown, changes)
+		context.defaultApplyIngestChanges(mutableIngestRundown, nrcsIngestRundown, changes)
 	}
 }
 ```
@@ -55,7 +55,7 @@ function processIngestData(
 		const groupedResult = context.groupMosPartsInRundownAndChangesWithSeparator(
 			nrcsIngestRundown,
 			previousNrcsIngestRundown,
-			ingestRundownChanges.changes,
+			changes,
 			';' // Backwards compatibility
 		)
 
