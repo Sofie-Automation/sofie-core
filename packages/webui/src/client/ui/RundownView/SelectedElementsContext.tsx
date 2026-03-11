@@ -28,7 +28,7 @@ import { UIParts } from '../Collections.js'
 import type {
 	CoreUserEditingDefinition,
 	CoreUserEditingProperties,
-} from '@sofie-automation/corelib/src/dataModel/UserEditingDefinitions.js'
+} from '@sofie-automation/corelib/dist/dataModel/UserEditingDefinitions.js'
 import type { ITranslatableMessage } from '@sofie-automation/shared-lib/dist/lib/translations.js'
 
 interface RundownElement {

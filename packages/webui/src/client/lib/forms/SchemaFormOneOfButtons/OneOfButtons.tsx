@@ -180,14 +180,13 @@ function OneOfVariantButtonComplex({
 
 	useEffect(() => {
 		if (selected && value !== undefined && !_.isEqual(oldValue.current, value)) {
-			setEditingValue(value)
-			oldValue.current = value
-		}
-	}, [value, discProperty, typeValue, selected])
-
-	useEffect(() => {
-		if (selected && value !== undefined && !_.isEqual(oldValue.current, value) && oldValue.current === undefined) {
-			handleUpdateRef.current?.(editingValue)
+			// Initial push: when oldValue is undefined, call handleUpdateRef first
+			if (oldValue.current === undefined) {
+				handleUpdateRef.current?.(editingValue)
+			} else {
+				// Value change: sync editingValue
+				setEditingValue(value)
+			}
 			oldValue.current = value
 		}
 	}, [value, discProperty, typeValue, selected, editingValue])

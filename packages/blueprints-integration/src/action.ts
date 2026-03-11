@@ -131,13 +131,13 @@ export interface IBlueprintActionManifest<TPrivateData = unknown, TPublicData = 
 	expectedPackages?: ExpectedPackage.Any[]
 
 	/**
-	 * User editing definitions for this piece
+	 * User editing definitions for this action
 	 */
 	userEditOperations?: UserEditingDefinition[]
 
 	/**
 	 * Properties that are user editable from the properties panel in the Sofie UI, if the user saves changes to these
-	 * it will trigger a user edit operation of type DefaultUserOperationEditProperties
+	 * it will trigger a user edit operation of type DefaultUserOperationsTypes.UPDATE_PROPS
 	 */
 	userEditProperties?: UserEditingProperties
 }
