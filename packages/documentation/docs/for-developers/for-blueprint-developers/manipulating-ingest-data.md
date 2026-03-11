@@ -107,13 +107,11 @@ You can of course do any portions of this yourself if you desire.
 
 In some cases, it can be beneficial to allow the user to perform some editing of the Rundown from within the Sofie UI. AdLibs and AdLib Actions can allow for some of this to be done in the current and next Part, but this is limited and doesn't persist when re-running the Part.
 
-The idea here is that the UI will be given some descriptors on operations it can perform, which will then make calls to `processIngestData` so that they can be applied to the IngestRundown. Doing it at this level allows things to persist and for decisions to be made by blueprints over how to merge the changes when an update for a Part is received from the NRCS.
+Rundowns, Segments, Parts and Pieces can declare supported operations (via the optional [`userEditOperations`](https://sofie-automation.github.io/sofie-core/typedoc/interfaces/_sofie-automation_blueprints-integration.IBlueprintPiece.html#usereditoperations) property). As these operations are requested by the User in Sofie, Sofie will then make calls to `processIngestData` so that they can be applied to the IngestRundown. Doing it at this level allows things to persist and for decisions to be made by blueprints over how to merge the changes when an update for a Part is received from the NRCS.
 
-This page doesn't go into how to define the editor for the UI, just how to handle the operations.
+You can check the TypeScript types for the builtin operations that you might want to handle - they are definied in the [`DefaultUserOperationsTypes`](https://sofie-automation.github.io/sofie-core/typedoc/enums/_sofie-automation_blueprints-integration.DefaultUserOperationsTypes.html) enum.
 
-There are a few Sofie defined definitions of operations, but it is also expected that custom operations will be defined. You can check the Typescript types for the builtin operations that you might want to handle.
-
-For example, it could be possible for Segments to be locked, so that any NRCS changes for them are ignored.
+For example, it could be possible for Segments to be locked, so that any NRCS changes for them are ignored. Inside of processIngestData this can be achieved like so:
 
 ```ts
 function processIngestData(
