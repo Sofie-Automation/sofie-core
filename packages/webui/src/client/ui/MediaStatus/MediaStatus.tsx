@@ -9,6 +9,7 @@ import {
 	PieceInstanceId,
 	RundownBaselineAdLibActionId,
 	RundownId,
+	RundownPlaylistActivationId,
 	RundownPlaylistId,
 	SegmentId,
 	ShowStyleBaseId,
@@ -259,14 +260,7 @@ function useMediaStatusSubscriptions(
 	let counter = 0
 	readyStatus[counter++] = useSubscription(CorelibPubSub.rundownPlaylists, playlistIds, null)
 	readyStatus[counter++] = useSubscription(CorelibPubSub.rundownsInPlaylists, playlistIds)
-	const uiShowStyleBaseSubArguments = useMemo(
-		() => showStyleBaseIds.map((showStyleBaseId) => [showStyleBaseId] as [ShowStyleBaseId]),
-		[showStyleBaseIds]
-	)
-	readyStatus[counter++] = useSubscriptions(MeteorPubSub.uiShowStyleBase, uiShowStyleBaseSubArguments)
 	readyStatus[counter++] = useSubscription(CorelibPubSub.segments, rundownIds, {})
-	readyStatus[counter++] = useSubscription(CorelibPubSub.parts, rundownIds, null)
-	readyStatus[counter++] = useSubscription(CorelibPubSub.partInstancesSimple, rundownIds, null)
 	readyStatus[counter++] = useSubscription(CorelibPubSub.pieceInstancesSimple, rundownIds, null)
 	readyStatus[counter++] = useSubscription(CorelibPubSub.pieces, rundownIds, null)
 	readyStatus[counter++] = useSubscription(CorelibPubSub.adLibActions, rundownIds)
@@ -274,11 +268,39 @@ function useMediaStatusSubscriptions(
 	readyStatus[counter++] = useSubscription(CorelibPubSub.rundownBaselineAdLibActions, rundownIds)
 	readyStatus[counter++] = useSubscription(CorelibPubSub.rundownBaselineAdLibPieces, rundownIds)
 
-	const uiPieceContentStatusesSubArguments = useMemo(
-		() => playlistIds.map((playlistIds) => [playlistIds] as [RundownPlaylistId]),
-		[playlistIds]
+	readyStatus[counter++] = useSubscriptions(
+		MeteorPubSub.uiShowStyleBase,
+		showStyleBaseIds.map((id) => [id])
 	)
-	readyStatus[counter++] = useSubscriptions(CorelibPubSub.uiPieceContentStatuses, uiPieceContentStatusesSubArguments)
+	readyStatus[counter++] = useSubscriptions(
+		MeteorPubSub.uiParts,
+		playlistIds.map((id) => [id])
+	)
+	readyStatus[counter++] = useSubscriptions(
+		CorelibPubSub.uiPieceContentStatuses,
+		playlistIds.map((id) => [id])
+	)
+
+	const playlistActivationIds = useTracker(
+		() =>
+			RundownPlaylists.find(
+				{
+					_id: {
+						$in: playlistIds,
+					},
+				},
+				{ projection: { activationId: 1 } }
+			)
+				.fetch()
+				.map((playlist) => playlist.activationId)
+				.filter(Boolean) as RundownPlaylistActivationId[],
+		[playlistIds],
+		[]
+	)
+	readyStatus[counter++] = useSubscriptions(
+		MeteorPubSub.uiPartInstances,
+		playlistActivationIds.map((id) => [id])
+	)
 
 	return readyStatus.reduce((mem, current) => mem && current, true)
 }
