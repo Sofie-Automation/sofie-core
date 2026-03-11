@@ -52,21 +52,47 @@ export function PropertiesPanel(): JSX.Element {
 	const [hadSmallestElement, setHadSmallestElement] = useState(false)
 
 	useEffect(() => {
-		if (selectedObjects.piece) setHadSmallestElement(true)
-	}, [selectedObjects.piece])
+		if (
+			selectedObjects.piece ||
+			selectedObjects.adLibPiece ||
+			selectedObjects.rundownBaselineAdLibPiece ||
+			selectedObjects.adLibAction ||
+			selectedObjects.rundownBaselineAdLibAction
+		)
+			setHadSmallestElement(true)
+	}, [
+		selectedObjects.piece,
+		selectedObjects.adLibPiece,
+		selectedObjects.rundownBaselineAdLibPiece,
+		selectedObjects.adLibAction,
+		selectedObjects.rundownBaselineAdLibAction,
+	])
 
 	useEffect(() => {
 		const pieceChangedId =
 			selectedElement?.type !== 'segment' &&
 			selectedElement?.type !== 'part' &&
 			hadSmallestElement &&
-			selectedObjects.piece === undefined
+			selectedObjects.piece === undefined &&
+			selectedObjects.adLibPiece === undefined &&
+			selectedObjects.rundownBaselineAdLibPiece === undefined &&
+			selectedObjects.adLibAction === undefined &&
+			selectedObjects.rundownBaselineAdLibAction === undefined
 
 		if (pieceChangedId) {
 			setHadSmallestElement(false)
 			clearSelections()
 		}
-	}, [selectedElement, selectedObjects.piece, hadSmallestElement, clearSelections])
+	}, [
+		selectedElement,
+		selectedObjects.piece,
+		selectedObjects.adLibPiece,
+		selectedObjects.rundownBaselineAdLibPiece,
+		selectedObjects.adLibAction,
+		selectedObjects.rundownBaselineAdLibAction,
+		hadSmallestElement,
+		clearSelections,
+	])
 
 	const handleCommitChanges = async (e: React.MouseEvent) => {
 		if (!rundownId || !selectedElement || !pendingChange) return
@@ -100,12 +126,9 @@ export function PropertiesPanel(): JSX.Element {
 		if (!target) return
 
 		// Revert can only happen on a per-part or per-segment basis, so if the target is a piece, we need to convert it to a part or segment target
-		if ((target.target === 'segment' || target.target === 'part') && target.segmentExternalId) {
+		if (target.segmentExternalId) {
 			target =
-				target.target !== 'segment' &&
-				'partExternalId' in target &&
-				'segmentExternalId' in target &&
-				target.partExternalId !== undefined
+				target.target !== 'segment' && 'partExternalId' in target && target.partExternalId !== undefined
 					? {
 							target: 'part',
 							segmentExternalId: target.segmentExternalId,
