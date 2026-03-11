@@ -1,6 +1,6 @@
 # TSR Plugins
 
-As of 1.53, it is possible to load additional device integrations into TSR as 'plugins'. This is intended to be an escape hatch when you need to make an integration for an internal system or for when an NDA with a device vendor does not allow for opensourcing. We still encourage anything which can be made opensource to be contributed back.
+As of 26.03, it is possible to load additional device integrations into TSR as 'plugins'. This is intended to be an escape hatch when you need to make an integration for an internal system or for when an NDA with a device vendor does not allow for opensourcing. We still encourage anything which can be made opensource to be contributed back.
 
 ## Creating a plugin
 
