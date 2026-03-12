@@ -11,10 +11,7 @@ import ClassNames from 'classnames'
 import { DatePickerFromTo } from '../../lib/datePicker.js'
 import moment from 'moment'
 import { faTrash, faPause, faPlay, faRedo } from '@fortawesome/free-solid-svg-icons'
-import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { MeteorCall } from '../../lib/meteorApi.js'
-import { UIStudios } from '../Collections.js'
-import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ExternalMessageQueue } from '../../collections/index.js'
 import { catchError } from '../../lib/lib.js'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
@@ -23,48 +20,13 @@ import { UserPermissionsContext } from '../UserPermissions.js'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 
-function ExternalMessages(): JSX.Element {
+export function ExternalMessages(): JSX.Element {
 	const { t } = useTranslation()
 
-	useSubscription(MeteorPubSub.uiStudio, null)
-
-	const studios = useTracker(() => UIStudios.find({}).fetch(), [], [])
-
-	const [selectedStudioId, setSelectedStudioId] = useState<StudioId | null>(null)
-
-	return (
-		<div className="external-message-status">
-			<header className="mb-2">
-				<h1>{t('Message Queue')}</h1>
-			</header>
-			<div className="my-5">
-				<strong>Studio</strong>
-				<ul>
-					{studios.map((studio) => {
-						return (
-							<li key={unprotectString(studio._id)}>
-								<a href="#" onClick={() => setSelectedStudioId(studio._id)}>
-									{studio.name}
-								</a>
-							</li>
-						)
-					})}
-				</ul>
-			</div>
-			<div>{selectedStudioId ? <ExternalMessagesInStudio studioId={selectedStudioId} /> : null}</div>
-		</div>
-	)
-}
-
-interface IExternalMessagesInStudioProps {
-	studioId: StudioId
-}
-function ExternalMessagesInStudio({ studioId }: Readonly<IExternalMessagesInStudioProps>) {
 	const [dateFrom, setDateFrom] = useState(() => moment().startOf('day').valueOf())
 	const [dateTo, setDateTo] = useState(() => moment().add(1, 'days').startOf('day').valueOf())
 
 	useSubscription(CorelibPubSub.externalMessageQueue, {
-		studioId: studioId,
 		created: {
 			$gte: dateFrom,
 			$lt: dateTo,
@@ -78,28 +40,31 @@ function ExternalMessagesInStudio({ studioId }: Readonly<IExternalMessagesInStud
 
 	return (
 		<div className="external-message-status">
-			<div className="paging alc">
-				<DatePickerFromTo from={dateFrom} to={dateTo} onChange={handleChangeDate} />
-			</div>
-			<div className="my-5">
-				<ExternalMessagesQueuedMessages studioId={studioId} />
-				<ExternalMessagesSentMessages studioId={studioId} />
+			<header className="mb-2">
+				<h1>{t('Message Queue')}</h1>
+			</header>
+			<div>
+				<div className="external-message-status">
+					<div className="paging alc">
+						<DatePickerFromTo from={dateFrom} to={dateTo} onChange={handleChangeDate} />
+					</div>
+					<div className="my-5">
+						<ExternalMessagesQueuedMessages />
+						<ExternalMessagesSentMessages />
+					</div>
+				</div>{' '}
 			</div>
 		</div>
 	)
 }
 
-interface ExternalMessagesQueuedMessagesProps {
-	studioId: StudioId
-}
-function ExternalMessagesQueuedMessages({ studioId }: Readonly<ExternalMessagesQueuedMessagesProps>) {
+function ExternalMessagesQueuedMessages() {
 	const { t } = useTranslation()
 
 	const queuedMessages = useTracker(
 		() =>
 			ExternalMessageQueue.find(
 				{
-					studioId: studioId,
 					sent: { $not: { $gt: 0 } },
 				},
 				{
@@ -109,7 +74,7 @@ function ExternalMessagesQueuedMessages({ studioId }: Readonly<ExternalMessagesQ
 					},
 				}
 			).fetch(),
-		[studioId],
+		[],
 		[]
 	)
 
@@ -125,17 +90,13 @@ function ExternalMessagesQueuedMessages({ studioId }: Readonly<ExternalMessagesQ
 	)
 }
 
-interface ExternalMessagesSentMessagesProps {
-	studioId: StudioId
-}
-function ExternalMessagesSentMessages({ studioId }: Readonly<ExternalMessagesSentMessagesProps>) {
+function ExternalMessagesSentMessages() {
 	const { t } = useTranslation()
 
 	const sentMessages = useTracker(
 		() =>
 			ExternalMessageQueue.find(
 				{
-					studioId: studioId,
 					sent: { $gt: 0 },
 				},
 				{
@@ -145,7 +106,7 @@ function ExternalMessagesSentMessages({ studioId }: Readonly<ExternalMessagesSen
 					},
 				}
 			).fetch(),
-		[studioId],
+		[],
 		[]
 	)
 
@@ -276,5 +237,3 @@ function ExternalMessagesRow({ msg }: Readonly<ExternalMessagesRowProps>) {
 		</React.Fragment>
 	)
 }
-
-export { ExternalMessages }

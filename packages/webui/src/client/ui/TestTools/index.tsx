@@ -1,10 +1,10 @@
 import { useTranslation } from 'react-i18next'
 import { useSubscription } from '../../lib/ReactMeteorData/react-meteor-data.js'
 import { Route, Switch, NavLink, Redirect } from 'react-router-dom'
-import { TimelineView, TimelineStudioSelect } from './Timeline.js'
+import { TimelineView } from './Timeline.js'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { MappingsStudioSelect, MappingsView } from './Mappings.js'
-import { TimelineDatastoreStudioSelect, TimelineDatastoreView } from './TimelineDatastore.js'
+import { MappingsView } from './Mappings.js'
+import { TimelineDatastoreView } from './TimelineDatastore.js'
 import { DeviceTriggersDeviceSelect, DeviceTriggersView } from './DeviceTriggers.js'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import Row from 'react-bootstrap/Row'
@@ -71,12 +71,9 @@ export default function Status(): JSX.Element {
 					</Col>
 					<Col xs={12} sm={8} md={9} lg={10}>
 						<Switch>
-							<Route path="/testTools/timeline/:studioId" component={TimelineView} />
-							<Route path="/testTools/timeline" component={TimelineStudioSelect} />
-							<Route path="/testTools/mappings/:studioId" component={MappingsView} />
-							<Route path="/testTools/mappings" component={MappingsStudioSelect} />
-							<Route path="/testTools/timelinedatastore/:studioId" component={TimelineDatastoreView} />
-							<Route path="/testTools/timelinedatastore" component={TimelineDatastoreStudioSelect} />
+							<Route path="/testTools/timeline" component={TimelineView} />
+							<Route path="/testTools/mappings" component={MappingsView} />
+							<Route path="/testTools/timelinedatastore" component={TimelineDatastoreView} />
 							<Route path="/testTools/devicetriggers/:peripheralDeviceId" component={DeviceTriggersView} />
 							<Route path="/testTools/devicetriggers" component={DeviceTriggersDeviceSelect} />
 							<Route path="/testTools/ingestRundownStatus/:peripheralDeviceId" component={IngestRundownStatusView} />

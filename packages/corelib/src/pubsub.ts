@@ -316,7 +316,7 @@ export interface CorelibPubSubTypes {
 		studioIds: StudioId[] | null,
 		token?: string
 	) => CollectionName.Studios
-	[CorelibPubSub.timelineDatastore]: (studioId: StudioId, token?: string) => CollectionName.TimelineDatastore
+	[CorelibPubSub.timelineDatastore]: () => CollectionName.TimelineDatastore
 	[CorelibPubSub.buckets]: (studioId: StudioId, bucketId: BucketId | null, token?: string) => CollectionName.Buckets
 	[CorelibPubSub.bucketAdLibPieces]: (
 		studioId: StudioId,

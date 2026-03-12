@@ -177,14 +177,8 @@ export interface MeteorPubSubTypes {
 
 	// custom publications:
 
-	[MeteorPubSub.mappingsForStudio]: (
-		studioId: StudioId,
-		token?: string
-	) => PeripheralDevicePubSubCollectionsNames.studioMappings
-	[MeteorPubSub.timelineForStudio]: (
-		studioId: StudioId,
-		token?: string
-	) => PeripheralDevicePubSubCollectionsNames.studioTimeline
+	[MeteorPubSub.mappingsForStudio]: () => PeripheralDevicePubSubCollectionsNames.studioMappings
+	[MeteorPubSub.timelineForStudio]: () => PeripheralDevicePubSubCollectionsNames.studioTimeline
 
 	[MeteorPubSub.ingestDeviceRundownStatusTestTool]: (
 		peripheralDeviceId: PeripheralDeviceId

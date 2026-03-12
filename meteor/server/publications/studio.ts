@@ -35,6 +35,7 @@ import {
 import { triggerWriteAccessBecauseNoCheckNecessary } from '../security/securityVerify'
 import { checkAccessAndGetPeripheralDevice } from '../security/check'
 import { assertConnectionHasOneOfPermissions } from '../security/auth'
+import { fetchStudioIds } from '../optimizations'
 
 meteorPublish(CorelibPubSub.studios, async function (studioIds: StudioId[] | null, _token: string | undefined) {
 	check(studioIds, Match.Maybe(Array))
@@ -131,12 +132,14 @@ meteorCustomPublish(
 meteorCustomPublish(
 	MeteorPubSub.mappingsForStudio,
 	PeripheralDevicePubSubCollectionsNames.studioMappings,
-	async function (pub, studioId: StudioId, _token: string | undefined) {
-		check(studioId, String)
-
+	async function (pub) {
 		assertConnectionHasOneOfPermissions(this.connection, 'testing')
 
-		await createObserverForMappingsPublication(pub, studioId)
+		// Find the first studioId. There should only be one, but we don't know what it will be
+		const studioIds = await fetchStudioIds({})
+		if (studioIds.length < 1) throw new Error('No studios found')
+
+		await createObserverForMappingsPublication(pub, studioIds[0])
 	}
 )
 

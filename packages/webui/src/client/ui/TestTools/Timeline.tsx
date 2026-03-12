@@ -3,7 +3,6 @@ import { useSubscription, useTracker } from '../../lib/ReactMeteorData/react-met
 import _ from 'underscore'
 import { deserializeTimelineBlob, TimelineHash } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { applyToArray, clone, normalizeArray } from '@sofie-automation/corelib/dist/lib'
-import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import {
 	TimelineState,
@@ -16,44 +15,35 @@ import {
 } from 'superfly-timeline'
 import { TimelineContentObject, transformTimeline } from '@sofie-automation/corelib/dist/playout/timeline'
 import { useCurrentTime } from '../../lib/lib.js'
-import { StudioSelect } from './StudioSelect.js'
 import { useTranslation } from 'react-i18next'
-import { useParams } from 'react-router-dom'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Classnames from 'classnames'
-import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids.js'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import { StudioTimeline } from './collections'
 
-interface TimelineViewRouteParams {
-	studioId: string | undefined
-}
-function TimelineView(): JSX.Element {
+export function TimelineView(): JSX.Element {
 	const { t } = useTranslation()
-
-	const { studioId } = useParams<TimelineViewRouteParams>()
 
 	return (
 		<div className="mx-5">
 			<header className="my-2">
 				<h1>{t('Timeline')}</h1>
 			</header>
-			<div className="my-5">{studioId && <ComponentTimelineSimulate studioId={protectString(studioId)} />}</div>
+			<div className="my-5">
+				<ComponentTimelineSimulate />
+			</div>
 		</div>
 	)
 }
 
-interface ITimelineSimulateProps {
-	studioId: StudioId
-}
-function ComponentTimelineSimulate({ studioId }: Readonly<ITimelineSimulateProps>) {
-	useSubscription(MeteorPubSub.timelineForStudio, studioId)
+function ComponentTimelineSimulate() {
+	useSubscription(MeteorPubSub.timelineForStudio)
 
 	const now = useCurrentTime()
-	const tlComplete = useTracker(() => StudioTimeline.findOne(studioId), [studioId])
+	const tlComplete = useTracker(() => StudioTimeline.findOne(), [])
 
 	const [resolvedTimeline, errorMsgResolve] = useMemo(() => {
 		try {
@@ -466,9 +456,3 @@ function TimelineChangesLog({ resolvedTl, timelineHash }: Readonly<TimelineChang
 		</Row>
 	)
 }
-
-function TimelineStudioSelect(): JSX.Element {
-	return <StudioSelect path="timeline" title="Timeline" />
-}
-
-export { TimelineView, TimelineStudioSelect }

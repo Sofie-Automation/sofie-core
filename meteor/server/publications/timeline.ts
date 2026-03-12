@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import { getRoutedTimeline } from '@sofie-automation/meteor-lib/dist/collections/Timeline'
 import {
 	RoutedTimeline,
@@ -19,7 +18,7 @@ import {
 	TriggerUpdate,
 } from '../lib/customPublication'
 import { getActiveRoutes } from '@sofie-automation/meteor-lib/dist/collections/Studios'
-import { fetchStudioLight } from '../optimizations'
+import { fetchStudioIds, fetchStudioLight } from '../optimizations'
 import { FastTrackObservers, setupFastTrackObserver } from './fastTrack'
 import { logger } from '../logging'
 import { getRandomId, literal } from '@sofie-automation/corelib/dist/lib'
@@ -39,15 +38,10 @@ import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settin
 import { checkAccessAndGetPeripheralDevice } from '../security/check'
 import { assertConnectionHasOneOfPermissions } from '../security/auth'
 
-meteorPublish(CorelibPubSub.timelineDatastore, async function (studioId: StudioId, _token: string | undefined) {
+meteorPublish(CorelibPubSub.timelineDatastore, async function () {
 	assertConnectionHasOneOfPermissions(this.connection, 'testing')
 
-	if (!studioId) throw new Meteor.Error(400, 'selector argument missing')
-	const modifier: FindOptions<DBTimelineDatastoreEntry> = {
-		fields: {},
-	}
-
-	return TimelineDatastore.findWithCursor({ studioId }, modifier)
+	return TimelineDatastore.findWithCursor({})
 })
 
 meteorCustomPublish(
@@ -85,10 +79,14 @@ meteorPublish(
 meteorCustomPublish(
 	MeteorPubSub.timelineForStudio,
 	PeripheralDevicePubSubCollectionsNames.studioTimeline,
-	async function (pub, studioId: StudioId, _token: string | undefined) {
+	async function (pub) {
 		assertConnectionHasOneOfPermissions(this.connection, 'testing')
 
-		await createObserverForTimelinePublication(pub, studioId)
+		// Find the first studioId. There should only be one, but we don't know what it will be
+		const studioIds = await fetchStudioIds({})
+		if (studioIds.length < 1) throw new Error('No studios found')
+
+		await createObserverForTimelinePublication(pub, studioIds[0])
 	}
 )
 

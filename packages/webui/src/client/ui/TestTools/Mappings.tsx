@@ -4,23 +4,14 @@ import { omit } from '@sofie-automation/corelib/dist/lib'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { makeTableOfObject } from '../../lib/utilComponents.js'
-import { StudioSelect } from './StudioSelect.js'
 import { MappingExt } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { LookaheadMode, TSR } from '@sofie-automation/blueprints-integration'
-import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { useTranslation } from 'react-i18next'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import { StudioMappings } from './collections'
 
-interface IMappingsViewProps {
-	match?: {
-		params?: {
-			studioId: StudioId
-		}
-	}
-}
-function MappingsView(props: Readonly<IMappingsViewProps>): JSX.Element {
+export function MappingsView(): JSX.Element {
 	const { t } = useTranslation()
 
 	return (
@@ -29,25 +20,16 @@ function MappingsView(props: Readonly<IMappingsViewProps>): JSX.Element {
 				<h1>{t('Routed Mappings')}</h1>
 			</header>
 			<div className="my-5">
-				{props.match && props.match.params && <ComponentMappingsTable studioId={props.match.params.studioId} />}
+				<ComponentMappingsTable />
 			</div>
 		</div>
 	)
 }
 
-interface ComponentMappingsTableProps {
-	studioId: StudioId
-}
-function ComponentMappingsTable({ studioId }: Readonly<ComponentMappingsTableProps>): JSX.Element {
-	useSubscription(MeteorPubSub.mappingsForStudio, studioId)
+function ComponentMappingsTable(): JSX.Element {
+	useSubscription(MeteorPubSub.mappingsForStudio)
 
-	const mappingsObj = useTracker(
-		() => {
-			return StudioMappings.findOne(studioId)
-		},
-		[studioId],
-		null
-	)
+	const mappingsObj = useTracker(() => StudioMappings.findOne(), [], null)
 
 	const mappingsItems = mappingsObj ? _.sortBy(Object.entries<MappingExt>(mappingsObj.mappings), (o) => o[0]) : []
 
@@ -100,9 +82,3 @@ function ComponentMappingsTableRow({ id, obj }: Readonly<ComponentMappingsTableR
 		</tr>
 	)
 }
-
-function MappingsStudioSelect(): JSX.Element {
-	return <StudioSelect path="mappings" title="Mappings" />
-}
-
-export { MappingsView, MappingsStudioSelect }
