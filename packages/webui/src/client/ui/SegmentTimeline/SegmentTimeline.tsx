@@ -1,4 +1,4 @@
-import * as React from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { WithTranslation, withTranslation } from 'react-i18next'
 
 import ClassNames from 'classnames'
@@ -36,7 +36,7 @@ import { wrapPartToTemporaryInstance } from '@sofie-automation/meteor-lib/dist/c
 
 import { SegmentTimelineSmallPartFlag } from './SmallParts/SegmentTimelineSmallPartFlag.js'
 import { UIStateStorage } from '../../lib/UIStateStorage.js'
-import { getPartInstanceTimingId, RundownTimingContext } from '../../lib/rundownTiming.js'
+import { computeSegmentDuration, getPartInstanceTimingId, RundownTimingContext } from '../../lib/rundownTiming.js'
 import { IOutputLayer, ISourceLayer, NoteSeverity, UserEditingType } from '@sofie-automation/blueprints-integration'
 import { SegmentTimelineZoomButtons } from './SegmentTimelineZoomButtons.js'
 import { SegmentViewMode } from '../SegmentContainer/SegmentViewModes.js'
@@ -51,7 +51,6 @@ import {
 	TimingTickResolution,
 	TimingDataResolution,
 	WithTiming,
-	RundownTimingProviderContext,
 } from '../RundownView/RundownTiming/withTiming.js'
 import { SegmentTimeAnchorTime } from '../RundownView/RundownTiming/SegmentTimeAnchorTime.js'
 import { logger } from '../../lib/logging.js'
@@ -121,100 +120,61 @@ interface IStateHeader {
 	// isSelected: boolean
 }
 
-interface IZoomPropsHeader {
+interface SegmentTimelineZoomProps extends IProps {
 	onZoomDblClick: (e: React.MouseEvent) => void
 	timelineWidth: number
-}
-interface IZoomStateHeader {
-	totalSegmentDuration: number
+	timingDurations: RundownTimingContext
 }
 
-const SegmentTimelineZoom = class SegmentTimelineZoom extends React.Component<
-	IProps & IZoomPropsHeader,
-	IZoomStateHeader
-> {
-	static contextType = RundownTimingProviderContext
-	declare context: React.ContextType<typeof RundownTimingProviderContext>
+function computeSegmentDurationFromProps(props: SegmentTimelineZoomProps): number {
+	return computeSegmentDuration(props.timingDurations, props.parts, true)
+}
 
-	constructor(props: IProps & IZoomPropsHeader, context: any) {
-		super(props, context)
-		this.state = {
-			totalSegmentDuration: 10,
+function SegmentTimelineZoom(props: SegmentTimelineZoomProps): JSX.Element {
+	const [totalSegmentDuration, setTotalSegmentDuration] = useState(() => computeSegmentDurationFromProps(props))
+
+	// Store the props into a ref so that the checkTimingChange can access the latest props without needing to be re-created on every render
+	const propsRef = useRef(props)
+	propsRef.current = props
+
+	useEffect(() => {
+		const onTimeupdate = () => {
+			if (!propsRef.current.isLiveSegment) {
+				setTotalSegmentDuration(computeSegmentDurationFromProps(propsRef.current))
+			}
 		}
-	}
 
-	componentDidMount(): void {
-		this.checkTimingChange()
-		window.addEventListener(RundownTiming.Events.timeupdateHighResolution, this.onTimeupdate)
-	}
-
-	componentWillUnmount(): void {
-		window.removeEventListener(RundownTiming.Events.timeupdateHighResolution, this.onTimeupdate)
-	}
-
-	onTimeupdate = () => {
-		if (!this.props.isLiveSegment) {
-			this.checkTimingChange()
+		window.addEventListener(RundownTiming.Events.timeupdateHighResolution, onTimeupdate)
+		return () => {
+			window.removeEventListener(RundownTiming.Events.timeupdateHighResolution, onTimeupdate)
 		}
-	}
+	}, [])
 
-	checkTimingChange = () => {
-		const total = this.calculateSegmentDuration()
-		if (total !== this.state.totalSegmentDuration) {
-			this.setState({
-				totalSegmentDuration: total,
-			})
-		}
-	}
+	const segmentDuration = props.isLiveSegment ? computeSegmentDurationFromProps(props) : totalSegmentDuration
 
-	calculateSegmentDuration(): number {
-		let total = 0
-		if (this.context?.durations) {
-			const durations = this.context.durations
-			this.props.parts.forEach((partExtended) => {
-				// total += durations.partDurations ? durations.partDurations[item._id] : (item.duration || item.renderedDuration || 1)
-				const partInstanceTimingId = getPartInstanceTimingId(partExtended.instance)
-				const duration = Math.max(
-					partExtended.instance.timings?.duration || partExtended.renderedDuration || 0,
-					durations.partDisplayDurations?.[partInstanceTimingId] || Settings.defaultDisplayDuration
-				)
-				total += duration
-			})
-		} else {
-			total = RundownUtils.getSegmentDuration(this.props.parts, true)
-		}
-		return total
-	}
-
-	getSegmentDuration(): number {
-		return this.props.isLiveSegment ? this.calculateSegmentDuration() : this.state.totalSegmentDuration
-	}
-
-	render(): JSX.Element {
-		return (
-			<div
-				className={ClassNames('segment-timeline__zoom-area-container', {
-					hidden:
-						this.props.scrollLeft === 0 &&
-						(this.props.showingAllSegment || this.props.timeScale === this.props.maxTimeScale) &&
-						!this.props.isLiveSegment,
-				})}
-			>
-				<div className="segment-timeline__zoom-area" onDoubleClick={(e) => this.props.onZoomDblClick(e)}>
-					<SegmentTimelineZoomControls
-						scrollLeft={this.props.scrollLeft}
-						scrollWidth={this.props.timelineWidth / this.props.timeScale}
-						onScroll={this.props.onScroll}
-						segmentDuration={this.getSegmentDuration()}
-						liveLineHistorySize={this.props.liveLineHistorySize}
-						timeScale={this.props.timeScale}
-						maxTimeScale={this.props.maxTimeScale}
-						onZoomChange={this.props.onZoomChange}
-					/>
-				</div>
+	return (
+		<div
+			className={ClassNames('segment-timeline__zoom-area-container', {
+				hidden:
+					props.scrollLeft === 0 &&
+					(props.showingAllSegment || props.timeScale === props.maxTimeScale) &&
+					!props.isLiveSegment,
+			})}
+		>
+			<div className="segment-timeline__zoom-area" onDoubleClick={props.onZoomDblClick}>
+				<SegmentTimelineZoomControls
+					scrollLeft={props.scrollLeft}
+					scrollWidth={props.timelineWidth / props.timeScale}
+					onScroll={props.onScroll}
+					segmentDuration={segmentDuration}
+					liveLineHistorySize={props.liveLineHistorySize}
+					timeScale={props.timeScale}
+					maxTimeScale={props.maxTimeScale}
+					onZoomChange={props.onZoomChange}
+				/>
 			</div>
-		)
-	}
+		</div>
+	)
 }
 
 export const SEGMENT_TIMELINE_ELEMENT_ID = 'rundown__segment__'

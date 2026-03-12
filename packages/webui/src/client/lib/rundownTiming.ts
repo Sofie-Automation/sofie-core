@@ -25,7 +25,8 @@ import { Settings } from '../lib/Settings.js'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { CountdownType } from '@sofie-automation/blueprints-integration'
-import { isLoopDefined, isEntirePlaylistLooping, isLoopRunning } from '../lib/RundownResolver.js'
+import { isLoopDefined, isEntirePlaylistLooping, isLoopRunning, PartExtended } from '../lib/RundownResolver.js'
+import { RundownUtils } from './rundown.js'
 
 // Minimum duration that a part can be assigned. Used by gap parts to allow them to "compress" to indicate time running out.
 const MINIMAL_NONZERO_DURATION = 1
@@ -784,23 +785,21 @@ export interface RundownTimingContext {
  */
 export function computeSegmentDuration(
 	timingDurations: RundownTimingContext,
-	partIds: PartId[],
+	parts: PartExtended[],
 	display?: boolean
 ): number {
-	const partDurations = timingDurations.partDurations
+	const partDisplayDurations = timingDurations?.partDisplayDurations
 
-	if (partDurations === undefined) return 0
+	if (!partDisplayDurations) return RundownUtils.getSegmentDuration(parts, display)
 
-	return partIds.reduce((memo, partId) => {
-		const pId = unprotectString(partId)
-		let partDuration = 0
-		if (partDurations && partDurations[pId] !== undefined) {
-			partDuration = partDurations[pId]
-		}
-		if (!partDuration && display) {
-			partDuration = Settings.defaultDisplayDuration
-		}
-		return memo + partDuration
+	return parts.reduce((memo, partExtended) => {
+		// total += durations.partDurations ? durations.partDurations[item._id] : (item.duration || item.renderedDuration || 1)
+		const partInstanceTimingId = getPartInstanceTimingId(partExtended.instance)
+		const duration = Math.max(
+			partExtended.instance.timings?.duration || partExtended.renderedDuration || 0,
+			partDisplayDurations?.[partInstanceTimingId] || (display ? Settings.defaultDisplayDuration : 0)
+		)
+		return memo + duration
 	}, 0)
 }
 

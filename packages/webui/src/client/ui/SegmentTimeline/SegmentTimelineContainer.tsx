@@ -407,11 +407,7 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 					0,
 					Math.min(
 						scrollLeft,
-						(computeSegmentDuration(
-							this.context.durations,
-							this.props.parts.map((i) => i.instance.part._id),
-							true
-						) || 1) -
+						(computeSegmentDuration(this.context.durations, this.props.parts, true) || 1) -
 							LIVELINE_HISTORY_SIZE / this.state.timeScale
 					)
 				),
