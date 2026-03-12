@@ -278,14 +278,10 @@ export interface ExecuteBucketAdLibOrActionProps extends RundownPlayoutPropsBase
 	externalId: string
 	triggerMode?: string
 }
-export interface ExecuteBucketAdLibOrActionProps extends RundownPlayoutPropsBase {
-	bucketId: BucketId
-	externalId: string
-	triggerMode?: string
-}
 export interface ExecuteActionResult {
 	queuedPartInstanceId?: PartInstanceId
 	taken?: boolean
+	validationErrors?: any
 }
 export interface TakeNextPartProps extends RundownPlayoutPropsBase {
 	fromPartInstanceId: PartInstanceId | null
