@@ -459,12 +459,10 @@ class IngestServerAPI implements IngestRestAPI {
 			$or: [
 				{
 					_id: protectString<RundownId>(ingestRundown.externalId),
-					playlistId: protectString<RundownPlaylistId>(playlistId),
 					studioId: studio._id,
 				},
 				{
 					externalId: ingestRundown.externalId,
-					playlistExternalId: playlistId,
 					studioId: studio._id,
 				},
 			],
