@@ -4,6 +4,10 @@
 Prior to 1.50 of Sofie, this was implemented in Blueprints and not natively in Sofie-core
 :::
 
+:::tip See Also
+For how AB Playback works with lookahead, preroll, and adlibs, see the [Timing and Preparation Guide](./timing-and-preparation.md).
+:::
+
 _AB Playback_ is a common technique for clip playback. The aim is to be able to play multiple clips back to back, alternating which player is used for each clip.  
 At first glance it sounds simple to handle, but it quickly becomes complicated when we consider the need to allow users to run adlibs and that the system needs to seamlessly update pre-programmed clips when this happens.
 
