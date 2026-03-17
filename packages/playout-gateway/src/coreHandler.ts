@@ -20,7 +20,7 @@ import { TSRHandler } from './tsrHandler'
 import { Logger } from 'winston'
 // eslint-disable-next-line node/no-extraneous-import
 import { MemUsageReport as ThreadMemUsageReport } from 'threadedclass'
-import { PLAYOUT_DEVICE_CONFIG } from './configManifest'
+import { compilePlayoutGatewayConfigManifest } from './configManifest'
 import { BaseRemoteDeviceIntegration } from 'timeline-state-resolver/dist/service/remoteDeviceInstance'
 import { getVersions } from './versions'
 import { CoreConnectionChild } from '@sofie-automation/server-core-integration/dist/lib/CoreConnectionChild'
@@ -161,7 +161,7 @@ export class CoreHandler implements ICoreHandler {
 			deviceName: 'Playout gateway',
 			watchDog: this._coreConfig ? this._coreConfig.watchdog : true,
 
-			configManifest: PLAYOUT_DEVICE_CONFIG,
+			configManifest: compilePlayoutGatewayConfigManifest(),
 
 			versions: getVersions(this.logger),
 
@@ -319,20 +319,6 @@ export class CoreHandler implements ICoreHandler {
 			// eslint-disable-next-line no-process-exit
 			process.exit(0)
 		}, 1000)
-	}
-	async devicesMakeReady(okToDestroyStuff?: boolean, activeRundownId?: string): Promise<any> {
-		if (this._tsrHandler) {
-			return this._tsrHandler.tsr.devicesMakeReady(okToDestroyStuff, activeRundownId)
-		} else {
-			throw Error('TSR not set up!')
-		}
-	}
-	async devicesStandDown(okToDestroyStuff?: boolean): Promise<any> {
-		if (this._tsrHandler) {
-			return this._tsrHandler.tsr.devicesStandDown(okToDestroyStuff)
-		} else {
-			throw Error('TSR not set up!')
-		}
 	}
 	pingResponse(message: string): void {
 		this.core.setPingResponse(message)
@@ -567,6 +553,6 @@ export class CoreTSRDeviceHandler {
 		this._coreParentHandler.logger.info(`Exec ${actionId} on ${this._deviceId}`)
 		const device = this._device.device
 
-		return device.executeAction(actionId, payload)
+		return device.executeAction(actionId, payload || {})
 	}
 }
