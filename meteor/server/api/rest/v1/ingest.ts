@@ -452,6 +452,19 @@ class IngestServerAPI implements IngestRestAPI {
 	 * if a rundown already exists. The `externalId` of a rundown is expected to be
 	 * unique within a studio, regardless of which playlist it belongs to.
 	 */
+	/**
+	 * Create a rundown through the REST ingest API.
+	 *
+	 * Note about playlist handling:
+	 *
+	 * Rundowns in Sofie are not owned by playlists. A playlist is merely a container
+	 * that may group multiple rundowns, and a rundown may move between playlists or
+	 * exist without an explicitly defined playlist.
+	 *
+	 * For this reason we intentionally do NOT include the playlistId when checking
+	 * if a rundown already exists. The `externalId` of a rundown is expected to be
+	 * unique within a studio, regardless of which playlist it belongs to.
+	 */
 	async postRundown(
 		_connection: Meteor.Connection,
 		_event: string,
@@ -468,6 +481,8 @@ class IngestServerAPI implements IngestRestAPI {
 		this.validateRundown(rawIngestRundown)
 		await this.validateAPIPayloadsForRundown(studio.blueprintId, rawIngestRundown)
 
+		// IMPORTANT: Do not scope rundown existence checks by playlistId.
+		// Rundowns are unique per studio, not per playlist.
 		// IMPORTANT: Do not scope rundown existence checks by playlistId.
 		// Rundowns are unique per studio, not per playlist.
 		const existingRundown = await Rundowns.findOneAsync({
