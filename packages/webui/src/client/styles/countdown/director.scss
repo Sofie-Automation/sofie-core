@@ -480,5 +480,75 @@ $hold-status-color: $liveline-timecode-color;
 		.clocks-counter-heavy {
 			font-weight: 600;
 		}
+
+		.director-screen__body__t-timer {
+			position: absolute;
+			bottom: 0;
+			right: 0;
+			text-align: right;
+			font-size: 5vh;
+			z-index: 10;
+			line-height: 1;
+
+			.t-timer-display {
+				display: flex;
+				align-items: stretch;
+				justify-content: flex-end;
+				font-weight: 500;
+				background: #333;
+				border-radius: 0;
+				overflow: hidden;
+
+				&__label {
+					display: flex;
+					align-items: center;
+					color: #fff;
+					padding-left: 0.4em;
+					padding-right: 0.2em;
+					font-size: 1em;
+					text-transform: uppercase;
+					letter-spacing: 0.05em;
+					font-stretch: condensed;
+				}
+
+				&__value {
+					display: flex;
+					align-items: center;
+					color: #fff;
+					font-variant-numeric: tabular-nums;
+					padding: 0 0.2em;
+					font-size: 1em;
+
+					.t-timer-display__part {
+						&--dimmed {
+							color: #aaa;
+						}
+					}
+				}
+
+				&__over-under {
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					margin: 0 0 0 0.2em;
+					font-size: 1em;
+					font-variant-numeric: tabular-nums;
+					padding: 0 0.4em;
+					line-height: 1.1;
+					min-width: 3.5em;
+					border-radius: 1em;
+
+					&--over {
+						background-color: $general-late-color;
+						color: #fff;
+					}
+
+					&--under {
+						background-color: #ffe900;
+						color: #000;
+					}
+				}
+			}
+		}
 	}
 }

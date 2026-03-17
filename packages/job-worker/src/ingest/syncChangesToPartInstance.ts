@@ -33,8 +33,9 @@ import { convertNoteToNotification } from '../notifications/util.js'
 import { PlayoutRundownModel } from '../playout/model/PlayoutRundownModel.js'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { setNextPart } from '../playout/setNext.js'
-import { PartId, RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { PartId, RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import type { WrappedShowStyleBlueprint } from '../blueprints/cache.js'
+import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 
 type PlayStatus = 'previous' | 'current' | 'next'
 export interface PartInstanceToSync {
@@ -129,12 +130,14 @@ export class SyncChangesToPartInstancesWorker {
 
 		const syncContext = new SyncIngestUpdateToPartInstanceContext(
 			this.#context,
+			this.#playoutModel,
 			{
 				name: `Update to ${existingPartInstance.partInstance.part.externalId}`,
 				identifier: `rundownId=${existingPartInstance.partInstance.part.rundownId},segmentId=${existingPartInstance.partInstance.part.segmentId}`,
 			},
 			this.#context.studio,
 			this.#showStyle,
+			this.#playoutModel.playlist,
 			instanceToSync.playoutRundownModel.rundown,
 			existingPartInstance,
 			proposedPieceInstances,
@@ -152,6 +155,11 @@ export class SyncChangesToPartInstancesWorker {
 				newResultData,
 				instanceToSync.playStatus
 			)
+
+			// Persist t-timer changes
+			for (const timer of syncContext.changedTTimers) {
+				this.#playoutModel.updateTTimer(timer)
+			}
 		} catch (err) {
 			logger.error(`Error in showStyleBlueprint.syncIngestUpdateToPartInstance: ${stringifyError(err)}`)
 
@@ -189,7 +197,7 @@ export class SyncChangesToPartInstancesWorker {
 		}
 	}
 
-	collectNewIngestDataToSync(
+	private collectNewIngestDataToSync(
 		partId: PartId,
 		instanceToSync: PartInstanceToSync,
 		proposedPieceInstances: PieceInstance[]
@@ -204,7 +212,18 @@ export class SyncChangesToPartInstancesWorker {
 			if (adLibPiece) referencedAdlibs.push(convertAdLibPieceToBlueprints(adLibPiece))
 		}
 
+		const allModelParts = this.#ingestModel.getAllOrderedParts()
+
 		return {
+			allParts: allModelParts.map((part) => convertPartToBlueprints(part.part)),
+			currentPartIndex: computeCurrentPartIndex(
+				this.#ingestModel.getOrderedSegments().map((s) => s.segment),
+				allModelParts.map((p) => p.part),
+				partId,
+				instanceToSync.existingPartInstance.partInstance.segmentId,
+				instanceToSync.existingPartInstance.partInstance.part._rank
+			),
+
 			part: instanceToSync.newPart ? convertPartToBlueprints(instanceToSync.newPart) : undefined,
 			pieceInstances: proposedPieceInstances.map(convertPieceInstanceToBlueprints),
 			adLibPieces:
@@ -479,4 +498,72 @@ function findLastUnorphanedPartInstanceInSegment(
 		partInstance: previousPartInstance,
 		part: previousPart,
 	}
+}
+
+/**
+ * Compute an approximate (possibly non-integer) index of the part within all parts
+ * This is used to give the blueprints an idea of where the part is within the rundown
+ * Note: this assumes each part has a unique integer rank, which is what ingest will produce
+ * @returns The approximate index, or `null` if the part could not be placed
+ */
+export function computeCurrentPartIndex(
+	allOrderedSegments: ReadonlyDeep<DBSegment>[],
+	allOrderedParts: ReadonlyDeep<DBPart>[],
+	partId: PartId,
+	segmentId: SegmentId,
+	targetRank: number
+): number | null {
+	// Exact match by part id
+	const exactIdx = allOrderedParts.findIndex((p) => p._id === partId)
+	if (exactIdx !== -1) return exactIdx
+
+	// Find the segment object
+	const segment = allOrderedSegments.find((s) => s._id === segmentId)
+	if (!segment) return null
+
+	// Prepare parts with their global indices
+	const partsWithGlobal = allOrderedParts.map((p, globalIndex) => ({ part: p, globalIndex }))
+
+	// Parts in the same segment
+	const partsInSegment = partsWithGlobal.filter((pg) => pg.part.segmentId === segmentId)
+
+	if (partsInSegment.length === 0) {
+		// Segment has no parts: place between the previous/next parts by segment order
+		const segmentRank = segment._rank
+
+		const prev = partsWithGlobal.findLast((pg) => {
+			const seg = allOrderedSegments.find((s) => s._id === pg.part.segmentId)
+			return !!seg && seg._rank < segmentRank
+		})
+
+		const next = partsWithGlobal.find((pg) => {
+			const seg = allOrderedSegments.find((s) => s._id === pg.part.segmentId)
+			return !!seg && seg._rank > segmentRank
+		})
+
+		if (prev && next) return (prev.globalIndex + next.globalIndex) / 2
+		if (prev) return prev.globalIndex + 0.5
+		if (next) return next.globalIndex - 0.5
+
+		// No parts at all
+		return null
+	}
+
+	// There are parts in the segment: decide placement by rank within the segment.
+
+	const nextIdx = partsInSegment.findIndex((pg) => pg.part._rank > targetRank)
+	if (nextIdx === -1) {
+		// After last
+		return partsInSegment[partsInSegment.length - 1].globalIndex + 0.5
+	}
+
+	if (nextIdx === 0) {
+		// Before first
+		return partsInSegment[0].globalIndex - 0.5
+	}
+
+	// Between two adjacent parts: interpolate by their ranks (proportionally)
+	const prev = partsInSegment[nextIdx - 1]
+	const next = partsInSegment[nextIdx]
+	return prev.globalIndex + (next.globalIndex - prev.globalIndex) / 2
 }

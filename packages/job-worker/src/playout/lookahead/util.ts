@@ -34,11 +34,16 @@ export function isPieceInstance(piece: Piece | PieceInstance | PieceInstancePiec
 
 /**
  * Excludes the previous, current and next part
+ * @param context Job context
+ * @param playoutModel The playout model
+ * @param partCount Maximum number of parts to return
+ * @param ignoreQuickLoop If true, ignores quickLoop markers and returns parts in linear order. Defaults to false for backwards compatibility.
  */
 export function getOrderedPartsAfterPlayhead(
 	context: JobContext,
 	playoutModel: PlayoutModel,
-	partCount: number
+	partCount: number,
+	ignoreQuickLoop: boolean = false
 ): ReadonlyDeep<DBPart>[] {
 	if (partCount <= 0) {
 		return []
@@ -66,7 +71,7 @@ export function getOrderedPartsAfterPlayhead(
 		null,
 		orderedSegments,
 		orderedParts,
-		{ ignoreUnplayable: true, ignoreQuickLoop: false }
+		{ ignoreUnplayable: true, ignoreQuickLoop }
 	)
 	if (!nextNextPart) {
 		// We don't know where to begin searching, so we can't do anything

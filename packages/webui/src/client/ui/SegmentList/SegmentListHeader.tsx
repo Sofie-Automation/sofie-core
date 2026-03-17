@@ -197,7 +197,7 @@ export function SegmentListHeader({
 
 						'time-of-day-countdowns': useTimeOfDayCountdowns,
 
-						'no-rundown-header': hideRundownHeader,
+						'no-rundown-header_OLD': hideRundownHeader,
 					})}
 				>
 					{contents}

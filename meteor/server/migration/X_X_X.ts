@@ -58,7 +58,30 @@ export const addSteps = addMigrationSteps(CURRENT_SYSTEM_VERSION, [
 			}
 		},
 	},
-	// Add your migration here
-
 	new ContainerIdsToObjectWithOverridesMigrationStep(),
+	{
+		id: 'Add T-timers to RundownPlaylist',
+		canBeRunAutomatically: true,
+		validate: async () => {
+			const playlistCount = await RundownPlaylists.countDocuments({ tTimers: { $exists: false } })
+			if (playlistCount > 1) return `There are ${playlistCount} RundownPlaylists without T-timers`
+			return false
+		},
+		migrate: async () => {
+			await RundownPlaylists.mutableCollection.updateAsync(
+				{ tTimers: { $exists: false } },
+				{
+					$set: {
+						tTimers: [
+							{ index: 1, label: '', mode: null, state: null },
+							{ index: 2, label: '', mode: null, state: null },
+							{ index: 3, label: '', mode: null, state: null },
+						],
+					},
+				},
+				{ multi: true }
+			)
+		},
+	},
+	// Add your migration here
 ])

@@ -141,7 +141,7 @@ export function RundownRightHandControls(props: Readonly<IProps>): JSX.Element {
 			)}
 			<div
 				className={classNames('status-bar', {
-					'status-bar--no-rundown-header': props.hideRundownHeader,
+					'status-bar--no-rundown-header_OLD': props.hideRundownHeader,
 				})}
 			>
 				<div className="status-bar__cell status-bar__cell--align-start">

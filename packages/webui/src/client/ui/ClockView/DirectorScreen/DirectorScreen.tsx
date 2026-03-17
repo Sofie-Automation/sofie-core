@@ -38,12 +38,14 @@ import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { useSetDocumentClass } from '../../util/useSetDocumentClass.js'
 import { useRundownAndShowStyleIdsForPlaylist } from '../../util/useRundownAndShowStyleIdsForPlaylist.js'
 import { RundownPlaylistClientUtil } from '../../../lib/rundownPlaylistUtil.js'
-import { CurrentPartOrSegmentRemaining } from '../../RundownView/RundownTiming/CurrentPartOrSegmentRemaining.js'
+import { CurrentPartOrSegmentRemaining } from '../../RundownView/RundownHeader/CurrentPartOrSegmentRemaining.js'
 
 import { AdjustLabelFit } from '../../util/AdjustLabelFit.js'
 import { AutoNextStatus } from '../../RundownView/RundownTiming/AutoNextStatus.js'
 import { useTranslation } from 'react-i18next'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
+import { TTimerDisplay } from '../TTimerDisplay.js'
+import { getDefaultTTimer } from '../../../lib/tTimerUtils.js'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance.js'
 import { DirectorScreenTop } from './DirectorScreenTop.js'
 import { useTiming } from '../../RundownView/RundownTiming/withTiming.js'
@@ -564,6 +566,8 @@ function DirectorScreenRender({
 			}
 		}
 
+		const activeTTimer = getDefaultTTimer(playlist.tTimers)
+
 		return (
 			<div className="director-screen">
 				<DirectorScreenTop partInstanceToCountTimeFrom={partInstanceToCountTimeFrom} playlist={playlist} />
@@ -749,6 +753,11 @@ function DirectorScreenRender({
 							</>
 						) : null}
 					</div>
+					{!!activeTTimer && (
+						<div className="director-screen__body__t-timer">
+							<TTimerDisplay timer={activeTTimer} />
+						</div>
+					)}
 				</div>
 			</div>
 		)

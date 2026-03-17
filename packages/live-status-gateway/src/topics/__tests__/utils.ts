@@ -34,6 +34,7 @@ export function makeTestPlaylist(id?: string): DBRundownPlaylist {
 		studioId: protectString('STUDIO_1'),
 		timing: { type: PlaylistTimingType.None },
 		publicData: { a: 'b' },
+		tTimers: [] as any,
 	}
 }
 

@@ -295,6 +295,15 @@ export interface BlueprintResultPart {
 }
 
 export interface BlueprintSyncIngestNewData {
+	/** All parts in the rundown, including the new/updated part */
+	allParts: IBlueprintPartDB[]
+	/**
+	 * An approximate index of the current part in the allParts array
+	 * Note: this will not always be an integer, such as when the part is an adlib part
+	 * `null` means the part could not be placed
+	 */
+	currentPartIndex: number | null
+
 	// source: BlueprintSyncIngestDataSource
 	/** The new part */
 	part: IBlueprintPartDB | undefined

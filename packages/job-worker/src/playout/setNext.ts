@@ -36,6 +36,7 @@ import { PersistentPlayoutStateStore } from '../blueprints/context/services/Pers
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { PlayoutPartInstanceModelImpl } from './model/implementation/PlayoutPartInstanceModelImpl.js'
 import { QuickLoopService } from './model/services/QuickLoopService.js'
+import { recalculateTTimerProjections } from './tTimers.js'
 
 /**
  * Set or clear the nexted part, from a given PartInstance, or SelectNextPartResult
@@ -98,6 +99,9 @@ export async function setNextPart(
 	playoutModel.updateQuickLoopState()
 
 	await cleanupOrphanedItems(context, playoutModel)
+
+	// Recalculate T-Timer projections based on the new next part
+	recalculateTTimerProjections(context, playoutModel)
 
 	if (span) span.end()
 }
@@ -529,6 +533,10 @@ export async function queueNextSegment(
 	} else {
 		playoutModel.setQueuedSegment(null)
 	}
+
+	// Recalculate timer projections as the queued segment affects what comes after next
+	recalculateTTimerProjections(context, playoutModel)
+
 	span?.end()
 	return { queuedSegmentId: queuedSegment?.segment?._id ?? null }
 }

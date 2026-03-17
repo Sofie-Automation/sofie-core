@@ -3,6 +3,7 @@ import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceIns
 import { normalizeArrayToMap, omit } from '@sofie-automation/corelib/dist/lib'
 import { protectString, protectStringArray, unprotectStringArray } from '@sofie-automation/corelib/dist/protectedString'
 import { PlayoutPartInstanceModel } from '../../playout/model/PlayoutPartInstanceModel.js'
+import { PlayoutModel } from '../../playout/model/PlayoutModel.js'
 import { ReadonlyDeep } from 'type-fest'
 import _ from 'underscore'
 import { ContextInfo } from './CommonContext.js'
@@ -32,24 +33,41 @@ import {
 } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { EXPECTED_INGEST_TO_PLAYOUT_TIME } from '@sofie-automation/shared-lib/dist/core/constants'
 import { getCurrentTime } from '../../lib/index.js'
+import { TTimersService } from './services/TTimersService.js'
+import type {
+	DBRundownPlaylist,
+	RundownTTimer,
+	RundownTTimerIndex,
+} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import type { IPlaylistTTimer } from '@sofie-automation/blueprints-integration/dist/context/tTimersContext'
 
 export class SyncIngestUpdateToPartInstanceContext
 	extends RundownUserContext
 	implements ISyncIngestUpdateToPartInstanceContext
 {
-	private readonly _proposedPieceInstances: Map<PieceInstanceId, ReadonlyDeep<PieceInstance>>
+	readonly #context: JobContext
+	readonly #playoutModel: PlayoutModel
+	readonly #proposedPieceInstances: Map<PieceInstanceId, ReadonlyDeep<PieceInstance>>
+	readonly #tTimersService: TTimersService
+	readonly #changedTTimers = new Map<RundownTTimerIndex, RundownTTimer>()
 
-	private partInstance: PlayoutPartInstanceModel | null
+	#partInstance: PlayoutPartInstanceModel | null
 
 	public get hasRemovedPartInstance(): boolean {
-		return !this.partInstance
+		return !this.#partInstance
+	}
+
+	public get changedTTimers(): RundownTTimer[] {
+		return Array.from(this.#changedTTimers.values())
 	}
 
 	constructor(
-		private readonly _context: JobContext,
+		context: JobContext,
+		playoutModel: PlayoutModel,
 		contextInfo: ContextInfo,
 		studio: ReadonlyDeep<JobStudio>,
 		showStyleCompound: ReadonlyDeep<ProcessedShowStyleCompound>,
+		playlist: ReadonlyDeep<DBRundownPlaylist>,
 		rundown: ReadonlyDeep<DBRundown>,
 		partInstance: PlayoutPartInstanceModel,
 		proposedPieceInstances: ReadonlyDeep<PieceInstance[]>,
@@ -58,32 +76,49 @@ export class SyncIngestUpdateToPartInstanceContext
 		super(
 			contextInfo,
 			studio,
-			_context.getStudioBlueprintConfig(),
+			context.getStudioBlueprintConfig(),
 			showStyleCompound,
-			_context.getShowStyleBlueprintConfig(showStyleCompound),
+			context.getShowStyleBlueprintConfig(showStyleCompound),
 			rundown
 		)
 
-		this.partInstance = partInstance
+		this.#context = context
+		this.#playoutModel = playoutModel
+		this.#partInstance = partInstance
 
-		this._proposedPieceInstances = normalizeArrayToMap(proposedPieceInstances, '_id')
+		this.#proposedPieceInstances = normalizeArrayToMap(proposedPieceInstances, '_id')
+		this.#tTimersService = new TTimersService(
+			playlist.tTimers,
+			(updatedTimer) => {
+				this.#changedTTimers.set(updatedTimer.index, updatedTimer)
+			},
+			this.#playoutModel,
+			this.#context
+		)
+	}
+
+	getTimer(index: RundownTTimerIndex): IPlaylistTTimer {
+		return this.#tTimersService.getTimer(index)
+	}
+	clearAllTimers(): void {
+		this.#tTimersService.clearAllTimers()
 	}
 
 	syncPieceInstance(
 		pieceInstanceId: string,
 		modifiedPiece?: Omit<IBlueprintPiece, 'lifespan'>
 	): IBlueprintPieceInstance {
-		const proposedPieceInstance = this._proposedPieceInstances.get(protectString(pieceInstanceId))
+		const proposedPieceInstance = this.#proposedPieceInstances.get(protectString(pieceInstanceId))
 		if (!proposedPieceInstance) {
 			throw new Error(`PieceInstance "${pieceInstanceId}" could not be found`)
 		}
 
-		if (!this.partInstance) throw new Error(`PartInstance has been removed`)
+		if (!this.#partInstance) throw new Error(`PartInstance has been removed`)
 
 		// filter the submission to the allowed ones
 		const piece = modifiedPiece
 			? postProcessPieces(
-					this._context,
+					this.#context,
 					[
 						{
 							...modifiedPiece,
@@ -92,9 +127,9 @@ export class SyncIngestUpdateToPartInstanceContext
 						},
 					],
 					this.showStyleCompound.blueprintId,
-					this.partInstance.partInstance.rundownId,
-					this.partInstance.partInstance.segmentId,
-					this.partInstance.partInstance.part._id,
+					this.#partInstance.partInstance.rundownId,
+					this.#partInstance.partInstance.segmentId,
+					this.#partInstance.partInstance.part._id,
 					this.playStatus === 'current'
 				)[0]
 			: proposedPieceInstance.piece
@@ -103,7 +138,7 @@ export class SyncIngestUpdateToPartInstanceContext
 			...proposedPieceInstance,
 			piece: piece,
 		}
-		this.partInstance.mergeOrInsertPieceInstance(newPieceInstance)
+		this.#partInstance.mergeOrInsertPieceInstance(newPieceInstance)
 
 		return convertPieceInstanceToBlueprints(newPieceInstance)
 	}
@@ -111,19 +146,19 @@ export class SyncIngestUpdateToPartInstanceContext
 	insertPieceInstance(piece0: IBlueprintPiece): IBlueprintPieceInstance {
 		const trimmedPiece: IBlueprintPiece = _.pick(piece0, IBlueprintPieceObjectsSampleKeys)
 
-		if (!this.partInstance) throw new Error(`PartInstance has been removed`)
+		if (!this.#partInstance) throw new Error(`PartInstance has been removed`)
 
 		const piece = postProcessPieces(
-			this._context,
+			this.#context,
 			[trimmedPiece],
 			this.showStyleCompound.blueprintId,
-			this.partInstance.partInstance.rundownId,
-			this.partInstance.partInstance.segmentId,
-			this.partInstance.partInstance.part._id,
+			this.#partInstance.partInstance.rundownId,
+			this.#partInstance.partInstance.segmentId,
+			this.#partInstance.partInstance.part._id,
 			this.playStatus === 'current'
 		)[0]
 
-		const newPieceInstance = this.partInstance.insertPlannedPiece(piece)
+		const newPieceInstance = this.#partInstance.insertPlannedPiece(piece)
 
 		return convertPieceInstanceToBlueprints(newPieceInstance.pieceInstance)
 	}
@@ -134,13 +169,13 @@ export class SyncIngestUpdateToPartInstanceContext
 			throw new Error(`Cannot update PieceInstance "${pieceInstanceId}". Some valid properties must be defined`)
 		}
 
-		if (!this.partInstance) throw new Error(`PartInstance has been removed`)
+		if (!this.#partInstance) throw new Error(`PartInstance has been removed`)
 
-		const pieceInstance = this.partInstance.getPieceInstance(protectString(pieceInstanceId))
+		const pieceInstance = this.#partInstance.getPieceInstance(protectString(pieceInstanceId))
 		if (!pieceInstance) {
 			throw new Error(`PieceInstance "${pieceInstanceId}" could not be found`)
 		}
-		if (pieceInstance.pieceInstance.partInstanceId !== this.partInstance.partInstance._id) {
+		if (pieceInstance.pieceInstance.partInstanceId !== this.#partInstance.partInstance._id) {
 			throw new Error(`PieceInstance "${pieceInstanceId}" does not belong to the current PartInstance`)
 		}
 
@@ -167,13 +202,13 @@ export class SyncIngestUpdateToPartInstanceContext
 		return convertPieceInstanceToBlueprints(pieceInstance.pieceInstance)
 	}
 	updatePartInstance(updatePart: Partial<IBlueprintMutatablePart>): IBlueprintPartInstance {
-		if (!this.partInstance) throw new Error(`PartInstance has been removed`)
+		if (!this.#partInstance) throw new Error(`PartInstance has been removed`)
 
 		// for autoNext, the new expectedDuration cannot be shorter than the time a part has been on-air for
-		const expectedDuration = updatePart.expectedDuration ?? this.partInstance.partInstance.part.expectedDuration
-		const autoNext = updatePart.autoNext ?? this.partInstance.partInstance.part.autoNext
+		const expectedDuration = updatePart.expectedDuration ?? this.#partInstance.partInstance.part.expectedDuration
+		const autoNext = updatePart.autoNext ?? this.#partInstance.partInstance.part.autoNext
 		if (expectedDuration && autoNext) {
-			const onAir = this.partInstance.partInstance.timings?.reportedStartedPlayback
+			const onAir = this.#partInstance.partInstance.timings?.reportedStartedPlayback
 			const minTime = Date.now() - (onAir ?? 0) + EXPECTED_INGEST_TO_PLAYOUT_TIME
 			if (onAir && minTime > expectedDuration) {
 				updatePart.expectedDuration = minTime
@@ -185,31 +220,31 @@ export class SyncIngestUpdateToPartInstanceContext
 			this.showStyleCompound.blueprintId
 		)
 
-		if (!this.partInstance.updatePartProps(playoutUpdatePart)) {
+		if (!this.#partInstance.updatePartProps(playoutUpdatePart)) {
 			throw new Error(`Cannot update PartInstance. Some valid properties must be defined`)
 		}
 
-		return convertPartInstanceToBlueprints(this.partInstance.partInstance)
+		return convertPartInstanceToBlueprints(this.#partInstance.partInstance)
 	}
 
 	removePartInstance(): void {
 		if (this.playStatus !== 'next') throw new Error(`Only the 'next' PartInstance can be removed`)
 
-		this.partInstance = null
+		this.#partInstance = null
 	}
 
 	removePieceInstances(...pieceInstanceIds: string[]): string[] {
-		if (!this.partInstance) throw new Error(`PartInstance has been removed`)
+		if (!this.#partInstance) throw new Error(`PartInstance has been removed`)
 
 		const rawPieceInstanceIdSet = new Set(protectStringArray(pieceInstanceIds))
-		const pieceInstances = this.partInstance.pieceInstances.filter((p) =>
+		const pieceInstances = this.#partInstance.pieceInstances.filter((p) =>
 			rawPieceInstanceIdSet.has(p.pieceInstance._id)
 		)
 
 		const pieceInstanceIdsToRemove = pieceInstances.map((p) => p.pieceInstance._id)
 
 		for (const id of pieceInstanceIdsToRemove) {
-			this.partInstance.removePieceInstance(id)
+			this.#partInstance.removePieceInstance(id)
 		}
 
 		return unprotectStringArray(pieceInstanceIdsToRemove)

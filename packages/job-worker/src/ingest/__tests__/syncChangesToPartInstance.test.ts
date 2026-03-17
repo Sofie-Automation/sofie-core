@@ -84,7 +84,7 @@ describe('SyncChangesToPartInstancesWorker', () => {
 
 	describe('syncChangesToPartInstance', () => {
 		function createMockPlayoutModel(partialModel?: Partial<Pick<PlayoutModel, 'nextPartInstance'>>) {
-			return mock<PlayoutModel>(
+			const mockPlayoutModel = mock<PlayoutModel>(
 				{
 					currentPartInstance: null,
 					nextPartInstance: partialModel?.nextPartInstance ?? null,
@@ -96,6 +96,19 @@ describe('SyncChangesToPartInstancesWorker', () => {
 				},
 				mockOptions
 			)
+
+			Object.defineProperty(mockPlayoutModel, 'playlist', {
+				get: () =>
+					({
+						tTimers: [
+							{ index: 1, label: 'Timer 1', mode: null, state: null },
+							{ index: 2, label: 'Timer 2', mode: null, state: null },
+							{ index: 3, label: 'Timer 3', mode: null, state: null },
+						],
+					}) satisfies Partial<DBRundownPlaylist>,
+			})
+
+			return mockPlayoutModel
 		}
 		function createMockPlayoutRundownModel(): PlayoutRundownModel {
 			return mock<PlayoutRundownModel>({}, mockOptions)
@@ -105,6 +118,9 @@ describe('SyncChangesToPartInstancesWorker', () => {
 				{
 					findPart: jest.fn(() => undefined),
 					getGlobalPieces: jest.fn(() => []),
+					getAllOrderedParts: jest.fn(() => []),
+					getOrderedSegments: jest.fn(() => []),
+					findAdlibPiece: jest.fn(() => undefined),
 				},
 				mockOptions
 			)
@@ -315,6 +331,11 @@ describe('SyncChangesToPartInstancesWorker', () => {
 				modified: 0,
 				timing: { type: PlaylistTimingType.None },
 				rundownIdsInOrder: [],
+				tTimers: [
+					{ index: 1, label: '', mode: null, state: null },
+					{ index: 2, label: '', mode: null, state: null },
+					{ index: 3, label: '', mode: null, state: null },
+				],
 			}
 
 			const segmentModel = new PlayoutSegmentModelImpl(segment, [part0])

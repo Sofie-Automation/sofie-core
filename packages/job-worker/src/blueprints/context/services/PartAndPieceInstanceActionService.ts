@@ -9,7 +9,7 @@ import {
 	IBlueprintPieceDB,
 	IBlueprintPieceInstance,
 	IBlueprintResolvedPieceInstance,
-	IBlueprintSegment,
+	IBlueprintSegmentDB,
 	OmitId,
 	SomeContent,
 	Time,
@@ -145,7 +145,7 @@ export class PartAndPieceInstanceActionService {
 		)
 		return resolvedInstances.map(convertResolvedPieceInstanceToBlueprints)
 	}
-	getSegment(segment: 'current' | 'next'): IBlueprintSegment | undefined {
+	getSegment(segment: 'current' | 'next'): IBlueprintSegmentDB | undefined {
 		const partInstance = this.#getPartInstance(segment)
 		if (!partInstance) return undefined
 

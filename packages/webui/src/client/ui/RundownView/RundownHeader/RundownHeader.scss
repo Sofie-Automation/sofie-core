@@ -1,0 +1,654 @@
+@import '../../../styles/colorScheme';
+@import './shared';
+@import './Countdown';
+
+.rundown-header {
+	height: 64px;
+	min-height: 64px;
+	padding: 0;
+	width: 100%;
+	border-bottom: 1px solid #333;
+	transition:
+		background-color 0.5s,
+		border-bottom-color 0.5s;
+	font-family: 'Roboto Flex', 'Roboto', sans-serif;
+	font-feature-settings:
+		'liga' 0,
+		'tnum';
+	font-variant-numeric: tabular-nums;
+	user-select: none;
+	cursor: default;
+
+	.rundown-header__trigger {
+		height: 100%;
+		width: 100%;
+		display: block;
+	}
+
+	// State-based background colors
+	&.not-active {
+		background-color: $color-header-inactive;
+	}
+
+	&.active {
+		background-color: $color-header-on-air;
+		border-bottom: 1px solid #256b91;
+
+		.rundown-header__timers-segment-remaining,
+		.rundown-header__timers-onair-remaining,
+		.rundown-header__show-timers-countdown {
+			color: #fff;
+		}
+
+		.rundown-header__clocks-timers__timer__label {
+			color: rgba(255, 255, 255, 0.9);
+		}
+
+		&.rehearsal {
+			background-color: #06090d;
+			background-image: repeating-linear-gradient(
+				-45deg,
+				rgba(255, 255, 255, 0.08) 0,
+				rgba(255, 255, 255, 0.08) 18px,
+				transparent 18px,
+				transparent 36px
+			);
+			border-bottom: 1px solid #256b91;
+		}
+	}
+
+	.rundown-header__content {
+		height: 100%;
+		width: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		background: transparent;
+	}
+
+	.rundown-header__left {
+		display: flex;
+		align-items: center;
+		flex: 1 1 0px;
+		min-width: 0;
+
+		.rundown-header__left-context-menu-wrapper {
+			display: flex;
+			align-items: center;
+			gap: 2.5em;
+			height: 100%;
+		}
+	}
+
+	.rundown-header__right {
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+		flex: 1 1 0px;
+		min-width: 0;
+		gap: 1em;
+	}
+
+	.rundown-header__clocks {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex: none;
+		min-width: 0;
+		.timing-clock {
+			color: #40b8fa;
+			font-size: 1.4em;
+			letter-spacing: 0em;
+			transition: color 0.2s;
+
+			&.time-now {
+				font-size: 1.8em;
+				font-variation-settings:
+					'wdth' 85,
+					'wght' 400,
+					'slnt' -5,
+					'GRAD' 0,
+					'opsz' 44,
+					'XOPQ' 96,
+					'XTRA' 468,
+					'YOPQ' 79,
+					'YTAS' 750,
+					'YTFI' 738,
+					'YTLC' 548,
+					'YTDE' -203,
+					'YTUC' 712;
+			}
+		}
+
+		.rundown-header__clocks-clock-group {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
+
+		.rundown-header__clocks-top-row {
+			position: relative;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.rundown-header__clocks-playlist-name {
+			font-size: 0.75em;
+			font-variation-settings:
+				'wdth' 25,
+				'wght' 500,
+				'slnt' 0,
+				'GRAD' 0,
+				'opsz' 14,
+				'XOPQ' 96,
+				'XTRA' 468,
+				'YOPQ' 79,
+				'YTAS' 750,
+				'YTFI' 738,
+				'YTLC' 548,
+				'YTDE' -203,
+				'YTUC' 712;
+			display: flex;
+			flex-direction: row;
+			justify-content: center;
+			gap: 0.4em;
+			max-width: 40em;
+			color: #fff;
+			max-height: 0;
+			padding-top: 0;
+			overflow: hidden;
+			transition:
+				max-height 0.2s ease,
+				padding-top 0.2s ease;
+
+			.rundown-name,
+			.playlist-name {
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				flex: 0 1 auto;
+				min-width: 0;
+			}
+			.playlist-name {
+				font-variation-settings:
+					'wdth' 25,
+					'wght' 700,
+					'slnt' 0,
+					'GRAD' 0,
+					'opsz' 14,
+					'XOPQ' 96,
+					'XTRA' 468,
+					'YOPQ' 79,
+					'YTAS' 750,
+					'YTFI' 738,
+					'YTLC' 548,
+					'YTDE' -203,
+					'YTUC' 712;
+			}
+		}
+
+		.rundown-header__clocks-time-now {
+			@extend .countdown--timeofday;
+			.countdown__value {
+				margin-left: 0; // Center it since there's no label
+			}
+		}
+
+		.rundown-header__clocks-timing-display {
+			margin-right: 0.5em;
+			display: flex;
+			align-items: center;
+		}
+	}
+
+	.rundown-header__clocks-diff {
+		display: flex;
+		align-items: center;
+		gap: 0.4em;
+		font-variant-numeric: tabular-nums;
+		white-space: nowrap;
+
+		.rundown-header__clocks-diff__label {
+			@extend .rundown-header__hoverable-label;
+			font-size: 0.75em;
+			//opacity: 0.6;
+			color: #999;
+			font-variation-settings:
+				'wdth' 25,
+				'wght' 500,
+				'slnt' 0,
+				'GRAD' 0,
+				'opsz' 14,
+				'XOPQ' 96,
+				'XTRA' 468,
+				'YOPQ' 79,
+				'YTAS' 750,
+				'YTFI' 738,
+				'YTLC' 548,
+				'YTDE' -203,
+				'YTUC' 712;
+		}
+
+		.rundown-header__clocks-diff__chip--under {
+			font-size: 1.3em;
+			padding: 0em 0.3em;
+			line-height: 1em;
+			border-radius: 999px;
+			letter-spacing: -0.02em;
+			font-variation-settings:
+				'wdth' 25,
+				'wght' 500,
+				'slnt' 0,
+				'GRAD' 0,
+				'opsz' 25,
+				'XOPQ' 96,
+				'XTRA' 468,
+				'YOPQ' 79,
+				'YTAS' 750,
+				'YTFI' 738,
+				'YTLC' 548,
+				'YTDE' -203,
+				'YTUC' 712;
+		}
+		.rundown-header__clocks-diff__chip--over {
+			font-size: 1.3em;
+			padding: 0em 0.3em;
+			line-height: 1em;
+			border-radius: 999px;
+			letter-spacing: -0.02em;
+			font-variation-settings:
+				'wdth' 25,
+				'wght' 700,
+				'slnt' 0,
+				'GRAD' 0,
+				'opsz' 25,
+				'XOPQ' 96,
+				'XTRA' 468,
+				'YOPQ' 79,
+				'YTAS' 750,
+				'YTFI' 738,
+				'YTLC' 548,
+				'YTDE' -203,
+				'YTUC' 712;
+		}
+
+		&.rundown-header__clocks-diff--under {
+			.rundown-header__clocks-diff__chip--under {
+				background-color: #ff0; // Should probably be changed to $general-fast-color;
+				color: #000;
+			}
+		}
+
+		&.rundown-header__clocks-diff--over {
+			.rundown-header__clocks-diff__chip--over {
+				background-color: $general-late-color;
+				color: #000000;
+			}
+		}
+	}
+
+	.rundown-header__clocks-timers {
+		margin-left: auto;
+		display: grid;
+		grid-template-columns: auto auto;
+		align-items: baseline;
+		justify-content: end;
+		column-gap: 0.3em;
+		row-gap: 0.1em;
+
+		.rundown-header__clocks-timers__row {
+			display: contents;
+		}
+
+		.rundown-header__clocks-timers__timer {
+			display: contents;
+			white-space: nowrap;
+			line-height: 1.25;
+
+			.countdown__label {
+				@extend .rundown-header__hoverable-label;
+				margin-left: 0;
+				text-align: right;
+				white-space: nowrap;
+			}
+
+			.countdown__counter {
+				color: #fff;
+				margin-left: 0;
+				display: flex;
+				align-items: center;
+				gap: 0;
+			}
+
+			.countdown__timeofday {
+				color: #fff;
+			}
+
+			.rundown-header__clocks-timers__timer__sign {
+				display: inline-block;
+				width: 0.6em;
+				text-align: center;
+				font-size: 1.1em;
+				color: #fff;
+				margin-right: 0em;
+			}
+
+			.rundown-header__clocks-timers__timer__over-under {
+				display: inline-block;
+				line-height: -1em;
+				font-size: 0.75em;
+				padding: 0.05em 0.25em;
+				border-radius: 999px;
+				white-space: nowrap;
+				letter-spacing: -0.02em;
+				margin-left: 0.25em;
+				margin-top: 0em;
+				font-variant-numeric: tabular-nums;
+				font-variation-settings:
+					'wdth' 25,
+					'wght' 600,
+					'slnt' 0,
+					'GRAD' 0,
+					'opsz' 14,
+					'XOPQ' 96,
+					'XTRA' 468,
+					'YOPQ' 79,
+					'YTAS' 750,
+					'YTFI' 738,
+					'YTLC' 548,
+					'YTDE' -203,
+					'YTUC' 712;
+
+				&.rundown-header__clocks-timers__timer__over-under--over {
+					background-color: $general-late-color;
+					color: #000;
+				}
+
+				&.rundown-header__clocks-timers__timer__over-under--under {
+					background-color: #ff0;
+					color: #000;
+				}
+			}
+		}
+	}
+
+	.rundown-header__menu-btn {
+		background: none;
+		border: none;
+		color: #40b8fa99;
+		cursor: pointer;
+		padding: 0 1em;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		height: 100%;
+		font-size: 1.2em;
+		transition:
+			color 0.2s;
+
+		svg,
+		i {
+			filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0));
+		}
+
+		&:hover:not(:disabled):not(.disabled) {
+			color: #ffffff;
+
+			svg,
+			i {
+				filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.65));
+			}
+		}
+
+		&:focus-visible:not(:disabled):not(.disabled) {
+			color: #ffffff;
+
+			svg,
+			i {
+				filter: drop-shadow(0 0 2.5px rgba(255, 255, 255, 0.75));
+			}
+		}
+
+		&:disabled,
+		&.disabled {
+			cursor: default;
+
+			svg,
+			i {
+				filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0));
+			}
+		}
+	}
+
+	.rundown-header__onair {
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+		justify-content: center;
+		gap: 0.1em;
+	}
+
+	// Common label style for header labels that react to hover
+	.rundown-header__hoverable-label {
+		@extend %hoverable-label;
+	}
+
+	.rundown-header__timers-segment-remaining,
+	.rundown-header__timers-onair-remaining {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.3em;
+		color: #fff;
+		transition: color 0.2s;
+
+		&__label {
+			@extend .rundown-header__hoverable-label;
+			//opacity: 1;
+			color: #fff;
+			position: relative;
+			top: -0.16em; /* Match alignment from Countdown.scss */
+		}
+
+		.countdown__counter {
+			color: $general-countdown-to-next-color;
+		}
+
+		.overtime,
+		.overtime .countdown__counter {
+			color: $general-late-color;
+		}
+	}
+
+	// Stacked Plan. Start / Plan. End / Est. End in right section
+	.rundown-header__show-timers-endtimes {
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-start;
+		gap: 0.1em;
+		min-width: 7em;
+	}
+
+	.rundown-header__show-timers {
+		display: flex;
+		align-items: flex-start;
+		gap: 1em;
+		cursor: pointer;
+		background: none;
+		border: none;
+		padding: 0;
+		margin: 0;
+		font: inherit;
+		color: inherit;
+		text-align: inherit;
+
+		&:hover {
+			text-shadow: 0 0 5px rgba(255, 255, 255, 1);
+		}
+
+		&:focus-visible {
+			text-shadow: 0 0 6px rgba(255, 255, 255, 1);
+		}
+
+		&.rundown-header__show-timers--disabled {
+			cursor: default;
+
+			&:hover,
+			&:focus-visible {
+				text-shadow: none;
+			}
+		}
+	}
+
+	.rundown-header__show-timers-countdown {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 0.6em;
+		transition: color 0.2s;
+
+		.countdown__label {
+			@extend .rundown-header__hoverable-label;
+			white-space: nowrap;
+		}
+
+		.countdown__counter {
+			margin-left: auto;
+			font-size: 1.3em;
+			letter-spacing: 0em;
+			font-variation-settings:
+			'wdth' 60,
+			'wght' 550,
+			'slnt' 0,
+			'GRAD' 0,
+			'opsz' 40,
+			'XOPQ' 96,
+			'XTRA' 468,
+			'YOPQ' 79,
+			'YTAS' 750,
+			'YTFI' 738,
+			'YTLC' 548,
+			'YTDE' -203,
+			'YTUC' 712;
+		}
+
+		.countdown__timeofday {
+			margin-left: auto;
+			font-size: 1.3em;
+			font-variant-numeric: tabular-nums;
+			letter-spacing: 0.02em;
+			font-variation-settings:
+			'wdth' 70,
+			'wght' 400,
+			'slnt' -5,
+			'GRAD' 0,
+			'opsz' 40,
+			'XOPQ' 96,
+			'XTRA' 468,
+			'YOPQ' 79,
+			'YTAS' 750,
+			'YTFI' 738,
+			'YTLC' 548,
+			'YTDE' -203,
+			'YTUC' 712;
+		}
+	}
+
+	.rundown-header__timers-onair-remaining__label {
+		background-color: var(--general-live-color);
+		color: #ffffff;
+		padding: 0.03em 0.45em 0.02em 0.2em;
+		top: 0em;
+		border-radius: 2px 999px 999px 2px;
+		// Label font styling override meant to match the ON AIR label on the On Air line
+		font-size: 0.8em;
+		letter-spacing: 0.05em;
+		font-variation-settings:
+			'wdth' 80,
+			'wght' 700,
+			'slnt' 0,
+			'GRAD' 0,
+			'opsz' 14,
+			'XOPQ' 96,
+			'XTRA' 468,
+			'YOPQ' 79,
+			'YTAS' 750,
+			'YTFI' 738,
+			'YTLC' 548,
+			'YTDE' -203,
+			'YTUC' 712;
+
+		opacity: 1 !important;
+
+		.freeze-frame-icon {
+			margin-left: 0.3em;
+			vertical-align: middle;
+			height: 0.9em;
+			width: auto;
+		}
+	}
+
+	.rundown-header__close-btn {
+		display: flex;
+		align-items: center;
+		margin-right: 0.75em;
+		cursor: pointer;
+		color: #40b8fa;
+		opacity: 0;
+		flex-shrink: 0;
+		transition:
+			opacity 0.2s;
+
+		svg,
+		i {
+			filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0));
+		}
+
+		&:hover {
+			color: #ffffff;
+
+			svg,
+			i {
+				filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.65));
+			}
+		}
+
+		&:focus-visible {
+			color: #ffffff;
+
+			svg,
+			i {
+				filter: drop-shadow(0 0 2.5px rgba(255, 255, 255, 0.75));
+			}
+		}
+	}
+
+	&:hover {
+		.rundown-header__menu-btn:not(:disabled) {
+			color: #40b8fa;
+		}
+
+		.rundown-header__hoverable-label,
+		.countdown__label {
+			opacity: 1;
+			color: #fff;
+		}
+
+		.rundown-header__timers-onair-remaining__label {
+			//opacity: 1;
+			color: #fff;
+		}
+
+		.rundown-header__close-btn {
+			opacity: 1;
+		}
+
+		.rundown-header__clocks-clock-group {
+			.rundown-header__clocks-playlist-name {
+				max-height: 2em;
+				padding-top: 0em;
+			}
+		}
+	}
+}

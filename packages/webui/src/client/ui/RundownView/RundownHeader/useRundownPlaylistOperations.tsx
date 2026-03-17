@@ -15,7 +15,7 @@ import { NoticeLevel, Notification, NotificationCenter } from '../../../lib/noti
 import { Meteor } from 'meteor/meteor'
 import { Tracker } from 'meteor/tracker'
 import RundownViewEventBus, { RundownViewEvents } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
-import { handleRundownPlaylistReloadResponse } from './RundownReloadResponse'
+import { handleRundownPlaylistReloadResponse } from './RundownReloadResponse.js'
 import { scrollToPartInstance } from '../../../lib/viewPort'
 import { hashSingleUseToken } from '../../../lib/lib'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'

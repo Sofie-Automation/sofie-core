@@ -1,5 +1,6 @@
 import { studioJobHandlers } from './jobs.js'
 import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { StudioJobs } from '@sofie-automation/corelib/dist/worker/studio'
 import { MongoClient } from 'mongodb'
 import { createMongoConnection, getMongoCollections, IDirectCollections } from '../../db/index.js'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
@@ -75,6 +76,16 @@ export class StudioWorkerChild {
 		}
 
 		logger.info(`Studio thread for ${this.#studioId} initialised`)
+
+		// Queue initial T-Timer recalculation to set up timers after startup
+		this.#queueJob(
+			getStudioQueueName(this.#studioId),
+			StudioJobs.RecalculateTTimerProjections,
+			undefined,
+			undefined
+		).catch((err) => {
+			logger.error(`Failed to queue initial T-Timer recalculation: ${err}`)
+		})
 	}
 	async lockChange(lockId: string, locked: boolean): Promise<void> {
 		if (!this.#staticData) throw new Error('Worker not initialised')

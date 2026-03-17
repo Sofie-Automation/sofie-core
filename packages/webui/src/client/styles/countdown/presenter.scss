@@ -163,7 +163,7 @@ $hold-status-color: $liveline-timecode-color;
 
 	.presenter-screen__rundown-status-bar {
 		display: grid;
-		grid-template-columns: auto fit-content(5em);
+		grid-template-columns: auto fit-content(20em) fit-content(5em);
 		grid-template-rows: fit-content(1em);
 		font-size: 6em;
 		color: #888;
@@ -174,6 +174,73 @@ $hold-status-color: $liveline-timecode-color;
 			white-space: nowrap;
 			text-overflow: ellipsis;
 			line-height: 1.44em;
+		}
+
+		.presenter-screen__rundown-status-bar__t-timer {
+			margin-right: 1em;
+			font-size: 0.8em;
+			align-self: center;
+			justify-self: end;
+
+			.t-timer-display {
+				display: flex;
+				align-items: stretch;
+				justify-content: flex-end;
+				font-weight: 500;
+				background: #333;
+				border-radius: 0;
+				overflow: hidden;
+
+				&__label {
+					display: flex;
+					align-items: center;
+					color: #fff;
+					padding-left: 0.4em;
+					padding-right: 0.2em;
+					font-size: 1em;
+					text-transform: uppercase;
+					letter-spacing: 0.05em;
+					font-stretch: condensed;
+				}
+
+				&__value {
+					display: flex;
+					align-items: center;
+					color: #fff;
+					font-variant-numeric: tabular-nums;
+					padding: 0 0.2em;
+					font-size: 1em;
+
+					.t-timer-display__part {
+						&--dimmed {
+							color: #aaa;
+						}
+					}
+				}
+
+				&__over-under {
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					margin: 0 0 0 0.2em;
+					font-size: 1em;
+					font-variant-numeric: tabular-nums;
+					padding: 0 0.4em;
+					line-height: 1.1;
+					min-width: 3.5em;
+					border-radius: 1em;
+
+					&--over {
+						background-color: $general-late-color;
+						color: #fff;
+					}
+
+					&--under {
+						background-color: #ffe900;
+						color: #000;
+					}
+				}
+			}
 		}
 
 		.presenter-screen__rundown-status-bar__countdown {

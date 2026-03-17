@@ -78,6 +78,7 @@ describe('test peripheralDevice general API methods', () => {
 				type: PlaylistTimingType.None,
 			},
 			rundownIdsInOrder: [rundownID],
+			tTimers: [] as any,
 		})
 		await Rundowns.mutableCollection.insertAsync({
 			_id: rundownID,

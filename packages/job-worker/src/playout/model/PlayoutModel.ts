@@ -17,6 +17,7 @@ import {
 	DBRundownPlaylist,
 	QuickLoopMarker,
 	RundownHoldState,
+	RundownTTimer,
 } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { ReadonlyDeep } from 'type-fest'
 import { StudioPlayoutModelBase, StudioPlayoutModelBaseReadonly } from '../../studio/model/StudioPlayoutModel.js'
@@ -379,6 +380,12 @@ export interface PlayoutModel extends PlayoutModelReadonly, StudioPlayoutModelBa
 	 * @param marker
 	 */
 	setQuickLoopMarker(type: 'start' | 'end', marker: QuickLoopMarker | null): void
+
+	/**
+	 * Update a T-timer
+	 * @param timer Timer properties
+	 */
+	updateTTimer(timer: RundownTTimer): void
 
 	calculatePartTimings(
 		fromPartInstance: PlayoutPartInstanceModel | null,

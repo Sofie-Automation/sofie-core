@@ -29,6 +29,7 @@ import { clone, groupByToMapFunc } from '@sofie-automation/corelib/dist/lib'
 import { PlaylistLock } from '../jobs/lock.js'
 import { syncChangesToPartInstances } from './syncChangesToPartInstance.js'
 import { ensureNextPartIsValid } from './updateNext.js'
+import { recalculateTTimerProjections } from '../playout/tTimers.js'
 import { StudioJobs } from '@sofie-automation/corelib/dist/worker/studio'
 import { getTranslatedMessage, ServerTranslatedMesssages } from '../notes.js'
 import _ from 'underscore'
@@ -234,6 +235,16 @@ export async function CommitIngestOperation(
 				// update the quickloop in case we did any changes to things involving marker
 				playoutModel.updateQuickLoopState()
 
+				// wait for the ingest changes to save
+				await pSaveIngest
+
+				// do some final playout checks, which may load back some Parts data
+				// Note: This should trigger a timeline update, one is already queued in the `deferAfterSave` above
+				await ensureNextPartIsValid(context, playoutModel)
+
+				// Recalculate T-Timer projections after ingest changes
+				recalculateTTimerProjections(context, playoutModel)
+
 				playoutModel.deferAfterSave(() => {
 					// Run in the background, we don't want to hold onto the lock to do this
 					context
@@ -247,13 +258,6 @@ export async function CommitIngestOperation(
 
 					triggerUpdateTimelineAfterIngestData(context, playoutModel.playlistId)
 				})
-
-				// wait for the ingest changes to save
-				await pSaveIngest
-
-				// do some final playout checks, which may load back some Parts data
-				// Note: This should trigger a timeline update, one is already queued in the `deferAfterSave` above
-				await ensureNextPartIsValid(context, playoutModel)
 
 				// save the final playout changes
 				await playoutModel.saveAllToDatabase()
@@ -612,6 +616,9 @@ export async function updatePlayoutAfterChangingRundownInPlaylist(
 		}
 
 		const shouldUpdateTimeline = await ensureNextPartIsValid(context, playoutModel)
+
+		// Recalculate T-Timer projections after playlist changes
+		recalculateTTimerProjections(context, playoutModel)
 
 		if (playoutModel.playlist.activationId || shouldUpdateTimeline) {
 			triggerUpdateTimelineAfterIngestData(context, playoutModel.playlistId)

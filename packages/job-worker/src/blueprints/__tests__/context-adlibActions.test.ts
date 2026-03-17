@@ -7,13 +7,22 @@ import { JobContext, ProcessedShowStyleCompound } from '../../jobs/index.js'
 import { mock } from 'jest-mock-extended'
 import { PartAndPieceInstanceActionService } from '../context/services/PartAndPieceInstanceActionService.js'
 import { ProcessedShowStyleConfig } from '../config.js'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 
 describe('Test blueprint api context', () => {
 	async function getTestee(rehearsal?: boolean) {
 		const mockActionService = mock<PartAndPieceInstanceActionService>()
 		const mockPlayoutModel = mock<PlayoutModel>()
 		Object.defineProperty(mockPlayoutModel, 'playlist', {
-			get: () => ({ rehearsal }),
+			get: () =>
+				({
+					rehearsal,
+					tTimers: [
+						{ index: 1, label: 'Timer 1', mode: null, state: null },
+						{ index: 2, label: 'Timer 2', mode: null, state: null },
+						{ index: 3, label: 'Timer 3', mode: null, state: null },
+					],
+				}) satisfies Partial<DBRundownPlaylist>,
 		})
 		const context = new ActionExecutionContext(
 			{

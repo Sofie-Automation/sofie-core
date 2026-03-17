@@ -12,7 +12,7 @@ import { SegmentTimelineZoomControls } from './SegmentTimelineZoomControls.js'
 import { SegmentDuration } from '../RundownView/RundownTiming/SegmentDuration.js'
 import { PartCountdown } from '../RundownView/RundownTiming/PartCountdown.js'
 import { RundownTiming } from '../RundownView/RundownTiming/RundownTiming.js'
-import { CurrentPartOrSegmentRemaining } from '../RundownView/RundownTiming/CurrentPartOrSegmentRemaining.js'
+import { CurrentPartOrSegmentRemaining } from '../RundownView/RundownHeader/CurrentPartOrSegmentRemaining.js'
 
 import { RundownUtils } from '../../lib/rundown.js'
 import { Translated } from '../../lib/ReactMeteorData/ReactMeteorData.js'

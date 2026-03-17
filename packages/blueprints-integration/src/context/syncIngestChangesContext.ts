@@ -6,8 +6,9 @@ import type {
 	IBlueprintPieceInstance,
 } from '../documents/index.js'
 import type { IEventContext } from './eventContext.js'
+import type { ITTimersContext } from './tTimersContext.js'
 
-export interface ISyncIngestUpdateToPartInstanceContext extends IRundownUserContext, IEventContext {
+export interface ISyncIngestUpdateToPartInstanceContext extends IRundownUserContext, ITTimersContext, IEventContext {
 	/** Sync a pieceInstance. Inserts the pieceInstance if new, updates if existing. Optionally pass in a mutated Piece, to override the content of the instance */
 	syncPieceInstance(
 		pieceInstanceId: string,

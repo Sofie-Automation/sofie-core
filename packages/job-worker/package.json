@@ -40,6 +40,7 @@
 		"@sofie-automation/corelib": "26.3.0-2",
 		"@sofie-automation/shared-lib": "26.3.0-2",
 		"amqplib": "0.10.5",
+		"chrono-node": "^2.9.0",
 		"deepmerge": "^4.3.1",
 		"elastic-apm-node": "^4.15.0",
 		"mongodb": "^6.21.0",

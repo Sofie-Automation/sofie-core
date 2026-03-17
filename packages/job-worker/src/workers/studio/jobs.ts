@@ -49,6 +49,7 @@ import { handleActivateAdlibTesting } from '../../playout/adlibTesting.js'
 import { handleExecuteBucketAdLibOrAction } from '../../playout/bucketAdlibJobs.js'
 import { handleSwitchRouteSet } from '../../studio/routeSet.js'
 import { handleCleanupOrphanedExpectedPackageReferences } from '../../playout/expectedPackages.js'
+import { handleRecalculateTTimerProjections } from '../../playout/tTimersJobs.js'
 
 type ExecutableFunction<T extends keyof StudioJobFunc> = (
 	context: JobContext,
@@ -86,6 +87,8 @@ export const studioJobHandlers: StudioJobHandlers = {
 
 	[StudioJobs.OnPlayoutPlaybackChanged]: handleOnPlayoutPlaybackChanged,
 	[StudioJobs.OnTimelineTriggerTime]: handleTimelineTriggerTime,
+
+	[StudioJobs.RecalculateTTimerProjections]: handleRecalculateTTimerProjections,
 
 	[StudioJobs.UpdateStudioBaseline]: handleUpdateStudioBaseline,
 	[StudioJobs.CleanupEmptyPlaylists]: handleRemoveEmptyPlaylists,

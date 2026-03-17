@@ -41,6 +41,7 @@ describe('Test external message queue static methods', () => {
 				type: PlaylistTimingType.None,
 			},
 			rundownIdsInOrder: [protectString('rundown_1')],
+			tTimers: [] as any,
 		})
 		await Rundowns.mutableCollection.insertAsync({
 			_id: protectString('rundown_1'),

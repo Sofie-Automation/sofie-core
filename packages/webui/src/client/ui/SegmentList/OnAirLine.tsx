@@ -4,7 +4,7 @@ import { SIMULATED_PLAYBACK_HARD_MARGIN } from '../SegmentTimeline/Constants.js'
 import { PartInstanceLimited } from '../../lib/RundownResolver.js'
 import { useTranslation } from 'react-i18next'
 import { getAllowSpeaking, getAllowVibrating } from '../../lib/localStorage.js'
-import { CurrentPartOrSegmentRemaining } from '../RundownView/RundownTiming/CurrentPartOrSegmentRemaining.js'
+import { CurrentPartOrSegmentRemaining } from '../RundownView/RundownHeader/CurrentPartOrSegmentRemaining.js'
 import { AutoNextStatus } from '../RundownView/RundownTiming/AutoNextStatus.js'
 import classNames from 'classnames'
 

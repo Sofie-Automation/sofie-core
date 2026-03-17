@@ -1,7 +1,7 @@
 import React from 'react'
 import { RundownTimingProvider } from './RundownTiming/RundownTimingProvider'
 import StudioContext from './StudioContext'
-import { RundownPlaylistOperationsContextProvider } from './RundownHeader/useRundownPlaylistOperations'
+import { RundownPlaylistOperationsContextProvider } from './RundownHeader/useRundownPlaylistOperations.js'
 import { PreviewPopUpContextProvider } from '../PreviewPopUp/PreviewPopUpContext'
 import { SelectedElementProvider } from './SelectedElementsContext'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'

@@ -167,12 +167,17 @@ export class RundownTimingCalculator {
 						const liveSegment = segmentsMap.get(liveSegmentIds.segmentId)
 
 						if (liveSegment?.segmentTiming?.countdownType === CountdownType.SEGMENT_BUDGET_DURATION) {
-							remainingBudgetOnCurrentSegment =
-								(playlist.segmentsStartedPlayback?.[unprotectString(liveSegmentIds.segmentPlayoutId)] ??
-									lastStartedPlayback ??
-									now) +
-								(liveSegment.segmentTiming.budgetDuration ?? 0) -
-								now
+							const budgetDuration = liveSegment.segmentTiming.budgetDuration ?? 0
+							if (budgetDuration > 0) {
+								remainingBudgetOnCurrentSegment =
+									(playlist.segmentsStartedPlayback?.[
+										unprotectString(liveSegmentIds.segmentPlayoutId)
+									] ??
+										lastStartedPlayback ??
+										now) +
+									budgetDuration -
+									now
+							}
 						}
 					}
 					segmentDisplayDuration = 0

@@ -7,7 +7,7 @@ import {
 	IBlueprintPieceDB,
 	IBlueprintPieceInstance,
 	IBlueprintResolvedPieceInstance,
-	IBlueprintSegment,
+	IBlueprintSegmentDB,
 	Time,
 } from '../index.js'
 import { BlueprintQuickLookInfo } from './quickLoopInfo.js'
@@ -50,7 +50,7 @@ export interface IPartAndPieceActionContext {
 	/** Gets the Part for a Piece retrieved from findLastScriptedPieceOnLayer. This primarily allows for accessing metadata of the Part */
 	getPartForPreviousPiece(piece: IBlueprintPieceDB): Promise<IBlueprintPart | undefined>
 	/** Gets the Segment. This primarily allows for accessing metadata */
-	getSegment(segment: 'current' | 'next'): Promise<IBlueprintSegment | undefined>
+	getSegment(segment: 'current' | 'next'): Promise<IBlueprintSegmentDB | undefined>
 
 	/** Get a list of the upcoming Parts in the Rundown, in the order that they will be Taken
 	 *

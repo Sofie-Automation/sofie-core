@@ -14,7 +14,7 @@ import {
 	TSR,
 	IBlueprintPlayoutDevice,
 	StudioRouteSet,
-	IBlueprintSegment,
+	IBlueprintSegmentDB,
 } from '@sofie-automation/blueprints-integration'
 import { PartInstanceId, PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ReadonlyDeep } from 'type-fest'
@@ -38,6 +38,9 @@ import { BlueprintQuickLookInfo } from '@sofie-automation/blueprints-integration
 import { setNextPartFromPart } from '../../playout/setNext.js'
 import { getOrderedPartsAfterPlayhead } from '../../playout/lookahead/util.js'
 import { convertPartToBlueprints, emitIngestOperation } from './lib.js'
+import { IPlaylistTTimer } from '@sofie-automation/blueprints-integration/dist/context/tTimersContext'
+import { TTimersService } from './services/TTimersService.js'
+import type { RundownTTimerIndex } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 
 export class DatastoreActionExecutionContext
 	extends ShowStyleUserContext
@@ -70,6 +73,8 @@ export class DatastoreActionExecutionContext
 
 /** Actions */
 export class ActionExecutionContext extends ShowStyleUserContext implements IActionExecutionContext, IEventContext {
+	readonly #tTimersService: TTimersService
+
 	/**
 	 * Whether the blueprints requested a take to be performed at the end of this action
 	 * */
@@ -112,6 +117,7 @@ export class ActionExecutionContext extends ShowStyleUserContext implements IAct
 		private readonly partAndPieceInstanceService: PartAndPieceInstanceActionService
 	) {
 		super(contextInfo, _context, showStyle, watchedPackages)
+		this.#tTimersService = TTimersService.withPlayoutModel(_playoutModel, _context)
 	}
 
 	async getUpcomingParts(limit: number = 5): Promise<ReadonlyDeep<IBlueprintPart[]>> {
@@ -130,7 +136,7 @@ export class ActionExecutionContext extends ShowStyleUserContext implements IAct
 		return this.partAndPieceInstanceService.getResolvedPieceInstances(part)
 	}
 
-	async getSegment(segment: 'current' | 'next'): Promise<IBlueprintSegment | undefined> {
+	async getSegment(segment: 'current' | 'next'): Promise<IBlueprintSegmentDB | undefined> {
 		return this.partAndPieceInstanceService.getSegment(segment)
 	}
 
@@ -284,5 +290,12 @@ export class ActionExecutionContext extends ShowStyleUserContext implements IAct
 
 	getCurrentTime(): number {
 		return getCurrentTime()
+	}
+
+	getTimer(index: RundownTTimerIndex): IPlaylistTTimer {
+		return this.#tTimersService.getTimer(index)
+	}
+	clearAllTimers(): void {
+		this.#tTimersService.clearAllTimers()
 	}
 }

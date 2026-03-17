@@ -3,7 +3,7 @@ nav.react-contextmenu {
 	font-size: 1.0875rem;
 	font-weight: 400;
 	line-height: 1.5;
-	letter-spacing: 0.5px;
+	letter-spacing: -0.01em;
 	z-index: 900;
 	user-select: none;
 
@@ -22,7 +22,6 @@ nav.react-contextmenu {
 	.react-contextmenu-item,
 	.react-contextmenu-label {
 		margin: 0;
-		padding: 4px 13px 7px 13px;
 		display: block;
 		border: none;
 		background: none;
@@ -37,14 +36,16 @@ nav.react-contextmenu {
 	.react-contextmenu-label {
 		color: #49c0fb;
 		background: #3e4041;
+		padding-left: 8px;
 		cursor: default;
 	}
 
 	.react-contextmenu-item {
+		padding: 2px 13px 4px 13px;
 		color: #494949;
 		font-weight: 300;
-		padding-left: 25px;
-		padding-right: 25px;
+		padding-left: 18px;
+		padding-right: 30px;
 		cursor: pointer;
 
 		display: flex;
@@ -60,6 +61,16 @@ nav.react-contextmenu {
 
 		&.react-contextmenu-item--disabled {
 			opacity: 0.5;
+			cursor: default;
+		}
+
+		&.react-contextmenu-item--divider {
+			cursor: default;
+			padding: 0;
+			margin: 0 15px;
+			width: auto;
+			border-bottom: 1px solid #ddd;
+			height: 0;
 		}
 
 		> svg,
