@@ -456,11 +456,11 @@ class IngestServerAPI implements IngestRestAPI {
 		_connection: Meteor.Connection,
 		_event: string,
 		studioId: StudioId,
-		playlistId: string,
+		playlistId: string | undefined,
 		ingestRundown: RestApiIngestRundown
 	): Promise<ClientAPI.ClientResponse<void>> {
 		check(studioId, String)
-		check(playlistId, String)
+		if (playlistId !== undefined) check(playlistId, String)
 		check(ingestRundown, Object)
 
 		const studio = await this.findStudio(studioId)
@@ -488,7 +488,8 @@ class IngestServerAPI implements IngestRestAPI {
 
 		await runIngestOperation(studio._id, IngestJobs.UpdateRundown, {
 			rundownExternalId: ingestRundown.externalId,
-			ingestRundown: { ...ingestRundown, playlistExternalId: playlistId },
+			ingestRundown:
+				playlistId !== undefined ? { ...ingestRundown, playlistExternalId: playlistId } : ingestRundown,
 			isCreateAction: true,
 			rundownSource: {
 				type: 'restApi',
@@ -1249,6 +1250,26 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 	)
 
 	// Create rundown
+	registerRoute<{ studioId: string }, never, void>(
+		'post',
+		'/ingest/:studioId/rundowns',
+		new Map(),
+		ingestAPIFactory,
+		async (serverAPI, connection, event, params, body) => {
+			logger.info(`INGEST API POST: Rundowns (studio-scoped)`)
+
+			const studioId = protectString<StudioId>(params.studioId)
+			check(studioId, String)
+
+			const ingestRundown = body as RestApiIngestRundown
+			if (!ingestRundown) throw new Meteor.Error(400, 'Upload rundown: Missing request body')
+			if (typeof ingestRundown !== 'object') throw new Meteor.Error(400, 'Upload rundown: Invalid request body')
+
+			return await serverAPI.postRundown(connection, event, studioId, undefined, ingestRundown)
+		}
+	)
+
+	// Create rundown in a playlist
 	registerRoute<{ studioId: string; playlistId: string; rundownId: string }, never, void>(
 		'post',
 		'/ingest/:studioId/playlists/:playlistId/rundowns',

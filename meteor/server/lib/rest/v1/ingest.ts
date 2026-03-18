@@ -60,7 +60,7 @@ export interface IngestRestAPI {
 		_connection: Meteor.Connection,
 		_event: string,
 		studioId: StudioId,
-		playlistId: string,
+		playlistId: string | undefined,
 		ingestRundown: RestApiIngestRundown
 	): Promise<ClientAPI.ClientResponse<void>>
 

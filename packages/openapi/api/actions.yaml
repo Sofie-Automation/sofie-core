@@ -118,6 +118,8 @@ paths:
     $ref: 'definitions/ingest.yaml#/resources/playlists'
   /ingest/{studioId}/playlists/{playlistId}:
     $ref: 'definitions/ingest.yaml#/resources/playlist'
+  /ingest/{studioId}/rundowns:
+    $ref: 'definitions/ingest.yaml#/resources/rundownsInStudio'
   /ingest/{studioId}/playlists/{playlistId}/rundowns:
     $ref: 'definitions/ingest.yaml#/resources/rundowns'
   /ingest/{studioId}/playlists/{playlistId}/rundowns/{rundownId}:
