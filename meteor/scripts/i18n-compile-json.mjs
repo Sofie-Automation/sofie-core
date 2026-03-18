@@ -15,7 +15,7 @@ const poFiles = await glob('./i18n/*.po')
 
 const languages = []
 for (const poFile of poFiles) {
-	const mLanguage = poFile.match(/\/(\w+)\.po/)
+	const mLanguage = poFile.match(/[\/\\](\w+)\.po/)
 	if (mLanguage) languages.push(mLanguage[1])
 }
 
