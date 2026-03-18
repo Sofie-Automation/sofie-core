@@ -1,6 +1,6 @@
 # Infinites
 
-An **Infinite** is a timeline object that has no predefined end in the context of the piece, rather it's context determines when they are terminated.
+An **Infinite** is a timeline object that has no predefined end in the context of the piece, rather its context determines when they are terminated.
 
 - Infinites are governed by:
   - Type
@@ -19,15 +19,15 @@ An **Infinite** is a timeline object that has no predefined end in the context o
 There are two types of infinites in Sofie:
 
 - OnEnd
-  - Mainly used for planned content and most of the time originates form NRCS
+  - Mainly used for planned content and most of the time originates from NRCS
   - Resolved at ingest (1, 3)
-    - It's resulting state is known before we enter the piece (1, 3)
-  - It only propagates forward until the end of it's content level. (5, 7)
+    - Its resulting state is known before we enter the piece (1, 3)
+  - It only propagates forward until the end of its content level. (5, 7)
 - OnChange (also referred to as playhead tracking infinite)
-  - Mainly used for unplanned content and most of the time originates form AdLibs
-  - It can only be resolved when it's triggered which happens when the original piece is entered (2, 4, 6)
-    - It propagates forward from the playhead, it's lifecycle is dependent on playout order, therefore it's resulting state is unknown at ingest.
-      - This means that it can propagate before and after the triggering piece depending on where the next take will be.(6, 8)
+  - Mainly used for unplanned content and most of the time originates from AdLibs
+  - It can only be resolved when it is triggered which happens when the original piece is entered (2, 4, 6)
+    - It propagates forward from the playhead, its lifecycle is dependent on playout order, therefore its resulting state is unknown at ingest.
+      - This means that it can propagate before and after the triggering piece depending on where the next take will be. (6, 8)
 
 Both types can only live within their content level.
 
@@ -36,7 +36,7 @@ Both types can only live within their content level.
 
 ## Infinites inserted by AdLibs
 
-The infinite activates when it's entered in the AdLib part, then it behaves identically to it's default behavior.
+The infinite activates when it is entered in the AdLib part, then it behaves identically to its default behavior.
 ![Infinite AdLibs](/img/docs/for-developers/timing/infinites/infinite-adlibs.png)
 
 ## Piece priority
@@ -45,7 +45,7 @@ The infinite activates when it's entered in the AdLib part, then it behaves iden
   - OnEnd behavior:
     - After the higher priority pieces end the higher level infinite resumes.
   - OnChange behavior:
-    - After the higher priority pieces end the infinite is terminated until it's starting point is entered again.
+    - After the higher priority pieces end the infinite is terminated until its starting point is entered again.
 
 ![Infinite priority](/img/docs/for-developers/timing/infinites/infinite-priority.png)
 
