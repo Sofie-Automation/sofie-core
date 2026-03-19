@@ -2,9 +2,9 @@ import { PieceLifespan, SourceLayerType } from '@sofie-automation/blueprints-int
 import { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PieceStatusCode, PieceUi } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import classNames from 'classnames'
-import { RundownUtils } from '../rundown.js'
 import { ReadonlyDeep } from 'type-fest'
 import { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
+import { getSourceLayerClassName } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
 
 export function pieceUiClassNames(
 	pieceInstance: PieceUi,
@@ -21,7 +21,7 @@ export function pieceUiClassNames(
 	},
 	draggable?: boolean
 ): string {
-	const typeClass = layerType ? RundownUtils.getSourceLayerClassName(layerType) : ''
+	const typeClass = layerType ? getSourceLayerClassName(layerType) : ''
 
 	const innerPiece = pieceInstance.instance.piece
 

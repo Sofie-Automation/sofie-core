@@ -1,6 +1,5 @@
 import classNames from 'classnames'
 import React, { CSSProperties, useCallback, useContext, useMemo, useRef } from 'react'
-import { RundownUtils } from '../../../lib/rundown.js'
 import { useContentStatusForPieceInstance } from '../../SegmentTimeline/withMediaObjectStatus.js'
 import {
 	PreviewPopUpContext,
@@ -8,6 +7,7 @@ import {
 	convertSourceLayerItemToPreview,
 } from '../../PreviewPopUp/PreviewPopUpContext.js'
 import { PieceExtended, PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import { getSourceLayerClassName } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
 
 interface IProps {
 	piece: PieceExtended
@@ -33,7 +33,7 @@ export const LinePartSecondaryPiece: React.FC<IProps> = React.memo(function Line
 	const contentStatus = useContentStatusForPieceInstance(piece.instance)
 
 	const pieceEl = useRef<HTMLDivElement>(null)
-	const typeClass = piece?.sourceLayer?.type ? RundownUtils.getSourceLayerClassName(piece?.sourceLayer?.type) : ''
+	const typeClass = piece?.sourceLayer?.type ? getSourceLayerClassName(piece?.sourceLayer?.type) : ''
 
 	const pieceStyle = useMemo<CSSProperties>(() => {
 		const width = timeInBase(piece.renderedDuration ?? Math.max(timelineBase, partDuration), timelineBase, timelineBase)

@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect, useContext } from 'react'
 import ClassNames from 'classnames'
-import { RundownUtils } from '../../../lib/rundown.js'
 import { ILayerItemRendererProps } from './ItemRendererFactory.js'
 import { VTContent, LiveSpeakContent } from '@sofie-automation/blueprints-integration'
 import { getElementDocumentOffset, OffsetPosition } from '../../../utils/positions.js'
@@ -14,6 +13,10 @@ import {
 	IPreviewPopUpSession,
 	convertSourceLayerItemToPreview,
 } from '../../PreviewPopUp/PreviewPopUpContext.js'
+import {
+	getPieceStatusClassName,
+	getSourceLayerClassName,
+} from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
 
 export const VTListItemRenderer: React.FunctionComponent<ILayerItemRendererProps> = (
 	props: ILayerItemRendererProps
@@ -125,8 +128,8 @@ export const VTListItemRenderer: React.FunctionComponent<ILayerItemRendererProps
 			<td
 				className={ClassNames(
 					'adlib-panel__list-view__list__table__cell--icon',
-					props.layer && RundownUtils.getSourceLayerClassName(props.layer.type),
-					props.status && RundownUtils.getPieceStatusClassName(props.status)
+					props.layer && getSourceLayerClassName(props.layer.type),
+					props.status && getPieceStatusClassName(props.status)
 				)}
 				ref={itemIcon}
 				onMouseOver={handleOnMouseOver}

@@ -10,11 +10,11 @@ import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
 import { useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import { findPieceInstanceToShowFromInstances, IFoundPieceInstance } from '../PieceIcons/utils.js'
 import { pieceIconSupportedLayers } from '../PieceIcons/PieceIcon.js'
-import { RundownUtils } from '../../lib/rundown.js'
 import { PieceInstances } from '../../collections/index.js'
 import { RundownPlaylistClientUtil } from '../../lib/rundownPlaylistUtil.js'
 import { useTranslation } from 'react-i18next'
 import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import { getSourceLayerClassName } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
 
 interface IPartNamePanelProps {
 	layout: RundownLayoutBase
@@ -58,7 +58,7 @@ export function PartNamePanel({ layout, panel, playlist, showStyleBase }: IPartN
 	)
 
 	const sourceLayerType = instanceToShow?.sourceLayer?.type
-	let backgroundSourceLayer = sourceLayerType ? RundownUtils.getSourceLayerClassName(sourceLayerType) : undefined
+	let backgroundSourceLayer = sourceLayerType ? getSourceLayerClassName(sourceLayerType) : undefined
 
 	if (!backgroundSourceLayer) {
 		backgroundSourceLayer = ''

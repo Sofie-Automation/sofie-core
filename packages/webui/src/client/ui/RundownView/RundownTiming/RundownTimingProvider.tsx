@@ -17,11 +17,11 @@ import {
 import { PartId, PartInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { RundownPlaylistCollectionUtil } from '../../../collections/rundownPlaylistUtil.js'
 import { sortPartInstancesInSortedSegments } from '@sofie-automation/corelib/dist/playout/playlist'
-import { RundownUtils } from '../../../lib/rundown.js'
 import { RundownPlaylistClientUtil } from '../../../lib/rundownPlaylistUtil.js'
 import { getCurrentTime } from '../../../lib/systemTime.js'
 import { IRundownTimingProviderValues, RundownTimingProviderContext } from './withTiming.js'
 import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
+import { deduplicatePartInstancesForQuickLoop } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
 
 const TIMING_DEFAULT_REFRESH_INTERVAL = 1000 / 60 // the interval for high-resolution events (timeupdateHR)
 const LOW_RESOLUTION_TIMING_DECIMATOR = 15
@@ -140,7 +140,7 @@ export const RundownTimingProvider = withTracker<
 
 	partInstances = sortPartInstancesInSortedSegments(partInstances, segments)
 
-	partInstances = RundownUtils.deduplicatePartInstancesForQuickLoop(playlist, partInstances, currentPartInstance)
+	partInstances = deduplicatePartInstancesForQuickLoop(playlist, partInstances, currentPartInstance)
 
 	const partsInQuickLoop = findPartInstancesInQuickLoop(playlist, partInstances)
 
