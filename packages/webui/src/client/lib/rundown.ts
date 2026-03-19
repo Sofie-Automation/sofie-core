@@ -11,12 +11,7 @@ import {
 	IOutputLayer,
 	ISourceLayer,
 } from '@sofie-automation/blueprints-integration'
-import {
-	PartExtended,
-	getPieceInstancesForPartInstance,
-	PartInstanceLimited,
-	isLoopRunning,
-} from './RundownResolver.js'
+import { PartExtended, getPieceInstancesForPartInstance, isLoopRunning } from './RundownResolver.js'
 import { wrapPartToTemporaryInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import { DBSegment, SegmentExtended } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
@@ -49,7 +44,7 @@ import {
 	ISourceLayerExtended,
 	UIShowStyleBase,
 } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
-import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
+import { PartInstance, PartInstanceLimited } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
 
 /**
  * Returns a human-readable, translatable string for a given SourceLayerType.

@@ -25,9 +25,7 @@ import {
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { RundownPlaylistClientUtil } from './rundownPlaylistUtil.js'
 import { PieceInstances, Pieces } from '../collections/index.js'
-import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
-
-export type PartInstanceLimited = Omit<PartInstance, 'isTaken' | 'previousPartEndState'>
+import { PartInstance, PartInstanceLimited } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
 
 export interface PartExtended {
 	partId: PartId

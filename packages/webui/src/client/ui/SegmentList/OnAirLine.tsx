@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { TimingDataResolution, TimingTickResolution, useTiming } from '../RundownView/RundownTiming/withTiming.js'
 import { SIMULATED_PLAYBACK_HARD_MARGIN } from '../SegmentTimeline/Constants.js'
-import { PartInstanceLimited } from '../../lib/RundownResolver.js'
 import { useTranslation } from 'react-i18next'
 import { getAllowSpeaking, getAllowVibrating } from '../../lib/localStorage.js'
 import { CurrentPartOrSegmentRemaining } from '../RundownView/RundownHeader/CurrentPartOrSegmentRemaining.js'
 import { AutoNextStatus } from '../RundownView/RundownTiming/AutoNextStatus.js'
 import classNames from 'classnames'
+import { PartInstanceLimited } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
 
 interface IProps {
 	partInstance: PartInstanceLimited
