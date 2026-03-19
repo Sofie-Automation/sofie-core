@@ -26,18 +26,6 @@ import {
 import { RundownPlaylistClientUtil } from './rundownPlaylistUtil.js'
 import { PieceInstances, Pieces } from '../collections/index.js'
 import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
-import { IOutputLayerExtended, ISourceLayerExtended } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
-
-export interface SegmentExtended extends DBSegment {
-	/** Output layers available in the installation used by this segment */
-	outputLayers: {
-		[key: string]: IOutputLayerExtended
-	}
-	/** Source layers used by this segment */
-	sourceLayers: {
-		[key: string]: ISourceLayerExtended
-	}
-}
 
 export type PartInstanceLimited = Omit<PartInstance, 'isTaken' | 'previousPartEndState'>
 
