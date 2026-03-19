@@ -1,7 +1,7 @@
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { DBSegment, SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { PartInstance, wrapPartToTemporaryInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
+import { wrapPartToTemporaryInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import {
 	getPieceInstancesForPart,
@@ -29,6 +29,7 @@ import { PieceInstances, Pieces } from '../collections/index.js'
 import { PieceExtended } from '@sofie-automation/meteor-lib/dist/uiTypes/Piece'
 import { ISourceLayerExtended } from '@sofie-automation/meteor-lib/dist/uiTypes/SourceLayer'
 import { IOutputLayerExtended } from '@sofie-automation/meteor-lib/dist/uiTypes/OutputLayer'
+import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
 
 export type { PieceExtended } from '@sofie-automation/meteor-lib/dist/uiTypes/Piece'
 export type { ISourceLayerExtended } from '@sofie-automation/meteor-lib/dist/uiTypes/SourceLayer'

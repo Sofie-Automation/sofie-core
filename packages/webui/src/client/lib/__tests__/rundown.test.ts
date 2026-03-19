@@ -10,7 +10,6 @@ import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { defaultPartInstance, defaultPiece, defaultPieceInstance } from '../../../__mocks__/defaultCollectionObjects.js'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { PieceLifespan } from '@sofie-automation/blueprints-integration'
-import { PartInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PartInstances, PieceInstances, Pieces, RundownPlaylists } from '../../collections/index.js'
@@ -18,6 +17,7 @@ import { MongoMock } from '../../../__mocks__/mongo.js'
 import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil.js'
 import { RundownPlaylistClientUtil } from '../rundownPlaylistUtil.js'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
 
 const mockRundownPlaylistsCollection = MongoMock.getInnerMockCollection(RundownPlaylists)
 const mockPartInstancesCollection = MongoMock.getInnerMockCollection(PartInstances)

@@ -21,7 +21,7 @@ import {
 	PartInstanceLimited,
 	isLoopRunning,
 } from './RundownResolver.js'
-import { PartInstance, wrapPartToTemporaryInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
+import { wrapPartToTemporaryInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { literal, groupByToMap } from '@sofie-automation/corelib/dist/lib'
@@ -49,6 +49,7 @@ import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { RundownPlaylistClientUtil } from './rundownPlaylistUtil.js'
 import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
 
 /**
  * Returns a human-readable, translatable string for a given SourceLayerType.

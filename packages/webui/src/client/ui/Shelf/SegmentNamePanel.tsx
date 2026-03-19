@@ -9,9 +9,9 @@ import { dashboardElementStyle } from './DashboardPanel.js'
 import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
 import { useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { PartInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import { RundownPlaylistClientUtil } from '../../lib/rundownPlaylistUtil.js'
 import { useTranslation } from 'react-i18next'
+import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
 
 interface ISegmentNamePanelProps {
 	layout: RundownLayoutBase

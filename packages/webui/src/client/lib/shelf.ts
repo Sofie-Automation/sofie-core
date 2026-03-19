@@ -1,5 +1,4 @@
 import _ from 'underscore'
-import { PartInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
@@ -14,6 +13,7 @@ import { ReadonlyDeep } from 'type-fest'
 import { AdLibPieceUi } from '@sofie-automation/meteor-lib/dist/uiTypes/Adlib'
 import { getCurrentTimeReactive } from './currentTimeReactive'
 import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
 
 export type { AdLibPieceUi } from '@sofie-automation/meteor-lib/dist/uiTypes/Adlib'
 

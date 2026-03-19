@@ -42,6 +42,10 @@ export interface DBPartInstance {
 	blockTakeUntil?: number
 }
 
+export interface PartInstance extends DBPartInstance {
+	isTemporary: boolean
+}
+
 export interface PartInstanceTimings {
 	/** The playback offset that was set for the last take */
 	playOffset?: Time
