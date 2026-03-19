@@ -11,7 +11,7 @@ import {
 	IOutputLayer,
 	ISourceLayer,
 } from '@sofie-automation/blueprints-integration'
-import { PartExtended, getPieceInstancesForPartInstance, isLoopRunning } from './RundownResolver.js'
+import { getPieceInstancesForPartInstance, isLoopRunning } from './RundownResolver.js'
 import { wrapPartToTemporaryInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import { DBSegment, SegmentExtended } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
@@ -37,7 +37,7 @@ import { PieceInstances, Segments } from '../collections/index.js'
 import { PieceExtended, PieceStatusCode, PieceUi } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { assertNever } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
-import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
+import { DBPart, PartExtended } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { RundownPlaylistClientUtil } from './rundownPlaylistUtil.js'
 import {
 	IOutputLayerExtended,
