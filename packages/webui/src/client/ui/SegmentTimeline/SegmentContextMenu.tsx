@@ -14,9 +14,13 @@ import { PartInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataMo
 import { SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { UserEditOperationMenuItems } from '../UserEditOperations/RenderUserEditOperations.js'
 import { CoreUserEditingDefinition } from '@sofie-automation/corelib/dist/dataModel/UserEditingDefinitions'
-import * as RundownResolver from '../../lib/RundownResolver.js'
 import { SelectedElement } from '../RundownView/SelectedElementsContext.js'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance.js'
+import {
+	isLoopLocked,
+	isQuickLoopEnd,
+	isQuickLoopStart,
+} from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
 
 interface IProps {
 	onSetNext: (partInstance: DBPartInstance | DBPart | undefined, e: any, offset?: number, take?: boolean) => void
@@ -225,9 +229,9 @@ export function SegmentContextMenu({
 									</MenuItem>
 								</>
 							) : null}
-							{enableQuickLoop && !RundownResolver.isLoopLocked(playlist) && (
+							{enableQuickLoop && !isLoopLocked(playlist) && (
 								<>
-									{RundownResolver.isQuickLoopStart(part.partId, playlist) ? (
+									{isQuickLoopStart(part.partId, playlist) ? (
 										<MenuItem onClick={(e) => onSetQuickLoopStart(null, e)}>
 											<span>{t('Clear QuickLoop Start')}</span>
 										</MenuItem>
@@ -241,7 +245,7 @@ export function SegmentContextMenu({
 											<span>{t('Set as QuickLoop Start')}</span>
 										</MenuItem>
 									)}
-									{RundownResolver.isQuickLoopEnd(part.partId, playlist) ? (
+									{isQuickLoopEnd(part.partId, playlist) ? (
 										<MenuItem onClick={(e) => onSetQuickLoopEnd(null, e)}>
 											<span>{t('Clear QuickLoop End')}</span>
 										</MenuItem>

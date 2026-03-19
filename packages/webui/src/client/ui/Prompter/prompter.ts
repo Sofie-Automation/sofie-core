@@ -25,7 +25,6 @@ import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylist
 import { normalizeArrayToMap } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { PieceInstances, Pieces, RundownPlaylists, Segments } from '../../collections/index.js'
-import { getPieceInstancesForPartInstance } from '../../lib/RundownResolver.js'
 import { UIShowStyleBases } from '../Collections.js'
 import { getCurrentTime } from '../../lib/systemTime.js'
 
@@ -229,7 +228,7 @@ export namespace PrompterAPI {
 					pieces: [],
 				}
 
-				const rawPieceInstances = getPieceInstancesForPartInstance(
+				const rawPieceInstances = RundownUtils.getPieceInstancesForPartInstance(
 					playlist.activationId,
 					rundown,
 					segment,

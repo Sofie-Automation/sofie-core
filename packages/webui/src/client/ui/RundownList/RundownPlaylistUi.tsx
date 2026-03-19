@@ -25,8 +25,8 @@ import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
 import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
 import { TOOLTIP_DEFAULT_DELAY } from '../../lib/lib.js'
 import { RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { isLoopDefined } from '../../lib/RundownResolver.js'
 import { UserPermissionsContext } from '../UserPermissions.js'
+import { isLoopDefined } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
 
 export interface RundownPlaylistUi extends DBRundownPlaylist {
 	rundowns: Rundown[]

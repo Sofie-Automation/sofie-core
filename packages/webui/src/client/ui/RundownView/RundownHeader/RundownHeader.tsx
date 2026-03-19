@@ -27,7 +27,6 @@ import { IAdLibListItem } from '../../Shelf/AdLibListItem'
 import { ShelfDashboardLayout } from '../../Shelf/ShelfDashboardLayout'
 import { RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { UserPermissionsContext } from '../../UserPermissions'
-import * as RundownResolver from '../../../lib/RundownResolver'
 import Navbar from 'react-bootstrap/Navbar'
 import { WarningDisplay } from '../WarningDisplay'
 import { TimingDisplay } from './TimingDisplay'
@@ -35,6 +34,7 @@ import { checkRundownTimes, useRundownPlaylistOperations } from './useRundownPla
 import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio'
 import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece'
+import { isLoopLocked, isAnyLoopMarkerDefined } from '@sofie-automation/corelib/src/playout/stateCacheResolver'
 
 interface IRundownHeaderProps {
 	playlist: DBRundownPlaylist
@@ -100,9 +100,7 @@ export function RundownHeader({
 	}, [operations.reloadRundownPlaylist])
 
 	const canClearQuickLoop =
-		!!studio.settings.enableQuickLoop &&
-		!RundownResolver.isLoopLocked(playlist) &&
-		RundownResolver.isAnyLoopMarkerDefined(playlist)
+		!!studio.settings.enableQuickLoop && !isLoopLocked(playlist) && isAnyLoopMarkerDefined(playlist)
 
 	const rundownTimesInfo = checkRundownTimes(playlist.timing)
 
