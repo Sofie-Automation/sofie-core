@@ -12,14 +12,13 @@ import {
 	ISourceLayer,
 } from '@sofie-automation/blueprints-integration'
 import {
-	SegmentExtended,
 	PartExtended,
 	getPieceInstancesForPartInstance,
 	PartInstanceLimited,
 	isLoopRunning,
 } from './RundownResolver.js'
 import { wrapPartToTemporaryInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
-import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
+import { DBSegment, SegmentExtended } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { literal, groupByToMap } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'

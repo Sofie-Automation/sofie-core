@@ -54,6 +54,7 @@ import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowSty
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
 
+// TODO: We have another definition of this in the Director screen, and there is also another SegmentUI type. We should look into clearing this up.
 interface SegmentUi extends DBSegment {
 	items: Array<PartUi>
 }
