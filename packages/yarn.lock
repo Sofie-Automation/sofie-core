@@ -13695,9 +13695,9 @@ asn1@evs-broadcast/node-asn1:
   languageName: node
   linkType: hard
 
-"emberplus-connection@npm:^0.2.2":
-  version: 0.2.2
-  resolution: "emberplus-connection@npm:0.2.2"
+"emberplus-connection@npm:0.3.1":
+  version: 0.3.1
+  resolution: "emberplus-connection@npm:0.3.1"
   dependencies:
     asn1: evs-broadcast/node-asn1
     debug: "npm:^4.3.4"
@@ -13705,7 +13705,7 @@ asn1@evs-broadcast/node-asn1:
     long: "npm:^3.2.0"
     smart-buffer: "npm:^3.0.3"
     tslib: "npm:^2.6.2"
-  checksum: 10/0b433eae53a979b40334e35af6d4362ab262703b4b76428309230718ec2ad5d181a3aafda3ae03aef1f73d13b3929aef6216886f2863d046e35fd3866045431e
+  checksum: 10/1b07ecc344e9392240ed64e8dd9cf88dea05bbb9a1e196198976f1185c9b9d2ccfb981af7d27b58b44c9b2477032ec24b300bcdd3fb775d3578ae123a880ad04
   languageName: node
   linkType: hard
 

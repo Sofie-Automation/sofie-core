@@ -261,11 +261,11 @@ export class TSRHandler {
 
 			return `Device "${device?.deviceName ?? id}" (${device?.instanceId ?? 'instance unknown'}): ` + e
 		}
-		const fixError = (id: string, e: Error): any => {
+		const fixError = (id: string, e: any): any => {
 			const device = this._coreTsrHandlers[id]?._device
 			const name = `Device "${device?.deviceName ?? id}" (${device?.instanceId ?? 'instance unknown'})`
 
-			if (!e || !('message' in e)) {
+			if (!e || typeof e !== 'object' || !('message' in e)) {
 				return {
 					message: name + ': ' + 'Unknown error: ' + JSON.stringify(e),
 				}
