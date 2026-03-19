@@ -739,6 +739,141 @@ channels:
                       running: true
                       start: *a23
                       end: *a23
+                tTimers:
+                  description: Status of the 3 T-timers in the playlist
+                  type: array
+                  items:
+                    type: object
+                    title: TTimerStatus
+                    description: Status of a single T-timer in the playlist
+                    properties:
+                      index:
+                        type: integer
+                        title: TTimerIndex
+                        description: Timer index (1-3). The playlist always has 3 T-timer slots.
+                        enum:
+                          - 1
+                          - 2
+                          - 3
+                      label:
+                        type: string
+                        description: User-defined label for the timer
+                      configured:
+                        type: boolean
+                        description: Whether the timer has been configured (mode and state are not null)
+                      mode:
+                        description: Timer configuration/mode defining the timer's behavior. Null if not
+                          configured.
+                        oneOf:
+                          - type: "null"
+                          - title: TimerMode
+                            description: Configuration/mode of a T-timer (defines behavior type)
+                            oneOf:
+                              - type: object
+                                title: TimerModeCountdown
+                                description: Countdown timer mode - counts down from a duration to zero
+                                properties:
+                                  type:
+                                    type: string
+                                    const: countdown
+                                  duration:
+                                    type: number
+                                    description: The original countdown duration in milliseconds (used for reset)
+                                  stopAtZero:
+                                    type: boolean
+                                    description: Whether timer stops at zero or continues into negative values
+                                required:
+                                  - type
+                                  - duration
+                                  - stopAtZero
+                                additionalProperties: false
+                              - type: object
+                                title: TimerModeFreeRun
+                                description: Free-running timer mode - counts up from start time
+                                properties:
+                                  type:
+                                    type: string
+                                    const: freeRun
+                                required:
+                                  - type
+                                additionalProperties: false
+                              - type: object
+                                title: TimerModeTimeOfDay
+                                description: Time-of-day timer mode - counts down/up to a specific time
+                                properties:
+                                  type:
+                                    type: string
+                                    const: timeOfDay
+                                  targetRaw:
+                                    description: The raw target string as provided when setting the timer (e.g.
+                                      "14:30", "2023-12-31T23:59:59Z", or a
+                                      timestamp number)
+                                    oneOf:
+                                      - type: string
+                                      - type: number
+                                  stopAtZero:
+                                    type: boolean
+                                    description: Whether timer stops at zero or continues into negative values
+                                required:
+                                  - type
+                                  - targetRaw
+                                  - stopAtZero
+                                additionalProperties: false
+                      state:
+                        description: Current runtime state of the timer. Null if not configured.
+                        oneOf:
+                          - type: "null"
+                          - title: TimerState
+                            description: Runtime state of a timer, optimized for efficient client rendering.
+                              When running, the client calculates current time
+                              from zeroTime. When paused, the duration is frozen
+                              and sent directly.
+                            oneOf:
+                              - type: object
+                                title: TimerStateRunning
+                                description: Timer state when running (progressing with real time)
+                                properties:
+                                  paused:
+                                    type: boolean
+                                    const: false
+                                    description: Whether the timer is paused
+                                  zeroTime:
+                                    type: number
+                                    description: Unix timestamp (ms) when the timer reaches/reached zero. For
+                                      countdown timers, this is when time runs
+                                      out. For free-run timers, this is when the
+                                      timer started. Client calculates current
+                                      value relative to this timestamp.
+                                required:
+                                  - paused
+                                  - zeroTime
+                                additionalProperties: false
+                              - type: object
+                                title: TimerStatePaused
+                                description: Timer state when paused (frozen at a specific duration)
+                                properties:
+                                  paused:
+                                    type: boolean
+                                    const: true
+                                    description: Whether the timer is paused
+                                  duration:
+                                    type: number
+                                    description: Frozen duration value in milliseconds. For countdown timers, this
+                                      is remaining time. For free-run timers,
+                                      this is elapsed time.
+                                required:
+                                  - paused
+                                  - duration
+                                additionalProperties: false
+                    required:
+                      - index
+                      - label
+                      - configured
+                      - mode
+                      - state
+                    additionalProperties: false
+                  minItems: 3
+                  maxItems: 3
               required:
                 - event
                 - id
@@ -749,6 +884,7 @@ channels:
                 - currentSegment
                 - nextPart
                 - timing
+                - tTimers
               additionalProperties: false
               examples:
                 - &a29
@@ -765,6 +901,30 @@ channels:
                     category: Evening News
                   timing: *a27
                   quickLoop: *a28
+                  tTimers:
+                    - index: 1
+                      label: Segment Timer
+                      configured: true
+                      mode:
+                        type: countdown
+                        duration: 120000
+                        stopAtZero: true
+                      state:
+                        paused: false
+                        zeroTime: 1706371920000
+                    - index: 2
+                      label: Show Timer
+                      configured: true
+                      mode:
+                        type: freeRun
+                      state:
+                        paused: false
+                        zeroTime: 1706371800000
+                    - index: 3
+                      label: ""
+                      configured: false
+                      mode: null
+                      state: null
             examples:
               - payload: *a29
   activePieces:

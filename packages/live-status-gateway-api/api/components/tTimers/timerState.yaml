@@ -1,0 +1,47 @@
+$defs:
+  timerStateRunning:
+    type: object
+    title: TimerStateRunning
+    description: Timer state when running (progressing with real time)
+    properties:
+      paused:
+        type: boolean
+        const: false
+        description: Whether the timer is paused
+      zeroTime:
+        type: number
+        description: >-
+          Unix timestamp (ms) when the timer reaches/reached zero.
+          For countdown timers, this is when time runs out.
+          For free-run timers, this is when the timer started.
+          Client calculates current value relative to this timestamp.
+    required: [paused, zeroTime]
+    additionalProperties: false
+
+  timerStatePaused:
+    type: object
+    title: TimerStatePaused
+    description: Timer state when paused (frozen at a specific duration)
+    properties:
+      paused:
+        type: boolean
+        const: true
+        description: Whether the timer is paused
+      duration:
+        type: number
+        description: >-
+          Frozen duration value in milliseconds.
+          For countdown timers, this is remaining time.
+          For free-run timers, this is elapsed time.
+    required: [paused, duration]
+    additionalProperties: false
+
+  timerState:
+    title: TimerState
+    description: >-
+      Runtime state of a timer, optimized for efficient client rendering.
+      When running, the client calculates current time from zeroTime.
+      When paused, the duration is frozen and sent directly.
+    oneOf:
+      - $ref: '#/$defs/timerStateRunning'
+      - $ref: '#/$defs/timerStatePaused'
