@@ -2,10 +2,10 @@ import { JSX } from 'react'
 import { SourceLayerType } from '@sofie-automation/blueprints-integration'
 import { PieceStatusCode } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { NavLink } from 'react-router-dom'
-import { RundownUtils } from '../../../lib/rundown.js'
 import classNames from 'classnames'
 import { formatTime } from '@sofie-automation/meteor-lib/dist/time'
 import { MediaStatusIndicator } from '../../MediaStatus/MediaStatusIndicator.js'
+import { getSourceLayerClassName } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
 
 export function MediaStatusListItem({
 	rundownName,
@@ -34,8 +34,7 @@ export function MediaStatusListItem({
 	label: string
 	duration?: number | undefined
 }>): JSX.Element | null {
-	const sourceLayerClassName =
-		sourceLayerType !== undefined ? RundownUtils.getSourceLayerClassName(sourceLayerType) : undefined
+	const sourceLayerClassName = sourceLayerType !== undefined ? getSourceLayerClassName(sourceLayerType) : undefined
 
 	return (
 		<tr className="media-status-item">

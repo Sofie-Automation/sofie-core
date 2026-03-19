@@ -1,7 +1,7 @@
 import classNames from 'classnames'
 import React from 'react'
-import { RundownUtils } from './rundown.js'
 import { SplitRole, SplitSubItem } from './ui/splitPreview.js'
+import { getSourceLayerClassName } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
 
 export const RenderSplitPreview = React.memo(function RenderSplitPreview({
 	subItems,
@@ -20,7 +20,7 @@ export const RenderSplitPreview = React.memo(function RenderSplitPreview({
 					<div
 						className={classNames(
 							'video-preview',
-							RundownUtils.getSourceLayerClassName(item.type),
+							getSourceLayerClassName(item.type),
 							{
 								background: item.role === SplitRole.ART,
 								box: item.role === SplitRole.BOX,

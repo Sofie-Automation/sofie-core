@@ -5,8 +5,8 @@ import ClassNames from 'classnames'
 import { CustomLayerItemRenderer, ICustomLayerItemProps } from './CustomLayerItemRenderer.js'
 
 import { SplitsContent } from '@sofie-automation/blueprints-integration'
-import { RundownUtils } from '../../../lib/rundown.js'
 import { getSplitPreview, SplitRole, SplitSubItem } from '../../../lib/ui/splitPreview.js'
+import { getSourceLayerClassName } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
 
 type IProps = ICustomLayerItemProps
 
@@ -76,7 +76,7 @@ export class SplitsSourceRenderer extends CustomLayerItemRenderer<IProps, IState
 						key={'item-' + item._id}
 						className={ClassNames(
 							'segment-timeline__piece__preview__item',
-							RundownUtils.getSourceLayerClassName(item.type),
+							getSourceLayerClassName(item.type),
 							{
 								second: array.length > 1 && index > 0 && item.type === array[index - 1].type,
 							},
