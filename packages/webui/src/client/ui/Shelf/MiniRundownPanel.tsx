@@ -9,13 +9,13 @@ import {
 import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
 import { useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { PartInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { dashboardElementStyle } from './DashboardPanel.js'
 import { Meteor } from 'meteor/meteor'
 import { PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { UIPartInstances } from '../Collections.js'
 import { RundownPlaylistClientUtil } from '../../lib/rundownPlaylistUtil.js'
+import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
 
 interface IMiniRundownPanelProps {
 	visible?: boolean

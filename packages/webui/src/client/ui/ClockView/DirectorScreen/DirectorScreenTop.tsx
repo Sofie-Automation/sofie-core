@@ -10,7 +10,7 @@ import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/Rund
 import { getCurrentTime } from '../../../lib/systemTime'
 import { useTranslation } from 'react-i18next'
 import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
-import { PartInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
+import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance'
 
 export interface DirectorScreenTopProps {
 	playlist: DBRundownPlaylist

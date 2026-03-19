@@ -14,7 +14,6 @@ import { PartExtended } from '../../lib/RundownResolver.js'
 import { memoizedIsolatedAutorun } from '../../lib/memoizedIsolatedAutorun.js'
 import { slowDownReactivity } from '../../lib/reactiveData/reactiveDataHelper.js'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { PartInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import { dashboardElementStyle } from './DashboardPanel.js'
 import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
 import { getIsFilterActive } from '../../lib/rundownLayouts.js'
@@ -24,6 +23,7 @@ import { RundownPlaylistClientUtil } from '../../lib/rundownPlaylistUtil.js'
 import { useTranslation } from 'react-i18next'
 import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
 
 interface ISegmentTimingPanelProps {
 	visible?: boolean

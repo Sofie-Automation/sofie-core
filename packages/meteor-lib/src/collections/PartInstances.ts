@@ -1,12 +1,7 @@
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
+import { PartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { PartId, RundownPlaylistActivationId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-
-import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
-
-export interface PartInstance extends DBPartInstance {
-	isTemporary: boolean
-}
 
 export function wrapPartToTemporaryInstance(
 	playlistActivationId: RundownPlaylistActivationId,

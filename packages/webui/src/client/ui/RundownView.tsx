@@ -59,7 +59,6 @@ import { MeteorCall } from '../lib/meteorApi.js'
 import { Settings } from '../lib/Settings.js'
 import { PointerLockCursor } from '../lib/PointerLockCursor.js'
 import { documentTitle } from '../lib/DocumentTitleProvider.js'
-import { PartInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import { RundownDividerHeader } from './RundownView/RundownDividerHeader.js'
 import { PlaylistLoopingHeader } from './RundownView/PlaylistLoopingHeader.js'
 import RundownViewEventBus, { RundownViewEvents } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
@@ -110,7 +109,7 @@ import { RundownViewContextProviders } from './RundownView/RundownViewContextPro
 import { AnimatePresence } from 'motion/react'
 import { UserError } from '@sofie-automation/corelib/dist/error'
 import { DragContextProvider } from './RundownView/DragContextProvider.js'
-import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance.js'
+import { DBPartInstance, PartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance.js'
 import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 
 const HIDE_NOTIFICATIONS_AFTER_MOUNT: number | undefined = 5000

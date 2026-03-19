@@ -40,7 +40,6 @@ import { DragDropItemTypes } from '../DragDropItemTypes.js'
 import { BucketPieceButton, IBucketPieceDropResult } from './BucketPieceButton.js'
 import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'
 import update from 'immutability-helper'
-import { PartInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import { BucketAdLibAction } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibAction'
 import { RundownUtils } from '../../lib/rundown.js'
 import { BucketAdLibItem, BucketAdLibActionUi, isAdLibAction, isAdLib, BucketAdLibUi } from './RundownViewBuckets.js'
@@ -79,6 +78,7 @@ import { useRundownAndShowStyleIdsForPlaylist } from '../util/useRundownAndShowS
 import _ from 'underscore'
 import { BucketHandle } from '../../lib/ui/icons/shelf.js'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
 
 interface IBucketPanelDragObject {
 	id: BucketId

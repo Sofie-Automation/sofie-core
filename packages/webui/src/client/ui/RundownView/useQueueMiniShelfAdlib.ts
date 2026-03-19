@@ -4,7 +4,6 @@ import { SourceLayers, UIShowStyleBase } from '@sofie-automation/corelib/dist/da
 import { NotificationCenter, NoticeLevel, Notification } from '../../lib/notifications/notifications'
 import { doUserAction, UserAction } from '../../lib/clientUserAction'
 import { MeteorCall } from '../../lib/meteorApi'
-import { PartInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import { AdLibPieceUi, AdlibSegmentUi } from '../../lib/shelf'
 import { ExecuteActionResult } from '@sofie-automation/corelib/dist/worker/studio'
 import { PartInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
@@ -21,6 +20,7 @@ import { useRundownViewEventBusListener } from '../../lib/lib'
 import { RundownLayoutsAPI } from '../../lib/rundownLayouts'
 import { matchFilter } from '../Shelf/AdLibListView'
 import { useFetchAndFilter } from '../Shelf/AdLibPanel'
+import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance'
 
 export type QueueMiniShelfAdlibFunction = (e: any, forward: boolean) => void
 

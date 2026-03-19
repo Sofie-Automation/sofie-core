@@ -10,7 +10,6 @@ import {
 	withTracker,
 } from '../../../lib/ReactMeteorData/ReactMeteorData.js'
 import { getCurrentTime } from '../../../lib/systemTime.js'
-import { PartInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { PieceIconContainer } from '../ClockViewPieceIcons/ClockViewPieceIcon.js'
 import { PieceNameContainer } from '../ClockViewPieceIcons/ClockViewPieceName.js'
@@ -46,6 +45,7 @@ import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceIns
 import { DirectorScreenTop } from './DirectorScreenTop.js'
 import { useTiming } from '../../RundownView/RundownTiming/withTiming.js'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
 
 interface SegmentUi extends DBSegment {
 	items: Array<PartUi>

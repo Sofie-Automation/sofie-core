@@ -29,10 +29,7 @@ import { RundownBaselineAdLibItem } from '@sofie-automation/corelib/dist/dataMod
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { unprotectString, protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { memoizedIsolatedAutorun } from '../../lib/memoizedIsolatedAutorun.js'
-import {
-	findPartInstanceOrWrapToTemporary,
-	PartInstance,
-} from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
+import { findPartInstanceOrWrapToTemporary } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import { MeteorCall } from '../../lib/meteorApi.js'
 import { PieceUi } from '../SegmentTimeline/SegmentTimelineContainer.js'
 import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
@@ -62,6 +59,7 @@ import {
 import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil.js'
 import { RundownPlaylistClientUtil } from '../../lib/rundownPlaylistUtil.js'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
 
 export interface IAdLibPanelProps {
 	// liveSegment: Segment | undefined

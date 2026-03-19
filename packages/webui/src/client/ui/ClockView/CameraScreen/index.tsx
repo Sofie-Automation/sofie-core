@@ -18,7 +18,6 @@ import { UIPartInstances, UIStudios } from '../../Collections.js'
 import { Rundown as RundownComponent } from './Rundown.js'
 import { useLocation } from 'react-router-dom'
 import { parse as queryStringParse } from 'query-string'
-import { PartInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import { OrderedPartsProvider } from './OrderedPartsProvider.js'
 import { offElementResize, onElementResize } from '../../../lib/resizeObserver.js'
 import { useTranslation } from 'react-i18next'
@@ -29,6 +28,7 @@ import { useDebounce } from '../../../lib/lib.js'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { useSetDocumentClass, useSetDocumentDarkTheme } from '../../util/useSetDocumentClass.js'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
 
 interface IProps {
 	playlist: DBRundownPlaylist | undefined

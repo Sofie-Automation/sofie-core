@@ -15,8 +15,8 @@ import {
 	sortPartsInSortedSegments,
 } from '@sofie-automation/corelib/dist/playout/playlist'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { PartInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import _ from 'underscore'
+import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
 
 export class RundownPlaylistClientUtil {
 	/** Returns all segments joined with their rundowns in their correct order for this RundownPlaylist */
