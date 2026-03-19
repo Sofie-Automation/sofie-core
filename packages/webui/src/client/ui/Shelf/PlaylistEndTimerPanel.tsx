@@ -9,7 +9,7 @@ import { dashboardElementStyle } from './DashboardPanel.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { PlaylistEndTiming } from '../RundownView/RundownTiming/PlaylistEndTiming.js'
 import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
-import { isLoopRunning } from '../../lib/RundownResolver.js'
+import { isLoopRunning } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
 
 interface IPlaylistEndTimerPanelProps {
 	visible?: boolean

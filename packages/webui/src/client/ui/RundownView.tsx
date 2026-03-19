@@ -92,7 +92,6 @@ import { RundownPlaylistCollectionUtil } from '../collections/rundownPlaylistUti
 import { SegmentAdlibTestingContainer } from './SegmentAdlibTesting/SegmentAdlibTestingContainer.js'
 import { PromiseButton } from '../lib/Components/PromiseButton.js'
 import { logger } from '../lib/logging.js'
-import { isEntirePlaylistLooping } from '../lib/RundownResolver.js'
 import { RundownPlaylistClientUtil } from '../lib/rundownPlaylistUtil.js'
 import { UserPermissionsContext, UserPermissions } from './UserPermissions.js'
 import { MAGIC_TIME_SCALE_FACTOR } from './SegmentTimeline/Constants.js'
@@ -112,6 +111,7 @@ import { DragContextProvider } from './RundownView/DragContextProvider.js'
 import { DBPartInstance, PartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance.js'
 import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 import { PieceExtended, PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import { isEntirePlaylistLooping } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
 
 const HIDE_NOTIFICATIONS_AFTER_MOUNT: number | undefined = 5000
 

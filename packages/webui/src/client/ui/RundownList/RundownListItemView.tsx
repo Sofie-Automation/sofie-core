@@ -15,8 +15,8 @@ import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTi
 import { TOOLTIP_DEFAULT_DELAY } from '../../lib/lib.js'
 import { Meteor } from 'meteor/meteor'
 import { RundownPlaylists } from '../../collections/index.js'
-import { isLoopDefined } from '../../lib/RundownResolver.js'
 import { UserPermissionsContext } from '../UserPermissions.js'
+import { isLoopDefined } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
 
 interface IRundownListItemViewProps {
 	isActive: boolean

@@ -38,10 +38,15 @@ import { OutputGroup } from './OutputGroup.js'
 import { InvalidPartCover } from './InvalidPartCover.js'
 import { DefaultUserOperationsTypes, ISourceLayer, UserEditingType } from '@sofie-automation/blueprints-integration'
 import { LIVE_LINE_TIME_PADDING } from '../Constants.js'
-import * as RundownResolver from '../../../lib/RundownResolver.js'
 import { Events as MOSEvents } from '../../../lib/data/mos/plugin-support.js'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import {
+	isLoopRunning,
+	isQuickLoopStart as getIsQuickLoopStart,
+	isQuickLoopEnd as getIsQuickLoopEnd,
+	isEndOfLoopingShow,
+} from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
 
 export const SegmentTimelineLineElementId = 'rundown__segment__line__'
 export const SegmentTimelinePartElementId = 'rundown__segment__part__'
@@ -668,8 +673,8 @@ export class SegmentTimelinePartClass extends React.Component<Translated<WithTim
 			this.props.isLastSegment &&
 			this.props.isLastInSegment &&
 			(!this.state.isLive || (this.state.isLive && !this.props.playlist.nextPartInfo))
-		const isPlaylistLooping = RundownResolver.isLoopRunning(this.props.playlist)
-		const isPartEndOfLoopingShow = RundownResolver.isEndOfLoopingShow(
+		const isPlaylistLooping = isLoopRunning(this.props.playlist)
+		const isPartEndOfLoopingShow = isEndOfLoopingShow(
 			this.props.playlist,
 			this.props.isLastSegment,
 			this.props.isLastInSegment,
@@ -687,9 +692,9 @@ export class SegmentTimelinePartClass extends React.Component<Translated<WithTim
 		}
 
 		const isOutsideActiveQuickLoop =
-			!this.state.isInQuickLoop && RundownResolver.isLoopRunning(this.props.playlist) && !this.state.isNext
-		const isQuickLoopStart = RundownResolver.isQuickLoopStart(this.props.part.partId, this.props.playlist)
-		const isQuickLoopEnd = RundownResolver.isQuickLoopEnd(this.props.part.partId, this.props.playlist)
+			!this.state.isInQuickLoop && isLoopRunning(this.props.playlist) && !this.state.isNext
+		const isQuickLoopStart = getIsQuickLoopStart(this.props.part.partId, this.props.playlist)
+		const isQuickLoopEnd = getIsQuickLoopEnd(this.props.part.partId, this.props.playlist)
 
 		if (
 			this.state.isInsideViewport &&

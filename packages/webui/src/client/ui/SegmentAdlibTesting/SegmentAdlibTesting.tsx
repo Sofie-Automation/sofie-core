@@ -25,9 +25,9 @@ import { filterSecondarySourceLayers } from '../SegmentStoryboard/StoryboardPart
 import { SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBRundownPlaylist, RundownHoldState } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { isPartPlayable } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { isLoopRunning } from '../../lib/RundownResolver.js'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import { isLoopRunning } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
 
 interface IProps {
 	id: string

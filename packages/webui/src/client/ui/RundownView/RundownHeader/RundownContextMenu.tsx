@@ -14,11 +14,11 @@ import {
 	IEventContext,
 	RundownViewEvents,
 } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { UserPermissionsContext } from '../../UserPermissions'
-import * as RundownResolver from '../../../lib/RundownResolver'
 import { checkRundownTimes, useRundownPlaylistOperations } from './useRundownPlaylistOperations.js'
 import { reloadRundownPlaylistClick } from '../RundownNotifier'
+import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio'
+import { isAnyLoopMarkerDefined, isLoopLocked } from '@sofie-automation/corelib/src/playout/stateCacheResolver'
 
 export const RUNDOWN_CONTEXT_MENU_ID = 'rundown-context-menu'
 
@@ -48,9 +48,7 @@ export function RundownContextMenu({
 	const operations = useRundownPlaylistOperations()
 
 	const canClearQuickLoop =
-		!!studio.settings.enableQuickLoop &&
-		!RundownResolver.isLoopLocked(playlist) &&
-		RundownResolver.isAnyLoopMarkerDefined(playlist)
+		!!studio.settings.enableQuickLoop && !isLoopLocked(playlist) && isAnyLoopMarkerDefined(playlist)
 
 	const rundownTimesInfo = checkRundownTimes(playlist.timing)
 

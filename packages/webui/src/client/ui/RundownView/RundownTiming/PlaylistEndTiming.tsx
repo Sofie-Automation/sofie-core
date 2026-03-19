@@ -7,7 +7,7 @@ import { useTiming } from './withTiming.js'
 import ClassNames from 'classnames'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { getPlaylistTimingDiff } from '../../../lib/rundownTiming.js'
-import { isLoopRunning } from '../../../lib/RundownResolver.js'
+import { isLoopRunning } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
 
 interface IEndTimingProps {
 	rundownPlaylist: DBRundownPlaylist

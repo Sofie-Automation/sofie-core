@@ -24,9 +24,13 @@ import { Settings } from '../lib/Settings.js'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { CountdownType } from '@sofie-automation/blueprints-integration'
-import { isLoopDefined, isEntirePlaylistLooping, isLoopRunning } from '../lib/RundownResolver.js'
 import { RundownUtils } from './rundown.js'
 import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
+import {
+	isLoopRunning,
+	isLoopDefined,
+	isEntirePlaylistLooping,
+} from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
 
 // Minimum duration that a part can be assigned. Used by gap parts to allow them to "compress" to indicate time running out.
 const MINIMAL_NONZERO_DURATION = 1
