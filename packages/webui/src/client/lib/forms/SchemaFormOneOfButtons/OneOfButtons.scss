@@ -1,0 +1,38 @@
+.field-one-of-buttons .field-content {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-items: flex-start;
+	align-items: flex-start;
+	gap: 0.5em;
+}
+
+.field-one-of-button-complex {
+	font-size: 1em;
+}
+
+.field-one-of-button-complex, .field-one-of-button-complex .field {
+	display: flex;
+	flex-direction: row;
+	align-items: start;
+	gap: 0.5em;
+}
+
+.field-one-of-button-complex .field .field-content input[type="text"].form-control {
+	max-width: 10ch;
+}
+
+.field-one-of-button-complex > .btn-outline-primary {
+	display: flex;
+	align-items: center;
+	white-space: nowrap;
+	background-color: var(--org-color-gray-600);
+	color: var(--org-color-gray-400);
+	box-sizing: border-box;
+	border-bottom: 3px solid transparent;
+	padding-bottom: calc(var(--bs-btn-padding-y) - 3px);
+}
+
+.field-one-of-button-complex > .btn-check-checked {
+	border-bottom: 3px solid var(--org-color-primary);
+}

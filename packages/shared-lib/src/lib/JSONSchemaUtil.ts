@@ -13,6 +13,10 @@ export enum SchemaFormUIField {
 	 */
 	Title = 'ui:title',
 	/**
+	 * Icon to use for the property, for widgets that support them: `oneOfButtons` in `oneOf` array members
+	 */
+	Icon = 'ui:icon',
+	/**
 	 * Description/hint for the property
 	 */
 	Description = 'ui:description',
@@ -27,12 +31,19 @@ export enum SchemaFormUIField {
 	/**
 	 * Override the presentation with a special mode.
 	 * Currently only valid for:
-	 * - object properties. Valid values are 'json'.
-	 * - string properties. Valid values are 'base64-image'.
-	 * - boolean properties. Valid values are 'switch'.
-	 * - array properties with items.type string. Valid values are 'bread-crumbs'.
+	 * - object properties. Valid values are `json`, `oneOfButtons`.
+	 * 	 - `oneOfButtons` uses a `oneOf` list of possible variants of the object, with a `ui:oneOf:discriminant` field
+	 *     to determine which variant is selected.
+	 * - string properties. Valid values are `base64-image`.
+	 * - boolean properties. Valid values are `switch`.
+	 * - array properties with items.type string. Valid values are `bread-crumbs`.
 	 */
 	DisplayType = 'ui:displayType',
+	/**
+	 * When using `oneOf` for an object, the discriminant field is used  to determine which variant is selected.
+	 * The value of this field must be a property that has a unique const value for each variant in the oneOf
+	 */
+	OneOfDiscriminant = 'ui:oneOf:discriminant',
 	/**
 	 * Name of the enum values as generated for the typescript enum.
 	 * Future: a new field should probably be added for the UI to use.

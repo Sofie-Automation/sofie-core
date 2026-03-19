@@ -34,6 +34,8 @@ import { Base64ImageInputControl } from '../Components/Base64ImageInput.js'
 import { MultiLineIntInputControl } from '../Components/MultiLineIntInput.js'
 import { ToggleSwitchControl } from '../Components/ToggleSwitch.js'
 import { BreadCrumbTextInput } from '../Components/BreadCrumbTextInput.js'
+import { OneOfButtonsWithOverrides } from './SchemaFormOneOfButtons/OneOfButtons.js'
+import { TimeMsInputControl } from '../Components/TimeMsInput.js'
 
 interface SchemaFormWithOverridesProps extends SchemaFormCommonProps {
 	/** Base path of the schema within the document */
@@ -94,10 +96,14 @@ function useChildPropsForFormComponent(props: Readonly<SchemaFormWithOverridesPr
 	])
 }
 
-export function SchemaFormWithOverrides(props: Readonly<SchemaFormWithOverridesProps>): JSX.Element {
+export function SchemaFormWithOverrides(props: Readonly<SchemaFormWithOverridesProps>): JSX.Element | null {
 	const { t } = useTranslation()
 
 	const childProps = useChildPropsForFormComponent(props)
+
+	if (props.schema.const) {
+		return null
+	}
 
 	switch (props.schema.type) {
 		case TypeName.Array:
@@ -112,6 +118,11 @@ export function SchemaFormWithOverrides(props: Readonly<SchemaFormWithOverridesP
 		case TypeName.Object:
 			if (getSchemaUIField(props.schema, SchemaFormUIField.DisplayType) === 'json') {
 				return <JsonFormWithOverrides {...childProps} />
+			} else if (
+				getSchemaUIField(props.schema, SchemaFormUIField.DisplayType) === 'oneOfButtons' &&
+				props.schema.oneOf
+			) {
+				return <OneOfButtonsWithOverrides {...props} />
 			} else if (props.schema.patternProperties) {
 				if (props.allowTables) {
 					return <SchemaFormObjectTable {...props} />
@@ -128,7 +139,11 @@ export function SchemaFormWithOverrides(props: Readonly<SchemaFormWithOverridesP
 				return <IntegerFormWithOverrides {...childProps} />
 			}
 		case TypeName.Number:
-			return <NumberFormWithOverrides {...childProps} />
+			if (getSchemaUIField(props.schema, SchemaFormUIField.DisplayType) === 'timeMs') {
+				return <TimeMsFormWithOverrides {...childProps} />
+			} else {
+				return <NumberFormWithOverrides {...childProps} />
+			}
 		case TypeName.Boolean:
 			if (getSchemaUIField(props.schema, SchemaFormUIField.DisplayType) === 'switch') {
 				return <SwitchFormWithOverrides {...childProps} />
@@ -333,6 +348,23 @@ const IntegerFormWithOverrides = ({ schema, commonAttrs }: Readonly<FormComponen
 				/>
 			)}
 		</LabelAndOverridesForInt>
+	)
+}
+
+const TimeMsFormWithOverrides = ({ schema, commonAttrs }: Readonly<FormComponentProps>) => {
+	return (
+		<LabelAndOverrides {...commonAttrs}>
+			{(value, handleUpdate) => (
+				<TimeMsInputControl
+					placeholder={schema.default}
+					value={value}
+					handleUpdate={handleUpdate}
+					min={schema['minimum']}
+					max={schema['maximum']}
+					multipleOf={schema['multipleOf']}
+				/>
+			)}
+		</LabelAndOverrides>
 	)
 }
 
