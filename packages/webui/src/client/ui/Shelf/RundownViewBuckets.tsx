@@ -21,7 +21,6 @@ import update from 'immutability-helper'
 
 import { contextMenuHoldToDisplayTime } from '../../lib/lib.js'
 import { AdLibPieceUi } from '../../lib/shelf.js'
-import { PieceUi } from '../SegmentTimeline/SegmentTimelineContainer.js'
 import { IAdLibListItem } from './AdLibListItem.js'
 import { setShelfContextMenuContext, ContextType as MenuContextType } from './ShelfContextMenu.js'
 import RundownViewEventBus, {
@@ -35,6 +34,7 @@ import { DashboardLayoutExternalFrame } from '@sofie-automation/meteor-lib/dist/
 import { BucketAdLibItem, BucketAdLibUi, BucketAdLibActionUi } from '@sofie-automation/meteor-lib/dist/uiTypes/Bucket'
 import { ErrorBoundary } from '../../lib/ErrorBoundary.js'
 import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 export type {
 	BucketAdLibItem,

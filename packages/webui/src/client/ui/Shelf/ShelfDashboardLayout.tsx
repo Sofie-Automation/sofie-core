@@ -9,7 +9,6 @@ import { AdLibRegionPanel } from './AdLibRegionPanel.js'
 import { PieceCountdownPanel } from './PieceCountdownPanel.js'
 import { BucketAdLibItem } from './RundownViewBuckets.js'
 import { IAdLibListItem } from './AdLibListItem.js'
-import { PieceUi } from '../SegmentTimeline/SegmentTimelineContainer.js'
 import { AdLibPieceUi } from '../../lib/shelf.js'
 import { MiniRundownPanel } from './MiniRundownPanel.js'
 import { NextInfoPanel } from './NextInfoPanel.js'
@@ -30,6 +29,7 @@ import { PartNamePanel } from './PartNamePanel.js'
 import { ColoredBoxPanel } from './ColoredBoxPanel.js'
 import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 export interface IShelfDashboardLayoutProps {
 	rundownLayout: DashboardLayout

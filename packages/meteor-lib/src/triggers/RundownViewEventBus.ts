@@ -9,11 +9,11 @@ import {
 	SegmentId,
 	TriggeredActionId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import type { PieceUi } from '../uiTypes/Piece.js'
 import type { ShelfTabs } from '../uiTypes/ShelfTabs.js'
 import type { IAdLibListItem } from '../uiTypes/Adlib.js'
 import type { BucketAdLibItem } from '../uiTypes/Bucket.js'
 import { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
+import { PieceUi } from '@sofie-automation/corelib/dist/dataModel/Piece'
 
 export enum RundownViewEvents {
 	ACTIVATE_RUNDOWN_PLAYLIST = 'activateRundownPlaylist',

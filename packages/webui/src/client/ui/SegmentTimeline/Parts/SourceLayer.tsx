@@ -5,7 +5,7 @@ import { literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString, unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { getElementDocumentOffset, OffsetPosition } from '../../../utils/positions.js'
 import { IContextMenuContext } from '../../RundownView.js'
-import { IOutputLayerUi, ISourceLayerUi, PartUi, PieceUi, SegmentUi } from '../SegmentTimelineContainer.js'
+import { IOutputLayerUi, ISourceLayerUi, PartUi, SegmentUi } from '../SegmentTimelineContainer.js'
 import { SegmentTimelinePartElementId } from './SegmentTimelinePart.js'
 import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'
 import { SourceLayerItemContainer } from '../SourceLayerItemContainer.js'
@@ -13,6 +13,7 @@ import { contextMenuHoldToDisplayTime } from '../../../lib/lib.js'
 import { PieceInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { dragContext } from '../../RundownView/DragContext.js'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 export interface ISourceLayerPropsBase {
 	key: string

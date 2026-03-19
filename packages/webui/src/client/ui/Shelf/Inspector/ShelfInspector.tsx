@@ -1,7 +1,6 @@
 import * as React from 'react'
 import _ from 'underscore'
 import renderItem from './ItemRenderers/ItemRendererFactory.js'
-import { PieceUi } from '../../SegmentTimeline/SegmentTimelineContainer.js'
 import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'
 import { contextMenuHoldToDisplayTime } from '../../../lib/lib.js'
 import { BucketAdLibItem } from '../RundownViewBuckets.js'
@@ -10,6 +9,7 @@ import { IAdLibListItem } from '../AdLibListItem.js'
 import { useContentStatusForItem } from '../../SegmentTimeline/withMediaObjectStatus.js'
 import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 interface IShelfInspectorProps {
 	selected: BucketAdLibItem | IAdLibListItem | PieceUi | undefined

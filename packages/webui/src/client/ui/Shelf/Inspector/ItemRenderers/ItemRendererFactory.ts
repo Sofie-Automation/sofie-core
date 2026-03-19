@@ -2,8 +2,6 @@ import * as React from 'react'
 import DefaultItemRenderer from './DefaultItemRenderer.js'
 import { NoraItemRenderer, isNoraItem } from './NoraItemRenderer.js'
 import ActionItemRenderer, { isActionItem } from './ActionItemRenderer.js'
-
-import { PieceUi } from '../../../SegmentTimeline/SegmentTimelineContainer.js'
 import { BucketAdLibItem } from '../../RundownViewBuckets.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { IAdLibListItem } from '../../AdLibListItem.js'
@@ -12,6 +10,7 @@ import { ReadonlyDeep } from 'type-fest'
 import { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
 import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 export default function renderItem(
 	piece: BucketAdLibItem | IAdLibListItem | PieceUi,

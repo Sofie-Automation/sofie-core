@@ -1,13 +1,7 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { NoteSeverity } from '@sofie-automation/blueprints-integration'
 import { IContextMenuContext } from '../RundownView.js'
-import {
-	IOutputLayerUi,
-	PartUi,
-	PieceUi,
-	SegmentNoteCounts,
-	SegmentUi,
-} from '../SegmentContainer/withResolvedSegment.js'
+import { IOutputLayerUi, PartUi, SegmentNoteCounts, SegmentUi } from '../SegmentContainer/withResolvedSegment.js'
 import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'
 import { CriticalIconSmall, WarningIconSmall } from '../../lib/ui/icons/notifications.js'
 import { contextMenuHoldToDisplayTime, useCombinedRefs, useRundownViewEventBusListener } from '../../lib/lib.js'
@@ -33,6 +27,7 @@ import { DBRundownPlaylist, RundownHoldState } from '@sofie-automation/corelib/d
 import { isPartPlayable } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { isLoopRunning } from '../../lib/RundownResolver.js'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 interface IProps {
 	id: string

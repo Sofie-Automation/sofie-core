@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import classNames from 'classnames'
-import { ISourceLayerExtended, PartExtended, PieceExtended } from '../../../lib/RundownResolver.js'
+import { PartExtended } from '../../../lib/RundownResolver.js'
 import { getCurrentTime } from '../../../lib/systemTime.js'
 import { useInvalidateTimeout } from '../../../lib/lib.js'
 import { Meteor } from 'meteor/meteor'
@@ -8,6 +8,8 @@ import { HOVER_TIMEOUT } from '../../Shelf/DashboardPieceButton.js'
 import { PieceInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { StoryboardSourceLayerItem } from './StoryboardSourceLayerItem.js'
+import { ISourceLayerExtended } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import { PieceExtended } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 interface IProps {
 	sourceLayer: ISourceLayerExtended

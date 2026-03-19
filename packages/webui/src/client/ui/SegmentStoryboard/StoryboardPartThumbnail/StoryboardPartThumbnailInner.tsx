@@ -1,6 +1,5 @@
 import React, { useContext, useRef, useState } from 'react'
 import { ISourceLayer } from '@sofie-automation/blueprints-integration'
-import { PieceExtended } from '../../../lib/RundownResolver.js'
 import { getElementDocumentOffset, OffsetPosition } from '../../../utils/positions.js'
 import { getElementHeight, getElementWidth } from '../../../utils/dimensions.js'
 import { ThumbnailRenderer } from './Renderers/ThumbnailRendererFactory.js'
@@ -13,6 +12,7 @@ import {
 	PreviewPopUpContext,
 } from '../../PreviewPopUp/PreviewPopUpContext.js'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import { PieceExtended } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 interface IProps {
 	partId: PartId

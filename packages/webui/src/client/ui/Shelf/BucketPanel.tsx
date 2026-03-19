@@ -43,7 +43,6 @@ import update from 'immutability-helper'
 import { BucketAdLibAction } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibAction'
 import { RundownUtils } from '../../lib/rundown.js'
 import { BucketAdLibItem, BucketAdLibActionUi, isAdLibAction, isAdLib, BucketAdLibUi } from './RundownViewBuckets.js'
-import { PieceUi } from '../SegmentTimeline/SegmentTimelineContainer.js'
 import { PieceDisplayStyle } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import RundownViewEventBus, {
 	RundownViewEvents,
@@ -79,6 +78,7 @@ import _ from 'underscore'
 import { BucketHandle } from '../../lib/ui/icons/shelf.js'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
+import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 interface IBucketPanelDragObject {
 	id: BucketId

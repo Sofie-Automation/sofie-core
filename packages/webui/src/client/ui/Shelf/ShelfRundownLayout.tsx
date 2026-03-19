@@ -9,12 +9,12 @@ import { AdLibPieceUi } from '../../lib/shelf.js'
 import { GlobalAdLibPanel } from './GlobalAdLibPanel.js'
 import { HotkeyHelpPanel } from './HotkeyHelpPanel.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { PieceUi } from '../SegmentTimeline/SegmentTimelineContainer.js'
 import { useTranslation } from 'react-i18next'
 import { BucketAdLibItem } from './RundownViewBuckets.js'
 import { IAdLibListItem } from './AdLibListItem.js'
 import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 export interface IShelfRundownLayoutProps {
 	rundownLayout: RundownLayout | undefined

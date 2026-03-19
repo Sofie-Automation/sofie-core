@@ -31,7 +31,6 @@ import { unprotectString, protectString } from '@sofie-automation/shared-lib/dis
 import { memoizedIsolatedAutorun } from '../../lib/memoizedIsolatedAutorun.js'
 import { findPartInstanceOrWrapToTemporary } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import { MeteorCall } from '../../lib/meteorApi.js'
-import { PieceUi } from '../SegmentTimeline/SegmentTimelineContainer.js'
 import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
 import { RundownUtils } from '../../lib/rundown.js'
 import { ShelfTabs } from './Shelf.js'
@@ -60,6 +59,7 @@ import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylist
 import { RundownPlaylistClientUtil } from '../../lib/rundownPlaylistUtil.js'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
+import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 export interface IAdLibPanelProps {
 	// liveSegment: Segment | undefined

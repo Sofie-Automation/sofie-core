@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import { ISourceLayerUi, IOutputLayerUi, PartUi, PieceUi } from '../SegmentTimelineContainer.js'
+import { ISourceLayerUi, IOutputLayerUi, PartUi } from '../SegmentTimelineContainer.js'
 
 import { RundownUtils } from '../../../lib/rundown.js'
 import { faCut } from '@fortawesome/free-solid-svg-icons'
@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { PieceLifespan, VTContent } from '@sofie-automation/blueprints-integration'
 import { OffsetPosition } from '../../../utils/positions.js'
 import { LoopingPieceIcon } from '../../../lib/ui/icons/looping.js'
+import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 export type SourceDurationLabelAlignment = 'left' | 'right'
 

@@ -2,9 +2,9 @@ import React, { useContext, useMemo } from 'react'
 import { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import classNames from 'classnames'
 import { CanvasSizeContext } from './index.js'
-import { PieceExtended } from '../../../lib/RundownResolver.js'
 import { PieceElement } from '../../SegmentContainer/PieceElement.js'
 import { getSplitItems } from '../../SegmentContainer/getSplitItems.js'
+import { PieceExtended } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 const PIECE_TYPE_INDICATOR_BORDER_RADIUS = 11
 

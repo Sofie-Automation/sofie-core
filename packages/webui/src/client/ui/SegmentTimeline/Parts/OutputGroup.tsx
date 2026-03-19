@@ -1,8 +1,7 @@
 import React from 'react'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { ISourceLayerExtended } from '../../../lib/RundownResolver.js'
 import { IContextMenuContext } from '../../RundownView.js'
-import { IOutputLayerUi, PartUi, PieceUi, SegmentUi } from '../SegmentTimelineContainer.js'
+import { IOutputLayerUi, PartUi, SegmentUi } from '../SegmentTimelineContainer.js'
 import { FlattenedSourceLayers } from './FlattenedSourceLayers.js'
 import { SourceLayer } from './SourceLayer.js'
 import classNames from 'classnames'
@@ -10,6 +9,8 @@ import { DEBUG_MODE } from '../SegmentTimelineDebugMode.js'
 import { RundownUtils } from '../../../lib/rundown.js'
 import { ISourceLayer } from '@sofie-automation/blueprints-integration'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import { ISourceLayerExtended } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 interface IOutputGroupProps {
 	layer: IOutputLayerUi

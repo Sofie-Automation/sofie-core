@@ -1,4 +1,4 @@
-import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
+import { Piece, PieceExtended } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { DBSegment, SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { wrapPartToTemporaryInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
@@ -25,15 +25,8 @@ import {
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { RundownPlaylistClientUtil } from './rundownPlaylistUtil.js'
 import { PieceInstances, Pieces } from '../collections/index.js'
-
-import { PieceExtended } from '@sofie-automation/meteor-lib/dist/uiTypes/Piece'
-import { ISourceLayerExtended } from '@sofie-automation/meteor-lib/dist/uiTypes/SourceLayer'
-import { IOutputLayerExtended } from '@sofie-automation/meteor-lib/dist/uiTypes/OutputLayer'
 import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
-
-export type { PieceExtended } from '@sofie-automation/meteor-lib/dist/uiTypes/Piece'
-export type { ISourceLayerExtended } from '@sofie-automation/meteor-lib/dist/uiTypes/SourceLayer'
-export type { IOutputLayerExtended } from '@sofie-automation/meteor-lib/dist/uiTypes/OutputLayer'
+import { IOutputLayerExtended, ISourceLayerExtended } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 
 export interface SegmentExtended extends DBSegment {
 	/** Output layers available in the installation used by this segment */

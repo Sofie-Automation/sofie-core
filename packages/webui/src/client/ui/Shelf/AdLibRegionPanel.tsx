@@ -24,7 +24,6 @@ import {
 	isAdLibOnAir,
 } from '../../lib/shelf.js'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
-import { PieceUi } from '../SegmentTimeline/SegmentTimelineContainer.js'
 import {
 	useContentStatusForPieceInstance,
 	WithMediaObjectStatusProps,
@@ -33,6 +32,7 @@ import { ISourceLayer } from '@sofie-automation/blueprints-integration'
 import { UIStudios } from '../Collections.js'
 import { Meteor } from 'meteor/meteor'
 import { ReadonlyDeep } from 'type-fest'
+import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 interface IState {
 	objId?: string

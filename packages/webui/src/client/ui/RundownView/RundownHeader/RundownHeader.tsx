@@ -24,6 +24,7 @@ import { HeaderFreezeFrameIcon } from './HeaderFreezeFrameIcon'
 import './RundownHeader.scss'
 import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio'
+import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece'
 
 interface IRundownHeaderProps {
 	playlist: DBRundownPlaylist

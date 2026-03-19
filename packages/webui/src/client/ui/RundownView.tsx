@@ -12,7 +12,7 @@ import { DBRundown, Rundown } from '@sofie-automation/corelib/dist/dataModel/Run
 import { DBSegment, SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { StudioRouteSet, UIStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { SegmentTimelineContainer, PieceUi, PartUi, SegmentUi } from './SegmentTimeline/SegmentTimelineContainer.js'
+import { SegmentTimelineContainer, PartUi, SegmentUi } from './SegmentTimeline/SegmentTimelineContainer.js'
 import { SegmentContextMenu } from './SegmentTimeline/SegmentContextMenu.js'
 import { Shelf, ShelfTabs } from './Shelf/Shelf.js'
 import { unprotectString, protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
@@ -92,7 +92,7 @@ import { RundownPlaylistCollectionUtil } from '../collections/rundownPlaylistUti
 import { SegmentAdlibTestingContainer } from './SegmentAdlibTesting/SegmentAdlibTestingContainer.js'
 import { PromiseButton } from '../lib/Components/PromiseButton.js'
 import { logger } from '../lib/logging.js'
-import { isEntirePlaylistLooping, PieceExtended } from '../lib/RundownResolver.js'
+import { isEntirePlaylistLooping } from '../lib/RundownResolver.js'
 import { RundownPlaylistClientUtil } from '../lib/rundownPlaylistUtil.js'
 import { UserPermissionsContext, UserPermissions } from './UserPermissions.js'
 import { MAGIC_TIME_SCALE_FACTOR } from './SegmentTimeline/Constants.js'
@@ -111,6 +111,7 @@ import { UserError } from '@sofie-automation/corelib/dist/error'
 import { DragContextProvider } from './RundownView/DragContextProvider.js'
 import { DBPartInstance, PartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance.js'
 import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import { PieceExtended, PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 const HIDE_NOTIFICATIONS_AFTER_MOUNT: number | undefined = 5000
 

@@ -4,7 +4,7 @@ import { ISourceLayerUi } from '../SegmentTimelineContainer.js'
 import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'
 import { SourceLayerItemContainer } from '../SourceLayerItemContainer.js'
 import { ISourceLayerPropsBase, useMouseContext } from './SourceLayer.js'
-import { ISourceLayerExtended } from '../../../lib/RundownResolver.js'
+import { ISourceLayerExtended } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 
 interface IFlattenedSourceLayerProps extends ISourceLayerPropsBase {
 	layers: ISourceLayerUi[]

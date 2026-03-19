@@ -2,6 +2,7 @@ import { IBlueprintConfig, IOutputLayer, ISourceLayer, SourceLayerType } from '@
 import { ObjectWithOverrides } from '../settings/objectWithOverrides.js'
 import { BlueprintHash, LastBlueprintConfig } from './Blueprint.js'
 import { BlueprintId, ShowStyleBaseId } from './Ids.js'
+import { PieceExtended } from './Piece.js'
 
 export interface HotkeyDefinition {
 	_id: string
@@ -22,7 +23,19 @@ export interface HotkeyDefinition {
 	down?: (e: any) => void
 }
 
+export interface IOutputLayerExtended extends IOutputLayer {
+	/** Is this output layer used in this segment */
+	used: boolean
+	/** Source layers that will be used by this output layer */
+	sourceLayers: Array<ISourceLayerExtended>
+}
 export type OutputLayers = Record<string, IOutputLayer | undefined>
+export interface ISourceLayerExtended extends ISourceLayer {
+	/** Pieces present on this source layer */
+	pieces: Array<PieceExtended>
+	followingItems: Array<PieceExtended>
+}
+
 export type SourceLayers = Record<string, ISourceLayer | undefined>
 
 export interface DBShowStyleBase {

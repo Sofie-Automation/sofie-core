@@ -3,7 +3,7 @@ import _ from 'underscore'
 import { ISourceLayer, NoteSeverity, PieceLifespan } from '@sofie-automation/blueprints-integration'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { withTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
-import { IOutputLayerExtended, ISourceLayerExtended, PartExtended, SegmentExtended } from '../../lib/RundownResolver.js'
+import { PartExtended, SegmentExtended } from '../../lib/RundownResolver.js'
 import { IContextMenuContext } from '../RundownView.js'
 import { equalSets } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { RundownUtils } from '../../lib/rundown.js'
@@ -31,12 +31,14 @@ import { PieceInstances, Segments } from '../../collections/index.js'
 import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil.js'
 import { SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { RundownPlaylistClientUtil } from '../../lib/rundownPlaylistUtil.js'
-import type { PieceUi } from '@sofie-automation/meteor-lib/dist/uiTypes/Piece'
-import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import {
+	IOutputLayerExtended,
+	ISourceLayerExtended,
+	UIShowStyleBase,
+} from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
-
-export type { PieceUi } from '@sofie-automation/meteor-lib/dist/uiTypes/Piece'
+import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 export interface SegmentUi extends SegmentExtended {
 	/** Output layers available in the installation used by this segment */
