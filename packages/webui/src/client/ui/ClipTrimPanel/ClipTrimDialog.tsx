@@ -11,9 +11,9 @@ import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyE
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { Rundown, getRundownNrcsName } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { PieceInstancePiece } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ReadonlyDeep } from 'type-fest'
+import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 
 export interface IProps {
 	playlistId: RundownPlaylistId

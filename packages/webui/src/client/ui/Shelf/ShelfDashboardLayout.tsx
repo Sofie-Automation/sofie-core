@@ -28,8 +28,8 @@ import { StudioNamePanel } from './StudioNamePanel.js'
 import { SegmentNamePanel } from './SegmentNamePanel.js'
 import { PartNamePanel } from './PartNamePanel.js'
 import { ColoredBoxPanel } from './ColoredBoxPanel.js'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 
 export interface IShelfDashboardLayoutProps {
 	rundownLayout: DashboardLayout

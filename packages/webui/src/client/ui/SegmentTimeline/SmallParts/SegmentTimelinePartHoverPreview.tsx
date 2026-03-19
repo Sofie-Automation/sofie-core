@@ -6,7 +6,7 @@ import { RundownUtils } from '../../../lib/rundown.js'
 import { PartUi, SegmentUi } from '../SegmentTimelineContainer.js'
 import { SegmentTimelinePart } from '../Parts/SegmentTimelinePart.js'
 import { ISourceLayer } from '@sofie-automation/blueprints-integration'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
+import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 
 export const SegmentTimelinePartHoverPreview = ({
 	showMiniInspector,

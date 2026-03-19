@@ -10,9 +10,9 @@ import { SegmentTimelinePartElementId } from './SegmentTimelinePart.js'
 import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'
 import { SourceLayerItemContainer } from '../SourceLayerItemContainer.js'
 import { contextMenuHoldToDisplayTime } from '../../../lib/lib.js'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { PieceInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { dragContext } from '../../RundownView/DragContext.js'
+import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 
 export interface ISourceLayerPropsBase {
 	key: string

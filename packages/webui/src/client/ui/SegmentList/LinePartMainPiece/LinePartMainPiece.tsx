@@ -4,7 +4,6 @@ import { PieceExtended } from '../../../lib/RundownResolver.js'
 // TODO: Move to a shared lib file
 import { PartId, PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import classNames from 'classnames'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { getNoticeLevelForPieceStatus } from '../../../lib/notifications/notifications.js'
 import { LoopingPieceIcon } from '../../../lib/ui/icons/looping.js'
 import { PieceStatusIcon } from '../../../lib/ui/PieceStatusIcon.js'
@@ -19,6 +18,7 @@ import {
 	IPreviewPopUpSession,
 	PreviewPopUpContext,
 } from '../../PreviewPopUp/PreviewPopUpContext.js'
+import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 
 interface IProps {
 	partId: PartId

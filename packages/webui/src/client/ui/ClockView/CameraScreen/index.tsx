@@ -10,7 +10,6 @@ import { RundownId, ShowStyleBaseId, StudioId } from '@sofie-automation/corelib/
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { PieceExtended } from '../../../lib/RundownResolver.js'
 import { Rundowns } from '../../../collections/index.js'
@@ -29,6 +28,7 @@ import { useWakeLock } from './useWakeLock.js'
 import { useDebounce } from '../../../lib/lib.js'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { useSetDocumentClass, useSetDocumentDarkTheme } from '../../util/useSetDocumentClass.js'
+import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 
 interface IProps {
 	playlist: DBRundownPlaylist | undefined

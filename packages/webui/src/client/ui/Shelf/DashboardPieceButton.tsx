@@ -12,13 +12,13 @@ import { StyledTimecode } from '../../lib/StyledTimecode.js'
 import { useContentStatusForAdlibPiece, WithMediaObjectStatusProps } from '../SegmentTimeline/withMediaObjectStatus.js'
 
 import { isTouchDevice } from '../../lib/lib.js'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import {
 	convertSourceLayerItemToPreview,
 	IPreviewPopUpContext,
 	IPreviewPopUpSession,
 	PreviewPopUpContext,
 } from '../PreviewPopUp/PreviewPopUpContext.js'
+import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 
 export interface IDashboardButtonProps {
 	piece: IAdLibListItem

@@ -7,11 +7,11 @@ import { PartUi, SegmentUi } from '../SegmentTimelineContainer.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { SegmentTimelinePartHoverPreview } from './SegmentTimelinePartHoverPreview.js'
 import RundownViewEventBus, { RundownViewEvents } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { TimingDataResolution, TimingTickResolution, useTiming } from '../../RundownView/RundownTiming/withTiming.js'
 import { SegmentTimelinePartClass } from '../Parts/SegmentTimelinePart.js'
 import { PartExtended } from '../../../lib/RundownResolver.js'
 import { getPartInstanceTimingId } from '../../../lib/rundownTiming.js'
+import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 
 interface ISegmentTimelineSmallPartFlagProps {
 	parts: [PartUi, number, number][]

@@ -3,8 +3,7 @@ import { MongoFieldSpecifierOnesStrict } from '@sofie-automation/corelib/dist/mo
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { ReadonlyDeep } from 'type-fest'
 import { CustomCollectionName, MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
-import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import { DBStudio, UIStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { Complete, literal } from '@sofie-automation/corelib/dist/lib'
 import {
 	CustomPublishCollection,

@@ -5,10 +5,10 @@ import { DefaultListItemRenderer } from './DefaultListItemRenderer.js'
 import { VTListItemRenderer } from './VTListItemRenderer.js'
 import { L3rdListItemRenderer } from './L3rdListItemRenderer.js'
 import { PieceStatusCode } from '@sofie-automation/corelib/dist/dataModel/Piece'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { ITranslatableMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { ReadonlyDeep } from 'type-fest'
 import { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
+import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 
 export interface ILayerItemRendererProps {
 	adLibListItem: IAdLibListItem
