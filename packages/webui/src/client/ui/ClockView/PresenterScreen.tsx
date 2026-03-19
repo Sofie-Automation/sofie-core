@@ -37,7 +37,6 @@ import { ShelfDashboardLayout } from '../Shelf/ShelfDashboardLayout.js'
 import { parse as queryStringParse } from 'query-string'
 import { calculatePartInstanceExpectedDurationWithTransition } from '@sofie-automation/corelib/dist/playout/timings'
 import { getPlaylistTimingDiff, RundownTimingContext } from '../../lib/rundownTiming.js'
-import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { UIShowStyleBases, UIStudios } from '../Collections.js'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import {
@@ -55,6 +54,7 @@ import { RundownPlaylistClientUtil } from '../../lib/rundownPlaylistUtil.js'
 import { CurrentPartOrSegmentRemaining } from '../RundownView/RundownHeader/CurrentPartOrSegmentRemaining.js'
 import { TTimerDisplay } from './TTimerDisplay.js'
 import { getDefaultTTimer } from '../../lib/tTimerUtils.js'
+import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 
 interface SegmentUi extends DBSegment {
 	items: Array<PartUi>

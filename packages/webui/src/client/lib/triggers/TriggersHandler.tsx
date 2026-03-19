@@ -24,7 +24,6 @@ import { Settings } from '../../lib/Settings.js'
 import { createInMemorySyncMongoCollection } from '../../collections/lib.js'
 import { RundownPlaylists } from '../../collections/index.js'
 import { UIShowStyleBases, UITriggeredActions } from '../../ui/Collections.js'
-import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import {
 	PartId,
 	RundownId,
@@ -44,6 +43,7 @@ import { catchError, useRundownViewEventBusListener } from '../lib.js'
 import { logger } from '../logging.js'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { toTriggersComputation, toTriggersReactiveVar, UiTriggersContext } from './triggersContext.js'
+import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 
 type HotkeyTriggerListener = (e: KeyboardEvent) => void
 

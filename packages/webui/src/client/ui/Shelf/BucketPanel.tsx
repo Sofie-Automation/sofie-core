@@ -17,7 +17,7 @@ import {
 	DropTargetMonitor,
 	ConnectDragPreview,
 } from 'react-dnd'
-import { OutputLayers, SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
+import { OutputLayers, SourceLayers, UIShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import {
 	ISourceLayer,
 	PieceLifespan,
@@ -64,7 +64,6 @@ import {
 import { MongoFieldSpecifierOnes } from '@sofie-automation/corelib/dist/mongo'
 import { BucketAdLibActions, BucketAdLibs, Rundowns } from '../../collections/index.js'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { UIPartInstances, UIStudios } from '../Collections.js'
 import {

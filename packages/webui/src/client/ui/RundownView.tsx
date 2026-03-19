@@ -90,7 +90,6 @@ import {
 	Rundowns,
 	ShowStyleVariants,
 } from '../collections/index.js'
-import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { RundownPlaylistCollectionUtil } from '../collections/rundownPlaylistUtil.js'
 import { SegmentAdlibTestingContainer } from './SegmentAdlibTesting/SegmentAdlibTestingContainer.js'
 import { PromiseButton } from '../lib/Components/PromiseButton.js'
@@ -113,6 +112,7 @@ import { AnimatePresence } from 'motion/react'
 import { UserError } from '@sofie-automation/corelib/dist/error'
 import { DragContextProvider } from './RundownView/DragContextProvider.js'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance.js'
+import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 
 const HIDE_NOTIFICATIONS_AFTER_MOUNT: number | undefined = 5000
 

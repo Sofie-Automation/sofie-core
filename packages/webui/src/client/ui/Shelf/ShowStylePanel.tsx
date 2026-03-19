@@ -8,7 +8,7 @@ import { dashboardElementStyle } from './DashboardPanel.js'
 import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
 import { useTranslation } from 'react-i18next'
-import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
+import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 
 interface IShowStylePanelProps {
 	visible?: boolean

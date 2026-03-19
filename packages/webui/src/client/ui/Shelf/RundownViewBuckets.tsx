@@ -30,11 +30,11 @@ import RundownViewEventBus, {
 	BucketEvent,
 	IEventContext,
 } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
-import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { BucketAdLibId, BucketId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DashboardLayoutExternalFrame } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import { BucketAdLibItem, BucketAdLibUi, BucketAdLibActionUi } from '@sofie-automation/meteor-lib/dist/uiTypes/Bucket'
 import { ErrorBoundary } from '../../lib/ErrorBoundary.js'
+import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 
 export type {
 	BucketAdLibItem,

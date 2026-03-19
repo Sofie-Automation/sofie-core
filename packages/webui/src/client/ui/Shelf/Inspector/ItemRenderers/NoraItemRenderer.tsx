@@ -7,9 +7,9 @@ import { useTranslation } from 'react-i18next'
 import InspectorTitle from './InspectorTitle.js'
 import { ErrorBoundary } from '../../../../lib/ErrorBoundary.js'
 import { IAdLibListItem } from '../../AdLibListItem.js'
-import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { useState } from 'react'
+import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 
 export { isNoraItem }
 

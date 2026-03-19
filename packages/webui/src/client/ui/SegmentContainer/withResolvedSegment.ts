@@ -21,7 +21,6 @@ import { getReactivePieceNoteCountsForSegment } from './getReactivePieceNoteCoun
 import { SegmentViewMode } from './SegmentViewModes.js'
 import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
 import { AdlibSegmentUi } from '../../lib/shelf.js'
-import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import {
 	PartId,
@@ -35,6 +34,7 @@ import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylist
 import { SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { RundownPlaylistClientUtil } from '../../lib/rundownPlaylistUtil.js'
 import type { PieceUi } from '@sofie-automation/meteor-lib/dist/uiTypes/Piece'
+import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 
 export type { PieceUi } from '@sofie-automation/meteor-lib/dist/uiTypes/Piece'
 

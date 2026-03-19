@@ -12,10 +12,10 @@ import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceIns
 import { ScriptContent } from '@sofie-automation/blueprints-integration'
 import { getUnfinishedPieceInstancesReactive } from '../../lib/rundownLayouts.js'
 import { getScriptPreview } from '../../lib/ui/scriptPreview.js'
-import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { PieceInstances } from '../../collections/index.js'
 import { ReadonlyDeep } from 'type-fest'
 import { useTranslation } from 'react-i18next'
+import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 
 interface IEndsWordsPanelProps {
 	layout: RundownLayoutBase
