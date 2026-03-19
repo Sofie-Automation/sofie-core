@@ -226,7 +226,7 @@ resources:
           schema:
             type: string
       requestBody:
-        description: Rundown data to ingest. Must include playlistExternalId.
+        description: Rundown data to ingest. May include playlistExternalId for grouping if supported by the blueprints.
         required: true
         content:
           application/json:
