@@ -9,11 +9,11 @@ import {
 	RundownLayoutFilterBase,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import { BucketAdLibActionUi, BucketAdLibUi } from './RundownViewBuckets.js'
-import { PieceUi } from '../SegmentContainer/withResolvedSegment.js'
 import { IBlueprintActionTriggerMode } from '@sofie-automation/blueprints-integration'
 import { getRandomString } from '@sofie-automation/corelib/dist/lib'
 import { SourceLayers, UIShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase.js'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 interface IListViewPropsHeader {
 	uiSegments: Array<AdlibSegmentUi>

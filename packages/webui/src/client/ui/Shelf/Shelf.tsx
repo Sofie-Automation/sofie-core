@@ -7,7 +7,6 @@ import { faBars } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import { Translated, useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
-import { PieceUi } from '../SegmentTimeline/SegmentTimelineContainer.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { getElementDocumentOffset } from '../../utils/positions.js'
 import {
@@ -48,6 +47,7 @@ import { ParsedQuery, parse as queryStringParse } from 'query-string'
 import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 
 import { ShelfTabs } from '@sofie-automation/meteor-lib/dist/uiTypes/ShelfTabs'
+import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 export { ShelfTabs } from '@sofie-automation/meteor-lib/dist/uiTypes/ShelfTabs'
 

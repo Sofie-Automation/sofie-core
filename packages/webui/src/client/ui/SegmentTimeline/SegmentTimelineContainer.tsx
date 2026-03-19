@@ -45,13 +45,7 @@ import { UIPartInstances, UIParts } from '../Collections.js'
 import { RundownTimingProviderContext } from '../RundownView/RundownTiming/withTiming.js'
 
 // Kept for backwards compatibility
-export type {
-	SegmentUi,
-	PartUi,
-	PieceUi,
-	ISourceLayerUi,
-	IOutputLayerUi,
-} from '../SegmentContainer/withResolvedSegment.js'
+export type { SegmentUi, PartUi, ISourceLayerUi, IOutputLayerUi } from '../SegmentContainer/withResolvedSegment.js'
 
 interface IState {
 	scrollLeft: number

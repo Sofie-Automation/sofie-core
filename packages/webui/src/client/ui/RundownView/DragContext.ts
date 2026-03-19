@@ -1,6 +1,6 @@
 import { PartInstanceId, PieceInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece'
 import { createContext } from 'react'
-import { PieceUi } from '../SegmentContainer/withResolvedSegment'
 
 export interface IDragContext {
 	/**

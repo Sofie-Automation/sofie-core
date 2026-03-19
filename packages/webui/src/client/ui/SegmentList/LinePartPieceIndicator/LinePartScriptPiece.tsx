@@ -1,12 +1,12 @@
 import { SourceLayerType } from '@sofie-automation/blueprints-integration'
 import { useContext, useMemo, useRef } from 'react'
-import { PieceExtended } from '../../../lib/RundownResolver.js'
 import {
 	PreviewPopUpContext,
 	IPreviewPopUpSession,
 	convertSourceLayerItemToPreview,
 } from '../../PreviewPopUp/PreviewPopUpContext.js'
 import { useContentStatusForPieceInstance } from '../../SegmentTimeline/withMediaObjectStatus.js'
+import { PieceExtended } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 interface IProps {
 	pieces: PieceExtended[]

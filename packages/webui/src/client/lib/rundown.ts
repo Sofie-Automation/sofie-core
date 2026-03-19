@@ -1,5 +1,5 @@
 import _ from 'underscore'
-import { PieceUi, PartUi } from '../ui/SegmentTimeline/SegmentTimelineContainer.js'
+import { PartUi } from '../ui/SegmentTimeline/SegmentTimelineContainer.js'
 import { Timecode } from '@sofie-automation/corelib/dist/index'
 import { Settings } from '../lib/Settings.js'
 import { TFunction } from 'react-i18next'
@@ -15,9 +15,6 @@ import {
 	SegmentExtended,
 	PartExtended,
 	getPieceInstancesForPartInstance,
-	PieceExtended,
-	IOutputLayerExtended,
-	ISourceLayerExtended,
 	PartInstanceLimited,
 	isLoopRunning,
 } from './RundownResolver.js'
@@ -43,12 +40,16 @@ import { calculatePartInstanceExpectedDurationWithTransition } from '@sofie-auto
 import { AdLibPieceUi } from './shelf.js'
 import { PartId, PieceId, RundownId, SegmentId, ShowStyleBaseId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PieceInstances, Segments } from '../collections/index.js'
-import { PieceStatusCode } from '@sofie-automation/corelib/dist/dataModel/Piece'
+import { PieceExtended, PieceStatusCode, PieceUi } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { assertNever } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { RundownPlaylistClientUtil } from './rundownPlaylistUtil.js'
-import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import {
+	IOutputLayerExtended,
+	ISourceLayerExtended,
+	UIShowStyleBase,
+} from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
 
 /**

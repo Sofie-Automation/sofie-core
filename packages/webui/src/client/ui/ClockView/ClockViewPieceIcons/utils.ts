@@ -2,10 +2,10 @@ import { SourceLayerType, ISourceLayer } from '@sofie-automation/blueprints-inte
 import { SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { IPropsHeader } from './ClockViewPieceIcon.js'
-import { PieceExtended } from '../../../lib/RundownResolver.js'
 import { UIShowStyleBases } from '../../Collections.js'
 import { PieceInstances } from '../../../collections/index.js'
 import { ReadonlyDeep } from 'type-fest'
+import { PieceExtended } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 export interface IFoundPieceInstance {
 	sourceLayer: ISourceLayer | undefined

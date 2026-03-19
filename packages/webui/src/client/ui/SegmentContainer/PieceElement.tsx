@@ -1,9 +1,9 @@
 import React from 'react'
 import { ISourceLayer } from '@sofie-automation/blueprints-integration'
-import { PieceExtended } from '../../lib/RundownResolver.js'
 import { pieceUiClassNames } from '../../lib/ui/pieceUiClassNames.js'
 import { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { useContentStatusForItem } from '../SegmentTimeline/withMediaObjectStatus.js'
+import { PieceExtended } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 interface IProps {
 	className: string

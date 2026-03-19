@@ -1,10 +1,9 @@
-import { PieceUi } from './SegmentTimelineContainer.js'
 import { RundownUtils } from '../../lib/rundown.js'
 import { IAdLibListItem } from '../Shelf/AdLibListItem.js'
 import { BucketAdLibUi, BucketAdLibActionUi } from '../Shelf/RundownViewBuckets.js'
 import { AdLibPieceUi } from '../../lib/shelf.js'
 import { UIBucketContentStatuses, UIPieceContentStatuses } from '../Collections.js'
-import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
+import { Piece, PieceUi } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import {
 	PieceContentStatusObj,
 	UIPieceContentStatus,

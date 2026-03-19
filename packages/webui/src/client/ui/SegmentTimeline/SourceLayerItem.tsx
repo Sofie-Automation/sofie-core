@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { ISourceLayerUi, IOutputLayerUi, PartUi, PieceUi } from './SegmentTimelineContainer.js'
+import { ISourceLayerUi, IOutputLayerUi, PartUi } from './SegmentTimelineContainer.js'
 import {
 	SourceLayerType,
 	PieceLifespan,
@@ -33,6 +33,7 @@ import {
 } from '../PreviewPopUp/PreviewPopUpContext.js'
 import { useRundownViewEventBusListener } from '../../lib/lib.js'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 const LEFT_RIGHT_ANCHOR_SPACER = 15
 const MARGINAL_ANCHORED_WIDTH = 5
 

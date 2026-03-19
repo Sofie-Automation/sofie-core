@@ -8,7 +8,6 @@ import { NavLink } from 'react-router-dom'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { Rundown, getRundownNrcsName } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { ContextMenu, MenuItem, ContextMenuTrigger } from '@jstarpl/react-contextmenu'
-import { PieceUi } from '../../SegmentTimeline/SegmentTimelineContainer'
 import { RundownSystemStatus } from '../RundownSystemStatus'
 import { getHelpMode } from '../../../lib/localStorage'
 import { reloadRundownPlaylistClick } from '../RundownNotifier'
@@ -35,6 +34,7 @@ import { TimingDisplay } from './TimingDisplay'
 import { checkRundownTimes, useRundownPlaylistOperations } from './useRundownPlaylistOperations'
 import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio'
+import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece'
 
 interface IRundownHeaderProps {
 	playlist: DBRundownPlaylist

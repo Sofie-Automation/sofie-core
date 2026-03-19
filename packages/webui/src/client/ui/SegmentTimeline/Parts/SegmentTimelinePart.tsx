@@ -4,7 +4,7 @@ import { withTranslation, WithTranslation, TFunction } from 'react-i18next'
 
 import ClassNames from 'classnames'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { SegmentUi, PartUi, IOutputLayerUi, PieceUi } from '../SegmentTimelineContainer.js'
+import { SegmentUi, PartUi, IOutputLayerUi } from '../SegmentTimelineContainer.js'
 import {
 	TimingDataResolution,
 	TimingTickResolution,
@@ -41,6 +41,7 @@ import { LIVE_LINE_TIME_PADDING } from '../Constants.js'
 import * as RundownResolver from '../../../lib/RundownResolver.js'
 import { Events as MOSEvents } from '../../../lib/data/mos/plugin-support.js'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 export const SegmentTimelineLineElementId = 'rundown__segment__line__'
 export const SegmentTimelinePartElementId = 'rundown__segment__part__'

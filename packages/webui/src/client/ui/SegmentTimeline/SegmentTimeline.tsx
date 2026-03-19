@@ -5,7 +5,7 @@ import ClassNames from 'classnames'
 import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'
 
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { SegmentUi, PartUi, IOutputLayerUi, PieceUi } from './SegmentTimelineContainer.js'
+import { SegmentUi, PartUi, IOutputLayerUi } from './SegmentTimelineContainer.js'
 import { TimelineGrid } from './TimelineGrid.js'
 import { SegmentTimelinePart, SegmentTimelinePartClass } from './Parts/SegmentTimelinePart.js'
 import { SegmentTimelineZoomControls } from './SegmentTimelineZoomControls.js'
@@ -58,6 +58,7 @@ import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { SelectedElementsContext } from '../RundownView/SelectedElementsContext.js'
 import { BlueprintAssetIcon } from '../../lib/Components/BlueprintAssetIcon.js'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 interface IProps {
 	id: string
