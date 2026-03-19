@@ -9,9 +9,9 @@ import { SegmentTimelinePartHoverPreview } from './SegmentTimelinePartHoverPrevi
 import RundownViewEventBus, { RundownViewEvents } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
 import { TimingDataResolution, TimingTickResolution, useTiming } from '../../RundownView/RundownTiming/withTiming.js'
 import { SegmentTimelinePartClass } from '../Parts/SegmentTimelinePart.js'
-import { PartExtended } from '../../../lib/RundownResolver.js'
 import { getPartInstanceTimingId } from '../../../lib/rundownTiming.js'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import { PartExtended } from '@sofie-automation/corelib/src/dataModel/Part.js'
 
 interface ISegmentTimelineSmallPartFlagProps {
 	parts: [PartUi, number, number][]

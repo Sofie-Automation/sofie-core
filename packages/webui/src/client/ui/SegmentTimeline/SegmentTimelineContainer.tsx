@@ -7,7 +7,6 @@ import {
 	TimingEvent,
 } from '../RundownView/RundownTiming/RundownTiming.js'
 import { UIStateStorage } from '../../lib/UIStateStorage.js'
-import { PartExtended } from '../../lib/RundownResolver.js'
 import { SpeechSynthesiser } from '../../lib/speechSynthesis.js'
 import { getElementWidth } from '../../utils/dimensions.js'
 import { isMaintainingFocus, scrollToSegment, getHeaderHeight } from '../../lib/viewPort.js'
@@ -43,6 +42,7 @@ import {
 } from './Constants.js'
 import { UIPartInstances, UIParts } from '../Collections.js'
 import { RundownTimingProviderContext } from '../RundownView/RundownTiming/withTiming.js'
+import { PartExtended } from '@sofie-automation/corelib/src/dataModel/Part.js'
 
 // Kept for backwards compatibility
 export type { SegmentUi, PartUi, ISourceLayerUi, IOutputLayerUi } from '../SegmentContainer/withResolvedSegment.js'

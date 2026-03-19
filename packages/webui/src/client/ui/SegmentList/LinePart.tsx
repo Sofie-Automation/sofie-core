@@ -2,7 +2,6 @@ import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import classNames from 'classnames'
 import React, { useCallback, useState } from 'react'
-import { PartExtended } from '../../lib/RundownResolver.js'
 import { contextMenuHoldToDisplayTime } from '../../lib/lib.js'
 import { RundownUtils } from '../../lib/rundown.js'
 import { getElementDocumentOffset } from '../../utils/positions.js'
@@ -19,6 +18,7 @@ import { RundownTimingContext, getPartInstanceTimingId } from '../../lib/rundown
 import { LoopingIcon } from '../../lib/ui/icons/looping.js'
 import { ISourceLayerExtended } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import { PartExtended } from '@sofie-automation/corelib/src/dataModel/Part.js'
 
 interface IProps {
 	segment: SegmentUi

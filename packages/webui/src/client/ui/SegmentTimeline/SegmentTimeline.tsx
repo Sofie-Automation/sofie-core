@@ -25,7 +25,7 @@ import { Settings } from '../../lib/Settings.js'
 import { IContextMenuContext } from '../RundownView.js'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString, unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
-import { isPartPlayable } from '@sofie-automation/corelib/dist/dataModel/Part'
+import { isPartPlayable, PartExtended } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { contextMenuHoldToDisplayTime } from '../../lib/lib.js'
 import { WarningIconSmall, CriticalIconSmall } from '../../lib/ui/icons/notifications.js'
 import RundownViewEventBus, {
@@ -44,7 +44,6 @@ import { SwitchViewModeButton } from '../SegmentContainer/SwitchViewModeButton.j
 import { PartId, PartInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { RundownHoldState } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { SegmentNoteCounts } from '../SegmentContainer/withResolvedSegment.js'
-import { PartExtended } from '../../lib/RundownResolver.js'
 import {
 	withTiming,
 	TimingTickResolution,

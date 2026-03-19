@@ -1,4 +1,4 @@
-import { Piece, PieceExtended } from '@sofie-automation/corelib/dist/dataModel/Piece'
+import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { DBSegment, SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { wrapPartToTemporaryInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
@@ -26,16 +26,6 @@ import {
 import { RundownPlaylistClientUtil } from './rundownPlaylistUtil.js'
 import { PieceInstances, Pieces } from '../collections/index.js'
 import { PartInstance, PartInstanceLimited } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
-
-export interface PartExtended {
-	partId: PartId
-	instance: PartInstanceLimited
-	/** Pieces belonging to this part */
-	pieces: Array<PieceExtended>
-	renderedDuration: number
-	startsAt: number
-	willProbablyAutoNext: boolean
-}
 
 function fetchPiecesThatMayBeActiveForPart(
 	part: DBPart,
