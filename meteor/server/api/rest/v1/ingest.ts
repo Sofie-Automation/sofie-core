@@ -457,43 +457,60 @@ class IngestServerAPI implements IngestRestAPI {
 		_event: string,
 		studioId: StudioId,
 		playlistId: string | undefined,
-		ingestRundown: RestApiIngestRundown
+		rawIngestRundown: RestApiIngestRundown
 	): Promise<ClientAPI.ClientResponse<void>> {
 		check(studioId, String)
 		if (playlistId !== undefined) check(playlistId, String)
-		check(ingestRundown, Object)
+		check(rawIngestRundown, Object)
 
 		const studio = await this.findStudio(studioId)
 
-		this.validateRundown(ingestRundown)
-		await this.validateAPIPayloadsForRundown(studio.blueprintId, ingestRundown)
+		this.validateRundown(rawIngestRundown)
+		await this.validateAPIPayloadsForRundown(studio.blueprintId, rawIngestRundown)
 
 		// IMPORTANT: Do not scope rundown existence checks by playlistId.
 		// Rundowns are unique per studio, not per playlist.
 		const existingRundown = await Rundowns.findOneAsync({
 			$or: [
 				{
-					_id: protectString<RundownId>(ingestRundown.externalId),
+					_id: protectString<RundownId>(rawIngestRundown.externalId),
 					studioId: studio._id,
 				},
 				{
-					externalId: ingestRundown.externalId,
+					externalId: rawIngestRundown.externalId,
 					studioId: studio._id,
 				},
 			],
 		})
 		if (existingRundown) {
-			throw new Meteor.Error(400, `Rundown '${ingestRundown.externalId}' already exists`)
+			throw new Meteor.Error(400, `Rundown '${rawIngestRundown.externalId}' already exists`)
 		}
 
+		// We look up the playlist to look up the existing playlistExternalId
+		// to make sure we don't treat the internal playlistId as a playlistExternalId.
+		const playlist =
+			playlistId !== undefined
+				? await RundownPlaylists.findOneAsync({
+						$or: [
+							{ _id: protectString<RundownPlaylistId>(playlistId), studioId: studio._id },
+							{ externalId: playlistId, studioId: studio._id },
+						],
+					})
+				: undefined
+
+		const ingestRundown =
+			// If we don't have a playlist Id, then we don't override the playlistExternalId property of the rundown.
+			playlistId === undefined
+				? rawIngestRundown
+				: { ...rawIngestRundown, playlistExternalId: playlist?.externalId ?? playlistId } // We override if the endpoint specified the playlist.
+
 		await runIngestOperation(studio._id, IngestJobs.UpdateRundown, {
-			rundownExternalId: ingestRundown.externalId,
-			ingestRundown:
-				playlistId !== undefined ? { ...ingestRundown, playlistExternalId: playlistId } : ingestRundown,
+			rundownExternalId: rawIngestRundown.externalId,
+			ingestRundown,
 			isCreateAction: true,
 			rundownSource: {
 				type: 'restApi',
-				resyncUrl: ingestRundown.resyncUrl,
+				resyncUrl: rawIngestRundown.resyncUrl,
 			},
 		})
 
