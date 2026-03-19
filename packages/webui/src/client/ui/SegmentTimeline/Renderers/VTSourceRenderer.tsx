@@ -14,13 +14,13 @@ import { RundownUtils } from '../../../lib/rundown.js'
 import { FreezeFrameIcon } from '../../../lib/ui/icons/freezeFrame.js'
 import StudioContext from '../../RundownView/StudioContext.js'
 import { Settings } from '../../../lib/Settings.js'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { PieceStatusCode } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { HourglassIconSmall } from '../../../lib/ui/icons/notifications.js'
 import { logger } from '../../../lib/logging.js'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { ReadonlyDeep } from 'type-fest'
 import { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
+import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 
 interface IProps extends ICustomLayerItemProps {
 	studio: UIStudio | undefined

@@ -1,7 +1,6 @@
 import React from 'react'
 import { ISourceLayer, SourceLayerType } from '@sofie-automation/blueprints-integration'
 import { PartId, PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { assertNever } from '@sofie-automation/corelib/dist/lib'
 import { OffsetPosition } from '../../../../utils/positions.js'
 import { PieceUi } from '../../../SegmentContainer/withResolvedSegment.js'
@@ -11,6 +10,7 @@ import { GraphicsThumbnailRenderer } from './GraphicsThumbnailRenderer.js'
 import { LocalThumbnailRenderer } from './LocalThumbnailRenderer.js'
 import { SplitsThumbnailRenderer } from './SplitsThumbnailRenderer.js'
 import { VTThumbnailRenderer } from './VTThumbnailRenderer.js'
+import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 
 export interface IProps {
 	partId: PartId

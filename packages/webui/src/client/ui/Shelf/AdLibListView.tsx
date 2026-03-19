@@ -12,8 +12,8 @@ import { BucketAdLibActionUi, BucketAdLibUi } from './RundownViewBuckets.js'
 import { PieceUi } from '../SegmentContainer/withResolvedSegment.js'
 import { IBlueprintActionTriggerMode } from '@sofie-automation/blueprints-integration'
 import { getRandomString } from '@sofie-automation/corelib/dist/lib'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { SourceLayers, UIShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase.js'
+import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 
 interface IListViewPropsHeader {
 	uiSegments: Array<AdlibSegmentUi>

@@ -26,7 +26,6 @@ import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/Sho
 import { BucketAdLibItem } from '../../Shelf/RundownViewBuckets'
 import { IAdLibListItem } from '../../Shelf/AdLibListItem'
 import { ShelfDashboardLayout } from '../../Shelf/ShelfDashboardLayout'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { UserPermissionsContext } from '../../UserPermissions'
 import * as RundownResolver from '../../../lib/RundownResolver'
@@ -35,6 +34,7 @@ import { WarningDisplay } from '../WarningDisplay'
 import { TimingDisplay } from './TimingDisplay'
 import { checkRundownTimes, useRundownPlaylistOperations } from './useRundownPlaylistOperations'
 import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase'
+import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio'
 
 interface IRundownHeaderProps {
 	playlist: DBRundownPlaylist

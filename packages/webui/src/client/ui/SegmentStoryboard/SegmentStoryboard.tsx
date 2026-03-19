@@ -41,12 +41,12 @@ import { motion } from 'motion/react'
 import { SegmentViewMode } from '../SegmentContainer/SegmentViewModes.js'
 import { ErrorBoundary } from '../../lib/ErrorBoundary.js'
 import { SwitchViewModeButton } from '../SegmentContainer/SwitchViewModeButton.js'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { PartId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { RundownHoldState } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { SegmentTimeAnchorTime } from '../RundownView/RundownTiming/SegmentTimeAnchorTime.js'
 import * as RundownResolver from '../../lib/RundownResolver.js'
 import { logger } from '../../lib/logging.js'
+import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 
 interface IProps {
 	id: string

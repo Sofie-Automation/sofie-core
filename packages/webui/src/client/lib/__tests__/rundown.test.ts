@@ -17,7 +17,7 @@ import { PartInstances, PieceInstances, Pieces, RundownPlaylists } from '../../c
 import { MongoMock } from '../../../__mocks__/mongo.js'
 import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil.js'
 import { RundownPlaylistClientUtil } from '../rundownPlaylistUtil.js'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
+import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 
 const mockRundownPlaylistsCollection = MongoMock.getInnerMockCollection(RundownPlaylists)
 const mockPartInstancesCollection = MongoMock.getInnerMockCollection(PartInstances)

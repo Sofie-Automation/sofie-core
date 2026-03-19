@@ -38,7 +38,6 @@ import { parse as queryStringParse } from 'query-string'
 import { calculatePartInstanceExpectedDurationWithTransition } from '@sofie-automation/corelib/dist/playout/timings'
 import { getPlaylistTimingDiff, RundownTimingContext } from '../../lib/rundownTiming.js'
 import { UIShowStyleBases, UIStudios } from '../Collections.js'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import {
 	PieceInstances,
 	RundownLayouts,
@@ -53,6 +52,7 @@ import { useRundownAndShowStyleIdsForPlaylist } from '../util/useRundownAndShowS
 import { RundownPlaylistClientUtil } from '../../lib/rundownPlaylistUtil.js'
 import { CurrentPartOrSegmentRemaining } from '../RundownView/RundownTiming/CurrentPartOrSegmentRemaining.js'
 import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 
 interface SegmentUi extends DBSegment {
 	items: Array<PartUi>

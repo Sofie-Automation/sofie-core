@@ -10,7 +10,7 @@ import { Prompt } from 'react-router-dom'
 import { DBRundownPlaylist, QuickLoopMarker } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { DBRundown, Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { DBSegment, SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { StudioRouteSet } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import { StudioRouteSet, UIStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { SegmentTimelineContainer, PieceUi, PartUi, SegmentUi } from './SegmentTimeline/SegmentTimelineContainer.js'
 import { SegmentContextMenu } from './SegmentTimeline/SegmentContextMenu.js'
@@ -75,7 +75,6 @@ import { SegmentListContainer } from './SegmentList/SegmentListContainer.js'
 import { getNextMode as getNextSegmentViewMode } from './SegmentContainer/SwitchViewModeButton.js'
 import { IResolvedSegmentProps } from './SegmentContainer/withResolvedSegment.js'
 import { UIParts, UIShowStyleBases, UIStudios } from './Collections.js'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import {
 	RundownId,
 	RundownLayoutId,

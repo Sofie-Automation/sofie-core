@@ -22,8 +22,8 @@ import { PartId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataMo
 import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil.js'
 import { RundownPlaylistClientUtil } from '../../lib/rundownPlaylistUtil.js'
 import { useTranslation } from 'react-i18next'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 
 interface ISegmentTimingPanelProps {
 	visible?: boolean

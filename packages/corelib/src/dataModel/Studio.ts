@@ -94,6 +94,26 @@ export interface DBStudio {
 	lastBlueprintFixUpHash: BlueprintHash | undefined
 }
 
+/**
+ * A minimal version of DBStudio, intended for the playout portions of the UI.
+ * Note: The settings ui uses the raw types
+ * This intentionally does not extend Studio, so that we have fine-grained control over the properties exposed
+ */
+export interface UIStudio {
+	_id: StudioId
+
+	/** User-presentable name for the studio installation */
+	name: string
+
+	/** Mappings between the physical devices / outputs and logical ones */
+	mappings: MappingsExt
+
+	settings: IStudioSettings
+
+	routeSets: Record<string, StudioRouteSet>
+	routeSetExclusivityGroups: Record<string, StudioRouteSetExclusivityGroup>
+}
+
 export interface StudioPeripheralDeviceSettings {
 	/** Settings for gateway parent-devices */
 	deviceSettings: ObjectWithOverrides<Record<string, StudioDeviceSettings>>

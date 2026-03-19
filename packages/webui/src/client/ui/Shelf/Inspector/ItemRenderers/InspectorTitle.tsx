@@ -6,8 +6,8 @@ import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { useContentStatusForItem } from '../../../SegmentTimeline/withMediaObjectStatus.js'
 import { IAdLibListItem } from '../../AdLibListItem.js'
 import { AdLibPieceUi } from '../../../../lib/shelf.js'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 
 interface IProps {
 	piece: PieceUi | IAdLibListItem | BucketAdLibUi | BucketAdLibActionUi

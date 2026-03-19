@@ -26,12 +26,12 @@ import {
 	isAdLibNext,
 	isAdLibOnAir,
 } from '../../lib/shelf.js'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { UIStudios } from '../Collections.js'
 import { PieceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil.js'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { useTranslation } from 'react-i18next'
+import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 
 export interface IDashboardPanelState {
 	searchFilter: string | undefined

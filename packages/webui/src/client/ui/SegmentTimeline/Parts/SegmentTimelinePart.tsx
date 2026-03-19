@@ -37,10 +37,10 @@ import {
 import { OutputGroup } from './OutputGroup.js'
 import { InvalidPartCover } from './InvalidPartCover.js'
 import { DefaultUserOperationsTypes, ISourceLayer, UserEditingType } from '@sofie-automation/blueprints-integration'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { LIVE_LINE_TIME_PADDING } from '../Constants.js'
 import * as RundownResolver from '../../../lib/RundownResolver.js'
 import { Events as MOSEvents } from '../../../lib/data/mos/plugin-support.js'
+import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 
 export const SegmentTimelineLineElementId = 'rundown__segment__line__'
 export const SegmentTimelinePartElementId = 'rundown__segment__part__'

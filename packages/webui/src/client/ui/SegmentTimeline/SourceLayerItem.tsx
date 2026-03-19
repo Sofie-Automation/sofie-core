@@ -21,7 +21,6 @@ import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protected
 import { RundownViewEvents, HighlightEvent } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
 import { pieceUiClassNames } from '../../lib/ui/pieceUiClassNames.js'
 import { TransitionSourceRenderer } from './Renderers/TransitionSourceRenderer.js'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { ReadonlyDeep } from 'type-fest'
 import { useSelectedElementsContext } from '../RundownView/SelectedElementsContext.js'
 import { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
@@ -33,6 +32,7 @@ import {
 	PreviewPopUpContext,
 } from '../PreviewPopUp/PreviewPopUpContext.js'
 import { useRundownViewEventBusListener } from '../../lib/lib.js'
+import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 const LEFT_RIGHT_ANCHOR_SPACER = 15
 const MARGINAL_ANCHORED_WIDTH = 5
 

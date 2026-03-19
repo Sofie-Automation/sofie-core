@@ -51,7 +51,6 @@ import { getShelfFollowsOnAir } from '../../lib/localStorage.js'
 import { sortAdlibs } from '@sofie-automation/meteor-lib/dist/adlibs'
 import { AdLibPanelToolbar } from './AdLibPanelToolbar.js'
 import { AdLibListView } from './AdLibListView.js'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { UIPartInstances, UIStudios } from '../Collections.js'
 import { PartId, PartInstanceId, RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import {
@@ -62,6 +61,7 @@ import {
 } from '../../collections/index.js'
 import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil.js'
 import { RundownPlaylistClientUtil } from '../../lib/rundownPlaylistUtil.js'
+import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 
 export interface IAdLibPanelProps {
 	// liveSegment: Segment | undefined

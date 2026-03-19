@@ -5,7 +5,6 @@ import { getElementDocumentOffset, OffsetPosition } from '../../../utils/positio
 import { getElementHeight, getElementWidth } from '../../../utils/dimensions.js'
 import { ThumbnailRenderer } from './Renderers/ThumbnailRendererFactory.js'
 import { PieceElement } from '../../SegmentContainer/PieceElement.js'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { PartId, PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { useContentStatusForPieceInstance } from '../../SegmentTimeline/withMediaObjectStatus.js'
 import {
@@ -13,6 +12,7 @@ import {
 	IPreviewPopUpSession,
 	PreviewPopUpContext,
 } from '../../PreviewPopUp/PreviewPopUpContext.js'
+import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 
 interface IProps {
 	partId: PartId
