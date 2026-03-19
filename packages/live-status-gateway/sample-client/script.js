@@ -255,6 +255,9 @@ function updateTTimers(tTimers) {
 		let currentTime
 		if (timer.state.paused) {
 			currentTime = timer.state.duration
+		} else if (timer.state.pauseTime && now >= timer.state.pauseTime) {
+			// Timer has reached its pauseTime - freeze at that moment
+			currentTime = timer.state.zeroTime - timer.state.pauseTime
 		} else {
 			currentTime = timer.state.zeroTime - now
 		}
@@ -267,6 +270,9 @@ function updateTTimers(tTimers) {
 			let projectedTime
 			if (timer.projected.paused) {
 				projectedTime = timer.projected.duration
+			} else if (timer.projected.pauseTime && now >= timer.projected.pauseTime) {
+				// Projected timer has reached its pauseTime - freeze at that moment
+				projectedTime = timer.projected.zeroTime - timer.projected.pauseTime
 			} else {
 				projectedTime = timer.projected.zeroTime - now
 			}
