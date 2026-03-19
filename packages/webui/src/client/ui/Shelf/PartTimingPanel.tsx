@@ -11,10 +11,10 @@ import { getAllowSpeaking, getAllowVibrating } from '../../lib/localStorage.js'
 import { CurrentPartOrSegmentRemaining } from '../RundownView/RundownTiming/CurrentPartOrSegmentRemaining.js'
 import { CurrentPartElapsed } from '../RundownView/RundownTiming/CurrentPartElapsed.js'
 import { getIsFilterActive } from '../../lib/rundownLayouts.js'
-import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { RundownPlaylistClientUtil } from '../../lib/rundownPlaylistUtil.js'
 import { useTranslation } from 'react-i18next'
 import { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 
 interface IPartTimingPanelProps {
 	layout: RundownLayoutBase

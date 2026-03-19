@@ -28,13 +28,13 @@ import { IAdLibListItem } from '../../Shelf/AdLibListItem'
 import { ShelfDashboardLayout } from '../../Shelf/ShelfDashboardLayout'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { UserPermissionsContext } from '../../UserPermissions'
 import * as RundownResolver from '../../../lib/RundownResolver'
 import Navbar from 'react-bootstrap/Navbar'
 import { WarningDisplay } from '../WarningDisplay'
 import { TimingDisplay } from './TimingDisplay'
 import { checkRundownTimes, useRundownPlaylistOperations } from './useRundownPlaylistOperations'
+import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase'
 
 interface IRundownHeaderProps {
 	playlist: DBRundownPlaylist

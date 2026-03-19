@@ -8,7 +8,6 @@ import {
 	createPartCurrentTimes,
 	processAndPrunePieceInstanceTimings,
 } from '@sofie-automation/corelib/dist/playout/processAndPrune'
-import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import {
 	CustomizableRegions,
@@ -58,6 +57,7 @@ import { ReadonlyDeep } from 'type-fest'
 import { TFunction } from 'i18next'
 import _ from 'underscore'
 import { UIPartInstances } from '../ui/Collections.js'
+import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 
 export interface LayoutDescriptor {
 	supportedFilters: RundownLayoutElementType[]

@@ -18,12 +18,12 @@ import { PartInstance } from '@sofie-automation/meteor-lib/dist/collections/Part
 import { dashboardElementStyle } from './DashboardPanel.js'
 import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
 import { getIsFilterActive } from '../../lib/rundownLayouts.js'
-import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { PartId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil.js'
 import { RundownPlaylistClientUtil } from '../../lib/rundownPlaylistUtil.js'
 import { useTranslation } from 'react-i18next'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
+import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 
 interface ISegmentTimingPanelProps {
 	visible?: boolean

@@ -19,11 +19,11 @@ import RundownViewEventBus, { RundownViewEvents } from '@sofie-automation/meteor
 import { IAdLibListItem } from '../../AdLibListItem.js'
 import { translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { AdLibPieceUi } from '../../../../lib/shelf.js'
-import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { BucketId, PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { Buckets } from '../../../../collections/index.js'
 import { BucketAdLibAction } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibAction'
+import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 
 export { isActionItem }
 

@@ -11,7 +11,7 @@ import { IAdLibListItem } from './AdLibListItem.js'
 import ClassNames from 'classnames'
 
 import { Spinner } from '../../lib/Spinner.js'
-import { OutputLayers, SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
+import { OutputLayers, SourceLayers, UIShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import {
 	ISourceLayer,
 	PieceLifespan,
@@ -51,7 +51,6 @@ import { getShelfFollowsOnAir } from '../../lib/localStorage.js'
 import { sortAdlibs } from '@sofie-automation/meteor-lib/dist/adlibs'
 import { AdLibPanelToolbar } from './AdLibPanelToolbar.js'
 import { AdLibListView } from './AdLibListView.js'
-import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { UIPartInstances, UIStudios } from '../Collections.js'
 import { PartId, PartInstanceId, RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'

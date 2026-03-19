@@ -13,8 +13,8 @@ import { PieceUi } from '../SegmentTimeline/SegmentTimelineContainer.js'
 import { useTranslation } from 'react-i18next'
 import { BucketAdLibItem } from './RundownViewBuckets.js'
 import { IAdLibListItem } from './AdLibListItem.js'
-import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
+import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 
 export interface IShelfRundownLayoutProps {
 	rundownLayout: RundownLayout | undefined

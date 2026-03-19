@@ -8,12 +8,12 @@ import {
 	processAndPrunePieceInstanceTimings,
 } from '@sofie-automation/corelib/dist/playout/processAndPrune'
 import { getUnfinishedPieceInstancesReactive } from './rundownLayouts.js'
-import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { PieceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PieceInstances } from '../collections/index.js'
 import { ReadonlyDeep } from 'type-fest'
 import { AdLibPieceUi } from '@sofie-automation/meteor-lib/dist/uiTypes/Adlib'
 import { getCurrentTimeReactive } from './currentTimeReactive'
+import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 
 export type { AdLibPieceUi } from '@sofie-automation/meteor-lib/dist/uiTypes/Adlib'
 

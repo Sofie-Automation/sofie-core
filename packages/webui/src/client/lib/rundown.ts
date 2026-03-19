@@ -41,7 +41,6 @@ import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { IStudioSettings } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { calculatePartInstanceExpectedDurationWithTransition } from '@sofie-automation/corelib/dist/playout/timings'
 import { AdLibPieceUi } from './shelf.js'
-import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { PartId, PieceId, RundownId, SegmentId, ShowStyleBaseId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PieceInstances, Segments } from '../collections/index.js'
 import { PieceStatusCode } from '@sofie-automation/corelib/dist/dataModel/Piece'
@@ -50,6 +49,7 @@ import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { RundownPlaylistClientUtil } from './rundownPlaylistUtil.js'
+import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 
 /**
  * Returns a human-readable, translatable string for a given SourceLayerType.

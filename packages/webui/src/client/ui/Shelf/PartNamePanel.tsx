@@ -11,10 +11,10 @@ import { useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import { findPieceInstanceToShowFromInstances, IFoundPieceInstance } from '../PieceIcons/utils.js'
 import { pieceIconSupportedLayers } from '../PieceIcons/PieceIcon.js'
 import { RundownUtils } from '../../lib/rundown.js'
-import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { PieceInstances } from '../../collections/index.js'
 import { RundownPlaylistClientUtil } from '../../lib/rundownPlaylistUtil.js'
 import { useTranslation } from 'react-i18next'
+import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 
 interface IPartNamePanelProps {
 	layout: RundownLayoutBase
