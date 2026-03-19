@@ -15,6 +15,13 @@ $defs:
           For countdown timers, this is when time runs out.
           For free-run timers, this is when the timer started.
           Client calculates current value relative to this timestamp.
+      pauseTime:
+        description: >-
+          Optional timestamp when the timer should automatically pause
+          (e.g., when current part ends and overrun begins).
+        oneOf:
+          - type: number
+          - type: 'null'
     required: [paused, zeroTime]
     additionalProperties: false
 
@@ -33,6 +40,13 @@ $defs:
           Frozen duration value in milliseconds.
           For countdown timers, this is remaining time.
           For free-run timers, this is elapsed time.
+      pauseTime:
+        description: >-
+          Optional timestamp when the timer should pause.
+          Typically null when already paused.
+        oneOf:
+          - type: number
+          - type: 'null'
     required: [paused, duration]
     additionalProperties: false
 

@@ -505,6 +505,14 @@ interface TTimerStatus {
 	 * Current runtime state of the timer. Null if not configured.
 	 */
 	state: TimerStateRunning | TimerStatePaused | null
+	/**
+	 * Projected timing for when we expect to reach an anchor part. Used to calculate over/under diff. Has the same structure as state. Running means progressing towards anchor, paused means pushing/delaying anchor.
+	 */
+	projected?: TimerStateRunning | TimerStatePaused | null
+	/**
+	 * The ID of the target Part that this timer is counting towards (the "timing anchor"). Optional - null if no anchor is set.
+	 */
+	anchorPartId?: string | null
 }
 
 /**
@@ -565,6 +573,10 @@ interface TimerStateRunning {
 	 * Unix timestamp (ms) when the timer reaches/reached zero. For countdown timers, this is when time runs out. For free-run timers, this is when the timer started. Client calculates current value relative to this timestamp.
 	 */
 	zeroTime: number
+	/**
+	 * Optional timestamp when the timer should automatically pause (e.g., when current part ends and overrun begins).
+	 */
+	pauseTime?: number | null
 }
 
 /**
@@ -579,6 +591,10 @@ interface TimerStatePaused {
 	 * Frozen duration value in milliseconds. For countdown timers, this is remaining time. For free-run timers, this is elapsed time.
 	 */
 	duration: number
+	/**
+	 * Optional timestamp when the timer should pause. Typically null when already paused.
+	 */
+	pauseTime?: number | null
 }
 
 interface ActivePiecesEvent {

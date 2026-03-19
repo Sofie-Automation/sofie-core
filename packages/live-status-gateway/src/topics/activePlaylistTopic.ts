@@ -33,13 +33,20 @@ import {
 	QuickLoopMarkerType as QuickLoopMarkerStatusType,
 	TTimerStatus,
 	TTimerIndex,
-	TimerMode,
-	TimerState,
+	TimerModeCountdown,
+	TimerModeFreeRun,
+	TimerModeTimeOfDay,
+	TimerStateRunning,
+	TimerStatePaused,
 } from '@sofie-automation/live-status-gateway-api'
 
 import { CollectionHandlers } from '../liveStatusServer.js'
 import areElementsShallowEqual from '@sofie-automation/shared-lib/dist/lib/isShallowEqual'
 import { Complete, PickKeys } from '@sofie-automation/shared-lib/dist/lib/types'
+
+// Union types for timer modes and states (not exported from API package)
+type TimerMode = TimerModeCountdown | TimerModeFreeRun | TimerModeTimeOfDay
+type TimerState = TimerStateRunning | TimerStatePaused
 
 const THROTTLE_PERIOD_MS = 100
 
@@ -263,9 +270,33 @@ export class ActivePlaylistTopic extends WebSocketTopicBase implements WebSocket
 		// Always return exactly 3 timers
 		if (!tTimers || tTimers.length === 0) {
 			return [
-				{ index: 1 as TTimerIndex, label: '', configured: false, mode: null, state: null },
-				{ index: 2 as TTimerIndex, label: '', configured: false, mode: null, state: null },
-				{ index: 3 as TTimerIndex, label: '', configured: false, mode: null, state: null },
+				{
+					index: 1 as TTimerIndex,
+					label: '',
+					configured: false,
+					mode: null,
+					state: null,
+					projected: null,
+					anchorPartId: null,
+				},
+				{
+					index: 2 as TTimerIndex,
+					label: '',
+					configured: false,
+					mode: null,
+					state: null,
+					projected: null,
+					anchorPartId: null,
+				},
+				{
+					index: 3 as TTimerIndex,
+					label: '',
+					configured: false,
+					mode: null,
+					state: null,
+					projected: null,
+					anchorPartId: null,
+				},
 			]
 		}
 
@@ -282,6 +313,8 @@ export class ActivePlaylistTopic extends WebSocketTopicBase implements WebSocket
 				configured: false,
 				mode: null,
 				state: null,
+				projected: null,
+				anchorPartId: null,
 			}
 		}
 
@@ -291,12 +324,20 @@ export class ActivePlaylistTopic extends WebSocketTopicBase implements WebSocket
 		// Transform state - directly pass through
 		const state: TimerState = timer.state as TimerState
 
+		// Transform projected state - directly pass through
+		const projected: TimerState | null = timer.projectedState ? (timer.projectedState as TimerState) : null
+
+		// Transform anchorPartId
+		const anchorPartId = timer.anchorPartId ? unprotectString(timer.anchorPartId) : null
+
 		return {
 			index,
 			label: timer.label,
 			configured: true,
 			mode,
 			state,
+			projected,
+			anchorPartId,
 		}
 	}
 

@@ -26,5 +26,20 @@ $defs:
         oneOf:
           - type: 'null'
           - $ref: './timerState.yaml#/$defs/timerState'
+      projected:
+        description: >-
+          Projected timing for when we expect to reach an anchor part.
+          Used to calculate over/under diff. Has the same structure as state.
+          Running means progressing towards anchor, paused means pushing/delaying anchor.
+        oneOf:
+          - type: 'null'
+          - $ref: './timerState.yaml#/$defs/timerState'
+      anchorPartId:
+        description: >-
+          The ID of the target Part that this timer is counting towards (the "timing anchor").
+          Optional - null if no anchor is set.
+        oneOf:
+          - type: string
+          - type: 'null'
     required: [index, label, configured, mode, state]
     additionalProperties: false
