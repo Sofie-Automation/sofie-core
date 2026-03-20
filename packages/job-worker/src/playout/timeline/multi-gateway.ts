@@ -8,6 +8,7 @@ import { PlayoutModel } from '../model/PlayoutModel.js'
 import { RundownTimelineTimingContext, getInfinitePartGroupId } from './rundown.js'
 import { PlayoutPartInstanceModel } from '../model/PlayoutPartInstanceModel.js'
 import { PlayoutPieceInstanceModel } from '../model/PlayoutPieceInstanceModel.js'
+import { getPieceControlObjectId } from '@sofie-automation/corelib/dist/playout/ids'
 
 /**
  * We want it to be possible to generate a timeline without it containing any `start: 'now'`.
@@ -297,7 +298,7 @@ function setPlannedTimingsOnPieceInstance(
 
 		const userDurationEnd =
 			pieceInstance.pieceInstance.userDuration && 'endRelativeToPart' in pieceInstance.pieceInstance.userDuration
-				? pieceInstance.pieceInstance.userDuration.endRelativeToPart
+				? partPlannedStart + pieceInstance.pieceInstance.userDuration.endRelativeToPart
 				: null
 
 		let plannedEnd: number | undefined = userDurationEnd ?? undefined
@@ -334,6 +335,19 @@ function preserveOrTrackInfiniteTimings(
 	// Update the timeline group
 	const startedPlayback = plannedStartedPlayback ?? pieceInstance.pieceInstance.plannedStartedPlayback
 	if (startedPlayback) {
+		const pieceControlObjectId = getPieceControlObjectId(pieceInstance.pieceInstance)
+		const pieceControlObj = timelineObjsMap[pieceControlObjectId]
+
+		// this replicates what generateCurrentInfinitePieceObjects() does
+		let pieceEnableStartOffset = 0
+		if (
+			pieceControlObj &&
+			!Array.isArray(pieceControlObj.enable) &&
+			typeof pieceControlObj.enable?.start === 'number'
+		) {
+			pieceEnableStartOffset = pieceControlObj.enable.start
+		}
+
 		const infinitePartGroupId = getInfinitePartGroupId(pieceInstance.pieceInstance._id)
 		const infinitePartGroupObj = timelineObjsMap[infinitePartGroupId]
 		if (
@@ -341,7 +355,7 @@ function preserveOrTrackInfiniteTimings(
 			!Array.isArray(infinitePartGroupObj.enable) &&
 			typeof infinitePartGroupObj.enable.start === 'string'
 		) {
-			infinitePartGroupObj.enable.start = startedPlayback
+			infinitePartGroupObj.enable.start = startedPlayback - pieceEnableStartOffset
 		}
 	}
 }
