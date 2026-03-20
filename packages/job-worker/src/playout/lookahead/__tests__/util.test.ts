@@ -9,10 +9,10 @@ import { MockJobContext, setupDefaultJobEnvironment } from '../../../__mocks__/c
 import { runJobWithPlayoutModel } from '../../../playout/lock.js'
 import { defaultRundownPlaylist } from '../../../__mocks__/defaultCollectionObjects.js'
 import _ from 'underscore'
-import { wrapPartToTemporaryInstance } from '../../../__mocks__/partinstance.js'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { QuickLoopMarkerType } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { ForceQuickLoopAutoNext } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
+import { wrapPartToTemporaryInstance } from '@sofie-automation/corelib/dist/playout/stateCacheResolver'
 
 describe('getOrderedPartsAfterPlayhead', () => {
 	let context!: MockJobContext
