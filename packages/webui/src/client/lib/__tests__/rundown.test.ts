@@ -2,7 +2,6 @@ import {
 	setupDefaultStudioEnvironment,
 	DefaultEnvironment,
 	setupDefaultRundownPlaylist,
-	convertToUIShowStyleBase,
 	convertToUIStudio,
 } from '../../../__mocks__/helpers/database.js'
 import { RundownUtils } from '../rundown.js'
@@ -18,6 +17,7 @@ import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylist
 import { RundownPlaylistClientUtil } from '../rundownPlaylistUtil.js'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
+import { convertToUIShowStyleBase } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
 
 const mockRundownPlaylistsCollection = MongoMock.getInnerMockCollection(RundownPlaylists)
 const mockPartInstancesCollection = MongoMock.getInnerMockCollection(PartInstances)
