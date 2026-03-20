@@ -187,6 +187,14 @@ function formatMillisecondsToTime(milliseconds) {
 	return `${isNegative ? '+' : ''}${formattedHours}:${formattedMinutes}:${formattedSeconds}`
 }
 
+function formatTimestampToTimeOfDay(timestamp) {
+	const date = new Date(timestamp)
+	const hours = String(date.getHours()).padStart(2, '0')
+	const minutes = String(date.getMinutes()).padStart(2, '0')
+	const seconds = String(date.getSeconds()).padStart(2, '0')
+	return `${hours}:${minutes}:${seconds}`
+}
+
 function handleTTimers(tTimers) {
 	const tTimersDiv = document.getElementById(T_TIMERS_DIV_ID)
 	if (!tTimersDiv || !tTimers) return
@@ -255,33 +263,42 @@ function updateTTimers(tTimers) {
 		let currentTime
 		if (timer.state.paused) {
 			currentTime = timer.state.duration
+			valueSpan.textContent = formatMillisecondsToTime(currentTime) + ' (paused)'
 		} else if (timer.state.pauseTime && now >= timer.state.pauseTime) {
 			// Timer has reached its pauseTime - freeze at that moment
 			currentTime = timer.state.zeroTime - timer.state.pauseTime
+			valueSpan.textContent =
+				formatMillisecondsToTime(currentTime) +
+				` (pauseTime: ${formatTimestampToTimeOfDay(timer.state.pauseTime)})`
 		} else {
 			currentTime = timer.state.zeroTime - now
+			valueSpan.textContent =
+				formatMillisecondsToTime(currentTime) +
+				` (zeroTime: ${formatTimestampToTimeOfDay(timer.state.zeroTime)})`
 		}
-
-		valueSpan.textContent = formatMillisecondsToTime(currentTime)
 
 		// Update projected time if available
 		const projectedLi = document.getElementById(`t-timer-projected-${timer.index}`)
 		if (projectedLi && timer.projected) {
 			let projectedTime
+			let projectedInfo = ''
 			if (timer.projected.paused) {
 				projectedTime = timer.projected.duration
+				projectedInfo = ' (paused)'
 			} else if (timer.projected.pauseTime && now >= timer.projected.pauseTime) {
 				// Projected timer has reached its pauseTime - freeze at that moment
 				projectedTime = timer.projected.zeroTime - timer.projected.pauseTime
+				projectedInfo = ` (pauseTime: ${formatTimestampToTimeOfDay(timer.projected.pauseTime)})`
 			} else {
 				projectedTime = timer.projected.zeroTime - now
+				projectedInfo = ` (zeroTime: ${formatTimestampToTimeOfDay(timer.projected.zeroTime)})`
 			}
 
 			const diff = currentTime - projectedTime
 			const diffStr = formatMillisecondsToTime(Math.abs(diff))
 			const status = diff > 0 ? 'under' : 'over'
 
-			projectedLi.textContent = `Projected: ${formatMillisecondsToTime(projectedTime)} (${diffStr} ${status})`
+			projectedLi.textContent = `Projected: ${formatMillisecondsToTime(projectedTime)}${projectedInfo} (${diffStr} ${status})`
 		}
 	})
 }
