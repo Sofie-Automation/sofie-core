@@ -10,9 +10,9 @@ import { Prompt } from 'react-router-dom'
 import { DBRundownPlaylist, QuickLoopMarker } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { DBRundown, Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { DBSegment, SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { StudioRouteSet } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import { StudioRouteSet, UIStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { SegmentTimelineContainer, PieceUi, PartUi, SegmentUi } from './SegmentTimeline/SegmentTimelineContainer.js'
+import { SegmentTimelineContainer, PartUi, SegmentUi } from './SegmentTimeline/SegmentTimelineContainer.js'
 import { SegmentContextMenu } from './SegmentTimeline/SegmentContextMenu.js'
 import { Shelf, ShelfTabs } from './Shelf/Shelf.js'
 import { unprotectString, protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
@@ -59,7 +59,6 @@ import { MeteorCall } from '../lib/meteorApi.js'
 import { Settings } from '../lib/Settings.js'
 import { PointerLockCursor } from '../lib/PointerLockCursor.js'
 import { documentTitle } from '../lib/DocumentTitleProvider.js'
-import { PartInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import { RundownDividerHeader } from './RundownView/RundownDividerHeader.js'
 import { PlaylistLoopingHeader } from './RundownView/PlaylistLoopingHeader.js'
 import RundownViewEventBus, { RundownViewEvents } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
@@ -75,7 +74,6 @@ import { SegmentListContainer } from './SegmentList/SegmentListContainer.js'
 import { getNextMode as getNextSegmentViewMode } from './SegmentContainer/SwitchViewModeButton.js'
 import { IResolvedSegmentProps } from './SegmentContainer/withResolvedSegment.js'
 import { UIParts, UIShowStyleBases, UIStudios } from './Collections.js'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import {
 	RundownId,
 	RundownLayoutId,
@@ -90,12 +88,10 @@ import {
 	Rundowns,
 	ShowStyleVariants,
 } from '../collections/index.js'
-import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { RundownPlaylistCollectionUtil } from '../collections/rundownPlaylistUtil.js'
 import { SegmentAdlibTestingContainer } from './SegmentAdlibTesting/SegmentAdlibTestingContainer.js'
 import { PromiseButton } from '../lib/Components/PromiseButton.js'
 import { logger } from '../lib/logging.js'
-import { isEntirePlaylistLooping, PieceExtended } from '../lib/RundownResolver.js'
 import { RundownPlaylistClientUtil } from '../lib/rundownPlaylistUtil.js'
 import { UserPermissionsContext, UserPermissions } from './UserPermissions.js'
 import { MAGIC_TIME_SCALE_FACTOR } from './SegmentTimeline/Constants.js'
@@ -112,7 +108,10 @@ import { RundownViewContextProviders } from './RundownView/RundownViewContextPro
 import { AnimatePresence } from 'motion/react'
 import { UserError } from '@sofie-automation/corelib/dist/error'
 import { DragContextProvider } from './RundownView/DragContextProvider.js'
-import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance.js'
+import { DBPartInstance, PartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance.js'
+import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import { PieceExtended, PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import { isEntirePlaylistLooping } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
 
 const HIDE_NOTIFICATIONS_AFTER_MOUNT: number | undefined = 5000
 

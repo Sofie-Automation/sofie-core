@@ -17,7 +17,7 @@ import {
 	DropTargetMonitor,
 	ConnectDragPreview,
 } from 'react-dnd'
-import { OutputLayers, SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
+import { OutputLayers, SourceLayers, UIShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import {
 	ISourceLayer,
 	PieceLifespan,
@@ -40,11 +40,9 @@ import { DragDropItemTypes } from '../DragDropItemTypes.js'
 import { BucketPieceButton, IBucketPieceDropResult } from './BucketPieceButton.js'
 import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'
 import update from 'immutability-helper'
-import { PartInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import { BucketAdLibAction } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibAction'
 import { RundownUtils } from '../../lib/rundown.js'
 import { BucketAdLibItem, BucketAdLibActionUi, isAdLibAction, isAdLib, BucketAdLibUi } from './RundownViewBuckets.js'
-import { PieceUi } from '../SegmentTimeline/SegmentTimelineContainer.js'
 import { PieceDisplayStyle } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import RundownViewEventBus, {
 	RundownViewEvents,
@@ -64,8 +62,6 @@ import {
 import { MongoFieldSpecifierOnes } from '@sofie-automation/corelib/dist/mongo'
 import { BucketAdLibActions, BucketAdLibs, Rundowns } from '../../collections/index.js'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { UIPartInstances, UIStudios } from '../Collections.js'
 import {
 	AdLibActionId,
@@ -80,6 +76,9 @@ import { withTranslation } from 'react-i18next'
 import { useRundownAndShowStyleIdsForPlaylist } from '../util/useRundownAndShowStyleIdsForPlaylist.js'
 import _ from 'underscore'
 import { BucketHandle } from '../../lib/ui/icons/shelf.js'
+import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
+import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 interface IBucketPanelDragObject {
 	id: BucketId

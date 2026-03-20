@@ -1,8 +1,6 @@
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
-import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { useContext } from 'react'
 import { ErrorBoundary } from '../../lib/ErrorBoundary'
 import { PreviewPopUpContextProvider } from '../PreviewPopUp/PreviewPopUpContext'
@@ -12,6 +10,8 @@ import { RundownSorensenContext } from './RundownSorensenContext'
 import { RundownTimingProvider } from './RundownTiming/RundownTimingProvider'
 import { Settings } from '../../lib/Settings'
 import { RundownLayoutShelfBase } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
+import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase'
+import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio'
 
 interface RundownDetachedShelfProps {
 	playlist: DBRundownPlaylist

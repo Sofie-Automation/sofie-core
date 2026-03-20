@@ -12,7 +12,6 @@ import { dashboardElementStyle } from './DashboardPanel.js'
 import { assertNever, getRandomString, literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { PartInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import { parseMosPluginMessageXml, MosPluginMessage } from '../../lib/parsers/mos/mosXml2Js.js'
 import {
 	createMosAppInfoXmlString,
@@ -42,6 +41,7 @@ import RundownViewEventBus, {
 	RundownViewEvents,
 } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
 import { UIPartInstances, UIParts } from '../Collections.js'
+import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
 
 interface IProps {
 	layout: RundownLayoutBase

@@ -9,7 +9,7 @@ import { protectString, unprotectString } from '@sofie-automation/corelib/dist/p
 import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context.js'
 import { setupDefaultRundownPlaylist, setupMockShowStyleCompound } from '../../__mocks__/presetCollections.js'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { wrapPartToTemporaryInstance } from '../../__mocks__/partinstance.js'
+import { wrapPartToTemporaryInstance } from '@sofie-automation/corelib/dist/playout/stateCacheResolver'
 import { ReadonlyDeep } from 'type-fest'
 import { convertPartInstanceToBlueprints } from '../context/lib.js'
 import { EmptyPieceTimelineObjectsBlob } from '@sofie-automation/corelib/dist/dataModel/Piece'

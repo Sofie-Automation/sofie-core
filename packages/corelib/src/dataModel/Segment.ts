@@ -2,6 +2,7 @@ import { SegmentDisplayMode, SegmentTimingInfo } from '@sofie-automation/bluepri
 import { SegmentId, RundownId } from './Ids.js'
 import { SegmentNote } from './Notes.js'
 import { CoreUserEditingDefinition, CoreUserEditingProperties } from './UserEditingDefinitions.js'
+import { IOutputLayerExtended, ISourceLayerExtended } from './ShowStyleBase.js'
 
 export enum SegmentOrphanedReason {
 	/** Segment is deleted from the NRCS but we still need it */
@@ -57,4 +58,15 @@ export interface DBSegment {
 	 * it will trigger a user edit operation of type DefaultUserOperationEditProperties
 	 */
 	userEditProperties?: CoreUserEditingProperties
+}
+
+export interface SegmentExtended extends DBSegment {
+	/** Output layers available in the installation used by this segment */
+	outputLayers: {
+		[key: string]: IOutputLayerExtended
+	}
+	/** Source layers used by this segment */
+	sourceLayers: {
+		[key: string]: ISourceLayerExtended
+	}
 }

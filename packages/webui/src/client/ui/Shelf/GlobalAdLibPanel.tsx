@@ -2,7 +2,6 @@ import { useMemo } from 'react'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { IAdLibListItem } from './AdLibListItem.js'
 import { AdLibPanel } from './AdLibPanel.js'
-import { PieceUi } from '../SegmentTimeline/SegmentTimelineContainer.js'
 import { BucketAdLibActionUi, BucketAdLibUi } from './RundownViewBuckets.js'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import {
@@ -13,8 +12,9 @@ import {
 import { ShelfTabs } from './Shelf.js'
 import { useTranslation } from 'react-i18next'
 import { AdLibPieceUi } from '../../lib/shelf.js'
-import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
+import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 interface IProps {
 	playlist: DBRundownPlaylist

@@ -19,11 +19,11 @@ import { handleRundownPlaylistReloadResponse } from './RundownReloadResponse'
 import { scrollToPartInstance } from '../../../lib/viewPort'
 import { hashSingleUseToken } from '../../../lib/lib'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { getCurrentTime } from '../../../lib/systemTime'
 import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
 import { REHEARSAL_MARGIN } from '../WarningDisplay'
 import { RundownPlaylistTiming } from '@sofie-automation/blueprints-integration'
+import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio'
 
 class RundownPlaylistOperationsService {
 	constructor(

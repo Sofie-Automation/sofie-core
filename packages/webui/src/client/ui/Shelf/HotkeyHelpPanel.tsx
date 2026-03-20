@@ -9,8 +9,8 @@ import { codesToKeyLabels } from '../../lib/triggers/codesToKeyLabels.js'
 import { TFunction } from 'i18next'
 import { translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { MongoCursor } from '../../collections/lib.js'
-import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { MountedTrigger } from '@sofie-automation/meteor-lib/dist/api/MountedTriggers'
+import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 
 interface IProps {
 	visible?: boolean

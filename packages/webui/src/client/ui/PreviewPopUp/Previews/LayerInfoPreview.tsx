@@ -2,13 +2,13 @@ import { PreviewContent } from '@sofie-automation/blueprints-integration'
 import { RundownUtils } from '../../../lib/rundown'
 import { useTranslation } from 'react-i18next'
 import classNames from 'classnames'
+import { getSourceLayerClassName } from '@sofie-automation/corelib/src/playout/stateCacheResolver'
 
 type layerInfoContent = Extract<PreviewContent, { type: 'layerInfo' }>
 
 export function LayerInfoPreview(content: layerInfoContent): React.ReactElement {
 	const { t } = useTranslation()
-	const sourceLayerClassName =
-		content.layerType !== undefined ? RundownUtils.getSourceLayerClassName(content.layerType) : undefined
+	const sourceLayerClassName = content.layerType !== undefined ? getSourceLayerClassName(content.layerType) : undefined
 
 	return (
 		<div className="preview-popUp__element-with-time-info">

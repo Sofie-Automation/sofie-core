@@ -6,7 +6,7 @@ import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { RundownUtils } from '../../../lib/rundown.js'
 import { getCurrentTime } from '../../../lib/systemTime.js'
 import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
-import { isLoopDefined } from '../../../lib/RundownResolver.js'
+import { isLoopDefined } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
 
 interface IRundownNameProps {
 	rundownPlaylist: DBRundownPlaylist

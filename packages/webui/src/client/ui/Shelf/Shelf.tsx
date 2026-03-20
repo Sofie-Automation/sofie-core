@@ -7,7 +7,6 @@ import { faBars } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import { Translated, useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
-import { PieceUi } from '../SegmentTimeline/SegmentTimelineContainer.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { getElementDocumentOffset } from '../../utils/positions.js'
 import {
@@ -39,16 +38,16 @@ import { doUserAction, UserAction } from '../../lib/clientUserAction.js'
 import { MeteorCall } from '../../lib/meteorApi.js'
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
 import { ShelfDisplayOptions } from '../../lib/shelf.js'
-import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { Buckets } from '../../collections'
 import { UserPermissionsContext } from '../UserPermissions'
 import { useLocation } from 'react-router'
-import { IStudioSettings } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import { IStudioSettings, UIStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { Settings } from '../../lib/Settings'
 import { ParsedQuery, parse as queryStringParse } from 'query-string'
+import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 
 import { ShelfTabs } from '@sofie-automation/meteor-lib/dist/uiTypes/ShelfTabs'
+import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 export { ShelfTabs } from '@sofie-automation/meteor-lib/dist/uiTypes/ShelfTabs'
 

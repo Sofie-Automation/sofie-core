@@ -10,7 +10,6 @@ import { Piece, EmptyPieceTimelineObjectsBlob } from '@sofie-automation/corelib/
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import { getRundownId } from '../server/api/ingest/lib'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import { PartInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import {
 	PartId,
@@ -31,6 +30,7 @@ import {
 	DEFAULT_FALLBACK_PART_DURATION,
 	DEFAULT_MINIMUM_TAKE_SPAN,
 } from '@sofie-automation/shared-lib/dist/core/constants'
+import { PartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 
 export function defaultRundownPlaylist(_id: RundownPlaylistId, studioId: StudioId): DBRundownPlaylist {
 	return {

@@ -3,7 +3,6 @@ import { DBRundownPlaylist, RundownHoldState } from '@sofie-automation/corelib/d
 import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
 import { RundownLayoutRundownHeader } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import { useTranslation } from 'react-i18next'
-import * as RundownResolver from '../../../lib/RundownResolver'
 import { AutoNextStatus } from '../RundownTiming/AutoNextStatus'
 import { CurrentPartOrSegmentRemaining } from '../RundownTiming/CurrentPartOrSegmentRemaining'
 import { NextBreakTiming } from '../RundownTiming/NextBreakTiming'
@@ -12,6 +11,7 @@ import { PlaylistStartTiming } from '../RundownTiming/PlaylistStartTiming'
 import { RundownName } from '../RundownTiming/RundownName'
 import { TimeOfDay } from '../RundownTiming/TimeOfDay'
 import { useTiming } from '../RundownTiming/withTiming'
+import { isLoopRunning } from '@sofie-automation/corelib/src/playout/stateCacheResolver'
 
 interface ITimingDisplayProps {
 	rundownPlaylist: DBRundownPlaylist
@@ -81,7 +81,7 @@ export function TimingDisplay({
 					{showEndTiming ? (
 						<PlaylistEndTiming
 							rundownPlaylist={rundownPlaylist}
-							loop={RundownResolver.isLoopRunning(rundownPlaylist)}
+							loop={isLoopRunning(rundownPlaylist)}
 							expectedStart={expectedStart}
 							expectedEnd={expectedEnd}
 							expectedDuration={expectedDuration}

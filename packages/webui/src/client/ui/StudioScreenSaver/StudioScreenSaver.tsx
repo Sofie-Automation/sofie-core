@@ -9,12 +9,12 @@ import { Clock } from './Clock.js'
 import { Countdown } from './Countdown.js'
 import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
 import { UIStudios } from '../Collections.js'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { RundownPlaylists } from '../../collections/index.js'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { withTranslation } from 'react-i18next'
 import { relativeToSiteRootUrl } from '../../url.js'
+import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 
 interface IProps {
 	// the studio to be displayed in the screen saver

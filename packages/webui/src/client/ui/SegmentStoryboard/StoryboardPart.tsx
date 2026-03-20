@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import classNames from 'classnames'
 import { useTranslation } from 'react-i18next'
-import { PartExtended } from '../../lib/RundownResolver.js'
 import { IOutputLayerUi, SegmentUi } from '../SegmentContainer/withResolvedSegment.js'
 import { StoryboardPartSecondaryPieces } from './StoryboardPartSecondaryPieces/StoryboardPartSecondaryPieces.js'
 import { StoryboardPartThumbnail } from './StoryboardPartThumbnail/StoryboardPartThumbnail.js'
@@ -23,6 +22,7 @@ import { AutoNextStatus } from '../RundownView/RundownTiming/AutoNextStatus.js'
 import { RundownTimingContext, getPartInstanceTimingId } from '../../lib/rundownTiming.js'
 import { TimingDataResolution, TimingTickResolution, useTiming } from '../RundownView/RundownTiming/withTiming.js'
 import { LoopingIcon } from '../../lib/ui/icons/looping.js'
+import { PartExtended } from '@sofie-automation/corelib/src/dataModel/Part.js'
 
 interface IProps {
 	className?: string

@@ -8,7 +8,6 @@ import { NavLink } from 'react-router-dom'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { Rundown, getRundownNrcsName } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { ContextMenu, MenuItem, ContextMenuTrigger } from '@jstarpl/react-contextmenu'
-import { PieceUi } from '../../SegmentTimeline/SegmentTimelineContainer'
 import { RundownSystemStatus } from '../RundownSystemStatus'
 import { getHelpMode } from '../../../lib/localStorage'
 import { reloadRundownPlaylistClick } from '../RundownNotifier'
@@ -26,15 +25,16 @@ import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/Sho
 import { BucketAdLibItem } from '../../Shelf/RundownViewBuckets'
 import { IAdLibListItem } from '../../Shelf/AdLibListItem'
 import { ShelfDashboardLayout } from '../../Shelf/ShelfDashboardLayout'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { UserPermissionsContext } from '../../UserPermissions'
-import * as RundownResolver from '../../../lib/RundownResolver'
 import Navbar from 'react-bootstrap/Navbar'
 import { WarningDisplay } from '../WarningDisplay'
 import { TimingDisplay } from './TimingDisplay'
 import { checkRundownTimes, useRundownPlaylistOperations } from './useRundownPlaylistOperations'
+import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase'
+import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio'
+import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece'
+import { isLoopLocked, isAnyLoopMarkerDefined } from '@sofie-automation/corelib/src/playout/stateCacheResolver'
 
 interface IRundownHeaderProps {
 	playlist: DBRundownPlaylist
@@ -100,9 +100,7 @@ export function RundownHeader({
 	}, [operations.reloadRundownPlaylist])
 
 	const canClearQuickLoop =
-		!!studio.settings.enableQuickLoop &&
-		!RundownResolver.isLoopLocked(playlist) &&
-		RundownResolver.isAnyLoopMarkerDefined(playlist)
+		!!studio.settings.enableQuickLoop && !isLoopLocked(playlist) && isAnyLoopMarkerDefined(playlist)
 
 	const rundownTimesInfo = checkRundownTimes(playlist.timing)
 

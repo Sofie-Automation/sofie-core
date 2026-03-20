@@ -3,7 +3,6 @@ import { Meteor } from 'meteor/meteor'
 import { withTracker } from '../../../lib/ReactMeteorData/react-meteor-data.js'
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { PartInstance, wrapPartToTemporaryInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import { RundownTiming, TimeEventArgs } from './RundownTiming.js'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
@@ -17,10 +16,14 @@ import {
 import { PartId, PartInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { RundownPlaylistCollectionUtil } from '../../../collections/rundownPlaylistUtil.js'
 import { sortPartInstancesInSortedSegments } from '@sofie-automation/corelib/dist/playout/playlist'
-import { RundownUtils } from '../../../lib/rundown.js'
 import { RundownPlaylistClientUtil } from '../../../lib/rundownPlaylistUtil.js'
 import { getCurrentTime } from '../../../lib/systemTime.js'
 import { IRundownTimingProviderValues, RundownTimingProviderContext } from './withTiming.js'
+import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
+import {
+	deduplicatePartInstancesForQuickLoop,
+	wrapPartToTemporaryInstance,
+} from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
 
 const TIMING_DEFAULT_REFRESH_INTERVAL = 1000 / 60 // the interval for high-resolution events (timeupdateHR)
 const LOW_RESOLUTION_TIMING_DECIMATOR = 15
@@ -139,7 +142,7 @@ export const RundownTimingProvider = withTracker<
 
 	partInstances = sortPartInstancesInSortedSegments(partInstances, segments)
 
-	partInstances = RundownUtils.deduplicatePartInstancesForQuickLoop(playlist, partInstances, currentPartInstance)
+	partInstances = deduplicatePartInstancesForQuickLoop(playlist, partInstances, currentPartInstance)
 
 	const partsInQuickLoop = findPartInstancesInQuickLoop(playlist, partInstances)
 

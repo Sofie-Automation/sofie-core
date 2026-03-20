@@ -1,9 +1,9 @@
 import { SplitsContentBoxContent, SplitsContentBoxProperties } from '@sofie-automation/blueprints-integration'
 import classNames from 'classnames'
 import { useMemo } from 'react'
-import { RundownUtils } from '../../../lib/rundown.js'
 import { getSplitPreview, SplitRole } from '../../../lib/ui/splitPreview.js'
 import { ReadonlyDeep } from 'type-fest'
+import { getSourceLayerClassName } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
 
 interface BoxLayoutPreviewProps {
 	content: {
@@ -31,7 +31,7 @@ export function BoxLayoutPreview({ content }: BoxLayoutPreviewProps): React.Reac
 				<div
 					className={classNames(
 						'video-preview',
-						RundownUtils.getSourceLayerClassName(item.type),
+						getSourceLayerClassName(item.type),
 						{
 							background: item.role === SplitRole.ART,
 							box: item.role === SplitRole.BOX,

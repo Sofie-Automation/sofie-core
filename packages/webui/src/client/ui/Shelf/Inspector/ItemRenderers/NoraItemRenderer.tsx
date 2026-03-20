@@ -1,15 +1,15 @@
 import { NoraContent } from '@sofie-automation/blueprints-integration'
 import { IModalAttributes, Modal } from '../../../../lib/ui/containers/modals/Modal.js'
 import { NoraItemEditor } from './NoraItemEditor.js'
-import { PieceUi } from '../../../SegmentTimeline/SegmentTimelineContainer.js'
 import { RundownUtils } from '../../../../lib/rundown.js'
 import { useTranslation } from 'react-i18next'
 import InspectorTitle from './InspectorTitle.js'
 import { ErrorBoundary } from '../../../../lib/ErrorBoundary.js'
 import { IAdLibListItem } from '../../AdLibListItem.js'
-import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { useState } from 'react'
+import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 export { isNoraItem }
 

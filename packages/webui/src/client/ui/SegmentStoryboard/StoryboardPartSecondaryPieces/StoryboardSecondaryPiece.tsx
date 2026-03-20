@@ -1,7 +1,5 @@
 import React, { RefObject, useImperativeHandle, useContext, useRef, useState } from 'react'
-import { RundownUtils } from '../../../lib/rundown.js'
 import { ISourceLayer, SourceLayerType } from '@sofie-automation/blueprints-integration'
-import { PieceUi } from '../../SegmentContainer/withResolvedSegment.js'
 import { DefaultRenderer } from './Renderers/DefaultRenderer.js'
 import { assertNever } from '@sofie-automation/corelib/dist/lib'
 import { ScriptRenderer } from './Renderers/ScriptRenderer.js'
@@ -10,7 +8,6 @@ import { getElementWidth } from '../../../utils/dimensions.js'
 import { GraphicsRenderer } from './Renderers/GraphicsRenderer.js'
 import { SplitsRenderer } from './Renderers/SplitsRenderer.js'
 import { PieceElement } from '../../SegmentContainer/PieceElement.js'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { useContentStatusForPieceInstance } from '../../SegmentTimeline/withMediaObjectStatus.js'
 import {
@@ -18,6 +15,9 @@ import {
 	IPreviewPopUpSession,
 	PreviewPopUpContext,
 } from '../../PreviewPopUp/PreviewPopUpContext.js'
+import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import { getSourceLayerClassName } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
 
 interface IProps {
 	layer: ISourceLayer
@@ -93,7 +93,7 @@ export function StoryboardSecondaryPiece(props: IProps): JSX.Element {
 		undefined
 	)
 
-	const typeClass = piece?.sourceLayer?.type ? RundownUtils.getSourceLayerClassName(piece?.sourceLayer?.type) : ''
+	const typeClass = piece?.sourceLayer?.type ? getSourceLayerClassName(piece?.sourceLayer?.type) : ''
 
 	const previewContext = useContext(PreviewPopUpContext)
 	const previewSession = useRef<IPreviewPopUpSession | null>(null)

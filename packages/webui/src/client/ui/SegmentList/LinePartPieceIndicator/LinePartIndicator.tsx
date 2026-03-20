@@ -1,10 +1,10 @@
 import classNames from 'classnames'
 import React, { useCallback, useEffect, useState } from 'react'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
-import { ISourceLayerExtended } from '../../../lib/RundownResolver.js'
-import { RundownUtils } from '../../../lib/rundown.js'
 import { AdLibPieceUi } from '../../../lib/shelf.js'
-import { PieceUi } from '../../SegmentContainer/withResolvedSegment.js'
+import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import { ISourceLayerExtended } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import { getSourceLayerClassName } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
 
 interface IProps {
 	overlay?: (ref: HTMLDivElement | null, setIsOver: (isOver: boolean) => void) => React.ReactNode
@@ -29,7 +29,7 @@ export function LinePartIndicator({
 	onClick: onClickExternal,
 	onDoubleClick,
 }: IProps): JSX.Element {
-	let typeClass = thisSourceLayer?.type ? RundownUtils.getSourceLayerClassName(thisSourceLayer.type) : undefined
+	let typeClass = thisSourceLayer?.type ? getSourceLayerClassName(thisSourceLayer.type) : undefined
 	const [element, setElement] = useState<HTMLDivElement | null>(null)
 	const [isMenuOpen, setIsMenuOpen] = useState(false)
 

@@ -2,6 +2,7 @@ import { IBlueprintConfig, IOutputLayer, ISourceLayer, SourceLayerType } from '@
 import { ObjectWithOverrides } from '../settings/objectWithOverrides.js'
 import { BlueprintHash, LastBlueprintConfig } from './Blueprint.js'
 import { BlueprintId, ShowStyleBaseId } from './Ids.js'
+import { PieceExtended } from './Piece.js'
 
 export interface HotkeyDefinition {
 	_id: string
@@ -22,7 +23,19 @@ export interface HotkeyDefinition {
 	down?: (e: any) => void
 }
 
+export interface IOutputLayerExtended extends IOutputLayer {
+	/** Is this output layer used in this segment */
+	used: boolean
+	/** Source layers that will be used by this output layer */
+	sourceLayers: Array<ISourceLayerExtended>
+}
 export type OutputLayers = Record<string, IOutputLayer | undefined>
+export interface ISourceLayerExtended extends ISourceLayer {
+	/** Pieces present on this source layer */
+	pieces: Array<PieceExtended>
+	followingItems: Array<PieceExtended>
+}
+
 export type SourceLayers = Record<string, ISourceLayer | undefined>
 
 export interface DBShowStyleBase {
@@ -75,4 +88,27 @@ export interface DBShowStyleBase {
 	lastBlueprintConfig: LastBlueprintConfig | undefined
 	/** Last BlueprintHash where the fixupConfig method was run */
 	lastBlueprintFixUpHash: BlueprintHash | undefined
+}
+
+/**
+ * A minimal version of DBShowStyleBase, intended for the playout portions of the UI.
+ * Note: The settings ui uses the raw types
+ * This intentionally does not extend ShowStyleBase, so that we have fine-grained control over the properties exposed
+ */
+export interface UIShowStyleBase {
+	_id: ShowStyleBaseId
+
+	/** Name of this show style */
+	name: string
+
+	/** A list of hotkeys, used to display a legend of hotkeys for the user in GUI */
+	hotkeyLegend?: Array<HotkeyDefinition>
+
+	/** "Outputs" in the UI */
+	outputLayers: OutputLayers
+	/** "Layers" in the GUI */
+	sourceLayers: SourceLayers
+
+	/** Configuration for displaying AB resolver channels on various screens */
+	abChannelDisplay?: DBShowStyleBase['abChannelDisplay']
 }

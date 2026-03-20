@@ -6,8 +6,8 @@ import { PreviewPopUpContextProvider } from '../PreviewPopUp/PreviewPopUpContext
 import { SelectedElementProvider } from './SelectedElementsContext'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { Settings } from '../../lib/Settings'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
+import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio'
 
 export function RundownViewContextProviders({
 	playlist,

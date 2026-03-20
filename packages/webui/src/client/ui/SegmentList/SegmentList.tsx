@@ -2,21 +2,26 @@ import React, { ReactNode, useLayoutEffect, useMemo, useRef, useState } from 're
 import classNames from 'classnames'
 import { DBRundownPlaylist, RundownHoldState } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { UIStateStorage } from '../../lib/UIStateStorage.js'
-import { PartUi, PieceUi, SegmentNoteCounts, SegmentUi } from '../SegmentContainer/withResolvedSegment.js'
+import { PartUi, SegmentNoteCounts, SegmentUi } from '../SegmentContainer/withResolvedSegment.js'
 import { IContextMenuContext } from '../RundownView.js'
 import { useCombinedRefs } from '../../lib/lib.js'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { isPartPlayable } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { LinePart } from './LinePart.js'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { ISourceLayerExtended } from '../../lib/RundownResolver.js'
 import { SegmentViewMode } from '../SegmentContainer/SegmentViewModes.js'
 import { SegmentListHeader } from './SegmentListHeader.js'
 import { useInView } from 'react-intersection-observer'
 import { getHeaderHeight } from '../../lib/viewPort.js'
 import { SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { NoteSeverity } from '@sofie-automation/blueprints-integration'
-import * as RundownResolver from '../../lib/RundownResolver.js'
+import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import { ISourceLayerExtended } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import {
+	isLoopRunning,
+	isQuickLoopStart,
+	isQuickLoopEnd,
+} from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
 
 interface IProps {
 	id: string
@@ -156,9 +161,9 @@ const SegmentListInner = React.forwardRef<HTMLDivElement, IProps>(function Segme
 				doesPlaylistHaveNextPart={playlistHasNextPart}
 				onPieceDoubleClick={props.onPieceDoubleClick}
 				onContextMenu={props.onContextMenu}
-				isPlaylistLooping={RundownResolver.isLoopRunning(props.playlist)}
-				isQuickLoopStart={RundownResolver.isQuickLoopStart(part.partId, props.playlist)}
-				isQuickLoopEnd={RundownResolver.isQuickLoopEnd(part.partId, props.playlist)}
+				isPlaylistLooping={isLoopRunning(props.playlist)}
+				isQuickLoopStart={isQuickLoopStart(part.partId, props.playlist)}
+				isQuickLoopEnd={isQuickLoopEnd(part.partId, props.playlist)}
 			/>
 		)
 

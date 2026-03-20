@@ -16,12 +16,12 @@ import { literal } from '@sofie-automation/corelib/dist/lib'
 import classNames from 'classnames'
 import { useTranslation } from 'react-i18next'
 import { useSelectedElements, useSelectedElementsContext } from '../RundownView/SelectedElementsContext.js'
-import { RundownUtils } from '../../lib/rundown.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useCallback, useMemo, useState } from 'react'
 import { SchemaFormWithState } from '../../lib/forms/SchemaFormWithState.js'
 import { translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { BlueprintAssetIcon } from '../../lib/Components/BlueprintAssetIcon.js'
+import { getSourceLayerClassName } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
 
 type PendingChange = DefaultUserOperationEditProperties['payload']
 
@@ -278,7 +278,7 @@ function PropertiesEditor({
 						<button
 							className={classNames(
 								'propertiespanel-pop-up__groupselector__button',
-								RundownUtils.getSourceLayerClassName(group.sourceLayerType),
+								getSourceLayerClassName(group.sourceLayerType),
 								selectedGroupId === key && 'active'
 							)}
 							key={key}

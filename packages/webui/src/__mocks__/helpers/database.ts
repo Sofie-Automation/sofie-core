@@ -1,5 +1,5 @@
 import _ from 'underscore'
-import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import { DBStudio, UIStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import {
 	PieceLifespan,
 	IOutputLayer,
@@ -26,8 +26,6 @@ import {
 	applyAndValidateOverrides,
 	wrapDefaultObject,
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import {
 	BlueprintId,
 	RundownId,
@@ -544,20 +542,6 @@ export async function setupDefaultRundown(
 	return rundownId
 }
 
-// // const studioBlueprint
-// // const showStyleBlueprint
-// // const showStyleVariant
-
-export function convertToUIShowStyleBase(showStyleBase: DBShowStyleBase): UIShowStyleBase {
-	return literal<Complete<UIShowStyleBase>>({
-		_id: showStyleBase._id,
-		name: showStyleBase.name,
-		hotkeyLegend: showStyleBase.hotkeyLegend,
-		sourceLayers: applyAndValidateOverrides(showStyleBase.sourceLayersWithOverrides).obj,
-		outputLayers: applyAndValidateOverrides(showStyleBase.outputLayersWithOverrides).obj,
-		abChannelDisplay: showStyleBase.abChannelDisplay,
-	})
-}
 export function convertToUIStudio(studio: DBStudio): UIStudio {
 	return literal<Complete<UIStudio>>({
 		_id: studio._id,

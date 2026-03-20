@@ -17,8 +17,6 @@ import { TranslationsBundle } from '../collections/TranslationsBundles.js'
 import { DBTriggeredActions, UITriggeredActionsObj } from '../collections/TriggeredActions.js'
 import { UserActionsLogItem } from '../collections/UserActionsLog.js'
 import { UIBucketContentStatus, UISegmentPartNote } from './rundownNotifications.js'
-import { UIShowStyleBase } from './showStyles.js'
-import { UIStudio } from './studios.js'
 import { UIDeviceTriggerPreview } from './MountedTriggers.js'
 import { UIBlueprintUpgradeStatus } from './upgradeStatus.js'
 import {
@@ -30,7 +28,9 @@ import {
 import { CorelibPubSub, CorelibPubSubCollections, CorelibPubSubTypes } from '@sofie-automation/corelib/dist/pubsub'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { PartInstance } from '../collections/PartInstances.js'
+import { UIShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
+import { UIStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import { PartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 
 /**
  * Ids of possible DDP subscriptions for the UI only

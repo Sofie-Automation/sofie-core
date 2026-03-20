@@ -1,8 +1,8 @@
 import classNames from 'classnames'
 import { SplitsContent } from '@sofie-automation/blueprints-integration'
-import { RundownUtils } from '../../lib/rundown.js'
 import { getSplitPreview, SplitRole } from '../../lib/ui/splitPreview.js'
-import { PieceUi } from './withResolvedSegment.js'
+import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import { getSourceLayerClassName } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
 
 export function getSplitItems(pieceInstance: PieceUi, baseClassName: string): JSX.Element[] {
 	const splitsContent = pieceInstance.instance.piece.content as SplitsContent
@@ -15,7 +15,7 @@ export function getSplitItems(pieceInstance: PieceUi, baseClassName: string): JS
 			return (
 				<div
 					key={'item-' + item._id}
-					className={classNames(baseClassName, RundownUtils.getSourceLayerClassName(item.type), {
+					className={classNames(baseClassName, getSourceLayerClassName(item.type), {
 						second: array.length > 1 && index > 0 && item.type === array[index - 1].type,
 					})}
 				></div>

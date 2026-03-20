@@ -6,8 +6,8 @@ import { useContentStatusForAdlibPiece } from '../SegmentTimeline/withMediaObjec
 import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'
 import { contextMenuHoldToDisplayTime } from '../../lib/lib.js'
 import { setShelfContextMenuContext, ContextType as MenuContextType } from './ShelfContextMenu.js'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { IAdLibListItem } from '@sofie-automation/meteor-lib/dist/uiTypes/Adlib'
+import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 
 export type { IAdLibListItem } from '@sofie-automation/meteor-lib/dist/uiTypes/Adlib'
 

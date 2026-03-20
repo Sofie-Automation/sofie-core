@@ -13,12 +13,12 @@ import { MultiLineTextInputControl } from '../lib/Components/MultiLineTextInput.
 import { TextInputControl } from '../lib/Components/TextInput.js'
 import { Spinner } from '../lib/Spinner.js'
 import { NotificationCenter, Notification, NoticeLevel } from '../lib/notifications/notifications.js'
-import { isLoopRunning } from '../lib/RundownResolver.js'
 import { useTracker } from '../lib/ReactMeteorData/ReactMeteorData.js'
 import { CoreSystem } from '../collections/index.js'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { SYSTEM_ID } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
 import { UserError } from '@sofie-automation/corelib/dist/error'
+import { isLoopRunning } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
 
 type ProblemType = 'nothing' | 'minor' | 'major'
 

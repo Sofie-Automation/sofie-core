@@ -7,9 +7,9 @@ import { getIgnorePieceContentStatus } from '../../lib/localStorage.js'
 import { UIPartInstances, UIPieceContentStatuses, UISegmentPartNotes } from '../Collections.js'
 import { SegmentNoteCounts, SegmentUi } from './withResolvedSegment.js'
 import { Notifications } from '../../collections/index.js'
-import { PartInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import { DBNotificationObj } from '@sofie-automation/corelib/dist/dataModel/Notifications'
 import { UIPieceContentStatus } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
+import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
 
 export function getReactivePieceNoteCountsForSegment(segment: SegmentUi): SegmentNoteCounts {
 	const segmentNoteCounts: SegmentNoteCounts = {

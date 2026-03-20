@@ -1,8 +1,7 @@
 import * as React from 'react'
 import _ from 'underscore'
-import { PieceUi } from '../../../SegmentTimeline/SegmentTimelineContainer.js'
 import { RundownUtils } from '../../../../lib/rundown.js'
-import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
+import { Piece, PieceUi } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { IBlueprintActionTriggerMode } from '@sofie-automation/blueprints-integration'
 import { translateWithTracker, Translated } from '../../../../lib/ReactMeteorData/ReactMeteorData.js'
 import { AdLibActionCommon } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
@@ -19,11 +18,11 @@ import RundownViewEventBus, { RundownViewEvents } from '@sofie-automation/meteor
 import { IAdLibListItem } from '../../AdLibListItem.js'
 import { translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { AdLibPieceUi } from '../../../../lib/shelf.js'
-import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
-import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { BucketId, PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { Buckets } from '../../../../collections/index.js'
 import { BucketAdLibAction } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibAction'
+import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 
 export { isActionItem }
 

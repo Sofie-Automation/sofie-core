@@ -2,11 +2,11 @@ import type { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { ReactiveCacheCollection } from '../lib/ReactiveCacheCollection'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import type { MongoFieldSpecifierOnesStrict } from '@sofie-automation/corelib/dist/mongo'
-import type { PartInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import type { NrcsIngestDataCacheObj } from '@sofie-automation/corelib/dist/dataModel/NrcsIngestDataCache'
 import type { RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import type { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { PartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 
 export type PlaylistCompact = Pick<
 	DBRundownPlaylist,
