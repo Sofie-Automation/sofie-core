@@ -32,7 +32,6 @@ import RundownViewEventBus, {
 	RundownViewEvents,
 	HighlightEvent,
 } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
-import { wrapPartToTemporaryInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 
 import { SegmentTimelineSmallPartFlag } from './SmallParts/SegmentTimelineSmallPartFlag.js'
 import { UIStateStorage } from '../../lib/UIStateStorage.js'
@@ -58,7 +57,7 @@ import { BlueprintAssetIcon } from '../../lib/Components/BlueprintAssetIcon.js'
 import { hasUserEditableContent } from '../UserEditOperations/PropertiesPanel.js'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
-import { isLoopRunning } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
+import { isLoopRunning, wrapPartToTemporaryInstance } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
 
 interface IProps {
 	id: string

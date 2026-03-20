@@ -3,7 +3,6 @@ import { Meteor } from 'meteor/meteor'
 import { withTracker } from '../../../lib/ReactMeteorData/react-meteor-data.js'
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { wrapPartToTemporaryInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import { RundownTiming, TimeEventArgs } from './RundownTiming.js'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
@@ -21,7 +20,10 @@ import { RundownPlaylistClientUtil } from '../../../lib/rundownPlaylistUtil.js'
 import { getCurrentTime } from '../../../lib/systemTime.js'
 import { IRundownTimingProviderValues, RundownTimingProviderContext } from './withTiming.js'
 import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
-import { deduplicatePartInstancesForQuickLoop } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
+import {
+	deduplicatePartInstancesForQuickLoop,
+	wrapPartToTemporaryInstance,
+} from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
 
 const TIMING_DEFAULT_REFRESH_INTERVAL = 1000 / 60 // the interval for high-resolution events (timeupdateHR)
 const LOW_RESOLUTION_TIMING_DECIMATOR = 15
