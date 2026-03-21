@@ -212,6 +212,31 @@ resources:
           description: Request accepted.
         404:
           $ref: '#/components/responses/idNotFound'
+  rundownsInStudio:
+    post:
+      operationId: postRundownInStudio
+      summary: Creates a Rundown in a specified Studio. For all other rundown operations use the /ingest/{studioId}/playlists/{playlistId}/rundowns routes.
+      tags:
+        - ingest
+      parameters:
+        - name: studioId
+          in: path
+          description: ID of the studio that is performing ingest operation.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Rundown data to ingest. May include playlistExternalId for grouping if supported by the blueprints.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/rundown'
+      responses:
+        202:
+          description: Request has been accepted.
+        400:
+          description: Bad request.
   rundown:
     get:
       operationId: getRundown
@@ -1104,6 +1129,9 @@ components:
         payload:
           type: object
           additionalProperties: true
+        playlistExternalId:
+          type: string
+          example: playlist1
       required:
         - externalId
         - name

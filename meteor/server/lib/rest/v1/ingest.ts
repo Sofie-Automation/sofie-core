@@ -60,7 +60,7 @@ export interface IngestRestAPI {
 		_connection: Meteor.Connection,
 		_event: string,
 		studioId: StudioId,
-		playlistId: string,
+		playlistId: string | undefined,
 		ingestRundown: RestApiIngestRundown
 	): Promise<ClientAPI.ClientResponse<void>>
 
@@ -232,7 +232,7 @@ export interface IngestRestAPI {
 	): Promise<ClientAPI.ClientResponse<void>>
 }
 
-export type RestApiIngestRundown = Omit<IngestRundown, 'playlistExternalId'> & {
+export type RestApiIngestRundown = IngestRundown & {
 	resyncUrl: string
 }
 

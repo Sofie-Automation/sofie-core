@@ -143,6 +143,14 @@ describe('Ingest API', () => {
 		expect(result).toBe(undefined)
 	})
 
+	test('Can create rundown (studio-scoped)', async () => {
+		const result = await ingestApi.postRundownInStudio({
+			studioId,
+			rundown: { ...rundown, externalId: 'newRundownInStudio', playlistExternalId: playlistIds[0] },
+		})
+		expect(result).toBe(undefined)
+	})
+
 	test('Can update multiple rundowns', async () => {
 		const result = await ingestApi.putRundowns({ studioId, playlistId: playlistIds[0], rundown: [rundown] })
 		expect(result).toBe(undefined)
