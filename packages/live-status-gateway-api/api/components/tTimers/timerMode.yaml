@@ -1,52 +1,12 @@
 $defs:
   timerModeCountdown:
-    type: object
-    title: TimerModeCountdown
-    description: Countdown timer mode - counts down from a duration to zero
-    properties:
-      type:
-        type: string
-        const: countdown
-      duration:
-        type: number
-        description: The original countdown duration in milliseconds (used for reset)
-      stopAtZero:
-        type: boolean
-        description: Whether timer stops at zero or continues into negative values
-    required: [type, duration, stopAtZero]
-    additionalProperties: false
+    $ref: './timerMode/countdown/timerModeCountdown.yaml#/$defs/timerModeCountdown'
 
   timerModeFreeRun:
-    type: object
-    title: TimerModeFreeRun
-    description: Free-running timer mode - counts up from start time
-    properties:
-      type:
-        type: string
-        const: freeRun
-    required: [type]
-    additionalProperties: false
+    $ref: './timerMode/freeRun/timerModeFreeRun.yaml#/$defs/timerModeFreeRun'
 
   timerModeTimeOfDay:
-    type: object
-    title: TimerModeTimeOfDay
-    description: Time-of-day timer mode - counts down/up to a specific time
-    properties:
-      type:
-        type: string
-        const: timeOfDay
-      targetRaw:
-        description: >-
-          The raw target string as provided when setting the timer
-          (e.g. "14:30", "2023-12-31T23:59:59Z", or a timestamp number)
-        oneOf:
-          - type: string
-          - type: number
-      stopAtZero:
-        type: boolean
-        description: Whether timer stops at zero or continues into negative values
-    required: [type, targetRaw, stopAtZero]
-    additionalProperties: false
+    $ref: './timerMode/timeOfDay/timerModeTimeOfDay.yaml#/$defs/timerModeTimeOfDay'
 
   timerMode:
     title: TimerMode

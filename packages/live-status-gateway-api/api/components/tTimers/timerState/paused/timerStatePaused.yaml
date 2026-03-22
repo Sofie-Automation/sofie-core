@@ -1,0 +1,27 @@
+$defs:
+  timerStatePaused:
+    type: object
+    title: TimerStatePaused
+    description: Timer state when paused (frozen at a specific duration)
+    properties:
+      paused:
+        type: boolean
+        const: true
+        description: Whether the timer is paused
+      duration:
+        type: number
+        description: >-
+          Frozen duration value in milliseconds.
+          For countdown timers, this is remaining time.
+          For free-run timers, this is elapsed time.
+      pauseTime:
+        description: >-
+          Optional timestamp when the timer should pause.
+          Typically null when already paused.
+        oneOf:
+          - type: number
+          - type: 'null'
+    required: [paused, duration]
+    additionalProperties: false
+    examples:
+      - $ref: './timerStatePaused-example.yaml'

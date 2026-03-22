@@ -1,0 +1,28 @@
+$defs:
+  timerStateRunning:
+    type: object
+    title: TimerStateRunning
+    description: Timer state when running (progressing with real time)
+    properties:
+      paused:
+        type: boolean
+        const: false
+        description: Whether the timer is paused
+      zeroTime:
+        type: number
+        description: >-
+          Unix timestamp (ms) when the timer reaches/reached zero.
+          For countdown timers, this is when time runs out.
+          For free-run timers, this is when the timer started.
+          Client calculates current value relative to this timestamp.
+      pauseTime:
+        description: >-
+          Optional timestamp when the timer should automatically pause
+          (e.g., when current part ends and overrun begins).
+        oneOf:
+          - type: number
+          - type: 'null'
+    required: [paused, zeroTime]
+    additionalProperties: false
+    examples:
+      - $ref: './timerStateRunning-example.yaml'
