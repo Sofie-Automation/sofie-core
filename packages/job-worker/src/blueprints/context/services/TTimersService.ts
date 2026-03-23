@@ -1,11 +1,11 @@
 import type {
 	IPlaylistTTimer,
-	IPlaylistTTimerState,
+	RundownTTimerMode,
 	TimerState,
 } from '@sofie-automation/blueprints-integration/dist/context/tTimersContext'
 import type { RundownTTimer, RundownTTimerIndex } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import type { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { assertNever, literal } from '@sofie-automation/corelib/dist/lib'
+import { literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import type { PlayoutModel } from '../../../playout/model/PlayoutModel.js'
 import { ReadonlyDeep } from 'type-fest'
@@ -73,41 +73,11 @@ export class PlaylistTTimerImpl implements IPlaylistTTimer {
 	get label(): string {
 		return this.#timer.label
 	}
-	get state(): IPlaylistTTimerState | null {
-		const rawMode = this.#timer.mode
-		const rawState = this.#timer.state
-
-		if (!rawMode || !rawState) return null
-
-		const currentTime = rawState.paused ? rawState.duration : rawState.zeroTime - getCurrentTime()
-
-		switch (rawMode.type) {
-			case 'countdown':
-				return {
-					mode: 'countdown',
-					currentTime,
-					duration: rawMode.duration,
-					paused: rawState.paused,
-					stopAtZero: rawMode.stopAtZero,
-				}
-			case 'freeRun':
-				return {
-					mode: 'freeRun',
-					currentTime,
-					paused: rawState.paused,
-				}
-			case 'timeOfDay':
-				return {
-					mode: 'timeOfDay',
-					currentTime,
-					targetTime: rawState.paused ? 0 : rawState.zeroTime,
-					targetRaw: rawMode.targetRaw,
-					stopAtZero: rawMode.stopAtZero,
-				}
-			default:
-				assertNever(rawMode)
-				return null
-		}
+	get mode(): RundownTTimerMode | null {
+		return this.#timer.mode
+	}
+	get state(): TimerState | null {
+		return this.#timer.state
 	}
 
 	constructor(

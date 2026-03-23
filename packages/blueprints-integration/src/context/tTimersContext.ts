@@ -91,10 +91,18 @@ export interface IPlaylistTTimer {
 	readonly label: string
 
 	/**
+	 * The current mode of the T-timer
+	 * Null if the T-timer is not initialized
+	 * This defines how the timer behaves
+	 */
+	readonly mode: RundownTTimerMode | null
+
+	/**
 	 * The current state of the T-timer
 	 * Null if the T-timer is not initialized
+	 * This contains the timing information needed to calculate the current time of the timer
 	 */
-	readonly state: IPlaylistTTimerState | null
+	readonly state: TimerState | null
 
 	/** Set the label of the T-timer */
 	setLabel(label: string): void
@@ -186,49 +194,4 @@ export interface IPlaylistTTimer {
 	 *               If false (default), we're progressing normally (projection counts down in real-time).
 	 */
 	setProjectedDuration(duration: number, paused?: boolean): void
-}
-
-export type IPlaylistTTimerState =
-	| IPlaylistTTimerStateCountdown
-	| IPlaylistTTimerStateFreeRun
-	| IPlaylistTTimerStateTimeOfDay
-
-export interface IPlaylistTTimerStateCountdown {
-	/** The mode of the T-timer */
-	readonly mode: 'countdown'
-	/** The current time of the countdown, in milliseconds */
-	readonly currentTime: number
-	/** The total duration of the countdown, in milliseconds */
-	readonly duration: number
-	/** Whether the timer is currently paused */
-	readonly paused: boolean
-
-	/** If the countdown is set to stop at zero, or continue into negative values */
-	readonly stopAtZero: boolean
-}
-export interface IPlaylistTTimerStateFreeRun {
-	/** The mode of the T-timer */
-	readonly mode: 'freeRun'
-	/** The current time of the freerun, in milliseconds */
-	readonly currentTime: number
-	/** Whether the timer is currently paused */
-	readonly paused: boolean
-}
-
-export interface IPlaylistTTimerStateTimeOfDay {
-	/** The mode of the T-timer */
-	readonly mode: 'timeOfDay'
-	/** The current remaining time of the timer, in milliseconds */
-	readonly currentTime: number
-	/** The target timestamp of the timer, in milliseconds */
-	readonly targetTime: number
-
-	/**
-	 * The raw target string of the timer, as provided when setting the timer
-	 * (e.g. "14:30", "2023-12-31T23:59:59Z", or a timestamp number)
-	 */
-	readonly targetRaw: string | number
-
-	/** If the countdown is set to stop at zero, or continue into negative values */
-	readonly stopAtZero: boolean
 }
