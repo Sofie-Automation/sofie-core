@@ -804,7 +804,7 @@ export function convertToUIShowStyleBase(showStyleBase: DBShowStyleBase): UIShow
 	})
 }
 
-export function isUIShowStyleBase(value: unknown): value is UIShowStyleBase {
+export function isUIShowStyleBase(value: DBShowStyleBase | UIShowStyleBase): value is UIShowStyleBase {
 	if (!value || typeof value !== 'object') return false
 
 	const v = value as Partial<UIShowStyleBase>
