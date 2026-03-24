@@ -4,7 +4,7 @@ import { PieceStatusCode, PieceUi } from '@sofie-automation/corelib/dist/dataMod
 import classNames from 'classnames'
 import { ReadonlyDeep } from 'type-fest'
 import { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
-import { getSourceLayerClassName } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
+import { RundownUtils } from '../rundown'
 
 export function pieceUiClassNames(
 	pieceInstance: PieceUi,
@@ -21,7 +21,7 @@ export function pieceUiClassNames(
 	},
 	draggable?: boolean
 ): string {
-	const typeClass = layerType ? getSourceLayerClassName(layerType) : ''
+	const typeClass = layerType ? RundownUtils.getSourceLayerClassName(layerType) : ''
 
 	const innerPiece = pieceInstance.instance.piece
 

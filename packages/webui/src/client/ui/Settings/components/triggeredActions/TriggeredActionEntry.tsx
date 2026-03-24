@@ -41,7 +41,7 @@ import { catchError } from '../../../../lib/lib.js'
 import { toTriggersComputation, UiTriggersContext } from '../../../../lib/triggers/triggersContext.js'
 import { last, literal } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { LabelActual } from '../../../../lib/Components/LabelAndOverrides.js'
-import { getSourceLayerClassName } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
+import { RundownUtils } from '../../../../lib/rundown.js'
 
 interface IProps {
 	sourceLayers: SourceLayers | undefined
@@ -522,7 +522,7 @@ export const TriggeredActionEntry: React.FC<IProps> = React.memo(function Trigge
 					<ul className="triggered-action-entry__preview">
 						{previewItems.map((item) => (
 							<li key={item._id as string}>
-								<span className={getSourceLayerClassName(getType(item.sourceLayerId))}>
+								<span className={RundownUtils.getSourceLayerClassName(getType(item.sourceLayerId))}>
 									{getShortName(item.sourceLayerId)}
 								</span>
 								{typeof item.label === 'string' ? item.label : translateMessage(item.label, t)}

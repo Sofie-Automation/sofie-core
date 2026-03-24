@@ -13,10 +13,7 @@ import {
 	IPreviewPopUpSession,
 	convertSourceLayerItemToPreview,
 } from '../../PreviewPopUp/PreviewPopUpContext.js'
-import {
-	getPieceStatusClassName,
-	getSourceLayerClassName,
-} from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
+import { RundownUtils } from '../../../lib/rundown.js'
 
 export const VTListItemRenderer: React.FunctionComponent<ILayerItemRendererProps> = (
 	props: ILayerItemRendererProps
@@ -128,8 +125,8 @@ export const VTListItemRenderer: React.FunctionComponent<ILayerItemRendererProps
 			<td
 				className={ClassNames(
 					'adlib-panel__list-view__list__table__cell--icon',
-					props.layer && getSourceLayerClassName(props.layer.type),
-					props.status && getPieceStatusClassName(props.status)
+					props.layer && RundownUtils.getSourceLayerClassName(props.layer.type),
+					props.status && RundownUtils.getPieceStatusClassName(props.status)
 				)}
 				ref={itemIcon}
 				onMouseOver={handleOnMouseOver}

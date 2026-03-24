@@ -5,7 +5,7 @@ import { NavLink } from 'react-router-dom'
 import classNames from 'classnames'
 import { formatTime } from '@sofie-automation/meteor-lib/dist/time'
 import { MediaStatusIndicator } from '../../MediaStatus/MediaStatusIndicator.js'
-import { getSourceLayerClassName } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
+import { RundownUtils } from '../../../lib/rundown.js'
 
 export function MediaStatusListItem({
 	rundownName,
@@ -34,7 +34,8 @@ export function MediaStatusListItem({
 	label: string
 	duration?: number | undefined
 }>): JSX.Element | null {
-	const sourceLayerClassName = sourceLayerType !== undefined ? getSourceLayerClassName(sourceLayerType) : undefined
+	const sourceLayerClassName =
+		sourceLayerType !== undefined ? RundownUtils.getSourceLayerClassName(sourceLayerType) : undefined
 
 	return (
 		<tr className="media-status-item">

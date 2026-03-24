@@ -7,10 +7,6 @@ import { IAdLibListItem } from '../../AdLibListItem.js'
 import { AdLibPieceUi } from '../../../../lib/shelf.js'
 import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
-import {
-	getPieceStatusClassName,
-	getSourceLayerClassName,
-} from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
 
 interface IProps {
 	piece: PieceUi | IAdLibListItem | BucketAdLibUi | BucketAdLibActionUi
@@ -32,8 +28,8 @@ function InspectorTitle(props: IProps): JSX.Element {
 			<div
 				className={ClassNames(
 					'shelf-inspector__title__icon',
-					layer && getSourceLayerClassName(layer.type),
-					getPieceStatusClassName(contentStatus?.status)
+					layer && RundownUtils.getSourceLayerClassName(layer.type),
+					RundownUtils.getPieceStatusClassName(contentStatus?.status)
 				)}
 			>
 				<div className="shelf-inspector__title__layer">{layer && (layer.abbreviation || layer.name)}</div>

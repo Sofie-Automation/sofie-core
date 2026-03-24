@@ -18,10 +18,7 @@ import {
 	PreviewPopUpContext,
 } from '../PreviewPopUp/PreviewPopUpContext.js'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
-import {
-	getPieceStatusClassName,
-	getSourceLayerClassName,
-} from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
+import { RundownUtils } from '../../lib/rundown.js'
 
 export interface IDashboardButtonProps {
 	piece: IAdLibListItem
@@ -402,8 +399,8 @@ export class DashboardPieceButtonBase<T = {}> extends React.Component<
 						list: isList,
 						selected: this.props.isNext || this.props.isSelected,
 					},
-					!this.inBucket && this.props.layer && getSourceLayerClassName(this.props.layer.type),
-					getPieceStatusClassName(this.props.contentStatus?.status),
+					!this.inBucket && this.props.layer && RundownUtils.getSourceLayerClassName(this.props.layer.type),
+					RundownUtils.getPieceStatusClassName(this.props.contentStatus?.status),
 					...(this.props.piece.tags ? this.props.piece.tags.map((tag) => `piece-tag--${tag}`) : [])
 				)}
 				style={{
@@ -448,7 +445,7 @@ export class DashboardPieceButtonBase<T = {}> extends React.Component<
 							<div
 								className={ClassNames(
 									'dashboard-panel__panel__button__tag-container',
-									this.props.layer && getSourceLayerClassName(this.props.layer.type)
+									this.props.layer && RundownUtils.getSourceLayerClassName(this.props.layer.type)
 								)}
 							>
 								&nbsp;

@@ -26,7 +26,7 @@ import {
 	CoreUserEditingDefinition,
 	CoreUserEditingProperties,
 } from '@sofie-automation/corelib/dist/dataModel/UserEditingDefinitions.js'
-import { getSourceLayerClassName } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
+import { RundownUtils } from '../../lib/rundown.js'
 
 type PendingChange = DefaultUserOperationEditProperties['payload']
 
@@ -296,7 +296,7 @@ function PropertiesEditor({
 						<button
 							className={classNames(
 								'propertiespanel-pop-up__groupselector__button',
-								getSourceLayerClassName(group.sourceLayerType),
+								RundownUtils.getSourceLayerClassName(group.sourceLayerType),
 								selectedGroupId === key && 'active'
 							)}
 							key={key}

@@ -14,7 +14,7 @@ import { PieceInstances } from '../../collections/index.js'
 import { RundownPlaylistClientUtil } from '../../lib/rundownPlaylistUtil.js'
 import { useTranslation } from 'react-i18next'
 import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
-import { getSourceLayerClassName } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
+import { RundownUtils } from '../../lib/rundown.js'
 
 interface IPartNamePanelProps {
 	layout: RundownLayoutBase
@@ -58,7 +58,7 @@ export function PartNamePanel({ layout, panel, playlist, showStyleBase }: IPartN
 	)
 
 	const sourceLayerType = instanceToShow?.sourceLayer?.type
-	let backgroundSourceLayer = sourceLayerType ? getSourceLayerClassName(sourceLayerType) : undefined
+	let backgroundSourceLayer = sourceLayerType ? RundownUtils.getSourceLayerClassName(sourceLayerType) : undefined
 
 	if (!backgroundSourceLayer) {
 		backgroundSourceLayer = ''

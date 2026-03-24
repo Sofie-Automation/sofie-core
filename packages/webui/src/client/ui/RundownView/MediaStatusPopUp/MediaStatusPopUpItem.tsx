@@ -9,7 +9,6 @@ import classNames from 'classnames'
 import { MediaStatusIndicator } from '../../MediaStatus/MediaStatusIndicator.js'
 import { scrollToPart, scrollToSegment } from '../../../lib/viewPort.js'
 import { logger } from '../../../lib/logging.js'
-import { getSourceLayerClassName } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
 
 interface IMediaStatusPopUpItemProps {
 	partId: PartId | undefined
@@ -51,7 +50,8 @@ export function MediaStatusPopUpItem({
 	const timingId = unprotectString(partInstanceId ?? partId)
 	const thisPartCountdown = timingId ? timingDurations.partCountdown?.[timingId] : undefined
 
-	const sourceLayerClassName = sourceLayerType !== undefined ? getSourceLayerClassName(sourceLayerType) : undefined
+	const sourceLayerClassName =
+		sourceLayerType !== undefined ? RundownUtils.getSourceLayerClassName(sourceLayerType) : undefined
 
 	const onPartIdentifierClick = useCallback(() => {
 		if (!segmentId || !partId) return

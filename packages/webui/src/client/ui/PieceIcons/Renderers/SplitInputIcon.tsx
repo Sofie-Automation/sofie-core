@@ -3,7 +3,7 @@ import { PieceGeneric } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { SplitsContent, SourceLayerType } from '@sofie-automation/blueprints-integration'
 import classNames from 'classnames'
 import { ReadonlyDeep } from 'type-fest'
-import { getSourceLayerClassName } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
+import { RundownUtils } from '../../../lib/rundown'
 
 type SplitIconPieceType = ReadonlyDeep<Omit<PieceGeneric, 'timelineObjectsString'>>
 
@@ -36,7 +36,7 @@ export default class SplitInputIcon extends React.Component<{
 		if (piece && piece.content) {
 			const c = piece.content as SplitsContent
 			const left = (c.boxSourceConfiguration && c.boxSourceConfiguration[0])?.type || SourceLayerType.CAMERA
-			return getSourceLayerClassName(left)
+			return RundownUtils.getSourceLayerClassName(left)
 		}
 		return 'camera'
 	}
@@ -45,7 +45,7 @@ export default class SplitInputIcon extends React.Component<{
 		if (piece && piece.content) {
 			const c = piece.content as SplitsContent
 			const right = (c.boxSourceConfiguration && c.boxSourceConfiguration[1])?.type || SourceLayerType.REMOTE
-			const sourceType = getSourceLayerClassName(right)
+			const sourceType = RundownUtils.getSourceLayerClassName(right)
 			return sourceType + (this.getLeftSourceType(piece) === sourceType ? ' second' : '')
 		}
 		return 'remote'

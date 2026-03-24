@@ -1,7 +1,6 @@
 import _ from 'underscore'
 
 import {
-	SourceLayerType,
 	PieceLifespan,
 	IBlueprintActionManifestDisplay,
 	IBlueprintActionManifestDisplayContent,
@@ -10,11 +9,11 @@ import {
 } from '@sofie-automation/blueprints-integration'
 import { SegmentId, RundownId, PartId, PieceId, RundownPlaylistActivationId } from '../dataModel/Ids.js'
 import { DBPart, PartExtended } from '../dataModel/Part.js'
-import { Piece, PieceExtended, PieceStatusCode } from '../dataModel/Piece.js'
+import { Piece, PieceExtended } from '../dataModel/Piece.js'
 import { PieceInstance, PieceInstancePiece } from '../dataModel/PieceInstance.js'
 import { DBRundownPlaylist, QuickLoopMarkerType } from '../dataModel/RundownPlaylist.js'
 import { DBSegment, SegmentExtended, SegmentOrphanedReason } from '../dataModel/Segment.js'
-import { assertNever, literal, groupByToMap, Complete } from '../lib.js'
+import { literal, groupByToMap, Complete } from '../lib.js'
 import { FindOptions, mongoWhereFilter } from '../mongo.js'
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import {
@@ -44,36 +43,6 @@ import {
 	PiecesFind,
 	ResolvedSegmentResult,
 } from './stateCacheResolverTypes.js'
-
-export function getSourceLayerClassName(sourceLayerType: SourceLayerType): string {
-	// CAMERA_MOVEMENT -> "camera-movement"
-	return ((SourceLayerType[sourceLayerType] || 'unknown-sourceLayer-' + sourceLayerType) + '')
-		.toLowerCase()
-		.replace(/_/g, '-')
-}
-
-export function getPieceStatusClassName(status: PieceStatusCode | undefined): string | undefined {
-	switch (status) {
-		case PieceStatusCode.OK:
-		case PieceStatusCode.SOURCE_HAS_ISSUES:
-		case PieceStatusCode.SOURCE_NOT_SET:
-			return
-		case PieceStatusCode.SOURCE_BROKEN:
-			return 'source-broken'
-		case PieceStatusCode.SOURCE_MISSING:
-			return 'source-missing'
-		case PieceStatusCode.SOURCE_UNKNOWN_STATE:
-			return 'source-unknown-state'
-		case PieceStatusCode.SOURCE_NOT_READY:
-			return 'source-not-ready'
-		case undefined:
-		case PieceStatusCode.UNKNOWN:
-			return 'unknown-state'
-		default:
-			assertNever(status)
-			return 'source-unknown-state'
-	}
-}
 
 /** Resolve segment parts/pieces into timeline-friendly UI data. */
 export function getResolvedSegment({

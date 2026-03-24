@@ -17,7 +17,7 @@ import {
 } from '../../PreviewPopUp/PreviewPopUpContext.js'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
-import { getSourceLayerClassName } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
+import { RundownUtils } from '../../../lib/rundown.js'
 
 interface IProps {
 	layer: ISourceLayer
@@ -93,7 +93,7 @@ export function StoryboardSecondaryPiece(props: IProps): JSX.Element {
 		undefined
 	)
 
-	const typeClass = piece?.sourceLayer?.type ? getSourceLayerClassName(piece?.sourceLayer?.type) : ''
+	const typeClass = piece?.sourceLayer?.type ? RundownUtils.getSourceLayerClassName(piece?.sourceLayer?.type) : ''
 
 	const previewContext = useContext(PreviewPopUpContext)
 	const previewSession = useRef<IPreviewPopUpSession | null>(null)

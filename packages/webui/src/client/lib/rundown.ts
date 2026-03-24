@@ -25,7 +25,7 @@ import { calculatePartInstanceExpectedDurationWithTransition } from '@sofie-auto
 import { AdLibPieceUi } from './shelf.js'
 import { PieceId, PieceInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PieceInstances, Pieces, Segments } from '../collections/index.js'
-import { Piece, PieceUi } from '@sofie-automation/corelib/dist/dataModel/Piece'
+import { Piece, PieceStatusCode, PieceUi } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { assertNever } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { FindOneOptions, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
@@ -297,6 +297,36 @@ export namespace RundownUtils {
 			return false
 		}
 		return true
+	}
+
+	export function getSourceLayerClassName(sourceLayerType: SourceLayerType): string {
+		// CAMERA_MOVEMENT -> "camera-movement"
+		return ((SourceLayerType[sourceLayerType] || 'unknown-sourceLayer-' + sourceLayerType) + '')
+			.toLowerCase()
+			.replace(/_/g, '-')
+	}
+
+	export function getPieceStatusClassName(status: PieceStatusCode | undefined): string | undefined {
+		switch (status) {
+			case PieceStatusCode.OK:
+			case PieceStatusCode.SOURCE_HAS_ISSUES:
+			case PieceStatusCode.SOURCE_NOT_SET:
+				return
+			case PieceStatusCode.SOURCE_BROKEN:
+				return 'source-broken'
+			case PieceStatusCode.SOURCE_MISSING:
+				return 'source-missing'
+			case PieceStatusCode.SOURCE_UNKNOWN_STATE:
+				return 'source-unknown-state'
+			case PieceStatusCode.SOURCE_NOT_READY:
+				return 'source-not-ready'
+			case undefined:
+			case PieceStatusCode.UNKNOWN:
+				return 'unknown-state'
+			default:
+				assertNever(status)
+				return 'source-unknown-state'
+		}
 	}
 
 	/** UI wrapper around `corelib.getResolvedSegment` with client-side defaults. */
