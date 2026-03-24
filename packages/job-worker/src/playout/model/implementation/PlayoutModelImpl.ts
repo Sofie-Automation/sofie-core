@@ -735,11 +735,11 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 			this.#playlistHasChanged
 				? this.context.directCollections.RundownPlaylists.replace(this.playlistImpl)
 				: undefined,
-			...writePartInstancesAndPieceInstances(this.context, this.allPartInstances),
 			writeAdlibTestingSegments(this.context, this.rundownsImpl),
 			...Array.from(partInstancesByRundownId.entries()).map(async ([rundownId, partInstances]) =>
 				writeExpectedPackagesForPlayoutSources(this.context, this.playlistId, rundownId, partInstances)
 			),
+			...writePartInstancesAndPieceInstances(this.context, this.allPartInstances), // After the ExpectedPackages, as this clears the change flags
 			this.#baselineHelper.saveAllToDatabase(),
 			this.#notificationsHelper.saveAllToDatabase(),
 			this.context.saveRouteSetChanges(),
