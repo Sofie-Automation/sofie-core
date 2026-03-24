@@ -149,7 +149,7 @@ function getShowStyleBaseIdSegmentPartUi(
 		segments: DBSegment[]
 		parts: DBPart[]
 	},
-	rundownsToShowstyles: Map<RundownId, ShowStyleBaseId>,
+	rundownsToShowStyles: Map<RundownId, ShowStyleBaseId>,
 	currentPartInstance: PartInstance | undefined,
 	nextPartInstance: PartInstance | undefined
 ): {
@@ -195,19 +195,25 @@ function getShowStyleBaseIdSegmentPartUi(
 			// re-evaluated when a piece like that appears.
 
 			const o = RundownUtils.getResolvedSegment(
-				showStyleBase,
-				studio,
-				playlist,
-				currentRundown,
-				orderedSegmentsAndParts.segments[segmentIndex],
-				new Set(orderedSegmentsAndParts.segments.map((s) => s._id).slice(0, segmentIndex)),
-				rundownOrder.slice(0, rundownIndex),
-				rundownsToShowstyles,
-				orderedSegmentsAndParts.parts.map((part) => part._id),
-				currentPartInstance,
-				nextPartInstance,
-				true,
-				true
+				{
+					showStyleBase,
+					studio,
+					playlist,
+					rundown: currentRundown,
+					segment: orderedSegmentsAndParts.segments[segmentIndex],
+					segmentsToReceiveOnRundownEndFromSet: new Set(
+						orderedSegmentsAndParts.segments.map((s) => s._id).slice(0, segmentIndex)
+					),
+					rundownsToReceiveOnShowStyleEndFrom: rundownOrder.slice(0, rundownIndex),
+					rundownsToShowStyles,
+					orderedAllPartIds: orderedSegmentsAndParts.parts.map((part) => part._id),
+					currentPartInstance,
+					nextPartInstance,
+				},
+				{
+					pieceInstanceSimulation: true,
+					includeDisabledPieces: true,
+				}
 			)
 
 			segment = {

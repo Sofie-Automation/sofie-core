@@ -168,7 +168,7 @@ interface ITrackedProps {
 	playlist?: DBRundownPlaylist
 	currentRundown?: Rundown
 	matchedSegments: MatchedSegment[]
-	rundownsToShowstyles: ReadonlyMap<RundownId, ShowStyleBaseId>
+	rundownsToShowStyles: ReadonlyMap<RundownId, ShowStyleBaseId>
 	studio?: UIStudio
 	showStyleBase?: UIShowStyleBase
 	showStyleVariant?: DBShowStyleVariant
@@ -302,7 +302,7 @@ export function RundownView(props: Readonly<IProps>): JSX.Element {
 				rundowns={rundowns}
 				currentRundown={currentRundown}
 				matchedSegments={matchedSegments}
-				rundownsToShowstyles={rundownsToShowStyles}
+				rundownsToShowStyles={rundownsToShowStyles}
 				playlist={playlist}
 				studio={studio}
 				showStyleBase={showStyleBase}
@@ -1119,7 +1119,7 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 				onSegmentScroll: this.onSegmentScroll,
 				segmentsIdsBefore: segmentIdsBeforeSegment,
 				rundownIdsBefore: rundownIdsBefore,
-				rundownsToShowstyles: this.props.rundownsToShowstyles,
+				rundownsToShowStyles: this.props.rundownsToShowStyles,
 				isLastSegment: isLastSegment,
 				onPieceClick: this.onSelectPiece,
 				onPieceDoubleClick: this.onPieceDoubleClick,

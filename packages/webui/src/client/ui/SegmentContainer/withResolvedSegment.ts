@@ -66,7 +66,7 @@ export interface IResolvedSegmentProps {
 	segmentId: SegmentId
 	segmentsIdsBefore: Set<SegmentId>
 	rundownIdsBefore: RundownId[]
-	rundownsToShowstyles: ReadonlyMap<RundownId, ShowStyleBaseId>
+	rundownsToShowStyles: ReadonlyMap<RundownId, ShowStyleBaseId>
 	studio: UIStudio
 	showStyleBase: UIShowStyleBase
 	playlist: DBRundownPlaylist
@@ -202,19 +202,23 @@ export function withResolvedSegment<T extends IResolvedSegmentProps, IState = {}
 			const rundownIndex = rundownOrder.indexOf(segment.rundownId)
 
 			const o = RundownUtils.getResolvedSegment(
-				props.showStyleBase,
-				props.studio,
-				props.playlist,
-				props.rundown,
-				segment,
-				props.segmentsIdsBefore,
-				rundownOrder.slice(0, rundownIndex),
-				props.rundownsToShowstyles,
-				orderedAllPartIds,
-				currentPartInstance,
-				nextPartInstance,
-				true,
-				true
+				{
+					showStyleBase: props.showStyleBase,
+					studio: props.studio,
+					playlist: props.playlist,
+					rundown: props.rundown,
+					segment,
+					segmentsToReceiveOnRundownEndFromSet: props.segmentsIdsBefore,
+					rundownsToReceiveOnShowStyleEndFrom: rundownOrder.slice(0, rundownIndex),
+					rundownsToShowStyles: props.rundownsToShowStyles,
+					orderedAllPartIds,
+					currentPartInstance,
+					nextPartInstance,
+				},
+				{
+					pieceInstanceSimulation: true,
+					includeDisabledPieces: true,
+				}
 			)
 
 			if (props.rundownViewLayout && o.segmentExtended) {

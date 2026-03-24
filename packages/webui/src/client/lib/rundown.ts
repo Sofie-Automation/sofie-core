@@ -12,7 +12,7 @@ import {
 	IBlueprintActionManifestDisplay,
 	IBlueprintActionManifestDisplayContent,
 } from '@sofie-automation/blueprints-integration'
-import { DBSegment, SegmentExtended } from '@sofie-automation/corelib/dist/dataModel/Segment'
+import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { getCurrentTime } from './systemTime.js'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
@@ -20,28 +20,26 @@ import { IAdLibListItem } from '../ui/Shelf/AdLibListItem.js'
 import { BucketAdLibItem, BucketAdLibUi } from '../ui/Shelf/RundownViewBuckets.js'
 import { FindOptions } from '../collections/lib.js'
 import { getShowHiddenSourceLayers } from './localStorage.js'
-import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { IStudioSettings, UIStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import { IStudioSettings } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { calculatePartInstanceExpectedDurationWithTransition } from '@sofie-automation/corelib/dist/playout/timings'
 import { AdLibPieceUi } from './shelf.js'
-import {
-	PartId,
-	PieceId,
-	PieceInstanceId,
-	RundownId,
-	RundownPlaylistActivationId,
-	SegmentId,
-	ShowStyleBaseId,
-} from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { PieceId, PieceInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PieceInstances, Pieces, Segments } from '../collections/index.js'
 import { Piece, PieceUi } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { assertNever } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { FindOneOptions, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
-import { DBPart, PartExtended } from '@sofie-automation/corelib/dist/dataModel/Part'
+import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { RundownPlaylistClientUtil } from './rundownPlaylistUtil.js'
-import { DBShowStyleBase, UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
-import { PartInstance, PartInstanceLimited } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
+import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
 import { invalidateAfter } from './invalidatingTime'
+import {
+	PieceInstancesForPartInstanceContext,
+	PieceInstancesForPartInstanceWrapperOptions,
+	ResolvedSegmentContext,
+	ResolvedSegmentResult,
+	ResolvedSegmentWrapperOptions,
+	SegmentsWithPartInstancesWrapperParams,
+} from '@sofie-automation/corelib/src/playout/stateCacheResolverTypes.js'
 
 const segmentsFindOne = (selector: SegmentId | MongoQuery<DBSegment>, options: FindOneOptions<DBSegment>) =>
 	Segments.findOne(selector, options)
@@ -70,6 +68,14 @@ const pieceInstancesFind = (
 	selector?: PieceInstanceId | MongoQuery<PieceInstance>,
 	options?: FindOptions<PieceInstance>
 ) => PieceInstances.find(selector, options).fetch()
+
+const stateResolverAccessors = {
+	segmentsFindOne,
+	getSegmentsAndPartsSync,
+	getActivePartInstances,
+	piecesFind,
+	pieceInstancesFind,
+}
 
 /**
  * Returns a human-readable, translatable string for a given SourceLayerType.
@@ -293,90 +299,22 @@ export namespace RundownUtils {
 		return true
 	}
 
-	/**
-	 * This function allows to see what the output of the playback will look like.
-	 * It simulates the operations done by the playout operations in core and playout-gateway
-	 * and produces a list of Pieces across Parts timed relatively.
-	 *
-	 * This method is primarily used by the GUI to visualize segments, but other functions
-	 * utilize it as well when information about timing & time placement is needed.
-	 *
-	 * @export
-	 * @param {ShowStyleBase} showStyleBase
-	 * @param {UIStudio} studio
-	 * @param {DBRundownPlaylist} playlist
-	 * @param {DBSegment} segment
-	 * @param {Set<SegmentId>} segmentsToReceiveOnRundownEndFromSet
-	 * @param {PartId[]} orderedAllPartIds
-	 * @param {PartInstance | undefined } currentPartInstance
-	 * @param {PartInstance | undefined } nextPartInstance
-	 * @param {boolean} [pieceInstanceSimulation=false] Can be used client-side to simulate the contents of a
-	 * 		PartInstance, whose contents are being streamed in. When ran in a reactive context, the computation will
-	 * 		be eventually invalidated so that the actual data can be streamed in (to show that the part is actually empty)
-	 * @param {boolean} [includeDisabledPieces=false] In some uses (like when previewing a Segment in the GUI) it's needed
-	 * 		to consider disabled Piecess as where they are, instead of stripping them out. When enabled, the method will
-	 * 		keep them in the result set.
-	 * @return {*}  {({
-	 */
+	/** UI wrapper around `corelib.getResolvedSegment` with client-side defaults. */
 	export function getResolvedSegment(
-		showStyleBase: DBShowStyleBase | UIShowStyleBase,
-		studio: UIStudio | undefined,
-		playlist: DBRundownPlaylist,
-		rundown: Pick<Rundown, '_id' | 'showStyleBaseId'>,
-		segment: DBSegment,
-		segmentsToReceiveOnRundownEndFromSet: Set<SegmentId>,
-		rundownsToReceiveOnShowStyleEndFrom: RundownId[],
-		rundownsToShowstyles: ReadonlyMap<RundownId, ShowStyleBaseId>,
-		orderedAllPartIds: PartId[],
-		currentPartInstance: PartInstance | undefined,
-		nextPartInstance: PartInstance | undefined,
-		pieceInstanceSimulation = false,
-		includeDisabledPieces = false
-	): {
-		/** A Segment with some additional information */
-		segmentExtended: SegmentExtended
-		/** Parts in the segment, with additional information on the Part and the Pieces */
-		parts: Array<PartExtended>
-		/** A flag if the segment is currently on air (one of it's Parts is on air) */
-		isLiveSegment: boolean
-		/** A flag if the segment is currently next (one of it's Parts is on air) */
-		isNextSegment: boolean
-		/** The part that is currently on air, if the Segment is on air */
-		currentLivePart: PartExtended | undefined
-		/** The part that is currently set as next, if the Segment is next */
-		currentNextPart: PartExtended | undefined
-		/** A flag if any of the Parts have a Piece on a Layer with the 'Remote' flag on */
-		hasRemoteItems: boolean
-		/** A flag if any of the Parts have a Piece on a Layer with the 'Guest' flag on */
-		hasGuestItems: boolean
-		/** A flag if any of the Parts have already played */
-		hasAlreadyPlayed: boolean
-		/** A flag if the current on air part (doesn't have to be of this segment) will autonext */
-		autoNextPart: boolean
-	} {
-		return getResolvedSegmentBase(
-			showStyleBase,
-			studio,
-			playlist,
-			rundown,
-			segment,
-			segmentsToReceiveOnRundownEndFromSet,
-			rundownsToReceiveOnShowStyleEndFrom,
-			rundownsToShowstyles,
-			orderedAllPartIds,
-			currentPartInstance,
-			nextPartInstance,
-			segmentsFindOne,
-			getSegmentsAndPartsSync,
-			getActivePartInstances,
-			piecesFind,
-			pieceInstancesFind,
-			getCurrentTime,
-			pieceInstanceSimulation ? invalidateAfter : undefined,
-			includeDisabledPieces,
-			getShowHiddenSourceLayers(),
-			Settings.defaultDisplayDuration
-		)
+		segmentContext: ResolvedSegmentContext,
+		options?: ResolvedSegmentWrapperOptions
+	): ResolvedSegmentResult {
+		return getResolvedSegmentBase({
+			...segmentContext,
+			accessors: stateResolverAccessors,
+			options: {
+				getCurrentTime,
+				invalidateAfter: options?.pieceInstanceSimulation ? invalidateAfter : undefined,
+				includeDisabledPieces: options?.includeDisabledPieces ?? false,
+				showHiddenSourceLayers: getShowHiddenSourceLayers(),
+				defaultDisplayDuration: Settings.defaultDisplayDuration,
+			},
+		})
 	}
 
 	export function isPieceInstance(
@@ -428,101 +366,38 @@ export namespace RundownUtils {
 		return 'bucketId' in piece && !!piece['bucketId']
 	}
 
-	/**
-	 * Get all PartInstances (or temporary PartInstances) all segments in all rundowns in a playlist, using given queries
-	 * to limit the data, in correct order.
-	 *
-	 * @export
-	 * @param {DBRundownPlaylist} playlist
-	 * @param {(MongoQuery<DBSegment>)} [segmentsQuery]
-	 * @param {(MongoQuery<DBPart>)} [partsQuery]
-	 * @param {MongoQuery<PartInstance>} [partInstancesQuery]
-	 * @param {FindOptions<DBSegment>} [segmentsOptions]
-	 * @param {FindOptions<DBPart>} [partsOptions]
-	 * @param {FindOptions<PartInstance>} [partInstancesOptions]
-	 * @return {*}  {Array<{ segment: Segment; partInstances: PartInstance[] }>}
-	 */
+	/** UI wrapper around `corelib.getSegmentsWithPartInstances`. */
 	export function getSegmentsWithPartInstances(
 		playlist: DBRundownPlaylist,
-		segmentsQuery?: MongoQuery<DBSegment>,
-		partsQuery?: MongoQuery<DBPart>,
-		partInstancesQuery?: MongoQuery<PartInstance>,
-		segmentsOptions?: FindOptions<DBSegment>,
-		partsOptions?: FindOptions<DBPart>,
-		partInstancesOptions?: FindOptions<PartInstance>
+		params?: SegmentsWithPartInstancesWrapperParams
 	): Array<{ segment: DBSegment; partInstances: PartInstance[] }> {
-		return getSegmentsWithPartInstancesBase(
+		return getSegmentsWithPartInstancesBase({
 			playlist,
-			getSegmentsAndPartsSync,
-			getActivePartInstances,
-			segmentsQuery,
-			partsQuery,
-			partInstancesQuery,
-			segmentsOptions,
-			partsOptions,
-			partInstancesOptions
-		)
+			accessors: {
+				getSegmentsAndPartsSync,
+				getActivePartInstances,
+			},
+			queries: params?.queries,
+			options: params?.options,
+		})
 	}
-	/**
-	 * Get the PieceInstances for a given PartInstance. Will create temporary PieceInstances, based on the Pieces collection
-	 * if the partInstance is temporary.
-	 *
-	 * @export
-	 * @param {PartInstanceLimited} partInstance
-	 * @param {Set<PartId>} partsToReceiveOnSegmentEndFromSet
-	 * @param {Set<SegmentId>} segmentsToReceiveOnRundownEndFromSet
-	 * @param {PartId[]} orderedAllParts
-	 * @param {boolean} nextPartIsAfterCurrentPart
-	 * @param {(PartInstance | undefined)} currentPartInstance
-	 * @param {(PieceInstance[] | undefined)} currentPartInstancePieceInstances
-	 * @param {boolean} allowTestingAdlibsToPersist Studio config parameter to allow infinite adlibs from adlib testing to persist in the rundown
-	 * @param {FindOptions<PieceInstance>} [options]
-	 * @param {boolean} [pieceInstanceSimulation] If there are no PieceInstances in the PartInstance, create temporary
-	 * 		PieceInstances based on the Pieces collection and register a reactive dependency to recalculate the current
-	 * 		computation after some time to return the actual PieceInstances for the PartInstance.
-	 * @return {*}
-	 */
+	/** UI wrapper around `corelib.getPieceInstancesForPartInstance`. */
 	export function getPieceInstancesForPartInstance(
-		playlistActivationId: RundownPlaylistActivationId | undefined,
-		rundown: Pick<Rundown, '_id' | 'showStyleBaseId'>,
-		segment: Pick<DBSegment, '_id' | 'orphaned'>,
-		partInstance: PartInstanceLimited,
-		partsToReceiveOnSegmentEndFromSet: Set<PartId>,
-		segmentsToReceiveOnRundownEndFromSet: Set<SegmentId>,
-		rundownsToReceiveOnShowStyleEndFrom: RundownId[],
-		rundownsToShowstyles: ReadonlyMap<RundownId, ShowStyleBaseId>,
-		orderedAllParts: PartId[],
-		nextPartIsAfterCurrentPart: boolean,
-		currentPartInstance: PartInstance | undefined,
-		currentSegment: Pick<DBSegment, '_id' | 'orphaned'> | undefined,
-		currentPartInstancePieceInstances: PieceInstance[] | undefined,
-		allowTestingAdlibsToPersist: boolean,
-		/** Map of Pieces on Parts, passed through for performance */
-		allPiecesCache?: Map<PartId | null, Piece[]>,
-		options?: FindOptions<PieceInstance>,
-		pieceInstanceSimulation?: boolean
+		pieceInstanceContext: PieceInstancesForPartInstanceContext,
+		options?: PieceInstancesForPartInstanceWrapperOptions
 	): PieceInstance[] {
-		return getPieceInstancesForPartInstanceBase(
-			playlistActivationId,
-			rundown,
-			segment,
-			partInstance,
-			partsToReceiveOnSegmentEndFromSet,
-			segmentsToReceiveOnRundownEndFromSet,
-			rundownsToReceiveOnShowStyleEndFrom,
-			rundownsToShowstyles,
-			orderedAllParts,
-			nextPartIsAfterCurrentPart,
-			currentPartInstance,
-			currentSegment,
-			currentPartInstancePieceInstances,
-			allowTestingAdlibsToPersist,
-			piecesFind,
-			pieceInstancesFind,
-			getCurrentTime,
-			allPiecesCache,
-			options,
-			pieceInstanceSimulation ? invalidateAfter : undefined
-		)
+		return getPieceInstancesForPartInstanceBase({
+			...pieceInstanceContext,
+			accessors: {
+				piecesFind,
+				pieceInstancesFind,
+			},
+			options: {
+				getCurrentTime,
+				allPiecesCache: options?.allPiecesCache,
+				pieceInstanceOptions: options?.pieceInstanceOptions,
+				invalidateAfter: options?.pieceInstanceSimulation ? invalidateAfter : undefined,
+			},
+		})
 	}
 }

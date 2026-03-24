@@ -101,28 +101,27 @@ export namespace PrompterAPI {
 				}) as Pick<DBSegment, '_id' | 'orphaned'>)
 			: undefined
 
-		const groupedParts = RundownUtils.getSegmentsWithPartInstances(
-			playlist,
-			undefined,
-			undefined,
-			// unless this is the current or next PartInstance, we actually don't want the PartInstances,
-			// we want it to behave as if all other PartInstances are reset.
-			{
-				_id: {
-					$in: [currentPartInstance?._id, nextPartInstance?._id].filter(Boolean) as PartInstanceId[],
+		const groupedParts = RundownUtils.getSegmentsWithPartInstances(playlist, {
+			queries: {
+				// unless this is the current or next PartInstance, we actually don't want the PartInstances,
+				// we want it to behave as if all other PartInstances are reset.
+				partInstances: {
+					_id: {
+						$in: [currentPartInstance?._id, nextPartInstance?._id].filter(Boolean) as PartInstanceId[],
+					},
 				},
 			},
-			undefined,
-			undefined,
-			{
-				fields: {
-					isTaken: 0,
-					previousPartEndState: 0,
-					takeCount: 0,
-					timings: 0,
+			options: {
+				partInstances: {
+					fields: {
+						isTaken: 0,
+						previousPartEndState: 0,
+						takeCount: 0,
+						timings: 0,
+					},
 				},
-			}
-		)
+			},
+		})
 
 		// const groupedParts = _.groupBy(parts, (p) => p.segmentId)
 
@@ -229,23 +228,27 @@ export namespace PrompterAPI {
 				}
 
 				const rawPieceInstances = RundownUtils.getPieceInstancesForPartInstance(
-					playlist.activationId,
-					rundown,
-					segment,
-					partInstance,
-					new Set(partIds.slice(0, partIndex)),
-					new Set(segmentIds.slice(0, segmentIndex)),
-					rundownIds.slice(0, currentRundownIndex),
-					rundownIdsToSourceLayers,
-					orderedAllPartIds,
-					nextPartIsAfterCurrentPart,
-					currentPartInstance,
-					currentSegment,
-					currentPartInstancePieceInstances,
-					allowTestingAdlibsToPersist,
-					allPiecesCache,
-					pieceInstanceFieldOptions,
-					true
+					{
+						playlistActivationId: playlist.activationId,
+						rundown,
+						segment,
+						partInstance,
+						partsToReceiveOnSegmentEndFromSet: new Set(partIds.slice(0, partIndex)),
+						segmentsToReceiveOnRundownEndFromSet: new Set(segmentIds.slice(0, segmentIndex)),
+						rundownsToReceiveOnShowStyleEndFrom: rundownIds.slice(0, currentRundownIndex),
+						rundownsToShowStyles: rundownIdsToSourceLayers,
+						orderedAllParts: orderedAllPartIds,
+						nextPartIsAfterCurrentPart,
+						currentPartInstance,
+						currentSegment,
+						currentPartInstancePieceInstances,
+						allowTestingAdlibsToPersist,
+					},
+					{
+						allPiecesCache,
+						pieceInstanceOptions: pieceInstanceFieldOptions,
+						pieceInstanceSimulation: true,
+					}
 				)
 
 				const sourceLayers = rundownIdsToShowStyleBase.get(partInstance.rundownId)

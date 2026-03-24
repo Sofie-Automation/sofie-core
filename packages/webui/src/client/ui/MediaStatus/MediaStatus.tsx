@@ -113,29 +113,26 @@ function useRundownPlaylists(playlistIds: RundownPlaylistId[]) {
 				.sort(sortRundownPlaylists)
 				.map((playlist) => ({
 					playlist,
-					segments: RundownUtils.getSegmentsWithPartInstances(
-						playlist,
-						undefined,
-						undefined,
-						undefined,
-						{
-							projection: {
-								displayAs: 0,
-								externalId: 0,
-								privateData: 0,
-								notes: 0,
-								segmentTiming: 0,
-								showShelf: 0,
+					segments: RundownUtils.getSegmentsWithPartInstances(playlist, {
+						options: {
+							segments: {
+								projection: {
+									displayAs: 0,
+									externalId: 0,
+									privateData: 0,
+									notes: 0,
+									segmentTiming: 0,
+									showShelf: 0,
+								},
+							},
+							partInstances: {
+								projection: {
+									timings: 0,
+									partPlayoutTimings: 0,
+								},
 							},
 						},
-						undefined,
-						{
-							projection: {
-								timings: 0,
-								partPlayoutTimings: 0,
-							},
-						}
-					),
+					}),
 				})),
 		[playlistIds],
 		[]

@@ -58,19 +58,19 @@ describe('client/lib/rundown', () => {
 			const rundown = rundowns[0]
 			const segment = segments[0]
 
-			const resolvedSegment = RundownUtils.getResolvedSegment(
+			const resolvedSegment = RundownUtils.getResolvedSegment({
 				showStyleBase,
 				studio,
 				playlist,
 				rundown,
 				segment,
-				new Set(segments.slice(0, 0).map((s) => s._id)),
-				[],
-				new Map(),
-				parts.map((part) => part._id),
+				segmentsToReceiveOnRundownEndFromSet: new Set(segments.slice(0, 0).map((s) => s._id)),
+				rundownsToReceiveOnShowStyleEndFrom: [],
+				rundownsToShowStyles: new Map(),
+				orderedAllPartIds: parts.map((part) => part._id),
 				currentPartInstance,
-				nextPartInstance
-			)
+				nextPartInstance,
+			})
 			expect(resolvedSegment).toBeTruthy()
 			expect(resolvedSegment.parts).toHaveLength(2)
 			expect(resolvedSegment).toMatchObject({
@@ -120,19 +120,19 @@ describe('client/lib/rundown', () => {
 
 			mockPiecesCollection.insert(infinitePiece)
 
-			const resolvedSegment = RundownUtils.getResolvedSegment(
+			const resolvedSegment = RundownUtils.getResolvedSegment({
 				showStyleBase,
 				studio,
 				playlist,
 				rundown,
 				segment,
-				new Set(segments.slice(0, 1).map((s) => s._id)),
-				[],
-				new Map(),
-				parts.map((part) => part._id),
+				segmentsToReceiveOnRundownEndFromSet: new Set(segments.slice(0, 1).map((s) => s._id)),
+				rundownsToReceiveOnShowStyleEndFrom: [],
+				rundownsToShowStyles: new Map(),
+				orderedAllPartIds: parts.map((part) => part._id),
 				currentPartInstance,
-				nextPartInstance
-			)
+				nextPartInstance,
+			})
 			expect(resolvedSegment).toBeTruthy()
 			expect(resolvedSegment.parts).toHaveLength(3)
 			expect(resolvedSegment).toMatchObject({
@@ -206,19 +206,19 @@ describe('client/lib/rundown', () => {
 			}
 			mockPiecesCollection.insert(croppingPiece)
 
-			const resolvedSegment = RundownUtils.getResolvedSegment(
+			const resolvedSegment = RundownUtils.getResolvedSegment({
 				showStyleBase,
 				studio,
 				playlist,
 				rundown,
 				segment,
-				new Set(segments.slice(0, 1).map((s) => s._id)),
-				[],
-				new Map(),
-				parts.map((part) => part._id),
+				segmentsToReceiveOnRundownEndFromSet: new Set(segments.slice(0, 1).map((s) => s._id)),
+				rundownsToReceiveOnShowStyleEndFrom: [],
+				rundownsToShowStyles: new Map(),
+				orderedAllPartIds: parts.map((part) => part._id),
 				currentPartInstance,
-				nextPartInstance
-			)
+				nextPartInstance,
+			})
 			expect(resolvedSegment).toBeTruthy()
 			expect(resolvedSegment.parts).toHaveLength(3)
 			expect(resolvedSegment).toMatchObject({
@@ -357,19 +357,19 @@ describe('client/lib/rundown', () => {
 			const { currentPartInstance, nextPartInstance } =
 				RundownPlaylistClientUtil.getSelectedPartInstances(playlist)
 
-			const resolvedSegment = RundownUtils.getResolvedSegment(
+			const resolvedSegment = RundownUtils.getResolvedSegment({
 				showStyleBase,
 				studio,
 				playlist,
 				rundown,
 				segment,
-				new Set(segments.slice(0, 1).map((s) => s._id)),
-				[],
-				new Map(),
-				parts.map((part) => part._id),
+				segmentsToReceiveOnRundownEndFromSet: new Set(segments.slice(0, 1).map((s) => s._id)),
+				rundownsToReceiveOnShowStyleEndFrom: [],
+				rundownsToShowStyles: new Map(),
+				orderedAllPartIds: parts.map((part) => part._id),
 				currentPartInstance,
-				nextPartInstance
-			)
+				nextPartInstance,
+			})
 			expect(resolvedSegment).toBeTruthy()
 			expect(resolvedSegment.parts).toHaveLength(3)
 			expect(resolvedSegment).toMatchObject({

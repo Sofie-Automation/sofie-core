@@ -64,7 +64,7 @@ export function Rundown({ playlist, rundown, rundownIdsBefore }: Readonly<IProps
 								ownCurrentPartInstance={undefined}
 								ownNextPartInstance={undefined}
 								rundownViewLayout={undefined}
-								rundownsToShowstyles={rundownToShowStyle}
+								rundownsToShowStyles={rundownToShowStyle}
 								rundownIdsBefore={rundownIdsBefore}
 								segmentsIdsBefore={thisSegmentsSegmentIdsBefore}
 							/>

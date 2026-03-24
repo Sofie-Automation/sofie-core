@@ -130,25 +130,31 @@ export const SegmentTimingPanel = withTracker<ISegmentTimingPanelProps, {}, ISeg
 
 			if (!rundown) return { active }
 
-			const rundownsToShowstyles = new Map()
+			const rundownsToShowStyles = new Map()
 			for (const rundown of rundowns) {
-				rundownsToShowstyles.set(rundown._id, rundown.showStyleBaseId)
+				rundownsToShowStyles.set(rundown._id, rundown.showStyleBaseId)
 			}
 
 			const o = RundownUtils.getResolvedSegment(
-				props.showStyleBase,
-				props.studio,
-				props.playlist,
-				rundown,
-				liveSegment,
-				new Set(orderedSegmentsAndParts.segments.map((s) => s._id).slice(0, segmentIndex)),
-				rundownOrder.slice(0, rundownIndex),
-				rundownsToShowstyles,
-				orderedAllPartIds,
-				currentPartInstance,
-				nextPartInstance,
-				true,
-				true
+				{
+					showStyleBase: props.showStyleBase,
+					studio: props.studio,
+					playlist: props.playlist,
+					rundown,
+					segment: liveSegment,
+					segmentsToReceiveOnRundownEndFromSet: new Set(
+						orderedSegmentsAndParts.segments.map((s) => s._id).slice(0, segmentIndex)
+					),
+					rundownsToReceiveOnShowStyleEndFrom: rundownOrder.slice(0, rundownIndex),
+					rundownsToShowStyles,
+					orderedAllPartIds,
+					currentPartInstance,
+					nextPartInstance,
+				},
+				{
+					pieceInstanceSimulation: true,
+					includeDisabledPieces: true,
+				}
 			)
 
 			return { active, liveSegment, parts: o.parts }
