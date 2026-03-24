@@ -177,55 +177,59 @@ export function SegmentContextMenu({
 				)}
 				{part && isPartNext !== undefined && isPartOrphaned !== undefined && timecode !== null && (
 					<>
-						<MenuItem
-							onClick={(e) => onSetNext(part.instance.part, e)}
-							disabled={!!part.instance.orphaned || !canSetAsNext}
-						>
-							<span
-								dangerouslySetInnerHTML={{
-									__html: t(`Set part as <strong>Next</strong>`),
-								}}
-							></span>
-						</MenuItem>
-						{startsAt !== undefined && part && enablePlayFromAnywhere ? (
+						{!part.instance.part.invalid && (
 							<>
 								<MenuItem
-									onClick={(e) =>
-										onSetAsNextFromHere(
-											part.instance,
-											playlist?.nextPartInfo?.partInstanceId ?? null,
-											playlist?.currentPartInfo?.partInstanceId ?? null,
-											e
-										)
-									}
-									disabled={getIsPlayFromHereDisabled()}
+									onClick={(e) => onSetNext(part.instance.part, e)}
+									disabled={!!part.instance.orphaned || !canSetAsNext}
 								>
 									<span
 										dangerouslySetInnerHTML={{
-											__html: t(
-												`Set part from ${RundownUtils.formatTimeToShortTime(Math.floor(timecode / 1000) * 1000)} as <strong>Next</strong>`
-											),
+											__html: t(`Set part as <strong>Next</strong>`),
 										}}
 									></span>
 								</MenuItem>
-								<MenuItem
-									onClick={(e) =>
-										onSetAsNextFromHere(
-											part.instance,
-											playlist?.nextPartInfo?.partInstanceId ?? null,
-											playlist?.currentPartInfo?.partInstanceId ?? null,
-											e,
-											true
-										)
-									}
-									disabled={getIsPlayFromHereDisabled(true)}
-								>
-									<span>
-										{t(`Play part from ${RundownUtils.formatTimeToShortTime(Math.floor(timecode / 1000) * 1000)}`)}
-									</span>
-								</MenuItem>
+								{startsAt !== undefined && part && enablePlayFromAnywhere ? (
+									<>
+										<MenuItem
+											onClick={(e) =>
+												onSetAsNextFromHere(
+													part.instance,
+													playlist?.nextPartInfo?.partInstanceId ?? null,
+													playlist?.currentPartInfo?.partInstanceId ?? null,
+													e
+												)
+											}
+											disabled={getIsPlayFromHereDisabled()}
+										>
+											<span
+												dangerouslySetInnerHTML={{
+													__html: t(
+														`Set part from ${RundownUtils.formatTimeToShortTime(Math.floor(timecode / 1000) * 1000)} as <strong>Next</strong>`
+													),
+												}}
+											></span>
+										</MenuItem>
+										<MenuItem
+											onClick={(e) =>
+												onSetAsNextFromHere(
+													part.instance,
+													playlist?.nextPartInfo?.partInstanceId ?? null,
+													playlist?.currentPartInfo?.partInstanceId ?? null,
+													e,
+													true
+												)
+											}
+											disabled={getIsPlayFromHereDisabled(true)}
+										>
+											<span>
+												{t(`Play part from ${RundownUtils.formatTimeToShortTime(Math.floor(timecode / 1000) * 1000)}`)}
+											</span>
+										</MenuItem>
+									</>
+								) : null}
 							</>
-						) : null}
+						)}
 						{enableQuickLoop && !RundownResolver.isLoopLocked(playlist) && (
 							<>
 								{RundownResolver.isQuickLoopStart(part.partId, playlist) ? (
