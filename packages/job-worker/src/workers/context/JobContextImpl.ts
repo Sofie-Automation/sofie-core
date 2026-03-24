@@ -34,6 +34,7 @@ export class JobContextImpl extends StudioCacheContextImpl implements JobContext
 		private readonly locksManager: LocksManager,
 		private readonly transaction: ApmTransaction | undefined,
 		private readonly queueJob: QueueJobFunc,
+		private readonly jobName: string,
 		private readonly fastTrackTimeline: FastTrackTimelineFunc | null
 	) {
 		super(directCollections, cacheData)
@@ -126,7 +127,7 @@ export class JobContextImpl extends StudioCacheContextImpl implements JobContext
 			try {
 				cache.assertNoChanges()
 			} catch (e) {
-				logger.warn(`${cache.displayName} has unsaved changes: ${stringifyError(e)}`)
+				logger.warn(`${cache.displayName} from "${this.jobName}" has unsaved changes: ${stringifyError(e)}`)
 			}
 		}
 	}

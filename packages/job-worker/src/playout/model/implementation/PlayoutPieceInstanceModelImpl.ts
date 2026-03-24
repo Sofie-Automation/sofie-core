@@ -80,6 +80,7 @@ export class PlayoutPieceInstanceModelImpl implements PlayoutPieceInstanceModel 
 	 */
 	clearChangedFlag(): void {
 		this.#hasChanges = false
+		this.updatedExpectedPackages = null
 	}
 
 	get pieceInstance(): ReadonlyDeep<PieceInstance> {

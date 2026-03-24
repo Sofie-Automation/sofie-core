@@ -114,6 +114,7 @@ export class IngestWorkerChild {
 			this.#locks,
 			transaction,
 			this.#queueJob,
+			jobName,
 			this.#fastTrackTimeline
 		)
 

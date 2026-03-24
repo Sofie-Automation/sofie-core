@@ -127,6 +127,7 @@ export class EventsWorkerChild {
 			this.#locks,
 			transaction,
 			this.#queueJob,
+			jobName,
 			this.#fastTrackTimeline
 		)
 
