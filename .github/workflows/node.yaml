@@ -244,33 +244,6 @@ jobs:
           provenance: false
           labels: ${{ steps.dockerhub-tag.outputs.labels }}
           tags: ${{ steps.dockerhub-tag.outputs.tags }}
-      - name: Get image for Trivy scanning
-        id: trivy-image
-        if: steps.check-build-and-push.outputs.enable == 'true' && steps.check-ghcr.outputs.enable == 'true' && steps.ghcr-tag.outputs.tags != 0
-        run: |
-          image=$(echo ${{ steps.ghcr-tag.outputs.tags }} | head -n 1)
-          echo "image=$image" >> $GITHUB_OUTPUT
-      - name: Trivy scanning
-        if: steps.check-build-and-push.outputs.enable == 'true' && steps.check-ghcr.outputs.enable == 'true' && steps.ghcr-tag.outputs.tags != 0
-        uses: aquasecurity/trivy-action@0.33.1
-        env:
-          TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db
-        with:
-          image-ref: "${{ steps.trivy-image.outputs.image }}"
-          format: "table"
-          output: trivy-scan-result.txt
-          ignore-unfixed: true
-          severity: "CRITICAL,HIGH"
-      - name: Post all Trivy scan results to Github Summary as a table
-        if: steps.check-build-and-push.outputs.enable == 'true' && steps.check-ghcr.outputs.enable == 'true' && steps.ghcr-tag.outputs.tags != 0
-        env:
-          CODE_BLOCK: "```"
-        run: |
-          echo "# Trivy scan results ~ core" >> $GITHUB_STEP_SUMMARY
-
-          echo $CODE_BLOCK >> $GITHUB_STEP_SUMMARY
-          cat trivy-scan-result.txt >> $GITHUB_STEP_SUMMARY
-          echo $CODE_BLOCK >> $GITHUB_STEP_SUMMARY
 
   build-gateways:
     # TODO - should this be dependant on tests or something passing if we are on a tag?
@@ -397,33 +370,6 @@ jobs:
           provenance: false
           labels: ${{ steps.dockerhub-tag.outputs.labels }}
           tags: "${{ steps.dockerhub-tag.outputs.tags }}"
-      - name: Get image for Trivy scanning
-        id: trivy-image
-        if: steps.check-build-and-push.outputs.enable == 'true' && steps.check-ghcr.outputs.enable == 'true' && steps.ghcr-tag.outputs.tags != 0
-        run: |
-          image=$(echo ${{ steps.ghcr-tag.outputs.tags }} | head -n 1)
-          echo "image=$image" >> $GITHUB_OUTPUT
-      - name: Trivy scanning
-        if: steps.check-build-and-push.outputs.enable == 'true' && steps.check-ghcr.outputs.enable == 'true' && steps.ghcr-tag.outputs.tags != 0
-        uses: aquasecurity/trivy-action@0.33.1
-        env:
-          TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db
-        with:
-          image-ref: "${{ steps.trivy-image.outputs.image }}"
-          format: "table"
-          output: ${{ matrix.gateway-name }}-trivy-scan-result.txt
-          ignore-unfixed: true
-          severity: "CRITICAL,HIGH"
-      - name: Post all Trivy scan results to Github Summary as a table
-        if: steps.check-build-and-push.outputs.enable == 'true' && steps.check-ghcr.outputs.enable == 'true' && steps.ghcr-tag.outputs.tags != 0
-        env:
-          CODE_BLOCK: "```"
-        run: |
-          echo "# Trivy scan results ~ ${{ matrix.gateway-name }}" >> $GITHUB_STEP_SUMMARY
-
-          echo $CODE_BLOCK >> $GITHUB_STEP_SUMMARY
-          cat ${{ matrix.gateway-name }}-trivy-scan-result.txt >> $GITHUB_STEP_SUMMARY
-          echo $CODE_BLOCK >> $GITHUB_STEP_SUMMARY
 
   lint-packages:
     name: Lint Package
