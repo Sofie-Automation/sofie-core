@@ -443,6 +443,7 @@ export function convertRundownToBlueprintSegmentRundown(
 ): IBlueprintSegmentRundown {
 	const obj: Complete<IBlueprintSegmentRundown> = {
 		externalId: rundown.externalId,
+		timing: rundown.timing,
 		privateData: skipClone ? rundown.privateData : clone(rundown.privateData),
 		publicData: skipClone ? rundown.publicData : clone(rundown.publicData),
 	}

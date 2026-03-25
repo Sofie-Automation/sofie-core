@@ -151,6 +151,29 @@ export interface IPlaylistTTimer {
 	restart(): boolean
 
 	/**
+	 * Set the duration of a countdown timer
+	 * This resets both the original duration (what restart() resets to) and the current countdown value.
+	 * @param duration New duration in milliseconds
+	 * @throws If timer is not in countdown mode or not initialized
+	 */
+	setDuration(duration: number): void
+
+	/**
+	 * Update the original duration (reset-to value) and/or current duration of a countdown timer
+	 * This allows you to independently update:
+	 * - `original`: The duration the timer resets to when restart() is called
+	 * - `current`: The current countdown value (what's displayed now)
+	 *
+	 * If only `original` is provided, the current duration is recalculated to preserve elapsed time.
+	 * If only `current` is provided, just the current countdown is updated.
+	 * If both are provided, both values are updated independently.
+	 *
+	 * @param options Object with optional `original` and/or `current` duration in milliseconds
+	 * @throws If timer is not in countdown mode or not initialized
+	 */
+	setDuration(options: { original?: number; current?: number }): void
+
+	/**
 	 * Clear any projection (manual or anchor-based) for this timer
 	 * This removes both manual projections set via setProjectedTime/setProjectedDuration
 	 * and automatic projections based on anchor parts set via setProjectedAnchorPart.
@@ -194,4 +217,38 @@ export interface IPlaylistTTimer {
 	 *               If false (default), we're progressing normally (projection counts down in real-time).
 	 */
 	setProjectedDuration(duration: number, paused?: boolean): void
+
+	/**
+	 * Get the current duration of the timer in milliseconds
+	 * For countdown timers, this returns how much time is remaining (can be negative if past zero)
+	 * For timeOfDay timers, this returns time until/since the target time
+	 * For freeRun timers, this returns how much time has elapsed
+	 * @returns Current duration in milliseconds, or null if timer is not initialized
+	 */
+	getDuration(): number | null
+
+	/**
+	 * Get the zero time (reference point) for the timer
+	 * - For countdown/timeOfDay timers: the absolute timestamp when the timer reaches zero
+	 * - For freeRun timers: the absolute timestamp when the timer started (what it counts from)
+	 * For paused timers, calculates when zero would be if resumed now.
+	 * @returns Unix timestamp in milliseconds, or null if timer is not initialized
+	 */
+	getZeroTime(): number | null
+
+	/**
+	 * Get the projected duration in milliseconds
+	 * This returns the projected timer value when we expect to reach the anchor part.
+	 * Used to calculate over/under (how far ahead or behind schedule we are).
+	 * @returns Projected duration in milliseconds, or null if no projection is set
+	 */
+	getProjectedDuration(): number | null
+
+	/**
+	 * Get the projected zero time (reference point)
+	 * This returns when we project the timer will reach zero based on scheduled durations.
+	 * For paused projections (when pushing/delayed), calculates when zero would be if resumed now.
+	 * @returns Unix timestamp in milliseconds, or null if no projection is set
+	 */
+	getProjectedZeroTime(): number | null
 }

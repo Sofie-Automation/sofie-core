@@ -91,6 +91,29 @@ export function timerStateToDuration(state: TimerState, now: number): number {
 	}
 }
 
+/**
+ * Get the zero time (reference timestamp) for a timer state.
+ * - For countdown/timeOfDay timers: when the timer reaches zero
+ * - For freeRun timers: when the timer started (what it counts from)
+ * For paused timers, calculates when zero would be if resumed now.
+ *
+ * @param state The timer state
+ * @param now Current timestamp in milliseconds
+ * @returns The zero time timestamp in milliseconds
+ */
+export function timerStateToZeroTime(state: TimerState, now: number): number {
+	if (state.paused) {
+		// Calculate when zero would be if we resumed now
+		return now + state.duration
+	} else if (state.pauseTime && now >= state.pauseTime) {
+		// Auto-pause at overrun (current part ended)
+		return state.zeroTime - state.pauseTime + now
+	} else {
+		// Already have the zero time
+		return state.zeroTime
+	}
+}
+
 export type RundownTTimerIndex = 1 | 2 | 3
 
 export interface RundownTTimer {

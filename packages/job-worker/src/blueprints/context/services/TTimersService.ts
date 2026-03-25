@@ -4,6 +4,7 @@ import type {
 	TimerState,
 } from '@sofie-automation/blueprints-integration/dist/context/tTimersContext'
 import type { RundownTTimer, RundownTTimerIndex } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { timerStateToDuration, timerStateToZeroTime } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import type { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
@@ -162,6 +163,77 @@ export class PlaylistTTimerImpl implements IPlaylistTTimer {
 		return true
 	}
 
+	setDuration(durationOrOptions: number | { original?: number; current?: number }): void {
+		// Handle overloaded signatures
+		if (typeof durationOrOptions === 'number') {
+			// Simple case: reset timer to this duration
+			return this.setDuration({ original: durationOrOptions, current: durationOrOptions })
+		}
+
+		// Options case: independently update original and/or current
+		const options = durationOrOptions
+
+		if (options.original !== undefined && options.original <= 0) {
+			throw new Error('Original duration must be greater than zero')
+		}
+		if (options.current !== undefined && options.current <= 0) {
+			throw new Error('Current duration must be greater than zero')
+		}
+
+		if (!this.#timer.mode || this.#timer.mode.type !== 'countdown') {
+			throw new Error('Timer must be in countdown mode to update duration')
+		}
+
+		if (!this.#timer.state) {
+			throw new Error('Timer is not initialized')
+		}
+
+		if (!options.original && !options.current) {
+			throw new Error('At least one of original or current duration must be provided')
+		}
+
+		const now = getCurrentTime()
+		const state = this.#timer.state
+
+		// Calculate current elapsed time using built-in function (handles pauseTime correctly)
+		const remaining = timerStateToDuration(state, now)
+		const elapsed = this.#timer.mode.duration - remaining
+
+		let newOriginalDuration: number
+		let newCurrentRemaining: number
+
+		if (options.original !== undefined && options.current !== undefined) {
+			// Both specified: use both values independently
+			newOriginalDuration = options.original
+			newCurrentRemaining = options.current
+		} else if (options.original !== undefined) {
+			// Only original specified: preserve elapsed time
+			newOriginalDuration = options.original
+			newCurrentRemaining = Math.max(0, newOriginalDuration - elapsed)
+		} else if (options.current !== undefined) {
+			// Only current specified: keep original unchanged
+			newOriginalDuration = this.#timer.mode.duration
+			newCurrentRemaining = options.current
+		} else {
+			// This should be unreachable due to earlier check
+			throw new Error('Invalid duration update options')
+		}
+
+		// Update both mode and state
+		this.#timer = {
+			...this.#timer,
+			mode: {
+				...this.#timer.mode,
+				duration: newOriginalDuration,
+			},
+			state: state.paused
+				? { paused: true, duration: newCurrentRemaining }
+				: { paused: false, zeroTime: now + newCurrentRemaining },
+		}
+
+		this.#emitChange(this.#timer)
+	}
+
 	clearProjected(): void {
 		this.#timer = {
 			...this.#timer,
@@ -214,5 +286,37 @@ export class PlaylistTTimerImpl implements IPlaylistTTimer {
 			projectedState,
 		}
 		this.#emitChange(this.#timer)
+	}
+
+	getDuration(): number | null {
+		if (!this.#timer.state) {
+			return null
+		}
+
+		return timerStateToDuration(this.#timer.state, getCurrentTime())
+	}
+
+	getZeroTime(): number | null {
+		if (!this.#timer.state) {
+			return null
+		}
+
+		return timerStateToZeroTime(this.#timer.state, getCurrentTime())
+	}
+
+	getProjectedDuration(): number | null {
+		if (!this.#timer.projectedState) {
+			return null
+		}
+
+		return timerStateToDuration(this.#timer.projectedState, getCurrentTime())
+	}
+
+	getProjectedZeroTime(): number | null {
+		if (!this.#timer.projectedState) {
+			return null
+		}
+
+		return timerStateToZeroTime(this.#timer.projectedState, getCurrentTime())
 	}
 }
