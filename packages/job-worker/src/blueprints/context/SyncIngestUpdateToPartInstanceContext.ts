@@ -17,6 +17,7 @@ import {
 	IBlueprintPartInstance,
 	SomeContent,
 	WithTimeline,
+	Time,
 } from '@sofie-automation/blueprints-integration'
 import { postProcessPieces, postProcessTimelineObjects } from '../postProcess.js'
 import {
@@ -59,6 +60,10 @@ export class SyncIngestUpdateToPartInstanceContext
 
 	public get changedTTimers(): RundownTTimer[] {
 		return Array.from(this.#changedTTimers.values())
+	}
+
+	public get startedPlayback(): Time | undefined {
+		return this.#playoutModel.playlist.startedPlayback
 	}
 
 	constructor(

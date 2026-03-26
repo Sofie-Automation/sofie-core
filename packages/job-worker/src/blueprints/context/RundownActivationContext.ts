@@ -4,6 +4,7 @@ import {
 	IRundownActivationContext,
 	IRundownActivationContextState,
 	TSR,
+	Time,
 } from '@sofie-automation/blueprints-integration'
 import { PeripheralDeviceId } from '@sofie-automation/shared-lib/dist/core/model/Ids'
 import { ReadonlyDeep } from 'type-fest'
@@ -56,6 +57,10 @@ export class RundownActivationContext extends RundownEventContext implements IRu
 	}
 	get currentState(): IRundownActivationContextState {
 		return this._currentState
+	}
+
+	get startedPlayback(): Time | undefined {
+		return this._playoutModel.playlist.startedPlayback
 	}
 
 	async listPlayoutDevices(): Promise<IBlueprintPlayoutDevice[]> {
