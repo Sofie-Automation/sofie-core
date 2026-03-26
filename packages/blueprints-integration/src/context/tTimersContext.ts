@@ -1,5 +1,75 @@
 export type IPlaylistTTimerIndex = 1 | 2 | 3
 
+export type RundownTTimerMode = RundownTTimerModeFreeRun | RundownTTimerModeCountdown | RundownTTimerModeTimeOfDay
+
+export interface RundownTTimerModeFreeRun {
+	readonly type: 'freeRun'
+}
+export interface RundownTTimerModeCountdown {
+	readonly type: 'countdown'
+	/**
+	 * The original duration of the countdown in milliseconds, so that we know what value to reset to
+	 */
+	readonly duration: number
+
+	/**
+	 * If the countdown should stop at zero, or continue into negative values
+	 */
+	readonly stopAtZero: boolean
+}
+export interface RundownTTimerModeTimeOfDay {
+	readonly type: 'timeOfDay'
+
+	/**
+	 * The raw target string of the timer, as provided when setting the timer
+	 * (e.g. "14:30", "2023-12-31T23:59:59Z", or a timestamp number)
+	 */
+	readonly targetRaw: string | number
+
+	/**
+	 * If the countdown should stop at zero, or continue into negative values
+	 */
+	readonly stopAtZero: boolean
+}
+
+/**
+ * Timing state for a timer, optimized for efficient client rendering.
+ * When running, the client calculates current time from zeroTime.
+ * When paused, the duration is frozen and sent directly.
+ * pauseTime indicates when the timer should automatically pause (when current part ends and overrun begins).
+ *
+ * Client rendering logic:
+ * ```typescript
+ * if (state.paused === true) {
+ *   // Manually paused by user or already pushing/overrun
+ *   duration = state.duration
+ * } else if (state.pauseTime && now >= state.pauseTime) {
+ *   // Auto-pause at overrun (current part ended)
+ *   duration = state.zeroTime - state.pauseTime
+ * } else {
+ *   // Running normally
+ *   duration = state.zeroTime - now
+ * }
+ * ```
+ */
+export type TimerState =
+	| {
+			/** Whether the timer is paused */
+			paused: false
+			/** The absolute timestamp (ms) when the timer reaches/reached zero */
+			zeroTime: number
+			/** Optional timestamp when the timer should pause (when current part ends) */
+			pauseTime?: number | null
+	  }
+	| {
+			/** Whether the timer is paused */
+			paused: true
+			/** The frozen duration value in milliseconds */
+			duration: number
+			/** Optional timestamp when the timer should pause (null when already paused/pushing) */
+			pauseTime?: number | null
+	  }
+
 export interface ITTimersContext {
 	/**
 	 * Get a T-timer by its index
