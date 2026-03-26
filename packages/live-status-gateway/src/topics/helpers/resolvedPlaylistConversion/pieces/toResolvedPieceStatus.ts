@@ -2,6 +2,7 @@ import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protected
 import type { PieceExtended } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import type { AbSessionAssignment, ResolvedPiece } from '@sofie-automation/live-status-gateway-api'
 
+/** Converts a resolved `PieceExtended` model into the gateway API `ResolvedPiece` shape. */
 export function toResolvedPieceStatus(pieceExtended: PieceExtended): ResolvedPiece {
 	const piece = pieceExtended
 	const instance = piece.instance
@@ -31,6 +32,7 @@ export function toResolvedPieceStatus(pieceExtended: PieceExtended): ResolvedPie
 	}
 }
 
+/** Resolves piece start offset from rendered data or blueprint timing metadata. */
 function getStartMs(
 	piece: PieceExtended,
 	basePiece: NonNullable<PieceExtended['instance']>['piece'] | Record<string, never>
@@ -40,6 +42,7 @@ function getStartMs(
 	return undefined
 }
 
+/** Resolves duration using runtime render first, then fallback timing metadata. */
 function getDurationMs(
 	piece: PieceExtended,
 	instance: PieceExtended['instance'],
@@ -61,6 +64,7 @@ function getDurationMs(
 	return durationFromUserDuration ?? durationFromResolvedEndCap ?? durationFromEnable
 }
 
+/** Normalizes ad-lib AB sessions to a strict API-safe shape. */
 function toAbSessions(basePiece: NonNullable<PieceExtended['instance']>['piece'] | Record<string, never>) {
 	if (!Array.isArray(basePiece.abSessions)) return undefined
 

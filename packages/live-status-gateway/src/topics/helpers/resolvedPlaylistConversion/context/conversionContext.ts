@@ -38,6 +38,10 @@ export type ResolvedPlaylistConversionContext = Readonly<{
 	accessors: ReturnType<typeof createQueryAdapters>
 }>
 
+/**
+ * Creates a normalized lookup context used by all resolved-playlist converters.
+ * This keeps conversion functions deterministic and avoids repeated map/filter work.
+ */
 export function createResolvedPlaylistConversionContext(
 	props: ToResolvedPlaylistStatusProps
 ): ResolvedPlaylistConversionContext {
@@ -100,16 +104,19 @@ function groupByRundownId<T extends { rundownId: unknown }>(items: T[]): Map<str
 	return map
 }
 
+/** Returns segments in rundown order so API consumers get stable ranks. */
 export function getOrderedSegmentsInRundown(ctx: ResolvedPlaylistConversionContext, rundownId: string): DBSegment[] {
 	const list = ctx.segmentsByRundownId.get(String(rundownId)) ?? []
 	return list.slice().sort((a, b) => a._rank - b._rank)
 }
 
+/** Returns parts in rundown order for state resolver and API output parity. */
 export function getOrderedPartsInRundown(ctx: ResolvedPlaylistConversionContext, rundownId: string): DBPart[] {
 	const list = ctx.partsByRundownId.get(String(rundownId)) ?? []
 	return list.slice().sort((a, b) => a._rank - b._rank)
 }
 
+/** Finds the current part instance referenced by playlist state. */
 export function findCurrentPartInstance(
 	playlist: DBRundownPlaylist,
 	partInstancesInPlaylistState: PartInstance[]
@@ -117,6 +124,7 @@ export function findCurrentPartInstance(
 	return partInstancesInPlaylistState.find((pi) => pi._id === playlist.currentPartInfo?.partInstanceId)
 }
 
+/** Finds the next part instance referenced by playlist state. */
 export function findNextPartInstance(
 	playlist: DBRundownPlaylist,
 	partInstancesInPlaylistState: PartInstance[]
@@ -137,6 +145,7 @@ function createQueryAdapters({
 	piecesInPlaylistState: Piece[]
 	pieceInstancesInPlaylistState: PieceInstance[]
 }): StateCacheResolverDataAccess {
+	// Adapter surface expected by `getResolvedSegment`
 	return {
 		segmentsFindOne: (selector, _options): DBSegment | undefined => {
 			const segmentId: DBSegment['_id'] | undefined =

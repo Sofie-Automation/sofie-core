@@ -11,6 +11,7 @@ import { CollectionHandlers } from '../liveStatusServer.js'
 const PLAYLIST_KEYS = ['rundownIdsInOrder'] as const
 type Playlist = Pick<DBRundownPlaylist, (typeof PLAYLIST_KEYS)[number]>
 
+/** Publishes all pieces belonging to rundowns in the currently selected playlist. */
 export class PiecesInPlaylistHandler extends PublicationCollection<
 	Piece[],
 	CorelibPubSub.pieces,

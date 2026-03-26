@@ -33,6 +33,10 @@ const PLAYLIST_KEYS = [
 ] as const
 type PlaylistState = Pick<DBRundownPlaylist, (typeof PLAYLIST_KEYS)[number]>
 
+/**
+ * Aggregates playlist-scoped collections and publishes the `resolvedPlaylist` topic.
+ * Data is cached locally and merged into a single event on every source update.
+ */
 export class ResolvedPlaylistTopic extends WebSocketTopicBase implements WebSocketTopic {
 	private _playlist: PlaylistState | undefined
 	private _rundowns: DBRundown[] = []
@@ -56,6 +60,7 @@ export class ResolvedPlaylistTopic extends WebSocketTopicBase implements WebSock
 		handlers.pieceInstancesInPlaylistHandler.subscribe(this.onPieceInstancesInPlaylistUpdate)
 	}
 
+	/** Builds and publishes the current resolved playlist snapshot to all subscribers. */
 	sendStatus(subscribers: Iterable<WebSocket>): void {
 		const message = toResolvedPlaylistStatus({
 			playlistState: this._playlist as ToResolvedPlaylistStatusProps['playlistState'],

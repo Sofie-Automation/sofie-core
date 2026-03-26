@@ -2,6 +2,7 @@ import { ResolvedPlaylistConversionContext, getOrderedSegmentsInRundown } from '
 import { toResolvedSegmentStatus } from '../segments/toResolvedSegmentStatus.js'
 import type { ResolvedRundown } from '@sofie-automation/live-status-gateway-api'
 
+/** Converts a rundown id into a fully expanded `ResolvedRundown` payload. */
 export function toResolvedRundownStatus(ctx: ResolvedPlaylistConversionContext, rundownId: string): ResolvedRundown {
 	const rundown = ctx.rundownsById.get(String(rundownId))
 	const orderedSegments = getOrderedSegmentsInRundown(ctx, rundownId)

@@ -4,6 +4,7 @@ import { ResolvedPlaylistConversionContext } from '../context/conversionContext.
 import type { PartExtended } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { ResolvedPart, ResolvedPartState } from '@sofie-automation/live-status-gateway-api'
 
+/** Converts a resolved `PartExtended` model into the gateway API `ResolvedPart` shape. */
 export function toResolvedPartStatus(ctx: ResolvedPlaylistConversionContext, partExtended: PartExtended): ResolvedPart {
 	const part = partExtended
 	const instance = part.instance

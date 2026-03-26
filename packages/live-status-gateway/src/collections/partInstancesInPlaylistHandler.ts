@@ -17,6 +17,10 @@ export interface PartInstancesInPlaylist {
 const PLAYLIST_KEYS = ['_id', 'activationId', 'rundownIdsInOrder'] as const
 type Playlist = Pick<DBRundownPlaylist, (typeof PLAYLIST_KEYS)[number]>
 
+/**
+ * Maintains part instances for the currently active playlist.
+ * Subscription is re-created when rundown set or activation id changes.
+ */
 export class PartInstancesInPlaylistHandler extends PublicationCollection<
 	PartInstancesInPlaylist,
 	CorelibPubSub.partInstances,

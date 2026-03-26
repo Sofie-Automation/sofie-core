@@ -74,6 +74,7 @@ export function toResolvedSegmentStatus(
 	}
 }
 
+/** Limits "receive on rundown end" evaluation to segments in the same rundown. */
 function getSegmentsToReceiveOnRundownEndFromSet(
 	ctx: ResolvedPlaylistConversionContext,
 	segment: DBSegment
@@ -82,6 +83,7 @@ function getSegmentsToReceiveOnRundownEndFromSet(
 	return new Set(segmentsInThisRundown.map((s) => s._id))
 }
 
+/** Maps source layers from resolved segment output to API shape sorted by rank. */
 function toSourceLayers(ctx: ResolvedPlaylistConversionContext, segmentExtended: SegmentExtended): SourceLayer[] {
 	return Object.entries<NameableSourceLayer>(segmentExtended?.sourceLayers ?? {})
 		.map(([id, layer]) => ({
@@ -95,6 +97,7 @@ function toSourceLayers(ctx: ResolvedPlaylistConversionContext, segmentExtended:
 		.sort((a, b) => a.rank - b.rank)
 }
 
+/** Maps output layers from resolved segment output to API shape sorted by name. */
 function toOutputLayers(ctx: ResolvedPlaylistConversionContext, segmentExtended: SegmentExtended): OutputLayer[] {
 	return Object.entries<NameableOutputLayer>(segmentExtended?.outputLayers ?? {})
 		.map(([id, layer]) =>

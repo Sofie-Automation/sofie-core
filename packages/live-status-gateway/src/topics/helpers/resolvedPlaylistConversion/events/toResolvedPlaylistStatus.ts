@@ -11,6 +11,7 @@ import { toTTimers } from '../../activePlaylistConversion/timers/toTTimers.js'
 import { toQuickLoopStatus } from '../../activePlaylistConversion/quickLoop/toQuickLoopStatus.js'
 import { PlaylistTimingType } from '@sofie-automation/blueprints-integration'
 
+/** Converts playlist-scoped collection snapshots into the `resolvedPlaylist` websocket event shape. */
 export function toResolvedPlaylistStatus({
 	playlistState,
 	rundownsState,
@@ -21,7 +22,7 @@ export function toResolvedPlaylistStatus({
 	piecesInPlaylistState,
 	pieceInstancesInPlaylistState,
 }: ToResolvedPlaylistStatusProps): ResolvedPlaylistEvent {
-	// default value
+	// Keep payload shape stable before all dependencies are available.
 	if (!playlistState || !showStyleBaseExtState) {
 		return literal<ResolvedPlaylistEvent>({
 			event: 'resolvedPlaylist' as const,
