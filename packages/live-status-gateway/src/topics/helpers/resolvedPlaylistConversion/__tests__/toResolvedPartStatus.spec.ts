@@ -36,6 +36,7 @@ describe('toResolvedPartStatus', () => {
 				part: {
 					...makePartInstance('current_pi', 'part0', 'segment0', 'rundown0').part,
 					invalid: true,
+					floated: true,
 					invalidReason: {
 						message: { key: 'Invalid {{foo}}', args: { foo: 'bar' }, namespaces: ['blueprint_test'] },
 						severity: NoteSeverity.WARNING,
@@ -54,6 +55,7 @@ describe('toResolvedPartStatus', () => {
 		expect(result.id).toBe('part0')
 		expect(result.instanceId).toBe('current_pi')
 		expect(result.invalid).toBe(true)
+		expect(result.floated).toBe(true)
 		expect(result.invalidReason).toMatchObject({
 			message: 'Invalid bar',
 			severity: 'warning',
@@ -94,6 +96,7 @@ describe('toResolvedPartStatus', () => {
 		const result = toResolvedPartStatus(ctx, partExtended)
 		expect(result.state).toBe(ResolvedPartState.NEXT)
 		expect(result.invalid).toBe(false)
+		expect(result.floated).toBe(false)
 		expect(result.invalidReason).toBeUndefined()
 		expect(result.timing.startMs).toBe(0)
 		expect(result.timing.durationMs).toBe(0)

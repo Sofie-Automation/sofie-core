@@ -1306,6 +1306,9 @@ channels:
                                               invalid:
                                                 type: boolean
                                                 description: Whether this part is invalid and should not be taken
+                                              floated:
+                                                type: boolean
+                                                description: Whether this part is floated and cannot be taken/nexted
                                               invalidReason:
                                                 description: Optional explanation for why the part is invalid
                                                 title: PartInvalidReason
@@ -1490,12 +1493,14 @@ channels:
                                               - timing
                                               - pieces
                                               - invalid
+                                              - floated
                                         examples:
                                           - &a44
                                             instanceId: partInstance_current_1
                                             externalId: ext_part_1
                                             rank: 10
                                             invalid: false
+                                            floated: false
                                             invalidReason: *a38
                                             state: current
                                             createdByAdLib: false

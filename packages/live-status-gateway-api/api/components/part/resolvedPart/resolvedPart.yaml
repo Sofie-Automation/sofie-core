@@ -27,6 +27,9 @@ $defs:
           invalid:
             type: boolean
             description: Whether this part is invalid and should not be taken
+          floated:
+            type: boolean
+            description: Whether this part is floated and cannot be taken/nexted
           invalidReason:
             description: Optional explanation for why the part is invalid
             $ref: '../partInvalidReason/partInvalidReason.yaml#/$defs/partInvalidReason'
@@ -45,6 +48,6 @@ $defs:
             type: array
             items:
               $ref: '../../piece/resolvedPiece/resolvedPiece.yaml#/$defs/resolvedPiece'
-        required: [instanceId, externalId, rank, createdByAdLib, timing, pieces, invalid]
+        required: [instanceId, externalId, rank, createdByAdLib, timing, pieces, invalid, floated]
     examples:
       - $ref: './resolvedPart-example.yaml'

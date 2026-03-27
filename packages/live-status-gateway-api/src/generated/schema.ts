@@ -877,6 +877,10 @@ interface ResolvedPart {
 	 */
 	invalid: boolean
 	/**
+	 * Whether this part is floated and cannot be taken/nexted
+	 */
+	floated: boolean
+	/**
 	 * Optional explanation for why the part is invalid
 	 */
 	invalidReason?: PartInvalidReason

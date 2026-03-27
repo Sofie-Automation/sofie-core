@@ -3,6 +3,7 @@ instanceId: 'partInstance_current_1'
 externalId: 'ext_part_1'
 rank: 10
 invalid: false
+floated: false
 invalidReason:
   $ref: '../partInvalidReason/partInvalidReason-example.yaml'
 state: current
