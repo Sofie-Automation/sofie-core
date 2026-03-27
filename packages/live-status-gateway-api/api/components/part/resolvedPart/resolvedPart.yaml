@@ -30,6 +30,9 @@ $defs:
           floated:
             type: boolean
             description: Whether this part is floated and cannot be taken/nexted
+          untimed:
+            type: boolean
+            description: Whether this part is excluded from normal timing calculations
           invalidReason:
             description: Optional explanation for why the part is invalid
             $ref: '../partInvalidReason/partInvalidReason.yaml#/$defs/partInvalidReason'
@@ -48,6 +51,6 @@ $defs:
             type: array
             items:
               $ref: '../../piece/resolvedPiece/resolvedPiece.yaml#/$defs/resolvedPiece'
-        required: [instanceId, externalId, rank, createdByAdLib, timing, pieces, invalid, floated]
+        required: [instanceId, externalId, rank, createdByAdLib, timing, pieces, invalid, floated, untimed]
     examples:
       - $ref: './resolvedPart-example.yaml'

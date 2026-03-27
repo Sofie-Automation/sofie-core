@@ -1309,6 +1309,9 @@ channels:
                                               floated:
                                                 type: boolean
                                                 description: Whether this part is floated and cannot be taken/nexted
+                                              untimed:
+                                                type: boolean
+                                                description: Whether this part is excluded from normal timing calculations
                                               invalidReason:
                                                 description: Optional explanation for why the part is invalid
                                                 title: PartInvalidReason
@@ -1494,6 +1497,7 @@ channels:
                                               - pieces
                                               - invalid
                                               - floated
+                                              - untimed
                                         examples:
                                           - &a44
                                             instanceId: partInstance_current_1
@@ -1501,6 +1505,7 @@ channels:
                                             rank: 10
                                             invalid: false
                                             floated: false
+                                            untimed: false
                                             invalidReason: *a38
                                             state: current
                                             createdByAdLib: false

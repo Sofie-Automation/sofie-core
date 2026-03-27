@@ -37,6 +37,7 @@ export function toResolvedPartStatus(ctx: ResolvedPlaylistConversionContext, par
 		autoNext: !!basePart.autoNext,
 		invalid: !!basePart.invalid,
 		floated: !!basePart.floated,
+		untimed: !!basePart.untimed,
 		invalidReason: basePart.invalidReason ? toApiPartInvalidReason(basePart.invalidReason) : undefined,
 		state,
 		publicData: basePart.publicData,
