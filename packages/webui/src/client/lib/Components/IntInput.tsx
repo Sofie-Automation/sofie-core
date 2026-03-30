@@ -6,6 +6,7 @@ interface IIntInputControlProps {
 	classNames?: string
 	modifiedClassName?: string
 	disabled?: boolean
+	readOnly?: boolean
 	placeholder?: string
 
 	/** Call handleUpdate on every change, before focus is lost */
@@ -24,6 +25,7 @@ export function IntInputControl({
 	modifiedClassName,
 	value,
 	disabled,
+	readOnly,
 	placeholder,
 	handleUpdate,
 	updateOnKey,
@@ -36,6 +38,8 @@ export function IntInputControl({
 
 	const handleChange = useCallback(
 		(event: React.ChangeEvent<HTMLInputElement>) => {
+			if (readOnly) return
+
 			const number = parseInt(event.target.value, 10)
 			setEditingValue(number)
 
@@ -43,10 +47,12 @@ export function IntInputControl({
 				handleUpdate(zeroBased ? number - 1 : number)
 			}
 		},
-		[handleUpdate, updateOnKey, zeroBased]
+		[handleUpdate, updateOnKey, zeroBased, readOnly]
 	)
 	const handleBlur = useCallback(
 		(event: React.FocusEvent<HTMLInputElement>) => {
+			if (readOnly) return
+
 			const number = parseInt(event.currentTarget.value, 10)
 			if (!isNaN(number)) {
 				handleUpdate(zeroBased ? number - 1 : number)
@@ -54,13 +60,15 @@ export function IntInputControl({
 
 			setEditingValue(null)
 		},
-		[handleUpdate, zeroBased]
+		[handleUpdate, zeroBased, readOnly]
 	)
 	const handleFocus = useCallback((event: React.FocusEvent<HTMLInputElement>) => {
 		setEditingValue(parseInt(event.currentTarget.value, 10))
 	}, [])
 	const handleKeyUp = useCallback(
 		(event: React.KeyboardEvent<HTMLInputElement>) => {
+			if (readOnly) return
+
 			if (event.key === 'Escape') {
 				setEditingValue(null)
 			} else if (event.key === 'Enter') {
@@ -70,7 +78,7 @@ export function IntInputControl({
 				}
 			}
 		},
-		[handleUpdate, zeroBased]
+		[handleUpdate, zeroBased, readOnly]
 	)
 
 	let showValue: string | number | undefined = editingValue ?? undefined
@@ -93,6 +101,7 @@ export function IntInputControl({
 			onFocus={handleFocus}
 			onKeyUp={handleKeyUp}
 			disabled={disabled}
+			readOnly={readOnly}
 		/>
 	)
 }

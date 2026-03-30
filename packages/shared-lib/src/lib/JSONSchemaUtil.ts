@@ -29,6 +29,10 @@ export enum SchemaFormUIField {
 	 */
 	ZeroBased = 'ui:zeroBased',
 	/**
+	 * Whether the property is read-only. This will disable the input and hide any buttons for modifying the value.
+	 */
+	ReadOnly = 'ui:readOnly',
+	/**
 	 * Override the presentation with a special mode.
 	 * Currently only valid for:
 	 * - object properties. Valid values are `json`, `oneOfButtons`.

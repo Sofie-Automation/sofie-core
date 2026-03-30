@@ -60,6 +60,7 @@ interface FormComponentProps {
 
 		/** Whether a clear button should be showed for fields not marked as "required" */
 		showClearButton: boolean
+		readOnly: boolean
 	}
 
 	/** Whether this field has been marked as "required" */
@@ -82,6 +83,7 @@ function useChildPropsForFormComponent(props: Readonly<SchemaFormWithOverridesPr
 				overrideHelper: props.overrideHelper,
 
 				showClearButton: !!props.showClearButtonForNonRequiredFields && !props.isRequired,
+				readOnly: getSchemaUIField(props.schema, SchemaFormUIField.ReadOnly) ?? false,
 			},
 			isRequired: props.isRequired,
 		}
@@ -345,6 +347,7 @@ const IntegerFormWithOverrides = ({ schema, commonAttrs }: Readonly<FormComponen
 					handleUpdate={handleUpdate}
 					min={schema['minimum']}
 					max={schema['maximum']}
+					readOnly={commonAttrs.readOnly}
 				/>
 			)}
 		</LabelAndOverridesForInt>
@@ -362,6 +365,7 @@ const TimeMsFormWithOverrides = ({ schema, commonAttrs }: Readonly<FormComponent
 					min={schema['minimum']}
 					max={schema['maximum']}
 					multipleOf={schema['multipleOf']}
+					readOnly={commonAttrs.readOnly}
 				/>
 			)}
 		</LabelAndOverrides>
@@ -378,6 +382,7 @@ const NumberFormWithOverrides = ({ schema, commonAttrs }: Readonly<FormComponent
 					handleUpdate={handleUpdate}
 					min={schema['minimum']}
 					max={schema['maximum']}
+					readOnly={commonAttrs.readOnly}
 				/>
 			)}
 		</LabelAndOverrides>
@@ -409,7 +414,12 @@ const StringFormWithOverrides = ({ schema, commonAttrs }: Readonly<FormComponent
 	return (
 		<LabelAndOverrides {...commonAttrs}>
 			{(value, handleUpdate) => (
-				<TextInputControl placeholder={schema.default} value={value} handleUpdate={handleUpdate} />
+				<TextInputControl
+					placeholder={schema.default}
+					value={value}
+					handleUpdate={handleUpdate}
+					readOnly={commonAttrs.readOnly}
+				/>
 			)}
 		</LabelAndOverrides>
 	)
@@ -423,6 +433,7 @@ const StringArrayFormWithOverrides = ({ schema, commonAttrs }: Readonly<FormComp
 					placeholder={schema.default?.join('\n')}
 					value={value || []}
 					handleUpdate={handleUpdate}
+					readOnly={commonAttrs.readOnly}
 				/>
 			)}
 		</LabelAndOverrides>

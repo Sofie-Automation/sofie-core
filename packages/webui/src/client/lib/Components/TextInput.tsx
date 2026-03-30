@@ -13,6 +13,7 @@ interface ITextInputControlProps {
 	classNames?: string
 	modifiedClassName?: string
 	disabled?: boolean
+	readOnly?: boolean
 	placeholder?: string
 	spellCheck?: boolean
 
@@ -29,6 +30,7 @@ export function TextInputControl({
 	modifiedClassName,
 	value,
 	disabled,
+	readOnly,
 	placeholder,
 	spellCheck,
 	suggestions,
@@ -39,16 +41,20 @@ export function TextInputControl({
 
 	const handleChange = useCallback(
 		(event: React.ChangeEvent<HTMLInputElement>) => {
+			if (readOnly) return
+
 			setEditingValue(event.target.value)
 
 			if (updateOnKey) {
 				handleUpdate(event.target.value)
 			}
 		},
-		[handleUpdate, updateOnKey]
+		[handleUpdate, updateOnKey, readOnly]
 	)
 	const handleBlur = useCallback(
 		(event: React.FocusEvent<HTMLInputElement>) => {
+			if (readOnly) return
+
 			let value: string = event.target.value
 			if (value) {
 				value = value.trim()
@@ -57,20 +63,22 @@ export function TextInputControl({
 
 			setEditingValue(null)
 		},
-		[handleUpdate]
+		[handleUpdate, readOnly]
 	)
 	const handleFocus = useCallback((event: React.FocusEvent<HTMLInputElement>) => {
 		setEditingValue(event.currentTarget.value)
 	}, [])
 	const handleKeyUp = useCallback(
 		(event: React.KeyboardEvent<HTMLInputElement>) => {
+			if (readOnly) return
+
 			if (event.key === 'Escape') {
 				setEditingValue(null)
 			} else if (event.key === 'Enter') {
 				handleUpdate(event.currentTarget.value)
 			}
 		},
-		[handleUpdate]
+		[handleUpdate, readOnly]
 	)
 
 	const fieldId = useMemo(() => getRandomString(), [])
@@ -85,6 +93,7 @@ export function TextInputControl({
 			onBlur={handleBlur}
 			onFocus={handleFocus}
 			onKeyUp={handleKeyUp}
+			readOnly={readOnly}
 			disabled={disabled}
 			spellCheck={spellCheck}
 			list={suggestions ? fieldId : undefined}

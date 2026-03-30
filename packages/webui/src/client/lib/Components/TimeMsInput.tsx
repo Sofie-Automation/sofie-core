@@ -2,10 +2,11 @@ import React, { useCallback, useState } from 'react'
 import ClassNames from 'classnames'
 import Form from 'react-bootstrap/Form'
 
-interface IIntInputControlProps {
+interface ITimeMsInputControlProps {
 	classNames?: string
 	modifiedClassName?: string
 	disabled?: boolean
+	readOnly?: boolean
 	placeholder?: string
 
 	/** Call handleUpdate on every change, before focus is lost */
@@ -89,13 +90,14 @@ export function TimeMsInputControl({
 	modifiedClassName,
 	value,
 	disabled,
+	readOnly,
 	placeholder,
 	handleUpdate,
 	updateOnKey,
 	min,
 	max,
 	multipleOf,
-}: Readonly<IIntInputControlProps>): JSX.Element {
+}: Readonly<ITimeMsInputControlProps>): JSX.Element {
 	const [editingValue, setEditingValue] = useState<string | null>(null)
 
 	const isValidValue = useCallback((value: number): boolean => {
@@ -108,6 +110,8 @@ export function TimeMsInputControl({
 
 	const handleChange = useCallback(
 		(event: React.ChangeEvent<HTMLInputElement>) => {
+			if (readOnly) return
+
 			const number = parseTime(event.target.value)
 			setEditingValue(event.target.value)
 
@@ -115,10 +119,11 @@ export function TimeMsInputControl({
 				handleUpdate(number)
 			}
 		},
-		[handleUpdate, updateOnKey, isValidValue]
+		[handleUpdate, updateOnKey, isValidValue, readOnly]
 	)
 	const handleBlur = useCallback(
 		(event: React.FocusEvent<HTMLInputElement>) => {
+			if (readOnly) return
 			const number = parseTime(event.currentTarget.value)
 			if (!isNaN(number) && isValidValue(number)) {
 				handleUpdate(number)
@@ -126,7 +131,7 @@ export function TimeMsInputControl({
 
 			setEditingValue(null)
 		},
-		[handleUpdate, isValidValue]
+		[handleUpdate, isValidValue, readOnly]
 	)
 	const handleFocus = useCallback((event: React.FocusEvent<HTMLInputElement>) => {
 		setEditingValue(event.currentTarget.value)
@@ -135,6 +140,8 @@ export function TimeMsInputControl({
 	}, [])
 	const handleKeyUp = useCallback(
 		(event: React.KeyboardEvent<HTMLInputElement>) => {
+			if (readOnly) return
+
 			if (event.key === 'Escape') {
 				setEditingValue(null)
 			} else if (event.key === 'Enter') {
@@ -144,7 +151,7 @@ export function TimeMsInputControl({
 				}
 			}
 		},
-		[handleUpdate, isValidValue]
+		[handleUpdate, isValidValue, readOnly]
 	)
 	const handleKeyDown = useCallback((event: React.KeyboardEvent<HTMLInputElement>) => {
 		// allow ctrl/cmd + any key, to allow for shortcuts like ctrl+a, ctrl+c, ctrl+v, etc.
@@ -170,6 +177,7 @@ export function TimeMsInputControl({
 			onFocus={handleFocus}
 			onKeyUp={handleKeyUp}
 			onKeyDown={handleKeyDown}
+			readOnly={readOnly}
 			disabled={disabled}
 		/>
 	)
