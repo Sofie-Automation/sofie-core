@@ -1,5 +1,9 @@
 # Lookahead
 
+:::tip See Also
+For a comprehensive guide on how lookahead works together with preroll, preliminary, transitions, and adlibs, see the [Timing and Preparation Guide](./timing-and-preparation.md).
+:::
+
 Lookahead allows Sofie to look into future Parts and Pieces, in order to preload or preview what is coming up. The aim is to fill in the gaps between your TimelineObjects with lookahead versions of these objects.  
 In this way, it can be used to provide functionality such as an AUX on your vision mixer showing the next cut, or to load the next clip into the media player.
 
