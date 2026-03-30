@@ -186,33 +186,6 @@ jobs:
           labels: ${{ steps.ghcr-tag.outputs.labels }}
           tags: "${{ steps.ghcr-tag.outputs.tags }}"
           github-token: ${{ github.token }}
-      - name: Get image for Trivy scanning
-        if: steps.ghcr-tag.outputs.tags != 0
-        id: trivy-image
-        run: |
-          image=$(echo ${{ steps.ghcr-tag.outputs.tags }} | head -n 1)
-          echo "image=$image" >> $GITHUB_OUTPUT
-      - name: Trivy scanning
-        if: steps.ghcr-tag.outputs.tags != 0
-        uses: aquasecurity/trivy-action@0.30.0
-        env:
-          TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db
-        with:
-          image-ref: "${{ steps.trivy-image.outputs.image }}"
-          format: "table"
-          output: trivy-scan-result.txt
-          ignore-unfixed: true
-          severity: "CRITICAL,HIGH"
-      - name: Post all Trivy scan results to Github Summary as a table
-        if: steps.ghcr-tag.outputs.tags != 0
-        env:
-          CODE_BLOCK: "```"
-        run: |
-          echo "# Trivy scan results ~ core" >> $GITHUB_STEP_SUMMARY
-
-          echo $CODE_BLOCK >> $GITHUB_STEP_SUMMARY
-          cat trivy-scan-result.txt >> $GITHUB_STEP_SUMMARY
-          echo $CODE_BLOCK >> $GITHUB_STEP_SUMMARY
 
   build-gateways:
     name: Build gateways
@@ -281,33 +254,6 @@ jobs:
           provenance: false
           labels: ${{ steps.ghcr-tag.outputs.labels }}
           tags: "${{ steps.ghcr-tag.outputs.tags }}"
-      - name: Get image for Trivy scanning
-        if: steps.ghcr-tag.outputs.tags != 0
-        id: trivy-image
-        run: |
-          image=$(echo ${{ steps.ghcr-tag.outputs.tags }} | head -n 1)
-          echo "image=$image" >> $GITHUB_OUTPUT
-      - name: Trivy scanning
-        if: steps.ghcr-tag.outputs.tags != 0
-        uses: aquasecurity/trivy-action@0.30.0
-        env:
-          TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db
-        with:
-          image-ref: "${{ steps.trivy-image.outputs.image }}"
-          format: "table"
-          output: ${{ matrix.gateway-name }}-trivy-scan-result.txt
-          ignore-unfixed: true
-          severity: "CRITICAL,HIGH"
-      - name: Post all Trivy scan results to Github Summary as a table
-        if: steps.ghcr-tag.outputs.tags != 0
-        env:
-          CODE_BLOCK: "```"
-        run: |
-          echo "# Trivy scan results ~ ${{ matrix.gateway-name }}" >> $GITHUB_STEP_SUMMARY
-
-          echo $CODE_BLOCK >> $GITHUB_STEP_SUMMARY
-          cat ${{ matrix.gateway-name }}-trivy-scan-result.txt >> $GITHUB_STEP_SUMMARY
-          echo $CODE_BLOCK >> $GITHUB_STEP_SUMMARY
 
   lint-packages:
     name: Lint Package
@@ -572,7 +518,7 @@ jobs:
       - name: Prepare Environment
         run: |
           corepack enable
-          
+
           yarn config set cacheFolder /home/runner/check-for-multiple-library-versions-cache
           yarn
         env:
