@@ -164,7 +164,7 @@ export function PropertiesPanel(): JSX.Element {
 				<div className="propertiespanel-pop-up__header">
 					{userEditOperations &&
 						userEditOperations.map((operation) => {
-							if (operation.type !== UserEditingType.ACTION || !operation.icon || !operation.isActive) return null
+							if ((operation.type !== UserEditingType.ACTION && operation.type !== UserEditingType.STATE) || !operation.icon || !operation.isActive) return null
 							return <BlueprintAssetIcon key={operation.id} src={operation.icon} className="svg" />
 						})}
 					<div className="title">{title}</div>

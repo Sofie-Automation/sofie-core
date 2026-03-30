@@ -1226,15 +1226,31 @@ function HeaderEditStates({ userEditOperations }: HeaderEditStatesProps) {
 		<div className="segment-timeline__title__user-edit-states">
 			{userEditOperations &&
 				userEditOperations.map((operation) => {
-					if (operation.type !== UserEditingType.ACTION || !operation.icon || !operation.isActive) return null
-
-					return (
-						<BlueprintAssetIcon
-							key={operation.id}
-							src={operation.icon}
-							className="segment-timeline__title__user-edit-state"
-						/>
+					if (
+						(operation.type !== UserEditingType.ACTION && operation.type !== UserEditingType.STATE) ||
+						(!operation.icon && !operation.iconInactive)
 					)
+						return null
+
+					if (!operation.isActive && operation.iconInactive) {
+						return (
+							<BlueprintAssetIcon
+								key={operation.id}
+								src={operation.iconInactive}
+								className="segment-timeline__title__user-edit-state"
+							/>
+						)
+					} else if (operation.isActive && operation.icon) {
+						return (
+							<BlueprintAssetIcon
+								key={operation.id}
+								src={operation.icon}
+								className="segment-timeline__title__user-edit-state"
+							/>
+						)
+					}
+
+					return null
 				})}
 		</div>
 	)
