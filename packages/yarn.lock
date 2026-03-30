@@ -6542,7 +6542,7 @@ __metadata:
   resolution: "@sofie-automation/shared-lib@workspace:shared-lib"
   dependencies:
     "@mos-connection/model": "npm:^4.3.1"
-    timeline-state-resolver-types: "npm:10.0.0-nightly-main-20260317-090134-de65bb857.0"
+    timeline-state-resolver-types: "npm:10.0.0-nightly-main-20260324-124919-d70070e4e.0"
     tslib: "npm:^2.8.1"
     type-fest: "npm:^4.33.0"
   languageName: unknown
@@ -23990,7 +23990,7 @@ asn1@evs-broadcast/node-asn1:
     "@types/koa__router": "npm:^12.0.4"
     debug: "npm:^4.4.0"
     influx: "npm:^5.9.7"
-    timeline-state-resolver: "npm:10.0.0-nightly-main-20260317-090134-de65bb857.0"
+    timeline-state-resolver: "npm:10.0.0-nightly-main-20260324-124919-d70070e4e.0"
     tslib: "npm:^2.8.1"
     underscore: "npm:^1.13.7"
     winston: "npm:^3.17.0"
@@ -28791,30 +28791,30 @@ asn1@evs-broadcast/node-asn1:
   languageName: node
   linkType: hard
 
-"timeline-state-resolver-api@npm:10.0.0-nightly-main-20260317-090134-de65bb857.0":
-  version: 10.0.0-nightly-main-20260317-090134-de65bb857.0
-  resolution: "timeline-state-resolver-api@npm:10.0.0-nightly-main-20260317-090134-de65bb857.0"
+"timeline-state-resolver-api@npm:10.0.0-nightly-main-20260324-124919-d70070e4e.0":
+  version: 10.0.0-nightly-main-20260324-124919-d70070e4e.0
+  resolution: "timeline-state-resolver-api@npm:10.0.0-nightly-main-20260324-124919-d70070e4e.0"
   dependencies:
     tslib: "npm:^2.8.1"
   peerDependencies:
-    timeline-state-resolver-types: 10.0.0-nightly-main-20260317-090134-de65bb857.0
-  checksum: 10/10ecfc5dd20c7c8ae5e2d17128e96d88d576fd42fe9a27ad03ebcc629f39ab972641790dcd57cabe0a4756e77fc9e925efa3065ce6998169956ad7aa5bc68e12
+    timeline-state-resolver-types: 10.0.0-nightly-main-20260324-124919-d70070e4e.0
+  checksum: 10/526d47a01c22444cf916413aef6c2994fb913e9e472553383341493547b345b2afb6e361ebed8edd5702c33970f43ad8fd3f6dae00a90490efc00a0ef0d0cd0b
   languageName: node
   linkType: hard
 
-"timeline-state-resolver-types@npm:10.0.0-nightly-main-20260317-090134-de65bb857.0":
-  version: 10.0.0-nightly-main-20260317-090134-de65bb857.0
-  resolution: "timeline-state-resolver-types@npm:10.0.0-nightly-main-20260317-090134-de65bb857.0"
+"timeline-state-resolver-types@npm:10.0.0-nightly-main-20260324-124919-d70070e4e.0":
+  version: 10.0.0-nightly-main-20260324-124919-d70070e4e.0
+  resolution: "timeline-state-resolver-types@npm:10.0.0-nightly-main-20260324-124919-d70070e4e.0"
   dependencies:
     kairos-lib: "npm:1.0.0"
     tslib: "npm:^2.8.1"
-  checksum: 10/10c4e73770f8ec62c01aee69fd91d2c07ecc1a56c566564393fe80a170b0e9d8d6d06439cb3d4925dc9f76ac82f618e0446bcc3026fdec1be05e055f7a8bd56a
+  checksum: 10/50e8b0286f60f97fb351c95f6b6c0942f655962f6a5be54f2a6a29e7b771d66f29ca8e74023135388801a4b2a7991b5bc790c8b3b4a05dfe867f789795ee4b7c
   languageName: node
   linkType: hard
 
-"timeline-state-resolver@npm:10.0.0-nightly-main-20260317-090134-de65bb857.0":
-  version: 10.0.0-nightly-main-20260317-090134-de65bb857.0
-  resolution: "timeline-state-resolver@npm:10.0.0-nightly-main-20260317-090134-de65bb857.0"
+"timeline-state-resolver@npm:10.0.0-nightly-main-20260324-124919-d70070e4e.0":
+  version: 10.0.0-nightly-main-20260324-124919-d70070e4e.0
+  resolution: "timeline-state-resolver@npm:10.0.0-nightly-main-20260324-124919-d70070e4e.0"
   dependencies:
     "@tv2media/v-connection": "npm:^7.3.4"
     atem-connection: "npm:3.7.0"
@@ -28839,8 +28839,8 @@ asn1@evs-broadcast/node-asn1:
     sprintf-js: "npm:^1.1.3"
     superfly-timeline: "npm:^9.2.0"
     threadedclass: "npm:^1.4.0"
-    timeline-state-resolver-api: "npm:10.0.0-nightly-main-20260317-090134-de65bb857.0"
-    timeline-state-resolver-types: "npm:10.0.0-nightly-main-20260317-090134-de65bb857.0"
+    timeline-state-resolver-api: "npm:10.0.0-nightly-main-20260324-124919-d70070e4e.0"
+    timeline-state-resolver-types: "npm:10.0.0-nightly-main-20260324-124919-d70070e4e.0"
     tslib: "npm:^2.8.1"
     tv-automation-quantel-gateway-client: "npm:^3.1.7"
     type-fest: "npm:^3.13.1"
@@ -28848,7 +28848,7 @@ asn1@evs-broadcast/node-asn1:
     utf-8-validate: "npm:^6.0.6"
     ws: "npm:^8.19.0"
     xml-js: "npm:^1.6.11"
-  checksum: 10/82637b3d4cabeae91a5365d9072b3fe5e025c1e6e4198aecf43a1b07401df6cc892d4ad26190586fb5412251cb8a670b3d4524d4b85cbf9435c4fe68223ff384
+  checksum: 10/0096c4599521f4b0cba23752ca53a65b263f401c93e80dfa7be7e90c0436b80bab779ba8fa9f13c6aeb87997f9b77173dbe5333901957ad38d013de1baf1fb27
   languageName: node
   linkType: hard
 
