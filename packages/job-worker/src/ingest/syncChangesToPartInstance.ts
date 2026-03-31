@@ -144,6 +144,10 @@ export class SyncChangesToPartInstancesWorker {
 			instanceToSync.playStatus
 		)
 		// TODO - how can we limit the frequency we run this? (ie, how do we know nothing affecting this has changed)
+
+		// Snapshot t-timers before update in case we need to rollback
+		const tTimersSnapshot = [...this.#playoutModel.playlist.tTimers]
+
 		try {
 			if (!this.#blueprint.blueprint.syncIngestUpdateToPartInstance)
 				throw new Error('Blueprint does not have syncIngestUpdateToPartInstance')
@@ -165,6 +169,11 @@ export class SyncChangesToPartInstancesWorker {
 
 			// Operation failed, rollback the changes
 			existingPartInstance.snapshotRestore(partInstanceSnapshot)
+
+			// Also restore t-timers to prevent partial updates
+			for (let i = 0; i < tTimersSnapshot.length; i++) {
+				this.#playoutModel.updateTTimer(tTimersSnapshot[i])
+			}
 		}
 
 		if (instanceToSync.playStatus === 'next' && syncContext.hasRemovedPartInstance) {
