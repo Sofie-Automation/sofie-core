@@ -206,13 +206,9 @@ export function RundownHamburgerButton({
 			ref={buttonRef}
 			className={`rundown-header__menu-btn ${isOpen ? 'active' : ''} ${disabled ? 'disabled' : ''}`}
 			disabled={disabled}
-			onMouseDown={handleToggle}
-			onClick={(e) => {
-				// Prevent double trigger if browser emits both mousedown and click
-				e.preventDefault()
-				e.stopPropagation()
-			}}
+			onClick={handleToggle}
 			title={t('Menu')}
+			aria-label={t('Menu')}
 		>
 			<FontAwesomeIcon icon={isOpen ? faTimes : faBars} fixedWidth />
 		</button>

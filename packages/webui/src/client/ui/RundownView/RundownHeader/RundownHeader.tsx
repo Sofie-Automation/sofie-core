@@ -168,7 +168,7 @@ export function RundownHeader({
 								<RundownHeaderDurations playlist={playlist} simplified={simplified} />
 								<RundownHeaderExpectedEnd playlist={playlist} simplified={simplified} />
 							</button>
-							<NavLink to="/" title={t('Exit')} className="rundown-header__close-btn">
+							<NavLink to="/" title={t('Exit')} aria-label={t('Exit')} className="rundown-header__close-btn">
 								<FontAwesomeIcon icon="close" size="xl" />
 							</NavLink>
 						</div>
