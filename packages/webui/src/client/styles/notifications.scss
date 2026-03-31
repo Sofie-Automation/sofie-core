@@ -490,9 +490,6 @@
 	.rundown-view {
 		&.notification-center-open {
 			padding-right: 25vw !important;
-			> .rundown-header_OLD .rundown-overview {
-				padding-right: calc(25vw + 1.5em) !important;
-			}
 		}
 	}
 
