@@ -48,7 +48,6 @@ export function RundownHeader({
 }: IRundownHeaderProps): JSX.Element {
 	const { t } = useTranslation()
 	const timingDurations = useTiming()
-	const [simplified, setSimplified] = useState(false)
 	const [isMenuOpen, setIsMenuOpen] = useState(false)
 	const [isContextMenuOpen, setIsContextMenuOpen] = useState(false)
 
@@ -75,7 +74,11 @@ export function RundownHeader({
 		fallbackDuration
 	)
 
-	const canToggle = simplified ? hasAdvanced : hasSimple
+	// Initialize simplified mode based on what modes are actually available
+	// If only simple has data, start in simple mode; otherwise prefer simple if both are available
+	const [simplified, setSimplified] = useState(() => hasSimple && !hasAdvanced)
+
+	const canToggle = hasSimple && hasAdvanced
 	const toggleSimplified = useCallback(() => {
 		if (canToggle) {
 			setSimplified((s) => !s)
