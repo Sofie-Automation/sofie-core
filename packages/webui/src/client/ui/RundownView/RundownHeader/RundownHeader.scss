@@ -336,7 +336,6 @@
 
 			.rundown-header__clocks-timers__timer__over-under {
 				display: inline-block;
-				line-height: -1em;
 				font-size: 0.75em;
 				padding: 0.05em 0.25em;
 				border-radius: 999px;
@@ -392,7 +391,7 @@
 			filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0));
 		}
 
-		&:hover:not(:disabled):not(.disabled) {
+		&:hover:not(:disabled, .disabled) {
 			color: #ffffff;
 
 			svg,
@@ -401,7 +400,7 @@
 			}
 		}
 
-		&:focus-visible:not(:disabled):not(.disabled) {
+		&:focus-visible:not(:disabled, .disabled) {
 			color: #ffffff;
 
 			svg,
@@ -616,6 +615,7 @@
 
 		&:focus-visible {
 			color: #ffffff;
+			opacity: 1;
 
 			svg,
 			i {
