@@ -209,7 +209,7 @@ export function recalculateTTimerProjections(context: JobContext, playoutModel: 
 	// If no timers have anchors, nothing to do
 	if (timerAnchors.size === 0) {
 		if (span) span.end()
-		return undefined
+		return
 	}
 
 	const currentPartInstance = playoutModel.currentPartInstance?.partInstance

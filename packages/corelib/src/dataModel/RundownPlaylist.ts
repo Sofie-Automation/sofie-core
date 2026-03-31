@@ -176,7 +176,7 @@ export function timerStateToDuration(state: TimerState, now: number): number {
 	if (state.paused) {
 		// Manually paused by user or already pushing/overrun
 		return state.duration
-	} else if (state.pauseTime && now >= state.pauseTime) {
+	} else if (state.pauseTime != null && now >= state.pauseTime) {
 		// Auto-pause at overrun (current part ended)
 		return state.zeroTime - state.pauseTime
 	} else {
