@@ -236,6 +236,8 @@ export function recalculateTTimerProjections(context: JobContext, playoutModel: 
 	let segmentAccumulator = 0
 	let isPushing = false
 	let currentSegmentId: SegmentId | undefined = undefined
+	let currentPartRemainingTime = 0
+	let startedInCurrentSegment = false
 
 	// Handle current part/segment
 	// TODO: We should consider how to handle the case where the current part is untimed - for now, we just skip it in the calculations
@@ -258,24 +260,40 @@ export function recalculateTTimerProjections(context: JobContext, playoutModel: 
 
 				isPushing = remaining < 0
 				totalAccumulator = Math.max(0, remaining)
+				currentPartRemainingTime = totalAccumulator
 			}
 		} else {
 			// Segment budget timing - we're already inside a budgeted segment
+			// For parts within the current budgeted segment, calculate based on
+			// remaining part durations. When we leave this segment, use the segment budget.
+			startedInCurrentSegment = true
 			const segmentStartedPlayback =
 				playlist.segmentsStartedPlayback?.[currentPartInstance.segmentId as unknown as string]
+
+			// Calculate remaining time in current part
+			const currentPartDuration =
+				currentPartInstance.part.expectedDurationWithTransition ?? currentPartInstance.part.expectedDuration
+			if (currentPartDuration) {
+				const currentPartStartedPlayback = currentPartInstance.timings?.plannedStartedPlayback
+				const startedPlayback =
+					currentPartStartedPlayback && currentPartStartedPlayback <= now ? currentPartStartedPlayback : now
+				const playOffset = currentPartInstance.timings?.playOffset || 0
+				const elapsed = now - startedPlayback - playOffset
+				const partRemaining = currentPartDuration - elapsed
+				currentPartRemainingTime = Math.max(0, partRemaining)
+				// Set totalAccumulator to current part remaining for correct anchor calculations
+				// within the same segment
+				totalAccumulator = currentPartRemainingTime
+			}
+
+			// Check if we're pushing (segment budget overrun)
 			if (segmentStartedPlayback) {
 				const segmentElapsed = now - segmentStartedPlayback
-				const remaining = currentSegmentBudget - segmentElapsed
-				isPushing = remaining < 0
-				totalAccumulator = Math.max(0, remaining)
-			} else {
-				totalAccumulator = currentSegmentBudget
+				const segmentRemaining = currentSegmentBudget - segmentElapsed
+				isPushing = segmentRemaining < 0
 			}
 		}
 	}
-
-	// Save remaining current part time for pauseTime calculation
-	const currentPartRemainingTime = totalAccumulator
 
 	// Add the next part to the beginning of playablePartsSlice
 	// getOrderedPartsAfterPlayhead excludes both current and next, so we need to prepend next
@@ -295,7 +313,9 @@ export function recalculateTTimerProjections(context: JobContext, playoutModel: 
 				const segmentBudget = lastSegment?.segment.segmentTiming?.budgetDuration
 
 				// Use budget if it exists, otherwise use accumulated part durations
-				if (segmentBudget !== undefined) {
+				// BUT: if we started in this segment (budgeted), don't add the budget again
+				// because we already accounted for parts via totalAccumulator + segmentAccumulator
+				if (segmentBudget !== undefined && !startedInCurrentSegment) {
 					totalAccumulator += segmentBudget
 				} else {
 					totalAccumulator += segmentAccumulator
@@ -305,6 +325,7 @@ export function recalculateTTimerProjections(context: JobContext, playoutModel: 
 			// Reset for new segment
 			segmentAccumulator = 0
 			currentSegmentId = part.segmentId
+			startedInCurrentSegment = false
 		}
 
 		// Check if this part is an anchor
