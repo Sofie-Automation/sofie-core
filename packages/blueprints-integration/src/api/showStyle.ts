@@ -223,7 +223,10 @@ export interface ShowStyleBlueprintManifest<
 		playoutPersistentState: BlueprintPlayoutPersistentStore<TimelinePersistentState>
 	) => Promise<void>
 	/** Called after a Take action */
-	onPostTake?: (context: IPartEventContext) => Promise<void>
+	onPostTake?: (
+		context: IPartEventContext,
+		playoutPersistentState: BlueprintPlayoutPersistentStore<TimelinePersistentState>
+	) => Promise<void>
 
 	/**
 	 * Called when a part is set as Next, including right after a Take.
