@@ -199,7 +199,8 @@ export const SegmentStoryboard = React.memo(
 			squishedPartsNum > 1 ? Math.max(4, (spaceLeft - PART_WIDTH) / (squishedPartsNum - 1)) : null
 
 		const playlistHasNextPart = !!props.playlist.nextPartInfo
-		const playlistIsLooping = RundownResolver.isLoopRunning(props.playlist)
+		const isPlaylistLooping = RundownResolver.isLoopRunning(props.playlist)
+		const isEntirePlaylistLooping = RundownResolver.isEntirePlaylistLooping(props.playlist)
 
 		renderedParts.forEach((part, index) => {
 			const isLivePart = part.instance._id === props.playlist.currentPartInfo?.partInstanceId
@@ -228,7 +229,8 @@ export const SegmentStoryboard = React.memo(
 					)}
 					isQuickLoopStart={RundownResolver.isQuickLoopStart(part.partId, props.playlist)}
 					isQuickLoopEnd={RundownResolver.isQuickLoopEnd(part.partId, props.playlist)}
-					isPlaylistLooping={playlistIsLooping}
+					isPlaylistLooping={isPlaylistLooping}
+					isEntirePlaylistLooping={isEntirePlaylistLooping}
 					doesPlaylistHaveNextPart={playlistHasNextPart}
 					displayLiveLineCounter={props.displayLiveLineCounter}
 					inHold={!!(props.playlist.holdState && props.playlist.holdState !== RundownHoldState.COMPLETE)}
