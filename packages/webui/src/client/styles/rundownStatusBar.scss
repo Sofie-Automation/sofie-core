@@ -49,20 +49,15 @@
 			padding: 0 0.2em 0 0.1em;
 
 			&.light {
-				// Match `.prompter-timing-clock.heavy-light.light`
+				// Match `.screen-timing-clock.heavy-light.light`
 				background-color: #ffe900;
 				color: #000;
 			}
 
 			&.heavy {
-				// Match `.prompter-timing-clock.heavy-light.heavy`
+				// Match `.screen-timing-clock.heavy-light.heavy`
 				background-color: $general-fast-color;
-				color: #fff;
-				text-shadow:
-					1px 1px 0px #000,
-					1px -1px 0px #000,
-					-1px -1px 0px #000,
-					-1px 1px 0px #000;
+				color: #000;
 			}
 		}
 	}

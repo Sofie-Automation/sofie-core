@@ -1,8 +1,9 @@
 import { RundownTTimer } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/TTimers'
 import { RundownUtils } from '../../lib/rundown.js'
-import { calculateTTimerDiff, calculateTTimerOverUnder } from '../../lib/tTimerUtils'
-import { useTiming } from '../RundownView/RundownTiming/withTiming'
+import { calculateTTimerDiff, calculateTTimerOverUnder } from '../../lib/tTimerUtils.js'
+import { useTiming } from '../RundownView/RundownTiming/withTiming.js'
 import classNames from 'classnames'
+import { OverUnderTimer } from '../Prompter/OverUnderTimer.js'
 
 interface TTimerDisplayProps {
 	timer: RundownTTimer
@@ -17,7 +18,6 @@ export function TTimerDisplay({ timer }: Readonly<TTimerDisplayProps>): JSX.Elem
 
 	const diff = calculateTTimerDiff(timer, now)
 	const overUnder = calculateTTimerOverUnder(timer, now)
-
 	const timerStr = RundownUtils.formatDiffToTimecode(Math.abs(diff), false, true, true, false, true)
 	const timerParts = timerStr.split(':')
 	const timerSign = diff >= 0 ? '' : '-'
@@ -39,17 +39,7 @@ export function TTimerDisplay({ timer }: Readonly<TTimerDisplayProps>): JSX.Elem
 					</span>
 				))}
 			</span>
-			{overUnder !== undefined && (
-				<span
-					className={classNames('t-timer-display__over-under', {
-						't-timer-display__over-under--over': overUnder > 0,
-						't-timer-display__over-under--under': overUnder <= 0,
-					})}
-				>
-					{overUnder > 0 ? '+' : '\u2013'}
-					{RundownUtils.formatDiffToTimecode(Math.abs(overUnder), false, true, true, false, true)}
-				</span>
-			)}
+			<OverUnderTimer valueMs={overUnder} />
 		</div>
 	)
 }

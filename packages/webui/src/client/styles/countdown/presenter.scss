@@ -15,10 +15,7 @@ $hold-status-color: $liveline-timecode-color;
 
 .presenter-screen {
 	position: fixed;
-	top: 0;
-	bottom: 0;
-	left: 0;
-	right: 0;
+	inset: 0;
 
 	font-size: 1vh;
 
@@ -27,6 +24,22 @@ $hold-status-color: $liveline-timecode-color;
 
 	overflow: hidden;
 	white-space: nowrap;
+
+	// Over/under timer (reuses `screen-timing-clock` class from prompter view),
+	// but presenter view has a tiny base font-size (1vh), so we need explicit sizing + layering.
+	.screen-timing-clock {
+		position: fixed;
+		left: auto;
+		font-size: 9.8vmin;
+
+		z-index: 2000;
+
+		padding: 0 0.3em;
+		border-radius: 1em;
+		box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
+
+		margin: 0;
+	}
 
 	.presenter-screen__part {
 		display: grid;
@@ -47,9 +60,17 @@ $hold-status-color: $liveline-timecode-color;
 			font-weight: bold;
 
 			&.live {
-				background: $general-live-color;
+				// Layer the director-style gradient over the live color
+				background:
+					linear-gradient(
+						90deg,
+						rgba(223, 0, 0, 0) 0%,
+						rgba(223, 0, 0, 0) 50%,
+						rgba(116, 0, 0, 0.808) 69%,
+						rgba(0, 0, 0, 0.8) 74%
+					),
+					$general-live-color;
 				color: #fff;
-				border-top: 0.1em solid #fff;
 				-webkit-text-stroke: black;
 				-webkit-text-stroke-width: 0.025em;
 				text-shadow: 0px 0px 20px #00000044;
@@ -58,7 +79,6 @@ $hold-status-color: $liveline-timecode-color;
 			&.next {
 				background: $general-next-color;
 				color: #000;
-				border-top: 0.1em solid #fff;
 			}
 		}
 
@@ -159,9 +179,6 @@ $hold-status-color: $liveline-timecode-color;
 				grid-row: 2 / -1;
 			}
 		}
-	}
-
-	.presenter-screen__rundown-status-bar {
 	}
 
 	.presenter-screen__part + .presenter-screen__part {
@@ -319,4 +336,3 @@ $hold-status-color: $liveline-timecode-color;
 		}
 	}
 }
-

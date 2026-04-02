@@ -1,9 +1,6 @@
 import ClassNames from 'classnames'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { RundownUtils } from '../../lib/rundown.js'
-import { getPlaylistTimingDiff } from '../../lib/rundownTiming.js'
 import { getDefaultTTimer } from '../../lib/tTimerUtils.js'
-import { useTiming } from '../RundownView/RundownTiming/withTiming.js'
 import { TTimerDisplay } from './TTimerDisplay.js'
 
 interface RundownStatusBarProps {
@@ -17,7 +14,6 @@ export function RundownStatusBar({
 	playlist,
 	className,
 	showPlaylistName = true,
-	showDiff = true,
 }: Readonly<RundownStatusBarProps>): JSX.Element {
 	const activeTTimer = playlist ? getDefaultTTimer(playlist.tTimers) : undefined
 

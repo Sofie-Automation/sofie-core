@@ -31,13 +31,13 @@ import { UIStudios } from '../Collections.js'
 import { RundownTimingProvider } from '../RundownView/RundownTiming/RundownTimingProvider.js'
 import { StudioScreenSaver } from '../StudioScreenSaver/StudioScreenSaver.js'
 import { PrompterControlManager } from './controller/manager.js'
-import { OverUnderTimer } from './OverUnderTimer.js'
 import { RundownStatusBar } from '../ClockView/RundownStatusBar.js'
 import { PrompterAPI, PrompterData, PrompterDataPart, PrompterDataPiece } from './prompter.js'
 import { doUserAction, UserAction } from '../../lib/clientUserAction.js'
 import { MeteorCall } from '../../lib/meteorApi.js'
 import { MdDisplay } from './Formatted/MdDisplay.js'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import { OverUnderTimer } from './OverUnderTimer.js'
 
 const DEFAULT_UPDATE_THROTTLE = 250 //ms
 const PIECE_MISSING_UPDATE_THROTTLE = 2000 //ms
@@ -613,7 +613,11 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 								allowTestingAdlibsToPersist={this.props.studio?.settings.allowTestingAdlibsToPersist ?? false}
 							>
 								{this.configOptions.showOverUnder && (
-									<OverUnderTimer rundownPlaylist={this.props.rundownPlaylist} style={overUnderStyle} />
+									<OverUnderTimer
+										rundownPlaylist={this.props.rundownPlaylist}
+										className="screen-timing-clock heavy-light heavy"
+										style={overUnderStyle}
+									/>
 								)}
 							</Prompter>
 							<RundownStatusBar

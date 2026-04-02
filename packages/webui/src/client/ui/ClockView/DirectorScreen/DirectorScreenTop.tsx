@@ -1,16 +1,16 @@
 import {
-	OverUnderClockComponent,
 	PlannedEndComponent,
 	TimeSincePlannedEndComponent,
 	TimeToPlannedEndComponent,
 } from '../../../lib/Components/CounterComponents'
-import { useTiming } from '../../RundownView/RundownTiming/withTiming'
-import { getPlaylistTimingDiff } from '../../../lib/rundownTiming'
+import { useTiming } from '../../RundownView/RundownTiming/withTiming.js'
+import { getPlaylistTimingDiff } from '../../../lib/rundownTiming.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
-import { getCurrentTime } from '../../../lib/systemTime'
+import { getCurrentTime } from '../../../lib/systemTime.js'
 import { useTranslation } from 'react-i18next'
 import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
 import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance'
+import { OverUnderTimer } from '../../Prompter/OverUnderTimer.js'
 
 export interface DirectorScreenTopProps {
 	playlist: DBRundownPlaylist
@@ -77,7 +77,7 @@ export function DirectorScreenTop({
 			)}
 			<div>
 				<div>
-					<OverUnderClockComponent value={overUnderClock} />
+					<OverUnderTimer containerClassName="counter-component__over-under" valueMs={overUnderClock} />
 				</div>
 				<span className="director-screen__top__over-under">{t('Over/Under')}</span>
 			</div>

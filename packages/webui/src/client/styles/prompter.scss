@@ -90,7 +90,8 @@ body.prompter-scrollbar {
 	.prompter-part {
 		text-align: center;
 		letter-spacing: 0.1em;
-		font-size: 50%;
+		font-size: 63%;
+		height: 12.2vh;
 	}
 	.overlay-fix {
 		pointer-events: none;
@@ -129,7 +130,16 @@ body.prompter-scrollbar {
 
 		&.live {
 			//border-bottom: 0.2em solid #f55;
-			background: $general-live-color;
+			// Layer the director-style gradient over the live color
+			background:
+				linear-gradient(
+					90deg,
+					rgba(223, 0, 0, 0) 0%,
+					rgba(223, 0, 0, 0) 50%,
+					rgba(116, 0, 0, 0.808) 68%,
+					rgba(0, 0, 0, 0.8) 73%
+				),
+				$general-live-color;
 			color: #fff;
 			-webkit-text-stroke: black;
 			-webkit-text-stroke-width: 0.025em;
@@ -277,16 +287,19 @@ body.prompter-scrollbar {
 	}
 }
 
-.prompter-timing-clock {
+.screen-timing-clock {
+	font-family: Roboto Flex;
 	position: fixed;
 	display: block;
 	top: 0;
 	right: 0;
 	left: auto;
-	font-size: 75%;
+	font-size: 9.8vmin;
 	padding: 0.05em 0.3em;
 	border-radius: 1em;
 	box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
+	line-height: 1;
+	margin: 0;
 
 	&.heavy-light {
 		font-weight: 600;
@@ -298,13 +311,12 @@ body.prompter-scrollbar {
 		}
 
 		&.heavy {
-			background-color: $general-fast-color;
-			color: #fff;
+			color: black;
 			text-shadow:
-				1px 1px 0px #000,
-				1px -1px 0px #000,
-				-1px -1px 0px #000,
-				-1px 1px 0px #000;
+				0.02em 1px 0px #000,
+				0.02em -1px 0px #000,
+				-0.02em -1px 0px #000,
+				-0.02em 1px 0px #000;
 		}
 	}
 }
