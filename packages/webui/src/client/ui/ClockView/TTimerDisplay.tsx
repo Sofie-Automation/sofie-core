@@ -24,7 +24,7 @@ export function TTimerDisplay({ timer }: Readonly<TTimerDisplayProps>): JSX.Elem
 
 	return (
 		<div className="t-timer-display">
-			<span className="t-timer-display__label">{timer.label}</span>
+			{timer.label ? <span className="t-timer-display__label">{timer.label}</span> : null}
 			<span className="t-timer-display__value">
 				{timerSign}
 				{timerParts.map((p, i) => (

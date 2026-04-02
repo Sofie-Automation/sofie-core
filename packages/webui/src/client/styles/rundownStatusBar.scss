@@ -1,0 +1,73 @@
+/**
+ * Styling for `ui/ClockView/RundownStatusBar.tsx`.
+ *
+ * View-level styles (Presenter/Prompter) should only handle placement and scaling.
+ */
+@import 'colorScheme';
+
+.presenter-screen__rundown-status-bar {
+	display: grid;
+	grid-template-columns: auto fit-content(1em);
+	grid-template-rows: fit-content(1em);
+	font-size: 6em;
+	color: #888;
+	padding: 0 0 0 0.2em;
+	background: rgba(0, 0, 0, 0.75);
+
+	.presenter-screen__rundown-status-bar__rundown-name {
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		line-height: 1.44em;
+	}
+
+	.presenter-screen__rundown-status-bar__right {
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+		justify-self: end;
+		// Match the exact background of `.t-timer-display`
+		background: #333;
+	}
+
+	.presenter-screen__rundown-status-bar__t-timer {
+		font-size: 1.2em;
+		display: flex;
+		align-items: center;
+	}
+
+	.presenter-screen__rundown-status-bar__countdown {
+		white-space: nowrap;
+
+		font-weight: 600;
+		font-size: 1.2em;
+		align-self: center;
+
+		&.heavy-light {
+			display: inline-block;
+			border-radius: 1em;
+			padding: 0 0.2em 0 0.1em;
+
+			&.light {
+				// Match `.prompter-timing-clock.heavy-light.light`
+				background-color: #ffe900;
+				color: #000;
+			}
+
+			&.heavy {
+				// Match `.prompter-timing-clock.heavy-light.heavy`
+				background-color: $general-fast-color;
+				color: #fff;
+				text-shadow:
+					1px 1px 0px #000,
+					1px -1px 0px #000,
+					-1px -1px 0px #000,
+					-1px 1px 0px #000;
+			}
+		}
+	}
+
+	&.presenter-screen__rundown-status-bar--no-title {
+		background: transparent;
+	}
+}

@@ -32,6 +32,7 @@ import { RundownTimingProvider } from '../RundownView/RundownTiming/RundownTimin
 import { StudioScreenSaver } from '../StudioScreenSaver/StudioScreenSaver.js'
 import { PrompterControlManager } from './controller/manager.js'
 import { OverUnderTimer } from './OverUnderTimer.js'
+import { RundownStatusBar } from '../ClockView/RundownStatusBar.js'
 import { PrompterAPI, PrompterData, PrompterDataPart, PrompterDataPiece } from './prompter.js'
 import { doUserAction, UserAction } from '../../lib/clientUserAction.js'
 import { MeteorCall } from '../../lib/meteorApi.js'
@@ -76,6 +77,7 @@ interface PrompterConfig {
 	showScroll: boolean
 	debug: boolean
 	showOverUnder: boolean
+	showPlaylistName: boolean
 	addBlankLine: boolean
 }
 
@@ -220,6 +222,7 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 			showScroll: queryParams['showscroll'] === undefined ? true : queryParams['showscroll'] === '1',
 			debug: queryParams['debug'] === undefined ? false : queryParams['debug'] === '1',
 			showOverUnder: queryParams['showoverunder'] === undefined ? true : queryParams['showoverunder'] === '1',
+			showPlaylistName: queryParams['showplaylistname'] === '1',
 			addBlankLine: queryParams['addblanklinke'] === undefined ? true : queryParams['adblankline'] === '1',
 		}
 
@@ -613,6 +616,11 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 									<OverUnderTimer rundownPlaylist={this.props.rundownPlaylist} style={overUnderStyle} />
 								)}
 							</Prompter>
+							<RundownStatusBar
+								playlist={this.props.rundownPlaylist}
+								className="prompter-rundown-status-bar"
+								showPlaylistName={this.configOptions.showPlaylistName}
+							/>
 						</RundownTimingProvider>
 						{this.configOptions.debug ? (
 							<div

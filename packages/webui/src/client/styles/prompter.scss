@@ -309,6 +309,18 @@ body.prompter-scrollbar {
 	}
 }
 
+.prompter-rundown-status-bar {
+	position: fixed;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 1100;
+}
+
+.prompter-rundown-status-bar.presenter-screen__rundown-status-bar {
+	font-size: 6vh;
+}
+
 .script-text-formatted {
 	--background-color: #000;
 	--foreground-color: #fff;

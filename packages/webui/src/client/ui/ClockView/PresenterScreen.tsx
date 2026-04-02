@@ -35,7 +35,7 @@ import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
 import { ShelfDashboardLayout } from '../Shelf/ShelfDashboardLayout.js'
 import { parse as queryStringParse } from 'query-string'
 import { calculatePartInstanceExpectedDurationWithTransition } from '@sofie-automation/corelib/dist/playout/timings'
-import { getPlaylistTimingDiff, RundownTimingContext } from '../../lib/rundownTiming.js'
+import { RundownTimingContext } from '../../lib/rundownTiming.js'
 import { UIShowStyleBases, UIStudios } from '../Collections.js'
 import {
 	PieceInstances,
@@ -50,8 +50,7 @@ import { useSetDocumentClass, useSetDocumentDarkTheme } from '../util/useSetDocu
 import { useRundownAndShowStyleIdsForPlaylist } from '../util/useRundownAndShowStyleIdsForPlaylist.js'
 import { RundownPlaylistClientUtil } from '../../lib/rundownPlaylistUtil.js'
 import { CurrentPartOrSegmentRemaining } from '../RundownView/RundownHeader/CurrentPartOrSegmentRemaining.js'
-import { TTimerDisplay } from './TTimerDisplay.js'
-import { getDefaultTTimer } from '../../lib/tTimerUtils.js'
+import { RundownStatusBar } from './RundownStatusBar.js'
 import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
@@ -496,8 +495,6 @@ function PresenterScreenContentDefaultLayout({
 			timingDurations.remainingBudgetOnCurrentSegment ?? timingDurations.remainingTimeOnCurrentPart ?? 0
 
 		const expectedStart = PlaylistTiming.getExpectedStart(playlist.timing)
-		const overUnderClock = getPlaylistTimingDiff(playlist, timingDurations) ?? 0
-		const activeTTimer = getDefaultTTimer(playlist.tTimers)
 
 		return (
 			<div className="presenter-screen">
@@ -599,21 +596,7 @@ function PresenterScreenContentDefaultLayout({
 						</>
 					) : null}
 				</div>
-				<div className="presenter-screen__rundown-status-bar">
-					<div className="presenter-screen__rundown-status-bar__rundown-name">
-						{playlist ? playlist.name : 'UNKNOWN'}
-					</div>
-					<div className="presenter-screen__rundown-status-bar__t-timer">
-						{!!activeTTimer && <TTimerDisplay timer={activeTTimer} />}
-					</div>
-					<div
-						className={ClassNames('presenter-screen__rundown-status-bar__countdown', {
-							over: Math.floor(overUnderClock / 1000) >= 0,
-						})}
-					>
-						{RundownUtils.formatDiffToTimecode(overUnderClock, true, false, true, true, true, undefined, true, true)}
-					</div>
-				</div>
+				<RundownStatusBar playlist={playlist} />
 			</div>
 		)
 	}
