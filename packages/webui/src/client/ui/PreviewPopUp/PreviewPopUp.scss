@@ -35,7 +35,6 @@
 
 	&--large {
 		width: 482px;
-		padding-bottom: 10px;
 		--preview-max-dimension: 480;
 	}
 
@@ -432,5 +431,9 @@
 		.label {
 			font-weight: 300;
 		}
+	}
+
+	> * + :last-child:not(.preview-popUp__box-layout, .preview-popUp__iframe, .preview-popUp__video) {
+		margin-bottom: 10px;
 	}
 }
