@@ -4,7 +4,7 @@ import { PieceStatusCode, PieceUi } from '@sofie-automation/corelib/dist/dataMod
 import classNames from 'classnames'
 import { ReadonlyDeep } from 'type-fest'
 import { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
-import { RundownUtils } from '../rundown'
+import { RundownUtils } from '../rundown.js'
 
 export function pieceUiClassNames(
 	pieceInstance: PieceUi,

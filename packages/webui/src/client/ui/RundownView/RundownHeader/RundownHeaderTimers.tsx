@@ -1,7 +1,7 @@
 import React from 'react'
 import { RundownTTimer } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { useTiming } from '../RundownTiming/withTiming'
-import { RundownUtils } from '../../../lib/rundown'
+import { RundownUtils } from '../../../lib/rundown.js'
 import { calculateTTimerDiff, calculateTTimerOverUnder } from '../../../lib/tTimerUtils'
 import classNames from 'classnames'
 import { getCurrentTime } from '../../../lib/systemTime'

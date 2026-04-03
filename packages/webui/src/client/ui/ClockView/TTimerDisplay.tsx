@@ -1,5 +1,5 @@
 import { RundownTTimer } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { RundownUtils } from '../../lib/rundown'
+import { RundownUtils } from '../../lib/rundown.js'
 import { calculateTTimerDiff, calculateTTimerOverUnder } from '../../lib/tTimerUtils'
 import { useTiming } from '../RundownView/RundownTiming/withTiming'
 import classNames from 'classnames'

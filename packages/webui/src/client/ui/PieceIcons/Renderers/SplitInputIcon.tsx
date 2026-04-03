@@ -3,7 +3,7 @@ import { PieceGeneric } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { SplitsContent, SourceLayerType } from '@sofie-automation/blueprints-integration'
 import classNames from 'classnames'
 import { ReadonlyDeep } from 'type-fest'
-import { RundownUtils } from '../../../lib/rundown'
+import { RundownUtils } from '../../../lib/rundown.js'
 
 type SplitIconPieceType = ReadonlyDeep<Omit<PieceGeneric, 'timelineObjectsString'>>
 

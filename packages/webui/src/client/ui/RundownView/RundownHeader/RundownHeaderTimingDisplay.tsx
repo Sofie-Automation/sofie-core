@@ -3,7 +3,7 @@ import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTi
 import { useTranslation } from 'react-i18next'
 import { useTiming } from '../RundownTiming/withTiming'
 import { getPlaylistTimingDiff } from '../../../lib/rundownTiming'
-import { RundownUtils } from '../../../lib/rundown'
+import { RundownUtils } from '../../../lib/rundown.js'
 
 export interface IRundownHeaderTimingDisplayProps {
 	playlist: DBRundownPlaylist
