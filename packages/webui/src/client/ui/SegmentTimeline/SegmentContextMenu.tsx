@@ -175,144 +175,142 @@ export function SegmentContextMenu({
 						<hr />
 					</>
 				)}
-				{part &&
-					isPartNext !== undefined &&
-					isPartOrphaned !== undefined &&
-					!part.instance.part.invalid &&
-					timecode !== null && (
-						<>
-							<MenuItem
-								onClick={(e) => onSetNext(part.instance.part, e)}
-								disabled={!!part.instance.orphaned || !canSetAsNext}
-							>
-								<span
-									dangerouslySetInnerHTML={{
-										__html: t(`Set part as <strong>Next</strong>`),
-									}}
-								></span>
-							</MenuItem>
-							{startsAt !== undefined && part && enablePlayFromAnywhere ? (
-								<>
-									<MenuItem
-										onClick={(e) =>
-											onSetAsNextFromHere(
-												part.instance,
-												playlist?.nextPartInfo?.partInstanceId ?? null,
-												playlist?.currentPartInfo?.partInstanceId ?? null,
-												e
-											)
-										}
-										disabled={getIsPlayFromHereDisabled()}
-									>
-										<span
-											dangerouslySetInnerHTML={{
-												__html: t(
-													`Set part from ${RundownUtils.formatTimeToShortTime(Math.floor(timecode / 1000) * 1000)} as <strong>Next</strong>`
-												),
-											}}
-										></span>
-									</MenuItem>
-									<MenuItem
-										onClick={(e) =>
-											onSetAsNextFromHere(
-												part.instance,
-												playlist?.nextPartInfo?.partInstanceId ?? null,
-												playlist?.currentPartInfo?.partInstanceId ?? null,
-												e,
-												true
-											)
-										}
-										disabled={getIsPlayFromHereDisabled(true)}
-									>
-										<span>
-											{t(`Play part from ${RundownUtils.formatTimeToShortTime(Math.floor(timecode / 1000) * 1000)}`)}
-										</span>
-									</MenuItem>
-								</>
-							) : null}
-							{enableQuickLoop && !RundownResolver.isLoopLocked(playlist) && (
-								<>
-									{RundownResolver.isQuickLoopStart(part.partId, playlist) ? (
-										<MenuItem onClick={(e) => onSetQuickLoopStart(null, e)}>
-											<span>{t('Clear QuickLoop Start')}</span>
-										</MenuItem>
-									) : (
+				{part && isPartNext !== undefined && isPartOrphaned !== undefined && timecode !== null && (
+					<>
+						{!part.instance.part.invalid && (
+							<>
+								<MenuItem
+									onClick={(e) => onSetNext(part.instance.part, e)}
+									disabled={!!part.instance.orphaned || !canSetAsNext}
+								>
+									<span
+										dangerouslySetInnerHTML={{
+											__html: t(`Set part as <strong>Next</strong>`),
+										}}
+									></span>
+								</MenuItem>
+								{startsAt !== undefined && part && enablePlayFromAnywhere ? (
+									<>
 										<MenuItem
 											onClick={(e) =>
-												onSetQuickLoopStart({ type: QuickLoopMarkerType.PART, id: part.instance.part._id }, e)
+												onSetAsNextFromHere(
+													part.instance,
+													playlist?.nextPartInfo?.partInstanceId ?? null,
+													playlist?.currentPartInfo?.partInstanceId ?? null,
+													e
+												)
 											}
-											disabled={!!part.instance.orphaned || !canSetAsNext}
+											disabled={getIsPlayFromHereDisabled()}
 										>
-											<span>{t('Set as QuickLoop Start')}</span>
+											<span
+												dangerouslySetInnerHTML={{
+													__html: t(
+														`Set part from ${RundownUtils.formatTimeToShortTime(Math.floor(timecode / 1000) * 1000)} as <strong>Next</strong>`
+													),
+												}}
+											></span>
 										</MenuItem>
-									)}
-									{RundownResolver.isQuickLoopEnd(part.partId, playlist) ? (
-										<MenuItem onClick={(e) => onSetQuickLoopEnd(null, e)}>
-											<span>{t('Clear QuickLoop End')}</span>
-										</MenuItem>
-									) : (
 										<MenuItem
 											onClick={(e) =>
-												onSetQuickLoopEnd({ type: QuickLoopMarkerType.PART, id: part.instance.part._id }, e)
+												onSetAsNextFromHere(
+													part.instance,
+													playlist?.nextPartInfo?.partInstanceId ?? null,
+													playlist?.currentPartInfo?.partInstanceId ?? null,
+													e,
+													true
+												)
 											}
-											disabled={!!part.instance.orphaned || !canSetAsNext}
+											disabled={getIsPlayFromHereDisabled(true)}
 										>
-											<span>{t('Set as QuickLoop End')}</span>
+											<span>
+												{t(`Play part from ${RundownUtils.formatTimeToShortTime(Math.floor(timecode / 1000) * 1000)}`)}
+											</span>
 										</MenuItem>
-									)}
-								</>
-							)}
+									</>
+								) : null}
+							</>
+						)}
+						{enableQuickLoop && !RundownResolver.isLoopLocked(playlist) && (
+							<>
+								{RundownResolver.isQuickLoopStart(part.partId, playlist) ? (
+									<MenuItem onClick={(e) => onSetQuickLoopStart(null, e)}>
+										<span>{t('Clear QuickLoop Start')}</span>
+									</MenuItem>
+								) : (
+									<MenuItem
+										onClick={(e) =>
+											onSetQuickLoopStart({ type: QuickLoopMarkerType.PART, id: part.instance.part._id }, e)
+										}
+										disabled={!!part.instance.orphaned || !canSetAsNext}
+									>
+										<span>{t('Set as QuickLoop Start')}</span>
+									</MenuItem>
+								)}
+								{RundownResolver.isQuickLoopEnd(part.partId, playlist) ? (
+									<MenuItem onClick={(e) => onSetQuickLoopEnd(null, e)}>
+										<span>{t('Clear QuickLoop End')}</span>
+									</MenuItem>
+								) : (
+									<MenuItem
+										onClick={(e) =>
+											onSetQuickLoopEnd({ type: QuickLoopMarkerType.PART, id: part.instance.part._id }, e)
+										}
+										disabled={!!part.instance.orphaned || !canSetAsNext}
+									>
+										<span>{t('Set as QuickLoop End')}</span>
+									</MenuItem>
+								)}
+							</>
+						)}
 
+						<UserEditOperationMenuItems
+							rundownId={part.instance.rundownId}
+							targetName={part.instance.part.title}
+							operationTarget={{
+								segmentExternalId: segment?.externalId,
+								partExternalId: part.instance.part.externalId,
+								pieceExternalId: undefined,
+							}}
+							userEditOperations={part.instance.part.userEditOperations}
+							isFormEditable={isPartEditAble}
+						/>
+
+						{piece && piece.instance.piece.userEditOperations && (
 							<UserEditOperationMenuItems
 								rundownId={part.instance.rundownId}
-								targetName={part.instance.part.title}
+								targetName={piece.instance.piece.name}
 								operationTarget={{
 									segmentExternalId: segment?.externalId,
 									partExternalId: part.instance.part.externalId,
-									pieceExternalId: undefined,
+									pieceExternalId: piece.instance.piece.externalId,
 								}}
-								userEditOperations={part.instance.part.userEditOperations}
+								userEditOperations={piece.instance.piece.userEditOperations as CoreUserEditingDefinition[] | undefined}
 								isFormEditable={isPartEditAble}
 							/>
+						)}
 
-							{piece && piece.instance.piece.userEditOperations && (
-								<UserEditOperationMenuItems
-									rundownId={part.instance.rundownId}
-									targetName={piece.instance.piece.name}
-									operationTarget={{
-										segmentExternalId: segment?.externalId,
-										partExternalId: part.instance.part.externalId,
-										pieceExternalId: piece.instance.piece.externalId,
-									}}
-									userEditOperations={
-										piece.instance.piece.userEditOperations as CoreUserEditingDefinition[] | undefined
-									}
-									isFormEditable={isPartEditAble}
-								/>
-							)}
-
-							{enableUserEdits && (segmentHasEditableContent || partHasEditableContent || pieceHasEditableContent) && (
-								<>
-									<hr />
-									{segmentHasEditableContent && (
-										<MenuItem onClick={() => onEditProps({ type: 'segment', elementId: part.instance.segmentId })}>
-											<span>{t('Edit Segment Properties')}</span>
-										</MenuItem>
-									)}
-									{partHasEditableContent && (
-										<MenuItem onClick={() => onEditProps({ type: 'part', elementId: part.instance.part._id })}>
-											<span>{t('Edit Part Properties')}</span>
-										</MenuItem>
-									)}
-									{pieceHasEditableContent && piece && (
-										<MenuItem onClick={() => onEditProps({ type: 'piece', elementId: piece.instance.piece._id })}>
-											<span>{t('Edit Piece Properties')}</span>
-										</MenuItem>
-									)}
-								</>
-							)}
-						</>
-					)}
+						{enableUserEdits && (segmentHasEditableContent || partHasEditableContent || pieceHasEditableContent) && (
+							<>
+								<hr />
+								{segmentHasEditableContent && (
+									<MenuItem onClick={() => onEditProps({ type: 'segment', elementId: part.instance.segmentId })}>
+										<span>{t('Edit Segment Properties')}</span>
+									</MenuItem>
+								)}
+								{partHasEditableContent && (
+									<MenuItem onClick={() => onEditProps({ type: 'part', elementId: part.instance.part._id })}>
+										<span>{t('Edit Part Properties')}</span>
+									</MenuItem>
+								)}
+								{pieceHasEditableContent && piece && (
+									<MenuItem onClick={() => onEditProps({ type: 'piece', elementId: piece.instance.piece._id })}>
+										<span>{t('Edit Piece Properties')}</span>
+									</MenuItem>
+								)}
+							</>
+						)}
+					</>
+				)}
 			</ContextMenu>
 		</Escape>
 	) : null
