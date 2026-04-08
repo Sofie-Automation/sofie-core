@@ -67,6 +67,7 @@ export class LocalLayerItemRenderer extends CustomLayerItemRenderer<IProps, ISta
 						ref={this.setRightLabelRef}
 						style={this.getItemLabelOffsetRight()}
 					>
+						{this.renderCustomPieceIcons()}
 						{this.renderInfiniteIcon()}
 						{this.renderOverflowTimeLabel()}
 					</span>
