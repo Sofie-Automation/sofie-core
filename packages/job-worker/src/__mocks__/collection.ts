@@ -17,7 +17,7 @@ import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceIns
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { RundownBaselineAdLibAction } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibAction'
 import { RundownBaselineObj } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineObj'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'

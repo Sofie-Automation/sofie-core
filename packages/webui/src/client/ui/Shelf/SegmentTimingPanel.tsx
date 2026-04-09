@@ -7,7 +7,7 @@ import {
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import { withTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import { RundownUtils } from '../../lib/rundown.js'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { SegmentDuration } from '../RundownView/RundownTiming/SegmentDuration.js'
 import { memoizedIsolatedAutorun } from '../../lib/memoizedIsolatedAutorun.js'

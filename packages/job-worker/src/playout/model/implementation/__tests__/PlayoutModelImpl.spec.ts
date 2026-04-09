@@ -19,7 +19,7 @@ import {
 } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { EmptyPieceTimelineObjectsBlob, Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
-import { QuickLoopMarkerType } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { QuickLoopMarkerType } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { RundownBaselineAdLibItem } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibPiece'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'

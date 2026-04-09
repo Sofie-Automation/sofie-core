@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { RundownTTimer } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/TTimers'
 import { useFakeCurrentTime, useRealCurrentTime } from '../../__mocks__/time.js'
 import {
 	validateTTimerIndex,
@@ -10,7 +11,6 @@ import {
 	calculateNextTimeOfDayTarget,
 	createTimeOfDayTTimer,
 } from '../tTimers.js'
-import type { RundownTTimer } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 
 describe('tTimers utils', () => {
 	beforeEach(() => {

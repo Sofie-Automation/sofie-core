@@ -18,7 +18,10 @@ import { PartId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DummyReactiveVar } from '@sofie-automation/meteor-lib/dist/triggers/reactive-var'
 import { ReactivePlaylistActionContext } from '@sofie-automation/meteor-lib/dist/triggers/actionFactory'
 import { FindOneOptions, FindOptions, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
-import { DBRundownPlaylist, SelectedPartInstance } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import {
+	DBRundownPlaylist,
+	SelectedPartInstance,
+} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import {
 	AdLibActions,
 	AdLibPieces,

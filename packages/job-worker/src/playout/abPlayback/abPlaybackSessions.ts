@@ -1,6 +1,6 @@
 import { OnGenerateTimelineObj, TSR } from '@sofie-automation/blueprints-integration'
 import { ResolvedPieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
-import { ABSessionAssignments } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { ABSessionAssignments } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { OnGenerateTimelineObjExt } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import _ from 'underscore'
 import { SessionRequest } from './abPlaybackResolver.js'

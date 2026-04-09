@@ -1,4 +1,7 @@
-import type { RundownTTimerIndex, RundownTTimer } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import type {
+	RundownTTimerIndex,
+	RundownTTimer,
+} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/TTimers'
 import type { RundownTTimerMode, TimerState } from '@sofie-automation/blueprints-integration'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { getCurrentTime } from '../lib/index.js'

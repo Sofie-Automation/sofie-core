@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import Sorensen from '@sofie-automation/sorensen'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { useSubscription, useTracker } from '../ReactMeteorData/ReactMeteorData.js'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { PlayoutActions, SomeAction, SomeBlueprintTrigger, TriggerType } from '@sofie-automation/blueprints-integration'
 import {
 	isPreviewableAction,

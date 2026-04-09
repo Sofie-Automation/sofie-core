@@ -1,4 +1,4 @@
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
 import { useTranslation } from 'react-i18next'
 import { Countdown } from './Countdown'

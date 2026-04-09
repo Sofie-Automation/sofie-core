@@ -1,6 +1,6 @@
 import { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBPart, isPartPlayable } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { RundownHoldState } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { RundownHoldState } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/error'
 import {
 	SetNextPartProps,

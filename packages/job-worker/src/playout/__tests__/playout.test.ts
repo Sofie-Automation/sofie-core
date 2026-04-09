@@ -22,7 +22,7 @@ import {
 	handleResetRundownPlaylist,
 } from '../activePlaylistJobs.js'
 import { getSelectedPartInstances } from './lib.js'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { UserErrorMessage } from '@sofie-automation/corelib/dist/error'
 import * as peripheralDeviceLib from '../../peripheralDevice.js'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'

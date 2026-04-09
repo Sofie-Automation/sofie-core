@@ -2,7 +2,7 @@ import { ReactiveCacheCollection } from '../../lib/ReactiveCacheCollection'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { MongoFieldSpecifierOnesStrict } from '@sofie-automation/corelib/dist/mongo'
 import { ExpectedPackageDB } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 
 export type RundownPlaylistCompact = Pick<

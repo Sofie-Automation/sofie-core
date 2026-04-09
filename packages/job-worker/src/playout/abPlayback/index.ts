@@ -3,7 +3,7 @@ import {
 	ABSessionAssignment,
 	ABSessionAssignments,
 	DBRundownPlaylist,
-} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { OnGenerateTimelineObjExt } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { endTrace, sendTrace, startTrace } from '@sofie-automation/corelib/dist/influxdb'
 import { WrappedShowStyleBlueprint } from '../../blueprints/cache.js'

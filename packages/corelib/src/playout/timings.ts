@@ -3,7 +3,7 @@ import { DBPartInstance } from '../dataModel/PartInstance.js'
 import { DBPart } from '../dataModel/Part.js'
 import { PieceInstance, PieceInstancePiece } from '../dataModel/PieceInstance.js'
 import { Piece } from '../dataModel/Piece.js'
-import { RundownHoldState } from '../dataModel/RundownPlaylist/index.js'
+import { RundownHoldState } from '../dataModel/RundownPlaylist/RundownPlaylist.js'
 import { ReadonlyDeep } from 'type-fest'
 
 /**

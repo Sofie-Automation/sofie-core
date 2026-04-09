@@ -16,7 +16,7 @@ import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { setTimelineDatastoreValue, removeTimelineDatastoreValue } from '../../playout/datastore.js'
 import { TTimersService } from './services/TTimersService.js'
 import type { IPlaylistTTimer } from '@sofie-automation/blueprints-integration/dist/context/tTimersContext'
-import type { RundownTTimerIndex } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import type { RundownTTimerIndex } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/TTimers'
 
 export class RundownActivationContext extends RundownEventContext implements IRundownActivationContext {
 	private readonly _playoutModel: PlayoutModel

@@ -1,6 +1,6 @@
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 import { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import throttleToNextTick from '@sofie-automation/shared-lib/dist/lib/throttleToNextTick'
 import { PickKeys } from '@sofie-automation/shared-lib/dist/lib/types'

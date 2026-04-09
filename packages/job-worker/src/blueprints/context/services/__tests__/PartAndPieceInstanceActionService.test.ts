@@ -36,7 +36,7 @@ import { PlayoutPartInstanceModelImpl } from '../../../../playout/model/implemen
 import { writePartInstancesAndPieceInstances } from '../../../../playout/model/implementation/SavePlayoutModel.js'
 import { PlayoutPieceInstanceModel } from '../../../../playout/model/PlayoutPieceInstanceModel.js'
 import { DatabasePersistedModel } from '../../../../modelBase.js'
-import { SelectedPartInstance } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { SelectedPartInstance } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 
 import * as PlayoutAdlib from '../../../../playout/adlibUtils.js'
 type TinnerStopPieces = jest.MockedFunction<typeof PlayoutAdlib.innerStopPieces>

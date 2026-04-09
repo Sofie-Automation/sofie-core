@@ -8,7 +8,7 @@ import { TriggeredActionEntry, TRIGGERED_ACTION_ENTRY_DRAG_TYPE } from './Trigge
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { TriggersHandler } from '../../../../lib/triggers/TriggersHandler.js'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { MeteorCall } from '../../../../lib/meteorApi.js'

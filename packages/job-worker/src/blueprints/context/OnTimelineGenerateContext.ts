@@ -8,7 +8,10 @@ import { OnGenerateTimelineObjExt } from '@sofie-automation/corelib/dist/dataMod
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { clone } from '@sofie-automation/corelib/dist/lib'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { ABSessionInfo, DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import {
+	ABSessionInfo,
+	DBRundownPlaylist,
+} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { getCurrentTime } from '../../lib/index.js'
 import { PieceInstance, ResolvedPieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { ProcessedStudioConfig, ProcessedShowStyleConfig } from '../config.js'

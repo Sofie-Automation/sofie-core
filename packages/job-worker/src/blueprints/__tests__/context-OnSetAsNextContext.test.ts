@@ -9,7 +9,7 @@ import { OnSetAsNextContext } from '../context/index.js'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { PartId, RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 
 describe('Test blueprint api context', () => {
 	async function getTestee(setManually = false, rehearsal?: boolean) {

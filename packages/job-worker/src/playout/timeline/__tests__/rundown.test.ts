@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { DBRundownPlaylist, SelectedPartInstance } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import {
+	DBRundownPlaylist,
+	SelectedPartInstance,
+} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { setupDefaultJobEnvironment } from '../../../__mocks__/context.js'
 import { buildTimelineObjsForRundown, RundownTimelineResult, RundownTimelineTimingContext } from '../rundown.js'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'

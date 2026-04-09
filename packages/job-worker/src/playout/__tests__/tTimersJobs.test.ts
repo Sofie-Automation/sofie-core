@@ -2,7 +2,7 @@ import { setupDefaultJobEnvironment, MockJobContext } from '../../__mocks__/cont
 import { handleRecalculateTTimerProjections } from '../tTimersJobs.js'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 
 describe('tTimersJobs', () => {

@@ -23,7 +23,7 @@ import {
 	validateAPIBlueprintConfigForShowStyle,
 } from './typeConversion'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { runUpgradeForShowStyleBase, validateConfigForShowStyleBase } from '../../../migration/upgrades'
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
 import { assertNever } from '@sofie-automation/corelib/dist/lib'

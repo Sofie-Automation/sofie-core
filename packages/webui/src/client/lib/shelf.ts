@@ -1,6 +1,6 @@
 import _ from 'underscore'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import {
 	createPartCurrentTimes,

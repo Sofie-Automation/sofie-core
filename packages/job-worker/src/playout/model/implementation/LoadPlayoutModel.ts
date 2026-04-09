@@ -1,5 +1,5 @@
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { DatabasePersistedModel } from '../../../modelBase.js'
 import { IngestModelReadonly } from '../../../ingest/model/IngestModel.js'
 import { PlaylistLock } from '../../../jobs/lock.js'

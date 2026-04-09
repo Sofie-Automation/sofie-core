@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { Meteor } from 'meteor/meteor'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { TFunction, useTranslation } from 'react-i18next'
 import { EvaluationBase } from '@sofie-automation/meteor-lib/dist/collections/Evaluations'
 import { doUserAction, UserAction } from '../lib/clientUserAction.js'

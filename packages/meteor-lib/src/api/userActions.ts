@@ -30,7 +30,7 @@ import {
 	SnapshotId,
 	StudioId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { QuickLoopMarker } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { QuickLoopMarker } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 
 export interface NewUserActionAPI {
 	take(

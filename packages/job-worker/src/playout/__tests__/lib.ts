@@ -1,7 +1,7 @@
 import { RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { sortPartsInSortedSegments } from '@sofie-automation/corelib/dist/playout/playlist'
 import { JobContext } from '../../jobs/index.js'

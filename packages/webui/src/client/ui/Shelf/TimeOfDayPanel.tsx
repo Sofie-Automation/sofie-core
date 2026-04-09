@@ -3,7 +3,7 @@ import {
 	RundownLayoutBase,
 	RundownLayoutTimeOfDay,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { dashboardElementStyle } from './DashboardPanel.js'
 import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
 import { useTranslation } from 'react-i18next'

@@ -1,5 +1,5 @@
 import { PlaylistTimingType } from '@sofie-automation/blueprints-integration/dist/documents/playlistTiming'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { mock, MockProxy } from 'jest-mock-extended'
 import { ShowStyleBaseExt } from '../../collections/showStyleBaseHandler.js'

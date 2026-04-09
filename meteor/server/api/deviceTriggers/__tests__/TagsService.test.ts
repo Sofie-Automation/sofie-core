@@ -9,7 +9,7 @@ import {
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ContentCache } from '../reactiveContentCacheForPieceInstances'
 import { ReactiveCacheCollection } from '../../../publications/lib/ReactiveCacheCollection'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { literal, normalizeArray } from '@sofie-automation/corelib/dist/lib'

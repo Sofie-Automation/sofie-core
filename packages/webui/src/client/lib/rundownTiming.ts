@@ -17,7 +17,10 @@ import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTi
 import { calculatePartInstanceExpectedDurationWithTransition } from '@sofie-automation/corelib/dist/playout/timings'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { DBPart, PartExtended } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { DBRundownPlaylist, QuickLoopMarkerType } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import {
+	DBRundownPlaylist,
+	QuickLoopMarkerType,
+} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { objectFromEntries } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { getCurrentTime } from './systemTime.js'
 import { Settings } from '../lib/Settings.js'
@@ -25,7 +28,7 @@ import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { CountdownType } from '@sofie-automation/blueprints-integration'
 import { RundownUtils } from './rundown.js'
-import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
+import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance'
 import {
 	isLoopRunning,
 	isLoopDefined,
