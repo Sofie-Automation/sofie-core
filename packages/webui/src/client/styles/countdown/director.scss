@@ -17,6 +17,12 @@ $hold-status-color: $liveline-timecode-color;
 	font-family: Roboto Flex;
 	font-style: normal;
 
+	// Over/under timer overlay (reuses `screen-timing-clock` from prompter view)
+	// Ensure it layers above the fixed top bar.
+	.screen-timing-clock {
+		z-index: 2000;
+	}
+
 	.director-screen__top {
 		position: fixed;
 		top: 0;
@@ -35,23 +41,18 @@ $hold-status-color: $liveline-timecode-color;
 		padding: 0 0.2em;
 		text-transform: uppercase;
 
+		.director-screen__top__spacer {
+			flex-grow: 4;
+		}
+
 		.director-screen__top__planned-end {
+			flex-grow: 2;
 			text-align: left;
 		}
 
-		.director-screen__top__time-to {
-			text-align: center;
-		}
-
+		.director-screen__top__center,
 		.director-screen__top__planned-to {
 			text-align: center;
-		}
-		.director-screen__top__planned-since {
-			margin-left: -50px;
-		}
-
-		.director-screen__top__over-under {
-			margin-left: 5vw;
 		}
 	}
 

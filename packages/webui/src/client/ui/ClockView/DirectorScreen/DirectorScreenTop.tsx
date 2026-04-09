@@ -41,46 +41,44 @@ export function DirectorScreenTop({
 	const { t } = useTranslation()
 
 	return (
-		<div className="director-screen__top">
-			{expectedEnd ? (
-				<div className="director-screen__top__planned-end">
-					<div>
-						<PlannedEndComponent value={expectedEnd} />
+		<>
+			<div className="director-screen__top">
+				{expectedEnd ? (
+					<div className="director-screen__top__planned-end">
+						<div>
+							<PlannedEndComponent value={expectedEnd} />
+						</div>
+						{t('Planned End')}
 					</div>
-					{t('Planned End')}
-				</div>
-			) : null}
-			{expectedEnd && expectedEnd > now ? (
-				<div className="director-screen__top__time-to director-screen__top__planned-container">
-					<div>
-						<TimeToPlannedEndComponent value={now - expectedEnd} />
+				) : null}
+				{expectedEnd && expectedEnd > now ? (
+					<div className="director-screen__top__time-to director-screen__top__planned-container director-screen__top__center">
+						<div>
+							<TimeToPlannedEndComponent value={now - expectedEnd} />
+						</div>
+						<span className="director-screen__top__planned-to director-screen__top__center">
+							{rehearsalInProgress ? t('Time to rehearsal end') : t('Time to planned end')}
+						</span>
 					</div>
-					<span className="director-screen__top__planned-to">
-						{rehearsalInProgress ? t('Time to rehearsal end') : t('Time to planned end')}
-					</span>
-				</div>
-			) : (
-				<div>
-					<div className="director-screen__top__planned-container">
-						<TimeSincePlannedEndComponent
-							value={
-								rehearsalInProgress
-									? (partInstanceToCountTimeFrom?.timings?.take || 0) + expectedDuration - now
-									: getCurrentTime() - (expectedStart + expectedDuration)
-							}
-						/>
-						<span className="director-screen__top__planned-since">
+				) : (
+					<div className="director-screen__top__planned-container director-screen__top__center">
+						<div>
+							<TimeSincePlannedEndComponent
+								value={
+									rehearsalInProgress
+										? (partInstanceToCountTimeFrom?.timings?.take || 0) + expectedDuration - now
+										: getCurrentTime() - (expectedStart + expectedDuration)
+								}
+							/>
+						</div>
+						<span className="director-screen__top__planned-since director-screen__top__center">
 							{rehearsalInProgress ? t('Time since rehearsal end') : t('Time since planned end')}
 						</span>
 					</div>
-				</div>
-			)}
-			<div>
-				<div>
-					<OverUnderTimer containerClassName="counter-component__over-under" valueMs={overUnderClock} />
-				</div>
-				<span className="director-screen__top__over-under">{t('Over/Under')}</span>
+				)}
+				<div className="director-screen__top__spacer"></div>
 			</div>
-		</div>
+			<OverUnderTimer className="screen-timing-clock heavy-light heavy" valueMs={overUnderClock} />
+		</>
 	)
 }
