@@ -1,7 +1,7 @@
 import { Logger } from 'winston'
 import { CoreHandler } from '../coreHandler.js'
 import { PublicationCollection } from '../publicationCollection.js'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { SelectedPartInstances } from './partInstancesHandler.js'

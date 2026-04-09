@@ -1,5 +1,5 @@
 import { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { RundownPlayoutPropsBase } from '@sofie-automation/corelib/dist/worker/studio'
 import { logger } from '../logging.js'
 import { ReadonlyDeep } from 'type-fest'

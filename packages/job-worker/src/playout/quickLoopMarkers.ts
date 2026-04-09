@@ -6,7 +6,10 @@ import { updateTimeline } from './timeline/generate.js'
 import { selectNextPart } from './selectNextPart.js'
 import { setNextPart } from './setNext.js'
 import { resetPartInstancesWithPieceInstances } from './lib.js'
-import { QuickLoopMarker, QuickLoopMarkerType } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import {
+	QuickLoopMarker,
+	QuickLoopMarkerType,
+} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { clone } from 'underscore'
 import { PlayoutModel } from './model/PlayoutModel.js'

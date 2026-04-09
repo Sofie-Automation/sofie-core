@@ -1,5 +1,5 @@
 import React from 'react'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { ISourceLayerExtended } from '../../../lib/RundownResolver.js'
 import { IContextMenuContext } from '../../RundownView.js'
 import { IOutputLayerUi, PartUi, PieceUi, SegmentUi } from '../SegmentTimelineContainer.js'

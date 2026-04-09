@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useTiming } from '../RundownView/RundownTiming/withTiming.js'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { RundownUtils } from '../../lib/rundown.js'
 import ClassNames from 'classnames'
 import { getPlaylistTimingDiff } from '../../lib/rundownTiming.js'

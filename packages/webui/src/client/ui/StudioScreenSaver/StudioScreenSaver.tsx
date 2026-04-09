@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Translated, useSubscription, useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { getCurrentTime } from '../../lib/systemTime.js'
 import { invalidateAfter } from '../../lib/invalidatingTime.js'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'

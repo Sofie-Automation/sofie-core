@@ -17,8 +17,8 @@ import {
 	DBRundownPlaylist,
 	QuickLoopMarker,
 	RundownHoldState,
-	RundownTTimer,
-} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import { RundownTTimer } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/TTimers'
 import { ReadonlyDeep } from 'type-fest'
 import { StudioPlayoutModelBase, StudioPlayoutModelBaseReadonly } from '../../studio/model/StudioPlayoutModel.js'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'

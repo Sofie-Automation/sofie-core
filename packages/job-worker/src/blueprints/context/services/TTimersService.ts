@@ -3,8 +3,14 @@ import type {
 	RundownTTimerMode,
 	TimerState,
 } from '@sofie-automation/blueprints-integration/dist/context/tTimersContext'
-import type { RundownTTimer, RundownTTimerIndex } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { timerStateToDuration, timerStateToZeroTime } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import type {
+	RundownTTimer,
+	RundownTTimerIndex,
+} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/TTimers'
+import {
+	timerStateToDuration,
+	timerStateToZeroTime,
+} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/TTimers'
 import type { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'

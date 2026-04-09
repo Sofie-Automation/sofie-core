@@ -13,7 +13,7 @@ import { ProtectedString } from '@sofie-automation/shared-lib/dist/lib/protected
 import { doUserAction, UserAction } from '../../../../lib/clientUserAction.js'
 import { MeteorCall } from '../../../../lib/meteorApi.js'
 import { BucketAdLibItem, BucketAdLibActionUi } from '../../RundownViewBuckets.js'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { actionToAdLibPieceUi } from '../../BucketPanel.js'
 import RundownViewEventBus, { RundownViewEvents } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
 import { IAdLibListItem } from '../../AdLibListItem.js'

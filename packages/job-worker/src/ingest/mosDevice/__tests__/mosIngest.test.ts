@@ -18,7 +18,7 @@ import { MockJobContext, setupDefaultJobEnvironment } from '../../../__mocks__/c
 import { setupMockIngestDevice, setupMockShowStyleCompound } from '../../../__mocks__/presetCollections.js'
 import { fixSnapshot } from '../../../__mocks__/helpers/snapshot.js'
 import { DBRundown, RundownOrphanedReason, RundownSource } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { MongoQuery } from '../../../db/index.js'
 import { handleRemovedRundown } from '../../ingestRundownJobs.js'
 import { MOS } from '@sofie-automation/corelib'

@@ -3,7 +3,7 @@ import { makeMockHandlers, makeMockLogger, makeMockSubscriber } from './utils.js
 import { PackagesTopic } from '../packagesTopic.js'
 import { UIPieceContentStatus } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
 import { PieceStatusCode } from '@sofie-automation/corelib/dist/dataModel/Piece'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { PackagesEvent, PackageStatus } from '@sofie-automation/live-status-gateway-api'
 
 function makeTestUIPieceContentStatuses(): UIPieceContentStatus[] {

@@ -2,8 +2,11 @@
 import { useFakeCurrentTime, useRealCurrentTime } from '../../../../__mocks__/time.js'
 import { TTimersService, PlaylistTTimerImpl } from '../TTimersService.js'
 import type { PlayoutModel } from '../../../../playout/model/PlayoutModel.js'
-import type { RundownTTimer, RundownTTimerIndex } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import type {
+	RundownTTimer,
+	RundownTTimerIndex,
+} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/TTimers'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { mock, MockProxy } from 'jest-mock-extended'
 import type { ReadonlyDeep } from 'type-fest'
 import type { JobContext } from '../../../../jobs/index.js'

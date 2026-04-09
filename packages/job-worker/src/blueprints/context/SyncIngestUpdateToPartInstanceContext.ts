@@ -35,11 +35,8 @@ import {
 import { EXPECTED_INGEST_TO_PLAYOUT_TIME } from '@sofie-automation/shared-lib/dist/core/constants'
 import { getCurrentTime } from '../../lib/index.js'
 import { TTimersService } from './services/TTimersService.js'
-import type {
-	DBRundownPlaylist,
-	RundownTTimer,
-	RundownTTimerIndex,
-} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import { RundownTTimer, RundownTTimerIndex } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/TTimers'
 import type { IPlaylistTTimer } from '@sofie-automation/blueprints-integration/dist/context/tTimersContext'
 
 export class SyncIngestUpdateToPartInstanceContext

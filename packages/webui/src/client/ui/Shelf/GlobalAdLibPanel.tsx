@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { IAdLibListItem } from './AdLibListItem.js'
 import { AdLibPanel } from './AdLibPanel.js'
 import { PieceUi } from '../SegmentTimeline/SegmentTimelineContainer.js'
