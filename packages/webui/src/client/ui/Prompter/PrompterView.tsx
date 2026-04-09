@@ -1,6 +1,6 @@
 import React, { createContext, PropsWithChildren, ReactNode, useRef } from 'react'
 import _ from 'underscore'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import ClassNames from 'classnames'
 import { Meteor } from 'meteor/meteor'
 import { parse as queryStringParse } from 'query-string'

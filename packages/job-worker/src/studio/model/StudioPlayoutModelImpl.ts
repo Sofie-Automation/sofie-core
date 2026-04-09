@@ -1,6 +1,6 @@
 import { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PeripheralDevice, PeripheralDeviceType } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import {
 	serializeTimelineBlob,
 	TimelineComplete,

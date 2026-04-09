@@ -1,4 +1,4 @@
-import { RundownTTimer, timerStateToDuration } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { RundownTTimer, timerStateToDuration } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/TTimers'
 
 /**
  * Calculate the display diff for a T-Timer.

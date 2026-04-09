@@ -5,7 +5,7 @@ import { UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/erro
 import { BucketId, ShowStyleBaseId, ShowStyleVariantId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { innerStartOrQueueAdLibPiece } from './adlibUtils.js'
 import { executeAdlibActionAndSaveModel } from './adlibAction.js'
-import { RundownHoldState } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { RundownHoldState } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { createPlayoutModelfromInitModel, loadPlayoutModelPreInit } from './model/implementation/LoadPlayoutModel.js'
 
 /**

@@ -1,7 +1,7 @@
 import { Logger } from 'winston'
 import { CoreHandler } from '../coreHandler.js'
 import { PublicationCollection } from '../publicationCollection.js'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 import areElementsShallowEqual from '@sofie-automation/shared-lib/dist/lib/isShallowEqual'

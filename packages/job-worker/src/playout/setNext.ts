@@ -16,7 +16,7 @@ import { PRESERVE_UNSYNCED_PLAYING_SEGMENT_CONTENTS } from '@sofie-automation/sh
 import { IngestJobs } from '@sofie-automation/corelib/dist/worker/ingest'
 import _ from 'underscore'
 import { resetPartInstancesWithPieceInstances } from './lib.js'
-import { RundownHoldState } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { RundownHoldState } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/error'
 import { SelectNextPartResult } from './selectNextPart.js'
 import { ReadonlyDeep } from 'type-fest'

@@ -6,7 +6,7 @@ import type { PartInstance } from '@sofie-automation/meteor-lib/dist/collections
 import type { NrcsIngestDataCacheObj } from '@sofie-automation/corelib/dist/dataModel/NrcsIngestDataCache'
 import type { RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import type { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 
 export type PlaylistCompact = Pick<
 	DBRundownPlaylist,

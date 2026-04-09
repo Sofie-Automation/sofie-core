@@ -5,7 +5,7 @@ import ActionItemRenderer, { isActionItem } from './ActionItemRenderer.js'
 
 import { PieceUi } from '../../../SegmentTimeline/SegmentTimelineContainer.js'
 import { BucketAdLibItem } from '../../RundownViewBuckets.js'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { IAdLibListItem } from '../../AdLibListItem.js'
 import { AdLibPieceUi } from '../../../../lib/shelf.js'
 import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'

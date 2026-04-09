@@ -23,7 +23,7 @@ import {
 } from './RundownResolver.js'
 import { PartInstance, wrapPartToTemporaryInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { literal, groupByToMap } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { getCurrentTime } from './systemTime.js'

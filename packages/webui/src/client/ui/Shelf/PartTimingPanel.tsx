@@ -4,7 +4,7 @@ import {
 	RundownLayoutPartTiming,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import { useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { dashboardElementStyle } from './DashboardPanel.js'
 import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
 import { getAllowSpeaking, getAllowVibrating } from '../../lib/localStorage.js'

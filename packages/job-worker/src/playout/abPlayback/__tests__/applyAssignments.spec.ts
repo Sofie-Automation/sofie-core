@@ -1,5 +1,5 @@
 import { ABResolverConfiguration, TSR } from '@sofie-automation/blueprints-integration'
-import { ABSessionAssignments } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { ABSessionAssignments } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { OnGenerateTimelineObjExt } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'

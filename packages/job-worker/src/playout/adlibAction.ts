@@ -15,7 +15,10 @@ import { runJobWithPlaylistLock } from './lock.js'
 import { updateTimeline } from './timeline/generate.js'
 import { performTakeToNextedPart } from './take.js'
 import { ActionUserData } from '@sofie-automation/blueprints-integration'
-import { DBRundownPlaylist, SelectedPartInstance } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import {
+	DBRundownPlaylist,
+	SelectedPartInstance,
+} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { logger } from '../logging.js'
 import {
 	AdLibActionId,

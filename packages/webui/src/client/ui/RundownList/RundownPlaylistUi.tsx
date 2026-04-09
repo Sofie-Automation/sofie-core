@@ -6,7 +6,7 @@ import { RundownLayoutBase } from '@sofie-automation/meteor-lib/dist/collections
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { ActiveProgressBar } from './ActiveProgressBar.js'
 import { RundownListItem } from './RundownListItem.js'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { Rundown, getRundownNrcsName } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { Link } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'

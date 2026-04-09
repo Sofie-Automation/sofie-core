@@ -1,5 +1,5 @@
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { FindOptions, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { RundownPlaylistCollectionUtil } from '../collections/rundownPlaylistUtil.js'
 import { UIPartInstances, UIParts } from '../ui/Collections.js'

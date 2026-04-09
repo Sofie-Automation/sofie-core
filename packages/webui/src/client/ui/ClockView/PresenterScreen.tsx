@@ -1,7 +1,7 @@
 import ClassNames from 'classnames'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { PartUi } from '../SegmentTimeline/SegmentTimelineContainer.js'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { useTiming } from '../RundownView/RundownTiming/withTiming.js'
 import {

@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useEffect, useRef } from 'react'
 import { useHistory } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import Escape from '../../../lib/Escape'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { Rundown, getRundownNrcsName } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { ContextMenu, MenuItem, ContextMenuTrigger, hideMenu, showMenu } from '@jstarpl/react-contextmenu'
 import { contextMenuHoldToDisplayTime, useRundownViewEventBusListener } from '../../../lib/lib'
@@ -208,13 +208,9 @@ export function RundownHamburgerButton({
 			ref={buttonRef}
 			className={`rundown-header__menu-btn ${isOpen ? 'active' : ''} ${disabled ? 'disabled' : ''}`}
 			disabled={disabled}
-			onMouseDown={handleToggle}
-			onClick={(e) => {
-				// Prevent double trigger if browser emits both mousedown and click
-				e.preventDefault()
-				e.stopPropagation()
-			}}
+			onClick={handleToggle}
 			title={t('Menu')}
+			aria-label={t('Menu')}
 		>
 			<FontAwesomeIcon icon={isOpen ? faTimes : faBars} fixedWidth />
 		</button>

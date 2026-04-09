@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import ClassNames from 'classnames'
 import { NavLink } from 'react-router-dom'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { RundownLayoutRundownHeader } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
@@ -48,7 +48,6 @@ export function RundownHeader({
 }: IRundownHeaderProps): JSX.Element {
 	const { t } = useTranslation()
 	const timingDurations = useTiming()
-	const [simplified, setSimplified] = useState(false)
 	const [isMenuOpen, setIsMenuOpen] = useState(false)
 	const [isContextMenuOpen, setIsContextMenuOpen] = useState(false)
 
@@ -75,7 +74,11 @@ export function RundownHeader({
 		fallbackDuration
 	)
 
-	const canToggle = simplified ? hasAdvanced : hasSimple
+	// Initialize simplified mode based on what modes are actually available
+	// If only simple has data, start in simple mode; otherwise prefer simple if both are available
+	const [simplified, setSimplified] = useState(() => hasSimple && !hasAdvanced)
+
+	const canToggle = hasSimple && hasAdvanced
 	const toggleSimplified = useCallback(() => {
 		if (canToggle) {
 			setSimplified((s) => !s)
@@ -165,7 +168,7 @@ export function RundownHeader({
 								<RundownHeaderDurations playlist={playlist} simplified={simplified} />
 								<RundownHeaderExpectedEnd playlist={playlist} simplified={simplified} />
 							</button>
-							<NavLink to="/" title={t('Exit')} className="rundown-header__close-btn">
+							<NavLink to="/" title={t('Exit')} aria-label={t('Exit')} className="rundown-header__close-btn">
 								<FontAwesomeIcon icon="close" size="xl" />
 							</NavLink>
 						</div>

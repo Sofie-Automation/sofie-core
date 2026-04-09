@@ -3,7 +3,7 @@ import _ from 'underscore'
 import { withTranslation, WithTranslation, TFunction } from 'react-i18next'
 
 import ClassNames from 'classnames'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { SegmentUi, PartUi, IOutputLayerUi, PieceUi } from '../SegmentTimelineContainer.js'
 import {
 	TimingDataResolution,

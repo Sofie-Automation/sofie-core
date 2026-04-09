@@ -1,5 +1,5 @@
 import { meteorPublish } from './lib/lib'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { RundownPlaylists } from '../collections'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'

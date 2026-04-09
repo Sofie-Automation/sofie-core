@@ -1,5 +1,5 @@
 import { PartInstanceId, PieceInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { OnTimelineTriggerTimeProps } from '@sofie-automation/corelib/dist/worker/studio'
 import { logger } from '../../logging.js'
 import { JobContext } from '../../jobs/index.js'

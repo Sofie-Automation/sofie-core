@@ -33,7 +33,7 @@ import { getOrderedPartsAfterPlayhead } from '../../playout/lookahead/util.js'
 import { convertPartToBlueprints, emitIngestOperation } from './lib.js'
 import type { IPlaylistTTimer } from '@sofie-automation/blueprints-integration/dist/context/tTimersContext'
 import { TTimersService } from './services/TTimersService.js'
-import type { RundownTTimerIndex } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import type { RundownTTimerIndex } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/TTimers'
 
 export class OnTakeContext extends ShowStyleUserContext implements IOnTakeContext, IEventContext {
 	readonly #tTimersService: TTimersService

@@ -13,7 +13,7 @@ import { RundownId, RundownPlaylistId, StudioId } from '@sofie-automation/coreli
 import { RundownPlaylists, Rundowns } from '../../collections/index.js'
 import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil.js'
 import { useTranslation } from 'react-i18next'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 
 interface ISystemStatusPanelProps {
 	studioId: StudioId

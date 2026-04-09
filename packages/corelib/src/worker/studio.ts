@@ -19,7 +19,7 @@ import { JSONBlob } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 import { CoreRundownPlaylistSnapshot } from '../snapshots.js'
 import { NoteSeverity } from '@sofie-automation/blueprints-integration'
 import { ITranslatableMessage } from '../TranslatableMessage.js'
-import { QuickLoopMarker } from '../dataModel/RundownPlaylist.js'
+import { QuickLoopMarker } from '../dataModel/RundownPlaylist/RundownPlaylist.js'
 
 /** List of all Jobs performed by the Worker related to a certain Studio */
 export enum StudioJobs {

@@ -17,7 +17,10 @@ import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { PlayoutModelImpl } from '../../playout/model/implementation/PlayoutModelImpl.js'
 import { PlaylistTimingType, ShowStyleBlueprintManifest } from '@sofie-automation/blueprints-integration'
 import { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { DBRundownPlaylist, SelectedPartInstance } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import {
+	DBRundownPlaylist,
+	SelectedPartInstance,
+} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { PlayoutRundownModelImpl } from '../../playout/model/implementation/PlayoutRundownModelImpl.js'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'

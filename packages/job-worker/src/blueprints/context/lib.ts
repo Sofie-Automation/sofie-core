@@ -55,7 +55,10 @@ import {
 	RundownPlaylistTiming,
 } from '@sofie-automation/blueprints-integration'
 import { JobContext, ProcessedShowStyleBase, ProcessedShowStyleVariant } from '../../jobs/index.js'
-import { DBRundownPlaylist, QuickLoopMarkerType } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import {
+	DBRundownPlaylist,
+	QuickLoopMarkerType,
+} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import _ from 'underscore'
 import { BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { wrapTranslatableMessageFromBlueprints } from '@sofie-automation/corelib/dist/TranslatableMessage'
@@ -443,6 +446,7 @@ export function convertRundownToBlueprintSegmentRundown(
 ): IBlueprintSegmentRundown {
 	const obj: Complete<IBlueprintSegmentRundown> = {
 		externalId: rundown.externalId,
+		timing: rundown.timing,
 		privateData: skipClone ? rundown.privateData : clone(rundown.privateData),
 		publicData: skipClone ? rundown.publicData : clone(rundown.publicData),
 	}

@@ -18,7 +18,10 @@ import { calculatePartInstanceExpectedDurationWithTransition } from '@sofie-auto
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { PartInstance } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { DBRundownPlaylist, QuickLoopMarkerType } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import {
+	DBRundownPlaylist,
+	QuickLoopMarkerType,
+} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { objectFromEntries } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { getCurrentTime } from './systemTime.js'
 import { Settings } from '../lib/Settings.js'

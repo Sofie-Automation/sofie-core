@@ -1,7 +1,7 @@
 import * as React from 'react'
 import _ from 'underscore'
 import { ISourceLayer, NoteSeverity, PieceLifespan } from '@sofie-automation/blueprints-integration'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { withTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
 import { IOutputLayerExtended, ISourceLayerExtended, PartExtended, SegmentExtended } from '../../lib/RundownResolver.js'
 import { IContextMenuContext } from '../RundownView.js'

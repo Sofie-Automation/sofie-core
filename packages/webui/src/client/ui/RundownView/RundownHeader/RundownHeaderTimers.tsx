@@ -1,5 +1,5 @@
 import React from 'react'
-import { RundownTTimer } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { RundownTTimer } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/TTimers'
 import { useTiming } from '../RundownTiming/withTiming'
 import { RundownUtils } from '../../../lib/rundown'
 import { calculateTTimerDiff, calculateTTimerOverUnder } from '../../../lib/tTimerUtils'
@@ -56,7 +56,7 @@ function SingleTimer({ timer }: Readonly<ISingleTimerProps>) {
 				'rundown-header__clocks-timers__timer__isCountingDown': mode.type === 'countdown' && isCountingDown,
 				'rundown-header__clocks-timers__timer__isCountingUp': mode.type === 'countdown' && !isCountingDown,
 				'rundown-header__clocks-timers__timer__isComplete':
-					mode.type === 'countdown' && timer.state !== null && diff <= 0,
+					mode.type === 'countdown' && timer.state !== null && diff >= 0,
 			})}
 			ms={mode.type === 'timeOfDay' ? undefined : diff}
 			postfix={
