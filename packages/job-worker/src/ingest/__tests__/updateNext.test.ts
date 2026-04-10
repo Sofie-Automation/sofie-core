@@ -27,7 +27,7 @@ async function createMockRO(context: MockJobContext): Promise<RundownId> {
 		modified: 0,
 		currentPartInfo: null,
 		nextPartInfo: null,
-		previousPartInfo: null,
+		previousPartsInfo: [],
 		activationId: protectString('active'),
 		timing: {
 			type: 'none' as any,
@@ -340,7 +340,7 @@ describe('ensureNextPartIsValid', () => {
 							consumesQueuedSegmentId: false,
 						}
 					: null,
-				previousPartInfo: null,
+				previousPartsInfo: [],
 			},
 		})
 	}

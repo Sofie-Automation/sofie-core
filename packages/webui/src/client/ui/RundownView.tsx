@@ -202,7 +202,7 @@ export function RundownView(props: Readonly<IProps>): JSX.Element {
 
 	const partInstances = useTracker(
 		() => playlist && RundownPlaylistClientUtil.getSelectedPartInstances(playlist),
-		[playlist?._id, playlist?.nextPartInfo, playlist?.currentPartInfo, playlist?.previousPartInfo]
+		[playlist?._id, playlist?.nextPartInfo, playlist?.currentPartInfo, playlist?.previousPartsInfo]
 	)
 
 	const somePartInstance = partInstances?.currentPartInstance || partInstances?.nextPartInstance

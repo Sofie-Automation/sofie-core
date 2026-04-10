@@ -54,7 +54,9 @@ describe('lookahead offset integration', () => {
 			},
 		} as JobContext
 
-		const res = await getLookeaheadObjects(context, playoutModel, {} as SelectedPartInstancesTimelineInfo)
+		const res = await getLookeaheadObjects(context, playoutModel, {
+			previous: [],
+		} as SelectedPartInstancesTimelineInfo)
 
 		expect(res).toEqual([])
 	})
@@ -99,7 +101,7 @@ describe('lookahead offset integration', () => {
 		const res = await getLookeaheadObjects(context, playoutModel, {
 			current: undefined,
 			next: undefined,
-			previous: undefined,
+			previous: [],
 		} as SelectedPartInstancesTimelineInfo)
 
 		expect(res).toHaveLength(2)
@@ -146,7 +148,9 @@ describe('lookahead offset integration', () => {
 				makePiece({ partId: 'p2', layer: 'layer1', start: 2000 }),
 			])
 
-		const res = await getLookeaheadObjects(context, playoutModel, {} as SelectedPartInstancesTimelineInfo)
+		const res = await getLookeaheadObjects(context, playoutModel, {
+			previous: [],
+		} as SelectedPartInstancesTimelineInfo)
 
 		expect(res).toHaveLength(2)
 		expect(res[0].lookaheadOffset).toBe(5000)
@@ -170,6 +174,7 @@ describe('lookahead offset integration', () => {
 			])
 
 		const res = await getLookeaheadObjects(context, playoutModel, {
+			previous: [],
 			next: {
 				partTimes: { nowInPart: 0 },
 				partInstance: {
@@ -213,6 +218,7 @@ describe('lookahead offset integration', () => {
 			.mockResolvedValue(lookaheadOffsetTestConstants.multiLayerPart.pieces)
 
 		const res = await getLookeaheadObjects(context, playoutModel, {
+			previous: [],
 			next: {
 				...lookaheadOffsetTestConstants.multiLayerPart,
 				pieceInstances: lookaheadOffsetTestConstants.multiLayerPart.pieces.map((piece) =>
@@ -246,6 +252,7 @@ describe('lookahead offset integration', () => {
 			.mockResolvedValue(lookaheadOffsetTestConstants.multiLayerPartWhile.pieces)
 
 		const res = await getLookeaheadObjects(context, playoutModel, {
+			previous: [],
 			next: {
 				...lookaheadOffsetTestConstants.multiLayerPartWhile,
 				pieceInstances: lookaheadOffsetTestConstants.multiLayerPartWhile.pieces.map((piece) =>
@@ -279,6 +286,7 @@ describe('lookahead offset integration', () => {
 			.mockResolvedValue(lookaheadOffsetTestConstants.singleLayerPart.pieces)
 
 		const res = await getLookeaheadObjects(context, playoutModel, {
+			previous: [],
 			next: {
 				...lookaheadOffsetTestConstants.singleLayerPart,
 				pieceInstances: lookaheadOffsetTestConstants.singleLayerPart.pieces.map((piece) =>
@@ -311,6 +319,7 @@ describe('lookahead offset integration', () => {
 			.mockResolvedValue(lookaheadOffsetTestConstants.singleLayerPartWhile.pieces)
 
 		const res = await getLookeaheadObjects(context, playoutModel, {
+			previous: [],
 			next: {
 				...lookaheadOffsetTestConstants.singleLayerPartWhile,
 				pieceInstances: lookaheadOffsetTestConstants.singleLayerPartWhile.pieces.map((piece) =>

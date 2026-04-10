@@ -164,10 +164,18 @@ export class PlayoutModelReadonlyImpl implements PlayoutModelReadonly {
 		return allPartInstances.filter((partInstance) => !ignoreIds.has(partInstance.partInstance._id))
 	}
 	public get previousPartInstance(): PlayoutPartInstanceModel | null {
-		if (!this.playlist.previousPartInfo?.partInstanceId) return null
-		const partInstance = this.allPartInstances.get(this.playlist.previousPartInfo.partInstanceId)
-		if (!partInstance) return null // throw new Error('PreviousPartInstance is missing')
+		// Most-recent-first: index 0 is the part just taken from
+		const firstInfo = this.playlist.previousPartsInfo?.[0]
+		if (!firstInfo?.partInstanceId) return null
+		const partInstance = this.allPartInstances.get(firstInfo.partInstanceId)
+		if (!partInstance) return null
 		return partInstance
+	}
+	public get previousPartInstances(): PlayoutPartInstanceModel[] {
+		return (this.playlist.previousPartsInfo ?? []).flatMap((info) => {
+			const partInstance = this.allPartInstances.get(info.partInstanceId)
+			return partInstance ? [partInstance] : []
+		})
 	}
 	public get currentPartInstance(): PlayoutPartInstanceModel | null {
 		if (!this.playlist.currentPartInfo?.partInstanceId) return null
@@ -184,14 +192,14 @@ export class PlayoutModelReadonlyImpl implements PlayoutModelReadonly {
 
 	public get selectedPartInstanceIds(): PartInstanceId[] {
 		return _.compact([
-			this.playlist.previousPartInfo?.partInstanceId,
+			...(this.playlist.previousPartsInfo ?? []).map((info) => info.partInstanceId),
 			this.playlist.currentPartInfo?.partInstanceId,
 			this.playlist.nextPartInfo?.partInstanceId,
 		])
 	}
 
 	public get selectedPartInstances(): PlayoutPartInstanceModel[] {
-		return _.compact([this.currentPartInstance, this.previousPartInstance, this.nextPartInstance])
+		return _.compact([...this.previousPartInstances, this.currentPartInstance, this.nextPartInstance])
 	}
 
 	public get loadedPartInstances(): PlayoutPartInstanceModel[] {
@@ -382,7 +390,7 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 	clearSelectedPartInstances(): void {
 		this.playlistImpl.currentPartInfo = null
 		this.playlistImpl.nextPartInfo = null
-		this.playlistImpl.previousPartInfo = null
+		this.playlistImpl.previousPartsInfo = []
 		this.playlistImpl.holdState = RundownHoldState.NONE
 
 		delete this.playlistImpl.lastTakeTime
@@ -391,8 +399,8 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 		this.#playlistHasChanged = true
 	}
 
-	clearPreviousPartInstance(): void {
-		this.playlistImpl.previousPartInfo = null
+	clearPreviousPartInstances(): void {
+		this.playlistImpl.previousPartsInfo = []
 
 		// Make sure that a hold isn't running. We can't block it here, so abort it immediately instead
 		this.playlistImpl.holdState = RundownHoldState.NONE
@@ -551,11 +559,53 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 		return this.context.setRouteSetActive(routeSetId, isActive)
 	}
 
+	prunePreviousPartInstances(now: number): void {
+		const current = this.playlistImpl.previousPartsInfo ?? []
+		const before = current.length
+
+		// Each previous[i] is active while: now <= reference.plannedStartedPlayback + reference.fromPartRemaining
+		// where reference is currentPartInstance for i=0, or previous[i-1] for i>0.
+		// We keep the contiguous prefix [0..lastActiveIndex]: dropping an intermediate entry would
+		// shift later entries to wrong indices and break their timeline group references.
+		let lastActiveIndex = -1
+		for (let i = 0; i < current.length; i++) {
+			const referencePI =
+				i === 0
+					? this.currentPartInstance?.partInstance
+					: this.allPartInstances.get(current[i - 1].partInstanceId)?.partInstance
+
+			const referenceStarted = referencePI?.timings?.plannedStartedPlayback
+			const referenceTimings = referencePI?.partPlayoutTimings
+			const isActive =
+				referenceStarted === undefined ||
+				referenceTimings === undefined ||
+				now <= referenceStarted + referenceTimings.fromPartRemaining
+
+			if (isActive) lastActiveIndex = i
+		}
+
+		const filtered = lastActiveIndex >= 0 ? current.slice(0, lastActiveIndex + 1) : []
+		// Always keep at least one entry, and never more than the cap.
+		// We keep a hard cap to prevent unbounded growth if blueprints were doing something really bad with part/piece timings.
+		const MAX_PREVIOUS_PARTS = 10
+		const pruned = filtered.length > 0 ? filtered.slice(0, MAX_PREVIOUS_PARTS) : current.slice(0, 1)
+		this.playlistImpl.previousPartsInfo = pruned
+		if (this.playlistImpl.previousPartsInfo.length !== before) {
+			this.#playlistHasChanged = true
+		}
+	}
+
 	cycleSelectedPartInstances(): void {
-		this.playlistImpl.previousPartInfo = this.playlistImpl.currentPartInfo
+		const currentInfo = this.playlistImpl.currentPartInfo
+		if (currentInfo) {
+			this.playlistImpl.previousPartsInfo = [currentInfo, ...(this.playlistImpl.previousPartsInfo ?? [])]
+		}
 		this.playlistImpl.currentPartInfo = this.playlistImpl.nextPartInfo
 		this.playlistImpl.nextPartInfo = null
-		this.playlistImpl.lastTakeTime = getCurrentTime()
+		const now = getCurrentTime()
+		this.playlistImpl.lastTakeTime = now
+
+		this.prunePreviousPartInstances(now)
 
 		this.#playlistHasChanged = true
 	}
@@ -663,7 +713,7 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 	 * Reset the playlist for playout
 	 */
 	resetPlaylist(regenerateActivationId: boolean): void {
-		this.playlistImpl.previousPartInfo = null
+		this.playlistImpl.previousPartsInfo = []
 		this.playlistImpl.currentPartInfo = null
 		this.playlistImpl.nextPartInfo = null
 		this.playlistImpl.holdState = RundownHoldState.NONE
@@ -853,8 +903,8 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 
 	setSegmentStartedPlayback(segmentPlayoutId: SegmentPlayoutId, timestamp: number): void {
 		const segmentPlayoutIdsToKeep: string[] = []
-		if (this.previousPartInstance) {
-			segmentPlayoutIdsToKeep.push(unprotectString(this.previousPartInstance.partInstance.segmentPlayoutId))
+		for (const prev of this.previousPartInstances) {
+			segmentPlayoutIdsToKeep.push(unprotectString(prev.partInstance.segmentPlayoutId))
 		}
 		if (this.currentPartInstance) {
 			segmentPlayoutIdsToKeep.push(unprotectString(this.currentPartInstance.partInstance.segmentPlayoutId))

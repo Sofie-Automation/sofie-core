@@ -424,9 +424,9 @@ export function usePresenterScreenSubscriptions(props: PresenterScreenProps): vo
 					_id: 1,
 					currentPartInfo: 1,
 					nextPartInfo: 1,
-					previousPartInfo: 1,
+					previousPartsInfo: 1,
 				},
-			}) as Pick<DBRundownPlaylist, '_id' | 'currentPartInfo' | 'nextPartInfo' | 'previousPartInfo'> | undefined
+			}) as Pick<DBRundownPlaylist, '_id' | 'currentPartInfo' | 'nextPartInfo' | 'previousPartsInfo'> | undefined
 
 			if (playlist) {
 				return RundownPlaylistClientUtil.getSelectedPartInstances(playlist)

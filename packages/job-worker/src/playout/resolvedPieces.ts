@@ -75,23 +75,27 @@ export function getResolvedPiecesForPartInstancesOnTimeline(
 	// Translate start to absolute times
 	offsetResolvedStartAndCapDuration(currentResolvedPieces, currentPartStarted, nextPartStarted)
 
-	// Calculate the previous part
-	let previousResolvedPieces: ResolvedPieceInstance[] = []
-	if (partInstancesInfo.previous?.partTimes.partStartTime) {
-		const partTimes = partInstancesInfo.previous.partTimes
-		previousResolvedPieces = partInstancesInfo.previous.pieceInstances.map((instance) =>
-			resolvePrunedPieceInstance(partTimes, instance)
-		)
+	// Calculate all previous parts still contributing to the timeline (keepalive/postroll).
+	// Each entry is capped at the start of the part that followed it (most-recent previous is
+	// capped at currentPartStarted; older entries are capped at the part after them).
+	let allPreviousResolvedPieces: ResolvedPieceInstance[] = []
+	for (let i = 0; i < partInstancesInfo.previous.length; i++) {
+		const prevInfo = partInstancesInfo.previous[i]
+		if (!prevInfo.partTimes.partStartTime) continue
 
-		// Translate start to absolute times
-		offsetResolvedStartAndCapDuration(
-			previousResolvedPieces,
-			partInstancesInfo.previous.partTimes.partStartTime,
-			currentPartStarted
+		const capEnd =
+			i === 0
+				? currentPartStarted
+				: (partInstancesInfo.previous[i - 1].partTimes.partStartTime ?? currentPartStarted)
+
+		const resolved = prevInfo.pieceInstances.map((instance) =>
+			resolvePrunedPieceInstance(prevInfo.partTimes, instance)
 		)
+		offsetResolvedStartAndCapDuration(resolved, prevInfo.partTimes.partStartTime, capEnd)
+		allPreviousResolvedPieces = allPreviousResolvedPieces.concat(resolved)
 	}
 
-	return mergeInfinitesIntoCurrentPart(previousResolvedPieces, currentResolvedPieces, nextResolvedPieces)
+	return mergeInfinitesIntoCurrentPart(allPreviousResolvedPieces, currentResolvedPieces, nextResolvedPieces)
 }
 
 function offsetResolvedStartAndCapDuration(

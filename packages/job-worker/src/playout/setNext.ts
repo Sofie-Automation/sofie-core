@@ -173,7 +173,7 @@ async function setNextPartAndCheckForPendingMoveNextPart(
 		const selectedPartInstanceIds = _.compact([
 			newPartInstance.partInstance._id,
 			playoutModel.playlist.currentPartInfo?.partInstanceId,
-			playoutModel.playlist.previousPartInfo?.partInstanceId,
+			...(playoutModel.playlist.previousPartsInfo ?? []).map((p) => p.partInstanceId),
 		])
 
 		// reset any previous instances of this part
@@ -402,11 +402,12 @@ async function cleanupOrphanedItems(context: JobContext, playoutModel: PlayoutMo
 
 	const selectedPartInstancesSegmentIds = new Set<SegmentId>()
 
-	const previousPartInstance = playoutModel.previousPartInstance?.partInstance
+	for (const prev of playoutModel.previousPartInstances) {
+		selectedPartInstancesSegmentIds.add(prev.partInstance.segmentId)
+	}
 	const currentPartInstance = playoutModel.currentPartInstance?.partInstance
 	const nextPartInstance = playoutModel.nextPartInstance?.partInstance
 
-	if (previousPartInstance) selectedPartInstancesSegmentIds.add(previousPartInstance.segmentId)
 	if (currentPartInstance) selectedPartInstancesSegmentIds.add(currentPartInstance.segmentId)
 	if (nextPartInstance) selectedPartInstancesSegmentIds.add(nextPartInstance.segmentId)
 
@@ -467,16 +468,20 @@ async function cleanupOrphanedItems(context: JobContext, playoutModel: PlayoutMo
 	const orphanedInstances = playoutModel.loadedPartInstances.filter(
 		(p) => p.partInstance.orphaned === 'deleted' && !p.partInstance.reset
 	)
+	const protectedPartInstanceIds = new Set(
+		_.compact([
+			playlist.currentPartInfo?.partInstanceId,
+			playlist.nextPartInfo?.partInstanceId,
+			...(playlist.previousPartsInfo ?? []).map((p) => p.partInstanceId),
+		])
+	)
 	for (const partInstance of orphanedInstances) {
 		if (PRESERVE_UNSYNCED_PLAYING_SEGMENT_CONTENTS && orphanedSegmentIds.has(partInstance.partInstance.segmentId)) {
 			// If the segment is also orphaned, then don't delete it until it is clear
 			continue
 		}
 
-		if (
-			partInstance.partInstance._id !== playlist.currentPartInfo?.partInstanceId &&
-			partInstance.partInstance._id !== playlist.nextPartInfo?.partInstanceId
-		) {
+		if (!protectedPartInstanceIds.has(partInstance.partInstance._id)) {
 			removePartInstanceIds.push(partInstance.partInstance._id)
 		}
 	}

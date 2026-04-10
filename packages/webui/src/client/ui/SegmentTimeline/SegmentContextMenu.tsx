@@ -123,7 +123,7 @@ export function SegmentContextMenu({
 		isSegmentEditAble &&
 		part?.instance._id !== playlist.currentPartInfo?.partInstanceId &&
 		part?.instance._id !== playlist.nextPartInfo?.partInstanceId &&
-		part?.instance._id !== playlist.previousPartInfo?.partInstanceId
+		part?.instance._id !== playlist.previousPartsInfo?.[0]?.partInstanceId
 
 	const segmentHasEditableContent = hasUserEditableContent(segment)
 	const partHasEditableContent = hasUserEditableContent(part?.instance.part)
@@ -211,7 +211,9 @@ export function SegmentContextMenu({
 										<span
 											dangerouslySetInnerHTML={{
 												__html: t(
-													`Set part from ${RundownUtils.formatTimeToShortTime(Math.floor(timecode / 1000) * 1000)} as <strong>Next</strong>`
+													`Set part from ${RundownUtils.formatTimeToShortTime(
+														Math.floor(timecode / 1000) * 1000
+													)} as <strong>Next</strong>`
 												),
 											}}
 										></span>

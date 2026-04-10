@@ -23,7 +23,7 @@ import {
 
 function makeEmptyTestPartInstances(): SelectedPartInstances {
 	return {
-		previous: undefined,
+		previous: [],
 		current: undefined,
 		firstInSegmentPlayout: undefined,
 		inCurrentSegment: [],

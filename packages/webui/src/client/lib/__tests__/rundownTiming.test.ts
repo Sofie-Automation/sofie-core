@@ -24,7 +24,7 @@ function makeMockPlaylist(): DBRundownPlaylist {
 		modified: 0,
 		currentPartInfo: null,
 		nextPartInfo: null,
-		previousPartInfo: null,
+		previousPartsInfo: [],
 		timing: {
 			type: PlaylistTimingType.None,
 		},

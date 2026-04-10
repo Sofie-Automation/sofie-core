@@ -72,7 +72,7 @@ describe('test peripheralDevice general API methods', () => {
 			modified: 0,
 			currentPartInfo: null,
 			nextPartInfo: null,
-			previousPartInfo: null,
+			previousPartsInfo: [],
 			activationId: protectString('active'),
 			timing: {
 				type: PlaylistTimingType.None,

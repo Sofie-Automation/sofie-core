@@ -27,7 +27,7 @@ describe('tTimersJobs', () => {
 					modified: 0,
 					currentPartInfo: null,
 					nextPartInfo: null,
-					previousPartInfo: null,
+					previousPartsInfo: [],
 					rundownIdsInOrder: [],
 					timing: {
 						type: 'none' as any,
@@ -76,7 +76,7 @@ describe('tTimersJobs', () => {
 					modified: 0,
 					currentPartInfo: null,
 					nextPartInfo: null,
-					previousPartInfo: null,
+					previousPartsInfo: [],
 					rundownIdsInOrder: [],
 					timing: {
 						type: 'none' as any,
@@ -126,7 +126,7 @@ describe('tTimersJobs', () => {
 					modified: 0,
 					currentPartInfo: null,
 					nextPartInfo: null,
-					previousPartInfo: null,
+					previousPartsInfo: [],
 					rundownIdsInOrder: [],
 					timing: {
 						type: 'none' as any,
@@ -167,7 +167,7 @@ describe('tTimersJobs', () => {
 					modified: 0,
 					currentPartInfo: null,
 					nextPartInfo: null,
-					previousPartInfo: null,
+					previousPartsInfo: [],
 					rundownIdsInOrder: [],
 					timing: {
 						type: 'none' as any,
