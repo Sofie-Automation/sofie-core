@@ -132,6 +132,9 @@ const SegmentListInner = React.forwardRef<HTMLDivElement, IProps>(function Segme
 		// if (isLivePart) currentPartIndex = index
 		// if (isNextPart) nextPartIndex = index
 
+		const isPlaylistLooping = RundownResolver.isLoopRunning(props.playlist)
+		const isEntirePlaylistLooping = RundownResolver.isEntirePlaylistLooping(props.playlist)
+
 		if (part.instance.part.invalid && part.instance.part.gap) return null
 
 		const partComponent = (
@@ -154,7 +157,8 @@ const SegmentListInner = React.forwardRef<HTMLDivElement, IProps>(function Segme
 				doesPlaylistHaveNextPart={playlistHasNextPart}
 				onPieceDoubleClick={props.onPieceDoubleClick}
 				onContextMenu={props.onContextMenu}
-				isPlaylistLooping={RundownResolver.isLoopRunning(props.playlist)}
+				isPlaylistLooping={isPlaylistLooping}
+				isEntirePlaylistLooping={isEntirePlaylistLooping}
 				isQuickLoopStart={RundownResolver.isQuickLoopStart(part.partId, props.playlist)}
 				isQuickLoopEnd={RundownResolver.isQuickLoopEnd(part.partId, props.playlist)}
 			/>

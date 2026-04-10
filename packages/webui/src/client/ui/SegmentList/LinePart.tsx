@@ -29,6 +29,7 @@ interface IProps {
 	isQuickLoopEnd: boolean
 	// isLastSegment?: boolean
 	// isLastPartInSegment?: boolean
+	isEntirePlaylistLooping: boolean
 	isPlaylistLooping: boolean
 	indicatorColumns: Record<string, ISourceLayerExtended[]>
 	adLibIndicatorColumns: Record<string, ISourceLayerExtended[]>
@@ -66,6 +67,7 @@ export const LinePart = withTiming<IProps, {}>((props: IProps) => {
 	indicatorColumns,
 	adLibIndicatorColumns,
 	isPlaylistLooping,
+	isEntirePlaylistLooping,
 	timingDurations,
 	isQuickLoopStart,
 	isQuickLoopEnd,
@@ -79,7 +81,8 @@ export const LinePart = withTiming<IProps, {}>((props: IProps) => {
 
 	const timingId = getPartInstanceTimingId(part.instance)
 	const isInsideQuickLoop = (timingDurations.partsInQuickLoop || {})[timingId]
-	const isOutsideActiveQuickLoop = isPlaylistLooping && !isInsideQuickLoop && !isNextPart && !hasAlreadyPlayed
+	const isOutsideActiveQuickLoop =
+		isPlaylistLooping && !isInsideQuickLoop && !isEntirePlaylistLooping && !isNextPart && !hasAlreadyPlayed
 
 	const getPartContext = useCallback(() => {
 		const partElement = document.querySelector('#' + SegmentTimelinePartElementId + part.instance._id)

@@ -684,7 +684,10 @@ export class SegmentTimelinePartClass extends React.Component<Translated<WithTim
 		}
 
 		const isOutsideActiveQuickLoop =
-			!this.state.isInQuickLoop && RundownResolver.isLoopRunning(this.props.playlist) && !this.state.isNext
+			!this.state.isInQuickLoop &&
+			RundownResolver.isLoopRunning(this.props.playlist) &&
+			!RundownResolver.isEntirePlaylistLooping(this.props.playlist) &&
+			!this.state.isNext
 		const isQuickLoopStart = RundownResolver.isQuickLoopStart(this.props.part.partId, this.props.playlist)
 		const isQuickLoopEnd = RundownResolver.isQuickLoopEnd(this.props.part.partId, this.props.playlist)
 

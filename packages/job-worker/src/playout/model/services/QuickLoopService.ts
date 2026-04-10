@@ -139,7 +139,13 @@ export class QuickLoopService {
 	}
 
 	getUpdatedPropsByClearingMarkers(): QuickLoopProps | undefined {
-		if (!this.playoutModel.playlist.quickLoop || this.playoutModel.playlist.quickLoop.locked) return undefined
+		if (!this.playoutModel.playlist.quickLoop) return undefined
+
+		if (this.playoutModel.playlist.quickLoop.locked) {
+			const quickLoopProps = clone(this.playoutModel.playlist.quickLoop)
+			quickLoopProps.running = false
+			return quickLoopProps
+		}
 
 		const quickLoopProps = clone(this.playoutModel.playlist.quickLoop)
 		delete quickLoopProps.start

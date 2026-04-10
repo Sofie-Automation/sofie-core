@@ -135,6 +135,8 @@ export class RundownTimingCalculator {
 		let lastSegmentIds: { segmentId: SegmentId; segmentPlayoutId: SegmentPlayoutId } | undefined = undefined
 		let nextRundownAnchor: number | undefined = undefined
 
+		const entirePlaylistIsLooping = isEntirePlaylistLooping(playlist)
+
 		if (playlist) {
 			const breakProps = currentRundown ? this.getRundownsBeforeNextBreak(rundowns, currentRundown) : undefined
 
@@ -499,7 +501,7 @@ export class RundownTimingCalculator {
 					// this is a line before next line
 					localAccum = this.linearParts[i][1] || 0
 					// only null the values if not looping, if looping, these will be offset by the countdown for the last part
-					if (!partsInQuickLoop[unprotectString(this.linearParts[i][0])]) {
+					if (!partsInQuickLoop[unprotectString(this.linearParts[i][0])] && !entirePlaylistIsLooping) {
 						this.linearParts[i][1] = null // we use null to express 'will not probably be played out, if played in order'
 					}
 				} else if (i === currentAIndex) {
@@ -531,7 +533,7 @@ export class RundownTimingCalculator {
 					// this away from this line.
 					this.linearParts[i][1] = (this.linearParts[i][1] || 0) - localAccum + currentRemaining
 
-					if (!partsInQuickLoop[unprotectString(this.linearParts[i][0])]) {
+					if (!partsInQuickLoop[unprotectString(this.linearParts[i][0])] && !entirePlaylistIsLooping) {
 						timeTillEndLoop = timeTillEndLoop ?? this.linearParts[i][1] ?? undefined
 					}
 
@@ -553,7 +555,7 @@ export class RundownTimingCalculator {
 				// if timeTillEndLoop was undefined then we can assume the end of the loop is the last line in the rundown
 				timeTillEndLoop = timeTillEndLoop ?? waitAccumulator - localAccum + currentRemaining
 				for (let i = 0; i < nextAIndex; i++) {
-					if (!partsInQuickLoop[unprotectString(this.linearParts[i][0])]) continue
+					if (!partsInQuickLoop[unprotectString(this.linearParts[i][0])] && !entirePlaylistIsLooping) continue
 
 					// this countdown is the wait until the loop ends + whatever waits occur before this part but inside the loop
 					this.linearParts[i][1] = timeTillEndLoop + waitInLoop
