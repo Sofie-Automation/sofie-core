@@ -7,8 +7,7 @@ import {
 } from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI'
 import { CoreConnection, PeripheralDevicePubSub, PeripheralDevicePubSubCollectionsNames } from '../index.js'
 import { DDPConnectorOptions } from '../lib/ddpClient.js'
-jest.mock('faye-websocket')
-jest.mock('got')
+jest.mock('ws')
 
 process.on('unhandledRejection', (reason) => {
 	console.log('Unhandled Promise rejection!', reason)

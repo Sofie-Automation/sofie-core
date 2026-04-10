@@ -3,7 +3,7 @@ import { CoreHandler, CoreConfig } from './coreHandler.js'
 import * as Winston from 'winston'
 import {
 	PeripheralDeviceId,
-	loadCertificatesFromDisk,
+	loadDDPTLSOptions,
 	CertificatesConfig,
 	stringifyError,
 	HealthConfig,
@@ -40,14 +40,14 @@ export class Connector implements IConnector {
 
 		try {
 			this._logger.info('Initializing Process...')
-			const certificates = loadCertificatesFromDisk(this._logger, config.certificates)
+			const tlsOptions = loadDDPTLSOptions(this._logger, config.certificates)
 			this._logger.info('Process initialized')
 
 			this._logger.info('Initializing Core...')
 			this.coreHandler = await CoreHandler.create(
 				this._logger,
 				this._config.core,
-				certificates,
+				tlsOptions,
 				this._config.device
 			)
 
