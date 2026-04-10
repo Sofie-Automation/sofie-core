@@ -5,10 +5,18 @@ import { ISourceLayerUi, IOutputLayerUi, PartUi } from '../SegmentTimelineContai
 import { RundownUtils } from '../../../lib/rundown.js'
 import { faCut } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { PieceLifespan, VTContent } from '@sofie-automation/blueprints-integration'
+import { PieceLifespan, UserEditingType, VTContent } from '@sofie-automation/blueprints-integration'
 import { OffsetPosition } from '../../../utils/positions.js'
 import { LoopingPieceIcon } from '../../../lib/ui/icons/looping.js'
 import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import { BlueprintAssetIcon } from '../../../lib/Components/BlueprintAssetIcon.js'
+import { ReadonlyObjectDeep } from 'type-fest/source/readonly-deep.js'
+import {
+	CoreUserEditingDefinitionAction,
+	CoreUserEditingDefinitionForm,
+	CoreUserEditingDefinitionSofie,
+	CoreUserEditingDefinitionState,
+} from '@sofie-automation/corelib/dist/dataModel/UserEditingDefinitions'
 
 export type SourceDurationLabelAlignment = 'left' | 'right'
 
@@ -116,6 +124,39 @@ export class CustomLayerItemRenderer<IProps extends ICustomLayerItemProps, IStat
 	protected renderLoopIcon(): JSX.Element | null {
 		if (!this.props.piece.instance.piece.content?.loop) return null
 		return <LoopingPieceIcon className="segment-timeline__piece__label-icon" playing={this.props.showPreviewPopUp} />
+	}
+
+	protected renderCustomPieceIcons(): JSX.Element | null {
+		if (
+			!this.props.piece.instance.piece.userEditOperations ||
+			this.props.piece.instance.piece.userEditOperations.length === 0
+		)
+			return null
+
+		function operationWithUsefulIcon(
+			op:
+				| ReadonlyObjectDeep<CoreUserEditingDefinitionState>
+				| ReadonlyObjectDeep<CoreUserEditingDefinitionAction>
+				| ReadonlyObjectDeep<CoreUserEditingDefinitionForm>
+				| ReadonlyObjectDeep<CoreUserEditingDefinitionSofie>
+		): op is ReadonlyObjectDeep<CoreUserEditingDefinitionState> | ReadonlyObjectDeep<CoreUserEditingDefinitionAction> {
+			return (
+				((op.type === UserEditingType.ACTION || op.type === UserEditingType.STATE) &&
+					((op.icon && op.isActive) || (op.iconInactive && !op.isActive))) ||
+				false
+			)
+		}
+
+		return (
+			<>
+				{this.props.piece.instance.piece.userEditOperations.filter(operationWithUsefulIcon).map((op) => (
+					<div className="segment-timeline__piece__label label-icon label-custom-icon" key={op.id}>
+						{op.isActive && op.icon && <BlueprintAssetIcon src={op.icon} />}
+						{!op.isActive && op.iconInactive && <BlueprintAssetIcon src={op.iconInactive} />}
+					</div>
+				))}
+			</>
+		)
 	}
 
 	protected renderOverflowTimeLabel(): JSX.Element | null {

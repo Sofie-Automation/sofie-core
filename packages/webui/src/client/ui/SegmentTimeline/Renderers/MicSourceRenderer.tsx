@@ -215,6 +215,7 @@ export const MicSourceRenderer = withTranslation()(
 								style={this.getItemLabelOffsetRight()}
 							>
 								<span className="segment-timeline__piece__label last-words">{end}</span>
+								{this.renderCustomPieceIcons()}
 								{this.renderInfiniteIcon()}
 								{/* this.renderOverflowTimeLabel() */}
 							</span>

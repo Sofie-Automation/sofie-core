@@ -34,6 +34,8 @@ import { Base64ImageInputControl } from '../Components/Base64ImageInput.js'
 import { MultiLineIntInputControl } from '../Components/MultiLineIntInput.js'
 import { ToggleSwitchControl } from '../Components/ToggleSwitch.js'
 import { BreadCrumbTextInput } from '../Components/BreadCrumbTextInput.js'
+import { OneOfButtonsWithOverrides } from './SchemaFormOneOfButtons/OneOfButtons.js'
+import { TimeMsInputControl } from '../Components/TimeMsInput.js'
 
 interface SchemaFormWithOverridesProps extends SchemaFormCommonProps {
 	/** Base path of the schema within the document */
@@ -58,6 +60,7 @@ interface FormComponentProps {
 
 		/** Whether a clear button should be showed for fields not marked as "required" */
 		showClearButton: boolean
+		readOnly: boolean
 	}
 
 	/** Whether this field has been marked as "required" */
@@ -80,6 +83,7 @@ function useChildPropsForFormComponent(props: Readonly<SchemaFormWithOverridesPr
 				overrideHelper: props.overrideHelper,
 
 				showClearButton: !!props.showClearButtonForNonRequiredFields && !props.isRequired,
+				readOnly: getSchemaUIField(props.schema, SchemaFormUIField.ReadOnly) ?? false,
 			},
 			isRequired: props.isRequired,
 		}
@@ -94,10 +98,14 @@ function useChildPropsForFormComponent(props: Readonly<SchemaFormWithOverridesPr
 	])
 }
 
-export function SchemaFormWithOverrides(props: Readonly<SchemaFormWithOverridesProps>): JSX.Element {
+export function SchemaFormWithOverrides(props: Readonly<SchemaFormWithOverridesProps>): JSX.Element | null {
 	const { t } = useTranslation()
 
 	const childProps = useChildPropsForFormComponent(props)
+
+	if (props.schema.const) {
+		return null
+	}
 
 	switch (props.schema.type) {
 		case TypeName.Array:
@@ -112,6 +120,11 @@ export function SchemaFormWithOverrides(props: Readonly<SchemaFormWithOverridesP
 		case TypeName.Object:
 			if (getSchemaUIField(props.schema, SchemaFormUIField.DisplayType) === 'json') {
 				return <JsonFormWithOverrides {...childProps} />
+			} else if (
+				getSchemaUIField(props.schema, SchemaFormUIField.DisplayType) === 'oneOfButtons' &&
+				props.schema.oneOf
+			) {
+				return <OneOfButtonsWithOverrides {...props} />
 			} else if (props.schema.patternProperties) {
 				if (props.allowTables) {
 					return <SchemaFormObjectTable {...props} />
@@ -128,7 +141,11 @@ export function SchemaFormWithOverrides(props: Readonly<SchemaFormWithOverridesP
 				return <IntegerFormWithOverrides {...childProps} />
 			}
 		case TypeName.Number:
-			return <NumberFormWithOverrides {...childProps} />
+			if (getSchemaUIField(props.schema, SchemaFormUIField.DisplayType) === 'timeMs') {
+				return <TimeMsFormWithOverrides {...childProps} />
+			} else {
+				return <NumberFormWithOverrides {...childProps} />
+			}
 		case TypeName.Boolean:
 			if (getSchemaUIField(props.schema, SchemaFormUIField.DisplayType) === 'switch') {
 				return <SwitchFormWithOverrides {...childProps} />
@@ -330,9 +347,28 @@ const IntegerFormWithOverrides = ({ schema, commonAttrs }: Readonly<FormComponen
 					handleUpdate={handleUpdate}
 					min={schema['minimum']}
 					max={schema['maximum']}
+					readOnly={commonAttrs.readOnly}
 				/>
 			)}
 		</LabelAndOverridesForInt>
+	)
+}
+
+const TimeMsFormWithOverrides = ({ schema, commonAttrs }: Readonly<FormComponentProps>) => {
+	return (
+		<LabelAndOverrides {...commonAttrs}>
+			{(value, handleUpdate) => (
+				<TimeMsInputControl
+					placeholder={schema.default}
+					value={value}
+					handleUpdate={handleUpdate}
+					min={schema['minimum']}
+					max={schema['maximum']}
+					multipleOf={schema['multipleOf']}
+					readOnly={commonAttrs.readOnly}
+				/>
+			)}
+		</LabelAndOverrides>
 	)
 }
 
@@ -346,6 +382,7 @@ const NumberFormWithOverrides = ({ schema, commonAttrs }: Readonly<FormComponent
 					handleUpdate={handleUpdate}
 					min={schema['minimum']}
 					max={schema['maximum']}
+					readOnly={commonAttrs.readOnly}
 				/>
 			)}
 		</LabelAndOverrides>
@@ -377,7 +414,12 @@ const StringFormWithOverrides = ({ schema, commonAttrs }: Readonly<FormComponent
 	return (
 		<LabelAndOverrides {...commonAttrs}>
 			{(value, handleUpdate) => (
-				<TextInputControl placeholder={schema.default} value={value} handleUpdate={handleUpdate} />
+				<TextInputControl
+					placeholder={schema.default}
+					value={value}
+					handleUpdate={handleUpdate}
+					readOnly={commonAttrs.readOnly}
+				/>
 			)}
 		</LabelAndOverrides>
 	)
@@ -391,6 +433,7 @@ const StringArrayFormWithOverrides = ({ schema, commonAttrs }: Readonly<FormComp
 					placeholder={schema.default?.join('\n')}
 					value={value || []}
 					handleUpdate={handleUpdate}
+					readOnly={commonAttrs.readOnly}
 				/>
 			)}
 		</LabelAndOverrides>

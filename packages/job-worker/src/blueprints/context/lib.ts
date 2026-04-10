@@ -15,6 +15,7 @@ import {
 import { DBRundown, Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import {
 	CoreUserEditingDefinition,
+	CoreUserEditingDefinitionState,
 	CoreUserEditingDefinitionAction,
 	CoreUserEditingDefinitionForm,
 	CoreUserEditingProperties,
@@ -66,6 +67,7 @@ import {
 	UserEditingProperties,
 	UserEditingDefinitionSofieDefault,
 	UserEditingType,
+	UserEditingDefinitionState,
 } from '@sofie-automation/blueprints-integration/dist/userEditing'
 import type { PlayoutMutatablePart } from '../../playout/model/PlayoutPartInstanceModel.js'
 import { BlueprintQuickLookInfo } from '@sofie-automation/blueprints-integration/dist/context/quickLoopInfo'
@@ -559,6 +561,15 @@ function translateUserEditsToBlueprint(
 	return _.compact(
 		userEdits.map((userEdit) => {
 			switch (userEdit.type) {
+				case UserEditingType.STATE:
+					return literal<UserEditingDefinitionState>({
+						type: UserEditingType.STATE,
+						id: userEdit.id,
+						label: omit(userEdit.label, 'namespaces'),
+						icon: userEdit.icon,
+						iconInactive: userEdit.iconInactive,
+						isActive: userEdit.isActive,
+					})
 				case UserEditingType.ACTION:
 					return literal<UserEditingDefinitionAction>({
 						type: UserEditingType.ACTION,
@@ -622,6 +633,15 @@ export function translateUserEditsFromBlueprint(
 	return _.compact(
 		userEdits.map((userEdit) => {
 			switch (userEdit.type) {
+				case UserEditingType.STATE:
+					return literal<CoreUserEditingDefinitionState>({
+						type: UserEditingType.STATE,
+						id: userEdit.id,
+						label: wrapTranslatableMessageFromBlueprints(userEdit.label, blueprintIds),
+						icon: userEdit.icon,
+						iconInactive: userEdit.iconInactive,
+						isActive: userEdit.isActive,
+					})
 				case UserEditingType.ACTION:
 					return literal<CoreUserEditingDefinitionAction>({
 						type: UserEditingType.ACTION,

@@ -555,9 +555,12 @@ export const SourceLayerItem = (props: Readonly<ISourceLayerItemProps>): JSX.Ele
 
 			return {
 				transform: 'translate(' + targetPos.toString() + 'px,  0)',
+				maxWidth: `${elementWidth}px`,
 			}
 		}
-		return {}
+		return {
+			maxWidth: `${elementWidth}px`,
+		}
 	}
 	const setAnchoredElsWidths = (leftAnchoredWidth: number, rightAnchoredWidth: number) => {
 		// anchored labels will sometimes erroneously report some width. Discard if it's marginal.
