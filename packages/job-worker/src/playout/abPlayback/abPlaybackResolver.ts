@@ -361,6 +361,8 @@ function assignPlayersForLookahead(
 		Array.from(lastSessionPerSlot.entries()),
 		(session) => session[1] < safeNow
 	)
+	// We want to assign the ones that are clear soonest first, as they are more likely to be ready in time
+	playersClearSoon.sort((endA, endB) => endA[1] - endB[1])
 
 	// Assign the players which are clear right now
 	const playersClearNowIds = new Set(playersClearNow.map((p) => p[0]))
