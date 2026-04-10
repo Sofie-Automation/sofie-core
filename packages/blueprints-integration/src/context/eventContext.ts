@@ -2,7 +2,8 @@ import type { OnGenerateTimelineObj, TSR } from '../timeline.js'
 import type { IBlueprintPartInstance, IBlueprintPieceInstance, IBlueprintSegmentDB } from '../documents/index.js'
 import type { IRundownContext } from './rundownContext.js'
 import type { IBlueprintExternalMessageQueueObj } from '../message.js'
-import { BlueprintQuickLookInfo } from './quickLoopInfo.js'
+import type { BlueprintQuickLookInfo } from './quickLoopInfo.js'
+import type { ITTimersContext } from './tTimersContext.js'
 
 export interface IEventContext {
 	getCurrentTime(): number
@@ -33,7 +34,7 @@ export interface ITimelineEventContext extends IEventContext, IRundownContext {
 	): string | undefined
 }
 
-export interface IPartEventContext extends IEventContext, IRundownContext {
+export interface IPartEventContext extends IEventContext, IRundownContext, ITTimersContext {
 	readonly part: Readonly<IBlueprintPartInstance>
 }
 

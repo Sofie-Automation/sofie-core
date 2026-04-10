@@ -259,11 +259,10 @@ export async function performTakeToNextedPart(
 		try {
 			await blueprint.blueprint.onPreTake(
 				new PartEventContext(
+					context,
+					playoutModel,
 					'onPreTake',
-					context.studio,
-					context.getStudioBlueprintConfig(),
 					showStyle,
-					context.getShowStyleBlueprintConfig(showStyle),
 					takeRundown.rundown,
 					takePartInstance.partInstance
 				)
@@ -501,11 +500,10 @@ async function afterTakeUpdateTimingsAndEvents(
 				try {
 					await blueprint.blueprint.onRundownFirstTake(
 						new PartEventContext(
+							context,
+							playoutModel,
 							'onRundownFirstTake',
-							context.studio,
-							context.getStudioBlueprintConfig(),
 							showStyle,
-							context.getShowStyleBlueprintConfig(showStyle),
 							takeRundown.rundown,
 							takePartInstance.partInstance
 						)
@@ -520,17 +518,24 @@ async function afterTakeUpdateTimingsAndEvents(
 		if (blueprint.blueprint.onPostTake && takeRundown) {
 			const span = context.startSpan('blueprint.onPostTake')
 			try {
+				const blueprintPersistentState = new PersistentPlayoutStateStore(
+					playoutModel.playlist.privatePlayoutPersistentState,
+					playoutModel.playlist.publicPlayoutPersistentState
+				)
+
 				await blueprint.blueprint.onPostTake(
 					new PartEventContext(
+						context,
+						playoutModel,
 						'onPostTake',
-						context.studio,
-						context.getStudioBlueprintConfig(),
 						showStyle,
-						context.getShowStyleBlueprintConfig(showStyle),
 						takeRundown.rundown,
 						takePartInstance.partInstance
-					)
+					),
+					blueprintPersistentState
 				)
+
+				blueprintPersistentState.saveToModel(playoutModel)
 			} catch (err) {
 				logger.error(`Error in showStyleBlueprint.onPostTake: ${stringifyError(err)}`)
 			}
