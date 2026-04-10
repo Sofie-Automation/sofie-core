@@ -136,7 +136,7 @@ export function buildTimelineObjsForRundown(
 			: new Map()
 
 	// The startTime of this start is used as the reference point for the calculated timings, so we can use 'now' and everything will lie after this point
-	const currentPartEnable = createCurrentPartGroupEnable(partInstancesInfo.current, !!partInstancesInfo.next)
+	const currentPartEnable = createCurrentPartGroupEnable(partInstancesInfo.current, partInstancesInfo.next)
 	const currentPartGroup = createPartGroup(partInstancesInfo.current.partInstance, currentPartEnable)
 
 	const timingContext: RundownTimelineTimingContext = {
@@ -222,7 +222,7 @@ export function buildTimelineObjsForRundown(
 
 function createCurrentPartGroupEnable(
 	currentPartInfo: SelectedPartInstanceTimelineInfo,
-	hasNextPart: boolean
+	nextPartInfo: SelectedPartInstanceTimelineInfo | undefined
 ): PartEnable {
 	// The startTime of this start is used as the reference point for the calculated timings, so we can use 'now' and everything will lie after this point
 	const currentPartEnable: PartEnable = { start: 'now' }
@@ -232,7 +232,7 @@ function createCurrentPartGroupEnable(
 	}
 
 	if (
-		hasNextPart &&
+		nextPartInfo &&
 		currentPartInfo.partInstance.part.autoNext &&
 		currentPartInfo.partInstance.part.expectedDuration !== undefined
 	) {
@@ -240,7 +240,8 @@ function createCurrentPartGroupEnable(
 		currentPartEnable.duration =
 			currentPartInfo.partInstance.part.expectedDuration +
 			currentPartInfo.calculatedTimings.toPartDelay +
-			currentPartInfo.calculatedTimings.toPartPostroll // autonext should have the postroll added to it to not confuse the timeline
+			currentPartInfo.calculatedTimings.toPartPostroll + // autonext should have the postroll added to it to not confuse the timeline
+			nextPartInfo.calculatedTimings.fromPartRemaining // extend the duration by the next part's overlapping/keepalive time.
 
 		if (
 			typeof currentPartEnable.start === 'number' &&
