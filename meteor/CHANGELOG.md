@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.52.17-nrk](///compare/v1.52.16-nrk...v1.52.17-nrk) (2026-04-10)
+
+
+### Bug Fixes
+
+* **core:** RundownPlaylist filters for Action Triggers a bit too persistent 9cd39d8
+* **QuickLoopService:** handle locked quick loop state in getUpdatedPropsByClearingMarkers dc2d5c5
+* **rundownTiming:** account for entire playlist looping in timing calculations 8a829a1
+* **webui:** full-playlist looping is showing all Parts as outside of loop f9e7d2a
+
 ### [1.52.16-nrk](///compare/v1.52.15-nrk...v1.52.16-nrk) (2026-03-02)
 
 
