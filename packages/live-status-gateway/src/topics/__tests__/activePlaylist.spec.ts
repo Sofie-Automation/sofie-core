@@ -63,6 +63,35 @@ describe('ActivePlaylistTopic', () => {
 				timingMode: ActivePlaylistTimingMode.NONE,
 			},
 			quickLoop: undefined,
+			tTimers: [
+				{
+					index: 1,
+					label: '',
+					configured: false,
+					mode: null,
+					state: null,
+					projected: null,
+					anchorPartId: null,
+				},
+				{
+					index: 2,
+					label: '',
+					configured: false,
+					mode: null,
+					state: null,
+					projected: null,
+					anchorPartId: null,
+				},
+				{
+					index: 3,
+					label: '',
+					configured: false,
+					mode: null,
+					state: null,
+					projected: null,
+					anchorPartId: null,
+				},
+			],
 		}
 
 		// eslint-disable-next-line @typescript-eslint/unbound-method
@@ -164,6 +193,35 @@ describe('ActivePlaylistTopic', () => {
 				timingMode: ActivePlaylistTimingMode.NONE,
 			},
 			quickLoop: undefined,
+			tTimers: [
+				{
+					index: 1,
+					label: '',
+					configured: false,
+					mode: null,
+					state: null,
+					projected: null,
+					anchorPartId: null,
+				},
+				{
+					index: 2,
+					label: '',
+					configured: false,
+					mode: null,
+					state: null,
+					projected: null,
+					anchorPartId: null,
+				},
+				{
+					index: 3,
+					label: '',
+					configured: false,
+					mode: null,
+					state: null,
+					projected: null,
+					anchorPartId: null,
+				},
+			],
 		}
 
 		// eslint-disable-next-line @typescript-eslint/unbound-method
@@ -270,6 +328,35 @@ describe('ActivePlaylistTopic', () => {
 				timingMode: ActivePlaylistTimingMode.NONE,
 			},
 			quickLoop: undefined,
+			tTimers: [
+				{
+					index: 1,
+					label: '',
+					configured: false,
+					mode: null,
+					state: null,
+					projected: null,
+					anchorPartId: null,
+				},
+				{
+					index: 2,
+					label: '',
+					configured: false,
+					mode: null,
+					state: null,
+					projected: null,
+					anchorPartId: null,
+				},
+				{
+					index: 3,
+					label: '',
+					configured: false,
+					mode: null,
+					state: null,
+					projected: null,
+					anchorPartId: null,
+				},
+			],
 		}
 
 		// eslint-disable-next-line @typescript-eslint/unbound-method

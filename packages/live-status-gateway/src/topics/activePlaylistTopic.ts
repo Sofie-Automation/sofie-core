@@ -5,6 +5,7 @@ import {
 	DBRundownPlaylist,
 	QuickLoopMarker,
 	QuickLoopMarkerType,
+	RundownTTimer,
 } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { assertNever, literal } from '@sofie-automation/shared-lib/dist/lib/lib'
@@ -30,11 +31,22 @@ import {
 	ActivePlaylistQuickLoop,
 	QuickLoopMarker as QuickLoopMarkerStatus,
 	QuickLoopMarkerType as QuickLoopMarkerStatusType,
+	TTimerStatus,
+	TTimerIndex,
+	TimerModeCountdown,
+	TimerModeFreeRun,
+	TimerModeTimeOfDay,
+	TimerStateRunning,
+	TimerStatePaused,
 } from '@sofie-automation/live-status-gateway-api'
 
 import { CollectionHandlers } from '../liveStatusServer.js'
 import areElementsShallowEqual from '@sofie-automation/shared-lib/dist/lib/isShallowEqual'
 import { Complete, PickKeys } from '@sofie-automation/shared-lib/dist/lib/types'
+
+// Union types for timer modes and states (not exported from API package)
+type TimerMode = TimerModeCountdown | TimerModeFreeRun | TimerModeTimeOfDay
+type TimerState = TimerStateRunning | TimerStatePaused
 
 const THROTTLE_PERIOD_MS = 100
 
@@ -51,6 +63,7 @@ const PLAYLIST_KEYS = [
 	'timing',
 	'startedPlayback',
 	'quickLoop',
+	'tTimers',
 ] as const
 type Playlist = PickKeys<DBRundownPlaylist, typeof PLAYLIST_KEYS>
 
@@ -172,6 +185,7 @@ export class ActivePlaylistTopic extends WebSocketTopicBase implements WebSocket
 								? this._activePlaylist.timing.expectedEnd
 								: undefined,
 					},
+					tTimers: this.transformTTimers(this._activePlaylist.tTimers),
 				})
 			: literal<Complete<ActivePlaylistEvent>>({
 					event: 'activePlaylist',
@@ -188,6 +202,7 @@ export class ActivePlaylistTopic extends WebSocketTopicBase implements WebSocket
 					timing: {
 						timingMode: ActivePlaylistTimingMode.NONE,
 					},
+					tTimers: this.transformTTimers(null),
 				})
 
 		this.sendMessage(subscribers, message)
@@ -248,6 +263,81 @@ export class ActivePlaylistTopic extends WebSocketTopicBase implements WebSocket
 			default:
 				assertNever(marker)
 				return undefined
+		}
+	}
+
+	private transformTTimers(tTimers: RundownTTimer[] | null | undefined): [TTimerStatus, TTimerStatus, TTimerStatus] {
+		// Always return exactly 3 timers
+		if (!tTimers || tTimers.length === 0) {
+			return [
+				{
+					index: 1 as TTimerIndex,
+					label: '',
+					configured: false,
+					mode: null,
+					state: null,
+					projected: null,
+					anchorPartId: null,
+				},
+				{
+					index: 2 as TTimerIndex,
+					label: '',
+					configured: false,
+					mode: null,
+					state: null,
+					projected: null,
+					anchorPartId: null,
+				},
+				{
+					index: 3 as TTimerIndex,
+					label: '',
+					configured: false,
+					mode: null,
+					state: null,
+					projected: null,
+					anchorPartId: null,
+				},
+			]
+		}
+
+		return [this.transformTTimer(tTimers[0]), this.transformTTimer(tTimers[1]), this.transformTTimer(tTimers[2])]
+	}
+
+	private transformTTimer(timer: RundownTTimer): TTimerStatus {
+		const index = timer.index as TTimerIndex
+
+		if (!timer.mode || !timer.state) {
+			return {
+				index,
+				label: timer.label,
+				configured: false,
+				mode: null,
+				state: null,
+				projected: null,
+				anchorPartId: null,
+			}
+		}
+
+		// Transform mode - directly pass through
+		const mode: TimerMode = timer.mode as TimerMode
+
+		// Transform state - directly pass through
+		const state: TimerState = timer.state as TimerState
+
+		// Transform projected state - directly pass through
+		const projected: TimerState | null = timer.projectedState ? (timer.projectedState as TimerState) : null
+
+		// Transform anchorPartId
+		const anchorPartId = timer.anchorPartId ? unprotectString(timer.anchorPartId) : null
+
+		return {
+			index,
+			label: timer.label,
+			configured: true,
+			mode,
+			state,
+			projected,
+			anchorPartId,
 		}
 	}
 
