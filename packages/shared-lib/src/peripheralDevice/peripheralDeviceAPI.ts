@@ -1,6 +1,10 @@
 import { DeviceConfigManifest } from '../core/deviceConfigManifest.js'
 import { PeripheralDeviceId, RundownPlaylistId, PartInstanceId, PieceInstanceId } from '../core/model/Ids.js'
 import { StatusCode } from '../lib/status.js'
+import { DeviceStatusError } from 'timeline-state-resolver-types'
+
+// Re-export for use in UI components
+export { DeviceStatusError }
 
 export interface PartPlaybackCallbackData {
 	rundownPlaylistId: RundownPlaylistId
@@ -76,6 +80,12 @@ export type PlayoutChangedResult = {
 export interface PeripheralDeviceStatusObject {
 	statusCode: StatusCode
 	messages?: Array<string>
+	/**
+	 * Structured errors from TSR devices for blueprint customization.
+	 * When present, blueprints can provide custom translations for these error codes.
+	 * The messages array is still populated for backward compatibility.
+	 */
+	errors?: Array<DeviceStatusError>
 }
 // Note The actual type of a device is determined by the Category, Type and SubType
 export enum PeripheralDeviceCategory {
