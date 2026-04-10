@@ -27,7 +27,7 @@ export const OneOfButtonsWithOverrides = (
 		/** Helper to generate and save overrides for the item */
 		overrideHelper: OverrideOpHelperForItemContents
 	}
-) => {
+): JSX.Element => {
 	const { t } = useTranslation()
 
 	const discProperty = getSchemaUIField(props.schema, SchemaFormUIField.OneOfDiscriminant)
@@ -100,34 +100,36 @@ export const OneOfButtonsWithOverrides = (
 	return (
 		<LabelAndOverridesForOneOfButtons {...childProps.commonAttrs}>
 			{(value, handleUpdate) => {
-				return props.schema.oneOf &&
-				props.schema.oneOf.map((variant, index) => {
-					const type = variant.properties?.[discProperty]?.const
-					if (type === undefined)
-						return (
-							<p>
-								{t(
-									'Discriminant property "{{ discProperty }}" used, but is undefined for variant at index {{ index }}',
-									{
-										discProperty,
-										index,
-									}
-								)}
-							</p>
-						)
+				return (
+					props.schema.oneOf &&
+					props.schema.oneOf.map((variant, index) => {
+						const type = variant.properties?.[discProperty]?.const
+						if (type === undefined)
+							return (
+								<p key={`${index}_${type}`}>
+									{t(
+										'Discriminant property "{{ discProperty }}" used, but is undefined for variant at index {{ index }}',
+										{
+											discProperty,
+											index,
+										}
+									)}
+								</p>
+							)
 
-					return (
-						<OneOfVariantButtonComplex
-							value={value}
-							key={`${index}_${type}`}
-							discProperty={discProperty}
-							selected={value?.[discProperty] === type}
-							schema={variant}
-							translationNamespaces={props.translationNamespaces}
-							handleUpdate={handleUpdate}
-						/>
-					)
-				})
+						return (
+							<OneOfVariantButtonComplex
+								value={value}
+								key={`${index}_${type}`}
+								discProperty={discProperty}
+								selected={value?.[discProperty] === type}
+								schema={variant}
+								translationNamespaces={props.translationNamespaces}
+								handleUpdate={handleUpdate}
+							/>
+						)
+					})
+				)
 			}}
 		</LabelAndOverridesForOneOfButtons>
 	)

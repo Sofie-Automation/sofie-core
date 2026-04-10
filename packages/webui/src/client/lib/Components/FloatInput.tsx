@@ -52,7 +52,7 @@ export function FloatInputControl({
 	const handleBlur = useCallback(
 		(event: React.FocusEvent<HTMLInputElement>) => {
 			if (readOnly) return
-			
+
 			const number = parseFloat(event.currentTarget.value.replace(',', '.'))
 			if (!isNaN(number)) {
 				handleUpdate(zeroBased ? number - 1 : number)
@@ -68,7 +68,7 @@ export function FloatInputControl({
 	const handleKeyUp = useCallback(
 		(event: React.KeyboardEvent<HTMLInputElement>) => {
 			if (readOnly) return
-			
+
 			if (event.key === 'Escape') {
 				setEditingValue(null)
 			} else if (event.key === 'Enter') {

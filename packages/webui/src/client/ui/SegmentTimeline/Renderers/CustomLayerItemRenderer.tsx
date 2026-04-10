@@ -141,9 +141,10 @@ export class CustomLayerItemRenderer<IProps extends ICustomLayerItemProps, IStat
 				| ReadonlyObjectDeep<CoreUserEditingDefinitionSofie>
 		): op is ReadonlyObjectDeep<CoreUserEditingDefinitionState> | ReadonlyObjectDeep<CoreUserEditingDefinitionAction> {
 			return (
-				(op.type === UserEditingType.ACTION || op.type === UserEditingType.STATE) &&
-				((op.icon && op.isActive) || (op.iconInactive && !op.isActive))
-			) || false
+				((op.type === UserEditingType.ACTION || op.type === UserEditingType.STATE) &&
+					((op.icon && op.isActive) || (op.iconInactive && !op.isActive))) ||
+				false
+			)
 		}
 
 		return (

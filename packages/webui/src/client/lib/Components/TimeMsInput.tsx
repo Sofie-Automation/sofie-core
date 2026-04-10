@@ -100,13 +100,16 @@ export function TimeMsInputControl({
 }: Readonly<ITimeMsInputControlProps>): JSX.Element {
 	const [editingValue, setEditingValue] = useState<string | null>(null)
 
-	const isValidValue = useCallback((value: number): boolean => {
-		if (isNaN(value) || value < 0) return false
-		if (min !== undefined && value < min) return false
-		if (max !== undefined && value > max) return false
-		if (multipleOf !== undefined && value % multipleOf !== 0) return false
-		return true
-	}, [min, max, multipleOf])
+	const isValidValue = useCallback(
+		(value: number): boolean => {
+			if (isNaN(value) || value < 0) return false
+			if (min !== undefined && value < min) return false
+			if (max !== undefined && value > max) return false
+			if (multipleOf !== undefined && value % multipleOf !== 0) return false
+			return true
+		},
+		[min, max, multipleOf]
+	)
 
 	const handleChange = useCallback(
 		(event: React.ChangeEvent<HTMLInputElement>) => {
