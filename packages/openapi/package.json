@@ -14,6 +14,7 @@
 		"cov": "run unit && open-cli coverage/lcov-report/index.html",
 		"cov-open": "open-cli coverage/lcov-report/index.html",
 		"lint": "run -T lint openapi",
+		"bundle": "node ./scripts/bundle-openapi.mjs",
 		"unit": "run genserver && node --experimental-fetch run_server_tests.mjs",
 		"genclient:ts": "run -T rimraf client/ts && openapi-generator-cli generate -i ./api/actions.yaml -o client/ts -g typescript-fetch -p supportsES6=true",
 		"genclient:rs": "run -T rimraf client/rs && openapi-generator-cli generate -i ./api/actions.yaml -o client/rs -g rust",
@@ -37,6 +38,7 @@
 		"tslib": "^2.8.1"
 	},
 	"devDependencies": {
+		"@apidevtools/json-schema-ref-parser": "^15.2.2",
 		"@openapitools/openapi-generator-cli": "^2.28.0",
 		"eslint": "^9.39.2",
 		"js-yaml": "^4.1.1",
