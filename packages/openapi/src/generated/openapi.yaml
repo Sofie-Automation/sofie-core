@@ -2053,6 +2053,7 @@ paths:
           required: true
           schema:
             type: integer
+            description: Index of the timer (1, 2, or 3).
             enum:
               - 1
               - 2
@@ -2131,6 +2132,7 @@ paths:
           required: true
           schema:
             type: integer
+            description: Index of the timer (1, 2, or 3).
             enum:
               - 1
               - 2
@@ -2200,6 +2202,7 @@ paths:
           required: true
           schema:
             type: integer
+            description: Index of the timer (1, 2, or 3).
             enum:
               - 1
               - 2
@@ -2260,6 +2263,7 @@ paths:
           required: true
           schema:
             type: integer
+            description: Index of the timer (1, 2, or 3).
             enum:
               - 1
               - 2
@@ -2320,6 +2324,7 @@ paths:
           required: true
           schema:
             type: integer
+            description: Index of the timer (1, 2, or 3).
             enum:
               - 1
               - 2

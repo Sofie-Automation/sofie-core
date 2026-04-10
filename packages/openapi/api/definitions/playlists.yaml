@@ -807,8 +807,7 @@ resources:
           description: Index of the timer (1, 2, or 3).
           required: true
           schema:
-            type: integer
-            enum: [1, 2, 3]
+            $ref: '#/components/schemas/tTimerIndex'
       requestBody:
         required: true
         content:
@@ -853,8 +852,7 @@ resources:
           description: Index of the timer (1, 2, or 3).
           required: true
           schema:
-            type: integer
-            enum: [1, 2, 3]
+            $ref: '#/components/schemas/tTimerIndex'
       requestBody:
         content:
           application/json:
@@ -889,8 +887,7 @@ resources:
           description: Index of the timer (1, 2, or 3).
           required: true
           schema:
-            type: integer
-            enum: [1, 2, 3]
+            $ref: '#/components/schemas/tTimerIndex'
       responses:
         200:
           $ref: '#/components/responses/putSuccess'
@@ -916,8 +913,7 @@ resources:
           description: Index of the timer (1, 2, or 3).
           required: true
           schema:
-            type: integer
-            enum: [1, 2, 3]
+            $ref: '#/components/schemas/tTimerIndex'
       responses:
         200:
           $ref: '#/components/responses/putSuccess'
@@ -943,8 +939,7 @@ resources:
           description: Index of the timer (1, 2, or 3).
           required: true
           schema:
-            type: integer
-            enum: [1, 2, 3]
+            $ref: '#/components/schemas/tTimerIndex'
       responses:
         200:
           $ref: '#/components/responses/putSuccess'
@@ -955,6 +950,10 @@ resources:
 
 components:
   schemas:
+    tTimerIndex:
+      type: integer
+      description: Index of the timer (1, 2, or 3).
+      enum: [1, 2, 3]
     playlistItem:
       type: object
       properties:
