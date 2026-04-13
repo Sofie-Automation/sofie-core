@@ -153,7 +153,7 @@ function OneOfVariantButtonComplex({
 	const typeValue = schema.properties?.[discProperty]?.const
 
 	const handleUpdateRef = useRef(handleUpdate)
-	
+
 	useEffect(() => {
 		handleUpdateRef.current = handleUpdate
 	}, [handleUpdate])

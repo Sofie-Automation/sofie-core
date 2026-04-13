@@ -144,8 +144,11 @@ export class CustomLayerItemRenderer<IProps extends ICustomLayerItemProps, IStat
 		if (this.props.piece.instance.piece.userEditOperations === prevProps.piece.instance.piece.userEditOperations) {
 			return false
 		}
-	
-		if (this.props.piece.instance.piece.userEditOperations?.length !== prevProps.piece.instance.piece.userEditOperations?.length) {
+
+		if (
+			this.props.piece.instance.piece.userEditOperations?.length !==
+			prevProps.piece.instance.piece.userEditOperations?.length
+		) {
 			return true
 		}
 
