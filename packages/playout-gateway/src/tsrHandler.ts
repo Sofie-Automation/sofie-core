@@ -265,7 +265,7 @@ export class TSRHandler {
 
 			if (!e || typeof e !== 'object' || !('message' in e)) {
 				return {
-					message: name + ': ' + 'Unknown error: ' + JSON.stringify(e),
+					message: name + ': ' + 'Unknown error: ' + stringifyError(e, true),
 				}
 			}
 

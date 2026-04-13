@@ -33,9 +33,12 @@ export class DefaultLayerItemRenderer extends CustomLayerItemRenderer<IProps, IS
 			super.componentDidUpdate(prevProps, prevState)
 		}
 
-		if (this.props.piece.instance.piece.name !== prevProps.piece.instance.piece.name) {
-			this.updateAnchoredElsWidths()
-		}
+		if (
+			this.props.piece.instance.piece.name !== prevProps.piece.instance.piece.name ||
+			this.customPieceIconsChanged(prevProps)
+		) {
+ 			this.updateAnchoredElsWidths()
+ 		}
 	}
 
 	render(): JSX.Element | false {

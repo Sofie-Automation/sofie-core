@@ -90,7 +90,7 @@ export interface UserEditingDefinitionSofieDefault {
 }
 
 export enum UserEditingType {
-	/** Action */
+	/** State */
 	STATE = 'state',
 	/** Action */
 	ACTION = 'action',
