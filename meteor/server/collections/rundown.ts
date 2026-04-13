@@ -68,11 +68,10 @@ registerIndex(PartInstances, {
 })
 registerIndex(PartInstances, {
 	rundownId: 1,
-	// @ts-expect-error deep property
 	'part._id': 1,
 	takeCount: 1,
 	reset: 1,
-})
+} as any)
 
 export const Parts = createAsyncOnlyReadOnlyMongoCollection<DBPart>(CollectionName.Parts)
 registerIndex(Parts, {

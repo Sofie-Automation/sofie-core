@@ -159,10 +159,9 @@ async function fetchInfoForSelectedPart(partInfo: SelectedPartInstance | null): 
 
 	const partInstance = (await PartInstances.findOneAsync(partInfo.partInstanceId, {
 		projection: {
-			// @ts-expect-error deep property
 			'part._id': 1,
 			segmentId: 1,
-		},
+		} as any,
 	})) as (Pick<DBPartInstance, 'segmentId'> & { part: Pick<DBPart, '_id'> }) | null
 
 	if (!partInstance) return null
