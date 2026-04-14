@@ -33,4 +33,4 @@ if (errors.length) {
 	process.exit(1)
 }
 
-console.log(`\n\n🥳 Succesfully compiled all translations: ${translations.map((t) => t.language).join(', ')}`)
+console.log(`\n\n🥳 successfully compiled all translations: ${translations.map((t) => t.language).join(', ')}`)

@@ -2465,10 +2465,10 @@ msgstr ""
 msgid "NRCS Name"
 msgstr ""
 
-msgid "OAuth credentials succesfully uploaded."
+msgid "OAuth credentials successfully uploaded."
 msgstr "Opplasting av OAuth credentials var vellykket."
 
-msgid "OAuth credentials successfuly reset"
+msgid "OAuth credentials successfully reset"
 msgstr "OAuth credentials nullstilt"
 
 msgid "Off"
@@ -4238,7 +4238,7 @@ msgstr "Opplasting av handlingsutløsere var vellykket."
 msgid "Trim \"{{name}}\""
 msgstr "Trim \"{{name}}\""
 
-msgid "Trimmed succesfully."
+msgid "Trimmed successfully."
 msgstr "Endring av inn-/utpunkt var vellykket."
 
 msgid "Trimming this clip has failed due to an error: {{error}}."

@@ -16,6 +16,7 @@ import { catchError } from '../lib/lib.js'
 import { relativeToSiteRootUrl } from '../url.js'
 import { UserError } from '@sofie-automation/corelib/dist/error'
 
+const DEFAULT_NAMESPACE = 'translations'
 const i18nOptions: InitOptions = {
 	fallbackLng: {
 		nn: ['nb', 'en'],
@@ -23,8 +24,8 @@ const i18nOptions: InitOptions = {
 	},
 
 	// have a common namespace used around the full app
-	ns: ['translations'],
-	defaultNS: 'translations',
+	ns: [DEFAULT_NAMESPACE],
+	defaultNS: DEFAULT_NAMESPACE,
 
 	debug: false,
 	joinArrays: '\n',
@@ -128,7 +129,7 @@ class I18nContainer extends WithManagedTracker {
 
 							this.i18nInstance.addResourceBundle(
 								bundle.language,
-								bundle.namespace || i18nOptions.defaultNS,
+								bundle.namespace || DEFAULT_NAMESPACE,
 								i18NextData,
 								true,
 								true
