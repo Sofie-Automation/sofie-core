@@ -230,7 +230,7 @@ export namespace BucketsAPI {
 
 		await Promise.all([
 			Buckets.removeAsync(bucket._id),
-			await runIngestOperation(bucket.studioId, IngestJobs.BucketEmpty, {
+			runIngestOperation(bucket.studioId, IngestJobs.BucketEmpty, {
 				bucketId: bucket._id,
 			}),
 		])
