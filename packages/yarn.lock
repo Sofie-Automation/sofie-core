@@ -2053,10 +2053,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:^7.1.2, @babel/runtime@npm:^7.10.3, @babel/runtime@npm:^7.11.1, @babel/runtime@npm:^7.11.2, @babel/runtime@npm:^7.12.13, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.14.5, @babel/runtime@npm:^7.17.2, @babel/runtime@npm:^7.18.0, @babel/runtime@npm:^7.18.3, @babel/runtime@npm:^7.20.7, @babel/runtime@npm:^7.23.2, @babel/runtime@npm:^7.24.7, @babel/runtime@npm:^7.25.9, @babel/runtime@npm:^7.26.0, @babel/runtime@npm:^7.5.5, @babel/runtime@npm:^7.6.3, @babel/runtime@npm:^7.8.7, @babel/runtime@npm:^7.9.2":
-  version: 7.28.6
-  resolution: "@babel/runtime@npm:7.28.6"
-  checksum: 10/fbcd439cb74d4a681958eb064c509829e3f46d8a4bfaaf441baa81bb6733d1e680bccc676c813883d7741bcaada1d0d04b15aa320ef280b5734e2192b50decf9
+"@babel/runtime@npm:^7.1.2, @babel/runtime@npm:^7.10.3, @babel/runtime@npm:^7.11.1, @babel/runtime@npm:^7.11.2, @babel/runtime@npm:^7.12.13, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.18.0, @babel/runtime@npm:^7.18.3, @babel/runtime@npm:^7.20.7, @babel/runtime@npm:^7.23.2, @babel/runtime@npm:^7.24.7, @babel/runtime@npm:^7.25.9, @babel/runtime@npm:^7.26.0, @babel/runtime@npm:^7.29.2, @babel/runtime@npm:^7.5.5, @babel/runtime@npm:^7.6.3, @babel/runtime@npm:^7.8.7, @babel/runtime@npm:^7.9.2":
+  version: 7.29.2
+  resolution: "@babel/runtime@npm:7.29.2"
+  checksum: 10/f55ba4052aa0255055b34371a145fbe69c29b37b49eaea14805b095bfb4153701486416e89392fd27ec8abafa53868be86e960b9f8f959fff91f2c8ac2a14b02
   languageName: node
   linkType: hard
 
@@ -7036,7 +7036,7 @@ __metadata:
     "@sofie-automation/blueprints-integration": "npm:26.3.0-2"
     "@sofie-automation/shared-lib": "npm:26.3.0-2"
     fast-clone: "npm:^1.5.13"
-    i18next: "npm:^21.10.0"
+    i18next: "npm:^26.0.4"
     influx: "npm:^5.12.0"
     nanoid: "npm:^3.3.11"
     object-path: "npm:^0.11.8"
@@ -7119,7 +7119,7 @@ __metadata:
     type-fest: "npm:^4.41.0"
     underscore: "npm:^1.13.8"
   peerDependencies:
-    i18next: ^21.10.0
+    i18next: ^26.0.4
     mongodb: ^7.1.1
   languageName: unknown
   linkType: soft
@@ -7212,7 +7212,7 @@ __metadata:
     deep-extend: "npm:0.6.0"
     ejson: "npm:^2.2.3"
     globals: "npm:^17.5.0"
-    i18next: "npm:^21.10.0"
+    i18next: "npm:^26.0.4"
     i18next-browser-languagedetector: "npm:^8.2.1"
     i18next-http-backend: "npm:^3.0.4"
     immutability-helper: "npm:^3.1.1"
@@ -7229,7 +7229,7 @@ __metadata:
     react-dom: "npm:^18.3.1"
     react-focus-bounder: "npm:^1.1.6"
     react-hotkeys: "npm:^2.0.0"
-    react-i18next: "npm:^11.18.6"
+    react-i18next: "npm:^17.0.2"
     react-intersection-observer: "npm:^9.16.0"
     react-moment: "npm:^1.2.2"
     react-popper: "npm:^2.3.0"
@@ -16982,12 +16982,17 @@ asn1@evs-broadcast/node-asn1:
   languageName: node
   linkType: hard
 
-"i18next@npm:^21.10.0":
-  version: 21.10.0
-  resolution: "i18next@npm:21.10.0"
+"i18next@npm:^26.0.4":
+  version: 26.0.4
+  resolution: "i18next@npm:26.0.4"
   dependencies:
-    "@babel/runtime": "npm:^7.17.2"
-  checksum: 10/f0d2ab888627c24b00068461eeedad33437970396539b663a4916e7ba279f6bb91e34221ee9c3608079b9d320a0cb02e9f51458f5c47c809c45676900db94abf
+    "@babel/runtime": "npm:^7.29.2"
+  peerDependencies:
+    typescript: ^5 || ^6
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: 10/39a8f13851252f97dfd255fae0a72a8aefcab34830def5a2057e631aac5719ba87d3b7e32bef354cd5304f19f78abfafad9dc51eb090c303ebac6ee339cdfb88
   languageName: node
   linkType: hard
 
@@ -25304,21 +25309,25 @@ asn1@evs-broadcast/node-asn1:
   languageName: node
   linkType: hard
 
-"react-i18next@npm:^11.18.6":
-  version: 11.18.6
-  resolution: "react-i18next@npm:11.18.6"
+"react-i18next@npm:^17.0.2":
+  version: 17.0.2
+  resolution: "react-i18next@npm:17.0.2"
   dependencies:
-    "@babel/runtime": "npm:^7.14.5"
+    "@babel/runtime": "npm:^7.29.2"
     html-parse-stringify: "npm:^3.0.1"
+    use-sync-external-store: "npm:^1.6.0"
   peerDependencies:
-    i18next: ">= 19.0.0"
+    i18next: ">= 26.0.1"
     react: ">= 16.8.0"
+    typescript: ^5 || ^6
   peerDependenciesMeta:
     react-dom:
       optional: true
     react-native:
       optional: true
-  checksum: 10/d3e784f96c368f53eb4883f1ea51b439b92dd12435196b9a9b07b2be34a44f3358f6f5cf1696c6c6ad070eead38341769c214c204a338ecacfe447dba48ef5de
+    typescript:
+      optional: true
+  checksum: 10/c9adbdb0666e74b724fc4bec238189831762969b979323bf2d9cf8d428e0d8c7eb66574017628955d0a3e6ada00078d2b9468c703034804fe58dc95b1971ec82
   languageName: node
   linkType: hard
 
@@ -29763,6 +29772,15 @@ asn1@evs-broadcast/node-asn1:
     react: 16.8.0 - 18
     react-dom: 16.8.0 - 18
   checksum: 10/821d3f783090e36c694ef0ae3e366b364a691a8254d04337700ea79757e01e2d79f307ee517487c9246db7e8bc9625b474dd6ac7dad18d777004dee817826080
+  languageName: node
+  linkType: hard
+
+"use-sync-external-store@npm:^1.6.0":
+  version: 1.6.0
+  resolution: "use-sync-external-store@npm:1.6.0"
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: 10/b40ad2847ba220695bff2d4ba4f4d60391c0fb4fb012faa7a4c18eb38b69181936f5edc55a522c4d20a788d1a879b73c3810952c9d0fd128d01cb3f22042c09e
   languageName: node
   linkType: hard
 

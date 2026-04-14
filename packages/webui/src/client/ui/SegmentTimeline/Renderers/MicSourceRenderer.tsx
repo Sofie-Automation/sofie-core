@@ -12,7 +12,7 @@ import { logger } from '../../../lib/logging.js'
 type IProps = ICustomLayerItemProps
 interface IState {}
 
-export const MicSourceRenderer = withTranslation()(
+export const MicSourceRenderer: React.ComponentType<IProps> = withTranslation()(
 	class MicSourceRenderer extends CustomLayerItemRenderer<IProps & WithTranslation, IState> {
 		itemPosition = 0
 		itemElement: HTMLElement | null = null

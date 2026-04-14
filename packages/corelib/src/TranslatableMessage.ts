@@ -1,5 +1,4 @@
 import { ITranslatableMessage as IBlueprintTranslatableMessage } from '@sofie-automation/blueprints-integration'
-import { TFunction } from 'i18next'
 import { ReadonlyDeep } from 'type-fest'
 import { BlueprintId } from './dataModel/Ids.js'
 
@@ -15,12 +14,12 @@ export interface ITranslatableMessage extends IBlueprintTranslatableMessage {
  * Convenience function to translate a message using a supplied translation function.
  *
  * @param {ITranslatableMessage} translatable - the translatable to translate
- * @param {TFunction} i18nTranslator - the translation function to use
+ * @param i18nTranslator - the translation function to use
  * @returns the translation with arguments applied
  */
 export function translateMessage(
 	translatable: ITranslatableMessage | ReadonlyDeep<ITranslatableMessage>,
-	i18nTranslator: TFunction
+	i18nTranslator: (key: string, options?: any) => string
 ): string {
 	// the reason for injecting the translation function rather than including the inited function from i18n.ts
 	// is to avoid a situation where this is accidentally used from the server side causing an error

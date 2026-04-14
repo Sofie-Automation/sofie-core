@@ -1,5 +1,6 @@
-import { glob } from 'glob'
-import { spawn } from 'child_process'
+import { writeFile, mkdir } from 'node:fs/promises'
+import { join } from 'node:path'
+import { getTranslations } from './translation/bundle.mjs'
 
 /*************************************************
 
@@ -8,29 +9,19 @@ and compiles the json-files (used in production).
 
 **************************************************/
 
+const translations = await getTranslations('i18n', 'translations')
+
 const errors = []
-const failedLanguages = []
-// List all po-files:
-const poFiles = await glob('./i18n/*.po')
-
-const languages = []
-for (const poFile of poFiles) {
-	const mLanguage = poFile.match(/\/(\w+)\.po/)
-	if (mLanguage) languages.push(mLanguage[1])
-}
-
-console.log(`🔍 Found languages: ${languages.join(', ')}`)
-
-for (const lng of languages) {
+for (const { language, data } of translations) {
 	try {
-		console.log('\n')
-		await runCmd(
-			`i18next-conv -l ${lng} -s i18n/${lng}.po -t ../packages/webui/public/locales/${lng}/translations.json --skipUntranslated`
-		)
+		const outDir = join('..', 'packages', 'webui', 'public', 'locales', language)
+		await mkdir(outDir, { recursive: true })
+		const outPath = join(outDir, 'translations.json')
+		await writeFile(outPath, JSON.stringify(data, null, '\t') + '\n', 'utf-8')
+		console.log(`✅ Written ${outPath}`)
 	} catch (e) {
-		console.error(`💣 Failed: ${lng}`)
-		errors.push(`${lng}: ${e}`)
-		failedLanguages.push(lng)
+		console.error(`💣 Failed: ${language}: ${e}`)
+		errors.push(`${language}: ${e}`)
 	}
 }
 
@@ -38,28 +29,8 @@ if (errors.length) {
 	for (const error of errors) {
 		console.error(error)
 	}
-	console.log(`\n\n😓 Failed to compile: ${failedLanguages.join(', ')}`)
+	console.log(`\n\n😓 Failed to compile: ${errors.map((e) => e.split(':')[0]).join(', ')}`)
 	process.exit(1)
 }
 
-console.log(`\n\n🥳 Succesfully compiled all translations: ${languages.join(', ')}`)
-
-function runCmd(cmd) {
-	console.log(cmd)
-	return new Promise((resolve, reject) => {
-		const child = spawn(cmd, {
-			shell: true,
-			windowsHide: true,
-		})
-		child.stdout.on('data', (data) => {
-			console.log(`${data}`.trim())
-		})
-		child.stderr.on('data', (data) => {
-			console.error(`${data}`.trim())
-		})
-		child.on('close', (code) => {
-			if (code === 0) resolve()
-			else reject(new Error(`child process exited with code ${code}`))
-		})
-	})
-}
+console.log(`\n\n🥳 Succesfully compiled all translations: ${translations.map((t) => t.language).join(', ')}`)
