@@ -62,7 +62,7 @@
 		"json-schema-to-typescript": "^15.0.4",
 		"lerna": "^9.0.7",
 		"nodemon": "^3.1.14",
-		"open-cli": "^8.0.0",
+		"open-cli": "^9.0.0",
 		"pinst": "^3.0.0",
 		"prettier": "^3.8.2",
 		"rimraf": "^6.1.3",

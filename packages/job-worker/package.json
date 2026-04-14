@@ -43,7 +43,7 @@
 		"chrono-node": "^2.9.0",
 		"deepmerge": "^4.3.1",
 		"elastic-apm-node": "^4.15.0",
-		"mongodb": "^6.21.0",
+		"mongodb": "^7.1.1",
 		"p-lazy": "^3.1.0",
 		"p-timeout": "^4.1.0",
 		"superfly-timeline": "9.2.0",
