@@ -446,7 +446,7 @@ export function convertRundownToBlueprintSegmentRundown(
 ): IBlueprintSegmentRundown {
 	const obj: Complete<IBlueprintSegmentRundown> = {
 		externalId: rundown.externalId,
-		timing: rundown.timing,
+		timing: skipClone ? rundown.timing : clone<RundownPlaylistTiming>(rundown.timing),
 		privateData: skipClone ? rundown.privateData : clone(rundown.privateData),
 		publicData: skipClone ? rundown.publicData : clone(rundown.publicData),
 	}
