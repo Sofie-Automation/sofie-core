@@ -33,7 +33,7 @@ interface IProps {
 	supportedFilters: RundownLayoutElementType[]
 }
 
-export default withTranslation()(
+export const FilterEditor: React.ComponentType<IProps> = withTranslation()(
 	class FilterEditor extends React.Component<Translated<IProps>> {
 		onToggleDefault = (item: RundownLayout, index: number, value: boolean) => {
 			const obj = _.object(item.filters.map((_item, i) => [`filters.${i}.default`, i === index ? value : false]))

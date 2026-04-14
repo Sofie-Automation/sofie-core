@@ -376,7 +376,8 @@ class ModalDialogGlobalContainer0 extends React.Component<
 		} else return null
 	}
 }
-export const ModalDialogGlobalContainer = withTranslation()(ModalDialogGlobalContainer0)
+export const ModalDialogGlobalContainer: React.ComponentType<IModalDialogGlobalContainerProps> =
+	withTranslation()(ModalDialogGlobalContainer0)
 let modalDialogGlobalContainerSingleton: ModalDialogGlobalContainer0
 /**
  * Display a ModalDialog, callback on user input

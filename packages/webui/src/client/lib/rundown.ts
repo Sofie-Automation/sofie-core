@@ -1,7 +1,7 @@
 import { PartUi } from '../ui/SegmentTimeline/SegmentTimelineContainer.js'
 import { Timecode } from '@sofie-automation/corelib/dist/index'
 import { Settings } from '../lib/Settings.js'
-import { TFunction } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import {
 	getResolvedSegment as getResolvedSegmentBase,
 	getSegmentsWithPartInstances as getSegmentsWithPartInstancesBase,

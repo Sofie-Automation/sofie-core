@@ -6,7 +6,7 @@ import { getElementWidth } from '../../../utils/dimensions.js'
 import ClassNames from 'classnames'
 import { CustomLayerItemRenderer, ICustomLayerItemProps } from './CustomLayerItemRenderer.js'
 
-import { withTranslation, WithTranslation } from 'react-i18next'
+import { withTranslation, WithTranslation, WithTranslationProps } from 'react-i18next'
 import { VTContent } from '@sofie-automation/blueprints-integration'
 import { PieceStatusIcon } from '../../../lib/ui/PieceStatusIcon.js'
 import { NoticeLevel, getNoticeLevelForPieceStatus } from '../../../lib/notifications/notifications.js'
@@ -437,7 +437,7 @@ class VTSourceRendererBase extends CustomLayerItemRenderer<IProps & WithTranslat
 	}
 }
 
-export const VTSourceRenderer = withTranslation()(
+export const VTSourceRenderer: React.ComponentType<Omit<IProps, 'studio'> & WithTranslationProps> = withTranslation()(
 	// withStudioPackageContainers<IProps & WithTranslation, {}>()(VTSourceRendererBase)
 	(props: Omit<IProps, 'studio'> & WithTranslation) => (
 		<StudioContext.Consumer>{(studio) => <VTSourceRendererBase {...props} studio={studio} />}</StudioContext.Consumer>

@@ -436,7 +436,7 @@ export const NotificationCenter = new NotificationCenter0()
 export class Notification extends EventEmitter {
 	id: string | undefined
 	status: NoticeLevel
-	message: string | React.ReactElement<HTMLElement> | ITranslatableMessage | null
+	message: React.ReactNode | ITranslatableMessage | null
 	source: NotificationsSource
 	persistent?: boolean
 	timeout?: number
@@ -448,7 +448,7 @@ export class Notification extends EventEmitter {
 	constructor(
 		id: string | ProtectedString<any> | undefined,
 		status: NoticeLevel,
-		message: string | React.ReactElement<HTMLElement> | ITranslatableMessage | null,
+		message: React.ReactNode | ITranslatableMessage | null,
 		source: NotificationsSource,
 		created?: Time,
 		persistent?: boolean,

@@ -16,7 +16,7 @@ interface IState {
 	isMouseDown: boolean
 }
 
-export const VideoEditMonitor = withTranslation()(
+export const VideoEditMonitor: React.ComponentType<IProps> = withTranslation()(
 	class VideoEditMonitor extends React.Component<Translated<IProps>, IState> {
 		private videoEl: HTMLVideoElement | null = null
 		private retryCount = 0

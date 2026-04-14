@@ -4,7 +4,8 @@ import {
 	PeripheralDeviceType,
 	PERIPHERAL_SUBTYPE_PROCESS,
 } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
-import { TFunction, useTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import Moment from 'react-moment'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { getCurrentTime } from '../../../lib/systemTime.js'

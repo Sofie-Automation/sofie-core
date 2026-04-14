@@ -1197,7 +1197,7 @@ export class SegmentTimelineClass extends React.Component<Translated<WithTiming<
 	}
 }
 
-export const SegmentTimeline = withTranslation()(
+export const SegmentTimeline: React.ComponentType<IProps> = withTranslation()(
 	withTiming<IProps & WithTranslation, IStateHeader>((props: IProps) => {
 		return {
 			tickResolution: TimingTickResolution.Synced,

@@ -1,6 +1,7 @@
 import React from 'react'
 import _ from 'underscore'
-import { withTranslation, WithTranslation, TFunction } from 'react-i18next'
+import { withTranslation, WithTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 
 import ClassNames from 'classnames'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
@@ -869,7 +870,7 @@ export class SegmentTimelinePartClass extends React.Component<Translated<WithTim
 	}
 }
 
-export const SegmentTimelinePart = withTranslation()(
+export const SegmentTimelinePart: React.ComponentType<IProps> = withTranslation()(
 	withTiming<IProps & WithTranslation, IState>((props: IProps) => {
 		return {
 			tickResolution: TimingTickResolution.Synced,

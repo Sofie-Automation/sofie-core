@@ -26,7 +26,7 @@ export interface IDashboardButtonGroupProps {
 	onChangeQueueAdLib?: (isQueue: boolean, e: any) => void
 }
 
-export const DashboardActionButtonGroup = withTranslation()(
+export const DashboardActionButtonGroup: React.ComponentType<IDashboardButtonGroupProps> = withTranslation()(
 	class DashboardActionButtonGroup extends React.Component<Translated<IDashboardButtonGroupProps>> {
 		private take = (e: any) => {
 			if (this.props.studioMode) {

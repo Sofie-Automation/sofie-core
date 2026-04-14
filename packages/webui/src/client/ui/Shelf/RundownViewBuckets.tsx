@@ -83,7 +83,7 @@ interface IState {
 	localBuckets: Bucket[]
 }
 
-export const RundownViewBuckets = withTranslation()(
+export const RundownViewBuckets: React.ComponentType<IBucketsProps> = withTranslation()(
 	class RundownViewBuckets extends React.Component<Translated<IBucketsProps>, IState> {
 		private _mouseLast: {
 			x: number
