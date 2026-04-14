@@ -1,6 +1,5 @@
 import moment from 'moment'
-import i18n, { TFunctionResult } from 'i18next'
-import { TFunction } from 'react-i18next'
+import i18n, { InitOptions, TFunction } from 'i18next'
 import Backend from 'i18next-http-backend'
 import LanguageDetector from 'i18next-browser-languagedetector'
 import { initReactI18next } from 'react-i18next'
@@ -17,32 +16,28 @@ import { catchError } from '../lib/lib.js'
 import { relativeToSiteRootUrl } from '../url.js'
 import { UserError } from '@sofie-automation/corelib/dist/error'
 
-const i18nOptions = {
+const DEFAULT_NAMESPACE = 'translations'
+const i18nOptions: InitOptions = {
 	fallbackLng: {
 		nn: ['nb', 'en'],
 		default: ['en'],
 	},
 
 	// have a common namespace used around the full app
-	ns: ['translations'],
-	defaultNS: 'translations',
+	ns: [DEFAULT_NAMESPACE],
+	defaultNS: DEFAULT_NAMESPACE,
 
 	debug: false,
 	joinArrays: '\n',
 
-	whitelist: ['en', 'nb', 'nn', 'sv'],
-
-	keySeparator: '→',
-	nsSeparator: '⇒',
-	pluralSeparator: '⥤',
-	contextSeparator: '⥤',
+	supportedLngs: ['en', 'nb', 'nn', 'sv'],
 
 	interpolation: {
 		escapeValue: false, // not needed for react!!
 	},
 
 	react: {
-		wait: true,
+		// wait: true,
 		useSuspense: false,
 	},
 
@@ -134,7 +129,7 @@ class I18nContainer extends WithManagedTracker {
 
 							this.i18nInstance.addResourceBundle(
 								bundle.language,
-								bundle.namespace || i18nOptions.defaultNS,
+								bundle.namespace || DEFAULT_NAMESPACE,
 								i18NextData,
 								true,
 								true
@@ -154,7 +149,7 @@ class I18nContainer extends WithManagedTracker {
 }
 
 const container = new I18nContainer()
-const i18nTranslator: TFunction = (key: any, options?): TFunctionResult => container.i18nTranslator(key, options)
+const i18nTranslator: TFunction = ((key: unknown, ...args: any[]) => container.i18nTranslator(key, ...args)) as any
 
 export { i18nTranslator }
 

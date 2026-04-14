@@ -36,7 +36,7 @@
 	],
 	"dependencies": {
 		"@mos-connection/model": "^5.0.0-alpha.0",
-		"kairos-lib": "^0.2.3",
+		"kairos-lib": "^1.0.0",
 		"timeline-state-resolver-types": "10.0.0-nightly-chore-update-atem-state-20260309-091304-dea89c910.0",
 		"tslib": "^2.8.1",
 		"type-fest": "^4.41.0"

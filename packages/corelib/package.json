@@ -39,7 +39,7 @@
 		"@sofie-automation/blueprints-integration": "26.3.0-2",
 		"@sofie-automation/shared-lib": "26.3.0-2",
 		"fast-clone": "^1.5.13",
-		"i18next": "^21.10.0",
+		"i18next": "^26.0.4",
 		"influx": "^5.12.0",
 		"nanoid": "^3.3.11",
 		"object-path": "^0.11.8",
@@ -47,10 +47,10 @@
 		"timecode": "0.0.4",
 		"tslib": "^2.8.1",
 		"type-fest": "^4.41.0",
-		"underscore": "^1.13.7"
+		"underscore": "^1.13.8"
 	},
 	"peerDependencies": {
-		"mongodb": "^6.12.0"
+		"mongodb": "^7.1.1"
 	},
 	"prettier": "@sofie-automation/code-standard-preset/.prettierrc.json",
 	"packageManager": "yarn@4.12.0"

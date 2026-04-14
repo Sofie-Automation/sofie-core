@@ -101,7 +101,7 @@ interface CurrentNextPartChangedSofieExternalMessage extends SofieExternalMessag
 	}
 }
 
-export const ExternalFramePanel = withTranslation()(
+export const ExternalFramePanel: React.ComponentType<IProps> = withTranslation()(
 	class ExternalFramePanel extends React.Component<Translated<IProps>> {
 		frame: HTMLIFrameElement | null = null
 		mounted = false

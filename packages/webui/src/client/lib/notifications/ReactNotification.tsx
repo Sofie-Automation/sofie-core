@@ -8,10 +8,9 @@ export interface IProps {
 	source?: string
 	actions?: NotificationAction[]
 	rank?: number
-	children?: React.ReactElement<HTMLElement>
 }
 
-export function ReactNotification(props: IProps): JSX.Element | null {
+export function ReactNotification(props: React.PropsWithChildren<IProps>): JSX.Element | null {
 	useEffect(() => {
 		const notificationId = getRandomString()
 		const notification = new Notification(

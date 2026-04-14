@@ -87,13 +87,13 @@ export class MockMongoCollection<TDoc extends { _id: ProtectedString<any> }> imp
 		this.#ops.length = 0
 	}
 
-	async findFetch(selector?: MongoQuery<TDoc>, options?: FindOptions<TDoc>): Promise<TDoc[]> {
+	async findFetch(selector?: MongoQuery<TDoc>, options?: FindOptions): Promise<TDoc[]> {
 		this.#ops.push({ type: 'findFetch', args: [selector, options] })
 
 		return this.findFetchInner(selector, options)
 	}
 
-	private async findFetchInner(selector?: MongoQuery<TDoc>, options?: FindOptions<TDoc>): Promise<TDoc[]> {
+	private async findFetchInner(selector?: MongoQuery<TDoc>, options?: FindOptions): Promise<TDoc[]> {
 		if (typeof selector === 'string') selector = { _id: selector }
 		selector = selector ?? {}
 
@@ -153,7 +153,7 @@ export class MockMongoCollection<TDoc extends { _id: ProtectedString<any> }> imp
 
 		return clone(matchedDocs)
 	}
-	async findOne(selector?: MongoQuery<TDoc> | TDoc['_id'], options?: FindOptions<TDoc>): Promise<TDoc | undefined> {
+	async findOne(selector?: MongoQuery<TDoc> | TDoc['_id'], options?: FindOptions): Promise<TDoc | undefined> {
 		this.#ops.push({ type: 'findOne', args: [selector, options] })
 
 		const docs = await this.findFetchInner(selector, {

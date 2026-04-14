@@ -118,10 +118,10 @@ For support of various languages in the GUI, Sofie uses the _i18next_ framework.
 
 ```bash
 cd meteor
-yarn i18n-extract-pot
+yarn i18n-extract-po
 ```
 
-Find the created `template.pot` file in `meteor/i18n` folder. Create a new PO file based on that template using a PO editor of your choice. Save it in the `meteor/i18n` folder using your [ISO 639-1 language code](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) of choice as the filename.
+Find the created `.po` files in `meteor/i18n` folder. Edit the appropriate PO file using a PO editor of your choice.
 
 Then, run the compilation script:
 
