@@ -1,9 +1,9 @@
 import React from 'react'
 import classNames from 'classnames'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { RundownUtils } from '../../lib/rundown.js'
 import { useTiming } from '../RundownView/RundownTiming/withTiming.js'
 import { getPlaylistTimingDiff } from '../../lib/rundownTiming.js'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/src/dataModel/RundownPlaylist/RundownPlaylist.js'
 
 type OverUnderTimerBaseProps = {
 	/** Optional wrapper around the badge, useful for screens that style via container font-size (eg. director). */
@@ -28,7 +28,9 @@ type OverUnderTimerInnerProps = OverUnderTimerBaseProps & { valueMs: number | un
  * Over/under "pill" timer.
  * Can either take a direct `valueMs` or a `rundownPlaylist` (requires RundownTiming context).
  */
-export function OverUnderTimer(props: Readonly<OverUnderTimerBaseProps & OverUnderTimerValueProps>): JSX.Element | null {
+export function OverUnderTimer(
+	props: Readonly<OverUnderTimerBaseProps & OverUnderTimerValueProps>
+): JSX.Element | null {
 	if ('valueMs' in props) {
 		return <OverUnderTimerInner {...props} valueMs={props.valueMs} />
 	} else {

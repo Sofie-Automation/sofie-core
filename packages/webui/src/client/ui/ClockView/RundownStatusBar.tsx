@@ -1,7 +1,7 @@
 import ClassNames from 'classnames'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { getDefaultTTimer } from '../../lib/tTimerUtils.js'
 import { TTimerDisplay } from './TTimerDisplay.js'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/src/dataModel/RundownPlaylist/RundownPlaylist.js'
 
 interface RundownStatusBarProps {
 	playlist?: DBRundownPlaylist
