@@ -28,7 +28,7 @@ class WrappedCollection<TDoc extends { _id: ProtectedString<any> }> implements I
 		return this.#collection
 	}
 
-	async findFetch(selector: MongoQuery<TDoc>, options?: FindOptions<TDoc>): Promise<Array<TDoc>> {
+	async findFetch(selector: MongoQuery<TDoc>, options?: FindOptions): Promise<Array<TDoc>> {
 		const span = startSpanManual('WrappedCollection.findFetch')
 		if (span) {
 			span.addLabels({
@@ -41,7 +41,7 @@ class WrappedCollection<TDoc extends { _id: ProtectedString<any> }> implements I
 		return res as any
 	}
 
-	async findOne(selector: MongoQuery<TDoc> | TDoc['_id'], options?: FindOptions<TDoc>): Promise<TDoc | undefined> {
+	async findOne(selector: MongoQuery<TDoc> | TDoc['_id'], options?: FindOptions): Promise<TDoc | undefined> {
 		const span = startSpanManual('WrappedCollection.findOne')
 		if (span) {
 			span.addLabels({

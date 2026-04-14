@@ -53,8 +53,8 @@ export interface IReadOnlyCollection<TDoc extends { _id: ProtectedString<any> }>
 
 	readonly rawCollection: MongoCollection<TDoc>
 
-	findFetch(selector?: MongoQuery<TDoc>, options?: FindOptions<TDoc>): Promise<Array<TDoc>>
-	findOne(selector?: MongoQuery<TDoc> | TDoc['_id'], options?: FindOptions<TDoc>): Promise<TDoc | undefined>
+	findFetch(selector?: MongoQuery<TDoc>, options?: FindOptions): Promise<Array<TDoc>>
+	findOne(selector?: MongoQuery<TDoc> | TDoc['_id'], options?: FindOptions): Promise<TDoc | undefined>
 	count(selector?: MongoQuery<TDoc> | TDoc['_id'], options?: CountOptions): Promise<number>
 
 	/**
