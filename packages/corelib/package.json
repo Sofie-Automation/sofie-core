@@ -47,7 +47,7 @@
 		"timecode": "0.0.4",
 		"tslib": "^2.8.1",
 		"type-fest": "^4.41.0",
-		"underscore": "^1.13.7"
+		"underscore": "^1.13.8"
 	},
 	"peerDependencies": {
 		"mongodb": "^6.12.0"
