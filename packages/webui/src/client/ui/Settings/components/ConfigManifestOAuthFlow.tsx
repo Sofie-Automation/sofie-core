@@ -51,7 +51,7 @@ export const ConfigManifestOAuthFlowComponent: React.ComponentType<IConfigManife
 								new Notification(
 									undefined,
 									NoticeLevel.NOTIFICATION,
-									t('OAuth credentials succesfully uploaded.'),
+									t('OAuth credentials successfully uploaded.'),
 									'ConfigManifestOAuthFlowComponent'
 								)
 							)
@@ -81,7 +81,7 @@ export const ConfigManifestOAuthFlowComponent: React.ComponentType<IConfigManife
 							new Notification(
 								undefined,
 								NoticeLevel.NOTIFICATION,
-								t('OAuth credentials successfuly reset'),
+								t('OAuth credentials successfully reset'),
 								'ConfigManifestOAuthFlowComponent'
 							)
 						)
@@ -109,7 +109,7 @@ export const ConfigManifestOAuthFlowComponent: React.ComponentType<IConfigManife
 							new Notification(
 								undefined,
 								NoticeLevel.NOTIFICATION,
-								t('OAuth credentials successfuly reset'),
+								t('OAuth credentials successfully reset'),
 								'ConfigManifestOAuthFlowComponent'
 							)
 						)
