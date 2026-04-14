@@ -7046,7 +7046,7 @@ __metadata:
     type-fest: "npm:^4.41.0"
     underscore: "npm:^1.13.8"
   peerDependencies:
-    mongodb: ^6.12.0
+    mongodb: ^7.1.1
   languageName: unknown
   linkType: soft
 
@@ -7120,7 +7120,7 @@ __metadata:
     underscore: "npm:^1.13.8"
   peerDependencies:
     i18next: ^21.10.0
-    mongodb: ^6.12.0
+    mongodb: ^7.1.1
   languageName: unknown
   linkType: soft
 
