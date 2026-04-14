@@ -50,6 +50,8 @@ export function RundownHeader({
 	const timingDurations = useTiming()
 	const [isMenuOpen, setIsMenuOpen] = useState(false)
 	const [isContextMenuOpen, setIsContextMenuOpen] = useState(false)
+	// User's explicit toggle preference; defaults to true (show simplified)
+	const [userPrefersSimplified, setUserPrefersSimplified] = useState(true)
 
 	const expectedStart = PlaylistTiming.getExpectedStart(playlist.timing)
 	const expectedEnd = PlaylistTiming.getExpectedEnd(playlist.timing)
@@ -74,14 +76,14 @@ export function RundownHeader({
 		fallbackDuration
 	)
 
-	// Initialize simplified mode based on what modes are actually available
-	// If only simple has data, start in simple mode; otherwise prefer simple if both are available
-	const [simplified, setSimplified] = useState(() => hasSimple && !hasAdvanced)
-
 	const canToggle = hasSimple && hasAdvanced
+
+	// When toggling is available, respect the user's preference; otherwise show whichever mode has data
+	const simplified = canToggle ? userPrefersSimplified : hasSimple
+
 	const toggleSimplified = useCallback(() => {
 		if (canToggle) {
-			setSimplified((s) => !s)
+			setUserPrefersSimplified((s) => !s)
 		}
 	}, [canToggle])
 
