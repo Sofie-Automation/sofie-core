@@ -15,6 +15,10 @@ describe('Playlists REST API Routes', () => {
 			tTimerPause: jest.fn().mockResolvedValue(ClientAPI.responseSuccess(undefined)),
 			tTimerResume: jest.fn().mockResolvedValue(ClientAPI.responseSuccess(undefined)),
 			tTimerRestart: jest.fn().mockResolvedValue(ClientAPI.responseSuccess(undefined)),
+			tTimerClearProjected: jest.fn().mockResolvedValue(ClientAPI.responseSuccess(undefined)),
+			tTimerSetProjectedAnchorPart: jest.fn().mockResolvedValue(ClientAPI.responseSuccess(undefined)),
+			tTimerSetProjectedTime: jest.fn().mockResolvedValue(ClientAPI.responseSuccess(undefined)),
+			tTimerSetProjectedDuration: jest.fn().mockResolvedValue(ClientAPI.responseSuccess(undefined)),
 		} as any
 
 		registerRoutes(mockRegisterRoute)
@@ -103,5 +107,122 @@ describe('Playlists REST API Routes', () => {
 		await handler(mockServerAPI, connection, event, params, {})
 
 		expect(mockServerAPI.tTimerPause).toHaveBeenCalledWith(connection, event, protectString('playlist0'), 2)
+	})
+
+	test('T-timer projected clear handler should accept playlist externalId', async () => {
+		const route = mockRegisterRoute.mock.calls.find(
+			(call) => call[1] === '/playlists/:playlistId/t-timers/:timerIndex/projected/clear'
+		)
+		expect(route).toBeDefined()
+		const handler = route[4]
+
+		const params = { playlistId: 'playlistExternalId', timerIndex: '1' }
+		const connection = {} as any
+		const event = 'test-event'
+
+		await handler(mockServerAPI, connection, event, params, {})
+
+		expect(mockServerAPI.tTimerClearProjected).toHaveBeenCalledWith(
+			connection,
+			event,
+			protectString('playlistExternalId'),
+			1
+		)
+	})
+
+	test('T-timer projected anchor-part handler should accept playlist externalId', async () => {
+		const route = mockRegisterRoute.mock.calls.find(
+			(call) => call[1] === '/playlists/:playlistId/t-timers/:timerIndex/projected/anchor-part'
+		)
+		expect(route).toBeDefined()
+		const handler = route[4]
+
+		const params = { playlistId: 'playlistExternalId', timerIndex: '2' }
+		const body = { externalId: 'partExternalId' }
+		const connection = {} as any
+		const event = 'test-event'
+
+		await handler(mockServerAPI, connection, event, params, body)
+
+		expect(mockServerAPI.tTimerSetProjectedAnchorPart).toHaveBeenCalledWith(
+			connection,
+			event,
+			protectString('playlistExternalId'),
+			2,
+			undefined,
+			'partExternalId'
+		)
+	})
+
+	test('T-timer projected anchor-part handler should accept partId', async () => {
+		const route = mockRegisterRoute.mock.calls.find(
+			(call) => call[1] === '/playlists/:playlistId/t-timers/:timerIndex/projected/anchor-part'
+		)
+		expect(route).toBeDefined()
+		const handler = route[4]
+
+		const params = { playlistId: 'playlistExternalId', timerIndex: '2' }
+		const body = { partId: 'partInternalId' }
+		const connection = {} as any
+		const event = 'test-event'
+
+		await handler(mockServerAPI, connection, event, params, body)
+
+		expect(mockServerAPI.tTimerSetProjectedAnchorPart).toHaveBeenCalledWith(
+			connection,
+			event,
+			protectString('playlistExternalId'),
+			2,
+			protectString('partInternalId'),
+			undefined
+		)
+	})
+
+	test('T-timer projected time handler should accept playlist externalId', async () => {
+		const route = mockRegisterRoute.mock.calls.find(
+			(call) => call[1] === '/playlists/:playlistId/t-timers/:timerIndex/projected/time'
+		)
+		expect(route).toBeDefined()
+		const handler = route[4]
+
+		const params = { playlistId: 'playlistExternalId', timerIndex: '3' }
+		const body = { time: 1707024000000, paused: false }
+		const connection = {} as any
+		const event = 'test-event'
+
+		await handler(mockServerAPI, connection, event, params, body)
+
+		expect(mockServerAPI.tTimerSetProjectedTime).toHaveBeenCalledWith(
+			connection,
+			event,
+			protectString('playlistExternalId'),
+			3,
+			1707024000000,
+			false
+		)
+	})
+
+	test('T-timer projected duration handler should accept playlist externalId', async () => {
+		const route = mockRegisterRoute.mock.calls.find(
+			(call) => call[1] === '/playlists/:playlistId/t-timers/:timerIndex/projected/duration'
+		)
+		expect(route).toBeDefined()
+		const handler = route[4]
+
+		const params = { playlistId: 'playlistExternalId', timerIndex: '1' }
+		const body = { duration: 60000, paused: true }
+		const connection = {} as any
+		const event = 'test-event'
+
+		await handler(mockServerAPI, connection, event, params, body)
+
+		expect(mockServerAPI.tTimerSetProjectedDuration).toHaveBeenCalledWith(
+			connection,
+			event,
+			protectString('playlistExternalId'),
+			1,
+			60000,
+			true
+		)
 	})
 })
