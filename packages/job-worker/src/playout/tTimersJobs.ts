@@ -1,4 +1,5 @@
 import {
+	TTimerPropsBase,
 	TTimerClearProjectedProps,
 	TTimerPauseProps,
 	TTimerRestartProps,
@@ -11,21 +12,23 @@ import {
 } from '@sofie-automation/corelib/dist/worker/studio'
 import { JobContext } from '../jobs/index.js'
 import { runWithPlayoutModel, runWithPlaylistLock } from './lock.js'
-import {
-	createCountdownTTimer,
-	createFreeRunTTimer,
-	pauseTTimer,
-	recalculateTTimerProjections,
-	restartTTimer,
-	resumeTTimer,
-	validateTTimerIndex,
-} from './tTimers.js'
+import { recalculateTTimerProjections } from './tTimers.js'
 import { runJobWithPlayoutModel } from './lock.js'
-import type { TimerState } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { literal } from '@sofie-automation/corelib/dist/lib'
-import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import type { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { getCurrentTime } from '../lib/index.js'
+import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
+import { PlaylistTTimerImpl, TTimersService } from '../blueprints/context/services/TTimersService.js'
+import type { PlayoutModel } from './model/PlayoutModel.js'
+
+async function runTTimerJob(
+	context: JobContext,
+	data: TTimerPropsBase,
+	fcn: (playoutModel: PlayoutModel, timer: PlaylistTTimerImpl) => Promise<void> | void
+): Promise<void> {
+	return runJobWithPlayoutModel(context, data, null, async (playoutModel) => {
+		const timersService = TTimersService.withPlayoutModel(playoutModel, context)
+		const timer = timersService.getTimer(data.timerIndex) as PlaylistTTimerImpl
+		return fcn(playoutModel, timer)
+	})
+}
 
 /**
  * Handle RecalculateTTimerProjections job
@@ -68,102 +71,52 @@ export async function handleRecalculateTTimerProjections(context: JobContext): P
 	}
 }
 
-export async function handleTTimerStartCountdown(_context: JobContext, data: TTimerStartCountdownProps): Promise<void> {
-	return runJobWithPlayoutModel(_context, data, null, async (playoutModel) => {
-		validateTTimerIndex(data.timerIndex)
-
-		const currentTimer = playoutModel.playlist.tTimers[data.timerIndex - 1]
-		playoutModel.updateTTimer({
-			...currentTimer,
-			...createCountdownTTimer(data.duration * 1000, {
-				stopAtZero: data.stopAtZero,
-				startPaused: data.startPaused,
-			}),
+export async function handleTTimerStartCountdown(context: JobContext, data: TTimerStartCountdownProps): Promise<void> {
+	return runTTimerJob(context, data, async (_playoutModel, timer) => {
+		timer.startCountdown(data.duration * 1000, {
+			stopAtZero: data.stopAtZero,
+			startPaused: data.startPaused,
 		})
 	})
 }
 
-export async function handleTTimerStartFreeRun(_context: JobContext, data: TTimerStartFreeRunProps): Promise<void> {
-	return runJobWithPlayoutModel(_context, data, null, async (playoutModel) => {
-		validateTTimerIndex(data.timerIndex)
-
-		const currentTimer = playoutModel.playlist.tTimers[data.timerIndex - 1]
-		playoutModel.updateTTimer({
-			...currentTimer,
-			...createFreeRunTTimer({
-				startPaused: data.startPaused,
-			}),
+export async function handleTTimerStartFreeRun(context: JobContext, data: TTimerStartFreeRunProps): Promise<void> {
+	return runTTimerJob(context, data, async (_playoutModel, timer) => {
+		timer.startFreeRun({
+			startPaused: data.startPaused,
 		})
 	})
 }
 
 export async function handleTTimerPause(_context: JobContext, data: TTimerPauseProps): Promise<void> {
-	return runJobWithPlayoutModel(_context, data, null, async (playoutModel) => {
-		validateTTimerIndex(data.timerIndex)
-
-		const timerIndex = data.timerIndex - 1
-		const currentTimer = playoutModel.playlist.tTimers[timerIndex]
-		if (!currentTimer.mode) return
-
-		const updatedTimer = pauseTTimer(currentTimer)
-		if (updatedTimer) {
-			playoutModel.updateTTimer(updatedTimer)
-		}
+	return runTTimerJob(_context, data, async (_playoutModel, timer) => {
+		timer.pause()
 	})
 }
 
-export async function handleTTimerResume(_context: JobContext, data: TTimerResumeProps): Promise<void> {
-	return runJobWithPlayoutModel(_context, data, null, async (playoutModel) => {
-		validateTTimerIndex(data.timerIndex)
-
-		const timerIndex = data.timerIndex - 1
-		const currentTimer = playoutModel.playlist.tTimers[timerIndex]
-		if (!currentTimer.mode) return
-
-		const updatedTimer = resumeTTimer(currentTimer)
-		if (updatedTimer) {
-			playoutModel.updateTTimer(updatedTimer)
-		}
+export async function handleTTimerResume(context: JobContext, data: TTimerResumeProps): Promise<void> {
+	return runTTimerJob(context, data, async (_playoutModel, timer) => {
+		timer.resume()
 	})
 }
 
-export async function handleTTimerRestart(_context: JobContext, data: TTimerRestartProps): Promise<void> {
-	return runJobWithPlayoutModel(_context, data, null, async (playoutModel) => {
-		validateTTimerIndex(data.timerIndex)
-
-		const timerIndex = data.timerIndex - 1
-		const currentTimer = playoutModel.playlist.tTimers[timerIndex]
-		if (!currentTimer.mode) return
-
-		const updatedTimer = restartTTimer(currentTimer)
-		if (updatedTimer) {
-			playoutModel.updateTTimer(updatedTimer)
-		}
+export async function handleTTimerRestart(context: JobContext, data: TTimerRestartProps): Promise<void> {
+	return runTTimerJob(context, data, async (_playoutModel, timer) => {
+		timer.restart()
 	})
 }
 
-export async function handleTTimerClearProjected(_context: JobContext, data: TTimerClearProjectedProps): Promise<void> {
-	return runJobWithPlayoutModel(_context, data, null, async (playoutModel) => {
-		validateTTimerIndex(data.timerIndex)
-
-		const currentTimer = playoutModel.playlist.tTimers[data.timerIndex - 1]
-		playoutModel.updateTTimer({
-			...currentTimer,
-			anchorPartId: undefined,
-			projectedState: undefined,
-		})
+export async function handleTTimerClearProjected(context: JobContext, data: TTimerClearProjectedProps): Promise<void> {
+	return runTTimerJob(context, data, async (_playoutModel, timer) => {
+		timer.clearProjected()
 	})
 }
 
 export async function handleTTimerSetProjectedAnchorPart(
-	_context: JobContext,
+	context: JobContext,
 	data: TTimerSetProjectedAnchorPartProps
 ): Promise<void> {
-	return runJobWithPlayoutModel(_context, data, null, async (playoutModel) => {
-		validateTTimerIndex(data.timerIndex)
-
-		const currentTimer = playoutModel.playlist.tTimers[data.timerIndex - 1]
-
+	return runTTimerJob(context, data, async (playoutModel, timer) => {
 		const providedPartId = data.partId ? unprotectString(data.partId) : undefined
 
 		const part =
@@ -173,57 +126,29 @@ export async function handleTTimerSetProjectedAnchorPart(
 			(providedPartId
 				? playoutModel
 						.getAllOrderedParts()
-						.find((p) => p._id === protectString<PartId>(providedPartId) || p.externalId === providedPartId)
+						.find((p) => unprotectString(p._id) === providedPartId || p.externalId === providedPartId)
 				: undefined)
 
 		if (!part) return
 
-		playoutModel.updateTTimer({
-			...currentTimer,
-			anchorPartId: part._id,
-			projectedState: undefined, // Clear manual projection
-		})
-
-		recalculateTTimerProjections(_context, playoutModel)
+		timer.setProjectedAnchorPart(unprotectString(part._id))
 	})
 }
 
 export async function handleTTimerSetProjectedTime(
-	_context: JobContext,
+	context: JobContext,
 	data: TTimerSetProjectedTimeProps
 ): Promise<void> {
-	return runJobWithPlayoutModel(_context, data, null, async (playoutModel) => {
-		validateTTimerIndex(data.timerIndex)
-
-		const projectedState: TimerState = data.paused
-			? literal<TimerState>({ paused: true, duration: data.time - getCurrentTime() })
-			: literal<TimerState>({ paused: false, zeroTime: data.time })
-
-		const currentTimer = playoutModel.playlist.tTimers[data.timerIndex - 1]
-		playoutModel.updateTTimer({
-			...currentTimer,
-			anchorPartId: undefined, // Clear automatic anchor
-			projectedState,
-		})
+	return runTTimerJob(context, data, async (_playoutModel, timer) => {
+		timer.setProjectedTime(data.time, data.paused)
 	})
 }
 
 export async function handleTTimerSetProjectedDuration(
-	_context: JobContext,
+	context: JobContext,
 	data: TTimerSetProjectedDurationProps
 ): Promise<void> {
-	return runJobWithPlayoutModel(_context, data, null, async (playoutModel) => {
-		validateTTimerIndex(data.timerIndex)
-
-		const projectedState: TimerState = data.paused
-			? literal<TimerState>({ paused: true, duration: data.duration })
-			: literal<TimerState>({ paused: false, zeroTime: getCurrentTime() + data.duration })
-
-		const currentTimer = playoutModel.playlist.tTimers[data.timerIndex - 1]
-		playoutModel.updateTTimer({
-			...currentTimer,
-			anchorPartId: undefined, // Clear automatic anchor
-			projectedState,
-		})
+	return runTTimerJob(context, data, async (_playoutModel, timer) => {
+		timer.setProjectedDuration(data.duration, data.paused)
 	})
 }
