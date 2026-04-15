@@ -75,7 +75,6 @@ paths:
     $ref: 'definitions/playlists.yaml#/resources/sourceLayer/sticky'
   /playlists/{playlistId}/t-timers/{timerIndex}/countdown:
     $ref: 'definitions/playlists.yaml#/resources/tTimerCountdown'
-
   /playlists/{playlistId}/t-timers/{timerIndex}/free-run:
     $ref: 'definitions/playlists.yaml#/resources/tTimerFreeRun'
   /playlists/{playlistId}/t-timers/{timerIndex}/pause:
