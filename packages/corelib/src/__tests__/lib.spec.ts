@@ -146,7 +146,7 @@ describe('Lib', () => {
 			errorCode: 42,
 			key: UserErrorMessage.ValidationFailed,
 			userMessage: {
-				key: 'Validation failed!',
+				key: 'Validation failed! {{message}}',
 				args: {},
 			},
 			rawError: {

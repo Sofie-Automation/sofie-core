@@ -14,7 +14,7 @@ import { PlayoutModel, PlayoutModelPreInit } from './model/PlayoutModel.js'
 import { runJobWithPlaylistLock } from './lock.js'
 import { updateTimeline } from './timeline/generate.js'
 import { performTakeToNextedPart } from './take.js'
-import { ActionUserData } from '@sofie-automation/blueprints-integration'
+import { ActionUserData, BlueprintExecuteActionResult } from '@sofie-automation/blueprints-integration'
 import { DBRundownPlaylist, SelectedPartInstance } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { logger } from '../logging.js'
 import {
@@ -35,6 +35,7 @@ import type { INoteBase } from '@sofie-automation/corelib/dist/dataModel/Notes'
 import { NotificationsModelHelper } from '../notifications/NotificationsModelHelper.js'
 import type { INotificationsModel } from '../notifications/NotificationsModel.js'
 import { PersistentPlayoutStateStore } from '../blueprints/context/services/PersistantStateStore.js'
+import { interpollateTranslation } from '@sofie-automation/corelib/dist/TranslatableMessage'
 
 /**
  * Execute an AdLib Action
@@ -246,7 +247,7 @@ export async function executeActionInner(
 		)} (${actionParameters.triggerMode})`
 	)
 
-	let result: ExecuteActionResult | void
+	let result: BlueprintExecuteActionResult | void
 
 	try {
 		const blueprintPersistentState = new PersistentPlayoutStateStore(
@@ -271,14 +272,14 @@ export async function executeActionInner(
 		throw UserError.fromUnknown(err)
 	}
 
-	if (result && result.validationErrors) {
+	// If the blueprint returned an error, abort the action and throw the error
+	if (result && typeof result === 'object' && result.message) {
+		const messageStr = interpollateTranslation(result.message.key, result.message.args)
 		throw UserError.from(
-			new Error(
-				`AdLib Action "${actionParameters.actionId}" validation failed: ${JSON.stringify(result.validationErrors)}`
-			),
+			new Error(`${messageStr}`),
 			UserErrorMessage.ValidationFailed,
-			undefined,
-			409
+			{ message: messageStr, rawMessage: result.message, details: result.details },
+			typeof result.errorCode === 'number' ? Math.max(Math.min(Math.round(result.errorCode), 499), 400) : 409
 		)
 	}
 
