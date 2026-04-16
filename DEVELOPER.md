@@ -30,7 +30,13 @@ Follow these instructions to start up Sofie Core in development mode. (For produ
 git clone -b main https://github.com/Sofie-Automation/sofie-core.git
 cd sofie-core
 yarn
-yarn start
+yarn dev # Install and build all packages, then start in dev mode with file watching
+
+# Or
+
+yarn
+yarn build # Install and build all packages
+yarn start # Start Sofie Core (no file watching)
 ```
 
 > 💡 First startup may take a while, especially on Windows. To speed things up, consider adding `%LOCALAPPDATA%\.meteor` and the directory where you cloned `server-core` to your Windows Defender virus protection exclusions.
@@ -60,22 +66,23 @@ The Sofie ui (served by Vite) can be accessed at `http://localhost:3005`. The me
 4. Start development mode
 
    ```bash
-   yarn dev
+   yarn dev # Install and build all packages, then start in dev mode with file watching
    ```
 
 5. In another window, start the playout-gateway. You will need to manually restart this upon making changes
 
    ```bash
    cd sofie-core/packages/playout-gateway
-   yarn buildstart
+   yarn build # If needed
+   yarn start
    ```
 
 ### Lowering memory, CPU footprint in development
 
-If you find yourself in a situation where running Sofie in development mode is too heavy, but you're not planning on modifying any of the low-level packages in the `packages` directory, you may want to run Sofie in the _UI-only mode_, in which only meteor and the ui will be rebuilt and type-checked on modification:
+If you find yourself in a situation where running Sofie in development mode is too heavy, but you're not planning on modifying any of the low-level packages in the `packages` directory, you may want to run Sofie without file watching and type-checking.
 
 ```bash
-yarn dev --ui-only
+yarn start # Start Sofie Core (no file watching, requires a `yarn build` first)
 ```
 
 ### Dealing with Strange Errors
@@ -84,7 +91,7 @@ If you get any strange errors (such as the application crashing, "Unable to reso
 
 ```bash
 yarn reset # Removes all installed dependencies and build artifacts
-yarn start # Set up, install and run in dev mode
+yarn dev # Set up, install and run in dev mode
 ```
 
 ## Editing the Code
