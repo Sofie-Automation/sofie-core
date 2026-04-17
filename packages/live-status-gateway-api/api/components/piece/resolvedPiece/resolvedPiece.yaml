@@ -1,0 +1,52 @@
+$defs:
+  resolvedPiece:
+    type: object
+    title: ResolvedPiece
+    description: A piece within a resolved part
+    properties:
+      id:
+        type: string
+        description: Unique id of the piece
+      instanceId:
+        type: string
+        description: Unique id of the piece instance
+      externalId:
+        type: string
+        description: Id normally sourced from the ingest system
+      name:
+        type: string
+        description: User-facing name of the piece
+      priority:
+        type: number
+        description: Priority of the piece
+      sourceLayerId:
+        type: string
+        description: Id of the source layer for this piece
+      outputLayerId:
+        type: string
+        description: Id of the output layer for this piece
+      createdByAdLib:
+        type: boolean
+        description: Whether this piece was created by an adlib
+      invalid:
+        type: boolean
+        description: Whether this piece is invalid and should be ignored
+      publicData:
+        description: Optional arbitrary data
+      timing:
+        $ref: '../../timing/resolvedPieceTiming/resolvedPieceTiming.yaml#/$defs/resolvedPieceTiming'
+      tags:
+        description: Optional tags attached to this piece
+        type: array
+        items:
+          type: string
+      abSessions:
+        description: Optional AB playback session assignments for this piece
+        type: array
+        items:
+          $ref: '../pieceStatus/abSessionAssignment.yaml'
+    required:
+      [id, instanceId, externalId, name, priority, sourceLayerId, outputLayerId, createdByAdLib, invalid, timing]
+    additionalProperties: false
+    examples:
+      - $ref: './resolvedPiece-example.yaml'

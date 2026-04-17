@@ -1,0 +1,32 @@
+$defs:
+  resolvedRundown:
+    type: object
+    title: ResolvedRundown
+    description: A rundown within a resolved playlist
+    properties:
+      id:
+        type: string
+        description: Unique id of the rundown
+      externalId:
+        type: string
+        description: Id normally sourced from the ingest system
+      name:
+        type: string
+        description: User-presentable name of the rundown
+      rank:
+        type: number
+        description: Rank for ordering
+      description:
+        type: string
+        description: Optional description
+      publicData:
+        description: Optional arbitrary data
+      segments:
+        description: Segments in this rundown
+        type: array
+        items:
+          $ref: '../../segment/resolvedSegment/resolvedSegment.yaml#/$defs/resolvedSegment'
+    required: [id, externalId, name, rank, segments]
+    additionalProperties: false
+    examples:
+      - $ref: './resolvedRundown-example.yaml'

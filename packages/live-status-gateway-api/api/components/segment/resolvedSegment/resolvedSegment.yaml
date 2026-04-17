@@ -1,0 +1,47 @@
+$defs:
+  resolvedSegment:
+    title: ResolvedSegment
+    description: A segment within a resolved rundown
+    allOf:
+      - $ref: '../segmentBase/segmentBase.yaml#/$defs/segmentBase'
+      - type: object
+        title: ResolvedSegment
+        description: A segment within a resolved rundown
+        properties:
+          externalId:
+            type: string
+            description: Id normally sourced from the ingest system
+          identifier:
+            type: string
+            description: User-facing identifier from the source system
+          name:
+            type: string
+            description: Name of the segment
+          rank:
+            type: number
+            description: Rank for ordering
+          isHidden:
+            type: boolean
+            description: Whether the segment is hidden
+          sourceLayers:
+            description: Source layers used in this segment
+            type: array
+            items:
+              $ref: '../../layers/sourceLayer/sourceLayer.yaml#/$defs/sourceLayer'
+          outputLayers:
+            description: Output layers used in this segment
+            type: array
+            items:
+              $ref: '../../layers/outputLayer/outputLayer.yaml#/$defs/outputLayer'
+          publicData:
+            description: Optional arbitrary data
+          timing:
+            $ref: '../../timing/resolvedSegmentTiming/resolvedSegmentTiming.yaml#/$defs/resolvedSegmentTiming'
+          parts:
+            description: Parts in this segment
+            type: array
+            items:
+              $ref: '../../part/resolvedPart/resolvedPart.yaml#/$defs/resolvedPart'
+        required: [externalId, identifier, name, rank, isHidden, sourceLayers, outputLayers, timing, parts]
+    examples:
+      - $ref: './resolvedSegment-example.yaml'

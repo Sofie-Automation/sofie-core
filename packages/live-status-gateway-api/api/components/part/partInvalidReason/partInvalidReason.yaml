@@ -1,0 +1,19 @@
+$defs:
+  partInvalidReason:
+    title: PartInvalidReason
+    description: Explanation for why a part is invalid
+    type: object
+    properties:
+      message:
+        type: string
+        description: Human-readable message explaining why the part is invalid
+      severity:
+        description: Severity hint for displaying the invalid reason
+        $ref: '../../notifications/notificationSeverity.yaml#/$defs/severity'
+      color:
+        description: Optional UI color hint
+        type: string
+    required: [message]
+    additionalProperties: false
+    examples:
+      - $ref: './partInvalidReason-example.yaml'

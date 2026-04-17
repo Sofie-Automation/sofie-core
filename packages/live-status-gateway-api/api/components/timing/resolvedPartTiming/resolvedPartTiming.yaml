@@ -1,0 +1,31 @@
+$defs:
+  resolvedPartTiming:
+    type: object
+    title: ResolvedPartTiming
+    description: Timing information about the part, relative to the start of the segment
+    properties:
+      startMs:
+        description: Start offset of the part (ms) from the beginning of the segment
+        type: number
+      durationMs:
+        description: Resolved duration of the part (ms)
+        type: number
+      plannedStartedPlayback:
+        description: Unix timestamp (ms) when the part was planned to start playback
+        type: number
+      reportedStartedPlayback:
+        description: Unix timestamp (ms) when the part was reported as started playback
+        type: number
+      playOffset:
+        description: Playback offset relative to planned start (ms)
+        type: number
+      setAsNext:
+        description: Unix timestamp (ms) when the part was set as next
+        type: number
+      take:
+        description: Unix timestamp (ms) when the part was taken
+        type: number
+    required: [startMs, durationMs]
+    additionalProperties: false
+    examples:
+      - $ref: './resolvedPartTiming-example.yaml'
