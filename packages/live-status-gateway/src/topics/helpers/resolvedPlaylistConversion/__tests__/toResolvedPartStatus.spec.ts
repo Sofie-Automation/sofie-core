@@ -1,5 +1,6 @@
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { ResolvedPartState } from '@sofie-automation/live-status-gateway-api'
+import { NoteSeverity } from '@sofie-automation/blueprints-integration'
 import { toResolvedPartStatus } from '../parts/toResolvedPartStatus.js'
 import {
 	makePartInstance,
@@ -32,6 +33,15 @@ describe('toResolvedPartStatus', () => {
 			instance: {
 				...makePartInstance('current_pi', 'part0', 'segment0', 'rundown0'),
 				orphaned: 'adlib-part',
+				part: {
+					...makePartInstance('current_pi', 'part0', 'segment0', 'rundown0').part,
+					invalid: true,
+					invalidReason: {
+						message: { key: 'Invalid {{foo}}', args: { foo: 'bar' }, namespaces: ['blueprint_test'] },
+						severity: NoteSeverity.WARNING,
+						color: '#ff0000',
+					},
+				},
 			},
 			startsAt: 1000,
 			renderedDuration: 2000,
@@ -43,6 +53,12 @@ describe('toResolvedPartStatus', () => {
 		expect(result.createdByAdLib).toBe(true)
 		expect(result.id).toBe('part0')
 		expect(result.instanceId).toBe('current_pi')
+		expect(result.invalid).toBe(true)
+		expect(result.invalidReason).toMatchObject({
+			message: 'Invalid bar',
+			severity: 'warning',
+			color: '#ff0000',
+		})
 		expect(result.timing).toMatchObject({
 			startMs: 1000,
 			durationMs: 2000,
@@ -77,6 +93,8 @@ describe('toResolvedPartStatus', () => {
 
 		const result = toResolvedPartStatus(ctx, partExtended)
 		expect(result.state).toBe(ResolvedPartState.NEXT)
+		expect(result.invalid).toBe(false)
+		expect(result.invalidReason).toBeUndefined()
 		expect(result.timing.startMs).toBe(0)
 		expect(result.timing.durationMs).toBe(0)
 		expect(result.pieces).toEqual([])

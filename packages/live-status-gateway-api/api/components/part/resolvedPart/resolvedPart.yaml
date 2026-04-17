@@ -24,6 +24,12 @@ $defs:
           rank:
             type: number
             description: Rank for ordering
+          invalid:
+            type: boolean
+            description: Whether this part is invalid and should not be taken
+          invalidReason:
+            description: Optional explanation for why the part is invalid
+            $ref: '../partInvalidReason/partInvalidReason.yaml#/$defs/partInvalidReason'
           state:
             description: Set only for the current or next part
             $ref: '#/$defs/resolvedPartState'
@@ -39,6 +45,6 @@ $defs:
             type: array
             items:
               $ref: '../../piece/resolvedPiece/resolvedPiece.yaml#/$defs/resolvedPiece'
-        required: [instanceId, externalId, rank, createdByAdLib, timing, pieces]
+        required: [instanceId, externalId, rank, createdByAdLib, timing, pieces, invalid]
     examples:
       - $ref: './resolvedPart-example.yaml'

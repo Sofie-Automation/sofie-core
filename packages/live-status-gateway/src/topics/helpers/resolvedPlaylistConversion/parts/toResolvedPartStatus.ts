@@ -2,7 +2,10 @@ import { toResolvedPieceStatus } from '../pieces/toResolvedPieceStatus.js'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { ResolvedPlaylistConversionContext } from '../context/conversionContext.js'
 import type { PartExtended } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { ResolvedPart, ResolvedPartState } from '@sofie-automation/live-status-gateway-api'
+import type { PartInvalidReason as CorePartInvalidReason } from '@sofie-automation/corelib/dist/dataModel/Part'
+import { PartInvalidReason, ResolvedPart, ResolvedPartState } from '@sofie-automation/live-status-gateway-api'
+import { interpollateTranslation } from '@sofie-automation/corelib/dist/TranslatableMessage'
+import { toNotificationSeverity } from '../../notification/toNotificationStatus.js'
 
 /** Converts a resolved `PartExtended` model into the gateway API `ResolvedPart` shape. */
 export function toResolvedPartStatus(ctx: ResolvedPlaylistConversionContext, partExtended: PartExtended): ResolvedPart {
@@ -32,6 +35,8 @@ export function toResolvedPartStatus(ctx: ResolvedPlaylistConversionContext, par
 		name: basePart.title ?? '',
 		rank: basePart._rank ?? 0,
 		autoNext: !!basePart.autoNext,
+		invalid: !!basePart.invalid,
+		invalidReason: basePart.invalidReason ? toApiPartInvalidReason(basePart.invalidReason) : undefined,
 		state,
 		publicData: basePart.publicData,
 		timing: {
@@ -44,5 +49,15 @@ export function toResolvedPartStatus(ctx: ResolvedPlaylistConversionContext, par
 			take: timings.take ?? 0,
 		},
 		pieces: part.pieces?.map((piece) => toResolvedPieceStatus(piece)) ?? [],
+	}
+}
+
+function toApiPartInvalidReason(invalidReason: CorePartInvalidReason): PartInvalidReason {
+	const msg = invalidReason.message
+
+	return {
+		message: interpollateTranslation(msg.key, msg.args ?? {}),
+		severity: invalidReason.severity ? toNotificationSeverity(invalidReason.severity) : undefined,
+		color: invalidReason.color,
 	}
 }

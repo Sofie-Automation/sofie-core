@@ -401,7 +401,7 @@ channels:
                                 pieces:
                                   description: All pieces in this part
                                   type: array
-                                  items: &a51
+                                  items: &a52
                                     type: object
                                     title: PieceStatus
                                     properties:
@@ -557,7 +557,7 @@ channels:
                               title: CurrentSegmentTiming
                               description: Timing information about the current segment
                               allOf:
-                                - &a53
+                                - &a54
                                   type: object
                                   title: SegmentTiming
                                   properties:
@@ -832,11 +832,11 @@ channels:
                                     targetRaw: 14:30
                                     stopAtZero: false
                             examples:
-                              - &a46
+                              - &a47
                                 type: countdown
                                 duration: 120000
                                 stopAtZero: true
-                              - &a48
+                              - &a49
                                 type: freeRun
                               - type: timeOfDay
                                 targetRaw: 14:30
@@ -910,7 +910,7 @@ channels:
                                     duration: 45000
                                     pauseTime: null
                             examples:
-                              - &a47
+                              - &a48
                                 paused: false
                                 zeroTime: 1706371920000
                                 pauseTime: 1706371900000
@@ -1104,7 +1104,7 @@ channels:
                         - endMs
                       additionalProperties: false
                       examples:
-                        - &a45
+                        - &a46
                           type: forward
                           startMs: 1706371800000
                           durationMs: 1800000
@@ -1207,7 +1207,7 @@ channels:
                                           - rank
                                         additionalProperties: false
                                         examples:
-                                          - &a40
+                                          - &a41
                                             id: sl_camera
                                             name: Camera
                                             abbreviation: CAM
@@ -1247,7 +1247,7 @@ channels:
                                           - sourceLayerIds
                                         additionalProperties: false
                                         examples:
-                                          - &a41
+                                          - &a42
                                             id: ol_pgm
                                             name: PGM
                                             isFlattened: false
@@ -1278,7 +1278,7 @@ channels:
                                         - budgetDurationMs
                                       additionalProperties: false
                                       examples:
-                                        - &a42
+                                        - &a43
                                           startMs: 0
                                           endMs: 120000
                                           budgetDurationMs: 120000
@@ -1303,6 +1303,36 @@ channels:
                                               rank:
                                                 type: number
                                                 description: Rank for ordering
+                                              invalid:
+                                                type: boolean
+                                                description: Whether this part is invalid and should not be taken
+                                              invalidReason:
+                                                description: Optional explanation for why the part is invalid
+                                                title: PartInvalidReason
+                                                type: object
+                                                properties:
+                                                  message:
+                                                    type: string
+                                                    description: Human-readable message explaining why the part is invalid
+                                                  severity:
+                                                    description: Severity hint for displaying the invalid reason
+                                                    type: string
+                                                    title: NotificationSeverity
+                                                    enum: &a69
+                                                      - warning
+                                                      - error
+                                                      - info
+                                                  color:
+                                                    description: Optional UI color hint
+                                                    type: string
+                                                required:
+                                                  - message
+                                                additionalProperties: false
+                                                examples:
+                                                  - &a38
+                                                    message: Invalid clip reference
+                                                    severity: warning
+                                                    color: "#ff0000"
                                               state:
                                                 description: Set only for the current or next part
                                                 title: ResolvedPartState
@@ -1347,7 +1377,7 @@ channels:
                                                   - durationMs
                                                 additionalProperties: false
                                                 examples:
-                                                  - &a38
+                                                  - &a39
                                                     startMs: 0
                                                     durationMs: 15000
                                                     plannedStartedPlayback: 1706371805000
@@ -1431,7 +1461,7 @@ channels:
                                                     - timing
                                                   additionalProperties: false
                                                   examples:
-                                                    - &a39
+                                                    - &a40
                                                       id: piece_1
                                                       instanceId: pieceInstance_1
                                                       externalId: ext_piece_1
@@ -1454,18 +1484,21 @@ channels:
                                               - createdByAdLib
                                               - timing
                                               - pieces
+                                              - invalid
                                         examples:
-                                          - &a43
+                                          - &a44
                                             instanceId: partInstance_current_1
                                             externalId: ext_part_1
                                             rank: 10
+                                            invalid: false
+                                            invalidReason: *a38
                                             state: current
                                             createdByAdLib: false
                                             publicData:
                                               partType: intro
-                                            timing: *a38
+                                            timing: *a39
                                             pieces:
-                                              - *a39
+                                              - *a40
                                             id: H5CBGYjThrMSmaYvRaa5FVKJIzk_
                                             name: Intro
                                             autoNext: false
@@ -1480,21 +1513,21 @@ channels:
                                     - timing
                                     - parts
                               examples:
-                                - &a44
+                                - &a45
                                   externalId: ext_seg_1
                                   identifier: A
                                   name: Headlines
                                   rank: 1
                                   isHidden: false
                                   sourceLayers:
-                                    - *a40
-                                  outputLayers:
                                     - *a41
+                                  outputLayers:
+                                    - *a42
                                   publicData:
                                     slug: HEAD
-                                  timing: *a42
+                                  timing: *a43
                                   parts:
-                                    - *a43
+                                    - *a44
                                   id: OKAgZmZ0Buc99lE_2uPPSKVbMrQ_
                         required:
                           - id
@@ -1505,7 +1538,7 @@ channels:
                           - segments
                         additionalProperties: false
                         examples:
-                          - &a49
+                          - &a50
                             id: rd_1
                             externalId: ext_rd_1
                             name: Rundown 1
@@ -1514,7 +1547,7 @@ channels:
                             publicData:
                               ingestSource: NRK
                             segments:
-                              - *a44
+                              - *a45
                   required:
                     - event
                     - currentPartInstanceId
@@ -1523,7 +1556,7 @@ channels:
                     - tTimers
                     - rundowns
               examples:
-                - &a50
+                - &a51
                   event: resolvedPlaylist
                   currentPartInstanceId: partInstance_current_1
                   nextPartInstanceId: partInstance_next_1
@@ -1531,13 +1564,13 @@ channels:
                     mode: AUTO
                   publicData:
                     category: Evening News
-                  timing: *a45
+                  timing: *a46
                   tTimers:
                     - index: 1
                       label: Segment Timer
                       configured: true
-                      mode: *a46
-                      state: *a47
+                      mode: *a47
+                      state: *a48
                       projected:
                         paused: false
                         zeroTime: 1706371925000
@@ -1546,7 +1579,7 @@ channels:
                     - index: 2
                       label: Show Timer
                       configured: true
-                      mode: *a48
+                      mode: *a49
                       state:
                         paused: false
                         zeroTime: 1706371800000
@@ -1562,13 +1595,13 @@ channels:
                       anchorPartId: null
                   quickLoop: *a29
                   rundowns:
-                    - *a49
+                    - *a50
                   id: OKAgZmZ0Buc99lE_2uPPSKVbMrQ_
                   externalId: 1ZIYVYL1aEkNEJbeGsmRXr5s8wtkyxfPRjNSTxZfcoEI
                   name: Playlist 0
                   activationStatus: rehearsal
             examples:
-              - payload: *a50
+              - payload: *a51
   activePieces:
     description: Topic for active pieces updates
     subscribe:
@@ -1593,20 +1626,20 @@ channels:
                 activePieces:
                   description: Pieces that are currently active (on air)
                   type: array
-                  items: *a51
+                  items: *a52
               required:
                 - event
                 - rundownPlaylistId
                 - activePieces
               additionalProperties: false
               examples:
-                - &a52
+                - &a53
                   event: activePieces
                   rundownPlaylistId: OKAgZmZ0Buc99lE_2uPPSKVbMrQ_
                   activePieces:
                     - *a13
             examples:
-              - payload: *a52
+              - payload: *a53
   segments:
     description: Topic for Segment updates
     subscribe:
@@ -1649,7 +1682,7 @@ channels:
                       name:
                         description: Name of the segment
                         type: string
-                      timing: *a53
+                      timing: *a54
                       publicData:
                         description: Optional arbitrary data
                     required:
@@ -1662,7 +1695,7 @@ channels:
                   - name
                   - timing
                 examples:
-                  - &a54
+                  - &a55
                     identifier: Segment 0 identifier
                     rundownId: y9HauyWkcxQS3XaAOsW40BRLLsI_
                     name: Segment 0
@@ -1678,13 +1711,13 @@ channels:
             - rundownPlaylistId
             - segments
           examples:
-            - &a55
+            - &a56
               event: segments
               rundownPlaylistId: OKAgZmZ0Buc99lE_2uPPSKVbMrQ_
               segments:
-                - *a54
+                - *a55
         examples:
-          - payload: *a55
+          - payload: *a56
   adLibs:
     description: Topic for AdLibs updates
     subscribe:
@@ -1714,7 +1747,7 @@ channels:
                   items:
                     title: AdLibStatus
                     allOf:
-                      - &a60
+                      - &a61
                         title: AdLibBase
                         type: object
                         properties:
@@ -1749,7 +1782,7 @@ channels:
                                 - label
                               additionalProperties: false
                               examples:
-                                - &a56
+                                - &a57
                                   name: pvw
                                   label: Preview
                           tags:
@@ -1769,15 +1802,15 @@ channels:
                           - sourceLayer
                           - actionType
                         examples:
-                          - &a61
+                          - &a62
                             id: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
                             name: Music video clip
                             sourceLayer: Video Clip
-                            actionType: &a57
-                              - *a56
-                            tags: &a58
+                            actionType: &a58
+                              - *a57
+                            tags: &a59
                               - music_video
-                            publicData: &a59
+                            publicData: &a60
                               fileName: MV000123.mxf
                             optionsSchema: '{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Play
                               Video
@@ -1809,15 +1842,15 @@ channels:
                           - segmentId
                           - partId
                     examples:
-                      - &a62
+                      - &a63
                         segmentId: HsD8_QwE1ZmR5vN3XcK_Ab7y
                         partId: JkL3_OpR6WxT1bF8Vq2_Zy9u
                         id: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
                         name: Music video clip
                         sourceLayer: Video Clip
-                        actionType: *a57
-                        tags: *a58
-                        publicData: *a59
+                        actionType: *a58
+                        tags: *a59
+                        publicData: *a60
                         optionsSchema: '{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Play
                           Video
                           Clip","type":"object","properties":{"type":"adlib_action_video_clip","label":{"type":"string"},"clipId":{"type":"string"},"vo":{"type":"boolean"},"target":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Object
@@ -1841,9 +1874,9 @@ channels:
                   items:
                     title: GlobalAdLibStatus
                     allOf:
-                      - *a60
-                    examples:
                       - *a61
+                    examples:
+                      - *a62
               required:
                 - event
                 - rundownPlaylistId
@@ -1851,15 +1884,15 @@ channels:
                 - globalAdLibs
               additionalProperties: false
               examples:
-                - &a63
+                - &a64
                   event: adLibs
                   rundownPlaylistId: OKAgZmZ0Buc99lE_2uPPSKVbMrQ_
                   adLibs:
-                    - *a62
+                    - *a63
                   globalAdLibs:
-                    - *a61
+                    - *a62
             examples:
-              - payload: *a63
+              - payload: *a64
   packages:
     description: Packages topic for websocket subscriptions. Packages are assets
       that need to be prepared by Sofie Package Manager or third-party systems
@@ -1967,7 +2000,7 @@ channels:
                       - pieceOrAdLibId
                     additionalProperties: false
                     examples:
-                      - &a64
+                      - &a65
                         packageName: MV000123.mxf
                         status: ok
                         rundownId: y9HauyWkcxQS3XaAOsW40BRLLsI_
@@ -1985,7 +2018,7 @@ channels:
                 - event: packages
                   rundownPlaylistId: y9HauyWkcxQS3XaAOsW40BRLLsI_
                   packages:
-                    - *a64
+                    - *a65
   buckets:
     description: Buckets schema for websocket subscriptions
     subscribe:
@@ -2021,7 +2054,7 @@ channels:
                         items:
                           title: BucketAdLibStatus
                           allOf:
-                            - *a60
+                            - *a61
                             - type: object
                               title: BucketAdLibStatus
                               properties:
@@ -2032,14 +2065,14 @@ channels:
                               required:
                                 - externalId
                           examples:
-                            - &a65
+                            - &a66
                               externalId: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
                               id: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
                               name: Music video clip
                               sourceLayer: Video Clip
-                              actionType: *a57
-                              tags: *a58
-                              publicData: *a59
+                              actionType: *a58
+                              tags: *a59
+                              publicData: *a60
                               optionsSchema: '{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Play
                                 Video
                                 Clip","type":"object","properties":{"type":"adlib_action_video_clip","label":{"type":"string"},"clipId":{"type":"string"},"vo":{"type":"boolean"},"target":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Object
@@ -2063,22 +2096,22 @@ channels:
                       - adLibs
                     additionalProperties: false
                     examples:
-                      - &a66
+                      - &a67
                         id: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
                         name: My Bucket
                         adLibs:
-                          - *a65
+                          - *a66
               required:
                 - event
                 - buckets
               additionalProperties: false
               examples:
-                - &a67
+                - &a68
                   event: buckets
                   buckets:
-                    - *a66
+                    - *a67
             examples:
-              - payload: *a67
+              - payload: *a68
   notifications:
     description: Notifications topic for websocket subscriptions.
     subscribe:
@@ -2119,10 +2152,7 @@ channels:
                         type: string
                         title: NotificationSeverity
                         description: Severity level of the notification.
-                        enum:
-                          - warning
-                          - error
-                          - info
+                        enum: *a69
                       message:
                         type: string
                         description: The message of the notification
@@ -2142,7 +2172,7 @@ channels:
                                 type: string
                                 title: NotificationTargetType
                                 description: Possible NotificationTarget types
-                                enum: &a68
+                                enum: &a70
                                   - rundown
                                   - playlist
                                   - partInstance
@@ -2154,7 +2184,7 @@ channels:
                                 type: string
                             additionalProperties: false
                             examples:
-                              - &a69
+                              - &a71
                                 type: rundown
                                 studioId: studio01
                                 rundownId: rd123
@@ -2170,14 +2200,14 @@ channels:
                                 type: string
                                 title: NotificationTargetType
                                 description: Possible NotificationTarget types
-                                enum: *a68
+                                enum: *a70
                               studioId:
                                 type: string
                               playlistId:
                                 type: string
                             additionalProperties: false
                             examples:
-                              - &a70
+                              - &a72
                                 type: playlist
                                 studioId: studio01
                                 playlistId: pl456
@@ -2194,7 +2224,7 @@ channels:
                                 type: string
                                 title: NotificationTargetType
                                 description: Possible NotificationTarget types
-                                enum: *a68
+                                enum: *a70
                               studioId:
                                 type: string
                               rundownId:
@@ -2203,7 +2233,7 @@ channels:
                                 type: string
                             additionalProperties: false
                             examples:
-                              - &a71
+                              - &a73
                                 type: partInstance
                                 studioId: studio01
                                 rundownId: rd123
@@ -2222,7 +2252,7 @@ channels:
                                 type: string
                                 title: NotificationTargetType
                                 description: Possible NotificationTarget types
-                                enum: *a68
+                                enum: *a70
                               studioId:
                                 type: string
                               rundownId:
@@ -2233,7 +2263,7 @@ channels:
                                 type: string
                             additionalProperties: false
                             examples:
-                              - &a72
+                              - &a74
                                 type: pieceInstance
                                 studioId: studio01
                                 rundownId: rd123
@@ -2249,17 +2279,17 @@ channels:
                                 type: string
                                 title: NotificationTargetType
                                 description: Possible NotificationTarget types
-                                enum: *a68
+                                enum: *a70
                             additionalProperties: false
                             examples:
-                              - &a73
+                              - &a75
                                 type: unknown
                         examples:
-                          - *a69
-                          - *a70
                           - *a71
                           - *a72
                           - *a73
+                          - *a74
+                          - *a75
                       created:
                         type: integer
                         format: int64
@@ -2270,11 +2300,11 @@ channels:
                         description: Unix timestamp of last modification
                     additionalProperties: false
                     examples:
-                      - &a74
+                      - &a76
                         _id: notif123
                         severity: error
                         message: disk.space.low
-                        relatedTo: *a72
+                        relatedTo: *a74
                         created: 1694784932
                         modified: 1694784950
               required:
@@ -2282,9 +2312,9 @@ channels:
                 - activeNotifications
               additionalProperties: false
               examples:
-                - &a75
+                - &a77
                   event: notifications
                   activeNotifications:
-                    - *a74
+                    - *a76
             examples:
-              - payload: *a75
+              - payload: *a77
