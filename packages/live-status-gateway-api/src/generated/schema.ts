@@ -1009,6 +1009,10 @@ interface ResolvedPiece {
 	 */
 	createdByAdLib: boolean
 	/**
+	 * Whether this piece is invalid and should be ignored
+	 */
+	invalid: boolean
+	/**
 	 * Optional arbitrary data
 	 */
 	publicData?: any

@@ -28,6 +28,9 @@ $defs:
       createdByAdLib:
         type: boolean
         description: Whether this piece was created by an adlib
+      invalid:
+        type: boolean
+        description: Whether this piece is invalid and should be ignored
       publicData:
         description: Optional arbitrary data
       timing:
@@ -42,7 +45,8 @@ $defs:
         type: array
         items:
           $ref: '../pieceStatus/abSessionAssignment.yaml'
-    required: [id, instanceId, externalId, name, priority, sourceLayerId, outputLayerId, createdByAdLib, timing]
+    required:
+      [id, instanceId, externalId, name, priority, sourceLayerId, outputLayerId, createdByAdLib, invalid, timing]
     additionalProperties: false
     examples:
       - $ref: './resolvedPiece-example.yaml'

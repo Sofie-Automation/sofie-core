@@ -1417,6 +1417,9 @@ channels:
                                                     createdByAdLib:
                                                       type: boolean
                                                       description: Whether this piece was created by an adlib
+                                                    invalid:
+                                                      type: boolean
+                                                      description: Whether this piece is invalid and should be ignored
                                                     publicData:
                                                       description: Optional arbitrary data
                                                     timing:
@@ -1458,6 +1461,7 @@ channels:
                                                     - sourceLayerId
                                                     - outputLayerId
                                                     - createdByAdLib
+                                                    - invalid
                                                     - timing
                                                   additionalProperties: false
                                                   examples:
@@ -1470,6 +1474,7 @@ channels:
                                                       sourceLayerId: sl_camera
                                                       outputLayerId: ol_pgm
                                                       createdByAdLib: false
+                                                      invalid: false
                                                       publicData:
                                                         switcherSource: 1
                                                       timing: *a36

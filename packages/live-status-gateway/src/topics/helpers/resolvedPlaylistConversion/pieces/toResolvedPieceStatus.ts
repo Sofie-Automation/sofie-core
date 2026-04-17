@@ -21,6 +21,7 @@ export function toResolvedPieceStatus(pieceExtended: PieceExtended): ResolvedPie
 		priority: instance?.priority ?? 0,
 		sourceLayerId: basePiece.sourceLayerId ?? '',
 		outputLayerId: basePiece.outputLayerId ?? '',
+		invalid: !!basePiece.invalid,
 		publicData: basePiece.publicData,
 		timing: {
 			startMs,

@@ -19,6 +19,7 @@ describe('toResolvedPieceStatus', () => {
 			priority: 9,
 			sourceLayerId: 'sl1',
 			outputLayerId: 'ol1',
+			invalid: false,
 			tags: ['tag1'],
 			timing: {
 				startMs: 345,
