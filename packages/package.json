@@ -71,6 +71,7 @@
 	"packageManager": "yarn@4.10.3",
 	"resolutions": {
 		"timecode@0.0.4": "patch:timecode@npm%3A0.0.4#./.yarn/patches/timecode-npm-0.0.4-82bde9e6fe.patch",
+		"casparcg-connection": "npm:6.3.4-nightly-test-ping-20260326-081544-b7bbb297.0",
 		"emberplus-connection": "0.3.1"
 	},
 	"dependenciesMeta": {
