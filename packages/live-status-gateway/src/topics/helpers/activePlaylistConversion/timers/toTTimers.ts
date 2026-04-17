@@ -29,9 +29,18 @@ function toTTimer(timer: RundownTTimer): TTimerStatus {
 
 export function toTTimers(tTimers: RundownTTimer[] | null | undefined): [TTimerStatus, TTimerStatus, TTimerStatus] {
 	// Always return exactly 3 timers
-	if (!tTimers || tTimers.length === 0) {
-		return [emptyTimer(1), emptyTimer(2), emptyTimer(3)]
+	const slots: [TTimerStatus, TTimerStatus, TTimerStatus] = [emptyTimer(1), emptyTimer(2), emptyTimer(3)]
+	if (!tTimers || tTimers.length === 0) return slots
+
+	const filled = new Set<number>()
+
+	for (const timer of tTimers) {
+		const slotIndex = timer.index - 1
+		if (slotIndex < 0 || slotIndex > 2) continue
+		if (filled.has(slotIndex)) continue
+		slots[slotIndex] = toTTimer(timer)
+		filled.add(slotIndex)
 	}
 
-	return [toTTimer(tTimers[0]), toTTimer(tTimers[1]), toTTimer(tTimers[2])]
+	return slots
 }

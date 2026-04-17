@@ -32,8 +32,6 @@ export function toResolvedPlaylistStatus({
 			activationStatus: PlaylistActivationStatus.DEACTIVATED,
 			currentPartInstanceId: null,
 			nextPartInstanceId: null,
-			playoutState: {},
-			publicData: {},
 			timing: {
 				type: ResolvedPlaylistTimingType.FORWARD,
 				startMs: null,
@@ -88,6 +86,9 @@ export function toResolvedPlaylistStatus({
 			? ResolvedPlaylistTimingType.BACK
 			: ResolvedPlaylistTimingType.FORWARD
 
+	const playoutState = ctx.playlist.publicPlayoutPersistentState
+	const publicData = ctx.playlist.publicData
+
 	return literal<ResolvedPlaylistEvent>({
 		event: 'resolvedPlaylist' as const,
 		id: unprotectString(ctx.playlist._id),
@@ -96,8 +97,8 @@ export function toResolvedPlaylistStatus({
 		activationStatus,
 		currentPartInstanceId,
 		nextPartInstanceId,
-		playoutState: ctx.playlist.publicPlayoutPersistentState,
-		publicData: ctx.playlist.publicData,
+		...(playoutState !== undefined ? { playoutState } : {}),
+		...(publicData !== undefined ? { publicData } : {}),
 		timing: {
 			type: timingType,
 			startMs: 0,

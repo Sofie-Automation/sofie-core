@@ -708,7 +708,7 @@ interface ResolvedRundown {
 	/**
 	 * Optional description
 	 */
-	description: string
+	description?: string
 	/**
 	 * Optional arbitrary data
 	 */

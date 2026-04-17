@@ -55,9 +55,12 @@ export function createResolvedPlaylistConversionContext(
 
 	const orderedRundownIds = (playlist.rundownIdsInOrder ?? []).map((r) => unprotectString(r))
 	const rundownsById = new Map<string, DBRundown>((props.rundownsState ?? []).map((r) => [unprotectString(r._id), r]))
-	const rundownsToShowStyles = new Map<RundownId, ShowStyleBaseId>(
-		(playlist.rundownIdsInOrder ?? []).map((r) => [r, showStyleBaseExt._id])
-	)
+	const rundownsToShowStyles = new Map<RundownId, ShowStyleBaseId>()
+	for (const rundownId of playlist.rundownIdsInOrder ?? []) {
+		const rundown = rundownsById.get(unprotectString(rundownId))
+		if (!rundown) continue
+		rundownsToShowStyles.set(rundownId, rundown.showStyleBaseId)
+	}
 
 	const segmentsByRundownId = groupByRundownId(props.segmentsState)
 	const partsByRundownId = groupByRundownId(props.partsState)
@@ -106,8 +109,30 @@ export function getOrderedSegmentsInRundown(ctx: ResolvedPlaylistConversionConte
 
 /** Returns parts in rundown order for state resolver and API output parity. */
 export function getOrderedPartsInRundown(ctx: ResolvedPlaylistConversionContext, rundownId: string): DBPart[] {
-	const list = ctx.partsByRundownId.get(String(rundownId)) ?? []
-	return list.slice().sort((a, b) => a._rank - b._rank)
+	const normalizedRundownId = String(rundownId)
+
+	const partsInRundown = ctx.partsByRundownId.get(normalizedRundownId) ?? []
+	if (partsInRundown.length === 0) return []
+
+	// Part._rank is only meaningful within a segment, so we must preserve segment order.
+	const partsBySegmentId = new Map<string, DBPart[]>()
+	for (const part of partsInRundown) {
+		const segmentId = String(part.segmentId)
+		const list = partsBySegmentId.get(segmentId) ?? []
+		list.push(part)
+		partsBySegmentId.set(segmentId, list)
+	}
+
+	const orderedSegments = getOrderedSegmentsInRundown(ctx, normalizedRundownId)
+	const orderedParts: DBPart[] = []
+	for (const segment of orderedSegments) {
+		const segmentParts = partsBySegmentId.get(String(segment._id))
+		if (!segmentParts?.length) continue
+		segmentParts.sort((a, b) => a._rank - b._rank)
+		orderedParts.push(...segmentParts)
+	}
+
+	return orderedParts
 }
 
 /** Finds the current part instance referenced by playlist state. */
@@ -162,9 +187,8 @@ function createQueryAdapters({
 			}
 		},
 		getActivePartInstances: (_playlistPick: Pick<DBRundownPlaylist, '_id'>, selector?: unknown) => {
-			return selector
-				? mongoWhereFilter(partInstancesInPlaylistState, selector as never)
-				: partInstancesInPlaylistState
+			const mergedSelector = selector ? { ...(selector as any), reset: { $ne: true } } : { reset: { $ne: true } }
+			return mongoWhereFilter(partInstancesInPlaylistState, mergedSelector as never)
 		},
 		piecesFind: (selector) => {
 			if (!selector) return piecesInPlaylistState

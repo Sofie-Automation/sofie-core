@@ -7,6 +7,7 @@ import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import _ from 'underscore'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { CollectionHandlers } from '../liveStatusServer.js'
+import throttleToNextTick from '@sofie-automation/shared-lib/dist/lib/throttleToNextTick'
 
 const PLAYLIST_KEYS = ['rundownIdsInOrder'] as const
 type Playlist = Pick<DBRundownPlaylist, (typeof PLAYLIST_KEYS)[number]>
@@ -19,6 +20,10 @@ export class PiecesInPlaylistHandler extends PublicationCollection<
 > {
 	private _currentRundownIds: Playlist['rundownIdsInOrder'] | undefined
 
+	private _throttledUpdateAndNotify = throttleToNextTick(() => {
+		this.updateAndNotify()
+	})
+
 	constructor(logger: Logger, coreHandler: CoreHandler) {
 		super(CollectionName.Pieces, CorelibPubSub.pieces, logger, coreHandler)
 		this._collectionData = []
@@ -30,7 +35,7 @@ export class PiecesInPlaylistHandler extends PublicationCollection<
 	}
 
 	protected changed(): void {
-		this.updateAndNotify()
+		this._throttledUpdateAndNotify()
 	}
 
 	private updateAndNotify() {
@@ -55,6 +60,7 @@ export class PiecesInPlaylistHandler extends PublicationCollection<
 				this.clearAndNotify()
 			}
 		} else {
+			this.stopSubscription()
 			this.clearAndNotify()
 		}
 	}

@@ -39,6 +39,8 @@ export function makePlaylist(overrides: Partial<any> = {}): any {
 export function makeRundown(id: string, rank = 0): any {
 	return {
 		_id: protectString(id),
+		showStyleBaseId: protectString('showStyleBase0'),
+		showStyleVariantId: protectString('showStyleVariant0'),
 		externalId: `ext_${id}`,
 		name: `Rundown ${id}`,
 		description: `Description ${id}`,
