@@ -60,6 +60,7 @@ interface SubscriptionRequestDetails {
 enum SubscriptionName {
 	STUDIO = 'studio',
 	ACTIVE_PLAYLIST = 'activePlaylist',
+	RESOLVED_PLAYLIST = 'resolvedPlaylist',
 	ACTIVE_PIECES = 'activePieces',
 	SEGMENTS = 'segments',
 	AD_LIBS = 'adLibs',
@@ -142,6 +143,7 @@ interface PlaylistStatus {
 	 * Whether this playlist is currently active or in rehearsal
 	 */
 	activationStatus: PlaylistActivationStatus
+	additionalProperties?: Record<string, any>
 }
 
 /**
@@ -597,6 +599,412 @@ interface TimerStatePaused {
 	pauseTime?: number | null
 }
 
+/**
+ * Resolved playlist details, including the base playlist status.
+ */
+interface ResolvedPlaylistEvent {
+	/**
+	 * Unique id of the playlist
+	 */
+	id: string
+	/**
+	 * Id normally sourced from the ingest system
+	 */
+	externalId: string
+	/**
+	 * The user defined playlist name
+	 */
+	name: string
+	/**
+	 * Whether this playlist is currently active or in rehearsal
+	 */
+	activationStatus: PlaylistActivationStatus
+	event: 'resolvedPlaylist'
+	/**
+	 * Instance id of the current part, if any
+	 */
+	currentPartInstanceId: string | null
+	/**
+	 * Instance id of the next part, if any
+	 */
+	nextPartInstanceId: string | null
+	/**
+	 * Blueprint-defined playout state, used to expose arbitrary information about playout
+	 */
+	playoutState?: any
+	/**
+	 * Optional arbitrary data
+	 */
+	publicData?: any
+	/**
+	 * Timing information about the playlist, expressed as relative offsets (not wall-clock time)
+	 */
+	timing: ResolvedPlaylistTiming
+	/**
+	 * Status of the 3 T-timers in the playlist
+	 */
+	tTimers: TTimerStatus[]
+	/**
+	 * Information about the current quickLoop, if any
+	 */
+	quickLoop?: ActivePlaylistQuickLoop | null
+	/**
+	 * The rundowns in the playlist, in rank order
+	 */
+	rundowns: ResolvedRundown[]
+	additionalProperties?: Record<string, any>
+}
+
+/**
+ * Timing information about the playlist, expressed as relative offsets (not wall-clock time)
+ */
+interface ResolvedPlaylistTiming {
+	/**
+	 * Whether timing counts forward from a start time or back from an end time
+	 */
+	type: ResolvedPlaylistTimingType
+	/**
+	 * Optional start offset of the playlist (ms). When present, this is typically 0.
+	 */
+	startMs: number | null
+	/**
+	 * Expected duration of the playlist (ms)
+	 */
+	durationMs: number | null
+	/**
+	 * Optional end offset of the playlist (ms) from the beginning of the playlist
+	 */
+	endMs: number | null
+}
+
+/**
+ * Whether timing counts forward from a start time or back from an end time
+ */
+enum ResolvedPlaylistTimingType {
+	FORWARD = 'forward',
+	BACK = 'back',
+}
+
+/**
+ * A rundown within a resolved playlist
+ */
+interface ResolvedRundown {
+	/**
+	 * Unique id of the rundown
+	 */
+	id: string
+	/**
+	 * Id normally sourced from the ingest system
+	 */
+	externalId: string
+	/**
+	 * User-presentable name of the rundown
+	 */
+	name: string
+	/**
+	 * Rank for ordering
+	 */
+	rank: number
+	/**
+	 * Optional description
+	 */
+	description: string
+	/**
+	 * Optional arbitrary data
+	 */
+	publicData?: any
+	/**
+	 * Segments in this rundown
+	 */
+	segments: ResolvedSegment[]
+}
+
+/**
+ * A segment within a resolved rundown
+ */
+interface ResolvedSegment {
+	/**
+	 * Unique id of the segment
+	 */
+	id: string
+	/**
+	 * Id normally sourced from the ingest system
+	 */
+	externalId: string
+	/**
+	 * User-facing identifier from the source system
+	 */
+	identifier: string
+	/**
+	 * Name of the segment
+	 */
+	name: string
+	/**
+	 * Rank for ordering
+	 */
+	rank: number
+	/**
+	 * Whether the segment is hidden
+	 */
+	isHidden: boolean
+	/**
+	 * Source layers used in this segment
+	 */
+	sourceLayers: SourceLayer[]
+	/**
+	 * Output layers used in this segment
+	 */
+	outputLayers: OutputLayer[]
+	/**
+	 * Optional arbitrary data
+	 */
+	publicData?: any
+	/**
+	 * Timing information about the segment, relative to the start of the segment
+	 */
+	timing: ResolvedSegmentTiming
+	/**
+	 * Parts in this segment
+	 */
+	parts: ResolvedPart[]
+	additionalProperties?: Record<string, any>
+}
+
+/**
+ * Definition of a source layer used in a segment
+ */
+interface SourceLayer {
+	/**
+	 * Unique id of the source layer
+	 */
+	id: string
+	/**
+	 * User-presentable name of the source layer
+	 */
+	name: string
+	/**
+	 * Abbreviation for display
+	 */
+	abbreviation: string
+	/**
+	 * Whether the source layer is hidden in the UI
+	 */
+	isHidden: boolean
+	/**
+	 * Source layer content type (numeric enum)
+	 */
+	type: number
+	/**
+	 * Rank for ordering
+	 */
+	rank: number
+}
+
+/**
+ * Definition of an output layer used in a segment
+ */
+interface OutputLayer {
+	/**
+	 * Unique id of the output layer
+	 */
+	id: string
+	/**
+	 * User-presentable name of the output layer
+	 */
+	name: string
+	/**
+	 * Whether the output layer is flattened
+	 */
+	isFlattened: boolean
+	/**
+	 * Whether PGM treatment should be in effect
+	 */
+	isPGM: boolean
+	/**
+	 * Output layer type (numeric enum)
+	 */
+	type: number
+	/**
+	 * The set of sourceLayer ids that feed this output layer
+	 */
+	sourceLayerIds: string[]
+}
+
+/**
+ * Timing information about the segment, relative to the start of the segment
+ */
+interface ResolvedSegmentTiming {
+	/**
+	 * Start offset of the segment (ms). For segments, this is typically 0.
+	 */
+	startMs: number
+	/**
+	 * End offset of the segment (ms) from the beginning of the segment
+	 */
+	endMs: number
+	/**
+	 * Planned/budget duration for the segment (ms)
+	 */
+	budgetDurationMs: number
+}
+
+/**
+ * A part within a resolved segment
+ */
+interface ResolvedPart {
+	/**
+	 * Unique id of the part
+	 */
+	id: string
+	/**
+	 * User-presentable name of the part
+	 */
+	name: string
+	/**
+	 * If this part will progress to the next automatically
+	 */
+	autoNext?: boolean
+	/**
+	 * Unique id of the part instance
+	 */
+	instanceId: string
+	/**
+	 * Id normally sourced from the ingest system
+	 */
+	externalId: string
+	/**
+	 * Rank for ordering
+	 */
+	rank: number
+	/**
+	 * Set only for the current or next part
+	 */
+	state?: ResolvedPartState
+	/**
+	 * Optional arbitrary data
+	 */
+	publicData?: any
+	/**
+	 * Timing information about the part, relative to the start of the segment
+	 */
+	timing: ResolvedPartTiming
+	/**
+	 * Pieces in this part
+	 */
+	pieces: ResolvedPiece[]
+	additionalProperties?: Record<string, any>
+}
+
+/**
+ * Set only for the current or next part
+ */
+enum ResolvedPartState {
+	CURRENT = 'current',
+	NEXT = 'next',
+}
+
+/**
+ * Timing information about the part, relative to the start of the segment
+ */
+interface ResolvedPartTiming {
+	/**
+	 * Start offset of the part (ms) from the beginning of the segment
+	 */
+	startMs: number
+	/**
+	 * Resolved duration of the part (ms)
+	 */
+	durationMs: number
+	/**
+	 * Unix timestamp (ms) when the part was planned to start playback
+	 */
+	plannedStartedPlayback?: number
+	/**
+	 * Unix timestamp (ms) when the part was reported as started playback
+	 */
+	reportedStartedPlayback?: number
+	/**
+	 * Playback offset relative to planned start (ms)
+	 */
+	playOffset?: number
+	/**
+	 * Unix timestamp (ms) when the part was set as next
+	 */
+	setAsNext?: number
+	/**
+	 * Unix timestamp (ms) when the part was taken
+	 */
+	take?: number
+}
+
+/**
+ * A piece within a resolved part
+ */
+interface ResolvedPiece {
+	/**
+	 * Unique id of the piece
+	 */
+	id: string
+	/**
+	 * Unique id of the piece instance
+	 */
+	instanceId: string
+	/**
+	 * Id normally sourced from the ingest system
+	 */
+	externalId: string
+	/**
+	 * User-facing name of the piece
+	 */
+	name: string
+	/**
+	 * Priority of the piece
+	 */
+	priority: number
+	/**
+	 * Id of the source layer for this piece
+	 */
+	sourceLayerId: string
+	/**
+	 * Id of the output layer for this piece
+	 */
+	outputLayerId: string
+	/**
+	 * Optional arbitrary data
+	 */
+	publicData?: any
+	/**
+	 * Timing information about the piece, relative to the start of the part
+	 */
+	timing: ResolvedPieceTiming
+	/**
+	 * Optional tags attached to this piece
+	 */
+	tags?: string[]
+	/**
+	 * Optional AB playback session assignments for this piece
+	 */
+	abSessions?: AbSessionAssignment[]
+}
+
+/**
+ * Timing information about the piece, relative to the start of the part
+ */
+interface ResolvedPieceTiming {
+	/**
+	 * Start offset of the piece (ms) from the beginning of the part
+	 */
+	startMs: number
+	/**
+	 * Resolved duration of the piece (ms)
+	 */
+	durationMs: number
+	/**
+	 * Preroll duration for the piece (ms)
+	 */
+	prerollMs: number
+}
+
 interface ActivePiecesEvent {
 	event: 'activePieces'
 	/**
@@ -1031,6 +1439,7 @@ export type Slash =
 	| NotificationsEvent
 	| PackagesEvent
 	| PongEvent
+	| ResolvedPlaylistEvent
 	| SegmentsEvent
 	| StudioEvent
 	| SubscriptionStatusError
@@ -1075,6 +1484,19 @@ export {
 	TimerModeTimeOfDay,
 	TimerStateRunning,
 	TimerStatePaused,
+	ResolvedPlaylistEvent,
+	ResolvedPlaylistTiming,
+	ResolvedPlaylistTimingType,
+	ResolvedRundown,
+	ResolvedSegment,
+	SourceLayer,
+	OutputLayer,
+	ResolvedSegmentTiming,
+	ResolvedPart,
+	ResolvedPartState,
+	ResolvedPartTiming,
+	ResolvedPiece,
+	ResolvedPieceTiming,
 	ActivePiecesEvent,
 	SegmentsEvent,
 	Segment,

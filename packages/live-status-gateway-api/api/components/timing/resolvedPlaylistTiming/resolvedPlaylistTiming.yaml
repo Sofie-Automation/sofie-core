@@ -1,0 +1,35 @@
+$defs:
+  resolvedPlaylistTimingType:
+    title: ResolvedPlaylistTimingType
+    type: string
+    description: Whether timing counts forward from a start time or back from an end time
+    enum:
+      - forward
+      - back
+
+  resolvedPlaylistTiming:
+    type: object
+    title: ResolvedPlaylistTiming
+    description: Timing information about the playlist, expressed as relative offsets (not wall-clock time)
+    properties:
+      type:
+        $ref: '#/$defs/resolvedPlaylistTimingType'
+      startMs:
+        description: Optional start offset of the playlist (ms). When present, this is typically 0.
+        oneOf:
+          - type: number
+          - type: 'null'
+      durationMs:
+        description: Expected duration of the playlist (ms)
+        oneOf:
+          - type: number
+          - type: 'null'
+      endMs:
+        description: Optional end offset of the playlist (ms) from the beginning of the playlist
+        oneOf:
+          - type: number
+          - type: 'null'
+    required: [type, startMs, durationMs, endMs]
+    additionalProperties: false
+    examples:
+      - $ref: './resolvedPlaylistTiming-example.yaml'

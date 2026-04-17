@@ -1,0 +1,11 @@
+$ref: '../partBase/partBase-example.yaml'
+instanceId: 'partInstance_current_1'
+externalId: 'ext_part_1'
+rank: 10
+state: current
+publicData:
+  partType: 'intro'
+timing:
+  $ref: '../../timing/resolvedPartTiming/resolvedPartTiming-example.yaml'
+pieces:
+  - $ref: '../../piece/resolvedPiece/resolvedPiece-example.yaml'

@@ -155,6 +155,7 @@ channels:
                           enum:
                             - studio
                             - activePlaylist
+                            - resolvedPlaylist
                             - activePieces
                             - segments
                             - adLibs
@@ -275,7 +276,7 @@ channels:
                     playlists:
                       description: The playlists that are currently loaded in the studio
                       type: array
-                      items:
+                      items: &a31
                         title: PlaylistStatus
                         type: object
                         properties:
@@ -301,7 +302,6 @@ channels:
                           - externalId
                           - name
                           - activationStatus
-                        additionalProperties: false
                         examples:
                           - &a11
                             id: OKAgZmZ0Buc99lE_2uPPSKVbMrQ_
@@ -401,7 +401,7 @@ channels:
                                 pieces:
                                   description: All pieces in this part
                                   type: array
-                                  items: &a31
+                                  items: &a51
                                     type: object
                                     title: PieceStatus
                                     properties:
@@ -427,7 +427,7 @@ channels:
                                       abSessions:
                                         description: AB playback session assignments for this Piece
                                         type: array
-                                        items:
+                                        items: &a35
                                           type: object
                                           title: AbSessionAssignment
                                           properties:
@@ -464,7 +464,8 @@ channels:
                                         publicData:
                                           switcherSource: 1
                                         abSessions:
-                                          - poolName: VTR
+                                          - &a37
+                                            poolName: VTR
                                             sessionName: clip_intro
                                             playerId: 1
                                 publicData:
@@ -537,7 +538,7 @@ channels:
                     - type: object
                       title: CurrentSegment
                       allOf:
-                        - &a33
+                        - &a34
                           title: SegmentBase
                           type: object
                           properties:
@@ -556,7 +557,7 @@ channels:
                               title: CurrentSegmentTiming
                               description: Timing information about the current segment
                               allOf:
-                                - &a34
+                                - &a53
                                   type: object
                                   title: SegmentTiming
                                   properties:
@@ -684,7 +685,7 @@ channels:
                       timingMode: forward-time
                       expectedStart: 1728895750727
                       expectedDurationMs: 180000
-                quickLoop:
+                quickLoop: &a33
                   description: Information about the current quickLoop, if any
                   type: object
                   title: ActivePlaylistQuickLoop
@@ -742,7 +743,7 @@ channels:
                 tTimers:
                   description: Status of the 3 T-timers in the playlist
                   type: array
-                  items:
+                  items: &a32
                     type: object
                     title: TTimerStatus
                     description: Status of a single T-timer in the playlist
@@ -830,6 +831,16 @@ channels:
                                   - type: timeOfDay
                                     targetRaw: 14:30
                                     stopAtZero: false
+                            examples:
+                              - &a46
+                                type: countdown
+                                duration: 120000
+                                stopAtZero: true
+                              - &a48
+                                type: freeRun
+                              - type: timeOfDay
+                                targetRaw: 14:30
+                                stopAtZero: true
                       state:
                         description: Current runtime state of the timer. Null if not configured.
                         oneOf:
@@ -898,6 +909,14 @@ channels:
                                   - paused: true
                                     duration: 45000
                                     pauseTime: null
+                            examples:
+                              - &a47
+                                paused: false
+                                zeroTime: 1706371920000
+                                pauseTime: 1706371900000
+                              - paused: true
+                                duration: 35000
+                                pauseTime: null
                       projected:
                         description: Projected timing for when we expect to reach an anchor part. Used
                           to calculate over/under diff. Has the same structure
@@ -1009,6 +1028,546 @@ channels:
                       anchorPartId: null
             examples:
               - payload: *a30
+  resolvedPlaylist:
+    description: Topic for resolved playlist updates
+    subscribe:
+      operationId: receiveResolvedPlaylist
+      description: Server sends resolved playlist events
+      message:
+        oneOf:
+          - name: resolvedPlaylist
+            messageId: resolvedPlaylistUpdate
+            description: Resolved Playlist status
+            payload:
+              title: ResolvedPlaylistEvent
+              description: Resolved playlist details, including the base playlist status.
+              allOf:
+                - *a31
+                - type: object
+                  title: ResolvedPlaylistEvent
+                  description: Resolved playlist details, including rundown/segment/part/piece
+                    structure.
+                  properties:
+                    event:
+                      type: string
+                      const: resolvedPlaylist
+                    currentPartInstanceId:
+                      description: Instance id of the current part, if any
+                      oneOf:
+                        - type: string
+                        - type: "null"
+                    nextPartInstanceId:
+                      description: Instance id of the next part, if any
+                      oneOf:
+                        - type: string
+                        - type: "null"
+                    playoutState:
+                      description: Blueprint-defined playout state, used to expose arbitrary
+                        information about playout
+                    publicData:
+                      description: Optional arbitrary data
+                    timing:
+                      type: object
+                      title: ResolvedPlaylistTiming
+                      description: Timing information about the playlist, expressed as relative
+                        offsets (not wall-clock time)
+                      properties:
+                        type:
+                          title: ResolvedPlaylistTimingType
+                          type: string
+                          description: Whether timing counts forward from a start time or back from an end
+                            time
+                          enum:
+                            - forward
+                            - back
+                        startMs:
+                          description: Optional start offset of the playlist (ms). When present, this is
+                            typically 0.
+                          oneOf:
+                            - type: number
+                            - type: "null"
+                        durationMs:
+                          description: Expected duration of the playlist (ms)
+                          oneOf:
+                            - type: number
+                            - type: "null"
+                        endMs:
+                          description: Optional end offset of the playlist (ms) from the beginning of the
+                            playlist
+                          oneOf:
+                            - type: number
+                            - type: "null"
+                      required:
+                        - type
+                        - startMs
+                        - durationMs
+                        - endMs
+                      additionalProperties: false
+                      examples:
+                        - &a45
+                          type: forward
+                          startMs: 1706371800000
+                          durationMs: 1800000
+                          endMs: 1706373600000
+                    tTimers:
+                      description: Status of the 3 T-timers in the playlist
+                      type: array
+                      items: *a32
+                      minItems: 3
+                      maxItems: 3
+                    quickLoop:
+                      description: Information about the current quickLoop, if any
+                      oneOf:
+                        - type: "null"
+                        - *a33
+                    rundowns:
+                      description: The rundowns in the playlist, in rank order
+                      type: array
+                      items:
+                        type: object
+                        title: ResolvedRundown
+                        description: A rundown within a resolved playlist
+                        properties:
+                          id:
+                            type: string
+                            description: Unique id of the rundown
+                          externalId:
+                            type: string
+                            description: Id normally sourced from the ingest system
+                          name:
+                            type: string
+                            description: User-presentable name of the rundown
+                          rank:
+                            type: number
+                            description: Rank for ordering
+                          description:
+                            type: string
+                            description: Optional description
+                          publicData:
+                            description: Optional arbitrary data
+                          segments:
+                            description: Segments in this rundown
+                            type: array
+                            items:
+                              title: ResolvedSegment
+                              description: A segment within a resolved rundown
+                              allOf:
+                                - *a34
+                                - type: object
+                                  title: ResolvedSegment
+                                  description: A segment within a resolved rundown
+                                  properties:
+                                    externalId:
+                                      type: string
+                                      description: Id normally sourced from the ingest system
+                                    identifier:
+                                      type: string
+                                      description: User-facing identifier from the source system
+                                    name:
+                                      type: string
+                                      description: Name of the segment
+                                    rank:
+                                      type: number
+                                      description: Rank for ordering
+                                    isHidden:
+                                      type: boolean
+                                      description: Whether the segment is hidden
+                                    sourceLayers:
+                                      description: Source layers used in this segment
+                                      type: array
+                                      items:
+                                        type: object
+                                        title: SourceLayer
+                                        description: Definition of a source layer used in a segment
+                                        properties:
+                                          id:
+                                            type: string
+                                            description: Unique id of the source layer
+                                          name:
+                                            type: string
+                                            description: User-presentable name of the source layer
+                                          abbreviation:
+                                            type: string
+                                            description: Abbreviation for display
+                                          isHidden:
+                                            type: boolean
+                                            description: Whether the source layer is hidden in the UI
+                                          type:
+                                            type: number
+                                            description: Source layer content type (numeric enum)
+                                          rank:
+                                            type: number
+                                            description: Rank for ordering
+                                        required:
+                                          - id
+                                          - name
+                                          - abbreviation
+                                          - isHidden
+                                          - type
+                                          - rank
+                                        additionalProperties: false
+                                        examples:
+                                          - &a40
+                                            id: sl_camera
+                                            name: Camera
+                                            abbreviation: CAM
+                                            isHidden: false
+                                            type: 1
+                                            rank: 0
+                                    outputLayers:
+                                      description: Output layers used in this segment
+                                      type: array
+                                      items:
+                                        type: object
+                                        title: OutputLayer
+                                        description: Definition of an output layer used in a segment
+                                        properties:
+                                          id:
+                                            type: string
+                                            description: Unique id of the output layer
+                                          name:
+                                            type: string
+                                            description: User-presentable name of the output layer
+                                          isFlattened:
+                                            type: boolean
+                                            description: Whether the output layer is flattened
+                                          isPGM:
+                                            type: boolean
+                                            description: Whether PGM treatment should be in effect
+                                          type:
+                                            type: number
+                                            description: Output layer type (numeric enum)
+                                          sourceLayerIds:
+                                            description: The set of sourceLayer ids that feed this output layer
+                                            type: array
+                                            items:
+                                              type: string
+                                        required:
+                                          - id
+                                          - name
+                                          - isFlattened
+                                          - isPGM
+                                          - type
+                                          - sourceLayerIds
+                                        additionalProperties: false
+                                        examples:
+                                          - &a41
+                                            id: ol_pgm
+                                            name: PGM
+                                            isFlattened: false
+                                            isPGM: true
+                                            type: 0
+                                            sourceLayerIds:
+                                              - sl_camera
+                                    publicData:
+                                      description: Optional arbitrary data
+                                    timing:
+                                      type: object
+                                      title: ResolvedSegmentTiming
+                                      description: Timing information about the segment, relative to the start of the
+                                        segment
+                                      properties:
+                                        startMs:
+                                          description: Start offset of the segment (ms). For segments, this is typically
+                                            0.
+                                          type: number
+                                        endMs:
+                                          description: End offset of the segment (ms) from the beginning of the segment
+                                          type: number
+                                        budgetDurationMs:
+                                          description: Planned/budget duration for the segment (ms)
+                                          type: number
+                                      required:
+                                        - startMs
+                                        - endMs
+                                        - budgetDurationMs
+                                      additionalProperties: false
+                                      examples:
+                                        - &a42
+                                          startMs: 0
+                                          endMs: 120000
+                                          budgetDurationMs: 120000
+                                    parts:
+                                      description: Parts in this segment
+                                      type: array
+                                      items:
+                                        title: ResolvedPart
+                                        description: A part within a resolved segment
+                                        allOf:
+                                          - *a17
+                                          - type: object
+                                            title: ResolvedPart
+                                            description: A part within a resolved segment
+                                            properties:
+                                              instanceId:
+                                                type: string
+                                                description: Unique id of the part instance
+                                              externalId:
+                                                type: string
+                                                description: Id normally sourced from the ingest system
+                                              rank:
+                                                type: number
+                                                description: Rank for ordering
+                                              state:
+                                                description: Set only for the current or next part
+                                                title: ResolvedPartState
+                                                type: string
+                                                enum:
+                                                  - current
+                                                  - next
+                                              publicData:
+                                                description: Optional arbitrary data
+                                              timing:
+                                                type: object
+                                                title: ResolvedPartTiming
+                                                description: Timing information about the part, relative to the start of the
+                                                  segment
+                                                properties:
+                                                  startMs:
+                                                    description: Start offset of the part (ms) from the beginning of the segment
+                                                    type: number
+                                                  durationMs:
+                                                    description: Resolved duration of the part (ms)
+                                                    type: number
+                                                  plannedStartedPlayback:
+                                                    description: Unix timestamp (ms) when the part was planned to start playback
+                                                    type: number
+                                                  reportedStartedPlayback:
+                                                    description: Unix timestamp (ms) when the part was reported as started playback
+                                                    type: number
+                                                  playOffset:
+                                                    description: Playback offset relative to planned start (ms)
+                                                    type: number
+                                                  setAsNext:
+                                                    description: Unix timestamp (ms) when the part was set as next
+                                                    type: number
+                                                  take:
+                                                    description: Unix timestamp (ms) when the part was taken
+                                                    type: number
+                                                required:
+                                                  - startMs
+                                                  - durationMs
+                                                additionalProperties: false
+                                                examples:
+                                                  - &a38
+                                                    startMs: 0
+                                                    durationMs: 15000
+                                                    plannedStartedPlayback: 1706371805000
+                                                    reportedStartedPlayback: 1706371806000
+                                                    playOffset: 1000
+                                                    setAsNext: 1706371804000
+                                                    take: 1706371806000
+                                              pieces:
+                                                description: Pieces in this part
+                                                type: array
+                                                items:
+                                                  type: object
+                                                  title: ResolvedPiece
+                                                  description: A piece within a resolved part
+                                                  properties:
+                                                    id:
+                                                      type: string
+                                                      description: Unique id of the piece
+                                                    instanceId:
+                                                      type: string
+                                                      description: Unique id of the piece instance
+                                                    externalId:
+                                                      type: string
+                                                      description: Id normally sourced from the ingest system
+                                                    name:
+                                                      type: string
+                                                      description: User-facing name of the piece
+                                                    priority:
+                                                      type: number
+                                                      description: Priority of the piece
+                                                    sourceLayerId:
+                                                      type: string
+                                                      description: Id of the source layer for this piece
+                                                    outputLayerId:
+                                                      type: string
+                                                      description: Id of the output layer for this piece
+                                                    publicData:
+                                                      description: Optional arbitrary data
+                                                    timing:
+                                                      type: object
+                                                      title: ResolvedPieceTiming
+                                                      description: Timing information about the piece, relative to the start of the
+                                                        part
+                                                      properties:
+                                                        startMs:
+                                                          description: Start offset of the piece (ms) from the beginning of the part
+                                                          type: number
+                                                        durationMs:
+                                                          description: Resolved duration of the piece (ms)
+                                                          type: number
+                                                        prerollMs:
+                                                          description: Preroll duration for the piece (ms)
+                                                          type: number
+                                                      required:
+                                                        - startMs
+                                                        - durationMs
+                                                        - prerollMs
+                                                      additionalProperties: false
+                                                      examples:
+                                                        - &a36
+                                                          startMs: 6500
+                                                          durationMs: 5000
+                                                          prerollMs: 250
+                                                    tags:
+                                                      description: Optional tags attached to this piece
+                                                      type: array
+                                                      items:
+                                                        type: string
+                                                    abSessions:
+                                                      description: Optional AB playback session assignments for this piece
+                                                      type: array
+                                                      items: *a35
+                                                  required:
+                                                    - id
+                                                    - instanceId
+                                                    - externalId
+                                                    - name
+                                                    - priority
+                                                    - sourceLayerId
+                                                    - outputLayerId
+                                                    - timing
+                                                  additionalProperties: false
+                                                  examples:
+                                                    - &a39
+                                                      id: piece_1
+                                                      instanceId: pieceInstance_1
+                                                      externalId: ext_piece_1
+                                                      name: Camera 1
+                                                      priority: 0
+                                                      sourceLayerId: sl_camera
+                                                      outputLayerId: ol_pgm
+                                                      publicData:
+                                                        switcherSource: 1
+                                                      timing: *a36
+                                                      tags:
+                                                        - camera
+                                                      abSessions:
+                                                        - *a37
+                                            required:
+                                              - instanceId
+                                              - externalId
+                                              - rank
+                                              - timing
+                                              - pieces
+                                        examples:
+                                          - &a43
+                                            instanceId: partInstance_current_1
+                                            externalId: ext_part_1
+                                            rank: 10
+                                            state: current
+                                            publicData:
+                                              partType: intro
+                                            timing: *a38
+                                            pieces:
+                                              - *a39
+                                            id: H5CBGYjThrMSmaYvRaa5FVKJIzk_
+                                            name: Intro
+                                            autoNext: false
+                                  required:
+                                    - externalId
+                                    - identifier
+                                    - name
+                                    - rank
+                                    - isHidden
+                                    - sourceLayers
+                                    - outputLayers
+                                    - timing
+                                    - parts
+                              examples:
+                                - &a44
+                                  externalId: ext_seg_1
+                                  identifier: A
+                                  name: Headlines
+                                  rank: 1
+                                  isHidden: false
+                                  sourceLayers:
+                                    - *a40
+                                  outputLayers:
+                                    - *a41
+                                  publicData:
+                                    slug: HEAD
+                                  timing: *a42
+                                  parts:
+                                    - *a43
+                                  id: OKAgZmZ0Buc99lE_2uPPSKVbMrQ_
+                        required:
+                          - id
+                          - externalId
+                          - name
+                          - rank
+                          - description
+                          - segments
+                        additionalProperties: false
+                        examples:
+                          - &a49
+                            id: rd_1
+                            externalId: ext_rd_1
+                            name: Rundown 1
+                            rank: 10
+                            description: ""
+                            publicData:
+                              ingestSource: NRK
+                            segments:
+                              - *a44
+                  required:
+                    - event
+                    - currentPartInstanceId
+                    - nextPartInstanceId
+                    - timing
+                    - tTimers
+                    - rundowns
+              examples:
+                - &a50
+                  event: resolvedPlaylist
+                  currentPartInstanceId: partInstance_current_1
+                  nextPartInstanceId: partInstance_next_1
+                  playoutState:
+                    mode: AUTO
+                  publicData:
+                    category: Evening News
+                  timing: *a45
+                  tTimers:
+                    - index: 1
+                      label: Segment Timer
+                      configured: true
+                      mode: *a46
+                      state: *a47
+                      projected:
+                        paused: false
+                        zeroTime: 1706371925000
+                        pauseTime: null
+                      anchorPartId: part_break_1
+                    - index: 2
+                      label: Show Timer
+                      configured: true
+                      mode: *a48
+                      state:
+                        paused: false
+                        zeroTime: 1706371800000
+                        pauseTime: null
+                      projected: null
+                      anchorPartId: null
+                    - index: 3
+                      label: ""
+                      configured: false
+                      mode: null
+                      state: null
+                      projected: null
+                      anchorPartId: null
+                  quickLoop: *a29
+                  rundowns:
+                    - *a49
+                  id: OKAgZmZ0Buc99lE_2uPPSKVbMrQ_
+                  externalId: 1ZIYVYL1aEkNEJbeGsmRXr5s8wtkyxfPRjNSTxZfcoEI
+                  name: Playlist 0
+                  activationStatus: rehearsal
+            examples:
+              - payload: *a50
   activePieces:
     description: Topic for active pieces updates
     subscribe:
@@ -1033,20 +1592,20 @@ channels:
                 activePieces:
                   description: Pieces that are currently active (on air)
                   type: array
-                  items: *a31
+                  items: *a51
               required:
                 - event
                 - rundownPlaylistId
                 - activePieces
               additionalProperties: false
               examples:
-                - &a32
+                - &a52
                   event: activePieces
                   rundownPlaylistId: OKAgZmZ0Buc99lE_2uPPSKVbMrQ_
                   activePieces:
                     - *a13
             examples:
-              - payload: *a32
+              - payload: *a52
   segments:
     description: Topic for Segment updates
     subscribe:
@@ -1075,7 +1634,7 @@ channels:
                 type: object
                 title: Segment
                 allOf:
-                  - *a33
+                  - *a34
                   - type: object
                     title: Segment
                     properties:
@@ -1089,7 +1648,7 @@ channels:
                       name:
                         description: Name of the segment
                         type: string
-                      timing: *a34
+                      timing: *a53
                       publicData:
                         description: Optional arbitrary data
                     required:
@@ -1102,7 +1661,7 @@ channels:
                   - name
                   - timing
                 examples:
-                  - &a35
+                  - &a54
                     identifier: Segment 0 identifier
                     rundownId: y9HauyWkcxQS3XaAOsW40BRLLsI_
                     name: Segment 0
@@ -1118,13 +1677,13 @@ channels:
             - rundownPlaylistId
             - segments
           examples:
-            - &a36
+            - &a55
               event: segments
               rundownPlaylistId: OKAgZmZ0Buc99lE_2uPPSKVbMrQ_
               segments:
-                - *a35
+                - *a54
         examples:
-          - payload: *a36
+          - payload: *a55
   adLibs:
     description: Topic for AdLibs updates
     subscribe:
@@ -1154,7 +1713,7 @@ channels:
                   items:
                     title: AdLibStatus
                     allOf:
-                      - &a41
+                      - &a60
                         title: AdLibBase
                         type: object
                         properties:
@@ -1189,7 +1748,7 @@ channels:
                                 - label
                               additionalProperties: false
                               examples:
-                                - &a37
+                                - &a56
                                   name: pvw
                                   label: Preview
                           tags:
@@ -1209,15 +1768,15 @@ channels:
                           - sourceLayer
                           - actionType
                         examples:
-                          - &a42
+                          - &a61
                             id: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
                             name: Music video clip
                             sourceLayer: Video Clip
-                            actionType: &a38
-                              - *a37
-                            tags: &a39
+                            actionType: &a57
+                              - *a56
+                            tags: &a58
                               - music_video
-                            publicData: &a40
+                            publicData: &a59
                               fileName: MV000123.mxf
                             optionsSchema: '{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Play
                               Video
@@ -1249,15 +1808,15 @@ channels:
                           - segmentId
                           - partId
                     examples:
-                      - &a43
+                      - &a62
                         segmentId: HsD8_QwE1ZmR5vN3XcK_Ab7y
                         partId: JkL3_OpR6WxT1bF8Vq2_Zy9u
                         id: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
                         name: Music video clip
                         sourceLayer: Video Clip
-                        actionType: *a38
-                        tags: *a39
-                        publicData: *a40
+                        actionType: *a57
+                        tags: *a58
+                        publicData: *a59
                         optionsSchema: '{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Play
                           Video
                           Clip","type":"object","properties":{"type":"adlib_action_video_clip","label":{"type":"string"},"clipId":{"type":"string"},"vo":{"type":"boolean"},"target":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Object
@@ -1281,9 +1840,9 @@ channels:
                   items:
                     title: GlobalAdLibStatus
                     allOf:
-                      - *a41
+                      - *a60
                     examples:
-                      - *a42
+                      - *a61
               required:
                 - event
                 - rundownPlaylistId
@@ -1291,15 +1850,15 @@ channels:
                 - globalAdLibs
               additionalProperties: false
               examples:
-                - &a44
+                - &a63
                   event: adLibs
                   rundownPlaylistId: OKAgZmZ0Buc99lE_2uPPSKVbMrQ_
                   adLibs:
-                    - *a43
+                    - *a62
                   globalAdLibs:
-                    - *a42
+                    - *a61
             examples:
-              - payload: *a44
+              - payload: *a63
   packages:
     description: Packages topic for websocket subscriptions. Packages are assets
       that need to be prepared by Sofie Package Manager or third-party systems
@@ -1407,7 +1966,7 @@ channels:
                       - pieceOrAdLibId
                     additionalProperties: false
                     examples:
-                      - &a45
+                      - &a64
                         packageName: MV000123.mxf
                         status: ok
                         rundownId: y9HauyWkcxQS3XaAOsW40BRLLsI_
@@ -1425,7 +1984,7 @@ channels:
                 - event: packages
                   rundownPlaylistId: y9HauyWkcxQS3XaAOsW40BRLLsI_
                   packages:
-                    - *a45
+                    - *a64
   buckets:
     description: Buckets schema for websocket subscriptions
     subscribe:
@@ -1461,7 +2020,7 @@ channels:
                         items:
                           title: BucketAdLibStatus
                           allOf:
-                            - *a41
+                            - *a60
                             - type: object
                               title: BucketAdLibStatus
                               properties:
@@ -1472,14 +2031,14 @@ channels:
                               required:
                                 - externalId
                           examples:
-                            - &a46
+                            - &a65
                               externalId: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
                               id: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
                               name: Music video clip
                               sourceLayer: Video Clip
-                              actionType: *a38
-                              tags: *a39
-                              publicData: *a40
+                              actionType: *a57
+                              tags: *a58
+                              publicData: *a59
                               optionsSchema: '{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Play
                                 Video
                                 Clip","type":"object","properties":{"type":"adlib_action_video_clip","label":{"type":"string"},"clipId":{"type":"string"},"vo":{"type":"boolean"},"target":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Object
@@ -1503,22 +2062,22 @@ channels:
                       - adLibs
                     additionalProperties: false
                     examples:
-                      - &a47
+                      - &a66
                         id: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
                         name: My Bucket
                         adLibs:
-                          - *a46
+                          - *a65
               required:
                 - event
                 - buckets
               additionalProperties: false
               examples:
-                - &a48
+                - &a67
                   event: buckets
                   buckets:
-                    - *a47
+                    - *a66
             examples:
-              - payload: *a48
+              - payload: *a67
   notifications:
     description: Notifications topic for websocket subscriptions.
     subscribe:
@@ -1582,7 +2141,7 @@ channels:
                                 type: string
                                 title: NotificationTargetType
                                 description: Possible NotificationTarget types
-                                enum: &a49
+                                enum: &a68
                                   - rundown
                                   - playlist
                                   - partInstance
@@ -1594,7 +2153,7 @@ channels:
                                 type: string
                             additionalProperties: false
                             examples:
-                              - &a50
+                              - &a69
                                 type: rundown
                                 studioId: studio01
                                 rundownId: rd123
@@ -1610,14 +2169,14 @@ channels:
                                 type: string
                                 title: NotificationTargetType
                                 description: Possible NotificationTarget types
-                                enum: *a49
+                                enum: *a68
                               studioId:
                                 type: string
                               playlistId:
                                 type: string
                             additionalProperties: false
                             examples:
-                              - &a51
+                              - &a70
                                 type: playlist
                                 studioId: studio01
                                 playlistId: pl456
@@ -1634,7 +2193,7 @@ channels:
                                 type: string
                                 title: NotificationTargetType
                                 description: Possible NotificationTarget types
-                                enum: *a49
+                                enum: *a68
                               studioId:
                                 type: string
                               rundownId:
@@ -1643,7 +2202,7 @@ channels:
                                 type: string
                             additionalProperties: false
                             examples:
-                              - &a52
+                              - &a71
                                 type: partInstance
                                 studioId: studio01
                                 rundownId: rd123
@@ -1662,7 +2221,7 @@ channels:
                                 type: string
                                 title: NotificationTargetType
                                 description: Possible NotificationTarget types
-                                enum: *a49
+                                enum: *a68
                               studioId:
                                 type: string
                               rundownId:
@@ -1673,7 +2232,7 @@ channels:
                                 type: string
                             additionalProperties: false
                             examples:
-                              - &a53
+                              - &a72
                                 type: pieceInstance
                                 studioId: studio01
                                 rundownId: rd123
@@ -1689,17 +2248,17 @@ channels:
                                 type: string
                                 title: NotificationTargetType
                                 description: Possible NotificationTarget types
-                                enum: *a49
+                                enum: *a68
                             additionalProperties: false
                             examples:
-                              - &a54
+                              - &a73
                                 type: unknown
                         examples:
-                          - *a50
-                          - *a51
-                          - *a52
-                          - *a53
-                          - *a54
+                          - *a69
+                          - *a70
+                          - *a71
+                          - *a72
+                          - *a73
                       created:
                         type: integer
                         format: int64
@@ -1710,11 +2269,11 @@ channels:
                         description: Unix timestamp of last modification
                     additionalProperties: false
                     examples:
-                      - &a55
+                      - &a74
                         _id: notif123
                         severity: error
                         message: disk.space.low
-                        relatedTo: *a53
+                        relatedTo: *a72
                         created: 1694784932
                         modified: 1694784950
               required:
@@ -1722,9 +2281,9 @@ channels:
                 - activeNotifications
               additionalProperties: false
               examples:
-                - &a56
+                - &a75
                   event: notifications
                   activeNotifications:
-                    - *a55
+                    - *a74
             examples:
-              - payload: *a56
+              - payload: *a75

@@ -1,0 +1,41 @@
+$defs:
+  resolvedPartState:
+    title: ResolvedPartState
+    type: string
+    enum:
+      - current
+      - next
+
+  resolvedPart:
+    title: ResolvedPart
+    description: A part within a resolved segment
+    allOf:
+      - $ref: '../partBase/partBase.yaml#/$defs/partBase'
+      - type: object
+        title: ResolvedPart
+        description: A part within a resolved segment
+        properties:
+          instanceId:
+            type: string
+            description: Unique id of the part instance
+          externalId:
+            type: string
+            description: Id normally sourced from the ingest system
+          rank:
+            type: number
+            description: Rank for ordering
+          state:
+            description: Set only for the current or next part
+            $ref: '#/$defs/resolvedPartState'
+          publicData:
+            description: Optional arbitrary data
+          timing:
+            $ref: '../../timing/resolvedPartTiming/resolvedPartTiming.yaml#/$defs/resolvedPartTiming'
+          pieces:
+            description: Pieces in this part
+            type: array
+            items:
+              $ref: '../../piece/resolvedPiece/resolvedPiece.yaml#/$defs/resolvedPiece'
+        required: [instanceId, externalId, rank, timing, pieces]
+    examples:
+      - $ref: './resolvedPart-example.yaml'

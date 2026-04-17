@@ -1,0 +1,30 @@
+$defs:
+  outputLayer:
+    type: object
+    title: OutputLayer
+    description: Definition of an output layer used in a segment
+    properties:
+      id:
+        type: string
+        description: Unique id of the output layer
+      name:
+        type: string
+        description: User-presentable name of the output layer
+      isFlattened:
+        type: boolean
+        description: Whether the output layer is flattened
+      isPGM:
+        type: boolean
+        description: Whether PGM treatment should be in effect
+      type:
+        type: number
+        description: Output layer type (numeric enum)
+      sourceLayerIds:
+        description: The set of sourceLayer ids that feed this output layer
+        type: array
+        items:
+          type: string
+    required: [id, name, isFlattened, isPGM, type, sourceLayerIds]
+    additionalProperties: false
+    examples:
+      - $ref: './outputLayer-example.yaml'
