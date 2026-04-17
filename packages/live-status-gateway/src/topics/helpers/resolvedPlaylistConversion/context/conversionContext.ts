@@ -8,6 +8,7 @@ import type { PartInstance } from '@sofie-automation/corelib/dist/dataModel/Part
 import type { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import type { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import type { StateCacheResolverDataAccess } from '@sofie-automation/corelib/dist/playout/stateCacheResolverTypes'
+import { RundownId, ShowStyleBaseId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ShowStyleBaseExt } from '../../../../collections/showStyleBaseHandler.js'
 
 export type ToResolvedPlaylistStatusProps = {
@@ -26,7 +27,7 @@ export type ResolvedPlaylistConversionContext = Readonly<{
 	rundownsById: Map<string, DBRundown>
 	showStyleBaseExt: ShowStyleBaseExt
 
-	rundownsToShowStyles: Map<string, ShowStyleBaseExt['_id']>
+	rundownsToShowStyles: ReadonlyMap<RundownId, ShowStyleBaseId>
 	orderedRundownIds: string[]
 
 	segmentsByRundownId: Map<string, DBSegment[]>
@@ -52,17 +53,10 @@ export function createResolvedPlaylistConversionContext(
 		throw new Error('Missing playlist or showStyleBaseExt')
 	}
 
-	const orderedRundownIds = (playlist.rundownIdsInOrder ?? []).map(
-		(r: DBRundownPlaylist['rundownIdsInOrder'][number]) => unprotectString(r)
-	)
-	const rundownsById = new Map<string, DBRundown>(
-		(props.rundownsState ?? []).map((r: DBRundown) => [unprotectString(r._id), r])
-	)
-	const rundownsToShowStyles = new Map<string, ShowStyleBaseExt['_id']>(
-		(playlist.rundownIdsInOrder ?? []).map((r: DBRundownPlaylist['rundownIdsInOrder'][number]) => [
-			String(r),
-			showStyleBaseExt._id,
-		])
+	const orderedRundownIds = (playlist.rundownIdsInOrder ?? []).map((r) => unprotectString(r))
+	const rundownsById = new Map<string, DBRundown>((props.rundownsState ?? []).map((r) => [unprotectString(r._id), r]))
+	const rundownsToShowStyles = new Map<RundownId, ShowStyleBaseId>(
+		(playlist.rundownIdsInOrder ?? []).map((r) => [r, showStyleBaseExt._id])
 	)
 
 	const segmentsByRundownId = groupByRundownId(props.segmentsState)

@@ -7,21 +7,6 @@ import type { DBSegment, SegmentExtended } from '@sofie-automation/corelib/dist/
 import type { ResolvedSegment, SourceLayer, OutputLayer } from '@sofie-automation/live-status-gateway-api'
 import { literal } from '@sofie-automation/server-core-integration'
 
-type NameableSourceLayer = {
-	name?: string
-	abbreviation?: string
-	isHidden?: boolean
-	type?: number
-	_rank?: number
-}
-
-type NameableOutputLayer = {
-	name?: string
-	isFlattened?: boolean
-	isPGM?: boolean
-	sourceLayers?: Array<{ _id?: string }>
-}
-
 export function toResolvedSegmentStatus(
 	ctx: ResolvedPlaylistConversionContext,
 	segment: DBSegment,
@@ -35,7 +20,7 @@ export function toResolvedSegmentStatus(
 		segment,
 		segmentsToReceiveOnRundownEndFromSet: getSegmentsToReceiveOnRundownEndFromSet(ctx, segment),
 		rundownsToReceiveOnShowStyleEndFrom: [],
-		rundownsToShowStyles: ctx.rundownsToShowStyles as any,
+		rundownsToShowStyles: ctx.rundownsToShowStyles,
 		orderedAllPartIds: getOrderedPartsInRundown(ctx, unprotectString(segment.rundownId)).map((p) => p._id),
 		currentPartInstance: ctx.currentPartInstance,
 		nextPartInstance: ctx.nextPartInstance,
@@ -85,7 +70,10 @@ function getSegmentsToReceiveOnRundownEndFromSet(
 
 /** Maps source layers from resolved segment output to API shape sorted by rank. */
 function toSourceLayers(ctx: ResolvedPlaylistConversionContext, segmentExtended: SegmentExtended): SourceLayer[] {
-	return Object.entries<NameableSourceLayer>(segmentExtended?.sourceLayers ?? {})
+	type SourceLayerExtended = NonNullable<SegmentExtended['sourceLayers']>[string]
+	if (!segmentExtended.sourceLayers) return []
+
+	return Object.entries<SourceLayerExtended>(segmentExtended.sourceLayers)
 		.map(([id, layer]) => ({
 			id,
 			name: layer?.name ?? ctx.showStyleBaseExt?.sourceLayerNamesById?.get?.(id) ?? '',
@@ -99,7 +87,10 @@ function toSourceLayers(ctx: ResolvedPlaylistConversionContext, segmentExtended:
 
 /** Maps output layers from resolved segment output to API shape sorted by name. */
 function toOutputLayers(ctx: ResolvedPlaylistConversionContext, segmentExtended: SegmentExtended): OutputLayer[] {
-	return Object.entries<NameableOutputLayer>(segmentExtended?.outputLayers ?? {})
+	type OutputLayerExtended = NonNullable<SegmentExtended['outputLayers']>[string]
+	if (!segmentExtended.outputLayers) return []
+
+	return Object.entries<OutputLayerExtended>(segmentExtended.outputLayers)
 		.map(([id, layer]) =>
 			literal<OutputLayer>({
 				id,
