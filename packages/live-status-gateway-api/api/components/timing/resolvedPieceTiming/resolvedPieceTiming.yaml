@@ -13,7 +13,6 @@ $defs:
       prerollMs:
         description: Preroll duration for the piece (ms)
         type: number
-    required: [startMs, durationMs, prerollMs]
     additionalProperties: false
     examples:
       - $ref: './resolvedPieceTiming-example.yaml'

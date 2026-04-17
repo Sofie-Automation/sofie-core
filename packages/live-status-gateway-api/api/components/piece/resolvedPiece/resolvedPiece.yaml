@@ -25,6 +25,9 @@ $defs:
       outputLayerId:
         type: string
         description: Id of the output layer for this piece
+      createdByAdLib:
+        type: boolean
+        description: Whether this piece was created by an adlib
       publicData:
         description: Optional arbitrary data
       timing:
@@ -39,7 +42,7 @@ $defs:
         type: array
         items:
           $ref: '../pieceStatus/abSessionAssignment.yaml'
-    required: [id, instanceId, externalId, name, priority, sourceLayerId, outputLayerId, timing]
+    required: [id, instanceId, externalId, name, priority, sourceLayerId, outputLayerId, createdByAdLib, timing]
     additionalProperties: false
     examples:
       - $ref: './resolvedPiece-example.yaml'

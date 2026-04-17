@@ -1234,9 +1234,6 @@ channels:
                                           isPGM:
                                             type: boolean
                                             description: Whether PGM treatment should be in effect
-                                          type:
-                                            type: number
-                                            description: Output layer type (numeric enum)
                                           sourceLayerIds:
                                             description: The set of sourceLayer ids that feed this output layer
                                             type: array
@@ -1247,7 +1244,6 @@ channels:
                                           - name
                                           - isFlattened
                                           - isPGM
-                                          - type
                                           - sourceLayerIds
                                         additionalProperties: false
                                         examples:
@@ -1256,7 +1252,6 @@ channels:
                                             name: PGM
                                             isFlattened: false
                                             isPGM: true
-                                            type: 0
                                             sourceLayerIds:
                                               - sl_camera
                                     publicData:
@@ -1315,6 +1310,9 @@ channels:
                                                 enum:
                                                   - current
                                                   - next
+                                              createdByAdLib:
+                                                type: boolean
+                                                description: Whether this part was created by an adlib
                                               publicData:
                                                 description: Optional arbitrary data
                                               timing:
@@ -1386,6 +1384,9 @@ channels:
                                                     outputLayerId:
                                                       type: string
                                                       description: Id of the output layer for this piece
+                                                    createdByAdLib:
+                                                      type: boolean
+                                                      description: Whether this piece was created by an adlib
                                                     publicData:
                                                       description: Optional arbitrary data
                                                     timing:
@@ -1403,10 +1404,6 @@ channels:
                                                         prerollMs:
                                                           description: Preroll duration for the piece (ms)
                                                           type: number
-                                                      required:
-                                                        - startMs
-                                                        - durationMs
-                                                        - prerollMs
                                                       additionalProperties: false
                                                       examples:
                                                         - &a36
@@ -1430,6 +1427,7 @@ channels:
                                                     - priority
                                                     - sourceLayerId
                                                     - outputLayerId
+                                                    - createdByAdLib
                                                     - timing
                                                   additionalProperties: false
                                                   examples:
@@ -1441,6 +1439,7 @@ channels:
                                                       priority: 0
                                                       sourceLayerId: sl_camera
                                                       outputLayerId: ol_pgm
+                                                      createdByAdLib: false
                                                       publicData:
                                                         switcherSource: 1
                                                       timing: *a36
@@ -1452,6 +1451,7 @@ channels:
                                               - instanceId
                                               - externalId
                                               - rank
+                                              - createdByAdLib
                                               - timing
                                               - pieces
                                         examples:
@@ -1460,6 +1460,7 @@ channels:
                                             externalId: ext_part_1
                                             rank: 10
                                             state: current
+                                            createdByAdLib: false
                                             publicData:
                                               partType: intro
                                             timing: *a38

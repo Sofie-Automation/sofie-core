@@ -27,6 +27,9 @@ $defs:
           state:
             description: Set only for the current or next part
             $ref: '#/$defs/resolvedPartState'
+          createdByAdLib:
+            type: boolean
+            description: Whether this part was created by an adlib
           publicData:
             description: Optional arbitrary data
           timing:
@@ -36,6 +39,6 @@ $defs:
             type: array
             items:
               $ref: '../../piece/resolvedPiece/resolvedPiece.yaml#/$defs/resolvedPiece'
-        required: [instanceId, externalId, rank, timing, pieces]
+        required: [instanceId, externalId, rank, createdByAdLib, timing, pieces]
     examples:
       - $ref: './resolvedPart-example.yaml'

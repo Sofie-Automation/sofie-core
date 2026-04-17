@@ -5,6 +5,7 @@ name: 'Camera 1'
 priority: 0
 sourceLayerId: 'sl_camera'
 outputLayerId: 'ol_pgm'
+createdByAdLib: false
 publicData:
   switcherSource: 1
 timing:

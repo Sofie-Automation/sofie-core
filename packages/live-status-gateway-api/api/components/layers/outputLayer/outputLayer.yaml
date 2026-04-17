@@ -16,15 +16,12 @@ $defs:
       isPGM:
         type: boolean
         description: Whether PGM treatment should be in effect
-      type:
-        type: number
-        description: Output layer type (numeric enum)
       sourceLayerIds:
         description: The set of sourceLayer ids that feed this output layer
         type: array
         items:
           type: string
-    required: [id, name, isFlattened, isPGM, type, sourceLayerIds]
+    required: [id, name, isFlattened, isPGM, sourceLayerIds]
     additionalProperties: false
     examples:
       - $ref: './outputLayer-example.yaml'
