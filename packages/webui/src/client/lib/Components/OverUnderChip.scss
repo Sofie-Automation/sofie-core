@@ -1,0 +1,49 @@
+@import '../../styles/colorScheme';
+
+.over-under-chip {
+	font-family: Roboto Flex;
+	display: inline-block;
+	border-radius: 999px;
+	white-space: nowrap;
+	letter-spacing: -0.02em;
+	font-variant-numeric: tabular-nums;
+	color: #000;
+
+	padding: var(--overUnderChipPaddingY, 0.05em) var(--overUnderChipPaddingX, 0.25em);
+	margin-left: var(--overUnderChipMarginLeft, 0em);
+	margin-top: var(--overUnderChipMarginTop, 0em);
+	line-height: var(--overUnderChipLineHeight, 1);
+
+	font-variation-settings:
+		'wdth' var(--overUnderChipWdth, 25),
+		'wght' var(--overUnderChipWght, 600),
+		'slnt' var(--overUnderChipSlnt, 0),
+		'GRAD' var(--overUnderChipGrad, 0),
+		'opsz' var(--overUnderChipOpsz, 14),
+		'XOPQ' var(--overUnderChipXopq, 96),
+		'XTRA' var(--overUnderChipXtra, 468),
+		'YOPQ' var(--overUnderChipYopq, 79),
+		'YTAS' var(--overUnderChipYtas, 750),
+		'YTFI' var(--overUnderChipYtfi, 738),
+		'YTLC' var(--overUnderChipYtlc, 548),
+		'YTDE' var(--overUnderChipYtde, -203),
+		'YTUC' var(--overUnderChipYtuc, 712);
+
+	&.over-under-chip--over {
+		--overUnderChipWght: 700;
+		background-color: $general-late-color;
+	}
+
+	&.over-under-chip--under {
+		--overUnderChipWght: 500;
+		background-color: #ff0; // Should probably be changed to $general-fast-color;
+	}
+}
+
+// Optional preset for when the chip is used as a large screen overlay.
+.over-under-chip--overlay {
+	--overUnderChipWght: 700;
+	--overUnderChipOpsz: 20;
+	--overUnderChipYopq: 92;
+	--overUnderChipYtlc: 514;
+}

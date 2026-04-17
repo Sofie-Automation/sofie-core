@@ -10,7 +10,7 @@ import {
 	PeripheralDevicePubSubCollections,
 	PeripheralDevicePubSubCollectionsNames,
 } from '@sofie-automation/shared-lib/dist/pubsub/peripheralDevice'
-import {
+import type {
 	MongoCollection,
 	MongoReadOnlyCollection,
 	MongoCursor,
@@ -22,7 +22,20 @@ import {
 import { CustomCollectionName as CustomCorelibCollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 import { CorelibPubSubCustomCollections } from '@sofie-automation/corelib/dist/pubsub'
 
-export * from '@sofie-automation/meteor-lib/dist/collections/lib'
+export type {
+	FieldNames,
+	FindOneOptions,
+	FindOptions,
+	IndexSpecifier,
+	MongoCollection,
+	MongoCursor,
+	MongoLiveQueryHandle,
+	MongoReadOnlyCollection,
+	ObserveCallbacks,
+	ObserveChangesCallbacks,
+	UpdateOptions,
+	UpsertOptions,
+} from '@sofie-automation/meteor-lib/dist/collections/lib'
 
 export const ClientCollections = new Map<CollectionName, MongoCollection<any> | WrappedMongoReadOnlyCollection<any>>()
 function registerClientCollection(

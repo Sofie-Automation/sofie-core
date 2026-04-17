@@ -1,0 +1,79 @@
+@import 'colorScheme';
+
+/**
+ * Default styling for `ui/ClockView/TTimerDisplay.tsx`.
+ *
+ * Layout/positioning/font-size should be applied by the embedding view
+ * (eg. status bar, director screen), but the core look of the timer itself
+ * is defined here.
+ */
+.t-timer-display {
+	display: flex;
+	align-items: stretch;
+	justify-content: flex-end;
+
+	background: #333;
+	border-radius: 0;
+	overflow: hidden;
+
+	font-family: Roboto Flex;
+	font-size: 1em;
+	line-height: 1;
+
+	height: 1.46em;
+
+	&__countdown {
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+		gap: 0;
+
+		.countdown__label {
+			font-variation-settings:
+				'wdth' 25,
+				'wght' 400,
+				'slnt' 0,
+				'GRAD' 0,
+				'opsz' 30,
+				'XOPQ' 96,
+				'XTRA' 468,
+				'YOPQ' 79,
+				'YTAS' 750,
+				'YTFI' 738,
+				'YTLC' 548,
+				'YTDE' -203,
+				'YTUC' 712;
+			letter-spacing: 0.0001em;
+			font-size: 1.3em;
+			padding-left: 0.125em;
+			color: #fff;
+		}
+
+		.countdown__counter {
+			display: flex;
+			align-items: center;
+			font-variation-settings:
+				'wdth' 25,
+				'wght' 500,
+				'slnt' 0,
+				'GRAD' 0,
+				'opsz' 20,
+				'XOPQ' 96,
+				'XTRA' 468,
+				'YOPQ' 79,
+				'YTAS' 750,
+				'YTFI' 738,
+				'YTLC' 548,
+				'YTDE' -203,
+				'YTUC' 712;
+			padding: 0 0.1em;
+			.over-under-chip {
+				position: relative;
+				left: 0.1em;
+				--overUnderChipOpsz: 20;
+				--overUnderChipYtlc: 514;
+				--overUnderChipMarginLeft: 0.15em;
+			}
+		}
+	}
+}
