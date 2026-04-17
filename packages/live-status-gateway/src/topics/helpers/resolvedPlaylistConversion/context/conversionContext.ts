@@ -167,13 +167,13 @@ function createQueryAdapters({
 	// Adapter surface expected by `getResolvedSegment`
 	return {
 		segmentsFindOne: (selector, _options): DBSegment | undefined => {
-			const segmentId: DBSegment['_id'] | undefined =
-				typeof selector === 'object' && selector !== null && '_id' in selector
-					? (selector._id as DBSegment['_id'] | undefined)
-					: (selector as DBSegment['_id'])
-			if (!segmentId) return undefined
-			const normalizedSelectorId = unprotectString(segmentId)
-			return segmentsState.find((s) => unprotectString(s._id) === normalizedSelectorId)
+			if (!selector) return undefined
+			if (typeof selector === 'string') {
+				const normalizedSelectorId = unprotectString(selector as any)
+				return segmentsState.find((s) => unprotectString(s._id) === normalizedSelectorId)
+			}
+
+			return mongoWhereFilter(segmentsState, selector as never)[0]
 		},
 		getSegmentsAndPartsSync: (playlistPick, segmentsQuery, partsQuery) => {
 			const rundownIds = new Set(playlistPick.rundownIdsInOrder ?? [])
