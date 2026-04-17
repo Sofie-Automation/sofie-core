@@ -150,6 +150,7 @@ export class L3rdSourceRenderer extends CustomLayerItemRenderer<IProps, IState> 
 							ref={this.setRightLabelRef}
 							style={this.getItemLabelOffsetRight()}
 						>
+							{this.renderCustomPieceIcons()}
 							{this.renderInfiniteIcon()}
 							{this.renderLoopIcon()}
 							{this.renderOverflowTimeLabel()}

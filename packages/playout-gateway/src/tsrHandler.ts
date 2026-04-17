@@ -259,20 +259,20 @@ export class TSRHandler {
 
 			return `Device "${device?.deviceName ?? id}" (${device?.instanceId ?? 'instance unknown'}): ` + e
 		}
-		const fixError = (id: string, e: Error): any => {
+		const fixError = (id: string, e: any): any => {
 			const device = this._coreTsrHandlers[id]?._device
 			const name = `Device "${device?.deviceName ?? id}" (${device?.instanceId ?? 'instance unknown'})`
 
-			if (!e || !('message' in e)) {
+			if (!e || typeof e !== 'object' || !('message' in e)) {
 				return {
-					message: name + ': ' + 'Unknown error: ' + JSON.stringify(e),
+					message: name + ': ' + 'Unknown error: ' + stringifyError(e, true),
 				}
 			}
 
 			return {
-				message: e.message && name + ': ' + e.message,
-				name: e.name && name + ': ' + e.name,
-				stack: e.stack && e.stack + '\nAt device' + name,
+				message: e.message !== undefined ? name + ': ' + e.message : undefined,
+				name: e.name !== undefined ? name + ': ' + e.name : undefined,
+				stack: e.stack !== undefined ? e.stack + '\nAt device' + name : undefined,
 			}
 		}
 		const fixContext = (...context: any[]): any => {

@@ -88,6 +88,8 @@ export function UserEditOperationMenuItems({
 						)
 					case UserEditingType.SOFIE:
 						return null
+					case UserEditingType.STATE:
+						return null
 					default:
 						assertNever(userEditOperation)
 						return null
