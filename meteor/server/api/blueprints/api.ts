@@ -112,23 +112,32 @@ export async function uploadBlueprintAsset(cred: RequestCredentials, fileId: str
 	assertConnectionHasOneOfPermissions(cred, ...PERMISSIONS_FOR_MANAGE_BLUEPRINTS)
 
 	const storePath = getSystemStorePath()
+	const assetsDir = path.resolve(storePath, 'assets') + path.sep
+	const assetPath = path.resolve(path.join(assetsDir, fileId))
+	if (!assetPath.startsWith(assetsDir)) {
+		throw new Error('Asset name outside of asset storage path')
+	}
 
 	// TODO: add access control here
 	const data = Buffer.from(body, 'base64')
-	const parsedPath = path.parse(fileId)
-	logger.info(
-		`Write ${data.length} bytes to ${path.join(storePath, fileId)} (storePath: ${storePath}, fileId: ${fileId})`
-	)
+	logger.info(`Write ${data.length} bytes to ${assetPath} (storePath: ${storePath}, fileId: ${fileId})`)
 
-	await fsp.mkdir(path.join(storePath, parsedPath.dir), { recursive: true })
-	await fsp.writeFile(path.join(storePath, fileId), data)
+	const assetDirPath = path.dirname(assetPath)
+
+	await fsp.mkdir(assetDirPath, { recursive: true })
+	await fsp.writeFile(assetPath, data)
 }
 export function retrieveBlueprintAsset(_cred: RequestCredentials, fileId: string): ReadStream {
 	check(fileId, String)
 
 	const storePath = getSystemStorePath()
+	const assetsDir = path.resolve(storePath, 'assets') + path.sep
+	const assetPath = path.resolve(path.join(assetsDir, fileId))
+	if (!assetPath.startsWith(assetsDir)) {
+		throw new Error('Requested asset outside of asset storage path')
+	}
 
-	return createReadStream(path.join(storePath, fileId))
+	return createReadStream(assetPath)
 }
 /** Only to be called from internal functions */
 export async function internalUploadBlueprint(

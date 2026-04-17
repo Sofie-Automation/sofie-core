@@ -179,12 +179,12 @@ blueprintsRouter.post(
 	}
 )
 
-blueprintsRouter.get('/assets/*splat', async (ctx) => {
+blueprintsRouter.get('/assets/*fileId', async (ctx) => {
 	logger.debug(`Blueprint Asset: ${ctx.socket.remoteAddress} GET "${ctx.url}"`)
 	// TODO - some sort of user verification
 	// for now just check it's a png to prevent snapshots being downloaded
 
-	const filePath = ctx.params[0]
+	const filePath = ctx.params.fileId
 	if (filePath.match(/\.(png|svg|gif)?$/)) {
 		try {
 			const dataStream = retrieveBlueprintAsset(ctx, filePath)
@@ -200,8 +200,17 @@ blueprintsRouter.get('/assets/*splat', async (ctx) => {
 			ctx.set('Cache-Control', `public, max-age=${BLUEPRINT_ASSET_MAX_AGE}, immutable`)
 			ctx.statusCode = 200
 			ctx.body = dataStream
-		} catch {
-			ctx.statusCode = 404 // Probably
+		} catch (e) {
+			if (e instanceof Error && 'code' in e && e.code === 'ENOENT') {
+				logger.warn('Blueprint asset not found: ' + e)
+				ctx.statusCode = 404
+			} else if (e instanceof Error && e.message.includes('outside of asset storage path')) {
+				logger.warn('Blueprint asset path traversal attempt: ' + e)
+				ctx.statusCode = 400
+			} else {
+				logger.warn('Blueprint asset retrieval failed: ' + e)
+				ctx.statusCode = 500
+			}
 		}
 	} else {
 		ctx.statusCode = 403
