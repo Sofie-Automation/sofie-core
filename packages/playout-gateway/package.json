@@ -1,6 +1,6 @@
 {
 	"name": "playout-gateway",
-	"version": "1.52.17-nrk",
+	"version": "1.52.18-nrk",
 	"private": true,
 	"description": "Connect to Core, play stuff",
 	"license": "MIT",
@@ -61,8 +61,8 @@
 	},
 	"dependencies": {
 		"@koa/router": "^14.0.0",
-		"@sofie-automation/server-core-integration": "1.52.17-nrk",
-		"@sofie-automation/shared-lib": "1.52.17-nrk",
+		"@sofie-automation/server-core-integration": "1.52.18-nrk",
+		"@sofie-automation/shared-lib": "1.52.18-nrk",
 		"debug": "^4.4.0",
 		"influx": "^5.9.7",
 		"timeline-state-resolver": "9.3.1-nightly-feat-nrk-r52-kairos-20260218-140433-5a8d40ffd.0",

@@ -1,6 +1,6 @@
 {
 	"name": "sofie-documentation",
-	"version": "1.52.17-nrk",
+	"version": "1.52.18-nrk",
 	"private": true,
 	"scripts": {
 		"docusaurus": "docusaurus",

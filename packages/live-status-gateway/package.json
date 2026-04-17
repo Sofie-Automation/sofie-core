@@ -1,6 +1,6 @@
 {
 	"name": "live-status-gateway",
-	"version": "1.52.17-nrk",
+	"version": "1.52.18-nrk",
 	"private": true,
 	"description": "Provides state from Sofie over sockets",
 	"license": "MIT",
@@ -53,10 +53,10 @@
 		"production"
 	],
 	"dependencies": {
-		"@sofie-automation/blueprints-integration": "1.52.17-nrk",
-		"@sofie-automation/corelib": "1.52.17-nrk",
-		"@sofie-automation/server-core-integration": "1.52.17-nrk",
-		"@sofie-automation/shared-lib": "1.52.17-nrk",
+		"@sofie-automation/blueprints-integration": "1.52.18-nrk",
+		"@sofie-automation/corelib": "1.52.18-nrk",
+		"@sofie-automation/server-core-integration": "1.52.18-nrk",
+		"@sofie-automation/shared-lib": "1.52.18-nrk",
 		"debug": "^4.4.0",
 		"fast-clone": "^1.5.13",
 		"influx": "^5.9.7",

@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.52.18-nrk](https://github.com/Sofie-Automation/sofie-core/compare/v1.52.17-nrk...v1.52.18-nrk) (2026-04-17)
+
+**Note:** Version bump only for package mos-gateway
+
+
+
+
+
 ## [1.52.17-nrk](https://github.com/Sofie-Automation/sofie-core/compare/v1.52.16-nrk...v1.52.17-nrk) (2026-04-10)
 
 **Note:** Version bump only for package mos-gateway

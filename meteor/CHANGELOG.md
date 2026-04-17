@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.52.18-nrk](///compare/v1.52.17-nrk...v1.52.18-nrk) (2026-04-17)
+
 ### [1.52.17-nrk](///compare/v1.52.16-nrk...v1.52.17-nrk) (2026-04-10)
 
 
