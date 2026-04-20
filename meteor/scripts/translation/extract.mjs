@@ -65,8 +65,13 @@ function jsonToPoPlugin(_translationNamespace, extractionStats) {
 		async afterSync(results) {
 			await Promise.all(
 				results.map(async (result) => {
-					const language = result.path.split(/[/\\]/).at(-2)
+					const language = result.path
+						.split(/[/\\]/)
+						.at(-1)
+						.replace(/\.json$/, '')
 					const poPath = result.path.replace(/\.json$/, '.po')
+
+					console.log('lang', language)
 
 					// Load existing translations from the .po file if it exists
 					let existingTranslations = {}

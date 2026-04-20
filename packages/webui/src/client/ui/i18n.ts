@@ -149,7 +149,7 @@ class I18nContainer extends WithManagedTracker {
 }
 
 const container = new I18nContainer()
-const i18nTranslator: TFunction = container.i18nInstance.t
+const i18nTranslator: TFunction = ((key: unknown, ...args: any[]) => container.i18nTranslator(key, ...args)) as any
 
 export { i18nTranslator }
 

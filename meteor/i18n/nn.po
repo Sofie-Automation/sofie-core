@@ -5,9 +5,9 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2026-04-14T13:38:45.457Z\n"
-"PO-Revision-Date: 2026-04-14T13:38:45.457Z\n"
-"Language: i18n\n"
+"POT-Creation-Date: 2026-04-14T14:17:21.139Z\n"
+"PO-Revision-Date: 2026-04-14T14:17:21.139Z\n"
+"Language: nn\n"
 
 msgid " The index of the Atem media/clip banks"
 msgstr ""
@@ -783,7 +783,7 @@ msgid "Cancel"
 msgstr "Avbryt"
 
 msgid "Cancel currently pressed hotkey"
-msgstr ""
+msgstr "Avbryt den trykte tasten"
 
 msgid "Cannot activate HOLD before a part has been taken!"
 msgstr ""
@@ -831,7 +831,7 @@ msgid "Center"
 msgstr ""
 
 msgid "Change to fullscreen mode"
-msgstr ""
+msgstr "Fullskjermmodus"
 
 msgid "Channel Name"
 msgstr "Kanalnavn"
@@ -2464,11 +2464,11 @@ msgstr ""
 msgid "NRCS Name"
 msgstr ""
 
-msgid "OAuth credentials successfully uploaded."
-msgstr "Opplasting av OAuth credentials var vellukka."
-
 msgid "OAuth credentials successfully reset"
-msgstr "OAuth credentials nullstilt."
+msgstr ""
+
+msgid "OAuth credentials successfully uploaded."
+msgstr ""
 
 msgid "Off"
 msgstr "Av"
@@ -4237,7 +4237,7 @@ msgid "Trim \"{{name}}\""
 msgstr "Trim \"{{name}}\""
 
 msgid "Trimmed successfully."
-msgstr "Endring av inn-/utpunkt var vellukka."
+msgstr ""
 
 msgid "Trimming this clip has failed due to an error: {{error}}."
 msgstr "Endring av inn-/utpunkt for dette klippet feila: {{error}}."
