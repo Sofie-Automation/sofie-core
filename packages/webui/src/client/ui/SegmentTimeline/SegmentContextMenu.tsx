@@ -123,7 +123,7 @@ export function SegmentContextMenu({
 		isSegmentEditAble &&
 		part?.instance._id !== playlist.currentPartInfo?.partInstanceId &&
 		part?.instance._id !== playlist.nextPartInfo?.partInstanceId &&
-		part?.instance._id !== playlist.previousPartInfo?.partInstanceId
+		part?.instance._id !== playlist.previousPartsInfo?.[0]?.partInstanceId
 
 	const segmentHasEditableContent = hasUserEditableContent(segment)
 	const partHasEditableContent = hasUserEditableContent(part?.instance.part)

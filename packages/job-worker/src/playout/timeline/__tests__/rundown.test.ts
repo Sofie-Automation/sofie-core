@@ -94,7 +94,9 @@ describe('buildTimelineObjsForRundown', () => {
 			_id: protectString('mockPlaylist'),
 			nextPartInfo: convertSelectedPartInstance(selectedPartInfos.next),
 			currentPartInfo: convertSelectedPartInstance(selectedPartInfos.current),
-			previousPartInfo: convertSelectedPartInstance(selectedPartInfos.previous),
+			previousPartsInfo: selectedPartInfos.previous
+				.map((info) => convertSelectedPartInstance(info))
+				.filter((info): info is SelectedPartInstance => info !== null),
 			activationId: protectString('mockActivationId'),
 			rehearsal: false,
 		} as Partial<DBRundownPlaylist> as any
@@ -173,7 +175,7 @@ describe('buildTimelineObjsForRundown', () => {
 	it('playlist with no parts', () => {
 		const context = setupDefaultJobEnvironment()
 
-		const selectedPartInfos: SelectedPartInstancesTimelineInfo = {}
+		const selectedPartInfos: SelectedPartInstancesTimelineInfo = { previous: [] }
 
 		const playlist = createMockPlaylist(selectedPartInfos)
 		const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos, true)
@@ -203,13 +205,15 @@ describe('buildTimelineObjsForRundown', () => {
 		const context = setupDefaultJobEnvironment()
 
 		const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
-			previous: {
-				partTimes: createPartCurrentTimes(currentTime, 5678),
-				partInstance: createMockPartInstance('part0'),
-				pieceInstances: [],
-				calculatedTimings: DEFAULT_PART_TIMINGS,
-				regenerateTimelineAt: undefined,
-			},
+			previous: [
+				{
+					partTimes: createPartCurrentTimes(currentTime, 5678),
+					partInstance: createMockPartInstance('part0'),
+					pieceInstances: [],
+					calculatedTimings: DEFAULT_PART_TIMINGS,
+					regenerateTimelineAt: undefined,
+				},
+			],
 		}
 
 		const playlist = createMockPlaylist(selectedPartInfos)
@@ -223,6 +227,7 @@ describe('buildTimelineObjsForRundown', () => {
 		const context = setupDefaultJobEnvironment()
 
 		const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
+			previous: [],
 			current: {
 				partTimes: createPartCurrentTimes(currentTime, 5678),
 				partInstance: createMockPartInstance('part0'),
@@ -248,6 +253,7 @@ describe('buildTimelineObjsForRundown', () => {
 		const context = setupDefaultJobEnvironment()
 
 		const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
+			previous: [],
 			current: {
 				partTimes: createPartCurrentTimes(currentTime, 5678),
 				partInstance: createMockPartInstance(
@@ -281,6 +287,7 @@ describe('buildTimelineObjsForRundown', () => {
 		const context = setupDefaultJobEnvironment()
 
 		const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
+			previous: [],
 			current: {
 				partTimes: createPartCurrentTimes(currentTime, 5678),
 				partInstance: createMockPartInstance('part0'),
@@ -314,6 +321,7 @@ describe('buildTimelineObjsForRundown', () => {
 		const context = setupDefaultJobEnvironment()
 
 		const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
+			previous: [],
 			current: {
 				partTimes: createPartCurrentTimes(currentTime, 5678),
 				partInstance: createMockPartInstance('part0', { autoNext: true, expectedDuration: 5000 }),
@@ -347,21 +355,23 @@ describe('buildTimelineObjsForRundown', () => {
 		const context = setupDefaultJobEnvironment()
 
 		const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
-			previous: {
-				partTimes: createPartCurrentTimes(currentTime, 1234),
-				partInstance: createMockPartInstance(
-					'part9',
-					{ autoNext: true, expectedDuration: 5000 },
-					{
-						timings: {
-							plannedStartedPlayback: 1235,
-						},
-					}
-				),
-				pieceInstances: [createMockPieceInstance('piece9')],
-				calculatedTimings: DEFAULT_PART_TIMINGS,
-				regenerateTimelineAt: undefined,
-			},
+			previous: [
+				{
+					partTimes: createPartCurrentTimes(currentTime, 1234),
+					partInstance: createMockPartInstance(
+						'part9',
+						{ autoNext: true, expectedDuration: 5000 },
+						{
+							timings: {
+								plannedStartedPlayback: 1235,
+							},
+						}
+					),
+					pieceInstances: [createMockPieceInstance('piece9')],
+					calculatedTimings: DEFAULT_PART_TIMINGS,
+					regenerateTimelineAt: undefined,
+				},
+			],
 			current: {
 				partTimes: createPartCurrentTimes(currentTime, 5678),
 				partInstance: createMockPartInstance('part0'),
@@ -379,7 +389,7 @@ describe('buildTimelineObjsForRundown', () => {
 		expect(transformTimelineIntoSimplifiedForm(objs)).toMatchSnapshot()
 
 		// make sure the previous part was generated
-		const previousPartGroupId = getPartGroupId(selectedPartInfos.previous!.partInstance)
+		const previousPartGroupId = getPartGroupId(selectedPartInfos.previous[0].partInstance)
 		expect(objs.timeline.find((obj) => obj.id === previousPartGroupId)).toBeTruthy()
 		expect(objs.timingContext?.previousPartOverlap).not.toBeUndefined()
 	})
@@ -389,21 +399,23 @@ describe('buildTimelineObjsForRundown', () => {
 			const context = setupDefaultJobEnvironment()
 
 			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
-				previous: {
-					partTimes: createPartCurrentTimes(currentTime, 1234),
-					partInstance: createMockPartInstance(
-						'part9',
-						{ autoNext: true, expectedDuration: 5000 },
-						{
-							timings: {
-								plannedStartedPlayback: 1235,
-							},
-						}
-					),
-					pieceInstances: [createMockPieceInstance('piece9'), createMockPieceInstance('piece8')],
-					calculatedTimings: DEFAULT_PART_TIMINGS,
-					regenerateTimelineAt: undefined,
-				},
+				previous: [
+					{
+						partTimes: createPartCurrentTimes(currentTime, 1234),
+						partInstance: createMockPartInstance(
+							'part9',
+							{ autoNext: true, expectedDuration: 5000 },
+							{
+								timings: {
+									plannedStartedPlayback: 1235,
+								},
+							}
+						),
+						pieceInstances: [createMockPieceInstance('piece9'), createMockPieceInstance('piece8')],
+						calculatedTimings: DEFAULT_PART_TIMINGS,
+						regenerateTimelineAt: undefined,
+					},
+				],
 				current: {
 					partTimes: createPartCurrentTimes(currentTime, 5678),
 					partInstance: createMockPartInstance('part0'),
@@ -428,7 +440,7 @@ describe('buildTimelineObjsForRundown', () => {
 			expect(transformTimelineIntoSimplifiedForm(objs)).toMatchSnapshot()
 
 			// make sure the previous part was generated
-			const previousPartGroupId = getPartGroupId(selectedPartInfos.previous!.partInstance)
+			const previousPartGroupId = getPartGroupId(selectedPartInfos.previous[0].partInstance)
 			expect(objs.timeline.find((obj) => obj.id === previousPartGroupId)).toBeTruthy()
 			expect(objs.timingContext?.previousPartOverlap).not.toBeUndefined()
 		})
@@ -437,26 +449,28 @@ describe('buildTimelineObjsForRundown', () => {
 			const context = setupDefaultJobEnvironment()
 
 			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
-				previous: {
-					partTimes: createPartCurrentTimes(currentTime, 1234),
-					partInstance: createMockPartInstance(
-						'part9',
-						{ autoNext: true, expectedDuration: 5000 },
-						{
-							timings: {
-								plannedStartedPlayback: 1235,
-							},
-						}
-					),
-					pieceInstances: [
-						createMockPieceInstance('piece9'),
-						createMockPieceInstance('piece8', {
-							excludeDuringPartKeepalive: true,
-						}),
-					],
-					calculatedTimings: DEFAULT_PART_TIMINGS,
-					regenerateTimelineAt: undefined,
-				},
+				previous: [
+					{
+						partTimes: createPartCurrentTimes(currentTime, 1234),
+						partInstance: createMockPartInstance(
+							'part9',
+							{ autoNext: true, expectedDuration: 5000 },
+							{
+								timings: {
+									plannedStartedPlayback: 1235,
+								},
+							}
+						),
+						pieceInstances: [
+							createMockPieceInstance('piece9'),
+							createMockPieceInstance('piece8', {
+								excludeDuringPartKeepalive: true,
+							}),
+						],
+						calculatedTimings: DEFAULT_PART_TIMINGS,
+						regenerateTimelineAt: undefined,
+					},
+				],
 				current: {
 					partTimes: createPartCurrentTimes(currentTime, 5678),
 					partInstance: createMockPartInstance('part0'),
@@ -481,7 +495,7 @@ describe('buildTimelineObjsForRundown', () => {
 			expect(transformTimelineIntoSimplifiedForm(objs)).toMatchSnapshot()
 
 			// make sure the previous part was generated
-			const previousPartGroupId = getPartGroupId(selectedPartInfos.previous!.partInstance)
+			const previousPartGroupId = getPartGroupId(selectedPartInfos.previous[0].partInstance)
 			expect(objs.timeline.find((obj) => obj.id === previousPartGroupId)).toBeTruthy()
 			expect(objs.timingContext?.previousPartOverlap).not.toBeUndefined()
 		})
@@ -490,6 +504,7 @@ describe('buildTimelineObjsForRundown', () => {
 			const context = setupDefaultJobEnvironment()
 
 			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
+				previous: [],
 				current: {
 					partTimes: createPartCurrentTimes(currentTime, 5678),
 					partInstance: createMockPartInstance('part0', { autoNext: true, expectedDuration: 5000 }),
@@ -532,6 +547,7 @@ describe('buildTimelineObjsForRundown', () => {
 			jest.spyOn(global.Date, 'now').mockImplementation(() => 3000)
 
 			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
+				previous: [],
 				current: {
 					partTimes: createPartCurrentTimes(currentTime, 5678),
 					partInstance: createMockPartInstance(
@@ -611,7 +627,7 @@ describe('buildTimelineObjsForRundown', () => {
 			const context = setupDefaultJobEnvironment()
 
 			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
-				previous: PREVIOUS_PART_INSTANCE,
+				previous: [PREVIOUS_PART_INSTANCE],
 				current: {
 					partTimes: createPartCurrentTimes(currentTime, 5678),
 					partInstance: createMockPartInstance('part0'),
@@ -636,13 +652,15 @@ describe('buildTimelineObjsForRundown', () => {
 			const context = setupDefaultJobEnvironment()
 
 			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
-				previous: {
-					...PREVIOUS_PART_INSTANCE,
-					pieceInstances: [
-						...PREVIOUS_PART_INSTANCE.pieceInstances,
-						createMockInfinitePieceInstance('piece6', {}, {}, 1),
-					],
-				},
+				previous: [
+					{
+						...PREVIOUS_PART_INSTANCE,
+						pieceInstances: [
+							...PREVIOUS_PART_INSTANCE.pieceInstances,
+							createMockInfinitePieceInstance('piece6', {}, {}, 1),
+						],
+					},
+				],
 				current: {
 					partTimes: createPartCurrentTimes(currentTime, 5678),
 					partInstance: createMockPartInstance('part0'),
@@ -664,13 +682,15 @@ describe('buildTimelineObjsForRundown', () => {
 			const context = setupDefaultJobEnvironment()
 
 			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
-				previous: {
-					...PREVIOUS_PART_INSTANCE,
-					pieceInstances: [
-						...PREVIOUS_PART_INSTANCE.pieceInstances,
-						createMockInfinitePieceInstance('piece6', { excludeDuringPartKeepalive: true }, {}, 1),
-					],
-				},
+				previous: [
+					{
+						...PREVIOUS_PART_INSTANCE,
+						pieceInstances: [
+							...PREVIOUS_PART_INSTANCE.pieceInstances,
+							createMockInfinitePieceInstance('piece6', { excludeDuringPartKeepalive: true }, {}, 1),
+						],
+					},
+				],
 				current: {
 					partTimes: createPartCurrentTimes(currentTime, 5678),
 					partInstance: createMockPartInstance('part0'),
@@ -694,10 +714,12 @@ describe('buildTimelineObjsForRundown', () => {
 			const infinitePiece = createMockInfinitePieceInstance('piece6')
 
 			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
-				previous: {
-					...PREVIOUS_PART_INSTANCE,
-					pieceInstances: [...PREVIOUS_PART_INSTANCE.pieceInstances, infinitePiece],
-				},
+				previous: [
+					{
+						...PREVIOUS_PART_INSTANCE,
+						pieceInstances: [...PREVIOUS_PART_INSTANCE.pieceInstances, infinitePiece],
+					},
+				],
 				current: {
 					partTimes: createPartCurrentTimes(currentTime, 5678),
 					partInstance: createMockPartInstance('part0'),
@@ -721,6 +743,7 @@ describe('buildTimelineObjsForRundown', () => {
 			const infinitePiece = createMockInfinitePieceInstance('piece6')
 
 			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
+				previous: [],
 				current: {
 					partTimes: createPartCurrentTimes(currentTime, 5678),
 					partInstance: createMockPartInstance(
@@ -765,6 +788,7 @@ describe('buildTimelineObjsForRundown', () => {
 			const context = setupDefaultJobEnvironment()
 
 			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
+				previous: [],
 				current: {
 					partTimes: createPartCurrentTimes(currentTime, 5678),
 					partInstance: createMockPartInstance(
@@ -812,6 +836,7 @@ describe('buildTimelineObjsForRundown', () => {
 			const context = setupDefaultJobEnvironment()
 
 			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
+				previous: [],
 				current: {
 					partTimes: createPartCurrentTimes(currentTime, 5678),
 					partInstance: createMockPartInstance(
@@ -856,6 +881,120 @@ describe('buildTimelineObjsForRundown', () => {
 			expect(objs.timeline).not.toHaveLength(0)
 			expect(objs.timingContext).not.toBeUndefined()
 			expect(transformTimelineIntoSimplifiedForm(objs)).toMatchSnapshot()
+		})
+	})
+
+	describe('multiple previous parts', () => {
+		function makeActivePrevInfo(
+			id: string,
+			plannedStartedPlayback: number,
+			partStarted: number,
+			fromPartRemaining: number,
+			pieces: PieceInstanceWithTimings[] = []
+		): SelectedPartInstanceTimelineInfo {
+			return {
+				partTimes: createPartCurrentTimes(currentTime, partStarted),
+				partInstance: createMockPartInstance(id, {}, { timings: { plannedStartedPlayback } }),
+				pieceInstances: pieces,
+				calculatedTimings: { ...DEFAULT_PART_TIMINGS, fromPartRemaining },
+				regenerateTimelineAt: undefined,
+			}
+		}
+
+		it('generates timeline objects for both previous parts', () => {
+			const context = setupDefaultJobEnvironment()
+
+			const prev0Info = makeActivePrevInfo('prev0', 7999, 8000, 5000)
+			const prev1Info = makeActivePrevInfo('prev1', 2999, 3000, 2000)
+
+			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
+				previous: [prev0Info, prev1Info],
+				current: {
+					partTimes: createPartCurrentTimes(currentTime, 9500),
+					partInstance: createMockPartInstance('current', {}, { timings: { plannedStartedPlayback: 9499 } }),
+					pieceInstances: [createMockPieceInstance('piece_current')],
+					calculatedTimings: { ...DEFAULT_PART_TIMINGS, fromPartRemaining: 5000 },
+					regenerateTimelineAt: undefined,
+				},
+			}
+
+			const playlist = createMockPlaylist(selectedPartInfos)
+			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos, true)
+
+			const prev0GroupId = getPartGroupId(prev0Info.partInstance)
+			const prev1GroupId = getPartGroupId(prev1Info.partInstance)
+
+			// Both part groups must appear
+			expect(objs.timeline.find((obj) => obj.id === prev0GroupId)).toBeTruthy()
+			expect(objs.timeline.find((obj) => obj.id === prev1GroupId)).toBeTruthy()
+
+			// Only the most-recent previous overlap goes into timingContext
+			expect(objs.timingContext?.previousPartOverlap).toBe(5000)
+		})
+
+		it('chains previous[1] group end relative to previous[0] group start', () => {
+			const context = setupDefaultJobEnvironment()
+
+			// prev0's group ends at currentGroup.start + 3000 (from current.calculatedTimings.fromPartRemaining)
+			// prev1's group ends at prev0Group.start + 4000 (from prev0.calculatedTimings.fromPartRemaining)
+			const prev0Info = makeActivePrevInfo('prev0', 7999, 8000, 4000)
+			const prev1Info = makeActivePrevInfo('prev1', 2999, 3000, 2000)
+
+			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
+				previous: [prev0Info, prev1Info],
+				current: {
+					partTimes: createPartCurrentTimes(currentTime, 9500),
+					partInstance: createMockPartInstance('current', {}, { timings: { plannedStartedPlayback: 9499 } }),
+					pieceInstances: [],
+					calculatedTimings: { ...DEFAULT_PART_TIMINGS, fromPartRemaining: 3000 },
+					regenerateTimelineAt: undefined,
+				},
+			}
+
+			const playlist = createMockPlaylist(selectedPartInfos)
+			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos, true)
+
+			const prev0GroupId = getPartGroupId(prev0Info.partInstance)
+			const prev1GroupId = getPartGroupId(prev1Info.partInstance)
+			const currentGroupId = objs.timingContext!.currentPartGroup.id
+
+			const prev0Group = objs.timeline.find((obj) => obj.id === prev0GroupId)
+			expect(prev0Group).toBeTruthy()
+			expect(prev0Group!.enable).toMatchObject({ end: `#${currentGroupId}.start + 3000` })
+
+			const prev1Group = objs.timeline.find((obj) => obj.id === prev1GroupId)
+			expect(prev1Group).toBeTruthy()
+			expect(prev1Group!.enable).toMatchObject({ end: `#${prev0GroupId}.start + 4000` })
+		})
+
+		it('skips a previous part that never had plannedStartedPlayback', () => {
+			const context = setupDefaultJobEnvironment()
+
+			const prev0NoPlayback: SelectedPartInstanceTimelineInfo = {
+				partTimes: createPartCurrentTimes(currentTime, 8000),
+				partInstance: createMockPartInstance('prev0noPB'),
+				pieceInstances: [createMockPieceInstance('piece_prev0noPB')],
+				calculatedTimings: { ...DEFAULT_PART_TIMINGS, fromPartRemaining: 5000 },
+				regenerateTimelineAt: undefined,
+			}
+
+			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
+				previous: [prev0NoPlayback],
+				current: {
+					partTimes: createPartCurrentTimes(currentTime, 9500),
+					partInstance: createMockPartInstance('current', {}, { timings: { plannedStartedPlayback: 9499 } }),
+					pieceInstances: [],
+					calculatedTimings: DEFAULT_PART_TIMINGS,
+					regenerateTimelineAt: undefined,
+				},
+			}
+
+			const playlist = createMockPlaylist(selectedPartInfos)
+			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos, true)
+
+			const prev0GroupId = getPartGroupId(prev0NoPlayback.partInstance)
+			expect(objs.timeline.find((obj) => obj.id === prev0GroupId)).toBeFalsy()
+			expect(objs.timingContext?.previousPartOverlap).toBeUndefined()
 		})
 	})
 })

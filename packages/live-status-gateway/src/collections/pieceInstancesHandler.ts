@@ -28,7 +28,7 @@ const PLAYLIST_KEYS = [
 	'activationId',
 	'currentPartInfo',
 	'nextPartInfo',
-	'previousPartInfo',
+	'previousPartsInfo',
 	'rundownIdsInOrder',
 ] as const
 type Playlist = PickKeys<DBRundownPlaylist, typeof PLAYLIST_KEYS>
@@ -117,13 +117,18 @@ export class PieceInstancesHandler extends PublicationCollection<
 		if (!this._collectionData) return false
 		const collection = this.getCollectionOrFail()
 
-		const inPreviousPartInstance = this._currentPlaylist?.previousPartInfo?.partInstanceId
-			? this.processAndPrunePieceInstanceTimings(
-					this._partInstances?.previous,
-					collection.find({ partInstanceId: this._currentPlaylist.previousPartInfo.partInstanceId }),
-					true
-				)
-			: []
+		// Compute active pieces for each previous part, skipping any whose plannedStoppedPlayback has passed
+		// previousPartsInfo is already pruned to only contain still-active parts; per-piece timing is handled by filterActive
+		const inPreviousPartInstances: PieceInstanceWithTimings[] = (
+			this._currentPlaylist?.previousPartsInfo ?? []
+		).flatMap((info, index) => {
+			if (!info.partInstanceId) return []
+			return this.processAndPrunePieceInstanceTimings(
+				this._partInstances?.previous[index],
+				collection.find({ partInstanceId: info.partInstanceId }),
+				true
+			)
+		})
 		const inCurrentPartInstance = this._currentPlaylist?.currentPartInfo?.partInstanceId
 			? this.processAndPrunePieceInstanceTimings(
 					this._partInstances?.current,
@@ -139,14 +144,7 @@ export class PieceInstancesHandler extends PublicationCollection<
 				)
 			: []
 
-		const active = [...inCurrentPartInstance]
-		// Only include the pieces from the previous part if the part is still considered to be playing
-		if (
-			this._partInstances?.previous?.timings &&
-			(this._partInstances.previous.timings.plannedStoppedPlayback ?? 0) > Date.now()
-		) {
-			active.push(...inPreviousPartInstance)
-		}
+		const active = [...inCurrentPartInstance, ...inPreviousPartInstances]
 
 		let hasAnythingChanged = false
 		if (!_.isEqual(this._collectionData.active, active)) {
@@ -219,7 +217,7 @@ export class PieceInstancesHandler extends PublicationCollection<
 		this._partInstanceIds = this._currentPlaylist
 			? _.compact(
 					[
-						this._currentPlaylist.previousPartInfo?.partInstanceId,
+						...(this._currentPlaylist.previousPartsInfo ?? []).map((info) => info.partInstanceId),
 						this._currentPlaylist.nextPartInfo?.partInstanceId,
 						this._currentPlaylist.currentPartInfo?.partInstanceId,
 					].sort()

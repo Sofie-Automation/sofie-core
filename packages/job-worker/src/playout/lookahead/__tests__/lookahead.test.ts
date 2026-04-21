@@ -163,7 +163,7 @@ describe('Lookahead', () => {
 	}
 
 	test('No pieces', async () => {
-		const partInstancesInfo: SelectedPartInstancesTimelineInfo = {}
+		const partInstancesInfo: SelectedPartInstancesTimelineInfo = { previous: [] }
 
 		const fakeParts = partIds.map((p) => ({ part: { _id: p } as any, usesInTransition: true, pieces: [] }))
 		getOrderedPartsAfterPlayheadMock.mockReturnValueOnce(fakeParts.map((p) => p.part))
@@ -175,7 +175,7 @@ describe('Lookahead', () => {
 
 		expect(getOrderedPartsAfterPlayheadMock).toHaveBeenCalledTimes(1)
 		expect(getOrderedPartsAfterPlayheadMock).toHaveBeenCalledWith(context, expect.anything(), 10) // default distance
-		await expectLookaheadForLayerMock(playlistId, {}, fakeParts)
+		await expectLookaheadForLayerMock(playlistId, { previous: [] }, fakeParts)
 	})
 
 	function fakeResultObj(id: string, pieceId: string, layer: string): LookaheadTimelineObject {
@@ -188,7 +188,7 @@ describe('Lookahead', () => {
 	}
 
 	test('got some objects', async () => {
-		const partInstancesInfo: SelectedPartInstancesTimelineInfo = {}
+		const partInstancesInfo: SelectedPartInstancesTimelineInfo = { previous: [] }
 
 		const fakeParts = partIds.map((p) => ({ part: { _id: p } as any, usesInTransition: true, pieces: [] }))
 		getOrderedPartsAfterPlayheadMock.mockReturnValueOnce(fakeParts.map((p) => p.part))
@@ -238,11 +238,11 @@ describe('Lookahead', () => {
 
 		expect(getOrderedPartsAfterPlayheadMock).toHaveBeenCalledTimes(1)
 		expect(getOrderedPartsAfterPlayheadMock).toHaveBeenCalledWith(context, expect.anything(), 10) // default distance
-		await expectLookaheadForLayerMock(playlistId, {}, fakeParts)
+		await expectLookaheadForLayerMock(playlistId, { previous: [] }, fakeParts)
 	})
 
 	test('Different max distances', async () => {
-		const partInstancesInfo: SelectedPartInstancesTimelineInfo = {}
+		const partInstancesInfo: SelectedPartInstancesTimelineInfo = { previous: [] }
 
 		// Set really low
 		{
@@ -293,28 +293,29 @@ describe('Lookahead', () => {
 		// It does have assertions, but hidden inside helper methods
 		expect(true).toBeTruthy()
 
-		const partInstancesInfo: SelectedPartInstancesTimelineInfo = {}
-		partInstancesInfo.previous = {
+		const partInstancesInfo: SelectedPartInstancesTimelineInfo = { previous: [] }
+		const previousEntry = {
 			partInstance: { _id: 'abc2', part: { _id: 'abc' } } as any,
 			partTimes: createPartCurrentTimes(getCurrentTime(), getCurrentTime() + 546),
 			pieceInstances: ['1', '2'] as any,
 			calculatedTimings: { inTransitionStart: null } as any,
 			regenerateTimelineAt: undefined,
 		}
+		partInstancesInfo.previous = [previousEntry]
 
 		const expectedPrevious = {
-			part: partInstancesInfo.previous.partInstance,
+			part: previousEntry.partInstance,
 			onTimeline: true,
-			nowInPart: partInstancesInfo.previous.partTimes.nowInPart,
-			allPieces: partInstancesInfo.previous.pieceInstances,
-			calculatedTimings: partInstancesInfo.previous.calculatedTimings,
+			nowInPart: previousEntry.partTimes.nowInPart,
+			allPieces: previousEntry.pieceInstances,
+			calculatedTimings: previousEntry.calculatedTimings,
 		}
 
 		// With a previous
 		await runJobWithPlayoutModel(context, { playlistId }, null, async (playoutModel) =>
 			getLookeaheadObjects(context, playoutModel, partInstancesInfo)
 		)
-		await expectLookaheadForLayerMock(playlistId, { previous: expectedPrevious }, fakeParts)
+		await expectLookaheadForLayerMock(playlistId, { previous: [expectedPrevious] }, fakeParts)
 
 		// Add a current
 		partInstancesInfo.current = {
@@ -336,7 +337,7 @@ describe('Lookahead', () => {
 		)
 		await expectLookaheadForLayerMock(
 			playlistId,
-			{ current: expectedCurrent, previous: expectedPrevious },
+			{ previous: [expectedPrevious], current: expectedCurrent },
 			fakeParts
 		)
 
@@ -360,7 +361,7 @@ describe('Lookahead', () => {
 		)
 		await expectLookaheadForLayerMock(
 			playlistId,
-			{ current: expectedCurrent, next: expectedNext, previous: expectedPrevious },
+			{ previous: [expectedPrevious], current: expectedCurrent, next: expectedNext },
 			fakeParts
 		)
 
@@ -372,13 +373,13 @@ describe('Lookahead', () => {
 		)
 		await expectLookaheadForLayerMock(
 			playlistId,
-			{ current: expectedCurrent, next: expectedNext, previous: expectedPrevious },
+			{ previous: [expectedPrevious], current: expectedCurrent, next: expectedNext },
 			fakeParts
 		)
 	})
 
 	test('Playlist state influences playoutState parameter', async () => {
-		const partInstancesInfo: SelectedPartInstancesTimelineInfo = {}
+		const partInstancesInfo: SelectedPartInstancesTimelineInfo = { previous: [] }
 		const fakeParts = partIds.map((p) => ({ part: { _id: p } as any, usesInTransition: true, pieces: [] }))
 		getOrderedPartsAfterPlayheadMock.mockReturnValue(fakeParts.map((p) => p.part))
 
@@ -390,7 +391,7 @@ describe('Lookahead', () => {
 
 		expect(findLookaheadForLayerMock).toHaveBeenCalledWith(
 			context,
-			{},
+			{ previous: [] },
 			fakeParts,
 			'PRELOAD',
 			1,
@@ -411,7 +412,7 @@ describe('Lookahead', () => {
 
 		expect(findLookaheadForLayerMock).toHaveBeenCalledWith(
 			context,
-			{},
+			{ previous: [] },
 			fakeParts,
 			'PRELOAD',
 			1,
@@ -432,7 +433,7 @@ describe('Lookahead', () => {
 
 		expect(findLookaheadForLayerMock).toHaveBeenCalledWith(
 			context,
-			{},
+			{ previous: [] },
 			fakeParts,
 			'PRELOAD',
 			1,

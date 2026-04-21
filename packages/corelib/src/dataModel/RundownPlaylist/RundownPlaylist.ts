@@ -135,8 +135,13 @@ export interface DBRundownPlaylist {
 	nextPartInfo: SelectedPartInstance | null
 	/** The time offset of the next line */
 	nextTimeOffset?: number | null
-	/** the id of the Previous Part */
-	previousPartInfo: SelectedPartInstance | null
+	/**
+	 * Previously played PartInstances, ordered most-recent-first (index 0 = the one taken from most recently).
+	 * There may be more than one entry when keepalive/postroll/preroll cause PartInstances to overlap:
+	 * e.g. if Part A is still audible due to postroll when Part C is taken, both A and B are retained here
+	 * until their timeline contribution has fully ended.
+	 */
+	previousPartsInfo: SelectedPartInstance[]
 
 	/**
 	 * The id of the Queued Segment. If set, the Next point will jump to that segment when reaching the end of the currently playing segment.

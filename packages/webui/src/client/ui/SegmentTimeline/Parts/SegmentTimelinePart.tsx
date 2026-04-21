@@ -159,7 +159,7 @@ export class SegmentTimelinePartClass extends React.Component<Translated<WithTim
 		nextProps: Readonly<IProps & RundownTiming.InjectedROTimingProps>,
 		state: Readonly<IState>
 	): Partial<IState> {
-		const isPrevious = nextProps.playlist.previousPartInfo?.partInstanceId === nextProps.part.instance._id
+		const isPrevious = nextProps.playlist.previousPartsInfo?.[0]?.partInstanceId === nextProps.part.instance._id
 		const isLive = nextProps.playlist.currentPartInfo?.partInstanceId === nextProps.part.instance._id
 		const isNext = nextProps.playlist.nextPartInfo?.partInstanceId === nextProps.part.instance._id
 

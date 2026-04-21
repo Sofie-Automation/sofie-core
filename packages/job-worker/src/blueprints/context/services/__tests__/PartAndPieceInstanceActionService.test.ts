@@ -287,7 +287,7 @@ describe('Test blueprint api context', () => {
 		if (previousPartInstance !== undefined) {
 			await jobContext.mockCollections.RundownPlaylists.update(playlistId, {
 				$set: {
-					previousPartInfo: convertInfo(previousPartInstance),
+					previousPartsInfo: previousPartInstance ? [convertInfo(previousPartInstance)!] : [],
 				},
 			})
 		}
