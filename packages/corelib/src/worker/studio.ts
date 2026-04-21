@@ -19,7 +19,8 @@ import { JSONBlob } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 import { CoreRundownPlaylistSnapshot } from '../snapshots.js'
 import { NoteSeverity } from '@sofie-automation/blueprints-integration'
 import { ITranslatableMessage } from '../TranslatableMessage.js'
-import { QuickLoopMarker } from '../dataModel/RundownPlaylist.js'
+import { QuickLoopMarker } from '../dataModel/RundownPlaylist/RundownPlaylist.js'
+import { RundownTTimerIndex } from '../dataModel/RundownPlaylist/TTimers.js'
 
 /** List of all Jobs performed by the Worker related to a certain Studio */
 export enum StudioJobs {
@@ -217,6 +218,43 @@ export enum StudioJobs {
 	 * During playout it is hard to track removal of PieceInstances (particularly when resetting PieceInstances)
 	 */
 	CleanupOrphanedExpectedPackageReferences = 'cleanupOrphanedExpectedPackageReferences',
+	/**
+	 * Configure a T-timer as a countdown
+	 */
+	TTimerStartCountdown = 'tTimerStartCountdown',
+
+	/**
+	 * Configure a T-timer as a free-running timer
+	 */
+	TTimerStartFreeRun = 'tTimerStartFreeRun',
+	/**
+	 * Pause a T-timer
+	 */
+	TTimerPause = 'tTimerPause',
+	/**
+	 * Resume a T-timer
+	 */
+	TTimerResume = 'tTimerResume',
+	/**
+	 * Restart a T-timer
+	 */
+	TTimerRestart = 'tTimerRestart',
+	/**
+	 * Clear the projection state of a T-timer
+	 */
+	TTimerClearProjected = 'tTimerClearProjected',
+	/**
+	 * Set the projection anchor part of a T-timer
+	 */
+	TTimerSetProjectedAnchorPart = 'tTimerSetProjectedAnchorPart',
+	/**
+	 * Set the projection time of a T-timer
+	 */
+	TTimerSetProjectedTime = 'tTimerSetProjectedTime',
+	/**
+	 * Set the projection duration of a T-timer
+	 */
+	TTimerSetProjectedDuration = 'tTimerSetProjectedDuration',
 }
 
 export interface RundownPlayoutPropsBase {
@@ -278,11 +316,6 @@ export interface ExecuteActionProps extends RundownPlayoutPropsBase {
 	userData: any | null
 	triggerMode?: string
 	actionOptions?: { [key: string]: any }
-}
-export interface ExecuteBucketAdLibOrActionProps extends RundownPlayoutPropsBase {
-	bucketId: BucketId
-	externalId: string
-	triggerMode?: string
 }
 export interface ExecuteBucketAdLibOrActionProps extends RundownPlayoutPropsBase {
 	bucketId: BucketId
@@ -382,6 +415,35 @@ export interface SwitchRouteSetProps {
 	routeSetId: string
 	state: boolean | 'toggle'
 }
+export interface TTimerPropsBase extends RundownPlayoutPropsBase {
+	timerIndex: RundownTTimerIndex
+}
+export interface TTimerStartCountdownProps extends TTimerPropsBase {
+	duration: number
+	stopAtZero: boolean
+	startPaused: boolean
+}
+
+export interface TTimerStartFreeRunProps extends TTimerPropsBase {
+	startPaused: boolean
+}
+export type TTimerPauseProps = TTimerPropsBase
+export type TTimerResumeProps = TTimerPropsBase
+export type TTimerRestartProps = TTimerPropsBase
+
+export type TTimerClearProjectedProps = TTimerPropsBase
+export interface TTimerSetProjectedAnchorPartProps extends TTimerPropsBase {
+	partId?: PartId
+	externalId?: string
+}
+export interface TTimerSetProjectedTimeProps extends TTimerPropsBase {
+	time: number
+	paused: boolean
+}
+export interface TTimerSetProjectedDurationProps extends TTimerPropsBase {
+	duration: number
+	paused: boolean
+}
 
 export interface CleanupOrphanedExpectedPackageReferencesProps {
 	playlistId: RundownPlaylistId
@@ -452,6 +514,16 @@ export type StudioJobFunc = {
 	[StudioJobs.SwitchRouteSet]: (data: SwitchRouteSetProps) => void
 
 	[StudioJobs.CleanupOrphanedExpectedPackageReferences]: (data: CleanupOrphanedExpectedPackageReferencesProps) => void
+	[StudioJobs.TTimerStartCountdown]: (data: TTimerStartCountdownProps) => void
+
+	[StudioJobs.TTimerStartFreeRun]: (data: TTimerStartFreeRunProps) => void
+	[StudioJobs.TTimerPause]: (data: TTimerPauseProps) => void
+	[StudioJobs.TTimerResume]: (data: TTimerResumeProps) => void
+	[StudioJobs.TTimerRestart]: (data: TTimerRestartProps) => void
+	[StudioJobs.TTimerClearProjected]: (data: TTimerClearProjectedProps) => void
+	[StudioJobs.TTimerSetProjectedAnchorPart]: (data: TTimerSetProjectedAnchorPartProps) => void
+	[StudioJobs.TTimerSetProjectedTime]: (data: TTimerSetProjectedTimeProps) => void
+	[StudioJobs.TTimerSetProjectedDuration]: (data: TTimerSetProjectedDurationProps) => void
 }
 
 export function getStudioQueueName(id: StudioId): string {

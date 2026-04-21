@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { Route } from 'react-router-dom'
-import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import type { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import type { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
 import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase'

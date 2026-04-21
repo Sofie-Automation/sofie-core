@@ -62,7 +62,7 @@
 		display: inline-block;
 	}
 	.over {
-		background-color: #ff5218;
+		background-color: $over-under-over-color;
 		border-radius: 139px;
 		align-self: stretch;
 		gap: 10px;
@@ -124,7 +124,7 @@
 }
 
 .counter-component__time-since-planned-end {
-	color: #ff5218;
+	color: $over-under-over-color;
 	text-align: right;
 	margin-left: 1.2vw;
 

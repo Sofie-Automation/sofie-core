@@ -7,7 +7,7 @@ import { RundownBaselineAdLibAction } from './dataModel/RundownBaselineAdLibActi
 import { RundownBaselineAdLibItem } from './dataModel/RundownBaselineAdLibPiece.js'
 import { DBPartInstance } from './dataModel/PartInstance.js'
 import { DBRundown } from './dataModel/Rundown.js'
-import { DBRundownPlaylist } from './dataModel/RundownPlaylist.js'
+import { DBRundownPlaylist } from './dataModel/RundownPlaylist/RundownPlaylist.js'
 import { DBSegment } from './dataModel/Segment.js'
 import { DBShowStyleBase } from './dataModel/ShowStyleBase.js'
 import { DBShowStyleVariant } from './dataModel/ShowStyleVariant.js'

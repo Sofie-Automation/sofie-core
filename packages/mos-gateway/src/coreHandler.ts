@@ -2,6 +2,7 @@ import {
 	CoreConnection,
 	CoreOptions,
 	DDPConnectorOptions,
+	DDPTLSOptions,
 	Observer,
 	PeripheralDeviceAPI,
 	PeripheralDeviceCommand,
@@ -42,16 +43,15 @@ export class CoreHandler implements ICoreHandler {
 	private _isDestroyed = false
 	private _executedFunctions = new Set<PeripheralDeviceCommandId>()
 	private _coreConfig?: CoreConfig
-	private _certificates?: Buffer[]
 
 	public static async create(
 		logger: Winston.Logger,
 		config: CoreConfig,
-		certificates: Buffer[],
+		tlsOptions: DDPTLSOptions,
 		deviceOptions: DeviceConfig
 	): Promise<CoreHandler> {
 		const handler = new CoreHandler(logger, deviceOptions)
-		await handler.init(config, certificates)
+		await handler.init(config, tlsOptions)
 		return handler
 	}
 
@@ -60,10 +60,9 @@ export class CoreHandler implements ICoreHandler {
 		this._deviceOptions = deviceOptions
 	}
 
-	private async init(config: CoreConfig, certificates: Buffer[]): Promise<void> {
+	private async init(config: CoreConfig, tlsOptions: DDPTLSOptions): Promise<void> {
 		// this.logger.info('========')
 		this._coreConfig = config
-		this._certificates = certificates
 		this.core = new CoreConnection(this.getCoreConnectionOptions())
 
 		this.core.onConnected(() => {
@@ -82,11 +81,7 @@ export class CoreHandler implements ICoreHandler {
 		const ddpConfig: DDPConnectorOptions = {
 			host: config.host,
 			port: config.port,
-		}
-		if (this._certificates?.length) {
-			ddpConfig.tlsOpts = {
-				ca: this._certificates,
-			}
+			tlsOpts: tlsOptions,
 		}
 		await this.core.init(ddpConfig)
 

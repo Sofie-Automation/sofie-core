@@ -1,0 +1,17 @@
+$defs:
+  timerModeCountdown:
+    $ref: './timerMode/countdown/timerModeCountdown.yaml#/$defs/timerModeCountdown'
+
+  timerModeFreeRun:
+    $ref: './timerMode/freeRun/timerModeFreeRun.yaml#/$defs/timerModeFreeRun'
+
+  timerModeTimeOfDay:
+    $ref: './timerMode/timeOfDay/timerModeTimeOfDay.yaml#/$defs/timerModeTimeOfDay'
+
+  timerMode:
+    title: TimerMode
+    description: Configuration/mode of a T-timer (defines behavior type)
+    oneOf:
+      - $ref: '#/$defs/timerModeCountdown'
+      - $ref: '#/$defs/timerModeFreeRun'
+      - $ref: '#/$defs/timerModeTimeOfDay'

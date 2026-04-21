@@ -1,4 +1,5 @@
 import { IRundownContext, IBlueprintSegmentRundown } from '@sofie-automation/blueprints-integration'
+import type { Time } from '@sofie-automation/blueprints-integration'
 import { ReadonlyDeep } from 'type-fest'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
@@ -30,5 +31,9 @@ export class RundownContext extends ShowStyleContext implements IRundownContext 
 		this.rundown = convertRundownToBlueprintSegmentRundown(rundown)
 		this._rundown = rundown
 		this.playlistId = unprotectString(rundown.playlistId)
+	}
+
+	get startedPlayback(): Time | undefined {
+		return undefined
 	}
 }

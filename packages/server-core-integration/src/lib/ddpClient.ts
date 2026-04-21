@@ -6,15 +6,12 @@
  *
  * Brought into this project for maintenance reasons, including conversion to Typescript.
  */
-/// <reference types="../types/faye-websocket" />
-
-import * as WebSocket from 'faye-websocket'
+import WebSocket from 'ws'
 import * as EJSON from 'ejson'
 import { EventEmitter } from 'events'
-import got from 'got'
 import { ProtectedString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 
-export interface TLSOpts {
+export interface DDPTLSOptions {
 	// Described in https://nodejs.org/api/tls.html#tls_tls_connect_options_callback
 
 	/* Necessary only if the server uses a self-signed certificate.*/
@@ -26,6 +23,9 @@ export interface TLSOpts {
 
 	/* Necessary only if the server's cert isn't for "localhost". */
 	checkServerIdentity?: (hostname: string, cert: object) => Error | undefined // () => { }, // Returns <Error> object, populating it with reason, host, and cert on failure. On success, returns <undefined>.
+
+	/* If true, the server certificate is automatically rejected if it is not valid. The default value is true. */
+	rejectUnauthorized?: boolean
 }
 
 /**
@@ -40,8 +40,7 @@ export interface DDPConnectorOptions {
 	debug?: boolean
 	autoReconnect?: boolean // default: true
 	autoReconnectTimer?: number
-	tlsOpts?: TLSOpts
-	useSockJs?: boolean
+	tlsOpts?: DDPTLSOptions
 	url?: string
 	maintainCollections?: boolean
 	ddpVersion?: '1' | 'pre2' | 'pre1'
@@ -315,7 +314,7 @@ export type DDPClientEvents = {
 	failed: [error: Error]
 	'socket-error': [error: Error]
 	'socket-close': [code: number, reason: string]
-	message: [data: any]
+	message: [data: string]
 	connected: []
 }
 
@@ -333,7 +332,7 @@ export class DDPClient extends EventEmitter<DDPClientEvents> {
 		}
 	} = {}
 
-	public socket: WebSocket.Client | undefined
+	public socket: WebSocket | undefined
 	public session: string | undefined
 
 	private hostInt!: string
@@ -355,10 +354,6 @@ export class DDPClient extends EventEmitter<DDPClientEvents> {
 	private sslInt!: boolean
 	public get ssl(): boolean {
 		return this.sslInt
-	}
-	private useSockJSInt!: boolean
-	public get useSockJS(): boolean {
-		return this.useSockJSInt
 	}
 	private autoReconnectInt!: boolean
 	public get autoReconnect(): boolean {
@@ -390,7 +385,7 @@ export class DDPClient extends EventEmitter<DDPClientEvents> {
 	}
 	public static readonly supportedDdpVersions = ['1', 'pre2', 'pre1']
 
-	private tlsOpts!: TLSOpts
+	private tlsOpts!: DDPTLSOptions
 	private isConnecting = false
 	private isReconnecting = false
 	private isClosing = false
@@ -419,7 +414,6 @@ export class DDPClient extends EventEmitter<DDPClientEvents> {
 		this.pathInt = opts.path
 		this.sslInt = opts.ssl || this.port === 443
 		this.tlsOpts = opts.tlsOpts || {}
-		this.useSockJSInt = opts.useSockJs || false
 		this.autoReconnectInt = opts.autoReconnect === false ? false : true
 		this.autoReconnectTimerInt = opts.autoReconnectTimer || 500
 		this.maintainCollectionsInt = opts.maintainCollections || true
@@ -692,14 +686,7 @@ export class DDPClient extends EventEmitter<DDPClientEvents> {
 			})
 		}
 
-		if (this.useSockJS) {
-			this.makeSockJSConnection().catch((e) => {
-				this.emit('failed', e)
-			})
-		} else {
-			const url = this.buildWsUrl()
-			this.makeWebSocketConnection(url)
-		}
+		this.makeWebSocketConnection(this.buildWsUrl())
 	}
 
 	private endPendingMethodCalls(): void {
@@ -726,57 +713,19 @@ export class DDPClient extends EventEmitter<DDPClientEvents> {
 		}
 	}
 
-	private async makeSockJSConnection(): Promise<void> {
-		const protocol = this.ssl ? 'https://' : 'http://'
-		if (this.path && !this.path?.endsWith('/')) {
-			this.pathInt = this.path + '/'
-		}
-		const url = `${protocol}${this.host}:${this.port}/${this.path || ''}sockjs/info`
-
-		try {
-			const response = await got(url, {
-				headers: this.getHeadersWithDefaults(),
-				https: {
-					certificateAuthority: this.tlsOpts.ca,
-					key: this.tlsOpts.key,
-					certificate: this.tlsOpts.cert,
-					checkServerIdentity: this.tlsOpts.checkServerIdentity,
-				},
-				responseType: 'json',
-			})
-			// Info object defined here(?): https://github.com/sockjs/sockjs-node/blob/master/lib/info.js
-			const info = response.body as { base_url: string }
-			if (!info || !info.base_url) {
-				const url = this.buildWsUrl()
-				this.makeWebSocketConnection(url)
-			} else if (info.base_url.indexOf('http') === 0) {
-				const url = (info.base_url + '/websocket').replace(/^http/, 'ws')
-				this.makeWebSocketConnection(url)
-			} else {
-				const path = info.base_url + '/websocket'
-				const url = this.buildWsUrl(path)
-				this.makeWebSocketConnection(url)
-			}
-		} catch (err) {
-			this.recoverNetworkError(err)
-		}
-	}
-
-	private buildWsUrl(path?: string): string {
-		let url: string
-		path = path || this.path || 'websocket'
-		const protocol = this.ssl ? 'wss://' : 'ws://'
-		if (this.url && !this.useSockJS) {
-			url = this.url
+	private buildWsUrl(): string {
+		if (this.url) {
+			return this.url
 		} else {
-			url = `${protocol}${this.host}:${this.port}${path.indexOf('/') === 0 ? path : '/' + path}`
+			const path = this.path || 'websocket'
+			const protocol = this.ssl ? 'wss://' : 'ws://'
+			return `${protocol}${this.host}:${this.port}${path.indexOf('/') === 0 ? path : '/' + path}`
 		}
-		return url
 	}
 
 	private makeWebSocketConnection(url: string): void {
 		// console.log('About to create WebSocket client')
-		this.socket = new WebSocket.Client(url, null, { tls: this.tlsOpts, headers: this.getHeadersWithDefaults() })
+		this.socket = new WebSocket(url, { ...this.tlsOpts, headers: this.getHeadersWithDefaults() })
 
 		this.socket.on('open', () => {
 			// just go ahead and open the connection on connect
@@ -796,15 +745,21 @@ export class DDPClient extends EventEmitter<DDPClientEvents> {
 			this.emit('socket-error', error)
 		})
 
-		this.socket.on('close', (event) => {
-			this.emit('socket-close', event.code, event.reason)
+		this.socket.on('close', (code, reason) => {
+			this.emit('socket-close', code, reason.toString())
 			this.endPendingMethodCalls()
 			this.recoverNetworkError()
 		})
 
-		this.socket.on('message', (event) => {
-			this.message(event.data)
-			this.emit('message', event.data)
+		this.socket.on('message', (data) => {
+			const str =
+				typeof data === 'string'
+					? data
+					: Array.isArray(data)
+						? Buffer.concat(data).toString('utf-8')
+						: Buffer.from(data as ArrayBuffer).toString('utf-8')
+			this.message(str)
+			this.emit('message', str)
 		})
 	}
 

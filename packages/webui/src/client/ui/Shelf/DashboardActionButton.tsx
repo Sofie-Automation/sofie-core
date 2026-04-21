@@ -5,7 +5,7 @@ import {
 	ActionButtonType,
 	DashboardLayoutActionButton,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 
 export interface IDashboardButtonProps {
 	button: DashboardLayoutActionButton

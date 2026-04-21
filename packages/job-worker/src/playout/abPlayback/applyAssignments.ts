@@ -6,7 +6,10 @@ import {
 	ABTimelineLayerChangeRules,
 	AbPlayerId,
 } from '@sofie-automation/blueprints-integration'
-import { ABSessionAssignment, ABSessionAssignments } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import {
+	ABSessionAssignment,
+	ABSessionAssignments,
+} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { OnGenerateTimelineObjExt } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { logger } from '../../logging.js'
 import _ from 'underscore'

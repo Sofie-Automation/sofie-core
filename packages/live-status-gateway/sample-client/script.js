@@ -70,6 +70,7 @@ const TIME_OF_DAY_SPAN_ID = 'time-of-day'
 const SEGMENT_DURATION_SPAN_CLASS = 'segment-duration'
 const SEGMENT_REMAINIG_SPAN_ID = 'segment-remaining'
 const PART_REMAINIG_SPAN_ID = 'part-remaining'
+const T_TIMERS_DIV_ID = 't-timers'
 const ACTIVE_PIECES_SPAN_ID = 'active-pieces'
 const NEXT_PIECES_SPAN_ID = 'next-pieces'
 const SEGMENTS_DIV_ID = 'segments'
@@ -86,6 +87,8 @@ function handleActivePlaylist(data) {
 		'<ul><li>' +
 		activePlaylist.nextPart.pieces.map((p) => `${p.name} [${p.tags || []}]`).join('</li><li>') +
 		'</li><ul>'
+
+	handleTTimers(data.tTimers)
 }
 let activePieces = {}
 function handleActivePieces(data) {
@@ -124,6 +127,7 @@ setInterval(() => {
 	if (partEndTime) partRemainingEl.textContent = formatMillisecondsToTime(Math.ceil(partEndTime / 1000) * 1000 - now)
 
 	updateClock()
+	updateTTimers(activePlaylist.tTimers)
 }, 100)
 
 function updateClock() {
@@ -181,4 +185,120 @@ function formatMillisecondsToTime(milliseconds) {
 	const formattedSeconds = String(totalSeconds % 60).padStart(2, '0')
 
 	return `${isNegative ? '+' : ''}${formattedHours}:${formattedMinutes}:${formattedSeconds}`
+}
+
+function formatTimestampToTimeOfDay(timestamp) {
+	const date = new Date(timestamp)
+	const hours = String(date.getHours()).padStart(2, '0')
+	const minutes = String(date.getMinutes()).padStart(2, '0')
+	const seconds = String(date.getSeconds()).padStart(2, '0')
+	return `${hours}:${minutes}:${seconds}`
+}
+
+function handleTTimers(tTimers) {
+	const tTimersDiv = document.getElementById(T_TIMERS_DIV_ID)
+	if (!tTimersDiv || !tTimers) return
+
+	const ul = document.createElement('ul')
+
+	tTimers.forEach((timer) => {
+		const li = document.createElement('li')
+		li.id = `t-timer-${timer.index}`
+		li.textContent = `Timer ${timer.index}:`
+
+		const detailUl = document.createElement('ul')
+
+		if (timer.configured) {
+			// Type
+			const typeLi = document.createElement('li')
+			typeLi.textContent = `Type: "${timer.mode.type}"`
+			detailUl.appendChild(typeLi)
+
+			// Label
+			const labelLi = document.createElement('li')
+			labelLi.textContent = `Label: ${timer.label ? JSON.stringify(timer.label) : '(no label)'}`
+			detailUl.appendChild(labelLi)
+
+			// Value
+			const valueLi = document.createElement('li')
+			valueLi.appendChild(document.createTextNode('Value: '))
+			const valueSpan = document.createElement('span')
+			valueSpan.id = `t-timer-value-${timer.index}`
+			valueLi.appendChild(valueSpan)
+			detailUl.appendChild(valueLi)
+
+			// Projected (if available)
+			if (timer.projected && timer.anchorPartId) {
+				const projectedLi = document.createElement('li')
+				projectedLi.id = `t-timer-projected-${timer.index}`
+				detailUl.appendChild(projectedLi)
+			}
+		} else {
+			// Show "Not set" for unconfigured timers
+			const notSetLi = document.createElement('li')
+			notSetLi.textContent = 'Not set'
+			detailUl.appendChild(notSetLi)
+		}
+
+		li.appendChild(detailUl)
+		ul.appendChild(li)
+	})
+
+	tTimersDiv.innerHTML = ''
+	tTimersDiv.appendChild(ul)
+}
+
+function updateTTimers(tTimers) {
+	if (!tTimers) return
+
+	const now = ENABLE_SYNCED_TICKS ? Math.floor(Date.now() / 1000) * 1000 : Date.now()
+
+	tTimers.forEach((timer) => {
+		if (!timer.configured) return
+
+		const valueSpan = document.getElementById(`t-timer-value-${timer.index}`)
+		if (!valueSpan) return
+
+		// Calculate current timer value
+		let currentTime
+		if (timer.state.paused) {
+			currentTime = timer.state.duration
+			valueSpan.textContent = formatMillisecondsToTime(currentTime) + ' (paused)'
+		} else if (timer.state.pauseTime && now >= timer.state.pauseTime) {
+			// Timer has reached its pauseTime - freeze at that moment
+			currentTime = timer.state.zeroTime - timer.state.pauseTime
+			valueSpan.textContent =
+				formatMillisecondsToTime(currentTime) +
+				` (pauseTime: ${formatTimestampToTimeOfDay(timer.state.pauseTime)})`
+		} else {
+			currentTime = timer.state.zeroTime - now
+			valueSpan.textContent =
+				formatMillisecondsToTime(currentTime) +
+				` (zeroTime: ${formatTimestampToTimeOfDay(timer.state.zeroTime)})`
+		}
+
+		// Update projected time if available
+		const projectedLi = document.getElementById(`t-timer-projected-${timer.index}`)
+		if (projectedLi && timer.projected) {
+			let projectedTime
+			let projectedInfo = ''
+			if (timer.projected.paused) {
+				projectedTime = timer.projected.duration
+				projectedInfo = ' (paused)'
+			} else if (timer.projected.pauseTime && now >= timer.projected.pauseTime) {
+				// Projected timer has reached its pauseTime - freeze at that moment
+				projectedTime = timer.projected.zeroTime - timer.projected.pauseTime
+				projectedInfo = ` (pauseTime: ${formatTimestampToTimeOfDay(timer.projected.pauseTime)})`
+			} else {
+				projectedTime = timer.projected.zeroTime - now
+				projectedInfo = ` (zeroTime: ${formatTimestampToTimeOfDay(timer.projected.zeroTime)})`
+			}
+
+			const diff = currentTime - projectedTime
+			const diffStr = formatMillisecondsToTime(Math.abs(diff))
+			const status = diff > 0 ? 'under' : 'over'
+
+			projectedLi.textContent = `Projected: ${formatMillisecondsToTime(projectedTime)}${projectedInfo} (${diffStr} ${status})`
+		}
+	})
 }

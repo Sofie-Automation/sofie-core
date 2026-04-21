@@ -13,7 +13,7 @@ import {
 	IBlueprintActionManifestDisplayContent,
 } from '@sofie-automation/blueprints-integration'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { getCurrentTime } from './systemTime.js'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { IAdLibListItem } from '../ui/Shelf/AdLibListItem.js'

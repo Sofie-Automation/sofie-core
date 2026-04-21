@@ -5,8 +5,8 @@ import type { MongoFieldSpecifierOnesStrict } from '@sofie-automation/corelib/di
 import type { NrcsIngestDataCacheObj } from '@sofie-automation/corelib/dist/dataModel/NrcsIngestDataCache'
 import type { RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import type { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 import { PartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 
 export type PlaylistCompact = Pick<
 	DBRundownPlaylist,

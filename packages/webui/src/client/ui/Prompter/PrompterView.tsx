@@ -1,6 +1,6 @@
 import React, { createContext, PropsWithChildren, ReactNode, useRef } from 'react'
 import _ from 'underscore'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import ClassNames from 'classnames'
 import { Meteor } from 'meteor/meteor'
 import { parse as queryStringParse } from 'query-string'
@@ -31,12 +31,13 @@ import { UIStudios } from '../Collections.js'
 import { RundownTimingProvider } from '../RundownView/RundownTiming/RundownTimingProvider.js'
 import { StudioScreenSaver } from '../StudioScreenSaver/StudioScreenSaver.js'
 import { PrompterControlManager } from './controller/manager.js'
-import { OverUnderTimer } from './OverUnderTimer.js'
+import { RundownStatusBar } from '../ClockView/RundownStatusBar.js'
 import { PrompterAPI, PrompterData, PrompterDataPart, PrompterDataPiece } from './prompter.js'
 import { doUserAction, UserAction } from '../../lib/clientUserAction.js'
 import { MeteorCall } from '../../lib/meteorApi.js'
 import { MdDisplay } from './Formatted/MdDisplay.js'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import { OverUnderChip } from '../../lib/Components/OverUnderChip.js'
 
 const DEFAULT_UPDATE_THROTTLE = 250 //ms
 const PIECE_MISSING_UPDATE_THROTTLE = 2000 //ms
@@ -76,6 +77,7 @@ interface PrompterConfig {
 	showScroll: boolean
 	debug: boolean
 	showOverUnder: boolean
+	showPlaylistName: boolean
 	addBlankLine: boolean
 }
 
@@ -220,6 +222,7 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 			showScroll: queryParams['showscroll'] === undefined ? true : queryParams['showscroll'] === '1',
 			debug: queryParams['debug'] === undefined ? false : queryParams['debug'] === '1',
 			showOverUnder: queryParams['showoverunder'] === undefined ? true : queryParams['showoverunder'] === '1',
+			showPlaylistName: queryParams['showplaylistname'] === '1',
 			addBlankLine: queryParams['addblanklinke'] === undefined ? true : queryParams['adblankline'] === '1',
 		}
 
@@ -587,14 +590,6 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 	render(): JSX.Element {
 		const { t } = this.props
 
-		const overUnderStyle: React.CSSProperties = {
-			marginTop: this.configOptions.margin ? `${this.configOptions.margin}vh` : undefined,
-			marginBottom: this.configOptions.margin ? `${this.configOptions.margin}vh` : undefined,
-			marginRight: this.configOptions.margin ? `${this.configOptions.margin}vw` : undefined,
-			marginLeft: this.configOptions.margin ? `${this.configOptions.margin}vw` : undefined,
-			fontSize: (this.configOptions.fontSize ?? 0) > 12 ? `12vmin` : undefined,
-		}
-
 		return (
 			<React.Fragment>
 				{!this.props.subsReady ? (
@@ -610,9 +605,17 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 								allowTestingAdlibsToPersist={this.props.studio?.settings.allowTestingAdlibsToPersist ?? false}
 							>
 								{this.configOptions.showOverUnder && (
-									<OverUnderTimer rundownPlaylist={this.props.rundownPlaylist} style={overUnderStyle} />
+									<OverUnderChip
+										className="screen-timing-clock over-under-chip--overlay"
+										rundownPlaylist={this.props.rundownPlaylist}
+									/>
 								)}
 							</Prompter>
+							<RundownStatusBar
+								playlist={this.props.rundownPlaylist}
+								className="prompter-rundown-status-bar"
+								showPlaylistName={this.configOptions.showPlaylistName}
+							/>
 						</RundownTimingProvider>
 						{this.configOptions.debug ? (
 							<div

@@ -9,6 +9,7 @@
 		{ "path": "./job-worker/tsconfig.build.json" },
 		{ "path": "./corelib/tsconfig.build.json" },
 		{ "path": "./shared-lib/tsconfig.build.json" },
+		{ "path": "./live-status-gateway-api/tsconfig.build.json" },
 		// { "path": "./openapi/tsconfig.build.json" },
 		{ "path": "./live-status-gateway/tsconfig.build.json" },
 		{ "path": "./meteor-lib/tsconfig.build.json" },

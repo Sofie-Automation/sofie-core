@@ -1,6 +1,6 @@
 import { Logger } from 'winston'
 import { WebSocket } from 'ws'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { WebSocketTopicBase, WebSocketTopic } from '../wsHandler.js'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'

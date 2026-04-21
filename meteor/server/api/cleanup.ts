@@ -2,7 +2,7 @@ import { ProtectedString } from '@sofie-automation/shared-lib/dist/lib/protected
 import { getCurrentTime } from '../lib/lib'
 import { CollectionCleanupResult } from '@sofie-automation/meteor-lib/dist/api/system'
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import {
 	getActiveRundownPlaylistsInStudioFromDb,
 	getExpiredRemovedPackageInfos,

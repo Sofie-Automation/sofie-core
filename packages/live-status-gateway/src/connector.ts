@@ -1,6 +1,6 @@
 import { CoreHandler, CoreConfig } from './coreHandler.js'
 import { Logger } from 'winston'
-import { Process } from './process.js'
+import { loadDDPTLSOptions } from '@sofie-automation/server-core-integration'
 import { PeripheralDeviceId } from '@sofie-automation/shared-lib/dist/core/model/Ids'
 import { LiveStatusServer } from './liveStatusServer.js'
 
@@ -22,7 +22,6 @@ export interface DeviceConfig {
 export class Connector {
 	private coreHandler: CoreHandler | undefined
 	private _logger: Logger
-	private _process: Process | undefined
 	private _liveStatusServer: LiveStatusServer | undefined
 
 	constructor(logger: Logger) {
@@ -32,13 +31,12 @@ export class Connector {
 	public async init(config: Config): Promise<void> {
 		try {
 			this._logger.info('Initializing Process...')
-			this._process = new Process(this._logger)
-			this._process.init(config.process)
+			const tlsOptions = loadDDPTLSOptions(this._logger, config.process)
 			this._logger.info('Process initialized')
 
 			this._logger.info('Initializing Core...')
 			this.coreHandler = new CoreHandler(this._logger, config.device)
-			await this.coreHandler.init(config.core, this._process)
+			await this.coreHandler.init(config.core, tlsOptions)
 			this._logger.info('Core initialized')
 
 			if (!this.coreHandler.studioId) throw new Error('Device has no studioId')

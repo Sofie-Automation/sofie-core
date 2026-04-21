@@ -11,7 +11,7 @@ import { SegmentId, RundownId, PartId, PieceId, RundownPlaylistActivationId } fr
 import { DBPart, PartExtended } from '../dataModel/Part.js'
 import { Piece, PieceExtended } from '../dataModel/Piece.js'
 import { PieceInstance, PieceInstancePiece } from '../dataModel/PieceInstance.js'
-import { DBRundownPlaylist, QuickLoopMarkerType } from '../dataModel/RundownPlaylist.js'
+import { DBRundownPlaylist, QuickLoopMarkerType } from '../dataModel/RundownPlaylist/RundownPlaylist.js'
 import { DBSegment, SegmentExtended, SegmentOrphanedReason } from '../dataModel/Segment.js'
 import { literal, groupByToMap, Complete } from '../lib.js'
 import { FindOptions, mongoWhereFilter } from '../mongo.js'

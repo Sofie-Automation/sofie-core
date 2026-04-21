@@ -2,13 +2,17 @@ import {
 	IBlueprintPartInstance,
 	IBlueprintPieceInstance,
 	ITimelineEventContext,
+	Time,
 } from '@sofie-automation/blueprints-integration'
 import { ReadonlyDeep } from 'type-fest'
 import { OnGenerateTimelineObjExt } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { clone } from '@sofie-automation/corelib/dist/lib'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { ABSessionInfo, DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import {
+	ABSessionInfo,
+	DBRundownPlaylist,
+} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { getCurrentTime } from '../../lib/index.js'
 import { PieceInstance, ResolvedPieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { ProcessedStudioConfig, ProcessedShowStyleConfig } from '../config.js'
@@ -30,6 +34,7 @@ export class OnTimelineGenerateContext extends RundownContext implements ITimeli
 
 	readonly abSessionsHelper: AbSessionHelper
 	readonly #pieceInstanceCache = new Map<PieceInstanceId, ReadonlyDeep<PieceInstance>>()
+	readonly #startedPlayback: Time | undefined
 
 	constructor(
 		studio: ReadonlyDeep<JobStudio>,
@@ -71,6 +76,12 @@ export class OnTimelineGenerateContext extends RundownContext implements ITimeli
 			partInstances,
 			clone<ABSessionInfo[]>(playlist.trackedAbSessions ?? [])
 		)
+
+		this.#startedPlayback = playlist.startedPlayback
+	}
+
+	override get startedPlayback(): Time | undefined {
+		return this.#startedPlayback
 	}
 
 	getCurrentTime(): number {

@@ -15,10 +15,7 @@ $hold-status-color: $liveline-timecode-color;
 
 .presenter-screen {
 	position: fixed;
-	top: 0;
-	bottom: 0;
-	left: 0;
-	right: 0;
+	inset: 0;
 
 	font-size: 1vh;
 
@@ -27,6 +24,16 @@ $hold-status-color: $liveline-timecode-color;
 
 	overflow: hidden;
 	white-space: nowrap;
+
+	// Over/under timer (reuses `screen-timing-clock` class from prompter view),
+	// but presenter view has a tiny base font-size (1vh), so we need explicit sizing + layering.
+	.screen-timing-clock {
+		position: fixed;
+		left: auto;
+		font-size: 9vmin;
+		z-index: 2000;
+		box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
+	}
 
 	.presenter-screen__part {
 		display: grid;
@@ -47,9 +54,17 @@ $hold-status-color: $liveline-timecode-color;
 			font-weight: bold;
 
 			&.live {
-				background: $general-live-color;
+				// Layer the director-style gradient over the live color
+				background:
+					linear-gradient(
+						90deg,
+						rgba(223, 0, 0, 0) 0%,
+						rgba(223, 0, 0, 0) 60%,
+						rgba(116, 0, 0, 0.808) 70%,
+						rgba(0, 0, 0, 0.8) 75%
+					),
+					$general-live-color;
 				color: #fff;
-				border-top: 0.1em solid #fff;
 				-webkit-text-stroke: black;
 				-webkit-text-stroke-width: 0.025em;
 				text-shadow: 0px 0px 20px #00000044;
@@ -58,7 +73,6 @@ $hold-status-color: $liveline-timecode-color;
 			&.next {
 				background: $general-next-color;
 				color: #000;
-				border-top: 0.1em solid #fff;
 			}
 		}
 
@@ -157,102 +171,6 @@ $hold-status-color: $liveline-timecode-color;
 			.presenter-screen__part__piece-icon,
 			.presenter-screen__part__piece-name {
 				grid-row: 2 / -1;
-			}
-		}
-	}
-
-	.presenter-screen__rundown-status-bar {
-		display: grid;
-		grid-template-columns: auto fit-content(20em) fit-content(5em);
-		grid-template-rows: fit-content(1em);
-		font-size: 6em;
-		color: #888;
-		padding: 0 0.2em;
-
-		.presenter-screen__rundown-status-bar__rundown-name {
-			overflow: hidden;
-			white-space: nowrap;
-			text-overflow: ellipsis;
-			line-height: 1.44em;
-		}
-
-		.presenter-screen__rundown-status-bar__t-timer {
-			margin-right: 1em;
-			font-size: 0.8em;
-			align-self: center;
-			justify-self: end;
-
-			.t-timer-display {
-				display: flex;
-				align-items: stretch;
-				justify-content: flex-end;
-				font-weight: 500;
-				background: #333;
-				border-radius: 0;
-				overflow: hidden;
-
-				&__label {
-					display: flex;
-					align-items: center;
-					color: #fff;
-					padding-left: 0.4em;
-					padding-right: 0.2em;
-					font-size: 1em;
-					text-transform: uppercase;
-					letter-spacing: 0.05em;
-					font-stretch: condensed;
-				}
-
-				&__value {
-					display: flex;
-					align-items: center;
-					color: #fff;
-					font-variant-numeric: tabular-nums;
-					padding: 0 0.2em;
-					font-size: 1em;
-
-					.t-timer-display__part {
-						&--dimmed {
-							color: #aaa;
-						}
-					}
-				}
-
-				&__over-under {
-					display: flex;
-					align-items: center;
-					justify-content: center;
-					margin: 0 0 0 0.2em;
-					font-size: 1em;
-					font-variant-numeric: tabular-nums;
-					padding: 0 0.4em;
-					line-height: 1.1;
-					min-width: 3.5em;
-					border-radius: 1em;
-
-					&--over {
-						background-color: $general-late-color;
-						color: #fff;
-					}
-
-					&--under {
-						background-color: #ffe900;
-						color: #000;
-					}
-				}
-			}
-		}
-
-		.presenter-screen__rundown-status-bar__countdown {
-			white-space: nowrap;
-
-			color: $general-countdown-to-next-color;
-
-			font-weight: 600;
-			font-size: 1.2em;
-
-			&.over {
-				color: $general-late-color;
 			}
 		}
 	}
@@ -410,5 +328,8 @@ $hold-status-color: $liveline-timecode-color;
 				font-weight: 100px;
 			}
 		}
+	}
+	.rundown-status-bar {
+		font-size: 6.95vmin;
 	}
 }

@@ -9,7 +9,7 @@ import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { PartId, RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { PlayoutModelImpl } from '../../playout/model/implementation/PlayoutModelImpl.js'
-import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 
 describe('Test blueprint api context', () => {
 	async function getTestee(rehearsal?: boolean) {
