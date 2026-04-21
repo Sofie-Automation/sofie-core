@@ -49,7 +49,18 @@ import { handleActivateAdlibTesting } from '../../playout/adlibTesting.js'
 import { handleExecuteBucketAdLibOrAction } from '../../playout/bucketAdlibJobs.js'
 import { handleSwitchRouteSet } from '../../studio/routeSet.js'
 import { handleCleanupOrphanedExpectedPackageReferences } from '../../playout/expectedPackages.js'
-import { handleRecalculateTTimerProjections } from '../../playout/tTimersJobs.js'
+import {
+	handleRecalculateTTimerProjections,
+	handleTTimerClearProjected,
+	handleTTimerPause,
+	handleTTimerRestart,
+	handleTTimerResume,
+	handleTTimerSetProjectedAnchorPart,
+	handleTTimerSetProjectedDuration,
+	handleTTimerSetProjectedTime,
+	handleTTimerStartCountdown,
+	handleTTimerStartFreeRun,
+} from '../../playout/tTimersJobs.js'
 
 type ExecutableFunction<T extends keyof StudioJobFunc> = (
 	context: JobContext,
@@ -116,4 +127,14 @@ export const studioJobHandlers: StudioJobHandlers = {
 	[StudioJobs.SwitchRouteSet]: handleSwitchRouteSet,
 
 	[StudioJobs.CleanupOrphanedExpectedPackageReferences]: handleCleanupOrphanedExpectedPackageReferences,
+
+	[StudioJobs.TTimerStartCountdown]: handleTTimerStartCountdown,
+	[StudioJobs.TTimerStartFreeRun]: handleTTimerStartFreeRun,
+	[StudioJobs.TTimerPause]: handleTTimerPause,
+	[StudioJobs.TTimerResume]: handleTTimerResume,
+	[StudioJobs.TTimerRestart]: handleTTimerRestart,
+	[StudioJobs.TTimerClearProjected]: handleTTimerClearProjected,
+	[StudioJobs.TTimerSetProjectedAnchorPart]: handleTTimerSetProjectedAnchorPart,
+	[StudioJobs.TTimerSetProjectedTime]: handleTTimerSetProjectedTime,
+	[StudioJobs.TTimerSetProjectedDuration]: handleTTimerSetProjectedDuration,
 }

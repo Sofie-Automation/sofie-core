@@ -11,7 +11,7 @@ import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
 import { dashboardElementStyle } from './DashboardPanel.js'
 import { assertNever, getRandomString, literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { parseMosPluginMessageXml, MosPluginMessage } from '../../lib/parsers/mos/mosXml2Js.js'
 import {
 	createMosAppInfoXmlString,

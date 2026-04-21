@@ -190,6 +190,10 @@ interface ActivePlaylistEvent {
 	 * Information about the current quickLoop, if any
 	 */
 	quickLoop?: ActivePlaylistQuickLoop
+	/**
+	 * Status of the 3 T-timers in the playlist
+	 */
+	tTimers: TTimerStatus[]
 }
 
 interface CurrentPartStatus {
@@ -475,6 +479,122 @@ enum QuickLoopMarkerType {
 	RUNDOWN = 'rundown',
 	SEGMENT = 'segment',
 	PART = 'part',
+}
+
+/**
+ * Status of a single T-timer in the playlist
+ */
+interface TTimerStatus {
+	/**
+	 * Timer index (1-3). The playlist always has 3 T-timer slots.
+	 */
+	index: TTimerIndex
+	/**
+	 * User-defined label for the timer
+	 */
+	label: string
+	/**
+	 * Whether the timer has been configured (mode and state are not null)
+	 */
+	configured: boolean
+	/**
+	 * Timer configuration/mode defining the timer's behavior. Null if not configured.
+	 */
+	mode: TimerModeCountdown | TimerModeFreeRun | TimerModeTimeOfDay | null
+	/**
+	 * Current runtime state of the timer. Null if not configured.
+	 */
+	state: TimerStateRunning | TimerStatePaused | null
+	/**
+	 * Projected timing for when we expect to reach an anchor part. Used to calculate over/under diff. Has the same structure as state. Running means progressing towards anchor, paused means pushing/delaying anchor.
+	 */
+	projected?: TimerStateRunning | TimerStatePaused | null
+	/**
+	 * The ID of the target Part that this timer is counting towards (the "timing anchor"). Optional - null if no anchor is set.
+	 */
+	anchorPartId?: string | null
+}
+
+/**
+ * Timer index (1-3). The playlist always has 3 T-timer slots.
+ */
+enum TTimerIndex {
+	NUMBER_1 = 1,
+	NUMBER_2 = 2,
+	NUMBER_3 = 3,
+}
+
+/**
+ * Countdown timer mode - counts down from a duration to zero
+ */
+interface TimerModeCountdown {
+	type: 'countdown'
+	/**
+	 * The original countdown duration in milliseconds (used for reset)
+	 */
+	duration: number
+	/**
+	 * Whether timer stops at zero or continues into negative values
+	 */
+	stopAtZero: boolean
+}
+
+/**
+ * Free-running timer mode - counts up from start time
+ */
+interface TimerModeFreeRun {
+	type: 'freeRun'
+}
+
+/**
+ * Time-of-day timer mode - counts down/up to a specific time
+ */
+interface TimerModeTimeOfDay {
+	type: 'timeOfDay'
+	/**
+	 * The raw target string as provided when setting the timer (e.g. "14:30", "2023-12-31T23:59:59Z", or a timestamp number)
+	 */
+	targetRaw: string | number
+	/**
+	 * Whether timer stops at zero or continues into negative values
+	 */
+	stopAtZero: boolean
+}
+
+/**
+ * Timer state when running (progressing with real time)
+ */
+interface TimerStateRunning {
+	/**
+	 * Whether the timer is paused
+	 */
+	paused: boolean
+	/**
+	 * Unix timestamp (ms) when the timer reaches/reached zero. For countdown timers, this is when time runs out. For free-run timers, this is when the timer started. Client calculates current value relative to this timestamp.
+	 */
+	zeroTime: number
+	/**
+	 * Optional timestamp when the timer should automatically pause (e.g., when current part ends and overrun begins).
+	 */
+	pauseTime?: number | null
+}
+
+/**
+ * Timer state when paused (frozen at a specific duration)
+ */
+interface TimerStatePaused {
+	/**
+	 * Whether the timer is paused
+	 */
+	paused: boolean
+	/**
+	 * Frozen duration value in milliseconds. For countdown timers, this is remaining time. For free-run timers, this is elapsed time.
+	 */
+	duration: number
+	/**
+	 * Optional timestamp when the timer should pause. Typically null when already paused.
+	 */
+	pauseTime?: number | null
 }
 
 interface ActivePiecesEvent {
@@ -948,6 +1068,13 @@ export {
 	ActivePlaylistQuickLoop,
 	QuickLoopMarker,
 	QuickLoopMarkerType,
+	TTimerStatus,
+	TTimerIndex,
+	TimerModeCountdown,
+	TimerModeFreeRun,
+	TimerModeTimeOfDay,
+	TimerStateRunning,
+	TimerStatePaused,
 	ActivePiecesEvent,
 	SegmentsEvent,
 	Segment,

@@ -1,6 +1,6 @@
 import { PieceStatusCode } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { UIPieceContentStatus } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { assertNever } from '@sofie-automation/server-core-integration'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { PickKeys } from '@sofie-automation/shared-lib/dist/lib/types'

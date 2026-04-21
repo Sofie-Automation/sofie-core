@@ -1,6 +1,6 @@
 import React, { MouseEventHandler, useCallback, useContext, useState } from 'react'
 import _ from 'underscore'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString, unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { getElementDocumentOffset, OffsetPosition } from '../../../utils/positions.js'

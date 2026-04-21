@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import ClassNames from 'classnames'
 import { NavLink } from 'react-router-dom'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { RundownLayoutRundownHeader } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
@@ -48,9 +48,10 @@ export function RundownHeader({
 }: IRundownHeaderProps): JSX.Element {
 	const { t } = useTranslation()
 	const timingDurations = useTiming()
-	const [simplified, setSimplified] = useState(false)
 	const [isMenuOpen, setIsMenuOpen] = useState(false)
 	const [isContextMenuOpen, setIsContextMenuOpen] = useState(false)
+	// User's explicit toggle preference; defaults to true (show simplified)
+	const [userPrefersSimplified, setUserPrefersSimplified] = useState(true)
 
 	const expectedStart = PlaylistTiming.getExpectedStart(playlist.timing)
 	const expectedEnd = PlaylistTiming.getExpectedEnd(playlist.timing)
@@ -75,10 +76,14 @@ export function RundownHeader({
 		fallbackDuration
 	)
 
-	const canToggle = simplified ? hasAdvanced : hasSimple
+	const canToggle = hasSimple && hasAdvanced
+
+	// When toggling is available, respect the user's preference; otherwise show whichever mode has data
+	const simplified = canToggle ? userPrefersSimplified : hasSimple
+
 	const toggleSimplified = useCallback(() => {
 		if (canToggle) {
-			setSimplified((s) => !s)
+			setUserPrefersSimplified((s) => !s)
 		}
 	}, [canToggle])
 
@@ -165,7 +170,7 @@ export function RundownHeader({
 								<RundownHeaderDurations playlist={playlist} simplified={simplified} />
 								<RundownHeaderExpectedEnd playlist={playlist} simplified={simplified} />
 							</button>
-							<NavLink to="/" title={t('Exit')} className="rundown-header__close-btn">
+							<NavLink to="/" title={t('Exit')} aria-label={t('Exit')} className="rundown-header__close-btn">
 								<FontAwesomeIcon icon="close" size="xl" />
 							</NavLink>
 						</div>

@@ -1,7 +1,7 @@
 import ClassNames from 'classnames'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { PartUi } from '../SegmentTimeline/SegmentTimelineContainer.js'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { useTiming } from '../RundownView/RundownTiming/withTiming.js'
 import {
@@ -35,7 +35,7 @@ import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
 import { ShelfDashboardLayout } from '../Shelf/ShelfDashboardLayout.js'
 import { parse as queryStringParse } from 'query-string'
 import { calculatePartInstanceExpectedDurationWithTransition } from '@sofie-automation/corelib/dist/playout/timings'
-import { getPlaylistTimingDiff, RundownTimingContext } from '../../lib/rundownTiming.js'
+import { RundownTimingContext } from '../../lib/rundownTiming.js'
 import { UIShowStyleBases, UIStudios } from '../Collections.js'
 import {
 	PieceInstances,
@@ -50,11 +50,11 @@ import { useSetDocumentClass, useSetDocumentDarkTheme } from '../util/useSetDocu
 import { useRundownAndShowStyleIdsForPlaylist } from '../util/useRundownAndShowStyleIdsForPlaylist.js'
 import { RundownPlaylistClientUtil } from '../../lib/rundownPlaylistUtil.js'
 import { CurrentPartOrSegmentRemaining } from '../RundownView/RundownHeader/CurrentPartOrSegmentRemaining.js'
-import { TTimerDisplay } from './TTimerDisplay.js'
-import { getDefaultTTimer } from '../../lib/tTimerUtils.js'
+import { RundownStatusBar } from './RundownStatusBar.js'
 import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
+import { OverUnderChip } from '../../lib/Components/OverUnderChip.js'
 
 // TODO: We have another definition of this in the Director screen, and there is also another SegmentUI type. We should look into clearing this up.
 interface SegmentUi extends DBSegment {
@@ -88,6 +88,8 @@ export interface PresenterScreenTrackedProps {
 	rundownIds: RundownId[]
 	rundownLayouts?: Array<RundownLayoutBase>
 	presenterLayoutId: RundownLayoutId | undefined
+	margin: number | undefined
+	fontSize: number | undefined
 }
 
 function getShowStyleBaseIdSegmentPartUi(
@@ -218,6 +220,18 @@ export const getPresenterScreenReactive = (
 
 	const params = queryStringParse(location.search)
 	const presenterLayoutId = protectString((params['presenterLayout'] as string) || '')
+	const margin = (() => {
+		// Support both `margin` (PrompterView) and `margins` / `m` (legacy/typos in URLs)
+		const raw = (params['margin'] ?? params['margins'] ?? params['m']) as string
+		const val = Number.parseInt(raw, 10)
+		return Number.isNaN(val) ? undefined : val
+	})()
+	const fontSize = (() => {
+		// Support both `fontsize` (PrompterView) and `fontSize` (camelCase URLs)
+		const raw = (params['fontsize'] ?? params['fontSize']) as string
+		const val = Number.parseInt(raw, 10)
+		return Number.isNaN(val) ? undefined : val
+	})()
 
 	if (playlist) {
 		rundowns = RundownPlaylistCollectionUtil.getRundownsOrdered(playlist)
@@ -301,6 +315,8 @@ export const getPresenterScreenReactive = (
 		rundownLayouts:
 			rundowns.length > 0 ? RundownLayouts.find({ showStyleBaseId: rundowns[0].showStyleBaseId }).fetch() : undefined,
 		presenterLayoutId,
+		margin,
+		fontSize,
 	}
 }
 
@@ -379,6 +395,8 @@ export function PresenterScreen({ playlistId, studioId }: PresenterScreenProps):
 				rundowns={presenterScreenProps?.rundowns ?? []}
 				segments={presenterScreenProps?.segments ?? []}
 				showStyleBaseIds={presenterScreenProps?.showStyleBaseIds ?? []}
+				margin={presenterScreenProps?.margin}
+				fontSize={presenterScreenProps?.fontSize}
 				studio={presenterScreenProps?.studio}
 				studioId={studioId}
 				timingDurations={timing}
@@ -496,12 +514,11 @@ function PresenterScreenContentDefaultLayout({
 			timingDurations.remainingBudgetOnCurrentSegment ?? timingDurations.remainingTimeOnCurrentPart ?? 0
 
 		const expectedStart = PlaylistTiming.getExpectedStart(playlist.timing)
-		const overUnderClock = getPlaylistTimingDiff(playlist, timingDurations) ?? 0
-		const activeTTimer = getDefaultTTimer(playlist.tTimers)
 
 		return (
 			<div className="presenter-screen">
 				<div className="presenter-screen__part presenter-screen__part--current-part">
+					<OverUnderChip className="screen-timing-clock over-under-chip--overlay" rundownPlaylist={playlist} />
 					<div
 						className={ClassNames('presenter-screen__segment-name', {
 							live: currentSegment !== undefined,
@@ -599,21 +616,7 @@ function PresenterScreenContentDefaultLayout({
 						</>
 					) : null}
 				</div>
-				<div className="presenter-screen__rundown-status-bar">
-					<div className="presenter-screen__rundown-status-bar__rundown-name">
-						{playlist ? playlist.name : 'UNKNOWN'}
-					</div>
-					<div className="presenter-screen__rundown-status-bar__t-timer">
-						{!!activeTTimer && <TTimerDisplay timer={activeTTimer} />}
-					</div>
-					<div
-						className={ClassNames('presenter-screen__rundown-status-bar__countdown', {
-							over: Math.floor(overUnderClock / 1000) >= 0,
-						})}
-					>
-						{RundownUtils.formatDiffToTimecode(overUnderClock, true, false, true, true, true, undefined, true, true)}
-					</div>
-				</div>
+				<RundownStatusBar playlist={playlist} />
 			</div>
 		)
 	}

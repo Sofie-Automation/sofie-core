@@ -191,12 +191,9 @@ export const SourceLayerItem = (props: Readonly<ISourceLayerItemProps>): JSX.Ele
 				if (!hasEditableContent) return
 
 				const pieceId = innerPiece._id
-				if (!selectElementContext.isSelected(pieceId)) {
-					RundownViewEventBus.emit(RundownViewEvents.CLOSE_NOTIFICATIONS)
-					selectElementContext.clearAndSetSelection({ type: 'piece', elementId: pieceId })
-				} else {
-					selectElementContext.clearSelections()
-				}
+
+				RundownViewEventBus.emit(RundownViewEvents.CLOSE_NOTIFICATIONS)
+				selectElementContext.clearAndSetSelection({ type: 'piece', elementId: pieceId })
 			} else if (typeof onDoubleClick === 'function') {
 				onDoubleClick(piece, e)
 			}

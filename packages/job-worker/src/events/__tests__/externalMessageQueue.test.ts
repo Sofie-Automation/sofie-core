@@ -9,7 +9,7 @@ import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/cont
 import { getCurrentTime } from '../../lib/index.js'
 import { queueExternalMessages } from '../handle.js'
 import { setupMockShowStyleCompound } from '../../__mocks__/presetCollections.js'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { getRandomId, omit } from '@sofie-automation/corelib/dist/lib'
 import { ExternalMessageQueueRunner } from '../ExternalMessageQueue.js'
 import { InvalidateWorkerDataCache, WorkerDataCacheWrapper } from '../../workers/caches.js'

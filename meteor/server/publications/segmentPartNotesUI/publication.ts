@@ -27,7 +27,7 @@ import {
 } from './reactiveContentCache'
 import { RundownsObserver } from '../lib/rundownsObserver'
 import { RundownContentObserver } from './rundownContentObserver'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { generateNotesForSegment } from './generateNotesForSegment'
 import { RundownPlaylists } from '../../collections'
 import { check, Match } from 'meteor/check'

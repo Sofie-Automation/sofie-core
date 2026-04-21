@@ -13,7 +13,7 @@ import { ContentCache, PartInstanceOmitedFields, createReactiveContentCache } fr
 import { ReadonlyDeep } from 'type-fest'
 import { RundownPlaylists } from '../../collections'
 import { literal } from '@sofie-automation/corelib/dist/lib'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { MongoFieldSpecifierOnesStrict } from '@sofie-automation/corelib/dist/mongo'
 import { RundownsObserver } from '../lib/rundownsObserver'
 import { RundownContentObserver } from './rundownContentObserver'

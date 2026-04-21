@@ -26,7 +26,7 @@ import {
 	translateMessage,
 } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 const lowPrioFcn = (fcn: () => any) => {

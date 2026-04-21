@@ -3,7 +3,7 @@ import { PartEventContext, RundownDataChangedEventContext, RundownTimingEventCon
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { getRandomId } from '@sofie-automation/corelib/dist/lib'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context.js'
@@ -14,6 +14,8 @@ import { ReadonlyDeep } from 'type-fest'
 import { convertPartInstanceToBlueprints } from '../context/lib.js'
 import { EmptyPieceTimelineObjectsBlob } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { ProcessedShowStyleCompound } from '../../jobs/index.js'
+import type { PlayoutModel } from '../../playout/model/PlayoutModel.js'
+import { mock } from 'jest-mock-extended'
 
 describe('Test blueprint api context', () => {
 	async function generateSparsePieceInstances(rundown: DBRundown) {
@@ -76,22 +78,25 @@ describe('Test blueprint api context', () => {
 			)) as DBRundownPlaylist
 			expect(playlist).toBeTruthy()
 
-			const showStyleConfig = jobContext.getShowStyleBlueprintConfig(showStyle)
+			const playoutModel = mock<PlayoutModel>()
+			const mockPlaylist = {
+				tTimers: [
+					{ index: 1, label: 'Timer 1', mode: null, state: null },
+					{ index: 2, label: 'Timer 2', mode: null, state: null },
+					{ index: 3, label: 'Timer 3', mode: null, state: null },
+				],
+			} as unknown as ReadonlyDeep<DBRundownPlaylist>
+			Object.defineProperty(playoutModel, 'playlist', {
+				get: () => mockPlaylist,
+				configurable: true,
+			})
 
 			const mockPart = {
 				_id: protectString('not-a-real-part'),
 			}
 
 			const tmpPart = wrapPartToTemporaryInstance(protectString('active'), mockPart as DBPart)
-			const context = new PartEventContext(
-				'fake',
-				jobContext.studio,
-				jobContext.getStudioBlueprintConfig(),
-				showStyle,
-				showStyleConfig,
-				rundown,
-				tmpPart
-			)
+			const context = new PartEventContext(jobContext, playoutModel, 'fake', showStyle, rundown, tmpPart)
 			expect(context.studio).toBeTruthy()
 
 			expect(context.part).toEqual(convertPartInstanceToBlueprints(tmpPart))

@@ -72,7 +72,7 @@ export async function waitForAllObserversReady(
 ): Promise<Meteor.LiveQueryHandle[]> {
 	// Wait for all the promises to complete
 	// Future: could this fail faster by aborting the rest once the first fails?
-	const results = await Promise.allSettled(observers)
+	const results = await Promise.allSettled(observers as Array<Promise<Meteor.LiveQueryHandle>>)
 	const allSuccessfull = results.filter(
 		(r): r is PromiseFulfilledResult<Meteor.LiveQueryHandle> => r.status === 'fulfilled'
 	)

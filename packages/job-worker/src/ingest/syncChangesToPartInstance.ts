@@ -36,6 +36,7 @@ import { setNextPart } from '../playout/setNext.js'
 import { PartId, RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import type { WrappedShowStyleBlueprint } from '../blueprints/cache.js'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
+import { PersistentPlayoutStateStore } from '../blueprints/context/services/PersistantStateStore.js'
 
 type PlayStatus = 'previous' | 'current' | 'next'
 export interface PartInstanceToSync {
@@ -144,27 +145,44 @@ export class SyncChangesToPartInstancesWorker {
 			instanceToSync.playStatus
 		)
 		// TODO - how can we limit the frequency we run this? (ie, how do we know nothing affecting this has changed)
+
+		// Snapshot t-timers before update in case we need to rollback
+		const tTimersSnapshot = [...this.#playoutModel.playlist.tTimers]
+
 		try {
 			if (!this.#blueprint.blueprint.syncIngestUpdateToPartInstance)
 				throw new Error('Blueprint does not have syncIngestUpdateToPartInstance')
+
+			const blueprintPersistentState = new PersistentPlayoutStateStore(
+				this.#playoutModel.playlist.privatePlayoutPersistentState,
+				this.#playoutModel.playlist.publicPlayoutPersistentState
+			)
 
 			// The blueprint handles what in the updated part is going to be synced into the partInstance:
 			this.#blueprint.blueprint.syncIngestUpdateToPartInstance(
 				syncContext,
 				existingResultPartInstance,
 				newResultData,
-				instanceToSync.playStatus
+				instanceToSync.playStatus,
+				blueprintPersistentState
 			)
 
 			// Persist t-timer changes
 			for (const timer of syncContext.changedTTimers) {
 				this.#playoutModel.updateTTimer(timer)
 			}
+
+			blueprintPersistentState.saveToModel(this.#playoutModel)
 		} catch (err) {
 			logger.error(`Error in showStyleBlueprint.syncIngestUpdateToPartInstance: ${stringifyError(err)}`)
 
 			// Operation failed, rollback the changes
 			existingPartInstance.snapshotRestore(partInstanceSnapshot)
+
+			// Also restore t-timers to prevent partial updates
+			for (let i = 0; i < tTimersSnapshot.length; i++) {
+				this.#playoutModel.updateTTimer(tTimersSnapshot[i])
+			}
 		}
 
 		if (instanceToSync.playStatus === 'next' && syncContext.hasRemovedPartInstance) {

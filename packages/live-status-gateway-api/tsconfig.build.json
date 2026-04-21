@@ -6,6 +6,8 @@
 		"target": "es2019",
 		"outDir": "./dist",
 		"rootDir": "./src",
+		"declaration": true,
+		"declarationMap": true,
 		"baseUrl": "./",
 		"paths": {
 			"*": ["./node_modules/*"],

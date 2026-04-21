@@ -43,7 +43,7 @@ import {
 import { NrcsIngestDataCache, Parts, Pieces, Rundowns } from '../collections'
 import { NrcsIngestCacheType } from '@sofie-automation/corelib/dist/dataModel/NrcsIngestDataCache'
 import { verifyHashedToken } from './singleUseTokens'
-import { QuickLoopMarker } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { QuickLoopMarker } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { runIngestOperation } from './ingest/lib'
 import { IngestJobs } from '@sofie-automation/corelib/dist/worker/ingest'
 import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'

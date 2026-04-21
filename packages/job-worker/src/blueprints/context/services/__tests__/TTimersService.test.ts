@@ -2,11 +2,16 @@
 import { useFakeCurrentTime, useRealCurrentTime } from '../../../../__mocks__/time.js'
 import { TTimersService, PlaylistTTimerImpl } from '../TTimersService.js'
 import type { PlayoutModel } from '../../../../playout/model/PlayoutModel.js'
-import type { RundownTTimer, RundownTTimerIndex } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import type {
+	RundownTTimer,
+	RundownTTimerIndex,
+} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/TTimers'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { mock, MockProxy } from 'jest-mock-extended'
 import type { ReadonlyDeep } from 'type-fest'
 import type { JobContext } from '../../../../jobs/index.js'
+
+const FAKE_NOW = 1_750_000_000_000 // 2025-06-15 ~18:13 UTC
 
 function createMockJobContext(): MockProxy<JobContext> {
 	return mock<JobContext>()
@@ -36,7 +41,7 @@ function createEmptyTTimers(): [RundownTTimer, RundownTTimer, RundownTTimer] {
 
 describe('TTimersService', () => {
 	beforeEach(() => {
-		useFakeCurrentTime(10000)
+		useFakeCurrentTime(FAKE_NOW)
 	})
 
 	afterEach(() => {
@@ -155,7 +160,7 @@ describe('TTimersService', () => {
 
 describe('PlaylistTTimerImpl', () => {
 	beforeEach(() => {
-		useFakeCurrentTime(10000)
+		useFakeCurrentTime(FAKE_NOW)
 	})
 
 	afterEach(() => {
@@ -182,137 +187,6 @@ describe('PlaylistTTimerImpl', () => {
 			const timer = new PlaylistTTimerImpl(tTimers[1], updateFn, mockPlayoutModel, mockJobContext)
 
 			expect(timer.label).toBe('Custom Label')
-		})
-
-		it('should return null state when no mode is set', () => {
-			const tTimers = createEmptyTTimers()
-			const updateFn = jest.fn()
-			const mockPlayoutModel = createMockPlayoutModel(tTimers)
-			const mockJobContext = createMockJobContext()
-			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
-
-			expect(timer.state).toBeNull()
-		})
-
-		it('should return running freeRun state', () => {
-			const tTimers = createEmptyTTimers()
-			tTimers[0].mode = { type: 'freeRun' }
-			tTimers[0].state = { paused: false, zeroTime: 15000 }
-			const updateFn = jest.fn()
-			const mockPlayoutModel = createMockPlayoutModel(tTimers)
-			const mockJobContext = createMockJobContext()
-			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
-
-			expect(timer.state).toEqual({
-				mode: 'freeRun',
-				currentTime: 5000, // 10000 - 5000
-				paused: false, // pauseTime is null = running
-			})
-		})
-
-		it('should return paused freeRun state', () => {
-			const tTimers = createEmptyTTimers()
-			tTimers[0].mode = { type: 'freeRun' }
-			tTimers[0].state = { paused: true, duration: 3000 }
-			const updateFn = jest.fn()
-			const mockPlayoutModel = createMockPlayoutModel(tTimers)
-			const mockJobContext = createMockJobContext()
-			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
-
-			expect(timer.state).toEqual({
-				mode: 'freeRun',
-				currentTime: 3000, // 8000 - 5000
-				paused: true, // pauseTime is set = paused
-			})
-		})
-
-		it('should return running countdown state', () => {
-			const tTimers = createEmptyTTimers()
-			tTimers[0].mode = {
-				type: 'countdown',
-				duration: 60000,
-				stopAtZero: true,
-			}
-			tTimers[0].state = { paused: false, zeroTime: 15000 }
-			const updateFn = jest.fn()
-			const mockPlayoutModel = createMockPlayoutModel(tTimers)
-			const mockJobContext = createMockJobContext()
-			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
-
-			expect(timer.state).toEqual({
-				mode: 'countdown',
-				currentTime: 5000, // 10000 - 5000
-				duration: 60000,
-				paused: false, // pauseTime is null = running
-				stopAtZero: true,
-			})
-		})
-
-		it('should return paused countdown state', () => {
-			const tTimers = createEmptyTTimers()
-			tTimers[0].mode = {
-				type: 'countdown',
-				duration: 60000,
-				stopAtZero: false,
-			}
-			tTimers[0].state = { paused: true, duration: 2000 }
-			const updateFn = jest.fn()
-			const mockPlayoutModel = createMockPlayoutModel(tTimers)
-			const mockJobContext = createMockJobContext()
-			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
-
-			expect(timer.state).toEqual({
-				mode: 'countdown',
-				currentTime: 2000, // 7000 - 5000
-				duration: 60000,
-				paused: true, // pauseTime is set = paused
-				stopAtZero: false,
-			})
-		})
-
-		it('should return timeOfDay state', () => {
-			const tTimers = createEmptyTTimers()
-			tTimers[0].mode = {
-				type: 'timeOfDay',
-				targetRaw: '15:30',
-				stopAtZero: true,
-			}
-			tTimers[0].state = { paused: false, zeroTime: 20000 } // 10 seconds in the future
-			const updateFn = jest.fn()
-			const mockPlayoutModel = createMockPlayoutModel(tTimers)
-			const mockJobContext = createMockJobContext()
-			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
-
-			expect(timer.state).toEqual({
-				mode: 'timeOfDay',
-				currentTime: 10000, // targetTime - getCurrentTime() = 20000 - 10000
-				targetTime: 20000,
-				targetRaw: '15:30',
-				stopAtZero: true,
-			})
-		})
-
-		it('should return timeOfDay state with numeric targetRaw', () => {
-			const tTimers = createEmptyTTimers()
-			const targetTimestamp = 1737331200000
-			tTimers[0].mode = {
-				type: 'timeOfDay',
-				targetRaw: targetTimestamp,
-				stopAtZero: false,
-			}
-			tTimers[0].state = { paused: false, zeroTime: targetTimestamp }
-			const updateFn = jest.fn()
-			const mockPlayoutModel = createMockPlayoutModel(tTimers)
-			const mockJobContext = createMockJobContext()
-			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
-
-			expect(timer.state).toEqual({
-				mode: 'timeOfDay',
-				currentTime: targetTimestamp - 10000, // targetTime - getCurrentTime()
-				targetTime: targetTimestamp,
-				targetRaw: targetTimestamp,
-				stopAtZero: false,
-			})
 		})
 	})
 
@@ -374,7 +248,7 @@ describe('PlaylistTTimerImpl', () => {
 					duration: 60000,
 					stopAtZero: true,
 				},
-				state: { paused: false, zeroTime: 70000 },
+				state: { paused: false, zeroTime: FAKE_NOW + 60_000 },
 			})
 		})
 
@@ -416,7 +290,7 @@ describe('PlaylistTTimerImpl', () => {
 				mode: {
 					type: 'freeRun',
 				},
-				state: { paused: false, zeroTime: 10000 },
+				state: { paused: false, zeroTime: FAKE_NOW },
 			})
 		})
 
@@ -563,7 +437,7 @@ describe('PlaylistTTimerImpl', () => {
 		it('should pause a running freeRun timer', () => {
 			const tTimers = createEmptyTTimers()
 			tTimers[0].mode = { type: 'freeRun' }
-			tTimers[0].state = { paused: false, zeroTime: 5000 }
+			tTimers[0].state = { paused: false, zeroTime: FAKE_NOW - 5_000 }
 			const updateFn = jest.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
@@ -585,7 +459,7 @@ describe('PlaylistTTimerImpl', () => {
 		it('should pause a running countdown timer', () => {
 			const tTimers = createEmptyTTimers()
 			tTimers[0].mode = { type: 'countdown', duration: 60000, stopAtZero: true }
-			tTimers[0].state = { paused: false, zeroTime: 70000 }
+			tTimers[0].state = { paused: false, zeroTime: FAKE_NOW + 60_000 }
 			const updateFn = jest.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
@@ -658,7 +532,7 @@ describe('PlaylistTTimerImpl', () => {
 				mode: {
 					type: 'freeRun',
 				},
-				state: { paused: false, zeroTime: 7000 }, // adjusted for pause duration
+				state: { paused: false, zeroTime: FAKE_NOW - 3_000 }, // adjusted for pause duration
 			})
 		})
 
@@ -732,7 +606,7 @@ describe('PlaylistTTimerImpl', () => {
 					duration: 60000,
 					stopAtZero: true,
 				},
-				state: { paused: false, zeroTime: 70000 }, // reset to now + duration
+				state: { paused: false, zeroTime: FAKE_NOW + 60_000 }, // reset to now + duration
 			})
 		})
 
@@ -764,7 +638,7 @@ describe('PlaylistTTimerImpl', () => {
 			})
 		})
 
-		it('should return false for freeRun timer', () => {
+		it('should restart a freeRun timer', () => {
 			const tTimers = createEmptyTTimers()
 			tTimers[0].mode = { type: 'freeRun' }
 			tTimers[0].state = { paused: false, zeroTime: 5000 }
@@ -775,8 +649,13 @@ describe('PlaylistTTimerImpl', () => {
 
 			const result = timer.restart()
 
-			expect(result).toBe(false)
-			expect(updateFn).not.toHaveBeenCalled()
+			expect(result).toBe(true)
+			expect(updateFn).toHaveBeenCalledWith({
+				index: 1,
+				label: 'Timer 1',
+				mode: { type: 'freeRun' },
+				state: { paused: false, zeroTime: FAKE_NOW }, // reset to now
+			})
 		})
 
 		it('should restart a timeOfDay timer with valid targetRaw', () => {
@@ -948,7 +827,7 @@ describe('PlaylistTTimerImpl', () => {
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
 
-			timer.setProjectedTime(50000, true)
+			timer.setProjectedTime(FAKE_NOW + 50_000, true)
 
 			expect(updateFn).toHaveBeenCalledWith({
 				index: 1,
@@ -956,7 +835,7 @@ describe('PlaylistTTimerImpl', () => {
 				mode: null,
 				state: null,
 				anchorPartId: undefined,
-				projectedState: { paused: true, duration: 40000 }, // 50000 - 10000 (current time)
+				projectedState: { paused: true, duration: 50000 }, // FAKE_NOW + 50_000 - FAKE_NOW (current time)
 			})
 		})
 
@@ -984,11 +863,11 @@ describe('PlaylistTTimerImpl', () => {
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
 
-			timer.setProjectedTime(50000)
+			timer.setProjectedTime(FAKE_NOW + 50_000)
 
 			expect(updateFn).toHaveBeenCalledWith(
 				expect.objectContaining({
-					projectedState: { paused: false, zeroTime: 50000 },
+					projectedState: { paused: false, zeroTime: FAKE_NOW + 50_000 },
 				})
 			)
 		})
@@ -1010,7 +889,7 @@ describe('PlaylistTTimerImpl', () => {
 				mode: null,
 				state: null,
 				anchorPartId: undefined,
-				projectedState: { paused: false, zeroTime: 40000 }, // 10000 (current) + 30000 (duration)
+				projectedState: { paused: false, zeroTime: FAKE_NOW + 30_000 }, // FAKE_NOW + 30000 (duration)
 			})
 		})
 
@@ -1061,9 +940,209 @@ describe('PlaylistTTimerImpl', () => {
 
 			expect(updateFn).toHaveBeenCalledWith(
 				expect.objectContaining({
-					projectedState: { paused: false, zeroTime: 40000 },
+					projectedState: { paused: false, zeroTime: FAKE_NOW + 30_000 },
 				})
 			)
+		})
+	})
+
+	describe('getDuration', () => {
+		it('should return null when timer has no state', () => {
+			const tTimers = createEmptyTTimers()
+			const timer = new PlaylistTTimerImpl(
+				tTimers[0],
+				jest.fn(),
+				createMockPlayoutModel(tTimers),
+				createMockJobContext()
+			)
+
+			expect(timer.getDuration()).toBeNull()
+		})
+
+		it('should return remaining time for a running countdown timer', () => {
+			const tTimers = createEmptyTTimers()
+			tTimers[0].mode = { type: 'countdown', duration: 60_000, stopAtZero: true }
+			tTimers[0].state = { paused: false, zeroTime: FAKE_NOW + 40_000 }
+			const timer = new PlaylistTTimerImpl(
+				tTimers[0],
+				jest.fn(),
+				createMockPlayoutModel(tTimers),
+				createMockJobContext()
+			)
+
+			expect(timer.getDuration()).toBe(40_000)
+		})
+
+		it('should return negative time when countdown has overrun', () => {
+			const tTimers = createEmptyTTimers()
+			tTimers[0].mode = { type: 'countdown', duration: 60_000, stopAtZero: false }
+			tTimers[0].state = { paused: false, zeroTime: FAKE_NOW - 5_000 }
+			const timer = new PlaylistTTimerImpl(
+				tTimers[0],
+				jest.fn(),
+				createMockPlayoutModel(tTimers),
+				createMockJobContext()
+			)
+
+			expect(timer.getDuration()).toBe(-5_000)
+		})
+
+		it('should return the stored duration for a paused timer', () => {
+			const tTimers = createEmptyTTimers()
+			tTimers[0].mode = { type: 'countdown', duration: 60_000, stopAtZero: true }
+			tTimers[0].state = { paused: true, duration: 30_000 }
+			const timer = new PlaylistTTimerImpl(
+				tTimers[0],
+				jest.fn(),
+				createMockPlayoutModel(tTimers),
+				createMockJobContext()
+			)
+
+			expect(timer.getDuration()).toBe(30_000)
+		})
+
+		it('should return negative elapsed time for a running freeRun timer', () => {
+			const tTimers = createEmptyTTimers()
+			tTimers[0].mode = { type: 'freeRun' }
+			tTimers[0].state = { paused: false, zeroTime: FAKE_NOW - 10_000 }
+			const timer = new PlaylistTTimerImpl(
+				tTimers[0],
+				jest.fn(),
+				createMockPlayoutModel(tTimers),
+				createMockJobContext()
+			)
+
+			expect(timer.getDuration()).toBe(-10_000)
+		})
+	})
+
+	describe('getZeroTime', () => {
+		it('should return null when timer has no state', () => {
+			const tTimers = createEmptyTTimers()
+			const timer = new PlaylistTTimerImpl(
+				tTimers[0],
+				jest.fn(),
+				createMockPlayoutModel(tTimers),
+				createMockJobContext()
+			)
+
+			expect(timer.getZeroTime()).toBeNull()
+		})
+
+		it('should return the zeroTime directly for a running timer', () => {
+			const tTimers = createEmptyTTimers()
+			tTimers[0].mode = { type: 'countdown', duration: 60_000, stopAtZero: true }
+			tTimers[0].state = { paused: false, zeroTime: FAKE_NOW + 40_000 }
+			const timer = new PlaylistTTimerImpl(
+				tTimers[0],
+				jest.fn(),
+				createMockPlayoutModel(tTimers),
+				createMockJobContext()
+			)
+
+			expect(timer.getZeroTime()).toBe(FAKE_NOW + 40_000)
+		})
+
+		it('should calculate when zero would be if a paused timer resumed now', () => {
+			const tTimers = createEmptyTTimers()
+			tTimers[0].mode = { type: 'countdown', duration: 60_000, stopAtZero: true }
+			tTimers[0].state = { paused: true, duration: 30_000 }
+			const timer = new PlaylistTTimerImpl(
+				tTimers[0],
+				jest.fn(),
+				createMockPlayoutModel(tTimers),
+				createMockJobContext()
+			)
+
+			expect(timer.getZeroTime()).toBe(FAKE_NOW + 30_000)
+		})
+	})
+
+	describe('getProjectedDuration', () => {
+		it('should return null when no projection is set', () => {
+			const tTimers = createEmptyTTimers()
+			tTimers[0].mode = { type: 'countdown', duration: 60_000, stopAtZero: true }
+			tTimers[0].state = { paused: false, zeroTime: FAKE_NOW + 40_000 }
+			const timer = new PlaylistTTimerImpl(
+				tTimers[0],
+				jest.fn(),
+				createMockPlayoutModel(tTimers),
+				createMockJobContext()
+			)
+
+			expect(timer.getProjectedDuration()).toBeNull()
+		})
+
+		it('should return remaining time to anchor for a running projection', () => {
+			const tTimers = createEmptyTTimers()
+			tTimers[0].mode = { type: 'countdown', duration: 60_000, stopAtZero: true }
+			tTimers[0].state = { paused: false, zeroTime: FAKE_NOW + 40_000 }
+			tTimers[0].projectedState = { paused: false, zeroTime: FAKE_NOW + 30_000 }
+			const timer = new PlaylistTTimerImpl(
+				tTimers[0],
+				jest.fn(),
+				createMockPlayoutModel(tTimers),
+				createMockJobContext()
+			)
+
+			expect(timer.getProjectedDuration()).toBe(30_000)
+		})
+
+		it('should return the stored duration for a paused projection (pushing)', () => {
+			const tTimers = createEmptyTTimers()
+			tTimers[0].mode = { type: 'countdown', duration: 60_000, stopAtZero: true }
+			tTimers[0].state = { paused: false, zeroTime: FAKE_NOW + 40_000 }
+			tTimers[0].projectedState = { paused: true, duration: 25_000 }
+			const timer = new PlaylistTTimerImpl(
+				tTimers[0],
+				jest.fn(),
+				createMockPlayoutModel(tTimers),
+				createMockJobContext()
+			)
+
+			expect(timer.getProjectedDuration()).toBe(25_000)
+		})
+	})
+
+	describe('getProjectedZeroTime', () => {
+		it('should return null when no projection is set', () => {
+			const tTimers = createEmptyTTimers()
+			tTimers[0].mode = { type: 'countdown', duration: 60_000, stopAtZero: true }
+			tTimers[0].state = { paused: false, zeroTime: FAKE_NOW + 40_000 }
+			const timer = new PlaylistTTimerImpl(
+				tTimers[0],
+				jest.fn(),
+				createMockPlayoutModel(tTimers),
+				createMockJobContext()
+			)
+
+			expect(timer.getProjectedZeroTime()).toBeNull()
+		})
+
+		it('should return the projected zeroTime for a running projection', () => {
+			const tTimers = createEmptyTTimers()
+			tTimers[0].projectedState = { paused: false, zeroTime: FAKE_NOW + 30_000 }
+			const timer = new PlaylistTTimerImpl(
+				tTimers[0],
+				jest.fn(),
+				createMockPlayoutModel(tTimers),
+				createMockJobContext()
+			)
+
+			expect(timer.getProjectedZeroTime()).toBe(FAKE_NOW + 30_000)
+		})
+
+		it('should calculate when zero would be if paused projection resumed now', () => {
+			const tTimers = createEmptyTTimers()
+			tTimers[0].projectedState = { paused: true, duration: 25_000 }
+			const timer = new PlaylistTTimerImpl(
+				tTimers[0],
+				jest.fn(),
+				createMockPlayoutModel(tTimers),
+				createMockJobContext()
+			)
+
+			expect(timer.getProjectedZeroTime()).toBe(FAKE_NOW + 25_000)
 		})
 	})
 })

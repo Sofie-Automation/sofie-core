@@ -3,7 +3,7 @@ import Moment from 'react-moment'
 import { TimingDataResolution, TimingTickResolution, useTiming } from './RundownTiming/withTiming.js'
 import { RundownUtils } from '../../lib/rundown.js'
 import { useTranslation } from 'react-i18next'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
 
 interface IProps {

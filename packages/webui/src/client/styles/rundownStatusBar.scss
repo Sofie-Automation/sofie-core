@@ -1,0 +1,42 @@
+/**
+ * Styling for `ui/ClockView/RundownStatusBar.tsx`.
+ *
+ * View-level styles (Presenter/Prompter) should only handle placement and scaling.
+ */
+@import 'colorScheme';
+
+.rundown-status-bar {
+	display: grid;
+	grid-template-columns: auto fit-content(1em);
+	grid-template-rows: fit-content(1em);
+	font-size: 6em;
+	color: #888;
+	padding: 0 0 0 0.2em;
+	background: rgba(0, 0, 0, 0.75);
+
+	.rundown-status-bar__rundown-name {
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		line-height: 1.44em;
+	}
+
+	.rundown-status-bar__right {
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+		justify-self: end;
+		// Match the exact background of `.t-timer-display`
+		background: #333;
+	}
+
+	.rundown-status-bar__t-timer {
+		display: flex;
+		align-items: center;
+		white-space: nowrap;
+	}
+
+	&.rundown-status-bar--no-title {
+		background: transparent;
+	}
+}

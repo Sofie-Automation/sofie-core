@@ -10,7 +10,7 @@ import { RundownId, ShowStyleBaseId, StudioId } from '@sofie-automation/corelib/
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { Rundowns } from '../../../collections/index.js'
 import { useSubscription, useSubscriptionIfEnabled, useTracker } from '../../../lib/ReactMeteorData/ReactMeteorData.js'
 import { UIPartInstances, UIStudios } from '../../Collections.js'

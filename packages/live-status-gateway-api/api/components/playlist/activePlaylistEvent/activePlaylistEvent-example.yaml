@@ -15,3 +15,5 @@ timing:
   $ref: '../../timing/activePlaylistTiming/activePlaylistTiming-example.yaml'
 quickLoop:
   $ref: '../../quickLoop/activePlaylistQuickLoop/activePlaylistQuickLoop-example.yaml'
+tTimers:
+  $ref: '../../tTimers/tTimerStatus/tTimerStatus-array-example.yaml'

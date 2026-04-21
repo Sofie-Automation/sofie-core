@@ -23,7 +23,10 @@ import { hidePointerLockCursor, showPointerLockCursor } from '../../lib/PointerL
 import { motion } from 'motion/react'
 import { filterSecondarySourceLayers } from '../SegmentStoryboard/StoryboardPartSecondaryPieces/StoryboardPartSecondaryPieces.js'
 import { SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { DBRundownPlaylist, RundownHoldState } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import {
+	DBRundownPlaylist,
+	RundownHoldState,
+} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { isPartPlayable } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'

@@ -7,7 +7,7 @@ import { JobContext, ProcessedShowStyleCompound } from '../../jobs/index.js'
 import { mock } from 'jest-mock-extended'
 import { PartAndPieceInstanceActionService } from '../context/services/PartAndPieceInstanceActionService.js'
 import { ProcessedShowStyleConfig } from '../config.js'
-import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 
 describe('Test blueprint api context', () => {
 	async function getTestee(rehearsal?: boolean) {

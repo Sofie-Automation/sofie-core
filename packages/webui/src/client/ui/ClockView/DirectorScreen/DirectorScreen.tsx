@@ -1,7 +1,10 @@
 import ClassNames from 'classnames'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { PartUi } from '../../SegmentTimeline/SegmentTimelineContainer.js'
-import { DBRundownPlaylist, ABSessionAssignment } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import {
+	DBRundownPlaylist,
+	ABSessionAssignment,
+} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import {
 	useSubscription,
@@ -41,13 +44,12 @@ import { AdjustLabelFit } from '../../util/AdjustLabelFit.js'
 import { AutoNextStatus } from '../../RundownView/RundownTiming/AutoNextStatus.js'
 import { useTranslation } from 'react-i18next'
 import { DBShowStyleBase, UIShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { TTimerDisplay } from '../TTimerDisplay.js'
-import { getDefaultTTimer } from '../../../lib/tTimerUtils.js'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance.js'
 import { DirectorScreenTop } from './DirectorScreenTop.js'
 import { useTiming } from '../../RundownView/RundownTiming/withTiming.js'
 import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
+import { RundownStatusBar } from '../RundownStatusBar.js'
 
 interface SegmentUi extends DBSegment {
 	items: Array<PartUi>
@@ -571,8 +573,6 @@ function DirectorScreenRender({
 			}
 		}
 
-		const activeTTimer = getDefaultTTimer(playlist.tTimers)
-
 		return (
 			<div className="director-screen">
 				<DirectorScreenTop partInstanceToCountTimeFrom={partInstanceToCountTimeFrom} playlist={playlist} />
@@ -758,12 +758,8 @@ function DirectorScreenRender({
 							</>
 						) : null}
 					</div>
-					{!!activeTTimer && (
-						<div className="director-screen__body__t-timer">
-							<TTimerDisplay timer={activeTTimer} />
-						</div>
-					)}
 				</div>
+				<RundownStatusBar playlist={playlist} className="director-screen__bottom-bar" showPlaylistName={false} />
 			</div>
 		)
 	}

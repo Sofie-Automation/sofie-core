@@ -1,7 +1,7 @@
 import { PartInstanceId, PieceInstanceInfiniteId, PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { ABSessionInfo } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { ABSessionInfo } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { OnGenerateTimelineObjExt } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { clone, getRandomId, omit } from '@sofie-automation/corelib/dist/lib'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'

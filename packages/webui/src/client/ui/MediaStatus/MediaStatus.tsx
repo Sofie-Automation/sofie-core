@@ -24,7 +24,7 @@ import {
 	RundownPlaylists,
 	Rundowns,
 } from '../../collections/index.js'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { ProtectedString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { ExpectedPackage } from '@sofie-automation/shared-lib/dist/package-manager/package'
 import { PartInvalidReason } from '@sofie-automation/corelib/dist/dataModel/Part'

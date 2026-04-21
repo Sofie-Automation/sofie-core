@@ -2,6 +2,7 @@ import {
 	CoreConnection,
 	CoreOptions,
 	DDPConnectorOptions,
+	DDPTLSOptions,
 	PeripheralDeviceAPI,
 	PeripheralDeviceCommand,
 	PeripheralDeviceId,
@@ -55,7 +56,6 @@ export class CoreHandler implements ICoreHandler {
 	private _executedFunctions = new Set<PeripheralDeviceCommandId>()
 	private _tsrHandler?: TSRHandler
 	private _coreConfig?: CoreConfig
-	private _certificates?: Buffer[]
 
 	private _statusInitialized = false
 	private _statusDestroyed = false
@@ -67,10 +67,9 @@ export class CoreHandler implements ICoreHandler {
 		this._deviceOptions = deviceOptions
 	}
 
-	async init(config: CoreConfig, certificates: Buffer[]): Promise<void> {
+	async init(config: CoreConfig, tlsOptions: DDPTLSOptions): Promise<void> {
 		this._statusInitialized = false
 		this._coreConfig = config
-		this._certificates = certificates
 
 		this.core = new CoreConnection(this.getCoreConnectionOptions())
 
@@ -91,11 +90,7 @@ export class CoreHandler implements ICoreHandler {
 		const ddpConfig: DDPConnectorOptions = {
 			host: config.host,
 			port: config.port,
-		}
-		if (this._certificates.length) {
-			ddpConfig.tlsOpts = {
-				ca: this._certificates,
-			}
+			tlsOpts: tlsOptions,
 		}
 
 		await this.core.init(ddpConfig)

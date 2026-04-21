@@ -55,6 +55,9 @@ export interface IBlueprintRundownDBData {
 export interface IBlueprintSegmentRundown<TPrivateData = unknown, TPublicData = unknown> {
 	externalId: string
 
+	/** Rundown timing information */
+	timing: RundownPlaylistTiming
+
 	/** Arbitraty data storage for internal use in the blueprints */
 	privateData?: TPrivateData
 	/** Arbitraty data relevant for other systems, made available to them through APIs */

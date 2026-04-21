@@ -20,6 +20,6 @@
 	letter-spacing: 0.01em;
 	text-transform: uppercase;
 	opacity: 1;
-	color: #888;
+	color: rgba(255, 255, 255, 0.6); // same transparency as `.countdown__digit--dimmed`
 	transition: color 0.2s;
 }

@@ -1,0 +1,3 @@
+$defs:
+  tTimerStatus:
+    $ref: './tTimerStatus/tTimerStatus.yaml#/$defs/tTimerStatus'

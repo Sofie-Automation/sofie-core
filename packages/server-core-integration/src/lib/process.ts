@@ -1,23 +1,28 @@
 import * as fs from 'fs'
+import { DDPTLSOptions } from './ddpClient.js'
 
 export interface CertificatesConfig {
-	/** Will cause the Node applocation to blindly accept all certificates. Not recommenced unless in local, controlled networks. */
+	/** Will cause the Node application to blindly accept all certificates. Not recommended unless in local, controlled networks. */
 	unsafeSSL: boolean
 	/** Paths to certificates to load, for SSL-connections */
 	certificates: string[]
 }
 
-export function loadCertificatesFromDisk(logger: SomeLogger, certConfig: CertificatesConfig): Buffer[] {
+/** The subset of TLSOpts that can be derived from a CertificatesConfig */
+
+export function loadDDPTLSOptions(logger: SomeLogger, certConfig: CertificatesConfig): DDPTLSOptions {
+	const result: DDPTLSOptions = {}
+
 	if (certConfig.unsafeSSL) {
-		logger.info('Disabling NODE_TLS_REJECT_UNAUTHORIZED, be sure to ONLY DO THIS ON A LOCAL NETWORK!')
-		process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0'
-	} else {
-		// var rootCas = SSLRootCAs.create()
+		logger.info(
+			'Disabling certificate validation (rejectUnauthorized: false), be sure to ONLY DO THIS ON A LOCAL NETWORK!'
+		)
+		result.rejectUnauthorized = false
 	}
 
-	const certificates: Buffer[] = []
 	if (certConfig.certificates.length) {
 		logger.info(`Loading certificates...`)
+		const certificates: Buffer[] = []
 		for (const certificate of certConfig.certificates) {
 			try {
 				certificates.push(fs.readFileSync(certificate))
@@ -26,9 +31,10 @@ export function loadCertificatesFromDisk(logger: SomeLogger, certConfig: Certifi
 				logger.error(`Error loading certificate "${certificate}"`, error)
 			}
 		}
+		result.ca = certificates
 	}
 
-	return certificates
+	return result
 }
 
 interface SomeLogger {

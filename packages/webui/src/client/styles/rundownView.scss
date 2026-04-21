@@ -142,32 +142,16 @@ $break-width: 35rem;
 		}
 	}
 
-	.rundown-header_OLD .notification-pop-ups {
-		top: 65px;
-	}
-
-	> .rundown-header_OLD .rundown-overview {
-		transition: 0s padding-right 0.5s;
-	}
-
 	&.notification-center-open {
 		padding-right: $notification-center-width;
 		transition: 0s padding-right 1s;
 
-		> .rundown-header_OLD .rundown-overview {
-			padding-right: calc(#{$notification-center-width} + 1.5em);
-			transition: 0s padding-right 1s;
-		}
 	}
 
 	&.properties-panel-open {
 		padding-right: calc(#{$properties-panel-width} - 3.5em);
 		transition: 0s padding-right 1s;
 
-		> .rundown-header_OLD .rundown-overview {
-			padding-right: calc(#{$properties-panel-width} + 1.5em);
-			transition: 0s padding-right 1s;
-		}
 	}
 
 	.dark {
@@ -244,261 +228,9 @@ body.no-overflow {
 	}
 }
 
-.rundown-header_OLD {
-	padding: 0;
-
-	.header-row {
-		width: 100%;
-
-		&.margin-right {
-			padding-right: $statusbar-width;
-		}
-	}
-
-	.flex-col.col-timing {
-		flex: 1 1;
-	}
-
-	.timing {
-		margin: 0 0;
-		min-width: auto;
-		width: 100%;
-		text-align: center;
-
-		display: grid;
-		grid-template-columns: 1fr auto 1fr;
-
-		.timing__header__left {
-			text-align: left;
-			display: flex;
-		}
-
-		.timing__header__center {
-			position: relative;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-		}
-
-		.timing__header__right {
-			display: grid;
-			grid-template-columns: auto auto;
-			text-align: right;
-			vertical-align: middle;
-
-			.timing__header__right__right {
-				align-content: end;
-			}
-		}
-
-		.timing-clock {
-			display: inline;
-			position: relative;
-			margin-right: 1em;
-			font-family:
-				'Roboto',
-				Helvetica Neue,
-				Arial,
-				sans-serif;
-			font-weight: 100;
-			color: $general-clock;
-			font-size: 1.5em;
-			margin-top: 0.8em;
-			word-break: keep-all;
-			white-space: nowrap;
-
-			&.visual-last-child {
-				margin-right: 0;
-			}
-
-			&.countdown {
-				font-weight: 400;
-			}
-
-			&.playback-started {
-				display: inline-block;
-				width: 25%;
-			}
-
-			&.left {
-				text-align: left;
-			}
-
-			&.time-now {
-				margin-top: 0.05em;
-				margin-right: 0;
-				font-size: 2.3em;
-				font-weight: 100;
-				text-align: center;
-			}
-
-			&.current-remaining {
-				position: absolute;
-				left: calc(50% + 3.5em);
-				text-align: left;
-				color: $liveline-timecode-color;
-				font-weight: 500;
-
-				.overtime {
-					color: $general-fast-color;
-					text-shadow: 0px 0px 6px $general-fast-color--shadow;
-				}
-			}
-
-			.timing-clock-label {
-				position: absolute;
-				display: inline;
-				top: -1em;
-				color: #b8b8b8;
-				text-transform: uppercase;
-				white-space: nowrap;
-				font-weight: 300;
-				font-size: 0.5em;
-
-				&.left {
-					left: 0;
-					right: auto;
-					text-align: left;
-				}
-
-				&.right {
-					right: 0;
-					left: auto;
-					text-align: right;
-				}
-
-				&.hide-overflow {
-					overflow: hidden;
-					text-overflow: ellipsis;
-					width: 100%;
-				}
-
-				&.rundown-name {
-					width: auto;
-					max-width: calc(40vw - 138px);
-					min-width: 100%;
-					margin: 0;
-
-					> strong {
-						margin-right: 0.4em;
-					}
-
-					> svg.icon.looping {
-						width: 1.4em;
-						height: 1.4em;
-					}
-				}
-			}
-
-			&.heavy-light {
-				font-weight: 600;
-
-				&.heavy {
-					// color: $general-late-color;
-					color: #ffe900;
-					background: none;
-				}
-
-				&.light {
-					color: $general-fast-color;
-					text-shadow: 0px 0px 6px $general-fast-color--shadow;
-					background: none;
-				}
-			}
-		}
-
-		.rundown__header-status {
-			position: absolute;
-			font-size: 0.7rem;
-			text-transform: uppercase;
-			background: #fff;
-			border-radius: 1rem;
-			line-height: 1em;
-			font-weight: 700;
-			color: #000;
-			top: 2.4em;
-			left: 0;
-			padding: 2px 5px 1px;
-
-			&.rundown__header-status--hold {
-				background: $hold-status-color;
-			}
-		}
-
-		.timing-clock-header-label {
-			font-weight: 100px;
-		}
-	}
-
-	.close {
-		margin: 17px 20px 14px;
-	}
-
-	/* RWD: iPad */
-	@media screen and (max-width: 1024px) {
-		.timing {
-			.timing-clock.plan-end:not(.countdown) {
-				display: none;
-			}
-
-			.timing-clock.countdown.plan-end {
-				margin-right: 0;
-			}
-		}
-	}
-
-	/* RWD: Anything below an iPad */
-	@media screen and (max-width: 1023px) {
-		.timing {
-			.timing-clock.plan-end:not(.countdown),
-			.timing-clock.plan-start:not(.countdown) {
-				display: none;
-			}
-		}
-	}
-
-	@media screen and (max-width: 800px) {
-		.timing {
-			.timing-clock.heavy-light {
-				margin-right: 0;
-			}
-
-			.timing-clock.plan-end {
-				display: none;
-			}
-		}
-	}
-
-	@media screen and (max-width: 600px) {
-		.timing {
-			.timing-clock.plan-start.countdown {
-				display: none;
-			}
-
-			.timing-clock.time-now {
-				left: 2em;
-				transform: none;
-			}
-		}
-	}
-}
 
 .first-row {
 	cursor: default;
-}
-
-.rundown-header_OLD.not-active .first-row {
-	background-color: rgb(38, 137, 186);
-}
-.rundown-header_OLD.not-active .first-row .timing-clock,
-.rundown-header_OLD.not-active .first-row .timing-clock-label {
-	color: #fff !important;
-}
-// .rundown-header_OLD.active .first-row  {
-// background-color: #600
-// }
-.rundown-header_OLD.active.rehearsal .first-row {
-	background-color: #660;
 }
 
 svg.icon {
@@ -1576,7 +1308,7 @@ svg.icon {
 				bottom: 0;
 				right: 1px;
 				z-index: 10;
-				pointer-events: all;
+				pointer-events: none;
 				background-image: repeating-linear-gradient(
 						45deg,
 						var(--invalid-reason-color-transparent) 0%,
@@ -3598,81 +3330,3 @@ svg.icon {
 }
 
 @import 'rundownOverview';
-
-.rundown-header_OLD .timing__header_t-timers {
-	position: absolute;
-	right: 100%;
-	top: 50%;
-	transform: translateY(-38%);
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: flex-end;
-	margin-right: 1em;
-
-	.timing__header_t-timers__timer {
-		display: flex;
-		gap: 0.5em;
-		justify-content: space-between;
-		align-items: baseline;
-		white-space: nowrap;
-		line-height: 1.3;
-
-		.timing__header_t-timers__timer__label {
-			font-size: 0.7em;
-			color: #b8b8b8;
-			text-transform: uppercase;
-			white-space: nowrap;
-		}
-
-		.timing__header_t-timers__timer__value {
-			font-family:
-				'Roboto',
-				Helvetica Neue,
-				Arial,
-				sans-serif;
-			font-variant-numeric: tabular-nums;
-			font-weight: 500;
-			color: #fff;
-			font-size: 1.1em;
-		}
-
-		.timing__header_t-timers__timer__sign {
-			display: inline-block;
-			width: 0.6em;
-			text-align: center;
-			font-weight: 500;
-			font-size: 0.9em;
-			color: #fff;
-			margin-right: 0.3em;
-		}
-
-		.timing__header_t-timers__timer__part {
-			color: #fff;
-			&.timing__header_t-timers__timer__part--dimmed {
-				color: #888;
-				font-weight: 400;
-			}
-		}
-		.timing__header_t-timers__timer__separator {
-			margin: 0 0.05em;
-			color: #888;
-		}
-
-		.timing__header_t-timers__timer__over-under {
-			font-size: 0.75em;
-			font-weight: 400;
-			font-variant-numeric: tabular-nums;
-			margin-left: 0.5em;
-			white-space: nowrap;
-
-			&.timing__header_t-timers__timer__over-under--over {
-				color: $general-late-color;
-			}
-
-			&.timing__header_t-timers__timer__over-under--under {
-				color: #0f0;
-			}
-		}
-	}
-}

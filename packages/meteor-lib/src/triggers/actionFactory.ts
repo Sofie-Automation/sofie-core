@@ -9,7 +9,7 @@ import {
 	Time,
 } from '@sofie-automation/blueprints-integration'
 import { TFunction } from 'i18next'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { DBShowStyleBase, SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import RundownViewEventBus, { RundownViewEvents } from '../triggers/RundownViewEventBus.js'

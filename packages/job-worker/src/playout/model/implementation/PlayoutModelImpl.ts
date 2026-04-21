@@ -16,9 +16,9 @@ import {
 	DBRundownPlaylist,
 	QuickLoopMarker,
 	RundownHoldState,
-	RundownTTimer,
 	SelectedPartInstance,
-} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import { RundownTTimer } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/TTimers'
 import { ReadonlyDeep } from 'type-fest'
 import { JobContext } from '../../../jobs/index.js'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'

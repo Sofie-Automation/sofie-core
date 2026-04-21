@@ -90,7 +90,8 @@ body.prompter-scrollbar {
 	.prompter-part {
 		text-align: center;
 		letter-spacing: 0.1em;
-		font-size: 50%;
+		font-size: 63%;
+		height: 12.2vh;
 	}
 	.overlay-fix {
 		pointer-events: none;
@@ -129,6 +130,7 @@ body.prompter-scrollbar {
 
 		&.live {
 			//border-bottom: 0.2em solid #f55;
+			// Layer the director-style gradient over the live color
 			background: $general-live-color;
 			color: #fff;
 			-webkit-text-stroke: black;
@@ -277,36 +279,25 @@ body.prompter-scrollbar {
 	}
 }
 
-.prompter-timing-clock {
+.screen-timing-clock {
 	position: fixed;
 	display: block;
 	top: 0;
 	right: 0;
-	left: auto;
-	font-size: 75%;
-	padding: 0.05em 0.3em;
-	border-radius: 1em;
-	box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
+	font-size: 9vmin;
+	box-shadow: 0px 0px 3px 3px rgba(0, 0, 0, 0.5);
+}
 
-	&.heavy-light {
-		font-weight: 600;
+.prompter-rundown-status-bar {
+	position: fixed;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 1100;
+}
 
-		&.light {
-			// color: $general-late-color;
-			background-color: #ffe900;
-			color: #000;
-		}
-
-		&.heavy {
-			background-color: $general-fast-color;
-			color: #fff;
-			text-shadow:
-				1px 1px 0px #000,
-				1px -1px 0px #000,
-				-1px -1px 0px #000,
-				-1px 1px 0px #000;
-		}
-	}
+.prompter-rundown-status-bar.rundown-status-bar {
+	font-size: 6.95vmin;
 }
 
 .script-text-formatted {

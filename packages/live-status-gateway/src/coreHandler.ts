@@ -3,6 +3,7 @@ import {
 	CoreConnection,
 	CoreOptions,
 	DDPConnectorOptions,
+	DDPTLSOptions,
 	Observer,
 	PeripheralDevicePubSub,
 	PeripheralDevicePubSubCollections,
@@ -13,7 +14,6 @@ import {
 } from '@sofie-automation/server-core-integration'
 import { DeviceConfig } from './connector.js'
 import { Logger } from 'winston'
-import { Process } from './process.js'
 import { LIVE_STATUS_DEVICE_CONFIG } from './configManifest.js'
 import {
 	PeripheralDeviceCategory,
@@ -53,7 +53,6 @@ export class CoreHandler {
 	private _onConnected?: () => any
 	private _executedFunctions = new Set<PeripheralDeviceCommandId>()
 	private _coreConfig?: CoreConfig
-	private _process?: Process
 
 	private _studioId: StudioId | undefined
 
@@ -65,10 +64,9 @@ export class CoreHandler {
 		this._deviceOptions = deviceOptions
 	}
 
-	async init(config: CoreConfig, process: Process): Promise<void> {
+	async init(config: CoreConfig, tlsOptions: DDPTLSOptions): Promise<void> {
 		this._statusInitialized = false
 		this._coreConfig = config
-		this._process = process
 
 		this.core = new CoreConnection<CorelibPubSubTypes & PeripheralDevicePubSubTypes>(
 			this.getCoreConnectionOptions()
@@ -91,11 +89,7 @@ export class CoreHandler {
 		const ddpConfig: DDPConnectorOptions = {
 			host: config.host,
 			port: config.port,
-		}
-		if (this._process && this._process.certificates.length) {
-			ddpConfig.tlsOpts = {
-				ca: this._process.certificates,
-			}
+			tlsOpts: tlsOptions,
 		}
 
 		await this.core.init(ddpConfig)

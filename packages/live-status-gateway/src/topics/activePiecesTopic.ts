@@ -8,7 +8,7 @@ import { SelectedPieceInstances, PieceInstanceMin } from '../collections/pieceIn
 import { toPieceStatus } from './helpers/pieceStatus.js'
 import { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { CollectionHandlers } from '../liveStatusServer.js'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { PickKeys } from '@sofie-automation/shared-lib/dist/lib/types'
 import { ActivePiecesEvent } from '@sofie-automation/live-status-gateway-api'
 

@@ -116,7 +116,7 @@ const UserErrorMessagesTranslations: { [key in UserErrorMessage]: string } = {
 	[UserErrorMessage.DeviceAlreadyAttachedToStudio]: t(`Device is already attached to another studio.`),
 	[UserErrorMessage.ShowStyleBaseNotFound]: t(`ShowStyleBase not found!`),
 	[UserErrorMessage.NoMigrationsToApply]: t(`No migrations to apply`),
-	[UserErrorMessage.ValidationFailed]: t('Validation failed!'),
+	[UserErrorMessage.ValidationFailed]: t('Validation failed! {{message}}'),
 	[UserErrorMessage.AdlibTestingNotAllowed]: t(`Rehearsal mode is not allowed`),
 	[UserErrorMessage.AdlibTestingAlreadyActive]: t(`Rehearsal mode is already active`),
 	[UserErrorMessage.BucketNotFound]: t(`Bucket not found!`),

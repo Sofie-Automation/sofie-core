@@ -28,7 +28,7 @@ import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { RundownBaselineAdLibAction } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibAction'
 import { RundownBaselineAdLibItem } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibPiece'
 import { RundownBaselineObj } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineObj'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
@@ -53,8 +53,8 @@ export interface IReadOnlyCollection<TDoc extends { _id: ProtectedString<any> }>
 
 	readonly rawCollection: MongoCollection<TDoc>
 
-	findFetch(selector?: MongoQuery<TDoc>, options?: FindOptions<TDoc>): Promise<Array<TDoc>>
-	findOne(selector?: MongoQuery<TDoc> | TDoc['_id'], options?: FindOptions<TDoc>): Promise<TDoc | undefined>
+	findFetch(selector?: MongoQuery<TDoc>, options?: FindOptions): Promise<Array<TDoc>>
+	findOne(selector?: MongoQuery<TDoc> | TDoc['_id'], options?: FindOptions): Promise<TDoc | undefined>
 	count(selector?: MongoQuery<TDoc> | TDoc['_id'], options?: CountOptions): Promise<number>
 
 	/**
