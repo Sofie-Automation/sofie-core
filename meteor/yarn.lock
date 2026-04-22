@@ -1191,7 +1191,7 @@ __metadata:
   resolution: "@sofie-automation/shared-lib@portal:../packages/shared-lib::locator=automation-core%40workspace%3A."
   dependencies:
     "@mos-connection/model": "npm:^4.3.1"
-    timeline-state-resolver-types: "npm:9.3.1-nightly-feat-nrk-r52-kairos-20260218-140433-5a8d40ffd.0"
+    timeline-state-resolver-types: "npm:10.0.0-nightly-main-20260324-124919-d70070e4e.0"
     tslib: "npm:^2.8.1"
     type-fest: "npm:^4.33.0"
   languageName: node
@@ -6733,12 +6733,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"kairos-lib@npm:0.2.3":
-  version: 0.2.3
-  resolution: "kairos-lib@npm:0.2.3"
+"kairos-lib@npm:1.0.0":
+  version: 1.0.0
+  resolution: "kairos-lib@npm:1.0.0"
   dependencies:
     tslib: "npm:^2.8.1"
-  checksum: 10/d1be6e208896839ea693924b26f185a6b7e7dff9b1f964e4283df2e2d438554f396b4cad7cb696dcd111a2a554c12c9642bf92f7037bd8059e96a118c3a4c2c9
+  checksum: 10/e7a40a5b83199b529b27cbd9b445aee7027ea890209e02fd3d3b17db12b9c86871cc4a4c3e52575ce43c64c8f2712a7be88f29b0d75ab0d94faf4efba6907686
   languageName: node
   linkType: hard
 
@@ -10243,13 +10243,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"timeline-state-resolver-types@npm:9.3.1-nightly-feat-nrk-r52-kairos-20260218-140433-5a8d40ffd.0":
-  version: 9.3.1-nightly-feat-nrk-r52-kairos-20260218-140433-5a8d40ffd.0
-  resolution: "timeline-state-resolver-types@npm:9.3.1-nightly-feat-nrk-r52-kairos-20260218-140433-5a8d40ffd.0"
+"timeline-state-resolver-types@npm:10.0.0-nightly-main-20260324-124919-d70070e4e.0":
+  version: 10.0.0-nightly-main-20260324-124919-d70070e4e.0
+  resolution: "timeline-state-resolver-types@npm:10.0.0-nightly-main-20260324-124919-d70070e4e.0"
   dependencies:
-    kairos-lib: "npm:0.2.3"
-    tslib: "npm:^2.6.3"
-  checksum: 10/fa2618d83a7c9f11a99452fa1fd2df2bd166f7acf6c423cb84612f503f1b7d90822238c8eec5f44539272dc07198b5c31e22c82be0c9a8b2296be91fac4b534d
+    kairos-lib: "npm:1.0.0"
+    tslib: "npm:^2.8.1"
+  checksum: 10/50e8b0286f60f97fb351c95f6b6c0942f655962f6a5be54f2a6a29e7b771d66f29ca8e74023135388801a4b2a7991b5bc790c8b3b4a05dfe867f789795ee4b7c
   languageName: node
   linkType: hard
 
@@ -10401,7 +10401,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.5.3, tslib@npm:^2.6.0, tslib@npm:^2.6.3, tslib@npm:^2.8.1":
+"tslib@npm:^2.5.3, tslib@npm:^2.6.0, tslib@npm:^2.8.1":
   version: 2.8.1
   resolution: "tslib@npm:2.8.1"
   checksum: 10/3e2e043d5c2316461cb54e5c7fe02c30ef6dccb3384717ca22ae5c6b5bc95232a6241df19c622d9c73b809bea33b187f6dbc73030963e29950c2141bc32a79f7
