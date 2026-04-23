@@ -735,6 +735,7 @@ function fixupImportedSelectedPartInstanceIds(
 	}
 
 	if (property === 'previous') {
+		convertPreviousPartInfoToArray(snapshot)
 		// previousPartsInfo is an array — remap each entry
 		const snapshotInfos = snapshot.playlist.previousPartsInfo
 		if (snapshotInfos?.length) {
@@ -757,4 +758,11 @@ function fixupImportedSelectedPartInstanceIds(
 			}
 		}
 	}
+}
+function convertPreviousPartInfoToArray(snapshot: CoreRundownPlaylistSnapshot) {
+	const legacyPreviousPartInfo = (snapshot.playlist as any).previousPartInfo
+	if (!Array.isArray(snapshot.playlist.previousPartsInfo)) {
+		snapshot.playlist.previousPartsInfo = legacyPreviousPartInfo ? [legacyPreviousPartInfo] : []
+	}
+	delete (snapshot.playlist as any).previousPartInfo
 }
