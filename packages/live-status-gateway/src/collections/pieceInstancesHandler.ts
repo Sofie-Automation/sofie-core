@@ -117,14 +117,18 @@ export class PieceInstancesHandler extends PublicationCollection<
 		if (!this._collectionData) return false
 		const collection = this.getCollectionOrFail()
 
+		const previousPartInstancesById = new Map(
+			this._partInstances?.previous.map((partInstance) => [partInstance._id, partInstance]) ?? []
+		)
+
 		// Compute active pieces for each previous part, skipping any whose plannedStoppedPlayback has passed
 		// previousPartsInfo is already pruned to only contain still-active parts; per-piece timing is handled by filterActive
 		const inPreviousPartInstances: PieceInstanceWithTimings[] = (
 			this._currentPlaylist?.previousPartsInfo ?? []
-		).flatMap((info, index) => {
+		).flatMap((info) => {
 			if (!info.partInstanceId) return []
 			return this.processAndPrunePieceInstanceTimings(
-				this._partInstances?.previous[index],
+				previousPartInstancesById.get(info.partInstanceId),
 				collection.find({ partInstanceId: info.partInstanceId }),
 				true
 			)
