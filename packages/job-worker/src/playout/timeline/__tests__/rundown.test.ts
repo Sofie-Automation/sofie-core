@@ -996,5 +996,46 @@ describe('buildTimelineObjsForRundown', () => {
 			expect(objs.timeline.find((obj) => obj.id === prev0GroupId)).toBeFalsy()
 			expect(objs.timingContext?.previousPartOverlap).toBeUndefined()
 		})
+
+		it('does not create dangling references when previous[0] is skipped and previous[1] is active', () => {
+			const context = setupDefaultJobEnvironment()
+
+			const prev0NoPlayback: SelectedPartInstanceTimelineInfo = {
+				partTimes: createPartCurrentTimes(currentTime, 8000),
+				partInstance: createMockPartInstance('prev0noPB'),
+				pieceInstances: [createMockPieceInstance('piece_prev0noPB')],
+				calculatedTimings: { ...DEFAULT_PART_TIMINGS, fromPartRemaining: 5000 },
+				regenerateTimelineAt: undefined,
+			}
+
+			const prev1Active = makeActivePrevInfo('prev1active', 2999, 3000, 2000)
+
+			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
+				previous: [prev0NoPlayback, prev1Active],
+				current: {
+					partTimes: createPartCurrentTimes(currentTime, 9500),
+					partInstance: createMockPartInstance('current', {}, { timings: { plannedStartedPlayback: 9499 } }),
+					pieceInstances: [],
+					calculatedTimings: { ...DEFAULT_PART_TIMINGS, fromPartRemaining: 3000 },
+					regenerateTimelineAt: undefined,
+				},
+			}
+
+			const playlist = createMockPlaylist(selectedPartInfos)
+			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos, true)
+
+			const prev0GroupId = getPartGroupId(prev0NoPlayback.partInstance)
+			const prev1GroupId = getPartGroupId(prev1Active.partInstance)
+			const currentGroupId = objs.timingContext!.currentPartGroup.id
+
+			expect(objs.timeline.find((obj) => obj.id === prev0GroupId)).toBeFalsy()
+
+			// prev1 must be emitted and must chain to the current group (not the skipped prev0 group)
+			const prev1Group = objs.timeline.find((obj) => obj.id === prev1GroupId)
+			expect(prev1Group).toBeTruthy()
+			// prev1 chains to the current group using currentPartInstanceTimings.fromPartRemaining (3000),
+			// because prev0 was skipped so nextPartTimings stays as currentPartInstanceTimings
+			expect(prev1Group!.enable).toMatchObject({ end: `#${currentGroupId}.start + 3000` })
+		})
 	})
 })

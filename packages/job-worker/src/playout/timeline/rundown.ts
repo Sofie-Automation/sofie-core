@@ -501,6 +501,8 @@ function generatePreviousPartInstancesObjects(
 	currentPartInstanceTimings: PartCalculatedTimings
 ): Array<TimelineObjRundown & OnGenerateTimelineObjExt> {
 	const result: Array<TimelineObjRundown & OnGenerateTimelineObjExt> = []
+	let nextGroupId = timingContext.currentPartGroup.id
+	let nextPartTimings: PartCalculatedTimings = currentPartInstanceTimings
 
 	for (let i = 0; i < previousPartsInfo.length; i++) {
 		const previousPartInfo = previousPartsInfo[i]
@@ -515,15 +517,7 @@ function generatePreviousPartInstancesObjects(
 		 *     (comes from previous[i-1].calculatedTimings.fromPartRemaining, which is the "fromPartRemaining"
 		 *     stored on the part that was taken TO previous[i-1] FROM previous[i])
 		 */
-		const prevPartOverlapDuration =
-			i === 0
-				? currentPartInstanceTimings.fromPartRemaining
-				: previousPartsInfo[i - 1].calculatedTimings.fromPartRemaining
-
-		// The "next" group in the chain: previous[0] ends relative to currentPartGroup; older ones end
-		// relative to the immediately-newer previous group.
-		const nextGroupId =
-			i === 0 ? timingContext.currentPartGroup.id : getPartGroupId(previousPartsInfo[i - 1].partInstance)
+		const prevPartOverlapDuration = nextPartTimings.fromPartRemaining
 
 		const previousPartGroup = createPartGroup(previousPartInfo.partInstance, {
 			start: partStartedPlayback,
@@ -531,8 +525,8 @@ function generatePreviousPartInstancesObjects(
 		})
 		previousPartGroup.priority = -1
 
-		// Only set the most-recent overlap in the timing context (used downstream by AB-playback etc.)
-		if (i === 0) {
+		// Only set the first generated overlap in the timing context (used downstream by AB-playback etc.)
+		if (timingContext.previousPartOverlap === undefined) {
 			timingContext.previousPartOverlap = prevPartOverlapDuration
 		}
 
@@ -552,16 +546,16 @@ function generatePreviousPartInstancesObjects(
 				groupClasses,
 				previousPartGroup,
 				previousPartInfo,
-				// Pass the relevant "next" timings for context-sensitive piece rendering.
-				// For the immediately-previous part this is the current part's timings;
-				// for older parts it is the immediately-newer previous part's timings.
-				i === 0 ? currentPartInstanceTimings : previousPartsInfo[i - 1].calculatedTimings,
+				nextPartTimings,
 				{
 					isRehearsal: !!activePlaylist.rehearsal,
 					isInHold: activePlaylist.holdState === RundownHoldState.ACTIVE,
 				}
 			)
 		)
+
+		nextGroupId = getPartGroupId(previousPartInfo.partInstance)
+		nextPartTimings = previousPartInfo.calculatedTimings
 	}
 
 	return result
