@@ -21,7 +21,10 @@ const onAirPlayoutState = findForLayerTestConstants.playoutState.onAir
 
 describe('findLookaheadForLayer – search distance', () => {
 	test('searchDistance = 0 ignores future parts', () => {
-		findLookaheadObjectsForPartMock.mockReturnValueOnce([] as any).mockReturnValueOnce(['cur0', 'cur1'] as any)
+		findLookaheadObjectsForPartMock
+			.mockReturnValueOnce([] as any)
+			.mockReturnValueOnce([] as any)
+			.mockReturnValueOnce(['cur0', 'cur1'] as any)
 
 		const res = findLookaheadForLayer(
 			context,
@@ -37,9 +40,9 @@ describe('findLookaheadForLayer – search distance', () => {
 		expect(res.timed).toEqual(['cur0', 'cur1'])
 		expect(res.future).toHaveLength(0)
 
-		expect(findLookaheadObjectsForPartMock).toHaveBeenCalledTimes(3)
-		expectInstancesToMatch(findLookaheadObjectsForPartMock, 2, layer, current, previous[0], onAirPlayoutState)
-		expectInstancesToMatch(findLookaheadObjectsForPartMock, 3, layer, nextFuture, current, onAirPlayoutState)
+		expect(findLookaheadObjectsForPartMock).toHaveBeenCalledTimes(4)
+		expectInstancesToMatch(findLookaheadObjectsForPartMock, 3, layer, current, previous[1], onAirPlayoutState)
+		expectInstancesToMatch(findLookaheadObjectsForPartMock, 4, layer, nextFuture, current, onAirPlayoutState)
 	})
 
 	test('returns nothing when maxSearchDistance is too small', () => {

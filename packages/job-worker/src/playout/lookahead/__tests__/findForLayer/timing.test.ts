@@ -23,6 +23,7 @@ describe('findLookaheadForLayer – timing', () => {
 	test('current part with timed next part (all goes into timed)', () => {
 		findLookaheadObjectsForPartMock
 			.mockReturnValueOnce([] as any)
+			.mockReturnValueOnce([] as any)
 			.mockReturnValueOnce(['cur0', 'cur1'] as any)
 			.mockReturnValueOnce(['nT0', 'nT1'] as any)
 
@@ -40,13 +41,14 @@ describe('findLookaheadForLayer – timing', () => {
 		expect(res.timed).toEqual(['cur0', 'cur1', 'nT0', 'nT1']) // should have all pieces
 		expect(res.future).toHaveLength(0) // should be empty
 
-		expect(findLookaheadObjectsForPartMock).toHaveBeenCalledTimes(3)
-		expectInstancesToMatch(findLookaheadObjectsForPartMock, 2, layer, current, previous[0], onAirPlayoutState)
-		expectInstancesToMatch(findLookaheadObjectsForPartMock, 3, layer, nextTimed, current, onAirPlayoutState)
+		expect(findLookaheadObjectsForPartMock).toHaveBeenCalledTimes(4)
+		expectInstancesToMatch(findLookaheadObjectsForPartMock, 3, layer, current, previous[1], onAirPlayoutState)
+		expectInstancesToMatch(findLookaheadObjectsForPartMock, 4, layer, nextTimed, current, onAirPlayoutState)
 	})
 
 	test('current part with un-timed next part (next goes into future)', () => {
 		findLookaheadObjectsForPartMock
+			.mockReturnValueOnce([] as any)
 			.mockReturnValueOnce([] as any)
 			.mockReturnValueOnce(['cur0', 'cur1'] as any)
 			.mockReturnValueOnce(['nF0', 'nF1'] as any)
@@ -65,8 +67,8 @@ describe('findLookaheadForLayer – timing', () => {
 		expect(res.timed).toEqual(['cur0', 'cur1']) // Should only contain the current part's pieces
 		expect(res.future).toEqual(['nF0', 'nF1']) // Should only contain the future pieces
 
-		expect(findLookaheadObjectsForPartMock).toHaveBeenCalledTimes(3)
-		expectInstancesToMatch(findLookaheadObjectsForPartMock, 2, layer, current, previous[0], onAirPlayoutState)
-		expectInstancesToMatch(findLookaheadObjectsForPartMock, 3, layer, nextFuture, current, onAirPlayoutState)
+		expect(findLookaheadObjectsForPartMock).toHaveBeenCalledTimes(4)
+		expectInstancesToMatch(findLookaheadObjectsForPartMock, 3, layer, current, previous[1], onAirPlayoutState)
+		expectInstancesToMatch(findLookaheadObjectsForPartMock, 4, layer, nextFuture, current, onAirPlayoutState)
 	})
 })
