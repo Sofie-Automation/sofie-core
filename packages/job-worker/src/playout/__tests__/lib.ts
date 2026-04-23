@@ -29,9 +29,9 @@ export async function getSelectedPartInstances(
 	if (currentPartInstance === undefined)
 		throw new Error(`Missing currentPartInstance "${playlist.currentPartInfo?.partInstanceId}"`)
 	if (nextPartInstance === undefined)
-		throw new Error(`Missing currentPartInstance "${playlist.nextPartInfo?.partInstanceId}"`)
+		throw new Error(`Missing nextPartInstance "${playlist.nextPartInfo?.partInstanceId}"`)
 	if (previousPartInstance === undefined)
-		throw new Error(`Missing currentPartInstance "${playlist.previousPartsInfo?.[0]?.partInstanceId}"`)
+		throw new Error(`Missing previousPartInstance "${playlist.previousPartsInfo?.[0]?.partInstanceId}"`)
 
 	return { currentPartInstance, nextPartInstance, previousPartInstance }
 }
