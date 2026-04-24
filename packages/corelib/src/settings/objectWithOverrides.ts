@@ -81,6 +81,30 @@ export function convertObjectIntoOverrides<T>(
 }
 
 /**
+ * Create ObjectWithOverrides with specified defaults and overrides for changed properties
+ */
+export function flatObjectToOverrides<T extends object>(
+	defaults: T,
+	changedValues: Partial<T>
+): ObjectWithOverrides<T> {
+	const result = wrapDefaultObject<T>(defaults)
+
+	for (const [key, value] of Object.entries<any>(changedValues)) {
+		if (value !== undefined) {
+			result.overrides.push(
+				literal<ObjectOverrideSetOp>({
+					op: 'set',
+					path: key,
+					value: value,
+				})
+			)
+		}
+	}
+
+	return result
+}
+
+/**
  * Update the ObjectWithOverrides overrides values from a flat object.
  * If there is an exiting override for a value update the override value if required.
  * Otherwise if the flat object value is different to the default add an override to the new value.
