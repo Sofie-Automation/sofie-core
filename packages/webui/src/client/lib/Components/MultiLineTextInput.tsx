@@ -20,6 +20,7 @@ interface IMultiLineTextInputControlProps {
 	classNames?: string
 	modifiedClassName?: string
 	disabled?: boolean
+	readOnly?: boolean
 	placeholder?: string
 
 	/** Call handleUpdate on every change, before focus is lost */
@@ -33,6 +34,7 @@ export function MultiLineTextInputControl({
 	modifiedClassName,
 	value,
 	disabled,
+	readOnly,
 	placeholder,
 	handleUpdate,
 	updateOnKey,
@@ -41,20 +43,24 @@ export function MultiLineTextInputControl({
 
 	const handleChange = useCallback(
 		(event: React.ChangeEvent<HTMLTextAreaElement>) => {
+			if (readOnly) return
+
 			setEditingValue(event.target.value)
 
 			if (updateOnKey) {
 				handleUpdate(splitValueIntoLines(event.target.value))
 			}
 		},
-		[handleUpdate, updateOnKey]
+		[handleUpdate, updateOnKey, readOnly]
 	)
 	const handleBlur = useCallback(
 		(event: React.FocusEvent<HTMLTextAreaElement>) => {
+			if (readOnly) return
+
 			handleUpdate(splitValueIntoLines(event.target.value))
 			setEditingValue(null)
 		},
-		[handleUpdate]
+		[handleUpdate, readOnly]
 	)
 	const handleFocus = useCallback((event: React.FocusEvent<HTMLTextAreaElement>) => {
 		setEditingValue(event.currentTarget.value)
@@ -82,6 +88,7 @@ export function MultiLineTextInputControl({
 			onKeyUp={handleKeyUp}
 			onKeyPress={handleKeyPress}
 			disabled={disabled}
+			readOnly={readOnly}
 		/>
 	)
 }

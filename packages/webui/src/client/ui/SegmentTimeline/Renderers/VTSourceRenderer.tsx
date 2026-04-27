@@ -293,6 +293,7 @@ class VTSourceRendererBase extends CustomLayerItemRenderer<IProps & WithTranslat
 			>
 				{end && this.renderLoopIcon()}
 				<span className="segment-timeline__piece__label last-words">{end}</span>
+				{this.renderCustomPieceIcons()}
 				{this.renderInfiniteIcon()}
 				{
 					(!isLiveLine || part.instance.part.autoNext) &&
