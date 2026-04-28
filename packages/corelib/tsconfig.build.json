@@ -3,7 +3,7 @@
 	"include": ["src/**/*.ts"],
 	"exclude": ["node_modules/**", "**/*spec.ts", "**/__tests__/*", "**/__mocks__/*"],
 	"compilerOptions": {
-		"target": "es2019",
+		"target": "ES2024",
 		"rootDir": "./src",
 		"outDir": "./dist",
 		"baseUrl": "./",
