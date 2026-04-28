@@ -63,7 +63,7 @@ export function DeviceItem({
 				<StatusCodePill
 					connected={device.connected}
 					statusCode={device?.status.statusCode}
-					messages={device?.status.messages}
+					statusDetails={device?.status.statusDetails}
 				/>
 
 				<div className="device-item__last-seen">
