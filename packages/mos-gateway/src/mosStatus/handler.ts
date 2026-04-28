@@ -21,6 +21,7 @@ import type { RundownId } from '@sofie-automation/shared-lib/dist/core/model/Ids
 import type * as winston from 'winston'
 import { Queue } from '@sofie-automation/server-core-integration/dist/lib/queue'
 import { diffStatuses } from './diff.js'
+import { mosStatusQueueDepthGauge, mosStatusSentCounter, mosStatusSkippedCounter } from '../mosMetrics.js'
 
 export class MosStatusHandler {
 	readonly #logger: winston.Logger
@@ -98,10 +99,15 @@ export class MosStatusHandler {
 			// New implementation 2022 only sends PLAY, never stop, after getting advice from AP
 			// Reason 1: NRK ENPS "sendt tid" (elapsed time) stopped working in ENPS 8/9 when doing STOP prior to PLAY
 			// Reason 2: there's a delay between the STOP (yellow line disappears) and PLAY (yellow line re-appears), which annoys the users
-			if (this.#config.onlySendPlay && status.mosStatus !== IMOSObjectStatus.PLAY) continue
+			if (this.#config.onlySendPlay && status.mosStatus !== IMOSObjectStatus.PLAY) {
+				mosStatusSkippedCounter.inc({ device_id: this.#mosDevice.idPrimary, reason: 'only_send_play' })
+				continue
+			}
 
+			mosStatusQueueDepthGauge.inc({ device_id: this.#mosDevice.idPrimary })
 			this.#messageQueue
 				.putOnQueue(async () => {
+					mosStatusQueueDepthGauge.dec({ device_id: this.#mosDevice.idPrimary })
 					if (this.#isDeviceConnected()) {
 						if (status.type === 'item') {
 							const newStatus: IMOSItemStatus = {
@@ -115,6 +121,11 @@ export class MosStatusHandler {
 
 							// Send status
 							await this.#mosDevice.sendItemStatus(newStatus)
+							mosStatusSentCounter.inc({
+								device_id: this.#mosDevice.idPrimary,
+								status_type: 'item',
+								mos_status: String(status.mosStatus),
+							})
 						} else if (status.type === 'story') {
 							const newStatus: IMOSStoryStatus = {
 								RunningOrderId: this.#mosTypes.mosString128.create(status.rundownExternalId),
@@ -126,6 +137,11 @@ export class MosStatusHandler {
 
 							// Send status
 							await this.#mosDevice.sendStoryStatus(newStatus)
+							mosStatusSentCounter.inc({
+								device_id: this.#mosDevice.idPrimary,
+								status_type: 'story',
+								mos_status: String(status.mosStatus),
+							})
 						} else {
 							this.#logger.debug(`Discarding unknown queued status: ${JSON.stringify(status)}`)
 							assertNever(status)
@@ -133,8 +149,10 @@ export class MosStatusHandler {
 					} else if (this.#config.onlySendPlay) {
 						// No need to do anything.
 						this.#logger.info(`Not connected, skipping play status: ${JSON.stringify(status)}`)
+						mosStatusSkippedCounter.inc({ device_id: this.#mosDevice.idPrimary, reason: 'not_connected' })
 					} else {
 						this.#logger.info(`Not connected, discarding status: ${JSON.stringify(status)}`)
+						mosStatusSkippedCounter.inc({ device_id: this.#mosDevice.idPrimary, reason: 'not_connected' })
 					}
 				})
 				.catch((e) => {

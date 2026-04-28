@@ -1,4 +1,4 @@
-import { JSX } from 'react'
+import type { JSX } from 'react'
 import { relativeToSiteRootUrl } from '../../../url.js'
 
 export function CriticalIcon(): JSX.Element {

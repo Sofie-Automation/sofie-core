@@ -10,6 +10,7 @@ import {
 	SubscriptionStatus,
 	SubscriptionName,
 } from '@sofie-automation/live-status-gateway-api'
+import { activeSubscriptionsGauge, subscriptionSubscribersGauge } from '../wsMetrics.js'
 
 enum PublishMsg {
 	ping = 'ping',
@@ -41,6 +42,7 @@ export class RootChannel extends WebSocketTopicBase implements WebSocketTopic {
 	removeSubscriber(ws: WebSocket): void {
 		super.removeSubscriber(ws)
 		this._topics.forEach((h) => h.removeSubscriber(ws))
+		this._updateSubscriptionMetrics()
 	}
 
 	processMessage(ws: WebSocket, msg: object): void {
@@ -74,6 +76,16 @@ export class RootChannel extends WebSocketTopicBase implements WebSocketTopic {
 		if (Object.values<string>(SubscriptionName).includes(channel)) this._topics.set(channel, topic)
 	}
 
+	private _updateSubscriptionMetrics(): void {
+		let total = 0
+		for (const [name, topic] of this._topics) {
+			const count = topic.subscriberCount
+			subscriptionSubscribersGauge.set({ subscription: name }, count)
+			total += count
+		}
+		activeSubscriptionsGauge.set(total)
+	}
+
 	subscribe(ws: WebSocket, name: SubscriptionName, reqid: number): void {
 		const topic = this._topics.get(name)
 		const curUnsubscribed =
@@ -91,6 +103,7 @@ export class RootChannel extends WebSocketTopicBase implements WebSocketTopic {
 				})
 			)
 			topic.addSubscriber(ws)
+			this._updateSubscriptionMetrics()
 		} else {
 			this.sendMessage(
 				ws,
@@ -112,6 +125,7 @@ export class RootChannel extends WebSocketTopicBase implements WebSocketTopic {
 		const curSubscribed = topic && topic.hasSubscriber(ws) && Object.values<string>(SubscriptionName).includes(name)
 		if (curSubscribed) {
 			topic.removeSubscriber(ws)
+			this._updateSubscriptionMetrics()
 			this.sendMessage(
 				ws,
 				literal<SubscriptionStatusSuccess>({

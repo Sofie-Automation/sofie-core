@@ -4,7 +4,7 @@ import * as React from 'react'
 import { MeteorCall } from '../lib/meteorApi.js'
 import { getCurrentTime } from './systemTime.js'
 import { catchError } from './lib.js'
-import { UserPermissions } from '../ui/UserPermissions.js'
+import type { UserPermissions } from '../ui/UserPermissions.js'
 
 interface IKeyboardFocusIndicatorState {
 	inFocus: boolean

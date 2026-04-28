@@ -1,10 +1,10 @@
-import React, { useMemo } from 'react'
-import { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { useMemo } from 'react'
+import type { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import StudioContext from '../../RundownView/StudioContext.js'
 import { LinePartIndicator } from './LinePartIndicator.js'
 import { PieceIndicatorMenu } from './PieceIndicatorMenu.js'
-import { ISourceLayerExtended } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
-import { PieceExtended, PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import type { ISourceLayerExtended } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import type { PieceExtended, PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 interface IProps {
 	partId: PartId

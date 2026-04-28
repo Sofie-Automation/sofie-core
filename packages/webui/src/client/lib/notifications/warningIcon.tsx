@@ -1,4 +1,4 @@
-import * as React from 'react'
+import type * as React from 'react'
 
 export const sofieWarningIcon: React.FunctionComponent<{}> = () => (
 	<svg height="16" viewBox="0 0 17 16" width="17" xmlns="http://www.w3.org/2000/svg">

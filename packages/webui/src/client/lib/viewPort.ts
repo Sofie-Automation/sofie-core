@@ -2,7 +2,7 @@ import { SEGMENT_TIMELINE_ELEMENT_ID } from '../ui/SegmentTimeline/SegmentTimeli
 import { isProtectedString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import RundownViewEventBus, { RundownViewEvents } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
 import { Settings } from '../lib/Settings.js'
-import { PartId, PartInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { PartId, PartInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { UIPartInstances, UIParts } from '../ui/Collections.js'
 import { logger } from './logging.js'
 import { parse as queryStringParse } from 'query-string'

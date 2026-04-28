@@ -1,18 +1,18 @@
 import React, { useCallback, useMemo } from 'react'
-import { PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { useTranslation } from 'react-i18next'
 import {
 	getAllCurrentAndDeletedItemsFromOverrides,
-	OverrideOpHelper,
+	type OverrideOpHelper,
 	useOverrideOpHelper,
-	WrappedOverridableItem,
-	WrappedOverridableItemDeleted,
-	WrappedOverridableItemNormal,
+	type WrappedOverridableItem,
+	type WrappedOverridableItemDeleted,
+	type WrappedOverridableItemNormal,
 } from '../../util/OverrideOpHelper.js'
 import { faCheck, faPencilAlt, faPlus, faSync, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { JSONBlob, JSONBlobParse, JSONSchema } from '@sofie-automation/blueprints-integration'
-import { DropdownInputControl, DropdownInputOption } from '../../../../lib/Components/DropdownInput.js'
+import { type JSONBlob, JSONBlobParse, type JSONSchema } from '@sofie-automation/blueprints-integration'
+import { DropdownInputControl, type DropdownInputOption } from '../../../../lib/Components/DropdownInput.js'
 import { useToggleExpandHelper } from '../../../util/useToggleExpandHelper.js'
 import { doModalDialog } from '../../../../lib/ModalDialog.js'
 import classNames from 'classnames'
@@ -20,11 +20,11 @@ import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { SchemaFormWithOverrides } from '../../../../lib/forms/SchemaFormWithOverrides.js'
 import { LabelActual, LabelAndOverrides } from '../../../../lib/Components/LabelAndOverrides.js'
 import { getRandomString, literal } from '@sofie-automation/corelib/dist/lib'
-import { StudioDeviceSettings } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import type { StudioDeviceSettings } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import {
-	SomeObjectOverrideOp,
+	type SomeObjectOverrideOp,
 	wrapDefaultObject,
-	ObjectOverrideSetOp,
+	type ObjectOverrideSetOp,
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import Tooltip from 'rc-tooltip'
 import { PeripheralDevices, Studios } from '../../../../collections/index.js'
@@ -33,8 +33,8 @@ import { useTracker } from '../../../../lib/ReactMeteorData/ReactMeteorData.js'
 import { TextInputControl } from '../../../../lib/Components/TextInput.js'
 import { MomentFromNow } from '../../../../lib/Moment.js'
 import { MeteorCall } from '../../../../lib/meteorApi.js'
-import { ReadonlyDeep } from 'type-fest'
-import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
+import type { ReadonlyDeep } from 'type-fest'
+import type { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 
 interface StudioParentDevicesProps {
 	studioId: StudioId

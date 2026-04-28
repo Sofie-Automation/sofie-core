@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { withTranslation } from 'react-i18next'
-import { Translated } from '../../lib/ReactMeteorData/ReactMeteorData.js'
+import type { Translated } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import ClassNames from 'classnames'
 import { catchError } from '../../lib/lib.js'
 
@@ -16,7 +16,7 @@ interface IState {
 	isMouseDown: boolean
 }
 
-export const VideoEditMonitor = withTranslation()(
+export const VideoEditMonitor: React.ComponentType<IProps> = withTranslation()(
 	class VideoEditMonitor extends React.Component<Translated<IProps>, IState> {
 		private videoEl: HTMLVideoElement | null = null
 		private retryCount = 0

@@ -1,18 +1,18 @@
 import { RundownUtils } from '../../lib/rundown.js'
-import { IAdLibListItem } from '../Shelf/AdLibListItem.js'
-import { BucketAdLibUi, BucketAdLibActionUi } from '../Shelf/RundownViewBuckets.js'
-import { AdLibPieceUi } from '../../lib/shelf.js'
+import type { IAdLibListItem } from '../Shelf/AdLibListItem.js'
+import type { BucketAdLibUi, BucketAdLibActionUi } from '../Shelf/RundownViewBuckets.js'
+import type { AdLibPieceUi } from '../../lib/shelf.js'
 import { UIBucketContentStatuses, UIPieceContentStatuses } from '../Collections.js'
-import { Piece, PieceUi } from '@sofie-automation/corelib/dist/dataModel/Piece'
-import {
+import type { Piece, PieceUi } from '@sofie-automation/corelib/dist/dataModel/Piece'
+import type {
 	PieceContentStatusObj,
 	UIPieceContentStatus,
 } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
 import { useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
-import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
-import { UIBucketContentStatus } from '@sofie-automation/meteor-lib/dist/api/rundownNotifications'
-import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
-import { ReadonlyDeep } from 'type-fest'
+import type { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
+import type { UIBucketContentStatus } from '@sofie-automation/meteor-lib/dist/api/rundownNotifications'
+import type { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
+import type { ReadonlyDeep } from 'type-fest'
 
 function unwrapPieceInstance(piece: BucketAdLibUi | IAdLibListItem | AdLibPieceUi | PieceUi | BucketAdLibActionUi) {
 	if (RundownUtils.isPieceInstance(piece)) {

@@ -181,7 +181,8 @@ export class ActivePlaylistTopic extends WebSocketTopicBase implements WebSocket
 								? this._activePlaylist.timing.expectedStart
 								: undefined,
 						expectedEnd:
-							this._activePlaylist.timing.type !== PlaylistTimingType.None
+							this._activePlaylist.timing.type !== PlaylistTimingType.None &&
+							this._activePlaylist.timing.type !== PlaylistTimingType.Duration
 								? this._activePlaylist.timing.expectedEnd
 								: undefined,
 					},
@@ -402,6 +403,8 @@ function translatePlaylistTimingType(type: PlaylistTimingType): ActivePlaylistTi
 			return ActivePlaylistTimingMode.BACK_MINUS_TIME
 		case PlaylistTimingType.ForwardTime:
 			return ActivePlaylistTimingMode.FORWARD_MINUS_TIME
+		case PlaylistTimingType.Duration:
+			return ActivePlaylistTimingMode.DURATION
 		default:
 			assertNever(type)
 			// Cast and return the value anyway, so that the application works

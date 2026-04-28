@@ -1,10 +1,11 @@
 import React, { useContext } from 'react'
 import {
-	PeripheralDevice,
+	type PeripheralDevice,
 	PeripheralDeviceType,
 	PERIPHERAL_SUBTYPE_PROCESS,
 } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
-import { TFunction, useTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import Moment from 'react-moment'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { getCurrentTime } from '../../../lib/systemTime.js'
@@ -20,7 +21,7 @@ import ClassNames from 'classnames'
 import { TSR } from '@sofie-automation/blueprints-integration'
 import { MeteorCall } from '../../../lib/meteorApi.js'
 import { DEFAULT_TSR_ACTION_TIMEOUT_TIME } from '@sofie-automation/shared-lib/dist/core/constants'
-import { SubdeviceAction } from '@sofie-automation/shared-lib/dist/core/deviceConfigManifest'
+import type { SubdeviceAction } from '@sofie-automation/shared-lib/dist/core/deviceConfigManifest'
 import { StatusCodePill } from '../StatusCodePill.js'
 import { isTranslatableMessage, translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { i18nTranslator } from '../../i18n.js'

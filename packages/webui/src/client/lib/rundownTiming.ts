@@ -11,24 +11,24 @@
  * without knowing what particular case you are trying to solve.
  */
 
-import { PartId, PartInstanceId, SegmentId, SegmentPlayoutId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { PartId, PartInstanceId, SegmentId, SegmentPlayoutId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
 import { calculatePartInstanceExpectedDurationWithTransition } from '@sofie-automation/corelib/dist/playout/timings'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { DBPart, PartExtended } from '@sofie-automation/corelib/dist/dataModel/Part'
+import type { DBPart, PartExtended } from '@sofie-automation/corelib/dist/dataModel/Part'
 import {
-	DBRundownPlaylist,
+	type DBRundownPlaylist,
 	QuickLoopMarkerType,
 } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { objectFromEntries } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { getCurrentTime } from './systemTime.js'
 import { Settings } from '../lib/Settings.js'
-import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
+import type { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
+import type { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { CountdownType } from '@sofie-automation/blueprints-integration'
 import { RundownUtils } from './rundown.js'
-import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance'
+import type { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance'
 import {
 	isLoopRunning,
 	isLoopDefined,
@@ -855,6 +855,13 @@ export function getPlaylistTimingDiff(
 		frontAnchor = Math.max(currentTime, playlist.startedPlayback ?? Math.max(timing.expectedStart, currentTime))
 	} else if (PlaylistTiming.isPlaylistTimingBackTime(timing)) {
 		backAnchor = timingContext.nextRundownAnchor ?? timing.expectedEnd
+	} else if (PlaylistTiming.isPlaylistDurationTimed(timing)) {
+		const backAnchorTimeWithoutBreaks =
+			timingContext.nextRundownAnchor ??
+			PlaylistTiming.getExpectedEnd(timing, playlist.startedPlayback) ??
+			currentTime + timing.expectedDuration
+		backAnchor = timingContext.nextRundownAnchor ?? backAnchorTimeWithoutBreaks
+		frontAnchor = Math.max(currentTime, playlist.startedPlayback || PlaylistTiming.getExpectedStart(timing) || 0)
 	}
 
 	let diff = PlaylistTiming.isPlaylistTimingNone(timing)
@@ -880,9 +887,11 @@ export function getPlaylistTimingDiff(
 			diff =
 				(timingContext.asPlayedPlaylistDuration || 0) -
 				(timing.expectedDuration ?? timingContext.totalPlaylistDuration ?? 0)
-		} else if (PlaylistTiming.isPlaylistTimingBackTime(timing)) {
-			// we want to see how late we've ended compared to the expectedEnd
-			diff = startedPlayback + (timingContext.asPlayedPlaylistDuration || 0) - timing.expectedEnd
+		} else if (PlaylistTiming.isPlaylistDurationTimed(timing)) {
+			//  we want to know how heavy/light we were compared to the original plan
+			diff =
+				(timingContext.asPlayedPlaylistDuration || 0) -
+				(timing.expectedDuration ?? timingContext.totalPlaylistDuration ?? 0)
 		}
 	}
 

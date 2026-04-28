@@ -4,6 +4,7 @@ import {
 	CoreOptions,
 	DDPConnectorOptions,
 	DDPTLSOptions,
+	ICoreHandler,
 	Observer,
 	PeripheralDevicePubSub,
 	PeripheralDevicePubSubCollections,
@@ -36,7 +37,7 @@ export interface CoreConfig {
 /**
  * Represents a connection between the Gateway and Core
  */
-export class CoreHandler {
+export class CoreHandler implements ICoreHandler {
 	core!: CoreConnection<
 		CorelibPubSubTypes & PeripheralDevicePubSubTypes,
 		CorelibPubSubCollections & PeripheralDevicePubSubCollections
@@ -45,12 +46,7 @@ export class CoreHandler {
 	public _observers: Array<any> = []
 	public deviceSettings: LiveStatusGatewayConfig = {}
 
-	public errorReporting = false
-	public multithreading = false
-	public reportAllCommands = false
-
 	private _deviceOptions: DeviceConfig
-	private _onConnected?: () => any
 	private _executedFunctions = new Set<PeripheralDeviceCommandId>()
 	private _coreConfig?: CoreConfig
 
@@ -58,6 +54,10 @@ export class CoreHandler {
 
 	private _statusInitialized = false
 	private _statusDestroyed = false
+
+	public get connectedToCore(): boolean {
+		return this.core && this.core.connected
+	}
 
 	constructor(logger: Logger, deviceOptions: DeviceConfig) {
 		this.logger = logger
@@ -77,7 +77,6 @@ export class CoreHandler {
 			this.setupObserversAndSubscriptions().catch((e) => {
 				this.logger.error('Core Error during setupObserversAndSubscriptions:', e)
 			})
-			if (this._onConnected) this._onConnected()
 		})
 		this.core.onDisconnected(() => {
 			this.logger.warn('Core Disconnected!')
@@ -97,7 +96,6 @@ export class CoreHandler {
 
 		this.logger.info('Core id: ' + this.core.deviceId)
 		await this.setupObserversAndSubscriptions()
-		if (this._onConnected) this._onConnected()
 
 		this._statusInitialized = true
 		await this.updateCoreStatus()
@@ -179,9 +177,6 @@ export class CoreHandler {
 		}
 
 		return options
-	}
-	onConnected(fcn: () => any): void {
-		this._onConnected = fcn
 	}
 
 	onDeviceChanged(): void {
@@ -319,7 +314,10 @@ export class CoreHandler {
 		this.logger.info('getDevicesInfo')
 		return []
 	}
-	async updateCoreStatus(): Promise<any> {
+	getCoreStatus(): {
+		statusCode: StatusCode
+		messages: string[]
+	} {
 		let statusCode = StatusCode.GOOD
 		const messages: Array<string> = []
 
@@ -331,11 +329,13 @@ export class CoreHandler {
 			statusCode = StatusCode.BAD
 			messages.push('Shut down')
 		}
-
-		return this.core.setStatus({
-			statusCode: statusCode,
-			messages: messages,
-		})
+		return {
+			statusCode,
+			messages,
+		}
+	}
+	async updateCoreStatus(): Promise<any> {
+		return this.core.setStatus(this.getCoreStatus())
 	}
 	private _getVersions() {
 		const versions: { [packageName: string]: string } = {}

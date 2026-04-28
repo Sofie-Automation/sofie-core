@@ -1,19 +1,19 @@
-import * as React from 'react'
+import type * as React from 'react'
 import { useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
 import _ from 'underscore'
-import { deserializeTimelineBlob, TimelineHash } from '@sofie-automation/corelib/dist/dataModel/Timeline'
+import { deserializeTimelineBlob, type TimelineHash } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { applyToArray, clone, normalizeArray } from '@sofie-automation/corelib/dist/lib'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import {
-	TimelineState,
-	ResolvedTimelineObjectInstance,
-	ResolvedTimeline,
-	ResolvedTimelineObject,
-	TimelineObjectInstance,
+	type TimelineState,
+	type ResolvedTimelineObjectInstance,
+	type ResolvedTimeline,
+	type ResolvedTimelineObject,
+	type TimelineObjectInstance,
 	resolveTimeline,
 	getResolvedState,
 } from 'superfly-timeline'
-import { TimelineContentObject, transformTimeline } from '@sofie-automation/corelib/dist/playout/timeline'
+import { type TimelineContentObject, transformTimeline } from '@sofie-automation/corelib/dist/playout/timeline'
 import { useCurrentTime } from '../../lib/lib.js'
 import { useTranslation } from 'react-i18next'
 import { useCallback, useEffect, useMemo, useState } from 'react'

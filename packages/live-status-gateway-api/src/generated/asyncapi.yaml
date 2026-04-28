@@ -660,6 +660,7 @@ channels:
                         - none
                         - forward-time
                         - back-time
+                        - duration
                     startedPlayback:
                       description: Unix timestamp of when the playlist started (milliseconds)
                       type: number

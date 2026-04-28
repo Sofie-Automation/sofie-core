@@ -1,12 +1,15 @@
 import { Meteor } from 'meteor/meteor'
 import { Mongo } from 'meteor/mongo'
-import { ProtectedString, protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
+import { type ProtectedString, protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import type { Collection as RawCollection, Db as RawDb } from 'mongodb'
-import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
-import { MongoModifier, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
-import { CustomCollectionName, MeteorPubSubCustomCollections } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import {
+import type {
+	CollectionName,
+	CustomCollectionName as CustomCorelibCollectionName,
+} from '@sofie-automation/corelib/dist/dataModel/Collections'
+import type { MongoModifier, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
+import type { CustomCollectionName, MeteorPubSubCustomCollections } from '@sofie-automation/meteor-lib/dist/api/pubsub'
+import type {
 	PeripheralDevicePubSubCollections,
 	PeripheralDevicePubSubCollectionsNames,
 } from '@sofie-automation/shared-lib/dist/pubsub/peripheralDevice'
@@ -19,8 +22,7 @@ import type {
 	UpdateOptions,
 	UpsertOptions,
 } from '@sofie-automation/meteor-lib/dist/collections/lib'
-import { CustomCollectionName as CustomCorelibCollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
-import { CorelibPubSubCustomCollections } from '@sofie-automation/corelib/dist/pubsub'
+import type { CorelibPubSubCustomCollections } from '@sofie-automation/corelib/dist/pubsub'
 
 export type {
 	FieldNames,

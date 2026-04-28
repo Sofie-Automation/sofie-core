@@ -1,4 +1,4 @@
-import { ParentNodeBase } from './astNodes'
+import type { ParentNodeBase } from './astNodes'
 
 export interface ParserState {
 	/** The current stack of nodes as set up leading to the current character */

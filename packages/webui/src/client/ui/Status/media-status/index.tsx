@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef, useState, JSX, CSSProperties } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type JSX, type CSSProperties } from 'react'
 import {
 	MediaStatus as MediaStatusComponent,
-	MediaStatusListItem as IMediaStatusListItem,
+	type MediaStatusListItem as IMediaStatusListItem,
 	sortItems,
-	SortBy,
-	SortOrder,
+	type SortBy,
+	type SortOrder,
 } from '../../MediaStatus/MediaStatus.js'
 import { useSubscription, useTracker } from '../../../lib/ReactMeteorData/ReactMeteorData.js'
 import { RundownPlaylists } from '../../../collections/index.js'

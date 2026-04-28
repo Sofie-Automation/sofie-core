@@ -1,11 +1,11 @@
-import React from 'react'
-import { PieceInstancePiece } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
+import type { PieceInstancePiece } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { RundownUtils } from '../../../lib/rundown.js'
 import { PieceLifespan } from '@sofie-automation/blueprints-integration'
-import { TFunction, useTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import type { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
 import Moment from 'react-moment'
-import { ReadonlyDeep } from 'type-fest'
+import type { ReadonlyDeep } from 'type-fest'
 
 interface IProps {
 	piece: ReadonlyDeep<Omit<PieceInstancePiece, 'timelineObjectsString'>>

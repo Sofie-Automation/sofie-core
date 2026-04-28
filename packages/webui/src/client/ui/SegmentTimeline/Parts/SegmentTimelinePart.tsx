@@ -1,46 +1,50 @@
 import React from 'react'
 import _ from 'underscore'
-import { withTranslation, WithTranslation, TFunction } from 'react-i18next'
-
+import { withTranslation, type WithTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import ClassNames from 'classnames'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
-import { SegmentUi, PartUi, IOutputLayerUi } from '../SegmentTimelineContainer.js'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { SegmentUi, PartUi, IOutputLayerUi } from '../SegmentTimelineContainer.js'
 import {
 	TimingDataResolution,
 	TimingTickResolution,
-	WithTiming,
+	type WithTiming,
 	withTiming,
 } from '../../RundownView/RundownTiming/withTiming.js'
-import { RundownTiming } from '../../RundownView/RundownTiming/RundownTiming.js'
+import type { RundownTiming } from '../../RundownView/RundownTiming/RundownTiming.js'
 
 import { RundownUtils } from '../../../lib/rundown.js'
 import { getCurrentTime } from '../../../lib/systemTime.js'
 
 import { DEBUG_MODE } from '../SegmentTimelineDebugMode.js'
-import { Translated } from '../../../lib/ReactMeteorData/ReactMeteorData.js'
+import type { Translated } from '../../../lib/ReactMeteorData/ReactMeteorData.js'
 
-import { IContextMenuContext } from '../../RundownView.js'
-import { CSSProperties } from '../../../styles/_cssVariables.js'
+import type { IContextMenuContext } from '../../RundownView.js'
+import type { CSSProperties } from '../../../styles/_cssVariables.js'
 import RundownViewEventBus, {
 	RundownViewEvents,
-	HighlightEvent,
+	type HighlightEvent,
 } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
 import { LoopingIcon } from '../../../lib/ui/icons/looping.js'
 import { SegmentEnd } from '../../../lib/ui/icons/segment.js'
 import { getShowHiddenSourceLayers } from '../../../lib/localStorage.js'
-import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
+import type { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import {
 	getPartInstanceTimingId,
 	getPartInstanceTimingValue,
-	RundownTimingContext,
+	type RundownTimingContext,
 } from '../../../lib/rundownTiming.js'
 import { OutputGroup } from './OutputGroup.js'
 import { InvalidPartCover } from './InvalidPartCover.js'
-import { DefaultUserOperationsTypes, ISourceLayer, UserEditingType } from '@sofie-automation/blueprints-integration'
+import {
+	DefaultUserOperationsTypes,
+	type ISourceLayer,
+	UserEditingType,
+} from '@sofie-automation/blueprints-integration'
 import { LIVE_LINE_TIME_PADDING } from '../Constants.js'
 import { Events as MOSEvents } from '../../../lib/data/mos/plugin-support.js'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
-import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import type { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 import {
 	isLoopRunning as getIsLoopRunning,
 	isQuickLoopStart as getIsQuickLoopStart,
@@ -869,7 +873,7 @@ export class SegmentTimelinePartClass extends React.Component<Translated<WithTim
 	}
 }
 
-export const SegmentTimelinePart = withTranslation()(
+export const SegmentTimelinePart: React.ComponentType<IProps> = withTranslation()(
 	withTiming<IProps & WithTranslation, IState>((props: IProps) => {
 		return {
 			tickResolution: TimingTickResolution.Synced,

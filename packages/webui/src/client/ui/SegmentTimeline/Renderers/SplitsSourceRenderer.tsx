@@ -2,10 +2,10 @@ import * as React from 'react'
 import { getElementWidth } from '../../../utils/dimensions.js'
 
 import ClassNames from 'classnames'
-import { CustomLayerItemRenderer, ICustomLayerItemProps } from './CustomLayerItemRenderer.js'
+import { CustomLayerItemRenderer, type ICustomLayerItemProps } from './CustomLayerItemRenderer.js'
 
-import { SplitsContent } from '@sofie-automation/blueprints-integration'
-import { getSplitPreview, SplitRole, SplitSubItem } from '../../../lib/ui/splitPreview.js'
+import type { SplitsContent } from '@sofie-automation/blueprints-integration'
+import { getSplitPreview, SplitRole, type SplitSubItem } from '../../../lib/ui/splitPreview.js'
 import { RundownUtils } from '../../../lib/rundown.js'
 
 type IProps = ICustomLayerItemProps

@@ -3,8 +3,8 @@ import { Route } from 'react-router-dom'
 import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import type { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import type { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
-import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio'
+import type { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio'
 
 interface RundownDataMissingProps {
 	playlist: DBRundownPlaylist | undefined

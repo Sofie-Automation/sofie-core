@@ -1,8 +1,8 @@
 import { getElementWidth } from '../../../utils/dimensions.js'
 
-import { TransitionContent } from '@sofie-automation/blueprints-integration'
+import type { TransitionContent } from '@sofie-automation/blueprints-integration'
 
-import { CustomLayerItemRenderer, ICustomLayerItemProps } from './CustomLayerItemRenderer.js'
+import { CustomLayerItemRenderer, type ICustomLayerItemProps } from './CustomLayerItemRenderer.js'
 import { createPrivateApiPath } from '../../../url.js'
 
 type IProps = ICustomLayerItemProps

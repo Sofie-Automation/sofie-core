@@ -1,13 +1,12 @@
-import React from 'react'
 import { RundownTimingProvider } from './RundownTiming/RundownTimingProvider'
 import StudioContext from './StudioContext'
 import { RundownPlaylistOperationsContextProvider } from './RundownHeader/useRundownPlaylistOperations.js'
 import { PreviewPopUpContextProvider } from '../PreviewPopUp/PreviewPopUpContext'
 import { SelectedElementProvider } from './SelectedElementsContext'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { Settings } from '../../lib/Settings'
-import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio'
+import type { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio'
 
 export function RundownViewContextProviders({
 	playlist,

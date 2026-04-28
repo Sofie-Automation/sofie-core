@@ -1,13 +1,13 @@
-import React, { createContext, PropsWithChildren, ReactNode, useRef } from 'react'
+import React, { createContext, type PropsWithChildren, type ReactNode, useRef } from 'react'
 import _ from 'underscore'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import ClassNames from 'classnames'
 import { Meteor } from 'meteor/meteor'
 import { parse as queryStringParse } from 'query-string'
 import { Route } from 'react-router-dom'
-import { animate, AnimationPlaybackControls } from 'motion'
+import { animate, type AnimationPlaybackControls } from 'motion'
 import {
-	Translated,
+	type Translated,
 	useGlobalDelayedTrackerUpdateState,
 	useSubscription,
 	useSubscriptionIfEnabled,
@@ -15,8 +15,8 @@ import {
 	useTracker,
 } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 
-import { PartInstanceId, PieceId, RundownPlaylistId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
+import type { PartInstanceId, PieceId, RundownPlaylistId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { withTranslation } from 'react-i18next'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
@@ -32,11 +32,11 @@ import { RundownTimingProvider } from '../RundownView/RundownTiming/RundownTimin
 import { StudioScreenSaver } from '../StudioScreenSaver/StudioScreenSaver.js'
 import { PrompterControlManager } from './controller/manager.js'
 import { RundownStatusBar } from '../ClockView/RundownStatusBar.js'
-import { PrompterAPI, PrompterData, PrompterDataPart, PrompterDataPiece } from './prompter.js'
+import { PrompterAPI, type PrompterData, type PrompterDataPart, type PrompterDataPiece } from './prompter.js'
 import { doUserAction, UserAction } from '../../lib/clientUserAction.js'
 import { MeteorCall } from '../../lib/meteorApi.js'
 import { MdDisplay } from './Formatted/MdDisplay.js'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 import { OverUnderChip } from '../../lib/Components/OverUnderChip.js'
 
 const DEFAULT_UPDATE_THROTTLE = 250 //ms

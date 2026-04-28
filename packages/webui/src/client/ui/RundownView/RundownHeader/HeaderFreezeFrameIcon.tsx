@@ -1,9 +1,9 @@
-import { PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { FreezeFrameIcon } from '../../../lib/ui/icons/freezeFrame'
 import { useTiming, TimingTickResolution, TimingDataResolution } from '../RundownTiming/withTiming'
 import { useTracker } from '../../../lib/ReactMeteorData/ReactMeteorData'
 import { PartInstances, PieceInstances } from '../../../collections'
-import { VTContent } from '@sofie-automation/blueprints-integration'
+import type { VTContent } from '@sofie-automation/blueprints-integration'
 
 export function HeaderFreezeFrameIcon({ partInstanceId }: { partInstanceId: PartInstanceId }): JSX.Element | null {
 	const timingDurations = useTiming(TimingTickResolution.Synced, TimingDataResolution.Synced)
