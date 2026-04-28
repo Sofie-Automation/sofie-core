@@ -20,5 +20,4 @@ export interface ExpectedPlayoutItemPeripheralDevice extends ExpectedPlayoutItem
 	baseline?: 'rundown' | 'studio'
 }
 
-type ExpectedPlayoutItemContent = TSR.ExpectedPlayoutItemContent
-export { ExpectedPlayoutItemContent }
+export type ExpectedPlayoutItemContent = TSR.ExpectedPlayoutItemContent

@@ -11,6 +11,7 @@
 		"types": ["node"],
 		"composite": true,
 		"module": "node20",
+		"skipLibCheck": true,
 		"verbatimModuleSyntax": true
 	}
 }
