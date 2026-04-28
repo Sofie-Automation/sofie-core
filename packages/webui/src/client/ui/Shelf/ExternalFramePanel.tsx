@@ -2,7 +2,7 @@ import * as React from 'react'
 import { Meteor } from 'meteor/meteor'
 import _ from 'underscore'
 import ClassNames from 'classnames'
-import {
+import type {
 	RundownLayoutExternalFrame,
 	RundownLayoutBase,
 	DashboardLayoutExternalFrame,
@@ -11,37 +11,41 @@ import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
 import { dashboardElementStyle } from './DashboardPanel.js'
 import { assertNever, getRandomString, literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
-import { parseMosPluginMessageXml, MosPluginMessage } from '../../lib/parsers/mos/mosXml2Js.js'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import { parseMosPluginMessageXml, type MosPluginMessage } from '../../lib/parsers/mos/mosXml2Js.js'
 import {
 	createMosAppInfoXmlString,
-	UIMetric as MOSUIMetric,
+	type UIMetric as MOSUIMetric,
 	UIMetricMode as MOSUIMetricMode,
 	Events as MOSEvents,
 } from '../../lib/data/mos/plugin-support.js'
 import { doUserAction, UserAction } from '../../lib/clientUserAction.js'
 import { withTranslation } from 'react-i18next'
-import { Translated } from '../../lib/ReactMeteorData/ReactMeteorData.js'
+import type { Translated } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import {
-	DefaultUserOperationImportMOSItem,
+	type DefaultUserOperationImportMOSItem,
 	DefaultUserOperationsTypes,
-	IngestAdlib,
+	type IngestAdlib,
 	UserEditingType,
 } from '@sofie-automation/blueprints-integration'
 import { MeteorCall } from '../../lib/meteorApi.js'
-import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown.js'
+import type { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown.js'
 import { Buckets, Rundowns, Segments } from '../../collections/index.js'
-import { BucketId, PartInstanceId, RundownId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { MOS_DATA_IS_STRICT } from '@sofie-automation/meteor-lib/dist/mos'
-import { mosTypes, MOS } from '@sofie-automation/meteor-lib/dist/mos'
+import type {
+	BucketId,
+	PartInstanceId,
+	RundownId,
+	RundownPlaylistId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { MOS_DATA_IS_STRICT, mosTypes, MOS } from '@sofie-automation/meteor-lib/dist/mos'
 import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil.js'
 import { logger } from '../../lib/logging.js'
 import RundownViewEventBus, {
-	ItemDroppedEvent,
+	type ItemDroppedEvent,
 	RundownViewEvents,
 } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
 import { UIPartInstances, UIParts } from '../Collections.js'
-import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
+import type { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
 
 interface IProps {
 	layout: RundownLayoutBase

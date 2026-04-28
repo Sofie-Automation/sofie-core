@@ -423,6 +423,7 @@ enum ActivePlaylistTimingMode {
 	NONE = 'none',
 	FORWARD_MINUS_TIME = 'forward-time',
 	BACK_MINUS_TIME = 'back-time',
+	DURATION = 'duration',
 }
 
 /**

@@ -4,6 +4,7 @@ export enum PlaylistTimingType {
 	None = 'none',
 	ForwardTime = 'forward-time',
 	BackTime = 'back-time',
+	Duration = 'duration',
 }
 
 export interface PlaylistTimingBase {
@@ -49,4 +50,29 @@ export interface PlaylistTimingBackTime extends PlaylistTimingBase {
 	expectedEnd: Time
 }
 
-export type RundownPlaylistTiming = PlaylistTimingNone | PlaylistTimingForwardTime | PlaylistTimingBackTime
+/**
+ * This mode is intended for shows with a "floating start",
+ * meaning they will start based on when the show before them on the channel ends.
+ * In this mode, we will preserve the Duration and automatically calculate the expectedEnd
+ * based on the _actual_ start of the show (playlist.startedPlayback).
+ *
+ * The optional expectedStart property allows setting a start property of the show that will not affect
+ * timing calculations, only purpose is to drive UI and inform the users about the preliminary plan as
+ * planned in the editorial planning tool.
+ */
+export interface PlaylistTimingDuration extends PlaylistTimingBase {
+	type: PlaylistTimingType.Duration
+	/** A stipulated start time, to drive UIs pre-show, but not affecting calculations during the show.
+	 */
+	expectedStart?: Time
+	/** Planned duration of the rundown playlist
+	 *  When the show starts, an expectedEnd gets automatically calculated with this as an offset from that starting point
+	 */
+	expectedDuration: number
+}
+
+export type RundownPlaylistTiming =
+	| PlaylistTimingNone
+	| PlaylistTimingForwardTime
+	| PlaylistTimingBackTime
+	| PlaylistTimingDuration

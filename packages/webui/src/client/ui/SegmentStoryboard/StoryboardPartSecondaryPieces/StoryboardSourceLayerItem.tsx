@@ -1,10 +1,10 @@
-import { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import StudioContext from '../../RundownView/StudioContext.js'
 import { StoryboardSecondaryPiece } from './StoryboardSecondaryPiece.js'
 import classNames from 'classnames'
 import { useMemo } from 'react'
-import { ISourceLayerExtended } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
-import { PieceExtended } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import type { ISourceLayerExtended } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import type { PieceExtended } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 export function StoryboardSourceLayerItem({
 	piece,

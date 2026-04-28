@@ -1,5 +1,5 @@
-import { SplitsContent } from '@sofie-automation/blueprints-integration'
-import { PieceGeneric } from '@sofie-automation/corelib/dist/dataModel/Piece'
+import type { SplitsContent } from '@sofie-automation/blueprints-integration'
+import type { PieceGeneric } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { getSplitPreview } from '../../lib/ui/splitPreview.js'
 import { RenderSplitPreview } from '../../lib/SplitPreviewBox.js'
 

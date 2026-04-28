@@ -1,29 +1,29 @@
 import ClassNames from 'classnames'
 import * as React from 'react'
 import {
-	StudioRouteSet,
+	type StudioRouteSet,
 	StudioRouteBehavior,
-	RouteMapping,
-	StudioRouteSetExclusivityGroup,
+	type RouteMapping,
+	type StudioRouteSetExclusivityGroup,
 	StudioRouteType,
-	MappingsExt,
-	MappingExt,
-	DBStudio,
+	type MappingsExt,
+	type MappingExt,
+	type DBStudio,
 } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { doModalDialog } from '../../../../lib/ModalDialog.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash, faPencilAlt, faCheck, faPlus, faSync } from '@fortawesome/free-solid-svg-icons'
 import { useTranslation } from 'react-i18next'
 import { TSR } from '@sofie-automation/blueprints-integration'
-import { ReadonlyDeep } from 'type-fest'
-import { MappingsSettingsManifest, MappingsSettingsManifests } from '../Mappings.js'
+import type { ReadonlyDeep } from 'type-fest'
+import type { MappingsSettingsManifest, MappingsSettingsManifests } from '../Mappings.js'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import {
 	DropdownInputControl,
-	DropdownInputOption,
+	type DropdownInputOption,
 	getDropdownInputOptions,
 } from '../../../../lib/Components/DropdownInput.js'
-import { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
+import type { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
 import {
 	LabelActual,
 	LabelAndOverrides,
@@ -31,12 +31,12 @@ import {
 	LabelAndOverridesForDropdown,
 } from '../../../../lib/Components/LabelAndOverrides.js'
 import {
-	OverrideOpHelper,
-	OverrideOpHelperForItemContents,
+	type OverrideOpHelper,
+	type OverrideOpHelperForItemContents,
 	useOverrideOpHelper,
-	WrappedOverridableItem,
-	WrappedOverridableItemDeleted,
-	WrappedOverridableItemNormal,
+	type WrappedOverridableItem,
+	type WrappedOverridableItemDeleted,
+	type WrappedOverridableItemNormal,
 } from '../../util/OverrideOpHelper.js'
 import { TextInputControl } from '../../../../lib/Components/TextInput.js'
 import { CheckboxControl } from '../../../../lib/Components/Checkbox.js'
@@ -45,8 +45,8 @@ import { hasOpWithPath } from '../../../../lib/Components/util.js'
 import { SchemaFormWithOverrides } from '../../../../lib/forms/SchemaFormWithOverrides.js'
 import {
 	applyAndValidateOverrides,
-	ObjectOverrideSetOp,
-	SomeObjectOverrideOp,
+	type ObjectOverrideSetOp,
+	type SomeObjectOverrideOp,
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { Studios } from '../../../../collections/index.js'
 import { useToggleExpandHelper } from '../../../util/useToggleExpandHelper.js'

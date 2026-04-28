@@ -1,25 +1,31 @@
 import { CoreHandler, CoreConfig } from './coreHandler.js'
 import { Logger } from 'winston'
-import { loadDDPTLSOptions } from '@sofie-automation/server-core-integration'
 import { PeripheralDeviceId } from '@sofie-automation/shared-lib/dist/core/model/Ids'
 import { LiveStatusServer } from './liveStatusServer.js'
+import {
+	CertificatesConfig,
+	HealthConfig,
+	HealthEndpoints,
+	IConnector,
+	loadDDPTLSOptions,
+	stringifyError,
+} from '@sofie-automation/server-core-integration'
 
 export interface Config {
-	process: ProcessConfig
+	certificates: CertificatesConfig
 	device: DeviceConfig
 	core: CoreConfig
+	health: HealthConfig
 }
-export interface ProcessConfig {
-	/** Will cause the Node applocation to blindly accept all certificates. Not recommenced unless in local, controlled networks. */
-	unsafeSSL: boolean
-	/** Paths to certificates to load, for SSL-connections */
-	certificates: string[]
-}
+
 export interface DeviceConfig {
 	deviceId: PeripheralDeviceId
 	deviceToken: string
 }
-export class Connector {
+export class Connector implements IConnector {
+	public initialized = false
+	public initializedError: string | undefined = undefined
+
 	private coreHandler: CoreHandler | undefined
 	private _logger: Logger
 	private _liveStatusServer: LiveStatusServer | undefined
@@ -31,11 +37,13 @@ export class Connector {
 	public async init(config: Config): Promise<void> {
 		try {
 			this._logger.info('Initializing Process...')
-			const tlsOptions = loadDDPTLSOptions(this._logger, config.process)
+			const tlsOptions = loadDDPTLSOptions(this._logger, config.certificates)
 			this._logger.info('Process initialized')
 
 			this._logger.info('Initializing Core...')
 			this.coreHandler = new CoreHandler(this._logger, config.device)
+			new HealthEndpoints(this, this.coreHandler, config.health)
+
 			await this.coreHandler.init(config.core, tlsOptions)
 			this._logger.info('Core initialized')
 
@@ -50,6 +58,8 @@ export class Connector {
 			this._logger.error('Error during initialization:')
 			this._logger.error(e)
 			this._logger.error(e.stack)
+
+			this.initializedError = stringifyError(e)
 
 			try {
 				if (this.coreHandler) {

@@ -1,7 +1,7 @@
 import { getElementWidth } from '../../../utils/dimensions.js'
-import { EvsContent } from '@sofie-automation/blueprints-integration'
+import type { EvsContent } from '@sofie-automation/blueprints-integration'
 
-import { CustomLayerItemRenderer, ICustomLayerItemProps } from './CustomLayerItemRenderer.js'
+import { CustomLayerItemRenderer, type ICustomLayerItemProps } from './CustomLayerItemRenderer.js'
 type IProps = ICustomLayerItemProps
 interface IState {}
 

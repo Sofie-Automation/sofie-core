@@ -1,22 +1,22 @@
 import React, { useCallback, useMemo } from 'react'
 import ClassNames from 'classnames'
 import { EditAttribute } from '../../lib/EditAttribute.js'
-import { Translated, useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
+import { type Translated, useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
 import { faUpload, faPlus, faCheck, faPencilAlt, faDownload, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
 	RundownLayoutType,
-	RundownLayoutBase,
-	RundownLayoutFilter,
+	type RundownLayoutBase,
+	type RundownLayoutFilter,
 	PieceDisplayStyle,
-	DashboardLayout,
+	type DashboardLayout,
 	ActionButtonType,
-	DashboardLayoutActionButton,
+	type DashboardLayoutActionButton,
 	RundownLayoutElementType,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import {
-	CustomizableRegionLayout,
-	CustomizableRegionSettingsManifest,
+	type CustomizableRegionLayout,
+	type CustomizableRegionSettingsManifest,
 	RundownLayoutsAPI,
 } from '../../lib/rundownLayouts.js'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
@@ -26,7 +26,7 @@ import { UploadButton } from '../../lib/uploadButton.js'
 import { doModalDialog } from '../../lib/ModalDialog.js'
 import { NotificationCenter, Notification, NoticeLevel } from '../../lib/notifications/notifications.js'
 import { catchError, fetchFrom } from '../../lib/lib.js'
-import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import type { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { Link } from 'react-router-dom'
 import { MeteorCall } from '../../lib/meteorApi.js'
 import { defaultColorPickerPalette } from '../../lib/colorPicker.js'
@@ -34,8 +34,8 @@ import { FilterEditor } from './components/FilterEditor.js'
 import ShelfLayoutSettings from './components/rundownLayouts/ShelfLayoutSettings.js'
 import RundownHeaderLayoutSettings from './components/rundownLayouts/RundownHeaderLayoutSettings.js'
 import RundownViewLayoutSettings from './components/rundownLayouts/RundownViewLayoutSettings.js'
-import { RundownLayoutId, ShowStyleBaseId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { OutputLayers, SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
+import type { RundownLayoutId, ShowStyleBaseId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { OutputLayers, SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { RundownLayouts } from '../../collections/index.js'
 import { LabelActual } from '../../lib/Components/LabelAndOverrides.js'
 import { useTranslation, withTranslation } from 'react-i18next'

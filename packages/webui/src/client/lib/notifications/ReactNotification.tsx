@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react'
-import { NoticeLevel, NotificationCenter, Notification, NotificationAction } from './notifications.js'
+import { useEffect } from 'react'
+import { NoticeLevel, NotificationCenter, Notification, type NotificationAction } from './notifications.js'
 import { getRandomString } from '@sofie-automation/corelib/dist/lib'
 import { getCurrentTime } from '../systemTime.js'
 

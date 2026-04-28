@@ -1,9 +1,9 @@
 import classNames from 'classnames'
-import React, { useCallback, useEffect, useState } from 'react'
-import { AdLibPieceUi } from '../../../lib/shelf.js'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
-import { ISourceLayerExtended } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
-import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import { useCallback, useEffect, useState } from 'react'
+import type { AdLibPieceUi } from '../../../lib/shelf.js'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import type { ISourceLayerExtended } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import type { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 import { RundownUtils } from '../../../lib/rundown.js'
 
 interface IProps {

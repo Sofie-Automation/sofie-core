@@ -41,7 +41,7 @@ import type { IBlueprintShowStyleVariant, IOutputLayer, ISourceLayer } from '../
 import type { SourceLayerType } from '../content.js'
 import type { TSR, OnGenerateTimelineObj, TimelineObjectCoreExt } from '../timeline.js'
 import type { IBlueprintConfig } from '../common.js'
-import type { ReadonlyDeep } from 'type-fest'
+import type { JsonValue, ReadonlyDeep } from 'type-fest'
 import type { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
 import type { JSONBlob } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 import type { BlueprintConfigCoreConfig, BlueprintManifestBase, BlueprintManifestType, IConfigMessage } from './base.js'
@@ -51,6 +51,7 @@ import type { ABResolverConfiguration } from '../abPlayback.js'
 import type { SofieIngestSegment } from '../ingest-types.js'
 import { PackageStatusMessage } from '@sofie-automation/shared-lib/dist/packageStatusMessages'
 import { BlueprintPlayoutPersistentStore } from '../context/playoutStore.js'
+import type { ITranslatableMessage } from '../translations.js'
 
 export { PackageStatusMessage }
 
@@ -116,7 +117,8 @@ export interface ShowStyleBlueprintManifest<
 		context: ISyncIngestUpdateToPartInstanceContext,
 		existingPartInstance: BlueprintSyncIngestPartInstance,
 		newData: BlueprintSyncIngestNewData,
-		playoutStatus: 'previous' | 'current' | 'next'
+		playoutStatus: 'previous' | 'current' | 'next',
+		playoutPersistentState: BlueprintPlayoutPersistentStore<TimelinePersistentState>
 	) => void
 
 	/**
@@ -141,12 +143,7 @@ export interface ShowStyleBlueprintManifest<
 		privateData: unknown | undefined,
 		publicData: unknown | undefined,
 		actionOptions: { [key: string]: any } | undefined
-	) => Promise<{
-		/**
-		 * To be set if the payload sent by the user is invalid. When set, a 409 `ValidationFailed` message will be displayed to the User.
-		 */
-		validationErrors: any
-	} | void>
+	) => Promise<BlueprintExecuteActionResult | void>
 
 	/** Generate adlib piece from ingest data */
 	getAdlibItem?: (
@@ -380,4 +377,21 @@ export interface IShowStyleVariantConfigPreset<TConfig = IBlueprintConfig> {
 	name: string
 
 	config: Partial<TConfig>
+}
+
+export interface BlueprintExecuteActionResult {
+	/**
+	 * User friendly error message to return to the caller if the action was rejected.
+	 */
+	message: ITranslatableMessage
+
+	/**
+	 * HTTP error code for the action. If set, must be in the range 400-499
+	 */
+	errorCode?: number
+
+	/**
+	 * Additional details payload to provide to the caller
+	 */
+	details?: JsonValue
 }

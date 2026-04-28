@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { ExpectedPackageWorkStatus } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackageWorkStatuses'
+import type { ExpectedPackageWorkStatus } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackageWorkStatuses'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import Tooltip from 'rc-tooltip'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -9,7 +9,7 @@ import { doUserAction, UserAction } from '../../../lib/clientUserAction.js'
 
 import { DisplayFormattedTime } from '../../RundownList/DisplayFormattedTime.js'
 import { JobStatusIcon } from './JobStatusIcon.js'
-import { ExpectedPackageStatusAPI } from '@sofie-automation/blueprints-integration'
+import type { ExpectedPackageStatusAPI } from '@sofie-automation/blueprints-integration'
 import { useTranslation } from 'react-i18next'
 import { useCallback } from 'react'
 

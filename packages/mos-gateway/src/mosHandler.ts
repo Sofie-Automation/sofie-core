@@ -40,6 +40,7 @@ import { PeripheralDeviceForDevice } from '@sofie-automation/server-core-integra
 import _ from 'underscore'
 import { MosStatusHandler } from './mosStatus/handler.js'
 import { isPromise } from 'util/types'
+import { mosDevicesTotalGauge } from './mosMetrics.js'
 
 export interface MosConfig {
 	self: IConnectionConfig
@@ -539,6 +540,7 @@ export class MosHandler {
 			mosDevice: mosDevice,
 			deviceOptions,
 		})
+		mosDevicesTotalGauge.set(this._allMosDevices.size)
 
 		await this.setupMosDevice(mosDevice)
 
@@ -592,6 +594,7 @@ export class MosHandler {
 	private async _removeDevice(deviceId: string): Promise<void> {
 		const deviceEntry = this._allMosDevices.get(deviceId)
 		this._allMosDevices.delete(deviceId)
+		mosDevicesTotalGauge.set(this._allMosDevices.size)
 
 		if (deviceEntry) {
 			const mosDevice = deviceEntry.mosDevice

@@ -1,10 +1,13 @@
 import React from 'react'
 import _ from 'underscore'
-import { Translated } from '../../lib/ReactMeteorData/react-meteor-data.js'
+import type { Translated } from '../../lib/ReactMeteorData/react-meteor-data.js'
 import ClassNames from 'classnames'
 import { Spinner } from '../../lib/Spinner.js'
-import { DashboardLayoutFilter, PieceDisplayStyle } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import { IAdLibPanelProps, AdLibFetchAndFilterProps } from './AdLibPanel.js'
+import {
+	type DashboardLayoutFilter,
+	PieceDisplayStyle,
+} from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
+import type { IAdLibPanelProps, AdLibFetchAndFilterProps } from './AdLibPanel.js'
 import { AdLibPanelToolbar } from './AdLibPanelToolbar.js'
 import { matchFilter } from './AdLibListView.js'
 import { DashboardPieceButton } from './DashboardPieceButton.js'
@@ -12,14 +15,14 @@ import { contextMenuHoldToDisplayTime } from '../../lib/lib.js'
 import {
 	DashboardPanelInner,
 	dashboardElementStyle,
-	IDashboardPanelProps,
-	IDashboardPanelState,
-	DashboardPanelInnerProps,
+	type IDashboardPanelProps,
+	type IDashboardPanelState,
+	type DashboardPanelInnerProps,
 	useDashboardPanelTrackedProps,
 } from './DashboardPanel.js'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { RundownUtils } from '../../lib/rundown.js'
-import { AdLibPieceUi } from '../../lib/shelf.js'
+import type { AdLibPieceUi } from '../../lib/shelf.js'
 import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'
 import { ContextType, setShelfContextMenuContext } from './ShelfContextMenu.js'
 import { withTranslation } from 'react-i18next'

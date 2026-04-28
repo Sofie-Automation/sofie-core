@@ -3,10 +3,10 @@ import _ from 'underscore'
 import ClassNames from 'classnames'
 
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { fas, IconName, IconPack, IconDefinition } from '@fortawesome/free-solid-svg-icons'
+import { fas, type IconName, type IconPack, type IconDefinition } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { withTranslation } from 'react-i18next'
-import { Translated } from './ReactMeteorData/ReactMeteorData.js'
+import type { Translated } from './ReactMeteorData/ReactMeteorData.js'
 import { Manager, Popper, Reference } from 'react-popper'
 import Form from 'react-bootstrap/esm/Form'
 

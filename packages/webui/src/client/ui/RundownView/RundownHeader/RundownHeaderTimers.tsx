@@ -1,11 +1,11 @@
-import React from 'react'
-import { RundownTTimer } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/TTimers'
+import type { RundownTTimer } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/TTimers'
 import { useTiming } from '../RundownTiming/withTiming'
 import { RundownUtils } from '../../../lib/rundown.js'
 import { calculateTTimerDiff, calculateTTimerOverUnder } from '../../../lib/tTimerUtils'
 import classNames from 'classnames'
 import { getCurrentTime } from '../../../lib/systemTime'
 import { Countdown } from './Countdown'
+import { OverUnderChip } from '../../../lib/Components/OverUnderChip'
 
 interface IProps {
 	tTimers: [RundownTTimer, RundownTTimer, RundownTTimer]
@@ -59,19 +59,7 @@ function SingleTimer({ timer }: Readonly<ISingleTimerProps>) {
 					mode.type === 'countdown' && timer.state !== null && diff >= 0,
 			})}
 			ms={mode.type === 'timeOfDay' ? undefined : diff}
-			postfix={
-				overUnder ? (
-					<span
-						className={classNames('rundown-header__clocks-timers__timer__over-under', {
-							'rundown-header__clocks-timers__timer__over-under--over': overUnder > 0,
-							'rundown-header__clocks-timers__timer__over-under--under': overUnder < 0,
-						})}
-					>
-						{overUnder > 0 ? '+' : '−'}
-						{RundownUtils.formatDiffToTimecode(Math.abs(overUnder), false, false, true, false, true)}
-					</span>
-				) : undefined
-			}
+			postfix={overUnder ? <OverUnderChip valueMs={overUnder} format="timerPostfix" /> : undefined}
 		>
 			{timeStr}
 		</Countdown>

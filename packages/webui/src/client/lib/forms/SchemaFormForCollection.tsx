@@ -1,18 +1,18 @@
 import { literal } from '@sofie-automation/corelib/dist/lib'
-import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
-import {
+import type { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
+import type {
 	ObjectOverrideDeleteOp,
 	ObjectOverrideSetOp,
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { useCallback, useMemo } from 'react'
-import { MongoCollection } from '../../collections/lib.js'
-import {
+import type { MongoCollection } from '../../collections/lib.js'
+import type {
 	WrappedOverridableItemNormal,
 	OverrideOpHelperForItemContentsBatcher,
 } from '../../ui/Settings/util/OverrideOpHelper.js'
-import { SchemaFormCommonProps } from './schemaFormUtil.js'
+import type { SchemaFormCommonProps } from './schemaFormUtil.js'
 import { SchemaFormWithOverrides } from './SchemaFormWithOverrides.js'
-import { MongoModifier } from '@sofie-automation/corelib/dist/mongo'
+import type { MongoModifier } from '@sofie-automation/corelib/dist/mongo'
 
 interface SchemaFormForCollectionProps extends Omit<SchemaFormCommonProps, 'isRequired'> {
 	/** The collection to operate on */

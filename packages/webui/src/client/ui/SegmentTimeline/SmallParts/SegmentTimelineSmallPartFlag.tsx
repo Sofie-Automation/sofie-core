@@ -1,17 +1,17 @@
-import React, { CSSProperties, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState, type CSSProperties } from 'react'
 import { SmallPartFlag } from '../../../lib/ui/icons/segment.js'
-import { ISourceLayer } from '@sofie-automation/blueprints-integration'
+import type { ISourceLayer } from '@sofie-automation/blueprints-integration'
 import { SegmentTimelineSmallPartFlagIcon } from './SegmentTimelineSmallPartFlagIcon.js'
 import { protectString, unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
-import { PartUi, SegmentUi } from '../SegmentTimelineContainer.js'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { PartUi, SegmentUi } from '../SegmentTimelineContainer.js'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { SegmentTimelinePartHoverPreview } from './SegmentTimelinePartHoverPreview.js'
 import RundownViewEventBus, { RundownViewEvents } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
 import { TimingDataResolution, TimingTickResolution, useTiming } from '../../RundownView/RundownTiming/withTiming.js'
 import { SegmentTimelinePartClass } from '../Parts/SegmentTimelinePart.js'
 import { getPartInstanceTimingId } from '../../../lib/rundownTiming.js'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
-import { PartExtended } from '@sofie-automation/corelib/src/dataModel/Part.js'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import type { PartExtended } from '@sofie-automation/corelib/src/dataModel/Part.js'
 
 interface ISegmentTimelineSmallPartFlagProps {
 	parts: [PartUi, number, number][]

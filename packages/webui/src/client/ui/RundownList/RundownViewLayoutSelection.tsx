@@ -7,14 +7,14 @@ import {
 	getRundownWithShelfLayoutLink as getRundownWithLayoutLink,
 	getShelfLink,
 } from './util.js'
-import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { RundownLayoutBase } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
+import type { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
+import type { RundownLayoutBase } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import classNames from 'classnames'
-import { IconProp } from '@fortawesome/fontawesome-svg-core'
+import type { IconProp } from '@fortawesome/fontawesome-svg-core'
 import { useTranslation } from 'react-i18next'
 import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
-import { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 export const RundownViewLayoutSelection = React.memo(function RundownViewLayoutSelection2({
 	playlistId,

@@ -1,4 +1,4 @@
-import { IDefaultRendererProps } from './DefaultRenderer.js'
+import type { IDefaultRendererProps } from './DefaultRenderer.js'
 import { getSplitItems } from '../../../SegmentContainer/getSplitItems.js'
 
 export function SplitsRenderer({ piece: pieceInstance }: Readonly<IDefaultRendererProps>): JSX.Element {

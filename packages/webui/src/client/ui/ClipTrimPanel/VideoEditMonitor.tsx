@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { withTranslation } from 'react-i18next'
-import { Translated } from '../../lib/ReactMeteorData/ReactMeteorData.js'
+import type { Translated } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import ClassNames from 'classnames'
 import { catchError } from '../../lib/lib.js'
 

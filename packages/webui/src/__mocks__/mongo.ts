@@ -1,12 +1,16 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import _ from 'underscore'
 import { literal, getRandomString } from '@sofie-automation/corelib/dist/lib'
-import { ProtectedString, unprotectString, protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
+import {
+	type ProtectedString,
+	unprotectString,
+	protectString,
+} from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { RandomMock } from './random.js'
 import { MeteorMock } from './meteor.js'
 import { Meteor } from 'meteor/meteor'
 import type { AnyBulkWriteOperation } from 'mongodb'
-import {
+import type {
 	FindOneOptions,
 	FindOptions,
 	MongoReadOnlyCollection,
@@ -20,10 +24,10 @@ import {
 	mongoWhere,
 	mongoFindOptions,
 	mongoModify,
-	MongoQuery,
-	MongoModifier,
+	type MongoQuery,
+	type MongoModifier,
 } from '@sofie-automation/corelib/dist/mongo'
-import { Mongo } from 'meteor/mongo'
+import type { Mongo } from 'meteor/mongo'
 import { sleep } from '@sofie-automation/shared-lib/dist/lib/lib'
 import clone from 'fast-clone'
 

@@ -1,5 +1,5 @@
 import ClassNames from 'classnames'
-import {
+import type {
 	DashboardLayoutSystemStatus,
 	RundownLayoutBase,
 	RundownLayoutSytemStatus,
@@ -8,12 +8,12 @@ import { useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import { dashboardElementStyle } from './DashboardPanel.js'
 import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
 import { RundownSystemStatus } from '../RundownView/RundownSystemStatus.js'
-import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { RundownId, RundownPlaylistId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
+import type { RundownId, RundownPlaylistId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { RundownPlaylists, Rundowns } from '../../collections/index.js'
 import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil.js'
 import { useTranslation } from 'react-i18next'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 
 interface ISystemStatusPanelProps {
 	studioId: StudioId

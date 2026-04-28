@@ -1,15 +1,18 @@
 import React from 'react'
 import _ from 'underscore'
-import { Translated, useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
+import { type Translated, useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
 import ClassNames from 'classnames'
 
 import { Spinner } from '../../lib/Spinner.js'
-import { ISourceLayer, IBlueprintActionTriggerMode } from '@sofie-automation/blueprints-integration'
+import type { ISourceLayer, IBlueprintActionTriggerMode } from '@sofie-automation/blueprints-integration'
 import { doUserAction, UserAction } from '../../lib/clientUserAction.js'
 import { NotificationCenter, Notification, NoticeLevel } from '../../lib/notifications/notifications.js'
-import { DashboardLayoutFilter, DashboardPanelUnit } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
+import {
+	type DashboardLayoutFilter,
+	DashboardPanelUnit,
+} from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
-import { IAdLibPanelProps, AdLibFetchAndFilterProps, useFetchAndFilter } from './AdLibPanel.js'
+import { type IAdLibPanelProps, type AdLibFetchAndFilterProps, useFetchAndFilter } from './AdLibPanel.js'
 import { AdLibPanelToolbar } from './AdLibPanelToolbar.js'
 import { matchFilter } from './AdLibListView.js'
 import { DashboardPieceButton } from './DashboardPieceButton.js'
@@ -19,7 +22,7 @@ import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'
 import { setShelfContextMenuContext, ContextType } from './ShelfContextMenu.js'
 import { RundownUtils } from '../../lib/rundown.js'
 import {
-	AdLibPieceUi,
+	type AdLibPieceUi,
 	getNextPieceInstancesGrouped,
 	getUnfinishedPieceInstancesGrouped,
 	isAdLibDisplayedAsOnAir,
@@ -27,11 +30,11 @@ import {
 	isAdLibOnAir,
 } from '../../lib/shelf.js'
 import { UIStudios } from '../Collections.js'
-import { PieceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { PieceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil.js'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { useTranslation } from 'react-i18next'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 
 export interface IDashboardPanelState {
 	searchFilter: string | undefined

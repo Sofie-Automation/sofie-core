@@ -1,7 +1,7 @@
 import ClassNames from 'classnames'
-import { ScriptContent } from '@sofie-automation/blueprints-integration'
-import { CustomLayerItemRenderer, ICustomLayerItemProps } from './CustomLayerItemRenderer.js'
-import { withTranslation, WithTranslation } from 'react-i18next'
+import type { ScriptContent } from '@sofie-automation/blueprints-integration'
+import { CustomLayerItemRenderer, type ICustomLayerItemProps } from './CustomLayerItemRenderer.js'
+import { withTranslation, type WithTranslation } from 'react-i18next'
 import _ from 'underscore'
 
 import { getElementWidth } from '../../../utils/dimensions.js'

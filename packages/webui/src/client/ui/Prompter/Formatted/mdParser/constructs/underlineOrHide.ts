@@ -1,5 +1,5 @@
-import { NodeConstruct, ParserState, CharHandlerResult } from '../parserState'
-import { HiddenNode, UnderlineNode } from '../astNodes'
+import { type NodeConstruct, type ParserState, CharHandlerResult } from '../parserState'
+import type { HiddenNode, UnderlineNode } from '../astNodes'
 
 export function underlineOrHide(): NodeConstruct {
 	function underlineOrHide(char: string, state: ParserState): CharHandlerResult | void {

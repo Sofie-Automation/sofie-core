@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import { useContext } from 'react'
 import type { Sorensen } from '@sofie-automation/sorensen'
 import { useTranslation } from 'react-i18next'
 import { hotkeyHelper } from '../../lib/hotkeyHelper.js'
@@ -6,11 +6,11 @@ import { useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import { MountedAdLibTriggers, MountedGenericTriggers } from '../../lib/triggers/TriggersHandler.js'
 import { SorensenContext } from '../../lib/SorensenContext.js'
 import { codesToKeyLabels } from '../../lib/triggers/codesToKeyLabels.js'
-import { TFunction } from 'i18next'
+import type { TFunction } from 'i18next'
 import { translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
-import { MongoCursor } from '../../collections/lib.js'
-import { MountedTrigger } from '@sofie-automation/meteor-lib/dist/api/MountedTriggers'
-import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import type { MongoCursor } from '../../collections/lib.js'
+import type { MountedTrigger } from '@sofie-automation/meteor-lib/dist/api/MountedTriggers'
+import type { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 
 interface IProps {
 	visible?: boolean

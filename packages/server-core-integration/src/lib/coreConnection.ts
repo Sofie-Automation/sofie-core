@@ -148,11 +148,11 @@ export class CoreConnection<
 		})
 		this._ddp.on('connected', () => {
 			// this.emit('connected')
-			if (this._watchDog) this._watchDog.addCheck(async () => this._watchDogCheck())
+			if (this._watchDog) this._watchDog.addCheck(this._watchDogCheck)
 		})
 		this._ddp.on('disconnected', () => {
 			// this.emit('disconnected')
-			if (this._watchDog) this._watchDog.removeCheck(async () => this._watchDogCheck())
+			if (this._watchDog) this._watchDog.removeCheck(this._watchDogCheck)
 		})
 		this._ddp.on('message', () => {
 			if (this._watchDog) this._watchDog.receivedData()
@@ -434,7 +434,7 @@ export class CoreConnection<
 		return this.coreMethods.initialize(options)
 	}
 
-	private async _watchDogCheck() {
+	private _watchDogCheck = async () => {
 		/*
 			Randomize a message and send it to Core.
 			Core should then reply with triggering executeFunction with the "pingResponse" method.

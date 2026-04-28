@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react'
 import { useTracker, useSubscription } from '../../lib/ReactMeteorData/ReactMeteorData.js'
-import { ICoreSystem, SofieLogo } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
+import { type ICoreSystem, SofieLogo } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { EditAttribute } from '../../lib/EditAttribute.js'
 import { doModalDialog } from '../../lib/ModalDialog.js'
@@ -12,7 +12,7 @@ import type { TFunction } from 'i18next'
 import { Meteor } from 'meteor/meteor'
 import { LogLevel } from '@sofie-automation/meteor-lib/dist/lib'
 import { CoreSystem } from '../../collections/index.js'
-import { CollectionCleanupResult } from '@sofie-automation/meteor-lib/dist/api/system'
+import type { CollectionCleanupResult } from '@sofie-automation/meteor-lib/dist/api/system'
 import {
 	LabelActual,
 	LabelAndOverrides,
@@ -21,7 +21,7 @@ import {
 } from '../../lib/Components/LabelAndOverrides.js'
 import { catchError } from '../../lib/lib.js'
 import { SystemManagementBlueprint } from './SystemManagement/Blueprint.js'
-import { SomeObjectOverrideOp } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
+import type { SomeObjectOverrideOp } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { useOverrideOpHelperForSimpleObject } from './util/OverrideOpHelper.js'
 import { CheckboxControl } from '../../lib/Components/Checkbox.js'
 import {

@@ -1,9 +1,9 @@
-import React, { useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import ClassNames from 'classnames'
 import { TimingDataResolution, TimingTickResolution, useTiming } from '../RundownTiming/withTiming.js'
 import { RundownUtils } from '../../../lib/rundown.js'
 import { SpeechSynthesiser } from '../../../lib/speechSynthesis.js'
-import { PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 import { Countdown } from './Countdown.js'
 

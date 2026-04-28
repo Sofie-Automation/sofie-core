@@ -5,22 +5,22 @@ import ClassNames from 'classnames'
 import _ from 'underscore'
 import { RundownLayoutsAPI } from '../../../lib/rundownLayouts.js'
 import {
-	DashboardPanelBase,
+	type DashboardPanelBase,
 	DashboardPanelUnit,
 	PieceDisplayStyle,
-	RundownLayout,
+	type RundownLayout,
 	RundownLayoutAdLibRegionRole,
-	RundownLayoutBase,
-	RundownLayoutElementBase,
-	RundownLayoutElementType,
-	RundownLayoutFilterBase,
+	type RundownLayoutBase,
+	type RundownLayoutElementBase,
+	type RundownLayoutElementType,
+	type RundownLayoutFilterBase,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import { EditAttribute } from '../../../lib/EditAttribute.js'
-import { Translated } from '../../../lib/ReactMeteorData/react-meteor-data.js'
-import { IOutputLayer, ISourceLayer, SourceLayerType } from '@sofie-automation/blueprints-integration'
+import type { Translated } from '../../../lib/ReactMeteorData/react-meteor-data.js'
+import { type IOutputLayer, type ISourceLayer, SourceLayerType } from '@sofie-automation/blueprints-integration'
 import { withTranslation } from 'react-i18next'
 import { defaultColorPickerPalette } from '../../../lib/colorPicker.js'
-import { OutputLayers, SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
+import type { OutputLayers, SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { RundownLayouts } from '../../../collections/index.js'
 import { LabelActual } from '../../../lib/Components/LabelAndOverrides.js'
 

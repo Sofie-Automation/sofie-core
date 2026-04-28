@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor'
-import { DDP } from 'meteor/ddp'
-import * as React from 'react'
+import type { DDP } from 'meteor/ddp'
+import type * as React from 'react'
 import _ from 'underscore'
 import { MomentFromNow } from './Moment.js'
 import {
@@ -8,13 +8,17 @@ import {
 	NoticeLevel,
 	Notification,
 	NotificationList,
-	NotifierHandle,
+	type NotifierHandle,
 } from './notifications/notifications.js'
 import { WithManagedTracker } from './reactiveData/reactiveDataHelper.js'
 import { useTranslation } from 'react-i18next'
 import { NotificationCenterPopUps } from './notifications/NotificationCenterPanel.js'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { ICoreSystem, ServiceMessage, Criticality } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
+import {
+	type ICoreSystem,
+	type ServiceMessage,
+	Criticality,
+} from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
 import type { TFunction } from 'i18next'
 import { getRandomId } from '@sofie-automation/corelib/dist/lib'
 import { CoreSystem } from '../collections/index.js'

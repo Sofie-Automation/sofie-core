@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useCallback, JSX } from 'react'
+import { useCallback, type ChangeEvent, type JSX } from 'react'
 import { useTranslation } from 'react-i18next'
 import { SortOrderButton } from '../../MediaStatus/SortOrderButton.js'
 import classNames from 'classnames'

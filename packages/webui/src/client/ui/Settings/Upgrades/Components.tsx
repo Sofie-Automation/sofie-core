@@ -9,7 +9,7 @@ import { translateMessage } from '@sofie-automation/corelib/dist/TranslatableMes
 import { doModalDialog } from '../../../lib/ModalDialog.js'
 import { NoteSeverity } from '@sofie-automation/blueprints-integration'
 import { NotificationCenter, NoticeLevel, Notification } from '../../../lib/notifications/notifications.js'
-import {
+import type {
 	UIBlueprintUpgradeStatusBase,
 	UIBlueprintUpgradeStatusCoreSystem,
 	UIBlueprintUpgradeStatusShowStyle,

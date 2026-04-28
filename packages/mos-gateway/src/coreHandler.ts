@@ -35,7 +35,6 @@ export class CoreHandler implements ICoreHandler {
 	core: CoreConnection | undefined
 	logger: Winston.Logger
 	public _observers: Array<Observer<any>> = []
-	public connectedToCore = false
 	private _deviceOptions: DeviceConfig
 	private _coreMosHandlers: Array<CoreMosDeviceHandler> = []
 	private _onConnected?: () => any
@@ -43,6 +42,10 @@ export class CoreHandler implements ICoreHandler {
 	private _isDestroyed = false
 	private _executedFunctions = new Set<PeripheralDeviceCommandId>()
 	private _coreConfig?: CoreConfig
+
+	public get connectedToCore(): boolean {
+		return !!this.core && this.core.connected
+	}
 
 	public static async create(
 		logger: Winston.Logger,
@@ -67,12 +70,10 @@ export class CoreHandler implements ICoreHandler {
 
 		this.core.onConnected(() => {
 			this.logger.info('Core Connected!')
-			this.connectedToCore = true
 			if (this._isInitialized) this.onConnectionRestored()
 		})
 		this.core.onDisconnected(() => {
 			this.logger.info('Core Disconnected!')
-			this.connectedToCore = false
 		})
 		this.core.onError((err) => {
 			this.logger.error('Core Error: ' + (typeof err === 'string' ? err : err.message || err.toString()))

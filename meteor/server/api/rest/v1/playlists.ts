@@ -989,7 +989,9 @@ export function registerRoutes(registerRoute: APIRegisterHook<PlaylistsRestAPI>)
 		'post',
 		'/playlists/:playlistId/execute-adlib',
 		new Map([
+			[400, []],
 			[404, [UserErrorMessage.RundownPlaylistNotFound]],
+			[409, [UserErrorMessage.ValidationFailed]],
 			[412, [UserErrorMessage.InactiveRundown, UserErrorMessage.NoCurrentPart, UserErrorMessage.AdlibNotFound]],
 		]),
 		playlistsAPIFactory,
@@ -1025,7 +1027,9 @@ export function registerRoutes(registerRoute: APIRegisterHook<PlaylistsRestAPI>)
 		'post',
 		'/playlists/:playlistId/execute-bucket-adlib',
 		new Map([
+			[400, []],
 			[404, [UserErrorMessage.RundownPlaylistNotFound]],
+			[409, [UserErrorMessage.ValidationFailed]],
 			[
 				412,
 				[

@@ -1,11 +1,11 @@
 import ClassNames from 'classnames'
-import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { PartUi } from '../../SegmentTimeline/SegmentTimelineContainer.js'
-import {
+import type { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
+import type { PartUi } from '../../SegmentTimeline/SegmentTimelineContainer.js'
+import type {
 	DBRundownPlaylist,
 	ABSessionAssignment,
 } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
-import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
+import type { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import {
 	useSubscription,
 	useSubscriptions,
@@ -19,17 +19,17 @@ import { PieceNameContainer } from '../ClockViewPieceIcons/ClockViewPieceName.js
 import { Timediff } from '../Timediff.js'
 import { RundownUtils } from '../../../lib/rundown.js'
 import { PieceLifespan, SourceLayerType } from '@sofie-automation/blueprints-integration'
-import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
+import type { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { PieceFreezeContainer } from '../ClockViewPieceIcons/ClockViewFreezeCount.js'
 import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
-import {
+import type {
 	RundownId,
 	RundownPlaylistId,
 	ShowStyleBaseId,
 	ShowStyleVariantId,
 	StudioId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
+import type { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
 import { calculatePartInstanceExpectedDurationWithTransition } from '@sofie-automation/corelib/dist/playout/timings'
 import { UIShowStyleBases, UIStudios } from '../../Collections.js'
 import { PieceInstances, RundownPlaylists, Rundowns, ShowStyleVariants } from '../../../collections/index.js'
@@ -43,14 +43,13 @@ import { CurrentPartOrSegmentRemaining } from '../../RundownView/RundownHeader/C
 import { AdjustLabelFit } from '../../util/AdjustLabelFit.js'
 import { AutoNextStatus } from '../../RundownView/RundownTiming/AutoNextStatus.js'
 import { useTranslation } from 'react-i18next'
-import { DBShowStyleBase, UIShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { TTimerDisplay } from '../TTimerDisplay.js'
-import { getDefaultTTimer } from '../../../lib/tTimerUtils.js'
-import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance.js'
+import type { DBShowStyleBase, UIShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
+import type { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance.js'
 import { DirectorScreenTop } from './DirectorScreenTop.js'
 import { useTiming } from '../../RundownView/RundownTiming/withTiming.js'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
-import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import type { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
+import { RundownStatusBar } from '../RundownStatusBar.js'
 
 interface SegmentUi extends DBSegment {
 	items: Array<PartUi>
@@ -574,8 +573,6 @@ function DirectorScreenRender({
 			}
 		}
 
-		const activeTTimer = getDefaultTTimer(playlist.tTimers)
-
 		return (
 			<div className="director-screen">
 				<DirectorScreenTop partInstanceToCountTimeFrom={partInstanceToCountTimeFrom} playlist={playlist} />
@@ -761,12 +758,8 @@ function DirectorScreenRender({
 							</>
 						) : null}
 					</div>
-					{!!activeTTimer && (
-						<div className="director-screen__body__t-timer">
-							<TTimerDisplay timer={activeTTimer} />
-						</div>
-					)}
 				</div>
+				<RundownStatusBar playlist={playlist} className="director-screen__bottom-bar" showPlaylistName={false} />
 			</div>
 		)
 	}
