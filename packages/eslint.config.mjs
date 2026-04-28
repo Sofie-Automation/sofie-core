@@ -59,7 +59,7 @@ extendedRules.push(
 	pluginReact.configs.flat.recommended,
 	pluginReact.configs.flat['jsx-runtime'],
 	{
-		files: ['webui/src/**/*', 'shared-lib/src/**/*'],
+		files: ['webui/src/**/*', 'shared-lib/src/**/*', 'server-core-integration/src/**/*'],
 		rules: {
 			// Override default behaviour for ESM and verbatimModuleSyntax
 			'n/no-missing-import': ['error', { ignoreTypeImport: true }],

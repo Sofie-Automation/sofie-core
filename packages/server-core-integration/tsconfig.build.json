@@ -6,16 +6,13 @@
 		"outDir": "./dist",
 		"rootDir": "./src",
 		"baseUrl": "./",
-		"paths": {
-			"*": ["./node_modules/*"],
-			"@sofie-automation/server-core-integration": ["./src/index.ts"]
-		},
 		"resolveJsonModule": true,
 		"types": ["node"],
 		"skipLibCheck": true,
 		"esModuleInterop": true,
 		"composite": true,
-		"module": "node20"
+		"module": "node20",
+		"verbatimModuleSyntax": true
 	},
 	"references": [
 		{
