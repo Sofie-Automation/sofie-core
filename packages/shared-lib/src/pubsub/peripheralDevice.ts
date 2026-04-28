@@ -1,16 +1,16 @@
-import { PeripheralDeviceForDevice } from '../core/model/peripheralDevice.js'
-import { RoutedMappings, RoutedTimeline } from '../core/model/Timeline.js'
-import { DBTimelineDatastoreEntry } from '../core/model/TimelineDatastore.js'
-import {
+import type { PeripheralDeviceForDevice } from '../core/model/peripheralDevice.js'
+import type { RoutedMappings, RoutedTimeline } from '../core/model/Timeline.js'
+import type { DBTimelineDatastoreEntry } from '../core/model/TimelineDatastore.js'
+import type {
 	PackageManagerPlayoutContext,
 	PackageManagerPackageContainers,
 	PackageManagerExpectedPackage,
 } from '../package-manager/publications.js'
-import { PeripheralDeviceId, RundownId, RundownPlaylistId } from '../core/model/Ids.js'
-import { PeripheralDeviceCommand } from '../core/model/PeripheralDeviceCommand.js'
-import { ExpectedPlayoutItemPeripheralDevice } from '../expectedPlayoutItem.js'
-import { DeviceTriggerMountedAction, PreviewWrappedAdLib } from '../input-gateway/deviceTriggerPreviews.js'
-import { IngestRundownStatus } from '../ingest/rundownStatus.js'
+import type { PeripheralDeviceId, RundownId, RundownPlaylistId } from '../core/model/Ids.js'
+import type { PeripheralDeviceCommand } from '../core/model/PeripheralDeviceCommand.js'
+import type { ExpectedPlayoutItemPeripheralDevice } from '../expectedPlayoutItem.js'
+import type { DeviceTriggerMountedAction, PreviewWrappedAdLib } from '../input-gateway/deviceTriggerPreviews.js'
+import type { IngestRundownStatus } from '../ingest/rundownStatus.js'
 
 /**
  * Ids of possible DDP subscriptions for any PeripheralDevice.
