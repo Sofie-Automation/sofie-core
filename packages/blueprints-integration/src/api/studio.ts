@@ -42,10 +42,10 @@ import type { PlayoutGatewayConfig } from '@sofie-automation/shared-lib/dist/gen
 import type { LiveStatusGatewayConfig } from '@sofie-automation/shared-lib/dist/generated/LiveStatusGatewayOptionsTypes'
 
 /**
- * Context provided to device error message functions.
- * Contains the device name, device ID, and any additional context from the TSR error.
+ * Context provided to device status message functions.
+ * Contains the device name, device ID, and any additional context from the TSR status detail.
  */
-export interface DeviceErrorContext {
+export interface DeviceStatusContext {
 	/** Human-readable name of the device */
 	deviceName: string
 	/** Internal device ID */
@@ -55,11 +55,11 @@ export interface DeviceErrorContext {
 }
 
 /**
- * A function that receives device error context and returns a custom error message.
+ * A function that receives device status context and returns a custom status message.
  * Return `undefined` to fall back to the default TSR message.
  * Return an empty string `''` to suppress the message entirely.
  */
-export type DeviceErrorMessageFunction = (context: DeviceErrorContext) => string | undefined
+export type DeviceStatusMessageFunction = (context: DeviceStatusContext) => string | undefined
 
 export interface StudioBlueprintManifest<
 	TRawConfig = IBlueprintConfig,
@@ -77,37 +77,37 @@ export interface StudioBlueprintManifest<
 	translations?: string
 
 	/**
-	 * Alternate device error messages, to override the default messages from TSR devices.
-	 * Keys are error code strings from TSR devices (e.g., 'DEVICE_ATEM_DISCONNECTED').
+	 * Alternate device status messages, to override the default messages from TSR devices.
+	 * Keys are status code strings from TSR devices (e.g., 'DEVICE_ATEM_DISCONNECTED').
 	 *
-	 * Import error codes from 'timeline-state-resolver-types' for type safety.
+	 * Import status codes from 'timeline-state-resolver-types' for type safety.
 	 * Values can be:
 	 * - String templates using {{variable}} syntax for interpolation with context values
-	 * - Functions that receive DeviceErrorContext and return a custom message string
-	 * - Empty string to suppress the error message entirely
+	 * - Functions that receive DeviceStatusContext and return a custom message string
+	 * - Empty string to suppress the status message entirely
 	 *
 	 * @example
 	 * ```typescript
-	 * import { AtemErrorCode, CasparCGErrorCode } from 'timeline-state-resolver-types'
+	 * import { AtemStatusCode, CasparCGStatusCode } from 'timeline-state-resolver-types'
 	 *
-	 * deviceErrorMessages: {
+	 * deviceStatusMessages: {
 	 *   // String template with placeholders
-	 *   [AtemErrorCode.DISCONNECTED]: 'Vision mixer offline - check network to {{host}}',
-	 *   [AtemErrorCode.PSU_FAULT]: 'PSU {{psuNumber}} needs attention',
+	 *   [AtemStatusCode.DISCONNECTED]: 'Vision mixer offline - check network to {{host}}',
+	 *   [AtemStatusCode.PSU_FAULT]: 'PSU {{psuNumber}} needs attention',
 	 *
 	 *   // Function for complex conditional logic
-	 *   [CasparCGErrorCode.CHANNEL_ERROR]: (context) => {
+	 *   [CasparCGStatusCode.CHANNEL_ERROR]: (context) => {
 	 *     const channel = context.channel as number
 	 *     if (channel === 1) return 'Primary graphics output failed!'
 	 *     return `Graphics channel ${channel} error on ${context.deviceName}`
 	 *   },
 	 *
-	 *   // Suppress a noisy error
-	 *   [SomeErrorCode.NOISY_ERROR]: '',
+	 *   // Suppress a noisy message
+	 *   [SomeStatusCode.NOISY_STATUS]: '',
 	 * }
 	 * ```
 	 */
-	deviceErrorMessages?: Record<string, string | DeviceErrorMessageFunction | undefined>
+	deviceStatusMessages?: Record<string, string | DeviceStatusMessageFunction | undefined>
 
 	/** Returns the items used to build the baseline (default state) of a studio, this is the baseline used when there's no active rundown */
 	getBaseline: (context: IStudioBaselineContext) => BlueprintResultStudioBaseline

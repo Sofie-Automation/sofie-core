@@ -75,7 +75,7 @@ import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { getRootSubpath } from '../lib'
 import { evalBlueprint } from './blueprints/cache'
 import { StudioBlueprintManifest } from '@sofie-automation/blueprints-integration'
-import { ErrorMessageResolver } from '@sofie-automation/corelib'
+import { StatusMessageResolver } from '@sofie-automation/corelib'
 import { interpollateTranslation } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
 import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
@@ -83,8 +83,8 @@ import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 const apmNamespace = 'peripheralDevice'
 
 /**
- * Resolve device status details using the Studio blueprint's deviceErrorMessages.
- * This allows blueprints to customize error messages shown to operators.
+ * Resolve device status details using the Studio blueprint's deviceStatusMessages.
+ * This allows blueprints to customize status messages shown to operators.
  *
  * @param studioId - The studio ID to look up the blueprint
  * @param deviceName - The peripheral device name (shorter than TSR's internal name)
@@ -119,23 +119,23 @@ async function resolveDeviceStatusDetails(
 			return []
 		}
 
-		// Evaluate the blueprint to get the manifest with deviceErrorMessages
+		// Evaluate the blueprint to get the manifest with deviceStatusMessages
 		const blueprintManifest = evalBlueprint(blueprint) as StudioBlueprintManifest
 
 		logger.debug(
-			`Blueprint ${blueprint._id} deviceErrorMessages keys: ${Object.keys(blueprintManifest.deviceErrorMessages ?? {}).join(', ')}`
+			`Blueprint ${blueprint._id} deviceStatusMessages keys: ${Object.keys(blueprintManifest.deviceStatusMessages ?? {}).join(', ')}`
 		)
 
-		if (!blueprintManifest.deviceErrorMessages) {
-			// Blueprint doesn't define any custom error messages
-			logger.debug(`Blueprint ${blueprint._id} has no deviceErrorMessages`)
+		if (!blueprintManifest.deviceStatusMessages) {
+			// Blueprint doesn't define any custom status messages
+			logger.debug(`Blueprint ${blueprint._id} has no deviceStatusMessages`)
 			return []
 		}
 
-		// Create resolver with the blueprint's error messages
-		const resolver = new ErrorMessageResolver(
+		// Create resolver with the blueprint's status messages
+		const resolver = new StatusMessageResolver(
 			blueprint._id,
-			blueprintManifest.deviceErrorMessages,
+			blueprintManifest.deviceStatusMessages,
 			undefined // No system error messages
 		)
 
@@ -143,11 +143,14 @@ async function resolveDeviceStatusDetails(
 		const resolvedMessages: string[] = []
 		for (let i = 0; i < statusDetails.length; i++) {
 			const statusDetail = statusDetails[i]
-			// Use the original TSR message as fallback, or error code if not available
-			const defaultMessage = defaultMessages[i] ?? statusDetail.code
+			// Use the original TSR message as fallback (statusDetail.message is the pre-rendered TSR string,
+			// more useful than the raw error code string)
+			const defaultMessage = defaultMessages[i] ?? statusDetail.message ?? statusDetail.code
 
-			logger.debug(`Resolving error code: ${statusDetail.code}, context: ${JSON.stringify(statusDetail.context)}`)
-			const message = resolver.getDeviceErrorMessage(
+			logger.debug(
+				`Resolving status code: ${statusDetail.code}, context: ${JSON.stringify(statusDetail.context)}`
+			)
+			const message = resolver.getDeviceStatusMessage(
 				statusDetail.code,
 				{
 					...statusDetail.context,
@@ -163,7 +166,11 @@ async function resolveDeviceStatusDetails(
 				const interpolated = interpollateTranslation(message.key, message.args)
 				logger.debug(`Resolved message for ${statusDetail.code}: ${interpolated}`)
 				resolvedMessages.push(interpolated)
+				// Also mutate statusDetail.message so the UI can read from statusDetails[].message directly
+				statusDetail.message = interpolated
 			} else {
+				// Message suppressed by blueprint - clear the message so the UI doesn't show the raw TSR message
+				statusDetail.message = ''
 				logger.debug(`Message suppressed for ${statusDetail.code}`)
 			}
 		}
@@ -171,7 +178,7 @@ async function resolveDeviceStatusDetails(
 		return resolvedMessages
 	} catch (e) {
 		// Log error but don't fail - fall back to original messages
-		logger.error(`Error resolving device error messages: ${e}`)
+		logger.error(`Error resolving device status messages: ${e}`)
 		return []
 	}
 }
@@ -312,7 +319,7 @@ export namespace ServerPeripheralDeviceAPI {
 			throw new Meteor.Error(400, 'device status code is not known')
 		}
 
-		// Resolve error messages using Studio blueprint if structured errors are present
+		// Resolve status messages using Studio blueprint if structured status details are present
 		// Child devices (like casparcg0) don't have studioAndConfigId directly - get it from parent
 		let studioId = peripheralDevice.studioAndConfigId?.studioId
 		if (!studioId && peripheralDevice.parentDeviceId) {

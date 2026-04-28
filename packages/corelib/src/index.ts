@@ -3,11 +3,11 @@ export { Timecode } from 'timecode'
 
 export { MOS } from '@sofie-automation/shared-lib/dist/mos'
 
-// Error message resolver
-export { ErrorMessageResolver } from './ErrorMessageResolver.js'
+// Status message resolver
+export { StatusMessageResolver } from './StatusMessageResolver.js'
 export type {
-	DeviceErrorContext,
-	DeviceErrorMessageFunction,
-	DeviceErrorMessages,
+	DeviceStatusContext,
+	DeviceStatusMessageFunction,
+	DeviceStatusMessages,
 	SystemErrorMessages,
-} from './ErrorMessageResolver.js'
+} from './StatusMessageResolver.js'

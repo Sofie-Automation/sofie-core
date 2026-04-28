@@ -2,10 +2,10 @@ import { BlueprintId } from './dataModel/Ids.js'
 import { generateTranslation } from './lib.js'
 import { ITranslatableMessage, wrapTranslatableMessageFromBlueprints } from './TranslatableMessage.js'
 import { SystemErrorCode } from '@sofie-automation/shared-lib/dist/systemErrorMessages'
-import type { DeviceErrorContext, DeviceErrorMessageFunction } from '@sofie-automation/blueprints-integration'
+import type { DeviceStatusContext, DeviceStatusMessageFunction } from '@sofie-automation/blueprints-integration'
 
 // Re-export for consumers of corelib
-export type { DeviceErrorContext, DeviceErrorMessageFunction }
+export type { DeviceStatusContext, DeviceStatusMessageFunction }
 
 /**
  * Default error messages for system errors
@@ -19,10 +19,10 @@ const DEFAULT_SYSTEM_ERROR_MESSAGES: Record<SystemErrorCode, ITranslatableMessag
 }
 
 /**
- * Device error messages map - can contain string templates or functions.
+ * Device status messages map - can contain string templates or functions.
  * Functions are evaluated at runtime, strings use {{variable}} interpolation.
  */
-export type DeviceErrorMessages = Record<string, string | DeviceErrorMessageFunction | undefined>
+export type DeviceStatusMessages = Record<string, string | DeviceStatusMessageFunction | undefined>
 
 /**
  * System error messages map - string templates only.
@@ -31,65 +31,65 @@ export type DeviceErrorMessages = Record<string, string | DeviceErrorMessageFunc
 export type SystemErrorMessages = Partial<Record<SystemErrorCode | string, string | undefined>>
 
 /**
- * Resolves error messages with blueprint customizations.
+ * Resolves status messages with blueprint customizations.
  * Works with runtime blueprint manifests (evaluated at setStatus time).
  *
- * For device errors, the default message templates come from TSR devices.
- * Studio blueprints can override these by providing custom templates or functions in deviceErrorMessages.
+ * For device statuses, the default message templates come from TSR devices.
+ * Studio blueprints can override these by providing custom templates or functions in deviceStatusMessages.
  *
  * For system errors, System blueprints can override the defaults in systemErrorMessages.
  *
  * @example
  * ```typescript
- * import { AtemErrorCode, AtemErrorMessages } from 'timeline-state-resolver-types'
+ * import { AtemStatusCode, AtemStatusMessages } from 'timeline-state-resolver-types'
  *
  * // Get blueprint manifest at runtime (from evalBlueprint or similar)
  * const studioManifest = await getBlueprintManifest(studioBlueprintId)
  *
- * // Create resolver for device errors
- * const resolver = new ErrorMessageResolver(
- *   studioManifest.deviceErrorMessages
+ * // Create resolver for device statuses
+ * const resolver = new StatusMessageResolver(
+ *   studioManifest.deviceStatusMessages
  * )
  *
- * // Resolve device error - pass default message from TSR
- * const message = resolver.getDeviceErrorMessage(
- *   AtemErrorCode.DISCONNECTED,
+ * // Resolve device status - pass default message from TSR
+ * const message = resolver.getDeviceStatusMessage(
+ *   AtemStatusCode.DISCONNECTED,
  *   { deviceName: 'Vision Mixer', host: '192.168.1.10' },
- *   AtemErrorMessages[AtemErrorCode.DISCONNECTED]
+ *   AtemStatusMessages[AtemStatusCode.DISCONNECTED]
  * )
  * ```
  */
-export class ErrorMessageResolver {
+export class StatusMessageResolver {
 	readonly #blueprintId: BlueprintId | undefined
-	readonly #deviceErrorMessages: DeviceErrorMessages | undefined
+	readonly #deviceStatusMessages: DeviceStatusMessages | undefined
 	readonly #systemErrorMessages: SystemErrorMessages | undefined
 
 	constructor(
 		blueprintId: BlueprintId | undefined,
-		deviceErrorMessages?: DeviceErrorMessages | undefined,
-		systemErrorMessages?: SystemErrorMessages | undefined
+		deviceStatusMessages?: DeviceStatusMessages,
+		systemErrorMessages?: SystemErrorMessages
 	) {
 		this.#blueprintId = blueprintId
-		this.#deviceErrorMessages = deviceErrorMessages
+		this.#deviceStatusMessages = deviceStatusMessages
 		this.#systemErrorMessages = systemErrorMessages
 	}
 
 	/**
-	 * Get a translatable message for a device error.
+	 * Get a translatable message for a device status.
 	 *
-	 * @param errorCode - The error code string from TSR (e.g., 'DEVICE_ATEM_DISCONNECTED')
-	 * @param context - Context values for message interpolation (deviceName, deviceId, and TSR error context)
+	 * @param errorCode - The status code string from TSR (e.g., 'DEVICE_ATEM_DISCONNECTED')
+	 * @param context - Context values for message interpolation (deviceName, deviceId, and TSR status context)
 	 * @param defaultMessage - The default message template from TSR (e.g., 'ATEM disconnected')
 	 * @returns ITranslatableMessage with the resolved message, or null if suppressed
 	 */
-	getDeviceErrorMessage(
+	getDeviceStatusMessage(
 		errorCode: string,
-		context: DeviceErrorContext,
+		context: DeviceStatusContext,
 		defaultMessage: string
 	): ITranslatableMessage | null {
 		// Check blueprint messages from Studio blueprint manifest
-		if (this.#deviceErrorMessages) {
-			const blueprintMessage = this.#deviceErrorMessages[errorCode]
+		if (this.#deviceStatusMessages) {
+			const blueprintMessage = this.#deviceStatusMessages[errorCode]
 
 			// Evaluate if function or use as string template
 			const result = typeof blueprintMessage === 'function' ? blueprintMessage(context) : blueprintMessage
