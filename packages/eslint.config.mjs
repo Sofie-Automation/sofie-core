@@ -59,6 +59,16 @@ extendedRules.push(
 	pluginReact.configs.flat.recommended,
 	pluginReact.configs.flat['jsx-runtime'],
 	{
+		files: ['webui/src/**/*', 'shared-lib/src/**/*'],
+		rules: {
+			// Override default behaviour for ESM and verbatimModuleSyntax
+			'n/no-missing-import': ['error', { ignoreTypeImport: true }],
+			'no-duplicate-imports': 'error',
+			'@typescript-eslint/consistent-type-imports': ['error', { fixStyle: 'inline-type-imports' }],
+			'@typescript-eslint/no-import-type-side-effects': 'error',
+		},
+	},
+	{
 		files: ['webui/src/**/*'],
 		languageOptions: {
 			globals: {
@@ -90,11 +100,6 @@ extendedRules.push(
 			'@typescript-eslint/no-empty-interface': 'off', // many prop/state types are {}
 			'@typescript-eslint/no-empty-object-type': 'off', // many prop/state types are {}
 			'@typescript-eslint/promise-function-async': 'off', // event handlers can't be async
-
-			// Imports (future everywhere hopefully)
-			'no-duplicate-imports': 'error',
-			'@typescript-eslint/consistent-type-imports': ['error', { fixStyle: 'inline-type-imports' }],
-			'@typescript-eslint/no-import-type-side-effects': 'error',
 
 			...tmpWebuiRules,
 		},
