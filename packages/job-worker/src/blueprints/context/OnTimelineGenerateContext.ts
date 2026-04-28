@@ -43,7 +43,7 @@ export class OnTimelineGenerateContext extends RundownContext implements ITimeli
 		showStyleBlueprintConfig: ProcessedShowStyleConfig,
 		playlist: ReadonlyDeep<DBRundownPlaylist>,
 		rundown: ReadonlyDeep<DBRundown>,
-		previousPartInstance: ReadonlyDeep<DBPartInstance> | undefined,
+		previousPartInstances: ReadonlyDeep<DBPartInstance>[],
 		currentPartInstance: ReadonlyDeep<DBPartInstance> | undefined,
 		nextPartInstance: ReadonlyDeep<DBPartInstance> | undefined,
 		pieceInstances: ReadonlyDeep<ResolvedPieceInstance[]>
@@ -51,7 +51,7 @@ export class OnTimelineGenerateContext extends RundownContext implements ITimeli
 		super(
 			{
 				name: playlist.name,
-				identifier: `playlistId=${playlist._id},previousPartInstance=${previousPartInstance?._id},currentPartInstance=${currentPartInstance?._id},nextPartInstance=${nextPartInstance?._id}`,
+				identifier: `playlistId=${playlist._id},previousPartInstance=${previousPartInstances[0]?._id},currentPartInstance=${currentPartInstance?._id},nextPartInstance=${nextPartInstance?._id}`,
 			},
 			studio,
 			studioBlueprintConfig,
@@ -62,11 +62,12 @@ export class OnTimelineGenerateContext extends RundownContext implements ITimeli
 
 		this.currentPartInstance = currentPartInstance && convertPartInstanceToBlueprints(currentPartInstance)
 		this.nextPartInstance = nextPartInstance && convertPartInstanceToBlueprints(nextPartInstance)
-		this.previousPartInstance = previousPartInstance && convertPartInstanceToBlueprints(previousPartInstance)
+		this.previousPartInstance =
+			previousPartInstances[0] && convertPartInstanceToBlueprints(previousPartInstances[0])
 
 		this.quickLoopInfo = createBlueprintQuickLoopInfo(playlist)
 
-		const partInstances = _.compact([previousPartInstance, currentPartInstance, nextPartInstance])
+		const partInstances = _.compact([...previousPartInstances, currentPartInstance, nextPartInstance])
 
 		for (const pieceInstance of pieceInstances) {
 			this.#pieceInstanceCache.set(pieceInstance.instance._id, pieceInstance.instance)

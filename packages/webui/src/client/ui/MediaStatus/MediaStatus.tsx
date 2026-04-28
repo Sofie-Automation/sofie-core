@@ -100,7 +100,7 @@ function useRundownPlaylists(playlistIds: RundownPlaylistId[]) {
 						nextPartInfo: 0,
 						queuedSegmentId: 0,
 						nextTimeOffset: 0,
-						previousPartInfo: 0,
+						previousPartsInfo: 0,
 						publicPlayoutPersistentState: 0,
 						privatePlayoutPersistentState: 0,
 						resetTime: 0,

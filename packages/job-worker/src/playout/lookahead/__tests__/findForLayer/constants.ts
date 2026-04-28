@@ -22,12 +22,20 @@ export const findForLayerTestConstants = {
 			includeWhenNotInHoldObjects: true,
 		} as TimelinePlayoutState,
 	},
-	previous: {
-		part: { _id: 'pPrev', part: 'prev' },
-		allPieces: [createFakePiece('1'), createFakePiece('2'), createFakePiece('3')],
-		onTimeline: true,
-		nowInPart: 2000,
-	} as any as PartInstanceAndPieceInstances,
+	previous: [
+		{
+			part: { _id: 'pPrev0', part: 'prev0' },
+			allPieces: [createFakePiece('1'), createFakePiece('2'), createFakePiece('3')],
+			onTimeline: true,
+			nowInPart: 2000,
+		},
+		{
+			part: { _id: 'pPrev1', part: 'prev1' },
+			allPieces: [createFakePiece('13'), createFakePiece('14'), createFakePiece('15')],
+			onTimeline: true,
+			nowInPart: 900,
+		},
+	] as any as PartInstanceAndPieceInstances[],
 	current: {
 		part: { _id: 'pCur', part: 'cur' },
 		allPieces: [createFakePiece('4'), createFakePiece('5'), createFakePiece('6')],

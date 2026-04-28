@@ -13,7 +13,8 @@ export interface LookaheadResult {
 }
 
 export interface PartInstanceAndPieceInstancesInfos {
-	previous?: PartInstanceAndPieceInstances
+	/** Oldest-first. Each entry is "on timeline" and contributes timed lookahead data. */
+	previous: PartInstanceAndPieceInstances[]
 	current?: PartInstanceAndPieceInstances
 	next?: PartInstanceAndPieceInstances
 }
@@ -35,10 +36,22 @@ export function findLookaheadForLayer(
 		future: [],
 	}
 
-	// Track the previous info for checking how the timeline will be built
 	let previousPart: ReadonlyDeep<DBPart> | undefined
-	if (partInstancesInfo.previous?.part.part) {
-		previousPart = partInstancesInfo.previous.part.part
+	for (const prevInfo of partInstancesInfo.previous) {
+		const { objs: prevObjs, partInfo: prevPartInfo } = generatePartInstanceLookaheads(
+			context,
+			prevInfo,
+			currentPartId,
+			layer,
+			previousPart,
+			playoutState
+		)
+		if (prevInfo.onTimeline) {
+			res.timed.push(...prevObjs)
+		} else {
+			res.future.push(...prevObjs)
+		}
+		previousPart = prevPartInfo.part
 	}
 
 	// Generate timed/future objects for the partInstances
