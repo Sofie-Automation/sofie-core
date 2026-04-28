@@ -9,7 +9,8 @@
 		"composite": true,
 		"noEmit": true,
 		"skipLibCheck": true,
-		"importHelpers": false // To mitigate tslib errors which are meaningless
+		"importHelpers": false, // To mitigate tslib errors which are meaningless
+		"module": "node20"
 	},
 	"references": [
 		{ "path": "./blueprints-integration/tsconfig.build.json" },

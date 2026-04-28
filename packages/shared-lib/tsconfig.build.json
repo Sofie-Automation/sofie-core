@@ -13,6 +13,7 @@
 		},
 		"resolveJsonModule": true,
 		"types": ["node"],
-		"composite": true
+		"composite": true,
+		"module": "node20"
 	}
 }

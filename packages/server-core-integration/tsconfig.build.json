@@ -14,7 +14,8 @@
 		"types": ["node"],
 		"skipLibCheck": true,
 		"esModuleInterop": true,
-		"composite": true
+		"composite": true,
+		"module": "node20"
 	},
 	"references": [
 		{
