@@ -39,7 +39,7 @@
 		"@sofie-automation/blueprints-integration": "26.3.0-2",
 		"@sofie-automation/shared-lib": "26.3.0-2",
 		"fast-clone": "^1.5.13",
-		"i18next": "^26.0.4",
+		"i18next": "^26.0.8",
 		"influx": "^5.12.0",
 		"nanoid": "^3.3.11",
 		"object-path": "^0.11.8",
