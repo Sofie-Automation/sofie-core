@@ -6,8 +6,7 @@ import { RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { CollectionHandlers } from '../liveStatusServer.js'
 import { PickKeys } from '@sofie-automation/shared-lib/dist/lib/types'
-import { CollectionDocCheck } from '@sofie-automation/server-core-integration'
-import { ParametersOfFunctionOrNever } from '@sofie-automation/server-core-integration/dist/lib/subscriptions'
+import type { CollectionDocCheck, ParametersOfFunctionOrNever } from '@sofie-automation/server-core-integration'
 
 const PLAYLIST_KEYS = ['currentPartInfo', 'nextPartInfo'] as const
 type Playlist = PickKeys<DBRundownPlaylist, typeof PLAYLIST_KEYS>

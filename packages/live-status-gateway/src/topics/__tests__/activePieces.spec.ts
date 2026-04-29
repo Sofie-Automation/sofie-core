@@ -6,7 +6,7 @@ import {
 	makeTestShowStyleBase,
 } from './utils.js'
 import { ShowStyleBaseExt } from '../../collections/showStyleBaseHandler.js'
-import { protectString } from '@sofie-automation/server-core-integration/dist'
+import { protectString } from '@sofie-automation/server-core-integration'
 import { PartialDeep } from 'type-fest'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { SelectedPieceInstances } from '../../collections/pieceInstancesHandler.js'

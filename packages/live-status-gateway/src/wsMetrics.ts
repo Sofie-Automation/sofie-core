@@ -1,4 +1,4 @@
-import { MetricsGauge } from '@sofie-automation/server-core-integration/dist/lib/prometheus'
+import { MetricsGauge } from '@sofie-automation/server-core-integration'
 
 export const wsConnectionsGauge = new MetricsGauge({
 	name: 'sofie_lsg_websocket_connections',

@@ -1,6 +1,6 @@
-import { RundownId } from './core/model/Ids.js'
-import { ProtectedString } from './lib/protectedString.js'
-import { TSR } from './tsr.js'
+import type { RundownId } from './core/model/Ids.js'
+import type { ProtectedString } from './lib/protectedString.js'
+import type { TSR } from './tsr.js'
 
 /** @deprecated */
 export interface ExpectedPlayoutItemGeneric {
@@ -20,5 +20,4 @@ export interface ExpectedPlayoutItemPeripheralDevice extends ExpectedPlayoutItem
 	baseline?: 'rundown' | 'studio'
 }
 
-type ExpectedPlayoutItemContent = TSR.ExpectedPlayoutItemContent
-export { ExpectedPlayoutItemContent }
+export type ExpectedPlayoutItemContent = TSR.ExpectedPlayoutItemContent

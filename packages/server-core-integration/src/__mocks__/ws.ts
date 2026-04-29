@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { EventEmitter } from 'events'
-import { AnyMessage } from '../lib/ddpClient.js'
+import type { AnyMessage } from '../lib/ddpClient.js'
 import * as EJSON from 'ejson'
 // import * as util from 'util'
 

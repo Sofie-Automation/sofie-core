@@ -57,6 +57,6 @@
 	"devDependencies": {
 		"jest": "^30.3.0",
 		"jest-mock-extended": "^4.0.0",
-		"typescript": "~5.7.3"
+		"typescript": "~5.9.3"
 	}
 }

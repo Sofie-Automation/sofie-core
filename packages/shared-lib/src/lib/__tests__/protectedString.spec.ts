@@ -1,5 +1,5 @@
 import {
-	ProtectedString,
+	type ProtectedString,
 	protectString,
 	protectStringArray,
 	unprotectObject,
