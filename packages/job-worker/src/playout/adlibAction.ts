@@ -309,12 +309,12 @@ export async function executeActionInner(
 	}
 }
 
-async function applyAnyExecutionSideEffects(
+export async function applyAnyExecutionSideEffects(
 	context: JobContext,
 	playoutModel: PlayoutModel,
 	actionContext: ActionExecutionContext,
 	now: number
-) {
+): Promise<void> {
 	await applyActionSideEffects(context, playoutModel, actionContext)
 
 	if (actionContext.takeAfterExecute) {
@@ -372,13 +372,13 @@ async function executeDataStoreAction(
 	}
 }
 
-function storeNotificationsForCategory(
+export function storeNotificationsForCategory(
 	notificationHelper: INotificationsModel,
 	notificationCategory: string,
 	blueprintId: BlueprintId,
 	notes: INoteBase[],
 	partInstanceInfo: SelectedPartInstance | null
-) {
+): void {
 	for (const note of notes) {
 		notificationHelper.setNotification(notificationCategory, {
 			...convertNoteToNotification(note, [blueprintId]),

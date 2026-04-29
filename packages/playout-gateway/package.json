@@ -55,7 +55,7 @@
 		"@sofie-automation/shared-lib": "26.3.0-2",
 		"debug": "^4.4.3",
 		"influx": "^5.12.0",
-		"timeline-state-resolver": "10.0.0-nightly-main-20260415-093148-f35c4cadc.0",
+		"timeline-state-resolver": "10.0.0-nightly-feat-tsr-device-feedback-20260429-145317-4079605bd.0",
 		"tslib": "^2.8.1",
 		"underscore": "^1.13.8",
 		"winston": "^3.19.0"

@@ -30,7 +30,7 @@ import { checkAccessAndGetPeripheralDevice } from '../security/check'
 import { UserActionsLogItem } from '@sofie-automation/meteor-lib/dist/collections/UserActionsLog'
 import { PackageManagerIntegration } from './integration/expectedPackages'
 import { profiler } from './profiler'
-import { QueueStudioJob } from '../worker/worker'
+import { QueueStudioJob, QueueOrUpdateStudioJob } from '../worker/worker'
 import { StudioJobs } from '@sofie-automation/corelib/dist/worker/studio'
 import {
 	PlayoutChangedResults,
@@ -38,6 +38,7 @@ import {
 	PeripheralDeviceStatusObject,
 	TimelineTriggerTimeResult,
 } from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI'
+import type { PeripheralDeviceExternalEvent } from '@sofie-automation/shared-lib/dist/peripheralDevice/externalEvents'
 import { checkStudioExists } from '../optimizations'
 import {
 	ExpectedPackageId,
@@ -311,6 +312,28 @@ export namespace ServerPeripheralDeviceAPI {
 		}
 
 		transaction?.end()
+	}
+	export async function reportExternalEvents(
+		context: MethodContext,
+		deviceId: PeripheralDeviceId,
+		token: string,
+		events: PeripheralDeviceExternalEvent[]
+	): Promise<void> {
+		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, context)
+
+		if (!peripheralDevice.studioAndConfigId)
+			throw new Error(`PeripheralDevice "${peripheralDevice._id}" sent reportExternalEvents, but has no studioId`)
+
+		if (!events.length) return
+
+		const studioId = peripheralDevice.studioAndConfigId.studioId
+
+		// Merge events into the last pending OnExternalEvents job in the queue, or enqueue a new one.
+		// This prevents queue flooding when many events arrive in a burst, or when multiple gateways
+		// report events for the same studio simultaneously.
+		QueueOrUpdateStudioJob(StudioJobs.OnExternalEvents, studioId, (existing) => ({
+			events: [...(existing?.events ?? []), ...events],
+		}))
 	}
 	export async function pingWithCommand(
 		context: MethodContext,
@@ -882,6 +905,13 @@ class ServerPeripheralDeviceAPIClass extends MethodContextAPI implements NewPeri
 		changedResults: PlayoutChangedResults
 	) {
 		return ServerPeripheralDeviceAPI.playoutPlaybackChanged(this, deviceId, deviceToken, changedResults)
+	}
+	async reportExternalEvents(
+		deviceId: PeripheralDeviceId,
+		deviceToken: string,
+		events: PeripheralDeviceExternalEvent[]
+	) {
+		return ServerPeripheralDeviceAPI.reportExternalEvents(this, deviceId, deviceToken, events)
 	}
 	async reportResolveDone(
 		deviceId: PeripheralDeviceId,

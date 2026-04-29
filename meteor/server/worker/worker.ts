@@ -240,6 +240,31 @@ export async function QueueStudioJob<T extends keyof StudioJobFunc>(
 }
 
 /**
+ * Merge new job data into the last pending job in the studio's queue if it has the same name,
+ * otherwise enqueue a new fire-and-forget job.
+ *
+ * Use this instead of {@link QueueStudioJob} when events can be safely batched together and you
+ * do not need to await the result (e.g. device feedback events from gateways).
+ *
+ * @param jobName - The job type
+ * @param studioId - Id of the studio
+ * @param generateData - Called to produce the job data. Receives the existing pending job's data
+ *   when merging, or `null` when creating a new job. Both cases are handled by the same function.
+ */
+export function QueueOrUpdateStudioJob<T extends keyof StudioJobFunc>(
+	jobName: T,
+	studioId: StudioId,
+	generateData: (existing: Parameters<StudioJobFunc[T]>[0] | null) => Parameters<StudioJobFunc[T]>[0]
+): void {
+	if (!studioId) throw new Meteor.Error(500, 'Missing studioId')
+	queueManager.mergeOrQueueJob(
+		getStudioQueueName(studioId),
+		jobName,
+		generateData as (existing: unknown | null) => unknown
+	)
+}
+
+/**
  * Queue a job for ingest
  * @param jobName Job name
  * @param studioId Id of the studio

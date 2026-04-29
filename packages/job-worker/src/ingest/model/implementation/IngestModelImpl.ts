@@ -50,7 +50,7 @@ import { RundownNote } from '@sofie-automation/corelib/dist/dataModel/Notes'
 import { diffAndReturnLatestObjects } from './utils.js'
 import _ from 'underscore'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { IBlueprintRundown } from '@sofie-automation/blueprints-integration'
+import type { BlueprintExternalEventSubscription, IBlueprintRundown } from '@sofie-automation/blueprints-integration'
 import { getCurrentTime, getSystemVersion } from '../../../lib/index.js'
 import { WrappedShowStyleBlueprint } from '../../../blueprints/cache.js'
 import { SaveIngestModelHelper } from './SaveIngestModel.js'
@@ -409,7 +409,8 @@ export class IngestModelImpl implements IngestModel, IngestDatabasePersistedMode
 		showStyleBlueprint: ReadonlyDeep<WrappedShowStyleBlueprint>,
 		source: RundownSource,
 		rundownNotes: RundownNote[],
-		userEditOperations: CoreUserEditingDefinition[] | undefined
+		userEditOperations: CoreUserEditingDefinition[] | undefined,
+		externalEventSubscriptions: BlueprintExternalEventSubscription[] | undefined
 	): ReadonlyDeep<DBRundown> {
 		const newRundown = literal<Complete<DBRundown>>({
 			...clone(rundownData as Complete<IBlueprintRundown>),
@@ -420,6 +421,7 @@ export class IngestModelImpl implements IngestModel, IngestDatabasePersistedMode
 			showStyleVariantId: showStyleVariant._id,
 			showStyleBaseId: showStyleBase._id,
 			userEditOperations: clone(userEditOperations),
+			externalEventSubscriptions: clone(externalEventSubscriptions),
 			orphaned: undefined,
 
 			importVersions: {

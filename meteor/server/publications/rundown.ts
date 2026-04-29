@@ -67,6 +67,7 @@ meteorPublish(
 			{
 				projection: {
 					privateData: 0,
+					externalEventSubscriptions: 0,
 				},
 			}
 		)
@@ -90,6 +91,7 @@ meteorPublish(
 		const modifier: FindOptions<DBRundown> = {
 			projection: {
 				privateData: 0,
+				externalEventSubscriptions: 0,
 			},
 		}
 
@@ -112,6 +114,7 @@ meteorPublish(
 		const modifier: FindOptions<DBRundown> = {
 			projection: {
 				privateData: 0,
+				externalEventSubscriptions: 0,
 			},
 		}
 

@@ -360,6 +360,46 @@ export class WorkerJobQueueManager {
 		}
 		this.#runningJobs.clear()
 	}
+
+	/**
+	 * Merge new data into the last pending job in the queue if it has the given name,
+	 * otherwise enqueue a new fire-and-forget job.
+	 *
+	 * This prevents queue flooding when high-frequency events arrive: as long as the tail job
+	 * has not yet been picked up by the worker, incoming data is merged into it in-place.
+	 * Once the worker starts executing it or another jobName gets queued, the next call will enqueue a fresh job.
+	 *
+	 * @param queueName - The target queue
+	 * @param jobName - The job type name to match against
+	 * @param generateData - Called to produce job data. Receives the existing job's data when
+	 *   merging into a tail job, or `null` when creating a new job.
+	 */
+	mergeOrQueueJob(queueName: string, jobName: string, generateData: (existing: unknown | null) => unknown): void {
+		const queue = this.#getOrCreateQueue(queueName)
+
+		// Only inspect the very last entry. Scanning further back would risk updating a job in the
+		// middle of the queue, breaking the ordering guarantee relative to other job types.
+		const tail = queue.jobsHighPriority[queue.jobsHighPriority.length - 1]
+		if (tail && tail.spec.name === jobName) {
+			// Merge into the existing tail job in-place
+			tail.spec.data = generateData(tail.spec.data)
+			logger.debug(`Merged events into existing "${jobName}" job in queue "${queueName}"`)
+		} else {
+			// Tail is absent, already picked up, or a different job type — push a new job
+			const entry: JobEntry = {
+				spec: {
+					id: getRandomString(),
+					name: jobName,
+					data: generateData(null),
+				},
+				completionHandler: null,
+			}
+			queue.jobsHighPriority.push(entry)
+			queue.metricsTotal.inc()
+			logger.debug(`Enqueued new "${jobName}" job in queue "${queueName}"`)
+			this.#notifyWorker(queue)
+		}
+	}
 }
 
 function generateCompletionHandler<TRes>(

@@ -82,6 +82,7 @@ export class TSRHandler {
 	// private _config: TSRConfig
 	private _coreHandler!: CoreHandler
 	private _triggerupdateExpectedPlayoutItemsTimeout: NodeJS.Timeout | null = null
+	private _triggerUpdateEventSubscriptionsTimeout: NodeJS.Timeout | null = null
 	private _coreTsrHandlers: { [deviceId: string]: CoreTSRDeviceHandler } = {}
 	private _observers: Array<Observer<any>> = []
 	private _cachedStudioId: StudioId | null = null
@@ -454,6 +455,14 @@ export class TSRHandler {
 		this.tsr.connectionManager.on('connectionEvent:timeTrace', (_id, trace) => {
 			sendTrace(trace)
 		})
+		this.tsr.connectionManager.on('connectionEvent:stateEvent', (_id, events) => {
+			this.logger.debug(
+				`connectionEvent:stateEvent: received ${events.length} event(s) from device "${_id}": ${events.map((e) => e.event).join(', ')}`
+			)
+			this._coreHandler.core.coreMethods
+				.reportExternalEvents(events.map((e) => ({ ...e, type: 'tsr' as const })))
+				.catch((e: unknown) => this.logger.error('Error when reporting external events to core', e))
+		})
 	}
 
 	private setupObservers(): void {
@@ -537,6 +546,20 @@ export class TSRHandler {
 			this._triggerUpdateDatastore()
 		}
 		this._observers.push(timelineDatastoreObserver)
+
+		const externalEventSubscriptionsObserver = this._coreHandler.core.observe(
+			PeripheralDevicePubSubCollectionsNames.externalEventSubscriptions
+		)
+		externalEventSubscriptionsObserver.added = () => {
+			this._triggerUpdateEventSubscriptions()
+		}
+		externalEventSubscriptionsObserver.changed = () => {
+			this._triggerUpdateEventSubscriptions()
+		}
+		externalEventSubscriptionsObserver.removed = () => {
+			this._triggerUpdateEventSubscriptions()
+		}
+		this._observers.push(externalEventSubscriptionsObserver)
 	}
 	private resendStatuses(): void {
 		_.each(this._coreTsrHandlers, (tsrHandler) => {
@@ -835,6 +858,55 @@ export class TSRHandler {
 	private _triggerUpdateDatastore() {
 		if (!this._initialized) return
 		this._updateDatastore().catch((e) => this.logger.error('Error in _updateDatastore', e))
+	}
+	private _triggerUpdateEventSubscriptions() {
+		if (!this._initialized) return
+		if (this._triggerUpdateEventSubscriptionsTimeout) {
+			clearTimeout(this._triggerUpdateEventSubscriptionsTimeout)
+		}
+		this._triggerUpdateEventSubscriptionsTimeout = setTimeout(() => {
+			this._updateEventSubscriptions().catch((e) => {
+				this.logger.error('Error in _updateEventSubscriptions', e)
+			})
+		}, 200)
+	}
+	private async _updateEventSubscriptions() {
+		const subscriptionDocs = this._coreHandler.core
+			.getCollection(PeripheralDevicePubSubCollectionsNames.externalEventSubscriptions)
+			.find({})
+
+		this.logger.debug(`_updateEventSubscriptions: ${subscriptionDocs.length} subscription doc(s) in collection`)
+
+		// Aggregate subscriptions, group by deviceId
+		const subscriptionsByDeviceId = new Map<string, Set<string>>()
+		for (const sub of subscriptionDocs) {
+			if (sub.type !== 'tsr') continue
+
+			let events = subscriptionsByDeviceId.get(sub.deviceId)
+			if (!events) {
+				events = new Set()
+				subscriptionsByDeviceId.set(sub.deviceId, events)
+			}
+			events.add(sub.event)
+		}
+
+		if (subscriptionsByDeviceId.size === 0) {
+			this.logger.debug('_updateEventSubscriptions: no subscriptions — clearing all devices')
+		}
+
+		await Promise.allSettled(
+			_.map(this.tsr.connectionManager.getConnections(), async (container) => {
+				const events = subscriptionsByDeviceId.get(container.deviceId) ?? new Set<string>()
+				this.logger.debug(
+					`_updateEventSubscriptions: setting ${events.size} event subscription(s) on device "${container.deviceId}": [${Array.from(events).join(', ')}]`
+				)
+				await container.device.setEventSubscriptions(Array.from(events)).catch((e) => {
+					this.logger.error(
+						`Error setting event subscriptions for device "${container.deviceId}": ${stringifyError(e)}`
+					)
+				})
+			})
+		)
 	}
 	private async _updateDatastore() {
 		const datastoreCollection = this._coreHandler.core.getCollection(

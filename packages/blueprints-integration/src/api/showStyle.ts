@@ -18,6 +18,7 @@ import type {
 	IFixUpConfigContext,
 	IOnTakeContext,
 	IOnSetAsNextContext,
+	IExternalEventContext,
 } from '../context/index.js'
 import type { IngestAdlib, ExtendedIngestRundown, IngestRundown } from '../ingest.js'
 import type { IBlueprintExternalMessageQueueObj } from '../message.js'
@@ -52,6 +53,7 @@ import type { SofieIngestSegment } from '../ingest-types.js'
 import { PackageStatusMessage } from '@sofie-automation/shared-lib/dist/packageStatusMessages'
 import { BlueprintPlayoutPersistentStore } from '../context/playoutStore.js'
 import type { ITranslatableMessage } from '../translations.js'
+import type { BlueprintExternalEvent, BlueprintExternalEventSubscription } from '../externalEvent.js'
 
 export { PackageStatusMessage }
 
@@ -131,6 +133,17 @@ export interface ShowStyleBlueprintManifest<
 		actionId: string,
 		userData: ActionUserData,
 		triggerMode?: string
+	) => Promise<void>
+
+	/**
+	 * Handle a batch of external events (e.g. TSR device state changes).
+	 * Called when one or more events matching the rundown's {@link BlueprintResultRundown.externalEventSubscriptions} are received.
+	 * Events are batched to avoid queuing a handler per event during bursts.
+	 */
+	onExternalEvent?: (
+		context: IExternalEventContext,
+		playoutPersistentState: BlueprintPlayoutPersistentStore<TimelinePersistentState>,
+		events: BlueprintExternalEvent[]
 	) => Promise<void>
 
 	/** Execute an action defined by an IBlueprintActionManifest */
@@ -286,6 +299,8 @@ export interface BlueprintResultRundown {
 	globalActions: IBlueprintActionManifest[]
 	globalPieces?: IBlueprintRundownPiece[]
 	baseline: BlueprintResultBaseline
+	/** Subscriptions to external events (e.g. TSR device state changes) for this rundown */
+	externalEventSubscriptions?: BlueprintExternalEventSubscription[]
 }
 export interface BlueprintResultSegment {
 	segment: IBlueprintSegment
