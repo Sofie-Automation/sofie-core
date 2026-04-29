@@ -69,17 +69,6 @@ export default function RundownViewLayoutSettings({ sourceLayers, item, layouts 
 			</label>
 
 			<label className="field">
-				<LabelActual label={t('Rundown Header Layout')} />
-				<EditAttribute
-					attribute={'rundownHeaderLayout'}
-					obj={item}
-					options={filterLayouts(layouts, RundownLayoutsAPI.isLayoutForRundownHeader)}
-					type="dropdown"
-					collection={RundownLayouts}
-				></EditAttribute>
-			</label>
-
-			<label className="field">
 				<LabelActual label={t('Live line countdown requires Source Layer')} />
 				<div className="checkbox-enable-before">
 					<EditAttribute

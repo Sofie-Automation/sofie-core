@@ -14,7 +14,6 @@ export enum RundownLayoutType {
 	RUNDOWN_VIEW_LAYOUT = 'rundown_view_layout',
 	RUNDOWN_LAYOUT = 'rundown_layout',
 	DASHBOARD_LAYOUT = 'dashboard_layout',
-	RUNDOWN_HEADER_LAYOUT = 'rundown_header_layout',
 	MINI_SHELF_LAYOUT = 'mini_shelf_layout',
 	CLOCK_PRESENTER_VIEW_LAYOUT = 'clock_presenter_view_layout',
 }
@@ -23,7 +22,6 @@ export enum CustomizableRegions {
 	RundownView = 'rundown_view_layouts',
 	Shelf = 'shelf_layouts',
 	MiniShelf = 'mini_shelf_layouts',
-	RundownHeader = 'rundown_header_layouts',
 	PresenterView = 'presenter_view_layouts',
 }
 
@@ -349,7 +347,6 @@ export interface RundownViewLayout extends RundownLayoutBase {
 	exposeAsSelectableLayout: boolean
 	shelfLayout: RundownLayoutId
 	miniShelfLayout: RundownLayoutId
-	rundownHeaderLayout: RundownLayoutId
 	liveLineProps?: RequiresActiveLayers
 	/** Hide the rundown divider header in playlists */
 	hideRundownDivider: boolean
@@ -380,18 +377,6 @@ export interface RundownLayoutShelfBase extends RundownLayoutWithFilters {
 
 export interface RundownLayout extends RundownLayoutShelfBase {
 	type: RundownLayoutType.RUNDOWN_LAYOUT
-}
-
-export interface RundownLayoutRundownHeader extends RundownLayoutBase {
-	type: RundownLayoutType.RUNDOWN_HEADER_LAYOUT
-	plannedEndText: string
-	nextBreakText: string
-	/** When true, hide the Planned End timer when there is a rundown marked as a break in the future */
-	hideExpectedEndBeforeBreak: boolean
-	/** When a rundown is marked as a break, show the Next Break timing */
-	showNextBreakTiming: boolean
-	/** If true, don't treat the last rundown as a break even if it's marked as one */
-	lastRundownIsNotBreak: boolean
 }
 
 export interface RundownLayoutPresenterView extends RundownLayoutBase {

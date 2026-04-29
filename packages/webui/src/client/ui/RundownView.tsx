@@ -52,7 +52,6 @@ import {
 	type RundownLayoutBase,
 	type RundownViewLayout,
 	type RundownLayoutShelfBase,
-	type RundownLayoutRundownHeader,
 	type RundownLayoutFilterBase,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import { VirtualElement } from '../lib/VirtualElement.js'
@@ -180,7 +179,6 @@ interface ITrackedProps {
 
 	selectedShelfLayout: RundownLayoutShelfBase | undefined
 	selectedViewLayout: RundownViewLayout | undefined
-	selectedHeaderLayout: RundownLayoutRundownHeader | undefined
 	selectedMiniShelfLayout: RundownLayoutShelfBase | undefined
 
 	/** MiniShelf data */
@@ -1408,15 +1406,9 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 												<RundownHeader
 													playlist={playlist}
 													studio={studio}
-													rundownIds={this.props.rundowns.map((r) => r._id)}
 													firstRundown={this.props.rundowns[0]}
-													onActivate={this.onActivate}
-													inActiveRundownView={this.props.inActiveRundownView}
 													currentRundown={currentRundown}
 													rundownCount={this.props.rundowns.length}
-													layout={this.props.selectedHeaderLayout}
-													showStyleBase={showStyleBase}
-													showStyleVariant={showStyleVariant}
 												/>
 											</ErrorBoundary>
 										)}
@@ -1661,7 +1653,6 @@ function findRundownLayouts(rundownLayouts: RundownLayoutBase[] | undefined, par
 	const shelfLayoutId = protectString<RundownLayoutId>(
 		(params['layout'] as string) || (params['shelfLayout'] as string) || ''
 	)
-	const rundownHeaderLayoutId = protectString<RundownLayoutId>((params['rundownHeaderLayout'] as string) || '')
 
 	const selectedViewLayout = useMemo(() => {
 		if (!rundownLayouts) return undefined
@@ -1750,38 +1741,8 @@ function findRundownLayouts(rundownLayouts: RundownLayoutBase[] | undefined, par
 		return selectedShelfLayout
 	}, [rundownLayouts, shelfLayoutId, selectedViewLayout])
 
-	const selectedHeaderLayout = useMemo(() => {
-		if (!rundownLayouts) return undefined
-
-		const possibleHeaderLayouts = rundownLayouts.filter((layout) => RundownLayoutsAPI.isLayoutForRundownHeader(layout))
-
-		// first try to use the one selected by the user
-		let selectedHeaderLayout = possibleHeaderLayouts.find((i) => i._id === rundownHeaderLayoutId)
-
-		// if couldn't find based on id, try matching part of the name
-		if (rundownHeaderLayoutId && !selectedHeaderLayout) {
-			selectedHeaderLayout = possibleHeaderLayouts.find((i) => i.name.includes(unprotectString(rundownHeaderLayoutId)))
-		}
-
-		// Try to load defaults from rundown view layouts
-		if (selectedViewLayout && RundownLayoutsAPI.isLayoutForRundownView(selectedViewLayout)) {
-			if (!selectedHeaderLayout && selectedViewLayout.rundownHeaderLayout) {
-				selectedHeaderLayout = possibleHeaderLayouts.find((i) => i._id === selectedViewLayout.rundownHeaderLayout)
-			}
-		}
-
-		// if still not found, use the first one - this is a fallback functionality reserved for Shelf layouts
-		// To be removed once Rundown View Layouts/Shelf layouts are refactored
-		if (!selectedHeaderLayout) {
-			selectedHeaderLayout = possibleHeaderLayouts.find((layout) => RundownLayoutsAPI.isDefaultLayout(layout))
-		}
-
-		return selectedHeaderLayout
-	}, [rundownLayouts, rundownHeaderLayoutId, selectedViewLayout])
-
 	return {
 		selectedViewLayout,
-		selectedHeaderLayout,
 		selectedMiniShelfLayout,
 		selectedShelfLayout,
 	}

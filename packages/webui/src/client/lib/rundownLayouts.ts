@@ -34,7 +34,6 @@ import {
 	type RundownLayoutPlaylistName,
 	type RundownLayoutPlaylistStartTimer,
 	type RundownLayoutPresenterView,
-	type RundownLayoutRundownHeader,
 	type RundownLayoutSegmentName,
 	type RundownLayoutSegmentTiming,
 	type RundownLayoutShelfBase,
@@ -200,7 +199,6 @@ class RundownLayoutsRegistry {
 	private shelfLayouts: Map<RundownLayoutType, LayoutDescriptor> = new Map()
 	private rundownViewLayouts: Map<RundownLayoutType, LayoutDescriptor> = new Map()
 	private miniShelfLayouts: Map<RundownLayoutType, LayoutDescriptor> = new Map()
-	private rundownHeaderLayouts: Map<RundownLayoutType, LayoutDescriptor> = new Map()
 	private presenterViewLayouts: Map<RundownLayoutType, LayoutDescriptor> = new Map()
 
 	public registerShelfLayout(id: RundownLayoutType, description: LayoutDescriptor) {
@@ -213,10 +211,6 @@ class RundownLayoutsRegistry {
 
 	public registerMiniShelfLayout(id: RundownLayoutType, description: LayoutDescriptor) {
 		this.miniShelfLayouts.set(id, description)
-	}
-
-	public registerRundownHeaderLayouts(id: RundownLayoutType, description: LayoutDescriptor) {
-		this.rundownHeaderLayouts.set(id, description)
 	}
 
 	public registerPresenterViewLayout(id: RundownLayoutType, description: LayoutDescriptor) {
@@ -233,10 +227,6 @@ class RundownLayoutsRegistry {
 
 	public isMiniShelfLayout(regionId: CustomizableRegions) {
 		return regionId === CustomizableRegions.MiniShelf
-	}
-
-	public isRundownHeaderLayout(regionId: CustomizableRegions) {
-		return regionId === CustomizableRegions.RundownHeader
 	}
 
 	public isPresenterViewLayout(regionId: CustomizableRegions) {
@@ -276,12 +266,6 @@ class RundownLayoutsRegistry {
 				title: t('Mini Shelf Layouts'),
 				layouts: this.wrapToCustomizableRegionLayout(this.miniShelfLayouts, t),
 				navigationLink: (studioId, layoutId) => `/activeRundown/${studioId}?miniShelfLayout=${layoutId}`,
-			},
-			{
-				_id: CustomizableRegions.RundownHeader,
-				title: t('Rundown Header Layouts'),
-				layouts: this.wrapToCustomizableRegionLayout(this.rundownHeaderLayouts, t),
-				navigationLink: (studioId, layoutId) => `/activeRundown/${studioId}?rundownHeaderLayout=${layoutId}`,
 			},
 			{
 				_id: CustomizableRegions.PresenterView,
@@ -328,27 +312,6 @@ export namespace RundownLayoutsAPI {
 	registry.registerRundownViewLayout(RundownLayoutType.RUNDOWN_VIEW_LAYOUT, {
 		supportedFilters: [],
 	})
-	registry.registerRundownHeaderLayouts(RundownLayoutType.RUNDOWN_HEADER_LAYOUT, {
-		supportedFilters: [],
-	})
-	registry.registerRundownHeaderLayouts(RundownLayoutType.DASHBOARD_LAYOUT, {
-		filtersTitle: 'Layout Elements',
-		supportedFilters: [
-			RundownLayoutElementType.PIECE_COUNTDOWN,
-			RundownLayoutElementType.PLAYLIST_START_TIMER,
-			RundownLayoutElementType.PLAYLIST_END_TIMER,
-			RundownLayoutElementType.NEXT_BREAK_TIMING,
-			RundownLayoutElementType.END_WORDS,
-			RundownLayoutElementType.SEGMENT_TIMING,
-			RundownLayoutElementType.PART_TIMING,
-			RundownLayoutElementType.TEXT_LABEL,
-			RundownLayoutElementType.PLAYLIST_NAME,
-			RundownLayoutElementType.TIME_OF_DAY,
-			RundownLayoutElementType.SHOWSTYLE_DISPLAY,
-			RundownLayoutElementType.SYSTEM_STATUS,
-			RundownLayoutElementType.COLORED_BOX,
-		],
-	})
 	registry.registerPresenterViewLayout(RundownLayoutType.CLOCK_PRESENTER_VIEW_LAYOUT, {
 		supportedFilters: [],
 	})
@@ -393,10 +356,6 @@ export namespace RundownLayoutsAPI {
 		return registry.isMiniShelfLayout(layout.regionId)
 	}
 
-	export function isLayoutForRundownHeader(layout: RundownLayoutBase): layout is RundownLayoutRundownHeader {
-		return registry.isRundownHeaderLayout(layout.regionId)
-	}
-
 	export function isRundownViewLayout(layout: RundownLayoutBase): layout is RundownViewLayout {
 		return layout.type === RundownLayoutType.RUNDOWN_VIEW_LAYOUT
 	}
@@ -409,10 +368,6 @@ export namespace RundownLayoutsAPI {
 	export function isDashboardLayout(layout: RundownLayoutBase): layout is DashboardLayout {
 		// we need to check if filters are defined, because DashboardLayout is a RundownLayoutWithFilters, and RundownLayoutBase doesn't require it
 		return layout.type === RundownLayoutType.DASHBOARD_LAYOUT && (layout as DashboardLayout).filters !== undefined
-	}
-
-	export function isRundownHeaderLayout(layout: RundownLayoutBase): layout is RundownLayoutRundownHeader {
-		return layout.type === RundownLayoutType.RUNDOWN_HEADER_LAYOUT
 	}
 
 	export function isDefaultLayout(layout: RundownLayoutBase): boolean {
