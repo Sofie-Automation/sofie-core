@@ -1,8 +1,4 @@
-import {
-	IBlueprintPieceType,
-	PieceLifespan,
-	PlaylistTimingType,
-} from '@sofie-automation/blueprints-integration'
+import { IBlueprintPieceType, PieceLifespan, PlaylistTimingType } from '@sofie-automation/blueprints-integration'
 import { ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import {

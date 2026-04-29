@@ -17,7 +17,7 @@ import {
 	LabelAndOverridesForInt,
 } from '../../../lib/Components/LabelAndOverrides.js'
 import { catchError } from '../../../lib/lib.js'
-import { ForceQuickLoopAutoNext } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
+import { ForceQuickLoopAutoNext, ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 import type { SomeObjectOverrideOp } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { useOverrideOpHelperForSimpleObject } from '../util/OverrideOpHelper.js'
 import { IntInputControl } from '../../../lib/Components/IntInput.js'
@@ -27,7 +27,6 @@ import { TextInputControl } from '../../../lib/Components/TextInput.js'
 import { DropdownInputControl, type DropdownInputOption } from '../../../lib/Components/DropdownInput.js'
 import { useTracker } from '../../../lib/ReactMeteorData/ReactMeteorData.js'
 import Button from 'react-bootstrap/Button'
-import { ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 
 interface IStudioGenericPropertiesProps {
 	studio: DBStudio

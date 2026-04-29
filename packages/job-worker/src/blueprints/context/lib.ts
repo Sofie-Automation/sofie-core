@@ -402,6 +402,8 @@ export function convertSegmentToBlueprints(segment: ReadonlyDeep<DBSegment>): IB
 		identifier: segment.identifier,
 		displayAs: segment.displayAs,
 		displayMinishelf: segment.displayMinishelf,
+		// Legacy compatibility field. This should never be set by Core.
+		showShelf: undefined,
 		segmentTiming: segment.segmentTiming,
 		userEditOperations: translateUserEditsToBlueprint(segment.userEditOperations),
 		userEditProperties: translateUserEditPropertiesToBlueprint(segment.userEditProperties),

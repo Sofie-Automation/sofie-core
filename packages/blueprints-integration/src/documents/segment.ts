@@ -48,6 +48,13 @@ export interface IBlueprintSegment<TPrivateData = unknown, TPublicData = unknown
 	 * - large/compact: show minishelf, force that size
 	 */
 	displayMinishelf?: ShelfButtonSize
+
+	/**
+	 * @deprecated Use `displayMinishelf` instead.
+	 * - `true`: show minishelf, using studio default size (equivalent to `displayMinishelf: 'inherit'`)
+	 * - `false`: hide minishelf (equivalent to `displayMinishelf: undefined`)
+	 */
+	showShelf?: boolean
 	/** Segment display mode. Default mode is *SegmentDisplayMode.Timeline* */
 	displayAs?: SegmentDisplayMode
 

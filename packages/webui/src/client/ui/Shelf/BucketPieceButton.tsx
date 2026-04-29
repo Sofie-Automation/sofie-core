@@ -1,8 +1,8 @@
-import { type PropsWithChildren } from 'react'
+import type { PropsWithChildren } from 'react'
 import type { IDashboardButtonProps } from './DashboardPieceButton/types'
 import { DashboardPieceButton } from './DashboardPieceButton/DashboardPieceButton.js'
 
-import { useDrop, useDrag, type DragSourceMonitor } from 'react-dnd'
+import { useDrop, useDrag } from 'react-dnd'
 import { DragDropItemTypes } from '../DragDropItemTypes.js'
 import type { BucketAdLib } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibPiece'
 import type { BucketAdLibActionUi, BucketAdLibItem } from './RundownViewBuckets.js'
@@ -59,9 +59,9 @@ export function BucketPieceButton(
 		},
 	})
 
-	const [, connectDragSource] = useDrag<IBucketPieceDragObject, {}, { isDragging: boolean }>({
+	const [, connectDragSource] = useDrag<IBucketPieceDragObject, IBucketPieceDropResult, { isDragging: boolean }>({
 		type: DragDropItemTypes.BUCKET_ADLIB_PIECE,
-		item: (_monitor: DragSourceMonitor) => {
+		item: () => {
 			return {
 				id: props.piece._id,
 				originalIndex: props.findAdLib(props.piece._id).index,
@@ -69,7 +69,7 @@ export function BucketPieceButton(
 			}
 		},
 
-		end: (item, monitor: DragSourceMonitor<IBucketPieceDragObject, IBucketPieceDropResult>) => {
+		end: (item, monitor) => {
 			const { id: droppedId, originalIndex } = item
 			const didDrop = monitor.didDrop()
 

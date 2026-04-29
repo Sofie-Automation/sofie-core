@@ -1,6 +1,5 @@
 import { Meteor } from 'meteor/meteor'
 import { useCallback, useMemo, useRef, useState } from 'react'
-import type React from 'react'
 import type { IPreviewPopUpContext } from '../../PreviewPopUp/PreviewPopUpContext.js'
 import type { ReadonlyDeep } from 'type-fest'
 import type { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
