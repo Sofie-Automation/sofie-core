@@ -2550,9 +2550,15 @@ svg.icon {
 		margin-bottom: 0 !important;
 	}
 
-	&:not(:first-child) {
-		div .segment-timeline {
-			margin-top: 0 !important;
+	+ .segment-timeline-wrapper--shelf:has(.rundown-view-shelf) {
+		margin-bottom: -0.8em !important;
+	}
+
+	+ .segment-timeline-wrapper--hidden {
+		+ .segment-timeline-wrapper--shelf:has(.rundown-view-shelf) {
+			.segment-timeline {
+				margin-top: 0 !important;
+			}
 		}
 	}
 }
