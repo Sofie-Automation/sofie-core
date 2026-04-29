@@ -21,7 +21,6 @@ import {
 	type RundownLayoutColoredBox,
 	type RundownLayoutElementBase,
 	RundownLayoutElementType,
-	type RundownLayoutEndWords,
 	type RundownLayoutExternalFrame,
 	type RundownLayoutFilterBase,
 	type RundownLayoutMiniRundown,
@@ -37,9 +36,7 @@ import {
 	type RundownLayoutSegmentName,
 	type RundownLayoutSegmentTiming,
 	type RundownLayoutShelfBase,
-	type RundownLayoutShowStyleDisplay,
 	type RundownLayoutStudioName,
-	type RundownLayoutSytemStatus,
 	type RundownLayoutTextLabel,
 	type RundownLayoutTimeOfDay,
 	RundownLayoutType,
@@ -416,10 +413,6 @@ export namespace RundownLayoutsAPI {
 		return element.type === RundownLayoutElementType.NEXT_BREAK_TIMING
 	}
 
-	export function isEndWords(element: RundownLayoutElementBase): element is RundownLayoutEndWords {
-		return element.type === RundownLayoutElementType.END_WORDS
-	}
-
 	export function isSegmentTiming(element: RundownLayoutElementBase): element is RundownLayoutSegmentTiming {
 		return element.type === RundownLayoutElementType.SEGMENT_TIMING
 	}
@@ -442,14 +435,6 @@ export namespace RundownLayoutsAPI {
 
 	export function isTimeOfDay(element: RundownLayoutElementBase): element is RundownLayoutTimeOfDay {
 		return element.type === RundownLayoutElementType.TIME_OF_DAY
-	}
-
-	export function isSystemStatus(element: RundownLayoutElementBase): element is RundownLayoutSytemStatus {
-		return element.type === RundownLayoutElementType.SYSTEM_STATUS
-	}
-
-	export function isShowStyleDisplay(element: RundownLayoutElementBase): element is RundownLayoutShowStyleDisplay {
-		return element.type === RundownLayoutElementType.SHOWSTYLE_DISPLAY
 	}
 
 	export function isSegmentName(element: RundownLayoutElementBase): element is RundownLayoutSegmentName {
