@@ -1,4 +1,4 @@
-import { DDPClient, DDPConnectorOptions } from '../../index.js'
+import { DDPClient, type DDPConnectorOptions } from '../../index.js'
 jest.mock('ws')
 
 const wait = async (t: number): Promise<void> =>

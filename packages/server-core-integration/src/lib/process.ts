@@ -1,5 +1,5 @@
 import * as fs from 'fs'
-import { DDPTLSOptions } from './ddpClient.js'
+import type { DDPTLSOptions } from './ddpClient.js'
 
 export interface CertificatesConfig {
 	/** Will cause the Node application to blindly accept all certificates. Not recommended unless in local, controlled networks. */

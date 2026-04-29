@@ -1,12 +1,12 @@
-import { PeripheralDeviceId } from '@sofie-automation/shared-lib/dist/core/model/Ids'
-import {
+import type { PeripheralDeviceId } from '@sofie-automation/shared-lib/dist/core/model/Ids.js'
+import type {
 	NewPeripheralDeviceAPI,
 	PeripheralDeviceAPIMethods,
-} from '@sofie-automation/shared-lib/dist/peripheralDevice/methodsAPI'
+} from '@sofie-automation/shared-lib/dist/peripheralDevice/methodsAPI.js'
 import _ from 'underscore'
-import { CoreConnection, CoreCredentials } from './coreConnection.js'
-import { DDPError } from './ddpClient.js'
-import { DDPConnector } from './ddpConnector.js'
+import type { CoreConnection, CoreCredentials } from './coreConnection.js'
+import type { DDPError } from './ddpClient.js'
+import type { DDPConnector } from './ddpConnector.js'
 
 export function makeMethods(connection: Pick<CoreConnection, 'callMethodRaw'>, methods: object): any {
 	const o: any = {}

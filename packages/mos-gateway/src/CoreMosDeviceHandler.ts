@@ -5,6 +5,8 @@ import {
 	Observer,
 	PeripheralDevicePubSub,
 	stringifyError,
+	CoreConnectionChild,
+	Queue,
 } from '@sofie-automation/server-core-integration'
 import {
 	IMOSConnectionStatus,
@@ -33,8 +35,6 @@ import _ from 'underscore'
 import { MosHandler } from './mosHandler.js'
 import { PartialDeep } from 'type-fest'
 import type { CoreHandler } from './coreHandler.js'
-import { CoreConnectionChild } from '@sofie-automation/server-core-integration/dist/lib/CoreConnectionChild'
-import { Queue } from '@sofie-automation/server-core-integration/dist/lib/queue'
 import {
 	mosDeviceConnectedGauge,
 	mosMessagesFailedCounter,

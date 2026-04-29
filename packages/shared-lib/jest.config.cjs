@@ -18,7 +18,7 @@ module.exports = {
 		'(.+)\\.js$': '$1',
 	},
 	testMatch: ['**/__tests__/**/*.(spec|test).(ts|js)'],
-	testPathIgnorePatterns: ['integrationTests'],
+	testPathIgnorePatterns: ['integrationTests', '/dist/'],
 	testEnvironment: 'node',
 	// coverageThreshold: {
 	// 	global: {

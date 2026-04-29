@@ -2,6 +2,7 @@
 	"extends": "./tsconfig.build.json",
 	"exclude": ["node_modules/**"],
 	"compilerOptions": {
-		"types": ["jest", "node"]
+		"types": ["jest", "node"],
+		"verbatimModuleSyntax": false
 	}
 }

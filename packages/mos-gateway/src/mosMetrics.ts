@@ -1,7 +1,4 @@
-import {
-	MetricsCounter,
-	MetricsGauge,
-} from '@sofie-automation/server-core-integration/dist/lib/prometheus'
+import { MetricsCounter, MetricsGauge } from '@sofie-automation/server-core-integration'
 
 export const mosDevicesTotalGauge = new MetricsGauge({
 	name: 'sofie_mos_gateway_devices_total',

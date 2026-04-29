@@ -8,7 +8,7 @@ import {
 } from './utils.js'
 import { ShowStyleBaseExt } from '../../collections/showStyleBaseHandler.js'
 import { SelectedPartInstances } from '../../collections/partInstancesHandler.js'
-import { protectString, unprotectString, unprotectStringArray } from '@sofie-automation/server-core-integration/dist'
+import { protectString, unprotectString, unprotectStringArray } from '@sofie-automation/server-core-integration'
 import { PartialDeep } from 'type-fest'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
