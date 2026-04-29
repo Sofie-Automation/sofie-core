@@ -14,7 +14,6 @@ export enum RundownLayoutType {
 	RUNDOWN_VIEW_LAYOUT = 'rundown_view_layout',
 	RUNDOWN_LAYOUT = 'rundown_layout',
 	DASHBOARD_LAYOUT = 'dashboard_layout',
-	RUNDOWN_HEADER_LAYOUT = 'rundown_header_layout',
 	MINI_SHELF_LAYOUT = 'mini_shelf_layout',
 	CLOCK_PRESENTER_VIEW_LAYOUT = 'clock_presenter_view_layout',
 }
@@ -23,7 +22,6 @@ export enum CustomizableRegions {
 	RundownView = 'rundown_view_layouts',
 	Shelf = 'shelf_layouts',
 	MiniShelf = 'mini_shelf_layouts',
-	RundownHeader = 'rundown_header_layouts',
 	PresenterView = 'presenter_view_layouts',
 }
 
@@ -47,15 +45,12 @@ export enum RundownLayoutElementType {
 	PLAYLIST_START_TIMER = 'playlist_start_timer',
 	PLAYLIST_END_TIMER = 'playlist_end_timer',
 	NEXT_BREAK_TIMING = 'next_break_timing',
-	END_WORDS = 'end_words',
 	SEGMENT_TIMING = 'segment_timing',
 	PART_TIMING = 'part_timing',
 	TEXT_LABEL = 'text_label',
 	PLAYLIST_NAME = 'playlist_name',
 	STUDIO_NAME = 'studio_name',
 	TIME_OF_DAY = 'time_of_day',
-	SYSTEM_STATUS = 'system_status',
-	SHOWSTYLE_DISPLAY = 'showstyle_display',
 	SEGMENT_NAME = 'segment_name',
 	PART_NAME = 'part_name',
 	COLORED_BOX = 'colored_box',
@@ -155,11 +150,6 @@ export interface RundownLayoutNextBreakTiming extends RundownLayoutElementBase {
 	type: RundownLayoutElementType.NEXT_BREAK_TIMING
 }
 
-export interface RundownLayoutEndWords extends RundownLayoutElementBase, RequiresActiveLayers {
-	type: RundownLayoutElementType.PLAYLIST_END_TIMER
-	hideLabel: boolean
-}
-
 export interface RundownLayoutSegmentTiming extends RundownLayoutElementBase, RequiresActiveLayers {
 	type: RundownLayoutElementType.SEGMENT_TIMING
 	timingType: 'count_down' | 'count_up'
@@ -190,14 +180,6 @@ export interface RundownLayoutStudioName extends RundownLayoutElementBase {
 export interface RundownLayoutTimeOfDay extends RundownLayoutElementBase {
 	type: RundownLayoutElementType.TIME_OF_DAY
 	hideLabel: boolean
-}
-
-export interface RundownLayoutSytemStatus extends RundownLayoutElementBase {
-	type: RundownLayoutElementType.SYSTEM_STATUS
-}
-
-export interface RundownLayoutShowStyleDisplay extends RundownLayoutElementBase {
-	type: RundownLayoutElementType.SHOWSTYLE_DISPLAY
 }
 
 export interface RundownLayoutSegmentName extends RundownLayoutElementBase {
@@ -287,15 +269,12 @@ export type DashboardLayoutNextInfo = DashboardPanel<RundownLayoutNextInfo>
 export type DashboardLayoutPlaylistStartTimer = DashboardPanel<RundownLayoutPlaylistStartTimer>
 export type DashboardLayoutNextBreakTiming = DashboardPanel<RundownLayoutNextBreakTiming>
 export type DashboardLayoutPlaylistEndTimer = DashboardPanel<RundownLayoutPlaylistEndTimer>
-export type DashboardLayoutEndsWords = DashboardPanel<RundownLayoutEndWords>
 export type DashboardLayoutSegmentCountDown = DashboardPanel<RundownLayoutSegmentTiming>
 export type DashboardLayoutPartCountDown = DashboardPanel<RundownLayoutPartTiming>
 export type DashboardLayoutTextLabel = DashboardPanel<RundownLayoutTextLabel>
 export type DashboardLayoutPlaylistName = DashboardPanel<RundownLayoutPlaylistName>
 export type DashboardLayoutStudioName = DashboardPanel<RundownLayoutStudioName>
 export type DashboardLayoutTimeOfDay = DashboardPanel<RundownLayoutTimeOfDay>
-export type DashboardLayoutSystemStatus = DashboardPanel<RundownLayoutSytemStatus>
-export type DashboardLayoutShowStyleDisplay = DashboardPanel<RundownLayoutShowStyleDisplay>
 export type DashboardLayoutSegmentName = DashboardPanel<RundownLayoutSegmentName>
 export type DashboardLayoutPartName = DashboardPanel<RundownLayoutPartName>
 export type DashboardLayoutColoredBox = DashboardPanel<RundownLayoutColoredBox>
@@ -349,7 +328,6 @@ export interface RundownViewLayout extends RundownLayoutBase {
 	exposeAsSelectableLayout: boolean
 	shelfLayout: RundownLayoutId
 	miniShelfLayout: RundownLayoutId
-	rundownHeaderLayout: RundownLayoutId
 	liveLineProps?: RequiresActiveLayers
 	/** Hide the rundown divider header in playlists */
 	hideRundownDivider: boolean
@@ -380,18 +358,6 @@ export interface RundownLayoutShelfBase extends RundownLayoutWithFilters {
 
 export interface RundownLayout extends RundownLayoutShelfBase {
 	type: RundownLayoutType.RUNDOWN_LAYOUT
-}
-
-export interface RundownLayoutRundownHeader extends RundownLayoutBase {
-	type: RundownLayoutType.RUNDOWN_HEADER_LAYOUT
-	plannedEndText: string
-	nextBreakText: string
-	/** When true, hide the Planned End timer when there is a rundown marked as a break in the future */
-	hideExpectedEndBeforeBreak: boolean
-	/** When a rundown is marked as a break, show the Next Break timing */
-	showNextBreakTiming: boolean
-	/** If true, don't treat the last rundown as a break even if it's marked as one */
-	lastRundownIsNotBreak: boolean
 }
 
 export interface RundownLayoutPresenterView extends RundownLayoutBase {

@@ -5,9 +5,6 @@ import ClassNames from 'classnames'
 import { NavLink } from 'react-router-dom'
 import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import type { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import type { RundownLayoutRundownHeader } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import type { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
-import type { RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import Navbar from 'react-bootstrap/Navbar'
 import { RundownContextMenu, RundownHeaderContextMenuTrigger, RundownHamburgerButton } from './RundownContextMenu'
 import { TimeOfDay } from '../RundownTiming/TimeOfDay'
@@ -22,21 +19,14 @@ import { RundownHeaderDurations } from './RundownHeaderDurations'
 import { RundownHeaderExpectedEnd } from './RundownHeaderExpectedEnd'
 import { HeaderFreezeFrameIcon } from './HeaderFreezeFrameIcon'
 import './RundownHeader.scss'
-import type { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase'
 import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio'
 
 interface IRundownHeaderProps {
 	playlist: DBRundownPlaylist
-	showStyleBase: UIShowStyleBase
-	showStyleVariant: DBShowStyleVariant
 	currentRundown: Rundown | undefined
 	studio: UIStudio
-	rundownIds: RundownId[]
 	firstRundown: Rundown | undefined
 	rundownCount: number
-	onActivate?: (isRehearsal: boolean) => void
-	inActiveRundownView?: boolean
-	layout: RundownLayoutRundownHeader | undefined
 }
 
 export function RundownHeader({
