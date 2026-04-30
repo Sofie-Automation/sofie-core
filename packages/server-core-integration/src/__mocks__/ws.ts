@@ -80,7 +80,7 @@ class MockWebSocket extends EventEmitter {
 							})
 						)
 					)
-					if ((message.params![2] as any).messages[0].indexOf('Jest ') >= 0) {
+					if ((message.params![2] as any).statusDetails?.[0]?.message?.indexOf('Jest ') >= 0) {
 						this.emit(
 							'message',
 							EJSON.stringify(

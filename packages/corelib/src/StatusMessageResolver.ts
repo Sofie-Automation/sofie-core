@@ -1,0 +1,149 @@
+import { BlueprintId } from './dataModel/Ids.js'
+import { generateTranslation } from './lib.js'
+import { ITranslatableMessage, wrapTranslatableMessageFromBlueprints } from './TranslatableMessage.js'
+import { SystemErrorCode } from '@sofie-automation/shared-lib/dist/systemErrorMessages'
+import type { DeviceStatusContext, DeviceStatusMessageFunction } from '@sofie-automation/blueprints-integration'
+
+// Re-export for consumers of corelib
+export type { DeviceStatusContext, DeviceStatusMessageFunction }
+
+/**
+ * Default error messages for system errors
+ */
+const DEFAULT_SYSTEM_ERROR_MESSAGES: Record<SystemErrorCode, ITranslatableMessage> = {
+	[SystemErrorCode.DATABASE_CONNECTION_LOST]: generateTranslation('Database connection to {{database}} lost'),
+	[SystemErrorCode.INSUFFICIENT_RESOURCES]: generateTranslation(
+		'Insufficient {{resource}}: {{available}} available, {{required}} required'
+	),
+	[SystemErrorCode.SERVICE_UNAVAILABLE]: generateTranslation('Service {{service}} unavailable: {{reason}}'),
+}
+
+/**
+ * Device status messages map - can contain string templates or functions.
+ * Functions are evaluated at runtime, strings use {{variable}} interpolation.
+ */
+export type DeviceStatusMessages = Record<string, string | DeviceStatusMessageFunction | undefined>
+
+/**
+ * System error messages map - string templates only.
+ * Uses {{variable}} interpolation.
+ */
+export type SystemErrorMessages = Partial<Record<SystemErrorCode | string, string | undefined>>
+
+/**
+ * Resolves status messages with blueprint customizations.
+ * Works with runtime blueprint manifests (evaluated at setStatus time).
+ *
+ * For device statuses, the default message templates come from TSR devices.
+ * Studio blueprints can override these by providing custom templates or functions in deviceStatusMessages.
+ *
+ * For system errors, System blueprints can override the defaults in systemErrorMessages.
+ *
+ * @example
+ * ```typescript
+ * import { AtemStatusCode, AtemStatusMessages } from 'timeline-state-resolver-types'
+ *
+ * // Get blueprint manifest at runtime (from evalBlueprint or similar)
+ * const studioManifest = await getBlueprintManifest(studioBlueprintId)
+ *
+ * // Create resolver for device statuses
+ * const resolver = new StatusMessageResolver(
+ *   studioManifest.deviceStatusMessages
+ * )
+ *
+ * // Resolve device status - pass default message from TSR
+ * const message = resolver.getDeviceStatusMessage(
+ *   AtemStatusCode.DISCONNECTED,
+ *   { deviceName: 'Vision Mixer', host: '192.168.1.10' },
+ *   AtemStatusMessages[AtemStatusCode.DISCONNECTED]
+ * )
+ * ```
+ */
+export class StatusMessageResolver {
+	readonly #blueprintId: BlueprintId | undefined
+	readonly #deviceStatusMessages: DeviceStatusMessages | undefined
+	readonly #systemErrorMessages: SystemErrorMessages | undefined
+
+	constructor(
+		blueprintId: BlueprintId | undefined,
+		deviceStatusMessages?: DeviceStatusMessages,
+		systemErrorMessages?: SystemErrorMessages
+	) {
+		this.#blueprintId = blueprintId
+		this.#deviceStatusMessages = deviceStatusMessages
+		this.#systemErrorMessages = systemErrorMessages
+	}
+
+	/**
+	 * Get a translatable message for a device status.
+	 *
+	 * @param errorCode - The status code string from TSR (e.g., 'DEVICE_ATEM_DISCONNECTED')
+	 * @param context - Context values for message interpolation (deviceName, deviceId, and TSR status context)
+	 * @param defaultMessage - The default message template from TSR (e.g., 'ATEM disconnected')
+	 * @returns ITranslatableMessage with the resolved message, or null if suppressed
+	 */
+	getDeviceStatusMessage(
+		errorCode: string,
+		context: DeviceStatusContext,
+		defaultMessage: string
+	): ITranslatableMessage | null {
+		// Check blueprint messages from Studio blueprint manifest
+		if (this.#deviceStatusMessages) {
+			const blueprintMessage = this.#deviceStatusMessages[errorCode]
+
+			// Evaluate if function or use as string template
+			const result = typeof blueprintMessage === 'function' ? blueprintMessage(context) : blueprintMessage
+
+			if (result === '') {
+				// Empty string means suppress the message
+				return null
+			}
+
+			if (result) {
+				// Custom message from blueprint - wrap with blueprint namespace if ID provided
+				return this.#blueprintId
+					? wrapTranslatableMessageFromBlueprints({ key: result, args: context }, [this.#blueprintId])
+					: { key: result, args: context }
+			}
+
+			// undefined or not found - fall through to default
+		}
+
+		// Use default message from TSR as-is (TSR messages already include device name prefix)
+		return {
+			key: defaultMessage,
+			args: context,
+		}
+	}
+
+	/**
+	 * Get a translatable message for a system error.
+	 * Uses customizations from the System blueprint if available.
+	 */
+	getSystemErrorMessage(
+		errorCode: SystemErrorCode | string,
+		args: { [k: string]: unknown }
+	): ITranslatableMessage | null {
+		// Check blueprint messages from System blueprint manifest
+		if (this.#systemErrorMessages) {
+			const blueprintMessage = this.#systemErrorMessages[errorCode]
+
+			if (blueprintMessage === '') {
+				// Empty string means suppress the message
+				return null
+			}
+
+			if (blueprintMessage) {
+				return this.#blueprintId
+					? wrapTranslatableMessageFromBlueprints({ key: blueprintMessage, args }, [this.#blueprintId])
+					: { key: blueprintMessage, args }
+			}
+		}
+
+		// Use default message
+		return {
+			key: DEFAULT_SYSTEM_ERROR_MESSAGES[errorCode as SystemErrorCode]?.key ?? errorCode,
+			args,
+		}
+	}
+}

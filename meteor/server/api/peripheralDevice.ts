@@ -2,7 +2,14 @@ import { Meteor } from 'meteor/meteor'
 import { check, Match } from '../lib/check'
 import _ from 'underscore'
 import { PeripheralDeviceType, PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
-import { PeripheralDeviceCommands, PeripheralDevices, Rundowns, Studios, UserActionsLog } from '../collections'
+import {
+	PeripheralDeviceCommands,
+	PeripheralDevices,
+	Rundowns,
+	Studios,
+	UserActionsLog,
+	Blueprints,
+} from '../collections'
 import { stringifyObjects, literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { getCurrentTime } from '../lib/lib'
@@ -37,6 +44,7 @@ import {
 	PeripheralDeviceInitOptions,
 	PeripheralDeviceStatusObject,
 	TimelineTriggerTimeResult,
+	DeviceStatusDetail,
 } from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI'
 import { checkStudioExists } from '../optimizations'
 import {
@@ -65,8 +73,121 @@ import bodyParser from 'koa-bodyparser'
 import { assertConnectionHasOneOfPermissions } from '../security/auth'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { getRootSubpath } from '../lib'
+import { evalBlueprint } from './blueprints/cache'
+import { StudioBlueprintManifest } from '@sofie-automation/blueprints-integration'
+import { StatusMessageResolver } from '@sofie-automation/corelib'
+import { interpollateTranslation } from '@sofie-automation/corelib/dist/TranslatableMessage'
+import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
+import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 const apmNamespace = 'peripheralDevice'
+
+/**
+ * Resolve device status details using the Studio blueprint's deviceStatusMessages.
+ * This allows blueprints to customize status messages shown to operators.
+ *
+ * @param studioId - The studio ID to look up the blueprint
+ * @param deviceName - The peripheral device name (shorter than TSR's internal name)
+ * @param deviceId - The peripheral device ID
+ * @param statusDetails - Structured status details from TSR
+ * @param defaultMessages - The original messages from TSR (used as fallback)
+ */
+async function resolveDeviceStatusDetails(
+	studioId: StudioId,
+	deviceName: string,
+	deviceId: PeripheralDeviceId,
+	statusDetails: DeviceStatusDetail[],
+	defaultMessages: string[]
+): Promise<string[]> {
+	try {
+		// Get the studio and its blueprint
+		const studio = (await Studios.findOneAsync(studioId, {
+			projection: { blueprintId: 1 },
+		})) as Pick<DBStudio, 'blueprintId'> | undefined
+
+		if (!studio?.blueprintId) {
+			// No blueprint, return empty (caller will use original messages)
+			return []
+		}
+
+		// Get the blueprint code
+		const blueprint = (await Blueprints.findOneAsync(studio.blueprintId, {
+			projection: { _id: 1, name: 1, code: 1 },
+		})) as Pick<Blueprint, '_id' | 'name' | 'code'> | undefined
+
+		if (!blueprint) {
+			return []
+		}
+
+		// Evaluate the blueprint to get the manifest with deviceStatusMessages
+		const blueprintManifest = evalBlueprint(blueprint) as StudioBlueprintManifest
+
+		logger.debug(
+			`Blueprint ${blueprint._id} deviceStatusMessages keys: ${Object.keys(blueprintManifest.deviceStatusMessages ?? {}).join(', ')}`
+		)
+
+		if (!blueprintManifest.deviceStatusMessages) {
+			// Blueprint doesn't define any custom status messages
+			logger.debug(`Blueprint ${blueprint._id} has no deviceStatusMessages`)
+			return []
+		}
+
+		// Create resolver with the blueprint's status messages
+		const resolver = new StatusMessageResolver(
+			blueprint._id,
+			blueprintManifest.deviceStatusMessages,
+			undefined // No system error messages
+		)
+
+		// Resolve each status detail
+		const resolvedMessages: string[] = []
+		for (let i = 0; i < statusDetails.length; i++) {
+			const statusDetail = statusDetails[i]
+			// statusDetail.message is always pre-rendered by TSR; use it as fallback if no defaultMessages entry
+			const defaultMessage = defaultMessages[i] ?? statusDetail.message
+
+			if (!statusDetail.code) {
+				// No structured code - use the pre-rendered TSR message directly
+				resolvedMessages.push(defaultMessage)
+				continue
+			}
+
+			logger.debug(
+				`Resolving status code: ${statusDetail.code}, context: ${JSON.stringify(statusDetail.context)}`
+			)
+			const message = resolver.getDeviceStatusMessage(
+				statusDetail.code,
+				{
+					...statusDetail.context,
+					// Override with peripheral device info (TSR might have longer names)
+					deviceName,
+					deviceId: unprotectString(deviceId),
+				},
+				defaultMessage
+			)
+
+			if (message) {
+				// Interpolate the message template with context values
+				const interpolated = interpollateTranslation(message.key, message.args)
+				logger.debug(`Resolved message for ${statusDetail.code}: ${interpolated}`)
+				resolvedMessages.push(interpolated)
+				// Also mutate statusDetail.message so the UI can read from statusDetails[].message directly
+				statusDetail.message = interpolated
+			} else {
+				// Message suppressed by blueprint - clear the message so the UI doesn't show the raw TSR message
+				statusDetail.message = ''
+				logger.debug(`Message suppressed for ${statusDetail.code}`)
+			}
+		}
+
+		return resolvedMessages
+	} catch (e) {
+		// Log error but don't fail - fall back to original messages
+		logger.error(`Error resolving device status messages: ${e}`)
+		return []
+	}
+}
+
 export namespace ServerPeripheralDeviceAPI {
 	export async function initialize(
 		context: MethodContext,
@@ -141,6 +262,7 @@ export namespace ServerPeripheralDeviceAPI {
 				created: getCurrentTime(),
 				status: {
 					statusCode: StatusCode.UNKNOWN,
+					statusDetails: [],
 				},
 				connected: true,
 				connectionId: options.connectionId,
@@ -201,6 +323,37 @@ export namespace ServerPeripheralDeviceAPI {
 		check(status.statusCode, Number)
 		if (status.statusCode < StatusCode.UNKNOWN || status.statusCode > StatusCode.FATAL) {
 			throw new Meteor.Error(400, 'device status code is not known')
+		}
+
+		// Resolve status messages using Studio blueprint if structured status details are present
+		// Child devices (like casparcg0) don't have studioAndConfigId directly - get it from parent
+		let studioId = peripheralDevice.studioAndConfigId?.studioId
+		if (!studioId && peripheralDevice.parentDeviceId) {
+			const parentDevice = await PeripheralDevices.findOneAsync(peripheralDevice.parentDeviceId, {
+				projection: { studioAndConfigId: 1 },
+			})
+			studioId = parentDevice?.studioAndConfigId?.studioId
+		}
+
+		logger.info(
+			`Device ${deviceId} setStatus: statusDetails=${status.statusDetails.length}, messages=${status.messages?.length ?? 'undefined'}, studioId=${studioId ?? 'none'}`
+		)
+		if (status.statusDetails.length > 0) {
+			if (studioId) {
+				const resolvedMessages = await resolveDeviceStatusDetails(
+					studioId,
+					peripheralDevice.name,
+					peripheralDevice._id,
+					status.statusDetails,
+					status.messages ?? []
+				)
+				// Use blueprint-resolved messages if available, otherwise fall back to statusDetails messages
+				status.messages =
+					resolvedMessages.length > 0 ? resolvedMessages : status.statusDetails.map((d) => d.message)
+			} else {
+				// No studio context, derive messages directly from statusDetails
+				status.messages = status.statusDetails.map((d) => d.message)
+			}
 		}
 
 		// check if we have to update something:

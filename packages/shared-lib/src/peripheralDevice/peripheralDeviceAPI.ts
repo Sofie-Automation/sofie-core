@@ -1,6 +1,10 @@
 import { DeviceConfigManifest } from '../core/deviceConfigManifest.js'
 import { PeripheralDeviceId, RundownPlaylistId, PartInstanceId, PieceInstanceId } from '../core/model/Ids.js'
 import { StatusCode } from '../lib/status.js'
+import type { DeviceStatusDetail } from 'timeline-state-resolver-types'
+
+// Re-export for use in UI components
+export type { DeviceStatusDetail } from 'timeline-state-resolver-types'
 
 export interface PartPlaybackCallbackData {
 	rundownPlaylistId: RundownPlaylistId
@@ -76,6 +80,12 @@ export type PlayoutChangedResult = {
 export interface PeripheralDeviceStatusObject {
 	statusCode: StatusCode
 	messages?: Array<string>
+	/**
+	 * Structured status details for blueprint customization and UI display.
+	 * Blueprints can provide custom translations for status codes when present.
+	 * The messages array is derived from these details for backward compatibility.
+	 */
+	statusDetails: Array<DeviceStatusDetail>
 }
 // Note The actual type of a device is determined by the Category, Type and SubType
 export enum PeripheralDeviceCategory {

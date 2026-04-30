@@ -19,6 +19,7 @@ import { LIVE_STATUS_DEVICE_CONFIG } from './configManifest.js'
 import {
 	PeripheralDeviceCategory,
 	PeripheralDeviceType,
+	PeripheralDeviceStatusObject,
 } from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI'
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { PeripheralDeviceCommandId, StudioId } from '@sofie-automation/shared-lib/dist/core/model/Ids'
@@ -314,24 +315,21 @@ export class CoreHandler implements ICoreHandler {
 		this.logger.info('getDevicesInfo')
 		return []
 	}
-	getCoreStatus(): {
-		statusCode: StatusCode
-		messages: string[]
-	} {
+	getCoreStatus(): PeripheralDeviceStatusObject {
 		let statusCode = StatusCode.GOOD
-		const messages: Array<string> = []
+		const statusDetails: Array<{ message: string }> = []
 
 		if (!this._statusInitialized) {
 			statusCode = StatusCode.BAD
-			messages.push('Starting up...')
+			statusDetails.push({ message: 'Starting up...' })
 		}
 		if (this._statusDestroyed) {
 			statusCode = StatusCode.BAD
-			messages.push('Shut down')
+			statusDetails.push({ message: 'Shut down' })
 		}
 		return {
 			statusCode,
-			messages,
+			statusDetails,
 		}
 	}
 	async updateCoreStatus(): Promise<any> {

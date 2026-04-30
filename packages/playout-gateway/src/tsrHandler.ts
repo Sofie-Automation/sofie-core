@@ -242,6 +242,8 @@ export class TSRHandler {
 				{
 					statusCode: StatusCode.BAD,
 					messages: ['Device initialising...'],
+					statusDetails: [{ message: 'Device initialising...' }],
+					active: false,
 				},
 				false
 			)

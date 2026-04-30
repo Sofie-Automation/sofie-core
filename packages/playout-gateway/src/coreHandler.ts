@@ -14,7 +14,7 @@ import {
 	PeripheralDevicePubSubCollectionsNames,
 	ICoreHandler,
 } from '@sofie-automation/server-core-integration'
-import { MediaObject, DeviceOptionsAny, ActionExecutionResult } from 'timeline-state-resolver'
+import { MediaObject, DeviceOptionsAny, ActionExecutionResult, DeviceStatus } from 'timeline-state-resolver'
 import _ from 'underscore'
 import { DeviceConfig } from './connector.js'
 import { TSRHandler } from './tsrHandler.js'
@@ -375,24 +375,21 @@ export class CoreHandler implements ICoreHandler {
 
 		return Object.fromEntries(this._tsrHandler.getDebugStates().entries())
 	}
-	getCoreStatus(): {
-		statusCode: StatusCode
-		messages: string[]
-	} {
+	getCoreStatus(): PeripheralDeviceAPI.PeripheralDeviceStatusObject {
 		let statusCode = StatusCode.GOOD
-		const messages: string[] = []
+		const statusDetails: Array<{ message: string }> = []
 
 		if (!this._statusInitialized) {
 			statusCode = StatusCode.BAD
-			messages.push('Starting up...')
+			statusDetails.push({ message: 'Starting up...' })
 		}
 		if (this._statusDestroyed) {
 			statusCode = StatusCode.BAD
-			messages.push('Shut down')
+			statusDetails.push({ message: 'Shut down' })
 		}
 		return {
 			statusCode,
-			messages,
+			statusDetails,
 		}
 	}
 	async updateCoreStatus(): Promise<any> {
@@ -410,7 +407,7 @@ export class CoreTSRDeviceHandler {
 	private _hasGottenStatusChange = false
 	private _deviceStatus: PeripheralDeviceAPI.PeripheralDeviceStatusObject = {
 		statusCode: StatusCode.BAD,
-		messages: ['Starting up...'],
+		statusDetails: [{ message: 'Starting up...' }],
 	}
 	private disposed = false
 
@@ -441,7 +438,15 @@ export class CoreTSRDeviceHandler {
 
 		console.log('has got status? ' + this._hasGottenStatusChange)
 		if (!this._hasGottenStatusChange) {
-			this._deviceStatus = await this._device.device.getStatus()
+			const rawStatus = await this._device.device.getStatus()
+			if ('statusDetails' in rawStatus) {
+				this._deviceStatus = rawStatus
+			} else {
+				this._deviceStatus = {
+					statusCode: rawStatus.statusCode,
+					statusDetails: rawStatus.messages.map((m) => ({ message: m })),
+				}
+			}
 		}
 		this.sendStatus()
 		if (this.disposed) throw new Error('CoreTSRDeviceHandler cant init, is disposed')
@@ -475,13 +480,14 @@ export class CoreTSRDeviceHandler {
 		// setup observers
 		this._coreParentHandler.setupObserverForPeripheralDeviceCommands(this)
 	}
-	statusChanged(deviceStatus: Partial<PeripheralDeviceAPI.PeripheralDeviceStatusObject>, fromDevice = true): void {
+	statusChanged(deviceStatus: DeviceStatus, fromDevice = true): void {
 		console.log('device ' + this._deviceId + ' status set to ' + deviceStatus.statusCode)
 		if (fromDevice) this._hasGottenStatusChange = true
 
 		this._deviceStatus = {
 			...this._deviceStatus,
-			...deviceStatus,
+			statusCode: deviceStatus.statusCode,
+			statusDetails: deviceStatus.statusDetails ?? deviceStatus.messages.map((m) => ({ message: m })),
 		}
 		this.sendStatus()
 	}
@@ -535,7 +541,7 @@ export class CoreTSRDeviceHandler {
 
 		await this.core.setStatus({
 			statusCode: StatusCode.BAD,
-			messages: ['Uninitialized'],
+			statusDetails: [{ message: 'Uninitialized' }],
 		})
 
 		if (subdevice === 'removeSubDevice') await this.core.unInitialize()

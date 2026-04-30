@@ -92,24 +92,21 @@ export class CoreHandler implements ICoreHandler {
 
 		await this.updateCoreStatus()
 	}
-	getCoreStatus(): {
-		statusCode: StatusCode
-		messages: string[]
-	} {
+	getCoreStatus(): PeripheralDeviceAPI.PeripheralDeviceStatusObject {
 		let statusCode = StatusCode.GOOD
-		const messages: string[] = []
+		const statusDetails: Array<{ message: string }> = []
 
 		if (!this._isInitialized) {
 			statusCode = StatusCode.BAD
-			messages.push('Starting up...')
+			statusDetails.push({ message: 'Starting up...' })
 		}
 		if (this._isDestroyed) {
 			statusCode = StatusCode.FATAL
-			messages.push('Shut down')
+			statusDetails.push({ message: 'Shut down' })
 		}
 		return {
 			statusCode,
-			messages,
+			statusDetails,
 		}
 	}
 	async updateCoreStatus(): Promise<void> {

@@ -68,7 +68,7 @@ test('Integration: Test connection and basic Core functionality', async () => {
 
 	let statusResponse = await core.setStatus({
 		statusCode: StatusCode.WARNING_MAJOR,
-		messages: ['testing testing'],
+		statusDetails: [{ message: 'testing testing' }],
 	})
 
 	expect(statusResponse).toMatchObject({
@@ -77,6 +77,7 @@ test('Integration: Test connection and basic Core functionality', async () => {
 
 	statusResponse = await core.setStatus({
 		statusCode: StatusCode.GOOD,
+		statusDetails: [],
 	})
 
 	expect(statusResponse).toMatchObject({
@@ -130,6 +131,7 @@ test('Integration: Test connection and basic Core functionality', async () => {
 	await expect(
 		core.setStatus({
 			statusCode: StatusCode.GOOD,
+			statusDetails: [],
 		})
 	).rejects.toMatchObject({
 		error: 404,
@@ -285,7 +287,7 @@ test('Integration: autoSubscription', async () => {
 
 	await core.setStatus({
 		statusCode: StatusCode.GOOD,
-		messages: ['Jest A ' + Date.now()],
+		statusDetails: [{ message: 'Jest A ' + Date.now() }],
 	})
 	await wait(300)
 	expect(observerChanged).toHaveBeenCalledTimes(1)
@@ -303,7 +305,7 @@ test('Integration: autoSubscription', async () => {
 	observerChanged.mockClear()
 	await core.setStatus({
 		statusCode: StatusCode.GOOD,
-		messages: ['Jest B' + Date.now()],
+		statusDetails: [{ message: 'Jest B' + Date.now() }],
 	})
 	await wait(300)
 	expect(observerChanged).toHaveBeenCalledTimes(1)
@@ -404,7 +406,7 @@ test('Integration: Parent connections', async () => {
 	// Set some statuses:
 	let statusResponse = await coreChild.setStatus({
 		statusCode: StatusCode.WARNING_MAJOR,
-		messages: ['testing testing'],
+		statusDetails: [{ message: 'testing testing' }],
 	})
 
 	expect(statusResponse).toMatchObject({
@@ -413,6 +415,7 @@ test('Integration: Parent connections', async () => {
 
 	statusResponse = await coreChild.setStatus({
 		statusCode: StatusCode.GOOD,
+		statusDetails: [],
 	})
 
 	expect(statusResponse).toMatchObject({
@@ -428,8 +431,7 @@ test('Integration: Parent connections', async () => {
 	// Set the status now (should cause an error)
 	await expect(
 		coreChild.setStatus({
-			statusCode: StatusCode.GOOD,
-		})
+			statusCode: StatusCode.GOOD,			statusDetails: [],		})
 	).rejects.toMatchObject({
 		error: 404,
 	})

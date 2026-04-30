@@ -84,7 +84,7 @@ export default function DeviceSettings(props: IDeviceSettingsProps): JSX.Element
 						<StatusCodePill
 							connected={device.connected}
 							statusCode={device.status?.statusCode}
-							messages={device.status?.messages}
+							statusDetails={device.status?.statusDetails}
 						/>
 					</div>
 					{device.type === PeripheralDeviceType.PACKAGE_MANAGER ? (
