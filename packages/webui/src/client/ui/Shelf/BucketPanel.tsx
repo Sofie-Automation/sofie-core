@@ -446,13 +446,12 @@ const BucketPanelContent = withTranslation()(
 							adLibPieces: ([] as BucketAdLibItem[]).concat(this.props.adLibPieces || []),
 						})
 					}
-
-					RundownViewEventBus.off(RundownViewEvents.REVEAL_IN_SHELF, this.onRevealInShelf)
 				}
 
 				componentWillUnmount(): void {
 					window.removeEventListener(MOSEvents.dragenter, this.onDragEnter)
 					window.removeEventListener(MOSEvents.dragleave, this.onDragLeave)
+					RundownViewEventBus.removeListener(RundownViewEvents.REVEAL_IN_SHELF, this.onRevealInShelf)
 					RundownViewEventBus.removeListener(RundownViewEvents.TOGGLE_SHELF_DROPZONE, this.onToggleDropFrame)
 				}
 

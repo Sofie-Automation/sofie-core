@@ -263,6 +263,22 @@ export class SegmentTimelineClass extends React.Component<Translated<WithTiming<
 			this.segmentBlock.removeEventListener('wheel', this.onTimelineWheel, { capture: true })
 		}
 
+		// Clean up any document-level listeners that may still be attached due to an
+		// in-progress mouse drag, touch gesture or pointer-lock when the segment unmounts.
+		// Otherwise these listeners (and the closures they hold) leak forever.
+		if (this._mouseAttached) {
+			document.removeEventListener('mousemove', this.onTimelineMouseMove)
+			document.removeEventListener('mouseup', this.onTimelineMouseUp)
+			document.removeEventListener('pointerlockchange', this.onTimelinePointerLockChange)
+			document.removeEventListener('pointerlockerror', this.onTimelinePointerError)
+			this._mouseAttached = false
+		}
+		if (this._touchAttached) {
+			document.removeEventListener('touchmove', this.onTimelineTouchMove)
+			document.removeEventListener('touchend', this.onTimelineTouchEnd)
+			this._touchAttached = false
+		}
+
 		RundownViewEventBus.off(RundownViewEvents.HIGHLIGHT, this.onHighlight)
 		RundownViewEventBus.off(RundownViewEvents.SEGMENT_ZOOM_ON, this.onRundownEventSegmentZoomOn)
 		RundownViewEventBus.off(RundownViewEvents.SEGMENT_ZOOM_OFF, this.onRundownEventSegmentZoomOff)

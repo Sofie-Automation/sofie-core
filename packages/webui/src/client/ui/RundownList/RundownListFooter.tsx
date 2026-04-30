@@ -33,7 +33,7 @@ export function RundownListFooter(): JSX.Element {
 		}
 
 		refreshSystemStatus()
-		const interval = setInterval(() => refreshSystemStatus, 5000)
+		const interval = setInterval(refreshSystemStatus, 5000)
 
 		return () => {
 			clearInterval(interval)

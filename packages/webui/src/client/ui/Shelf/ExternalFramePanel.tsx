@@ -600,11 +600,10 @@ export const ExternalFramePanel: React.ComponentType<IProps> = withTranslation()
 
 		unregisterHandlers = () => {
 			document.removeEventListener('keydown', this.onKeyEvent)
-			document.removeEventListener('keydown', this.onKeyEvent)
+			document.removeEventListener('keyup', this.onKeyEvent)
 
 			document.removeEventListener('dragover', this.onDragOver)
 			document.removeEventListener('dragenter', this.onDragEnter)
-			document.removeEventListener('dragleave', this.onDragLeave)
 			document.removeEventListener('dragexit', this.onDragLeave)
 			document.removeEventListener('drop', this.onDrop)
 		}
