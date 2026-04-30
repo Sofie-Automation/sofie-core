@@ -2550,7 +2550,7 @@ svg.icon {
 		margin-bottom: 0 !important;
 	}
 
-	+ .segment-timeline-wrapper--shelf:has(.rundown-view-shelf) {
+	&:has(.rundown-view-shelf) {
 		margin-bottom: -0.8em !important;
 	}
 

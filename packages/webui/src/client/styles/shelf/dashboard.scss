@@ -481,6 +481,17 @@ $dashboard-button-height: 3.625em;
 				> .dashboard-panel__panel__button__label-container {
 				border-radius: 0 4px 4px 0;
 			}
+
+			// Large + no-thumbnail: keep hotkey visible in bottom-right corner
+			// (Large + thumbnail keeps the default top-left placement)
+			&:not(.dashboard-panel__panel__button--compact):not(.list) {
+				.dashboard-panel__panel__button__hotkey {
+					left: auto;
+					top: auto;
+					right: 5px;
+					bottom: 5px;
+				}
+			}
 		}
 
 		// Large buttons: clamp label text to 2 lines by default (when thumbnail exists),
@@ -724,7 +735,9 @@ $dashboard-button-height: 3.625em;
 			display: block;
 		}
 
-		&.dashboard-panel__panel__button--no-media {
+		&.dashboard-panel__panel__button--no-media:not(.dashboard-panel__panel__button--compact):not(
+			.dashboard-panel__panel__button--no-thumbnail
+		) {
 			.dashboard-panel__panel__button__hotkey {
 				left: 10px;
 			}
@@ -837,8 +850,9 @@ $dashboard-button-height: 3.625em;
 			}
 
 			.dashboard-panel__panel__button__hotkey {
-				top: unset;
-				left: 1px;
+				top: auto;
+				left: auto;
+				right: 1px;
 				bottom: 1px;
 			}
 
