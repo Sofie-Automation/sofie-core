@@ -6,15 +6,15 @@ import { EventEmitter } from 'events'
 import { assertNever, getRandomString } from '@sofie-automation/corelib/dist/lib'
 import type { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
 import {
-	ProtectedString,
+	type ProtectedString,
 	unprotectString,
 	isProtectedString,
 	protectString,
 } from '@sofie-automation/shared-lib/dist/lib/protectedString'
-import { isTranslatableMessage, ITranslatableMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
+import { isTranslatableMessage, type ITranslatableMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { PieceStatusCode } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { MeteorCall } from '../../lib/meteorApi.js'
-import { RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { LocalStorageProperty } from '../localStorage.js'
 
 let reportNotificationsId: string | null = null
@@ -436,7 +436,7 @@ export const NotificationCenter = new NotificationCenter0()
 export class Notification extends EventEmitter {
 	id: string | undefined
 	status: NoticeLevel
-	message: string | React.ReactElement<HTMLElement> | ITranslatableMessage | null
+	message: React.ReactNode | ITranslatableMessage | null
 	source: NotificationsSource
 	persistent?: boolean
 	timeout?: number
@@ -448,7 +448,7 @@ export class Notification extends EventEmitter {
 	constructor(
 		id: string | ProtectedString<any> | undefined,
 		status: NoticeLevel,
-		message: string | React.ReactElement<HTMLElement> | ITranslatableMessage | null,
+		message: React.ReactNode | ITranslatableMessage | null,
 		source: NotificationsSource,
 		created?: Time,
 		persistent?: boolean,

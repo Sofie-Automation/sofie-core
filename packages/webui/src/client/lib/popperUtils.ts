@@ -1,4 +1,4 @@
-import { ModifierPhases } from '@popperjs/core'
+import type { ModifierPhases } from '@popperjs/core'
 
 export const sameWidth = {
 	name: 'sameWidth',

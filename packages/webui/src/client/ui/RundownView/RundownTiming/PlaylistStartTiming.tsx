@@ -1,7 +1,7 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import Moment from 'react-moment'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { RundownUtils } from '../../../lib/rundown.js'
 import { getCurrentTime } from '../../../lib/systemTime.js'
 import ClassNames from 'classnames'

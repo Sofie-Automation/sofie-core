@@ -1,25 +1,24 @@
-import React from 'react'
-import { renderHook, act, render, screen, waitFor, RenderOptions } from '@testing-library/react'
+import { renderHook, act, render, screen, waitFor, type RenderOptions } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import { MeteorCall } from '../../../lib/meteorApi.js'
-import { TFunction } from 'i18next'
+import type { TFunction } from 'i18next'
 
 import userEvent from '@testing-library/user-event'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { UIParts } from '../../Collections.js'
 import { Segments } from '../../../../client/collections/index.js'
-import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
+import type { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
+import type { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { UserEditingType } from '@sofie-automation/blueprints-integration'
 import {
 	SelectedElementProvider,
 	SelectedElementsContext,
-	SelectionContextType,
+	type SelectionContextType,
 	useSelectedElementsContext,
 } from '../../RundownView/SelectedElementsContext.js'
 import { MongoMock } from '../../../../__mocks__/mongo.js'
 import { PropertiesPanel } from '../PropertiesPanel.js'
-import { UserAction } from '../../../lib/clientUserAction.js'
+import type { UserAction } from '../../../lib/clientUserAction.js'
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 jest.mock('meteor/tracker', (...args) => require('../../../../__mocks__/tracker').setup(args), { virtual: true })

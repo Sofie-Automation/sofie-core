@@ -3,14 +3,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Escape from './Escape.js'
 // @ts-expect-error type linking issue
 import FocusBounder from 'react-focus-bounder'
-import { useTranslation } from 'react-i18next'
+import { useTranslation, withTranslation } from 'react-i18next'
 
 import ClassNames from 'classnames'
 import { logger } from './logging.js'
 import _ from 'underscore'
-import { withTranslation } from 'react-i18next'
-import { Translated } from './ReactMeteorData/ReactMeteorData.js'
-import { EditAttribute, EditAttributeType, IEditAttributeBaseProps } from './EditAttribute.js'
+import type { Translated } from './ReactMeteorData/ReactMeteorData.js'
+import { EditAttribute, type EditAttributeType, type IEditAttributeBaseProps } from './EditAttribute.js'
 import { Settings } from '../lib/Settings.js'
 
 import Modal from 'react-bootstrap/Modal'
@@ -376,7 +375,8 @@ class ModalDialogGlobalContainer0 extends React.Component<
 		} else return null
 	}
 }
-export const ModalDialogGlobalContainer = withTranslation()(ModalDialogGlobalContainer0)
+export const ModalDialogGlobalContainer: React.ComponentType<IModalDialogGlobalContainerProps> =
+	withTranslation()(ModalDialogGlobalContainer0)
 let modalDialogGlobalContainerSingleton: ModalDialogGlobalContainer0
 /**
  * Display a ModalDialog, callback on user input

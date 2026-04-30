@@ -3,52 +3,56 @@ import _ from 'underscore'
 import { Meteor } from 'meteor/meteor'
 import { useTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
 import { useTranslation } from 'react-i18next'
-import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { IAdLibListItem } from './AdLibListItem.js'
+import type { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
+import type { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
+import type { IAdLibListItem } from './AdLibListItem.js'
 import ClassNames from 'classnames'
 
 import { Spinner } from '../../lib/Spinner.js'
-import { OutputLayers, SourceLayers, UIShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
+import type {
+	OutputLayers,
+	SourceLayers,
+	UIShowStyleBase,
+} from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import {
-	ISourceLayer,
+	type ISourceLayer,
 	PieceLifespan,
-	IBlueprintActionTriggerMode,
-	SomeContent,
+	type IBlueprintActionTriggerMode,
+	type SomeContent,
 } from '@sofie-automation/blueprints-integration'
 import { doUserAction, UserAction } from '../../lib/clientUserAction.js'
 import { NotificationCenter, Notification, NoticeLevel } from '../../lib/notifications/notifications.js'
-import {
+import type {
 	RundownLayoutFilter,
 	RundownLayoutFilterBase,
 	DashboardLayoutFilter,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import { RundownBaselineAdLibItem } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibPiece'
+import type { RundownBaselineAdLibItem } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibPiece'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { unprotectString, protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { memoizedIsolatedAutorun } from '../../lib/memoizedIsolatedAutorun.js'
 import { findPartInstanceOrWrapToTemporary } from '@sofie-automation/meteor-lib/dist/collections/PartInstances'
 import { MeteorCall } from '../../lib/meteorApi.js'
-import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
+import type { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
 import { RundownUtils } from '../../lib/rundown.js'
 import { ShelfTabs } from './Shelf.js'
-import { RundownBaselineAdLibAction } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibAction'
-import { BucketAdLibActionUi, BucketAdLibUi } from './RundownViewBuckets.js'
+import type { RundownBaselineAdLibAction } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibAction'
+import type { BucketAdLibActionUi, BucketAdLibUi } from './RundownViewBuckets.js'
 import RundownViewEventBus, {
 	RundownViewEvents,
-	RevealInShelfEvent,
+	type RevealInShelfEvent,
 } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
 import { translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { i18nTranslator } from '../i18n.js'
-import { AdLibPieceUi, AdlibSegmentUi } from '../../lib/shelf.js'
+import type { AdLibPieceUi, AdlibSegmentUi } from '../../lib/shelf.js'
 import { getShelfFollowsOnAir } from '../../lib/localStorage.js'
 import { sortAdlibs } from '@sofie-automation/meteor-lib/dist/adlibs'
 import { AdLibPanelToolbar } from './AdLibPanelToolbar.js'
 import { AdLibListView } from './AdLibListView.js'
 import { UIPartInstances, UIStudios } from '../Collections.js'
-import { PartId, PartInstanceId, RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { PartId, PartInstanceId, RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import {
 	AdLibActions,
 	AdLibPieces,
@@ -57,9 +61,9 @@ import {
 } from '../../collections/index.js'
 import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil.js'
 import { RundownPlaylistClientUtil } from '../../lib/rundownPlaylistUtil.js'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
-import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
-import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import type { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
+import type { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 export interface IAdLibPanelProps {
 	// liveSegment: Segment | undefined

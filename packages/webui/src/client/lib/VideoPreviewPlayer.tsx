@@ -1,4 +1,4 @@
-import { IStudioSettings } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import type { IStudioSettings } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import classNames from 'classnames'
 import { useEffect, useRef } from 'react'
 import { StyledTimecode } from './StyledTimecode.js'

@@ -1,6 +1,6 @@
 import type { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import type { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
-import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import type {
 	TimelineComplete,
 	TimelineCompleteGenerationVersions,

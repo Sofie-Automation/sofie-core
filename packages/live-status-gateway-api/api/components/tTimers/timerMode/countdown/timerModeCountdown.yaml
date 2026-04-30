@@ -1,0 +1,20 @@
+$defs:
+  timerModeCountdown:
+    type: object
+    title: TimerModeCountdown
+    description: Countdown timer mode - counts down from a duration to zero
+    properties:
+      type:
+        type: string
+        const: countdown
+      duration:
+        type: integer
+        minimum: 0
+        description: The original countdown duration in milliseconds (used for reset)
+      stopAtZero:
+        type: boolean
+        description: Whether timer stops at zero or continues into negative values
+    required: [type, duration, stopAtZero]
+    additionalProperties: false
+    examples:
+      - $ref: './timerModeCountdown-example.yaml'

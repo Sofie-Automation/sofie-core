@@ -1,5 +1,5 @@
-import * as React from 'react'
-import { ISourceLayerUi, IOutputLayerUi, PartUi } from './SegmentTimelineContainer.js'
+import type * as React from 'react'
+import type { ISourceLayerUi, IOutputLayerUi, PartUi } from './SegmentTimelineContainer.js'
 import {
 	SourceLayerType,
 	PieceLifespan,
@@ -16,28 +16,28 @@ import { SplitsSourceRenderer } from './Renderers/SplitsSourceRenderer.js'
 import { LocalLayerItemRenderer } from './Renderers/LocalLayerItemRenderer.js'
 
 import { DEBUG_MODE } from './SegmentTimelineDebugMode.js'
-import { getElementDocumentOffset, OffsetPosition } from '../../utils/positions.js'
+import { getElementDocumentOffset, type OffsetPosition } from '../../utils/positions.js'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import RundownViewEventBus, {
 	RundownViewEvents,
-	HighlightEvent,
+	type HighlightEvent,
 } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
 import { pieceUiClassNames } from '../../lib/ui/pieceUiClassNames.js'
 import { TransitionSourceRenderer } from './Renderers/TransitionSourceRenderer.js'
-import { ReadonlyDeep } from 'type-fest'
+import type { ReadonlyDeep } from 'type-fest'
 import { useSelectedElementsContext } from '../RundownView/SelectedElementsContext.js'
-import { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
+import type { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
 import { useCallback, useRef, useState, useEffect, useContext } from 'react'
 import { dragContext } from '../RundownView/DragContext.js'
 import {
 	convertSourceLayerItemToPreview,
-	IPreviewPopUpSession,
+	type IPreviewPopUpSession,
 	PreviewPopUpContext,
 } from '../PreviewPopUp/PreviewPopUpContext.js'
 import { useRundownViewEventBusListener } from '../../lib/lib.js'
 import { hasUserEditableContent } from '../UserEditOperations/PropertiesPanel.js'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
-import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import type { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 const LEFT_RIGHT_ANCHOR_SPACER = 15
 const MARGINAL_ANCHORED_WIDTH = 5
 
@@ -191,12 +191,9 @@ export const SourceLayerItem = (props: Readonly<ISourceLayerItemProps>): JSX.Ele
 				if (!hasEditableContent) return
 
 				const pieceId = innerPiece._id
-				if (!selectElementContext.isSelected(pieceId)) {
-					RundownViewEventBus.emit(RundownViewEvents.CLOSE_NOTIFICATIONS)
-					selectElementContext.clearAndSetSelection({ type: 'piece', elementId: pieceId })
-				} else {
-					selectElementContext.clearSelections()
-				}
+
+				RundownViewEventBus.emit(RundownViewEvents.CLOSE_NOTIFICATIONS)
+				selectElementContext.clearAndSetSelection({ type: 'piece', elementId: pieceId })
 			} else if (typeof onDoubleClick === 'function') {
 				onDoubleClick(piece, e)
 			}

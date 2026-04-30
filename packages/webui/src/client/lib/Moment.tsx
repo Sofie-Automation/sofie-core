@@ -1,4 +1,4 @@
-import Moment, { MomentProps } from 'react-moment'
+import Moment, { type MomentProps } from 'react-moment'
 import moment from 'moment'
 import { useCurrentTime } from './lib'
 

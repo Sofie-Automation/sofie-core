@@ -1,7 +1,7 @@
-import React, { useCallback, useMemo } from 'react'
-import { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
-import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
+import { useCallback, useMemo } from 'react'
+import type { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
+import type { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import { useSubscription, useTracker } from '../../../lib/ReactMeteorData/ReactMeteorData.js'
 import { LinePartIndicator } from './LinePartIndicator.js'
 import { useTranslation } from 'react-i18next'
@@ -10,7 +10,7 @@ import StudioContext from '../../RundownView/StudioContext.js'
 import { AdLibActions, AdLibPieces } from '../../../collections/index.js'
 import RundownViewEventBus, { RundownViewEvents } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { ISourceLayerExtended } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import type { ISourceLayerExtended } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 
 interface IProps {
 	sourceLayers: ISourceLayerExtended[]

@@ -11,6 +11,7 @@ let deviceToken: string = process.env.DEVICE_TOKEN || ''
 let disableWatchdog: boolean = process.env.DISABLE_WATCHDOG === '1' || false
 let unsafeSSL: boolean = process.env.UNSAFE_SSL === '1' || false
 const certs: string[] = (process.env.CERTIFICATES || '').split(';') || []
+let healthPort: number | undefined = parseInt(process.env.HEALTH_PORT + '') || undefined
 
 let prevProcessArg = ''
 process.argv.forEach((val) => {
@@ -37,12 +38,14 @@ process.argv.forEach((val) => {
 	} else if (val.match(/-unsafeSSL/i)) {
 		// Will cause the Node applocation to blindly accept all certificates. Not recommenced unless in local, controlled networks.
 		unsafeSSL = true
+	} else if (prevProcessArg.match(/-healthPort/i)) {
+		healthPort = parseInt(val)
 	}
 	prevProcessArg = nextPrevProcessArg + ''
 })
 
 const config: Config = {
-	process: {
+	certificates: {
 		unsafeSSL: unsafeSSL,
 		certificates: certs.filter((c) => c !== undefined && c !== null && c.length !== 0),
 	},
@@ -54,6 +57,9 @@ const config: Config = {
 		host: host,
 		port: port,
 		watchdog: !disableWatchdog,
+	},
+	health: {
+		port: healthPort,
 	},
 }
 

@@ -2,6 +2,7 @@ import {
 	CoreConnection,
 	CoreOptions,
 	DDPConnectorOptions,
+	DDPTLSOptions,
 	PeripheralDeviceAPI,
 	PeripheralDeviceCommand,
 	PeripheralDeviceId,
@@ -55,34 +56,32 @@ export class CoreHandler implements ICoreHandler {
 	private _executedFunctions = new Set<PeripheralDeviceCommandId>()
 	private _tsrHandler?: TSRHandler
 	private _coreConfig?: CoreConfig
-	private _certificates?: Buffer[]
 
 	private _statusInitialized = false
 	private _statusDestroyed = false
 
-	public connectedToCore = false
+	public get connectedToCore(): boolean {
+		return this.core && this.core.connected
+	}
 
 	constructor(logger: Logger, deviceOptions: DeviceConfig) {
 		this.logger = logger
 		this._deviceOptions = deviceOptions
 	}
 
-	async init(config: CoreConfig, certificates: Buffer[]): Promise<void> {
+	async init(config: CoreConfig, tlsOptions: DDPTLSOptions): Promise<void> {
 		this._statusInitialized = false
 		this._coreConfig = config
-		this._certificates = certificates
 
 		this.core = new CoreConnection(this.getCoreConnectionOptions())
 
 		this.core.onConnected(() => {
 			this.logger.info('Core Connected!')
-			this.connectedToCore = true
 
 			if (this._onConnected) this._onConnected()
 		})
 		this.core.onDisconnected(() => {
 			this.logger.warn('Core Disconnected!')
-			this.connectedToCore = false
 		})
 		this.core.onError((err: any) => {
 			this.logger.error('Core Error: ' + (typeof err === 'string' ? err : err.message || err.toString() || err))
@@ -91,11 +90,7 @@ export class CoreHandler implements ICoreHandler {
 		const ddpConfig: DDPConnectorOptions = {
 			host: config.host,
 			port: config.port,
-		}
-		if (this._certificates.length) {
-			ddpConfig.tlsOpts = {
-				ca: this._certificates,
-			}
+			tlsOpts: tlsOptions,
 		}
 
 		await this.core.init(ddpConfig)

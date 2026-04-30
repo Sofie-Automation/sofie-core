@@ -5,7 +5,7 @@ import { getCurrentTime } from '../../../lib/systemTime.js'
 import { RundownUtils } from '../../../lib/rundown.js'
 import { useTiming } from './withTiming.js'
 import ClassNames from 'classnames'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { getPlaylistTimingDiff } from '../../../lib/rundownTiming.js'
 import { isLoopRunning } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
 

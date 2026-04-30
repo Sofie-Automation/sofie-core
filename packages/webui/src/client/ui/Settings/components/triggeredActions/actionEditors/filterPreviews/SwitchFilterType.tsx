@@ -1,4 +1,4 @@
-import { FilterType } from '@sofie-automation/blueprints-integration'
+import type { FilterType } from '@sofie-automation/blueprints-integration'
 import Button from 'react-bootstrap/Button'
 import ButtonGroup from 'react-bootstrap/ButtonGroup'
 import { useTranslation } from 'react-i18next'

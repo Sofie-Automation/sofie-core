@@ -3,7 +3,7 @@ import type { ShowStyleBaseExt } from '../../collections/showStyleBaseHandler.js
 import type { PieceInstanceMin } from '../../collections/pieceInstancesHandler.js'
 import type { AbSessionAssignment, PieceStatus } from '@sofie-automation/live-status-gateway-api'
 import { clone } from '@sofie-automation/corelib/dist/lib'
-import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import type { PickKeys } from '@sofie-automation/shared-lib/dist/lib/types'
 
 const _PLAYLIST_AB_SESSION_KEYS = ['assignedAbSessions', 'trackedAbSessions'] as const

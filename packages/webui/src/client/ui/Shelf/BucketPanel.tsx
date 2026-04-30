@@ -1,28 +1,32 @@
 import { Meteor } from 'meteor/meteor'
 import * as React from 'react'
 import {
-	Translated,
+	type Translated,
 	useSubscription,
 	useSubscriptions,
 	useTracker,
 } from '../../lib/ReactMeteorData/react-meteor-data.js'
-import { IAdLibListItem } from './AdLibListItem.js'
+import type { IAdLibListItem } from './AdLibListItem.js'
 import ClassNames from 'classnames'
 import {
 	DragSource,
 	DropTarget,
-	ConnectDragSource,
-	ConnectDropTarget,
-	DragSourceMonitor,
-	DropTargetMonitor,
-	ConnectDragPreview,
+	type ConnectDragSource,
+	type ConnectDropTarget,
+	type DragSourceMonitor,
+	type DropTargetMonitor,
+	type ConnectDragPreview,
 } from 'react-dnd'
-import { OutputLayers, SourceLayers, UIShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
+import type {
+	OutputLayers,
+	SourceLayers,
+	UIShowStyleBase,
+} from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import {
-	ISourceLayer,
+	type ISourceLayer,
 	PieceLifespan,
-	IBlueprintActionTriggerMode,
-	SomeContent,
+	type IBlueprintActionTriggerMode,
+	type SomeContent,
 } from '@sofie-automation/blueprints-integration'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { doUserAction, getEventTimestamp, UserAction } from '../../lib/clientUserAction.js'
@@ -30,40 +34,46 @@ import { NotificationCenter, Notification, NoticeLevel } from '../../lib/notific
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { unprotectString, protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { contextMenuHoldToDisplayTime, UserAgentPointer, USER_AGENT_POINTER_PROPERTY } from '../../lib/lib.js'
-import { IDashboardPanelTrackedProps } from './DashboardPanel.js'
-import { BucketAdLib } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibPiece'
-import { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
+import type { IDashboardPanelTrackedProps } from './DashboardPanel.js'
+import type { BucketAdLib } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibPiece'
+import type { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
 import { Events as MOSEvents } from '../../lib/data/mos/plugin-support.js'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { MeteorCall } from '../../lib/meteorApi.js'
 import { DragDropItemTypes } from '../DragDropItemTypes.js'
-import { BucketPieceButton, IBucketPieceDropResult } from './BucketPieceButton.js'
+import { BucketPieceButton, type IBucketPieceDropResult } from './BucketPieceButton.js'
 import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'
 import update from 'immutability-helper'
-import { BucketAdLibAction } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibAction'
+import type { BucketAdLibAction } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibAction'
 import { RundownUtils } from '../../lib/rundown.js'
-import { BucketAdLibItem, BucketAdLibActionUi, isAdLibAction, isAdLib, BucketAdLibUi } from './RundownViewBuckets.js'
+import {
+	type BucketAdLibItem,
+	type BucketAdLibActionUi,
+	isAdLibAction,
+	isAdLib,
+	type BucketAdLibUi,
+} from './RundownViewBuckets.js'
 import { PieceDisplayStyle } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import RundownViewEventBus, {
 	RundownViewEvents,
-	RevealInShelfEvent,
-	ToggleShelfDropzoneEvent,
+	type RevealInShelfEvent,
+	type ToggleShelfDropzoneEvent,
 } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
 import { setShelfContextMenuContext, ContextType } from './ShelfContextMenu.js'
 import { translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { i18nTranslator } from '../i18n.js'
 import {
-	AdLibPieceUi,
+	type AdLibPieceUi,
 	getNextPieceInstancesGrouped,
 	getUnfinishedPieceInstancesGrouped,
 	isAdLibDisplayedAsOnAir,
 	isAdLibOnAir,
 } from '../../lib/shelf.js'
-import { MongoFieldSpecifierOnes } from '@sofie-automation/corelib/dist/mongo'
+import type { MongoFieldSpecifierOnes } from '@sofie-automation/corelib/dist/mongo'
 import { BucketAdLibActions, BucketAdLibs, Rundowns } from '../../collections/index.js'
-import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
+import type { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { UIPartInstances, UIStudios } from '../Collections.js'
-import {
+import type {
 	AdLibActionId,
 	BucketId,
 	PieceId,
@@ -76,9 +86,9 @@ import { withTranslation } from 'react-i18next'
 import { useRundownAndShowStyleIdsForPlaylist } from '../util/useRundownAndShowStyleIdsForPlaylist.js'
 import _ from 'underscore'
 import { BucketHandle } from '../../lib/ui/icons/shelf.js'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
-import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
-import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import type { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
+import type { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 interface IBucketPanelDragObject {
 	id: BucketId

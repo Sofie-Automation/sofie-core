@@ -2,6 +2,7 @@ import {
 	CoreConnection,
 	CoreOptions,
 	DDPConnectorOptions,
+	DDPTLSOptions,
 	Observer,
 	PeripheralDeviceAPI,
 	PeripheralDeviceCommand,
@@ -34,7 +35,6 @@ export class CoreHandler implements ICoreHandler {
 	core: CoreConnection | undefined
 	logger: Winston.Logger
 	public _observers: Array<Observer<any>> = []
-	public connectedToCore = false
 	private _deviceOptions: DeviceConfig
 	private _coreMosHandlers: Array<CoreMosDeviceHandler> = []
 	private _onConnected?: () => any
@@ -42,16 +42,19 @@ export class CoreHandler implements ICoreHandler {
 	private _isDestroyed = false
 	private _executedFunctions = new Set<PeripheralDeviceCommandId>()
 	private _coreConfig?: CoreConfig
-	private _certificates?: Buffer[]
+
+	public get connectedToCore(): boolean {
+		return !!this.core && this.core.connected
+	}
 
 	public static async create(
 		logger: Winston.Logger,
 		config: CoreConfig,
-		certificates: Buffer[],
+		tlsOptions: DDPTLSOptions,
 		deviceOptions: DeviceConfig
 	): Promise<CoreHandler> {
 		const handler = new CoreHandler(logger, deviceOptions)
-		await handler.init(config, certificates)
+		await handler.init(config, tlsOptions)
 		return handler
 	}
 
@@ -60,20 +63,17 @@ export class CoreHandler implements ICoreHandler {
 		this._deviceOptions = deviceOptions
 	}
 
-	private async init(config: CoreConfig, certificates: Buffer[]): Promise<void> {
+	private async init(config: CoreConfig, tlsOptions: DDPTLSOptions): Promise<void> {
 		// this.logger.info('========')
 		this._coreConfig = config
-		this._certificates = certificates
 		this.core = new CoreConnection(this.getCoreConnectionOptions())
 
 		this.core.onConnected(() => {
 			this.logger.info('Core Connected!')
-			this.connectedToCore = true
 			if (this._isInitialized) this.onConnectionRestored()
 		})
 		this.core.onDisconnected(() => {
 			this.logger.info('Core Disconnected!')
-			this.connectedToCore = false
 		})
 		this.core.onError((err) => {
 			this.logger.error('Core Error: ' + (typeof err === 'string' ? err : err.message || err.toString()))
@@ -82,11 +82,7 @@ export class CoreHandler implements ICoreHandler {
 		const ddpConfig: DDPConnectorOptions = {
 			host: config.host,
 			port: config.port,
-		}
-		if (this._certificates?.length) {
-			ddpConfig.tlsOpts = {
-				ca: this._certificates,
-			}
+			tlsOpts: tlsOptions,
 		}
 		await this.core.init(ddpConfig)
 

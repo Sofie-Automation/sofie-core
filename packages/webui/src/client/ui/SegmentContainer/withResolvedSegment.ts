@@ -1,25 +1,25 @@
-import * as React from 'react'
+import type * as React from 'react'
 import _ from 'underscore'
-import { ISourceLayer, NoteSeverity, PieceLifespan } from '@sofie-automation/blueprints-integration'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { type ISourceLayer, type NoteSeverity, PieceLifespan } from '@sofie-automation/blueprints-integration'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { withTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
-import { IContextMenuContext } from '../RundownView.js'
+import type { IContextMenuContext } from '../RundownView.js'
 import { equalSets } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { RundownUtils } from '../../lib/rundown.js'
-import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { DBPart, PartExtended } from '@sofie-automation/corelib/dist/dataModel/Part'
+import type { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
+import type { DBPart, PartExtended } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { slowDownReactivity } from '../../lib/reactiveData/reactiveDataHelper.js'
 import { memoizedIsolatedAutorun } from '../../lib/memoizedIsolatedAutorun.js'
 import { getIsFilterActive } from '../../lib/rundownLayouts.js'
-import {
+import type {
 	RundownLayoutFilterBase,
 	RundownViewLayout,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import { getReactivePieceNoteCountsForSegment } from './getReactivePieceNoteCountsForSegment.js'
-import { SegmentViewMode } from './SegmentViewModes.js'
+import type { SegmentViewMode } from './SegmentViewModes.js'
 import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
-import { AdlibSegmentUi } from '../../lib/shelf.js'
-import {
+import type { AdlibSegmentUi } from '../../lib/shelf.js'
+import type {
 	PartId,
 	RundownId,
 	RundownPlaylistId,
@@ -28,16 +28,16 @@ import {
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PieceInstances, Segments } from '../../collections/index.js'
 import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil.js'
-import { SegmentExtended, SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
+import { type SegmentExtended, SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { RundownPlaylistClientUtil } from '../../lib/rundownPlaylistUtil.js'
-import {
+import type {
 	IOutputLayerExtended,
 	ISourceLayerExtended,
 	UIShowStyleBase,
 } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
-import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
-import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import type { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
+import type { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 export interface SegmentUi extends SegmentExtended {
 	/** Output layers available in the installation used by this segment */

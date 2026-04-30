@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { useHistory } from 'react-router-dom'
-import { BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import Button from 'react-bootstrap/Button'
 
 export function RedirectToBlueprintButton(props: Readonly<{ id: BlueprintId | undefined }>): JSX.Element {

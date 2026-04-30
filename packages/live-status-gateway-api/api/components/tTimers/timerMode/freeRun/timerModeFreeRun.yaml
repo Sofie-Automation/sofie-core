@@ -1,0 +1,13 @@
+$defs:
+  timerModeFreeRun:
+    type: object
+    title: TimerModeFreeRun
+    description: Free-running timer mode - counts up from start time
+    properties:
+      type:
+        type: string
+        const: freeRun
+    required: [type]
+    additionalProperties: false
+    examples:
+      - $ref: './timerModeFreeRun-example.yaml'

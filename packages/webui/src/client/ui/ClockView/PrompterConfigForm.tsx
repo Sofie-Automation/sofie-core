@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import Form from 'react-bootstrap/esm/Form'
 import Collapse from 'react-bootstrap/esm/Collapse'
 import { FullscreenLink } from './FullscreenLink.js'

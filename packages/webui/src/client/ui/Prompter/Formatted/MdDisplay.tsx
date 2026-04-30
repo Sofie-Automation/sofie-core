@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react'
 import createParser from './mdParser'
-import { Node, ParentNodeBase } from './mdParser/astNodes'
+import type { Node, ParentNodeBase } from './mdParser/astNodes'
 import { assertNever } from '@sofie-automation/shared-lib/dist/lib/lib'
 
 const mdParser = createParser()

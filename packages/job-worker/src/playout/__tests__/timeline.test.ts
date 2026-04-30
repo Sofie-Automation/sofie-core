@@ -11,7 +11,7 @@ import {
 } from '../../__mocks__/presetCollections.js'
 import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context.js'
 import { DBRundown, Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { handleTakeNextPart } from '../take.js'
 import { handleActivateHold } from '../holdJobs.js'
 import { handleActivateRundownPlaylist, handleDeactivateRundownPlaylist } from '../activePlaylistJobs.js'

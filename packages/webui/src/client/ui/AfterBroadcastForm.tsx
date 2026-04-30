@@ -1,14 +1,19 @@
 import React, { useMemo, useState } from 'react'
 import { Meteor } from 'meteor/meteor'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { TFunction, useTranslation } from 'react-i18next'
-import { EvaluationBase } from '@sofie-automation/meteor-lib/dist/collections/Evaluations'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
+import type { EvaluationBase } from '@sofie-automation/meteor-lib/dist/collections/Evaluations'
 import { doUserAction, UserAction } from '../lib/clientUserAction.js'
 import { MeteorCall } from '../lib/meteorApi.js'
-import { SnapshotId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { SnapshotId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { hashSingleUseToken } from '../lib/lib.js'
-import { DropdownInputControl, DropdownInputOption, getDropdownInputOptions } from '../lib/Components/DropdownInput.js'
+import {
+	DropdownInputControl,
+	type DropdownInputOption,
+	getDropdownInputOptions,
+} from '../lib/Components/DropdownInput.js'
 import { MultiLineTextInputControl } from '../lib/Components/MultiLineTextInput.js'
 import { TextInputControl } from '../lib/Components/TextInput.js'
 import { Spinner } from '../lib/Spinner.js'

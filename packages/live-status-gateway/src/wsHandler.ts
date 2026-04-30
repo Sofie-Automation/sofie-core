@@ -23,6 +23,10 @@ export abstract class WebSocketTopicBase {
 				: this.sendStatusToAll
 	}
 
+	get subscriberCount(): number {
+		return this._subscribers.size
+	}
+
 	addSubscriber(ws: WebSocket): void {
 		this._logger.info(`${this._name} adding a websocket subscriber`)
 		this._subscribers.add(ws)
@@ -77,6 +81,7 @@ export abstract class WebSocketTopicBase {
 }
 
 export interface WebSocketTopic {
+	subscriberCount: number
 	addSubscriber(ws: WebSocket): void
 	hasSubscriber(ws: WebSocket): boolean
 	removeSubscriber(ws: WebSocket): void

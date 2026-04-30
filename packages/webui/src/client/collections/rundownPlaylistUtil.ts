@@ -1,12 +1,12 @@
-import { RundownId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { Rundown, DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import type { RundownId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { Rundown, DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { normalizeArrayToMap } from '@sofie-automation/corelib/dist/lib'
 import { sortRundownIDsInPlaylist } from '@sofie-automation/corelib/dist/playout/playlist'
 import _ from 'underscore'
 import { Rundowns } from './index.js'
-import { FindOptions } from './lib.js'
-import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
+import type { FindOptions } from './lib.js'
+import type { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 
 /**
  * Direct database accessors for the RundownPlaylist

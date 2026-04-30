@@ -1,7 +1,7 @@
-import { PartUi } from '../ui/SegmentTimeline/SegmentTimelineContainer.js'
+import type { PartUi } from '../ui/SegmentTimeline/SegmentTimelineContainer.js'
 import { Timecode } from '@sofie-automation/corelib/dist/index'
 import { Settings } from '../lib/Settings.js'
-import { TFunction } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import {
 	getResolvedSegment as getResolvedSegmentBase,
 	getSegmentsWithPartInstances as getSegmentsWithPartInstancesBase,
@@ -9,30 +9,30 @@ import {
 } from '@sofie-automation/corelib/dist/playout/stateCacheResolver'
 import {
 	SourceLayerType,
-	IBlueprintActionManifestDisplay,
-	IBlueprintActionManifestDisplayContent,
+	type IBlueprintActionManifestDisplay,
+	type IBlueprintActionManifestDisplayContent,
 } from '@sofie-automation/blueprints-integration'
-import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import type { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { getCurrentTime } from './systemTime.js'
-import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
-import { IAdLibListItem } from '../ui/Shelf/AdLibListItem.js'
-import { BucketAdLibItem, BucketAdLibUi } from '../ui/Shelf/RundownViewBuckets.js'
-import { FindOptions } from '../collections/lib.js'
+import type { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
+import type { IAdLibListItem } from '../ui/Shelf/AdLibListItem.js'
+import type { BucketAdLibItem, BucketAdLibUi } from '../ui/Shelf/RundownViewBuckets.js'
+import type { FindOptions } from '../collections/lib.js'
 import { getShowHiddenSourceLayers } from './localStorage.js'
-import { IStudioSettings } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import type { IStudioSettings } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { calculatePartInstanceExpectedDurationWithTransition } from '@sofie-automation/corelib/dist/playout/timings'
-import { AdLibPieceUi } from './shelf.js'
-import { PieceId, PieceInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { AdLibPieceUi } from './shelf.js'
+import type { PieceId, PieceInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PieceInstances, Pieces, Segments } from '../collections/index.js'
-import { Piece, PieceStatusCode, PieceUi } from '@sofie-automation/corelib/dist/dataModel/Piece'
+import { type Piece, PieceStatusCode, type PieceUi } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { assertNever } from '@sofie-automation/shared-lib/dist/lib/lib'
-import { FindOneOptions, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
-import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
+import type { FindOneOptions, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
+import type { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { RundownPlaylistClientUtil } from './rundownPlaylistUtil.js'
-import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
+import type { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
 import { invalidateAfter } from './invalidatingTime'
-import {
+import type {
 	PieceInstancesForPartInstanceContext,
 	PieceInstancesForPartInstanceWrapperOptions,
 	ResolvedSegmentContext,

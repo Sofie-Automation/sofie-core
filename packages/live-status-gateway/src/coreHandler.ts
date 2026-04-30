@@ -3,6 +3,8 @@ import {
 	CoreConnection,
 	CoreOptions,
 	DDPConnectorOptions,
+	DDPTLSOptions,
+	ICoreHandler,
 	Observer,
 	PeripheralDevicePubSub,
 	PeripheralDevicePubSubCollections,
@@ -13,7 +15,6 @@ import {
 } from '@sofie-automation/server-core-integration'
 import { DeviceConfig } from './connector.js'
 import { Logger } from 'winston'
-import { Process } from './process.js'
 import { LIVE_STATUS_DEVICE_CONFIG } from './configManifest.js'
 import {
 	PeripheralDeviceCategory,
@@ -36,7 +37,7 @@ export interface CoreConfig {
 /**
  * Represents a connection between the Gateway and Core
  */
-export class CoreHandler {
+export class CoreHandler implements ICoreHandler {
 	core!: CoreConnection<
 		CorelibPubSubTypes & PeripheralDevicePubSubTypes,
 		CorelibPubSubCollections & PeripheralDevicePubSubCollections
@@ -45,30 +46,27 @@ export class CoreHandler {
 	public _observers: Array<any> = []
 	public deviceSettings: LiveStatusGatewayConfig = {}
 
-	public errorReporting = false
-	public multithreading = false
-	public reportAllCommands = false
-
 	private _deviceOptions: DeviceConfig
-	private _onConnected?: () => any
 	private _executedFunctions = new Set<PeripheralDeviceCommandId>()
 	private _coreConfig?: CoreConfig
-	private _process?: Process
 
 	private _studioId: StudioId | undefined
 
 	private _statusInitialized = false
 	private _statusDestroyed = false
 
+	public get connectedToCore(): boolean {
+		return this.core && this.core.connected
+	}
+
 	constructor(logger: Logger, deviceOptions: DeviceConfig) {
 		this.logger = logger
 		this._deviceOptions = deviceOptions
 	}
 
-	async init(config: CoreConfig, process: Process): Promise<void> {
+	async init(config: CoreConfig, tlsOptions: DDPTLSOptions): Promise<void> {
 		this._statusInitialized = false
 		this._coreConfig = config
-		this._process = process
 
 		this.core = new CoreConnection<CorelibPubSubTypes & PeripheralDevicePubSubTypes>(
 			this.getCoreConnectionOptions()
@@ -79,7 +77,6 @@ export class CoreHandler {
 			this.setupObserversAndSubscriptions().catch((e) => {
 				this.logger.error('Core Error during setupObserversAndSubscriptions:', e)
 			})
-			if (this._onConnected) this._onConnected()
 		})
 		this.core.onDisconnected(() => {
 			this.logger.warn('Core Disconnected!')
@@ -91,11 +88,7 @@ export class CoreHandler {
 		const ddpConfig: DDPConnectorOptions = {
 			host: config.host,
 			port: config.port,
-		}
-		if (this._process && this._process.certificates.length) {
-			ddpConfig.tlsOpts = {
-				ca: this._process.certificates,
-			}
+			tlsOpts: tlsOptions,
 		}
 
 		await this.core.init(ddpConfig)
@@ -103,7 +96,6 @@ export class CoreHandler {
 
 		this.logger.info('Core id: ' + this.core.deviceId)
 		await this.setupObserversAndSubscriptions()
-		if (this._onConnected) this._onConnected()
 
 		this._statusInitialized = true
 		await this.updateCoreStatus()
@@ -185,9 +177,6 @@ export class CoreHandler {
 		}
 
 		return options
-	}
-	onConnected(fcn: () => any): void {
-		this._onConnected = fcn
 	}
 
 	onDeviceChanged(): void {
@@ -325,7 +314,10 @@ export class CoreHandler {
 		this.logger.info('getDevicesInfo')
 		return []
 	}
-	async updateCoreStatus(): Promise<any> {
+	getCoreStatus(): {
+		statusCode: StatusCode
+		messages: string[]
+	} {
 		let statusCode = StatusCode.GOOD
 		const messages: Array<string> = []
 
@@ -337,11 +329,13 @@ export class CoreHandler {
 			statusCode = StatusCode.BAD
 			messages.push('Shut down')
 		}
-
-		return this.core.setStatus({
-			statusCode: statusCode,
-			messages: messages,
-		})
+		return {
+			statusCode,
+			messages,
+		}
+	}
+	async updateCoreStatus(): Promise<any> {
+		return this.core.setStatus(this.getCoreStatus())
 	}
 	private _getVersions() {
 		const versions: { [packageName: string]: string } = {}

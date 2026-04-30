@@ -1,0 +1,16 @@
+index: 1
+label: 'Segment Timer'
+configured: true
+mode:
+  type: countdown
+  duration: 120000
+  stopAtZero: true
+state:
+  paused: false
+  zeroTime: 1706371920000
+  pauseTime: 1706371900000
+projected:
+  paused: false
+  zeroTime: 1706371925000
+  pauseTime: null
+anchorPartId: 'part_break_1'

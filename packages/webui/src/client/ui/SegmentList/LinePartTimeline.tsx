@@ -1,5 +1,5 @@
 import { PieceLifespan, SourceLayerType } from '@sofie-automation/blueprints-integration'
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 import { findPieceExtendedToShowFromOrderedResolvedInstances } from '../PieceIcons/utils.js'
 import { LinePartMainPiece } from './LinePartMainPiece/LinePartMainPiece.js'
 import { OnAirLine } from './OnAirLine.js'
@@ -14,8 +14,8 @@ import { InvalidPartCover } from '../SegmentTimeline/Parts/InvalidPartCover.js'
 import { getPartInstanceTimingId } from '../../lib/rundownTiming.js'
 import { QuickLoopEnd } from './QuickLoopEnd.js'
 import { getShowHiddenSourceLayers } from '../../lib/localStorage.js'
-import { PieceExtended, PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
-import { PartExtended } from '@sofie-automation/corelib/src/dataModel/Part.js'
+import type { PieceExtended, PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import type { PartExtended } from '@sofie-automation/corelib/src/dataModel/Part.js'
 
 const TIMELINE_DEFAULT_BASE = 30 * 1000
 

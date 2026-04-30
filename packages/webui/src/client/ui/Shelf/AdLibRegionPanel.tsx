@@ -1,38 +1,38 @@
 import * as React from 'react'
 import _ from 'underscore'
 import {
-	RundownLayoutBase,
-	RundownLayoutAdLibRegion,
-	DashboardLayoutAdLibRegion,
+	type RundownLayoutBase,
+	type RundownLayoutAdLibRegion,
+	type DashboardLayoutAdLibRegion,
 	RundownLayoutAdLibRegionRole,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
-import { dashboardElementStyle, IDashboardPanelTrackedProps } from './DashboardPanel.js'
+import { dashboardElementStyle, type IDashboardPanelTrackedProps } from './DashboardPanel.js'
 import ClassNames from 'classnames'
-import { IAdLibPanelProps, AdLibFetchAndFilterProps, fetchAndFilter } from './AdLibPanel.js'
+import { type IAdLibPanelProps, type AdLibFetchAndFilterProps, fetchAndFilter } from './AdLibPanel.js'
 import { matchFilter } from './AdLibListView.js'
 import { doUserAction, UserAction } from '../../lib/clientUserAction.js'
-import { translateWithTracker, Translated } from '../../lib/ReactMeteorData/ReactMeteorData.js'
+import { translateWithTracker, type Translated } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import { NotificationCenter, Notification, NoticeLevel } from '../../lib/notifications/notifications.js'
 import { MeteorCall } from '../../lib/meteorApi.js'
 import {
-	AdLibPieceUi,
+	type AdLibPieceUi,
 	getNextPieceInstancesGrouped,
 	getUnfinishedPieceInstancesGrouped,
 	isAdLibDisplayedAsOnAir,
 	isAdLibNext,
 	isAdLibOnAir,
 } from '../../lib/shelf.js'
-import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
+import type { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import {
 	useContentStatusForPieceInstance,
-	WithMediaObjectStatusProps,
+	type WithMediaObjectStatusProps,
 } from '../SegmentTimeline/withMediaObjectStatus.js'
-import { ISourceLayer } from '@sofie-automation/blueprints-integration'
+import type { ISourceLayer } from '@sofie-automation/blueprints-integration'
 import { UIStudios } from '../Collections.js'
 import { Meteor } from 'meteor/meteor'
-import { ReadonlyDeep } from 'type-fest'
-import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import type { ReadonlyDeep } from 'type-fest'
+import type { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 interface IState {
 	objId?: string

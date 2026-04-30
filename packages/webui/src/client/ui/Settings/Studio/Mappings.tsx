@@ -2,7 +2,7 @@ import ClassNames from 'classnames'
 import React, { useCallback, useMemo } from 'react'
 import Tooltip from 'rc-tooltip'
 import { getActiveRoutes } from '@sofie-automation/meteor-lib/dist/collections/Studios'
-import { DBStudio, MappingExt, ResultingMappingRoutes } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import type { DBStudio, MappingExt, ResultingMappingRoutes } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { doModalDialog } from '../../../lib/ModalDialog.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash, faPencilAlt, faCheck, faPlus, faSync } from '@fortawesome/free-solid-svg-icons'
@@ -12,14 +12,14 @@ import { LOOKAHEAD_DEFAULT_SEARCH_DISTANCE } from '@sofie-automation/shared-lib/
 import { useToggleExpandHelper } from '../../util/useToggleExpandHelper.js'
 import {
 	getAllCurrentAndDeletedItemsFromOverrides,
-	OverrideOpHelper,
+	type OverrideOpHelper,
 	useOverrideOpHelper,
-	WrappedOverridableItemNormal,
+	type WrappedOverridableItemNormal,
 } from '../util/OverrideOpHelper.js'
 import {
 	applyAndValidateOverrides,
-	ObjectOverrideSetOp,
-	SomeObjectOverrideOp,
+	type ObjectOverrideSetOp,
+	type SomeObjectOverrideOp,
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { literal, objectPathGet } from '@sofie-automation/corelib/dist/lib'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
@@ -27,7 +27,7 @@ import { TextInputControl } from '../../../lib/Components/TextInput.js'
 import { IntInputControl } from '../../../lib/Components/IntInput.js'
 import {
 	DropdownInputControl,
-	DropdownInputOption,
+	type DropdownInputOption,
 	getDropdownInputOptions,
 } from '../../../lib/Components/DropdownInput.js'
 import {
@@ -36,15 +36,15 @@ import {
 	LabelAndOverridesForDropdown,
 	LabelAndOverridesForInt,
 } from '../../../lib/Components/LabelAndOverrides.js'
-import { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
+import type { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
 import { SchemaFormWithOverrides } from '../../../lib/forms/SchemaFormWithOverrides.js'
 import {
 	getSchemaSummaryFields,
-	SchemaSummaryField,
+	type SchemaSummaryField,
 	translateStringIfHasNamespaces,
 } from '../../../lib/forms/schemaFormUtil.js'
 import { Studios } from '../../../collections/index.js'
-import { ReadonlyDeep } from 'type-fest'
+import type { ReadonlyDeep } from 'type-fest'
 
 export interface MappingsSettingsManifest {
 	displayName: string

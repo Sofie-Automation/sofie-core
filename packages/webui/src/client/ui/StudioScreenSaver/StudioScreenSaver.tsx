@@ -1,6 +1,6 @@
 import * as React from 'react'
-import { Translated, useSubscription, useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { type Translated, useSubscription, useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { getCurrentTime } from '../../lib/systemTime.js'
 import { invalidateAfter } from '../../lib/invalidatingTime.js'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
@@ -9,12 +9,12 @@ import { Clock } from './Clock.js'
 import { Countdown } from './Countdown.js'
 import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
 import { UIStudios } from '../Collections.js'
-import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { RundownPlaylists } from '../../collections/index.js'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { withTranslation } from 'react-i18next'
 import { relativeToSiteRootUrl } from '../../url.js'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 
 interface IProps {
 	// the studio to be displayed in the screen saver

@@ -1,5 +1,6 @@
-import * as React from 'react'
-import { useTranslation, TFunction } from 'react-i18next'
+import type * as React from 'react'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { assertNever } from '@sofie-automation/corelib/dist/lib'
 import ClassNames from 'classnames'
 import { StatusCode } from '@sofie-automation/blueprints-integration'

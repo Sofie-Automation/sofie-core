@@ -3,6 +3,7 @@ import Router from '@koa/router'
 import { StatusCode } from '@sofie-automation/shared-lib/dist/lib/status'
 import { assertNever } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { IConnector, ICoreHandler } from './gateway-types.js'
+import { getPrometheusMetricsString, PrometheusHTTPContentType, setupPrometheusMetrics } from './prometheus.js'
 
 export interface HealthConfig {
 	/** If set, exposes health HTTP endpoints on the given port */
@@ -18,9 +19,13 @@ export class HealthEndpoints {
 	constructor(
 		private connector: IConnector,
 		private coreHandler: ICoreHandler,
-		private config: HealthConfig
+		private config: HealthConfig,
+		private customMetrics?: () => Promise<string[]>
 	) {
 		if (!config.port) return // disabled
+
+		// Setup default prometheus metrics when endpoints are enabled
+		setupPrometheusMetrics()
 
 		const router = new Router()
 
@@ -62,6 +67,22 @@ export class HealthEndpoints {
 			// else
 			ctx.status = 200
 			ctx.body = 'READY'
+		})
+
+		router.get('/metrics', async (ctx) => {
+			try {
+				ctx.response.type = PrometheusHTTPContentType
+
+				const [meteorMetrics, workerMetrics] = await Promise.all([
+					getPrometheusMetricsString(),
+					this.customMetrics?.(),
+				])
+
+				ctx.body = [meteorMetrics, ...(workerMetrics || [])].join('\n\n')
+			} catch (ex) {
+				ctx.response.status = 500
+				ctx.body = ex + ''
+			}
 		})
 
 		this.app.use(router.routes()).use(router.allowedMethods())

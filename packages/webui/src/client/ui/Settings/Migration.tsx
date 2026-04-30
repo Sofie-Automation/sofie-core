@@ -1,11 +1,11 @@
 import * as React from 'react'
-import { Translated, translateWithTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
+import { type Translated, translateWithTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
 import { doModalDialog } from '../../lib/ModalDialog.js'
 import ClassNames from 'classnames'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faClipboardCheck, faDatabase, faCoffee, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons'
 import { logger } from '../../lib/logging.js'
-import {
+import type {
 	GetMigrationStatusResult,
 	RunMigrationResult,
 	MigrationChunk,

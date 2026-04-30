@@ -21,7 +21,7 @@ import {
 import { ReadonlyDeep } from 'type-fest'
 import { IngestDatabasePersistedModel, IngestModel, IngestModelReadonly } from './model/IngestModel.js'
 import { JobContext } from '../jobs/index.js'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { runJobWithPlaylistLock, runWithPlayoutModel } from '../playout/lock.js'
 import { CommitIngestData } from './lock.js'

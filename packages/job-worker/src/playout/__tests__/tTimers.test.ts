@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { RundownTTimer } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/TTimers'
 import { useFakeCurrentTime, useRealCurrentTime } from '../../__mocks__/time.js'
 import {
 	validateTTimerIndex,
@@ -10,7 +11,6 @@ import {
 	calculateNextTimeOfDayTarget,
 	createTimeOfDayTTimer,
 } from '../tTimers.js'
-import type { RundownTTimer } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
 
 describe('tTimers utils', () => {
 	beforeEach(() => {
@@ -289,7 +289,7 @@ describe('tTimers utils', () => {
 			})
 		})
 
-		it('should return null for freeRun timer', () => {
+		it('should restart a running freeRun timer', () => {
 			const timer: RundownTTimer = {
 				index: 2,
 				label: 'Test',
@@ -299,7 +299,34 @@ describe('tTimers utils', () => {
 				state: { paused: false, zeroTime: 5000 },
 			}
 
-			expect(restartTTimer(timer)).toBeNull()
+			expect(restartTTimer(timer)).toEqual({
+				index: 2,
+				label: 'Test',
+				mode: {
+					type: 'freeRun',
+				},
+				state: { paused: false, zeroTime: 10000 }, // now
+			})
+		})
+
+		it('should restart a paused freeRun timer (stays paused)', () => {
+			const timer: RundownTTimer = {
+				index: 2,
+				label: 'Test',
+				mode: {
+					type: 'freeRun',
+				},
+				state: { paused: true, duration: 12345 },
+			}
+
+			expect(restartTTimer(timer)).toEqual({
+				index: 2,
+				label: 'Test',
+				mode: {
+					type: 'freeRun',
+				},
+				state: { paused: true, duration: 0 },
+			})
 		})
 
 		it('should return null for timer with no mode', () => {

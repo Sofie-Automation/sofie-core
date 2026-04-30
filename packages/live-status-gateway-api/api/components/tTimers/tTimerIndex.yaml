@@ -1,0 +1,6 @@
+$defs:
+  tTimerIndex:
+    type: integer
+    title: TTimerIndex
+    description: Timer index (1-3). The playlist always has 3 T-timer slots.
+    enum: [1, 2, 3]

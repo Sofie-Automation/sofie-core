@@ -2,21 +2,24 @@ import React, { useCallback, useMemo } from 'react'
 import ClassNames from 'classnames'
 import { faPencilAlt, faTrash, faCheck, faExclamationTriangle, faPlus, faSync } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { IOutputLayer } from '@sofie-automation/blueprints-integration'
+import type { IOutputLayer } from '@sofie-automation/blueprints-integration'
 import { getRandomString, literal } from '@sofie-automation/corelib/dist/lib'
 import Tooltip from 'rc-tooltip'
 import { useTranslation } from 'react-i18next'
-import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
+import type { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { getHelpMode } from '../../../lib/localStorage.js'
 import { doModalDialog } from '../../../lib/ModalDialog.js'
 import { findHighestRank } from '../StudioSettings.js'
-import { ObjectOverrideSetOp, SomeObjectOverrideOp } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
+import type {
+	ObjectOverrideSetOp,
+	SomeObjectOverrideOp,
+} from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { CheckboxControl } from '../../../lib/Components/Checkbox.js'
 import {
 	useOverrideOpHelper,
 	getAllCurrentAndDeletedItemsFromOverrides,
-	OverrideOpHelper,
-	WrappedOverridableItemNormal,
+	type OverrideOpHelper,
+	type WrappedOverridableItemNormal,
 } from '../util/OverrideOpHelper.js'
 import { TextInputControl } from '../../../lib/Components/TextInput.js'
 import { IntInputControl } from '../../../lib/Components/IntInput.js'

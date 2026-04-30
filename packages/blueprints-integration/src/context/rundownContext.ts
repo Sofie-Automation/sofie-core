@@ -5,11 +5,15 @@ import type { IShowStyleContext } from './showStyleContext.js'
 import type { IExecuteTSRActionsContext } from './executeTsrActionContext.js'
 import type { IDataStoreMethods } from './adlibActionContext.js'
 import { ITTimersContext } from './tTimersContext.js'
+import type { Time } from '../common.js'
 
 export interface IRundownContext extends IShowStyleContext {
 	readonly rundownId: string
 	readonly playlistId: string
 	readonly rundown: Readonly<IBlueprintSegmentRundown>
+
+	/** Actual time of playback starting for the playlist (undefined if not started) */
+	readonly startedPlayback: Time | undefined
 }
 
 export interface IRundownUserContext extends IUserNotesContext, IRundownContext {}

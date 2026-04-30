@@ -2,22 +2,22 @@ import React, { useCallback, useContext, useEffect, useRef } from 'react'
 import { useHistory } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import Escape from '../../../lib/Escape'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { Rundown, getRundownNrcsName } from '@sofie-automation/corelib/dist/dataModel/Rundown'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import { type Rundown, getRundownNrcsName } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { ContextMenu, MenuItem, ContextMenuTrigger, hideMenu, showMenu } from '@jstarpl/react-contextmenu'
 import { contextMenuHoldToDisplayTime, useRundownViewEventBusListener } from '../../../lib/lib'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons'
 import {
-	ActivateRundownPlaylistEvent,
-	DeactivateRundownPlaylistEvent,
-	IEventContext,
+	type ActivateRundownPlaylistEvent,
+	type DeactivateRundownPlaylistEvent,
+	type IEventContext,
 	RundownViewEvents,
 } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
 import { UserPermissionsContext } from '../../UserPermissions'
 import { checkRundownTimes, useRundownPlaylistOperations } from './useRundownPlaylistOperations.js'
 import { reloadRundownPlaylistClick } from '../RundownNotifier'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio'
 import { isAnyLoopMarkerDefined, isLoopLocked } from '@sofie-automation/corelib/src/playout/stateCacheResolver'
 
 export const RUNDOWN_CONTEXT_MENU_ID = 'rundown-context-menu'
@@ -206,13 +206,9 @@ export function RundownHamburgerButton({
 			ref={buttonRef}
 			className={`rundown-header__menu-btn ${isOpen ? 'active' : ''} ${disabled ? 'disabled' : ''}`}
 			disabled={disabled}
-			onMouseDown={handleToggle}
-			onClick={(e) => {
-				// Prevent double trigger if browser emits both mousedown and click
-				e.preventDefault()
-				e.stopPropagation()
-			}}
+			onClick={handleToggle}
 			title={t('Menu')}
+			aria-label={t('Menu')}
 		>
 			<FontAwesomeIcon icon={isOpen ? faTimes : faBars} fixedWidth />
 		</button>

@@ -1,5 +1,5 @@
 import { ControllerAbstract } from './lib.js'
-import { PrompterViewContent, PrompterConfigMode } from '../PrompterView.js'
+import { type PrompterViewContent, PrompterConfigMode } from '../PrompterView.js'
 
 /**
  * This class handles control of the prompter using Keyboard keys sent from an xkeys

@@ -1,14 +1,14 @@
 import { RundownPlaylists, Rundowns } from '../../../collections'
 import {
-	ReloadRundownPlaylistResponse,
+	type ReloadRundownPlaylistResponse,
 	TriggerReloadDataResponse,
 } from '@sofie-automation/meteor-lib/dist/api/userActions'
 import _ from 'underscore'
 import { RundownPlaylistCollectionUtil } from '../../../collections/rundownPlaylistUtil'
-import * as i18next from 'i18next'
-import { UserPermissions } from '../../UserPermissions'
+import type * as i18next from 'i18next'
+import type { UserPermissions } from '../../UserPermissions'
 import { NoticeLevel, Notification, NotificationCenter } from '../../../lib/notifications/notifications'
-import { RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { getRundownNrcsName } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { UserAction } from '@sofie-automation/meteor-lib/dist/userAction'
 import { Tracker } from 'meteor/tracker'

@@ -9,7 +9,7 @@ import { CollectionHandlers } from '../../liveStatusServer.js'
 import { PublicationCollection } from '../../publicationCollection.js'
 import { DBNotificationObj, DBNotificationTargetRundown } from '@sofie-automation/corelib/dist/dataModel/Notifications'
 import { PickKeys } from '@sofie-automation/shared-lib/dist/lib/types'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 
 const PLAYLIST_KEYS = ['_id', 'rundownIdsInOrder'] as const
 type Playlist = PickKeys<DBRundownPlaylist, typeof PLAYLIST_KEYS>

@@ -46,7 +46,14 @@ $defs:
         $ref: '../../timing/activePlaylistTiming/activePlaylistTiming.yaml#/$defs/activePlaylistTiming'
       quickLoop:
         $ref: '../../quickLoop/activePlaylistQuickLoop/activePlaylistQuickLoop.yaml#/$defs/activePlaylistQuickLoop'
-    required: [event, id, externalId, name, rundownIds, currentPart, currentSegment, nextPart, timing]
+      tTimers:
+        description: Status of the 3 T-timers in the playlist
+        type: array
+        items:
+          $ref: '../../tTimers/tTimerStatus.yaml#/$defs/tTimerStatus'
+        minItems: 3
+        maxItems: 3
+    required: [event, id, externalId, name, rundownIds, currentPart, currentSegment, nextPart, timing, tTimers]
     additionalProperties: false
     examples:
       - $ref: './activePlaylistEvent-example.yaml'

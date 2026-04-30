@@ -1,6 +1,6 @@
-import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
+import type { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
 import { useContext } from 'react'
 import { ErrorBoundary } from '../../lib/ErrorBoundary'
 import { PreviewPopUpContextProvider } from '../PreviewPopUp/PreviewPopUpContext'
@@ -9,9 +9,9 @@ import { UserPermissionsContext } from '../UserPermissions'
 import { RundownSorensenContext } from './RundownSorensenContext'
 import { RundownTimingProvider } from './RundownTiming/RundownTimingProvider'
 import { Settings } from '../../lib/Settings'
-import { RundownLayoutShelfBase } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio'
+import type { RundownLayoutShelfBase } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
+import type { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio'
 
 interface RundownDetachedShelfProps {
 	playlist: DBRundownPlaylist

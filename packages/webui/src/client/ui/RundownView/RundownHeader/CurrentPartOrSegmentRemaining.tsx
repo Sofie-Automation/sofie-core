@@ -1,9 +1,9 @@
-import React, { useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import ClassNames from 'classnames'
 import { TimingDataResolution, TimingTickResolution, useTiming } from '../RundownTiming/withTiming.js'
 import { RundownUtils } from '../../../lib/rundown.js'
 import { SpeechSynthesiser } from '../../../lib/speechSynthesis.js'
-import { PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 import { Countdown } from './Countdown.js'
 
@@ -20,9 +20,6 @@ interface IPartRemainingProps {
 	/** Use the segment budget instead of the part duration if available */
 	preferSegmentTime?: boolean
 }
-
-// global variable for remembering last uttered displayTime
-let prevDisplayTime: number | undefined = undefined
 
 function speak(displayTime: number) {
 	let text = '' // Say nothing
@@ -83,10 +80,11 @@ function vibrate(displayTime: number) {
 function usePartRemaining(props: IPartRemainingProps) {
 	const timingDurations = useTiming(TimingTickResolution.Synced, TimingDataResolution.Synced)
 	const prevPartInstanceId = useRef<PartInstanceId | null>(null)
+	const prevDisplayTime = useRef<number | undefined>(undefined)
 
 	useEffect(() => {
 		if (props.currentPartInstanceId !== prevPartInstanceId.current) {
-			prevDisplayTime = undefined
+			prevDisplayTime.current = undefined
 			prevPartInstanceId.current = props.currentPartInstanceId
 		}
 
@@ -100,7 +98,7 @@ function usePartRemaining(props: IPartRemainingProps) {
 			displayTime = Math.floor(displayTime / 1000)
 		}
 
-		if (prevDisplayTime !== displayTime) {
+		if (prevDisplayTime.current !== displayTime) {
 			if (props.speaking) {
 				speak(displayTime)
 			}
@@ -109,7 +107,7 @@ function usePartRemaining(props: IPartRemainingProps) {
 				vibrate(displayTime)
 			}
 
-			prevDisplayTime = displayTime
+			prevDisplayTime.current = displayTime
 		}
 	}, [
 		props.currentPartInstanceId,

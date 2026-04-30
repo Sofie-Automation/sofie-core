@@ -1,4 +1,4 @@
-import { JSX } from 'react'
+import type { JSX } from 'react'
 import { assertNever } from '@sofie-automation/corelib/dist/lib'
 import { SortAscending, SortDescending, SortDisabled } from '../../lib/ui/icons/sorting.js'
 

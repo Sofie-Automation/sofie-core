@@ -1,5 +1,5 @@
 import { PieceMultistepChevron } from '../../../SegmentContainer/PieceMultistepChevron.js'
-import { IProps } from './ThumbnailRendererFactory.js'
+import type { IProps } from './ThumbnailRendererFactory.js'
 import { LoopingPieceIcon } from '../../../../lib/ui/icons/looping.js'
 
 export function GraphicsThumbnailRenderer({ pieceInstance, hovering }: Readonly<IProps>): JSX.Element {

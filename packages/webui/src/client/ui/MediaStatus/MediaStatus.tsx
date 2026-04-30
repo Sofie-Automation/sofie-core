@@ -1,7 +1,7 @@
-import { useMemo, JSX } from 'react'
+import { useMemo, type JSX } from 'react'
 import { useSubscription, useSubscriptions, useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import {
+import type {
 	AdLibActionId,
 	PartId,
 	PartInstanceId,
@@ -24,13 +24,13 @@ import {
 	RundownPlaylists,
 	Rundowns,
 } from '../../collections/index.js'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { ProtectedString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { ExpectedPackage } from '@sofie-automation/shared-lib/dist/package-manager/package'
-import { PartInvalidReason } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { IBlueprintActionManifestDisplayContent, SourceLayerType } from '@sofie-automation/blueprints-integration'
-import { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
-import { Piece, PieceStatusCode } from '@sofie-automation/corelib/dist/dataModel/Piece'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import { type ProtectedString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
+import type { ExpectedPackage } from '@sofie-automation/shared-lib/dist/package-manager/package'
+import type { PartInvalidReason } from '@sofie-automation/corelib/dist/dataModel/Part'
+import type { IBlueprintActionManifestDisplayContent, SourceLayerType } from '@sofie-automation/blueprints-integration'
+import type { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
+import { type Piece, PieceStatusCode } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { assertNever, literal } from '@sofie-automation/corelib/dist/lib'
 import { UIPieceContentStatuses, UIShowStyleBases } from '../Collections.js'
 import { isTranslatableMessage, translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'

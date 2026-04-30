@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
+import type { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
 import { BucketPanel } from './BucketPanel.js'
 import { doUserAction, UserAction } from '../../lib/clientUserAction.js'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
@@ -8,33 +8,37 @@ import { withTranslation } from 'react-i18next'
 import { faBars } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { literal } from '@sofie-automation/corelib/dist/lib'
-import { unprotectString, ProtectedString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { unprotectString, type ProtectedString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { getElementDocumentOffset } from '../../utils/positions.js'
 import { UIStateStorage } from '../../lib/UIStateStorage.js'
-import { doModalDialog, ModalDialogQueueItem } from '../../lib/ModalDialog.js'
+import { doModalDialog, type ModalDialogQueueItem } from '../../lib/ModalDialog.js'
 import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'
-import { Translated } from '../../lib/ReactMeteorData/ReactMeteorData.js'
+import type { Translated } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 
 import { MeteorCall } from '../../lib/meteorApi.js'
 import update from 'immutability-helper'
 
 import { contextMenuHoldToDisplayTime } from '../../lib/lib.js'
-import { AdLibPieceUi } from '../../lib/shelf.js'
-import { IAdLibListItem } from './AdLibListItem.js'
+import type { AdLibPieceUi } from '../../lib/shelf.js'
+import type { IAdLibListItem } from './AdLibListItem.js'
 import { setShelfContextMenuContext, ContextType as MenuContextType } from './ShelfContextMenu.js'
 import RundownViewEventBus, {
 	RundownViewEvents,
-	BucketAdLibEvent,
-	BucketEvent,
-	IEventContext,
+	type BucketAdLibEvent,
+	type BucketEvent,
+	type IEventContext,
 } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
-import { BucketAdLibId, BucketId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { DashboardLayoutExternalFrame } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import { BucketAdLibItem, BucketAdLibUi, BucketAdLibActionUi } from '@sofie-automation/meteor-lib/dist/uiTypes/Bucket'
+import type { BucketAdLibId, BucketId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { DashboardLayoutExternalFrame } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
+import type {
+	BucketAdLibItem,
+	BucketAdLibUi,
+	BucketAdLibActionUi,
+} from '@sofie-automation/meteor-lib/dist/uiTypes/Bucket'
 import { ErrorBoundary } from '../../lib/ErrorBoundary.js'
-import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
-import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import type { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import type { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 export type {
 	BucketAdLibItem,
@@ -83,7 +87,7 @@ interface IState {
 	localBuckets: Bucket[]
 }
 
-export const RundownViewBuckets = withTranslation()(
+export const RundownViewBuckets: React.ComponentType<IBucketsProps> = withTranslation()(
 	class RundownViewBuckets extends React.Component<Translated<IBucketsProps>, IState> {
 		private _mouseLast: {
 			x: number

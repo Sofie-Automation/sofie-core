@@ -11,7 +11,10 @@ import { LookaheadMode, PlaylistTimingType, TSR } from '@sofie-automation/bluepr
 import { setupDefaultJobEnvironment, MockJobContext } from '../../../__mocks__/context.js'
 import { runJobWithPlayoutModel } from '../../../playout/lock.js'
 import { defaultRundownPlaylist } from '../../../__mocks__/defaultCollectionObjects.js'
-import { DBRundownPlaylist, RundownHoldState } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import {
+	DBRundownPlaylist,
+	RundownHoldState,
+} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 
 jest.mock('../findForLayer')
 type TfindLookaheadForLayer = jest.MockedFunction<typeof findLookaheadForLayer>

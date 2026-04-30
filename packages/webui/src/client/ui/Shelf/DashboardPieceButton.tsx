@@ -1,23 +1,31 @@
 import * as React from 'react'
 import { Meteor } from 'meteor/meteor'
 import ClassNames from 'classnames'
-import { ISourceLayer, IOutputLayer, SourceLayerType, VTContent } from '@sofie-automation/blueprints-integration'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
-import { IAdLibListItem } from './AdLibListItem.js'
+import {
+	type ISourceLayer,
+	type IOutputLayer,
+	SourceLayerType,
+	type VTContent,
+} from '@sofie-automation/blueprints-integration'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { IAdLibListItem } from './AdLibListItem.js'
 import SplitInputIcon from '../PieceIcons/Renderers/SplitInputIcon.js'
 import { PieceDisplayStyle } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import { DashboardPieceButtonSplitPreview } from './DashboardPieceButtonSplitPreview.js'
 import { StyledTimecode } from '../../lib/StyledTimecode.js'
-import { useContentStatusForAdlibPiece, WithMediaObjectStatusProps } from '../SegmentTimeline/withMediaObjectStatus.js'
+import {
+	useContentStatusForAdlibPiece,
+	type WithMediaObjectStatusProps,
+} from '../SegmentTimeline/withMediaObjectStatus.js'
 
 import { isTouchDevice } from '../../lib/lib.js'
 import {
 	convertSourceLayerItemToPreview,
-	IPreviewPopUpContext,
-	IPreviewPopUpSession,
+	type IPreviewPopUpContext,
+	type IPreviewPopUpSession,
 	PreviewPopUpContext,
 } from '../PreviewPopUp/PreviewPopUpContext.js'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 import { RundownUtils } from '../../lib/rundown.js'
 
 export interface IDashboardButtonProps {

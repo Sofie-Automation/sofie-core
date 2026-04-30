@@ -1,0 +1,16 @@
+$defs:
+  timerStateRunning:
+    $ref: './timerState/running/timerStateRunning.yaml#/$defs/timerStateRunning'
+
+  timerStatePaused:
+    $ref: './timerState/paused/timerStatePaused.yaml#/$defs/timerStatePaused'
+
+  timerState:
+    title: TimerState
+    description: >-
+      Runtime state of a timer, optimized for efficient client rendering.
+      When running, the client calculates current time from zeroTime.
+      When paused, the duration is frozen and sent directly.
+    oneOf:
+      - $ref: '#/$defs/timerStateRunning'
+      - $ref: '#/$defs/timerStatePaused'

@@ -1,6 +1,6 @@
 import { Logger } from 'winston'
 import { WebSocket } from 'ws'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { WebSocketTopicBase, WebSocketTopic } from '../wsHandler.js'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { groupByToMap } from '@sofie-automation/corelib/dist/lib'

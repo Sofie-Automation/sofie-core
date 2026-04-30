@@ -21,6 +21,12 @@ import {
 	SegmentCountdownType,
 } from '@sofie-automation/live-status-gateway-api'
 
+const DEFAULT_UNCONFIGURED_T_TIMERS: ActivePlaylistEvent['tTimers'] = [
+	{ index: 1, label: '', configured: false, mode: null, state: null, projected: null, anchorPartId: null },
+	{ index: 2, label: '', configured: false, mode: null, state: null, projected: null, anchorPartId: null },
+	{ index: 3, label: '', configured: false, mode: null, state: null, projected: null, anchorPartId: null },
+]
+
 function makeEmptyTestPartInstances(): SelectedPartInstances {
 	return {
 		previous: undefined,
@@ -63,6 +69,7 @@ describe('ActivePlaylistTopic', () => {
 				timingMode: ActivePlaylistTimingMode.NONE,
 			},
 			quickLoop: undefined,
+			tTimers: DEFAULT_UNCONFIGURED_T_TIMERS,
 		}
 
 		// eslint-disable-next-line @typescript-eslint/unbound-method
@@ -164,6 +171,7 @@ describe('ActivePlaylistTopic', () => {
 				timingMode: ActivePlaylistTimingMode.NONE,
 			},
 			quickLoop: undefined,
+			tTimers: DEFAULT_UNCONFIGURED_T_TIMERS,
 		}
 
 		// eslint-disable-next-line @typescript-eslint/unbound-method
@@ -270,6 +278,7 @@ describe('ActivePlaylistTopic', () => {
 				timingMode: ActivePlaylistTimingMode.NONE,
 			},
 			quickLoop: undefined,
+			tTimers: DEFAULT_UNCONFIGURED_T_TIMERS,
 		}
 
 		// eslint-disable-next-line @typescript-eslint/unbound-method
@@ -277,5 +286,55 @@ describe('ActivePlaylistTopic', () => {
 		expect(JSON.parse(mockSubscriber.send.mock.calls[0][0] as string)).toMatchObject(
 			JSON.parse(JSON.stringify(expectedStatus))
 		)
+	})
+
+	it('maps a configured t-timer', async () => {
+		const handlers = makeMockHandlers()
+		const topic = new ActivePlaylistTopic(makeMockLogger(), handlers)
+		const mockSubscriber = makeMockSubscriber()
+
+		const playlist = makeTestPlaylist()
+		playlist.activationId = protectString('somethingRandom')
+		playlist.tTimers = [
+			{
+				index: 1,
+				label: 'Segment Timer',
+				mode: { type: 'countdown', duration: 120000, stopAtZero: true },
+				state: { paused: false, zeroTime: 1706371920000, pauseTime: null },
+				projectedState: undefined,
+				anchorPartId: undefined,
+			},
+			{ index: 2, label: '', mode: null, state: null },
+			{ index: 3, label: '', mode: null, state: null },
+		] as any
+		handlers.playlistHandler.notify(playlist)
+
+		const testShowStyleBase = makeTestShowStyleBase()
+		handlers.showStyleBaseHandler.notify(testShowStyleBase as ShowStyleBaseExt)
+
+		const testPartInstancesMap = makeEmptyTestPartInstances()
+		handlers.partInstancesHandler.notify(testPartInstancesMap)
+
+		topic.addSubscriber(mockSubscriber)
+
+		// eslint-disable-next-line @typescript-eslint/unbound-method
+		expect(mockSubscriber.send).toHaveBeenCalledTimes(1)
+		const emitted = JSON.parse(mockSubscriber.send.mock.calls[0][0] as string) as ActivePlaylistEvent
+		expect(emitted.tTimers[0]).toMatchObject({
+			index: 1,
+			label: 'Segment Timer',
+			configured: true,
+			mode: { type: 'countdown', duration: 120000, stopAtZero: true },
+			state: { paused: false, zeroTime: 1706371920000, pauseTime: null },
+			projected: null,
+			anchorPartId: null,
+		})
+		expect(emitted.tTimers[1]).toMatchObject({
+			index: 2,
+			label: '',
+			configured: false,
+			mode: null,
+			state: null,
+		})
 	})
 })
