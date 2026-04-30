@@ -294,7 +294,7 @@ $dashboard-button-height: 3.625em;
 		vertical-align: top;
 		cursor: pointer;
 
-		@include item-type-colors();
+		@include item-type-colors;
 		@include invalid-overlay();
 		@include floated-overlay();
 		@include missing-overlay();
@@ -478,6 +478,7 @@ $dashboard-button-height: 3.625em;
 		&.dashboard-panel__panel__button--no-thumbnail {
 			> .dashboard-panel__panel__button__content
 				> .dashboard-panel__panel__button__tag-container
+				> .dashboard-panel__panel__button__tag-container--inner
 				> .dashboard-panel__panel__button__label-container {
 				border-radius: 0 4px 4px 0;
 			}
@@ -499,6 +500,7 @@ $dashboard-button-height: 3.625em;
 		&:not(.dashboard-panel__panel__button--compact):not(.list):not(.dashboard-panel__panel__button--no-thumbnail)
 			> .dashboard-panel__panel__button__content
 			> .dashboard-panel__panel__button__tag-container
+			> .dashboard-panel__panel__button__tag-container--inner
 			> .dashboard-panel__panel__button__label-container
 			.dashboard-panel__panel__button__label
 			> .dashboard-panel__panel__button__label__content:not(.dashboard-panel__panel__button__label__content--editable) {
@@ -512,6 +514,7 @@ $dashboard-button-height: 3.625em;
 		&.dashboard-panel__panel__button--no-thumbnail:not(.dashboard-panel__panel__button--compact):not(.list)
 			> .dashboard-panel__panel__button__content
 			> .dashboard-panel__panel__button__tag-container
+			> .dashboard-panel__panel__button__tag-container--inner
 			> .dashboard-panel__panel__button__label-container
 			.dashboard-panel__panel__button__label
 			> .dashboard-panel__panel__button__label__content:not(.dashboard-panel__panel__button__label__content--editable) {
@@ -529,6 +532,7 @@ $dashboard-button-height: 3.625em;
 
 			> .dashboard-panel__panel__button__content
 				> .dashboard-panel__panel__button__tag-container
+				> .dashboard-panel__panel__button__tag-container--inner
 				> .dashboard-panel__panel__button__label-container {
 				border-bottom-right-radius: 4px;
 				max-height: 34.5667px;
@@ -577,7 +581,6 @@ $dashboard-button-height: 3.625em;
 							1px -1px 0px rgba(0, 0, 0, 0.5),
 							0.5px 0.5px 2px rgba(0, 0, 0, 1);
 						z-index: 2;
-						word-break: break-word;
 						overflow-wrap: break-word;
 						white-space: normal;
 						overflow: hidden;
@@ -633,7 +636,6 @@ $dashboard-button-height: 3.625em;
 					.dashboard-panel__panel__button__sub-label {
 						font-family: Roboto Flex;
 						font-weight: 400;
-						font-style: Medium;
 						font-size: 13px;
 						line-height: 17px;
 						letter-spacing: 0px;
@@ -736,8 +738,8 @@ $dashboard-button-height: 3.625em;
 		}
 
 		&.dashboard-panel__panel__button--no-media:not(.dashboard-panel__panel__button--compact):not(
-			.dashboard-panel__panel__button--no-thumbnail
-		) {
+				.dashboard-panel__panel__button--no-thumbnail
+			) {
 			.dashboard-panel__panel__button__hotkey {
 				left: 10px;
 			}
@@ -796,7 +798,7 @@ $dashboard-button-height: 3.625em;
 					}
 
 					& > * {
-						@include item-type-colors();
+						@include item-type-colors;
 					}
 				}
 			}
@@ -814,7 +816,7 @@ $dashboard-button-height: 3.625em;
 					> .dashboard-panel__panel__button__tag-container
 					.dashboard-panel__panel__button__label-container {
 					margin-left: 75px;
-					word-break: break-word;
+					overflow-wrap: break-word;
 				}
 			}
 		}
@@ -899,9 +901,10 @@ $dashboard-button-height: 3.625em;
 			box-sizing: border-box;
 			z-index: 20;
 
-			transition: box-shadow 0.2s ease;
-			transition: border-color 0.3s ease;
-			transition: background-color 0.4s ease-out;
+			transition:
+				box-shadow 0.2s ease,
+				border-color 0.3s ease,
+				background-color 0.4s ease-out;
 		}
 		&:hover {
 			box-shadow: 0px 0px 8px 0px rgba(255, 255, 255, 0.1);
@@ -946,6 +949,7 @@ $dashboard-button-height: 3.625em;
 			}
 			.dashboard-panel__panel__button__content
 				.dashboard-panel__panel__button__tag-container
+				> .dashboard-panel__panel__button__tag-container--inner
 				> .dashboard-panel__panel__button__label-container {
 				background-color: rgb(106, 0, 0);
 			}
@@ -1027,6 +1031,7 @@ $dashboard-button-height: 3.625em;
 		&.dashboard-panel__panel__button--no-thumbnail:not(.dashboard-panel__panel__button--compact):not(.list)
 			> .dashboard-panel__panel__button__content
 			.dashboard-panel__panel__button__tag-container
+			> .dashboard-panel__panel__button__tag-container--inner
 			> .dashboard-panel__panel__button__label-container
 			> .dashboard-panel__panel__button__label
 			> .dashboard-panel__panel__button__label__content:not(.dashboard-panel__panel__button__label__content--editable) {
@@ -1045,9 +1050,8 @@ $dashboard-button-height: 3.625em;
 			background: linear-gradient(90deg, rgb(84, 84, 84) 0%, rgb(61, 61, 61) 100%);
 
 			.dashboard-panel__panel__button__tag-container {
-				@include item-type-colors();
-				> .dashboard-panel__panel__button__label-container {
-					padding: 3px 4px 0 4px;
+				@include item-type-colors;
+				> .dashboard-panel__panel__button__tag-container--inner > .dashboard-panel__panel__button__label-container {
 					top: 50%;
 					background-color: rgba(0, 0, 0, 0.8);
 					display: flex;

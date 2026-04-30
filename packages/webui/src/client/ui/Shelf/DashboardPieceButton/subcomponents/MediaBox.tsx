@@ -17,7 +17,7 @@ type Props = Pick<
 }
 
 export function MediaBox(props: Props): JSX.Element | null {
-	const { piece, layer, studio, displayStyle, showThumbnailsInList, disableHoverInspector, contentStatus } = props
+	const { piece, layer, studio, displayStyle, showThumbnailsInList, contentStatus } = props
 
 	const isList = displayStyle === PieceDisplayStyle.LIST
 	const isButtons = displayStyle === PieceDisplayStyle.BUTTONS
@@ -38,7 +38,7 @@ export function MediaBox(props: Props): JSX.Element | null {
 		}
 	}, [contentStatus?.status])
 
-	if (disableHoverInspector || !layer) return null
+	if (!layer) return null
 
 	if (layer.type === SourceLayerType.VT || layer.type === SourceLayerType.LIVE_SPEAK) {
 		const vtContent = piece.content as VTContent | undefined

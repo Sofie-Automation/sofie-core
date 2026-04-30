@@ -66,6 +66,7 @@ export const DashboardPieceButton = React.forwardRef<HTMLDivElement, DashboardPi
 			layer,
 			contentStatus,
 			previewContext,
+			disableHoverInspector,
 			toggleOnSingleClick,
 			queueAllAdlibs,
 			canOverflowHorizontally,
@@ -116,7 +117,7 @@ export const DashboardPieceButton = React.forwardRef<HTMLDivElement, DashboardPi
 
 		const isList = displayStyle === PieceDisplayStyle.LIST
 		const hasMediaBox = useMemo(() => {
-			if (disableHoverInspector || !layer) return false
+			if (!layer) return false
 			if (!(layer.type === SourceLayerType.VT || layer.type === SourceLayerType.LIVE_SPEAK)) return false
 
 			const isButtons = displayStyle === PieceDisplayStyle.BUTTONS
@@ -138,7 +139,6 @@ export const DashboardPieceButton = React.forwardRef<HTMLDivElement, DashboardPi
 					return false
 			}
 		}, [
-			disableHoverInspector,
 			layer,
 			displayStyle,
 			isList,
@@ -149,7 +149,13 @@ export const DashboardPieceButton = React.forwardRef<HTMLDivElement, DashboardPi
 		])
 
 		return (
-			<div className={ClassNames('dashboard-panel__panel__button-wrapper', { live: isOnAir, next: isNext })}>
+			<div
+				className={ClassNames('dashboard-panel__panel__button-wrapper', {
+					live: isOnAir,
+					next: isNext,
+					selected: isNext || isSelected,
+				})}
+			>
 				<div
 					className={ClassNames(
 						'dashboard-panel__panel__button',

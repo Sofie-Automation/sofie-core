@@ -20,6 +20,7 @@ import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { wrapGenericIngestJob } from '../jobWrappers.js'
 import { handleUpdatedRundown } from '../ingestRundownJobs.js'
+import { logger } from '../../logging.js'
 
 const handleUpdatedRundownWrapped = wrapGenericIngestJob(handleUpdatedRundown)
 
@@ -109,39 +110,57 @@ describe('Blueprint segment legacy showShelf compatibility', () => {
 	}
 
 	test('showShelf:true maps to displayMinishelf:inherit and does not persist showShelf', async () => {
-		const { segment } = await createRundownWithSingleSegment((ingestSegment) => {
-			const seg: IBlueprintSegment = {
-				name: ingestSegment.name,
-				showShelf: true,
-			}
-			return {
-				segment: seg,
-				parts: [],
-			}
-		})
+		const warnSpy = jest.spyOn(logger, 'warn').mockImplementation(() => undefined)
+		try {
+			const { segment } = await createRundownWithSingleSegment((ingestSegment) => {
+				const seg: IBlueprintSegment = {
+					name: ingestSegment.name,
+					showShelf: true,
+				}
+				return {
+					segment: seg,
+					parts: [],
+				}
+			})
 
-		expect(segment.displayMinishelf).toBe(ShelfButtonSize.INHERIT)
-		expect(segment.showShelf).toBeUndefined()
+			expect(segment.displayMinishelf).toBe(ShelfButtonSize.INHERIT)
+			expect(segment.showShelf).toBeUndefined()
 
-		// A warning note should be emitted via the blueprint context
-		expect(segment.notes?.[0]?.message.key).toContain('Deprecated blueprint segment field "showShelf" used')
+			// A warning should be emitted via the blueprint context
+			expect(
+				warnSpy.mock.calls.some((args) =>
+					args.some((arg) => String(arg).includes('Deprecated blueprint segment field "showShelf" used'))
+				)
+			).toBe(true)
+		} finally {
+			warnSpy.mockRestore()
+		}
 	})
 
 	test('showShelf:false results in minishelf hidden (no displayMinishelf) and does not persist showShelf', async () => {
-		const { segment } = await createRundownWithSingleSegment((ingestSegment) => {
-			const seg: IBlueprintSegment = {
-				name: ingestSegment.name,
-				showShelf: false,
-			}
-			return {
-				segment: seg,
-				parts: [],
-			}
-		})
+		const warnSpy = jest.spyOn(logger, 'warn').mockImplementation(() => undefined)
+		try {
+			const { segment } = await createRundownWithSingleSegment((ingestSegment) => {
+				const seg: IBlueprintSegment = {
+					name: ingestSegment.name,
+					showShelf: false,
+				}
+				return {
+					segment: seg,
+					parts: [],
+				}
+			})
 
-		expect(segment.displayMinishelf).toBeUndefined()
-		expect(segment.showShelf).toBeUndefined()
-		expect(segment.notes?.[0]?.message.key).toContain('Deprecated blueprint segment field "showShelf" used')
+			expect(segment.displayMinishelf).toBeUndefined()
+			expect(segment.showShelf).toBeUndefined()
+			expect(
+				warnSpy.mock.calls.some((args) =>
+					args.some((arg) => String(arg).includes('Deprecated blueprint segment field "showShelf" used'))
+				)
+			).toBe(true)
+		} finally {
+			warnSpy.mockRestore()
+		}
 	})
 
 	test('displayMinishelf wins over legacy showShelf', async () => {

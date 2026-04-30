@@ -13,6 +13,7 @@ export function useDashboardButtonInteractions(args: {
 	layer: IDashboardButtonProps['layer']
 	contentStatus: ReadonlyDeep<PieceContentStatusObj> | undefined
 	previewContext: IPreviewPopUpContext
+	disableHoverInspector: boolean | undefined
 	toggleOnSingleClick: boolean | undefined
 	queueAllAdlibs: boolean | undefined
 	canOverflowHorizontally: boolean | undefined
@@ -48,6 +49,7 @@ export function useDashboardButtonInteractions(args: {
 		layerType: args.layer?.type,
 		piece: args.piece,
 		contentStatus: args.contentStatus,
+		enableHoverPreview: !args.disableHoverInspector,
 	})
 
 	const queueFlagFromEvent = useCallback(
@@ -59,14 +61,14 @@ export function useDashboardButtonInteractions(args: {
 		const el = elementRef.current
 		if (!el) return
 		const { top, left, width, height } = el.getBoundingClientRect()
-		positionAndSizeRef.current = { top: window.scrollY + top, left: window.scrollX + left, width, height }
+		positionAndSizeRef.current = { top, left, width, height }
 	}, [])
 
 	const onPointerEnter = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
 			updatePositionAndSize()
 			if (e.pointerType === 'mouse' && hasPreview) {
-				openPreview(e.target, timePosition)
+				openPreview(e.currentTarget, timePosition)
 			}
 		},
 		[hasPreview, openPreview, timePosition, updatePositionAndSize]
@@ -154,7 +156,7 @@ export function useDashboardButtonInteractions(args: {
 		(e: React.TouchEvent<HTMLDivElement>) => {
 			if (args.canOverflowHorizontally) return
 			updatePositionAndSize()
-			if (hasPreview) openPreview(e.target, timePosition)
+			if (hasPreview) openPreview(e.currentTarget, timePosition)
 		},
 		[args.canOverflowHorizontally, hasPreview, openPreview, timePosition, updatePositionAndSize]
 	)

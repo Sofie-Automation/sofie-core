@@ -8,7 +8,7 @@
 	padding: 1px 1px 1px 1px;
 	display: flex;
 	flex-direction: column;
-	@include item-type-colors();
+	@include item-type-colors;
 
 	> .dashboard-panel__panel__button__label-container {
 		margin-left: 8px;

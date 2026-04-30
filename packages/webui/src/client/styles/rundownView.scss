@@ -1755,7 +1755,7 @@ svg.icon {
 									min-height: 0;
 									transform-style: preserve-3d;
 
-									@include item-type-colors();
+									@include item-type-colors;
 
 									> .segment-timeline__piece__label.right-side {
 										margin-right: 0 !important;
@@ -3096,7 +3096,7 @@ svg.icon {
 			}
 
 			& > * {
-				@include item-type-colors();
+				@include item-type-colors;
 			}
 
 			.video-preview__label {

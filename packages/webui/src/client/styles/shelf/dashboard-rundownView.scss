@@ -1,8 +1,8 @@
+@import './rundownViewShelfAdlibSizeToggle';
+
 .segment-timeline + .rundown-view-shelf {
 	padding: 12px 0 0 0;
 }
-
-@import './rundownViewShelfAdlibSizeToggle';
 
 .rundown-view-shelf.dashboard-panel {
 	background: rgba(0, 0, 0, 0.3);
@@ -14,7 +14,6 @@
 	display: flex;
 	.dashboard-panel__panel {
 		flex-wrap: wrap;
-		padding-left: 44px;
 		margin: -11px 0 0 0;
 		padding: 11px 2px 2px 0;
 		overflow: unset;

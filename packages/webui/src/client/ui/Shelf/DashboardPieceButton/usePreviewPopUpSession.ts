@@ -16,6 +16,7 @@ export function usePreviewPopUpSession(args: {
 	layerType: ISourceLayer['type'] | undefined
 	piece: IAdLibListItem
 	contentStatus: ReadonlyDeep<PieceContentStatusObj> | undefined
+	enableHoverPreview?: boolean
 }): {
 	openPreview: (e: EventTarget, time: number) => void
 	closePreview: () => void
@@ -42,15 +43,22 @@ export function usePreviewPopUpSession(args: {
 		return convertSourceLayerItemToPreview(args.layerType, args.piece, args.contentStatus)
 	}, [args.layerType, args.piece, args.contentStatus])
 
+	const enableHoverPreview = args.enableHoverPreview ?? true
+
 	const startHoverTimeout = useCallback(() => {
 		if (hoverTimeoutRef.current) Meteor.clearTimeout(hoverTimeoutRef.current)
 		hoverTimeoutRef.current = Meteor.setTimeout(() => {
+			if (previewSessionRef.current) {
+				previewSessionRef.current.close()
+				previewSessionRef.current = null
+			}
 			hoverTimeoutRef.current = null
 		}, HOVER_TIMEOUT)
 	}, [])
 
 	const openPreview = useCallback(
 		(e: EventTarget, time: number) => {
+			if (!enableHoverPreview) return
 			if (!previewRequest.contents.length) return
 			previewSessionRef.current?.close()
 			previewSessionRef.current = args.previewContext.requestPreview(e as any, previewRequest.contents, {
@@ -59,7 +67,7 @@ export function usePreviewPopUpSession(args: {
 			})
 			startHoverTimeout()
 		},
-		[args.previewContext, previewRequest, startHoverTimeout]
+		[args.previewContext, enableHoverPreview, previewRequest, startHoverTimeout]
 	)
 
 	const closePreview = useCallback(() => {
@@ -75,19 +83,20 @@ export function usePreviewPopUpSession(args: {
 
 	const setPointerTime = useCallback(
 		(time: number) => {
+			if (!enableHoverPreview) return
 			previewSessionRef.current?.setPointerTime(time)
 			if (hoverTimeoutRef.current) {
 				Meteor.clearTimeout(hoverTimeoutRef.current)
 				startHoverTimeout()
 			}
 		},
-		[startHoverTimeout]
+		[enableHoverPreview, startHoverTimeout]
 	)
 
 	return {
 		openPreview,
 		closePreview,
 		setPointerTime,
-		hasPreview: previewRequest.contents.length > 0,
+		hasPreview: enableHoverPreview && previewRequest.contents.length > 0,
 	}
 }
