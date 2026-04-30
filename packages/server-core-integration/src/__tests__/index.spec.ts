@@ -93,7 +93,7 @@ describe('coreConnection', () => {
 
 		let statusResponse = await core.setStatus({
 			statusCode: StatusCode.WARNING_MAJOR,
-			messages: ['testing testing'],
+			statusDetails: [{ message: 'testing testing' }],
 		})
 
 		expect(statusResponse).toMatchObject({
@@ -102,6 +102,7 @@ describe('coreConnection', () => {
 
 		statusResponse = await core.setStatus({
 			statusCode: StatusCode.GOOD,
+			statusDetails: [],
 		})
 
 		expect(statusResponse).toMatchObject({
@@ -153,8 +154,7 @@ describe('coreConnection', () => {
 		// Set the status now (should cause an error)
 		await expect(
 			core.setStatus({
-				statusCode: StatusCode.GOOD,
-			})
+				statusCode: StatusCode.GOOD,				statusDetails: [],			})
 		).rejects.toMatchObject({
 			error: 404,
 		})
@@ -304,7 +304,7 @@ describe('coreConnection', () => {
 
 		await core.setStatus({
 			statusCode: StatusCode.GOOD,
-			messages: ['Jest A ' + Date.now()],
+			statusDetails: [{ message: 'Jest A ' + Date.now() }],
 		})
 		await wait(300)
 		expect(observerChanged).toHaveBeenCalledTimes(1)
@@ -322,7 +322,7 @@ describe('coreConnection', () => {
 		observerChanged.mockClear()
 		await core.setStatus({
 			statusCode: StatusCode.GOOD,
-			messages: ['Jest B' + Date.now()],
+			statusDetails: [{ message: 'Jest B' + Date.now() }],
 		})
 		await wait(300)
 		expect(observerChanged).toHaveBeenCalledTimes(1)
@@ -424,7 +424,7 @@ describe('coreConnection', () => {
 		// Set some statuses:
 		let statusResponse = await coreChild.setStatus({
 			statusCode: StatusCode.WARNING_MAJOR,
-			messages: ['testing testing'],
+			statusDetails: [{ message: 'testing testing' }],
 		})
 
 		expect(statusResponse).toMatchObject({
@@ -433,6 +433,7 @@ describe('coreConnection', () => {
 
 		statusResponse = await coreChild.setStatus({
 			statusCode: StatusCode.GOOD,
+			statusDetails: [],
 		})
 
 		expect(statusResponse).toMatchObject({
@@ -448,8 +449,7 @@ describe('coreConnection', () => {
 		// Set the status now (should cause an error)
 		await expect(
 			coreChild.setStatus({
-				statusCode: StatusCode.GOOD,
-			})
+				statusCode: StatusCode.GOOD,				statusDetails: [],			})
 		).rejects.toMatchObject({
 			error: 404,
 		})

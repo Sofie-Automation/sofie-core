@@ -52,7 +52,8 @@ export class HealthEndpoints {
 			else assertNever(coreStatus.statusCode)
 
 			if (ctx.status !== 200) {
-				ctx.body = `Status: ${StatusCode[coreStatus.statusCode]}, messages: ${coreStatus.messages.join(', ')}`
+				const messages = coreStatus.statusDetails.map((d) => d.message).join(', ')
+				ctx.body = `Status: ${StatusCode[coreStatus.statusCode]}, messages: ${messages}`
 			} else {
 				ctx.body = 'OK'
 			}
