@@ -20,7 +20,7 @@ export function RundownHeaderTimingDisplay({ playlist }: IRundownHeaderTimingDis
 	// Hide diff in untimed mode before first timing take
 	if (
 		PlaylistTiming.isPlaylistTimingNone(playlist.timing) &&
-		playlist.timing.expectedDuration === undefined &&
+		PlaylistTiming.getExpectedDuration(playlist.timing) === undefined &&
 		!playlist.startedPlayback
 	) {
 		return null

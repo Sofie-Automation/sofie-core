@@ -18,17 +18,27 @@ export function RundownHeaderPlannedStart({
 
 	const now = timingDurations.currentTime ?? Date.now()
 	const startsIn = now - (expectedStart ?? 0)
+	const startedPlayback = playlist.activationId ? playlist.startedPlayback : undefined
 
 	return (
 		<div className="rundown-header__show-timers-endtimes">
 			{!simplified && expectedStart !== undefined && (
 				<Countdown label={t('Plan. Start')} time={expectedStart} className="rundown-header__show-timers-countdown" />
 			)}
-			{playlist.startedPlayback !== undefined && <Countdown label={t('Started')} time={playlist.startedPlayback} />}
-			{playlist.startedPlayback === undefined && expectedStart !== undefined && (
-				<Countdown label={t('Start In')}>
-					{startsIn >= 0 && '+'}
-					{RundownUtils.formatDiffToTimecode(Math.abs(startsIn), false, false, true, true, true)}
+			{startedPlayback !== undefined && <Countdown label={t('Started')} time={startedPlayback} />}
+			{startedPlayback === undefined && expectedStart !== undefined && (
+				<Countdown label={t('Start In')} className="rundown-header__show-timers-countdown" ms={startsIn}>
+					{`${startsIn > -1000 ? '+' : ''}${RundownUtils.formatDiffToTimecode(
+						-startsIn,
+						false,
+						false,
+						true,
+						true,
+						true,
+						'',
+						true,
+						true
+					)}`}
 				</Countdown>
 			)}
 		</div>

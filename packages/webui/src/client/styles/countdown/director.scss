@@ -43,12 +43,17 @@ $hold-status-color: $liveline-timecode-color;
 		text-transform: uppercase;
 
 		.director-screen__top__spacer {
-			flex-grow: 4;
+			flex: 1 1 0;
 		}
 
 		.director-screen__top__planned-end {
-			flex-grow: 2;
+			flex: 1 1 0;
 			text-align: left;
+			transform: translateY(0.35em);
+		}
+
+		.director-screen__top__planned-container {
+			flex: 1 1 0;
 		}
 
 		.director-screen__top__center,

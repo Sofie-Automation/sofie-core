@@ -54,7 +54,7 @@ export namespace PlaylistTiming {
 		}
 	}
 
-	export function getExpectedEnd(timing: RundownPlaylistTiming, startedPlayback?: number): number | undefined {
+	export function getExpectedEnd(timing: RundownPlaylistTiming): number | undefined {
 		if (PlaylistTiming.isPlaylistTimingBackTime(timing)) {
 			return timing.expectedEnd
 		} else if (PlaylistTiming.isPlaylistTimingForwardTime(timing)) {
@@ -63,26 +63,16 @@ export namespace PlaylistTiming {
 				(timing.expectedDuration ? timing.expectedStart + timing.expectedDuration : undefined)
 			)
 		} else if (PlaylistTiming.isPlaylistDurationTimed(timing)) {
-			if (!startedPlayback) {
-				// before the show, estimate the end from start + dur
-				return timing.expectedStart ? timing.expectedStart + timing.expectedDuration : undefined
-			} else {
-				// after starting the show, project the end from startedPlayback + dur
-				return startedPlayback + timing.expectedDuration
-			}
+			return timing.expectedStart && timing.expectedDuration
+				? timing.expectedStart + timing.expectedDuration
+				: undefined
 		} else {
 			return undefined
 		}
 	}
 
 	export function getExpectedDuration(timing: RundownPlaylistTiming): number | undefined {
-		if (PlaylistTiming.isPlaylistTimingForwardTime(timing)) {
-			return timing.expectedDuration
-		} else if (PlaylistTiming.isPlaylistTimingBackTime(timing)) {
-			return timing.expectedDuration
-		} else {
-			return undefined
-		}
+		return timing.expectedDuration
 	}
 
 	export function getEstimatedEnd(
@@ -91,12 +81,37 @@ export namespace PlaylistTiming {
 		remainingPlaylistDuration?: number,
 		startedPlayback?: number
 	): number | undefined {
+		if (PlaylistTiming.isPlaylistDurationTimed(timing) && timing.expectedDuration) {
+			if (startedPlayback) {
+				return startedPlayback + timing.expectedDuration
+			} else if (timing.expectedStart) {
+				return timing.expectedStart + timing.expectedDuration
+			}
+		}
+
 		if (remainingPlaylistDuration !== undefined) {
 			const frontAnchor = startedPlayback ? now : Math.max(now, PlaylistTiming.getExpectedStart(timing) ?? now)
 
 			return frontAnchor + remainingPlaylistDuration
 		}
 		return undefined
+	}
+
+	export function getRemainingDuration(
+		timing: RundownPlaylistTiming,
+		now: number,
+		remainingPlaylistDuration?: number,
+		startedPlayback?: number
+	): number | undefined {
+		if (PlaylistTiming.isPlaylistDurationTimed(timing) && timing.expectedDuration) {
+			if (startedPlayback) {
+				return startedPlayback + timing.expectedDuration - now
+			} else {
+				return timing.expectedDuration
+			}
+		}
+
+		return remainingPlaylistDuration
 	}
 
 	export function sortTimings(

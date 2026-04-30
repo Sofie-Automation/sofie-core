@@ -50,17 +50,12 @@ export function RundownHeader({
 	const timingDurations = useTiming()
 	const [isMenuOpen, setIsMenuOpen] = useState(false)
 	const [isContextMenuOpen, setIsContextMenuOpen] = useState(false)
-	// User's explicit toggle preference; defaults to true (show simplified)
-	const [userPrefersSimplified, setUserPrefersSimplified] = useState(true)
+	// User's explicit toggle preference; defaults to false (show advanced)
+	const [userPrefersSimplified, setUserPrefersSimplified] = useState(false)
 
 	const expectedStart = PlaylistTiming.getExpectedStart(playlist.timing)
 	const expectedEnd = PlaylistTiming.getExpectedEnd(playlist.timing)
-
-	// const expectedDuration = PlaylistTiming.getExpectedDuration(playlist.timing)
-	// @todo: this _should_ use PlaylistTiming.getExpectedDuration as show above,
-	// but I don't dare changing its behaviour to return for PlaylistTimingType.None within the scope of this task
-	// same issue in RundownHeaderDuration.tsx
-	const expectedDuration = playlist.timing.expectedDuration
+	const expectedDuration = PlaylistTiming.getExpectedDuration(playlist.timing)
 
 	const hasSimple = !!(expectedStart || expectedDuration || expectedEnd)
 
@@ -121,22 +116,24 @@ export function RundownHeader({
 								onClose={onMenuClose}
 							/>
 							<div className="rundown-header__left-context-menu-wrapper">
-								{playlist.currentPartInfo && (
-									<div className="rundown-header__onair">
-										<RundownHeaderSegmentBudget
-											currentPartInstanceId={playlist.currentPartInfo.partInstanceId}
-											label={t('Seg. Budg.')}
-										/>
-										<span className="rundown-header__timers-onair-remaining">
-											<span className="rundown-header__timers-onair-remaining__label">{t('On Air')}</span>
-											<RundownHeaderPartRemaining
+								<div className="rundown-header__onair-wrapper">
+									{playlist.currentPartInfo && (
+										<div className="rundown-header__onair">
+											<RundownHeaderSegmentBudget
 												currentPartInstanceId={playlist.currentPartInfo.partInstanceId}
-												heavyClassName="overtime"
+												label={t('Seg. Budg.')}
 											/>
-											<HeaderFreezeFrameIcon partInstanceId={playlist.currentPartInfo.partInstanceId} />
-										</span>
-									</div>
-								)}
+											<span className="rundown-header__timers-onair-remaining">
+												<span className="rundown-header__timers-onair-remaining__label">{t('On Air')}</span>
+												<RundownHeaderPartRemaining
+													currentPartInstanceId={playlist.currentPartInfo.partInstanceId}
+													heavyClassName="overtime"
+												/>
+												<HeaderFreezeFrameIcon partInstanceId={playlist.currentPartInfo.partInstanceId} />
+											</span>
+										</div>
+									)}
+								</div>
 								<RundownHeaderTimers tTimers={playlist.tTimers} />
 							</div>
 						</div>
