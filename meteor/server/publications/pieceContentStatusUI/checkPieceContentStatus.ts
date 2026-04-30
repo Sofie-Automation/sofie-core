@@ -254,7 +254,7 @@ export async function checkPieceContentStatusAndDependencies(
 				thumbnailUrl: '/dev/fakeThumbnail.png',
 				previewUrl: '/dev/fakePreview.mp4',
 
-				packageName: null,
+				packageName: '/dev/fakePreview.mp4',
 				contentDuration: 30 * 1000,
 			},
 			pieceDependencies,
@@ -343,7 +343,7 @@ export async function checkPieceContentStatusAndDependencies(
 			thumbnailUrl: undefined,
 			previewUrl: undefined,
 
-			packageName: null,
+			packageName: getMediaObjectMediaId(piece, sourceLayer) || null,
 			contentDuration: undefined,
 		},
 		pieceDependencies,
@@ -566,7 +566,7 @@ async function checkPieceContentMediaObjectStatus(
 			? getAssetUrlFromContentMetaData(metadata, 'preview', studio.settings.mediaPreviewsUrl)
 			: undefined,
 
-		packageName: metadata?.mediaId || null,
+		packageName: metadata?.mediaId || fileName || null,
 
 		contentDuration,
 	}
