@@ -152,7 +152,7 @@ export class CoreMosDeviceHandler {
 	}
 	onMosConnectionChanged(connectionStatus: IMOSConnectionStatus): void {
 		let statusCode: StatusCode
-		const messages: Array<string> = []
+		const statusDetails: Array<{ message: string }> = []
 
 		if (this._options.openMediaHotStandby) {
 			// OpenMedia treats secondary server as hot-standby
@@ -163,12 +163,12 @@ export class CoreMosDeviceHandler {
 				// Primary not connected is only bad if there is no secondary:
 				if (connectionStatus.SecondaryConnected) {
 					statusCode = StatusCode.GOOD
-					messages.push(connectionStatus.SecondaryStatus || 'Running NRCS on hot standby')
+					statusDetails.push({ message: connectionStatus.SecondaryStatus || 'Running NRCS on hot standby' })
 				} else {
 					statusCode = StatusCode.BAD
 					// Send messages for both connections
-					messages.push(connectionStatus.PrimaryStatus || 'Primary and hot standby are not connected')
-					messages.push(connectionStatus.SecondaryStatus || 'Primary and hot standby are not connected')
+					statusDetails.push({ message: connectionStatus.PrimaryStatus || 'Primary and hot standby are not connected' })
+					statusDetails.push({ message: connectionStatus.SecondaryStatus || 'Primary and hot standby are not connected' })
 				}
 			}
 		} else {
@@ -190,17 +190,17 @@ export class CoreMosDeviceHandler {
 			}
 
 			if (!connectionStatus.PrimaryConnected) {
-				messages.push(connectionStatus.PrimaryStatus || 'Primary not connected')
+				statusDetails.push({ message: connectionStatus.PrimaryStatus || 'Primary not connected' })
 			}
 			if (this._mosDevice.idSecondary && !connectionStatus.SecondaryConnected) {
-				messages.push(connectionStatus.SecondaryStatus || 'Fallback not connected')
+				statusDetails.push({ message: connectionStatus.SecondaryStatus || 'Fallback not connected' })
 			}
 		}
 
 		this.core
 			.setStatus({
 				statusCode: statusCode,
-				messages: messages,
+				statusDetails,
 			})
 			.catch((e) => this._coreParentHandler.logger.warn('Error when setting status:' + e))
 
@@ -450,7 +450,7 @@ export class CoreMosDeviceHandler {
 
 		await this.core.setStatus({
 			statusCode: StatusCode.BAD,
-			messages: ['Uninitialized'],
+			statusDetails: [{ message: 'Uninitialized' }],
 		})
 
 		if (subdevice === 'removeSubDevice') await this.core.unInitialize()
