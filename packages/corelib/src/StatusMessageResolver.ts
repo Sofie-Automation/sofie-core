@@ -100,16 +100,18 @@ export class StatusMessageResolver {
 			}
 
 			if (result) {
-				// Custom message from blueprint - use as-is (no prefix)
-				return { key: result, args: context }
+				// Custom message from blueprint - wrap with blueprint namespace if ID provided
+				return this.#blueprintId
+					? wrapTranslatableMessageFromBlueprints({ key: result, args: context }, [this.#blueprintId])
+					: { key: result, args: context }
 			}
 
 			// undefined or not found - fall through to default
 		}
 
-		// Use default message from TSR with device name prefix
+		// Use default message from TSR as-is (TSR messages already include device name prefix)
 		return {
-			key: `{{deviceName}}: ${defaultMessage}`,
+			key: defaultMessage,
 			args: context,
 		}
 	}
