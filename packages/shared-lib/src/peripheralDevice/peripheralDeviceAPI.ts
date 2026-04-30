@@ -81,11 +81,11 @@ export interface PeripheralDeviceStatusObject {
 	statusCode: StatusCode
 	messages?: Array<string>
 	/**
-	 * Structured status details from TSR devices for blueprint customization.
-	 * When present, blueprints can provide custom translations for these status codes.
-	 * The messages array is still populated for backward compatibility.
+	 * Structured status details for blueprint customization and UI display.
+	 * Blueprints can provide custom translations for status codes when present.
+	 * The messages array is derived from these details for backward compatibility.
 	 */
-	statusDetails?: Array<DeviceStatusDetail>
+	statusDetails: Array<DeviceStatusDetail>
 }
 // Note The actual type of a device is determined by the Category, Type and SubType
 export enum PeripheralDeviceCategory {
