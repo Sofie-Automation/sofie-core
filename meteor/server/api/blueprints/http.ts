@@ -187,7 +187,7 @@ blueprintsRouter.get('/assets/*fileId', async (ctx) => {
 	const filePath = ctx.params.fileId
 	if (filePath.match(/\.(png|svg|gif)?$/)) {
 		try {
-			const dataStream = retrieveBlueprintAsset(ctx, filePath)
+			const dataStream = await retrieveBlueprintAsset(ctx, filePath)
 			const extension = path.extname(filePath)
 			if (extension === '.svg') {
 				ctx.response.type = 'image/svg+xml'

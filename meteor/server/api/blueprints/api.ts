@@ -127,7 +127,7 @@ export async function uploadBlueprintAsset(cred: RequestCredentials, fileId: str
 	await fsp.mkdir(assetDirPath, { recursive: true })
 	await fsp.writeFile(assetPath, data)
 }
-export function retrieveBlueprintAsset(_cred: RequestCredentials, fileId: string): ReadStream {
+export async function retrieveBlueprintAsset(_cred: RequestCredentials, fileId: string): Promise<ReadStream> {
 	check(fileId, String)
 
 	const storePath = getSystemStorePath()
@@ -137,7 +137,11 @@ export function retrieveBlueprintAsset(_cred: RequestCredentials, fileId: string
 		throw new Error('Requested asset outside of asset storage path')
 	}
 
-	return createReadStream(assetPath)
+	const stream = createReadStream(assetPath)
+	return new Promise((resolve, reject) => {
+		stream.on('open', () => resolve(stream))
+		stream.on('error', (err) => reject(err))
+	})
 }
 /** Only to be called from internal functions */
 export async function internalUploadBlueprint(
