@@ -28,5 +28,6 @@ export { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaType
 export * from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 export * from '@sofie-automation/shared-lib/dist/lib/JSONSchemaUtil'
 export * from '@sofie-automation/shared-lib/dist/core/model/StudioRouteSet'
+export * from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 export * from '@sofie-automation/shared-lib/dist/core/model/CoreSystemSettings'
 export * from '@sofie-automation/shared-lib/dist/core/model/PackageContainer'
