@@ -203,7 +203,7 @@ describe('test peripheralDevice general API methods', () => {
 		})
 		await MeteorCall.peripheralDevice.setStatus(device._id, device.token, {
 			statusCode: StatusCode.WARNING_MINOR,
-			messages: ["Something's not right"],
+			statusDetails: [{ message: "Something's not right" }],
 		})
 		expect(((await PeripheralDevices.findOneAsync(device._id)) as PeripheralDevice).status).toMatchObject({
 			statusCode: StatusCode.WARNING_MINOR,
@@ -650,6 +650,7 @@ describe('test peripheralDevice general API methods', () => {
 				lastSeen: 0,
 				status: {
 					statusCode: StatusCode.GOOD,
+					statusDetails: [],
 				},
 				subType: '_process',
 				token: 'MockToken',

@@ -143,9 +143,14 @@ async function resolveDeviceStatusDetails(
 		const resolvedMessages: string[] = []
 		for (let i = 0; i < statusDetails.length; i++) {
 			const statusDetail = statusDetails[i]
-			// Use the original TSR message as fallback (statusDetail.message is the pre-rendered TSR string,
-			// more useful than the raw error code string)
-			const defaultMessage = defaultMessages[i] ?? statusDetail.message ?? statusDetail.code
+			// statusDetail.message is always pre-rendered by TSR; use it as fallback if no defaultMessages entry
+			const defaultMessage = defaultMessages[i] ?? statusDetail.message
+
+			if (!statusDetail.code) {
+				// No structured code - use the pre-rendered TSR message directly
+				resolvedMessages.push(defaultMessage)
+				continue
+			}
 
 			logger.debug(
 				`Resolving status code: ${statusDetail.code}, context: ${JSON.stringify(statusDetail.context)}`
@@ -257,6 +262,7 @@ export namespace ServerPeripheralDeviceAPI {
 				created: getCurrentTime(),
 				status: {
 					statusCode: StatusCode.UNKNOWN,
+					statusDetails: [],
 				},
 				connected: true,
 				connectionId: options.connectionId,
@@ -330,19 +336,23 @@ export namespace ServerPeripheralDeviceAPI {
 		}
 
 		logger.info(
-			`Device ${deviceId} setStatus: statusDetails=${status.statusDetails?.length ?? 'undefined'}, messages=${status.messages?.length ?? 'undefined'}, studioId=${studioId ?? 'none'}`
+			`Device ${deviceId} setStatus: statusDetails=${status.statusDetails.length}, messages=${status.messages?.length ?? 'undefined'}, studioId=${studioId ?? 'none'}`
 		)
-		if (status.statusDetails && status.statusDetails.length > 0 && studioId) {
-			const resolvedMessages = await resolveDeviceStatusDetails(
-				studioId,
-				peripheralDevice.name,
-				peripheralDevice._id,
-				status.statusDetails,
-				status.messages ?? []
-			)
-			if (resolvedMessages.length > 0) {
-				// Replace the pre-formatted messages with blueprint-customized ones
-				status.messages = resolvedMessages
+		if (status.statusDetails.length > 0) {
+			if (studioId) {
+				const resolvedMessages = await resolveDeviceStatusDetails(
+					studioId,
+					peripheralDevice.name,
+					peripheralDevice._id,
+					status.statusDetails,
+					status.messages ?? []
+				)
+				// Use blueprint-resolved messages if available, otherwise fall back to statusDetails messages
+				status.messages =
+					resolvedMessages.length > 0 ? resolvedMessages : status.statusDetails.map((d) => d.message)
+			} else {
+				// No studio context, derive messages directly from statusDetails
+				status.messages = status.statusDetails.map((d) => d.message)
 			}
 		}
 

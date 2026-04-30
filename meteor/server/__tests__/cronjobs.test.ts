@@ -509,6 +509,7 @@ describe('cronjobs', () => {
 				name: props.deviceName,
 				status: {
 					statusCode: StatusCode.GOOD,
+					statusDetails: [],
 				},
 				token: '',
 				...props,

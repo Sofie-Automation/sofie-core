@@ -90,6 +90,7 @@ describe('systemStatus', () => {
 			$set: {
 				status: literal<PeripheralDeviceStatusObject>({
 					statusCode: StatusCode.WARNING_MAJOR,
+					statusDetails: [],
 					messages: [],
 				}),
 			},
@@ -116,6 +117,7 @@ describe('systemStatus', () => {
 			$set: {
 				status: literal<PeripheralDeviceStatusObject>({
 					statusCode: StatusCode.GOOD,
+					statusDetails: [],
 					messages: [],
 				}),
 			},
