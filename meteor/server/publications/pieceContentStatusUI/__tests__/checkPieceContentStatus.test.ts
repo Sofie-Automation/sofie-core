@@ -42,6 +42,10 @@ import { RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 const mockMediaObjectsCollection = MongoMock.getInnerMockCollection<MediaObject>(MediaObjects)
 
 describe('lib/mediaObjects', () => {
+	beforeEach(async () => {
+		await mockMediaObjectsCollection.removeAsync({})
+	})
+
 	describe('buildFormatString', () => {
 		it('deepscan tff, stream unknown', () => {
 			const format1 = buildFormatString(
@@ -242,6 +246,303 @@ describe('lib/mediaObjects', () => {
 			})
 		)
 		expect(mediaId3).toEqual(undefined)
+	})
+
+	test('packageName: media object status uses mediaId or falls back to fileName', async () => {
+		const mockStudioSettings: IStudioSettings = {
+			supportedMediaFormats: '1920x1080i5000, 1280x720, i5000, i5000tff',
+			mediaPreviewsUrl: '',
+			supportedAudioStreams: '4',
+			frameRate: 25,
+			minimumTakeSpan: DEFAULT_MINIMUM_TAKE_SPAN,
+			allowHold: false,
+			allowPieceDirectPlay: false,
+			enableBuckets: false,
+			enableEvaluationForm: false,
+		}
+
+		const mockDefaultStudio = defaultStudio(protectString('studio0'))
+		const mockStudio: Complete<PieceContentStatusStudio> = {
+			_id: mockDefaultStudio._id,
+			settings: mockStudioSettings,
+			packageContainerSettings: {
+				previewContainerIds: ['previews0'],
+				thumbnailContainerIds: ['thumbnails0'],
+			},
+			routeSets: applyAndValidateOverrides(mockDefaultStudio.routeSetsWithOverrides).obj,
+			mappings: applyAndValidateOverrides(mockDefaultStudio.mappingsWithOverrides).obj,
+			packageContainers: applyAndValidateOverrides(mockDefaultStudio.packageContainersWithOverrides).obj,
+		}
+
+		await mockMediaObjectsCollection.insertAsync(
+			literal<MediaObject>({
+				_id: protectString(''),
+				_attachments: {},
+				_rev: '',
+				cinf: '',
+				collectionId: 'studio0',
+				mediaId: 'TEST_FILE',
+				mediaPath: '',
+				mediaSize: 0,
+				mediaTime: 0,
+				mediainfo: literal<MediaInfo>({
+					name: 'test_file',
+					field_order: PackageInfo.FieldOrder.TFF,
+					streams: [
+						literal<MediaStream>({
+							width: 1920,
+							height: 1080,
+							codec: {
+								type: MediaStreamType.Video,
+								time_base: '1/50',
+							},
+						}),
+						literal<MediaStream>({
+							channels: 1,
+							codec: {
+								type: MediaStreamType.Audio,
+								time_base: '1/25',
+							},
+						}),
+						literal<MediaStream>({
+							channels: 1,
+							codec: {
+								type: MediaStreamType.Audio,
+								time_base: '1/25',
+							},
+						}),
+						literal<MediaStream>({
+							channels: 1,
+							codec: {
+								type: MediaStreamType.Audio,
+								time_base: '1/25',
+							},
+						}),
+						literal<MediaStream>({
+							channels: 1,
+							codec: {
+								type: MediaStreamType.Audio,
+								time_base: '1/25',
+							},
+						}),
+					],
+				}),
+				objId: '',
+				previewPath: '',
+				previewSize: 0,
+				previewTime: 0,
+				studioId: protectString('studio0'),
+				thumbSize: 0,
+				thumbTime: 0,
+				tinf: '',
+			})
+		)
+
+		await mockMediaObjectsCollection.insertAsync(
+			literal<MediaObject>({
+				_id: protectString(''),
+				_attachments: {},
+				_rev: '',
+				cinf: '',
+				collectionId: 'studio0',
+				mediaId: 'TEST_FILE_2',
+				mediaPath: '',
+				mediaSize: 0,
+				mediaTime: 0,
+				mediainfo: literal<MediaInfo>({
+					name: 'test_file_2',
+					field_order: PackageInfo.FieldOrder.Progressive,
+					streams: [
+						literal<MediaStream>({
+							width: 1920,
+							height: 1080,
+							codec: {
+								type: MediaStreamType.Video,
+								time_base: '1/50',
+							},
+						}),
+						literal<MediaStream>({
+							channels: 1,
+							codec: {
+								type: MediaStreamType.Audio,
+								time_base: '1/25',
+							},
+						}),
+						literal<MediaStream>({
+							channels: 1,
+							codec: {
+								type: MediaStreamType.Audio,
+								time_base: '1/25',
+							},
+						}),
+						literal<MediaStream>({
+							channels: 1,
+							codec: {
+								type: MediaStreamType.Audio,
+								time_base: '1/25',
+							},
+						}),
+						literal<MediaStream>({
+							channels: 1,
+							codec: {
+								type: MediaStreamType.Audio,
+								time_base: '1/25',
+							},
+						}),
+					],
+				}),
+				objId: '',
+				previewPath: '',
+				previewSize: 0,
+				previewTime: 0,
+				studioId: protectString('studio0'),
+				thumbSize: 0,
+				thumbTime: 0,
+				tinf: '',
+			})
+		)
+
+		const sourcelayer = literal<ISourceLayer>({
+			_id: '',
+			_rank: 0,
+			name: '',
+			type: SourceLayerType.LIVE_SPEAK,
+		})
+
+		const messageFactory = new PieceContentStatusMessageFactory(undefined)
+		const mockOwnerId = protectString<RundownId>('rundown0')
+
+		const [status1] = await checkPieceContentStatusAndDependencies(
+			mockStudio,
+			mockOwnerId,
+			messageFactory,
+			literal<PieceGeneric>({
+				_id: protectString('piece1'),
+				name: 'Test_file',
+				prerollDuration: 0,
+				externalId: '',
+				lifespan: PieceLifespan.WithinPart,
+				privateData: {},
+				outputLayerId: '',
+				sourceLayerId: '',
+				content: literal<VTContent>({
+					fileName: 'test_file',
+					path: '',
+				}),
+				timelineObjectsString: EmptyPieceTimelineObjectsBlob,
+			}),
+			sourcelayer
+		)
+		expect(status1.packageName).toEqual('TEST_FILE')
+
+		const [status2] = await checkPieceContentStatusAndDependencies(
+			mockStudio,
+			mockOwnerId,
+			messageFactory,
+			literal<PieceGeneric>({
+				_id: protectString('piece2'),
+				name: 'Test_file_2',
+				prerollDuration: 0,
+				externalId: '',
+				lifespan: PieceLifespan.WithinPart,
+				privateData: {},
+				outputLayerId: '',
+				sourceLayerId: '',
+				content: literal<VTContent>({
+					fileName: 'test_file_2',
+					path: '',
+				}),
+				timelineObjectsString: EmptyPieceTimelineObjectsBlob,
+			}),
+			sourcelayer
+		)
+		expect(status2.packageName).toEqual('TEST_FILE_2')
+
+		const [status3] = await checkPieceContentStatusAndDependencies(
+			mockStudio,
+			mockOwnerId,
+			messageFactory,
+			literal<PieceGeneric>({
+				_id: protectString('piece3'),
+				name: 'Test_file_3',
+				prerollDuration: 0,
+				externalId: '',
+				lifespan: PieceLifespan.WithinPart,
+				privateData: {},
+				outputLayerId: '',
+				sourceLayerId: '',
+				content: literal<VTContent>({
+					fileName: 'test_file_3',
+					path: '',
+				}),
+				timelineObjectsString: EmptyPieceTimelineObjectsBlob,
+			}),
+			sourcelayer
+		)
+		expect(status3.packageName).toEqual('TEST_FILE_3')
+	})
+
+	test('packageName: exposed even when ignoreMediaObjectStatus is set', async () => {
+		const mockStudioSettings: IStudioSettings = {
+			supportedMediaFormats: '1920x1080i5000, 1280x720, i5000, i5000tff',
+			mediaPreviewsUrl: '',
+			supportedAudioStreams: '4',
+			frameRate: 25,
+			minimumTakeSpan: DEFAULT_MINIMUM_TAKE_SPAN,
+			allowHold: false,
+			allowPieceDirectPlay: false,
+			enableBuckets: false,
+			enableEvaluationForm: false,
+		}
+
+		const mockDefaultStudio = defaultStudio(protectString('studio0'))
+		const mockStudio: Complete<PieceContentStatusStudio> = {
+			_id: mockDefaultStudio._id,
+			settings: mockStudioSettings,
+			packageContainerSettings: {
+				previewContainerIds: ['previews0'],
+				thumbnailContainerIds: ['thumbnails0'],
+			},
+			routeSets: applyAndValidateOverrides(mockDefaultStudio.routeSetsWithOverrides).obj,
+			mappings: applyAndValidateOverrides(mockDefaultStudio.mappingsWithOverrides).obj,
+			packageContainers: applyAndValidateOverrides(mockDefaultStudio.packageContainersWithOverrides).obj,
+		}
+
+		const ignorePiece = literal<PieceGeneric>({
+			_id: protectString('pieceIgnore'),
+			name: 'Ignore media status',
+			prerollDuration: 0,
+			externalId: '',
+			lifespan: PieceLifespan.WithinPart,
+			privateData: {},
+			outputLayerId: '',
+			sourceLayerId: '',
+			content: {
+				fileName: 'ignored_file',
+				path: '',
+				ignoreMediaObjectStatus: true,
+			} as any,
+			timelineObjectsString: EmptyPieceTimelineObjectsBlob,
+		})
+
+		const messageFactory = new PieceContentStatusMessageFactory(undefined)
+		const mockOwnerId = protectString<RundownId>('rundown0')
+
+		const [ignoredStatus] = await checkPieceContentStatusAndDependencies(
+			mockStudio,
+			mockOwnerId,
+			messageFactory,
+			ignorePiece,
+			literal<ISourceLayer>({
+				_id: '',
+				_rank: 0,
+				name: '',
+				type: SourceLayerType.VT,
+			})
+		)
+
+		expect(ignoredStatus.status).toEqual(PieceStatusCode.UNKNOWN)
+		expect(ignoredStatus.packageName).toEqual('IGNORED_FILE')
 	})
 
 	test('checkPieceContentStatus', async () => {
