@@ -1,0 +1,16 @@
+$ref: '../segmentBase/segmentBase-example.yaml'
+externalId: 'ext_seg_1'
+identifier: 'A'
+name: 'Headlines'
+rank: 1
+isHidden: false
+sourceLayers:
+  - $ref: '../../layers/sourceLayer/sourceLayer-example.yaml'
+outputLayers:
+  - $ref: '../../layers/outputLayer/outputLayer-example.yaml'
+publicData:
+  slug: 'HEAD'
+timing:
+  $ref: '../../timing/resolvedSegmentTiming/resolvedSegmentTiming-example.yaml'
+parts:
+  - $ref: '../../part/resolvedPart/resolvedPart-example.yaml'

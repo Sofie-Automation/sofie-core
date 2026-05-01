@@ -74,6 +74,7 @@ export class PlaylistNotificationsHandler extends PublicationCollection<
 				this.setupSubscription(this._studioId, this._currentPlaylistId)
 			}
 		} else {
+			this.stopSubscription()
 			this.clearAndNotify()
 		}
 	}

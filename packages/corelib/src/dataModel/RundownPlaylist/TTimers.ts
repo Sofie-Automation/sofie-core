@@ -116,6 +116,10 @@ export function timerStateToZeroTime(state: TimerState, now: number): number {
 
 export type RundownTTimerIndex = 1 | 2 | 3
 
+export function isRundownTTimerIndex(index: unknown): index is RundownTTimerIndex {
+	return typeof index === 'number' && (index === 1 || index === 2 || index === 3)
+}
+
 export interface RundownTTimer {
 	readonly index: RundownTTimerIndex
 

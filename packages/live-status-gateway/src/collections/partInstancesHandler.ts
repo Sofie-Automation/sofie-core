@@ -145,6 +145,7 @@ export class PartInstancesHandler extends PublicationCollection<
 				this.clearAndNotify()
 			}
 		} else {
+			this.stopSubscription()
 			this.clearAndNotify()
 		}
 	}
