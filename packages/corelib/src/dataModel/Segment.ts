@@ -1,4 +1,5 @@
 import { SegmentDisplayMode, SegmentTimingInfo } from '@sofie-automation/blueprints-integration'
+import { ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 import { SegmentId, RundownId } from './Ids.js'
 import { SegmentNote } from './Notes.js'
 import { CoreUserEditingDefinition, CoreUserEditingProperties } from './UserEditingDefinitions.js'
@@ -34,8 +35,8 @@ export interface DBSegment {
 	/** User-facing identifier that can be used by the User to identify the contents of a segment in the Rundown source system */
 	identifier?: string
 
-	/** Show the minishelf of the segment */
-	showShelf?: boolean
+	/** Control display of the segment minishelf. Unset means hidden. */
+	displayMinishelf?: ShelfButtonSize
 	/** Segment display mode. Default mode is *SegmentDisplayMode.Timeline* */
 	displayAs?: SegmentDisplayMode
 

@@ -31,35 +31,33 @@ $dashboard-button-height: 3.625em;
 	margin: 0.625rem;
 	user-select: none;
 
-	&.dashboard-panel__panel--bucket {
-		&.dashboard-panel__panel--bucket-active {
-			&::after {
-				content: ' ';
-				display: block;
-				background-color: rgba(0, 183, 255, 0.5);
-				position: absolute;
-				top: 0;
-				left: 0;
-				bottom: 0;
-				right: 0;
-				border-radius: 10px;
-			}
+	&.dashboard-panel__panel--bucket-active {
+		&::after {
+			content: ' ';
+			display: block;
+			background-color: rgba(0, 183, 255, 0.5);
+			position: absolute;
+			top: 0;
+			left: 0;
+			bottom: 0;
+			right: 0;
+			border-radius: 10px;
 		}
+	}
 
-		&.dashboard-panel__panel--sort-dragging {
-			opacity: 0.5;
+	&.dashboard-panel__panel--sort-dragging {
+		opacity: 0.5;
 
-			&::after {
-				content: ' ';
-				display: block;
-				background-color: rgba(0, 183, 255, 0.5);
-				position: absolute;
-				top: 0;
-				left: 0;
-				bottom: 0;
-				right: 0;
-				border-radius: 10px;
-			}
+		&::after {
+			content: ' ';
+			display: block;
+			background-color: rgba(0, 183, 255, 0.5);
+			position: absolute;
+			top: 0;
+			left: 0;
+			bottom: 0;
+			right: 0;
+			border-radius: 10px;
 		}
 	}
 
@@ -205,6 +203,8 @@ $dashboard-button-height: 3.625em;
 		margin: -4px;
 		overflow: auto;
 		max-height: calc(100% - 12px);
+		display: flex;
+		flex-wrap: wrap;
 		&.dashboard-panel__panel--horizontal {
 			white-space: nowrap;
 			overflow: auto;
@@ -288,17 +288,86 @@ $dashboard-button-height: 3.625em;
 		text-overflow: ellipsis;
 		white-space: normal;
 		line-break: loose;
-		word-break: break-all;
 		width: $dashboard-button-width;
 		height: $dashboard-button-height;
-		margin: 4px;
+		margin: 0;
 		vertical-align: top;
 		cursor: pointer;
 
-		@include item-type-colors();
+		@include item-type-colors;
 		@include invalid-overlay();
 		@include floated-overlay();
 		@include missing-overlay();
+
+		&.source-broken,
+		&.source-missing,
+		&.source-unknown-state,
+		&.source-not-ready {
+			&::before {
+				content: none;
+			}
+
+			> .dashboard-panel__panel__button__content
+				> .dashboard-panel__panel__button__tag-container
+				> .dashboard-panel__panel__button__thumbnail
+				.dashboard-panel__panel__button__thumbnail__aspect {
+				&::before {
+					content: ' ';
+					display: block;
+					position: absolute;
+					top: 0;
+					left: 0;
+					right: 0;
+					bottom: 0;
+					mix-blend-mode: normal;
+					animation-name: animated-zebra;
+					animation-fill-mode: forwards;
+					animation-duration: calc(0.25s * var(--missing-overlay-animated));
+					animation-iteration-count: infinite;
+					opacity: 0.4;
+					pointer-events: none;
+					z-index: 1;
+
+					background-image: repeating-linear-gradient(
+						45deg,
+						transparent,
+						transparent 7px,
+						black 8px,
+						black 12px,
+						transparent 13px,
+						transparent 16px
+					);
+				}
+			}
+		}
+
+		&.vt.source-broken,
+		&.vt.source-missing,
+		&.vt.source-unknown-state,
+		&.vt.source-not-ready {
+			> .dashboard-panel__panel__button__content
+				> .dashboard-panel__panel__button__tag-container
+				> .dashboard-panel__panel__button__thumbnail
+				.dashboard-panel__panel__button__thumbnail__aspect::before {
+				opacity: 0.6;
+			}
+		}
+
+		&.source-broken {
+			> .dashboard-panel__panel__button__content
+				> .dashboard-panel__panel__button__tag-container
+				> .dashboard-panel__panel__button__thumbnail
+				.dashboard-panel__panel__button__thumbnail__aspect::before {
+				background-image: repeating-linear-gradient(
+					-45deg,
+					transparent,
+					transparent 2px,
+					rgba(0, 0, 0, 0.54) 3px,
+					rgba(0, 0, 0, 0.54) 4px,
+					transparent 5px
+				);
+			}
+		}
 
 		$dashboard-panel__button__border-width: 2px;
 
@@ -360,7 +429,6 @@ $dashboard-button-height: 3.625em;
 				left: 0;
 				bottom: 0;
 				right: 0;
-				background: rgba(255, 255, 255, 0.3);
 				z-index: 10;
 				// animation: 2s button-flash normal infinite;
 			}
@@ -401,74 +469,218 @@ $dashboard-button-height: 3.625em;
 			}
 		}
 
-		> .dashboard-panel__panel__button__content {
-			display: block;
-			position: absolute;
-			left: 0;
-			top: 0;
-			right: 0;
-			bottom: 0;
+		&.dashboard-panel__panel__button--has-hotkey {
+			.dashboard-panel__panel__button__label__content {
+				max-height: 5.85em;
+			}
+		}
 
-			> .dashboard-panel__panel__button__label-container {
-				position: relative;
-				left: 0;
-				top: 0;
-				right: 0;
-				bottom: 0;
+		&.dashboard-panel__panel__button--no-thumbnail {
+			> .dashboard-panel__panel__button__content
+				> .dashboard-panel__panel__button__tag-container
+				> .dashboard-panel__panel__button__tag-container--inner
+				> .dashboard-panel__panel__button__label-container {
+				border-radius: 0 4px 4px 0;
+			}
+
+			// Large + no-thumbnail: keep hotkey visible in bottom-right corner
+			// (Large + thumbnail keeps the default top-left placement)
+			&:not(.dashboard-panel__panel__button--compact):not(.list) {
+				.dashboard-panel__panel__button__hotkey {
+					left: auto;
+					top: auto;
+					right: 5px;
+					bottom: 5px;
+				}
+			}
+		}
+
+		// Large buttons: clamp label text to 2 lines by default (when thumbnail exists),
+		// and expand to 6 lines only when the button has no thumbnail.
+		&:not(.dashboard-panel__panel__button--compact):not(.list):not(.dashboard-panel__panel__button--no-thumbnail)
+			> .dashboard-panel__panel__button__content
+			> .dashboard-panel__panel__button__tag-container
+			> .dashboard-panel__panel__button__tag-container--inner
+			> .dashboard-panel__panel__button__label-container
+			.dashboard-panel__panel__button__label
+			> .dashboard-panel__panel__button__label__content:not(.dashboard-panel__panel__button__label__content--editable) {
+			display: -webkit-box;
+			-webkit-box-orient: vertical;
+			-webkit-line-clamp: 2;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		&.dashboard-panel__panel__button--no-thumbnail:not(.dashboard-panel__panel__button--compact):not(.list)
+			> .dashboard-panel__panel__button__content
+			> .dashboard-panel__panel__button__tag-container
+			> .dashboard-panel__panel__button__tag-container--inner
+			> .dashboard-panel__panel__button__label-container
+			.dashboard-panel__panel__button__label
+			> .dashboard-panel__panel__button__label__content:not(.dashboard-panel__panel__button__label__content--editable) {
+			display: -webkit-box;
+			-webkit-box-orient: vertical;
+			-webkit-line-clamp: 6;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		&:not(.dashboard-panel__panel__button--compact):not(.list):not(.dashboard-panel__panel__button--no-thumbnail) {
+			> .dashboard-panel__panel__button__content > .dashboard-panel__panel__button__tag-container {
+				border-bottom-right-radius: 4px;
+			}
+
+			> .dashboard-panel__panel__button__content
+				> .dashboard-panel__panel__button__tag-container
+				> .dashboard-panel__panel__button__tag-container--inner
+				> .dashboard-panel__panel__button__label-container {
+				border-bottom-right-radius: 4px;
+				max-height: 34.5667px;
+			}
+		}
+
+		> .dashboard-panel__panel__button__content {
+			display: flex;
+			flex-direction: column;
+			position: static;
+			flex: 1 1 auto;
+			min-height: 0;
+			justify-content: end;
+
+			> .dashboard-panel__panel__button__tag-container .dashboard-panel__panel__button__label-container {
 				padding: 3px 4px;
 				z-index: 2;
+				display: flex;
+				align-items: stretch;
+				gap: 0;
+				flex: 0 0 auto;
 
 				.dashboard-panel__panel__button__label {
-					text-align: left;
-					hyphens: auto;
+					display: flex;
+					flex-direction: row;
+					height: 100%;
+					flex: 1 1 auto;
+					min-width: 0;
+					min-height: 0;
 
-					vertical-align: top;
-					// -webkit-text-stroke-color: #000;
-					// -webkit-text-stroke-width: 0.02em;
-					line-height: 1.15em;
-					top: 3px;
-					font-family: 'Roboto Condensed', sans-serif;
-					font-size: 1.17em;
-					font-weight: 400;
-					text-shadow:
-						-1px -1px 0px rgba(0, 0, 0, 0.5),
-						1px 1px 0px rgba(0, 0, 0, 0.5),
-						1px -1px 0px rgba(0, 0, 0, 0.5),
-						1px -1px 0px rgba(0, 0, 0, 0.5),
-						0.5px 0.5px 2px rgba(0, 0, 0, 1);
-					z-index: 2;
-					word-break: break-word;
-					overflow-wrap: break-word;
-					white-space: normal;
+					> .dashboard-panel__panel__button__label__content {
+						text-align: left;
+						hyphens: auto;
+						min-width: 0;
+						min-height: 0;
+						// -webkit-text-stroke-color: #000;
+						// -webkit-text-stroke-width: 0.02em;
+						line-height: 1.15em;
+						font-family: 'Roboto Condensed', sans-serif;
+						font-size: 1.17em;
+						font-weight: 400;
+						text-shadow:
+							-1px -1px 0px rgba(0, 0, 0, 0.5),
+							1px 1px 0px rgba(0, 0, 0, 0.5),
+							1px -1px 0px rgba(0, 0, 0, 0.5),
+							1px -1px 0px rgba(0, 0, 0, 0.5),
+							0.5px 0.5px 2px rgba(0, 0, 0, 1);
+						z-index: 2;
+						overflow-wrap: break-word;
+						white-space: normal;
+						overflow: hidden;
+						box-sizing: border-box;
+					}
 
 					&.dashboard-panel__panel__button__label--editable {
-						text-shadow: none;
-						color: #000;
-						background: #fff;
+						> .dashboard-panel__panel__button__label__content {
+							text-shadow: none;
+							color: #000;
+							background: #fff;
+							border: none;
+							outline: none;
+							resize: none;
+							width: 100%;
+						}
 					}
 				}
 			}
 
-			> .dashboard-panel__panel__button__thumbnail {
-				position: absolute;
-				left: 0;
-				right: 0;
-				height: auto;
+			> .dashboard-panel__panel__button__tag-container > .dashboard-panel__panel__button__thumbnail {
 				z-index: 1;
-				bottom: 0;
+				flex: 1 1 auto;
+				min-height: 0;
+				display: flex;
+				align-items: flex-start;
+				justify-content: center;
+				width: 100%;
+				background: #4b4b4b;
+
+				.dashboard-panel__panel__button__thumbnail__aspect {
+					width: 100%;
+					aspect-ratio: 16 / 9;
+					position: relative;
+					background: rgba(0, 0, 0, 0.15);
+					overflow: hidden;
+					flex: 1 1 auto;
+
+					@supports not (aspect-ratio: 1 / 1) {
+						height: 0;
+						padding-top: 56.25%;
+					}
+				}
+
+				.dashboard-panel__panel__button__thumbnail__overlay {
+					position: absolute;
+					right: 0;
+					top: 0;
+					padding: 0 1.25px 0 0;
+					margin: -1px;
+					z-index: 2;
+
+					.dashboard-panel__panel__button__sub-label {
+						font-family: Roboto Flex;
+						font-weight: 400;
+						font-size: 13px;
+						line-height: 17px;
+						letter-spacing: 0px;
+						text-align: right;
+						vertical-align: middle;
+
+						margin: 2px 1px 0;
+						-webkit-text-stroke: 1px #000000;
+						paint-order: stroke fill;
+						// Fallback for non-stroke browsers
+						text-shadow:
+							-1px -1px 0 #000000,
+							0 -1px 0 #000000,
+							1px -1px 0 #000000,
+							-1px 0 0 #000000,
+							1px 0 0 #000000,
+							-1px 1px 0 #000000,
+							0 1px 0 #000000,
+							1px 1px 0 #000000;
+						font-variation-settings:
+							'GRAD' 150,
+							'XOPQ' 85,
+							'XTRA' 468,
+							'YOPQ' 79,
+							'YTAS' 750,
+							'YTDE' -203,
+							'YTFI' 738,
+							'YTLC' 570,
+							'YTUC' 712,
+							'slnt' 0,
+							'wdth' 25;
+					}
+				}
+
+				img {
+					position: absolute;
+					inset: 0;
+					width: 100%;
+					height: 100%;
+					object-fit: cover;
+					display: block;
+				}
 			}
 
-			> .dashboard-panel__panel__button__sub-label {
-				position: relative;
-				float: right;
-				margin: 3px 3px 0 3px;
-				padding: 0 0 0 2px;
-				font-size: 8px;
-				text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
-				z-index: 2;
-			}
-
-			> svg {
+			> .dashboard-panel__panel__button__tag-container > svg {
 				position: absolute;
 				top: 0;
 				left: 0;
@@ -477,12 +689,60 @@ $dashboard-button-height: 3.625em;
 			}
 
 			> .dashboard-panel__panel__button__hotkey {
-				display: none;
+				display: block;
+				position: absolute;
+				left: 5px;
+				top: 5px;
+				border-radius: 2px;
+				width: 18px;
+				height: 18px;
+				color: black;
+				z-index: 5;
+				text-align: center;
+				font-weight: 600;
+				line-height: 19px;
+				font-size: 1.3em;
+
+				&::before {
+					content: ' ';
+					display: block;
+					position: absolute;
+					top: 0;
+					left: 0;
+					bottom: 0;
+					right: 0;
+					background: rgb(255, 255, 255);
+					background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(118, 118, 118, 1) 100%);
+					border-radius: 3px;
+					z-index: -1;
+				}
+
+				&::after {
+					content: ' ';
+					display: block;
+					position: absolute;
+					top: 1px;
+					left: 1px;
+					bottom: 1px;
+					right: 1px;
+					background: rgb(255, 255, 255);
+					background: radial-gradient(circle, rgba(255, 255, 255, 1) 0%, rgba(198, 198, 198, 1) 100%);
+					border-radius: 3px;
+					z-index: -1;
+				}
 			}
 		}
 
 		.dashboard-panel__panel__button__hotkey {
-			display: none;
+			display: block;
+		}
+
+		&.dashboard-panel__panel__button--no-media:not(.dashboard-panel__panel__button--compact):not(
+				.dashboard-panel__panel__button--no-thumbnail
+			) {
+			.dashboard-panel__panel__button__hotkey {
+				left: 10px;
+			}
 		}
 
 		&.list {
@@ -493,6 +753,8 @@ $dashboard-button-height: 3.625em;
 			background-position: center;
 
 			> .dashboard-panel__panel__button__content {
+				flex-direction: row;
+				align-items: center;
 				> .dashboard-panel__panel__button__sub-label {
 					font-size: 20px;
 					position: relative;
@@ -501,46 +763,20 @@ $dashboard-button-height: 3.625em;
 					margin: auto 4px;
 					top: 50%;
 					transform: translateY(-50%);
-					text-shadow:
-						-1px -1px 0px rgba(0, 0, 0, 0.5),
-						1px 1px 0px rgba(0, 0, 0, 0.5),
-						1px -1px 0px rgba(0, 0, 0, 0.5),
-						1px -1px 0px rgba(0, 0, 0, 0.5),
-						0.5px 0.5px 2px rgba(0, 0, 0, 1);
 				}
 
-				> .dashboard-panel__panel__button__label-container {
-					padding: 3px 4px 0 4px;
-					top: 50%;
-					transform: translateY(-50%);
-
-					> .dashboard-panel__panel__button__label {
-						position: static;
-						line-height: 0.9em;
-						line-clamp: 2;
-						-webkit-line-clamp: 2;
-
-						span {
-							white-space: nowrap;
-							overflow: hidden;
-							text-overflow: ellipsis;
-							display: block;
-							height: 1em;
-							line-height: 0.9em;
-						}
-					}
-				}
-
-				> .dashboard-panel__panel__button__thumbnail {
+				> .dashboard-panel__panel__button__tag-container > .dashboard-panel__panel__button__thumbnail {
 					height: 100%;
 					right: auto;
+					flex: 0 0 auto;
+					order: 1;
 
 					img {
 						height: 100%;
 					}
 				}
 
-				> .video-preview {
+				> .dashboard-panel__panel__button__tag-container > .video-preview {
 					position: absolute;
 					overflow: hidden;
 					background: #000;
@@ -562,7 +798,7 @@ $dashboard-button-height: 3.625em;
 					}
 
 					& > * {
-						@include item-type-colors();
+						@include item-type-colors;
 					}
 				}
 			}
@@ -576,37 +812,160 @@ $dashboard-button-height: 3.625em;
 			&.transition,
 			&.graphics,
 			&.splits {
-				> .dashboard-panel__panel__button__content > .dashboard-panel__panel__button__label-container {
+				> .dashboard-panel__panel__button__content
+					> .dashboard-panel__panel__button__tag-container
+					.dashboard-panel__panel__button__label-container {
 					margin-left: 75px;
-					word-break: break-word;
+					overflow-wrap: break-word;
 				}
+			}
+		}
+
+		&.dashboard-panel__panel__button--compact {
+			height: 2.85em;
+			width: calc(($dashboard-button-width * 2) + 28px);
+
+			> .dashboard-panel__panel__button__content {
+				flex-direction: row;
+				align-items: stretch;
+			}
+
+			> .dashboard-panel__panel__button__content > .dashboard-panel__panel__button__tag-container {
+				display: flex;
+				flex-direction: row;
+				align-items: stretch;
+				flex: 1 1 auto;
+				min-width: 0;
+				min-height: 0;
+			}
+
+			> .dashboard-panel__panel__button__content
+				> .dashboard-panel__panel__button__tag-container
+				> .dashboard-panel__panel__button__tag-container--inner {
+				order: 1;
+				flex: 1 1 auto;
+				min-width: 0;
+				min-height: 0;
+				display: flex;
+				flex-direction: row;
+				align-items: stretch;
+			}
+
+			.dashboard-panel__panel__button__hotkey {
+				top: auto;
+				left: auto;
+				right: 1px;
+				bottom: 1px;
+			}
+
+			> .dashboard-panel__panel__button__content
+				> .dashboard-panel__panel__button__tag-container
+				> .dashboard-panel__panel__button__thumbnail {
+				order: 3;
+				flex: 0 0 auto;
+				height: 100%;
+				min-height: 0;
+				width: auto;
+				align-self: stretch;
+			}
+
+			> .dashboard-panel__panel__button__content
+				> .dashboard-panel__panel__button__tag-container
+				> .dashboard-panel__panel__button__thumbnail
+				.dashboard-panel__panel__button__thumbnail__aspect {
+				height: 100%;
+				width: auto;
+				aspect-ratio: 16 / 9;
 			}
 		}
 	}
 
-	&.dashboard-panel--take {
-		display: flex;
-		flex-direction: column;
+	.dashboard-panel__panel__button-wrapper {
+		display: inline-flex;
+		margin: 4px;
+		position: relative;
+		border-radius: 5px;
+		overflow: hidden;
+		box-sizing: border-box;
 
-		> .dashboard-panel__panel {
-			flex: 1;
+		transition: box-shadow 0.2s ease;
+
+		&::after {
+			content: '';
+			position: absolute;
+			inset: 0;
+			border-radius: 5px;
+			border: 1px solid rgba(255, 255, 255, 0.2);
+			background-color: rgba(0, 0, 0, 0);
+			pointer-events: none;
+			box-sizing: border-box;
+			z-index: 20;
+
+			transition:
+				box-shadow 0.2s ease,
+				border-color 0.3s ease,
+				background-color 0.4s ease-out;
 		}
+		&:hover {
+			box-shadow: 0px 0px 8px 0px rgba(255, 255, 255, 0.1);
 
-		> .dashboard-panel__buttons {
-			display: flex;
-			margin-top: 0.625rem;
+			&::after {
+				border: 1px solid rgba(255, 255, 255, 0.5);
+			}
+		}
+		&:hover:not(.live) {
+			.dashboard-panel__panel__button
+				.dashboard-panel__panel__button__content
+				.dashboard-panel__panel__button__tag-container
+				.dashboard-panel__panel__button__tag-container--inner
+				.dashboard-panel__panel__button__label-container {
+				transition: background-color 0.2s ease;
 
-			> .dashboard-panel__panel__button {
-				flex: 1;
-				background: var(--general-live-color);
-				height: 3em;
-				align-items: center;
+				background-color: rgba(0, 0, 0, 0.55);
+			}
+		}
+		&:active {
+			box-shadow: 0px 0px 8px 0px rgba(0, 0, 0, 0.7);
 
-				> .dashboard-panel__panel__button__label {
-					width: 100%;
-					text-align: center;
-					font-size: 1.4em;
-				}
+			&::after {
+				border: 1px solid rgba(0, 0, 0, 0.7);
+				background-color: rgba(0, 0, 0, 0.2);
+			}
+			.dashboard-panel__panel__button
+				.dashboard-panel__panel__button__content
+				.dashboard-panel__panel__button__tag-container
+				.dashboard-panel__panel__button__tag-container--inner
+				.dashboard-panel__panel__button__label-container {
+				transition: background-color 0.2s ease;
+
+				background-color: rgba(0, 0, 0, 0.7);
+			}
+		}
+		&.live {
+			box-shadow: 0px 0px 8px 0px var(--general-live-color);
+
+			&::after {
+				border: 2px solid var(--general-live-color);
+			}
+			.dashboard-panel__panel__button__content
+				.dashboard-panel__panel__button__tag-container
+				> .dashboard-panel__panel__button__tag-container--inner
+				> .dashboard-panel__panel__button__label-container {
+				background-color: rgb(106, 0, 0);
+			}
+		}
+		&.selected {
+			box-shadow: 0px 0px 8px 0px var(--adlib-item-selected-color);
+
+			&::after {
+				border: 2px solid var(--adlib-item-selected-color);
+			}
+		}
+		&.next {
+			box-shadow: 0px 0px 8px 0px var(--general-next-color);
+
+			&::after {
+				border: 2px solid var(--general-next-color);
 			}
 		}
 	}
@@ -646,92 +1005,123 @@ $dashboard-button-height: 3.625em;
 		}
 	}
 
-	&.dashboard-panel__panel--bucket {
-		$dashboard-button-width: 10.625em;
-		$dashboard-button-height: 8.90625em;
-		$dashboard-button-label-height: 2.7em;
-		$dashboard-button-thumbnail-height: $dashboard-button-height - $dashboard-button-label-height;
+	$dashboard-button-width-bucket: 10.625em;
+	$dashboard-button-height-bucket: 8.69em;
+	$dashboard-button-label-height-bucket: 2.7em;
+	$dashboard-button-thumbnail-height-bucket: $dashboard-button-height-bucket - $dashboard-button-label-height-bucket;
 
-		.dashboard-panel__panel__group {
-			.dashboard-panel__panel__group__liveline {
-				transform: translate(calc(-1 * #{$dashboard-button-width}), 0);
-				&::after {
-					transform: translate(calc(#{$dashboard-button-width} + -1px), 0);
-				}
+	.dashboard-panel__panel__group {
+		.dashboard-panel__panel__group__liveline {
+			transform: translate(calc(-1 * #{$dashboard-button-width-bucket}), 0);
+			&::after {
+				transform: translate(calc(#{$dashboard-button-width-bucket} + -1px), 0);
+			}
 
-				&::before {
-					transform: translate(calc(#{$dashboard-button-width} + -1px), 0);
-				}
+			&::before {
+				transform: translate(calc(#{$dashboard-button-width-bucket} + -1px), 0);
 			}
 		}
+	}
 
-		.dashboard-panel__panel__button {
-			border-radius: 0px;
-			width: $dashboard-button-width;
-			height: $dashboard-button-height;
+	.dashboard-panel__panel__button {
+		border-radius: 0px;
+		width: $dashboard-button-width-bucket;
+		height: $dashboard-button-height-bucket;
 
-			&.source-missing,
-			&.source-not-ready,
-			&.unknown-state,
-			&.source-unknown-state {
-				&::before {
-					z-index: 2;
+		&.dashboard-panel__panel__button--no-thumbnail:not(.dashboard-panel__panel__button--compact):not(.list)
+			> .dashboard-panel__panel__button__content
+			.dashboard-panel__panel__button__tag-container
+			> .dashboard-panel__panel__button__tag-container--inner
+			> .dashboard-panel__panel__button__label-container
+			> .dashboard-panel__panel__button__label
+			> .dashboard-panel__panel__button__label__content:not(.dashboard-panel__panel__button__label__content--editable) {
+			-webkit-line-clamp: 6;
+		}
+
+		&.source-missing,
+		&.source-not-ready,
+		&.unknown-state,
+		&.source-unknown-state {
+			&::before {
+				z-index: 2;
+			}
+		}
+		> .dashboard-panel__panel__button__content {
+			background: linear-gradient(90deg, rgb(84, 84, 84) 0%, rgb(61, 61, 61) 100%);
+
+			.dashboard-panel__panel__button__tag-container {
+				@include item-type-colors;
+				> .dashboard-panel__panel__button__tag-container--inner > .dashboard-panel__panel__button__label-container {
+					top: 50%;
+					background-color: rgba(0, 0, 0, 0.8);
+					display: flex;
+					padding: unset;
+					min-height: $dashboard-button-label-height-bucket;
+					height: 100%;
+					flex: 1 1 $dashboard-button-label-height-bucket;
+					transition: background-color 0.4s ease-out;
+
+					> .dashboard-panel__panel__button__label {
+						position: static;
+						display: flex;
+						align-items: center;
+
+						> .dashboard-panel__panel__button__label__content {
+							font-family:
+								Roboto Flex,
+								Roboto;
+							font-size: 15px;
+							line-height: 15.5px;
+							letter-spacing: 0.4px;
+							font-variation-settings:
+								'wdth' 25,
+								'wght' 400,
+								'slnt' 0,
+								'GRAD' 0,
+								'opsz' 14,
+								'XOPQ' 96,
+								'XTRA' 468,
+								'YOPQ' 79,
+								'YTAS' 750,
+								'YTFI' 738,
+								'YTLC' 548,
+								'YTDE' -203,
+								'YTUC' 712;
+							vertical-align: middle;
+							text-align: unset;
+							padding: 0.1em 0.5px 0em 3px;
+							z-index: 2;
+							text-overflow: ellipsis;
+							display: -webkit-box;
+							-webkit-box-orient: vertical;
+							-webkit-line-clamp: 2;
+							overflow: hidden;
+							top: unset;
+						}
+						> .dashboard-panel__panel__button__label__content span {
+							white-space: nowrap;
+							overflow: hidden;
+							text-overflow: ellipsis;
+							display: block;
+							height: 1em;
+							line-height: 0.9em;
+						}
+					}
 				}
 			}
 
-			> .dashboard-panel__panel__button__content {
-				background: linear-gradient(90deg, rgb(84, 84, 84) 0%, rgb(61, 61, 61) 100%);
+			> .dashboard-panel__panel__button__thumbnail {
+				height: $dashboard-button-thumbnail-height-bucket;
+				flex: 0 0 $dashboard-button-thumbnail-height-bucket;
+			}
 
-				> .dashboard-panel__panel__button__label-container {
-					background-color: #000;
-					height: $dashboard-button-label-height;
-					display: flex;
-					position: absolute;
-					top: auto;
-					bottom: 0;
-					padding: unset;
-
-					.dashboard-panel__panel__button__tag-container {
-						flex: 0 0 0.46875em;
-						z-index: 2;
-						background: var(--segment-layer-background-unknown);
-
-						@include item-type-colors();
-					}
-
-					.dashboard-panel__panel__button__label {
-						text-align: unset;
-						padding: 0.1em 0.5px 0em 3px;
-						vertical-align: unset;
-						font-size: 1.125em;
-						font-weight: unset;
-						text-shadow: unset;
-						z-index: 2;
-						text-overflow: ellipsis;
-						display: -webkit-box;
-						-webkit-box-orient: vertical;
-						-webkit-line-clamp: 2;
-						top: unset;
-					}
-				}
-
-				> .dashboard-panel__panel__button__thumbnail {
-					height: $dashboard-button-thumbnail-height;
-					top: unset;
-					right: unset;
-					bottom: unset;
-					left: unset;
-					z-index: unset;
-				}
-
-				> .dashboard-panel__panel__button__sub-label {
-					padding: 2px;
-					font-size: 0.9375em;
-					margin: unset;
-					background: rgba(0, 0, 0, 0.5);
-					font-family: 'Roboto Condensed', sans-serif;
-					text-shadow: unset;
-				}
+			> .dashboard-panel__panel__button__sub-label {
+				padding: 2px;
+				font-size: 0.9375em;
+				margin: unset;
+				background: rgba(0, 0, 0, 0.5);
+				font-family: 'Roboto Condensed', sans-serif;
+				text-shadow: unset;
 			}
 		}
 	}

@@ -16,6 +16,7 @@ import {
 	PieceLifespan,
 	VTContent,
 } from '@sofie-automation/blueprints-integration'
+import { ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 import { Complete, literal } from '@sofie-automation/corelib/dist/lib'
 import { MongoMock } from '../../../../__mocks__/mongo'
 import {
@@ -255,6 +256,7 @@ describe('lib/mediaObjects', () => {
 			allowPieceDirectPlay: false,
 			enableBuckets: false,
 			enableEvaluationForm: false,
+			shelfAdlibButtonSize: ShelfButtonSize.LARGE,
 		}
 
 		const mockDefaultStudio = defaultStudio(protectString('studio0'))

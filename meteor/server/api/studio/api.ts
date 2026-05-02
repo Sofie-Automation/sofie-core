@@ -28,6 +28,7 @@ import { logger } from '../../logging'
 import { DEFAULT_MINIMUM_TAKE_SPAN } from '@sofie-automation/shared-lib/dist/core/constants'
 import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
 import { assertConnectionHasOneOfPermissions } from '../../security/auth'
+import { ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 
 const PERMISSIONS_FOR_MANAGE_STUDIOS: Array<keyof UserPermissions> = ['configure']
 
@@ -64,6 +65,7 @@ export async function insertStudioInner(newId?: StudioId): Promise<StudioId> {
 				allowPieceDirectPlay: false,
 				enableBuckets: true,
 				enableEvaluationForm: true,
+				shelfAdlibButtonSize: ShelfButtonSize.LARGE,
 			}),
 			_rundownVersionHash: '',
 			routeSetsWithOverrides: wrapDefaultObject({}),

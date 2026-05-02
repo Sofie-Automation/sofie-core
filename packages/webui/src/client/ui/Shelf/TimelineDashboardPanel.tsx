@@ -10,7 +10,7 @@ import {
 import type { IAdLibPanelProps, AdLibFetchAndFilterProps } from './AdLibPanel.js'
 import { AdLibPanelToolbar } from './AdLibPanelToolbar.js'
 import { matchFilter } from './AdLibListView.js'
-import { DashboardPieceButton } from './DashboardPieceButton.js'
+import { DashboardPieceButton } from './DashboardPieceButton/DashboardPieceButton.js'
 import { contextMenuHoldToDisplayTime } from '../../lib/lib.js'
 import {
 	DashboardPanelInner,

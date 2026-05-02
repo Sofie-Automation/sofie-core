@@ -7,6 +7,12 @@ export enum ForceQuickLoopAutoNext {
 	ENABLED_FORCING_MIN_DURATION = 'enabled_forcing_min_duration',
 }
 
+export enum ShelfButtonSize {
+	INHERIT = 'inherit',
+	COMPACT = 'compact',
+	LARGE = 'large',
+}
+
 export interface IStudioSettings {
 	/** The framerate (frames per second) used to convert internal timing information (in milliseconds)
 	 * into timecodes and timecode-like strings and interpret timecode user input
@@ -89,6 +95,11 @@ export interface IStudioSettings {
 	 * Enable evaluation form - the default behavior is to have evaluation forms.
 	 */
 	enableEvaluationForm: boolean
+
+	/**
+	 * Default size of AdLib buttons in shelf-like UIs (eg mini shelf).
+	 */
+	shelfAdlibButtonSize: Exclude<ShelfButtonSize, ShelfButtonSize.INHERIT>
 
 	/**
 	 * Doubleclick changes behaviour as selector for userediting

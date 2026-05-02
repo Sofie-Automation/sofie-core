@@ -1027,15 +1027,16 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 									const DASHBOARD_PANEL_HEIGHT = 200
 									// Minimum height for hidden segments to prevent layout issues
 									const HIDDEN_SEGMENT_MIN_HEIGHT = 10
+									const showMiniShelf = !!segment.displayMinishelf
 
 									if (segment.isHidden) {
 										// Hidden segments don't render the timeline at all
-										// They only render the dashboard panel if showShelf is true
-										return segment.showShelf ? DASHBOARD_PANEL_HEIGHT : HIDDEN_SEGMENT_MIN_HEIGHT
+										// They only render the dashboard panel if displayMinishelf is set
+										return showMiniShelf ? DASHBOARD_PANEL_HEIGHT : HIDDEN_SEGMENT_MIN_HEIGHT
 									}
 
 									// Normal segment: base timeline height + optional dashboard panel
-									return segment.showShelf ? BASE_SEGMENT_HEIGHT + DASHBOARD_PANEL_HEIGHT : BASE_SEGMENT_HEIGHT
+									return showMiniShelf ? BASE_SEGMENT_HEIGHT + DASHBOARD_PANEL_HEIGHT : BASE_SEGMENT_HEIGHT
 								}
 
 								const segmentPlaceholderHeight = calculatePlaceholderHeight(segment)
@@ -1045,7 +1046,7 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 										<VirtualElement
 											className={classNames({
 												'segment-timeline-wrapper--hidden': segment.isHidden,
-												'segment-timeline-wrapper--shelf': segment.showShelf,
+												'segment-timeline-wrapper--shelf': !!segment.displayMinishelf,
 											})}
 											id={SEGMENT_TIMELINE_ELEMENT_ID + segment._id}
 											margin={'100% 0px 100% 0px'}

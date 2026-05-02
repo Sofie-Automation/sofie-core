@@ -5,6 +5,7 @@ import { preprocessStudioConfig, retrieveBlueprintConfigRefs } from '../config.j
 import { getShowStyleConfigRef, getStudioConfigRef } from '../configRefs.js'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { DEFAULT_MINIMUM_TAKE_SPAN } from '@sofie-automation/shared-lib/dist/core/constants'
+import { ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 
 describe('Test blueprint config', () => {
 	test('compileStudioConfig', () => {
@@ -19,6 +20,7 @@ describe('Test blueprint config', () => {
 				allowPieceDirectPlay: true,
 				enableBuckets: true,
 				enableEvaluationForm: true,
+				shelfAdlibButtonSize: ShelfButtonSize.LARGE,
 			}),
 			blueprintConfigWithOverrides: wrapDefaultObject({ sdfsdf: 'one', another: 5 }),
 		})
@@ -46,6 +48,7 @@ describe('Test blueprint config', () => {
 				allowPieceDirectPlay: true,
 				enableBuckets: true,
 				enableEvaluationForm: true,
+				shelfAdlibButtonSize: ShelfButtonSize.LARGE,
 			}),
 			blueprintConfigWithOverrides: wrapDefaultObject({ sdfsdf: 'one', another: 5 }),
 		})

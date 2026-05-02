@@ -26,7 +26,6 @@ import {
 	RundownViewEvents,
 } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
 import { getElementWidth } from '../../utils/dimensions.js'
-import { HOVER_TIMEOUT } from '../Shelf/DashboardPieceButton.js'
 import { Meteor } from 'meteor/meteor'
 import { hidePointerLockCursor, showPointerLockCursor } from '../../lib/PointerLockCursor.js'
 import { SegmentScrollbar } from './SegmentScrollbar.js'
@@ -50,6 +49,7 @@ import {
 	isQuickLoopEnd as getIsQuickLoopEnd,
 	isEntirePlaylistLooping as getIsEntirePlaylistLooping,
 } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
+import { HOVER_TIMEOUT } from '../Shelf/DashboardPieceButton/types.js'
 
 interface IProps {
 	id: string

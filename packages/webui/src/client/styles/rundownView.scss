@@ -145,13 +145,11 @@ $break-width: 35rem;
 	&.notification-center-open {
 		padding-right: $notification-center-width;
 		transition: 0s padding-right 1s;
-
 	}
 
 	&.properties-panel-open {
 		padding-right: calc(#{$properties-panel-width} - 3.5em);
 		transition: 0s padding-right 1s;
-
 	}
 
 	.dark {
@@ -192,16 +190,20 @@ body.no-overflow {
 	left: 0;
 	bottom: 0;
 	right: 0;
-	background: linear-gradient(
-			45deg,
-			$color-status-fatal 33%,
-			transparent 33%,
-			transparent 66%,
-			$color-status-fatal 66%
-		), // Top border
-		linear-gradient(45deg, $color-status-fatal 33%, transparent 33%, transparent 66%, $color-status-fatal 66%), // Bottom border
-		linear-gradient(45deg, $color-status-fatal 33%, transparent 33%, transparent 66%, $color-status-fatal 66%), // Left border
-		linear-gradient(45deg, $color-status-fatal 33%, transparent 33%, transparent 66%, $color-status-fatal 66%); // Right border
+	background:
+		linear-gradient(45deg, $color-status-fatal 33%, transparent 33%, transparent 66%, $color-status-fatal 66%),
+		// Top border
+		linear-gradient(45deg, $color-status-fatal 33%, transparent 33%, transparent 66%, $color-status-fatal 66%),
+		// Bottom border
+		linear-gradient(45deg, $color-status-fatal 33%, transparent 33%, transparent 66%, $color-status-fatal 66%),
+		// Left border
+		linear-gradient(
+				45deg,
+				$color-status-fatal 33%,
+				transparent 33%,
+				transparent 66%,
+				$color-status-fatal 66%
+			); // Right border
 	background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
 	background-size:
 		30px 8px,
@@ -228,7 +230,6 @@ body.no-overflow {
 	}
 }
 
-
 .first-row {
 	cursor: default;
 }
@@ -243,6 +244,8 @@ svg.icon {
 	display: grid;
 	grid-column-gap: 0;
 	grid-row-gap: 0;
+	position: relative;
+	z-index: 3;
 
 	grid-template-columns:
 		[segment-name] calc($segment-header-width / 2) [duration-onAirIn-split] calc($segment-header-width / 2)
@@ -845,7 +848,8 @@ svg.icon {
 		}
 		.segment-timeline__part {
 			.segment-timeline__part__invalid-cover {
-				background-image: repeating-linear-gradient(
+				background-image:
+					repeating-linear-gradient(
 						45deg,
 						var(--invalid-reason-color-transparent) 0%,
 						var(--invalid-reason-color-transparent) 4px,
@@ -1127,7 +1131,8 @@ svg.icon {
 						left: 2px;
 						right: 2px;
 						z-index: 3;
-						background: repeating-linear-gradient(
+						background:
+							repeating-linear-gradient(
 								45deg,
 								var(--invalid-reason-color-opaque) 0,
 								var(--invalid-reason-color-opaque) 5px,
@@ -1309,7 +1314,8 @@ svg.icon {
 				right: 1px;
 				z-index: 10;
 				pointer-events: none;
-				background-image: repeating-linear-gradient(
+				background-image:
+					repeating-linear-gradient(
 						45deg,
 						var(--invalid-reason-color-transparent) 0%,
 						var(--invalid-reason-color-transparent) 5px,
@@ -1749,7 +1755,7 @@ svg.icon {
 									min-height: 0;
 									transform-style: preserve-3d;
 
-									@include item-type-colors();
+									@include item-type-colors;
 
 									> .segment-timeline__piece__label.right-side {
 										margin-right: 0 !important;
@@ -2539,6 +2545,23 @@ svg.icon {
 		}
 	}
 }
+.segment-timeline-wrapper--shelf {
+	div .segment-timeline {
+		margin-bottom: 0 !important;
+	}
+
+	&:has(.rundown-view-shelf) {
+		margin-bottom: -0.8em !important;
+	}
+
+	+ .segment-timeline-wrapper--hidden {
+		+ .segment-timeline-wrapper--shelf:has(.rundown-view-shelf) {
+			.segment-timeline {
+				margin-top: 0 !important;
+			}
+		}
+	}
+}
 
 .playlist-looping-header {
 	color: $rundown-divider-color;
@@ -3073,7 +3096,7 @@ svg.icon {
 			}
 
 			& > * {
-				@include item-type-colors();
+				@include item-type-colors;
 			}
 
 			.video-preview__label {

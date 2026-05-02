@@ -57,7 +57,7 @@ export function useMiniShelfAdlibsData(
 						? {
 								...miniShelfFilter,
 								currentSegment:
-									!(segment.isHidden && segment.showShelf) && miniShelfFilter.currentSegment,
+									!(segment.isHidden && segment.displayMinishelf) && miniShelfFilter.currentSegment,
 							}
 						: undefined,
 					undefined,
@@ -342,7 +342,7 @@ function findPieceToQueueInOtherSegments(
 function findShelfOnlySegment(uiSegments: AdlibSegmentUi[], begin: number, end: number) {
 	for (let i = begin; begin > end ? i > end : i < end; begin > end ? i-- : i++) {
 		const queueablePieces = uiSegments[i].pieces.filter(isAdLibQueueable)
-		if (uiSegments[i].isHidden && uiSegments[i].showShelf && queueablePieces.length) {
+		if (uiSegments[i].isHidden && uiSegments[i].displayMinishelf && queueablePieces.length) {
 			return { segment: uiSegments[i], queueablePieces }
 		}
 	}

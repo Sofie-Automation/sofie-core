@@ -113,8 +113,8 @@
 					max-height: 100%;
 					overflow: hidden;
 
-					> .dashboard-panel__panel__button,
-					> span > .dashboard-panel__panel__button {
+					> .dashboard-panel__panel__button-wrapper > .dashboard-panel__panel__button,
+					> span > .dashboard-panel__panel__button-wrapper > .dashboard-panel__panel__button {
 						> .dashboard-panel__panel__button__label {
 							top: 4px;
 						}
@@ -123,11 +123,6 @@
 						}
 					}
 				}
-			}
-		}
-
-		> .buckets {
-			> .dashboard-panel__panel--bucket {
 			}
 		}
 	}
@@ -155,12 +150,23 @@
 			--dashboard-panel-margin-width: 0em;
 			--dashboard-panel-margin-height: 0em;
 
-			.dashboard-panel > .dashboard-panel__panel > .dashboard-panel__panel__button,
-			.dashboard-panel > .dashboard-panel__panel > span > .dashboard-panel__panel__button {
+			.dashboard-panel
+				> .dashboard-panel__panel
+				> .dashboard-panel__panel__button-wrapper
+				> .dashboard-panel__panel__button,
+			.dashboard-panel
+				> .dashboard-panel__panel
+				> span
+				> .dashboard-panel__panel__button-wrapper
+				> .dashboard-panel__panel__button {
 				width: 71px;
 				height: 71px;
-				margin: 0px 1px 1px 0px;
 				font-size: 13px;
+			}
+
+			.dashboard-panel > .dashboard-panel__panel > .dashboard-panel__panel__button-wrapper,
+			.dashboard-panel > .dashboard-panel__panel > span > .dashboard-panel__panel__button-wrapper {
+				margin: 0px 1px 1px 0px;
 			}
 		}
 	}
@@ -180,12 +186,23 @@
 			--dashboard-panel-margin-width: 0em;
 			--dashboard-panel-margin-height: 0em;
 
-			.dashboard-panel > .dashboard-panel__panel > .dashboard-panel__panel__button,
-			.dashboard-panel > .dashboard-panel__panel > span > .dashboard-panel__panel__button {
+			.dashboard-panel
+				> .dashboard-panel__panel
+				> .dashboard-panel__panel__button-wrapper
+				> .dashboard-panel__panel__button,
+			.dashboard-panel
+				> .dashboard-panel__panel
+				> span
+				> .dashboard-panel__panel__button-wrapper
+				> .dashboard-panel__panel__button {
 				width: 95px;
 				height: 95px;
-				margin: 0px 1px 1px 0px;
 				font-size: 15px;
+			}
+
+			.dashboard-panel > .dashboard-panel__panel > .dashboard-panel__panel__button-wrapper,
+			.dashboard-panel > .dashboard-panel__panel > span > .dashboard-panel__panel__button-wrapper {
+				margin: 0px 1px 1px 0px;
 			}
 		}
 	}
@@ -205,12 +222,23 @@
 			--dashboard-panel-margin-width: 0em;
 			--dashboard-panel-margin-height: 0em;
 
-			.dashboard-panel > .dashboard-panel__panel > .dashboard-panel__panel__button,
-			.dashboard-panel > .dashboard-panel__panel > span > .dashboard-panel__panel__button {
+			.dashboard-panel
+				> .dashboard-panel__panel
+				> .dashboard-panel__panel__button-wrapper
+				> .dashboard-panel__panel__button,
+			.dashboard-panel
+				> .dashboard-panel__panel
+				> span
+				> .dashboard-panel__panel__button-wrapper
+				> .dashboard-panel__panel__button {
 				width: 79px;
 				height: 79px;
-				margin: 0px 1px 1px 0px;
 				font-size: 13px;
+			}
+
+			.dashboard-panel > .dashboard-panel__panel > .dashboard-panel__panel__button-wrapper,
+			.dashboard-panel > .dashboard-panel__panel > span > .dashboard-panel__panel__button-wrapper {
+				margin: 0px 1px 1px 0px;
 			}
 		}
 	}

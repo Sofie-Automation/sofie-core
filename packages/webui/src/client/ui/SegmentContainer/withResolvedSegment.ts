@@ -313,7 +313,7 @@ export function withResolvedSegment<T extends IResolvedSegmentProps, IState = {}
 				!_.isEqual(props.rundownViewLayout, nextProps.rundownViewLayout) ||
 				props.fixedSegmentDuration !== nextProps.fixedSegmentDuration ||
 				!_.isEqual(props.adLibSegmentUi?.pieces, nextProps.adLibSegmentUi?.pieces) ||
-				props.adLibSegmentUi?.showShelf !== nextProps.adLibSegmentUi?.showShelf
+				props.adLibSegmentUi?.displayMinishelf !== nextProps.adLibSegmentUi?.displayMinishelf
 			) {
 				return true
 			}

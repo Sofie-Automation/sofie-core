@@ -1,6 +1,7 @@
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { Meteor } from 'meteor/meteor'
+import { ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 
 /* *************************************************************************
 This file contains types and interfaces that are used by the REST API.
@@ -223,6 +224,8 @@ export interface APIStudioSettings {
 	allowPieceDirectPlay?: boolean
 	enableBuckets?: boolean
 	enableEvaluationForm?: boolean
+	/** Default size of AdLib buttons in the mini shelf */
+	shelfAdlibButtonSize?: Exclude<ShelfButtonSize, ShelfButtonSize.INHERIT>
 	mockPieceContentStatus?: boolean
 	rundownGlobalPiecesPrepareTime?: number
 }
