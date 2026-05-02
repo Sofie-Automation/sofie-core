@@ -50,7 +50,7 @@ export function convertSourceLayerItemToPreview(
 				case PreviewType.BlueprintImage:
 					contents.push({
 						type: 'image',
-						src: createPrivateApiPath('/blueprints/assets/' + popupPreview.preview.image),
+						src: createPrivateApiPath('blueprints/assets/' + popupPreview.preview.image),
 					})
 					break
 				case PreviewType.HTML:
@@ -82,7 +82,7 @@ export function convertSourceLayerItemToPreview(
 					contents.push({
 						type: 'boxLayout',
 						boxSourceConfiguration: popupPreview.preview.boxes,
-						backgroundArtSrc: createPrivateApiPath('/blueprints/assets/' + popupPreview.preview.background),
+						backgroundArtSrc: createPrivateApiPath('blueprints/assets/' + popupPreview.preview.background),
 					})
 					break
 				case PreviewType.Table:
@@ -288,7 +288,7 @@ export function convertSourceLayerItemToPreview(
 		const content = item.content as TransitionContent
 		if (content.preview)
 			return {
-				contents: [{ type: 'image', src: createPrivateApiPath('/blueprints/assets/' + content.preview) }],
+				contents: [{ type: 'image', src: createPrivateApiPath('blueprints/assets/' + content.preview) }],
 				options: {},
 			}
 	}
