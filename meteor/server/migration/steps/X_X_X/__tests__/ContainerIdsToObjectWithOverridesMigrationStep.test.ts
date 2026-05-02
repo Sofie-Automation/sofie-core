@@ -28,7 +28,10 @@ describe('ContainerIdsToObjectWithOverridesMigrationStep', () => {
 		const studio = await Studios.findOneAsync(protectString('studio0'))
 		expect(studio).toBeTruthy()
 		expect(studio?.packageContainerSettingsWithOverrides).toMatchObject({
-			defaults: {},
+			defaults: {
+				previewContainerIds: [],
+				thumbnailContainerIds: [],
+			},
 			overrides: [
 				{ op: 'set', path: 'previewContainerIds', value: ['preview1'] },
 				{ op: 'set', path: 'thumbnailContainerIds', value: ['thumb1'] },
@@ -60,11 +63,11 @@ describe('ContainerIdsToObjectWithOverridesMigrationStep', () => {
 		const studio = await Studios.findOneAsync(protectString('studio1'))
 		expect(studio).toBeTruthy()
 		expect(studio?.packageContainerSettingsWithOverrides).toMatchObject({
-			defaults: {},
-			overrides: [
-				{ op: 'set', path: 'previewContainerIds', value: [] },
-				{ op: 'set', path: 'thumbnailContainerIds', value: [] },
-			],
+			defaults: {
+				previewContainerIds: [],
+				thumbnailContainerIds: [],
+			},
+			overrides: [],
 		})
 
 		const validateResultAfter = await step.validate()
