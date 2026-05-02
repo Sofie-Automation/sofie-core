@@ -1,6 +1,6 @@
 import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
-import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
+import { DBPart, PartInvalidReason } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import {
 	deserializePieceTimelineObjectsBlob,
@@ -35,6 +35,7 @@ import {
 	IBlueprintAdLibPieceDB,
 	IBlueprintConfig,
 	IBlueprintMutatablePart,
+	IBlueprintMutatablePartInstance,
 	IBlueprintPartDB,
 	IBlueprintPartInstance,
 	IBlueprintPiece,
@@ -51,6 +52,7 @@ import {
 	IBlueprintShowStyleVariant,
 	IOutputLayer,
 	ISourceLayer,
+	NoteSeverity,
 	PieceAbSessionInfo,
 	RundownPlaylistTiming,
 } from '@sofie-automation/blueprints-integration'
@@ -218,6 +220,7 @@ export function convertPartInstanceToBlueprints(partInstance: ReadonlyDeep<DBPar
 		previousPartEndState: clone(partInstance.previousPartEndState),
 		orphaned: partInstance.orphaned,
 		blockTakeUntil: partInstance.blockTakeUntil,
+		invalidReason: partInstance.invalidReason ? clone(partInstance.invalidReason.message) : undefined,
 	}
 
 	return obj
@@ -714,6 +717,39 @@ export function convertPartialBlueprintMutablePartToCore(
 
 	return playoutUpdatePart
 }
+
+export interface PlayoutMutatablePartInstance extends Omit<IBlueprintMutatablePartInstance, 'invalidReason'> {
+	invalidReason?: PartInvalidReason
+}
+
+/**
+ * Converts a partial IBlueprintMutatablePartInstance and wraps translatable messages with blueprint namespace
+ */
+export function convertPartialBlueprintMutatablePartInstanceToCore(
+	instanceProps: Partial<IBlueprintMutatablePartInstance>,
+	blueprintId: BlueprintId
+): Partial<PlayoutMutatablePartInstance> {
+	const result: Partial<PlayoutMutatablePartInstance> = {
+		...instanceProps,
+		invalidReason: undefined,
+	}
+
+	if (instanceProps.invalidReason) {
+		result.invalidReason = {
+			message: wrapTranslatableMessageFromBlueprints(instanceProps.invalidReason, [blueprintId]),
+			severity: NoteSeverity.ERROR,
+		}
+	} else if ('invalidReason' in instanceProps) {
+		// Explicitly clearing invalidReason
+		result.invalidReason = undefined
+	} else {
+		// Not touching invalidReason at all
+		delete result.invalidReason
+	}
+
+	return result
+}
+
 export function createBlueprintQuickLoopInfo(playlist: ReadonlyDeep<DBRundownPlaylist>): BlueprintQuickLookInfo | null {
 	const playlistLoopProps = playlist.quickLoop
 	if (!playlistLoopProps) return null

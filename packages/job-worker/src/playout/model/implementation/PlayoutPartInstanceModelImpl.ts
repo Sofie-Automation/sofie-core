@@ -25,7 +25,7 @@ import { PlayoutPieceInstanceModel } from '../PlayoutPieceInstanceModel.js'
 import { PlayoutPieceInstanceModelImpl } from './PlayoutPieceInstanceModelImpl.js'
 import { EmptyPieceTimelineObjectsBlob } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import _ from 'underscore'
-import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
+import { DBPart, PartInvalidReason } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { PlayoutMutatablePartSampleKeys } from '../../../blueprints/context/lib.js'
 import { QuickLoopService } from '../services/QuickLoopService.js'
 
@@ -215,6 +215,10 @@ export class PlayoutPartInstanceModelImpl implements PlayoutPartInstanceModel {
 
 	blockTakeUntil(timestamp: Time | null): void {
 		this.#compareAndSetPartInstanceValue('blockTakeUntil', timestamp ?? undefined)
+	}
+
+	setInvalidReason(reason: PartInvalidReason | undefined): void {
+		this.#compareAndSetPartInstanceValue('invalidReason', reason)
 	}
 
 	getPieceInstance(id: PieceInstanceId): PlayoutPieceInstanceModel | undefined {

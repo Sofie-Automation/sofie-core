@@ -1,6 +1,7 @@
 import { ReadonlyDeep } from 'type-fest'
 import {
 	IBlueprintMutatablePart,
+	IBlueprintMutatablePartInstance,
 	IBlueprintPart,
 	IBlueprintPartInstance,
 	IBlueprintPiece,
@@ -67,10 +68,16 @@ export interface IPartAndPieceActionContext {
 	/** Update a piecesInstance */
 	updatePieceInstance(pieceInstanceId: string, piece: Partial<IBlueprintPiece>): Promise<IBlueprintPieceInstance>
 
-	/** Update a partInstance */
+	/**
+	 * Update a partInstance
+	 * @param part Which part to update
+	 * @param props Properties of the Part itself
+	 * @param instanceProps Properties of the PartInstance (runtime state)
+	 */
 	updatePartInstance(
 		part: 'current' | 'next',
-		props: Partial<IBlueprintMutatablePart>
+		props: Partial<IBlueprintMutatablePart>,
+		instanceProps?: Partial<IBlueprintMutatablePartInstance>
 	): Promise<IBlueprintPartInstance>
 	/** Inform core that a take out of the partinstance should be blocked until the specified time */
 	blockTakeUntil(time: Time | null): Promise<void>

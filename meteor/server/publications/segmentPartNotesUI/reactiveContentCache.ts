@@ -35,7 +35,7 @@ export const partFieldSpecifier = literal<MongoFieldSpecifierOnesStrict<Pick<DBP
 	invalidReason: 1,
 })
 
-export type PartInstanceFields = '_id' | 'segmentId' | 'rundownId' | 'orphaned' | 'reset' | 'part'
+export type PartInstanceFields = '_id' | 'segmentId' | 'rundownId' | 'orphaned' | 'reset' | 'part' | 'invalidReason'
 export const partInstanceFieldSpecifier = literal<
 	MongoFieldSpecifierOnesStrict<Pick<PartInstance, PartInstanceFields>>
 >({
@@ -44,7 +44,9 @@ export const partInstanceFieldSpecifier = literal<
 	rundownId: 1,
 	orphaned: 1,
 	reset: 1,
+	invalidReason: 1,
 	// @ts-expect-error Deep not supported
+	'part._id': 1,
 	'part.title': 1,
 })
 
@@ -52,7 +54,7 @@ export interface ContentCache {
 	Rundowns: ReactiveCacheCollection<Pick<Rundown, RundownFields>>
 	Segments: ReactiveCacheCollection<Pick<DBSegment, SegmentFields>>
 	Parts: ReactiveCacheCollection<Pick<DBPart, PartFields>>
-	DeletedPartInstances: ReactiveCacheCollection<Pick<PartInstance, PartInstanceFields>>
+	PartInstances: ReactiveCacheCollection<Pick<PartInstance, PartInstanceFields>>
 }
 
 export function createReactiveContentCache(): ContentCache {
@@ -60,9 +62,7 @@ export function createReactiveContentCache(): ContentCache {
 		Rundowns: new ReactiveCacheCollection<Pick<Rundown, RundownFields>>('rundowns'),
 		Segments: new ReactiveCacheCollection<Pick<DBSegment, SegmentFields>>('segments'),
 		Parts: new ReactiveCacheCollection<Pick<DBPart, PartFields>>('parts'),
-		DeletedPartInstances: new ReactiveCacheCollection<Pick<PartInstance, PartInstanceFields>>(
-			'deletedPartInstances'
-		),
+		PartInstances: new ReactiveCacheCollection<Pick<PartInstance, PartInstanceFields>>('partInstances'),
 	}
 
 	return cache

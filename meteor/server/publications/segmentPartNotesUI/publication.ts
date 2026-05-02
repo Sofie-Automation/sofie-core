@@ -91,7 +91,7 @@ async function setupUISegmentPartNotesPublicationObservers(
 						triggerUpdate({ invalidateSegmentIds: [doc.segmentId, oldDoc.segmentId] }),
 					removed: (doc) => triggerUpdate({ invalidateSegmentIds: [doc.segmentId] }),
 				}),
-				cache.DeletedPartInstances.find({}).observe({
+				cache.PartInstances.find({}).observe({
 					added: (doc) => triggerUpdate({ invalidateSegmentIds: [doc.segmentId] }),
 					changed: (doc, oldDoc) =>
 						triggerUpdate({ invalidateSegmentIds: [doc.segmentId, oldDoc.segmentId] }),
@@ -184,13 +184,13 @@ export async function manipulateUISegmentPartNotesPublicationData(
 interface UpdateNotesData {
 	rundownsCache: Map<RundownId, Pick<Rundown, RundownFields>>
 	parts: Map<SegmentId, Pick<DBPart, PartFields>[]>
-	deletedPartInstances: Map<SegmentId, Pick<DBPartInstance, PartInstanceFields>[]>
+	partInstances: Map<SegmentId, Pick<DBPartInstance, PartInstanceFields>[]>
 }
 function compileUpdateNotesData(cache: ReadonlyDeep<ContentCache>): UpdateNotesData {
 	return {
 		rundownsCache: normalizeArrayToMap(cache.Rundowns.find({}).fetch(), '_id'),
 		parts: groupByToMap(cache.Parts.find({}).fetch(), 'segmentId'),
-		deletedPartInstances: groupByToMap(cache.DeletedPartInstances.find({}).fetch(), 'segmentId'),
+		partInstances: groupByToMap(cache.PartInstances.find({}).fetch(), 'segmentId'),
 	}
 }
 
@@ -205,7 +205,7 @@ function updateNotesForSegment(
 		segment,
 		getRundownNrcsName(state.rundownsCache.get(segment.rundownId)),
 		state.parts.get(segment._id) ?? [],
-		state.deletedPartInstances.get(segment._id) ?? []
+		state.partInstances.get(segment._id) ?? []
 	)
 
 	// Insert generated notes

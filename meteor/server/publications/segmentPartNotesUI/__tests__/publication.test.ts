@@ -69,7 +69,7 @@ describe('manipulateUISegmentPartNotesPublicationData', () => {
 			Rundowns: new ReactiveCacheCollection('Rundowns'),
 			Segments: new ReactiveCacheCollection('Segments'),
 			Parts: new ReactiveCacheCollection('Parts'),
-			DeletedPartInstances: new ReactiveCacheCollection('DeletedPartInstances'),
+			PartInstances: new ReactiveCacheCollection('PartInstances'),
 		}
 
 		newCache.Rundowns.insert({
@@ -356,11 +356,11 @@ describe('manipulateUISegmentPartNotesPublicationData', () => {
 			invalid: false,
 			invalidReason: undefined,
 		})
-		newCache.DeletedPartInstances.insert({
+		newCache.PartInstances.insert({
 			_id: 'instance0',
 			segmentId: segmentId0,
 			rundownId: rundownId,
-			orphaned: undefined,
+			orphaned: 'deleted',
 			reset: false,
 			part: 'part' as any,
 		})
@@ -421,6 +421,7 @@ describe('manipulateUISegmentPartNotesPublicationData', () => {
 				[
 					{
 						_id: 'instance0',
+						orphaned: 'deleted',
 						part: 'part',
 						reset: false,
 						rundownId: 'rundown0',

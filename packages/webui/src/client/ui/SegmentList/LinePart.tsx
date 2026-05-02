@@ -19,6 +19,7 @@ import { LoopingIcon } from '../../lib/ui/icons/looping.js'
 import type { ISourceLayerExtended } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 import type { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 import type { PartExtended } from '@sofie-automation/corelib/src/dataModel/Part.js'
+import { isPartInstanceInvalid } from '../../lib/partInstanceUtil.js'
 
 interface IProps {
 	segment: SegmentUi
@@ -85,6 +86,9 @@ export function LinePart({
 	const isOutsideActiveQuickLoop =
 		isPlaylistLooping && !isInsideQuickLoop && !isEntirePlaylistLooping && !isNextPart && !hasAlreadyPlayed
 
+	// Check for both planned and runtime invalidReason
+	const isInvalid = isPartInstanceInvalid(part.instance)
+
 	const getPartContext = useCallback(() => {
 		const partElement = document.querySelector('#' + SegmentTimelinePartElementId + part.instance._id)
 		const partDocumentOffset = getElementDocumentOffset(partElement)
@@ -142,7 +146,7 @@ export function LinePart({
 					'segment-opl__part--has-played': hasAlreadyPlayed && (!isPlaylistLooping || !isInsideQuickLoop),
 					'segment-opl__part--outside-quickloop': isOutsideActiveQuickLoop,
 					'segment-opl__part--quickloop-start': isQuickLoopStart,
-					'segment-opl__part--invalid': part.instance.part.invalid,
+					'segment-opl__part--invalid': isInvalid,
 					'segment-opl__part--timing-sibling': isPreceededByTimingGroupSibling,
 				}),
 				//@ts-expect-error A Data attribute is perfectly fine

@@ -230,6 +230,10 @@ export async function performTakeToNextedPart(
 	if (!takeRundown)
 		throw new Error(`takeRundown: takeRundown not found! ("${takePartInstance.partInstance.rundownId}")`)
 
+	if (takePartInstance.partInstance.invalidReason) {
+		throw UserError.create(UserErrorMessage.TakePartInstanceInvalid)
+	}
+
 	const showStyle = await pShowStyle
 	const blueprint = await context.getShowStyleBlueprint(showStyle._id)
 

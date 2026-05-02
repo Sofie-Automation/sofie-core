@@ -4,6 +4,7 @@ import {
 	IBlueprintPart,
 	IBlueprintPiece,
 	IBlueprintPieceType,
+	NoteSeverity,
 	PieceLifespan,
 } from '@sofie-automation/blueprints-integration'
 import { PlayoutModel } from '../../../../playout/model/PlayoutModel.js'
@@ -1839,7 +1840,7 @@ describe('Test blueprint api context', () => {
 				await wrapWithPlayoutModel(jobContext, playlistId, async (playoutModel) => {
 					const { service } = await getTestee(jobContext, playoutModel)
 
-					await expect(service.updatePartInstance('current', { title: 'new' })).rejects.toThrow(
+					await expect(service.updatePartInstance('current', { title: 'new' }, {})).rejects.toThrow(
 						'PartInstance could not be found'
 					)
 				})
@@ -1848,17 +1849,17 @@ describe('Test blueprint api context', () => {
 				await setPartInstances(jobContext, playlistId, partInstance, undefined)
 				await wrapWithPlayoutModel(jobContext, playlistId, async (playoutModel) => {
 					const { service } = await getTestee(jobContext, playoutModel)
-					await expect(service.updatePartInstance('current', {})).rejects.toThrow(
+					await expect(service.updatePartInstance('current', {}, {})).rejects.toThrow(
 						'Some valid properties must be defined'
 					)
 					await expect(
-						service.updatePartInstance('current', { _id: 'bad', nope: 'ok' } as any)
+						service.updatePartInstance('current', { _id: 'bad', nope: 'ok' } as any, {})
 					).rejects.toThrow('Some valid properties must be defined')
 
-					await expect(service.updatePartInstance('next', { title: 'new' })).rejects.toThrow(
+					await expect(service.updatePartInstance('next', { title: 'new' }, {})).rejects.toThrow(
 						'PartInstance could not be found'
 					)
-					await service.updatePartInstance('current', { title: 'new' })
+					await service.updatePartInstance('current', { title: 'new' }, {})
 				})
 			})
 			test('good', async () => {
@@ -1886,7 +1887,7 @@ describe('Test blueprint api context', () => {
 						classes: ['123'],
 						badProperty: 9, // This will be dropped
 					}
-					const resultPart = await service.updatePartInstance('next', partInstance0Delta)
+					const resultPart = await service.updatePartInstance('next', partInstance0Delta, {})
 					const partInstance1 = playoutModel.nextPartInstance! as PlayoutPartInstanceModelImpl
 					expect(partInstance1).toBeTruthy()
 
@@ -1905,6 +1906,54 @@ describe('Test blueprint api context', () => {
 
 					expect(service.nextPartState).toEqual(ActionPartChange.SAFE_CHANGE)
 					expect(service.currentPartState).toEqual(ActionPartChange.NONE)
+				})
+			})
+			test('invalidReason on current - throws error', async () => {
+				const { jobContext, playlistId, rundownId } = await setupMyDefaultRundown()
+
+				const partInstance = (await jobContext.mockCollections.PartInstances.findOne({
+					rundownId,
+				})) as DBPartInstance
+				expect(partInstance).toBeTruthy()
+
+				// Set a current part instance
+				await setPartInstances(jobContext, playlistId, partInstance, undefined)
+				await wrapWithPlayoutModel(jobContext, playlistId, async (playoutModel) => {
+					const { service } = await getTestee(jobContext, playoutModel)
+
+					await expect(
+						service.updatePartInstance('current', {}, { invalidReason: { key: 'test' } })
+					).rejects.toThrow('Can only set invalidReason on the next PartInstance')
+				})
+			})
+			test('invalidReason on next - sets and clears', async () => {
+				const { jobContext, playlistId, rundownId } = await setupMyDefaultRundown()
+
+				const partInstance = (await jobContext.mockCollections.PartInstances.findOne({
+					rundownId,
+				})) as DBPartInstance
+				expect(partInstance).toBeTruthy()
+
+				// Set as next part instance
+				await setPartInstances(jobContext, playlistId, undefined, partInstance)
+				await wrapWithPlayoutModel(jobContext, playlistId, async (playoutModel) => {
+					const { service } = await getTestee(jobContext, playoutModel)
+
+					// Set invalidReason
+					const invalidReason = { key: 'test_error', args: { foo: 'bar' } }
+					await service.updatePartInstance('next', {}, { invalidReason })
+					const partInstance1 = playoutModel.nextPartInstance! as PlayoutPartInstanceModelImpl
+					expect(partInstance1.partInstance.invalidReason).toEqual({
+						message: {
+							...invalidReason,
+							namespaces: [expect.any(String)],
+						},
+						severity: NoteSeverity.ERROR,
+					})
+
+					// Clear invalidReason
+					await service.updatePartInstance('next', {}, { invalidReason: undefined })
+					expect(partInstance1.partInstance.invalidReason).toBeUndefined()
 				})
 			})
 		})
