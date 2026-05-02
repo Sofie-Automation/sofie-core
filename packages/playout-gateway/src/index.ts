@@ -44,6 +44,7 @@ if (logPath) {
 	})
 
 	logger = Winston.createLogger({
+		exitOnError: false,
 		transports: [transportConsole, transportFile],
 	})
 	logger.info('Logging to', logPath)
@@ -67,6 +68,7 @@ if (logPath) {
 	})
 
 	logger = Winston.createLogger({
+		exitOnError: false,
 		transports: [transportConsole],
 	})
 	logger.info('Logging to Console')
