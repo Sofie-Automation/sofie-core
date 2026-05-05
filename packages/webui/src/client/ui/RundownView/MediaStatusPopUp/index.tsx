@@ -3,15 +3,15 @@ import { useTranslation } from 'react-i18next'
 // import classNames from 'classnames'
 // import Tooltip from 'rc-tooltip'
 // import { TOOLTIP_DEFAULT_DELAY } from '../../lib/lib.js'
-import { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { useTracker } from '../../../lib/ReactMeteorData/ReactMeteorData.js'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import {
 	MediaStatus,
-	MediaStatusListItem as IMediaStatusListItem,
+	type MediaStatusListItem as IMediaStatusListItem,
 	sortItems,
-	SortBy,
-	SortOrder,
+	type SortBy,
+	type SortOrder,
 } from '../../MediaStatus/MediaStatus.js'
 import { MediaStatusPopUpItem } from './MediaStatusPopUpItem.js'
 import { translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'

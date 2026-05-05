@@ -1,17 +1,17 @@
-import { ISourceLayer } from '@sofie-automation/blueprints-integration'
-import React, { useContext, useState, useEffect } from 'react'
+import type { ISourceLayer } from '@sofie-automation/blueprints-integration'
+import { useContext, useState, useEffect } from 'react'
 import { assertNever } from '@sofie-automation/corelib/dist/lib'
 import { useTracker } from '../ReactMeteorData/ReactMeteorData.js'
 import { SorensenContext } from '../SorensenContext.js'
 import { MountedAdLibTriggers } from './TriggersHandler.js'
 import { codesToKeyLabels } from './codesToKeyLabels.js'
-import { AdLibActionId, PieceId, RundownBaselineAdLibActionId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { AdLibActionId, PieceId, RundownBaselineAdLibActionId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import {
-	MountedAdLibTrigger,
+	type MountedAdLibTrigger,
 	MountedAdLibTriggerType,
-	MountedHotkeyMixin,
+	type MountedHotkeyMixin,
 } from '@sofie-automation/meteor-lib/dist/api/MountedTriggers'
-import { FindOptions, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
+import type { FindOptions, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 
 type IProps =
 	| {

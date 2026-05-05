@@ -4,12 +4,12 @@ import ReactDOM from 'react-dom'
 import { getElementWidth } from '../../../utils/dimensions.js'
 
 import ClassNames from 'classnames'
-import { CustomLayerItemRenderer, ICustomLayerItemProps } from './CustomLayerItemRenderer.js'
+import { CustomLayerItemRenderer, type ICustomLayerItemProps } from './CustomLayerItemRenderer.js'
 
-import { withTranslation, WithTranslation } from 'react-i18next'
-import { VTContent } from '@sofie-automation/blueprints-integration'
+import { withTranslation, type WithTranslation, type WithTranslationProps } from 'react-i18next'
+import type { VTContent } from '@sofie-automation/blueprints-integration'
 import { PieceStatusIcon } from '../../../lib/ui/PieceStatusIcon.js'
-import { NoticeLevel, getNoticeLevelForPieceStatus } from '../../../lib/notifications/notifications.js'
+import { type NoticeLevel, getNoticeLevelForPieceStatus } from '../../../lib/notifications/notifications.js'
 import { RundownUtils } from '../../../lib/rundown.js'
 import { FreezeFrameIcon } from '../../../lib/ui/icons/freezeFrame.js'
 import StudioContext from '../../RundownView/StudioContext.js'
@@ -18,9 +18,9 @@ import { PieceStatusCode } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { HourglassIconSmall } from '../../../lib/ui/icons/notifications.js'
 import { logger } from '../../../lib/logging.js'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
-import { ReadonlyDeep } from 'type-fest'
-import { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import type { ReadonlyDeep } from 'type-fest'
+import type { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 
 interface IProps extends ICustomLayerItemProps {
 	studio: UIStudio | undefined
@@ -437,7 +437,7 @@ class VTSourceRendererBase extends CustomLayerItemRenderer<IProps & WithTranslat
 	}
 }
 
-export const VTSourceRenderer = withTranslation()(
+export const VTSourceRenderer: React.ComponentType<Omit<IProps, 'studio'> & WithTranslationProps> = withTranslation()(
 	// withStudioPackageContainers<IProps & WithTranslation, {}>()(VTSourceRendererBase)
 	(props: Omit<IProps, 'studio'> & WithTranslation) => (
 		<StudioContext.Consumer>{(studio) => <VTSourceRendererBase {...props} studio={studio} />}</StudioContext.Consumer>

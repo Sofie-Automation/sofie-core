@@ -1,4 +1,4 @@
-import { IDefaultRendererProps } from './DefaultRenderer.js'
+import type { IDefaultRendererProps } from './DefaultRenderer.js'
 import { LoopingPieceIcon } from '../../../../lib/ui/icons/looping.js'
 
 export function VTRenderer({ piece: pieceInstance, hovering }: Readonly<IDefaultRendererProps>): JSX.Element {

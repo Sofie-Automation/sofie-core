@@ -2,13 +2,14 @@ import { useCallback } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faDatabase, faEye, faWarning } from '@fortawesome/free-solid-svg-icons'
 import { MeteorCall } from '../../../lib/meteorApi.js'
-import { TFunction, useTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { i18nTranslator } from '../../i18n.js'
 import { translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { doModalDialog } from '../../../lib/ModalDialog.js'
 import { NoteSeverity } from '@sofie-automation/blueprints-integration'
 import { NotificationCenter, NoticeLevel, Notification } from '../../../lib/notifications/notifications.js'
-import {
+import type {
 	UIBlueprintUpgradeStatusBase,
 	UIBlueprintUpgradeStatusCoreSystem,
 	UIBlueprintUpgradeStatusShowStyle,

@@ -1,17 +1,17 @@
-import React, { useState, useRef, useEffect, useContext } from 'react'
+import { useState, useRef, useEffect, useContext } from 'react'
 import { useTranslation } from 'react-i18next'
 import ClassNames from 'classnames'
-import { ILayerItemRendererProps } from './ItemRendererFactory.js'
-import { NoraContent, PieceLifespan } from '@sofie-automation/blueprints-integration'
-import { getElementDocumentOffset, OffsetPosition } from '../../../utils/positions.js'
+import type { ILayerItemRendererProps } from './ItemRendererFactory.js'
+import { type NoraContent, PieceLifespan } from '@sofie-automation/blueprints-integration'
+import { getElementDocumentOffset, type OffsetPosition } from '../../../utils/positions.js'
 import { getElementWidth } from '../../../utils/dimensions.js'
 import { StyledTimecode } from '../../../lib/StyledTimecode.js'
 import { assertNever } from '@sofie-automation/corelib/dist/lib'
-import { AdLibPieceUi } from '../../../lib/shelf.js'
+import type { AdLibPieceUi } from '../../../lib/shelf.js'
 import { ActionAdLibHotkeyPreview } from '../../../lib/triggers/ActionAdLibHotkeyPreview.js'
 import {
 	PreviewPopUpContext,
-	IPreviewPopUpSession,
+	type IPreviewPopUpSession,
 	convertSourceLayerItemToPreview,
 } from '../../PreviewPopUp/PreviewPopUpContext.js'
 import { RundownUtils } from '../../../lib/rundown.js'

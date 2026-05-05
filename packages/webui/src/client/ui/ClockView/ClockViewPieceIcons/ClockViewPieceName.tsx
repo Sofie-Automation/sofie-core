@@ -1,14 +1,14 @@
 import { useSubscription, useTracker } from '../../../lib/ReactMeteorData/ReactMeteorData.js'
-import { EvsContent, SourceLayerType } from '@sofie-automation/blueprints-integration'
+import { type EvsContent, SourceLayerType } from '@sofie-automation/blueprints-integration'
 
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { IPropsHeader } from './ClockViewPieceIcon.js'
+import type { IPropsHeader } from './ClockViewPieceIcon.js'
 import { findPieceInstanceToShow } from './utils.js'
-import { PieceGeneric } from '@sofie-automation/corelib/dist/dataModel/Piece'
-import { RundownPlaylistActivationId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { ReadonlyDeep } from 'type-fest'
+import type { PieceGeneric } from '@sofie-automation/corelib/dist/dataModel/Piece'
+import type { RundownPlaylistActivationId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { ReadonlyDeep } from 'type-fest'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
-import { AdjustLabelFit, AdjustLabelFitProps } from '../../util/AdjustLabelFit.js'
+import { AdjustLabelFit, type AdjustLabelFitProps } from '../../util/AdjustLabelFit.js'
 
 interface INamePropsHeader extends IPropsHeader {
 	partName: string

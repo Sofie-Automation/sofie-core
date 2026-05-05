@@ -60,7 +60,9 @@ export class CoreHandler implements ICoreHandler {
 	private _statusInitialized = false
 	private _statusDestroyed = false
 
-	public connectedToCore = false
+	public get connectedToCore(): boolean {
+		return this.core && this.core.connected
+	}
 
 	constructor(logger: Logger, deviceOptions: DeviceConfig) {
 		this.logger = logger
@@ -75,13 +77,11 @@ export class CoreHandler implements ICoreHandler {
 
 		this.core.onConnected(() => {
 			this.logger.info('Core Connected!')
-			this.connectedToCore = true
 
 			if (this._onConnected) this._onConnected()
 		})
 		this.core.onDisconnected(() => {
 			this.logger.warn('Core Disconnected!')
-			this.connectedToCore = false
 		})
 		this.core.onError((err: any) => {
 			this.logger.error('Core Error: ' + (typeof err === 'string' ? err : err.message || err.toString() || err))

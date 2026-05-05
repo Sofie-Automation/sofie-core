@@ -1,7 +1,7 @@
 import React, { useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import classNames from 'classnames'
 import { usePopper } from 'react-popper'
-import { Padding, Placement, VirtualElement } from '@popperjs/core'
+import type { Padding, Placement, VirtualElement } from '@popperjs/core'
 
 import './PreviewPopUp.scss'
 

@@ -34,6 +34,7 @@ import { NotificationsHandler } from './collections/notifications/notificationsH
 import { NotificationsTopic } from './topics/notificationsTopic.js'
 import { PlaylistNotificationsHandler } from './collections/notifications/playlistNotificationsHandler.js'
 import { RundownNotificationsHandler } from './collections/notifications/rundownNotificationsHandler.js'
+import { wsConnectionsGauge } from './wsMetrics.js'
 
 export interface CollectionHandlers {
 	studioHandler: StudioHandler
@@ -153,8 +154,10 @@ export class LiveStatusServer {
 				this._logger.info(`Closing websocket`)
 				rootChannel.removeSubscriber(ws)
 				this._clients.delete(ws)
+				wsConnectionsGauge.set(this._clients.size)
 			})
 			this._clients.add(ws)
+			wsConnectionsGauge.set(this._clients.size)
 
 			if (typeof request.url === 'string' && request.url === '/') {
 				rootChannel.addSubscriber(ws)

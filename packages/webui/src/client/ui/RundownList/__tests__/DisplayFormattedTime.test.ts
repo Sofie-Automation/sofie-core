@@ -1,4 +1,4 @@
-import { TFunction } from 'i18next'
+import type { TFunction } from 'i18next'
 import { DisplayFormattedTimeInner } from '../DisplayFormattedTimeInner.js'
 
 describe('ui/RundownList/DisplayFormattedTime', () => {
@@ -7,9 +7,7 @@ describe('ui/RundownList/DisplayFormattedTime', () => {
 			const now: number = new Date('2021-06-09T12:00:00Z').getTime()
 			const tz = 0
 
-			const t: TFunction = (str: string) => {
-				return str
-			}
+			const t = ((str: string) => str) as unknown as TFunction
 
 			// Dates in the future:
 

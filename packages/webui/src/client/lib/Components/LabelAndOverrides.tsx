@@ -1,14 +1,14 @@
 import { faQuestionCircle, faSync } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { objectPathGet } from '@sofie-automation/corelib/dist/lib'
-import React, { useCallback } from 'react'
+import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ReadonlyDeep } from 'type-fest'
-import {
+import type { ReadonlyDeep } from 'type-fest'
+import type {
 	OverrideOpHelperForItemContents,
 	WrappedOverridableItemNormal,
 } from '../../ui/Settings/util/OverrideOpHelper.js'
-import { DropdownInputOption, findOptionByValue } from './DropdownInput.js'
+import { type DropdownInputOption, findOptionByValue } from './DropdownInput.js'
 import { hasOpWithPath } from './util.js'
 import Button from 'react-bootstrap/Button'
 import classNames from 'classnames'

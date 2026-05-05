@@ -1,4 +1,4 @@
-import * as React from 'react'
+import type * as React from 'react'
 
 export function SwitchboardIcon(props: Readonly<React.SVGProps<SVGSVGElement>>): JSX.Element {
 	return (

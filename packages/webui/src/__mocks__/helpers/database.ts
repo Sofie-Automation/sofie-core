@@ -1,24 +1,24 @@
 import _ from 'underscore'
-import { DBStudio, UIStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import type { DBStudio, UIStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import {
 	PieceLifespan,
-	IOutputLayer,
-	ISourceLayer,
+	type IOutputLayer,
+	type ISourceLayer,
 	SourceLayerType,
 	IBlueprintPieceType,
 } from '@sofie-automation/blueprints-integration'
-import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
-import { ICoreSystem, SYSTEM_ID } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
-import { literal, getRandomId, Complete, normalizeArray } from '@sofie-automation/corelib/dist/lib'
+import type { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
+import type { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
+import { type ICoreSystem, SYSTEM_ID } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
+import { literal, getRandomId, type Complete, normalizeArray } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
-import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { EmptyPieceTimelineObjectsBlob, Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
-import { RundownBaselineAdLibItem } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibPiece'
-import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
+import type { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
+import type { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
+import type { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
+import { EmptyPieceTimelineObjectsBlob, type Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { RundownBaselineAdLibItem } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibPiece'
+import type { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import { restartRandomId } from '../random.js'
 import { MongoMock } from '../mongo.js'
 import { defaultRundownPlaylist, defaultStudio } from '../defaultCollectionObjects.js'
@@ -26,7 +26,7 @@ import {
 	applyAndValidateOverrides,
 	wrapDefaultObject,
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import {
+import type {
 	BlueprintId,
 	RundownId,
 	RundownPlaylistId,

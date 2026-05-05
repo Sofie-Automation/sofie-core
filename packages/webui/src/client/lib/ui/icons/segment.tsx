@@ -1,5 +1,3 @@
-import React from 'react'
-
 export const RightArrow = (props: Readonly<React.SVGProps<SVGSVGElement>>): JSX.Element => (
 	<svg width="6" height="13" viewBox="0 0 6 13" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
 		<path d="M1.25 2.14003L5.31629 6.5L1.25 10.86L1.25 2.14003Z" fill="black" stroke="white" />

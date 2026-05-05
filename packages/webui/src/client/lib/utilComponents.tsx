@@ -1,4 +1,4 @@
-import * as React from 'react'
+import type * as React from 'react'
 import _ from 'underscore'
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types

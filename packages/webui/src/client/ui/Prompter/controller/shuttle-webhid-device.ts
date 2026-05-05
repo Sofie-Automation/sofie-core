@@ -1,7 +1,7 @@
 import { ControllerAbstract } from './lib.js'
-import { AccessRequestCallback, PrompterViewContent } from '../PrompterView.js'
+import type { AccessRequestCallback, PrompterViewContent } from '../PrompterView.js'
 
-import { getOpenedDevices, requestAccess, setupShuttle, Shuttle } from 'shuttle-webhid'
+import { getOpenedDevices, requestAccess, setupShuttle, type Shuttle } from 'shuttle-webhid'
 import { logger } from '../../../lib/logging.js'
 
 /**

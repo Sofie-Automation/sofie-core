@@ -3,24 +3,24 @@ import { faTrash, faPlus, faDownload, faUpload } from '@fortawesome/free-solid-s
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
 	BlueprintManifestType,
-	IShowStyleConfigPreset,
-	IShowStyleVariantConfigPreset,
-	JSONSchema,
+	type IShowStyleConfigPreset,
+	type IShowStyleVariantConfigPreset,
+	type JSONSchema,
 } from '@sofie-automation/blueprints-integration'
-import { MappingsExt } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import type { MappingsExt } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { useTranslation } from 'react-i18next'
 import { MeteorCall } from '../../../lib/meteorApi.js'
-import { DBShowStyleBase, SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
+import type { DBShowStyleBase, SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
+import type { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
 import { doModalDialog } from '../../../lib/ModalDialog.js'
-import { ShowStyleVariantId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { ShowStyleVariantId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { NoticeLevel, NotificationCenter, Notification } from '../../../lib/notifications/notifications.js'
 import { UploadButton } from '../../../lib/uploadButton.js'
 import update from 'immutability-helper'
 import { VariantListItem } from './VariantListItem.js'
 import { downloadBlob } from '../../../lib/downloadBlob.js'
-import { SomeObjectOverrideOp } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
+import type { SomeObjectOverrideOp } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { useTracker } from '../../../lib/ReactMeteorData/ReactMeteorData.js'
 import { Blueprints, ShowStyleVariants } from '../../../collections/index.js'
 import Button from 'react-bootstrap/esm/Button'

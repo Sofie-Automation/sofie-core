@@ -1,4 +1,4 @@
-import { NodeConstruct, ParserState, CharHandlerResult } from '../parserState'
+import { type NodeConstruct, type ParserState, CharHandlerResult } from '../parserState'
 
 export function screenMarker(): NodeConstruct {
 	function screenMarker(_: string, state: ParserState) {

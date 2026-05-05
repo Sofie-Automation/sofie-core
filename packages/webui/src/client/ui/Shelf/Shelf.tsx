@@ -6,14 +6,14 @@ import ClassNames from 'classnames'
 import { faBars } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
-import { Translated, useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import { type Translated, useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { getElementDocumentOffset } from '../../utils/positions.js'
 import {
-	DashboardLayoutExternalFrame,
+	type DashboardLayoutExternalFrame,
 	RundownLayoutElementType,
-	RundownLayoutFilter,
-	RundownLayoutShelfBase,
+	type RundownLayoutFilter,
+	type RundownLayoutShelfBase,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import { UIStateStorage } from '../../lib/UIStateStorage.js'
 import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
@@ -21,33 +21,33 @@ import { contextMenuHoldToDisplayTime } from '../../lib/lib.js'
 import { ErrorBoundary } from '../../lib/ErrorBoundary.js'
 import { ShelfRundownLayout } from './ShelfRundownLayout.js'
 import { ShelfDashboardLayout } from './ShelfDashboardLayout.js'
-import { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
-import { RundownViewBuckets, BucketAdLibItem } from './RundownViewBuckets.js'
+import type { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
+import { RundownViewBuckets, type BucketAdLibItem } from './RundownViewBuckets.js'
 import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'
 import { ShelfInspector } from './Inspector/ShelfInspector.js'
 import RundownViewEventBus, {
-	IEventContext,
+	type IEventContext,
 	RundownViewEvents,
-	SelectPieceEvent,
-	ShelfStateEvent,
-	SwitchToShelfTabEvent,
+	type SelectPieceEvent,
+	type ShelfStateEvent,
+	type SwitchToShelfTabEvent,
 } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
-import { IAdLibListItem } from './AdLibListItem.js'
+import type { IAdLibListItem } from './AdLibListItem.js'
 import ShelfContextMenu from './ShelfContextMenu.js'
 import { doUserAction, UserAction } from '../../lib/clientUserAction.js'
 import { MeteorCall } from '../../lib/meteorApi.js'
-import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
-import { ShelfDisplayOptions } from '../../lib/shelf.js'
+import type { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
+import type { ShelfDisplayOptions } from '../../lib/shelf.js'
 import { Buckets } from '../../collections'
 import { UserPermissionsContext } from '../UserPermissions'
 import { useLocation } from 'react-router'
-import { IStudioSettings, UIStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import type { IStudioSettings, UIStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { Settings } from '../../lib/Settings'
-import { ParsedQuery, parse as queryStringParse } from 'query-string'
-import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import { type ParsedQuery, parse as queryStringParse } from 'query-string'
+import type { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 
 import { ShelfTabs } from '@sofie-automation/meteor-lib/dist/uiTypes/ShelfTabs'
-import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import type { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 export { ShelfTabs } from '@sofie-automation/meteor-lib/dist/uiTypes/ShelfTabs'
 

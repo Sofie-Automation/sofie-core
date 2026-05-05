@@ -1,5 +1,5 @@
-import * as React from 'react'
-import { ExpectedPackageWorkStatus } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackageWorkStatuses'
+import type * as React from 'react'
+import type { ExpectedPackageWorkStatus } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackageWorkStatuses'
 import { useTranslation } from 'react-i18next'
 import { ExpectedPackageStatusAPI } from '@sofie-automation/blueprints-integration'
 

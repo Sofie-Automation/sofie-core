@@ -1,10 +1,10 @@
 import { useSubscription, useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import {
 	SourceLayerType,
-	ISourceLayer,
-	CameraContent,
-	RemoteContent,
-	EvsContent,
+	type ISourceLayer,
+	type CameraContent,
+	type RemoteContent,
+	type EvsContent,
 } from '@sofie-automation/blueprints-integration'
 import { CamInputIcon } from './Renderers/CamInputIcon.js'
 import { VTInputIcon } from './Renderers/VTInputIcon.js'
@@ -15,16 +15,16 @@ import { RemoteSpeakInputIcon } from './Renderers/RemoteSpeakInputIcon.js'
 import { GraphicsInputIcon } from './Renderers/GraphicsInputIcon.js'
 import { UnknownInputIcon } from './Renderers/UnknownInputIcon.js'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
+import type { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { findPieceInstanceToShow, findPieceInstanceToShowFromInstances } from './utils.js'
 import LocalInputIcon from './Renderers/LocalInputIcon.js'
-import {
+import type {
 	PartInstanceId,
 	RundownId,
 	RundownPlaylistActivationId,
 	ShowStyleBaseId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { ReadonlyDeep } from 'type-fest'
+import type { ReadonlyDeep } from 'type-fest'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 
 export interface IPropsHeader {

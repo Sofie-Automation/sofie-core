@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from 'react'
-import { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { useTranslation } from 'react-i18next'
-import {
+import type {
 	OverrideOpHelper,
 	WrappedOverridableItem,
 	WrappedOverridableItemDeleted,
@@ -9,18 +9,18 @@ import {
 } from '../../util/OverrideOpHelper.js'
 import { faCheck, faPencilAlt, faSync, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { JSONBlob, JSONBlobParse, JSONSchema } from '@sofie-automation/blueprints-integration'
-import { DropdownInputControl, DropdownInputOption } from '../../../../lib/Components/DropdownInput.js'
+import { type JSONBlob, JSONBlobParse, type JSONSchema } from '@sofie-automation/blueprints-integration'
+import { DropdownInputControl, type DropdownInputOption } from '../../../../lib/Components/DropdownInput.js'
 import { useToggleExpandHelper } from '../../../util/useToggleExpandHelper.js'
 import { doModalDialog } from '../../../../lib/ModalDialog.js'
 import classNames from 'classnames'
-import { SubdeviceManifest } from '@sofie-automation/corelib/dist/deviceConfig'
+import type { SubdeviceManifest } from '@sofie-automation/corelib/dist/deviceConfig'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { TextInputControl } from '../../../../lib/Components/TextInput.js'
 import { SchemaFormWithOverrides } from '../../../../lib/forms/SchemaFormWithOverrides.js'
 import { LabelActual, LabelAndOverridesForDropdown } from '../../../../lib/Components/LabelAndOverrides.js'
 import { literal } from '@sofie-automation/corelib/dist/lib'
-import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
+import type { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 
 interface PeripheralDeviceTranslated {
 	_id: PeripheralDeviceId

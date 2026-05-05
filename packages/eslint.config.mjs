@@ -91,6 +91,11 @@ extendedRules.push(
 			'@typescript-eslint/no-empty-object-type': 'off', // many prop/state types are {}
 			'@typescript-eslint/promise-function-async': 'off', // event handlers can't be async
 
+			// Imports (future everywhere hopefully)
+			'no-duplicate-imports': 'error',
+			'@typescript-eslint/consistent-type-imports': ['error', { fixStyle: 'inline-type-imports' }],
+			'@typescript-eslint/no-import-type-side-effects': 'error',
+
 			...tmpWebuiRules,
 		},
 	}

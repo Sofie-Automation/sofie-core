@@ -13,7 +13,7 @@ import {
 } from '../lib/localStorage.js'
 import { parse as queryStringParse } from 'query-string'
 import { MeteorCall } from '../lib/meteorApi.js'
-import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
+import type { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
 import { Settings } from '../lib/Settings.js'
 import { useTracker } from '../lib/ReactMeteorData/ReactMeteorData.js'
 import { Meteor } from 'meteor/meteor'

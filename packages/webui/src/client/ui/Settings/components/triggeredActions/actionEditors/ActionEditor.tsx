@@ -1,24 +1,24 @@
-import React, { useCallback, useState } from 'react'
+import { useCallback, useState } from 'react'
 import _ from 'underscore'
 import {
-	FilterType,
-	IAdLibFilterLink,
-	IGUIContextFilterLink,
-	IRundownPlaylistFilterLink,
+	type FilterType,
+	type IAdLibFilterLink,
+	type IGUIContextFilterLink,
+	type IRundownPlaylistFilterLink,
 	PlayoutActions,
-	SomeAction,
+	type SomeAction,
 } from '@sofie-automation/blueprints-integration'
 import { AdLibFilter } from './filterPreviews/AdLibFilter.js'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { ViewFilter } from './filterPreviews/ViewFilter.js'
 import { RundownPlaylistFilter } from './filterPreviews/RundownPlaylistFilter.js'
-import { OutputLayers, SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
+import type { OutputLayers, SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faExclamationTriangle, faPlus } from '@fortawesome/free-solid-svg-icons'
 import { ActionSelector } from './actionSelector/ActionSelector.js'
 import Tooltip from 'rc-tooltip'
 import { useTranslation } from 'react-i18next'
-import { OverrideOpHelper } from '../../../util/OverrideOpHelper.js'
+import type { OverrideOpHelper } from '../../../util/OverrideOpHelper.js'
 
 interface IProps {
 	action: SomeAction

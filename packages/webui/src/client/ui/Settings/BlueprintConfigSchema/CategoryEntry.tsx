@@ -4,10 +4,10 @@ import { useTranslation } from 'react-i18next'
 import { SchemaFormWithOverrides } from '../../../lib/forms/SchemaFormWithOverrides.js'
 import { faPencilAlt, faCheck } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { IBlueprintConfig } from '@sofie-automation/blueprints-integration'
-import { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
-import { SchemaFormSofieEnumDefinition } from '../../../lib/forms/schemaFormUtil.js'
-import { WrappedOverridableItemNormal, OverrideOpHelperForItemContents } from '../util/OverrideOpHelper.js'
+import type { IBlueprintConfig } from '@sofie-automation/blueprints-integration'
+import type { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
+import type { SchemaFormSofieEnumDefinition } from '../../../lib/forms/schemaFormUtil.js'
+import type { WrappedOverridableItemNormal, OverrideOpHelperForItemContents } from '../util/OverrideOpHelper.js'
 
 interface ConfigCategoryEntryProps {
 	translationNamespaces: string[]

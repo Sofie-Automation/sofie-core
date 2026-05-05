@@ -5,7 +5,7 @@ import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protected
 import { getCurrentTime } from '../../lib/systemTime.js'
 import { MomentFromNow } from '../../lib/Moment.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { ExternalMessageQueueObj } from '@sofie-automation/corelib/dist/dataModel/ExternalMessageQueue'
+import type { ExternalMessageQueueObj } from '@sofie-automation/corelib/dist/dataModel/ExternalMessageQueue'
 import { makeTableOfObject } from '../../lib/utilComponents.js'
 import ClassNames from 'classnames'
 import { DatePickerFromTo } from '../../lib/datePicker.js'

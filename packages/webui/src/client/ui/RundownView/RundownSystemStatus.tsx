@@ -2,16 +2,16 @@ import React, { useMemo } from 'react'
 import ClassNames from 'classnames'
 import { useSubscription, useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import {
-	PeripheralDevice,
+	type PeripheralDevice,
 	PeripheralDeviceCategory,
 	PeripheralDeviceType,
 } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
-import { Rundown, getRundownNrcsName } from '@sofie-automation/corelib/dist/dataModel/Rundown'
+import { type Rundown, getRundownNrcsName } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import type { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { useTranslation } from 'react-i18next'
 import { StatusCode } from '@sofie-automation/blueprints-integration'
-import { RundownPlaylistId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { RundownPlaylistId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PeripheralDevices } from '../../collections/index.js'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { useCurrentTime } from '../../lib/lib.js'

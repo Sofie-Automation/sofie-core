@@ -1,18 +1,17 @@
-import React from 'react'
 import _ from 'underscore'
 import {
-	FilterType,
-	IAdLibFilterLink,
-	IOutputLayer,
-	ISourceLayer,
+	type FilterType,
+	type IAdLibFilterLink,
+	type IOutputLayer,
+	type ISourceLayer,
 	SourceLayerType,
 } from '@sofie-automation/blueprints-integration'
 import { useTranslation } from 'react-i18next'
-import { TFunction } from 'i18next'
+import type { TFunction } from 'i18next'
 import { assertNever } from '@sofie-automation/corelib/dist/lib'
 import { FilterEditor } from './FilterEditor.js'
-import { OutputLayers, SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { EditAttributeType } from '../../../../../../lib/EditAttribute.js'
+import type { OutputLayers, SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
+import type { EditAttributeType } from '../../../../../../lib/EditAttribute.js'
 import { useTracker } from '../../../../../../lib/ReactMeteorData/ReactMeteorData.js'
 import {
 	AdLibActions,

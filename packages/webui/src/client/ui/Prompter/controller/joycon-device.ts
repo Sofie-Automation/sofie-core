@@ -1,5 +1,5 @@
 import { ControllerAbstract } from './lib.js'
-import { PrompterConfigMode, PrompterViewContent } from '../PrompterView.js'
+import { PrompterConfigMode, type PrompterViewContent } from '../PrompterView.js'
 import Spline from 'cubic-spline'
 import { logger } from '../../../lib/logging.js'
 

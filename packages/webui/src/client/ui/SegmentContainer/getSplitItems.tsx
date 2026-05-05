@@ -1,7 +1,7 @@
 import classNames from 'classnames'
-import { SplitsContent } from '@sofie-automation/blueprints-integration'
+import type { SplitsContent } from '@sofie-automation/blueprints-integration'
 import { getSplitPreview, SplitRole } from '../../lib/ui/splitPreview.js'
-import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import type { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 import { RundownUtils } from '../../lib/rundown.js'
 
 export function getSplitItems(pieceInstance: PieceUi, baseClassName: string): JSX.Element[] {

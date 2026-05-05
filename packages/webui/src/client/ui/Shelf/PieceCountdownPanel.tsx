@@ -1,21 +1,20 @@
 import { useEffect, useState } from 'react'
 import ClassNames from 'classnames'
-import {
+import type {
 	RundownLayoutBase,
 	RundownLayoutPieceCountdown,
 	DashboardLayoutPieceCountdown,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
+import { RundownLayoutsAPI, getUnfinishedPieceInstancesReactive } from '../../lib/rundownLayouts.js'
 import { dashboardElementStyle } from './DashboardPanel.js'
 import { useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import { RundownUtils } from '../../lib/rundown.js'
-import { RundownTiming, TimingEvent } from '../RundownView/RundownTiming/RundownTiming.js'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
-import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
-import { VTContent } from '@sofie-automation/blueprints-integration'
-import { getUnfinishedPieceInstancesReactive } from '../../lib/rundownLayouts.js'
-import { ReadonlyDeep } from 'type-fest'
-import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import { RundownTiming, type TimingEvent } from '../RundownView/RundownTiming/RundownTiming.js'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
+import type { VTContent } from '@sofie-automation/blueprints-integration'
+import type { ReadonlyDeep } from 'type-fest'
+import type { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 interface IPieceCountdownPanelProps {
 	visible?: boolean
 	layout: RundownLayoutBase

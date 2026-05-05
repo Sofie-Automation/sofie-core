@@ -1,7 +1,7 @@
 import ClassNames from 'classnames'
 import { getDefaultTTimer } from '../../lib/tTimerUtils.js'
 import { TTimerDisplay } from './TTimerDisplay.js'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist.js'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist.js'
 import { useTranslation } from 'react-i18next'
 
 interface RundownStatusBarProps {

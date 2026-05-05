@@ -5,11 +5,11 @@ import { RundownUtils } from '../../lib/rundown.js'
 
 import { getElementWidth, getElementHeight } from '../../utils/dimensions.js'
 import { onElementResize } from '../../lib/resizeObserver.js'
-import { PartUi } from './SegmentTimelineContainer.js'
+import type { PartUi } from './SegmentTimelineContainer.js'
 import { getCurrentTime } from '../../lib/systemTime.js'
 import { RundownTiming } from '../RundownView/RundownTiming/RundownTiming.js'
 import { SegmentTimelinePartClass } from './Parts/SegmentTimelinePart.js'
-import { PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { RundownTimingProviderContext } from '../RundownView/RundownTiming/withTiming.js'
 
 // We're cheating a little: Fontface

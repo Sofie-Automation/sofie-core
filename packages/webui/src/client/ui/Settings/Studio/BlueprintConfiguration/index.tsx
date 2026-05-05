@@ -4,18 +4,18 @@ import { BlueprintManifestType } from '@sofie-automation/blueprints-integration'
 import { BlueprintConfigSchemaSettings } from '../../BlueprintConfigSchema/index.js'
 import {
 	applyAndValidateOverrides,
-	SomeObjectOverrideOp,
+	type SomeObjectOverrideOp,
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { Blueprints, Studios } from '../../../../collections/index.js'
 import { JSONBlobParse } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 import { useTranslation } from 'react-i18next'
-import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import type { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { SelectConfigPreset } from './SelectConfigPreset.js'
 import { SelectBlueprint } from './SelectBlueprint.js'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { UIBlueprintUpgradeStatuses } from '../../../Collections.js'
 import { getUpgradeStatusMessage, UpgradeStatusButtons } from '../../Upgrades/Components.js'
-import { UIBlueprintUpgradeStatusStudio } from '@sofie-automation/meteor-lib/dist/api/upgradeStatus'
+import type { UIBlueprintUpgradeStatusStudio } from '@sofie-automation/meteor-lib/dist/api/upgradeStatus'
 
 interface StudioBlueprintConfigurationSettingsProps {
 	studio: DBStudio

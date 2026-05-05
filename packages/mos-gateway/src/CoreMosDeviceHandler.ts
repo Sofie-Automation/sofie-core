@@ -35,6 +35,12 @@ import { PartialDeep } from 'type-fest'
 import type { CoreHandler } from './coreHandler.js'
 import { CoreConnectionChild } from '@sofie-automation/server-core-integration/dist/lib/CoreConnectionChild'
 import { Queue } from '@sofie-automation/server-core-integration/dist/lib/queue'
+import {
+	mosDeviceConnectedGauge,
+	mosMessagesFailedCounter,
+	mosMessagesReceivedCounter,
+	mosQueueDepthGauge,
+} from './mosMetrics.js'
 
 function deepMatch(object: any, attrs: any, deep: boolean): boolean {
 	const keys = Object.keys(attrs)
@@ -197,6 +203,18 @@ export class CoreMosDeviceHandler {
 				messages: messages,
 			})
 			.catch((e) => this._coreParentHandler.logger.warn('Error when setting status:' + e))
+
+		const deviceId = this._mosDevice.idPrimary
+		mosDeviceConnectedGauge.set(
+			{ device_id: deviceId, connection: 'primary' },
+			connectionStatus.PrimaryConnected ? 1 : 0
+		)
+		if (this._mosDevice.idSecondary) {
+			mosDeviceConnectedGauge.set(
+				{ device_id: deviceId, connection: 'secondary' },
+				connectionStatus.SecondaryConnected ? 1 : 0
+			)
+		}
 	}
 	async getMachineInfo(): Promise<IMOSListMachInfo> {
 		const info: IMOSListMachInfo = {
@@ -456,8 +474,15 @@ export class CoreMosDeviceHandler {
 			return this.fixMosData(attr)
 		}) as any
 
+		const deviceId = this._mosDevice.idPrimary
+		const commandName = methodName as string
+		mosMessagesReceivedCounter.inc({ device_id: deviceId, command: commandName })
+		mosQueueDepthGauge.inc({ device_id: deviceId })
+
 		// Make the commands be sent sequantially:
 		return this._messageQueue.putOnQueue(async () => {
+			mosQueueDepthGauge.dec({ device_id: deviceId })
+
 			// Log info about the sent command:
 			let msg = 'Command: ' + methodName
 			const attr0 = attrs[0] as any | undefined
@@ -476,6 +501,7 @@ export class CoreMosDeviceHandler {
 			const res = (this.core.coreMethods[methodName] as any)(...attrs)
 			return res.catch((e: any) => {
 				this._coreParentHandler.logger.info('MOS command rejected: ' + ((e && JSON.stringify(e)) || e))
+				mosMessagesFailedCounter.inc({ device_id: deviceId, command: commandName })
 				throw e
 			})
 		})

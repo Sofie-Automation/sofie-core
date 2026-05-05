@@ -1,28 +1,27 @@
 import _ from 'underscore'
 import ClassNames from 'classnames'
-import {
+import type {
 	DashboardLayoutSegmentCountDown,
 	RundownLayoutBase,
 	RundownLayoutSegmentTiming,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import { withTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import { RundownUtils } from '../../lib/rundown.js'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
-import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { SegmentDuration } from '../RundownView/RundownTiming/SegmentDuration.js'
 import { memoizedIsolatedAutorun } from '../../lib/memoizedIsolatedAutorun.js'
 import { slowDownReactivity } from '../../lib/reactiveData/reactiveDataHelper.js'
-import { DBPart, PartExtended } from '@sofie-automation/corelib/dist/dataModel/Part'
+import type { DBPart, PartExtended } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { dashboardElementStyle } from './DashboardPanel.js'
-import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
-import { getIsFilterActive } from '../../lib/rundownLayouts.js'
-import { PartId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { RundownLayoutsAPI, getIsFilterActive } from '../../lib/rundownLayouts.js'
+import type { PartId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil.js'
 import { RundownPlaylistClientUtil } from '../../lib/rundownPlaylistUtil.js'
 import { useTranslation } from 'react-i18next'
-import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
-import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
+import type { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import type { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
 
 interface ISegmentTimingPanelProps {
 	visible?: boolean

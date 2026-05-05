@@ -1,6 +1,7 @@
 {
 	"extends": "./tsconfig.app.json",
 	"compilerOptions": {
-		"esModuleInterop": true
+		"esModuleInterop": true,
+		"verbatimModuleSyntax": false // It breaks on imports from other packages that don't use this
 	}
 }

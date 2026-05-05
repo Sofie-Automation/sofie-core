@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import ClassNames from 'classnames'
 
 export function splitValueIntoLines(v: string | undefined): string[] {

@@ -1,4 +1,4 @@
-import { ParentNodeBase, RootNode, Node } from './astNodes'
+import type { ParentNodeBase, RootNode, Node } from './astNodes'
 import { colour } from './constructs/colour'
 import { emphasisAndStrong } from './constructs/emphasisAndStrong'
 import { escape } from './constructs/escape'
@@ -6,7 +6,7 @@ import { paragraph } from './constructs/paragraph'
 import { reverse } from './constructs/reverse'
 import { screenMarker } from './constructs/screenMarker'
 import { underlineOrHide } from './constructs/underlineOrHide'
-import { CharHandler, CharHandlerResult, NodeConstruct, ParserState } from './parserState'
+import { type CharHandler, CharHandlerResult, type NodeConstruct, type ParserState } from './parserState'
 
 export class ParserStateImpl implements ParserState {
 	readonly nodeStack: ParentNodeBase[] = []

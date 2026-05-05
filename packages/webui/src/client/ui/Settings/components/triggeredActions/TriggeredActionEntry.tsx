@@ -3,24 +3,24 @@ import { faCopy, faPencilAlt, faPlus, faSync, faTrash } from '@fortawesome/free-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
 	PlayoutActions,
-	SomeAction,
-	SomeBlueprintTrigger,
+	type SomeAction,
+	type SomeBlueprintTrigger,
 	SourceLayerType,
 	TriggerType,
 } from '@sofie-automation/blueprints-integration'
 import classNames from 'classnames'
-import { DBBlueprintTrigger } from '@sofie-automation/meteor-lib/dist/collections/TriggeredActions'
+import type { DBBlueprintTrigger } from '@sofie-automation/meteor-lib/dist/collections/TriggeredActions'
 import { useTracker, useTrackerAsync } from '../../../../lib/ReactMeteorData/ReactMeteorData.js'
 import { ActionEditor } from './actionEditors/ActionEditor.js'
-import { OutputLayers, SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
+import type { OutputLayers, SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { flatten, getRandomString } from '@sofie-automation/corelib/dist/lib'
 import {
 	createAction,
 	isPreviewableAction,
-	PlainActionContext,
+	type PlainActionContext,
 } from '@sofie-automation/meteor-lib/dist/triggers/actionFactory'
-import { PreviewContext } from './TriggeredActionsEditor.js'
-import { IWrappedAdLib } from '@sofie-automation/meteor-lib/dist/triggers/actionFilterChainCompilers'
+import type { PreviewContext } from './TriggeredActionsEditor.js'
+import type { IWrappedAdLib } from '@sofie-automation/meteor-lib/dist/triggers/actionFilterChainCompilers'
 import { useTranslation } from 'react-i18next'
 import { TriggerEditor } from './triggerEditors/TriggerEditor.js'
 import { EditAttribute } from '../../../../lib/EditAttribute.js'
@@ -29,11 +29,11 @@ import { useDrag, useDrop } from 'react-dnd'
 import { translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import {
 	applyAndValidateOverrides,
-	ObjectOverrideSetOp,
-	SomeObjectOverrideOp,
+	type ObjectOverrideSetOp,
+	type SomeObjectOverrideOp,
 	wrapDefaultObject,
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import { ShowStyleBaseId, TriggeredActionId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { ShowStyleBaseId, TriggeredActionId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { isHotkeyTrigger } from '@sofie-automation/meteor-lib/dist/triggers/triggerTypeSelectors'
 import { getAllCurrentAndDeletedItemsFromOverrides, useOverrideOpHelper } from '../../util/OverrideOpHelper.js'
 import { TriggeredActions } from '../../../../collections/index.js'

@@ -1,5 +1,4 @@
-import React from 'react'
-import { HTMLMotionProps, motion } from 'motion/react'
+import { type HTMLMotionProps, motion } from 'motion/react'
 
 export function RundownRightHandButton(props: HTMLMotionProps<'button'>): React.JSX.Element {
 	return (

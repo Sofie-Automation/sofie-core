@@ -1,10 +1,13 @@
-import React, { Fragment, useState } from 'react'
+import { Fragment, useState, type FunctionComponent } from 'react'
 import { useSubscription, useTracker } from '../../lib/ReactMeteorData/react-meteor-data'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router-dom'
-import { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { DeviceTriggerMountedAction, PreviewWrappedAdLib } from '@sofie-automation/meteor-lib/dist/api/MountedTriggers'
+import type { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type {
+	DeviceTriggerMountedAction,
+	PreviewWrappedAdLib,
+} from '@sofie-automation/meteor-lib/dist/api/MountedTriggers'
 import { PeripheralDevices } from '../../collections/index.js'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { PeripheralDevicePubSub } from '@sofie-automation/shared-lib/dist/pubsub/peripheralDevice'
@@ -17,7 +20,7 @@ interface DeviceTriggersViewRouteParams {
 	peripheralDeviceId: string
 }
 
-const DeviceTriggersView: React.FC = function TimelineDatastoreView() {
+const DeviceTriggersView: FunctionComponent = function TimelineDatastoreView() {
 	const { t } = useTranslation()
 	const { peripheralDeviceId } = useParams<DeviceTriggersViewRouteParams>()
 

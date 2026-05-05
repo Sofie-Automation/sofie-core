@@ -1,18 +1,21 @@
-import { PartInstanceId, PieceInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { dragContext, IDragContext } from './DragContext.js'
+import type { PartInstanceId, PieceInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { type PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { dragContext, type IDragContext } from './DragContext.js'
 import { doUserAction, UserAction } from '../../lib/clientUserAction.js'
 import { MeteorCall } from '../../lib/meteorApi.js'
-import { TFunction } from 'i18next'
+import type { TFunction } from 'i18next'
 import { UIParts } from '../Collections.js'
 import { Segments } from '../../collections/index.js'
 import { literal } from '@sofie-automation/shared-lib/dist/lib/lib'
-import { DefaultUserOperationRetimePiece, DefaultUserOperationsTypes } from '@sofie-automation/blueprints-integration'
+import {
+	type DefaultUserOperationRetimePiece,
+	DefaultUserOperationsTypes,
+} from '@sofie-automation/blueprints-integration'
 import RundownViewEventBus, {
 	RundownViewEvents,
-	EditModeEvent,
+	type EditModeEvent,
 } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
-import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import type { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 const DRAG_TIMEOUT = 10000
 

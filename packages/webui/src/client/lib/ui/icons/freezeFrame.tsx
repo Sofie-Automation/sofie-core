@@ -1,5 +1,3 @@
-import React from 'react'
-
 export function FreezeFrameIcon(props: Readonly<React.SVGProps<SVGSVGElement>>): JSX.Element {
 	return (
 		<svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>

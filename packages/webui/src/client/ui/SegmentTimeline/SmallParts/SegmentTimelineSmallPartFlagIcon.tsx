@@ -1,7 +1,6 @@
-import React from 'react'
-import { ISourceLayer } from '@sofie-automation/blueprints-integration'
+import type { ISourceLayer } from '@sofie-automation/blueprints-integration'
 import { PieceIconContainerNoSub } from '../../PieceIcons/PieceIcon.js'
-import { PartUi } from './../SegmentTimelineContainer.js'
+import type { PartUi } from './../SegmentTimelineContainer.js'
 import classNames from 'classnames'
 
 const noop = (e: React.MouseEvent) => {

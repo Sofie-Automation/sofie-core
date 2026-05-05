@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useState, useRef } from 'react'
 import { InView } from 'react-intersection-observer'
 import { getViewPortScrollingState } from './viewPort'
 

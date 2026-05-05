@@ -1,10 +1,10 @@
 import { literal, objectPathSet } from '@sofie-automation/corelib/dist/lib'
 import { useCallback, useMemo, useState } from 'react'
-import {
+import type {
 	WrappedOverridableItemNormal,
 	OverrideOpHelperForItemContentsBatcher,
 } from '../../ui/Settings/util/OverrideOpHelper.js'
-import { SchemaFormCommonProps } from './schemaFormUtil.js'
+import type { SchemaFormCommonProps } from './schemaFormUtil.js'
 import { SchemaFormWithOverrides } from './SchemaFormWithOverrides.js'
 
 interface SchemaFormInPlaceProps extends Omit<SchemaFormCommonProps, 'isRequired'> {

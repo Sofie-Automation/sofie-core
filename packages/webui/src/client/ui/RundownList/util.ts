@@ -1,18 +1,18 @@
-import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
+import type { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { doModalDialog } from '../../lib/ModalDialog.js'
 import { doUserAction, UserAction } from '../../lib/clientUserAction.js'
 import { MeteorCall } from '../../lib/meteorApi.js'
-import { TFunction } from 'i18next'
+import type { TFunction } from 'i18next'
 import { handleRundownReloadResponse } from '../RundownView/RundownHeader/RundownReloadResponse.js'
-import {
+import type {
 	RundownId,
 	RundownLayoutId,
 	RundownPlaylistId,
 	ShowStyleBaseId,
 	StudioId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { UserPermissions } from '../UserPermissions.js'
+import type { UserPermissions } from '../UserPermissions.js'
 
 export function getRundownPlaylistLink(rundownPlaylistId: RundownPlaylistId): string {
 	// double encoding so that "/" are handled correctly

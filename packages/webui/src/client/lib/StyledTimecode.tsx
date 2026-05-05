@@ -1,8 +1,7 @@
-import React from 'react'
 import ClassNames from 'classnames'
 import { formatDurationAsTimecode } from '@sofie-automation/corelib/dist/lib'
 import type { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
-import { IStudioSettings } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import type { IStudioSettings } from '@sofie-automation/corelib/dist/dataModel/Studio'
 
 interface IProps {
 	studioSettings: Pick<IStudioSettings, 'frameRate'> | undefined

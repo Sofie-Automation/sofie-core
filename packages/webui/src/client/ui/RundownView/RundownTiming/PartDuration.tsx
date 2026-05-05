@@ -1,8 +1,8 @@
 import ClassNames from 'classnames'
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { useTiming } from './withTiming.js'
 import { RundownUtils } from '../../../lib/rundown.js'
-import { PartUi } from '../../SegmentTimeline/SegmentTimelineContainer.js'
+import type { PartUi } from '../../SegmentTimeline/SegmentTimelineContainer.js'
 import { getPartInstanceTimingId } from '../../../lib/rundownTiming.js'
 
 interface IPartDurationProps {

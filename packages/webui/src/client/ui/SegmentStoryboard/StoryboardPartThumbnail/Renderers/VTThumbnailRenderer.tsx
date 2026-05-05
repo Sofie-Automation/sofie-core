@@ -1,8 +1,8 @@
 import classNames from 'classnames'
-import { VTContent } from '@sofie-automation/blueprints-integration'
+import type { VTContent } from '@sofie-automation/blueprints-integration'
 import { getNoticeLevelForPieceStatus } from '../../../../lib/notifications/notifications.js'
 import { RundownUtils } from '../../../../lib/rundown.js'
-import { IProps } from './ThumbnailRendererFactory.js'
+import type { IProps } from './ThumbnailRendererFactory.js'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { FreezeFrameIcon } from '../../../../lib/ui/icons/freezeFrame.js'
 import { PieceStatusIcon } from '../../../../lib/ui/PieceStatusIcon.js'
@@ -10,9 +10,9 @@ import { FREEZE_FRAME_FLASH } from '../../../SegmentContainer/withResolvedSegmen
 import { LoopingPieceIcon } from '../../../../lib/ui/icons/looping.js'
 import { useContentStatusForPieceInstance } from '../../../SegmentTimeline/withMediaObjectStatus.js'
 import { useTiming } from '../../../RundownView/RundownTiming/withTiming.js'
-import { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids.js'
-import { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus.js'
-import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import type { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids.js'
+import type { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus.js'
+import type { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 export function VTThumbnailRenderer(props: Readonly<IProps>): JSX.Element {
 	const contentStatus = useContentStatusForPieceInstance(props.pieceInstance.instance)

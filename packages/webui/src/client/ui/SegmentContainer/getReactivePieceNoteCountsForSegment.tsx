@@ -1,15 +1,15 @@
 import { NoteSeverity } from '@sofie-automation/blueprints-integration'
 import { assertNever, literal } from '@sofie-automation/corelib/dist/lib'
-import { MongoFieldSpecifierOnes } from '@sofie-automation/corelib/dist/mongo'
-import { UISegmentPartNote } from '@sofie-automation/meteor-lib/dist/api/rundownNotifications'
+import type { MongoFieldSpecifierOnes } from '@sofie-automation/corelib/dist/mongo'
+import type { UISegmentPartNote } from '@sofie-automation/meteor-lib/dist/api/rundownNotifications'
 import { PieceStatusCode } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { getIgnorePieceContentStatus } from '../../lib/localStorage.js'
 import { UIPartInstances, UIPieceContentStatuses, UISegmentPartNotes } from '../Collections.js'
-import { SegmentNoteCounts, SegmentUi } from './withResolvedSegment.js'
+import type { SegmentNoteCounts, SegmentUi } from './withResolvedSegment.js'
 import { Notifications } from '../../collections/index.js'
-import { DBNotificationObj } from '@sofie-automation/corelib/dist/dataModel/Notifications'
-import { UIPieceContentStatus } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
-import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
+import type { DBNotificationObj } from '@sofie-automation/corelib/dist/dataModel/Notifications'
+import type { UIPieceContentStatus } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
+import type { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
 
 export function getReactivePieceNoteCountsForSegment(segment: SegmentUi): SegmentNoteCounts {
 	const segmentNoteCounts: SegmentNoteCounts = {

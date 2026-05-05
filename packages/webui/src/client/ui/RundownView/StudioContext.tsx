@@ -1,4 +1,4 @@
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio'
 import React from 'react'
 
 type StudioFromContext = UIStudio | undefined

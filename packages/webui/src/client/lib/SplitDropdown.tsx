@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react'
+import React, { type ReactNode } from 'react'
 import ClassNames from 'classnames'
 import { Manager, Popper, Reference } from 'react-popper'
 

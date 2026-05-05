@@ -1,8 +1,8 @@
 import React, { useRef } from 'react'
 import classNames from 'classnames'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { DragSourceMonitor, DropTargetMonitor, useDrag, useDrop } from 'react-dnd'
-import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
+import { type DragSourceMonitor, type DropTargetMonitor, useDrag, useDrop } from 'react-dnd'
+import type { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
 import { EditAttribute } from '../../../lib/EditAttribute.js'
 import { BlueprintConfigSchemaSettings } from '../BlueprintConfigSchema/index.js'
 import { ShowStyleDragDropTypes } from './DragDropTypesShowStyle.js'
@@ -17,16 +17,16 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import {
 	applyAndValidateOverrides,
-	ObjectWithOverrides,
-	SomeObjectOverrideOp,
+	type ObjectWithOverrides,
+	type SomeObjectOverrideOp,
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { useTranslation } from 'react-i18next'
-import { IBlueprintConfig, JSONSchema } from '@sofie-automation/blueprints-integration'
-import { MappingsExt } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { ShowStyleVariantId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { IBlueprintConfig, JSONSchema } from '@sofie-automation/blueprints-integration'
+import type { MappingsExt } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import type { ShowStyleVariantId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { iconDragHandle } from '../../RundownList/icons.js'
 import { ShowStyleVariants } from '../../../collections/index.js'
-import { SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
+import type { SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { LabelActual } from '../../../lib/Components/LabelAndOverrides.js'
 
 interface DraggableVariant {

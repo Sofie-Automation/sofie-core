@@ -1,25 +1,29 @@
 import * as React from 'react'
 import _ from 'underscore'
-import { Translated, translateWithTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
-import { SegmentUi } from '../SegmentTimeline/SegmentTimelineContainer.js'
+import { type Translated, translateWithTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
+import type { SegmentUi } from '../SegmentTimeline/SegmentTimelineContainer.js'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
-import { OutputLayers, SourceLayers, UIShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type {
+	OutputLayers,
+	SourceLayers,
+	UIShowStyleBase,
+} from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { DashboardPieceButton } from '../Shelf/DashboardPieceButton.js'
-import { IBlueprintActionTriggerMode, ISourceLayer } from '@sofie-automation/blueprints-integration'
+import type { IBlueprintActionTriggerMode, ISourceLayer } from '@sofie-automation/blueprints-integration'
 import { contextMenuHoldToDisplayTime, UserAgentPointer, USER_AGENT_POINTER_PROPERTY } from '../../lib/lib.js'
 import {
-	DashboardLayoutFilter,
+	type DashboardLayoutFilter,
 	PieceDisplayStyle,
-	RundownLayoutFilterBase,
+	type RundownLayoutFilterBase,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import { NoticeLevel, Notification, NotificationCenter } from '../../lib/notifications/notifications.js'
 import { memoizedIsolatedAutorun } from '../../lib/memoizedIsolatedAutorun.js'
 import { doUserAction, UserAction } from '../../lib/clientUserAction.js'
 import { MeteorCall } from '../../lib/meteorApi.js'
 import {
-	AdLibPieceUi,
-	AdlibSegmentUi,
+	type AdLibPieceUi,
+	type AdlibSegmentUi,
 	getNextPieceInstancesGrouped,
 	getUnfinishedPieceInstancesGrouped,
 	isAdLibNext,
@@ -27,8 +31,8 @@ import {
 } from '../../lib/shelf.js'
 import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'
 import { ContextType, setShelfContextMenuContext } from '../Shelf/ShelfContextMenu.js'
-import { PartInstanceId, PieceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import type { PartInstanceId, PieceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 
 interface IRundownViewShelfProps {
 	studio: UIStudio

@@ -1,5 +1,5 @@
 import ClassNames from 'classnames'
-import {
+import type {
 	DashboardLayoutStudioName,
 	RundownLayoutBase,
 	RundownLayoutStudioName,
@@ -7,7 +7,7 @@ import {
 import { dashboardElementStyle } from './DashboardPanel.js'
 import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
 import { useTranslation } from 'react-i18next'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 
 interface IStudioNamePanelProps {
 	layout: RundownLayoutBase

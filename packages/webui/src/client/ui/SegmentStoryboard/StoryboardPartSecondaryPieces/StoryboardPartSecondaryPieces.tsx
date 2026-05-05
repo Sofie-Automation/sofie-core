@@ -1,10 +1,10 @@
 import { SourceLayerType } from '@sofie-automation/blueprints-integration'
 import React from 'react'
 import { getShowHiddenSourceLayers } from '../../../lib/localStorage.js'
-import { IOutputLayerUi } from '../../SegmentContainer/withResolvedSegment.js'
+import type { IOutputLayerUi } from '../../SegmentContainer/withResolvedSegment.js'
 import { StoryboardSourceLayer } from './StoryboardSourceLayer.js'
-import { ISourceLayerExtended } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
-import { PartExtended } from '@sofie-automation/corelib/src/dataModel/Part.js'
+import type { ISourceLayerExtended } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import type { PartExtended } from '@sofie-automation/corelib/src/dataModel/Part.js'
 
 interface IProps {
 	part: PartExtended

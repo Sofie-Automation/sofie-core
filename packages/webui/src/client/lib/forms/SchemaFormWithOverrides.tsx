@@ -1,12 +1,12 @@
 import { joinObjectPathFragments, literal } from '@sofie-automation/corelib/dist/lib'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import {
+import type {
 	WrappedOverridableItemNormal,
 	OverrideOpHelperForItemContents,
 } from '../../ui/Settings/util/OverrideOpHelper.js'
 import { CheckboxControl } from '../Components/Checkbox.js'
-import { DropdownInputOption, DropdownInputControl } from '../Components/DropdownInput.js'
+import { type DropdownInputOption, DropdownInputControl } from '../Components/DropdownInput.js'
 import { FloatInputControl } from '../Components/FloatInput.js'
 import { IntInputControl } from '../Components/IntInput.js'
 import { JsonTextInputControl } from '../Components/JsonTextInput.js'
@@ -19,11 +19,11 @@ import {
 } from '../Components/LabelAndOverrides.js'
 import { MultiLineTextInputControl } from '../Components/MultiLineTextInput.js'
 import { TextInputControl } from '../Components/TextInput.js'
-import { JSONSchema, TypeName } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
+import { type JSONSchema, TypeName } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
 import { SchemaFormArrayTable } from './SchemaFormTable/ArrayTable.js'
 import {
-	SchemaFormCommonProps,
-	SchemaFormSofieEnumDefinition,
+	type SchemaFormCommonProps,
+	type SchemaFormSofieEnumDefinition,
 	translateStringIfHasNamespaces,
 } from './schemaFormUtil.js'
 import { MultiSelectInputControl } from '../Components/MultiSelectInput.js'

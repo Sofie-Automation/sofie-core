@@ -1,4 +1,4 @@
-import {
+import type {
 	PartInstanceId,
 	RundownLayoutId,
 	RundownPlaylistActivationId,
@@ -8,56 +8,56 @@ import {
 	createPartCurrentTimes,
 	processAndPrunePieceInstanceTimings,
 } from '@sofie-automation/corelib/dist/playout/processAndPrune'
-import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
+import type { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import {
 	CustomizableRegions,
-	DashboardLayout,
-	DashboardLayoutFilter,
+	type DashboardLayout,
+	type DashboardLayoutFilter,
 	PieceDisplayStyle,
-	RequiresActiveLayers,
-	RundownLayout,
-	RundownLayoutAdLibRegion,
-	RundownLayoutBase,
-	RundownLayoutColoredBox,
-	RundownLayoutElementBase,
+	type RequiresActiveLayers,
+	type RundownLayout,
+	type RundownLayoutAdLibRegion,
+	type RundownLayoutBase,
+	type RundownLayoutColoredBox,
+	type RundownLayoutElementBase,
 	RundownLayoutElementType,
-	RundownLayoutEndWords,
-	RundownLayoutExternalFrame,
-	RundownLayoutFilterBase,
-	RundownLayoutMiniRundown,
-	RundownLayoutNextBreakTiming,
-	RundownLayoutNextInfo,
-	RundownLayoutPartName,
-	RundownLayoutPartTiming,
-	RundownLayoutPieceCountdown,
-	RundownLayoutPlaylistEndTimer,
-	RundownLayoutPlaylistName,
-	RundownLayoutPlaylistStartTimer,
-	RundownLayoutPresenterView,
-	RundownLayoutRundownHeader,
-	RundownLayoutSegmentName,
-	RundownLayoutSegmentTiming,
-	RundownLayoutShelfBase,
-	RundownLayoutShowStyleDisplay,
-	RundownLayoutStudioName,
-	RundownLayoutSytemStatus,
-	RundownLayoutTextLabel,
-	RundownLayoutTimeOfDay,
+	type RundownLayoutEndWords,
+	type RundownLayoutExternalFrame,
+	type RundownLayoutFilterBase,
+	type RundownLayoutMiniRundown,
+	type RundownLayoutNextBreakTiming,
+	type RundownLayoutNextInfo,
+	type RundownLayoutPartName,
+	type RundownLayoutPartTiming,
+	type RundownLayoutPieceCountdown,
+	type RundownLayoutPlaylistEndTimer,
+	type RundownLayoutPlaylistName,
+	type RundownLayoutPlaylistStartTimer,
+	type RundownLayoutPresenterView,
+	type RundownLayoutRundownHeader,
+	type RundownLayoutSegmentName,
+	type RundownLayoutSegmentTiming,
+	type RundownLayoutShelfBase,
+	type RundownLayoutShowStyleDisplay,
+	type RundownLayoutStudioName,
+	type RundownLayoutSytemStatus,
+	type RundownLayoutTextLabel,
+	type RundownLayoutTimeOfDay,
 	RundownLayoutType,
-	RundownLayoutWithFilters,
-	RundownViewLayout,
+	type RundownLayoutWithFilters,
+	type RundownViewLayout,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { getCurrentTime } from './systemTime.js'
 import { invalidateAt } from './invalidatingTime.js'
 import { memoizedIsolatedAutorun } from './memoizedIsolatedAutorun.js'
 import { PieceInstances } from '../collections/index.js'
-import { ReadonlyDeep } from 'type-fest'
-import { TFunction } from 'i18next'
+import type { ReadonlyDeep } from 'type-fest'
+import type { TFunction } from 'i18next'
 import _ from 'underscore'
 import { UIPartInstances } from '../ui/Collections.js'
-import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import type { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 
 export interface LayoutDescriptor {
 	supportedFilters: RundownLayoutElementType[]

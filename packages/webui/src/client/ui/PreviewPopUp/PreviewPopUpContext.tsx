@@ -1,27 +1,27 @@
 import React, { useRef, useState } from 'react'
-import { PreviewPopUp, PreviewPopUpHandle } from './PreviewPopUp.js'
-import { Padding, Placement } from '@popperjs/core'
+import { PreviewPopUp, type PreviewPopUpHandle } from './PreviewPopUp.js'
+import type { Padding, Placement } from '@popperjs/core'
 import { PreviewPopUpContent } from './PreviewPopUpContent.js'
 import {
 	JSONBlobParse,
-	NoraPayload,
-	PieceLifespan,
-	PreviewContent,
+	type NoraPayload,
+	type PieceLifespan,
+	type PreviewContent,
 	PreviewType,
-	ScriptContent,
+	type ScriptContent,
 	SourceLayerType,
-	SplitsContent,
-	SplitsContentBoxContent,
-	SplitsContentBoxProperties,
-	TransitionContent,
-	VTContent,
+	type SplitsContent,
+	type SplitsContentBoxContent,
+	type SplitsContentBoxProperties,
+	type TransitionContent,
+	type VTContent,
 } from '@sofie-automation/blueprints-integration'
-import { ReadonlyDeep, ReadonlyObjectDeep } from 'type-fest/source/readonly-deep'
-import { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
-import { ITranslatableMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
+import type { ReadonlyDeep, ReadonlyObjectDeep } from 'type-fest/source/readonly-deep'
+import type { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
+import type { ITranslatableMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import _ from 'underscore'
-import { IAdLibListItem } from '../Shelf/AdLibListItem.js'
-import { PieceInstancePiece } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
+import type { IAdLibListItem } from '../Shelf/AdLibListItem.js'
+import type { PieceInstancePiece } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { createPrivateApiPath } from '../../url.js'
 
 type VirtualElement = {

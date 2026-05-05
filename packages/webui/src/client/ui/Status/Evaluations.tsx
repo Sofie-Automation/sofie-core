@@ -3,13 +3,13 @@ import { useSubscription, useTracker } from '../../lib/ReactMeteorData/react-met
 import Moment from 'react-moment'
 import type { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
-import { Evaluation } from '@sofie-automation/meteor-lib/dist/collections/Evaluations'
+import type { Evaluation } from '@sofie-automation/meteor-lib/dist/collections/Evaluations'
 import { DatePickerFromTo } from '../../lib/datePicker.js'
 import moment from 'moment'
 import { getQuestionOptions } from '../AfterBroadcastForm.js'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { Evaluations } from '../../collections/index.js'
-import { DropdownInputOption } from '../../lib/Components/DropdownInput.js'
+import type { DropdownInputOption } from '../../lib/Components/DropdownInput.js'
 import { useTranslation } from 'react-i18next'
 
 export function EvaluationView(): JSX.Element {

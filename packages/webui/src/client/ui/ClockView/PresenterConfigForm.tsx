@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import Form from 'react-bootstrap/esm/Form'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'

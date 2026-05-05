@@ -1,4 +1,4 @@
-import * as i18next from 'i18next'
+import type * as i18next from 'i18next'
 import _ from 'underscore'
 import { NotificationCenter, Notification, NoticeLevel } from './notifications/notifications.js'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'

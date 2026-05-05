@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useCallback } from 'react'
+import { useState, useEffect, useContext, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSubscription, useTracker } from '../../../../lib/ReactMeteorData/ReactMeteorData.js'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
@@ -8,9 +8,9 @@ import { TriggeredActionEntry, TRIGGERED_ACTION_ENTRY_DRAG_TYPE } from './Trigge
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { TriggersHandler } from '../../../../lib/triggers/TriggersHandler.js'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
-import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
+import type { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { MeteorCall } from '../../../../lib/meteorApi.js'
 import { UploadButton } from '../../../../lib/uploadButton.js'
 import { ErrorBoundary } from '../../../../lib/ErrorBoundary.js'
@@ -23,10 +23,15 @@ import classNames from 'classnames'
 import { catchError, fetchFrom } from '../../../../lib/lib.js'
 import { NotificationCenter, Notification, NoticeLevel } from '../../../../lib/notifications/notifications.js'
 import { doModalDialog } from '../../../../lib/ModalDialog.js'
-import { PartId, RundownId, ShowStyleBaseId, TriggeredActionId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type {
+	PartId,
+	RundownId,
+	ShowStyleBaseId,
+	TriggeredActionId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { RundownPlaylists, Rundowns, TriggeredActions } from '../../../../collections/index.js'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import { SourceLayers, OutputLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
+import type { SourceLayers, OutputLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { RundownPlaylistCollectionUtil } from '../../../../collections/rundownPlaylistUtil.js'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { UIPartInstances, UIParts } from '../../../Collections.js'

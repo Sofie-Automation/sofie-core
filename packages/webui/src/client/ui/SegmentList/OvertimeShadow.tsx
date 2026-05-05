@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 import { TimingDataResolution, TimingTickResolution, useTiming } from '../RundownView/RundownTiming/withTiming.js'
 import { RundownUtils } from '../../lib/rundown.js'
 import { FreezeFrameIcon } from '../../lib/ui/icons/freezeFrame.js'

@@ -1,18 +1,18 @@
-import React, { useContext, useRef, useState } from 'react'
-import { ISourceLayer } from '@sofie-automation/blueprints-integration'
-import { getElementDocumentOffset, OffsetPosition } from '../../../utils/positions.js'
+import { useContext, useRef, useState } from 'react'
+import type { ISourceLayer } from '@sofie-automation/blueprints-integration'
+import { getElementDocumentOffset, type OffsetPosition } from '../../../utils/positions.js'
 import { getElementHeight, getElementWidth } from '../../../utils/dimensions.js'
 import { ThumbnailRenderer } from './Renderers/ThumbnailRendererFactory.js'
 import { PieceElement } from '../../SegmentContainer/PieceElement.js'
-import { PartId, PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { PartId, PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { useContentStatusForPieceInstance } from '../../SegmentTimeline/withMediaObjectStatus.js'
 import {
 	convertSourceLayerItemToPreview,
-	IPreviewPopUpSession,
+	type IPreviewPopUpSession,
 	PreviewPopUpContext,
 } from '../../PreviewPopUp/PreviewPopUpContext.js'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
-import { PieceExtended } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import type { PieceExtended } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 interface IProps {
 	partId: PartId

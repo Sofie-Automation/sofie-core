@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { AnimatePresence } from 'motion/react'
 import {
-	StudioRouteSet,
+	type StudioRouteSet,
 	StudioRouteBehavior,
-	StudioRouteSetExclusivityGroup,
+	type StudioRouteSetExclusivityGroup,
 } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { RewindAllSegmentsIcon } from '../../lib/ui/icons/rewindAllSegmentsIcon.js'
 
-import Lottie, { LottieComponentProps } from 'lottie-react'
+import Lottie, { type LottieComponentProps } from 'lottie-react'
 import { NotificationCenterPanelToggle } from '../../lib/notifications/NotificationCenterPanel.js'
 
 import On_Air_MouseOut from './On_Air_MouseOut.json'
@@ -19,7 +19,7 @@ import { SwitchboardIcon, RouteSetOverrideIcon } from '../../lib/ui/icons/switch
 import { SwitchboardPopUp } from './SwitchboardPopUp.js'
 import { useTranslation } from 'react-i18next'
 import { SegmentViewMode } from '../../lib/ui/icons/listView.js'
-import { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { MediaStatusPopUp } from './MediaStatusPopUp/index.js'
 import { MediaStatusIcon } from '../../lib/ui/icons/mediaStatus.js'
 import { SelectedElementsContext } from './SelectedElementsContext.js'

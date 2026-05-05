@@ -4,8 +4,8 @@ import React, { useMemo, useState } from 'react'
 import { findPieceExtendedToShowFromOrderedResolvedInstances } from '../../PieceIcons/utils.js'
 import StudioContext from '../../RundownView/StudioContext.js'
 import { StoryboardPartThumbnailInner } from './StoryboardPartThumbnailInner.js'
-import { PieceExtended } from '@sofie-automation/corelib/src/dataModel/Piece.js'
-import { PartExtended } from '@sofie-automation/corelib/src/dataModel/Part.js'
+import type { PieceExtended } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import type { PartExtended } from '@sofie-automation/corelib/src/dataModel/Part.js'
 
 interface IProps {
 	part: PartExtended

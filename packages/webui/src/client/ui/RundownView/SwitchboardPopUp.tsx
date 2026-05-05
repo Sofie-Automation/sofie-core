@@ -1,8 +1,8 @@
-import * as React from 'react'
+import type * as React from 'react'
 import { useTranslation } from 'react-i18next'
 import {
-	StudioRouteSet,
-	StudioRouteSetExclusivityGroup,
+	type StudioRouteSet,
+	type StudioRouteSetExclusivityGroup,
 	StudioRouteBehavior,
 } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import classNames from 'classnames'

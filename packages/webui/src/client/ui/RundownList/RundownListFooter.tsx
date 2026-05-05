@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import Tooltip from 'rc-tooltip'
 import { getHelpMode } from '../../lib/localStorage.js'
-import { StatusResponse } from '@sofie-automation/meteor-lib/dist/api/systemStatus'
+import type { StatusResponse } from '@sofie-automation/meteor-lib/dist/api/systemStatus'
 import { TOOLTIP_DEFAULT_DELAY } from '../../lib/lib.js'
 import { useTranslation } from 'react-i18next'
 import { MeteorCall } from '../../lib/meteorApi.js'

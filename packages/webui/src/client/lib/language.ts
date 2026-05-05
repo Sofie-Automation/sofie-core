@@ -1,4 +1,4 @@
-import { TFunction } from 'i18next'
+import type { TFunction } from 'i18next'
 
 /** For phrases like "a, b, c, d or e" */
 export function languageOr(t: TFunction, statements: string[]): string {

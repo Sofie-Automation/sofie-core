@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useLayoutEffect } from 'react'
+import { useState, useEffect, useLayoutEffect } from 'react'
 import classNames from 'classnames'
 import { usePopper } from 'react-popper'
-import { EditAttribute, EditAttributeType } from '../../../../../../lib/EditAttribute.js'
+import { EditAttribute, type EditAttributeType } from '../../../../../../lib/EditAttribute.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAngleRight, faCheck, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { sameWidth } from '../../../../../../lib/popperUtils.js'
@@ -10,7 +10,7 @@ import { preventOverflow } from '@popperjs/core'
 import { DropdownInputControl, getDropdownInputOptions } from '../../../../../../lib/Components/DropdownInput.js'
 import Button from 'react-bootstrap/esm/Button'
 import { SwitchFilterType } from './SwitchFilterType'
-import { FilterType } from '@sofie-automation/blueprints-integration'
+import type { FilterType } from '@sofie-automation/blueprints-integration'
 
 interface IProps {
 	fieldLabel: string

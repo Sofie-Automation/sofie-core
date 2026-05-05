@@ -1,5 +1,5 @@
 import _ from 'underscore'
-import { ISettings, DEFAULT_SETTINGS } from '@sofie-automation/meteor-lib/dist/Settings'
+import { type ISettings, DEFAULT_SETTINGS } from '@sofie-automation/meteor-lib/dist/Settings'
 
 /**
  * This is an object specifying installation-wide, User Interface settings.

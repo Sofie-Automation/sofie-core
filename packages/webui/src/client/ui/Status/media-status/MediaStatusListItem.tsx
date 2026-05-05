@@ -1,5 +1,5 @@
-import { JSX } from 'react'
-import { SourceLayerType } from '@sofie-automation/blueprints-integration'
+import type { JSX } from 'react'
+import type { SourceLayerType } from '@sofie-automation/blueprints-integration'
 import { PieceStatusCode } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { NavLink } from 'react-router-dom'
 import classNames from 'classnames'

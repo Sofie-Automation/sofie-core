@@ -1,10 +1,10 @@
 import { useTranslation } from 'react-i18next'
 import { useTracker } from '../../../../../../../lib/ReactMeteorData/ReactMeteorData.js'
 import { Studios } from '../../../../../../../collections/index.js'
-import { DropdownInputControl, DropdownInputOption } from '../../../../../../../lib/Components/DropdownInput.js'
-import { SwitchRouteSetProps } from '@sofie-automation/corelib/dist/worker/studio'
+import { DropdownInputControl, type DropdownInputOption } from '../../../../../../../lib/Components/DropdownInput.js'
+import type { SwitchRouteSetProps } from '@sofie-automation/corelib/dist/worker/studio'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import { StudioRouteSet } from '@sofie-automation/blueprints-integration'
+import type { StudioRouteSet } from '@sofie-automation/blueprints-integration'
 
 export function SwitchRouteSetEditor({
 	action,

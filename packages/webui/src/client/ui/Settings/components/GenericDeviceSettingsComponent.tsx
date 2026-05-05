@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
+import type { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { DeviceItem } from '../../Status/SystemStatus/DeviceItem.js'
 import { ConfigManifestOAuthFlowComponent } from './ConfigManifestOAuthFlow.js'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'

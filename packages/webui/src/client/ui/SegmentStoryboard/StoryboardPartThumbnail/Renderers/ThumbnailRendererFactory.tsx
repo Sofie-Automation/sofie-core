@@ -1,16 +1,16 @@
 import React from 'react'
-import { ISourceLayer, SourceLayerType } from '@sofie-automation/blueprints-integration'
-import { PartId, PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { type ISourceLayer, SourceLayerType } from '@sofie-automation/blueprints-integration'
+import type { PartId, PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { assertNever } from '@sofie-automation/corelib/dist/lib'
-import { OffsetPosition } from '../../../../utils/positions.js'
+import type { OffsetPosition } from '../../../../utils/positions.js'
 import { CameraThumbnailRenderer } from './CameraThumbnailRenderer.js'
 import { DefaultThumbnailRenderer } from './DefaultThumbnailRenderer.js'
 import { GraphicsThumbnailRenderer } from './GraphicsThumbnailRenderer.js'
 import { LocalThumbnailRenderer } from './LocalThumbnailRenderer.js'
 import { SplitsThumbnailRenderer } from './SplitsThumbnailRenderer.js'
 import { VTThumbnailRenderer } from './VTThumbnailRenderer.js'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
-import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import type { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 export interface IProps {
 	partId: PartId

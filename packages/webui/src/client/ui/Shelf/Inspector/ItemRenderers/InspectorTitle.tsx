@@ -1,12 +1,12 @@
 import ClassNames from 'classnames'
-import { BucketAdLibUi, BucketAdLibActionUi } from '../../RundownViewBuckets.js'
+import type { BucketAdLibUi, BucketAdLibActionUi } from '../../RundownViewBuckets.js'
 import { RundownUtils } from '../../../../lib/rundown.js'
-import { Piece, PieceUi } from '@sofie-automation/corelib/dist/dataModel/Piece'
+import type { Piece, PieceUi } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { useContentStatusForItem } from '../../../SegmentTimeline/withMediaObjectStatus.js'
-import { IAdLibListItem } from '../../AdLibListItem.js'
-import { AdLibPieceUi } from '../../../../lib/shelf.js'
-import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import type { IAdLibListItem } from '../../AdLibListItem.js'
+import type { AdLibPieceUi } from '../../../../lib/shelf.js'
+import type { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 
 interface IProps {
 	piece: PieceUi | IAdLibListItem | BucketAdLibUi | BucketAdLibActionUi

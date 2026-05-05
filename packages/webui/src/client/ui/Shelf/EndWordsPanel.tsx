@@ -1,21 +1,20 @@
 import ClassNames from 'classnames'
-import {
+import type {
 	DashboardLayoutEndsWords,
 	RundownLayoutBase,
 	RundownLayoutEndWords,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
+import { RundownLayoutsAPI, getUnfinishedPieceInstancesReactive } from '../../lib/rundownLayouts.js'
 import { dashboardElementStyle } from './DashboardPanel.js'
 import { useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
-import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
-import { ScriptContent } from '@sofie-automation/blueprints-integration'
-import { getUnfinishedPieceInstancesReactive } from '../../lib/rundownLayouts.js'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
+import type { ScriptContent } from '@sofie-automation/blueprints-integration'
 import { getScriptPreview } from '../../lib/ui/scriptPreview.js'
 import { PieceInstances } from '../../collections/index.js'
-import { ReadonlyDeep } from 'type-fest'
+import type { ReadonlyDeep } from 'type-fest'
 import { useTranslation } from 'react-i18next'
-import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import type { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 
 interface IEndsWordsPanelProps {
 	layout: RundownLayoutBase

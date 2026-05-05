@@ -4,8 +4,8 @@ import { useSubscription, useTracker } from '../../lib/ReactMeteorData/ReactMete
 import {
 	// PartUi,
 	withResolvedSegment,
-	IResolvedSegmentProps,
-	ITrackedResolvedSegmentProps,
+	type IResolvedSegmentProps,
+	type ITrackedResolvedSegmentProps,
 } from '../SegmentContainer/withResolvedSegment.js'
 import { SpeechSynthesiser } from '../../lib/speechSynthesis.js'
 import { SegmentStoryboard } from './SegmentStoryboard.js'
@@ -13,11 +13,11 @@ import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protected
 import { LIVELINE_HISTORY_SIZE as TIMELINE_LIVELINE_HISTORY_SIZE } from '../SegmentTimeline/Constants.js'
 import { Segments } from '../../collections/index.js'
 import { literal } from '@sofie-automation/shared-lib/dist/lib/lib'
-import { MongoFieldSpecifierOnes } from '@sofie-automation/corelib/dist/mongo'
+import type { MongoFieldSpecifierOnes } from '@sofie-automation/corelib/dist/mongo'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { UIPartInstances, UIParts } from '../Collections.js'
 import { RundownViewShelf } from '../RundownView/RundownViewShelf.js'
-import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
+import type { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
 
 export const LIVELINE_HISTORY_SIZE = TIMELINE_LIVELINE_HISTORY_SIZE
 

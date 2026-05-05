@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react'
 import _ from 'underscore'
-import { SegmentTimeline, SegmentTimelineClass } from './SegmentTimeline.js'
+import { SegmentTimeline, type SegmentTimelineClass } from './SegmentTimeline.js'
 import {
 	computeSegmentDisplayDuration,
 	RundownTiming,
-	TimingEvent,
+	type TimingEvent,
 } from '../RundownView/RundownTiming/RundownTiming.js'
 import { UIStateStorage } from '../../lib/UIStateStorage.js'
 import { SpeechSynthesiser } from '../../lib/speechSynthesis.js'
@@ -15,20 +15,20 @@ import { equivalentArrays } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { Settings } from '../../lib/Settings.js'
 import RundownViewEventBus, {
 	RundownViewEvents,
-	GoToPartEvent,
-	GoToPartInstanceEvent,
+	type GoToPartEvent,
+	type GoToPartInstanceEvent,
 } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
 import { SegmentTimelinePartClass } from './Parts/SegmentTimelinePart.js'
 import {
-	PartUi,
+	type PartUi,
 	withResolvedSegment,
-	IResolvedSegmentProps,
-	ITrackedResolvedSegmentProps,
-	IOutputLayerUi,
+	type IResolvedSegmentProps,
+	type ITrackedResolvedSegmentProps,
+	type IOutputLayerUi,
 } from '../SegmentContainer/withResolvedSegment.js'
 import { computeSegmentDuration, getPartInstanceTimingId } from '../../lib/rundownTiming.js'
 import { RundownViewShelf } from '../RundownView/RundownViewShelf.js'
-import { PartInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { PartInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { catchError, useDebounce } from '../../lib/lib.js'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { useSubscription, useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
@@ -42,7 +42,7 @@ import {
 } from './Constants.js'
 import { UIPartInstances, UIParts } from '../Collections.js'
 import { RundownTimingProviderContext } from '../RundownView/RundownTiming/withTiming.js'
-import { PartExtended } from '@sofie-automation/corelib/src/dataModel/Part.js'
+import type { PartExtended } from '@sofie-automation/corelib/src/dataModel/Part.js'
 
 // Kept for backwards compatibility
 export type { SegmentUi, PartUi, ISourceLayerUi, IOutputLayerUi } from '../SegmentContainer/withResolvedSegment.js'

@@ -1,12 +1,12 @@
 import classNames from 'classnames'
-import React, { CSSProperties, useCallback, useContext, useMemo, useRef } from 'react'
+import React, { type CSSProperties, useCallback, useContext, useMemo, useRef } from 'react'
 import { useContentStatusForPieceInstance } from '../../SegmentTimeline/withMediaObjectStatus.js'
 import {
 	PreviewPopUpContext,
-	IPreviewPopUpSession,
+	type IPreviewPopUpSession,
 	convertSourceLayerItemToPreview,
 } from '../../PreviewPopUp/PreviewPopUpContext.js'
-import { PieceExtended, PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import type { PieceExtended, PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 import { RundownUtils } from '../../../lib/rundown.js'
 
 interface IProps {

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import { useCallback, useState } from 'react'
 import ClassNames from 'classnames'
 
 export function tryParseJson(str: string | undefined): { parsed: object } | undefined {

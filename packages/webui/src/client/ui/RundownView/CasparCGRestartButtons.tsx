@@ -1,6 +1,6 @@
 import { TSR } from '@sofie-automation/blueprints-integration'
-import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
+import type { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { isTranslatableMessage, translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { DEFAULT_TSR_ACTION_TIMEOUT_TIME } from '@sofie-automation/shared-lib/dist/core/constants'

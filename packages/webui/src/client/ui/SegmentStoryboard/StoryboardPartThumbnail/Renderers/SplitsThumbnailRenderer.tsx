@@ -1,4 +1,4 @@
-import { IProps } from './ThumbnailRendererFactory.js'
+import type { IProps } from './ThumbnailRendererFactory.js'
 import { getSplitItems } from '../../../SegmentContainer/getSplitItems.js'
 
 export function SplitsThumbnailRenderer({ pieceInstance }: Readonly<IProps>): JSX.Element {

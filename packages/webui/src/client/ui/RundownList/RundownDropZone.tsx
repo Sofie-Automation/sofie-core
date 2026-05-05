@@ -2,7 +2,7 @@ import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { MeteorCall } from '../../lib/meteorApi.js'
 import { doUserAction, UserAction } from '../../lib/clientUserAction.js'
-import { IRundownDragObject, RundownListDragDropTypes } from './DragAndDropTypes.js'
+import { type IRundownDragObject, RundownListDragDropTypes } from './DragAndDropTypes.js'
 
 export function RundownDropZone(): JSX.Element {
 	const { t } = useTranslation()

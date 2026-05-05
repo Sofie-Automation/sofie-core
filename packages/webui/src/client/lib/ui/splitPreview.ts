@@ -1,10 +1,10 @@
-import {
+import type {
 	SourceLayerType,
 	SplitsContentBoxContent,
 	SplitsContentBoxProperties,
 } from '@sofie-automation/blueprints-integration'
 import { literal } from '@sofie-automation/corelib/dist/lib'
-import { ReadonlyDeep } from 'type-fest'
+import type { ReadonlyDeep } from 'type-fest'
 
 const DEFAULT_POSITIONS = [
 	{

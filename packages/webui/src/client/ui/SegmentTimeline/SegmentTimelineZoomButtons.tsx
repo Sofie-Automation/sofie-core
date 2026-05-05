@@ -1,4 +1,3 @@
-import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { ZoomInIcon, ZoomOutIcon, ZoomShowAll } from '../../lib/ui/icons/segmentZoomIcon.js'
 import { catchError } from '../../lib/lib.js'

@@ -4,9 +4,9 @@ import { useTranslation } from 'react-i18next'
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { EditAttribute } from '../../../../lib/EditAttribute.js'
-import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
-import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { IStudioConfigPreset } from '@sofie-automation/blueprints-integration'
+import type { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
+import type { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import type { IStudioConfigPreset } from '@sofie-automation/blueprints-integration'
 import { LabelActual } from '../../../../lib/Components/LabelAndOverrides.js'
 
 interface SelectConfigPresetProps {

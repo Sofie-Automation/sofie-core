@@ -1,16 +1,15 @@
-import React from 'react'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
-import { IContextMenuContext } from '../../RundownView.js'
-import { IOutputLayerUi, PartUi, SegmentUi } from '../SegmentTimelineContainer.js'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { IContextMenuContext } from '../../RundownView.js'
+import type { IOutputLayerUi, PartUi, SegmentUi } from '../SegmentTimelineContainer.js'
 import { FlattenedSourceLayers } from './FlattenedSourceLayers.js'
 import { SourceLayer } from './SourceLayer.js'
 import classNames from 'classnames'
 import { DEBUG_MODE } from '../SegmentTimelineDebugMode.js'
 import { RundownUtils } from '../../../lib/rundown.js'
-import { ISourceLayer } from '@sofie-automation/blueprints-integration'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
-import { ISourceLayerExtended } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
-import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import type { ISourceLayer } from '@sofie-automation/blueprints-integration'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import type { ISourceLayerExtended } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import type { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 interface IOutputGroupProps {
 	layer: IOutputLayerUi

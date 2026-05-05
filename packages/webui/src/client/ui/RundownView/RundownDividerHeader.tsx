@@ -1,9 +1,9 @@
-import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
+import type { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import Moment from 'react-moment'
 import { TimingDataResolution, TimingTickResolution, useTiming } from './RundownTiming/withTiming.js'
 import { RundownUtils } from '../../lib/rundown.js'
 import { useTranslation } from 'react-i18next'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
 
 interface IProps {

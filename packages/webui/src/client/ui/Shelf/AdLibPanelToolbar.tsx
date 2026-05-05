@@ -1,4 +1,3 @@
-import React from 'react'
 import { useTranslation } from 'react-i18next'
 import classNames from 'classnames'
 import { faList, faTh, faTimes } from '@fortawesome/free-solid-svg-icons'
