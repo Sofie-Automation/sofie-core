@@ -36,7 +36,6 @@ import type {
 import {
 	AdLibPieces,
 	CoreSystem,
-	Parts,
 	Pieces,
 	RundownBaselineAdLibPieces,
 	RundownPlaylists,
@@ -46,6 +45,7 @@ import {
 	ShowStyleVariants,
 	Studios,
 } from '../../client/collections/index.js'
+import { UIParts } from '../../client/ui/Collections.js'
 
 export enum LAYER_IDS {
 	SOURCE_CAM0 = 'cam0',
@@ -369,7 +369,7 @@ export async function setupDefaultRundown(
 		title: 'Part 0 0',
 		expectedDurationWithTransition: undefined,
 	}
-	MongoMock.getInnerMockCollection(Parts).insert(part00)
+	MongoMock.getInnerMockCollection(UIParts).insert(part00)
 
 	const piece000: Piece = {
 		_id: protectString(rundownId + '_piece000'),
@@ -437,7 +437,7 @@ export async function setupDefaultRundown(
 		title: 'Part 0 1',
 		expectedDurationWithTransition: undefined,
 	}
-	MongoMock.getInnerMockCollection(Parts).insert(part01)
+	MongoMock.getInnerMockCollection(UIParts).insert(part01)
 
 	const piece010: Piece = {
 		_id: protectString(rundownId + '_piece010'),
@@ -477,7 +477,7 @@ export async function setupDefaultRundown(
 		title: 'Part 1 0',
 		expectedDurationWithTransition: undefined,
 	}
-	MongoMock.getInnerMockCollection(Parts).insert(part10)
+	MongoMock.getInnerMockCollection(UIParts).insert(part10)
 
 	const part11: DBPart = {
 		_id: protectString(rundownId + '_part1_1'),
@@ -488,7 +488,7 @@ export async function setupDefaultRundown(
 		title: 'Part 1 1',
 		expectedDurationWithTransition: undefined,
 	}
-	MongoMock.getInnerMockCollection(Parts).insert(part11)
+	MongoMock.getInnerMockCollection(UIParts).insert(part11)
 
 	const part12: DBPart = {
 		_id: protectString(rundownId + '_part1_2'),
@@ -499,7 +499,7 @@ export async function setupDefaultRundown(
 		title: 'Part 1 2',
 		expectedDurationWithTransition: undefined,
 	}
-	MongoMock.getInnerMockCollection(Parts).insert(part12)
+	MongoMock.getInnerMockCollection(UIParts).insert(part12)
 
 	const segment2: DBSegment = {
 		_id: protectString(rundownId + '_segment2'),

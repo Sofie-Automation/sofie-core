@@ -30,7 +30,6 @@ import type { DBTriggeredActions } from '@sofie-automation/meteor-lib/dist/colle
 import type { UserActionsLogItem } from '@sofie-automation/meteor-lib/dist/collections/UserActionsLog'
 import type { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
 import type { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
-import type { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import type { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import type { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import type { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
@@ -39,7 +38,6 @@ import type { RundownBaselineAdLibItem } from '@sofie-automation/corelib/dist/da
 import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import type { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import type { DBNotificationObj } from '@sofie-automation/corelib/dist/dataModel/Notifications'
-import type { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
 
 export const AdLibActions = createSyncReadOnlyMongoCollection<AdLibAction>(CollectionName.AdLibActions)
 
@@ -74,10 +72,6 @@ export const Notifications = createSyncReadOnlyMongoCollection<DBNotificationObj
 export const PackageContainerStatuses = createSyncReadOnlyMongoCollection<PackageContainerStatusDB>(
 	CollectionName.PackageContainerStatuses
 )
-
-export const PartInstances = createSyncReadOnlyMongoCollection<PartInstance>(CollectionName.PartInstances)
-
-export const Parts = createSyncReadOnlyMongoCollection<DBPart>(CollectionName.Parts)
 
 export const PeripheralDevices = createSyncMongoCollection<PeripheralDevice>(CollectionName.PeripheralDevices)
 
