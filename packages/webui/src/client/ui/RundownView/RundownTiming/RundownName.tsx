@@ -76,17 +76,8 @@ export function RundownName({
 				</h1>
 			)}
 			{!hideDiff && rundownPlaylist.startedPlayback && rundownPlaylist.activationId && !rundownPlaylist.rehearsal
-				? expectedStart &&
-					RundownUtils.formatDiffToTimecode(
-						rundownPlaylist.startedPlayback - expectedStart,
-						true,
-						false,
-						true,
-						true,
-						true
-					)
-				: expectedStart &&
-					RundownUtils.formatDiffToTimecode(getCurrentTime() - expectedStart, true, false, true, true, true)}
+				? expectedStart && RundownUtils.formatDiffToTimecodeOverUnder(rundownPlaylist.startedPlayback - expectedStart)
+				: expectedStart && RundownUtils.formatDiffToTimecodeOverUnder(getCurrentTime() - expectedStart)}
 		</div>
 	)
 }
