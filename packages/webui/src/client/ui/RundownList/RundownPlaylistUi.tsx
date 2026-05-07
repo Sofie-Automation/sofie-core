@@ -181,14 +181,14 @@ export function RundownPlaylistUi({
 			>
 				<span>
 					{t('({{timecode}})', {
-						timecode: RundownUtils.formatDiffToTimecode(playlistExpectedDuration, false, true, true, false, true),
+						timecode: RundownUtils.formatDiffToTimecodeHours(playlistExpectedDuration),
 					})}
 					&nbsp;
 					<LoopingIcon />
 				</span>
 			</Tooltip>
 		) : (
-			RundownUtils.formatDiffToTimecode(playlistExpectedDuration, false, true, true, false, true)
+			RundownUtils.formatDiffToTimecodeHours(playlistExpectedDuration)
 		))
 
 	return (

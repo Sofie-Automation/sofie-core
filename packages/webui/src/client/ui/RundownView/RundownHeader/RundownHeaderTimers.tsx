@@ -40,7 +40,7 @@ function SingleTimer({ timer }: Readonly<ISingleTimerProps>) {
 
 	const diff = calculateTTimerDiff(timer, now)
 	const overUnder = calculateTTimerOverUnder(timer, now)
-	const timeStr = RundownUtils.formatDiffToTimecode(Math.abs(diff), false, true, true, false, true)
+	const timeStr = RundownUtils.formatDiffToTimecodeHours(Math.abs(diff))
 	const isCountingDown = mode.type === 'countdown' && diff < 0 && isRunning
 
 	return (

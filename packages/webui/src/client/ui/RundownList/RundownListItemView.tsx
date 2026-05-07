@@ -147,14 +147,14 @@ export default React.memo(function RundownListItemView({
 						>
 							<span>
 								{t('({{timecode}})', {
-									timecode: RundownUtils.formatDiffToTimecode(expectedDuration, false, true, true, false, true),
+									timecode: RundownUtils.formatDiffToTimecodeHours(expectedDuration),
 								})}
 								&nbsp;
 								<LoopingIcon />
 							</span>
 						</Tooltip>
 					) : (
-						RundownUtils.formatDiffToTimecode(expectedDuration, false, true, true, false, true)
+						RundownUtils.formatDiffToTimecodeHours(expectedDuration)
 					)
 				) : isOnlyRundownInPlaylist && isLoopDefined(playlist) ? (
 					<Tooltip

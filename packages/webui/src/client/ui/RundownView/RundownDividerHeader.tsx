@@ -86,7 +86,7 @@ export function RundownDividerHeader({ rundown, playlist }: IProps): JSX.Element
 			{expectedDuration ? (
 				<div className="rundown-divider-timeline__expected-duration">
 					<span>{t('Planned Duration')}</span>&nbsp;
-					{RundownUtils.formatDiffToTimecode(expectedDuration, false, true, true, false, true)}
+					{RundownUtils.formatDiffToTimecodeHours(expectedDuration)}
 				</div>
 			) : null}
 			{expectedEnd ? (
