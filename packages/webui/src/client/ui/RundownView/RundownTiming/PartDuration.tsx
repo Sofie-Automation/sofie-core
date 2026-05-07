@@ -48,15 +48,15 @@ export function PartDisplayDuration(props: IPartDurationProps): JSX.Element | nu
 				{props.label}
 				{props.fixed ? (
 					<span className={ClassNames(props.className)} role="timer">
-						{RundownUtils.formatDiffToTimecode(budget, false, false, true, false, true, '+')}
+						{RundownUtils.formatDiffToTimecodeWithSign(budget)}
 					</span>
 				) : props.countUp ? (
 					<span className={ClassNames(props.className)} role="timer">
-						{RundownUtils.formatDiffToTimecode(playedOut, false, false, true, false, true, '+')}
+						{RundownUtils.formatDiffToTimecodeWithSign(playedOut)}
 					</span>
 				) : (
 					<span className={ClassNames(props.className, duration < 0 ? 'negative' : undefined)} role="timer">
-						{RundownUtils.formatDiffToTimecode(duration, false, false, true, false, true, '+')}
+						{RundownUtils.formatDiffToTimecodeWithSign(duration)}
 					</span>
 				)}
 			</>

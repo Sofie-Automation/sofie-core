@@ -278,6 +278,14 @@ export namespace RundownUtils {
 		return formatDiffToTimecode(milliseconds, true, false, true, false, true, '', false, true)
 	}
 
+	/**
+	 * Format a budget/remaining duration (ms) with a "+" prefix for positive values (time remaining)
+	 * and an en-dash for negative values (over budget).
+	 */
+	export function formatDiffToTimecodeWithSign(milliseconds: number): string {
+		return formatDiffToTimecode(milliseconds, false, false, true, false, true, '+')
+	}
+
 	export function isInsideViewport(
 		scrollLeft: number,
 		scrollWidth: number,

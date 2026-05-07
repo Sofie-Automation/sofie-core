@@ -112,17 +112,7 @@ export function LinePart({
 		return (
 			<>
 				{part.instance.part.expectedDuration !== undefined && part.instance.part.expectedDuration > 0 && (
-					<span role="timer">
-						{RundownUtils.formatDiffToTimecode(
-							part.instance.part.expectedDuration,
-							false,
-							false,
-							true,
-							false,
-							true,
-							'+'
-						)}
-					</span>
+					<span role="timer">{RundownUtils.formatDiffToTimecodeWithSign(part.instance.part.expectedDuration)}</span>
 				)}
 				{(part.instance.part.expectedDuration === 0 || part.instance.part.expectedDuration === undefined) && (
 					<span>––:––</span>
