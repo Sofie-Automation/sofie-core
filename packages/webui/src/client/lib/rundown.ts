@@ -265,6 +265,11 @@ export namespace RundownUtils {
 		)
 	}
 
+	/** Format a duration (ms) to a timecode string, showing hours only when needed. e.g. "23:45" or "1:23:45" */
+	export function formatDiffToTimecodeHours(milliseconds: number): string {
+		return formatDiffToTimecode(milliseconds, false, true, true, false, true)
+	}
+
 	export function isInsideViewport(
 		scrollLeft: number,
 		scrollWidth: number,
