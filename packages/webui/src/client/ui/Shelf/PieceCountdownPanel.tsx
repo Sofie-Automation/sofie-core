@@ -83,7 +83,7 @@ export function PieceCountdownPanel({
 					overtime: Math.floor(displayTimecode / 1000) > 0,
 				})}
 			>
-				{RundownUtils.formatDiffToTimecode(displayTimecode || 0, true, false, true, false, true, '', false, true)}
+				{RundownUtils.formatDiffToTimecodeCountdown(displayTimecode || 0)}
 			</span>
 		</div>
 	)

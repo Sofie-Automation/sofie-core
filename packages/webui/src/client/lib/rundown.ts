@@ -270,6 +270,14 @@ export namespace RundownUtils {
 		return formatDiffToTimecode(milliseconds, false, true, true, false, true)
 	}
 
+	/**
+	 * Format a live countdown timer (ms). Shows "+" for positive, blank prefix when negative (rounds toward zero),
+	 * using hard-floor rounding so the display doesn't jump ahead of the actual value.
+	 */
+	export function formatDiffToTimecodeCountdown(milliseconds: number): string {
+		return formatDiffToTimecode(milliseconds, true, false, true, false, true, '', false, true)
+	}
+
 	export function isInsideViewport(
 		scrollLeft: number,
 		scrollWidth: number,

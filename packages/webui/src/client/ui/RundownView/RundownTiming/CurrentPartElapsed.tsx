@@ -19,7 +19,7 @@ export function CurrentPartElapsed({ currentPartId, className }: IPartElapsedPro
 
 	return (
 		<span className={className} role="timer">
-			{RundownUtils.formatDiffToTimecode(displayTimecode || 0, true, false, true, false, true, '', false, true)}
+			{RundownUtils.formatDiffToTimecodeCountdown(displayTimecode || 0)}
 		</span>
 	)
 }
