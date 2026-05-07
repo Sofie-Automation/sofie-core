@@ -289,9 +289,10 @@ export namespace RundownUtils {
 	/**
 	 * Format an over/under diff (ms) with "+" for positive, en-dash for negative, smart-floor rounding,
 	 * and smart-hours. Used for start-time diffs and over/under clocks.
+	 * Pass `floorTime: true` to use hard-floor rounding (display won't jump ahead of the actual value).
 	 */
-	export function formatDiffToTimecodeOverUnder(milliseconds: number): string {
-		return formatDiffToTimecode(milliseconds, true, false, true, true, true)
+	export function formatDiffToTimecodeOverUnder(milliseconds: number, floorTime?: boolean): string {
+		return formatDiffToTimecode(milliseconds, true, false, true, true, true, undefined, floorTime, floorTime)
 	}
 
 	export function isInsideViewport(

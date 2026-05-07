@@ -11,7 +11,7 @@ export const OverUnderClockComponent = (props: OverUnderProps): JSX.Element => {
 	return (
 		<div className="counter-component__over-under">
 			<span className={props.value < 0 ? 'under' : 'over'}>
-				{RundownUtils.formatDiffToTimecode(props.value, true, false, true, true, true, undefined, true, true)}
+				{RundownUtils.formatDiffToTimecodeOverUnder(props.value, true)}
 			</span>
 		</div>
 	)
