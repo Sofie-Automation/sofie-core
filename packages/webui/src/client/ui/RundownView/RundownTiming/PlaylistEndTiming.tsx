@@ -55,7 +55,7 @@ export function PlaylistEndTiming({
 						role="timer"
 					>
 						{!hideDiffLabel && <span className="timing-clock-label right">{t('Diff')}</span>}
-						{RundownUtils.formatDiffToTimecode(overUnderClock, true, false, true, true, true, undefined, true, true)}
+						{RundownUtils.formatDiffToTimecodeOverUnder(overUnderClock, true)}
 					</span>
 				) : null
 			) : null}

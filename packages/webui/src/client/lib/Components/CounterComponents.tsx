@@ -9,7 +9,7 @@ export const OverUnderClockComponent = (props: OverUnderProps): JSX.Element => {
 	return (
 		<div className="counter-component__over-under">
 			<span className={props.value < 0 ? 'under' : 'over'}>
-				{RundownUtils.formatDiffToTimecode(props.value, true, false, true, true, true, undefined, true, true)}
+				{RundownUtils.formatDiffToTimecodeOverUnder(props.value, true)}
 			</span>
 		</div>
 	)
@@ -26,7 +26,7 @@ export const PlannedEndComponent = (props: OverUnderProps): JSX.Element => {
 export const TimeToPlannedEndComponent = (props: OverUnderProps): JSX.Element => {
 	return (
 		<span className="counter-component__time-to-planned-end">
-			{RundownUtils.formatDiffToTimecode(props.value, true, false, true, true, true, undefined, true, true)}
+			{RundownUtils.formatDiffToTimecodeOverUnder(props.value, true)}
 		</span>
 	)
 }
@@ -34,7 +34,7 @@ export const TimeToPlannedEndComponent = (props: OverUnderProps): JSX.Element =>
 export const TimeSincePlannedEndComponent = (props: OverUnderProps): JSX.Element => {
 	return (
 		<span className="counter-component__time-since-planned-end">
-			{RundownUtils.formatDiffToTimecode(props.value, true, false, true, true, true, undefined, true, true)}
+			{RundownUtils.formatDiffToTimecodeOverUnder(props.value, true)}
 		</span>
 	)
 }
