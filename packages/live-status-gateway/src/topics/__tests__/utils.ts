@@ -29,7 +29,7 @@ export function makeTestPlaylist(id?: string): DBRundownPlaylist {
 		modified: 1695799420147,
 		name: 'My Playlist',
 		nextPartInfo: null,
-		previousPartInfo: null,
+		previousPartsInfo: [],
 		rundownIdsInOrder: [protectString(RUNDOWN_1_ID), protectString(RUNDOWN_2_ID)],
 		studioId: protectString('STUDIO_1'),
 		timing: { type: PlaylistTimingType.None },

@@ -19,7 +19,7 @@ const onAirPlayoutState = findForLayerTestConstants.playoutState.onAir
 
 describe('findLookaheadForLayer – basic behavior', () => {
 	test('no parts', () => {
-		const res = findLookaheadForLayer(context, {}, [], 'abc', 1, 1, onAirPlayoutState)
+		const res = findLookaheadForLayer(context, { previous: [] }, [], 'abc', 1, 1, onAirPlayoutState)
 
 		expect(res.timed).toHaveLength(0)
 		expect(res.future).toHaveLength(0)
@@ -27,15 +27,7 @@ describe('findLookaheadForLayer – basic behavior', () => {
 	test('if the previous part is unset', () => {
 		findLookaheadObjectsForPartMock.mockReturnValue([])
 
-		findLookaheadForLayer(
-			context,
-			{ previous: undefined, current, next: nextFuture },
-			[],
-			layer,
-			1,
-			1,
-			onAirPlayoutState
-		)
+		findLookaheadForLayer(context, { previous: [], current, next: nextFuture }, [], layer, 1, 1, onAirPlayoutState)
 
 		expect(findLookaheadObjectsForPartMock).toHaveBeenCalledTimes(2)
 		expectInstancesToMatch(findLookaheadObjectsForPartMock, 1, layer, current, undefined, onAirPlayoutState)

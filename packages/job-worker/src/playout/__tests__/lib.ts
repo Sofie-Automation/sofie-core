@@ -21,17 +21,17 @@ export async function getSelectedPartInstances(
 		playlist.nextPartInfo
 			? context.directCollections.PartInstances.findOne(playlist.nextPartInfo.partInstanceId)
 			: null,
-		playlist.previousPartInfo
-			? context.directCollections.PartInstances.findOne(playlist.previousPartInfo.partInstanceId)
+		playlist.previousPartsInfo?.[0]
+			? context.directCollections.PartInstances.findOne(playlist.previousPartsInfo[0].partInstanceId)
 			: null,
 	])
 
 	if (currentPartInstance === undefined)
 		throw new Error(`Missing currentPartInstance "${playlist.currentPartInfo?.partInstanceId}"`)
 	if (nextPartInstance === undefined)
-		throw new Error(`Missing currentPartInstance "${playlist.nextPartInfo?.partInstanceId}"`)
+		throw new Error(`Missing nextPartInstance "${playlist.nextPartInfo?.partInstanceId}"`)
 	if (previousPartInstance === undefined)
-		throw new Error(`Missing currentPartInstance "${playlist.previousPartInfo?.partInstanceId}"`)
+		throw new Error(`Missing previousPartInstance "${playlist.previousPartsInfo?.[0]?.partInstanceId}"`)
 
 	return { currentPartInstance, nextPartInstance, previousPartInstance }
 }

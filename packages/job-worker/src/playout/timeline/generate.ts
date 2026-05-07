@@ -221,7 +221,12 @@ function hasNow(obj: TimelineEnableExt | TimelineEnableExt[]) {
 }
 
 export interface SelectedPartInstancesTimelineInfo {
-	previous?: SelectedPartInstanceTimelineInfo
+	/**
+	 * All previously-played PartInstances whose timeline contribution may still be active,
+	 * ordered most-recent-first (index 0 = the part taken from immediately before current).
+	 * Most callers only need `previous[0]`; timeline generation iterates the whole array.
+	 */
+	previous: SelectedPartInstanceTimelineInfo[]
 	current?: SelectedPartInstanceTimelineInfo
 	next?: SelectedPartInstanceTimelineInfo
 }
@@ -293,7 +298,7 @@ export async function getTimelineRundown(
 
 		const currentPartInstance = playoutModel.currentPartInstance
 		const nextPartInstance = playoutModel.nextPartInstance
-		const previousPartInstance = playoutModel.previousPartInstance
+		const previousPartInstances = playoutModel.previousPartInstances
 
 		const partForRundown = currentPartInstance || nextPartInstance
 		const activeRundown = partForRundown && playoutModel.getRundown(partForRundown.partInstance.rundownId)
@@ -327,12 +332,15 @@ export async function getTimelineRundown(
 					showStyle.sourceLayers,
 					nextPartInstance
 				),
-				previous: getPartInstanceTimelineInfo(
-					absolutePiecePrepareTime,
-					targetNowTime,
-					showStyle.sourceLayers,
-					previousPartInstance
-				),
+				previous: previousPartInstances.flatMap((pi) => {
+					const info = getPartInstanceTimelineInfo(
+						absolutePiecePrepareTime,
+						targetNowTime,
+						showStyle.sourceLayers,
+						pi
+					)
+					return info ? [info] : []
+				}),
 			}
 
 			if (partInstancesInfo.next && nextPartInstance) {
@@ -386,7 +394,7 @@ export async function getTimelineRundown(
 					context.getShowStyleBlueprintConfig(showStyle),
 					playoutModel.playlist,
 					activeRundown.rundown,
-					previousPartInstance?.partInstance,
+					previousPartInstances.map((pi) => pi.partInstance),
 					currentPartInstance?.partInstance,
 					nextPartInstance?.partInstance,
 					resolvedPieces

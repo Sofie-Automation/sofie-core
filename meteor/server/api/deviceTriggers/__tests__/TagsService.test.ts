@@ -40,6 +40,13 @@ const tag2 = 'tag2'
 const tag3 = 'tag3'
 
 const tag4 = 'tag4'
+const tag5 = 'tag5'
+const tag6 = 'tag6'
+
+const partInstanceId3 = protectString<PartInstanceId>('partInstance3')
+const partInstanceId4 = protectString<PartInstanceId>('partInstance4')
+const pieceInstanceId4 = protectString<PieceInstanceId>('pieceInstance4')
+const pieceInstanceId5 = protectString<PieceInstanceId>('pieceInstance5')
 
 function createAndPopulateMockCache(): ContentCache {
 	const newCache: ContentCache = {
@@ -232,5 +239,165 @@ describe('TagsService', () => {
 		const result = testee.updatePieceInstances(cache, showStyleBaseId)
 
 		expect(result).toEqual(true)
+	})
+
+	test('piece in previousPartsInfo[0] (most-recent previous) is treated as on-air', () => {
+		// partInstanceId3 = previous (index 0), partInstanceId0 = current
+		const testee = createTestee()
+		const cache: ContentCache = {
+			RundownPlaylists: new ReactiveCacheCollection('rundownPlaylists'),
+			ShowStyleBases: new ReactiveCacheCollection('showStyleBases'),
+			PieceInstances: new ReactiveCacheCollection('pieceInstances'),
+			PartInstances: new ReactiveCacheCollection('partInstances'),
+		}
+		cache.RundownPlaylists.insert({
+			_id: playlistId,
+			activationId,
+			previousPartsInfo: [{ partInstanceId: partInstanceId3 }],
+			currentPartInfo: { partInstanceId: partInstanceId0 },
+			nextPartInfo: { partInstanceId: partInstanceId1 },
+		} as DBRundownPlaylist)
+		cache.ShowStyleBases.insert({
+			_id: showStyleBaseId,
+			sourceLayersWithOverrides: wrapDefaultObject(
+				normalizeArray(
+					[
+						literal<ISourceLayer>({
+							_id: sourceLayerId0,
+							_rank: 0,
+							name: 'Camera',
+							type: SourceLayerType.CAMERA,
+						}),
+					],
+					'_id'
+				)
+			),
+		} as DBShowStyleBase)
+		// Piece in the previous part — started playback, not yet stopped
+		cache.PieceInstances.insert({
+			_id: pieceInstanceId4,
+			piece: {
+				tags: [tag5],
+				sourceLayerId: sourceLayerId0,
+				enable: { start: 0 },
+				lifespan: PieceLifespan.WithinPart,
+			},
+			partInstanceId: partInstanceId3,
+			plannedStartedPlayback: 1000,
+		} as PieceInstance)
+		// Piece in the current part
+		cache.PieceInstances.insert({
+			_id: pieceInstanceId0,
+			piece: {
+				tags: [tag0],
+				sourceLayerId: sourceLayerId0,
+				enable: { start: 0 },
+				lifespan: PieceLifespan.WithinPart,
+			},
+			partInstanceId: partInstanceId0,
+		} as PieceInstance)
+		cache.PartInstances.insert({ _id: partInstanceId3 } as DBPartInstance)
+		cache.PartInstances.insert({ _id: partInstanceId0 } as DBPartInstance)
+		cache.PartInstances.insert({ _id: partInstanceId1 } as DBPartInstance)
+
+		testee.updatePieceInstances(cache, showStyleBaseId)
+
+		// tag5 is from previous part → on-air; tag0 is from current → on-air; neither is next
+		expect(testee.getTallyStateFromTags({ currentPieceTags: [tag5] } as IWrappedAdLib)).toEqual({
+			isActive: true,
+			isNext: false,
+		})
+		expect(testee.getTallyStateFromTags({ currentPieceTags: [tag0] } as IWrappedAdLib)).toEqual({
+			isActive: true,
+			isNext: false,
+		})
+	})
+
+	test('pieces in all entries of previousPartsInfo are treated as on-air', () => {
+		// partInstanceId4 = older previous (index 1), partInstanceId3 = recent previous (index 0), partInstanceId0 = current
+		const testee = createTestee()
+		const cache: ContentCache = {
+			RundownPlaylists: new ReactiveCacheCollection('rundownPlaylists'),
+			ShowStyleBases: new ReactiveCacheCollection('showStyleBases'),
+			PieceInstances: new ReactiveCacheCollection('pieceInstances'),
+			PartInstances: new ReactiveCacheCollection('partInstances'),
+		}
+		cache.RundownPlaylists.insert({
+			_id: playlistId,
+			activationId,
+			// most-recent-first: index 0 = partInstanceId3, index 1 = partInstanceId4
+			previousPartsInfo: [{ partInstanceId: partInstanceId3 }, { partInstanceId: partInstanceId4 }],
+			currentPartInfo: { partInstanceId: partInstanceId0 },
+		} as DBRundownPlaylist)
+		cache.ShowStyleBases.insert({
+			_id: showStyleBaseId,
+			sourceLayersWithOverrides: wrapDefaultObject(
+				normalizeArray(
+					[
+						literal<ISourceLayer>({
+							_id: sourceLayerId0,
+							_rank: 0,
+							name: 'Camera',
+							type: SourceLayerType.CAMERA,
+						}),
+					],
+					'_id'
+				)
+			),
+		} as DBShowStyleBase)
+		// Piece in the most-recent previous part (index 0)
+		cache.PieceInstances.insert({
+			_id: pieceInstanceId4,
+			piece: {
+				tags: [tag5],
+				sourceLayerId: sourceLayerId0,
+				enable: { start: 0 },
+				lifespan: PieceLifespan.WithinPart,
+			},
+			partInstanceId: partInstanceId3,
+			plannedStartedPlayback: 1000,
+		} as PieceInstance)
+		// Piece in the older previous part (index 1) — still has started playback, not stopped
+		cache.PieceInstances.insert({
+			_id: pieceInstanceId5,
+			piece: {
+				tags: [tag6],
+				sourceLayerId: sourceLayerId0,
+				enable: { start: 0 },
+				lifespan: PieceLifespan.WithinPart,
+			},
+			partInstanceId: partInstanceId4,
+			plannedStartedPlayback: 500,
+		} as PieceInstance)
+		// Piece in the current part
+		cache.PieceInstances.insert({
+			_id: pieceInstanceId0,
+			piece: {
+				tags: [tag0],
+				sourceLayerId: sourceLayerId0,
+				enable: { start: 0 },
+				lifespan: PieceLifespan.WithinPart,
+			},
+			partInstanceId: partInstanceId0,
+		} as PieceInstance)
+		cache.PartInstances.insert({ _id: partInstanceId4 } as DBPartInstance)
+		cache.PartInstances.insert({ _id: partInstanceId3 } as DBPartInstance)
+		cache.PartInstances.insert({ _id: partInstanceId0 } as DBPartInstance)
+
+		testee.updatePieceInstances(cache, showStyleBaseId)
+
+		// All three tags should be on-air
+		expect(testee.getTallyStateFromTags({ currentPieceTags: [tag5] } as IWrappedAdLib)).toEqual({
+			isActive: true,
+			isNext: false,
+		})
+		expect(testee.getTallyStateFromTags({ currentPieceTags: [tag6] } as IWrappedAdLib)).toEqual({
+			isActive: true,
+			isNext: false,
+		})
+		expect(testee.getTallyStateFromTags({ currentPieceTags: [tag0] } as IWrappedAdLib)).toEqual({
+			isActive: true,
+			isNext: false,
+		})
 	})
 })

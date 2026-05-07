@@ -228,5 +228,8 @@ export function reportPartInstanceHasStopped(
 
 	if (timestampUpdated) {
 		playoutModel.queuePartInstanceTimingEvent(partInstance.partInstance._id)
+		// A part just stopped — good opportunity to re-evaluate whether any previous-part entries
+		// have passed their timeline group end time and can be pruned.
+		playoutModel.prunePreviousPartInstances(timestamp)
 	}
 }

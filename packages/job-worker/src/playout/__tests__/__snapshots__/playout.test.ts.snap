@@ -72,7 +72,7 @@ exports[`Playout API Basic rundown control 4`] = `
   "name": "Default RundownPlaylist",
   "nextPartInfo": null,
   "nextTimeOffset": null,
-  "previousPartInfo": null,
+  "previousPartsInfo": [],
   "rehearsal": false,
   "resetTime": 0,
   "rundownIdsInOrder": [],

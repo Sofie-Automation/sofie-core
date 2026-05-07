@@ -43,7 +43,7 @@ export function defaultRundownPlaylist(_id: RundownPlaylistId, studioId: StudioI
 		rehearsal: false,
 		currentPartInfo: null,
 		nextPartInfo: null,
-		previousPartInfo: null,
+		previousPartsInfo: [],
 		timing: {
 			type: 'none' as any,
 		},

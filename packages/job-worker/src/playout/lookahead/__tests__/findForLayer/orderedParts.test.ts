@@ -38,7 +38,16 @@ describe('findLookaheadForLayer - orderedParts', () => {
 			.mockReturnValueOnce(['t6', 't7'] as any)
 			.mockReturnValueOnce(['t8', 't9'] as any)
 
-		const res2 = findLookaheadForLayer(context, {}, orderedParts, layer, 1, 4, onAirPlayoutState, null)
+		const res2 = findLookaheadForLayer(
+			context,
+			{ previous: [] },
+			orderedParts,
+			layer,
+			1,
+			4,
+			onAirPlayoutState,
+			null
+		)
 
 		expect(res2.timed).toHaveLength(0)
 		expect(res2.future).toEqual(['t0', 't1'])
@@ -58,7 +67,16 @@ describe('findLookaheadForLayer - orderedParts', () => {
 	test('returns nothing when target index is 0', () => {
 		findLookaheadObjectsForPartMock.mockReturnValue([])
 
-		const res3 = findLookaheadForLayer(context, {}, orderedParts, layer, 0, 4, onAirPlayoutState, null)
+		const res3 = findLookaheadForLayer(
+			context,
+			{ previous: [] },
+			orderedParts,
+			layer,
+			0,
+			4,
+			onAirPlayoutState,
+			null
+		)
 
 		expect(res3.timed).toHaveLength(0)
 		expect(res3.future).toHaveLength(0)
@@ -74,7 +92,16 @@ describe('findLookaheadForLayer - orderedParts', () => {
 			.mockReturnValueOnce(['t6', 't7'] as any) // 4th part
 			.mockReturnValueOnce(['t8', 't9'] as any) // 5th part - we shouldn't see objects from this one due to the maximum search distance
 
-		const res4 = findLookaheadForLayer(context, {}, orderedParts, layer, 100, 5, onAirPlayoutState, null)
+		const res4 = findLookaheadForLayer(
+			context,
+			{ previous: [] },
+			orderedParts,
+			layer,
+			100,
+			5,
+			onAirPlayoutState,
+			null
+		)
 
 		expect(res4.timed).toHaveLength(0)
 		expect(res4.future).toEqual(['t0', 't1', 't2', 't3', 't4', 't5', 't6', 't7'])

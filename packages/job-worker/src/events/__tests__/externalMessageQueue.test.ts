@@ -50,7 +50,7 @@ describe('Test external message queue static methods', () => {
 				manuallySelected: false,
 				consumesQueuedSegmentId: false,
 			},
-			previousPartInfo: null,
+			previousPartsInfo: [],
 			activationId: protectString('active'),
 			timing: {
 				type: PlaylistTimingType.None,
@@ -200,7 +200,7 @@ describe('Test sending messages to mocked endpoints', () => {
 				manuallySelected: false,
 				consumesQueuedSegmentId: false,
 			},
-			previousPartInfo: null,
+			previousPartsInfo: [],
 			activationId: protectString('active'),
 			timing: {
 				type: PlaylistTimingType.None,

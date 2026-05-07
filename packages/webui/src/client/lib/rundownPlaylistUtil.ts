@@ -90,7 +90,7 @@ export class RundownPlaylistClientUtil {
 	}
 
 	static getSelectedPartInstances(
-		playlist: Pick<DBRundownPlaylist, '_id' | 'currentPartInfo' | 'previousPartInfo' | 'nextPartInfo'>,
+		playlist: Pick<DBRundownPlaylist, '_id' | 'currentPartInfo' | 'previousPartsInfo' | 'nextPartInfo'>,
 		rundownIds0?: RundownId[]
 	): {
 		currentPartInstance: PartInstance | undefined
@@ -105,7 +105,7 @@ export class RundownPlaylistClientUtil {
 
 		const ids = _.compact([
 			playlist.currentPartInfo?.partInstanceId,
-			playlist.previousPartInfo?.partInstanceId,
+			playlist.previousPartsInfo?.[0]?.partInstanceId,
 			playlist.nextPartInfo?.partInstanceId,
 		])
 		const instances =
@@ -135,7 +135,9 @@ export class RundownPlaylistClientUtil {
 		return {
 			currentPartInstance: instances.find((inst) => inst._id === playlist.currentPartInfo?.partInstanceId),
 			nextPartInstance: instances.find((inst) => inst._id === playlist.nextPartInfo?.partInstanceId),
-			previousPartInstance: instances.find((inst) => inst._id === playlist.previousPartInfo?.partInstanceId),
+			previousPartInstance: instances.find(
+				(inst) => inst._id === playlist.previousPartsInfo?.[0]?.partInstanceId
+			),
 			partInstanceToCountTimeFrom,
 		}
 	}

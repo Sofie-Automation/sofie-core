@@ -29,7 +29,7 @@ const DEFAULT_UNCONFIGURED_T_TIMERS: ActivePlaylistEvent['tTimers'] = [
 
 function makeEmptyTestPartInstances(): SelectedPartInstances {
 	return {
-		previous: undefined,
+		previous: [],
 		current: undefined,
 		firstInSegmentPlayout: undefined,
 		inCurrentSegment: [],

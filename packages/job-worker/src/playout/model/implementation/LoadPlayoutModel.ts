@@ -264,7 +264,7 @@ async function loadPartInstances(
 	const selectedPartInstanceIds = _.compact([
 		playlist.currentPartInfo?.partInstanceId,
 		playlist.nextPartInfo?.partInstanceId,
-		playlist.previousPartInfo?.partInstanceId,
+		...(playlist.previousPartsInfo ?? []).map((info) => info.partInstanceId),
 	])
 
 	const partInstancesCollection = Promise.resolve().then(async () => {
