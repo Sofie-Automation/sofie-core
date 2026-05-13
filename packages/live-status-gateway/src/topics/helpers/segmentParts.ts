@@ -9,10 +9,10 @@ export function getCurrentSegmentParts(
 	segmentPartInstances: DBPartInstance[],
 	segmentParts: DBPart[]
 ): CurrentSegmentPart[] {
-	const partInstancesByPartId: Record<string, { _id: string | PartInstanceId; part: DBPart }> = _.indexBy(
-		segmentPartInstances,
-		(partInstance) => unprotectString(partInstance.part._id)
-	)
+	const partInstancesByPartId: Record<
+		string,
+		{ _id: string | PartInstanceId; part: DBPart; orphaned?: DBPartInstance['orphaned'] }
+	> = _.indexBy(segmentPartInstances, (partInstance) => unprotectString(partInstance.part._id))
 	segmentParts.forEach((part) => {
 		const partId = unprotectString(part._id)
 		if (partInstancesByPartId[partId]) return
@@ -22,13 +22,16 @@ export function getCurrentSegmentParts(
 		}
 		partInstancesByPartId[partId] = partInstance
 	})
-	return Object.values<{ _id: string | PartInstanceId; part: DBPart }>(partInstancesByPartId)
+	return Object.values<{ _id: string | PartInstanceId; part: DBPart; orphaned?: DBPartInstance['orphaned'] }>(
+		partInstancesByPartId
+	)
 		.sort((a, b) => a.part._rank - b.part._rank)
 		.map(
 			(partInstance): CurrentSegmentPart => ({
 				id: unprotectString(partInstance.part._id),
 				name: partInstance.part.title,
 				autoNext: partInstance.part.autoNext,
+				createdByAdLib: partInstance.orphaned === 'adlib-part',
 				timing: {
 					expectedDurationMs: partInstance.part.expectedDuration,
 				},
