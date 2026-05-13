@@ -45,6 +45,7 @@
 		"@sofie-automation/job-worker": "portal:../packages/job-worker",
 		"@sofie-automation/meteor-lib": "portal:../packages/meteor-lib",
 		"@sofie-automation/shared-lib": "portal:../packages/shared-lib",
+		"@swc/helpers": "0.5.17",
 		"bcrypt": "^6.0.0",
 		"deep-extend": "0.6.0",
 		"deepmerge": "^4.3.1",
@@ -64,7 +65,6 @@
 		"semver": "^7.7.4",
 		"superfly-timeline": "9.2.0",
 		"threadedclass": "^1.4.0",
-		"timecode": "0.0.4",
 		"type-fest": "^4.41.0",
 		"underscore": "^1.13.8",
 		"winston": "^3.19.0"
@@ -72,6 +72,10 @@
 	"devDependencies": {
 		"@babel/core": "^7.29.0",
 		"@babel/plugin-transform-modules-commonjs": "^7.28.6",
+		"@meteorjs/rspack": "2.0.1",
+		"@rsdoctor/rspack-plugin": "1.5.7",
+		"@rspack/cli": "1.7.1",
+		"@rspack/core": "1.7.1",
 		"@shopify/jest-koa-mocks": "^5.3.1",
 		"@sofie-automation/code-standard-preset": "^3.2.2",
 		"@types/deep-extend": "^0.6.2",

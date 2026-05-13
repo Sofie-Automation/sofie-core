@@ -19,3 +19,9 @@ client/ui/Shelf/Keyboard
 !.yarn/sdks
 !.yarn/versions
 
+
+# Meteor Modern-Tools build context directories
+_build
+*/build-assets
+*/build-chunks
+.rsdoctor

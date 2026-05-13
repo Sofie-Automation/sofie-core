@@ -8,6 +8,7 @@ WORKDIR /opt/core/packages
 RUN rm -R *-gateway documentation openapi
 RUN corepack enable
 RUN yarn install && yarn build
+RUN cd webui && yarn build
 
 # Install production dependencies for the worker
 # HACK: 
