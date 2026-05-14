@@ -3,9 +3,10 @@ import { CoreHandler } from './coreHandler.js'
 import { WebSocket, WebSocketServer } from 'ws'
 import { StudioHandler } from './collections/studioHandler.js'
 import { ShowStyleBaseHandler } from './collections/showStyleBaseHandler.js'
+import { ShowStyleBasesHandler } from './collections/showStyleBasesHandler.js'
 import { PlaylistHandler, PlaylistsHandler } from './collections/playlistHandler.js'
 import { RundownHandler } from './collections/rundownHandler.js'
-// import { RundownsHandler } from './collections/rundownsHandler.js'
+import { RundownsHandler } from './collections/rundownsHandler.js'
 import { SegmentHandler } from './collections/segmentHandler.js'
 // import { PartHandler } from './collections/part.js'
 import { PartInstancesHandler } from './collections/partInstancesHandler.js'
@@ -35,19 +36,28 @@ import { NotificationsTopic } from './topics/notificationsTopic.js'
 import { PlaylistNotificationsHandler } from './collections/notifications/playlistNotificationsHandler.js'
 import { RundownNotificationsHandler } from './collections/notifications/rundownNotificationsHandler.js'
 import { wsConnectionsGauge } from './wsMetrics.js'
+import { ResolvedPlaylistTopic } from './topics/resolvedPlaylistTopic.js'
+import { PartInstancesInPlaylistHandler } from './collections/partInstancesInPlaylistHandler.js'
+import { PiecesInPlaylistHandler } from './collections/piecesInPlaylistHandler.js'
+import { PieceInstancesInPlaylistHandler } from './collections/pieceInstancesInPlaylistHandler.js'
 
 export interface CollectionHandlers {
 	studioHandler: StudioHandler
 	showStyleBaseHandler: ShowStyleBaseHandler
+	showStyleBasesHandler: ShowStyleBasesHandler
 	playlistHandler: PlaylistHandler
 	playlistsHandler: PlaylistsHandler
 	rundownHandler: RundownHandler
+	rundownsHandler: RundownsHandler
 	segmentsHandler: SegmentsHandler
 	segmentHandler: SegmentHandler
 	partsHandler: PartsHandler
 	partHandler: PartHandler
 	partInstancesHandler: PartInstancesHandler
+	partInstancesInPlaylistHandler: PartInstancesInPlaylistHandler
 	pieceInstancesHandler: PieceInstancesHandler
+	piecesInPlaylistHandler: PiecesInPlaylistHandler
+	pieceInstancesInPlaylistHandler: PieceInstancesInPlaylistHandler
 	adLibActionsHandler: AdLibActionsHandler
 	adLibsHandler: AdLibsHandler
 	globalAdLibActionsHandler: GlobalAdLibActionsHandler
@@ -78,15 +88,20 @@ export class LiveStatusServer {
 
 		const studioHandler = new StudioHandler(this._logger, this._coreHandler)
 		const showStyleBaseHandler = new ShowStyleBaseHandler(this._logger, this._coreHandler)
+		const showStyleBasesHandler = new ShowStyleBasesHandler(this._logger, this._coreHandler)
 		const playlistHandler = new PlaylistHandler(this._logger, this._coreHandler)
 		const playlistsHandler = playlistHandler.playlistsHandler
-		const rundownHandler = new RundownHandler(this._logger, this._coreHandler)
+		const rundownsHandler = new RundownsHandler(this._logger, this._coreHandler)
+		const rundownHandler = new RundownHandler(this._logger, this._coreHandler, rundownsHandler)
 		const segmentsHandler = new SegmentsHandler(this._logger, this._coreHandler)
 		const segmentHandler = new SegmentHandler(this._logger, this._coreHandler, segmentsHandler)
 		const partsHandler = new PartsHandler(this._logger, this._coreHandler)
 		const partHandler = new PartHandler(this._logger, this._coreHandler, partsHandler)
 		const partInstancesHandler = new PartInstancesHandler(this._logger, this._coreHandler)
+		const partInstancesInPlaylistHandler = new PartInstancesInPlaylistHandler(this._logger, this._coreHandler)
+		const piecesInPlaylistHandler = new PiecesInPlaylistHandler(this._logger, this._coreHandler)
 		const pieceInstancesHandler = new PieceInstancesHandler(this._logger, this._coreHandler)
+		const pieceInstancesInPlaylistHandler = new PieceInstancesInPlaylistHandler(this._logger, this._coreHandler)
 		const adLibActionsHandler = new AdLibActionsHandler(this._logger, this._coreHandler)
 		const adLibsHandler = new AdLibsHandler(this._logger, this._coreHandler)
 		const globalAdLibActionsHandler = new GlobalAdLibActionsHandler(this._logger, this._coreHandler)
@@ -102,15 +117,20 @@ export class LiveStatusServer {
 		const handlers: CollectionHandlers = {
 			studioHandler,
 			showStyleBaseHandler,
+			showStyleBasesHandler,
 			playlistHandler,
 			playlistsHandler,
 			rundownHandler,
+			rundownsHandler,
 			segmentsHandler,
 			segmentHandler,
 			partsHandler,
 			partHandler,
 			partInstancesHandler,
+			partInstancesInPlaylistHandler,
 			pieceInstancesHandler,
+			piecesInPlaylistHandler,
+			pieceInstancesInPlaylistHandler,
 			adLibActionsHandler,
 			adLibsHandler,
 			globalAdLibActionsHandler,
@@ -132,6 +152,7 @@ export class LiveStatusServer {
 		const activePiecesTopic = new ActivePiecesTopic(this._logger, handlers)
 		const activePlaylistTopic = new ActivePlaylistTopic(this._logger, handlers)
 		const segmentsTopic = new SegmentsTopic(this._logger, handlers)
+		const resolvedPlaylistTopic = new ResolvedPlaylistTopic(this._logger, handlers)
 		const adLibsTopic = new AdLibsTopic(this._logger, handlers)
 		const notificationsTopic = new NotificationsTopic(this._logger, handlers)
 		const packageStatusTopic = new PackagesTopic(this._logger, handlers)
@@ -139,6 +160,7 @@ export class LiveStatusServer {
 
 		rootChannel.addTopic(SubscriptionName.STUDIO, studioTopic)
 		rootChannel.addTopic(SubscriptionName.ACTIVE_PLAYLIST, activePlaylistTopic)
+		rootChannel.addTopic(SubscriptionName.RESOLVED_PLAYLIST, resolvedPlaylistTopic)
 		rootChannel.addTopic(SubscriptionName.ACTIVE_PIECES, activePiecesTopic)
 		rootChannel.addTopic(SubscriptionName.SEGMENTS, segmentsTopic)
 		rootChannel.addTopic(SubscriptionName.AD_LIBS, adLibsTopic)

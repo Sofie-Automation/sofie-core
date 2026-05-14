@@ -214,7 +214,7 @@ export const SegmentListContainer = withResolvedSegment<IProps>(function Segment
 				onPieceDoubleClick={props.onPieceDoubleClick}
 				hideRundownHeader={props.hideRundownHeader}
 			/>
-			{props.segmentui.showShelf && props.adLibSegmentUi && (
+			{props.segmentui.displayMinishelf && props.adLibSegmentUi && (
 				<RundownViewShelf
 					studio={props.studio}
 					segment={props.segmentui}

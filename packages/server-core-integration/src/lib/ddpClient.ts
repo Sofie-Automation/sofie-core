@@ -9,7 +9,7 @@
 import WebSocket from 'ws'
 import * as EJSON from 'ejson'
 import { EventEmitter } from 'events'
-import { ProtectedString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
+import type { ProtectedString } from '@sofie-automation/shared-lib/dist/lib/protectedString.js'
 
 export interface DDPTLSOptions {
 	// Described in https://nodejs.org/api/tls.html#tls_tls_connect_options_callback

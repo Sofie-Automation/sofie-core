@@ -15,11 +15,11 @@ import {
 	PeripheralDevicePubSubCollectionsNames,
 	stringifyError,
 	SubscriptionId,
+	Queue,
 } from '@sofie-automation/server-core-integration'
 import type { IngestRundownStatus } from '@sofie-automation/shared-lib/dist/ingest/rundownStatus'
 import type { RundownId } from '@sofie-automation/shared-lib/dist/core/model/Ids'
 import type * as winston from 'winston'
-import { Queue } from '@sofie-automation/server-core-integration/dist/lib/queue'
 import { diffStatuses } from './diff.js'
 import { mosStatusQueueDepthGauge, mosStatusSentCounter, mosStatusSkippedCounter } from '../mosMetrics.js'
 

@@ -1,0 +1,11 @@
+index: 2
+label: 'Show Timer'
+configured: true
+mode:
+  $ref: './timerModeFreeRun-example.yaml'
+state:
+  paused: false
+  zeroTime: 1706371800000
+  pauseTime: null
+projected: null
+anchorPartId: null

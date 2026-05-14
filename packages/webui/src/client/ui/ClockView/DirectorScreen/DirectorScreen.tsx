@@ -141,7 +141,6 @@ export interface DirectorScreenTrackedProps {
 	nextShowStyleBaseId: ShowStyleBaseId | undefined
 	showStyleBaseIds: ShowStyleBaseId[]
 	rundownIds: RundownId[]
-	partInstanceToCountTimeFrom: PartInstance | undefined
 }
 
 function getShowStyleBaseIdSegmentPartUi(
@@ -270,7 +269,6 @@ const getDirectorScreenReactive = (props: DirectorScreenProps): DirectorScreenTr
 	let nextSegment: SegmentUi | undefined = undefined
 	let nextPartInstanceUi: PartUi | undefined = undefined
 	let nextShowStyleBaseId: ShowStyleBaseId | undefined = undefined
-	let partInstanceToCountTimeFromUi: PartInstance | undefined = undefined
 
 	if (playlist) {
 		rundowns = RundownPlaylistCollectionUtil.getRundownsOrdered(playlist)
@@ -283,10 +281,7 @@ const getDirectorScreenReactive = (props: DirectorScreenProps): DirectorScreenTr
 		}
 
 		showStyleBaseIds = rundowns.map((rundown) => rundown.showStyleBaseId)
-		const { currentPartInstance, nextPartInstance, partInstanceToCountTimeFrom } =
-			RundownPlaylistClientUtil.getSelectedPartInstances(playlist)
-
-		partInstanceToCountTimeFromUi = partInstanceToCountTimeFrom
+		const { currentPartInstance, nextPartInstance } = RundownPlaylistClientUtil.getSelectedPartInstances(playlist)
 
 		const partInstance = currentPartInstance ?? nextPartInstance
 		if (partInstance) {
@@ -356,7 +351,6 @@ const getDirectorScreenReactive = (props: DirectorScreenProps): DirectorScreenTr
 		nextSegment,
 		nextPartInstance: nextPartInstanceUi,
 		nextShowStyleBaseId,
-		partInstanceToCountTimeFrom: partInstanceToCountTimeFromUi,
 	}
 }
 
@@ -380,6 +374,7 @@ function useDirectorScreenSubscriptions(props: DirectorScreenProps): void {
 
 	useSubscription(CorelibPubSub.segments, rundownIds, {})
 	useSubscription(CorelibPubSub.parts, rundownIds, null)
+	useSubscription(MeteorPubSub.uiParts, playlist?._id ?? null)
 	useSubscription(MeteorPubSub.uiPartInstances, playlist?.activationId ?? null)
 	useSubscriptions(
 		MeteorPubSub.uiShowStyleBase,
@@ -388,11 +383,7 @@ function useDirectorScreenSubscriptions(props: DirectorScreenProps): void {
 	useSubscription(CorelibPubSub.showStyleVariants, null, showStyleVariantIds)
 	useSubscription(MeteorPubSub.rundownLayouts, showStyleBaseIds)
 
-	const {
-		currentPartInstance,
-		nextPartInstance,
-		partInstanceToCountTimeFrom: firstTakenPartInstance,
-	} = useTracker(
+	const { currentPartInstance, nextPartInstance } = useTracker(
 		() => {
 			const playlist = RundownPlaylists.findOne(props.playlistId, {
 				fields: {
@@ -410,7 +401,6 @@ function useDirectorScreenSubscriptions(props: DirectorScreenProps): void {
 					currentPartInstance: undefined,
 					nextPartInstance: undefined,
 					previousPartInstance: undefined,
-					partInstanceToCountTimeFrom: undefined,
 				}
 			}
 		},
@@ -419,14 +409,12 @@ function useDirectorScreenSubscriptions(props: DirectorScreenProps): void {
 			currentPartInstance: undefined,
 			nextPartInstance: undefined,
 			previousPartInstance: undefined,
-			partInstanceToCountTimeFrom: undefined,
 		}
 	)
 
 	useSubscriptions(CorelibPubSub.pieceInstances, [
 		currentPartInstance && [[currentPartInstance.rundownId], [currentPartInstance._id], {}],
 		nextPartInstance && [[nextPartInstance.rundownId], [nextPartInstance._id], {}],
-		firstTakenPartInstance && [[firstTakenPartInstance.rundownId], [firstTakenPartInstance._id], {}],
 	])
 }
 
@@ -448,7 +436,6 @@ function DirectorScreenRender({
 	nextPartInstance,
 	nextSegment,
 	rundownIds,
-	partInstanceToCountTimeFrom,
 }: Readonly<DirectorScreenProps & DirectorScreenTrackedProps>) {
 	useSetDocumentClass('dark', 'xdark')
 	const { t } = useTranslation()
@@ -575,7 +562,7 @@ function DirectorScreenRender({
 
 		return (
 			<div className="director-screen">
-				<DirectorScreenTop partInstanceToCountTimeFrom={partInstanceToCountTimeFrom} playlist={playlist} />
+				<DirectorScreenTop playlist={playlist} />
 				<div className="director-screen__body">
 					{
 						// Current Part:

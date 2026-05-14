@@ -77,6 +77,7 @@ export function makeMockHandlers(): CollectionHandlers {
 		playlistHandler: makeMockHandler(),
 		playlistsHandler: makeMockHandler(),
 		rundownHandler: makeMockHandler(),
+		rundownsHandler: makeMockHandler(),
 		segmentHandler: makeMockHandler(),
 		segmentsHandler: makeMockHandler(),
 		showStyleBaseHandler: makeMockHandler(),

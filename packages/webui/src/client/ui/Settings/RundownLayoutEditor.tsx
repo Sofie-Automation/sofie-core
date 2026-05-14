@@ -32,7 +32,6 @@ import { MeteorCall } from '../../lib/meteorApi.js'
 import { defaultColorPickerPalette } from '../../lib/colorPicker.js'
 import { FilterEditor } from './components/FilterEditor.js'
 import ShelfLayoutSettings from './components/rundownLayouts/ShelfLayoutSettings.js'
-import RundownHeaderLayoutSettings from './components/rundownLayouts/RundownHeaderLayoutSettings.js'
 import RundownViewLayoutSettings from './components/rundownLayouts/RundownViewLayoutSettings.js'
 import type { RundownLayoutId, ShowStyleBaseId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import type { OutputLayers, SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
@@ -299,7 +298,6 @@ const RundownLayoutEditorContent = withTranslation()(
 
 			const isShelfLayout = RundownLayoutsAPI.isLayoutForShelf(item)
 			const isRundownViewLayout = RundownLayoutsAPI.isLayoutForRundownView(item)
-			const isRundownHeaderLayout = RundownLayoutsAPI.isLayoutForRundownHeader(item)
 
 			return (
 				<React.Fragment>
@@ -329,7 +327,6 @@ const RundownLayoutEditorContent = withTranslation()(
 						></EditAttribute>
 					</label>
 					{isShelfLayout && <ShelfLayoutSettings item={item} />}
-					{isRundownHeaderLayout && <RundownHeaderLayoutSettings item={item} />}
 					{isRundownViewLayout && (
 						<RundownViewLayoutSettings
 							item={item}

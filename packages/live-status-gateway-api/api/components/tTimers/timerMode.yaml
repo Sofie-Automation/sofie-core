@@ -15,3 +15,7 @@ $defs:
       - $ref: '#/$defs/timerModeCountdown'
       - $ref: '#/$defs/timerModeFreeRun'
       - $ref: '#/$defs/timerModeTimeOfDay'
+    examples:
+      - $ref: './timerModeCountdown-example.yaml'
+      - $ref: './timerModeFreeRun-example.yaml'
+      - $ref: './timerModeTimeOfDay-example.yaml'

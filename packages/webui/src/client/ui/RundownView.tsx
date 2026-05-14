@@ -52,7 +52,6 @@ import {
 	type RundownLayoutBase,
 	type RundownViewLayout,
 	type RundownLayoutShelfBase,
-	type RundownLayoutRundownHeader,
 	type RundownLayoutFilterBase,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import { VirtualElement } from '../lib/VirtualElement.js'
@@ -180,7 +179,6 @@ interface ITrackedProps {
 
 	selectedShelfLayout: RundownLayoutShelfBase | undefined
 	selectedViewLayout: RundownViewLayout | undefined
-	selectedHeaderLayout: RundownLayoutRundownHeader | undefined
 	selectedMiniShelfLayout: RundownLayoutShelfBase | undefined
 
 	/** MiniShelf data */
@@ -1027,15 +1025,16 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 									const DASHBOARD_PANEL_HEIGHT = 200
 									// Minimum height for hidden segments to prevent layout issues
 									const HIDDEN_SEGMENT_MIN_HEIGHT = 10
+									const showMiniShelf = !!segment.displayMinishelf
 
 									if (segment.isHidden) {
 										// Hidden segments don't render the timeline at all
-										// They only render the dashboard panel if showShelf is true
-										return segment.showShelf ? DASHBOARD_PANEL_HEIGHT : HIDDEN_SEGMENT_MIN_HEIGHT
+										// They only render the dashboard panel if displayMinishelf is set
+										return showMiniShelf ? DASHBOARD_PANEL_HEIGHT : HIDDEN_SEGMENT_MIN_HEIGHT
 									}
 
 									// Normal segment: base timeline height + optional dashboard panel
-									return segment.showShelf ? BASE_SEGMENT_HEIGHT + DASHBOARD_PANEL_HEIGHT : BASE_SEGMENT_HEIGHT
+									return showMiniShelf ? BASE_SEGMENT_HEIGHT + DASHBOARD_PANEL_HEIGHT : BASE_SEGMENT_HEIGHT
 								}
 
 								const segmentPlaceholderHeight = calculatePlaceholderHeight(segment)
@@ -1045,7 +1044,7 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 										<VirtualElement
 											className={classNames({
 												'segment-timeline-wrapper--hidden': segment.isHidden,
-												'segment-timeline-wrapper--shelf': segment.showShelf,
+												'segment-timeline-wrapper--shelf': !!segment.displayMinishelf,
 											})}
 											id={SEGMENT_TIMELINE_ELEMENT_ID + segment._id}
 											margin={'100% 0px 100% 0px'}
@@ -1408,15 +1407,9 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 												<RundownHeader
 													playlist={playlist}
 													studio={studio}
-													rundownIds={this.props.rundowns.map((r) => r._id)}
 													firstRundown={this.props.rundowns[0]}
-													onActivate={this.onActivate}
-													inActiveRundownView={this.props.inActiveRundownView}
 													currentRundown={currentRundown}
 													rundownCount={this.props.rundowns.length}
-													layout={this.props.selectedHeaderLayout}
-													showStyleBase={showStyleBase}
-													showStyleVariant={showStyleVariant}
 												/>
 											</ErrorBoundary>
 										)}
@@ -1661,7 +1654,6 @@ function findRundownLayouts(rundownLayouts: RundownLayoutBase[] | undefined, par
 	const shelfLayoutId = protectString<RundownLayoutId>(
 		(params['layout'] as string) || (params['shelfLayout'] as string) || ''
 	)
-	const rundownHeaderLayoutId = protectString<RundownLayoutId>((params['rundownHeaderLayout'] as string) || '')
 
 	const selectedViewLayout = useMemo(() => {
 		if (!rundownLayouts) return undefined
@@ -1750,38 +1742,8 @@ function findRundownLayouts(rundownLayouts: RundownLayoutBase[] | undefined, par
 		return selectedShelfLayout
 	}, [rundownLayouts, shelfLayoutId, selectedViewLayout])
 
-	const selectedHeaderLayout = useMemo(() => {
-		if (!rundownLayouts) return undefined
-
-		const possibleHeaderLayouts = rundownLayouts.filter((layout) => RundownLayoutsAPI.isLayoutForRundownHeader(layout))
-
-		// first try to use the one selected by the user
-		let selectedHeaderLayout = possibleHeaderLayouts.find((i) => i._id === rundownHeaderLayoutId)
-
-		// if couldn't find based on id, try matching part of the name
-		if (rundownHeaderLayoutId && !selectedHeaderLayout) {
-			selectedHeaderLayout = possibleHeaderLayouts.find((i) => i.name.includes(unprotectString(rundownHeaderLayoutId)))
-		}
-
-		// Try to load defaults from rundown view layouts
-		if (selectedViewLayout && RundownLayoutsAPI.isLayoutForRundownView(selectedViewLayout)) {
-			if (!selectedHeaderLayout && selectedViewLayout.rundownHeaderLayout) {
-				selectedHeaderLayout = possibleHeaderLayouts.find((i) => i._id === selectedViewLayout.rundownHeaderLayout)
-			}
-		}
-
-		// if still not found, use the first one - this is a fallback functionality reserved for Shelf layouts
-		// To be removed once Rundown View Layouts/Shelf layouts are refactored
-		if (!selectedHeaderLayout) {
-			selectedHeaderLayout = possibleHeaderLayouts.find((layout) => RundownLayoutsAPI.isDefaultLayout(layout))
-		}
-
-		return selectedHeaderLayout
-	}, [rundownLayouts, rundownHeaderLayoutId, selectedViewLayout])
-
 	return {
 		selectedViewLayout,
-		selectedHeaderLayout,
 		selectedMiniShelfLayout,
 		selectedShelfLayout,
 	}

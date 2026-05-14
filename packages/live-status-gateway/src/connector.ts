@@ -53,6 +53,7 @@ export class Connector implements IConnector {
 			await this._liveStatusServer.init()
 
 			this._logger.info('Initialization done')
+			this.initialized = true
 			return
 		} catch (e: any) {
 			this._logger.error('Error during initialization:')

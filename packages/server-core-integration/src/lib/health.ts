@@ -1,8 +1,8 @@
 import Koa from 'koa'
 import Router from '@koa/router'
-import { StatusCode } from '@sofie-automation/shared-lib/dist/lib/status'
-import { assertNever } from '@sofie-automation/shared-lib/dist/lib/lib'
-import { IConnector, ICoreHandler } from './gateway-types.js'
+import { StatusCode } from '@sofie-automation/shared-lib/dist/lib/status.js'
+import { assertNever } from '@sofie-automation/shared-lib/dist/lib/lib.js'
+import type { IConnector, ICoreHandler } from './gateway-types.js'
 import { getPrometheusMetricsString, PrometheusHTTPContentType, setupPrometheusMetrics } from './prometheus.js'
 
 export interface HealthConfig {
@@ -29,7 +29,7 @@ export class HealthEndpoints {
 
 		const router = new Router()
 
-		router.get('/healthz', async (ctx) => {
+		router.get('/healthz', async (ctx: Koa.Context) => {
 			if (this.connector.initializedError !== undefined) {
 				ctx.status = 503
 				ctx.body = `Error during initialization: ${this.connector.initializedError}`
@@ -58,7 +58,7 @@ export class HealthEndpoints {
 			}
 		})
 
-		router.get('/readyz', async (ctx) => {
+		router.get('/readyz', async (ctx: Koa.Context) => {
 			if (!this.coreHandler.connectedToCore) {
 				ctx.status = 503
 				ctx.body = 'Not connected to Core'
@@ -69,7 +69,7 @@ export class HealthEndpoints {
 			ctx.body = 'READY'
 		})
 
-		router.get('/metrics', async (ctx) => {
+		router.get('/metrics', async (ctx: Koa.Context) => {
 			try {
 				ctx.response.type = PrometheusHTTPContentType
 

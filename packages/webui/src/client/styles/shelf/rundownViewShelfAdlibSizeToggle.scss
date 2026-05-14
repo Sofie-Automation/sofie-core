@@ -1,0 +1,48 @@
+.rundown-view-shelf.dashboard-panel {
+	position: relative;
+
+	.rundown-view-shelf__size-toggle-holder {
+		width: 33px;
+		z-index: 4;
+		pointer-events: auto;
+		flex-shrink: 0;
+	}
+
+	.rundown-view-shelf__size-toggle {
+		display: flex;
+		flex-direction: column;
+		> button {
+			border: none;
+			background: transparent;
+			padding: 0.15em 0.5em;
+			line-height: 1;
+			cursor: pointer;
+
+			> svg {
+				color: inherit;
+				> rect {
+					fill: rgba(255, 255, 255, 0.18);
+					transition: fill 0.2s ease;
+				}
+			}
+
+			&:hover {
+				svg > rect {
+					fill: rgba(255, 255, 255, 1);
+				}
+
+				filter: drop-shadow(0px 0px 2px #ffffff);
+			}
+
+			&.active:hover {
+				filter: drop-shadow(0px 0px 2px #ffffff00);
+			}
+
+			&.active {
+				svg > rect {
+					fill: rgba(255, 255, 255, 0.49);
+				}
+			}
+		}
+	}
+}

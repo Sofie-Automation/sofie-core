@@ -1,4 +1,8 @@
-import { ProtectedString, protectString, unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
+import {
+	type ProtectedString,
+	protectString,
+	unprotectString,
+} from '@sofie-automation/shared-lib/dist/lib/protectedString.js'
 import type { DDPConnector } from './ddpConnector.js'
 
 export type SubscriptionId = ProtectedString<'SubscriptionId'>

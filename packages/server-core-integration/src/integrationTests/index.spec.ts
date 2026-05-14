@@ -1,11 +1,11 @@
 jest.dontMock('ddp')
-import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
-import { StatusCode } from '@sofie-automation/shared-lib/dist/lib/status'
+import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString.js'
+import { StatusCode } from '@sofie-automation/shared-lib/dist/lib/status.js'
 import {
 	PERIPHERAL_SUBTYPE_PROCESS,
 	PeripheralDeviceCategory,
 	PeripheralDeviceType,
-} from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI'
+} from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI.js'
 import { CoreConnection, PeripheralDevicePubSub, PeripheralDevicePubSubCollectionsNames } from '../index.js'
 
 process.on('unhandledRejection', (reason) => {

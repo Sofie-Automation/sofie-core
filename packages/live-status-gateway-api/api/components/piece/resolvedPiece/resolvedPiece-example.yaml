@@ -1,0 +1,17 @@
+id: 'piece_1'
+instanceId: 'pieceInstance_1'
+externalId: 'ext_piece_1'
+name: 'Camera 1'
+priority: 0
+sourceLayerId: 'sl_camera'
+outputLayerId: 'ol_pgm'
+createdByAdLib: false
+invalid: false
+publicData:
+  switcherSource: 1
+timing:
+  $ref: '../../timing/resolvedPieceTiming/resolvedPieceTiming-example.yaml'
+tags:
+  - 'camera'
+abSessions:
+  - $ref: '../pieceStatus/abSessionAssignment-example.yaml'

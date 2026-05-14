@@ -1,0 +1,11 @@
+components:
+  messages:
+    resolvedPlaylistMessage:
+      name: resolvedPlaylist
+      messageId: resolvedPlaylistUpdate
+      description: Resolved Playlist status
+      payload:
+        $ref: '../resolvedPlaylistEvent/resolvedPlaylistEvent.yaml#/$defs/resolvedPlaylistEvent'
+      examples:
+        - payload:
+            $ref: '../resolvedPlaylistEvent/resolvedPlaylistEvent-example.yaml'

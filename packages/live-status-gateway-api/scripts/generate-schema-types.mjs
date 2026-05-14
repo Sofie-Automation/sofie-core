@@ -1,8 +1,8 @@
 import { TypeScriptGenerator } from '@asyncapi/modelina'
 import { fromFile, Parser } from '@asyncapi/parser'
 import fs from 'fs/promises'
-import cp from 'child_process'
 import * as path from 'path'
+import * as prettier from 'prettier'
 
 const BANNER =
 	'/* eslint-disable */\n/**\n * This file was automatically generated using and @asyncapi/parser @asyncapi/modelina.\n * DO NOT MODIFY IT BY HAND. Instead, modify the source AsyncAPI schema files,\n * and run "yarn generate-schema-types" to regenerate this file.\n */\n'
@@ -67,7 +67,7 @@ if (!asyncApiDoc.document) {
 	const filteredDiagnostics = asyncApiDoc.diagnostics.filter((d) => d.code !== 'asyncapi-latest-version')
 
 	console.error('No document was produced from the asyncapi parser')
-	console.error(JSON.stringify(filteredDiagnostics.diagnostics))
+	console.error(JSON.stringify(filteredDiagnostics))
 
 	// eslint-disable-next-line n/no-process-exit
 	process.exit(5)
@@ -120,28 +120,10 @@ const allModelsString =
 	'};'
 
 const fileName = path.resolve('src/generated/schema.ts')
-await fs.writeFile(fileName, allModelsString)
 
-// Prettier format the output file:
-await runCmd(`npx prettier --write "${fileName}"`, {
-	// Run from repo root, so that prettier picks up the config
-	cwd: path.resolve('../..'),
-})
+// Format with Prettier before writing:
+const prettierConfig = await prettier.resolveConfig(fileName)
+const formatted = await prettier.format(allModelsString, { ...prettierConfig, filepath: fileName })
+await fs.writeFile(fileName, formatted)
 
 console.log(`Schema types written to ${fileName}`)
-
-async function runCmd(cmd, options) {
-	await new Promise((resolve, reject) => {
-		const child = cp.exec(cmd, options || {}, (err, stdout, stderr) => {
-			if (err) {
-				console.error('stderr', stderr)
-				reject(err)
-			} else {
-				resolve(stdout)
-			}
-		})
-
-		child.stdout.pipe(process.stdout)
-		child.stderr.pipe(process.stderr)
-	})
-}

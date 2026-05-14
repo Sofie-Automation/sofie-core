@@ -1,14 +1,14 @@
-import {
+import type {
 	ExpectedPackageId,
 	ExpectedPackageWorkStatusId,
 	PeripheralDeviceCommandId,
 	PeripheralDeviceId,
 	TimelineHash,
 } from '../core/model/Ids.js'
-import { PeripheralDeviceForDevice } from '../core/model/peripheralDevice.js'
-import { IngestPlaylist, IngestRundown, IngestPart, IngestSegment } from './ingest.js'
-import { MediaObjectRevision } from './mediaManager.js'
-import {
+import type { PeripheralDeviceForDevice } from '../core/model/peripheralDevice.js'
+import type { IngestPlaylist, IngestRundown, IngestPart, IngestSegment } from './ingest.js'
+import type { MediaObjectRevision } from './mediaManager.js'
+import type {
 	IMOSRunningOrder,
 	IMOSRunningOrderBase,
 	IMOSRunningOrderStatus,
@@ -21,10 +21,10 @@ import {
 	IMOSROAction,
 	IMOSROReadyToAir,
 	IMOSROFullStory,
+	IMOSString128,
 } from '@mos-connection/model'
-import { IMOSString128 } from '@mos-connection/model'
-import { ExpectedPackageStatusAPI } from '../package-manager/package.js'
-import {
+import type { ExpectedPackageStatusAPI } from '../package-manager/package.js'
+import type {
 	PeripheralDeviceInitOptions,
 	PeripheralDeviceStatusObject,
 	TimelineTriggerTimeResult,
@@ -32,7 +32,7 @@ import {
 	TimeDiff,
 	PlayoutChangedResults,
 } from './peripheralDeviceAPI.js'
-import { MediaObject } from '../core/model/MediaObjects.js'
+import type { MediaObject } from '../core/model/MediaObjects.js'
 
 export type UpdateExpectedPackageWorkStatusesChanges =
 	| {

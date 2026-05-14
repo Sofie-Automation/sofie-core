@@ -1,0 +1,9 @@
+id: 'rd_1'
+externalId: 'ext_rd_1'
+name: 'Rundown 1'
+rank: 10
+description: ''
+publicData:
+  ingestSource: 'NRK'
+segments:
+  - $ref: '../../segment/resolvedSegment/resolvedSegment-example.yaml'

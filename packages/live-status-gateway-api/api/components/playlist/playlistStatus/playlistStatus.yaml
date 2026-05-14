@@ -21,6 +21,5 @@ $defs:
           - rehearsal
           - activated
     required: [id, externalId, name, activationStatus]
-    additionalProperties: false
     examples:
       - $ref: './playlistStatus-example.yaml'

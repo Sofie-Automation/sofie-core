@@ -12,6 +12,7 @@ import {
 	StatusCode,
 	TSR,
 } from '@sofie-automation/blueprints-integration'
+import { ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 import {
 	PeripheralDeviceType,
 	PeripheralDeviceCategory,
@@ -590,6 +591,7 @@ describe('cronjobs', () => {
 					frameRate: 25,
 					mediaPreviewsUrl: '',
 					minimumTakeSpan: 1000,
+					shelfAdlibButtonSize: ShelfButtonSize.LARGE,
 				}),
 				routeSetsWithOverrides: newObjectWithOverrides({}),
 				routeSetExclusivityGroupsWithOverrides: newObjectWithOverrides({}),

@@ -17,6 +17,7 @@ module.exports = {
 						6133, // Declared but not used
 						6192, // All imports are unused
 						151002, // hybrid module kind (Node16/18/Next)
+						2823, // Import attributes not supported in CJS mode (ts-jest forces CJS, emits require() anyway)
 					],
 				},
 			},
@@ -24,6 +25,8 @@ module.exports = {
 		'^.+\\.(js|jsx|mjs)$': path.resolve('./scripts/babel-jest.mjs'),
 	},
 	moduleNameMapper: {
+		'^@sofie-automation/shared-lib/dist/(.+)\\.js$': '<rootDir>/../shared-lib/src/$1',
+		'^@sofie-automation/shared-lib/dist/(.+)$': '<rootDir>/../shared-lib/src/$1',
 		'(.+)\\.js$': '$1',
 	},
 	transformIgnorePatterns: ['node_modules/(?!(debounce-fn|p-queue|p-timeout)/)', '\\.pnp\\.[^\\/]+$'],

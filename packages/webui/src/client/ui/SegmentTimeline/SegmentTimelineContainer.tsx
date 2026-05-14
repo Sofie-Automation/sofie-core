@@ -695,7 +695,7 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 							showDurationSourceLayers={this.props.showDurationSourceLayers}
 						/>
 					)}
-					{this.props.segmentui.showShelf && this.props.adLibSegmentUi && (
+					{this.props.segmentui.displayMinishelf && this.props.adLibSegmentUi && (
 						<RundownViewShelf
 							studio={this.props.studio}
 							segment={this.props.segmentui}

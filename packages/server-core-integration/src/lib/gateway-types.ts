@@ -1,4 +1,4 @@
-import { StatusCode } from '@sofie-automation/shared-lib/dist/lib/status'
+import type { StatusCode } from '@sofie-automation/shared-lib/dist/lib/status.js'
 
 export interface IConnector {
 	initialized: boolean

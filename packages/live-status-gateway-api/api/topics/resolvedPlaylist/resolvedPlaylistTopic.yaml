@@ -1,0 +1,8 @@
+description: Topic for resolved playlist updates
+
+subscribe:
+  operationId: receiveResolvedPlaylist
+  description: Server sends resolved playlist events
+  message:
+    oneOf:
+      - $ref: '../../components/resolvedPlaylist/messages/resolvedPlaylistMessage.yaml#/components/messages/resolvedPlaylistMessage'

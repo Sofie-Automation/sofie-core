@@ -1,4 +1,5 @@
 import { UserEditingDefinition, UserEditingProperties } from '../userEditing.js'
+import { ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 
 export enum SegmentDisplayMode {
 	Timeline = 'timeline',
@@ -40,7 +41,19 @@ export interface IBlueprintSegment<TPrivateData = unknown, TPublicData = unknown
 	/** User-facing identifier that can be used by the User to identify the contents of a segment in the Rundown source system */
 	identifier?: string
 
-	/** Show the minishelf of the segment */
+	/**
+	 * Control display of the segment minishelf.
+	 * - unset: minishelf is not shown
+	 * - inherit: show minishelf, use studio default size
+	 * - large/compact: show minishelf, force that size
+	 */
+	displayMinishelf?: ShelfButtonSize
+
+	/**
+	 * @deprecated Use `displayMinishelf` instead.
+	 * - `true`: show minishelf, using studio default size (equivalent to `displayMinishelf: 'inherit'`)
+	 * - `false`: hide minishelf (equivalent to `displayMinishelf: undefined`)
+	 */
 	showShelf?: boolean
 	/** Segment display mode. Default mode is *SegmentDisplayMode.Timeline* */
 	displayAs?: SegmentDisplayMode

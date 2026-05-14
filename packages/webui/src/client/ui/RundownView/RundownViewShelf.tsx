@@ -9,8 +9,8 @@ import type {
 	SourceLayers,
 	UIShowStyleBase,
 } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { DashboardPieceButton } from '../Shelf/DashboardPieceButton.js'
 import type { IBlueprintActionTriggerMode, ISourceLayer } from '@sofie-automation/blueprints-integration'
+import { ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 import { contextMenuHoldToDisplayTime, UserAgentPointer, USER_AGENT_POINTER_PROPERTY } from '../../lib/lib.js'
 import {
 	type DashboardLayoutFilter,
@@ -33,6 +33,17 @@ import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'
 import { ContextType, setShelfContextMenuContext } from '../Shelf/ShelfContextMenu.js'
 import type { PartInstanceId, PieceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import { DashboardPieceButton } from '../Shelf/DashboardPieceButton/DashboardPieceButton.js'
+import { RundownViewShelfAdlibSizeToggle } from './RundownViewShelfAdlibSizeToggle'
+
+function resolveMiniShelfCompact(segment: SegmentUi, studio: UIStudio): boolean {
+	const displayMinishelf = segment.displayMinishelf
+	if (displayMinishelf === ShelfButtonSize.COMPACT) return true
+	if (displayMinishelf === ShelfButtonSize.LARGE) return false
+
+	// inherit
+	return studio.settings.shelfAdlibButtonSize === ShelfButtonSize.COMPACT
+}
 
 interface IRundownViewShelfProps {
 	studio: UIStudio
@@ -56,6 +67,7 @@ interface IRundownViewShelfTrackedProps {
 
 interface IRundownViewShelfState {
 	singleClickMode: boolean
+	adlibSizeOverride: 'compact' | 'large' | undefined
 }
 
 class RundownViewShelfInner extends React.Component<
@@ -68,6 +80,7 @@ class RundownViewShelfInner extends React.Component<
 		super(props)
 		this.state = {
 			singleClickMode: false,
+			adlibSizeOverride: undefined,
 		}
 	}
 
@@ -205,9 +218,22 @@ class RundownViewShelfInner extends React.Component<
 	render(): JSX.Element | null {
 		const { pieces } = this.props.adLibSegmentUi
 		if (!pieces.length) return null
+		const inheritedSize: 'compact' | 'large' = resolveMiniShelfCompact(this.props.segment, this.props.studio)
+			? 'compact'
+			: 'large'
+		const effectiveSize = this.state.adlibSizeOverride ?? inheritedSize
+		const compact = effectiveSize === 'compact'
 		return (
 			<div className="rundown-view-shelf dashboard-panel" ref={this.setRef}>
-				<div className="rundown-view-shelf__identifier">{this.props.segment.identifier}</div>
+				<div className="rundown-view-shelf__size-toggle-holder">
+					<RundownViewShelfAdlibSizeToggle
+						value={effectiveSize}
+						onChange={(adlibSizeOverride) => this.setState({ adlibSizeOverride })}
+						ariaLabel={this.props.t('AdLib size override')}
+						compactLabel={this.props.t('Compact')}
+						largeLabel={this.props.t('Large')}
+					/>
+				</div>
 				<div className="dashboard-panel__panel">
 					{pieces.map((adLibPiece) => {
 						return (
@@ -244,12 +270,12 @@ class RundownViewShelfInner extends React.Component<
 									isOnAir={this.isAdLibOnAir(adLibPiece)}
 									isNext={this.isAdLibNext(adLibPiece)}
 									displayStyle={PieceDisplayStyle.BUTTONS}
-									widthScale={3.27} // @todo: css
 									isSelected={false}
 									toggleOnSingleClick={
 										(this.props.miniShelfFilter as DashboardLayoutFilter)?.toggleOnSingleClick ||
 										this.state.singleClickMode
 									}
+									compact={compact}
 								>
 									{adLibPiece.name}
 								</DashboardPieceButton>

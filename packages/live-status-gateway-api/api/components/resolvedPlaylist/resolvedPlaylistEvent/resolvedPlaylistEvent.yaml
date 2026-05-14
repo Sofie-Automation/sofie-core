@@ -1,0 +1,51 @@
+title: Resolved Playlist
+description: Resolved Playlist schema for websocket subscriptions
+$defs:
+  resolvedPlaylistEvent:
+    title: ResolvedPlaylistEvent
+    description: Resolved playlist details, including the base playlist status.
+    allOf:
+      - $ref: '../../playlist/playlistStatus/playlistStatus.yaml#/$defs/playlistStatus'
+      - type: object
+        title: ResolvedPlaylistEvent
+        description: Resolved playlist details, including rundown/segment/part/piece structure.
+        properties:
+          event:
+            type: string
+            const: resolvedPlaylist
+          currentPartInstanceId:
+            description: Instance id of the current part, if any
+            oneOf:
+              - type: string
+              - type: 'null'
+          nextPartInstanceId:
+            description: Instance id of the next part, if any
+            oneOf:
+              - type: string
+              - type: 'null'
+          playoutState:
+            description: Blueprint-defined playout state, used to expose arbitrary information about playout
+          publicData:
+            description: Optional arbitrary data
+          timing:
+            $ref: '../../timing/resolvedPlaylistTiming/resolvedPlaylistTiming.yaml#/$defs/resolvedPlaylistTiming'
+          tTimers:
+            description: Status of the 3 T-timers in the playlist
+            type: array
+            items:
+              $ref: '../../tTimers/tTimerStatus.yaml#/$defs/tTimerStatus'
+            minItems: 3
+            maxItems: 3
+          quickLoop:
+            description: Information about the current quickLoop, if any
+            oneOf:
+              - type: 'null'
+              - $ref: '../../quickLoop/activePlaylistQuickLoop/activePlaylistQuickLoop.yaml#/$defs/activePlaylistQuickLoop'
+          rundowns:
+            description: The rundowns in the playlist, in rank order
+            type: array
+            items:
+              $ref: '../../rundown/resolvedRundown/resolvedRundown.yaml#/$defs/resolvedRundown'
+        required: [event, currentPartInstanceId, nextPartInstanceId, timing, tTimers, rundowns]
+    examples:
+      - $ref: './resolvedPlaylistEvent-example.yaml'

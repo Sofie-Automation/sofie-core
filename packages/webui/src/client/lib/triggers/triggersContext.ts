@@ -11,7 +11,6 @@ import { Tracker } from 'meteor/tracker'
 import {
 	AdLibActions,
 	AdLibPieces,
-	Parts,
 	RundownBaselineAdLibActions,
 	RundownBaselineAdLibPieces,
 	RundownPlaylists,
@@ -27,6 +26,7 @@ import type { ReactiveVar as MeteorReactiveVar } from 'meteor/reactive-var'
 import type { TriggerReactiveVar } from '@sofie-automation/meteor-lib/dist/triggers/reactive-var'
 import type { FindOptions, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { memoizedIsolatedAutorunAsync } from '../memoizedIsolatedAutorun.js'
+import { UIParts } from '../../ui/Collections.js'
 
 class UiTriggersCollectionWrapper<
 	DBInterface extends { _id: ProtectedString<any> },
@@ -67,7 +67,7 @@ export const UiTriggersContext: TriggersContext = {
 
 	AdLibActions: new UiTriggersCollectionWrapper(AdLibActions),
 	AdLibPieces: new UiTriggersCollectionWrapper(AdLibPieces),
-	Parts: new UiTriggersCollectionWrapper(Parts),
+	Parts: new UiTriggersCollectionWrapper(UIParts),
 	RundownBaselineAdLibActions: new UiTriggersCollectionWrapper(RundownBaselineAdLibActions),
 	RundownBaselineAdLibPieces: new UiTriggersCollectionWrapper(RundownBaselineAdLibPieces),
 	RundownPlaylists: new UiTriggersCollectionWrapper(RundownPlaylists),

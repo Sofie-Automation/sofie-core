@@ -70,19 +70,27 @@
 		align-items: center;
 		justify-content: space-between;
 		background: transparent;
+		overflow-x: auto;
+		overflow-y: hidden;
+		gap: 2em;
 	}
 
 	.rundown-header__left {
 		display: flex;
 		align-items: center;
 		flex: 1 1 0px;
-		min-width: 0;
 
 		.rundown-header__left-context-menu-wrapper {
 			display: flex;
 			align-items: center;
 			gap: 2.5em;
 			height: 100%;
+		}
+
+		.rundown-header__onair-wrapper {
+			min-width: 9.5em;
+			display: flex;
+			align-items: center;
 		}
 	}
 
@@ -91,7 +99,6 @@
 		align-items: center;
 		justify-content: flex-end;
 		flex: 1 1 0px;
-		min-width: 0;
 		gap: 1em;
 	}
 
@@ -100,7 +107,6 @@
 		align-items: center;
 		justify-content: center;
 		flex: none;
-		min-width: 0;
 		.timing-clock {
 			color: #ffffff;
 			font-size: 1.4em;

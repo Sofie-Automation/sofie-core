@@ -69,7 +69,7 @@
 		"ts-jest": "^29.4.9",
 		"ts-node": "^10.9.2",
 		"typedoc": "^0.27.9",
-		"typescript": "~5.7.3"
+		"typescript": "~5.9.3"
 	},
 	"name": "packages",
 	"packageManager": "yarn@4.14.1",

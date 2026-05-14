@@ -98,7 +98,7 @@
 		"open-cli": "^9.0.0",
 		"prettier": "^3.8.3",
 		"ts-jest": "^29.4.9",
-		"typescript": "~5.7.3",
+		"typescript": "~5.9.3",
 		"yargs": "^17.7.2"
 	},
 	"prettier": "@sofie-automation/code-standard-preset/.prettierrc.json",

@@ -1,0 +1,56 @@
+$defs:
+  resolvedPartState:
+    title: ResolvedPartState
+    type: string
+    enum:
+      - current
+      - next
+
+  resolvedPart:
+    title: ResolvedPart
+    description: A part within a resolved segment
+    allOf:
+      - $ref: '../partBase/partBase.yaml#/$defs/partBase'
+      - type: object
+        title: ResolvedPart
+        description: A part within a resolved segment
+        properties:
+          instanceId:
+            type: string
+            description: Unique id of the part instance
+          externalId:
+            type: string
+            description: Id normally sourced from the ingest system
+          rank:
+            type: number
+            description: Rank for ordering
+          invalid:
+            type: boolean
+            description: Whether this part is invalid and should not be taken
+          floated:
+            type: boolean
+            description: Whether this part is floated and cannot be taken/nexted
+          untimed:
+            type: boolean
+            description: Whether this part is excluded from normal timing calculations
+          invalidReason:
+            description: Optional explanation for why the part is invalid
+            $ref: '../partInvalidReason/partInvalidReason.yaml#/$defs/partInvalidReason'
+          state:
+            description: Set only for the current or next part
+            $ref: '#/$defs/resolvedPartState'
+          createdByAdLib:
+            type: boolean
+            description: Whether this part was created by an adlib
+          publicData:
+            description: Optional arbitrary data
+          timing:
+            $ref: '../../timing/resolvedPartTiming/resolvedPartTiming.yaml#/$defs/resolvedPartTiming'
+          pieces:
+            description: Pieces in this part
+            type: array
+            items:
+              $ref: '../../piece/resolvedPiece/resolvedPiece.yaml#/$defs/resolvedPiece'
+        required: [instanceId, externalId, rank, createdByAdLib, timing, pieces, invalid, floated, untimed]
+    examples:
+      - $ref: './resolvedPart-example.yaml'
