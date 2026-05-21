@@ -175,12 +175,12 @@ $break-width: 35rem;
 	}
 }
 
-body.vertical-overflow-only {
+.vertical-overflow-only {
 	overflow-x: hidden;
 	overflow-y: auto;
 }
 
-body.no-overflow {
+.no-overflow {
 	overflow-x: hidden;
 	overflow-y: hidden;
 }
