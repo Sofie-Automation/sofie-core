@@ -243,9 +243,8 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 			themeColor.setAttribute('content', '#000000')
 		}
 
-		document.body.classList.add(
-			'dark',
-			'xdark',
+		document.body.classList.add('dark', 'xdark')
+		document.documentElement.classList.add(
 			'prompter-scrollbar',
 			this.configOptions.showScroll ? 'vertical-overflow-only' : 'no-overflow'
 		)
@@ -266,9 +265,8 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 			themeColor.setAttribute('content', themeColor.getAttribute('data-content') || '#ffffff')
 		}
 
-		document.body.classList.remove(
-			'dark',
-			'xdark',
+		document.body.classList.remove('dark', 'xdark')
+		document.documentElement.classList.remove(
 			'prompter-scrollbar',
 			this.configOptions.showScroll ? 'vertical-overflow-only' : 'no-overflow'
 		)
