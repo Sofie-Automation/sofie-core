@@ -210,7 +210,7 @@ interface CurrentPartStatus {
 	/**
 	 * Whether this part was created by an adlib
 	 */
-	createdByAdLib?: boolean
+	createdByAdLib: boolean
 	/**
 	 * If this part will progress to the next automatically
 	 */
@@ -355,7 +355,7 @@ interface CurrentSegmentPart {
 	/**
 	 * Whether this part was created by an adlib
 	 */
-	createdByAdLib?: boolean
+	createdByAdLib: boolean
 	/**
 	 * If this part will progress to the next automatically
 	 */
@@ -384,7 +384,7 @@ interface PartStatus {
 	/**
 	 * Whether this part was created by an adlib
 	 */
-	createdByAdLib?: boolean
+	createdByAdLib: boolean
 	/**
 	 * If this part will progress to the next automatically
 	 */
@@ -870,6 +870,10 @@ interface ResolvedPart {
 	 */
 	name: string
 	/**
+	 * Whether this part was created by an adlib
+	 */
+	createdByAdLib: boolean
+	/**
 	 * If this part will progress to the next automatically
 	 */
 	autoNext?: boolean
@@ -905,10 +909,6 @@ interface ResolvedPart {
 	 * Set only for the current or next part
 	 */
 	state?: ResolvedPartState
-	/**
-	 * Whether this part was created by an adlib
-	 */
-	createdByAdLib: boolean
 	/**
 	 * Optional arbitrary data
 	 */

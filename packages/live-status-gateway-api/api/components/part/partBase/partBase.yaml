@@ -17,6 +17,6 @@ $defs:
         description: If this part will progress to the next automatically
         type: boolean
         default: false
-    required: [id, name]
+    required: [id, name, createdByAdLib]
     examples:
       - $ref: './partBase-example.yaml'

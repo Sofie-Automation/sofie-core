@@ -392,6 +392,7 @@ channels:
                               required:
                                 - id
                                 - name
+                                - createdByAdLib
                               examples:
                                 - id: H5CBGYjThrMSmaYvRaa5FVKJIzk_
                                   name: Intro
@@ -1358,9 +1359,6 @@ channels:
                                                 enum:
                                                   - current
                                                   - next
-                                              createdByAdLib:
-                                                type: boolean
-                                                description: Whether this part was created by an adlib
                                               publicData:
                                                 description: Optional arbitrary data
                                               timing:
@@ -1507,7 +1505,6 @@ channels:
                                               - instanceId
                                               - externalId
                                               - rank
-                                              - createdByAdLib
                                               - timing
                                               - pieces
                                               - invalid
