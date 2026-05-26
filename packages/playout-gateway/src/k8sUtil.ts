@@ -12,7 +12,7 @@ export class KubernetesRestarter {
 	}
 	static readonly k8sConfig = {
 		deployment_name: process.env.DEPLOYMENT_NAME || 'sofie-playout-gateway',
-		runs_on_k8s: `${process.env.RUNS_ON_K8S}.toLocaleLowerCase` === 'true',
+		runs_on_k8s: `${process.env.RUNS_ON_K8S}`.toLowerCase() === 'true',
 	}
 	static canUseK8sRestarter(): boolean {
 		return KubernetesRestarter.k8sConfig.runs_on_k8s
