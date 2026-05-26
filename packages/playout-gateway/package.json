@@ -61,6 +61,7 @@
 	},
 	"dependencies": {
 		"@koa/router": "^14.0.0",
+		"@kubernetes/client-node": "^1.4.0",
 		"@sofie-automation/server-core-integration": "1.52.18-nrk",
 		"@sofie-automation/shared-lib": "1.52.18-nrk",
 		"debug": "^4.4.0",
