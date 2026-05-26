@@ -1,12 +1,12 @@
 import { AppsV1Api, KubeConfig, PatchStrategy, setHeaderOptions } from '@kubernetes/client-node'
-import fs from 'node:fs'
+import * as fs from 'node:fs/promises'
 import { Logger } from 'winston'
 
 export class KubernetesRestarter {
 	private static namespaceCache: string | null = null
 	static async getNamespace(): Promise<string> {
 		KubernetesRestarter.namespaceCache ??= (
-			await fs.promises.readFile('/var/run/secrets/kubernetes.io/serviceaccount/namespace', 'utf8')
+			await fs.readFile('/var/run/secrets/kubernetes.io/serviceaccount/namespace', 'utf8')
 		).trim()
 		return KubernetesRestarter.namespaceCache
 	}
