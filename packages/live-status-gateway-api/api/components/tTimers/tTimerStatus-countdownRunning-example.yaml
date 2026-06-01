@@ -1,0 +1,12 @@
+index: 1
+label: 'Segment Timer'
+configured: true
+mode:
+  $ref: './timerModeCountdown-example.yaml'
+state:
+  $ref: './timerStateRunning-example.yaml'
+projected:
+  paused: false
+  zeroTime: 1706371925000
+  pauseTime: null
+anchorPartId: 'part_break_1'

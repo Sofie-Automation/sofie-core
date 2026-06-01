@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useState } from 'react'
 import { ClientActions, PlayoutActions, type SomeAction } from '@sofie-automation/blueprints-integration'
-import { useTranslation, type TFunction } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { assertNever } from '@sofie-automation/corelib/dist/lib'
 import { sameWidth } from '../../../../../../lib/popperUtils.js'
 import { usePopper } from 'react-popper'

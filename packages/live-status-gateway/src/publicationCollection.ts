@@ -5,8 +5,8 @@ import {
 	CollectionDocCheck,
 	PeripheralDevicePubSubCollections,
 	ProtectedString,
+	ParametersOfFunctionOrNever,
 } from '@sofie-automation/server-core-integration'
-import { ParametersOfFunctionOrNever } from '@sofie-automation/server-core-integration/dist/lib/subscriptions'
 import { Logger } from 'winston'
 import { CollectionBase, DEFAULT_THROTTLE_PERIOD_MS } from './collectionBase.js'
 import { CoreHandler } from './coreHandler.js'

@@ -1,81 +1,66 @@
-import {
-	PlannedEndComponent,
-	TimeSincePlannedEndComponent,
-	TimeToPlannedEndComponent,
-} from '../../../lib/Components/CounterComponents'
+import { PlannedEndComponent, TimeToFromPlannedEndComponent } from '../../../lib/Components/CounterComponents'
 import { useTiming } from '../../RundownView/RundownTiming/withTiming.js'
 import { getPlaylistTimingDiff } from '../../../lib/rundownTiming.js'
+import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
 import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { getCurrentTime } from '../../../lib/systemTime.js'
 import { useTranslation } from 'react-i18next'
-import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
-import type { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance'
 import { OverUnderChip } from '../../../lib/Components/OverUnderChip.js'
 
 export interface DirectorScreenTopProps {
 	playlist: DBRundownPlaylist
-	partInstanceToCountTimeFrom: PartInstance | undefined
 }
 
-export function DirectorScreenTop({
-	playlist,
-	partInstanceToCountTimeFrom,
-}: Readonly<DirectorScreenTopProps>): JSX.Element {
+export function DirectorScreenTop({ playlist }: Readonly<DirectorScreenTopProps>): JSX.Element {
 	const timingDurations = useTiming()
-
-	const rehearsalInProgress = Boolean(playlist.rehearsal && partInstanceToCountTimeFrom?.timings?.take)
-
-	const expectedStart = rehearsalInProgress
-		? partInstanceToCountTimeFrom?.timings?.take || 0
-		: PlaylistTiming.getExpectedStart(playlist.timing) || 0
-	const expectedDuration = PlaylistTiming.getExpectedDuration(playlist.timing) || 0
-
-	const expectedEnd = rehearsalInProgress
-		? (partInstanceToCountTimeFrom?.timings?.take || 0) + expectedDuration
-		: PlaylistTiming.getExpectedEnd(playlist.timing)
+	const { t } = useTranslation()
 
 	const now = timingDurations.currentTime ?? getCurrentTime()
-
 	const overUnderClock = getPlaylistTimingDiff(playlist, timingDurations) ?? 0
+	const rehearsalInProgress = Boolean(playlist.rehearsal && playlist.startedPlayback)
 
-	const { t } = useTranslation()
+	const startedPlayback = playlist.activationId ? playlist.startedPlayback : undefined
+
+	const estimatedEnd = PlaylistTiming.getEstimatedEnd(
+		playlist.timing,
+		now,
+		timingDurations.remainingPlaylistDuration,
+		startedPlayback
+	)
+
+	const remainingDuration = PlaylistTiming.getRemainingDuration(
+		playlist.timing,
+		now,
+		timingDurations.remainingPlaylistDuration,
+		startedPlayback
+	)
 
 	return (
 		<>
 			<div className="director-screen__top">
-				{expectedEnd ? (
+				{estimatedEnd !== undefined ? (
 					<div className="director-screen__top__planned-end">
 						<div>
-							<PlannedEndComponent value={expectedEnd} />
+							<PlannedEndComponent value={estimatedEnd} />
 						</div>
-						{t('Planned End')}
+						{rehearsalInProgress ? t('Rehearsal end') : t('Estimated end')}
 					</div>
 				) : null}
-				{expectedEnd && expectedEnd > now ? (
-					<div className="director-screen__top__time-to director-screen__top__planned-container director-screen__top__center">
-						<div>
-							<TimeToPlannedEndComponent value={now - expectedEnd} />
-						</div>
-						<span className="director-screen__top__planned-to director-screen__top__center">
-							{rehearsalInProgress ? t('Time to rehearsal end') : t('Time to planned end')}
-						</span>
-					</div>
-				) : (
+
+				{remainingDuration !== undefined ? (
 					<div className="director-screen__top__planned-container director-screen__top__center">
 						<div>
-							<TimeSincePlannedEndComponent
-								value={
-									rehearsalInProgress
-										? (partInstanceToCountTimeFrom?.timings?.take || 0) + expectedDuration - now
-										: now - (expectedStart + expectedDuration)
-								}
-							/>
+							<TimeToFromPlannedEndComponent value={-remainingDuration} />
 						</div>
-						<span className="director-screen__top__planned-since director-screen__top__center">
-							{rehearsalInProgress ? t('Time since rehearsal end') : t('Time since planned end')}
+						<span className="director-screen__top__center">
+							{rehearsalInProgress
+								? remainingDuration >= 0
+									? t('Time to rehearsal end')
+									: t('Time since rehearsal end')
+								: t('Remaining duration')}
 						</span>
 					</div>
-				)}
+				) : null}
 				<div className="director-screen__top__spacer"></div>
 			</div>
 			<OverUnderChip className="screen-timing-clock over-under-chip--overlay" valueMs={overUnderClock} />

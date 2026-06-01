@@ -1,6 +1,6 @@
 import { unprotectString, protectString } from '../../lib/protectedString.js'
-import { TSR } from '../../tsr.js'
-import { MappingsHash, PeripheralDeviceId, StudioId, TimelineBlob, TimelineHash } from './Ids.js'
+import type { TSR } from '../../tsr.js'
+import type { MappingsHash, PeripheralDeviceId, StudioId, TimelineBlob, TimelineHash } from './Ids.js'
 
 /**
  * This defines a session, indicating that this TimelineObject uses an AB player

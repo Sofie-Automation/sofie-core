@@ -1,7 +1,8 @@
 import { addMigrationSteps } from './databaseMigration'
 import { CURRENT_SYSTEM_VERSION } from './currentSystemVersion'
-import { RundownPlaylists } from '../collections'
+import { RundownPlaylists, Segments, Studios } from '../collections'
 import { ContainerIdsToObjectWithOverridesMigrationStep } from './steps/X_X_X/ContainerIdsToObjectWithOverridesMigrationStep'
+import { ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 
 /*
  * **************************************************************************************
@@ -77,6 +78,70 @@ export const addSteps = addMigrationSteps(CURRENT_SYSTEM_VERSION, [
 							{ index: 2, label: '', mode: null, state: null },
 							{ index: 3, label: '', mode: null, state: null },
 						],
+					},
+				},
+				{ multi: true }
+			)
+		},
+	},
+	{
+		id: `studios settings create default shelfAdlibButtonSize=large`,
+		canBeRunAutomatically: true,
+		validate: async () => {
+			const studios = await Studios.findFetchAsync({
+				'settingsWithOverrides.defaults.shelfAdlibButtonSize': { $exists: false },
+			})
+
+			if (studios.length > 0) return `Some studios are missing settings default shelfAdlibButtonSize`
+			return false
+		},
+		migrate: async () => {
+			const studios = await Studios.findFetchAsync({
+				'settingsWithOverrides.defaults.shelfAdlibButtonSize': { $exists: false },
+			})
+
+			for (const studio of studios) {
+				await Studios.updateAsync(studio._id, {
+					$set: {
+						'settingsWithOverrides.defaults.shelfAdlibButtonSize': ShelfButtonSize.LARGE,
+					},
+				})
+			}
+		},
+	},
+	{
+		id: `segments migrate showShelf to displayMinishelf`,
+		canBeRunAutomatically: true,
+		validate: async () => {
+			const count = await Segments.countDocuments({
+				showShelf: { $exists: true },
+			})
+			if (count > 0) return `There are ${count} Segments with legacy showShelf`
+			return false
+		},
+		migrate: async () => {
+			// showShelf: true => displayMinishelf: inherit (if missing)
+			await Segments.mutableCollection.updateAsync(
+				{
+					showShelf: true,
+					displayMinishelf: { $exists: false },
+				},
+				{
+					$set: {
+						displayMinishelf: ShelfButtonSize.INHERIT,
+					},
+				},
+				{ multi: true }
+			)
+
+			// Always remove legacy field
+			await Segments.mutableCollection.updateAsync(
+				{
+					showShelf: { $exists: true },
+				},
+				{
+					$unset: {
+						showShelf: 1,
 					},
 				},
 				{ multi: true }

@@ -40,7 +40,7 @@ import { CURRENT_SYSTEM_VERSION } from '../migration/currentSystemVersion'
 import { isVersionSupported } from '../migration/databaseMigration'
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
-import { IngestRundown, VTContent } from '@sofie-automation/blueprints-integration'
+import { BlueprintSnapshotType, IngestRundown, VTContent } from '@sofie-automation/blueprints-integration'
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { importIngestRundown } from './ingest/http'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
@@ -327,7 +327,8 @@ function getPiecesMediaObjects(pieces: PieceGeneric[]): string[] {
 
 async function createRundownPlaylistSnapshot(
 	playlist: VerifiedRundownPlaylistForUserAction,
-	options: PlaylistSnapshotOptions
+	options: PlaylistSnapshotOptions,
+	reason?: string
 ): Promise<RundownPlaylistSnapshot> {
 	/** Max count of one type of items to include in the snapshot */
 	const LIMIT_COUNT = 500
@@ -343,6 +344,8 @@ async function createRundownPlaylistSnapshot(
 		playlistId: playlist._id,
 		full: !!options.withArchivedDocuments,
 		withTimeline: !!options.withTimeline,
+		snapshotId,
+		reason,
 	})
 	const coreResult = await queuedJob.complete
 	const coreSnapshot: CoreRundownPlaylistSnapshot = JSONBlobParse(coreResult.snapshotJson)
@@ -693,19 +696,63 @@ export async function storeSystemSnapshot(
 
 	return internalStoreSystemSnapshot(options, reason)
 }
+/**
+ * Runs {@link StudioJobs.OnSystemSnapshotCreated} for each studio after a snapshot is stored.
+ *
+ * Studio-scoped system snapshots run one job; full-system snapshots run one job per studio in the snapshot.
+ * Waits for each blueprint hook to finish; hook failures are logged and do not fail snapshot storage.
+ */
+async function queueOnSystemSnapshotCreatedJobs(
+	storedId: SnapshotId,
+	reason: string,
+	type: BlueprintSnapshotType,
+	options: SystemSnapshotOptions,
+	studioIds: StudioId[]
+): Promise<void> {
+	const fullSystem = !options.studioId
+
+	for (const studioId of studioIds) {
+		try {
+			const job = await QueueStudioJob(StudioJobs.OnSystemSnapshotCreated, studioId, {
+				snapshotId: storedId,
+				reason,
+				type,
+				options: {
+					studioId,
+					withDeviceSnapshots: options.withDeviceSnapshots,
+					fullSystem,
+				},
+			})
+			await job.complete
+		} catch (err) {
+			logger.error(
+				`OnSystemSnapshotCreated failed for snapshot ${storedId} (studio ${studioId}, withDeviceSnapshots=${options.withDeviceSnapshots}): ${stringifyError(err)}`
+			)
+		}
+	}
+}
+
 /** Take and store a system snapshot. For internal use only, performs no access control. */
 export async function internalStoreSystemSnapshot(options: SystemSnapshotOptions, reason: string): Promise<SnapshotId> {
 	check(options.studioId, Match.Optional(String))
 
 	const s = await createSystemSnapshot(options)
-	return storeSnaphot(s, reason)
+	const storedId = await storeSnaphot(s, reason)
+
+	// Full-system snapshots: one blueprint hook job per studio in the snapshot
+	const studioIds = options.studioId ? [options.studioId] : s.studios.map((studio) => studio._id)
+	if (studioIds.length > 0) {
+		await queueOnSystemSnapshotCreatedJobs(storedId, reason, 'system', options, studioIds)
+	}
+
+	return storedId
 }
 export async function storeRundownPlaylistSnapshot(
 	playlist: VerifiedRundownPlaylistForUserAction,
 	options: PlaylistSnapshotOptions,
 	reason: string
 ): Promise<SnapshotId> {
-	const s = await createRundownPlaylistSnapshot(playlist, options)
+	const s = await createRundownPlaylistSnapshot(playlist, options, reason)
 	return storeSnaphot(s, reason)
 }
 export async function internalStoreRundownPlaylistSnapshot(
@@ -713,7 +760,7 @@ export async function internalStoreRundownPlaylistSnapshot(
 	options: PlaylistSnapshotOptions,
 	reason: string
 ): Promise<SnapshotId> {
-	const s = await createRundownPlaylistSnapshot(playlist, options)
+	const s = await createRundownPlaylistSnapshot(playlist, options, reason)
 	return storeSnaphot(s, reason)
 }
 export async function storeDebugSnapshot(
@@ -731,7 +778,13 @@ export async function storeDebugSnapshot(
 	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_SNAPSHOT_MANAGEMENT)
 
 	const s = await createDebugSnapshot(studioId)
-	return storeSnaphot(s, reason)
+	const storedId = await storeSnaphot(s, reason)
+
+	await queueOnSystemSnapshotCreatedJobs(storedId, reason, 'debug', { studioId, withDeviceSnapshots: true }, [
+		studioId,
+	])
+
+	return storedId
 }
 export async function restoreSnapshot(
 	context: MethodContext,

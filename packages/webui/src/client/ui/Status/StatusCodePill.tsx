@@ -1,5 +1,6 @@
 import type * as React from 'react'
-import { useTranslation, type TFunction } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { assertNever } from '@sofie-automation/corelib/dist/lib'
 import ClassNames from 'classnames'
 import { StatusCode } from '@sofie-automation/blueprints-integration'
@@ -28,7 +29,7 @@ export function statusCodeToString(t: TFunction, statusCode: StatusCode): string
 export const StatusCodePill: React.FC<{
 	connected: boolean
 	statusCode: StatusCode
-	messages?: string[]
+	statusDetails?: Array<{ message: string }>
 }> = function StatusCodePill(props) {
 	const { t } = useTranslation()
 
@@ -36,7 +37,7 @@ export const StatusCodePill: React.FC<{
 		return props.connected ? statusCodeToString(t, props.statusCode) : t('Not Connected')
 	}
 	function statusMessages() {
-		const messages = props.messages || []
+		const messages = (props.statusDetails || []).map((d) => d.message)
 		return messages.length ? '"' + messages.join(', ') + '"' : ''
 	}
 	function getStatusClassName(): string {

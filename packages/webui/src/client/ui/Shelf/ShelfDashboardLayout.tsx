@@ -16,15 +16,12 @@ import type { AdLibPieceUi } from '../../lib/shelf.js'
 import { MiniRundownPanel } from './MiniRundownPanel.js'
 import { NextInfoPanel } from './NextInfoPanel.js'
 import { PlaylistStartTimerPanel } from './PlaylistStartTimerPanel.js'
-import { EndWordsPanel } from './EndWordsPanel.js'
 import { PlaylistEndTimerPanel } from './PlaylistEndTimerPanel.js'
 import { SegmentTimingPanel } from './SegmentTimingPanel.js'
 import { PartTimingPanel } from './PartTimingPanel.js'
 import { TextLabelPanel } from './TextLabelPanel.js'
 import { PlaylistNamePanel } from './PlaylistNamePanel.js'
 import { TimeOfDayPanel } from './TimeOfDayPanel.js'
-import { SystemStatusPanel } from './SystemStatusPanel.js'
-import { ShowStylePanel } from './ShowStylePanel.js'
 import type { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
 import { StudioNamePanel } from './StudioNamePanel.js'
 import { SegmentNamePanel } from './SegmentNamePanel.js'
@@ -149,16 +146,6 @@ export function ShelfDashboardLayout(props: Readonly<IShelfDashboardLayoutProps>
 							return (
 								<PlaylistEndTimerPanel key={panel._id} playlist={props.playlist} layout={rundownLayout} panel={panel} />
 							)
-						} else if (RundownLayoutsAPI.isEndWords(panel)) {
-							return (
-								<EndWordsPanel
-									key={panel._id}
-									playlist={props.playlist}
-									layout={rundownLayout}
-									panel={panel}
-									showStyleBase={props.showStyleBase}
-								/>
-							)
 						} else if (RundownLayoutsAPI.isSegmentTiming(panel)) {
 							return (
 								<SegmentTimingPanel
@@ -202,27 +189,6 @@ export function ShelfDashboardLayout(props: Readonly<IShelfDashboardLayoutProps>
 							)
 						} else if (RundownLayoutsAPI.isTimeOfDay(panel)) {
 							return <TimeOfDayPanel key={panel._id} playlist={props.playlist} layout={rundownLayout} panel={panel} />
-						} else if (RundownLayoutsAPI.isSystemStatus(panel)) {
-							return (
-								<SystemStatusPanel
-									key={panel._id}
-									playlistId={props.playlist._id}
-									layout={rundownLayout}
-									panel={panel}
-									studioId={props.studio._id}
-								/>
-							)
-						} else if (RundownLayoutsAPI.isShowStyleDisplay(panel)) {
-							return (
-								<ShowStylePanel
-									key={panel._id}
-									playlist={props.playlist}
-									layout={rundownLayout}
-									panel={panel}
-									showStyleBase={props.showStyleBase}
-									showStyleVariant={props.showStyleVariant}
-								/>
-							)
 						} else if (RundownLayoutsAPI.isColoredBox(panel)) {
 							return <ColoredBoxPanel key={panel._id} playlist={props.playlist} layout={rundownLayout} panel={panel} />
 						} else if (RundownLayoutsAPI.isMiniRundown(panel)) {

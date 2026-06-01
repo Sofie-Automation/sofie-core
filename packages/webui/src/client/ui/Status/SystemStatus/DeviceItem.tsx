@@ -4,7 +4,8 @@ import {
 	PeripheralDeviceType,
 	PERIPHERAL_SUBTYPE_PROCESS,
 } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
-import { type TFunction, useTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import Moment from 'react-moment'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { getCurrentTime } from '../../../lib/systemTime.js'
@@ -62,7 +63,7 @@ export function DeviceItem({
 				<StatusCodePill
 					connected={device.connected}
 					statusCode={device?.status.statusCode}
-					messages={device?.status.messages}
+					statusDetails={device?.status.statusDetails}
 				/>
 
 				<div className="device-item__last-seen">

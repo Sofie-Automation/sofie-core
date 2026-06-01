@@ -1,8 +1,4 @@
-import {
-	MetricsCounter,
-	MetricsGauge,
-	MetricsHistogram,
-} from '@sofie-automation/server-core-integration/dist/lib/prometheus'
+import { MetricsCounter, MetricsGauge, MetricsHistogram } from '@sofie-automation/server-core-integration'
 
 export const playoutDevicesTotalGauge = new MetricsGauge({
 	name: 'sofie_playout_gateway_devices_total',

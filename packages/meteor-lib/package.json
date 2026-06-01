@@ -51,7 +51,7 @@
 		"@types/underscore": "^1.13.0"
 	},
 	"peerDependencies": {
-		"i18next": "^21.10.0",
+		"i18next": "^26.0.4",
 		"mongodb": "^7.1.1"
 	},
 	"prettier": "@sofie-automation/code-standard-preset/.prettierrc.json",

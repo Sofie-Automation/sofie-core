@@ -1,6 +1,6 @@
 export {
-	ProtectedString,
-	ProtectedStringProperties,
+	type ProtectedString,
+	type ProtectedStringProperties,
 	protectString,
 	protectStringArray,
 	protectStringObject,
@@ -10,6 +10,6 @@ export {
 	unprotectObjectArray,
 	unDeepString,
 	isProtectedString,
-	ProtectId,
-	UnprotectedStringProperties,
+	type ProtectId,
+	type UnprotectedStringProperties,
 } from '@sofie-automation/shared-lib/dist/lib/protectedString'

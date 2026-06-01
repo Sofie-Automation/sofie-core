@@ -1,4 +1,4 @@
-import { PartialDeep, ReadonlyDeep } from 'type-fest'
+import type { PartialDeep, ReadonlyDeep } from 'type-fest'
 
 /** Runtime-wise, this is a string.
  * In compile-time, this is used to make sure that the "right" string is provided, typings-wise,

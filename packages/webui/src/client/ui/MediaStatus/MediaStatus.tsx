@@ -122,7 +122,7 @@ function useRundownPlaylists(playlistIds: RundownPlaylistId[]) {
 									privateData: 0,
 									notes: 0,
 									segmentTiming: 0,
-									showShelf: 0,
+									displayMinishelf: 0,
 								},
 							},
 							partInstances: {

@@ -4,8 +4,15 @@
 	"description": "Library for connecting to Core",
 	"main": "dist/index.js",
 	"typings": "dist/index.d.ts",
-	"module": "dist/module/index.js",
-	"browser": "dist/browser/index.js",
+	"type": "module",
+	"exports": {
+		".": {
+			"require": "./dist/index.js",
+			"import": "./dist/index.js",
+			"types": "./dist/index.d.ts"
+		},
+		"./package.json": "./package.json"
+	},
 	"license": "MIT",
 	"repository": {
 		"type": "git",

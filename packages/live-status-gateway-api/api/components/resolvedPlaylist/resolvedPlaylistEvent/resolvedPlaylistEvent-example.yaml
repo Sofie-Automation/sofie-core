@@ -1,0 +1,18 @@
+$ref: '../../playlist/playlistStatus/playlistStatus-example.yaml'
+event: resolvedPlaylist
+currentPartInstanceId: 'partInstance_current_1'
+nextPartInstanceId: 'partInstance_next_1'
+playoutState:
+  mode: 'AUTO'
+publicData:
+  category: 'Evening News'
+timing:
+  $ref: '../../timing/resolvedPlaylistTiming/resolvedPlaylistTiming-example.yaml'
+tTimers:
+  - $ref: '../../tTimers/tTimerStatus-countdownRunning-example.yaml'
+  - $ref: '../../tTimers/tTimerStatus-freeRunRunning-example.yaml'
+  - $ref: '../../tTimers/tTimerStatus-unconfigured-example.yaml'
+quickLoop:
+  $ref: '../../quickLoop/activePlaylistQuickLoop/activePlaylistQuickLoop-example.yaml'
+rundowns:
+  - $ref: '../../rundown/resolvedRundown/resolvedRundown-example.yaml'

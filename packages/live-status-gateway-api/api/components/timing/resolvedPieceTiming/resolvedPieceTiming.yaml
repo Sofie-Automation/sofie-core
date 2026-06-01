@@ -1,0 +1,18 @@
+$defs:
+  resolvedPieceTiming:
+    type: object
+    title: ResolvedPieceTiming
+    description: Timing information about the piece, relative to the start of the part
+    properties:
+      startMs:
+        description: Start offset of the piece (ms) from the beginning of the part
+        type: number
+      durationMs:
+        description: Resolved duration of the piece (ms)
+        type: number
+      prerollMs:
+        description: Preroll duration for the piece (ms)
+        type: number
+    additionalProperties: false
+    examples:
+      - $ref: './resolvedPieceTiming-example.yaml'

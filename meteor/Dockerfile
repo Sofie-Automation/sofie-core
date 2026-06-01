@@ -8,6 +8,7 @@ WORKDIR /opt/core/packages
 RUN rm -R *-gateway documentation openapi
 RUN corepack enable
 RUN yarn install && yarn build
+RUN cd webui && yarn build
 
 # Install production dependencies for the worker
 # HACK: 
@@ -15,7 +16,7 @@ RUN yarn install && yarn build
 
 # BUILD IMAGE
 FROM node:22
-RUN curl "https://install.meteor.com/?release=3.3.2" | sh
+RUN curl "https://install.meteor.com/?release=3.4.1" | sh
 
 # Temporary change the NODE_ENV env variable, so that all libraries are installed:
 ENV NODE_ENV_TMP $NODE_ENV

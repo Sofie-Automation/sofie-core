@@ -16,6 +16,7 @@ import { QuickLoopEnd } from './QuickLoopEnd.js'
 import { getShowHiddenSourceLayers } from '../../lib/localStorage.js'
 import type { PieceExtended, PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 import type { PartExtended } from '@sofie-automation/corelib/src/dataModel/Part.js'
+import { getEffectiveInvalidReason, isPartInstanceInvalid } from '../../lib/partInstanceUtil.js'
 
 const TIMELINE_DEFAULT_BASE = 30 * 1000
 
@@ -100,7 +101,9 @@ export const LinePartTimeline: React.FC<IProps> = function LinePartTimeline({
 	const willAutoNextIntoThisPart = isNext ? currentPartWillAutonext : part.willProbablyAutoNext
 	const willAutoNextOut = !!part.instance.part.autoNext
 
-	const isInvalid = !!part.instance.part.invalid
+	// Check for both planned and runtime invalidReason
+	const effectiveInvalidReason = getEffectiveInvalidReason(part.instance)
+	const isInvalid = isPartInstanceInvalid(part.instance)
 
 	const loop = mainPiece?.instance.piece.content?.loop
 	const endsInFreeze = !part.instance.part.autoNext && !loop && !!mainPiece?.instance.piece.content?.sourceDuration
@@ -140,8 +143,8 @@ export const LinePartTimeline: React.FC<IProps> = function LinePartTimeline({
 					)}
 				</StudioContext.Consumer>
 			)}
-			{part.instance.part.invalid && !part.instance.part.gap && (
-				<InvalidPartCover className="segment-opl__main-piece invalid" part={part.instance.part} align="start" />
+			{isInvalid && !part.instance.part.gap && (
+				<InvalidPartCover className="segment-opl__main-piece invalid" invalidReason={effectiveInvalidReason} />
 			)}
 			{!isLive && !isInvalid && (
 				<TakeLine isNext={isNext} autoNext={willAutoNextIntoThisPart} isQuickLoopStart={isQuickLoopStart} />

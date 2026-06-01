@@ -1,5 +1,6 @@
 import { PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ITranslatableMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
+import { TFunction } from 'i18next'
 import { check } from 'meteor/check'
 import { Meteor } from 'meteor/meteor'
 import _ from 'underscore'
@@ -145,6 +146,10 @@ export async function receiveInputDeviceTrigger(
 		const context = actionManager.getContext()
 		if (!context) throw new Meteor.Error(500, `Undefined Device Trigger context for studio "${studioId}"`)
 
-		await executableAction.execute((t: ITranslatableMessage) => t.key ?? t, `${deviceId}: ${triggerId}`, context)
+		await executableAction.execute(
+			((t: ITranslatableMessage) => t.key ?? t) as unknown as TFunction, // TFunction has some odd generic constraints on the return type now
+			`${deviceId}: ${triggerId}`,
+			context
+		)
 	}
 }

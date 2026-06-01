@@ -855,19 +855,20 @@ export function getPlaylistTimingDiff(
 		frontAnchor = Math.max(currentTime, playlist.startedPlayback ?? Math.max(timing.expectedStart, currentTime))
 	} else if (PlaylistTiming.isPlaylistTimingBackTime(timing)) {
 		backAnchor = timingContext.nextRundownAnchor ?? timing.expectedEnd
-	} else if (PlaylistTiming.isPlaylistDurationTimed(timing)) {
-		const backAnchorTimeWithoutBreaks =
-			timingContext.nextRundownAnchor ??
-			PlaylistTiming.getExpectedEnd(timing, playlist.startedPlayback) ??
-			currentTime + timing.expectedDuration
-		backAnchor = timingContext.nextRundownAnchor ?? backAnchorTimeWithoutBreaks
-		frontAnchor = Math.max(currentTime, playlist.startedPlayback || PlaylistTiming.getExpectedStart(timing) || 0)
 	}
 
-	let diff = PlaylistTiming.isPlaylistTimingNone(timing)
-		? (timingContext.asPlayedPlaylistDuration || 0) -
+	let diff = 0
+	if (PlaylistTiming.isPlaylistTimingNone(timing)) {
+		diff =
+			(timingContext.asPlayedPlaylistDuration || 0) -
 			(timing.expectedDuration ?? timingContext.totalPlaylistDuration ?? 0)
-		: frontAnchor + (timingContext.remainingPlaylistDuration || 0) - backAnchor
+	} else if (PlaylistTiming.isPlaylistDurationTimed(timing)) {
+		diff =
+			(timingContext.asPlayedPlaylistDuration || 0) -
+			(timing.expectedDuration ?? timingContext.totalPlaylistDuration ?? 0)
+	} else {
+		diff = frontAnchor + (timingContext.remainingPlaylistDuration || 0) - backAnchor
+	}
 
 	// handle special cases
 

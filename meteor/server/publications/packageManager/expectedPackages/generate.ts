@@ -127,6 +127,7 @@ function generateExpectedPackageForDevice(
 		expectedPackage: {
 			...expectedPackage.package,
 			_id: expectedPackage._id,
+			rundownId: expectedPackage.rundownId ?? undefined,
 			sideEffect: packageSideEffect,
 		},
 		sources: combinedSources,

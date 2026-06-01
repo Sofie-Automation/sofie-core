@@ -33,7 +33,7 @@ interface IProps {
 	supportedFilters: RundownLayoutElementType[]
 }
 
-export default withTranslation()(
+export const FilterEditor: React.ComponentType<IProps> = withTranslation()(
 	class FilterEditor extends React.Component<Translated<IProps>> {
 		onToggleDefault = (item: RundownLayout, index: number, value: boolean) => {
 			const obj = _.object(item.filters.map((_item, i) => [`filters.${i}.default`, i === index ? value : false]))
@@ -742,36 +742,6 @@ export default withTranslation()(
 			)
 		}
 
-		renderEndWords(item: RundownLayoutBase, index: number, isDashboardLayout: boolean) {
-			const { t } = this.props
-			return (
-				<React.Fragment>
-					<label className="field">
-						<LabelActual label={t('Name')} />
-						<EditAttribute attribute={`filters.${index}.name`} obj={item} type="text" collection={RundownLayouts} />
-					</label>
-
-					<label className="field">
-						<LabelActual label={t('Hide Label')} />
-						<EditAttribute
-							attribute={`filters.${index}.hideLabel`}
-							obj={item}
-							type="checkbox"
-							collection={RundownLayouts}
-						/>
-					</label>
-
-					{this.renderRequiresActiveLayerSettings(
-						item,
-						index,
-						t('Script Source Layers'),
-						t('Source layers containing script')
-					)}
-					{isDashboardLayout && this.renderDashboardLayoutSettings(item, index)}
-				</React.Fragment>
-			)
-		}
-
 		renderSegmentTiming(item: RundownLayoutBase, index: number, isDashboardLayout: boolean) {
 			const { t } = this.props
 
@@ -1003,34 +973,6 @@ export default withTranslation()(
 							type="colorpicker"
 							collection={RundownLayouts}
 						></EditAttribute>
-					</label>
-
-					{isDashboardLayout && this.renderDashboardLayoutSettings(item, index)}
-				</React.Fragment>
-			)
-		}
-
-		renderShowStyleDisplay(item: RundownLayoutBase, index: number, isDashboardLayout: boolean) {
-			const { t } = this.props
-			return (
-				<React.Fragment>
-					<label className="field">
-						<LabelActual label={t('Name')} />
-						<EditAttribute attribute={`filters.${index}.name`} obj={item} type="text" collection={RundownLayouts} />
-					</label>
-
-					{isDashboardLayout && this.renderDashboardLayoutSettings(item, index)}
-				</React.Fragment>
-			)
-		}
-
-		renderSystemStatus(item: RundownLayoutBase, index: number, isDashboardLayout: boolean) {
-			const { t } = this.props
-			return (
-				<React.Fragment>
-					<label className="field">
-						<LabelActual label={t('Name')} />
-						<EditAttribute attribute={`filters.${index}.name`} obj={item} type="text" collection={RundownLayouts} />
 					</label>
 
 					{isDashboardLayout && this.renderDashboardLayoutSettings(item, index)}
@@ -1308,8 +1250,6 @@ export default withTranslation()(
 				return this.renderPlaylistStartTimer(item, index, isDashboardLayout)
 			} else if (RundownLayoutsAPI.isPlaylistEndTimer(filter)) {
 				return this.renderPlaylistEndTimer(item, index, isDashboardLayout)
-			} else if (RundownLayoutsAPI.isEndWords(filter)) {
-				return this.renderEndWords(item, index, isDashboardLayout)
 			} else if (RundownLayoutsAPI.isSegmentTiming(filter)) {
 				return this.renderSegmentCountDown(item, index, isDashboardLayout)
 			} else if (RundownLayoutsAPI.isPartTiming(filter)) {
@@ -1328,10 +1268,6 @@ export default withTranslation()(
 				return this.renderColoredBox(item, index, isDashboardLayout)
 			} else if (RundownLayoutsAPI.isTimeOfDay(filter)) {
 				return this.renderTimeOfDay(item, index, isDashboardLayout)
-			} else if (RundownLayoutsAPI.isShowStyleDisplay(filter)) {
-				return this.renderShowStyleDisplay(item, index, isDashboardLayout)
-			} else if (RundownLayoutsAPI.isSystemStatus(filter)) {
-				return this.renderSystemStatus(item, index, isDashboardLayout)
 			} else if (RundownLayoutsAPI.isMiniRundown(filter)) {
 				return this.renderMiniRundown(item, index, isDashboardLayout)
 			}

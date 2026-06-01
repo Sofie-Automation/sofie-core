@@ -95,7 +95,7 @@ resources:
             type: string
       responses:
         200:
-          description: Bucket successfuly removed.
+          description: Bucket successfully removed.
           content:
             application/json:
               schema:
@@ -154,7 +154,7 @@ resources:
             type: string
       responses:
         200:
-          description: Bucket Adlibs successfuly removed.
+          description: Bucket Adlibs successfully removed.
           content:
             application/json:
               schema:
@@ -188,7 +188,7 @@ resources:
             type: string
       responses:
         200:
-          description: Bucket Adlib successfuly removed.
+          description: Bucket Adlib successfully removed.
           content:
             application/json:
               schema:

@@ -1,6 +1,7 @@
 import type { IRundownUserContext } from './rundownContext.js'
 import type {
 	IBlueprintMutatablePart,
+	IBlueprintMutatablePartInstance,
 	IBlueprintPartInstance,
 	IBlueprintPiece,
 	IBlueprintPieceInstance,
@@ -38,8 +39,15 @@ export interface ISyncIngestUpdateToPartInstanceContext extends IRundownUserCont
 	// /** Remove a ActionInstance */
 	// removeActionInstances(...actionInstanceIds: string[]): string[]
 
-	/** Update a partInstance */
-	updatePartInstance(props: Partial<IBlueprintMutatablePart>): IBlueprintPartInstance
+	/**
+	 * Update a partInstance
+	 * @param props Properties of the Part itself
+	 * @param instanceProps Properties of the PartInstance (runtime state)
+	 */
+	updatePartInstance(
+		props: Partial<IBlueprintMutatablePart>,
+		instanceProps?: Partial<IBlueprintMutatablePartInstance>
+	): IBlueprintPartInstance
 
 	/** Remove the partInstance. This is only valid when `playstatus: 'next'` */
 	removePartInstance(): void

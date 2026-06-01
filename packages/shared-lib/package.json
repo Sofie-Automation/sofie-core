@@ -5,6 +5,20 @@
 	"main": "dist/index.js",
 	"typings": "dist/index.d.ts",
 	"license": "MIT",
+	"type": "module",
+	"exports": {
+		"./dist/*.js": {
+			"types": "./dist/*.d.ts",
+			"require": "./dist/*.js",
+			"import": "./dist/*.js"
+		},
+		"./dist/*": {
+			"types": "./dist/*.d.ts",
+			"require": "./dist/*.js",
+			"import": "./dist/*.js"
+		},
+		"./package.json": "./package.json"
+	},
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/nrkno/sofie-core.git",
@@ -37,7 +51,7 @@
 	"dependencies": {
 		"@mos-connection/model": "^5.0.0-alpha.0",
 		"kairos-lib": "^1.0.0",
-		"timeline-state-resolver-types": "10.0.0-nightly-feat-tsr-device-feedback-20260429-145317-4079605bd.0",
+		"timeline-state-resolver-types": "10.0.0-nightly-main-20260601-094843-59ce43391.0",
 		"tslib": "^2.8.1",
 		"type-fest": "^4.41.0"
 	},

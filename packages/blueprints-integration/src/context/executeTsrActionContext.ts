@@ -2,7 +2,7 @@ import { PeripheralDeviceId } from '@sofie-automation/shared-lib/dist/core/model
 import { IBlueprintPlayoutDevice, TSR } from '../index.js'
 
 export interface IExecuteTSRActionsContext {
-	/** Returns a list of the PeripheralDevices */
+	/** Returns playout-gateway subdevices for the studio, or an empty list if none are configured. */
 	listPlayoutDevices(): Promise<IBlueprintPlayoutDevice[]>
 	/** Execute an action on a certain PeripheralDevice */
 	executeTSRAction(

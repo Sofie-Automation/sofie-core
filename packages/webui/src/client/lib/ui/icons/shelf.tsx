@@ -1,5 +1,6 @@
 import { faPencil, faTrashCan } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import classNames from 'classnames'
 
 export function EmptyBucket({ className }: { className?: string }): JSX.Element {
 	return (
@@ -68,6 +69,44 @@ export function BucketHandle({ className }: { className?: string }): JSX.Element
 		>
 			<path d="M3 13H17" stroke="white" strokeWidth="2.5" strokeLinecap="square" />
 			<path d="M3 7H17" stroke="white" strokeWidth="2.5" strokeLinecap="square" />
+		</svg>
+	)
+}
+
+export function CompactViewIcon(props: React.SVGProps<SVGSVGElement>): JSX.Element {
+	return (
+		<svg
+			fill="none"
+			{...props}
+			className={classNames('shelf-view-icon--compact', props.className)}
+			width="14"
+			height="5"
+			viewBox="0 0 14 5"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<rect width="14" height="2" rx="1" fill="#FFFFFF" />
+			<rect y="3" width="14" height="2" rx="1" fill="#FFFFFF" />
+		</svg>
+	)
+}
+
+export function LargeViewIcon(props: React.SVGProps<SVGSVGElement>): JSX.Element {
+	return (
+		<svg
+			fill="none"
+			{...props}
+			className={classNames('shelf-view-icon--large', props.className)}
+			width="14"
+			height="9"
+			viewBox="0 0 14 9"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<rect width="4" height="4" rx="1" fill="#FFFFFF" />
+			<rect y="5" width="4" height="4" rx="1" fill="#FFFFFF" />
+			<rect x="5" width="4" height="4" rx="1" fill="#FFFFFF" />
+			<rect x="5" y="5" width="4" height="4" rx="1" fill="#FFFFFF" />
+			<rect x="10" width="4" height="4" rx="1" fill="#FFFFFF" />
+			<rect x="10" y="5" width="4" height="4" rx="1" fill="#FFFFFF" />
 		</svg>
 	)
 }

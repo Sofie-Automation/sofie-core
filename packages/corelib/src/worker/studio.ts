@@ -14,11 +14,12 @@ import {
 	RundownId,
 	RundownPlaylistId,
 	SegmentId,
+	SnapshotId,
 	StudioId,
 } from '../dataModel/Ids.js'
 import { JSONBlob } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 import { CoreRundownPlaylistSnapshot } from '../snapshots.js'
-import { NoteSeverity } from '@sofie-automation/blueprints-integration'
+import { BlueprintSnapshotType, NoteSeverity } from '@sofie-automation/blueprints-integration'
 import { ITranslatableMessage } from '../TranslatableMessage.js'
 import { QuickLoopMarker } from '../dataModel/RundownPlaylist/RundownPlaylist.js'
 import { RundownTTimerIndex } from '../dataModel/RundownPlaylist/TTimers.js'
@@ -179,6 +180,11 @@ export enum StudioJobs {
 	 * Restore the Playlist owned portions of a Playlist snapshot
 	 */
 	RestorePlaylistSnapshot = 'restorePlaylistSnapshot',
+
+	/**
+	 * Invoke {@link StudioBlueprintManifest.onSystemSnapshotCreated} for the studio after a system or debug snapshot is stored.
+	 */
+	OnSystemSnapshotCreated = 'onSystemSnapshotCreated',
 
 	/**
 	 * Run the Blueprint applyConfig for the studio
@@ -366,10 +372,30 @@ export type DebugRegenerateNextPartInstanceProps = RundownPlayoutPropsBase
 export type DebugSyncInfinitesForNextPartInstanceProps = RundownPlayoutPropsBase
 
 export interface GeneratePlaylistSnapshotProps extends RundownPlayoutPropsBase {
-	// Include all Instances, or just recent ones
+	/** Include all part/piece instances, or only recent/non-reset instances. */
 	full: boolean
-	// Include the Timeline
+	/** Include the timeline if the playlist is activated. */
 	withTimeline: boolean
+	/** Id of the snapshot (assigned in Meteor before the worker job is queued). Passed to the playlist snapshot blueprint hook. */
+	snapshotId?: SnapshotId
+	/** Human-readable reason for creating the snapshot. Passed to the playlist snapshot blueprint hook. */
+	reason?: string
+}
+
+/** Props for {@link StudioJobs.OnSystemSnapshotCreated}. */
+export interface OnSystemSnapshotCreatedProps {
+	/** Id of the stored snapshot file. */
+	snapshotId: SnapshotId
+	/** Human-readable reason from the snapshot request. */
+	reason: string
+	type: BlueprintSnapshotType
+	/** Snapshot options; `studioId` is the studio this worker job runs for. */
+	options: {
+		studioId?: StudioId
+		withDeviceSnapshots?: boolean
+		/** True when the stored snapshot is a full-system snapshot (not filtered to a single studio). */
+		fullSystem?: boolean
+	}
 }
 export interface GeneratePlaylistSnapshotResult {
 	/**
@@ -509,6 +535,7 @@ export type StudioJobFunc = {
 
 	[StudioJobs.GeneratePlaylistSnapshot]: (data: GeneratePlaylistSnapshotProps) => GeneratePlaylistSnapshotResult
 	[StudioJobs.RestorePlaylistSnapshot]: (data: RestorePlaylistSnapshotProps) => RestorePlaylistSnapshotResult
+	[StudioJobs.OnSystemSnapshotCreated]: (data: OnSystemSnapshotCreatedProps) => void
 	[StudioJobs.DebugCrash]: (data: DebugRegenerateNextPartInstanceProps) => void
 
 	[StudioJobs.BlueprintUpgradeForStudio]: () => void

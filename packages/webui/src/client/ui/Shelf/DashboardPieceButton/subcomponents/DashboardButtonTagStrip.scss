@@ -1,0 +1,87 @@
+@import '../../../../styles/itemTypeColors';
+
+.dashboard-panel__panel__button__tag-container {
+	width: 100%;
+	height: 100%;
+	z-index: 2;
+	background: var(--segment-layer-background-unknown);
+	padding: 1px 1px 1px 1px;
+	display: flex;
+	flex-direction: column;
+	@include item-type-colors;
+
+	> .dashboard-panel__panel__button__label-container {
+		margin-left: 8px;
+	}
+}
+
+.dashboard-panel__panel__button__tag-container--inner {
+	height: auto;
+	width: auto;
+	margin: 0;
+	padding: 0;
+	background: transparent;
+}
+
+.dashboard-panel__panel__button:not(.dashboard-panel__panel__button--compact) {
+	.dashboard-panel__panel__button__tag-container--inner {
+		margin: -1px;
+		padding: 0 1px 1px;
+
+		.dashboard-panel__panel__button__label-container {
+			border-radius: 0 0 4px;
+		}
+	}
+}
+.dashboard-panel__panel__button:not(
+		.dashboard-panel__panel__button--compact
+	).dashboard-panel__panel__button--no-thumbnail {
+	.dashboard-panel__panel__button__tag-container--inner {
+		margin: 0;
+		height: 100%;
+		padding: unset;
+		.dashboard-panel__panel__button__label-container {
+			border-radius: 0 4px 4px 0;
+		}
+	}
+}
+.dashboard-panel__panel__button--compact:not(.dashboard-panel__panel__button--no-thumbnail)
+	.dashboard-panel__panel__button__tag-container
+	.dashboard-panel__panel__button__label
+	.dashboard-panel__panel__button__label__content {
+	width: auto;
+	max-width: 151.133px;
+	flex: 0 1 151.133px;
+}
+
+.dashboard-panel__panel__button:not(.dashboard-panel__panel__button--no-thumbnail)
+	.dashboard-panel__panel__button__tag-container
+	.dashboard-panel__panel__button__thumbnail {
+	border-radius: 4px 4px 0 0;
+	overflow: hidden;
+}
+.dashboard-panel__panel__button--compact
+	.dashboard-panel__panel__button__content
+	.dashboard-panel__panel__button__tag-container
+	.dashboard-panel__panel__button__thumbnail {
+	border-radius: 0 4px 4px 0;
+	overflow: hidden;
+}
+
+.dashboard-panel__panel__button--compact .dashboard-panel__panel__button__tag-container {
+	.dashboard-panel__panel__button__tag-container--inner {
+		padding: 0;
+	}
+}
+
+.dashboard-panel__panel__button .dashboard-panel__panel__button__tag-container {
+	padding: 1px 1px 1px 1px;
+}
+
+.dashboard-panel__panel__button--compact.dashboard-panel__panel__button--no-thumbnail {
+	.dashboard-panel__panel__button__tag-container--inner {
+		.dashboard-panel__panel__button__label-container {
+			border-radius: 0 4px 4px 0;
+		}
+	}
+}

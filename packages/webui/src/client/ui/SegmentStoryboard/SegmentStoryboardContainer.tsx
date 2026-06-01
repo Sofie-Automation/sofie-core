@@ -235,7 +235,7 @@ export const SegmentStoryboardContainer = withResolvedSegment<IProps>(function S
 				fixedSegmentDuration={props.fixedSegmentDuration}
 				subscriptionsReady={initialSubscriptionsReady}
 			/>
-			{props.segmentui.showShelf && props.adLibSegmentUi && (
+			{props.segmentui.displayMinishelf && props.adLibSegmentUi && (
 				<RundownViewShelf
 					studio={props.studio}
 					segment={props.segmentui}

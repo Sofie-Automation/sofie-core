@@ -1,5 +1,5 @@
-import { Time } from '../../lib/lib.js'
-import { PeripheralDeviceCommandId, PeripheralDeviceId } from './Ids.js'
+import type { Time } from '../../lib/lib.js'
+import type { PeripheralDeviceCommandId, PeripheralDeviceId } from './Ids.js'
 
 export interface PeripheralDeviceCommand {
 	_id: PeripheralDeviceCommandId

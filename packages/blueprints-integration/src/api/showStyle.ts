@@ -19,6 +19,8 @@ import type {
 	IOnTakeContext,
 	IOnSetAsNextContext,
 	IExternalEventContext,
+	IPlaylistSnapshotCreatedContext,
+	IBlueprintPlaylistSnapshotInfo,
 } from '../context/index.js'
 import type { IngestAdlib, ExtendedIngestRundown, IngestRundown } from '../ingest.js'
 import type { IBlueprintExternalMessageQueueObj } from '../message.js'
@@ -213,6 +215,25 @@ export interface ShowStyleBlueprintManifest<
 	blueprintConfigToAPI?: (context: ICommonContext, config: TRawConfig) => object
 
 	// Events
+
+	/**
+	 * Called after a rundown playlist snapshot has been generated, before Meteor persists the snapshot file.
+	 *
+	 * Use this to run show-specific side effects (e.g. TSR actions) when a playlist snapshot is taken.
+	 * The callback receives {@link IPlaylistSnapshotCreatedContext} with `listPlayoutDevices` and `executeTSRAction`.
+	 *
+	 * For playlists containing multiple rundowns, only one show-style blueprint is invoked per snapshot:
+	 * current part, then next part, then first rundown by name.
+	 *
+	 * Errors are logged by Core and do not fail snapshot generation or storage.
+	 *
+	 * @param context Show-style and studio context with TSR actions for the studio worker job.
+	 * @param info Metadata about the snapshot (not the snapshot JSON).
+	 */
+	onPlaylistSnapshotCreated?: (
+		context: IPlaylistSnapshotCreatedContext,
+		info: IBlueprintPlaylistSnapshotInfo
+	) => Promise<void>
 
 	/**
 	 * Called at the final stage of RundownPlaylist activation, before the updated timeline is submitted to the Playout Gateway,

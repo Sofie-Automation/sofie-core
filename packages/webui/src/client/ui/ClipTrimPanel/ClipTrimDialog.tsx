@@ -116,7 +116,7 @@ export function ClipTrimDialog({
 							NoticeLevel.NOTIFICATION,
 							<>
 								<strong>{selectedPiece.name}</strong>:&ensp;
-								{t('Trimmed succesfully.')}
+								{t('Trimmed successfully.')}
 							</>,
 							protectString('ClipTrimDialog')
 						)

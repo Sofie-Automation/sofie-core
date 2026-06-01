@@ -32,7 +32,7 @@ interface IState {
 	searchText: string
 }
 
-export const IconPicker = withTranslation()(
+export const IconPicker: React.ComponentType<IProps> = withTranslation()(
 	class IconPicker extends React.Component<Translated<IProps>, IState> {
 		private _popperRef: HTMLElement | null = null
 		private _popperUpdate: (() => Promise<any>) | undefined

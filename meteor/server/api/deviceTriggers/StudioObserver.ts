@@ -249,5 +249,6 @@ export class StudioObserver extends EventEmitter {
 		this.#playlistInStudioLiveQuery.stop()
 		this.updatePlaylistInStudio.cancel()
 		this.#rundownsLiveQuery?.stop()
+		this.#pieceInstancesLiveQuery?.stop()
 	}
 }

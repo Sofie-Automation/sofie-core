@@ -11,7 +11,7 @@ import {
 	type NotifierHandle,
 } from './notifications/notifications.js'
 import { WithManagedTracker } from './reactiveData/reactiveDataHelper.js'
-import { useTranslation, type TFunction } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 import { NotificationCenterPopUps } from './notifications/NotificationCenterPanel.js'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import {
@@ -19,6 +19,7 @@ import {
 	type ServiceMessage,
 	Criticality,
 } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
+import type { TFunction } from 'i18next'
 import { getRandomId } from '@sofie-automation/corelib/dist/lib'
 import { CoreSystem } from '../collections/index.js'
 import { useEffect } from 'react'

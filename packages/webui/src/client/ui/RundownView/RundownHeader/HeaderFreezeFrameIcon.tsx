@@ -2,15 +2,16 @@ import type { PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Id
 import { FreezeFrameIcon } from '../../../lib/ui/icons/freezeFrame'
 import { useTiming, TimingTickResolution, TimingDataResolution } from '../RundownTiming/withTiming'
 import { useTracker } from '../../../lib/ReactMeteorData/ReactMeteorData'
-import { PartInstances, PieceInstances } from '../../../collections'
+import { PieceInstances } from '../../../collections'
 import type { VTContent } from '@sofie-automation/blueprints-integration'
+import { UIPartInstances } from '../../Collections'
 
 export function HeaderFreezeFrameIcon({ partInstanceId }: { partInstanceId: PartInstanceId }): JSX.Element | null {
 	const timingDurations = useTiming(TimingTickResolution.Synced, TimingDataResolution.Synced)
 
 	const freezeFrameIcon = useTracker(
 		() => {
-			const partInstance = PartInstances.findOne(partInstanceId)
+			const partInstance = UIPartInstances.findOne(partInstanceId)
 			if (!partInstance) return null
 
 			// We use the exact display duration from the timing context just like VTSourceRenderer does.

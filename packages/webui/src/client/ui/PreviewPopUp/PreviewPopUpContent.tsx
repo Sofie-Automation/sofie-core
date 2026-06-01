@@ -1,6 +1,7 @@
 import { WarningIconSmall } from '../../lib/ui/icons/notifications.js'
 import { translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
-import { type TFunction, useTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { VTPreviewElement } from './Previews/VTPreview.js'
 import { IFramePreview } from './Previews/IFramePreview.js'
 import { BoxLayoutPreview } from './Previews/BoxLayoutPreview.js'

@@ -3,6 +3,8 @@ const path = require('path')
 const commonConfig = {
 	modulePaths: ['<rootDir>/node_modules/'],
 	moduleNameMapper: {
+		'^@sofie-automation/shared-lib/dist/(.+)\\.js$': '<rootDir>/../packages/shared-lib/src/$1',
+		'^@sofie-automation/shared-lib/dist/(.+)$': '<rootDir>/../packages/shared-lib/src/$1',
 		// Ensure libraries that would match the extension rule are still resolved
 		'bignumber.js': 'bignumber.js',
 		// Drop file extensions in imports

@@ -5,9 +5,6 @@ import ClassNames from 'classnames'
 import { NavLink } from 'react-router-dom'
 import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import type { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import type { RundownLayoutRundownHeader } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import type { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
-import type { RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import Navbar from 'react-bootstrap/Navbar'
 import { RundownContextMenu, RundownHeaderContextMenuTrigger, RundownHamburgerButton } from './RundownContextMenu'
 import { TimeOfDay } from '../RundownTiming/TimeOfDay'
@@ -22,21 +19,14 @@ import { RundownHeaderDurations } from './RundownHeaderDurations'
 import { RundownHeaderExpectedEnd } from './RundownHeaderExpectedEnd'
 import { HeaderFreezeFrameIcon } from './HeaderFreezeFrameIcon'
 import './RundownHeader.scss'
-import type { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase'
 import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio'
 
 interface IRundownHeaderProps {
 	playlist: DBRundownPlaylist
-	showStyleBase: UIShowStyleBase
-	showStyleVariant: DBShowStyleVariant
 	currentRundown: Rundown | undefined
 	studio: UIStudio
-	rundownIds: RundownId[]
 	firstRundown: Rundown | undefined
 	rundownCount: number
-	onActivate?: (isRehearsal: boolean) => void
-	inActiveRundownView?: boolean
-	layout: RundownLayoutRundownHeader | undefined
 }
 
 export function RundownHeader({
@@ -50,17 +40,12 @@ export function RundownHeader({
 	const timingDurations = useTiming()
 	const [isMenuOpen, setIsMenuOpen] = useState(false)
 	const [isContextMenuOpen, setIsContextMenuOpen] = useState(false)
-	// User's explicit toggle preference; defaults to true (show simplified)
-	const [userPrefersSimplified, setUserPrefersSimplified] = useState(true)
+	// User's explicit toggle preference; defaults to false (show advanced)
+	const [userPrefersSimplified, setUserPrefersSimplified] = useState(false)
 
 	const expectedStart = PlaylistTiming.getExpectedStart(playlist.timing)
 	const expectedEnd = PlaylistTiming.getExpectedEnd(playlist.timing)
-
-	// const expectedDuration = PlaylistTiming.getExpectedDuration(playlist.timing)
-	// @todo: this _should_ use PlaylistTiming.getExpectedDuration as show above,
-	// but I don't dare changing its behaviour to return for PlaylistTimingType.None within the scope of this task
-	// same issue in RundownHeaderDuration.tsx
-	const expectedDuration = playlist.timing.expectedDuration
+	const expectedDuration = PlaylistTiming.getExpectedDuration(playlist.timing)
 
 	const hasSimple = !!(expectedStart || expectedDuration || expectedEnd)
 
@@ -121,22 +106,24 @@ export function RundownHeader({
 								onClose={onMenuClose}
 							/>
 							<div className="rundown-header__left-context-menu-wrapper">
-								{playlist.currentPartInfo && (
-									<div className="rundown-header__onair">
-										<RundownHeaderSegmentBudget
-											currentPartInstanceId={playlist.currentPartInfo.partInstanceId}
-											label={t('Seg. Budg.')}
-										/>
-										<span className="rundown-header__timers-onair-remaining">
-											<span className="rundown-header__timers-onair-remaining__label">{t('On Air')}</span>
-											<RundownHeaderPartRemaining
+								<div className="rundown-header__onair-wrapper">
+									{playlist.currentPartInfo && (
+										<div className="rundown-header__onair">
+											<RundownHeaderSegmentBudget
 												currentPartInstanceId={playlist.currentPartInfo.partInstanceId}
-												heavyClassName="overtime"
+												label={t('Seg. Budg.')}
 											/>
-											<HeaderFreezeFrameIcon partInstanceId={playlist.currentPartInfo.partInstanceId} />
-										</span>
-									</div>
-								)}
+											<span className="rundown-header__timers-onair-remaining">
+												<span className="rundown-header__timers-onair-remaining__label">{t('On Air')}</span>
+												<RundownHeaderPartRemaining
+													currentPartInstanceId={playlist.currentPartInfo.partInstanceId}
+													heavyClassName="overtime"
+												/>
+												<HeaderFreezeFrameIcon partInstanceId={playlist.currentPartInfo.partInstanceId} />
+											</span>
+										</div>
+									)}
+								</div>
 								<RundownHeaderTimers tTimers={playlist.tTimers} />
 							</div>
 						</div>

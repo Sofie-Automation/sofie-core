@@ -1,7 +1,7 @@
 import { PartEndState, Time } from '@sofie-automation/blueprints-integration'
 import { PartCalculatedTimings } from '../playout/timings.js'
 import { PartInstanceId, RundownId, RundownPlaylistActivationId, SegmentId, SegmentPlayoutId } from './Ids.js'
-import { DBPart } from './Part.js'
+import { DBPart, PartInvalidReason } from './Part.js'
 
 export interface DBPartInstance {
 	_id: PartInstanceId
@@ -40,6 +40,13 @@ export interface DBPartInstance {
 
 	/** If taking out of the current part is blocked, this is the time it is blocked until */
 	blockTakeUntil?: number
+
+	/**
+	 * If set, this PartInstance exists and is valid as being next, but it cannot be taken in its current state.
+	 * This can be used to block taking a PartInstance that requires user action to resolve.
+	 * This is a runtime validation issue, distinct from the planned `invalidReason` on the Part itself.
+	 */
+	invalidReason?: PartInvalidReason
 }
 
 export interface PartInstance extends DBPartInstance {

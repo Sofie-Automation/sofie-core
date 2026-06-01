@@ -1,0 +1,19 @@
+$defs:
+  resolvedSegmentTiming:
+    type: object
+    title: ResolvedSegmentTiming
+    description: Timing information about the segment, relative to the start of the segment
+    properties:
+      startMs:
+        description: Start offset of the segment (ms). For segments, this is typically 0.
+        type: number
+      endMs:
+        description: End offset of the segment (ms) from the beginning of the segment
+        type: number
+      budgetDurationMs:
+        description: Planned/budget duration for the segment (ms)
+        type: number
+    required: [startMs, endMs, budgetDurationMs]
+    additionalProperties: false
+    examples:
+      - $ref: './resolvedSegmentTiming-example.yaml'

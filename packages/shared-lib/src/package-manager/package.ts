@@ -5,8 +5,8 @@
  *   will fetch from a MAM and copy to the media-folder of CasparCG.
  */
 
-import { StatusCode } from '../lib/status.js'
-import { MediaRamRecRef, MediaStillRef } from 'kairos-lib'
+import type { StatusCode } from '../lib/status.js'
+import type { MediaRamRecRef, MediaStillRef } from 'kairos-lib'
 
 type AccessorId = string
 type ExpectedPackageId = string

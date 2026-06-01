@@ -154,16 +154,15 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 	private _lastAnimation: AnimationPlaybackControls | null = null
 
 	private checkWindowScroll: number | null = null
+	private _onContextMenu = (e: Event) => {
+		e.preventDefault()
+	}
 
 	constructor(props: Translated<IProps & ITrackedProps>) {
 		super(props)
 		this.state = {
 			accessRequestCallbacks: [],
 		}
-		// Disable the context menu:
-		document.addEventListener('contextmenu', (e) => {
-			e.preventDefault()
-		})
 
 		const queryParams = queryStringParse(location.search, {
 			arrayFormat: 'comma',
@@ -276,6 +275,8 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 			this.configOptions.showScroll ? 'vertical-overflow-only' : 'no-overflow'
 		)
 		document.body.setAttribute('data-bs-theme', 'dark')
+		// Disable the context menu:
+		document.addEventListener('contextmenu', this._onContextMenu)
 		window.addEventListener('scroll', this.onWindowScroll)
 
 		this.triggerCheckCurrentTakeMarkers()
@@ -302,6 +303,7 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 			this.configOptions.showScroll ? 'vertical-overflow-only' : 'no-overflow'
 		)
 		document.body.removeAttribute('data-bs-theme')
+		document.removeEventListener('contextmenu', this._onContextMenu)
 		window.removeEventListener('scroll', this.onWindowScroll)
 	}
 

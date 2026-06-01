@@ -35,6 +35,7 @@ import {
 	handleRestoreRundownsInPlaylistToDefaultOrder,
 } from '../../rundownPlaylists.js'
 import { handleGeneratePlaylistSnapshot, handleRestorePlaylistSnapshot } from '../../playout/snapshot.js'
+import { handleOnSystemSnapshotCreated } from '../../playout/snapshotHooks.js'
 import {
 	handleBlueprintFixUpConfigForStudio,
 	handleBlueprintIgnoreFixUpConfigForStudio,
@@ -114,6 +115,7 @@ export const studioJobHandlers: StudioJobHandlers = {
 
 	[StudioJobs.GeneratePlaylistSnapshot]: handleGeneratePlaylistSnapshot,
 	[StudioJobs.RestorePlaylistSnapshot]: handleRestorePlaylistSnapshot,
+	[StudioJobs.OnSystemSnapshotCreated]: handleOnSystemSnapshotCreated,
 	[StudioJobs.DebugCrash]: handleDebugCrash,
 
 	[StudioJobs.BlueprintUpgradeForStudio]: handleBlueprintUpgradeForStudio,

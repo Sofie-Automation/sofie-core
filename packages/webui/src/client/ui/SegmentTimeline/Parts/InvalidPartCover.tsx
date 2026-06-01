@@ -1,14 +1,17 @@
 import React, { useContext, useRef } from 'react'
-import type { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
+import type { PartInvalidReason } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { type IPreviewPopUpSession, PreviewPopUpContext } from '../../PreviewPopUp/PreviewPopUpContext.js'
 
 interface IProps {
 	className?: string
-	part: DBPart
-	align?: 'start' | 'center' | 'end'
+	/**
+	 * The effective invalidReason to display.
+	 * Can be from Part (planned) or PartInstance (runtime).
+	 */
+	invalidReason: PartInvalidReason | undefined
 }
 
-export function InvalidPartCover({ className, part }: Readonly<IProps>): JSX.Element {
+export function InvalidPartCover({ className, invalidReason }: Readonly<IProps>): JSX.Element {
 	const element = React.createRef<HTMLDivElement>()
 
 	const previewContext = useContext(PreviewPopUpContext)
@@ -19,11 +22,11 @@ export function InvalidPartCover({ className, part }: Readonly<IProps>): JSX.Ele
 			return
 		}
 
-		if (part.invalidReason?.message && !previewSession.current) {
+		if (invalidReason?.message && !previewSession.current) {
 			previewSession.current = previewContext.requestPreview(e.target as HTMLDivElement, [
 				{
 					type: 'warning',
-					content: part.invalidReason?.message,
+					content: invalidReason.message,
 				},
 			])
 		}
