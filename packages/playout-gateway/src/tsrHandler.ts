@@ -250,6 +250,7 @@ export class TSRHandler {
 			)
 
 			this._triggerupdateExpectedPlayoutItems() // So that any recently created devices will get all the ExpectedPlayoutItems
+			this._triggerUpdateEventSubscriptions() // Ensure new device gets current external event subscriptions
 		})
 
 		this.tsr.connectionManager.on('connectionInitialised', (id) => {
@@ -760,6 +761,7 @@ export class TSRHandler {
 			}
 
 			this.tsr.connectionManager.setConnections(connections)
+			this._triggerUpdateEventSubscriptions() // Re-apply subscriptions after connection set changes
 		}
 	}
 

@@ -162,6 +162,7 @@ meteorCustomPublish(
 		token: string | undefined
 	) {
 		check(deviceId, String)
+		check(type, String)
 
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, this)
 

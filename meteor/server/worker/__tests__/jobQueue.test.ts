@@ -651,6 +651,175 @@ describe('WorkerJobQueueManager', () => {
 		})
 	})
 
+	describe('mergeOrQueueJob', () => {
+		it('should enqueue a new job when the queue is empty', async () => {
+			const queueName = 'testQueue'
+			const jobName = 'mergeJob'
+			const generateData = jest.fn((_existing: unknown | null) => ({ value: 1 }))
+
+			manager.mergeOrQueueJob(queueName, jobName, generateData)
+
+			expect(generateData).toHaveBeenCalledTimes(1)
+			expect(generateData).toHaveBeenCalledWith(null)
+
+			const job = await manager.getNextJob(queueName)
+			expect(job).not.toBeNull()
+			expect(job?.name).toBe(jobName)
+			expect(job?.data).toEqual({ value: 1 })
+		})
+
+		it('should enqueue a new job when the tail has a different job name', async () => {
+			const queueName = 'testQueue'
+			const generateData = jest.fn((_existing: unknown | null) => ({ value: 42 }))
+
+			await manager.queueJobWithoutResult(queueName, 'otherJob', { existing: true }, undefined)
+
+			manager.mergeOrQueueJob(queueName, 'mergeJob', generateData)
+
+			expect(generateData).toHaveBeenCalledWith(null)
+
+			// Two jobs should be in the queue
+			const firstJob = await manager.getNextJob(queueName)
+			expect(firstJob?.name).toBe('otherJob')
+
+			const secondJob = await manager.getNextJob(queueName)
+			expect(secondJob?.name).toBe('mergeJob')
+			expect(secondJob?.data).toEqual({ value: 42 })
+		})
+
+		it('should merge data into the tail job when it has the same name', async () => {
+			const queueName = 'testQueue'
+			const jobName = 'mergeJob'
+			const initialData = { count: 1 }
+			const generateData = jest.fn((existing: unknown | null) => ({
+				...(existing as object),
+				count: ((existing as { count: number } | null)?.count ?? 0) + 1,
+			}))
+
+			await manager.queueJobWithoutResult(queueName, jobName, initialData, undefined)
+
+			manager.mergeOrQueueJob(queueName, jobName, generateData)
+
+			expect(generateData).toHaveBeenCalledWith(initialData)
+
+			// Should still be only one job in the queue
+			const firstJob = await manager.getNextJob(queueName)
+			expect(firstJob?.name).toBe(jobName)
+			expect(firstJob?.data).toEqual({ count: 2 })
+
+			const noMoreJobs = await manager.getNextJob(queueName)
+			expect(noMoreJobs).toBeNull()
+		})
+
+		it('should only merge with the tail job, not jobs earlier in the queue', async () => {
+			const queueName = 'testQueue'
+			const jobName = 'mergeJob'
+			const generateData = jest.fn((_existing: unknown | null) => ({ merged: true }))
+
+			// Queue: [mergeJob (index 0), otherJob (index 1/tail)]
+			await manager.queueJobWithoutResult(queueName, jobName, { original: true }, undefined)
+			await manager.queueJobWithoutResult(queueName, 'otherJob', {}, undefined)
+
+			// Tail is 'otherJob', not 'mergeJob' — should enqueue a new job
+			manager.mergeOrQueueJob(queueName, jobName, generateData)
+
+			expect(generateData).toHaveBeenCalledWith(null)
+
+			// Three jobs should be in the queue
+			const firstJob = await manager.getNextJob(queueName)
+			expect(firstJob?.name).toBe(jobName)
+			expect(firstJob?.data).toEqual({ original: true })
+
+			const secondJob = await manager.getNextJob(queueName)
+			expect(secondJob?.name).toBe('otherJob')
+
+			const thirdJob = await manager.getNextJob(queueName)
+			expect(thirdJob?.name).toBe(jobName)
+			expect(thirdJob?.data).toEqual({ merged: true })
+		})
+
+		it('should notify a waiting worker when a new job is enqueued', async () => {
+			const queueName = 'testQueue'
+
+			// Worker starts waiting (queue is empty)
+			const waitPromise = manager.waitForNextJob(queueName)
+
+			manager.mergeOrQueueJob(queueName, 'mergeJob', () => ({ value: 1 }))
+
+			// Wait for deferred notification
+			await waitTime(10)
+
+			await expect(waitPromise).resolves.toBeUndefined()
+		})
+
+		it('should not add a new job when merging into the tail', async () => {
+			const queueName = 'testQueue'
+			const jobName = 'mergeJob'
+
+			await manager.queueJobWithoutResult(queueName, jobName, { value: 0 }, undefined)
+
+			// Merge — should not add a second job
+			manager.mergeOrQueueJob(queueName, jobName, (existing) => ({
+				...(existing as object),
+				value: ((existing as { value: number } | null)?.value ?? 0) + 1,
+			}))
+
+			const firstJob = await manager.getNextJob(queueName)
+			expect(firstJob?.name).toBe(jobName)
+			expect(firstJob?.data).toEqual({ value: 1 })
+
+			// Queue should now be empty
+			const noMoreJobs = await manager.getNextJob(queueName)
+			expect(noMoreJobs).toBeNull()
+		})
+
+		it('should enqueue a new job after the previous tail job has been consumed', async () => {
+			const queueName = 'testQueue'
+			const jobName = 'mergeJob'
+
+			// First call: new job
+			manager.mergeOrQueueJob(queueName, jobName, () => ({ round: 1 }))
+
+			// Consume the job
+			const firstJob = await manager.getNextJob(queueName)
+			expect(firstJob?.name).toBe(jobName)
+			expect(firstJob?.data).toEqual({ round: 1 })
+
+			// Second call: queue is empty again — should create a fresh job with null as existing
+			const generateData = jest.fn(() => ({ round: 2 }))
+			manager.mergeOrQueueJob(queueName, jobName, generateData)
+
+			expect(generateData).toHaveBeenCalledWith(null)
+
+			const secondJob = await manager.getNextJob(queueName)
+			expect(secondJob?.name).toBe(jobName)
+			expect(secondJob?.data).toEqual({ round: 2 })
+		})
+
+		it('should accumulate multiple merges into the same tail job', async () => {
+			const queueName = 'testQueue'
+			const jobName = 'mergeJob'
+
+			// First call creates a new job
+			manager.mergeOrQueueJob(queueName, jobName, () => ({ total: 1 }))
+
+			// Subsequent calls should keep merging into the tail
+			manager.mergeOrQueueJob(queueName, jobName, (existing) => ({
+				total: ((existing as { total: number } | null)?.total ?? 0) + 1,
+			}))
+			manager.mergeOrQueueJob(queueName, jobName, (existing) => ({
+				total: ((existing as { total: number } | null)?.total ?? 0) + 1,
+			}))
+
+			// Should be exactly one job with accumulated data
+			const job = await manager.getNextJob(queueName)
+			expect(job?.name).toBe(jobName)
+			expect(job?.data).toEqual({ total: 3 })
+
+			expect(await manager.getNextJob(queueName)).toBeNull()
+		})
+	})
+
 	describe('multiple queues', () => {
 		it('should maintain separate queues for different queue names', async () => {
 			const queue1 = 'queue1'

@@ -472,6 +472,8 @@ export namespace ServerPeripheralDeviceAPI {
 		token: string,
 		events: PeripheralDeviceExternalEvent[]
 	): Promise<void> {
+		check(events, Array)
+
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, context)
 
 		if (!peripheralDevice.studioAndConfigId)
@@ -480,12 +482,14 @@ export namespace ServerPeripheralDeviceAPI {
 		if (!events.length) return
 
 		const studioId = peripheralDevice.studioAndConfigId.studioId
+		// An arbitrary cap, to avoid unbound memory growth
+		const MAX_PENDING_EXTERNAL_EVENTS = 1000
 
 		// Merge events into the last pending OnExternalEvents job in the queue, or enqueue a new one.
 		// This prevents queue flooding when many events arrive in a burst, or when multiple gateways
 		// report events for the same studio simultaneously.
 		QueueOrUpdateStudioJob(StudioJobs.OnExternalEvents, studioId, (existing) => ({
-			events: [...(existing?.events ?? []), ...events],
+			events: [...(existing?.events ?? []), ...events].slice(-MAX_PENDING_EXTERNAL_EVENTS),
 		}))
 	}
 	export async function pingWithCommand(

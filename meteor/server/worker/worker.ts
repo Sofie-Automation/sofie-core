@@ -256,7 +256,9 @@ export function QueueOrUpdateStudioJob<T extends keyof StudioJobFunc>(
 	studioId: StudioId,
 	generateData: (existing: Parameters<StudioJobFunc[T]>[0] | null) => Parameters<StudioJobFunc[T]>[0]
 ): void {
+	if (isInTestWrite()) throw new Meteor.Error(404, 'Should not be reachable during startup tests')
 	if (!studioId) throw new Meteor.Error(500, 'Missing studioId')
+
 	queueManager.mergeOrQueueJob(
 		getStudioQueueName(studioId),
 		jobName,
