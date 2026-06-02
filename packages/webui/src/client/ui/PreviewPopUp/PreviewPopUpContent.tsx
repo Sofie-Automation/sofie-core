@@ -64,7 +64,7 @@ export function PreviewPopUpContent({ content, time }: PreviewPopUpContentProps)
 		case 'separationLine':
 			return <hr className="preview-popup__separation-line" />
 		case 'boxLayout':
-			return <BoxLayoutPreview content={content} />
+			return <BoxLayoutPreview content={content} time={time} />
 		case 'warning':
 			return (
 				<div className="preview-popUp__warning">

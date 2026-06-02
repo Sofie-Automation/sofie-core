@@ -1,3 +1,4 @@
+@import './SplitButtonLayerBackground';
 @import '../../../../styles/itemTypeColors';
 
 .dashboard-panel__panel__button__tag-container {
@@ -21,6 +22,49 @@
 	margin: 0;
 	padding: 0;
 	background: transparent;
+
+	&.splits {
+		background: transparent;
+	}
+}
+
+// Large DVE: stripes on label strip only (outer uses top-box solid color for preview).
+.dashboard-panel__panel__button:not(.dashboard-panel__panel__button--compact)
+	.dashboard-panel__panel__button__tag-container--inner.splits {
+	position: relative;
+	overflow: hidden;
+	flex: 0 0 auto;
+	height: auto !important;
+	min-height: 0;
+
+	> .dashboard-panel__panel__button__layer-background {
+		z-index: 0;
+	}
+
+	> .dashboard-panel__panel__button__label-container {
+		position: relative;
+		z-index: 1;
+	}
+}
+
+// Compact DVE: stripes on full button (outer tag-container); label strip stays transparent.
+.dashboard-panel__panel__button--compact
+	> .dashboard-panel__panel__button__content
+	> .dashboard-panel__panel__button__tag-container.splits:not(.dashboard-panel__panel__button__tag-container--inner) {
+	background: transparent;
+	position: relative;
+	overflow: hidden;
+
+	> .dashboard-panel__panel__button__layer-background {
+		z-index: 0;
+	}
+
+	> .dashboard-panel__panel__button__thumbnail,
+	> svg,
+	> .dashboard-panel__panel__button__tag-container--inner {
+		position: relative;
+		z-index: 1;
+	}
 }
 
 .dashboard-panel__panel__button:not(.dashboard-panel__panel__button--compact) {

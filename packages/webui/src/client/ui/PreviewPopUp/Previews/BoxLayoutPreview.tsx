@@ -1,7 +1,10 @@
 import type { SplitsContentBoxContent, SplitsContentBoxProperties } from '@sofie-automation/blueprints-integration'
+import type { SplitBoxPreviewUrls } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
+import type { SplitsBoxLayoutScrubSettings } from '../../../lib/ui/splitsPreviewVideo.js'
+import { setVideoElementPosition } from '../../../lib/ui/videoPreviewScrub.js'
 import classNames from 'classnames'
-import { useMemo } from 'react'
-import { getSplitPreview, SplitRole } from '../../../lib/ui/splitPreview.js'
+import { useEffect, useMemo, useRef } from 'react'
+import { getSplitPreview, SplitRole, type SplitSubItem } from '../../../lib/ui/splitPreview.js'
 import type { ReadonlyDeep } from 'type-fest'
 import { RundownUtils } from '../../../lib/rundown.js'
 
@@ -9,19 +12,63 @@ interface BoxLayoutPreviewProps {
 	content: {
 		type: 'boxLayout'
 		boxSourceConfiguration: ReadonlyDeep<(SplitsContentBoxContent & SplitsContentBoxProperties)[]>
+		boxPreviews?: ReadonlyDeep<SplitBoxPreviewUrls[]>
+		scrub?: SplitsBoxLayoutScrubSettings
 		showLabels?: boolean
 		backgroundArtSrc?: string
 	}
+	time: number | null
 }
 
-export function BoxLayoutPreview({ content }: BoxLayoutPreviewProps): React.ReactElement {
+function SplitBoxMedia({
+	item,
+	time,
+	scrub,
+}: {
+	item: Readonly<SplitSubItem>
+	time: number | null
+	scrub: SplitsBoxLayoutScrubSettings | undefined
+}): React.ReactElement | null {
+	const videoRef = useRef<HTMLVideoElement>(null)
+
+	useEffect(() => {
+		const el = videoRef.current
+		if (!el || !item.previewUrl) return
+
+		setVideoElementPosition(el, time ?? 0, scrub?.itemDuration ?? 0, item.seek ?? 0, scrub?.loop ?? false)
+	}, [time, scrub?.itemDuration, scrub?.loop, item.previewUrl, item.seek])
+
+	if (item.previewUrl) {
+		return (
+			<video
+				ref={videoRef}
+				src={item.previewUrl}
+				className="video-preview__image"
+				crossOrigin="anonymous"
+				playsInline
+				muted
+			/>
+		)
+	}
+
+	if (item.thumbnailUrl) {
+		return <img src={item.thumbnailUrl} alt="" className="video-preview__image" />
+	}
+
+	return null
+}
+
+export function BoxLayoutPreview({ content, time }: BoxLayoutPreviewProps): React.ReactElement {
 	const reversedItems = useMemo(
-		() => (content.boxSourceConfiguration ? getSplitPreview(content.boxSourceConfiguration).slice().reverse() : []),
-		[content.boxSourceConfiguration]
+		() =>
+			content.boxSourceConfiguration
+				? getSplitPreview(content.boxSourceConfiguration, content.boxPreviews).slice().reverse()
+				: [],
+		[content.boxSourceConfiguration, content.boxPreviews]
 	)
 
 	return (
-		<div className="preview-popUp__box-layout">
+		<div className="preview-popUp__box-layout checkerboard-bg">
 			{content.backgroundArtSrc && (
 				<div className="video-preview background">
 					<img src={content.backgroundArtSrc} alt="" />
@@ -55,6 +102,7 @@ export function BoxLayoutPreview({ content }: BoxLayoutPreviewProps): React.Reac
 							: undefined,
 					}}
 				>
+					<SplitBoxMedia item={item} time={time} scrub={content.scrub} />
 					{content.showLabels && item.role === SplitRole.BOX && (
 						<div className="video-preview__label">{item.label}</div>
 					)}

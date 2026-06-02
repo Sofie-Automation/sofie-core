@@ -31,6 +31,11 @@ export interface UIPieceContentStatus {
 	status: PieceContentStatusObj
 }
 
+export interface SplitBoxPreviewUrls {
+	thumbnailUrl?: string
+	previewUrl?: string
+}
+
 export interface PieceContentStatusObj {
 	status: PieceStatusCode
 	messages: ITranslatableMessage[]
@@ -47,4 +52,11 @@ export interface PieceContentStatusObj {
 	contentDuration: number | undefined
 
 	progress: number | undefined
+
+	/**
+	 * Per-box preview URLs for SPLITS pieces.
+	 * Same length and order as `SplitsContent.boxSourceConfiguration`.
+	 * Non-file boxes (camera, remote, etc.) use `{}`.
+	 */
+	boxPreviews?: SplitBoxPreviewUrls[]
 }

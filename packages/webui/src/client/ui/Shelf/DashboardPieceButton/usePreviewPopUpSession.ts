@@ -43,6 +43,17 @@ export function usePreviewPopUpSession(args: {
 		return convertSourceLayerItemToPreview(args.layerType, args.piece, args.contentStatus)
 	}, [args.layerType, args.piece, args.contentStatus])
 
+	useEffect(() => {
+		if (previewSessionRef.current) {
+			if (previewRequest.contents.length === 0) {
+				previewSessionRef.current.close()
+				previewSessionRef.current = null
+			} else {
+				previewSessionRef.current.update(previewRequest.contents)
+			}
+		}
+	}, [previewRequest])
+
 	const enableHoverPreview = args.enableHoverPreview ?? true
 
 	const startHoverTimeout = useCallback(() => {

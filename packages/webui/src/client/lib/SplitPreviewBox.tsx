@@ -6,48 +6,54 @@ import { RundownUtils } from './rundown.js'
 export const RenderSplitPreview = React.memo(function RenderSplitPreview({
 	subItems,
 	showLabels,
+	/** When true, boxes are rendered without an outer wrapper (parent must provide layout context). */
+	flatLayout = false,
 }: {
 	subItems: ReadonlyArray<Readonly<SplitSubItem>>
 	showLabels: boolean
+	flatLayout?: boolean
 }) {
 	const reversedSubItems = subItems.slice()
 	reversedSubItems.reverse()
 
-	return (
-		<div className="video-preview">
-			{reversedSubItems.map((item, index, array) => {
-				return (
-					<div
-						className={classNames(
-							'video-preview',
-							RundownUtils.getSourceLayerClassName(item.type),
-							{
-								background: item.role === SplitRole.ART,
-								box: item.role === SplitRole.BOX,
-							},
-							{
-								second: array.length > 1 && index > 0 && item.type === array[index - 1].type,
-							},
-							{ upper: index >= array.length / 2 },
-							{ lower: index < array.length / 2 }
-						)}
-						key={item._id + '-preview'}
-						style={{
-							left: ((item.content?.x ?? 0) * 100).toString() + '%',
-							top: ((item.content?.y ?? 0) * 100).toString() + '%',
-							width: ((item.content?.scale ?? 1) * 100).toString() + '%',
-							height: ((item.content?.scale ?? 1) * 100).toString() + '%',
-							clipPath: item.content?.crop
-								? `inset(${item.content.crop.top * 100}% ${item.content.crop.right * 100}% ${
-										item.content.crop.bottom * 100
-									}% ${item.content.crop.left * 100}%)`
-								: undefined,
-						}}
-					>
-						{showLabels && item.role === SplitRole.BOX && <div className="video-preview__label">{item.label}</div>}
-					</div>
-				)
-			})}
-		</div>
-	)
+	const boxes = reversedSubItems.map((item, index, array) => {
+		return (
+			<div
+				className={classNames(
+					'video-preview',
+					RundownUtils.getSourceLayerClassName(item.type),
+					{
+						background: item.role === SplitRole.ART,
+						box: item.role === SplitRole.BOX,
+					},
+					{
+						second: array.length > 1 && index > 0 && item.type === array[index - 1].type,
+					},
+					{ upper: index >= array.length / 2 },
+					{ lower: index < array.length / 2 }
+				)}
+				key={item._id + '-preview'}
+				style={{
+					left: ((item.content?.x ?? 0) * 100).toString() + '%',
+					top: ((item.content?.y ?? 0) * 100).toString() + '%',
+					width: ((item.content?.scale ?? 1) * 100).toString() + '%',
+					height: ((item.content?.scale ?? 1) * 100).toString() + '%',
+					clipPath: item.content?.crop
+						? `inset(${item.content.crop.top * 100}% ${item.content.crop.right * 100}% ${
+								item.content.crop.bottom * 100
+							}% ${item.content.crop.left * 100}%)`
+						: undefined,
+				}}
+			>
+				{item.thumbnailUrl && <img src={item.thumbnailUrl} alt="" className="video-preview__image" />}
+				{showLabels && item.role === SplitRole.BOX && <div className="video-preview__label">{item.label}</div>}
+			</div>
+		)
+	})
+
+	if (flatLayout) {
+		return <>{boxes}</>
+	}
+
+	return <div className="video-preview checkerboard-bg">{boxes}</div>
 })

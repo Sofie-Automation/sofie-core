@@ -1,6 +1,7 @@
 @use 'sass:color';
 
 @import 'utils';
+@import 'checkerboard';
 
 $output-layer-group-line: 1px solid #5c5c5c;
 $output-layer-group-collapse-animation-duration: 0.3s;
@@ -3078,7 +3079,7 @@ svg.icon {
 			display: block;
 			width: 414px;
 			height: 233px;
-			background: #000;
+			@include checkerboard-background;
 		}
 
 		> .segment-timeline__mini-inspector__warnings {
@@ -3139,6 +3140,16 @@ svg.icon {
 			> .box {
 				position: absolute;
 				transform: translate(-50%, -50%);
+			}
+
+			.video-preview__image {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+				z-index: 1;
 			}
 
 			& > * {

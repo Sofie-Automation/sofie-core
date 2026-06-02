@@ -178,7 +178,7 @@ export function LinePartMainPiece({
 			return
 		}
 		const newMousePosition = Math.max(0, Math.min(1, (e.pageX - origin.left - 5) / (width - 10)))
-		setMousePosition(e.pageX - origin.left)
+		setMousePosition(newMousePosition)
 
 		previewSession.current?.setPointerTime(
 			newMousePosition * (piece.instance.piece.content.sourceDuration ?? contentStatus?.contentDuration ?? 0)

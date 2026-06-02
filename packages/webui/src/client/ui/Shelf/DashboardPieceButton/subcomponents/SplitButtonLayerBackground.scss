@@ -1,0 +1,24 @@
+@import '../../../../styles/itemTypeColors';
+
+.dashboard-panel__panel__button__layer-background {
+	position: absolute;
+	inset: 0;
+	z-index: 0;
+	pointer-events: none;
+
+	&__preview {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		display: flex;
+		flex-direction: column-reverse;
+
+		&__item {
+			flex: 1 1;
+			min-height: 0;
+			@include item-type-colors;
+		}
+	}
+}

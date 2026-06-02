@@ -6,7 +6,7 @@ import type { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataM
 import type { IDashboardButtonProps } from './types'
 import { usePreviewPopUpSession } from './usePreviewPopUpSession'
 import { isTouchDevice } from '../../../lib/lib.js'
-import type { VTContent } from '@sofie-automation/blueprints-integration'
+import { getPieceScrubDurationMs } from '../../../lib/ui/splitsPreviewVideo.js'
 
 export function useDashboardButtonInteractions(args: {
 	piece: IDashboardButtonProps['piece']
@@ -44,6 +44,11 @@ export function useDashboardButtonInteractions(args: {
 
 	const [timePosition, setTimePosition] = useState(0)
 
+	const scrubDurationMs = useMemo(
+		() => getPieceScrubDurationMs(args.piece.content as { sourceDuration?: number }, args.contentStatus),
+		[args.piece.content, args.contentStatus]
+	)
+
 	const { openPreview, closePreview, setPointerTime, hasPreview } = usePreviewPopUpSession({
 		previewContext: args.previewContext,
 		layerType: args.layer?.type,
@@ -64,14 +69,28 @@ export function useDashboardButtonInteractions(args: {
 		positionAndSizeRef.current = { top, left, width, height }
 	}, [])
 
+	const timeFromClientX = useCallback(
+		(clientX: number) => {
+			const rect = positionAndSizeRef.current
+			const timePercentage = Math.max(
+				0,
+				Math.min((clientX - (rect?.left || 0) - 5) / ((rect?.width || 1) - 10), 1)
+			)
+			return timePercentage * scrubDurationMs
+		},
+		[scrubDurationMs]
+	)
+
 	const onPointerEnter = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
 			updatePositionAndSize()
 			if (e.pointerType === 'mouse' && hasPreview) {
-				openPreview(e.currentTarget, timePosition)
+				const time = timeFromClientX(e.clientX)
+				setTimePosition(time)
+				openPreview(e.currentTarget, time)
 			}
 		},
-		[hasPreview, openPreview, timePosition, updatePositionAndSize]
+		[hasPreview, openPreview, timeFromClientX, updatePositionAndSize]
 	)
 
 	const onPointerLeave = useCallback(() => {
@@ -129,17 +148,11 @@ export function useDashboardButtonInteractions(args: {
 
 	const onMoveClientX = useCallback(
 		(clientX: number) => {
-			const rect = positionAndSizeRef.current
-			const timePercentage = Math.max(
-				0,
-				Math.min((clientX - (rect?.left || 0) - 5) / ((rect?.width || 1) - 10), 1)
-			)
-			const sourceDuration = (args.piece.content as VTContent | undefined)?.sourceDuration || 0
-			const newTime = timePercentage * sourceDuration
+			const newTime = timeFromClientX(clientX)
 			setTimePosition(newTime)
 			setPointerTime(newTime)
 		},
-		[args.piece.content, setPointerTime]
+		[setPointerTime, timeFromClientX]
 	)
 
 	const onMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => onMoveClientX(e.clientX), [onMoveClientX])
@@ -156,9 +169,13 @@ export function useDashboardButtonInteractions(args: {
 		(e: React.TouchEvent<HTMLDivElement>) => {
 			if (args.canOverflowHorizontally) return
 			updatePositionAndSize()
-			if (hasPreview) openPreview(e.currentTarget, timePosition)
+			if (hasPreview && e.touches.length > 0) {
+				const time = timeFromClientX(e.touches[0].clientX)
+				setTimePosition(time)
+				openPreview(e.currentTarget, time)
+			}
 		},
-		[args.canOverflowHorizontally, hasPreview, openPreview, timePosition, updatePositionAndSize]
+		[args.canOverflowHorizontally, hasPreview, openPreview, timeFromClientX, updatePositionAndSize]
 	)
 
 	const onTouchEnd = useCallback(() => {

@@ -8,6 +8,7 @@ import {
 	LiveSpeakContent,
 	PackageInfo,
 	SourceLayerType,
+	SplitsContent,
 	VTContent,
 } from '@sofie-automation/blueprints-integration'
 import { getExpectedPackageId } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
@@ -52,11 +53,17 @@ import {
 	PackageInfoLight,
 	PieceDependencies,
 } from './common'
-import { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
+import { PieceContentStatusObj, SplitBoxPreviewUrls } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
 import { PieceContentStatusMessageFactory, PieceContentStatusMessageRequiredArgs } from './messageFactory'
 import { PackageStatusMessage } from '@sofie-automation/shared-lib/dist/packageStatusMessages'
 import { BucketAdLib } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibPiece'
 import { StudioPackageContainerSettings } from '@sofie-automation/shared-lib/dist/core/model/PackageContainer'
+import {
+	buildPublishedBoxPreviews,
+	getMediaIdFromSplitBox,
+	getMediaIdsFromSplitsContent,
+	normalizeSplitBoxMediaId,
+} from '@sofie-automation/shared-lib/dist/package-manager/splitBoxMedia'
 
 const DEFAULT_MESSAGE_FACTORY = new PieceContentStatusMessageFactory(undefined)
 
@@ -241,24 +248,45 @@ export async function checkPieceContentStatusAndDependencies(
 	}
 
 	if (studio.settings.mockPieceContentStatus) {
-		return [
-			{
-				status: PieceStatusCode.OK,
-				messages: [],
-				progress: undefined,
+		const mockStatus: PieceContentStatusObj = {
+			status: PieceStatusCode.OK,
+			messages: [],
+			progress: undefined,
 
-				freezes: [],
-				blacks: [],
-				scenes: [],
+			freezes: [],
+			blacks: [],
+			scenes: [],
 
-				thumbnailUrl: '/dev/fakeThumbnail.png',
-				previewUrl: '/dev/fakePreview.mp4',
+			thumbnailUrl: '/dev/fakeThumbnail.png',
+			previewUrl: '/dev/fakePreview.mp4',
 
-				packageName: '/dev/fakePreview.mp4',
-				contentDuration: 30 * 1000,
-			},
-			pieceDependencies,
-		]
+			packageName: '/dev/fakePreview.mp4',
+			contentDuration: 30 * 1000,
+		}
+
+		if (sourceLayer.type === SourceLayerType.SPLITS) {
+			const splitsContent = piece.content as SplitsContent | undefined
+			if (splitsContent?.boxSourceConfiguration) {
+				return [
+					{
+						...mockStatus,
+						thumbnailUrl: undefined,
+						previewUrl: undefined,
+						boxPreviews: splitsContent.boxSourceConfiguration.map((box) =>
+							getMediaIdFromSplitBox(box)
+								? {
+										thumbnailUrl: '/dev/fakeThumbnail.png',
+										previewUrl: '/dev/fakePreview.mp4',
+									}
+								: {}
+						),
+					},
+					pieceDependencies,
+				]
+			}
+		}
+
+		return [mockStatus, pieceDependencies]
 	}
 
 	const ignoreMediaStatus = piece.content && piece.content.ignoreMediaObjectStatus
@@ -295,6 +323,17 @@ export async function checkPieceContentStatusAndDependencies(
 				) as Promise<PackageContainerPackageStatusLight | undefined>
 			}
 
+			const getMediaObject = async (mediaId: string) => {
+				pieceDependencies.mediaObjects.push(mediaId)
+				return MediaObjects.findOneAsync(
+					{
+						studioId: studio._id,
+						mediaId,
+					},
+					{ projection: mediaObjectFieldSpecifier }
+				) as Promise<MediaObjectLight | undefined>
+			}
+
 			// Using Expected Packages:
 			const status = await checkPieceContentExpectedPackageStatus(
 				piece,
@@ -305,6 +344,9 @@ export async function checkPieceContentStatusAndDependencies(
 				getPackageContainerPackageStatus,
 				messageFactory || DEFAULT_MESSAGE_FACTORY
 			)
+			if (sourceLayer.type === SourceLayerType.SPLITS && status.boxPreviews) {
+				await fillSplitsBoxPreviewsFromMediaObjects(studio, piece, status, getMediaObject)
+			}
 			return [status, pieceDependencies]
 		} else {
 			// Fallback to MediaObject statuses:
@@ -317,6 +359,11 @@ export async function checkPieceContentStatusAndDependencies(
 					},
 					{ projection: mediaObjectFieldSpecifier }
 				) as Promise<MediaObjectLight | undefined>
+			}
+
+			if (sourceLayer.type === SourceLayerType.SPLITS) {
+				const status = await checkPieceContentSplitsMediaObjectStatus(piece, studio, getMediaObject)
+				return [status, pieceDependencies]
 			}
 
 			const status = await checkPieceContentMediaObjectStatus(
@@ -353,6 +400,89 @@ export async function checkPieceContentStatusAndDependencies(
 interface MediaObjectMessage {
 	status: PieceStatusCode
 	message: ITranslatableMessage | null
+}
+
+async function fillSplitsBoxPreviewsFromMediaObjects(
+	studio: PieceContentStatusStudio,
+	piece: PieceContentStatusPiece,
+	status: PieceContentStatusObj,
+	getMediaObject: (mediaId: string) => Promise<MediaObjectLight | undefined>
+): Promise<void> {
+	const splitsContent = piece.content as SplitsContent | undefined
+	const boxes = splitsContent?.boxSourceConfiguration
+	if (!boxes?.length || !status.boxPreviews) return
+
+	const newPreviews = [...status.boxPreviews]
+	for (let i = 0; i < boxes.length; i++) {
+		const mediaId = getMediaIdFromSplitBox(boxes[i])
+		if (!mediaId) continue
+
+		const preview = newPreviews[i] ?? {}
+		if (preview.thumbnailUrl || preview.previewUrl) continue
+
+		const mediaObject = await getMediaObject(mediaId)
+		if (!mediaObject) continue
+
+		newPreviews[i] = {
+			thumbnailUrl: getAssetUrlFromContentMetaData(mediaObject, 'thumbnail', studio.settings.mediaPreviewsUrl),
+			previewUrl: getAssetUrlFromContentMetaData(mediaObject, 'preview', studio.settings.mediaPreviewsUrl),
+		}
+	}
+	status.boxPreviews = newPreviews
+}
+
+async function checkPieceContentSplitsMediaObjectStatus(
+	piece: PieceContentStatusPiece,
+	studio: PieceContentStatusStudio,
+	getMediaObject: (mediaId: string) => Promise<MediaObjectLight | undefined>
+): Promise<PieceContentStatusObj> {
+	const splitsContent = piece.content as SplitsContent | undefined
+	const boxes = splitsContent?.boxSourceConfiguration ?? []
+	const previewByMediaId = new Map<string, SplitBoxPreviewUrls>()
+	let contentDuration: number | undefined
+
+	for (const mediaId of getMediaIdsFromSplitsContent({ boxSourceConfiguration: boxes })) {
+		const mediaObject = await getMediaObject(mediaId)
+		if (!mediaObject) continue
+
+		previewByMediaId.set(mediaId, {
+			thumbnailUrl: getAssetUrlFromContentMetaData(mediaObject, 'thumbnail', studio.settings.mediaPreviewsUrl),
+			previewUrl: getAssetUrlFromContentMetaData(mediaObject, 'preview', studio.settings.mediaPreviewsUrl),
+		})
+
+		if (mediaObject.mediainfo?.streams?.length) {
+			const maximumStreamDuration = mediaObject.mediainfo.streams.reduce(
+				(prev, current) =>
+					current.duration !== undefined ? Math.max(prev, Number.parseFloat(current.duration)) : prev,
+				Number.NaN
+			)
+			if (Number.isFinite(maximumStreamDuration)) {
+				contentDuration = Math.max(contentDuration ?? 0, maximumStreamDuration)
+			}
+		}
+	}
+
+	let pieceStatus = PieceStatusCode.UNKNOWN
+	if (previewByMediaId.size > 0) {
+		pieceStatus = PieceStatusCode.OK
+	}
+
+	return {
+		status: pieceStatus,
+		messages: [],
+		progress: 0,
+
+		freezes: [],
+		blacks: [],
+		scenes: [],
+
+		thumbnailUrl: undefined,
+		previewUrl: undefined,
+
+		packageName: null,
+		contentDuration,
+		boxPreviews: buildPublishedBoxPreviews(boxes, previewByMediaId),
+	}
 }
 
 async function checkPieceContentMediaObjectStatus(
@@ -609,6 +739,8 @@ async function checkPieceContentExpectedPackageStatus(
 	messageFactory: PieceContentStatusMessageFactory
 ): Promise<PieceContentStatusObj> {
 	const settings: IStudioSettings | undefined = studio?.settings
+	const isSplitsLayer = sourceLayer.type === SourceLayerType.SPLITS
+	const previewByMediaId = new Map<string, SplitBoxPreviewUrls>()
 
 	const ignoreMediaAudioStatus = piece.content && piece.content.ignoreAudioFormat
 
@@ -708,28 +840,31 @@ async function checkPieceContentExpectedPackageStatus(
 					continue
 				}
 
-				if (!thumbnailUrl) {
-					const sideEffect = getSideEffect(expectedPackage, studio.packageContainerSettings)
+				const resolvedUrls = await resolveExpectedPackageAssetUrls(
+					studio,
+					expectedPackage,
+					candidatePackageId,
+					getPackageContainerPackageStatus
+				)
 
-					thumbnailUrl = await getAssetUrlFromPackageContainerStatus(
-						studio.packageContainers,
-						getPackageContainerPackageStatus,
-						candidatePackageId,
-						sideEffect.thumbnailContainerId,
-						sideEffect.thumbnailPackageSettings?.path
-					)
-				}
+				if (isSplitsLayer) {
+					const pkgMediaPath = getExpectedPackageFileName(expectedPackage)
+					if (pkgMediaPath) {
+						const mediaId = normalizeSplitBoxMediaId(pkgMediaPath)
+						const existing = previewByMediaId.get(mediaId) ?? {}
+						previewByMediaId.set(mediaId, {
+							thumbnailUrl: existing.thumbnailUrl ?? resolvedUrls.thumbnailUrl,
+							previewUrl: existing.previewUrl ?? resolvedUrls.previewUrl,
+						})
+					}
+				} else {
+					if (!thumbnailUrl) {
+						thumbnailUrl = resolvedUrls.thumbnailUrl
+					}
 
-				if (!previewUrl) {
-					const sideEffect = getSideEffect(expectedPackage, studio.packageContainerSettings)
-
-					previewUrl = await getAssetUrlFromPackageContainerStatus(
-						studio.packageContainers,
-						getPackageContainerPackageStatus,
-						candidatePackageId,
-						sideEffect.previewContainerId,
-						sideEffect.previewPackageSettings?.path
-					)
+					if (!previewUrl) {
+						previewUrl = resolvedUrls.previewUrl
+					}
 				}
 
 				progress = getPackageProgress(packageOnPackageContainer.status) ?? undefined
@@ -868,6 +1003,16 @@ async function checkPieceContentExpectedPackageStatus(
 			: messageFactory.getTranslation(msg.message, messageArgs)
 	})
 
+	let boxPreviews: SplitBoxPreviewUrls[] | undefined
+	if (isSplitsLayer) {
+		const splitsContent = piece.content as SplitsContent | undefined
+		if (splitsContent?.boxSourceConfiguration) {
+			boxPreviews = buildPublishedBoxPreviews(splitsContent.boxSourceConfiguration, previewByMediaId)
+		}
+		thumbnailUrl = undefined
+		previewUrl = undefined
+	}
+
 	return {
 		status: pieceStatus,
 		messages: _.compact(translatedMessages),
@@ -883,7 +1028,38 @@ async function checkPieceContentExpectedPackageStatus(
 		packageName,
 
 		contentDuration,
+		boxPreviews,
 	}
+}
+
+async function resolveExpectedPackageAssetUrls(
+	studio: PieceContentStatusStudio,
+	expectedPackage: ExpectedPackage.Any,
+	candidatePackageId: ExpectedPackageId,
+	getPackageContainerPackageStatus: (
+		packageContainerId: string,
+		expectedPackageId: ExpectedPackageId
+	) => Promise<PackageContainerPackageStatusLight | undefined>
+): Promise<SplitBoxPreviewUrls> {
+	const sideEffect = getSideEffect(expectedPackage, studio.packageContainerSettings)
+
+	const thumbnailUrl = await getAssetUrlFromPackageContainerStatus(
+		studio.packageContainers,
+		getPackageContainerPackageStatus,
+		candidatePackageId,
+		sideEffect.thumbnailContainerId,
+		sideEffect.thumbnailPackageSettings?.path
+	)
+
+	const previewUrl = await getAssetUrlFromPackageContainerStatus(
+		studio.packageContainers,
+		getPackageContainerPackageStatus,
+		candidatePackageId,
+		sideEffect.previewContainerId,
+		sideEffect.previewPackageSettings?.path
+	)
+
+	return { thumbnailUrl, previewUrl }
 }
 
 async function getAssetUrlFromPackageContainerStatus(
