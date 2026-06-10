@@ -23,23 +23,24 @@ Options:
   --db-list            List all available database directories and show which is active
 
 Examples:
-  yarn start                  # Install, build, then run in dev mode
-  yarn dev                    # Run in normal dev mode (requires prior build)
-  yarn dev --db-list          # List all available databases
-  yarn dev --db=testing       # Use a separate database for testing
-  yarn dev --db=demo          # Switch to demo database
-  yarn dev --ui-only          # Only watch UI, skip backend packages
-  yarn dev --inspect-meteor   # Debug Meteor with inspector
+  yarn dev                      # Install, build, then run start with --watch
+  yarn start                    # Run in normal dev mode (requires prior build)
+  yarn start --watch            # Run in dev mode with file watching
+  yarn start --db-list          # List all available databases
+  yarn start --db=testing       # Use a separate database for testing
+  yarn start --db=demo          # Switch to demo database
+  yarn start --inspect-meteor   # Debug Meteor with inspector
   yarn start --db=demo        # Install, build, and run with demo database
 `);
 	process.exit(0);
 }
 
 // Parse --db=name option
-const dbArg = args.find(arg => arg.startsWith('--db='));
-const dbName = dbArg ? dbArg.split('=')[1] : null;
+const dbArg = args.find((arg) => arg.startsWith("--db="));
+const dbName = dbArg ? dbArg.split("=")[1] : null;
 
 const config = {
+	watchMode: args.indexOf("--watch") >= 0 || false,
 	uiOnly: args.indexOf("--ui-only") >= 0 || false,
 	inspectMeteor: args.indexOf("--inspect-meteor") >= 0 || false,
 	verbose: args.indexOf("--verbose") >= 0 || false,
