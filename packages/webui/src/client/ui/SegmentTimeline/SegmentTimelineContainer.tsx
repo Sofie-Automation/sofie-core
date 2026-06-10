@@ -144,11 +144,14 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 
 		isVisible: boolean
 		visibilityChangeTimeout: NodeJS.Timeout | undefined
+		initialShowEntireSegmentTimeout: NodeJS.Timeout | undefined
+		initialShowEntireSegmentRaf: number | undefined
 		rundownCurrentPartInstanceId: PartInstanceId | null = null
 		timelineDiv: HTMLDivElement | null = null
 		intersectionObserver: IntersectionObserver | undefined
 		mountedTime = 0
 		nextPartOffset = 0
+		isUnmounted = false
 
 		constructor(props: IProps & ITrackedResolvedSegmentProps) {
 			super(props)
@@ -183,6 +186,7 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 		}
 
 		componentDidMount(): void {
+			this.isUnmounted = false
 			SpeechSynthesiser.init()
 
 			this.rundownCurrentPartInstanceId = this.props.playlist.currentPartInfo?.partInstanceId ?? null
@@ -194,8 +198,10 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 			RundownViewEventBus.on(RundownViewEvents.GO_TO_PART, this.onGoToPart)
 			RundownViewEventBus.on(RundownViewEvents.GO_TO_PART_INSTANCE, this.onGoToPartInstance)
 			// Delay is to ensure UI has settled before checking:
-			setTimeout(() => {
-				window.requestAnimationFrame(() => {
+			this.initialShowEntireSegmentTimeout = setTimeout(() => {
+				this.initialShowEntireSegmentTimeout = undefined
+				this.initialShowEntireSegmentRaf = window.requestAnimationFrame(() => {
+					this.initialShowEntireSegmentRaf = undefined
 					this.mountedTime = Date.now()
 					if (this.state.isLiveSegment && this.props.followLiveSegments && !this.isVisible) {
 						scrollToSegment(this.props.segmentId, true).catch((error) => {
@@ -349,14 +355,32 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 		}
 
 		componentWillUnmount(): void {
+			this.isUnmounted = true
+			this.timelineDiv = null
+			this.rundownCurrentPartInstanceId = null
 			if (this.intersectionObserver && this.state.isLiveSegment && this.props.followLiveSegments) {
 				if (typeof this.props.onSegmentScroll === 'function') this.props.onSegmentScroll()
+			}
+
+			if (this.initialShowEntireSegmentTimeout) {
+				clearTimeout(this.initialShowEntireSegmentTimeout)
+				this.initialShowEntireSegmentTimeout = undefined
+			}
+			if (this.initialShowEntireSegmentRaf !== undefined) {
+				window.cancelAnimationFrame(this.initialShowEntireSegmentRaf)
+				this.initialShowEntireSegmentRaf = undefined
+			}
+
+			if (this.visibilityChangeTimeout) {
+				clearTimeout(this.visibilityChangeTimeout)
+				this.visibilityChangeTimeout = undefined
 			}
 
 			this.stopLive()
 			RundownViewEventBus.off(RundownViewEvents.REWIND_SEGMENTS, this.onRewindSegment)
 			RundownViewEventBus.off(RundownViewEvents.GO_TO_PART, this.onGoToPart)
 			RundownViewEventBus.off(RundownViewEvents.GO_TO_PART_INSTANCE, this.onGoToPartInstance)
+			this.onWindowResize.cancel()
 			window.removeEventListener('resize', this.onWindowResize)
 		}
 
@@ -373,6 +397,7 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 		}, 250)
 
 		onTimeScaleChange = (timeScaleVal: number) => {
+			if (this.isUnmounted) return
 			if (Number.isFinite(timeScaleVal) && timeScaleVal > 0) {
 				this.setState((state) => ({
 					timeScale: timeScaleVal,
@@ -382,6 +407,7 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 		}
 
 		onCollapseOutputToggle = (outputLayer: IOutputLayerUi) => {
+			if (this.isUnmounted) return
 			const collapsedOutputs = { ...this.state.collapsedOutputs }
 			collapsedOutputs[outputLayer._id] =
 				outputLayer.isDefaultCollapsed && collapsedOutputs[outputLayer._id] === undefined
@@ -396,6 +422,7 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 		}
 		/** The user has scrolled scrollLeft seconds to the left in a child component */
 		onScroll = (scrollLeft: number) => {
+			if (this.isUnmounted) return
 			this.setState({
 				scrollLeft: Math.max(
 					0,
@@ -411,6 +438,7 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 		}
 
 		onRewindSegment = () => {
+			if (this.isUnmounted) return
 			if (!this.state.isLiveSegment) {
 				this.updateMaxTimeScale()
 					.then(() => {
@@ -425,6 +453,7 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 		}
 
 		onGoToPartInner = (part: PartUi, zoomInToFit?: boolean) => {
+			if (this.isUnmounted) return
 			this.setState((state) => {
 				const timelineWidth = this.timelineDiv instanceof HTMLElement ? getElementWidth(this.timelineDiv) : 0 // unsure if this is good default/substitute
 				let newScale: number | undefined
@@ -492,6 +521,7 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 		}
 
 		onAirLineRefresh = (e: TimingEvent) => {
+			if (this.isUnmounted) return
 			this.setState((state) => {
 				if (state.isLiveSegment && state.currentLivePart) {
 					const currentLivePartInstance = state.currentLivePart.instance
@@ -535,12 +565,14 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 		}
 
 		visibleChanged = (entries: IntersectionObserverEntry[]) => {
+			if (this.isUnmounted) return
 			// Add a small debounce to ensure UI has settled before checking
 			if (this.visibilityChangeTimeout) {
 				clearTimeout(this.visibilityChangeTimeout)
 			}
 
 			this.visibilityChangeTimeout = setTimeout(() => {
+				if (this.isUnmounted) return
 				if (entries[0].intersectionRatio < 0.99 && !isMaintainingFocus() && Date.now() - this.mountedTime > 2000) {
 					if (typeof this.props.onSegmentScroll === 'function') this.props.onSegmentScroll()
 					this.isVisible = false

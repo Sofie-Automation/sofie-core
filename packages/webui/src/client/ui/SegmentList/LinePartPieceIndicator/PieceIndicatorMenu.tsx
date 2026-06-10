@@ -31,7 +31,7 @@ export function PieceIndicatorMenu({
 	}, [pieces.length])
 
 	useEffect(() => {
-		if (!indicatorMenuEl) return
+		if (!indicatorMenuEl || !indicatorMenuEl.isConnected) return
 
 		let timeout: NodeJS.Timeout | undefined = undefined
 
@@ -55,7 +55,7 @@ export function PieceIndicatorMenu({
 			indicatorMenuEl.removeEventListener('mouseenter', onMouseEnter)
 			indicatorMenuEl.removeEventListener('mouseleave', onMouseLeave)
 		}
-	}, [indicatorMenuEl])
+	}, [indicatorMenuEl, setIsOver])
 
 	useLayoutEffect(() => {
 		if (!indicatorMenuEl) return
@@ -78,7 +78,7 @@ export function PieceIndicatorMenu({
 						<div
 							className="segment-opl__piece-indicator-menu"
 							/** This is so that we avoid updating the state once the component has been unmounted */
-							ref={(el) => el !== null && setIndicatorMenuEl(el)}
+							ref={setIndicatorMenuEl}
 							style={styles.popper}
 							{...attributes.popper}
 						>

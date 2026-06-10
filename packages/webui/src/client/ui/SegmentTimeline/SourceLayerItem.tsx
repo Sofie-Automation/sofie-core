@@ -166,6 +166,15 @@ export const SourceLayerItem = (props: Readonly<ISourceLayerItemProps>): JSX.Ele
 	useEffect(() => {
 		return () => {
 			clearTimeout(highlightTimeout.current)
+			if (animFrameHandle.current !== undefined) {
+				cancelAnimationFrame(animFrameHandle.current)
+				animFrameHandle.current = undefined
+			}
+			if (previewSession.current) {
+				previewSession.current.close()
+				previewSession.current = null
+			}
+			itemElementRef.current = null
 		}
 	}, [])
 
@@ -241,14 +250,6 @@ export const SourceLayerItem = (props: Readonly<ISourceLayerItemProps>): JSX.Ele
 
 	const previewContext = useContext(PreviewPopUpContext)
 	const previewSession = useRef<IPreviewPopUpSession | null>(null)
-	const toggleMiniInspectorOn = useCallback(
-		(e: React.MouseEvent) => togglePreviewPopUp(e, true),
-		[piece, cursorTimePosition, contentStatus, timeScale]
-	)
-	const toggleMiniInspectorOff = useCallback(
-		(e: React.MouseEvent) => togglePreviewPopUp(e, false),
-		[piece, cursorTimePosition, contentStatus, timeScale]
-	)
 	const updatePos = useCallback(() => {
 		const elementPos = getElementDocumentOffset(itemElementRef.current) || {
 			top: 0,
@@ -270,13 +271,23 @@ export const SourceLayerItem = (props: Readonly<ISourceLayerItemProps>): JSX.Ele
 		}
 
 		animFrameHandle.current = requestAnimationFrame(updatePos)
-	}, [piece, contentStatus, timeScale])
+	}, [timeScale])
 	const togglePreviewPopUp = useCallback(
 		(e: React.MouseEvent, state: boolean) => {
+			if (animFrameHandle.current !== undefined) {
+				cancelAnimationFrame(animFrameHandle.current)
+				animFrameHandle.current = undefined
+			}
+
 			if (!state && previewSession.current) {
 				previewSession.current.close()
 				previewSession.current = null
 			} else {
+				if (previewSession.current) {
+					previewSession.current.close()
+					previewSession.current = null
+				}
+
 				const { contents: previewContents, options: previewOptions } = convertSourceLayerItemToPreview(
 					layer.type,
 					piece.instance.piece,
@@ -288,7 +299,7 @@ export const SourceLayerItem = (props: Readonly<ISourceLayerItemProps>): JSX.Ele
 				)
 
 				if (previewContents.length) {
-					previewSession.current = previewContext.requestPreview(e.target as any, previewContents, {
+					previewSession.current = previewContext.requestPreview(e.currentTarget, previewContents, {
 						...previewOptions,
 						time: cursorTimePosition,
 						initialOffsetX: e.screenX,
@@ -308,9 +319,27 @@ export const SourceLayerItem = (props: Readonly<ISourceLayerItemProps>): JSX.Ele
 				animFrameHandle.current = requestAnimationFrame(updatePos)
 			} else if (animFrameHandle.current !== undefined) {
 				cancelAnimationFrame(animFrameHandle.current)
+				animFrameHandle.current = undefined
 			}
 		},
-		[piece, cursorTimePosition, contentStatus, timeScale]
+		[
+			piece,
+			cursorTimePosition,
+			contentStatus,
+			updatePos,
+			layer.type,
+			previewContext,
+			props.piece.renderedDuration,
+			props.piece.renderedInPoint,
+		]
+	)
+	const toggleMiniInspectorOn = useCallback(
+		(e: React.MouseEvent) => togglePreviewPopUp(e, true),
+		[piece, cursorTimePosition, contentStatus, timeScale, togglePreviewPopUp]
+	)
+	const toggleMiniInspectorOff = useCallback(
+		(e: React.MouseEvent) => togglePreviewPopUp(e, false),
+		[piece, cursorTimePosition, contentStatus, timeScale, togglePreviewPopUp]
 	)
 	const moveMiniInspector = useCallback((e: MouseEvent | any) => {
 		cursorRawPosition.current = {

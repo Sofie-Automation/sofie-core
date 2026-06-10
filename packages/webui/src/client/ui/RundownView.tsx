@@ -30,6 +30,7 @@ import {
 	maintainFocusOnPartInstance,
 	scrollToPartInstance,
 	getHeaderHeight,
+	clearViewportLifecycleState,
 } from '../lib/viewPort.js'
 import { AfterBroadcastForm } from './AfterBroadcastForm.js'
 import { RundownRightHandControls } from './RundownView/RundownRightHandControls.js'
@@ -336,6 +337,10 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 })(
 	class RundownViewContent extends React.Component<Translated<IPropsWithReady & ITrackedProps>, IState> {
 		private _hideNotificationsAfterMount: number | undefined
+		private _goToTopIdleCallback: number | undefined
+		private _goToLiveSegmentShortTimeout: ReturnType<typeof setTimeout> | undefined
+		private _goToLiveSegmentLongTimeout: ReturnType<typeof setTimeout> | undefined
+		private _headerNoteHighlightTimeout: ReturnType<typeof setTimeout> | undefined
 
 		constructor(props: Translated<IPropsWithReady & ITrackedProps>) {
 			super(props)
@@ -609,6 +614,8 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 			document.body.classList.remove('dark', 'vertical-overflow-only')
 			document.documentElement.removeAttribute('data-bs-theme')
 			window.removeEventListener('beforeunload', this.onBeforeUnload)
+			this.clearPendingDeferredCallbacks()
+			clearViewportLifecycleState()
 
 			documentTitle.set(null)
 
@@ -685,13 +692,37 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 			}
 		}
 
+		private clearPendingDeferredCallbacks = () => {
+			if (this._goToTopIdleCallback !== undefined) {
+				window.cancelIdleCallback(this._goToTopIdleCallback)
+				this._goToTopIdleCallback = undefined
+			}
+			if (this._goToLiveSegmentShortTimeout) {
+				clearTimeout(this._goToLiveSegmentShortTimeout)
+				this._goToLiveSegmentShortTimeout = undefined
+			}
+			if (this._goToLiveSegmentLongTimeout) {
+				clearTimeout(this._goToLiveSegmentLongTimeout)
+				this._goToLiveSegmentLongTimeout = undefined
+			}
+			if (this._headerNoteHighlightTimeout) {
+				clearTimeout(this._headerNoteHighlightTimeout)
+				this._headerNoteHighlightTimeout = undefined
+			}
+		}
+
 		private onGoToTop = () => {
 			scrollToPosition(0).catch((error) => {
 				if (!error.toString().match(/another scroll/)) console.warn(error)
 			})
 
-			window.requestIdleCallback(
+			if (this._goToTopIdleCallback !== undefined) {
+				window.cancelIdleCallback(this._goToTopIdleCallback)
+			}
+
+			this._goToTopIdleCallback = window.requestIdleCallback(
 				() => {
+					this._goToTopIdleCallback = undefined
 					this.setState({
 						followLiveSegments: true,
 					})
@@ -701,6 +732,15 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 		}
 
 		private onGoToLiveSegment = () => {
+			if (this._goToLiveSegmentShortTimeout) {
+				clearTimeout(this._goToLiveSegmentShortTimeout)
+				this._goToLiveSegmentShortTimeout = undefined
+			}
+			if (this._goToLiveSegmentLongTimeout) {
+				clearTimeout(this._goToLiveSegmentLongTimeout)
+				this._goToLiveSegmentLongTimeout = undefined
+			}
+
 			if (
 				this.props.playlist &&
 				this.props.playlist.activationId &&
@@ -711,14 +751,16 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 					followLiveSegments: true,
 				})
 				// Small delay to ensure the nextPartInfo is available
-				setTimeout(() => {
+				this._goToLiveSegmentShortTimeout = setTimeout(() => {
+					this._goToLiveSegmentShortTimeout = undefined
 					if (this.props.playlist && this.props.playlist.nextPartInfo) {
 						scrollToPartInstance(this.props.playlist.nextPartInfo.partInstanceId, true).catch((error) => {
 							if (!error.toString().match(/another scroll/)) console.warn(error)
 						})
 					}
 				}, 120)
-				setTimeout(() => {
+				this._goToLiveSegmentLongTimeout = setTimeout(() => {
+					this._goToLiveSegmentLongTimeout = undefined
 					this.setState({
 						followLiveSegments: true,
 					})
@@ -731,7 +773,8 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 				scrollToPartInstance(this.props.playlist.currentPartInfo.partInstanceId, true).catch((error) => {
 					if (!error.toString().match(/another scroll/)) console.warn(error)
 				})
-				setTimeout(() => {
+				this._goToLiveSegmentLongTimeout = setTimeout(() => {
+					this._goToLiveSegmentLongTimeout = undefined
 					this.setState({
 						followLiveSegments: true,
 					})
@@ -897,7 +940,11 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 			this.setState({
 				isNotificationsCenterOpen: level === NoteSeverity.ERROR ? NoticeLevel.CRITICAL : NoticeLevel.WARNING,
 			})
-			setTimeout(
+			if (this._headerNoteHighlightTimeout) {
+				clearTimeout(this._headerNoteHighlightTimeout)
+				this._headerNoteHighlightTimeout = undefined
+			}
+			this._headerNoteHighlightTimeout = setTimeout(
 				function () {
 					NotificationCenter.highlightSource(
 						segmentId,

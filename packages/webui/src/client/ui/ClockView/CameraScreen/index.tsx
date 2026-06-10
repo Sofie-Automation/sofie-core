@@ -25,7 +25,11 @@ import { useBlackBrowserTheme } from '../../../lib/useBlackBrowserTheme.js'
 import { useWakeLock } from './useWakeLock.js'
 import { useDebounce } from '../../../lib/lib.js'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
-import { useSetDocumentClass, useSetDocumentDarkTheme } from '../../util/useSetDocumentClass.js'
+import {
+	useSetDocumentClass,
+	useSetDocumentDarkTheme,
+	useOwnedElementClassToggle,
+} from '../../util/useSetDocumentClass.js'
 import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 import type { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
 import type { PieceExtended } from '@sofie-automation/corelib/src/dataModel/Piece.js'
@@ -145,15 +149,7 @@ export function CameraScreen({ playlist, studioId }: Readonly<IProps>): JSX.Elem
 
 	useSetDocumentClass('dark', 'xdark', 'vertical-overflow-only')
 	useSetDocumentDarkTheme()
-
-	useEffect(() => {
-		const containerEl = document.querySelector('#render-target > .container-fluid.header-clear')
-		if (containerEl) containerEl.classList.remove('header-clear')
-
-		return () => {
-			if (containerEl) containerEl.classList.add('header-clear')
-		}
-	}, [])
+	useOwnedElementClassToggle('#render-target > .container-fluid', 'header-clear')
 
 	const studio = useTracker(() => UIStudios.findOne(studioId), [studioId], undefined)
 

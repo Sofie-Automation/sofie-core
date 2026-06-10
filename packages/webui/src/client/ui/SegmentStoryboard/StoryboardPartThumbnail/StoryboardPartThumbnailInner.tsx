@@ -1,4 +1,4 @@
-import { useContext, useRef, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import type { ISourceLayer } from '@sofie-automation/blueprints-integration'
 import { getElementDocumentOffset, type OffsetPosition } from '../../../utils/positions.js'
 import { getElementHeight, getElementWidth } from '../../../utils/dimensions.js'
@@ -62,6 +62,11 @@ export function StoryboardPartThumbnailInner({
 		}
 		setHover(true)
 
+		if (previewSession.current) {
+			previewSession.current.close()
+			previewSession.current = null
+		}
+
 		const newOffset = thumbnailEl.current && getElementDocumentOffset(thumbnailEl.current)
 		if (newOffset !== null) {
 			setOrigin(newOffset)
@@ -76,12 +81,21 @@ export function StoryboardPartThumbnailInner({
 		}
 
 		if (previewContents.length > 0)
-			previewSession.current = previewContext.requestPreview(e.target as any, previewContents, {
+			previewSession.current = previewContext.requestPreview(e.currentTarget, previewContents, {
 				...previewOptions,
 				time: mousePosition * (piece.instance.piece.content.sourceDuration || 0),
 				initialOffsetX: e.screenX,
 			})
 	}
+
+	useEffect(() => {
+		return () => {
+			if (previewSession.current) {
+				previewSession.current.close()
+				previewSession.current = null
+			}
+		}
+	}, [])
 
 	const onPointerLeave = (e: React.PointerEvent<HTMLDivElement>) => {
 		if (e.pointerType !== 'mouse') {

@@ -248,7 +248,8 @@ export class SegmentTimelineClass extends React.Component<Translated<WithTiming<
 		RundownViewEventBus.on(RundownViewEvents.SEGMENT_ZOOM_ON, this.onRundownEventSegmentZoomOn)
 		RundownViewEventBus.on(RundownViewEvents.SEGMENT_ZOOM_OFF, this.onRundownEventSegmentZoomOff)
 
-		setTimeout(() => {
+		this.showEntireSegmentTimeout = setTimeout(() => {
+			this.showEntireSegmentTimeout = undefined
 			// TODO: This doesn't actually handle having new parts added/removed, which should cause the segment to re-scale!
 			if (this.props.onShowEntireSegment) {
 				this.props.onShowEntireSegment(undefined)
@@ -258,6 +259,10 @@ export class SegmentTimelineClass extends React.Component<Translated<WithTiming<
 
 	componentWillUnmount(): void {
 		super.componentWillUnmount?.()
+		if (this.showEntireSegmentTimeout) {
+			clearTimeout(this.showEntireSegmentTimeout)
+			this.showEntireSegmentTimeout = undefined
+		}
 		clearTimeout(this.highlightTimeout)
 		if (this.segmentBlock) {
 			this.segmentBlock.removeEventListener('wheel', this.onTimelineWheel, { capture: true })
@@ -282,9 +287,14 @@ export class SegmentTimelineClass extends React.Component<Translated<WithTiming<
 		RundownViewEventBus.off(RundownViewEvents.HIGHLIGHT, this.onHighlight)
 		RundownViewEventBus.off(RundownViewEvents.SEGMENT_ZOOM_ON, this.onRundownEventSegmentZoomOn)
 		RundownViewEventBus.off(RundownViewEvents.SEGMENT_ZOOM_OFF, this.onRundownEventSegmentZoomOff)
+
+		// Break any remaining references to detached DOM elements.
+		this.timeline = null
+		this.segmentBlock = null
 	}
 
 	private highlightTimeout: NodeJS.Timeout | undefined
+	private showEntireSegmentTimeout: NodeJS.Timeout | undefined
 
 	private onHighlight = (e: HighlightEvent) => {
 		if (e.segmentId === this.props.segment._id && !e.partId && !e.pieceId) {
@@ -762,7 +772,6 @@ export class SegmentTimelineClass extends React.Component<Translated<WithTiming<
 						liveLineHistorySize={this.props.liveLineHistorySize}
 						livePosition={this.props.livePosition}
 						onScroll={this.props.onScroll}
-						onCollapseOutputToggle={this.props.onCollapseOutputToggle}
 						onFollowLiveLine={this.props.onFollowLiveLine}
 						onContextMenu={this.props.onContextMenu}
 						onPieceClick={this.props.onPieceClick}
@@ -838,7 +847,6 @@ export class SegmentTimelineClass extends React.Component<Translated<WithTiming<
 				liveLineHistorySize={this.props.liveLineHistorySize}
 				livePosition={this.props.livePosition}
 				onScroll={this.props.onScroll}
-				onCollapseOutputToggle={this.props.onCollapseOutputToggle}
 				onFollowLiveLine={this.props.onFollowLiveLine}
 				onContextMenu={this.props.onContextMenu}
 				onPieceClick={this.props.onPieceClick}
@@ -869,6 +877,10 @@ export class SegmentTimelineClass extends React.Component<Translated<WithTiming<
 			.sort((a, b) => a._rank - b._rank)
 	}
 
+	private isOutputLayerCollapsible(outputLayer: IOutputLayerUi): boolean {
+		return outputLayer.sourceLayers !== undefined && outputLayer.sourceLayers.length > 1 && !outputLayer.isFlattened
+	}
+
 	private renderOutputLayerControls(outputGroups: IOutputLayerUi[]) {
 		const showHiddenSourceLayers = getShowHiddenSourceLayers()
 
@@ -877,8 +889,7 @@ export class SegmentTimelineClass extends React.Component<Translated<WithTiming<
 				return null
 			}
 
-			const isCollapsible =
-				outputLayer.sourceLayers !== undefined && outputLayer.sourceLayers.length > 1 && !outputLayer.isFlattened
+			const isCollapsible = this.isOutputLayerCollapsible(outputLayer)
 			return (
 				<div
 					key={outputLayer._id}

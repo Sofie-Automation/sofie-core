@@ -18,16 +18,18 @@ export function usePreviewPopUpSession(args: {
 	contentStatus: ReadonlyDeep<PieceContentStatusObj> | undefined
 	enableHoverPreview?: boolean
 }): {
-	openPreview: (e: EventTarget, time: number) => void
+	openPreview: (anchor: HTMLElement, time: number) => void
 	closePreview: () => void
 	setPointerTime: (time: number) => void
 	hasPreview: boolean
 } {
 	const previewSessionRef = useRef<IPreviewPopUpSession | null>(null)
 	const hoverTimeoutRef = useRef<number | null>(null)
+	const isMountedRef = useRef(true)
 
 	useEffect(() => {
 		return () => {
+			isMountedRef.current = false
 			if (hoverTimeoutRef.current) {
 				Meteor.clearTimeout(hoverTimeoutRef.current)
 				hoverTimeoutRef.current = null
@@ -48,6 +50,7 @@ export function usePreviewPopUpSession(args: {
 	const startHoverTimeout = useCallback(() => {
 		if (hoverTimeoutRef.current) Meteor.clearTimeout(hoverTimeoutRef.current)
 		hoverTimeoutRef.current = Meteor.setTimeout(() => {
+			if (!isMountedRef.current) return
 			if (previewSessionRef.current) {
 				previewSessionRef.current.close()
 				previewSessionRef.current = null
@@ -57,11 +60,12 @@ export function usePreviewPopUpSession(args: {
 	}, [])
 
 	const openPreview = useCallback(
-		(e: EventTarget, time: number) => {
+		(anchor: HTMLElement, time: number) => {
 			if (!enableHoverPreview) return
 			if (!previewRequest.contents.length) return
+			if (!anchor.isConnected) return
 			previewSessionRef.current?.close()
-			previewSessionRef.current = args.previewContext.requestPreview(e as any, previewRequest.contents, {
+			previewSessionRef.current = args.previewContext.requestPreview(anchor, previewRequest.contents, {
 				...previewRequest.options,
 				time,
 			})

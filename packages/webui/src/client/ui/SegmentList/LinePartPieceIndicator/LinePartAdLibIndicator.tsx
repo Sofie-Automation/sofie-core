@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import type { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import type { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
 import type { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
@@ -20,6 +20,7 @@ interface IProps {
 
 export const LinePartAdLibIndicator: React.FC<IProps> = function LinePartAdLibIndicator({ sourceLayers, partId }) {
 	const { t } = useTranslation()
+	const revealTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
 	const sourceLayerIds = useMemo(() => sourceLayers.map((sourceLayer) => sourceLayer._id), [sourceLayers])
 	const label = useMemo(() => sourceLayers[0]?.name ?? '', [sourceLayers])
@@ -64,12 +65,21 @@ export const LinePartAdLibIndicator: React.FC<IProps> = function LinePartAdLibIn
 		RundownViewEventBus.emit(RundownViewEvents.SHELF_STATE, {
 			state: true,
 		})
-		setTimeout(() => {
+		revealTimeoutRef.current = setTimeout(() => {
 			RundownViewEventBus.emit(RundownViewEvents.REVEAL_IN_SHELF, {
 				pieceId: pieceId,
 			})
 		}, 100)
 	}, [adLibPieces, adLibActions])
+
+	useEffect(() => {
+		return () => {
+			if (revealTimeoutRef.current) {
+				clearTimeout(revealTimeoutRef.current)
+				revealTimeoutRef.current = undefined
+			}
+		}
+	}, [])
 
 	return (
 		<StudioContext.Consumer>

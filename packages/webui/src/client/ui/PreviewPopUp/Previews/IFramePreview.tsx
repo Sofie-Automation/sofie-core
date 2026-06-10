@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { relativeToSiteRootUrl } from '../../../url.js'
 
 interface IFramePreviewProps {
@@ -15,28 +15,24 @@ interface IFramePreviewProps {
 export function IFramePreview({ content }: IFramePreviewProps): React.ReactElement {
 	const iFrameElement = useRef<HTMLIFrameElement>(null)
 
-	const onLoadListener = useCallback(() => {
-		if (content.postMessage) {
-			// use * as URL reference to avoid cors when posting message with new reference:
-			iFrameElement.current?.contentWindow?.postMessage(content.postMessage, '*')
-		}
-	}, [content.postMessage, content.href])
-
 	useEffect(() => {
-		// Create a stable reference to the iframe element:
 		const currentIFrame = iFrameElement.current
 		if (!currentIFrame) return
-		currentIFrame.addEventListener('load', onLoadListener)
 
-		return () => currentIFrame.removeEventListener('load', onLoadListener)
-	}, [onLoadListener])
-
-	// Handle postMessage updates when iframe is already loaded
-	useEffect(() => {
-		if (content.postMessage && iFrameElement.current?.contentWindow) {
-			// use * as URL reference to avoid cors when posting message with new reference:
-			iFrameElement.current.contentWindow.postMessage(content.postMessage, '*')
+		const postMessageToIFrame = () => {
+			if (content.postMessage) {
+				// use * as URL reference to avoid cors when posting message with new reference:
+				currentIFrame.contentWindow?.postMessage(content.postMessage, '*')
+			}
 		}
+
+		currentIFrame.addEventListener('load', postMessageToIFrame)
+
+		if (currentIFrame.contentDocument?.readyState === 'complete') {
+			postMessageToIFrame()
+		}
+
+		return () => currentIFrame.removeEventListener('load', postMessageToIFrame)
 	}, [content.postMessage, content.href])
 
 	const style: Record<string, string | number> = {}

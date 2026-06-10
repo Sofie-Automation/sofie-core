@@ -22,6 +22,20 @@ const viewPortScrollingState = {
 	lastProgrammaticScrollTime: 0,
 }
 
+function clearPendingScrollState(): void {
+	if (pendingFirstStageTimeout) {
+		clearTimeout(pendingFirstStageTimeout)
+		pendingFirstStageTimeout = undefined
+	}
+
+	if (pendingSecondStageScroll) {
+		window.cancelIdleCallback(pendingSecondStageScroll)
+		pendingSecondStageScroll = undefined
+	}
+
+	currentScrollingElement = undefined
+}
+
 export function getViewPortScrollingState(): {
 	isProgrammaticScrollInProgress: boolean
 	lastProgrammaticScrollTime: number
@@ -48,6 +62,7 @@ export function maintainFocusOnPartInstance(
 				// Handle error if needed
 			} finally {
 				focusState.isScrolling = false
+				viewPortScrollingState.lastProgrammaticScrollTime = Date.now()
 			}
 		} else if (Date.now() - focusState.startTime >= timeWindow) {
 			quitFocusOnPart()
@@ -91,6 +106,24 @@ function quitFocusOnPart() {
 		clearInterval(focusState.interval)
 		focusState.interval = undefined
 	}
+
+	if (!focusState.isScrolling) {
+		viewPortScrollingState.isProgrammaticScrollInProgress = false
+		viewPortScrollingState.lastProgrammaticScrollTime = Date.now()
+	}
+}
+
+export function resetViewportScrollState(): void {
+	quitFocusOnPart()
+	clearPendingScrollState()
+	viewPortScrollingState.isProgrammaticScrollInProgress = false
+}
+
+export function clearViewportLifecycleState(): void {
+	resetViewportScrollState()
+	viewPortScrollingState.lastProgrammaticScrollTime = 0
+	focusState.isScrolling = false
+	focusState.startTime = 0
 }
 
 export async function scrollToPartInstance(
@@ -156,6 +189,8 @@ export async function scrollToSegment(
 	forceScroll?: boolean,
 	noAnimation?: boolean
 ): Promise<boolean> {
+	clearPendingScrollState()
+
 	const elementToScrollTo: HTMLElement | null = getElementToScrollTo(elementToScrollToOrSegmentId, false)
 	const historyTarget: HTMLElement | null = getElementToScrollTo(elementToScrollToOrSegmentId, true)
 
@@ -257,6 +292,7 @@ async function innerScrollToSegment(
 								// If not in place atempt to scroll again
 								innerScrollToSegment(elementToScrollTo, forceScroll, true, true).then(resolve, reject)
 							} else {
+								currentScrollingElement = undefined
 								resolve(true)
 							}
 						}, 1000) // When UI is getting optimized further we could lower this value
@@ -268,11 +304,13 @@ async function innerScrollToSegment(
 			},
 			(error) => {
 				if (!error.toString().match(/another scroll/)) logger.error(error)
+				currentScrollingElement = undefined
 				return false
 			}
 		)
 	}
 
+	currentScrollingElement = undefined
 	return Promise.resolve(false)
 }
 
@@ -315,7 +353,9 @@ export async function scrollToPosition(scrollPosition: number, noAnimation?: boo
 			behavior: 'smooth',
 		})
 		await new Promise((resolve) => setTimeout(resolve, 300))
+
 		viewPortScrollingState.isProgrammaticScrollInProgress = false
+		viewPortScrollingState.lastProgrammaticScrollTime = Date.now()
 	}
 }
 

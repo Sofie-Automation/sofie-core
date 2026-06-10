@@ -1,5 +1,5 @@
 import { type EvsContent, SourceLayerType } from '@sofie-automation/blueprints-integration'
-import React, { useContext, useMemo, useRef, useState } from 'react'
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 // TODO: Move to a shared lib file
 import type { PartId, PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import classNames from 'classnames'
@@ -144,8 +144,13 @@ export function LinePartMainPiece({
 		}
 		setHover(true)
 
+		if (previewSession.current) {
+			previewSession.current.close()
+			previewSession.current = null
+		}
+
 		if (previewContents.length > 0)
-			previewSession.current = previewContext.requestPreview(e.target as any, previewContents, {
+			previewSession.current = previewContext.requestPreview(e.currentTarget, previewContents, {
 				...previewOptions,
 				time: mousePosition * (piece.instance.piece.content.sourceDuration || 0),
 				initialOffsetX: e.screenX,
@@ -161,6 +166,15 @@ export function LinePartMainPiece({
 			setWidth(newWidth)
 		}
 	}
+
+	useEffect(() => {
+		return () => {
+			if (previewSession.current) {
+				previewSession.current.close()
+				previewSession.current = null
+			}
+		}
+	}, [])
 
 	const onPointerLeave = (e: React.PointerEvent<HTMLDivElement>) => {
 		if (e.pointerType !== 'mouse') {

@@ -308,32 +308,35 @@ export const SegmentAdlibTesting = React.memo(
 			}
 		}
 
-		const onSegmentWheel = (e: WheelEvent) => {
-			let scrollDelta = 0
-			if (
-				(!e.ctrlKey && e.altKey && !e.metaKey && !e.shiftKey) ||
-				(e.ctrlKey && !e.metaKey && !e.shiftKey && e.altKey)
-			) {
-				// this.props.onScroll(Math.max(0, this.props.scrollLeft + e.deltaY / this.props.timeScale), e)
-				scrollDelta = e.deltaY * -1
-				e.preventDefault()
-			} else if (!e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey) {
-				// no modifier
-				if (e.deltaX !== 0) {
-					// this.props.onScroll(Math.max(0, this.props.scrollLeft + e.deltaX / this.props.timeScale), e)
-					scrollDelta = e.deltaX * -1
+		const onSegmentWheel = useCallback(
+			(e: WheelEvent) => {
+				let scrollDelta = 0
+				if (
+					(!e.ctrlKey && e.altKey && !e.metaKey && !e.shiftKey) ||
+					(e.ctrlKey && !e.metaKey && !e.shiftKey && e.altKey)
+				) {
+					// this.props.onScroll(Math.max(0, this.props.scrollLeft + e.deltaY / this.props.timeScale), e)
+					scrollDelta = e.deltaY * -1
 					e.preventDefault()
+				} else if (!e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey) {
+					// no modifier
+					if (e.deltaX !== 0) {
+						// this.props.onScroll(Math.max(0, this.props.scrollLeft + e.deltaX / this.props.timeScale), e)
+						scrollDelta = e.deltaX * -1
+						e.preventDefault()
+					}
 				}
-			}
 
-			if (scrollDelta !== 0) {
-				setScrollLeft((value) => {
-					const newScrollLeft = Math.max(0, Math.min(value - scrollDelta, maxScrollLeft))
-					props.onScroll(newScrollLeft, e)
-					return newScrollLeft
-				})
-			}
-		}
+				if (scrollDelta !== 0) {
+					setScrollLeft((value) => {
+						const newScrollLeft = Math.max(0, Math.min(value - scrollDelta, maxScrollLeft))
+						props.onScroll(newScrollLeft, e)
+						return newScrollLeft
+					})
+				}
+			},
+			[maxScrollLeft, props.onScroll]
+		)
 
 		useEffect(() => {
 			if (!grabbed) return
@@ -420,7 +423,7 @@ export const SegmentAdlibTesting = React.memo(
 			return () => {
 				segment.removeEventListener('wheel', onSegmentWheel)
 			}
-		}, [innerRef.current])
+		}, [onSegmentWheel])
 
 		return (
 			<div
