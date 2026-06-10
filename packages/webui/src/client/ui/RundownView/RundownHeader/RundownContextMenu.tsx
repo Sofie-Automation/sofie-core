@@ -26,6 +26,7 @@ interface RundownContextMenuProps {
 	playlist: DBRundownPlaylist
 	studio: UIStudio
 	firstRundown: Rundown | undefined
+	lockView?: boolean
 	onShow?: () => void
 	onHide?: () => void
 }
@@ -39,6 +40,7 @@ export function RundownContextMenu({
 	playlist,
 	studio,
 	firstRundown,
+	lockView,
 	onShow,
 	onHide,
 }: Readonly<RundownContextMenuProps>): JSX.Element {
@@ -133,8 +135,12 @@ export function RundownContextMenu({
 							})}
 						</MenuItem>
 						<MenuItem onClick={operations.takeRundownSnapshot}>{t('Store Snapshot')}</MenuItem>
-						<MenuItem divider />
-						<MenuItem onClick={() => history.push('/')}>{t('Close Rundown')}</MenuItem>
+						{!lockView && (
+							<>
+								<MenuItem divider />
+								<MenuItem onClick={() => history.push('/')}>{t('Close Rundown')}</MenuItem>
+							</>
+						)}
 					</React.Fragment>
 				) : (
 					<React.Fragment>
