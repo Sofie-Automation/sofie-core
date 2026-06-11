@@ -636,10 +636,6 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 			return t('This rundown is now active. Are you sure you want to exit this screen?')
 		}
 
-		private onRewindSegments = () => {
-			RundownViewEventBus.emit(RundownViewEvents.REWIND_SEGMENTS)
-		}
-
 		private onSegmentScroll = () => {
 			if (this.state.followLiveSegments && this.props.playlist && this.props.playlist.activationId) {
 				this.setState({
@@ -1444,7 +1440,6 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 												playlistId={playlist._id}
 												isFollowingOnAir={this.state.followLiveSegments}
 												onFollowOnAir={this.onGoToLiveSegment}
-												onRewindSegments={this.onRewindSegments}
 												isNotificationCenterOpen={this.state.isNotificationsCenterOpen}
 												onToggleNotifications={this.onToggleNotifications}
 												isSupportPanelOpen={this.state.isSupportPanelOpen}
