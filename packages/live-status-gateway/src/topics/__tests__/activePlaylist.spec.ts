@@ -142,6 +142,7 @@ describe('ActivePlaylistTopic', () => {
 				id: 'PART_1',
 				name: 'Test Part',
 				segmentId: 'SEGMENT_1',
+				createdByAdLib: false,
 				timing: { startTime: 1600000060000, expectedDurationMs: 10000, projectedEndTime: 1600000070000 },
 				pieces: [],
 				autoNext: undefined,
@@ -158,6 +159,7 @@ describe('ActivePlaylistTopic', () => {
 					{
 						id: 'PART_1',
 						name: 'Test Part',
+						createdByAdLib: false,
 						timing: {
 							expectedDurationMs: 10000,
 						},
@@ -179,6 +181,85 @@ describe('ActivePlaylistTopic', () => {
 		expect(JSON.parse(mockSubscriber.send.mock.calls[0][0] as string)).toMatchObject(
 			JSON.parse(JSON.stringify(expectedStatus))
 		)
+	})
+
+	it('marks adlib-created parts in active playlist status', async () => {
+		const handlers = makeMockHandlers()
+		const topic = new ActivePlaylistTopic(makeMockLogger(), handlers)
+		const mockSubscriber = makeMockSubscriber()
+
+		const currentPartInstanceId = 'CURRENT_PART_INSTANCE_ID'
+		const nextPartInstanceId = 'NEXT_PART_INSTANCE_ID'
+
+		const playlist = makeTestPlaylist()
+		playlist.activationId = protectString('somethingRandom')
+		playlist.currentPartInfo = {
+			consumesQueuedSegmentId: false,
+			manuallySelected: false,
+			partInstanceId: protectString(currentPartInstanceId),
+			rundownId: playlist.rundownIdsInOrder[0],
+		}
+		playlist.nextPartInfo = {
+			consumesQueuedSegmentId: false,
+			manuallySelected: false,
+			partInstanceId: protectString(nextPartInstanceId),
+			rundownId: playlist.rundownIdsInOrder[0],
+		}
+		handlers.playlistHandler.notify(playlist)
+
+		const testShowStyleBase = makeTestShowStyleBase()
+		handlers.showStyleBaseHandler.notify(testShowStyleBase as ShowStyleBaseExt)
+
+		const segment1id = protectString('SEGMENT_1')
+		const currentPart: Partial<DBPart> = {
+			_id: protectString('PART_1'),
+			title: 'Current AdLib Part',
+			segmentId: segment1id,
+			expectedDurationWithTransition: 10000,
+			expectedDuration: 10000,
+		}
+		const nextPart: Partial<DBPart> = {
+			_id: protectString('PART_2'),
+			title: 'Next AdLib Part',
+			segmentId: segment1id,
+			expectedDurationWithTransition: 8000,
+			expectedDuration: 8000,
+		}
+		const testPartInstances: PartialDeep<SelectedPartInstances> = {
+			current: {
+				_id: currentPartInstanceId,
+				part: currentPart,
+				segmentId: segment1id,
+				orphaned: 'adlib-part',
+			},
+			next: {
+				_id: nextPartInstanceId,
+				part: nextPart,
+				segmentId: segment1id,
+				orphaned: 'adlib-part',
+			},
+			firstInSegmentPlayout: {},
+			inCurrentSegment: [
+				literal<PartialDeep<DBPartInstance>>({
+					_id: protectString(currentPartInstanceId),
+					part: currentPart,
+					segmentId: segment1id,
+					orphaned: 'adlib-part',
+				}),
+			] as DBPartInstance[],
+		}
+		handlers.partInstancesHandler.notify(testPartInstances as SelectedPartInstances)
+		handlers.partsHandler.notify([currentPart as DBPart, nextPart as DBPart])
+		handlers.segmentHandler.notify({
+			_id: segment1id,
+		} as DBSegment)
+
+		topic.addSubscriber(mockSubscriber)
+
+		const sentStatus = JSON.parse(mockSubscriber.send.mock.calls[0][0] as string) as ActivePlaylistEvent
+		expect(sentStatus.currentPart?.createdByAdLib).toBe(true)
+		expect(sentStatus.nextPart?.createdByAdLib).toBe(true)
+		expect(sentStatus.currentSegment?.parts[0].createdByAdLib).toBe(true)
 	})
 
 	it('provides segment and part with segment timing', async () => {
@@ -247,6 +328,7 @@ describe('ActivePlaylistTopic', () => {
 				id: 'PART_1',
 				name: 'Test Part',
 				segmentId: 'SEGMENT_1',
+				createdByAdLib: false,
 				timing: { startTime: 1600000060000, expectedDurationMs: 10000, projectedEndTime: 1600000070000 },
 				pieces: [],
 				autoNext: undefined,
@@ -265,6 +347,7 @@ describe('ActivePlaylistTopic', () => {
 					{
 						id: 'PART_1',
 						name: 'Test Part',
+						createdByAdLib: false,
 						timing: {
 							expectedDurationMs: 10000,
 						},

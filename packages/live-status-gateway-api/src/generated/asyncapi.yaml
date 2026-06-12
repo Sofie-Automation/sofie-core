@@ -381,6 +381,10 @@ channels:
                                 name:
                                   description: User-presentable name of the part
                                   type: string
+                                createdByAdLib:
+                                  description: Whether this part was created by an adlib
+                                  type: boolean
+                                  default: false
                                 autoNext:
                                   description: If this part will progress to the next automatically
                                   type: boolean
@@ -388,10 +392,12 @@ channels:
                               required:
                                 - id
                                 - name
+                                - createdByAdLib
                               examples:
                                 - id: H5CBGYjThrMSmaYvRaa5FVKJIzk_
                                   name: Intro
                                   autoNext: false
+                                  createdByAdLib: false
                             - type: object
                               title: PartStatus
                               properties:
@@ -485,6 +491,7 @@ channels:
                               id: H5CBGYjThrMSmaYvRaa5FVKJIzk_
                               name: Intro
                               autoNext: false
+                              createdByAdLib: false
                         - type: object
                           title: CurrentPartStatus
                           properties:
@@ -532,6 +539,7 @@ channels:
                           id: H5CBGYjThrMSmaYvRaa5FVKJIzk_
                           name: Intro
                           autoNext: false
+                          createdByAdLib: false
                     - type: "null"
                 currentSegment:
                   oneOf:
@@ -625,6 +633,7 @@ channels:
                                     id: H5CBGYjThrMSmaYvRaa5FVKJIzk_
                                     name: Intro
                                     autoNext: false
+                                    createdByAdLib: false
                           required:
                             - timing
                             - parts
@@ -1350,9 +1359,6 @@ channels:
                                                 enum:
                                                   - current
                                                   - next
-                                              createdByAdLib:
-                                                type: boolean
-                                                description: Whether this part was created by an adlib
                                               publicData:
                                                 description: Optional arbitrary data
                                               timing:
@@ -1499,7 +1505,6 @@ channels:
                                               - instanceId
                                               - externalId
                                               - rank
-                                              - createdByAdLib
                                               - timing
                                               - pieces
                                               - invalid

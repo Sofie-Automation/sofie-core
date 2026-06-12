@@ -127,6 +127,7 @@ export class ActivePlaylistTopic extends WebSocketTopicBase implements WebSocket
 									id: unprotectString(currentPart._id),
 									name: currentPart.title,
 									autoNext: currentPart.autoNext,
+									createdByAdLib: this._currentPartInstance.orphaned === 'adlib-part',
 									segmentId: unprotectString(currentPart.segmentId),
 									timing: calculateCurrentPartTiming(
 										this._currentPartInstance,
@@ -156,19 +157,21 @@ export class ActivePlaylistTopic extends WebSocketTopicBase implements WebSocket
 									),
 								})
 							: null,
-					nextPart: nextPart
-						? literal<PartStatus>({
-								id: unprotectString(nextPart._id),
-								name: nextPart.title,
-								autoNext: nextPart.autoNext,
-								segmentId: unprotectString(nextPart.segmentId),
-								pieces:
-									this._pieceInstancesInNextPartInstance?.map((piece) =>
-										toPieceStatus(piece, this._showStyleBaseExt)
-									) ?? [],
-								publicData: nextPart.publicData,
-							})
-						: null,
+					nextPart:
+						this._nextPartInstance && nextPart
+							? literal<PartStatus>({
+									id: unprotectString(nextPart._id),
+									name: nextPart.title,
+									autoNext: nextPart.autoNext,
+									createdByAdLib: this._nextPartInstance.orphaned === 'adlib-part',
+									segmentId: unprotectString(nextPart.segmentId),
+									pieces:
+										this._pieceInstancesInNextPartInstance?.map((piece) =>
+											toPieceStatus(piece, this._showStyleBaseExt)
+										) ?? [],
+									publicData: nextPart.publicData,
+								})
+							: null,
 					quickLoop: this.transformQuickLoopStatus(),
 					publicData: this._activePlaylist.publicData,
 					playoutState: this._activePlaylist.publicPlayoutPersistentState,
