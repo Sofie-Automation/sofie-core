@@ -65,8 +65,6 @@ import { RundownDividerHeader } from './RundownView/RundownDividerHeader.js'
 import { PlaylistLoopingHeader } from './RundownView/PlaylistLoopingHeader.js'
 import RundownViewEventBus, { RundownViewEvents } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
 import { RundownLayoutsAPI } from '../lib/rundownLayouts.js'
-import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
-import { BreakSegment } from './SegmentTimeline/BreakSegment.js'
 import type { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant.js'
 import { SegmentStoryboardContainer } from './SegmentStoryboard/SegmentStoryboardContainer.js'
 import { SegmentViewMode } from './SegmentContainer/SegmentViewModes.js'
@@ -154,7 +152,7 @@ interface IState {
 	segmentViewModes: Record<string, SegmentViewMode>
 }
 
-export type MinimalRundown = Pick<Rundown, '_id' | 'name' | 'timing' | 'showStyleBaseId' | 'endOfRundownIsShowBreak'>
+export type MinimalRundown = Pick<Rundown, '_id' | 'name' | 'timing' | 'showStyleBaseId'>
 
 type MatchedSegment = {
 	rundown: MinimalRundown
@@ -1072,10 +1070,6 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 								)
 							}
 						})}
-						{this.props.selectedViewLayout?.showBreaksAsSegments &&
-							rundownAndSegments.rundown.endOfRundownIsShowBreak && (
-								<BreakSegment breakTime={PlaylistTiming.getExpectedEnd(rundownAndSegments.rundown.timing)} />
-							)}
 					</React.Fragment>
 				)
 			})

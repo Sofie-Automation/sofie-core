@@ -14,7 +14,6 @@ import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel
 import type { IContextMenuContext } from '../RundownView.js'
 import { NoteSeverity } from '@sofie-automation/blueprints-integration'
 import { CriticalIconSmall, WarningIconSmall } from '../../lib/ui/icons/notifications.js'
-import { SegmentTimeAnchorTime } from '../RundownView/RundownTiming/SegmentTimeAnchorTime.js'
 
 export function SegmentListHeader({
 	isDetached,
@@ -116,38 +115,28 @@ export function SegmentListHeader({
 				{segment.name}
 			</h2>
 			<div className="segment-opl__counters">
-				{segment.segmentTiming?.expectedStart || segment.segmentTiming?.expectedEnd ? (
-					<div className={classNames('segment-opl__expectedTime')} onClick={onTimeUntilClick}>
-						<SegmentTimeAnchorTime
-							segment={segment}
-							isLiveSegment={isLiveSegment}
-							labelClassName="segment-timeline__expectedTime__label"
+				<div
+					className={classNames('segment-opl__timeUntil', {
+						'segment-opl__timeUntil--time-of-day': useTimeOfDayCountdowns,
+					})}
+					onClick={onTimeUntilClick}
+				>
+					{playlist && parts && parts.length > 0 && showCountdownToSegment && (
+						<PartCountdown
+							partId={countdownToPartId}
+							hideOnZero={!useTimeOfDayCountdowns}
+							useWallClock={useTimeOfDayCountdowns}
+							playlist={playlist}
+							label={
+								useTimeOfDayCountdowns ? (
+									<span className="segment-timeline__timeUntil__label">{t('On Air At')}</span>
+								) : (
+									<span className="segment-timeline__timeUntil__label">{t('On Air In')}</span>
+								)
+							}
 						/>
-					</div>
-				) : (
-					<div
-						className={classNames('segment-opl__timeUntil', {
-							'segment-opl__timeUntil--time-of-day': useTimeOfDayCountdowns,
-						})}
-						onClick={onTimeUntilClick}
-					>
-						{playlist && parts && parts.length > 0 && showCountdownToSegment && (
-							<PartCountdown
-								partId={countdownToPartId}
-								hideOnZero={!useTimeOfDayCountdowns}
-								useWallClock={useTimeOfDayCountdowns}
-								playlist={playlist}
-								label={
-									useTimeOfDayCountdowns ? (
-										<span className="segment-timeline__timeUntil__label">{t('On Air At')}</span>
-									) : (
-										<span className="segment-timeline__timeUntil__label">{t('On Air In')}</span>
-									)
-								}
-							/>
-						)}
-					</div>
-				)}
+					)}
+				</div>
 			</div>
 			{(criticalNotes > 0 || warningNotes > 0) && (
 				<div className="segment-opl__notes">

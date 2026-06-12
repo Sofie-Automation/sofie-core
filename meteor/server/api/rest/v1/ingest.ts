@@ -164,6 +164,8 @@ class IngestServerAPI implements IngestRestAPI {
 			playlistExternalId: rawRundown.playlistExternalId,
 			studioId: unprotectString(rawRundown.studioId),
 			name: rawRundown.name,
+			type: rawRundown.source.type,
+			timing: rawRundown.timing,
 		}
 	}
 
@@ -175,6 +177,12 @@ class IngestServerAPI implements IngestRestAPI {
 			rank: rawSegment._rank,
 			rundownId: unprotectString(rawSegment.rundownId),
 			isHidden: rawSegment.isHidden,
+			timing: rawSegment.segmentTiming
+				? {
+						budgetDuration: rawSegment.segmentTiming.budgetDuration,
+						countdownType: rawSegment.segmentTiming.countdownType,
+					}
+				: undefined,
 		}
 	}
 

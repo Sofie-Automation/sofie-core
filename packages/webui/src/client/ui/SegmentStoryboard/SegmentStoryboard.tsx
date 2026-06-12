@@ -38,7 +38,6 @@ import { SegmentViewMode } from '../SegmentContainer/SegmentViewModes.js'
 import { ErrorBoundary } from '../../lib/ErrorBoundary.js'
 import { SwitchViewModeButton } from '../SegmentContainer/SwitchViewModeButton.js'
 import type { PartId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { SegmentTimeAnchorTime } from '../RundownView/RundownTiming/SegmentTimeAnchorTime.js'
 import { logger } from '../../lib/logging.js'
 import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 import type { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
@@ -631,33 +630,23 @@ export const SegmentStoryboard = React.memo(
 							/>
 						)}
 				</div>
-				{props.segment.segmentTiming?.expectedStart || props.segment.segmentTiming?.expectedEnd ? (
-					<div className="segment-timeline__expectedTime">
-						<SegmentTimeAnchorTime
-							segment={props.segment}
-							isLiveSegment={props.isLiveSegment}
-							labelClassName="segment-timeline__duration__label"
+				<div className="segment-timeline__timeUntil" onClick={onTimeUntilClick}>
+					{props.playlist && props.parts && props.parts.length > 0 && props.showCountdownToSegment && (
+						<PartCountdown
+							partId={countdownToPartId}
+							hideOnZero={!useTimeOfDayCountdowns}
+							useWallClock={useTimeOfDayCountdowns}
+							playlist={props.playlist}
+							label={
+								useTimeOfDayCountdowns ? (
+									<span className="segment-timeline__timeUntil__label">{t('On Air At')}</span>
+								) : (
+									<span className="segment-timeline__timeUntil__label">{t('On Air In')}</span>
+								)
+							}
 						/>
-					</div>
-				) : (
-					<div className="segment-timeline__timeUntil" onClick={onTimeUntilClick}>
-						{props.playlist && props.parts && props.parts.length > 0 && props.showCountdownToSegment && (
-							<PartCountdown
-								partId={countdownToPartId}
-								hideOnZero={!useTimeOfDayCountdowns}
-								useWallClock={useTimeOfDayCountdowns}
-								playlist={props.playlist}
-								label={
-									useTimeOfDayCountdowns ? (
-										<span className="segment-timeline__timeUntil__label">{t('On Air At')}</span>
-									) : (
-										<span className="segment-timeline__timeUntil__label">{t('On Air In')}</span>
-									)
-								}
-							/>
-						)}
-					</div>
-				)}
+					)}
+				</div>
 
 				<div className="segment-timeline__mos-id">{props.segment.externalId}</div>
 				<div className="segment-timeline__source-layers" role="tree" aria-label={t('Sources')}>

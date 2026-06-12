@@ -56,7 +56,7 @@ export interface IOutputLayerUi extends IOutputLayerExtended {
 }
 export type ISourceLayerUi = ISourceLayerExtended
 
-export type MinimalRundown = Pick<Rundown, '_id' | 'name' | 'timing' | 'showStyleBaseId' | 'endOfRundownIsShowBreak'>
+export type MinimalRundown = Pick<Rundown, '_id' | 'name' | 'timing' | 'showStyleBaseId'>
 
 export const FREEZE_FRAME_FLASH = 5000
 

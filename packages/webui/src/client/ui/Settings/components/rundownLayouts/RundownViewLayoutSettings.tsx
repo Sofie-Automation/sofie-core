@@ -143,16 +143,6 @@ export default function RundownViewLayoutSettings({ sourceLayers, item, layouts 
 			</label>
 
 			<label className="field">
-				<LabelActual label={t('Show Breaks as Segments')} />
-				<EditAttribute
-					attribute={'showBreaksAsSegments'}
-					obj={item}
-					type="checkbox"
-					collection={RundownLayouts}
-				></EditAttribute>
-			</label>
-
-			<label className="field">
 				<LabelActual label={t('Segment countdown requires source layer')} />
 				<div className="checkbox-enable-before">
 					<EditAttribute

@@ -250,6 +250,13 @@ export type RundownResponse = {
 	playlistId: string
 	playlistExternalId?: string
 	name: string
+	type?: string
+	timing?: {
+		type: string
+		expectedStart?: number
+		expectedDuration?: number
+		expectedEnd?: number
+	}
 }
 
 export type SegmentResponse = {
@@ -259,6 +266,10 @@ export type SegmentResponse = {
 	name: string
 	rank: number
 	isHidden?: boolean
+	timing?: {
+		budgetDuration?: number
+		countdownType?: string
+	}
 }
 
 export type PartResponse = {

@@ -1202,19 +1202,6 @@ export const FilterEditor: React.ComponentType<IProps> = withTranslation()(
 			)
 		}
 
-		renderNextBreakTiming(item: RundownLayoutBase, index: number, isDashboardLayout: boolean) {
-			const { t } = this.props
-			return (
-				<React.Fragment>
-					<label className="field">
-						<LabelActual label={t('Name')} />
-						<EditAttribute attribute={`filters.${index}.name`} obj={item} type="text" collection={RundownLayouts} />
-					</label>
-
-					{isDashboardLayout && this.renderDashboardLayoutSettings(item, index)}
-				</React.Fragment>
-			)
-		}
 		renderMiniRundown(item: RundownLayoutBase, index: number, isDashboardLayout: boolean) {
 			const { t } = this.props
 			return (
