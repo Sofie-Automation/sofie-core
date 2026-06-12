@@ -3,6 +3,7 @@ import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTi
 import { useTranslation } from 'react-i18next'
 import { Countdown } from './Countdown'
 import { useTiming } from '../RundownTiming/withTiming'
+import { getCurrentTime } from '../../../lib/systemTime'
 
 export function RundownHeaderExpectedEnd({
 	playlist,
@@ -14,7 +15,7 @@ export function RundownHeaderExpectedEnd({
 	const { t } = useTranslation()
 	const timingDurations = useTiming()
 
-	const now = timingDurations.currentTime ?? Date.now()
+	const now = timingDurations.currentTime ?? getCurrentTime()
 	const expectedEnd = PlaylistTiming.getExpectedEnd(playlist.timing)
 	const startedPlayback = playlist.activationId ? playlist.startedPlayback : undefined
 	const estEnd = PlaylistTiming.getEstimatedEnd(

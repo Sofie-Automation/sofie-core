@@ -12,7 +12,8 @@ interface IProps {
 }
 
 export const RundownHeaderTimers: React.FC<IProps> = ({ tTimers }) => {
-	useTiming()
+	const timing = useTiming()
+	const now = timing.currentTime ?? getCurrentTime()
 
 	const activeTimers = tTimers.filter((t) => t.mode).slice(0, 2)
 	if (activeTimers.length == 0) return null
@@ -21,7 +22,7 @@ export const RundownHeaderTimers: React.FC<IProps> = ({ tTimers }) => {
 		<div className="rundown-header__clocks-timers">
 			{activeTimers.map((timer) => (
 				<div key={timer.index} className="rundown-header__clocks-timers__row">
-					<SingleTimer timer={timer} />
+					<SingleTimer timer={timer} now={now} />
 				</div>
 			))}
 		</div>
@@ -30,10 +31,10 @@ export const RundownHeaderTimers: React.FC<IProps> = ({ tTimers }) => {
 
 interface ISingleTimerProps {
 	timer: RundownTTimer
+	now: number
 }
 
-function SingleTimer({ timer }: Readonly<ISingleTimerProps>) {
-	const now = getCurrentTime()
+function SingleTimer({ timer, now }: Readonly<ISingleTimerProps>) {
 	const mode = timer.mode
 	if (!mode) return null
 	const isRunning = !!timer.state && !timer.state.paused

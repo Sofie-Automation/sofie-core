@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Countdown } from './Countdown'
 import { useTiming } from '../RundownTiming/withTiming'
 import { RundownUtils } from '../../../lib/rundown.js'
+import { getCurrentTime } from '../../../lib/systemTime'
 
 export function RundownHeaderPlannedStart({
 	playlist,
@@ -16,7 +17,7 @@ export function RundownHeaderPlannedStart({
 	const timingDurations = useTiming()
 	const expectedStart = PlaylistTiming.getExpectedStart(playlist.timing)
 
-	const now = timingDurations.currentTime ?? Date.now()
+	const now = timingDurations.currentTime ?? getCurrentTime()
 	const startsIn = now - (expectedStart ?? 0)
 	const startedPlayback = playlist.activationId ? playlist.startedPlayback : undefined
 
