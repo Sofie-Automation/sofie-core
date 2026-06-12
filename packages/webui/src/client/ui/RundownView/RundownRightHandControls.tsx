@@ -5,7 +5,6 @@ import {
 	StudioRouteBehavior,
 	type StudioRouteSetExclusivityGroup,
 } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { RewindAllSegmentsIcon } from '../../lib/ui/icons/rewindAllSegmentsIcon.js'
 
 import Lottie, { type LottieComponentProps } from 'lottie-react'
 import { NotificationCenterPanelToggle } from '../../lib/notifications/NotificationCenterPanel.js'
@@ -36,7 +35,6 @@ interface IProps {
 	}
 	isFollowingOnAir: boolean
 	onFollowOnAir?: () => void
-	onRewindSegments?: () => void
 	isNotificationCenterOpen: NoticeLevel | undefined
 	isSupportPanelOpen: boolean
 	isStudioMode: boolean
@@ -80,7 +78,6 @@ export function RundownRightHandControls(props: Readonly<IProps>): JSX.Element {
 
 	const {
 		onFollowOnAir: onOnAirClick,
-		onRewindSegments: onRewindClick,
 		onTake: onTakeClick,
 		onSegmentViewMode: onSegmentViewModeClick,
 	} = props
@@ -173,16 +170,6 @@ export function RundownRightHandControls(props: Readonly<IProps>): JSX.Element {
 						{props.isUserEditsEnabled && (
 							<PropertiesPanelToggle key="properties" isNotificationCenterOpen={props.isNotificationCenterOpen} />
 						)}
-						<button
-							key="rewind"
-							className="status-bar__controls__button"
-							role="button"
-							onClick={onRewindClick}
-							tabIndex={0}
-							aria-label={t('Rewind all Segments')}
-						>
-							<RewindAllSegmentsIcon />
-						</button>
 						<div>
 							{!props.isFollowingOnAir && (
 								<button
