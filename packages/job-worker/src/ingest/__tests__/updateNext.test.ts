@@ -7,6 +7,7 @@ import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { saveIntoDb } from '../../db/changes.js'
 import { ensureNextPartIsValid as ensureNextPartIsValidRaw } from '../updateNext.js'
 import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context.js'
+import { setupMockShowStyleCompound } from '../../__mocks__/presetCollections.js'
 import { runJobWithPlayoutModel } from '../../playout/lock.js'
 
 jest.mock('../../playout/setNext')
@@ -537,6 +538,47 @@ describe('ensureNextPartIsValid', () => {
 			expect.objectContaining({ part: expect.objectContaining({ _id: 'mock_part1' }) }),
 			false
 		)
+	})
+	test('Next part instance is orphaned: "deleted" and `syncIngestUpdateToPartInstance` exists', async () => {
+		const showStyleCompound = await setupMockShowStyleCompound(context)
+		await context.mockCollections.Rundowns.update(rundownId, {
+			$set: {
+				showStyleBaseId: showStyleCompound._id,
+				showStyleVariantId: showStyleCompound.showStyleVariantId,
+			},
+		})
+		context.updateShowStyleBlueprint({
+			syncIngestUpdateToPartInstance: jest.fn(),
+		})
+
+		const instanceId: PartInstanceId = protectString('orphaned_first_part_with_callback')
+		await context.mockCollections.PartInstances.insertOne(
+			literal<DBPartInstance>({
+				_id: instanceId,
+				rundownId: rundownId,
+				segmentId: protectString('mock_segment1'),
+				playlistActivationId: protectString('active'),
+				segmentPlayoutId: protectString(''),
+				takeCount: 0,
+				rehearsal: false,
+				part: literal<DBPart>({
+					_id: protectString('orphan_with_callback_1'),
+					_rank: 1.5,
+					rundownId: rundownId,
+					segmentId: protectString('mock_segment1'),
+					externalId: 'o1-callback',
+					title: 'Orphan 1 Callback',
+					expectedDurationWithTransition: undefined,
+				}),
+				orphaned: 'deleted',
+			})
+		)
+
+		await resetPartIds(null, instanceId, false)
+
+		await expect(ensureNextPartIsValid()).resolves.toBeFalsy()
+
+		expect(setNextPartMock).not.toHaveBeenCalled()
 	})
 	test('Next part is invalid, but instance is not', async () => {
 		// Insert a temporary instance

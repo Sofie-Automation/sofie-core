@@ -5,8 +5,13 @@ import { setNextPart } from '../playout/setNext.js'
 import { isPartPlayable } from '@sofie-automation/corelib/dist/dataModel/Part'
 
 /**
- * Make sure that the nextPartInstance for the current Playlist is still correct
- * This will often change the nextPartInstance
+ * Make sure that the nextPartInstance for the current Playlist is still correct.
+ * This will often change the nextPartInstance.
+ *
+ * If the selected next part has been deleted by ingest, the default behavior is to
+ * drop it and autoselect a replacement. If the show-style blueprint defines
+ * `syncIngestUpdateToPartInstance`, the deleted next part is kept selected here so
+ * the blueprint can decide whether to remove it or preserve it.
  * @param context Context of the job being run
  * @param playoutModel Playout Model to operate on
  * @returns Whether the timeline should be updated following this operation
@@ -43,14 +48,22 @@ export async function ensureNextPartIsValid(context: JobContext, playoutModel: P
 
 	const orderedSegments = playoutModel.getAllOrderedSegments()
 	const orderedParts = playoutModel.getAllOrderedParts()
+	const nextPartIsDeleted = nextPartInstance?.partInstance.orphaned === 'deleted'
 
-	if (!nextPartInstance || nextPartInstance.partInstance.orphaned === 'deleted') {
-		// Don't have a nextPart or it has been deleted, so autoselect something
+	if (nextPartIsDeleted && (await hasSyncIngestUpdateToPartInstance(context, playoutModel, nextPartInstance))) {
+		// Source has deleted this part, but it is selected as next.
+		// Keep it selected, and let blueprint function `syncIngestUpdateToPartInstance` decide what to do with it.
+		span?.end()
+		return false
+	}
+
+	if (!nextPartInstance || nextPartIsDeleted) {
+		// Don't have a nextPart, so autoselect something
 		const newNextPart = selectNextPart(
 			context,
 			playlist,
 			currentPartInstance?.partInstance ?? null,
-			nextPartInstance?.partInstance ?? null,
+			null,
 			orderedSegments,
 			orderedParts,
 			{ ignoreUnplayable: true, ignoreQuickLoop: false }
@@ -96,4 +109,27 @@ export async function ensureNextPartIsValid(context: JobContext, playoutModel: P
 
 	span?.end()
 	return false
+}
+
+async function hasSyncIngestUpdateToPartInstance(
+	context: JobContext,
+	playoutModel: PlayoutModel,
+	nextPartInstance: PlayoutModel['nextPartInstance']
+): Promise<boolean> {
+	if (!nextPartInstance) return false
+	const rundown = playoutModel.getRundown(nextPartInstance.partInstance.part.rundownId)
+	if (!rundown) return false
+	if (!rundown.rundown.showStyleVariantId) return false
+
+	try {
+		const showStyle = await context.getShowStyleCompound(
+			rundown.rundown.showStyleVariantId,
+			rundown.rundown.showStyleBaseId
+		)
+		const blueprint = await context.getShowStyleBlueprint(showStyle._id)
+
+		return !!blueprint.blueprint.syncIngestUpdateToPartInstance
+	} catch {
+		return false
+	}
 }
