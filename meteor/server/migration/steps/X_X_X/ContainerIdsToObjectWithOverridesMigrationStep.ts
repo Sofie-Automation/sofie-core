@@ -1,9 +1,6 @@
 import { MigrationStepCore } from '@sofie-automation/meteor-lib/dist/migrations'
 import { Studios } from '../../../collections'
-import {
-	convertObjectIntoOverrides,
-	ObjectWithOverrides,
-} from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
+import { flatObjectToOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { StudioPackageContainerSettings } from '@sofie-automation/shared-lib/dist/core/model/PackageContainer'
 
 export class ContainerIdsToObjectWithOverridesMigrationStep implements Omit<MigrationStepCore, 'version'> {
@@ -29,10 +26,21 @@ export class ContainerIdsToObjectWithOverridesMigrationStep implements Omit<Migr
 			// @ts-expect-error thumbnailContainerIds is typed as string[]
 			const oldThumbnailContainerIds = studio.thumbnailContainerIds
 
-			const newPackageContainers = convertObjectIntoOverrides({
-				previewContainerIds: oldPreviewContainerIds ?? [],
-				thumbnailContainerIds: oldThumbnailContainerIds ?? [],
-			} satisfies StudioPackageContainerSettings) as ObjectWithOverrides<StudioPackageContainerSettings>
+			const changedValues: Partial<StudioPackageContainerSettings> = {}
+			if (oldPreviewContainerIds && oldPreviewContainerIds.length > 0) {
+				changedValues.previewContainerIds = oldPreviewContainerIds
+			}
+			if (oldThumbnailContainerIds && oldThumbnailContainerIds.length > 0) {
+				changedValues.thumbnailContainerIds = oldThumbnailContainerIds
+			}
+
+			const newPackageContainers = flatObjectToOverrides<StudioPackageContainerSettings>(
+				{
+					previewContainerIds: [],
+					thumbnailContainerIds: [],
+				},
+				changedValues
+			)
 
 			await Studios.updateAsync(studio._id, {
 				$set: {
