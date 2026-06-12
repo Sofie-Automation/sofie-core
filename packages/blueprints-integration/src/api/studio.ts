@@ -112,6 +112,31 @@ export interface StudioBlueprintManifest<
 	 */
 	deviceStatusMessages?: Record<string, string | DeviceStatusMessageFunction>
 
+	/**
+	 * Alternate device action error messages, to override the default messages from TSR devices.
+	 * Keys are action error code strings from TSR devices (e.g., 'ACTION_HTTPSEND_REQUEST_FAILED').
+	 *
+	 * Similar to deviceStatusMessages but applies to device action execution failures
+	 * (e.g., HTTP Send failures, device restart failures) rather than ongoing status errors.
+	 *
+	 * Import action error codes from 'timeline-state-resolver-types' for type safety.
+	 * Values can be:
+	 * - String templates using {{variable}} syntax for interpolation with context values
+	 * - Functions that receive DeviceStatusContext and return a custom message string
+	 * - Empty string to suppress the message entirely (action result will show as generic error)
+	 *
+	 * @example
+	 * ```typescript
+	 * import { HttpSendActionErrorCode } from 'timeline-state-resolver-types'
+	 *
+	 * deviceActionMessages: {
+	 *   [HttpSendActionErrorCode.REQUEST_FAILED]: 'Failed to trigger graphics: {{errorMessage}}',
+	 *   [HttpSendActionErrorCode.MISSING_URL]: 'HTTP action not configured - missing URL',
+	 * }
+	 * ```
+	 */
+	deviceActionMessages?: Record<string, string | DeviceStatusMessageFunction | undefined>
+
 	/** Returns the items used to build the baseline (default state) of a studio, this is the baseline used when there's no active rundown */
 	getBaseline: (context: IStudioBaselineContext) => BlueprintResultStudioBaseline
 
