@@ -72,7 +72,7 @@ try {
 	await concurrently(
 		[
 			{
-				command: `yarn build:try`,
+				command: `yarn build`,
 				cwd: "packages",
 				name: "PACKAGES-BUILD",
 				prefixColor: "yellow",
