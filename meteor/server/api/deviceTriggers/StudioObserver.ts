@@ -215,11 +215,15 @@ export class StudioObserver extends EventEmitter {
 
 		this.showStyleBaseId = showStyleBaseId
 
+		// eslint-disable-next-line @typescript-eslint/no-this-alias
+		const self = this
+
 		this.#rundownsLiveQuery = await RundownsObserver.create(activePlaylistId, async (rundownIds) => {
 			logger.silly(`Creating new RundownContentObserver`)
 
 			const obs1 = await RundownContentObserver.create(activePlaylistId, showStyleBaseId, rundownIds, (cache) => {
-				return this.#rundownContentChanged(showStyleBaseId, cache)
+				// For some reason, `this` is undefined when this is called. As a quick-fix, we use a self-reference instead.
+				return self.#rundownContentChanged(showStyleBaseId, cache)
 			})
 
 			return () => {
@@ -228,7 +232,8 @@ export class StudioObserver extends EventEmitter {
 		})
 
 		this.#pieceInstancesLiveQuery = await PieceInstancesObserver.create(activationId, showStyleBaseId, (cache) => {
-			const cleanupChanges = this.#pieceInstancesChanged(showStyleBaseId, cache)
+			// For some reason, `this` is undefined when this is called. As a quick-fix, we use a self-reference instead.
+			const cleanupChanges = self.#pieceInstancesChanged(showStyleBaseId, cache)
 
 			return () => {
 				cleanupChanges?.()
