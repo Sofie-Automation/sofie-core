@@ -44,6 +44,8 @@ export function RundownDetachedShelf({
 						rundownLayout={shelfLayout}
 						studio={studio}
 						fullViewport={true}
+						enableUserEdits={false}
+						onEditProps={() => void 0}
 					/>
 				</ErrorBoundary>
 			</PreviewPopUpContextProvider>

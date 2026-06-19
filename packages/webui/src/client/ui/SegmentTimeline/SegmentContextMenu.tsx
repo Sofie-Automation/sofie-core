@@ -160,9 +160,8 @@ export function SegmentContextMenu({
 								rundownId={segment.rundownId}
 								targetName={segment.name}
 								operationTarget={{
+									target: 'segment' as const,
 									segmentExternalId: segment.externalId,
-									partExternalId: undefined,
-									pieceExternalId: undefined,
 								}}
 								userEditOperations={segment.userEditOperations}
 								isFormEditable={isSegmentEditAble}
@@ -267,23 +266,26 @@ export function SegmentContextMenu({
 							</>
 						)}
 
-						<UserEditOperationMenuItems
-							rundownId={part.instance.rundownId}
-							targetName={part.instance.part.title}
-							operationTarget={{
-								segmentExternalId: segment?.externalId,
-								partExternalId: part.instance.part.externalId,
-								pieceExternalId: undefined,
-							}}
-							userEditOperations={part.instance.part.userEditOperations}
-							isFormEditable={isPartEditAble}
-						/>
+						{segment && (
+							<UserEditOperationMenuItems
+								rundownId={part.instance.rundownId}
+								targetName={part.instance.part.title}
+								operationTarget={{
+									target: 'part' as const,
+									segmentExternalId: segment.externalId,
+									partExternalId: part.instance.part.externalId,
+								}}
+								userEditOperations={part.instance.part.userEditOperations}
+								isFormEditable={isPartEditAble}
+							/>
+						)}
 
 						{piece && piece.instance.piece.userEditOperations && (
 							<UserEditOperationMenuItems
 								rundownId={part.instance.rundownId}
 								targetName={piece.instance.piece.name}
 								operationTarget={{
+									target: 'piece' as const,
 									segmentExternalId: segment?.externalId,
 									partExternalId: part.instance.part.externalId,
 									pieceExternalId: piece.instance.piece.externalId,

@@ -98,13 +98,17 @@ export function isTranslatableMessage(obj: unknown): obj is ITranslatableMessage
 	return true
 }
 
+export function blueprintIdToTranslationNamespace(blueprintIds: BlueprintId[]): string[] {
+	return blueprintIds.map((id) => `blueprint_${id}`)
+}
+
 export function wrapTranslatableMessageFromBlueprints(
 	message: IBlueprintTranslatableMessage,
 	blueprintIds: BlueprintId[]
 ): ITranslatableMessage {
 	return {
 		...message,
-		namespaces: blueprintIds.map((id) => `blueprint_${id}`),
+		namespaces: blueprintIdToTranslationNamespace(blueprintIds),
 	}
 }
 
@@ -116,7 +120,7 @@ export function wrapTranslatableMessageFromBlueprintsIfNotString(
 		? message
 		: {
 				...message,
-				namespaces: blueprintIds.map((id) => `blueprint_${id}`),
+				namespaces: blueprintIdToTranslationNamespace(blueprintIds),
 			}
 }
 

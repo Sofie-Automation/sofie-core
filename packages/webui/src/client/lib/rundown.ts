@@ -40,6 +40,8 @@ import type {
 	ResolvedSegmentWrapperOptions,
 	SegmentsWithPartInstancesWrapperParams,
 } from '@sofie-automation/corelib/src/playout/stateCacheResolverTypes.js'
+import type { AdLibAction } from '@sofie-automation/corelib/src/dataModel/AdlibAction.js'
+import type { RundownBaselineAdLibAction } from '@sofie-automation/corelib/src/dataModel/RundownBaselineAdLibAction.js'
 
 const segmentsFindOne = (selector: SegmentId | MongoQuery<DBSegment>, options: FindOneOptions<DBSegment>) =>
 	Segments.findOne(selector, options)
@@ -379,6 +381,15 @@ export namespace RundownUtils {
 			return true
 		}
 		return false
+	}
+
+	export function isRundownBaselineAdLibAction(
+		adLibAction: AdLibAction | RundownBaselineAdLibAction
+	): adLibAction is RundownBaselineAdLibAction {
+		if (adLibAction['partId'] !== undefined) {
+			return false
+		}
+		return true
 	}
 
 	export function isAdlibActionContent(

@@ -3,6 +3,7 @@ import { ArrayElement } from '../lib.js'
 import { ITranslatableMessage } from '../TranslatableMessage.js'
 import { ProtectedStringProperties } from '../protectedString.js'
 import { RundownId, AdLibActionId, PartId } from './Ids.js'
+import { CoreUserEditingDefinition, CoreUserEditingProperties } from './UserEditingDefinitions.js'
 
 /** The following extended interface allows assigning namespace information to the actions as they are stored in the
  *  database after being emitted from the blueprints
@@ -28,6 +29,17 @@ export interface AdLibActionCommon extends ProtectedStringProperties<IBlueprintA
 	 * only one of them should be displayed in the GUI.
 	 */
 	uniquenessId?: string
+
+	/**
+	 * User editing definitions for this piece
+	 */
+	userEditOperations?: CoreUserEditingDefinition[]
+
+	/**
+	 * Properties that are user editable from the properties panel in the Sofie UI, if the user saves changes to these
+	 * it will trigger a user edit operation of type DefaultUserOperationEditProperties
+	 */
+	userEditProperties?: CoreUserEditingProperties
 }
 
 export interface AdLibAction extends AdLibActionCommon {

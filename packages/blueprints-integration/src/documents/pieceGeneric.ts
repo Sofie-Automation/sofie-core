@@ -1,4 +1,5 @@
 import { PieceLifespan } from '@sofie-automation/shared-lib/dist/core/model/Rundown'
+import type { UserEditingDefinition, UserEditingProperties } from '../userEditing.js'
 import type { PieceAbSessionInfo } from '../abPlayback.js'
 import type { ActionUserData } from '../action.js'
 import type { SomeContent, WithTimeline } from '../content.js'
@@ -85,4 +86,15 @@ export interface IBlueprintPieceGeneric<TPrivateData = unknown, TPublicData = un
 	 * AB playback sessions needed for this Piece
 	 */
 	abSessions?: PieceAbSessionInfo[]
+
+	/**
+	 * User editing definitions for this piece
+	 */
+	userEditOperations?: UserEditingDefinition[]
+
+	/**
+	 * Properties that are user editable from the properties panel in the Sofie UI, if the user saves changes to these
+	 * it will trigger a user edit operation of type DefaultUserOperationEditProperties
+	 */
+	userEditProperties?: UserEditingProperties
 }

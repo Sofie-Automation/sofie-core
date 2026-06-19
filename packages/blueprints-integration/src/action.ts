@@ -1,9 +1,10 @@
-import { ExpectedPackage } from './package.js'
-import { SomeContent } from './content.js'
-import { ITranslatableMessage } from './translations.js'
+import type { ExpectedPackage } from './package.js'
+import type { SomeContent } from './content.js'
+import type { ITranslatableMessage } from './translations.js'
 import { ExpectedPlayoutItemGeneric } from './documents/index.js'
 import { JSONBlob } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 import { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
+import type { UserEditingDefinition, UserEditingProperties } from './index.js'
 
 export interface ActionUserData {
 	[key: string]: any
@@ -128,4 +129,15 @@ export interface IBlueprintActionManifest<TPrivateData = unknown, TPublicData = 
 	 * An array of which Packages this Action uses. This is used by a Package Manager to ensure that the Package is in place for playout.
 	 */
 	expectedPackages?: ExpectedPackage.Any[]
+
+	/**
+	 * User editing definitions for this piece
+	 */
+	userEditOperations?: UserEditingDefinition[]
+
+	/**
+	 * Properties that are user editable from the properties panel in the Sofie UI, if the user saves changes to these
+	 * it will trigger a user edit operation of type DefaultUserOperationEditProperties
+	 */
+	userEditProperties?: UserEditingProperties
 }

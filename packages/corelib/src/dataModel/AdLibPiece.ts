@@ -2,7 +2,8 @@ import { IBlueprintAdLibPiece, SomeContent } from '@sofie-automation/blueprints-
 import { RundownId, PartId } from './Ids.js'
 import { PieceGeneric } from './Piece.js'
 
-export interface AdLibPiece extends PieceGeneric, Omit<IBlueprintAdLibPiece, 'content'> {
+export interface AdLibPiece
+	extends PieceGeneric, Omit<IBlueprintAdLibPiece, 'content' | 'userEditOperations' | 'userEditProperties'> {
 	/** Rundown this AdLib belongs to */
 	rundownId: RundownId
 

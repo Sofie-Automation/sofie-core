@@ -51,6 +51,17 @@ export interface PieceGeneric extends Omit<IBlueprintPieceGeneric, 'content'> {
 
 	/** Stringified timelineObjects */
 	timelineObjectsString: PieceTimelineObjectsBlob
+
+	/**
+	 * User editing definitions for this piece
+	 */
+	userEditOperations?: CoreUserEditingDefinition[]
+
+	/**
+	 * Properties that are user editable from the properties panel in the Sofie UI, if the user saves changes to these
+	 * it will trigger a user edit operation of type DefaultUserOperationEditProperties
+	 */
+	userEditProperties?: CoreUserEditingProperties
 }
 export interface Piece
 	extends PieceGeneric, Omit<IBlueprintPieceDB, '_id' | 'content' | 'userEditOperations' | 'userEditProperties'> {
@@ -84,17 +95,6 @@ export interface Piece
 
 	/** This is set when the part is invalid and these pieces should be ignored */
 	invalid: boolean
-
-	/**
-	 * User editing definitions for this piece
-	 */
-	userEditOperations?: CoreUserEditingDefinition[]
-
-	/**
-	 * Properties that are user editable from the properties panel in the Sofie UI, if the user saves changes to these
-	 * it will trigger a user edit operation of type DefaultUserOperationEditProperties
-	 */
-	userEditProperties?: CoreUserEditingProperties
 }
 
 export interface PieceExtended {
