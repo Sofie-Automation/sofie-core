@@ -10,6 +10,7 @@ import { literal } from '@sofie-automation/shared-lib/dist/lib/lib'
 import {
 	type DefaultUserOperationRetimePiece,
 	DefaultUserOperationsTypes,
+	type UserOperationTarget,
 } from '@sofie-automation/blueprints-integration'
 import RundownViewEventBus, {
 	RundownViewEvents,
@@ -94,7 +95,8 @@ export function DragContextProvider({ t, children }: PropsWithChildren<Props>): 
 				const oldSegment = part?.segmentId === oldPart?.segmentId ? segment : Segments.findOne(oldPart?.segmentId)
 				if (!segment) return cleanup()
 
-				const operationTarget = {
+				const operationTarget: UserOperationTarget = {
+					target: 'piece',
 					segmentExternalId: oldSegment?.externalId,
 					partExternalId: oldPart?.externalId,
 					pieceExternalId: ogPiece.instance.piece.externalId,

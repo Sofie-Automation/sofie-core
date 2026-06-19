@@ -246,6 +246,12 @@ function convertPieceGenericToBlueprintsInner(piece: ReadonlyDeep<PieceGeneric>)
 		allowDirectPlay: clone<IBlueprintPieceDB['allowDirectPlay']>(piece.allowDirectPlay),
 		expectedPackages: clone<ExpectedPackage.Any[] | undefined>(piece.expectedPackages),
 		hasSideEffects: piece.hasSideEffects,
+		userEditOperations: piece.userEditOperations
+			? translateUserEditsToBlueprint(piece.userEditOperations)
+			: undefined,
+		userEditProperties: piece.userEditProperties
+			? translateUserEditPropertiesToBlueprint(piece.userEditProperties)
+			: undefined,
 		content: {
 			...cloneObject(piece.content),
 			timelineObjects: deserializePieceTimelineObjectsBlob(piece.timelineObjectsString),
@@ -270,8 +276,6 @@ export function convertPieceToBlueprints(piece: ReadonlyDeep<PieceInstancePiece>
 		pieceType: piece.pieceType,
 		extendOnHold: piece.extendOnHold,
 		notInVision: piece.notInVision,
-		userEditOperations: translateUserEditsToBlueprint(piece.userEditOperations),
-		userEditProperties: translateUserEditPropertiesToBlueprint(piece.userEditProperties),
 		excludeDuringPartKeepalive: piece.excludeDuringPartKeepalive,
 		displayAbChannel: piece.displayAbChannel,
 	}
@@ -389,6 +393,8 @@ export function convertAdLibActionToBlueprints(action: ReadonlyDeep<AdLibAction>
 		triggerModes: clone<IBlueprintActionTriggerMode[] | undefined>(action.triggerModes), // TODO - type mismatch
 		expectedPlayoutItems: clone<ExpectedPlayoutItemGeneric[] | undefined>(action.expectedPlayoutItems),
 		expectedPackages: clone<ExpectedPackage.Any[] | undefined>(action.expectedPackages),
+		userEditOperations: translateUserEditsToBlueprint(action.userEditOperations),
+		userEditProperties: translateUserEditPropertiesToBlueprint(action.userEditProperties),
 	}
 
 	return obj

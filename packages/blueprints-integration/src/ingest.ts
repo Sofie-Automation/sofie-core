@@ -123,11 +123,34 @@ export interface NrcsIngestChangeDetails {
 	changedSegmentExternalIds?: Record<string, string>
 }
 
-export interface UserOperationTarget {
-	segmentExternalId: string | undefined
-	partExternalId: string | undefined
-	pieceExternalId: string | undefined
-}
+export type UserOperationTarget =
+	| {
+			target: 'segment'
+			segmentExternalId: string
+	  }
+	| {
+			target: 'part'
+			segmentExternalId: string
+			partExternalId: string
+	  }
+	| {
+			target: 'piece'
+			segmentExternalId: string | undefined
+			partExternalId: string | undefined
+			pieceExternalId: string
+	  }
+	| {
+			target: 'adlibAction'
+			segmentExternalId: string | undefined
+			partExternalId: string | undefined
+			adlibActionExternalId: string
+	  }
+	| {
+			target: 'adlibPiece'
+			segmentExternalId: string | undefined
+			partExternalId: string | undefined
+			adlibPieceExternalId: string
+	  }
 
 export enum DefaultUserOperationsTypes {
 	REVERT_SEGMENT = '__sofie-revert-segment',

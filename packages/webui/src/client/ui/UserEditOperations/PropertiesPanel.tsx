@@ -11,11 +11,16 @@ import {
 	type UserEditingProperties,
 	type UserEditingSourceLayer,
 	UserEditingType,
+	type UserOperationTarget,
 } from '@sofie-automation/blueprints-integration'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import classNames from 'classnames'
 import { useTranslation } from 'react-i18next'
-import { useSelectedElements, useSelectedElementsContext } from '../RundownView/SelectedElementsContext.js'
+import {
+	useSelectedElements,
+	useSelectedElementsContext,
+	useSelectedObjectsUserEditProps,
+} from '../RundownView/SelectedElementsContext.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { SchemaFormWithState } from '../../lib/forms/SchemaFormWithState.js'
@@ -38,25 +43,32 @@ export function PropertiesPanel(): JSX.Element {
 	const [pendingChange, setPendingChange] = useState<PendingChange | undefined>(undefined)
 	const hasPendingChanges = !!pendingChange
 
-	const { piece, part, segment, rundownId } = useSelectedElements(selectedElement, () => setPendingChange(undefined))
+	const { selectedObjects, rundownId } = useSelectedElements(selectedElement, () => setPendingChange(undefined))
 
-	const [hadPiece, setHadPiece] = useState(false)
-
-	useEffect(() => {
-		if (piece) setHadPiece(true)
-	}, [piece])
+	const [hadSmallestElement, setHadSmallestElement] = useState(false)
 
 	useEffect(() => {
-		const pieceChangedId = selectedElement?.type === 'piece' && hadPiece && piece === undefined
+		if (selectedObjects.piece) setHadSmallestElement(true)
+	}, [selectedObjects.piece])
+
+	useEffect(() => {
+		const pieceChangedId =
+			selectedElement?.type !== 'segment' &&
+			selectedElement?.type !== 'part' &&
+			hadSmallestElement &&
+			selectedObjects.piece === undefined
 
 		if (pieceChangedId) {
-			setHadPiece(false)
+			setHadSmallestElement(false)
 			clearSelections()
 		}
-	}, [selectedElement, piece, hadPiece, clearSelections])
+	}, [selectedElement, selectedObjects.piece, hadSmallestElement, clearSelections])
 
 	const handleCommitChanges = async (e: React.MouseEvent) => {
 		if (!rundownId || !selectedElement || !pendingChange) return
+
+		const target = getTargetForSelectedElement(selectedElement.type, selectedObjects)
+		if (!target) return
 
 		doUserAction(
 			t,
@@ -67,11 +79,7 @@ export function PropertiesPanel(): JSX.Element {
 					e,
 					ts,
 					rundownId,
-					{
-						segmentExternalId: segment?.externalId,
-						partExternalId: part?.externalId,
-						pieceExternalId: piece?.externalId,
-					},
+					target,
 					literal<DefaultUserOperationEditProperties>({
 						id: DefaultUserOperationsTypes.UPDATE_PROPS,
 						payload: pendingChange,
@@ -83,24 +91,36 @@ export function PropertiesPanel(): JSX.Element {
 
 	const handleRevertChanges = (e: React.MouseEvent) => {
 		if (!rundownId || !selectedElement) return
+
+		let target = getTargetForSelectedElement(selectedElement.type, selectedObjects)
+		if (!target) return
+
+		// Revert can only happen on a per-part or per-segment basis, so if the target is a piece, we need to convert it to a part or segment target
+		if (target.target !== 'segment' && target.target !== 'part' && target.segmentExternalId) {
+			target = target.partExternalId
+				? {
+						target: 'part',
+						segmentExternalId: target.segmentExternalId,
+						partExternalId: target.partExternalId,
+					}
+				: {
+						target: 'segment',
+						segmentExternalId: target.segmentExternalId,
+					}
+		} else {
+			// we can't revert
+			return
+		}
+
 		setPendingChange(undefined)
+
 		doUserAction(t, e, UserAction.EXECUTE_USER_OPERATION, (e, ts) =>
-			MeteorCall.userAction.executeUserChangeOperation(
-				e,
-				ts,
-				rundownId,
-				{
-					segmentExternalId: segment?.externalId,
-					partExternalId: part?.externalId,
-					pieceExternalId: undefined,
-				},
-				{
-					id:
-						selectedElement.type === 'segment'
-							? DefaultUserOperationsTypes.REVERT_SEGMENT
-							: DefaultUserOperationsTypes.REVERT_PART,
-				}
-			)
+			MeteorCall.userAction.executeUserChangeOperation(e, ts, rundownId, target, {
+				id:
+					selectedElement.type === 'segment'
+						? DefaultUserOperationsTypes.REVERT_SEGMENT
+						: DefaultUserOperationsTypes.REVERT_PART,
+			})
 		)
 	}
 
@@ -111,52 +131,26 @@ export function PropertiesPanel(): JSX.Element {
 
 	const executeAction = (e: React.MouseEvent, id: string) => {
 		if (!rundownId || !selectedElement) return
+
+		const target = getTargetForSelectedElement(selectedElement.type, selectedObjects)
+		if (!target) return
+
 		doUserAction(t, e, UserAction.EXECUTE_USER_OPERATION, (e, ts) =>
-			MeteorCall.userAction.executeUserChangeOperation(
-				e,
-				ts,
-				rundownId,
-				{
-					segmentExternalId: segment?.externalId,
-					partExternalId: part?.externalId,
-					pieceExternalId: piece?.externalId,
-				},
-				{
-					id,
-				}
-			)
+			MeteorCall.userAction.executeUserChangeOperation(e, ts, rundownId, target, {
+				id,
+			})
 		)
 	}
 
-	const userEditOperations =
-		selectedElement?.type === 'piece'
-			? piece?.userEditOperations
-			: selectedElement?.type === 'part'
-				? part?.userEditOperations
-				: selectedElement?.type === 'segment'
-					? segment?.userEditOperations
-					: undefined
-	const userEditProperties =
-		selectedElement?.type === 'piece'
-			? piece?.userEditProperties
-			: selectedElement?.type === 'part'
-				? part?.userEditProperties
-				: selectedElement?.type === 'segment'
-					? segment?.userEditProperties
-					: undefined
+	const { title, userEditOperations, userEditProperties } = useSelectedObjectsUserEditProps(
+		selectedElement.type,
+		selectedObjects
+	)
+
 	const change = pendingChange ?? {
 		pieceTypeProperties: userEditProperties?.pieceTypeProperties?.currentValue ?? { type: '', value: {} },
 		globalProperties: userEditProperties?.globalProperties?.currentValue ?? {},
 	}
-
-	const title =
-		selectedElement?.type === 'piece'
-			? piece?.name
-			: selectedElement?.type === 'part'
-				? part?.title
-				: selectedElement?.type === 'segment'
-					? segment?.name
-					: undefined
 
 	return (
 		<div className={'properties-panel'}>
@@ -172,7 +166,7 @@ export function PropertiesPanel(): JSX.Element {
 								return null
 							return <BlueprintAssetIcon key={operation.id} src={operation.icon} className="svg" />
 						})}
-					<div className="title">{title}</div>
+					<div className="title">{typeof title === 'object' ? translateMessage(title, t) : title}</div>
 					<span className="properties">{t('Properties')}</span>
 					<button
 						className="propertiespanel-pop-up_close"
@@ -409,4 +403,64 @@ export function hasUserEditableContent(
 		obj?.userEditProperties?.globalProperties ||
 		obj?.userEditProperties?.operations?.length
 	)
+}
+
+function getTargetForSelectedElement(
+	type: ReturnType<typeof useSelectedElements>['type'] | undefined,
+	selectedObjects: ReturnType<typeof useSelectedElements>['selectedObjects']
+): UserOperationTarget | undefined {
+	if (!type) return undefined
+
+	let target: UserOperationTarget
+	if (type === 'segment' && selectedObjects.segment) {
+		target = {
+			target: 'segment' as const,
+			segmentExternalId: selectedObjects.segment.externalId,
+		}
+	} else if ((type === 'part' || type === 'partInstance') && selectedObjects.segment && selectedObjects.part) {
+		target = {
+			target: 'part' as const,
+			segmentExternalId: selectedObjects.segment.externalId,
+			partExternalId: selectedObjects.part.externalId,
+		}
+	} else if (type === 'piece' && selectedObjects.segment && selectedObjects.part && selectedObjects.piece) {
+		target = {
+			target: 'piece' as const,
+			segmentExternalId: selectedObjects.segment.externalId,
+			partExternalId: selectedObjects.part.externalId,
+			pieceExternalId: selectedObjects.piece.externalId,
+		}
+	} else if (type === 'adLibPiece' && selectedObjects.adLibPiece) {
+		target = {
+			target: 'adlibPiece' as const,
+			segmentExternalId: selectedObjects.segment?.externalId,
+			partExternalId: selectedObjects.part?.externalId,
+			adlibPieceExternalId: selectedObjects.adLibPiece.externalId,
+		}
+	} else if (type === 'adLibAction' && selectedObjects.adLibAction) {
+		target = {
+			target: 'adlibAction' as const,
+			segmentExternalId: selectedObjects.segment?.externalId,
+			partExternalId: selectedObjects.part?.externalId,
+			adlibActionExternalId: selectedObjects.adLibAction.externalId,
+		}
+	} else if (type === 'rundownBaselineAdLibPiece' && selectedObjects.rundownBaselineAdLibPiece) {
+		target = {
+			target: 'adlibPiece' as const,
+			segmentExternalId: selectedObjects.segment?.externalId,
+			partExternalId: selectedObjects.part?.externalId,
+			adlibPieceExternalId: selectedObjects.rundownBaselineAdLibPiece.externalId,
+		}
+	} else if (type === 'rundownBaselineAdLibAction' && selectedObjects.rundownBaselineAdLibAction) {
+		target = {
+			target: 'adlibAction' as const,
+			segmentExternalId: selectedObjects.segment?.externalId,
+			partExternalId: selectedObjects.part?.externalId,
+			adlibActionExternalId: selectedObjects.rundownBaselineAdLibAction.externalId,
+		}
+	} else {
+		return
+	}
+
+	return target
 }
