@@ -15,18 +15,6 @@ export interface ISettings {
 	followOnAirSegmentsHistory: number
 	/** Enable the use of poison key if present and use the key specified. **/
 	poisonKey: string | null
-	/** If set, enables a check to ensure that the system time doesn't differ too much from the speficied NTP server time. */
-	enableNTPTimeChecker: null | {
-		host: string
-		port?: number
-		maxAllowedDiff: number
-	}
-
-	/**
-	 * CSS class applied to the body of the page. Used to include custom implementations that differ from the main Fork.
-	 * I.e. custom CSS etc. Leave undefined if no custom implementation is needed
-	 * */
-	customizationClassName?: string
 
 	/**
 	 * Which keyboard key is used as "Confirm" in modal dialogs etc.
@@ -44,6 +32,5 @@ export const DEFAULT_SETTINGS = Object.freeze<ISettings>({
 	enableHeaderAuth: false,
 	poisonKey: 'Escape',
 	followOnAirSegmentsHistory: 0,
-	enableNTPTimeChecker: null,
 	confirmKeyCode: 'Enter',
 })
