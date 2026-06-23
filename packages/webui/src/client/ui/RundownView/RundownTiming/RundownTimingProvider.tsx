@@ -44,8 +44,8 @@ interface IRundownTimingProviderProps {
 	 * onto TIMING_DEFAULT_REFRESH_INTERVAL.
 	 */
 	refreshInterval?: number
-	/** Fallback duration for Parts that have no as-played duration of their own. */
-	defaultDuration?: number
+	/** Fallback duration for Parts that have no as-played duration of their own (the Studio's `defaultDisplayDuration`). */
+	defaultDuration: number
 }
 
 interface IRundownTimingProviderState {}

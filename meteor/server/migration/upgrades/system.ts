@@ -14,6 +14,7 @@ import { CoreSystemId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DEFAULT_CORE_TRIGGERS } from './defaultSystemActionTriggers'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { ICoreSystemSettings } from '@sofie-automation/shared-lib/dist/core/model/CoreSystemSettings'
+import { DEFAULT_MAXIMUM_DATA_AGE } from '@sofie-automation/shared-lib/dist/core/constants'
 
 export async function runUpgradeForCoreSystem(coreSystemId: CoreSystemId): Promise<void> {
 	logger.info(`Running upgrade for CoreSystem`)
@@ -102,6 +103,7 @@ function generateDefaultSystemConfig(): BlueprintResultApplySystemConfig {
 				heading: '',
 				message: '',
 			},
+			maximumDataAge: DEFAULT_MAXIMUM_DATA_AGE,
 		},
 		triggeredActions: Object.values<IBlueprintTriggeredActions>(DEFAULT_CORE_TRIGGERS),
 	}

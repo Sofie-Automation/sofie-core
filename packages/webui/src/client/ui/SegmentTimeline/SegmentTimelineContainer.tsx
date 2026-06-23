@@ -12,7 +12,6 @@ import { getElementWidth } from '../../utils/dimensions.js'
 import { isMaintainingFocus, scrollToSegment, getHeaderHeight } from '../../lib/viewPort.js'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { equivalentArrays } from '@sofie-automation/shared-lib/dist/lib/lib'
-import { Settings } from '../../lib/Settings.js'
 import RundownViewEventBus, {
 	RundownViewEvents,
 	type GoToPartEvent,
@@ -27,6 +26,7 @@ import {
 	type IOutputLayerUi,
 } from '../SegmentContainer/withResolvedSegment.js'
 import { computeSegmentDuration, getPartInstanceTimingId } from '../../lib/rundownTiming.js'
+import { DEFAULT_DISPLAY_DURATION } from '@sofie-automation/shared-lib/dist/core/constants'
 import { RundownViewShelf } from '../RundownView/RundownViewShelf.js'
 import type { PartInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { catchError, useDebounce } from '../../lib/lib.js'
@@ -258,7 +258,7 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 			// segment is stopping from being live
 			if (this.state.isLiveSegment === true && isLiveSegment === false) {
 				this.setState({ isLiveSegment: false }, () => {
-					if (Settings.autoRewindLeavingSegment) {
+					if (this.props.studio.settings.autoRewindLeavingSegment ?? true) {
 						this.onRewindSegment()
 						this.onShowEntireSegment()
 					}
@@ -428,7 +428,11 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 					0,
 					Math.min(
 						scrollLeft,
-						(computeSegmentDuration(this.context.durations, this.props.parts, true) || 1) -
+						(computeSegmentDuration(
+							this.context.durations,
+							this.props.parts,
+							this.props.studio.settings.defaultDisplayDuration ?? DEFAULT_DISPLAY_DURATION
+						) || 1) -
 							LIVELINE_HISTORY_SIZE / this.state.timeScale
 					)
 				),

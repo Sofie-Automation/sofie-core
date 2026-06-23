@@ -1480,7 +1480,7 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 											/>
 										</ErrorBoundary>
 										<ErrorBoundary>
-											{this.props.userPermissions.studio && !Settings.disableBlurBorder && (
+											{this.props.userPermissions.studio && !this.props.studio?.settings.disableBlurBorder && (
 												<KeyboardFocusIndicator userPermissions={this.props.userPermissions}>
 													<div
 														className={classNames('rundown-view__focus-lost-frame', {

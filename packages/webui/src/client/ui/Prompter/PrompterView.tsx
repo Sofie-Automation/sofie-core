@@ -1,6 +1,7 @@
 import React, { createContext, type PropsWithChildren, type ReactNode, useRef } from 'react'
 import _ from 'underscore'
 import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import { DEFAULT_DISPLAY_DURATION } from '@sofie-automation/shared-lib/dist/core/constants'
 import ClassNames from 'classnames'
 import { Meteor } from 'meteor/meteor'
 import { parse as queryStringParse } from 'query-string'
@@ -600,7 +601,10 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 					</div>
 				) : this.props.rundownPlaylist ? (
 					<>
-						<RundownTimingProvider playlist={this.props.rundownPlaylist}>
+						<RundownTimingProvider
+							playlist={this.props.rundownPlaylist}
+							defaultDuration={this.props.studio?.settings.defaultDisplayDuration ?? DEFAULT_DISPLAY_DURATION}
+						>
 							<Prompter
 								rundownPlaylistId={this.props.rundownPlaylist._id}
 								config={this.configOptions}

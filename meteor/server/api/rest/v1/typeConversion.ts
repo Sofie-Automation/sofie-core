@@ -427,6 +427,13 @@ export function studioSettingsFrom(apiStudioSettings: APIStudioSettings): Comple
 		shelfAdlibButtonSize: apiStudioSettings.shelfAdlibButtonSize ?? ShelfButtonSize.LARGE,
 		mockPieceContentStatus: apiStudioSettings.mockPieceContentStatus,
 		rundownGlobalPiecesPrepareTime: apiStudioSettings.rundownGlobalPiecesPrepareTime,
+		autoRewindLeavingSegment: apiStudioSettings.autoRewindLeavingSegment,
+		disableBlurBorder: apiStudioSettings.disableBlurBorder,
+		allowGrabbingTimeline: apiStudioSettings.allowGrabbingTimeline,
+		useCountdownToFreezeFrame: apiStudioSettings.useCountdownToFreezeFrame,
+		// defaultShelfDisplayOptions is intentionally not exposed through the REST API
+		defaultShelfDisplayOptions: undefined,
+		defaultDisplayDuration: apiStudioSettings.defaultDisplayDuration,
 	}
 }
 
@@ -456,6 +463,11 @@ export function APIStudioSettingsFrom(settings: IStudioSettings): Complete<APISt
 		shelfAdlibButtonSize: settings.shelfAdlibButtonSize,
 		mockPieceContentStatus: settings.mockPieceContentStatus,
 		rundownGlobalPiecesPrepareTime: settings.rundownGlobalPiecesPrepareTime,
+		autoRewindLeavingSegment: settings.autoRewindLeavingSegment,
+		disableBlurBorder: settings.disableBlurBorder,
+		allowGrabbingTimeline: settings.allowGrabbingTimeline,
+		useCountdownToFreezeFrame: settings.useCountdownToFreezeFrame,
+		defaultDisplayDuration: settings.defaultDisplayDuration,
 	}
 }
 

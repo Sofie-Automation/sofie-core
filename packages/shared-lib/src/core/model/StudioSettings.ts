@@ -115,4 +115,22 @@ export interface IStudioSettings {
 	 * How long before their start time a rundown owned piece be added to the timeline
 	 */
 	rundownGlobalPiecesPrepareTime?: number
+
+	/** Should the segment in the Rundown view automatically rewind after it stops being live? Default: true */
+	autoRewindLeavingSegment?: boolean
+
+	/** Disable the blur border in the RundownView. Default: false */
+	disableBlurBorder?: boolean
+
+	/** Allow grabbing the entire timeline to scroll it. Default: true */
+	allowGrabbingTimeline?: boolean
+
+	/** If true, countdowns of videos will count down to the last freeze-frame of the video instead of to the end of the video. Default: true */
+	useCountdownToFreezeFrame?: boolean
+
+	/** Default value used to toggle Shelf options when the 'display' URL argument is not provided. Default: 'buckets,layout,shelfLayout,inspector' */
+	defaultShelfDisplayOptions?: string
+
+	/** Default duration (in milliseconds) to use to render parts when no duration is provided. Default: 3000 */
+	defaultDisplayDuration?: number
 }

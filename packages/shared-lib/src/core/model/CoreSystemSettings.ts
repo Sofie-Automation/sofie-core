@@ -20,4 +20,7 @@ export interface ICoreSystemSettings {
 		heading: string
 		message: string
 	}
+
+	/** Clean up data that is older than this (in milliseconds) */
+	maximumDataAge?: number
 }

@@ -2,6 +2,7 @@ import { SYSTEM_ID, GENESIS_SYSTEM_VERSION } from '@sofie-automation/meteor-lib/
 import { parseVersion } from '../systemStatus/semverUtils'
 import { getCurrentTime } from '../lib/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
+import { DEFAULT_MAXIMUM_DATA_AGE } from '@sofie-automation/shared-lib/dist/core/constants'
 import { Meteor } from 'meteor/meteor'
 import { prepareMigration, runMigration } from '../migration/databaseMigration'
 import { CURRENT_SYSTEM_VERSION } from '../migration/currentSystemVersion'
@@ -79,6 +80,7 @@ async function initializeCoreSystem() {
 					heading: '',
 					message: '',
 				},
+				maximumDataAge: DEFAULT_MAXIMUM_DATA_AGE,
 			}),
 			lastBlueprintConfig: undefined,
 		})

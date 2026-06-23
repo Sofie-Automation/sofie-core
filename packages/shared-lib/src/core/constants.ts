@@ -22,5 +22,14 @@ export const DEFAULT_MINIMUM_TAKE_SPAN = 1000
 /** The duration to apply on too short Parts Within QuickLoop when ForceQuickLoopAutoNext.ENABLED_FORCING_MIN_DURATION is selected */
 export const DEFAULT_FALLBACK_PART_DURATION = 3000
 
+/** Default duration (in milliseconds) to use to render parts when no duration is provided */
+export const DEFAULT_DISPLAY_DURATION = 3000
+
+/** Default value used to toggle Shelf options when the 'display' URL argument is not provided */
+export const DEFAULT_SHELF_DISPLAY_OPTIONS = 'buckets,layout,shelfLayout,inspector'
+
+/** Clean up data that is older than this (in milliseconds) */
+export const DEFAULT_MAXIMUM_DATA_AGE = 1000 * 60 * 60 * 24 * 100 // 100 days
+
 /** The expected time it takes from an ingest operation to receiving a new timeline in the playout-gateway */
 export const EXPECTED_INGEST_TO_PLAYOUT_TIME = 500

@@ -1,6 +1,6 @@
 import type { PartUi } from '../ui/SegmentTimeline/SegmentTimelineContainer.js'
 import { Timecode } from '@sofie-automation/corelib/dist/index'
-import { Settings } from '../lib/Settings.js'
+import { DEFAULT_DISPLAY_DURATION } from '@sofie-automation/shared-lib/dist/core/constants'
 import type { TFunction } from 'i18next'
 import {
 	getResolvedSegment as getResolvedSegmentBase,
@@ -127,7 +127,7 @@ export namespace RundownUtils {
 	export function getSegmentDuration(
 		parts: Array<PartUi>,
 		// pieces: Map<PartId, CalculateTimingsPiece[]>,
-		display?: boolean
+		displayDuration?: number
 	): number {
 		return parts.reduce((memo, part) => {
 			return (
@@ -135,7 +135,7 @@ export namespace RundownUtils {
 				(part.instance.timings?.duration ||
 					calculatePartInstanceExpectedDurationWithTransition(part.instance) ||
 					part.renderedDuration ||
-					(display ? Settings.defaultDisplayDuration : 0))
+					(displayDuration ?? 0))
 			)
 		}, 0)
 	}
@@ -342,7 +342,8 @@ export namespace RundownUtils {
 				invalidateAfter: options?.pieceInstanceSimulation ? invalidateAfter : undefined,
 				includeDisabledPieces: options?.includeDisabledPieces ?? false,
 				showHiddenSourceLayers: getShowHiddenSourceLayers(),
-				defaultDisplayDuration: Settings.defaultDisplayDuration,
+				defaultDisplayDuration:
+					segmentContext.studio?.settings.defaultDisplayDuration ?? DEFAULT_DISPLAY_DURATION,
 			},
 		})
 	}

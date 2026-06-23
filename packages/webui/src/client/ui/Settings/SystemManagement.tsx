@@ -17,8 +17,10 @@ import {
 	LabelActual,
 	LabelAndOverrides,
 	LabelAndOverridesForCheckbox,
+	LabelAndOverridesForInt,
 	LabelAndOverridesForMultiLineText,
 } from '../../lib/Components/LabelAndOverrides.js'
+import { IntInputControl } from '../../lib/Components/IntInput.js'
 import { catchError } from '../../lib/lib.js'
 import { SystemManagementBlueprint } from './SystemManagement/Blueprint.js'
 import type { SomeObjectOverrideOp } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
@@ -294,6 +296,16 @@ function SystemManagementCronJobs({ coreSystem }: Readonly<WithCoreSystemProps>)
 				>
 					{(value, handleUpdate) => <MultiLineTextInputControl value={value} handleUpdate={handleUpdate} />}
 				</LabelAndOverridesForMultiLineText>
+
+				<LabelAndOverridesForInt
+					label={t('Maximum data age')}
+					item={wrappedItem}
+					itemKey={'maximumDataAge'}
+					overrideHelper={overrideHelper}
+					hint={t('Clean up old data (eg. evaluations, user action logs) that is older than this, in milliseconds')}
+				>
+					{(value, handleUpdate) => <IntInputControl value={value} handleUpdate={handleUpdate} />}
+				</LabelAndOverridesForInt>
 			</div>
 		</>
 	)

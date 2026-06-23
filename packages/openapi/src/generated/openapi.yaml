@@ -2839,6 +2839,23 @@ paths:
                     rundownGlobalPiecesPrepareTime:
                       type: number
                       description: How long before their start time a rundown owned piece be added to the timeline
+                    autoRewindLeavingSegment:
+                      type: boolean
+                      description: Should the segment in the Rundown view automatically rewind after it stops being live
+                    disableBlurBorder:
+                      type: boolean
+                      description: Disable the blur border in the RundownView
+                    allowGrabbingTimeline:
+                      type: boolean
+                      description: Allow grabbing the entire timeline to scroll it
+                    useCountdownToFreezeFrame:
+                      type: boolean
+                      description: >-
+                        If true, countdowns of videos will count down to the last freeze-frame of the video instead of
+                        to the end of the video
+                    defaultDisplayDuration:
+                      type: number
+                      description: Default duration (in milliseconds) to use to render parts when no duration is provided
                   required:
                     - frameRate
                     - mediaPreviewsUrl
@@ -3055,6 +3072,23 @@ paths:
                           rundownGlobalPiecesPrepareTime:
                             type: number
                             description: How long before their start time a rundown owned piece be added to the timeline
+                          autoRewindLeavingSegment:
+                            type: boolean
+                            description: Should the segment in the Rundown view automatically rewind after it stops being live
+                          disableBlurBorder:
+                            type: boolean
+                            description: Disable the blur border in the RundownView
+                          allowGrabbingTimeline:
+                            type: boolean
+                            description: Allow grabbing the entire timeline to scroll it
+                          useCountdownToFreezeFrame:
+                            type: boolean
+                            description: >-
+                              If true, countdowns of videos will count down to the last freeze-frame of the video
+                              instead of to the end of the video
+                          defaultDisplayDuration:
+                            type: number
+                            description: Default duration (in milliseconds) to use to render parts when no duration is provided
                         required:
                           - frameRate
                           - mediaPreviewsUrl
@@ -3227,6 +3261,23 @@ paths:
                     rundownGlobalPiecesPrepareTime:
                       type: number
                       description: How long before their start time a rundown owned piece be added to the timeline
+                    autoRewindLeavingSegment:
+                      type: boolean
+                      description: Should the segment in the Rundown view automatically rewind after it stops being live
+                    disableBlurBorder:
+                      type: boolean
+                      description: Disable the blur border in the RundownView
+                    allowGrabbingTimeline:
+                      type: boolean
+                      description: Allow grabbing the entire timeline to scroll it
+                    useCountdownToFreezeFrame:
+                      type: boolean
+                      description: >-
+                        If true, countdowns of videos will count down to the last freeze-frame of the video instead of
+                        to the end of the video
+                    defaultDisplayDuration:
+                      type: number
+                      description: Default duration (in milliseconds) to use to render parts when no duration is provided
                   required:
                     - frameRate
                     - mediaPreviewsUrl

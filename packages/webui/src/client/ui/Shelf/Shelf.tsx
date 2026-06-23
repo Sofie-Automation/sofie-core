@@ -43,6 +43,7 @@ import { UserPermissionsContext } from '../UserPermissions'
 import { useLocation } from 'react-router'
 import type { IStudioSettings, UIStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { Settings } from '../../lib/Settings'
+import { DEFAULT_SHELF_DISPLAY_OPTIONS } from '@sofie-automation/shared-lib/dist/core/constants'
 import { type ParsedQuery, parse as queryStringParse } from 'query-string'
 import type { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 
@@ -596,7 +597,11 @@ export function Shelf(
 }
 
 function getShelfDisplayOptions(studioSettings: IStudioSettings | undefined, params: ParsedQuery): ShelfDisplayOptions {
-	const displayOptions = ((params['display'] as string) || Settings.defaultShelfDisplayOptions).split(',')
+	const displayOptions = (
+		(params['display'] as string) ||
+		studioSettings?.defaultShelfDisplayOptions ||
+		DEFAULT_SHELF_DISPLAY_OPTIONS
+	).split(',')
 
 	return {
 		// If buckets are enabled in Studiosettings, it can also be filtered in the URLs display options.
