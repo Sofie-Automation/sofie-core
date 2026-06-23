@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # Sofie Core: System Configuration
 
-_Sofie&nbsp;Core_ is configured at it's most basic level using a settings file and environment variables.
+_Sofie&nbsp;Core_ is configured at it's most basic level using environment variables.
 
 ### Environment Variables
 
@@ -18,16 +18,6 @@ _Sofie&nbsp;Core_ is configured at it's most basic level using a settings file a
 		</tr>
 	</thead>
 	<tbody>
-		<tr>
-			<td>
-				<code>METEOR_SETTINGS</code>
-			</td>
-			<td>Contents of settings file (see below)</td>
-			<td></td>
-			<td>
-				<code>$(cat settings.json)</code>
-			</td>
-		</tr>
 		<tr>
 			<td>
 				<code>TZ</code>
@@ -61,34 +51,22 @@ _Sofie&nbsp;Core_ is configured at it's most basic level using a settings file a
 				<code>/logs/core/</code>
 			</td>
 		</tr>
+		<tr>
+			<td>
+				<code>SOFIE_ENABLE_HEADER_AUTH</code>
+			</td>
+			<td>
+				If set to <code>1</code> or <code>true</code>, enables http header based security measures. See{' '}
+				<a href="../features/access-levels">here</a> for details on using this
+			</td>
+			<td>
+				<code>false</code>
+			</td>
+			<td>
+				<code>1</code>
+			</td>
+		</tr>
 	</tbody>
 </table>
 
-### Settings File
-
-The settings file is an optional JSON file that contains some configuration settings for how the _Sofie&nbsp;Core_ works and behaves.
-
-To use a settings file:
-
-- During development: `meteor --settings settings.json`
-- During prod: environment variable \(see above\)
-
-The structure of the file allows for public and private fields. At the moment, Sofie only uses public fields. Below is an example settings file:
-
-```text
-{
-    "public": {
-        "frameRate": 25
-    }
-}
-```
-
-There are various settings you can set for an installation. See the list below:
-
-| **Field name**     | Use                                                                                                                  | Default value |
-| :----------------- | :------------------------------------------------------------------------------------------------------------------- | :------------ |
-| `enableHeaderAuth` | If true, enable http header based security measures. See [here](../features/access-levels) for details on using this | `false`       |
-
-:::info
-The exact definition for the settings can be found [in the code here](https://github.com/Sofie-Automation/sofie-core/blob/main/meteor/lib/Settings.ts#L12).
-:::
+Installation behaviour is otherwise configured through the Studio settings and the System Management page in the UI.

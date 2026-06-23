@@ -3,7 +3,6 @@ import {
 	USER_PERMISSIONS_HEADER,
 	UserPermissions,
 } from '@sofie-automation/meteor-lib/dist/userPermissions'
-import { Settings } from '../Settings'
 import { Meteor } from 'meteor/meteor'
 import Koa from 'koa'
 import { triggerWriteAccess } from './securityVerify'
@@ -12,8 +11,15 @@ import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collect
 
 export type RequestCredentials = Meteor.Connection | Koa.ParameterizedContext
 
+/**
+ * Whether http-header based security measures are enabled.
+ * Configured via the `SOFIE_ENABLE_HEADER_AUTH` environment variable (`1` or `true` to enable).
+ */
+export const ENABLE_HEADER_AUTH =
+	process.env.SOFIE_ENABLE_HEADER_AUTH === '1' || process.env.SOFIE_ENABLE_HEADER_AUTH?.toLowerCase() === 'true'
+
 export function parseConnectionPermissions(conn: RequestCredentials): UserPermissions {
-	if (!Settings.enableHeaderAuth) {
+	if (!ENABLE_HEADER_AUTH) {
 		// If auth is disabled, return all permissions
 		return {
 			studio: true,
@@ -49,7 +55,7 @@ export function assertConnectionHasOneOfPermissions(
 	if (!conn) throw new Meteor.Error(403, 'Can only be invoked by clients')
 
 	// Skip if auth is disabled
-	if (!Settings.enableHeaderAuth) return
+	if (!ENABLE_HEADER_AUTH) return
 
 	const permissions = parseConnectionPermissions(conn)
 	for (const permission of allowedPermissions) {
@@ -70,7 +76,7 @@ export function checkHasOneOfPermissions(
 	triggerWriteAccess()
 
 	// Skip if auth is disabled
-	if (!Settings.enableHeaderAuth) return true
+	if (!ENABLE_HEADER_AUTH) return true
 
 	if (!permissions) throw new Meteor.Error(403, 'Permissions is null')
 
