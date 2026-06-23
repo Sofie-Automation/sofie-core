@@ -4,6 +4,7 @@ import { Countdown } from './Countdown'
 import { useTiming } from '../RundownTiming/withTiming'
 import { RundownUtils } from '../../../lib/rundown.js'
 import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
+import { getCurrentTime } from '../../../lib/systemTime'
 
 export function RundownHeaderDurations({
 	playlist,
@@ -21,7 +22,7 @@ export function RundownHeaderDurations({
 
 	const estDuration = PlaylistTiming.getRemainingDuration(
 		playlist.timing,
-		timingDurations.currentTime ?? Date.now(),
+		timingDurations.currentTime ?? getCurrentTime(),
 		timingDurations.remainingPlaylistDuration,
 		startedPlayback
 	)

@@ -59,7 +59,7 @@ export function CollapseJSON({ json }: { json: string }): JSX.Element {
 				<Button
 					variant="light"
 					size="sm"
-					key={'collapse'}
+					key={'copy'}
 					className="collapse-json__copy"
 					tabIndex={0}
 					onClick={(e) => {

@@ -1,0 +1,13 @@
+diff --git a/rspack.config.js b/rspack.config.js
+index 76ad29ad8a9b5bf31309a09c88e1c00c53193a2a..1df53de9ff941bca8291547443ad99860b131dff 100644
+--- a/rspack.config.js
++++ b/rspack.config.js
+@@ -135,7 +135,7 @@ function createSwcConfig({
+         ...(isJsxEnabled && { jsx: true }),
+         ...(isAngularEnabled && { decorators: true }),
+       },
+-      target: 'es2015',
++      target: 'es2024', // We don't care about browsers, so can target current nodejs and avoid issues with transpiling
+       ...(isReactEnabled && {
+         transform: {
+           react: {

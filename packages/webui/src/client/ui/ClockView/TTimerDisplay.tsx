@@ -4,31 +4,22 @@ import { calculateTTimerDiff, calculateTTimerOverUnder } from '../../lib/tTimerU
 import { useTiming } from '../RundownView/RundownTiming/withTiming.js'
 import { OverUnderChip } from '../../lib/Components/OverUnderChip.js'
 import { Countdown } from '../RundownView/RundownHeader/Countdown.js'
+import { getCurrentTime } from '../../lib/systemTime.js'
 
 interface TTimerDisplayProps {
 	timer: RundownTTimer
 }
 
 export function TTimerDisplay({ timer }: Readonly<TTimerDisplayProps>): JSX.Element | null {
-	useTiming()
+	const timing = useTiming()
 
 	if (!timer.mode) return null
 
-	const now = Date.now()
+	const now = timing.currentTime ?? getCurrentTime()
 
 	const diff = calculateTTimerDiff(timer, now)
 	const overUnder = calculateTTimerOverUnder(timer, now)
-	const timeStr = RundownUtils.formatDiffToTimecode(
-		Math.abs(diff),
-		false,
-		true,
-		true,
-		false,
-		true,
-		undefined,
-		true,
-		true
-	)
+	const timeStr = RundownUtils.formatDiffToTimecode(Math.abs(diff), false, true, true, false, true)
 	const timerSign = diff >= 0 ? '' : '-'
 
 	return (

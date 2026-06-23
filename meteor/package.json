@@ -45,6 +45,7 @@
 		"@sofie-automation/job-worker": "portal:../packages/job-worker",
 		"@sofie-automation/meteor-lib": "portal:../packages/meteor-lib",
 		"@sofie-automation/shared-lib": "portal:../packages/shared-lib",
+		"@swc/core": "^1.15.41",
 		"@swc/helpers": "0.5.17",
 		"bcrypt": "^6.0.0",
 		"deep-extend": "0.6.0",
@@ -129,7 +130,8 @@
 		"@sofie-automation/blueprints-integration": "portal:../packages/blueprints-integration",
 		"@sofie-automation/corelib": "portal:../packages/corelib",
 		"@sofie-automation/job-worker": "portal:../packages/job-worker",
-		"@sofie-automation/shared-lib": "portal:../packages/shared-lib"
+		"@sofie-automation/shared-lib": "portal:../packages/shared-lib",
+		"@meteorjs/rspack": "patch:@meteorjs/rspack@npm%3A2.0.1#~/.yarn/patches/@meteorjs-rspack-npm-2.0.1-d001eb481c.patch"
 	},
 	"packageManager": "yarn@4.14.1"
 }

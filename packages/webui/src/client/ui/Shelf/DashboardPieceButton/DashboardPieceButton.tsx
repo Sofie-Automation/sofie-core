@@ -5,7 +5,7 @@ import { RundownUtils } from '../../../lib/rundown.js'
 import type { ReadonlyDeep } from 'type-fest'
 import type { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
 import { PieceStatusCode } from '@sofie-automation/corelib/dist/dataModel/Piece'
-import { SourceLayerType } from '@sofie-automation/blueprints-integration'
+import { SourceLayerType, type SplitsContent } from '@sofie-automation/blueprints-integration'
 import { PreviewPopUpContext } from '../../PreviewPopUp/PreviewPopUpContext.js'
 import { useContentStatusForItem } from '../../SegmentTimeline/withMediaObjectStatus.js'
 import { DEFAULT_BUTTON_HEIGHT, DEFAULT_BUTTON_WIDTH, type IDashboardButtonProps } from './types.js'
@@ -13,6 +13,10 @@ import { DashboardButtonTagStrip } from './subcomponents/DashboardButtonTagStrip
 import { HotkeyBadge } from './subcomponents/HotkeyBadge.js'
 import { EditableLabel } from './subcomponents/EditableLabel.js'
 import { MediaBox } from './subcomponents/MediaBox.js'
+import {
+	getSplitsTopBoxLayerClassName,
+	SplitButtonLayerBackground,
+} from './subcomponents/SplitButtonLayerBackground.js'
 import { useDashboardButtonInteractions } from './useDashboardButtonInteractions.js'
 
 export type DashboardPieceButtonProps = React.PropsWithChildren<IDashboardButtonProps> & {
@@ -60,6 +64,16 @@ export const DashboardPieceButton = React.forwardRef<HTMLDivElement, DashboardPi
 			() => (layer ? RundownUtils.getSourceLayerClassName(layer.type) : undefined),
 			[layer]
 		)
+
+		const isSplitsLayer = layer?.type === SourceLayerType.SPLITS
+
+		const splitsTopBoxLayerClassName = useMemo(
+			() => (isSplitsLayer && !compact ? getSplitsTopBoxLayerClassName(piece) : undefined),
+			[isSplitsLayer, compact, piece]
+		)
+
+		const splitsStripesOnOuter = isSplitsLayer && Boolean(compact)
+		const splitsStripesOnInner = isSplitsLayer && !compact
 
 		const interactions = useDashboardButtonInteractions({
 			piece,
@@ -118,33 +132,50 @@ export const DashboardPieceButton = React.forwardRef<HTMLDivElement, DashboardPi
 		const isList = displayStyle === PieceDisplayStyle.LIST
 		const hasMediaBox = useMemo(() => {
 			if (!layer) return false
-			if (!(layer.type === SourceLayerType.VT || layer.type === SourceLayerType.LIVE_SPEAK)) return false
 
 			const isButtons = displayStyle === PieceDisplayStyle.BUTTONS
 			const shouldRenderThumbnail = isButtons || (isList && showThumbnailsInList)
 			if (!shouldRenderThumbnail) return false
 
-			const chosenUrl = contentStatus?.thumbnailUrl || contentStatus?.previewUrl
-			if (chosenUrl) return true
-
-			switch (contentStatus?.status) {
-				case PieceStatusCode.SOURCE_BROKEN:
-				case PieceStatusCode.SOURCE_MISSING:
-				case PieceStatusCode.SOURCE_UNKNOWN_STATE:
-				case PieceStatusCode.SOURCE_NOT_READY:
-				case PieceStatusCode.UNKNOWN:
-				case undefined:
-					return true
-				default:
-					return false
+			const showForMissingOrUnknownStatus = () => {
+				switch (contentStatus?.status) {
+					case PieceStatusCode.SOURCE_BROKEN:
+					case PieceStatusCode.SOURCE_MISSING:
+					case PieceStatusCode.SOURCE_UNKNOWN_STATE:
+					case PieceStatusCode.SOURCE_NOT_READY:
+					case PieceStatusCode.UNKNOWN:
+					case undefined:
+						return true
+					default:
+						return false
+				}
 			}
+
+			if (layer.type === SourceLayerType.VT || layer.type === SourceLayerType.LIVE_SPEAK) {
+				const chosenUrl = contentStatus?.thumbnailUrl || contentStatus?.previewUrl
+				if (chosenUrl) return true
+				return showForMissingOrUnknownStatus()
+			}
+
+			if (layer.type === SourceLayerType.SPLITS) {
+				if (contentStatus?.boxPreviews?.some((p) => p?.thumbnailUrl || p?.previewUrl)) {
+					return true
+				}
+				const boxCount = (piece.content as SplitsContent | undefined)?.boxSourceConfiguration?.length ?? 0
+				if (boxCount > 0) return true
+				return showForMissingOrUnknownStatus()
+			}
+
+			return false
 		}, [
 			layer,
 			displayStyle,
 			isList,
 			showThumbnailsInList,
+			piece.content,
 			contentStatus?.previewUrl,
 			contentStatus?.thumbnailUrl,
+			contentStatus?.boxPreviews,
 			contentStatus?.status,
 		])
 
@@ -203,7 +234,8 @@ export const DashboardPieceButton = React.forwardRef<HTMLDivElement, DashboardPi
 				>
 					<div className="dashboard-panel__panel__button__content">
 						{showHotkey ? <HotkeyBadge hotkey={piece.hotkey} /> : null}
-						<DashboardButtonTagStrip className={layerTypeClassName}>
+						<DashboardButtonTagStrip className={ClassNames(layerTypeClassName, splitsTopBoxLayerClassName)}>
+							{splitsStripesOnOuter ? <SplitButtonLayerBackground piece={piece} /> : null}
 							<MediaBox
 								piece={piece}
 								layer={layer}
@@ -216,6 +248,7 @@ export const DashboardPieceButton = React.forwardRef<HTMLDivElement, DashboardPi
 							<DashboardButtonTagStrip
 								className={ClassNames(layerTypeClassName, 'dashboard-panel__panel__button__tag-container--inner')}
 							>
+								{splitsStripesOnInner ? <SplitButtonLayerBackground piece={piece} /> : null}
 								<div className="dashboard-panel__panel__button__label-container">
 									<EditableLabel
 										editable={editableName}

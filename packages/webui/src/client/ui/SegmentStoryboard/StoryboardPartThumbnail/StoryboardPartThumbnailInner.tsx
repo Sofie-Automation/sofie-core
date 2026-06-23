@@ -1,4 +1,5 @@
 import { useContext, useEffect, useRef, useState } from 'react'
+import { getPieceScrubDurationMs } from '../../../lib/ui/splitsPreviewVideo.js'
 import type { ISourceLayer } from '@sofie-automation/blueprints-integration'
 import { getElementDocumentOffset, type OffsetPosition } from '../../../utils/positions.js'
 import { getElementHeight, getElementWidth } from '../../../utils/dimensions.js'
@@ -13,6 +14,7 @@ import {
 } from '../../PreviewPopUp/PreviewPopUpContext.js'
 import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 import type { PieceExtended } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import { SplitButtonLayerBackground } from '../../Shelf/DashboardPieceButton/subcomponents/SplitButtonLayerBackground.js'
 
 interface IProps {
 	partId: PartId
@@ -56,36 +58,56 @@ export function StoryboardPartThumbnailInner({
 		contentStatus
 	)
 
+	const scrubDurationMs = getPieceScrubDurationMs(piece.instance.piece.content, contentStatus)
+
+	useEffect(() => {
+		if (previewSession.current && previewContents.length > 0) {
+			previewSession.current.update(previewContents)
+		}
+	}, [previewContents])
+
 	const onPointerEnter = (e: React.PointerEvent<HTMLDivElement>) => {
 		if (e.pointerType !== 'mouse') {
 			return
 		}
-		setHover(true)
 
 		if (previewSession.current) {
 			previewSession.current.close()
 			previewSession.current = null
 		}
 
-		const newOffset = thumbnailEl.current && getElementDocumentOffset(thumbnailEl.current)
+		const el = thumbnailEl.current
+		const newOffset = el && getElementDocumentOffset(el)
+		const newWidth = el && getElementWidth(el)
+		const newHeight = el && getElementHeight(el)
+
 		if (newOffset !== null) {
 			setOrigin(newOffset)
 		}
-		const newWidth = thumbnailEl.current && getElementWidth(thumbnailEl.current)
 		if (newWidth !== null) {
 			setWidth(newWidth)
 		}
-		const newHeight = thumbnailEl.current && getElementHeight(thumbnailEl.current)
 		if (newHeight !== null) {
 			setHeight(newHeight)
 		}
 
-		if (previewContents.length > 0)
-			previewSession.current = previewContext.requestPreview(e.currentTarget, previewContents, {
+		const mousePos =
+			newOffset !== null && newWidth !== null
+				? Math.max(0, Math.min(1, (e.pageX - newOffset.left - 5) / (newWidth - 10)))
+				: 0
+		const time = mousePos * scrubDurationMs
+		setMousePosition(mousePos)
+
+		if (previewContents.length > 0 && el) {
+			previewSession.current = previewContext.requestPreview(el, previewContents, {
 				...previewOptions,
-				time: mousePosition * (piece.instance.piece.content.sourceDuration || 0),
-				initialOffsetX: e.screenX,
+				time,
+				initialOffsetX: e.clientX,
+				trackMouse: true,
 			})
+		}
+
+		setHover(true)
 	}
 
 	useEffect(() => {
@@ -113,11 +135,13 @@ export function StoryboardPartThumbnailInner({
 		if (e.pointerType !== 'mouse') {
 			return
 		}
-		const newMousePosition = Math.max(0, Math.min(1, (e.pageX - origin.left - 5) / (width - 10)))
+		const offset = thumbnailEl.current && getElementDocumentOffset(thumbnailEl.current)
+		const thumbWidth = thumbnailEl.current && getElementWidth(thumbnailEl.current)
+		const left = offset?.left ?? origin.left
+		const w = thumbWidth ?? width
+		const newMousePosition = w > 10 ? Math.max(0, Math.min(1, (e.pageX - left - 5) / (w - 10))) : 0
 		setMousePosition(newMousePosition)
-		previewSession.current?.setPointerTime(
-			mousePosition * (piece.instance.piece.content.sourceDuration ?? contentStatus?.contentDuration ?? 0)
-		)
+		previewSession.current?.setPointerTime(newMousePosition * scrubDurationMs)
 	}
 
 	return (
@@ -132,12 +156,13 @@ export function StoryboardPartThumbnailInner({
 			onPointerMove={onPointerMove}
 			ref={thumbnailEl}
 		>
+			<SplitButtonLayerBackground piece={piece.instance.piece} />
 			<ThumbnailRenderer
 				partId={partId}
 				partInstanceId={partInstanceId}
 				partAutoNext={partAutoNext}
 				partPlannedStoppedPlayback={partPlannedStoppedPlayback}
-				hoverScrubTimePosition={mousePosition * (piece.instance.piece.content.sourceDuration || 0)}
+				hoverScrubTimePosition={mousePosition * scrubDurationMs}
 				hovering={hover}
 				layer={layer}
 				height={height}

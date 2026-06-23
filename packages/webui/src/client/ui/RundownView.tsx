@@ -289,6 +289,7 @@ export function RundownView(props: Readonly<IProps>): JSX.Element {
 	)
 
 	const hideRundownHeader = params['hideRundownHeader'] === '1'
+	const lockView = props.inActiveRundownView && params['lockView'] === '1'
 
 	return (
 		<div
@@ -315,6 +316,7 @@ export function RundownView(props: Readonly<IProps>): JSX.Element {
 				uiSegmentMap={miniShelfData.uiSegmentMap}
 				miniShelfFilter={miniShelfData.miniShelfFilter}
 				hideRundownHeader={hideRundownHeader}
+				lockView={lockView}
 			/>
 		</div>
 	)
@@ -324,6 +326,7 @@ interface IPropsWithReady extends IProps {
 	subsReady: boolean
 	userPermissions: Readonly<UserPermissions>
 	hideRundownHeader?: boolean
+	lockView?: boolean
 }
 
 interface IRundownViewContentSnapshot {
@@ -1457,6 +1460,7 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 													firstRundown={this.props.rundowns[0]}
 													currentRundown={currentRundown}
 													rundownCount={this.props.rundowns.length}
+													lockView={this.props.lockView}
 												/>
 											</ErrorBoundary>
 										)}
@@ -1563,7 +1567,7 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 										<ErrorBoundary>
 											{this.props.userPermissions.studio && (
 												<Prompt
-													when={!!playlist.activationId}
+													when={!!playlist.activationId && !this.props.lockView}
 													message={t('This rundown is now active. Are you sure you want to exit this screen?')}
 												/>
 											)}

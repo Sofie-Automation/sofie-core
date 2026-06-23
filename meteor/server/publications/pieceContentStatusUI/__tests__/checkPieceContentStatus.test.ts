@@ -14,6 +14,7 @@ import {
 	SourceLayerType,
 	IBlueprintPieceGeneric,
 	PieceLifespan,
+	SplitsContent,
 	VTContent,
 } from '@sofie-automation/blueprints-integration'
 import { ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
@@ -818,5 +819,169 @@ describe('lib/mediaObjects', () => {
 				packageContainerPackageStatuses: [],
 			})
 		)
+	})
+
+	describe('SPLITS boxPreviews', () => {
+		const mockStudioSettings: IStudioSettings = {
+			supportedMediaFormats: '1920x1080i5000',
+			mediaPreviewsUrl: 'http://preview/',
+			supportedAudioStreams: '4',
+			frameRate: 25,
+			minimumTakeSpan: DEFAULT_MINIMUM_TAKE_SPAN,
+			allowHold: false,
+			allowPieceDirectPlay: false,
+			enableBuckets: false,
+			enableEvaluationForm: false,
+			shelfAdlibButtonSize: ShelfButtonSize.LARGE,
+		}
+
+		const mockDefaultStudio = defaultStudio(protectString('studio0'))
+		const mockStudio: Complete<PieceContentStatusStudio> = {
+			_id: mockDefaultStudio._id,
+			settings: mockStudioSettings,
+			packageContainerSettings: {
+				previewContainerIds: ['previews0'],
+				thumbnailContainerIds: ['thumbnails0'],
+			},
+			routeSets: applyAndValidateOverrides(mockDefaultStudio.routeSetsWithOverrides).obj,
+			mappings: applyAndValidateOverrides(mockDefaultStudio.mappingsWithOverrides).obj,
+			packageContainers: applyAndValidateOverrides(mockDefaultStudio.packageContainersWithOverrides).obj,
+		}
+
+		const splitsLayer = literal<ISourceLayer>({
+			_id: '',
+			_rank: 0,
+			name: 'Splits',
+			type: SourceLayerType.SPLITS,
+		})
+
+		const messageFactory = new PieceContentStatusMessageFactory(undefined)
+		const mockOwnerId = protectString<RundownId>('rundown0')
+
+		async function insertMediaObject(mediaId: string): Promise<void> {
+			await mockMediaObjectsCollection.insertAsync(
+				literal<MediaObject>({
+					_id: protectString(''),
+					_attachments: {},
+					_rev: '',
+					cinf: '',
+					collectionId: 'studio0',
+					mediaId,
+					mediaPath: '',
+					mediaSize: 0,
+					mediaTime: 0,
+					mediainfo: literal<MediaInfo>({
+						name: mediaId,
+						field_order: PackageInfo.FieldOrder.Progressive,
+						streams: [
+							literal<MediaStream>({
+								width: 1920,
+								height: 1080,
+								codec: {
+									type: MediaStreamType.Video,
+									time_base: '1/50',
+								},
+							}),
+						],
+					}),
+					objId: '',
+					previewPath: 'previews',
+					previewSize: 0,
+					previewTime: 0,
+					studioId: protectString('studio0'),
+					thumbSize: 0,
+					thumbTime: 0,
+					tinf: '',
+				})
+			)
+		}
+
+		test('MediaObject fallback: index-aligned boxPreviews with dots in file names', async () => {
+			await insertMediaObject('CLIPS/HEAD3_SNOW.MP4')
+			await insertMediaObject('CLIPS/OTHER.MP4')
+
+			const [status] = await checkPieceContentStatusAndDependencies(
+				mockStudio,
+				mockOwnerId,
+				messageFactory,
+				literal<PieceGeneric>({
+					_id: protectString('split1'),
+					name: 'Split',
+					prerollDuration: 0,
+					externalId: '',
+					lifespan: PieceLifespan.WithinPart,
+					privateData: {},
+					outputLayerId: '',
+					sourceLayerId: '',
+					content: literal<SplitsContent>({
+						boxSourceConfiguration: [
+							{
+								type: SourceLayerType.CAMERA,
+								studioLabel: 'Cam 1',
+								switcherInput: 1,
+							},
+							{
+								type: SourceLayerType.VT,
+								studioLabel: 'Snow',
+								switcherInput: '',
+								fileName: 'clips/head3_Snow.mp4',
+								path: 'clips/head3_Snow.mp4',
+							},
+							{
+								type: SourceLayerType.VT,
+								studioLabel: 'Other',
+								switcherInput: '',
+								fileName: 'clips/other.mp4',
+								path: 'clips/other.mp4',
+							},
+						],
+					}),
+					timelineObjectsString: EmptyPieceTimelineObjectsBlob,
+				}),
+				splitsLayer
+			)
+
+			expect(status.thumbnailUrl).toBeUndefined()
+			expect(status.previewUrl).toBeUndefined()
+			expect(status.boxPreviews).toHaveLength(3)
+			expect(status.boxPreviews?.[0]).toEqual({})
+			expect(status.boxPreviews?.[1]?.thumbnailUrl).toContain('CLIPS%2FHEAD3_SNOW.MP4')
+			expect(status.boxPreviews?.[2]?.thumbnailUrl).toContain('CLIPS%2FOTHER.MP4')
+		})
+
+		test('case-insensitive fileName matching', async () => {
+			await insertMediaObject('CLIPS/FOO.MP4')
+
+			const [status] = await checkPieceContentStatusAndDependencies(
+				mockStudio,
+				mockOwnerId,
+				messageFactory,
+				literal<PieceGeneric>({
+					_id: protectString('split2'),
+					name: 'Split',
+					prerollDuration: 0,
+					externalId: '',
+					lifespan: PieceLifespan.WithinPart,
+					privateData: {},
+					outputLayerId: '',
+					sourceLayerId: '',
+					content: literal<SplitsContent>({
+						boxSourceConfiguration: [
+							{
+								type: SourceLayerType.VT,
+								studioLabel: 'Foo',
+								switcherInput: '',
+								fileName: 'clips/foo.mp4',
+								path: 'clips/foo.mp4',
+							},
+						],
+					}),
+					timelineObjectsString: EmptyPieceTimelineObjectsBlob,
+				}),
+				splitsLayer
+			)
+
+			expect(status.boxPreviews?.[0]?.thumbnailUrl).toBeDefined()
+		})
 	})
 })

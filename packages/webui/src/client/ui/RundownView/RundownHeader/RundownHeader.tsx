@@ -27,6 +27,7 @@ interface IRundownHeaderProps {
 	studio: UIStudio
 	firstRundown: Rundown | undefined
 	rundownCount: number
+	lockView?: boolean
 }
 
 export function RundownHeader({
@@ -35,6 +36,7 @@ export function RundownHeader({
 	firstRundown,
 	currentRundown,
 	rundownCount,
+	lockView,
 }: IRundownHeaderProps): JSX.Element {
 	const { t } = useTranslation()
 	const timingDurations = useTiming()
@@ -80,6 +82,7 @@ export function RundownHeader({
 				playlist={playlist}
 				studio={studio}
 				firstRundown={firstRundown}
+				lockView={lockView}
 				onShow={() => setIsContextMenuOpen(true)}
 				onHide={() => {
 					setIsMenuOpen(false)
@@ -157,9 +160,15 @@ export function RundownHeader({
 								<RundownHeaderDurations playlist={playlist} simplified={simplified} />
 								<RundownHeaderExpectedEnd playlist={playlist} simplified={simplified} />
 							</button>
-							<NavLink to="/" title={t('Exit')} aria-label={t('Exit')} className="rundown-header__close-btn">
-								<FontAwesomeIcon icon="close" size="xl" />
-							</NavLink>
+							{lockView ? (
+								<span className="rundown-header__close-btn rundown-header__close-btn--placeholder" aria-hidden="true">
+									<FontAwesomeIcon icon="close" size="xl" />
+								</span>
+							) : (
+								<NavLink to="/" title={t('Exit')} aria-label={t('Exit')} className="rundown-header__close-btn">
+									<FontAwesomeIcon icon="close" size="xl" />
+								</NavLink>
+							)}
 						</div>
 					</div>
 				</RundownHeaderContextMenuTrigger>

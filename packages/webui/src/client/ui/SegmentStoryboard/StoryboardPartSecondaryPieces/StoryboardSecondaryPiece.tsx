@@ -125,10 +125,11 @@ export function StoryboardSecondaryPiece(props: IProps): JSX.Element {
 			previewSession.current = null
 		}
 
-		if (previewContents.length > 0)
-			previewSession.current = previewContext.requestPreview(e.currentTarget, previewContents, {
+		if (previewContents.length > 0 && element.current)
+			previewSession.current = previewContext.requestPreview(element.current, previewContents, {
 				...previewOptions,
-				initialOffsetX: e.screenX,
+				initialOffsetX: e.clientX,
+				trackMouse: true,
 			})
 
 		if (onPointerEnterCallback) onPointerEnterCallback(e)

@@ -1,8 +1,10 @@
-import { NavLink, Route, Switch, useRouteMatch } from 'react-router-dom'
+import { NavLink, Route, Switch, useLocation, useRouteMatch } from 'react-router-dom'
+import { parse as queryStringParse } from 'query-string'
 import { useSubscription, useTracker } from '../lib/ReactMeteorData/ReactMeteorData.js'
 
 import { Spinner } from '../lib/Spinner.js'
 import { RundownView } from './RundownView.js'
+import { StudioScreenSaver } from './StudioScreenSaver/StudioScreenSaver.js'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { UIStudios } from './Collections.js'
 import type { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
@@ -14,6 +16,8 @@ export function ActiveRundownView({ studioId }: Readonly<{ studioId: StudioId }>
 	const { t } = useTranslation()
 
 	const { path } = useRouteMatch()
+	const { search } = useLocation()
+	const lockView = queryStringParse(search)['lockView'] === '1'
 
 	const studioReady = useSubscription(MeteorPubSub.uiStudio, studioId)
 	const playlistReady = useSubscription(MeteorPubSub.rundownPlaylistForStudio, studioId, true)
@@ -48,6 +52,9 @@ export function ActiveRundownView({ studioId }: Readonly<{ studioId: StudioId }>
 			</Switch>
 		)
 	} else if (studio) {
+		if (lockView) {
+			return <StudioScreenSaver studioId={studioId} ownBackground={true} screenName={t('Rundown View')} />
+		}
 		return <NotFoundMessage message={t('There is no rundown active in this studio.')} />
 	} else if (studioId) {
 		return <NotFoundMessage message={t("This studio doesn't exist.")} />

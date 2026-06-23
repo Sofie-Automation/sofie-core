@@ -14,7 +14,7 @@ const tmpRules = {
 
 const extendedRules = await generateEslintConfig({
 	// tsconfigName: 'tsconfig.eslint.json',
-	ignores: ['.meteor', 'public', 'scripts', 'server/_force_restart.js', '/packages/'],
+	ignores: ['.meteor', 'public', 'scripts', 'server/_force_restart.js', '/packages/', '_build'],
 
 	// disableNodeRules: true,
 })

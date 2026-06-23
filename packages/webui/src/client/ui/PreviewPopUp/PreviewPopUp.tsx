@@ -25,11 +25,20 @@ export const PreviewPopUp = React.forwardRef<
 	ref
 ): React.JSX.Element {
 	const [popperEl, setPopperEl] = useState<HTMLDivElement | null>(null)
+	const popperWidthPx = size === 'large' ? 482 : 322
+
 	const popperOptions = useMemo(
 		() => ({
 			placement: placement ?? 'top',
 			strategy: 'fixed' as const,
 			modifiers: [
+				{
+					name: 'computeStyles',
+					options: {
+						// Do not shrink the popup to the (zero-width) virtual mouse anchor when trackMouse is on.
+						adaptive: false,
+					},
+				},
 				{
 					name: 'flip',
 					options: {
@@ -60,8 +69,12 @@ export const PreviewPopUp = React.forwardRef<
 		}),
 		[padding]
 	)
+	const initialVirtualX =
+		trackMouse && typeof initialOffsetX === 'number'
+			? initialOffsetX
+			: anchor?.getBoundingClientRect().x ?? 0
 	const virtualPositionRef = useRef({
-		x: initialOffsetX ?? anchor?.getBoundingClientRect().x ?? 0,
+		x: initialVirtualX,
 		y: anchor?.getBoundingClientRect().y ?? 0,
 	})
 	const virtualElement = useRef<VirtualElement>({
@@ -76,27 +89,50 @@ export const PreviewPopUp = React.forwardRef<
 		popperOptions
 	)
 
+	const popperStyle = useMemo(
+		() => ({
+			...styles.popper,
+			width: popperWidthPx,
+		}),
+		[styles.popper, popperWidthPx]
+	)
+
 	const updateRef = useRef(update)
 
 	useEffect(() => {
 		updateRef.current = update
 	}, [update])
 
+	// Re-sync virtual anchor when a new preview session starts (trackMouse + cursor X).
+	useEffect(() => {
+		if (!trackMouse) return
+		const anchorX = anchor?.getBoundingClientRect().x ?? 0
+		const anchorY = anchor?.getBoundingClientRect().y ?? 0
+		anchorYRef.current = anchorY
+		virtualPositionRef.current = {
+			x: typeof initialOffsetX === 'number' ? initialOffsetX : anchorX,
+			y: anchorY,
+		}
+		updateRef.current?.().catch(console.error)
+	}, [trackMouse, initialOffsetX, anchor])
+
 	useEffect(() => {
 		anchorRef.current = anchor
-		anchorYRef.current = anchor?.getBoundingClientRect().y ?? 0
+		const anchorX = anchor?.getBoundingClientRect().x ?? 0
+		const anchorY = anchor?.getBoundingClientRect().y ?? 0
+		anchorYRef.current = anchorY
 		virtualPositionRef.current = {
-			x: initialOffsetX ?? anchor?.getBoundingClientRect().x ?? 0,
-			y: anchor?.getBoundingClientRect().y ?? 0,
+			x: trackMouse && typeof initialOffsetX === 'number' ? initialOffsetX : anchorX,
+			y: anchorY,
 		}
-	}, [anchor, initialOffsetX])
+	}, [anchor, initialOffsetX, trackMouse])
 
 	useEffect(() => {
 		if (trackMouse) {
 			const listener = ({ clientX: x }: MouseEvent) => {
 				if (isDetachedHTMLElementAnchor(anchorRef.current)) return
+				anchorYRef.current = anchorRef.current?.getBoundingClientRect().y ?? anchorYRef.current
 				virtualPositionRef.current = { x, y: anchorYRef.current }
-				// If update is available, call it to reposition the popper:
 				if (updateRef.current) {
 					updateRef.current().catch((e) => console.error(e))
 				}
@@ -135,7 +171,7 @@ export const PreviewPopUp = React.forwardRef<
 				'preview-popUp--large': size === 'large',
 				'preview-popUp--small': size === 'small',
 			})}
-			style={styles.popper}
+			style={popperStyle}
 			{...attributes.popper}
 		>
 			{children && <div className="preview-popUp__preview">{children}</div>}
