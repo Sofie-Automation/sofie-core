@@ -415,7 +415,8 @@ export class TimelineGrid extends React.Component<ITimelineGridProps> {
 			nextProps.scrollLeft !== this.props.scrollLeft ||
 			nextProps.isLiveSegment !== this.props.isLiveSegment ||
 			nextProps.partInstances !== this.props.partInstances ||
-			nextProps.currentPartInstanceId !== this.props.currentPartInstanceId
+			nextProps.currentPartInstanceId !== this.props.currentPartInstanceId ||
+			nextProps.defaultDisplayDuration !== this.props.defaultDisplayDuration
 		) {
 			return true
 		}
@@ -430,7 +431,8 @@ export class TimelineGrid extends React.Component<ITimelineGridProps> {
 		if (
 			prevProps.isLiveSegment !== this.props.isLiveSegment ||
 			prevProps.partInstances !== this.props.partInstances ||
-			prevProps.currentPartInstanceId !== this.props.currentPartInstanceId
+			prevProps.currentPartInstanceId !== this.props.currentPartInstanceId ||
+			prevProps.defaultDisplayDuration !== this.props.defaultDisplayDuration
 		) {
 			this.lastTotalSegmentDuration = null
 		}

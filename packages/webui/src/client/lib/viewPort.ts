@@ -222,8 +222,10 @@ function getElementToScrollTo(
 		let targetElement = document.querySelector<HTMLElement>(
 			`#${SEGMENT_TIMELINE_ELEMENT_ID}${elementToScrollToOrSegmentId}`
 		)
-		if (followOnAirSegmentsHistory && targetElement) {
-			let i = followOnAirSegmentsHistory
+		// Normalize to a non-negative integer, as the value may originate from external sources (eg. the REST API)
+		const segmentsHistory = Math.max(0, Math.floor(followOnAirSegmentsHistory))
+		if (segmentsHistory && targetElement) {
+			let i = segmentsHistory
 
 			// Find previous segments
 			while (i > 0 && targetElement) {

@@ -21,6 +21,7 @@ import { ForceQuickLoopAutoNext, ShelfButtonSize } from '@sofie-automation/share
 import type { SomeObjectOverrideOp } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { useOverrideOpHelperForSimpleObject } from '../util/OverrideOpHelper.js'
 import { IntInputControl } from '../../../lib/Components/IntInput.js'
+import { FloatInputControl } from '../../../lib/Components/FloatInput.js'
 import { useMemo } from 'react'
 import { CheckboxControl } from '../../../lib/Components/Checkbox.js'
 import { TextInputControl } from '../../../lib/Components/TextInput.js'
@@ -508,7 +509,7 @@ function StudioSettings({ studio }: { studio: DBStudio }): JSX.Element {
 				{(value, handleUpdate) => <TextInputControl value={value} handleUpdate={handleUpdate} />}
 			</LabelAndOverrides>
 
-			<LabelAndOverridesForInt
+			<LabelAndOverrides
 				label={t('Default Timeline Time Scale')}
 				item={wrappedItem}
 				itemKey={'defaultTimeScale'}
@@ -516,14 +517,14 @@ function StudioSettings({ studio }: { studio: DBStudio }): JSX.Element {
 				hint={t('Default zoom factor of the timelines in the UI')}
 			>
 				{(value, handleUpdate) => (
-					<IntInputControl
+					<FloatInputControl
 						modifiedClassName="bghl"
 						classNames="input text-input input-l"
 						value={value}
 						handleUpdate={handleUpdate}
 					/>
 				)}
-			</LabelAndOverridesForInt>
+			</LabelAndOverrides>
 
 			<LabelAndOverridesForInt
 				label={t('Follow On-Air Segments History')}

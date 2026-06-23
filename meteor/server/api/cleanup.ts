@@ -85,7 +85,15 @@ export async function cleanupOldDataInner(actuallyCleanup = false): Promise<Coll
 
 	const coreSystem = await getCoreSystemAsync()
 	const systemSettings = coreSystem && applyAndValidateOverrides(coreSystem.settingsWithOverrides).obj
-	const maximumDataAge = systemSettings?.maximumDataAge ?? DEFAULT_MAXIMUM_DATA_AGE
+	// Guard against a misconfigured value (<= 0, NaN, Infinity) which would otherwise cause overly-aggressive
+	// purging of recent data. Fall back to the default in that case.
+	const configuredMaximumDataAge = systemSettings?.maximumDataAge
+	const maximumDataAge =
+		typeof configuredMaximumDataAge === 'number' &&
+		Number.isFinite(configuredMaximumDataAge) &&
+		configuredMaximumDataAge > 0
+			? configuredMaximumDataAge
+			: DEFAULT_MAXIMUM_DATA_AGE
 
 	const result: CollectionCleanupResult = {}
 	const addToResult = (collectionName: CollectionName, docsToRemove: number) => {

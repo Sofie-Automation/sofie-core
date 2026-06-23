@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # Sofie Core: System Configuration
 
-_Sofie&nbsp;Core_ is configured at it's most basic level using environment variables.
+_Sofie&nbsp;Core_ is configured at its most basic level using environment variables.
 
 ### Environment Variables
 
