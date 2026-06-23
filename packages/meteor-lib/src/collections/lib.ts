@@ -206,30 +206,14 @@ export interface FindOneOptions<TRawDoc> {
 	sort?: SortSpecifier<TRawDoc>
 	/** Number of results to skip at the beginning */
 	skip?: number
-	/** @deprecated Dictionary of fields to return or exclude. */
+	/** @deprecated Dictionary of fields to return or exclude. Use `projection` instead. (still used by the client minimongo) */
 	fields?: MongoFieldSpecifier<TRawDoc>
 	/** Dictionary of fields to return or exclude. */
 	projection?: MongoFieldSpecifier<TRawDoc>
-	/** (Client only) Default `true`; pass `false` to disable reactivity */
-	reactive?: boolean
-	/** Overrides `transform` on the  [`Collection`](#collections) for this cursor.  Pass `null` to disable transformation. */
-	//  transform?: Transform<TRawDoc, TDoc>;
-	/** (Server only) Specifies a custom MongoDB readPreference for this particular cursor. Possible values are primary, primaryPreferred, secondary, secondaryPreferred and nearest. */
-	readPreference?: string
 }
 export interface FindOptions<DBInterface> extends FindOneOptions<DBInterface> {
 	/** Maximum number of results to return */
 	limit?: number
-	/** (Server only) Pass true to disable oplog-tailing on this query. This affects the way server processes calls to observe on this query. Disabling the oplog can be useful when working with data that updates in large batches. */
-	disableOplog?: boolean
-	/** (Server only) When oplog is disabled (through the use of disableOplog or when otherwise not available), the frequency (in milliseconds) of how often to poll this query when observing on the server. Defaults to 10000ms (10 seconds). */
-	pollingIntervalMs?: number
-	/** (Server only) When oplog is disabled (through the use of disableOplog or when otherwise not available), the minimum time (in milliseconds) to allow between re-polling when observing on the server. Increasing this will save CPU and mongo load at the expense of slower updates to users. Decreasing this is not recommended. Defaults to 50ms. */
-	pollingThrottleMs?: number
-	/** (Server only) If set, instructs MongoDB to set a time limit for this cursor's operations. If the operation reaches the specified time limit (in milliseconds) without the having been completed, an exception will be thrown. Useful to prevent an (accidental or malicious) unoptimized query from causing a full collection scan that would disrupt other database users, at the expense of needing to handle the resulting error. */
-	maxTimeMs?: number
-	/** (Server only) Overrides MongoDB's default index selection and query optimization process. Specify an index to force its use, either by its name or index specification. You can also specify { $natural : 1 } to force a forwards collection scan, or { $natural : -1 } for a reverse collection scan. Setting this is only recommended for advanced users. */
-	hint?: string | object
 }
 
 export type FieldNames<DBInterface> = (keyof DBInterface)[]

@@ -45,6 +45,11 @@ export namespace MongoMock {
 	}
 
 	const mockCollections: MockCollections<any> = {}
+	// TODO (replace-meteor phase 2): this mock now reimplements a chunk of BOTH the Meteor collection API
+	// (find/observe for the reactive bridge) AND the native `mongodb` driver API (via rawCollection(), for
+	// CRUD). Once the change-stream observe engine lands and the Meteor bridge is removed, revisit this:
+	// it should reduce to a single thin fake of the native driver (or be replaced by mongodb-memory-server
+	// for integration tests).
 	export class Collection<T extends CollectionObject> implements Omit<MinimalMeteorMongoCollection<T>, 'find'> {
 		public _name: string
 		private _isTemporaryCollection: boolean
@@ -96,6 +101,7 @@ export namespace MongoMock {
 			}
 
 			return {
+				collectionName: this._name,
 				_fetchRaw: () => {
 					return docs
 				},
@@ -306,6 +312,39 @@ export namespace MongoMock {
 			}
 		}
 
+		private replaceRaw(
+			query: any,
+			replacement: any,
+			options?: { upsert?: boolean }
+		): { numberAffected: number | undefined; insertedId: string | undefined } {
+			const id = _.isString(query) ? query : query._id
+			const existing = this.find(id)._fetchRaw()[0]
+
+			if (existing) {
+				// Full-document replacement: store the new document verbatim, preserving the original `_id`.
+				const newDoc = { ...clone(replacement), _id: existing._id }
+				this.documents[unprotectString(existing._id)] = newDoc
+
+				Meteor.defer(() => {
+					_.each(_.clone(this.observers), (obs) => {
+						if (mongoWhere(existing, obs.query)) {
+							if (obs.callbacksChanges?.changed) obs.callbacksChanges.changed(existing._id, {})
+							if (obs.callbacksObserve?.changed) obs.callbacksObserve.changed(newDoc, existing)
+						}
+					})
+				})
+				return { numberAffected: 1, insertedId: undefined }
+			} else if (options?.upsert) {
+				// No match: insert the replacement (the `_id` comes from the filter if absent on the doc).
+				const newDoc = { ...replacement }
+				if (!newDoc._id && id) newDoc._id = id
+				const insertedId = this.insertRaw(newDoc)
+				return { numberAffected: undefined, insertedId }
+			} else {
+				return { numberAffected: 0, insertedId: undefined }
+			}
+		}
+
 		async removeAsync(query: any): Promise<number> {
 			// Force this to be performed async
 			await MeteorMock.sleepNoFakeTimers(0)
@@ -347,8 +386,77 @@ export namespace MongoMock {
 			// todo
 		}
 
+		// A minimal mock of the native `mongodb` driver Collection, sufficient for the CRUD methods of
+		// WrappedAsyncMongoCollection. Each method delegates to the (observer-firing) mock methods above,
+		// and returns native-shaped results.
 		rawCollection(): any {
+			const mapUpdateResult = (numberAffected: number | undefined, insertedId: string | undefined) => {
+				if (insertedId !== undefined) {
+					return {
+						acknowledged: true,
+						matchedCount: 0,
+						modifiedCount: 0,
+						upsertedCount: 1,
+						upsertedId: insertedId,
+					}
+				}
+				const n = numberAffected || 0
+				return { acknowledged: true, matchedCount: n, modifiedCount: n, upsertedCount: 0, upsertedId: null }
+			}
+
 			return {
+				collectionName: this._name,
+				find: (filter: any, options?: any) => ({
+					toArray: async () => this.find(filter, options).fetchAsync(),
+				}),
+				findOne: async (filter: any, options?: any) => {
+					return (await this.findOneAsync(filter, options)) ?? null
+				},
+				countDocuments: async (filter?: any) => {
+					return this.find(filter || {}).countAsync()
+				},
+				insertOne: async (doc: any) => {
+					const insertedId = await this.insertAsync(doc)
+					return { acknowledged: true, insertedId }
+				},
+				updateOne: async (filter: any, modifier: any, options?: any) => {
+					if (options?.upsert) {
+						const r = await this.upsertAsync(filter, modifier, { multi: false })
+						return mapUpdateResult(r.numberAffected, r.insertedId)
+					}
+					const n = await this.updateAsync(filter, modifier, { multi: false })
+					return mapUpdateResult(n, undefined)
+				},
+				updateMany: async (filter: any, modifier: any, options?: any) => {
+					if (options?.upsert) {
+						const r = await this.upsertAsync(filter, modifier, { multi: true })
+						return mapUpdateResult(r.numberAffected, r.insertedId)
+					}
+					const n = await this.updateAsync(filter, modifier, { multi: true })
+					return mapUpdateResult(n, undefined)
+				},
+				replaceOne: async (filter: any, replacement: any, options?: any) => {
+					// Force this to be performed async
+					await MeteorMock.sleepNoFakeTimers(0)
+
+					const r = this.replaceRaw(filter, replacement, { upsert: !!options?.upsert })
+					return mapUpdateResult(r.numberAffected, r.insertedId)
+				},
+				deleteMany: async (filter: any) => {
+					const deletedCount = await this.removeAsync(filter)
+					return { acknowledged: true, deletedCount }
+				},
+				createIndex: async (_keys: any, _options?: any) => {
+					// no-op in tests
+					return 'index'
+				},
+				indexes: async () => {
+					// no indexes are tracked in the mock
+					return []
+				},
+				dropIndex: async (_indexName: string) => {
+					// no-op in tests
+				},
 				bulkWrite: async (updates: AnyBulkWriteOperation<any>[], _options: unknown) => {
 					await MeteorMock.sleepNoFakeTimers(this.asyncBulkWriteDelay)
 
@@ -382,12 +490,13 @@ export namespace MongoMock {
 							}
 						} else if ('deleteMany' in update) {
 							await this.removeAsync(update.deleteMany.filter)
-						} else if (update['replaceOne']) {
-							await this.upsertAsync(update.replaceOne.filter, update.replaceOne.replacement)
+						} else if ('replaceOne' in update) {
+							this.replaceRaw(update.replaceOne.filter, update.replaceOne.replacement, {
+								upsert: !!update.replaceOne.upsert,
+							})
 						}
 					}
 				},
-				collectionName: this._name,
 			}
 		}
 		private get documents(): MockCollection<T> {

@@ -1,6 +1,6 @@
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { Meteor } from 'meteor/meteor'
-import type { Collection } from 'mongodb'
+import type { IndexDescriptionInfo } from 'mongodb'
 import type { AsyncOnlyMongoCollection, AsyncOnlyReadOnlyMongoCollection } from '../collection'
 import type { MinimalMongoCursor } from './asyncCollection'
 
@@ -27,12 +27,8 @@ export class WrappedReadOnlyMongoCollection<
 		return this.#mutableCollection
 	}
 
-	get name(): string | null {
+	get name(): string {
 		return this.#mutableCollection.name
-	}
-
-	rawCollection(): Collection<DBInterface> {
-		return this.#mutableCollection.rawCollection()
 	}
 
 	async findFetchAsync(
@@ -73,5 +69,13 @@ export class WrappedReadOnlyMongoCollection<
 
 	createIndex(...args: Parameters<AsyncOnlyReadOnlyMongoCollection<DBInterface>['createIndex']>): void {
 		return this.#mutableCollection.createIndex(...args)
+	}
+
+	async getIndexes(): Promise<IndexDescriptionInfo[]> {
+		return this.#mutableCollection.getIndexes()
+	}
+
+	async dropIndex(indexName: string): Promise<void> {
+		return this.#mutableCollection.dropIndex(indexName)
 	}
 }
