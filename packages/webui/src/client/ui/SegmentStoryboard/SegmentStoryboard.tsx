@@ -169,7 +169,7 @@ export const SegmentStoryboard = React.memo(
 		}
 
 		const onClickPartIdent = (partId: PartId) => {
-			scrollToPart(partId, false, true, true).catch((error) => {
+			scrollToPart(partId, props.studio.settings.followOnAirSegmentsHistory ?? 0, false, true, true).catch((error) => {
 				if (!error.toString().match(/another scroll/)) logger.error('scrollToPart', error)
 			})
 		}

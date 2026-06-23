@@ -470,7 +470,10 @@ class RundownPlaylistOperationsService {
 				if (!err && reloadResponse) {
 					if (!handleRundownPlaylistReloadResponse(t, this.userPermissions, reloadResponse)) {
 						if (this.playlist && this.playlist.nextPartInfo) {
-							scrollToPartInstance(this.playlist.nextPartInfo.partInstanceId).catch((error) => {
+							scrollToPartInstance(
+								this.playlist.nextPartInfo.partInstanceId,
+								this.studio.settings.followOnAirSegmentsHistory ?? 0
+							).catch((error) => {
 								if (!error.toString().match(/another scroll/)) console.warn(error)
 							})
 						}

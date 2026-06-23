@@ -133,4 +133,10 @@ export interface IStudioSettings {
 
 	/** Default duration (in milliseconds) to use to render parts when no duration is provided. Default: 3000 */
 	defaultDisplayDuration?: number
+
+	/** Default time scale zooming for the timelines in the UI. Default: 1 */
+	defaultTimeScale?: number
+
+	/** How many segments of history to show when scrolling back in time (0 = show current segment only). Default: 0 */
+	followOnAirSegmentsHistory?: number
 }

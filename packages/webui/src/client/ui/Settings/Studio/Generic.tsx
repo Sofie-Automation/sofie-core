@@ -507,6 +507,40 @@ function StudioSettings({ studio }: { studio: DBStudio }): JSX.Element {
 			>
 				{(value, handleUpdate) => <TextInputControl value={value} handleUpdate={handleUpdate} />}
 			</LabelAndOverrides>
+
+			<LabelAndOverridesForInt
+				label={t('Default Timeline Time Scale')}
+				item={wrappedItem}
+				itemKey={'defaultTimeScale'}
+				overrideHelper={overrideHelper}
+				hint={t('Default zoom factor of the timelines in the UI')}
+			>
+				{(value, handleUpdate) => (
+					<IntInputControl
+						modifiedClassName="bghl"
+						classNames="input text-input input-l"
+						value={value}
+						handleUpdate={handleUpdate}
+					/>
+				)}
+			</LabelAndOverridesForInt>
+
+			<LabelAndOverridesForInt
+				label={t('Follow On-Air Segments History')}
+				item={wrappedItem}
+				itemKey={'followOnAirSegmentsHistory'}
+				overrideHelper={overrideHelper}
+				hint={t('How many segments of history to show when scrolling back in time (0 = show current segment only)')}
+			>
+				{(value, handleUpdate) => (
+					<IntInputControl
+						modifiedClassName="bghl"
+						classNames="input text-input input-l"
+						value={value}
+						handleUpdate={handleUpdate}
+					/>
+				)}
+			</LabelAndOverridesForInt>
 		</>
 	)
 }

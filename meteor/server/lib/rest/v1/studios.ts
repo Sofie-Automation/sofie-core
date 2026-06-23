@@ -233,4 +233,6 @@ export interface APIStudioSettings {
 	allowGrabbingTimeline?: boolean
 	useCountdownToFreezeFrame?: boolean
 	defaultDisplayDuration?: number
+	defaultTimeScale?: number
+	followOnAirSegmentsHistory?: number
 }

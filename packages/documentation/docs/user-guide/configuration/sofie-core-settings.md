@@ -85,16 +85,9 @@ The structure of the file allows for public and private fields. At the moment, S
 
 There are various settings you can set for an installation. See the list below:
 
-| **Field name**                | Use                                                                                                                           | Default value    |
-| :---------------------------- | :---------------------------------------------------------------------------------------------------------------------------- | :--------------- |
-| `defaultTimeScale`            | An arbitrary number, defining the default zoom factor of the Timelines                                                        | `1`              |
-| `enableHeaderAuth`            | If true, enable http header based security measures. See [here](../features/access-levels) for details on using this          | `false`          |
-| `allowMultiplePlaylistsInGUI` | If true, allows creation of new playlists in the Lobby Gui (rundown list). If false; only pre-existing playlists are allowed. | `false`          |
-| `followOnAirSegmentsHistory`  | How many segments of history to show when scrolling back in time (0 = show current segment only)                              | `0`              |
-| `poisonKey`                   | Enable the use of poison key if present and use the key specified.                                                            | `'Escape'`       |
-| `enableKeyboardPreview`       | The KeyboardPreview is a feature that is not implemented in the main Fork, and is kept here for compatibility                 | `false`          |
-| `keyboardMapLayout`           | Keyboard map layout (what physical layout to use for the keyboard)                                                            | STANDARD_102_TKL |
-| `confirmKeyCode`              | Which keyboard key is used as "Confirm" in modal dialogs etc.                                                                 | `'Enter'`        |
+| **Field name**     | Use                                                                                                                  | Default value |
+| :----------------- | :------------------------------------------------------------------------------------------------------------------- | :------------ |
+| `enableHeaderAuth` | If true, enable http header based security measures. See [here](../features/access-levels) for details on using this | `false`       |
 
 :::info
 The exact definition for the settings can be found [in the code here](https://github.com/Sofie-Automation/sofie-core/blob/main/meteor/lib/Settings.ts#L12).

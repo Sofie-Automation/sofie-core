@@ -4,7 +4,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Escape from './../../../Escape.js'
 
 import { SorensenContext } from '../../../SorensenContext.js'
-import { Settings } from '../../../../lib/Settings.js'
+import { DEFAULT_CONFIRM_KEY_CODE } from '@sofie-automation/shared-lib/dist/core/constants'
+import { getCoreSystemSettings } from '../../../../collections/index.js'
 
 export interface IModalAttributes {
 	show?: boolean
@@ -17,6 +18,8 @@ export type SomeEvent = Event | React.SyntheticEvent<object>
 export class Modal extends React.Component<React.PropsWithChildren<IModalAttributes>> {
 	boundKeys: Array<string> = []
 	sorensen: typeof Sorensen | undefined
+	/** Captured at bind time so that unbind uses the exact same key, even if the setting changes in between */
+	private confirmKeyCode: string = DEFAULT_CONFIRM_KEY_CODE
 
 	constructor(props: IModalAttributes) {
 		super(props)
@@ -39,11 +42,12 @@ export class Modal extends React.Component<React.PropsWithChildren<IModalAttribu
 		if (!this.sorensen) return
 
 		if (this.props.show) {
-			this.sorensen.bind(Settings.confirmKeyCode, this.preventDefault, {
+			this.confirmKeyCode = getCoreSystemSettings()?.confirmKeyCode ?? DEFAULT_CONFIRM_KEY_CODE
+			this.sorensen.bind(this.confirmKeyCode, this.preventDefault, {
 				up: false,
 				prepend: true,
 			})
-			this.sorensen.bind(Settings.confirmKeyCode, this.handleKey, {
+			this.sorensen.bind(this.confirmKeyCode, this.handleKey, {
 				up: true,
 				prepend: true,
 			})
@@ -62,8 +66,8 @@ export class Modal extends React.Component<React.PropsWithChildren<IModalAttribu
 
 	private unbindKeys = () => {
 		if (!this.sorensen) return
-		this.sorensen.unbind(Settings.confirmKeyCode, this.preventDefault)
-		this.sorensen.unbind(Settings.confirmKeyCode, this.handleKey)
+		this.sorensen.unbind(this.confirmKeyCode, this.preventDefault)
+		this.sorensen.unbind(this.confirmKeyCode, this.handleKey)
 		this.sorensen.unbind('Escape', this.preventDefault)
 		this.sorensen.unbind('Escape', this.handleKey)
 	}

@@ -1,7 +1,6 @@
 import { SEGMENT_TIMELINE_ELEMENT_ID } from '../ui/SegmentTimeline/SegmentTimeline.js'
 import { isProtectedString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import RundownViewEventBus, { RundownViewEvents } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
-import { Settings } from '../lib/Settings.js'
 import type { PartId, PartInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { UIPartInstances, UIParts } from '../ui/Collections.js'
 import { logger } from './logging.js'
@@ -45,6 +44,7 @@ export function getViewPortScrollingState(): {
 
 export function maintainFocusOnPartInstance(
 	partInstanceId: PartInstanceId,
+	followOnAirSegmentsHistory: number,
 	timeWindow: number,
 	forceScroll?: boolean,
 	noAnimation?: boolean
@@ -57,7 +57,7 @@ export function maintainFocusOnPartInstance(
 			focusState.isScrolling = true
 
 			try {
-				await scrollToPartInstance(partInstanceId, forceScroll, noAnimation)
+				await scrollToPartInstance(partInstanceId, followOnAirSegmentsHistory, forceScroll, noAnimation)
 			} catch (_error) {
 				// Handle error if needed
 			} finally {
@@ -128,19 +128,21 @@ export function clearViewportLifecycleState(): void {
 
 export async function scrollToPartInstance(
 	partInstanceId: PartInstanceId,
+	followOnAirSegmentsHistory: number,
 	forceScroll?: boolean,
 	noAnimation?: boolean
 ): Promise<boolean> {
 	quitFocusOnPart()
 	const partInstance = UIPartInstances.findOne(partInstanceId)
 	if (partInstance) {
-		return scrollToSegment(partInstance.segmentId, forceScroll, noAnimation)
+		return scrollToSegment(partInstance.segmentId, followOnAirSegmentsHistory, forceScroll, noAnimation)
 	}
 	throw new Error('Could not find PartInstance')
 }
 
 export async function scrollToPart(
 	partId: PartId,
+	followOnAirSegmentsHistory: number,
 	forceScroll?: boolean,
 	noAnimation?: boolean,
 	zoomInToFit?: boolean
@@ -148,7 +150,7 @@ export async function scrollToPart(
 	quitFocusOnPart()
 	const part = UIParts.findOne(partId)
 	if (part) {
-		await scrollToSegment(part.segmentId, forceScroll, noAnimation)
+		await scrollToSegment(part.segmentId, followOnAirSegmentsHistory, forceScroll, noAnimation)
 
 		RundownViewEventBus.emit(RundownViewEvents.GO_TO_PART, {
 			segmentId: part.segmentId,
@@ -186,13 +188,17 @@ let currentScrollingElement: HTMLElement | undefined
 
 export async function scrollToSegment(
 	elementToScrollToOrSegmentId: HTMLElement | SegmentId,
+	followOnAirSegmentsHistory: number,
 	forceScroll?: boolean,
 	noAnimation?: boolean
 ): Promise<boolean> {
 	clearPendingScrollState()
 
-	const elementToScrollTo: HTMLElement | null = getElementToScrollTo(elementToScrollToOrSegmentId, false)
-	const historyTarget: HTMLElement | null = getElementToScrollTo(elementToScrollToOrSegmentId, true)
+	const elementToScrollTo: HTMLElement | null = getElementToScrollTo(elementToScrollToOrSegmentId, 0)
+	const historyTarget: HTMLElement | null = getElementToScrollTo(
+		elementToScrollToOrSegmentId,
+		followOnAirSegmentsHistory
+	)
 
 	// historyTarget will be === to elementToScrollTo if history is not used / not found
 	if (!elementToScrollTo || !historyTarget) {
@@ -209,15 +215,15 @@ export async function scrollToSegment(
 
 function getElementToScrollTo(
 	elementToScrollToOrSegmentId: HTMLElement | SegmentId,
-	showHistory: boolean
+	followOnAirSegmentsHistory: number
 ): HTMLElement | null {
 	if (isProtectedString(elementToScrollToOrSegmentId)) {
 		// Get the current segment element
 		let targetElement = document.querySelector<HTMLElement>(
 			`#${SEGMENT_TIMELINE_ELEMENT_ID}${elementToScrollToOrSegmentId}`
 		)
-		if (showHistory && Settings.followOnAirSegmentsHistory && targetElement) {
-			let i = Settings.followOnAirSegmentsHistory
+		if (followOnAirSegmentsHistory && targetElement) {
+			let i = followOnAirSegmentsHistory
 
 			// Find previous segments
 			while (i > 0 && targetElement) {

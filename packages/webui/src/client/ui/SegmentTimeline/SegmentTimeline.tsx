@@ -567,9 +567,11 @@ export class SegmentTimelineClass extends React.Component<Translated<WithTiming<
 	}
 
 	private onClickPartIdent = (partId: PartId) => {
-		scrollToPart(partId, false, true, true).catch((error) => {
-			if (!error.toString().match(/another scroll/)) logger.error(error)
-		})
+		scrollToPart(partId, this.props.studio.settings.followOnAirSegmentsHistory ?? 0, false, true, true).catch(
+			(error) => {
+				if (!error.toString().match(/another scroll/)) logger.error(error)
+			}
+		)
 	}
 
 	private onPartTooSmallChanged = (part: PartUi, displayDuration: number | false, actualDuration: number | false) => {

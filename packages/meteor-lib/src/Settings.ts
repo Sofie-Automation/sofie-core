@@ -7,30 +7,13 @@
  * --settings [filename] to provide a JSON file containing the settings
  */
 export interface ISettings {
-	/** Default time scale zooming for the UI. Default: 1  */
-	defaultTimeScale: number
 	/** If true, enable http header based security measures */
 	enableHeaderAuth: boolean
-	/** How many segments of history to show when scrolling back in time (0 = show current segment only) */
-	followOnAirSegmentsHistory: number
-	/** Enable the use of poison key if present and use the key specified. **/
-	poisonKey: string | null
-
-	/**
-	 * Which keyboard key is used as "Confirm" in modal dialogs etc.
-	 * In some installations, the rightmost Enter key (on the numpad) is dedicated for playout,
-	 * in such cases this must be set to 'Enter' to exclude it.
-	 */
-	confirmKeyCode: 'Enter' | 'AnyEnter'
 }
 
 /**
  * Default values for Settings
  */
 export const DEFAULT_SETTINGS = Object.freeze<ISettings>({
-	defaultTimeScale: 1,
 	enableHeaderAuth: false,
-	poisonKey: 'Escape',
-	followOnAirSegmentsHistory: 0,
-	confirmKeyCode: 'Enter',
 })

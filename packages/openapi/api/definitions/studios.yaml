@@ -579,6 +579,12 @@ components:
         defaultDisplayDuration:
           type: number
           description: Default duration (in milliseconds) to use to render parts when no duration is provided
+        defaultTimeScale:
+          type: number
+          description: Default time scale zooming for the timelines in the UI
+        followOnAirSegmentsHistory:
+          type: number
+          description: How many segments of history to show when scrolling back in time (0 = show current segment only)
 
       required:
         - frameRate

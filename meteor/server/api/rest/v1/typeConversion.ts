@@ -434,6 +434,8 @@ export function studioSettingsFrom(apiStudioSettings: APIStudioSettings): Comple
 		// defaultShelfDisplayOptions is intentionally not exposed through the REST API
 		defaultShelfDisplayOptions: undefined,
 		defaultDisplayDuration: apiStudioSettings.defaultDisplayDuration,
+		defaultTimeScale: apiStudioSettings.defaultTimeScale,
+		followOnAirSegmentsHistory: apiStudioSettings.followOnAirSegmentsHistory,
 	}
 }
 
@@ -468,6 +470,8 @@ export function APIStudioSettingsFrom(settings: IStudioSettings): Complete<APISt
 		allowGrabbingTimeline: settings.allowGrabbingTimeline,
 		useCountdownToFreezeFrame: settings.useCountdownToFreezeFrame,
 		defaultDisplayDuration: settings.defaultDisplayDuration,
+		defaultTimeScale: settings.defaultTimeScale,
+		followOnAirSegmentsHistory: settings.followOnAirSegmentsHistory,
 	}
 }
 

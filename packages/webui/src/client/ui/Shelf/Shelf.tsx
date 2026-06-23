@@ -42,8 +42,8 @@ import { Buckets } from '../../collections'
 import { UserPermissionsContext } from '../UserPermissions'
 import { useLocation } from 'react-router'
 import type { IStudioSettings, UIStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { Settings } from '../../lib/Settings'
-import { DEFAULT_SHELF_DISPLAY_OPTIONS } from '@sofie-automation/shared-lib/dist/core/constants'
+import { DEFAULT_SHELF_DISPLAY_OPTIONS, DEFAULT_POISON_KEY } from '@sofie-automation/shared-lib/dist/core/constants'
+import { getCoreSystemSettings } from '../../collections/index.js'
 import { type ParsedQuery, parse as queryStringParse } from 'query-string'
 import type { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 
@@ -565,7 +565,7 @@ export function Shelf(
 		[]
 	)
 
-	const poisonKey = Settings.poisonKey
+	const poisonKey = useTracker(() => getCoreSystemSettings()?.poisonKey ?? DEFAULT_POISON_KEY, [], DEFAULT_POISON_KEY)
 	const hotkeys = [
 		// Register additional hotkeys or legend entries
 		...(poisonKey

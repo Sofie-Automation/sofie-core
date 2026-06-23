@@ -17,10 +17,12 @@ import {
 	LabelActual,
 	LabelAndOverrides,
 	LabelAndOverridesForCheckbox,
+	LabelAndOverridesForDropdown,
 	LabelAndOverridesForInt,
 	LabelAndOverridesForMultiLineText,
 } from '../../lib/Components/LabelAndOverrides.js'
 import { IntInputControl } from '../../lib/Components/IntInput.js'
+import { DropdownInputControl, type DropdownInputOption } from '../../lib/Components/DropdownInput.js'
 import { catchError } from '../../lib/lib.js'
 import { SystemManagementBlueprint } from './SystemManagement/Blueprint.js'
 import type { SomeObjectOverrideOp } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
@@ -62,6 +64,8 @@ export default function SystemManagement(): JSX.Element | null {
 			<SystemManagementMonitoring coreSystem={coreSystem} />
 
 			<SystemManagementCronJobs coreSystem={coreSystem} />
+
+			<SystemManagementKeyboard coreSystem={coreSystem} />
 
 			<SystemManagementCleanup />
 			<SystemManagementHeapSnapshot />
@@ -306,6 +310,49 @@ function SystemManagementCronJobs({ coreSystem }: Readonly<WithCoreSystemProps>)
 				>
 					{(value, handleUpdate) => <IntInputControl value={value} handleUpdate={handleUpdate} />}
 				</LabelAndOverridesForInt>
+			</div>
+		</>
+	)
+}
+
+const CONFIRM_KEY_CODE_OPTIONS: DropdownInputOption<'Enter' | 'AnyEnter'>[] = [
+	{ name: 'Enter', value: 'Enter', i: 0 },
+	{ name: 'Any Enter (including Numpad Enter)', value: 'AnyEnter', i: 1 },
+]
+
+function SystemManagementKeyboard({ coreSystem }: Readonly<WithCoreSystemProps>) {
+	const { t } = useTranslation()
+
+	const { wrappedItem, overrideHelper } = useCoreSystemSettingsWithOverrides(coreSystem)
+
+	return (
+		<>
+			<h2 className="my-4">{t('Keyboard')}</h2>
+			<div className="properties-grid">
+				<LabelAndOverridesForDropdown
+					label={t('Modal "Confirm" key')}
+					item={wrappedItem}
+					itemKey={'confirmKeyCode'}
+					overrideHelper={overrideHelper}
+					options={CONFIRM_KEY_CODE_OPTIONS}
+					hint={t(
+						'Which keyboard key is used as "Confirm" in modal dialogs etc. Use "Enter" to exclude the Numpad Enter key (eg. when it is dedicated for playout)'
+					)}
+				>
+					{(value, handleUpdate, options) => (
+						<DropdownInputControl options={options} value={value} handleUpdate={handleUpdate} />
+					)}
+				</LabelAndOverridesForDropdown>
+
+				<LabelAndOverrides
+					label={t('Poison Key')}
+					item={wrappedItem}
+					itemKey={'poisonKey'}
+					overrideHelper={overrideHelper}
+					hint={t('Key to use as the poison key (aborts hotkey actions). Leave empty to disable')}
+				>
+					{(value, handleUpdate) => <TextInputControl value={value} handleUpdate={handleUpdate} />}
+				</LabelAndOverrides>
 			</div>
 		</>
 	)

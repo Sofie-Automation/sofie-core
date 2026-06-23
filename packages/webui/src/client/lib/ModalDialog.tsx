@@ -10,7 +10,8 @@ import { logger } from './logging.js'
 import _ from 'underscore'
 import type { Translated } from './ReactMeteorData/ReactMeteorData.js'
 import { EditAttribute, type EditAttributeType, type IEditAttributeBaseProps } from './EditAttribute.js'
-import { Settings } from '../lib/Settings.js'
+import { DEFAULT_CONFIRM_KEY_CODE } from '@sofie-automation/shared-lib/dist/core/constants'
+import { getCoreSystemSettings } from '../collections/index.js'
 
 import Modal from 'react-bootstrap/Modal'
 import Button from 'react-bootstrap/Button'
@@ -408,7 +409,8 @@ export function isModalShowing(): boolean {
 }
 
 function isAcceptKey(code: string): boolean {
-	const acceptCodes = Settings.confirmKeyCode === 'AnyEnter' ? ['NumpadEnter', 'Enter'] : ['Enter']
+	const confirmKeyCode = getCoreSystemSettings()?.confirmKeyCode ?? DEFAULT_CONFIRM_KEY_CODE
+	const acceptCodes = confirmKeyCode === 'AnyEnter' ? ['NumpadEnter', 'Enter'] : ['Enter']
 	if (acceptCodes.includes(code)) return true
 
 	return false

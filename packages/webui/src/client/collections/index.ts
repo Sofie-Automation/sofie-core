@@ -16,6 +16,8 @@ import type { ExternalMessageQueueObj } from '@sofie-automation/corelib/dist/dat
 import type { PackageContainerStatusDB } from '@sofie-automation/corelib/dist/dataModel/PackageContainerStatus'
 import type { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
 import { type ICoreSystem, SYSTEM_ID } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
+import type { ICoreSystemSettings } from '@sofie-automation/shared-lib/dist/core/model/CoreSystemSettings'
+import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import type { Evaluation } from '@sofie-automation/meteor-lib/dist/collections/Evaluations'
 import type { ExpectedPackageDB } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
 import { createSyncMongoCollection, createSyncReadOnlyMongoCollection } from './lib.js'
@@ -113,4 +115,10 @@ export const UserActionsLog = createSyncReadOnlyMongoCollection<UserActionsLogIt
 
 export function getCoreSystem(): ICoreSystem | undefined {
 	return CoreSystem.findOne(SYSTEM_ID)
+}
+
+/** Returns the resolved (overrides applied) CoreSystem settings, or undefined if the CoreSystem document is not available. */
+export function getCoreSystemSettings(): ICoreSystemSettings | undefined {
+	const core = CoreSystem.findOne(SYSTEM_ID, { projection: { settingsWithOverrides: 1 } })
+	return core && applyAndValidateOverrides(core.settingsWithOverrides).obj
 }

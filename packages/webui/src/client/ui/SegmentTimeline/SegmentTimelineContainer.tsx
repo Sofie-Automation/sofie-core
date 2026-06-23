@@ -26,7 +26,7 @@ import {
 	type IOutputLayerUi,
 } from '../SegmentContainer/withResolvedSegment.js'
 import { computeSegmentDuration, getPartInstanceTimingId } from '../../lib/rundownTiming.js'
-import { DEFAULT_DISPLAY_DURATION } from '@sofie-automation/shared-lib/dist/core/constants'
+import { DEFAULT_DISPLAY_DURATION, DEFAULT_TIME_SCALE } from '@sofie-automation/shared-lib/dist/core/constants'
 import { RundownViewShelf } from '../RundownView/RundownViewShelf.js'
 import type { PartInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { catchError, useDebounce } from '../../lib/lib.js'
@@ -35,8 +35,8 @@ import { useSubscription, useTracker } from '../../lib/ReactMeteorData/ReactMete
 import { logger } from '../../lib/logging.js'
 import {
 	FALLBACK_ZOOM_FACTOR,
+	getMinimumZoomFactor,
 	LIVELINE_HISTORY_SIZE,
-	MINIMUM_ZOOM_FACTOR,
 	SIMULATED_PLAYBACK_HARD_MARGIN,
 	TIMELINE_RIGHT_PADDING,
 } from './Constants.js'
@@ -204,7 +204,11 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 					this.initialShowEntireSegmentRaf = undefined
 					this.mountedTime = Date.now()
 					if (this.state.isLiveSegment && this.props.followLiveSegments && !this.isVisible) {
-						scrollToSegment(this.props.segmentId, true).catch((error) => {
+						scrollToSegment(
+							this.props.segmentId,
+							this.props.studio.settings.followOnAirSegmentsHistory ?? 0,
+							true
+						).catch((error) => {
 							if (!error.toString().match(/another scroll/)) console.warn(error)
 						})
 					}
@@ -642,7 +646,10 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 			const livePosition = this.state.isLiveSegment ? this.state.livePosition : 0
 
 			let newScale = calculatedTimelineDivWidth / (segmentDisplayDuration - livePosition)
-			newScale = Math.min(MINIMUM_ZOOM_FACTOR, newScale)
+			newScale = Math.min(
+				getMinimumZoomFactor(this.props.studio.settings.defaultTimeScale ?? DEFAULT_TIME_SCALE),
+				newScale
+			)
 			if (!Number.isFinite(newScale) || newScale === 0) {
 				newScale = FALLBACK_ZOOM_FACTOR
 			}
