@@ -313,6 +313,27 @@ export class WrappedAsyncMongoCollection<
 		return result
 	}
 
+	public async replaceAsync(doc: DBInterface): Promise<boolean> {
+		const span = profiler.startSpan(`MongoCollection.${this.name}.replace`)
+		if (span) {
+			span.addLabels({
+				collection: this.name,
+				id: unprotectString(doc._id),
+			})
+		}
+		try {
+			// Unlike updateAsync/upsertAsync (which take atomic-operator modifiers), this performs a
+			// full-document replacement by `_id` (with upsert).
+			const result = await this._collection.upsertAsync(doc._id as any, doc as any)
+			if (span) span.end()
+			// numberAffected counts the matched (replaced) document; insertedId is only set on insert
+			return !result.insertedId
+		} catch (e) {
+			if (span) span.end()
+			this.wrapMongoError(e)
+		}
+	}
+
 	async bulkWriteAsync(ops: Array<AnyBulkWriteOperation<DBInterface>>): Promise<void> {
 		const span = profiler.startSpan(`MongoCollection.${this.name}.bulkWrite`)
 		if (span) {

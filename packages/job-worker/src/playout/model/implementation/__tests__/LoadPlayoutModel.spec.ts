@@ -59,7 +59,9 @@ describe('LoadPlayoutModel', () => {
 			const rundownIdsInOrder = [rundownId01, rundownId02, rundownId00]
 
 			await context.mockCollections.RundownPlaylists.update(playlistId0, {
-				rundownIdsInOrder,
+				$set: {
+					rundownIdsInOrder,
+				},
 			})
 
 			await runWithPlaylistLock(context, playlistId0, async (lock) => {
@@ -88,7 +90,9 @@ describe('LoadPlayoutModel', () => {
 			const rundownIdsInOrder = [rundownId01]
 
 			await context.mockCollections.RundownPlaylists.update(playlistId0, {
-				rundownIdsInOrder,
+				$set: {
+					rundownIdsInOrder,
+				},
 			})
 
 			await runWithPlaylistLock(context, playlistId0, async (lock) => {
@@ -129,7 +133,9 @@ describe('LoadPlayoutModel', () => {
 			const rundownIdsInOrder = [rundownId01, rundownId02, rundownId00]
 
 			await context.mockCollections.RundownPlaylists.update(playlistId0, {
-				rundownIdsInOrder,
+				$set: {
+					rundownIdsInOrder,
+				},
 			})
 
 			const playlist0 = await context.mockCollections.RundownPlaylists.findOne(playlistId0)

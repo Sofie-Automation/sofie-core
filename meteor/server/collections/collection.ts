@@ -168,6 +168,15 @@ export interface AsyncOnlyMongoCollection<
 	upsertManyAsync(doc: DBInterface[]): Promise<{ numberAffected: number; insertedIds: DBInterface['_id'][] }>
 
 	/**
+	 * Replace a single document with a full document, matched by its `_id` (upserting if not present).
+	 * Unlike {@link updateAsync}/{@link upsertAsync}, which apply atomic-operator modifiers, this replaces
+	 * the entire stored document (clearing fields absent from `doc`), via the native driver's `replaceOne`.
+	 * @param doc The full document to store
+	 * @returns `true` if an existing document was replaced, `false` if a new one was inserted
+	 */
+	replaceAsync(doc: DBInterface): Promise<boolean>
+
+	/**
 	 * Remove one or more documents
 	 * @param selector A query describing the documents to be deleted
 	 */

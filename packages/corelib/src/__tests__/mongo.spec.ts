@@ -1,5 +1,5 @@
 import { protectString, ProtectedString } from '../protectedString.js'
-import { FindOptions, mongoFindOptions, MongoQuery, mongoWhere } from '../mongo.js'
+import { FindOptions, mongoFindOptions, mongoModify, MongoQuery, mongoWhere } from '../mongo.js'
 
 describe('mongoFindOptions', () => {
 	const rawDocs = ['1', '2', '3', '4', '5', '6', '7'].map((s) => ({ _id: protectString(s) }))
@@ -222,4 +222,190 @@ test('mongoWhere', () => {
 
 	expect(findFetch({ rank: { $lt: 3 } })).toHaveLength(3)
 	expect(findFetch({ rank: { $lte: 3 } })).toHaveLength(4)
+})
+
+describe('mongoModify', () => {
+	interface Doc {
+		_id: ProtectedString<any>
+		name: string
+		rank: number
+		nested: { a: number; b?: number }
+		values: number[]
+		objs: Array<{ id: string; kind: string }>
+	}
+	const makeDoc = (): Doc => ({
+		_id: protectString('id0'),
+		name: 'original',
+		rank: 1,
+		nested: { a: 1, b: 2 },
+		values: [1, 2, 3],
+		objs: [
+			{ id: 'x', kind: 'apple' },
+			{ id: 'y', kind: 'banana' },
+			{ id: 'z', kind: 'apple' },
+		],
+	})
+	const selector: MongoQuery<Doc> = { _id: protectString('id0') }
+	const modify = (doc: Doc, modifier: any): Doc => mongoModify<Doc>(selector, doc, modifier)
+
+	describe('$set', () => {
+		test('sets a top-level field', () => {
+			const doc = makeDoc()
+			modify(doc, { $set: { name: 'changed' } })
+			expect(doc.name).toBe('changed')
+		})
+		test('sets a nested field via dotted path', () => {
+			const doc = makeDoc()
+			modify(doc, { $set: { 'nested.a': 99 } })
+			expect(doc.nested).toEqual({ a: 99, b: 2 })
+		})
+		test('creates intermediate objects for a missing dotted path', () => {
+			const doc: any = makeDoc()
+			modify(doc, { $set: { 'deep.newly.created': 5 } })
+			expect(doc.deep).toEqual({ newly: { created: 5 } })
+		})
+	})
+
+	describe('$unset', () => {
+		test('removes a top-level field', () => {
+			const doc = makeDoc()
+			modify(doc, { $unset: { name: 1 } })
+			expect('name' in doc).toBe(false)
+		})
+		test('removes a nested field', () => {
+			const doc = makeDoc()
+			modify(doc, { $unset: { 'nested.b': 1 } })
+			expect(doc.nested).toEqual({ a: 1 })
+		})
+	})
+
+	describe('$push', () => {
+		test('appends a value', () => {
+			const doc = makeDoc()
+			modify(doc, { $push: { values: 4 } })
+			expect(doc.values).toEqual([1, 2, 3, 4])
+		})
+		test('appends a duplicate (unlike $addToSet)', () => {
+			const doc = makeDoc()
+			modify(doc, { $push: { values: 2 } })
+			expect(doc.values).toEqual([1, 2, 3, 2])
+		})
+		test('appends multiple values with $each', () => {
+			const doc = makeDoc()
+			modify(doc, { $push: { values: { $each: [4, 5] } } })
+			expect(doc.values).toEqual([1, 2, 3, 4, 5])
+		})
+		test('creates the array when missing', () => {
+			const doc: any = makeDoc()
+			modify(doc, { $push: { newArr: 1 } })
+			expect(doc.newArr).toEqual([1])
+		})
+	})
+
+	describe('$pull', () => {
+		test('removes elements equal to a primitive value', () => {
+			const doc = makeDoc()
+			modify(doc, { $pull: { values: 2 } })
+			expect(doc.values).toEqual([1, 3])
+		})
+		test('does not remove everything when pulling a primitive that is absent', () => {
+			const doc = makeDoc()
+			modify(doc, { $pull: { values: 99 } })
+			expect(doc.values).toEqual([1, 2, 3])
+		})
+		test('removes elements matching a sub-document query', () => {
+			const doc = makeDoc()
+			modify(doc, { $pull: { objs: { kind: 'apple' } } })
+			expect(doc.objs).toEqual([{ id: 'y', kind: 'banana' }])
+		})
+		test('removes elements via top-level $in', () => {
+			const doc = makeDoc()
+			modify(doc, { $pull: { values: { $in: [1, 3] } } })
+			expect(doc.values).toEqual([2])
+		})
+		test('removes embedded documents via $in using deep equality', () => {
+			const doc = makeDoc()
+			modify(doc, {
+				$pull: {
+					objs: {
+						$in: [
+							{ id: 'x', kind: 'apple' },
+							{ id: 'z', kind: 'apple' },
+						],
+					},
+				},
+			})
+			expect(doc.objs).toEqual([{ id: 'y', kind: 'banana' }])
+		})
+		test('removes elements via a nested operator query', () => {
+			const doc = makeDoc()
+			modify(doc, { $pull: { objs: { id: { $in: ['x', 'z'] } } } })
+			expect(doc.objs).toEqual([{ id: 'y', kind: 'banana' }])
+		})
+	})
+
+	describe('$addToSet', () => {
+		test('adds a new value', () => {
+			const doc = makeDoc()
+			modify(doc, { $addToSet: { values: 4 } })
+			expect(doc.values).toEqual([1, 2, 3, 4])
+		})
+		test('does not add an existing primitive value', () => {
+			const doc = makeDoc()
+			modify(doc, { $addToSet: { values: 2 } })
+			expect(doc.values).toEqual([1, 2, 3])
+		})
+		test('adds multiple values with $each, skipping duplicates', () => {
+			const doc = makeDoc()
+			modify(doc, { $addToSet: { values: { $each: [3, 4, 5] } } })
+			expect(doc.values).toEqual([1, 2, 3, 4, 5])
+		})
+		test('uses deep equality for object members', () => {
+			const doc = makeDoc()
+			modify(doc, { $addToSet: { objs: { id: 'x', kind: 'apple' } } })
+			expect(doc.objs).toHaveLength(3)
+
+			modify(doc, { $addToSet: { objs: { id: 'w', kind: 'cherry' } } })
+			expect(doc.objs).toContainEqual({ id: 'w', kind: 'cherry' })
+		})
+		test('creates the array when missing', () => {
+			const doc: any = makeDoc()
+			modify(doc, { $addToSet: { newArr: { $each: [1, 2] } } })
+			expect(doc.newArr).toEqual([1, 2])
+		})
+	})
+
+	describe('$rename', () => {
+		test('renames a top-level field', () => {
+			const doc: any = makeDoc()
+			modify(doc, { $rename: { name: 'title' } })
+			expect('name' in doc).toBe(false)
+			expect(doc.title).toBe('original')
+		})
+	})
+
+	describe('full-document replace', () => {
+		test('replaces the doc when the modifier has no operators, keeping the _id', () => {
+			const doc = makeDoc()
+			const result = mongoModify<Doc>(selector, doc, { name: 'fresh', rank: 5 } as any)
+			expect(result.name).toBe('fresh')
+			expect(result.rank).toBe(5)
+			expect(result._id).toEqual(protectString('id0'))
+		})
+	})
+
+	describe('unsupported operators', () => {
+		test('throws for an operator that is not implemented', () => {
+			const doc = makeDoc()
+			expect(() => modify(doc, { $inc: { rank: 1 } })).toThrow(/not implemented/)
+		})
+	})
+
+	test('applies multiple operators in a single modifier', () => {
+		const doc = makeDoc()
+		modify(doc, { $set: { name: 'multi' }, $push: { values: 4 }, $unset: { rank: 1 } })
+		expect(doc.name).toBe('multi')
+		expect(doc.values).toEqual([1, 2, 3, 4])
+		expect('rank' in doc).toBe(false)
+	})
 })

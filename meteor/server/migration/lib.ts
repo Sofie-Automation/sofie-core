@@ -174,7 +174,7 @@ export function renamePropertiesInCollection<DBInterface extends { _id: Protecte
 					}
 				}
 
-				await collection.updateAsync(doc._id, doc)
+				await collection.replaceAsync(doc)
 			}
 		},
 	}

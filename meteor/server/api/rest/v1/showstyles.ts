@@ -107,7 +107,7 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 			}
 		}
 
-		await ShowStyleBases.upsertAsync(showStyleBaseId, showStyle)
+		await ShowStyleBases.replaceAsync(showStyle)
 
 		// wait for the upsert to complete before validation and upgrade read from the showStyleBases collection
 		await new Promise<void>((resolve) => setTimeout(() => resolve(), 200))
@@ -169,7 +169,7 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 		const showStyle = await showStyleBaseFrom(apiShowStyleBase, showStyleBaseId)
 		if (!showStyle) throw new Meteor.Error(400, `Invalid ShowStyleBase`)
 
-		await ShowStyleBases.upsertAsync(showStyleBaseId, showStyle)
+		await ShowStyleBases.replaceAsync(showStyle)
 
 		// wait for the upsert to complete before validation and upgrade read from the showStyleBases collection
 		await new Promise<void>((resolve) => setTimeout(() => resolve(), 200))
@@ -298,7 +298,7 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 			}
 		}
 
-		await ShowStyleVariants.upsertAsync(showStyleVariantId, showStyle)
+		await ShowStyleVariants.replaceAsync(showStyle)
 		return ClientAPI.responseSuccess(undefined, 200)
 	}
 
