@@ -3,12 +3,19 @@ import { ProtectedString } from './protectedString.js'
 import * as objectPath from 'object-path'
 import type {
 	Condition,
+	DeleteManyModel,
+	DeleteOneModel,
+	Document,
 	Filter,
+	InsertOneModel,
 	MatchKeysAndValues,
 	OnlyFieldsOfType,
 	PullOperator,
 	PushOperator,
+	ReplaceOneModel,
 	SetFields,
+	UpdateManyModel,
+	UpdateOneModel,
 } from 'mongodb'
 import { clone } from './lib.js'
 
@@ -89,6 +96,24 @@ export type MongoModifier<TDoc> = {
 	$addToSet?: SetFields<TDoc>
 	$rename?: Record<string, string>
 }
+
+/**
+ * A bulkWrite operation, hand-rolled to match exactly the arms our in-memory mocks implement (see the
+ * `bulkWrite` handlers in the meteor and job-worker collection mocks). Like {@link MongoModifier}, this is
+ * intentionally NOT mongodb's `AnyBulkWriteOperation`:
+ *  - the `update` of the `updateOne`/`updateMany` arms is constrained to {@link MongoModifier}, so a whole
+ *    plain document cannot sneak in as a "modifier" via the bulkWrite path (the heaviest write path). Use
+ *    the `replaceOne` arm for a genuine full-document replacement.
+ *  - aggregation-pipeline updates (the `Document[]` form) are deliberately omitted, as `mongoModify` does
+ *    not implement them.
+ */
+export type MongoBulkWriteOperation<TDoc extends Document> =
+	| { insertOne: InsertOneModel<TDoc> }
+	| { replaceOne: ReplaceOneModel<TDoc> }
+	| { updateOne: Omit<UpdateOneModel<TDoc>, 'update'> & { update: MongoModifier<TDoc> } }
+	| { updateMany: Omit<UpdateManyModel<TDoc>, 'update'> & { update: MongoModifier<TDoc> } }
+	| { deleteOne: DeleteOneModel<TDoc> }
+	| { deleteMany: DeleteManyModel<TDoc> }
 
 /** End of hacks */
 

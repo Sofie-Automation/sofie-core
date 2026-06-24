@@ -1,10 +1,16 @@
-import { FindOptions, MongoModifier, MongoQuery, ObserveChangesOptions } from '@sofie-automation/corelib/dist/mongo'
+import {
+	FindOptions,
+	MongoBulkWriteOperation,
+	MongoModifier,
+	MongoQuery,
+	ObserveChangesOptions,
+} from '@sofie-automation/corelib/dist/mongo'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { Meteor } from 'meteor/meteor'
 import { Mongo } from 'meteor/mongo'
 import { NpmModuleMongodb } from 'meteor/npm-mongo'
 import { PromisifyCallbacks } from '@sofie-automation/shared-lib/dist/lib/types'
-import type { AnyBulkWriteOperation, Collection as RawCollection } from 'mongodb'
+import type { Collection as RawCollection } from 'mongodb'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 import { registerCollection } from './lib'
 import { WrappedMockCollection } from './implementations/mock'
@@ -160,7 +166,7 @@ export interface AsyncOnlyMongoCollection<
 	 * This should be used instead of Promise.all(...) when doing multiple updates, as it is more performant
 	 * @param ops Operations to perform
 	 */
-	bulkWriteAsync(ops: Array<AnyBulkWriteOperation<DBInterface>>): Promise<void>
+	bulkWriteAsync(ops: Array<MongoBulkWriteOperation<DBInterface>>): Promise<void>
 }
 
 /**

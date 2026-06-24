@@ -17,7 +17,7 @@ import { DocumentChangeTracker } from './DocumentChangeTracker.js'
 import { logger } from '../../../logging.js'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { IngestExpectedPackage } from '../IngestExpectedPackage.js'
-import { AnyBulkWriteOperation } from 'mongodb'
+import { MongoBulkWriteOperation } from '@sofie-automation/corelib/dist/mongo'
 import { normalizeArrayToMap } from '@sofie-automation/corelib/dist/lib'
 
 export class SaveIngestModelHelper {
@@ -153,7 +153,7 @@ export async function writeExpectedPackagesChangesForRundown(
 	}
 
 	// Generate any insert and update operations
-	const ops: AnyBulkWriteOperation<ExpectedPackageDB>[] = []
+	const ops: MongoBulkWriteOperation<ExpectedPackageDB>[] = []
 	for (const doc of packagesToSave.values()) {
 		const existingDoc = existingDocsMap.get(doc._id)
 		if (!existingDoc) {

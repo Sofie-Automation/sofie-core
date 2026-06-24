@@ -2,7 +2,7 @@ import type { ShowStyleBaseId, TriggeredActionId } from '@sofie-automation/corel
 import { TriggeredActions } from '../../collections'
 import { Complete, getRandomId, literal, normalizeArrayToMap } from '@sofie-automation/corelib/dist/lib'
 import type { DBTriggeredActions } from '@sofie-automation/meteor-lib/dist/collections/TriggeredActions'
-import type { AnyBulkWriteOperation } from 'mongodb'
+import type { MongoBulkWriteOperation } from '@sofie-automation/corelib/dist/mongo'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import type { IBlueprintTriggeredActions } from '@sofie-automation/blueprints-integration'
 
@@ -17,7 +17,7 @@ export async function updateTriggeredActionsForShowStyleBaseId(
 	const oldTriggeredActions = normalizeArrayToMap(oldTriggeredActionsArray, 'blueprintUniqueId')
 
 	const newDocIds: TriggeredActionId[] = []
-	const bulkOps: AnyBulkWriteOperation<DBTriggeredActions>[] = []
+	const bulkOps: MongoBulkWriteOperation<DBTriggeredActions>[] = []
 
 	for (const newTriggeredAction of triggeredActions) {
 		const oldValue = oldTriggeredActions.get(newTriggeredAction._id)

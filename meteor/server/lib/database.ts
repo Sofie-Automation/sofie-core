@@ -1,9 +1,8 @@
 import { Meteor } from 'meteor/meteor'
-import type { AnyBulkWriteOperation } from 'mongodb'
 import _ from 'underscore'
 import { normalizeArrayToMap, deleteAllUndefinedProperties } from '@sofie-automation/corelib/dist/lib'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
-import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
+import { MongoBulkWriteOperation, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { profiler } from '../api/profiler'
 import { AsyncOnlyMongoCollection } from '../collections/collection'
 
@@ -118,7 +117,7 @@ async function savePreparedChanges<DBInterface extends DBObj>(
 		newObjIds.add(id)
 	}
 
-	const updates: AnyBulkWriteOperation<DBInterface>[] = []
+	const updates: MongoBulkWriteOperation<DBInterface>[] = []
 	const removedDocs: DBInterface['_id'][] = []
 
 	_.each(preparedChanges.changed || [], (oUpdate) => {

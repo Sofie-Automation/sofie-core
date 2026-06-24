@@ -11,8 +11,8 @@ import { StudioPlayoutModel } from '../../studio/model/StudioPlayoutModel.js'
 import { PieceTimelineMetadata } from '../timeline/pieceGroup.js'
 import { deserializeTimelineBlob } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { ReadonlyDeep } from 'type-fest'
-import { AnyBulkWriteOperation } from 'mongodb'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
+import { MongoBulkWriteOperation } from '../../db/collections.js'
 
 /**
  * Called from Playout-gateway when the trigger-time of a timeline object has updated
@@ -86,7 +86,7 @@ export async function handleTimelineTriggerTime(context: JobContext, data: OnTim
 }
 
 async function writePieceInstanceChangesToMongo(context: JobContext, changes: PieceInstancesChanges): Promise<void> {
-	const updates: AnyBulkWriteOperation<PieceInstance>[] = []
+	const updates: MongoBulkWriteOperation<PieceInstance>[] = []
 	for (const [pieceInstanceId, newTime] of changes.setStartTime.entries()) {
 		updates.push({
 			updateOne: {

@@ -9,7 +9,7 @@ import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { getCurrentTime } from '../../lib/lib'
 import { getPackageContainerPackageId } from '@sofie-automation/corelib/dist/dataModel/PackageContainerPackageStatus'
 import { getPackageInfoId, PackageInfoDB } from '@sofie-automation/corelib/dist/dataModel/PackageInfos'
-import type { AnyBulkWriteOperation } from 'mongodb'
+import type { MongoBulkWriteOperation } from '@sofie-automation/corelib/dist/mongo'
 import { onUpdatedPackageInfo } from '../ingest/packageInfo'
 import { getPackageContainerId } from '@sofie-automation/corelib/dist/dataModel/PackageContainerStatus'
 import {
@@ -58,7 +58,7 @@ export namespace PackageManagerIntegration {
 		if (!peripheralDevice.studioAndConfigId)
 			throw new Meteor.Error(400, 'Device "' + peripheralDevice._id + '" has no studio')
 
-		const bulkChanges: AnyBulkWriteOperation<ExpectedPackageWorkStatus>[] = []
+		const bulkChanges: MongoBulkWriteOperation<ExpectedPackageWorkStatus>[] = []
 		const removedIds: ExpectedPackageWorkStatusId[] = []
 
 		const ps: Promise<void>[] = []

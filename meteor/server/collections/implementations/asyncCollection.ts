@@ -1,4 +1,9 @@
-import { MongoModifier, MongoQuery, ObserveChangesOptions } from '@sofie-automation/corelib/dist/mongo'
+import {
+	MongoBulkWriteOperation,
+	MongoModifier,
+	MongoQuery,
+	ObserveChangesOptions,
+} from '@sofie-automation/corelib/dist/mongo'
 import { ProtectedString, protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { Meteor } from 'meteor/meteor'
 import { Mongo } from 'meteor/mongo'
@@ -287,7 +292,7 @@ export class WrappedAsyncMongoCollection<
 		}
 	}
 
-	async bulkWriteAsync(ops: Array<AnyBulkWriteOperation<DBInterface>>): Promise<void> {
+	async bulkWriteAsync(ops: Array<MongoBulkWriteOperation<DBInterface>>): Promise<void> {
 		const span = profiler.startSpan(`MongoCollection.${this.name}.bulkWrite`)
 		if (span) {
 			span.addLabels({
@@ -298,7 +303,7 @@ export class WrappedAsyncMongoCollection<
 
 		if (ops.length > 0) {
 			const rawCollection = this.rawCollection()
-			const bulkWriteResult = await rawCollection.bulkWrite(ops, {
+			const bulkWriteResult = await rawCollection.bulkWrite(ops as AnyBulkWriteOperation<DBInterface>[], {
 				ordered: false,
 			})
 

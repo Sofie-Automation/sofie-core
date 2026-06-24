@@ -1,4 +1,4 @@
-import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
+import { MongoBulkWriteOperation, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { Meteor } from 'meteor/meteor'
 import { FindOptions, MongoCursor } from '@sofie-automation/meteor-lib/dist/collections/lib'
@@ -37,10 +37,10 @@ export class WrappedMockCollection<DBInterface extends { _id: ProtectedString<an
 		throw new Error('findWithCursor not supported in tests')
 	}
 
-	override async bulkWriteAsync(ops: Array<AnyBulkWriteOperation<DBInterface>>): Promise<void> {
+	override async bulkWriteAsync(ops: Array<MongoBulkWriteOperation<DBInterface>>): Promise<void> {
 		if (ops.length > 0) {
 			const rawCollection = this.rawCollection()
-			const bulkWriteResult = await rawCollection.bulkWrite(ops, {
+			const bulkWriteResult = await rawCollection.bulkWrite(ops as AnyBulkWriteOperation<DBInterface>[], {
 				ordered: false,
 			})
 			if (bulkWriteResult && bulkWriteResult.hasWriteErrors()) {
