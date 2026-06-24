@@ -1,7 +1,12 @@
 import type { Meteor } from 'meteor/meteor'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
-import { MongoQuery, MongoFieldSpecifier, ObserveChangesOptions } from '@sofie-automation/corelib/dist/mongo'
-import { ObserveCallbacks, ObserveChangesCallbacks } from '@sofie-automation/meteor-lib/dist/collections/lib'
+import {
+	MongoQuery,
+	MongoFieldSpecifier,
+	ObserveChangesOptions,
+	ObserveCallbacks,
+	ObserveChangesCallbacks,
+} from '@sofie-automation/corelib/dist/mongo'
 import { PromisifyCallbacks } from '@sofie-automation/shared-lib/dist/lib/types'
 import { observeChangesViaChangeStream, observeViaChangeStream, ObserveMultiplexerDeps } from './observeMultiplexer'
 import type { MinimalMongoCursor } from '../implementations/asyncCollection'

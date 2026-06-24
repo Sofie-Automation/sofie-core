@@ -1,11 +1,12 @@
-import { MongoQuery, ObserveChangesOptions } from '@sofie-automation/corelib/dist/mongo'
-import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
-import { Meteor } from 'meteor/meteor'
 import {
-	FindOptions,
+	MongoQuery,
+	ObserveChangesOptions,
 	ObserveCallbacks,
 	ObserveChangesCallbacks,
-} from '@sofie-automation/meteor-lib/dist/collections/lib'
+} from '@sofie-automation/corelib/dist/mongo'
+import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
+import { Meteor } from 'meteor/meteor'
+import { FindOptions } from '@sofie-automation/meteor-lib/dist/collections/lib'
 import type { Collection as RawCollection } from 'mongodb'
 import { AsyncOnlyMongoCollection } from '../collection'
 import { MinimalMeteorMongoCollection, MinimalMongoCursor, WrappedAsyncMongoCollection } from './asyncCollection'

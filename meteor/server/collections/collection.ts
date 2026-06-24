@@ -4,6 +4,8 @@ import {
 	MongoModifier,
 	MongoQuery,
 	ObserveChangesOptions,
+	ObserveCallbacks,
+	ObserveChangesCallbacks,
 } from '@sofie-automation/corelib/dist/mongo'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { Meteor } from 'meteor/meteor'
@@ -15,13 +17,7 @@ import { createMockCollection } from './implementations/mock'
 import { WrappedAsyncMongoCollection } from './implementations/asyncCollection'
 import { WrappedReadOnlyMongoCollection } from './implementations/readonlyWrapper'
 import { isInMockMode } from './mongoConnection'
-import {
-	FieldNames,
-	IndexSpecifier,
-	ObserveCallbacks,
-	ObserveChangesCallbacks,
-	UpdateOptions,
-} from '@sofie-automation/meteor-lib/dist/collections/lib'
+import { FieldNames, IndexSpecifier, UpdateOptions } from '@sofie-automation/meteor-lib/dist/collections/lib'
 import { MinimalMongoCursor } from './implementations/asyncCollection'
 import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
 

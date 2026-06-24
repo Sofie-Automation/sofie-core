@@ -1,8 +1,7 @@
 import { omit } from '@sofie-automation/corelib/dist/lib'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { Mongo } from 'meteor/mongo'
-import { ObserveChangesCallbacks } from '@sofie-automation/meteor-lib/dist/collections/lib'
-import { MongoModifier, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
+import { MongoModifier, MongoQuery, ObserveChangesCallbacks } from '@sofie-automation/corelib/dist/mongo'
 
 type Reaction = () => void
 

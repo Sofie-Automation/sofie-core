@@ -79,8 +79,8 @@ export interface ObserveCallbacks<DBInterface> {
  * documents are passed to the callbacks.
  */
 export interface ObserveChangesCallbacks<DBInterface extends { _id: ProtectedString<any> }> {
-	added?(id: DBInterface['_id'], fields: object): void
-	changed?(id: DBInterface['_id'], fields: object): void
+	added?(id: DBInterface['_id'], fields: Partial<DBInterface>): void
+	changed?(id: DBInterface['_id'], fields: Partial<DBInterface>): void
 	removed?(id: DBInterface['_id']): void
 }
 

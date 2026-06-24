@@ -1,5 +1,12 @@
 import type { Collection as RawCollection } from 'mongodb'
-import { MongoFieldSpecifier, MongoModifier, MongoQuery, SortSpecifier } from '@sofie-automation/corelib/dist/mongo'
+import {
+	MongoFieldSpecifier,
+	MongoModifier,
+	MongoQuery,
+	SortSpecifier,
+	ObserveCallbacks,
+	ObserveChangesCallbacks,
+} from '@sofie-automation/corelib/dist/mongo'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 
 export interface MongoReadOnlyCollection<DBInterface extends { _id: ProtectedString<any> }> {
@@ -183,22 +190,6 @@ export interface MongoCursor<DBInterface extends { _id: ProtectedString<any> }> 
 		callbacks: ObserveChangesCallbacks<DBInterface>,
 		options?: { nonMutatingCallbacks?: boolean | undefined }
 	): Promise<MongoLiveQueryHandle>
-}
-export interface ObserveCallbacks<DBInterface> {
-	added?(document: DBInterface): void
-	addedAt?(document: DBInterface, atIndex: number, before: DBInterface): void
-	changed?(newDocument: DBInterface, oldDocument: DBInterface): void
-	changedAt?(newDocument: DBInterface, oldDocument: DBInterface, indexAt: number): void
-	removed?(oldDocument: DBInterface): void
-	removedAt?(oldDocument: DBInterface, atIndex: number): void
-	movedTo?(document: DBInterface, fromIndex: number, toIndex: number, before: object): void
-}
-export interface ObserveChangesCallbacks<DBInterface extends { _id: ProtectedString<any> }> {
-	added?(id: DBInterface['_id'], fields: object): void
-	addedBefore?(id: DBInterface['_id'], fields: object, before: object): void
-	changed?(id: DBInterface['_id'], fields: object): void
-	movedBefore?(id: DBInterface['_id'], before: object): void
-	removed?(id: DBInterface['_id']): void
 }
 
 export interface FindOneOptions<TRawDoc> {

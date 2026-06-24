@@ -3,6 +3,8 @@ import {
 	MongoModifier,
 	MongoQuery,
 	ObserveChangesOptions,
+	ObserveChangesCallbacks,
+	ObserveCallbacks,
 } from '@sofie-automation/corelib/dist/mongo'
 import { ProtectedString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { Meteor } from 'meteor/meteor'
@@ -12,8 +14,6 @@ import {
 	IndexSpecifier,
 	MongoCursor,
 	FindOptions,
-	ObserveChangesCallbacks,
-	ObserveCallbacks,
 } from '@sofie-automation/meteor-lib/dist/collections/lib'
 import type {
 	Collection as RawCollection,

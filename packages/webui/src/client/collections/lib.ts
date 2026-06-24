@@ -33,8 +33,6 @@ export type {
 	MongoCursor,
 	MongoLiveQueryHandle,
 	MongoReadOnlyCollection,
-	ObserveCallbacks,
-	ObserveChangesCallbacks,
 	UpdateOptions,
 	UpsertOptions,
 } from '@sofie-automation/meteor-lib/dist/collections/lib'

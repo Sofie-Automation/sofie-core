@@ -1,10 +1,9 @@
-import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
-import { EJSON } from 'meteor/ejson'
-
-const hasOwn = Object.prototype.hasOwnProperty
+import EJSON from 'ejson'
+import { ProtectedString } from './protectedString.js'
 
 /**
- * Perform a shallow diff of a pair of objects
+ * Perform a shallow diff of a pair of objects.
+ *
  * @param oldDoc The original object
  * @param newDoc The new object
  * @returns The difference, or null if nothing changed
@@ -15,15 +14,15 @@ export function diffObject<T extends { _id: ProtectedString<any> }>(oldDoc: T, n
 
 	const fields: Record<string, any> = {}
 	Object.keys(oldDocAny).forEach((key) => {
-		if (hasOwn.call(newDoc, key)) {
+		if (Object.hasOwn(newDocAny, key)) {
 			if (!EJSON.equals(oldDocAny[key], newDocAny[key])) fields[key] = newDocAny[key]
 		} else {
 			fields[key] = undefined
 		}
 	})
 
-	Object.keys(newDoc).forEach((key) => {
-		if (!hasOwn.call(oldDoc, key)) {
+	Object.keys(newDocAny).forEach((key) => {
+		if (!Object.hasOwn(oldDocAny, key)) {
 			fields[key] = newDocAny[key]
 		}
 	})

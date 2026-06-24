@@ -1,13 +1,17 @@
 import type { ChangeStreamDocument } from 'mongodb'
 import clone from 'fast-clone'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
-import { MongoQuery, mongoProjectDocument, MongoFieldSpecifier, mongoWhere } from '@sofie-automation/corelib/dist/mongo'
+import {
+	MongoQuery,
+	MongoFieldSpecifier,
+	ObserveCallbacks,
+	ObserveChangesCallbacks,
+} from '@sofie-automation/corelib/dist/mongo'
 import { PromisifyCallbacks } from '@sofie-automation/shared-lib/dist/lib/types'
-import { ObserveCallbacks, ObserveChangesCallbacks } from '@sofie-automation/meteor-lib/dist/collections/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { EJSON } from 'meteor/ejson'
 import { logger } from '../../logging'
-import { diffObject } from '../../lib/customPublication/lib'
+import { ObserveView, fieldsFor } from '@sofie-automation/corelib/dist/memoryCollection/observeView'
 import { CollectionFeedHandle } from './collectionChangeFeed'
 
 type Doc = { _id: ProtectedString<any> }
@@ -38,6 +42,12 @@ interface ObserveSubscriber<TDoc extends Doc> {
 }
 type Subscriber<TDoc extends Doc> = ChangesSubscriber<TDoc> | ObserveSubscriber<TDoc>
 
+/** A transition computed by the {@link ObserveView}, buffered until the multiplexer fans it out to subscribers. */
+type ViewTransition<TDoc extends Doc> =
+	| { kind: 'added'; id: TDoc['_id']; doc: any }
+	| { kind: 'changed'; id: TDoc['_id']; newDoc: any; oldDoc: any; fields: any }
+	| { kind: 'removed'; id: TDoc['_id']; oldDoc: any }
+
 /**
  * Maintains the set of documents matching one (collection, selector, options) query, driven by the
  * collection's shared change feed, and fans transitions out to all of its subscribers. Multiple
@@ -46,17 +56,17 @@ type Subscriber<TDoc extends Doc> = ChangesSubscriber<TDoc> | ObserveSubscriber<
  * All state mutation flows through a single serial task queue (#enqueue), which gives us, for free:
  *  - buffering during the initial snapshot (events queue behind it),
  *  - strict ordering of added/changed/removed,
- *  - a uniform path for initial-sync and reconnect-resync (both diff the snapshot against #published),
- *  - consistent new-subscriber replay (sees a settled #published).
+ *  - a uniform path for initial-sync and reconnect-resync (both reconcile the snapshot via the view),
+ *  - consistent new-subscriber replay (sees a settled published set).
  */
 export class ObserveMultiplexer<TDoc extends Doc> {
-	readonly #selector: MongoQuery<TDoc>
-	readonly #projection: MongoFieldSpecifier<TDoc> | undefined
 	readonly #deps: ObserveMultiplexerDeps<TDoc>
 	readonly #onEmpty: () => void
 
 	readonly #subscribers = new Set<Subscriber<TDoc>>()
-	#published = new Map<TDoc['_id'], any>()
+	/** The shared transition engine. Its sink buffers transitions into {@link #pending} for fan-out. */
+	readonly #view: ObserveView<TDoc>
+	#pending: Array<ViewTransition<TDoc>> = []
 	#feedHandle: CollectionFeedHandle | undefined
 	#queue: Promise<void> = Promise.resolve()
 	#stopped = false
@@ -73,10 +83,14 @@ export class ObserveMultiplexer<TDoc extends Doc> {
 		deps: ObserveMultiplexerDeps<TDoc>,
 		onEmpty: () => void
 	) {
-		this.#selector = selector
-		this.#projection = projection
 		this.#deps = deps
 		this.#onEmpty = onEmpty
+		this.#view = new ObserveView<TDoc>(selector, projection, {
+			added: (id, doc) => this.#pending.push({ kind: 'added', id, doc }),
+			changed: (id, newDoc, oldDoc, fields) =>
+				this.#pending.push({ kind: 'changed', id, newDoc, oldDoc, fields }),
+			removed: (id, oldDoc) => this.#pending.push({ kind: 'removed', id, oldDoc }),
+		})
 
 		// Eager initial snapshot for fast initial data. The feed then drives a second snapshot on its first
 		// attach (the onResync below) which is read AFTER the stream's resume point has been captured -
@@ -97,7 +111,7 @@ export class ObserveMultiplexer<TDoc extends Doc> {
 	}
 	/** test helper */
 	get publishedCount(): number {
-		return this.#published.size
+		return this.#view.publishedCount
 	}
 	/** test helper: resolve once all currently-queued tasks (snapshot/events/replays) have processed */
 	async _flushForTests(): Promise<void> {
@@ -167,9 +181,9 @@ export class ObserveMultiplexer<TDoc extends Doc> {
 		signal.addEventListener('abort', () => this.#removeSubscriber(sub), { once: true })
 
 		// Replay current state to the new subscriber, then mark it live - as one queued task, so it sees a
-		// settled #published and any concurrent events are delivered exactly once (replayed OR live).
+		// settled published set and any concurrent events are delivered exactly once (replayed OR live).
 		await this.#enqueue(async () => {
-			for (const [id, doc] of this.#published) {
+			for (const [id, doc] of this.#view.publishedEntries()) {
 				// Aborted part-way through (the abort listener has already removed sub) - stop replaying.
 				if (signal.aborted) return
 				await this.#emitAddedTo(sub, id, doc)
@@ -203,86 +217,27 @@ export class ObserveMultiplexer<TDoc extends Doc> {
 	// --- core: snapshot/resync and per-event transitions -----------------------------------------
 
 	async #sync(): Promise<void> {
-		const docs = await this.#deps.snapshot()
-		const next = new Map<TDoc['_id'], any>()
-		for (const doc of docs) {
-			next.set(doc._id, mongoProjectDocument(doc, this.#projection))
-		}
-
-		// Removed: in old, not in new
-		for (const [id, oldDoc] of this.#published) {
-			if (!next.has(id)) await this.#emitRemoved(id, oldDoc)
-		}
-		// Added / changed
-		for (const [id, newDoc] of next) {
-			const oldDoc = this.#published.get(id)
-			if (oldDoc === undefined) {
-				await this.#emitAdded(id, newDoc)
-			} else {
-				const fields = diffObject(oldDoc, newDoc)
-				if (fields) await this.#emitChanged(id, newDoc, oldDoc, fields)
-			}
-		}
-		this.#published = next
+		this.#view.applySnapshot(await this.#deps.snapshot())
+		await this.#flushPending()
 	}
 
 	async #processEvent(change: ChangeStreamDocument<any>): Promise<void> {
-		switch (change.operationType) {
-			case 'insert':
-			case 'update':
-			case 'replace': {
-				const fullDocument = change.fullDocument as TDoc | null | undefined
-				const id = change.documentKey?._id as any as TDoc['_id']
-				// fullDocument can be null if the doc was deleted between the event and the updateLookup
-				if (!fullDocument) {
-					await this.#handleGone(id)
-					return
-				}
-				const matches = mongoWhere(fullDocument, this.#selector)
-				const docId = fullDocument._id
-				if (matches) {
-					const projected = mongoProjectDocument(fullDocument, this.#projection)
-					const oldDoc = this.#published.get(docId)
-					if (oldDoc === undefined) {
-						this.#published.set(docId, projected)
-						await this.#emitAdded(docId, projected)
-					} else {
-						const fields = diffObject(oldDoc, projected)
-						if (fields) {
-							this.#published.set(docId, projected)
-							await this.#emitChanged(docId, projected, oldDoc, fields)
-						}
-					}
-				} else {
-					await this.#handleGone(docId)
-				}
-				return
-			}
-			case 'delete': {
-				const id = change.documentKey?._id as any as TDoc['_id']
-				await this.#handleGone(id)
-				return
-			}
-			// drop / rename / invalidate end the stream → the feed reconnects → onReconnect → #sync resolves it
-			default:
-				return
+		this.#view.applyChange(change)
+		await this.#flushPending()
+	}
+
+	/** Fan the transitions the view just buffered out to all live subscribers, in order. */
+	async #flushPending(): Promise<void> {
+		const transitions = this.#pending
+		this.#pending = []
+		for (const t of transitions) {
+			if (t.kind === 'added') await this.#emitAdded(t.id, t.doc)
+			else if (t.kind === 'changed') await this.#emitChanged(t.id, t.newDoc, t.oldDoc, t.fields)
+			else await this.#emitRemoved(t.id, t.oldDoc)
 		}
 	}
 
-	async #handleGone(id: TDoc['_id'] | undefined): Promise<void> {
-		if (id === undefined) return
-		const oldDoc = this.#published.get(id)
-		if (oldDoc === undefined) return
-		this.#published.delete(id)
-		await this.#emitRemoved(id, oldDoc)
-	}
-
 	// --- fan-out (with per-subscriber clone unless nonMutating) ----------------------------------
-
-	#fieldsFor(projectedDoc: any): any {
-		const { _id, ...fields } = projectedDoc
-		return fields
-	}
 
 	async #emitAdded(id: TDoc['_id'], projectedDoc: any): Promise<void> {
 		await Promise.all(
@@ -293,7 +248,7 @@ export class ObserveMultiplexer<TDoc extends Doc> {
 	async #emitAddedTo(sub: Subscriber<TDoc>, id: TDoc['_id'], projectedDoc: any): Promise<void> {
 		try {
 			if (sub.type === 'changes') {
-				const fields = this.#fieldsFor(projectedDoc)
+				const fields = fieldsFor(projectedDoc)
 				await sub.callbacks.added?.(id, sub.nonMutating ? fields : clone(fields))
 			} else {
 				await sub.callbacks.added?.(sub.nonMutating ? projectedDoc : clone(projectedDoc))
