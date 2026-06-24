@@ -4,7 +4,6 @@ import { Meteor } from 'meteor/meteor'
 import { Mongo } from 'meteor/mongo'
 import {
 	UpdateOptions,
-	UpsertOptions,
 	IndexSpecifier,
 	MongoCursor,
 	FindOptions,
@@ -265,52 +264,6 @@ export class WrappedAsyncMongoCollection<
 			if (span) span.end()
 			this.wrapMongoError(e)
 		}
-	}
-	public async upsertAsync(
-		selector: MongoQuery<DBInterface> | DBInterface['_id'] | { _id: DBInterface['_id'] },
-		modifier: MongoModifier<DBInterface>,
-		options?: UpsertOptions
-	): Promise<{
-		numberAffected?: number
-		insertedId?: DBInterface['_id']
-	}> {
-		const span = profiler.startSpan(`MongoCollection.${this.name}.upsert`)
-		if (span) {
-			span.addLabels({
-				collection: this.name,
-				query: JSON.stringify(selector),
-			})
-		}
-		try {
-			const result = await this._collection.upsertAsync(selector as any, modifier as any, options)
-			if (span) span.end()
-			return {
-				numberAffected: result.numberAffected,
-				insertedId: protectString(result.insertedId),
-			}
-		} catch (e) {
-			if (span) span.end()
-			this.wrapMongoError(e)
-		}
-	}
-
-	async upsertManyAsync(docs: DBInterface[]): Promise<{ numberAffected: number; insertedIds: DBInterface['_id'][] }> {
-		const result: {
-			numberAffected: number
-			insertedIds: DBInterface['_id'][]
-		} = {
-			numberAffected: 0,
-			insertedIds: [],
-		}
-		await Promise.all(
-			docs.map(async (doc) =>
-				this.upsertAsync(doc._id, { $set: doc }).then((r) => {
-					if (r.numberAffected) result.numberAffected += r.numberAffected
-					if (r.insertedId) result.insertedIds.push(r.insertedId)
-				})
-			)
-		)
-		return result
 	}
 
 	public async replaceAsync(doc: DBInterface): Promise<boolean> {

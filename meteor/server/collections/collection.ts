@@ -16,7 +16,6 @@ import {
 	ObserveCallbacks,
 	ObserveChangesCallbacks,
 	UpdateOptions,
-	UpsertOptions,
 } from '@sofie-automation/meteor-lib/dist/collections/lib'
 import { MinimalMongoCursor } from './implementations/asyncCollection'
 import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
@@ -144,33 +143,7 @@ export interface AsyncOnlyMongoCollection<
 	): Promise<number>
 
 	/**
-	 * Perform an update/insert of a document
-	 * @param selector A query describing the documents to update. Typically this will be an id
-	 * @param modifier The operation to apply to each matching document
-	 * @param options Options for the operation
-	 */
-	upsertAsync(
-		selector: DBInterface['_id'] | { _id: DBInterface['_id'] },
-		modifier: MongoModifier<DBInterface>,
-		options?: UpsertOptions
-	): Promise<{ numberAffected?: number; insertedId?: DBInterface['_id'] }>
-	upsertAsync(
-		selector: MongoQuery<DBInterface>,
-		modifier: MongoModifier<DBInterface>,
-		// Require { multi } to be set when selecting multiple documents to be updated, otherwise only the first found document will be updated
-		options: UpdateOptions & Required<Pick<UpdateOptions, 'multi'>>
-	): Promise<{ numberAffected?: number; insertedId?: DBInterface['_id'] }>
-
-	/**
-	 * Perform an upsert for multiple documents, based on the `_id` of each document
-	 * @param documents Documents to upsert
-	 */
-	upsertManyAsync(doc: DBInterface[]): Promise<{ numberAffected: number; insertedIds: DBInterface['_id'][] }>
-
-	/**
 	 * Replace a single document with a full document, matched by its `_id` (upserting if not present).
-	 * Unlike {@link updateAsync}/{@link upsertAsync}, which apply atomic-operator modifiers, this replaces
-	 * the entire stored document (clearing fields absent from `doc`), via the native driver's `replaceOne`.
 	 * @param doc The full document to store
 	 * @returns `true` if an existing document was replaced, `false` if a new one was inserted
 	 */

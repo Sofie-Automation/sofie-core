@@ -118,7 +118,9 @@ actionTriggersRouter.post(
 
 			// TODO - should we clear `blueprintUniqueId`, to avoid blueprints getting them confused with data they own?
 
-			await TriggeredActions.upsertManyAsync(triggeredActions)
+			await Promise.all(
+				triggeredActions.map((triggeredActionsObj) => TriggeredActions.replaceAsync(triggeredActionsObj))
+			)
 
 			ctx.response.status = 200
 			ctx.body = ''
