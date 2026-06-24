@@ -15,7 +15,7 @@ import {
 	ObserveChangesCallbacks,
 	ObserveCallbacks,
 } from '@sofie-automation/meteor-lib/dist/collections/lib'
-import type { AnyBulkWriteOperation, Collection as RawCollection, Db as RawDb } from 'mongodb'
+import type { AnyBulkWriteOperation, Collection as RawCollection } from 'mongodb'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { NpmModuleMongodb } from 'meteor/npm-mongo'
 import { profiler } from '../../api/profiler'
@@ -35,7 +35,7 @@ export type MinimalMongoCursor<T extends { _id: ProtectedString<any> }> = Pick<
  */
 export type MinimalMeteorMongoCollection<T extends { _id: ProtectedString<any> }> = Pick<
 	Mongo.Collection<T>,
-	'insertAsync' | 'removeAsync' | 'updateAsync' | 'upsertAsync' | 'rawCollection' | 'rawDatabase' | 'createIndex'
+	'insertAsync' | 'removeAsync' | 'updateAsync' | 'upsertAsync' | 'rawCollection' | 'createIndex'
 > & {
 	find: (...args: Parameters<Mongo.Collection<T>['find']>) => MinimalMongoCursor<T>
 }
@@ -73,10 +73,6 @@ export class WrappedAsyncMongoCollection<
 	rawCollection(): RawCollection<DBInterface> {
 		return this._collection.rawCollection() as any
 	}
-	protected rawDatabase(): RawDb {
-		return this._collection.rawDatabase() as any
-	}
-
 	async findFetchAsync(
 		selector: MongoQuery<DBInterface> | DBInterface['_id'],
 		options?: FindOptions<DBInterface>

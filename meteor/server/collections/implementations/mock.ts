@@ -2,7 +2,7 @@ import { MongoBulkWriteOperation, MongoQuery } from '@sofie-automation/corelib/d
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { Meteor } from 'meteor/meteor'
 import { FindOptions, MongoCursor } from '@sofie-automation/meteor-lib/dist/collections/lib'
-import type { AnyBulkWriteOperation, Db as RawDb } from 'mongodb'
+import type { AnyBulkWriteOperation } from 'mongodb'
 import { AsyncOnlyMongoCollection } from '../collection'
 import { WrappedAsyncMongoCollection } from './asyncCollection'
 import { Mongo } from 'meteor/mongo'
@@ -20,10 +20,6 @@ export class WrappedMockCollection<DBInterface extends { _id: ProtectedString<an
 
 	get mutableCollection(): AsyncOnlyMongoCollection<DBInterface> {
 		return this
-	}
-
-	protected override rawDatabase(): RawDb {
-		throw new Error('rawDatabase not supported in tests')
 	}
 
 	/**
