@@ -16,8 +16,9 @@ import { MeteorCall } from '../methods'
 import { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PeripheralDeviceCommands, UserActionsLog } from '../../collections'
 import { SupressLogMessages } from '../../../__mocks__/suppressLogging'
+import { registerAllMethodsForTest } from '../../../__mocks__/helpers/methods'
 
-require('../client') // include in order to create the Meteor methods needed
+registerAllMethodsForTest()
 
 setLogLevel(LogLevel.INFO)
 

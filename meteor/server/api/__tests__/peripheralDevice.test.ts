@@ -22,10 +22,10 @@ import {
 	StatusCode,
 } from '@sofie-automation/blueprints-integration'
 import { CreateFakeResult, QueueStudioJobSpy } from '../../../__mocks__/worker'
+import { registerAllMethodsForTest } from '../../../__mocks__/helpers/methods'
 
 jest.mock('../../api/deviceTriggers/observer')
 
-import '../peripheralDevice'
 import { OnTimelineTriggerTimeProps, StudioJobFunc, StudioJobs } from '@sofie-automation/corelib/dist/worker/studio'
 import { MeteorCall } from '../methods'
 import { PeripheralDeviceForDevice } from '@sofie-automation/shared-lib/dist/core/model/peripheralDevice'
@@ -49,6 +49,8 @@ import {
 import { SupressLogMessages } from '../../../__mocks__/suppressLogging'
 import { JSONBlobStringify } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 import { PeripheralDeviceCommand } from '@sofie-automation/corelib/dist/dataModel/PeripheralDeviceCommand'
+
+registerAllMethodsForTest()
 
 const DEBUG = false
 

@@ -1,7 +1,6 @@
 import { Meteor } from 'meteor/meteor'
 import { check } from '../../lib/check'
-import { registerClassToMeteorMethods } from '../../methods'
-import { NewStudiosAPI, StudiosAPIMethods } from '@sofie-automation/meteor-lib/dist/api/studios'
+import { NewStudiosAPI } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { literal, getRandomId } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
@@ -139,15 +138,19 @@ async function removeStudio(context: MethodContext, studioId: StudioId): Promise
 	])
 }
 
-class ServerStudiosAPI extends MethodContextAPI implements NewStudiosAPI {
-	async insertStudio() {
+export class ServerStudiosAPI extends MethodContextAPI implements NewStudiosAPI {
+	async insertStudio(): Promise<StudioId> {
 		return insertStudio(this)
 	}
-	async removeStudio(studioId: StudioId) {
+	async removeStudio(studioId: StudioId): Promise<void> {
 		return removeStudio(this, studioId)
 	}
 
-	async assignConfigToPeripheralDevice(studioId: StudioId, configId: string, deviceId: PeripheralDeviceId | null) {
+	async assignConfigToPeripheralDevice(
+		studioId: StudioId,
+		configId: string,
+		deviceId: PeripheralDeviceId | null
+	): Promise<void> {
 		assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MANAGE_STUDIOS)
 
 		// Unassign other uses
@@ -182,7 +185,6 @@ class ServerStudiosAPI extends MethodContextAPI implements NewStudiosAPI {
 		}
 	}
 }
-registerClassToMeteorMethods(StudiosAPIMethods, ServerStudiosAPI, false)
 
 // Set up a watcher for updating the mappingsHash whenever a mapping or route is changed:
 function triggerUpdateStudioMappingsHash(studioId: StudioId) {

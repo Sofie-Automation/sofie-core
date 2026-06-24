@@ -1,9 +1,4 @@
-import { registerClassToMeteorMethods } from '../methods'
-import {
-	StatusResponse,
-	NewSystemStatusAPI,
-	SystemStatusAPIMethods,
-} from '@sofie-automation/meteor-lib/dist/api/systemStatus'
+import { StatusResponse, NewSystemStatusAPI } from '@sofie-automation/meteor-lib/dist/api/systemStatus'
 import { getDebugStates, getSystemStatus } from './systemStatus'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { MethodContextAPI } from '../api/methodContext'
@@ -61,16 +56,15 @@ function health(status: StatusResponse, ctx: Koa.ParameterizedContext) {
 	ctx.body = JSON.stringify(status)
 }
 
-class ServerSystemStatusAPI extends MethodContextAPI implements NewSystemStatusAPI {
-	async getSystemStatus() {
+export class ServerSystemStatusAPI extends MethodContextAPI implements NewSystemStatusAPI {
+	async getSystemStatus(): Promise<StatusResponse> {
 		return getSystemStatus(this.connection)
 	}
 
-	async getDebugStates(peripheralDeviceId: PeripheralDeviceId) {
+	async getDebugStates(peripheralDeviceId: PeripheralDeviceId): Promise<object> {
 		return getDebugStates(this, peripheralDeviceId)
 	}
 }
-registerClassToMeteorMethods(SystemStatusAPIMethods, ServerSystemStatusAPI, false)
 
 Meteor.startup(() => {
 	bindKoaRouter(metricsRouter, '/metrics')

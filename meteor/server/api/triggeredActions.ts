@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor'
 import { check, Match } from '../lib/check'
-import { registerClassToMeteorMethods, ReplaceOptionalWithNullInMethodArguments } from '../methods'
+import { ReplaceOptionalWithNullInMethodArguments } from '../methods'
 import { literal, getRandomId, Complete } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { logger } from '../logging'
@@ -9,7 +9,6 @@ import { DBTriggeredActions, TriggeredActionsObj } from '@sofie-automation/meteo
 import {
 	CreateTriggeredActionsContent,
 	NewTriggeredActionsAPI,
-	TriggeredActionsAPIMethods,
 } from '@sofie-automation/meteor-lib/dist/api/triggeredActions'
 import { fetchShowStyleBaseLight } from '../optimizations'
 import {
@@ -178,15 +177,17 @@ async function apiRemoveTriggeredActions(context: MethodContext, id: TriggeredAc
 	await removeTriggeredActions(id)
 }
 
-class ServerTriggeredActionsAPI
+export class ServerTriggeredActionsAPI
 	extends MethodContextAPI
 	implements ReplaceOptionalWithNullInMethodArguments<NewTriggeredActionsAPI>
 {
-	async createTriggeredActions(showStyleBaseId: ShowStyleBaseId | null, base: CreateTriggeredActionsContent | null) {
+	async createTriggeredActions(
+		showStyleBaseId: ShowStyleBaseId | null,
+		base: CreateTriggeredActionsContent | null
+	): Promise<TriggeredActionId> {
 		return apiCreateTriggeredActions(this, showStyleBaseId, base)
 	}
-	async removeTriggeredActions(triggeredActionId: TriggeredActionId) {
+	async removeTriggeredActions(triggeredActionId: TriggeredActionId): Promise<void> {
 		return apiRemoveTriggeredActions(this, triggeredActionId)
 	}
 }
-registerClassToMeteorMethods(TriggeredActionsAPIMethods, ServerTriggeredActionsAPI, false)

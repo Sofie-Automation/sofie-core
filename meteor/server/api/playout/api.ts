@@ -1,8 +1,5 @@
-import { registerClassToMeteorMethods, MeteorDebugMethods } from '../../methods'
-import { NewPlayoutAPI, PlayoutAPIMethods } from '@sofie-automation/meteor-lib/dist/api/playout'
+import { NewPlayoutAPI } from '@sofie-automation/meteor-lib/dist/api/playout'
 import { ServerPlayoutAPI } from './playout'
-import { getCurrentTime } from '../../lib/lib'
-import { logger } from '../../logging'
 import { MethodContextAPI } from '../methodContext'
 import { QueueStudioJob } from '../../worker/worker'
 import { StudioJobs } from '@sofie-automation/corelib/dist/worker/studio'
@@ -15,14 +12,14 @@ import { Meteor } from 'meteor/meteor'
 
 const PERMISSIONS_FOR_STUDIO_BASELINE: Array<keyof UserPermissions> = ['configure', 'studio']
 
-class ServerPlayoutAPIClass extends MethodContextAPI implements NewPlayoutAPI {
+export class ServerPlayoutAPIClass extends MethodContextAPI implements NewPlayoutAPI {
 	async updateStudioBaseline(studioId: StudioId): Promise<string | false> {
 		assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_STUDIO_BASELINE)
 
 		const res = await QueueStudioJob(StudioJobs.UpdateStudioBaseline, studioId, undefined)
 		return res.complete
 	}
-	async shouldUpdateStudioBaseline(studioId: StudioId) {
+	async shouldUpdateStudioBaseline(studioId: StudioId): Promise<string | false> {
 		assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_STUDIO_BASELINE)
 
 		const studio = await Studios.findOneAsync(studioId)
@@ -31,13 +28,3 @@ class ServerPlayoutAPIClass extends MethodContextAPI implements NewPlayoutAPI {
 		return ServerPlayoutAPI.shouldUpdateStudioBaseline(studio)
 	}
 }
-registerClassToMeteorMethods(PlayoutAPIMethods, ServerPlayoutAPIClass, false)
-
-// Temporary methods
-MeteorDebugMethods({
-	debug__printTime: () => {
-		const now = getCurrentTime()
-		logger.debug(new Date(now))
-		return now
-	},
-})
