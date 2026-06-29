@@ -8,11 +8,11 @@ import { ReadonlyDeep } from 'type-fest'
 import {
 	CustomPublish,
 	CustomPublishCollection,
-	meteorCustomPublish,
 	setUpCollectionOptimizedObserver,
 	SetupObserversResult,
 	TriggerUpdate,
 } from '../lib/customPublication'
+import type { PublicationRegistry } from '../publicationRegistry'
 import { logger } from '../logging'
 import { RundownPlaylists, Rundowns } from '../collections'
 import {
@@ -152,28 +152,31 @@ async function startOrJoinExternalEventSubscriptionsPublication(
 	)
 }
 
-meteorCustomPublish(
-	PeripheralDevicePubSub.externalEventSubscriptionsForDevice,
-	PeripheralDevicePubSubCollectionsNames.externalEventSubscriptions,
-	async function (
-		pub: CustomPublish<ExternalEventSubscriptionDocument>,
-		type: PeripheralDeviceExternalEvent['type'],
-		deviceId: PeripheralDeviceId,
-		token: string | undefined
-	) {
-		check(deviceId, String)
-		check(type, String)
+export function registerExternalEventSubscriptionsPublications(registry: PublicationRegistry): void {
+	registry.customPublish(
+		PeripheralDevicePubSub.externalEventSubscriptionsForDevice,
+		PeripheralDevicePubSubCollectionsNames.externalEventSubscriptions,
+		async (
+			context,
+			pub: CustomPublish<ExternalEventSubscriptionDocument>,
+			type: PeripheralDeviceExternalEvent['type'],
+			deviceId: PeripheralDeviceId,
+			token: string | undefined
+		) => {
+			check(deviceId, String)
+			check(type, String)
 
-		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, this)
+			const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, context)
 
-		const studioId = peripheralDevice.studioAndConfigId?.studioId
-		if (!studioId) {
-			logger.warn(
-				`Publication ${PeripheralDevicePubSub.externalEventSubscriptionsForDevice}: device ${deviceId} has no studio`
-			)
-			return
+			const studioId = peripheralDevice.studioAndConfigId?.studioId
+			if (!studioId) {
+				logger.warn(
+					`Publication ${PeripheralDevicePubSub.externalEventSubscriptionsForDevice}: device ${deviceId} has no studio`
+				)
+				return
+			}
+
+			await startOrJoinExternalEventSubscriptionsPublication(pub, studioId, type)
 		}
-
-		await startOrJoinExternalEventSubscriptionsPublication(pub, studioId, type)
-	}
-)
+	)
+}

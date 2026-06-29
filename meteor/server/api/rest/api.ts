@@ -12,6 +12,7 @@ import { createLegacyApiRouter } from './v0/index'
 import { heapSnapshotPrivateApiRouter } from '../heapSnapshot'
 import { getRootSubpath } from '../../lib'
 import type { MethodRegistry } from '../../methodRegistry'
+import type { PublicationRegistry } from '../../publicationRegistry'
 
 const LATEST_REST_API = 'v1.0'
 
@@ -20,7 +21,7 @@ async function redirectToLatest(ctx: koa.ParameterizedContext, _next: koa.Next):
 	ctx.status = 307
 }
 
-export function bindRestApiRouter(methodRegistry: MethodRegistry): void {
+export function bindRestApiRouter(methodRegistry: MethodRegistry, publicationRegistry: PublicationRegistry): void {
 	const apiRouter = new KoaRouter()
 
 	apiRouter.get('/', redirectToLatest)
@@ -45,7 +46,7 @@ export function bindRestApiRouter(methodRegistry: MethodRegistry): void {
 	)
 
 	// Needs to be lazily generated
-	const legacyApiRouter = createLegacyApiRouter(methodRegistry)
+	const legacyApiRouter = createLegacyApiRouter(methodRegistry, publicationRegistry)
 	apiRouter.use('/0', legacyApiRouter.routes(), legacyApiRouter.allowedMethods())
 
 	bindKoaRouter(apiRouter, '/api')

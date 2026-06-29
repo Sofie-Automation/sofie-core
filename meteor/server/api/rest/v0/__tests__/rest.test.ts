@@ -2,6 +2,7 @@ import { MeteorMock } from '../../../../../__mocks__/meteor'
 import { Meteor } from 'meteor/meteor'
 import { UserActionAPIMethods } from '@sofie-automation/meteor-lib/dist/api/userActions'
 import { MethodRegistry, AnyMethodApiRegistration } from '../../../../methodRegistry'
+import { PublicationRegistry } from '../../../../publicationRegistry'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { callKoaRoute } from '../../../../../__mocks__/koa-util'
 import { createLegacyApiRouter } from '..'
@@ -25,7 +26,8 @@ describe('REST API', () => {
 		} as unknown as AnyMethodApiRegistration)
 		methodRegistry.applyToMeteor() // register the methods on the (mock) Meteor server
 		const methodSignatures = methodRegistry.getSignatures()
-		const legacyApiRouter = createLegacyApiRouter(methodRegistry)
+		const publicationRegistry = new PublicationRegistry()
+		const legacyApiRouter = createLegacyApiRouter(methodRegistry, publicationRegistry)
 
 		test('calls the UserActionAPI methods, when doing a POST to the endpoint', async () => {
 			for (const [methodName, methodValue] of Object.entries<any>(UserActionAPIMethods)) {
