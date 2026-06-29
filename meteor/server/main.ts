@@ -51,12 +51,10 @@ import './logo'
 import './systemTime'
 // import './performanceMonitor' // called above
 
-// Setup publications and security:
-import './publications/_publications'
-import './security/securityVerify'
-
 import { MethodRegistry } from './methodRegistry'
 import { registerAllApiMethods } from './methodRegistrations'
+import { PublicationRegistry } from './publicationRegistry'
+import { registerAllPublications } from './publicationRegistrations'
 import { bindRestApiRouter } from './api/rest/api'
 import { startupVerifyAllMethods } from './security/securityVerify'
 
@@ -64,9 +62,17 @@ import { startupVerifyAllMethods } from './security/securityVerify'
 const methodRegistry = new MethodRegistry()
 registerAllApiMethods(methodRegistry)
 
-// Apply methods
+// Build and populate the publication registry
+const publicationRegistry = new PublicationRegistry()
+registerAllPublications(publicationRegistry)
+
+// Apply methods and publications
 methodRegistry.applyToMeteor()
+publicationRegistry.applyToMeteor()
 Meteor.startup(() => {
-	bindRestApiRouter(methodRegistry)
+	bindRestApiRouter(methodRegistry, publicationRegistry)
 	startupVerifyAllMethods(methodRegistry)
+
+	// Ensure all the publications were registered at startup
+	if (Meteor.isDevelopment) publicationRegistry.verifyAllPublicationsRegistered()
 })

@@ -1,67 +1,31 @@
-import { Meteor, Subscription } from 'meteor/meteor'
+import { Meteor } from 'meteor/meteor'
 import { AllPubSubCollections, AllPubSubTypes } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { extractFunctionSignature } from '../../lib'
-import { protectStringObject } from '@sofie-automation/corelib/dist/protectedString'
-import { MetricsGauge } from '@sofie-automation/corelib/dist/prometheus'
-import { MinimalMongoCursor } from '../../collections/implementations/asyncCollection'
-
-export const MeteorPublicationSignatures: { [key: string]: string[] } = {}
-// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-export const MeteorPublications: { [key: string]: Function } = {}
-
-const MeteorPublicationsGauge = new MetricsGauge({
-	name: `sofie_meteor_publication_subscribers_total`,
-	help: 'Number of subscribers on a Meteor publication (ignoring arguments)',
-	labelNames: ['publication'],
-})
-
-export type SubscriptionContext = Omit<Subscription, 'userId'>
 
 /**
- * Unsafe wrapper around Meteor.publish
- * @param name
- * @param callback
+ * The context handed to a publication callback.
  */
-export function meteorPublishUnsafe(
-	name: string,
-	callback: (this: SubscriptionContext, ...args: any) => Promise<any>
-): void {
-	const signature = extractFunctionSignature(callback)
-	if (signature) MeteorPublicationSignatures[name] = signature
+export interface PublicationContext {
+	/** The client connection that opened this subscription. Used by the auth layer for permission checks. */
+	readonly connection: Meteor.Connection | null
 
-	MeteorPublications[name] = callback
+	/** Register a function to be called when the subscriber unsubscribes. */
+	onStop(callback: () => void): void
 
-	const publicationGauge = MeteorPublicationsGauge.labels({ publication: name })
+	/** Mark the subscription as ready (i.e. the initial set of documents has been sent). */
+	ready(): void
 
-	Meteor.publish(name, async function (...args: any[]): Promise<any> {
-		publicationGauge.inc()
-		this.onStop(() => publicationGauge.dec())
-
-		const callbackRes = await callback.apply(protectStringObject<Subscription, 'userId'>(this), args)
-		// If no value is returned, return an empty array so that meteor marks the subscription as ready
-		return callbackRes || []
-	})
+	/** Send an added document to the subscriber. */
+	added(collection: string, id: string, fields: Record<string, unknown>): void
+	/** Send a changed document (changed fields only) to the subscriber. */
+	changed(collection: string, id: string, fields: Record<string, unknown>): void
+	/** Send a removed document to the subscriber. */
+	removed(collection: string, id: string): void
 }
 
 export type PublishDocType<K extends keyof AllPubSubTypes> =
 	ReturnType<AllPubSubTypes[K]> extends keyof AllPubSubCollections
 		? AllPubSubCollections[ReturnType<AllPubSubTypes[K]>]
 		: never
-
-/**
- * Wrapper around Meteor.publish with stricter typings
- * @param name
- * @param callback
- */
-export function meteorPublish<K extends keyof AllPubSubTypes>(
-	name: K,
-	callback: (
-		this: SubscriptionContext,
-		...args: Parameters<AllPubSubTypes[K]>
-	) => Promise<MinimalMongoCursor<PublishDocType<K>> | null>
-): void {
-	meteorPublishUnsafe(name, callback)
-}
 
 /**
  * Await each observer, and return the handles

@@ -3,7 +3,6 @@ import { ReadonlyDeep } from 'type-fest'
 import {
 	CustomPublish,
 	CustomPublishCollection,
-	meteorCustomPublish,
 	setUpCollectionOptimizedObserver,
 	SetupObserversResult,
 	TriggerUpdate,
@@ -24,6 +23,7 @@ import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { createIngestRundownStatus } from './createIngestRundownStatus'
 import { assertConnectionHasOneOfPermissions } from '../../security/auth'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
+import type { PublicationRegistry } from '../../publicationRegistry'
 
 interface IngestRundownStatusArgs {
 	readonly deviceId: PeripheralDeviceId
@@ -192,26 +192,28 @@ async function startOrJoinIngestStatusPublication(
 	)
 }
 
-meteorCustomPublish(
-	PeripheralDevicePubSub.ingestDeviceRundownStatus,
-	PeripheralDevicePubSubCollectionsNames.ingestRundownStatus,
-	async function (pub, deviceId: PeripheralDeviceId, token: string | undefined) {
-		check(deviceId, String)
+export function registerIngestStatusPublications(registry: PublicationRegistry): void {
+	registry.customPublish(
+		PeripheralDevicePubSub.ingestDeviceRundownStatus,
+		PeripheralDevicePubSubCollectionsNames.ingestRundownStatus,
+		async (context, pub, deviceId: PeripheralDeviceId, token: string | undefined) => {
+			check(deviceId, String)
 
-		await checkAccessAndGetPeripheralDevice(deviceId, token, this)
+			await checkAccessAndGetPeripheralDevice(deviceId, token, context)
 
-		await startOrJoinIngestStatusPublication(pub, deviceId)
-	}
-)
+			await startOrJoinIngestStatusPublication(pub, deviceId)
+		}
+	)
 
-meteorCustomPublish(
-	MeteorPubSub.ingestDeviceRundownStatusTestTool,
-	PeripheralDevicePubSubCollectionsNames.ingestRundownStatus,
-	async function (pub, deviceId: PeripheralDeviceId) {
-		check(deviceId, String)
+	registry.customPublish(
+		MeteorPubSub.ingestDeviceRundownStatusTestTool,
+		PeripheralDevicePubSubCollectionsNames.ingestRundownStatus,
+		async (context, pub, deviceId: PeripheralDeviceId) => {
+			check(deviceId, String)
 
-		assertConnectionHasOneOfPermissions(this.connection, 'testing')
+			assertConnectionHasOneOfPermissions(context.connection, 'testing')
 
-		await startOrJoinIngestStatusPublication(pub, deviceId)
-	}
-)
+			await startOrJoinIngestStatusPublication(pub, deviceId)
+		}
+	)
+}

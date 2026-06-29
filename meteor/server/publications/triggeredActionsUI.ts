@@ -9,7 +9,6 @@ import {
 import { Complete, literal } from '@sofie-automation/corelib/dist/lib'
 import {
 	CustomPublishCollection,
-	meteorCustomPublish,
 	setUpCollectionOptimizedObserver,
 	SetupObserversResult,
 	TriggerUpdate,
@@ -18,6 +17,7 @@ import { TriggeredActions } from '../collections'
 import { check, Match } from 'meteor/check'
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { triggerWriteAccessBecauseNoCheckNecessary } from '../security/securityVerify'
+import type { PublicationRegistry } from '../publicationRegistry'
 
 interface UITriggeredActionsArgs {
 	readonly showStyleBaseId: ShowStyleBaseId | null
@@ -105,25 +105,27 @@ async function manipulateUITriggeredActionsPublicationData(
 	}
 }
 
-meteorCustomPublish(
-	MeteorPubSub.uiTriggeredActions,
-	CustomCollectionName.UITriggeredActions,
-	async function (pub, showStyleBaseId: ShowStyleBaseId | null) {
-		check(showStyleBaseId, Match.Maybe(String))
+export function registerTriggeredActionsUIPublications(registry: PublicationRegistry): void {
+	registry.customPublish(
+		MeteorPubSub.uiTriggeredActions,
+		CustomCollectionName.UITriggeredActions,
+		async (_context, pub, showStyleBaseId: ShowStyleBaseId | null) => {
+			check(showStyleBaseId, Match.Maybe(String))
 
-		triggerWriteAccessBecauseNoCheckNecessary()
+			triggerWriteAccessBecauseNoCheckNecessary()
 
-		await setUpCollectionOptimizedObserver<
-			UITriggeredActionsObj,
-			UITriggeredActionsArgs,
-			UITriggeredActionsState,
-			UITriggeredActionsUpdateProps
-		>(
-			`pub_${MeteorPubSub.uiTriggeredActions}_${showStyleBaseId}`,
-			{ showStyleBaseId },
-			setupUITriggeredActionsPublicationObservers,
-			manipulateUITriggeredActionsPublicationData,
-			pub
-		)
-	}
-)
+			await setUpCollectionOptimizedObserver<
+				UITriggeredActionsObj,
+				UITriggeredActionsArgs,
+				UITriggeredActionsState,
+				UITriggeredActionsUpdateProps
+			>(
+				`pub_${MeteorPubSub.uiTriggeredActions}_${showStyleBaseId}`,
+				{ showStyleBaseId },
+				setupUITriggeredActionsPublicationObservers,
+				manipulateUITriggeredActionsPublicationData,
+				pub
+			)
+		}
+	)
+}

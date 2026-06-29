@@ -1,11 +1,11 @@
 import { DBStudio, StudioPackageContainer } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import {
 	TriggerUpdate,
-	meteorCustomPublish,
 	setUpCollectionOptimizedObserver,
 	CustomPublishCollection,
 	SetupObserversResult,
 } from '../../../lib/customPublication'
+import type { PublicationRegistry } from '../../../publicationRegistry'
 import { literal, omit } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { logger } from '../../../logging'
@@ -235,40 +235,43 @@ function updatePackagePriorities(
 	})
 }
 
-meteorCustomPublish(
-	PeripheralDevicePubSub.packageManagerExpectedPackages,
-	PeripheralDevicePubSubCollectionsNames.packageManagerExpectedPackages,
-	async function (
-		pub,
-		deviceId: PeripheralDeviceId,
-		filterPlayoutDeviceIds: PeripheralDeviceId[] | undefined,
-		token: string | undefined
-	) {
-		check(deviceId, String)
-		check(filterPlayoutDeviceIds, Match.Maybe([String]))
-
-		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, this)
-
-		const studioId = peripheralDevice.studioAndConfigId?.studioId
-		if (!studioId) {
-			logger.warn(`Pub.packageManagerExpectedPackages: device "${peripheralDevice._id}" has no studioId`)
-			return this.ready()
-		}
-
-		await setUpCollectionOptimizedObserver<
-			PackageManagerExpectedPackage,
-			ExpectedPackagesPublicationArgs,
-			ExpectedPackagesPublicationState,
-			ExpectedPackagesPublicationUpdateProps
-		>(
-			`${PeripheralDevicePubSub.packageManagerExpectedPackages}_${studioId}_${deviceId}_${JSON.stringify(
-				(filterPlayoutDeviceIds || []).sort()
-			)}`,
-			{ studioId, deviceId, filterPlayoutDeviceIds },
-			setupExpectedPackagesPublicationObservers,
-			manipulateExpectedPackagesPublicationData,
+export function registerExpectedPackagesPublications(registry: PublicationRegistry): void {
+	registry.customPublish(
+		PeripheralDevicePubSub.packageManagerExpectedPackages,
+		PeripheralDevicePubSubCollectionsNames.packageManagerExpectedPackages,
+		async (
+			context,
 			pub,
-			500 // ms, wait this time before sending an update
-		)
-	}
-)
+			deviceId: PeripheralDeviceId,
+			filterPlayoutDeviceIds: PeripheralDeviceId[] | undefined,
+			token: string | undefined
+		) => {
+			check(deviceId, String)
+			check(filterPlayoutDeviceIds, Match.Maybe([String]))
+
+			const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, context)
+
+			const studioId = peripheralDevice.studioAndConfigId?.studioId
+			if (!studioId) {
+				logger.warn(`Pub.packageManagerExpectedPackages: device "${peripheralDevice._id}" has no studioId`)
+				return context.ready()
+			}
+
+			await setUpCollectionOptimizedObserver<
+				PackageManagerExpectedPackage,
+				ExpectedPackagesPublicationArgs,
+				ExpectedPackagesPublicationState,
+				ExpectedPackagesPublicationUpdateProps
+			>(
+				`${PeripheralDevicePubSub.packageManagerExpectedPackages}_${studioId}_${deviceId}_${JSON.stringify(
+					(filterPlayoutDeviceIds || []).sort()
+				)}`,
+				{ studioId, deviceId, filterPlayoutDeviceIds },
+				setupExpectedPackagesPublicationObservers,
+				manipulateExpectedPackagesPublicationData,
+				pub,
+				500 // ms, wait this time before sending an update
+			)
+		}
+	)
+}

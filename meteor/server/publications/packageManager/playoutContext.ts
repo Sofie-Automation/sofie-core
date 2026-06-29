@@ -7,12 +7,8 @@ import { PackageManagerPlayoutContext } from '@sofie-automation/shared-lib/dist/
 import { check } from 'meteor/check'
 import { ReadonlyDeep } from 'type-fest'
 import { RundownPlaylists, Rundowns } from '../../collections'
-import {
-	meteorCustomPublish,
-	SetupObserversResult,
-	setUpOptimizedObserverArray,
-	TriggerUpdate,
-} from '../../lib/customPublication'
+import { SetupObserversResult, setUpOptimizedObserverArray, TriggerUpdate } from '../../lib/customPublication'
+import type { PublicationRegistry } from '../../publicationRegistry'
 import { logger } from '../../logging'
 import {
 	PeripheralDevicePubSub,
@@ -107,32 +103,34 @@ async function manipulateExpectedPackagesPublicationData(
 	])
 }
 
-meteorCustomPublish(
-	PeripheralDevicePubSub.packageManagerPlayoutContext,
-	PeripheralDevicePubSubCollectionsNames.packageManagerPlayoutContext,
-	async function (pub, deviceId: PeripheralDeviceId, token: string | undefined) {
-		check(deviceId, String)
+export function registerPlayoutContextPublications(registry: PublicationRegistry): void {
+	registry.customPublish(
+		PeripheralDevicePubSub.packageManagerPlayoutContext,
+		PeripheralDevicePubSubCollectionsNames.packageManagerPlayoutContext,
+		async (context, pub, deviceId: PeripheralDeviceId, token: string | undefined) => {
+			check(deviceId, String)
 
-		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, this)
+			const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, context)
 
-		const studioId = peripheralDevice.studioAndConfigId?.studioId
-		if (!studioId) {
-			logger.warn(`Pub.packageManagerPlayoutContext: device "${peripheralDevice._id}" has no studioId`)
-			return this.ready()
+			const studioId = peripheralDevice.studioAndConfigId?.studioId
+			if (!studioId) {
+				logger.warn(`Pub.packageManagerPlayoutContext: device "${peripheralDevice._id}" has no studioId`)
+				return context.ready()
+			}
+
+			await setUpOptimizedObserverArray<
+				PackageManagerPlayoutContext,
+				PackageManagerPlayoutContextArgs,
+				PackageManagerPlayoutContextState,
+				PackageManagerPlayoutContextUpdateProps
+			>(
+				`${PeripheralDevicePubSub.packageManagerPlayoutContext}_${studioId}_${deviceId}`,
+				{ studioId, deviceId },
+				setupExpectedPackagesPublicationObservers,
+				manipulateExpectedPackagesPublicationData,
+				pub,
+				500 // ms, wait this time before sending an update
+			)
 		}
-
-		await setUpOptimizedObserverArray<
-			PackageManagerPlayoutContext,
-			PackageManagerPlayoutContextArgs,
-			PackageManagerPlayoutContextState,
-			PackageManagerPlayoutContextUpdateProps
-		>(
-			`${PeripheralDevicePubSub.packageManagerPlayoutContext}_${studioId}_${deviceId}`,
-			{ studioId, deviceId },
-			setupExpectedPackagesPublicationObservers,
-			manipulateExpectedPackagesPublicationData,
-			pub,
-			500 // ms, wait this time before sending an update
-		)
-	}
-)
+	)
+}
