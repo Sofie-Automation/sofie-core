@@ -8,7 +8,6 @@ import {
 } from '@sofie-automation/corelib/dist/mongo'
 import { ProtectedString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { Meteor } from 'meteor/meteor'
-import { Mongo } from 'meteor/mongo'
 import {
 	UpdateOptions,
 	IndexSpecifier,
@@ -40,24 +39,10 @@ import { subscribeToCollectionChangeFeed } from '../changeStream/collectionChang
  * A stripped down version of a cursor, with only the async methods used by the codebase, plus the name of
  * the collection it came from (used by the publish layer to address DDP messages).
  */
-// nocommit - rethink me!
 export type MinimalMongoCursor<T extends { _id: ProtectedString<any> }> = Pick<
 	MongoCursor<T>,
 	'fetchAsync' | 'observeChangesAsync' | 'observeAsync' | 'countAsync'
-	// | 'forEach' | 'map' |
 > & { readonly collectionName: string | null }
-/**
- * A stripped down version of Meteor's Mongo.Collection, with only the methods used for the
- * reactive bridge (observing). The CRUD methods are handled by the native driver, see {@link getMongoDb}.
- * @deprecated This is a legacy type used for some mocking internals. It should be replaced
- */
-// nocommit - replace me!
-export type MinimalMeteorMongoCollection<T extends { _id: ProtectedString<any> }> = Pick<
-	Mongo.Collection<T>,
-	'insertAsync' | 'removeAsync' | 'updateAsync' | 'upsertAsync' | 'rawCollection' | 'createIndex'
-> & {
-	find: (...args: Parameters<Mongo.Collection<T>['find']>) => MinimalMongoCursor<T>
-}
 
 /**
  * Translate a meteor-lib {@link FindOptions} into the options the native `mongodb` driver accepts.

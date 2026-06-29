@@ -27,9 +27,8 @@ import {
 	UserActionsLog,
 } from '../collections'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { Mongo } from 'meteor/mongo'
 import { defaultStudio } from '../../__mocks__/defaultCollectionObjects'
-import { MinimalMeteorMongoCollection } from '../collections/implementations/asyncCollection'
+import { createMockCollection } from '../collections/implementations/mock'
 
 describe('Basic test of test environment', () => {
 	test('Meteor Random mock', () => {
@@ -143,28 +142,26 @@ describe('Basic test of test environment', () => {
 		const mockChanged = jest.fn()
 		const mockRemoved = jest.fn()
 
-		const collection = new Mongo.Collection<any>('testmock') as any as MinimalMeteorMongoCollection<any>
+		const collection = createMockCollection<any>('testmock')
 
-		await collection
-			.find({
+		await collection.observeChanges(
+			{
 				prop: 'b',
-			})
-			.observeChangesAsync({
+			},
+			{
 				added: mockAdded,
 				changed: mockChanged,
 				removed: mockRemoved,
-			})
+			}
+		)
 
-		expect(await collection.find({}).fetchAsync()).toHaveLength(0)
+		expect(await collection.findFetchAsync({})).toHaveLength(0)
 
 		const id = await collection.insertAsync({ prop: 'a' })
 		expect(id).toBeTruthy()
-		expect(await collection.find({}).fetchAsync()).toHaveLength(1)
-		// expect(collection.findOne(id)).toMatchObject({
-		// 	prop: 'a',
-		// })
+		expect(await collection.findFetchAsync({})).toHaveLength(1)
 		expect(await collection.removeAsync(id)).toEqual(1)
-		expect(await collection.find({}).fetchAsync()).toHaveLength(0)
+		expect(await collection.findFetchAsync({})).toHaveLength(0)
 
 		expect(mockAdded).toHaveBeenCalledTimes(0)
 		expect(mockChanged).toHaveBeenCalledTimes(0)

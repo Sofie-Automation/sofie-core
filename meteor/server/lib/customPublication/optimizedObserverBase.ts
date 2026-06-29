@@ -1,6 +1,5 @@
 import deepmerge from 'deepmerge'
 import { Meteor } from 'meteor/meteor'
-import { Mongo } from 'meteor/mongo'
 import { ReadonlyDeep } from 'type-fest'
 import { clone } from '@sofie-automation/corelib/dist/lib'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
@@ -210,7 +209,7 @@ async function createOptimizedObserverWorker<
 		pendingUpdate = deepmerge(pendingUpdate, updateProps, {
 			isMergeableObject: (obj) => {
 				// Ensure any Mongo collections aren't cloned, as they will break
-				if (obj instanceof Mongo.Collection || obj instanceof InMemoryMongoCollection) {
+				if (obj instanceof InMemoryMongoCollection) {
 					return false
 				}
 
