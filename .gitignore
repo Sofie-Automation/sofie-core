@@ -1,5 +1,6 @@
 _gsdata_/
 settings.json
+.env
 meteor/.coverage/
 node_modules
 **/yarn-error.log
