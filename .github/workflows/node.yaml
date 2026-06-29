@@ -27,7 +27,7 @@ jobs:
           node-version-file: ".node-version"
       - uses: ./.github/actions/setup-meteor
       - name: restore node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             node_modules
@@ -68,7 +68,7 @@ jobs:
           node-version-file: ".node-version"
       - uses: ./.github/actions/setup-meteor
       - name: restore node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             node_modules
@@ -120,7 +120,7 @@ jobs:
           node-version-file: ".node-version"
       - uses: ./.github/actions/setup-meteor
       - name: restore node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             node_modules
@@ -290,7 +290,7 @@ jobs:
         with:
           node-version-file: ".node-version"
       - name: restore node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             packages/node_modules
@@ -423,7 +423,7 @@ jobs:
           node-version-file: ".node-version"
       - uses: ./.github/actions/setup-meteor
       - name: restore node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             node_modules
@@ -502,7 +502,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - name: restore node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             packages/node_modules
@@ -614,7 +614,7 @@ jobs:
           node-version-file: ".node-version"
       - uses: ./.github/actions/setup-meteor
       - name: restore node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             packages/node_modules
@@ -661,7 +661,7 @@ jobs:
           node-version-file: ".node-version"
       - uses: ./.github/actions/setup-meteor
       - name: restore node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             node_modules
