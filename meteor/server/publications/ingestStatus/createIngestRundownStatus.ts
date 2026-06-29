@@ -10,7 +10,7 @@ import {
 import type { ReadonlyDeep } from 'type-fest'
 import _ from 'underscore'
 import type { ContentCache, PartCompact, PartInstanceCompact, PlaylistCompact } from './reactiveContentCache'
-import { ReactiveCacheCollection } from '../lib/ReactiveCacheCollection'
+import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 
 export function createIngestRundownStatus(
@@ -38,13 +38,13 @@ export function createIngestRundownStatus(
 		newDoc.active = playlist.rehearsal ? IngestRundownActiveStatus.REHEARSAL : IngestRundownActiveStatus.ACTIVE
 	}
 
-	const nrcsSegments = cache.NrcsIngestData.find({ rundownId, type: NrcsIngestCacheType.SEGMENT }).fetch()
+	const nrcsSegments = cache.NrcsIngestData.findFetch({ rundownId, type: NrcsIngestCacheType.SEGMENT })
 	for (const nrcsSegment of nrcsSegments) {
-		const nrcsParts = cache.NrcsIngestData.find({
+		const nrcsParts = cache.NrcsIngestData.findFetch({
 			rundownId,
 			segmentId: nrcsSegment.segmentId,
 			type: NrcsIngestCacheType.PART,
-		}).fetch()
+		})
 
 		newDoc.segments.push({
 			externalId: nrcsSegment.data.externalId,
@@ -52,7 +52,7 @@ export function createIngestRundownStatus(
 				nrcsParts.map((nrcsPart) => {
 					if (!nrcsPart.partId || !nrcsPart.segmentId) return null
 
-					const parts = cache.Parts.find({
+					const parts = cache.Parts.findFetch({
 						rundownId: rundownId,
 						$or: [
 							{
@@ -63,7 +63,7 @@ export function createIngestRundownStatus(
 								ingestNotifyPartExternalId: nrcsPart.data.externalId,
 							},
 						],
-					}).fetch()
+					})
 					const partInstances = findPartInstancesForIngestPart(
 						playlist,
 						rundownId,
@@ -83,26 +83,24 @@ export function createIngestRundownStatus(
 function findPartInstancesForIngestPart(
 	playlist: PlaylistCompact | undefined,
 	rundownId: RundownId,
-	partInstancesCache: ReadonlyDeep<ReactiveCacheCollection<PartInstanceCompact>>,
+	partInstancesCache: ReadonlyDeep<InMemoryMongoCollection<PartInstanceCompact>>,
 	partExternalId: string
 ) {
 	const result: Record<string, PartInstanceCompact> = {}
 	if (!playlist) return result
 
-	const candidatePartInstances = partInstancesCache
-		.find({
-			rundownId: rundownId,
-			$or: [
-				{
-					'part.externalId': partExternalId,
-					'part.ingestNotifyPartExternalId': { $exists: false },
-				},
-				{
-					'part.ingestNotifyPartExternalId': partExternalId,
-				},
-			],
-		})
-		.fetch()
+	const candidatePartInstances = partInstancesCache.findFetch({
+		rundownId: rundownId,
+		$or: [
+			{
+				'part.externalId': partExternalId,
+				'part.ingestNotifyPartExternalId': { $exists: false },
+			},
+			{
+				'part.ingestNotifyPartExternalId': partExternalId,
+			},
+		],
+	})
 
 	for (const partInstance of candidatePartInstances) {
 		if (partInstance.rundownId !== rundownId) continue

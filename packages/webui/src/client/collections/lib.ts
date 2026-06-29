@@ -131,7 +131,7 @@ export function createSyncReadOnlyMongoCollection<DBInterface extends { _id: Pro
 export function createSyncCustomPublicationMongoCollection<
 	K extends CustomCollectionName & keyof MeteorPubSubCustomCollections,
 >(name: K): MongoReadOnlyCollection<MeteorPubSubCustomCollections[K]> {
-	const collection = new Mongo.Collection<MeteorPubSubCustomCollections[K]>(name)
+	const collection = getOrCreateMongoCollection(name) as Mongo.Collection<MeteorPubSubCustomCollections[K]>
 	const wrapped = new WrappedMongoReadOnlyCollection<MeteorPubSubCustomCollections[K]>(collection, name)
 
 	if (PublicationCollections.has(name)) throw new Meteor.Error(`Cannot re-register collection "${name}"`)
@@ -143,7 +143,7 @@ export function createSyncCustomPublicationMongoCollection<
 export function createSyncCorelibCustomPublicationMongoCollection<
 	K extends CustomCorelibCollectionName & keyof CorelibPubSubCustomCollections,
 >(name: K): MongoReadOnlyCollection<CorelibPubSubCustomCollections[K]> {
-	const collection = new Mongo.Collection<CorelibPubSubCustomCollections[K]>(name)
+	const collection = getOrCreateMongoCollection(name) as Mongo.Collection<CorelibPubSubCustomCollections[K]>
 	const wrapped = new WrappedMongoReadOnlyCollection<CorelibPubSubCustomCollections[K]>(collection, name)
 
 	if (PublicationCollections.has(name)) throw new Meteor.Error(`Cannot re-register collection "${name}"`)
@@ -155,7 +155,7 @@ export function createSyncCorelibCustomPublicationMongoCollection<
 export function createSyncPeripheralDeviceCustomPublicationMongoCollection<
 	K extends PeripheralDevicePubSubCollectionsNames & keyof PeripheralDevicePubSubCollections,
 >(name: K): MongoReadOnlyCollection<PeripheralDevicePubSubCollections[K]> {
-	const collection = new Mongo.Collection<PeripheralDevicePubSubCollections[K]>(name)
+	const collection = getOrCreateMongoCollection(name) as Mongo.Collection<PeripheralDevicePubSubCollections[K]>
 	const wrapped = new WrappedMongoReadOnlyCollection<PeripheralDevicePubSubCollections[K]>(collection, name)
 
 	if (PublicationCollections.has(name)) throw new Meteor.Error(`Cannot re-register collection "${name}"`)

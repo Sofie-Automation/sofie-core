@@ -1,4 +1,4 @@
-import { ReactiveCacheCollection } from '../../lib/ReactiveCacheCollection'
+import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { MongoFieldSpecifierOnesStrict } from '@sofie-automation/corelib/dist/mongo'
 import { ExpectedPackageDB } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
@@ -37,16 +37,16 @@ export const expectedPackageDBFieldsSpecifier = literal<MongoFieldSpecifierOnesS
 })
 
 export interface ExpectedPackagesContentCache {
-	ExpectedPackages: ReactiveCacheCollection<ExpectedPackageDBCompact>
-	RundownPlaylists: ReactiveCacheCollection<RundownPlaylistCompact>
-	PieceInstances: ReactiveCacheCollection<PieceInstanceCompact>
+	ExpectedPackages: InMemoryMongoCollection<ExpectedPackageDBCompact>
+	RundownPlaylists: InMemoryMongoCollection<RundownPlaylistCompact>
+	PieceInstances: InMemoryMongoCollection<PieceInstanceCompact>
 }
 
 export function createReactiveContentCache(): ExpectedPackagesContentCache {
 	const cache: ExpectedPackagesContentCache = {
-		ExpectedPackages: new ReactiveCacheCollection<ExpectedPackageDBCompact>('expectedPackages'),
-		RundownPlaylists: new ReactiveCacheCollection<RundownPlaylistCompact>('rundownPlaylists'),
-		PieceInstances: new ReactiveCacheCollection<PieceInstanceCompact>('pieceInstances'),
+		ExpectedPackages: new InMemoryMongoCollection<ExpectedPackageDBCompact>('expectedPackages'),
+		RundownPlaylists: new InMemoryMongoCollection<RundownPlaylistCompact>('rundownPlaylists'),
+		PieceInstances: new InMemoryMongoCollection<PieceInstanceCompact>('pieceInstances'),
 	}
 
 	return cache

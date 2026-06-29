@@ -250,6 +250,37 @@ describe('mockSetData / clear', () => {
 	})
 })
 
+describe('onChange', () => {
+	test('fires on writes, not on mockSetData/clear; stop() unsubscribes', () => {
+		const c = makeCollection()
+		const cb = jest.fn()
+		const handle = c.onChange(cb)
+
+		c.insert(thing('a'))
+		expect(cb).toHaveBeenCalledTimes(1)
+
+		c.update('a' as any, { $set: { rank: 2 } })
+		c.remove('a' as any)
+		expect(cb).toHaveBeenCalledTimes(3)
+
+		cb.mockClear()
+		c.mockSetData([thing('b')])
+		c.clear()
+		expect(cb).not.toHaveBeenCalled()
+
+		handle.stop()
+		c.insert(thing('d'))
+		expect(cb).not.toHaveBeenCalled()
+	})
+
+	test('can be registered via constructor options', () => {
+		const cb = jest.fn()
+		const c = new InMemoryMongoCollection<Thing>('things', { onChange: cb })
+		c.insert(thing('a'))
+		expect(cb).toHaveBeenCalledTimes(1)
+	})
+})
+
 describe('observe (full document)', () => {
 	function spyCallbacks(): ObserveCallbacks<Thing> & {
 		added: jest.Mock

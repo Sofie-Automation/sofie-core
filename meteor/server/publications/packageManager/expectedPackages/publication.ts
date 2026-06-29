@@ -7,7 +7,6 @@ import {
 	SetupObserversResult,
 } from '../../../lib/customPublication'
 import { literal, omit } from '@sofie-automation/corelib/dist/lib'
-import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { logger } from '../../../logging'
 import { ReadonlyDeep } from 'type-fest'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
@@ -83,15 +82,15 @@ async function setupExpectedPackagesPublicationObservers(
 	return [
 		ExpectedPackagesContentObserver.create(args.studioId, contentCache),
 
-		contentCache.ExpectedPackages.find({}).observeChanges({
-			added: (id) => triggerUpdate({ invalidateExpectedPackageIds: [protectString<ExpectedPackageId>(id)] }),
-			changed: (id) => triggerUpdate({ invalidateExpectedPackageIds: [protectString<ExpectedPackageId>(id)] }),
-			removed: (id) => triggerUpdate({ invalidateExpectedPackageIds: [protectString<ExpectedPackageId>(id)] }),
+		contentCache.ExpectedPackages.observeChanges({
+			added: (id) => triggerUpdate({ invalidateExpectedPackageIds: [id] }),
+			changed: (id) => triggerUpdate({ invalidateExpectedPackageIds: [id] }),
+			removed: (id) => triggerUpdate({ invalidateExpectedPackageIds: [id] }),
 		}),
-		contentCache.PieceInstances.find({}).observeChanges({
-			added: (id) => triggerUpdate({ invalidatePieceInstanceIds: [protectString<PieceInstanceId>(id)] }),
-			changed: (id) => triggerUpdate({ invalidatePieceInstanceIds: [protectString<PieceInstanceId>(id)] }),
-			removed: (id) => triggerUpdate({ invalidatePieceInstanceIds: [protectString<PieceInstanceId>(id)] }),
+		contentCache.PieceInstances.observeChanges({
+			added: (id) => triggerUpdate({ invalidatePieceInstanceIds: [id] }),
+			changed: (id) => triggerUpdate({ invalidatePieceInstanceIds: [id] }),
+			removed: (id) => triggerUpdate({ invalidatePieceInstanceIds: [id] }),
 		}),
 
 		Studios.observeChanges(
@@ -171,7 +170,7 @@ async function manipulateExpectedPackagesPublicationData(
 	if (invalidateAllItems) {
 		// force every package to be regenerated
 		collection.remove(null)
-		regenerateExpectedPackageIds = new Set(state.contentCache.ExpectedPackages.find({}).map((p) => p._id))
+		regenerateExpectedPackageIds = new Set(state.contentCache.ExpectedPackages.findFetch({}).map((p) => p._id))
 	} else {
 		// only regenerate the reported changes
 		regenerateExpectedPackageIds = new Set(updateProps.invalidateExpectedPackageIds)
@@ -205,7 +204,7 @@ function updatePackagePriorities(
 	const packagePriorities = new Map<ExpectedPackageId, number>()
 
 	// Compile the map of the expected priority of each package
-	const knownPieceInstances = contentCache.PieceInstances.find({})
+	const knownPieceInstances = contentCache.PieceInstances.findFetch({})
 	const playlist = contentCache.RundownPlaylists.findOne({})
 	const currentPartInstanceId = playlist?.currentPartInfo?.partInstanceId
 	for (const pieceInstance of knownPieceInstances) {

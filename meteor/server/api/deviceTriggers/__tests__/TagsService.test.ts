@@ -8,7 +8,7 @@ import {
 	ShowStyleBaseId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ContentCache } from '../reactiveContentCacheForPieceInstances'
-import { ReactiveCacheCollection } from '../../../publications/lib/ReactiveCacheCollection'
+import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
@@ -43,10 +43,10 @@ const tag4 = 'tag4'
 
 function createAndPopulateMockCache(): ContentCache {
 	const newCache: ContentCache = {
-		RundownPlaylists: new ReactiveCacheCollection('rundownPlaylists'),
-		ShowStyleBases: new ReactiveCacheCollection('showStyleBases'),
-		PieceInstances: new ReactiveCacheCollection('pieceInstances'),
-		PartInstances: new ReactiveCacheCollection('partInstances'),
+		RundownPlaylists: new InMemoryMongoCollection('rundownPlaylists'),
+		ShowStyleBases: new InMemoryMongoCollection('showStyleBases'),
+		PieceInstances: new InMemoryMongoCollection('pieceInstances'),
+		PartInstances: new InMemoryMongoCollection('partInstances'),
 	}
 
 	newCache.RundownPlaylists.insert({
@@ -226,8 +226,9 @@ describe('TagsService', () => {
 		} as IWrappedAdLib)
 		testee.updatePieceInstances(cache, showStyleBaseId)
 
-		cache.PieceInstances.find({}).forEach((pieceInstance) => {
+		cache.PieceInstances.findFetch({}).forEach((pieceInstance) => {
 			pieceInstance.piece.tags = [tag2]
+			cache.PieceInstances.replace(pieceInstance)
 		})
 		const result = testee.updatePieceInstances(cache, showStyleBaseId)
 

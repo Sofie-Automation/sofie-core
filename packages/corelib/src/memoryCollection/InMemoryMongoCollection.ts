@@ -1,6 +1,6 @@
 import type { ChangeStreamDocument } from 'mongodb'
 import { ProtectedString, protectString, unprotectString } from '../protectedString.js'
-import { clone, getRandomString } from '../lib.js'
+import { clone, getRandomString, omit } from '../lib.js'
 import {
 	FindOptions,
 	FindOneOptions,
@@ -55,6 +55,8 @@ export interface InMemoryMongoCollectionOptions {
 	 * mock), feed-driven observe callbacks fire on a later tick instead of synchronously during the write.
 	 */
 	observerDeliveryScheduler?: ObserverDeliveryScheduler
+	/** Convenience for registering an {@link InMemoryMongoCollection.onChange} listener at construction. */
+	onChange?: () => void
 }
 
 /**
@@ -71,14 +73,30 @@ export class InMemoryMongoCollection<TDoc extends Doc> {
 	readonly #deliveryScheduler: ObserverDeliveryScheduler | undefined
 	readonly #documents = new Map<string, TDoc>()
 	readonly #listeners = new Set<(event: InMemoryChangeEvent<TDoc>) => void>()
+	readonly #changeListeners = new Set<() => void>()
 
-	/** Live observers, exposing raw callbacks + query for direct-poke test introspection. */
-	readonly observers: InMemoryObserverEntry<TDoc>[] = []
+	/**
+	 * Live observers, exposing raw callbacks + query for direct-poke test introspection. Typed loosely
+	 * (`any`) so that `TDoc` stays out of the public surface as a data field — this keeps the collection
+	 * covariant in `TDoc`, so a collection of wider docs is assignable where a narrower one is expected.
+	 */
+	readonly observers: InMemoryObserverEntry<any>[] = []
 
 	constructor(name: string, options?: InMemoryMongoCollectionOptions) {
 		this.name = name
 		this.#idGenerator = options?.idGenerator ?? getRandomString
 		this.#deliveryScheduler = options?.observerDeliveryScheduler
+		if (options?.onChange) this.#changeListeners.add(options.onChange)
+	}
+
+	/**
+	 * Subscribe to mutations: `listener` is called (with no arguments) after each write that emits a change
+	 * (insert/update/replace/remove), but not for `mockSetData`/`clear`. A coarse "something changed" hook
+	 * for cache-invalidation; for document-level transitions use `find().observe(Changes)` instead.
+	 */
+	onChange(listener: () => void): MongoLiveQueryHandle {
+		this.#changeListeners.add(listener)
+		return { stop: () => void this.#changeListeners.delete(listener) }
 	}
 
 	// --- internals --------------------------------------------------------------------------------
@@ -112,6 +130,7 @@ export class InMemoryMongoCollection<TDoc extends Doc> {
 	#emit(event: InMemoryChangeEvent<TDoc>): void {
 		// Iterate a copy so a listener stopping mid-emit doesn't disturb iteration.
 		for (const listener of [...this.#listeners]) listener(event)
+		for (const listener of [...this.#changeListeners]) listener()
 	}
 
 	// --- reads ------------------------------------------------------------------------------------
@@ -205,8 +224,17 @@ export class InMemoryMongoCollection<TDoc extends Doc> {
 			} else if ('replaceOne' in op) {
 				const filter = op.replaceOne.filter as any
 				const replacement = op.replaceOne.replacement as any as TDoc
-				const docToReplace = replacement._id ? replacement : ({ ...replacement, _id: filter?._id } as TDoc)
-				this.replace(docToReplace)
+				// Match the FULL filter (not just `_id`), mirroring MongoDB: replaceOne replaces the first
+				// document that satisfies the whole filter, preserving that document's `_id`.
+				const matching = this.#findMatching(this.#normalizeSelector(filter))
+				if (matching.length > 0) {
+					this.replace({ ...replacement, _id: matching[0]._id } as TDoc)
+				} else if (op.replaceOne.upsert) {
+					// Without `upsert`, replaceOne is a no-op when nothing matches. With upsert, insert the
+					// replacement (with an `_id` taken from the replacement or the filter).
+					const newId = (replacement._id ?? filter?._id) as TDoc['_id']
+					this.replace({ ...replacement, _id: newId } as TDoc)
+				}
 			}
 		}
 	}
@@ -300,6 +328,33 @@ export class InMemoryMongoCollection<TDoc extends Doc> {
 				this.#listeners.delete(listener)
 				const index = this.observers.indexOf(entry)
 				if (index !== -1) this.observers.splice(index, 1)
+			},
+		}
+	}
+
+	/**
+	 * Bridge an upstream `observeChanges` into an in-memory cache collection: `added` writes the full document,
+	 * `changed` merges the field delta (clearing fields whose value became `undefined`), `removed` deletes.
+	 * `cb`, if given, runs after each write.
+	 */
+	link(cb?: () => void): ObserveChangesCallbacks<TDoc> {
+		return {
+			added: (id, fields) => {
+				this.replace({ _id: id, ...omit(fields as Partial<TDoc>, '_id') } as TDoc)
+				cb?.()
+			},
+			changed: (id, fields) => {
+				const unset: Partial<Record<keyof TDoc, 1>> = {}
+				for (const [key, value] of Object.entries<unknown>(fields as Record<string, unknown>)) {
+					if (value !== undefined) continue
+					unset[key as keyof TDoc] = 1
+				}
+				this.update(id, { $set: omit(fields as Partial<TDoc>, '_id') as any, $unset: unset as any })
+				cb?.()
+			},
+			removed: (id) => {
+				this.remove(id)
+				cb?.()
 			},
 		}
 	}

@@ -24,7 +24,6 @@ import {
 	Studios,
 } from '../../../collections'
 import { literal } from '@sofie-automation/corelib/dist/lib'
-import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import {
 	CustomPublishCollection,
 	meteorCustomPublish,
@@ -139,62 +138,62 @@ async function setupUIPieceContentStatusesPublicationObservers(
 			const obs1 = await RundownContentObserver.create(rundownIds, contentCache)
 
 			const innerQueries = [
-				contentCache.Segments.find({}).observeChanges({
-					added: (id) => triggerUpdate({ updatedSegmentIds: [protectString(id)] }),
-					changed: (id) => triggerUpdate({ updatedSegmentIds: [protectString(id)] }),
-					removed: (id) => triggerUpdate({ updatedSegmentIds: [protectString(id)] }),
+				contentCache.Segments.observeChanges({
+					added: (id) => triggerUpdate({ updatedSegmentIds: [id] }),
+					changed: (id) => triggerUpdate({ updatedSegmentIds: [id] }),
+					removed: (id) => triggerUpdate({ updatedSegmentIds: [id] }),
 				}),
-				contentCache.Parts.find({}).observeChanges({
-					added: (id) => triggerUpdate({ updatedPartIds: [protectString(id)] }),
-					changed: (id) => triggerUpdate({ updatedPartIds: [protectString(id)] }),
-					removed: (id) => triggerUpdate({ updatedPartIds: [protectString(id)] }),
+				contentCache.Parts.observeChanges({
+					added: (id) => triggerUpdate({ updatedPartIds: [id] }),
+					changed: (id) => triggerUpdate({ updatedPartIds: [id] }),
+					removed: (id) => triggerUpdate({ updatedPartIds: [id] }),
 				}),
-				contentCache.Pieces.find({}).observeChanges({
-					added: (id) => triggerUpdate({ updatedPieceIds: [protectString(id)] }),
-					changed: (id) => triggerUpdate({ updatedPieceIds: [protectString(id)] }),
-					removed: (id) => triggerUpdate({ updatedPieceIds: [protectString(id)] }),
+				contentCache.Pieces.observeChanges({
+					added: (id) => triggerUpdate({ updatedPieceIds: [id] }),
+					changed: (id) => triggerUpdate({ updatedPieceIds: [id] }),
+					removed: (id) => triggerUpdate({ updatedPieceIds: [id] }),
 				}),
-				contentCache.PartInstances.find({}).observeChanges({
-					added: (id) => triggerUpdate({ updatedPartInstanceIds: [protectString(id)] }),
-					changed: (id) => triggerUpdate({ updatedPartInstanceIds: [protectString(id)] }),
-					removed: (id) => triggerUpdate({ updatedPartInstanceIds: [protectString(id)] }),
+				contentCache.PartInstances.observeChanges({
+					added: (id) => triggerUpdate({ updatedPartInstanceIds: [id] }),
+					changed: (id) => triggerUpdate({ updatedPartInstanceIds: [id] }),
+					removed: (id) => triggerUpdate({ updatedPartInstanceIds: [id] }),
 				}),
-				contentCache.PieceInstances.find({}).observeChanges({
-					added: (id) => triggerUpdate({ updatedPieceInstanceIds: [protectString(id)] }),
-					changed: (id) => triggerUpdate({ updatedPieceInstanceIds: [protectString(id)] }),
-					removed: (id) => triggerUpdate({ updatedPieceInstanceIds: [protectString(id)] }),
+				contentCache.PieceInstances.observeChanges({
+					added: (id) => triggerUpdate({ updatedPieceInstanceIds: [id] }),
+					changed: (id) => triggerUpdate({ updatedPieceInstanceIds: [id] }),
+					removed: (id) => triggerUpdate({ updatedPieceInstanceIds: [id] }),
 				}),
-				contentCache.AdLibPieces.find({}).observeChanges({
-					added: (id) => triggerUpdate({ updatedAdlibPieceIds: [protectString(id)] }),
-					changed: (id) => triggerUpdate({ updatedAdlibPieceIds: [protectString(id)] }),
-					removed: (id) => triggerUpdate({ updatedAdlibPieceIds: [protectString(id)] }),
+				contentCache.AdLibPieces.observeChanges({
+					added: (id) => triggerUpdate({ updatedAdlibPieceIds: [id] }),
+					changed: (id) => triggerUpdate({ updatedAdlibPieceIds: [id] }),
+					removed: (id) => triggerUpdate({ updatedAdlibPieceIds: [id] }),
 				}),
-				contentCache.AdLibActions.find({}).observeChanges({
-					added: (id) => triggerUpdate({ updatedAdlibActionIds: [protectString(id)] }),
-					changed: (id) => triggerUpdate({ updatedAdlibActionIds: [protectString(id)] }),
-					removed: (id) => triggerUpdate({ updatedAdlibActionIds: [protectString(id)] }),
+				contentCache.AdLibActions.observeChanges({
+					added: (id) => triggerUpdate({ updatedAdlibActionIds: [id] }),
+					changed: (id) => triggerUpdate({ updatedAdlibActionIds: [id] }),
+					removed: (id) => triggerUpdate({ updatedAdlibActionIds: [id] }),
 				}),
-				contentCache.BaselineAdLibPieces.find({}).observeChanges({
-					added: (id) => triggerUpdate({ updatedBaselineAdlibPieceIds: [protectString(id)] }),
-					changed: (id) => triggerUpdate({ updatedBaselineAdlibPieceIds: [protectString(id)] }),
-					removed: (id) => triggerUpdate({ updatedBaselineAdlibPieceIds: [protectString(id)] }),
+				contentCache.BaselineAdLibPieces.observeChanges({
+					added: (id) => triggerUpdate({ updatedBaselineAdlibPieceIds: [id] }),
+					changed: (id) => triggerUpdate({ updatedBaselineAdlibPieceIds: [id] }),
+					removed: (id) => triggerUpdate({ updatedBaselineAdlibPieceIds: [id] }),
 				}),
-				contentCache.BaselineAdLibActions.find({}).observeChanges({
-					added: (id) => triggerUpdate({ updatedBaselineAdlibActionIds: [protectString(id)] }),
-					changed: (id) => triggerUpdate({ updatedBaselineAdlibActionIds: [protectString(id)] }),
-					removed: (id) => triggerUpdate({ updatedBaselineAdlibActionIds: [protectString(id)] }),
+				contentCache.BaselineAdLibActions.observeChanges({
+					added: (id) => triggerUpdate({ updatedBaselineAdlibActionIds: [id] }),
+					changed: (id) => triggerUpdate({ updatedBaselineAdlibActionIds: [id] }),
+					removed: (id) => triggerUpdate({ updatedBaselineAdlibActionIds: [id] }),
 				}),
-				contentCache.Rundowns.find({}).observeChanges({
+				contentCache.Rundowns.observeChanges({
 					added: () => triggerUpdate({ invalidateAll: true }),
 					changed: () => triggerUpdate({ invalidateAll: true }),
 					removed: () => triggerUpdate({ invalidateAll: true }),
 				}),
-				contentCache.Blueprints.find({}).observeChanges({
+				contentCache.Blueprints.observeChanges({
 					added: () => triggerUpdate({ invalidateAll: true }),
 					changed: () => triggerUpdate({ invalidateAll: true }),
 					removed: () => triggerUpdate({ invalidateAll: true }),
 				}),
-				contentCache.ShowStyleSourceLayers.find({}).observeChanges({
+				contentCache.ShowStyleSourceLayers.observeChanges({
 					added: () => triggerUpdate({ invalidateAll: true }),
 					changed: () => triggerUpdate({ invalidateAll: true }),
 					removed: () => triggerUpdate({ invalidateAll: true }),
@@ -343,15 +342,19 @@ async function manipulateUIPieceContentStatusesPublicationData(
 
 		// force every piece to be regenerated
 		collection.remove(null)
-		regeneratePieceIds = new Set(state.contentCache.Pieces.find({}).map((p) => p._id))
-		regeneratePieceInstanceIds = new Set(state.contentCache.PieceInstances.find({}).map((p) => p._id))
-		regenerateAdlibPieceIds = new Set(state.contentCache.AdLibPieces.find({}).map((p) => p._id))
-		regenerateAdlibActionIds = new Set(state.contentCache.AdLibActions.find({}).map((p) => p._id))
-		regenerateBaselineAdlibPieceIds = new Set(state.contentCache.BaselineAdLibPieces.find({}).map((p) => p._id))
-		regenerateBaselineAdlibActionIds = new Set(state.contentCache.BaselineAdLibActions.find({}).map((p) => p._id))
+		regeneratePieceIds = new Set(state.contentCache.Pieces.findFetch({}).map((p) => p._id))
+		regeneratePieceInstanceIds = new Set(state.contentCache.PieceInstances.findFetch({}).map((p) => p._id))
+		regenerateAdlibPieceIds = new Set(state.contentCache.AdLibPieces.findFetch({}).map((p) => p._id))
+		regenerateAdlibActionIds = new Set(state.contentCache.AdLibActions.findFetch({}).map((p) => p._id))
+		regenerateBaselineAdlibPieceIds = new Set(
+			state.contentCache.BaselineAdLibPieces.findFetch({}).map((p) => p._id)
+		)
+		regenerateBaselineAdlibActionIds = new Set(
+			state.contentCache.BaselineAdLibActions.findFetch({}).map((p) => p._id)
+		)
 
 		// prepare the message factories
-		for (const rundown of state.contentCache.Rundowns.find({})) {
+		for (const rundown of state.contentCache.Rundowns.findFetch({})) {
 			const showStyle = state.contentCache.ShowStyleSourceLayers.findOne(rundown.showStyleBaseId)
 			const blueprint = showStyle && state.contentCache.Blueprints.findOne(showStyle.blueprintId)
 			state.rundownMessageFactories.set(rundown._id, new PieceContentStatusMessageFactory(blueprint))
