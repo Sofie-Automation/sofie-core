@@ -3,9 +3,9 @@ import {
 	MongoBulkWriteOperation,
 	MongoModifier,
 	MongoQuery,
-	ObserveChangesOptions,
 	ObserveCallbacks,
 	ObserveChangesCallbacks,
+	FindObserveChangesOptions,
 } from '@sofie-automation/corelib/dist/mongo'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { Meteor } from 'meteor/meteor'
@@ -76,7 +76,7 @@ export function createAsyncOnlyReadOnlyMongoCollection<DBInterface extends { _id
 
 function createWrappedCollection<DBInterface extends { _id: ProtectedString<any> }>(
 	name: CollectionName
-): WrappedAsyncMongoCollection<DBInterface> {
+): AsyncOnlyMongoCollection<DBInterface> {
 	if (isInMockMode()) {
 		// In unit tests there is no real database, so back the collection with the in-memory mock
 		return createMockCollection<DBInterface>(name)
@@ -191,8 +191,7 @@ export interface AsyncOnlyReadOnlyMongoCollection<DBInterface extends { _id: Pro
 	observeChanges(
 		selector: MongoQuery<DBInterface> | DBInterface['_id'],
 		callbacks: PromisifyCallbacks<ObserveChangesCallbacks<DBInterface>>,
-		findOptions?: Omit<FindOptions<DBInterface>, 'fields'>,
-		callbackOptions?: ObserveChangesOptions
+		options?: FindObserveChangesOptions<DBInterface>
 	): Promise<Meteor.LiveQueryHandle>
 
 	/**
@@ -202,7 +201,7 @@ export interface AsyncOnlyReadOnlyMongoCollection<DBInterface extends { _id: Pro
 	observe(
 		selector: MongoQuery<DBInterface> | DBInterface['_id'],
 		callbacks: PromisifyCallbacks<ObserveCallbacks<DBInterface>>,
-		options?: Omit<FindOptions<DBInterface>, 'fields'>
+		options?: FindObserveChangesOptions<DBInterface>
 	): Promise<Meteor.LiveQueryHandle>
 
 	/**

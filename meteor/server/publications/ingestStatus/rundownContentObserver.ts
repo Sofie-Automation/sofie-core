@@ -74,8 +74,6 @@ export class RundownContentObserver {
 				cache.Rundowns.link(),
 				{
 					projection: rundownFieldSpecifier,
-				},
-				{
 					nonMutatingCallbacks: true,
 				}
 			),
@@ -88,8 +86,6 @@ export class RundownContentObserver {
 				cache.Parts.link(),
 				{
 					projection: partFieldSpecifier,
-				},
-				{
 					nonMutatingCallbacks: true,
 				}
 			),
@@ -100,8 +96,8 @@ export class RundownContentObserver {
 					orphaned: { $exists: false },
 				},
 				cache.PartInstances.link(),
-				{ projection: partInstanceFieldSpecifier },
 				{
+					projection: partInstanceFieldSpecifier,
 					nonMutatingCallbacks: true,
 				}
 			),
@@ -114,8 +110,6 @@ export class RundownContentObserver {
 				cache.NrcsIngestData.link(),
 				{
 					projection: nrcsIngestDataCacheObjSpecifier,
-				},
-				{
 					nonMutatingCallbacks: true,
 				}
 			),

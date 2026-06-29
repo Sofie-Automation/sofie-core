@@ -24,7 +24,9 @@ import {
 	ObserveCallbacks,
 	ObserveChangesCallbacks,
 } from '@sofie-automation/corelib/dist/mongo'
+import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
 import { AsyncOnlyMongoCollection, AsyncOnlyReadOnlyMongoCollection } from '../server/collections/collection'
+import { Collections } from '../server/collections/lib'
 import type {
 	MinimalMeteorMongoCollection,
 	MinimalMongoCursor,
@@ -514,50 +516,18 @@ export namespace MongoMock {
 		collection: AsyncOnlyMongoCollection<T>,
 		data: MockCollection<T> | Array<T> | null
 	) {
-		const collectionName = collection.name
-		if (collectionName === null) {
-			throw new Meteor.Error(500, 'mockSetData can only be done for named collections')
-		}
-
-		data = data || {}
-		if (_.isArray(data)) {
-			const collectionData: MockCollection<T> = {}
-			_.each(data, (doc) => {
-				if (!doc._id) throw Error(`mockSetData: "${collectionName}": doc._id missing`)
-				collectionData[unprotectString(doc._id)] = doc
-			})
-			mockCollections[collectionName] = collectionData
-		} else {
-			mockCollections[collectionName] = data
-		}
+		getInnerMockCollection(collection).mockSetData(data)
 	}
 
 	export function deleteAllData() {
-		Object.keys(mockCollections).forEach((id) => {
-			mockCollections[id] = {}
-		})
-	}
-
-	/**
-	 * The Mock Collection type does a sleep before starting on executing the bulkWrite.
-	 * This simulates the async nature of writes to mongo, and aims to detect race conditions in our code.
-	 * This method will change the duration of the sleep, and returns the old delay value
-	 */
-	export function setCollectionAsyncBulkWriteDelay(collection: AsyncOnlyMongoCollection<any>, delay: number): number {
-		const collection2 = collection as any
-		if (typeof collection2.asyncWriteDelay !== 'number') {
-			throw new Error(
-				"asyncWriteDelay must be defined already, or this won't do anything. Perhaps some refactoring?"
-			)
+		for (const collection of Collections.values()) {
+			;(collection.mutableCollection as any).mockCollection?.clear()
 		}
-		const oldDelay = collection2.asyncWriteDelay
-		collection2.asyncWriteDelay = delay
-		return oldDelay
 	}
 
 	export function getInnerMockCollection<T extends { _id: ProtectedString<any> }>(
 		collection: MongoReadOnlyCollection<T> | AsyncOnlyReadOnlyMongoCollection<T>
-	): MinimalMeteorMongoCollection<T> {
+	): InMemoryMongoCollection<T> {
 		return (collection as any).mockCollection
 	}
 }

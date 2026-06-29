@@ -10,10 +10,10 @@ import {
 	MongoFieldSpecifier,
 	ObserveCallbacks,
 	ObserveChangesCallbacks,
-	ObserveChangesOptions,
 	mongoWhere,
 	mongoFindOptions,
 	mongoModify,
+	FindObserveChangesOptions,
 } from '../mongo.js'
 import {
 	ObserveView,
@@ -39,12 +39,6 @@ export interface InMemoryObserverEntry<TDoc extends Doc> {
 	query: MongoQuery<TDoc>
 	callbacksObserve?: ObserveCallbacks<TDoc>
 	callbacksChanges?: ObserveChangesCallbacks<TDoc>
-}
-
-export interface InMemoryObserveChangesOptions<TDoc extends Doc> extends ObserveChangesOptions {
-	/** @deprecated */
-	fields?: MongoFieldSpecifier<TDoc>
-	projection?: MongoFieldSpecifier<TDoc>
 }
 
 export interface InMemoryMongoCollectionOptions {
@@ -262,7 +256,7 @@ export class InMemoryMongoCollection<TDoc extends Doc> {
 	observe(
 		callbacks: ObserveCallbacks<TDoc>,
 		selector?: MongoQuery<TDoc> | TDoc['_id'],
-		options?: InMemoryObserveChangesOptions<TDoc>
+		options?: FindObserveChangesOptions<TDoc>
 	): MongoLiveQueryHandle {
 		return this.#startObserve(
 			'observe',
@@ -276,7 +270,7 @@ export class InMemoryMongoCollection<TDoc extends Doc> {
 	observeChanges(
 		callbacks: ObserveChangesCallbacks<TDoc>,
 		selector?: MongoQuery<TDoc> | TDoc['_id'],
-		options?: InMemoryObserveChangesOptions<TDoc>
+		options?: FindObserveChangesOptions<TDoc>
 	): MongoLiveQueryHandle {
 		return this.#startObserve(
 			'changes',

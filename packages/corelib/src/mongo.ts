@@ -68,6 +68,12 @@ export interface ObserveChangesOptions {
 	nonMutatingCallbacks?: boolean | undefined
 }
 
+export interface FindObserveChangesOptions<TDoc> extends ObserveChangesOptions {
+	/** @deprecated */
+	fields?: MongoFieldSpecifier<TDoc>
+	projection?: MongoFieldSpecifier<TDoc>
+}
+
 /** Callbacks for observing the full documents of a query as its result set changes. */
 export interface ObserveCallbacks<DBInterface> {
 	added?(document: DBInterface): void
