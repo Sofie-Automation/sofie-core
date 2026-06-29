@@ -2444,7 +2444,7 @@ __metadata:
   dependencies:
     "@mos-connection/model": "npm:^5.0.0-alpha.0"
     kairos-lib: "npm:^1.0.0"
-    timeline-state-resolver-types: "npm:10.0.0-nightly-main-20260602-133931-c0882da4d.0"
+    timeline-state-resolver-types: "npm:10.0.0-nightly-superfly-feat-vindral-composer-20260622-145527-ef6cfb5d5.0"
     tslib: "npm:^2.8.1"
     type-fest: "npm:^4.41.0"
   languageName: node
@@ -12487,13 +12487,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"timeline-state-resolver-types@npm:10.0.0-nightly-main-20260602-133931-c0882da4d.0":
-  version: 10.0.0-nightly-main-20260602-133931-c0882da4d.0
-  resolution: "timeline-state-resolver-types@npm:10.0.0-nightly-main-20260602-133931-c0882da4d.0"
+"timeline-state-resolver-types@npm:10.0.0-nightly-superfly-feat-vindral-composer-20260622-145527-ef6cfb5d5.0":
+  version: 10.0.0-nightly-superfly-feat-vindral-composer-20260622-145527-ef6cfb5d5.0
+  resolution: "timeline-state-resolver-types@npm:10.0.0-nightly-superfly-feat-vindral-composer-20260622-145527-ef6cfb5d5.0"
   dependencies:
     kairos-lib: "npm:1.0.0"
     tslib: "npm:^2.8.1"
-  checksum: 10/8021f03e15a7b6f581ea4c5b77e809238a3e8120a7b0a8eed40d3a1afcb03749aaed33177b96a0c42078dcd19da08703f125ee3a1f28739bfcb9782344321bc8
+  checksum: 10/50d014f5629a9ab7da5d096818c414d340f5b2cc11c6f8dcb67477448cc0927bb0f0eb7b7f855f8cf6c15044bb3749cae2f60c185e0bf014e50059d3527a0735
   languageName: node
   linkType: hard
 

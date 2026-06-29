@@ -7154,7 +7154,7 @@ __metadata:
   dependencies:
     "@mos-connection/model": "npm:^5.0.0-alpha.0"
     kairos-lib: "npm:^1.0.0"
-    timeline-state-resolver-types: "npm:10.0.0-nightly-main-20260602-133931-c0882da4d.0"
+    timeline-state-resolver-types: "npm:10.0.0-nightly-superfly-feat-vindral-composer-20260622-145527-ef6cfb5d5.0"
     tslib: "npm:^2.8.1"
     type-fest: "npm:^4.41.0"
   languageName: unknown
@@ -23796,7 +23796,7 @@ asn1@evs-broadcast/node-asn1:
     "@sofie-automation/shared-lib": "npm:26.3.0-2"
     debug: "npm:^4.4.3"
     influx: "npm:^5.12.0"
-    timeline-state-resolver: "npm:10.0.0-nightly-main-20260602-133931-c0882da4d.0"
+    timeline-state-resolver: "npm:10.0.0-nightly-superfly-feat-vindral-composer-20260622-145527-ef6cfb5d5.0"
     tslib: "npm:^2.8.1"
     underscore: "npm:^1.13.8"
     winston: "npm:^3.19.0"
@@ -28615,30 +28615,30 @@ asn1@evs-broadcast/node-asn1:
   languageName: node
   linkType: hard
 
-"timeline-state-resolver-api@npm:10.0.0-nightly-main-20260602-133931-c0882da4d.0":
-  version: 10.0.0-nightly-main-20260602-133931-c0882da4d.0
-  resolution: "timeline-state-resolver-api@npm:10.0.0-nightly-main-20260602-133931-c0882da4d.0"
+"timeline-state-resolver-api@npm:10.0.0-nightly-superfly-feat-vindral-composer-20260622-145527-ef6cfb5d5.0":
+  version: 10.0.0-nightly-superfly-feat-vindral-composer-20260622-145527-ef6cfb5d5.0
+  resolution: "timeline-state-resolver-api@npm:10.0.0-nightly-superfly-feat-vindral-composer-20260622-145527-ef6cfb5d5.0"
   dependencies:
     tslib: "npm:^2.8.1"
   peerDependencies:
-    timeline-state-resolver-types: 10.0.0-nightly-main-20260602-133931-c0882da4d.0
-  checksum: 10/f292583d9e0f07a4074a4b0ab9c03ac05fbdb8d912c7db1e4a63dc66ccc5aef6f421c7b3f7f8cde400393ebec6e105ebbb8e2379096cee7001a57c1bf41a4092
+    timeline-state-resolver-types: 10.0.0-nightly-superfly-feat-vindral-composer-20260622-145527-ef6cfb5d5.0
+  checksum: 10/d0de6de2265fdba367bb74330056f23f6cb7acf81f0617ff45c412600a83236bc14cd34c67e18886fe53ae8498c912a979cf22c83d3e4aebac4cf78c0737ac5c
   languageName: node
   linkType: hard
 
-"timeline-state-resolver-types@npm:10.0.0-nightly-main-20260602-133931-c0882da4d.0":
-  version: 10.0.0-nightly-main-20260602-133931-c0882da4d.0
-  resolution: "timeline-state-resolver-types@npm:10.0.0-nightly-main-20260602-133931-c0882da4d.0"
+"timeline-state-resolver-types@npm:10.0.0-nightly-superfly-feat-vindral-composer-20260622-145527-ef6cfb5d5.0":
+  version: 10.0.0-nightly-superfly-feat-vindral-composer-20260622-145527-ef6cfb5d5.0
+  resolution: "timeline-state-resolver-types@npm:10.0.0-nightly-superfly-feat-vindral-composer-20260622-145527-ef6cfb5d5.0"
   dependencies:
     kairos-lib: "npm:1.0.0"
     tslib: "npm:^2.8.1"
-  checksum: 10/8021f03e15a7b6f581ea4c5b77e809238a3e8120a7b0a8eed40d3a1afcb03749aaed33177b96a0c42078dcd19da08703f125ee3a1f28739bfcb9782344321bc8
+  checksum: 10/50d014f5629a9ab7da5d096818c414d340f5b2cc11c6f8dcb67477448cc0927bb0f0eb7b7f855f8cf6c15044bb3749cae2f60c185e0bf014e50059d3527a0735
   languageName: node
   linkType: hard
 
-"timeline-state-resolver@npm:10.0.0-nightly-main-20260602-133931-c0882da4d.0":
-  version: 10.0.0-nightly-main-20260602-133931-c0882da4d.0
-  resolution: "timeline-state-resolver@npm:10.0.0-nightly-main-20260602-133931-c0882da4d.0"
+"timeline-state-resolver@npm:10.0.0-nightly-superfly-feat-vindral-composer-20260622-145527-ef6cfb5d5.0":
+  version: 10.0.0-nightly-superfly-feat-vindral-composer-20260622-145527-ef6cfb5d5.0
+  resolution: "timeline-state-resolver@npm:10.0.0-nightly-superfly-feat-vindral-composer-20260622-145527-ef6cfb5d5.0"
   dependencies:
     "@tv2media/v-connection": "npm:^7.3.4"
     atem-connection: "npm:3.7.0"
@@ -28663,16 +28663,17 @@ asn1@evs-broadcast/node-asn1:
     sprintf-js: "npm:^1.1.3"
     superfly-timeline: "npm:^9.2.0"
     threadedclass: "npm:^1.4.0"
-    timeline-state-resolver-api: "npm:10.0.0-nightly-main-20260602-133931-c0882da4d.0"
-    timeline-state-resolver-types: "npm:10.0.0-nightly-main-20260602-133931-c0882da4d.0"
+    timeline-state-resolver-api: "npm:10.0.0-nightly-superfly-feat-vindral-composer-20260622-145527-ef6cfb5d5.0"
+    timeline-state-resolver-types: "npm:10.0.0-nightly-superfly-feat-vindral-composer-20260622-145527-ef6cfb5d5.0"
     tslib: "npm:^2.8.1"
     tv-automation-quantel-gateway-client: "npm:^3.1.7"
     type-fest: "npm:^3.13.1"
     underscore: "npm:^1.13.8"
     utf-8-validate: "npm:^6.0.6"
+    vindral-composer-connection: "npm:^0.2.0"
     ws: "npm:^8.21.0"
     xml-js: "npm:^1.6.11"
-  checksum: 10/30ad64cafb8800f069e74c3f188381569c0446d76c03345daa0526d74296e50d5d050f1854211797e1acd87c7fab7b109aeaf3cae52dd35483141203252d9fcd
+  checksum: 10/ec7b11c9a148ba5ac2e3beb3654d8dc478d16ab068ae6d1b6a907fc12a95c00448940cf9e6c4f1478262429c50d9ac77f10546798098c5fbe6acddb66eca95fc
   languageName: node
   linkType: hard
 
@@ -30125,6 +30126,13 @@ asn1@evs-broadcast/node-asn1:
     unist-util-stringify-position: "npm:^4.0.0"
     vfile-message: "npm:^4.0.0"
   checksum: 10/7f8412f9ce7709d3be4041fd68a159e2cf96f9c9a4f095bcb18d1561009757b8efb37b71d0ae087e5202fe0e3b3162aae0adf92e30e2448a45645912c23c4ab2
+  languageName: node
+  linkType: hard
+
+"vindral-composer-connection@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "vindral-composer-connection@npm:0.2.0"
+  checksum: 10/afd7bdebc459a29d88b336d77f6e497195c4fb05bf261c7d6faa66de0d745e1e68a571b844fac76388c080a98c458083e86fdc9f141b1f03b0192b40baac5d28
   languageName: node
   linkType: hard
 
