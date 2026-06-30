@@ -114,7 +114,15 @@ export class CollectionChangeFeed {
 		this.#subscribers.add(subscriber)
 
 		// Start the stream when the first subscriber arrives
-		if (!this.#stream && !this.#pendingStart && !this.#restartTimeout && !this.#stopped) this.#startStream()
+		if (!this.#stream && !this.#pendingStart && !this.#restartTimeout && !this.#stopped) {
+			this.#startStream()
+		} else if (this.#stream) {
+			// The stream is already open, so this late subscriber won't receive a first-attach onResync (and
+			// one isn't pending). Trigger its resync now so it (re-)snapshots the current collection state
+			// against the live stream, matching the guarantee first subscribers get. (If the stream is still
+			// opening - #pendingStart/#restartTimeout - #attachStream will fan onResync out to it then.)
+			subscriber.onResync()
+		}
 
 		let stopped = false
 		return {

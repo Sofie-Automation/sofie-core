@@ -6,6 +6,12 @@ import { MongoClient } from 'mongodb'
 // Use the same replica-set name Meteor uses for its dev mongod, so the same data dir works on both this
 // branch (our dev-mongo) and an older branch (Meteor's bundled mongod)
 const REPLSET_NAME = 'meteor'
+
+/**
+ * The mongod version we run everywhere: the dev instance (scripts/run.mjs) and the jest integration
+ */
+export const DEV_MONGO_VERSION = '7.0.16'
+
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
 /**

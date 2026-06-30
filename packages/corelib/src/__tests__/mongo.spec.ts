@@ -440,12 +440,9 @@ describe('mongoModify', () => {
 	})
 
 	describe('full-document replace', () => {
-		test('replaces the doc when the modifier has no operators, keeping the _id', () => {
+		test('throws when the modifier has no atomic operators (matches MongoDB; use replace instead)', () => {
 			const doc = makeDoc()
-			const result = mongoModify<Doc>(selector, doc, { name: 'fresh', rank: 5 } as any)
-			expect(result.name).toBe('fresh')
-			expect(result.rank).toBe(5)
-			expect(result._id).toEqual(protectString('id0'))
+			expect(() => mongoModify<Doc>(selector, doc, { name: 'fresh', rank: 5 } as any)).toThrow(/atomic operators/)
 		})
 	})
 

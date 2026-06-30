@@ -3,12 +3,12 @@ import fs from "fs";
 import path from "path";
 import concurrently from "concurrently";
 import { config } from "./lib.js";
-import { startDevMongo } from "../meteor/scripts/dev-mongo.mjs";
+import { startDevMongo, DEV_MONGO_VERSION } from "../meteor/scripts/dev-mongo.mjs";
 
 // Defaults for the dev MongoDB we spawn. Overridable via env (typically a root .env file, loaded by
 // the `dev` script with `node --env-file-if-exists=.env`).
 const MONGO_DEFAULTS = {
-	version: "7.0.16", // matches the mongod bundled with Meteor 3.4.1, so the existing data dir opens cleanly
+	version: DEV_MONGO_VERSION, // shared with the jest integration replset (see dev-mongo.mjs)
 	port: "3001", // a stable, predictable port so external tooling (Compass, mongosh) can connect
 	dbName: "meteor", // matches Meteor's dev default database name
 };

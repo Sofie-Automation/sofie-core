@@ -141,6 +141,19 @@ describe('update', () => {
 		c.update('a' as any, { $rename: { name: 'label' } })
 		expect((c.findOne('a' as any) as any)?.label).toBe('a')
 	})
+
+	test('_id is immutable: a $set on _id must not re-key or overwrite another doc', () => {
+		const c = makeCollection()
+		c.insert(thing('a', { rank: 1 }))
+		c.insert(thing('b', { rank: 2 }))
+
+		// Attempt to change a's _id to collide with b. _id must stay 'a' and b must be untouched.
+		c.update('a' as any, { $set: { _id: id('b') } as any })
+
+		expect(c.findOne('a' as any)).toMatchObject({ _id: id('a'), rank: 1 })
+		expect(c.findOne('b' as any)).toMatchObject({ _id: id('b'), rank: 2 })
+		expect(c.findFetch({})).toHaveLength(2)
+	})
 })
 
 describe('replace', () => {

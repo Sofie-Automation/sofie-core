@@ -166,11 +166,12 @@ export class InMemoryMongoCollection<TDoc extends Doc> {
 
 		for (const doc of docs) {
 			const modified = mongoModify(sel, clone(doc), modifier)
-			// Defensive: a full-document replace via update could in principle change `_id`; re-key if so.
-			const oldKey = unprotectString(doc._id)
-			const newKey = unprotectString(modified._id)
-			if (oldKey !== newKey) this.#documents.delete(oldKey)
-			this.#documents.set(newKey, modified)
+			// `_id` is immutable: an update must never change it or re-key the document, since re-keying
+			// under a modified `_id` could silently overwrite a different entry. Force the original `_id`
+			// and always store back under the original key.
+			modified._id = doc._id
+			const key = unprotectString(doc._id)
+			this.#documents.set(key, modified)
 			this.#emit({ operationType: 'update', documentKey: { _id: modified._id }, fullDocument: clone(modified) })
 		}
 		return docs.length
@@ -338,7 +339,7 @@ export class InMemoryMongoCollection<TDoc extends Doc> {
 	link(cb?: () => void): ObserveChangesCallbacks<TDoc> {
 		return {
 			added: (id, fields) => {
-				this.replace({ _id: id, ...omit(fields as Partial<TDoc>, '_id') } as TDoc)
+				this.replace({ ...fields, _id: id } as TDoc)
 				cb?.()
 			},
 			changed: (id, fields) => {
@@ -347,7 +348,7 @@ export class InMemoryMongoCollection<TDoc extends Doc> {
 					if (value !== undefined) continue
 					unset[key as keyof TDoc] = 1
 				}
-				this.update(id, { $set: omit(fields as Partial<TDoc>, '_id') as any, $unset: unset as any })
+				this.update(id, { $set: omit(fields, '_id') as any, $unset: unset as any })
 				cb?.()
 			},
 			removed: (id) => {

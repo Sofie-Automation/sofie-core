@@ -143,6 +143,72 @@ export function mongoWhereFilter<T, R extends Record<string, any>>(items: R[], s
 	return results
 }
 
+/**
+ * MongoDB `$in`/`$nin` membership: matches when the field value deep-equals a listed value, OR (when the
+ * field is an array) when any of its elements deep-equals a listed value. Uses deep equality so embedded
+ * documents and arrays compare by value, like MongoDB (and unlike a JS `indexOf`).
+ */
+function mongoMatchesAnyOf(value: any, list: any[]): boolean {
+	const equalsAnyMember = (v: any) => list.some((member) => _.isEqual(v, member))
+	if (equalsAnyMember(value)) return true
+	return Array.isArray(value) && value.some(equalsAnyMember)
+}
+
+/**
+ * Match a single field's operator-object (e.g. `{ $gte: 2, $lte: 4 }`) against the field value. MongoDB
+ * applies ALL operators in such an object, so every one must hold (logical AND). Throws on any operator we
+ * do not implement (rather than silently ignoring it). `o`/`key` are passed through for `$not`/`$exists`,
+ * which need the parent-document context.
+ */
+function mongoMatchFieldOperators(oAttr: any, s: Record<string, any>, o: Record<string, any>, key: string): boolean {
+	for (const op of Object.keys(s)) {
+		const value = s[op]
+		let ok: boolean
+		switch (op) {
+			case '$elemMatch':
+				ok = Array.isArray(oAttr) && oAttr.some((item) => mongoWhere(item, value))
+				break
+			case '$gt':
+				ok = oAttr > value
+				break
+			case '$gte':
+				ok = oAttr >= value
+				break
+			case '$lt':
+				ok = oAttr < value
+				break
+			case '$lte':
+				ok = oAttr <= value
+				break
+			case '$eq':
+				ok = _.isEqual(oAttr, value)
+				break
+			case '$ne':
+				ok = !_.isEqual(oAttr, value)
+				break
+			case '$in':
+				ok = mongoMatchesAnyOf(oAttr, value)
+				break
+			case '$nin':
+				ok = !mongoMatchesAnyOf(oAttr, value)
+				break
+			case '$exists':
+				ok = (o[key] !== undefined) === !!value
+				break
+			case '$not': {
+				const innerSelector: any = {}
+				innerSelector[key] = value
+				ok = !mongoWhere(o, innerSelector)
+				break
+			}
+			default:
+				throw new Error(`Operand "${op}" is not implemented`)
+		}
+		if (!ok) return false
+	}
+	return true
+}
+
 export function mongoWhere<T>(o: Record<string, any>, selector: MongoQuery<T>): boolean {
 	if (typeof selector !== 'object') {
 		// selector must be an object
@@ -153,88 +219,64 @@ export function mongoWhere<T>(o: Record<string, any>, selector: MongoQuery<T>): 
 	for (const [key, s] of Object.entries<any>(selector)) {
 		if (!ok) break
 
-		try {
-			const keyWords = key.split('.')
-			if (keyWords.length > 1) {
-				const oAttr = o[keyWords[0]]
+		// NOTE: unsupported operators (and malformed $and/$or) throw, rather than being silently treated as a
+		// non-match. Callers that re-implement a subset of MongoDB must fail loudly when a query uses something
+		// they don't support, so the divergence surfaces instead of producing quietly-wrong results.
+		const keyWords = key.split('.')
+		if (keyWords.length > 1) {
+			const oAttr = o[keyWords[0]]
+			const innerSelector: any = {}
+			innerSelector[keyWords.slice(1).join('.')] = s
+			if (Array.isArray(oAttr)) {
+				// Path passes through an array: match if any element satisfies the remaining selector,
+				// as MongoDB does for `items.name` against `items: [{ name: ... }, ...]`.
+				ok = oAttr.some((element) => mongoWhere(_.isObject(element) ? element : {}, innerSelector))
+			} else if (_.isObject(oAttr) || oAttr === undefined) {
+				ok = mongoWhere(oAttr || {}, innerSelector)
+			} else {
+				ok = false
+			}
+		} else if (key === '$or') {
+			if (_.isArray(s)) {
+				let ok2 = false
+				for (const innerSelector of s) {
+					ok2 = ok2 || mongoWhere(o, innerSelector)
+				}
+				ok = ok2
+			} else {
+				throw new Error('An $or filter must be an array')
+			}
+		} else if (key === '$and') {
+			if (Array.isArray(s) && s.length >= 1) {
+				let ok2 = true
+				for (const innerSelector of s) {
+					ok2 = ok2 && mongoWhere(o, innerSelector)
+					if (!ok2) break
+				}
+				ok = ok2
+			} else {
+				throw new Error('An $and filter must be an array')
+			}
+		} else if (key.startsWith('$')) {
+			throw new Error(`Operand "${key}" is not implemented`)
+		} else {
+			const oAttr = o[key]
+
+			if (_.isObject(s) && !Array.isArray(s) && Object.keys(s).some((k) => k.startsWith('$'))) {
+				// An operator object such as `{ $gte: 2, $lte: 4 }` — every operator must hold (logical AND).
+				ok = mongoMatchFieldOperators(oAttr, s as Record<string, any>, o, key)
+			} else if (_.isObject(s)) {
+				// A plain sub-document match (or an array, compared field-by-field, as before).
 				if (_.isObject(oAttr) || oAttr === undefined) {
-					const innerSelector: any = {}
-					innerSelector[keyWords.slice(1).join('.')] = s
-					ok = mongoWhere(oAttr || {}, innerSelector)
+					ok = mongoWhere(oAttr || {}, s)
 				} else {
 					ok = false
 				}
-			} else if (key === '$or') {
-				if (_.isArray(s)) {
-					let ok2 = false
-					for (const innerSelector of s) {
-						ok2 = ok2 || mongoWhere(o, innerSelector)
-					}
-					ok = ok2
-				} else {
-					throw new Error('An $or filter must be an array')
-				}
-			} else if (key === '$and') {
-				if (Array.isArray(s) && s.length >= 1) {
-					let ok2 = true
-					for (const innerSelector of s) {
-						ok2 = ok2 && mongoWhere(o, innerSelector)
-						if (!ok2) break
-					}
-					ok = ok2
-				} else {
-					throw new Error('An $and filter must be an array')
-				}
-			} else if (key.startsWith('$')) {
-				throw new Error(`Operand "${key}" is not implemented`)
 			} else {
-				const oAttr = o[key]
-
-				if (_.isObject(s)) {
-					if (_.has(s, '$elemMatch')) {
-						// Handle $elemMatch for array fields
-						if (Array.isArray(oAttr)) {
-							ok = oAttr.some((item) => mongoWhere(item, s.$elemMatch))
-						} else {
-							ok = false
-						}
-					} else if (_.has(s, '$gt')) {
-						ok = oAttr > s.$gt
-					} else if (_.has(s, '$gte')) {
-						ok = oAttr >= s.$gte
-					} else if (_.has(s, '$lt')) {
-						ok = oAttr < s.$lt
-					} else if (_.has(s, '$lte')) {
-						ok = oAttr <= s.$lte
-					} else if (_.has(s, '$eq')) {
-						ok = oAttr === s.$eq
-					} else if (_.has(s, '$ne')) {
-						ok = oAttr !== s.$ne
-					} else if (_.has(s, '$in')) {
-						ok = s.$in.indexOf(oAttr) !== -1
-					} else if (_.has(s, '$nin')) {
-						ok = s.$nin.indexOf(oAttr) === -1
-					} else if (_.has(s, '$exists')) {
-						ok = (o[key] !== undefined) === !!s.$exists
-					} else if (_.has(s, '$not')) {
-						const innerSelector: any = {}
-						innerSelector[key] = s.$not
-						ok = !mongoWhere(o, innerSelector)
-					} else {
-						if (_.isObject(oAttr) || oAttr === undefined) {
-							ok = mongoWhere(oAttr || {}, s)
-						} else {
-							ok = false
-						}
-					}
-				} else {
-					const innerSelector: any = {}
-					innerSelector[key] = { $eq: s }
-					ok = mongoWhere(o, innerSelector)
-				}
+				const innerSelector: any = {}
+				innerSelector[key] = { $eq: s }
+				ok = mongoWhere(o, innerSelector)
 			}
-		} catch (_e) {
-			ok = false
 		}
 	}
 	return ok
@@ -347,7 +389,8 @@ export function mongoProjectDocument<TDoc extends { _id: ProtectedString<any> }>
 			projectFieldIntoDoc(doc, newDoc, key)
 		}
 		return newDoc
-	} else if (excludeKeys.length !== 0) {
+	} else if (excludeKeys.length !== 0 || idVal === 0) {
+		// `idVal === 0` on its own (a bare `{ _id: 0 }`) is still an exclusion: _id must be removed.
 		if (idVal === 0) excludeKeys.push('_id')
 		const newDoc = clone<any>(doc) // any since excludeKeys breaks strict typings anyway
 		for (const key of excludeKeys) {
@@ -445,7 +488,6 @@ export function mongoModify<TDoc extends { _id: ProtectedString<any> }>(
 	doc: TDoc,
 	modifier: MongoModifier<TDoc>
 ): TDoc {
-	let replace = false
 	for (const [key, value] of Object.entries<any>(modifier)) {
 		if (key === '$set') {
 			_.each(value, (value: any, key: string) => {
@@ -471,21 +513,16 @@ export function mongoModify<TDoc extends { _id: ProtectedString<any> }>(
 			_.each(value, (value: any, key: string) => {
 				renamePath(doc, key, value)
 			})
+		} else if (key[0] === '$') {
+			throw Error(`Update method "${key}" not implemented yet`)
 		} else {
-			if (key[0] === '$') {
-				throw Error(`Update method "${key}" not implemented yet`)
-			} else {
-				replace = true
-			}
+			// A non-operator key means a whole-document update was passed. MongoDB rejects this for
+			// update operations ("Update document requires atomic operators"); full-document writes must go
+			// through a replace instead. Throw rather than silently performing a replace.
+			throw Error(`Update document requires atomic operators (got plain field "${key}"); use replace instead`)
 		}
 	}
-	if (replace) {
-		const newDoc = modifier as TDoc
-		if (!newDoc._id) newDoc._id = doc._id
-		return newDoc
-	} else {
-		return doc
-	}
+	return doc
 }
 
 /**

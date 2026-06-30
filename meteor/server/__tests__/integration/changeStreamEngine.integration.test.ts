@@ -1,37 +1,23 @@
 /**
  * Integration tests for the change-stream observe engine against a REAL MongoDB.
  *
- * These require a mongod binary (downloaded on first run by mongodb-memory-server) and start a single-node
- * replica set (change streams require a replica set). They are slower than the pure-unit tests and live in
- * the normal suite for now; if they become too slow they can be split into their own jest config.
+ * Moved out of `server/collections/changeStream/__tests__/` into the shared `integration` jest project:
+ * instead of booting its own `MongoMemoryReplSet` per file, it connects to the single replica set started
+ * once by `__mocks__/integration-global-setup.js` (change streams require a replica set). Run via
+ * `yarn unit:integration`.
  */
-import { MongoClient, Collection, ChangeStreamDocument } from 'mongodb'
-import { MongoMemoryReplSet } from 'mongodb-memory-server'
-import { protectString, ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
-import { MongoQuery, MongoFieldSpecifier } from '@sofie-automation/corelib/dist/mongo'
-import { CollectionChangeFeed, createCollectionChangeStream, ChangeStreamLike } from '../collectionChangeFeed'
-import { ObserveMultiplexer, ObserveMultiplexerDeps } from '../observeMultiplexer'
-
-interface TestDoc {
-	_id: ProtectedString<any>
-	name?: string
-	val?: number
-	studioId?: string
-}
-const id = (s: string) => protectString<any>(s)
-
-async function waitFor(predicate: () => boolean, timeoutMs = 5000): Promise<void> {
-	const start = Date.now()
-	while (!predicate()) {
-		if (Date.now() - start > timeoutMs) throw new Error('waitFor timed out')
-		await new Promise((r) => setTimeout(r, 20))
-	}
-}
+import { MongoClient, ChangeStreamDocument } from 'mongodb'
+import {
+	CollectionChangeFeed,
+	createCollectionChangeStream,
+	ChangeStreamLike,
+} from '../../collections/changeStream/collectionChangeFeed'
+import { ObserveMultiplexer, ObserveMultiplexerDeps } from '../../collections/changeStream/observeMultiplexer'
+import { connectSharedMongoClient, freshCollection } from './_integrationDb'
+import { TestDoc, id, waitFor, newSink, makeMultiplexer, subscribeChanges } from './_observeHelpers'
 
 describe('change-stream engine (integration)', () => {
-	let replSet: MongoMemoryReplSet
 	let client: MongoClient
-	let collectionCounter = 0
 
 	// Every observe in a test shares this one signal; afterEach aborts it (and beforeEach makes a fresh one),
 	// which cascades to stopping the underlying change feed (otherwise a closed client would restart-loop forever).
@@ -39,9 +25,7 @@ describe('change-stream engine (integration)', () => {
 	let observers: AbortController
 
 	beforeAll(async () => {
-		replSet = await MongoMemoryReplSet.create({ replSet: { count: 1 } })
-		client = new MongoClient(replSet.getUri(), { ignoreUndefined: true })
-		await client.connect()
+		client = await connectSharedMongoClient()
 	}, 120000)
 
 	beforeEach(() => {
@@ -54,62 +38,13 @@ describe('change-stream engine (integration)', () => {
 
 	afterAll(async () => {
 		await client?.close()
-		await replSet?.stop()
 	})
 
-	function makeMultiplexer(
-		collection: Collection<any>,
-		selector: MongoQuery<TestDoc>,
-		projection: MongoFieldSpecifier<TestDoc> | undefined
-	): ObserveMultiplexer<TestDoc> {
-		const feed = new CollectionChangeFeed(
-			collection.collectionName,
-			() => createCollectionChangeStream(client, client.db(), collection.collectionName),
-			() => undefined
-		)
-		const deps: ObserveMultiplexerDeps<TestDoc> = {
-			snapshot: async () => collection.find(selector as any).toArray() as unknown as Promise<TestDoc[]>,
-			subscribeFeed: (onChange, onReconnect) =>
-				feed.subscribe(onChange as (c: ChangeStreamDocument<any>) => void, onReconnect),
-		}
-		return new ObserveMultiplexer<TestDoc>(selector, projection, deps, () => undefined)
-	}
-
-	async function subscribeChanges(
-		m: ObserveMultiplexer<TestDoc>,
-		sink: {
-			added: Array<[any, any]>
-			changed: Array<[any, any]>
-			removed: any[]
-		}
-	) {
-		await m.addObserveChangesSubscriber(
-			{
-				added: (i: any, f: any) => sink.added.push([i, f]),
-				changed: (i: any, f: any) => sink.changed.push([i, f]),
-				removed: (i: any) => sink.removed.push(i),
-			} as any,
-			observers.signal,
-			false
-		)
-	}
-
-	function newSink() {
-		return { added: [] as Array<[any, any]>, changed: [] as Array<[any, any]>, removed: [] as any[] }
-	}
-
-	async function freshCollection(seed: TestDoc[] = []): Promise<Collection<any>> {
-		const name = `obs_test_${collectionCounter++}`
-		const collection = client.db().collection(name)
-		if (seed.length) await collection.insertMany(seed as any[])
-		return collection
-	}
-
 	test('initial snapshot, insert, update, delete', async () => {
-		const collection = await freshCollection([{ _id: id('A'), name: 'a', val: 1 }])
+		const collection = await freshCollection<TestDoc>(client, [{ _id: id('A'), name: 'a', val: 1 }])
 		const sink = newSink()
-		const m = makeMultiplexer(collection, {}, undefined)
-		await subscribeChanges(m, sink)
+		const m = makeMultiplexer(client, collection, {}, undefined)
+		await subscribeChanges(m, sink, observers.signal)
 
 		expect(sink.added).toEqual([[id('A'), { name: 'a', val: 1 }]])
 
@@ -127,10 +62,10 @@ describe('change-stream engine (integration)', () => {
 	})
 
 	test('selector enter/leave and projection', async () => {
-		const collection = await freshCollection()
+		const collection = await freshCollection<TestDoc>(client)
 		const sink = newSink()
-		const m = makeMultiplexer(collection, { studioId: 's1' }, { studioId: 1, val: 1 })
-		await subscribeChanges(m, sink)
+		const m = makeMultiplexer(client, collection, { studioId: 's1' }, { studioId: 1, val: 1 })
+		await subscribeChanges(m, sink, observers.signal)
 
 		// insert outside selector → nothing; then move it in → added
 		await collection.insertOne({ _id: id('X'), studioId: 's2', val: 1, name: 'secret' } as any)
@@ -152,7 +87,7 @@ describe('change-stream engine (integration)', () => {
 	})
 
 	test('two observers with identical args share one change stream', async () => {
-		const collection = await freshCollection([{ _id: id('A'), val: 1 }])
+		const collection = await freshCollection<TestDoc>(client, [{ _id: id('A'), val: 1 }])
 		let watchCount = 0
 
 		const feed = new CollectionChangeFeed(
@@ -168,7 +103,7 @@ describe('change-stream engine (integration)', () => {
 			subscribeFeed: (onChange, onReconnect) =>
 				feed.subscribe(onChange as (c: ChangeStreamDocument<any>) => void, onReconnect),
 		}
-		const m = new ObserveMultiplexer<TestDoc>({}, undefined, deps, () => undefined)
+		const m = new ObserveMultiplexer<TestDoc>({}, undefined, undefined, deps, () => undefined)
 
 		const a: any[] = []
 		const b: any[] = []
@@ -192,11 +127,11 @@ describe('change-stream engine (integration)', () => {
 	})
 
 	test('observe() delivers full documents on add/change/remove', async () => {
-		const collection = await freshCollection([{ _id: id('A'), val: 1 }])
+		const collection = await freshCollection<TestDoc>(client, [{ _id: id('A'), val: 1 }])
 		const added: any[] = []
 		const changed: Array<[any, any]> = []
 		const removed: any[] = []
-		const m = makeMultiplexer(collection, {}, undefined)
+		const m = makeMultiplexer(client, collection, {}, undefined)
 		await m.addObserveSubscriber(
 			{
 				added: (d: any) => added.push(d),
@@ -222,10 +157,10 @@ describe('change-stream engine (integration)', () => {
 	})
 
 	test('a replaceOne is observed as a changed transition', async () => {
-		const collection = await freshCollection([{ _id: id('A'), name: 'a', val: 1 }])
+		const collection = await freshCollection<TestDoc>(client, [{ _id: id('A'), name: 'a', val: 1 }])
 		const sink = newSink()
-		const m = makeMultiplexer(collection, {}, undefined)
-		await subscribeChanges(m, sink)
+		const m = makeMultiplexer(client, collection, {}, undefined)
+		await subscribeChanges(m, sink, observers.signal)
 		expect(sink.added).toEqual([[id('A'), { name: 'a', val: 1 }]])
 
 		await collection.replaceOne({ _id: id('A') }, { name: 'b', val: 1 } as any)
@@ -234,7 +169,7 @@ describe('change-stream engine (integration)', () => {
 	})
 
 	test('recovers writes made while the change stream is down (reconnect re-sync)', async () => {
-		const collection = await freshCollection([{ _id: id('A'), val: 1 }])
+		const collection = await freshCollection<TestDoc>(client, [{ _id: id('A'), val: 1 }])
 		const sink = newSink()
 
 		// A controllable stream: it wraps the REAL change stream, but lets the test inject a synthetic
@@ -262,7 +197,7 @@ describe('change-stream engine (integration)', () => {
 			subscribeFeed: (onChange, onReconnect) =>
 				feed.subscribe(onChange as (c: ChangeStreamDocument<any>) => void, onReconnect),
 		}
-		const m = new ObserveMultiplexer<TestDoc>({}, undefined, deps, () => undefined)
+		const m = new ObserveMultiplexer<TestDoc>({}, undefined, undefined, deps, () => undefined)
 		await m.addObserveChangesSubscriber(
 			{
 				added: (i: any, f: any) => sink.added.push([i, f]),

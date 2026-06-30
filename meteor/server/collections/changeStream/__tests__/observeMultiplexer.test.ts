@@ -447,7 +447,8 @@ describe('ObserveMultiplexer dedup registry', () => {
 			undefined,
 			undefined,
 			cb2 as any,
-			ctrl2.signal,
+			// Also torn down by the shared per-test signal (afterEach) if the test throws before its manual abort.
+			AbortSignal.any([ctrl2.signal, observers.signal]),
 			false,
 			() => deps
 		)
