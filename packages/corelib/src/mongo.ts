@@ -68,6 +68,22 @@ export interface ObserveChangesOptions {
 	nonMutatingCallbacks?: boolean | undefined
 }
 
+/** Callbacks for observing the full documents of a query as its result set changes. */
+export interface ObserveCallbacks<DBInterface> {
+	added?(document: DBInterface): void
+	changed?(newDocument: DBInterface, oldDocument: DBInterface): void
+	removed?(oldDocument: DBInterface): void
+}
+/**
+ * Callbacks for observing a query as its result set changes. Only the differences between the old and new
+ * documents are passed to the callbacks.
+ */
+export interface ObserveChangesCallbacks<DBInterface extends { _id: ProtectedString<any> }> {
+	added?(id: DBInterface['_id'], fields: object): void
+	changed?(id: DBInterface['_id'], fields: object): void
+	removed?(id: DBInterface['_id']): void
+}
+
 /**
  * Subset of MongoSelector, only allows direct queries, not QueryWithModifiers such as $explain etc.
  * Used for simplified expressions (ie not using $and, $or etc..)
@@ -110,8 +126,8 @@ export type MongoModifier<TDoc> = {
 export type MongoBulkWriteOperation<TDoc extends Document> =
 	| { insertOne: InsertOneModel<TDoc> }
 	| { replaceOne: ReplaceOneModel<TDoc> }
-	| { updateOne: Omit<UpdateOneModel<TDoc>, 'update'> & { update: MongoModifier<TDoc> } }
-	| { updateMany: Omit<UpdateManyModel<TDoc>, 'update'> & { update: MongoModifier<TDoc> } }
+	| { updateOne: Omit<UpdateOneModel<TDoc>, 'update' | 'upsert'> & { update: MongoModifier<TDoc> } }
+	| { updateMany: Omit<UpdateManyModel<TDoc>, 'update' | 'upsert'> & { update: MongoModifier<TDoc> } }
 	| { deleteOne: DeleteOneModel<TDoc> }
 	| { deleteMany: DeleteManyModel<TDoc> }
 
@@ -221,6 +237,47 @@ export function mongoWhere<T>(o: Record<string, any>, selector: MongoQuery<T>): 
 	}
 	return ok
 }
+/**
+ * Build a comparator for a {@link SortSpecifier}. Compares by each sort key in turn, then falls back
+ * to `_id` ascending as a final tie-breaker so the resulting order is *total* and *stable* — the same
+ * set of documents always sorts to the same order regardless of input order.
+ */
+export function makeMongoSortComparator<TDoc extends { _id: ProtectedString<any> }>(
+	sortSpec: SortSpecifier<TDoc> | undefined
+): (a: TDoc, b: TDoc) => number {
+	const spec = (sortSpec ?? {}) as any
+	// Underscore doesnt support desc order, or multiple fields, so we have to do it manually
+	const keys = Object.keys(spec).filter((k) => spec[k])
+	return (a, b) => {
+		for (let i = 0; i < keys.length; i++) {
+			const key = keys[i]
+			const order = spec[key]
+
+			// Get the values, and handle asc vs desc
+			const val1 = objectPath.get(order > 0 ? a : b, key)
+			const val2 = objectPath.get(order > 0 ? b : a, key)
+
+			if (_.isEqual(val1, val2)) continue
+			// Missing/null values sort lowest (MongoDB BSON order: null/missing before numbers/strings).
+			// A bare `val1 > val2` would mis-handle `undefined` (all comparisons yield false), so order them
+			// explicitly before falling back to the natural comparison of two present values.
+			const val1Empty = val1 === undefined || val1 === null
+			const val2Empty = val2 === undefined || val2 === null
+			if (val1Empty && val2Empty) continue
+			else if (val1Empty) return -1
+			else if (val2Empty) return 1
+			else if (val1 > val2) return 1
+			else return -1
+		}
+		// Final tie-break by `_id` ascending, for a total and resync-stable order.
+		const id1 = a._id as unknown as string
+		const id2 = b._id as unknown as string
+		if (id1 < id2) return -1
+		if (id1 > id2) return 1
+		return 0
+	}
+}
+
 export function mongoFindOptions<TDoc extends { _id: ProtectedString<any> }>(
 	docs0: ReadonlyArray<TDoc>,
 	options?: FindOptions<TDoc>
@@ -229,29 +286,9 @@ export function mongoFindOptions<TDoc extends { _id: ProtectedString<any> }>(
 	if (options) {
 		const sortOptions = options.sort as any
 		if (sortOptions) {
-			// Underscore doesnt support desc order, or multiple fields, so we have to do it manually
 			const keys = Object.keys(sortOptions).filter((k) => sortOptions[k])
-			const doSort = (a: any, b: any, i: number): number => {
-				if (i >= keys.length) return 0
-
-				const key = keys[i]
-				const order = sortOptions[key]
-
-				// Get the values, and handle asc vs desc
-				const val1 = objectPath.get(order > 0 ? a : b, key)
-				const val2 = objectPath.get(order > 0 ? b : a, key)
-
-				if (_.isEqual(val1, val2)) {
-					return doSort(a, b, i + 1)
-				} else if (val1 > val2) {
-					return 1
-				} else {
-					return -1
-				}
-			}
-
 			if (keys.length > 0) {
-				docs.sort((a, b) => doSort(a, b, 0))
+				docs.sort(makeMongoSortComparator<TDoc>(sortOptions))
 			}
 		}
 
@@ -265,46 +302,77 @@ export function mongoFindOptions<TDoc extends { _id: ProtectedString<any> }>(
 		if ('fields' in options && 'projection' in options) {
 			throw new Error(`Only one of 'fields' and 'projection' can be specified`)
 		}
-		const projection = (options.projection || options.fields) as any
+		const projection = (options.projection || options.fields) as MongoFieldSpecifier<TDoc> | undefined
 		if (projection !== undefined) {
-			const idVal = projection['_id']
-			const includeKeys = _.keys(projection).filter((key) => key !== '_id' && projection[key] !== 0)
-			const excludeKeys: string[] = _.keys(projection).filter((key) => key !== '_id' && projection[key] === 0)
-
-			// Mongo does not allow mixed include and exclude (exception being excluding _id)
-			// https://docs.mongodb.com/manual/reference/method/db.collection.find/#projection
-			if (includeKeys.length !== 0 && excludeKeys.length !== 0) {
-				throw new Error(`options.projection cannot contain both include and exclude rules`)
-			}
-
-			if (includeKeys.length !== 0) {
-				if (idVal !== 0) includeKeys.push('_id')
-				docs = docs.map((doc) => {
-					const newDoc: any = {} // any since includeKeys breaks strict typings anyway
-
-					for (const key of includeKeys) {
-						projectFieldIntoDoc(doc, newDoc, key)
-					}
-
-					return newDoc
-				})
-			} else if (excludeKeys.length !== 0) {
-				if (idVal === 0) excludeKeys.push('_id')
-				docs = docs.map((doc) => {
-					const newDoc = clone<any>(doc) // any since excludeKeys breaks strict typings anyway
-
-					for (const key of excludeKeys) {
-						objectPath.del(newDoc, key)
-					}
-
-					return newDoc
-				})
-			}
+			docs = docs.map((doc) => mongoProjectDocument(doc, projection))
 		}
 
 		// options.reactive // Not used server-side
 	}
 	return docs
+}
+
+/**
+ * Apply a MongoDB projection (`fields`/`projection` specifier) to a single document, in JS.
+ * Returns a new (projected) document, or the same document if no projection is given.
+ */
+export function mongoProjectDocument<TDoc extends { _id: ProtectedString<any> }>(
+	doc: TDoc,
+	projection: MongoFieldSpecifier<TDoc> | undefined
+): TDoc {
+	if (projection === undefined) return doc
+
+	// Flatten any embedded-document form into dot-notation, so that `{ b: { c: 1 } }` is treated
+	// identically to `{ 'b.c': 1 }` (as MongoDB does). This lets the include/exclude branches below
+	// reuse the dot-path aware projection logic instead of including/excluding the whole `b` subtree.
+	const proj: Record<string, 0 | 1> = {}
+	flattenProjection(projection as Record<string, unknown>, '', proj)
+
+	const idVal = proj['_id']
+	const includeKeys = _.keys(proj).filter((key) => key !== '_id' && proj[key] !== 0)
+	const excludeKeys: string[] = _.keys(proj).filter((key) => key !== '_id' && proj[key] === 0)
+
+	// Mongo does not allow mixed include and exclude (exception being excluding _id)
+	// https://docs.mongodb.com/manual/reference/method/db.collection.find/#projection
+	if (includeKeys.length !== 0 && excludeKeys.length !== 0) {
+		throw new Error(`options.projection cannot contain both include and exclude rules`)
+	}
+
+	if (includeKeys.length !== 0) {
+		if (idVal !== 0) includeKeys.push('_id')
+		const newDoc: any = {} // any since includeKeys breaks strict typings anyway
+		for (const key of includeKeys) {
+			projectFieldIntoDoc(doc, newDoc, key)
+		}
+		return newDoc
+	} else if (excludeKeys.length !== 0) {
+		if (idVal === 0) excludeKeys.push('_id')
+		const newDoc = clone<any>(doc) // any since excludeKeys breaks strict typings anyway
+		for (const key of excludeKeys) {
+			objectPath.del(newDoc, key)
+		}
+		return newDoc
+	}
+
+	return doc
+}
+
+/**
+ * Flatten a projection specifier into a flat map of dot-notation path -> 0 | 1.
+ * Embedded-document form is expanded, so `{ a: 1, b: { c: 1 } }` becomes `{ a: 1, 'b.c': 1 }`,
+ * matching how MongoDB interprets nested projection objects.
+ */
+function flattenProjection(projection: Record<string, unknown>, prefix: string, out: Record<string, 0 | 1>): void {
+	for (const key of Object.keys(projection)) {
+		const value = projection[key]
+		const path = prefix ? `${prefix}.${key}` : key
+		if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
+			// Nested embedded-document form, e.g. { b: { c: 1 } } === { 'b.c': 1 }
+			flattenProjection(value as Record<string, unknown>, path, out)
+		} else {
+			out[path] = value === 0 ? 0 : 1
+		}
+	}
 }
 
 /**
