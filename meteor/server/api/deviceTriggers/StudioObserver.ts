@@ -21,8 +21,8 @@ import { RundownContentObserver } from './RundownContentObserver'
 import { RundownsObserver } from './RundownsObserver'
 import { RundownPlaylists, Rundowns, ShowStyleBases } from '../../collections'
 import { PromiseDebounce } from '../../publications/lib/PromiseDebounce'
-import { MinimalMongoCursor } from '../../collections/implementations/asyncCollection'
 import { PieceInstancesObserver } from './PieceInstancesObserver'
+import { MinimalMongoCursor } from '../../collections/collection'
 
 type RundownContentChangeHandler = (showStyleBaseId: ShowStyleBaseId, cache: ContentCache) => () => void
 type PieceInstancesChangeHandler = (showStyleBaseId: ShowStyleBaseId, cache: PieceInstancesContentCache) => () => void

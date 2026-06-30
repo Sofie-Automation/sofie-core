@@ -9,16 +9,12 @@ import {
 } from '@sofie-automation/corelib/dist/mongo'
 import { PromisifyCallbacks } from '@sofie-automation/shared-lib/dist/lib/types'
 import { observeChangesViaChangeStream, observeViaChangeStream, ObserveMultiplexerDeps } from './observeMultiplexer'
-import type { MinimalMongoCursor } from '../implementations/asyncCollection'
+import type { MinimalMongoCursor } from '../collection'
 
 export interface ChangeStreamCursorConfig<TDoc extends { _id: ProtectedString<any> }> {
 	collectionName: string
 	selector: MongoQuery<TDoc>
 	projection: MongoFieldSpecifier<TDoc> | undefined
-	/** Fetch the matching documents (native find, with projection applied) */
-	fetch: () => Promise<TDoc[]>
-	/** Count the matching documents. When `applySkipLimit` is false, ignore any skip/limit in the options. */
-	count: (applySkipLimit: boolean) => Promise<number>
 	/** Build the deps for an observe multiplexer over this cursor's query */
 	makeDeps: () => ObserveMultiplexerDeps<TDoc>
 }
@@ -27,8 +23,6 @@ export interface ChangeStreamCursorConfig<TDoc extends { _id: ProtectedString<an
  * A lazy "watcher" returned by `findWithCursor`. It exposes the async cursor methods the codebase uses
  * (`fetchAsync`/`countAsync`/`observeChangesAsync`/`observeAsync`) plus a plain `collectionName`.
  *
- * Unlike a Meteor cursor it has NO `_publishCursor`: publications are wired up by `meteorPublish`
- * (`driveSubscriptionFromCursor`).
  * Observing goes through the shared change-stream multiplexer, so identical queries are de-duplicated.
  */
 export class ChangeStreamCursor<TDoc extends { _id: ProtectedString<any> }> implements MinimalMongoCursor<TDoc> {
@@ -38,14 +32,6 @@ export class ChangeStreamCursor<TDoc extends { _id: ProtectedString<any> }> impl
 	constructor(config: ChangeStreamCursorConfig<TDoc>) {
 		this.#config = config
 		this.collectionName = config.collectionName
-	}
-
-	async fetchAsync(): Promise<TDoc[]> {
-		return this.#config.fetch()
-	}
-
-	async countAsync(applySkipLimit = true): Promise<number> {
-		return this.#config.count(applySkipLimit)
 	}
 
 	async observeChangesAsync(

@@ -1,6 +1,5 @@
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
-import { MongoReadOnlyCollection } from '@sofie-automation/meteor-lib/dist/collections/lib'
 import { AsyncOnlyMongoCollection, AsyncOnlyReadOnlyMongoCollection } from '../server/collections/collection'
 import { Collections } from '../server/collections/lib'
 
@@ -34,7 +33,7 @@ export namespace MongoMock {
 
 	/** The backing in-memory collection for a wrapped (mock) collection. */
 	export function getInnerMockCollection<T extends { _id: ProtectedString<any> }>(
-		collection: MongoReadOnlyCollection<T> | AsyncOnlyReadOnlyMongoCollection<T>
+		collection: AsyncOnlyReadOnlyMongoCollection<T>
 	): InMemoryMongoCollection<T> {
 		return (collection as any).mockCollection
 	}

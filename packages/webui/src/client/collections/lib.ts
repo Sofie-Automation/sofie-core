@@ -14,28 +14,24 @@ import type {
 	PeripheralDevicePubSubCollectionsNames,
 } from '@sofie-automation/shared-lib/dist/pubsub/peripheralDevice'
 import type {
-	MongoCollection,
-	MongoReadOnlyCollection,
-	MongoCursor,
 	FindOptions,
 	FindOneOptions,
 	UpdateOptions,
 	UpsertOptions,
 } from '@sofie-automation/meteor-lib/dist/collections/lib'
 import type { CorelibPubSubCustomCollections } from '@sofie-automation/corelib/dist/pubsub'
+import type { MongoCollection, MongoCursor, MongoReadOnlyCollection } from './types'
 
 export type {
 	FieldNames,
 	FindOneOptions,
 	FindOptions,
 	IndexSpecifier,
-	MongoCollection,
-	MongoCursor,
 	MongoLiveQueryHandle,
-	MongoReadOnlyCollection,
 	UpdateOptions,
 	UpsertOptions,
 } from '@sofie-automation/meteor-lib/dist/collections/lib'
+export * from './types'
 
 export const ClientCollections = new Map<CollectionName, MongoCollection<any> | WrappedMongoReadOnlyCollection<any>>()
 function registerClientCollection(

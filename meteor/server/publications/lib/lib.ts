@@ -3,7 +3,7 @@ import { AllPubSubCollections, AllPubSubTypes } from '@sofie-automation/meteor-l
 import { extractFunctionSignature } from '../../lib'
 import { protectStringObject, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { MetricsGauge } from '@sofie-automation/corelib/dist/prometheus'
-import { MinimalMongoCursor } from '../../collections/implementations/asyncCollection'
+import { MinimalMongoCursor } from '../../collections/collection'
 import { ChangeStreamCursor } from '../../collections/changeStream/changeStreamCursor'
 
 export const MeteorPublicationSignatures: { [key: string]: string[] } = {}

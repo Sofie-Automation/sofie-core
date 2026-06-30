@@ -1,8 +1,7 @@
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { Meteor } from 'meteor/meteor'
 import type { IndexDescriptionInfo } from 'mongodb'
-import type { AsyncOnlyMongoCollection, AsyncOnlyReadOnlyMongoCollection } from '../collection'
-import type { MinimalMongoCursor } from './asyncCollection'
+import type { AsyncOnlyMongoCollection, AsyncOnlyReadOnlyMongoCollection, MinimalMongoCursor } from '../collection'
 
 export class WrappedReadOnlyMongoCollection<
 	DBInterface extends { _id: ProtectedString<any> },

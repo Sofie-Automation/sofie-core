@@ -17,8 +17,12 @@ import { createMockCollection } from './implementations/mock'
 import { WrappedAsyncMongoCollection } from './implementations/asyncCollection'
 import { WrappedReadOnlyMongoCollection } from './implementations/readonlyWrapper'
 import { isInMockMode } from './mongoConnection'
-import { FieldNames, IndexSpecifier, UpdateOptions } from '@sofie-automation/meteor-lib/dist/collections/lib'
-import { MinimalMongoCursor } from './implementations/asyncCollection'
+import {
+	FieldNames,
+	IndexSpecifier,
+	MongoLiveQueryHandle,
+	UpdateOptions,
+} from '@sofie-automation/meteor-lib/dist/collections/lib'
 import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
 
 export interface CustomMongoAllowRules<DBInterface> {
@@ -84,6 +88,29 @@ function createWrappedCollection<DBInterface extends { _id: ProtectedString<any>
 		// Backed by the native mongodb driver (CRUD) and the change-stream observe engine
 		return new WrappedAsyncMongoCollection<DBInterface>(name)
 	}
+}
+
+/**
+ * A minimal mongo cursor, with only the async methods used by the codebase.
+ * This is intentionally only the observe methods, kept for publication usage to avoid a larger refactor
+ */
+export interface MinimalMongoCursor<T extends { _id: ProtectedString<any> }> {
+	readonly collectionName: string | null
+
+	/**
+	 * Watch a query. Receive callbacks as the result set changes.
+	 * @param callbacks Functions to call to deliver the result set as it changes
+	 */
+	observeAsync(callbacks: ObserveCallbacks<T>): Promise<MongoLiveQueryHandle>
+	/**
+	 * Watch a query. Receive callbacks as the result set changes. Only the differences between the old and new documents are passed to the callbacks.
+	 * @param callbacks Functions to call to deliver the result set as it changes
+	 * @param options { nonMutatingCallbacks: boolean }
+	 */
+	observeChangesAsync(
+		callbacks: ObserveChangesCallbacks<T>,
+		options?: { nonMutatingCallbacks?: boolean | undefined }
+	): Promise<MongoLiveQueryHandle>
 }
 
 /**

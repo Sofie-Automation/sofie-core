@@ -71,6 +71,7 @@ meteorPublish(
 
 		return UserActionsLog.findWithCursor(selector, {
 			limit: 10_000, // this is to prevent having a publication that produces a very large array
+			sort: { timestamp: -1 },
 		})
 	}
 )

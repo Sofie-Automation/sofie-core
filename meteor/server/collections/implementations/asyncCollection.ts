@@ -8,12 +8,7 @@ import {
 } from '@sofie-automation/corelib/dist/mongo'
 import { ProtectedString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { Meteor } from 'meteor/meteor'
-import {
-	UpdateOptions,
-	IndexSpecifier,
-	MongoCursor,
-	FindOptions,
-} from '@sofie-automation/meteor-lib/dist/collections/lib'
+import { UpdateOptions, IndexSpecifier, FindOptions } from '@sofie-automation/meteor-lib/dist/collections/lib'
 import type {
 	Collection as RawCollection,
 	CreateIndexesOptions,
@@ -25,7 +20,7 @@ import { MongoFieldSpecifier } from '@sofie-automation/corelib/dist/mongo'
 import { profiler } from '../../api/profiler'
 import { logger } from '../../logging'
 import { PromisifyCallbacks } from '@sofie-automation/shared-lib/dist/lib/types'
-import { AsyncOnlyMongoCollection } from '../collection'
+import { AsyncOnlyMongoCollection, MinimalMongoCursor } from '../collection'
 import { getMongoDb } from '../mongoConnection'
 import {
 	observeChangesViaChangeStream,
@@ -34,15 +29,6 @@ import {
 } from '../changeStream/observeMultiplexer'
 import { ChangeStreamCursor } from '../changeStream/changeStreamCursor'
 import { subscribeToCollectionChangeFeed } from '../changeStream/collectionChangeFeed'
-
-/**
- * A stripped down version of a cursor, with only the async methods used by the codebase, plus the name of
- * the collection it came from (used by the publish layer to address DDP messages).
- */
-export type MinimalMongoCursor<T extends { _id: ProtectedString<any> }> = Pick<
-	MongoCursor<T>,
-	'fetchAsync' | 'observeChangesAsync' | 'observeAsync' | 'countAsync'
-> & { readonly collectionName: string | null }
 
 /**
  * Translate a meteor-lib {@link FindOptions} into the options the native `mongodb` driver accepts.
@@ -168,22 +154,13 @@ export class WrappedAsyncMongoCollection<
 
 	async findWithCursor(
 		selector?: MongoQuery<DBInterface> | DBInterface['_id'],
-		options?: FindOptions<DBInterface>
+		options?: Omit<FindOptions<DBInterface>, 'fields'>
 	): Promise<MinimalMongoCursor<DBInterface>> {
 		const sel = this.mongoSelector(selector)
 		return new ChangeStreamCursor<DBInterface>({
 			collectionName: this.name,
 			selector: sel,
 			projection: this.projectionOf(options),
-			fetch: async () => this.findFetchAsync(sel, options),
-			// When applySkipLimit is false, strip skip/limit so the count reflects the total matching set.
-			count: async (applySkipLimit) =>
-				this.countDocuments(
-					sel,
-					applySkipLimit
-						? options
-						: ({ ...options, skip: undefined, limit: undefined } as FindOptions<DBInterface>)
-				),
 			makeDeps: () => this.observeDeps(sel),
 		})
 	}

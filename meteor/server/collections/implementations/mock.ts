@@ -13,8 +13,7 @@ import type { CreateIndexesOptions, IndexDescriptionInfo } from 'mongodb'
 import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
 import { PromisifyCallbacks } from '@sofie-automation/shared-lib/dist/lib/types'
 import { UpdateOptions, IndexSpecifier } from '@sofie-automation/meteor-lib/dist/collections/lib'
-import { AsyncOnlyMongoCollection } from '../collection'
-import { MinimalMongoCursor } from './asyncCollection'
+import { AsyncOnlyMongoCollection, MinimalMongoCursor } from '../collection'
 
 /**
  * {@link WrappedMockCollection} only ever runs under jest, where `Meteor` is the mock that provides
@@ -93,17 +92,6 @@ export class WrappedMockCollection<
 		await this.#sleep(0)
 		return {
 			collectionName: this.#core.name,
-			fetchAsync: async () => {
-				await this.#sleep(0)
-				return this.#core.findFetch(selector, options)
-			},
-			countAsync: async (applySkipLimit = true) => {
-				await this.#sleep(0)
-				return this.#core.count(
-					selector,
-					applySkipLimit ? options : { ...options, skip: undefined, limit: undefined }
-				)
-			},
 			observeAsync: async (callbacks) => {
 				await this.#sleep(0)
 				return this.#core.observe(callbacks, selector, options)
