@@ -43,7 +43,11 @@ export function PropertiesPanel(): JSX.Element {
 	const [pendingChange, setPendingChange] = useState<PendingChange | undefined>(undefined)
 	const hasPendingChanges = !!pendingChange
 
-	const { selectedObjects, rundownId } = useSelectedElements(selectedElement, () => setPendingChange(undefined))
+	const clearPendingChange = useCallback(() => {
+		setPendingChange(undefined)
+	}, [])
+
+	const { selectedObjects, rundownId } = useSelectedElements(selectedElement, clearPendingChange)
 
 	const [hadSmallestElement, setHadSmallestElement] = useState(false)
 
@@ -143,7 +147,7 @@ export function PropertiesPanel(): JSX.Element {
 	}
 
 	const { title, userEditOperations, userEditProperties } = useSelectedObjectsUserEditProps(
-		selectedElement.type,
+		selectedElement?.type,
 		selectedObjects
 	)
 
