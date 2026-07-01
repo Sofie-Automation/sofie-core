@@ -8,7 +8,7 @@ import { assertNever, getHash } from '@sofie-automation/corelib/dist/lib'
 import type { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { ProtectedString, protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { getCurrentTime } from '../../lib/lib'
-import { MeteorCall } from '../methods'
+import { IMeteorCall } from '@sofie-automation/meteor-lib/dist/api/methods'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { UserAction } from '@sofie-automation/meteor-lib/dist/userAction'
 import { TFunction } from 'i18next'
@@ -69,55 +69,62 @@ class MeteorTriggersCollectionWrapper<
 	}
 }
 
-export const MeteorTriggersContext: TriggersContext = {
-	MeteorCall,
+/**
+ * Build the server-side `TriggersContext` used to compile and execute device-trigger actions.
+ * `meteorCall` is injected (rather than imported as a global) so it dispatches through the process's
+ * `MethodRegistry`.
+ */
+export function createMeteorTriggersContext(meteorCall: IMeteorCall): TriggersContext {
+	return {
+		MeteorCall: meteorCall,
 
-	logger,
+		logger,
 
-	isClient: false,
+		isClient: false,
 
-	AdLibActions: new MeteorTriggersCollectionWrapper(AdLibActions),
-	AdLibPieces: new MeteorTriggersCollectionWrapper(AdLibPieces),
-	Parts: new MeteorTriggersCollectionWrapper(Parts),
-	RundownBaselineAdLibActions: new MeteorTriggersCollectionWrapper(RundownBaselineAdLibActions),
-	RundownBaselineAdLibPieces: new MeteorTriggersCollectionWrapper(RundownBaselineAdLibPieces),
-	RundownPlaylists: new MeteorTriggersCollectionWrapper(RundownPlaylists),
-	Rundowns: new MeteorTriggersCollectionWrapper(Rundowns),
-	Segments: new MeteorTriggersCollectionWrapper(Segments),
+		AdLibActions: new MeteorTriggersCollectionWrapper(AdLibActions),
+		AdLibPieces: new MeteorTriggersCollectionWrapper(AdLibPieces),
+		Parts: new MeteorTriggersCollectionWrapper(Parts),
+		RundownBaselineAdLibActions: new MeteorTriggersCollectionWrapper(RundownBaselineAdLibActions),
+		RundownBaselineAdLibPieces: new MeteorTriggersCollectionWrapper(RundownBaselineAdLibPieces),
+		RundownPlaylists: new MeteorTriggersCollectionWrapper(RundownPlaylists),
+		Rundowns: new MeteorTriggersCollectionWrapper(Rundowns),
+		Segments: new MeteorTriggersCollectionWrapper(Segments),
 
-	hashSingleUseToken,
+		hashSingleUseToken,
 
-	doUserAction: <Result>(
-		_t: TFunction,
-		userEvent: string,
-		_action: UserAction,
-		fcn: (event: string, timeStamp: Time) => Promise<ClientAPI.ClientResponse<Result>>,
-		callback?: (err: any, res?: Result) => void | boolean,
-		_okMessage?: string
-	): void => {
-		fcn(userEvent, getCurrentTime()).then(
-			(value) =>
-				typeof callback === 'function' &&
-				(ClientAPI.isClientResponseSuccess(value) ? callback(undefined, value.result) : callback(value)),
-			(reason) => typeof callback === 'function' && callback(reason)
-		)
-	},
+		doUserAction: <Result>(
+			_t: TFunction,
+			userEvent: string,
+			_action: UserAction,
+			fcn: (event: string, timeStamp: Time) => Promise<ClientAPI.ClientResponse<Result>>,
+			callback?: (err: any, res?: Result) => void | boolean,
+			_okMessage?: string
+		): void => {
+			fcn(userEvent, getCurrentTime()).then(
+				(value) =>
+					typeof callback === 'function' &&
+					(ClientAPI.isClientResponseSuccess(value) ? callback(undefined, value.result) : callback(value)),
+				(reason) => typeof callback === 'function' && callback(reason)
+			)
+		},
 
-	withComputation: async (_computation, func) => {
-		// Note: the _computation is not used, since we are not using Tracker server-side
-		return func()
-	},
+		withComputation: async (_computation, func) => {
+			// Note: the _computation is not used, since we are not using Tracker server-side
+			return func()
+		},
 
-	memoizedIsolatedAutorun: async <TArgs extends any[], TRes>(
-		computation: TriggerTrackerComputation | null,
-		fnc: (computation: TriggerTrackerComputation | null, ...args: TArgs) => Promise<TRes>,
-		_functionName: string,
-		...params: TArgs
-	): Promise<TRes> => {
-		return fnc(computation, ...params)
-	},
+		memoizedIsolatedAutorun: async <TArgs extends any[], TRes>(
+			computation: TriggerTrackerComputation | null,
+			fnc: (computation: TriggerTrackerComputation | null, ...args: TArgs) => Promise<TRes>,
+			_functionName: string,
+			...params: TArgs
+		): Promise<TRes> => {
+			return fnc(computation, ...params)
+		},
 
-	createContextForRundownPlaylistChain,
+		createContextForRundownPlaylistChain,
+	}
 }
 
 async function createContextForRundownPlaylistChain(

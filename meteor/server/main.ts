@@ -46,7 +46,6 @@ import './Connections'
 import './coreSystem'
 import './cronjobs'
 import './prometheus'
-import './api/deviceTriggers/observer'
 import './logo'
 import './systemTime'
 // import './performanceMonitor' // called above
@@ -58,6 +57,9 @@ import { registerAllPublications } from './publicationRegistrations'
 import { bindRestApiRouter } from './api/rest/api'
 import { startupVerifyAllMethods } from './security/securityVerify'
 import { startStandaloneDdpServer } from './ddp-server'
+import { makeMeteorCallForRegistry } from './api/meteorCall'
+import { createMeteorTriggersContext } from './api/deviceTriggers/triggersContext'
+import { startDeviceTriggersObserver } from './api/deviceTriggers/observer'
 
 // Build and populate the method registry
 const methodRegistry = new MethodRegistry()
@@ -67,9 +69,12 @@ registerAllApiMethods(methodRegistry)
 const publicationRegistry = new PublicationRegistry()
 registerAllPublications(publicationRegistry)
 
-Meteor.startup(() => {
+Meteor.startup(async () => {
 	bindRestApiRouter(methodRegistry, publicationRegistry)
 	startupVerifyAllMethods(methodRegistry)
+
+	// Start observing studios for device triggers, dispatching their actions through the method registry
+	await startDeviceTriggersObserver(createMeteorTriggersContext(makeMeteorCallForRegistry(methodRegistry)))
 
 	startStandaloneDdpServer(methodRegistry, publicationRegistry)
 
