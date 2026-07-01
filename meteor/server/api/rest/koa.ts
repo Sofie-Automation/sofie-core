@@ -8,7 +8,7 @@ import { getRandomString } from '@sofie-automation/corelib/dist/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { getRootSubpath, public_dir } from '../../lib'
 import { getClientAddress } from '../../lib/clientAddress'
-import { STANDALONE_DDP_SERVER_ENABLED, STANDALONE_DDP_SERVER_PATH } from '../../ddp-server/config'
+import { STANDALONE_DDP_SERVER_PATH } from '../../ddp-server/config'
 import staticServe from 'koa-static'
 import { logger } from '../../logging'
 import { PackageInfo } from '../../coreSystem'
@@ -125,12 +125,7 @@ function getExtendedMeteorRuntimeConfig() {
 		// @ts-expect-error missing types for internal meteor detail
 		...__meteor_runtime_config__,
 		sofieVersionExtended: versionExtended,
-		// The webui's DDP connection endpoint is defined here — point it at the standalone DDP server when
-		// enabled, otherwise Meteor's own DDP endpoint. This is a site-root-relative path (no prefix): the
-		// vendored client resolves it against ROOT_URL_PATH_PREFIX (it no longer appends `/websocket` — see
-		// packages/webui/src/meteor/socket-stream-client/urls.js), and the server matches the prefixed path
-		// the same way (`getRootSubpath() + path` in ddp-server/index.ts).
-		DDP_DEFAULT_CONNECTION_URL: STANDALONE_DDP_SERVER_ENABLED ? STANDALONE_DDP_SERVER_PATH : '/websocket',
+		DDP_DEFAULT_CONNECTION_URL: STANDALONE_DDP_SERVER_PATH,
 	})})`
 }
 
