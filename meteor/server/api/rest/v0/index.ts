@@ -25,7 +25,7 @@ const LEGACY_API_VERSION = 0
  * only invoked to obtain its cursor, which is then fetched once. There is no connection, so any
  * publication that requires one will reject (matching the historical behaviour).
  */
-const legacyRestPublicationContext: PublicationContext = {
+const legacyRestPublicationContext: Omit<PublicationContext, 'signal'> = {
 	connection: null,
 	onStop: () => undefined,
 	ready: () => undefined,
@@ -121,14 +121,21 @@ export function createLegacyApiRouter(
 			index.GET.push(docString)
 
 			assignRoute(router, 'GET', resource, signature.length, async (args) => {
-				const convArgs = typeConvertUrlParameters(args)
-				const cursor = (await f(legacyRestPublicationContext, ...convArgs)) as
-					| { fetch: () => unknown }
-					| null
-					| undefined
+				const abort = new AbortController()
 
-				if (cursor) return cursor.fetch()
-				return []
+				try {
+					const convArgs = typeConvertUrlParameters(args)
+					const cursor = (await f({ ...legacyRestPublicationContext, signal: abort.signal }, ...convArgs)) as
+						| { fetch: () => unknown }
+						| null
+						| undefined
+
+					if (cursor) return cursor.fetch()
+					return []
+				} finally {
+					// Ensure the publication is torn down, even if the fetch fails.
+					abort.abort()
+				}
 			})
 		}
 	}

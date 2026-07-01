@@ -1,11 +1,8 @@
 import { MethodContextAPI } from './methodContext'
 import { NewUserAPI } from '@sofie-automation/meteor-lib/dist/api/user'
 import { triggerWriteAccessBecauseNoCheckNecessary } from '../security/securityVerify'
-import {
-	parseUserPermissions,
-	USER_PERMISSIONS_HEADER,
-	UserPermissions,
-} from '@sofie-automation/meteor-lib/dist/userPermissions'
+import { parseUserPermissions, UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
+import { USER_PERMISSIONS_HEADER } from '../security/auth'
 
 export class ServerUserAPI extends MethodContextAPI implements NewUserAPI {
 	async getUserPermissions(): Promise<UserPermissions> {
