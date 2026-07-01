@@ -10,7 +10,6 @@
 
 meteor@2.3.0
 webapp@2.1.2
-ddp@1.4.2
 
 mongo@2.3.0 # The database Meteor supports right now
 

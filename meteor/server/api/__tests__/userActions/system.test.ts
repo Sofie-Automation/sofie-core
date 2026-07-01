@@ -24,6 +24,11 @@ import { StudioPlayoutDevice } from '@sofie-automation/corelib/dist/dataModel/St
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { registerAllMethodsForTest } from '../../../../__mocks__/helpers/methods'
 
+// registerAllMethodsForTest() pulls in the full API graph, which imports deviceTriggers/observer and
+// registers a Meteor.startup() callback. Mock it so that draining startup can never spin up the real
+// device-trigger observers/job-queue and interfere with this suite.
+jest.mock('../../deviceTriggers/observer')
+
 registerAllMethodsForTest()
 
 describe('User Actions - Disable Peripheral SubDevice', () => {
