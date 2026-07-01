@@ -11,7 +11,7 @@ import { PromisifyCallbacks } from '@sofie-automation/shared-lib/dist/lib/types'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { EJSON } from 'meteor/ejson'
 import { logger } from '../../logging'
-import { ObserveView, fieldsFor } from '@sofie-automation/corelib/dist/memoryCollection/observeView'
+import { ObserveView, ObserveViewShape, fieldsFor } from '@sofie-automation/corelib/dist/memoryCollection/observeView'
 import { CollectionFeedHandle } from './collectionChangeFeed'
 
 type Doc = { _id: ProtectedString<any> }
@@ -80,12 +80,13 @@ export class ObserveMultiplexer<TDoc extends Doc> {
 	constructor(
 		selector: MongoQuery<TDoc>,
 		projection: MongoFieldSpecifier<TDoc> | undefined,
+		shape: ObserveViewShape<TDoc> | undefined,
 		deps: ObserveMultiplexerDeps<TDoc>,
 		onEmpty: () => void
 	) {
 		this.#deps = deps
 		this.#onEmpty = onEmpty
-		this.#view = new ObserveView<TDoc>(selector, projection, {
+		this.#view = new ObserveView<TDoc>(selector, projection, shape, {
 			added: (id, doc) => this.#pending.push({ kind: 'added', id, doc }),
 			changed: (id, newDoc, oldDoc, fields) =>
 				this.#pending.push({ kind: 'changed', id, newDoc, oldDoc, fields }),
@@ -308,21 +309,24 @@ const multiplexers = new Map<string, ObserveMultiplexer<any>>()
  * collide) which is fine for hashing but would incorrectly merge two different queries onto one
  * multiplexer here. EJSON canonical is injective and also serialises Date/RegExp/etc. faithfully.
  */
-function multiplexerKey(collectionName: string, selector: unknown, projection: unknown): string {
+function multiplexerKey(collectionName: string, selector: unknown, projection: unknown, shape: unknown): string {
 	const canonical = (v: unknown) => EJSON.stringify(v as any, { canonical: true })
-	return `${collectionName}::${canonical(selector)}::${canonical(projection ?? null)}`
+	// Include the shape (sort/skip/limit): observers with the same selector+projection but a different
+	// window publish different sets, so they must NOT share a multiplexer.
+	return `${collectionName}::${canonical(selector)}::${canonical(projection ?? null)}::${canonical(shape ?? null)}`
 }
 
 function getOrCreateMultiplexer<TDoc extends Doc>(
 	collectionName: string,
 	selector: MongoQuery<TDoc>,
 	projection: MongoFieldSpecifier<TDoc> | undefined,
+	shape: ObserveViewShape<TDoc> | undefined,
 	makeDeps: () => ObserveMultiplexerDeps<TDoc>
 ): ObserveMultiplexer<TDoc> {
-	const key = multiplexerKey(collectionName, selector, projection)
+	const key = multiplexerKey(collectionName, selector, projection, shape)
 	let m = multiplexers.get(key)
 	if (!m) {
-		m = new ObserveMultiplexer<TDoc>(selector, projection, makeDeps(), () => multiplexers.delete(key))
+		m = new ObserveMultiplexer<TDoc>(selector, projection, shape, makeDeps(), () => multiplexers.delete(key))
 		multiplexers.set(key, m)
 	}
 	return m
@@ -340,6 +344,7 @@ export async function observeChangesViaChangeStream<TDoc extends Doc>(
 	collectionName: string,
 	selector: MongoQuery<TDoc>,
 	projection: MongoFieldSpecifier<TDoc> | undefined,
+	shape: ObserveViewShape<TDoc> | undefined,
 	callbacks: PromisifyCallbacks<ObserveChangesCallbacks<TDoc>>,
 	signal: AbortSignal,
 	nonMutating: boolean,
@@ -348,7 +353,7 @@ export async function observeChangesViaChangeStream<TDoc extends Doc>(
 	// If the caller has already aborted, do nothing - crucially, don't create a multiplexer (which would
 	// open a change feed) that would never gain a subscriber and so never be torn down.
 	if (signal.aborted) return
-	const m = getOrCreateMultiplexer(collectionName, selector, projection, makeDeps)
+	const m = getOrCreateMultiplexer(collectionName, selector, projection, shape, makeDeps)
 	return m.addObserveChangesSubscriber(callbacks, signal, nonMutating)
 }
 
@@ -357,6 +362,7 @@ export async function observeViaChangeStream<TDoc extends Doc>(
 	collectionName: string,
 	selector: MongoQuery<TDoc>,
 	projection: MongoFieldSpecifier<TDoc> | undefined,
+	shape: ObserveViewShape<TDoc> | undefined,
 	callbacks: PromisifyCallbacks<ObserveCallbacks<TDoc>>,
 	signal: AbortSignal,
 	nonMutating: boolean,
@@ -365,6 +371,6 @@ export async function observeViaChangeStream<TDoc extends Doc>(
 	// If the caller has already aborted, do nothing - crucially, don't create a multiplexer (which would
 	// open a change feed) that would never gain a subscriber and so never be torn down.
 	if (signal.aborted) return
-	const m = getOrCreateMultiplexer(collectionName, selector, projection, makeDeps)
+	const m = getOrCreateMultiplexer(collectionName, selector, projection, shape, makeDeps)
 	return m.addObserveSubscriber(callbacks, signal, nonMutating)
 }

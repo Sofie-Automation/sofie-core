@@ -17,6 +17,7 @@ import {
 } from '../mongo.js'
 import {
 	ObserveView,
+	ObserveViewShape,
 	MongoLiveQueryHandle,
 	ObserverDeliveryScheduler,
 	makeObserveSink,
@@ -262,6 +263,7 @@ export class InMemoryMongoCollection<TDoc extends Doc> {
 			'observe',
 			this.#normalizeSelector(selector),
 			projectionOf(options),
+			shapeOf(options),
 			callbacks,
 			!!options?.nonMutatingCallbacks
 		)
@@ -276,6 +278,7 @@ export class InMemoryMongoCollection<TDoc extends Doc> {
 			'changes',
 			this.#normalizeSelector(selector),
 			projectionOf(options),
+			shapeOf(options),
 			callbacks,
 			!!options?.nonMutatingCallbacks
 		)
@@ -286,6 +289,7 @@ export class InMemoryMongoCollection<TDoc extends Doc> {
 		kind: 'observe' | 'changes',
 		selector: MongoQuery<TDoc>,
 		projection: MongoFieldSpecifier<TDoc> | undefined,
+		shape: ObserveViewShape<TDoc> | undefined,
 		callbacks: ObserveCallbacks<TDoc> | ObserveChangesCallbacks<TDoc>,
 		nonMutating: boolean
 	): MongoLiveQueryHandle {
@@ -298,7 +302,7 @@ export class InMemoryMongoCollection<TDoc extends Doc> {
 						this.#deliveryScheduler
 					)
 
-		const view = new ObserveView<TDoc>(selector, projection, sink)
+		const view = new ObserveView<TDoc>(selector, projection, shape, sink)
 
 		const entry: InMemoryObserverEntry<TDoc> =
 			kind === 'observe'
@@ -356,4 +360,16 @@ export class InMemoryMongoCollection<TDoc extends Doc> {
 
 function projectionOf<TDoc>(options: FindOptions<TDoc> | undefined): MongoFieldSpecifier<TDoc> | undefined {
 	return (options?.projection ?? options?.fields) as MongoFieldSpecifier<TDoc> | undefined
+}
+
+/**
+ * Extract the observe window shaping (sort/skip/limit). Returns `undefined` when none is set, so the
+ * {@link ObserveView} keeps its fast (non-windowed) path.
+ */
+function shapeOf<TDoc extends Doc>(
+	options: FindObserveChangesOptions<TDoc> | undefined
+): ObserveViewShape<TDoc> | undefined {
+	if (!options) return undefined
+	if (options.sort === undefined && options.skip === undefined && options.limit === undefined) return undefined
+	return { sort: options.sort, skip: options.skip, limit: options.limit }
 }

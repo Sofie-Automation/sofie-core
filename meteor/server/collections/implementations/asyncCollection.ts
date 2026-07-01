@@ -2,9 +2,9 @@ import {
 	MongoBulkWriteOperation,
 	MongoModifier,
 	MongoQuery,
-	ObserveChangesOptions,
 	ObserveChangesCallbacks,
 	ObserveCallbacks,
+	FindObserveChangesOptions,
 } from '@sofie-automation/corelib/dist/mongo'
 import { ProtectedString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { Meteor } from 'meteor/meteor'
@@ -29,6 +29,7 @@ import {
 } from '../changeStream/observeMultiplexer'
 import { ChangeStreamCursor } from '../changeStream/changeStreamCursor'
 import { subscribeToCollectionChangeFeed } from '../changeStream/collectionChangeFeed'
+import type { ObserveViewShape } from '@sofie-automation/corelib/dist/memoryCollection/observeView'
 
 /**
  * Translate a meteor-lib {@link FindOptions} into the options the native `mongodb` driver accepts.
@@ -152,6 +153,16 @@ export class WrappedAsyncMongoCollection<
 		return (options?.projection ?? options?.fields) as MongoFieldSpecifier<DBInterface> | undefined
 	}
 
+	/**
+	 * Extract the observe window shaping (sort/skip/limit) from find-options. Returns `undefined` when none
+	 * is set, so the observe kernel keeps its fast (non-windowed) path and multiplexers de-dup correctly.
+	 */
+	private shapeOf(options: FindOptions<DBInterface> | undefined): ObserveViewShape<DBInterface> | undefined {
+		if (!options) return undefined
+		if (options.sort === undefined && options.skip === undefined && options.limit === undefined) return undefined
+		return { sort: options.sort, skip: options.skip, limit: options.limit }
+	}
+
 	async findWithCursor(
 		selector?: MongoQuery<DBInterface> | DBInterface['_id'],
 		options?: Omit<FindOptions<DBInterface>, 'fields'>
@@ -161,6 +172,7 @@ export class WrappedAsyncMongoCollection<
 			collectionName: this.name,
 			selector: sel,
 			projection: this.projectionOf(options),
+			shape: this.shapeOf(options),
 			makeDeps: () => this.observeDeps(sel),
 		})
 	}
@@ -168,8 +180,7 @@ export class WrappedAsyncMongoCollection<
 	async observeChanges(
 		selector: MongoQuery<DBInterface> | DBInterface['_id'],
 		callbacks: PromisifyCallbacks<ObserveChangesCallbacks<DBInterface>>,
-		findOptions?: FindOptions<DBInterface>,
-		callbackOptions?: ObserveChangesOptions
+		options?: FindObserveChangesOptions<DBInterface>
 	): Promise<Meteor.LiveQueryHandle> {
 		// Note: this span only covers the observer setup (initial snapshot + diff), not the lifetime of the observer
 		const span = profiler.startSpan(`MongoCollection.${this.name}.observeChanges`)
@@ -185,10 +196,11 @@ export class WrappedAsyncMongoCollection<
 			await observeChangesViaChangeStream(
 				this.name,
 				sel,
-				this.projectionOf(findOptions),
+				this.projectionOf(options),
+				this.shapeOf(options),
 				callbacks,
 				abort.signal,
-				!!callbackOptions?.nonMutatingCallbacks,
+				!!options?.nonMutatingCallbacks,
 				() => this.observeDeps(sel)
 			)
 			if (span) span.end()
@@ -207,7 +219,7 @@ export class WrappedAsyncMongoCollection<
 	async observe(
 		selector: MongoQuery<DBInterface> | DBInterface['_id'],
 		callbacks: PromisifyCallbacks<ObserveCallbacks<DBInterface>>,
-		options?: FindOptions<DBInterface>
+		options?: FindObserveChangesOptions<DBInterface>
 	): Promise<Meteor.LiveQueryHandle> {
 		// Note: this span only covers the observer setup (initial snapshot + diff), not the lifetime of the observer
 		const span = profiler.startSpan(`MongoCollection.${this.name}.observe`)
@@ -224,9 +236,10 @@ export class WrappedAsyncMongoCollection<
 				this.name,
 				sel,
 				this.projectionOf(options),
+				this.shapeOf(options),
 				callbacks,
 				abort.signal,
-				false,
+				!!options?.nonMutatingCallbacks,
 				() => this.observeDeps(sel)
 			)
 			if (span) span.end()

@@ -424,6 +424,87 @@ describe('observeChanges', () => {
 	})
 })
 
+describe('observe windowing (sort/skip/limit)', () => {
+	function changesSpy(): ObserveChangesCallbacks<Thing> & {
+		added: jest.Mock
+		changed: jest.Mock
+		removed: jest.Mock
+	} {
+		return { added: jest.fn(), changed: jest.fn(), removed: jest.fn() } as any
+	}
+	const addedIds = (cb: { added: jest.Mock }) => cb.added.mock.calls.map((c) => String(c[0])).sort()
+	const removedIds = (cb: { removed: jest.Mock }) => cb.removed.mock.calls.map((c) => String(c[0])).sort()
+
+	test('initial snapshot publishes only the first N (ordered by _id when no sort)', () => {
+		const c = makeCollection()
+		c.insert(thing('c'))
+		c.insert(thing('a'))
+		c.insert(thing('b'))
+		const cb = changesSpy()
+		c.observeChanges(cb, {}, { limit: 2 })
+		expect(addedIds(cb)).toEqual(['a', 'b'])
+	})
+
+	test('sort spec orders the window (with _id tie-break)', () => {
+		const c = makeCollection()
+		c.insert(thing('a', { rank: 5 }))
+		c.insert(thing('c', { rank: 1 }))
+		c.insert(thing('b', { rank: 1 }))
+		const cb = changesSpy()
+		c.observeChanges(cb, {}, { sort: { rank: 1 }, limit: 2 })
+		// b and c tie on rank → _id breaks the tie (b before c); a (rank 5) is excluded
+		expect(addedIds(cb)).toEqual(['b', 'c'])
+	})
+
+	test('skip offsets the window', () => {
+		const c = makeCollection()
+		for (const s of ['a', 'b', 'c', 'd']) c.insert(thing(s))
+		const cb = changesSpy()
+		c.observeChanges(cb, {}, { skip: 1, limit: 2 })
+		expect(addedIds(cb)).toEqual(['b', 'c'])
+	})
+
+	test('live insert into the window evicts the boundary doc (added + removed)', () => {
+		const c = makeCollection()
+		c.insert(thing('b'))
+		c.insert(thing('d'))
+		const cb = changesSpy()
+		c.observeChanges(cb, {}, { limit: 2 })
+		cb.added.mockClear()
+
+		// 'a' sorts before both → enters the window, evicting the boundary doc 'd'
+		c.insert(thing('a'))
+		expect(addedIds(cb)).toEqual(['a'])
+		expect(removedIds(cb)).toEqual(['d'])
+	})
+
+	test('live remove of a windowed doc backfills the next matching doc (removed + added)', () => {
+		const c = makeCollection()
+		for (const s of ['a', 'b', 'c']) c.insert(thing(s))
+		const cb = changesSpy()
+		c.observeChanges(cb, {}, { limit: 2 }) // window: a, b
+		cb.added.mockClear()
+
+		c.remove('a' as any)
+		expect(removedIds(cb)).toEqual(['a'])
+		expect(addedIds(cb)).toEqual(['c']) // c backfills the freed slot
+	})
+
+	test('changes to out-of-window docs emit nothing', () => {
+		const c = makeCollection()
+		for (const s of ['a', 'b']) c.insert(thing(s))
+		c.insert(thing('z', { rank: 1 }))
+		const cb = changesSpy()
+		c.observeChanges(cb, {}, { limit: 2 }) // window: a, b
+		cb.added.mockClear()
+
+		c.update('z' as any, { $set: { rank: 9 } })
+		expect(cb.added).not.toHaveBeenCalled()
+		expect(cb.changed).not.toHaveBeenCalled()
+		expect(cb.removed).not.toHaveBeenCalled()
+	})
+})
+
 describe('observerDeliveryScheduler', () => {
 	test('feed-driven deliveries are routed through the scheduler', () => {
 		const scheduled: Array<() => void> = []

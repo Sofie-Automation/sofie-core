@@ -9,12 +9,15 @@ import {
 } from '@sofie-automation/corelib/dist/mongo'
 import { PromisifyCallbacks } from '@sofie-automation/shared-lib/dist/lib/types'
 import { observeChangesViaChangeStream, observeViaChangeStream, ObserveMultiplexerDeps } from './observeMultiplexer'
+import type { ObserveViewShape } from '@sofie-automation/corelib/dist/memoryCollection/observeView'
 import type { MinimalMongoCursor } from '../collection'
 
 export interface ChangeStreamCursorConfig<TDoc extends { _id: ProtectedString<any> }> {
 	collectionName: string
 	selector: MongoQuery<TDoc>
 	projection: MongoFieldSpecifier<TDoc> | undefined
+	/** Cursor shaping (sort/skip/limit) applied to the published window; `undefined` = no window. */
+	shape: ObserveViewShape<TDoc> | undefined
 	/** Build the deps for an observe multiplexer over this cursor's query */
 	makeDeps: () => ObserveMultiplexerDeps<TDoc>
 }
@@ -45,6 +48,7 @@ export class ChangeStreamCursor<TDoc extends { _id: ProtectedString<any> }> impl
 				this.#config.collectionName,
 				this.#config.selector,
 				this.#config.projection,
+				this.#config.shape,
 				callbacks,
 				abort.signal,
 				!!options?.nonMutatingCallbacks,
@@ -70,6 +74,7 @@ export class ChangeStreamCursor<TDoc extends { _id: ProtectedString<any> }> impl
 				this.#config.collectionName,
 				this.#config.selector,
 				this.#config.projection,
+				this.#config.shape,
 				callbacks,
 				abort.signal,
 				false,

@@ -5,6 +5,7 @@ import {
 	observeChangesViaChangeStream,
 	getActiveMultiplexerCount,
 } from '../observeMultiplexer'
+import type { ObserveViewShape } from '@sofie-automation/corelib/dist/memoryCollection/observeView'
 
 interface TestDoc {
 	_id: any
@@ -83,9 +84,10 @@ async function startChanges(
 	projection: any,
 	deps: ObserveMultiplexerDeps<TestDoc>,
 	cb: ReturnType<typeof changesCallbacks>,
-	nonMutating = false
+	nonMutating = false,
+	shape?: ObserveViewShape<TestDoc>
 ): Promise<ObserveMultiplexer<TestDoc>> {
-	const m = new ObserveMultiplexer<TestDoc>(selector, projection, deps, () => undefined)
+	const m = new ObserveMultiplexer<TestDoc>(selector, projection, shape, deps, () => undefined)
 	await subscribeChanges(m, cb, nonMutating)
 	return m
 }
@@ -100,10 +102,15 @@ async function joinChangesFeed(
 	selector: any,
 	projection: any,
 	cb: any,
-	makeDeps: () => ObserveMultiplexerDeps<TestDoc>
+	makeDeps: () => ObserveMultiplexerDeps<TestDoc>,
+	shape?: ObserveViewShape<TestDoc>
 ): Promise<AbortController> {
 	const controller = new AbortController()
-	await observeChangesViaChangeStream(collectionName, selector, projection, cb, controller.signal, false, makeDeps)
+	// Tear this subscriber down when EITHER the test's own controller aborts OR the shared per-test signal
+	// does (afterEach). Otherwise a test that throws before its manual `.abort()` would leak this subscriber
+	// into the global multiplexer registry, corrupting `getActiveMultiplexerCount()` for later tests.
+	const signal = AbortSignal.any([controller.signal, observers.signal])
+	await observeChangesViaChangeStream(collectionName, selector, projection, shape, cb, signal, false, makeDeps)
 	return controller
 }
 
@@ -252,7 +259,7 @@ describe('ObserveMultiplexer transition logic', () => {
 describe('ObserveMultiplexer snapshot-vs-stream race', () => {
 	test('events arriving before a subscriber goes live are folded into its replay (no dup, latest state)', async () => {
 		const h = makeHarness([{ _id: id('A'), val: 1 }])
-		const m = new ObserveMultiplexer<TestDoc>({}, undefined, h.deps, () => undefined)
+		const m = new ObserveMultiplexer<TestDoc>({}, undefined, undefined, h.deps, () => undefined)
 
 		// This event is enqueued after the initial #sync but before the subscriber's replay
 		h.pushChange(updateEv({ _id: id('A'), val: 2 }))
@@ -294,7 +301,7 @@ describe('ObserveMultiplexer reconnect resync', () => {
 describe('ObserveMultiplexer observe (full-document) subscribers', () => {
 	test('added(doc), changed(newDoc, oldDoc), removed(doc)', async () => {
 		const h = makeHarness([{ _id: id('A'), val: 1 }])
-		const m = new ObserveMultiplexer<TestDoc>({}, undefined, h.deps, () => undefined)
+		const m = new ObserveMultiplexer<TestDoc>({}, undefined, undefined, h.deps, () => undefined)
 		const cb = { added: jest.fn(), changed: jest.fn(), removed: jest.fn() }
 		await subscribeObserve(m, cb)
 
@@ -313,7 +320,7 @@ describe('ObserveMultiplexer observe (full-document) subscribers', () => {
 describe('ObserveMultiplexer nonMutatingCallbacks', () => {
 	test('clones per subscriber by default; shares the object when nonMutating', async () => {
 		const h = makeHarness([])
-		const m = new ObserveMultiplexer<TestDoc>({}, undefined, h.deps, () => undefined)
+		const m = new ObserveMultiplexer<TestDoc>({}, undefined, undefined, h.deps, () => undefined)
 
 		const captured: Record<string, any> = {}
 		const cbDefault = { added: jest.fn((_id, f) => (captured.def = f)), changed: jest.fn(), removed: jest.fn() }
@@ -381,6 +388,22 @@ describe('ObserveMultiplexer dedup registry', () => {
 		subB.abort()
 	})
 
+	test('same selector+projection but different window (limit) → different multiplexers', async () => {
+		const h = makeHarness([])
+		const base = getActiveMultiplexerCount()
+		const sub1 = await joinChangesFeed('coll', {}, undefined, changesCallbacks() as any, () => h.deps, {
+			limit: 10,
+		})
+		const sub2 = await joinChangesFeed('coll', {}, undefined, changesCallbacks() as any, () => h.deps, {
+			limit: 20,
+		})
+		// Different published windows must NOT be merged onto one multiplexer.
+		expect(getActiveMultiplexerCount()).toBe(base + 2)
+		sub1.abort()
+		sub2.abort()
+		expect(getActiveMultiplexerCount()).toBe(base)
+	})
+
 	test('selectors equal up to key order share one multiplexer (canonical key)', async () => {
 		const h = makeHarness([])
 		const base = getActiveMultiplexerCount()
@@ -421,6 +444,7 @@ describe('ObserveMultiplexer dedup registry', () => {
 		const joining = observeChangesViaChangeStream(
 			'coll',
 			{},
+			undefined,
 			undefined,
 			cb2 as any,
 			ctrl2.signal,

@@ -1,6 +1,6 @@
 import { protectString, ProtectedString } from '../../protectedString.js'
 import { MongoFieldSpecifier, MongoQuery } from '../../mongo.js'
-import { ObserveView, ObserveViewSink, fieldsFor } from '../observeView.js'
+import { ObserveView, ObserveViewShape, ObserveViewSink, fieldsFor } from '../observeView.js'
 import type { ChangeStreamDocument } from 'mongodb'
 
 interface Thing {
@@ -47,10 +47,11 @@ const updateNullEv = (docId: Thing['_id']): ChangeStreamDocument<any> =>
 
 function makeView(
 	selector: MongoQuery<Thing> = {},
-	projection?: MongoFieldSpecifier<Thing>
+	projection?: MongoFieldSpecifier<Thing>,
+	shape?: ObserveViewShape<Thing>
 ): { view: ObserveView<Thing>; transitions: Transition[] } {
 	const { sink, transitions } = recordingSink()
-	return { view: new ObserveView<Thing>(selector, projection, sink), transitions }
+	return { view: new ObserveView<Thing>(selector, projection, shape, sink), transitions }
 }
 
 describe('fieldsFor', () => {
@@ -201,5 +202,118 @@ describe('ObserveView.applyChange', () => {
 		view.applyChange(updateNullEv(id('a')))
 		expect(transitions).toHaveLength(1)
 		expect(transitions[0]).toMatchObject({ type: 'removed', id: 'a' })
+	})
+})
+
+describe('ObserveView windowing (sort/skip/limit)', () => {
+	const publishedIds = (view: ObserveView<Thing>) => view.publishedEntries().map(([i]) => i as unknown as string)
+
+	test('snapshot publishes only the first N, ordered by _id when no sort given', () => {
+		// Feed in a deliberately unsorted order; the window must be _id-ascending and capped at the limit.
+		const { view } = makeView({}, undefined, { limit: 2 })
+		view.applySnapshot([thing('c'), thing('a'), thing('b')])
+		expect(publishedIds(view)).toEqual(['a', 'b'])
+		expect(view.publishedCount).toBe(2)
+	})
+
+	test('sort spec orders the window, with _id as a stable final tie-break', () => {
+		const { view } = makeView({}, undefined, { sort: { rank: 1 }, limit: 2 })
+		// b and c tie on rank → _id breaks the tie deterministically (b before c)
+		view.applySnapshot([thing('a', { rank: 5 }), thing('c', { rank: 1 }), thing('b', { rank: 1 })])
+		expect(publishedIds(view)).toEqual(['b', 'c'])
+	})
+
+	test('skip offsets the window', () => {
+		const { view } = makeView({}, undefined, { skip: 1, limit: 2 })
+		view.applySnapshot([thing('a'), thing('b'), thing('c'), thing('d')])
+		expect(publishedIds(view)).toEqual(['b', 'c'])
+	})
+
+	test('windowed sort uses full docs even when the projection drops the sort field (snapshot)', () => {
+		// Projection excludes `rank`, but the window is ordered by `rank`: ordering must use the unprojected
+		// docs, otherwise the sort key is gone and the wrong docs end up in the window.
+		const { view } = makeView({}, { name: 1 } as MongoFieldSpecifier<Thing>, { sort: { rank: 1 }, limit: 2 })
+		view.applySnapshot([thing('a', { rank: 3 }), thing('b', { rank: 1 }), thing('c', { rank: 2 })])
+		// By rank asc the first two are b(1), c(2) — NOT the _id-order a,b you'd get if rank were projected away.
+		expect(publishedIds(view)).toEqual(['b', 'c'])
+		// Published docs are still projected (no `rank`).
+		expect(view.publishedEntries().map(([, d]) => d)).toEqual([
+			{ _id: id('b'), name: 'b' },
+			{ _id: id('c'), name: 'c' },
+		])
+	})
+
+	test('windowed sort uses full docs even when the projection drops the sort field (change)', () => {
+		const { view } = makeView({}, { name: 1 } as MongoFieldSpecifier<Thing>, { sort: { rank: 1 }, limit: 2 })
+		view.applySnapshot([thing('a', { rank: 3 }), thing('b', { rank: 2 })])
+		expect(publishedIds(view)).toEqual(['b', 'a'])
+		// A new doc with a lower rank must enter the window ahead of the others, proving rank survives to the sort.
+		view.applyChange(insertEv(thing('c', { rank: 1 })))
+		expect(publishedIds(view)).toEqual(['c', 'b'])
+	})
+
+	test('inserting inside the window evicts the boundary doc (added + removed)', () => {
+		const { view, transitions } = makeView({}, undefined, { limit: 2 })
+		view.applySnapshot([thing('b'), thing('d')])
+		expect(publishedIds(view)).toEqual(['b', 'd'])
+		transitions.length = 0
+
+		// 'a' sorts before both → enters the window, pushing 'd' (the boundary) out
+		view.applyChange(insertEv(thing('a')))
+		expect(publishedIds(view)).toEqual(['a', 'b'])
+		const byType = transitions.map((t) => `${t.type}:${t.id}`)
+		expect(byType).toContain('added:a')
+		expect(byType).toContain('removed:d')
+		expect(transitions).toHaveLength(2)
+	})
+
+	test('inserting outside the window emits nothing', () => {
+		const { view, transitions } = makeView({}, undefined, { limit: 2 })
+		view.applySnapshot([thing('a'), thing('b')])
+		transitions.length = 0
+		// 'z' sorts after the window → not published
+		view.applyChange(insertEv(thing('z')))
+		expect(publishedIds(view)).toEqual(['a', 'b'])
+		expect(transitions).toHaveLength(0)
+	})
+
+	test('removing a windowed doc backfills the next matching doc (removed + added)', () => {
+		const { view, transitions } = makeView({}, undefined, { limit: 2 })
+		view.applySnapshot([thing('a'), thing('b'), thing('c')])
+		expect(publishedIds(view)).toEqual(['a', 'b'])
+		transitions.length = 0
+
+		view.applyChange(deleteEv(id('a')))
+		expect(publishedIds(view)).toEqual(['b', 'c'])
+		const byType = transitions.map((t) => `${t.type}:${t.id}`)
+		expect(byType).toContain('removed:a')
+		expect(byType).toContain('added:c')
+		expect(transitions).toHaveLength(2)
+	})
+
+	test('change to a windowed doc still emits changed', () => {
+		const { view, transitions } = makeView({}, undefined, { limit: 2 })
+		view.applySnapshot([thing('a', { rank: 1 }), thing('b'), thing('c')])
+		transitions.length = 0
+		view.applyChange(updateEv(thing('a', { rank: 9 })))
+		expect(transitions).toHaveLength(1)
+		expect(transitions[0]).toMatchObject({ type: 'changed', id: 'a', fields: { rank: 9 } })
+	})
+
+	test('change to an out-of-window doc emits nothing', () => {
+		const { view, transitions } = makeView({}, undefined, { limit: 2 })
+		view.applySnapshot([thing('a'), thing('b'), thing('c', { rank: 1 })])
+		transitions.length = 0
+		view.applyChange(updateEv(thing('c', { rank: 9 })))
+		expect(transitions).toHaveLength(0)
+	})
+
+	test('window order is independent of snapshot input order (resync stability)', () => {
+		const { view } = makeView({}, undefined, { limit: 3 })
+		view.applySnapshot([thing('a'), thing('b'), thing('c'), thing('d')])
+		expect(publishedIds(view)).toEqual(['a', 'b', 'c'])
+		// A resync delivering the same docs in a different order must not change the published window.
+		view.applySnapshot([thing('d'), thing('c'), thing('b'), thing('a')])
+		expect(publishedIds(view)).toEqual(['a', 'b', 'c'])
 	})
 })
