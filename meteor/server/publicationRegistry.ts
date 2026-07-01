@@ -3,7 +3,7 @@ import { AllPubSubNames, AllPubSubTypes } from '@sofie-automation/meteor-lib/dis
 import { MetricsGauge } from '@sofie-automation/corelib/dist/prometheus'
 import { extractFunctionSignature } from './lib'
 import { logger } from './logging'
-import { MinimalMongoCursor } from './collections/implementations/asyncCollection'
+import { MinimalMongoCursor } from './collections/collection'
 import { PublicationContext, PublishDocType } from './publications/lib/lib'
 import { CustomPublishMeteor, PublishIfDocument } from './lib/customPublication/publish'
 
