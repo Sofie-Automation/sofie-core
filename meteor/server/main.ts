@@ -57,6 +57,8 @@ import { PublicationRegistry } from './publicationRegistry'
 import { registerAllPublications } from './publicationRegistrations'
 import { bindRestApiRouter } from './api/rest/api'
 import { startupVerifyAllMethods } from './security/securityVerify'
+import { startStandaloneDdpServer } from './ddp-server'
+import { STANDALONE_DDP_SERVER_ENABLED } from './ddp-server/config'
 
 // Build and populate the method registry
 const methodRegistry = new MethodRegistry()
@@ -72,6 +74,12 @@ publicationRegistry.applyToMeteor()
 Meteor.startup(() => {
 	bindRestApiRouter(methodRegistry, publicationRegistry)
 	startupVerifyAllMethods(methodRegistry)
+
+	// Optionally also serve methods over our own standalone DDP server (off by default), sharing the
+	// same registry as the Meteor path so methods are available on both.
+	if (STANDALONE_DDP_SERVER_ENABLED) {
+		startStandaloneDdpServer(methodRegistry, publicationRegistry)
+	}
 
 	// Ensure all the publications were registered at startup
 	if (Meteor.isDevelopment) publicationRegistry.verifyAllPublicationsRegistered()
