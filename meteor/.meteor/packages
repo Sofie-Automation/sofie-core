@@ -10,7 +10,6 @@
 
 meteor@2.3.0
 webapp@2.1.2
-ddp@1.4.2
 
 ecmascript@0.18.0 # Enable ECMAScript2015+ syntax in app code
 typescript@5.10.0 # Enable TypeScript syntax in .ts and .tsx modules

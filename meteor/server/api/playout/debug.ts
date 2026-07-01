@@ -8,12 +8,12 @@ import { StudioJobs } from '@sofie-automation/corelib/dist/worker/studio'
 import { fetchStudioIds } from '../../optimizations'
 import { PeripheralDeviceId, RundownPlaylistId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { insertInputDeviceTriggerIntoPreview } from '../../publications/deviceTriggersPreview'
-import { MeteorDebugMethods } from '../../methods'
+import { MeteorDebugMethod } from '../../methods'
 
 // These are temporary method to fill the rundown database with some sample data
 // for development
 
-MeteorDebugMethods({
+export const playoutDebugMethods: { [key: string]: MeteorDebugMethod } = {
 	/**
 	 * Remove a playlist from the system.
 	 * This can be done in the ui too, but this will bypass any checks that are usually performed
@@ -143,4 +143,4 @@ MeteorDebugMethods({
 
 		await insertInputDeviceTriggerIntoPreview(peripheralDeviceId, triggerDeviceId, triggerId, values)
 	},
-})
+}

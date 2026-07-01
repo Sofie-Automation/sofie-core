@@ -10,7 +10,6 @@ import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { groupByToMap, literal, normalizeArrayToMap } from '@sofie-automation/corelib/dist/lib'
 import {
 	CustomPublishCollection,
-	meteorCustomPublish,
 	setUpCollectionOptimizedObserver,
 	SetupObserversResult,
 	TriggerUpdate,
@@ -31,6 +30,7 @@ import { generateNotesForSegment } from './generateNotesForSegment'
 import { RundownPlaylists } from '../../collections'
 import { check, Match } from 'meteor/check'
 import { triggerWriteAccessBecauseNoCheckNecessary } from '../../security/securityVerify'
+import type { PublicationRegistry } from '../../publicationRegistry'
 
 interface UISegmentPartNotesArgs {
 	readonly playlistId: RundownPlaylistId
@@ -213,31 +213,33 @@ function updateNotesForSegment(
 	}
 }
 
-meteorCustomPublish(
-	MeteorPubSub.uiSegmentPartNotes,
-	CustomCollectionName.UISegmentPartNotes,
-	async function (pub, playlistId: RundownPlaylistId | null) {
-		check(playlistId, Match.Maybe(String))
+export function registerSegmentPartNotesUIPublications(registry: PublicationRegistry): void {
+	registry.customPublish(
+		MeteorPubSub.uiSegmentPartNotes,
+		CustomCollectionName.UISegmentPartNotes,
+		async (_context, pub, playlistId: RundownPlaylistId | null) => {
+			check(playlistId, Match.Maybe(String))
 
-		triggerWriteAccessBecauseNoCheckNecessary()
+			triggerWriteAccessBecauseNoCheckNecessary()
 
-		if (!playlistId) {
-			logger.info(`Pub.${CustomCollectionName.UISegmentPartNotes}: Not playlistId`)
-			return
+			if (!playlistId) {
+				logger.info(`Pub.${CustomCollectionName.UISegmentPartNotes}: Not playlistId`)
+				return
+			}
+
+			await setUpCollectionOptimizedObserver<
+				UISegmentPartNote,
+				UISegmentPartNotesArgs,
+				UISegmentPartNotesState,
+				UISegmentPartNotesUpdateProps
+			>(
+				`pub_${MeteorPubSub.uiSegmentPartNotes}_${playlistId}`,
+				{ playlistId },
+				setupUISegmentPartNotesPublicationObservers,
+				manipulateUISegmentPartNotesPublicationData,
+				pub,
+				100
+			)
 		}
-
-		await setUpCollectionOptimizedObserver<
-			UISegmentPartNote,
-			UISegmentPartNotesArgs,
-			UISegmentPartNotesState,
-			UISegmentPartNotesUpdateProps
-		>(
-			`pub_${MeteorPubSub.uiSegmentPartNotes}_${playlistId}`,
-			{ playlistId },
-			setupUISegmentPartNotesPublicationObservers,
-			manipulateUISegmentPartNotesPublicationData,
-			pub,
-			100
-		)
-	}
-)
+	)
+}

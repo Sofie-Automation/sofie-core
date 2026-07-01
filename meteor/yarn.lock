@@ -374,6 +374,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/plugin-transform-export-namespace-from@npm:^7.27.1":
+  version: 7.29.7
+  resolution: "@babel/plugin-transform-export-namespace-from@npm:7.29.7"
+  dependencies:
+    "@babel/helper-plugin-utils": "npm:^7.29.7"
+  peerDependencies:
+    "@babel/core": ^7.0.0-0
+  checksum: 10/d157d62b144d1626b801e557dcede914db33e78f3f4230f487e5709c21efd40648f7f3a47a44a7fce694ad9cd117d2ac3ed796da0102275fd02b4fdb317d906b
+  languageName: node
+  linkType: hard
+
 "@babel/plugin-transform-modules-commonjs@npm:^7.29.7":
   version: 7.29.7
   resolution: "@babel/plugin-transform-modules-commonjs@npm:7.29.7"
@@ -2446,6 +2457,21 @@ __metadata:
   languageName: node
   linkType: soft
 
+"@sofie-automation/server-core-integration@portal:../packages/server-core-integration::locator=automation-core%40workspace%3A.":
+  version: 0.0.0-use.local
+  resolution: "@sofie-automation/server-core-integration@portal:../packages/server-core-integration::locator=automation-core%40workspace%3A."
+  dependencies:
+    "@koa/router": "npm:^15.6.0"
+    "@sofie-automation/shared-lib": "npm:26.3.0-2"
+    ejson: "npm:^2.2.3"
+    koa: "npm:^3.2.1"
+    prom-client: "npm:^15.1.3"
+    tslib: "npm:^2.8.1"
+    underscore: "npm:^1.13.8"
+    ws: "npm:^8.21.0"
+  languageName: node
+  linkType: soft
+
 "@sofie-automation/shared-lib@portal:../packages/shared-lib::locator=automation-core%40workspace%3A.":
   version: 0.0.0-use.local
   resolution: "@sofie-automation/shared-lib@portal:../packages/shared-lib::locator=automation-core%40workspace%3A."
@@ -2765,6 +2791,13 @@ __metadata:
   version: 0.6.2
   resolution: "@types/deep-extend@npm:0.6.2"
   checksum: 10/16da22923b4b1375f23888c4c28d1fa962a489ea40457a2135833831dbe4870a75894d29b632680dd2bcdb72a0a5c214f5286483f3f70ba10d52f3c816b5abd7
+  languageName: node
+  linkType: hard
+
+"@types/ejson@npm:^2.2.2":
+  version: 2.2.2
+  resolution: "@types/ejson@npm:2.2.2"
+  checksum: 10/3f2eb25d98f93821156b071e647bca626563900ecb34bb81cdba33721ee7d046bb66db7d6de664312b9480821821a1d177cf5e146dc1f10adcf43cbd2e387bbe
   languageName: node
   linkType: hard
 
@@ -3131,7 +3164,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/ws@npm:^8.5.10, @types/ws@npm:^8.5.12":
+"@types/ws@npm:^8.18.1, @types/ws@npm:^8.5.10, @types/ws@npm:^8.5.12":
   version: 8.18.1
   resolution: "@types/ws@npm:8.18.1"
   dependencies:
@@ -3888,6 +3921,7 @@ __metadata:
   resolution: "automation-core@workspace:."
   dependencies:
     "@babel/core": "npm:^7.29.7"
+    "@babel/plugin-transform-export-namespace-from": "npm:^7.27.1"
     "@babel/plugin-transform-modules-commonjs": "npm:^7.29.7"
     "@babel/runtime": "npm:^7.29.7"
     "@koa/cors": "npm:^5.0.0"
@@ -3904,10 +3938,12 @@ __metadata:
     "@sofie-automation/corelib": "portal:../packages/corelib"
     "@sofie-automation/job-worker": "portal:../packages/job-worker"
     "@sofie-automation/meteor-lib": "portal:../packages/meteor-lib"
+    "@sofie-automation/server-core-integration": "portal:../packages/server-core-integration"
     "@sofie-automation/shared-lib": "portal:../packages/shared-lib"
     "@swc/core": "npm:^1.15.41"
     "@swc/helpers": "npm:0.5.17"
     "@types/deep-extend": "npm:^0.6.2"
+    "@types/ejson": "npm:^2.2.2"
     "@types/jest": "npm:^30.0.0"
     "@types/koa": "npm:^3.0.3"
     "@types/koa-bodyparser": "npm:^4.3.13"
@@ -3917,6 +3953,7 @@ __metadata:
     "@types/node": "npm:^22.19.21"
     "@types/semver": "npm:^7.7.1"
     "@types/underscore": "npm:^1.13.0"
+    "@types/ws": "npm:^8.18.1"
     babel-jest: "npm:^30.4.1"
     bcrypt: "npm:^6.0.0"
     commit-and-tag-version: "npm:^12.7.3"
@@ -3956,6 +3993,7 @@ __metadata:
     typescript: "npm:~5.9.3"
     underscore: "npm:^1.13.8"
     winston: "npm:^3.19.0"
+    ws: "npm:^8.21.0"
   languageName: unknown
   linkType: soft
 
@@ -13825,7 +13863,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ws@npm:^8.18.0":
+"ws@npm:^8.18.0, ws@npm:^8.21.0":
   version: 8.21.0
   resolution: "ws@npm:8.21.0"
   peerDependencies:

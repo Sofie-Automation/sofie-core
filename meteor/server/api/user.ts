@@ -1,14 +1,12 @@
 import { MethodContextAPI } from './methodContext'
-import { NewUserAPI, UserAPIMethods } from '@sofie-automation/meteor-lib/dist/api/user'
-import { registerClassToMeteorMethods } from '../methods'
+import { NewUserAPI } from '@sofie-automation/meteor-lib/dist/api/user'
 import { triggerWriteAccessBecauseNoCheckNecessary } from '../security/securityVerify'
-import { parseUserPermissions, USER_PERMISSIONS_HEADER } from '@sofie-automation/meteor-lib/dist/userPermissions'
+import { parseUserPermissions, UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
+import { USER_PERMISSIONS_HEADER } from '../security/auth'
 
-class ServerUserAPI extends MethodContextAPI implements NewUserAPI {
-	async getUserPermissions() {
+export class ServerUserAPI extends MethodContextAPI implements NewUserAPI {
+	async getUserPermissions(): Promise<UserPermissions> {
 		triggerWriteAccessBecauseNoCheckNecessary()
 		return parseUserPermissions(this.connection?.httpHeaders?.[USER_PERMISSIONS_HEADER])
 	}
 }
-
-registerClassToMeteorMethods(UserAPIMethods, ServerUserAPI, false)

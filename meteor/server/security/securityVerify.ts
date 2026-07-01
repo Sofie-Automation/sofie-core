@@ -1,7 +1,8 @@
 import { Meteor } from 'meteor/meteor'
-import { AllMeteorMethods, suppressExtraErrorLogging } from '../methods'
+import { suppressExtraErrorLogging } from '../methods'
 import { disableChecks, enableChecks as restoreChecks } from '../lib/check'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
+import type { MethodRegistry } from '../methodRegistry'
 
 /** These function are used to verify that all methods defined are using security functions */
 
@@ -36,32 +37,35 @@ export function triggerWriteAccessBecauseNoCheckNecessary(): void {
 	triggerWriteAccess()
 }
 
-Meteor.startup(() => {
-	if (!Meteor.isProduction && !Meteor.isTest) {
-		Meteor.setTimeout(() => {
-			console.log('Security check: Verifying methods...')
-			verifyAllMethods()
-				// .then(() => {
-				// })
-				.then((ok) => {
-					if (ok) {
-						console.log('Security check: ok!')
-					} else {
-						console.log('There are security issues that needs fixing, see above!')
-					}
-				})
-				.catch((e) => {
-					console.log('Error')
-					console.log(e)
-				})
-		}, 1000)
-	}
-})
+export function startupVerifyAllMethods(methodRegistry: MethodRegistry): void {
+	if (Meteor.isProduction || Meteor.isTest) return
 
-export async function verifyAllMethods(): Promise<boolean> {
+	Meteor.setTimeout(() => {
+		console.log('Security check: Verifying methods...')
+		verifyAllMethods(methodRegistry)
+			.then((ok) => {
+				if (ok) {
+					console.log('Security check: ok!')
+				} else {
+					console.log('There are security issues that needs fixing, see above!')
+				}
+			})
+			.catch((e) => {
+				console.log('Error')
+				console.log(e)
+			})
+	}, 1000)
+}
+
+async function verifyAllMethods(methodRegistry: MethodRegistry): Promise<boolean> {
 	// Verify all Meteor methods
 	let ok = true
-	for (const methodName of AllMeteorMethods) {
+	for (const methodName of methodRegistry.getAllMethodNames()) {
+		// Developer-only debug methods are gated behind a 'developer' permission check that throws when
+		// verifyMethod calls them without a real connection, producing a false security failure. They were
+		// never part of the verified set before the registry refactor, so skip them here.
+		if (methodRegistry.isDebugMethod(methodName)) continue
+
 		ok = ok && (await verifyMethod(methodName))
 
 		if (!ok) return false // Bail on first error

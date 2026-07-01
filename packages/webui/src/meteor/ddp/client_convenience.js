@@ -18,7 +18,9 @@ import { Meteor } from '../meteor'
 // stream_client_common.js #RationalizingRelativeDDPURLs
 const runtimeConfig =
 	typeof window.__meteor_runtime_config__ !== 'undefined' ? window.__meteor_runtime_config__ : Object.create(null)
-const ddpUrl = runtimeConfig.DDP_DEFAULT_CONNECTION_URL || '/'
+// The backend injects DDP_DEFAULT_CONNECTION_URL as the full endpoint path (the client no longer
+// appends `/websocket` — see socket-stream-client/urls.js). Fall back to the Meteor default endpoint.
+const ddpUrl = runtimeConfig.DDP_DEFAULT_CONNECTION_URL || '/websocket'
 
 Meteor.connection = DDP.connect(ddpUrl)
 

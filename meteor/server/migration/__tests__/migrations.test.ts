@@ -12,10 +12,9 @@ import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objec
 import { ShowStyleBases, ShowStyleVariants, Studios } from '../../collections'
 import { getCoreSystemAsync } from '../../coreSystem/collection'
 import fs from 'fs'
+import { registerAllMethodsForTest } from '../../../__mocks__/helpers/methods'
 
-require('../../api/peripheralDevice.ts') // include in order to create the Meteor methods needed
-require('../api') // include in order to create the Meteor methods needed
-require('../../api/blueprints/api.ts') // include in order to create the Meteor methods needed
+registerAllMethodsForTest()
 
 require('../migrations') // include in order to create the migration steps
 

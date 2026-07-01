@@ -8,8 +8,10 @@ import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { getCurrentTime } from '../../lib/lib'
 import { MeteorCall } from '../methods'
 
-import '../ExternalMessageQueue'
+import { registerAllMethodsForTest } from '../../../__mocks__/helpers/methods'
 import { SupressLogMessages } from '../../../__mocks__/suppressLogging'
+
+registerAllMethodsForTest()
 
 describe('Test external message queue static methods', () => {
 	let studioEnv: DefaultEnvironment

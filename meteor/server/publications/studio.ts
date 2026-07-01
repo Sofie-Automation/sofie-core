@@ -1,12 +1,10 @@
 import { Meteor } from 'meteor/meteor'
 import { check, Match } from '../lib/check'
-import { meteorPublish } from './lib/lib'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { getActiveRoutes, getRoutedMappings } from '@sofie-automation/meteor-lib/dist/collections/Studios'
 import { ExternalMessageQueueObj } from '@sofie-automation/corelib/dist/dataModel/ExternalMessageQueue'
 import {
 	CustomPublish,
-	meteorCustomPublish,
 	SetupObserversResult,
 	setUpOptimizedObserverArray,
 	TriggerUpdate,
@@ -36,112 +34,124 @@ import { triggerWriteAccessBecauseNoCheckNecessary } from '../security/securityV
 import { checkAccessAndGetPeripheralDevice } from '../security/check'
 import { assertConnectionHasOneOfPermissions } from '../security/auth'
 import { fetchStudioIds } from '../optimizations'
+import type { PublicationRegistry } from '../publicationRegistry'
 
-meteorPublish(CorelibPubSub.studios, async function (studioIds: StudioId[] | null, _token: string | undefined) {
-	check(studioIds, Match.Maybe(Array))
+export function registerStudioPublications(registry: PublicationRegistry): void {
+	registry.publish(
+		CorelibPubSub.studios,
+		async (_context, studioIds: StudioId[] | null, _token: string | undefined) => {
+			check(studioIds, Match.Maybe(Array))
 
-	triggerWriteAccessBecauseNoCheckNecessary()
+			triggerWriteAccessBecauseNoCheckNecessary()
 
-	// If values were provided, they must have values
-	if (studioIds && studioIds.length === 0) return null
+			// If values were provided, they must have values
+			if (studioIds && studioIds.length === 0) return null
 
-	// Add the requested filter
-	const selector: MongoQuery<DBStudio> = {}
-	if (studioIds) selector._id = { $in: studioIds }
+			// Add the requested filter
+			const selector: MongoQuery<DBStudio> = {}
+			if (studioIds) selector._id = { $in: studioIds }
 
-	return Studios.findWithCursor(selector)
-})
-
-meteorPublish(
-	CorelibPubSub.externalMessageQueue,
-	async function (selector: MongoQuery<ExternalMessageQueueObj>, _token: string | undefined) {
-		triggerWriteAccessBecauseNoCheckNecessary()
-
-		if (!selector) throw new Meteor.Error(400, 'selector argument missing')
-		const modifier: FindOptions<ExternalMessageQueueObj> = {
-			fields: {},
+			return Studios.findWithCursor(selector)
 		}
+	)
 
-		return ExternalMessageQueue.findWithCursor(selector, modifier)
-	}
-)
+	registry.publish(
+		CorelibPubSub.externalMessageQueue,
+		async (_context, selector: MongoQuery<ExternalMessageQueueObj>, _token: string | undefined) => {
+			triggerWriteAccessBecauseNoCheckNecessary()
 
-meteorPublish(CorelibPubSub.expectedPackages, async function (studioIds: StudioId[], _token: string | undefined) {
-	// Note: This differs from the expected packages sent to the Package Manager, instead @see PubSub.expectedPackagesForDevice
-	check(studioIds, Array)
+			if (!selector) throw new Meteor.Error(400, 'selector argument missing')
+			const modifier: FindOptions<ExternalMessageQueueObj> = {
+				fields: {},
+			}
 
-	triggerWriteAccessBecauseNoCheckNecessary()
+			return ExternalMessageQueue.findWithCursor(selector, modifier)
+		}
+	)
 
-	if (studioIds.length === 0) return null
+	registry.publish(
+		CorelibPubSub.expectedPackages,
+		async (_context, studioIds: StudioId[], _token: string | undefined) => {
+			// Note: This differs from the expected packages sent to the Package Manager, instead @see PubSub.expectedPackagesForDevice
+			check(studioIds, Array)
 
-	return ExpectedPackages.findWithCursor({
-		studioId: { $in: studioIds },
-	})
-})
-meteorPublish(
-	CorelibPubSub.expectedPackageWorkStatuses,
-	async function (studioIds: StudioId[], _token: string | undefined) {
-		check(studioIds, Array)
-		triggerWriteAccessBecauseNoCheckNecessary()
+			triggerWriteAccessBecauseNoCheckNecessary()
 
-		if (studioIds.length === 0) return null
+			if (studioIds.length === 0) return null
 
-		return ExpectedPackageWorkStatuses.findWithCursor({
-			studioId: { $in: studioIds },
-		})
-	}
-)
-meteorPublish(
-	CorelibPubSub.packageContainerStatuses,
-	async function (studioIds: StudioId[], _token: string | undefined) {
-		check(studioIds, Array)
+			return ExpectedPackages.findWithCursor({
+				studioId: { $in: studioIds },
+			})
+		}
+	)
+	registry.publish(
+		CorelibPubSub.expectedPackageWorkStatuses,
+		async (_context, studioIds: StudioId[], _token: string | undefined) => {
+			check(studioIds, Array)
+			triggerWriteAccessBecauseNoCheckNecessary()
 
-		triggerWriteAccessBecauseNoCheckNecessary()
+			if (studioIds.length === 0) return null
 
-		if (studioIds.length === 0) return null
+			return ExpectedPackageWorkStatuses.findWithCursor({
+				studioId: { $in: studioIds },
+			})
+		}
+	)
+	registry.publish(
+		CorelibPubSub.packageContainerStatuses,
+		async (_context, studioIds: StudioId[], _token: string | undefined) => {
+			check(studioIds, Array)
 
-		return PackageContainerStatuses.findWithCursor({
-			studioId: { $in: studioIds },
-		})
-	}
-)
+			triggerWriteAccessBecauseNoCheckNecessary()
 
-meteorPublish(CorelibPubSub.packageInfos, async function (deviceId: PeripheralDeviceId, _token: string | undefined) {
-	check(deviceId, String)
+			if (studioIds.length === 0) return null
 
-	triggerWriteAccessBecauseNoCheckNecessary()
+			return PackageContainerStatuses.findWithCursor({
+				studioId: { $in: studioIds },
+			})
+		}
+	)
 
-	return PackageInfos.findWithCursor({ deviceId })
-})
+	registry.publish(
+		CorelibPubSub.packageInfos,
+		async (_context, deviceId: PeripheralDeviceId, _token: string | undefined) => {
+			check(deviceId, String)
 
-meteorCustomPublish(
-	PeripheralDevicePubSub.mappingsForDevice,
-	PeripheralDevicePubSubCollectionsNames.studioMappings,
-	async function (pub, deviceId: PeripheralDeviceId, token: string | undefined) {
-		check(deviceId, String)
+			triggerWriteAccessBecauseNoCheckNecessary()
 
-		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, this)
+			return PackageInfos.findWithCursor({ deviceId })
+		}
+	)
 
-		const studioId = peripheralDevice.studioAndConfigId?.studioId
-		if (!studioId) return
+	registry.customPublish(
+		PeripheralDevicePubSub.mappingsForDevice,
+		PeripheralDevicePubSubCollectionsNames.studioMappings,
+		async (context, pub, deviceId: PeripheralDeviceId, token: string | undefined) => {
+			check(deviceId, String)
 
-		await createObserverForMappingsPublication(pub, studioId)
-	}
-)
+			const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, context)
 
-meteorCustomPublish(
-	MeteorPubSub.mappingsForStudio,
-	PeripheralDevicePubSubCollectionsNames.studioMappings,
-	async function (pub) {
-		assertConnectionHasOneOfPermissions(this.connection, 'testing')
+			const studioId = peripheralDevice.studioAndConfigId?.studioId
+			if (!studioId) return
 
-		// Find the first studioId. There should only be one, but we don't know what it will be
-		const studioIds = await fetchStudioIds({})
-		if (studioIds.length < 1) throw new Error('No studios found')
+			await createObserverForMappingsPublication(pub, studioId)
+		}
+	)
 
-		await createObserverForMappingsPublication(pub, studioIds[0])
-	}
-)
+	registry.customPublish(
+		MeteorPubSub.mappingsForStudio,
+		PeripheralDevicePubSubCollectionsNames.studioMappings,
+		async (context, pub) => {
+			assertConnectionHasOneOfPermissions(context.connection, 'testing')
+
+			// Find the first studioId. There should only be one, but we don't know what it will be
+			const studioIds = await fetchStudioIds({})
+			if (studioIds.length < 1) throw new Error('No studios found')
+
+			await createObserverForMappingsPublication(pub, studioIds[0])
+		}
+	)
+}
 
 interface RoutedMappingsArgs {
 	readonly studioId: StudioId
