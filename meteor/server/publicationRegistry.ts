@@ -1,12 +1,11 @@
-import { Meteor, Subscription } from 'meteor/meteor'
+import { Meteor } from 'meteor/meteor'
 import { AllPubSubNames, AllPubSubTypes } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { MetricsGauge } from '@sofie-automation/corelib/dist/prometheus'
 import { extractFunctionSignature } from './lib'
 import { logger } from './logging'
 import { MinimalMongoCursor } from './collections/collection'
-import { driveSubscriptionFromCursor, PublicationContext, PublishDocType } from './publications/lib/lib'
+import { PublicationContext, PublishDocType } from './publications/lib/lib'
 import { CustomPublishMeteor, PublishIfDocument } from './lib/customPublication/publish'
-import { isCursorLike } from './ddp-server/subscriptionDispatch'
 
 // The Prometheus gauge is registered globally by name, so it must live at module scope rather than on
 // the registry instance, otherwise constructing a second registry (e.g. in tests) would throw.
@@ -47,41 +46,8 @@ function dropLeadingParams(signature: string[] | undefined, count: number): stri
 	return signature.slice(count)
 }
 
-/** The Meteor implementation of `PublicationContext`, adapting a Meteor `Subscription`. */
-class MeteorPublicationContext implements PublicationContext {
-	private readonly abort = new AbortController()
-	constructor(private readonly subscription: Subscription) {
-		this.subscription.onStop(() => this.abort.abort())
-	}
-
-	get signal(): AbortSignal {
-		return this.abort.signal
-	}
-
-	get connection(): Meteor.Connection | null {
-		return this.subscription.connection
-	}
-	onStop(callback: () => void): void {
-		this.subscription.onStop(callback)
-	}
-	ready(): void {
-		this.subscription.ready()
-	}
-	added(collection: string, id: string, fields: Record<string, unknown>): void {
-		this.subscription.added(collection, id, fields)
-	}
-	changed(collection: string, id: string, fields: Record<string, unknown>): void {
-		this.subscription.changed(collection, id, fields)
-	}
-	removed(collection: string, id: string): void {
-		this.subscription.removed(collection, id)
-	}
-}
-
 /**
  * Holds all registered publications on an instance instead of mutating global state at import time.
- * The same instance is handed to the Meteor path (`applyToMeteor()`) and, later, any standalone DDP
- * server, so publications live on every transport off a single source of truth.
  *
  * Note: unlike the method registry there is no compile-time `satisfies` completeness check, because
  * publication registrations are imperative calls scattered across many files rather than a single
@@ -90,19 +56,12 @@ class MeteorPublicationContext implements PublicationContext {
  */
 export class PublicationRegistry {
 	private readonly publications = new Map<string, RegisteredPublication>()
-	private applied = false
 
 	/**
 	 * Unsafe registration of a publication.
 	 * Prefer the typed `publish`/`customPublish` wrappers below.
 	 */
 	publishUnsafe(name: string, callback: PublicationCallback, signature?: string[], isCustom = false): void {
-		if (this.applied) {
-			throw new Meteor.Error(
-				500,
-				`PublicationRegistry: Cannot register publication "${name}" after the registry has been applied.`
-			)
-		}
 		if (this.publications.has(name)) {
 			throw new Meteor.Error(500, `PublicationRegistry: A publication called "${name}" is already registered.`)
 		}
@@ -190,36 +149,6 @@ export class PublicationRegistry {
 			}
 		}
 		return signatures
-	}
-
-	/** Apply all registered publications to Meteor's DDP server. The only place that touches `Meteor.publish()`. */
-	applyToMeteor(): void {
-		if (this.applied) throw new Meteor.Error(500, 'PublicationRegistry.applyToMeteor() has already been called')
-		this.applied = true
-
-		for (const [name, publication] of this.publications) {
-			const { callback } = publication
-			const publicationGauge = MeteorPublicationsGauge.labels({ publication: name, server: 'meteor' })
-
-			Meteor.publish(name, async function (...args: any[]): Promise<any> {
-				publicationGauge.inc()
-				this.onStop(() => publicationGauge.dec())
-
-				const context = new MeteorPublicationContext(this)
-				const result = await callback(context, ...args)
-
-				if (isCursorLike(result)) {
-					await driveSubscriptionFromCursor(context, result as MinimalMongoCursor<any>)
-				} else if (result) {
-					throw new Error(
-						'Publication callback returned a non-cursor value, but was not a custom publication. Only cursors or null are allowed.'
-					)
-				}
-
-				// If no value is returned, return an empty array so that meteor marks the subscription as ready
-				return []
-			})
-		}
 	}
 
 	/**

@@ -6,16 +6,16 @@ import { MeteorMock } from '../../../__mocks__/meteor'
 import { status2ExternalStatus, setSystemStatus } from '../systemStatus'
 import { StatusResponse } from '@sofie-automation/meteor-lib/dist/api/systemStatus'
 import { StatusCode } from '@sofie-automation/blueprints-integration'
-import { MeteorCall } from '../../api/methods'
+import { SystemStatusAPIMethods } from '@sofie-automation/meteor-lib/dist/api/systemStatus'
 import { callKoaRoute } from '../../../__mocks__/koa-util'
-import { healthRouter } from '../api'
+import { healthRouter, ServerSystemStatusAPI } from '../api'
 import { UIBlueprintUpgradeStatus } from '@sofie-automation/meteor-lib/dist/api/upgradeStatus'
-import { registerAllMethodsForTest } from '../../../__mocks__/helpers/methods'
+import { makeMeteorCallForTest } from '../../../__mocks__/helpers/methods'
 
 // we don't want the deviceTriggers observer to start up at this time
 jest.mock('../../api/deviceTriggers/observer')
 
-registerAllMethodsForTest()
+const MeteorCall = makeMeteorCallForTest({ methods: SystemStatusAPIMethods, class: ServerSystemStatusAPI })
 require('../../coreSystem/index')
 const PackageInfo = require('../../../package.json')
 

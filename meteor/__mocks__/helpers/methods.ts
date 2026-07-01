@@ -1,17 +1,51 @@
-import { MethodRegistry } from '../../server/methodRegistry'
-import { registerAllApiMethods } from '../../server/methodRegistrations'
+import { Meteor } from 'meteor/meteor'
+import { MakeMeteorCall } from '@sofie-automation/meteor-lib/dist/api/methods'
+import type { IMeteorCall } from '@sofie-automation/meteor-lib/dist/api/methods'
+import { AnyMethodApiRegistration, MethodRegistry } from '../../server/methodRegistry'
+import { USER_PERMISSIONS_HEADER } from '../../server/security/auth'
+import { MethodContext } from '../../server/api/methodContext'
 
 /**
- * Test helper: register all API methods on a fresh MethodRegistry and apply them to the (mock)
- * Meteor server, mirroring what `main.ts` does at startup.
+ * Test helper: build an `IMeteorCall` backed by a fresh `MethodRegistry` containing only the given
+ * API registrations, dispatching each call straight through the registry (no DDP transport).
  *
- * Call this in suites that exercise Meteor methods (via `MeteorCall`, `Meteor.callAsync`, or by
- * spying on `MeteorMock.mockMethods`). It is needed because the production registration now only
- * runs explicitly from `main.ts`, rather than as an import-time side effect of each API file.
+ * Each suite passes the specific API(s) it exercises, so tests declare their method dependencies
+ * explicitly and don't drag in the whole API graph. For example:
+ *   const MeteorCall = makeMeteorCallForTest({ methods: ClientAPIMethods, class: ServerClientAPIClass })
+ *
+ * If a suite calls a method it hasn't registered, the call rejects with a 404 - add that API's
+ * registration to the array.
  */
-export function registerAllMethodsForTest(): MethodRegistry {
+export function makeMeteorCallForTest(
+	registrations: AnyMethodApiRegistration | AnyMethodApiRegistration[],
+	context: MethodContext = getMethodContext()
+): IMeteorCall {
 	const registry = new MethodRegistry()
-	registerAllApiMethods(registry)
-	registry.applyToMeteor()
-	return registry
+	for (const registration of [registrations].flat()) registry.registerApi(registration)
+
+	return MakeMeteorCall(async (name, args) => {
+		const handler = registry.get(name)
+		if (!handler) throw new Meteor.Error(404, `Method '${name}' not found`)
+		return handler.apply(context, args)
+	})
+}
+
+export function getMethodContext(): MethodContext {
+	return {
+		connection: {
+			id: 'connectionId',
+			close: () => null,
+			onClose: (_callback: () => void) => {
+				// noop
+			},
+			clientAddress: '1.1.1.1',
+			httpHeaders: {
+				// Default to full permissions for tests
+				[USER_PERMISSIONS_HEADER]: 'admin',
+			},
+		},
+		unblock: () => {
+			// noop
+		},
+	}
 }

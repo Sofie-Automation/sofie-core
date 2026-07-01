@@ -1,5 +1,3 @@
-import { Meteor } from 'meteor/meteor'
-import { MeteorMock } from '../../../__mocks__/meteor'
 import { UserActionsLogItem } from '@sofie-automation/meteor-lib/dist/collections/UserActionsLog'
 import { ClientAPIMethods } from '@sofie-automation/meteor-lib/dist/api/client'
 import { LogLevel } from '@sofie-automation/meteor-lib/dist/lib'
@@ -12,13 +10,13 @@ import {
 	PERIPHERAL_SUBTYPE_PROCESS,
 } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { setupMockPeripheralDevice, setupMockStudio } from '../../../__mocks__/helpers/database'
-import { MeteorCall } from '../methods'
+import { ServerClientAPIClass } from '../client'
 import { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PeripheralDeviceCommands, UserActionsLog } from '../../collections'
 import { SupressLogMessages } from '../../../__mocks__/suppressLogging'
-import { registerAllMethodsForTest } from '../../../__mocks__/helpers/methods'
+import { makeMeteorCallForTest } from '../../../__mocks__/helpers/methods'
 
-registerAllMethodsForTest()
+const MeteorCall = makeMeteorCallForTest({ methods: ClientAPIMethods, class: ServerClientAPIClass })
 
 setLogLevel(LogLevel.INFO)
 
@@ -37,9 +35,6 @@ describe('ClientAPI', () => {
 		mockDeviceId = mockDevice._id
 	})
 	describe('clientErrorReport', () => {
-		test('Exports a Meteor method to the client', () => {
-			expect(MeteorMock.mockMethods[ClientAPIMethods.clientErrorReport]).toBeTruthy()
-		})
 		test('Returns a success response to the client', async () => {
 			SupressLogMessages.suppressLogMessage(/Uncaught error happened in GUI/i)
 			// should not throw:
@@ -52,10 +47,6 @@ describe('ClientAPI', () => {
 		const mockFailingFunctionName = 'mockFailFunction'
 		const mockContext = 'Context description'
 		const mockArgs = ['mockArg1', 'mockArg2']
-
-		test('Exports a Meteor method to the client', () => {
-			expect(MeteorMock.mockMethods[ClientAPIMethods.callPeripheralDeviceFunction]).toBeTruthy()
-		})
 
 		describe('Call a method on the peripheralDevice', () => {
 			let logMethodName = `not set yet`
@@ -125,8 +116,7 @@ describe('ClientAPI', () => {
 			beforeAll(async () => {
 				logMethodName = `${mockDeviceId}: ${mockFailingFunctionName}`
 
-				promise = Meteor.callAsync(
-					ClientAPIMethods.callPeripheralDeviceFunction,
+				promise = MeteorCall.client.callPeripheralDeviceFunction(
 					mockContext,
 					mockDeviceId,
 					undefined,

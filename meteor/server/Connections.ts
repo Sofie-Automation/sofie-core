@@ -65,11 +65,6 @@ export function trackConnectionClose(connectionId: string, clientAddress: string
 	})
 }
 
-Meteor.onConnection((conn: Meteor.Connection) => {
-	trackConnectionOpen(conn.id, conn.clientAddress)
-	conn.onClose(() => trackConnectionClose(conn.id, conn.clientAddress))
-})
-
 let logTimeout: number | undefined = undefined
 function traceConnections() {
 	connectionsGauge.set(connections.size)

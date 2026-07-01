@@ -380,7 +380,10 @@ async function syncConfigPresetsToStudios(blueprint: Blueprint): Promise<void> {
 	)
 }
 
-async function assignSystemBlueprint(methodContext: MethodContext, blueprintId: BlueprintId | null): Promise<void> {
+export async function assignSystemBlueprint(
+	methodContext: MethodContext,
+	blueprintId: BlueprintId | null
+): Promise<void> {
 	assertConnectionHasOneOfPermissions(methodContext.connection, ...PERMISSIONS_FOR_MANAGE_BLUEPRINTS)
 
 	if (blueprintId !== undefined && blueprintId !== null) {

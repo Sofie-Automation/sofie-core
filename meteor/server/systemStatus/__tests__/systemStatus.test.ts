@@ -8,11 +8,12 @@ import { StatusResponse } from '@sofie-automation/meteor-lib/dist/api/systemStat
 import { stripVersion } from '../semverUtils'
 import semver from 'semver'
 import { StatusCode } from '@sofie-automation/blueprints-integration'
-import { MeteorCall } from '../../api/methods'
+import { SystemStatusAPIMethods } from '@sofie-automation/meteor-lib/dist/api/systemStatus'
+import { ServerSystemStatusAPI } from '../api'
 import { PeripheralDeviceStatusObject } from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI'
 import { PeripheralDevices } from '../../collections'
 import { UIBlueprintUpgradeStatus } from '@sofie-automation/meteor-lib/dist/api/upgradeStatus'
-import { registerAllMethodsForTest } from '../../../__mocks__/helpers/methods'
+import { makeMeteorCallForTest } from '../../../__mocks__/helpers/methods'
 
 // we don't want the deviceTriggers observer to start up at this time
 jest.mock('../../api/deviceTriggers/observer')
@@ -25,7 +26,7 @@ const getServerBlueprintUpgradeStatusesMock = jest.spyOn(
 	'getServerBlueprintUpgradeStatuses'
 )
 
-registerAllMethodsForTest()
+const MeteorCall = makeMeteorCallForTest({ methods: SystemStatusAPIMethods, class: ServerSystemStatusAPI })
 
 describe('systemStatus', () => {
 	beforeEach(() => {

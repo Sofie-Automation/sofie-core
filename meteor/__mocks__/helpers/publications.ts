@@ -12,6 +12,5 @@ import { registerAllPublications } from '../../server/publicationRegistrations'
 export function registerAllPublicationsForTest(): PublicationRegistry {
 	const registry = new PublicationRegistry()
 	registerAllPublications(registry)
-	registry.applyToMeteor()
 	return registry
 }
