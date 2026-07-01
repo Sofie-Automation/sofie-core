@@ -1,7 +1,6 @@
-import { Meteor } from 'meteor/meteor'
-import { MakeMeteorCall } from '@sofie-automation/meteor-lib/dist/api/methods'
 import type { IMeteorCall } from '@sofie-automation/meteor-lib/dist/api/methods'
 import { AnyMethodApiRegistration, MethodRegistry } from '../../server/methodRegistry'
+import { makeMeteorCallForRegistry } from '../../server/api/meteorCall'
 import { USER_PERMISSIONS_HEADER } from '../../server/security/auth'
 import { MethodContext } from '../../server/api/methodContext'
 
@@ -23,11 +22,7 @@ export function makeMeteorCallForTest(
 	const registry = new MethodRegistry()
 	for (const registration of [registrations].flat()) registry.registerApi(registration)
 
-	return MakeMeteorCall(async (name, args) => {
-		const handler = registry.get(name)
-		if (!handler) throw new Meteor.Error(404, `Method '${name}' not found`)
-		return handler.apply(context, args)
-	})
+	return makeMeteorCallForRegistry(registry, () => context)
 }
 
 export function getMethodContext(): MethodContext {

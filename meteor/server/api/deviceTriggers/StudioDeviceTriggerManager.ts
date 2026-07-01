@@ -30,7 +30,7 @@ import { logger } from '../../logging'
 import { SomeAction, SomeBlueprintTrigger } from '@sofie-automation/blueprints-integration'
 import { DeviceActions } from '@sofie-automation/shared-lib/dist/core/model/ShowStyle'
 import { DummyReactiveVar } from '@sofie-automation/meteor-lib/dist/triggers/reactive-var'
-import { MeteorTriggersContext } from './triggersContext'
+import { TriggersContext } from '@sofie-automation/meteor-lib/dist/triggers/triggersContext'
 import { TagsService } from './TagsService'
 
 export class StudioDeviceTriggerManager {
@@ -40,7 +40,8 @@ export class StudioDeviceTriggerManager {
 
 	constructor(
 		public studioId: StudioId,
-		protected tagsService: TagsService
+		protected tagsService: TagsService,
+		private readonly triggersContext: TriggersContext
 	) {
 		if (StudioActionManagers.get(studioId)) {
 			logger.error(`A StudioActionManager for "${studioId}" already exists`)
@@ -107,7 +108,7 @@ export class StudioDeviceTriggerManager {
 					if (existingAction) {
 						thisAction = existingAction
 					} else {
-						const compiledAction = createAction(MeteorTriggersContext, action, sourceLayers)
+						const compiledAction = createAction(this.triggersContext, action, sourceLayers)
 						actionManager.setAction(actionId, compiledAction)
 						thisAction = compiledAction
 					}

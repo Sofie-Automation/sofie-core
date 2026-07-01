@@ -20,6 +20,7 @@ import { StudioObserver } from './StudioObserver'
 import { Studios } from '../../collections'
 import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
+import { TriggersContext } from '@sofie-automation/meteor-lib/dist/triggers/triggersContext'
 import { TagsService } from './TagsService'
 
 type ObserverAndManager = {
@@ -27,7 +28,12 @@ type ObserverAndManager = {
 	manager: StudioDeviceTriggerManager
 }
 
-Meteor.startup(async () => {
+/**
+ * Start observing studios and maintaining a device-trigger manager per studio. `triggersContext` is
+ * injected (rather than importing a global) so the compiled actions dispatch through the process's
+ * `MethodRegistry`.
+ */
+export async function startDeviceTriggersObserver(triggersContext: TriggersContext): Promise<void> {
 	const studioObserversAndManagers = new Map<StudioId, ObserverAndManager>()
 	const jobQueue = new JobQueueWithClasses({
 		autoStart: true,
@@ -46,7 +52,7 @@ Meteor.startup(async () => {
 
 	function createObserverAndManager(studioId: StudioId) {
 		logger.debug(`Creating observer for studio "${studioId}"`)
-		const manager = new StudioDeviceTriggerManager(studioId, new TagsService())
+		const manager = new StudioDeviceTriggerManager(studioId, new TagsService(), triggersContext)
 		const observer = new StudioObserver(
 			studioId,
 			(showStyleBaseId, cache) => {
@@ -94,9 +100,8 @@ Meteor.startup(async () => {
 		},
 		{ projection: { _id: 1 } }
 	)
-})
+}
 
-// TODO: These actually don't have to be reactiveCacheCollections, they can be a plain Meteor in-memory collection
 export const DeviceTriggerMountedActions = new InMemoryMongoCollection<DeviceTriggerMountedAction>(
 	'deviceTriggerMountedActions'
 )
