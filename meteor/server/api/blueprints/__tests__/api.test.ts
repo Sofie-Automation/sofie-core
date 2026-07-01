@@ -8,20 +8,20 @@ import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
 import { BlueprintManifestType } from '@sofie-automation/blueprints-integration'
 import { SYSTEM_ID, ICoreSystem } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
-import { insertBlueprint, uploadBlueprint, uploadBlueprintAsset } from '../api'
-import { MeteorCall } from '../../methods'
+import { insertBlueprint, uploadBlueprint, uploadBlueprintAsset, ServerBlueprintAPI } from '../api'
+import { BlueprintAPIMethods } from '@sofie-automation/meteor-lib/dist/api/blueprint'
 import '../../../../__mocks__/_extendJest'
 import { Blueprints, CoreSystem } from '../../../collections'
 import { SupressLogMessages } from '../../../../__mocks__/suppressLogging'
 import { JSONBlobStringify } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 import { Meteor } from 'meteor/meteor'
 import * as CoreSystemAPI from '../../../coreSystem'
-import { registerAllMethodsForTest } from '../../../../__mocks__/helpers/methods'
+import { makeMeteorCallForTest } from '../../../../__mocks__/helpers/methods'
 
 // we don't want the deviceTriggers observer to start up at this time
 jest.mock('../../deviceTriggers/observer')
 
-registerAllMethodsForTest()
+const MeteorCall = makeMeteorCallForTest({ methods: BlueprintAPIMethods, class: ServerBlueprintAPI })
 
 const DEFAULT_CONNECTION: Meteor.Connection = {
 	id: 'mockConnectionId',

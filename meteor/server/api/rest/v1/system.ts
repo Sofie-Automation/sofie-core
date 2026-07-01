@@ -8,29 +8,34 @@ import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { Meteor } from 'meteor/meteor'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
-import { MeteorCall } from '../../methods'
+import { assignSystemBlueprint } from '../../blueprints/api'
+import * as Migrations from '../../../migration/databaseMigration'
 
 class SystemServerAPI implements SystemRestAPI {
+	constructor(private context: ServerAPIContext) {}
+
 	async assignSystemBlueprint(
-		_connection: Meteor.Connection,
+		connection: Meteor.Connection,
 		_event: string,
 		blueprintId: BlueprintId
 	): Promise<ClientAPI.ClientResponse<void>> {
-		return ClientAPI.responseSuccess(await MeteorCall.blueprint.assignSystemBlueprint(blueprintId))
+		return ClientAPI.responseSuccess(
+			await assignSystemBlueprint(this.context.getMethodContext(connection), blueprintId)
+		)
 	}
 
 	async unassignSystemBlueprint(
-		_connection: Meteor.Connection,
+		connection: Meteor.Connection,
 		_event: string
 	): Promise<ClientAPI.ClientResponse<void>> {
-		return ClientAPI.responseSuccess(await MeteorCall.blueprint.assignSystemBlueprint(undefined))
+		return ClientAPI.responseSuccess(await assignSystemBlueprint(this.context.getMethodContext(connection), null))
 	}
 
 	async getPendingMigrations(
-		_connection: Meteor.Connection,
+		connection: Meteor.Connection,
 		_event: string
 	): Promise<ClientAPI.ClientResponse<{ inputs: PendingMigrations }>> {
-		const migrationStatus = await MeteorCall.migration.getMigrationStatus()
+		const migrationStatus = await Migrations.getMigrationStatus(this.context.getMethodContext(connection))
 		if (!migrationStatus.migrationNeeded) return ClientAPI.responseSuccess({ inputs: [] })
 
 		// Inputs are no longer supported, but need to be preserved for api compatibility
@@ -38,13 +43,14 @@ class SystemServerAPI implements SystemRestAPI {
 	}
 
 	async applyPendingMigrations(
-		_connection: Meteor.Connection,
+		connection: Meteor.Connection,
 		_event: string
 	): Promise<ClientAPI.ClientResponse<void>> {
-		const migrationStatus = await MeteorCall.migration.getMigrationStatus()
+		const migrationStatus = await Migrations.getMigrationStatus(this.context.getMethodContext(connection))
 		if (!migrationStatus.migrationNeeded) throw new Error(`Migration does not need to be applied`)
 
-		const result = await MeteorCall.migration.runMigration(
+		const result = await Migrations.runMigration(
+			this.context.getMethodContext(connection),
 			migrationStatus.migration.chunks,
 			migrationStatus.migration.hash
 		)
@@ -54,8 +60,8 @@ class SystemServerAPI implements SystemRestAPI {
 }
 
 class SystemAPIFactory implements APIFactory<SystemRestAPI> {
-	createServerAPI(_context: ServerAPIContext): SystemRestAPI {
-		return new SystemServerAPI()
+	createServerAPI(context: ServerAPIContext): SystemRestAPI {
+		return new SystemServerAPI(context)
 	}
 }
 

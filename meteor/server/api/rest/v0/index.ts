@@ -17,6 +17,7 @@ import Koa from 'koa'
 import KoaRouter from '@koa/router'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { PeripheralDevicePubSub } from '@sofie-automation/shared-lib/dist/pubsub/peripheralDevice'
+import { MethodContext } from '../../methodContext'
 
 const LEGACY_API_VERSION = 0
 
@@ -101,7 +102,20 @@ export function createLegacyApiRouter(
 
 		assignRoute(router, 'POST', resource, signature.length, async (args) => {
 			const convArgs = typeConvertUrlParameters(args)
-			return Meteor.callAsync(methodValue, ...convArgs)
+
+			const handler = methodRegistry.get(methodValue)
+			if (!handler) {
+				throw new Meteor.Error(404, `Method "${methodValue}" not found`)
+			}
+
+			const context: MethodContext = {
+				connection: null,
+				unblock: () => null,
+			}
+
+			// Call the method, and see if
+			// it calls triggerWriteAccess()
+			return handler.apply(context, convArgs)
 		})
 	}
 

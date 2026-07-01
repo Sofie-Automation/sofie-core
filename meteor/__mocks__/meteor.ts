@@ -89,27 +89,10 @@ export namespace MeteorMock {
 
 	export const settings: any = {}
 
-	export const mockMethods: { [name: string]: Function } = {}
 	export const mockStartupFunctions: Function[] = []
 
 	export const absolutePath = process.cwd()
 
-	function getMethodContext() {
-		const { USER_PERMISSIONS_HEADER } = require('../server/security/auth')
-
-		return {
-			connection: {
-				clientAddress: '1.1.1.1',
-				httpHeaders: {
-					// Default to full permissions for tests
-					[USER_PERMISSIONS_HEADER]: 'admin',
-				},
-			},
-			unblock: () => {
-				// noop
-			},
-		}
-	}
 	export class Error {
 		private _stack?: string
 		constructor(
@@ -147,45 +130,28 @@ export namespace MeteorMock {
 			return `[${this.error}] ${this.reason}` // TODO: This should be changed to "${this.reason} [${this.error}]"
 		}
 	}
-	export function methods(addMethods: { [name: string]: Function }): void {
-		Object.assign(mockMethods, addMethods)
-	}
 	export function call(_methodName: string, ..._args: any[]): any {
-		throw new Error(500, `Meteor.call should not be used, use Meteor.callAsync instead`)
+		throw new Error(500, `Meteor.call is not supported without ddp`)
 	}
-	export async function callAsync(methodName: string, ...args: any[]): Promise<any> {
-		const fcn: Function = mockMethods[methodName]
-		if (!fcn) {
-			console.log(methodName)
-			console.log(mockMethods)
-			console.log(new Error(1).stack)
-			throw new Error(404, `Method '${methodName}' not found`)
-		}
-
-		// Defer
-		await sleepNoFakeTimers(0)
-
-		return fcn.call(getMethodContext(), ...args)
+	export async function callAsync(_methodName: string, ..._args: any[]): Promise<any> {
+		throw new Error(500, `Meteor.callAsync is not supported without ddp`)
 	}
 	export function apply(
-		methodName: string,
-		args: any[],
+		_methodName: string,
+		_args: any[],
 		_options?: {
 			wait?: boolean
 			onResultReceived?: Function
 			returnStubValue?: boolean
 			throwStubExceptions?: boolean
 		},
-		asyncCallback?: Function
+		_asyncCallback?: Function
 	): any {
-		// ?
-		// This is a bad mock, since it doesn't support any of the options..
-		// but it'll do for now:
-		call(methodName, ...args, asyncCallback)
+		throw new Error(500, `Meteor.apply is not supported without ddp`)
 	}
 	export async function applyAsync(
-		methodName: string,
-		args: any[],
+		_methodName: string,
+		_args: any[],
 		_options?: {
 			wait?: boolean
 			onResultReceived?: Function
@@ -193,10 +159,7 @@ export namespace MeteorMock {
 			throwStubExceptions?: boolean
 		}
 	): Promise<any> {
-		// ?
-		// This is a bad mock, since it doesn't support any of the options..
-		// but it'll do for now:
-		return callAsync(methodName, ...args)
+		throw new Error(500, `Meteor.applyAsync is not supported without ddp`)
 	}
 	export function setTimeout(fcn: () => void | Promise<void>, time: number): number {
 		return $.setTimeout(() => {

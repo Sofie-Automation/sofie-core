@@ -68,9 +68,6 @@ registerAllApiMethods(methodRegistry)
 const publicationRegistry = new PublicationRegistry()
 registerAllPublications(publicationRegistry)
 
-// Apply methods and publications
-methodRegistry.applyToMeteor()
-publicationRegistry.applyToMeteor()
 Meteor.startup(() => {
 	bindRestApiRouter(methodRegistry, publicationRegistry)
 	startupVerifyAllMethods(methodRegistry)

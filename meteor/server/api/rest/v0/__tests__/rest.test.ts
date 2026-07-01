@@ -12,6 +12,7 @@ import { ServerUserActionAPI } from '../../../userActions'
 jest.mock('../../../deviceTriggers/observer')
 
 import '../index'
+import { MethodContext } from '../../../methodContext'
 
 describe('REST API', () => {
 	describe('UNSTABLE v0', () => {
@@ -19,12 +20,23 @@ describe('REST API', () => {
 			await MeteorMock.mockRunMeteorStartup()
 		})
 
+		const methodMock = jest.fn((..._args): any => {
+			throw new Error('Method wrapper not setup')
+		})
+
 		const methodRegistry = new MethodRegistry()
 		methodRegistry.registerApi({
 			methods: UserActionAPIMethods,
 			class: ServerUserActionAPI,
+			wrapper: (
+				_methodContext: MethodContext,
+				_methodName: string,
+				args: any[],
+				_fcn: (...args: any[]) => any
+			) => {
+				return methodMock(...args)
+			},
 		} as unknown as AnyMethodApiRegistration)
-		methodRegistry.applyToMeteor() // register the methods on the (mock) Meteor server
 		const methodSignatures = methodRegistry.getSignatures()
 		const publicationRegistry = new PublicationRegistry()
 		const legacyApiRouter = createLegacyApiRouter(methodRegistry, publicationRegistry)
@@ -38,9 +50,7 @@ describe('REST API', () => {
 					docString += `/${paramName}`
 				}
 
-				jest.spyOn(MeteorMock.mockMethods as any, methodValue).mockReturnValue(
-					ClientAPI.responseSuccess(undefined)
-				)
+				methodMock.mockImplementationOnce(() => ClientAPI.responseSuccess(undefined))
 
 				const ctx = await callKoaRoute(legacyApiRouter, {
 					method: 'POST',
@@ -67,7 +77,7 @@ describe('REST API', () => {
 				docString += `/${paramName}`
 			}
 
-			jest.spyOn(MeteorMock.mockMethods as any, methodValue).mockImplementation(() => {
+			methodMock.mockImplementationOnce(() => {
 				throw new Meteor.Error(401, 'Mock error')
 			})
 
@@ -93,7 +103,7 @@ describe('REST API', () => {
 				docString += `/${paramName}`
 			}
 
-			jest.spyOn(MeteorMock.mockMethods as any, methodValue).mockImplementation(() => {
+			methodMock.mockImplementationOnce(() => {
 				throw new Error('Mock error')
 			})
 
@@ -133,7 +143,7 @@ describe('REST API', () => {
 
 			let resultingArgs: any[] = []
 
-			jest.spyOn(MeteorMock.mockMethods as any, methodValue).mockImplementation((...args) => {
+			methodMock.mockImplementationOnce((...args) => {
 				resultingArgs = args
 				return ClientAPI.responseSuccess(undefined)
 			})

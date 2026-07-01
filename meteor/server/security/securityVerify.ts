@@ -3,6 +3,7 @@ import { suppressExtraErrorLogging } from '../methods'
 import { disableChecks, enableChecks as restoreChecks } from '../lib/check'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import type { MethodRegistry } from '../methodRegistry'
+import { MethodContext } from '../api/methodContext'
 
 /** These function are used to verify that all methods defined are using security functions */
 
@@ -66,7 +67,7 @@ async function verifyAllMethods(methodRegistry: MethodRegistry): Promise<boolean
 		// never part of the verified set before the registry refactor, so skip them here.
 		if (methodRegistry.isDebugMethod(methodName)) continue
 
-		ok = ok && (await verifyMethod(methodName))
+		ok = ok && (await verifyMethod(methodRegistry, methodName))
 
 		if (!ok) return false // Bail on first error
 
@@ -74,7 +75,7 @@ async function verifyAllMethods(methodRegistry: MethodRegistry): Promise<boolean
 	}
 	return ok
 }
-async function verifyMethod(methodName: string) {
+async function verifyMethod(methodRegistry: MethodRegistry, methodName: string) {
 	let ok = true
 	suppressExtraErrorLogging(true)
 	try {
@@ -82,7 +83,21 @@ async function verifyMethod(methodName: string) {
 		testWriteAccess()
 		// Pass some fake args, to ensure that any trying to do a `arg.val` don't throw
 		const fakeArgs = [{}, {}, {}, {}, {}]
-		await Meteor.callAsync(methodName, ...fakeArgs)
+
+		const handler = methodRegistry.get(methodName)
+		if (!handler) {
+			console.log(`Method "${methodName}" not found in registry`)
+			ok = false
+		} else {
+			const context: MethodContext = {
+				connection: null,
+				unblock: () => null,
+			}
+
+			// Call the method, and see if
+			// it calls triggerWriteAccess()
+			await handler.apply(context, fakeArgs)
+		}
 	} catch (e) {
 		const errStr = stringifyError(e)
 		if (errStr.match(/triggerWriteAccess/i)) {

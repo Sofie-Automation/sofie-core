@@ -27,6 +27,11 @@ import { SnapshotId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { Blueprints } from '../collections'
 import { getSystemStorePath } from '../coreSystem'
 import { getCoreSystemAsync, setCoreSystemVersion } from '../coreSystem/collection'
+import { assertConnectionHasOneOfPermissions } from '../security/auth'
+import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
+import { MethodContext } from '../api/methodContext'
+
+export const PERMISSIONS_FOR_MIGRATIONS: Array<keyof UserPermissions> = ['configure']
 
 /**
  * These versions are not supported anymore (breaking changes occurred after these versions)
@@ -250,6 +255,18 @@ export async function prepareMigration(returnAllChunks?: boolean): Promise<Prepa
 }
 
 export async function runMigration(
+	context: MethodContext,
+	chunks: Array<MigrationChunk>,
+	hash: string,
+	isFirstOfPartialMigrations = true,
+	chunksLeft = 20
+): Promise<RunMigrationResult> {
+	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_MIGRATIONS)
+
+	return runMigrationFromTrusted(chunks, hash, isFirstOfPartialMigrations, chunksLeft)
+}
+
+export async function runMigrationFromTrusted(
 	chunks: Array<MigrationChunk>,
 	hash: string,
 	isFirstOfPartialMigrations = true,
@@ -361,10 +378,10 @@ export async function runMigration(
 		// continue automatically with the next batch
 		logger.info('Migration: Automatically continuing with next batch..')
 		migration.partialMigration = false
-		const s = await getMigrationStatus()
+		const s = await getMigrationStatusFromTrusted()
 		if (s.migration.automaticStepCount > 0) {
 			try {
-				const res = await runMigration(s.migration.chunks, s.migration.hash, false, chunksLeft - 1)
+				const res = await runMigrationFromTrusted(s.migration.chunks, s.migration.hash, false, chunksLeft - 1)
 				if (res.migrationCompleted) {
 					return res
 				}
@@ -406,7 +423,13 @@ export async function updateDatabaseVersion(targetVersionStr: string): Promise<v
 	await setCoreSystemVersion(targetVersion)
 }
 
-export async function getMigrationStatus(): Promise<GetMigrationStatusResult> {
+export async function getMigrationStatus(context: MethodContext): Promise<GetMigrationStatusResult> {
+	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_MIGRATIONS)
+
+	return getMigrationStatusFromTrusted()
+}
+
+export async function getMigrationStatusFromTrusted(): Promise<GetMigrationStatusResult> {
 	const migration = await prepareMigration(true)
 
 	return {
@@ -425,7 +448,9 @@ export async function getMigrationStatus(): Promise<GetMigrationStatusResult> {
 		},
 	}
 }
-export async function forceMigration(chunks: Array<MigrationChunk>): Promise<void> {
+export async function forceMigration(context: MethodContext, chunks: Array<MigrationChunk>): Promise<void> {
+	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_MIGRATIONS)
+
 	logger.info(`Force migration`)
 
 	for (const chunk of chunks) {
@@ -436,7 +461,9 @@ export async function forceMigration(chunks: Array<MigrationChunk>): Promise<voi
 
 	return completeMigration(chunks)
 }
-export async function resetDatabaseVersions(): Promise<void> {
+export async function resetDatabaseVersions(context: MethodContext): Promise<void> {
+	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_MIGRATIONS)
+
 	await updateDatabaseVersion(GENESIS_SYSTEM_VERSION)
 
 	await Blueprints.updateAsync(

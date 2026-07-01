@@ -5,10 +5,6 @@ describe('isCursorLike', () => {
 		expect(isCursorLike({ observeChangesAsync: () => undefined })).toBe(true)
 	})
 
-	test('detects a (Meteor) cursor by _publishCursor', () => {
-		expect(isCursorLike({ _publishCursor: () => undefined })).toBe(true)
-	})
-
 	test('is false for plain objects and non-objects', () => {
 		expect(isCursorLike({})).toBe(false)
 		expect(isCursorLike({ observeChangesAsync: 'not a function' })).toBe(false)

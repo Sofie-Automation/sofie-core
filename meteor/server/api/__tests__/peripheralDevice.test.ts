@@ -1,5 +1,4 @@
 import '../../../__mocks__/_extendJest'
-import { Meteor } from 'meteor/meteor'
 import {
 	PeripheralDevice,
 	PeripheralDeviceCategory,
@@ -22,12 +21,13 @@ import {
 	StatusCode,
 } from '@sofie-automation/blueprints-integration'
 import { CreateFakeResult, QueueStudioJobSpy } from '../../../__mocks__/worker'
-import { registerAllMethodsForTest } from '../../../__mocks__/helpers/methods'
+import { makeMeteorCallForTest } from '../../../__mocks__/helpers/methods'
 
 jest.mock('../../api/deviceTriggers/observer')
 
 import { OnTimelineTriggerTimeProps, StudioJobFunc, StudioJobs } from '@sofie-automation/corelib/dist/worker/studio'
-import { MeteorCall } from '../methods'
+import { PeripheralDeviceAPIMethods } from '@sofie-automation/shared-lib/dist/peripheralDevice/methodsAPI'
+import { ServerPeripheralDeviceAPIClass } from '../peripheralDevice'
 import { PeripheralDeviceForDevice } from '@sofie-automation/shared-lib/dist/core/model/peripheralDevice'
 import {
 	PeripheralDeviceInitOptions,
@@ -35,7 +35,6 @@ import {
 	TimelineTriggerTimeResult,
 } from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI'
 import { RundownId, RundownPlaylistId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { PeripheralDeviceAPIMethods } from '@sofie-automation/shared-lib/dist/peripheralDevice/methodsAPI'
 import {
 	MediaObjects,
 	Parts,
@@ -50,7 +49,10 @@ import { SupressLogMessages } from '../../../__mocks__/suppressLogging'
 import { JSONBlobStringify } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 import { PeripheralDeviceCommand } from '@sofie-automation/corelib/dist/dataModel/PeripheralDeviceCommand'
 
-registerAllMethodsForTest()
+const MeteorCall = makeMeteorCallForTest({
+	methods: PeripheralDeviceAPIMethods,
+	class: ServerPeripheralDeviceAPIClass,
+})
 
 const DEBUG = false
 
@@ -325,14 +327,7 @@ describe('test peripheralDevice general API methods', () => {
 		expect(resultMessage).toBeUndefined()
 
 		const replyMessage = 'Waving back!'
-		await Meteor.callAsync(
-			PeripheralDeviceAPIMethods.functionReply,
-			device._id,
-			device.token,
-			command._id,
-			undefined,
-			replyMessage
-		)
+		await MeteorCall.peripheralDevice.functionReply(device._id, device.token, command._id, undefined, replyMessage)
 
 		jest.advanceTimersByTime(1200)
 

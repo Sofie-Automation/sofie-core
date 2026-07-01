@@ -8,7 +8,7 @@ import {
 	DEFAULT_POISON_KEY,
 } from '@sofie-automation/shared-lib/dist/core/constants'
 import { Meteor } from 'meteor/meteor'
-import { prepareMigration, runMigration } from '../migration/databaseMigration'
+import { prepareMigration, runMigrationFromTrusted } from '../migration/databaseMigration'
 import { CURRENT_SYSTEM_VERSION } from '../migration/currentSystemVersion'
 import { Blueprints, CoreSystem } from '../collections'
 import { getEnvLogLevel, logger, LogLevel, setLogLevel } from '../logging'
@@ -96,7 +96,7 @@ async function initializeCoreSystem() {
 			const migration = await prepareMigration(true)
 			if (migration.migrationNeeded && migration.chunks.length <= 1) {
 				// Since we've determined that the migration can be done automatically, and we have a fresh system, just do the migration automatically:
-				await runMigration(migration.chunks, migration.hash)
+				await runMigrationFromTrusted(migration.chunks, migration.hash)
 			}
 		}
 	}

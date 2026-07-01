@@ -23,7 +23,6 @@ import { SYSTEM_ID } from '@sofie-automation/meteor-lib/dist/collections/CoreSys
 import * as lib from '../lib/lib'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
-import { Meteor } from 'meteor/meteor'
 import { EmptyPieceTimelineObjectsBlob } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import {
 	NrcsIngestDataCacheObjId,
@@ -48,9 +47,6 @@ jest.mock('../api/deviceTriggers/observer')
 const MAX_WAIT_TIME = 4 * 1000
 
 import '../cronjobs'
-import { registerAllMethodsForTest } from '../../__mocks__/helpers/methods'
-
-registerAllMethodsForTest()
 import {
 	CoreSystem,
 	NrcsIngestDataCache,
@@ -78,6 +74,10 @@ import { DEFAULT_MAXIMUM_DATA_AGE } from '@sofie-automation/shared-lib/dist/core
 import { SofieIngestCacheType } from '@sofie-automation/corelib/dist/dataModel/SofieIngestDataCache'
 import { ObjectOverrideSetOp, ObjectWithOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { PartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
+import { MethodRegistry } from '../methodRegistry'
+import { PeripheralDeviceAPIMethods } from '@sofie-automation/server-core-integration'
+import { ServerPeripheralDeviceAPIClass } from '../api/peripheralDevice'
+import { getMethodContext } from '../../__mocks__/helpers/methods'
 
 describe('cronjobs', () => {
 	let env: DefaultEnvironment
@@ -640,6 +640,12 @@ describe('cronjobs', () => {
 		}
 
 		test('Attempts to restart CasparCG when job is enabled', async () => {
+			const registry = new MethodRegistry()
+			registry.registerApi({ methods: PeripheralDeviceAPIMethods, class: ServerPeripheralDeviceAPIClass })
+
+			const functionReplyHandler = registry.get(PeripheralDeviceAPIMethods.functionReply)
+			if (!functionReplyHandler) throw new Error('PeripheralDeviceAPIMethods.functionReply not registered')
+
 			const { mockCasparCg, deviceToken } = await createMockPlayoutGatewayAndDevices(Date.now()) // Some time after the threshold
 
 			;(logger.info as jest.Mock).mockClear()
@@ -660,14 +666,13 @@ describe('cronjobs', () => {
 			// Emulate that the restart was successful:
 			await Promise.all(
 				pendingCommands.map(async (cmd) =>
-					Meteor.callAsync(
-						'peripheralDevice.functionReply',
+					functionReplyHandler.apply(getMethodContext(), [
 						cmd.deviceId, // deviceId
 						deviceToken, // deviceToken
 						cmd._id, // commandId
 						null, // err
-						null // result
-					)
+						null, // result
+					])
 				)
 			)
 

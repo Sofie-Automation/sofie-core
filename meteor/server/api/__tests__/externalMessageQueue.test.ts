@@ -6,12 +6,16 @@ import { DefaultEnvironment, setupDefaultStudioEnvironment } from '../../../__mo
 import { getRandomId } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { getCurrentTime } from '../../lib/lib'
-import { MeteorCall } from '../methods'
+import { ExternalMessageQueueAPIMethods } from '@sofie-automation/meteor-lib/dist/api/ExternalMessageQueue'
+import { ServerExternalMessageQueueAPI } from '../ExternalMessageQueue'
 
-import { registerAllMethodsForTest } from '../../../__mocks__/helpers/methods'
+import { makeMeteorCallForTest } from '../../../__mocks__/helpers/methods'
 import { SupressLogMessages } from '../../../__mocks__/suppressLogging'
 
-registerAllMethodsForTest()
+const MeteorCall = makeMeteorCallForTest({
+	methods: ExternalMessageQueueAPIMethods,
+	class: ServerExternalMessageQueueAPI,
+})
 
 describe('Test external message queue static methods', () => {
 	let studioEnv: DefaultEnvironment
