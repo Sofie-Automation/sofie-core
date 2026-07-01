@@ -70,22 +70,6 @@ export function getOrCreateMongoCollection(name: string): Mongo.Collection<any> 
 }
 
 /**
- * Wrap an existing Mongo.Collection to have async methods. Primarily to convert the built-in Users collection
- * @param collection Collection to wrap
- * @param name Name of the collection
- */
-export function wrapMongoCollection<DBInterface extends { _id: ProtectedString<any> }>(
-	collection: Mongo.Collection<DBInterface>,
-	name: CollectionName
-): MongoCollection<DBInterface> {
-	const wrapped = new WrappedMongoCollection<DBInterface>(collection, name)
-
-	registerClientCollection(name, wrapped)
-
-	return wrapped
-}
-
-/**
  * Create a sync in-memory Mongo Collection (for ui temporary storage)
  * @param name Name of the collection (for logging)
  */
