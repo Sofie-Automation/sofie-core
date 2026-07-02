@@ -289,7 +289,19 @@ export function useSelectedElements(
 	)
 	const [part, setPart] = useState<DBPart | undefined>(undefined)
 	const [segment, setSegment] = useState<DBSegment | undefined>(undefined)
-	const rundownId = piece ? piece.startRundownId : part ? part.rundownId : segment?.rundownId
+	const rundownId = rundownBaselineAdLibAction
+		? rundownBaselineAdLibAction.rundownId
+		: adLibAction
+			? adLibAction.rundownId
+			: rundownBaselineAdLibPiece
+				? rundownBaselineAdLibPiece.rundownId
+				: adLibPiece
+					? adLibPiece.rundownId
+					: piece
+						? piece.startRundownId
+						: part
+							? part.rundownId
+							: segment?.rundownId
 
 	const lastValidSmallestElement = useRef<LastValidSmallestElementRef | undefined>(undefined)
 
