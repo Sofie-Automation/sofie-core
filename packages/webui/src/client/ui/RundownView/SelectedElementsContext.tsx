@@ -355,7 +355,9 @@ export function useSelectedElements(
 				setAdLibAction(adLibAction)
 				setRundownBaselineAdLibAction(rundownBaselineAdLibAction)
 
-				const part = UIParts.findOne({ _id: piece?.startPartId ?? selectedElement?.elementId })
+				const part = UIParts.findOne({
+					_id: piece?.startPartId ?? adLibPiece?.partId ?? adLibAction?.partId ?? selectedElement?.elementId,
+				})
 				const segment = Segments.findOne({ _id: part ? part.segmentId : selectedElement?.elementId })
 
 				setPiece(piece)
