@@ -100,17 +100,21 @@ export function PropertiesPanel(): JSX.Element {
 		if (!target) return
 
 		// Revert can only happen on a per-part or per-segment basis, so if the target is a piece, we need to convert it to a part or segment target
-		if (target.target !== 'segment' && target.target !== 'part' && target.segmentExternalId) {
-			target = target.partExternalId
-				? {
-						target: 'part',
-						segmentExternalId: target.segmentExternalId,
-						partExternalId: target.partExternalId,
-					}
-				: {
-						target: 'segment',
-						segmentExternalId: target.segmentExternalId,
-					}
+		if ((target.target === 'segment' || target.target === 'part') && target.segmentExternalId) {
+			target =
+				target.target !== 'segment' &&
+				'partExternalId' in target &&
+				'segmentExternalId' in target &&
+				target.partExternalId !== undefined
+					? {
+							target: 'part',
+							segmentExternalId: target.segmentExternalId,
+							partExternalId: target.partExternalId,
+						}
+					: {
+							target: 'segment',
+							segmentExternalId: target.segmentExternalId,
+						}
 		} else {
 			// we can't revert
 			return
