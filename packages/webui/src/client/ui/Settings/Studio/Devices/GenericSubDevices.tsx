@@ -7,7 +7,7 @@ import type {
 	WrappedOverridableItemDeleted,
 	WrappedOverridableItemNormal,
 } from '../../util/OverrideOpHelper.js'
-import { faCheck, faPencilAlt, faSync, faTrash, faSave, faBan } from '@fortawesome/free-solid-svg-icons'
+import { faCheck, faPencilAlt, faSync, faTrash, faSave, faRotateLeft } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { type JSONBlob, JSONBlobParse, type JSONSchema } from '@sofie-automation/blueprints-integration'
 import { DropdownInputControl, type DropdownInputOption } from '../../../../lib/Components/DropdownInput.js'
@@ -344,7 +344,7 @@ function SubDeviceEditRow({
 					{hasUnsavedChanges ? (
 						<>
 							<button className="btn btn-warning ms-2" onClick={discardChanges}>
-								<FontAwesomeIcon icon={faBan} />
+								<FontAwesomeIcon icon={faRotateLeft} />
 								&nbsp;{t('Discard')}
 							</button>
 

@@ -9,7 +9,7 @@ import {
 	type WrappedOverridableItemDeleted,
 	type WrappedOverridableItemNormal,
 } from '../../util/OverrideOpHelper.js'
-import { faCheck, faPencilAlt, faPlus, faSync, faTrash, faSave, faBan } from '@fortawesome/free-solid-svg-icons'
+import { faCheck, faPencilAlt, faPlus, faSync, faTrash, faSave, faRotateLeft } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { type JSONBlob, JSONBlobParse, type JSONSchema } from '@sofie-automation/blueprints-integration'
 import { DropdownInputControl, type DropdownInputOption } from '../../../../lib/Components/DropdownInput.js'
@@ -175,6 +175,7 @@ interface ParentDevicesTableProps {
 	hasUnsavedChanges: boolean
 	saveChanges: () => void
 	discardChanges: () => void
+	// maps configId to peripheralDeviceId when not saved yet
 	unsavedAssignments: Record<string, PeripheralDeviceId | undefined>
 	changeAssignment: (configId: string, deviceId: PeripheralDeviceId | undefined) => void
 }
@@ -221,8 +222,31 @@ function GenericParentDevicesTable({
 			)
 		}
 
+		// apply unsaved assignments on top of the current state
+		for (const [configId, deviceId] of Object.entries<PeripheralDeviceId | undefined>(unsavedAssignments)) {
+			if (!deviceId) {
+				devicesMap.delete(configId)
+				continue
+			}
+
+			const device = allParentDevices.find((d) => d._id === deviceId)
+			if (!device) continue
+
+			devicesMap.set(
+				configId,
+				literal<PeripheralDeviceTranslated>({
+					_id: device._id,
+					configId: configId,
+					name: device.name,
+					deviceType: device.deviceName,
+					lastSeen: device.lastSeen,
+					deviceConfigSchema: device.configManifest?.deviceConfigSchema,
+				})
+			)
+		}
+
 		return devicesMap
-	}, [studioId, allParentDevices])
+	}, [studioId, allParentDevices, unsavedAssignments])
 
 	const confirmRemove = useCallback(
 		(parentdeviceId: string) => {
@@ -496,7 +520,7 @@ function ParentDeviceEditRow({
 					{hasUnsavedChanges ? (
 						<>
 							<button className="btn btn-warning ms-2" onClick={discardChanges}>
-								<FontAwesomeIcon icon={faBan} />
+								<FontAwesomeIcon icon={faRotateLeft} />
 								&nbsp;{t('Discard')}
 							</button>
 
