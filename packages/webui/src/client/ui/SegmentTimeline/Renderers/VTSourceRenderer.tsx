@@ -21,6 +21,7 @@ import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyE
 import type { ReadonlyDeep } from 'type-fest'
 import type { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
 import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import { getPieceInOutWords } from '../../../lib/pieceInOutWords.js'
 
 interface IProps extends ICustomLayerItemProps {
 	studio: UIStudio | undefined
@@ -48,13 +49,12 @@ class VTSourceRendererBase extends CustomLayerItemRenderer<IProps & WithTranslat
 		super(props)
 
 		const innerPiece = props.piece.instance.piece
-
-		const labelItems = innerPiece.name.split('||')
+		const { begin, end } = getPieceInOutWords(innerPiece)
 
 		this.state = {
 			noticeLevel: getNoticeLevelForPieceStatus(props.contentStatus?.status),
-			begin: labelItems[0] || '',
-			end: labelItems[1] || '',
+			begin,
+			end,
 		}
 
 		this.rightLabelContainer = document.createElement('span')
@@ -248,19 +248,23 @@ class VTSourceRendererBase extends CustomLayerItemRenderer<IProps & WithTranslat
 		const { itemElement } = this.props
 		const innerPiece = this.props.piece.instance.piece
 
-		if (innerPiece.name !== prevProps.piece.instance.piece.name) {
+		const prevInOutWords = getPieceInOutWords(prevProps.piece.instance.piece)
+		const inOutWords = getPieceInOutWords(innerPiece)
+		const inOutWordsChanged = inOutWords.begin !== prevInOutWords.begin || inOutWords.end !== prevInOutWords.end
+
+		if (innerPiece.name !== prevProps.piece.instance.piece.name || inOutWordsChanged) {
 			this.updateAnchoredElsWidths()
 		}
 
 		let newState: Partial<IState> = {}
 		if (
 			innerPiece.name !== prevProps.piece.instance.piece.name ||
+			inOutWordsChanged ||
 			this.props.contentStatus?.status !== prevProps.contentStatus?.status
 		) {
-			const labelItems = innerPiece.name.split('||')
 			newState.noticeLevel = getNoticeLevelForPieceStatus(this.props.contentStatus?.status)
-			newState.begin = labelItems[0] || ''
-			newState.end = labelItems[1] || ''
+			newState.begin = inOutWords.begin
+			newState.end = inOutWords.end
 		}
 
 		newState = this.mountRightLabelContainer(this.props, prevProps, newState, itemElement)

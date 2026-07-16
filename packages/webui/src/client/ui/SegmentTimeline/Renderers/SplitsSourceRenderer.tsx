@@ -7,6 +7,7 @@ import { CustomLayerItemRenderer, type ICustomLayerItemProps } from './CustomLay
 import type { SplitsContent } from '@sofie-automation/blueprints-integration'
 import { getSplitPreview, SplitRole, type SplitSubItem } from '../../../lib/ui/splitPreview.js'
 import { RundownUtils } from '../../../lib/rundown.js'
+import { getPieceInOutWords } from '../../../lib/pieceInOutWords.js'
 
 type IProps = ICustomLayerItemProps
 
@@ -89,9 +90,7 @@ export class SplitsSourceRenderer extends CustomLayerItemRenderer<IProps, IState
 	}
 
 	render(): JSX.Element {
-		const labelItems = this.props.piece.instance.piece.name.split('||')
-		const begin = labelItems[0] || ''
-		const end = labelItems[1] || ''
+		const { begin, end } = getPieceInOutWords(this.props.piece.instance.piece)
 
 		return (
 			<React.Fragment>
