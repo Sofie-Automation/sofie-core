@@ -99,6 +99,7 @@ export const RundownTimingProvider = withTracker<
 			part: 1,
 			timings: 1,
 			orphaned: 1,
+			invalidReason: 1,
 		},
 	}) as Array<
 		Pick<
@@ -112,6 +113,7 @@ export const RundownTimingProvider = withTracker<
 			| 'part'
 			| 'timings'
 			| 'orphaned'
+			| 'invalidReason'
 		>
 	>
 

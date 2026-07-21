@@ -8,6 +8,7 @@ import { PlayoutChangedType } from '@sofie-automation/shared-lib/dist/peripheral
 import { onPiecePlaybackStarted, onPiecePlaybackStopped } from './piecePlayback.js'
 import { onPartPlaybackStarted, onPartPlaybackStopped } from './partPlayback.js'
 import { updateTimeline } from '../timeline/generate.js'
+import { UserError } from '@sofie-automation/corelib/dist/error'
 
 export { handleTimelineTriggerTime } from './timelineTriggerTime.js'
 
@@ -65,6 +66,9 @@ export async function handleOnPlayoutPlaybackChanged(
 					await updateTimeline(context, playoutModel)
 				}
 			} catch (err) {
+				if (err instanceof UserError) {
+					throw err
+				}
 				logger.error(stringifyError(err))
 			}
 		}

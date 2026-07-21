@@ -110,6 +110,7 @@ interface IProps {
 	showCountdownToSegment: boolean
 	showDurationSourceLayers?: Set<ISourceLayer['_id']>
 	fixedSegmentDuration: boolean | undefined
+	currentPartAutoNextBlockedByInvalidReason: boolean
 }
 interface IStateHeader {
 	timelineWidth: number
@@ -746,6 +747,7 @@ export class SegmentTimelineClass extends React.Component<Translated<WithTiming<
 							sourceLayers={this.props.segment.sourceLayers}
 							timeToPixelRatio={this.props.timeScale}
 							autoNextPart={this.props.autoNextPart}
+							currentPartAutoNextBlockedByInvalidReason={this.props.currentPartAutoNextBlockedByInvalidReason}
 							collapsedOutputs={this.props.collapsedOutputs}
 							playlist={this.props.playlist}
 							studio={this.props.studio}
@@ -794,6 +796,7 @@ export class SegmentTimelineClass extends React.Component<Translated<WithTiming<
 						livePartStartsAt={livePartStartsAt}
 						livePartDisplayDuration={livePartDisplayDuration}
 						budgetDuration={undefined}
+						currentPartAutoNextBlockedByInvalidReason={this.props.currentPartAutoNextBlockedByInvalidReason}
 					/>
 					{emitSmallPartsInFlag && emitSmallPartsInFlagAtEnd && (
 						<SegmentTimelineSmallPartFlag
@@ -804,6 +807,7 @@ export class SegmentTimelineClass extends React.Component<Translated<WithTiming<
 							sourceLayers={this.props.segment.sourceLayers}
 							timeToPixelRatio={this.props.timeScale}
 							autoNextPart={this.props.autoNextPart}
+							currentPartAutoNextBlockedByInvalidReason={this.props.currentPartAutoNextBlockedByInvalidReason}
 							collapsedOutputs={this.props.collapsedOutputs}
 							playlist={this.props.playlist}
 							studio={this.props.studio}
@@ -865,6 +869,7 @@ export class SegmentTimelineClass extends React.Component<Translated<WithTiming<
 				livePartStartsAt={livePartStartsAt}
 				livePartDisplayDuration={livePartDisplayDuration}
 				budgetDuration={budgetDuration}
+				currentPartAutoNextBlockedByInvalidReason={this.props.currentPartAutoNextBlockedByInvalidReason}
 			/>
 		)
 	}

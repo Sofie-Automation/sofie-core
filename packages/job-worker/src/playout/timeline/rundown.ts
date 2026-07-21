@@ -204,7 +204,8 @@ export function buildTimelineObjsForRundown(
 	)
 
 	// only add the next objects into the timeline if the current partgroup has a duration, and can autoNext
-	if (partInstancesInfo.next && currentPartEnable.duration) {
+	// Also skip if the next part has invalidReason (cannot be taken/auto-nexted)
+	if (partInstancesInfo.next && currentPartEnable.duration && !partInstancesInfo.next.partInstance.invalidReason) {
 		timelineObjs.push(
 			...generateNextPartInstanceObjects(
 				context,

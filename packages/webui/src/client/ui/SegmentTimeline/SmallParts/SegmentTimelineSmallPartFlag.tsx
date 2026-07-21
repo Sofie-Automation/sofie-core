@@ -29,6 +29,7 @@ interface ISegmentTimelineSmallPartFlagProps {
 		[key: string]: boolean
 	}
 	autoNextPart: boolean
+	currentPartAutoNextBlockedByInvalidReason: boolean
 	liveLineHistorySize: number
 	isLastSegment: boolean
 	isLastInSegment: boolean
@@ -53,6 +54,7 @@ export const SegmentTimelineSmallPartFlag = ({
 	studio,
 	collapsedOutputs,
 	autoNextPart,
+	currentPartAutoNextBlockedByInvalidReason,
 	liveLineHistorySize,
 	isLastSegment,
 	isLastInSegment,
@@ -176,6 +178,7 @@ export const SegmentTimelineSmallPartFlag = ({
 			</div>
 			<SegmentTimelinePartHoverPreview
 				autoNextPart={autoNextPart}
+				currentPartAutoNextBlockedByInvalidReason={currentPartAutoNextBlockedByInvalidReason}
 				collapsedOutputs={collapsedOutputs}
 				studio={studio}
 				showMiniInspector={isHover}

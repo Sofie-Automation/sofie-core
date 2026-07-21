@@ -23,6 +23,7 @@ export const SegmentTimelinePartHoverPreview = ({
 	totalSegmentDisplayDuration,
 	actualPartsDuration,
 	showDurationSourceLayers,
+	currentPartAutoNextBlockedByInvalidReason,
 }: {
 	showMiniInspector: boolean
 	parts: PartUi[]
@@ -42,6 +43,7 @@ export const SegmentTimelinePartHoverPreview = ({
 	actualPartsDuration: number
 	parentTimeScale: number
 	showDurationSourceLayers?: Set<ISourceLayer['_id']>
+	currentPartAutoNextBlockedByInvalidReason: boolean
 }): JSX.Element | null => {
 	const { t } = useTranslation()
 	const [inspectorRef, setInspectorRef] = useState<HTMLDivElement | null>(null)
@@ -80,6 +82,7 @@ export const SegmentTimelinePartHoverPreview = ({
 							scrollLeft={0}
 							timeToPixelRatio={timeToPixelRatio}
 							autoNextPart={autoNextPart}
+							currentPartAutoNextBlockedByInvalidReason={currentPartAutoNextBlockedByInvalidReason}
 							followLiveLine={false}
 							liveLineHistorySize={liveLineHistorySize}
 							livePosition={0}
@@ -112,6 +115,7 @@ export const SegmentTimelinePartHoverPreview = ({
 						scrollLeft={0}
 						timeToPixelRatio={timeToPixelRatio}
 						autoNextPart={autoNextPart}
+						currentPartAutoNextBlockedByInvalidReason={currentPartAutoNextBlockedByInvalidReason}
 						followLiveLine={false}
 						liveLineHistorySize={liveLineHistorySize}
 						livePosition={0}

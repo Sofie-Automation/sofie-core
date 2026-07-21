@@ -45,7 +45,7 @@ interface BreakProps {
 
 type CalculateTimingsPartInstance = Pick<
 	PartInstance,
-	'_id' | 'isTemporary' | 'segmentId' | 'segmentPlayoutId' | 'orphaned' | 'timings' | 'part'
+	'_id' | 'isTemporary' | 'segmentId' | 'segmentPlayoutId' | 'orphaned' | 'timings' | 'part' | 'invalidReason'
 >
 
 export type TimingId = string
@@ -632,6 +632,7 @@ export class RundownTimingCalculator {
 
 		let remainingTimeOnCurrentPart: number | undefined = undefined
 		let currentPartWillAutoNext = false
+		let currentPartAutoNextBlockedByInvalidReason = false
 		let currentSegmentId: SegmentId | null | undefined
 		if (currentAIndex >= 0) {
 			const currentLivePartInstance = partInstances[currentAIndex]
@@ -657,7 +658,11 @@ export class RundownTimingCalculator {
 					? Math.min(lastStartedPlayback, now) + onAirPartDuration - now
 					: onAirPartDuration
 
-			currentPartWillAutoNext = !!(currentLivePart.autoNext && currentLivePart.expectedDuration)
+			const nextPartHasInvalidReason = nextAIndex >= 0 && !!partInstances[nextAIndex]?.invalidReason
+			currentPartWillAutoNext =
+				!!(currentLivePart.autoNext && currentLivePart.expectedDuration) && !nextPartHasInvalidReason
+			currentPartAutoNextBlockedByInvalidReason =
+				!!(currentLivePart.autoNext && currentLivePart.expectedDuration) && nextPartHasInvalidReason
 
 			currentSegmentId = currentLivePart.segmentId
 		}
@@ -682,6 +687,7 @@ export class RundownTimingCalculator {
 			remainingTimeOnCurrentPart,
 			remainingBudgetOnCurrentSegment,
 			currentPartWillAutoNext,
+			currentPartAutoNextBlockedByInvalidReason,
 			rundownsBeforeNextBreak,
 			breakIsLastRundown,
 			isLowResolution,
@@ -778,6 +784,8 @@ export interface RundownTimingContext {
 	remainingBudgetOnCurrentSegment?: number | undefined
 	/** Current part will autoNext */
 	currentPartWillAutoNext?: boolean
+	/** Current part would autoNext but is blocked because the next PartInstance has an invalidReason */
+	currentPartAutoNextBlockedByInvalidReason?: boolean
 	/** Current time of this calculation */
 	currentTime?: number
 	/** Rundowns between current rundown and rundown with next break (inclusive of both). Undefined if there's no break in the future. */
@@ -954,6 +962,7 @@ export type MinimalPartInstance = Pick<
 	| 'part'
 	| 'timings'
 	| 'orphaned'
+	| 'invalidReason'
 >
 
 export function findPartInstancesInQuickLoop(

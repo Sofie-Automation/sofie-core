@@ -1011,6 +1011,111 @@ describe('Playout API', () => {
 		})
 		expect(mockOnTake).toHaveBeenCalledTimes(1)
 	})
+
+	test('AutoNext should not occur when next PartInstance has invalidReason', async () => {
+		const { rundownId: rundownId0, playlistId: playlistId0 } = await setupRundownWithAutoplayPart0(
+			context,
+			protectString('rundown0'),
+			showStyle
+		)
+		expect(rundownId0).toBeTruthy()
+		expect(playlistId0).toBeTruthy()
+
+		const getPlaylist0 = async () => {
+			const playlist = (await context.mockCollections.RundownPlaylists.findOne(playlistId0)) as DBRundownPlaylist
+			playlist.activationId = playlist.activationId ?? undefined
+			return playlist
+		}
+
+		// Activate the playlist
+		await handleResetRundownPlaylist(context, { playlistId: playlistId0, activate: 'rehearsal' })
+
+		useFakeCurrentTime(new Date(2020, 0, 1, 12, 0, 0).getTime())
+
+		// Take the first Part (which has autoNext enabled and expectedDuration)
+		await handleTakeNextPart(context, { playlistId: playlistId0, fromPartInstanceId: null })
+
+		const { currentPartInstance: currentBefore, nextPartInstance: nextBefore } = await getSelectedPartInstances(
+			context,
+			await getPlaylist0()
+		)
+		expect(currentBefore).toBeTruthy()
+		expect(nextBefore).toBeTruthy()
+		expect(currentBefore?.part.autoNext).toBe(true)
+		expect(currentBefore?.part.expectedDuration).toBeGreaterThan(0)
+
+		const currentPartInstanceBeforeTakeId = currentBefore?._id
+		const nextPartInstanceBeforeTakeId = nextBefore?._id
+
+		if (!currentPartInstanceBeforeTakeId) throw new Error('currentPartInstanceBeforeTakeId is falsy')
+		if (!nextPartInstanceBeforeTakeId) throw new Error('nextPartInstanceBeforeTakeId is falsy')
+
+		// Set invalidReason on the next PartInstance
+		const nextPartInstance = (await context.mockCollections.PartInstances.findOne(
+			nextPartInstanceBeforeTakeId
+		)) as DBPartInstance
+		await context.mockCollections.PartInstances.update(
+			{ _id: nextPartInstance._id },
+			{
+				$set: {
+					invalidReason: {
+						message: {
+							key: 'test',
+							args: {},
+						},
+					},
+				},
+			}
+		)
+
+		// Simulate autonext by advancing time past the expected duration
+		const pieceInstances = await getAllPieceInstancesForPartInstance(currentPartInstanceBeforeTakeId)
+		const now = adjustFakeTime(currentBefore?.part.expectedDuration ?? 0)
+
+		// Attempt autonext when next part has invalidReason - should fail
+		await expect(
+			handleOnPlayoutPlaybackChanged(context, {
+				playlistId: playlistId0,
+				changes: [
+					{
+						type: PlayoutChangedType.PART_PLAYBACK_STARTED,
+						objId: 'objectId',
+						data: {
+							partInstanceId: nextPartInstanceBeforeTakeId,
+							time: now,
+						},
+					},
+					{
+						type: PlayoutChangedType.PART_PLAYBACK_STOPPED,
+						objId: 'objectId',
+						data: {
+							partInstanceId: currentPartInstanceBeforeTakeId,
+							time: now,
+						},
+					},
+					...pieceInstances.map((pieceInstance): PlayoutChangedResult => {
+						return {
+							type: PlayoutChangedType.PIECE_PLAYBACK_STOPPED,
+							objId: 'objectId',
+							data: {
+								partInstanceId: pieceInstance.partInstanceId,
+								pieceInstanceId: pieceInstance._id,
+								time: now,
+							},
+						} satisfies PlayoutChangedResult
+					}),
+				],
+			})
+		).rejects.toMatchUserError(UserErrorMessage.TakePartInstanceInvalid)
+
+		// Verify that the current part hasn't changed (autoNext did not occur)
+		const { currentPartInstance: currentAfter, nextPartInstance: nextAfter } = await getSelectedPartInstances(
+			context,
+			await getPlaylist0()
+		)
+		expect(currentAfter?._id).toBe(currentBefore?._id)
+		expect(nextAfter?._id).toBe(nextBefore?._id)
+	})
 })
 
 async function setupRundownWithAutoplayPart0(
