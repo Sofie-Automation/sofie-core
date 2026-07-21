@@ -252,10 +252,6 @@ class VTSourceRendererBase extends CustomLayerItemRenderer<IProps & WithTranslat
 		const inOutWords = getPieceInOutWords(innerPiece)
 		const inOutWordsChanged = inOutWords.begin !== prevInOutWords.begin || inOutWords.end !== prevInOutWords.end
 
-		if (innerPiece.name !== prevProps.piece.instance.piece.name || inOutWordsChanged) {
-			this.updateAnchoredElsWidths()
-		}
-
 		let newState: Partial<IState> = {}
 		if (
 			innerPiece.name !== prevProps.piece.instance.piece.name ||
@@ -272,7 +268,12 @@ class VTSourceRendererBase extends CustomLayerItemRenderer<IProps & WithTranslat
 
 		if (this.hasStateChanges(newState)) {
 			this.setState(newState as IState, () => {
-				if (newState.noticeLevel && newState.noticeLevel !== prevState.noticeLevel) {
+				if (
+					(newState.noticeLevel && newState.noticeLevel !== prevState.noticeLevel) ||
+					inOutWordsChanged ||
+					newState.begin !== prevState.begin ||
+					newState.end !== prevState.end
+				) {
 					this.updateAnchoredElsWidths()
 				}
 			})

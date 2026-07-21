@@ -198,7 +198,11 @@ export const MicSourceRenderer: React.ComponentType<IProps> = withTranslation()(
 				this.refreshLine()
 			}
 
-			if (this.props.piece.instance.piece.name !== prevProps.piece.instance.piece.name) {
+			const prevInOutWords = getPieceInOutWords(prevProps.piece.instance.piece)
+			const inOutWords = getPieceInOutWords(this.props.piece.instance.piece)
+			const inOutWordsChanged = inOutWords.begin !== prevInOutWords.begin || inOutWords.end !== prevInOutWords.end
+
+			if (this.props.piece.instance.piece.name !== prevProps.piece.instance.piece.name || inOutWordsChanged) {
 				this.updateAnchoredElsWidths()
 			}
 		}
