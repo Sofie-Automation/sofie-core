@@ -428,7 +428,7 @@ export class IngestModelImpl implements IngestModel, IngestDatabasePersistedMode
 				studio: this.context.studio._rundownVersionHash,
 				showStyleBase: showStyleBase._rundownVersionHash,
 				showStyleVariant: showStyleVariant._rundownVersionHash,
-				blueprint: showStyleBlueprint.blueprint.blueprintVersion,
+				blueprint: showStyleBlueprint.blueprintHash,
 				core: getSystemVersion(),
 			},
 

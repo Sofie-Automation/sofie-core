@@ -26,6 +26,10 @@ export interface RundownImportVersions {
 	studio: string
 	showStyleBase: string
 	showStyleVariant: string
+	/**
+	 * Blueprint code hash (`Blueprint.blueprintHash`) at ingest time — not the semver
+	 * `blueprintVersion`. Used to detect that a reload is needed after a blueprint upload.
+	 */
 	blueprint: string
 
 	core: string
