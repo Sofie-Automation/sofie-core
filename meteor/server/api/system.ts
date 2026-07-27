@@ -1,10 +1,8 @@
 import _ from 'underscore'
 import type { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { sleep, getCurrentTime } from '../lib/lib'
-import { registerClassToMeteorMethods } from '../methods'
 import { MethodContextAPI, MethodContext } from './methodContext'
 import {
-	SystemAPIMethods,
 	CollectionCleanupResult,
 	SystemAPI,
 	BenchmarkResult,
@@ -389,17 +387,17 @@ async function generateSingleUseToken() {
 	return ClientAPI.responseSuccess(newToken)
 }
 
-class SystemAPIClass extends MethodContextAPI implements SystemAPI {
-	async cleanupIndexes(actuallyRemoveOldIndexes: boolean) {
+export class SystemAPIClass extends MethodContextAPI implements SystemAPI {
+	async cleanupIndexes(actuallyRemoveOldIndexes: boolean): Promise<any> {
 		return cleanupIndexes(this, actuallyRemoveOldIndexes)
 	}
-	async cleanupOldData(actuallyRemoveOldData: boolean) {
+	async cleanupOldData(actuallyRemoveOldData: boolean): Promise<CollectionCleanupResult | string> {
 		return cleanupOldData(this, actuallyRemoveOldData)
 	}
-	async runCronjob() {
+	async runCronjob(): Promise<void> {
 		return runCronjob(this)
 	}
-	async doSystemBenchmark(runCount = 1) {
+	async doSystemBenchmark(runCount = 1): Promise<SystemBenchmarkResults> {
 		return doSystemBenchmark(this, runCount)
 	}
 	async getTranslationBundle(bundleId: TranslationsBundleId): Promise<ClientAPI.ClientResponse<TranslationsBundle>> {
@@ -409,4 +407,3 @@ class SystemAPIClass extends MethodContextAPI implements SystemAPI {
 		return generateSingleUseToken()
 	}
 }
-registerClassToMeteorMethods(SystemAPIMethods, SystemAPIClass, false)

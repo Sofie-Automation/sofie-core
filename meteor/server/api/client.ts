@@ -4,15 +4,15 @@ import type { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { getCurrentTime } from '../lib/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { logger } from '../logging'
-import { ClientAPI, NewClientAPI, ClientAPIMethods } from '@sofie-automation/meteor-lib/dist/api/client'
+import { ClientAPI, NewClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { UserActionsLogItem } from '@sofie-automation/meteor-lib/dist/collections/UserActionsLog'
-import { registerClassToMeteorMethods } from '../methods'
 import { MethodContext, MethodContextAPI } from './methodContext'
 import { isInTestWrite, triggerWriteAccessBecauseNoCheckNecessary } from '../security/securityVerify'
 import { endTrace, sendTrace, startTrace } from './integration/influx'
 import { interpollateTranslation, translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { UserError } from '@sofie-automation/corelib/dist/error'
 import { StudioJobFunc } from '@sofie-automation/corelib/dist/worker/studio'
+import { TSR } from '@sofie-automation/blueprints-integration'
 import { QueueStudioJob } from '../worker/worker'
 import { profiler } from './profiler'
 import {
@@ -402,7 +402,7 @@ export namespace ServerClientAPI {
 	}
 }
 
-class ServerClientAPIClass extends MethodContextAPI implements NewClientAPI {
+export class ServerClientAPIClass extends MethodContextAPI implements NewClientAPI {
 	async clientLogger(type: string, ...args: string[]): Promise<void> {
 		triggerWriteAccessBecauseNoCheckNecessary()
 
@@ -410,7 +410,7 @@ class ServerClientAPIClass extends MethodContextAPI implements NewClientAPI {
 
 		loggerFunction(args.join(', '))
 	}
-	async clientErrorReport(timestamp: Time, errorString: string, location: string) {
+	async clientErrorReport(timestamp: Time, errorString: string, location: string): Promise<void> {
 		check(timestamp, Number)
 		triggerWriteAccessBecauseNoCheckNecessary() // TODO: discuss if is this ok?
 		logger.error(
@@ -419,7 +419,14 @@ class ServerClientAPIClass extends MethodContextAPI implements NewClientAPI {
 			}"\n  at ${new Date(timestamp).toISOString()}:\n"${errorString}`
 		)
 	}
-	async clientLogNotification(timestamp: Time, from: string, severity: number, message: string, source?: any) {
+	async clientLogNotification(
+		timestamp: Time,
+		from: string,
+		severity: number,
+		message: string,
+		// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+		source?: any
+	): Promise<void> {
 		check(timestamp, Number)
 		triggerWriteAccessBecauseNoCheckNecessary() // TODO: discuss if is this ok?
 		const address = this.connection ? this.connection.clientAddress : 'N/A'
@@ -432,6 +439,7 @@ class ServerClientAPIClass extends MethodContextAPI implements NewClientAPI {
 			address,
 		})
 	}
+	// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 	async callPeripheralDeviceFunction(
 		context: string,
 		deviceId: PeripheralDeviceId,
@@ -458,7 +466,7 @@ class ServerClientAPIClass extends MethodContextAPI implements NewClientAPI {
 		timeoutTime: number | undefined,
 		actionId: string,
 		payload?: Record<string, any>
-	) {
+	): Promise<TSR.ActionExecutionResult> {
 		const result = await ServerClientAPI.callPeripheralDeviceFunctionOrAction(
 			this,
 			context,
@@ -488,4 +496,3 @@ class ServerClientAPIClass extends MethodContextAPI implements NewClientAPI {
 		)
 	}
 }
-registerClassToMeteorMethods(ClientAPIMethods, ServerClientAPIClass, false)

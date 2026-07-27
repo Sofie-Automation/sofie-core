@@ -5,15 +5,11 @@ import { ReadonlyDeep } from 'type-fest'
 import { CustomCollectionName, MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { DBShowStyleBase, UIShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { Complete, literal } from '@sofie-automation/corelib/dist/lib'
-import {
-	meteorCustomPublish,
-	SetupObserversResult,
-	setUpOptimizedObserverArray,
-	TriggerUpdate,
-} from '../lib/customPublication'
+import { SetupObserversResult, setUpOptimizedObserverArray, TriggerUpdate } from '../lib/customPublication'
 import { ShowStyleBases } from '../collections'
 import { check } from 'meteor/check'
 import { triggerWriteAccessBecauseNoCheckNecessary } from '../security/securityVerify'
+import type { PublicationRegistry } from '../publicationRegistry'
 
 interface UIShowStyleBaseArgs {
 	readonly showStyleBaseId: ShowStyleBaseId
@@ -89,25 +85,27 @@ async function manipulateUIShowStyleBasePublicationData(
 	]
 }
 
-meteorCustomPublish(
-	MeteorPubSub.uiShowStyleBase,
-	CustomCollectionName.UIShowStyleBase,
-	async function (pub, showStyleBaseId: ShowStyleBaseId) {
-		check(showStyleBaseId, String)
+export function registerShowStyleUIPublications(registry: PublicationRegistry): void {
+	registry.customPublish(
+		MeteorPubSub.uiShowStyleBase,
+		CustomCollectionName.UIShowStyleBase,
+		async (_context, pub, showStyleBaseId: ShowStyleBaseId) => {
+			check(showStyleBaseId, String)
 
-		triggerWriteAccessBecauseNoCheckNecessary()
+			triggerWriteAccessBecauseNoCheckNecessary()
 
-		await setUpOptimizedObserverArray<
-			UIShowStyleBase,
-			UIShowStyleBaseArgs,
-			UIShowStyleBaseState,
-			UIShowStyleBaseUpdateProps
-		>(
-			`pub_${MeteorPubSub.uiShowStyleBase}_${showStyleBaseId}`,
-			{ showStyleBaseId },
-			setupUIShowStyleBasePublicationObservers,
-			manipulateUIShowStyleBasePublicationData,
-			pub
-		)
-	}
-)
+			await setUpOptimizedObserverArray<
+				UIShowStyleBase,
+				UIShowStyleBaseArgs,
+				UIShowStyleBaseState,
+				UIShowStyleBaseUpdateProps
+			>(
+				`pub_${MeteorPubSub.uiShowStyleBase}_${showStyleBaseId}`,
+				{ showStyleBaseId },
+				setupUIShowStyleBasePublicationObservers,
+				manipulateUIShowStyleBasePublicationData,
+				pub
+			)
+		}
+	)
+}

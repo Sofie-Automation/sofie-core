@@ -2,11 +2,7 @@ import { Meteor } from 'meteor/meteor'
 import { check } from '../lib/check'
 import { StatusCode } from '@sofie-automation/blueprints-integration'
 import { deferAsync, getCurrentTime } from '../lib/lib'
-import { registerClassToMeteorMethods } from '../methods'
-import {
-	NewExternalMessageQueueAPI,
-	ExternalMessageQueueAPIMethods,
-} from '@sofie-automation/meteor-lib/dist/api/ExternalMessageQueue'
+import { NewExternalMessageQueueAPI } from '@sofie-automation/meteor-lib/dist/api/ExternalMessageQueue'
 import { StatusObject, setSystemStatus } from '../systemStatus/systemStatus'
 import { MethodContextAPI, MethodContext } from './methodContext'
 import { ExternalMessageQueueObjId } from '@sofie-automation/corelib/dist/dataModel/Ids'
@@ -114,15 +110,14 @@ async function retry(context: MethodContext, messageId: ExternalMessageQueueObjI
 	})
 	// triggerdoMessageQueue(1000)
 }
-class ServerExternalMessageQueueAPI extends MethodContextAPI implements NewExternalMessageQueueAPI {
-	async remove(messageId: ExternalMessageQueueObjId) {
+export class ServerExternalMessageQueueAPI extends MethodContextAPI implements NewExternalMessageQueueAPI {
+	async remove(messageId: ExternalMessageQueueObjId): Promise<void> {
 		return removeExternalMessage(this, messageId)
 	}
-	async toggleHold(messageId: ExternalMessageQueueObjId) {
+	async toggleHold(messageId: ExternalMessageQueueObjId): Promise<void> {
 		return toggleHold(this, messageId)
 	}
-	async retry(messageId: ExternalMessageQueueObjId) {
+	async retry(messageId: ExternalMessageQueueObjId): Promise<void> {
 		return retry(this, messageId)
 	}
 }
-registerClassToMeteorMethods(ExternalMessageQueueAPIMethods, ServerExternalMessageQueueAPI, false)

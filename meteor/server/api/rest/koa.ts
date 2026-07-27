@@ -6,8 +6,9 @@ import { WebApp } from 'meteor/webapp'
 import { Meteor } from 'meteor/meteor'
 import { getRandomString } from '@sofie-automation/corelib/dist/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
-import _ from 'underscore'
 import { getRootSubpath, public_dir } from '../../lib'
+import { getClientAddress } from '../../lib/clientAddress'
+import { STANDALONE_DDP_SERVER_ENABLED, STANDALONE_DDP_SERVER_PATH } from '../../ddp-server/config'
 import staticServe from 'koa-static'
 import { logger } from '../../logging'
 import { PackageInfo } from '../../coreSystem'
@@ -124,6 +125,12 @@ function getExtendedMeteorRuntimeConfig() {
 		// @ts-expect-error missing types for internal meteor detail
 		...__meteor_runtime_config__,
 		sofieVersionExtended: versionExtended,
+		// The webui's DDP connection endpoint is defined here — point it at the standalone DDP server when
+		// enabled, otherwise Meteor's own DDP endpoint. This is a site-root-relative path (no prefix): the
+		// vendored client resolves it against ROOT_URL_PATH_PREFIX (it no longer appends `/websocket` — see
+		// packages/webui/src/meteor/socket-stream-client/urls.js), and the server matches the prefixed path
+		// the same way (`getRootSubpath() + path` in ddp-server/index.ts).
+		DDP_DEFAULT_CONNECTION_URL: STANDALONE_DDP_SERVER_ENABLED ? STANDALONE_DDP_SERVER_PATH : '/websocket',
 	})})`
 }
 
@@ -164,37 +171,6 @@ export function bindKoaRouter(koaRouter: KoaRouter, bindPath: string): void {
 	rootRouter.use(bindPathWithPrefix, koaRouter.routes()).use(bindPathWithPrefix, koaRouter.allowedMethods())
 }
 
-const REVERSE_PROXY_COUNT = process.env.HTTP_FORWARDED_COUNT ? parseInt(process.env.HTTP_FORWARDED_COUNT) : 0
-
-// X-Forwarded-For (a de-facto standard) has the following syntax by convention
-// X-Forwarded-For: 203.0.113.195, 2001:db8:85a3:8d3:1319:8a2e:370:7348
-// X-Forwarded-For: 203.0.113.195,2001:db8:85a3:8d3:1319:8a2e:370:7348,198.51.100.178
-function getClientAddrFromXForwarded(headerVal: undefined | string | string[]): string | undefined {
-	if (headerVal === undefined) return undefined
-	if (typeof headerVal !== 'string') {
-		headerVal = _.last(headerVal) as string
-	}
-	const remoteAddresses = headerVal.split(',')
-	return remoteAddresses[remoteAddresses.length - REVERSE_PROXY_COUNT]?.trim() ?? remoteAddresses[0]?.trim()
-}
-
-// Forwarded uses the following syntax:
-// Forwarded: for=192.0.2.60;proto=http;by=203.0.113.43
-// Forwarded: for=192.0.2.43, for="[2001:db8:cafe::17]"
-function getClientAddrFromForwarded(forwardedVal: string | undefined): string | undefined {
-	if (forwardedVal === undefined) return undefined
-	const allProxies = forwardedVal.split(',')
-	const proxyInfo = allProxies[allProxies.length - REVERSE_PROXY_COUNT] ?? allProxies[0]
-	const directives = proxyInfo?.trim().split(';')
-	for (const directive of directives) {
-		let match: RegExpMatchArray | null
-		if ((match = directive.trim().match(/^for=("\[)?([\w.:])+(\]")?/))) {
-			return match[2]
-		}
-	}
-	return undefined
-}
-
 export const makeMeteorConnectionFromKoa = (
 	ctx: Koa.ParameterizedContext<Koa.DefaultState, Koa.DefaultContext, unknown>
 ): Meteor.Connection => {
@@ -206,13 +182,7 @@ export const makeMeteorConnectionFromKoa = (
 		onClose: () => {
 			/* no-op */
 		},
-		clientAddress:
-			// This replicates Meteor behavior which uses the HTTP_FORWARDED_COUNT to extract the "world-facing"
-			// IP address of the Client User Agent
-			getClientAddrFromForwarded(ctx.req.headers.forwarded) ||
-			getClientAddrFromXForwarded(ctx.req.headers['x-forwarded-for']) ||
-			ctx.req.socket.remoteAddress ||
-			'unknown',
+		clientAddress: getClientAddress(ctx.req.headers, ctx.req.socket.remoteAddress),
 		httpHeaders: ctx.req.headers as Record<string, string>,
 	}
 }

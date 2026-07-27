@@ -1,18 +1,20 @@
-import { meteorPublish } from './lib/lib'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { TranslationsBundles } from '../collections'
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { TranslationsBundle } from '@sofie-automation/meteor-lib/dist/collections/TranslationsBundles'
 import { triggerWriteAccessBecauseNoCheckNecessary } from '../security/securityVerify'
+import type { PublicationRegistry } from '../publicationRegistry'
 
-meteorPublish(MeteorPubSub.translationsBundles, async (_token: string | undefined) => {
-	const selector: MongoQuery<TranslationsBundle> = {}
+export function registerTranslationsBundlesPublications(registry: PublicationRegistry): void {
+	registry.publish(MeteorPubSub.translationsBundles, async (_context, _token: string | undefined) => {
+		const selector: MongoQuery<TranslationsBundle> = {}
 
-	triggerWriteAccessBecauseNoCheckNecessary()
+		triggerWriteAccessBecauseNoCheckNecessary()
 
-	return TranslationsBundles.findWithCursor(selector, {
-		projection: {
-			data: 0,
-		},
+		return TranslationsBundles.findWithCursor(selector, {
+			projection: {
+				data: 0,
+			},
+		})
 	})
-})
+}

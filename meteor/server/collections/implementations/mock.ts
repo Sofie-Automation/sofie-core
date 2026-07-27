@@ -1,10 +1,10 @@
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { Meteor } from 'meteor/meteor'
-import { FindOptions, MongoCursor } from '@sofie-automation/meteor-lib/dist/collections/lib'
+import { FindOptions } from '@sofie-automation/meteor-lib/dist/collections/lib'
 import type { AnyBulkWriteOperation, Db as RawDb } from 'mongodb'
 import { AsyncOnlyMongoCollection } from '../collection'
-import { WrappedAsyncMongoCollection } from './asyncCollection'
+import { MinimalMongoCursor, WrappedAsyncMongoCollection } from './asyncCollection'
 import { Mongo } from 'meteor/mongo'
 
 /** This is for the mock mongo collection, as internally it is sync and so we dont need or want to play around with fibers */
@@ -33,7 +33,7 @@ export class WrappedMockCollection<DBInterface extends { _id: ProtectedString<an
 	override async findWithCursor(
 		_selector?: MongoQuery<DBInterface> | DBInterface['_id'],
 		_options?: FindOptions<DBInterface>
-	): Promise<MongoCursor<DBInterface>> {
+	): Promise<MinimalMongoCursor<DBInterface>> {
 		throw new Error('findWithCursor not supported in tests')
 	}
 

@@ -14,8 +14,8 @@ import {
 	TranslationsBundle,
 } from '@sofie-automation/blueprints-integration'
 import { check, Match } from '../../lib/check'
-import { NewBlueprintAPI, BlueprintAPIMethods } from '@sofie-automation/meteor-lib/dist/api/blueprint'
-import { registerClassToMeteorMethods, ReplaceOptionalWithNullInMethodArguments } from '../../methods'
+import { NewBlueprintAPI } from '@sofie-automation/meteor-lib/dist/api/blueprint'
+import { ReplaceOptionalWithNullInMethodArguments } from '../../methods'
 import { SYSTEM_ID } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
 import { parseVersion } from '../../systemStatus/semverUtils'
 import { evalBlueprint } from './cache'
@@ -406,15 +406,17 @@ async function assignSystemBlueprint(methodContext: MethodContext, blueprintId: 
 	}
 }
 
-class ServerBlueprintAPI extends MethodContextAPI implements ReplaceOptionalWithNullInMethodArguments<NewBlueprintAPI> {
-	async insertBlueprint() {
+export class ServerBlueprintAPI
+	extends MethodContextAPI
+	implements ReplaceOptionalWithNullInMethodArguments<NewBlueprintAPI>
+{
+	async insertBlueprint(): Promise<BlueprintId> {
 		return insertBlueprint(this.connection)
 	}
-	async removeBlueprint(blueprintId: BlueprintId) {
+	async removeBlueprint(blueprintId: BlueprintId): Promise<void> {
 		return removeBlueprint(this, blueprintId)
 	}
-	async assignSystemBlueprint(blueprintId: BlueprintId | null) {
+	async assignSystemBlueprint(blueprintId: BlueprintId | null): Promise<void> {
 		return assignSystemBlueprint(this, blueprintId)
 	}
 }
-registerClassToMeteorMethods(BlueprintAPIMethods, ServerBlueprintAPI, false)

@@ -5,10 +5,14 @@ import { getCurrentTime, sleep } from '../../../lib/lib'
 import { MeteorCall } from '../../methods'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { UserActionsLog } from '../../../collections'
+import { registerAllMethodsForTest } from '../../../../__mocks__/helpers/methods'
 
-require('../../system') // include so that we can call generateSingleUseToken()
-require('../../client') // include in order to create the Meteor methods needed
-require('../../userActions') // include in order to create the Meteor methods needed
+// registerAllMethodsForTest() pulls in the full API graph, which imports deviceTriggers/observer and
+// registers a Meteor.startup() callback. Mock it so that draining startup can never spin up the real
+// device-trigger observers/job-queue and interfere with this suite's fake timers.
+jest.mock('../../deviceTriggers/observer')
+
+registerAllMethodsForTest()
 
 describe('User Actions - General', () => {
 	beforeEach(async () => {
