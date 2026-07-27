@@ -21,7 +21,6 @@ const METHOD_NAMES = [
 	'findOne',
 	'insert',
 	'rawCollection',
-	'rawDatabase',
 	'remove',
 	'update',
 	'upsert',

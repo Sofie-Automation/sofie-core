@@ -3,7 +3,7 @@ import { EventEmitter } from 'events'
 import { AnyBulkWriteOperation, ChangeStream, Collection as MongoCollection, FindOptions, CountOptions } from 'mongodb'
 import { IChangeStreamEvents } from './index.js'
 import { startSpanManual } from '../profiler.js'
-import { IChangeStream, ICollection, MongoModifier, MongoQuery } from './collections.js'
+import { IChangeStream, ICollection, MongoBulkWriteOperation, MongoModifier, MongoQuery } from './collections.js'
 
 /** Wrap some APM and better error small query modifications around a Mongo.Collection */
 class WrappedCollection<TDoc extends { _id: ProtectedString<any> }> implements ICollection<TDoc> {
@@ -155,7 +155,7 @@ class WrappedCollection<TDoc extends { _id: ProtectedString<any> }> implements I
 		return res.deletedCount
 	}
 
-	async bulkWrite(ops: Array<AnyBulkWriteOperation<TDoc>>): Promise<void> {
+	async bulkWrite(ops: Array<MongoBulkWriteOperation<TDoc>>): Promise<void> {
 		const span = startSpanManual('WrappedCollection.bulkWrite')
 		if (span) {
 			span.addLabels({
@@ -165,7 +165,7 @@ class WrappedCollection<TDoc extends { _id: ProtectedString<any> }> implements I
 		}
 
 		if (ops.length > 0) {
-			const bulkWriteResult = await this.#collection.bulkWrite(ops, {
+			const bulkWriteResult = await this.#collection.bulkWrite(ops as AnyBulkWriteOperation<TDoc>[], {
 				ordered: false,
 			})
 			if (bulkWriteResult && bulkWriteResult.hasWriteErrors()) {

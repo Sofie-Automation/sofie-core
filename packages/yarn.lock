@@ -7029,6 +7029,7 @@ __metadata:
   dependencies:
     "@sofie-automation/blueprints-integration": "npm:26.3.0-2"
     "@sofie-automation/shared-lib": "npm:26.3.0-2"
+    ejson: "npm:^2.2.3"
     fast-clone: "npm:^1.5.13"
     i18next: "npm:^26.3.1"
     influx: "npm:^5.12.0"

@@ -1,16 +1,15 @@
 import deepmerge from 'deepmerge'
 import { Meteor } from 'meteor/meteor'
-import { Mongo } from 'meteor/mongo'
 import { ReadonlyDeep } from 'type-fest'
 import { clone } from '@sofie-automation/corelib/dist/lib'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { profiler } from '../../api/profiler'
 import { logger } from '../../logging'
-import { ReactiveCacheCollection } from '../../publications/lib/ReactiveCacheCollection'
 import { LiveQueryHandle, lazyIgnore } from '../lib'
 import { CustomPublish, CustomPublishChanges } from './publish'
 import { waitForAllObserversReady } from '../../publications/lib/lib'
+import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
 
 const apmNamespace = 'optimizedObserver'
 
@@ -210,7 +209,7 @@ async function createOptimizedObserverWorker<
 		pendingUpdate = deepmerge(pendingUpdate, updateProps, {
 			isMergeableObject: (obj) => {
 				// Ensure any Mongo collections aren't cloned, as they will break
-				if (obj instanceof Mongo.Collection || obj instanceof ReactiveCacheCollection) {
+				if (obj instanceof InMemoryMongoCollection) {
 					return false
 				}
 

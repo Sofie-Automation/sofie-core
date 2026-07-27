@@ -27,12 +27,13 @@ import { TimelineComplete } from '@sofie-automation/corelib/dist/dataModel/Timel
 import { clone, literal } from '@sofie-automation/corelib/dist/lib'
 import {
 	FindOptions as CacheFindOptions,
+	MongoBulkWriteOperation,
 	mongoFindOptions,
 	mongoModify,
 	mongoWhere,
 } from '@sofie-automation/corelib/dist/mongo'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
-import { AnyBulkWriteOperation, Collection, CountOptions, FindOptions } from 'mongodb'
+import { Collection, CountOptions, FindOptions } from 'mongodb'
 import { ReadonlyDeep } from 'type-fest'
 import {
 	IChangeStream,
@@ -231,14 +232,14 @@ export class MockMongoCollection<TDoc extends { _id: ProtectedString<any> }> imp
 		this.#documents.set(doc._id, clone(doc))
 		return exists
 	}
-	async bulkWrite(ops: AnyBulkWriteOperation<TDoc>[]): Promise<unknown> {
+	async bulkWrite(ops: MongoBulkWriteOperation<TDoc>[]): Promise<unknown> {
 		this.#ops.push({ type: 'bulkWrite', args: [ops.length] })
 
 		for (const op of ops) {
 			if ('updateMany' in op) {
-				await this.updateInner(op.updateMany.filter, op.updateMany.update, false)
+				await this.updateInner(op.updateMany.filter, op.updateMany.update as MongoModifier<TDoc>, false)
 			} else if ('updateOne' in op) {
-				await this.updateInner(op.updateOne.filter, op.updateOne.update, true)
+				await this.updateInner(op.updateOne.filter, op.updateOne.update as MongoModifier<TDoc>, true)
 			} else if ('replaceOne' in op) {
 				await this.replace(op.replaceOne.replacement as any)
 			} else if ('insertOne' in op) {

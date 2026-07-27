@@ -1,5 +1,5 @@
 import { addMigrationSteps } from './databaseMigration'
-import { MongoInternals } from 'meteor/mongo'
+import { getMongoDb } from '../collections/mongoConnection'
 import { Studios } from '../collections'
 import { ExpectedPackages } from '../collections'
 import * as PackagesPreR53 from '@sofie-automation/corelib/dist/dataModel/Old/ExpectedPackagesR52'
@@ -17,12 +17,10 @@ export const addSteps = addMigrationSteps('26.3.0', [
 		id: `Drop media manager collections`,
 		canBeRunAutomatically: true,
 		validate: async () => {
-			// If MongoInternals is not available, we are in a test environment
-			if (!MongoInternals) return false
+			// If there is no MongoDB connection, we are in a test environment
+			if (process.env.JEST_WORKER_ID || !process.env.MONGO_URL) return false
 
-			const existingCollections = await MongoInternals.defaultRemoteCollectionDriver()
-				.mongo.db.listCollections()
-				.toArray()
+			const existingCollections = await getMongoDb().listCollections().toArray()
 			const collectionsToDrop = existingCollections.filter((c) =>
 				['expectedMediaItems', 'mediaWorkFlows', 'mediaWorkFlowSteps'].includes(c.name)
 			)
@@ -35,14 +33,12 @@ export const addSteps = addMigrationSteps('26.3.0', [
 			return false
 		},
 		migrate: async () => {
-			const existingCollections = await MongoInternals.defaultRemoteCollectionDriver()
-				.mongo.db.listCollections()
-				.toArray()
+			const existingCollections = await getMongoDb().listCollections().toArray()
 			const collectionsToDrop = existingCollections.filter((c) =>
 				['expectedMediaItems', 'mediaWorkFlows', 'mediaWorkFlowSteps'].includes(c.name)
 			)
 			for (const c of collectionsToDrop) {
-				await MongoInternals.defaultRemoteCollectionDriver().mongo.db.dropCollection(c.name)
+				await getMongoDb().dropCollection(c.name)
 			}
 		},
 	},

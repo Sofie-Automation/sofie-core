@@ -14,7 +14,7 @@ import { JobContext } from '../jobs/index.js'
 import { getPartId, getSegmentId } from './lib.js'
 import { SetOptional } from 'type-fest'
 import { groupByToMap, normalizeArrayToMap } from '@sofie-automation/corelib/dist/lib'
-import { AnyBulkWriteOperation } from 'mongodb'
+import { MongoBulkWriteOperation } from '@sofie-automation/corelib/dist/mongo'
 import { ICollection } from '../db/index.js'
 import { getCurrentTime } from '../lib/index.js'
 
@@ -147,7 +147,7 @@ export class SofieIngestRundownDataCache {
 
 		const modifiedTime = getCurrentTime()
 
-		const updates: AnyBulkWriteOperation<SofieIngestDataCacheObj>[] = []
+		const updates: MongoBulkWriteOperation<SofieIngestDataCacheObj>[] = []
 		const removedIds: SofieIngestDataCacheObjId[] = []
 		for (const changedId of this.#changedDocumentIds) {
 			const newDoc = documentsMap.get(changedId)

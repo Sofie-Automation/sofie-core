@@ -4,7 +4,7 @@ import { Simplify } from 'type-fest'
 import { assertNever } from '@sofie-automation/corelib/dist/lib'
 import { logger } from '../../logging'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
-import { MinimalMongoCursor } from '../../collections/implementations/asyncCollection'
+import { MinimalMongoCursor } from '../../collections/collection'
 
 /**
  * https://stackoverflow.com/a/66011942

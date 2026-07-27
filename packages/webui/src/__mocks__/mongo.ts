@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import _ from 'underscore'
-import { literal, getRandomString } from '@sofie-automation/corelib/dist/lib'
+import { getRandomString } from '@sofie-automation/corelib/dist/lib'
 import {
 	type ProtectedString,
 	unprotectString,
@@ -14,8 +14,6 @@ import type {
 	FindOneOptions,
 	FindOptions,
 	MongoReadOnlyCollection,
-	ObserveCallbacks,
-	ObserveChangesCallbacks,
 	UpdateOptions,
 	UpsertOptions,
 	WrappedMongoCollection,
@@ -32,13 +30,6 @@ import { sleep } from '@sofie-automation/shared-lib/dist/lib/lib'
 import clone from 'fast-clone'
 
 export namespace MongoMock {
-	interface ObserverEntry<T extends CollectionObject> {
-		id: string
-		query: any
-		callbacksChanges?: ObserveChangesCallbacks<T>
-		callbacksObserve?: ObserveCallbacks<T>
-	}
-
 	export interface MockCollections<T extends CollectionObject> {
 		[collectionName: string]: MockCollection<T>
 	}
@@ -56,7 +47,6 @@ export namespace MongoMock {
 		private _options: any = {}
 		// @ts-expect-error used in test to check that it's a mock
 		private _isMock = true as const
-		public observers: ObserverEntry<T>[] = []
 
 		public asyncBulkWriteDelay = 100
 
@@ -88,14 +78,6 @@ export namespace MongoMock {
 
 			docs = mongoFindOptions(docs, options)
 
-			const observers = this.observers
-
-			const removeObserver = (id: string): void => {
-				const index = observers.findIndex((o) => o.id === id)
-				if (index === -1) throw new Meteor.Error(500, 'Cannot stop observer that is not registered')
-				observers.splice(index, 1)
-			}
-
 			return {
 				_fetchRaw: () => {
 					return docs
@@ -106,36 +88,11 @@ export namespace MongoMock {
 				count: () => {
 					return docs.length
 				},
-				observe(clbs: ObserveCallbacks<T>): Meteor.LiveQueryHandle {
-					const id = getRandomString(5)
-					observers.push(
-						literal<ObserverEntry<T>>({
-							id: id,
-							callbacksObserve: clbs,
-							query: query,
-						})
-					)
-					return {
-						stop() {
-							removeObserver(id)
-						},
-					}
+				observe(): Meteor.LiveQueryHandle {
+					throw new Error('observe is not implemented in the mock')
 				},
-				observeChanges(clbs: ObserveChangesCallbacks<T>): Meteor.LiveQueryHandle {
-					// todo - finish implementing uses of callbacks
-					const id = getRandomString(5)
-					observers.push(
-						literal<ObserverEntry<T>>({
-							id: id,
-							callbacksChanges: clbs,
-							query: query,
-						})
-					)
-					return {
-						stop() {
-							removeObserver(id)
-						},
-					}
+				observeChanges(): Meteor.LiveQueryHandle {
+					throw new Error('observe is not implemented in the mock')
 				},
 				forEach(f: any) {
 					docs.forEach(f)
@@ -165,19 +122,6 @@ export namespace MongoMock {
 			_.each(docs, (doc) => {
 				const modifiedDoc = mongoModify(query, doc, modifier)
 				this.documents[unprotectString(doc._id)] = modifiedDoc
-
-				Meteor.defer(() => {
-					_.each(_.clone(this.observers), (obs) => {
-						if (mongoWhere(doc, obs.query)) {
-							if (obs.callbacksChanges?.changed) {
-								obs.callbacksChanges.changed(doc._id, {}) // TODO - figure out what changed
-							}
-							if (obs.callbacksObserve?.changed) {
-								obs.callbacksObserve.changed(modifiedDoc, doc)
-							}
-						}
-					})
-				})
 			})
 
 			return docs.length
@@ -192,23 +136,6 @@ export namespace MongoMock {
 			}
 
 			this.documents[unprotectString(d._id)] = d
-
-			Meteor.defer(() => {
-				_.each(_.clone(this.observers), (obs) => {
-					if (mongoWhere(d, obs.query)) {
-						const fields = _.keys(_.omit(d, '_id'))
-						if (obs.callbacksChanges?.addedBefore) {
-							obs.callbacksChanges.addedBefore(d._id, fields, null as any)
-						}
-						if (obs.callbacksChanges?.added) {
-							obs.callbacksChanges.added(d._id, fields)
-						}
-						if (obs.callbacksObserve?.added) {
-							obs.callbacksObserve.added(d)
-						}
-					}
-				})
-			})
 
 			return d._id
 		}
@@ -235,19 +162,6 @@ export namespace MongoMock {
 
 			_.each(docs, (doc) => {
 				delete this.documents[unprotectString(doc._id)]
-
-				Meteor.defer(() => {
-					_.each(_.clone(this.observers), (obs) => {
-						if (mongoWhere(doc, obs.query)) {
-							if (obs.callbacksChanges?.removed) {
-								obs.callbacksChanges.removed(doc._id)
-							}
-							if (obs.callbacksObserve?.removed) {
-								obs.callbacksObserve.removed(doc)
-							}
-						}
-					})
-				})
 			})
 			return docs.length
 		}

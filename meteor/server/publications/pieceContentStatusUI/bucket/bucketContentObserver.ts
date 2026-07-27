@@ -62,12 +62,12 @@ export class BucketContentObserver implements Meteor.LiveQueryHandle {
 					{
 						added: (doc) => {
 							const newDoc = convertShowStyleBase(doc)
-							cache.ShowStyleSourceLayers.upsert(doc._id, { $set: newDoc as Partial<Document> })
+							cache.ShowStyleSourceLayers.replace({ ...newDoc, _id: doc._id })
 							observer.updateBlueprintIds()
 						},
 						changed: (doc) => {
 							const newDoc = convertShowStyleBase(doc)
-							cache.ShowStyleSourceLayers.upsert(doc._id, { $set: newDoc as Partial<Document> })
+							cache.ShowStyleSourceLayers.replace({ ...newDoc, _id: doc._id })
 							observer.updateBlueprintIds()
 						},
 						removed: (doc) => {
@@ -103,7 +103,7 @@ export class BucketContentObserver implements Meteor.LiveQueryHandle {
 			]
 		})
 
-		// Subscribe to the database, and pipe any updates into the ReactiveCacheCollections
+		// Subscribe to the database, and pipe any updates into the cache collections
 		// This takes ownership of the #showStyleBaseIdObserver, and will stop it if this throws
 		observer.#observers = await waitForAllObserversReady([
 			BucketAdLibs.observeChanges(
@@ -145,8 +145,8 @@ export class BucketContentObserver implements Meteor.LiveQueryHandle {
 			if (this.#disposed) return
 
 			const newShowStyleBaseIdsSet = new Set<ShowStyleBaseId>()
-			this.#cache.BucketAdLibs.find({}).forEach((adlib) => newShowStyleBaseIdsSet.add(adlib.showStyleBaseId))
-			this.#cache.BucketAdLibActions.find({}).forEach((action) =>
+			this.#cache.BucketAdLibs.findFetch({}).forEach((adlib) => newShowStyleBaseIdsSet.add(adlib.showStyleBaseId))
+			this.#cache.BucketAdLibActions.findFetch({}).forEach((action) =>
 				newShowStyleBaseIdsSet.add(action.showStyleBaseId)
 			)
 
@@ -165,7 +165,7 @@ export class BucketContentObserver implements Meteor.LiveQueryHandle {
 		Meteor.bindEnvironment(() => {
 			if (this.#disposed) return
 
-			const newBlueprintIds = _.uniq(this.#cache.ShowStyleSourceLayers.find({}).map((rd) => rd.blueprintId))
+			const newBlueprintIds = _.uniq(this.#cache.ShowStyleSourceLayers.findFetch({}).map((rd) => rd.blueprintId))
 
 			if (!equivalentArrays(newBlueprintIds, this.#blueprintIds)) {
 				logger.silly(`optimized observer changed ids ${JSON.stringify(newBlueprintIds)} ${this.#blueprintIds}`)

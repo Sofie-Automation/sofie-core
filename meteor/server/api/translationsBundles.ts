@@ -39,19 +39,15 @@ export async function upsertBundles(
 		// originating blueprint and language
 		const _id = createBundleId(originId, language)
 
-		await TranslationsBundleCollection.upsertAsync(
+		await TranslationsBundleCollection.replaceAsync({
 			_id,
-			{
-				_id,
-				originId,
-				type,
-				namespace: unprotectString(originId),
-				language,
-				data: fromI18NextData(data),
-				hash: getHash(JSON.stringify(data)),
-			},
-			{ multi: false }
-		)
+			originId,
+			type,
+			namespace: unprotectString(originId),
+			language,
+			data: fromI18NextData(data),
+			hash: getHash(JSON.stringify(data)),
+		})
 	}
 }
 

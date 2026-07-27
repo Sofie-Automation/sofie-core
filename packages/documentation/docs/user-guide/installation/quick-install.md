@@ -8,8 +8,8 @@ sidebar_position: 20
 
 ### **Prerequisites**
 
-* **Linux**: Install [Docker](https://docs.docker.com/install/linux/docker-ce/ubuntu/) and [docker-compose](https://www.digitalocean.com/community/tutorials/how-to-install-docker-compose-on-ubuntu-18-04).
-* **Windows**: Install [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) and use an *Ubuntu* terminal to install Docker and docker-compose.
+- **Linux**: Install [Docker](https://docs.docker.com/install/linux/docker-ce/ubuntu/) and [docker-compose](https://www.digitalocean.com/community/tutorials/how-to-install-docker-compose-on-ubuntu-18-04).
+- **Windows**: Install [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) and use an _Ubuntu_ terminal to install Docker and docker-compose.
 
 ### Installation
 
@@ -55,7 +55,6 @@ services:
     environment:
       PORT: '3000'
       MONGO_URL: 'mongodb://db:27017/meteor'
-      MONGO_OPLOG_URL: 'mongodb://db:27017/local'
       ROOT_URL: 'http://localhost:3000'
       SOFIE_STORE_PATH: '/mnt/sofie-store'
     networks:

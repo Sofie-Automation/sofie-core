@@ -9,9 +9,9 @@ import {
 import { getHash } from '@sofie-automation/corelib/dist/hash'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { assertNever, flatten, omit, type Complete } from '@sofie-automation/corelib/dist/lib'
-import { type AnyBulkWriteOperation } from 'mongodb'
 import { StudioId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { isEqual } from 'underscore'
+import type { MongoBulkWriteOperation } from '../db/collections.js'
 
 interface NotificationsLoadState {
 	dbNotifications: ReadonlyMap<string, DBNotificationObj> | null
@@ -165,7 +165,7 @@ export class NotificationsModelHelper implements INotificationsModel {
 						...(dbNotifications ? Array.from(dbNotifications.keys()) : []),
 					])
 
-					const updates: AnyBulkWriteOperation<DBNotificationObj>[] = []
+					const updates: MongoBulkWriteOperation<DBNotificationObj>[] = []
 					const localIdsToKeep: string[] = []
 					const localIdsToDelete: string[] = []
 					for (const localId of allLocalIds) {

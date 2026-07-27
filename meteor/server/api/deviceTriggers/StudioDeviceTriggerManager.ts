@@ -55,14 +55,12 @@ export class StudioDeviceTriggerManager {
 		this.lastCache = cache
 		this.#lastShowStyleBaseId = showStyleBaseId
 
-		const [showStyleBase, rundownPlaylist] = await Promise.all([
-			cache.ShowStyleBases.findOneAsync(showStyleBaseId),
-			cache.RundownPlaylists.findOneAsync({
-				activationId: {
-					$exists: true,
-				},
-			}),
-		])
+		const showStyleBase = cache.ShowStyleBases.findOne(showStyleBaseId)
+		const rundownPlaylist = cache.RundownPlaylists.findOne({
+			activationId: {
+				$exists: true,
+			},
+		})
 		if (!showStyleBase || !rundownPlaylist) {
 			return
 		}
@@ -78,11 +76,11 @@ export class StudioDeviceTriggerManager {
 
 		const { obj: sourceLayers } = applyAndValidateOverrides(showStyleBase.sourceLayersWithOverrides)
 
-		const allTriggeredActions = await cache.TriggeredActions.find({
+		const allTriggeredActions = cache.TriggeredActions.findFetch({
 			showStyleBaseId: {
 				$in: [showStyleBaseId, null],
 			},
-		}).fetchAsync()
+		})
 
 		const upsertedDeviceTriggerMountedActionIds: DeviceTriggerMountedActionId[] = []
 		const touchedActionIds: DeviceActionId[] = []
@@ -139,18 +137,17 @@ export class StudioDeviceTriggerManager {
 							`${actionId}_${key}`
 						)
 						upsertedDeviceTriggerMountedActionIds.push(deviceTriggerMountedActionId)
-						return DeviceTriggerMountedActions.upsertAsync(deviceTriggerMountedActionId, {
-							$set: {
-								studioId,
-								showStyleBaseId,
-								actionType: thisAction.action,
-								actionId,
-								deviceId: trigger.deviceId,
-								deviceTriggerId: trigger.triggerId,
-								values: trigger.values,
-								deviceActionArguments,
-								name: triggeredAction.name,
-							},
+						return DeviceTriggerMountedActions.replace({
+							_id: deviceTriggerMountedActionId,
+							studioId,
+							showStyleBaseId,
+							actionType: thisAction.action,
+							actionId,
+							deviceId: trigger.deviceId,
+							deviceTriggerId: trigger.triggerId,
+							values: trigger.values ?? {},
+							deviceActionArguments,
+							name: triggeredAction.name,
 						})
 					})
 
@@ -158,8 +155,8 @@ export class StudioDeviceTriggerManager {
 						const adLibPreviewId = protectString(`${actionId}_preview`)
 
 						addedPreviewIds.push(adLibPreviewId)
-						await DeviceTriggerMountedActionAdlibsPreview.upsertAsync(adLibPreviewId, {
-							$set: literal<PreviewWrappedAdLib>({
+						DeviceTriggerMountedActionAdlibsPreview.replace(
+							literal<PreviewWrappedAdLib>({
 								_id: adLibPreviewId,
 								_rank: 0,
 								partId: null,
@@ -175,8 +172,8 @@ export class StudioDeviceTriggerManager {
 								styleClassNames: triggeredAction.styleClassNames,
 								isActive: undefined,
 								isNext: undefined,
-							}),
-						})
+							})
+						)
 					} else {
 						const previewedAdLibs = await thisAction.preview(context, null)
 
@@ -189,8 +186,8 @@ export class StudioDeviceTriggerManager {
 
 							this.tagsService.observeTallyTags(adLib)
 							const { isActive, isNext } = this.tagsService.getTallyStateFromTags(adLib)
-							return DeviceTriggerMountedActionAdlibsPreview.upsertAsync(adLibPreviewId, {
-								$set: literal<PreviewWrappedAdLib>({
+							return DeviceTriggerMountedActionAdlibsPreview.replace(
+								literal<PreviewWrappedAdLib>({
 									...adLib,
 									_id: adLibPreviewId,
 									triggeredActionId: triggeredAction._id,
@@ -209,8 +206,8 @@ export class StudioDeviceTriggerManager {
 									styleClassNames: triggeredAction.styleClassNames,
 									isActive,
 									isNext,
-								}),
-							})
+								})
+							)
 						})
 
 						await Promise.all(previewedAdlibsUpdatePromises)
@@ -222,7 +219,7 @@ export class StudioDeviceTriggerManager {
 
 			await Promise.all(updateActionsPromises)
 
-			await DeviceTriggerMountedActionAdlibsPreview.removeAsync({
+			DeviceTriggerMountedActionAdlibsPreview.remove({
 				triggeredActionId: triggeredAction._id,
 				_id: {
 					$nin: addedPreviewIds,
@@ -230,7 +227,7 @@ export class StudioDeviceTriggerManager {
 			})
 		}
 
-		await DeviceTriggerMountedActions.removeAsync({
+		DeviceTriggerMountedActions.remove({
 			studioId,
 			showStyleBaseId,
 			_id: {
@@ -268,24 +265,22 @@ export class StudioDeviceTriggerManager {
 				`No Studio Action Manager available to handle action context in Studio "${studioId}"`
 			)
 
-		const mountedActions = await DeviceTriggerMountedActions.find({
+		const mountedActions = DeviceTriggerMountedActions.findFetch({
 			studioId,
 			showStyleBaseId,
-		}).fetchAsync()
+		})
 		for (const mountedAction of mountedActions) {
 			actionManager.deleteAction(mountedAction.actionId)
 		}
 
-		await Promise.all([
-			DeviceTriggerMountedActions.removeAsync({
-				studioId,
-				showStyleBaseId,
-			}),
-			DeviceTriggerMountedActionAdlibsPreview.removeAsync({
-				studioId,
-				showStyleBaseId,
-			}),
-		])
+		DeviceTriggerMountedActions.remove({
+			studioId,
+			showStyleBaseId,
+		})
+		DeviceTriggerMountedActionAdlibsPreview.remove({
+			studioId,
+			showStyleBaseId,
+		})
 
 		actionManager.deleteContext()
 
@@ -318,7 +313,7 @@ async function createCurrentContextFromCache(
 	cache: ContentCache,
 	studioId: StudioId
 ): Promise<ReactivePlaylistActionContext> {
-	const rundownPlaylist = await cache.RundownPlaylists.findOneAsync({
+	const rundownPlaylist = cache.RundownPlaylists.findOne({
 		activationId: {
 			$exists: true,
 		},
@@ -326,26 +321,24 @@ async function createCurrentContextFromCache(
 
 	if (!rundownPlaylist) throw new Error('There should be an active RundownPlaylist!')
 
-	const [currentPartInstance, nextPartInstance] = await Promise.all([
-		rundownPlaylist.currentPartInfo
-			? cache.PartInstances.findOneAsync(rundownPlaylist.currentPartInfo.partInstanceId)
-			: undefined,
-		rundownPlaylist.nextPartInfo
-			? cache.PartInstances.findOneAsync(rundownPlaylist.nextPartInfo.partInstanceId)
-			: undefined,
-	])
+	const currentPartInstance = rundownPlaylist.currentPartInfo
+		? cache.PartInstances.findOne(rundownPlaylist.currentPartInfo.partInstanceId)
+		: undefined
+	const nextPartInstance = rundownPlaylist.nextPartInfo
+		? cache.PartInstances.findOne(rundownPlaylist.nextPartInfo.partInstanceId)
+		: undefined
 
 	const currentSegmentPartIds = currentPartInstance
-		? await cache.Parts.find({
+		? cache.Parts.findFetch({
 				segmentId: currentPartInstance.part.segmentId,
-			}).mapAsync((part) => part._id)
+			}).map((part) => part._id)
 		: []
 	const nextSegmentPartIds = nextPartInstance
 		? nextPartInstance.part.segmentId === currentPartInstance?.part.segmentId
 			? currentSegmentPartIds
-			: await cache.Parts.find({
+			: cache.Parts.findFetch({
 					segmentId: nextPartInstance.part.segmentId,
-				}).mapAsync((part) => part._id)
+				}).map((part) => part._id)
 		: []
 
 	return {

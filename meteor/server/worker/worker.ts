@@ -18,6 +18,7 @@ import * as path from 'path'
 import { LogEntry } from 'winston'
 import { initializeWorkerStatus, setWorkerStatus } from './workerStatus'
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
+import { parseMongoConnectionString } from '../collections/mongoConnection'
 import { UserActionsLog } from '../collections'
 import { isInTestWrite } from '../security/securityVerify'
 import { QueueJobOptions } from '@sofie-automation/job-worker/dist/jobs'
@@ -78,15 +79,7 @@ Meteor.startup(async () => {
 		}
 	}
 
-	if (!process.env.MONGO_URL) throw new Error('MONGO_URL must be defined to launch Sofie')
-	// Note: MONGO_OPLOG_URL isn't required for the worker, but is required for meteor to not lag badly
-	if (!process.env.MONGO_OPLOG_URL) throw new Error('MONGO_OPLOG_URL must be defined to launch Sofie')
-
-	// Meteor wants the dbname as the path of the mongo url, but the mongodb driver needs it separate
-	const rawUrl = new URL(process.env.MONGO_URL)
-	const dbName = rawUrl.pathname.substring(1) // Trim off first '/'
-	rawUrl.pathname = ''
-	const mongoUri = rawUrl.toString()
+	const { uri: mongoUri, dbName } = parseMongoConnectionString()
 
 	// In dev, the path is predictable. In bundled meteor the path will be different, so take it from an env variable
 	let workerEntrypoint = '@sofie-automation/job-worker/dist/ipc.js'

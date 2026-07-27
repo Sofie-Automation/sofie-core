@@ -54,7 +54,7 @@ export class ExpectedPackagesContentObserver implements Meteor.LiveQueryHandle {
 			]
 		})
 
-		// Subscribe to the database, and pipe any updates into the ReactiveCacheCollections
+		// Subscribe to the database, and pipe any updates into the cache collections
 		// This takes ownership of the #partInstanceIdObserver, and will stop it if this throws
 		observer.#observers = await waitForAllObserversReady([
 			ExpectedPackages.observeChanges(
@@ -88,7 +88,7 @@ export class ExpectedPackagesContentObserver implements Meteor.LiveQueryHandle {
 
 			const newPartInstanceIdsSet = new Set<PartInstanceId>()
 
-			this.#cache.RundownPlaylists.find({}).forEach((playlist) => {
+			this.#cache.RundownPlaylists.findFetch({}).forEach((playlist) => {
 				if (playlist.activationId) {
 					if (playlist.nextPartInfo) {
 						newPartInstanceIdsSet.add(playlist.nextPartInfo.partInstanceId)

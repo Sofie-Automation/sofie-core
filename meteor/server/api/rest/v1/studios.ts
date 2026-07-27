@@ -104,7 +104,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 			}
 		}
 
-		await Studios.upsertAsync(studioId, newStudio)
+		await Studios.replaceAsync(newStudio)
 
 		const validation = await validateConfigForStudio(studioId)
 		checkValidation(`addOrUpdateStudio ${studioId}`, validation.messages)
@@ -148,7 +148,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 		const newStudio = await studioFrom(apiStudio, studioId)
 		if (!newStudio) throw new Meteor.Error(400, `Invalid Studio`)
 
-		await Studios.upsertAsync(studioId, newStudio)
+		await Studios.replaceAsync(newStudio)
 
 		const validation = await validateConfigForStudio(studioId)
 		checkValidation(`updateStudioConfig ${studioId}`, validation.messages)
