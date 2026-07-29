@@ -22,7 +22,7 @@ export function wrapError(e: unknown): DDPError {
 			// Carry `details` so the client can reconstruct the full error (it reads msg.error.details).
 			details: e.details,
 			message: e.message,
-			errorType: 'Meteor.Error',
+			errorType: 'Meteor.Error', // Backwards compatiblity
 		}
 	}
 	// Sanitize unexpected exceptions (don't leak internals), but log the real error.
@@ -32,7 +32,7 @@ export function wrapError(e: unknown): DDPError {
 		error: 500,
 		reason: 'Internal server error',
 		message: 'Internal server error [500]',
-		errorType: 'Meteor.Error',
+		errorType: 'Meteor.Error', // Backwards compatiblity
 	}
 }
 
