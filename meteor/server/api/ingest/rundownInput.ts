@@ -1,4 +1,5 @@
-import { check } from '../../lib/check'
+import { z } from 'zod'
+import { check, zPlainObject } from '../../lib/check'
 import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { NrcsIngestDataCache, MediaObjects, Parts, Rundowns, Segments } from '../../collections'
 import { literal } from '@sofie-automation/corelib/dist/lib'
@@ -25,7 +26,7 @@ export namespace RundownInput {
 	): Promise<IngestPlaylist> {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
 		logger.debug('dataPlaylistGet', { playlistExternalId })
-		check(playlistExternalId, String)
+		check(playlistExternalId, z.string())
 		return getIngestPlaylist(peripheralDevice, playlistExternalId)
 	}
 	// Get info on the current rundowns from this device:
@@ -46,7 +47,7 @@ export namespace RundownInput {
 	): Promise<IngestRundown> {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
 		logger.debug('dataRundownGet', { rundownExternalId })
-		check(rundownExternalId, String)
+		check(rundownExternalId, z.string())
 		return getIngestRundown(peripheralDevice, rundownExternalId)
 	}
 	// Delete, Create & Update Rundown (and it's contents):
@@ -59,7 +60,7 @@ export namespace RundownInput {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
 		const studioId = await fetchStudioIdFromDevice(peripheralDevice)
 		logger.debug('dataRundownDelete', { rundownExternalId })
-		check(rundownExternalId, String)
+		check(rundownExternalId, z.string())
 
 		await runIngestOperation(studioId, IngestJobs.RemoveRundown, {
 			rundownExternalId,
@@ -74,7 +75,7 @@ export namespace RundownInput {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
 		const studioId = await fetchStudioIdFromDevice(peripheralDevice)
 		logger.debug('dataRundownCreate', ingestRundown)
-		check(ingestRundown, Object)
+		check(ingestRundown, zPlainObject)
 
 		await runIngestOperation(studioId, IngestJobs.UpdateRundown, {
 			rundownExternalId: ingestRundown.externalId,
@@ -92,7 +93,7 @@ export namespace RundownInput {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
 		const studioId = await fetchStudioIdFromDevice(peripheralDevice)
 		logger.debug('dataRundownUpdate', ingestRundown)
-		check(ingestRundown, Object)
+		check(ingestRundown, zPlainObject)
 
 		await runIngestOperation(studioId, IngestJobs.UpdateRundown, {
 			rundownExternalId: ingestRundown.externalId,
@@ -110,7 +111,7 @@ export namespace RundownInput {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
 		const studioId = await fetchStudioIdFromDevice(peripheralDevice)
 		logger.debug('dataRundownMetaDataUpdate', ingestRundown)
-		check(ingestRundown, Object)
+		check(ingestRundown, zPlainObject)
 
 		await runIngestOperation(studioId, IngestJobs.UpdateRundownMetaData, {
 			rundownExternalId: ingestRundown.externalId,
@@ -127,8 +128,8 @@ export namespace RundownInput {
 	): Promise<IngestSegment> {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
 		logger.debug('dataSegmentGet', { rundownExternalId, segmentExternalId })
-		check(rundownExternalId, String)
-		check(segmentExternalId, String)
+		check(rundownExternalId, z.string())
+		check(segmentExternalId, z.string())
 		return getIngestSegment(peripheralDevice, rundownExternalId, segmentExternalId)
 	}
 	// Delete, Create & Update Segment (and it's contents):
@@ -142,8 +143,8 @@ export namespace RundownInput {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
 		const studioId = await fetchStudioIdFromDevice(peripheralDevice)
 		logger.debug('dataSegmentDelete', { rundownExternalId, segmentExternalId })
-		check(rundownExternalId, String)
-		check(segmentExternalId, String)
+		check(rundownExternalId, z.string())
+		check(segmentExternalId, z.string())
 
 		await runIngestOperation(studioId, IngestJobs.RemoveSegment, {
 			rundownExternalId,
@@ -160,8 +161,8 @@ export namespace RundownInput {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
 		const studioId = await fetchStudioIdFromDevice(peripheralDevice)
 		logger.debug('dataSegmentCreate', { rundownExternalId, ingestSegment })
-		check(rundownExternalId, String)
-		check(ingestSegment, Object)
+		check(rundownExternalId, z.string())
+		check(ingestSegment, zPlainObject)
 
 		await runIngestOperation(studioId, IngestJobs.UpdateSegment, {
 			rundownExternalId,
@@ -179,8 +180,8 @@ export namespace RundownInput {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
 		const studioId = await fetchStudioIdFromDevice(peripheralDevice)
 		logger.debug('dataSegmentUpdate', { rundownExternalId, ingestSegment })
-		check(rundownExternalId, String)
-		check(ingestSegment, Object)
+		check(rundownExternalId, z.string())
+		check(ingestSegment, zPlainObject)
 
 		await runIngestOperation(studioId, IngestJobs.UpdateSegment, {
 			rundownExternalId,
@@ -198,8 +199,8 @@ export namespace RundownInput {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
 		const studioId = await fetchStudioIdFromDevice(peripheralDevice)
 		logger.debug('dataSegmentRanksUpdate', { rundownExternalId, ranks: Object.keys(newRanks) })
-		check(rundownExternalId, String)
-		check(newRanks, Object)
+		check(rundownExternalId, z.string())
+		check(newRanks, zPlainObject)
 
 		await runIngestOperation(studioId, IngestJobs.UpdateSegmentRanks, {
 			rundownExternalId,
@@ -218,9 +219,9 @@ export namespace RundownInput {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
 		const studioId = await fetchStudioIdFromDevice(peripheralDevice)
 		logger.debug('dataPartDelete', { rundownExternalId, segmentExternalId, partExternalId })
-		check(rundownExternalId, String)
-		check(segmentExternalId, String)
-		check(partExternalId, String)
+		check(rundownExternalId, z.string())
+		check(segmentExternalId, z.string())
+		check(partExternalId, z.string())
 
 		await runIngestOperation(studioId, IngestJobs.RemovePart, {
 			rundownExternalId,
@@ -239,9 +240,9 @@ export namespace RundownInput {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
 		const studioId = await fetchStudioIdFromDevice(peripheralDevice)
 		logger.debug('dataPartCreate', { rundownExternalId, segmentExternalId, ingestPart })
-		check(rundownExternalId, String)
-		check(segmentExternalId, String)
-		check(ingestPart, Object)
+		check(rundownExternalId, z.string())
+		check(segmentExternalId, z.string())
+		check(ingestPart, zPlainObject)
 
 		await runIngestOperation(studioId, IngestJobs.UpdatePart, {
 			rundownExternalId,
@@ -261,9 +262,9 @@ export namespace RundownInput {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
 		const studioId = await fetchStudioIdFromDevice(peripheralDevice)
 		logger.debug('dataPartUpdate', { rundownExternalId, segmentExternalId, ingestPart })
-		check(rundownExternalId, String)
-		check(segmentExternalId, String)
-		check(ingestPart, Object)
+		check(rundownExternalId, z.string())
+		check(segmentExternalId, z.string())
+		check(ingestPart, zPlainObject)
 
 		await runIngestOperation(studioId, IngestJobs.UpdatePart, {
 			rundownExternalId,

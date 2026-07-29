@@ -1,4 +1,5 @@
-import { check, Match } from '../lib/check'
+import { z } from 'zod'
+import { check, zAnyArray, zPlainObject } from '../lib/check'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import type { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { ServerPlayoutAPI } from './playout/playout'
@@ -119,8 +120,8 @@ export class ServerUserActionAPI
 			eventTime,
 			rundownPlaylistId,
 			() => {
-				check(rundownPlaylistId, String)
-				check(fromPartInstanceId, Match.OneOf(String, null))
+				check(rundownPlaylistId, z.string())
+				check(fromPartInstanceId, z.string().nullable())
 			},
 			StudioJobs.TakeNextPart,
 			{
@@ -143,8 +144,8 @@ export class ServerUserActionAPI
 			eventTime,
 			rundownPlaylistId,
 			() => {
-				check(rundownPlaylistId, String)
-				check(nextPartOrInstanceId, String)
+				check(rundownPlaylistId, z.string())
+				check(nextPartOrInstanceId, z.string())
 			},
 			StudioJobs.SetNextPart,
 			{
@@ -170,8 +171,8 @@ export class ServerUserActionAPI
 			eventTime,
 			rundownPlaylistId,
 			() => {
-				check(rundownPlaylistId, String)
-				check(nextSegmentId, String)
+				check(rundownPlaylistId, z.string())
+				check(nextSegmentId, z.string())
 			},
 			StudioJobs.SetNextSegment,
 			{
@@ -192,8 +193,8 @@ export class ServerUserActionAPI
 			eventTime,
 			rundownPlaylistId,
 			() => {
-				check(rundownPlaylistId, String)
-				check(queuedSegmentId, Match.OneOf(String, null))
+				check(rundownPlaylistId, z.string())
+				check(queuedSegmentId, z.string().nullable())
 			},
 			StudioJobs.QueueNextSegment,
 			{
@@ -216,9 +217,9 @@ export class ServerUserActionAPI
 			eventTime,
 			rundownPlaylistId,
 			() => {
-				check(rundownPlaylistId, String)
-				check(partDelta, Number)
-				check(segmentDelta, Number)
+				check(rundownPlaylistId, z.string())
+				check(partDelta, z.number())
+				check(segmentDelta, z.number())
 			},
 			StudioJobs.MoveNextPart,
 			{
@@ -240,7 +241,7 @@ export class ServerUserActionAPI
 			eventTime,
 			rundownPlaylistId,
 			() => {
-				check(rundownPlaylistId, String)
+				check(rundownPlaylistId, z.string())
 			},
 			StudioJobs.PrepareRundownForBroadcast,
 			{
@@ -259,7 +260,7 @@ export class ServerUserActionAPI
 			eventTime,
 			rundownPlaylistId,
 			() => {
-				check(rundownPlaylistId, String)
+				check(rundownPlaylistId, z.string())
 			},
 			StudioJobs.ResetRundownPlaylist,
 			{
@@ -279,8 +280,8 @@ export class ServerUserActionAPI
 			eventTime,
 			rundownPlaylistId,
 			() => {
-				check(rundownPlaylistId, String)
-				check(rehearsal, Match.Maybe(Boolean))
+				check(rundownPlaylistId, z.string())
+				check(rehearsal, z.boolean().nullish())
 			},
 			StudioJobs.ResetRundownPlaylist,
 			{
@@ -301,8 +302,8 @@ export class ServerUserActionAPI
 			eventTime,
 			rundownPlaylistId,
 			() => {
-				check(rundownPlaylistId, String)
-				check(rehearsal, Boolean)
+				check(rundownPlaylistId, z.string())
+				check(rehearsal, z.boolean())
 			},
 			StudioJobs.ActivateRundownPlaylist,
 			{
@@ -322,7 +323,7 @@ export class ServerUserActionAPI
 			eventTime,
 			rundownPlaylistId,
 			() => {
-				check(rundownPlaylistId, String)
+				check(rundownPlaylistId, z.string())
 			},
 			StudioJobs.DeactivateRundownPlaylist,
 			{
@@ -342,8 +343,8 @@ export class ServerUserActionAPI
 			eventTime,
 			rundownPlaylistId,
 			() => {
-				check(rundownPlaylistId, String)
-				check(rehearsal, Boolean)
+				check(rundownPlaylistId, z.string())
+				check(rehearsal, z.boolean())
 			},
 			StudioJobs.ResetRundownPlaylist,
 			{
@@ -365,8 +366,8 @@ export class ServerUserActionAPI
 			eventTime,
 			rundownPlaylistId,
 			() => {
-				check(rundownPlaylistId, String)
-				check(undo, Match.Maybe(Boolean))
+				check(rundownPlaylistId, z.string())
+				check(undo, z.boolean().nullish())
 			},
 			StudioJobs.DisableNextPiece,
 			{
@@ -388,9 +389,9 @@ export class ServerUserActionAPI
 			eventTime,
 			rundownPlaylistId,
 			() => {
-				check(rundownPlaylistId, String)
-				check(partInstanceId, String)
-				check(pieceInstanceIdOrPieceIdToCopy, String)
+				check(rundownPlaylistId, z.string())
+				check(partInstanceId, z.string())
+				check(pieceInstanceIdOrPieceIdToCopy, z.string())
 			},
 			StudioJobs.TakePieceAsAdlibNow,
 			{
@@ -415,11 +416,11 @@ export class ServerUserActionAPI
 			eventTime,
 			rundownPlaylistId,
 			() => {
-				check(rundownPlaylistId, String)
-				check(partId, String)
-				check(pieceId, String)
-				check(inPoint, Number)
-				check(duration, Number)
+				check(rundownPlaylistId, z.string())
+				check(partId, z.string())
+				check(pieceId, z.string())
+				check(inPoint, z.number())
+				check(duration, z.number())
 			},
 			'pieceSetInOutPoints',
 			{ rundownPlaylistId, partId, pieceId, inPoint, duration },
@@ -443,11 +444,11 @@ export class ServerUserActionAPI
 			eventTime,
 			rundownPlaylistId,
 			() => {
-				check(rundownPlaylistId, String)
-				check(actionDocId, Match.Maybe(String))
-				check(actionId, String)
-				check(userData, Match.Any)
-				check(triggerMode, Match.Maybe(String))
+				check(rundownPlaylistId, z.string())
+				check(actionDocId, z.string().nullish())
+				check(actionId, z.string())
+				check(userData, z.any())
+				check(triggerMode, z.string().nullish())
 			},
 			StudioJobs.ExecuteAction,
 			{
@@ -473,10 +474,10 @@ export class ServerUserActionAPI
 			eventTime,
 			rundownPlaylistId,
 			() => {
-				check(rundownPlaylistId, String)
-				check(partInstanceId, String)
-				check(adlibPieceId, String)
-				check(queue, Boolean)
+				check(rundownPlaylistId, z.string())
+				check(partInstanceId, z.string())
+				check(adlibPieceId, z.string())
+				check(queue, z.boolean())
 			},
 			StudioJobs.AdlibPieceStart,
 			{
@@ -501,9 +502,9 @@ export class ServerUserActionAPI
 			eventTime,
 			rundownPlaylistId,
 			() => {
-				check(rundownPlaylistId, String)
-				check(partInstanceId, String)
-				check(sourceLayerIds, [String])
+				check(rundownPlaylistId, z.string())
+				check(partInstanceId, z.string())
+				check(sourceLayerIds, z.array(z.string()))
 			},
 			StudioJobs.StopPiecesOnSourceLayers,
 			{
@@ -527,10 +528,10 @@ export class ServerUserActionAPI
 			eventTime,
 			rundownPlaylistId,
 			() => {
-				check(rundownPlaylistId, String)
-				check(partInstanceId, String)
-				check(adlibPieceId, String)
-				check(queue, Boolean)
+				check(rundownPlaylistId, z.string())
+				check(partInstanceId, z.string())
+				check(adlibPieceId, z.string())
+				check(queue, z.boolean())
 			},
 			StudioJobs.AdlibPieceStart,
 			{
@@ -554,8 +555,8 @@ export class ServerUserActionAPI
 			eventTime,
 			rundownPlaylistId,
 			() => {
-				check(rundownPlaylistId, String)
-				check(sourceLayerId, String)
+				check(rundownPlaylistId, z.string())
+				check(sourceLayerId, z.string())
 			},
 			StudioJobs.StartStickyPieceOnSourceLayer,
 			{
@@ -578,9 +579,9 @@ export class ServerUserActionAPI
 			'bucketAdlibImport',
 			{ bucketId, showStyleBaseId, ingestItem },
 			async () => {
-				check(bucketId, String)
-				check(showStyleBaseId, String)
-				check(ingestItem, Object)
+				check(bucketId, z.string())
+				check(showStyleBaseId, z.string())
+				check(ingestItem, zPlainObject)
 
 				assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_BUCKET_MODIFICATION)
 				return BucketsAPI.importAdlibToBucket(bucketId, showStyleBaseId, undefined, ingestItem)
@@ -601,10 +602,10 @@ export class ServerUserActionAPI
 			eventTime,
 			rundownPlaylistId,
 			() => {
-				check(rundownPlaylistId, String)
-				check(partInstanceId, String)
-				check(bucketAdlibId, String)
-				check(queue, Match.Maybe(Boolean))
+				check(rundownPlaylistId, z.string())
+				check(partInstanceId, z.string())
+				check(bucketAdlibId, z.string())
+				check(queue, z.boolean().nullish())
 			},
 			StudioJobs.AdlibPieceStart,
 			{
@@ -629,7 +630,7 @@ export class ServerUserActionAPI
 				eventTime,
 				rundownPlaylistId,
 				() => {
-					check(rundownPlaylistId, String)
+					check(rundownPlaylistId, z.string())
 				},
 				StudioJobs.DeactivateHold,
 				{
@@ -643,7 +644,7 @@ export class ServerUserActionAPI
 				eventTime,
 				rundownPlaylistId,
 				() => {
-					check(rundownPlaylistId, String)
+					check(rundownPlaylistId, z.string())
 				},
 				StudioJobs.ActivateHold,
 				{
@@ -689,8 +690,8 @@ export class ServerUserActionAPI
 			eventTime,
 			playlistId,
 			() => {
-				check(playlistId, String)
-				check(reason, String)
+				check(playlistId, z.string())
+				check(reason, z.string())
 			},
 			'storeRundownSnapshot',
 			{ playlistId, reason, full },
@@ -710,7 +711,7 @@ export class ServerUserActionAPI
 			eventTime,
 			rundownPlaylistId,
 			() => {
-				check(rundownPlaylistId, String)
+				check(rundownPlaylistId, z.string())
 			},
 			StudioJobs.RemovePlaylist,
 			{
@@ -732,7 +733,7 @@ export class ServerUserActionAPI
 			eventTime,
 			rundownPlaylistId,
 			() => {
-				check(rundownPlaylistId, String)
+				check(rundownPlaylistId, z.string())
 			},
 			StudioJobs.DebugCrash,
 			{
@@ -751,7 +752,7 @@ export class ServerUserActionAPI
 			eventTime,
 			playlistId,
 			() => {
-				check(playlistId, String)
+				check(playlistId, z.string())
 			},
 			'resyncRundownPlaylist',
 			{ playlistId },
@@ -771,7 +772,7 @@ export class ServerUserActionAPI
 			eventTime,
 			rundownId,
 			() => {
-				check(rundownId, String)
+				check(rundownId, z.string())
 			},
 			'unsyncRundown',
 			{ rundownId },
@@ -791,7 +792,7 @@ export class ServerUserActionAPI
 			eventTime,
 			rundownId,
 			() => {
-				check(rundownId, String)
+				check(rundownId, z.string())
 			},
 			'removeRundown',
 			{ rundownId },
@@ -811,7 +812,7 @@ export class ServerUserActionAPI
 			eventTime,
 			rundownId,
 			() => {
-				check(rundownId, String)
+				check(rundownId, z.string())
 			},
 			'resyncRundown',
 			{ rundownId },
@@ -833,8 +834,8 @@ export class ServerUserActionAPI
 			'packageManagerRestartExpectation',
 			{ deviceId, workId },
 			async () => {
-				check(deviceId, String)
-				check(workId, String)
+				check(deviceId, z.string())
+				check(workId, z.string())
 
 				assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MEDIA_MANAGEMENT)
 
@@ -854,7 +855,7 @@ export class ServerUserActionAPI
 			'packageManagerRestartAllExpectations',
 			{ studioId },
 			async () => {
-				check(studioId, String)
+				check(studioId, z.string())
 
 				assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MEDIA_MANAGEMENT)
 
@@ -875,8 +876,8 @@ export class ServerUserActionAPI
 			'packageManagerAbortExpectation',
 			{ deviceId, workId },
 			async () => {
-				check(deviceId, String)
-				check(workId, String)
+				check(deviceId, z.string())
+				check(workId, z.string())
 
 				assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MEDIA_MANAGEMENT)
 
@@ -897,8 +898,8 @@ export class ServerUserActionAPI
 			'packageManagerRestartPackageContainer',
 			{ deviceId, containerId },
 			async () => {
-				check(deviceId, String)
-				check(containerId, String)
+				check(deviceId, z.string())
+				check(containerId, z.string())
 
 				assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MEDIA_MANAGEMENT)
 
@@ -917,7 +918,7 @@ export class ServerUserActionAPI
 			eventTime,
 			rundownPlaylistId,
 			() => {
-				check(rundownPlaylistId, String)
+				check(rundownPlaylistId, z.string())
 			},
 			StudioJobs.RegeneratePlaylist,
 			{
@@ -937,7 +938,7 @@ export class ServerUserActionAPI
 			'restartCore',
 			{ hashedToken },
 			async () => {
-				check(hashedToken, String)
+				check(hashedToken, z.string())
 
 				assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_SYSTEM_ACTION)
 
@@ -985,7 +986,7 @@ export class ServerUserActionAPI
 			'bucketsRemoveBucket',
 			{ bucketId },
 			async () => {
-				check(bucketId, String)
+				check(bucketId, z.string())
 
 				assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_BUCKET_MODIFICATION)
 				return BucketsAPI.removeBucket(bucketId)
@@ -1005,8 +1006,8 @@ export class ServerUserActionAPI
 			'bucketsModifyBucket',
 			{ bucketId, bucketProps },
 			async () => {
-				check(bucketId, String)
-				check(bucketProps, Object)
+				check(bucketId, z.string())
+				check(bucketProps, zPlainObject)
 
 				assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_BUCKET_MODIFICATION)
 				return BucketsAPI.modifyBucket(bucketId, bucketProps)
@@ -1025,7 +1026,7 @@ export class ServerUserActionAPI
 			'bucketsEmptyBucket',
 			{ bucketId },
 			async () => {
-				check(bucketId, String)
+				check(bucketId, z.string())
 
 				assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_BUCKET_MODIFICATION)
 				return BucketsAPI.emptyBucket(bucketId)
@@ -1045,8 +1046,8 @@ export class ServerUserActionAPI
 			'bucketsCreateNewBucket',
 			{ name, studioId },
 			async () => {
-				check(studioId, String)
-				check(name, String)
+				check(studioId, z.string())
+				check(name, z.string())
 
 				assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_BUCKET_MODIFICATION)
 				return BucketsAPI.createNewBucket(studioId, name)
@@ -1058,7 +1059,7 @@ export class ServerUserActionAPI
 		eventTime: Time,
 		adlibId: BucketAdLibId
 	): Promise<ClientAPI.ClientResponse<void>> {
-		check(adlibId, String)
+		check(adlibId, z.string())
 
 		return ServerClientAPI.runUserActionInLog(
 			this,
@@ -1084,7 +1085,7 @@ export class ServerUserActionAPI
 			'bucketsRemoveBucketAdLibAction',
 			{ actionId },
 			async () => {
-				check(actionId, String)
+				check(actionId, z.string())
 
 				assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_BUCKET_MODIFICATION)
 				return BucketsAPI.removeBucketAdLibAction(actionId)
@@ -1104,8 +1105,8 @@ export class ServerUserActionAPI
 			'bucketsModifyBucketAdLib',
 			{ adlibId, adlibProps },
 			async () => {
-				check(adlibId, String)
-				check(adlibProps, Object)
+				check(adlibId, z.string())
+				check(adlibProps, zPlainObject)
 
 				assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_BUCKET_MODIFICATION)
 				return BucketsAPI.modifyBucketAdLib(adlibId, adlibProps)
@@ -1125,8 +1126,8 @@ export class ServerUserActionAPI
 			'bucketsModifyBucketAdLib',
 			{ actionId, actionProps },
 			async () => {
-				check(actionId, String)
-				check(actionProps, Object)
+				check(actionId, z.string())
+				check(actionProps, zPlainObject)
 
 				assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_BUCKET_MODIFICATION)
 				return BucketsAPI.modifyBucketAdLibAction(actionId, actionProps)
@@ -1147,9 +1148,9 @@ export class ServerUserActionAPI
 			'bucketsSaveActionIntoBucket',
 			{ studioId, bucketId, action },
 			async () => {
-				check(studioId, String)
-				check(bucketId, String)
-				check(action, Object)
+				check(studioId, z.string())
+				check(bucketId, z.string())
+				check(action, zPlainObject)
 
 				assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_BUCKET_MODIFICATION)
 				return BucketsAPI.saveAdLibActionIntoBucket(bucketId, action)
@@ -1170,9 +1171,9 @@ export class ServerUserActionAPI
 			'switchRouteSet',
 			{ studioId, routeSetId, state },
 			async () => {
-				check(studioId, String)
-				check(routeSetId, String)
-				check(state, Match.OneOf('toggle', Boolean))
+				check(studioId, z.string())
+				check(routeSetId, z.string())
+				check(state, z.union([z.literal('toggle'), z.boolean()]))
 
 				assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_PLAYOUT_USERACTION)
 
@@ -1193,9 +1194,9 @@ export class ServerUserActionAPI
 			eventTime,
 			rundownId,
 			() => {
-				check(rundownId, String)
-				check(intoPlaylistId, Match.OneOf(String, null))
-				check(rundownsIdsInPlaylistInOrder, Array)
+				check(rundownId, z.string())
+				check(intoPlaylistId, z.string().nullable())
+				check(rundownsIdsInPlaylistInOrder, zAnyArray)
 			},
 			StudioJobs.OrderMoveRundownToPlaylist,
 			{
@@ -1216,7 +1217,7 @@ export class ServerUserActionAPI
 			eventTime,
 			playlistId,
 			() => {
-				check(playlistId, String)
+				check(playlistId, z.string())
 			},
 			StudioJobs.OrderRestoreToDefault,
 			{
@@ -1238,9 +1239,9 @@ export class ServerUserActionAPI
 			'packageManagerRestartAllExpectations',
 			{ peripheralDeviceId, subDeviceId, disable },
 			async () => {
-				check(peripheralDeviceId, String)
-				check(subDeviceId, String)
-				check(disable, Boolean)
+				check(peripheralDeviceId, z.string())
+				check(subDeviceId, z.string())
+				check(disable, z.boolean())
 
 				assertConnectionHasOneOfPermissions(
 					this.connection,
@@ -1265,8 +1266,8 @@ export class ServerUserActionAPI
 			eventTime,
 			playlistId,
 			() => {
-				check(playlistId, String)
-				check(rundownId, String)
+				check(playlistId, z.string())
+				check(rundownId, z.string())
 			},
 			StudioJobs.ActivateAdlibTesting,
 			{
@@ -1288,7 +1289,7 @@ export class ServerUserActionAPI
 			eventTime,
 			playlistId,
 			() => {
-				check(playlistId, String)
+				check(playlistId, z.string())
 			},
 			StudioJobs.SetQuickLoopMarker,
 			{
@@ -1311,7 +1312,7 @@ export class ServerUserActionAPI
 			eventTime,
 			playlistId,
 			() => {
-				check(playlistId, String)
+				check(playlistId, z.string())
 			},
 			StudioJobs.SetQuickLoopMarker,
 			{
@@ -1357,7 +1358,7 @@ export class ServerUserActionAPI
 			eventTime,
 			playlistId,
 			() => {
-				check(playlistId, String)
+				check(playlistId, z.string())
 			},
 			StudioJobs.ClearQuickLoopMarkers,
 			{
@@ -1380,8 +1381,8 @@ export class ServerUserActionAPI
 			`worker.ingest.${jobName}`,
 			{ showStyleVariantId },
 			async (_credentials) => {
-				check(studioId, String)
-				check(showStyleVariantId, String)
+				check(studioId, z.string())
+				check(showStyleVariantId, z.string())
 
 				assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_PLAYOUT_USERACTION)
 

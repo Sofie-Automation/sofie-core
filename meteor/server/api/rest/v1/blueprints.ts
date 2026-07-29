@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { check } from '../../../lib/check'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
@@ -76,7 +77,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<BlueprintsRestAPI>
 			const blueprintId = protectString<BlueprintId>(params.blueprintId)
 			logger.info(`API GET: blueprint ${blueprintId}`)
 
-			check(blueprintId, String)
+			check(blueprintId, z.string())
 			return await serverAPI.getBlueprint(connection, event, blueprintId)
 		}
 	)

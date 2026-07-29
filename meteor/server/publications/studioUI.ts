@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { MongoFieldSpecifierOnesStrict } from '@sofie-automation/corelib/dist/mongo'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
@@ -12,7 +13,7 @@ import {
 	TriggerUpdate,
 } from '../lib/customPublication'
 import { Studios } from '../collections'
-import { check, Match } from 'meteor/check'
+import { check } from '../lib/check'
 import { triggerWriteAccessBecauseNoCheckNecessary } from '../security/securityVerify'
 import type { PublicationRegistry } from '../publicationRegistry'
 
@@ -126,7 +127,7 @@ export function registerStudioUIPublications(registry: PublicationRegistry): voi
 		MeteorPubSub.uiStudio,
 		CustomCollectionName.UIStudio,
 		async (_context, pub, studioId: StudioId | null) => {
-			check(studioId, Match.Maybe(String))
+			check(studioId, z.string().nullish())
 
 			triggerWriteAccessBecauseNoCheckNecessary()
 

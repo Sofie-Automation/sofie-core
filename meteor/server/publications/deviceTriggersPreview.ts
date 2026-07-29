@@ -1,7 +1,8 @@
+import { z } from 'zod'
 import { PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { getRandomId } from '@sofie-automation/corelib/dist/lib'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { check } from 'meteor/check'
+import { check } from '../lib/check'
 import { ReadonlyDeep } from 'type-fest'
 import { CustomCollectionName, MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { DeviceTriggerArguments, UIDeviceTriggerPreview } from '@sofie-automation/meteor-lib/dist/api/MountedTriggers'
@@ -22,7 +23,7 @@ export function registerDeviceTriggersPreviewPublications(registry: PublicationR
 		MeteorPubSub.deviceTriggersPreview,
 		CustomCollectionName.UIDeviceTriggerPreviews,
 		async (context, pub, studioId: StudioId, _token: string | undefined) => {
-			check(studioId, String)
+			check(studioId, z.string())
 
 			assertConnectionHasOneOfPermissions(context.connection, 'configure')
 

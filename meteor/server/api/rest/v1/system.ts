@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { UserErrorMessage } from '@sofie-automation/corelib/dist/error'
 import { MigrationData, PendingMigrations, SystemRestAPI } from '../../../lib/rest/v1'
 import { logger } from '../../../logging'
@@ -100,7 +101,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<SystemRestAPI>): v
 			const blueprintId = protectString<BlueprintId>(body.blueprintId)
 			logger.info(`API PUT: system blueprint ${blueprintId}`)
 
-			check(blueprintId, String)
+			check(blueprintId, z.string())
 			return await serverAPI.assignSystemBlueprint(connection, events, blueprintId)
 		}
 	)

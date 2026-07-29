@@ -1,9 +1,10 @@
+import { z } from 'zod'
 import { UserError, UserErrorMessage, SofieError } from '@sofie-automation/corelib/dist/error'
 import { logger } from '../../../logging'
 import { APIFactory, APIRegisterHook, ServerAPIContext } from './types'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { check } from '../../../lib/check'
+import { check, zPlainObject } from '../../../lib/check'
 import { APIStudio, StudioAction, StudioActionType, StudiosRestAPI } from '../../../lib/rest/v1'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { PeripheralDevices, RundownPlaylists, Studios } from '../../../collections'
@@ -211,7 +212,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 				getCurrentTime(),
 				rundownPlaylist._id,
 				() => {
-					check(rundownPlaylist._id, String)
+					check(rundownPlaylist._id, z.string())
 				},
 				StudioJobs.RemovePlaylist,
 				{
@@ -240,9 +241,9 @@ class StudiosServerAPI implements StudiosRestAPI {
 			'switchRouteSet',
 			{ studioId, routeSetId, state },
 			async () => {
-				check(studioId, String)
-				check(routeSetId, String)
-				check(state, Boolean)
+				check(studioId, z.string())
+				check(routeSetId, z.string())
+				check(state, z.boolean())
 
 				assertConnectionHasOneOfPermissions(connection, ...PERMISSIONS_FOR_PLAYOUT_USERACTION)
 
@@ -413,7 +414,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<StudiosRestAPI>): 
 			const studioId = protectString<StudioId>(params.studioId)
 			logger.info(`API GET: studio ${studioId}`)
 
-			check(studioId, String)
+			check(studioId, z.string())
 			return await serverAPI.getStudio(connection, event, studioId)
 		}
 	)
@@ -430,7 +431,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<StudiosRestAPI>): 
 			const studioId = protectString<StudioId>(params.studioId)
 			logger.info(`API PUT: Add or Update studio ${studioId} ${body.name}`)
 
-			check(studioId, String)
+			check(studioId, z.string())
 			return await serverAPI.addOrUpdateStudio(connection, event, studioId, body)
 		}
 	)
@@ -444,7 +445,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<StudiosRestAPI>): 
 			const studioId = protectString<StudioId>(params.studioId)
 			logger.info(`API GET: studio config ${studioId}`)
 
-			check(studioId, String)
+			check(studioId, z.string())
 			return await serverAPI.getStudioConfig(connection, event, studioId)
 		}
 	)
@@ -461,7 +462,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<StudiosRestAPI>): 
 			const studioId = protectString<StudioId>(params.studioId)
 			logger.info(`API PUT: Update studio config ${studioId}`)
 
-			check(studioId, String)
+			check(studioId, z.string())
 			return await serverAPI.updateStudioConfig(connection, event, studioId, body)
 		}
 	)
@@ -475,7 +476,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<StudiosRestAPI>): 
 			const studioId = protectString<StudioId>(params.studioId)
 			logger.info(`API DELETE: studio ${studioId}`)
 
-			check(studioId, String)
+			check(studioId, z.string())
 			return await serverAPI.deleteStudio(connection, event, studioId)
 		}
 	)
@@ -489,7 +490,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<StudiosRestAPI>): 
 			const studioId = protectString<StudioId>(params.studioId)
 			logger.info(`API GET: peripheral devices for studio ${studioId}`)
 
-			check(studioId, String)
+			check(studioId, z.string())
 			return await serverAPI.getPeripheralDevicesForStudio(connection, event, studioId)
 		}
 	)
@@ -505,9 +506,9 @@ export function registerRoutes(registerRoute: APIRegisterHook<StudiosRestAPI>): 
 			const active = body.active
 			logger.info(`API PUT: switch-route-set ${studioId} ${routeSetId} ${active}`)
 
-			check(studioId, String)
-			check(routeSetId, String)
-			check(active, Boolean)
+			check(studioId, z.string())
+			check(routeSetId, z.string())
+			check(active, z.boolean())
 			return await serverAPI.switchRouteSet(connection, event, studioId, routeSetId, active)
 		}
 	)
@@ -554,8 +555,8 @@ export function registerRoutes(registerRoute: APIRegisterHook<StudiosRestAPI>): 
 			const action = body.action
 			logger.info(`API POST: Studio action ${studioId} ${body.action.type}`)
 
-			check(studioId, String)
-			check(action, Object)
+			check(studioId, z.string())
+			check(action, zPlainObject)
 			return await serverAPI.studioAction(connection, event, studioId, action)
 		}
 	)

@@ -1,5 +1,6 @@
+import { z } from 'zod'
 import { PartId, RundownPlaylistId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { check, Match } from 'meteor/check'
+import { check } from '../../lib/check'
 import {
 	CustomPublishCollection,
 	SetupObserversResult,
@@ -191,7 +192,7 @@ export function registerPartsUIPublications(registry: PublicationRegistry): void
 		MeteorPubSub.uiParts,
 		CustomCollectionName.UIParts,
 		async (_context, pub, playlistId: RundownPlaylistId | null) => {
-			check(playlistId, Match.Maybe(String))
+			check(playlistId, z.string().nullish())
 
 			triggerWriteAccessBecauseNoCheckNecessary()
 

@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { MongoFieldSpecifierZeroes, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
@@ -5,7 +6,7 @@ import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
-import { check, Match } from 'meteor/check'
+import { check, zAnyArray } from '../lib/check'
 import { FindOptions } from '@sofie-automation/meteor-lib/dist/collections/lib'
 import {
 	AdLibActions,
@@ -70,8 +71,8 @@ export function registerRundownPublications(registry: PublicationRegistry): void
 	registry.publish(
 		PeripheralDevicePubSub.rundownsForDevice,
 		async (context, deviceId: PeripheralDeviceId, token: string | undefined) => {
-			check(deviceId, String)
-			check(token, String)
+			check(deviceId, z.string())
+			check(token, z.string())
 
 			// Future: this should be reactive to studioId changes, but this matches how the other *ForDevice publications behave
 
@@ -98,7 +99,7 @@ export function registerRundownPublications(registry: PublicationRegistry): void
 	registry.publish(
 		CorelibPubSub.rundownsInPlaylists,
 		async (_context, playlistIds: RundownPlaylistId[], _token: string | undefined) => {
-			check(playlistIds, Array)
+			check(playlistIds, zAnyArray)
 
 			triggerWriteAccessBecauseNoCheckNecessary()
 
@@ -122,7 +123,7 @@ export function registerRundownPublications(registry: PublicationRegistry): void
 	registry.publish(
 		CorelibPubSub.rundownsWithShowStyleBases,
 		async (_context, showStyleBaseIds: ShowStyleBaseId[], _token: string | undefined) => {
-			check(showStyleBaseIds, Array)
+			check(showStyleBaseIds, zAnyArray)
 
 			triggerWriteAccessBecauseNoCheckNecessary()
 
@@ -151,7 +152,7 @@ export function registerRundownPublications(registry: PublicationRegistry): void
 			filter: { omitHidden?: boolean } | undefined,
 			_token: string | undefined
 		) => {
-			check(rundownIds, Array)
+			check(rundownIds, zAnyArray)
 
 			triggerWriteAccessBecauseNoCheckNecessary()
 
@@ -173,8 +174,8 @@ export function registerRundownPublications(registry: PublicationRegistry): void
 	registry.publish(
 		CorelibPubSub.parts,
 		async (_context, rundownIds: RundownId[], segmentIds: SegmentId[] | null, _token: string | undefined) => {
-			check(rundownIds, Array)
-			check(segmentIds, Match.Maybe(Array))
+			check(rundownIds, zAnyArray)
+			check(segmentIds, zAnyArray.nullish())
 
 			triggerWriteAccessBecauseNoCheckNecessary()
 
@@ -204,8 +205,8 @@ export function registerRundownPublications(registry: PublicationRegistry): void
 			playlistActivationId: RundownPlaylistActivationId | null,
 			_token: string | undefined
 		) => {
-			check(rundownIds, Array)
-			check(playlistActivationId, Match.Maybe(String))
+			check(rundownIds, zAnyArray)
+			check(playlistActivationId, z.string().nullish())
 
 			triggerWriteAccessBecauseNoCheckNecessary()
 
@@ -235,8 +236,8 @@ export function registerRundownPublications(registry: PublicationRegistry): void
 			playlistActivationId: RundownPlaylistActivationId | null,
 			_token: string | undefined
 		) => {
-			check(rundownIds, Array)
-			check(playlistActivationId, Match.Maybe(String))
+			check(rundownIds, zAnyArray)
+			check(playlistActivationId, z.string().nullish())
 
 			triggerWriteAccessBecauseNoCheckNecessary()
 
@@ -263,8 +264,8 @@ export function registerRundownPublications(registry: PublicationRegistry): void
 	registry.publish(
 		CorelibPubSub.pieces,
 		async (_context, rundownIds: RundownId[], partIds: PartId[] | null, _token: string | undefined) => {
-			check(rundownIds, Array)
-			check(partIds, Match.Maybe(Array))
+			check(rundownIds, zAnyArray)
+			check(partIds, zAnyArray.nullish())
 
 			triggerWriteAccessBecauseNoCheckNecessary()
 
@@ -291,7 +292,7 @@ export function registerRundownPublications(registry: PublicationRegistry): void
 			rundownIdsBefore: RundownId[],
 			_token: string | undefined
 		) => {
-			check(thisRundownId, String)
+			check(thisRundownId, z.string())
 
 			triggerWriteAccessBecauseNoCheckNecessary()
 
@@ -331,7 +332,7 @@ export function registerRundownPublications(registry: PublicationRegistry): void
 	registry.publish(
 		CorelibPubSub.adLibPieces,
 		async (_context, rundownIds: RundownId[], _token: string | undefined) => {
-			check(rundownIds, Array)
+			check(rundownIds, zAnyArray)
 
 			triggerWriteAccessBecauseNoCheckNecessary()
 
@@ -347,8 +348,8 @@ export function registerRundownPublications(registry: PublicationRegistry): void
 		}
 	)
 	registry.publish(MeteorPubSub.adLibPiecesForPart, async (_context, partId: PartId, sourceLayerIds: string[]) => {
-		check(partId, String)
-		check(sourceLayerIds, Array)
+		check(partId, z.string())
+		check(sourceLayerIds, zAnyArray)
 
 		triggerWriteAccessBecauseNoCheckNecessary()
 
@@ -376,8 +377,8 @@ export function registerRundownPublications(registry: PublicationRegistry): void
 				| undefined,
 			_token: string | undefined
 		) => {
-			check(rundownIds, Array)
-			check(partInstanceIds, Match.Maybe(Array))
+			check(rundownIds, zAnyArray)
+			check(partInstanceIds, zAnyArray.nullish())
 
 			triggerWriteAccessBecauseNoCheckNecessary()
 
@@ -443,7 +444,7 @@ export function registerRundownPublications(registry: PublicationRegistry): void
 			playlistActivationId: RundownPlaylistActivationId | null,
 			_token: string | undefined
 		) => {
-			check(rundownIds, Array)
+			check(rundownIds, zAnyArray)
 
 			triggerWriteAccessBecauseNoCheckNecessary()
 
@@ -469,7 +470,7 @@ export function registerRundownPublications(registry: PublicationRegistry): void
 	registry.publish(
 		PeripheralDevicePubSub.expectedPlayoutItemsForDevice,
 		async (context, deviceId: PeripheralDeviceId, token: string | undefined) => {
-			check(deviceId, String)
+			check(deviceId, z.string())
 
 			const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, context)
 
@@ -496,7 +497,7 @@ export function registerRundownPublications(registry: PublicationRegistry): void
 	registry.publish(
 		CorelibPubSub.rundownBaselineAdLibPieces,
 		async (_context, rundownIds: RundownId[], _token: string | undefined) => {
-			check(rundownIds, Array)
+			check(rundownIds, zAnyArray)
 
 			triggerWriteAccessBecauseNoCheckNecessary()
 
@@ -518,7 +519,7 @@ export function registerRundownPublications(registry: PublicationRegistry): void
 	registry.publish(
 		CorelibPubSub.adLibActions,
 		async (_context, rundownIds: RundownId[], _token: string | undefined) => {
-			check(rundownIds, Array)
+			check(rundownIds, zAnyArray)
 
 			triggerWriteAccessBecauseNoCheckNecessary()
 
@@ -534,8 +535,8 @@ export function registerRundownPublications(registry: PublicationRegistry): void
 		}
 	)
 	registry.publish(MeteorPubSub.adLibActionsForPart, async (_context, partId: PartId, sourceLayerIds: string[]) => {
-		check(partId, String)
-		check(sourceLayerIds, Array)
+		check(partId, z.string())
+		check(sourceLayerIds, zAnyArray)
 
 		triggerWriteAccessBecauseNoCheckNecessary()
 
@@ -553,7 +554,7 @@ export function registerRundownPublications(registry: PublicationRegistry): void
 	registry.publish(
 		CorelibPubSub.rundownBaselineAdLibActions,
 		async (_context, rundownIds: RundownId[], _token: string | undefined) => {
-			check(rundownIds, Array)
+			check(rundownIds, zAnyArray)
 
 			triggerWriteAccessBecauseNoCheckNecessary()
 

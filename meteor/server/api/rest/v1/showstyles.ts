@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { UserErrorMessage, SofieError } from '@sofie-automation/corelib/dist/error'
 import {
 	APIShowStyleBase,
@@ -10,7 +11,7 @@ import { logger } from '../../../logging'
 import { APIFactory, APIRegisterHook, ServerAPIContext } from './types'
 import { ShowStyleBaseId, ShowStyleVariantId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { check } from '../../../lib/check'
+import { check, zPlainObject } from '../../../lib/check'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { RundownPlaylists, Rundowns, ShowStyleBases, ShowStyleVariants } from '../../../collections'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
@@ -405,7 +406,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<ShowStylesRestAPI>
 			const showStyleBaseId = protectString<ShowStyleBaseId>(params.showStyleBaseId)
 			logger.info(`API PUT: Add or Update ShowStyleBase ${showStyleBaseId}`)
 
-			check(showStyleBaseId, String)
+			check(showStyleBaseId, z.string())
 			return await serverAPI.addOrUpdateShowStyleBase(connection, event, showStyleBaseId, body)
 		}
 	)
@@ -419,7 +420,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<ShowStylesRestAPI>
 			const showStyleBaseId = protectString<ShowStyleBaseId>(params.showStyleBaseId)
 			logger.info(`API GET: ShowStyleBase config ${showStyleBaseId}`)
 
-			check(showStyleBaseId, String)
+			check(showStyleBaseId, z.string())
 			return await serverAPI.getShowStyleConfig(connection, event, showStyleBaseId)
 		}
 	)
@@ -436,7 +437,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<ShowStylesRestAPI>
 			const showStyleBaseId = protectString<ShowStyleBaseId>(params.showStyleBaseId)
 			logger.info(`API PUT: Update ShowStyleBase config ${showStyleBaseId}`)
 
-			check(showStyleBaseId, String)
+			check(showStyleBaseId, z.string())
 			return await serverAPI.updateShowStyleConfig(connection, event, showStyleBaseId, body)
 		}
 	)
@@ -450,7 +451,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<ShowStylesRestAPI>
 			const showStyleBaseId = protectString<ShowStyleBaseId>(params.showStyleBaseId)
 			logger.info(`API DELETE: ShowStyleBase ${showStyleBaseId}`)
 
-			check(showStyleBaseId, String)
+			check(showStyleBaseId, z.string())
 			return await serverAPI.deleteShowStyleBase(connection, event, showStyleBaseId)
 		}
 	)
@@ -464,7 +465,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<ShowStylesRestAPI>
 			const showStyleBaseId = protectString<ShowStyleBaseId>(params.showStyleBaseId)
 			logger.info(`API GET: ShowStyleVariants ${showStyleBaseId}`)
 
-			check(showStyleBaseId, String)
+			check(showStyleBaseId, z.string())
 			return await serverAPI.getShowStyleVariants(connection, event, showStyleBaseId)
 		}
 	)
@@ -478,7 +479,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<ShowStylesRestAPI>
 			const showStyleBaseId = protectString<ShowStyleBaseId>(params.showStyleBaseId)
 			logger.info(`API POST: Add ShowStyleVariant ${showStyleBaseId}`)
 
-			check(showStyleBaseId, String)
+			check(showStyleBaseId, z.string())
 			return await serverAPI.addShowStyleVariant(connection, event, showStyleBaseId, body)
 		}
 	)
@@ -493,8 +494,8 @@ export function registerRoutes(registerRoute: APIRegisterHook<ShowStylesRestAPI>
 			const showStyleVariantId = protectString<ShowStyleVariantId>(params.showStyleVariantId)
 			logger.info(`API GET: ShowStyleVariant ${showStyleBaseId} ${showStyleVariantId}`)
 
-			check(showStyleBaseId, String)
-			check(showStyleVariantId, String)
+			check(showStyleBaseId, z.string())
+			check(showStyleVariantId, z.string())
 			return await serverAPI.getShowStyleVariant(connection, event, showStyleBaseId, showStyleVariantId)
 		}
 	)
@@ -513,8 +514,8 @@ export function registerRoutes(registerRoute: APIRegisterHook<ShowStylesRestAPI>
 			const showStyleVariantId = protectString<ShowStyleVariantId>(params.showStyleVariantId)
 			logger.info(`API PUT: Add or Update ShowStyleVariant ${showStyleBaseId} ${showStyleVariantId}`)
 
-			check(showStyleBaseId, String)
-			check(showStyleVariantId, String)
+			check(showStyleBaseId, z.string())
+			check(showStyleVariantId, z.string())
 			return await serverAPI.addOrUpdateShowStyleVariant(
 				connection,
 				event,
@@ -538,8 +539,8 @@ export function registerRoutes(registerRoute: APIRegisterHook<ShowStylesRestAPI>
 			const showStyleVariantId = protectString<ShowStyleVariantId>(params.showStyleVariantId)
 			logger.info(`API DELETE: ShowStyleVariant ${showStyleBaseId} ${showStyleVariantId}`)
 
-			check(showStyleBaseId, String)
-			check(showStyleVariantId, String)
+			check(showStyleBaseId, z.string())
+			check(showStyleVariantId, z.string())
 			return await serverAPI.deleteShowStyleVariant(connection, event, showStyleBaseId, showStyleVariantId)
 		}
 	)
@@ -554,8 +555,8 @@ export function registerRoutes(registerRoute: APIRegisterHook<ShowStylesRestAPI>
 			const action = body.action
 			logger.info(`API PUT: ShowStyleBase action ${showStyleBaseId} ${body.action.type}`)
 
-			check(showStyleBaseId, String)
-			check(action, Object)
+			check(showStyleBaseId, z.string())
+			check(action, zPlainObject)
 			return await serverAPI.showStyleBaseAction(connection, event, showStyleBaseId, action)
 		}
 	)

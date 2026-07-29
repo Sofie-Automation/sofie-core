@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { IngestPart, IngestRundown, IngestSegment } from '@sofie-automation/blueprints-integration'
 import {
 	BlueprintId,
@@ -15,7 +16,7 @@ import { protectString, unprotectString } from '@sofie-automation/corelib/dist/p
 import { IngestJobs } from '@sofie-automation/corelib/dist/worker/ingest'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { Parts, RundownPlaylists, Rundowns, Segments, Studios } from '../../../collections'
-import { check } from '../../../lib/check'
+import { check, zAnyArray, zPlainObject } from '../../../lib/check'
 import {
 	IngestRestAPI,
 	PartResponse,
@@ -30,6 +31,11 @@ import { validateAPIPartPayload, validateAPIRundownPayload, validateAPISegmentPa
 import { APIFactory, APIRegisterHook, ServerAPIContext } from './types'
 import type { DDPClientConnection } from '../../../ddp-server/types'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
+
+// Hoisted out of the `validate*` methods below, which run once per segment and once per part on the ingest
+// path. Constructing a schema per field per item would be needless allocation.
+const zIngestString = z.string()
+const zIngestNumber = z.number()
 
 class IngestServerAPI implements IngestRestAPI {
 	private async validateAPIPayloadsForRundown(
@@ -121,31 +127,31 @@ class IngestServerAPI implements IngestRestAPI {
 	}
 
 	private validateRundown(ingestRundown: RestApiIngestRundown) {
-		check(ingestRundown, Object)
-		check(ingestRundown.externalId, String)
-		check(ingestRundown.name, String)
-		check(ingestRundown.type, String)
-		check(ingestRundown.segments, Array)
-		check(ingestRundown.resyncUrl, String)
+		check(ingestRundown, zPlainObject)
+		check(ingestRundown.externalId, zIngestString)
+		check(ingestRundown.name, zIngestString)
+		check(ingestRundown.type, zIngestString)
+		check(ingestRundown.segments, zAnyArray)
+		check(ingestRundown.resyncUrl, zIngestString)
 
 		ingestRundown.segments.forEach((ingestSegment) => this.validateSegment(ingestSegment))
 	}
 
 	private validateSegment(ingestSegment: IngestSegment) {
-		check(ingestSegment, Object)
-		check(ingestSegment.externalId, String)
-		check(ingestSegment.name, String)
-		check(ingestSegment.rank, Number)
-		check(ingestSegment.parts, Array)
+		check(ingestSegment, zPlainObject)
+		check(ingestSegment.externalId, zIngestString)
+		check(ingestSegment.name, zIngestString)
+		check(ingestSegment.rank, zIngestNumber)
+		check(ingestSegment.parts, zAnyArray)
 
 		ingestSegment.parts.forEach((ingestPart) => this.validatePart(ingestPart))
 	}
 
 	private validatePart(ingestPart: IngestPart) {
-		check(ingestPart, Object)
-		check(ingestPart.externalId, String)
-		check(ingestPart.name, String)
-		check(ingestPart.rank, Number)
+		check(ingestPart, zPlainObject)
+		check(ingestPart.externalId, zIngestString)
+		check(ingestPart.name, zIngestString)
+		check(ingestPart.rank, zIngestNumber)
 	}
 
 	private adaptPlaylist(rawPlaylist: DBRundownPlaylist): PlaylistResponse {
@@ -337,7 +343,7 @@ class IngestServerAPI implements IngestRestAPI {
 		_event: string,
 		studioId: StudioId
 	): Promise<ClientAPI.ClientResponse<Array<PlaylistResponse>>> {
-		check(studioId, String)
+		check(studioId, z.string())
 
 		const studio = await this.findStudio(studioId)
 		const rawPlaylists = await RundownPlaylists.findFetchAsync({ studioId: studio._id })
@@ -352,8 +358,8 @@ class IngestServerAPI implements IngestRestAPI {
 		studioId: StudioId,
 		playlistId: string
 	): Promise<ClientAPI.ClientResponse<PlaylistResponse>> {
-		check(studioId, String)
-		check(playlistId, String)
+		check(studioId, z.string())
+		check(playlistId, z.string())
 
 		const studio = await this.findStudio(studioId)
 		const rawPlaylist = await this.findPlaylist(studio._id, playlistId)
@@ -367,7 +373,7 @@ class IngestServerAPI implements IngestRestAPI {
 		_event: string,
 		studioId: StudioId
 	): Promise<ClientAPI.ClientResponse<undefined>> {
-		check(studioId, String)
+		check(studioId, z.string())
 
 		const rundowns = await Rundowns.findFetchAsync({})
 		const studio = await this.findStudio(studioId)
@@ -389,8 +395,8 @@ class IngestServerAPI implements IngestRestAPI {
 		studioId: StudioId,
 		playlistId: string
 	): Promise<ClientAPI.ClientResponse<undefined>> {
-		check(studioId, String)
-		check(playlistId, String)
+		check(studioId, z.string())
+		check(playlistId, z.string())
 
 		const studio = await this.findStudio(studioId)
 		await this.findPlaylist(studio._id, playlistId)
@@ -418,8 +424,8 @@ class IngestServerAPI implements IngestRestAPI {
 		studioId: StudioId,
 		playlistId: string
 	): Promise<ClientAPI.ClientResponse<Array<RundownResponse>>> {
-		check(studioId, String)
-		check(playlistId, String)
+		check(studioId, z.string())
+		check(playlistId, z.string())
 
 		const studio = await this.findStudio(studioId)
 		const playlist = await this.findPlaylist(studio._id, playlistId)
@@ -436,9 +442,9 @@ class IngestServerAPI implements IngestRestAPI {
 		playlistId: string,
 		rundownId: string
 	): Promise<ClientAPI.ClientResponse<RundownResponse>> {
-		check(studioId, String)
-		check(playlistId, String)
-		check(rundownId, String)
+		check(studioId, z.string())
+		check(playlistId, z.string())
+		check(rundownId, z.string())
 
 		const studio = await this.findStudio(studioId)
 		const playlist = await this.findPlaylist(studio._id, playlistId)
@@ -481,9 +487,9 @@ class IngestServerAPI implements IngestRestAPI {
 		playlistId: string | undefined,
 		rawIngestRundown: RestApiIngestRundown
 	): Promise<ClientAPI.ClientResponse<void>> {
-		check(studioId, String)
-		if (playlistId !== undefined) check(playlistId, String)
-		check(rawIngestRundown, Object)
+		check(studioId, z.string())
+		if (playlistId !== undefined) check(playlistId, z.string())
+		check(rawIngestRundown, zPlainObject)
 
 		const studio = await this.findStudio(studioId)
 
@@ -548,9 +554,9 @@ class IngestServerAPI implements IngestRestAPI {
 		playlistId: string,
 		ingestRundowns: RestApiIngestRundown[]
 	): Promise<ClientAPI.ClientResponse<void>> {
-		check(studioId, String)
-		check(playlistId, String)
-		check(ingestRundowns, Array)
+		check(studioId, z.string())
+		check(playlistId, z.string())
+		check(ingestRundowns, zAnyArray)
 
 		const studio = await this.findStudio(studioId)
 
@@ -596,10 +602,10 @@ class IngestServerAPI implements IngestRestAPI {
 		rundownId: string,
 		ingestRundown: RestApiIngestRundown
 	): Promise<ClientAPI.ClientResponse<void>> {
-		check(studioId, String)
-		check(playlistId, String)
-		check(rundownId, String)
-		check(ingestRundown, Object)
+		check(studioId, z.string())
+		check(playlistId, z.string())
+		check(rundownId, z.string())
+		check(ingestRundown, zPlainObject)
 
 		const studio = await this.findStudio(studioId)
 
@@ -632,8 +638,8 @@ class IngestServerAPI implements IngestRestAPI {
 		studioId: StudioId,
 		playlistId: string
 	): Promise<ClientAPI.ClientResponse<void>> {
-		check(studioId, String)
-		check(playlistId, String)
+		check(studioId, z.string())
+		check(playlistId, z.string())
 
 		const studio = await this.findStudio(studioId)
 		const playlist = await this.findPlaylist(studio._id, playlistId)
@@ -658,9 +664,9 @@ class IngestServerAPI implements IngestRestAPI {
 		playlistId: string,
 		rundownId: string
 	): Promise<ClientAPI.ClientResponse<void>> {
-		check(studioId, String)
-		check(playlistId, String)
-		check(rundownId, String)
+		check(studioId, z.string())
+		check(playlistId, z.string())
+		check(rundownId, z.string())
 
 		const studio = await this.findStudio(studioId)
 		const playlist = await this.findPlaylist(studio._id, playlistId)
@@ -683,9 +689,9 @@ class IngestServerAPI implements IngestRestAPI {
 		playlistId: string,
 		rundownId: string
 	): Promise<ClientAPI.ClientResponse<Array<SegmentResponse>>> {
-		check(studioId, String)
-		check(playlistId, String)
-		check(rundownId, String)
+		check(studioId, z.string())
+		check(playlistId, z.string())
+		check(rundownId, z.string())
 
 		const studio = await this.findStudio(studioId)
 		const playlist = await this.findPlaylist(studio._id, playlistId)
@@ -705,10 +711,10 @@ class IngestServerAPI implements IngestRestAPI {
 		rundownId: string,
 		segmentId: string
 	): Promise<ClientAPI.ClientResponse<SegmentResponse>> {
-		check(studioId, String)
-		check(playlistId, String)
-		check(rundownId, String)
-		check(segmentId, String)
+		check(studioId, z.string())
+		check(playlistId, z.string())
+		check(rundownId, z.string())
+		check(segmentId, z.string())
 
 		const studio = await this.findStudio(studioId)
 		const playlist = await this.findPlaylist(studio._id, playlistId)
@@ -728,10 +734,10 @@ class IngestServerAPI implements IngestRestAPI {
 		rundownId: string,
 		ingestSegment: IngestSegment
 	): Promise<ClientAPI.ClientResponse<void>> {
-		check(studioId, String)
-		check(playlistId, String)
-		check(rundownId, String)
-		check(ingestSegment, Object)
+		check(studioId, z.string())
+		check(playlistId, z.string())
+		check(rundownId, z.string())
+		check(ingestSegment, zPlainObject)
 
 		const studio = await this.findStudio(studioId)
 
@@ -763,10 +769,10 @@ class IngestServerAPI implements IngestRestAPI {
 		rundownId: string,
 		ingestSegments: IngestSegment[]
 	): Promise<ClientAPI.ClientResponse<void>> {
-		check(studioId, String)
-		check(playlistId, String)
-		check(rundownId, String)
-		check(ingestSegments, Array)
+		check(studioId, z.string())
+		check(playlistId, z.string())
+		check(rundownId, z.string())
+		check(ingestSegments, zAnyArray)
 
 		const studio = await this.findStudio(studioId)
 
@@ -819,11 +825,11 @@ class IngestServerAPI implements IngestRestAPI {
 		segmentId: string,
 		ingestSegment: IngestSegment
 	): Promise<ClientAPI.ClientResponse<void>> {
-		check(studioId, String)
-		check(playlistId, String)
-		check(rundownId, String)
-		check(segmentId, String)
-		check(ingestSegment, Object)
+		check(studioId, z.string())
+		check(playlistId, z.string())
+		check(rundownId, z.string())
+		check(segmentId, z.string())
+		check(ingestSegment, zPlainObject)
 
 		const studio = await this.findStudio(studioId)
 
@@ -854,9 +860,9 @@ class IngestServerAPI implements IngestRestAPI {
 		playlistId: string,
 		rundownId: string
 	): Promise<ClientAPI.ClientResponse<void>> {
-		check(studioId, String)
-		check(playlistId, String)
-		check(rundownId, String)
+		check(studioId, z.string())
+		check(playlistId, z.string())
+		check(rundownId, z.string())
 
 		const studio = await this.findStudio(studioId)
 		const playlist = await this.findPlaylist(studio._id, playlistId)
@@ -884,10 +890,10 @@ class IngestServerAPI implements IngestRestAPI {
 		rundownId: string,
 		segmentId: string
 	): Promise<ClientAPI.ClientResponse<void>> {
-		check(studioId, String)
-		check(playlistId, String)
-		check(rundownId, String)
-		check(segmentId, String)
+		check(studioId, z.string())
+		check(playlistId, z.string())
+		check(rundownId, z.string())
+		check(segmentId, z.string())
 
 		const studio = await this.findStudio(studioId)
 		const playlist = await this.findPlaylist(studio._id, playlistId)
@@ -914,10 +920,10 @@ class IngestServerAPI implements IngestRestAPI {
 		rundownId: string,
 		segmentId: string
 	): Promise<ClientAPI.ClientResponse<Array<PartResponse>>> {
-		check(studioId, String)
-		check(playlistId, String)
-		check(rundownId, String)
-		check(segmentId, String)
+		check(studioId, z.string())
+		check(playlistId, z.string())
+		check(rundownId, z.string())
+		check(segmentId, z.string())
 
 		const studio = await this.findStudio(studioId)
 		const playlist = await this.findPlaylist(studio._id, playlistId)
@@ -939,11 +945,11 @@ class IngestServerAPI implements IngestRestAPI {
 		segmentId: string,
 		partId: string
 	): Promise<ClientAPI.ClientResponse<PartResponse>> {
-		check(studioId, String)
-		check(playlistId, String)
-		check(rundownId, String)
-		check(segmentId, String)
-		check(partId, String)
+		check(studioId, z.string())
+		check(playlistId, z.string())
+		check(rundownId, z.string())
+		check(segmentId, z.string())
+		check(partId, z.string())
 
 		const studio = await this.findStudio(studioId)
 		const playlist = await this.findPlaylist(studio._id, playlistId)
@@ -965,11 +971,11 @@ class IngestServerAPI implements IngestRestAPI {
 		segmentId: string,
 		ingestPart: IngestPart
 	): Promise<ClientAPI.ClientResponse<void>> {
-		check(studioId, String)
-		check(playlistId, String)
-		check(rundownId, String)
-		check(segmentId, String)
-		check(ingestPart, Object)
+		check(studioId, z.string())
+		check(playlistId, z.string())
+		check(rundownId, z.string())
+		check(segmentId, z.string())
+		check(ingestPart, zPlainObject)
 
 		const studio = await this.findStudio(studioId)
 
@@ -1004,11 +1010,11 @@ class IngestServerAPI implements IngestRestAPI {
 		segmentId: string,
 		ingestParts: IngestPart[]
 	): Promise<ClientAPI.ClientResponse<void>> {
-		check(studioId, String)
-		check(playlistId, String)
-		check(rundownId, String)
-		check(segmentId, String)
-		check(ingestParts, Array)
+		check(studioId, z.string())
+		check(playlistId, z.string())
+		check(rundownId, z.string())
+		check(segmentId, z.string())
+		check(ingestParts, zAnyArray)
 
 		const studio = await this.findStudio(studioId)
 
@@ -1053,12 +1059,12 @@ class IngestServerAPI implements IngestRestAPI {
 		partId: string,
 		ingestPart: IngestPart
 	): Promise<ClientAPI.ClientResponse<void>> {
-		check(studioId, String)
-		check(playlistId, String)
-		check(rundownId, String)
-		check(segmentId, String)
-		check(partId, String)
-		check(ingestPart, Object)
+		check(studioId, z.string())
+		check(playlistId, z.string())
+		check(rundownId, z.string())
+		check(segmentId, z.string())
+		check(partId, z.string())
+		check(ingestPart, zPlainObject)
 
 		const studio = await this.findStudio(studioId)
 
@@ -1092,10 +1098,10 @@ class IngestServerAPI implements IngestRestAPI {
 		rundownId: string,
 		segmentId: string
 	): Promise<ClientAPI.ClientResponse<void>> {
-		check(studioId, String)
-		check(playlistId, String)
-		check(rundownId, String)
-		check(segmentId, String)
+		check(studioId, z.string())
+		check(playlistId, z.string())
+		check(rundownId, z.string())
+		check(segmentId, z.string())
 
 		const studio = await this.findStudio(studioId)
 		const playlist = await this.findPlaylist(studio._id, playlistId)
@@ -1126,11 +1132,11 @@ class IngestServerAPI implements IngestRestAPI {
 		segmentId: string,
 		partId: string
 	): Promise<ClientAPI.ClientResponse<void>> {
-		check(studioId, String)
-		check(playlistId, String)
-		check(rundownId, String)
-		check(segmentId, String)
-		check(partId, String)
+		check(studioId, z.string())
+		check(playlistId, z.string())
+		check(rundownId, z.string())
+		check(segmentId, z.string())
+		check(partId, z.string())
 
 		const studio = await this.findStudio(studioId)
 		const playlist = await this.findPlaylist(studio._id, playlistId)
@@ -1170,7 +1176,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			logger.info(`INGEST API GET: Playlists`)
 
 			const studioId = protectString<StudioId>(params.studioId)
-			check(studioId, String)
+			check(studioId, z.string())
 
 			return await serverAPI.getPlaylists(connection, event, studioId)
 		}
@@ -1186,9 +1192,9 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			logger.info(`INGEST API GET: Playlist`)
 
 			const studioId = protectString<StudioId>(params.studioId)
-			check(studioId, String)
+			check(studioId, z.string())
 			const playlistId = params.playlistId
-			check(playlistId, String)
+			check(playlistId, z.string())
 
 			return await serverAPI.getPlaylist(connection, event, studioId, playlistId)
 		}
@@ -1204,7 +1210,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			logger.info(`INGEST API DELETE: Playlists`)
 
 			const studioId = protectString<StudioId>(params.studioId)
-			check(studioId, String)
+			check(studioId, z.string())
 
 			return await serverAPI.deletePlaylists(connection, event, studioId)
 		}
@@ -1220,9 +1226,9 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			logger.info(`INGEST API DELETE: Playlist`)
 
 			const studioId = protectString<StudioId>(params.studioId)
-			check(studioId, String)
+			check(studioId, z.string())
 			const playlistId = params.playlistId
-			check(playlistId, String)
+			check(playlistId, z.string())
 
 			return await serverAPI.deletePlaylist(connection, event, studioId, playlistId)
 		}
@@ -1240,9 +1246,9 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			logger.info(`INGEST API GET: Rundowns`)
 
 			const studioId = protectString<StudioId>(params.studioId)
-			check(studioId, String)
+			check(studioId, z.string())
 			const playlistId = params.playlistId
-			check(playlistId, String)
+			check(playlistId, z.string())
 
 			return await serverAPI.getRundowns(connection, event, studioId, playlistId)
 		}
@@ -1258,11 +1264,11 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			logger.info(`INGEST API GET: Rundown`)
 
 			const studioId = protectString<StudioId>(params.studioId)
-			check(studioId, String)
+			check(studioId, z.string())
 			const playlistId = params.playlistId
-			check(playlistId, String)
+			check(playlistId, z.string())
 			const rundownId = params.rundownId
-			check(rundownId, String)
+			check(rundownId, z.string())
 
 			return await serverAPI.getRundown(connection, event, studioId, playlistId, rundownId)
 		}
@@ -1278,7 +1284,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			logger.info(`INGEST API POST: Rundowns (studio-scoped)`)
 
 			const studioId = protectString<StudioId>(params.studioId)
-			check(studioId, String)
+			check(studioId, z.string())
 
 			const ingestRundown = body as RestApiIngestRundown
 			if (!ingestRundown) throw new SofieError(400, 'Upload rundown: Missing request body')
@@ -1298,9 +1304,9 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			logger.info(`INGEST API POST: Rundowns`)
 
 			const studioId = protectString<StudioId>(params.studioId)
-			check(studioId, String)
+			check(studioId, z.string())
 			const playlistId = params.playlistId
-			check(playlistId, String)
+			check(playlistId, z.string())
 
 			const ingestRundown = body as RestApiIngestRundown
 			if (!ingestRundown) throw new SofieError(400, 'Upload rundown: Missing request body')
@@ -1320,9 +1326,9 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			logger.info(`INGEST API PUT: Rundowns`)
 
 			const studioId = protectString<StudioId>(params.studioId)
-			check(studioId, String)
+			check(studioId, z.string())
 			const playlistId = params.playlistId
-			check(playlistId, String)
+			check(playlistId, z.string())
 
 			const ingestRundowns = body as RestApiIngestRundown[]
 			if (!ingestRundowns) throw new SofieError(400, 'Upload rundown: Missing request body')
@@ -1342,11 +1348,11 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			logger.info(`INGEST API PUT: Rundown`)
 
 			const studioId = protectString<StudioId>(params.studioId)
-			check(studioId, String)
+			check(studioId, z.string())
 			const playlistId = params.playlistId
-			check(playlistId, String)
+			check(playlistId, z.string())
 			const rundownId = params.rundownId
-			check(rundownId, String)
+			check(rundownId, z.string())
 
 			const ingestRundown = body as RestApiIngestRundown
 			if (!ingestRundown) throw new SofieError(400, 'Upload rundown: Missing request body')
@@ -1366,9 +1372,9 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			logger.info(`INGEST API DELETE: Rundowns`)
 
 			const studioId = protectString<StudioId>(params.studioId)
-			check(studioId, String)
+			check(studioId, z.string())
 			const playlistId = params.playlistId
-			check(playlistId, String)
+			check(playlistId, z.string())
 
 			return await serverAPI.deleteRundowns(connection, event, studioId, playlistId)
 		}
@@ -1384,11 +1390,11 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			logger.info(`INGEST API DELETE: Rundown`)
 
 			const studioId = protectString<StudioId>(params.studioId)
-			check(studioId, String)
+			check(studioId, z.string())
 			const playlistId = params.playlistId
-			check(playlistId, String)
+			check(playlistId, z.string())
 			const rundownId = params.rundownId
-			check(rundownId, String)
+			check(rundownId, z.string())
 
 			return await serverAPI.deleteRundown(connection, event, studioId, playlistId, rundownId)
 		}
@@ -1406,11 +1412,11 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			logger.info(`INGEST API GET: Segments`)
 
 			const studioId = protectString<StudioId>(params.studioId)
-			check(studioId, String)
+			check(studioId, z.string())
 			const playlistId = params.playlistId
-			check(playlistId, String)
+			check(playlistId, z.string())
 			const rundownId = params.rundownId
-			check(rundownId, String)
+			check(rundownId, z.string())
 
 			return await serverAPI.getSegments(connection, event, studioId, playlistId, rundownId)
 		}
@@ -1430,13 +1436,13 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			logger.info(`INGEST API GET: Segment`)
 
 			const studioId = protectString<StudioId>(params.studioId)
-			check(studioId, String)
+			check(studioId, z.string())
 			const playlistId = params.playlistId
-			check(playlistId, String)
+			check(playlistId, z.string())
 			const rundownId = params.rundownId
-			check(rundownId, String)
+			check(rundownId, z.string())
 			const segmentId = params.segmentId
-			check(segmentId, String)
+			check(segmentId, z.string())
 
 			return await serverAPI.getSegment(connection, event, studioId, playlistId, rundownId, segmentId)
 		}
@@ -1452,11 +1458,11 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			logger.info(`INGEST API POST: Segments`)
 
 			const studioId = protectString<StudioId>(params.studioId)
-			check(studioId, String)
+			check(studioId, z.string())
 			const playlistId = params.playlistId
-			check(playlistId, String)
+			check(playlistId, z.string())
 			const rundownId = params.rundownId
-			check(rundownId, String)
+			check(rundownId, z.string())
 
 			const ingestSegment = body as IngestSegment
 			if (!ingestSegment) throw new SofieError(400, 'Upload rundown: Missing request body')
@@ -1475,11 +1481,11 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			logger.info(`INGEST API PUT: Segments`)
 
 			const studioId = protectString<StudioId>(params.studioId)
-			check(studioId, String)
+			check(studioId, z.string())
 			const playlistId = params.playlistId
-			check(playlistId, String)
+			check(playlistId, z.string())
 			const rundownId = params.rundownId
-			check(rundownId, String)
+			check(rundownId, z.string())
 
 			const ingestSegments = body as IngestSegment[]
 			if (!ingestSegments) throw new SofieError(400, 'Upload rundown: Missing request body')
@@ -1499,13 +1505,13 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			logger.info(`INGEST API PUT: Segment`)
 
 			const studioId = protectString<StudioId>(params.studioId)
-			check(studioId, String)
+			check(studioId, z.string())
 			const playlistId = params.playlistId
-			check(playlistId, String)
+			check(playlistId, z.string())
 			const rundownId = params.rundownId
-			check(rundownId, String)
+			check(rundownId, z.string())
 			const segmentId = params.segmentId
-			check(segmentId, String)
+			check(segmentId, z.string())
 
 			const ingestSegment = body as IngestSegment
 			if (!ingestSegment) throw new SofieError(400, 'Upload rundown: Missing request body')
@@ -1532,11 +1538,11 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			logger.info(`INGEST API DELETE: Segments`)
 
 			const studioId = protectString<StudioId>(params.studioId)
-			check(studioId, String)
+			check(studioId, z.string())
 			const playlistId = params.playlistId
-			check(playlistId, String)
+			check(playlistId, z.string())
 			const rundownId = params.rundownId
-			check(rundownId, String)
+			check(rundownId, z.string())
 
 			return await serverAPI.deleteSegments(connection, event, studioId, playlistId, rundownId)
 		}
@@ -1552,13 +1558,13 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			logger.info(`INGEST API DELETE: Segment`)
 
 			const studioId = protectString<StudioId>(params.studioId)
-			check(studioId, String)
+			check(studioId, z.string())
 			const playlistId = params.playlistId
-			check(playlistId, String)
+			check(playlistId, z.string())
 			const rundownId = params.rundownId
-			check(rundownId, String)
+			check(rundownId, z.string())
 			const segmentId = params.segmentId
-			check(segmentId, String)
+			check(segmentId, z.string())
 
 			return await serverAPI.deleteSegment(connection, event, studioId, playlistId, rundownId, segmentId)
 		}
@@ -1580,13 +1586,13 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			logger.info(`INGEST API GET: Parts`)
 
 			const studioId = protectString<StudioId>(params.studioId)
-			check(studioId, String)
+			check(studioId, z.string())
 			const playlistId = params.playlistId
-			check(playlistId, String)
+			check(playlistId, z.string())
 			const rundownId = params.rundownId
-			check(rundownId, String)
+			check(rundownId, z.string())
 			const segmentId = params.segmentId
-			check(segmentId, String)
+			check(segmentId, z.string())
 
 			return await serverAPI.getParts(connection, event, studioId, playlistId, rundownId, segmentId)
 		}
@@ -1606,15 +1612,15 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			logger.info(`INGEST API GET: Part`)
 
 			const studioId = protectString<StudioId>(params.studioId)
-			check(studioId, String)
+			check(studioId, z.string())
 			const playlistId = params.playlistId
-			check(playlistId, String)
+			check(playlistId, z.string())
 			const rundownId = params.rundownId
-			check(rundownId, String)
+			check(rundownId, z.string())
 			const segmentId = params.segmentId
-			check(segmentId, String)
+			check(segmentId, z.string())
 			const partId = params.partId
-			check(partId, String)
+			check(partId, z.string())
 
 			return await serverAPI.getPart(connection, event, studioId, playlistId, rundownId, segmentId, partId)
 		}
@@ -1630,13 +1636,13 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			logger.info(`INGEST API POST: Parts`)
 
 			const studioId = protectString<StudioId>(params.studioId)
-			check(studioId, String)
+			check(studioId, z.string())
 			const playlistId = params.playlistId
-			check(playlistId, String)
+			check(playlistId, z.string())
 			const rundownId = params.rundownId
-			check(rundownId, String)
+			check(rundownId, z.string())
 			const segmentId = params.segmentId
-			check(segmentId, String)
+			check(segmentId, z.string())
 
 			const ingestPart = body as IngestPart
 			if (!ingestPart) throw new SofieError(400, 'Upload rundown: Missing request body')
@@ -1655,13 +1661,13 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			logger.info(`INGEST API PUT: Parts`)
 
 			const studioId = protectString<StudioId>(params.studioId)
-			check(studioId, String)
+			check(studioId, z.string())
 			const playlistId = params.playlistId
-			check(playlistId, String)
+			check(playlistId, z.string())
 			const rundownId = params.rundownId
-			check(rundownId, String)
+			check(rundownId, z.string())
 			const segmentId = params.segmentId
-			check(segmentId, String)
+			check(segmentId, z.string())
 
 			const ingestParts = body as IngestPart[]
 			if (!ingestParts) throw new SofieError(400, 'Upload rundown: Missing request body')
@@ -1685,15 +1691,15 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			logger.info(`INGEST API PUT: Part`)
 
 			const studioId = protectString<StudioId>(params.studioId)
-			check(studioId, String)
+			check(studioId, z.string())
 			const playlistId = params.playlistId
-			check(playlistId, String)
+			check(playlistId, z.string())
 			const rundownId = params.rundownId
-			check(rundownId, String)
+			check(rundownId, z.string())
 			const segmentId = params.segmentId
-			check(segmentId, String)
+			check(segmentId, z.string())
 			const partId = params.partId
-			check(partId, String)
+			check(partId, z.string())
 
 			const ingestPart = body as IngestPart
 			if (!ingestPart) throw new SofieError(400, 'Upload rundown: Missing request body')
@@ -1721,13 +1727,13 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			logger.info(`INGEST API DELETE: Parts`)
 
 			const studioId = protectString<StudioId>(params.studioId)
-			check(studioId, String)
+			check(studioId, z.string())
 			const playlistId = params.playlistId
-			check(playlistId, String)
+			check(playlistId, z.string())
 			const rundownId = params.rundownId
-			check(rundownId, String)
+			check(rundownId, z.string())
 			const segmentId = params.segmentId
-			check(segmentId, String)
+			check(segmentId, z.string())
 
 			return await serverAPI.deleteParts(connection, event, studioId, playlistId, rundownId, segmentId)
 		}
@@ -1747,15 +1753,15 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			logger.info(`INGEST API DELETE: Part`)
 
 			const studioId = protectString<StudioId>(params.studioId)
-			check(studioId, String)
+			check(studioId, z.string())
 			const playlistId = params.playlistId
-			check(playlistId, String)
+			check(playlistId, z.string())
 			const rundownId = params.rundownId
-			check(rundownId, String)
+			check(rundownId, z.string())
 			const segmentId = params.segmentId
-			check(segmentId, String)
+			check(segmentId, z.string())
 			const partId = params.partId
-			check(partId, String)
+			check(partId, z.string())
 
 			return await serverAPI.deletePart(connection, event, studioId, playlistId, rundownId, segmentId, partId)
 		}

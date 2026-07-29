@@ -80,8 +80,7 @@ export class RundownIngestDataCache {
 
 		const segmentEntry = segmentEntries[0]
 		if (!segmentEntry) return undefined
-		if (segmentEntry.type !== NrcsIngestCacheType.SEGMENT)
-			throw new SofieError(500, 'Wrong type on cached segment')
+		if (segmentEntry.type !== NrcsIngestCacheType.SEGMENT) throw new SofieError(500, 'Wrong type on cached segment')
 
 		const ingestSegment = segmentEntry.data
 

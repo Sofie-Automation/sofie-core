@@ -1,4 +1,5 @@
-import { check, Match } from '../lib/check'
+import { z } from 'zod'
+import { check, zAnyArray } from '../lib/check'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { getActiveRoutes, getRoutedMappings } from '@sofie-automation/meteor-lib/dist/collections/Studios'
 import { ExternalMessageQueueObj } from '@sofie-automation/corelib/dist/dataModel/ExternalMessageQueue'
@@ -40,7 +41,7 @@ export function registerStudioPublications(registry: PublicationRegistry): void 
 	registry.publish(
 		CorelibPubSub.studios,
 		async (_context, studioIds: StudioId[] | null, _token: string | undefined) => {
-			check(studioIds, Match.Maybe(Array))
+			check(studioIds, zAnyArray.nullish())
 
 			triggerWriteAccessBecauseNoCheckNecessary()
 
@@ -73,7 +74,7 @@ export function registerStudioPublications(registry: PublicationRegistry): void 
 		CorelibPubSub.expectedPackages,
 		async (_context, studioIds: StudioId[], _token: string | undefined) => {
 			// Note: This differs from the expected packages sent to the Package Manager, instead @see PubSub.expectedPackagesForDevice
-			check(studioIds, Array)
+			check(studioIds, zAnyArray)
 
 			triggerWriteAccessBecauseNoCheckNecessary()
 
@@ -87,7 +88,7 @@ export function registerStudioPublications(registry: PublicationRegistry): void 
 	registry.publish(
 		CorelibPubSub.expectedPackageWorkStatuses,
 		async (_context, studioIds: StudioId[], _token: string | undefined) => {
-			check(studioIds, Array)
+			check(studioIds, zAnyArray)
 			triggerWriteAccessBecauseNoCheckNecessary()
 
 			if (studioIds.length === 0) return null
@@ -100,7 +101,7 @@ export function registerStudioPublications(registry: PublicationRegistry): void 
 	registry.publish(
 		CorelibPubSub.packageContainerStatuses,
 		async (_context, studioIds: StudioId[], _token: string | undefined) => {
-			check(studioIds, Array)
+			check(studioIds, zAnyArray)
 
 			triggerWriteAccessBecauseNoCheckNecessary()
 
@@ -115,7 +116,7 @@ export function registerStudioPublications(registry: PublicationRegistry): void 
 	registry.publish(
 		CorelibPubSub.packageInfos,
 		async (_context, deviceId: PeripheralDeviceId, _token: string | undefined) => {
-			check(deviceId, String)
+			check(deviceId, z.string())
 
 			triggerWriteAccessBecauseNoCheckNecessary()
 
@@ -127,7 +128,7 @@ export function registerStudioPublications(registry: PublicationRegistry): void 
 		PeripheralDevicePubSub.mappingsForDevice,
 		PeripheralDevicePubSubCollectionsNames.studioMappings,
 		async (context, pub, deviceId: PeripheralDeviceId, token: string | undefined) => {
-			check(deviceId, String)
+			check(deviceId, z.string())
 
 			const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, context)
 

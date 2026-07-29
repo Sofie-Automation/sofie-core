@@ -7,7 +7,7 @@ import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { DBTriggeredActions } from '@sofie-automation/meteor-lib/dist/collections/TriggeredActions'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { ShowStyleBaseId, ShowStyleVariantId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { check, Match } from '../lib/check'
+import { check, zAnyArray } from '../lib/check'
 import { triggerWriteAccessBecauseNoCheckNecessary } from '../security/securityVerify'
 import type { PublicationRegistry } from '../publicationRegistry'
 
@@ -15,7 +15,7 @@ export function registerShowStylePublications(registry: PublicationRegistry): vo
 	registry.publish(
 		CorelibPubSub.showStyleBases,
 		async (_context, showStyleBaseIds: ShowStyleBaseId[] | null, _token: string | undefined) => {
-			check(showStyleBaseIds, Match.Maybe(Array))
+			check(showStyleBaseIds, zAnyArray.nullish())
 
 			triggerWriteAccessBecauseNoCheckNecessary()
 
@@ -38,8 +38,8 @@ export function registerShowStylePublications(registry: PublicationRegistry): vo
 			showStyleVariantIds: ShowStyleVariantId[] | null,
 			_token: string | undefined
 		) => {
-			check(showStyleBaseIds, Match.Maybe(Array))
-			check(showStyleVariantIds, Match.Maybe(Array))
+			check(showStyleBaseIds, zAnyArray.nullish())
+			check(showStyleVariantIds, zAnyArray.nullish())
 
 			triggerWriteAccessBecauseNoCheckNecessary()
 
@@ -59,7 +59,7 @@ export function registerShowStylePublications(registry: PublicationRegistry): vo
 	registry.publish(
 		MeteorPubSub.rundownLayouts,
 		async (_context, showStyleBaseIds: ShowStyleBaseId[] | null, _token: string | undefined) => {
-			check(showStyleBaseIds, Match.Maybe(Array))
+			check(showStyleBaseIds, zAnyArray.nullish())
 
 			triggerWriteAccessBecauseNoCheckNecessary()
 
@@ -76,7 +76,7 @@ export function registerShowStylePublications(registry: PublicationRegistry): vo
 	registry.publish(
 		MeteorPubSub.triggeredActions,
 		async (_context, showStyleBaseIds: ShowStyleBaseId[] | null, _token: string | undefined) => {
-			check(showStyleBaseIds, Match.Maybe(Array))
+			check(showStyleBaseIds, zAnyArray.nullish())
 
 			triggerWriteAccessBecauseNoCheckNecessary()
 

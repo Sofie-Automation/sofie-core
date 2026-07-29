@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { check } from '../../lib/check'
 import { NewStudiosAPI } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
@@ -37,7 +38,7 @@ import { SofieError } from '@sofie-automation/corelib/dist/error'
 const PERMISSIONS_FOR_MANAGE_STUDIOS: Array<keyof UserPermissions> = ['configure']
 
 async function insertStudio(context: MethodContext, newId?: StudioId): Promise<StudioId> {
-	if (newId) check(newId, String)
+	if (newId) check(newId, z.string())
 
 	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_MANAGE_STUDIOS)
 
@@ -46,10 +47,7 @@ async function insertStudio(context: MethodContext, newId?: StudioId): Promise<S
 export async function insertStudioInner(newId?: StudioId): Promise<StudioId> {
 	const studioCount = await Studios.countDocuments()
 	if (studioCount > 0) {
-		throw new SofieError(
-			400,
-			`Only one studio is supported per installation (there are currently ${studioCount})`
-		)
+		throw new SofieError(400, `Only one studio is supported per installation (there are currently ${studioCount})`)
 	}
 
 	return Studios.insertAsync(
@@ -99,16 +97,13 @@ export async function insertStudioInner(newId?: StudioId): Promise<StudioId> {
 	)
 }
 async function removeStudio(context: MethodContext, studioId: StudioId): Promise<void> {
-	check(studioId, String)
+	check(studioId, z.string())
 
 	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_MANAGE_STUDIOS)
 
 	const studioCount = await Studios.countDocuments()
 	if (studioCount === 1) {
-		throw new SofieError(
-			400,
-			`The last studio in the system cannot be deleted (there must be at least one studio)`
-		)
+		throw new SofieError(400, `The last studio in the system cannot be deleted (there must be at least one studio)`)
 	}
 
 	const studio = await Studios.findOneAsync(studioId)

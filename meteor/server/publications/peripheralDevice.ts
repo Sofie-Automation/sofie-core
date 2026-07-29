@@ -1,4 +1,4 @@
-import { check, Match } from '../lib/check'
+import { check, zAnyArray } from '../lib/check'
 import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { MongoFieldSpecifierZeroes, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
@@ -23,7 +23,7 @@ export function registerPeripheralDevicePublications(registry: PublicationRegist
 	registry.publish(
 		CorelibPubSub.peripheralDevices,
 		async (_context, peripheralDeviceIds: PeripheralDeviceId[] | null, token: string | undefined) => {
-			check(peripheralDeviceIds, Match.Maybe(Array))
+			check(peripheralDeviceIds, zAnyArray.nullish())
 
 			triggerWriteAccessBecauseNoCheckNecessary()
 

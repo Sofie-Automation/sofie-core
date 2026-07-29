@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import {
 	APIPeripheralDevice,
@@ -106,7 +107,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<DevicesRestAPI>): 
 			const deviceId = protectString<PeripheralDeviceId>(params.deviceId)
 			logger.info(`API GET: peripheral device ${deviceId}`)
 
-			check(deviceId, String)
+			check(deviceId, z.string())
 			return await serverAPI.getPeripheralDevice(connection, event, deviceId)
 		}
 	)
@@ -120,8 +121,8 @@ export function registerRoutes(registerRoute: APIRegisterHook<DevicesRestAPI>): 
 			const deviceId = protectString<PeripheralDeviceId>(params.deviceId)
 			logger.info(`API POST: peripheral device ${deviceId} action ${body.action}`)
 
-			check(deviceId, String)
-			check(body.action, String)
+			check(deviceId, z.string())
+			check(body.action, z.string())
 			const peripheralAction = { type: body.action as PeripheralDeviceActionType }
 			return await serverAPI.peripheralDeviceAction(connection, event, deviceId, peripheralAction)
 		}

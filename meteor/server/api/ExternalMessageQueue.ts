@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { check } from '../lib/check'
 import { StatusCode } from '@sofie-automation/blueprints-integration'
 import { deferAsync, getCurrentTime } from '../lib/lib'
@@ -67,7 +68,7 @@ export async function startExternalMessageQueueStatusMonitor(): Promise<void> {
 }
 
 async function removeExternalMessage(context: MethodContext, messageId: ExternalMessageQueueObjId): Promise<void> {
-	check(messageId, String)
+	check(messageId, z.string())
 
 	assertConnectionHasOneOfPermissions(context.connection, ...USER_PERMISSIONS_FOR_EXTERNAL_MESSAGES)
 
@@ -75,7 +76,7 @@ async function removeExternalMessage(context: MethodContext, messageId: External
 	await ExternalMessageQueue.removeAsync(messageId)
 }
 async function toggleHold(context: MethodContext, messageId: ExternalMessageQueueObjId): Promise<void> {
-	check(messageId, String)
+	check(messageId, z.string())
 
 	assertConnectionHasOneOfPermissions(context.connection, ...USER_PERMISSIONS_FOR_EXTERNAL_MESSAGES)
 
@@ -89,7 +90,7 @@ async function toggleHold(context: MethodContext, messageId: ExternalMessageQueu
 	})
 }
 async function retry(context: MethodContext, messageId: ExternalMessageQueueObjId): Promise<void> {
-	check(messageId, String)
+	check(messageId, z.string())
 
 	assertConnectionHasOneOfPermissions(context.connection, ...USER_PERMISSIONS_FOR_EXTERNAL_MESSAGES)
 

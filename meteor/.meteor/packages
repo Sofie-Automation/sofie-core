@@ -16,4 +16,3 @@ typescript@5.10.0 # Enable TypeScript syntax in .ts and .tsx modules
 
 zodern:types
 rspack
-check
