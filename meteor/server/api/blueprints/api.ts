@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import _ from 'underscore'
 import path from 'path'
 import { ReadStream, createReadStream, promises as fsp } from 'fs'
@@ -13,7 +14,7 @@ import {
 	SomeBlueprintManifest,
 	TranslationsBundle,
 } from '@sofie-automation/blueprints-integration'
-import { check, Match } from '../../lib/check'
+import { check } from '../../lib/check'
 import { NewBlueprintAPI } from '@sofie-automation/meteor-lib/dist/api/blueprint'
 import { ReplaceOptionalWithNullInMethodArguments } from '../../methods'
 import { SYSTEM_ID } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
@@ -67,7 +68,7 @@ export async function insertBlueprint(
 	})
 }
 export async function removeBlueprint(methodContext: MethodContext, blueprintId: BlueprintId): Promise<void> {
-	check(blueprintId, String)
+	check(blueprintId, z.string())
 
 	assertConnectionHasOneOfPermissions(methodContext.connection, ...PERMISSIONS_FOR_MANAGE_BLUEPRINTS)
 
@@ -92,9 +93,9 @@ export async function uploadBlueprint(
 	body: string,
 	options?: UploadBlueprintOptions
 ): Promise<Blueprint> {
-	check(blueprintId, String)
-	check(body, String)
-	check(options?.blueprintName, Match.Maybe(String))
+	check(blueprintId, z.string())
+	check(body, z.string())
+	check(options?.blueprintName, z.string().nullish())
 
 	assertConnectionHasOneOfPermissions(cred, ...PERMISSIONS_FOR_MANAGE_BLUEPRINTS)
 
@@ -106,8 +107,8 @@ export async function uploadBlueprint(
 	return innerUploadBlueprint(blueprint, blueprintId, body, options)
 }
 export async function uploadBlueprintAsset(cred: RequestCredentials, fileId: string, body: string): Promise<void> {
-	check(fileId, String)
-	check(body, String)
+	check(fileId, z.string())
+	check(body, z.string())
 
 	assertConnectionHasOneOfPermissions(cred, ...PERMISSIONS_FOR_MANAGE_BLUEPRINTS)
 
@@ -128,7 +129,7 @@ export async function uploadBlueprintAsset(cred: RequestCredentials, fileId: str
 	await fsp.writeFile(assetPath, data)
 }
 export async function retrieveBlueprintAsset(_cred: RequestCredentials, fileId: string): Promise<ReadStream> {
-	check(fileId, String)
+	check(fileId, z.string())
 
 	const storePath = getSystemStorePath()
 	const assetsDir = path.resolve(storePath, 'assets') + path.sep
@@ -384,7 +385,7 @@ async function assignSystemBlueprint(methodContext: MethodContext, blueprintId: 
 	assertConnectionHasOneOfPermissions(methodContext.connection, ...PERMISSIONS_FOR_MANAGE_BLUEPRINTS)
 
 	if (blueprintId !== undefined && blueprintId !== null) {
-		check(blueprintId, String)
+		check(blueprintId, z.string())
 
 		const blueprint = await fetchBlueprintLight(blueprintId)
 		if (!blueprint) throw new Meteor.Error(404, 'Blueprint not found')

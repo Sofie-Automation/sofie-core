@@ -1,5 +1,6 @@
-import { check } from '../../lib/check'
 import { Meteor } from 'meteor/meteor'
+import { z } from 'zod'
+import { check, zAnyArray, zPlainObject } from '../../lib/check'
 import { MethodContext } from '../methodContext'
 import { checkAccessAndGetPeripheralDevice } from '../../security/check'
 import { ExpectedPackageStatusAPI, PackageInfo } from '@sofie-automation/blueprints-integration'
@@ -69,8 +70,8 @@ export namespace PackageManagerIntegration {
 
 		const ps: Promise<void>[] = []
 		for (const change of changes) {
-			check(change.id, String)
-			check(change, Object)
+			check(change.id, z.string())
+			check(change, zPlainObject)
 
 			if (change.type === 'delete') {
 				removedIds.push(change.id)
@@ -96,7 +97,7 @@ export namespace PackageManagerIntegration {
 					})
 				} else if (change.type === 'insert') {
 					// For inserts, we need to look up the ExpectedPackage in order to put it in the right studio:
-					check(workStatus.fromPackages, Array)
+					check(workStatus.fromPackages, zAnyArray)
 					const fromPackageIds = workStatus.fromPackages.map((p) => p.id)
 					if (fromPackageIds.length) {
 						ps.push(
@@ -196,8 +197,8 @@ export namespace PackageManagerIntegration {
 		const removedIds: PackageContainerPackageId[] = []
 		const ps: Promise<unknown>[] = []
 		for (const change of changes) {
-			check(change.containerId, String)
-			check(change.packageId, String)
+			check(change.containerId, z.string())
+			check(change.packageId, z.string())
 
 			const id = getPackageContainerPackageId(
 				peripheralDevice.studioAndConfigId.studioId,
@@ -289,7 +290,7 @@ export namespace PackageManagerIntegration {
 		const removedIds: PackageContainerId[] = []
 		const ps: Promise<unknown>[] = []
 		for (const change of changes) {
-			check(change.containerId, String)
+			check(change.containerId, z.string())
 
 			const id = getPackageContainerId(peripheralDevice.studioAndConfigId.studioId, change.containerId)
 
@@ -361,8 +362,8 @@ export namespace PackageManagerIntegration {
 		Array<{ packageId: ExpectedPackageId; expectedContentVersionHash: string; actualContentVersionHash: string }>
 	> {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
-		check(packageIds, [String])
-		check(type, String)
+		check(packageIds, z.array(z.string()))
+		check(type, z.string())
 		if (!peripheralDevice.studioAndConfigId)
 			throw new Meteor.Error(400, 'Device "' + peripheralDevice._id + '" has no studio')
 
@@ -395,8 +396,8 @@ export namespace PackageManagerIntegration {
 		payload: unknown
 	): Promise<void> {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
-		check(packageId, String)
-		check(type, String)
+		check(packageId, z.string())
+		check(type, z.string())
 		if (!peripheralDevice.studioAndConfigId)
 			throw new Meteor.Error(400, 'Device "' + peripheralDevice._id + '" has no studio')
 
@@ -434,8 +435,8 @@ export namespace PackageManagerIntegration {
 		removeDelay?: number
 	): Promise<void> {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
-		check(packageId, String)
-		check(type, String)
+		check(packageId, z.string())
+		check(type, z.string())
 		if (!peripheralDevice.studioAndConfigId)
 			throw new Meteor.Error(400, 'Device "' + peripheralDevice._id + '" has no studio')
 

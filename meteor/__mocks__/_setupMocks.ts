@@ -12,7 +12,6 @@ jest.mock('nanoid', (...args) => require('./random').setup(args), { virtual: tru
 
 jest.mock('meteor/meteor', (...args) => require('./meteor').setup(args), { virtual: true })
 jest.mock('meteor/random', (...args) => require('./random').setup(args), { virtual: true })
-jest.mock('meteor/check', (...args) => require('./check').setup(args), { virtual: true })
 jest.mock('meteor/tracker', (...args) => require('./tracker').setup(args), { virtual: true })
 jest.mock('meteor/ejson', (...args) => require('./ejson').setup(args), { virtual: true })
 

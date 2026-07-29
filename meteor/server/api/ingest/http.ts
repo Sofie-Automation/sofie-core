@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { logger } from '../../logging'
 import { Meteor } from 'meteor/meteor'
 import { check } from '../../lib/check'
@@ -21,7 +22,7 @@ ingestRouter.post(
 		jsonLimit: '200mb',
 	}),
 	async (ctx) => {
-		check(ctx.params.studioId, String)
+		check(ctx.params.studioId, z.string())
 		ctx.response.type = 'text/plain'
 
 		try {

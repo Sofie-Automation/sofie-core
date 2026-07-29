@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor'
-import { check, Match } from '../lib/check'
+import { z } from 'zod'
+import { check, zAnyArray, zPlainObject } from '../lib/check'
 import _ from 'underscore'
 import { PeripheralDeviceType, PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import {
@@ -292,7 +293,7 @@ export namespace ServerPeripheralDeviceAPI {
 		options: PeripheralDeviceInitOptions
 	): Promise<PeripheralDeviceId> {
 		triggerWriteAccess() // This is somewhat of a hack, since we want to check if it exists at all, before checking access
-		check(deviceId, String)
+		check(deviceId, z.string())
 		const existingDevice = await PeripheralDevices.findOneAsync(deviceId)
 		if (existingDevice) {
 			await checkAccessAndGetPeripheralDevice(deviceId, token, context)
@@ -300,14 +301,14 @@ export namespace ServerPeripheralDeviceAPI {
 			triggerWriteAccessBecauseNoCheckNecessary()
 		}
 
-		check(token, String)
-		check(options, Object)
-		check(options.name, String)
-		check(options.category, String)
-		check(options.type, String)
-		check(options.subType, Match.OneOf(Number, String))
-		check(options.parentDeviceId, Match.Optional(String))
-		check(options.versions, Match.Optional(Object))
+		check(token, z.string())
+		check(options, zPlainObject)
+		check(options.name, z.string())
+		check(options.category, z.string())
+		check(options.type, z.string())
+		check(options.subType, z.union([z.number(), z.string()]))
+		check(options.parentDeviceId, z.string().optional())
+		check(options.versions, zPlainObject.optional())
 
 		// Omitting some of the properties that tend to be rather large
 		logger.debug('Initialize device ' + deviceId, _.omit(options, 'versions', 'configManifest'))
@@ -413,10 +414,10 @@ export namespace ServerPeripheralDeviceAPI {
 	): Promise<PeripheralDeviceStatusObject> {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, context)
 
-		check(deviceId, String)
-		check(token, String)
-		check(status, Object)
-		check(status.statusCode, Number)
+		check(deviceId, z.string())
+		check(token, z.string())
+		check(status, zPlainObject)
+		check(status.statusCode, z.number())
 		if (status.statusCode < StatusCode.UNKNOWN || status.statusCode > StatusCode.FATAL) {
 			throw new Meteor.Error(400, 'device status code is not known')
 		}
@@ -476,8 +477,8 @@ export namespace ServerPeripheralDeviceAPI {
 		return status
 	}
 	export async function ping(context: MethodContext, deviceId: PeripheralDeviceId, token: string): Promise<void> {
-		check(deviceId, String)
-		check(token, String)
+		check(deviceId, z.string())
+		check(token, z.string())
 
 		const device = await checkAccessAndGetPeripheralDevice(deviceId, token, context)
 
@@ -511,10 +512,10 @@ export namespace ServerPeripheralDeviceAPI {
 			throw new Meteor.Error(401, `peripheralDevice "${deviceId}" not attached to a studio`)
 
 		// check(r.time, Number)
-		check(results, Array)
+		check(results, zAnyArray)
 		_.each(results, (o) => {
-			check(o.id, String)
-			check(o.time, Number)
+			check(o.id, z.string())
+			check(o.time, z.number())
 		})
 
 		if (results.length > 0) {
@@ -546,7 +547,7 @@ export namespace ServerPeripheralDeviceAPI {
 			throw new Error(`PeripheralDevice "${peripheralDevice._id}" sent piecePlaybackStarted, but has no studioId`)
 
 		if (changedResults.changes.length) {
-			check(changedResults.rundownPlaylistId, String)
+			check(changedResults.rundownPlaylistId, z.string())
 
 			const job = await QueueStudioJob(
 				StudioJobs.OnPlayoutPlaybackChanged,
@@ -567,7 +568,7 @@ export namespace ServerPeripheralDeviceAPI {
 		token: string,
 		events: PeripheralDeviceExternalEvent[]
 	): Promise<void> {
-		check(events, Array)
+		check(events, zAnyArray)
 
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, context)
 
@@ -755,9 +756,9 @@ export namespace ServerPeripheralDeviceAPI {
 		// used for integration tests with core-connection
 		await checkAccessAndGetPeripheralDevice(deviceId, token, context)
 
-		check(deviceId, String)
-		check(token, String)
-		check(returnValue, String)
+		check(deviceId, z.string())
+		check(token, z.string())
+		check(returnValue, z.string())
 
 		if (throwError) {
 			throw new Meteor.Error(418, 'Error thrown, as requested')
@@ -777,7 +778,7 @@ export namespace ServerPeripheralDeviceAPI {
 		if (peripheralDevice.type !== PeripheralDeviceType.SPREADSHEET) {
 			throw new Meteor.Error(400, 'can only request user auth token for peripheral device of spreadsheet type')
 		}
-		check(authUrl, String)
+		check(authUrl, z.string())
 
 		await PeripheralDevices.updateAsync(peripheralDevice._id, {
 			$set: {
@@ -835,8 +836,8 @@ export namespace ServerPeripheralDeviceAPI {
 		// Device (playout gateway) reports that it has finished resolving a timeline
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
 
-		check(timelineHash, String)
-		check(resolveDuration, Number)
+		check(timelineHash, z.string())
+		check(resolveDuration, z.number())
 
 		// Look up the userAction associated with this timelineHash.
 		// We're using that to determine when the timeline was generated (in Core)
@@ -881,7 +882,7 @@ peripheralDeviceRouter.post('/:deviceId/uploadCredentials', bodyParser(), async 
 
 	try {
 		const deviceId: PeripheralDeviceId = protectString(ctx.params.deviceId)
-		check(deviceId, String)
+		check(deviceId, z.string())
 
 		if (!deviceId) throw new Meteor.Error(400, `parameter deviceId is missing`)
 
@@ -917,7 +918,7 @@ peripheralDeviceRouter.post('/:deviceId/uploadCredentials', bodyParser(), async 
 peripheralDeviceRouter.get('/:deviceId/oauthResponse', async (ctx) => {
 	try {
 		const deviceId: PeripheralDeviceId = protectString(ctx.params.deviceId)
-		check(deviceId, String)
+		check(deviceId, z.string())
 
 		if (!deviceId) throw new Meteor.Error(400, `parameter deviceId is missing`)
 
@@ -933,8 +934,8 @@ peripheralDeviceRouter.get('/:deviceId/oauthResponse', async (ctx) => {
 		let accessToken = ctx.query['code'] || undefined
 		const scopes = ctx.query['scope'] || undefined
 
-		check(accessToken, String)
-		check(scopes, String)
+		check(accessToken, z.string())
+		check(scopes, z.string())
 
 		accessToken = (accessToken + '').trim()
 		if (accessToken && accessToken.length > 5) {
@@ -961,7 +962,7 @@ peripheralDeviceRouter.post('/:deviceId/resetAuth', async (ctx) => {
 
 	try {
 		const deviceId: PeripheralDeviceId = protectString(ctx.params.deviceId)
-		check(deviceId, String)
+		check(deviceId, z.string())
 
 		if (!deviceId) throw new Meteor.Error(400, `parameter deviceId is missing`)
 
@@ -991,7 +992,7 @@ peripheralDeviceRouter.post('/:deviceId/resetAppCredentials', async (ctx) => {
 
 	try {
 		const deviceId: PeripheralDeviceId = protectString(ctx.params.deviceId)
-		check(deviceId, String)
+		check(deviceId, z.string())
 
 		if (!deviceId) throw new Meteor.Error(400, `parameter deviceId is missing`)
 

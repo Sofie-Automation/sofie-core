@@ -68,7 +68,8 @@
 		"threadedclass": "^1.4.0",
 		"type-fest": "^4.41.0",
 		"underscore": "^1.13.8",
-		"winston": "^3.19.0"
+		"winston": "^3.19.0",
+		"zod": "^4.4.3"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.29.7",

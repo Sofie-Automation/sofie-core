@@ -1,10 +1,11 @@
+import { z } from 'zod'
 import { PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBStudio, StudioPackageContainer } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { MongoFieldSpecifierOnesStrict } from '@sofie-automation/corelib/dist/mongo'
 import { PackageContainer } from '@sofie-automation/shared-lib/dist/package-manager/package'
 import { PackageManagerPackageContainers } from '@sofie-automation/shared-lib/dist/package-manager/publications'
-import { check } from 'meteor/check'
+import { check } from '../../lib/check'
 import { ReadonlyDeep } from 'type-fest'
 import { Studios } from '../../collections'
 import { SetupObserversResult, setUpOptimizedObserverArray, TriggerUpdate } from '../../lib/customPublication'
@@ -90,7 +91,7 @@ export function registerPackageContainersPublications(registry: PublicationRegis
 		PeripheralDevicePubSub.packageManagerPackageContainers,
 		PeripheralDevicePubSubCollectionsNames.packageManagerPackageContainers,
 		async (context, pub, deviceId: PeripheralDeviceId, token: string | undefined) => {
-			check(deviceId, String)
+			check(deviceId, z.string())
 
 			const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, context)
 

@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor'
-import { check, Match } from '../lib/check'
+import { z } from 'zod'
+import { check } from '../lib/check'
 import { NewRundownLayoutsAPI } from '@sofie-automation/meteor-lib/dist/api/rundownLayouts'
 import {
 	RundownLayoutType,
@@ -64,7 +65,7 @@ shelfLayoutsRouter.post(
 
 		const showStyleBaseId: ShowStyleBaseId = protectString(ctx.params.showStyleBaseId)
 
-		check(showStyleBaseId, String)
+		check(showStyleBaseId, z.string())
 
 		try {
 			const showStyleBase = await fetchShowStyleBaseLight(showStyleBaseId)
@@ -79,9 +80,9 @@ shelfLayoutsRouter.post(
 				throw new Meteor.Error(400, 'Restore Shelf Layout: Invalid request body')
 
 			const layout = body as RundownLayoutBase
-			check(layout._id, Match.Optional(String))
-			check(layout.name, String)
-			check(layout.type, String)
+			check(layout._id, z.string().optional())
+			check(layout.name, z.string())
+			check(layout.type, z.string())
 
 			layout.showStyleBaseId = showStyleBase._id
 
@@ -100,7 +101,7 @@ shelfLayoutsRouter.post(
 shelfLayoutsRouter.get('/download/:id', async (ctx) => {
 	const layoutId: RundownLayoutId = protectString(ctx.params.id)
 
-	check(layoutId, String)
+	check(layoutId, z.string())
 
 	const layout = await RundownLayouts.findOneAsync(layoutId)
 	if (!layout) {
@@ -129,17 +130,17 @@ async function apiCreateRundownLayout(
 	showStyleBaseId: ShowStyleBaseId,
 	regionId: CustomizableRegions
 ) {
-	check(name, String)
-	check(type, String)
-	check(showStyleBaseId, String)
-	check(regionId, String)
+	check(name, z.string())
+	check(type, z.string())
+	check(showStyleBaseId, z.string())
+	check(regionId, z.string())
 
 	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_MANAGE_RUNDOWN_LAYOUTS)
 
 	return createRundownLayout(name, type, showStyleBaseId, regionId, undefined, undefined)
 }
 async function apiRemoveRundownLayout(context: MethodContext, id: RundownLayoutId) {
-	check(id, String)
+	check(id, z.string())
 
 	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_MANAGE_RUNDOWN_LAYOUTS)
 

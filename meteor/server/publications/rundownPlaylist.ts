@@ -3,7 +3,7 @@ import { RundownPlaylists } from '../collections'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { RundownPlaylistId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { check, Match } from '../lib/check'
+import { check, zAnyArray } from '../lib/check'
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { triggerWriteAccessBecauseNoCheckNecessary } from '../security/securityVerify'
 import type { PublicationRegistry } from '../publicationRegistry'
@@ -17,8 +17,8 @@ export function registerRundownPlaylistPublications(registry: PublicationRegistr
 			studioIds: StudioId[] | null,
 			_token: string | undefined
 		) => {
-			check(rundownPlaylistIds, Match.Maybe(Array))
-			check(studioIds, Match.Maybe(Array))
+			check(rundownPlaylistIds, zAnyArray.nullish())
+			check(studioIds, zAnyArray.nullish())
 
 			triggerWriteAccessBecauseNoCheckNecessary()
 

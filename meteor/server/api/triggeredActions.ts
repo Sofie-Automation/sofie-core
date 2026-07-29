@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor'
-import { check, Match } from '../lib/check'
+import { z } from 'zod'
+import { check, zAnyArray, zPlainObject } from '../lib/check'
 import { ReplaceOptionalWithNullInMethodArguments } from '../methods'
 import { literal, getRandomId, Complete } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
@@ -64,7 +65,7 @@ actionTriggersRouter.post(
 
 		const showStyleBaseId: ShowStyleBaseId | undefined = protectString<ShowStyleBaseId>(ctx.params.showStyleBaseId)
 
-		check(showStyleBaseId, Match.Optional(String))
+		check(showStyleBaseId, z.string().optional())
 
 		const replace = !!ctx.query['replace']
 
@@ -88,7 +89,7 @@ actionTriggersRouter.post(
 				throw new Meteor.Error(400, 'Restore Action Triggers: Invalid request body')
 
 			const triggeredActions = body as DBTriggeredActions[]
-			check(triggeredActions, Array)
+			check(triggeredActions, zAnyArray)
 
 			// set new showStyleBaseId
 			for (const triggeredActionsObj of triggeredActions) {
@@ -102,10 +103,10 @@ actionTriggersRouter.post(
 					delete compatObj.actions
 				}
 
-				check(triggeredActionsObj._id, String)
-				check(triggeredActionsObj.name, Match.Optional(Match.OneOf(String, Object)))
-				check(triggeredActionsObj.triggersWithOverrides, Object)
-				check(triggeredActionsObj.actionsWithOverrides, Object)
+				check(triggeredActionsObj._id, z.string())
+				check(triggeredActionsObj.name, z.union([z.string(), zPlainObject]).optional())
+				check(triggeredActionsObj.triggersWithOverrides, zPlainObject)
+				check(triggeredActionsObj.actionsWithOverrides, zPlainObject)
 				triggeredActionsObj.showStyleBaseId = showStyleBaseId ?? null
 			}
 
@@ -132,7 +133,7 @@ actionTriggersRouter.post(
 actionTriggersRouter.get('/download/:showStyleBaseId', async (ctx) => {
 	const showStyleBaseId: ShowStyleBaseId | undefined = protectString(ctx.params.showStyleBaseId)
 
-	check(showStyleBaseId, Match.Maybe(String))
+	check(showStyleBaseId, z.string().nullish())
 
 	const triggeredActions = await TriggeredActions.findFetchAsync({
 		showStyleBaseId: showStyleBaseId === undefined ? null : showStyleBaseId,
@@ -162,15 +163,15 @@ async function apiCreateTriggeredActions(
 	showStyleBaseId: ShowStyleBaseId | null,
 	base: CreateTriggeredActionsContent | null
 ) {
-	check(showStyleBaseId, Match.Maybe(String))
-	check(base, Match.Maybe(Object))
+	check(showStyleBaseId, z.string().nullish())
+	check(base, zPlainObject.nullish())
 
 	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_TRIGGERED_ACTIONS)
 
 	return createTriggeredActions(showStyleBaseId, base || undefined)
 }
 async function apiRemoveTriggeredActions(context: MethodContext, id: TriggeredActionId) {
-	check(id, String)
+	check(id, z.string())
 
 	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_TRIGGERED_ACTIONS)
 

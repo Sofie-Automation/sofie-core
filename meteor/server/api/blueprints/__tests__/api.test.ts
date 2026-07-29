@@ -147,7 +147,7 @@ describe('Test blueprint management api', () => {
 		test('undefined id', async () => {
 			SupressLogMessages.suppressLogMessage(/Match error/i)
 			await expect(MeteorCall.blueprint.removeBlueprint(undefined as any)).rejects.toThrow(
-				'Match error: Expected string, got undefined'
+				'Match error: Invalid input: expected string, received undefined'
 			)
 		})
 

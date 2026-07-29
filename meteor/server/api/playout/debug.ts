@@ -1,7 +1,8 @@
 import { Meteor } from 'meteor/meteor'
+import { z } from 'zod'
 import { logger } from '../../logging'
 import { PartInstances, PieceInstances, RundownPlaylists } from '../../collections'
-import { check } from 'meteor/check'
+import { check } from '../../lib/check'
 import { profiler } from '../profiler'
 import { QueueForceClearAllCaches, QueueStudioJob } from '../../worker/worker'
 import { StudioJobs } from '@sofie-automation/corelib/dist/worker/studio'
@@ -55,7 +56,7 @@ export const playoutDebugMethods: { [key: string]: MeteorDebugMethod } = {
 	 */
 	debug_updateTimeline: async (studioId: StudioId) => {
 		try {
-			check(studioId, String)
+			check(studioId, z.string())
 			logger.info(`debug_updateTimeline: "${studioId}"`)
 
 			const transaction = profiler.startTransaction('updateTimeline', 'meteor-debug')

@@ -1,8 +1,9 @@
+import { z } from 'zod'
 import { PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ITranslatableMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { TFunction } from 'i18next'
-import { check } from 'meteor/check'
 import { Meteor } from 'meteor/meteor'
+import { check } from '../../lib/check'
 import _ from 'underscore'
 import { MethodContext } from '../methodContext'
 import {
@@ -112,8 +113,8 @@ export async function receiveInputDeviceTrigger(
 	values?: DeviceTriggerArguments
 ): Promise<void> {
 	const peripheralDevice = await checkAccessAndGetPeripheralDevice(peripheralDeviceId, deviceToken, context)
-	check(deviceId, String)
-	check(triggerId, String)
+	check(deviceId, z.string())
+	check(triggerId, z.string())
 
 	const studioId = peripheralDevice.studioAndConfigId?.studioId
 	if (!studioId) throw new Meteor.Error(400, `Peripheral Device "${peripheralDevice._id}" not assigned to a studio`)

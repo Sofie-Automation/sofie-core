@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import _ from 'underscore'
 import { check } from '../lib/check'
 import { logger } from '../logging'
@@ -65,7 +66,7 @@ export namespace ClientRundownAPI {
 		_context: MethodContext,
 		playlistId: RundownPlaylistId
 	): Promise<string[]> {
-		check(playlistId, String)
+		check(playlistId, z.string())
 		triggerWriteAccessBecauseNoCheckNecessary()
 
 		const rundowns = await Rundowns.findFetchAsync(

@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { PeripheralDeviceId, RundownId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ReadonlyDeep } from 'type-fest'
 import {
@@ -197,7 +198,7 @@ export function registerIngestStatusPublications(registry: PublicationRegistry):
 		PeripheralDevicePubSub.ingestDeviceRundownStatus,
 		PeripheralDevicePubSubCollectionsNames.ingestRundownStatus,
 		async (context, pub, deviceId: PeripheralDeviceId, token: string | undefined) => {
-			check(deviceId, String)
+			check(deviceId, z.string())
 
 			await checkAccessAndGetPeripheralDevice(deviceId, token, context)
 
@@ -209,7 +210,7 @@ export function registerIngestStatusPublications(registry: PublicationRegistry):
 		MeteorPubSub.ingestDeviceRundownStatusTestTool,
 		PeripheralDevicePubSubCollectionsNames.ingestRundownStatus,
 		async (context, pub, deviceId: PeripheralDeviceId) => {
-			check(deviceId, String)
+			check(deviceId, z.string())
 
 			assertConnectionHasOneOfPermissions(context.connection, 'testing')
 
