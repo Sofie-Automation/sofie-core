@@ -24,6 +24,7 @@ import {
 } from '@sofie-automation/meteor-lib/dist/collections/lib'
 import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
 import { isInTestMode } from '../lib'
+import type { LiveQueryHandleSync } from '../lib/lib'
 
 export interface CustomMongoAllowRules<DBInterface> {
 	// insert?: (userId: UserId | null, doc: DBInterface) => Promise<boolean> | boolean
@@ -219,7 +220,7 @@ export interface AsyncOnlyReadOnlyMongoCollection<DBInterface extends { _id: Pro
 		selector: MongoQuery<DBInterface> | DBInterface['_id'],
 		callbacks: PromisifyCallbacks<ObserveChangesCallbacks<DBInterface>>,
 		options?: FindObserveChangesOptions<DBInterface>
-	): Promise<Meteor.LiveQueryHandle>
+	): Promise<LiveQueryHandleSync>
 
 	/**
 	 * Observe changes on this collection
@@ -229,7 +230,7 @@ export interface AsyncOnlyReadOnlyMongoCollection<DBInterface extends { _id: Pro
 		selector: MongoQuery<DBInterface> | DBInterface['_id'],
 		callbacks: PromisifyCallbacks<ObserveCallbacks<DBInterface>>,
 		options?: FindObserveChangesOptions<DBInterface>
-	): Promise<Meteor.LiveQueryHandle>
+	): Promise<LiveQueryHandleSync>
 
 	/**
 	 * Count the number of docuyments in a collection that match the selector.

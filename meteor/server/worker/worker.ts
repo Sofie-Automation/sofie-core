@@ -114,39 +114,27 @@ export async function startJobWorkerParent(): Promise<void> {
 		}
 	)
 
-	ThreadedClassManager.onEvent(
-		worker,
-		'error',
-		Meteor.bindEnvironment((e0: unknown) => {
-			logger.error(`Error in Worker threads IPC: ${stringifyError(e0)}`)
-		})
-	)
-	ThreadedClassManager.onEvent(
-		worker,
-		'restarted',
-		Meteor.bindEnvironment(() => {
-			logger.warn(`Worker threads restarted`)
+	ThreadedClassManager.onEvent(worker, 'error', (e0: unknown) => {
+		logger.error(`Error in Worker threads IPC: ${stringifyError(e0)}`)
+	})
+	ThreadedClassManager.onEvent(worker, 'restarted', () => {
+		logger.warn(`Worker threads restarted`)
 
-			worker!.run(mongoUri, dbName).catch((e) => {
-				logger.error(`Failed to reinit worker threads after restart: ${stringifyError(e)}`)
-			})
-			setWorkerStatus(workerId, true, 'restarted', true).catch((e) => {
-				logger.error(`Failed to update worker threads status after restart: ${stringifyError(e)}`)
-			})
+		worker!.run(mongoUri, dbName).catch((e) => {
+			logger.error(`Failed to reinit worker threads after restart: ${stringifyError(e)}`)
 		})
-	)
-	ThreadedClassManager.onEvent(
-		worker,
-		'thread_closed',
-		Meteor.bindEnvironment(() => {
-			// Thread closed, reject all jobs
-			queueManager.rejectAllRunning()
+		setWorkerStatus(workerId, true, 'restarted', true).catch((e) => {
+			logger.error(`Failed to update worker threads status after restart: ${stringifyError(e)}`)
+		})
+	})
+	ThreadedClassManager.onEvent(worker, 'thread_closed', () => {
+		// Thread closed, reject all jobs
+		queueManager.rejectAllRunning()
 
-			setWorkerStatus(workerId, false, 'Closed').catch((e) => {
-				logger.error(`Failed to update worker threads status: ${stringifyError(e)}`)
-			})
+		setWorkerStatus(workerId, false, 'Closed').catch((e) => {
+			logger.error(`Failed to update worker threads status: ${stringifyError(e)}`)
 		})
-	)
+	})
 
 	await setWorkerStatus(workerId, true, 'Initializing...')
 

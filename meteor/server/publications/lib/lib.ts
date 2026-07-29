@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor'
 import { AllPubSubCollections, AllPubSubTypes } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { MinimalMongoCursor } from '../../collections/collection'
+import type { LiveQueryHandleSync } from '../../lib/lib'
 
 /**
  * The context handed to a publication callback.
@@ -85,13 +86,13 @@ export type PublishDocType<K extends keyof AllPubSubTypes> =
  * If an observer throws, this will make sure to stop all the ones that were successfully started, to avoid leaking memory
  */
 export async function waitForAllObserversReady(
-	observers: Array<Promise<Meteor.LiveQueryHandle> | Meteor.LiveQueryHandle>
-): Promise<Meteor.LiveQueryHandle[]> {
+	observers: Array<Promise<LiveQueryHandleSync> | LiveQueryHandleSync>
+): Promise<LiveQueryHandleSync[]> {
 	// Wait for all the promises to complete
 	// Future: could this fail faster by aborting the rest once the first fails?
-	const results = await Promise.allSettled(observers as Array<Promise<Meteor.LiveQueryHandle>>)
+	const results = await Promise.allSettled(observers as Array<Promise<LiveQueryHandleSync>>)
 	const allSuccessfull = results.filter(
-		(r): r is PromiseFulfilledResult<Meteor.LiveQueryHandle> => r.status === 'fulfilled'
+		(r): r is PromiseFulfilledResult<LiveQueryHandleSync> => r.status === 'fulfilled'
 	)
 
 	const firstFailure = results.find((r): r is PromiseRejectedResult => r.status === 'rejected')

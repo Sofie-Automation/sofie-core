@@ -30,6 +30,7 @@ import {
 import { ChangeStreamCursor } from '../changeStream/changeStreamCursor'
 import { subscribeToCollectionChangeFeed } from '../changeStream/collectionChangeFeed'
 import type { ObserveViewShape } from '@sofie-automation/corelib/dist/memoryCollection/observeView'
+import type { LiveQueryHandleSync } from '../../lib/lib'
 
 /**
  * Translate a meteor-lib {@link FindOptions} into the options the native `mongodb` driver accepts.
@@ -181,7 +182,7 @@ export class WrappedAsyncMongoCollection<
 		selector: MongoQuery<DBInterface> | DBInterface['_id'],
 		callbacks: PromisifyCallbacks<ObserveChangesCallbacks<DBInterface>>,
 		options?: FindObserveChangesOptions<DBInterface>
-	): Promise<Meteor.LiveQueryHandle> {
+	): Promise<LiveQueryHandleSync> {
 		// Note: this span only covers the observer setup (initial snapshot + diff), not the lifetime of the observer
 		const span = profiler.startSpan(`MongoCollection.${this.name}.observeChanges`)
 		if (span) {
@@ -220,7 +221,7 @@ export class WrappedAsyncMongoCollection<
 		selector: MongoQuery<DBInterface> | DBInterface['_id'],
 		callbacks: PromisifyCallbacks<ObserveCallbacks<DBInterface>>,
 		options?: FindObserveChangesOptions<DBInterface>
-	): Promise<Meteor.LiveQueryHandle> {
+	): Promise<LiveQueryHandleSync> {
 		// Note: this span only covers the observer setup (initial snapshot + diff), not the lifetime of the observer
 		const span = profiler.startSpan(`MongoCollection.${this.name}.observe`)
 		if (span) {

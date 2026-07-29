@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import type {
 	PeripheralDeviceId,
 	RundownId,
@@ -11,6 +10,7 @@ import type { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import type { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { logger } from '../../logging'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
+import type { LiveQueryHandleSync } from '../../lib/lib'
 
 const REACTIVITY_DEBOUNCE = 20
 
@@ -20,8 +20,8 @@ type ChangedHandler = (rundownIds: RundownId[]) => Promise<() => void>
  * A mongo observer/query for the RundownIds in a playlist.
  * Note: Updates are debounced to avoid rapid updates firing
  */
-export class RundownsObserver implements Meteor.LiveQueryHandle {
-	#rundownsLiveQuery!: Meteor.LiveQueryHandle
+export class RundownsObserver implements LiveQueryHandleSync {
+	#rundownsLiveQuery!: LiveQueryHandleSync
 	#rundownIds: Set<RundownId> = new Set<RundownId>()
 	#changed: ChangedHandler | undefined
 	#cleanup: (() => void) | undefined

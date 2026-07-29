@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import { logger } from '../../logging'
 import {
 	blueprintFieldSpecifier,
@@ -9,12 +8,13 @@ import {
 } from './reactiveContentCache'
 import { Blueprints, CoreSystem, ShowStyleBases, Studios } from '../../collections'
 import { waitForAllObserversReady } from '../lib/lib'
+import type { LiveQueryHandleSync } from '../../lib/lib'
 
 export class UpgradesContentObserver {
 	readonly #cache: ContentCache
-	readonly #observers: Meteor.LiveQueryHandle[]
+	readonly #observers: LiveQueryHandleSync[]
 
-	constructor(cache: ContentCache, observers: Meteor.LiveQueryHandle[]) {
+	constructor(cache: ContentCache, observers: LiveQueryHandleSync[]) {
 		this.#cache = cache
 		this.#observers = observers
 	}
