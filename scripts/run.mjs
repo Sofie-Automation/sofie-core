@@ -2,10 +2,50 @@ import process from "process";
 import fs from "fs";
 import path from "path";
 import concurrently from "concurrently";
+import { parse as parseYaml } from "yaml";
 import { config } from "./lib.js";
+
+const DEV_LOCAL_PATH = path.join(process.cwd(), "dev-local.yaml");
+
+/**
+ * Optional personal overrides from repo-root `dev-local.yaml`
+ * (see `dev-local.example.yaml`).
+ *
+ * @returns {{
+ *   tsc?: { nodeOptions?: string },
+ *   meteor?: { toolNodeFlags?: string, nodeOptions?: string },
+ *   vite?: { nodeOptions?: string, host?: boolean },
+ * }}
+ */
+function loadDevLocalConfig() {
+	if (!fs.existsSync(DEV_LOCAL_PATH)) {
+		return {};
+	}
+
+	try {
+		const parsed = parseYaml(fs.readFileSync(DEV_LOCAL_PATH, "utf8"));
+		if (parsed == null || typeof parsed !== "object" || Array.isArray(parsed)) {
+			console.warn("dev-local.yaml: expected a mapping at the top level, ignoring");
+			return {};
+		}
+		console.log("Found dev-local.yaml");
+		return parsed;
+	} catch (e) {
+		console.error(`Failed to parse dev-local.yaml: ${e.message}`);
+		process.exit(1);
+	}
+}
+
+const localConfig = loadDevLocalConfig();
 
 function joinCommand(...parts) {
 	return parts.filter((part) => !!part).join(" ");
+}
+
+/** @param {Record<string, string | undefined>} env */
+function envOrUndefined(env) {
+	const cleaned = Object.fromEntries(Object.entries(env).filter(([, value]) => value != null));
+	return Object.keys(cleaned).length > 0 ? cleaned : undefined;
 }
 
 function watchPackages() {
@@ -15,6 +55,10 @@ function watchPackages() {
 			cwd: "packages",
 			name: "TSC",
 			prefixColor: "red",
+			env: envOrUndefined({
+				// Cap TypeScript compiler memory when configured in dev-local.yaml.
+				NODE_OPTIONS: localConfig.tsc?.nodeOptions,
+			}),
 		},
 	];
 }
@@ -52,15 +96,26 @@ function watchMeteor() {
 			cwd: "meteor",
 			name: "METEOR",
 			prefixColor: "cyan",
+			env: envOrUndefined({
+				// TOOL_NODE_FLAGS caps the Meteor build tool's own Node process.
+				// NODE_OPTIONS caps the Meteor app server process.
+				TOOL_NODE_FLAGS: localConfig.meteor?.toolNodeFlags,
+				NODE_OPTIONS: localConfig.meteor?.nodeOptions,
+			}),
 		},
 		{
-			command: `yarn dev`,
+			command: joinCommand(
+				"yarn dev",
+				localConfig.vite?.host ? "-- --host" : ""
+			),
 			cwd: "packages/webui",
 			name: "VITE",
 			prefixColor: "yellow",
-			env: {
+			env: envOrUndefined({
 				SOFIE_BASE_PATH: rootUrl && rootUrl.pathname.length > 1 ? rootUrl.pathname : '',
-			},
+				// Cap Vite's Node process when configured in dev-local.yaml.
+				NODE_OPTIONS: localConfig.vite?.nodeOptions,
+			}),
 		},
 	];
 }
