@@ -5,6 +5,6 @@ export NODE_ENV="${NODE_ENV:-production}"
 
 
 
-# Start meteor
-cd /opt/core
+# Start the server
+cd /opt/core/meteor
 node dist/main.js

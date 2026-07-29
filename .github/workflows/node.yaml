@@ -32,17 +32,13 @@ jobs:
             node_modules
             meteor/node_modules
             packages/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('yarn.lock', 'meteor/yarn.lock', 'meteor/.meteor/release', 'packages/yarn.lock') }}
+          key: ${{ runner.os }}-${{ hashFiles('yarn.lock', 'meteor/yarn.lock', 'packages/yarn.lock') }}
       - name: Prepare Environment
         run: |
           corepack enable
 
           yarn config set cacheFolder /home/runner/lint-core-cache
           yarn
-
-          # setup zodern:types. No linters are setup, so this simply installs the packages
-          yarn meteor lint
-
           yarn build:packages
         env:
           CI: true
@@ -72,17 +68,13 @@ jobs:
             node_modules
             meteor/node_modules
             packages/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('yarn.lock', 'meteor/yarn.lock', 'meteor/.meteor/release', 'packages/yarn.lock') }}
+          key: ${{ runner.os }}-${{ hashFiles('yarn.lock', 'meteor/yarn.lock', 'packages/yarn.lock') }}
       - name: Prepare Environment
         run: |
           corepack enable
 
           yarn config set cacheFolder /home/runner/test-core-cache
           yarn
-
-          # setup zodern:types. No linters are setup, so this simply installs the packages
-          yarn meteor lint
-
           yarn build:packages
         env:
           CI: true
@@ -123,16 +115,12 @@ jobs:
             node_modules
             meteor/node_modules
             packages/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('yarn.lock', 'meteor/yarn.lock', 'meteor/.meteor/release', 'packages/yarn.lock') }}
+          key: ${{ runner.os }}-${{ hashFiles('yarn.lock', 'meteor/yarn.lock', 'packages/yarn.lock') }}
       - name: Prepare Environment
         run: |
           corepack enable
 
           yarn install
-
-          # setup zodern:types. No linters are setup, so this simply installs the packages
-          yarn meteor lint
-
       - name: Build libs
         run: |
           yarn build:packages
@@ -140,19 +128,23 @@ jobs:
         run: |
           cd packages/webui
           yarn build
-          rm -Rf packages/webui/dist/dev # Remove some dev only assets
+          rm -Rf dist/dev # Remove some dev only assets
       - name: Persist Built Version information
         run: |
           cd meteor
           yarn inject-git-hash
-      - name: Meteor Build
+      - name: Purge dev-dependencies
+        # Everything is built by this point, so the build tooling does not need to ship in the image
         run: |
-          cd meteor
-          NODE_OPTIONS="--max-old-space-size=4096" METEOR_DEBUG_BUILD=1 meteor build --allow-superuser --directory .
-      - name: Meteor Bundle NPM Build
-        run: |
-          cd meteor/bundle/programs/server
-          meteor npm install
+          cd packages
+          yarn workspaces focus --production \
+            @sofie-automation/blueprints-integration \
+            @sofie-automation/corelib \
+            @sofie-automation/job-worker \
+            @sofie-automation/meteor-lib \
+            @sofie-automation/shared-lib
+          cd ../meteor
+          yarn workspaces focus --production
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
@@ -421,17 +413,13 @@ jobs:
             node_modules
             meteor/node_modules
             packages/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('yarn.lock', 'meteor/yarn.lock', 'meteor/.meteor/release', 'packages/yarn.lock') }}
+          key: ${{ runner.os }}-${{ hashFiles('yarn.lock', 'meteor/yarn.lock', 'packages/yarn.lock') }}
       - name: Prepare Environment
         run: |
           corepack enable
 
           yarn config set cacheFolder /home/runner/publish-docs-cache
           yarn install
-
-          # setup zodern:types. No linters are setup, so this simply installs the packages
-          yarn meteor lint
-
           cd packages
           yarn build:all
         env:
@@ -616,10 +604,6 @@ jobs:
 
           yarn config set cacheFolder /home/runner/publish-docs-cache
           yarn install
-
-          # setup zodern:types. No linters are setup, so this simply installs the packages
-          yarn meteor lint
-
           cd packages
           yarn build:all
         env:
@@ -657,7 +641,7 @@ jobs:
             node_modules
             meteor/node_modules
             packages/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('yarn.lock', 'meteor/yarn.lock', 'meteor/.meteor/release', 'packages/yarn.lock') }}
+          key: ${{ runner.os }}-${{ hashFiles('yarn.lock', 'meteor/yarn.lock', 'packages/yarn.lock') }}
       - name: Prepare Environment
         run: |
           corepack enable

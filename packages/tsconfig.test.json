@@ -10,6 +10,9 @@
 	"exclude": ["node_modules/**", "webui/**", "openapi/**"],
 	"compilerOptions": {
 		"baseUrl": "./",
+		// The preset maps '*' to '../node_modules/*', which for this directory is the repo-root tooling
+		// install rather than the workspace store. Clear it so plain node resolution is used.
+		"paths": {},
 		"resolveJsonModule": true,
 		"types": ["jest", "node"],
 		"composite": true,

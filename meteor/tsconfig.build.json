@@ -6,6 +6,9 @@
 		"outDir": "./dist",
 		"rootDir": "./server",
 		"baseUrl": "./",
+		// The preset maps '*' to '../node_modules/*', which for this directory is the repo-root tooling
+		// install rather than a package store. Clear it so plain node resolution is used.
+		"paths": {},
 		"target": "es2024",
 		"lib": ["es2024"],
 		"resolveJsonModule": true,

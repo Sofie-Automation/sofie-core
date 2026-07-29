@@ -40,10 +40,6 @@ jobs:
 
           yarn config set cacheFolder /home/runner/publish-docs-cache
           yarn install
-
-          # setup zodern:types. No linters are setup, so this simply installs the packages
-          yarn meteor lint
-
           cd packages
           yarn build:all
         env:
