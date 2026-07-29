@@ -7,7 +7,6 @@ import { logger } from './logging'
 console.log('startup')
 
 // App imports
-import { Meteor } from 'meteor/meteor'
 import * as fs from 'fs/promises'
 import { MethodRegistry } from './methodRegistry'
 import { registerAllApiMethods } from './methodRegistrations'
@@ -48,6 +47,7 @@ import {
 	updateLoggerLevel,
 } from './coreSystem'
 import { CURRENT_SYSTEM_VERSION } from './migration/currentSystemVersion'
+import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 
 // Build and populate the method registry
 const methodRegistry = new MethodRegistry()
@@ -60,7 +60,7 @@ registerAllPublications(publicationRegistry)
 // The registry of live DDP sessions, shared between the DDP server and the performance monitor
 const ddpConnectionRegistry = createDdpConnectionRegistry()
 
-Meteor.startup(async () => {
+;(async () => {
 	console.log('process started') // This is a message all Sofie processes log upon startup
 
 	logger.info(`Core starting up`)
@@ -131,4 +131,9 @@ Meteor.startup(async () => {
 	if (isInDevelopmentMode()) publicationRegistry.verifyAllPublicationsRegistered()
 
 	startTimeJumpDetector()
+})().catch((e) => {
+	logger.error(`Startup failed: ${stringifyError(e)}`)
+
+	// eslint-disable-next-line n/no-process-exit
+	process.exit(1)
 })
