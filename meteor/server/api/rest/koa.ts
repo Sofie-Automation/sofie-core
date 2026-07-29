@@ -2,7 +2,6 @@ import Koa from 'koa'
 import cors from '@koa/cors'
 import KoaRouter from '@koa/router'
 import KoaMount from 'koa-mount'
-import { WebApp } from 'meteor/webapp'
 import { getRandomString } from '@sofie-automation/corelib/dist/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { getRootSubpath, isInDevelopmentMode, public_dir } from '../../lib'
@@ -17,31 +16,42 @@ import type { IExtendedSettings } from '@sofie-automation/meteor-lib/dist/Settin
 import { ENABLE_HEADER_AUTH } from '../../security/auth'
 import type { DDPClientConnection } from '../../ddp-server/types'
 
-declare module 'http' {
-	interface IncomingMessage {
-		// Meteor http routing performs this addition
-		body?: object | string
-	}
-}
-
 const rootRouter = new KoaRouter()
 const boundRouterPaths: string[] = []
 
-export function startKoaServer(): void {
+/**
+ * Build the koa app serving the webui and the whole HTTP API.
+ * The app is not bound to a port here; see `createHttpServer`/`listenHttpServer`.
+ */
+export function createKoaApp(): Koa {
 	const koaApp = new Koa()
 
+	// Report each request as an apm transaction. First in the stack, so it spans all other middleware.
 	koaApp.use(async (ctx, next) => {
-		// Strange - sometimes a JSON body gets parsed by Koa before here (eg for a POST call?).
-		if (typeof ctx.req.body === 'object') {
-			ctx.disableBodyParser = true
-			if (Array.isArray(ctx.req.body)) {
-				ctx.request.body = [...ctx.req.body]
-			} else {
-				ctx.request.body = { ...ctx.req.body }
-			}
+		const transaction = profiler.startTransaction(`${ctx.method}:${ctx.url}`, 'http.incoming')
+		if (transaction) {
+			transaction.setLabel('url', ctx.url)
+			transaction.setLabel('method', ctx.method)
+
+			ctx.res.on('finish', () => {
+				// When the end of the request is sent to the client, submit the apm transaction
+				let route = ctx.originalUrl
+				if (route && route.endsWith('/')) {
+					route = route.slice(0, -1)
+				}
+
+				if (route) {
+					transaction.name = `${ctx.method}:${route}`
+					transaction.setLabel('route', route)
+				}
+
+				transaction.end()
+			})
 		}
+
 		await next()
 	})
+
 	koaApp.use(
 		cors({
 			// Allow anything
@@ -51,47 +61,20 @@ export function startKoaServer(): void {
 		})
 	)
 
-	// Expose the API at the url
-	WebApp.rawConnectHandlers.use((req, res) => {
-		const transaction = profiler.startTransaction(`${req.method}:${req.url}`, 'http.incoming')
-		if (transaction) {
-			transaction.setLabel('url', `${req.url}`)
-			transaction.setLabel('method', `${req.method}`)
-
-			res.on('finish', () => {
-				// When the end of the request is sent to the client, submit the apm transaction
-				let route = req.originalUrl
-				if (req.originalUrl && req.url && req.originalUrl.endsWith(req.url.slice(1)) && req.url.length > 1) {
-					route = req.originalUrl.slice(0, -1 * (req.url.length - 1))
-				}
-
-				if (route && route.endsWith('/')) {
-					route = route.slice(0, -1)
-				}
-
-				if (route) {
-					transaction.name = `${req.method}:${route}`
-					transaction.setLabel('route', `${route}`)
-				}
-
-				transaction.end()
-			})
-		}
-
-		const callback = koaApp.callback()
-		callback(req, res).catch(() => res.end())
-	})
-
-	// serve the webui through koa
-	// This is to avoid meteor injecting anything into the served html
-	const webuiServer = staticServe(public_dir, {
-		index: false, // Performed manually
-	})
-	koaApp.use(KoaMount(getRootSubpath() || '/', webuiServer))
-	logger.debug(`Serving static files from ${public_dir}`)
+	// Serve the webui through koa, when there is one to serve. In development there is not, as vite
+	// serves it instead.
+	if (public_dir) {
+		const webuiServer = staticServe(public_dir, {
+			index: false, // Performed manually
+		})
+		koaApp.use(KoaMount(getRootSubpath() || '/', webuiServer))
+		logger.info(`Serving the webui from ${public_dir}`)
+	} else {
+		logger.info(`Not serving a webui, as SOFIE_WEBUI_DIR is not set`)
+	}
 
 	if (isInDevelopmentMode()) {
-		// Serve the meteor runtime config. In production, this gets baked into the html
+		// Serve the runtime config. In production, this gets baked into the html
 		rootRouter.get(getRootSubpath() + '/meteor-runtime-config.js', async (ctx) => {
 			ctx.body = getExtendedMeteorRuntimeConfig()
 		})
@@ -101,6 +84,9 @@ export function startKoaServer(): void {
 
 	koaApp.use(async (ctx, next) => {
 		if (ctx.method !== 'GET') return next()
+
+		// Without a webui there is no index.html to fall back to
+		if (!public_dir) return next()
 
 		// Ensure the path is scoped to the root subpath
 		const rootSubpath = getRootSubpath()
@@ -116,16 +102,23 @@ export function startKoaServer(): void {
 		}
 
 		// fallback to serving html
-		return serveIndexHtml(ctx, next)
+		return serveIndexHtml(public_dir, ctx, next)
 	})
+
+	return koaApp
 }
 
+/**
+ * The config blob injected into the served html, and read by the webui off `window`.
+ * Note: this was previously generated by meteor's `webapp`, so the name is retained until the webui is
+ * updated to read it from somewhere less meteor-flavoured.
+ */
 function getExtendedMeteorRuntimeConfig() {
 	const versionExtended: string = PackageInfo.versionExtended || PackageInfo.version // package version
 
 	return `window.__meteor_runtime_config__ = (${JSON.stringify({
-		// @ts-expect-error missing types for internal meteor detail
-		...__meteor_runtime_config__,
+		ROOT_URL: process.env.ROOT_URL || '/',
+		ROOT_URL_PATH_PREFIX: getRootSubpath(),
 		...({
 			sofieVersionExtended: versionExtended,
 			enableHeaderAuth: ENABLE_HEADER_AUTH,
@@ -134,10 +127,10 @@ function getExtendedMeteorRuntimeConfig() {
 	})})`
 }
 
-async function serveIndexHtml(ctx: Koa.ParameterizedContext, next: Koa.Next) {
+async function serveIndexHtml(webuiDir: string, ctx: Koa.ParameterizedContext, next: Koa.Next) {
 	try {
 		// Read the file
-		const indexFileBuffer = await fs.readFile(public_dir + '/index.html', 'utf8')
+		const indexFileBuffer = await fs.readFile(webuiDir + '/index.html', 'utf8')
 		const indexFileStr = indexFileBuffer.toString()
 
 		const rootPath = getRootSubpath()

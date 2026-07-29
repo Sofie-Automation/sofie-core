@@ -9,6 +9,12 @@ export function bindLogoRouter(): KoaRouter {
 	const logoRouter = new KoaRouter()
 
 	logoRouter.get('/', async (ctx) => {
+		// The logos are shipped as part of the webui, so there is nothing to serve when it is not served
+		if (!public_dir) {
+			ctx.status = 404
+			return
+		}
+
 		const core = await getCoreSystemAsync()
 		const logo = core?.logo ?? SofieLogo.Default
 

@@ -52,17 +52,32 @@ export function extractFunctionSignature(f: Function): string[] | undefined {
 
 export type Translations = Record<string, string>
 
-// The /public directory in a Meteor app
-export const public_dir = isInProductionMode()
-	? path.join(process.cwd(), '../web.browser/app')
-	: // In development, find the webui package and use its public directory
-		path.join(process.cwd(), '../../../../../../packages/webui/public')
+/**
+ * The directory containing the built webui, which is served as static files.
+ * The deployment images set `SOFIE_WEBUI_DIR`. When unset the webui is not served at all, which is the
+ * case for certain development setups.
+ */
+export const public_dir: string | undefined = process.env.SOFIE_WEBUI_DIR
 
+/**
+ * The path prefix the app is served under, derived from `ROOT_URL`. Empty when served from the root,
+ * otherwise a leading-slash path with no trailing slash (eg `ROOT_URL=http://host:3000/sofie` -> `/sofie`).
+ */
 export function getRootSubpath(): string {
-	// @ts-expect-error Untyped meteor export
-	const settings: any = __meteor_runtime_config__
+	const rootUrl = process.env.ROOT_URL
+	if (!rootUrl) return ''
 
-	return settings.ROOT_URL_PATH_PREFIX || ''
+	let pathname: string
+	try {
+		pathname = new URL(rootUrl).pathname
+	} catch {
+		logger.warn(`Ignoring ROOT_URL, it is not a valid url: "${rootUrl}"`)
+		return ''
+	}
+
+	// A url without a subpath has a pathname of '/', which is not a prefix worth prepending
+	const trimmed = pathname.replace(/\/+$/, '')
+	return trimmed === '' ? '' : trimmed
 }
 
 /**
@@ -92,6 +107,9 @@ export async function getLocale(languageCode: string): Promise<Translations> {
 }
 
 async function getLocaleFile(languageCode: string): Promise<Translations | null> {
+	// The locales are shipped as part of the webui, so there is nothing to read when it is not served
+	if (!public_dir) return null
+
 	const localePath = path.join(public_dir, 'locales', languageCode, 'translations.json')
 	if (!localePath.startsWith(path.join(public_dir, 'locales'))) {
 		logger.error(`getLocale: Attempted to escape the directory: ${localePath}`)

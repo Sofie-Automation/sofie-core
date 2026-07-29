@@ -143,19 +143,15 @@ jobs:
         run: |
           cd packages/webui
           yarn build
+          rm -Rf packages/webui/dist/dev # Remove some dev only assets
       - name: Persist Built Version information
         run: |
           cd meteor
           yarn inject-git-hash
-      - name: Prepare webui for meteor build
-        run: |
-          rm -Rf meteor/public
-          cp -R packages/webui/dist meteor/public
       - name: Meteor Build
         run: |
           cd meteor
           NODE_OPTIONS="--max-old-space-size=4096" METEOR_DEBUG_BUILD=1 meteor build --allow-superuser --directory .
-          mv bundle/programs/web.browser/assets/ bundle/programs/web.browser/app/assets/ || true
       - name: Meteor Bundle NPM Build
         run: |
           cd meteor/bundle/programs/server

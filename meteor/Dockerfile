@@ -9,6 +9,8 @@ RUN rm -R *-gateway documentation openapi
 RUN corepack enable
 RUN yarn install && yarn build
 RUN cd webui && yarn build
+# Drop the dev-only assets from the webui output, they are not served in a deployment
+RUN rm -Rf /opt/core/packages/webui/dist/dev
 
 # Install production dependencies for the worker
 # HACK: 
@@ -31,11 +33,6 @@ COPY meteor /opt/core/meteor
 COPY scripts /opt/core/scripts
 WORKDIR /opt/core/meteor
 
-# remove the dev only assets from the webui output
-RUN rm -Rf /opt/core/packages/webui/dist/dev
-# move the webui to the correct place
-RUN rm -Rf /opt/core/meteor/public
-RUN cp -R /opt/core/packages/webui/dist /opt/core/meteor/public
 RUN rm -R /opt/core/packages/webui
 
 # Force meteor to setup the runtime
@@ -49,16 +46,17 @@ RUN --mount=type=cache,target=/opt/core/meteor/.meteor/local NODE_OPTIONS="--max
 WORKDIR /opt/bundle/programs/server/
 RUN npm install
 
-# meteor does something weird with these files
-RUN mv /opt/bundle/programs/web.browser/assets /opt/bundle/programs/web.browser/app/assets || true
-
 # DEPLOY IMAGE
 FROM node:22-alpine
 
 RUN apk add --no-cache tzdata
 
 COPY --from=1 /opt/bundle /opt/core
+COPY --from=0 /opt/core/packages/webui/dist /opt/core/webui
 COPY meteor/docker-entrypoint.sh /opt
+
+# Where the koa server serves the webui from
+ENV SOFIE_WEBUI_DIR=/opt/core/webui
 
 WORKDIR /opt/core/
 RUN chown -R 1000:1000 /opt/core
