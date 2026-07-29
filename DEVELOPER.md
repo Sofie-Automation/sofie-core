@@ -70,6 +70,20 @@ The Sofie ui (served by Vite) can be accessed at `http://localhost:3005`. The me
    yarn buildstart
    ```
 
+### Local development overrides (`dev-local.yaml`)
+
+Optional per-developer settings for `yarn dev` / `yarn start` live in a gitignored
+`dev-local.yaml` at the repository root (same idea as `meteor-settings.json`).
+
+```bash
+cp dev-local.example.yaml dev-local.yaml
+```
+
+Edit the copy to set Node heap limits per process (TSC, Meteor, Vite) and/or enable
+Vite `--host` so other devices on the LAN can reach the UI. All keys are optional;
+see `dev-local.example.yaml` for the full schema and comments. When the file is
+present, `yarn dev` logs `Found dev-local.yaml` at startup.
+
 ### Lowering memory, CPU footprint in development
 
 If you find yourself in a situation where running Sofie in development mode is too heavy, but you're not planning on modifying any of the low-level packages in the `packages` directory, you may want to run Sofie in the _UI-only mode_, in which only meteor and the ui will be rebuilt and type-checked on modification:
@@ -77,6 +91,8 @@ If you find yourself in a situation where running Sofie in development mode is t
 ```bash
 yarn dev --ui-only
 ```
+
+You can also cap per-process Node memory via [`dev-local.yaml`](#personal-development-overrides-dev-localyaml) if long sessions grow unboundedly.
 
 ### Dealing with Strange Errors
 

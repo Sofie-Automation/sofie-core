@@ -22,6 +22,10 @@ Options:
                        Run without --db to use the currently active database
   --db-list            List all available database directories and show which is active
 
+Local config:
+  Copy dev-local.example.yaml to dev-local.yaml for personal overrides
+  (Node memory limits, Vite --host, etc.). That file is gitignored.
+
 Examples:
   yarn start                  # Install, build, then run in dev mode
   yarn dev                    # Run in normal dev mode (requires prior build)
