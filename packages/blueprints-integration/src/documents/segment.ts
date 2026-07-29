@@ -15,12 +15,6 @@ export enum CountdownType {
 }
 
 export interface SegmentTimingInfo {
-	/** A unix timestamp of when the segment is expected to begin. Affects rundown timing. */
-	expectedStart?: number
-
-	/** A unix timestamp of when the segment is expected to end. Affects rundown timing. */
-	expectedEnd?: number
-
 	/** Budget duration of this segment, in milliseconds */
 	budgetDuration?: number
 

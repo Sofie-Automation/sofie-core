@@ -7,7 +7,6 @@ import { DdpConnectionRegistry } from '../ConnectionRegistry'
 import { ServerMessage } from '@sofie-automation/shared-lib/dist/ddp/messageTypes'
 import { makeDdpConnection } from '../DdpConnection'
 import { parseConnectionPermissions } from '../../security/auth'
-import { Settings } from '../../Settings'
 
 /** A minimal stand-in for a `ws` WebSocket that records sent messages and lets tests inject frames. */
 class FakeSocket extends EventEmitter {

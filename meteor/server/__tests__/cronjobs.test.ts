@@ -70,7 +70,7 @@ import {
 	setupDefaultStudioEnvironment,
 } from '../../__mocks__/helpers/database'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { Settings } from '../Settings'
+import { DEFAULT_MAXIMUM_DATA_AGE } from '@sofie-automation/shared-lib/dist/core/constants'
 import { SofieIngestCacheType } from '@sofie-automation/corelib/dist/dataModel/SofieIngestDataCache'
 import { ObjectOverrideSetOp, ObjectWithOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { PartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
@@ -443,7 +443,7 @@ describe('cronjobs', () => {
 				clientAddress: '',
 				context: '',
 				method: '',
-				timestamp: lib.getCurrentTime() - Settings.maximumDataAge - 1000,
+				timestamp: lib.getCurrentTime() - DEFAULT_MAXIMUM_DATA_AGE - 1000,
 			})
 
 			await runCronjobs()
@@ -478,7 +478,7 @@ describe('cronjobs', () => {
 				type: SnapshotType.DEBUG,
 				version: '',
 				// Very old:
-				created: lib.getCurrentTime() - Settings.maximumDataAge - 1000,
+				created: lib.getCurrentTime() - DEFAULT_MAXIMUM_DATA_AGE - 1000,
 			})
 
 			await runCronjobs()

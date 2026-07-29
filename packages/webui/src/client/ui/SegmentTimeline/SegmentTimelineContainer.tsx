@@ -12,7 +12,6 @@ import { getElementWidth } from '../../utils/dimensions.js'
 import { isMaintainingFocus, scrollToSegment, getHeaderHeight } from '../../lib/viewPort.js'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { equivalentArrays } from '@sofie-automation/shared-lib/dist/lib/lib'
-import { Settings } from '../../lib/Settings.js'
 import RundownViewEventBus, {
 	RundownViewEvents,
 	type GoToPartEvent,
@@ -27,6 +26,7 @@ import {
 	type IOutputLayerUi,
 } from '../SegmentContainer/withResolvedSegment.js'
 import { computeSegmentDuration, getPartInstanceTimingId } from '../../lib/rundownTiming.js'
+import { DEFAULT_DISPLAY_DURATION, DEFAULT_TIME_SCALE } from '@sofie-automation/shared-lib/dist/core/constants'
 import { RundownViewShelf } from '../RundownView/RundownViewShelf.js'
 import type { PartInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { catchError, useDebounce } from '../../lib/lib.js'
@@ -35,8 +35,8 @@ import { useSubscription, useTracker } from '../../lib/ReactMeteorData/ReactMete
 import { logger } from '../../lib/logging.js'
 import {
 	FALLBACK_ZOOM_FACTOR,
+	getMinimumZoomFactor,
 	LIVELINE_HISTORY_SIZE,
-	MINIMUM_ZOOM_FACTOR,
 	SIMULATED_PLAYBACK_HARD_MARGIN,
 	TIMELINE_RIGHT_PADDING,
 } from './Constants.js'
@@ -204,7 +204,11 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 					this.initialShowEntireSegmentRaf = undefined
 					this.mountedTime = Date.now()
 					if (this.state.isLiveSegment && this.props.followLiveSegments && !this.isVisible) {
-						scrollToSegment(this.props.segmentId, true).catch((error) => {
+						scrollToSegment(
+							this.props.segmentId,
+							this.props.studio.settings.followOnAirSegmentsHistory ?? 0,
+							true
+						).catch((error) => {
 							if (!error.toString().match(/another scroll/)) console.warn(error)
 						})
 					}
@@ -258,7 +262,7 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 			// segment is stopping from being live
 			if (this.state.isLiveSegment === true && isLiveSegment === false) {
 				this.setState({ isLiveSegment: false }, () => {
-					if (Settings.autoRewindLeavingSegment) {
+					if (this.props.studio.settings.autoRewindLeavingSegment ?? true) {
 						this.onRewindSegment()
 						this.onShowEntireSegment()
 					}
@@ -428,7 +432,11 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 					0,
 					Math.min(
 						scrollLeft,
-						(computeSegmentDuration(this.context.durations, this.props.parts, true) || 1) -
+						(computeSegmentDuration(
+							this.context.durations,
+							this.props.parts,
+							this.props.studio.settings.defaultDisplayDuration ?? DEFAULT_DISPLAY_DURATION
+						) || 1) -
 							LIVELINE_HISTORY_SIZE / this.state.timeScale
 					)
 				),
@@ -638,7 +646,10 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 			const livePosition = this.state.isLiveSegment ? this.state.livePosition : 0
 
 			let newScale = calculatedTimelineDivWidth / (segmentDisplayDuration - livePosition)
-			newScale = Math.min(MINIMUM_ZOOM_FACTOR, newScale)
+			newScale = Math.min(
+				getMinimumZoomFactor(this.props.studio.settings.defaultTimeScale ?? DEFAULT_TIME_SCALE),
+				newScale
+			)
 			if (!Number.isFinite(newScale) || newScale === 0) {
 				newScale = FALLBACK_ZOOM_FACTOR
 			}

@@ -43,6 +43,7 @@ interface ITimelineGridProps {
 	isLiveSegment: boolean
 	partInstances: PartUi[]
 	currentPartInstanceId: PartInstanceId | null
+	defaultDisplayDuration: number
 	onResize: (size: number[]) => void
 }
 
@@ -330,7 +331,7 @@ export class TimelineGrid extends React.Component<ITimelineGridProps> {
 				total += duration
 			})
 		} else {
-			total = RundownUtils.getSegmentDuration(this.props.partInstances, true)
+			total = RundownUtils.getSegmentDuration(this.props.partInstances, this.props.defaultDisplayDuration)
 		}
 		return total
 	}
@@ -414,7 +415,8 @@ export class TimelineGrid extends React.Component<ITimelineGridProps> {
 			nextProps.scrollLeft !== this.props.scrollLeft ||
 			nextProps.isLiveSegment !== this.props.isLiveSegment ||
 			nextProps.partInstances !== this.props.partInstances ||
-			nextProps.currentPartInstanceId !== this.props.currentPartInstanceId
+			nextProps.currentPartInstanceId !== this.props.currentPartInstanceId ||
+			nextProps.defaultDisplayDuration !== this.props.defaultDisplayDuration
 		) {
 			return true
 		}
@@ -429,7 +431,8 @@ export class TimelineGrid extends React.Component<ITimelineGridProps> {
 		if (
 			prevProps.isLiveSegment !== this.props.isLiveSegment ||
 			prevProps.partInstances !== this.props.partInstances ||
-			prevProps.currentPartInstanceId !== this.props.currentPartInstanceId
+			prevProps.currentPartInstanceId !== this.props.currentPartInstanceId ||
+			prevProps.defaultDisplayDuration !== this.props.defaultDisplayDuration
 		) {
 			this.lastTotalSegmentDuration = null
 		}

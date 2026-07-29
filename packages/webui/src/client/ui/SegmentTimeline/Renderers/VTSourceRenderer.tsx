@@ -13,7 +13,6 @@ import { type NoticeLevel, getNoticeLevelForPieceStatus } from '../../../lib/not
 import { RundownUtils } from '../../../lib/rundown.js'
 import { FreezeFrameIcon } from '../../../lib/ui/icons/freezeFrame.js'
 import StudioContext from '../../RundownView/StudioContext.js'
-import { Settings } from '../../../lib/Settings.js'
 import { PieceStatusCode } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { HourglassIconSmall } from '../../../lib/ui/icons/notifications.js'
 import { logger } from '../../../lib/logging.js'
@@ -373,7 +372,7 @@ class VTSourceRendererBase extends CustomLayerItemRenderer<IProps & WithTranslat
 		) {
 			let endOfContentAt: number = vtContent.sourceDuration + (vtContent.postrollDuration || 0)
 
-			if (Settings.useCountdownToFreezeFrame) {
+			if (this.props.studio?.settings.useCountdownToFreezeFrame ?? true) {
 				const lastFreeze =
 					this.props.contentStatus?.freezes &&
 					this.props.contentStatus?.freezes[this.props.contentStatus?.freezes.length - 1]

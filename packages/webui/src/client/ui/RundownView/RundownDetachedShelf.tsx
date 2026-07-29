@@ -8,7 +8,7 @@ import { Shelf } from '../Shelf/Shelf'
 import { UserPermissionsContext } from '../UserPermissions'
 import { RundownSorensenContext } from './RundownSorensenContext'
 import { RundownTimingProvider } from './RundownTiming/RundownTimingProvider'
-import { Settings } from '../../lib/Settings'
+import { DEFAULT_DISPLAY_DURATION } from '@sofie-automation/shared-lib/dist/core/constants'
 import type { RundownLayoutShelfBase } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import type { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase'
 import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio'
@@ -33,7 +33,10 @@ export function RundownDetachedShelf({
 	const userPermissions = useContext(UserPermissionsContext)
 
 	return (
-		<RundownTimingProvider playlist={playlist} defaultDuration={Settings.defaultDisplayDuration}>
+		<RundownTimingProvider
+			playlist={playlist}
+			defaultDuration={studio.settings.defaultDisplayDuration ?? DEFAULT_DISPLAY_DURATION}
+		>
 			<PreviewPopUpContextProvider>
 				<ErrorBoundary>
 					<Shelf
