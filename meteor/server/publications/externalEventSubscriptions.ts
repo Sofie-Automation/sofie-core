@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { assertNever, getHash, literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
@@ -163,8 +164,8 @@ export function registerExternalEventSubscriptionsPublications(registry: Publica
 			deviceId: PeripheralDeviceId,
 			token: string | undefined
 		) => {
-			check(deviceId, String)
-			check(type, String)
+			check(deviceId, z.string())
+			check(type, z.string())
 
 			const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, context)
 

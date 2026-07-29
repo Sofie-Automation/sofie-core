@@ -5,7 +5,6 @@ base64@1.0.13
 binary-heap@1.0.12
 boilerplate-generator@2.1.0
 callback-hook@1.7.0
-check@1.5.0
 core-runtime@1.0.0
 ddp@1.4.2
 ddp-client@3.2.0

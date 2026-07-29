@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { RundownId, RundownPlaylistId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { MongoFieldSpecifierOnesStrict } from '@sofie-automation/corelib/dist/mongo'
 import { ReadonlyDeep } from 'type-fest'
@@ -29,7 +30,7 @@ import { RundownContentObserver } from './rundownContentObserver'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { generateNotesForSegment } from './generateNotesForSegment'
 import { RundownPlaylists } from '../../collections'
-import { check, Match } from 'meteor/check'
+import { check } from '../../lib/check'
 import { triggerWriteAccessBecauseNoCheckNecessary } from '../../security/securityVerify'
 import type { PublicationRegistry } from '../../publicationRegistry'
 
@@ -219,7 +220,7 @@ export function registerSegmentPartNotesUIPublications(registry: PublicationRegi
 		MeteorPubSub.uiSegmentPartNotes,
 		CustomCollectionName.UISegmentPartNotes,
 		async (_context, pub, playlistId: RundownPlaylistId | null) => {
-			check(playlistId, Match.Maybe(String))
+			check(playlistId, z.string().nullish())
 
 			triggerWriteAccessBecauseNoCheckNecessary()
 

@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { getRoutedTimeline } from '@sofie-automation/meteor-lib/dist/collections/Timeline'
 import {
 	RoutedTimeline,
@@ -25,7 +26,7 @@ import { ReadonlyDeep } from 'type-fest'
 import { PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBTimelineDatastoreEntry } from '@sofie-automation/corelib/dist/dataModel/TimelineDatastore'
 import { Studios, Timeline, TimelineDatastore } from '../collections'
-import { check } from 'meteor/check'
+import { check } from '../lib/check'
 import { ResultingMappingRoutes, StudioLight } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import {
@@ -48,7 +49,7 @@ export function registerTimelinePublications(registry: PublicationRegistry): voi
 		PeripheralDevicePubSub.timelineForDevice,
 		PeripheralDevicePubSubCollectionsNames.studioTimeline,
 		async (context, pub, deviceId: PeripheralDeviceId, token: string | undefined) => {
-			check(deviceId, String)
+			check(deviceId, z.string())
 
 			const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, context)
 
@@ -61,7 +62,7 @@ export function registerTimelinePublications(registry: PublicationRegistry): voi
 	registry.publish(
 		PeripheralDevicePubSub.timelineDatastoreForDevice,
 		async (context, deviceId: PeripheralDeviceId, token: string | undefined) => {
-			check(deviceId, String)
+			check(deviceId, z.string())
 
 			const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, context)
 

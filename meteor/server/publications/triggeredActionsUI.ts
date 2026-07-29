@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { ShowStyleBaseId, TriggeredActionId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { ReadonlyDeep } from 'type-fest'
@@ -14,7 +15,7 @@ import {
 	TriggerUpdate,
 } from '../lib/customPublication'
 import { TriggeredActions } from '../collections'
-import { check, Match } from 'meteor/check'
+import { check } from '../lib/check'
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { triggerWriteAccessBecauseNoCheckNecessary } from '../security/securityVerify'
 import type { PublicationRegistry } from '../publicationRegistry'
@@ -110,7 +111,7 @@ export function registerTriggeredActionsUIPublications(registry: PublicationRegi
 		MeteorPubSub.uiTriggeredActions,
 		CustomCollectionName.UITriggeredActions,
 		async (_context, pub, showStyleBaseId: ShowStyleBaseId | null) => {
-			check(showStyleBaseId, Match.Maybe(String))
+			check(showStyleBaseId, z.string().nullish())
 
 			triggerWriteAccessBecauseNoCheckNecessary()
 

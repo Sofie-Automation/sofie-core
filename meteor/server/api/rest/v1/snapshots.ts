@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor'
+import { z } from 'zod'
 import { SnapshotId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { check } from 'meteor/check'
+import { check } from '../../../lib/check'
 import { APIFactory, APIRegisterHook, ServerAPIContext } from './types'
 import { logger } from '../../../logging'
 import { storeRundownPlaylistSnapshot, storeSystemSnapshot } from '../../snapshot'
@@ -24,7 +25,7 @@ export class SnapshotsServerAPI implements SnapshotsRestAPI {
 		_event: string,
 		options: APISystemSnapshotOptions
 	): Promise<ClientAPI.ClientResponse<SnapshotId>> {
-		check(options.reason, String)
+		check(options.reason, z.string())
 		return ClientAPI.responseSuccess(
 			await storeSystemSnapshot(
 				this.context.getMethodContext(connection),
@@ -40,8 +41,8 @@ export class SnapshotsServerAPI implements SnapshotsRestAPI {
 		options: APIPlaylistSnapshotOptions
 	): Promise<ClientAPI.ClientResponse<SnapshotId>> {
 		const playlistId = protectString(options.rundownPlaylistId)
-		check(playlistId, String)
-		check(options.reason, String)
+		check(playlistId, z.string())
+		check(options.reason, z.string())
 		const access = await checkAccessToPlaylist(connection, playlistId)
 		return ClientAPI.responseSuccess(
 			await storeRundownPlaylistSnapshot(access, playlistSnapshotOptionsFrom(options), options.reason)

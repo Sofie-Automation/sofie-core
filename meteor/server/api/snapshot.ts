@@ -1,10 +1,11 @@
+import { z } from 'zod'
 import * as Path from 'path'
 import { Meteor } from 'meteor/meteor'
 import _ from 'underscore'
 import Koa from 'koa'
 import KoaRouter from '@koa/router'
 import bodyParser from 'koa-bodyparser'
-import { check, Match } from '../lib/check'
+import { check } from '../lib/check'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import {
 	SnapshotType,
@@ -688,7 +689,7 @@ export async function storeSystemSnapshot(
 	options: SystemSnapshotOptions,
 	reason: string
 ): Promise<SnapshotId> {
-	check(options.studioId, Match.Optional(String))
+	check(options.studioId, z.string().optional())
 
 	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_SNAPSHOT_MANAGEMENT)
 
@@ -732,7 +733,7 @@ async function queueOnSystemSnapshotCreatedJobs(
 
 /** Take and store a system snapshot. For internal use only, performs no access control. */
 export async function internalStoreSystemSnapshot(options: SystemSnapshotOptions, reason: string): Promise<SnapshotId> {
-	check(options.studioId, Match.Optional(String))
+	check(options.studioId, z.string().optional())
 
 	const s = await createSystemSnapshot(options)
 	const storedId = await storeSnaphot(s, reason)
@@ -767,8 +768,8 @@ export async function storeDebugSnapshot(
 	studioId: StudioId,
 	reason: string
 ): Promise<SnapshotId> {
-	check(studioId, String)
-	check(hashedToken, String)
+	check(studioId, z.string())
+	check(hashedToken, z.string())
 	if (!verifyHashedToken(hashedToken)) {
 		throw new Meteor.Error(401, `Restart token is invalid or has expired`)
 	}
@@ -789,13 +790,13 @@ export async function restoreSnapshot(
 	snapshotId: SnapshotId,
 	restoreDebugData: boolean
 ): Promise<void> {
-	check(snapshotId, String)
+	check(snapshotId, z.string())
 
 	const snapshot = await retreiveSnapshot(snapshotId, context.connection)
 	return restoreFromSnapshot(snapshot, restoreDebugData)
 }
 export async function removeSnapshot(context: MethodContext, snapshotId: SnapshotId): Promise<void> {
-	check(snapshotId, String)
+	check(snapshotId, z.string())
 
 	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_SNAPSHOT_MANAGEMENT)
 
@@ -897,7 +898,7 @@ snapshotPrivateApiRouter.post(
 snapshotPrivateApiRouter.get('/retrieve/:snapshotId', async (ctx) => {
 	return handleKoaResponse(ctx, async () => {
 		const snapshotId = ctx.params.snapshotId
-		check(snapshotId, String)
+		check(snapshotId, z.string())
 		return retreiveSnapshot(protectString(snapshotId), ctx)
 	})
 })
@@ -917,7 +918,7 @@ export class ServerSnapshotAPI extends MethodContextAPI implements NewSnapshotAP
 		if (!verifyHashedToken(hashedToken)) {
 			throw new Meteor.Error(401, `Idempotency token is invalid or has expired`)
 		}
-		check(playlistId, String)
+		check(playlistId, z.string())
 		const playlist = await checkAccessToPlaylist(this.connection, playlistId)
 		return storeRundownPlaylistSnapshot(playlist, {}, reason)
 	}

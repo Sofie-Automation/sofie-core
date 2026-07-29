@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { PackageInfo } from '@sofie-automation/blueprints-integration'
 import {
 	AdLibActionId,
@@ -55,7 +56,7 @@ import {
 	regenerateForPieceInstanceIds,
 } from './regenerateItems'
 import { PieceContentStatusStudio } from '../checkPieceContentStatus'
-import { check, Match } from 'meteor/check'
+import { check } from '../../../lib/check'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { triggerWriteAccessBecauseNoCheckNecessary } from '../../../security/securityVerify'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
@@ -505,7 +506,7 @@ export function registerRundownContentStatusUIPublications(registry: Publication
 		CorelibPubSub.uiPieceContentStatuses,
 		CustomCollectionName.UIPieceContentStatuses,
 		async (_context, pub, rundownPlaylistId: RundownPlaylistId | null) => {
-			check(rundownPlaylistId, Match.Maybe(String))
+			check(rundownPlaylistId, z.string().nullish())
 
 			triggerWriteAccessBecauseNoCheckNecessary()
 
