@@ -13,8 +13,10 @@ const tmpRules = {
 }
 
 const extendedRules = await generateEslintConfig({
-	// tsconfigName: 'tsconfig.eslint.json',
-	ignores: ['.meteor', 'public', 'scripts', 'server/_force_restart.js', '/packages/', '_build'],
+	// The tests and mocks are not part of this package's own tsconfig, they are type-checked as part of the
+	// shared test project over in `packages`. eslint needs to be told about both to cover every file.
+	tsconfigName: ['tsconfig.json', '../packages/tsconfig.test.json'],
+	ignores: ['.meteor', 'public', 'scripts', 'server/_force_restart.js', '/packages/', '_build', 'dist'],
 
 	// disableNodeRules: true,
 })

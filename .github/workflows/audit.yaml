@@ -26,7 +26,7 @@ jobs:
         with:
           path: |
             meteor/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('meteor/yarn.lock') }}-${{ hashFiles('meteor/.meteor/release') }}
+          key: ${{ runner.os }}-${{ hashFiles('meteor/yarn.lock') }}
       - name: Validate production dependencies for vulnerabilities and compatible licenses
         run: |
           corepack enable
@@ -55,7 +55,7 @@ jobs:
         with:
           path: |
             meteor/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('meteor/yarn.lock') }}-${{ hashFiles('meteor/.meteor/release') }}
+          key: ${{ runner.os }}-${{ hashFiles('meteor/yarn.lock') }}
       - name: Validate production dependencies for vulnerabilities and compatible licenses
         run: |
           corepack enable

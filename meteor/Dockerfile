@@ -1,63 +1,66 @@
 # syntax=docker/dockerfile:experimental
 
-# BUILD WEBUI
+# BUILD IMAGE
 FROM node:22
-COPY packages /opt/core/packages
-WORKDIR /opt/core/packages
+WORKDIR /opt/core
 
-RUN rm -R *-gateway documentation openapi
+COPY package.json /opt/core/package.json
+COPY packages /opt/core/packages
+COPY meteor /opt/core/meteor
+COPY scripts /opt/core/scripts
+
 RUN corepack enable
-RUN yarn install && yarn build
-RUN cd webui && yarn build
+
+# Both projects must be installed before building: `packages`' build graph includes `meteor`, which
+# resolves its dependencies out of meteor/node_modules
+RUN cd packages && yarn install
+RUN cd meteor && yarn install
+
+# Build the libraries and the server. `packages`' build graph references ../meteor/tsconfig.build.json,
+# so this emits meteor/dist too
+RUN cd packages && NODE_OPTIONS="--max-old-space-size=4096" yarn build
+
+# Build the webui
+RUN cd packages/webui && yarn build
 # Drop the dev-only assets from the webui output, they are not served in a deployment
 RUN rm -Rf /opt/core/packages/webui/dist/dev
 
-# Install production dependencies for the worker
-# HACK: 
-# RUN yarn workspaces focus --production @sofie-automation/job-worker @sofie-automation/corelib
-
-# BUILD IMAGE
-FROM node:22
-
-# Temporary change the NODE_ENV env variable, so that all libraries are installed:
-ENV NODE_ENV_TMP $NODE_ENV
-ENV NODE_ENV anythingButProduction
-
-# Prepare the packages
-COPY package.json /opt/core/package.json
-COPY --from=0 /opt/core/packages /opt/core/packages
-
-# Add the meteor source
-COPY meteor /opt/core/meteor
-COPY scripts /opt/core/scripts
-WORKDIR /opt/core/meteor
-
-RUN rm -R /opt/core/packages/webui
-
-# Force meteor to setup the runtime
-RUN meteor --version --allow-superuser
-RUN corepack enable
-RUN yarn install
-
-# Restore the NODE_ENV variable:
-ENV NODE_ENV $NODE_ENV_TMP
-RUN --mount=type=cache,target=/opt/core/meteor/.meteor/local NODE_OPTIONS="--max-old-space-size=4096" METEOR_DEBUG_BUILD=1 meteor build --allow-superuser --directory /opt/
-WORKDIR /opt/bundle/programs/server/
-RUN npm install
+# Everything is built by this point, so the build tooling does not need to ship in the image
+RUN cd packages && yarn workspaces focus --production \
+	@sofie-automation/blueprints-integration \
+	@sofie-automation/corelib \
+	@sofie-automation/job-worker \
+	@sofie-automation/meteor-lib \
+	@sofie-automation/shared-lib
+RUN cd meteor && yarn workspaces focus --production
 
 # DEPLOY IMAGE
 FROM node:22-alpine
 
 RUN apk add --no-cache tzdata
 
-COPY --from=1 /opt/bundle /opt/core
+# The server itself
+COPY --from=0 /opt/core/meteor/package.json /opt/core/meteor/package.json
+COPY --from=0 /opt/core/meteor/dist /opt/core/meteor/dist
+COPY --from=0 /opt/core/meteor/node_modules /opt/core/meteor/node_modules
+
+# The libraries the server links to through its `portal:` dependencies. They are symlinked from
+# meteor/node_modules/@sofie-automation/*, so they have to stay siblings of `meteor`, and they resolve
+# their own dependencies out of packages/node_modules, so that has to come along too.
+COPY --from=0 /opt/core/packages/node_modules /opt/core/packages/node_modules
+COPY --from=0 /opt/core/packages/blueprints-integration /opt/core/packages/blueprints-integration
+COPY --from=0 /opt/core/packages/corelib /opt/core/packages/corelib
+COPY --from=0 /opt/core/packages/job-worker /opt/core/packages/job-worker
+COPY --from=0 /opt/core/packages/meteor-lib /opt/core/packages/meteor-lib
+COPY --from=0 /opt/core/packages/shared-lib /opt/core/packages/shared-lib
+
 COPY --from=0 /opt/core/packages/webui/dist /opt/core/webui
 COPY meteor/docker-entrypoint.sh /opt
 
 # Where the koa server serves the webui from
 ENV SOFIE_WEBUI_DIR=/opt/core/webui
 
-WORKDIR /opt/core/
+WORKDIR /opt/core/meteor
 RUN chown -R 1000:1000 /opt/core
 USER 1000
 ENTRYPOINT ["/opt/docker-entrypoint.sh"]
