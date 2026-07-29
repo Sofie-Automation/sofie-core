@@ -24,6 +24,10 @@ export class SessionCollectionView {
 		return this.documents.size === 0
 	}
 
+	get size(): number {
+		return this.documents.size
+	}
+
 	added(subscriptionHandle: string, id: string, fields: Record<string, any>): void {
 		let docView = this.documents.get(id)
 		let added = false

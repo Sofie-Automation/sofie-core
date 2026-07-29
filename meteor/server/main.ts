@@ -15,7 +15,7 @@ import { PublicationRegistry } from './publicationRegistry'
 import { registerAllPublications } from './publicationRegistrations'
 import { bindRestApiRouter } from './api/rest/api'
 import { startupVerifyAllMethods } from './security/securityVerify'
-import { startStandaloneDdpServer } from './ddp-server'
+import { createDdpConnectionRegistry, startStandaloneDdpServer } from './ddp-server'
 import { makeMeteorCallForRegistry } from './api/meteorCall'
 import { createMeteorTriggersContext } from './api/deviceTriggers/triggersContext'
 import { startDeviceTriggersObserver } from './api/deviceTriggers/observer'
@@ -55,6 +55,9 @@ registerAllApiMethods(methodRegistry)
 // Build and populate the publication registry
 const publicationRegistry = new PublicationRegistry()
 registerAllPublications(publicationRegistry)
+
+// The registry of live DDP sessions, shared between the DDP server and the performance monitor
+const ddpConnectionRegistry = createDdpConnectionRegistry()
 
 Meteor.startup(async () => {
 	console.log('process started') // This is a message all Sofie processes log upon startup
@@ -115,9 +118,9 @@ Meteor.startup(async () => {
 	])
 
 	startCronjobs()
-	startPerformanceMonitor()
+	startPerformanceMonitor(ddpConnectionRegistry)
 
-	startStandaloneDdpServer(methodRegistry, publicationRegistry)
+	startStandaloneDdpServer(methodRegistry, publicationRegistry, ddpConnectionRegistry)
 	startKoaServer()
 
 	// Ensure all the publications were registered at startup

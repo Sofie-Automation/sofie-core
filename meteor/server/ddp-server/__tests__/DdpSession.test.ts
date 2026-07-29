@@ -354,6 +354,55 @@ describe('DdpSession', () => {
 		})
 	})
 
+	describe('debug data', () => {
+		test('the registry reports the live subscriptions and merged document counts', async () => {
+			const { publications, socket, connections } = setup()
+			publications.publishUnsafe('test.a', async (ctx) => {
+				ctx.added('Shared', 'x', { a: 1 })
+				ctx.added('Other', 'y', { a: 1 })
+				ctx.ready()
+			})
+			// Publishes the same document as test.a, so the merge box holds it only once.
+			publications.publishUnsafe('test.b', async (ctx) => {
+				ctx.added('Shared', 'x', { a: 1 })
+				ctx.ready()
+			})
+			socket.receive({ msg: 'connect', version: '1' })
+			socket.receive({ msg: 'sub', id: 's1', name: 'test.a' })
+			socket.receive({ msg: 'sub', id: 's2', name: 'test.b' })
+			await flush()
+
+			expect(connections.getDebugData()).toEqual([
+				{
+					id: expect.any(String),
+					clientAddress: '127.0.0.1',
+					mergedDocumentCount: 2,
+					subscriptions: [
+						{ name: 'test.a', documents: { Shared: 1, Other: 1 } },
+						{ name: 'test.b', documents: { Shared: 1 } },
+					],
+				},
+			])
+
+			socket.receive({ msg: 'unsub', id: 's2' })
+			await flush()
+
+			expect(connections.getDebugData()[0]).toMatchObject({
+				mergedDocumentCount: 2,
+				subscriptions: [{ name: 'test.a', documents: { Shared: 1, Other: 1 } }],
+			})
+		})
+
+		test('a closed session is no longer reported', () => {
+			const { socket, session, connections } = setup()
+			socket.receive({ msg: 'connect', version: '1' })
+			expect(connections.getDebugData()).toHaveLength(1)
+
+			session.close()
+			expect(connections.getDebugData()).toHaveLength(0)
+		})
+	})
+
 	test('an async method unblocks so it does not head-of-line block the next method', async () => {
 		// Sofie's method wrapper calls this.unblock() as soon as a method returns a promise (the
 		// historical "Meteor 2.7" behaviour), so a slow async method lets the next one start.
