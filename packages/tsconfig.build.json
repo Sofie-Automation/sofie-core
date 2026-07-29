@@ -14,6 +14,6 @@
 		{ "path": "./live-status-gateway/tsconfig.build.json" },
 		{ "path": "./meteor-lib/tsconfig.build.json" },
 		{ "path": "./webui/tsconfig.app.json" },
-		{ "path": "../meteor/tsconfig.json" }
+		{ "path": "../meteor/tsconfig.build.json" }
 	]
 }

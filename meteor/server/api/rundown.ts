@@ -122,6 +122,8 @@ export namespace ClientRundownAPI {
 				})) as Pick<DBStudio, '_id' | '_rundownVersionHash'>
 				if (!studio) return 'missing studio'
 				if (rundown.importVersions.studio !== (studio._rundownVersionHash || 0)) return 'studio'
+
+				return undefined // no errors
 			})
 		)
 

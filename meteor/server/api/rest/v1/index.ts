@@ -60,6 +60,8 @@ function validateUserError(e: unknown): UserError | undefined {
 		return e
 	} else if (UserError.isSerializedUserErrorObject(e)) {
 		return UserError.fromUnknown(e)
+	} else {
+		return undefined
 	}
 }
 

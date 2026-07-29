@@ -2,7 +2,7 @@ import '../../../__mocks__/_extendJest'
 import { setupDefaultStudioEnvironment, DefaultEnvironment } from '../../../__mocks__/helpers/database'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { MeteorMock } from '../../../__mocks__/meteor'
+import { sleepNoFakeTimers } from '../../../__mocks__/time'
 import { status2ExternalStatus, setSystemStatus } from '../systemStatus'
 import { StatusResponse } from '@sofie-automation/meteor-lib/dist/api/systemStatus'
 import { StatusCode } from '@sofie-automation/blueprints-integration'
@@ -42,7 +42,7 @@ describe('systemStatus API', () => {
 		test('REST /health with state BAD', async () => {
 			env = await setupDefaultStudioEnvironment()
 			await setupSystemStatusObservers()
-			await MeteorMock.sleepNoFakeTimers(200)
+			await sleepNoFakeTimers(200)
 
 			// The system is uninitialized, the status will be BAD
 			const expectedStatus0 = StatusCode.BAD
@@ -77,7 +77,7 @@ describe('systemStatus API', () => {
 		test('REST /health with state GOOD', async () => {
 			env = await setupDefaultStudioEnvironment()
 			await setupSystemStatusObservers()
-			await MeteorMock.sleepNoFakeTimers(200)
+			await sleepNoFakeTimers(200)
 
 			// simulate initialized system
 			setSystemStatus('systemTime', {

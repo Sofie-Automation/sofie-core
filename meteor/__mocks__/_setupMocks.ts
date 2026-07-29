@@ -10,7 +10,6 @@ jest.mock('nanoid', (...args) => require('./random').setup(args), { virtual: tru
 
 // Add references to all "meteor" mocks below, so that jest resolves the imports properly.
 
-jest.mock('meteor/meteor', (...args) => require('./meteor').setup(args), { virtual: true })
 jest.mock('../server/api/integration/slack', (...args) => require('./slack').setup(args), { virtual: true })
 jest.mock('../server/worker/worker', (...args) => require('./worker').setup(args), { virtual: true })
 
