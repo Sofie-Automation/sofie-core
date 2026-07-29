@@ -32,12 +32,12 @@ export function startAgent(config: AgentConfigOptions): void {
 			// instrumentDB replaced by manual wrapping in WrappedAsyncMongoCollection
 			// startMetrics(Agent),
 
-			Agent.logger.info('meteor-elastic-apm completed instrumenting')
+			Agent.logger.info('elastic-apm completed instrumenting')
 		} catch (e) {
-			Agent.logger.error('Could not start meteor-elastic-apm')
+			Agent.logger.error('Could not start elastic-apm')
 			throw e
 		}
 	} else {
-		Agent.logger.warn('meteor-elastic-apm is not active')
+		Agent.logger.warn('elastic-apm is not active')
 	}
 }

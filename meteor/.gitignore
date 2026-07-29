@@ -7,9 +7,8 @@ settings.json
 server/_force_restart.js
 public/
 
-# Ignore TV2-features:
-client/styles/tv2
-client/ui/Shelf/Keyboard
+# Ignore old meteor stuff
+/.meteor/
 
 .pnp.*
 .yarn/*

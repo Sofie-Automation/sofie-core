@@ -9,12 +9,6 @@
 		"sourceMap": true,
 		"allowJs": false,
 		"lib": ["dom", "es2024", "dom.iterable", "scripthost"],
-		"paths": {
-			"meteor/*": [
-				//   "./node_modules/@types/meteor/*",
-				"./.meteor/local/types/packages.d.ts"
-			]
-		},
 		"noEmit": true
 	},
 	"include": ["client/**/*", "server/**/*", "lib/**/*", "__mocks__/**/*", "tslint-rules/**/*"],

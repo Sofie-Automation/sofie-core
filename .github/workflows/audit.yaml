@@ -21,7 +21,6 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version-file: ".node-version"
-      - uses: ./.github/actions/setup-meteor
       - name: restore node_modules
         uses: actions/cache@v6
         with:
@@ -51,7 +50,6 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version-file: ".node-version"
-      - uses: ./.github/actions/setup-meteor
       - name: restore node_modules
         uses: actions/cache@v6
         with:
@@ -130,7 +128,7 @@ jobs:
       - name: Prepare Environment
         run: |
           corepack enable
-          
+
           cd packages
           yarn install
         env:

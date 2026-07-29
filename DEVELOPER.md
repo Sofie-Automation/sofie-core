@@ -10,7 +10,7 @@ The documentation can be found at [Sofie TV Automation Documentation](https://so
 
 ### Monorepo Layout
 
-This repository is a monorepo and contains both the main application (usually called server-core) as well as multiple auxiliary projects. In the `meteor` folder you will find the main Meteor application with `server` for the server-side application. The `packages` folder contains the frontend, other libraries and apps used together with Sofie Core.
+This repository is a monorepo and contains both the main application (usually called server-core) as well as multiple auxiliary projects. In the `meteor` folder you will find the main Sofie application with `server` for the server-side application. The `packages` folder contains the frontend, other libraries and apps used together with Sofie Core.
 
 ## Getting Started with Local Development
 
@@ -19,7 +19,6 @@ Follow these instructions to start up Sofie Core in development mode. (For produ
 ### Prerequisites
 
 - Install [Node.js](https://nodejs.org) 22 (using [nvm](https://github.com/nvm-sh/nvm) or [nvm-windows](https://github.com/coreybutler/nvm-windows) is the recommended way to install Node.js)
-- Install [Meteor](https://docs.meteor.com/about/install.html) (`npx meteor`)
 - Enable [corepack](https://nodejs.org/api/corepack.html#corepack) (`corepack enable`) as administrator/root. If `corepack` is not found, you may need to install it first with `npm install --global corepack`
 
 - If on Windows, you may need to `npm install --global windows-build-tools` but this is not always necessary
@@ -33,9 +32,9 @@ yarn
 yarn start
 ```
 
-> 💡 First startup may take a while, especially on Windows. To speed things up, consider adding `%LOCALAPPDATA%\.meteor` and the directory where you cloned `server-core` to your Windows Defender virus protection exclusions.
+> 💡 First startup may take a while, especially on Windows. To speed things up, consider adding the directory where you cloned `server-core` to your Windows Defender virus protection exclusions.
 
-The Sofie ui (served by Vite) can be accessed at `http://localhost:3005`. The meteor http server can be access directly at `http://localhost:3000`
+The Sofie ui (served by Vite) can be accessed at `http://localhost:3005`. The Sofie http server can be access directly at `http://localhost:3000`.
 
 ### Slightly more Involved Start
 
@@ -51,7 +50,7 @@ The Sofie ui (served by Vite) can be accessed at `http://localhost:3005`. The me
    cd sofie-core
    ```
 
-3. Setup meteor and dependencies. (Before this, make sure your NODE_ENV environment variable is NOT set to "production"!)
+3. Setup dependencies. (Before this, make sure your NODE_ENV environment variable is NOT set to "production"!)
 
    ```bash
    yarn install
@@ -72,7 +71,7 @@ The Sofie ui (served by Vite) can be accessed at `http://localhost:3005`. The me
 
 ### Lowering memory, CPU footprint in development
 
-If you find yourself in a situation where running Sofie in development mode is too heavy, but you're not planning on modifying any of the low-level packages in the `packages` directory, you may want to run Sofie in the _UI-only mode_, in which only meteor and the ui will be rebuilt and type-checked on modification:
+If you find yourself in a situation where running Sofie in development mode is too heavy, but you're not planning on modifying any of the low-level packages in the `packages` directory, you may want to run Sofie in the _UI-only mode_, in which only the core app and the ui will be rebuilt and type-checked on modification:
 
 ```bash
 yarn dev --ui-only
@@ -95,14 +94,6 @@ The code is formatted and linted using prettier/eslint. The shared config can be
 
 We provide a `settings.json.default` file in `.vscode` that you should consider using with your IDE. Also consider installing suggested
 extensions, which should help you create PRs consistent with project's code standards.
-
-### Attaching a NodeJS debugger to the Meteor process
-
-You can connect a debugging client to Meteor's Node process on port `9229`. In order for that to be possible, enable the `--inspect-meteor` mode:
-
-```bash
-yarn dev --inspect-meteor
-```
 
 ### Debugging blueprints
 
@@ -129,7 +120,7 @@ Then, run the compilation script:
 yarn i18n-compile-json
 ```
 
-The resulting JSON file will be placed in `meteor/public/locales/xx`, where it will be available to the Sofie UI for use and auto-detection.
+The resulting JSON file will be placed in `packages/webui/public/locales/xx`, where it will be available to the Sofie UI for use and auto-detection.
 
 Then submit this as a PR.
 
