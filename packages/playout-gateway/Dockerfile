@@ -15,6 +15,8 @@ RUN yarn workspaces focus playout-gateway --production # purge dev-dependencies
 FROM node:22-alpine
 RUN apk add --no-cache tzdata
 
+ENV NODE_ENV=production
+
 COPY --from=0 /opt/package.json /opt/package.json
 COPY --from=0 /opt/node_modules /opt/node_modules
 COPY --from=0 /opt/playout-gateway /opt/playout-gateway

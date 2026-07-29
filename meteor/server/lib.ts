@@ -4,21 +4,30 @@ import fs from 'fs'
 import path from 'path'
 import { logger } from './logging'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
-import { Meteor } from 'meteor/meteor'
 
 /**
  * Whether we are running in unit tests.
  */
 export function isInTestMode(): boolean {
-	return !!(Meteor.isTest || process.env.JEST_WORKER_ID)
+	return !!process.env.JEST_WORKER_ID
 }
 
+/**
+ * Whether we are running a production build.
+ * Note: An unset `NODE_ENV` counts as development.
+ */
 export function isInProductionMode(): boolean {
-	return Meteor.isProduction && !isInTestMode()
+	return process.env.NODE_ENV === 'production' && !isInTestMode()
 }
 
 export function isInDevelopmentMode(): boolean {
 	return !isInProductionMode() && !isInTestMode()
+}
+
+/** A description of the mode we are running in, and what it was derived from, for the startup logging. */
+export function describeRunMode(): string {
+	const mode = isInTestMode() ? 'test' : isInProductionMode() ? 'production' : 'development'
+	return `${mode} mode (NODE_ENV=${process.env.NODE_ENV ? `"${process.env.NODE_ENV}"` : '<unset>'})`
 }
 
 /** Returns absolute path to programs/server directory of your compiled application, without trailing slash. */

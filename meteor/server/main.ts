@@ -28,7 +28,7 @@ import { startPerformanceMonitor } from './performanceMonitor'
 import { createIndexes } from './api/system'
 import { startMediaObjectDurationMonitor } from './api/ingest/rundownInput'
 import { startStudioMappingsHashObserver } from './api/studio/api'
-import { isInDevelopmentMode, isInTestMode } from './lib'
+import { describeRunMode, isInDevelopmentMode, isInTestMode } from './lib'
 import { connectMongo } from './collections/mongoConnection'
 import { bindServiceMessagesRouter } from './api/serviceMessages/api'
 import { bindSystemStatusRouter } from './systemStatus/api'
@@ -64,6 +64,7 @@ Meteor.startup(async () => {
 
 	logger.info(`Core starting up`)
 	logger.info(`Core system version: "${CURRENT_SYSTEM_VERSION}"`)
+	logger.info(`Core running in ${describeRunMode()}`)
 
 	if (global.gc) {
 		logger.info(`Manual garbage-collection is enabled`)
