@@ -23,7 +23,7 @@ import { UserActionsLog } from '../collections'
 import { isInTestWrite } from '../security/securityVerify'
 import { QueueJobOptions } from '@sofie-automation/job-worker/dist/jobs'
 import { WorkerJobQueueManager } from './jobQueue'
-import { isInTestMode } from '../lib'
+import { isInDevelopmentMode, isInTestMode } from '../lib'
 
 const FREEZE_LIMIT = 1000 // how long to wait for a response to a Ping
 const RESTART_TIMEOUT = 30000 // how long to wait for a restart to complete before throwing an error
@@ -71,7 +71,7 @@ let worker: Promisify<IpcJobWorker> | undefined
 export async function startJobWorkerParent(): Promise<void> {
 	if (isInTestMode()) return // Don't start the worker
 
-	if (Meteor.isDevelopment) {
+	if (isInDevelopmentMode()) {
 		// Ensure meteor restarts when the _force_restart file changes
 		try {
 			require('../_force_restart')

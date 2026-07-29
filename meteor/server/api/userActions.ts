@@ -61,6 +61,7 @@ import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissio
 import { assertConnectionHasOneOfPermissions } from '../security/auth'
 import { checkAccessToRundown } from '../security/check'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
+import { isInProductionMode } from '../lib'
 
 const PERMISSIONS_FOR_PLAYOUT_USERACTION: Array<keyof UserPermissions> = ['studio']
 const PERMISSIONS_FOR_BUCKET_MODIFICATION: Array<keyof UserPermissions> = ['studio']
@@ -724,7 +725,7 @@ export class ServerUserActionAPI
 		rundownPlaylistId: RundownPlaylistId
 	): Promise<ClientAPI.ClientResponse<void>> {
 		// Make sure we never crash in production
-		if (Meteor.isProduction) return ClientAPI.responseSuccess(undefined)
+		if (isInProductionMode()) return ClientAPI.responseSuccess(undefined)
 
 		return ServerClientAPI.runUserActionInLogForPlaylistOnWorker(
 			this,

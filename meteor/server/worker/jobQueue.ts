@@ -1,7 +1,6 @@
 import { UserError } from '@sofie-automation/corelib/dist/error'
 import { MetricsCounter } from '@sofie-automation/corelib/dist/prometheus'
 import type { JobSpec } from '@sofie-automation/job-worker/dist/main'
-import { Meteor } from 'meteor/meteor'
 import type { JobTimings, WorkerJob } from './worker'
 import type { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
 import type { QueueJobOptions } from '@sofie-automation/job-worker/dist/jobs'
@@ -121,7 +120,7 @@ export class WorkerJobQueueManager {
 		if (queue.notifyWorker) {
 			const oldNotify = queue.notifyWorker
 
-			Meteor.defer(() => {
+			setImmediate(() => {
 				try {
 					// Notify the worker in the background
 					oldNotify.reject(new Error('new workerThread, replacing the old'))
@@ -183,7 +182,7 @@ export class WorkerJobQueueManager {
 			const oldNotify = queue.notifyWorker
 			queue.notifyWorker = null
 
-			Meteor.defer(() => {
+			setImmediate(() => {
 				try {
 					// Notify the worker in the background
 					oldNotify.resolve()
@@ -336,7 +335,7 @@ export class WorkerJobQueueManager {
 
 			// Worker is about to be notified, so clear the handle:
 			queue.notifyWorker = null
-			Meteor.defer(() => {
+			setImmediate(() => {
 				try {
 					// Notify the worker in the background
 					notify.resolve()

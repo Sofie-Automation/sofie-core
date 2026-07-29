@@ -28,7 +28,7 @@ import { startPerformanceMonitor } from './performanceMonitor'
 import { createIndexes } from './api/system'
 import { startMediaObjectDurationMonitor } from './api/ingest/rundownInput'
 import { startStudioMappingsHashObserver } from './api/studio/api'
-import { isInTestMode } from './lib'
+import { isInDevelopmentMode, isInTestMode } from './lib'
 import { connectMongo } from './collections/mongoConnection'
 import { bindServiceMessagesRouter } from './api/serviceMessages/api'
 import { bindSystemStatusRouter } from './systemStatus/api'
@@ -99,7 +99,7 @@ Meteor.startup(async () => {
 
 	await startJobWorkerParent()
 
-	if (!Meteor.isProduction && !isInTestMode()) startupVerifyAllMethods(methodRegistry)
+	if (isInDevelopmentMode()) startupVerifyAllMethods(methodRegistry)
 
 	setupPrometheusMetrics('meteor')
 
@@ -121,7 +121,7 @@ Meteor.startup(async () => {
 	startKoaServer()
 
 	// Ensure all the publications were registered at startup
-	if (Meteor.isDevelopment) publicationRegistry.verifyAllPublicationsRegistered()
+	if (isInDevelopmentMode()) publicationRegistry.verifyAllPublicationsRegistered()
 
-	if (!isInTestMode()) startTimeJumpDetector()
+	startTimeJumpDetector()
 })

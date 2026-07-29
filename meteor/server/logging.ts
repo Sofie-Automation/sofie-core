@@ -1,9 +1,8 @@
 import * as Winston from 'winston'
 import * as fs from 'fs'
-import { getAbsolutePath, isInTestMode } from './lib'
+import { getAbsolutePath, isInProductionMode, isInTestMode } from './lib'
 import { LogLevel } from '@sofie-automation/meteor-lib/dist/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
-import { Meteor } from 'meteor/meteor'
 import _ from 'underscore'
 import { LoggerInstanceFixed } from '@sofie-automation/corelib/dist/logging'
 
@@ -121,7 +120,7 @@ if (logToFile || logPath !== '') {
 	transports = {
 		console: transportConsole,
 	}
-	if (Meteor.isProduction) {
+	if (isInProductionMode()) {
 		logger = Winston.createLogger({
 			format: Winston.format.json(),
 			transports: [transportConsole],

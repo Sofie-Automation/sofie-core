@@ -41,7 +41,7 @@ class CustomPublishToMap<DBObj extends { _id: ProtectedString<any> }> implements
 
 		this.#isReady = true
 
-		Meteor.defer(() => this.#readyPromise.resolve())
+		setImmediate(() => this.#readyPromise.resolve())
 	}
 
 	/**

@@ -3,10 +3,9 @@ import cors from '@koa/cors'
 import KoaRouter from '@koa/router'
 import KoaMount from 'koa-mount'
 import { WebApp } from 'meteor/webapp'
-import { Meteor } from 'meteor/meteor'
 import { getRandomString } from '@sofie-automation/corelib/dist/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
-import { getRootSubpath, public_dir } from '../../lib'
+import { getRootSubpath, isInDevelopmentMode, public_dir } from '../../lib'
 import { getClientAddress } from '../../lib/clientAddress'
 import { STANDALONE_DDP_SERVER_PATH } from '../../ddp-server/config'
 import staticServe from 'koa-static'
@@ -91,7 +90,7 @@ export function startKoaServer(): void {
 	koaApp.use(KoaMount(getRootSubpath() || '/', webuiServer))
 	logger.debug(`Serving static files from ${public_dir}`)
 
-	if (Meteor.isDevelopment) {
+	if (isInDevelopmentMode()) {
 		// Serve the meteor runtime config. In production, this gets baked into the html
 		rootRouter.get(getRootSubpath() + '/meteor-runtime-config.js', async (ctx) => {
 			ctx.body = getExtendedMeteorRuntimeConfig()

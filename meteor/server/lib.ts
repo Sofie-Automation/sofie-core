@@ -6,6 +6,21 @@ import { logger } from './logging'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { Meteor } from 'meteor/meteor'
 
+/**
+ * Whether we are running in unit tests.
+ */
+export function isInTestMode(): boolean {
+	return !!(Meteor.isTest || process.env.JEST_WORKER_ID)
+}
+
+export function isInProductionMode(): boolean {
+	return Meteor.isProduction && !isInTestMode()
+}
+
+export function isInDevelopmentMode(): boolean {
+	return !isInProductionMode() && !isInTestMode()
+}
+
 /** Returns absolute path to programs/server directory of your compiled application, without trailing slash. */
 export function getAbsolutePath(): string {
 	const rootPath = path.resolve('.')
@@ -29,7 +44,7 @@ export function extractFunctionSignature(f: Function): string[] | undefined {
 export type Translations = Record<string, string>
 
 // The /public directory in a Meteor app
-export const public_dir = Meteor.isProduction
+export const public_dir = isInProductionMode()
 	? path.join(process.cwd(), '../web.browser/app')
 	: // In development, find the webui package and use its public directory
 		path.join(process.cwd(), '../../../../../../packages/webui/public')
@@ -86,11 +101,4 @@ async function getLocaleFile(languageCode: string): Promise<Translations | null>
 
 		return null
 	}
-}
-
-/**
- * Whether we are running in unit tests.
- */
-export function isInTestMode(): boolean {
-	return !!(Meteor.isTest || process.env.JEST_WORKER_ID)
 }
