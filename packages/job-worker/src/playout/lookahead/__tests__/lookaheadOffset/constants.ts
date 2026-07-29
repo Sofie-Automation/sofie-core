@@ -5,6 +5,46 @@ import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { PlayoutModel } from '../../../model/PlayoutModel.js'
 import { JobContext } from '../../../../jobs/index.js'
 
+/**
+ * Generates a piece with a single timeline object on the given layer.
+ * Use this instead of `makePiece` when a test only cares about search-distance
+ * or basic lookahead presence, and does not need to verify multi-object offset
+ * computation. Keeps each piece to exactly one object so that `lookaheadDepth`
+ * behaves as "one object per part" (the same as the pre-multi-object behaviour).
+ */
+export function makeSimplePiece({
+	partId,
+	layer,
+	start = 0,
+}: {
+	partId: string
+	layer: string
+	start?: number
+}): Piece {
+	return literal<Partial<Piece>>({
+		_id: protectString(`piece_simple_${partId}_${layer}`),
+		startRundownId: protectString('r1'),
+		startPartId: protectString(partId),
+		enable: { start },
+		outputLayerId: layer,
+		pieceType: IBlueprintPieceType.Normal,
+		timelineObjectsString: protectString<PieceTimelineObjectsBlob>(
+			JSON.stringify([
+				{
+					id: `piece_simple_${partId}_${layer}_obj`,
+					layer,
+					enable: { start: 0 },
+					content: {
+						deviceType: TSR.DeviceType.CASPARCG,
+						type: TSR.TimelineContentTypeCasparCg.MEDIA,
+						file: 'AMB',
+					},
+				},
+			])
+		),
+	}) as Piece
+}
+
 export function makePiece({
 	partId,
 	layer,

@@ -197,6 +197,7 @@ export function getMediaObjectMediaId(
 ): string | undefined {
 	switch (sourceLayer.type) {
 		case SourceLayerType.VT:
+		case SourceLayerType.STUDIO_SCREEN:
 			return (piece.content as VTContent)?.fileName?.toUpperCase()
 		case SourceLayerType.LIVE_SPEAK:
 			return (piece.content as LiveSpeakContent)?.fileName?.toUpperCase()
@@ -507,6 +508,7 @@ async function checkPieceContentMediaObjectStatus(
 	const fileName = getMediaObjectMediaId(piece, sourceLayer)
 	switch (sourceLayer.type) {
 		case SourceLayerType.VT:
+		case SourceLayerType.STUDIO_SCREEN:
 		case SourceLayerType.LIVE_SPEAK:
 		case SourceLayerType.TRANSITION:
 			// If the fileName is not set...

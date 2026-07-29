@@ -40,7 +40,7 @@
 		"@sofie-automation/corelib": "26.3.0-2",
 		"@sofie-automation/shared-lib": "26.3.0-2",
 		"amqplib": "0.10.5",
-		"chrono-node": "^2.9.0",
+		"chrono-node": "^2.9.1",
 		"deepmerge": "^4.3.1",
 		"elastic-apm-node": "^4.15.0",
 		"mongodb": "^7.1.1",
@@ -53,10 +53,10 @@
 		"underscore": "^1.13.8"
 	},
 	"prettier": "@sofie-automation/code-standard-preset/.prettierrc.json",
-	"packageManager": "yarn@4.14.1",
+	"packageManager": "yarn@4.17.0",
 	"devDependencies": {
-		"jest": "^30.3.0",
-		"jest-mock-extended": "^4.0.0",
+		"jest": "^30.4.2",
+		"jest-mock-extended": "^4.0.1",
 		"typescript": "~5.9.3"
 	}
 }

@@ -8,6 +8,7 @@ import { runWithRundownLock } from '../../ingest/lock.js'
 import { executePeripheralDeviceFunction } from '../../peripheralDevice.js'
 import { removeRundownFromDb } from '../../rundownPlaylists.js'
 import { activateRundownPlaylist } from '../activePlaylistActions.js'
+import { handleDeactivateRundownPlaylist } from '../activePlaylistJobs.js'
 import { runJobWithPlayoutModel } from '../lock.js'
 import { handleActivateAdlibTesting } from '../adlibTesting.js'
 
@@ -147,6 +148,69 @@ describe('Playout Actions', () => {
 		// AdlibTesting segment should be gone
 		await expect(getFirstSegment()).resolves.toMatchObject({
 			name: 'Segment 0',
+		})
+	})
+	test('AdlibTesting is cleared on deactivation', async () => {
+		const { playlistId: playlistId0, rundownId: rundownId0 } = await setupDefaultRundownPlaylist(
+			context,
+			undefined,
+			protectString('ro0')
+		)
+		expect(playlistId0).toBeTruthy()
+
+		const getFirstSegment = async () =>
+			await context.directCollections.Segments.findOne(
+				{
+					rundownId: rundownId0,
+				},
+				{
+					sort: {
+						_rank: 1,
+					},
+				}
+			)
+
+		const getAdlibTestingSegments = async () =>
+			context.directCollections.Segments.findFetch({
+				rundownId: rundownId0,
+				orphaned: SegmentOrphanedReason.ADLIB_TESTING,
+			})
+
+		const getPlaylist0 = async () => {
+			const playlist = (await context.directCollections.RundownPlaylists.findOne(
+				playlistId0
+			)) as DBRundownPlaylist
+			playlist.activationId = playlist.activationId ?? undefined
+			return playlist
+		}
+
+		// Activating a rundown, to rehearsal
+		await runJobWithPlayoutModel(context, { playlistId: playlistId0 }, null, async (playoutModel) =>
+			activateRundownPlaylist(context, playoutModel, true)
+		)
+
+		await handleActivateAdlibTesting(context, {
+			playlistId: playlistId0,
+			rundownId: rundownId0,
+		})
+
+		// AdlibTesting segment should be at the top
+		await expect(getFirstSegment()).resolves.toMatchObject({
+			orphaned: SegmentOrphanedReason.ADLIB_TESTING,
+		})
+		await expect(getAdlibTestingSegments()).resolves.toHaveLength(1)
+
+		// Deactivating the rundown should clear the AdlibTesting segment
+		await handleDeactivateRundownPlaylist(context, { playlistId: playlistId0 })
+
+		await expect(getFirstSegment()).resolves.toMatchObject({
+			name: 'Segment 0',
+		})
+		await expect(getAdlibTestingSegments()).resolves.toHaveLength(0)
+		await expect(getPlaylist0()).resolves.toMatchObject({
+			activationId: undefined,
+			currentPartInfo: null,
+			nextPartInfo: null,
 		})
 	})
 })

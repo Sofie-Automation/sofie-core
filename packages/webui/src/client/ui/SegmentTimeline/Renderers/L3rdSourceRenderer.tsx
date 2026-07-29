@@ -5,7 +5,14 @@ import classNames from 'classnames'
 import { PieceMultistepChevron, getPieceSteps } from '../../SegmentContainer/PieceMultistepChevron.js'
 import { CustomLayerItemRenderer, type ICustomLayerItemProps } from './CustomLayerItemRenderer.js'
 
-type IProps = ICustomLayerItemProps
+import type { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
+import type { ReadonlyDeep } from 'type-fest'
+import { getNoticeLevelForPieceStatus } from '../../../lib/notifications/notifications.js'
+import { PieceStatusIcon } from '../../../lib/ui/PieceStatusIcon.js'
+
+interface IProps extends ICustomLayerItemProps {
+	contentStatus?: ReadonlyDeep<PieceContentStatusObj>
+}
 interface IState {
 	leftLabelWidth: number
 	rightLabelWidth: number
@@ -116,8 +123,11 @@ export class L3rdSourceRenderer extends CustomLayerItemRenderer<IProps, IState> 
 	}
 
 	render(): JSX.Element {
-		const { piece, isTooSmallForText, isLiveLine } = this.props
+		const { piece, isTooSmallForText, isLiveLine, contentStatus } = this.props
 		const innerPiece = piece.instance.piece
+
+		// derive notice level for status icon (same logic as VTSourceRenderer)
+		const noticeLevel = getNoticeLevelForPieceStatus(contentStatus?.status)
 
 		const hasStepChevron = getPieceSteps(piece)
 		const multistepPill = (
@@ -141,6 +151,7 @@ export class L3rdSourceRenderer extends CustomLayerItemRenderer<IProps, IState> 
 								ref={this.setLeftLabelRef}
 								style={this.getItemLabelOffsetLeft()}
 							>
+								{noticeLevel !== null && <PieceStatusIcon noticeLevel={noticeLevel} />}
 								{multistepPill}
 								<span className="segment-timeline__piece__label">{innerPiece.name}</span>
 							</span>

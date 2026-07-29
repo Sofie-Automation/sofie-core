@@ -41,7 +41,7 @@
 		"@sofie-automation/corelib": "26.3.0-2",
 		"@sofie-automation/shared-lib": "26.3.0-2",
 		"deep-extend": "0.6.0",
-		"semver": "^7.7.4",
+		"semver": "^7.8.4",
 		"type-fest": "^4.41.0",
 		"underscore": "^1.13.8"
 	},
@@ -55,5 +55,5 @@
 		"mongodb": "^7.1.1"
 	},
 	"prettier": "@sofie-automation/code-standard-preset/.prettierrc.json",
-	"packageManager": "yarn@4.14.1"
+	"packageManager": "yarn@4.17.0"
 }

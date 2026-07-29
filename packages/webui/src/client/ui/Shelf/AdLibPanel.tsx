@@ -79,10 +79,7 @@ export interface IAdLibPanelProps {
 	onSelectPiece?: (piece: AdLibPieceUi | PieceUi) => void
 }
 
-type MinimalRundown = Pick<
-	Rundown,
-	'_id' | 'name' | 'playlistId' | 'timing' | 'showStyleBaseId' | 'showStyleVariantId' | 'endOfRundownIsShowBreak'
->
+type MinimalRundown = Pick<Rundown, '_id' | 'name' | 'playlistId' | 'timing' | 'showStyleBaseId' | 'showStyleVariantId'>
 
 export interface AdLibFetchAndFilterProps {
 	uiSegments: Array<AdlibSegmentUi>

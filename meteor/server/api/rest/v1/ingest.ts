@@ -164,6 +164,8 @@ class IngestServerAPI implements IngestRestAPI {
 			playlistExternalId: rawRundown.playlistExternalId,
 			studioId: unprotectString(rawRundown.studioId),
 			name: rawRundown.name,
+			type: rawRundown.source.type,
+			timing: rawRundown.timing,
 		}
 	}
 
@@ -175,6 +177,12 @@ class IngestServerAPI implements IngestRestAPI {
 			rank: rawSegment._rank,
 			rundownId: unprotectString(rawSegment.rundownId),
 			isHidden: rawSegment.isHidden,
+			timing: rawSegment.segmentTiming
+				? {
+						budgetDuration: rawSegment.segmentTiming.budgetDuration,
+						countdownType: rawSegment.segmentTiming.countdownType,
+					}
+				: undefined,
 		}
 	}
 
@@ -780,17 +788,6 @@ class IngestServerAPI implements IngestRestAPI {
 				if (!segment) {
 					return
 				}
-
-				const parts = await this.findParts(segment._id)
-				return Promise.all(
-					parts.map(async (part) =>
-						runIngestOperation(studio._id, IngestJobs.RemovePart, {
-							partExternalId: part.externalId,
-							rundownExternalId: rundown.externalId,
-							segmentExternalId: segment.externalId,
-						})
-					)
-				)
 			})
 		)
 
@@ -839,17 +836,6 @@ class IngestServerAPI implements IngestRestAPI {
 		if (!segment) {
 			throw new Meteor.Error(400, `Segment '${segmentId}' does not exist`)
 		}
-		const parts = await this.findParts(segment._id)
-
-		await Promise.all(
-			parts.map(async (part) =>
-				runIngestOperation(studio._id, IngestJobs.RemovePart, {
-					partExternalId: part.externalId,
-					rundownExternalId: rundown.externalId,
-					segmentExternalId: segment.externalId,
-				})
-			)
-		)
 
 		await runIngestOperation(studio._id, IngestJobs.UpdateSegment, {
 			rundownExternalId: rundown.externalId,

@@ -4118,11 +4118,47 @@ paths:
                           - lower-third
                           - live-speak
                           - transition
+                          - lights
                           - local
+                          - studio-screen
+                          - remote-speak
                         description: Source layer content type.
                       exclusiveGroup:
                         type: string
                         description: Exclusivity group the layer belongs to.
+                      isRemoteInput:
+                        type: boolean
+                        description: Whether the source layer is used for remote.
+                      isGuestInput:
+                        type: boolean
+                        description: Whether the source layer is used for guest inputs.
+                      isClearable:
+                        type: boolean
+                        description: Whether pieces on the source layer can be cleared.
+                      isSticky:
+                        type: boolean
+                        description: Whether pieces on the source layer can be sticky.
+                      stickyOriginalOnly:
+                        type: boolean
+                        description: Whether sticky pieces on the source layer should only preserve the original piece.
+                      isQueueable:
+                        type: boolean
+                        description: Whether pieces on the source layer can be queued.
+                      isHidden:
+                        type: boolean
+                        description: Whether the source layer should be hidden.
+                      allowDisable:
+                        type: boolean
+                        description: Whether the source layer can be disabled.
+                      onPresenterScreen:
+                        type: boolean
+                        description: Whether the source layer should be shown on presenter screens.
+                      onListViewColumn:
+                        type: boolean
+                        description: Whether the source layer should be shown in the list view column.
+                      onListViewAdLibColumn:
+                        type: boolean
+                        description: Whether the source layer should be shown in the list view ad lib column.
                     required:
                       - id
                       - name
@@ -4284,11 +4320,47 @@ paths:
                                 - lower-third
                                 - live-speak
                                 - transition
+                                - lights
                                 - local
+                                - studio-screen
+                                - remote-speak
                               description: Source layer content type.
                             exclusiveGroup:
                               type: string
                               description: Exclusivity group the layer belongs to.
+                            isRemoteInput:
+                              type: boolean
+                              description: Whether the source layer is used for remote.
+                            isGuestInput:
+                              type: boolean
+                              description: Whether the source layer is used for guest inputs.
+                            isClearable:
+                              type: boolean
+                              description: Whether pieces on the source layer can be cleared.
+                            isSticky:
+                              type: boolean
+                              description: Whether pieces on the source layer can be sticky.
+                            stickyOriginalOnly:
+                              type: boolean
+                              description: Whether sticky pieces on the source layer should only preserve the original piece.
+                            isQueueable:
+                              type: boolean
+                              description: Whether pieces on the source layer can be queued.
+                            isHidden:
+                              type: boolean
+                              description: Whether the source layer should be hidden.
+                            allowDisable:
+                              type: boolean
+                              description: Whether the source layer can be disabled.
+                            onPresenterScreen:
+                              type: boolean
+                              description: Whether the source layer should be shown on presenter screens.
+                            onListViewColumn:
+                              type: boolean
+                              description: Whether the source layer should be shown in the list view column.
+                            onListViewAdLibColumn:
+                              type: boolean
+                              description: Whether the source layer should be shown in the list view ad lib column.
                           required:
                             - id
                             - name
@@ -4423,11 +4495,47 @@ paths:
                           - lower-third
                           - live-speak
                           - transition
+                          - lights
                           - local
+                          - studio-screen
+                          - remote-speak
                         description: Source layer content type.
                       exclusiveGroup:
                         type: string
                         description: Exclusivity group the layer belongs to.
+                      isRemoteInput:
+                        type: boolean
+                        description: Whether the source layer is used for remote.
+                      isGuestInput:
+                        type: boolean
+                        description: Whether the source layer is used for guest inputs.
+                      isClearable:
+                        type: boolean
+                        description: Whether pieces on the source layer can be cleared.
+                      isSticky:
+                        type: boolean
+                        description: Whether pieces on the source layer can be sticky.
+                      stickyOriginalOnly:
+                        type: boolean
+                        description: Whether sticky pieces on the source layer should only preserve the original piece.
+                      isQueueable:
+                        type: boolean
+                        description: Whether pieces on the source layer can be queued.
+                      isHidden:
+                        type: boolean
+                        description: Whether the source layer should be hidden.
+                      allowDisable:
+                        type: boolean
+                        description: Whether the source layer can be disabled.
+                      onPresenterScreen:
+                        type: boolean
+                        description: Whether the source layer should be shown on presenter screens.
+                      onListViewColumn:
+                        type: boolean
+                        description: Whether the source layer should be shown in the list view column.
+                      onListViewAdLibColumn:
+                        type: boolean
+                        description: Whether the source layer should be shown in the list view ad lib column.
                     required:
                       - id
                       - name
@@ -6796,12 +6904,12 @@ paths:
                     timing:
                       type: object
                       properties:
-                        expectedStart:
+                        budgetDuration:
                           type: number
-                          description: Epoch timestamp in milliseconds.
-                        expectedEnd:
-                          type: number
-                          description: Epoch timestamp in milliseconds.
+                          description: Budget duration of this segment, in milliseconds
+                        countdownType:
+                          type: string
+                          description: Defines the behavior of countdowns during this segment.
                       additionalProperties: false
                   required:
                     - id
@@ -7132,12 +7240,12 @@ paths:
                   timing:
                     type: object
                     properties:
-                      expectedStart:
+                      budgetDuration:
                         type: number
-                        description: Epoch timestamp in milliseconds.
-                      expectedEnd:
-                        type: number
-                        description: Epoch timestamp in milliseconds.
+                        description: Budget duration of this segment, in milliseconds
+                      countdownType:
+                        type: string
+                        description: Defines the behavior of countdowns during this segment.
                     additionalProperties: false
                 required:
                   - id

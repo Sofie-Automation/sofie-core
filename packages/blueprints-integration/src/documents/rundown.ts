@@ -23,12 +23,6 @@ export interface IBlueprintRundown<TPrivateData = unknown, TPublicData = unknown
 	playlistExternalId?: string
 
 	/**
-	 * Whether the end of the rundown marks a break in the show.
-	 * Allows the Next Break timer in the Rundown Header to time to the end of this rundown when looking for the next break.
-	 */
-	endOfRundownIsShowBreak?: boolean
-
-	/**
 	 * User editing definitions for this rundown
 	 */
 	userEditOperations?: UserEditingDefinition[]
