@@ -1,4 +1,3 @@
-import { WebApp } from 'meteor/webapp'
 import type { Server as HttpServer } from 'http'
 import { WebSocketServer } from 'ws'
 import { URL } from 'url'
@@ -23,22 +22,16 @@ export function createDdpConnectionRegistry(): DdpConnectionRegistry {
 /**
  * Start the standalone DDP server, sharing the given method + publication registries with the Meteor path.
  *
- * It mounts on Meteor's own HTTP server (`WebApp.httpServer`) under a subpath via a `noServer`
- * WebSocket server, only claiming `upgrade` requests for our path and leaving everything else
- * (e.g. Meteor's SockJS endpoint) untouched. Call from within `Meteor.startup`, once the HTTP
- * server exists.
+ * It mounts on the app's HTTP server under a subpath via a `noServer` WebSocket server, only claiming
+ * `upgrade` requests for our path and leaving everything else untouched. Call before the server begins
+ * listening, so that no upgrade request can arrive before the handler is attached.
  */
 export function startStandaloneDdpServer(
 	registry: MethodRegistry,
 	publications: PublicationRegistry,
-	connections: DdpConnectionRegistry
+	connections: DdpConnectionRegistry,
+	httpServer: HttpServer
 ): void {
-	const httpServer = (WebApp as unknown as { httpServer?: HttpServer }).httpServer
-	if (!httpServer) {
-		logger.error('Standalone DDP server: WebApp.httpServer is not available; not starting')
-		return
-	}
-
 	const path = getRootSubpath() + STANDALONE_DDP_SERVER_PATH
 	const wss = new WebSocketServer({ noServer: true })
 

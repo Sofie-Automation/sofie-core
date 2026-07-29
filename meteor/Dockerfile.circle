@@ -4,7 +4,11 @@ FROM node:22-alpine
 RUN apk add --no-cache tzdata
 
 COPY meteor/bundle /opt/core
+COPY packages/webui/dist /opt/core/webui
 COPY meteor/docker-entrypoint.sh /opt
+
+# Where the koa server serves the webui from
+ENV SOFIE_WEBUI_DIR=/opt/core/webui
 WORKDIR /opt/core
 RUN chown -R 1000:1000 /opt/core
 USER 1000

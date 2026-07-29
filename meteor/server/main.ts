@@ -37,7 +37,8 @@ import { startJobWorkerParent } from './worker/worker'
 import { startBlueprintConfigPresetObservers } from './api/blueprintConfigPresets'
 import { startExternalMessageQueueStatusMonitor } from './api/ExternalMessageQueue'
 import { markAllPeripheralDevicesOffline } from './Connections'
-import { startKoaServer } from './api/rest/koa'
+import { createKoaApp } from './api/rest/koa'
+import { createHttpServer, listenHttpServer } from './httpServer'
 import {
 	getSystemStorePath,
 	initializeCoreSystem,
@@ -121,8 +122,10 @@ Meteor.startup(async () => {
 	startCronjobs()
 	startPerformanceMonitor(ddpConnectionRegistry)
 
-	startStandaloneDdpServer(methodRegistry, publicationRegistry, ddpConnectionRegistry)
-	startKoaServer()
+	// Build the http server and everything mounted on it, then start listening once it is all attached
+	const httpServer = createHttpServer(createKoaApp())
+	startStandaloneDdpServer(methodRegistry, publicationRegistry, ddpConnectionRegistry, httpServer)
+	await listenHttpServer(httpServer)
 
 	// Ensure all the publications were registered at startup
 	if (isInDevelopmentMode()) publicationRegistry.verifyAllPublicationsRegistered()

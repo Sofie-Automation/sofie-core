@@ -41,7 +41,7 @@ blueprintsRouter.post(
 			check(blueprintId, z.string())
 			check(blueprintName, z.string().nullish())
 
-			const body = ctx.request.body || ctx.req.body
+			const body = ctx.request.body
 			if (!body) throw new SofieError(400, 'Restore Blueprint: Missing request body')
 			if (typeof body !== 'string' || body.length < 10)
 				throw new SofieError(400, 'Restore Blueprint: Invalid request body')
