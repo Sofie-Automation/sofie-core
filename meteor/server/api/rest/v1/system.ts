@@ -5,16 +5,16 @@ import { APIFactory, APIRegisterHook, ServerAPIContext } from './types'
 import { check } from '../../../lib/check'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { Meteor } from 'meteor/meteor'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { assignSystemBlueprint } from '../../blueprints/api'
 import * as Migrations from '../../../migration/databaseMigration'
+import type { DDPClientConnection } from '../../../ddp-server/types'
 
 class SystemServerAPI implements SystemRestAPI {
 	constructor(private context: ServerAPIContext) {}
 
 	async assignSystemBlueprint(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		_event: string,
 		blueprintId: BlueprintId
 	): Promise<ClientAPI.ClientResponse<void>> {
@@ -24,14 +24,14 @@ class SystemServerAPI implements SystemRestAPI {
 	}
 
 	async unassignSystemBlueprint(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		_event: string
 	): Promise<ClientAPI.ClientResponse<void>> {
 		return ClientAPI.responseSuccess(await assignSystemBlueprint(this.context.getMethodContext(connection), null))
 	}
 
 	async getPendingMigrations(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		_event: string
 	): Promise<ClientAPI.ClientResponse<{ inputs: PendingMigrations }>> {
 		const migrationStatus = await Migrations.getMigrationStatus(this.context.getMethodContext(connection))
@@ -42,7 +42,7 @@ class SystemServerAPI implements SystemRestAPI {
 	}
 
 	async applyPendingMigrations(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		_event: string
 	): Promise<ClientAPI.ClientResponse<void>> {
 		const migrationStatus = await Migrations.getMigrationStatus(this.context.getMethodContext(connection))

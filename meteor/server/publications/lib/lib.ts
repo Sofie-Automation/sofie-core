@@ -3,13 +3,14 @@ import { AllPubSubCollections, AllPubSubTypes } from '@sofie-automation/meteor-l
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { MinimalMongoCursor } from '../../collections/collection'
 import type { LiveQueryHandleSync } from '../../lib/lib'
+import type { DDPClientConnection } from '../../ddp-server/types'
 
 /**
  * The context handed to a publication callback.
  */
 export interface PublicationContext {
 	/** The client connection that opened this subscription. Used by the auth layer for permission checks. */
-	readonly connection: Meteor.Connection | null
+	readonly connection: DDPClientConnection | null
 
 	/**
 	 * Register a function to be called when the subscriber unsubscribes.

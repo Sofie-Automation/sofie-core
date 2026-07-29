@@ -4,6 +4,7 @@ import Koa from 'koa'
 import { triggerWriteAccess } from './securityVerify'
 import { logger } from '../logging'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
+import type { DDPClientConnection } from '../ddp-server/types'
 
 /**
  * The header to use for user permissions
@@ -12,7 +13,7 @@ import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collect
  */
 export const USER_PERMISSIONS_HEADER = (process.env.SOFIE_PERMISSIONS_HEADER || 'dnt').toLowerCase() // Future: swap this to 'x-sofie-permissions or something
 
-export type RequestCredentials = Meteor.Connection | Koa.ParameterizedContext
+export type RequestCredentials = DDPClientConnection | Koa.ParameterizedContext
 
 /**
  * Whether http-header based security measures are enabled.

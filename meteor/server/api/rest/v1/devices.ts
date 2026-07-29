@@ -9,7 +9,6 @@ import { logger } from '../../../logging'
 import { APIFactory, APIRegisterHook, ServerAPIContext } from './types'
 import { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { check } from '../../../lib/check'
-import { Meteor } from 'meteor/meteor'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { PeripheralDevices } from '../../../collections'
 import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
@@ -17,10 +16,11 @@ import { UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/erro
 import { APIPeripheralDeviceFrom } from './typeConversion'
 import { executePeripheralDeviceFunction } from '../../peripheralDevice/executeFunction'
 import { assertNever } from '@sofie-automation/corelib/dist/lib'
+import type { DDPClientConnection } from '../../../ddp-server/types'
 
 class DevicesServerAPI implements DevicesRestAPI {
 	async getPeripheralDevices(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string
 	): Promise<ClientAPI.ClientResponse<Array<{ id: string }>>> {
 		const peripheralDevices = (await PeripheralDevices.findFetchAsync({}, { projection: { _id: 1 } })) as Array<
@@ -30,7 +30,7 @@ class DevicesServerAPI implements DevicesRestAPI {
 	}
 
 	async getPeripheralDevice(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		deviceId: PeripheralDeviceId
 	): Promise<ClientAPI.ClientResponse<APIPeripheralDevice>> {
@@ -48,7 +48,7 @@ class DevicesServerAPI implements DevicesRestAPI {
 	}
 
 	async peripheralDeviceAction(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		deviceId: PeripheralDeviceId,
 		action: PeripheralDeviceActionRestart

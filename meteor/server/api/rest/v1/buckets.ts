@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import { APIBucket, APIBucketComplete, APIImportAdlib, BucketsRestAPI } from '../../../lib/rest/v1/buckets'
 import { BucketAdLibActions, BucketAdLibs, Buckets } from '../../../collections'
 import { APIBucketFrom } from './typeConversion'
@@ -15,6 +14,7 @@ import { UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/erro
 import { IngestAdlib } from '@sofie-automation/blueprints-integration'
 import { assertConnectionHasOneOfPermissions } from '../../../security/auth'
 import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
+import type { DDPClientConnection } from '../../../ddp-server/types'
 
 const PERMISSIONS_FOR_BUCKET_MODIFICATION: Array<keyof UserPermissions> = ['studio']
 
@@ -22,7 +22,7 @@ export class BucketsServerAPI implements BucketsRestAPI {
 	constructor(private context: ServerAPIContext) {}
 
 	async getAllBuckets(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string
 	): Promise<ClientAPI.ClientResponse<Array<APIBucketComplete>>> {
 		const buckets = await Buckets.findFetchAsync({}, { projection: { _id: 1, name: 1, studioId: 1 } })
@@ -30,7 +30,7 @@ export class BucketsServerAPI implements BucketsRestAPI {
 	}
 
 	async getBucket(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		bucketId: BucketId
 	): Promise<ClientAPI.ClientResponse<APIBucketComplete>> {
@@ -49,7 +49,7 @@ export class BucketsServerAPI implements BucketsRestAPI {
 	}
 
 	async addBucket(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		bucket: APIBucket
 	): Promise<ClientAPI.ClientResponse<BucketId>> {
@@ -75,7 +75,7 @@ export class BucketsServerAPI implements BucketsRestAPI {
 	}
 
 	async deleteBucket(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		bucketId: BucketId
 	): Promise<ClientAPI.ClientResponse<void>> {
@@ -96,7 +96,7 @@ export class BucketsServerAPI implements BucketsRestAPI {
 	}
 
 	async emptyBucket(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		bucketId: BucketId
 	): Promise<ClientAPI.ClientResponse<void>> {
@@ -117,7 +117,7 @@ export class BucketsServerAPI implements BucketsRestAPI {
 	}
 
 	async deleteBucketAdLib(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		externalId: string
 	): Promise<ClientAPI.ClientResponse<void>> {
@@ -156,7 +156,7 @@ export class BucketsServerAPI implements BucketsRestAPI {
 	}
 
 	async importAdLibToBucket(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		bucketId: BucketId,
 		showStyleBaseId: ShowStyleBaseId,

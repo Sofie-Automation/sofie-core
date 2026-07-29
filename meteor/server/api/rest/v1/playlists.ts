@@ -38,6 +38,7 @@ import { getCurrentTime } from '../../../lib/lib'
 import { TriggerReloadDataResponse } from '@sofie-automation/meteor-lib/dist/api/userActions'
 import { ServerRundownAPI } from '../../rundown'
 import { triggerWriteAccess } from '../../../security/securityVerify'
+import type { DDPClientConnection } from '../../../ddp-server/types'
 
 function parseTimerIndex(rawTimerIndex: string): RundownTTimerIndex {
 	const timerIndex = Number(rawTimerIndex)
@@ -94,7 +95,7 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 	}
 
 	async getAllRundownPlaylists(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string
 	): Promise<ClientAPI.ClientResponse<Array<{ id: string; externalId: string }>>> {
 		const rundownPlaylists = (await RundownPlaylists.findFetchAsync(
@@ -110,7 +111,7 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 	}
 
 	async activate(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		rehearsal: boolean
@@ -135,7 +136,7 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 	}
 
 	async activateAdLibTesting(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		rundownId: RundownId
@@ -158,7 +159,7 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 	}
 
 	async deactivate(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId
 	): Promise<ClientAPI.ClientResponse<void>> {
@@ -180,7 +181,7 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 	}
 
 	async executeAdLib(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		adLibId: AdLibActionId | RundownBaselineAdLibActionId | PieceId | BucketAdLibId,
@@ -318,7 +319,7 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 	}
 
 	async executeBucketAdLib(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		bucketId: BucketId,
@@ -382,7 +383,7 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 	}
 
 	async moveNextPart(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		delta: number,
@@ -410,7 +411,7 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 	}
 
 	async moveNextSegment(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		delta: number
@@ -436,7 +437,7 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 	}
 
 	async reloadPlaylist(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId
 	): Promise<ClientAPI.ClientResponse<void>> {
@@ -467,7 +468,7 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 	}
 
 	async resetPlaylist(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId
 	): Promise<ClientAPI.ClientResponse<void>> {
@@ -488,7 +489,7 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 		)
 	}
 	async setNextSegment(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		segmentId: SegmentId
@@ -513,7 +514,7 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 		)
 	}
 	async setNextPart(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		partId: PartId
@@ -539,7 +540,7 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 	}
 
 	async queueNextSegment(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		segmentId: SegmentId
@@ -565,7 +566,7 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 	}
 
 	async take(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		fromPartInstanceId: PartInstanceId | undefined
@@ -590,7 +591,7 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 	}
 
 	async clearSourceLayers(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		sourceLayerIds: string[]
@@ -634,7 +635,7 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 	}
 
 	async recallStickyPiece(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		sourceLayerId: string
@@ -659,7 +660,7 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 	}
 
 	async tTimerStartCountdown(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		timerIndex: RundownTTimerIndex,
@@ -693,7 +694,7 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 	}
 
 	async tTimerStartFreeRun(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		timerIndex: RundownTTimerIndex,
@@ -721,7 +722,7 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 	}
 
 	async tTimerPause(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		timerIndex: RundownTTimerIndex
@@ -746,7 +747,7 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 	}
 
 	async tTimerResume(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		timerIndex: RundownTTimerIndex
@@ -771,7 +772,7 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 	}
 
 	async tTimerRestart(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		timerIndex: RundownTTimerIndex
@@ -796,7 +797,7 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 	}
 
 	async tTimerClearProjected(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		timerIndex: RundownTTimerIndex
@@ -821,7 +822,7 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 	}
 
 	async tTimerSetProjectedAnchorPart(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		timerIndex: RundownTTimerIndex,
@@ -852,7 +853,7 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 	}
 
 	async tTimerSetProjectedTime(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		timerIndex: RundownTTimerIndex,
@@ -883,7 +884,7 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 	}
 
 	async tTimerSetProjectedDuration(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		timerIndex: RundownTTimerIndex,

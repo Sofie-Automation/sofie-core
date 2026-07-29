@@ -28,10 +28,11 @@ import { runUpgradeForShowStyleBase, validateConfigForShowStyleBase } from '../.
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
 import { assertNever } from '@sofie-automation/corelib/dist/lib'
 import { checkValidation } from '.'
+import type { DDPClientConnection } from '../../../ddp-server/types'
 
 class ShowStylesServerAPI implements ShowStylesRestAPI {
 	async getShowStyleBases(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string
 	): Promise<ClientAPI.ClientResponse<Array<{ id: string }>>> {
 		const showStyleBases = (await ShowStyleBases.findFetchAsync({}, { projection: { _id: 1 } })) as Array<
@@ -41,7 +42,7 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 	}
 
 	async addShowStyleBase(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		apiShowStyleBase: APIShowStyleBase
 	): Promise<ClientAPI.ClientResponse<string>> {
@@ -60,7 +61,7 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 	}
 
 	async getShowStyleBase(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		showStyleBaseId: ShowStyleBaseId
 	): Promise<ClientAPI.ClientResponse<APIShowStyleBase>> {
@@ -71,7 +72,7 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 	}
 
 	async addOrUpdateShowStyleBase(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		showStyleBaseId: ShowStyleBaseId,
 		apiShowStyleBase: APIShowStyleBase
@@ -119,7 +120,7 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 	}
 
 	async getShowStyleConfig(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		showStyleBaseId: ShowStyleBaseId
 	): Promise<ClientAPI.ClientResponse<object>> {
@@ -130,7 +131,7 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 	}
 
 	async updateShowStyleConfig(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		showStyleBaseId: ShowStyleBaseId,
 		config: object
@@ -181,7 +182,7 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 	}
 
 	async deleteShowStyleBase(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		showStyleBaseId: ShowStyleBaseId
 	): Promise<ClientAPI.ClientResponse<void>> {
@@ -209,7 +210,7 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 	}
 
 	async getShowStyleVariants(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		showStyleBaseId: ShowStyleBaseId
 	): Promise<ClientAPI.ClientResponse<Array<{ id: string }>>> {
@@ -225,7 +226,7 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 	}
 
 	async addShowStyleVariant(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		showStyleBaseId: ShowStyleBaseId,
 		showStyleVariant: APIShowStyleVariant
@@ -243,7 +244,7 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 	}
 
 	async getShowStyleVariant(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		showStyleBaseId: ShowStyleBaseId,
 		showStyleVariantId: ShowStyleVariantId
@@ -258,7 +259,7 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 	}
 
 	async addOrUpdateShowStyleVariant(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		showStyleBaseId: ShowStyleBaseId,
 		showStyleVariantId: ShowStyleVariantId,
@@ -303,7 +304,7 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 	}
 
 	async deleteShowStyleVariant(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		showStyleBaseId: ShowStyleBaseId,
 		showStyleVariantId: ShowStyleVariantId
@@ -335,7 +336,7 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 	}
 
 	async showStyleBaseAction(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		showStyleBaseId: ShowStyleBaseId,
 		action: ShowStyleBaseAction

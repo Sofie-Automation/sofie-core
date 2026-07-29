@@ -16,6 +16,7 @@ import { profiler } from '../profiler'
 import fs from 'fs/promises'
 import type { IExtendedSettings } from '@sofie-automation/meteor-lib/dist/Settings'
 import { ENABLE_HEADER_AUTH } from '../../security/auth'
+import type { DDPClientConnection } from '../../ddp-server/types'
 
 declare module 'http' {
 	interface IncomingMessage {
@@ -171,18 +172,63 @@ export function bindKoaRouter(koaRouter: KoaRouter, bindPath: string): void {
 	rootRouter.use(bindPathWithPrefix, koaRouter.routes()).use(bindPathWithPrefix, koaRouter.allowedMethods())
 }
 
+/**
+ * Build a `DDPClientConnection` handle scoped to the lifetime of a single HTTP request.
+ *
+ * The connection is 'closed' once the response has been sent to the client, or when the socket is
+ * torn down early. At that point the `signal` is aborted and any `onClose` callbacks are fired, so
+ * work started by the request handler can be cancelled.
+ */
 export const makeMeteorConnectionFromKoa = (
 	ctx: Koa.ParameterizedContext<Koa.DefaultState, Koa.DefaultContext, unknown>
-): Meteor.Connection => {
+): DDPClientConnection => {
+	const closeCallbacks: Array<() => void> = []
+	let closed = false
+
+	const abortController = new AbortController()
+
+	const fireClose = () => {
+		if (closed) return
+		closed = true
+
+		try {
+			abortController.abort()
+		} catch {
+			// Ignore errors from aborting the signal
+		}
+
+		for (const callback of closeCallbacks) {
+			try {
+				callback()
+			} catch (e) {
+				// onClose handlers must not break teardown of other handlers
+				logger.error(`Error in http connection onClose handler: ${stringifyError(e)}`)
+			}
+		}
+		closeCallbacks.length = 0
+	}
+
+	// `finish` fires once the response has been handed to the OS, `close` once the underlying socket
+	// is done (including when the client disconnects before the response was completed).
+	// Whichever comes first ends the connection, `fireClose` is idempotent.
+	ctx.res.once('finish', fireClose)
+	ctx.res.once('close', fireClose)
+
 	return {
 		id: getRandomString(),
+		signal: abortController.signal,
 		close: () => {
-			/* no-op */
+			// Not supported for http requests, the connection ends when the response has been sent
 		},
-		onClose: () => {
-			/* no-op */
+		onClose: (callback: () => void) => {
+			if (closed) {
+				// Already closed, defer-call to match the behaviour of a live connection
+				queueMicrotask(callback)
+				return
+			}
+			closeCallbacks.push(callback)
 		},
 		clientAddress: getClientAddress(ctx.req.headers, ctx.req.socket.remoteAddress),
-		httpHeaders: ctx.req.headers as Record<string, string>,
+		httpHeaders: ctx.req.headers,
 	}
 }

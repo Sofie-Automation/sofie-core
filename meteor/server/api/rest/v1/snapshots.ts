@@ -15,12 +15,13 @@ import {
 } from '../../../lib/rest/v1'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { checkAccessToPlaylist } from '../../../security/check'
+import type { DDPClientConnection } from '../../../ddp-server/types'
 
 export class SnapshotsServerAPI implements SnapshotsRestAPI {
 	constructor(private context: ServerAPIContext) {}
 
 	async storeSystemSnapshot(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		_event: string,
 		options: APISystemSnapshotOptions
 	): Promise<ClientAPI.ClientResponse<SnapshotId>> {
@@ -35,7 +36,7 @@ export class SnapshotsServerAPI implements SnapshotsRestAPI {
 	}
 
 	async storePlaylistSnapshot(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		_event: string,
 		options: APIPlaylistSnapshotOptions
 	): Promise<ClientAPI.ClientResponse<SnapshotId>> {

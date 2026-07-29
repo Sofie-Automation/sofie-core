@@ -23,6 +23,7 @@ import { registerRoutes as registerIngestRoutes } from './ingest'
 import { APIFactory, ServerAPIContext } from './types'
 import { getSystemStatus } from '../../../systemStatus/systemStatus'
 import { Component, ExternalStatus } from '@sofie-automation/meteor-lib/dist/api/systemStatus'
+import type { DDPClientConnection } from '../../../ddp-server/types'
 
 function restAPIUserEvent(ctx: Koa.ParameterizedContext<Koa.DefaultState, Koa.DefaultContext, unknown>): string {
 	// the ctx.URL.pathname will contain `/v1.0`, but will not contain `/api`
@@ -30,7 +31,7 @@ function restAPIUserEvent(ctx: Koa.ParameterizedContext<Koa.DefaultState, Koa.De
 }
 
 class APIContext implements ServerAPIContext {
-	public getMethodContext(connection: Meteor.Connection): MethodContextAPI {
+	public getMethodContext(connection: DDPClientConnection): MethodContextAPI {
 		return {
 			connection,
 			unblock: () => {
@@ -127,7 +128,7 @@ function sofieAPIRequest<API, Params, Body, Response>(
 	serverAPIFactory: APIFactory<API>,
 	handler: (
 		serverAPI: API,
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		params: Params,
 		body: Body

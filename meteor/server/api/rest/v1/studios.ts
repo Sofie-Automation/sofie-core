@@ -25,6 +25,7 @@ import {
 	applyAndValidateOverrides,
 	ObjectOverrideSetOp,
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
+import type { DDPClientConnection } from '../../../ddp-server/types'
 
 const PERMISSIONS_FOR_PLAYOUT_USERACTION: Array<keyof UserPermissions> = ['studio']
 
@@ -32,7 +33,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 	constructor(private context: ServerAPIContext) {}
 
 	async getStudios(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string
 	): Promise<ClientAPI.ClientResponse<Array<{ id: string }>>> {
 		const studios = (await Studios.findFetchAsync({}, { projection: { _id: 1 } })) as Array<Pick<DBStudio, '_id'>>
@@ -41,7 +42,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 	}
 
 	async addStudio(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		apiStudio: APIStudio
 	): Promise<ClientAPI.ClientResponse<string>> {
@@ -67,7 +68,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 	}
 
 	async getStudio(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId
 	): Promise<ClientAPI.ClientResponse<APIStudio>> {
@@ -78,7 +79,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 	}
 
 	async addOrUpdateStudio(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		apiStudio: APIStudio
@@ -118,7 +119,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 	}
 
 	async getStudioConfig(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId
 	): Promise<ClientAPI.ClientResponse<object>> {
@@ -129,7 +130,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 	}
 
 	async updateStudioConfig(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		config: object
@@ -162,7 +163,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 	}
 
 	async deleteStudio(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		studioId: StudioId
 	): Promise<ClientAPI.ClientResponse<void>> {
@@ -227,7 +228,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 	}
 
 	async switchRouteSet(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		studioId: StudioId,
 		routeSetId: string,
@@ -252,7 +253,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 	}
 
 	async getPeripheralDevicesForStudio(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId
 	): Promise<ClientAPI.ClientResponse<Array<{ id: string }>>> {
@@ -265,7 +266,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 	}
 
 	async attachDeviceToStudio(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		deviceId: PeripheralDeviceId,
@@ -332,7 +333,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 	}
 
 	async detachDeviceFromStudio(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		deviceId: PeripheralDeviceId
@@ -358,7 +359,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 	}
 
 	async studioAction(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		action: StudioAction

@@ -1,6 +1,6 @@
-import { Meteor } from 'meteor/meteor'
 import { SnapshotId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
+import type { DDPClientConnection } from '../../../ddp-server/types'
 
 export interface SnapshotsRestAPI {
 	/**
@@ -11,7 +11,7 @@ export interface SnapshotsRestAPI {
 	 * @param options Options of the Snapshot
 	 */
 	storeSystemSnapshot(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		options: APISystemSnapshotOptions
 	): Promise<ClientAPI.ClientResponse<SnapshotId>>
@@ -24,7 +24,7 @@ export interface SnapshotsRestAPI {
 	 * @param options Options of the Snapshot
 	 */
 	storePlaylistSnapshot(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		options: APIPlaylistSnapshotOptions
 	): Promise<ClientAPI.ClientResponse<SnapshotId>>

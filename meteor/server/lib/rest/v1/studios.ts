@@ -1,7 +1,7 @@
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { Meteor } from 'meteor/meteor'
 import { ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
+import type { DDPClientConnection } from '../../../ddp-server/types'
 
 /* *************************************************************************
 This file contains types and interfaces that are used by the REST API.
@@ -16,7 +16,7 @@ export interface StudiosRestAPI {
 	 * @param connection Connection data including client and header details
 	 * @param event User event string
 	 */
-	getStudios(connection: Meteor.Connection, event: string): Promise<ClientAPI.ClientResponse<Array<{ id: string }>>>
+	getStudios(connection: DDPClientConnection, event: string): Promise<ClientAPI.ClientResponse<Array<{ id: string }>>>
 	/**
 	 * Adds a new Studio, returns the Id of the newly created Studio.
 	 *
@@ -25,7 +25,7 @@ export interface StudiosRestAPI {
 	 * @param studio Studio to add
 	 */
 	addStudio(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		studio: APIStudio
 	): Promise<ClientAPI.ClientResponse<string>>
@@ -38,7 +38,7 @@ export interface StudiosRestAPI {
 	 * @param studioId Id of the Studio to fetch
 	 */
 	getStudio(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		studioId: StudioId
 	): Promise<ClientAPI.ClientResponse<APIStudio>>
@@ -52,7 +52,7 @@ export interface StudiosRestAPI {
 	 * @param studio Studio to add or update
 	 */
 	addOrUpdateStudio(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		studioId: StudioId,
 		studio: APIStudio
@@ -66,7 +66,7 @@ export interface StudiosRestAPI {
 	 * @param studioId Id of the Studio to fetch
 	 */
 	getStudioConfig(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		studioId: StudioId
 	): Promise<ClientAPI.ClientResponse<object>>
@@ -80,7 +80,7 @@ export interface StudiosRestAPI {
 	 * @param object Blueprint configuration object
 	 */
 	updateStudioConfig(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		studioId: StudioId,
 		config: object
@@ -94,7 +94,7 @@ export interface StudiosRestAPI {
 	 * @param studioId Id of the Studio to delete
 	 */
 	deleteStudio(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		studioId: StudioId
 	): Promise<ClientAPI.ClientResponse<void>>
@@ -109,7 +109,7 @@ export interface StudiosRestAPI {
 	 * @param action Action to perform
 	 */
 	studioAction(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		studioId: StudioId,
 		action: StudioAction
@@ -123,7 +123,7 @@ export interface StudiosRestAPI {
 	 * @param studioId Studio to fetch devices for
 	 */
 	getPeripheralDevicesForStudio(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		studioId: StudioId
 	): Promise<ClientAPI.ClientResponse<Array<{ id: string }>>>
@@ -138,7 +138,7 @@ export interface StudiosRestAPI {
 	 * @param configId Id of the studio owned configuration to assign to the device. If not set, one will be created.
 	 */
 	attachDeviceToStudio(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		studioId: StudioId,
 		deviceId: PeripheralDeviceId,
@@ -153,7 +153,7 @@ export interface StudiosRestAPI {
 	 * @param deviceId Device to detach
 	 */
 	detachDeviceFromStudio(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		studioId: StudioId,
 		deviceId: PeripheralDeviceId
@@ -171,7 +171,7 @@ export interface StudiosRestAPI {
 	 * @param state Whether state should be set to active (true) or inactive (false)
 	 */
 	switchRouteSet(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		studioId: StudioId,
 		routeSetId: string,

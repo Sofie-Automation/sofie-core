@@ -29,6 +29,7 @@ export function getMethodContext(): MethodContext {
 	return {
 		connection: {
 			id: 'connectionId',
+			signal: new AbortController().signal, // noop signal for tests
 			close: () => null,
 			onClose: (_callback: () => void) => {
 				// noop

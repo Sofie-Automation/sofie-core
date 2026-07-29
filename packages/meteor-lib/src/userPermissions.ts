@@ -15,7 +15,7 @@ const allowedPermissions = new Set<keyof UserPermissions>([
 	'gateway',
 ])
 
-export function parseUserPermissions(encodedPermissions: string | undefined): UserPermissions {
+export function parseUserPermissions(encodedPermissions: string|string[] | undefined): UserPermissions {
 	if (encodedPermissions === 'admin') {
 		return {
 			studio: true,
