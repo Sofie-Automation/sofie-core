@@ -16,7 +16,6 @@ import { registerCollection } from './lib'
 import { createMockCollection } from './implementations/mock'
 import { WrappedAsyncMongoCollection } from './implementations/asyncCollection'
 import { WrappedReadOnlyMongoCollection } from './implementations/readonlyWrapper'
-import { isInMockMode } from './mongoConnection'
 import {
 	FieldNames,
 	IndexSpecifier,
@@ -24,6 +23,7 @@ import {
 	UpdateOptions,
 } from '@sofie-automation/meteor-lib/dist/collections/lib'
 import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
+import { isInTestMode } from '../lib'
 
 export interface CustomMongoAllowRules<DBInterface> {
 	// insert?: (userId: UserId | null, doc: DBInterface) => Promise<boolean> | boolean
@@ -81,7 +81,7 @@ export function createAsyncOnlyReadOnlyMongoCollection<DBInterface extends { _id
 function createWrappedCollection<DBInterface extends { _id: ProtectedString<any> }>(
 	name: CollectionName
 ): AsyncOnlyMongoCollection<DBInterface> {
-	if (isInMockMode()) {
+	if (isInTestMode()) {
 		// In unit tests there is no real database, so back the collection with the in-memory mock
 		return createMockCollection<DBInterface>(name)
 	} else {

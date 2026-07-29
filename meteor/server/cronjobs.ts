@@ -7,7 +7,6 @@ import {
 import { getCurrentTime } from './lib/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { logger } from './logging'
-import { Meteor } from 'meteor/meteor'
 import { TSR } from '@sofie-automation/blueprints-integration'
 import { DEFAULT_TSR_ACTION_TIMEOUT_TIME } from '@sofie-automation/shared-lib/dist/core/constants'
 import { QueueStudioJob } from './worker/worker'
@@ -31,7 +30,7 @@ import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 const lowPrioFcn = (fcn: () => any) => {
 	// Do it at a random time in the future:
-	Meteor.setTimeout(
+	setTimeout(
 		() => {
 			fcn()
 		},
@@ -239,7 +238,7 @@ async function storeSnapshots(systemSettings: ICoreSystemSettings | undefined) {
 	}
 }
 
-Meteor.startup(() => {
+export function startCronjobs(): void {
 	function nightlyCronjob() {
 		const timeSinceLast = getCurrentTime() - lastNightlyCronjob
 		if (
@@ -252,7 +251,7 @@ Meteor.startup(() => {
 		}
 	}
 
-	Meteor.setInterval(nightlyCronjob, 5 * 60 * 1000) // check every 5 minutes
+	setInterval(nightlyCronjob, 5 * 60 * 1000) // check every 5 minutes
 	nightlyCronjob()
 
 	function anyTimeCronjob(force?: boolean) {
@@ -275,6 +274,6 @@ Meteor.startup(() => {
 			)
 		}
 	}
-	Meteor.setInterval(anyTimeCronjob, 30 * 60 * 1000) // every 30 minutes
+	setInterval(anyTimeCronjob, 30 * 60 * 1000) // every 30 minutes
 	anyTimeCronjob(true)
-})
+}

@@ -15,8 +15,6 @@ export async function setCoreSystemVersion(versionStr: string): Promise<string> 
 	const system = await getCoreSystemAsync()
 	if (!system) throw new Meteor.Error(500, 'CoreSystem not found')
 
-	if (!Meteor.isServer) throw new Meteor.Error(500, 'This function can only be run server-side')
-
 	const version = parseVersion(versionStr)
 
 	if (version === versionStr) {

@@ -1,4 +1,3 @@
-import { MeteorMock } from '../../../../../__mocks__/meteor'
 import { Meteor } from 'meteor/meteor'
 import { UserActionAPIMethods } from '@sofie-automation/meteor-lib/dist/api/userActions'
 import { MethodRegistry, AnyMethodApiRegistration } from '../../../../methodRegistry'
@@ -16,10 +15,6 @@ import { MethodContext } from '../../../methodContext'
 
 describe('REST API', () => {
 	describe('UNSTABLE v0', () => {
-		beforeEach(async () => {
-			await MeteorMock.mockRunMeteorStartup()
-		})
-
 		const methodMock = jest.fn((..._args): any => {
 			throw new Error('Method wrapper not setup')
 		})

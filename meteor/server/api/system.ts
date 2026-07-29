@@ -33,7 +33,6 @@ const PERMISSIONS_FOR_SYSTEM_CLEANUP: Array<keyof UserPermissions> = ['configure
 async function setupIndexes(removeOldIndexes = false): Promise<Array<IndexSpecification>> {
 	// Note: This function should NOT run on Meteor.startup, due to getCollectionIndexes failing if run before indexes have been created.
 	const registeredIndexes = getTargetRegisteredIndexes()
-	if (!Meteor.isServer) throw new Meteor.Error(500, `setupIndexes() can only be run server-side`)
 
 	const removeIndexes: IndexSpecification[] = []
 	await Promise.all(
@@ -73,9 +72,8 @@ async function setupIndexes(removeOldIndexes = false): Promise<Array<IndexSpecif
 	)
 	return removeIndexes
 }
-function createIndexes(): void {
+export function createIndexes(): void {
 	const indexes = getTargetRegisteredIndexes()
-	if (!Meteor.isServer) throw new Meteor.Error(500, `setupIndexes() can only be run server-side`)
 
 	// Ensure new indexes:
 	_.each(indexes, (i) => {
@@ -84,11 +82,6 @@ function createIndexes(): void {
 		})
 	})
 }
-
-Meteor.startup(() => {
-	// Ensure indexes are created on startup:
-	createIndexes()
-})
 
 async function cleanupIndexes(
 	context: MethodContext,

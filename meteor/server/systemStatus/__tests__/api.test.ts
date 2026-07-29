@@ -20,6 +20,7 @@ require('../../coreSystem/index')
 const PackageInfo = require('../../../package.json')
 
 import * as getServerBlueprintUpgradeStatuses from '../../publications/blueprintUpgradeStatus/systemStatus'
+import { setupSystemStatusObservers } from '../../coreSystem'
 jest.spyOn(getServerBlueprintUpgradeStatuses, 'getServerBlueprintUpgradeStatuses').mockReturnValue(
 	Promise.resolve(literal<UIBlueprintUpgradeStatus[]>([]))
 )
@@ -40,7 +41,7 @@ describe('systemStatus API', () => {
 
 		test('REST /health with state BAD', async () => {
 			env = await setupDefaultStudioEnvironment()
-			await MeteorMock.mockRunMeteorStartup()
+			await setupSystemStatusObservers()
 			await MeteorMock.sleepNoFakeTimers(200)
 
 			// The system is uninitialized, the status will be BAD
@@ -75,7 +76,7 @@ describe('systemStatus API', () => {
 
 		test('REST /health with state GOOD', async () => {
 			env = await setupDefaultStudioEnvironment()
-			await MeteorMock.mockRunMeteorStartup()
+			await setupSystemStatusObservers()
 			await MeteorMock.sleepNoFakeTimers(200)
 
 			// simulate initialized system

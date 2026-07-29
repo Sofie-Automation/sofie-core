@@ -39,8 +39,6 @@ export function triggerWriteAccessBecauseNoCheckNecessary(): void {
 }
 
 export function startupVerifyAllMethods(methodRegistry: MethodRegistry): void {
-	if (Meteor.isProduction || Meteor.isTest) return
-
 	Meteor.setTimeout(() => {
 		console.log('Security check: Verifying methods...')
 		verifyAllMethods(methodRegistry)

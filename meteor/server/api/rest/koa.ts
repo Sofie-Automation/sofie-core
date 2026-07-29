@@ -27,7 +27,7 @@ declare module 'http' {
 const rootRouter = new KoaRouter()
 const boundRouterPaths: string[] = []
 
-Meteor.startup(() => {
+export function startKoaServer(): void {
 	const koaApp = new Koa()
 
 	koaApp.use(async (ctx, next) => {
@@ -118,7 +118,7 @@ Meteor.startup(() => {
 		// fallback to serving html
 		return serveIndexHtml(ctx, next)
 	})
-})
+}
 
 function getExtendedMeteorRuntimeConfig() {
 	const versionExtended: string = PackageInfo.versionExtended || PackageInfo.version // package version

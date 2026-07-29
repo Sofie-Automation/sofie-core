@@ -3,6 +3,7 @@ import { Meteor } from 'meteor/meteor'
 import { UIBlueprintUpgradeStatus } from '@sofie-automation/meteor-lib/dist/api/upgradeStatus'
 import { CustomPublish, CustomPublishChanges } from '../../lib/customPublication'
 import { createBlueprintUpgradeStatusSubscriptionHandle } from './publication'
+import { isInTestMode } from '../../lib'
 
 class CustomPublishToMap<DBObj extends { _id: ProtectedString<any> }> implements CustomPublish<DBObj> {
 	#isReady = false
@@ -72,7 +73,7 @@ const cachedPublisher = new CustomPublishToMap<UIBlueprintUpgradeStatus>()
 let existingPublicationSubscription: Promise<void> | undefined
 
 export async function getServerBlueprintUpgradeStatuses(): Promise<UIBlueprintUpgradeStatus[]> {
-	if (Meteor.isTest) throw new Meteor.Error(500, 'getServerBlueprintUpgradeStatuses is not allowed during tests')
+	if (isInTestMode()) throw new Meteor.Error(500, 'getServerBlueprintUpgradeStatuses is not allowed during tests')
 
 	if (!existingPublicationSubscription) {
 		existingPublicationSubscription = createBlueprintUpgradeStatusSubscriptionHandle(cachedPublisher)

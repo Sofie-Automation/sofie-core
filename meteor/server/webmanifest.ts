@@ -16,7 +16,6 @@ import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/Rund
 import { getCoreSystemAsync } from './coreSystem/collection'
 import Koa from 'koa'
 import KoaRouter from '@koa/router'
-import { Meteor } from 'meteor/meteor'
 import { bindKoaRouter } from './api/rest/koa'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 
@@ -272,7 +271,7 @@ async function webNrcsRundownRoute(ctx: Koa.ParameterizedContext, parsedUrl: URL
 	ctx.redirect(`${getRootSubpath()}/rundown/${rundownPlaylist._id}`)
 }
 
-Meteor.startup(() => {
+export function bindWebManifestRouter(): void {
 	bindKoaRouter(webManifestRouter, '/site.webmanifest')
 	bindKoaRouter(nrcsUrlRouter, '/url/nrcs')
-})
+}

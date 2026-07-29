@@ -87,3 +87,10 @@ async function getLocaleFile(languageCode: string): Promise<Translations | null>
 		return null
 	}
 }
+
+/**
+ * Whether we are running in unit tests.
+ */
+export function isInTestMode(): boolean {
+	return !!(Meteor.isTest || process.env.JEST_WORKER_ID)
+}

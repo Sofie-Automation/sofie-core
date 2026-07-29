@@ -10,11 +10,6 @@ import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { UserActionsLog } from '../../../collections'
 import { makeMeteorCallForTest } from '../../../../__mocks__/helpers/methods'
 
-// The userAction API pulls in deviceTriggers/observer, which registers a Meteor.startup() callback.
-// Mock it so that draining startup can never spin up the real device-trigger observers/job-queue and
-// interfere with this suite's fake timers.
-jest.mock('../../deviceTriggers/observer')
-
 const MeteorCall = makeMeteorCallForTest([
 	{ methods: UserActionAPIMethods, class: ServerUserActionAPI },
 	{ methods: SystemAPIMethods, class: SystemAPIClass },

@@ -10,6 +10,7 @@ import path from 'path'
 import { BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import KoaRouter from '@koa/router'
 import bodyParser from 'koa-bodyparser'
+import { isInTestMode } from '../../lib'
 
 const BLUEPRINT_ASSET_MAX_AGE = 15 * 24 * 3600 // 15 days, in seconds
 
@@ -84,7 +85,7 @@ blueprintsRouter.post(
 			if (!isBlueprintManifestSet(collection))
 				throw new Meteor.Error(400, 'Restore Blueprint: Malformed request body')
 
-			if (!Meteor.isTest) logger.info(`Got blueprint collection. ${Object.keys(body).length} blueprints`)
+			if (!isInTestMode()) logger.info(`Got blueprint collection. ${Object.keys(body).length} blueprints`)
 
 			const errors: any[] = []
 			for (const id of _.keys(collection.blueprints)) {
@@ -148,7 +149,7 @@ blueprintsRouter.post(
 
 			const collection = body as Record<string, string>
 
-			if (!Meteor.isTest) logger.info(`Got blueprint assets. ${Object.keys(collection).length} assets`)
+			if (!isInTestMode()) logger.info(`Got blueprint assets. ${Object.keys(collection).length} assets`)
 
 			const errors: any[] = []
 			for (const id of _.keys(collection)) {

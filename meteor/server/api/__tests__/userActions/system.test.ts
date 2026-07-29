@@ -25,11 +25,6 @@ import { StudioPlayoutDevice } from '@sofie-automation/corelib/dist/dataModel/St
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { makeMeteorCallForTest } from '../../../../__mocks__/helpers/methods'
 
-// The userAction API pulls in deviceTriggers/observer, which registers a Meteor.startup() callback.
-// Mock it so that draining startup can never spin up the real device-trigger observers/job-queue and
-// interfere with this suite.
-jest.mock('../../deviceTriggers/observer')
-
 const MeteorCall = makeMeteorCallForTest({ methods: UserActionAPIMethods, class: ServerUserActionAPI })
 
 describe('User Actions - Disable Peripheral SubDevice', () => {

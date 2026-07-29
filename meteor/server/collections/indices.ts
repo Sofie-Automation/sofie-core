@@ -21,8 +21,6 @@ export function registerIndex<DBInterface extends { _id: ProtectedString<any> }>
 	collection: AsyncOnlyReadOnlyMongoCollection<DBInterface>,
 	index: IndexSpecifier<DBInterface>
 ): void {
-	if (!Meteor.isServer) return // only used server-side
-
 	const collectionName = collection.name
 	if (!collectionName) throw new Meteor.Error(500, `Error: collection.name not set`)
 	if (!registeredIndexes[collectionName]) registeredIndexes[collectionName] = { collection: collection, indexes: [] }

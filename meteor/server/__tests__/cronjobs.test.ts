@@ -1,6 +1,5 @@
 import '../../__mocks__/_extendJest'
 import { runAllTimers, waitUntil } from '../../__mocks__/helpers/jest'
-import { MeteorMock } from '../../__mocks__/meteor'
 import { logger } from '../logging'
 import { getRandomId, getRandomString, literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
@@ -78,6 +77,7 @@ import { MethodRegistry } from '../methodRegistry'
 import { PeripheralDeviceAPIMethods } from '@sofie-automation/server-core-integration'
 import { ServerPeripheralDeviceAPIClass } from '../api/peripheralDevice'
 import { getMethodContext } from '../../__mocks__/helpers/methods'
+import { startCronjobs } from '../cronjobs'
 
 describe('cronjobs', () => {
 	let env: DefaultEnvironment
@@ -111,7 +111,7 @@ describe('cronjobs', () => {
 		jest.useFakeTimers()
 		// set time to 2020/07/19 00:00 Local Time
 		mockCurrentTime = new Date(2020, 6, 19, 0, 0, 0).getTime()
-		await MeteorMock.mockRunMeteorStartup()
+		startCronjobs()
 		origGetCurrentTime = lib.getCurrentTime
 		//@ts-ignore Mock getCurrentTime for tests
 		// eslint-disable-next-line no-import-assign

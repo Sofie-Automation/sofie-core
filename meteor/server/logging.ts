@@ -1,6 +1,6 @@
 import * as Winston from 'winston'
 import * as fs from 'fs'
-import { getAbsolutePath } from './lib'
+import { getAbsolutePath, isInTestMode } from './lib'
 import { LogLevel } from '@sofie-automation/meteor-lib/dist/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { Meteor } from 'meteor/meteor'
@@ -20,7 +20,7 @@ export function setLogLevel(level: LogLevel, startup = false): void {
 		if (transports.file) {
 			transports.file.level = level
 		}
-		if (!Meteor.isTest) {
+		if (!isInTestMode()) {
 			// Note: We can't use logger.info here, since that might be supressed by the log level.
 			console.log(`Setting logger level to "${level}"`)
 		}

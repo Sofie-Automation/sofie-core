@@ -8,7 +8,6 @@ import { PrometheusHTTPContentType, getPrometheusMetricsString } from '@sofie-au
 import { collectWorkerPrometheusMetrics } from '../worker/worker'
 import Koa from 'koa'
 import KoaRouter from '@koa/router'
-import { Meteor } from 'meteor/meteor'
 import { bindKoaRouter } from '../api/rest/koa'
 
 const apmNamespace = 'http'
@@ -66,7 +65,7 @@ export class ServerSystemStatusAPI extends MethodContextAPI implements NewSystem
 	}
 }
 
-Meteor.startup(() => {
+export function bindSystemStatusRouter(): void {
 	bindKoaRouter(metricsRouter, '/metrics')
 	bindKoaRouter(healthRouter, '/health')
-})
+}

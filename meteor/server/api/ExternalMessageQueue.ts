@@ -50,7 +50,7 @@ function updateExternalMessageQueueStatus(): void {
 	}
 }
 
-Meteor.startup(async () => {
+export async function startExternalMessageQueueStatusMonitor(): Promise<void> {
 	await ExternalMessageQueue.observeChanges(
 		{
 			sent: { $not: { $gt: 0 } },
@@ -65,7 +65,7 @@ Meteor.startup(async () => {
 
 	updateExternalMessageQueueStatus()
 	// triggerdoMessageQueue(5000)
-})
+}
 
 async function removeExternalMessage(context: MethodContext, messageId: ExternalMessageQueueObjId): Promise<void> {
 	check(messageId, z.string())
