@@ -24,7 +24,6 @@ import { scrollToPart, lockPointer, unlockPointer } from '../../lib/viewPort.js'
 
 import { getAllowSpeaking, getAllowVibrating, getShowHiddenSourceLayers } from '../../lib/localStorage.js'
 import { showPointerLockCursor, hidePointerLockCursor } from '../../lib/PointerLockCursor.js'
-import { Settings } from '../../lib/Settings.js'
 import type { IContextMenuContext } from '../RundownView.js'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString, unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
@@ -39,6 +38,7 @@ import RundownViewEventBus, {
 import { SegmentTimelineSmallPartFlag } from './SmallParts/SegmentTimelineSmallPartFlag.js'
 import { UIStateStorage } from '../../lib/UIStateStorage.js'
 import { computeSegmentDuration, getPartInstanceTimingId, type RundownTimingContext } from '../../lib/rundownTiming.js'
+import { DEFAULT_DISPLAY_DURATION } from '@sofie-automation/shared-lib/dist/core/constants'
 import {
 	type IOutputLayer,
 	type ISourceLayer,
@@ -133,7 +133,11 @@ interface SegmentTimelineZoomProps extends IProps {
 }
 
 function computeSegmentDurationFromProps(props: SegmentTimelineZoomProps): number {
-	return computeSegmentDuration(props.timingDurations, props.parts, true)
+	return computeSegmentDuration(
+		props.timingDurations,
+		props.parts,
+		props.studio.settings.defaultDisplayDuration ?? DEFAULT_DISPLAY_DURATION
+	)
 }
 
 function SegmentTimelineZoom(props: SegmentTimelineZoomProps): JSX.Element {
@@ -562,9 +566,11 @@ export class SegmentTimelineClass extends React.Component<Translated<WithTiming<
 	}
 
 	private onClickPartIdent = (partId: PartId) => {
-		scrollToPart(partId, false, true, true).catch((error) => {
-			if (!error.toString().match(/another scroll/)) logger.error(error)
-		})
+		scrollToPart(partId, this.props.studio.settings.followOnAirSegmentsHistory ?? 0, false, true, true).catch(
+			(error) => {
+				if (!error.toString().match(/another scroll/)) logger.error(error)
+			}
+		)
 	}
 
 	private onPartTooSmallChanged = (part: PartUi, displayDuration: number | false, actualDuration: number | false) => {
@@ -1164,6 +1170,7 @@ export class SegmentTimelineClass extends React.Component<Translated<WithTiming<
 					scrollLeft={this.props.scrollLeft}
 					timeScale={this.props.timeScale}
 					frameRate={this.props.studio.settings.frameRate}
+					defaultDisplayDuration={this.props.studio.settings.defaultDisplayDuration ?? DEFAULT_DISPLAY_DURATION}
 					isLiveSegment={this.props.isLiveSegment}
 					partInstances={this.props.parts}
 					currentPartInstanceId={
@@ -1172,7 +1179,7 @@ export class SegmentTimelineClass extends React.Component<Translated<WithTiming<
 				/>
 				<div
 					className={ClassNames('segment-timeline__timeline-container', {
-						'segment-timeline__timeline-container--grabbable': Settings.allowGrabbingTimeline,
+						'segment-timeline__timeline-container--grabbable': this.props.studio.settings.allowGrabbingTimeline ?? true,
 						'segment-timeline__timeline-container--grabbed': this.state.mouseGrabbed,
 					})}
 					onContextMenu={this.onContextMenu}

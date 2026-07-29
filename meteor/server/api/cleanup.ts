@@ -9,7 +9,9 @@ import {
 	getOrphanedPackageInfos,
 	removePackageInfos,
 } from './studio/lib'
-import { Settings } from '../Settings'
+import { getCoreSystemAsync } from '../coreSystem/collection'
+import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
+import { DEFAULT_MAXIMUM_DATA_AGE } from '@sofie-automation/shared-lib/dist/core/constants'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 import {
 	BlueprintId,
@@ -80,6 +82,18 @@ export async function cleanupOldDataInner(actuallyCleanup = false): Promise<Coll
 		const notAllowedReason = await isAllowedToRunCleanup()
 		if (notAllowedReason) return `Could not run the cleanup function due to: ${notAllowedReason}`
 	}
+
+	const coreSystem = await getCoreSystemAsync()
+	const systemSettings = coreSystem && applyAndValidateOverrides(coreSystem.settingsWithOverrides).obj
+	// Guard against a misconfigured value (<= 0, NaN, Infinity) which would otherwise cause overly-aggressive
+	// purging of recent data. Fall back to the default in that case.
+	const configuredMaximumDataAge = systemSettings?.maximumDataAge
+	const maximumDataAge =
+		typeof configuredMaximumDataAge === 'number' &&
+		Number.isFinite(configuredMaximumDataAge) &&
+		configuredMaximumDataAge > 0
+			? configuredMaximumDataAge
+			: DEFAULT_MAXIMUM_DATA_AGE
 
 	const result: CollectionCleanupResult = {}
 	const addToResult = (collectionName: CollectionName, docsToRemove: number) => {
@@ -275,7 +289,7 @@ export async function cleanupOldDataInner(actuallyCleanup = false): Promise<Coll
 					{
 						// Remove any from long running rundowns where they have long since expired:
 						reset: true,
-						'timings.plannedStoppedPlayback': { $lt: getCurrentTime() - Settings.maximumDataAge },
+						'timings.plannedStoppedPlayback': { $lt: getCurrentTime() - maximumDataAge },
 						'part._id': { $nin: partIds },
 					},
 				],
@@ -295,16 +309,13 @@ export async function cleanupOldDataInner(actuallyCleanup = false): Promise<Coll
 	// Evaluations
 	{
 		await removeByQuery(Evaluations, {
-			timestamp: { $lt: getCurrentTime() - Settings.maximumDataAge },
+			timestamp: { $lt: getCurrentTime() - maximumDataAge },
 		})
 	}
 	// ExternalMessageQueue
 	{
 		await removeByQuery(ExternalMessageQueue, {
-			$or: [
-				{ created: { $lt: getCurrentTime() - Settings.maximumDataAge } },
-				{ expires: { $lt: getCurrentTime() } },
-			],
+			$or: [{ created: { $lt: getCurrentTime() - maximumDataAge } }, { expires: { $lt: getCurrentTime() } }],
 		})
 	}
 	// PackageInfos
@@ -328,14 +339,14 @@ export async function cleanupOldDataInner(actuallyCleanup = false): Promise<Coll
 	// Snapshots
 	{
 		await removeByQuery(Snapshots, {
-			created: { $lt: getCurrentTime() - Settings.maximumDataAge },
+			created: { $lt: getCurrentTime() - maximumDataAge },
 		})
 	}
 
 	// UserActionsLog
 	{
 		await removeByQuery(UserActionsLog, {
-			timestamp: { $lt: getCurrentTime() - Settings.maximumDataAge },
+			timestamp: { $lt: getCurrentTime() - maximumDataAge },
 		})
 	}
 	// Workers

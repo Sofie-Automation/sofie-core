@@ -1,5 +1,3 @@
-import { Settings } from '../../lib/Settings.js'
-
 export const MAGIC_TIME_SCALE_FACTOR = 0.03
 
 export const SIMULATED_PLAYBACK_SOFT_MARGIN = 0
@@ -12,5 +10,8 @@ export const TIMELINE_RIGHT_PADDING =
 	parseInt(localStorage.getItem('EXP_timeline_right_padding')!) || LIVELINE_HISTORY_SIZE + LIVE_LINE_TIME_PADDING
 export const FALLBACK_ZOOM_FACTOR = MAGIC_TIME_SCALE_FACTOR
 
-export const MINIMUM_ZOOM_FACTOR = // TODO: This is only temporary, for hands-on tweaking -- Jan Starzak, 2021-06-01
-	parseInt(localStorage.getItem('EXP_timeline_min_time_scale')!) || MAGIC_TIME_SCALE_FACTOR * Settings.defaultTimeScale
+/** The minimum zoom factor for the timelines, derived from the Studio's `defaultTimeScale` setting. */
+export function getMinimumZoomFactor(defaultTimeScale: number): number {
+	// TODO: The localStorage override is only temporary, for hands-on tweaking -- Jan Starzak, 2021-06-01
+	return parseInt(localStorage.getItem('EXP_timeline_min_time_scale')!) || MAGIC_TIME_SCALE_FACTOR * defaultTimeScale
+}

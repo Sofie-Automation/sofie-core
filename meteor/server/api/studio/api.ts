@@ -25,7 +25,12 @@ import { MethodContextAPI, MethodContext } from '../methodContext'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { logger } from '../../logging'
-import { DEFAULT_MINIMUM_TAKE_SPAN } from '@sofie-automation/shared-lib/dist/core/constants'
+import {
+	DEFAULT_MINIMUM_TAKE_SPAN,
+	DEFAULT_DISPLAY_DURATION,
+	DEFAULT_SHELF_DISPLAY_OPTIONS,
+	DEFAULT_TIME_SCALE,
+} from '@sofie-automation/shared-lib/dist/core/constants'
 import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
 import { assertConnectionHasOneOfPermissions } from '../../security/auth'
 import { ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
@@ -66,6 +71,14 @@ export async function insertStudioInner(newId?: StudioId): Promise<StudioId> {
 				enableBuckets: true,
 				enableEvaluationForm: true,
 				shelfAdlibButtonSize: ShelfButtonSize.LARGE,
+				autoRewindLeavingSegment: true,
+				disableBlurBorder: false,
+				allowGrabbingTimeline: true,
+				useCountdownToFreezeFrame: true,
+				defaultShelfDisplayOptions: DEFAULT_SHELF_DISPLAY_OPTIONS,
+				defaultDisplayDuration: DEFAULT_DISPLAY_DURATION,
+				defaultTimeScale: DEFAULT_TIME_SCALE,
+				followOnAirSegmentsHistory: 0,
 			}),
 			_rundownVersionHash: '',
 			routeSetsWithOverrides: wrapDefaultObject({}),

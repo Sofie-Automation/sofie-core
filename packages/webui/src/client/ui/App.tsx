@@ -35,7 +35,6 @@ import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-d
 import { ErrorBoundary } from '../lib/ErrorBoundary.js'
 import { PrompterView } from './Prompter/PrompterView.js'
 import { ModalDialogGlobalContainer, doModalDialog } from '../lib/ModalDialog.js'
-import { Settings } from '../lib/Settings.js'
 import { DocumentTitleProvider } from '../lib/DocumentTitleProvider.js'
 import { catchError, firstIfArray, isRunningInPWA } from '../lib/lib.js'
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
@@ -110,9 +109,6 @@ export const App: React.FC = function App() {
 	}, [])
 
 	useEffect(() => {
-		if (Settings.customizationClassName) {
-			document.body.classList.add(Settings.customizationClassName)
-		}
 		const uiZoom = featureFlags.zoom
 		if (uiZoom !== 1) {
 			document.documentElement.style.fontSize = uiZoom * 16 + 'px'

@@ -23,8 +23,6 @@ import {
 } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { objectFromEntries } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { getCurrentTime } from './systemTime.js'
-import { Settings } from '../lib/Settings.js'
-
 import type { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { CountdownType } from '@sofie-automation/blueprints-integration'
 import { RundownUtils } from './rundown.js'
@@ -95,7 +93,7 @@ export class RundownTimingCalculator {
 		partInstances: CalculateTimingsPartInstance[],
 		segmentsMap: Map<SegmentId, DBSegment>,
 		/** Fallback duration for Parts that have no as-played duration of their own. */
-		defaultDuration: number = Settings.defaultDisplayDuration,
+		defaultDuration: number,
 		partsInQuickLoop: Record<TimingId, boolean>
 	): RundownTimingContext {
 		let totalRundownDuration = 0
@@ -693,21 +691,25 @@ export interface RundownTimingContext {
  * @param  {Array<string>} partIds The IDs of parts that are members of the segment
  * @return number
  */
+/**
+ * @param displayDuration When provided, parts with no duration of their own fall back to this duration
+ * (the Studio's configured `defaultDisplayDuration`). Omit to not apply any fallback (renders as 0).
+ */
 export function computeSegmentDuration(
 	timingDurations: RundownTimingContext,
 	parts: PartExtended[],
-	display?: boolean
+	displayDuration?: number
 ): number {
 	const partDisplayDurations = timingDurations?.partDisplayDurations
 
-	if (!partDisplayDurations) return RundownUtils.getSegmentDuration(parts, display)
+	if (!partDisplayDurations) return RundownUtils.getSegmentDuration(parts, displayDuration)
 
 	return parts.reduce((memo, partExtended) => {
 		// total += durations.partDurations ? durations.partDurations[item._id] : (item.duration || item.renderedDuration || 1)
 		const partInstanceTimingId = getPartInstanceTimingId(partExtended.instance)
 		const duration = Math.max(
 			partExtended.instance.timings?.duration || partExtended.renderedDuration || 0,
-			partDisplayDurations?.[partInstanceTimingId] || (display ? Settings.defaultDisplayDuration : 0)
+			partDisplayDurations?.[partInstanceTimingId] || (displayDuration ?? 0)
 		)
 		return memo + duration
 	}, 0)

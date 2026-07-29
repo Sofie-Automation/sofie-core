@@ -59,7 +59,6 @@ import { VirtualElement } from '../lib/VirtualElement.js'
 import { SEGMENT_TIMELINE_ELEMENT_ID } from './SegmentTimeline/SegmentTimeline.js'
 import type { OffsetPosition } from '../utils/positions.js'
 import { MeteorCall } from '../lib/meteorApi.js'
-import { Settings } from '../lib/Settings.js'
 import { PointerLockCursor } from '../lib/PointerLockCursor.js'
 import { documentTitle } from '../lib/DocumentTitleProvider.js'
 import { RundownDividerHeader } from './RundownView/RundownDividerHeader.js'
@@ -96,6 +95,7 @@ import { logger } from '../lib/logging.js'
 import { RundownPlaylistClientUtil } from '../lib/rundownPlaylistUtil.js'
 import { UserPermissionsContext, type UserPermissions } from './UserPermissions.js'
 import { MAGIC_TIME_SCALE_FACTOR } from './SegmentTimeline/Constants.js'
+import { DEFAULT_TIME_SCALE } from '@sofie-automation/shared-lib/dist/core/constants'
 import { SelectedElementsContext } from './RundownView/SelectedElementsContext.js'
 import { PropertiesPanel } from './UserEditOperations/PropertiesPanel.js'
 import { RundownHeader } from './RundownView/RundownHeader/RundownHeader.js'
@@ -349,7 +349,7 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 			const isInspectorShelfExpanded = this.props.selectedShelfLayout?.openByDefault ?? false
 
 			this.state = {
-				timeScale: MAGIC_TIME_SCALE_FACTOR * Settings.defaultTimeScale,
+				timeScale: MAGIC_TIME_SCALE_FACTOR * (this.props.studio?.settings.defaultTimeScale ?? DEFAULT_TIME_SCALE),
 				contextMenuContext: null,
 				bottomMargin: '',
 				followLiveSegments: true,
@@ -487,7 +487,11 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 					followLiveSegments: true,
 				})
 				if (this.props.playlist.currentPartInfo) {
-					scrollToPartInstance(this.props.playlist.currentPartInfo?.partInstanceId, true).catch((error) => {
+					scrollToPartInstance(
+						this.props.playlist.currentPartInfo?.partInstanceId,
+						this.props.studio?.settings.followOnAirSegmentsHistory ?? 0,
+						true
+					).catch((error) => {
 						if (!error.toString().match(/another scroll/)) console.warn(error)
 					})
 				}
@@ -512,7 +516,10 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 				// add small delay to ensure the nextPartInfo is available
 				setTimeout(() => {
 					if (this.props.playlist && this.props.playlist.nextPartInfo) {
-						scrollToPartInstance(this.props.playlist.nextPartInfo.partInstanceId).catch((error) => {
+						scrollToPartInstance(
+							this.props.playlist.nextPartInfo.partInstanceId,
+							this.props.studio?.settings.followOnAirSegmentsHistory ?? 0
+						).catch((error) => {
 							if (!error.toString().match(/another scroll/)) console.warn(error)
 						})
 					}
@@ -525,7 +532,11 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 				this.props.playlist.currentPartInfo &&
 				this.state.followLiveSegments
 			) {
-				scrollToPartInstance(this.props.playlist.currentPartInfo.partInstanceId, true).catch((error) => {
+				scrollToPartInstance(
+					this.props.playlist.currentPartInfo.partInstanceId,
+					this.props.studio?.settings.followOnAirSegmentsHistory ?? 0,
+					true
+				).catch((error) => {
 					if (!error.toString().match(/another scroll/)) console.warn(error)
 				})
 			} else if (
@@ -536,7 +547,11 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 				this.props.playlist.nextPartInfo &&
 				this.props.playlist.nextPartInfo.manuallySelected
 			) {
-				scrollToPartInstance(this.props.playlist.nextPartInfo.partInstanceId, false).catch((error) => {
+				scrollToPartInstance(
+					this.props.playlist.nextPartInfo.partInstanceId,
+					this.props.studio?.settings.followOnAirSegmentsHistory ?? 0,
+					false
+				).catch((error) => {
 					if (!error.toString().match(/another scroll/)) console.warn(error)
 				})
 			} else if (
@@ -547,7 +562,13 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 				!prevProps.subsReady
 			) {
 				// allow for some time for the Rundown to render
-				maintainFocusOnPartInstance(this.props.playlist.currentPartInfo.partInstanceId, 7000, true, true)
+				maintainFocusOnPartInstance(
+					this.props.playlist.currentPartInfo.partInstanceId,
+					this.props.studio?.settings.followOnAirSegmentsHistory ?? 0,
+					7000,
+					true,
+					true
+				)
 			} else if (
 				this.props.playlist &&
 				this.props.playlist.currentPartInfo?.partInstanceId === prevProps.playlist?.currentPartInfo?.partInstanceId &&
@@ -755,7 +776,11 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 				this._goToLiveSegmentShortTimeout = setTimeout(() => {
 					this._goToLiveSegmentShortTimeout = undefined
 					if (this.props.playlist && this.props.playlist.nextPartInfo) {
-						scrollToPartInstance(this.props.playlist.nextPartInfo.partInstanceId, true).catch((error) => {
+						scrollToPartInstance(
+							this.props.playlist.nextPartInfo.partInstanceId,
+							this.props.studio?.settings.followOnAirSegmentsHistory ?? 0,
+							true
+						).catch((error) => {
 							if (!error.toString().match(/another scroll/)) console.warn(error)
 						})
 					}
@@ -771,7 +796,11 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 				this.setState({
 					followLiveSegments: true,
 				})
-				scrollToPartInstance(this.props.playlist.currentPartInfo.partInstanceId, true).catch((error) => {
+				scrollToPartInstance(
+					this.props.playlist.currentPartInfo.partInstanceId,
+					this.props.studio?.settings.followOnAirSegmentsHistory ?? 0,
+					true
+				).catch((error) => {
 					if (!error.toString().match(/another scroll/)) console.warn(error)
 				})
 				this._goToLiveSegmentLongTimeout = setTimeout(() => {
@@ -925,7 +954,7 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 					}
 				}
 				if (segmentId) {
-					scrollToSegment(segmentId)
+					scrollToSegment(segmentId, this.props.studio?.settings.followOnAirSegmentsHistory ?? 0)
 						.then(() => {
 							RundownViewEventBus.emit(RundownViewEvents.HIGHLIGHT, e.sourceLocator)
 						})
@@ -1474,7 +1503,7 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 											/>
 										</ErrorBoundary>
 										<ErrorBoundary>
-											{this.props.userPermissions.studio && !Settings.disableBlurBorder && (
+											{this.props.userPermissions.studio && !this.props.studio?.settings.disableBlurBorder && (
 												<KeyboardFocusIndicator userPermissions={this.props.userPermissions}>
 													<div
 														className={classNames('rundown-view__focus-lost-frame', {
