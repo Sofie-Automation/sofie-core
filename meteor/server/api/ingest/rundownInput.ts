@@ -358,8 +358,8 @@ async function listIngestRundowns(peripheralDevice: PeripheralDevice): Promise<s
 	return rundowns.map((r) => r.externalId)
 }
 
-// hackGetMediaObjectDuration stuff
-Meteor.startup(async () => {
+export async function startMediaObjectDurationMonitor(): Promise<void> {
+	// hackGetMediaObjectDuration stuff
 	await MediaObjects.observe(
 		{},
 		{
@@ -368,7 +368,7 @@ Meteor.startup(async () => {
 		},
 		{ projection: { _id: 1, mediaId: 1, mediainfo: 1, studioId: 1 } }
 	)
-})
+}
 
 interface MediaObjectUpdatedIds {
 	rundownId: RundownId

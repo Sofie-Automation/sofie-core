@@ -98,6 +98,7 @@ import {
 } from '@sofie-automation/corelib/dist/dataModel/NrcsIngestDataCache'
 import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
 import { assertConnectionHasOneOfPermissions, RequestCredentials } from '../security/auth'
+import { isInTestMode } from '../lib'
 
 const PERMISSIONS_FOR_SNAPSHOT_MANAGEMENT: Array<keyof UserPermissions> = ['configure']
 
@@ -437,7 +438,7 @@ async function storeSnaphot(snapshot: { snapshot: SnapshotBase }, comment: strin
 
 	// Store to the persistant file storage
 	logger.info(`Save snapshot file ${filePath}`)
-	if (!Meteor.isTest) {
+	if (!isInTestMode()) {
 		// If we're running in a unit-test, don't write to disk
 		await fs.promises.writeFile(filePath, str)
 	}
@@ -465,7 +466,7 @@ async function retreiveSnapshot(snapshotId: SnapshotId, cred: RequestCredentials
 	const storePath = getSystemStorePath()
 	const filePath = Path.join(storePath, snapshot.fileName)
 
-	const dataStr = !Meteor.isTest // If we're running in a unit-test, don't access files
+	const dataStr = !isInTestMode() // If we're running in a unit-test, don't access files
 		? await fs.promises.readFile(filePath, { encoding: 'utf8' })
 		: ''
 
@@ -811,7 +812,7 @@ export async function removeSnapshot(context: MethodContext, snapshotId: Snapsho
 		try {
 			logger.info(`Removing snapshot file ${filePath}`)
 
-			if (!Meteor.isTest) {
+			if (!isInTestMode()) {
 				// If we're running in a unit-test, don't access files
 				await fs.promises.unlink(filePath)
 			}

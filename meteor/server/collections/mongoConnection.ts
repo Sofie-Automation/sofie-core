@@ -1,5 +1,4 @@
 import { MongoClient, Db } from 'mongodb'
-import { Meteor } from 'meteor/meteor'
 import { logger } from '../logging'
 
 /**
@@ -30,14 +29,6 @@ export function parseMongoConnectionString(): { uri: string; dbName: string } {
 	return { uri: rawUrl.toString(), dbName }
 }
 
-/**
- * Whether we are running without a real MongoDB connection (unit tests). In this mode collections are
- * backed by the in-memory mock instead of the native driver / change-stream engine.
- */
-export function isInMockMode(): boolean {
-	return !!(Meteor.isTest || process.env.JEST_WORKER_ID)
-}
-
 export function getMongoClient(): MongoClient {
 	if (!client) {
 		const { uri } = parseMongoConnectionString()
@@ -64,10 +55,3 @@ export async function connectMongo(): Promise<void> {
 	await getMongoClient().connect()
 	logger.info('Connected to MongoDB using the native driver')
 }
-
-Meteor.startup(async () => {
-	// Don't connect in tests
-	if (isInMockMode()) return
-
-	await connectMongo()
-})

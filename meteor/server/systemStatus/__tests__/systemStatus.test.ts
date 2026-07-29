@@ -21,6 +21,7 @@ jest.mock('../../api/deviceTriggers/observer')
 const PackageInfo = require('../../../package.json')
 
 import * as getServerBlueprintUpgradeStatuses from '../../publications/blueprintUpgradeStatus/systemStatus'
+import { setupSystemStatusObservers } from '../../coreSystem'
 const getServerBlueprintUpgradeStatusesMock = jest.spyOn(
 	getServerBlueprintUpgradeStatuses,
 	'getServerBlueprintUpgradeStatuses'
@@ -49,7 +50,7 @@ describe('systemStatus', () => {
 	})
 	test('getSystemStatus: after startup', async () => {
 		env = await setupDefaultStudioEnvironment()
-		await MeteorMock.mockRunMeteorStartup()
+		await setupSystemStatusObservers()
 		await MeteorMock.sleepNoFakeTimers(200)
 
 		const result0: StatusResponse = await MeteorCall.systemStatus.getSystemStatus()

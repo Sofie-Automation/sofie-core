@@ -68,11 +68,10 @@ const $ = {
 	},
 }
 
-let mockIsClient = false
 const publications: Record<string, Function> = {}
 export class MeteorMock {
 	static get isClient(): boolean {
-		return mockIsClient
+		return false
 	}
 	static get isServer(): boolean {
 		return !MeteorMock.isClient
@@ -88,8 +87,6 @@ export namespace MeteorMock {
 	export const release = ''
 
 	export const settings: any = {}
-
-	export const mockStartupFunctions: Function[] = []
 
 	export const absolutePath = process.cwd()
 
@@ -190,7 +187,7 @@ export namespace MeteorMock {
 	}
 
 	export function startup(fcn: Function): void {
-		mockStartupFunctions.push(fcn)
+		throw new Error(500, 'Meteor.startup is not supported in tests')
 	}
 
 	export function onConnection(_callback: (connection: any) => void): void {
@@ -208,22 +205,6 @@ export namespace MeteorMock {
 	}
 
 	// -- Mock functions: --------------------------
-	/**
-	 * Run the Meteor.startup() functions
-	 */
-	export async function mockRunMeteorStartup(): Promise<void> {
-		for (const fcn of mockStartupFunctions) {
-			await fcn()
-		}
-
-		await waitTimeNoFakeTimers(10) // So that any observers or defers has had time to run.
-	}
-	export function mockSetClientEnvironment(): void {
-		mockIsClient = true
-	}
-	export function mockSetServerEnvironment(): void {
-		mockIsClient = false
-	}
 	export function mockGetPublications(): Record<string, Function> {
 		return publications
 	}

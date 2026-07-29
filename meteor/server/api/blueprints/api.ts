@@ -33,6 +33,7 @@ import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissio
 import { assertConnectionHasOneOfPermissions, RequestCredentials } from '../../security/auth'
 import { blueprintsPerformDevelopmentMode } from './development'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
+import { isInTestMode } from '../../lib'
 
 const PERMISSIONS_FOR_MANAGE_BLUEPRINTS: Array<keyof UserPermissions> = ['configure']
 
@@ -98,7 +99,7 @@ export async function uploadBlueprint(
 
 	assertConnectionHasOneOfPermissions(cred, ...PERMISSIONS_FOR_MANAGE_BLUEPRINTS)
 
-	if (!Meteor.isTest) logger.info(`Got blueprint '${blueprintId}'. ${body.length} bytes`)
+	if (!isInTestMode()) logger.info(`Got blueprint '${blueprintId}'. ${body.length} bytes`)
 
 	if (!blueprintId) throw new Meteor.Error(400, `Blueprint id "${blueprintId}" is not valid`)
 	const blueprint = await fetchBlueprintLight(blueprintId)

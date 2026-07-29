@@ -1,5 +1,4 @@
 import { deferAsync, getCurrentTime } from './lib/lib'
-import { Meteor } from 'meteor/meteor'
 import { logger } from './logging'
 import { sendTrace } from './api/integration/influx'
 import { PeripheralDevices } from './collections'
@@ -65,14 +64,14 @@ export function trackConnectionClose(connectionId: string, clientAddress: string
 	})
 }
 
-let logTimeout: number | undefined = undefined
+let logTimeout: NodeJS.Timeout | undefined = undefined
 function traceConnections() {
 	connectionsGauge.set(connections.size)
 
 	if (logTimeout) {
 		clearTimeout(logTimeout)
 	}
-	logTimeout = Meteor.setTimeout(() => {
+	logTimeout = setTimeout(() => {
 		logTimeout = undefined
 		logger.debug(`Connection count: ${connections.size}`)
 
@@ -86,7 +85,7 @@ function traceConnections() {
 	}, 1000)
 }
 
-Meteor.startup(async () => {
+export async function markAllPeripheralDevicesOffline(): Promise<void> {
 	// Reset the connection status of the devices
 
 	await PeripheralDevices.updateAsync(
@@ -101,4 +100,4 @@ Meteor.startup(async () => {
 		},
 		{ multi: true }
 	)
-})
+}

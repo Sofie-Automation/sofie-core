@@ -216,7 +216,7 @@ function triggerUpdateStudioMappingsHash(studioId: StudioId) {
 	)
 }
 
-Meteor.startup(async () => {
+export async function startStudioMappingsHashObserver(): Promise<void> {
 	await Studios.observeChanges(
 		{},
 		{
@@ -231,4 +231,4 @@ Meteor.startup(async () => {
 			},
 		}
 	)
-})
+}

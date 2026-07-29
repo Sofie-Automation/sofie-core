@@ -5,7 +5,6 @@ import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowSt
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { ObserveChangesHelper } from '../collections/lib'
-import { Meteor } from 'meteor/meteor'
 
 const ObserveChangeBufferTimeout = 100
 
@@ -14,11 +13,19 @@ const ObserveChangeBufferTimeout = 100
  * Future: It would be nice to not do this through observers, but due to how data updates are done currently, it will be hard to reliably intercept the calls and perform this
  */
 
+export async function startBlueprintConfigPresetObservers(): Promise<void> {
+	await Promise.all([
+		startStudioBlueprintConfigPresetObserver(),
+		startShowStyleBaseBlueprintConfigPresetObserver(),
+		startShowStyleVariantBlueprintConfigPresetObserver(),
+	])
+}
+
 /**
  * Whenever the Studio changes the blueprint or config preset, ensure the config is synced across
  * We want it synced across, so that if the config-preset is removed, then there is some config that can be used
  */
-Meteor.startup(async () => {
+async function startStudioBlueprintConfigPresetObserver(): Promise<void> {
 	const doUpdate = async (doc: DBStudio): Promise<void> => {
 		const markUnlinked = async () => {
 			await Studios.updateAsync(doc._id, {
@@ -63,13 +70,13 @@ Meteor.startup(async () => {
 		doUpdate,
 		ObserveChangeBufferTimeout
 	)
-})
+}
 
 /**
  * Whenever the ShowStyleBase changes the blueprint or config preset, ensure the config is synced across
  * We want it synced across, so that if the config-preset is removed, then there is some config that can be used
  */
-Meteor.startup(async () => {
+async function startShowStyleBaseBlueprintConfigPresetObserver(): Promise<void> {
 	const doUpdate = async (doc: DBShowStyleBase): Promise<void> => {
 		const markUnlinked = async () => {
 			await Promise.all([
@@ -162,13 +169,13 @@ Meteor.startup(async () => {
 		doUpdate,
 		ObserveChangeBufferTimeout
 	)
-})
+}
 
 /**
  * Whenever the ShowStyleVariant changes the config preset, ensure the config is synced across
  * We want it synced across, so that if the config-preset is removed, then there is some config that can be used
  */
-Meteor.startup(async () => {
+async function startShowStyleVariantBlueprintConfigPresetObserver(): Promise<void> {
 	const doUpdate = async (doc: DBShowStyleVariant): Promise<void> => {
 		const markUnlinked = async () => {
 			await ShowStyleVariants.updateAsync(doc._id, {
@@ -219,4 +226,4 @@ Meteor.startup(async () => {
 		doUpdate,
 		ObserveChangeBufferTimeout
 	)
-})
+}

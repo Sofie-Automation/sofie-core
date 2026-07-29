@@ -192,16 +192,21 @@ const monitorBlockedThread = () => {
 		}
 	}
 	lastTime = Date.now()
-	Meteor.setTimeout(() => {
+	setTimeout(() => {
 		monitorBlockedThread()
 	}, PERMORMANCE_CHECK_INTERVAL)
 }
 
-Meteor.startup(async () => {
-	const coreSystem = await getCoreSystemAsync()
-	if (coreSystem?.enableMonitorBlockedThread) {
-		Meteor.setTimeout(() => {
-			monitorBlockedThread()
-		}, 5000)
-	}
-})
+export function startPerformanceMonitor(): void {
+	getCoreSystemAsync()
+		.then((coreSystem) => {
+			if (coreSystem?.enableMonitorBlockedThread) {
+				setTimeout(() => {
+					monitorBlockedThread()
+				}, 5000)
+			}
+		})
+		.catch((e) => {
+			logger.error(`Error in startPerformanceMonitor: ${e}`)
+		})
+}
