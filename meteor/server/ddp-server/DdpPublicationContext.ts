@@ -32,7 +32,7 @@ export class DdpPublicationContext implements PublicationContext {
 		private readonly subscriptionId: string,
 		/** The merge-box key for this subscription (distinct from the client-facing subscriptionId). */
 		private readonly subscriptionHandle: string,
-		publicationName: string
+		readonly publicationName: string
 	) {
 		this.connection = session.connection
 
@@ -49,6 +49,15 @@ export class DdpPublicationContext implements PublicationContext {
 
 	get signal(): AbortSignal {
 		return this.abort.signal
+	}
+
+	/** Number of documents this subscription has published, by collection name. For diagnostics. */
+	getDocumentCounts(): Record<string, number> {
+		const counts: Record<string, number> = {}
+		for (const [collection, ids] of this.documents) {
+			counts[collection] = ids.size
+		}
+		return counts
 	}
 
 	private get stopped(): boolean {

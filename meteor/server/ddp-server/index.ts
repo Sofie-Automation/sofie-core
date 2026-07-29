@@ -12,6 +12,15 @@ import { getRootSubpath } from '../lib'
 import { trackConnectionOpen, trackConnectionClose } from '../Connections'
 
 /**
+ * Create the registry of live standalone-DDP sessions, wired up to the production connection lifecycle
+ * side-effects. Created separately from the server so other startup steps (e.g. the performance monitor)
+ * can hold onto it before the server itself is started.
+ */
+export function createDdpConnectionRegistry(): DdpConnectionRegistry {
+	return new DdpConnectionRegistry({ onOpen: trackConnectionOpen, onClose: trackConnectionClose })
+}
+
+/**
  * Start the standalone DDP server, sharing the given method + publication registries with the Meteor path.
  *
  * It mounts on Meteor's own HTTP server (`WebApp.httpServer`) under a subpath via a `noServer`
@@ -19,7 +28,11 @@ import { trackConnectionOpen, trackConnectionClose } from '../Connections'
  * (e.g. Meteor's SockJS endpoint) untouched. Call from within `Meteor.startup`, once the HTTP
  * server exists.
  */
-export function startStandaloneDdpServer(registry: MethodRegistry, publications: PublicationRegistry): void {
+export function startStandaloneDdpServer(
+	registry: MethodRegistry,
+	publications: PublicationRegistry,
+	connections: DdpConnectionRegistry
+): void {
 	const httpServer = (WebApp as unknown as { httpServer?: HttpServer }).httpServer
 	if (!httpServer) {
 		logger.error('Standalone DDP server: WebApp.httpServer is not available; not starting')
@@ -27,7 +40,6 @@ export function startStandaloneDdpServer(registry: MethodRegistry, publications:
 	}
 
 	const path = getRootSubpath() + STANDALONE_DDP_SERVER_PATH
-	const connections = new DdpConnectionRegistry({ onOpen: trackConnectionOpen, onClose: trackConnectionClose })
 	const wss = new WebSocketServer({ noServer: true })
 
 	wss.on('connection', (socket, request) => {

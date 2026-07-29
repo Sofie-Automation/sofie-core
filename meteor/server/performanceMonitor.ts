@@ -1,8 +1,8 @@
-import { Meteor } from 'meteor/meteor'
 import _ from 'underscore'
 import { getCoreSystemAsync } from './coreSystem/collection'
 import { logger } from './logging'
 import { getRunningMethods, resetRunningMethods } from './methods'
+import type { DdpConnectionRegistry } from './ddp-server/ConnectionRegistry'
 
 /**
  * The performanceMonotor runs at an interval, and when run it checks that it actually ran on time.
@@ -28,67 +28,61 @@ const statistics: Array<{
 	averageWarnings: number
 }> = []
 
-function traceDebuggingData() {
+interface DebugData {
+	connectionCount: number
+	subscriptionCount: number
+	/** Total documents across all sessions' merge boxes (deduplicated per session) */
+	documentCount: number
+
+	subscriptions: Record<string, { count: number; documents: Record<string, number> }>
+	connections: Array<{
+		id: string
+		clientAddress: string
+		subscriptionCount: number
+		documentCount: number
+	}>
+}
+
+function traceDebuggingData(connections: DdpConnectionRegistry): DebugData {
 	// Collect a set of data that can be useful for performance debugging
 
-	const debugData: any = {
+	const debugData: DebugData = {
 		connectionCount: 0,
-		namedSubscriptionCount: 0,
-		universalSubscriptionCount: 0,
+		subscriptionCount: 0,
 		documentCount: 0,
 
 		subscriptions: {},
 		connections: [],
 	}
-	// @ts-expect-error Meteor typings are incomplete
-	const connections = Meteor.server.stream_server.open_sockets
-	_.each(connections, (connection: any) => {
+
+	for (const session of connections.getDebugData()) {
 		debugData.connectionCount++
+		debugData.documentCount += session.mergedDocumentCount
 
-		const conn = {
-			address: connection.address,
-			clientAddress: null,
-			clientPort: connection.clientclientPort,
-			remoteAddress: connection.remoteAddress,
-			remotePort: connection.remotePort,
-			documentCount: 0,
+		debugData.connections.push({
+			id: session.id,
+			clientAddress: session.clientAddress,
+			subscriptionCount: session.subscriptions.length,
+			documentCount: session.mergedDocumentCount,
+		})
+
+		for (const sub of session.subscriptions) {
+			debugData.subscriptionCount++
+
+			let sub0 = debugData.subscriptions[sub.name]
+			if (!sub0) {
+				sub0 = { count: 0, documents: {} }
+				debugData.subscriptions[sub.name] = sub0
+			}
+
+			sub0.count++
+
+			for (const [collectionName, count] of Object.entries<number>(sub.documents)) {
+				sub0.documents[collectionName] = (sub0.documents[collectionName] ?? 0) + count
+			}
 		}
-		debugData.connections.push(conn)
-		// named subscriptions
+	}
 
-		const session = connection._meteorSession
-
-		if (session) {
-			// if (session.clientAddress) conn.clientAddress = session.clientAddress()
-			if (session.connectionHandle) conn.clientAddress = session.connectionHandle.clientAddress
-
-			_.each(session._namedSubs, (sub: any) => {
-				debugData.namedSubscriptionCount++
-				if (!debugData.subscriptions[sub._name]) {
-					debugData.subscriptions[sub._name] = {
-						count: 0,
-						documents: {},
-					}
-				}
-				const sub0 = debugData.subscriptions[sub._name]
-
-				sub0.count++
-
-				_.each(sub._documents, (collection, collectionName: string) => {
-					if (!sub0.documents[collectionName]) sub0.documents[collectionName] = 0
-					const count = _.keys(collection).length || 0
-					sub0.documents[collectionName] += count
-					conn.documentCount += count
-				})
-			})
-			_.each(session._namedSubs, (_sub: any) => {
-				debugData.universalSubscriptionCount++
-				// unsure what this is
-			})
-
-			debugData.documentCount += conn.documentCount
-		}
-	})
 	return debugData
 }
 function updateStatistics(onlyReturn?: boolean) {
@@ -166,7 +160,7 @@ function updateStatistics(onlyReturn?: boolean) {
 // }
 
 let lastTime = 0
-const monitorBlockedThread = () => {
+const monitorBlockedThread = (connections: DdpConnectionRegistry) => {
 	if (lastTime) {
 		const timeSinceLast = Date.now() - lastTime
 
@@ -183,7 +177,7 @@ const monitorBlockedThread = () => {
 			}
 			resetRunningMethods()
 			logger.info('Running methods:', trace)
-			logger.info('traceDebuggingData:', traceDebuggingData())
+			logger.info('traceDebuggingData:', traceDebuggingData(connections))
 		}
 
 		statisticsDelays.push(delayTime)
@@ -193,16 +187,16 @@ const monitorBlockedThread = () => {
 	}
 	lastTime = Date.now()
 	setTimeout(() => {
-		monitorBlockedThread()
+		monitorBlockedThread(connections)
 	}, PERMORMANCE_CHECK_INTERVAL)
 }
 
-export function startPerformanceMonitor(): void {
+export function startPerformanceMonitor(connections: DdpConnectionRegistry): void {
 	getCoreSystemAsync()
 		.then((coreSystem) => {
 			if (coreSystem?.enableMonitorBlockedThread) {
 				setTimeout(() => {
-					monitorBlockedThread()
+					monitorBlockedThread(connections)
 				}, 5000)
 			}
 		})
