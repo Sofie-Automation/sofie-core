@@ -5,10 +5,10 @@
 // Things we explicitly do NOT support:
 //    - heterogenous arrays
 
-const { Meteor } = require('meteor/meteor')
+const { SofieError } = require('@sofie-automation/corelib/dist/error')
 const util = require('util')
 
-Meteor.makeErrorType = function (name, constructor) {
+function makeErrorType(name, constructor) {
 	var errorClass = function (/*arguments*/) {
 		// Ensure we get a proper stack trace in most Javascript environments
 		if (Error.captureStackTrace) {
@@ -96,7 +96,7 @@ const Match = {
 	Integer: ['__integer__'],
 
 	// XXX matchers should know how to describe themselves for errors
-	Error: Meteor.makeErrorType('Match.Error', function (msg) {
+	Error: makeErrorType('Match.Error', function (msg) {
 		this.message = 'Match error: ' + msg
 		// The path of the value that failed to match. Initially empty, this gets
 		// populated by catching and rethrowing the exception as it goes back up the
@@ -105,7 +105,7 @@ const Match = {
 		this.path = ''
 		// If this gets sent over DDP, don't give full internal details but at least
 		// provide something better than 500 Internal server error.
-		this.sanitizedError = new Meteor.Error(400, 'Match failed')
+		this.sanitizedError = new SofieError(400, 'Match failed')
 	}),
 
 	// Tests to see if value matches pattern. Unlike check, it merely returns true

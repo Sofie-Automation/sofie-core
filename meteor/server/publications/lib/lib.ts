@@ -1,9 +1,9 @@
-import { Meteor } from 'meteor/meteor'
 import { AllPubSubCollections, AllPubSubTypes } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { MinimalMongoCursor } from '../../collections/collection'
 import type { LiveQueryHandleSync } from '../../lib/lib'
 import type { DDPClientConnection } from '../../ddp-server/types'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 /**
  * The context handed to a publication callback.
@@ -47,7 +47,7 @@ export async function driveSubscriptionFromCursor(
 	cursor: MinimalMongoCursor<any>
 ): Promise<void> {
 	const collectionName = cursor.collectionName
-	if (!collectionName) throw new Meteor.Error(500, 'Cursor has no collection name, cannot publish')
+	if (!collectionName) throw new SofieError(500, 'Cursor has no collection name, cannot publish')
 
 	const handle = await cursor.observeChangesAsync(
 		{
@@ -105,7 +105,7 @@ export async function waitForAllObserversReady(
 		if (firstFailure) {
 			throw firstFailure.reason
 		} else {
-			throw new Meteor.Error(500, 'Not all observers were started')
+			throw new SofieError(500, 'Not all observers were started')
 		}
 	}
 

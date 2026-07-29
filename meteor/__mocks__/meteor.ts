@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type, @typescript-eslint/only-throw-error */
 
+import { SofieError } from '@sofie-automation/corelib/dist/error'
+
 let controllableDefer = false
 
 export function useControllableDefer(): void {
@@ -17,15 +19,6 @@ export namespace Meteor {
 		[id: string]: any
 	}
 
-	export interface ErrorStatic {
-		new (error: string | number, reason?: string, details?: string): Error
-	}
-	export interface Error {
-		error: string | number
-		reason?: string
-		details?: string
-	}
-
 	export interface SubscriptionHandle {
 		stop(): void
 		ready(): boolean
@@ -40,7 +33,6 @@ const orgClearTimeout = clearTimeout
 const orgClearInterval = clearInterval
 
 const $ = {
-	Error,
 	get setTimeout(): Function {
 		return setTimeout
 	},
@@ -90,48 +82,11 @@ export namespace MeteorMock {
 
 	export const absolutePath = process.cwd()
 
-	export class Error {
-		private _stack?: string
-		constructor(
-			public error: number,
-			public reason?: string,
-			public details?: unknown
-		) {
-			const e = new $.Error('')
-			let stack: string = e.stack || ''
-
-			const lines = stack.split('\n')
-			if (lines.length > 1) {
-				lines.shift()
-				stack = lines.join('\n')
-			}
-			this._stack = stack
-			// console.log(this._stack)
-		}
-		get name(): string {
-			return this.toString()
-		}
-		get message(): string {
-			return this.toString()
-		}
-		get errorType(): string {
-			return 'Meteor.Error'
-		}
-		get isClientSafe(): boolean {
-			return false
-		}
-		get stack(): string | undefined {
-			return this._stack
-		}
-		toString(): string {
-			return `[${this.error}] ${this.reason}` // TODO: This should be changed to "${this.reason} [${this.error}]"
-		}
-	}
 	export function call(_methodName: string, ..._args: any[]): any {
-		throw new Error(500, `Meteor.call is not supported without ddp`)
+		throw new SofieError(500, `Meteor.call is not supported without ddp`)
 	}
 	export async function callAsync(_methodName: string, ..._args: any[]): Promise<any> {
-		throw new Error(500, `Meteor.callAsync is not supported without ddp`)
+		throw new SofieError(500, `Meteor.callAsync is not supported without ddp`)
 	}
 	export function apply(
 		_methodName: string,
@@ -144,7 +99,7 @@ export namespace MeteorMock {
 		},
 		_asyncCallback?: Function
 	): any {
-		throw new Error(500, `Meteor.apply is not supported without ddp`)
+		throw new SofieError(500, `Meteor.apply is not supported without ddp`)
 	}
 	export async function applyAsync(
 		_methodName: string,
@@ -156,7 +111,7 @@ export namespace MeteorMock {
 			throwStubExceptions?: boolean
 		}
 	): Promise<any> {
-		throw new Error(500, `Meteor.applyAsync is not supported without ddp`)
+		throw new SofieError(500, `Meteor.applyAsync is not supported without ddp`)
 	}
 	export function setTimeout(fcn: () => void | Promise<void>, time: number): number {
 		return $.setTimeout(() => {
@@ -187,7 +142,7 @@ export namespace MeteorMock {
 	}
 
 	export function startup(_fcn: Function): void {
-		throw new Error(500, 'Meteor.startup is not supported in tests')
+		throw new SofieError(500, 'Meteor.startup is not supported in tests')
 	}
 
 	export function onConnection(_callback: (connection: any) => void): void {

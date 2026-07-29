@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import { check } from '../lib/check'
 import { StatusCode } from '@sofie-automation/blueprints-integration'
 import { deferAsync, getCurrentTime } from '../lib/lib'
@@ -11,6 +10,7 @@ import { ExternalMessageQueueObj } from '@sofie-automation/corelib/dist/dataMode
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
 import { assertConnectionHasOneOfPermissions } from '../security/auth'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 const USER_PERMISSIONS_FOR_EXTERNAL_MESSAGES: Array<keyof UserPermissions> = ['configure', 'studio', 'service']
 
@@ -80,7 +80,7 @@ async function toggleHold(context: MethodContext, messageId: ExternalMessageQueu
 	assertConnectionHasOneOfPermissions(context.connection, ...USER_PERMISSIONS_FOR_EXTERNAL_MESSAGES)
 
 	const existingMessage = await ExternalMessageQueue.findOneAsync(messageId)
-	if (!existingMessage) throw new Meteor.Error(404, `ExternalMessage "${messageId}" not found!`)
+	if (!existingMessage) throw new SofieError(404, `ExternalMessage "${messageId}" not found!`)
 
 	await ExternalMessageQueue.updateAsync(messageId, {
 		$set: {
@@ -94,7 +94,7 @@ async function retry(context: MethodContext, messageId: ExternalMessageQueueObjI
 	assertConnectionHasOneOfPermissions(context.connection, ...USER_PERMISSIONS_FOR_EXTERNAL_MESSAGES)
 
 	const existingMessage = await ExternalMessageQueue.findOneAsync(messageId)
-	if (!existingMessage) throw new Meteor.Error(404, `ExternalMessage "${messageId}" not found!`)
+	if (!existingMessage) throw new SofieError(404, `ExternalMessage "${messageId}" not found!`)
 
 	const tryGap = getCurrentTime() - 1 * 60 * 1000
 	await ExternalMessageQueue.updateAsync(messageId, {

@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import { MethodContext, MethodContextAPI } from './api/methodContext'
 import { extractFunctionSignature } from './lib'
 import { logger } from './logging'
@@ -10,6 +9,7 @@ import {
 	wrapMethodForExecution,
 } from './methods'
 import { assertConnectionHasOneOfPermissions } from './security/auth'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 export type MethodWrapper = (
 	methodContext: MethodContext,
@@ -68,7 +68,7 @@ export class MethodRegistry {
 			try {
 				const wireName = methodEnum[classMethodName]
 				if (!wireName) {
-					throw new Meteor.Error(
+					throw new SofieError(
 						500,
 						`MethodRegistry.registerApi: The method "${classMethodName}" is not set in the methods map.`
 					)
@@ -120,7 +120,7 @@ export class MethodRegistry {
 		debug = false
 	): void {
 		if (this.methods.has(name)) {
-			throw new Meteor.Error(500, `MethodRegistry: A method called "${name}" is already registered.`)
+			throw new SofieError(500, `MethodRegistry: A method called "${name}" is already registered.`)
 		}
 		this.methods.set(name, {
 			wrapped: wrapMethodForExecution(name, wrappedInner),

@@ -5,9 +5,9 @@ import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { logger } from '../logging'
 import { collectionsAllowDenyCache } from '../collections/collection'
 import { Collections } from '../collections/lib'
-import { Meteor } from 'meteor/meteor'
 import { checkHasOneOfPermissions, parseConnectionPermissions } from '../security/auth'
 import { triggerWriteAccess } from '../security/securityVerify'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 const hasOwn = Object.prototype.hasOwnProperty
 const ALLOWED_UPDATE_OPERATIONS = {
@@ -29,24 +29,24 @@ export class MongoAPIClass extends MethodContextAPI implements MongoAPI {
 		triggerWriteAccess()
 
 		logger.error(`MongoAPI.insertDocument for "${collectionName}"`)
-		throw new Error('Not supported')
+		throw new SofieError(500, 'Not supported')
 	}
 
 	// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 	async updateDocument(collectionName: CollectionName, selector: any, modifier: any, _options: any): Promise<number> {
 		triggerWriteAccess()
 
-		if (!this.connection) throw new Meteor.Error(403, 'Only supported from the client')
+		if (!this.connection) throw new SofieError(403, 'Only supported from the client')
 
 		const validator = collectionsAllowDenyCache.get(collectionName)
-		if (!validator) throw new Meteor.Error(403, `Not allowed to update collection: "${collectionName}`)
+		if (!validator) throw new SofieError(403, `Not allowed to update collection: "${collectionName}`)
 
 		const collection = Collections.get(collectionName)
-		if (!collection) throw new Meteor.Error(403, `Unknown collection: "${collectionName}`)
+		if (!collection) throw new SofieError(403, `Unknown collection: "${collectionName}`)
 
 		const permissions = parseConnectionPermissions(this.connection)
 		if (!checkHasOneOfPermissions(permissions, collectionName, ...validator.requiredPermissions))
-			throw new Meteor.Error(403, `Not allowed to update collection: "${collectionName}"`)
+			throw new SofieError(403, `Not allowed to update collection: "${collectionName}"`)
 
 		let documentId: string | null = null
 		if (typeof selector === 'string') {
@@ -55,12 +55,12 @@ export class MongoAPIClass extends MethodContextAPI implements MongoAPI {
 			documentId = selector._id
 		}
 		if (!documentId || typeof documentId !== 'string') {
-			throw new Meteor.Error(403, `Update operations can only do so by id: "${collectionName}"`)
+			throw new SofieError(403, `Update operations can only do so by id: "${collectionName}"`)
 		}
 
 		const mutatorKeys = Object.keys(modifier)
 		if (mutatorKeys.length === 0) {
-			throw new Meteor.Error(403, 'Update modifier is not valid.')
+			throw new SofieError(403, 'Update modifier is not valid.')
 		}
 
 		// compute modified fields
@@ -68,9 +68,9 @@ export class MongoAPIClass extends MethodContextAPI implements MongoAPI {
 		mutatorKeys.forEach((op) => {
 			const params = modifier[op]
 			if (op.charAt(0) !== '$') {
-				throw new Meteor.Error(403, 'Update modifier is not valid.')
+				throw new SofieError(403, 'Update modifier is not valid.')
 			} else if (!hasOwn.call(ALLOWED_UPDATE_OPERATIONS, op)) {
-				throw new Meteor.Error(403, `Access denied. Operator ${op} not allowed in a restricted collection.`)
+				throw new SofieError(403, `Access denied. Operator ${op} not allowed in a restricted collection.`)
 			} else {
 				Object.keys(params).forEach((field) => {
 					// treat dotted fields as if they are replacing their
@@ -84,11 +84,11 @@ export class MongoAPIClass extends MethodContextAPI implements MongoAPI {
 		})
 
 		const currentDocument = await collection.findOneAsync(selector)
-		if (!currentDocument) throw new Meteor.Error(404, `Document not found`)
+		if (!currentDocument) throw new SofieError(404, `Document not found`)
 
 		// Perform check
 		const isAllowed = await validator.update(permissions, currentDocument, Array.from(modifiedFields), modifier)
-		if (!isAllowed) throw new Meteor.Error(403, `Not allowed to update collection: "${collectionName}"`)
+		if (!isAllowed) throw new SofieError(403, `Not allowed to update collection: "${collectionName}"`)
 
 		// Perform update
 		return collection.mutableCollection.updateAsync(currentDocument._id, modifier)
@@ -99,6 +99,6 @@ export class MongoAPIClass extends MethodContextAPI implements MongoAPI {
 		triggerWriteAccess()
 
 		logger.error(`MongoAPI.insertDocument for "${collectionName}"`)
-		throw new Meteor.Error(500, 'Not supported')
+		throw new SofieError(500, 'Not supported')
 	}
 }

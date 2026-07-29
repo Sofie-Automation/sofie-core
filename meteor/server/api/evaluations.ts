@@ -3,7 +3,6 @@ import { getRandomId, getSofieHostUrl } from '@sofie-automation/corelib/dist/lib
 import { getCurrentTime } from '../lib/lib'
 import { deferAsync } from '../lib/lib'
 import { logger } from '../logging'
-import { Meteor } from 'meteor/meteor'
 import _ from 'underscore'
 import { fetchStudioLight } from '../optimizations'
 import { sendSlackMessageToWebhook } from './integration/slack'
@@ -11,6 +10,7 @@ import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/Rund
 import { Evaluations, RundownPlaylists } from '../collections'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { VerifiedRundownPlaylistForUserAction } from '../security/check'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 export async function saveEvaluation(
 	_playlist: VerifiedRundownPlaylistForUserAction,
@@ -29,7 +29,7 @@ export async function saveEvaluation(
 
 	deferAsync(async () => {
 		const studio = await fetchStudioLight(evaluation.studioId)
-		if (!studio) throw new Meteor.Error(500, `Studio ${evaluation.studioId} not found!`)
+		if (!studio) throw new SofieError(500, `Studio ${evaluation.studioId} not found!`)
 		const studioSettings = applyAndValidateOverrides(studio.settingsWithOverrides).obj
 
 		const webhookUrls = _.compact((studioSettings.slackEvaluationUrls || '').split(','))

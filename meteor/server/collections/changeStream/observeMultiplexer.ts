@@ -9,7 +9,7 @@ import {
 } from '@sofie-automation/corelib/dist/mongo'
 import { PromisifyCallbacks } from '@sofie-automation/shared-lib/dist/lib/types'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
-import { EJSON } from 'meteor/ejson'
+import EJSON from 'ejson'
 import { logger } from '../../logging'
 import { ObserveView, ObserveViewShape, fieldsFor } from '@sofie-automation/corelib/dist/memoryCollection/observeView'
 import { CollectionFeedHandle } from './collectionChangeFeed'

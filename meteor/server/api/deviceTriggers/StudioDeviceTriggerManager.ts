@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import { ShowStyleBaseId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { Complete, literal } from '@sofie-automation/corelib/dist/lib'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
@@ -32,6 +31,7 @@ import { DeviceActions } from '@sofie-automation/shared-lib/dist/core/model/Show
 import { DummyReactiveVar } from '@sofie-automation/meteor-lib/dist/triggers/reactive-var'
 import { TriggersContext } from '@sofie-automation/meteor-lib/dist/triggers/triggersContext'
 import { TagsService } from './TagsService'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 export class StudioDeviceTriggerManager {
 	#lastShowStyleBaseId: ShowStyleBaseId | null = null
@@ -69,7 +69,7 @@ export class StudioDeviceTriggerManager {
 		const context = await createCurrentContextFromCache(cache, studioId)
 		const actionManager = StudioActionManagers.get(studioId)
 		if (!actionManager)
-			throw new Meteor.Error(
+			throw new SofieError(
 				500,
 				`No Studio Action Manager available to handle action context in Studio "${studioId}"`
 			)
@@ -261,7 +261,7 @@ export class StudioDeviceTriggerManager {
 
 		const actionManager = StudioActionManagers.get(studioId)
 		if (!actionManager)
-			throw new Meteor.Error(
+			throw new SofieError(
 				500,
 				`No Studio Action Manager available to handle action context in Studio "${studioId}"`
 			)

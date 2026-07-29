@@ -1,11 +1,10 @@
-import { UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/error'
+import { UserError, UserErrorMessage, SofieError } from '@sofie-automation/corelib/dist/error'
 import { logger } from '../../../logging'
 import { APIFactory, APIRegisterHook, ServerAPIContext } from './types'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { check } from '../../../lib/check'
 import { APIStudio, StudioAction, StudioActionType, StudiosRestAPI } from '../../../lib/rest/v1'
-import { Meteor } from 'meteor/meteor'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { PeripheralDevices, RundownPlaylists, Studios } from '../../../collections'
 import { APIStudioFrom, studioFrom, validateAPIBlueprintConfigForStudio } from './typeConversion'
@@ -55,7 +54,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 		checkValidation(`addStudio`, blueprintConfigValidation)
 
 		const newStudio = await studioFrom(apiStudio)
-		if (!newStudio) throw new Meteor.Error(400, `Invalid Studio`)
+		if (!newStudio) throw new SofieError(400, `Invalid Studio`)
 
 		const newStudioId = await Studios.insertAsync(newStudio)
 
@@ -73,7 +72,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 		studioId: StudioId
 	): Promise<ClientAPI.ClientResponse<APIStudio>> {
 		const studio = await Studios.findOneAsync(studioId)
-		if (!studio) throw new Meteor.Error(404, `Studio ${studioId} not found`)
+		if (!studio) throw new SofieError(404, `Studio ${studioId} not found`)
 
 		return ClientAPI.responseSuccess(await APIStudioFrom(studio))
 	}
@@ -88,7 +87,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 		checkValidation(`addOrUpdateStudio ${studioId}`, blueprintConfigValidation)
 
 		const newStudio = await studioFrom(apiStudio, studioId)
-		if (!newStudio) throw new Meteor.Error(400, `Invalid Studio`)
+		if (!newStudio) throw new SofieError(400, `Invalid Studio`)
 
 		const existingStudio = await Studios.findOneAsync(studioId)
 		if (existingStudio) {
@@ -101,7 +100,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 				}
 			)) as Array<Pick<DBRundownPlaylist, 'activationId'>>
 			if (playlists.some((p) => p.activationId !== undefined)) {
-				throw new Meteor.Error(412, `Studio ${studioId} cannot be updated, it is in use in an active Playlist`)
+				throw new SofieError(412, `Studio ${studioId} cannot be updated, it is in use in an active Playlist`)
 			}
 		}
 
@@ -124,7 +123,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 		studioId: StudioId
 	): Promise<ClientAPI.ClientResponse<object>> {
 		const studio = await Studios.findOneAsync(studioId)
-		if (!studio) throw new Meteor.Error(404, `Studio ${studioId} not found`)
+		if (!studio) throw new SofieError(404, `Studio ${studioId} not found`)
 
 		return ClientAPI.responseSuccess((await APIStudioFrom(studio)).config)
 	}
@@ -137,7 +136,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 	): Promise<ClientAPI.ClientResponse<string | false>> {
 		const existingStudio = await Studios.findOneAsync(studioId)
 		if (!existingStudio) {
-			throw new Meteor.Error(404, `Studio ${studioId} not found`)
+			throw new SofieError(404, `Studio ${studioId} not found`)
 		}
 
 		const apiStudio = await APIStudioFrom(existingStudio)
@@ -147,7 +146,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 		checkValidation(`updateStudioConfig ${studioId}`, blueprintConfigValidation)
 
 		const newStudio = await studioFrom(apiStudio, studioId)
-		if (!newStudio) throw new Meteor.Error(400, `Invalid Studio`)
+		if (!newStudio) throw new SofieError(400, `Invalid Studio`)
 
 		await Studios.replaceAsync(newStudio)
 
@@ -169,7 +168,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 	): Promise<ClientAPI.ClientResponse<void>> {
 		const studioCount = await Studios.countDocuments()
 		if (studioCount === 1) {
-			throw new Meteor.Error(
+			throw new SofieError(
 				400,
 				`The last studio in the system cannot be deleted (there must be at least one studio)`
 			)
@@ -186,7 +185,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 				}
 			)) as Array<Pick<DBRundownPlaylist, 'activationId'>>
 			if (playlists.some((p) => p.activationId !== undefined)) {
-				throw new Meteor.Error(412, `Studio ${studioId} cannot be deleted, it is in use in an active Playlist`)
+				throw new SofieError(412, `Studio ${studioId} cannot be deleted, it is in use in an active Playlist`)
 			}
 		}
 
@@ -369,7 +368,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 				return ClientAPI.responseSuccess(await runUpgradeForStudio(studioId))
 			default:
 				assertNever(action.type)
-				throw new Meteor.Error(400, `Invalid action type`)
+				throw new SofieError(400, `Invalid action type`)
 		}
 	}
 }

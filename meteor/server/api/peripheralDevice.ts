@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import { check, Match } from '../lib/check'
 import _ from 'underscore'
 import { PeripheralDeviceType, PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
@@ -81,6 +80,7 @@ import { StatusMessageResolver } from '@sofie-automation/corelib'
 import { interpollateTranslation } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
 import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 const apmNamespace = 'peripheralDevice'
 
@@ -418,7 +418,7 @@ export namespace ServerPeripheralDeviceAPI {
 		check(status, Object)
 		check(status.statusCode, Number)
 		if (status.statusCode < StatusCode.UNKNOWN || status.statusCode > StatusCode.FATAL) {
-			throw new Meteor.Error(400, 'device status code is not known')
+			throw new SofieError(400, 'device status code is not known')
 		}
 
 		// Resolve status messages using Studio blueprint if structured status details are present
@@ -508,7 +508,7 @@ export namespace ServerPeripheralDeviceAPI {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, context)
 
 		if (!peripheralDevice.studioAndConfigId)
-			throw new Meteor.Error(401, `peripheralDevice "${deviceId}" not attached to a studio`)
+			throw new SofieError(401, `peripheralDevice "${deviceId}" not attached to a studio`)
 
 		// check(r.time, Number)
 		check(results, Array)
@@ -619,7 +619,7 @@ export namespace ServerPeripheralDeviceAPI {
 
 		// Make sure this never runs if this server isn't empty:
 		if (await Rundowns.countDocuments())
-			throw new Meteor.Error(400, 'Unable to run killProcess: Rundowns not empty!')
+			throw new SofieError(400, 'Unable to run killProcess: Rundowns not empty!')
 
 		if (really) {
 			logger.info('KillProcess command received from ' + peripheralDevice._id + ', shutting down in 1000ms!')
@@ -637,30 +637,30 @@ export namespace ServerPeripheralDeviceAPI {
 		disable: boolean
 	): Promise<void> {
 		const peripheralDevice = await PeripheralDevices.findOneAsync(deviceId)
-		if (!peripheralDevice) throw new Meteor.Error(404, `PeripheralDevice "${deviceId}" not found`)
+		if (!peripheralDevice) throw new SofieError(404, `PeripheralDevice "${deviceId}" not found`)
 
 		// check that the peripheralDevice has subDevices
 		if (peripheralDevice.type !== PeripheralDeviceType.PLAYOUT)
-			throw new Meteor.Error(405, `PeripheralDevice "${deviceId}" cannot have subdevice disabled`)
+			throw new SofieError(405, `PeripheralDevice "${deviceId}" cannot have subdevice disabled`)
 		if (!peripheralDevice.configManifest)
-			throw new Meteor.Error(405, `PeripheralDevice "${deviceId}" does not provide a configuration manifest`)
+			throw new SofieError(405, `PeripheralDevice "${deviceId}" does not provide a configuration manifest`)
 		if (!peripheralDevice.studioAndConfigId)
-			throw new Meteor.Error(405, `PeripheralDevice "${deviceId}" does not belong to a Studio`)
+			throw new SofieError(405, `PeripheralDevice "${deviceId}" does not belong to a Studio`)
 
 		const studio = await Studios.findOneAsync(peripheralDevice.studioAndConfigId.studioId)
-		if (!studio) throw new Meteor.Error(405, `PeripheralDevice "${deviceId}" does not belong to a Studio`)
+		if (!studio) throw new SofieError(405, `PeripheralDevice "${deviceId}" does not belong to a Studio`)
 
 		const playoutDevices = applyAndValidateOverrides(studio.peripheralDeviceSettings.playoutDevices).obj
 
 		// check if the subDevice supports disabling using the magical 'disable' BOOLEAN property.
 		const subDeviceSettings = playoutDevices[subDeviceId]
 		if (!subDeviceSettings || subDeviceSettings.peripheralDeviceId !== peripheralDevice._id)
-			throw new Meteor.Error(404, `PeripheralDevice "${deviceId}", subDevice "${subDeviceId}" is not configured`)
+			throw new SofieError(404, `PeripheralDevice "${deviceId}", subDevice "${subDeviceId}" is not configured`)
 
 		// Check there is a common properties subdevice schema
 		const subDeviceCommonSchemaStr = peripheralDevice.configManifest.subdeviceConfigSchema
 		if (!subDeviceCommonSchemaStr)
-			throw new Meteor.Error(
+			throw new SofieError(
 				405,
 				`PeripheralDevice "${deviceId}" does not provide a subDevices common configuration schema`
 			)
@@ -670,7 +670,7 @@ export namespace ServerPeripheralDeviceAPI {
 			// Try and parse the schema, making sure to hide the parse error if it isn't json
 			subDeviceCommonSchema = JSONBlobParse(subDeviceCommonSchemaStr)
 		} catch (_e) {
-			throw new Meteor.Error(
+			throw new SofieError(
 				405,
 				`PeripheralDevice "${deviceId}" does not provide a valid subDevices common configuration schema`
 			)
@@ -678,7 +678,7 @@ export namespace ServerPeripheralDeviceAPI {
 
 		// Check for a boolean 'disable' property, if there is one
 		if (subDeviceCommonSchema?.properties?.disable?.type !== 'boolean')
-			throw new Meteor.Error(
+			throw new SofieError(
 				405,
 				`PeripheralDevice "${deviceId} does not support the disable property for subDevices`
 			)
@@ -760,7 +760,7 @@ export namespace ServerPeripheralDeviceAPI {
 		check(returnValue, String)
 
 		if (throwError) {
-			throw new Meteor.Error(418, 'Error thrown, as requested')
+			throw new SofieError(418, 'Error thrown, as requested')
 		} else {
 			return returnValue
 		}
@@ -775,7 +775,7 @@ export namespace ServerPeripheralDeviceAPI {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, context)
 
 		if (peripheralDevice.type !== PeripheralDeviceType.SPREADSHEET) {
-			throw new Meteor.Error(400, 'can only request user auth token for peripheral device of spreadsheet type')
+			throw new SofieError(400, 'can only request user auth token for peripheral device of spreadsheet type')
 		}
 		check(authUrl, String)
 
@@ -794,7 +794,7 @@ export namespace ServerPeripheralDeviceAPI {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, context)
 
 		if (peripheralDevice.type !== PeripheralDeviceType.SPREADSHEET) {
-			throw new Meteor.Error(400, 'can only store access token for peripheral device of spreadsheet type')
+			throw new SofieError(400, 'can only store access token for peripheral device of spreadsheet type')
 		}
 
 		await PeripheralDevices.updateAsync(peripheralDevice._id, {
@@ -809,7 +809,7 @@ export namespace ServerPeripheralDeviceAPI {
 		assertConnectionHasOneOfPermissions(context.connection, 'configure')
 
 		const peripheralDevice = await PeripheralDevices.findOneAsync(deviceId)
-		if (!peripheralDevice) throw new Meteor.Error(404, `PeripheralDevice "${deviceId}" not found`)
+		if (!peripheralDevice) throw new SofieError(404, `PeripheralDevice "${deviceId}" not found`)
 
 		logger.info(`Removing PeripheralDevice ${peripheralDevice._id}`)
 
@@ -883,18 +883,18 @@ peripheralDeviceRouter.post('/:deviceId/uploadCredentials', bodyParser(), async 
 		const deviceId: PeripheralDeviceId = protectString(ctx.params.deviceId)
 		check(deviceId, String)
 
-		if (!deviceId) throw new Meteor.Error(400, `parameter deviceId is missing`)
+		if (!deviceId) throw new SofieError(400, `parameter deviceId is missing`)
 
 		const peripheralDevice = await PeripheralDevices.findOneAsync(deviceId)
-		if (!peripheralDevice) throw new Meteor.Error(404, `Peripheral device "${deviceId}" not found`)
+		if (!peripheralDevice) throw new SofieError(404, `Peripheral device "${deviceId}" not found`)
 
 		if (ctx.request.type !== 'application/json')
-			throw new Meteor.Error(400, 'Upload credentials: Invalid content-type')
+			throw new SofieError(400, 'Upload credentials: Invalid content-type')
 
 		const body = ctx.request.body
-		if (!body) throw new Meteor.Error(400, 'Upload credentials: Missing request body')
+		if (!body) throw new SofieError(400, 'Upload credentials: Missing request body')
 		if (typeof body !== 'object' || Object.keys(body as any).length === 0)
-			throw new Meteor.Error(400, 'Upload credentials: Invalid request body')
+			throw new SofieError(400, 'Upload credentials: Invalid request body')
 
 		logger.info(`Upload credentails, ${JSON.stringify(body).length} bytes`)
 
@@ -919,16 +919,16 @@ peripheralDeviceRouter.get('/:deviceId/oauthResponse', async (ctx) => {
 		const deviceId: PeripheralDeviceId = protectString(ctx.params.deviceId)
 		check(deviceId, String)
 
-		if (!deviceId) throw new Meteor.Error(400, `parameter deviceId is missing`)
+		if (!deviceId) throw new SofieError(400, `parameter deviceId is missing`)
 
 		const peripheralDevice = await PeripheralDevices.findOneAsync(deviceId)
-		if (!peripheralDevice) throw new Meteor.Error(404, `Peripheral device "${deviceId}" not found`)
+		if (!peripheralDevice) throw new SofieError(404, `Peripheral device "${deviceId}" not found`)
 
 		if (!peripheralDevice.studioAndConfigId)
-			throw new Meteor.Error(400, `Peripheral device "${deviceId}" is not attached to a studio`)
+			throw new SofieError(400, `Peripheral device "${deviceId}" is not attached to a studio`)
 
 		if (!(await checkStudioExists(peripheralDevice.studioAndConfigId.studioId)))
-			throw new Meteor.Error(404, `Studio "${peripheralDevice.studioAndConfigId.studioId}" not found`)
+			throw new SofieError(404, `Studio "${peripheralDevice.studioAndConfigId.studioId}" not found`)
 
 		let accessToken = ctx.query['code'] || undefined
 		const scopes = ctx.query['scope'] || undefined
@@ -963,10 +963,10 @@ peripheralDeviceRouter.post('/:deviceId/resetAuth', async (ctx) => {
 		const deviceId: PeripheralDeviceId = protectString(ctx.params.deviceId)
 		check(deviceId, String)
 
-		if (!deviceId) throw new Meteor.Error(400, `parameter deviceId is missing`)
+		if (!deviceId) throw new SofieError(400, `parameter deviceId is missing`)
 
 		const peripheralDevice = await PeripheralDevices.findOneAsync(deviceId)
-		if (!peripheralDevice) throw new Meteor.Error(404, `Peripheral device "${deviceId}" not found`)
+		if (!peripheralDevice) throw new SofieError(404, `Peripheral device "${deviceId}" not found`)
 
 		await PeripheralDevices.updateAsync(peripheralDevice._id, {
 			$unset: {
@@ -993,10 +993,10 @@ peripheralDeviceRouter.post('/:deviceId/resetAppCredentials', async (ctx) => {
 		const deviceId: PeripheralDeviceId = protectString(ctx.params.deviceId)
 		check(deviceId, String)
 
-		if (!deviceId) throw new Meteor.Error(400, `parameter deviceId is missing`)
+		if (!deviceId) throw new SofieError(400, `parameter deviceId is missing`)
 
 		const peripheralDevice = await PeripheralDevices.findOneAsync(deviceId)
-		if (!peripheralDevice) throw new Meteor.Error(404, `Peripheral device "${deviceId}" not found`)
+		if (!peripheralDevice) throw new SofieError(404, `Peripheral device "${deviceId}" not found`)
 
 		await PeripheralDevices.updateAsync(peripheralDevice._id, {
 			$unset: {

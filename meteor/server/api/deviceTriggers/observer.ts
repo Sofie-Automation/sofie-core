@@ -2,7 +2,6 @@ import { PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dat
 import { ITranslatableMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { TFunction } from 'i18next'
 import { check } from 'meteor/check'
-import { Meteor } from 'meteor/meteor'
 import _ from 'underscore'
 import { MethodContext } from '../methodContext'
 import {
@@ -21,6 +20,7 @@ import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCo
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { TriggersContext } from '@sofie-automation/meteor-lib/dist/triggers/triggersContext'
 import { TagsService } from './TagsService'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 type ObserverAndManager = {
 	observer: StudioObserver
@@ -121,7 +121,7 @@ export async function receiveInputDeviceTrigger(
 	check(triggerId, String)
 
 	const studioId = peripheralDevice.studioAndConfigId?.studioId
-	if (!studioId) throw new Meteor.Error(400, `Peripheral Device "${peripheralDevice._id}" not assigned to a studio`)
+	if (!studioId) throw new SofieError(400, `Peripheral Device "${peripheralDevice._id}" not assigned to a studio`)
 
 	logger.debug(
 		`Received trigger from "${peripheralDevice._id}": "${deviceId}" "${triggerId}" ${
@@ -132,7 +132,7 @@ export async function receiveInputDeviceTrigger(
 	const actionManager = StudioActionManagers.get(studioId)
 
 	if (!actionManager)
-		throw new Meteor.Error(500, `No Studio Action Manager available to handle trigger in Studio "${studioId}"`)
+		throw new SofieError(500, `No Studio Action Manager available to handle trigger in Studio "${studioId}"`)
 
 	const mountedActions = DeviceTriggerMountedActions.findFetch({
 		deviceId,
@@ -143,13 +143,13 @@ export async function receiveInputDeviceTrigger(
 		if (values && !_.isMatch(values, mountedAction.values)) return
 		const executableAction = actionManager.getAction(mountedAction.actionId)
 		if (!executableAction)
-			throw new Meteor.Error(
+			throw new SofieError(
 				500,
 				`Executable action not found when processing trigger "${deviceId}" "${triggerId}"`
 			)
 
 		const context = actionManager.getContext()
-		if (!context) throw new Meteor.Error(500, `Undefined Device Trigger context for studio "${studioId}"`)
+		if (!context) throw new SofieError(500, `Undefined Device Trigger context for studio "${studioId}"`)
 
 		await executableAction.execute(
 			((t: ITranslatableMessage) => t.key ?? t) as unknown as TFunction, // TFunction has some odd generic constraints on the return type now

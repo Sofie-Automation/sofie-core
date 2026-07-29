@@ -1,5 +1,4 @@
 import _ from 'underscore'
-import { Meteor } from 'meteor/meteor'
 import { IngestRundown, IngestSegment } from '@sofie-automation/blueprints-integration'
 import { logger } from '../../logging'
 import { profiler } from '../profiler'
@@ -12,6 +11,7 @@ import {
 	NrcsIngestDataCacheObjSegment,
 } from '@sofie-automation/corelib/dist/dataModel/NrcsIngestDataCache'
 import { groupByToMap } from '@sofie-automation/corelib/dist/lib'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 /**
  * This class provides a few convenience methods for fetching IngestRundown
@@ -81,7 +81,7 @@ export class RundownIngestDataCache {
 		const segmentEntry = segmentEntries[0]
 		if (!segmentEntry) return undefined
 		if (segmentEntry.type !== NrcsIngestCacheType.SEGMENT)
-			throw new Meteor.Error(500, 'Wrong type on cached segment')
+			throw new SofieError(500, 'Wrong type on cached segment')
 
 		const ingestSegment = segmentEntry.data
 

@@ -251,7 +251,7 @@ describe('wrapper parity: mock vs real driver', () => {
 				}
 			}
 			// Both must reject; the error shape differs by design (mock throws a raw Error, the real wrapper a
-			// Meteor.Error from wrapMongoError), so we assert on "rejected", not on the message.
+			// SofieError from wrapMongoError), so we assert on "rejected", not on the message.
 			expect(await didThrow(pair.mock.insertAsync({ _id: 'a' } as any))).toBe(true)
 			expect(await didThrow(pair.real.insertAsync({ _id: 'a' } as any))).toBe(true)
 		})

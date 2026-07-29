@@ -179,7 +179,7 @@ describe('Test sending mos actions', () => {
 		)
 
 		SupressLogMessages.suppressLogMessage(/Error in MOSDeviceActions\.reloadRundown/i)
-		await expect(MOSDeviceActions.reloadRundown(device, fakeRundown)).rejects.toThrowMeteor(
+		await expect(MOSDeviceActions.reloadRundown(device, fakeRundown)).rejects.toThrowSofieError(
 			401,
 			`Expected triggerGetRunningOrder reply for SLENPS01;P_NDSL\\W;68E40DE6-2D08-487D-aaaaa but got newId`
 		)

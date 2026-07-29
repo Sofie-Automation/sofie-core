@@ -15,6 +15,7 @@ For a thorough test, it should be run:
 import { Meteor } from 'meteor/meteor'
 import { logger } from './logging'
 import { EventEmitter } from 'events'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 /* eslint @typescript-eslint/no-floating-promises: 0 */
 /* eslint @typescript-eslint/no-unused-vars: 0 */
@@ -28,8 +29,8 @@ Meteor.startup(() => {
 	logger.error('Here comes an error:', new Error('This is an error'))
 	logger.error(new Error('Single error'))
 
-	logger.error('Here comes a Meteor.error:', new Meteor.Error(500, 'This is an error'))
-	logger.error(new Meteor.Error(500, 'Single error'))
+	logger.error('Here comes a Meteor.error:', new SofieError(500, 'This is an error'))
+	logger.error(new SofieError(500, 'Single error'))
 
 	logger.error('Here comes an object', { a: 1, b: { c: 2 } })
 	logger.error({ a: 1, b: { c: 2 } })
@@ -53,7 +54,7 @@ Meteor.startup(() => {
 	// Uncaught error event:
 	const a = new MyClass('Emitted a string')
 	const b = new MyClass(new Error('Emitted an error'))
-	const c = new MyClass(new Meteor.Error(500, 'Emitted a Meteor.error'))
+	const c = new MyClass(new SofieError(500, 'Emitted a Meteor.error'))
 
 	setTimeout(() => {
 		console.log('============================================================')

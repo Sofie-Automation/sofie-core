@@ -1,26 +1,34 @@
-import { Meteor } from 'meteor/meteor'
 import { logger } from '../logging'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 import { MethodContext } from '../api/methodContext'
 import { MethodRegistry } from '../methodRegistry'
 import { DDPError, MethodMessage } from '@sofie-automation/shared-lib/dist/ddp/messageTypes'
 import type { DdpSession } from './DdpSession'
 
-/** Map a thrown value to the `DDPError` shape the clients expect. */
+/**
+ * Map a thrown value to the `DDPError` shape the clients expect.
+ *
+ * This is the single serialization point for errors leaving the DDP server, and the field set below
+ * is what Meteor used to emit - clients (including the web UI's DDP client and the gateways) parse
+ * this, so it must not drift.
+ */
 export function wrapError(e: unknown): DDPError {
-	if (e instanceof Meteor.Error) {
+	if (e instanceof SofieError) {
 		return {
+			isClientSafe: true,
 			error: e.error,
 			reason: e.reason,
-			message: e.message,
-			// Carry `details` so the client can reconstruct the full Meteor.Error (it reads msg.error.details).
+			// Carry `details` so the client can reconstruct the full error (it reads msg.error.details).
 			details: e.details,
+			message: e.message,
 			errorType: 'Meteor.Error',
 		}
 	}
 	// Sanitize unexpected exceptions (don't leak internals), but log the real error.
 	logger.error(`Exception while invoking method: ${stringifyError(e)}`)
 	return {
+		isClientSafe: true,
 		error: 500,
 		reason: 'Internal server error',
 		message: 'Internal server error [500]',
@@ -55,7 +63,7 @@ export async function handleMethodMessage(
 		session.send({
 			msg: 'result',
 			id,
-			error: { error: 404, reason: `Method '${method}' not found`, errorType: 'Meteor.Error' },
+			error: wrapError(new SofieError(404, `Method '${method}' not found`)),
 		})
 		session.send({ msg: 'updated', methods: [id] })
 		return

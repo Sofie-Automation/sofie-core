@@ -1,10 +1,10 @@
-import { Meteor } from 'meteor/meteor'
 import { ReadonlyDeep } from 'type-fest'
 import { clone } from '@sofie-automation/corelib/dist/lib'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { SetupObserversResult, TriggerUpdate, setUpOptimizedObserverInner } from './optimizedObserverBase'
 import { CustomPublish, CustomPublishChanges } from './publish'
 import { diffObject } from '@sofie-automation/corelib/dist/diffObject'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 /**
  * This is an optimization to enable multiple listeners that observes (and manipulates) the same data, to only use one observer and manipulator,
@@ -86,7 +86,7 @@ class OptimisedObserverGenericArray<DBObj extends { _id: ProtectedString<any> }>
 		for (const newDoc0 of newDocs) {
 			const id = newDoc0._id
 			if (newIds.has(id)) {
-				throw new Meteor.Error(`Error in custom publication: _id "${id}" is not unique!`)
+				throw new SofieError(500, `Error in custom publication: _id "${id}" is not unique!`)
 			}
 			newIds.add(id)
 

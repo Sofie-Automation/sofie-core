@@ -11,7 +11,6 @@ import {
 	DEFAULT_CONFIRM_KEY_CODE,
 	DEFAULT_POISON_KEY,
 } from '@sofie-automation/shared-lib/dist/core/constants'
-import { Meteor } from 'meteor/meteor'
 import { prepareMigration, runMigrationFromTrusted } from '../migration/databaseMigration'
 import { Blueprints, CoreSystem } from '../collections'
 import { getEnvLogLevel, logger, LogLevel, setLogLevel } from '../logging'
@@ -25,6 +24,7 @@ import { checkDatabaseVersions } from './checkDatabaseVersions'
 import PLazy from 'p-lazy'
 import { getCoreSystemAsync } from './collection'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 const mosPkgJson = require('@mos-connection/helper/package.json')
 const superTimelinePkgJson = require('superfly-timeline/package.json')
 
@@ -45,7 +45,7 @@ export function getSystemStorePath(): string {
 		return getAbsolutePath() + '/.meteor/local/sofie-store'
 	}
 
-	throw new Meteor.Error(500, 'SOFIE_STORE_PATH must be defined to launch Sofie')
+	throw new SofieError(500, 'SOFIE_STORE_PATH must be defined to launch Sofie')
 }
 
 export async function initializeCoreSystem(): Promise<ICoreSystem> {

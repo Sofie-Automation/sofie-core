@@ -5,7 +5,6 @@ import { getRandomId } from '@sofie-automation/corelib/dist/lib'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { getCurrentTime } from '../../lib/lib'
 import { logger } from '../../logging'
-import { Meteor } from 'meteor/meteor'
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
 import {
 	BlueprintManifestType,
@@ -34,6 +33,7 @@ import { assertConnectionHasOneOfPermissions, RequestCredentials } from '../../s
 import { blueprintsPerformDevelopmentMode } from './development'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { isInTestMode } from '../../lib'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 const PERMISSIONS_FOR_MANAGE_BLUEPRINTS: Array<keyof UserPermissions> = ['configure']
 
@@ -72,7 +72,7 @@ export async function removeBlueprint(methodContext: MethodContext, blueprintId:
 
 	assertConnectionHasOneOfPermissions(methodContext.connection, ...PERMISSIONS_FOR_MANAGE_BLUEPRINTS)
 
-	if (!blueprintId) throw new Meteor.Error(404, `Blueprint id "${blueprintId}" was not found`)
+	if (!blueprintId) throw new SofieError(404, `Blueprint id "${blueprintId}" was not found`)
 
 	await Blueprints.removeAsync(blueprintId)
 	removeSystemStatus('blueprintCompability_' + blueprintId)
@@ -101,7 +101,7 @@ export async function uploadBlueprint(
 
 	if (!isInTestMode()) logger.info(`Got blueprint '${blueprintId}'. ${body.length} bytes`)
 
-	if (!blueprintId) throw new Meteor.Error(400, `Blueprint id "${blueprintId}" is not valid`)
+	if (!blueprintId) throw new SofieError(400, `Blueprint id "${blueprintId}" is not valid`)
 	const blueprint = await fetchBlueprintLight(blueprintId)
 
 	return innerUploadBlueprint(blueprint, blueprintId, body, options)
@@ -188,14 +188,14 @@ async function innerUploadBlueprint(
 	} catch (e) {
 		logger.error(`Error evaluating Blueprint "${blueprintId}": "${stringifyError(e)}"`)
 
-		throw new Meteor.Error(400, `Error evaluating Blueprint "${blueprintId}": "${stringifyError(e)}"`)
+		throw new SofieError(400, `Error evaluating Blueprint "${blueprintId}": "${stringifyError(e)}"`)
 	}
 
 	if (!_.isObject(blueprintManifest))
-		throw new Meteor.Error(400, `Blueprint ${blueprintId} returned a manifest of type ${typeof blueprintManifest}`)
+		throw new SofieError(400, `Blueprint ${blueprintId} returned a manifest of type ${typeof blueprintManifest}`)
 
 	if (!_.contains(_.values(BlueprintManifestType), blueprintManifest.blueprintType)) {
-		throw new Meteor.Error(
+		throw new SofieError(
 			400,
 			`Blueprint ${blueprintId} returned a manifest of unknown blueprintType "${blueprintManifest.blueprintType}"`
 		)
@@ -208,7 +208,7 @@ async function innerUploadBlueprint(
 	newBlueprint.TSRVersion = blueprintManifest.TSRVersion
 
 	if (blueprint && blueprint.blueprintType && blueprint.blueprintType !== newBlueprint.blueprintType) {
-		throw new Meteor.Error(
+		throw new SofieError(
 			400,
 			`Cannot replace old blueprint (of type "${blueprint.blueprintType}") with new blueprint of type "${newBlueprint.blueprintType}"`
 		)
@@ -224,7 +224,7 @@ async function innerUploadBlueprint(
 				system: undefined,
 			}
 		} else {
-			throw new Meteor.Error(
+			throw new SofieError(
 				422,
 				`Cannot replace old blueprint "${newBlueprint._id}" ("${blueprint.blueprintId}") with new blueprint "${newBlueprint.blueprintId}"`
 			)
@@ -391,10 +391,10 @@ export async function assignSystemBlueprint(
 		check(blueprintId, String)
 
 		const blueprint = await fetchBlueprintLight(blueprintId)
-		if (!blueprint) throw new Meteor.Error(404, 'Blueprint not found')
+		if (!blueprint) throw new SofieError(404, 'Blueprint not found')
 
 		if (blueprint.blueprintType !== BlueprintManifestType.SYSTEM)
-			throw new Meteor.Error(404, 'Blueprint not of type SYSTEM')
+			throw new SofieError(404, 'Blueprint not of type SYSTEM')
 
 		await CoreSystem.updateAsync(SYSTEM_ID, {
 			$set: {

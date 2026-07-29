@@ -1,9 +1,9 @@
-import { Meteor } from 'meteor/meteor'
 import { suppressExtraErrorLogging } from '../methods'
 import { disableChecks, enableChecks as restoreChecks } from '../lib/check'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import type { MethodRegistry } from '../methodRegistry'
 import { MethodContext } from '../api/methodContext'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 /** These function are used to verify that all methods defined are using security functions */
 
@@ -19,7 +19,7 @@ export function isInTestWrite(): boolean {
 export function triggerWriteAccess(): void {
 	if (writeAccessTest) {
 		writeAccess = true
-		throw new Meteor.Error(200, 'triggerWriteAccess') // to be ignored in verifyMethod
+		throw new SofieError(200, 'triggerWriteAccess') // to be ignored in verifyMethod
 	}
 }
 export function verifyWriteAccess(): string {

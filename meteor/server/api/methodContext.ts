@@ -1,5 +1,5 @@
-import { Meteor } from 'meteor/meteor'
 import type { DDPClientConnection } from '../ddp-server/types'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 export interface MethodContext {
 	/**
@@ -14,7 +14,7 @@ export interface MethodContext {
 export abstract class MethodContextAPI implements MethodContext {
 	// These properties are added by Meteor to the `this` context when calling methods
 	public unblock(): void {
-		throw new Meteor.Error(
+		throw new SofieError(
 			500,
 			`This shoulc never be called, there's something wrong in with 'this' in the calling method`
 		)

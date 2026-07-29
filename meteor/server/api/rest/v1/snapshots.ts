@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import { SnapshotId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { check } from 'meteor/check'
 import { APIFactory, APIRegisterHook, ServerAPIContext } from './types'
@@ -16,6 +15,7 @@ import {
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { checkAccessToPlaylist } from '../../../security/check'
 import type { DDPClientConnection } from '../../../ddp-server/types'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 export class SnapshotsServerAPI implements SnapshotsRestAPI {
 	constructor(private context: ServerAPIContext) {}
@@ -75,7 +75,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<SnapshotsRestAPI>)
 					logger.info(`API POST: Store Playlist Snapshot`)
 					return await serverAPI.storePlaylistSnapshot(connection, event, body)
 				}
-				throw new Meteor.Error(400, `Invalid snapshot type`)
+				throw new SofieError(400, `Invalid snapshot type`)
 			}),
 			SNAPSHOT_RESOURCE
 		)

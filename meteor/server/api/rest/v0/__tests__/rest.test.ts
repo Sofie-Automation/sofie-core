@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import { UserActionAPIMethods } from '@sofie-automation/meteor-lib/dist/api/userActions'
 import { MethodRegistry, AnyMethodApiRegistration } from '../../../../methodRegistry'
 import { PublicationRegistry } from '../../../../publicationRegistry'
@@ -12,6 +11,7 @@ jest.mock('../../../deviceTriggers/observer')
 
 import '../index'
 import { MethodContext } from '../../../methodContext'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 describe('REST API', () => {
 	describe('UNSTABLE v0', () => {
@@ -61,7 +61,7 @@ describe('REST API', () => {
 			}
 		})
 
-		test('returns a matching HTTP error code when method throws a Meteor.Error', async () => {
+		test('returns a matching HTTP error code when method throws a SofieError', async () => {
 			const methodName = Object.keys(UserActionAPIMethods)[0]
 
 			const methodValue: string = (UserActionAPIMethods as any)[methodName]
@@ -73,7 +73,7 @@ describe('REST API', () => {
 			}
 
 			methodMock.mockImplementationOnce(() => {
-				throw new Meteor.Error(401, 'Mock error')
+				throw new SofieError(401, 'Mock error')
 			})
 
 			const ctx = await callKoaRoute(legacyApiRouter, {

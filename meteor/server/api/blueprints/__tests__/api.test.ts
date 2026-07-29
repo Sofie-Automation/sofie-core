@@ -85,7 +85,7 @@ describe('Test blueprint management api', () => {
 			const initialBlueprintId = await getActiveSystemBlueprintId()
 
 			SupressLogMessages.suppressLogMessage(/Blueprint not found/i)
-			await expect(MeteorCall.blueprint.assignSystemBlueprint(protectString(''))).rejects.toThrowMeteor(
+			await expect(MeteorCall.blueprint.assignSystemBlueprint(protectString(''))).rejects.toThrowSofieError(
 				404,
 				'Blueprint not found'
 			)
@@ -99,7 +99,7 @@ describe('Test blueprint management api', () => {
 			SupressLogMessages.suppressLogMessage(/Blueprint not found/i)
 			await expect(
 				MeteorCall.blueprint.assignSystemBlueprint(protectString(blueprint._id + '_no'))
-			).rejects.toThrowMeteor(404, 'Blueprint not found')
+			).rejects.toThrowSofieError(404, 'Blueprint not found')
 
 			expect(await getActiveSystemBlueprintId()).toEqual(initialBlueprintId)
 		})
@@ -134,7 +134,7 @@ describe('Test blueprint management api', () => {
 			expect(initialBlueprintId).not.toEqual(blueprint._id)
 
 			SupressLogMessages.suppressLogMessage(/Blueprint not of type SYSTEM/i)
-			await expect(MeteorCall.blueprint.assignSystemBlueprint(blueprint._id)).rejects.toThrowMeteor(
+			await expect(MeteorCall.blueprint.assignSystemBlueprint(blueprint._id)).rejects.toThrowSofieError(
 				404,
 				'Blueprint not of type SYSTEM'
 			)
@@ -154,7 +154,7 @@ describe('Test blueprint management api', () => {
 
 		test('empty id', async () => {
 			SupressLogMessages.suppressLogMessage(/Blueprint id/i)
-			await expect(MeteorCall.blueprint.removeBlueprint(protectString(''))).rejects.toThrowMeteor(
+			await expect(MeteorCall.blueprint.removeBlueprint(protectString(''))).rejects.toThrowSofieError(
 				404,
 				'Blueprint id "" was not found'
 			)
@@ -217,7 +217,7 @@ describe('Test blueprint management api', () => {
 
 	describe('uploadBlueprint', () => {
 		test('empty id', async () => {
-			await expect(uploadBlueprint(DEFAULT_CONNECTION, protectString(''), '0')).rejects.toThrowMeteor(
+			await expect(uploadBlueprint(DEFAULT_CONNECTION, protectString(''), '0')).rejects.toThrowSofieError(
 				400,
 				'Blueprint id "" is not valid'
 			)
@@ -230,7 +230,7 @@ describe('Test blueprint management api', () => {
 		test('body not a manifest', async () => {
 			await expect(
 				uploadBlueprint(DEFAULT_CONNECTION, protectString('blueprint99'), `({default: (() => 5)()})`)
-			).rejects.toThrowMeteor(400, 'Blueprint blueprint99 returned a manifest of type number')
+			).rejects.toThrowSofieError(400, 'Blueprint blueprint99 returned a manifest of type number')
 		})
 		test('manifest missing blueprintType', async () => {
 			const blueprintStr = packageBlueprint({}, () => {
@@ -251,7 +251,7 @@ describe('Test blueprint management api', () => {
 			})
 			await expect(
 				uploadBlueprint(DEFAULT_CONNECTION, protectString('blueprint99'), blueprintStr)
-			).rejects.toThrowMeteor(
+			).rejects.toThrowSofieError(
 				400,
 				`Blueprint blueprint99 returned a manifest of unknown blueprintType "undefined"`
 			)
@@ -279,7 +279,7 @@ describe('Test blueprint management api', () => {
 
 			await expect(
 				uploadBlueprint(DEFAULT_CONNECTION, existingBlueprint._id, blueprintStr)
-			).rejects.toThrowMeteor(
+			).rejects.toThrowSofieError(
 				400,
 				`Cannot replace old blueprint (of type "showstyle") with new blueprint of type "studio"`
 			)
@@ -517,7 +517,7 @@ describe('Test blueprint management api', () => {
 
 			await expect(
 				uploadBlueprint(DEFAULT_CONNECTION, existingBlueprint._id, blueprintStr)
-			).rejects.toThrowMeteor(
+			).rejects.toThrowSofieError(
 				422,
 				`Cannot replace old blueprint "${existingBlueprint._id}" ("ss1") with new blueprint "show2"`
 			)
@@ -549,7 +549,7 @@ describe('Test blueprint management api', () => {
 
 			await expect(
 				uploadBlueprint(DEFAULT_CONNECTION, existingBlueprint._id, blueprintStr)
-			).rejects.toThrowMeteor(
+			).rejects.toThrowSofieError(
 				422,
 				`Cannot replace old blueprint "${existingBlueprint._id}" ("ss1") with new blueprint ""`
 			)

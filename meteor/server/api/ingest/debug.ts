@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import { check } from '../../lib/check'
 import { RundownPlaylists, Rundowns, Segments } from '../../collections'
 import { logger } from '../../logging'
@@ -8,6 +7,7 @@ import { QueueStudioJob } from '../../worker/worker'
 import { StudioJobs } from '@sofie-automation/corelib/dist/worker/studio'
 import { RundownPlaylistId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { MeteorDebugMethod } from '../../methods'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 export const ingestDebugMethods: { [key: string]: MeteorDebugMethod } = {
 	/**
@@ -37,9 +37,9 @@ export const ingestDebugMethods: { [key: string]: MeteorDebugMethod } = {
 		check(segmentId, String)
 
 		const segment = await Segments.findOneAsync(segmentId)
-		if (!segment) throw new Meteor.Error(404, 'Segment not found')
+		if (!segment) throw new SofieError(404, 'Segment not found')
 		const rundown = await Rundowns.findOneAsync(segment.rundownId)
-		if (!rundown) throw new Meteor.Error(404, 'Rundown not found')
+		if (!rundown) throw new SofieError(404, 'Rundown not found')
 
 		await runIngestOperation(rundown.studioId, IngestJobs.RegenerateSegment, {
 			rundownExternalId: rundown.externalId,

@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { MongoFieldSpecifierZeroes, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
@@ -45,6 +44,7 @@ import { PieceLifespan } from '@sofie-automation/blueprints-integration'
 import { triggerWriteAccessBecauseNoCheckNecessary } from '../security/securityVerify'
 import { checkAccessAndGetPeripheralDevice } from '../security/check'
 import type { PublicationRegistry } from '../publicationRegistry'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 const piecesSubFields: MongoFieldSpecifierZeroes<Piece> = {
 	privateData: 0,
@@ -485,7 +485,7 @@ export function registerRundownPublications(registry: PublicationRegistry): void
 		async (_context, selector: MongoQuery<NrcsIngestDataCacheObj>, _token: string | undefined) => {
 			triggerWriteAccessBecauseNoCheckNecessary()
 
-			if (!selector) throw new Meteor.Error(400, 'selector argument missing')
+			if (!selector) throw new SofieError(400, 'selector argument missing')
 			const modifier: FindOptions<NrcsIngestDataCacheObj> = {
 				projection: {},
 			}
