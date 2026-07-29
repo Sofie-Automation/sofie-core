@@ -1,4 +1,4 @@
-import { Meteor } from 'meteor/meteor'
+import type { LiveQueryHandleSync } from '../lib/lib'
 import { logger } from '../logging'
 
 export enum FastTrackObservers {
@@ -12,7 +12,7 @@ export function setupFastTrackObserver<T>(
 	observerKey: FastTrackObservers,
 	keyArgs: any[],
 	onData: (data: T) => void
-): Meteor.LiveQueryHandle {
+): LiveQueryHandleSync {
 	const key = getKey(observerKey, keyArgs)
 
 	if (!fastTrackObserver[key]) {

@@ -15,11 +15,11 @@ import { assertConnectionHasOneOfPermissions } from '../security/auth'
 
 const USER_PERMISSIONS_FOR_EXTERNAL_MESSAGES: Array<keyof UserPermissions> = ['configure', 'studio', 'service']
 
-let updateExternalMessageQueueStatusTimeout = 0
+let updateExternalMessageQueueStatusTimeout: NodeJS.Timeout | null = null
 function updateExternalMessageQueueStatus(): void {
 	if (!updateExternalMessageQueueStatusTimeout) {
-		updateExternalMessageQueueStatusTimeout = Meteor.setTimeout(() => {
-			updateExternalMessageQueueStatusTimeout = 0
+		updateExternalMessageQueueStatusTimeout = setTimeout(() => {
+			updateExternalMessageQueueStatusTimeout = null
 			deferAsync(async () => {
 				const query: MongoQuery<ExternalMessageQueueObj> = {
 					sent: { $not: { $gt: 0 } },

@@ -1,4 +1,3 @@
-import type { Meteor } from 'meteor/meteor'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import {
 	MongoQuery,
@@ -11,6 +10,7 @@ import { PromisifyCallbacks } from '@sofie-automation/shared-lib/dist/lib/types'
 import { observeChangesViaChangeStream, observeViaChangeStream, ObserveMultiplexerDeps } from './observeMultiplexer'
 import type { ObserveViewShape } from '@sofie-automation/corelib/dist/memoryCollection/observeView'
 import type { MinimalMongoCursor } from '../collection'
+import type { LiveQueryHandleSync } from '../../lib/lib'
 
 export interface ChangeStreamCursorConfig<TDoc extends { _id: ProtectedString<any> }> {
 	collectionName: string
@@ -40,7 +40,7 @@ export class ChangeStreamCursor<TDoc extends { _id: ProtectedString<any> }> impl
 	async observeChangesAsync(
 		callbacks: PromisifyCallbacks<ObserveChangesCallbacks<TDoc>>,
 		options?: ObserveChangesOptions
-	): Promise<Meteor.LiveQueryHandle> {
+	): Promise<LiveQueryHandleSync> {
 		const abort = new AbortController()
 
 		try {
@@ -66,7 +66,7 @@ export class ChangeStreamCursor<TDoc extends { _id: ProtectedString<any> }> impl
 		}
 	}
 
-	async observeAsync(callbacks: PromisifyCallbacks<ObserveCallbacks<TDoc>>): Promise<Meteor.LiveQueryHandle> {
+	async observeAsync(callbacks: PromisifyCallbacks<ObserveCallbacks<TDoc>>): Promise<LiveQueryHandleSync> {
 		const abort = new AbortController()
 
 		try {

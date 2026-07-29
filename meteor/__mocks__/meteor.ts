@@ -186,7 +186,7 @@ export namespace MeteorMock {
 		}, 0)
 	}
 
-	export function startup(fcn: Function): void {
+	export function startup(_fcn: Function): void {
 		throw new Error(500, 'Meteor.startup is not supported in tests')
 	}
 

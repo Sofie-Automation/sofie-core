@@ -78,7 +78,7 @@ export function startKoaServer(): void {
 			})
 		}
 
-		const callback = Meteor.bindEnvironment(koaApp.callback())
+		const callback = koaApp.callback()
 		callback(req, res).catch(() => res.end())
 	})
 

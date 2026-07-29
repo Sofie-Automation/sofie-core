@@ -1,7 +1,6 @@
-import { Meteor } from 'meteor/meteor'
 import { PeripheralDeviceCommandId, PeripheralDeviceId } from '@sofie-automation/shared-lib/dist/core/model/Ids'
 import { getRandomId } from '@sofie-automation/corelib/dist/lib'
-import { getCurrentTime } from '../../lib/lib'
+import { getCurrentTime, LiveQueryHandleSync } from '../../lib/lib'
 import { PeripheralDeviceCommands } from '../../collections'
 import { logger } from '../../logging'
 import { TSR } from '@sofie-automation/blueprints-integration'
@@ -41,8 +40,8 @@ export async function executePeripheralDeviceFunctionWithCustomTimeout(
 
 	// logger.debug('command created: ' + functionName)
 
-	let observer: Meteor.LiveQueryHandle | null = null
-	let timeoutCheck: number | undefined
+	let observer: LiveQueryHandleSync | null = null
+	let timeoutCheck: NodeJS.Timeout | undefined
 
 	let completed = false
 	let pending = false
@@ -66,7 +65,7 @@ export async function executePeripheralDeviceFunctionWithCustomTimeout(
 				const cmdId = cmd._id
 				const cleanup = () => {
 					if (timeoutCheck) {
-						Meteor.clearTimeout(timeoutCheck)
+						clearTimeout(timeoutCheck)
 						timeoutCheck = undefined
 					}
 
@@ -135,7 +134,7 @@ export async function executePeripheralDeviceFunctionWithCustomTimeout(
 			changed: doCheckReply,
 		}
 	)
-	timeoutCheck = Meteor.setTimeout(doCheckReply, timeoutTime)
+	timeoutCheck = setTimeout(doCheckReply, timeoutTime)
 
 	try {
 		await PeripheralDeviceCommands.insertAsync({

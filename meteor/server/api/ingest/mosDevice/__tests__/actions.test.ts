@@ -1,5 +1,4 @@
 import '../../../../../__mocks__/_extendJest'
-import { Meteor } from 'meteor/meteor'
 
 import { MOS } from '@sofie-automation/meteor-lib/dist/mos'
 import { setupDefaultStudioEnvironment } from '../../../../../__mocks__/helpers/database'
@@ -16,6 +15,7 @@ import { PeripheralDeviceCommands } from '../../../../collections'
 import { SupressLogMessages } from '../../../../../__mocks__/suppressLogging'
 import { logger } from '../../../../logging'
 import { generateRundownSource } from '../../lib'
+import type { LiveQueryHandleSync } from '../../../../lib/lib'
 
 const mosTypes = MOS.getMosTypes(true)
 
@@ -33,7 +33,7 @@ function fakeMinimalRo() {
 describe('Test sending mos actions', () => {
 	let device: PeripheralDevice
 	let studioId: StudioId
-	let observer: Meteor.LiveQueryHandle | null = null
+	let observer: LiveQueryHandleSync | null = null
 	beforeAll(async () => {
 		const env = await setupDefaultStudioEnvironment()
 		device = env.ingestDevice

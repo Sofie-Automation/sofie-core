@@ -14,6 +14,7 @@ import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCo
 import { PromisifyCallbacks } from '@sofie-automation/shared-lib/dist/lib/types'
 import { UpdateOptions, IndexSpecifier } from '@sofie-automation/meteor-lib/dist/collections/lib'
 import { AsyncOnlyMongoCollection, MinimalMongoCursor } from '../collection'
+import type { LiveQueryHandleSync } from '../../lib/lib'
 
 /**
  * {@link WrappedMockCollection} only ever runs under jest, where `Meteor` is the mock that provides
@@ -107,7 +108,7 @@ export class WrappedMockCollection<
 		selector: MongoQuery<DBInterface> | DBInterface['_id'],
 		callbacks: PromisifyCallbacks<ObserveCallbacks<DBInterface>>,
 		options?: FindObserveChangesOptions<DBInterface>
-	): Promise<Meteor.LiveQueryHandle> {
+	): Promise<LiveQueryHandleSync> {
 		await this.#sleep(0)
 		return this.#core.observe(callbacks, selector, options)
 	}
@@ -116,7 +117,7 @@ export class WrappedMockCollection<
 		selector: MongoQuery<DBInterface> | DBInterface['_id'],
 		callbacks: PromisifyCallbacks<ObserveChangesCallbacks<DBInterface>>,
 		options?: FindObserveChangesOptions<DBInterface>
-	): Promise<Meteor.LiveQueryHandle> {
+	): Promise<LiveQueryHandleSync> {
 		await this.#sleep(0)
 		return this.#core.observeChanges(callbacks, selector, options)
 	}
