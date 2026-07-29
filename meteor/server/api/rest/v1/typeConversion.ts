@@ -527,6 +527,7 @@ export function APIForceQuickLoopAutoNextFrom(
 			return 'enabled_when_valid_duration'
 		default:
 			assertNever(forceQuickLoopAutoNext)
+			return 'disabled'
 	}
 }
 

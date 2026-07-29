@@ -3134,6 +3134,7 @@ __metadata:
     superfly-timeline: "npm:9.2.0"
     threadedclass: "npm:^1.4.0"
     ts-jest: "npm:29.4.12"
+    tslib: "npm:^2.8.1"
     tsx: "npm:^4.23.1"
     type-fest: "npm:^4.41.0"
     typescript: "npm:~5.9.3"

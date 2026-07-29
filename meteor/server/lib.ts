@@ -1,5 +1,4 @@
 import process from 'process'
-import _ from 'underscore'
 import fs from 'fs'
 import path from 'path'
 import { logger } from './logging'
@@ -43,11 +42,10 @@ export function extractFunctionSignature(f: Function): string[] | undefined {
 		const m = str.match(/\(([^)]*)\)/)
 		if (m) {
 			const params = m[1].split(',')
-			return _.map(params, (p) => {
-				return p.trim()
-			})
+			return params.map((p) => p.trim())
 		}
 	}
+	return undefined
 }
 
 export type Translations = Record<string, string>

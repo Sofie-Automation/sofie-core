@@ -2,7 +2,7 @@ import '../../../__mocks__/_extendJest'
 import { setupDefaultStudioEnvironment, DefaultEnvironment } from '../../../__mocks__/helpers/database'
 import { generateTranslation, literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { MeteorMock } from '../../../__mocks__/meteor'
+import { sleepNoFakeTimers } from '../../../__mocks__/time'
 import { status2ExternalStatus, setSystemStatus } from '../systemStatus'
 import { StatusResponse } from '@sofie-automation/meteor-lib/dist/api/systemStatus'
 import { stripVersion } from '../semverUtils'
@@ -51,7 +51,7 @@ describe('systemStatus', () => {
 	test('getSystemStatus: after startup', async () => {
 		env = await setupDefaultStudioEnvironment()
 		await setupSystemStatusObservers()
-		await MeteorMock.sleepNoFakeTimers(200)
+		await sleepNoFakeTimers(200)
 
 		const result0: StatusResponse = await MeteorCall.systemStatus.getSystemStatus()
 

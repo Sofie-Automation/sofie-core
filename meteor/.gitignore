@@ -6,6 +6,7 @@ coverage
 settings.json
 server/_force_restart.js
 public/
+/dist/
 
 # Ignore old meteor stuff
 /.meteor/

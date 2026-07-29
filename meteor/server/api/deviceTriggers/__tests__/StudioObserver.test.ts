@@ -86,7 +86,8 @@ describe('StudioObserver', () => {
 
 	test('rundown deactivation regression: observer callbacks must not depend on `this` (private fields)', async () => {
 		// Import after mocks are in place
-		const { StudioObserver } = await import('../StudioObserver')
+		// eslint-disable-next-line n/file-extension-in-import
+		const { StudioObserver } = await import('../StudioObserver.js')
 
 		const studioId = protectString<StudioId>('studio0')
 		const playlistId = protectString<RundownPlaylistId>('playlist0')

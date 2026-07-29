@@ -1,4 +1,4 @@
-const ticCache: Record<NamedCurve, number> = {}
+const ticCache: Record<string, number> = {}
 /**
  * Performance debugging. tic() starts a timer, toc() traces the time since tic()
  * @param name
@@ -6,7 +6,7 @@ const ticCache: Record<NamedCurve, number> = {}
 export function tic(name = 'default'): void {
 	ticCache[name] = Date.now()
 }
-export function toc(name = 'default', logStr?: string | Promise<any>[]): number | undefined {
+export function toc(name = 'default', logStr?: string | Promise<any>[]): void {
 	if (Array.isArray(logStr)) {
 		logStr.forEach((promise, i) => {
 			promise
@@ -21,6 +21,5 @@ export function toc(name = 'default', logStr?: string | Promise<any>[]): number 
 	} else {
 		const t: number = Date.now() - ticCache[name]
 		if (logStr) console.info('toc: ' + name + ': ' + logStr + ': ' + t)
-		return t
 	}
 }

@@ -20,16 +20,6 @@ _Sofie&nbsp;Core_ is configured at it's most basic level using a settings file a
 	<tbody>
 		<tr>
 			<td>
-				<code>METEOR_SETTINGS</code>
-			</td>
-			<td>Contents of settings file (see below)</td>
-			<td></td>
-			<td>
-				<code>$(cat settings.json)</code>
-			</td>
-		</tr>
-		<tr>
-			<td>
 				<code>NTP_SERVERS</code>
 			</td>
 			<td>List of time servers to sync the system to (comma separated).</td>
