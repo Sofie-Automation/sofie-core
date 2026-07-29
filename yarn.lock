@@ -382,6 +382,7 @@ __metadata:
     rimraf: "npm:^6.1.3"
     semver: "npm:^7.8.4"
     snyk-nodejs-lockfile-parser: "npm:^2.8.1"
+    yaml: "npm:^2.9.0"
   languageName: unknown
   linkType: soft
 
