@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 // import shimmer from 'shimmer'
 import Agent, { AgentConfigOptions } from 'elastic-apm-node'
 
@@ -14,14 +13,6 @@ import Agent, { AgentConfigOptions } from 'elastic-apm-node'
 // const startMetrics = require('./metrics')
 
 // const hackDB = require('./hacks')
-
-const [framework, version] = Meteor.release.split('@')
-
-Agent.setFramework({
-	name: framework,
-	version,
-	overwrite: true,
-})
 
 export const RawAgent = Agent
 

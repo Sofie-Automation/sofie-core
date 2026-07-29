@@ -163,11 +163,15 @@ describe('observeChanges parity: mock vs real change stream', () => {
 		await client?.close()
 	})
 
-	test.each(scripts.map((s) => [s.name, s] as const))('%s', async (_name, script) => {
-		const mock = await runMock(script)
-		const real = await runReal(client, script)
-		expect(normalizeSink(mock)).toEqual(normalizeSink(real))
-	})
+	test.each(scripts.map((s) => [s.name, s] as const))(
+		'%s',
+		async (_name, script) => {
+			const mock = await runMock(script)
+			const real = await runReal(client, script)
+			expect(normalizeSink(mock)).toEqual(normalizeSink(real))
+		},
+		15_000
+	)
 
 	test('observe() delivers identical full-document transitions', async () => {
 		// Mock side

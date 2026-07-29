@@ -140,14 +140,14 @@ export async function setUpOptimizedObserverInner<
 				lazynessDuration
 			)
 
-			Meteor.defer(() => {
+			setImmediate(() => {
 				resultingOptimizedObserver.resolve(observerWorker)
 			})
 		} catch (e: any) {
 			// The setup failed, so delete and cleanup the in-progress observer
 			delete optimizedObservers[identifier]
 
-			Meteor.defer(() => {
+			setImmediate(() => {
 				// Propogate to other susbcribers
 				resultingOptimizedObserver.reject(e)
 			})
@@ -315,7 +315,7 @@ async function createOptimizedObserverWorker<
 
 					if (hasPendingUpdate) {
 						// There is another pending update, make sure it gets executed asap
-						Meteor.defer(() => {
+						setImmediate(() => {
 							triggerUpdate({})
 						})
 					}
@@ -365,7 +365,7 @@ async function createOptimizedObserverWorker<
 
 		if (hasPendingUpdate) {
 			// An update is pending, let it be executed once the final observer is stored
-			Meteor.defer(() => {
+			setImmediate(() => {
 				triggerUpdate({})
 			})
 		}

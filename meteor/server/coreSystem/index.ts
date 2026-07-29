@@ -19,7 +19,7 @@ const PackageInfo = require('../../package.json')
 import { startAgent } from '../api/profiler/apm'
 import { profiler } from '../api/profiler'
 import { ICoreSystemSettings, TMP_TSR_VERSION } from '@sofie-automation/blueprints-integration'
-import { getAbsolutePath, isInTestMode } from '../lib'
+import { getAbsolutePath, isInDevelopmentMode, isInTestMode } from '../lib'
 import path from 'path'
 import { checkDatabaseVersions } from './checkDatabaseVersions'
 import PLazy from 'p-lazy'
@@ -40,7 +40,7 @@ export function getSystemStorePath(): string {
 	const storePath = process.env.SOFIE_STORE_PATH
 	if (storePath) return path.resolve(storePath)
 
-	if (Meteor.isDevelopment) {
+	if (isInDevelopmentMode()) {
 		// For development, fallback to inside the .meteor folder
 		return getAbsolutePath() + '/.meteor/local/sofie-store'
 	}

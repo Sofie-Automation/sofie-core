@@ -44,7 +44,7 @@ export class WrappedMockCollection<
 
 	constructor(name: string) {
 		this.#core = new InMemoryMongoCollection<DBInterface>(name, {
-			observerDeliveryScheduler: (fn) => Meteor.defer(fn),
+			observerDeliveryScheduler: (fn) => setImmediate(fn),
 		})
 	}
 
