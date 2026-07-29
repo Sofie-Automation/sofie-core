@@ -1,0 +1,33 @@
+# Personal overrides for `yarn dev` / `yarn start`.
+#
+# Copy this file to `dev-local.yaml` and edit. That file is gitignored.
+#   cp dev-local.example.yaml dev-local.yaml
+#
+# All keys are optional. Omit a section (or the whole file) to keep defaults.
+# Values below are suggested starting points, not built-in defaults.
+
+# TypeScript watch (`packages/` — the TSC process)
+tsc:
+  # Cap the Node heap. Without a limit, tsc can grow unboundedly in long sessions.
+  # Default: no --max-old-space-size — V8 picks a heap limit from system RAM
+  # (often a few GB; machine-dependent). Shell NODE_OPTIONS is inherited if set.
+  nodeOptions: --max-old-space-size=3072
+
+# Meteor app + build tool
+meteor:
+  # Caps Meteor's build-tool Node process
+  # Default: no TOOL_NODE_FLAGS — same V8 heap-from-RAM behaviour as above.
+  # Shell TOOL_NODE_FLAGS is inherited if set.
+  toolNodeFlags: --max-old-space-size=1536
+  # Caps the Meteor app server process
+  # Default: no --max-old-space-size — V8 heap-from-RAM (shell NODE_OPTIONS if set).
+  nodeOptions: --max-old-space-size=1536
+
+# Vite UI (`packages/webui`)
+vite:
+  # Cap Vite's Node process
+  # Default: no --max-old-space-size — V8 heap-from-RAM (shell NODE_OPTIONS if set).
+  nodeOptions: --max-old-space-size=1024
+  # Listen on 0.0.0.0 so other devices on the LAN can reach the UI
+  # Default: false — Vite binds to localhost only (not reachable on the LAN).
+  host: true
