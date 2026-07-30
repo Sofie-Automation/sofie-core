@@ -104,10 +104,9 @@ function watchMeteor() {
 			}),
 		},
 		{
-			command: joinCommand(
-				"yarn dev",
-				localConfig.vite?.host ? "-- --host" : ""
-			),
+			// Yarn forwards args after the script name to vite. Do not insert an extra
+			// `--` here — that ends up as `vite ... -- --host`, and Vite ignores `--host`.
+			command: joinCommand("yarn dev", localConfig.vite?.host ? "--host" : ""),
 			cwd: "packages/webui",
 			name: "VITE",
 			prefixColor: "yellow",
