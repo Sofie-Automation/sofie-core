@@ -56,12 +56,12 @@ function isModelForStudio(model: StudioPlayoutModelBase): model is StudioPlayout
 function generateTimelineVersions(
 	studio: ReadonlyDeep<JobStudio>,
 	blueprintId: BlueprintId | undefined,
-	blueprintVersion: string
+	blueprintHash: string
 ): TimelineCompleteGenerationVersions {
 	return {
 		core: getSystemVersion(),
 		blueprintId: blueprintId,
-		blueprintVersion: blueprintVersion,
+		blueprintVersion: blueprintHash,
 		studio: studio._rundownVersionHash,
 	}
 }
@@ -109,7 +109,7 @@ export async function getStudioTimeline(
 	const versions = generateTimelineVersions(
 		studio,
 		studio.blueprintId,
-		studioBlueprint?.blueprint?.blueprintVersion ?? '-'
+		studioBlueprint?.blueprintDoc?.blueprintHash ?? '-'
 	)
 
 	if (studioBaseline) {
@@ -367,11 +367,7 @@ export async function getTimelineRundown(
 			if (regenerateTimelineObj) timelineObjs.push(regenerateTimelineObj.obj)
 
 			const blueprint = await context.getShowStyleBlueprint(showStyle._id)
-			timelineVersions = generateTimelineVersions(
-				context.studio,
-				showStyle.blueprintId,
-				blueprint.blueprint.blueprintVersion
-			)
+			timelineVersions = generateTimelineVersions(context.studio, showStyle.blueprintId, blueprint.blueprintHash)
 
 			if (blueprint.blueprint.onTimelineGenerate || blueprint.blueprint.getAbResolverConfiguration) {
 				const resolvedPieces = getResolvedPiecesForPartInstancesOnTimeline(

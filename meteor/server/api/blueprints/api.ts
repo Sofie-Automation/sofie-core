@@ -1,7 +1,7 @@
 import _ from 'underscore'
 import path from 'path'
 import { ReadStream, createReadStream, promises as fsp } from 'fs'
-import { getRandomId } from '@sofie-automation/corelib/dist/lib'
+import { getHash, getRandomId, getRandomString } from '@sofie-automation/corelib/dist/lib'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { getCurrentTime } from '../../lib/lib'
 import { logger } from '../../logging'
@@ -62,7 +62,7 @@ export async function insertBlueprint(
 		integrationVersion: '',
 		TSRVersion: '',
 
-		blueprintHash: getRandomId(),
+		blueprintHash: getRandomString(),
 		hasFixUpFunction: false,
 	})
 }
@@ -177,7 +177,9 @@ async function innerUploadBlueprint(
 		TSRVersion: '',
 		disableVersionChecks: false,
 		blueprintType: undefined,
-		blueprintHash: getRandomId(),
+		// Content hash of the uploaded code so identical re-uploads keep the same hash, and any
+		// code change (even with an unchanged semver blueprintVersion) is detectable.
+		blueprintHash: body ? getHash(body) : getRandomString(),
 		hasFixUpFunction: false,
 	}
 

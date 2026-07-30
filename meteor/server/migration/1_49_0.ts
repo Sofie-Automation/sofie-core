@@ -1,6 +1,6 @@
 import { addMigrationSteps } from './databaseMigration'
 import { Blueprints, ShowStyleVariants } from '../collections'
-import { getRandomId } from '@sofie-automation/corelib/dist/lib'
+import { getRandomString } from '@sofie-automation/corelib/dist/lib'
 
 // Release 49
 
@@ -48,7 +48,7 @@ export const addSteps = addMigrationSteps('1.49.0', [
 			for (const obj of objects) {
 				await Blueprints.updateAsync(obj._id, {
 					$set: {
-						blueprintHash: getRandomId(),
+						blueprintHash: getRandomString(),
 					},
 				})
 			}

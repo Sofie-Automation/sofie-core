@@ -243,6 +243,7 @@ export class MockJobContext implements JobContext {
 		return {
 			blueprintId: showStyle.blueprintId,
 			blueprint: this.#showStyleBlueprint,
+			blueprintHash: 'mockShowStyleBlueprintHash',
 		}
 	}
 	getShowStyleBlueprintConfig(showStyle: ReadonlyDeep<ProcessedShowStyleCompound>): ProcessedShowStyleConfig {
