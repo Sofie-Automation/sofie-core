@@ -1,4 +1,3 @@
-import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import type { IContextMenuContext } from '../../RundownView.js'
 import type { IOutputLayerUi, PartUi, SegmentUi } from '../SegmentTimelineContainer.js'
 import { FlattenedSourceLayers } from './FlattenedSourceLayers.js'
@@ -14,7 +13,6 @@ import type { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 interface IOutputGroupProps {
 	layer: IOutputLayerUi
 	sourceLayers: ISourceLayerExtended[]
-	playlist: DBRundownPlaylist
 	studio: UIStudio
 	segment: SegmentUi
 	part: PartUi
@@ -63,7 +61,6 @@ export function OutputGroup(props: Readonly<IOutputGroupProps>): JSX.Element {
 							key={sourceLayer._id}
 							studio={props.studio}
 							layer={sourceLayer}
-							playlist={props.playlist}
 							outputLayer={props.layer}
 							outputGroupCollapsed={isOutputGroupCollapsed}
 							segment={props.segment}
@@ -98,7 +95,6 @@ export function OutputGroup(props: Readonly<IOutputGroupProps>): JSX.Element {
 						key={props.layer._id + '_flattened'}
 						studio={props.studio}
 						layers={props.sourceLayers}
-						playlist={props.playlist}
 						outputLayer={props.layer}
 						outputGroupCollapsed={isOutputGroupCollapsed}
 						segment={props.segment}
