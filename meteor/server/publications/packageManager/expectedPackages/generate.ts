@@ -159,7 +159,11 @@ function calculateCombinedSource(
 		const packageAccessor: ReadonlyDeep<AccessorOnPackage.Any> | undefined = packageSource.accessors?.[accessorId]
 
 		if (packageAccessor && sourceAccessor && packageAccessor.type === sourceAccessor.type) {
-			combinedSource.accessors[accessorId] = deepExtend({}, sourceAccessor, packageAccessor)
+			combinedSource.accessors[accessorId] = deepExtend(
+				{},
+				clone<Accessor.Any>(sourceAccessor),
+				clone<AccessorOnPackage.Any>(packageAccessor)
+			)
 		} else if (packageAccessor) {
 			combinedSource.accessors[accessorId] = clone<AccessorOnPackage.Any>(packageAccessor)
 		} else if (sourceAccessor) {
