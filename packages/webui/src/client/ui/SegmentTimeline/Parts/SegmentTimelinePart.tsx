@@ -495,7 +495,6 @@ export class SegmentTimelinePartClass extends React.Component<Translated<WithTim
 								sourceLayers={sourceLayers}
 								segment={this.props.segment}
 								part={part}
-								playlist={this.props.playlist}
 								studio={this.props.studio}
 								startsAt={SegmentTimelinePartClass.getPartStartsAt(this.props) || this.props.part.startsAt || 0}
 								duration={

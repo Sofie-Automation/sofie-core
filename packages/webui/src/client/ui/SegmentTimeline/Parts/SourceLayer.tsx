@@ -1,6 +1,5 @@
 import { useCallback, useContext, useState, type MouseEventHandler } from 'react'
 import _ from 'underscore'
-import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString, unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { getElementDocumentOffset, type OffsetPosition } from '../../../utils/positions.js'
@@ -18,7 +17,6 @@ import type { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 export interface ISourceLayerPropsBase {
 	key: string
 	outputLayer: IOutputLayerUi
-	playlist: DBRundownPlaylist
 	studio: UIStudio
 	segment: SegmentUi
 	part: PartUi
@@ -153,7 +151,6 @@ export function SourceLayer(props: Readonly<ISourceLayerProps>): JSX.Element {
 									liveLinePadding={props.liveLinePadding}
 									scrollLeft={props.scrollLeft}
 									scrollWidth={props.scrollWidth}
-									playlist={props.playlist}
 									studio={props.studio}
 									followLiveLine={props.followLiveLine}
 									isLiveLine={props.isLiveLine}
