@@ -4,10 +4,8 @@ import { type WithTranslation, withTranslation } from 'react-i18next'
 import ClassNames from 'classnames'
 import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'
 
-import {
-	type DBRundownPlaylist,
-	RundownHoldState,
-} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import { RundownHoldState } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { RundownViewPlaylist } from '../../lib/rundownPlaylistProjection.js'
 import type { SegmentUi, PartUi, IOutputLayerUi } from './SegmentTimelineContainer.js'
 import { TimelineGrid } from './TimelineGrid.js'
 import { SegmentTimelinePart, SegmentTimelinePartClass } from './Parts/SegmentTimelinePart.js'
@@ -69,7 +67,7 @@ interface IProps {
 	id: string
 	key: string
 	segment: SegmentUi
-	playlist: DBRundownPlaylist
+	playlist: RundownViewPlaylist
 	followLiveSegments: boolean
 	studio: UIStudio
 	parts: Array<PartUi>
