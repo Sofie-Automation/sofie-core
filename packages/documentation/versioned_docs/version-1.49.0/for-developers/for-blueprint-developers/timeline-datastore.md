@@ -1,6 +1,6 @@
 # Timeline Datastore
 
-The timeline datastore is a key-value store that can be used in conjuction with the timeline. The benefit of modifying values in the datastore is that the timings in the timeline are not modified so we can skip a lot of complicated calculations which reduces the system response time. An example usecase of the datastore feature is a fastpath for cutting cameras.
+The timeline datastore is a key-value store that can be used in conjunction with the timeline. The benefit of modifying values in the datastore is that the timings in the timeline are not modified so we can skip a lot of complicated calculations which reduces the system response time. An example usecase of the datastore feature is a fastpath for cutting cameras.
 
 ## API
 
@@ -82,4 +82,4 @@ Assuming a set of blueprints where we can cut camera's a on a vision mixer's mix
 
 1.  If you haven't yet, convert the current camera adlibs to adlib actions by exporting the `IBlueprintActionManifest` as part of your `getRundown` implementation and implementing an adlib action in your `executeAction` handler that adds your camera piece.
 2.  Modify any camera pieces (including the one from your adlib action) to contain a reference to the datastore (See the timeline API example)
-3.  Implement an `executeDataStoreAction` handler as part of your blueprints, when this handler receives the action for your camera adlib it should call the `setTimelineDatastoreValue` method with the key you used in the timeline object (In the example it's `camInput`), the new input for the vision mixer and the `DatastorePersistenceMode.Temporary` persistence mode.
+3.  Implement an `executeDataStoreAction` handler as part of your blueprints, when this handler receives the action for your camera adlib it should call the `setTimelineDatastoreValue` method with the key you used in the timeline object (In the example its `camInput`), the new input for the vision mixer and the `DatastorePersistenceMode.Temporary` persistence mode.

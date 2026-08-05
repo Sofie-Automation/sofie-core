@@ -60,13 +60,13 @@ In the top-right corner of the Segment, there's a button controlling the display
 
 The **_Storyboard_** mode is an alternative to the default **_Timeline_** mode. In Storyboard mode, the accurate placement in time of each Piece is not visualized, so that more Parts can be visualized at once in a single row. This can be particularly useful in Shows without very strict timing planning or where timing is not driven by the User, but rather some external factor; or in Shows where very long Parts are joined with very short ones: sports, events and debates. This mode also does not visualize the history of the playback: rather, it only shows what is currently On Air or is planned to go On Air.
 
-Storyboard mode selects a "main" Piece of the Part, using the same logic as the [Presenter View](#presenter-view), and presents it with a larger, hover-scrub-enabled Piece for easy preview. The countdown to freeze-frame is displayed in the top-right hand corner of the Thumbnail, once less than 10 seconds remain to freeze-frame. The Transition Piece is displayed on top of the thumbnail. Other Pieces are placed below the thumbnail, stacked in order of playback. After a Piece goes off-air, it will dissapear from the view.
+Storyboard mode selects a "main" Piece of the Part, using the same logic as the [Presenter View](#presenter-view), and presents it with a larger, hover-scrub-enabled Piece for easy preview. The countdown to freeze-frame is displayed in the top-right hand corner of the Thumbnail, once less than 10 seconds remain to freeze-frame. The Transition Piece is displayed on top of the thumbnail. Other Pieces are placed below the thumbnail, stacked in order of playback. After a Piece goes off-air, it will disappear from the view.
 
 If no more Parts can be displayed in a given Segment, they are stacked in order on the right side of the Segment. The User can scroll through thse Parts by click-and-dragging the Storyboard area, or using the mouse wheel - `Alt`+Wheel, if only a vertical wheel is present in the mouse.
 
 ### List View Mode
 
-Another mode available to display a Segment is the List View. In this mode, each _Part_ and it's contents are being displayed as a mini-timeline and it's width is normalized to fit the screen, unless it's shorter than 30 seconds, in which case it will be scaled down accordingly.
+Another mode available to display a Segment is the List View. In this mode, each _Part_ and its contents are being displayed as a mini-timeline and its width is normalized to fit the screen, unless it's shorter than 30 seconds, in which case it will be scaled down accordingly.
 
 ![List View Mode](/img/docs/main/list_view.png)
 
@@ -74,7 +74,7 @@ In this mode, the focus is on the "main" Piece of the Part. Additional _Lower-Th
 
 If a Part has an _in-transition_ Piece, it will be displayed to the left of the Part's Take Point.
 
-This view is designed to be used in productions that are mixing pre-planned and timed segments with more free-flowing production or mixing short live in-camera links with longer pre-produced clips, while trying to keep as much of the show in the viewport as possible, at the expense of hiding some of the content from the User and the _duration_ of the Part on screen having no bearing on it's _width_. This mode also allows Sofie to visualize content _beyond_ the planned duration of a Part.
+This view is designed to be used in productions that are mixing pre-planned and timed segments with more free-flowing production or mixing short live in-camera links with longer pre-produced clips, while trying to keep as much of the show in the viewport as possible, at the expense of hiding some of the content from the User and the _duration_ of the Part on screen having no bearing on its _width_. This mode also allows Sofie to visualize content _beyond_ the planned duration of a Part.
 
 :::info
 The Segment header area also shows the expected (planned) durations for all the Parts and will also show which Parts are sharing timing in a timing group using a *⌊* symbol in the place of a counter.
@@ -128,7 +128,7 @@ The _Rundown View_ and the _Detached Shelf View_ UI can have multiple concurrent
 2. select the first layout of any type,
 3. use the default layout \(no additional filters\), in the style of `RUNDOWN_LAYOUT`.
 
-To use a specific layout in these views, you can use the `?layout=...` query string, providing either the ID of the layout or a part of the name. This string will then be mached against all available layouts for the Show Style, and the first matching will be selected. For example, for a layout called `Stream Deck layout`, to open the currently active rundown's Detached Shelf use:
+To use a specific layout in these views, you can use the `?layout=...` query string, providing either the ID of the layout or a part of the name. This string will then be matched against all available layouts for the Show Style, and the first matching will be selected. For example, for a layout called `Stream Deck layout`, to open the currently active rundown's Detached Shelf use:
 
 `http://localhost:3000/activeRundown/studio0/shelf?layout=Stream`
 
@@ -270,7 +270,7 @@ So **coreDuration + gatewayDuration** is the full time it took from beginning-of
 
 #### Action
 
-Describes what action the user did; e g pressed a key, clicked a button, or selected a meny item.
+Describes what action the user did; e g pressed a key, clicked a button, or selected a menu item.
 
 #### Method
 

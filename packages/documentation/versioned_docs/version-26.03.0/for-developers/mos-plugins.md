@@ -36,7 +36,7 @@ The plugin iFrame can send a `postMessage` call with an `ncsItem` payload to pro
 
 This means that drag-and-drop must happen between pages from the same origin. This is relevant for MOS-plugins, as they are supposed to be displayed in iFrames. Specifically, this means that the plugin in the iFrame must be served from the same origin as the parent page (where the drop will happen).
 
-There are no properties or options to bypass this from within HTML/Javascript. Bypassing is theoretically possible by overriding the browser's security settings, but this is not recommended.
+There are no properties or options to bypass this from within HTML/JavaScript. Bypassing is theoretically possible by overriding the browser's security settings, but this is not recommended.
 
 :::note Background
 The background for the policy is discussed in this Chromium Issue from 2010: [Security: do not allow on-page drag-and-drop from non-same-origin frames (or require an extra gesture)](https://issues.chromium.org/issues/40083787)

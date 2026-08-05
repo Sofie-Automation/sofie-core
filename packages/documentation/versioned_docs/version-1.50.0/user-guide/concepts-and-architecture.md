@@ -28,7 +28,7 @@ To be able to facilitate various workflows and to Here's a short explanation abo
 - The **Organization** \(only available if user accounts are enabled\) defines things that are common for an organization. An organization consists of: **Users, Studios** and **ShowStyles**.
 - The **Studio** contains things that are related to the "hardware" or "rig". Technically, a Studio is defined as an entity that can have one \(or none\) rundown active at any given time. In most cases, this will be a representation of your gallery, with cameras, video playback and graphics systems, external inputs, sound mixers, lighting controls and so on. A single System can easily control multiple Studios.
 - The **Show Style** contains settings for the "show", for example if there's a "Morning Show" and an "Afternoon Show" - produced in the same gallery - they might be two different Show Styles \(played in the same Studio\). Most importantly, the Show Style decides the "look and feel" of the Show towards the producer/director, dictating how data ingested from the NRCS will be interpreted and how the user will interact with the system during playback (see: [Show Style](./configuration/settings-view#show-style) in Settings).
-  - A **Show Style Variant** is a set of Show Style _Blueprint_ configuration values, that allows to use the same interaction model across multiple Shows with potentially different assets, changing the outward look of the Show: for example news programs with different hosts produced from the same Studio, but with different light setups, backscreen and overlay graphics.
+  - A **Show Style Variant** is a set of Show Style _Blueprint_ configuration values, that allows you to use the same interaction model across multiple Shows with potentially different assets, changing the outward look of the Show: for example news programs with different hosts produced from the same Studio, but with different light setups, backscreen and overlay graphics.
 
 ![Sofie Architecture Venn Diagram](/img/docs/main/features/sofie-venn-diagram.png)
 
@@ -100,7 +100,7 @@ Being a web-based system, Sofie has a number of customisable, user-facing web [v
 
 Blueprints are plug-ins that run in Sofie&nbsp;Core. They interpret the data coming in from the rundowns and transform them into a rich set of playable elements \(Segments, Parts, AdLibs etc\).
 
-The blueprints are webpacked javascript bundles which are uploaded into Sofie via the GUI. They are custom-made and changes depending on the show style, type of input data \(NRCS\) and the types of controlled devices. A generic [blueprint that works with spreadsheets is available here](https://github.com/SuperFlyTV/sofie-demo-blueprints).
+The blueprints are webpacked JavaScript bundles which are uploaded into Sofie via the GUI. They are custom-made and changes depending on the show style, type of input data \(NRCS\) and the types of controlled devices. A generic [blueprint that works with spreadsheets is available here](https://github.com/SuperFlyTV/sofie-demo-blueprints).
 
 When [Sofie&nbsp;Core](#sofie-core) calls upon a Blueprint, it returns a JavaScript object containing methods callable by Sofie&nbsp;Core. These methods will be called by Sofie&nbsp;Core in different situations, depending on the method.  
 Documentation on these interfaces are available in the [Blueprints integration](https://www.npmjs.com/package/@sofie-automation/blueprints-integration) library.
@@ -127,7 +127,7 @@ Documentation on the interface to be exposed by the Blueprint:
 
 ## `PartInstances` and `PieceInstances`
 
-In order to be able to facilitate ingesting changes from the NRCS while continuing to provide a stable and predictable playback of the Rundowns, Sofie internally uses a concept of ["instantiation"](<https://en.wikipedia.org/wiki/Instance_(computer_science)>) of key Rundown elements. Before playback of a Part can begin, the Part and it's Pieces are copied into an Instance of a Part: a `PartInstance`. This protects the contents of the _Next_ and _On Air_ part, preventing accidental changes that could surprise the producer/director. This also makes it possible to inspect the "as played" state of the Rundown, independently of the "as planned" state ingested from the NRCS.
+In order to be able to facilitate ingesting changes from the NRCS while continuing to provide a stable and predictable playback of the Rundowns, Sofie internally uses a concept of ["instantiation"](<https://en.wikipedia.org/wiki/Instance_(computer_science)>) of key Rundown elements. Before playback of a Part can begin, the Part and its Pieces are copied into an Instance of a Part: a `PartInstance`. This protects the contents of the _Next_ and _On Air_ part, preventing accidental changes that could surprise the producer/director. This also makes it possible to inspect the "as played" state of the Rundown, independently of the "as planned" state ingested from the NRCS.
 
 The blueprints can optionally allow some changes to the Parts and Pieces to be forwarded onto these `PartInstances`: [https://github.com/nrkno/sofie-core/blob/master/packages/blueprints-integration/src/api.ts#L190](https://github.com/nrkno/sofie-core/blob/master/packages/blueprints-integration/src/api.ts#L190)
 
