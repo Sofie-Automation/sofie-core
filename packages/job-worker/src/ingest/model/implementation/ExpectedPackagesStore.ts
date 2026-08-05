@@ -4,6 +4,8 @@ import { ReadonlyDeep } from 'type-fest'
 import { diffAndReturnLatestObjects, DocumentChanges, getDocumentChanges, setValuesAndTrackChanges } from './utils.js'
 import type { IngestExpectedPackage } from '../IngestExpectedPackage.js'
 import { ExpectedPackageDBType } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
+import { clone, deleteAllUndefinedProperties } from '@sofie-automation/corelib/dist/lib'
+import _ from 'underscore'
 
 export class ExpectedPackagesStore<TPackageSource extends { fromPieceType: ExpectedPackageDBType }> {
 	#expectedPlayoutItems: ExpectedPlayoutItemRundown[]
@@ -85,7 +87,10 @@ export class ExpectedPackagesStore<TPackageSource extends { fromPieceType: Expec
 			oldStore.#expectedPlayoutItems,
 			this.#expectedPlayoutItems
 		)
-		this.#expectedPackagesHasChanges = true
+		// Only flag as changed if the packages actually differ (an unchanged re-ingest regenerates identical ones)
+		if (!_.isEqual(this.#expectedPackages, oldStore.#expectedPackages)) {
+			this.#expectedPackagesHasChanges = true
+		}
 	}
 
 	setExpectedPlayoutItems(expectedPlayoutItems: ExpectedPlayoutItemRundown[]): void {
@@ -102,7 +107,17 @@ export class ExpectedPackagesStore<TPackageSource extends { fromPieceType: Expec
 		)
 	}
 	setExpectedPackages(expectedPackages: IngestExpectedPackage<TPackageSource>[]): void {
-		this.#expectedPackagesHasChanges = true
-		this.#expectedPackages = [...expectedPackages]
+		// Normalize to the database-persisted shape (Mongo drops undefined) before comparing/storing, so
+		// that an unchanged re-ingest is not falsely flagged as a change by leftover `key: undefined` props
+		const normalizedPackages = expectedPackages.map((pkg) => {
+			const cloned = clone(pkg)
+			deleteAllUndefinedProperties(cloned)
+			return cloned
+		})
+		// Only flag as changed if the packages actually differ (an unchanged re-ingest regenerates identical ones)
+		if (!_.isEqual(this.#expectedPackages, normalizedPackages)) {
+			this.#expectedPackagesHasChanges = true
+		}
+		this.#expectedPackages = normalizedPackages
 	}
 }
