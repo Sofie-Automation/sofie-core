@@ -1500,6 +1500,11 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 												onChangeBottomMargin={this.onChangeBottomMargin}
 												rundownLayout={this.props.selectedShelfLayout}
 												studio={studio}
+												enableUserEdits={studio.settings.enableUserEdits ?? false}
+												onEditProps={(selection) => {
+													this.setState({ isNotificationsCenterOpen: undefined })
+													selectionContext.clearAndSetSelection(selection)
+												}}
 											/>
 										</ErrorBoundary>
 										<ErrorBoundary>

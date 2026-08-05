@@ -13,6 +13,9 @@ import type { IBlueprintActionTriggerMode } from '@sofie-automation/blueprints-i
 import { translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { BlueprintAssetIcon } from '../../lib/Components/BlueprintAssetIcon.js'
 import { CreateNewBucket, Delete, EmptyBucket, Rename } from '../../lib/ui/icons/shelf.js'
+import { hasUserEditableContent } from '../UserEditOperations/PropertiesPanel.js'
+import type { SelectedElement } from '../RundownView/SelectedElementsContext.js'
+import { RundownUtils } from '../../lib/rundown.js'
 
 export enum ContextType {
 	BUCKET = 'bucket',
@@ -23,6 +26,8 @@ export enum ContextType {
 interface ShelfContextMenuProps {
 	shelfDisplayOptions: ShelfDisplayOptions
 	hideDefaultStartExecute: boolean
+	enableUserEdits: boolean
+	onEditProps: (element: SelectedElement) => void
 }
 
 interface ShelfContextMenuContextBase {
@@ -165,6 +170,10 @@ export default function ShelfContextMenu(props: Readonly<ShelfContextMenuProps>)
 				? renderStartExecuteAdLib(context.details)
 				: null
 
+	const { enableUserEdits, onEditProps } = props
+
+	const pieceHasEditableContent = context?.type === ContextType.ADLIB && hasUserEditableContent(context.details.adLib)
+
 	return (
 		<Escape to="viewport">
 			<ContextMenu id="shelf-context-menu" onHide={clearContext}>
@@ -180,6 +189,38 @@ export default function ShelfContextMenu(props: Readonly<ShelfContextMenuProps>)
 								<hr />
 							</>
 						)}
+					</>
+				)}
+				{enableUserEdits && pieceHasEditableContent && (
+					<>
+						{pieceHasEditableContent && context.details.adLib && (
+							<MenuItem
+								onClick={() => {
+									if (RundownUtils.isAdLibActionItem(context.details.adLib) && context.details.adLib.adlibAction) {
+										if (RundownUtils.isRundownBaselineAdLibAction(context.details.adLib.adlibAction)) {
+											onEditProps({
+												type: 'rundownBaselineAdLibAction',
+												elementId: context.details.adLib.adlibAction?._id,
+											})
+										} else {
+											onEditProps({
+												type: 'adLibAction',
+												elementId: context.details.adLib.adlibAction?._id,
+											})
+										}
+									} else {
+										if (context.details.adLib.partId) {
+											onEditProps({ type: 'adLibPiece', elementId: context.details.adLib._id })
+										} else {
+											onEditProps({ type: 'rundownBaselineAdLibPiece', elementId: context.details.adLib._id })
+										}
+									}
+								}}
+							>
+								<span>{t('Edit Piece Properties')}</span>
+							</MenuItem>
+						)}
+						<hr />
 					</>
 				)}
 				{context?.type === ContextType.BUCKET_ADLIB && (

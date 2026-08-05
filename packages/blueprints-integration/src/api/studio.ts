@@ -305,6 +305,14 @@ export type BlueprintPlayoutGatewayConfig = PlayoutGatewayConfig
 
 export type BlueprintLiveStatusGatewayConfig = LiveStatusGatewayConfig
 
+export type BlueprintStudioPackageContainerSettings = StudioPackageContainerSettings
+
+export type BlueprintStudioPackageContainer = StudioPackageContainer
+
+export type BlueprintStudioRouteSetExclusivityGroup = StudioRouteSetExclusivityGroup
+
+export type BlueprintStudioRouteSet = StudioRouteSet
+
 export interface IStudioConfigPreset<TConfig = IBlueprintConfig> {
 	name: string
 

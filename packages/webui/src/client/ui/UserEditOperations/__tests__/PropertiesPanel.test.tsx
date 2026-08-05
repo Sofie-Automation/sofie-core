@@ -6,7 +6,7 @@ import type { TFunction } from 'i18next'
 import userEvent from '@testing-library/user-event'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { UIParts } from '../../Collections.js'
-import { Segments } from '../../../../client/collections/index.js'
+import { AdLibActions, Segments } from '../../../../client/collections/index.js'
 import type { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import type { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { UserEditingType } from '@sofie-automation/blueprints-integration'
@@ -19,6 +19,7 @@ import {
 import { MongoMock } from '../../../../__mocks__/mongo.js'
 import { PropertiesPanel } from '../PropertiesPanel.js'
 import type { UserAction } from '../../../lib/clientUserAction.js'
+import type { AdLibAction } from '@sofie-automation/corelib/src/dataModel/AdlibAction.js'
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 jest.mock('meteor/tracker', (...args) => require('../../../../__mocks__/tracker').setup(args), { virtual: true })
@@ -151,6 +152,7 @@ global.fetch = jest.fn(() =>
 
 const mockSegmentsCollection = MongoMock.getInnerMockCollection(Segments)
 const mockPartsCollection = MongoMock.getInnerMockCollection(UIParts)
+const mockAdlibActionsCollection = MongoMock.getInnerMockCollection(AdLibActions)
 
 // Mock Client User Action:
 jest.mock('../../../lib/clientUserAction', () => ({
@@ -255,6 +257,40 @@ describe('PropertiesPanel', () => {
 		],
 	})
 
+	const createMockAdLibAction = (id: string, partId: string): AdLibAction => ({
+		_id: protectString(id),
+		rundownId: protectString('rundown1'),
+		actionId: 'test',
+		display: {
+			label: 'test' as any,
+			_rank: 1,
+		},
+		partId: protectString(partId),
+		userData: {},
+		userDataManifest: {},
+		externalId: `ext_${id}`,
+		userEditOperations: [
+			{
+				id: 'operation3',
+				label: { key: 'TEST_ADLIB_LABEL', namespaces: ['blueprint_main-showstyle'] },
+				type: UserEditingType.ACTION,
+				isActive: true,
+			},
+		],
+		userEditProperties: {
+			operations: [
+				{
+					id: 'operation1',
+					label: { key: 'TEST_LABEL', namespaces: ['blueprint_main-showstyle'] },
+					type: UserEditingType.ACTION,
+					isActive: false,
+					icon: 'test-prop-operation1.svg',
+				},
+			],
+			translationNamespaces: ['blueprint_main-showstyle'],
+		},
+	})
+
 	test('renders empty when no element selected', () => {
 		const { container } = render(<PropertiesPanel />, { wrapper })
 		expect(container.querySelector('.properties-panel')).toBeTruthy()
@@ -322,6 +358,37 @@ describe('PropertiesPanel', () => {
 		expect(button).toBeInTheDocument()
 	})
 
+	test('renders adlib action properties when adlib action is selected', async () => {
+		const mockSegment = createMockSegment('segment1')
+		const mockPart = createMockPart('part1', String(mockSegment._id))
+		const mockAdlib = createMockAdLibAction('adlib1', String(mockPart._id))
+
+		mockSegmentsCollection.insert(mockSegment)
+		mockPartsCollection.insert(mockPart)
+		const mockId = mockAdlibActionsCollection.insert(mockAdlib)
+
+		const { result } = renderHook(() => useSelectedElementsContext(), { wrapper })
+
+		await act(async () => {
+			result.current.clearAndSetSelection({
+				type: 'adLibAction',
+				elementId: protectString(mockId),
+			})
+		})
+		// Open component after part is selected (as used in rundownview)
+		const { container } = renderWithContext(<PropertiesPanel />, { ctxValue: result.current })
+
+		await waitFor(
+			() => {
+				expect(screen.getByText((mockAdlib.display.label as string).slice(0, 30))).toBeInTheDocument()
+			},
+			{ timeout: 1000 }
+		)
+
+		const button = container.querySelector('.propertiespanel-pop-up__button')
+		expect(button).toBeInTheDocument()
+	})
+
 	test('handles user edit operations for segments', async () => {
 		const mockSegment = createMockSegment('segment1')
 		mockSegmentsCollection.insert(mockSegment)
@@ -359,9 +426,8 @@ describe('PropertiesPanel', () => {
 			expect.anything(),
 			protectString('rundown1'),
 			{
+				target: 'segment',
 				segmentExternalId: mockSegment.externalId,
-				partExternalId: undefined,
-				pieceExternalId: undefined,
 			},
 			{
 				id: 'operation1',
@@ -404,9 +470,8 @@ describe('PropertiesPanel', () => {
 			expect.anything(),
 			protectString('rundown1'),
 			{
+				target: 'segment',
 				segmentExternalId: mockSegment.externalId,
-				partExternalId: undefined,
-				pieceExternalId: undefined,
 			},
 			{
 				id: '__sofie-revert-segment',

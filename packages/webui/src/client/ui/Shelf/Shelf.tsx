@@ -49,6 +49,7 @@ import type { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/Sh
 
 import { ShelfTabs } from '@sofie-automation/meteor-lib/dist/uiTypes/ShelfTabs'
 import type { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import type { SelectedElement } from '../RundownView/SelectedElementsContext.js'
 
 export { ShelfTabs } from '@sofie-automation/meteor-lib/dist/uiTypes/ShelfTabs'
 
@@ -69,6 +70,8 @@ export interface IShelfProps {
 	shelfDisplayOptions: ShelfDisplayOptions
 	bucketDisplayFilter: number[] | undefined
 
+	onEditProps: (element: SelectedElement) => void
+	enableUserEdits: boolean
 	onChangeExpanded?: (value: boolean) => void
 	onChangeBottomMargin?: (newBottomMargin: string) => void
 }
@@ -418,6 +421,8 @@ export class ShelfBase extends React.Component<Translated<IShelfProps>, IState> 
 				{!this.props.rundownLayout?.disableContextMenu && (
 					<ShelfContextMenu
 						shelfDisplayOptions={this.props.shelfDisplayOptions}
+						enableUserEdits={this.props.enableUserEdits}
+						onEditProps={this.props.onEditProps}
 						hideDefaultStartExecute={!!this.props.rundownLayout?.hideDefaultStartExecute}
 					/>
 				)}
