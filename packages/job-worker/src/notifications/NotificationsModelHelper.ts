@@ -142,6 +142,16 @@ export class NotificationsModelHelper implements INotificationsModel {
 		return notificationsForCategory
 	}
 
+	/** Whether any notification changes are pending that have not yet been saved to the database */
+	get hasChanges(): boolean {
+		for (const notificationsForCategory of this.#notificationsByCategory.values()) {
+			if (notificationsForCategory.updatedNotifications.size > 0 || notificationsForCategory.removeAllMissing) {
+				return true
+			}
+		}
+		return false
+	}
+
 	async saveAllToDatabase(): Promise<void> {
 		// Quick return if there is nothing to save
 		if (this.#notificationsByCategory.size === 0) return

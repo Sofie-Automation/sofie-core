@@ -22,6 +22,71 @@ describe('NotificationsModelHelper', () => {
 		expect(notificationsCollection.operations).toHaveLength(0)
 	})
 
+	describe('hasChanges', () => {
+		const notification: INotificationWithTarget = {
+			id: 'id0',
+			message: generateTranslation('test'),
+			severity: NoteSeverity.INFO,
+			relatedTo: { type: 'rundown', rundownId: protectString('rundown0') },
+		}
+
+		it('is false for a fresh helper', () => {
+			const context = setupDefaultJobEnvironment()
+			const helper = new NotificationsModelHelper(context, 'test', null)
+
+			expect(helper.hasChanges).toBe(false)
+		})
+
+		it('is true after setNotification', () => {
+			const context = setupDefaultJobEnvironment()
+			const helper = new NotificationsModelHelper(context, 'test', null)
+
+			helper.setNotification('my-category', notification)
+
+			expect(helper.hasChanges).toBe(true)
+		})
+
+		it('is true after clearNotification', () => {
+			const context = setupDefaultJobEnvironment()
+			const helper = new NotificationsModelHelper(context, 'test', null)
+
+			helper.clearNotification('my-category', 'id0')
+
+			expect(helper.hasChanges).toBe(true)
+		})
+
+		it('is true after clearAllNotifications', () => {
+			const context = setupDefaultJobEnvironment()
+			const helper = new NotificationsModelHelper(context, 'test', null)
+
+			helper.clearAllNotifications('my-category')
+
+			expect(helper.hasChanges).toBe(true)
+		})
+
+		it('is false after only reading notifications', async () => {
+			const context = setupDefaultJobEnvironment()
+			const helper = new NotificationsModelHelper(context, 'test', null)
+
+			// Reading creates an internal category entry, but must not count as a pending change
+			await helper.getAllNotifications('my-category')
+
+			expect(helper.hasChanges).toBe(false)
+		})
+
+		it('is false again after saving', async () => {
+			const context = setupDefaultJobEnvironment()
+			const helper = new NotificationsModelHelper(context, 'test', null)
+
+			helper.setNotification('my-category', notification)
+			expect(helper.hasChanges).toBe(true)
+
+			await helper.saveAllToDatabase()
+
+			expect(helper.hasChanges).toBe(false)
+		})
+	})
+
 	describe('from empty', () => {
 		it('do nothing', async () => {
 			const context = setupDefaultJobEnvironment()
