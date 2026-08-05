@@ -345,6 +345,12 @@ export interface BlueprintSyncIngestNewData {
 	 */
 	currentPartIndex: number | null
 
+	/**
+	 * Whether the Part and Pieces from the ingest data have changed in this sync operation.
+	 * Note: This does not indicate whether any infinite pieces have changed.
+	 */
+	partChanged: boolean
+
 	// source: BlueprintSyncIngestDataSource
 	/** The new part */
 	part: IBlueprintPartDB | undefined

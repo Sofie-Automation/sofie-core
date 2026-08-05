@@ -128,6 +128,8 @@ describe('Expected Playout Items', () => {
 			setInvalid: function (_invalid: boolean): void {
 				throw new Error('Function not implemented.')
 			},
+
+			hasChanges: () => false,
 		}
 
 		updateExpectedMediaAndPlayoutItemsForPartModel(context, partModel)
