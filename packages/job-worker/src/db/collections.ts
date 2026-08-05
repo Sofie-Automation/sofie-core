@@ -1,10 +1,8 @@
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 import {
 	MongoClient,
-	AnyBulkWriteOperation,
 	Filter,
 	FindOptions,
-	UpdateFilter,
 	Collection as MongoCollection,
 	ChangeStreamDocument,
 	CountOptions,
@@ -38,6 +36,10 @@ import { DBTimelineDatastoreEntry } from '@sofie-automation/corelib/dist/dataMod
 import { ExpectedPackageDB } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
 import { PackageInfoDB } from '@sofie-automation/corelib/dist/dataModel/PackageInfos'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
+import type {
+	MongoModifier as CorelibMongoModifier,
+	MongoBulkWriteOperation,
+} from '@sofie-automation/corelib/dist/mongo'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { ReadonlyDeep } from 'type-fest'
 import { ExternalMessageQueueObj } from '@sofie-automation/corelib/dist/dataModel/ExternalMessageQueue'
@@ -46,7 +48,10 @@ import type { DBNotificationObj } from '@sofie-automation/corelib/dist/dataModel
 import type { EventEmitter } from 'events'
 
 export type MongoQuery<TDoc> = Filter<TDoc>
-export type MongoModifier<TDoc> = UpdateFilter<TDoc>
+// Aliased from corelib so the job-worker and meteor layers share a single modifier type that stays in
+// lockstep with `mongoModify` (the in-memory implementation used by the unit-test mocks).
+export type MongoModifier<TDoc> = CorelibMongoModifier<TDoc>
+export type { MongoBulkWriteOperation }
 
 export interface IReadOnlyCollection<TDoc extends { _id: ProtectedString<any> }> {
 	readonly name: string
@@ -74,7 +79,7 @@ export interface ICollection<TDoc extends { _id: ProtectedString<any> }> extends
 	/** Returns true if a doc was replaced, false if inserted */
 	replace(doc: TDoc | ReadonlyDeep<TDoc>): Promise<boolean>
 
-	bulkWrite(ops: Array<AnyBulkWriteOperation<TDoc>>): Promise<unknown>
+	bulkWrite(ops: Array<MongoBulkWriteOperation<TDoc>>): Promise<unknown>
 }
 
 export type IChangeStreamEvents<TDoc extends { _id: ProtectedString<any> }> = {

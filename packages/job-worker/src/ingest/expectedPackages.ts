@@ -22,7 +22,7 @@ import { JobContext, JobStudio } from '../jobs/index.js'
 import { IngestModel } from './model/IngestModel.js'
 import { IngestPartModel } from './model/IngestPartModel.js'
 import { hashObj } from '@sofie-automation/corelib/dist/lib'
-import { AnyBulkWriteOperation } from 'mongodb'
+import { MongoBulkWriteOperation } from '@sofie-automation/corelib/dist/mongo'
 
 export function updateExpectedMediaAndPlayoutItemsForPartModel(context: JobContext, part: IngestPartModel): void {
 	updateExpectedPlayoutItemsForPartModel(context, part)
@@ -122,7 +122,7 @@ async function writeUpdatedExpectedPackages(
 	documentsToSave: ExpectedPackageDB[],
 	matchSource: Partial<ExpectedPackageIngestSource>
 ): Promise<void> {
-	const writeOps: AnyBulkWriteOperation<ExpectedPackageDB>[] = []
+	const writeOps: MongoBulkWriteOperation<ExpectedPackageDB>[] = []
 
 	const documentIdsToSave = documentsToSave.map((doc) => doc._id)
 

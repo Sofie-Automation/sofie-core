@@ -347,9 +347,6 @@ export namespace MongoMock {
 			// todo
 		}
 
-		rawDatabase(): any {
-			throw new Error('Not implemented')
-		}
 		rawCollection(): any {
 			return {
 				bulkWrite: async (updates: AnyBulkWriteOperation<any>[], _options: unknown) => {

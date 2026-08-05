@@ -6,8 +6,8 @@ import {
 	isPackageReferencedByPlayout,
 } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
-import { AnyBulkWriteOperation } from 'mongodb'
 import { ExpectedPackageId, PieceInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { MongoBulkWriteOperation } from '../db/collections.js'
 
 export async function handleCleanupOrphanedExpectedPackageReferences(
 	context: JobContext,
@@ -58,7 +58,7 @@ export async function handleCleanupOrphanedExpectedPackageReferences(
 				pieceInstancePackageMap.set(pieceInstance._id, new Set(pieceInstance.neededExpectedPackageIds))
 		}
 
-		const writeOps: AnyBulkWriteOperation<ExpectedPackageDB>[] = []
+		const writeOps: MongoBulkWriteOperation<ExpectedPackageDB>[] = []
 
 		for (const expectedPackage of existingPackages) {
 			// Find the pieceInstanceIds that are stale

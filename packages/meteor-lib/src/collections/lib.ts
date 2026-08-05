@@ -1,4 +1,4 @@
-import type { Collection as RawCollection, Db as RawDb } from 'mongodb'
+import type { Collection as RawCollection } from 'mongodb'
 import { MongoFieldSpecifier, MongoModifier, MongoQuery, SortSpecifier } from '@sofie-automation/corelib/dist/mongo'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 
@@ -39,12 +39,6 @@ export interface MongoCollection<
 	 * [npm `mongodb` driver module](https://www.npmjs.com/package/mongodb) which is wrapped by `Mongo.Collection`.
 	 */
 	rawCollection(): RawCollection<DBInterface>
-
-	/**
-	 * Returns the [`Db`](http://mongodb.github.io/node-mongodb-native/3.0/api/Db.html) object corresponding to this collection's database connection from the
-	 * [npm `mongodb` driver module](https://www.npmjs.com/package/mongodb) which is wrapped by `Mongo.Collection`.
-	 */
-	rawDatabase(): RawDb
 
 	/**
 	 * Remove documents from the collection
