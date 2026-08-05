@@ -25,7 +25,7 @@ function makeCollection(): InMemoryMongoCollection<Thing> {
 
 describe('CRUD basics', () => {
 	test('insert generates an id when absent', () => {
-		const c = new InMemoryMongoCollection<Thing>('things', { idGenerator: () => 'GEN' })
+		const c = new InMemoryMongoCollection<Thing>('things', { idGenerator: () => protectString('GEN') })
 		const insertedId = c.insert({ name: 'a', rank: 1 } as Thing)
 		expect(insertedId).toBe('GEN')
 		expect(c.findOne('GEN' as any)?.name).toBe('a')

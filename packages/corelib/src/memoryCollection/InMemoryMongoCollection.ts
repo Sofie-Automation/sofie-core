@@ -1,6 +1,6 @@
 import type { ChangeStreamDocument } from 'mongodb'
-import { ProtectedString, protectString, unprotectString } from '../protectedString.js'
-import { clone, getRandomString, omit } from '../lib.js'
+import { isProtectedString, ProtectedString } from '../protectedString.js'
+import { clone, getRandomId, omit } from '../lib.js'
 import {
 	FindOptions,
 	FindOneOptions,
@@ -36,15 +36,15 @@ export type InMemoryChangeEvent<TDoc extends Doc> =
  * for tests that poke observers directly, mirroring the shape of the legacy `MongoMock.Collection` observer.
  */
 export interface InMemoryObserverEntry<TDoc extends Doc> {
-	id: string
+	id: TDoc['_id']
 	query: MongoQuery<TDoc>
 	callbacksObserve?: ObserveCallbacks<TDoc>
 	callbacksChanges?: ObserveChangesCallbacks<TDoc>
 }
 
-export interface InMemoryMongoCollectionOptions {
+export interface InMemoryMongoCollectionOptions<TDoc extends Doc> {
 	/** Id generator for documents inserted without an `_id` (default: `getRandomString`). */
-	idGenerator?: () => string
+	idGenerator?: () => TDoc['_id']
 	/**
 	 * Optional scheduler for observe callback delivery. When set (e.g. wired to `Meteor.defer` by the unit-test
 	 * mock), feed-driven observe callbacks fire on a later tick instead of synchronously during the write.
@@ -64,9 +64,9 @@ export interface InMemoryMongoCollectionOptions {
  */
 export class InMemoryMongoCollection<TDoc extends Doc> {
 	readonly name: string
-	readonly #idGenerator: () => string
+	readonly #idGenerator: () => TDoc['_id']
 	readonly #deliveryScheduler: ObserverDeliveryScheduler | undefined
-	readonly #documents = new Map<string, TDoc>()
+	readonly #documents = new Map<TDoc['_id'], TDoc>()
 	readonly #listeners = new Set<(event: InMemoryChangeEvent<TDoc>) => void>()
 	readonly #changeListeners = new Set<() => void>()
 
@@ -77,9 +77,9 @@ export class InMemoryMongoCollection<TDoc extends Doc> {
 	 */
 	readonly observers: InMemoryObserverEntry<any>[] = []
 
-	constructor(name: string, options?: InMemoryMongoCollectionOptions) {
+	constructor(name: string, options?: InMemoryMongoCollectionOptions<TDoc>) {
 		this.name = name
-		this.#idGenerator = options?.idGenerator ?? getRandomString
+		this.#idGenerator = options?.idGenerator ?? getRandomId
 		this.#deliveryScheduler = options?.observerDeliveryScheduler
 		if (options?.onChange) this.#changeListeners.add(options.onChange)
 	}
@@ -105,7 +105,7 @@ export class InMemoryMongoCollection<TDoc extends Doc> {
 	/** Documents matching the selector (selector-only, no find-options), as live store references. */
 	#findMatching(selector: MongoQuery<TDoc>): TDoc[] {
 		const idVal = (selector as any)._id
-		if (typeof idVal === 'string') {
+		if (isProtectedString(idVal)) {
 			// Fast path via the Map, but still run the full selector for any extra conditions.
 			const doc = this.#documents.get(idVal)
 			return doc && mongoWhere(doc, selector) ? [doc] : []
@@ -147,10 +147,9 @@ export class InMemoryMongoCollection<TDoc extends Doc> {
 
 	insert(doc: TDoc): TDoc['_id'] {
 		const stored = clone(doc)
-		if (!stored._id) stored._id = protectString<TDoc['_id']>(this.#idGenerator())
-		const key = unprotectString(stored._id)
-		if (this.#documents.has(key)) throw new Error(`Duplicate key '${key}'`)
-		this.#documents.set(key, stored)
+		if (!stored._id) stored._id = this.#idGenerator()
+		if (this.#documents.has(stored._id)) throw new Error(`Duplicate key '${stored._id}'`)
+		this.#documents.set(stored._id, stored)
 		this.#emit({ operationType: 'insert', documentKey: { _id: stored._id }, fullDocument: clone(stored) })
 		return stored._id
 	}
@@ -170,8 +169,7 @@ export class InMemoryMongoCollection<TDoc extends Doc> {
 			// under a modified `_id` could silently overwrite a different entry. Force the original `_id`
 			// and always store back under the original key.
 			modified._id = doc._id
-			const key = unprotectString(doc._id)
-			this.#documents.set(key, modified)
+			this.#documents.set(doc._id, modified)
 			this.#emit({ operationType: 'update', documentKey: { _id: modified._id }, fullDocument: clone(modified) })
 		}
 		return docs.length
@@ -182,11 +180,10 @@ export class InMemoryMongoCollection<TDoc extends Doc> {
 	 * Returns `true` if an existing document was replaced, `false` otherwise.
 	 */
 	replace(doc: TDoc): boolean {
-		const key = unprotectString(doc._id)
-		const existing = this.#documents.get(key)
+		const existing = this.#documents.get(doc._id)
 		if (existing) {
 			const newDoc = { ...clone(doc), _id: existing._id }
-			this.#documents.set(key, newDoc)
+			this.#documents.set(doc._id, newDoc)
 			this.#emit({ operationType: 'replace', documentKey: { _id: newDoc._id }, fullDocument: clone(newDoc) })
 			return true
 		} else {
@@ -198,7 +195,7 @@ export class InMemoryMongoCollection<TDoc extends Doc> {
 	remove(selector: MongoQuery<TDoc> | TDoc['_id']): number {
 		const docs = this.#findMatching(this.#normalizeSelector(selector))
 		for (const doc of docs) {
-			this.#documents.delete(unprotectString(doc._id))
+			this.#documents.delete(doc._id)
 			this.#emit({ operationType: 'delete', documentKey: { _id: doc._id } })
 		}
 		return docs.length
@@ -244,7 +241,7 @@ export class InMemoryMongoCollection<TDoc extends Doc> {
 		const docs = Array.isArray(data) ? data : Object.values<TDoc>(data)
 		for (const doc of docs) {
 			if (!doc._id) throw new Error(`mockSetData "${this.name}": doc._id missing`)
-			this.#documents.set(unprotectString(doc._id), clone(doc))
+			this.#documents.set(doc._id, clone(doc))
 		}
 	}
 
