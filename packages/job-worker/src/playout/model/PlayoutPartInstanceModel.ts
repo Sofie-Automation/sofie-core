@@ -42,6 +42,12 @@ export interface PlayoutPartInstanceModel {
 	 */
 	snapshotMakeCopy(): PlayoutPartInstanceModelSnapshot
 
+	/** Snapshot captured when this part was set as next, used to restore the original nexted state. */
+	recueNextPartSnapshot?: PlayoutPartInstanceModelSnapshot
+
+	/** Restore the previously stored rescue snapshot, if any, and refresh it for future rescues. */
+	recueNextPart(): void
+
 	/**
 	 * Restore a snapshot of this PlayoutPartInstanceModel, to rollback to a previous state
 	 * Note: It is only possible to restore each snapshot once.

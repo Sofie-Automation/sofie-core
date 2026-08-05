@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { IBlueprintMutatablePart, IBlueprintPart, IBlueprintPiece } from '@sofie-automation/blueprints-integration'
+import { ActionPartChange } from '../context/services/PartAndPieceInstanceActionService.js'
 import { ActionExecutionContext } from '../context/adlibActions.js'
 import { PlayoutModel } from '../../playout/model/PlayoutModel.js'
 import { WatchedPackagesHelper } from '../context/watchedPackages.js'
@@ -8,6 +9,7 @@ import { mock } from 'jest-mock-extended'
 import { PartAndPieceInstanceActionService } from '../context/services/PartAndPieceInstanceActionService.js'
 import { ProcessedShowStyleConfig } from '../config.js'
 import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { PlayoutPartInstanceModel } from '../../playout/model/PlayoutPartInstanceModel.js'
 
 describe('Test blueprint api context', () => {
 	async function getTestee(rehearsal?: boolean) {
@@ -42,6 +44,16 @@ describe('Test blueprint api context', () => {
 			mockActionService,
 			mockPlayoutModel,
 		}
+	}
+
+	function setupNextPartSnapshot(mockPlayoutModel: PlayoutModel) {
+		const mockNextPartInstance = mock<PlayoutPartInstanceModel>()
+		mockNextPartInstance.recueNextPart.mockImplementation(() => undefined)
+		Object.defineProperty(mockPlayoutModel, 'nextPartInstance', {
+			get: () => mockNextPartInstance,
+		})
+
+		return { mockNextPartInstance }
 	}
 
 	describe('ActionExecutionContext', () => {
@@ -129,6 +141,20 @@ describe('Test blueprint api context', () => {
 			await context.updatePieceInstance('pieceId', { name: 'My Piece' } as IBlueprintPiece<unknown>)
 			expect(mockActionService.updatePieceInstance).toHaveBeenCalledTimes(1)
 			expect(mockActionService.updatePieceInstance).toHaveBeenCalledWith('pieceId', { name: 'My Piece' })
+		})
+
+		test('recueNextPart restores the next part snapshot and clears next state', async () => {
+			const { context, mockActionService, mockPlayoutModel } = await getTestee()
+			const { mockNextPartInstance } = setupNextPartSnapshot(mockPlayoutModel)
+
+			mockActionService.nextPartState = ActionPartChange.SAFE_CHANGE
+
+			await context.recueNextPart()
+
+			expect(mockNextPartInstance.recueNextPart).toHaveBeenCalledTimes(1)
+			expect(mockActionService.nextPartState).toBe(ActionPartChange.NONE)
+			expect(context.forceRegenerateTimeline).toBe(true)
+			expect(context.recueAfterExecute).toBe(true)
 		})
 
 		test('queuePart', async () => {

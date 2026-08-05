@@ -10,9 +10,11 @@ import { ActionExecutionContext } from '../../blueprints/context/adlibActions.js
 import { ActionPartChange } from '../../blueprints/context/services/PartAndPieceInstanceActionService.js'
 import * as Infinites from '../../playout/infinites.js'
 import * as TakeApi from '../../playout/take.js'
+import * as SetNextApi from '../setNext.js'
 
 const syncPlayheadInfinitesForNextPartInstanceMock = jest.spyOn(Infinites, 'syncPlayheadInfinitesForNextPartInstance')
 const takeNextPartMock = jest.spyOn(TakeApi, 'performTakeToNextedPart')
+const setNextPartMock = jest.spyOn(SetNextApi, 'setNextPart')
 
 jest.mock('../timeline/generate')
 import { updateTimeline } from '../timeline/generate.js'
@@ -44,6 +46,7 @@ describe('Playout API', () => {
 			syncPlayheadInfinitesForNextPartInstanceMock.mockClear()
 			updateTimelineMock.mockClear()
 			takeNextPartMock.mockClear()
+			setNextPartMock.mockClear()
 		})
 
 		test('throws errors', async () => {
@@ -199,6 +202,28 @@ describe('Playout API', () => {
 			})
 
 			expect(takeNextPartMock).toHaveBeenCalledTimes(0)
+		})
+
+		test('recue next part reruns setNext', async () => {
+			setNextPartMock.mockImplementationOnce(async () => Promise.resolve())
+
+			context.updateShowStyleBlueprint({
+				executeAction: async (context) => {
+					await context.recueNextPart()
+				},
+			})
+
+			const actionDocId: AdLibActionId = protectString('action-id')
+			const actionId = 'some-action'
+			const userData = { blobby: true }
+			await handleExecuteAdlibAction(context, {
+				playlistId,
+				actionDocId,
+				actionId,
+				userData,
+			})
+
+			expect(setNextPartMock).toHaveBeenCalledTimes(1)
 		})
 	})
 })

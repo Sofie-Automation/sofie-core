@@ -1,4 +1,9 @@
-import { PieceId, PieceInstanceId, RundownPlaylistActivationId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import {
+	PartInstanceId,
+	PieceId,
+	PieceInstanceId,
+	RundownPlaylistActivationId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ReadonlyDeep } from 'type-fest'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import {
@@ -39,9 +44,11 @@ interface PlayoutPieceInstanceModelSnapshotImpl {
 	PieceInstance: PieceInstance
 	HasChanges: boolean
 }
+
+const recueNextPartSnapshots = new Map<PartInstanceId, PlayoutPartInstanceModelSnapshot>()
+
 class PlayoutPartInstanceModelSnapshotImpl implements PlayoutPartInstanceModelSnapshot {
 	readonly __isPlayoutPartInstanceModelBackup = true
-
 	isRestored = false
 
 	readonly partInstance: DBPartInstance
@@ -70,6 +77,21 @@ export class PlayoutPartInstanceModelImpl implements PlayoutPartInstanceModel {
 	partInstanceImpl: DBPartInstance
 	pieceInstancesImpl: Map<PieceInstanceId, PlayoutPieceInstanceModelImpl | null>
 	quickLoopService: QuickLoopService
+	#recueNextPartSnapshot: PlayoutPartInstanceModelSnapshot | undefined
+
+	get recueNextPartSnapshot(): PlayoutPartInstanceModelSnapshot | undefined {
+		return this.#recueNextPartSnapshot
+	}
+
+	set recueNextPartSnapshot(snapshot: PlayoutPartInstanceModelSnapshot | undefined) {
+		this.#recueNextPartSnapshot = snapshot
+		const partInstanceId = this.partInstanceImpl?._id
+		if (partInstanceId) {
+			if (snapshot) recueNextPartSnapshots.set(partInstanceId, snapshot)
+			else recueNextPartSnapshots.delete(partInstanceId)
+		}
+		this.#partInstanceHasChanges = true
+	}
 
 	#setPartInstanceValue<T extends keyof DBPartInstance>(key: T, newValue: DBPartInstance[T]): void {
 		if (newValue === undefined) {
@@ -169,6 +191,8 @@ export class PlayoutPartInstanceModelImpl implements PlayoutPartInstanceModel {
 		this.partInstanceImpl = partInstance
 		this.#partInstanceHasChanges = hasChanges
 		this.quickLoopService = quickLoopService
+		const partInstanceId = partInstance?._id
+		this.#recueNextPartSnapshot = partInstanceId ? recueNextPartSnapshots.get(partInstanceId) : undefined
 
 		this.pieceInstancesImpl = new Map()
 		for (const pieceInstance of pieceInstances) {
@@ -188,29 +212,54 @@ export class PlayoutPartInstanceModelImpl implements PlayoutPartInstanceModel {
 		return new PlayoutPartInstanceModelSnapshotImpl(this)
 	}
 
+	recueNextPart(): void {
+		if (!this.recueNextPartSnapshot) {
+			throw new Error('Cannot recue next part when no snapshot is available')
+		}
+
+		this.snapshotRestore(this.recueNextPartSnapshot)
+		this.recueNextPartSnapshot = this.snapshotMakeCopy()
+	}
+
 	snapshotRestore(snapshot: PlayoutPartInstanceModelSnapshot): void {
-		if (!(snapshot instanceof PlayoutPartInstanceModelSnapshotImpl))
+		if (!snapshot.__isPlayoutPartInstanceModelBackup)
 			throw new Error(`Cannot restore a Snapshot from an different Model`)
 
-		if (snapshot.partInstance._id !== this.partInstance._id)
+		const snapshotImpl = snapshot as PlayoutPartInstanceModelSnapshotImpl & {
+			pieceInstances:
+				| ReadonlyMap<PieceInstanceId, PlayoutPieceInstanceModelSnapshotImpl | null>
+				| Record<string, PlayoutPieceInstanceModelSnapshotImpl | null>
+		}
+
+		if (snapshotImpl.partInstance._id !== this.partInstance._id)
 			throw new Error(`Cannot restore a Snapshot from an different PartInstance`)
 
-		if (snapshot.isRestored) throw new Error(`Cannot restore a Snapshot which has already been restored`)
-		snapshot.isRestored = true
+		if (snapshotImpl.isRestored) throw new Error(`Cannot restore a Snapshot which has already been restored`)
+		snapshotImpl.isRestored = true
 
-		this.partInstanceImpl = snapshot.partInstance
-		this.#partInstanceHasChanges = snapshot.partInstanceHasChanges
-		this.pieceInstancesImpl.clear()
-		for (const [pieceInstanceId, pieceInstance] of snapshot.pieceInstances) {
+		this.partInstanceImpl = snapshotImpl.partInstance
+		for (const pieceInstanceId of this.pieceInstancesImpl.keys()) {
+			this.pieceInstancesImpl.set(pieceInstanceId, null)
+		}
+		const pieceInstancesEntries =
+			snapshotImpl.pieceInstances instanceof Map
+				? snapshotImpl.pieceInstances.entries()
+				: Object.entries<PlayoutPieceInstanceModelSnapshotImpl | null>(
+						snapshotImpl.pieceInstances as Record<string, PlayoutPieceInstanceModelSnapshotImpl | null>
+					)
+
+		for (const [pieceInstanceId, pieceInstance] of pieceInstancesEntries) {
 			if (pieceInstance) {
 				this.pieceInstancesImpl.set(
-					pieceInstanceId,
+					pieceInstanceId as PieceInstanceId,
 					new PlayoutPieceInstanceModelImpl(pieceInstance.PieceInstance, pieceInstance.HasChanges)
 				)
 			} else {
-				this.pieceInstancesImpl.set(pieceInstanceId, null)
+				this.pieceInstancesImpl.set(pieceInstanceId as PieceInstanceId, null)
 			}
 		}
+
+		this.#partInstanceHasChanges = true
 	}
 
 	blockTakeUntil(timestamp: Time | null): void {

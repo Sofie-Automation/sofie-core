@@ -184,6 +184,7 @@ async function setNextPartAndCheckForPendingMoveNextPart(
 		})
 
 		playoutModel.setPartInstanceAsNext(newPartInstance, setManually, consumesQueuedSegmentId, nextTimeOffset)
+		newPartInstance.recueNextPartSnapshot = newPartInstance.snapshotMakeCopy()
 
 		return executeOnSetAsNextCallback(playoutModel, newPartInstance, context, setManually)
 	} else {

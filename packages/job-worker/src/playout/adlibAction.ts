@@ -33,6 +33,7 @@ import {
 	PartAndPieceInstanceActionService,
 	applyActionSideEffects,
 } from '../blueprints/context/services/PartAndPieceInstanceActionService.js'
+import { setNextPart } from './setNext.js'
 import { convertNoteToNotification } from '../notifications/util.js'
 import type { INoteBase } from '@sofie-automation/corelib/dist/dataModel/Notes'
 import { NotificationsModelHelper } from '../notifications/NotificationsModelHelper.js'
@@ -316,6 +317,16 @@ export async function applyAnyExecutionSideEffects(
 	now: number
 ): Promise<void> {
 	await applyActionSideEffects(context, playoutModel, actionContext)
+
+	if (actionContext.recueAfterExecute) {
+		actionContext.recueAfterExecute = false
+		const nextPartInstance = playoutModel.nextPartInstance
+		if (!nextPartInstance) {
+			throw new Error('Cannot recue next part when no next part instance is set')
+		}
+
+		await setNextPart(context, playoutModel, nextPartInstance, true)
+	}
 
 	if (actionContext.takeAfterExecute) {
 		await performTakeToNextedPart(context, playoutModel, now, actionContext.partToQueueAfterTake)
