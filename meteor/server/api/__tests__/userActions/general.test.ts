@@ -5,10 +5,9 @@ import { getCurrentTime, sleep } from '../../../lib/lib'
 import { MeteorCall } from '../../methods'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { UserActionsLog } from '../../../collections'
+import { registerAllMethodsForTest } from '../../../../__mocks__/helpers/methods'
 
-require('../../system') // include so that we can call generateSingleUseToken()
-require('../../client') // include in order to create the Meteor methods needed
-require('../../userActions') // include in order to create the Meteor methods needed
+registerAllMethodsForTest()
 
 describe('User Actions - General', () => {
 	beforeEach(async () => {

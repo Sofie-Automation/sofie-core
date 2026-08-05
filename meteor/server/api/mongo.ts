@@ -1,6 +1,5 @@
-import { registerClassToMeteorMethods } from '../methods'
 import { MethodContextAPI } from './methodContext'
-import { MongoAPI, MongoAPIMethods } from '@sofie-automation/meteor-lib/dist/api/mongo'
+import { MongoAPI } from '@sofie-automation/meteor-lib/dist/api/mongo'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { logger } from '../logging'
@@ -23,7 +22,8 @@ const ALLOWED_UPDATE_OPERATIONS = {
 	$bit: 1,
 }
 
-class MongoAPIClass extends MethodContextAPI implements MongoAPI {
+export class MongoAPIClass extends MethodContextAPI implements MongoAPI {
+	// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 	async insertDocument(collectionName: CollectionName, _newDocument: any): Promise<ProtectedString<any>> {
 		triggerWriteAccess()
 
@@ -31,6 +31,7 @@ class MongoAPIClass extends MethodContextAPI implements MongoAPI {
 		throw new Error('Not supported')
 	}
 
+	// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 	async updateDocument(collectionName: CollectionName, selector: any, modifier: any, _options: any): Promise<number> {
 		triggerWriteAccess()
 
@@ -92,6 +93,7 @@ class MongoAPIClass extends MethodContextAPI implements MongoAPI {
 		return collection.updateAsync(currentDocument._id, modifier)
 	}
 
+	// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 	async removeDocument(collectionName: CollectionName, _selector: any): Promise<any> {
 		triggerWriteAccess()
 
@@ -99,4 +101,3 @@ class MongoAPIClass extends MethodContextAPI implements MongoAPI {
 		throw new Meteor.Error(500, 'Not supported')
 	}
 }
-registerClassToMeteorMethods(MongoAPIMethods, MongoAPIClass, true)

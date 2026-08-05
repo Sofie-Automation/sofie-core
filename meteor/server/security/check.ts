@@ -7,7 +7,7 @@ import { PeripheralDevices, RundownPlaylists, Rundowns } from '../collections'
 import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { MethodContext } from '../api/methodContext'
 import { profiler } from '../api/profiler'
-import { SubscriptionContext } from '../publications/lib/lib'
+import { PublicationContext } from '../publications/lib/lib'
 
 /**
  * Check that the current user has write access to the specified playlist, and ensure that the playlist exists
@@ -66,7 +66,7 @@ export type VerifiedRundownForUserAction = Pick<
 export async function checkAccessAndGetPeripheralDevice(
 	deviceId: PeripheralDeviceId,
 	token: string | undefined,
-	context: MethodContext | SubscriptionContext
+	context: MethodContext | PublicationContext
 ): Promise<PeripheralDevice> {
 	const span = profiler.startSpan('lib.checkAccessAndGetPeripheralDevice')
 

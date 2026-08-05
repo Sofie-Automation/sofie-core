@@ -4,7 +4,6 @@ import {
 	CustomPublishCollection,
 	SetupObserversResult,
 	TriggerUpdate,
-	meteorCustomPublish,
 	setUpCollectionOptimizedObserver,
 } from '../../lib/customPublication'
 import { logger } from '../../logging'
@@ -21,6 +20,7 @@ import { RundownContentObserver } from './rundownContentObserver'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { extractRanks, findMarkerPosition, modifyPartForQuickLoop, stringsToIndexLookup } from '../lib/quickLoop'
 import { triggerWriteAccessBecauseNoCheckNecessary } from '../../security/securityVerify'
+import type { PublicationRegistry } from '../../publicationRegistry'
 
 interface UIPartsArgs {
 	readonly playlistId: RundownPlaylistId
@@ -187,30 +187,32 @@ export async function manipulateUIPartsPublicationData(
 	})
 }
 
-meteorCustomPublish(
-	MeteorPubSub.uiParts,
-	CustomCollectionName.UIParts,
-	async function (pub, playlistId: RundownPlaylistId | null) {
-		check(playlistId, Match.Maybe(String))
+export function registerPartsUIPublications(registry: PublicationRegistry): void {
+	registry.customPublish(
+		MeteorPubSub.uiParts,
+		CustomCollectionName.UIParts,
+		async (_context, pub, playlistId: RundownPlaylistId | null) => {
+			check(playlistId, Match.Maybe(String))
 
-		triggerWriteAccessBecauseNoCheckNecessary()
+			triggerWriteAccessBecauseNoCheckNecessary()
 
-		if (!playlistId) {
-			logger.warn(`Pub.uiParts: Not allowed: "${playlistId}"`)
-			return
+			if (!playlistId) {
+				logger.warn(`Pub.uiParts: Not allowed: "${playlistId}"`)
+				return
+			}
+
+			await setUpCollectionOptimizedObserver<
+				Omit<DBPart, PartOmitedFields>,
+				UIPartsArgs,
+				UIPartsState,
+				UIPartsUpdateProps
+			>(
+				`pub_${MeteorPubSub.uiParts}_${playlistId}`,
+				{ playlistId },
+				setupUIPartsPublicationObservers,
+				manipulateUIPartsPublicationData,
+				pub
+			)
 		}
-
-		await setUpCollectionOptimizedObserver<
-			Omit<DBPart, PartOmitedFields>,
-			UIPartsArgs,
-			UIPartsState,
-			UIPartsUpdateProps
-		>(
-			`pub_${MeteorPubSub.uiParts}_${playlistId}`,
-			{ playlistId },
-			setupUIPartsPublicationObservers,
-			manipulateUIPartsPublicationData,
-			pub
-		)
-	}
-)
+	)
+}

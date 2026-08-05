@@ -8,25 +8,28 @@ import { CustomCollectionName, MeteorPubSub } from '@sofie-automation/meteor-lib
 import { DeviceTriggerArguments, UIDeviceTriggerPreview } from '@sofie-automation/meteor-lib/dist/api/MountedTriggers'
 import { getCurrentTime } from '../lib/lib'
 import { SetupObserversResult, setUpOptimizedObserverArray, TriggerUpdate } from '../lib/customPublication'
-import { CustomPublish, meteorCustomPublish } from '../lib/customPublication/publish'
+import { CustomPublish } from '../lib/customPublication/publish'
 import { PeripheralDevices } from '../collections'
 import { assertConnectionHasOneOfPermissions } from '../security/auth'
+import type { PublicationRegistry } from '../publicationRegistry'
 
 /** IDEA: This could potentially be a Capped Collection, thus enabling scaling Core horizontally:
  *  https://www.mongodb.com/docs/manual/core/capped-collections/ */
 const lastTriggers: Record<string, { triggers: UIDeviceTriggerPreview[]; updated?: (() => void) | undefined }> = {}
 
-meteorCustomPublish(
-	MeteorPubSub.deviceTriggersPreview,
-	CustomCollectionName.UIDeviceTriggerPreviews,
-	async function (pub, studioId: StudioId, _token: string | undefined) {
-		check(studioId, String)
+export function registerDeviceTriggersPreviewPublications(registry: PublicationRegistry): void {
+	registry.customPublish(
+		MeteorPubSub.deviceTriggersPreview,
+		CustomCollectionName.UIDeviceTriggerPreviews,
+		async (context, pub, studioId: StudioId, _token: string | undefined) => {
+			check(studioId, String)
 
-		assertConnectionHasOneOfPermissions(this.connection, 'configure')
+			assertConnectionHasOneOfPermissions(context.connection, 'configure')
 
-		await createObserverForDeviceTriggersPreviewsPublication(pub, MeteorPubSub.deviceTriggersPreview, studioId)
-	}
-)
+			await createObserverForDeviceTriggersPreviewsPublication(pub, MeteorPubSub.deviceTriggersPreview, studioId)
+		}
+	)
+}
 
 export async function insertInputDeviceTriggerIntoPreview(
 	deviceId: PeripheralDeviceId,

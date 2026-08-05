@@ -22,8 +22,9 @@ import {
 import { literal } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { StudioPlayoutDevice } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import { registerAllMethodsForTest } from '../../../../__mocks__/helpers/methods'
 
-require('../../userActions') // include in order to create the Meteor methods needed
+registerAllMethodsForTest()
 
 describe('User Actions - Disable Peripheral SubDevice', () => {
 	let env: DefaultEnvironment

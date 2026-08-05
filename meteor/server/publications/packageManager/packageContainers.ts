@@ -7,12 +7,8 @@ import { PackageManagerPackageContainers } from '@sofie-automation/shared-lib/di
 import { check } from 'meteor/check'
 import { ReadonlyDeep } from 'type-fest'
 import { Studios } from '../../collections'
-import {
-	meteorCustomPublish,
-	SetupObserversResult,
-	setUpOptimizedObserverArray,
-	TriggerUpdate,
-} from '../../lib/customPublication'
+import { SetupObserversResult, setUpOptimizedObserverArray, TriggerUpdate } from '../../lib/customPublication'
+import type { PublicationRegistry } from '../../publicationRegistry'
 import { logger } from '../../logging'
 import {
 	PeripheralDevicePubSub,
@@ -89,32 +85,34 @@ async function manipulateExpectedPackagesPublicationData(
 	])
 }
 
-meteorCustomPublish(
-	PeripheralDevicePubSub.packageManagerPackageContainers,
-	PeripheralDevicePubSubCollectionsNames.packageManagerPackageContainers,
-	async function (pub, deviceId: PeripheralDeviceId, token: string | undefined) {
-		check(deviceId, String)
+export function registerPackageContainersPublications(registry: PublicationRegistry): void {
+	registry.customPublish(
+		PeripheralDevicePubSub.packageManagerPackageContainers,
+		PeripheralDevicePubSubCollectionsNames.packageManagerPackageContainers,
+		async (context, pub, deviceId: PeripheralDeviceId, token: string | undefined) => {
+			check(deviceId, String)
 
-		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, this)
+			const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, context)
 
-		const studioId = peripheralDevice.studioAndConfigId?.studioId
-		if (!studioId) {
-			logger.warn(`Pub.packageManagerPackageContainers: device "${peripheralDevice._id}" has no studioId`)
-			return this.ready()
+			const studioId = peripheralDevice.studioAndConfigId?.studioId
+			if (!studioId) {
+				logger.warn(`Pub.packageManagerPackageContainers: device "${peripheralDevice._id}" has no studioId`)
+				return context.ready()
+			}
+
+			await setUpOptimizedObserverArray<
+				PackageManagerPackageContainers,
+				PackageManagerPackageContainersArgs,
+				PackageManagerPackageContainersState,
+				PackageManagerPackageContainersUpdateProps
+			>(
+				`${PeripheralDevicePubSub.packageManagerPackageContainers}_${studioId}_${deviceId}`,
+				{ studioId, deviceId },
+				setupExpectedPackagesPublicationObservers,
+				manipulateExpectedPackagesPublicationData,
+				pub,
+				500 // ms, wait this time before sending an update
+			)
 		}
-
-		await setUpOptimizedObserverArray<
-			PackageManagerPackageContainers,
-			PackageManagerPackageContainersArgs,
-			PackageManagerPackageContainersState,
-			PackageManagerPackageContainersUpdateProps
-		>(
-			`${PeripheralDevicePubSub.packageManagerPackageContainers}_${studioId}_${deviceId}`,
-			{ studioId, deviceId },
-			setupExpectedPackagesPublicationObservers,
-			manipulateExpectedPackagesPublicationData,
-			pub,
-			500 // ms, wait this time before sending an update
-		)
-	}
-)
+	)
+}

@@ -1,12 +1,8 @@
 import { PeripheralDevice, PeripheralDeviceCategory } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PeripheralDevices, Studios } from '../collections'
-import {
-	SetupObserversResult,
-	TriggerUpdate,
-	meteorCustomPublish,
-	setUpOptimizedObserverArray,
-} from '../lib/customPublication'
+import { SetupObserversResult, TriggerUpdate, setUpOptimizedObserverArray } from '../lib/customPublication'
+import type { PublicationRegistry } from '../publicationRegistry'
 import { PeripheralDeviceForDevice } from '@sofie-automation/shared-lib/dist/core/model/peripheralDevice'
 import { ReadonlyDeep } from 'type-fest'
 import { ReactiveMongoObserverGroup } from './lib/observerGroup'
@@ -209,28 +205,30 @@ async function manipulatePeripheralDevicePublicationData(
 	return [convertPeripheralDeviceForGateway(peripheralDevice, studio)]
 }
 
-meteorCustomPublish(
-	PeripheralDevicePubSub.peripheralDeviceForDevice,
-	PeripheralDevicePubSubCollectionsNames.peripheralDeviceForDevice,
-	async function (pub, deviceId: PeripheralDeviceId, token: string | undefined) {
-		check(deviceId, String)
+export function registerPeripheralDeviceForDevicePublications(registry: PublicationRegistry): void {
+	registry.customPublish(
+		PeripheralDevicePubSub.peripheralDeviceForDevice,
+		PeripheralDevicePubSubCollectionsNames.peripheralDeviceForDevice,
+		async (context, pub, deviceId: PeripheralDeviceId, token: string | undefined) => {
+			check(deviceId, String)
 
-		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, this)
+			const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, context)
 
-		const studioId = peripheralDevice.studioAndConfigId?.studioId
-		if (!studioId) return
+			const studioId = peripheralDevice.studioAndConfigId?.studioId
+			if (!studioId) return
 
-		await setUpOptimizedObserverArray<
-			PeripheralDeviceForDevice,
-			PeripheralDeviceForDeviceArgs,
-			PeripheralDeviceForDeviceState,
-			PeripheralDeviceForDeviceUpdateProps
-		>(
-			`${PeripheralDevicePubSubCollectionsNames.peripheralDeviceForDevice}_${deviceId}`,
-			{ deviceId },
-			setupPeripheralDevicePublicationObservers,
-			manipulatePeripheralDevicePublicationData,
-			pub
-		)
-	}
-)
+			await setUpOptimizedObserverArray<
+				PeripheralDeviceForDevice,
+				PeripheralDeviceForDeviceArgs,
+				PeripheralDeviceForDeviceState,
+				PeripheralDeviceForDeviceUpdateProps
+			>(
+				`${PeripheralDevicePubSubCollectionsNames.peripheralDeviceForDevice}_${deviceId}`,
+				{ deviceId },
+				setupPeripheralDevicePublicationObservers,
+				manipulatePeripheralDevicePublicationData,
+				pub
+			)
+		}
+	)
+}
