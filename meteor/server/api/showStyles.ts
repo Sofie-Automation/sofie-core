@@ -1,10 +1,5 @@
 import { check } from '../lib/check'
-import { registerClassToMeteorMethods } from '../methods'
-import {
-	CreateAdlibTestingRundownOption,
-	NewShowStylesAPI,
-	ShowStylesAPIMethods,
-} from '@sofie-automation/meteor-lib/dist/api/showStyles'
+import { CreateAdlibTestingRundownOption, NewShowStylesAPI } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { Meteor } from 'meteor/meteor'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
@@ -282,31 +277,30 @@ async function getCreateAdlibTestingRundownOptions(context: MethodContext): Prom
 	return options
 }
 
-class ServerShowStylesAPI extends MethodContextAPI implements NewShowStylesAPI {
-	async insertShowStyleBase() {
+export class ServerShowStylesAPI extends MethodContextAPI implements NewShowStylesAPI {
+	async insertShowStyleBase(): Promise<ShowStyleBaseId> {
 		return insertShowStyleBase(this)
 	}
-	async insertShowStyleVariant(showStyleBaseId: ShowStyleBaseId) {
+	async insertShowStyleVariant(showStyleBaseId: ShowStyleBaseId): Promise<ShowStyleVariantId> {
 		return insertShowStyleVariant(this, showStyleBaseId)
 	}
-	async importShowStyleVariant(showStyleVariant: DBShowStyleVariant) {
+	async importShowStyleVariant(showStyleVariant: DBShowStyleVariant): Promise<ShowStyleVariantId> {
 		return importShowStyleVariant(this, showStyleVariant)
 	}
-	async importShowStyleVariantAsNew(showStyleVariant: Omit<DBShowStyleVariant, '_id'>) {
+	async importShowStyleVariantAsNew(showStyleVariant: Omit<DBShowStyleVariant, '_id'>): Promise<ShowStyleVariantId> {
 		return importShowStyleVariantAsNew(this, showStyleVariant)
 	}
-	async removeShowStyleBase(showStyleBaseId: ShowStyleBaseId) {
+	async removeShowStyleBase(showStyleBaseId: ShowStyleBaseId): Promise<void> {
 		return removeShowStyleBase(this, showStyleBaseId)
 	}
-	async removeShowStyleVariant(showStyleVariantId: ShowStyleVariantId) {
+	async removeShowStyleVariant(showStyleVariantId: ShowStyleVariantId): Promise<void> {
 		return removeShowStyleVariant(this, showStyleVariantId)
 	}
-	async reorderShowStyleVariant(showStyleVariantId: ShowStyleVariantId, newRank: number) {
+	async reorderShowStyleVariant(showStyleVariantId: ShowStyleVariantId, newRank: number): Promise<void> {
 		return reorderShowStyleVariant(this, showStyleVariantId, newRank)
 	}
 
-	async getCreateAdlibTestingRundownOptions() {
+	async getCreateAdlibTestingRundownOptions(): Promise<CreateAdlibTestingRundownOption[]> {
 		return getCreateAdlibTestingRundownOptions(this)
 	}
 }
-registerClassToMeteorMethods(ShowStylesAPIMethods, ServerShowStylesAPI, false)

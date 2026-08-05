@@ -3,11 +3,15 @@ import { Meteor } from 'meteor/meteor'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import type { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { ServerPlayoutAPI } from './playout/playout'
-import { NewUserActionAPI, UserActionAPIMethods } from '@sofie-automation/meteor-lib/dist/api/userActions'
+import {
+	NewUserActionAPI,
+	ReloadRundownPlaylistResponse,
+	TriggerReloadDataResponse,
+} from '@sofie-automation/meteor-lib/dist/api/userActions'
 import { EvaluationBase } from '@sofie-automation/meteor-lib/dist/collections/Evaluations'
 import { IngestPart, IngestAdlib, ActionUserData, UserOperationTarget } from '@sofie-automation/blueprints-integration'
 import { storeRundownPlaylistSnapshot } from './snapshot'
-import { registerClassToMeteorMethods, ReplaceOptionalWithNullInMethodArguments } from '../methods'
+import { ReplaceOptionalWithNullInMethodArguments } from '../methods'
 import { ServerRundownAPI } from './rundown'
 import { saveEvaluation } from './evaluations'
 import { MOSDeviceActions } from './ingest/mosDevice/actions'
@@ -21,7 +25,12 @@ import { AdLibActionCommon } from '@sofie-automation/corelib/dist/dataModel/Adli
 import { BucketAdLibAction } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibAction'
 import * as PackageManagerAPI from './packageManager'
 import { ServerPeripheralDeviceAPI } from './peripheralDevice'
-import { StudioJobs } from '@sofie-automation/corelib/dist/worker/studio'
+import {
+	ExecuteActionResult,
+	QueueNextSegmentResult,
+	StudioJobs,
+	TakeNextPartResult,
+} from '@sofie-automation/corelib/dist/worker/studio'
 import {
 	AdLibActionId,
 	BucketAdLibActionId,
@@ -38,6 +47,7 @@ import {
 	SegmentId,
 	ShowStyleBaseId,
 	ShowStyleVariantId,
+	SnapshotId,
 	StudioId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { NrcsIngestDataCache, Parts, Pieces, Rundowns } from '../collections'
@@ -92,7 +102,7 @@ async function pieceSetInOutPoints(
 	) // MOS data is in seconds
 }
 
-class ServerUserActionAPI
+export class ServerUserActionAPI
 	extends MethodContextAPI
 	implements ReplaceOptionalWithNullInMethodArguments<NewUserActionAPI>
 {
@@ -101,7 +111,7 @@ class ServerUserActionAPI
 		eventTime: Time,
 		rundownPlaylistId: RundownPlaylistId,
 		fromPartInstanceId: PartInstanceId | null
-	) {
+	): Promise<ClientAPI.ClientResponse<TakeNextPartResult>> {
 		return ServerClientAPI.runUserActionInLogForPlaylistOnWorker(
 			this,
 			userEvent,
@@ -125,7 +135,7 @@ class ServerUserActionAPI
 		nextPartOrInstanceId: PartId | PartInstanceId,
 		timeOffset: number | null,
 		isInstance: boolean | null
-	) {
+	): Promise<ClientAPI.ClientResponse<void>> {
 		return ServerClientAPI.runUserActionInLogForPlaylistOnWorker(
 			this,
 			userEvent,
@@ -152,7 +162,7 @@ class ServerUserActionAPI
 		eventTime: Time,
 		rundownPlaylistId: RundownPlaylistId,
 		nextSegmentId: SegmentId
-	) {
+	): Promise<ClientAPI.ClientResponse<PartId>> {
 		return ServerClientAPI.runUserActionInLogForPlaylistOnWorker(
 			this,
 			userEvent,
@@ -174,7 +184,7 @@ class ServerUserActionAPI
 		eventTime: Time,
 		rundownPlaylistId: RundownPlaylistId,
 		queuedSegmentId: SegmentId | null
-	) {
+	): Promise<ClientAPI.ClientResponse<QueueNextSegmentResult>> {
 		return ServerClientAPI.runUserActionInLogForPlaylistOnWorker(
 			this,
 			userEvent,
@@ -198,7 +208,7 @@ class ServerUserActionAPI
 		partDelta: number,
 		segmentDelta: number,
 		ignoreQuickLoop: boolean | null
-	) {
+	): Promise<ClientAPI.ClientResponse<PartId | null>> {
 		return ServerClientAPI.runUserActionInLogForPlaylistOnWorker(
 			this,
 			userEvent,
@@ -218,7 +228,11 @@ class ServerUserActionAPI
 			}
 		)
 	}
-	async prepareForBroadcast(userEvent: string, eventTime: Time, rundownPlaylistId: RundownPlaylistId) {
+	async prepareForBroadcast(
+		userEvent: string,
+		eventTime: Time,
+		rundownPlaylistId: RundownPlaylistId
+	): Promise<ClientAPI.ClientResponse<void>> {
 		return ServerClientAPI.runUserActionInLogForPlaylistOnWorker(
 			this,
 			userEvent,
@@ -233,7 +247,11 @@ class ServerUserActionAPI
 			}
 		)
 	}
-	async resetRundownPlaylist(userEvent: string, eventTime: Time, rundownPlaylistId: RundownPlaylistId) {
+	async resetRundownPlaylist(
+		userEvent: string,
+		eventTime: Time,
+		rundownPlaylistId: RundownPlaylistId
+	): Promise<ClientAPI.ClientResponse<void>> {
 		return ServerClientAPI.runUserActionInLogForPlaylistOnWorker(
 			this,
 			userEvent,
@@ -253,7 +271,7 @@ class ServerUserActionAPI
 		eventTime: Time,
 		rundownPlaylistId: RundownPlaylistId,
 		rehearsal: boolean | null
-	) {
+	): Promise<ClientAPI.ClientResponse<void>> {
 		return ServerClientAPI.runUserActionInLogForPlaylistOnWorker(
 			this,
 			userEvent,
@@ -270,7 +288,12 @@ class ServerUserActionAPI
 			}
 		)
 	}
-	async activate(userEvent: string, eventTime: Time, rundownPlaylistId: RundownPlaylistId, rehearsal: boolean) {
+	async activate(
+		userEvent: string,
+		eventTime: Time,
+		rundownPlaylistId: RundownPlaylistId,
+		rehearsal: boolean
+	): Promise<ClientAPI.ClientResponse<void>> {
 		return ServerClientAPI.runUserActionInLogForPlaylistOnWorker(
 			this,
 			userEvent,
@@ -287,7 +310,11 @@ class ServerUserActionAPI
 			}
 		)
 	}
-	async deactivate(userEvent: string, eventTime: Time, rundownPlaylistId: RundownPlaylistId) {
+	async deactivate(
+		userEvent: string,
+		eventTime: Time,
+		rundownPlaylistId: RundownPlaylistId
+	): Promise<ClientAPI.ClientResponse<void>> {
 		return ServerClientAPI.runUserActionInLogForPlaylistOnWorker(
 			this,
 			userEvent,
@@ -307,7 +334,7 @@ class ServerUserActionAPI
 		eventTime: Time,
 		rundownPlaylistId: RundownPlaylistId,
 		rehearsal: boolean
-	) {
+	): Promise<ClientAPI.ClientResponse<void>> {
 		return ServerClientAPI.runUserActionInLogForPlaylistOnWorker(
 			this,
 			userEvent,
@@ -330,7 +357,7 @@ class ServerUserActionAPI
 		eventTime: Time,
 		rundownPlaylistId: RundownPlaylistId,
 		undo: boolean | null
-	) {
+	): Promise<ClientAPI.ClientResponse<void>> {
 		return ServerClientAPI.runUserActionInLogForPlaylistOnWorker(
 			this,
 			userEvent,
@@ -353,7 +380,7 @@ class ServerUserActionAPI
 		rundownPlaylistId: RundownPlaylistId,
 		partInstanceId: PartInstanceId,
 		pieceInstanceIdOrPieceIdToCopy: PieceInstanceId | PieceId
-	) {
+	): Promise<ClientAPI.ClientResponse<void>> {
 		return ServerClientAPI.runUserActionInLogForPlaylistOnWorker(
 			this,
 			userEvent,
@@ -380,7 +407,7 @@ class ServerUserActionAPI
 		pieceId: PieceId,
 		inPoint: number,
 		duration: number
-	) {
+	): Promise<ClientAPI.ClientResponse<void>> {
 		return ServerClientAPI.runUserActionInLogForPlaylist(
 			this,
 			userEvent,
@@ -408,7 +435,7 @@ class ServerUserActionAPI
 		actionId: string,
 		userData: ActionUserData | null,
 		triggerMode: string | null
-	) {
+	): Promise<ClientAPI.ClientResponse<ExecuteActionResult>> {
 		return ServerClientAPI.runUserActionInLogForPlaylistOnWorker(
 			this,
 			userEvent,
@@ -438,7 +465,7 @@ class ServerUserActionAPI
 		partInstanceId: PartInstanceId,
 		adlibPieceId: PieceId,
 		queue: boolean
-	) {
+	): Promise<ClientAPI.ClientResponse<void>> {
 		return ServerClientAPI.runUserActionInLogForPlaylistOnWorker(
 			this,
 			userEvent,
@@ -466,7 +493,7 @@ class ServerUserActionAPI
 		rundownPlaylistId: RundownPlaylistId,
 		partInstanceId: PartInstanceId,
 		sourceLayerIds: string[]
-	) {
+	): Promise<ClientAPI.ClientResponse<void>> {
 		return ServerClientAPI.runUserActionInLogForPlaylistOnWorker(
 			this,
 			userEvent,
@@ -492,7 +519,7 @@ class ServerUserActionAPI
 		partInstanceId: PartInstanceId,
 		adlibPieceId: PieceId,
 		queue: boolean
-	) {
+	): Promise<ClientAPI.ClientResponse<void>> {
 		return ServerClientAPI.runUserActionInLogForPlaylistOnWorker(
 			this,
 			userEvent,
@@ -519,7 +546,7 @@ class ServerUserActionAPI
 		eventTime: Time,
 		rundownPlaylistId: RundownPlaylistId,
 		sourceLayerId: string
-	) {
+	): Promise<ClientAPI.ClientResponse<void>> {
 		return ServerClientAPI.runUserActionInLogForPlaylistOnWorker(
 			this,
 			userEvent,
@@ -542,7 +569,7 @@ class ServerUserActionAPI
 		bucketId: BucketId,
 		showStyleBaseId: ShowStyleBaseId,
 		ingestItem: IngestAdlib
-	) {
+	): Promise<ClientAPI.ClientResponse<void>> {
 		return ServerClientAPI.runUserActionInLog(
 			this,
 			userEvent,
@@ -566,7 +593,7 @@ class ServerUserActionAPI
 		partInstanceId: PartInstanceId,
 		bucketAdlibId: BucketAdLibId,
 		queue: boolean | null
-	) {
+	): Promise<ClientAPI.ClientResponse<void>> {
 		return ServerClientAPI.runUserActionInLogForPlaylistOnWorker(
 			this,
 			userEvent,
@@ -588,7 +615,12 @@ class ServerUserActionAPI
 			}
 		)
 	}
-	async activateHold(userEvent: string, eventTime: Time, rundownPlaylistId: RundownPlaylistId, undo: boolean | null) {
+	async activateHold(
+		userEvent: string,
+		eventTime: Time,
+		rundownPlaylistId: RundownPlaylistId,
+		undo: boolean | null
+	): Promise<ClientAPI.ClientResponse<void>> {
 		if (undo) {
 			return ServerClientAPI.runUserActionInLogForPlaylistOnWorker(
 				this,
@@ -619,7 +651,11 @@ class ServerUserActionAPI
 			)
 		}
 	}
-	async saveEvaluation(userEvent: string, eventTime: Time, evaluation: EvaluationBase) {
+	async saveEvaluation(
+		userEvent: string,
+		eventTime: Time,
+		evaluation: EvaluationBase
+	): Promise<ClientAPI.ClientResponse<void>> {
 		return ServerClientAPI.runUserActionInLogForPlaylist(
 			this,
 			userEvent,
@@ -642,7 +678,7 @@ class ServerUserActionAPI
 		playlistId: RundownPlaylistId,
 		reason: string,
 		full: boolean
-	) {
+	): Promise<ClientAPI.ClientResponse<SnapshotId>> {
 		if (!verifyHashedToken(hashedToken)) {
 			throw new Meteor.Error(401, `Idempotency token is invalid or has expired`)
 		}
@@ -662,7 +698,11 @@ class ServerUserActionAPI
 			}
 		)
 	}
-	async removeRundownPlaylist(userEvent: string, eventTime: Time, rundownPlaylistId: RundownPlaylistId) {
+	async removeRundownPlaylist(
+		userEvent: string,
+		eventTime: Time,
+		rundownPlaylistId: RundownPlaylistId
+	): Promise<ClientAPI.ClientResponse<void>> {
 		return ServerClientAPI.runUserActionInLogForPlaylistOnWorker(
 			this,
 			userEvent,
@@ -677,7 +717,11 @@ class ServerUserActionAPI
 			}
 		)
 	}
-	async DEBUG_crashStudioWorker(userEvent: string, eventTime: Time, rundownPlaylistId: RundownPlaylistId) {
+	async DEBUG_crashStudioWorker(
+		userEvent: string,
+		eventTime: Time,
+		rundownPlaylistId: RundownPlaylistId
+	): Promise<ClientAPI.ClientResponse<void>> {
 		// Make sure we never crash in production
 		if (Meteor.isProduction) return ClientAPI.responseSuccess(undefined)
 
@@ -695,7 +739,11 @@ class ServerUserActionAPI
 			}
 		)
 	}
-	async resyncRundownPlaylist(userEvent: string, eventTime: Time, playlistId: RundownPlaylistId) {
+	async resyncRundownPlaylist(
+		userEvent: string,
+		eventTime: Time,
+		playlistId: RundownPlaylistId
+	): Promise<ClientAPI.ClientResponse<ReloadRundownPlaylistResponse>> {
 		return ServerClientAPI.runUserActionInLogForPlaylist(
 			this,
 			userEvent,
@@ -711,7 +759,11 @@ class ServerUserActionAPI
 			}
 		)
 	}
-	async unsyncRundown(userEvent: string, eventTime: Time, rundownId: RundownId) {
+	async unsyncRundown(
+		userEvent: string,
+		eventTime: Time,
+		rundownId: RundownId
+	): Promise<ClientAPI.ClientResponse<void>> {
 		return ServerClientAPI.runUserActionInLogForRundown(
 			this,
 			userEvent,
@@ -727,7 +779,11 @@ class ServerUserActionAPI
 			}
 		)
 	}
-	async removeRundown(userEvent: string, eventTime: Time, rundownId: RundownId) {
+	async removeRundown(
+		userEvent: string,
+		eventTime: Time,
+		rundownId: RundownId
+	): Promise<ClientAPI.ClientResponse<void>> {
 		return ServerClientAPI.runUserActionInLogForRundown(
 			this,
 			userEvent,
@@ -743,7 +799,11 @@ class ServerUserActionAPI
 			}
 		)
 	}
-	async resyncRundown(userEvent: string, eventTime: Time, rundownId: RundownId) {
+	async resyncRundown(
+		userEvent: string,
+		eventTime: Time,
+		rundownId: RundownId
+	): Promise<ClientAPI.ClientResponse<TriggerReloadDataResponse>> {
 		return ServerClientAPI.runUserActionInLogForRundown(
 			this,
 			userEvent,
@@ -764,7 +824,7 @@ class ServerUserActionAPI
 		eventTime: Time,
 		deviceId: PeripheralDeviceId,
 		workId: string
-	) {
+	): Promise<ClientAPI.ClientResponse<void>> {
 		return ServerClientAPI.runUserActionInLog(
 			this,
 			userEvent,
@@ -781,7 +841,11 @@ class ServerUserActionAPI
 			}
 		)
 	}
-	async packageManagerRestartAllExpectations(userEvent: string, eventTime: Time, studioId: StudioId) {
+	async packageManagerRestartAllExpectations(
+		userEvent: string,
+		eventTime: Time,
+		studioId: StudioId
+	): Promise<ClientAPI.ClientResponse<void>> {
 		return ServerClientAPI.runUserActionInLog(
 			this,
 			userEvent,
@@ -802,7 +866,7 @@ class ServerUserActionAPI
 		eventTime: Time,
 		deviceId: PeripheralDeviceId,
 		workId: string
-	) {
+	): Promise<ClientAPI.ClientResponse<void>> {
 		return ServerClientAPI.runUserActionInLog(
 			this,
 			userEvent,
@@ -824,7 +888,7 @@ class ServerUserActionAPI
 		eventTime: Time,
 		deviceId: PeripheralDeviceId,
 		containerId: string
-	) {
+	): Promise<ClientAPI.ClientResponse<void>> {
 		return ServerClientAPI.runUserActionInLog(
 			this,
 			userEvent,
@@ -841,7 +905,11 @@ class ServerUserActionAPI
 			}
 		)
 	}
-	async regenerateRundownPlaylist(userEvent: string, eventTime: Time, rundownPlaylistId: RundownPlaylistId) {
+	async regenerateRundownPlaylist(
+		userEvent: string,
+		eventTime: Time,
+		rundownPlaylistId: RundownPlaylistId
+	): Promise<ClientAPI.ClientResponse<void>> {
 		return ServerClientAPI.runUserActionInLogForPlaylistOnWorker(
 			this,
 			userEvent,
@@ -856,7 +924,11 @@ class ServerUserActionAPI
 			}
 		)
 	}
-	async restartCore(userEvent: string, eventTime: Time, hashedToken: string) {
+	async restartCore(
+		userEvent: string,
+		eventTime: Time,
+		hashedToken: string
+	): Promise<ClientAPI.ClientResponse<string>> {
 		return ServerClientAPI.runUserActionInLog(
 			this,
 			userEvent,
@@ -881,18 +953,30 @@ class ServerUserActionAPI
 		)
 	}
 
-	async guiFocused(userEvent: string, eventTime: Time, viewInfo: unknown | null) {
+	async guiFocused(
+		userEvent: string,
+		eventTime: Time,
+		viewInfo: unknown | null
+	): Promise<ClientAPI.ClientResponse<void>> {
 		return ServerClientAPI.runUserActionInLog(this, userEvent, eventTime, 'guiFocused', { viewInfo }, async () => {
 			triggerWriteAccessBecauseNoCheckNecessary()
 		})
 	}
-	async guiBlurred(userEvent: string, eventTime: Time, viewInfo: unknown | null) {
+	async guiBlurred(
+		userEvent: string,
+		eventTime: Time,
+		viewInfo: unknown | null
+	): Promise<ClientAPI.ClientResponse<void>> {
 		return ServerClientAPI.runUserActionInLog(this, userEvent, eventTime, 'guiBlurred', { viewInfo }, async () => {
 			triggerWriteAccessBecauseNoCheckNecessary()
 		})
 	}
 
-	async bucketsRemoveBucket(userEvent: string, eventTime: Time, bucketId: BucketId) {
+	async bucketsRemoveBucket(
+		userEvent: string,
+		eventTime: Time,
+		bucketId: BucketId
+	): Promise<ClientAPI.ClientResponse<void>> {
 		return ServerClientAPI.runUserActionInLog(
 			this,
 			userEvent,
@@ -912,7 +996,7 @@ class ServerUserActionAPI
 		eventTime: Time,
 		bucketId: BucketId,
 		bucketProps: Partial<Omit<Bucket, '_id'>>
-	) {
+	): Promise<ClientAPI.ClientResponse<void>> {
 		return ServerClientAPI.runUserActionInLog(
 			this,
 			userEvent,
@@ -928,7 +1012,11 @@ class ServerUserActionAPI
 			}
 		)
 	}
-	async bucketsEmptyBucket(userEvent: string, eventTime: Time, bucketId: BucketId) {
+	async bucketsEmptyBucket(
+		userEvent: string,
+		eventTime: Time,
+		bucketId: BucketId
+	): Promise<ClientAPI.ClientResponse<void>> {
 		return ServerClientAPI.runUserActionInLog(
 			this,
 			userEvent,
@@ -943,7 +1031,12 @@ class ServerUserActionAPI
 			}
 		)
 	}
-	async bucketsCreateNewBucket(userEvent: string, eventTime: Time, studioId: StudioId, name: string) {
+	async bucketsCreateNewBucket(
+		userEvent: string,
+		eventTime: Time,
+		studioId: StudioId,
+		name: string
+	): Promise<ClientAPI.ClientResponse<Bucket>> {
 		return ServerClientAPI.runUserActionInLog(
 			this,
 			userEvent,
@@ -959,7 +1052,11 @@ class ServerUserActionAPI
 			}
 		)
 	}
-	async bucketsRemoveBucketAdLib(userEvent: string, eventTime: Time, adlibId: BucketAdLibId) {
+	async bucketsRemoveBucketAdLib(
+		userEvent: string,
+		eventTime: Time,
+		adlibId: BucketAdLibId
+	): Promise<ClientAPI.ClientResponse<void>> {
 		check(adlibId, String)
 
 		return ServerClientAPI.runUserActionInLog(
@@ -974,7 +1071,11 @@ class ServerUserActionAPI
 			}
 		)
 	}
-	async bucketsRemoveBucketAdLibAction(userEvent: string, eventTime: Time, actionId: BucketAdLibActionId) {
+	async bucketsRemoveBucketAdLibAction(
+		userEvent: string,
+		eventTime: Time,
+		actionId: BucketAdLibActionId
+	): Promise<ClientAPI.ClientResponse<void>> {
 		return ServerClientAPI.runUserActionInLog(
 			this,
 			userEvent,
@@ -994,7 +1095,7 @@ class ServerUserActionAPI
 		eventTime: Time,
 		adlibId: BucketAdLibId,
 		adlibProps: Partial<Omit<BucketAdLib, '_id'>>
-	) {
+	): Promise<ClientAPI.ClientResponse<void>> {
 		return ServerClientAPI.runUserActionInLog(
 			this,
 			userEvent,
@@ -1015,7 +1116,7 @@ class ServerUserActionAPI
 		eventTime: Time,
 		actionId: BucketAdLibActionId,
 		actionProps: Partial<Omit<BucketAdLibAction, '_id'>>
-	) {
+	): Promise<ClientAPI.ClientResponse<void>> {
 		return ServerClientAPI.runUserActionInLog(
 			this,
 			userEvent,
@@ -1269,7 +1370,7 @@ class ServerUserActionAPI
 		eventTime: number,
 		studioId: StudioId,
 		showStyleVariantId: ShowStyleVariantId
-	) {
+	): Promise<ClientAPI.ClientResponse<RundownId>> {
 		const jobName = IngestJobs.CreateAdlibTestingRundownForShowStyleVariant
 		return ServerClientAPI.runUserActionInLog(
 			this,
@@ -1290,4 +1391,3 @@ class ServerUserActionAPI
 		)
 	}
 }
-registerClassToMeteorMethods(UserActionAPIMethods, ServerUserActionAPI, false)

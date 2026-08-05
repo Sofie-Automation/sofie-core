@@ -12,11 +12,11 @@ import { MeteorCall } from '../../api/methods'
 import { PeripheralDeviceStatusObject } from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI'
 import { PeripheralDevices } from '../../collections'
 import { UIBlueprintUpgradeStatus } from '@sofie-automation/meteor-lib/dist/api/upgradeStatus'
+import { registerAllMethodsForTest } from '../../../__mocks__/helpers/methods'
 
 // we don't want the deviceTriggers observer to start up at this time
 jest.mock('../../api/deviceTriggers/observer')
 
-require('../api')
 const PackageInfo = require('../../../package.json')
 
 import * as getServerBlueprintUpgradeStatuses from '../../publications/blueprintUpgradeStatus/systemStatus'
@@ -24,6 +24,8 @@ const getServerBlueprintUpgradeStatusesMock = jest.spyOn(
 	getServerBlueprintUpgradeStatuses,
 	'getServerBlueprintUpgradeStatuses'
 )
+
+registerAllMethodsForTest()
 
 describe('systemStatus', () => {
 	beforeEach(() => {

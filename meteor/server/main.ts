@@ -42,7 +42,6 @@ import './api/serviceMessages/api'
 import './webmanifest'
 
 // import all files that calls Meteor.startup:
-import './api/rest/api'
 import './Connections'
 import './coreSystem'
 import './cronjobs'
@@ -55,3 +54,19 @@ import './systemTime'
 // Setup publications and security:
 import './publications/_publications'
 import './security/securityVerify'
+
+import { MethodRegistry } from './methodRegistry'
+import { registerAllApiMethods } from './methodRegistrations'
+import { bindRestApiRouter } from './api/rest/api'
+import { startupVerifyAllMethods } from './security/securityVerify'
+
+// Build and populate the method registry
+const methodRegistry = new MethodRegistry()
+registerAllApiMethods(methodRegistry)
+
+// Apply methods
+methodRegistry.applyToMeteor()
+Meteor.startup(() => {
+	bindRestApiRouter(methodRegistry)
+	startupVerifyAllMethods(methodRegistry)
+})

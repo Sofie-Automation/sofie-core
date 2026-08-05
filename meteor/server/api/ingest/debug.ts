@@ -7,9 +7,9 @@ import { IngestJobs } from '@sofie-automation/corelib/dist/worker/ingest'
 import { QueueStudioJob } from '../../worker/worker'
 import { StudioJobs } from '@sofie-automation/corelib/dist/worker/studio'
 import { RundownPlaylistId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { MeteorDebugMethods } from '../../methods'
+import { MeteorDebugMethod } from '../../methods'
 
-MeteorDebugMethods({
+export const ingestDebugMethods: { [key: string]: MeteorDebugMethod } = {
 	/**
 	 * Simulate a 'Reload from NRCS' for the specified playlist
 	 */
@@ -46,4 +46,4 @@ MeteorDebugMethods({
 			segmentExternalId: segment.externalId,
 		})
 	},
-})
+}

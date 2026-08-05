@@ -6,7 +6,7 @@
 
 import _ from 'underscore'
 import { Meteor } from 'meteor/meteor'
-import { MeteorMethodSignatures } from '../../../methods'
+import type { MethodRegistry } from '../../../methodRegistry'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { MeteorPublications, MeteorPublicationSignatures } from '../../../publications/lib/lib'
 import { UserActionAPIMethods } from '@sofie-automation/meteor-lib/dist/api/userActions'
@@ -54,8 +54,10 @@ function typeConvertUrlParameters(args: any[]) {
 	return convertedArgs
 }
 
-export function createLegacyApiRouter(): KoaRouter {
+export function createLegacyApiRouter(methodRegistry: MethodRegistry): KoaRouter {
 	const router = new KoaRouter()
+
+	const methodSignatures = methodRegistry.getSignatures()
 
 	const index = {
 		version: `${LEGACY_API_VERSION}`,
@@ -66,7 +68,7 @@ export function createLegacyApiRouter(): KoaRouter {
 	// Expose all user actions:
 
 	for (const [methodName, methodValue] of Object.entries<any>(UserActionAPIMethods)) {
-		const signature = MeteorMethodSignatures[methodValue] || []
+		const signature = methodSignatures[methodValue] || []
 
 		let resource = `/action/${methodName}`
 		let docString = `/api/${LEGACY_API_VERSION}${resource}`
