@@ -456,8 +456,9 @@ export class CoreMosDeviceHandler {
 		if (subdevice === 'removeSubDevice') await this.core.unInitialize()
 		await this.core.destroy()
 	}
-	killProcess(): void {
-		this._coreParentHandler.killProcess()
+	async killProcess(): Promise<void> {
+		this._coreParentHandler.logger.info('CoreMosDeviceHandler killprocess received')
+		await this._coreParentHandler.killProcess()
 	}
 	/**
 	 * Convert mos-objects to look better over the wire
