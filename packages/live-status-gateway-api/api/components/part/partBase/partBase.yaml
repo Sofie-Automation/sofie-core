@@ -9,10 +9,14 @@ $defs:
       name:
         description: User-presentable name of the part
         type: string
+      createdByAdLib:
+        description: Whether this part was created by an adlib
+        type: boolean
+        default: false
       autoNext:
         description: If this part will progress to the next automatically
         type: boolean
         default: false
-    required: [id, name]
+    required: [id, name, createdByAdLib]
     examples:
       - $ref: './partBase-example.yaml'
