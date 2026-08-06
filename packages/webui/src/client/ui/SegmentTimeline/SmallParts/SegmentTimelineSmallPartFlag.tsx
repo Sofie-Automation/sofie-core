@@ -4,7 +4,7 @@ import type { ISourceLayer } from '@sofie-automation/blueprints-integration'
 import { SegmentTimelineSmallPartFlagIcon } from './SegmentTimelineSmallPartFlagIcon.js'
 import { protectString, unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import type { PartUi, SegmentUi } from '../SegmentTimelineContainer.js'
-import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { RundownViewPlaylist } from '../../../lib/rundownPlaylistProjection.js'
 import { SegmentTimelinePartHoverPreview } from './SegmentTimelinePartHoverPreview.js'
 import RundownViewEventBus, { RundownViewEvents } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
 import { TimingDataResolution, TimingTickResolution, useTiming } from '../../RundownView/RundownTiming/withTiming.js'
@@ -23,7 +23,7 @@ interface ISegmentTimelineSmallPartFlagProps {
 	timeToPixelRatio: number
 
 	segment: SegmentUi
-	playlist: DBRundownPlaylist
+	playlist: RundownViewPlaylist
 	studio: UIStudio
 	collapsedOutputs: {
 		[key: string]: boolean

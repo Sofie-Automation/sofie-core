@@ -10,7 +10,7 @@ import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { calculatePartExpectedDurationWithTransition } from '@sofie-automation/corelib/dist/playout/timings'
-import { clone } from '@sofie-automation/corelib/dist/lib'
+import { clone, deleteAllUndefinedProperties } from '@sofie-automation/corelib/dist/lib'
 import { getPartId } from '../../lib.js'
 import {
 	ExpectedPackageDBType,
@@ -240,12 +240,24 @@ export class IngestSegmentModelImpl implements IngestSegmentModel {
 			adLibActions
 		)
 
+		// Strip undefined properties so the generated docs match the stored form (Mongo drops undefined);
+		// otherwise `key: undefined` props break the `_.isEqual` diff and falsely flag an unchanged re-ingest
+		const clonedPart = clone(part)
+		const clonedPieces = clone(pieces)
+		const clonedAdLibPieces = clone(adLibPieces)
+		const clonedAdLibActions = clone(adLibActions)
+		deleteAllUndefinedProperties(clonedPart)
+		deleteAllUndefinedProperties(clonedPieces)
+		deleteAllUndefinedProperties(clonedAdLibPieces)
+		deleteAllUndefinedProperties(clonedAdLibActions)
+		deleteAllUndefinedProperties(expectedPackages)
+
 		const partModel = new IngestPartModelImpl(
 			!oldPart,
-			clone(part),
-			clone(pieces),
-			clone(adLibPieces),
-			clone(adLibActions),
+			clonedPart,
+			clonedPieces,
+			clonedAdLibPieces,
+			clonedAdLibActions,
 			[],
 			expectedPackages
 		)

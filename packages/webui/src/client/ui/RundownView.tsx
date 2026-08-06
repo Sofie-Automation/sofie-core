@@ -7,10 +7,8 @@ import { Spinner } from '../lib/Spinner.js'
 import classNames from 'classnames'
 import * as _ from 'underscore'
 import { Prompt } from 'react-router-dom'
-import type {
-	DBRundownPlaylist,
-	QuickLoopMarker,
-} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { QuickLoopMarker } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import { RUNDOWN_VIEW_PLAYLIST_OMITTED_FIELDS, type RundownViewPlaylist } from '../lib/rundownPlaylistProjection.js'
 import type { DBRundown, Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { type DBSegment, SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import type { StudioRouteSet, UIStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
@@ -166,7 +164,7 @@ const EmptyRundownsToShowStylesMap: ReadonlyMap<RundownId, ShowStyleBaseId> = ne
 interface ITrackedProps {
 	rundownPlaylistId: RundownPlaylistId
 	rundowns: Rundown[]
-	playlist?: DBRundownPlaylist
+	playlist?: RundownViewPlaylist
 	currentRundown?: Rundown
 	matchedSegments: MatchedSegment[]
 	rundownsToShowStyles: ReadonlyMap<RundownId, ShowStyleBaseId>
@@ -192,7 +190,13 @@ export function RundownView(props: Readonly<IProps>): JSX.Element {
 
 	const subsReady = useRundownViewSubscriptions(props.playlistId)
 
-	const playlist = useTracker(() => RundownPlaylists.findOne(props.playlistId), [props.playlistId])
+	const playlist = useTracker(
+		() =>
+			RundownPlaylists.findOne(props.playlistId, { projection: RUNDOWN_VIEW_PLAYLIST_OMITTED_FIELDS }) as
+				| RundownViewPlaylist
+				| undefined,
+		[props.playlistId]
+	)
 	const studio = useTracker(() => playlist && UIStudios.findOne({ _id: playlist.studioId }), [playlist?.studioId])
 	const rundowns = useTracker(
 		() => (playlist && RundownPlaylistCollectionUtil.getRundownsOrdered(playlist)) || [],
@@ -1158,7 +1162,7 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 			segment: DBSegment,
 			_index: number,
 			rundownAndSegments: MatchedSegment,
-			rundownPlaylist: DBRundownPlaylist,
+			rundownPlaylist: RundownViewPlaylist,
 			studio: UIStudio,
 			showStyleBase: UIShowStyleBase,
 			isLastSegment: boolean,
@@ -1430,7 +1434,7 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 
 		private renderRundownView(
 			studio: UIStudio,
-			playlist: DBRundownPlaylist,
+			playlist: RundownViewPlaylist,
 			showStyleBase: UIShowStyleBase,
 			showStyleVariant: DBShowStyleVariant
 		) {

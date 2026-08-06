@@ -1,9 +1,7 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { NoteSeverity } from '@sofie-automation/blueprints-integration'
-import {
-	type DBRundownPlaylist,
-	RundownHoldState,
-} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import { RundownHoldState } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { RundownViewPlaylist } from '../../lib/rundownPlaylistProjection.js'
 import type { IContextMenuContext } from '../RundownView.js'
 import type { IOutputLayerUi, PartUi, SegmentNoteCounts, SegmentUi } from '../SegmentContainer/withResolvedSegment.js'
 import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'
@@ -54,7 +52,7 @@ interface IProps {
 	id: string
 	key: string
 	segment: SegmentUi
-	playlist: DBRundownPlaylist
+	playlist: RundownViewPlaylist
 	studio: UIStudio
 	parts: Array<PartUi>
 	segmentNoteCounts: SegmentNoteCounts

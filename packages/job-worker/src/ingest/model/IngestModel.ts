@@ -252,6 +252,9 @@ export interface IngestModel extends IngestModelReadonly, BaseModel, INotificati
 	 * @param status Rundown air status
 	 */
 	setRundownAirStatus(status: string | undefined): void
+
+	/** Whether any changes have been made to this model since it was loaded. Used to skip a no-op commit. */
+	hasChanges(): boolean
 }
 
 export type IngestReplaceSegmentType = Omit<DBSegment, '_id' | 'rundownId'>

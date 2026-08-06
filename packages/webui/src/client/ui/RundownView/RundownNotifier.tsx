@@ -50,6 +50,7 @@ import { DBNotificationTargetType } from '@sofie-automation/corelib/dist/dataMod
 import type { UIPieceContentStatus } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
 import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 import type { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/src/dataModel/RundownPlaylist/RundownPlaylist.js'
 
 export const onRONotificationClick = new ReactiveVar<((e: RONotificationEvent) => void) | undefined>(undefined)
 export const reloadRundownPlaylistClick = new ReactiveVar<((e: any) => void) | undefined>(undefined)
@@ -202,7 +203,9 @@ class RundownViewNotifier extends WithManagedTracker {
 		this.autorun(() => {
 			const newNoteIds: Array<string> = []
 
-			const playlist = RundownPlaylists.findOne(playlistId)
+			const playlist = RundownPlaylists.findOne(playlistId, { projection: { _id: 1, notes: 1 } }) as
+				| Pick<DBRundownPlaylist, '_id' | 'notes'>
+				| undefined
 			const rundowns = rRundowns.get()
 
 			if (playlist?.notes) {

@@ -222,6 +222,12 @@ export async function CommitIngestOperation(
 				ingestModel
 			)
 
+			// Capture which Parts have pending changes before the save clears the changed flags
+			const changedPartIds = new Set<PartId>()
+			for (const part of ingestModel.getAllOrderedParts()) {
+				if (part.hasChanges()) changedPartIds.add(part.part._id)
+			}
+
 			// Start the save
 			const pSaveIngest = ingestModel.saveAllToDatabase(playlistLock)
 			pSaveIngest.catch(() => null) // Ensure promise isn't reported as unhandled
@@ -230,7 +236,7 @@ export async function CommitIngestOperation(
 
 			try {
 				// sync changes to the 'selected' partInstances
-				await syncChangesToPartInstances(context, playoutModel, ingestModel)
+				await syncChangesToPartInstances(context, playoutModel, ingestModel, changedPartIds)
 
 				// update the quickloop in case we did any changes to things involving marker
 				playoutModel.updateQuickLoopState()
