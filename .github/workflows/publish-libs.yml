@@ -271,9 +271,11 @@ jobs:
 
           yarn lerna publish from-package --tag-version-prefix='' --dist-tag $NPM_TAG --yes
 
-          NEW_VERSION=$(node -p "require('./lerna.json').version")
+          LERNA_VERSION=$(node -p "require('./lerna.json').version")
+          NEW_VERSION=$(node -p "require('./shared-lib/package.json').version")
           echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
-          echo "**Published:** $NEW_VERSION as $NPM_TAG" >> $GITHUB_STEP_SUMMARY
+          echo "**Published:** $LERNA_VERSION as $NPM_TAG" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** $NEW_VERSION" >> $GITHUB_STEP_SUMMARY
         env:
           NPM_CONFIG_PROVENANCE: true
           CI: true
