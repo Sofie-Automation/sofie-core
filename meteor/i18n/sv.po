@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2026-08-06T05:38:08.252Z\n"
-"PO-Revision-Date: 2026-08-06T05:38:08.252Z\n"
+"POT-Creation-Date: 2026-08-06T05:52:15.185Z\n"
+"PO-Revision-Date: 2026-08-06T05:52:15.185Z\n"
 "Language: sv\n"
 
 msgid " The index of the Atem media/clip banks"
@@ -45,7 +45,7 @@ msgstr ""
 "finns på, lämna tomt som den finns globalt tillgänglig"
 
 msgid "(Optional) This could be the name of the compute"
-msgstr "(Optional) This could be the name of the compute"
+msgstr "(Valfritt) detta kan vara namnet på datorn"
 
 msgid ""
 "(Optional) This could be the name of the computer on which the local folder "
@@ -827,7 +827,7 @@ msgid "CasparCG on device \"{{deviceName}}\" restarting..."
 msgstr "CasparCG på enheten \"{{deviceName}}\" startar om..."
 
 msgid "Center"
-msgstr "Center"
+msgstr "Centrera"
 
 msgid "Change to fullscreen mode"
 msgstr "Byt till helskärmsläge"
@@ -879,7 +879,7 @@ msgid "Clear Source Layer"
 msgstr "Rensa källager"
 
 msgid "Clear value"
-msgstr "Tydligt värde"
+msgstr "Rensa värde"
 
 msgid "Clearing SourceLayer"
 msgstr "Rensa SourceLayer"
@@ -1820,7 +1820,7 @@ msgid "Help & Support"
 msgstr "Hjälp & Support"
 
 msgid "Hide"
-msgstr "Göm"
+msgstr "Dölj"
 
 msgid "Hide Countdown"
 msgstr "Dölj nedräkning"
@@ -1829,7 +1829,7 @@ msgid "Hide default AdLib Start/Execute options"
 msgstr "Dölj standardalternativ för AdLib Start/Execute"
 
 msgid "Hide Diff"
-msgstr "Göm Diff"
+msgstr "Dölj Diff"
 
 msgid "Hide Diff Label"
 msgstr "Dölj skillnadsetikett"
@@ -1838,16 +1838,16 @@ msgid "Hide duplicated AdLibs"
 msgstr "Dölj dubblerade AdLibs"
 
 msgid "Hide End Time"
-msgstr "Göm sluttid"
+msgstr "Dölj sluttid"
 
 msgid "Hide for dynamically inserted parts"
-msgstr "Göm för dynamiskt infogade punkter"
+msgstr "Dölj för dynamiskt infogade punkter"
 
 msgid "Hide Label"
 msgstr "Dölj etikett"
 
 msgid "Hide over/under timer"
-msgstr "Göm över/under timer"
+msgstr "Dölj över/under timer"
 
 msgid "Hide Panel from view"
 msgstr "Dölj panelen från synen"
@@ -2056,7 +2056,7 @@ msgid "Is flattened"
 msgstr "Är tillplattad"
 
 msgid "Is hidden"
-msgstr "Är gömd"
+msgstr "Är dold"
 
 msgid "Is Immutable"
 msgstr "Är oföränderlig"
@@ -2671,7 +2671,7 @@ msgid "Package Containers"
 msgstr "Paketbehållare"
 
 msgid "Package Containers to use for previews"
-msgstr "Paketera behållare att använda för förhandsvisningar"
+msgstr "Paketbehållare att använda för förhandsvisningar"
 
 msgid "Package Containers to use for thumbnails"
 msgstr "Paketbehållare att använda för miniatyrbilder"
@@ -2701,7 +2701,7 @@ msgid "Parameters"
 msgstr "Parametrar"
 
 msgid "Parent Config ID"
-msgstr "Huvudenhet-ID"
+msgstr "Överordnad enhets-ID"
 
 msgid "Parent device is missing"
 msgstr "Överordnad enhet saknas"
@@ -3005,7 +3005,7 @@ msgid "Refreshing debug states"
 msgstr "Uppdaterar felsökningstillstånd"
 
 msgid "Register ID"
-msgstr "Registrera ID"
+msgstr "Register-ID"
 
 msgid "Rehearsal"
 msgstr "Repetitionsläge"
@@ -3456,7 +3456,7 @@ msgid "Segment no longer exists in {{nrcs}}"
 msgstr "Segmentet finns inte längre i {{nrcs}}"
 
 msgid "Segment was hidden in {{nrcs}}"
-msgstr "Segmentet gömdes i {{nrcs}}"
+msgstr "Segmentet doldes i {{nrcs}}"
 
 msgid "Segments: {{delta}}"
 msgstr "Segment: {{delta}}"
@@ -3656,7 +3656,7 @@ msgid "Snapshot restore failed: {{errorMessage}}"
 msgstr "Återställning av backuppen misslyckades: {{errorMessage}}"
 
 msgid "Snapshot restored!"
-msgstr "Backuppen inläst!"
+msgstr "Backuppen har återställts!"
 
 msgid "Sofie"
 msgstr "Sofie"
@@ -3853,7 +3853,7 @@ msgid "Successfully restored snapshot"
 msgstr "Backuppen har återställts"
 
 msgid "Successfully stored snapshot"
-msgstr "Lagrade backupper"
+msgstr "Backuppen har sparats"
 
 msgid "Support Panel"
 msgstr "Supportpanel"
@@ -3940,7 +3940,7 @@ msgid "Take and Download Memory Heap Snapshot"
 msgstr "Ladda ner Memory Heap Snapshot"
 
 msgid "Take System Snapshot"
-msgstr "Ta en systemetbackup"
+msgstr "Ta en systembackup"
 
 msgid "Take System Snapshot failed: {{errorMessage}}"
 msgstr "Systembackuppen misslyckades: {{errorMessage}}"
@@ -4281,7 +4281,7 @@ msgid "Tools"
 msgstr "Verktyg"
 
 msgid "Top"
-msgstr "Bästa"
+msgstr "Överst"
 
 msgid "Transition"
 msgstr "Övergång"
@@ -4382,10 +4382,10 @@ msgid "Unnamed variant"
 msgstr "Namnlös variant"
 
 msgid "Unsupported array type \"{{ type }}\""
-msgstr "Matristyp \"{{typ}}\" som inte stöds"
+msgstr "Matristyp \"{{type}}\" som inte stöds"
 
 msgid "Unsupported field type \"{{ type }}\""
-msgstr "Fälttyp \"{{typ}}\" som inte stöds"
+msgstr "Fälttyp \"{{type}}\" som inte stöds"
 
 msgid "Unsyncing Rundown"
 msgstr "Avsynkroniserar körschemat"
