@@ -15,11 +15,10 @@
 		]
 	},
 	"scripts": {
-		"prepare": "lerna run prepare",
 		"build": "run build:prepare && run build:main",
-		"build:prepare": "(rimraf */dist */*.tsbuildinfo || true) && lerna run build:prepare",
+		"build:prepare": "(rimraf */dist */*.tsbuildinfo || true) && yarn workspaces foreach -Ap run build:prepare",
 		"build:main": "tsc --build tsconfig.build.json",
-		"build:all": "run build && lerna run build --scope @sofie-automation/openapi",
+		"build:all": "run build && yarn workspace @sofie-automation/openapi build",
 		"build:try": "run build || true",
 		"build:single": "run build:prepare && tsc --build",
 		"watch": "run build:main --watch",
@@ -34,7 +33,7 @@
 		"unit": "lerna run --concurrency 2 --stream unit --ignore @sofie-automation/openapi -- --coverage=false",
 		"test": "lerna run --concurrency 2 --stream test -- --coverage=false",
 		"docs:typedoc": "typedoc .",
-		"docs:serve": "lerna run --scope sofie-documentation --stream start",
+		"docs:serve": "yarn workspace sofie-documentation start",
 		"watch-for-worker-changes": "nodemon --delay 2.5 --watch job-worker/dist --watch corelib/dist --watch shared-lib/dist --watch blueprints-integration/dist --watch server-core-integration/dist ../scripts/meteor-force-restart.js",
 		"generate-schema-types": "node scripts/schema-types.mjs",
 		"prettier": "cd $INIT_CWD && \"$PROJECT_CWD/node_modules/.bin/prettier\"",

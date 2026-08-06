@@ -1,11 +1,11 @@
-import { UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/error'
+import { z } from 'zod'
+import { UserError, UserErrorMessage, SofieError } from '@sofie-automation/corelib/dist/error'
 import { logger } from '../../../logging'
 import { APIFactory, APIRegisterHook, ServerAPIContext } from './types'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { check } from '../../../lib/check'
+import { check, zPlainObject } from '../../../lib/check'
 import { APIStudio, StudioAction, StudioActionType, StudiosRestAPI } from '../../../lib/rest/v1'
-import { Meteor } from 'meteor/meteor'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { PeripheralDevices, RundownPlaylists, Studios } from '../../../collections'
 import { APIStudioFrom, studioFrom, validateAPIBlueprintConfigForStudio } from './typeConversion'
@@ -25,6 +25,7 @@ import {
 	applyAndValidateOverrides,
 	ObjectOverrideSetOp,
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
+import type { DDPClientConnection } from '../../../ddp-server/types'
 
 const PERMISSIONS_FOR_PLAYOUT_USERACTION: Array<keyof UserPermissions> = ['studio']
 
@@ -32,7 +33,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 	constructor(private context: ServerAPIContext) {}
 
 	async getStudios(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string
 	): Promise<ClientAPI.ClientResponse<Array<{ id: string }>>> {
 		const studios = (await Studios.findFetchAsync({}, { projection: { _id: 1 } })) as Array<Pick<DBStudio, '_id'>>
@@ -41,7 +42,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 	}
 
 	async addStudio(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		apiStudio: APIStudio
 	): Promise<ClientAPI.ClientResponse<string>> {
@@ -54,7 +55,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 		checkValidation(`addStudio`, blueprintConfigValidation)
 
 		const newStudio = await studioFrom(apiStudio)
-		if (!newStudio) throw new Meteor.Error(400, `Invalid Studio`)
+		if (!newStudio) throw new SofieError(400, `Invalid Studio`)
 
 		const newStudioId = await Studios.insertAsync(newStudio)
 
@@ -67,18 +68,18 @@ class StudiosServerAPI implements StudiosRestAPI {
 	}
 
 	async getStudio(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId
 	): Promise<ClientAPI.ClientResponse<APIStudio>> {
 		const studio = await Studios.findOneAsync(studioId)
-		if (!studio) throw new Meteor.Error(404, `Studio ${studioId} not found`)
+		if (!studio) throw new SofieError(404, `Studio ${studioId} not found`)
 
 		return ClientAPI.responseSuccess(await APIStudioFrom(studio))
 	}
 
 	async addOrUpdateStudio(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		apiStudio: APIStudio
@@ -87,7 +88,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 		checkValidation(`addOrUpdateStudio ${studioId}`, blueprintConfigValidation)
 
 		const newStudio = await studioFrom(apiStudio, studioId)
-		if (!newStudio) throw new Meteor.Error(400, `Invalid Studio`)
+		if (!newStudio) throw new SofieError(400, `Invalid Studio`)
 
 		const existingStudio = await Studios.findOneAsync(studioId)
 		if (existingStudio) {
@@ -100,11 +101,11 @@ class StudiosServerAPI implements StudiosRestAPI {
 				}
 			)) as Array<Pick<DBRundownPlaylist, 'activationId'>>
 			if (playlists.some((p) => p.activationId !== undefined)) {
-				throw new Meteor.Error(412, `Studio ${studioId} cannot be updated, it is in use in an active Playlist`)
+				throw new SofieError(412, `Studio ${studioId} cannot be updated, it is in use in an active Playlist`)
 			}
 		}
 
-		await Studios.upsertAsync(studioId, newStudio)
+		await Studios.replaceAsync(newStudio)
 
 		const validation = await validateConfigForStudio(studioId)
 		checkValidation(`addOrUpdateStudio ${studioId}`, validation.messages)
@@ -118,25 +119,25 @@ class StudiosServerAPI implements StudiosRestAPI {
 	}
 
 	async getStudioConfig(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId
 	): Promise<ClientAPI.ClientResponse<object>> {
 		const studio = await Studios.findOneAsync(studioId)
-		if (!studio) throw new Meteor.Error(404, `Studio ${studioId} not found`)
+		if (!studio) throw new SofieError(404, `Studio ${studioId} not found`)
 
 		return ClientAPI.responseSuccess((await APIStudioFrom(studio)).config)
 	}
 
 	async updateStudioConfig(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		config: object
 	): Promise<ClientAPI.ClientResponse<string | false>> {
 		const existingStudio = await Studios.findOneAsync(studioId)
 		if (!existingStudio) {
-			throw new Meteor.Error(404, `Studio ${studioId} not found`)
+			throw new SofieError(404, `Studio ${studioId} not found`)
 		}
 
 		const apiStudio = await APIStudioFrom(existingStudio)
@@ -146,9 +147,9 @@ class StudiosServerAPI implements StudiosRestAPI {
 		checkValidation(`updateStudioConfig ${studioId}`, blueprintConfigValidation)
 
 		const newStudio = await studioFrom(apiStudio, studioId)
-		if (!newStudio) throw new Meteor.Error(400, `Invalid Studio`)
+		if (!newStudio) throw new SofieError(400, `Invalid Studio`)
 
-		await Studios.upsertAsync(studioId, newStudio)
+		await Studios.replaceAsync(newStudio)
 
 		const validation = await validateConfigForStudio(studioId)
 		checkValidation(`updateStudioConfig ${studioId}`, validation.messages)
@@ -162,13 +163,13 @@ class StudiosServerAPI implements StudiosRestAPI {
 	}
 
 	async deleteStudio(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		studioId: StudioId
 	): Promise<ClientAPI.ClientResponse<void>> {
 		const studioCount = await Studios.countDocuments()
 		if (studioCount === 1) {
-			throw new Meteor.Error(
+			throw new SofieError(
 				400,
 				`The last studio in the system cannot be deleted (there must be at least one studio)`
 			)
@@ -185,7 +186,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 				}
 			)) as Array<Pick<DBRundownPlaylist, 'activationId'>>
 			if (playlists.some((p) => p.activationId !== undefined)) {
-				throw new Meteor.Error(412, `Studio ${studioId} cannot be deleted, it is in use in an active Playlist`)
+				throw new SofieError(412, `Studio ${studioId} cannot be deleted, it is in use in an active Playlist`)
 			}
 		}
 
@@ -211,7 +212,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 				getCurrentTime(),
 				rundownPlaylist._id,
 				() => {
-					check(rundownPlaylist._id, String)
+					check(rundownPlaylist._id, z.string())
 				},
 				StudioJobs.RemovePlaylist,
 				{
@@ -227,7 +228,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 	}
 
 	async switchRouteSet(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		studioId: StudioId,
 		routeSetId: string,
@@ -240,9 +241,9 @@ class StudiosServerAPI implements StudiosRestAPI {
 			'switchRouteSet',
 			{ studioId, routeSetId, state },
 			async () => {
-				check(studioId, String)
-				check(routeSetId, String)
-				check(state, Boolean)
+				check(studioId, z.string())
+				check(routeSetId, z.string())
+				check(state, z.boolean())
 
 				assertConnectionHasOneOfPermissions(connection, ...PERMISSIONS_FOR_PLAYOUT_USERACTION)
 
@@ -252,7 +253,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 	}
 
 	async getPeripheralDevicesForStudio(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId
 	): Promise<ClientAPI.ClientResponse<Array<{ id: string }>>> {
@@ -265,7 +266,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 	}
 
 	async attachDeviceToStudio(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		deviceId: PeripheralDeviceId,
@@ -332,7 +333,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 	}
 
 	async detachDeviceFromStudio(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		deviceId: PeripheralDeviceId
@@ -358,7 +359,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 	}
 
 	async studioAction(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		action: StudioAction
@@ -368,7 +369,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 				return ClientAPI.responseSuccess(await runUpgradeForStudio(studioId))
 			default:
 				assertNever(action.type)
-				throw new Meteor.Error(400, `Invalid action type`)
+				throw new SofieError(400, `Invalid action type`)
 		}
 	}
 }
@@ -413,7 +414,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<StudiosRestAPI>): 
 			const studioId = protectString<StudioId>(params.studioId)
 			logger.info(`API GET: studio ${studioId}`)
 
-			check(studioId, String)
+			check(studioId, z.string())
 			return await serverAPI.getStudio(connection, event, studioId)
 		}
 	)
@@ -430,7 +431,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<StudiosRestAPI>): 
 			const studioId = protectString<StudioId>(params.studioId)
 			logger.info(`API PUT: Add or Update studio ${studioId} ${body.name}`)
 
-			check(studioId, String)
+			check(studioId, z.string())
 			return await serverAPI.addOrUpdateStudio(connection, event, studioId, body)
 		}
 	)
@@ -444,7 +445,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<StudiosRestAPI>): 
 			const studioId = protectString<StudioId>(params.studioId)
 			logger.info(`API GET: studio config ${studioId}`)
 
-			check(studioId, String)
+			check(studioId, z.string())
 			return await serverAPI.getStudioConfig(connection, event, studioId)
 		}
 	)
@@ -461,7 +462,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<StudiosRestAPI>): 
 			const studioId = protectString<StudioId>(params.studioId)
 			logger.info(`API PUT: Update studio config ${studioId}`)
 
-			check(studioId, String)
+			check(studioId, z.string())
 			return await serverAPI.updateStudioConfig(connection, event, studioId, body)
 		}
 	)
@@ -475,7 +476,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<StudiosRestAPI>): 
 			const studioId = protectString<StudioId>(params.studioId)
 			logger.info(`API DELETE: studio ${studioId}`)
 
-			check(studioId, String)
+			check(studioId, z.string())
 			return await serverAPI.deleteStudio(connection, event, studioId)
 		}
 	)
@@ -489,7 +490,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<StudiosRestAPI>): 
 			const studioId = protectString<StudioId>(params.studioId)
 			logger.info(`API GET: peripheral devices for studio ${studioId}`)
 
-			check(studioId, String)
+			check(studioId, z.string())
 			return await serverAPI.getPeripheralDevicesForStudio(connection, event, studioId)
 		}
 	)
@@ -505,9 +506,9 @@ export function registerRoutes(registerRoute: APIRegisterHook<StudiosRestAPI>): 
 			const active = body.active
 			logger.info(`API PUT: switch-route-set ${studioId} ${routeSetId} ${active}`)
 
-			check(studioId, String)
-			check(routeSetId, String)
-			check(active, Boolean)
+			check(studioId, z.string())
+			check(routeSetId, z.string())
+			check(active, z.boolean())
 			return await serverAPI.switchRouteSet(connection, event, studioId, routeSetId, active)
 		}
 	)
@@ -554,8 +555,8 @@ export function registerRoutes(registerRoute: APIRegisterHook<StudiosRestAPI>): 
 			const action = body.action
 			logger.info(`API POST: Studio action ${studioId} ${body.action.type}`)
 
-			check(studioId, String)
-			check(action, Object)
+			check(studioId, z.string())
+			check(action, zPlainObject)
 			return await serverAPI.studioAction(connection, event, studioId, action)
 		}
 	)

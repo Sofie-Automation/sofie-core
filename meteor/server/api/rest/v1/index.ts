@@ -1,10 +1,9 @@
 import KoaRouter from '@koa/router'
 import { interpollateTranslation, translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
-import { UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/error'
+import { UserError, UserErrorMessage, SofieError } from '@sofie-automation/corelib/dist/error'
 import { IConfigMessage, NoteSeverity } from '@sofie-automation/blueprints-integration'
 import Koa from 'koa'
 import bodyParser from 'koa-bodyparser'
-import { Meteor } from 'meteor/meteor'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { MethodContextAPI } from '../../methodContext'
 import { logger } from '../../../logging'
@@ -23,6 +22,7 @@ import { registerRoutes as registerIngestRoutes } from './ingest'
 import { APIFactory, ServerAPIContext } from './types'
 import { getSystemStatus } from '../../../systemStatus/systemStatus'
 import { Component, ExternalStatus } from '@sofie-automation/meteor-lib/dist/api/systemStatus'
+import type { DDPClientConnection } from '../../../ddp-server/types'
 
 function restAPIUserEvent(ctx: Koa.ParameterizedContext<Koa.DefaultState, Koa.DefaultContext, unknown>): string {
 	// the ctx.URL.pathname will contain `/v1.0`, but will not contain `/api`
@@ -30,7 +30,7 @@ function restAPIUserEvent(ctx: Koa.ParameterizedContext<Koa.DefaultState, Koa.De
 }
 
 class APIContext implements ServerAPIContext {
-	public getMethodContext(connection: Meteor.Connection): MethodContextAPI {
+	public getMethodContext(connection: DDPClientConnection): MethodContextAPI {
 		return {
 			connection,
 			unblock: () => {
@@ -48,8 +48,8 @@ function extractErrorCode(e: unknown): number {
 		return e.error.errorCode
 	} else if (UserError.isSerializedUserErrorObject(e) || e instanceof UserError) {
 		return e.errorCode
-	} else if ((e as Meteor.Error).error && typeof (e as Meteor.Error).error === 'number') {
-		return (e as Meteor.Error).error as number
+	} else if (e instanceof SofieError) {
+		return e.error
 	} else {
 		return 500
 	}
@@ -60,6 +60,8 @@ function validateUserError(e: unknown): UserError | undefined {
 		return e
 	} else if (UserError.isSerializedUserErrorObject(e)) {
 		return UserError.fromUnknown(e)
+	} else {
+		return undefined
 	}
 }
 
@@ -68,20 +70,20 @@ function extractErrorUserMessage(e: unknown): string {
 		return translateMessage(e.error.userMessage, interpollateTranslation)
 	} else if (UserError.isSerializedUserErrorObject(e) || e instanceof UserError) {
 		return translateMessage(e.userMessage, interpollateTranslation)
-	} else if ((e as Meteor.Error).reason && typeof (e as Meteor.Error).reason === 'string') {
-		return (e as Meteor.Error).reason as string
+	} else if (e instanceof SofieError && e.reason) {
+		return e.reason
 	} else {
 		return (e as Error).message ?? 'Internal Server Error' // Fallback in case e is not an error type
 	}
 }
 
 function extractErrorDetails(e: unknown): string[] | undefined {
-	if ((e as Meteor.Error).details && typeof (e as Meteor.Error).details === 'string') {
+	if (e instanceof SofieError && e.details) {
 		try {
-			const details = JSON.parse((e as Meteor.Error).details as string) as string[]
+			const details = JSON.parse(e.details) as string[]
 			return Array.isArray(details) ? details : undefined
-		} catch (e) {
-			logger.error(`Failed to parse details to string array: ${(e as Meteor.Error).details}`)
+		} catch (_parseError) {
+			logger.error(`Failed to parse details to string array: ${e.details}`)
 			return undefined
 		}
 	} else {
@@ -102,7 +104,7 @@ export const checkValidation = (method: string, configValidationMsgs: IConfigMes
 			2
 		)
 		logger.error(`${method} failed blueprint config validation with errors: ${details}`)
-		throw new Meteor.Error(409, `${method} has failed blueprint config validation`, details)
+		throw new SofieError(409, `${method} has failed blueprint config validation`, details)
 	} else {
 		const details = JSON.stringify(
 			configValidationMsgs.map((msg) => msg.message.key),
@@ -127,7 +129,7 @@ function sofieAPIRequest<API, Params, Body, Response>(
 	serverAPIFactory: APIFactory<API>,
 	handler: (
 		serverAPI: API,
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		params: Params,
 		body: Body

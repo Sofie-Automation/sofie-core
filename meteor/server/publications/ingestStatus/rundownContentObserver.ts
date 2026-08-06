@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import { RundownId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { logger } from '../../logging'
 import {
@@ -15,11 +14,12 @@ import { waitForAllObserversReady } from '../lib/lib'
 import _ from 'underscore'
 import { ReactiveMongoObserverGroup, ReactiveMongoObserverGroupHandle } from '../lib/observerGroup'
 import { equivalentArrays } from '@sofie-automation/shared-lib/dist/lib/lib'
+import type { LiveQueryHandleSync } from '../../lib/lib'
 
 const REACTIVITY_DEBOUNCE = 20
 
 export class RundownContentObserver {
-	#observers: Meteor.LiveQueryHandle[] = []
+	#observers: LiveQueryHandleSync[] = []
 	readonly #cache: ContentCache
 
 	#playlistIds: RundownPlaylistId[] = []
@@ -48,10 +48,10 @@ export class RundownContentObserver {
 					},
 					{
 						added: (doc) => {
-							cache.Playlists.upsert(doc._id, doc)
+							cache.Playlists.replace(doc)
 						},
 						changed: (doc) => {
-							cache.Playlists.upsert(doc._id, doc)
+							cache.Playlists.replace(doc)
 						},
 						removed: (doc) => {
 							cache.Playlists.remove(doc._id)
@@ -74,8 +74,6 @@ export class RundownContentObserver {
 				cache.Rundowns.link(),
 				{
 					projection: rundownFieldSpecifier,
-				},
-				{
 					nonMutatingCallbacks: true,
 				}
 			),
@@ -88,8 +86,6 @@ export class RundownContentObserver {
 				cache.Parts.link(),
 				{
 					projection: partFieldSpecifier,
-				},
-				{
 					nonMutatingCallbacks: true,
 				}
 			),
@@ -100,8 +96,8 @@ export class RundownContentObserver {
 					orphaned: { $exists: false },
 				},
 				cache.PartInstances.link(),
-				{ projection: partInstanceFieldSpecifier },
 				{
+					projection: partInstanceFieldSpecifier,
 					nonMutatingCallbacks: true,
 				}
 			),
@@ -114,8 +110,6 @@ export class RundownContentObserver {
 				cache.NrcsIngestData.link(),
 				{
 					projection: nrcsIngestDataCacheObjSpecifier,
-				},
-				{
 					nonMutatingCallbacks: true,
 				}
 			),
@@ -126,20 +120,17 @@ export class RundownContentObserver {
 		return observer
 	}
 
-	public checkPlaylistIds = _.debounce(
-		Meteor.bindEnvironment(() => {
-			if (this.#disposed) return
+	public checkPlaylistIds = _.debounce(() => {
+		if (this.#disposed) return
 
-			const playlistIds = Array.from(new Set(this.#cache.Rundowns.find({}).map((rundown) => rundown.playlistId)))
+		const playlistIds = Array.from(new Set(this.#cache.Rundowns.findFetch({}).map((rundown) => rundown.playlistId)))
 
-			if (!equivalentArrays(playlistIds, this.#playlistIds)) {
-				this.#playlistIds = playlistIds
-				// trigger the playlist group to restart
-				this.#playlistIdObserver.restart()
-			}
-		}),
-		REACTIVITY_DEBOUNCE
-	)
+		if (!equivalentArrays(playlistIds, this.#playlistIds)) {
+			this.#playlistIds = playlistIds
+			// trigger the playlist group to restart
+			this.#playlistIdObserver.restart()
+		}
+	}, REACTIVITY_DEBOUNCE)
 
 	public get cache(): ContentCache {
 		return this.#cache

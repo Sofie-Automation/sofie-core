@@ -1,32 +1,36 @@
+import { z } from 'zod'
 import { PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { getRandomId } from '@sofie-automation/corelib/dist/lib'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { check } from 'meteor/check'
-import { Meteor } from 'meteor/meteor'
+import { check } from '../lib/check'
 import { ReadonlyDeep } from 'type-fest'
 import { CustomCollectionName, MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { DeviceTriggerArguments, UIDeviceTriggerPreview } from '@sofie-automation/meteor-lib/dist/api/MountedTriggers'
 import { getCurrentTime } from '../lib/lib'
 import { SetupObserversResult, setUpOptimizedObserverArray, TriggerUpdate } from '../lib/customPublication'
-import { CustomPublish, meteorCustomPublish } from '../lib/customPublication/publish'
+import { CustomPublish } from '../lib/customPublication/publish'
 import { PeripheralDevices } from '../collections'
 import { assertConnectionHasOneOfPermissions } from '../security/auth'
+import type { PublicationRegistry } from '../publicationRegistry'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 /** IDEA: This could potentially be a Capped Collection, thus enabling scaling Core horizontally:
  *  https://www.mongodb.com/docs/manual/core/capped-collections/ */
 const lastTriggers: Record<string, { triggers: UIDeviceTriggerPreview[]; updated?: (() => void) | undefined }> = {}
 
-meteorCustomPublish(
-	MeteorPubSub.deviceTriggersPreview,
-	CustomCollectionName.UIDeviceTriggerPreviews,
-	async function (pub, studioId: StudioId, _token: string | undefined) {
-		check(studioId, String)
+export function registerDeviceTriggersPreviewPublications(registry: PublicationRegistry): void {
+	registry.customPublish(
+		MeteorPubSub.deviceTriggersPreview,
+		CustomCollectionName.UIDeviceTriggerPreviews,
+		async (context, pub, studioId: StudioId, _token: string | undefined) => {
+			check(studioId, z.string())
 
-		assertConnectionHasOneOfPermissions(this.connection, 'configure')
+			assertConnectionHasOneOfPermissions(context.connection, 'configure')
 
-		await createObserverForDeviceTriggersPreviewsPublication(pub, MeteorPubSub.deviceTriggersPreview, studioId)
-	}
-)
+			await createObserverForDeviceTriggersPreviewsPublication(pub, MeteorPubSub.deviceTriggersPreview, studioId)
+		}
+	)
+}
 
 export async function insertInputDeviceTriggerIntoPreview(
 	deviceId: PeripheralDeviceId,
@@ -37,10 +41,10 @@ export async function insertInputDeviceTriggerIntoPreview(
 	if (typeof deviceId !== 'string') return
 	const pDevice = await PeripheralDevices.findOneAsync(deviceId)
 
-	if (!pDevice) throw new Meteor.Error(404, `Could not find peripheralDevice "${deviceId}"`)
+	if (!pDevice) throw new SofieError(404, `Could not find peripheralDevice "${deviceId}"`)
 
 	const studioId = unprotectString(pDevice.studioAndConfigId?.studioId)
-	if (!studioId) throw new Meteor.Error(501, `Device "${pDevice._id}" is not assigned to any studio`)
+	if (!studioId) throw new SofieError(501, `Device "${pDevice._id}" is not assigned to any studio`)
 
 	const lastTriggersStudio = prepareTriggerBufferForStudio(studioId)
 	lastTriggersStudio.triggers.push({

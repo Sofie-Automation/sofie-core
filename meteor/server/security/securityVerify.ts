@@ -1,7 +1,9 @@
-import { Meteor } from 'meteor/meteor'
-import { AllMeteorMethods, suppressExtraErrorLogging } from '../methods'
+import { suppressExtraErrorLogging } from '../methods'
 import { disableChecks, enableChecks as restoreChecks } from '../lib/check'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
+import type { MethodRegistry } from '../methodRegistry'
+import { MethodContext } from '../api/methodContext'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 /** These function are used to verify that all methods defined are using security functions */
 
@@ -17,7 +19,7 @@ export function isInTestWrite(): boolean {
 export function triggerWriteAccess(): void {
 	if (writeAccessTest) {
 		writeAccess = true
-		throw new Meteor.Error(200, 'triggerWriteAccess') // to be ignored in verifyMethod
+		throw new SofieError(200, 'triggerWriteAccess') // to be ignored in verifyMethod
 	}
 }
 export function verifyWriteAccess(): string {
@@ -36,33 +38,34 @@ export function triggerWriteAccessBecauseNoCheckNecessary(): void {
 	triggerWriteAccess()
 }
 
-Meteor.startup(() => {
-	if (!Meteor.isProduction && !Meteor.isTest) {
-		Meteor.setTimeout(() => {
-			console.log('Security check: Verifying methods...')
-			verifyAllMethods()
-				// .then(() => {
-				// })
-				.then((ok) => {
-					if (ok) {
-						console.log('Security check: ok!')
-					} else {
-						console.log('There are security issues that needs fixing, see above!')
-					}
-				})
-				.catch((e) => {
-					console.log('Error')
-					console.log(e)
-				})
-		}, 1000)
-	}
-})
+export function startupVerifyAllMethods(methodRegistry: MethodRegistry): void {
+	setTimeout(() => {
+		console.log('Security check: Verifying methods...')
+		verifyAllMethods(methodRegistry)
+			.then((ok) => {
+				if (ok) {
+					console.log('Security check: ok!')
+				} else {
+					console.log('There are security issues that needs fixing, see above!')
+				}
+			})
+			.catch((e) => {
+				console.log('Error')
+				console.log(e)
+			})
+	}, 1000)
+}
 
-export async function verifyAllMethods(): Promise<boolean> {
+async function verifyAllMethods(methodRegistry: MethodRegistry): Promise<boolean> {
 	// Verify all Meteor methods
 	let ok = true
-	for (const methodName of AllMeteorMethods) {
-		ok = ok && (await verifyMethod(methodName))
+	for (const methodName of methodRegistry.getAllMethodNames()) {
+		// Developer-only debug methods are gated behind a 'developer' permission check that throws when
+		// verifyMethod calls them without a real connection, producing a false security failure. They were
+		// never part of the verified set before the registry refactor, so skip them here.
+		if (methodRegistry.isDebugMethod(methodName)) continue
+
+		ok = ok && (await verifyMethod(methodRegistry, methodName))
 
 		if (!ok) return false // Bail on first error
 
@@ -70,7 +73,7 @@ export async function verifyAllMethods(): Promise<boolean> {
 	}
 	return ok
 }
-async function verifyMethod(methodName: string) {
+async function verifyMethod(methodRegistry: MethodRegistry, methodName: string) {
 	let ok = true
 	suppressExtraErrorLogging(true)
 	try {
@@ -78,7 +81,21 @@ async function verifyMethod(methodName: string) {
 		testWriteAccess()
 		// Pass some fake args, to ensure that any trying to do a `arg.val` don't throw
 		const fakeArgs = [{}, {}, {}, {}, {}]
-		await Meteor.callAsync(methodName, ...fakeArgs)
+
+		const handler = methodRegistry.get(methodName)
+		if (!handler) {
+			console.log(`Method "${methodName}" not found in registry`)
+			ok = false
+		} else {
+			const context: MethodContext = {
+				connection: null,
+				unblock: () => null,
+			}
+
+			// Call the method, and see if
+			// it calls triggerWriteAccess()
+			await handler.apply(context, fakeArgs)
+		}
 	} catch (e) {
 		const errStr = stringifyError(e)
 		if (errStr.match(/triggerWriteAccess/i)) {

@@ -1,5 +1,4 @@
 import _ from 'underscore'
-import { Meteor } from 'meteor/meteor'
 import { PassThrough } from 'stream'
 import { SupressLogMessages } from '../../../../__mocks__/suppressLogging'
 import { callKoaRoute } from '../../../../__mocks__/koa-util'
@@ -7,6 +6,7 @@ import { blueprintsRouter } from '../http'
 
 jest.mock('../../deviceTriggers/observer')
 import * as api from '../api'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 jest.mock('../api.ts')
 
 const DEFAULT_CONTEXT = expect.objectContaining({ req: expect.any(Object), res: expect.any(Object) })
@@ -53,15 +53,15 @@ describe('Test blueprint http api', () => {
 			SupressLogMessages.suppressLogMessage(/Invalid request body/i)
 			const res = await callRoute('id1', undefined)
 			expect(res.response.status).toEqual(500)
-			expect(res.body).toEqual('[400] Restore Blueprint: Invalid request body')
+			expect(res.body).toEqual('Restore Blueprint: Invalid request body [400]')
 
 			expect(api.uploadBlueprint).toHaveBeenCalledTimes(0)
 		})
 		test('empty body', async () => {
-			SupressLogMessages.suppressLogMessage(/Invalid request body/i)
+			SupressLogMessages.suppressLogMessage(/Missing request body/i)
 			const res = await callRoute('id1', '')
 			expect(res.response.status).toEqual(500)
-			expect(res.body).toEqual('[400] Restore Blueprint: Invalid request body')
+			expect(res.body).toEqual('Restore Blueprint: Missing request body [400]')
 
 			expect(api.uploadBlueprint).toHaveBeenCalledTimes(0)
 		})
@@ -72,7 +72,7 @@ describe('Test blueprint http api', () => {
 			SupressLogMessages.suppressLogMessage(/Invalid request body/i)
 			const res = await callRoute(id, body)
 			expect(res.response.status).toEqual(500)
-			expect(res.body).toEqual('[400] Restore Blueprint: Invalid request body')
+			expect(res.body).toEqual('Restore Blueprint: Invalid request body [400]')
 
 			expect(api.uploadBlueprint).toHaveBeenCalledTimes(0)
 		})
@@ -127,7 +127,7 @@ describe('Test blueprint http api', () => {
 
 			const uploadBlueprint = resetUploadMock()
 			uploadBlueprint.mockImplementation(() => {
-				throw new Meteor.Error(505, 'Some thrown error')
+				throw new SofieError(505, 'Some thrown error')
 			})
 
 			try {
@@ -135,7 +135,7 @@ describe('Test blueprint http api', () => {
 				const res = await callRoute(id, body)
 
 				expect(res.response.status).toEqual(500)
-				expect(res.body).toEqual('[505] Some thrown error')
+				expect(res.body).toEqual('Some thrown error [505]')
 
 				expect(api.uploadBlueprint).toHaveBeenCalledTimes(1)
 				expect(api.uploadBlueprint).toHaveBeenCalledWith(DEFAULT_CONTEXT, id, body, {
@@ -194,7 +194,7 @@ describe('Test blueprint http api', () => {
 			SupressLogMessages.suppressLogMessage(/Invalid request body/i)
 			const res = await callRoute(undefined)
 			expect(res.response.status).toEqual(500)
-			expect(res.body).toEqual('[400] Restore Blueprint: Invalid request body')
+			expect(res.body).toEqual('Restore Blueprint: Invalid request body [400]')
 
 			expect(api.uploadBlueprint).toHaveBeenCalledTimes(0)
 		})
@@ -202,7 +202,7 @@ describe('Test blueprint http api', () => {
 			SupressLogMessages.suppressLogMessage(/Missing request body/i)
 			const res = await callRoute('')
 			expect(res.response.status).toEqual(500)
-			expect(res.body).toEqual('[400] Restore Blueprint: Missing request body')
+			expect(res.body).toEqual('Restore Blueprint: Missing request body [400]')
 
 			expect(api.uploadBlueprint).toHaveBeenCalledTimes(0)
 		})
@@ -212,7 +212,7 @@ describe('Test blueprint http api', () => {
 			SupressLogMessages.suppressLogMessage(/Invalid request body/i)
 			const res = await callRoute(body)
 			expect(res.response.status).toEqual(500)
-			expect(res.body).toEqual('[400] Restore Blueprint: Invalid request body')
+			expect(res.body).toEqual('Restore Blueprint: Invalid request body [400]')
 
 			expect(api.uploadBlueprint).toHaveBeenCalledTimes(0)
 		})
@@ -222,7 +222,7 @@ describe('Test blueprint http api', () => {
 			SupressLogMessages.suppressLogMessage(/Invalid request body/i)
 			const res = await callRoute(body)
 			expect(res.response.status).toEqual(500)
-			expect(res.body).toEqual('[400] Restore Blueprint: Invalid request body')
+			expect(res.body).toEqual('Restore Blueprint: Invalid request body [400]')
 
 			expect(api.uploadBlueprint).toHaveBeenCalledTimes(0)
 		})
@@ -232,7 +232,7 @@ describe('Test blueprint http api', () => {
 			SupressLogMessages.suppressLogMessage(/Invalid request body/i)
 			const res = await callRoute(body)
 			expect(res.response.status).toEqual(500)
-			expect(res.body).toEqual('[400] Restore Blueprint: Invalid request body')
+			expect(res.body).toEqual('Restore Blueprint: Invalid request body [400]')
 
 			expect(api.uploadBlueprint).toHaveBeenCalledTimes(0)
 		})
@@ -333,7 +333,7 @@ describe('Test blueprint http api', () => {
 			uploadBlueprint.mockImplementation(() => {
 				called++
 				if (called === 3 || called === 7) {
-					throw new Meteor.Error(505, 'Some thrown error')
+					throw new SofieError(505, 'Some thrown error')
 				}
 			})
 
@@ -343,7 +343,7 @@ describe('Test blueprint http api', () => {
 				const res = await callRoute(payload)
 				expect(res.response.status).toEqual(500)
 				expect(res.body).toEqual(
-					'Errors were encountered: \n[505] Some thrown error\n[505] Some thrown error\n'
+					'Errors were encountered: \nSome thrown error [505]\nSome thrown error [505]\n'
 				)
 
 				expect(api.uploadBlueprint).toHaveBeenCalledTimes(count)
@@ -458,7 +458,7 @@ describe('Test blueprint http api', () => {
 				uploadBlueprintAsset.mockImplementation(() => {
 					called++
 					if (called === 3 || called === 7) {
-						throw new Meteor.Error(505, 'Some thrown error')
+						throw new SofieError(505, 'Some thrown error')
 					}
 				})
 
@@ -468,7 +468,7 @@ describe('Test blueprint http api', () => {
 					const res = await callRoute(payload)
 					expect(res.response.status).toEqual(500)
 					expect(res.body).toEqual(
-						'Errors were encountered: \n[505] Some thrown error\n[505] Some thrown error\n'
+						'Errors were encountered: \nSome thrown error [505]\nSome thrown error [505]\n'
 					)
 
 					expect(api.uploadBlueprintAsset).toHaveBeenCalledTimes(count)

@@ -2,13 +2,18 @@ import '../../../../__mocks__/_extendJest'
 import { setupDefaultStudioEnvironment } from '../../../../__mocks__/helpers/database'
 import { hashSingleUseToken } from '../../deviceTriggers/triggersContext'
 import { getCurrentTime, sleep } from '../../../lib/lib'
-import { MeteorCall } from '../../methods'
+import { UserActionAPIMethods } from '@sofie-automation/meteor-lib/dist/api/userActions'
+import { ServerUserActionAPI } from '../../userActions'
+import { SystemAPIMethods } from '@sofie-automation/meteor-lib/dist/api/system'
+import { SystemAPIClass } from '../../system'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { UserActionsLog } from '../../../collections'
+import { makeMeteorCallForTest } from '../../../../__mocks__/helpers/methods'
 
-require('../../system') // include so that we can call generateSingleUseToken()
-require('../../client') // include in order to create the Meteor methods needed
-require('../../userActions') // include in order to create the Meteor methods needed
+const MeteorCall = makeMeteorCallForTest([
+	{ methods: UserActionAPIMethods, class: ServerUserActionAPI },
+	{ methods: SystemAPIMethods, class: SystemAPIClass },
+])
 
 describe('User Actions - General', () => {
 	beforeEach(async () => {

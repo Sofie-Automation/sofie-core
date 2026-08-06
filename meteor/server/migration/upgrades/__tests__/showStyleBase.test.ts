@@ -65,7 +65,7 @@ describe('ShowStyleBase upgrades', () => {
 
 	describe('validateConfigForShowStyleBase', () => {
 		test('Missing id', async () => {
-			await expect(validateConfigForShowStyleBase(protectString('fakeId'))).rejects.toThrowMeteor(
+			await expect(validateConfigForShowStyleBase(protectString('fakeId'))).rejects.toThrowSofieError(
 				404,
 				`ShowStyleBase "fakeId" not found!`
 			)
@@ -75,7 +75,7 @@ describe('ShowStyleBase upgrades', () => {
 			const blueprint = await setupMockShowStyleBlueprint(protectString(''))
 			const showStyleBase = await setupMockShowStyleBase(blueprint._id)
 
-			await expect(validateConfigForShowStyleBase(showStyleBase._id)).rejects.toThrowMeteor(
+			await expect(validateConfigForShowStyleBase(showStyleBase._id)).rejects.toThrowSofieError(
 				500,
 				`ShowStyleBase is missing config preset`
 			)
@@ -86,7 +86,7 @@ describe('ShowStyleBase upgrades', () => {
 				blueprintConfigPresetId: 'fake-preset',
 			})
 
-			await expect(validateConfigForShowStyleBase(showStyleBase._id)).rejects.toThrowMeteor(
+			await expect(validateConfigForShowStyleBase(showStyleBase._id)).rejects.toThrowSofieError(
 				404,
 				`Blueprint "fakeId" not found!`
 			)
@@ -98,7 +98,7 @@ describe('ShowStyleBase upgrades', () => {
 				blueprintConfigPresetId: 'fake-preset',
 			})
 
-			await expect(validateConfigForShowStyleBase(showStyleBase._id)).rejects.toThrowMeteor(
+			await expect(validateConfigForShowStyleBase(showStyleBase._id)).rejects.toThrowSofieError(
 				500,
 				`Blueprint does not support this config flow`
 			)
@@ -166,7 +166,7 @@ describe('ShowStyleBase upgrades', () => {
 
 	describe('runUpgradeForShowStyleBase', () => {
 		test('Missing id', async () => {
-			await expect(runUpgradeForShowStyleBase(protectString('fakeId'))).rejects.toThrowMeteor(
+			await expect(runUpgradeForShowStyleBase(protectString('fakeId'))).rejects.toThrowSofieError(
 				404,
 				`ShowStyleBase "fakeId" not found!`
 			)
@@ -176,7 +176,7 @@ describe('ShowStyleBase upgrades', () => {
 			const blueprint = await setupMockShowStyleBlueprint(protectString(''))
 			const showStyleBase = await setupMockShowStyleBase(blueprint._id)
 
-			await expect(runUpgradeForShowStyleBase(showStyleBase._id)).rejects.toThrowMeteor(
+			await expect(runUpgradeForShowStyleBase(showStyleBase._id)).rejects.toThrowSofieError(
 				500,
 				`ShowStyleBase is missing config preset`
 			)
@@ -187,7 +187,7 @@ describe('ShowStyleBase upgrades', () => {
 				blueprintConfigPresetId: 'fake-preset',
 			})
 
-			await expect(runUpgradeForShowStyleBase(showStyleBase._id)).rejects.toThrowMeteor(
+			await expect(runUpgradeForShowStyleBase(showStyleBase._id)).rejects.toThrowSofieError(
 				404,
 				`Blueprint "fakeId" not found!`
 			)
@@ -199,7 +199,7 @@ describe('ShowStyleBase upgrades', () => {
 				blueprintConfigPresetId: 'fake-preset',
 			})
 
-			await expect(runUpgradeForShowStyleBase(showStyleBase._id)).rejects.toThrowMeteor(
+			await expect(runUpgradeForShowStyleBase(showStyleBase._id)).rejects.toThrowSofieError(
 				500,
 				`Blueprint does not support this config flow`
 			)

@@ -9,7 +9,6 @@ import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartIns
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { DBSegment, SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { AnyBulkWriteOperation } from 'mongodb'
 import { JobContext } from '../../../jobs/index.js'
 import { PlayoutPartInstanceModelImpl } from './PlayoutPartInstanceModelImpl.js'
 import { PlayoutRundownModelImpl } from './PlayoutRundownModelImpl.js'
@@ -18,6 +17,7 @@ import { ExpectedPackage } from '@sofie-automation/blueprints-integration'
 import { normalizeArrayToMap } from '@sofie-automation/corelib/dist/lib'
 import { ExpectedPackageDB } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
 import { StudioJobs } from '@sofie-automation/corelib/dist/worker/studio'
+import { MongoBulkWriteOperation } from '../../../db/collections.js'
 
 /**
  * Save any changed AdlibTesting Segments
@@ -28,7 +28,7 @@ export async function writeAdlibTestingSegments(
 	context: JobContext,
 	rundowns: readonly PlayoutRundownModelImpl[]
 ): Promise<void> {
-	const writeOps: AnyBulkWriteOperation<DBSegment>[] = []
+	const writeOps: MongoBulkWriteOperation<DBSegment>[] = []
 
 	for (const rundown of rundowns) {
 		if (rundown.AdlibTestingSegmentHasChanged) {
@@ -73,8 +73,8 @@ export function writePartInstancesAndPieceInstances(
 	context: JobContext,
 	partInstances: Map<PartInstanceId, PlayoutPartInstanceModelImpl | null>
 ): [Promise<unknown>, Promise<unknown>] {
-	const partInstanceOps: AnyBulkWriteOperation<DBPartInstance>[] = []
-	const pieceInstanceOps: AnyBulkWriteOperation<PieceInstance>[] = []
+	const partInstanceOps: MongoBulkWriteOperation<DBPartInstance>[] = []
+	const pieceInstanceOps: MongoBulkWriteOperation<PieceInstance>[] = []
 
 	const deletedPartInstanceIds: PartInstanceId[] = []
 	const deletedPieceInstanceIds: PieceInstanceId[] = []
@@ -233,7 +233,7 @@ export async function writeExpectedPackagesForPlayoutSources(
 
 	// We now know what needs to be written (only the additive changes)
 
-	const writeOps: AnyBulkWriteOperation<ExpectedPackageDB>[] = []
+	const writeOps: MongoBulkWriteOperation<ExpectedPackageDB>[] = []
 	for (const [packageId, pieceInstanceIds] of pieceInstancesToAddToPackages.entries()) {
 		writeOps.push({
 			updateOne: {

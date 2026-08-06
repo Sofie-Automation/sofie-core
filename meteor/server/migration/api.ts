@@ -1,10 +1,11 @@
-import { check, Match } from '../lib/check'
-import { registerClassToMeteorMethods } from '../methods'
+import { z } from 'zod'
+import { check, zAnyArray } from '../lib/check'
 import {
 	MigrationChunk,
 	NewMigrationAPI,
-	MigrationAPIMethods,
 	BlueprintFixUpConfigMessage,
+	GetMigrationStatusResult,
+	RunMigrationResult,
 } from '@sofie-automation/meteor-lib/dist/api/migration'
 import * as Migrations from './databaseMigration'
 import { MethodContextAPI } from '../api/methodContext'
@@ -22,85 +23,78 @@ import { CoreSystemId, ShowStyleBaseId, StudioId } from '@sofie-automation/corel
 import { BlueprintValidateConfigForStudioResult } from '@sofie-automation/corelib/dist/worker/studio'
 import { runUpgradeForCoreSystem } from './upgrades/system'
 import { assertConnectionHasOneOfPermissions } from '../security/auth'
-import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
 
-const PERMISSIONS_FOR_MIGRATIONS: Array<keyof UserPermissions> = ['configure']
-
-class ServerMigrationAPI extends MethodContextAPI implements NewMigrationAPI {
-	async getMigrationStatus() {
-		assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MIGRATIONS)
-
-		return Migrations.getMigrationStatus()
+export class ServerMigrationAPI extends MethodContextAPI implements NewMigrationAPI {
+	async getMigrationStatus(): Promise<GetMigrationStatusResult> {
+		return Migrations.getMigrationStatus(this)
 	}
 
-	async runMigration(chunks: Array<MigrationChunk>, hash: string, isFirstOfPartialMigrations?: boolean | null) {
-		check(chunks, Array)
-		check(hash, String)
-		check(isFirstOfPartialMigrations, Match.Maybe(Boolean))
+	async runMigration(
+		chunks: Array<MigrationChunk>,
+		hash: string,
+		isFirstOfPartialMigrations?: boolean | null
+	): Promise<RunMigrationResult> {
+		check(chunks, zAnyArray)
+		check(hash, z.string())
+		check(isFirstOfPartialMigrations, z.boolean().nullish())
 
-		assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MIGRATIONS)
-
-		return Migrations.runMigration(chunks, hash, isFirstOfPartialMigrations || false)
+		return Migrations.runMigration(this, chunks, hash, isFirstOfPartialMigrations || false)
 	}
 
-	async forceMigration(chunks: Array<MigrationChunk>) {
-		check(chunks, Array)
+	async forceMigration(chunks: Array<MigrationChunk>): Promise<void> {
+		check(chunks, zAnyArray)
 
-		assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MIGRATIONS)
-
-		return Migrations.forceMigration(chunks)
+		return Migrations.forceMigration(this, chunks)
 	}
 
-	async resetDatabaseVersions() {
-		assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MIGRATIONS)
-
-		return Migrations.resetDatabaseVersions()
+	async resetDatabaseVersions(): Promise<void> {
+		return Migrations.resetDatabaseVersions(this)
 	}
 
 	async fixupConfigForStudio(studioId: StudioId): Promise<BlueprintFixUpConfigMessage[]> {
-		check(studioId, String)
+		check(studioId, z.string())
 
-		assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MIGRATIONS)
+		assertConnectionHasOneOfPermissions(this.connection, ...Migrations.PERMISSIONS_FOR_MIGRATIONS)
 
 		return fixupConfigForStudio(studioId)
 	}
 
 	async ignoreFixupConfigForStudio(studioId: StudioId): Promise<void> {
-		check(studioId, String)
+		check(studioId, z.string())
 
-		assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MIGRATIONS)
+		assertConnectionHasOneOfPermissions(this.connection, ...Migrations.PERMISSIONS_FOR_MIGRATIONS)
 
 		return ignoreFixupConfigForStudio(studioId)
 	}
 
 	async validateConfigForStudio(studioId: StudioId): Promise<BlueprintValidateConfigForStudioResult> {
-		check(studioId, String)
+		check(studioId, z.string())
 
-		assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MIGRATIONS)
+		assertConnectionHasOneOfPermissions(this.connection, ...Migrations.PERMISSIONS_FOR_MIGRATIONS)
 
 		return validateConfigForStudio(studioId)
 	}
 
 	async runUpgradeForStudio(studioId: StudioId): Promise<void> {
-		check(studioId, String)
+		check(studioId, z.string())
 
-		assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MIGRATIONS)
+		assertConnectionHasOneOfPermissions(this.connection, ...Migrations.PERMISSIONS_FOR_MIGRATIONS)
 
 		return runUpgradeForStudio(studioId)
 	}
 
 	async fixupConfigForShowStyleBase(showStyleBaseId: ShowStyleBaseId): Promise<BlueprintFixUpConfigMessage[]> {
-		check(showStyleBaseId, String)
+		check(showStyleBaseId, z.string())
 
-		assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MIGRATIONS)
+		assertConnectionHasOneOfPermissions(this.connection, ...Migrations.PERMISSIONS_FOR_MIGRATIONS)
 
 		return fixupConfigForShowStyleBase(showStyleBaseId)
 	}
 
 	async ignoreFixupConfigForShowStyleBase(showStyleBaseId: ShowStyleBaseId): Promise<void> {
-		check(showStyleBaseId, String)
+		check(showStyleBaseId, z.string())
 
-		assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MIGRATIONS)
+		assertConnectionHasOneOfPermissions(this.connection, ...Migrations.PERMISSIONS_FOR_MIGRATIONS)
 
 		return ignoreFixupConfigForShowStyleBase(showStyleBaseId)
 	}
@@ -108,27 +102,26 @@ class ServerMigrationAPI extends MethodContextAPI implements NewMigrationAPI {
 	async validateConfigForShowStyleBase(
 		showStyleBaseId: ShowStyleBaseId
 	): Promise<BlueprintValidateConfigForStudioResult> {
-		check(showStyleBaseId, String)
+		check(showStyleBaseId, z.string())
 
-		assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MIGRATIONS)
+		assertConnectionHasOneOfPermissions(this.connection, ...Migrations.PERMISSIONS_FOR_MIGRATIONS)
 
 		return validateConfigForShowStyleBase(showStyleBaseId)
 	}
 
 	async runUpgradeForShowStyleBase(showStyleBaseId: ShowStyleBaseId): Promise<void> {
-		check(showStyleBaseId, String)
+		check(showStyleBaseId, z.string())
 
-		assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MIGRATIONS)
+		assertConnectionHasOneOfPermissions(this.connection, ...Migrations.PERMISSIONS_FOR_MIGRATIONS)
 
 		return runUpgradeForShowStyleBase(showStyleBaseId)
 	}
 
 	async runUpgradeForCoreSystem(coreSystemId: CoreSystemId): Promise<void> {
-		check(coreSystemId, String)
+		check(coreSystemId, z.string())
 
-		assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MIGRATIONS)
+		assertConnectionHasOneOfPermissions(this.connection, ...Migrations.PERMISSIONS_FOR_MIGRATIONS)
 
 		return runUpgradeForCoreSystem(coreSystemId)
 	}
 }
-registerClassToMeteorMethods(MigrationAPIMethods, ServerMigrationAPI, false)

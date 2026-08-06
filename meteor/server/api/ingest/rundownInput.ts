@@ -1,5 +1,5 @@
-import { Meteor } from 'meteor/meteor'
-import { check } from '../../lib/check'
+import { z } from 'zod'
+import { check, zPlainObject } from '../../lib/check'
 import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { NrcsIngestDataCache, MediaObjects, Parts, Rundowns, Segments } from '../../collections'
 import { literal } from '@sofie-automation/corelib/dist/lib'
@@ -15,6 +15,7 @@ import { PeripheralDeviceId, RundownId, SegmentId, StudioId } from '@sofie-autom
 import { NrcsIngestCacheType } from '@sofie-automation/corelib/dist/dataModel/NrcsIngestDataCache'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { checkAccessAndGetPeripheralDevice } from '../../security/check'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 export namespace RundownInput {
 	export async function dataPlaylistGet(
@@ -25,7 +26,7 @@ export namespace RundownInput {
 	): Promise<IngestPlaylist> {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
 		logger.debug('dataPlaylistGet', { playlistExternalId })
-		check(playlistExternalId, String)
+		check(playlistExternalId, z.string())
 		return getIngestPlaylist(peripheralDevice, playlistExternalId)
 	}
 	// Get info on the current rundowns from this device:
@@ -46,7 +47,7 @@ export namespace RundownInput {
 	): Promise<IngestRundown> {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
 		logger.debug('dataRundownGet', { rundownExternalId })
-		check(rundownExternalId, String)
+		check(rundownExternalId, z.string())
 		return getIngestRundown(peripheralDevice, rundownExternalId)
 	}
 	// Delete, Create & Update Rundown (and it's contents):
@@ -59,7 +60,7 @@ export namespace RundownInput {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
 		const studioId = await fetchStudioIdFromDevice(peripheralDevice)
 		logger.debug('dataRundownDelete', { rundownExternalId })
-		check(rundownExternalId, String)
+		check(rundownExternalId, z.string())
 
 		await runIngestOperation(studioId, IngestJobs.RemoveRundown, {
 			rundownExternalId,
@@ -74,7 +75,7 @@ export namespace RundownInput {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
 		const studioId = await fetchStudioIdFromDevice(peripheralDevice)
 		logger.debug('dataRundownCreate', ingestRundown)
-		check(ingestRundown, Object)
+		check(ingestRundown, zPlainObject)
 
 		await runIngestOperation(studioId, IngestJobs.UpdateRundown, {
 			rundownExternalId: ingestRundown.externalId,
@@ -92,7 +93,7 @@ export namespace RundownInput {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
 		const studioId = await fetchStudioIdFromDevice(peripheralDevice)
 		logger.debug('dataRundownUpdate', ingestRundown)
-		check(ingestRundown, Object)
+		check(ingestRundown, zPlainObject)
 
 		await runIngestOperation(studioId, IngestJobs.UpdateRundown, {
 			rundownExternalId: ingestRundown.externalId,
@@ -110,7 +111,7 @@ export namespace RundownInput {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
 		const studioId = await fetchStudioIdFromDevice(peripheralDevice)
 		logger.debug('dataRundownMetaDataUpdate', ingestRundown)
-		check(ingestRundown, Object)
+		check(ingestRundown, zPlainObject)
 
 		await runIngestOperation(studioId, IngestJobs.UpdateRundownMetaData, {
 			rundownExternalId: ingestRundown.externalId,
@@ -127,8 +128,8 @@ export namespace RundownInput {
 	): Promise<IngestSegment> {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
 		logger.debug('dataSegmentGet', { rundownExternalId, segmentExternalId })
-		check(rundownExternalId, String)
-		check(segmentExternalId, String)
+		check(rundownExternalId, z.string())
+		check(segmentExternalId, z.string())
 		return getIngestSegment(peripheralDevice, rundownExternalId, segmentExternalId)
 	}
 	// Delete, Create & Update Segment (and it's contents):
@@ -142,8 +143,8 @@ export namespace RundownInput {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
 		const studioId = await fetchStudioIdFromDevice(peripheralDevice)
 		logger.debug('dataSegmentDelete', { rundownExternalId, segmentExternalId })
-		check(rundownExternalId, String)
-		check(segmentExternalId, String)
+		check(rundownExternalId, z.string())
+		check(segmentExternalId, z.string())
 
 		await runIngestOperation(studioId, IngestJobs.RemoveSegment, {
 			rundownExternalId,
@@ -160,8 +161,8 @@ export namespace RundownInput {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
 		const studioId = await fetchStudioIdFromDevice(peripheralDevice)
 		logger.debug('dataSegmentCreate', { rundownExternalId, ingestSegment })
-		check(rundownExternalId, String)
-		check(ingestSegment, Object)
+		check(rundownExternalId, z.string())
+		check(ingestSegment, zPlainObject)
 
 		await runIngestOperation(studioId, IngestJobs.UpdateSegment, {
 			rundownExternalId,
@@ -179,8 +180,8 @@ export namespace RundownInput {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
 		const studioId = await fetchStudioIdFromDevice(peripheralDevice)
 		logger.debug('dataSegmentUpdate', { rundownExternalId, ingestSegment })
-		check(rundownExternalId, String)
-		check(ingestSegment, Object)
+		check(rundownExternalId, z.string())
+		check(ingestSegment, zPlainObject)
 
 		await runIngestOperation(studioId, IngestJobs.UpdateSegment, {
 			rundownExternalId,
@@ -198,8 +199,8 @@ export namespace RundownInput {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
 		const studioId = await fetchStudioIdFromDevice(peripheralDevice)
 		logger.debug('dataSegmentRanksUpdate', { rundownExternalId, ranks: Object.keys(newRanks) })
-		check(rundownExternalId, String)
-		check(newRanks, Object)
+		check(rundownExternalId, z.string())
+		check(newRanks, zPlainObject)
 
 		await runIngestOperation(studioId, IngestJobs.UpdateSegmentRanks, {
 			rundownExternalId,
@@ -218,9 +219,9 @@ export namespace RundownInput {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
 		const studioId = await fetchStudioIdFromDevice(peripheralDevice)
 		logger.debug('dataPartDelete', { rundownExternalId, segmentExternalId, partExternalId })
-		check(rundownExternalId, String)
-		check(segmentExternalId, String)
-		check(partExternalId, String)
+		check(rundownExternalId, z.string())
+		check(segmentExternalId, z.string())
+		check(partExternalId, z.string())
 
 		await runIngestOperation(studioId, IngestJobs.RemovePart, {
 			rundownExternalId,
@@ -239,9 +240,9 @@ export namespace RundownInput {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
 		const studioId = await fetchStudioIdFromDevice(peripheralDevice)
 		logger.debug('dataPartCreate', { rundownExternalId, segmentExternalId, ingestPart })
-		check(rundownExternalId, String)
-		check(segmentExternalId, String)
-		check(ingestPart, Object)
+		check(rundownExternalId, z.string())
+		check(segmentExternalId, z.string())
+		check(ingestPart, zPlainObject)
 
 		await runIngestOperation(studioId, IngestJobs.UpdatePart, {
 			rundownExternalId,
@@ -261,9 +262,9 @@ export namespace RundownInput {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
 		const studioId = await fetchStudioIdFromDevice(peripheralDevice)
 		logger.debug('dataPartUpdate', { rundownExternalId, segmentExternalId, ingestPart })
-		check(rundownExternalId, String)
-		check(segmentExternalId, String)
-		check(ingestPart, Object)
+		check(rundownExternalId, z.string())
+		check(segmentExternalId, z.string())
+		check(ingestPart, zPlainObject)
 
 		await runIngestOperation(studioId, IngestJobs.UpdatePart, {
 			rundownExternalId,
@@ -308,13 +309,13 @@ async function getIngestRundown(peripheralDevice: PeripheralDevice, rundownExter
 		externalId: rundownExternalId,
 	})
 	if (!rundown) {
-		throw new Meteor.Error(404, `Rundown "${rundownExternalId}" not found`)
+		throw new SofieError(404, `Rundown "${rundownExternalId}" not found`)
 	}
 
 	const ingestCache = await RundownIngestDataCache.create(rundown._id)
 	const ingestData = ingestCache.fetchRundown()
 	if (!ingestData)
-		throw new Meteor.Error(404, `Rundown "${rundown._id}", (${rundownExternalId}) has no cached ingest data`)
+		throw new SofieError(404, `Rundown "${rundown._id}", (${rundownExternalId}) has no cached ingest data`)
 	return ingestData
 }
 async function getIngestSegment(
@@ -328,7 +329,7 @@ async function getIngestSegment(
 		externalId: rundownExternalId,
 	})
 	if (!rundown) {
-		throw new Meteor.Error(404, `Rundown "${rundownExternalId}" not found`)
+		throw new SofieError(404, `Rundown "${rundownExternalId}" not found`)
 	}
 
 	const segment = await Segments.findOneAsync({
@@ -337,13 +338,13 @@ async function getIngestSegment(
 	})
 
 	if (!segment) {
-		throw new Meteor.Error(404, `Segment ${segmentExternalId} not found in rundown ${rundownExternalId}`)
+		throw new SofieError(404, `Segment ${segmentExternalId} not found in rundown ${rundownExternalId}`)
 	}
 
 	const ingestCache = await RundownIngestDataCache.create(rundown._id)
 	const ingestData = ingestCache.fetchSegment(segment._id)
 	if (!ingestData)
-		throw new Meteor.Error(
+		throw new SofieError(
 			404,
 			`Rundown "${rundown._id}", (${rundownExternalId}) has no cached segment "${segment._id}" ingest data`
 		)
@@ -358,8 +359,8 @@ async function listIngestRundowns(peripheralDevice: PeripheralDevice): Promise<s
 	return rundowns.map((r) => r.externalId)
 }
 
-// hackGetMediaObjectDuration stuff
-Meteor.startup(async () => {
+export async function startMediaObjectDurationMonitor(): Promise<void> {
+	// hackGetMediaObjectDuration stuff
 	await MediaObjects.observe(
 		{},
 		{
@@ -368,7 +369,7 @@ Meteor.startup(async () => {
 		},
 		{ projection: { _id: 1, mediaId: 1, mediainfo: 1, studioId: 1 } }
 	)
-})
+}
 
 interface MediaObjectUpdatedIds {
 	rundownId: RundownId
@@ -446,10 +447,10 @@ async function onMediaObjectChanged(newDocument: MediaObject, oldDocument?: Medi
 async function updateSegmentFromCache(studioId: StudioId, mediaObjectUpdatedIds: MediaObjectUpdatedIds) {
 	const rundown = await Rundowns.findOneAsync(mediaObjectUpdatedIds.rundownId)
 	if (!rundown)
-		throw new Meteor.Error(`Could not find rundown ${mediaObjectUpdatedIds.rundownId} in updateSegmentFromCache`)
+		throw new SofieError(404, `Could not find rundown ${mediaObjectUpdatedIds.rundownId} in updateSegmentFromCache`)
 	const segment = await Segments.findOneAsync(mediaObjectUpdatedIds.segmentId)
 	if (!segment)
-		throw new Meteor.Error(`Could not find segment ${mediaObjectUpdatedIds.segmentId} in updateSegmentFromCache`)
+		throw new SofieError(404, `Could not find segment ${mediaObjectUpdatedIds.segmentId} in updateSegmentFromCache`)
 
 	await runIngestOperation(studioId, IngestJobs.RegenerateSegment, {
 		segmentExternalId: segment.externalId,

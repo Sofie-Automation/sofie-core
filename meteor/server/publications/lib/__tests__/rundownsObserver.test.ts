@@ -8,10 +8,10 @@ import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { Rundowns } from '../../../collections'
 import { runAllTimers, runTimersUntilNow, waitUntil } from '../../../../__mocks__/helpers/jest'
-import { MongoMock } from '../../../../__mocks__/mongo'
+import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
 import { RundownsObserver } from '../rundownsObserver'
 
-const RundownsMock = (Rundowns as any).mockCollection as MongoMock.Collection<Rundown>
+const RundownsMock = (Rundowns as any).mockCollection as InMemoryMongoCollection<Rundown>
 
 const MAX_WAIT_TIME = 4000
 

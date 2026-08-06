@@ -1110,6 +1110,8 @@ function getAssetUrlFromExpectedPackages(
 			}
 		}
 	}
+
+	return undefined
 }
 
 function getPackageProgress(

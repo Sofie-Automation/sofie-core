@@ -14,7 +14,16 @@ import { IStudioSettings } from '@sofie-automation/corelib/dist/dataModel/Studio
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { ReadonlyObjectDeep } from 'type-fest/source/readonly-deep'
-import { ReactiveCacheCollection } from './ReactiveCacheCollection'
+import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
+
+/**
+ * The minimal read surface {@link findMarkerPosition} needs from a content-cache collection. `findOne` is a
+ * method (bivariant params) so a collection of wider docs is accepted where a narrower lookup is expected;
+ * the readonly return mirrors what `ReadonlyDeep` cache consumers hold.
+ */
+interface CacheCollectionLookup<T extends { _id: ProtectedString<any> }> {
+	findOne(selector?: T['_id'] | MongoQuery<T>): ReadonlyObjectDeep<T> | undefined
+}
 
 export function findPartPosition(
 	part: DBPart,
@@ -124,9 +133,9 @@ export function findMarkerPosition(
 	marker: QuickLoopMarker,
 	fallback: number,
 	contentCache: {
-		segments: ReadonlyObjectDeep<ReactiveCacheCollection<Pick<DBSegment, '_id' | '_rank' | 'rundownId'>>>
-		parts: ReadonlyObjectDeep<ReactiveCacheCollection<Pick<DBPart, '_id' | '_rank' | 'segmentId'>>>
-		partInstances?: ReadonlyObjectDeep<ReactiveCacheCollection<DBPartInstance>>
+		segments: CacheCollectionLookup<Pick<DBSegment, '_id' | '_rank' | 'rundownId'>>
+		parts: CacheCollectionLookup<Pick<DBPart, '_id' | '_rank' | 'segmentId'>>
+		partInstances?: CacheCollectionLookup<DBPartInstance>
 	},
 	rundownRanks: Record<string, number>
 ): MarkerPosition {

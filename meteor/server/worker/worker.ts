@@ -3,7 +3,6 @@ import { getStudioQueueName, StudioJobFunc } from '@sofie-automation/corelib/dis
 import { getIngestQueueName, IngestJobFunc } from '@sofie-automation/corelib/dist/worker/ingest'
 import { getEventsQueueName } from '@sofie-automation/corelib/dist/worker/events'
 import { logger } from '../logging'
-import { Meteor } from 'meteor/meteor'
 import { FORCE_CLEAR_CACHES_JOB, IS_INSPECTOR_ENABLED } from '@sofie-automation/corelib/dist/worker/shared'
 import { threadedClass, Promisify, ThreadedClassManager } from 'threadedclass'
 import type { IpcJobWorker } from '@sofie-automation/job-worker/dist/ipc'
@@ -18,10 +17,13 @@ import * as path from 'path'
 import { LogEntry } from 'winston'
 import { initializeWorkerStatus, setWorkerStatus } from './workerStatus'
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
+import { parseMongoConnectionString } from '../collections/mongoConnection'
 import { UserActionsLog } from '../collections'
 import { isInTestWrite } from '../security/securityVerify'
 import { QueueJobOptions } from '@sofie-automation/job-worker/dist/jobs'
 import { WorkerJobQueueManager } from './jobQueue'
+import { isInDevelopmentMode, isInTestMode } from '../lib'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 const FREEZE_LIMIT = 1000 // how long to wait for a response to a Ping
 const RESTART_TIMEOUT = 30000 // how long to wait for a restart to complete before throwing an error
@@ -66,10 +68,10 @@ async function logLine(msg: LogEntry): Promise<void> {
 }
 
 let worker: Promisify<IpcJobWorker> | undefined
-Meteor.startup(async () => {
-	if (Meteor.isTest) return // Don't start the worker
+export async function startJobWorkerParent(): Promise<void> {
+	if (isInTestMode()) return // Don't start the worker
 
-	if (Meteor.isDevelopment) {
+	if (isInDevelopmentMode()) {
 		// Ensure meteor restarts when the _force_restart file changes
 		try {
 			require('../_force_restart')
@@ -78,15 +80,7 @@ Meteor.startup(async () => {
 		}
 	}
 
-	if (!process.env.MONGO_URL) throw new Error('MONGO_URL must be defined to launch Sofie')
-	// Note: MONGO_OPLOG_URL isn't required for the worker, but is required for meteor to not lag badly
-	if (!process.env.MONGO_OPLOG_URL) throw new Error('MONGO_OPLOG_URL must be defined to launch Sofie')
-
-	// Meteor wants the dbname as the path of the mongo url, but the mongodb driver needs it separate
-	const rawUrl = new URL(process.env.MONGO_URL)
-	const dbName = rawUrl.pathname.substring(1) // Trim off first '/'
-	rawUrl.pathname = ''
-	const mongoUri = rawUrl.toString()
+	const { uri: mongoUri, dbName } = parseMongoConnectionString()
 
 	// In dev, the path is predictable. In bundled meteor the path will be different, so take it from an env variable
 	let workerEntrypoint = '@sofie-automation/job-worker/dist/ipc.js'
@@ -120,39 +114,27 @@ Meteor.startup(async () => {
 		}
 	)
 
-	ThreadedClassManager.onEvent(
-		worker,
-		'error',
-		Meteor.bindEnvironment((e0: unknown) => {
-			logger.error(`Error in Worker threads IPC: ${stringifyError(e0)}`)
-		})
-	)
-	ThreadedClassManager.onEvent(
-		worker,
-		'restarted',
-		Meteor.bindEnvironment(() => {
-			logger.warn(`Worker threads restarted`)
+	ThreadedClassManager.onEvent(worker, 'error', (e0: unknown) => {
+		logger.error(`Error in Worker threads IPC: ${stringifyError(e0)}`)
+	})
+	ThreadedClassManager.onEvent(worker, 'restarted', () => {
+		logger.warn(`Worker threads restarted`)
 
-			worker!.run(mongoUri, dbName).catch((e) => {
-				logger.error(`Failed to reinit worker threads after restart: ${stringifyError(e)}`)
-			})
-			setWorkerStatus(workerId, true, 'restarted', true).catch((e) => {
-				logger.error(`Failed to update worker threads status after restart: ${stringifyError(e)}`)
-			})
+		worker!.run(mongoUri, dbName).catch((e) => {
+			logger.error(`Failed to reinit worker threads after restart: ${stringifyError(e)}`)
 		})
-	)
-	ThreadedClassManager.onEvent(
-		worker,
-		'thread_closed',
-		Meteor.bindEnvironment(() => {
-			// Thread closed, reject all jobs
-			queueManager.rejectAllRunning()
+		setWorkerStatus(workerId, true, 'restarted', true).catch((e) => {
+			logger.error(`Failed to update worker threads status after restart: ${stringifyError(e)}`)
+		})
+	})
+	ThreadedClassManager.onEvent(worker, 'thread_closed', () => {
+		// Thread closed, reject all jobs
+		queueManager.rejectAllRunning()
 
-			setWorkerStatus(workerId, false, 'Closed').catch((e) => {
-				logger.error(`Failed to update worker threads status: ${stringifyError(e)}`)
-			})
+		setWorkerStatus(workerId, false, 'Closed').catch((e) => {
+			logger.error(`Failed to update worker threads status: ${stringifyError(e)}`)
 		})
-	)
+	})
 
 	await setWorkerStatus(workerId, true, 'Initializing...')
 
@@ -160,7 +142,7 @@ Meteor.startup(async () => {
 	await worker.run(mongoUri, dbName)
 	await setWorkerStatus(workerId, true, 'OK')
 	logger.info('Worker threads ready')
-})
+}
 
 export interface JobTimings {
 	queueTime: number
@@ -193,7 +175,7 @@ export async function collectWorkerPrometheusMetrics(): Promise<string[]> {
 export async function QueueForceClearAllCaches(studioIds: StudioId[]): Promise<void> {
 	const jobs: Array<WorkerJob<any>> = []
 
-	if (!worker) throw new Meteor.Error(500, `Worker hasn't been initialized!`)
+	if (!worker) throw new SofieError(500, `Worker hasn't been initialized!`)
 
 	// TODO - can we push these higher priority?
 	const now = getCurrentTime()
@@ -232,8 +214,8 @@ export async function QueueStudioJob<T extends keyof StudioJobFunc>(
 	jobParameters: Parameters<StudioJobFunc[T]>[0],
 	options?: QueueJobOptions
 ): Promise<WorkerJob<ReturnType<StudioJobFunc[T]>>> {
-	if (isInTestWrite()) throw new Meteor.Error(404, 'Should not be reachable during startup tests')
-	if (!studioId) throw new Meteor.Error(500, 'Missing studioId')
+	if (isInTestWrite()) throw new SofieError(404, 'Should not be reachable during startup tests')
+	if (!studioId) throw new SofieError(500, 'Missing studioId')
 
 	const now = getCurrentTime()
 	return queueManager.queueJobAndWrapResult(getStudioQueueName(studioId), jobName, jobParameters, now, options)
@@ -256,8 +238,8 @@ export function QueueOrUpdateStudioJob<T extends keyof StudioJobFunc>(
 	studioId: StudioId,
 	generateData: (existing: Parameters<StudioJobFunc[T]>[0] | null) => Parameters<StudioJobFunc[T]>[0]
 ): void {
-	if (isInTestWrite()) throw new Meteor.Error(404, 'Should not be reachable during startup tests')
-	if (!studioId) throw new Meteor.Error(500, 'Missing studioId')
+	if (isInTestWrite()) throw new SofieError(404, 'Should not be reachable during startup tests')
+	if (!studioId) throw new SofieError(500, 'Missing studioId')
 
 	queueManager.mergeOrQueueJob(
 		getStudioQueueName(studioId),
@@ -278,7 +260,7 @@ export async function QueueIngestJob<T extends keyof IngestJobFunc>(
 	studioId: StudioId,
 	jobParameters: Parameters<IngestJobFunc[T]>[0]
 ): Promise<WorkerJob<ReturnType<IngestJobFunc[T]>>> {
-	if (!studioId) throw new Meteor.Error(500, 'Missing studioId')
+	if (!studioId) throw new SofieError(500, 'Missing studioId')
 
 	const now = getCurrentTime()
 	return queueManager.queueJobAndWrapResult(getIngestQueueName(studioId), jobName, jobParameters, now)

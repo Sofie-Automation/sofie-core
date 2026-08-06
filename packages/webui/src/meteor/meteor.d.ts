@@ -165,18 +165,6 @@ export namespace Meteor {
 	}
 	/** Pub/Sub **/
 
-	/** Login **/
-
-	function loginWithPassword(
-		user: Object | string,
-		password: string,
-		callback?: (error?: global_Error | Meteor.Error | Meteor.TypedError) => void
-	): void
-
-	function logout(callback?: (error?: global_Error | Meteor.Error | Meteor.TypedError) => void): void
-
-	/** Login **/
-
 	/** Connection **/
 	function reconnect(): void
 

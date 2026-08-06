@@ -1,19 +1,20 @@
-import { Meteor } from 'meteor/meteor'
+import { z } from 'zod'
 import { logger } from '../../logging'
 import { PartInstances, PieceInstances, RundownPlaylists } from '../../collections'
-import { check } from 'meteor/check'
+import { check } from '../../lib/check'
 import { profiler } from '../profiler'
 import { QueueForceClearAllCaches, QueueStudioJob } from '../../worker/worker'
 import { StudioJobs } from '@sofie-automation/corelib/dist/worker/studio'
 import { fetchStudioIds } from '../../optimizations'
 import { PeripheralDeviceId, RundownPlaylistId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { insertInputDeviceTriggerIntoPreview } from '../../publications/deviceTriggersPreview'
-import { MeteorDebugMethods } from '../../methods'
+import { MeteorDebugMethod } from '../../methods'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 // These are temporary method to fill the rundown database with some sample data
 // for development
 
-MeteorDebugMethods({
+export const playoutDebugMethods: { [key: string]: MeteorDebugMethod } = {
 	/**
 	 * Remove a playlist from the system.
 	 * This can be done in the ui too, but this will bypass any checks that are usually performed
@@ -22,7 +23,7 @@ MeteorDebugMethods({
 		logger.debug('Remove rundown "' + id + '"')
 
 		const playlist = await RundownPlaylists.findOneAsync(id)
-		if (!playlist) throw new Meteor.Error(404, `RundownPlaylist "${id}" not found`)
+		if (!playlist) throw new SofieError(404, `RundownPlaylist "${id}" not found`)
 
 		const job = await QueueStudioJob(StudioJobs.RemovePlaylist, playlist.studioId, {
 			playlistId: playlist._id,
@@ -55,7 +56,7 @@ MeteorDebugMethods({
 	 */
 	debug_updateTimeline: async (studioId: StudioId) => {
 		try {
-			check(studioId, String)
+			check(studioId, z.string())
 			logger.info(`debug_updateTimeline: "${studioId}"`)
 
 			const transaction = profiler.startTransaction('updateTimeline', 'meteor-debug')
@@ -143,4 +144,4 @@ MeteorDebugMethods({
 
 		await insertInputDeviceTriggerIntoPreview(peripheralDeviceId, triggerDeviceId, triggerId, values)
 	},
-})
+}

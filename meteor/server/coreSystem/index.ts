@@ -1,4 +1,8 @@
-import { SYSTEM_ID, GENESIS_SYSTEM_VERSION } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
+import {
+	SYSTEM_ID,
+	GENESIS_SYSTEM_VERSION,
+	ICoreSystem,
+} from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
 import { parseVersion } from '../systemStatus/semverUtils'
 import { getCurrentTime } from '../lib/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
@@ -7,22 +11,20 @@ import {
 	DEFAULT_CONFIRM_KEY_CODE,
 	DEFAULT_POISON_KEY,
 } from '@sofie-automation/shared-lib/dist/core/constants'
-import { Meteor } from 'meteor/meteor'
-import { prepareMigration, runMigration } from '../migration/databaseMigration'
-import { CURRENT_SYSTEM_VERSION } from '../migration/currentSystemVersion'
+import { prepareMigration, runMigrationFromTrusted } from '../migration/databaseMigration'
 import { Blueprints, CoreSystem } from '../collections'
 import { getEnvLogLevel, logger, LogLevel, setLogLevel } from '../logging'
 const PackageInfo = require('../../package.json')
 import { startAgent } from '../api/profiler/apm'
 import { profiler } from '../api/profiler'
 import { ICoreSystemSettings, TMP_TSR_VERSION } from '@sofie-automation/blueprints-integration'
-import { getAbsolutePath } from '../lib'
-import * as fs from 'fs/promises'
+import { getAbsolutePath, isInDevelopmentMode, isInTestMode } from '../lib'
 import path from 'path'
 import { checkDatabaseVersions } from './checkDatabaseVersions'
 import PLazy from 'p-lazy'
 import { getCoreSystemAsync } from './collection'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 const mosPkgJson = require('@mos-connection/helper/package.json')
 const superTimelinePkgJson = require('superfly-timeline/package.json')
 
@@ -30,7 +32,7 @@ export { PackageInfo }
 
 /** Get the store path used to be used for storing snapshots  */
 export function getSystemStorePath(): string {
-	if (isRunningInJest()) {
+	if (isInTestMode()) {
 		// Override the variable when invoked through Jest
 		return '/dev/null'
 	}
@@ -38,25 +40,21 @@ export function getSystemStorePath(): string {
 	const storePath = process.env.SOFIE_STORE_PATH
 	if (storePath) return path.resolve(storePath)
 
-	if (Meteor.isDevelopment) {
+	if (isInDevelopmentMode()) {
 		// For development, fallback to inside the .meteor folder
 		return getAbsolutePath() + '/.meteor/local/sofie-store'
 	}
 
-	throw new Meteor.Error(500, 'SOFIE_STORE_PATH must be defined to launch Sofie')
+	throw new SofieError(500, 'SOFIE_STORE_PATH must be defined to launch Sofie')
 }
 
-export function isRunningInJest(): boolean {
-	return !!process.env.JEST_WORKER_ID
-}
-
-async function initializeCoreSystem() {
+export async function initializeCoreSystem(): Promise<ICoreSystem> {
 	const system = await getCoreSystemAsync()
 	if (!system) {
 		// At this point, we probably have a system that is as fresh as it gets
 
 		const version = parseVersion(GENESIS_SYSTEM_VERSION)
-		await CoreSystem.insertAsync({
+		const system: ICoreSystem = {
 			_id: SYSTEM_ID,
 			created: getCurrentTime(),
 			modified: getCurrentTime(),
@@ -89,47 +87,31 @@ async function initializeCoreSystem() {
 				poisonKey: DEFAULT_POISON_KEY,
 			}),
 			lastBlueprintConfig: undefined,
-		})
+		}
+		await CoreSystem.insertAsync(system)
 
-		if (!isRunningInJest()) {
+		if (!isInTestMode()) {
 			// Check what migration has to provide:
 			const migration = await prepareMigration(true)
 			if (migration.migrationNeeded && migration.chunks.length <= 1) {
 				// Since we've determined that the migration can be done automatically, and we have a fresh system, just do the migration automatically:
-				await runMigration(migration.chunks, migration.hash)
+				await runMigrationFromTrusted(migration.chunks, migration.hash)
 			}
 		}
+
+		return system
 	}
 
-	// Monitor database changes:
-	await CoreSystem.observeChanges(SYSTEM_ID, {
-		added: onCoreSystemChanged,
-		changed: onCoreSystemChanged,
-		removed: onCoreSystemChanged,
-	})
-
-	const observeBlueprintChanges = () => {
-		checkDatabaseVersions()
-	}
-
-	await Blueprints.observeChanges(
-		{},
-		{
-			added: observeBlueprintChanges,
-			changed: observeBlueprintChanges,
-			removed: observeBlueprintChanges,
-		},
-		{ projection: { code: 0 } }
-	)
-
-	checkDatabaseVersions()
+	return system
 }
 
-function onCoreSystemChanged() {
+function onCoreSystemChanged(doc: ICoreSystem): void {
 	checkDatabaseVersions()
-	updateLoggerLevel(false).catch((e) => {
+	try {
+		updateLoggerLevel(doc, false)
+	} catch (e) {
 		logger.error(`Failed to update logger level: ${stringifyError(e)}`)
-	})
+	}
 }
 
 export const RelevantSystemVersions = PLazy.from(async () => {
@@ -143,35 +125,12 @@ export const RelevantSystemVersions = PLazy.from(async () => {
 	return versions
 })
 
-async function startupMessage() {
-	if (!Meteor.isTest) {
-		console.log('process started') // This is a message all Sofie processes log upon startup
-
-		logger.info(`Core starting up`)
-		logger.info(`Core system version: "${CURRENT_SYSTEM_VERSION}"`)
-
-		if (global.gc) {
-			logger.info(`Manual garbage-collection is enabled`)
-		} else {
-			logger.warn(
-				`Enable garbage-collection by passing --expose_gc to node in prod or set SERVER_NODE_OPTIONS=--expose_gc in dev`
-			)
-		}
-
-		const versions = await RelevantSystemVersions
-		for (const [name, version] of Object.entries<string>(versions)) {
-			logger.info(`Core package ${name} version: "${version}"`)
-		}
-	}
-}
-
-async function startInstrumenting() {
-	if (Meteor.isTest) {
+export function startApmInstrumenting(system: ICoreSystem): void {
+	if (isInTestMode()) {
 		return
 	}
 
 	// attempt init elastic APM
-	const system = await getCoreSystemAsync()
 	const { APM_HOST, APM_SECRET, KIBANA_INDEX, APP_HOST } = process.env
 
 	if (APM_HOST && system && system.apm) {
@@ -193,9 +152,8 @@ async function startInstrumenting() {
 		})
 	}
 }
-async function updateLoggerLevel(startup: boolean) {
-	if (Meteor.isTest) return // ignore this when running in tests
-	const coreSystem = await getCoreSystemAsync()
+export function updateLoggerLevel(coreSystem: ICoreSystem, startup: boolean): void {
+	if (isInTestMode()) return // ignore this when running in tests
 
 	if (coreSystem) {
 		setLogLevel(coreSystem.logLevel ?? getEnvLogLevel() ?? LogLevel.SILLY, startup)
@@ -204,18 +162,27 @@ async function updateLoggerLevel(startup: boolean) {
 	}
 }
 
-Meteor.startup(async () => {
-	if (Meteor.isServer) {
-		await startupMessage()
-		await updateLoggerLevel(true)
-		await initializeCoreSystem()
-		await startInstrumenting()
+export async function setupSystemStatusObservers(): Promise<void> {
+	// Monitor database changes:
+	await CoreSystem.observe(SYSTEM_ID, {
+		added: onCoreSystemChanged,
+		changed: onCoreSystemChanged,
+		removed: onCoreSystemChanged,
+	})
 
-		if (!isRunningInJest()) {
-			// Ensure the storepath exists
-			const storePath = getSystemStorePath()
-			logger.info(`Using storePath: ${storePath}`)
-			await fs.mkdir(storePath, { recursive: true })
-		}
+	const observeBlueprintChanges = () => {
+		checkDatabaseVersions()
 	}
-})
+
+	await Blueprints.observeChanges(
+		{},
+		{
+			added: observeBlueprintChanges,
+			changed: observeBlueprintChanges,
+			removed: observeBlueprintChanges,
+		},
+		{ projection: { code: 0 } }
+	)
+
+	checkDatabaseVersions()
+}

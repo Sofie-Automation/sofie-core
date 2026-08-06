@@ -43,7 +43,7 @@ import { createPlayoutModelFromIngestModel } from '../playout/model/implementati
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { updateSegmentIdsForAdlibbedPartInstances } from './commit/updateSegmentIdsForAdlibbedPartInstances.js'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
-import { AnyBulkWriteOperation } from 'mongodb'
+import { MongoBulkWriteOperation } from '@sofie-automation/corelib/dist/mongo'
 
 export type BeforePartMapItem = { id: PartId; rank: number }
 export type BeforeIngestOperationPartMap = ReadonlyMap<SegmentId, Array<BeforePartMapItem>>
@@ -369,7 +369,7 @@ async function updatePartInstancesSegmentIds(
 			return 0
 		})
 
-		const writeOps: AnyBulkWriteOperation<DBPartInstance>[] = []
+		const writeOps: MongoBulkWriteOperation<DBPartInstance>[] = []
 
 		logger.debug(`updatePartInstancesSegmentIds: renameRules: ${JSON.stringify(renameRules)}`)
 

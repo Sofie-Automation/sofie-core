@@ -2,16 +2,6 @@ import '../../../__mocks__/_extendJest'
 import { waitTime } from '../../../__mocks__/helpers/jest'
 import { WorkerJobQueueManager } from '../jobQueue'
 
-// Mock Meteor.defer to run synchronously for testing
-jest.mock('meteor/meteor', () => ({
-	Meteor: {
-		defer: (fn: () => void) => {
-			// Run deferred functions immediately in tests
-			setTimeout(fn, 0)
-		},
-	},
-}))
-
 // Mock the logging module
 jest.mock('../../logging')
 

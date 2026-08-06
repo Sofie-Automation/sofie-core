@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import { BlueprintId, BucketId, ShowStyleBaseId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { logger } from '../../../logging'
 import {
@@ -17,6 +16,7 @@ import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settin
 import { ReactiveMongoObserverGroup, ReactiveMongoObserverGroupHandle } from '../../lib/observerGroup'
 import _ from 'underscore'
 import { waitForAllObserversReady } from '../../lib/lib'
+import type { LiveQueryHandleSync } from '../../../lib/lib'
 
 const REACTIVITY_DEBOUNCE = 20
 
@@ -27,8 +27,8 @@ function convertShowStyleBase(doc: Pick<DBShowStyleBase, ShowStyleBaseFields>): 
 	}
 }
 
-export class BucketContentObserver implements Meteor.LiveQueryHandle {
-	#observers: Meteor.LiveQueryHandle[] = []
+export class BucketContentObserver implements LiveQueryHandleSync {
+	#observers: LiveQueryHandleSync[] = []
 	#cache: BucketContentCache
 
 	#showStyleBaseIds: ShowStyleBaseId[] = []
@@ -62,12 +62,12 @@ export class BucketContentObserver implements Meteor.LiveQueryHandle {
 					{
 						added: (doc) => {
 							const newDoc = convertShowStyleBase(doc)
-							cache.ShowStyleSourceLayers.upsert(doc._id, { $set: newDoc as Partial<Document> })
+							cache.ShowStyleSourceLayers.replace({ ...newDoc, _id: doc._id })
 							observer.updateBlueprintIds()
 						},
 						changed: (doc) => {
 							const newDoc = convertShowStyleBase(doc)
-							cache.ShowStyleSourceLayers.upsert(doc._id, { $set: newDoc as Partial<Document> })
+							cache.ShowStyleSourceLayers.replace({ ...newDoc, _id: doc._id })
 							observer.updateBlueprintIds()
 						},
 						removed: (doc) => {
@@ -103,7 +103,7 @@ export class BucketContentObserver implements Meteor.LiveQueryHandle {
 			]
 		})
 
-		// Subscribe to the database, and pipe any updates into the ReactiveCacheCollections
+		// Subscribe to the database, and pipe any updates into the cache collections
 		// This takes ownership of the #showStyleBaseIdObserver, and will stop it if this throws
 		observer.#observers = await waitForAllObserversReady([
 			BucketAdLibs.observeChanges(
@@ -140,42 +140,36 @@ export class BucketContentObserver implements Meteor.LiveQueryHandle {
 		return observer
 	}
 
-	private updateShowStyleBaseIds = _.debounce(
-		Meteor.bindEnvironment(() => {
-			if (this.#disposed) return
+	private updateShowStyleBaseIds = _.debounce(() => {
+		if (this.#disposed) return
 
-			const newShowStyleBaseIdsSet = new Set<ShowStyleBaseId>()
-			this.#cache.BucketAdLibs.find({}).forEach((adlib) => newShowStyleBaseIdsSet.add(adlib.showStyleBaseId))
-			this.#cache.BucketAdLibActions.find({}).forEach((action) =>
-				newShowStyleBaseIdsSet.add(action.showStyleBaseId)
-			)
+		const newShowStyleBaseIdsSet = new Set<ShowStyleBaseId>()
+		this.#cache.BucketAdLibs.findFetch({}).forEach((adlib) => newShowStyleBaseIdsSet.add(adlib.showStyleBaseId))
+		this.#cache.BucketAdLibActions.findFetch({}).forEach((action) =>
+			newShowStyleBaseIdsSet.add(action.showStyleBaseId)
+		)
 
-			const newShowStyleBaseIds = Array.from(newShowStyleBaseIdsSet)
+		const newShowStyleBaseIds = Array.from(newShowStyleBaseIdsSet)
 
-			if (!equivalentArrays(newShowStyleBaseIds, this.#showStyleBaseIds)) {
-				this.#showStyleBaseIds = newShowStyleBaseIds
-				// trigger the rundown group to restart
-				this.#showStyleBaseIdObserver.restart()
-			}
-		}),
-		REACTIVITY_DEBOUNCE
-	)
+		if (!equivalentArrays(newShowStyleBaseIds, this.#showStyleBaseIds)) {
+			this.#showStyleBaseIds = newShowStyleBaseIds
+			// trigger the rundown group to restart
+			this.#showStyleBaseIdObserver.restart()
+		}
+	}, REACTIVITY_DEBOUNCE)
 
-	private updateBlueprintIds = _.debounce(
-		Meteor.bindEnvironment(() => {
-			if (this.#disposed) return
+	private updateBlueprintIds = _.debounce(() => {
+		if (this.#disposed) return
 
-			const newBlueprintIds = _.uniq(this.#cache.ShowStyleSourceLayers.find({}).map((rd) => rd.blueprintId))
+		const newBlueprintIds = _.uniq(this.#cache.ShowStyleSourceLayers.findFetch({}).map((rd) => rd.blueprintId))
 
-			if (!equivalentArrays(newBlueprintIds, this.#blueprintIds)) {
-				logger.silly(`optimized observer changed ids ${JSON.stringify(newBlueprintIds)} ${this.#blueprintIds}`)
-				this.#blueprintIds = newBlueprintIds
-				// trigger the rundown group to restart
-				this.#blueprintIdObserver.restart()
-			}
-		}),
-		REACTIVITY_DEBOUNCE
-	)
+		if (!equivalentArrays(newBlueprintIds, this.#blueprintIds)) {
+			logger.silly(`optimized observer changed ids ${JSON.stringify(newBlueprintIds)} ${this.#blueprintIds}`)
+			this.#blueprintIds = newBlueprintIds
+			// trigger the rundown group to restart
+			this.#blueprintIdObserver.restart()
+		}
+	}, REACTIVITY_DEBOUNCE)
 
 	public get cache(): BucketContentCache {
 		return this.#cache

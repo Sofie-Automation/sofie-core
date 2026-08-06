@@ -1,7 +1,6 @@
-import { Meteor } from 'meteor/meteor'
-import { AllPubSubTypes } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { ProtectedString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { PublishDocType, SubscriptionContext, meteorPublishUnsafe } from '../../publications/lib/lib'
+import { PublicationContext } from '../../publications/lib/lib'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 export interface CustomPublishChanges<T extends { _id: ProtectedString<any> }> {
 	added: Array<T>
@@ -33,7 +32,7 @@ export class CustomPublishMeteor<DBObj extends { _id: ProtectedString<any> }> {
 	#isReady = false
 
 	constructor(
-		private _meteorSubscription: SubscriptionContext,
+		private _meteorSubscription: PublicationContext,
 		private _collectionName: string
 	) {
 		this._meteorSubscription.onStop(() => {
@@ -56,7 +55,7 @@ export class CustomPublishMeteor<DBObj extends { _id: ProtectedString<any> }> {
 	 * Send the intial documents to the subscriber
 	 */
 	init(docs: DBObj[]): void {
-		if (this.#isReady) throw new Meteor.Error(500, 'CustomPublish has already been initialised')
+		if (this.#isReady) throw new SofieError(500, 'CustomPublish has already been initialised')
 
 		for (const doc of docs) {
 			this._meteorSubscription.added(this._collectionName, unprotectString(doc._id), doc)
@@ -70,7 +69,7 @@ export class CustomPublishMeteor<DBObj extends { _id: ProtectedString<any> }> {
 	 * Send a batch of changes to the subscriber
 	 */
 	changed(changes: CustomPublishChanges<DBObj>): void {
-		if (!this.#isReady) throw new Meteor.Error(500, 'CustomPublish has not been initialised')
+		if (!this.#isReady) throw new SofieError(500, 'CustomPublish has not been initialised')
 
 		for (const id of changes.removed.values()) {
 			this._meteorSubscription.removed(this._collectionName, unprotectString(id))
@@ -86,19 +85,4 @@ export class CustomPublishMeteor<DBObj extends { _id: ProtectedString<any> }> {
 	}
 }
 
-type PublishIfDocument<Doc> = Doc extends { _id: ProtectedString<any> } ? CustomPublish<Doc> : never
-
-/** Wrapping of Meteor.publish to provide types for for custom publications */
-export function meteorCustomPublish<K extends keyof AllPubSubTypes, N extends ReturnType<AllPubSubTypes[K]>>(
-	publicationName: K,
-	customCollectionName: N,
-	cb: (
-		this: SubscriptionContext,
-		publication: PublishIfDocument<PublishDocType<K>>,
-		...args: Parameters<AllPubSubTypes[K]>
-	) => Promise<void>
-): void {
-	meteorPublishUnsafe(publicationName, async function (this: SubscriptionContext, ...args: any[]) {
-		return cb.call(this, new CustomPublishMeteor<any>(this, String(customCollectionName)) as any, ...(args as any))
-	})
-}
+export type PublishIfDocument<Doc> = Doc extends { _id: ProtectedString<any> } ? CustomPublish<Doc> : never

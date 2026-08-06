@@ -1,4 +1,4 @@
-import { ReactiveCacheCollection } from '../lib/ReactiveCacheCollection'
+import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { MongoFieldSpecifierOnesStrict } from '@sofie-automation/corelib/dist/mongo'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
@@ -83,18 +83,18 @@ export const blueprintFieldSpecifier = literal<MongoFieldSpecifierOnesStrict<Pic
 })
 
 export interface ContentCache {
-	CoreSystem: ReactiveCacheCollection<Pick<ICoreSystem, CoreSystemFields>>
-	Studios: ReactiveCacheCollection<Pick<DBStudio, StudioFields>>
-	ShowStyleBases: ReactiveCacheCollection<Pick<DBShowStyleBase, ShowStyleBaseFields>>
-	Blueprints: ReactiveCacheCollection<Pick<Blueprint, BlueprintFields>>
+	CoreSystem: InMemoryMongoCollection<Pick<ICoreSystem, CoreSystemFields>>
+	Studios: InMemoryMongoCollection<Pick<DBStudio, StudioFields>>
+	ShowStyleBases: InMemoryMongoCollection<Pick<DBShowStyleBase, ShowStyleBaseFields>>
+	Blueprints: InMemoryMongoCollection<Pick<Blueprint, BlueprintFields>>
 }
 
 export function createReactiveContentCache(): ContentCache {
 	const cache: ContentCache = {
-		CoreSystem: new ReactiveCacheCollection<Pick<ICoreSystem, CoreSystemFields>>('coreSystem'),
-		Studios: new ReactiveCacheCollection<Pick<DBStudio, StudioFields>>('studios'),
-		ShowStyleBases: new ReactiveCacheCollection<Pick<DBShowStyleBase, ShowStyleBaseFields>>('showStyleBases'),
-		Blueprints: new ReactiveCacheCollection<Pick<Blueprint, BlueprintFields>>('blueprints'),
+		CoreSystem: new InMemoryMongoCollection<Pick<ICoreSystem, CoreSystemFields>>('coreSystem'),
+		Studios: new InMemoryMongoCollection<Pick<DBStudio, StudioFields>>('studios'),
+		ShowStyleBases: new InMemoryMongoCollection<Pick<DBShowStyleBase, ShowStyleBaseFields>>('showStyleBases'),
+		Blueprints: new InMemoryMongoCollection<Pick<Blueprint, BlueprintFields>>('blueprints'),
 	}
 
 	return cache

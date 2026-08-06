@@ -1,10 +1,10 @@
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
-import { Meteor } from 'meteor/meteor'
 import { Simplify } from 'type-fest'
 import { assertNever } from '@sofie-automation/corelib/dist/lib'
 import { logger } from '../../logging'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
-import { MinimalMongoCursor } from '../../collections/implementations/asyncCollection'
+import { MinimalMongoCursor } from '../../collections/collection'
+import type { LiveQueryHandleSync } from '../../lib/lib'
 
 /**
  * https://stackoverflow.com/a/66011942
@@ -22,16 +22,16 @@ type Link<T> = {
 		cursorChain: (state: T) => Promise<MinimalMongoCursor<K> | null>
 	) => Link<Simplify<T & { [P in StringLiteral<L>]: K }>>
 
-	end: (complete: (state: T | null) => void) => Meteor.LiveQueryHandle
+	end: (complete: (state: T | null) => void) => LiveQueryHandleSync
 }
 
 export function observerChain(): Pick<Link<unknown>, 'next'> {
-	function createNextLink(baseCollectorObject: Record<string, any>, liveQueryHandle: Meteor.LiveQueryHandle) {
+	function createNextLink(baseCollectorObject: Record<string, any>, liveQueryHandle: LiveQueryHandleSync) {
 		let mode: 'next' | 'end' | undefined
 		let chainedCursor: (state: Record<string, any>) => Promise<MinimalMongoCursor<any> | null>
 		let completeFunction: (state: Record<string, any> | null) => void
 		let chainedKey: string | undefined = undefined
-		let previousObserver: Meteor.LiveQueryHandle | null = null
+		let previousObserver: LiveQueryHandleSync | null = null
 
 		let nextChanged: (obj: Record<string, any>) => void = () => {
 			if (mode === 'end') return
@@ -159,13 +159,11 @@ export function observerChain(): Pick<Link<unknown>, 'next'> {
 	return {
 		next: (key, cursorChain) => {
 			const nextLink = link.next(key, cursorChain)
-			setImmediate(
-				Meteor.bindEnvironment(() => {
-					changed({}).catch((e) => {
-						logger.error(`Error in observerChain: ${stringifyError(e)}`)
-					})
+			setImmediate(() => {
+				changed({}).catch((e) => {
+					logger.error(`Error in observerChain: ${stringifyError(e)}`)
 				})
-			)
+			})
 			return nextLink as any
 		},
 	}

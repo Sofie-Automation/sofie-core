@@ -1,3 +1,6 @@
-meteor/.meteor/local
-meteor/node_modules
 .git
+meteor/.meteor
+meteor/_build
+meteor/.coverage
+packages/*/coverage
+packages/documentation/build

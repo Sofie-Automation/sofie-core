@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { MongoFieldSpecifierOnesStrict } from '@sofie-automation/corelib/dist/mongo'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
@@ -7,14 +8,14 @@ import { DBStudio, UIStudio } from '@sofie-automation/corelib/dist/dataModel/Stu
 import { Complete, literal } from '@sofie-automation/corelib/dist/lib'
 import {
 	CustomPublishCollection,
-	meteorCustomPublish,
 	setUpCollectionOptimizedObserver,
 	SetupObserversResult,
 	TriggerUpdate,
 } from '../lib/customPublication'
 import { Studios } from '../collections'
-import { check, Match } from 'meteor/check'
+import { check } from '../lib/check'
 import { triggerWriteAccessBecauseNoCheckNecessary } from '../security/securityVerify'
+import type { PublicationRegistry } from '../publicationRegistry'
 
 interface UIStudioArgs {
 	readonly studioId: StudioId | null
@@ -121,20 +122,22 @@ async function manipulateUIStudioPublicationData(
 	}
 }
 
-meteorCustomPublish(
-	MeteorPubSub.uiStudio,
-	CustomCollectionName.UIStudio,
-	async function (pub, studioId: StudioId | null) {
-		check(studioId, Match.Maybe(String))
+export function registerStudioUIPublications(registry: PublicationRegistry): void {
+	registry.customPublish(
+		MeteorPubSub.uiStudio,
+		CustomCollectionName.UIStudio,
+		async (_context, pub, studioId: StudioId | null) => {
+			check(studioId, z.string().nullish())
 
-		triggerWriteAccessBecauseNoCheckNecessary()
+			triggerWriteAccessBecauseNoCheckNecessary()
 
-		await setUpCollectionOptimizedObserver<UIStudio, UIStudioArgs, UIStudioState, UIStudioUpdateProps>(
-			`pub_${MeteorPubSub.uiStudio}_${studioId}`,
-			{ studioId },
-			setupUIStudioPublicationObservers,
-			manipulateUIStudioPublicationData,
-			pub
-		)
-	}
-)
+			await setUpCollectionOptimizedObserver<UIStudio, UIStudioArgs, UIStudioState, UIStudioUpdateProps>(
+				`pub_${MeteorPubSub.uiStudio}_${studioId}`,
+				{ studioId },
+				setupUIStudioPublicationObservers,
+				manipulateUIStudioPublicationData,
+				pub
+			)
+		}
+	)
+}

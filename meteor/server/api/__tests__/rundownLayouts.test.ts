@@ -7,12 +7,15 @@ import {
 	RundownLayout,
 	CustomizableRegions,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import { MeteorCall } from '../methods'
+import { RundownLayoutsAPIMethods } from '@sofie-automation/meteor-lib/dist/api/rundownLayouts'
 import { RundownLayoutId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { RundownLayouts } from '../../collections'
 import { SupressLogMessages } from '../../../__mocks__/suppressLogging'
-import { shelfLayoutsRouter } from '../rundownLayouts'
+import { shelfLayoutsRouter, ServerRundownLayoutsAPI } from '../rundownLayouts'
 import { callKoaRoute } from '../../../__mocks__/koa-util'
+import { makeMeteorCallForTest } from '../../../__mocks__/helpers/methods'
+
+const MeteorCall = makeMeteorCallForTest({ methods: RundownLayoutsAPIMethods, class: ServerRundownLayoutsAPI })
 
 describe('Rundown Layouts', () => {
 	let env: DefaultEnvironment

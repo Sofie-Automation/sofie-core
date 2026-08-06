@@ -1,5 +1,5 @@
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { ReactiveCacheCollection } from '../lib/ReactiveCacheCollection'
+import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { MongoFieldSpecifierOnesStrict, MongoFieldSpecifierZeroes } from '@sofie-automation/corelib/dist/mongo'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
@@ -49,20 +49,20 @@ export interface StudioSettingsDoc {
 }
 
 export interface ContentCache {
-	StudioSettings: ReactiveCacheCollection<StudioSettingsDoc>
-	Segments: ReactiveCacheCollection<Pick<DBSegment, SegmentFields>>
-	Parts: ReactiveCacheCollection<Pick<DBPart, PartFields>>
-	PartInstances: ReactiveCacheCollection<Omit<DBPartInstance, PartInstanceOmitedFields>>
-	RundownPlaylists: ReactiveCacheCollection<RundownPlaylistCompact>
+	StudioSettings: InMemoryMongoCollection<StudioSettingsDoc>
+	Segments: InMemoryMongoCollection<Pick<DBSegment, SegmentFields>>
+	Parts: InMemoryMongoCollection<Pick<DBPart, PartFields>>
+	PartInstances: InMemoryMongoCollection<Omit<DBPartInstance, PartInstanceOmitedFields>>
+	RundownPlaylists: InMemoryMongoCollection<RundownPlaylistCompact>
 }
 
 export function createReactiveContentCache(): ContentCache {
 	const cache: ContentCache = {
-		StudioSettings: new ReactiveCacheCollection<StudioSettingsDoc>('studioSettings'),
-		Segments: new ReactiveCacheCollection<Pick<DBSegment, SegmentFields>>('segments'),
-		Parts: new ReactiveCacheCollection<Pick<DBPart, PartFields>>('parts'),
-		PartInstances: new ReactiveCacheCollection<Omit<DBPartInstance, PartInstanceOmitedFields>>('partInstances'),
-		RundownPlaylists: new ReactiveCacheCollection<RundownPlaylistCompact>('rundownPlaylists'),
+		StudioSettings: new InMemoryMongoCollection<StudioSettingsDoc>('studioSettings'),
+		Segments: new InMemoryMongoCollection<Pick<DBSegment, SegmentFields>>('segments'),
+		Parts: new InMemoryMongoCollection<Pick<DBPart, PartFields>>('parts'),
+		PartInstances: new InMemoryMongoCollection<Omit<DBPartInstance, PartInstanceOmitedFields>>('partInstances'),
+		RundownPlaylists: new InMemoryMongoCollection<RundownPlaylistCompact>('rundownPlaylists'),
 	}
 
 	return cache

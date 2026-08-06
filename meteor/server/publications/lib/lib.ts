@@ -1,46 +1,80 @@
-import { Meteor, Subscription } from 'meteor/meteor'
 import { AllPubSubCollections, AllPubSubTypes } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { extractFunctionSignature } from '../../lib'
-import { protectStringObject } from '@sofie-automation/corelib/dist/protectedString'
-import { MetricsGauge } from '@sofie-automation/corelib/dist/prometheus'
-import { MinimalMongoCursor } from '../../collections/implementations/asyncCollection'
-
-export const MeteorPublicationSignatures: { [key: string]: string[] } = {}
-// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-export const MeteorPublications: { [key: string]: Function } = {}
-
-const MeteorPublicationsGauge = new MetricsGauge({
-	name: `sofie_meteor_publication_subscribers_total`,
-	help: 'Number of subscribers on a Meteor publication (ignoring arguments)',
-	labelNames: ['publication'],
-})
-
-export type SubscriptionContext = Omit<Subscription, 'userId'>
+import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
+import { MinimalMongoCursor } from '../../collections/collection'
+import type { LiveQueryHandleSync } from '../../lib/lib'
+import type { DDPClientConnection } from '../../ddp-server/types'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 /**
- * Unsafe wrapper around Meteor.publish
- * @param name
- * @param callback
+ * The context handed to a publication callback.
  */
-export function meteorPublishUnsafe(
-	name: string,
-	callback: (this: SubscriptionContext, ...args: any) => Promise<any>
-): void {
-	const signature = extractFunctionSignature(callback)
-	if (signature) MeteorPublicationSignatures[name] = signature
+export interface PublicationContext {
+	/** The client connection that opened this subscription. Used by the auth layer for permission checks. */
+	readonly connection: DDPClientConnection | null
 
-	MeteorPublications[name] = callback
+	/**
+	 * Register a function to be called when the subscriber unsubscribes.
+	 * @deprecated Use `signal` instead
+	 */
+	onStop(callback: () => void): void
 
-	const publicationGauge = MeteorPublicationsGauge.labels({ publication: name })
+	/**
+	 * An AbortSignal that is aborted when the subscription is stopped.
+	 *
+	 * Note: `addEventListener('abort', ...)` is a no-op if the signal is *already* aborted (the
+	 * subscription may have stopped while you were awaiting setup). Always guard teardown with an
+	 * explicit `aborted` check, e.g. `if (signal.aborted) teardown(); else signal.addEventListener(...)`.
+	 */
+	signal: AbortSignal
 
-	Meteor.publish(name, async function (...args: any[]): Promise<any> {
-		publicationGauge.inc()
-		this.onStop(() => publicationGauge.dec())
+	/** Mark the subscription as ready (i.e. the initial set of documents has been sent). */
+	ready(): void
 
-		const callbackRes = await callback.apply(protectStringObject<Subscription, 'userId'>(this), args)
-		// If no value is returned, return an empty array so that meteor marks the subscription as ready
-		return callbackRes || []
-	})
+	/** Send an added document to the subscriber. */
+	added(collection: string, id: string, fields: Record<string, unknown>): void
+	/** Send a changed document (changed fields only) to the subscriber. */
+	changed(collection: string, id: string, fields: Record<string, unknown>): void
+	/** Send a removed document to the subscriber. */
+	removed(collection: string, id: string): void
+}
+
+/**
+ * Observe a Mongo cursor and forward its changes into a publication context, stopping the observe handle
+ * when the subscription stops. The cursor's `collectionName` names the published collection.
+ */
+export async function driveSubscriptionFromCursor(
+	context: PublicationContext,
+	cursor: MinimalMongoCursor<any>
+): Promise<void> {
+	const collectionName = cursor.collectionName
+	if (!collectionName) throw new SofieError(500, 'Cursor has no collection name, cannot publish')
+
+	const handle = await cursor.observeChangesAsync(
+		{
+			added: (id, fields) =>
+				context.added(collectionName, unprotectString(id), fields as Record<string, unknown>),
+			changed: (id, fields) =>
+				context.changed(collectionName, unprotectString(id), fields as Record<string, unknown>),
+			removed: (id) => context.removed(collectionName, unprotectString(id)),
+		},
+		{ nonMutatingCallbacks: true }
+	)
+
+	// The subscription may have stopped while we were awaiting the setup above; tear down immediately if so.
+	// Otherwise wire up the normal stop handler
+	if (context.signal.aborted) handle.stop()
+	else
+		context.signal.addEventListener(
+			'abort',
+			() => {
+				try {
+					handle.stop()
+				} catch {
+					/* ignore */
+				}
+			},
+			{ once: true }
+		)
 }
 
 export type PublishDocType<K extends keyof AllPubSubTypes> =
@@ -49,32 +83,17 @@ export type PublishDocType<K extends keyof AllPubSubTypes> =
 		: never
 
 /**
- * Wrapper around Meteor.publish with stricter typings
- * @param name
- * @param callback
- */
-export function meteorPublish<K extends keyof AllPubSubTypes>(
-	name: K,
-	callback: (
-		this: SubscriptionContext,
-		...args: Parameters<AllPubSubTypes[K]>
-	) => Promise<MinimalMongoCursor<PublishDocType<K>> | null>
-): void {
-	meteorPublishUnsafe(name, callback)
-}
-
-/**
  * Await each observer, and return the handles
  * If an observer throws, this will make sure to stop all the ones that were successfully started, to avoid leaking memory
  */
 export async function waitForAllObserversReady(
-	observers: Array<Promise<Meteor.LiveQueryHandle> | Meteor.LiveQueryHandle>
-): Promise<Meteor.LiveQueryHandle[]> {
+	observers: Array<Promise<LiveQueryHandleSync> | LiveQueryHandleSync>
+): Promise<LiveQueryHandleSync[]> {
 	// Wait for all the promises to complete
 	// Future: could this fail faster by aborting the rest once the first fails?
-	const results = await Promise.allSettled(observers as Array<Promise<Meteor.LiveQueryHandle>>)
+	const results = await Promise.allSettled(observers as Array<Promise<LiveQueryHandleSync>>)
 	const allSuccessfull = results.filter(
-		(r): r is PromiseFulfilledResult<Meteor.LiveQueryHandle> => r.status === 'fulfilled'
+		(r): r is PromiseFulfilledResult<LiveQueryHandleSync> => r.status === 'fulfilled'
 	)
 
 	const firstFailure = results.find((r): r is PromiseRejectedResult => r.status === 'rejected')
@@ -86,7 +105,7 @@ export async function waitForAllObserversReady(
 		if (firstFailure) {
 			throw firstFailure.reason
 		} else {
-			throw new Meteor.Error(500, 'Not all observers were started')
+			throw new SofieError(500, 'Not all observers were started')
 		}
 	}
 

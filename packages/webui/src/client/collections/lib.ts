@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor'
 import { Mongo } from 'meteor/mongo'
 import { type ProtectedString, protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
-import type { Collection as RawCollection, Db as RawDb } from 'mongodb'
+import type { Collection as RawCollection } from 'mongodb'
 import type {
 	CollectionName,
 	CustomCollectionName as CustomCorelibCollectionName,
@@ -14,30 +14,24 @@ import type {
 	PeripheralDevicePubSubCollectionsNames,
 } from '@sofie-automation/shared-lib/dist/pubsub/peripheralDevice'
 import type {
-	MongoCollection,
-	MongoReadOnlyCollection,
-	MongoCursor,
 	FindOptions,
 	FindOneOptions,
 	UpdateOptions,
 	UpsertOptions,
 } from '@sofie-automation/meteor-lib/dist/collections/lib'
 import type { CorelibPubSubCustomCollections } from '@sofie-automation/corelib/dist/pubsub'
+import type { MongoCollection, MongoCursor, MongoReadOnlyCollection } from './types'
 
 export type {
 	FieldNames,
 	FindOneOptions,
 	FindOptions,
 	IndexSpecifier,
-	MongoCollection,
-	MongoCursor,
 	MongoLiveQueryHandle,
-	MongoReadOnlyCollection,
-	ObserveCallbacks,
-	ObserveChangesCallbacks,
 	UpdateOptions,
 	UpsertOptions,
 } from '@sofie-automation/meteor-lib/dist/collections/lib'
+export * from './types'
 
 export const ClientCollections = new Map<CollectionName, MongoCollection<any> | WrappedMongoReadOnlyCollection<any>>()
 function registerClientCollection(
@@ -67,22 +61,6 @@ export function getOrCreateMongoCollection(name: string): Mongo.Collection<any> 
 	const newCollection = new Mongo.Collection(name)
 	collectionsCache.set(name, newCollection)
 	return newCollection
-}
-
-/**
- * Wrap an existing Mongo.Collection to have async methods. Primarily to convert the built-in Users collection
- * @param collection Collection to wrap
- * @param name Name of the collection
- */
-export function wrapMongoCollection<DBInterface extends { _id: ProtectedString<any> }>(
-	collection: Mongo.Collection<DBInterface>,
-	name: CollectionName
-): MongoCollection<DBInterface> {
-	const wrapped = new WrappedMongoCollection<DBInterface>(collection, name)
-
-	registerClientCollection(name, wrapped)
-
-	return wrapped
 }
 
 /**
@@ -133,7 +111,7 @@ export function createSyncReadOnlyMongoCollection<DBInterface extends { _id: Pro
 export function createSyncCustomPublicationMongoCollection<
 	K extends CustomCollectionName & keyof MeteorPubSubCustomCollections,
 >(name: K): MongoReadOnlyCollection<MeteorPubSubCustomCollections[K]> {
-	const collection = new Mongo.Collection<MeteorPubSubCustomCollections[K]>(name)
+	const collection = getOrCreateMongoCollection(name) as Mongo.Collection<MeteorPubSubCustomCollections[K]>
 	const wrapped = new WrappedMongoReadOnlyCollection<MeteorPubSubCustomCollections[K]>(collection, name)
 
 	if (PublicationCollections.has(name)) throw new Meteor.Error(`Cannot re-register collection "${name}"`)
@@ -145,7 +123,7 @@ export function createSyncCustomPublicationMongoCollection<
 export function createSyncCorelibCustomPublicationMongoCollection<
 	K extends CustomCorelibCollectionName & keyof CorelibPubSubCustomCollections,
 >(name: K): MongoReadOnlyCollection<CorelibPubSubCustomCollections[K]> {
-	const collection = new Mongo.Collection<CorelibPubSubCustomCollections[K]>(name)
+	const collection = getOrCreateMongoCollection(name) as Mongo.Collection<CorelibPubSubCustomCollections[K]>
 	const wrapped = new WrappedMongoReadOnlyCollection<CorelibPubSubCustomCollections[K]>(collection, name)
 
 	if (PublicationCollections.has(name)) throw new Meteor.Error(`Cannot re-register collection "${name}"`)
@@ -157,7 +135,7 @@ export function createSyncCorelibCustomPublicationMongoCollection<
 export function createSyncPeripheralDeviceCustomPublicationMongoCollection<
 	K extends PeripheralDevicePubSubCollectionsNames & keyof PeripheralDevicePubSubCollections,
 >(name: K): MongoReadOnlyCollection<PeripheralDevicePubSubCollections[K]> {
-	const collection = new Mongo.Collection<PeripheralDevicePubSubCollections[K]>(name)
+	const collection = getOrCreateMongoCollection(name) as Mongo.Collection<PeripheralDevicePubSubCollections[K]>
 	const wrapped = new WrappedMongoReadOnlyCollection<PeripheralDevicePubSubCollections[K]>(collection, name)
 
 	if (PublicationCollections.has(name)) throw new Meteor.Error(`Cannot re-register collection "${name}"`)
@@ -227,9 +205,6 @@ export class WrappedMongoCollection<DBInterface extends { _id: ProtectedString<a
 	}
 	rawCollection(): RawCollection<DBInterface> {
 		return this._collection.rawCollection() as any
-	}
-	rawDatabase(): RawDb {
-		return this._collection.rawDatabase() as any
 	}
 	remove(selector: MongoQuery<DBInterface> | DBInterface['_id']): number {
 		try {

@@ -26,7 +26,12 @@ await Promise.all([
 	findCommonJsPathsForLibrary('@sofie-automation/meteor-lib/dist', '../meteor-lib/dist'),
 ])
 
-const basePath = process.env.SOFIE_BASE_PATH || ''
+const basePath = process.env.DEV_SOFIE_BASE_PATH || ''
+
+// The sofie server the dev server proxies the api and websocket to. Must match the server's own
+// default, and its SOFIE_PORT override (see .env.example).
+const serverPort = process.env.SOFIE_PORT || '3000'
+const serverUrl = `http://127.0.0.1:${serverPort}`
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command }) => ({
@@ -77,12 +82,12 @@ export default defineConfig(({ command }) => ({
 	server: {
 		allowedHosts: true,
 		proxy: {
-			[basePath + '/api']: 'http://127.0.0.1:3000',
-			[basePath + '/site.webmanifest']: 'http://127.0.0.1:3000',
-			[basePath + '/meteor-runtime-config.js']: 'http://127.0.0.1:3000',
-			[basePath + '/images/sofie-logo.svg']: 'http://127.0.0.1:3000',
+			[basePath + '/api']: serverUrl,
+			[basePath + '/site.webmanifest']: serverUrl,
+			[basePath + '/meteor-runtime-config.js']: serverUrl,
+			[basePath + '/images/sofie-logo.svg']: serverUrl,
 			[basePath + '/websocket']: {
-				target: `ws://127.0.0.1:3000`,
+				target: `ws://127.0.0.1:${serverPort}`,
 				ws: true,
 			},
 		},

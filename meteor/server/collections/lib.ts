@@ -2,27 +2,25 @@ import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collect
 import { getHash } from '@sofie-automation/corelib/dist/hash'
 import { MongoFieldSpecifierOnes } from '@sofie-automation/corelib/dist/mongo'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
-import { Meteor } from 'meteor/meteor'
 import _ from 'underscore'
 import { stringifyObjects } from '@sofie-automation/corelib/dist/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { logger } from '../logging'
 import { AsyncOnlyMongoCollection, AsyncOnlyReadOnlyMongoCollection } from './collection'
-
-type Timeout = number
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 const ObserveChangeBufferTimeout = 2000
 
 export const Collections = new Map<CollectionName, AsyncOnlyReadOnlyMongoCollection<any>>()
 export function registerCollection(name: CollectionName, collection: AsyncOnlyReadOnlyMongoCollection<any>): void {
-	if (Collections.has(name)) throw new Meteor.Error(`Cannot re-register collection "${name}"`)
+	if (Collections.has(name)) throw new SofieError(500, `Cannot re-register collection "${name}"`)
 	Collections.set(name, collection)
 }
 export function getCollectionKey(collection: AsyncOnlyReadOnlyMongoCollection<any>): CollectionName {
 	const o = Array.from(Collections.entries()).find(
 		([_key, col]) => col === collection || col.mutableCollection === collection
 	)
-	if (!o) throw new Meteor.Error(500, `Collection "${collection.name}" not found in Collections!`)
+	if (!o) throw new SofieError(500, `Collection "${collection.name}" not found in Collections!`)
 	return o[0] // collectionName
 }
 
@@ -53,7 +51,7 @@ export async function ObserveChangesHelper<DBInterface extends { _id: ProtectedS
 	changeDebounce: number,
 	skipEnsureUpdatedOnStart?: boolean
 ): Promise<void> {
-	const observedChangesTimeouts = new Map<DBInterface['_id'], Timeout>()
+	const observedChangesTimeouts = new Map<DBInterface['_id'], NodeJS.Timeout>()
 
 	const projection: MongoFieldSpecifierOnes<DBInterface> = {}
 	for (const field of watchFields) {
@@ -65,14 +63,14 @@ export async function ObserveChangesHelper<DBInterface extends { _id: ProtectedS
 		{
 			changed: (id: DBInterface['_id'], changedFields) => {
 				if (Object.keys(changedFields).length > 0) {
-					const data: Timeout | undefined = observedChangesTimeouts.get(id)
+					const data: NodeJS.Timeout | undefined = observedChangesTimeouts.get(id)
 					if (data !== undefined) {
 						// Already queued, so do nothing
 					} else {
 						// Schedule update
 						observedChangesTimeouts.set(
 							id,
-							Meteor.setTimeout(() => {
+							setTimeout(() => {
 								// This looks like a race condition, but is safe as the data for the 'lost' change will still be loaded below
 								observedChangesTimeouts.delete(id)
 

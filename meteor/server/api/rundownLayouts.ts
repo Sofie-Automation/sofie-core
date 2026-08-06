@@ -1,7 +1,6 @@
-import { Meteor } from 'meteor/meteor'
-import { check, Match } from '../lib/check'
-import { registerClassToMeteorMethods } from '../methods'
-import { NewRundownLayoutsAPI, RundownLayoutsAPIMethods } from '@sofie-automation/meteor-lib/dist/api/rundownLayouts'
+import { z } from 'zod'
+import { check } from '../lib/check'
+import { NewRundownLayoutsAPI } from '@sofie-automation/meteor-lib/dist/api/rundownLayouts'
 import {
 	RundownLayoutType,
 	RundownLayoutBase,
@@ -18,6 +17,7 @@ import KoaRouter from '@koa/router'
 import bodyParser from 'koa-bodyparser'
 import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
 import { assertConnectionHasOneOfPermissions } from '../security/auth'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 const PERMISSIONS_FOR_MANAGE_RUNDOWN_LAYOUTS: Array<keyof UserPermissions> = ['configure']
 
@@ -65,28 +65,29 @@ shelfLayoutsRouter.post(
 
 		const showStyleBaseId: ShowStyleBaseId = protectString(ctx.params.showStyleBaseId)
 
-		check(showStyleBaseId, String)
+		check(showStyleBaseId, z.string())
 
 		try {
 			const showStyleBase = await fetchShowStyleBaseLight(showStyleBaseId)
-			if (!showStyleBase) throw new Meteor.Error(404, `ShowStylebase "${showStyleBaseId}" not found`)
+			if (!showStyleBase) throw new SofieError(404, `ShowStylebase "${showStyleBaseId}" not found`)
 
 			if (ctx.request.type !== 'application/json')
-				throw new Meteor.Error(400, 'Restore Shelf Layout: Invalid content-type')
+				throw new SofieError(400, 'Restore Shelf Layout: Invalid content-type')
 
 			const body = ctx.request.body
-			if (!body) throw new Meteor.Error(400, 'Restore Shelf Layout: Missing request body')
+			if (!body) throw new SofieError(400, 'Restore Shelf Layout: Missing request body')
 			if (typeof body !== 'object' || Object.keys(body as any).length === 0)
-				throw new Meteor.Error(400, 'Restore Shelf Layout: Invalid request body')
+				throw new SofieError(400, 'Restore Shelf Layout: Invalid request body')
 
 			const layout = body as RundownLayoutBase
-			check(layout._id, Match.Optional(String))
-			check(layout.name, String)
-			check(layout.type, String)
+			check(layout._id, z.string().optional())
+			check(layout.name, z.string())
+			check(layout.type, z.string())
 
+			layout._id = layout._id || getRandomId()
 			layout.showStyleBaseId = showStyleBase._id
 
-			await RundownLayouts.upsertAsync(layout._id, layout)
+			await RundownLayouts.replaceAsync(layout)
 
 			ctx.response.status = 200
 			ctx.body = ''
@@ -101,7 +102,7 @@ shelfLayoutsRouter.post(
 shelfLayoutsRouter.get('/download/:id', async (ctx) => {
 	const layoutId: RundownLayoutId = protectString(ctx.params.id)
 
-	check(layoutId, String)
+	check(layoutId, z.string())
 
 	const layout = await RundownLayouts.findOneAsync(layoutId)
 	if (!layout) {
@@ -130,37 +131,36 @@ async function apiCreateRundownLayout(
 	showStyleBaseId: ShowStyleBaseId,
 	regionId: CustomizableRegions
 ) {
-	check(name, String)
-	check(type, String)
-	check(showStyleBaseId, String)
-	check(regionId, String)
+	check(name, z.string())
+	check(type, z.string())
+	check(showStyleBaseId, z.string())
+	check(regionId, z.string())
 
 	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_MANAGE_RUNDOWN_LAYOUTS)
 
 	return createRundownLayout(name, type, showStyleBaseId, regionId, undefined, undefined)
 }
 async function apiRemoveRundownLayout(context: MethodContext, id: RundownLayoutId) {
-	check(id, String)
+	check(id, z.string())
 
 	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_MANAGE_RUNDOWN_LAYOUTS)
 
 	const rundownLayout = await RundownLayouts.findOneAsync(id)
-	if (!rundownLayout) throw new Meteor.Error(404, `RundownLayout "${id}" not found`)
+	if (!rundownLayout) throw new SofieError(404, `RundownLayout "${id}" not found`)
 
 	await removeRundownLayout(id)
 }
 
-class ServerRundownLayoutsAPI extends MethodContextAPI implements NewRundownLayoutsAPI {
+export class ServerRundownLayoutsAPI extends MethodContextAPI implements NewRundownLayoutsAPI {
 	async createRundownLayout(
 		name: string,
 		type: RundownLayoutType,
 		showStyleBaseId: ShowStyleBaseId,
 		regionId: CustomizableRegions
-	) {
+	): Promise<RundownLayoutId> {
 		return apiCreateRundownLayout(this, name, type, showStyleBaseId, regionId)
 	}
-	async removeRundownLayout(rundownLayoutId: RundownLayoutId) {
+	async removeRundownLayout(rundownLayoutId: RundownLayoutId): Promise<void> {
 		return apiRemoveRundownLayout(this, rundownLayoutId)
 	}
 }
-registerClassToMeteorMethods(RundownLayoutsAPIMethods, ServerRundownLayoutsAPI, false)

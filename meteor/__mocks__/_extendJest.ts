@@ -1,5 +1,4 @@
-import { UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/error'
-import { Meteor } from 'meteor/meteor'
+import { UserError, UserErrorMessage, SofieError } from '@sofie-automation/corelib/dist/error'
 import { clone } from '@sofie-automation/corelib/dist/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import _ from 'underscore'
@@ -22,8 +21,8 @@ expect.extend({
 			pass: pass,
 		}
 	},
-	toThrowMeteor(received, error, ...args) {
-		const expected = new Meteor.Error(error, ...args)
+	toThrowSofieError(received, error, ...args) {
+		const expected = new SofieError(error, ...args)
 		const pass = expected.toString() === received.toString()
 		return {
 			message: () => `expected ${received} to be ${expected}`,
@@ -89,7 +88,7 @@ declare global {
 			toBeWithinRange(floor: number, ceiling: number): R
 			toBeFuzzy(target: number, fuzzyness: number): R
 
-			toThrowMeteor(...args: ConstructorParameters<typeof Meteor.Error>): R
+			toThrowSofieError(...args: ConstructorParameters<typeof SofieError>): R
 			toMatchToString(reg: RegExp): R
 			toMatchUserError(msg: UserErrorMessage, args?: { [key: string]: any }): R
 			toMatchUserRawError(reg: RegExp): R
