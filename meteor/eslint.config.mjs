@@ -37,5 +37,13 @@ extendedRules.push({
 		...tmpRules,
 	},
 })
+extendedRules.push({
+	files: ['server/worker/worker.ts'],
+	rules: {
+		// require('../_force_restart') only exists in dev, not in prod builds; can't use an
+		// inline eslint-disable since it'd be "unused" (and stripped by --fix) locally
+		'n/no-missing-require': 'off',
+	},
+})
 
 export default extendedRules

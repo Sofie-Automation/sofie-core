@@ -73,8 +73,8 @@ export async function startJobWorkerParent(): Promise<void> {
 
 	if (isInDevelopmentMode()) {
 		// Ensure meteor restarts when the _force_restart file changes
+		// (n/no-missing-require disabled for this file in eslint.config.mjs, see there for why)
 		try {
-			// @eslint-disable-next-line n/no-missing-require
 			require('../_force_restart')
 		} catch (_e) {
 			// ignore
