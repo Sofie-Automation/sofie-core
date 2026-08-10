@@ -4,10 +4,30 @@ hide_table_of_contents: true
 slug: /
 ---
 
+import LatestVersionNumber from '../src/components/LatestVersionNumber.jsx'
+
 <!-- Warning: This file is intentionally not in the docs folder as it makes no sense to be versioned. If it does get versioned, then the import below breaks -->
 
-import GitHubReleases from '../src/components/GitHubReleases'
+Sofie project is working in a quarterly release cycle. The releases are done at the end of every March, June, September,
+and beginning of December. The main Sofie components do not follow semantic versioning and instead use a `year.month`
+system. For example, the June release of year 2026 will be versioned as `26.06.0`. Fixes for bugs found after a release
+is done are published as patch releases, with the patch number increased for every bugfix.
 
-Current, future, and past releases of _Sofie_ are all tracked on [**our GitHub repository**](https://github.com/Sofie-Automation/Sofie-TV-automation/issues?utf8=%E2%9C%93&q=is%3Aissue+label%3ARelease).
+:::info
+<div style={{fontSize: "200%"}}>
+The latest version is: **<LatestVersionNumber />**
+</div>
 
-<GitHubReleases org="Sofie-Automation" repo="Sofie-TV-Automation" releaseLabel="Release" state="all" />
+Use our **[Quick install](/docs/user-guide/installation/quick-install)** guide to install Sofie using **Docker**.
+
+Find Sofie release images on [DockerHub](https://hub.docker.com/u/sofietv) and [GitHub Container Registry](https://github.com/orgs/Sofie-Automation/packages).
+:::
+
+When a version is released, the `HEAD` of the Git repositories is branched off into a new branch called `releases/YY.mm`
+and a Git tag is created for it.
+
+## Historic versioning
+
+The new versioning system was implemented in March 2026 by the Sofie Technical Steering Committee. All earlier versions follow a different versioning system,
+where `1.xx.xx` is used, with the major field fixed at `1`, the minor field indicating a development cycle of
+variable length, and the patch field used for bugfix releases, starting at `0`.

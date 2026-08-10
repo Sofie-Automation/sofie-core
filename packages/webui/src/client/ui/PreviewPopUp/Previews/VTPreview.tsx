@@ -2,6 +2,7 @@ import { useContext, useEffect, useRef } from 'react'
 import { StyledTimecode } from '../../../lib/StyledTimecode.js'
 import classNames from 'classnames'
 import StudioContext from '../../RundownView/StudioContext.js'
+import { setVideoElementPosition } from '../../../lib/ui/videoPreviewScrub.js'
 
 interface VTPreviewProps {
 	content: {
@@ -12,23 +13,6 @@ interface VTPreviewProps {
 		itemDuration?: number
 	}
 	time: number | null
-}
-
-function setVideoElementPosition(
-	vEl: HTMLVideoElement,
-	timePosition: number,
-	itemDuration: number,
-	seek: number,
-	loop: boolean
-) {
-	let targetTime = timePosition + seek
-	if (loop && vEl.duration > 0) {
-		targetTime =
-			targetTime % ((itemDuration > 0 ? Math.min(vEl.duration * 1000, itemDuration) : vEl.duration * 1000) * 1000)
-	} else if (itemDuration > 0) {
-		targetTime = Math.min(timePosition, itemDuration)
-	}
-	vEl.currentTime = targetTime / 1000
 }
 
 export function VTPreviewElement({ content, time }: VTPreviewProps): React.ReactElement {

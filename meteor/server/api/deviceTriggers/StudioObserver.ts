@@ -212,6 +212,8 @@ export class StudioObserver extends EventEmitter {
 		this.nextProps = undefined
 
 		const { activePlaylistId, activationId } = this.currentProps
+		const rundownContentChanged = this.#rundownContentChanged
+		const pieceInstancesChanged = this.#pieceInstancesChanged
 
 		this.showStyleBaseId = showStyleBaseId
 
@@ -219,7 +221,7 @@ export class StudioObserver extends EventEmitter {
 			logger.silly(`Creating new RundownContentObserver`)
 
 			const obs1 = await RundownContentObserver.create(activePlaylistId, showStyleBaseId, rundownIds, (cache) => {
-				return this.#rundownContentChanged(showStyleBaseId, cache)
+				return rundownContentChanged(showStyleBaseId, cache)
 			})
 
 			return () => {
@@ -228,11 +230,9 @@ export class StudioObserver extends EventEmitter {
 		})
 
 		this.#pieceInstancesLiveQuery = await PieceInstancesObserver.create(activationId, showStyleBaseId, (cache) => {
-			const cleanupChanges = this.#pieceInstancesChanged(showStyleBaseId, cache)
+			const cleanupChanges = pieceInstancesChanged(showStyleBaseId, cache)
 
-			return () => {
-				cleanupChanges?.()
-			}
+			return () => cleanupChanges?.()
 		})
 
 		if (this.#disposed) {

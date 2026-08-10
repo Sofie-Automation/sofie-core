@@ -18,7 +18,7 @@ export interface PartInstanceAndPieceInstances {
 }
 export interface PieceInstanceWithObjectMap extends ReadonlyDeep<PieceInstance> {
 	/** Cache of objects built by findObjects. */
-	objectMap?: Map<string, TimelineObjectCoreExt<any>>
+	objectMap?: Map<string, TimelineObjectCoreExt<any>[]>
 }
 export interface PartAndPieces {
 	part: ReadonlyDeep<DBPart>

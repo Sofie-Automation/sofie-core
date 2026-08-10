@@ -30,6 +30,7 @@ import {
 	maintainFocusOnPartInstance,
 	scrollToPartInstance,
 	getHeaderHeight,
+	clearViewportLifecycleState,
 } from '../lib/viewPort.js'
 import { AfterBroadcastForm } from './AfterBroadcastForm.js'
 import { RundownRightHandControls } from './RundownView/RundownRightHandControls.js'
@@ -58,15 +59,12 @@ import { VirtualElement } from '../lib/VirtualElement.js'
 import { SEGMENT_TIMELINE_ELEMENT_ID } from './SegmentTimeline/SegmentTimeline.js'
 import type { OffsetPosition } from '../utils/positions.js'
 import { MeteorCall } from '../lib/meteorApi.js'
-import { Settings } from '../lib/Settings.js'
 import { PointerLockCursor } from '../lib/PointerLockCursor.js'
 import { documentTitle } from '../lib/DocumentTitleProvider.js'
 import { RundownDividerHeader } from './RundownView/RundownDividerHeader.js'
 import { PlaylistLoopingHeader } from './RundownView/PlaylistLoopingHeader.js'
 import RundownViewEventBus, { RundownViewEvents } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
 import { RundownLayoutsAPI } from '../lib/rundownLayouts.js'
-import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
-import { BreakSegment } from './SegmentTimeline/BreakSegment.js'
 import type { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant.js'
 import { SegmentStoryboardContainer } from './SegmentStoryboard/SegmentStoryboardContainer.js'
 import { SegmentViewMode } from './SegmentContainer/SegmentViewModes.js'
@@ -97,6 +95,7 @@ import { logger } from '../lib/logging.js'
 import { RundownPlaylistClientUtil } from '../lib/rundownPlaylistUtil.js'
 import { UserPermissionsContext, type UserPermissions } from './UserPermissions.js'
 import { MAGIC_TIME_SCALE_FACTOR } from './SegmentTimeline/Constants.js'
+import { DEFAULT_TIME_SCALE } from '@sofie-automation/shared-lib/dist/core/constants'
 import { SelectedElementsContext } from './RundownView/SelectedElementsContext.js'
 import { PropertiesPanel } from './UserEditOperations/PropertiesPanel.js'
 import { RundownHeader } from './RundownView/RundownHeader/RundownHeader.js'
@@ -154,7 +153,7 @@ interface IState {
 	segmentViewModes: Record<string, SegmentViewMode>
 }
 
-export type MinimalRundown = Pick<Rundown, '_id' | 'name' | 'timing' | 'showStyleBaseId' | 'endOfRundownIsShowBreak'>
+export type MinimalRundown = Pick<Rundown, '_id' | 'name' | 'timing' | 'showStyleBaseId'>
 
 type MatchedSegment = {
 	rundown: MinimalRundown
@@ -288,6 +287,7 @@ export function RundownView(props: Readonly<IProps>): JSX.Element {
 	)
 
 	const hideRundownHeader = params['hideRundownHeader'] === '1'
+	const lockView = props.inActiveRundownView && params['lockView'] === '1'
 
 	return (
 		<div
@@ -314,6 +314,7 @@ export function RundownView(props: Readonly<IProps>): JSX.Element {
 				uiSegmentMap={miniShelfData.uiSegmentMap}
 				miniShelfFilter={miniShelfData.miniShelfFilter}
 				hideRundownHeader={hideRundownHeader}
+				lockView={lockView}
 			/>
 		</div>
 	)
@@ -323,6 +324,7 @@ interface IPropsWithReady extends IProps {
 	subsReady: boolean
 	userPermissions: Readonly<UserPermissions>
 	hideRundownHeader?: boolean
+	lockView?: boolean
 }
 
 interface IRundownViewContentSnapshot {
@@ -336,6 +338,10 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 })(
 	class RundownViewContent extends React.Component<Translated<IPropsWithReady & ITrackedProps>, IState> {
 		private _hideNotificationsAfterMount: number | undefined
+		private _goToTopIdleCallback: number | undefined
+		private _goToLiveSegmentShortTimeout: ReturnType<typeof setTimeout> | undefined
+		private _goToLiveSegmentLongTimeout: ReturnType<typeof setTimeout> | undefined
+		private _headerNoteHighlightTimeout: ReturnType<typeof setTimeout> | undefined
 
 		constructor(props: Translated<IPropsWithReady & ITrackedProps>) {
 			super(props)
@@ -343,7 +349,7 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 			const isInspectorShelfExpanded = this.props.selectedShelfLayout?.openByDefault ?? false
 
 			this.state = {
-				timeScale: MAGIC_TIME_SCALE_FACTOR * Settings.defaultTimeScale,
+				timeScale: MAGIC_TIME_SCALE_FACTOR * (this.props.studio?.settings.defaultTimeScale ?? DEFAULT_TIME_SCALE),
 				contextMenuContext: null,
 				bottomMargin: '',
 				followLiveSegments: true,
@@ -481,7 +487,11 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 					followLiveSegments: true,
 				})
 				if (this.props.playlist.currentPartInfo) {
-					scrollToPartInstance(this.props.playlist.currentPartInfo?.partInstanceId, true).catch((error) => {
+					scrollToPartInstance(
+						this.props.playlist.currentPartInfo?.partInstanceId,
+						this.props.studio?.settings.followOnAirSegmentsHistory ?? 0,
+						true
+					).catch((error) => {
 						if (!error.toString().match(/another scroll/)) console.warn(error)
 					})
 				}
@@ -506,7 +516,10 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 				// add small delay to ensure the nextPartInfo is available
 				setTimeout(() => {
 					if (this.props.playlist && this.props.playlist.nextPartInfo) {
-						scrollToPartInstance(this.props.playlist.nextPartInfo.partInstanceId).catch((error) => {
+						scrollToPartInstance(
+							this.props.playlist.nextPartInfo.partInstanceId,
+							this.props.studio?.settings.followOnAirSegmentsHistory ?? 0
+						).catch((error) => {
 							if (!error.toString().match(/another scroll/)) console.warn(error)
 						})
 					}
@@ -519,7 +532,11 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 				this.props.playlist.currentPartInfo &&
 				this.state.followLiveSegments
 			) {
-				scrollToPartInstance(this.props.playlist.currentPartInfo.partInstanceId, true).catch((error) => {
+				scrollToPartInstance(
+					this.props.playlist.currentPartInfo.partInstanceId,
+					this.props.studio?.settings.followOnAirSegmentsHistory ?? 0,
+					true
+				).catch((error) => {
 					if (!error.toString().match(/another scroll/)) console.warn(error)
 				})
 			} else if (
@@ -530,7 +547,11 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 				this.props.playlist.nextPartInfo &&
 				this.props.playlist.nextPartInfo.manuallySelected
 			) {
-				scrollToPartInstance(this.props.playlist.nextPartInfo.partInstanceId, false).catch((error) => {
+				scrollToPartInstance(
+					this.props.playlist.nextPartInfo.partInstanceId,
+					this.props.studio?.settings.followOnAirSegmentsHistory ?? 0,
+					false
+				).catch((error) => {
 					if (!error.toString().match(/another scroll/)) console.warn(error)
 				})
 			} else if (
@@ -541,7 +562,13 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 				!prevProps.subsReady
 			) {
 				// allow for some time for the Rundown to render
-				maintainFocusOnPartInstance(this.props.playlist.currentPartInfo.partInstanceId, 7000, true, true)
+				maintainFocusOnPartInstance(
+					this.props.playlist.currentPartInfo.partInstanceId,
+					this.props.studio?.settings.followOnAirSegmentsHistory ?? 0,
+					7000,
+					true,
+					true
+				)
 			} else if (
 				this.props.playlist &&
 				this.props.playlist.currentPartInfo?.partInstanceId === prevProps.playlist?.currentPartInfo?.partInstanceId &&
@@ -609,6 +636,8 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 			document.body.classList.remove('dark', 'vertical-overflow-only')
 			document.documentElement.removeAttribute('data-bs-theme')
 			window.removeEventListener('beforeunload', this.onBeforeUnload)
+			this.clearPendingDeferredCallbacks()
+			clearViewportLifecycleState()
 
 			documentTitle.set(null)
 
@@ -685,13 +714,37 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 			}
 		}
 
+		private clearPendingDeferredCallbacks = () => {
+			if (this._goToTopIdleCallback !== undefined) {
+				window.cancelIdleCallback(this._goToTopIdleCallback)
+				this._goToTopIdleCallback = undefined
+			}
+			if (this._goToLiveSegmentShortTimeout) {
+				clearTimeout(this._goToLiveSegmentShortTimeout)
+				this._goToLiveSegmentShortTimeout = undefined
+			}
+			if (this._goToLiveSegmentLongTimeout) {
+				clearTimeout(this._goToLiveSegmentLongTimeout)
+				this._goToLiveSegmentLongTimeout = undefined
+			}
+			if (this._headerNoteHighlightTimeout) {
+				clearTimeout(this._headerNoteHighlightTimeout)
+				this._headerNoteHighlightTimeout = undefined
+			}
+		}
+
 		private onGoToTop = () => {
 			scrollToPosition(0).catch((error) => {
 				if (!error.toString().match(/another scroll/)) console.warn(error)
 			})
 
-			window.requestIdleCallback(
+			if (this._goToTopIdleCallback !== undefined) {
+				window.cancelIdleCallback(this._goToTopIdleCallback)
+			}
+
+			this._goToTopIdleCallback = window.requestIdleCallback(
 				() => {
+					this._goToTopIdleCallback = undefined
 					this.setState({
 						followLiveSegments: true,
 					})
@@ -701,6 +754,15 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 		}
 
 		private onGoToLiveSegment = () => {
+			if (this._goToLiveSegmentShortTimeout) {
+				clearTimeout(this._goToLiveSegmentShortTimeout)
+				this._goToLiveSegmentShortTimeout = undefined
+			}
+			if (this._goToLiveSegmentLongTimeout) {
+				clearTimeout(this._goToLiveSegmentLongTimeout)
+				this._goToLiveSegmentLongTimeout = undefined
+			}
+
 			if (
 				this.props.playlist &&
 				this.props.playlist.activationId &&
@@ -711,14 +773,20 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 					followLiveSegments: true,
 				})
 				// Small delay to ensure the nextPartInfo is available
-				setTimeout(() => {
+				this._goToLiveSegmentShortTimeout = setTimeout(() => {
+					this._goToLiveSegmentShortTimeout = undefined
 					if (this.props.playlist && this.props.playlist.nextPartInfo) {
-						scrollToPartInstance(this.props.playlist.nextPartInfo.partInstanceId, true).catch((error) => {
+						scrollToPartInstance(
+							this.props.playlist.nextPartInfo.partInstanceId,
+							this.props.studio?.settings.followOnAirSegmentsHistory ?? 0,
+							true
+						).catch((error) => {
 							if (!error.toString().match(/another scroll/)) console.warn(error)
 						})
 					}
 				}, 120)
-				setTimeout(() => {
+				this._goToLiveSegmentLongTimeout = setTimeout(() => {
+					this._goToLiveSegmentLongTimeout = undefined
 					this.setState({
 						followLiveSegments: true,
 					})
@@ -728,10 +796,15 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 				this.setState({
 					followLiveSegments: true,
 				})
-				scrollToPartInstance(this.props.playlist.currentPartInfo.partInstanceId, true).catch((error) => {
+				scrollToPartInstance(
+					this.props.playlist.currentPartInfo.partInstanceId,
+					this.props.studio?.settings.followOnAirSegmentsHistory ?? 0,
+					true
+				).catch((error) => {
 					if (!error.toString().match(/another scroll/)) console.warn(error)
 				})
-				setTimeout(() => {
+				this._goToLiveSegmentLongTimeout = setTimeout(() => {
+					this._goToLiveSegmentLongTimeout = undefined
 					this.setState({
 						followLiveSegments: true,
 					})
@@ -881,7 +954,7 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 					}
 				}
 				if (segmentId) {
-					scrollToSegment(segmentId)
+					scrollToSegment(segmentId, this.props.studio?.settings.followOnAirSegmentsHistory ?? 0)
 						.then(() => {
 							RundownViewEventBus.emit(RundownViewEvents.HIGHLIGHT, e.sourceLocator)
 						})
@@ -897,7 +970,11 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 			this.setState({
 				isNotificationsCenterOpen: level === NoteSeverity.ERROR ? NoticeLevel.CRITICAL : NoticeLevel.WARNING,
 			})
-			setTimeout(
+			if (this._headerNoteHighlightTimeout) {
+				clearTimeout(this._headerNoteHighlightTimeout)
+				this._headerNoteHighlightTimeout = undefined
+			}
+			this._headerNoteHighlightTimeout = setTimeout(
 				function () {
 					NotificationCenter.highlightSource(
 						segmentId,
@@ -1072,10 +1149,6 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 								)
 							}
 						})}
-						{this.props.selectedViewLayout?.showBreaksAsSegments &&
-							rundownAndSegments.rundown.endOfRundownIsShowBreak && (
-								<BreakSegment breakTime={PlaylistTiming.getExpectedEnd(rundownAndSegments.rundown.timing)} />
-							)}
 					</React.Fragment>
 				)
 			})
@@ -1410,6 +1483,7 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 													firstRundown={this.props.rundowns[0]}
 													currentRundown={currentRundown}
 													rundownCount={this.props.rundowns.length}
+													lockView={this.props.lockView}
 												/>
 											</ErrorBoundary>
 										)}
@@ -1429,7 +1503,7 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 											/>
 										</ErrorBoundary>
 										<ErrorBoundary>
-											{this.props.userPermissions.studio && !Settings.disableBlurBorder && (
+											{this.props.userPermissions.studio && !this.props.studio?.settings.disableBlurBorder && (
 												<KeyboardFocusIndicator userPermissions={this.props.userPermissions}>
 													<div
 														className={classNames('rundown-view__focus-lost-frame', {
@@ -1516,7 +1590,7 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 										<ErrorBoundary>
 											{this.props.userPermissions.studio && (
 												<Prompt
-													when={!!playlist.activationId}
+													when={!!playlist.activationId && !this.props.lockView}
 													message={t('This rundown is now active. Are you sure you want to exit this screen?')}
 												/>
 											)}

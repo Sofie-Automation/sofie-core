@@ -49,7 +49,6 @@ export function LinePartIndicator({
 			)
 				return
 			setIsMenuOpen(false)
-			window.removeEventListener('mousedown', onClickAway)
 		},
 		[element]
 	)
@@ -58,14 +57,16 @@ export function LinePartIndicator({
 		const shouldBeOpen = !isMenuOpen
 		setIsMenuOpen(shouldBeOpen)
 		onClickExternal?.(e)
-		window.addEventListener('mousedown', onClickAway)
 	}
 
 	useEffect(() => {
+		if (!isMenuOpen) return
+		window.addEventListener('mousedown', onClickAway)
+
 		return () => {
 			window.removeEventListener('mousedown', onClickAway)
 		}
-	}, [])
+	}, [isMenuOpen, onClickAway])
 
 	return (
 		<>

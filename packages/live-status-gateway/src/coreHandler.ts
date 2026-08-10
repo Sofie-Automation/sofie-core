@@ -13,6 +13,7 @@ import {
 	SubscriptionId,
 	stringifyError,
 	ParametersOfFunctionOrNever,
+	KubernetesRestarter,
 } from '@sofie-automation/server-core-integration'
 import { DeviceConfig } from './connector.js'
 import { Logger } from 'winston'
@@ -59,10 +60,14 @@ export class CoreHandler implements ICoreHandler {
 	public get connectedToCore(): boolean {
 		return this.core && this.core.connected
 	}
+	private _k8sRestarter?: KubernetesRestarter
 
 	constructor(logger: Logger, deviceOptions: DeviceConfig) {
 		this.logger = logger
 		this._deviceOptions = deviceOptions
+		if (KubernetesRestarter.canUseK8sRestarter()) {
+			this._k8sRestarter = new KubernetesRestarter(this.logger, 'sofie-live-status-gateway')
+		}
 	}
 
 	async init(config: CoreConfig, tlsOptions: DDPTLSOptions): Promise<void> {
@@ -293,16 +298,19 @@ export class CoreHandler implements ICoreHandler {
 			}
 		})
 	}
-	killProcess(actually: number): boolean {
-		if (actually === 1) {
-			this.logger.info('KillProcess command received, shutting down in 1000ms!')
+	async killProcess(): Promise<boolean> {
+		this.logger.info('KillProcess command received for live-status-gateway')
+		if (this._k8sRestarter) {
+			this.logger.info('Running on kubernetes was true, restarting deployment')
+			return await this._k8sRestarter.restartKube()
+		} else {
+			this.logger.info('killing process in 1000ms!')
 			setTimeout(() => {
 				// eslint-disable-next-line n/no-process-exit
 				process.exit(0)
 			}, 1000)
 			return true
 		}
-		return false
 	}
 	pingResponse(message: string): void {
 		this.core.setPingResponse(message)

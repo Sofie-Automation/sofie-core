@@ -30,6 +30,7 @@ import {
 } from '../security/check'
 import { UserActionsLog } from '../collections'
 import { executePeripheralDeviceFunctionWithCustomTimeout } from './peripheralDevice/executeFunction'
+import { resolveActionResult } from './peripheralDevice'
 import { LeveledLogMethodFixed } from '@sofie-automation/corelib/dist/logging'
 import { assertConnectionHasOneOfPermissions } from '../security/auth'
 
@@ -458,7 +459,7 @@ class ServerClientAPIClass extends MethodContextAPI implements NewClientAPI {
 		actionId: string,
 		payload?: Record<string, any>
 	) {
-		return ServerClientAPI.callPeripheralDeviceFunctionOrAction(
+		const result = await ServerClientAPI.callPeripheralDeviceFunctionOrAction(
 			this,
 			context,
 			deviceId,
@@ -470,6 +471,7 @@ class ServerClientAPIClass extends MethodContextAPI implements NewClientAPI {
 			actionId,
 			payload
 		)
+		return resolveActionResult(deviceId, result)
 	}
 	async callBackgroundPeripheralDeviceFunction(
 		deviceId: PeripheralDeviceId,

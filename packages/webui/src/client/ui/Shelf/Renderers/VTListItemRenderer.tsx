@@ -72,7 +72,7 @@ export const VTListItemRenderer: React.FunctionComponent<ILayerItemRendererProps
 			const left = e.pageX - itemIconPosition.left
 			const unprocessedPercentage = left / itemIconPosition.width
 			if (unprocessedPercentage <= 1 && !previewSession.current) {
-				previewSession.current = previewContext.requestPreview(e.target as any, previewContents, {
+				previewSession.current = previewContext.requestPreview(e.currentTarget, previewContents, {
 					...previewOptions,
 					time: hoverScrubTimePosition,
 				})
@@ -89,12 +89,25 @@ export const VTListItemRenderer: React.FunctionComponent<ILayerItemRendererProps
 		}
 	}
 
+	useEffect(() => {
+		return () => {
+			if (previewSession.current) {
+				previewSession.current.close()
+				previewSession.current = null
+			}
+		}
+	}, [])
+
 	const handleOnMouseMove = (e: React.MouseEvent) => {
 		if (itemIconPosition) {
 			const left = e.pageX - itemIconPosition.left
 			let unprocessedPercentage = left / itemIconPosition.width
 			if ((unprocessedPercentage > 1 || unprocessedPercentage < 0) && showMiniInspector) {
 				setShowMiniInspector(false)
+				if (previewSession.current) {
+					previewSession.current.close()
+					previewSession.current = null
+				}
 				return false
 			} else if (unprocessedPercentage >= 0 && unprocessedPercentage <= 1 && !showMiniInspector) {
 				setShowMiniInspector(true)

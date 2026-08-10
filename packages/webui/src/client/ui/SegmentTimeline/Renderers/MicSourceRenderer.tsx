@@ -30,6 +30,37 @@ export const MicSourceRenderer: React.ComponentType<IProps> = withTranslation()(
 			super(props)
 		}
 
+		private mountLineItem(target: HTMLElement | null): void {
+			if (!this.lineItem || !target) return
+			if (!document.contains(target)) {
+				this.removeLineItem()
+				return
+			}
+
+			if (this.lineItem.parentElement !== target) {
+				try {
+					this.lineItem.remove()
+				} catch (err) {
+					logger.error(err)
+				}
+				try {
+					target.appendChild(this.lineItem)
+				} catch (err) {
+					logger.error(err)
+				}
+			}
+		}
+
+		private removeLineItem(): void {
+			if (!this.lineItem) return
+
+			try {
+				this.lineItem.remove()
+			} catch (err) {
+				logger.error(err)
+			}
+		}
+
 		repositionLine = () => {
 			if (!this.lineItem) return
 			this.lineItem.style.left = this.linePosition + 'px'
@@ -103,7 +134,7 @@ export const MicSourceRenderer: React.ComponentType<IProps> = withTranslation()(
 			this.updateAnchoredElsWidths()
 			if (this.props.itemElement) {
 				this.itemElement = this.props.itemElement
-				this.itemElement.parentElement?.parentElement?.parentElement?.appendChild(this.lineItem)
+				this.mountLineItem(this.itemElement.parentElement?.parentElement?.parentElement ?? null)
 				this.refreshLine()
 			}
 		}
@@ -148,15 +179,11 @@ export const MicSourceRenderer: React.ComponentType<IProps> = withTranslation()(
 			// Move the line element
 			if (this.itemElement !== this.props.itemElement) {
 				if (this.itemElement && this.lineItem) {
-					try {
-						this.lineItem.remove()
-					} catch (err) {
-						logger.error(err)
-					}
+					this.removeLineItem()
 				}
 				this.itemElement = this.props.itemElement
 				if (this.itemElement && this.lineItem) {
-					this.itemElement.parentElement?.parentElement?.parentElement?.appendChild(this.lineItem)
+					this.mountLineItem(this.itemElement.parentElement?.parentElement?.parentElement ?? null)
 					_forceSizingRecheck = true
 				}
 			}
@@ -176,12 +203,9 @@ export const MicSourceRenderer: React.ComponentType<IProps> = withTranslation()(
 		}
 
 		componentWillUnmount(): void {
-			try {
-				// Remove the line element
-				this.lineItem?.remove()
-			} catch (err) {
-				logger.error(err)
-			}
+			this.removeLineItem()
+			this.lineItem = null
+			this.itemElement = null
 		}
 
 		render(): JSX.Element {

@@ -17,6 +17,7 @@ import { MediaStatusPopUpItem } from './MediaStatusPopUpItem.js'
 import { translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { MediaStatusPopUpHeader } from './MediaStatusPopUpHeader.js'
 import { RundownPlaylists } from '../../../collections/index.js'
+import { UIStudios } from '../../Collections.js'
 import { MediaStatusPopUpSegmentRule } from './MediaStatusPopUpSegmentRule.js'
 import { mapOrFallback, useDebounce } from '../../../lib/lib.js'
 import { Spinner } from '../../../lib/Spinner.js'
@@ -60,23 +61,27 @@ export function MediaStatusPopUp({ playlistId }: Readonly<IProps>): JSX.Element 
 
 	const playlistIds = useMemo(() => [playlistId], [playlistId])
 
-	const { currentPartInstanceId, nextPartInstanceId } = useTracker(
+	const { currentPartInstanceId, nextPartInstanceId, followOnAirSegmentsHistory } = useTracker(
 		() => {
 			const playlist = RundownPlaylists.findOne(playlistId, {
 				projection: {
 					nextPartInfo: 1,
 					currentPartInfo: 1,
+					studioId: 1,
 				},
 			})
+			const studio = playlist && UIStudios.findOne(playlist.studioId)
 			return {
 				currentPartInstanceId: playlist?.currentPartInfo?.partInstanceId,
 				nextPartInstanceId: playlist?.nextPartInfo?.partInstanceId,
+				followOnAirSegmentsHistory: studio?.settings.followOnAirSegmentsHistory ?? 0,
 			}
 		},
 		[playlistId],
 		{
 			currentPartInstanceId: undefined,
 			nextPartInstanceId: undefined,
+			followOnAirSegmentsHistory: 0,
 		}
 	)
 
@@ -134,6 +139,7 @@ export function MediaStatusPopUp({ playlistId }: Readonly<IProps>): JSX.Element 
 															partId={item.partId}
 															segmentId={item.segmentId}
 															partInstanceId={item.partInstanceId}
+															followOnAirSegmentsHistory={followOnAirSegmentsHistory}
 															partIdentifier={item.partIdentifier}
 															segmentIdentifier={item.segmentIdentifier}
 															sourceLayerName={item.sourceLayerName}

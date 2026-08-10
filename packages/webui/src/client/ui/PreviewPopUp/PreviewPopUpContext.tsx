@@ -1,5 +1,6 @@
-import React, { useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { PreviewPopUp, type PreviewPopUpHandle } from './PreviewPopUp.js'
+import Escape from '../../lib/Escape.js'
 import type { Padding, Placement } from '@popperjs/core'
 import { PreviewPopUpContent } from './PreviewPopUpContent.js'
 import {
@@ -23,6 +24,12 @@ import _ from 'underscore'
 import type { IAdLibListItem } from '../Shelf/AdLibListItem.js'
 import type { PieceInstancePiece } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { createPrivateApiPath } from '../../url.js'
+import {
+	getPieceScrubDurationMs,
+	getSplitsBoxLayoutScrubSettings,
+	type PreviewVideoContentUI,
+	type SplitsBoxLayoutScrubSettings,
+} from '../../lib/ui/splitsPreviewVideo.js'
 
 type VirtualElement = {
 	getBoundingClientRect: () => DOMRect
@@ -78,13 +85,20 @@ export function convertSourceLayerItemToPreview(
 						lastModified: popupPreview.preview.lastModified,
 					})
 					break
-				case PreviewType.Split:
+				case PreviewType.Split: {
+					const splitScrub = getSplitsBoxLayoutScrubSettings(
+						{ boxSourceConfiguration: popupPreview.preview.boxes },
+						contentStatus
+					)
 					contents.push({
 						type: 'boxLayout',
 						boxSourceConfiguration: popupPreview.preview.boxes,
+						boxPreviews: contentStatus?.boxPreviews,
+						scrub: splitScrub,
 						backgroundArtSrc: createPrivateApiPath('blueprints/assets/' + popupPreview.preview.background),
 					})
 					break
+				}
 				case PreviewType.Table:
 					contents.push({
 						type: 'data',
@@ -159,6 +173,9 @@ export function convertSourceLayerItemToPreview(
 					? {
 							type: 'video',
 							src: contentStatus.previewUrl,
+							itemDuration: getPieceScrubDurationMs(content, contentStatus),
+							seek: content.seek,
+							loop: content.loop,
 						}
 					: contentStatus?.thumbnailUrl
 						? {
@@ -283,7 +300,18 @@ export function convertSourceLayerItemToPreview(
 		}
 	} else if (sourceLayerType === SourceLayerType.SPLITS) {
 		const content = item.content as SplitsContent
-		return { contents: [{ type: 'boxLayout', boxSourceConfiguration: content.boxSourceConfiguration }], options: {} }
+		const splitScrub = getSplitsBoxLayoutScrubSettings(content, contentStatus)
+		return {
+			contents: [
+				{
+					type: 'boxLayout',
+					boxSourceConfiguration: content.boxSourceConfiguration,
+					boxPreviews: contentStatus?.boxPreviews,
+					scrub: splitScrub,
+				},
+			],
+			options: {},
+		}
 	} else if (sourceLayerType === SourceLayerType.TRANSITION) {
 		const content = item.content as TransitionContent
 		if (content.preview)
@@ -298,11 +326,16 @@ export function convertSourceLayerItemToPreview(
 /* PreviewContentUI is an extension of PreviewContent with some additional types used in the UI
  * These additional types are added to support some extra UI features that are not relevant for blueprints
  */
+export type { PreviewVideoContentUI } from '../../lib/ui/splitsPreviewVideo.js'
+
 export type PreviewContentUI =
-	| PreviewContent
+	| Exclude<PreviewContent, { type: 'video' }>
+	| PreviewVideoContentUI
 	| {
 			type: 'boxLayout'
 			boxSourceConfiguration: ReadonlyDeep<(SplitsContentBoxContent & SplitsContentBoxProperties)[]>
+			boxPreviews?: ReadonlyDeep<PieceContentStatusObj['boxPreviews']>
+			scrub?: SplitsBoxLayoutScrubSettings
 			showLabels?: boolean
 			backgroundArtSrc?: string
 	  }
@@ -378,6 +411,7 @@ export const PreviewPopUpContext = React.createContext<IPreviewPopUpContext>({
 })
 
 interface PreviewSession {
+	token: number
 	anchor: HTMLElement | VirtualElement
 	padding: Padding
 	placement: Placement
@@ -389,19 +423,93 @@ interface PreviewSession {
 export function PreviewPopUpContextProvider({ children }: React.PropsWithChildren<{}>): React.ReactNode {
 	const currentHandle = useRef<IPreviewPopUpSession>()
 	const previewRef = useRef<PreviewPopUpHandle>(null)
+	const closeSessionRef = useRef<() => void>(() => undefined)
+	const sessionTokenRef = useRef(0)
 
 	const [previewSession, setPreviewSession] = useState<PreviewSession | null>(null)
 	const [previewContent, setPreviewContent] = useState<PreviewContentUI[] | null>(null)
 	const [t, setTime] = useState<number | null>(null)
+	const [previewSessionKey, setPreviewSessionKey] = useState(0)
+
+	const isDetachedHTMLElement = (anchor: HTMLElement | VirtualElement): boolean => {
+		return anchor instanceof HTMLElement && !anchor.isConnected
+	}
+
+	const closeSession = useCallback(() => {
+		sessionTokenRef.current += 1
+
+		const previousHandle = currentHandle.current
+		if (previousHandle) {
+			currentHandle.current = undefined
+			previousHandle.onClosed?.()
+		}
+
+		setPreviewSession(null)
+		setPreviewContent(null)
+		setTime(null)
+	}, [])
+
+	useEffect(() => {
+		closeSessionRef.current = closeSession
+	}, [closeSession])
+
+	useEffect(() => {
+		return () => {
+			closeSession()
+		}
+	}, [closeSession])
+
+	useEffect(() => {
+		if (!previewSession) return
+		const token = previewSession.token
+		const anchor = previewSession.anchor
+		if (!(anchor instanceof HTMLElement)) return
+
+		let rafHandle: number | undefined
+		let disposed = false
+		const checkAnchorConnection = () => {
+			if (disposed) return
+			if (sessionTokenRef.current !== token) return
+			if (!anchor.isConnected) {
+				closeSessionRef.current()
+				return
+			}
+			rafHandle = window.requestAnimationFrame(checkAnchorConnection)
+		}
+
+		rafHandle = window.requestAnimationFrame(checkAnchorConnection)
+
+		return () => {
+			disposed = true
+			if (rafHandle !== undefined) {
+				window.cancelAnimationFrame(rafHandle)
+			}
+		}
+	}, [previewSession])
 
 	const context: IPreviewPopUpContext = {
 		requestPreview: (anchor, content, opts) => {
-			if (opts?.time) {
+			if (isDetachedHTMLElement(anchor)) {
+				closeSession()
+				const closedHandle: IPreviewPopUpSession = {
+					close: () => undefined,
+					update: () => undefined,
+					setPointerTime: () => undefined,
+				}
+				return closedHandle
+			}
+
+			closeSession()
+			setPreviewSessionKey((prev) => prev + 1)
+			const token = ++sessionTokenRef.current
+
+			if (typeof opts?.time === 'number') {
 				setTime(opts.time)
 			} else {
 				setTime(null)
 			}
 			setPreviewSession({
+				token,
 				anchor,
 				padding: opts?.padding ?? 0,
 				placement: opts?.placement ?? 'top',
@@ -413,15 +521,26 @@ export function PreviewPopUpContextProvider({ children }: React.PropsWithChildre
 
 			const handle: IPreviewPopUpSession = {
 				close: () => {
-					setPreviewSession(null)
+					if (currentHandle.current !== handle) return
+					closeSession()
 				},
 				update: (contents) => {
+					if (currentHandle.current !== handle) return
+					if (isDetachedHTMLElement(anchor)) {
+						closeSession()
+						return
+					}
 					if (contents) {
 						setPreviewContent(contents)
 					}
 					previewRef.current?.update()
 				},
 				setPointerTime: (t) => {
+					if (currentHandle.current !== handle) return
+					if (isDetachedHTMLElement(anchor)) {
+						closeSession()
+						return
+					}
 					setTime(t)
 				},
 			}
@@ -435,18 +554,21 @@ export function PreviewPopUpContextProvider({ children }: React.PropsWithChildre
 		<PreviewPopUpContext.Provider value={context}>
 			{children}
 			{previewSession && (
-				<PreviewPopUp
-					ref={previewRef}
-					anchor={previewSession.anchor}
-					padding={previewSession.padding}
-					size={previewSession.size}
-					placement={previewSession.placement}
-					initialOffsetX={previewSession.initialOffsetX}
-					trackMouse={previewSession.trackMouse}
-				>
-					{previewContent &&
-						previewContent.map((content, i) => <PreviewPopUpContent key={i} time={t} content={content} />)}
-				</PreviewPopUp>
+				<Escape to="viewport">
+					<PreviewPopUp
+						key={previewSessionKey}
+						ref={previewRef}
+						anchor={previewSession.anchor}
+						padding={previewSession.padding}
+						size={previewSession.size}
+						placement={previewSession.placement}
+						initialOffsetX={previewSession.initialOffsetX}
+						trackMouse={previewSession.trackMouse}
+					>
+						{previewContent &&
+							previewContent.map((content, i) => <PreviewPopUpContent key={i} time={t} content={content} />)}
+					</PreviewPopUp>
+				</Escape>
 			)}
 		</PreviewPopUpContext.Provider>
 	)

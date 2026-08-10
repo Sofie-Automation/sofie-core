@@ -75,13 +75,39 @@ import { assertConnectionHasOneOfPermissions } from '../security/auth'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { getRootSubpath } from '../lib'
 import { evalBlueprint } from './blueprints/cache'
-import { StudioBlueprintManifest } from '@sofie-automation/blueprints-integration'
+import { StudioBlueprintManifest, TSR } from '@sofie-automation/blueprints-integration'
 import { StatusMessageResolver } from '@sofie-automation/corelib'
 import { interpollateTranslation } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
 import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 const apmNamespace = 'peripheralDevice'
+
+type StudioBlueprintLookup = {
+	blueprint: Pick<Blueprint, '_id' | 'name' | 'code'>
+	manifest: StudioBlueprintManifest
+}
+
+/**
+ * Load and evaluate the Studio blueprint manifest for a studio.
+ * Returns undefined when the studio has no blueprint or lookup fails.
+ */
+async function getStudioBlueprintManifest(studioId: StudioId): Promise<StudioBlueprintLookup | undefined> {
+	const studio = (await Studios.findOneAsync(studioId, {
+		projection: { blueprintId: 1 },
+	})) as Pick<DBStudio, 'blueprintId'> | undefined
+
+	if (!studio?.blueprintId) return undefined
+
+	const blueprint = (await Blueprints.findOneAsync(studio.blueprintId, {
+		projection: { _id: 1, name: 1, code: 1 },
+	})) as Pick<Blueprint, '_id' | 'name' | 'code'> | undefined
+
+	if (!blueprint) return undefined
+
+	const manifest = evalBlueprint(blueprint) as StudioBlueprintManifest
+	return { blueprint, manifest }
+}
 
 /**
  * Resolve device status details using the Studio blueprint's deviceStatusMessages.
@@ -101,27 +127,13 @@ async function resolveDeviceStatusDetails(
 	defaultMessages: string[]
 ): Promise<string[]> {
 	try {
-		// Get the studio and its blueprint
-		const studio = (await Studios.findOneAsync(studioId, {
-			projection: { blueprintId: 1 },
-		})) as Pick<DBStudio, 'blueprintId'> | undefined
-
-		if (!studio?.blueprintId) {
+		const studioBlueprint = await getStudioBlueprintManifest(studioId)
+		if (!studioBlueprint) {
 			// No blueprint, return empty (caller will use original messages)
 			return []
 		}
 
-		// Get the blueprint code
-		const blueprint = (await Blueprints.findOneAsync(studio.blueprintId, {
-			projection: { _id: 1, name: 1, code: 1 },
-		})) as Pick<Blueprint, '_id' | 'name' | 'code'> | undefined
-
-		if (!blueprint) {
-			return []
-		}
-
-		// Evaluate the blueprint to get the manifest with deviceStatusMessages
-		const blueprintManifest = evalBlueprint(blueprint) as StudioBlueprintManifest
+		const { blueprint, manifest: blueprintManifest } = studioBlueprint
 
 		logger.debug(
 			`Blueprint ${blueprint._id} deviceStatusMessages keys: ${Object.keys(blueprintManifest.deviceStatusMessages ?? {}).join(', ')}`
@@ -186,6 +198,88 @@ async function resolveDeviceStatusDetails(
 		// Log error but don't fail - fall back to original messages
 		logger.error(`Error resolving device status messages: ${e}`)
 		return []
+	}
+}
+
+/**
+ * Resolve a TSR ActionExecutionResult using the Studio blueprint's deviceActionMessages.
+ * If the result has a structured `code` and `context`, and the blueprint defines a custom
+ * message template for that code, the `response` field is replaced with the resolved message.
+ * When the blueprint suppresses the message (empty string template), `response` is cleared.
+ *
+ * @param deviceId - The peripheral device ID (used to look up the studio and blueprint)
+ * @param result - The action execution result from TSR
+ * @returns The result with `response` resolved, cleared on suppression, or unchanged when no custom message applies
+ */
+export async function resolveActionResult(
+	deviceId: PeripheralDeviceId,
+	result: TSR.ActionExecutionResult
+): Promise<TSR.ActionExecutionResult> {
+	if (result.result === TSR.ActionExecutionResultCode.Ok) return result
+	if (!result.code) return result
+
+	try {
+		const device = (await PeripheralDevices.findOneAsync(deviceId, {
+			projection: { name: 1, studioAndConfigId: 1, parentDeviceId: 1 },
+		})) as Pick<PeripheralDevice, 'name' | 'studioAndConfigId' | 'parentDeviceId'> | undefined
+
+		if (!device) return result
+
+		// Child devices (like casparcg0) don't have studioAndConfigId directly - get it from parent
+		let studioId = device.studioAndConfigId?.studioId
+		if (!studioId && device.parentDeviceId) {
+			const parentDevice = await PeripheralDevices.findOneAsync(device.parentDeviceId, {
+				projection: { studioAndConfigId: 1 },
+			})
+			studioId = parentDevice?.studioAndConfigId?.studioId
+		}
+
+		if (!studioId) return result
+
+		const studioBlueprint = await getStudioBlueprintManifest(studioId)
+		if (!studioBlueprint) return result
+
+		const { blueprint, manifest: blueprintManifest } = studioBlueprint
+
+		if (!blueprintManifest.deviceActionMessages) return result
+
+		const resolver = new StatusMessageResolver(blueprint._id, blueprintManifest.deviceActionMessages, undefined)
+
+		// Use the existing TSR response as the fallback default message
+		const defaultMessage = result.response?.key ?? ''
+
+		const resolved = resolver.getDeviceStatusMessage(
+			result.code,
+			{
+				...(result.context ?? {}),
+				deviceName: device.name,
+				deviceId: unprotectString(deviceId),
+			},
+			defaultMessage
+		)
+
+		if (resolved === null) {
+			// Message suppressed by blueprint - clear response so the UI doesn't show the raw TSR message
+			return {
+				...result,
+				response: { key: '' },
+			}
+		}
+
+		// resolved.key is either the custom blueprint message or the defaultMessage
+		if (resolved.key === defaultMessage) {
+			// No custom message found - keep original response unchanged
+			return result
+		}
+
+		const interpolated = interpollateTranslation(resolved.key, resolved.args)
+		return {
+			...result,
+			response: { key: interpolated },
+		}
+	} catch (e) {
+		logger.error(`Error resolving device action messages: ${e}`)
+		return result
 	}
 }
 

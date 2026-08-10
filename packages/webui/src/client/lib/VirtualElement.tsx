@@ -76,26 +76,38 @@ export function VirtualElement({
 	const isTransitioning = useRef(false)
 
 	const isCurrentlyObserving = useRef(false)
+	const observedElementRef = useRef<HTMLDivElement | null>(null)
+	const isMountedRef = useRef(true)
+
+	useEffect(() => {
+		return () => {
+			isMountedRef.current = false
+		}
+	}, [])
+
+	const placeholderHeightPx = measurements?.clientHeight ?? placeholderHeight ?? ref?.clientHeight ?? 0
 
 	const styleObj = useMemo<React.CSSProperties>(
 		() => ({
 			width: width ?? 'auto',
-			height: ((placeholderHeight || ref?.clientHeight) ?? '0') + 'px',
+			height: `${placeholderHeightPx}px`,
 			// These properties are used to ensure that if a prior element is changed from
-			// placeHolder to element, the position of visible elements are not affected.
+			// placeholder to element, the position of visible elements are not affected.
 			contentVisibility: 'auto',
-			containIntrinsicSize: `0 ${(placeholderHeight || ref?.clientHeight) ?? '0'}px`,
+			containIntrinsicSize: `0 ${placeholderHeightPx}px`,
 			contain: 'size layout',
 		}),
-		[width, placeholderHeight]
+		[width, placeholderHeightPx]
 	)
 
 	const handleResize = useCallback(() => {
+		if (!isMountedRef.current) return
 		if (ref) {
 			// Show children during measurement
 			setIsShowingChildren(true)
 
 			requestAnimationFrame(() => {
+				if (!isMountedRef.current) return
 				const measurements = measureElement(ref, placeholderHeight)
 				if (measurements) {
 					setMeasurements(measurements)
@@ -110,6 +122,18 @@ export function VirtualElement({
 			})
 		}
 	}, [ref, inView, placeholderHeight])
+
+	const unobserveElement = useCallback(
+		(element: HTMLDivElement | null) => {
+			if (!element) return
+			resizeObserverManager.unobserve(element)
+			if (observedElementRef.current === element) {
+				observedElementRef.current = null
+			}
+			isCurrentlyObserving.current = false
+		},
+		[resizeObserverManager]
+	)
 
 	// failsafe to ensure visible elements if resizing happens while scrolling
 	useEffect(() => {
@@ -165,6 +189,10 @@ export function VirtualElement({
 	}, [inView, isShowingChildren])
 
 	useEffect(() => {
+		if (observedElementRef.current && observedElementRef.current !== ref) {
+			unobserveElement(observedElementRef.current)
+		}
+
 		if (inView) {
 			setIsShowingChildren(true)
 		}
@@ -195,14 +223,12 @@ export function VirtualElement({
 					if (ref) {
 						if (!isCurrentlyObserving.current) {
 							resizeObserverManager.observe(ref, handleResize)
+							observedElementRef.current = ref
 							isCurrentlyObserving.current = true
 						}
 					}
 				} else {
-					if (ref && isCurrentlyObserving.current) {
-						resizeObserverManager.unobserve(ref)
-						isCurrentlyObserving.current = false
-					}
+					if (ref) unobserveElement(ref)
 					setIsShowingChildren(false)
 				}
 			} catch (error) {
@@ -212,7 +238,7 @@ export function VirtualElement({
 				inViewChangeTimerRef.current = undefined
 			}
 		}, 100)
-	}, [inView, ref, handleResize, resizeObserverManager])
+	}, [inView, ref, handleResize, resizeObserverManager, unobserveElement])
 
 	const onVisibleChanged = useCallback(
 		(visible: boolean) => {
@@ -225,12 +251,13 @@ export function VirtualElement({
 	)
 
 	const isScrolling = (): boolean => {
+		const { isProgrammaticScrollInProgress, lastProgrammaticScrollTime } = getViewPortScrollingState()
 		// Don't do updates while scrolling:
-		if (getViewPortScrollingState().isProgrammaticScrollInProgress) {
+		if (isProgrammaticScrollInProgress) {
 			return true
 		}
 		// And wait if a programmatic scroll was done recently:
-		const timeSinceLastProgrammaticScroll = Date.now() - getViewPortScrollingState().lastProgrammaticScrollTime
+		const timeSinceLastProgrammaticScroll = Date.now() - lastProgrammaticScrollTime
 		if (timeSinceLastProgrammaticScroll < 100) {
 			return true
 		}
@@ -241,22 +268,23 @@ export function VirtualElement({
 		// Setup initial observer if element is in view
 		if (ref && inView && !isCurrentlyObserving.current) {
 			resizeObserverManager.observe(ref, handleResize)
+			observedElementRef.current = ref
 			isCurrentlyObserving.current = true
 		}
 
 		// Cleanup function
 		return () => {
 			// Clean up resize observer
-			if (ref && isCurrentlyObserving.current) {
-				resizeObserverManager.unobserve(ref)
-				isCurrentlyObserving.current = false
+			if (ref) unobserveElement(ref)
+			if (observedElementRef.current && observedElementRef.current !== ref) {
+				unobserveElement(observedElementRef.current)
 			}
 
 			if (inViewChangeTimerRef.current) {
 				clearTimeout(inViewChangeTimerRef.current)
 			}
 		}
-	}, [ref, inView, handleResize])
+	}, [ref, inView, handleResize, unobserveElement])
 
 	useEffect(() => {
 		if (inView === true) {
@@ -296,6 +324,7 @@ export function VirtualElement({
 			}
 			idleCallback = window.requestIdleCallback(
 				() => {
+					if (!isMountedRef.current) return
 					// Measure the entire wrapper element instead of just the childRef
 					if (ref) {
 						const measurements = measureElement(ref, placeholderHeight)
@@ -413,6 +442,23 @@ export class ElementObserverManager {
 	private resizeObserver: ResizeObserver
 	private mutationObserver: MutationObserver
 	private observedElements: Map<HTMLElement, () => void>
+	private isMutationObserverActive = false
+
+	private hasConnectedObservedElements(): boolean {
+		for (const observedElement of this.observedElements.keys()) {
+			if (document.contains(observedElement)) return true
+		}
+		return false
+	}
+
+	private pruneDetachedObservedElements(): void {
+		for (const observedElement of Array.from(this.observedElements.keys())) {
+			if (!document.contains(observedElement)) {
+				this.observedElements.delete(observedElement)
+				this.resizeObserver.unobserve(observedElement)
+			}
+		}
+	}
 
 	private constructor() {
 		this.observedElements = new Map()
@@ -421,37 +467,83 @@ export class ElementObserverManager {
 		this.resizeObserver = new ResizeObserver((entries) => {
 			entries.forEach((entry) => {
 				const element = entry.target as HTMLElement
+				if (!document.contains(element)) {
+					this.observedElements.delete(element)
+					this.resizeObserver.unobserve(element)
+					return
+				}
 				const callback = this.observedElements.get(element)
 				if (callback) {
 					callback()
 				}
 			})
+
+			// Ensure detached entries are aggressively cleaned even without follow-up DOM mutations.
+			this.pruneDetachedObservedElements()
+			if (this.observedElements.size === 0) {
+				this.disconnectMutationObserver()
+			}
 		})
 
-		// Configure MutationObserver
+		// Configure MutationObserver once and only connect/disconnect based on active observed elements.
 		this.mutationObserver = new MutationObserver((mutations) => {
+			if (this.observedElements.size === 0) return
+
+			this.pruneDetachedObservedElements()
+			if (this.observedElements.size === 0) {
+				this.disconnectMutationObserver()
+				return
+			}
 			const targets = new Set<HTMLElement>()
 
 			mutations.forEach((mutation) => {
-				const target = mutation.target as HTMLElement
-				// Find the closest observed element
-				let element = target
+				let element: HTMLElement | null = null
+				if (mutation.target instanceof HTMLElement) {
+					element = mutation.target
+				} else {
+					element = mutation.target.parentElement
+				}
+
+				if (!element || !document.contains(element)) return
+
 				while (element) {
 					if (this.observedElements.has(element)) {
 						targets.add(element)
 						break
 					}
-					if (!element.parentElement) break
 					element = element.parentElement
 				}
 			})
 
-			// Call callbacks for affected elements
 			targets.forEach((element) => {
+				if (!document.contains(element)) {
+					this.observedElements.delete(element)
+					this.resizeObserver.unobserve(element)
+					return
+				}
 				const callback = this.observedElements.get(element)
 				if (callback) callback()
 			})
 		})
+	}
+
+	private ensureMutationObserverConnected(): void {
+		if (this.isMutationObserverActive) return
+		if (this.observedElements.size === 0) return
+		if (!this.hasConnectedObservedElements()) return
+		if (!document.body) return
+
+		this.mutationObserver.observe(document.body, {
+			childList: true,
+			subtree: true,
+		})
+		this.isMutationObserverActive = true
+	}
+
+	private disconnectMutationObserver(): void {
+		if (!this.isMutationObserverActive) return
+		this.mutationObserver.disconnect()
+		this.isMutationObserverActive = false
 	}
 
 	public static getInstance(): ElementObserverManager {
@@ -463,31 +555,31 @@ export class ElementObserverManager {
 
 	public observe(element: HTMLElement, callback: () => void): void {
 		if (!element) return
+		if (!document.contains(element)) return
+		this.pruneDetachedObservedElements()
 
 		this.observedElements.set(element, callback)
 		this.resizeObserver.observe(element)
-		this.mutationObserver.observe(element, {
-			childList: true,
-			subtree: true,
-			attributes: true,
-			characterData: true,
-		})
+		this.ensureMutationObserverConnected()
 	}
 
 	public unobserve(element: HTMLElement): void {
 		if (!element) return
 		this.observedElements.delete(element)
 		this.resizeObserver.unobserve(element)
+		this.pruneDetachedObservedElements()
 
-		// Disconnect and reconnect mutation observer to refresh the list of observed elements
-		this.mutationObserver.disconnect()
-		this.observedElements.forEach((_, el) => {
-			this.mutationObserver.observe(el, {
-				childList: true,
-				subtree: true,
-				attributes: true,
-				characterData: true,
-			})
-		})
+		if (this.observedElements.size === 0) {
+			this.resizeObserver.disconnect()
+			this.disconnectMutationObserver()
+			return
+		}
+
+		if (!this.hasConnectedObservedElements()) {
+			this.disconnectMutationObserver()
+			return
+		}
+
+		this.ensureMutationObserverConnected()
 	}
 }

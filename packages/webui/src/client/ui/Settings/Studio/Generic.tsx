@@ -21,6 +21,7 @@ import { ForceQuickLoopAutoNext, ShelfButtonSize } from '@sofie-automation/share
 import type { SomeObjectOverrideOp } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { useOverrideOpHelperForSimpleObject } from '../util/OverrideOpHelper.js'
 import { IntInputControl } from '../../../lib/Components/IntInput.js'
+import { FloatInputControl } from '../../../lib/Components/FloatInput.js'
 import { useMemo } from 'react'
 import { CheckboxControl } from '../../../lib/Components/Checkbox.js'
 import { TextInputControl } from '../../../lib/Components/TextInput.js'
@@ -428,6 +429,109 @@ function StudioSettings({ studio }: { studio: DBStudio }): JSX.Element {
 				itemKey={'rundownGlobalPiecesPrepareTime'}
 				overrideHelper={overrideHelper}
 				hint={t('How much preparation time to add to global pieces on the timeline before they are played')}
+			>
+				{(value, handleUpdate) => (
+					<IntInputControl
+						modifiedClassName="bghl"
+						classNames="input text-input input-l"
+						value={value}
+						handleUpdate={handleUpdate}
+					/>
+				)}
+			</LabelAndOverridesForInt>
+
+			<LabelAndOverridesForCheckbox
+				label={t('Auto-rewind segment when leaving it')}
+				item={wrappedItem}
+				itemKey={'autoRewindLeavingSegment'}
+				overrideHelper={overrideHelper}
+				hint={t('Should a segment in the Rundown view automatically rewind after it stops being live')}
+			>
+				{(value, handleUpdate) => <CheckboxControl value={!!value} handleUpdate={handleUpdate} />}
+			</LabelAndOverridesForCheckbox>
+
+			<LabelAndOverridesForCheckbox
+				label={t('Disable blur border')}
+				item={wrappedItem}
+				itemKey={'disableBlurBorder'}
+				overrideHelper={overrideHelper}
+				hint={t('Disable the blur border around the Rundown view when it is not in focus and studio mode is enabled')}
+			>
+				{(value, handleUpdate) => <CheckboxControl value={!!value} handleUpdate={handleUpdate} />}
+			</LabelAndOverridesForCheckbox>
+
+			<LabelAndOverridesForCheckbox
+				label={t('Allow grabbing the timeline')}
+				item={wrappedItem}
+				itemKey={'allowGrabbingTimeline'}
+				overrideHelper={overrideHelper}
+				hint={t('Allow grabbing the segment timelines to scroll them')}
+			>
+				{(value, handleUpdate) => <CheckboxControl value={!!value} handleUpdate={handleUpdate} />}
+			</LabelAndOverridesForCheckbox>
+
+			<LabelAndOverridesForCheckbox
+				label={t('Count down to freeze-frame')}
+				item={wrappedItem}
+				itemKey={'useCountdownToFreezeFrame'}
+				overrideHelper={overrideHelper}
+				hint={t(
+					'If enabled, countdowns of videos will count down to the last freeze-frame of the video instead of to the end of the video'
+				)}
+			>
+				{(value, handleUpdate) => <CheckboxControl value={!!value} handleUpdate={handleUpdate} />}
+			</LabelAndOverridesForCheckbox>
+
+			<LabelAndOverridesForInt
+				label={t('Default Part Display Duration')}
+				item={wrappedItem}
+				itemKey={'defaultDisplayDuration'}
+				overrideHelper={overrideHelper}
+				hint={t('The fallback duration (in milliseconds) to use to render parts when no duration is provided')}
+			>
+				{(value, handleUpdate) => (
+					<IntInputControl
+						modifiedClassName="bghl"
+						classNames="input text-input input-l"
+						value={value}
+						handleUpdate={handleUpdate}
+					/>
+				)}
+			</LabelAndOverridesForInt>
+
+			<LabelAndOverrides
+				label={t('Default Shelf Display Options')}
+				item={wrappedItem}
+				itemKey={'defaultShelfDisplayOptions'}
+				overrideHelper={overrideHelper}
+				hint={t("Default value used to toggle Shelf options when the 'display' URL argument is not provided")}
+			>
+				{(value, handleUpdate) => <TextInputControl value={value} handleUpdate={handleUpdate} />}
+			</LabelAndOverrides>
+
+			<LabelAndOverrides
+				label={t('Default Timeline Time Scale')}
+				item={wrappedItem}
+				itemKey={'defaultTimeScale'}
+				overrideHelper={overrideHelper}
+				hint={t('Default zoom factor of the timelines in the UI')}
+			>
+				{(value, handleUpdate) => (
+					<FloatInputControl
+						modifiedClassName="bghl"
+						classNames="input text-input input-l"
+						value={value}
+						handleUpdate={handleUpdate}
+					/>
+				)}
+			</LabelAndOverrides>
+
+			<LabelAndOverridesForInt
+				label={t('Follow On-Air Segments History')}
+				item={wrappedItem}
+				itemKey={'followOnAirSegmentsHistory'}
+				overrideHelper={overrideHelper}
+				hint={t('How many segments of history to show when scrolling back in time (0 = show current segment only)')}
 			>
 				{(value, handleUpdate) => (
 					<IntInputControl

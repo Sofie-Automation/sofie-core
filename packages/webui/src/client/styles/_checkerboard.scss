@@ -1,0 +1,25 @@
+// Transparency indicator (matches origo-ui `.checkerboard-bg`).
+@mixin checkerboard-background {
+	background-color: #000;
+	background-image:
+		linear-gradient(45deg, #191919 25%, transparent 25%), linear-gradient(-45deg, #191919 25%, transparent 25%),
+		linear-gradient(45deg, transparent 75%, #191919 75%), linear-gradient(-45deg, transparent 75%, #191919 75%);
+	background-size: 10px 10px;
+	background-position:
+		0 0,
+		0 5px,
+		5px -5px,
+		-5px 0;
+}
+
+.checkerboard-bg {
+	@include checkerboard-background;
+}
+
+.checkerboard-bg .image-container {
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: contain;
+	width: 100%;
+	height: 100%;
+}

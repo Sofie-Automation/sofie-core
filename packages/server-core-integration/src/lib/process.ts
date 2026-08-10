@@ -1,5 +1,6 @@
 import * as fs from 'fs'
 import type { DDPTLSOptions } from './ddpClient.js'
+import type { SomeLogger } from './types.js'
 
 export interface CertificatesConfig {
 	/** Will cause the Node application to blindly accept all certificates. Not recommended unless in local, controlled networks. */
@@ -35,12 +36,4 @@ export function loadDDPTLSOptions(logger: SomeLogger, certConfig: CertificatesCo
 	}
 
 	return result
-}
-
-interface SomeLogger {
-	info(message: string, ...meta: any[]): void
-	error(message: string, ...meta: any[]): void
-	warn(message: string, ...meta: any[]): void
-	log(message: string, ...meta: any[]): void
-	debug(message: string, ...meta: any[]): void
 }

@@ -195,15 +195,22 @@ const SegmentListInner = React.forwardRef<HTMLDivElement, IProps>(function Segme
 			return
 		}
 
-		const partEl = combinedRef.current.querySelector('.segment-opl__part')
+		const segmentEl = combinedRef.current
+		const partEl = segmentEl.querySelector('.segment-opl__part')
 		if (!partEl) return
 
-		const { top, height } = combinedRef.current.getBoundingClientRect()
+		const { top, height } = segmentEl.getBoundingClientRect()
 		const absoluteTop = top + window.scrollY
 		const { height: partHeight } = partEl.getBoundingClientRect()
+		const threshold = absoluteTop + height - getHeaderHeight() - partHeight * 2 - 10
 
 		function onScroll() {
-			if (window.scrollY > absoluteTop + height - getHeaderHeight() - partHeight * 2 - 10) {
+			if (!segmentEl.isConnected) {
+				setHeaderDetachedStick(false)
+				return
+			}
+
+			if (window.scrollY > threshold) {
 				setHeaderDetachedStick(true)
 			} else {
 				setHeaderDetachedStick(false)

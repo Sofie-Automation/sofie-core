@@ -38,7 +38,6 @@ import { SegmentViewMode } from '../SegmentContainer/SegmentViewModes.js'
 import { ErrorBoundary } from '../../lib/ErrorBoundary.js'
 import { SwitchViewModeButton } from '../SegmentContainer/SwitchViewModeButton.js'
 import type { PartId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { SegmentTimeAnchorTime } from '../RundownView/RundownTiming/SegmentTimeAnchorTime.js'
 import { logger } from '../../lib/logging.js'
 import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 import type { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
@@ -169,7 +168,7 @@ export const SegmentStoryboard = React.memo(
 		}
 
 		const onClickPartIdent = (partId: PartId) => {
-			scrollToPart(partId, false, true, true).catch((error) => {
+			scrollToPart(partId, props.studio.settings.followOnAirSegmentsHistory ?? 0, false, true, true).catch((error) => {
 				if (!error.toString().match(/another scroll/)) logger.error('scrollToPart', error)
 			})
 		}
@@ -410,32 +409,35 @@ export const SegmentStoryboard = React.memo(
 			}
 		}
 
-		const onSegmentWheel = (e: WheelEvent) => {
-			let scrollDelta = 0
-			if (
-				(!e.ctrlKey && e.altKey && !e.metaKey && !e.shiftKey) ||
-				(e.ctrlKey && !e.metaKey && !e.shiftKey && e.altKey)
-			) {
-				// this.props.onScroll(Math.max(0, this.props.scrollLeft + e.deltaY / this.props.timeScale), e)
-				scrollDelta = e.deltaY * -1
-				e.preventDefault()
-			} else if (!e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey) {
-				// no modifier
-				if (e.deltaX !== 0) {
-					// this.props.onScroll(Math.max(0, this.props.scrollLeft + e.deltaX / this.props.timeScale), e)
-					scrollDelta = e.deltaX * -1
+		const onSegmentWheel = useCallback(
+			(e: WheelEvent) => {
+				let scrollDelta = 0
+				if (
+					(!e.ctrlKey && e.altKey && !e.metaKey && !e.shiftKey) ||
+					(e.ctrlKey && !e.metaKey && !e.shiftKey && e.altKey)
+				) {
+					// this.props.onScroll(Math.max(0, this.props.scrollLeft + e.deltaY / this.props.timeScale), e)
+					scrollDelta = e.deltaY * -1
 					e.preventDefault()
+				} else if (!e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey) {
+					// no modifier
+					if (e.deltaX !== 0) {
+						// this.props.onScroll(Math.max(0, this.props.scrollLeft + e.deltaX / this.props.timeScale), e)
+						scrollDelta = e.deltaX * -1
+						e.preventDefault()
+					}
 				}
-			}
 
-			if (scrollDelta !== 0) {
-				setScrollLeft((value) => {
-					const newScrollLeft = Math.max(0, Math.min(value - scrollDelta, maxScrollLeft))
-					props.onScroll(newScrollLeft, e)
-					return newScrollLeft
-				})
-			}
-		}
+				if (scrollDelta !== 0) {
+					setScrollLeft((value) => {
+						const newScrollLeft = Math.max(0, Math.min(value - scrollDelta, maxScrollLeft))
+						props.onScroll(newScrollLeft, e)
+						return newScrollLeft
+					})
+				}
+			},
+			[maxScrollLeft, props.onScroll]
+		)
 
 		useEffect(() => {
 			if (!grabbed) return
@@ -522,7 +524,7 @@ export const SegmentStoryboard = React.memo(
 			return () => {
 				segment.removeEventListener('wheel', onSegmentWheel)
 			}
-		}, [innerRef.current])
+		}, [onSegmentWheel])
 
 		const onScrollbarChange = useCallback((left: number) => {
 			setScrollLeft(Math.max(0, Math.min(left, maxScrollLeft)))
@@ -631,33 +633,23 @@ export const SegmentStoryboard = React.memo(
 							/>
 						)}
 				</div>
-				{props.segment.segmentTiming?.expectedStart || props.segment.segmentTiming?.expectedEnd ? (
-					<div className="segment-timeline__expectedTime">
-						<SegmentTimeAnchorTime
-							segment={props.segment}
-							isLiveSegment={props.isLiveSegment}
-							labelClassName="segment-timeline__duration__label"
+				<div className="segment-timeline__timeUntil" onClick={onTimeUntilClick}>
+					{props.playlist && props.parts && props.parts.length > 0 && props.showCountdownToSegment && (
+						<PartCountdown
+							partId={countdownToPartId}
+							hideOnZero={!useTimeOfDayCountdowns}
+							useWallClock={useTimeOfDayCountdowns}
+							playlist={props.playlist}
+							label={
+								useTimeOfDayCountdowns ? (
+									<span className="segment-timeline__timeUntil__label">{t('On Air At')}</span>
+								) : (
+									<span className="segment-timeline__timeUntil__label">{t('On Air In')}</span>
+								)
+							}
 						/>
-					</div>
-				) : (
-					<div className="segment-timeline__timeUntil" onClick={onTimeUntilClick}>
-						{props.playlist && props.parts && props.parts.length > 0 && props.showCountdownToSegment && (
-							<PartCountdown
-								partId={countdownToPartId}
-								hideOnZero={!useTimeOfDayCountdowns}
-								useWallClock={useTimeOfDayCountdowns}
-								playlist={props.playlist}
-								label={
-									useTimeOfDayCountdowns ? (
-										<span className="segment-timeline__timeUntil__label">{t('On Air At')}</span>
-									) : (
-										<span className="segment-timeline__timeUntil__label">{t('On Air In')}</span>
-									)
-								}
-							/>
-						)}
-					</div>
-				)}
+					)}
+				</div>
 
 				<div className="segment-timeline__mos-id">{props.segment.externalId}</div>
 				<div className="segment-timeline__source-layers" role="tree" aria-label={t('Sources')}>

@@ -536,6 +536,11 @@
 		flex-shrink: 0;
 		transition: opacity 0.2s;
 
+		&--placeholder {
+			visibility: hidden;
+			pointer-events: none;
+		}
+
 		svg,
 		i {
 			filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0));
@@ -578,7 +583,7 @@
 			color: #fff;
 		}
 
-		.rundown-header__close-btn {
+		.rundown-header__close-btn:not(.rundown-header__close-btn--placeholder) {
 			opacity: 1;
 		}
 

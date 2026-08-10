@@ -13,6 +13,8 @@ import { logger } from '../../logging'
 import { PackageInfo } from '../../coreSystem'
 import { profiler } from '../profiler'
 import fs from 'fs/promises'
+import type { IExtendedSettings } from '@sofie-automation/meteor-lib/dist/Settings'
+import { ENABLE_HEADER_AUTH } from '../../security/auth'
 
 declare module 'http' {
 	interface IncomingMessage {
@@ -123,7 +125,10 @@ function getExtendedMeteorRuntimeConfig() {
 	return `window.__meteor_runtime_config__ = (${JSON.stringify({
 		// @ts-expect-error missing types for internal meteor detail
 		...__meteor_runtime_config__,
-		sofieVersionExtended: versionExtended,
+		...({
+			sofieVersionExtended: versionExtended,
+			enableHeaderAuth: ENABLE_HEADER_AUTH,
+		} satisfies IExtendedSettings),
 	})})`
 }
 

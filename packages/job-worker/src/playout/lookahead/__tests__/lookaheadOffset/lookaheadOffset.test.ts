@@ -15,7 +15,7 @@ import { getOrderedPartsAfterPlayhead } from '../../util.js'
 import { PlayoutModel } from '../../../model/PlayoutModel.js'
 import { SelectedPartInstancesTimelineInfo } from '../../../timeline/generate.js'
 import { wrapPieceToInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
-import { baseContext, basePlayoutModel, makePiece, lookaheadOffsetTestConstants } from './constants.js'
+import { baseContext, basePlayoutModel, makePiece, makeSimplePiece, lookaheadOffsetTestConstants } from './constants.js'
 
 const findLargestLookaheadDistanceMock = jest.mocked(findLargestLookaheadDistance).mockImplementation(() => 0)
 const getOrderedPartsAfterPlayheadMock = jest.mocked(getOrderedPartsAfterPlayhead).mockImplementation(() => [])
@@ -69,10 +69,10 @@ describe('lookahead offset integration', () => {
 		const findFetchMock = jest
 			.fn()
 			.mockResolvedValue([
-				makePiece({ partId: 'p1', layer: 'layer1' }),
-				makePiece({ partId: 'p2', layer: 'layer1' }),
-				makePiece({ partId: 'p3', layer: 'layer1' }),
-				makePiece({ partId: 'p4', layer: 'layer1' }),
+				makeSimplePiece({ partId: 'p1', layer: 'layer1' }),
+				makeSimplePiece({ partId: 'p2', layer: 'layer1' }),
+				makeSimplePiece({ partId: 'p3', layer: 'layer1' }),
+				makeSimplePiece({ partId: 'p4', layer: 'layer1' }),
 			])
 
 		context = {
@@ -142,8 +142,8 @@ describe('lookahead offset integration', () => {
 		context.directCollections.Pieces.findFetch = jest
 			.fn()
 			.mockResolvedValue([
-				makePiece({ partId: 'p1', layer: 'layer1' }),
-				makePiece({ partId: 'p2', layer: 'layer1', start: 2000 }),
+				makeSimplePiece({ partId: 'p1', layer: 'layer1' }),
+				makeSimplePiece({ partId: 'p2', layer: 'layer1', start: 2000 }),
 			])
 
 		const res = await getLookeaheadObjects(context, playoutModel, {} as SelectedPartInstancesTimelineInfo)
@@ -165,8 +165,8 @@ describe('lookahead offset integration', () => {
 		context.directCollections.Pieces.findFetch = jest
 			.fn()
 			.mockResolvedValue([
-				makePiece({ partId: 'pNext', layer: 'layer1', start: 0 }),
-				makePiece({ partId: 'p1', layer: 'layer2', start: 0 }),
+				makeSimplePiece({ partId: 'pNext', layer: 'layer1', start: 0 }),
+				makeSimplePiece({ partId: 'p1', layer: 'layer2', start: 0 }),
 			])
 
 		const res = await getLookeaheadObjects(context, playoutModel, {
@@ -182,9 +182,9 @@ describe('lookahead offset integration', () => {
 				},
 				pieceInstances: [
 					wrapPieceToInstance(
-						makePiece({ partId: 'pNext', layer: 'layer1', start: 0 }) as any,
-						'pA1' as any,
-						'pNextInstance' as any
+						makeSimplePiece({ partId: 'pNext', layer: 'layer1', start: 0 }),
+						protectString('pA1'),
+						protectString('pNextInstance')
 					),
 				],
 				calculatedTimings: undefined,
@@ -217,17 +217,45 @@ describe('lookahead offset integration', () => {
 				...lookaheadOffsetTestConstants.multiLayerPart,
 				pieceInstances: lookaheadOffsetTestConstants.multiLayerPart.pieces.map((piece) =>
 					wrapPieceToInstance(
-						piece as any,
-						'pA1' as any,
+						piece,
+						protectString('pA1'),
 						lookaheadOffsetTestConstants.multiLayerPart.partInstance._id
 					)
 				),
 			},
 		} as any)
 
-		expect(res).toHaveLength(3)
-		expect(res.map((o) => o.layer).sort()).toEqual([`layer1_lookahead`, 'layer2_lookahead', 'layer3_lookahead'])
-		expect(res.map((o) => o.lookaheadOffset).sort()).toEqual([1000, 500])
+		// With multi-object support each piece contributes all three of its timeline
+		// objects (pieceStart, beforeOffset, afterOffset) → 3 objects per layer × 3 layers = 9
+		expect(res).toHaveLength(9)
+		expect(res.map((o) => o.layer).sort()).toEqual([
+			'layer1_lookahead',
+			'layer1_lookahead',
+			'layer1_lookahead',
+			'layer2_lookahead',
+			'layer2_lookahead',
+			'layer2_lookahead',
+			'layer3_lookahead',
+			'layer3_lookahead',
+			'layer3_lookahead',
+		])
+		// Layers are processed in insertion order (layer1, layer2, layer3).
+		// For layer1 (piece start=0, nextTimeOffset=1000):
+		//   objPieceStart (start=0 → offset=1000), obj_beforeOffset (start=700 → offset=300), obj_afterOffset (start=1700 → undef)
+		// For layer2 (piece start=500):
+		//   objPieceStart (start=0 → offset=500), obj_beforeOffset (start=200 → offset=300), obj_afterOffset (start=1200 → undef)
+		// For layer3 (piece start=1500 > nextTimeOffset): all offsets are undefined
+		expect(res.map((o) => o.lookaheadOffset)).toEqual([
+			1000,
+			300,
+			undefined,
+			500,
+			300,
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+		])
 	})
 	test('Multi layer part produces lookahead objects with while enable values for all layers with the correct offsets', async () => {
 		playoutModel = {
@@ -250,17 +278,38 @@ describe('lookahead offset integration', () => {
 				...lookaheadOffsetTestConstants.multiLayerPartWhile,
 				pieceInstances: lookaheadOffsetTestConstants.multiLayerPartWhile.pieces.map((piece) =>
 					wrapPieceToInstance(
-						piece as any,
-						'pA1' as any,
+						piece,
+						protectString('pA1'),
 						lookaheadOffsetTestConstants.multiLayerPartWhile.partInstance._id
 					)
 				),
 			},
 		} as any)
 
-		expect(res).toHaveLength(3)
-		expect(res.map((o) => o.layer).sort()).toEqual([`layer1_lookahead`, 'layer2_lookahead', 'layer3_lookahead'])
-		expect(res.map((o) => o.lookaheadOffset).sort()).toEqual([1000, 500])
+		// Same structure as the non-while variant — while enables produce identical offsets
+		expect(res).toHaveLength(9)
+		expect(res.map((o) => o.layer).sort()).toEqual([
+			'layer1_lookahead',
+			'layer1_lookahead',
+			'layer1_lookahead',
+			'layer2_lookahead',
+			'layer2_lookahead',
+			'layer2_lookahead',
+			'layer3_lookahead',
+			'layer3_lookahead',
+			'layer3_lookahead',
+		])
+		expect(res.map((o) => o.lookaheadOffset)).toEqual([
+			1000,
+			300,
+			undefined,
+			500,
+			300,
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+		])
 	})
 	test('Single layer part produces lookahead objects with the correct offsets', async () => {
 		playoutModel = {
@@ -290,9 +339,14 @@ describe('lookahead offset integration', () => {
 				),
 			},
 		} as any)
-		expect(res).toHaveLength(2)
-		expect(res.map((o) => o.layer)).toEqual(['layer1_lookahead', 'layer1_lookahead'])
-		expect(res.map((o) => o.lookaheadOffset)).toEqual([500, undefined])
+		// filterPieceInstancesForNextPartWithOffset keeps piece2 (start=500, best before nextTimeOffset=1000)
+		// and piece3 (start=1500, after nextTimeOffset). piece1 (start=0) is replaced by piece2.
+		// With multi-object support each kept piece contributes all three timeline objects → 3+3=6
+		expect(res).toHaveLength(6)
+		expect(res.map((o) => o.layer)).toEqual(Array(6).fill('layer1_lookahead'))
+		// piece2 (start=500): objPieceStart (0→500), obj_beforeOffset (200→300), obj_afterOffset (1200→undef)
+		// piece3 (start=1500 > nextTimeOffset): all three objects have undefined offset
+		expect(res.map((o) => o.lookaheadOffset)).toEqual([500, 300, undefined, undefined, undefined, undefined])
 	})
 	test('Single layer part produces lookahead objects with while enable values with the correct offsets', async () => {
 		playoutModel = {
@@ -315,15 +369,16 @@ describe('lookahead offset integration', () => {
 				...lookaheadOffsetTestConstants.singleLayerPartWhile,
 				pieceInstances: lookaheadOffsetTestConstants.singleLayerPartWhile.pieces.map((piece) =>
 					wrapPieceToInstance(
-						piece as any,
-						'pA1' as any,
+						piece,
+						protectString('pA1'),
 						lookaheadOffsetTestConstants.singleLayerPartWhile.partInstance._id
 					)
 				),
 			},
 		} as any)
-		expect(res).toHaveLength(2)
-		expect(res.map((o) => o.layer)).toEqual(['layer1_lookahead', 'layer1_lookahead'])
-		expect(res.map((o) => o.lookaheadOffset)).toEqual([500, undefined])
+		// Same structure as the non-while variant — while enables produce identical offsets
+		expect(res).toHaveLength(6)
+		expect(res.map((o) => o.layer)).toEqual(Array(6).fill('layer1_lookahead'))
+		expect(res.map((o) => o.lookaheadOffset)).toEqual([500, 300, undefined, undefined, undefined, undefined])
 	})
 })

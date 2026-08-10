@@ -7,6 +7,7 @@ import { MockJobContext, setupDefaultJobEnvironment } from '../../../../__mocks_
 import { ProcessedShowStyleCompound } from '../../../../jobs/index.js'
 import { ReadonlyDeep } from 'type-fest'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
+import { SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { createPlayoutModelFromIngestModel, loadPlayoutModelPreInit } from '../LoadPlayoutModel.js'
 import { runWithPlaylistLock } from '../../../../playout/lock.js'
 import { loadIngestModelFromRundown } from '../../../../ingest/model/implementation/LoadIngestModel.js'
@@ -153,6 +154,63 @@ describe('LoadPlayoutModel', () => {
 				const model = await createPlayoutModelFromIngestModel(context, lock, playlist0, rundowns, ingestModel)
 
 				expect(model.rundowns.map((r) => r.rundown._id)).toMatchObject([rundownId01, rundownId02, rundownId00])
+			})
+		})
+
+		test('preserves playout-owned AdlibTesting segments during reingest', async () => {
+			const { rundownId, playlistId } = await setupDefaultRundownPlaylist(
+				context,
+				showStyleCompound,
+				protectString('rundown00')
+			)
+
+			const adlibTestingSegmentId = protectString('adlib_testing_segment')
+			await context.mockCollections.Segments.insertOne({
+				_id: adlibTestingSegmentId,
+				_rank: -1,
+				externalId: '__adlib-testing__',
+				rundownId,
+				name: '',
+				orphaned: SegmentOrphanedReason.ADLIB_TESTING,
+			})
+
+			const playlist = await context.mockCollections.RundownPlaylists.findOne(playlistId)
+			expect(playlist).toBeTruthy()
+			if (!playlist) throw new Error(`Playlist "${playlistId}" not found!`)
+
+			let ingestModel: IngestModelReadonly | undefined
+
+			await runWithRundownLock(context, rundownId, async (rundown, lock) => {
+				if (!rundown) throw new Error(`Rundown "${rundownId}" not found!`)
+
+				ingestModel = await loadIngestModelFromRundown(context, lock, rundown)
+			})
+
+			expect(ingestModel).toBeTruthy()
+			if (!ingestModel) throw new Error('Ingest model could not be created!')
+
+			// Ingest model should not include playout-owned AdlibTesting segments
+			expect(
+				ingestModel.getAllSegments().find((s) => s.segment.orphaned === SegmentOrphanedReason.ADLIB_TESTING)
+			).toBeUndefined()
+
+			await runWithPlaylistLock(context, playlistId, async (lock) => {
+				if (!ingestModel) throw new Error('Ingest model could not be created!')
+
+				const rundowns = await context.mockCollections.Rundowns.findFetch({})
+
+				const model = await createPlayoutModelFromIngestModel(context, lock, playlist, rundowns, ingestModel)
+
+				const playoutRundown = model.getRundown(rundownId)
+				expect(playoutRundown).toBeTruthy()
+
+				const adlibTestingSegment = playoutRundown?.getAdlibTestingSegment()
+				expect(adlibTestingSegment).toBeTruthy()
+				expect(adlibTestingSegment?.segment._id).toEqual(adlibTestingSegmentId)
+
+				// AdlibTesting segment should be sorted before ingest segments
+				expect(playoutRundown?.segments[0].segment.orphaned).toBe(SegmentOrphanedReason.ADLIB_TESTING)
+				expect(playoutRundown?.segments.length).toBe(ingestModel.getAllSegments().length + 1)
 			})
 		})
 	})

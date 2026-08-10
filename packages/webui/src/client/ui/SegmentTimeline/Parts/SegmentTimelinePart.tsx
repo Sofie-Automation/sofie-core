@@ -69,7 +69,6 @@ interface IProps {
 	studio: UIStudio
 	part: PartUi
 	timeToPixelRatio: number
-	onCollapseOutputToggle?: (layer: IOutputLayerUi, event: any) => void
 	collapsedOutputs: {
 		[key: string]: boolean
 	}
