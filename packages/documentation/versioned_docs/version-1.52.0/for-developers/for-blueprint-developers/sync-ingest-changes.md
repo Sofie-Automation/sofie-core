@@ -20,4 +20,4 @@ In this blueprint method, you are able to update almost any of the properties th
 
 - `newData.part` will be `undefined` when the PartInstance is orphaned. Generally, it's useful to differentiate the behavior of the implementation of this function based on `existingPartInstance.partInstance.orphaned` state
 
-- `playStatus: previous` means that the currentPartInstance is `orphaned: adlib-part` and thus possibly depends on an already past PartInstance for some of it's properties. Therefore the blueprint is allowed to modify the most recently played non-adlibbed PartInstance using ingested data.
+- `playStatus: previous` means that the currentPartInstance is `orphaned: adlib-part` and thus possibly depends on an already past PartInstance for some of its properties. Therefore the blueprint is allowed to modify the most recently played non-adlibbed PartInstance using ingested data.

@@ -31,7 +31,7 @@ The Studio uses a studio-blueprint, which handles things like mapping up an inco
 
 ### Attached Devices
 
-This section allows you to add and remove Gateways that are related to this _Studio_. When a Gateway is attached to a Studio, it will react to the changes happening within it, as well as feed the neccessary data into it.
+This section allows you to add and remove Gateways that are related to this _Studio_. When a Gateway is attached to a Studio, it will react to the changes happening within it, as well as feed the necessary data into it.
 
 ### Blueprint Configuration
 
@@ -110,7 +110,7 @@ This is a way to set up how - outside of the Point-and-Click Graphical User Inte
 
 The triggers are designed to be either client-specific or issued by a peripheral device module.
 
-Currently, the Action Triggers system only supports a single, client-specific trigger type: a Hotkey. Hotkeys can be either a single key, a combination of keys (_combo_) or a _chord_ - a sequnece of key combinations pressed in a particular order. _Chords_ are popular in some text editing applications and vastly expand the amount of actions that can be triggered from a keyboard, at the expense of the time needed to execute them. Currently, the Hotkey editor in Sofie does not support creating _Chords_, but they can be specified by Blueprints during migrations.
+Currently, the Action Triggers system only supports a single, client-specific trigger type: a Hotkey. Hotkeys can be either a single key, a combination of keys (_combo_) or a _chord_ - a sequence of key combinations pressed in a particular order. _Chords_ are popular in some text editing applications and vastly expand the amount of actions that can be triggered from a keyboard, at the expense of the time needed to execute them. Currently, the Hotkey editor in Sofie does not support creating _Chords_, but they can be specified by Blueprints during migrations.
 
 To edit a given trigger, click on the trigger pill on the left of the Trigger-Action set. When hovering, a **+** sign will appear,
 allowing you to add a new trigger to the set.
@@ -119,7 +119,7 @@ allowing you to add a new trigger to the set.
 
 The actions are built using a base _action_ (such as _Activate a Rundown_ or _AdLib_) and a set of _filters_, limiting the scope of the _action_. Optionally, some of these _actions_ can take additional _parameters_. These filters can operate on various types of objects, depending on the action in question. All actions currently require that the chain of filters starts with scoping out the Rundown the action is supposed to affect. Currently, there is only one type of Rundown-level filter supported: "The Rundown currently in view".
 
-The Action Triggers user interface guides the user in a wizzard-like fashion through the available _filter_ options on a given _action_.
+The Action Triggers user interface guides the user in a wizard-like fashion through the available _filter_ options on a given _action_.
 
 ![Actions can take additional parameters](/img/docs/main/features/action_triggers_2.png)
 

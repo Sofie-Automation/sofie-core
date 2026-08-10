@@ -38,7 +38,7 @@ export enum LookaheadMode {
 }
 ```
 
-If undefined, `lookaheadMaxSearchDistance` currently has a default distance of 10 parts. This number was chosen arbitrarily, and could change in the future. Be careful when choosing a distance to not set it too high. All the Pieces from the parts being searched have to be loaded from the database, which can come at a noticable cost.
+If undefined, `lookaheadMaxSearchDistance` currently has a default distance of 10 parts. This number was chosen arbitrarily, and could change in the future. Be careful when choosing a distance to not set it too high. All the Pieces from the parts being searched have to be loaded from the database, which can come at a noticeable cost.
 
 If you are doing [AB Playback](./ab-playback.md), or performing some other processing of the timeline in `onTimelineGenerate`, you may benefit from increasing the value of `lookaheadDepth`. In the case of AB Playback, you will likely want to set it to the number of players available in your pool.
 

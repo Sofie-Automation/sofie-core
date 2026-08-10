@@ -23,32 +23,27 @@ Currently, there is not a very clearly defined flow for modifying these document
 
 This includes:
 
-- [Blueprints](https://github.com/Sofie-Automation/sofie-core/blob/main/packages/corelib/src/dataModel/Blueprint.ts)
-- [Buckets](https://github.com/Sofie-Automation/sofie-core/blob/main/meteor/lib/collections/Buckets.ts)
-- [CoreSystem](https://github.com/Sofie-Automation/sofie-core/blob/main/meteor/lib/collections/CoreSystem.ts)
-- [Evaluations](https://github.com/Sofie-Automation/sofie-core/blob/main/meteor/lib/collections/Evaluations.ts)
-- [ExternalMessageQueue](https://github.com/Sofie-Automation/sofie-core/blob/main/packages/corelib/src/dataModel/ExternalMessageQueue.ts)
-- [ExpectedPackageWorkStatuses](https://github.com/Sofie-Automation/sofie-core/blob/main/packages/corelib/src/dataModel/ExpectedPackageWorkStatuses.ts)
-- [MediaObjects](https://github.com/Sofie-Automation/sofie-core/blob/main/packages/corelib/src/dataModel/MediaObjects.ts)
-- [MediaWorkFlows](https://github.com/Sofie-Automation/sofie-core/blob/main/meteor/lib/collections/MediaWorkFlows.ts)
-- [MediaWorkFlowSteps](https://github.com/Sofie-Automation/sofie-core/blob/main/meteor/lib/collections/MediaWorkFlowSteps.ts)
-- [Organizations](https://github.com/Sofie-Automation/sofie-core/blob/main/meteor/lib/collections/Organization.ts)
-- [PackageInfos](https://github.com/Sofie-Automation/sofie-core/blob/main/packages/corelib/src/dataModel/PackageInfos.ts)
-- [PackageContainerPackageStatuses](https://github.com/Sofie-Automation/sofie-core/blob/main/packages/corelib/src/dataModel/PackageContainerPackageStatus.ts)
-- [PackageContainerStatuses](https://github.com/Sofie-Automation/sofie-core/blob/main/packages/corelib/src/dataModel/PackageContainerStatus.ts)
-- [PeripheralDeviceCommands](https://github.com/Sofie-Automation/sofie-core/blob/main/packages/corelib/src/dataModel/PeripheralDeviceCommand.ts)
-- [PeripheralDevices](https://github.com/Sofie-Automation/sofie-core/blob/main/packages/corelib/src/dataModel/PeripheralDevice.ts)
-- [RundownLayouts](https://github.com/Sofie-Automation/sofie-core/blob/main/meteor/lib/collections/RundownLayouts.ts)
-- [ShowStyleBase](https://github.com/Sofie-Automation/sofie-core/blob/main/packages/corelib/src/dataModel/ShowStyleBase.ts)
-- [ShowStyleVariant](https://github.com/Sofie-Automation/sofie-core/blob/main/packages/corelib/src/dataModel/ShowStyleVariant.ts)
-- [Snapshots](https://github.com/Sofie-Automation/sofie-core/blob/main/meteor/lib/collections/Snapshots.ts)
-- [Studio](https://github.com/Sofie-Automation/sofie-core/blob/main/packages/corelib/src/dataModel/Studio.ts)
-- [TriggeredActions](https://github.com/Sofie-Automation/sofie-core/blob/main/meteor/lib/collections/TriggeredActions.ts)
-- [TranslationsBundles](https://github.com/Sofie-Automation/sofie-core/blob/main/meteor/lib/collections/TranslationsBundles.ts)
-- [UserActionsLog](https://github.com/Sofie-Automation/sofie-core/blob/main/meteor/lib/collections/UserActionsLog.ts)
-- [Users](https://github.com/Sofie-Automation/sofie-core/blob/main/meteor/lib/collections/Users.ts)
-- [Workers](https://github.com/Sofie-Automation/sofie-core/blob/main/meteor/lib/collections/Workers.ts)
-- [WorkerThreads](https://github.com/Sofie-Automation/sofie-core/blob/main/packages/corelib/src/dataModel/WorkerThreads.ts)
+- [Blueprints](https://github.com/Sofie-Automation/sofie-core/blob/release52/packages/corelib/src/dataModel/Blueprint.ts)
+- [CoreSystem](https://github.com/Sofie-Automation/sofie-core/blob/release52/packages/meteor-lib/src/collections/CoreSystem.ts)
+- [Evaluations](https://github.com/Sofie-Automation/sofie-core/blob/release52/packages/meteor-lib/src/collections/Evaluations.ts)
+- [ExternalMessageQueue](https://github.com/Sofie-Automation/sofie-core/blob/release52/packages/corelib/src/dataModel/ExternalMessageQueue.ts)
+- [ExpectedPackageWorkStatuses](https://github.com/Sofie-Automation/sofie-core/blob/release52/packages/corelib/src/dataModel/ExpectedPackageWorkStatuses.ts)
+- [MediaObjects](https://github.com/Sofie-Automation/sofie-core/blob/release52/packages/corelib/src/dataModel/MediaObjects.ts)
+- [PackageInfos](https://github.com/Sofie-Automation/sofie-core/blob/release52/packages/corelib/src/dataModel/PackageInfos.ts)
+- [PackageContainerPackageStatuses](https://github.com/Sofie-Automation/sofie-core/blob/release52/packages/corelib/src/dataModel/PackageContainerPackageStatus.ts)
+- [PackageContainerStatuses](https://github.com/Sofie-Automation/sofie-core/blob/release52/packages/corelib/src/dataModel/PackageContainerStatus.ts)
+- [PeripheralDeviceCommands](https://github.com/Sofie-Automation/sofie-core/blob/release52/packages/corelib/src/dataModel/PeripheralDeviceCommand.ts)
+- [PeripheralDevices](https://github.com/Sofie-Automation/sofie-core/blob/release52/packages/corelib/src/dataModel/PeripheralDevice.ts)
+- [RundownLayouts](https://github.com/Sofie-Automation/sofie-core/blob/release52/packages/meteor-lib/src/collections/RundownLayouts.ts)
+- [ShowStyleBase](https://github.com/Sofie-Automation/sofie-core/blob/release52/packages/corelib/src/dataModel/ShowStyleBase.ts)
+- [ShowStyleVariant](https://github.com/Sofie-Automation/sofie-core/blob/release52/packages/corelib/src/dataModel/ShowStyleVariant.ts)
+- [Snapshots](https://github.com/Sofie-Automation/sofie-core/blob/release52/packages/meteor-lib/src/collections/Snapshots.ts)
+- [Studio](https://github.com/Sofie-Automation/sofie-core/blob/release52/packages/corelib/src/dataModel/Studio.ts)
+- [TriggeredActions](https://github.com/Sofie-Automation/sofie-core/blob/release52/packages/meteor-lib/src/collections/TriggeredActions.ts)
+- [TranslationsBundles](https://github.com/Sofie-Automation/sofie-core/blob/release52/packages/meteor-lib/src/collections/TranslationsBundles.ts)
+- [UserActionsLog](https://github.com/Sofie-Automation/sofie-core/blob/release52/packages/meteor-lib/src/collections/UserActionsLog.ts)
+- [Workers](https://github.com/Sofie-Automation/sofie-core/blob/release52/packages/meteor-lib/src/collections/Workers.ts)
+- [WorkerThreads](https://github.com/Sofie-Automation/sofie-core/blob/release52/packages/corelib/src/dataModel/WorkerThreads.ts)
 
 ### Ingest
 
@@ -101,7 +96,7 @@ These collections are used in combination with many of the ingest collections, t
 RundownPlaylists are a Sofie invention designed to solve one problem; in some NRCS it is beneficial to build a show across multiple Rundowns, which should then be concatenated for playout.
 In particular, MOS has no concept of a Playlist, only Rundowns, and it was here where we need to be able to combine multiple Rundowns.
 
-This functionality can be used to either break down long shows into managable chunks, or to indicate a different type of show between the each portion.
+This functionality can be used to either break down long shows into manageable chunks, or to indicate a different type of show between the each portion.
 
 Because of this, RundownPlaylists are largely missing from the ingest side of Sofie. We do not expose them in the ingest APIs, or do anything with them throughout the majority of the blueprints generating a Rundown.
 Instead, we let the blueprints specify that a Rundown should be part of a RundownPlaylist by setting the `playlistExternalId` property, where multiple Rundowns in a Studio with the same id will be grouped into a RundownPlaylist.

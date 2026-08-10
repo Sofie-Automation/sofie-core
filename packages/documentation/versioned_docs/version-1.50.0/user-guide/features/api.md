@@ -6,7 +6,7 @@ sidebar_position: 10
 
 ## Sofie User Actions REST API
 
-Starting with version 1.50.0, there is a semantically-versioned HTTP REST API definied using the [OpenAPI specification](https://spec.openapis.org/oas/v3.0.3) that exposes some of the functionality available through the GUI in a machine-readable fashion. The API specification can be found in the `packages/openapi` folder. The latest version of this API is available in _Sofie&nbsp;Core_ using the endpoint: `/api/1.0`. There should be no assumption of backwards-compatibility for this API, but this API will be semantically-versioned, with redirects set up for minor-version changes for compatibility.
+Starting with version 1.50.0, there is a semantically-versioned HTTP REST API defined using the [OpenAPI specification](https://spec.openapis.org/oas/v3.0.3) that exposes some of the functionality available through the GUI in a machine-readable fashion. The API specification can be found in the `packages/openapi` folder. The latest version of this API is available in _Sofie&nbsp;Core_ using the endpoint: `/api/1.0`. There should be no assumption of backwards-compatibility for this API, but this API will be semantically-versioned, with redirects set up for minor-version changes for compatibility.
 
 There is a also a legacy REST API available that can be used to fetch data and trigger actions. The documentation for this API is minimal, but the API endpoints are listed by _Sofie&nbsp;Core_ using the endpoint: `/api/0`
 

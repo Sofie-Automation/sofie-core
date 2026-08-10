@@ -91,7 +91,7 @@ Being a web-based system, Sofie has a number of customisable, user-facing web [v
 
 Blueprints are plug-ins that run in Sofie&nbsp;Core. They interpret the data coming in from the rundowns and transform them into a rich set of playable elements \(Segments, Parts, AdLibs etc\).
 
-The blueprints are webpacked javascript bundles which are uploaded into Sofie via the GUI. They are custom-made and changes depending on the show style, type of input data \(NRCS\) and the types of controlled devices. A generic [blueprint that works with spreadsheets is available here](https://github.com/SuperFlyTV/sofie-demo-blueprints).
+The blueprints are webpacked JavaScript bundles which are uploaded into Sofie via the GUI. They are custom-made and changes depending on the show style, type of input data \(NRCS\) and the types of controlled devices. A generic [blueprint that works with spreadsheets is available here](https://github.com/SuperFlyTV/sofie-demo-blueprints).
 
 When [Sofie&nbsp;Core](#sofie-core) calls upon a Blueprint, it returns a JavaScript object containing methods callable by Sofie&nbsp;Core. These methods will be called by Sofie&nbsp;Core in different situations, depending on the method.  
 Documentation on these interfaces are available in the [Blueprints integration](https://www.npmjs.com/package/@sofie-automation/blueprints-integration) library.
