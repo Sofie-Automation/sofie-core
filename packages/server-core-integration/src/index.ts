@@ -9,6 +9,7 @@ export * from './lib/process.js'
 export * from './lib/prometheus.js'
 export * from './lib/queue.js'
 export type { SubscriptionId, ParametersOfFunctionOrNever } from './lib/subscriptions.js'
+export { KubernetesRestarter } from './lib/KubernetesRestarter.js'
 
 // Re-export some util from shared-lib
 export * from '@sofie-automation/shared-lib/dist/lib/lib.js'

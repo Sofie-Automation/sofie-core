@@ -78,6 +78,7 @@
 	},
 	"dependencies": {
 		"@koa/router": "^15.7.0",
+		"@kubernetes/client-node": "^0.22.3",
 		"@sofie-automation/shared-lib": "26.3.0-2",
 		"ejson": "^2.2.3",
 		"koa": "^3.2.1",
