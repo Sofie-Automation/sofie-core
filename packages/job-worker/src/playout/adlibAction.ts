@@ -266,7 +266,7 @@ export async function executeActionInner(
 			actionParameters.triggerMode,
 			actionParameters.privateData,
 			actionParameters.publicData,
-			actionParameters.actionOptions ?? {}
+			actionParameters.actionOptions
 		)
 
 		blueprintPersistentState.saveToModel(playoutModel)
