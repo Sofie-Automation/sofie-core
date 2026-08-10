@@ -333,7 +333,7 @@ export class CoreHandler implements ICoreHandler {
 		} else {
 			this.logger.debug('killing process in 1000ms!')
 			setTimeout(() => {
-				// eslint-disable-next-line no-process-exit
+				// eslint-disable-next-line n/no-process-exit
 				process.exit(0)
 			}, 1000)
 			return true
