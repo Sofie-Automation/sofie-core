@@ -2,6 +2,7 @@ import { AllPubSubCollections, AllPubSubTypes } from '@sofie-automation/meteor-l
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { MinimalMongoCursor } from '../../collections/collection'
 import type { LiveQueryHandleSync } from '../../lib/lib'
+import { stopOnAbort } from '../../lib/observerLifetime'
 import type { DDPClientConnection } from '../../ddp-server/types'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
 
@@ -60,21 +61,9 @@ export async function driveSubscriptionFromCursor(
 		{ nonMutatingCallbacks: true }
 	)
 
-	// The subscription may have stopped while we were awaiting the setup above; tear down immediately if so.
-	// Otherwise wire up the normal stop handler
-	if (context.signal.aborted) handle.stop()
-	else
-		context.signal.addEventListener(
-			'abort',
-			() => {
-				try {
-					handle.stop()
-				} catch {
-					/* ignore */
-				}
-			},
-			{ once: true }
-		)
+	// The subscription may have stopped while we were awaiting the setup above; stopOnAbort handles
+	// both that and the normal stop-on-abort wiring.
+	stopOnAbort(context.signal, handle)
 }
 
 export type PublishDocType<K extends keyof AllPubSubTypes> =

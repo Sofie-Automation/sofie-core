@@ -30,6 +30,7 @@ import { ChangeStreamCursor } from '../changeStream/changeStreamCursor'
 import { subscribeToCollectionChangeFeed } from '../changeStream/collectionChangeFeed'
 import type { ObserveViewShape } from '@sofie-automation/corelib/dist/memoryCollection/observeView'
 import type { LiveQueryHandleSync } from '../../lib/lib'
+import { handleFromSignalSetup } from '../../lib/observerLifetime'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 /**
@@ -205,26 +206,22 @@ export class WrappedAsyncMongoCollection<
 			})
 		}
 		const sel = this.mongoSelector(selector)
-		const abort = new AbortController()
 		try {
-			await observeChangesViaChangeStream(
-				this.name,
-				sel,
-				this.projectionOf(options),
-				this.shapeOf(options),
-				callbacks,
-				abort.signal,
-				!!options?.nonMutatingCallbacks,
-				() => this.observeDeps(sel)
+			const handle = await handleFromSignalSetup(async (signal) =>
+				observeChangesViaChangeStream(
+					this.name,
+					sel,
+					this.projectionOf(options),
+					this.shapeOf(options),
+					callbacks,
+					signal,
+					!!options?.nonMutatingCallbacks,
+					() => this.observeDeps(sel)
+				)
 			)
 			if (span) span.end()
-			return {
-				stop: () => {
-					abort.abort()
-				},
-			}
+			return handle
 		} catch (e) {
-			abort.abort() // Ensure everything on the signal gets terminated
 			if (span) span.end()
 			this.wrapMongoError(e)
 		}
@@ -244,26 +241,22 @@ export class WrappedAsyncMongoCollection<
 			})
 		}
 		const sel = this.mongoSelector(selector)
-		const abort = new AbortController()
 		try {
-			await observeViaChangeStream(
-				this.name,
-				sel,
-				this.projectionOf(options),
-				this.shapeOf(options),
-				callbacks,
-				abort.signal,
-				!!options?.nonMutatingCallbacks,
-				() => this.observeDeps(sel)
+			const handle = await handleFromSignalSetup(async (signal) =>
+				observeViaChangeStream(
+					this.name,
+					sel,
+					this.projectionOf(options),
+					this.shapeOf(options),
+					callbacks,
+					signal,
+					!!options?.nonMutatingCallbacks,
+					() => this.observeDeps(sel)
+				)
 			)
 			if (span) span.end()
-			return {
-				stop: () => {
-					abort.abort()
-				},
-			}
+			return handle
 		} catch (e) {
-			abort.abort() // Ensure everything on the signal gets terminated
 			if (span) span.end()
 			this.wrapMongoError(e)
 		}

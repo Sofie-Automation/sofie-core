@@ -11,6 +11,7 @@ import { observeChangesViaChangeStream, observeViaChangeStream, ObserveMultiplex
 import type { ObserveViewShape } from '@sofie-automation/corelib/dist/memoryCollection/observeView'
 import type { MinimalMongoCursor } from '../collection'
 import type { LiveQueryHandleSync } from '../../lib/lib'
+import { handleFromSignalSetup } from '../../lib/observerLifetime'
 
 export interface ChangeStreamCursorConfig<TDoc extends { _id: ProtectedString<any> }> {
 	collectionName: string
@@ -41,54 +42,32 @@ export class ChangeStreamCursor<TDoc extends { _id: ProtectedString<any> }> impl
 		callbacks: PromisifyCallbacks<ObserveChangesCallbacks<TDoc>>,
 		options?: ObserveChangesOptions
 	): Promise<LiveQueryHandleSync> {
-		const abort = new AbortController()
-
-		try {
-			await observeChangesViaChangeStream(
+		return handleFromSignalSetup(async (signal) =>
+			observeChangesViaChangeStream(
 				this.#config.collectionName,
 				this.#config.selector,
 				this.#config.projection,
 				this.#config.shape,
 				callbacks,
-				abort.signal,
+				signal,
 				!!options?.nonMutatingCallbacks,
 				this.#config.makeDeps
 			)
-		} catch (e) {
-			abort.abort() // Ensure everything on the signal gets terminated
-			throw e
-		}
-
-		return {
-			stop: () => {
-				abort.abort()
-			},
-		}
+		)
 	}
 
 	async observeAsync(callbacks: PromisifyCallbacks<ObserveCallbacks<TDoc>>): Promise<LiveQueryHandleSync> {
-		const abort = new AbortController()
-
-		try {
-			await observeViaChangeStream(
+		return handleFromSignalSetup(async (signal) =>
+			observeViaChangeStream(
 				this.#config.collectionName,
 				this.#config.selector,
 				this.#config.projection,
 				this.#config.shape,
 				callbacks,
-				abort.signal,
+				signal,
 				false,
 				this.#config.makeDeps
 			)
-		} catch (e) {
-			abort.abort() // Ensure everything on the signal gets terminated
-			throw e
-		}
-
-		return {
-			stop: () => {
-				abort.abort()
-			},
-		}
+		)
 	}
 }
