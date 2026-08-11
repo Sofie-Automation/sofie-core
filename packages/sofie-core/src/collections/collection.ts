@@ -7,6 +7,8 @@ import {
 	ObserveChangesCallbacks,
 	FindObserveChangesOptions,
 	ObserveChangesOptions,
+	hasSignal,
+	type WithSignal,
 } from '@sofie-automation/corelib/dist/mongo'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { PromisifyCallbacks } from '@sofie-automation/shared-lib/dist/lib/types'
@@ -92,18 +94,7 @@ function createWrappedCollection<DBInterface extends { _id: ProtectedString<any>
 	}
 }
 
-/**
- * Options carrying the AbortSignal that defines an observer's lifetime.
- * When the signal aborts, the observer stops.
- */
-export interface WithSignal {
-	signal: AbortSignal
-}
-
-/** Runtime discriminator for the signal-taking observe overloads */
-export function hasSignal(options: unknown): options is WithSignal {
-	return !!options && typeof options === 'object' && (options as WithSignal).signal instanceof AbortSignal
-}
+export { hasSignal, type WithSignal }
 
 /**
  * A minimal mongo cursor, with only the async methods used by the codebase.
