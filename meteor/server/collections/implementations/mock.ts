@@ -15,7 +15,7 @@ import { PromisifyCallbacks } from '@sofie-automation/shared-lib/dist/lib/types'
 import { UpdateOptions, IndexSpecifier } from '@sofie-automation/meteor-lib/dist/collections/lib'
 import { AsyncOnlyMongoCollection, hasSignal, MinimalMongoCursor, WithSignal } from '../collection'
 import type { LiveQueryHandleSync } from '../../lib/lib'
-import { startObserveOnSignal, stopOnAbort } from '../../lib/observerLifetime'
+import { startObserveOnSignal } from '../../lib/observerLifetime'
 
 /**
  * Captured at module load, which is always before a test body can install `jest.useFakeTimers()`.
@@ -93,11 +93,11 @@ export class WrappedMockCollection<
 		await this.#sleep(0)
 		return {
 			collectionName: this.#core.name,
-			observeAsync: async (callbacks: ObserveCallbacks<DBInterface>, cursorOptions?: WithSignal) => {
+			observeAsync: async (callbacks: ObserveCallbacks<DBInterface>, cursorOptions?: Partial<WithSignal>) => {
 				if (hasSignal(cursorOptions)) {
 					return startObserveOnSignal(cursorOptions.signal, async (signal) => {
 						await this.#sleep(0)
-						stopOnAbort(signal, this.#core.observe(callbacks, selector, options))
+						this.#core.observe(callbacks, selector, { ...options, signal })
 					})
 				}
 
@@ -111,10 +111,7 @@ export class WrappedMockCollection<
 				if (hasSignal(callbackOptions)) {
 					return startObserveOnSignal(callbackOptions.signal, async (signal) => {
 						await this.#sleep(0)
-						stopOnAbort(
-							signal,
-							this.#core.observeChanges(callbacks, selector, { ...options, ...callbackOptions })
-						)
+						this.#core.observeChanges(callbacks, selector, { ...options, ...callbackOptions, signal })
 					})
 				}
 
@@ -142,7 +139,7 @@ export class WrappedMockCollection<
 		if (hasSignal(options)) {
 			return startObserveOnSignal(options.signal, async (signal) => {
 				await this.#sleep(0)
-				stopOnAbort(signal, this.#core.observe(callbacks, selector, options))
+				this.#core.observe(callbacks, selector, { ...options, signal })
 			})
 		}
 
@@ -168,7 +165,7 @@ export class WrappedMockCollection<
 		if (hasSignal(options)) {
 			return startObserveOnSignal(options.signal, async (signal) => {
 				await this.#sleep(0)
-				stopOnAbort(signal, this.#core.observeChanges(callbacks, selector, options))
+				this.#core.observeChanges(callbacks, selector, { ...options, signal })
 			})
 		}
 
