@@ -1,6 +1,8 @@
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import type { IndexDescriptionInfo } from 'mongodb'
 import type { AsyncOnlyMongoCollection, AsyncOnlyReadOnlyMongoCollection, MinimalMongoCursor } from '../collection'
+import type { WithSignal } from '../collection'
+import type { FindObserveChangesOptions } from '@sofie-automation/corelib/dist/mongo'
 import type { LiveQueryHandleSync } from '../../lib/lib'
 
 export class WrappedReadOnlyMongoCollection<
@@ -49,15 +51,41 @@ export class WrappedReadOnlyMongoCollection<
 	}
 
 	async observeChanges(
-		...args: Parameters<AsyncOnlyReadOnlyMongoCollection<DBInterface>['observeChanges']>
-	): Promise<LiveQueryHandleSync> {
-		return this.#mutableCollection.observeChanges(...args)
+		selector: Parameters<AsyncOnlyReadOnlyMongoCollection<DBInterface>['observeChanges']>[0],
+		callbacks: Parameters<AsyncOnlyReadOnlyMongoCollection<DBInterface>['observeChanges']>[1],
+		options: FindObserveChangesOptions<DBInterface> & WithSignal
+	): Promise<void>
+	async observeChanges(
+		selector: Parameters<AsyncOnlyReadOnlyMongoCollection<DBInterface>['observeChanges']>[0],
+		callbacks: Parameters<AsyncOnlyReadOnlyMongoCollection<DBInterface>['observeChanges']>[1],
+		options?: FindObserveChangesOptions<DBInterface>
+	): Promise<LiveQueryHandleSync>
+	async observeChanges(
+		selector: Parameters<AsyncOnlyReadOnlyMongoCollection<DBInterface>['observeChanges']>[0],
+		callbacks: Parameters<AsyncOnlyReadOnlyMongoCollection<DBInterface>['observeChanges']>[1],
+		options?: FindObserveChangesOptions<DBInterface>
+	): Promise<LiveQueryHandleSync | void> {
+		// Pass-through; the wrapped collection dispatches on the presence of a signal itself
+		return this.#mutableCollection.observeChanges(selector, callbacks, options)
 	}
 
 	async observe(
-		...args: Parameters<AsyncOnlyReadOnlyMongoCollection<DBInterface>['observe']>
-	): Promise<LiveQueryHandleSync> {
-		return this.#mutableCollection.observe(...args)
+		selector: Parameters<AsyncOnlyReadOnlyMongoCollection<DBInterface>['observe']>[0],
+		callbacks: Parameters<AsyncOnlyReadOnlyMongoCollection<DBInterface>['observe']>[1],
+		options: FindObserveChangesOptions<DBInterface> & WithSignal
+	): Promise<void>
+	async observe(
+		selector: Parameters<AsyncOnlyReadOnlyMongoCollection<DBInterface>['observe']>[0],
+		callbacks: Parameters<AsyncOnlyReadOnlyMongoCollection<DBInterface>['observe']>[1],
+		options?: FindObserveChangesOptions<DBInterface>
+	): Promise<LiveQueryHandleSync>
+	async observe(
+		selector: Parameters<AsyncOnlyReadOnlyMongoCollection<DBInterface>['observe']>[0],
+		callbacks: Parameters<AsyncOnlyReadOnlyMongoCollection<DBInterface>['observe']>[1],
+		options?: FindObserveChangesOptions<DBInterface>
+	): Promise<LiveQueryHandleSync | void> {
+		// Pass-through; the wrapped collection dispatches on the presence of a signal itself
+		return this.#mutableCollection.observe(selector, callbacks, options)
 	}
 
 	async countDocuments(
