@@ -6,14 +6,16 @@ import {
 	ObserveCallbacks,
 	ObserveChangesCallbacks,
 	FindObserveChangesOptions,
+	ObserveChangesOptions,
 } from '@sofie-automation/corelib/dist/mongo'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import type { CreateIndexesOptions, IndexDescriptionInfo } from 'mongodb'
 import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
 import { PromisifyCallbacks } from '@sofie-automation/shared-lib/dist/lib/types'
 import { UpdateOptions, IndexSpecifier } from '@sofie-automation/meteor-lib/dist/collections/lib'
-import { AsyncOnlyMongoCollection, MinimalMongoCursor } from '../collection'
+import { AsyncOnlyMongoCollection, hasSignal, MinimalMongoCursor, WithSignal } from '../collection'
 import type { LiveQueryHandleSync } from '../../lib/lib'
+import { startObserveOnSignal, stopOnAbort } from '../../lib/observerLifetime'
 
 /**
  * Captured at module load, which is always before a test body can install `jest.useFakeTimers()`.
@@ -91,22 +93,59 @@ export class WrappedMockCollection<
 		await this.#sleep(0)
 		return {
 			collectionName: this.#core.name,
-			observeAsync: async (callbacks) => {
+			observeAsync: async (callbacks: ObserveCallbacks<DBInterface>, cursorOptions?: WithSignal) => {
+				if (hasSignal(cursorOptions)) {
+					return startObserveOnSignal(cursorOptions.signal, async (signal) => {
+						await this.#sleep(0)
+						stopOnAbort(signal, this.#core.observe(callbacks, selector, options))
+					})
+				}
+
 				await this.#sleep(0)
 				return this.#core.observe(callbacks, selector, options)
 			},
-			observeChangesAsync: async (callbacks, callbackOptions) => {
+			observeChangesAsync: async (
+				callbacks: ObserveChangesCallbacks<DBInterface>,
+				callbackOptions?: ObserveChangesOptions & Partial<WithSignal>
+			) => {
+				if (hasSignal(callbackOptions)) {
+					return startObserveOnSignal(callbackOptions.signal, async (signal) => {
+						await this.#sleep(0)
+						stopOnAbort(
+							signal,
+							this.#core.observeChanges(callbacks, selector, { ...options, ...callbackOptions })
+						)
+					})
+				}
+
 				await this.#sleep(0)
 				return this.#core.observeChanges(callbacks, selector, { ...options, ...callbackOptions })
 			},
-		}
+		} as MinimalMongoCursor<DBInterface>
 	}
 
 	async observe(
 		selector: MongoQuery<DBInterface> | DBInterface['_id'],
 		callbacks: PromisifyCallbacks<ObserveCallbacks<DBInterface>>,
+		options: FindObserveChangesOptions<DBInterface> & WithSignal
+	): Promise<void>
+	async observe(
+		selector: MongoQuery<DBInterface> | DBInterface['_id'],
+		callbacks: PromisifyCallbacks<ObserveCallbacks<DBInterface>>,
 		options?: FindObserveChangesOptions<DBInterface>
-	): Promise<LiveQueryHandleSync> {
+	): Promise<LiveQueryHandleSync>
+	async observe(
+		selector: MongoQuery<DBInterface> | DBInterface['_id'],
+		callbacks: PromisifyCallbacks<ObserveCallbacks<DBInterface>>,
+		options?: FindObserveChangesOptions<DBInterface>
+	): Promise<LiveQueryHandleSync | void> {
+		if (hasSignal(options)) {
+			return startObserveOnSignal(options.signal, async (signal) => {
+				await this.#sleep(0)
+				stopOnAbort(signal, this.#core.observe(callbacks, selector, options))
+			})
+		}
+
 		await this.#sleep(0)
 		return this.#core.observe(callbacks, selector, options)
 	}
@@ -114,8 +153,25 @@ export class WrappedMockCollection<
 	async observeChanges(
 		selector: MongoQuery<DBInterface> | DBInterface['_id'],
 		callbacks: PromisifyCallbacks<ObserveChangesCallbacks<DBInterface>>,
+		options: FindObserveChangesOptions<DBInterface> & WithSignal
+	): Promise<void>
+	async observeChanges(
+		selector: MongoQuery<DBInterface> | DBInterface['_id'],
+		callbacks: PromisifyCallbacks<ObserveChangesCallbacks<DBInterface>>,
 		options?: FindObserveChangesOptions<DBInterface>
-	): Promise<LiveQueryHandleSync> {
+	): Promise<LiveQueryHandleSync>
+	async observeChanges(
+		selector: MongoQuery<DBInterface> | DBInterface['_id'],
+		callbacks: PromisifyCallbacks<ObserveChangesCallbacks<DBInterface>>,
+		options?: FindObserveChangesOptions<DBInterface>
+	): Promise<LiveQueryHandleSync | void> {
+		if (hasSignal(options)) {
+			return startObserveOnSignal(options.signal, async (signal) => {
+				await this.#sleep(0)
+				stopOnAbort(signal, this.#core.observeChanges(callbacks, selector, options))
+			})
+		}
+
 		await this.#sleep(0)
 		return this.#core.observeChanges(callbacks, selector, options)
 	}

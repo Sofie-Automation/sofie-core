@@ -2,7 +2,6 @@ import { AllPubSubCollections, AllPubSubTypes } from '@sofie-automation/meteor-l
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { MinimalMongoCursor } from '../../collections/collection'
 import type { LiveQueryHandleSync } from '../../lib/lib'
-import { stopOnAbort } from '../../lib/observerLifetime'
 import type { DDPClientConnection } from '../../ddp-server/types'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
 
@@ -50,7 +49,7 @@ export async function driveSubscriptionFromCursor(
 	const collectionName = cursor.collectionName
 	if (!collectionName) throw new SofieError(500, 'Cursor has no collection name, cannot publish')
 
-	const handle = await cursor.observeChangesAsync(
+	await cursor.observeChangesAsync(
 		{
 			added: (id, fields) =>
 				context.added(collectionName, unprotectString(id), fields as Record<string, unknown>),
@@ -58,12 +57,11 @@ export async function driveSubscriptionFromCursor(
 				context.changed(collectionName, unprotectString(id), fields as Record<string, unknown>),
 			removed: (id) => context.removed(collectionName, unprotectString(id)),
 		},
-		{ nonMutatingCallbacks: true }
+		{
+			signal: context.signal,
+			nonMutatingCallbacks: true,
+		}
 	)
-
-	// The subscription may have stopped while we were awaiting the setup above; stopOnAbort handles
-	// both that and the normal stop-on-abort wiring.
-	stopOnAbort(context.signal, handle)
 }
 
 export type PublishDocType<K extends keyof AllPubSubTypes> =
