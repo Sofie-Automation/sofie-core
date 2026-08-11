@@ -33,6 +33,11 @@ const basePath = process.env.DEV_SOFIE_BASE_PATH || ''
 const serverPort = process.env.SOFIE_PORT || '3000'
 const serverUrl = `http://127.0.0.1:${serverPort}`
 
+// Address the vite dev server binds to. Loopback only by default, so it is not exposed to the
+// network. Falls back to the sofie server's own bind address, as exposing one without the other is
+// rarely useful (see .env.example).
+const devServerHost = process.env.SOFIE_VITE_BIND_ADDRESS || process.env.SOFIE_BIND_ADDRESS || '127.0.0.1'
+
 // https://vitejs.dev/config/
 export default defineConfig(({ command }) => ({
 	plugins: [react(), tsconfigPaths(), nodePolyfills()],
@@ -81,6 +86,7 @@ export default defineConfig(({ command }) => ({
 
 	server: {
 		allowedHosts: true,
+		host: devServerHost,
 		proxy: {
 			[basePath + '/api']: serverUrl,
 			[basePath + '/site.webmanifest']: serverUrl,
