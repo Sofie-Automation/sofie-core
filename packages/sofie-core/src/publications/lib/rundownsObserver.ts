@@ -10,7 +10,7 @@ import type { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import type { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { logger } from '../../logging'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
-import { AbortScope, createChildAbort, runOnAbort } from '../../lib/observerLifetime'
+import { AbortScope, createChildAbort } from '../../lib/observerLifetime'
 
 const REACTIVITY_DEBOUNCE = 20
 
@@ -32,27 +32,29 @@ export class RundownsObserver {
 	/** The lifetime of whatever the last invocation of `#changed` started */
 	#invocation: AbortScope | undefined
 
-	readonly #triggerUpdateRundownContent = new PromiseDebounce(async () => {
-		try {
-			if (this.#signal.aborted) return
-
-			// End the previous invocation's scope before starting the next
-			this.#invocation?.abort()
-
-			const invocation = createChildAbort(this.#signal)
-			this.#invocation = invocation
-
-			await this.#changed(this.rundownIds, invocation.signal)
-		} catch (e) {
-			logger.error(`Error in RundownsObserver triggerUpdateRundownContent: ${stringifyError(e)}`)
-		}
-	}, REACTIVITY_DEBOUNCE)
+	readonly #triggerUpdateRundownContent: PromiseDebounce
 
 	private constructor(onChanged: ChangedHandler, signal: AbortSignal) {
 		this.#changed = onChanged
 		this.#signal = signal
 
-		runOnAbort(signal, () => this.#triggerUpdateRundownContent.cancelWaiting())
+		this.#triggerUpdateRundownContent = new PromiseDebounce(
+			async () => {
+				try {
+					// End the previous invocation's scope before starting the next
+					this.#invocation?.abort()
+
+					const invocation = createChildAbort(this.#signal)
+					this.#invocation = invocation
+
+					await this.#changed(this.rundownIds, invocation.signal)
+				} catch (e) {
+					logger.error(`Error in RundownsObserver triggerUpdateRundownContent: ${stringifyError(e)}`)
+				}
+			},
+			REACTIVITY_DEBOUNCE,
+			signal
+		)
 	}
 
 	static async createForPlaylist(
