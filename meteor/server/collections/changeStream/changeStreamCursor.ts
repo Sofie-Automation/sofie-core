@@ -3,13 +3,14 @@ import {
 	MongoQuery,
 	MongoFieldSpecifier,
 	ObserveChangesOptions,
+	ObserveOptions,
 	ObserveCallbacks,
 	ObserveChangesCallbacks,
 } from '@sofie-automation/corelib/dist/mongo'
 import { PromisifyCallbacks } from '@sofie-automation/shared-lib/dist/lib/types'
 import { observeChangesViaChangeStream, observeViaChangeStream, ObserveMultiplexerDeps } from './observeMultiplexer'
 import type { ObserveViewShape } from '@sofie-automation/corelib/dist/memoryCollection/observeView'
-import { type MinimalMongoCursor, type WithSignal } from '../collection'
+import { type MinimalMongoCursor } from '../collection'
 
 export interface ChangeStreamCursorConfig<TDoc extends { _id: ProtectedString<any> }> {
 	collectionName: string
@@ -38,7 +39,7 @@ export class ChangeStreamCursor<TDoc extends { _id: ProtectedString<any> }> impl
 
 	async observeChangesAsync(
 		callbacks: PromisifyCallbacks<ObserveChangesCallbacks<TDoc>>,
-		options: ObserveChangesOptions & WithSignal
+		options: ObserveChangesOptions
 	): Promise<void> {
 		return observeChangesViaChangeStream(
 			this.#config.collectionName,
@@ -52,7 +53,7 @@ export class ChangeStreamCursor<TDoc extends { _id: ProtectedString<any> }> impl
 		)
 	}
 
-	async observeAsync(callbacks: PromisifyCallbacks<ObserveCallbacks<TDoc>>, options: WithSignal): Promise<void> {
+	async observeAsync(callbacks: PromisifyCallbacks<ObserveCallbacks<TDoc>>, options: ObserveOptions): Promise<void> {
 		return observeViaChangeStream(
 			this.#config.collectionName,
 			this.#config.selector,

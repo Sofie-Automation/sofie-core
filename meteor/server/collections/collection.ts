@@ -7,8 +7,7 @@ import {
 	ObserveChangesCallbacks,
 	FindObserveChangesOptions,
 	ObserveChangesOptions,
-	hasSignal,
-	type WithSignal,
+	ObserveOptions,
 } from '@sofie-automation/corelib/dist/mongo'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { PromisifyCallbacks } from '@sofie-automation/shared-lib/dist/lib/types'
@@ -88,8 +87,6 @@ function createWrappedCollection<DBInterface extends { _id: ProtectedString<any>
 	}
 }
 
-export { hasSignal, type WithSignal }
-
 /**
  * The lifetime contract every observe implementation must honour:
  *
@@ -117,7 +114,7 @@ export interface MinimalMongoCursor<T extends { _id: ProtectedString<any> }> {
 	 * observer running if the signal is aborted during setup, and rejects only if setup genuinely
 	 * failed (in which case nothing was left running).
 	 */
-	observeAsync(callbacks: ObserveCallbacks<T>, options: WithSignal): Promise<void>
+	observeAsync(callbacks: ObserveCallbacks<T>, options: ObserveOptions): Promise<void>
 
 	/**
 	 * Watch a query for the lifetime of `options.signal`. Receive callbacks as the result set changes.
@@ -126,10 +123,7 @@ export interface MinimalMongoCursor<T extends { _id: ProtectedString<any> }> {
 	 * @param options Must include the `signal` defining the observer's lifetime
 	 * @returns A promise with the same semantics as {@link observeAsync}
 	 */
-	observeChangesAsync(
-		callbacks: ObserveChangesCallbacks<T>,
-		options: ObserveChangesOptions & WithSignal
-	): Promise<void>
+	observeChangesAsync(callbacks: ObserveChangesCallbacks<T>, options: ObserveChangesOptions): Promise<void>
 }
 
 /**
@@ -241,7 +235,7 @@ export interface AsyncOnlyReadOnlyMongoCollection<DBInterface extends { _id: Pro
 	observeChanges(
 		selector: MongoQuery<DBInterface> | DBInterface['_id'],
 		callbacks: PromisifyCallbacks<ObserveChangesCallbacks<DBInterface>>,
-		options: FindObserveChangesOptions<DBInterface> & WithSignal
+		options: FindObserveChangesOptions<DBInterface>
 	): Promise<void>
 
 	/**
@@ -253,7 +247,7 @@ export interface AsyncOnlyReadOnlyMongoCollection<DBInterface extends { _id: Pro
 	observe(
 		selector: MongoQuery<DBInterface> | DBInterface['_id'],
 		callbacks: PromisifyCallbacks<ObserveCallbacks<DBInterface>>,
-		options: FindObserveChangesOptions<DBInterface> & WithSignal
+		options: FindObserveChangesOptions<DBInterface>
 	): Promise<void>
 
 	/**

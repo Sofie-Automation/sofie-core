@@ -60,7 +60,16 @@ export interface FindOptions<TDoc> extends FindOneOptions<TDoc> {
 	limit?: number
 }
 
-export interface ObserveChangesOptions {
+/** Options common to every observer: above all, the lifetime it runs for. */
+export interface ObserveOptions {
+	/**
+	 * The AbortSignal defining this observer's lifetime. The observer stops when it aborts, and is
+	 * never started if it has aborted already.
+	 */
+	signal: AbortSignal
+}
+
+export interface ObserveChangesOptions extends ObserveOptions {
 	/**
 	 * If your observer functions do not mutate the passed arguments, you can set this to true, which
 	 * improves performance by reducing the amount of data copies.
@@ -69,19 +78,6 @@ export interface ObserveChangesOptions {
 }
 
 export type FindObserveChangesOptions<TDoc> = ObserveChangesOptions & FindOptions<TDoc>
-
-/**
- * Options carrying the AbortSignal that defines an observer's lifetime.
- * When the signal aborts, the observer stops.
- */
-export interface WithSignal {
-	signal: AbortSignal
-}
-
-/** Runtime discriminator for the signal-taking observe overloads */
-export function hasSignal(options: unknown): options is WithSignal {
-	return !!options && typeof options === 'object' && (options as WithSignal).signal instanceof AbortSignal
-}
 
 /** Callbacks for observing the full documents of a query as its result set changes. */
 export interface ObserveCallbacks<DBInterface> {
