@@ -23,6 +23,14 @@ function makeCollection(): InMemoryMongoCollection<Thing> {
 	return new InMemoryMongoCollection<Thing>('things')
 }
 
+let abort: AbortController
+beforeEach(() => {
+	abort = new AbortController()
+})
+afterEach(() => {
+	abort.abort()
+})
+
 describe('CRUD basics', () => {
 	test('insert generates an id when absent', () => {
 		const c = new InMemoryMongoCollection<Thing>('things', { idGenerator: () => protectString('GEN') })
@@ -246,7 +254,7 @@ describe('mockSetData / clear', () => {
 	test('mockSetData (array) bulk-replaces and fires no events', () => {
 		const c = makeCollection()
 		const added = jest.fn()
-		c.observe({ added })
+		c.observe({ added }, undefined, { signal: abort.signal })
 		added.mockClear()
 
 		c.mockSetData([thing('a'), thing('b')])
@@ -264,10 +272,11 @@ describe('mockSetData / clear', () => {
 })
 
 describe('onChange', () => {
-	test('fires on writes, not on mockSetData/clear; stop() unsubscribes', () => {
+	test('fires on writes, not on mockSetData/clear; aborting unsubscribes', () => {
 		const c = makeCollection()
 		const cb = jest.fn()
-		const handle = c.onChange(cb)
+		const localAbort = new AbortController()
+		c.onChange(cb, localAbort.signal)
 
 		c.insert(thing('a'))
 		expect(cb).toHaveBeenCalledTimes(1)
@@ -281,7 +290,7 @@ describe('onChange', () => {
 		c.clear()
 		expect(cb).not.toHaveBeenCalled()
 
-		handle.stop()
+		localAbort.abort()
 		c.insert(thing('d'))
 		expect(cb).not.toHaveBeenCalled()
 	})
@@ -308,14 +317,14 @@ describe('observe (full document)', () => {
 		c.insert(thing('a'))
 		c.insert(thing('b'))
 		const cb = spyCallbacks()
-		c.observe(cb)
+		c.observe(cb, undefined, { signal: abort.signal })
 		expect(cb.added).toHaveBeenCalledTimes(2)
 	})
 
 	test('synchronous added on insert', () => {
 		const c = makeCollection()
 		const cb = spyCallbacks()
-		c.observe(cb)
+		c.observe(cb, undefined, { signal: abort.signal })
 		c.insert(thing('a', { name: 'x' }))
 		expect(cb.added).toHaveBeenCalledTimes(1)
 		expect(cb.added.mock.calls[0][0]).toMatchObject({ _id: id('a'), name: 'x' })
@@ -325,7 +334,7 @@ describe('observe (full document)', () => {
 		const c = makeCollection()
 		c.insert(thing('a', { rank: 1 }))
 		const cb = spyCallbacks()
-		c.observe(cb)
+		c.observe(cb, undefined, { signal: abort.signal })
 		c.update('a' as any, { $set: { rank: 2 } })
 		expect(cb.changed).toHaveBeenCalledTimes(1)
 		const [newDoc, oldDoc] = cb.changed.mock.calls[0]
@@ -337,7 +346,7 @@ describe('observe (full document)', () => {
 		const c = makeCollection()
 		c.insert(thing('a', { rank: 1 }))
 		const cb = spyCallbacks()
-		c.observe(cb)
+		c.observe(cb, undefined, { signal: abort.signal })
 		c.update('a' as any, { $set: { rank: 1 } })
 		expect(cb.changed).not.toHaveBeenCalled()
 	})
@@ -346,7 +355,7 @@ describe('observe (full document)', () => {
 		const c = makeCollection()
 		c.insert(thing('a'))
 		const cb = spyCallbacks()
-		c.observe(cb)
+		c.observe(cb, undefined, { signal: abort.signal })
 		c.remove('a' as any)
 		expect(cb.removed).toHaveBeenCalledTimes(1)
 		expect(cb.removed.mock.calls[0][0]).toMatchObject({ _id: id('a') })
@@ -355,7 +364,7 @@ describe('observe (full document)', () => {
 	test('selector-window transitions: added/removed as a doc enters/leaves', () => {
 		const c = makeCollection()
 		const cb = spyCallbacks()
-		c.observe(cb, { group: 'g' })
+		c.observe(cb, { group: 'g' }, { signal: abort.signal })
 
 		c.insert(thing('a', { group: 'other' }))
 		expect(cb.added).not.toHaveBeenCalled()
@@ -370,19 +379,20 @@ describe('observe (full document)', () => {
 	test('delivered docs are isolated clones', () => {
 		const c = makeCollection()
 		const cb = spyCallbacks()
-		c.observe(cb)
+		c.observe(cb, undefined, { signal: abort.signal })
 		c.insert(thing('a', { tags: ['x'] }))
 		const delivered = cb.added.mock.calls[0][0]
 		delivered.tags.push('y')
 		expect(c.findOne('a' as any)?.tags).toEqual(['x'])
 	})
 
-	test('stop() unregisters the observer and stops callbacks', () => {
+	test('aborting unregisters the observer and stops callbacks', () => {
 		const c = makeCollection()
 		const cb = spyCallbacks()
-		const handle = c.observe(cb)
+		const localAbort = new AbortController()
+		c.observe(cb, undefined, { signal: localAbort.signal })
 		expect(c.observers).toHaveLength(1)
-		handle.stop()
+		localAbort.abort()
 		expect(c.observers).toHaveLength(0)
 		c.insert(thing('a'))
 		expect(cb.added).not.toHaveBeenCalled()
@@ -391,7 +401,7 @@ describe('observe (full document)', () => {
 	test('observer entry exposes the raw callbacks + query', () => {
 		const c = makeCollection()
 		const cb = spyCallbacks()
-		c.observe(cb, { group: 'g' })
+		c.observe(cb, { group: 'g' }, { signal: abort.signal })
 		expect(c.observers[0].query).toEqual({ group: 'g' })
 		expect(c.observers[0].callbacksObserve).toBe(cb)
 		expect(c.observers[0].callbacksChanges).toBeUndefined()
@@ -410,7 +420,7 @@ describe('observeChanges', () => {
 	test('added delivers id + fields (minus _id)', () => {
 		const c = makeCollection()
 		const cb = spyCallbacks()
-		c.observeChanges(cb)
+		c.observeChanges(cb, undefined, { signal: abort.signal })
 		c.insert(thing('a', { name: 'x', rank: 3 }))
 		expect(cb.added).toHaveBeenCalledTimes(1)
 		const [deliveredId, fields] = cb.added.mock.calls[0]
@@ -422,7 +432,7 @@ describe('observeChanges', () => {
 		const c = makeCollection()
 		c.insert(thing('a', { rank: 1 }))
 		const cb = spyCallbacks()
-		c.observeChanges(cb)
+		c.observeChanges(cb, undefined, { signal: abort.signal })
 		c.update('a' as any, { $set: { rank: 2 } })
 		expect(cb.changed).toHaveBeenCalledWith(id('a'), { rank: 2 })
 	})
@@ -431,7 +441,7 @@ describe('observeChanges', () => {
 		const c = makeCollection()
 		c.insert(thing('a'))
 		const cb = spyCallbacks()
-		c.observeChanges(cb)
+		c.observeChanges(cb, undefined, { signal: abort.signal })
 		c.remove('a' as any)
 		expect(cb.removed).toHaveBeenCalledWith(id('a'))
 	})
@@ -454,7 +464,7 @@ describe('observe windowing (sort/skip/limit)', () => {
 		c.insert(thing('a'))
 		c.insert(thing('b'))
 		const cb = changesSpy()
-		c.observeChanges(cb, {}, { limit: 2 })
+		c.observeChanges(cb, {}, { limit: 2, signal: abort.signal })
 		expect(addedIds(cb)).toEqual(['a', 'b'])
 	})
 
@@ -464,7 +474,7 @@ describe('observe windowing (sort/skip/limit)', () => {
 		c.insert(thing('c', { rank: 1 }))
 		c.insert(thing('b', { rank: 1 }))
 		const cb = changesSpy()
-		c.observeChanges(cb, {}, { sort: { rank: 1 }, limit: 2 })
+		c.observeChanges(cb, {}, { sort: { rank: 1 }, limit: 2, signal: abort.signal })
 		// b and c tie on rank → _id breaks the tie (b before c); a (rank 5) is excluded
 		expect(addedIds(cb)).toEqual(['b', 'c'])
 	})
@@ -473,7 +483,7 @@ describe('observe windowing (sort/skip/limit)', () => {
 		const c = makeCollection()
 		for (const s of ['a', 'b', 'c', 'd']) c.insert(thing(s))
 		const cb = changesSpy()
-		c.observeChanges(cb, {}, { skip: 1, limit: 2 })
+		c.observeChanges(cb, {}, { skip: 1, limit: 2, signal: abort.signal })
 		expect(addedIds(cb)).toEqual(['b', 'c'])
 	})
 
@@ -482,7 +492,7 @@ describe('observe windowing (sort/skip/limit)', () => {
 		c.insert(thing('b'))
 		c.insert(thing('d'))
 		const cb = changesSpy()
-		c.observeChanges(cb, {}, { limit: 2 })
+		c.observeChanges(cb, {}, { limit: 2, signal: abort.signal })
 		cb.added.mockClear()
 
 		// 'a' sorts before both → enters the window, evicting the boundary doc 'd'
@@ -495,7 +505,7 @@ describe('observe windowing (sort/skip/limit)', () => {
 		const c = makeCollection()
 		for (const s of ['a', 'b', 'c']) c.insert(thing(s))
 		const cb = changesSpy()
-		c.observeChanges(cb, {}, { limit: 2 }) // window: a, b
+		c.observeChanges(cb, {}, { limit: 2, signal: abort.signal }) // window: a, b
 		cb.added.mockClear()
 
 		c.remove('a' as any)
@@ -508,7 +518,7 @@ describe('observe windowing (sort/skip/limit)', () => {
 		for (const s of ['a', 'b']) c.insert(thing(s))
 		c.insert(thing('z', { rank: 1 }))
 		const cb = changesSpy()
-		c.observeChanges(cb, {}, { limit: 2 }) // window: a, b
+		c.observeChanges(cb, {}, { limit: 2, signal: abort.signal }) // window: a, b
 		cb.added.mockClear()
 
 		c.update('z' as any, { $set: { rank: 9 } })
@@ -525,7 +535,7 @@ describe('observerDeliveryScheduler', () => {
 			observerDeliveryScheduler: (fn) => scheduled.push(fn),
 		})
 		const added = jest.fn()
-		c.observe({ added })
+		c.observe({ added }, undefined, { signal: abort.signal })
 
 		c.insert(thing('a'))
 		// Not delivered synchronously...

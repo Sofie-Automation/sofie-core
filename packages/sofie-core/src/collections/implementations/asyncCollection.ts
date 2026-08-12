@@ -19,7 +19,7 @@ import { MongoFieldSpecifier } from '@sofie-automation/corelib/dist/mongo'
 import { profiler } from '../../api/profiler'
 import { logger } from '../../logging'
 import { PromisifyCallbacks } from '@sofie-automation/shared-lib/dist/lib/types'
-import { AsyncOnlyMongoCollection, MinimalMongoCursor, WithSignal } from '../collection'
+import { AsyncOnlyMongoCollection, MinimalMongoCursor } from '../collection'
 import { getMongoClient, getMongoDb } from '../mongoConnection'
 import {
 	observeChangesViaChangeStream,
@@ -193,7 +193,7 @@ export class WrappedAsyncMongoCollection<
 	async observeChanges(
 		selector: MongoQuery<DBInterface> | DBInterface['_id'],
 		callbacks: PromisifyCallbacks<ObserveChangesCallbacks<DBInterface>>,
-		options: FindObserveChangesOptions<DBInterface> & WithSignal
+		options: FindObserveChangesOptions<DBInterface>
 	): Promise<void> {
 		// Note: this span only covers the observer setup (initial snapshot + diff), not the lifetime of the observer
 		const span = profiler.startSpan(`MongoCollection.${this.name}.observeChanges`)
@@ -226,7 +226,7 @@ export class WrappedAsyncMongoCollection<
 	async observe(
 		selector: MongoQuery<DBInterface> | DBInterface['_id'],
 		callbacks: PromisifyCallbacks<ObserveCallbacks<DBInterface>>,
-		options: FindObserveChangesOptions<DBInterface> & WithSignal
+		options: FindObserveChangesOptions<DBInterface>
 	): Promise<void> {
 		// Note: this span only covers the observer setup (initial snapshot + diff), not the lifetime of the observer
 		const span = profiler.startSpan(`MongoCollection.${this.name}.observe`)

@@ -14,12 +14,10 @@ import {
 	mongoFindOptions,
 	mongoModify,
 	FindObserveChangesOptions,
-	WithSignal,
 } from '../mongo.js'
 import {
 	ObserveView,
 	ObserveViewShape,
-	MongoLiveQueryHandle,
 	ObserverDeliveryScheduler,
 	makeObserveSink,
 	makeObserveChangesSink,
@@ -90,21 +88,11 @@ export class InMemoryMongoCollection<TDoc extends Doc> {
 	 * (insert/update/replace/remove), but not for `mockSetData`/`clear`. A coarse "something changed" hook
 	 * for cache-invalidation; for document-level transitions use `find().observe(Changes)` instead.
 	 */
-	onChange(listener: () => void, signal: AbortSignal): void
-	/** @deprecated Pass a `signal` to tie the listener to a lifetime */
-	onChange(listener: () => void): MongoLiveQueryHandle
-	onChange(listener: () => void, signal?: AbortSignal): MongoLiveQueryHandle | void {
-		if (signal?.aborted) return
+	onChange(listener: () => void, signal: AbortSignal): void {
+		if (signal.aborted) return
 
 		this.#changeListeners.add(listener)
-		const stop = () => void this.#changeListeners.delete(listener)
-
-		if (signal) {
-			signal.addEventListener('abort', stop, { once: true })
-			return
-		}
-
-		return { stop }
+		signal.addEventListener('abort', () => void this.#changeListeners.delete(listener), { once: true })
 	}
 
 	// --- internals --------------------------------------------------------------------------------
@@ -272,27 +260,16 @@ export class InMemoryMongoCollection<TDoc extends Doc> {
 	observe(
 		callbacks: ObserveCallbacks<TDoc>,
 		selector: MongoQuery<TDoc> | TDoc['_id'] | undefined,
-		options: FindObserveChangesOptions<TDoc> & WithSignal
-	): void
-	/** @deprecated Pass a `signal` in the options to tie the observer to a lifetime */
-	observe(
-		callbacks: ObserveCallbacks<TDoc>,
-		selector?: MongoQuery<TDoc> | TDoc['_id'],
-		options?: FindObserveChangesOptions<TDoc>
-	): MongoLiveQueryHandle
-	observe(
-		callbacks: ObserveCallbacks<TDoc>,
-		selector?: MongoQuery<TDoc> | TDoc['_id'],
-		options?: FindObserveChangesOptions<TDoc> & Partial<WithSignal>
-	): MongoLiveQueryHandle | void {
-		return this.#startObserve(
+		options: FindObserveChangesOptions<TDoc>
+	): void {
+		this.#startObserve(
 			'observe',
 			this.#normalizeSelector(selector),
 			projectionOf(options),
 			shapeOf(options),
 			callbacks,
-			!!options?.nonMutatingCallbacks,
-			options?.signal
+			!!options.nonMutatingCallbacks,
+			options.signal
 		)
 	}
 
@@ -303,27 +280,16 @@ export class InMemoryMongoCollection<TDoc extends Doc> {
 	observeChanges(
 		callbacks: ObserveChangesCallbacks<TDoc>,
 		selector: MongoQuery<TDoc> | TDoc['_id'] | undefined,
-		options: FindObserveChangesOptions<TDoc> & WithSignal
-	): void
-	/** @deprecated Pass a `signal` in the options to tie the observer to a lifetime */
-	observeChanges(
-		callbacks: ObserveChangesCallbacks<TDoc>,
-		selector?: MongoQuery<TDoc> | TDoc['_id'],
-		options?: FindObserveChangesOptions<TDoc>
-	): MongoLiveQueryHandle
-	observeChanges(
-		callbacks: ObserveChangesCallbacks<TDoc>,
-		selector?: MongoQuery<TDoc> | TDoc['_id'],
-		options?: FindObserveChangesOptions<TDoc> & Partial<WithSignal>
-	): MongoLiveQueryHandle | void {
-		return this.#startObserve(
+		options: FindObserveChangesOptions<TDoc>
+	): void {
+		this.#startObserve(
 			'changes',
 			this.#normalizeSelector(selector),
 			projectionOf(options),
 			shapeOf(options),
 			callbacks,
-			!!options?.nonMutatingCallbacks,
-			options?.signal
+			!!options.nonMutatingCallbacks,
+			options.signal
 		)
 	}
 
@@ -335,10 +301,10 @@ export class InMemoryMongoCollection<TDoc extends Doc> {
 		shape: ObserveViewShape<TDoc> | undefined,
 		callbacks: ObserveCallbacks<TDoc> | ObserveChangesCallbacks<TDoc>,
 		nonMutating: boolean,
-		signal: AbortSignal | undefined
-	): MongoLiveQueryHandle | void {
+		signal: AbortSignal
+	): void {
 		// Nothing to start if the lifetime has already ended
-		if (signal?.aborted) return
+		if (signal.aborted) return
 		const sink =
 			kind === 'observe'
 				? makeObserveSink<TDoc>(callbacks as ObserveCallbacks<TDoc>, nonMutating, this.#deliveryScheduler)
@@ -367,18 +333,15 @@ export class InMemoryMongoCollection<TDoc extends Doc> {
 			view.applyChange(event as unknown as ChangeStreamDocument<any>)
 		this.#listeners.add(listener)
 
-		const stop = () => {
-			this.#listeners.delete(listener)
-			const index = this.observers.indexOf(entry)
-			if (index !== -1) this.observers.splice(index, 1)
-		}
-
-		if (signal) {
-			signal.addEventListener('abort', stop, { once: true })
-			return
-		}
-
-		return { stop }
+		signal.addEventListener(
+			'abort',
+			() => {
+				this.#listeners.delete(listener)
+				const index = this.observers.indexOf(entry)
+				if (index !== -1) this.observers.splice(index, 1)
+			},
+			{ once: true }
+		)
 	}
 
 	/**

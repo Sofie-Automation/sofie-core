@@ -88,14 +88,6 @@ describe('observe with a signal', () => {
 		expect(changes).toBe(0)
 	})
 
-	test('the deprecated overloads still return a stop handle', () => {
-		const handle = collection.observeChanges({})
-		expect(collection.observers).toHaveLength(1)
-
-		handle.stop()
-		expect(collection.observers).toHaveLength(0)
-	})
-
 	test('several observers on one signal are all released together', () => {
 		const abort = new AbortController()
 
