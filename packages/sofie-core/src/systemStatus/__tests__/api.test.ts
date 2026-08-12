@@ -28,6 +28,14 @@ jest.spyOn(getServerBlueprintUpgradeStatuses, 'getServerBlueprintUpgradeStatuses
 describe('systemStatus API', () => {
 	let env: DefaultEnvironment
 
+	/** Observers started by a test, released once it finishes */
+	const afterEachAbort: AbortController[] = []
+	afterEach(() => {
+		for (const abort of afterEachAbort.splice(0)) {
+			abort.abort()
+		}
+	})
+
 	describe('General health endpoint', () => {
 		async function callRoute() {
 			const ctx = await callKoaRoute(healthRouter, {
@@ -41,7 +49,9 @@ describe('systemStatus API', () => {
 
 		test('REST /health with state BAD', async () => {
 			env = await setupDefaultStudioEnvironment()
-			await setupSystemStatusObservers()
+			const observersAbort = new AbortController()
+			afterEachAbort.push(observersAbort)
+			await setupSystemStatusObservers(observersAbort.signal)
 			await sleepNoFakeTimers(200)
 
 			// The system is uninitialized, the status will be BAD
@@ -76,7 +86,9 @@ describe('systemStatus API', () => {
 
 		test('REST /health with state GOOD', async () => {
 			env = await setupDefaultStudioEnvironment()
-			await setupSystemStatusObservers()
+			const observersAbort = new AbortController()
+			afterEachAbort.push(observersAbort)
+			await setupSystemStatusObservers(observersAbort.signal)
 			await sleepNoFakeTimers(200)
 
 			// simulate initialized system

@@ -205,20 +205,20 @@ export class WrappedAsyncMongoCollection<
 			})
 		}
 		const sel = this.mongoSelector(selector)
-		const startObserve = async (signal: AbortSignal) =>
-			observeChangesViaChangeStream(
-				this.name,
-				sel,
-				this.projectionOf(options),
-				this.shapeOf(options),
-				callbacks,
-				signal,
-				!!options?.nonMutatingCallbacks,
-				() => this.observeDeps(sel)
-			)
 
 		try {
-			await startObserveOnSignal(options.signal, startObserve)
+			await startObserveOnSignal(options.signal, async (signal: AbortSignal) =>
+				observeChangesViaChangeStream(
+					this.name,
+					sel,
+					this.projectionOf(options),
+					this.shapeOf(options),
+					callbacks,
+					signal,
+					!!options?.nonMutatingCallbacks,
+					() => this.observeDeps(sel)
+				)
+			)
 			if (span) span.end()
 		} catch (e) {
 			if (span) span.end()
@@ -240,20 +240,20 @@ export class WrappedAsyncMongoCollection<
 			})
 		}
 		const sel = this.mongoSelector(selector)
-		const startObserve = async (signal: AbortSignal) =>
-			observeViaChangeStream(
-				this.name,
-				sel,
-				this.projectionOf(options),
-				this.shapeOf(options),
-				callbacks,
-				signal,
-				!!options?.nonMutatingCallbacks,
-				() => this.observeDeps(sel)
-			)
 
 		try {
-			await startObserveOnSignal(options.signal, startObserve)
+			await startObserveOnSignal(options.signal, async (signal: AbortSignal) =>
+				observeViaChangeStream(
+					this.name,
+					sel,
+					this.projectionOf(options),
+					this.shapeOf(options),
+					callbacks,
+					signal,
+					!!options?.nonMutatingCallbacks,
+					() => this.observeDeps(sel)
+				)
+			)
 			if (span) span.end()
 		} catch (e) {
 			if (span) span.end()

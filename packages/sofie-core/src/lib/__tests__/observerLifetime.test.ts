@@ -1,4 +1,4 @@
-import { createChildAbort, processLifetimeSignal, runOnAbort } from '../observerLifetime'
+import { createChildAbort, runOnAbort } from '../observerLifetime'
 import { getEventListeners } from 'node:events'
 
 describe('observerLifetime', () => {
@@ -62,12 +62,6 @@ describe('observerLifetime', () => {
 			for (const child of children) {
 				expect(child.signal.aborted).toBe(true)
 			}
-		})
-	})
-
-	describe('processLifetimeSignal', () => {
-		test('is not aborted', () => {
-			expect(processLifetimeSignal.aborted).toBe(false)
 		})
 	})
 

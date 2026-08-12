@@ -64,6 +64,13 @@ registerAllPublications(publicationRegistry)
 // The registry of live DDP sessions, shared between the DDP server and the performance monitor
 const ddpConnectionRegistry = createDdpConnectionRegistry()
 
+/**
+ * The lifetime of this process. Long-lived observers started below are bound to this signal, so
+ * aborting it releases them all; a graceful-shutdown path can do that rather than relying on the
+ * process exiting.
+ */
+const processLifetime = new AbortController()
+
 ;(async () => {
 	console.log('process started') // This is a message all Sofie processes log upon startup
 
@@ -136,14 +143,17 @@ const ddpConnectionRegistry = createDdpConnectionRegistry()
 		},
 		unblock: () => undefined,
 	}))
-	await startDeviceTriggersObserver((getCache) => createMeteorTriggersContext(meteorCallForTriggers, getCache))
+	await startDeviceTriggersObserver(
+		(getCache) => createMeteorTriggersContext(meteorCallForTriggers, getCache),
+		processLifetime.signal
+	)
 	await Promise.all([
-		setupSystemStatusObservers(),
-		startMediaObjectDurationMonitor(),
-		startStudioMappingsHashObserver(),
-		startRundownVersionHashObservers(),
-		startBlueprintConfigPresetObservers(),
-		startExternalMessageQueueStatusMonitor(),
+		setupSystemStatusObservers(processLifetime.signal),
+		startMediaObjectDurationMonitor(processLifetime.signal),
+		startStudioMappingsHashObserver(processLifetime.signal),
+		startRundownVersionHashObservers(processLifetime.signal),
+		startBlueprintConfigPresetObservers(processLifetime.signal),
+		startExternalMessageQueueStatusMonitor(processLifetime.signal),
 	])
 
 	startCronjobs()

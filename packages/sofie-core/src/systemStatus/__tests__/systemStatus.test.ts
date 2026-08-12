@@ -33,8 +33,14 @@ describe('systemStatus', () => {
 	beforeEach(() => {
 		getServerBlueprintUpgradeStatusesMock.mockReturnValue(Promise.resolve(literal<UIBlueprintUpgradeStatus[]>([])))
 	})
+	/** Observers started by a test, released once it finishes */
+	const afterEachAbort: AbortController[] = []
 	afterEach(() => {
 		getServerBlueprintUpgradeStatusesMock.mockReset()
+
+		for (const abort of afterEachAbort.splice(0)) {
+			abort.abort()
+		}
 	})
 
 	let env: DefaultEnvironment
@@ -50,7 +56,9 @@ describe('systemStatus', () => {
 	})
 	test('getSystemStatus: after startup', async () => {
 		env = await setupDefaultStudioEnvironment()
-		await setupSystemStatusObservers()
+		const observersAbort = new AbortController()
+		afterEachAbort.push(observersAbort)
+		await setupSystemStatusObservers(observersAbort.signal)
 		await sleepNoFakeTimers(200)
 
 		const result0: StatusResponse = await MeteorCall.systemStatus.getSystemStatus()

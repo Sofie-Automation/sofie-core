@@ -67,14 +67,6 @@ export async function startObserveOnSignal(
 	}
 }
 
-const processLifetimeAbort = new AbortController()
-
-/**
- * A signal for observers that are intended to live for the whole process.
- * Never aborted today; a graceful-shutdown hook may abort it in the future.
- */
-export const processLifetimeSignal: AbortSignal = processLifetimeAbort.signal
-
 /**
  * Run a cleanup function when `signal` aborts, or immediately if it already has - the signal may have
  * aborted while the caller was awaiting whatever the cleanup releases.
