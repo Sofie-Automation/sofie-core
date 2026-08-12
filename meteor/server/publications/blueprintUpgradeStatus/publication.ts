@@ -6,7 +6,6 @@ import {
 	CustomPublish,
 	CustomPublishCollection,
 	setUpCollectionOptimizedObserver,
-	SetupObserversResult,
 	TriggerUpdate,
 } from '../../lib/customPublication'
 import type { PublicationRegistry } from '../../publicationRegistry'
@@ -48,7 +47,7 @@ async function setupBlueprintUpgradeStatusPublicationObservers(
 	_args: ReadonlyDeep<BlueprintUpgradeStatusArgs>,
 	triggerUpdate: TriggerUpdate<BlueprintUpgradeStatusUpdateProps>,
 	signal: AbortSignal
-): Promise<SetupObserversResult> {
+): Promise<void> {
 	// TODO - can this be done cheaper?
 	const cache = createReactiveContentCache()
 

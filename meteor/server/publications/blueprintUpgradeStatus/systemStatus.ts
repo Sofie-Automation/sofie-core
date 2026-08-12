@@ -29,14 +29,6 @@ class CustomPublishToMap<DBObj extends { _id: ProtectedString<any> }> implements
 	}
 
 	/**
-	 * Register a function to be called when the subscriber unsubscribes
-	 * @deprecated Use `signal` instead
-	 */
-	onStop(_callback: () => void): void {
-		// Ignore, this publication never stops
-	}
-
-	/**
 	 * Send the intial documents to the subscriber
 	 */
 	init(docs: DBObj[]): void {

@@ -10,6 +10,7 @@ import { Rundowns } from '../../../collections'
 import { runAllTimers, runTimersUntilNow, waitUntil } from '../../../../__mocks__/helpers/jest'
 import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
 import { RundownsObserver } from '../rundownsObserver'
+import { runOnAbort } from '../../../lib/observerLifetime'
 
 const RundownsMock = (Rundowns as any).mockCollection as InMemoryMongoCollection<Rundown>
 
@@ -25,7 +26,9 @@ describe('RundownsObserver', () => {
 		const playlistId = protectString<RundownPlaylistId>('playlist0')
 
 		const onChangedCleanup = jest.fn()
-		const onChanged = jest.fn(async () => onChangedCleanup)
+		const onChanged = jest.fn(async (_ids: RundownId[], signal: AbortSignal) =>
+			runOnAbort(signal, onChangedCleanup)
+		)
 
 		// should not be any observers yet
 		expect(RundownsMock.observers).toHaveLength(0)
@@ -79,7 +82,9 @@ describe('RundownsObserver', () => {
 		const playlistId = protectString<RundownPlaylistId>('playlist0')
 
 		const onChangedCleanup = jest.fn()
-		const onChanged = jest.fn<Promise<() => void>, [RundownId[]]>(async () => onChangedCleanup)
+		const onChanged = jest.fn<Promise<void>, [RundownId[], AbortSignal]>(async (_ids, signal) =>
+			runOnAbort(signal, onChangedCleanup)
+		)
 
 		// should not be any observers yet
 		expect(RundownsMock.observers).toHaveLength(0)
@@ -134,7 +139,9 @@ describe('RundownsObserver', () => {
 		const playlistId = protectString<RundownPlaylistId>('playlist0')
 
 		const onChangedCleanup = jest.fn()
-		const onChanged = jest.fn<Promise<() => void>, [RundownId[]]>(async () => onChangedCleanup)
+		const onChanged = jest.fn<Promise<void>, [RundownId[], AbortSignal]>(async (_ids, signal) =>
+			runOnAbort(signal, onChangedCleanup)
+		)
 
 		// should not be any observers yet
 		expect(RundownsMock.observers).toHaveLength(0)
@@ -189,7 +196,9 @@ describe('RundownsObserver', () => {
 		const playlistId = protectString<RundownPlaylistId>('playlist0')
 
 		const onChangedCleanup = jest.fn()
-		const onChanged = jest.fn<Promise<() => void>, [RundownId[]]>(async () => onChangedCleanup)
+		const onChanged = jest.fn<Promise<void>, [RundownId[], AbortSignal]>(async (_ids, signal) =>
+			runOnAbort(signal, onChangedCleanup)
+		)
 
 		// should not be any observers yet
 		expect(RundownsMock.observers).toHaveLength(0)
@@ -277,7 +286,9 @@ describe('RundownsObserver', () => {
 		const deviceId = protectString<PeripheralDeviceId>('device0')
 
 		const onChangedCleanup = jest.fn()
-		const onChanged = jest.fn(async () => onChangedCleanup)
+		const onChanged = jest.fn(async (_ids: RundownId[], signal: AbortSignal) =>
+			runOnAbort(signal, onChangedCleanup)
+		)
 
 		// should not be any observers yet
 		expect(RundownsMock.observers).toHaveLength(0)

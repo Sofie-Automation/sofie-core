@@ -15,14 +15,13 @@ export interface SessionPublicationApi {
  * The `this`-free `PublicationContext` handed to a publication callback on the standalone DDP server.
  *
  * `added/changed/removed` route into the session's merge box under this subscription's handle; `ready()`
- * sends a `ready` message; `onStop()` collects teardown callbacks. The context tracks which documents it
- * added so they can be removed from the merge box when the subscription stops.
+ * sends a `ready` message; `signal` is the subscription's lifetime, aborted when it stops. The context
+ * tracks which documents it added so they can be removed from the merge box when the subscription stops.
  */
 export class DdpPublicationContext implements PublicationContext {
 	readonly connection: DDPClientConnection | null
 
 	private readonly abort = new AbortController()
-	private readonly stopCallbacks: Array<() => void> = []
 	/** collection -> set of ids this subscription has added (for removal on stop). */
 	private readonly documents = new Map<string, Set<string>>()
 	private isReadyInternal = false
@@ -92,17 +91,10 @@ export class DdpPublicationContext implements PublicationContext {
 		this.session.sendReady(this.subscriptionId)
 	}
 
-	onStop(callback: () => void): void {
-		if (this.stopped) {
-			queueMicrotask(callback)
-			return
-		}
-		this.stopCallbacks.push(callback)
-	}
-
 	/**
-	 * Tear down this subscription: stop accepting further data, remove its documents from the merge box,
-	 * then run the registered stop callbacks (e.g. observer teardown). Idempotent.
+	 * Tear down this subscription: abort its signal - which releases whatever was started under it,
+	 * such as observers - stop accepting further data, and remove its documents from the merge box.
+	 * Idempotent.
 	 */
 	stop(): void {
 		if (this.stopped) return
@@ -114,14 +106,5 @@ export class DdpPublicationContext implements PublicationContext {
 			}
 		}
 		this.documents.clear()
-
-		for (const callback of this.stopCallbacks) {
-			try {
-				callback()
-			} catch {
-				// a failing stop callback must not prevent the others from running
-			}
-		}
-		this.stopCallbacks.length = 0
 	}
 }

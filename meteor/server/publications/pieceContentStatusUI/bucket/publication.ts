@@ -19,7 +19,6 @@ import {
 	CustomPublishCollection,
 	setUpCollectionOptimizedObserver,
 	TriggerUpdate,
-	SetupObserversResult,
 } from '../../../lib/customPublication'
 import type { PublicationRegistry } from '../../../publicationRegistry'
 import { BucketContentCache, createReactiveContentCache } from './bucketContentCache'
@@ -74,7 +73,7 @@ async function setupUIBucketContentStatusesPublicationObservers(
 	args: ReadonlyDeep<UIBucketContentStatusesArgs>,
 	triggerUpdate: TriggerUpdate<UIBucketContentStatusesUpdateProps>,
 	signal: AbortSignal
-): Promise<SetupObserversResult> {
+): Promise<void> {
 	const trackMediaObjectChange = (mediaId: string): Partial<UIBucketContentStatusesUpdateProps> => ({
 		invalidateMediaObjectMediaId: [mediaId],
 	})

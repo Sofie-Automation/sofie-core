@@ -18,15 +18,9 @@ import { registerCollection } from './lib'
 import { createMockCollection } from './implementations/mock'
 import { WrappedAsyncMongoCollection } from './implementations/asyncCollection'
 import { WrappedReadOnlyMongoCollection } from './implementations/readonlyWrapper'
-import {
-	FieldNames,
-	IndexSpecifier,
-	MongoLiveQueryHandle,
-	UpdateOptions,
-} from '@sofie-automation/meteor-lib/dist/collections/lib'
+import { FieldNames, IndexSpecifier, UpdateOptions } from '@sofie-automation/meteor-lib/dist/collections/lib'
 import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
 import { isInTestMode } from '../lib'
-import type { LiveQueryHandleSync } from '../lib/lib'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 export interface CustomMongoAllowRules<DBInterface> {
@@ -112,12 +106,6 @@ export interface MinimalMongoCursor<T extends { _id: ProtectedString<any> }> {
 	 * failed (in which case nothing was left running).
 	 */
 	observeAsync(callbacks: ObserveCallbacks<T>, options: WithSignal): Promise<void>
-	/**
-	 * Watch a query. Receive callbacks as the result set changes.
-	 * @param callbacks Functions to call to deliver the result set as it changes
-	 * @deprecated Pass a `signal` in the options to tie the observer to a lifetime
-	 */
-	observeAsync(callbacks: ObserveCallbacks<T>): Promise<MongoLiveQueryHandle>
 
 	/**
 	 * Watch a query for the lifetime of `options.signal`. Receive callbacks as the result set changes.
@@ -130,16 +118,6 @@ export interface MinimalMongoCursor<T extends { _id: ProtectedString<any> }> {
 		callbacks: ObserveChangesCallbacks<T>,
 		options: ObserveChangesOptions & WithSignal
 	): Promise<void>
-	/**
-	 * Watch a query. Receive callbacks as the result set changes. Only the differences between the old and new documents are passed to the callbacks.
-	 * @param callbacks Functions to call to deliver the result set as it changes
-	 * @param options { nonMutatingCallbacks: boolean }
-	 * @deprecated Pass a `signal` in the options to tie the observer to a lifetime
-	 */
-	observeChangesAsync(
-		callbacks: ObserveChangesCallbacks<T>,
-		options?: ObserveChangesOptions
-	): Promise<MongoLiveQueryHandle>
 }
 
 /**
@@ -253,16 +231,6 @@ export interface AsyncOnlyReadOnlyMongoCollection<DBInterface extends { _id: Pro
 		callbacks: PromisifyCallbacks<ObserveChangesCallbacks<DBInterface>>,
 		options: FindObserveChangesOptions<DBInterface> & WithSignal
 	): Promise<void>
-	/**
-	 * Observe changes on this collection
-	 * @param selector A query describing the documents to find
-	 * @deprecated Pass a `signal` in the options to tie the observer to a lifetime
-	 */
-	observeChanges(
-		selector: MongoQuery<DBInterface> | DBInterface['_id'],
-		callbacks: PromisifyCallbacks<ObserveChangesCallbacks<DBInterface>>,
-		options?: FindObserveChangesOptions<DBInterface>
-	): Promise<LiveQueryHandleSync>
 
 	/**
 	 * Observe changes on this collection for the lifetime of `options.signal`
@@ -275,16 +243,6 @@ export interface AsyncOnlyReadOnlyMongoCollection<DBInterface extends { _id: Pro
 		callbacks: PromisifyCallbacks<ObserveCallbacks<DBInterface>>,
 		options: FindObserveChangesOptions<DBInterface> & WithSignal
 	): Promise<void>
-	/**
-	 * Observe changes on this collection
-	 * @param selector A query describing the documents to find
-	 * @deprecated Pass a `signal` in the options to tie the observer to a lifetime
-	 */
-	observe(
-		selector: MongoQuery<DBInterface> | DBInterface['_id'],
-		callbacks: PromisifyCallbacks<ObserveCallbacks<DBInterface>>,
-		options?: FindObserveChangesOptions<DBInterface>
-	): Promise<LiveQueryHandleSync>
 
 	/**
 	 * Count the number of docuyments in a collection that match the selector.

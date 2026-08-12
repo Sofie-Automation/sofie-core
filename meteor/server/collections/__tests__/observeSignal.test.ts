@@ -86,14 +86,6 @@ describe('collection observe with a signal', () => {
 			await expect(pending).resolves.toBeUndefined()
 			expect(liveObserverCount()).toBe(0)
 		})
-
-		test('the deprecated overload still returns a stop handle', async () => {
-			const handle = await collection.observeChanges({}, {})
-			expect(liveObserverCount()).toBe(1)
-
-			handle.stop()
-			expect(liveObserverCount()).toBe(0)
-		})
 	})
 
 	describe('observe', () => {

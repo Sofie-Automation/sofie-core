@@ -1,6 +1,6 @@
 import { getRandomString } from '@sofie-automation/corelib/dist/lib'
-import { LiveQueryHandle, lazyIgnore } from '../../lib/lib'
-import { AbortScope, attachPendingHandles, createChildAbort } from '../../lib/observerLifetime'
+import { lazyIgnore } from '../../lib/lib'
+import { AbortScope, createChildAbort } from '../../lib/observerLifetime'
 import { logger } from '../../logging'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
@@ -102,42 +102,6 @@ export async function reactiveObserverGroup(
 
 			pendingRestart = true
 			deferCheck()
-		},
-	}
-}
-
-/**
- * @deprecated Use {@link reactiveObserverGroup}, which takes the group's lifetime as a signal instead of
- * returning a stop handle. Removed once all callers are migrated.
- */
-export interface ReactiveMongoObserverGroupHandle extends LiveQueryHandle {
-	restart(): void
-}
-
-/**
- * @deprecated Use {@link reactiveObserverGroup} instead
- */
-export async function ReactiveMongoObserverGroup(
-	generator: () => Promise<Array<Promise<LiveQueryHandle>>>
-): Promise<ReactiveMongoObserverGroupHandle> {
-	const abort = new AbortController()
-
-	const group = await reactiveObserverGroup(abort.signal, async (generationSignal) => {
-		await attachPendingHandles(generationSignal, await generator())
-	})
-
-	const assertRunning = () => {
-		if (abort.signal.aborted) throw new SofieError(500, 'ReactiveMongoObserverGroup is not running!')
-	}
-
-	return {
-		restart: () => {
-			assertRunning()
-			group.restart()
-		},
-		stop: () => {
-			assertRunning()
-			abort.abort()
 		},
 	}
 }

@@ -5,7 +5,6 @@ import {
 	CustomPublish,
 	CustomPublishCollection,
 	setUpCollectionOptimizedObserver,
-	SetupObserversResult,
 	TriggerUpdate,
 } from '../../lib/customPublication'
 import { logger } from '../../logging'
@@ -44,7 +43,7 @@ async function setupIngestRundownStatusPublicationObservers(
 	args: ReadonlyDeep<IngestRundownStatusArgs>,
 	triggerUpdate: TriggerUpdate<IngestRundownStatusUpdateProps>,
 	signal: AbortSignal
-): Promise<SetupObserversResult> {
+): Promise<void> {
 	await RundownsObserver.createForPeripheralDevice(args.deviceId, signal, async (rundownIds, invocationSignal) => {
 		logger.silly(`Creating new RundownContentObserver`, rundownIds)
 
