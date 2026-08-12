@@ -104,7 +104,7 @@ export class WrappedMockCollection<
 				await this.#sleep(0)
 				this.#core.observeChanges(callbacks, selector, { ...options, ...callbackOptions })
 			},
-		} as MinimalMongoCursor<DBInterface>
+		}
 	}
 
 	async observe(
