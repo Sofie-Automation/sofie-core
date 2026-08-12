@@ -30,7 +30,8 @@ export class PromiseDebounce<TResult = void, TArgs extends unknown[] = []> {
 
 		runOnAbort(signal, () => {
 			this.#aborted = true
-			this.cancelWaiting()
+			// Reject waiters with why the lifetime ended, rather than a bare 'Cancelled'
+			this.cancelWaiting(signal.reason)
 		})
 	}
 
@@ -113,9 +114,10 @@ export class PromiseDebounce<TResult = void, TArgs extends unknown[] = []> {
 	}
 
 	/**
-	 * Cancel any waiting execution
+	 * Cancel any waiting execution, rejecting anyone awaiting it
+	 * @param reason Why it was cancelled; defaults to a generic 'Cancelled' error
 	 */
-	cancelWaiting = (error?: Error): void => {
+	cancelWaiting = (reason?: unknown): void => {
 		this.#pendingArgs = null
 
 		if (this.#timeout) {
@@ -128,12 +130,12 @@ export class PromiseDebounce<TResult = void, TArgs extends unknown[] = []> {
 			const listeners = this.#waitingListeners
 			this.#waitingListeners = []
 
-			error = error ?? new Error('Cancelled')
+			const rejectWith = reason ?? new Error('Cancelled')
 
 			// Inform the listeners in the next tick
 			setImmediate(() => {
 				for (const listener of listeners) {
-					listener.reject(error)
+					listener.reject(rejectWith)
 				}
 			})
 		}

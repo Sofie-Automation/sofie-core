@@ -14,6 +14,7 @@ import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowSt
 import { equivalentArrays } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { reactiveObserverGroup, ReactiveObserverGroup } from '../../lib/observerGroup'
+import { createDebounce, Debounced } from '../../../lib/debounce'
 import _ from 'underscore'
 
 const REACTIVITY_DEBOUNCE = 20
@@ -27,7 +28,6 @@ function convertShowStyleBase(doc: Pick<DBShowStyleBase, ShowStyleBaseFields>): 
 
 export class BucketContentObserver {
 	#cache: BucketContentCache
-	readonly #signal: AbortSignal
 
 	#showStyleBaseIds: ShowStyleBaseId[] = []
 	#showStyleBaseIdObserver!: ReactiveObserverGroup
@@ -35,9 +35,52 @@ export class BucketContentObserver {
 	#blueprintIds: BlueprintId[] = []
 	#blueprintIdObserver!: ReactiveObserverGroup
 
+	private readonly updateShowStyleBaseIds: Debounced<[]>
+	private readonly updateBlueprintIds: Debounced<[]>
+
 	private constructor(cache: BucketContentCache, signal: AbortSignal) {
 		this.#cache = cache
-		this.#signal = signal
+
+		this.updateShowStyleBaseIds = createDebounce(
+			() => {
+				const newShowStyleBaseIdsSet = new Set<ShowStyleBaseId>()
+				this.#cache.BucketAdLibs.findFetch({}).forEach((adlib) =>
+					newShowStyleBaseIdsSet.add(adlib.showStyleBaseId)
+				)
+				this.#cache.BucketAdLibActions.findFetch({}).forEach((action) =>
+					newShowStyleBaseIdsSet.add(action.showStyleBaseId)
+				)
+
+				const newShowStyleBaseIds = Array.from(newShowStyleBaseIdsSet)
+
+				if (!equivalentArrays(newShowStyleBaseIds, this.#showStyleBaseIds)) {
+					this.#showStyleBaseIds = newShowStyleBaseIds
+					// trigger the rundown group to restart
+					this.#showStyleBaseIdObserver.restart()
+				}
+			},
+			REACTIVITY_DEBOUNCE,
+			signal
+		)
+
+		this.updateBlueprintIds = createDebounce(
+			() => {
+				const newBlueprintIds = _.uniq(
+					this.#cache.ShowStyleSourceLayers.findFetch({}).map((rd) => rd.blueprintId)
+				)
+
+				if (!equivalentArrays(newBlueprintIds, this.#blueprintIds)) {
+					logger.silly(
+						`optimized observer changed ids ${JSON.stringify(newBlueprintIds)} ${this.#blueprintIds}`
+					)
+					this.#blueprintIds = newBlueprintIds
+					// trigger the rundown group to restart
+					this.#blueprintIdObserver.restart()
+				}
+			},
+			REACTIVITY_DEBOUNCE,
+			signal
+		)
 	}
 
 	static async create(
@@ -136,37 +179,6 @@ export class BucketContentObserver {
 
 		return observer
 	}
-
-	private updateShowStyleBaseIds = _.debounce(() => {
-		if (this.#signal.aborted) return
-
-		const newShowStyleBaseIdsSet = new Set<ShowStyleBaseId>()
-		this.#cache.BucketAdLibs.findFetch({}).forEach((adlib) => newShowStyleBaseIdsSet.add(adlib.showStyleBaseId))
-		this.#cache.BucketAdLibActions.findFetch({}).forEach((action) =>
-			newShowStyleBaseIdsSet.add(action.showStyleBaseId)
-		)
-
-		const newShowStyleBaseIds = Array.from(newShowStyleBaseIdsSet)
-
-		if (!equivalentArrays(newShowStyleBaseIds, this.#showStyleBaseIds)) {
-			this.#showStyleBaseIds = newShowStyleBaseIds
-			// trigger the rundown group to restart
-			this.#showStyleBaseIdObserver.restart()
-		}
-	}, REACTIVITY_DEBOUNCE)
-
-	private updateBlueprintIds = _.debounce(() => {
-		if (this.#signal.aborted) return
-
-		const newBlueprintIds = _.uniq(this.#cache.ShowStyleSourceLayers.findFetch({}).map((rd) => rd.blueprintId))
-
-		if (!equivalentArrays(newBlueprintIds, this.#blueprintIds)) {
-			logger.silly(`optimized observer changed ids ${JSON.stringify(newBlueprintIds)} ${this.#blueprintIds}`)
-			this.#blueprintIds = newBlueprintIds
-			// trigger the rundown group to restart
-			this.#blueprintIdObserver.restart()
-		}
-	}, REACTIVITY_DEBOUNCE)
 
 	public get cache(): BucketContentCache {
 		return this.#cache

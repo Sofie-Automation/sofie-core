@@ -32,6 +32,7 @@ import {
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { reactiveObserverGroup, ReactiveObserverGroup } from '../../lib/observerGroup'
+import { createDebounce, Debounced } from '../../../lib/debounce'
 import _ from 'underscore'
 import { equivalentArrays } from '@sofie-automation/shared-lib/dist/lib/lib'
 
@@ -54,9 +55,50 @@ export class RundownContentObserver {
 	#blueprintIds: BlueprintId[] = []
 	#blueprintIdObserver!: ReactiveObserverGroup
 
+	private readonly updateShowStyleBaseIds: Debounced<[]>
+	private readonly updateBlueprintIds: Debounced<[]>
+
 	private constructor(cache: ContentCache, signal: AbortSignal) {
 		this.#cache = cache
 		this.#signal = signal
+
+		this.updateShowStyleBaseIds = createDebounce(
+			() => {
+				const newShowStyleBaseIds = _.uniq(this.#cache.Rundowns.findFetch({}).map((rd) => rd.showStyleBaseId))
+
+				if (!equivalentArrays(newShowStyleBaseIds, this.#showStyleBaseIds)) {
+					logger.silly(
+						`optimized observer changed ids ${JSON.stringify(newShowStyleBaseIds)} ${
+							this.#showStyleBaseIds
+						}`
+					)
+					this.#showStyleBaseIds = newShowStyleBaseIds
+					// trigger the rundown group to restart
+					this.#showStyleBaseIdObserver.restart()
+				}
+			},
+			REACTIVITY_DEBOUNCE,
+			signal
+		)
+
+		this.updateBlueprintIds = createDebounce(
+			() => {
+				const newBlueprintIds = _.uniq(
+					this.#cache.ShowStyleSourceLayers.findFetch({}).map((rd) => rd.blueprintId)
+				)
+
+				if (!equivalentArrays(newBlueprintIds, this.#blueprintIds)) {
+					logger.silly(
+						`optimized observer changed ids ${JSON.stringify(newBlueprintIds)} ${this.#blueprintIds}`
+					)
+					this.#blueprintIds = newBlueprintIds
+					// trigger the rundown group to restart
+					this.#blueprintIdObserver.restart()
+				}
+			},
+			REACTIVITY_DEBOUNCE,
+			signal
+		)
 	}
 
 	static async create(
@@ -265,34 +307,6 @@ export class RundownContentObserver {
 			),
 		])
 	}
-
-	private updateShowStyleBaseIds = _.debounce(() => {
-		if (this.#signal.aborted) return
-
-		const newShowStyleBaseIds = _.uniq(this.#cache.Rundowns.findFetch({}).map((rd) => rd.showStyleBaseId))
-
-		if (!equivalentArrays(newShowStyleBaseIds, this.#showStyleBaseIds)) {
-			logger.silly(
-				`optimized observer changed ids ${JSON.stringify(newShowStyleBaseIds)} ${this.#showStyleBaseIds}`
-			)
-			this.#showStyleBaseIds = newShowStyleBaseIds
-			// trigger the rundown group to restart
-			this.#showStyleBaseIdObserver.restart()
-		}
-	}, REACTIVITY_DEBOUNCE)
-
-	private updateBlueprintIds = _.debounce(() => {
-		if (this.#signal.aborted) return
-
-		const newBlueprintIds = _.uniq(this.#cache.ShowStyleSourceLayers.findFetch({}).map((rd) => rd.blueprintId))
-
-		if (!equivalentArrays(newBlueprintIds, this.#blueprintIds)) {
-			logger.silly(`optimized observer changed ids ${JSON.stringify(newBlueprintIds)} ${this.#blueprintIds}`)
-			this.#blueprintIds = newBlueprintIds
-			// trigger the rundown group to restart
-			this.#blueprintIdObserver.restart()
-		}
-	}, REACTIVITY_DEBOUNCE)
 
 	public get cache(): ContentCache {
 		return this.#cache

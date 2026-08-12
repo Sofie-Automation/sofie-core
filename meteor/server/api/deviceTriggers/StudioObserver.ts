@@ -166,7 +166,7 @@ export class StudioObserver extends EventEmitter {
 						) as Promise<MinimalMongoCursor<Pick<DBShowStyleBase, ShowStyleBaseFields>>>)
 					: null
 			)
-			.end(this.updateShowStyle.call)
+			.end(this.updateShowStyle.trigger)
 	}
 
 	private readonly updateShowStyle = new PromiseDebounce<

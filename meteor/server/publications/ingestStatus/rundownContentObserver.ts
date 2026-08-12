@@ -10,22 +10,38 @@ import {
 	// segmentFieldSpecifier,
 } from './reactiveContentCache'
 import { NrcsIngestDataCache, PartInstances, Parts, RundownPlaylists, Rundowns } from '../../collections'
-import _ from 'underscore'
 import { reactiveObserverGroup, ReactiveObserverGroup } from '../lib/observerGroup'
+import { createDebounce, Debounced } from '../../lib/debounce'
 import { equivalentArrays } from '@sofie-automation/shared-lib/dist/lib/lib'
 
 const REACTIVITY_DEBOUNCE = 20
 
 export class RundownContentObserver {
 	readonly #cache: ContentCache
-	readonly #signal: AbortSignal
 
 	#playlistIds: RundownPlaylistId[] = []
 	#playlistIdObserver!: ReactiveObserverGroup
 
+	public readonly checkPlaylistIds: Debounced<[]>
+
 	private constructor(cache: ContentCache, signal: AbortSignal) {
 		this.#cache = cache
-		this.#signal = signal
+
+		this.checkPlaylistIds = createDebounce(
+			() => {
+				const playlistIds = Array.from(
+					new Set(this.#cache.Rundowns.findFetch({}).map((rundown) => rundown.playlistId))
+				)
+
+				if (!equivalentArrays(playlistIds, this.#playlistIds)) {
+					this.#playlistIds = playlistIds
+					// trigger the playlist group to restart
+					this.#playlistIdObserver.restart()
+				}
+			},
+			REACTIVITY_DEBOUNCE,
+			signal
+		)
 	}
 
 	static async create(
@@ -121,18 +137,6 @@ export class RundownContentObserver {
 
 		return observer
 	}
-
-	public checkPlaylistIds = _.debounce(() => {
-		if (this.#signal.aborted) return
-
-		const playlistIds = Array.from(new Set(this.#cache.Rundowns.findFetch({}).map((rundown) => rundown.playlistId)))
-
-		if (!equivalentArrays(playlistIds, this.#playlistIds)) {
-			this.#playlistIds = playlistIds
-			// trigger the playlist group to restart
-			this.#playlistIdObserver.restart()
-		}
-	}, REACTIVITY_DEBOUNCE)
 
 	public get cache(): ContentCache {
 		return this.#cache
