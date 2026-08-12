@@ -6,9 +6,18 @@ describe('PromiseDebounce', () => {
 		jest.useFakeTimers()
 	})
 
+	/** The lifetime of the debounce under test; aborted after each test */
+	let abort: AbortController
+	beforeEach(() => {
+		abort = new AbortController()
+	})
+	afterEach(() => {
+		abort.abort()
+	})
+
 	it('trigger', async () => {
 		const fn = jest.fn()
-		const debounce = new PromiseDebounce(fn, 10)
+		const debounce = new PromiseDebounce(fn, 10, abort.signal)
 
 		// No promise returned
 		expect(debounce.trigger()).toBe(undefined)
@@ -31,7 +40,7 @@ describe('PromiseDebounce', () => {
 
 	it('call', async () => {
 		const fn = jest.fn()
-		const debounce = new PromiseDebounce(fn, 10)
+		const debounce = new PromiseDebounce(fn, 10, abort.signal)
 
 		const ps = debounce.call()
 		expect(ps).not.toBe(undefined)
@@ -57,7 +66,7 @@ describe('PromiseDebounce', () => {
 
 	it('cancelWaiting - trigger', async () => {
 		const fn = jest.fn()
-		const debounce = new PromiseDebounce(fn, 10)
+		const debounce = new PromiseDebounce(fn, 10, abort.signal)
 
 		// No promise returned
 		expect(debounce.trigger()).toBe(undefined)
@@ -78,7 +87,7 @@ describe('PromiseDebounce', () => {
 
 	it('cancelWaiting - call', async () => {
 		const fn = jest.fn()
-		const debounce = new PromiseDebounce(fn, 10)
+		const debounce = new PromiseDebounce(fn, 10, abort.signal)
 
 		const ps = debounce.call()
 		ps.catch(() => null) // Add an error handler
@@ -103,7 +112,7 @@ describe('PromiseDebounce', () => {
 
 	it('cancelWaiting - call with error', async () => {
 		const fn = jest.fn()
-		const debounce = new PromiseDebounce(fn, 10)
+		const debounce = new PromiseDebounce(fn, 10, abort.signal)
 
 		const ps = debounce.call()
 		ps.catch(() => null) // Add an error handler
@@ -128,7 +137,7 @@ describe('PromiseDebounce', () => {
 
 	it('trigger - multiple', async () => {
 		const fn = jest.fn()
-		const debounce = new PromiseDebounce<void, [number]>(fn, 10)
+		const debounce = new PromiseDebounce<void, [number]>(fn, 10, abort.signal)
 
 		// No promise returned
 		expect(debounce.trigger(1)).toBe(undefined)
@@ -151,7 +160,7 @@ describe('PromiseDebounce', () => {
 
 	it('trigger - during slow execution', async () => {
 		const fn = jest.fn(async () => sleep(100))
-		const debounce = new PromiseDebounce<void, [number]>(fn, 10)
+		const debounce = new PromiseDebounce<void, [number]>(fn, 10, abort.signal)
 
 		// No promise returned
 		expect(debounce.trigger(1)).toBe(undefined)
@@ -180,7 +189,7 @@ describe('PromiseDebounce', () => {
 			await sleep(100)
 			return val
 		})
-		const debounce = new PromiseDebounce<number, [number]>(fn, 10)
+		const debounce = new PromiseDebounce<number, [number]>(fn, 10, abort.signal)
 
 		const ps1 = debounce.call(1)
 		expect(ps1).not.toBe(undefined)
@@ -213,7 +222,7 @@ describe('PromiseDebounce', () => {
 			await sleep(100)
 			throw new Error(`Bad value: ${val}`)
 		})
-		const debounce = new PromiseDebounce<number, [number]>(fn, 10)
+		const debounce = new PromiseDebounce<number, [number]>(fn, 10, abort.signal)
 
 		const ps1 = debounce.call(1)
 		ps1.catch(() => null) // Add an error handler
@@ -246,7 +255,7 @@ describe('PromiseDebounce', () => {
 
 	it('canelWaiting - during slow execution', async () => {
 		const fn = jest.fn(async () => sleep(100))
-		const debounce = new PromiseDebounce<void, [number]>(fn, 10)
+		const debounce = new PromiseDebounce<void, [number]>(fn, 10, abort.signal)
 
 		// No promise returned
 		expect(debounce.trigger(1)).toBe(undefined)
@@ -268,6 +277,28 @@ describe('PromiseDebounce', () => {
 
 		// Wait until the second timer timer should
 		await jest.advanceTimersByTimeAsync(100)
+		expect(fn).toHaveBeenCalledTimes(0)
+	})
+
+	it('aborting the signal discards a waiting execution', async () => {
+		const fn = jest.fn()
+		const debounce = new PromiseDebounce(fn, 10, abort.signal)
+
+		debounce.trigger()
+		abort.abort()
+
+		await jest.advanceTimersByTimeAsync(50)
+		expect(fn).toHaveBeenCalledTimes(0)
+	})
+
+	it('triggering after the signal aborts does nothing', async () => {
+		const fn = jest.fn()
+		const debounce = new PromiseDebounce(fn, 10, abort.signal)
+
+		abort.abort()
+		debounce.trigger()
+
+		await jest.advanceTimersByTimeAsync(50)
 		expect(fn).toHaveBeenCalledTimes(0)
 	})
 })

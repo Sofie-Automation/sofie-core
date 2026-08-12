@@ -1,4 +1,3 @@
-import _ from 'underscore'
 import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
@@ -12,7 +11,7 @@ import { DBTriggeredActions } from '@sofie-automation/meteor-lib/dist/collection
 import { MongoFieldSpecifierOnesStrict } from '@sofie-automation/corelib/dist/mongo'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
-import { runOnAbort } from '../../lib/observerLifetime'
+import { createDebounce } from '../../lib/debounce'
 
 export type RundownPlaylistFields =
 	| '_id'
@@ -164,11 +163,7 @@ export function createReactiveContentCache(
 	reactivityDebounce: number,
 	signal: AbortSignal
 ): ContentCache {
-	const innerReaction = _.debounce(() => {
-		if (signal.aborted) return
-		reaction(cache)
-	}, reactivityDebounce)
-	runOnAbort(signal, () => innerReaction.cancel())
+	const innerReaction = createDebounce(() => reaction(cache), reactivityDebounce, signal)
 
 	const cache: ContentCache = {
 		RundownPlaylists: new InMemoryMongoCollection<Pick<DBRundownPlaylist, RundownPlaylistFields>>(
