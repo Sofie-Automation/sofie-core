@@ -127,8 +127,8 @@ function adLibAction(id: string, label: string, rank: number, partId: PartId | u
 	}
 }
 
-/** Cancel functions for every cache built by `createAndPopulateCache`, drained in `afterEach`. */
-const cacheCancellations: (() => void)[] = []
+/** The lifetimes of every cache built by `createAndPopulateCache`, aborted in `afterEach`. */
+const cacheLifetimes: AbortController[] = []
 
 /**
  * A playlist with two segments, each holding one part with one adLib piece, plus a global adLib piece and
@@ -140,10 +140,15 @@ function createAndPopulateCache(
 	pieceLabels: { inPart0: string; inPart1: string } = { inPart0: 'B piece', inPart1: 'A piece' },
 	filterChain: AdLibFilterChain = [{ object: 'view' }]
 ): ContentCache {
-	const { cache, cancel } = createReactiveContentCache(() => {
-		// Nothing to react to: the test drives `updateTriggers` itself
-	}, 0)
-	cacheCancellations.push(cancel)
+	const lifetime = new AbortController()
+	cacheLifetimes.push(lifetime)
+	const cache = createReactiveContentCache(
+		() => {
+			// Nothing to react to: the test drives `updateTriggers` itself
+		},
+		0,
+		lifetime.signal
+	)
 
 	insertProjected<DBRundownPlaylist>(cache.RundownPlaylists, rundownPlaylistFieldSpecifier, {
 		_id: playlistId,
@@ -319,7 +324,7 @@ describe('StudioDeviceTriggerManager', () => {
 		await manager?.clearTriggers()
 		await manager?.stop()
 		manager = undefined
-		while (cacheCancellations.length) cacheCancellations.pop()?.()
+		while (cacheLifetimes.length) cacheLifetimes.pop()?.abort()
 		DeviceTriggerMountedActions.remove({})
 		DeviceTriggerMountedActionAdlibsPreview.remove({})
 	})
