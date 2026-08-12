@@ -280,6 +280,20 @@ describe('PromiseDebounce', () => {
 		expect(fn).toHaveBeenCalledTimes(0)
 	})
 
+	it('aborting the signal rejects waiters with the abort reason', async () => {
+		const fn = jest.fn()
+		const debounce = new PromiseDebounce(fn, 10, abort.signal)
+
+		const ps = debounce.call()
+		ps.catch(() => null) // Add an error handler
+
+		abort.abort(new Error('Studio went away'))
+
+		await jest.advanceTimersByTimeAsync(50)
+		expect(fn).toHaveBeenCalledTimes(0)
+		await expect(ps).rejects.toThrow('Studio went away')
+	})
+
 	it('aborting the signal discards a waiting execution', async () => {
 		const fn = jest.fn()
 		const debounce = new PromiseDebounce(fn, 10, abort.signal)
