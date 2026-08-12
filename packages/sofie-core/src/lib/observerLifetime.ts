@@ -1,7 +1,5 @@
-import type { LiveQueryHandle, LiveQueryHandleSync } from './lib'
 import { logger } from '../logging'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
-import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 /**
  * Utilities for AbortSignal based observer lifetimes.
@@ -100,75 +98,5 @@ function runIgnoringErrors(cleanup: () => void | Promise<void>): void {
 		}
 	} catch (e) {
 		logger.error(`Error during observer cleanup: ${stringifyError(e)}`)
-	}
-}
-
-/**
- * Bind already-created legacy observer handles to a signal: each handle is stopped when the signal
- * aborts, or immediately if it already has.
- *
- * @deprecated Temporary migration interop - removed in the final cleanup step, once nothing returns
- * a `LiveQueryHandle` any more. For a plain cleanup function use {@link runOnAbort}.
- */
-export function stopOnAbort(signal: AbortSignal, ...handles: Array<LiveQueryHandleSync | LiveQueryHandle>): void {
-	for (const handle of handles) {
-		runOnAbort(signal, () => handle.stop())
-	}
-}
-
-/**
- * Await a mixed array of pending/ready legacy observer handles and bind them all to `signal`.
- * If any of them fails, every handle that did start is stopped and the first failure is rethrown -
- * guaranteeing that a rejection means nothing was left running.
- *
- * This is the signal-aware successor of `waitForAllObserversReady`.
- *
- * @deprecated Temporary migration interop - removed in the final cleanup step, once observers take
- * the signal directly at creation.
- */
-export async function attachPendingHandles(
-	signal: AbortSignal,
-	handles: Array<Promise<LiveQueryHandle> | LiveQueryHandle>
-): Promise<void> {
-	const results = await Promise.allSettled(handles as Array<Promise<LiveQueryHandle>>)
-
-	const allSuccessful = results.filter((r): r is PromiseFulfilledResult<LiveQueryHandle> => r.status === 'fulfilled')
-
-	const firstFailure = results.find((r): r is PromiseRejectedResult => r.status === 'rejected')
-	if (firstFailure || allSuccessful.length !== handles.length) {
-		// There was a failure, stop all the observers that did start
-		for (const handle of allSuccessful) {
-			runIgnoringErrors(() => handle.value.stop())
-		}
-		if (firstFailure) {
-			throw firstFailure.reason
-		} else {
-			throw new SofieError(500, 'Not all observers were started')
-		}
-	}
-
-	stopOnAbort(signal, ...allSuccessful.map((r) => r.value))
-}
-
-/**
- * Wrap a signal-based observer setup as a legacy stop-handle, for places where a migrated inner
- * piece is consumed by not-yet-migrated outer code.
- *
- * @deprecated Temporary migration interop - removed in the final cleanup step.
- */
-export async function handleFromSignalSetup(
-	setup: (signal: AbortSignal) => Promise<void>
-): Promise<LiveQueryHandleSync> {
-	const abort = new AbortController()
-	try {
-		await setup(abort.signal)
-	} catch (e) {
-		abort.abort() // Ensure everything started under the signal gets terminated
-		throw e
-	}
-	return {
-		stop: () => {
-			abort.abort()
-		},
 	}
 }

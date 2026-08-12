@@ -2,12 +2,7 @@ import { resolveAdLibActionForBranding } from '@sofie-automation/corelib/dist/pl
 import { BrandingState, updateProjectedBrandingId } from '../lib/branding'
 import { RundownBaselineAdLibActionId, RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { check, zAnyArray } from '../../lib/check'
-import {
-	CustomPublishCollection,
-	SetupObserversResult,
-	TriggerUpdate,
-	setUpCollectionOptimizedObserver,
-} from '../../lib/customPublication'
+import { CustomPublishCollection, TriggerUpdate, setUpCollectionOptimizedObserver } from '../../lib/customPublication'
 import { normaliseIds } from '../lib/lib'
 import { logger } from '../../logging'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
@@ -42,7 +37,7 @@ async function setupUIRundownBaselineAdLibActionsPublicationObservers(
 	args: ReadonlyDeep<UIRundownBaselineAdLibActionsArgs>,
 	triggerUpdate: TriggerUpdate<UIRundownBaselineAdLibActionsUpdateProps>,
 	signal: AbortSignal
-): Promise<SetupObserversResult> {
+): Promise<void> {
 	logger.silly(`Creating new RundownContentObserver`)
 
 	const cache = createReactiveContentCache()

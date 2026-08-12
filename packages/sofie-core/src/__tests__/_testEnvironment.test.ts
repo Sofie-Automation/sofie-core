@@ -122,8 +122,8 @@ describe('Basic test of test environment', () => {
 		const studios = await Studios.findFetchAsync({})
 		expect(studios).toHaveLength(1)
 
-		const observer = await Studios.observeChanges({ _id: protectString('abc') }, {})
-		expect(observer).toBeTruthy()
+		const abort = new AbortController()
+		await Studios.observeChanges({ _id: protectString('abc') }, {}, { signal: abort.signal })
 
 		await Studios.insertAsync({
 			...defaultStudio(protectString('xyz')),
@@ -132,7 +132,7 @@ describe('Basic test of test environment', () => {
 		})
 		expect(await Studios.findFetchAsync({})).toHaveLength(2)
 
-		observer.stop()
+		abort.abort()
 
 		MongoMock.mockSetData(Studios, null)
 		expect(await Studios.findFetchAsync({})).toHaveLength(0)
@@ -144,6 +144,7 @@ describe('Basic test of test environment', () => {
 
 		const collection = createMockCollection<any>('testmock')
 
+		const abort = new AbortController()
 		await collection.observeChanges(
 			{
 				prop: 'b',
@@ -152,7 +153,8 @@ describe('Basic test of test environment', () => {
 				added: mockAdded,
 				changed: mockChanged,
 				removed: mockRemoved,
-			}
+			},
+			{ signal: abort.signal }
 		)
 
 		expect(await collection.findFetchAsync({})).toHaveLength(0)
@@ -186,6 +188,8 @@ describe('Basic test of test environment', () => {
 		expect(mockAdded).toHaveBeenCalledTimes(0)
 		expect(mockChanged).toHaveBeenCalledTimes(0)
 		expect(mockRemoved).toHaveBeenCalledTimes(1)
+
+		abort.abort()
 	})
 })
 

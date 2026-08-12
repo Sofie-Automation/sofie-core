@@ -4,7 +4,6 @@ import {
 	TriggerUpdate,
 	setUpCollectionOptimizedObserver,
 	CustomPublishCollection,
-	SetupObserversResult,
 } from '../../../lib/customPublication'
 import type { PublicationRegistry } from '../../../publicationRegistry'
 import { literal, omit } from '@sofie-automation/corelib/dist/lib'
@@ -74,7 +73,7 @@ async function setupExpectedPackagesPublicationObservers(
 	args: ReadonlyDeep<ExpectedPackagesPublicationArgs>,
 	triggerUpdate: TriggerUpdate<ExpectedPackagesPublicationUpdateProps>,
 	signal: AbortSignal
-): Promise<SetupObserversResult> {
+): Promise<void> {
 	const contentCache = createReactiveContentCache()
 
 	// Push update

@@ -28,7 +28,6 @@ import { literal } from '@sofie-automation/corelib/dist/lib'
 import {
 	CustomPublishCollection,
 	setUpCollectionOptimizedObserver,
-	SetupObserversResult,
 	TriggerUpdate,
 } from '../../../lib/customPublication'
 import type { PublicationRegistry } from '../../../publicationRegistry'
@@ -109,7 +108,7 @@ async function setupUIPieceContentStatusesPublicationObservers(
 	args: ReadonlyDeep<UIPieceContentStatusesArgs>,
 	triggerUpdate: TriggerUpdate<UIPieceContentStatusesUpdateProps>,
 	signal: AbortSignal
-): Promise<SetupObserversResult> {
+): Promise<void> {
 	const trackMediaObjectChange = (mediaId: string): Partial<UIPieceContentStatusesUpdateProps> => ({
 		invalidateMediaObjectMediaId: [mediaId],
 	})

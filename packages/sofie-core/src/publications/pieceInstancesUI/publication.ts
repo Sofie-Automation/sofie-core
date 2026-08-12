@@ -6,12 +6,7 @@ import {
 	RundownPlaylistActivationId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { check, zAnyArray } from '../../lib/check'
-import {
-	CustomPublishCollection,
-	SetupObserversResult,
-	TriggerUpdate,
-	setUpCollectionOptimizedObserver,
-} from '../../lib/customPublication'
+import { CustomPublishCollection, TriggerUpdate, setUpCollectionOptimizedObserver } from '../../lib/customPublication'
 import { normaliseIds } from '../lib/lib'
 import { logger } from '../../logging'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
@@ -40,7 +35,7 @@ async function setupUIPieceInstancesPublicationObservers(
 	args: ReadonlyDeep<UIPieceInstancesArgs>,
 	triggerUpdate: TriggerUpdate<UIPieceInstancesUpdateProps>,
 	signal: AbortSignal
-): Promise<SetupObserversResult> {
+): Promise<void> {
 	logger.silly(`Creating new RundownContentObserver`)
 
 	const cache = createReactiveContentCache()

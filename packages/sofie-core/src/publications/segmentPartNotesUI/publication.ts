@@ -9,12 +9,7 @@ import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { Rundown, getRundownNrcsName } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { groupByToMap, literal, normalizeArrayToMap } from '@sofie-automation/corelib/dist/lib'
-import {
-	CustomPublishCollection,
-	setUpCollectionOptimizedObserver,
-	SetupObserversResult,
-	TriggerUpdate,
-} from '../../lib/customPublication'
+import { CustomPublishCollection, setUpCollectionOptimizedObserver, TriggerUpdate } from '../../lib/customPublication'
 import { logger } from '../../logging'
 import {
 	ContentCache,
@@ -60,7 +55,7 @@ async function setupUISegmentPartNotesPublicationObservers(
 	args: ReadonlyDeep<UISegmentPartNotesArgs>,
 	triggerUpdate: TriggerUpdate<UISegmentPartNotesUpdateProps>,
 	signal: AbortSignal
-): Promise<SetupObserversResult> {
+): Promise<void> {
 	const playlist = (await RundownPlaylists.findOneAsync(args.playlistId, {
 		projection: rundownPlaylistFieldSpecifier,
 	})) as Pick<DBRundownPlaylist, RundownPlaylistFields> | undefined

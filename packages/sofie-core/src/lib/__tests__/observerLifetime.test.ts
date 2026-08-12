@@ -1,22 +1,5 @@
-import type { LiveQueryHandleSync } from '../lib'
-import {
-	createChildAbort,
-	stopOnAbort,
-	attachPendingHandles,
-	handleFromSignalSetup,
-	processLifetimeSignal,
-} from '../observerLifetime'
+import { createChildAbort, processLifetimeSignal, runOnAbort } from '../observerLifetime'
 import { getEventListeners } from 'node:events'
-
-function makeHandle(): LiveQueryHandleSync & { stopCount: number } {
-	const handle = {
-		stopCount: 0,
-		stop: () => {
-			handle.stopCount++
-		},
-	}
-	return handle
-}
 
 describe('observerLifetime', () => {
 	describe('createChildAbort', () => {
@@ -88,138 +71,53 @@ describe('observerLifetime', () => {
 		})
 	})
 
-	describe('stopOnAbort', () => {
-		test('stops handles when the signal aborts', () => {
+	describe('runOnAbort', () => {
+		test('runs the cleanup when the signal aborts', () => {
 			const abort = new AbortController()
-			const handle1 = makeHandle()
-			const handle2 = makeHandle()
+			const cleanup = jest.fn()
 
-			stopOnAbort(abort.signal, handle1, handle2)
-			expect(handle1.stopCount).toBe(0)
-			expect(handle2.stopCount).toBe(0)
+			runOnAbort(abort.signal, cleanup)
+			expect(cleanup).toHaveBeenCalledTimes(0)
 
 			abort.abort()
-			expect(handle1.stopCount).toBe(1)
-			expect(handle2.stopCount).toBe(1)
+			expect(cleanup).toHaveBeenCalledTimes(1)
 		})
 
-		test('stops handles immediately if the signal is already aborted', () => {
+		test('runs the cleanup immediately if the signal is already aborted', () => {
 			const abort = new AbortController()
 			abort.abort()
 
-			const handle = makeHandle()
-			stopOnAbort(abort.signal, handle)
-			expect(handle.stopCount).toBe(1)
+			const cleanup = jest.fn()
+			runOnAbort(abort.signal, cleanup)
+			expect(cleanup).toHaveBeenCalledTimes(1)
 		})
 
-		test('a throwing stop does not prevent other handles from stopping', () => {
+		test('a throwing cleanup does not prevent the others from running', () => {
 			const abort = new AbortController()
-			const bad: LiveQueryHandleSync = {
-				stop: () => {
-					throw new Error('stop failed')
-				},
-			}
-			const good = makeHandle()
+			const good = jest.fn()
 
-			stopOnAbort(abort.signal, bad, good)
-			abort.abort()
-			expect(good.stopCount).toBe(1)
+			runOnAbort(abort.signal, () => {
+				throw new Error('cleanup failed')
+			})
+			runOnAbort(abort.signal, good)
+
+			expect(() => abort.abort()).not.toThrow()
+			expect(good).toHaveBeenCalledTimes(1)
 		})
 
-		test('an async rejecting stop is tolerated', async () => {
+		test('an async rejecting cleanup is tolerated', async () => {
 			const abort = new AbortController()
-			let stopCalled = false
-			stopOnAbort(abort.signal, {
-				stop: async () => {
-					stopCalled = true
-					throw new Error('async stop failed')
-				},
+			let cleanupCalled = false
+
+			runOnAbort(abort.signal, async () => {
+				cleanupCalled = true
+				throw new Error('async cleanup failed')
 			})
 			abort.abort()
-			expect(stopCalled).toBe(true)
+			expect(cleanupCalled).toBe(true)
+
 			// Flush the rejection handling
 			await new Promise((resolve) => setImmediate(resolve))
-		})
-	})
-
-	describe('attachPendingHandles', () => {
-		test('binds all handles to the signal on success', async () => {
-			const abort = new AbortController()
-			const handle1 = makeHandle()
-			const handle2 = makeHandle()
-
-			await attachPendingHandles(abort.signal, [Promise.resolve(handle1), handle2])
-			expect(handle1.stopCount).toBe(0)
-			expect(handle2.stopCount).toBe(0)
-
-			abort.abort()
-			expect(handle1.stopCount).toBe(1)
-			expect(handle2.stopCount).toBe(1)
-		})
-
-		test('stops started handles and rethrows when one rejects', async () => {
-			const abort = new AbortController()
-			const handle1 = makeHandle()
-			const handle2 = makeHandle()
-			const error = new Error('setup failed')
-
-			await expect(
-				attachPendingHandles(abort.signal, [Promise.resolve(handle1), Promise.reject(error), handle2])
-			).rejects.toBe(error)
-
-			// The started handles must have been stopped, without needing the signal to abort
-			expect(handle1.stopCount).toBe(1)
-			expect(handle2.stopCount).toBe(1)
-			expect(abort.signal.aborted).toBe(false)
-		})
-
-		test('rethrows the first rejection when multiple reject', async () => {
-			const abort = new AbortController()
-			const error1 = new Error('first')
-			const error2 = new Error('second')
-
-			await expect(
-				attachPendingHandles(abort.signal, [Promise.reject(error1), Promise.reject(error2)])
-			).rejects.toBe(error1)
-		})
-
-		test('stops handles immediately if the signal is already aborted', async () => {
-			const abort = new AbortController()
-			abort.abort()
-
-			const handle = makeHandle()
-			await attachPendingHandles(abort.signal, [Promise.resolve(handle)])
-			expect(handle.stopCount).toBe(1)
-		})
-	})
-
-	describe('handleFromSignalSetup', () => {
-		test('stop aborts the setup signal', async () => {
-			let receivedSignal: AbortSignal | undefined
-			const handle = await handleFromSignalSetup(async (signal) => {
-				receivedSignal = signal
-			})
-
-			expect(receivedSignal).toBeInstanceOf(AbortSignal)
-			expect(receivedSignal?.aborted).toBe(false)
-
-			handle.stop()
-			expect(receivedSignal?.aborted).toBe(true)
-		})
-
-		test('aborts the signal and rethrows when setup fails', async () => {
-			let receivedSignal: AbortSignal | undefined
-			const error = new Error('setup failed')
-
-			await expect(
-				handleFromSignalSetup(async (signal) => {
-					receivedSignal = signal
-					throw error
-				})
-			).rejects.toBe(error)
-
-			// Anything started under the signal before the throw must have been cleaned up
-			expect(receivedSignal?.aborted).toBe(true)
 		})
 	})
 })

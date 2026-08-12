@@ -1,12 +1,7 @@
 import { z } from 'zod'
 import { PartInstanceId, RundownPlaylistActivationId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { check } from '../../lib/check'
-import {
-	CustomPublishCollection,
-	SetupObserversResult,
-	TriggerUpdate,
-	setUpCollectionOptimizedObserver,
-} from '../../lib/customPublication'
+import { CustomPublishCollection, TriggerUpdate, setUpCollectionOptimizedObserver } from '../../lib/customPublication'
 import { logger } from '../../logging'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { CustomCollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
@@ -59,7 +54,7 @@ async function setupUIPartInstancesPublicationObservers(
 	args: ReadonlyDeep<UIPartInstancesArgs>,
 	triggerUpdate: TriggerUpdate<UIPartInstancesUpdateProps>,
 	signal: AbortSignal
-): Promise<SetupObserversResult> {
+): Promise<void> {
 	const playlist = (await RundownPlaylists.findOneAsync(
 		{ activationId: args.playlistActivationId },
 		{

@@ -10,12 +10,7 @@ import {
 } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { FindOptions } from '@sofie-automation/meteor-lib/dist/collections/lib'
-import {
-	CustomPublish,
-	SetupObserversResult,
-	setUpOptimizedObserverArray,
-	TriggerUpdate,
-} from '../lib/customPublication'
+import { CustomPublish, setUpOptimizedObserverArray, TriggerUpdate } from '../lib/customPublication'
 import { getActiveRoutes } from '@sofie-automation/meteor-lib/dist/collections/Studios'
 import { fetchStudioIds, fetchStudioLight } from '../optimizations'
 import { FastTrackObservers, setupFastTrackObserver } from './fastTrack'
@@ -118,7 +113,7 @@ async function setupTimelinePublicationObservers(
 	args: ReadonlyDeep<RoutedTimelineArgs>,
 	triggerUpdate: TriggerUpdate<RoutedTimelineUpdateProps>,
 	signal: AbortSignal
-): Promise<SetupObserversResult> {
+): Promise<void> {
 	// Set up observers:
 	setupFastTrackObserver(
 		FastTrackObservers.TIMELINE,

@@ -10,7 +10,6 @@ import {
 	CustomPublish,
 	CustomPublishCollection,
 	setUpCollectionOptimizedObserver,
-	SetupObserversResult,
 	TriggerUpdate,
 } from '../lib/customPublication'
 import type { PublicationRegistry } from '../publicationRegistry'
@@ -55,24 +54,25 @@ interface ExternalEventSubscriptionsUpdateProps {
 
 async function setupExternalEventSubscriptionsObservers(
 	args: ReadonlyDeep<ExternalEventSubscriptionsArgs>,
-	triggerUpdate: TriggerUpdate<ExternalEventSubscriptionsUpdateProps>
-): Promise<SetupObserversResult> {
+	triggerUpdate: TriggerUpdate<ExternalEventSubscriptionsUpdateProps>,
+	signal: AbortSignal
+): Promise<void> {
 	const trigger = () => triggerUpdate({ invalidateAll: true })
 
-	return [
+	await Promise.all([
 		// Observe active playlists in the studio — activation/deactivation changes which rundowns are in scope
 		RundownPlaylists.observeChanges(
 			{ studioId: args.studioId },
 			{ added: trigger, changed: trigger, removed: trigger },
-			{ projection: rundownPlaylistFieldSpecifier }
+			{ projection: rundownPlaylistFieldSpecifier, signal }
 		),
 		// Observe rundowns in the studio — react only when externalEventSubscriptions or playlistId changes
 		Rundowns.observeChanges(
 			{ studioId: args.studioId },
 			{ added: trigger, changed: trigger, removed: trigger },
-			{ projection: rundownFieldSpecifier }
+			{ projection: rundownFieldSpecifier, signal }
 		),
-	]
+	])
 }
 
 async function manipulateExternalEventSubscriptionsData(

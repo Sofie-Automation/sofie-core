@@ -17,10 +17,8 @@ const REACTIVITY_DEBOUNCE = 20
 /**
  * Called whenever the set of rundowns changes, with the signal scoping whatever it starts: that signal is
  * aborted before the next invocation, and when the observer itself stops.
- *
- * Returning a cleanup function is the legacy shape, still honoured by binding it to the invocation signal.
  */
-type ChangedHandler = (rundownIds: RundownId[], invocationSignal: AbortSignal) => Promise<void | (() => void)>
+type ChangedHandler = (rundownIds: RundownId[], invocationSignal: AbortSignal) => Promise<void>
 
 /**
  * A mongo observer/query for the RundownIds in a playlist.
@@ -44,12 +42,7 @@ export class RundownsObserver {
 			const invocation = createChildAbort(this.#signal)
 			this.#invocation = invocation
 
-			const cleanup = await this.#changed(this.rundownIds, invocation.signal)
-
-			// Honour a legacy cleanup function by tying it to this invocation's scope. If the observer
-			// stopped, or another invocation superseded this one, while we were awaiting, the signal is
-			// already aborted and this runs the cleanup immediately.
-			if (cleanup) runOnAbort(invocation.signal, cleanup)
+			await this.#changed(this.rundownIds, invocation.signal)
 		} catch (e) {
 			logger.error(`Error in RundownsObserver triggerUpdateRundownContent: ${stringifyError(e)}`)
 		}

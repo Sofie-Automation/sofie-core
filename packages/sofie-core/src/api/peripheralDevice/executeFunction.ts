@@ -1,6 +1,6 @@
 import { PeripheralDeviceCommandId, PeripheralDeviceId } from '@sofie-automation/shared-lib/dist/core/model/Ids'
 import { getRandomId } from '@sofie-automation/corelib/dist/lib'
-import { getCurrentTime, LiveQueryHandleSync } from '../../lib/lib'
+import { getCurrentTime } from '../../lib/lib'
 import { PeripheralDeviceCommands } from '../../collections'
 import { logger } from '../../logging'
 import { TSR } from '@sofie-automation/blueprints-integration'
@@ -40,7 +40,8 @@ export async function executePeripheralDeviceFunctionWithCustomTimeout(
 
 	// logger.debug('command created: ' + functionName)
 
-	let observer: LiveQueryHandleSync | null = null
+	/** The lifetime of the observer watching for the reply. Aborted once we are done waiting for it */
+	const observerAbort = new AbortController()
 	let timeoutCheck: NodeJS.Timeout | undefined
 
 	let completed = false
@@ -69,7 +70,7 @@ export async function executePeripheralDeviceFunctionWithCustomTimeout(
 						timeoutCheck = undefined
 					}
 
-					observer?.stop()
+					observerAbort.abort()
 					PeripheralDeviceCommands.removeAsync(cmdId).catch((e) => {
 						logger.error(
 							`Cleanup PeripheralDeviceCommand "${commandId}" document failed: ${stringifyError(e)}`
@@ -125,14 +126,15 @@ export async function executePeripheralDeviceFunctionWithCustomTimeout(
 		})
 	}
 
-	observer = await PeripheralDeviceCommands.observeChanges(
+	await PeripheralDeviceCommands.observeChanges(
 		{
 			_id: commandId,
 		},
 		{
 			added: doCheckReply,
 			changed: doCheckReply,
-		}
+		},
+		{ signal: observerAbort.signal }
 	)
 	timeoutCheck = setTimeout(doCheckReply, timeoutTime)
 
@@ -145,7 +147,7 @@ export async function executePeripheralDeviceFunctionWithCustomTimeout(
 			hasReply: false,
 		})
 	} catch (e) {
-		observer.stop()
+		observerAbort.abort()
 		throw e
 	}
 

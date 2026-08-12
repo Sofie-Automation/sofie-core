@@ -9,9 +9,8 @@ import {
 import { PromisifyCallbacks } from '@sofie-automation/shared-lib/dist/lib/types'
 import { observeChangesViaChangeStream, observeViaChangeStream, ObserveMultiplexerDeps } from './observeMultiplexer'
 import type { ObserveViewShape } from '@sofie-automation/corelib/dist/memoryCollection/observeView'
-import { hasSignal, type MinimalMongoCursor, type WithSignal } from '../collection'
-import type { LiveQueryHandleSync } from '../../lib/lib'
-import { handleFromSignalSetup, startObserveOnSignal } from '../../lib/observerLifetime'
+import { type MinimalMongoCursor, type WithSignal } from '../collection'
+import { startObserveOnSignal } from '../../lib/observerLifetime'
 
 export interface ChangeStreamCursorConfig<TDoc extends { _id: ProtectedString<any> }> {
 	collectionName: string
@@ -41,16 +40,8 @@ export class ChangeStreamCursor<TDoc extends { _id: ProtectedString<any> }> impl
 	async observeChangesAsync(
 		callbacks: PromisifyCallbacks<ObserveChangesCallbacks<TDoc>>,
 		options: ObserveChangesOptions & WithSignal
-	): Promise<void>
-	async observeChangesAsync(
-		callbacks: PromisifyCallbacks<ObserveChangesCallbacks<TDoc>>,
-		options?: ObserveChangesOptions
-	): Promise<LiveQueryHandleSync>
-	async observeChangesAsync(
-		callbacks: PromisifyCallbacks<ObserveChangesCallbacks<TDoc>>,
-		options?: ObserveChangesOptions
-	): Promise<LiveQueryHandleSync | void> {
-		const startObserve = async (signal: AbortSignal) =>
+	): Promise<void> {
+		return startObserveOnSignal(options.signal, async (signal) =>
 			observeChangesViaChangeStream(
 				this.#config.collectionName,
 				this.#config.selector,
@@ -58,21 +49,14 @@ export class ChangeStreamCursor<TDoc extends { _id: ProtectedString<any> }> impl
 				this.#config.shape,
 				callbacks,
 				signal,
-				!!options?.nonMutatingCallbacks,
+				!!options.nonMutatingCallbacks,
 				this.#config.makeDeps
 			)
-
-		if (hasSignal(options)) return startObserveOnSignal(options.signal, startObserve)
-		return handleFromSignalSetup(startObserve)
+		)
 	}
 
-	async observeAsync(callbacks: PromisifyCallbacks<ObserveCallbacks<TDoc>>, options: WithSignal): Promise<void>
-	async observeAsync(callbacks: PromisifyCallbacks<ObserveCallbacks<TDoc>>): Promise<LiveQueryHandleSync>
-	async observeAsync(
-		callbacks: PromisifyCallbacks<ObserveCallbacks<TDoc>>,
-		options?: WithSignal
-	): Promise<LiveQueryHandleSync | void> {
-		const startObserve = async (signal: AbortSignal) =>
+	async observeAsync(callbacks: PromisifyCallbacks<ObserveCallbacks<TDoc>>, options: WithSignal): Promise<void> {
+		return startObserveOnSignal(options.signal, async (signal) =>
 			observeViaChangeStream(
 				this.#config.collectionName,
 				this.#config.selector,
@@ -83,8 +67,6 @@ export class ChangeStreamCursor<TDoc extends { _id: ProtectedString<any> }> impl
 				false,
 				this.#config.makeDeps
 			)
-
-		if (hasSignal(options)) return startObserveOnSignal(options.signal, startObserve)
-		return handleFromSignalSetup(startObserve)
+		)
 	}
 }

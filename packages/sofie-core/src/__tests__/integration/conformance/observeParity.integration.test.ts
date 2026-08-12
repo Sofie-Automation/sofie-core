@@ -61,7 +61,8 @@ async function runMock(script: Script): Promise<Sink> {
 	col.asyncBulkWriteDelay = 0
 	col.mockCollection.mockSetData(script.seed) // seed without firing observe events
 	const sink = newSink()
-	const handle = await col.observeChanges(
+	const abort = new AbortController()
+	await col.observeChanges(
 		script.selector,
 		{
 			added: (i, f) => {
@@ -74,7 +75,7 @@ async function runMock(script: Script): Promise<Sink> {
 				sink.removed.push(i)
 			},
 		},
-		script.projection ? { projection: script.projection } : undefined
+		{ ...(script.projection ? { projection: script.projection } : {}), signal: abort.signal }
 	)
 	try {
 		for (const step of script.steps) {
@@ -87,7 +88,7 @@ async function runMock(script: Script): Promise<Sink> {
 		return sink
 	} finally {
 		// Always stop the observer, even if a step or the wait throws, so callbacks don't leak into later tests.
-		handle.stop()
+		abort.abort()
 	}
 }
 
@@ -183,7 +184,8 @@ describe('observeChanges parity: mock vs real change stream', () => {
 		const col = createMockCollection<TestDoc>('obs_mock_full')
 		col.mockCollection.mockSetData([{ _id: id('A'), val: 1 }])
 		const mockEvents: any[] = []
-		const mockHandle = await col.observe(
+		const mockAbort = new AbortController()
+		await col.observe(
 			{},
 			{
 				added: (d) => {
@@ -195,7 +197,8 @@ describe('observeChanges parity: mock vs real change stream', () => {
 				removed: (d) => {
 					mockEvents.push(['removed', d])
 				},
-			}
+			},
+			{ signal: mockAbort.signal }
 		)
 		try {
 			await col.updateAsync({ _id: id('A') }, { $set: { val: 2 } })
@@ -203,7 +206,7 @@ describe('observeChanges parity: mock vs real change stream', () => {
 			await waitFor(() => mockEvents.length === 3)
 		} finally {
 			// Always stop the mock observer, even if a write or the wait throws, so it doesn't leak into later tests.
-			mockHandle.stop()
+			mockAbort.abort()
 		}
 
 		// Real side

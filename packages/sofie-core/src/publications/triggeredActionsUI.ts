@@ -8,12 +8,7 @@ import {
 	UITriggeredActionsObj,
 } from '@sofie-automation/meteor-lib/dist/collections/TriggeredActions'
 import { Complete, literal } from '@sofie-automation/corelib/dist/lib'
-import {
-	CustomPublishCollection,
-	setUpCollectionOptimizedObserver,
-	SetupObserversResult,
-	TriggerUpdate,
-} from '../lib/customPublication'
+import { CustomPublishCollection, setUpCollectionOptimizedObserver, TriggerUpdate } from '../lib/customPublication'
 import { TriggeredActions } from '../collections'
 import { check } from '../lib/check'
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
@@ -61,20 +56,25 @@ function convertDocument(doc: DBTriggeredActions): UITriggeredActionsObj {
 
 async function setupUITriggeredActionsPublicationObservers(
 	args: ReadonlyDeep<UITriggeredActionsArgs>,
-	triggerUpdate: TriggerUpdate<UITriggeredActionsUpdateProps>
-): Promise<SetupObserversResult> {
+	triggerUpdate: TriggerUpdate<UITriggeredActionsUpdateProps>,
+	signal: AbortSignal
+): Promise<void> {
 	const trackChange = (id: TriggeredActionId): Partial<UITriggeredActionsUpdateProps> => ({
 		invalidateTriggeredActions: [id],
 	})
 
 	// Set up observers:
-	return [
-		TriggeredActions.observeChanges(compileMongoSelector(args.showStyleBaseId), {
-			added: (id) => triggerUpdate(trackChange(id)),
-			changed: (id) => triggerUpdate(trackChange(id)),
-			removed: (id) => triggerUpdate(trackChange(id)),
-		}),
-	]
+	await Promise.all([
+		TriggeredActions.observeChanges(
+			compileMongoSelector(args.showStyleBaseId),
+			{
+				added: (id) => triggerUpdate(trackChange(id)),
+				changed: (id) => triggerUpdate(trackChange(id)),
+				removed: (id) => triggerUpdate(trackChange(id)),
+			},
+			{ signal }
+		),
+	])
 }
 async function manipulateUITriggeredActionsPublicationData(
 	args: UITriggeredActionsArgs,

@@ -3,12 +3,7 @@ import { BrandingState, updateProjectedBrandingId } from '../lib/branding'
 import { z } from 'zod'
 import { PartId, RundownPlaylistId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { check } from '../../lib/check'
-import {
-	CustomPublishCollection,
-	SetupObserversResult,
-	TriggerUpdate,
-	setUpCollectionOptimizedObserver,
-} from '../../lib/customPublication'
+import { CustomPublishCollection, TriggerUpdate, setUpCollectionOptimizedObserver } from '../../lib/customPublication'
 import { logger } from '../../logging'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { CustomCollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
@@ -57,7 +52,7 @@ async function setupUIPartsPublicationObservers(
 	args: ReadonlyDeep<UIPartsArgs>,
 	triggerUpdate: TriggerUpdate<UIPartsUpdateProps>,
 	signal: AbortSignal
-): Promise<SetupObserversResult> {
+): Promise<void> {
 	const playlist = (await RundownPlaylists.findOneAsync(args.playlistId, {
 		projection: rundownPlaylistFieldSpecifier,
 	})) as Pick<DBRundownPlaylist, RundownPlaylistFields> | undefined

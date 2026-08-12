@@ -5,8 +5,8 @@ import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { profiler } from '../../api/profiler'
 import { logger } from '../../logging'
-import { LiveQueryHandle, lazyIgnore } from '../lib'
-import { attachPendingHandles, runOnAbort } from '../observerLifetime'
+import { lazyIgnore } from '../lib'
+import { runOnAbort } from '../observerLifetime'
 import { CustomPublish, CustomPublishChanges } from './publish'
 import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
@@ -43,21 +43,13 @@ const optimizedObservers: Record<string, OptimizedObserverWrapper<any, unknown, 
 
 export type TriggerUpdate<UpdateProps extends Record<string, any>> = (updateProps: Partial<UpdateProps>) => void
 
-/**
- * What `setupObservers` returns.
- *
- * Observers should be started on the AbortSignal it is given, in which case there is nothing to
- * return. The array form is the legacy shape, for observers that still produce stop-handles.
- */
-export type SetupObserversResult = Array<Promise<LiveQueryHandle> | LiveQueryHandle> | void
-
 export type SetupObservers<Args, UpdateProps extends Record<string, any>> = (
 	args: ReadonlyDeep<Args>,
 	/** Trigger an update by mutating the context of manipulateData */
 	triggerUpdate: TriggerUpdate<UpdateProps>,
 	/** The lifetime of this observer. Aborted when the publication is no longer needed, or if setup fails. */
 	signal: AbortSignal
-) => Promise<SetupObserversResult>
+) => Promise<void>
 
 /**
  * This should not be used directly, and should be used through one of the setUpOptimizedObserverArray or setUpCollectionOptimizedObserver wrappers
@@ -338,8 +330,7 @@ async function createOptimizedObserverWorker<
 
 	try {
 		// Setup the mongo observers
-		const legacyHandles = await setupObservers(args, triggerUpdate, workerAbort.signal)
-		if (legacyHandles) await attachPendingHandles(workerAbort.signal, legacyHandles)
+		await setupObservers(args, triggerUpdate, workerAbort.signal)
 
 		thisObserverWorker = {
 			args: args,

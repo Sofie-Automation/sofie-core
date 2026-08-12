@@ -8,6 +8,7 @@ import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyE
 import { logger } from '../logging'
 import { AsyncOnlyMongoCollection, AsyncOnlyReadOnlyMongoCollection } from './collection'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
+import { processLifetimeSignal } from '../lib/observerLifetime'
 
 const ObserveChangeBufferTimeout = 2000
 
@@ -95,7 +96,8 @@ export async function ObserveChangesHelper<DBInterface extends { _id: ProtectedS
 				}
 			},
 		},
-		{ projection }
+		// These observers are started during startup and run for the lifetime of the process
+		{ projection, signal: processLifetimeSignal }
 	)
 
 	if (!skipEnsureUpdatedOnStart) {

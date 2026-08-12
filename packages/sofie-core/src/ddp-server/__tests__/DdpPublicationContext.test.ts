@@ -1,4 +1,5 @@
 import { DdpPublicationContext, SessionPublicationApi } from '../DdpPublicationContext'
+import { runOnAbort } from '../../lib/observerLifetime'
 
 function fakeSession() {
 	const calls: any[][] = []
@@ -51,16 +52,20 @@ describe('DdpPublicationContext', () => {
 		expect(calls.filter((c) => c[0] === 'ready')).toEqual([['ready', 's1']])
 	})
 
-	test('onStop callbacks run in order on stop, and a throwing one does not block the others', () => {
+	test('signal cleanups run in order on stop, and a throwing one does not block the others', () => {
 		const { api } = fakeSession()
 		const ctx = new DdpPublicationContext(api, 's1', 'N-s1', 'pub')
 		const order: number[] = []
-		ctx.onStop(() => order.push(1))
-		ctx.onStop(() => {
+		runOnAbort(ctx.signal, () => {
+			order.push(1)
+		})
+		runOnAbort(ctx.signal, () => {
 			order.push(2)
 			throw new Error('boom')
 		})
-		ctx.onStop(() => order.push(3))
+		runOnAbort(ctx.signal, () => {
+			order.push(3)
+		})
 
 		expect(() => ctx.stop()).not.toThrow()
 		expect(order).toEqual([1, 2, 3])
@@ -70,21 +75,20 @@ describe('DdpPublicationContext', () => {
 		const { api } = fakeSession()
 		const ctx = new DdpPublicationContext(api, 's1', 'N-s1', 'pub')
 		const cb = jest.fn()
-		ctx.onStop(cb)
+		runOnAbort(ctx.signal, cb)
 		ctx.stop()
 		ctx.stop()
 		expect(cb).toHaveBeenCalledTimes(1)
 	})
 
-	test('an onStop registered after stop fires on the next microtask', async () => {
+	test('a cleanup registered after stop runs immediately', () => {
 		const { api } = fakeSession()
 		const ctx = new DdpPublicationContext(api, 's1', 'N-s1', 'pub')
 		ctx.stop()
 
+		// The signal is already aborted, so runOnAbort runs the cleanup synchronously
 		const cb = jest.fn()
-		ctx.onStop(cb)
-		expect(cb).not.toHaveBeenCalled()
-		await Promise.resolve()
+		runOnAbort(ctx.signal, cb)
 		expect(cb).toHaveBeenCalledTimes(1)
 	})
 
