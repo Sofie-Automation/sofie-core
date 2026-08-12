@@ -50,17 +50,19 @@ const rundownPlaylistFieldSpecifier = literal<
 
 async function setupUIPartsPublicationObservers(
 	args: ReadonlyDeep<UIPartsArgs>,
-	triggerUpdate: TriggerUpdate<UIPartsUpdateProps>
+	triggerUpdate: TriggerUpdate<UIPartsUpdateProps>,
+	signal: AbortSignal
 ): Promise<SetupObserversResult> {
 	const playlist = (await RundownPlaylists.findOneAsync(args.playlistId, {
 		projection: rundownPlaylistFieldSpecifier,
 	})) as Pick<DBRundownPlaylist, RundownPlaylistFields> | undefined
 	if (!playlist) throw new Error(`RundownPlaylist "${args.playlistId}" not found!`)
 
-	const rundownsObserver = await RundownsObserver.createForPlaylist(
+	await RundownsObserver.createForPlaylist(
 		playlist.studioId,
 		playlist._id,
-		async (rundownIds) => {
+		signal,
+		async (rundownIds, invocationSignal) => {
 			logger.silly(`Creating new RundownContentObserver`)
 
 			const cache = createReactiveContentCache()
@@ -68,15 +70,19 @@ async function setupUIPartsPublicationObservers(
 			// Push update
 			triggerUpdate({ newCache: cache })
 
-			const obs1 = await RundownContentObserver.create(playlist.studioId, playlist._id, rundownIds, cache)
+			await RundownContentObserver.create(playlist.studioId, playlist._id, rundownIds, cache, invocationSignal)
 
-			const innerQueries = [
-				cache.Segments.observeChanges({
+			cache.Segments.observeChanges(
+				{
 					added: (id) => triggerUpdate({ invalidateSegmentIds: [id] }),
 					changed: (id) => triggerUpdate({ invalidateSegmentIds: [id] }),
 					removed: (id) => triggerUpdate({ invalidateSegmentIds: [id] }),
-				}),
-				cache.Parts.observe({
+				},
+				undefined,
+				{ signal: invocationSignal }
+			)
+			cache.Parts.observe(
+				{
 					added: (doc) => triggerUpdate({ invalidatePartIds: [doc._id] }),
 					changed: (doc, oldDoc) => {
 						if (doc._rank !== oldDoc._rank) {
@@ -88,31 +94,30 @@ async function setupUIPartsPublicationObservers(
 						}
 					},
 					removed: (doc) => triggerUpdate({ invalidatePartIds: [doc._id] }),
-				}),
-				cache.RundownPlaylists.observeChanges({
+				},
+				undefined,
+				{ signal: invocationSignal }
+			)
+			cache.RundownPlaylists.observeChanges(
+				{
 					added: () => triggerUpdate({ invalidateQuickLoop: true }),
 					changed: () => triggerUpdate({ invalidateQuickLoop: true }),
 					removed: () => triggerUpdate({ invalidateQuickLoop: true }),
-				}),
-				cache.StudioSettings.observeChanges({
+				},
+				undefined,
+				{ signal: invocationSignal }
+			)
+			cache.StudioSettings.observeChanges(
+				{
 					added: () => triggerUpdate({ invalidateQuickLoop: true }),
 					changed: () => triggerUpdate({ invalidateQuickLoop: true }),
 					removed: () => triggerUpdate({ invalidateQuickLoop: true }),
-				}),
-			]
-
-			return () => {
-				obs1.dispose()
-
-				for (const query of innerQueries) {
-					query.stop()
-				}
-			}
+				},
+				undefined,
+				{ signal: invocationSignal }
+			)
 		}
 	)
-
-	// Set up observers:
-	return [rundownsObserver]
 }
 
 export async function manipulateUIPartsPublicationData(

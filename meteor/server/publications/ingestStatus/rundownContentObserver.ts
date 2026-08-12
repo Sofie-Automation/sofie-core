@@ -10,61 +10,61 @@ import {
 	// segmentFieldSpecifier,
 } from './reactiveContentCache'
 import { NrcsIngestDataCache, PartInstances, Parts, RundownPlaylists, Rundowns } from '../../collections'
-import { waitForAllObserversReady } from '../lib/lib'
 import _ from 'underscore'
-import { ReactiveMongoObserverGroup, ReactiveMongoObserverGroupHandle } from '../lib/observerGroup'
+import { reactiveObserverGroup, ReactiveObserverGroup } from '../lib/observerGroup'
 import { equivalentArrays } from '@sofie-automation/shared-lib/dist/lib/lib'
-import type { LiveQueryHandleSync } from '../../lib/lib'
 
 const REACTIVITY_DEBOUNCE = 20
 
 export class RundownContentObserver {
-	#observers: LiveQueryHandleSync[] = []
 	readonly #cache: ContentCache
+	readonly #signal: AbortSignal
 
 	#playlistIds: RundownPlaylistId[] = []
-	#playlistIdObserver!: ReactiveMongoObserverGroupHandle
+	#playlistIdObserver!: ReactiveObserverGroup
 
-	#disposed = false
-
-	private constructor(cache: ContentCache) {
+	private constructor(cache: ContentCache, signal: AbortSignal) {
 		this.#cache = cache
+		this.#signal = signal
 	}
 
-	static async create(rundownIds: RundownId[], cache: ContentCache): Promise<RundownContentObserver> {
+	static async create(
+		rundownIds: RundownId[],
+		cache: ContentCache,
+		signal: AbortSignal
+	): Promise<RundownContentObserver> {
 		logger.silly(`Creating RundownContentObserver for rundowns "${rundownIds.join(',')}"`)
 
-		const observer = new RundownContentObserver(cache)
+		const observer = new RundownContentObserver(cache, signal)
 
-		observer.#playlistIdObserver = await ReactiveMongoObserverGroup(async () => {
+		observer.#playlistIdObserver = await reactiveObserverGroup(signal, async (generationSignal) => {
 			// Clear already cached data
 			cache.Playlists.remove({})
 
-			return [
-				RundownPlaylists.observe(
-					{
-						// We can use the `this.#playlistIds` here, as this is restarted every time that property changes
-						_id: { $in: observer.#playlistIds },
+			await RundownPlaylists.observe(
+				{
+					// We can use the `this.#playlistIds` here, as this is restarted every time that property changes
+					_id: { $in: observer.#playlistIds },
+				},
+				{
+					added: (doc) => {
+						cache.Playlists.replace(doc)
 					},
-					{
-						added: (doc) => {
-							cache.Playlists.replace(doc)
-						},
-						changed: (doc) => {
-							cache.Playlists.replace(doc)
-						},
-						removed: (doc) => {
-							cache.Playlists.remove(doc._id)
-						},
+					changed: (doc) => {
+						cache.Playlists.replace(doc)
 					},
-					{
-						projection: playlistFieldSpecifier,
-					}
-				),
-			]
+					removed: (doc) => {
+						cache.Playlists.remove(doc._id)
+					},
+				},
+				{
+					projection: playlistFieldSpecifier,
+					signal: generationSignal,
+				}
+			)
 		})
 
-		observer.#observers = await waitForAllObserversReady([
+		await Promise.all([
 			Rundowns.observeChanges(
 				{
 					_id: {
@@ -75,6 +75,7 @@ export class RundownContentObserver {
 				{
 					projection: rundownFieldSpecifier,
 					nonMutatingCallbacks: true,
+					signal,
 				}
 			),
 			Parts.observeChanges(
@@ -87,6 +88,7 @@ export class RundownContentObserver {
 				{
 					projection: partFieldSpecifier,
 					nonMutatingCallbacks: true,
+					signal,
 				}
 			),
 			PartInstances.observeChanges(
@@ -99,6 +101,7 @@ export class RundownContentObserver {
 				{
 					projection: partInstanceFieldSpecifier,
 					nonMutatingCallbacks: true,
+					signal,
 				}
 			),
 			NrcsIngestDataCache.observeChanges(
@@ -111,17 +114,16 @@ export class RundownContentObserver {
 				{
 					projection: nrcsIngestDataCacheObjSpecifier,
 					nonMutatingCallbacks: true,
+					signal,
 				}
 			),
-
-			observer.#playlistIdObserver,
 		])
 
 		return observer
 	}
 
 	public checkPlaylistIds = _.debounce(() => {
-		if (this.#disposed) return
+		if (this.#signal.aborted) return
 
 		const playlistIds = Array.from(new Set(this.#cache.Rundowns.findFetch({}).map((rundown) => rundown.playlistId)))
 
@@ -134,11 +136,5 @@ export class RundownContentObserver {
 
 	public get cache(): ContentCache {
 		return this.#cache
-	}
-
-	public dispose = (): void => {
-		this.#disposed = true
-
-		this.#observers.forEach((observer) => observer.stop())
 	}
 }

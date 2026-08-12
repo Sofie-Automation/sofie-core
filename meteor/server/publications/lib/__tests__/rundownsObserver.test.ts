@@ -30,7 +30,8 @@ describe('RundownsObserver', () => {
 		// should not be any observers yet
 		expect(RundownsMock.observers).toHaveLength(0)
 
-		const observer = await RundownsObserver.createForPlaylist(studioId, playlistId, onChanged)
+		const abort = new AbortController()
+		await RundownsObserver.createForPlaylist(studioId, playlistId, abort.signal, onChanged)
 		try {
 			// should now be an observer
 			expect(RundownsMock.observers).toHaveLength(1)
@@ -64,7 +65,7 @@ describe('RundownsObserver', () => {
 			})
 		} finally {
 			// Make sure to cleanup
-			observer.stop()
+			abort.abort()
 
 			// Check it stopped
 			expect(onChanged).toHaveBeenCalledTimes(1)
@@ -83,7 +84,8 @@ describe('RundownsObserver', () => {
 		// should not be any observers yet
 		expect(RundownsMock.observers).toHaveLength(0)
 
-		const observer = await RundownsObserver.createForPlaylist(studioId, playlistId, onChanged)
+		const abort = new AbortController()
+		const observer = await RundownsObserver.createForPlaylist(studioId, playlistId, abort.signal, onChanged)
 		try {
 			// ensure starts correct
 			await waitUntil(async () => {
@@ -92,7 +94,7 @@ describe('RundownsObserver', () => {
 				expect(onChanged).toHaveBeenCalledTimes(1)
 			}, MAX_WAIT_TIME)
 
-			expect(onChanged).toHaveBeenLastCalledWith([])
+			expect(onChanged).toHaveBeenLastCalledWith([], expect.any(AbortSignal))
 			expect(onChangedCleanup).toHaveBeenCalledTimes(0)
 			expect(observer.rundownIds).toEqual([])
 
@@ -120,10 +122,10 @@ describe('RundownsObserver', () => {
 				expect(onChanged).toHaveBeenCalledTimes(2)
 			}, MAX_WAIT_TIME)
 			expect(onChangedCleanup).toHaveBeenCalledTimes(1)
-			expect(onChanged).toHaveBeenLastCalledWith([mockId0])
+			expect(onChanged).toHaveBeenLastCalledWith([mockId0], expect.any(AbortSignal))
 		} finally {
 			// Make sure to cleanup
-			observer.stop()
+			abort.abort()
 		}
 	})
 
@@ -137,7 +139,8 @@ describe('RundownsObserver', () => {
 		// should not be any observers yet
 		expect(RundownsMock.observers).toHaveLength(0)
 
-		const observer = await RundownsObserver.createForPlaylist(studioId, playlistId, onChanged)
+		const abort = new AbortController()
+		const observer = await RundownsObserver.createForPlaylist(studioId, playlistId, abort.signal, onChanged)
 		try {
 			// ensure starts correct
 			// ensure starts correct
@@ -146,7 +149,7 @@ describe('RundownsObserver', () => {
 				await runAllTimers()
 				expect(onChanged).toHaveBeenCalledTimes(1)
 			}, MAX_WAIT_TIME)
-			expect(onChanged).toHaveBeenLastCalledWith([])
+			expect(onChanged).toHaveBeenLastCalledWith([], expect.any(AbortSignal))
 			expect(onChangedCleanup).toHaveBeenCalledTimes(0)
 			expect(observer.rundownIds).toEqual([])
 
@@ -174,10 +177,10 @@ describe('RundownsObserver', () => {
 				expect(onChanged).toHaveBeenCalledTimes(2)
 			}, MAX_WAIT_TIME)
 			expect(onChangedCleanup).toHaveBeenCalledTimes(1)
-			expect(onChanged).toHaveBeenLastCalledWith([mockId0])
+			expect(onChanged).toHaveBeenLastCalledWith([mockId0], expect.any(AbortSignal))
 		} finally {
 			// Make sure to cleanup
-			observer.stop()
+			abort.abort()
 		}
 	})
 
@@ -191,7 +194,8 @@ describe('RundownsObserver', () => {
 		// should not be any observers yet
 		expect(RundownsMock.observers).toHaveLength(0)
 
-		const observer = await RundownsObserver.createForPlaylist(studioId, playlistId, onChanged)
+		const abort = new AbortController()
+		const observer = await RundownsObserver.createForPlaylist(studioId, playlistId, abort.signal, onChanged)
 		try {
 			// ensure starts correct
 			// ensure starts correct
@@ -200,7 +204,7 @@ describe('RundownsObserver', () => {
 				await runAllTimers()
 				expect(onChanged).toHaveBeenCalledTimes(1)
 			}, MAX_WAIT_TIME)
-			expect(onChanged).toHaveBeenLastCalledWith([])
+			expect(onChanged).toHaveBeenLastCalledWith([], expect.any(AbortSignal))
 			expect(onChangedCleanup).toHaveBeenCalledTimes(0)
 			expect(observer.rundownIds).toEqual([])
 
@@ -234,7 +238,7 @@ describe('RundownsObserver', () => {
 				expect(onChanged).toHaveBeenCalledTimes(2)
 			}, MAX_WAIT_TIME)
 			expect(onChangedCleanup).toHaveBeenCalledTimes(1)
-			expect(onChanged).toHaveBeenLastCalledWith([mockId0, mockId1, mockId2, mockId3])
+			expect(onChanged).toHaveBeenLastCalledWith([mockId0, mockId1, mockId2, mockId3], expect.any(AbortSignal))
 
 			// more documents changing
 			const mockId4 = protectString<RundownId>('ro4')
@@ -262,10 +266,10 @@ describe('RundownsObserver', () => {
 				expect(onChanged).toHaveBeenCalledTimes(3)
 			}, MAX_WAIT_TIME)
 			expect(onChangedCleanup).toHaveBeenCalledTimes(2)
-			expect(onChanged).toHaveBeenLastCalledWith([mockId0, mockId1, mockId3, mockId4])
+			expect(onChanged).toHaveBeenLastCalledWith([mockId0, mockId1, mockId3, mockId4], expect.any(AbortSignal))
 		} finally {
 			// Make sure to cleanup
-			observer.stop()
+			abort.abort()
 		}
 	})
 
@@ -278,7 +282,8 @@ describe('RundownsObserver', () => {
 		// should not be any observers yet
 		expect(RundownsMock.observers).toHaveLength(0)
 
-		const observer = await RundownsObserver.createForPeripheralDevice(deviceId, onChanged)
+		const abort = new AbortController()
+		await RundownsObserver.createForPeripheralDevice(deviceId, abort.signal, onChanged)
 		try {
 			// should now be an observer
 			expect(RundownsMock.observers).toHaveLength(1)
@@ -312,7 +317,7 @@ describe('RundownsObserver', () => {
 			})
 		} finally {
 			// Make sure to cleanup
-			observer.stop()
+			abort.abort()
 
 			// Check it stopped
 			expect(onChanged).toHaveBeenCalledTimes(1)

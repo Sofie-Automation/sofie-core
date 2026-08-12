@@ -57,20 +57,28 @@ describe('observerLifetime', () => {
 			expect(parent.signal.aborted).toBe(false)
 		})
 
-		test('parent listener self-removes when the child aborts first', () => {
+		test('many sequential children do not accumulate listeners on the parent', () => {
 			const parent = new AbortController()
 
 			const before = getEventListeners(parent.signal, 'abort').length
-			const children: AbortController[] = []
-			for (let i = 0; i < 100; i++) {
-				children.push(createChildAbort(parent.signal))
+			for (let i = 0; i < 1000; i++) {
+				createChildAbort(parent.signal).abort()
 			}
-			expect(getEventListeners(parent.signal, 'abort').length).toBe(before + 100)
+
+			// Composition via AbortSignal.any does not register user-visible listeners on the parent,
+			// and dropped children are not pinned to it
+			expect(getEventListeners(parent.signal, 'abort').length).toBe(before)
+		})
+
+		test('aborting the parent still ends children created earlier', () => {
+			const parent = new AbortController()
+			const children = Array.from({ length: 100 }, () => createChildAbort(parent.signal))
+
+			parent.abort()
 
 			for (const child of children) {
-				child.abort()
+				expect(child.signal.aborted).toBe(true)
 			}
-			expect(getEventListeners(parent.signal, 'abort').length).toBe(before)
 		})
 	})
 

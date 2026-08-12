@@ -5,6 +5,7 @@ import {
 } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
 import { parseVersion } from '../systemStatus/semverUtils'
 import { getCurrentTime } from '../lib/lib'
+import { processLifetimeSignal } from '../lib/observerLifetime'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import {
 	DEFAULT_MAXIMUM_DATA_AGE,
@@ -164,11 +165,15 @@ export function updateLoggerLevel(coreSystem: ICoreSystem, startup: boolean): vo
 
 export async function setupSystemStatusObservers(): Promise<void> {
 	// Monitor database changes:
-	await CoreSystem.observe(SYSTEM_ID, {
-		added: onCoreSystemChanged,
-		changed: onCoreSystemChanged,
-		removed: onCoreSystemChanged,
-	})
+	await CoreSystem.observe(
+		SYSTEM_ID,
+		{
+			added: onCoreSystemChanged,
+			changed: onCoreSystemChanged,
+			removed: onCoreSystemChanged,
+		},
+		{ signal: processLifetimeSignal }
+	)
 
 	const observeBlueprintChanges = () => {
 		checkDatabaseVersions()
@@ -181,7 +186,7 @@ export async function setupSystemStatusObservers(): Promise<void> {
 			changed: observeBlueprintChanges,
 			removed: observeBlueprintChanges,
 		},
-		{ projection: { code: 0 } }
+		{ projection: { code: 0 }, signal: processLifetimeSignal }
 	)
 
 	checkDatabaseVersions()

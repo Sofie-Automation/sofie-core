@@ -18,10 +18,9 @@ let capturedRundownContentOnChanged: OnChangedRundown | undefined
 let capturedPieceInstancesOnChanged: OnChangedPieceInstances | undefined
 
 jest.mock('../../../publications/lib/observerChain', () => {
-	const fakeHandle = { stop: jest.fn() }
 	const chain: any = {
 		next: jest.fn(() => chain),
-		end: jest.fn(() => fakeHandle),
+		end: jest.fn(() => undefined),
 	}
 	return {
 		observerChain: jest.fn(() => chain),
@@ -32,10 +31,14 @@ jest.mock('../RundownsObserver', () => {
 	return {
 		RundownsObserver: {
 			create: jest.fn(
-				async (_playlistId: RundownPlaylistId, onChanged: (ids: RundownId[]) => Promise<() => void>) => {
+				async (
+					_playlistId: RundownPlaylistId,
+					signal: AbortSignal,
+					onChanged: (ids: RundownId[], invocationSignal: AbortSignal) => Promise<void>
+				) => {
 					// Immediately drive the callback once, to emulate initial observer execution
-					await onChanged([protectString<RundownId>('r0')])
-					return { stop: jest.fn() }
+					await onChanged([protectString<RundownId>('r0')], signal)
+					return {}
 				}
 			),
 		},
@@ -50,10 +53,11 @@ jest.mock('../RundownContentObserver', () => {
 					_playlistId: RundownPlaylistId,
 					_showStyleBaseId: ShowStyleBaseId,
 					_rundownIds: RundownId[],
-					onChanged: OnChangedRundown
+					onChanged: OnChangedRundown,
+					_signal: AbortSignal
 				) => {
 					capturedRundownContentOnChanged = onChanged
-					return { stop: jest.fn() }
+					return {}
 				}
 			),
 		},
@@ -67,10 +71,11 @@ jest.mock('../PieceInstancesObserver', () => {
 				async (
 					_activationId: RundownPlaylistActivationId,
 					_showStyleBaseId: ShowStyleBaseId,
-					onChanged: OnChangedPieceInstances
+					onChanged: OnChangedPieceInstances,
+					_signal: AbortSignal
 				) => {
 					capturedPieceInstancesOnChanged = onChanged
-					return { stop: jest.fn() }
+					return {}
 				}
 			),
 		},

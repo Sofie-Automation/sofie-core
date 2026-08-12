@@ -58,17 +58,19 @@ const rundownPlaylistFieldSpecifier = literal<
 
 async function setupUISegmentPartNotesPublicationObservers(
 	args: ReadonlyDeep<UISegmentPartNotesArgs>,
-	triggerUpdate: TriggerUpdate<UISegmentPartNotesUpdateProps>
+	triggerUpdate: TriggerUpdate<UISegmentPartNotesUpdateProps>,
+	signal: AbortSignal
 ): Promise<SetupObserversResult> {
 	const playlist = (await RundownPlaylists.findOneAsync(args.playlistId, {
 		projection: rundownPlaylistFieldSpecifier,
 	})) as Pick<DBRundownPlaylist, RundownPlaylistFields> | undefined
 	if (!playlist) throw new Error(`RundownPlaylist "${args.playlistId}" not found!`)
 
-	const rundownsObserver = await RundownsObserver.createForPlaylist(
+	await RundownsObserver.createForPlaylist(
 		playlist.studioId,
 		playlist._id,
-		async (rundownIds) => {
+		signal,
+		async (rundownIds, invocationSignal) => {
 			logger.silly(`Creating new RundownContentObserver`)
 
 			// TODO - can this be done cheaper?
@@ -77,45 +79,48 @@ async function setupUISegmentPartNotesPublicationObservers(
 			// Push update
 			triggerUpdate({ newCache: cache })
 
-			const obs1 = await RundownContentObserver.create(rundownIds, cache)
+			await RundownContentObserver.create(rundownIds, cache, invocationSignal)
 
-			const innerQueries = [
-				cache.Segments.observeChanges({
+			cache.Segments.observeChanges(
+				{
 					added: (id) => triggerUpdate({ invalidateSegmentIds: [id] }),
 					changed: (id) => triggerUpdate({ invalidateSegmentIds: [id] }),
 					removed: (id) => triggerUpdate({ invalidateSegmentIds: [id] }),
-				}),
-				cache.Parts.observe({
+				},
+				undefined,
+				{ signal: invocationSignal }
+			)
+			cache.Parts.observe(
+				{
 					added: (doc) => triggerUpdate({ invalidateSegmentIds: [doc.segmentId] }),
 					changed: (doc, oldDoc) =>
 						triggerUpdate({ invalidateSegmentIds: [doc.segmentId, oldDoc.segmentId] }),
 					removed: (doc) => triggerUpdate({ invalidateSegmentIds: [doc.segmentId] }),
-				}),
-				cache.PartInstances.observe({
+				},
+				undefined,
+				{ signal: invocationSignal }
+			)
+			cache.PartInstances.observe(
+				{
 					added: (doc) => triggerUpdate({ invalidateSegmentIds: [doc.segmentId] }),
 					changed: (doc, oldDoc) =>
 						triggerUpdate({ invalidateSegmentIds: [doc.segmentId, oldDoc.segmentId] }),
 					removed: (doc) => triggerUpdate({ invalidateSegmentIds: [doc.segmentId] }),
-				}),
-				cache.Rundowns.observeChanges({
+				},
+				undefined,
+				{ signal: invocationSignal }
+			)
+			cache.Rundowns.observeChanges(
+				{
 					added: (id) => triggerUpdate({ invalidateRundownIds: [id] }),
 					changed: (id) => triggerUpdate({ invalidateRundownIds: [id] }),
 					removed: (id) => triggerUpdate({ invalidateRundownIds: [id] }),
-				}),
-			]
-
-			return () => {
-				obs1.dispose()
-
-				for (const query of innerQueries) {
-					query.stop()
-				}
-			}
+				},
+				undefined,
+				{ signal: invocationSignal }
+			)
 		}
 	)
-
-	// Set up observers:
-	return [rundownsObserver]
 }
 
 export async function manipulateUISegmentPartNotesPublicationData(

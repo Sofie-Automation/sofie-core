@@ -1,5 +1,6 @@
 import { ProtectedString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { PublicationContext } from '../../publications/lib/lib'
+import { runOnAbort } from '../observerLifetime'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 export interface CustomPublishChanges<T extends { _id: ProtectedString<any> }> {
@@ -12,7 +13,17 @@ export interface CustomPublish<DBObj extends { _id: ProtectedString<any> }> {
 	get isReady(): boolean
 
 	/**
+	 * An AbortSignal that is aborted when the subscriber unsubscribes.
+	 *
+	 * Note: `addEventListener('abort', ...)` is a no-op if the signal is *already* aborted (the
+	 * subscription may have stopped while you were awaiting setup). Always guard teardown with an
+	 * explicit `aborted` check, e.g. via `runOnAbort`.
+	 */
+	get signal(): AbortSignal
+
+	/**
 	 * Register a function to be called when the subscriber unsubscribes
+	 * @deprecated Use `signal` instead
 	 */
 	onStop(callback: () => void): void
 
@@ -28,27 +39,28 @@ export interface CustomPublish<DBObj extends { _id: ProtectedString<any> }> {
 }
 
 export class CustomPublishMeteor<DBObj extends { _id: ProtectedString<any> }> {
-	#onStop: (() => void) | undefined
 	#isReady = false
 
 	constructor(
 		private _meteorSubscription: PublicationContext,
 		private _collectionName: string
-	) {
-		this._meteorSubscription.onStop(() => {
-			if (this.#onStop) this.#onStop()
-		})
-	}
+	) {}
 
 	get isReady(): boolean {
 		return this.#isReady
 	}
 
+	get signal(): AbortSignal {
+		return this._meteorSubscription.signal
+	}
+
 	/**
 	 * Register a function to be called when the subscriber unsubscribes
+	 * @deprecated Use `signal` instead
 	 */
 	onStop(callback: () => void): void {
-		this.#onStop = callback
+		// Unlike the single-slot callback this replaced, any number of listeners can be registered
+		runOnAbort(this.signal, callback)
 	}
 
 	/**

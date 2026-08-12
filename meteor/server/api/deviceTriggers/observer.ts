@@ -21,6 +21,7 @@ import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCo
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { TriggersContext } from '@sofie-automation/meteor-lib/dist/triggers/triggersContext'
 import { TagsService } from './TagsService'
+import { processLifetimeSignal } from '../../lib/observerLifetime'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 type ObserverAndManager = {
@@ -98,7 +99,7 @@ export async function startDeviceTriggersObserver(triggersContext: TriggersConte
 				destroyObserverAndManager(studioId)
 			},
 		},
-		{ projection: { _id: 1 } }
+		{ projection: { _id: 1 }, signal: processLifetimeSignal }
 	)
 }
 

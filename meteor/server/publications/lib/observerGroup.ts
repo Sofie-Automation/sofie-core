@@ -1,11 +1,14 @@
 import { getRandomString } from '@sofie-automation/corelib/dist/lib'
 import { LiveQueryHandle, lazyIgnore } from '../../lib/lib'
-import { waitForAllObserversReady } from './lib'
+import { AbortScope, attachPendingHandles, createChildAbort } from '../../lib/observerLifetime'
+import { logger } from '../../logging'
+import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
 
-export interface ReactiveMongoObserverGroupHandle extends LiveQueryHandle {
+export interface ReactiveObserverGroup {
 	/**
-	 * Trigger a restart of the observers inside this group
+	 * Tear down the current generation of observers and start a fresh one.
+	 * Debounced, so a burst of calls results in a single restart.
 	 */
 	restart(): void
 }
@@ -13,106 +16,128 @@ export interface ReactiveMongoObserverGroupHandle extends LiveQueryHandle {
 const REACTIVITY_DEBOUNCE = 20
 
 /**
- * Helper to trigger reactivity inside of an OptimisedObserver whenever one of the other Mongo observers changes
- * Note: care needs to be taken when using this, as Mongo observers call `added` for every document when they start. It is very easy to form an infinite loop of observer invalidations
- * @param generator Function to generate the `LiveQueryHandle`s
- * @returns Handle to stop and restart the observer group
+ * Helper to trigger reactivity inside of an OptimisedObserver whenever one of the other Mongo observers changes.
+ *
+ * Each "generation" of observers runs on its own child signal of `parentSignal`. Restarting aborts the
+ * current generation - which stops its observers synchronously - before starting the next, and aborting
+ * `parentSignal` ends the group for good.
+ *
+ * Note: care needs to be taken when using this, as Mongo observers call `added` for every document when they
+ * start. It is very easy to form an infinite loop of observer invalidations.
+ *
+ * @param parentSignal The lifetime of the group as a whole
+ * @param generator Start the observers of one generation, on the signal it is given
+ * @returns Handle to restart the observer group
  */
-export async function ReactiveMongoObserverGroup(
-	generator: () => Promise<Array<Promise<LiveQueryHandle>>>
-): Promise<ReactiveMongoObserverGroupHandle> {
-	let running = true
-	let pendingStop: PromiseWithResolvers<void> | undefined
-	let pendingRestart = false
-	let handles: Array<LiveQueryHandle> | null = null
+export async function reactiveObserverGroup(
+	parentSignal: AbortSignal,
+	generator: (generationSignal: AbortSignal) => Promise<void>
+): Promise<ReactiveObserverGroup> {
+	const id = `ReactiveObserverGroup:${getRandomString()}`
 
-	const stopAll = async () => {
-		if (handles) {
-			await Promise.allSettled(handles.map(async (h) => h.stop()))
-			handles = null
-		}
+	/** The scope of the generation currently running, if any */
+	let generation: AbortScope | undefined
+	let pendingRestart = false
+	let checkRunning = false
+
+	const stopCurrentGeneration = () => {
+		// Aborting is synchronous: the observers of this generation deliver nothing more
+		generation?.abort()
+		generation = undefined
 	}
 
-	const id = `ReactiveMongoObserverGroup:${getRandomString()}`
-
-	let checkRunning = false
 	const runCheck = async () => {
-		let result: PromiseWithResolvers<void> | undefined
+		if (parentSignal.aborted) return
+		if (checkRunning) return
+		checkRunning = true
+
 		try {
-			if (!running) throw new SofieError(500, 'ObserverGroup has been stopped!')
-
-			if (checkRunning) return
-			checkRunning = true
-
-			// stop() has been called
-			if (pendingStop) {
-				running = false
-
-				result = pendingStop
-				pendingStop = undefined
-
-				// Stop the child observers
-				await stopAll()
-
-				result.resolve()
-
-				// Stop loop
-				return
-			}
-
-			// restart() has been called
 			if (pendingRestart) {
 				pendingRestart = false
-
-				// Stop the child observers
-				await stopAll()
+				stopCurrentGeneration()
 			}
 
-			// Start the child observers
-			if (!handles) {
-				handles = await waitForAllObserversReady(await generator())
+			if (!generation) {
+				const thisGeneration = createChildAbort(parentSignal)
+				generation = thisGeneration
+				try {
+					await generator(thisGeneration.signal)
+				} catch (e) {
+					// Release anything the generator started before it threw
+					thisGeneration.abort()
+					if (generation === thisGeneration) generation = undefined
+					throw e
+				}
 
-				// check for another pending operation
-				deferCheck()
+				// Another operation may have been requested while we were starting
+				if (pendingRestart) deferCheck()
 			}
-
-			// Inform caller
-			if (result) result.resolve()
-		} catch (e: any) {
-			if (result) result.reject(e)
 		} finally {
 			checkRunning = false
 		}
 	}
 
 	// Debounce calls, in most cases
-	const deferCheck = () => lazyIgnore(id, runCheck, REACTIVITY_DEBOUNCE)
+	const deferCheck = () =>
+		lazyIgnore(
+			id,
+			() => {
+				runCheck().catch((e) => {
+					logger.error(`${id} failed to restart observers: ${stringifyError(e)}`)
+				})
+			},
+			REACTIVITY_DEBOUNCE
+		)
 
-	const handle: ReactiveMongoObserverGroupHandle = {
-		stop: async () => {
-			if (!running) throw new SofieError(500, 'ReactiveMongoObserverGroup is not running!')
+	// The group as a whole ends with the parent signal
+	if (parentSignal.aborted) throw new SofieError(500, 'ReactiveObserverGroup started with an aborted signal')
+	parentSignal.addEventListener('abort', () => stopCurrentGeneration(), { once: true })
 
-			pendingStop = pendingStop || Promise.withResolvers<void>()
+	// Wait for the initial setup of the observers, so that they are running once we return
+	await runCheck()
 
-			deferCheck()
-
-			// Block the caller until the stop has completed
-			await pendingStop.promise
-		},
+	return {
 		restart: () => {
-			if (!running) throw new SofieError(500, 'ReactiveMongoObserverGroup is not running!')
-
-			// Ensure there is not a pending stop
-			if (pendingStop) throw new SofieError(500, 'ReactiveMongoObserverGroup has been stopped')
+			if (parentSignal.aborted) throw new SofieError(500, 'ReactiveObserverGroup has been stopped!')
 
 			pendingRestart = true
-
 			deferCheck()
 		},
 	}
+}
 
-	// wait for initial setup of observers, so that they are running once we return
-	await runCheck()
+/**
+ * @deprecated Use {@link reactiveObserverGroup}, which takes the group's lifetime as a signal instead of
+ * returning a stop handle. Removed once all callers are migrated.
+ */
+export interface ReactiveMongoObserverGroupHandle extends LiveQueryHandle {
+	restart(): void
+}
 
-	return handle
+/**
+ * @deprecated Use {@link reactiveObserverGroup} instead
+ */
+export async function ReactiveMongoObserverGroup(
+	generator: () => Promise<Array<Promise<LiveQueryHandle>>>
+): Promise<ReactiveMongoObserverGroupHandle> {
+	const abort = new AbortController()
+
+	const group = await reactiveObserverGroup(abort.signal, async (generationSignal) => {
+		await attachPendingHandles(generationSignal, await generator())
+	})
+
+	const assertRunning = () => {
+		if (abort.signal.aborted) throw new SofieError(500, 'ReactiveMongoObserverGroup is not running!')
+	}
+
+	return {
+		restart: () => {
+			assertRunning()
+			group.restart()
+		},
+		stop: () => {
+			assertRunning()
+			abort.abort()
+		},
+	}
 }
