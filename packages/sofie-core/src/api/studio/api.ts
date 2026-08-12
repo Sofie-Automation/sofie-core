@@ -5,6 +5,7 @@ import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { literal, getRandomId } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { lazyIgnore } from '../../lib/lib'
+import { processLifetimeSignal } from '../../lib/observerLifetime'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import {
 	ExpectedPackages,
@@ -224,6 +225,7 @@ export async function startStudioMappingsHashObserver(): Promise<void> {
 				mappingsWithOverrides: 1,
 				routeSetsWithOverrides: 1,
 			},
+			signal: processLifetimeSignal,
 		}
 	)
 }

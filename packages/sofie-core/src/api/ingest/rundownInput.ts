@@ -4,6 +4,7 @@ import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/Perip
 import { NrcsIngestDataCache, MediaObjects, Parts, Rundowns, Segments } from '../../collections'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { lazyIgnore } from '../../lib/lib'
+import { processLifetimeSignal } from '../../lib/observerLifetime'
 import { IngestRundown, IngestSegment, IngestPart, IngestPlaylist } from '@sofie-automation/blueprints-integration'
 import { logger } from '../../logging'
 import { RundownIngestDataCache } from './ingestCache'
@@ -367,7 +368,7 @@ export async function startMediaObjectDurationMonitor(): Promise<void> {
 			added: onMediaObjectChanged,
 			changed: onMediaObjectChanged,
 		},
-		{ projection: { _id: 1, mediaId: 1, mediainfo: 1, studioId: 1 } }
+		{ projection: { _id: 1, mediaId: 1, mediainfo: 1, studioId: 1 }, signal: processLifetimeSignal }
 	)
 }
 

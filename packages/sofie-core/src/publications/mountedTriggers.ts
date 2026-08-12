@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { CustomPublish } from '../lib/customPublication'
+import { runOnAbort } from '../lib/observerLifetime'
 import { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { logger } from '../logging'
 import { DeviceTriggerMountedActionAdlibsPreview, DeviceTriggerMountedActions } from '../api/deviceTriggers/observer'
@@ -106,7 +107,7 @@ function cursorCustomPublish<T extends { _id: ProtectedString<any> }>(
 		}
 	}, PUBLICATION_DEBOUNCE)
 
-	const observer = collection.observe(
+	collection.observe(
 		{
 			added: (doc) => {
 				if (!pub.isReady) return
@@ -141,13 +142,11 @@ function cursorCustomPublish<T extends { _id: ProtectedString<any> }>(
 				bufferChanged()
 			},
 		},
-		query
+		query,
+		{ signal: pub.signal }
 	)
 
 	pub.init(collection.findFetch(query))
 
-	pub.onStop(() => {
-		observer.stop()
-		bufferChanged.cancel()
-	})
+	runOnAbort(pub.signal, () => bufferChanged.cancel())
 }

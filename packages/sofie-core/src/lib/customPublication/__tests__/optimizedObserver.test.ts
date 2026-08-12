@@ -1,10 +1,11 @@
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { optimizedObserverCountSubscribers, setUpOptimizedObserverInner, TriggerUpdate } from '../optimizedObserverBase'
 import { CustomPublish, CustomPublishChanges } from '../publish'
+import { runOnAbort } from '../../observerLifetime'
 import { sleep } from '../../lib'
 
 interface CustomPublishMockExt {
-	stop?: () => void
+	stop: () => void
 }
 
 class CustomPublishMock<DBObj extends { _id: ProtectedString<any> }>
@@ -12,17 +13,26 @@ class CustomPublishMock<DBObj extends { _id: ProtectedString<any> }>
 {
 	static create<DBObj extends { _id: ProtectedString<any> }>(): CustomPublish<DBObj> & CustomPublishMockExt {
 		const mock = new CustomPublishMock<DBObj>()
-		return mock as CustomPublish<DBObj>
+		return mock as CustomPublish<DBObj> & CustomPublishMockExt
 	}
+
+	readonly #abort = new AbortController()
 
 	get isReady(): boolean {
 		return false
 	}
 
-	stop?: () => void
+	get signal(): AbortSignal {
+		return this.#abort.signal
+	}
 
-	onStop(callback: () => void) {
-		this.stop = callback
+	/** Ends this subscriber's lifetime, as unsubscribing would */
+	stop = (): void => {
+		this.#abort.abort()
+	}
+
+	onStop(callback: () => void): void {
+		runOnAbort(this.signal, callback)
 	}
 
 	init: CustomPublish<DBObj>['init'] = jest.fn()

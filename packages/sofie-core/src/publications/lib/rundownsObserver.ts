@@ -10,53 +10,65 @@ import type { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import type { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { logger } from '../../logging'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
-import type { LiveQueryHandleSync } from '../../lib/lib'
+import { AbortScope, createChildAbort, runOnAbort } from '../../lib/observerLifetime'
 
 const REACTIVITY_DEBOUNCE = 20
 
-type ChangedHandler = (rundownIds: RundownId[]) => Promise<() => void>
+/**
+ * Called whenever the set of rundowns changes, with the signal scoping whatever it starts: that signal is
+ * aborted before the next invocation, and when the observer itself stops.
+ *
+ * Returning a cleanup function is the legacy shape, still honoured by binding it to the invocation signal.
+ */
+type ChangedHandler = (rundownIds: RundownId[], invocationSignal: AbortSignal) => Promise<void | (() => void)>
 
 /**
  * A mongo observer/query for the RundownIds in a playlist.
  * Note: Updates are debounced to avoid rapid updates firing
  */
-export class RundownsObserver implements LiveQueryHandleSync {
-	#rundownsLiveQuery!: LiveQueryHandleSync
+export class RundownsObserver {
 	#rundownIds: Set<RundownId> = new Set<RundownId>()
-	#changed: ChangedHandler | undefined
-	#cleanup: (() => void) | undefined
+	readonly #changed: ChangedHandler
+	readonly #signal: AbortSignal
 
-	#disposed = false
+	/** The lifetime of whatever the last invocation of `#changed` started */
+	#invocation: AbortScope | undefined
 
 	readonly #triggerUpdateRundownContent = new PromiseDebounce(async () => {
 		try {
-			if (this.#disposed) return
-			if (!this.#changed) return
-			this.#cleanup?.()
-			this.#cleanup = undefined
+			if (this.#signal.aborted) return
 
-			const changed = this.#changed
-			this.#cleanup = await changed(this.rundownIds)
+			// End the previous invocation's scope before starting the next
+			this.#invocation?.abort()
 
-			if (this.#disposed) {
-				this.#cleanup?.()
-				this.#cleanup = undefined
-			}
+			const invocation = createChildAbort(this.#signal)
+			this.#invocation = invocation
+
+			const cleanup = await this.#changed(this.rundownIds, invocation.signal)
+
+			// Honour a legacy cleanup function by tying it to this invocation's scope. If the observer
+			// stopped, or another invocation superseded this one, while we were awaiting, the signal is
+			// already aborted and this runs the cleanup immediately.
+			if (cleanup) runOnAbort(invocation.signal, cleanup)
 		} catch (e) {
 			logger.error(`Error in RundownsObserver triggerUpdateRundownContent: ${stringifyError(e)}`)
 		}
 	}, REACTIVITY_DEBOUNCE)
 
-	private constructor(onChanged: ChangedHandler) {
+	private constructor(onChanged: ChangedHandler, signal: AbortSignal) {
 		this.#changed = onChanged
+		this.#signal = signal
+
+		runOnAbort(signal, () => this.#triggerUpdateRundownContent.cancelWaiting())
 	}
 
 	static async createForPlaylist(
 		studioId: StudioId,
 		playlistId: RundownPlaylistId,
+		signal: AbortSignal,
 		onChanged: ChangedHandler
 	): Promise<RundownsObserver> {
-		const observer = new RundownsObserver(onChanged)
+		const observer = new RundownsObserver(onChanged, signal)
 
 		await observer.init({
 			playlistId,
@@ -69,9 +81,10 @@ export class RundownsObserver implements LiveQueryHandleSync {
 	static async createForPeripheralDevice(
 		// studioId: StudioId, // TODO - this?
 		deviceId: PeripheralDeviceId,
+		signal: AbortSignal,
 		onChanged: ChangedHandler
 	): Promise<RundownsObserver> {
-		const observer = new RundownsObserver(onChanged)
+		const observer = new RundownsObserver(onChanged, signal)
 
 		await observer.init({
 			'source.type': 'nrcs',
@@ -82,7 +95,7 @@ export class RundownsObserver implements LiveQueryHandleSync {
 	}
 
 	private async init(query: MongoQuery<Rundown>) {
-		this.#rundownsLiveQuery = await Rundowns.observe(
+		await Rundowns.observe(
 			query,
 			{
 				added: (doc) => {
@@ -102,6 +115,7 @@ export class RundownsObserver implements LiveQueryHandleSync {
 				projection: {
 					_id: 1,
 				},
+				signal: this.#signal,
 			}
 		)
 
@@ -110,15 +124,5 @@ export class RundownsObserver implements LiveQueryHandleSync {
 
 	public get rundownIds(): RundownId[] {
 		return Array.from(this.#rundownIds)
-	}
-
-	public stop = (): void => {
-		this.#disposed = true
-
-		this.#triggerUpdateRundownContent.cancelWaiting()
-		this.#rundownsLiveQuery.stop()
-		this.#changed = undefined
-		this.#cleanup?.()
-		this.#cleanup = undefined
 	}
 }

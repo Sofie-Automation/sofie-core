@@ -1,4 +1,4 @@
-import type { LiveQueryHandleSync } from '../lib/lib'
+import { runOnAbort } from '../lib/observerLifetime'
 import { logger } from '../logging'
 
 export enum FastTrackObservers {
@@ -7,12 +7,16 @@ export enum FastTrackObservers {
 
 /**
  * Sets up a fastTrackObserver, it basically calls onData whenever triggerFastTrackObserver() is called from somewhere else in the code.
+ * The observer is removed when `signal` aborts.
  */
 export function setupFastTrackObserver<T>(
 	observerKey: FastTrackObservers,
 	keyArgs: any[],
-	onData: (data: T) => void
-): LiveQueryHandleSync {
+	onData: (data: T) => void,
+	signal: AbortSignal
+): void {
+	if (signal.aborted) return
+
 	const key = getKey(observerKey, keyArgs)
 
 	if (!fastTrackObserver[key]) {
@@ -22,18 +26,17 @@ export function setupFastTrackObserver<T>(
 	} else {
 		fastTrackObserver[key].onDatas.push(onData)
 	}
-	return {
-		stop: () => {
-			const index = fastTrackObserver[key].onDatas.findIndex((fcn) => fcn === onData)
 
-			if (index !== -1) {
-				fastTrackObserver[key].onDatas.splice(index, 1)
-			}
-			if (fastTrackObserver[key].onDatas.length === 0) {
-				delete fastTrackObserver[key]
-			}
-		},
-	}
+	runOnAbort(signal, () => {
+		const index = fastTrackObserver[key].onDatas.findIndex((fcn) => fcn === onData)
+
+		if (index !== -1) {
+			fastTrackObserver[key].onDatas.splice(index, 1)
+		}
+		if (fastTrackObserver[key].onDatas.length === 0) {
+			delete fastTrackObserver[key]
+		}
+	})
 }
 
 /** Trigger a FastTrackObserver, which was setup in setupFastTrackObserver(). */

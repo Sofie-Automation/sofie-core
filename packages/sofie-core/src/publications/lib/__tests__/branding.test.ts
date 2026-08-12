@@ -50,7 +50,8 @@ describe('observeSelectedPartInstancesBranding', () => {
 		insertPartInstance('pi3', 'rundownB', 'brandingW')
 
 		const cache = createBrandingContentCache()
-		const handle = await observeSelectedPartInstancesBranding(cache)
+		const abort = new AbortController()
+		await observeSelectedPartInstancesBranding(cache, abort.signal)
 		try {
 			// Nothing is selected yet
 			expect(getCachedIds(cache)).toEqual([])
@@ -86,7 +87,7 @@ describe('observeSelectedPartInstancesBranding', () => {
 			}, MAX_WAIT_TIME)
 			expect(getProjectedBrandingId(cache)).toBe('defaultBranding')
 		} finally {
-			handle.stop()
+			abort.abort()
 			await runAllTimers()
 		}
 
@@ -97,18 +98,19 @@ describe('observeSelectedPartInstancesBranding', () => {
 		insertPartInstance('pi0', 'rundownA', 'brandingX')
 
 		const cache = createBrandingContentCache()
-		const handlePromise = observeSelectedPartInstancesBranding(cache)
+		const abort = new AbortController()
+		const readyPromise = observeSelectedPartInstancesBranding(cache, abort.signal)
 		// The RundownPlaylist is observed concurrently, so may arrive before the PartInstances observer is ready
 		selectPartInstances(cache, 'pi0', null)
 
-		const handle = await handlePromise
+		await readyPromise
 		try {
 			await waitUntil(async () => {
 				await runAllTimers()
 				expect(getCachedIds(cache)).toEqual(['pi0'])
 			}, MAX_WAIT_TIME)
 		} finally {
-			handle.stop()
+			abort.abort()
 			await runAllTimers()
 		}
 	})

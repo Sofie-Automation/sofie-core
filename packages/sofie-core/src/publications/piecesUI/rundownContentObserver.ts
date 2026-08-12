@@ -7,8 +7,6 @@ import { ReadonlyDeep } from 'type-fest'
 import { logger } from '../../logging'
 import { ContentCache, pieceFieldSpecifier } from './reactiveContentCache'
 import { Pieces } from '../../collections'
-import { waitForAllObserversReady } from '../lib/lib'
-import type { LiveQueryHandleSync } from '../../lib/lib'
 
 /**
  * The Pieces to fetch. These are two rather different queries, but they feed the same collection so that
@@ -69,34 +67,32 @@ function createPiecesSelector(args: ReadonlyDeep<UIPiecesArgs>): MongoQuery<Piec
 
 export class RundownContentObserver {
 	readonly #cache: ContentCache
-	readonly #observers: LiveQueryHandleSync[]
 
-	private constructor(cache: ContentCache, observers: LiveQueryHandleSync[]) {
+	private constructor(cache: ContentCache) {
 		this.#cache = cache
-
-		this.#observers = observers
 	}
 
-	static async create(args: ReadonlyDeep<UIPiecesArgs>, cache: ContentCache): Promise<RundownContentObserver> {
+	static async create(
+		args: ReadonlyDeep<UIPiecesArgs>,
+		cache: ContentCache,
+		signal: AbortSignal
+	): Promise<RundownContentObserver> {
 		logger.silly(`Creating RundownContentObserver for pieces "${args.type}"`)
 
 		const brandingRundownIds = args.type === 'inParts' ? args.rundownIds : [args.thisRundownId]
 
-		const observers = await waitForAllObserversReady([
+		await Promise.all([
 			Pieces.observeChanges(createPiecesSelector(args), cache.Pieces.link(), {
 				projection: pieceFieldSpecifier,
+				signal,
 			}),
-			...createBrandingObservers(brandingRundownIds, cache),
+			...createBrandingObservers(brandingRundownIds, cache, signal),
 		])
 
-		return new RundownContentObserver(cache, observers)
+		return new RundownContentObserver(cache)
 	}
 
 	public get cache(): ContentCache {
 		return this.#cache
-	}
-
-	public dispose = (): void => {
-		this.#observers.forEach((observer) => observer.stop())
 	}
 }

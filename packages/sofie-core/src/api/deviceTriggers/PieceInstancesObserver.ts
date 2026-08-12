@@ -8,46 +8,52 @@ import {
 	partInstanceFieldSpecifier,
 	pieceInstanceFieldSpecifier,
 } from './reactiveContentCacheForPieceInstances'
-import { waitForAllObserversReady } from '../../publications/lib/lib'
-import type { LiveQueryHandleSync } from '../../lib/lib'
+import { runOnAbort } from '../../lib/observerLifetime'
 
 const REACTIVITY_DEBOUNCE = 20
 
 type ChangedHandler = (cache: ContentCache) => () => void
 
 export class PieceInstancesObserver {
-	#observers: LiveQueryHandleSync[] = []
 	#cache: ContentCache
-	#cancelCache: () => void
 	#cleanup: (() => void) | undefined
-	#disposed = false
 
-	constructor(onChanged: ChangedHandler) {
+	constructor(onChanged: ChangedHandler, signal: AbortSignal) {
 		const { cache, cancel: cancelCache } = createReactiveContentCache(() => {
 			this.#cleanup = onChanged(cache)
-			if (this.#disposed) this.#cleanup()
+			if (signal.aborted) this.#cleanup()
 		}, REACTIVITY_DEBOUNCE)
 
 		this.#cache = cache
-		this.#cancelCache = cancelCache
+
+		runOnAbort(signal, () => {
+			cancelCache()
+			this.#cleanup?.()
+			this.#cleanup = undefined
+		})
 	}
 
 	static async create(
 		activationId: RundownPlaylistActivationId,
 		showStyleBaseId: ShowStyleBaseId,
-		onChanged: ChangedHandler
+		onChanged: ChangedHandler,
+		signal: AbortSignal
 	): Promise<PieceInstancesObserver> {
 		logger.silly(`Creating PieceInstancesObserver for activationId "${activationId}"`)
 
-		const observer = new PieceInstancesObserver(onChanged)
+		const observer = new PieceInstancesObserver(onChanged, signal)
 
-		await observer.initObservers(activationId, showStyleBaseId)
+		await observer.initObservers(activationId, showStyleBaseId, signal)
 
 		return observer
 	}
 
-	private async initObservers(activationId: RundownPlaylistActivationId, showStyleBaseId: ShowStyleBaseId) {
-		this.#observers = await waitForAllObserversReady([
+	private async initObservers(
+		activationId: RundownPlaylistActivationId,
+		showStyleBaseId: ShowStyleBaseId,
+		signal: AbortSignal
+	) {
+		await Promise.all([
 			RundownPlaylists.observeChanges(
 				{
 					activationId,
@@ -55,9 +61,10 @@ export class PieceInstancesObserver {
 				this.#cache.RundownPlaylists.link(),
 				{
 					projection: rundownPlaylistFieldSpecifier,
+					signal,
 				}
 			),
-			ShowStyleBases.observeChanges(showStyleBaseId, this.#cache.ShowStyleBases.link()),
+			ShowStyleBases.observeChanges(showStyleBaseId, this.#cache.ShowStyleBases.link(), { signal }),
 			PieceInstances.observeChanges(
 				{
 					playlistActivationId: activationId,
@@ -69,6 +76,7 @@ export class PieceInstancesObserver {
 				this.#cache.PieceInstances.link(),
 				{
 					projection: pieceInstanceFieldSpecifier,
+					signal,
 				}
 			),
 			PartInstances.observeChanges(
@@ -80,6 +88,7 @@ export class PieceInstancesObserver {
 				this.#cache.PartInstances.link(),
 				{
 					projection: partInstanceFieldSpecifier,
+					signal,
 				}
 			),
 		])
@@ -87,13 +96,5 @@ export class PieceInstancesObserver {
 
 	public get cache(): ContentCache {
 		return this.#cache
-	}
-
-	public stop = (): void => {
-		this.#disposed = true
-		this.#cancelCache()
-		this.#observers.forEach((observer) => observer.stop())
-		this.#cleanup?.()
-		this.#cleanup = undefined
 	}
 }

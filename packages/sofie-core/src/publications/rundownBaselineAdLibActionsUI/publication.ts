@@ -40,7 +40,8 @@ interface UIRundownBaselineAdLibActionsUpdateProps {
 
 async function setupUIRundownBaselineAdLibActionsPublicationObservers(
 	args: ReadonlyDeep<UIRundownBaselineAdLibActionsArgs>,
-	triggerUpdate: TriggerUpdate<UIRundownBaselineAdLibActionsUpdateProps>
+	triggerUpdate: TriggerUpdate<UIRundownBaselineAdLibActionsUpdateProps>,
+	signal: AbortSignal
 ): Promise<SetupObserversResult> {
 	logger.silly(`Creating new RundownContentObserver`)
 
@@ -49,41 +50,38 @@ async function setupUIRundownBaselineAdLibActionsPublicationObservers(
 	// Push update
 	triggerUpdate({ newCache: cache })
 
-	const contentObserver = await RundownContentObserver.create(args, cache)
+	await RundownContentObserver.create(args, cache, signal)
 
 	// Note: this is attached after the content observer has been populated, so it will be told about
 	// every document already in the cache
-	const innerQueries = [
-		// Any change to these means the Branding may have changed
-		cache.RundownPlaylists.observeChanges({
+	// Any change to these means the Branding may have changed
+	cache.RundownPlaylists.observeChanges(
+		{
 			added: () => triggerUpdate({ invalidateBranding: true }),
 			changed: () => triggerUpdate({ invalidateBranding: true }),
 			removed: () => triggerUpdate({ invalidateBranding: true }),
-		}),
-		cache.PartInstances.observeChanges({
+		},
+		undefined,
+		{ signal }
+	)
+	cache.PartInstances.observeChanges(
+		{
 			added: () => triggerUpdate({ invalidateBranding: true }),
 			changed: () => triggerUpdate({ invalidateBranding: true }),
 			removed: () => triggerUpdate({ invalidateBranding: true }),
-		}),
-		cache.RundownBaselineAdLibActions.observeChanges({
+		},
+		undefined,
+		{ signal }
+	)
+	cache.RundownBaselineAdLibActions.observeChanges(
+		{
 			added: (id) => triggerUpdate({ invalidateAdLibActionIds: [id] }),
 			changed: (id) => triggerUpdate({ invalidateAdLibActionIds: [id] }),
 			removed: (id) => triggerUpdate({ invalidateAdLibActionIds: [id] }),
-		}),
-	]
-
-	// Set up observers:
-	return [
-		{
-			stop: () => {
-				contentObserver.dispose()
-
-				for (const query of innerQueries) {
-					query.stop()
-				}
-			},
 		},
-	]
+		undefined,
+		{ signal }
+	)
 }
 
 export async function manipulateUIRundownBaselineAdLibActionsPublicationData(

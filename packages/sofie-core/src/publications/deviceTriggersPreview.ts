@@ -9,6 +9,7 @@ import { DeviceTriggerArguments, UIDeviceTriggerPreview } from '@sofie-automatio
 import { getCurrentTime } from '../lib/lib'
 import { SetupObserversResult, setUpOptimizedObserverArray, TriggerUpdate } from '../lib/customPublication'
 import { CustomPublish } from '../lib/customPublication/publish'
+import { runOnAbort } from '../lib/observerLifetime'
 import { PeripheralDevices } from '../collections'
 import { assertConnectionHasOneOfPermissions } from '../security/auth'
 import type { PublicationRegistry } from '../publicationRegistry'
@@ -74,7 +75,8 @@ function prepareTriggerBufferForStudio(studioId: string) {
 
 async function setupDeviceTriggersPreviewsObservers(
 	args: ReadonlyDeep<DeviceTriggersPreviewArgs>,
-	triggerUpdate: TriggerUpdate<DeviceTriggersUpdateProps>
+	triggerUpdate: TriggerUpdate<DeviceTriggersUpdateProps>,
+	signal: AbortSignal
 ): Promise<SetupObserversResult> {
 	const studioId = unprotectString(args.studioId)
 	const lastTriggersStudio = prepareTriggerBufferForStudio(studioId)
@@ -85,13 +87,9 @@ async function setupDeviceTriggersPreviewsObservers(
 
 	triggerUpdate(lastTriggersStudio)
 
-	return [
-		{
-			stop: () => {
-				lastTriggersStudio.updated = undefined
-			},
-		},
-	]
+	runOnAbort(signal, () => {
+		lastTriggersStudio.updated = undefined
+	})
 }
 
 async function createObserverForDeviceTriggersPreviewsPublication(

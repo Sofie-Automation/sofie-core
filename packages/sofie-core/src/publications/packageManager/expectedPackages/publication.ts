@@ -72,7 +72,8 @@ const studioFieldSpecifier = literal<MongoFieldSpecifierOnesStrict<Pick<DBStudio
 
 async function setupExpectedPackagesPublicationObservers(
 	args: ReadonlyDeep<ExpectedPackagesPublicationArgs>,
-	triggerUpdate: TriggerUpdate<ExpectedPackagesPublicationUpdateProps>
+	triggerUpdate: TriggerUpdate<ExpectedPackagesPublicationUpdateProps>,
+	signal: AbortSignal
 ): Promise<SetupObserversResult> {
 	const contentCache = createReactiveContentCache()
 
@@ -80,36 +81,43 @@ async function setupExpectedPackagesPublicationObservers(
 	triggerUpdate({ newCache: contentCache })
 
 	// Set up observers:
-	return [
-		ExpectedPackagesContentObserver.create(args.studioId, contentCache),
+	await ExpectedPackagesContentObserver.create(args.studioId, contentCache, signal)
 
-		contentCache.ExpectedPackages.observeChanges({
+	contentCache.ExpectedPackages.observeChanges(
+		{
 			added: (id) => triggerUpdate({ invalidateExpectedPackageIds: [id] }),
 			changed: (id) => triggerUpdate({ invalidateExpectedPackageIds: [id] }),
 			removed: (id) => triggerUpdate({ invalidateExpectedPackageIds: [id] }),
-		}),
-		contentCache.PieceInstances.observeChanges({
+		},
+		undefined,
+		{ signal }
+	)
+	contentCache.PieceInstances.observeChanges(
+		{
 			added: (id) => triggerUpdate({ invalidatePieceInstanceIds: [id] }),
 			changed: (id) => triggerUpdate({ invalidatePieceInstanceIds: [id] }),
 			removed: (id) => triggerUpdate({ invalidatePieceInstanceIds: [id] }),
-		}),
+		},
+		undefined,
+		{ signal }
+	)
 
-		Studios.observeChanges(
-			args.studioId,
-			{
-				added: () => triggerUpdate({ invalidateStudio: true }),
-				changed: () => triggerUpdate({ invalidateStudio: true }),
-				removed: () => triggerUpdate({ invalidateStudio: true }),
+	await Studios.observeChanges(
+		args.studioId,
+		{
+			added: () => triggerUpdate({ invalidateStudio: true }),
+			changed: () => triggerUpdate({ invalidateStudio: true }),
+			removed: () => triggerUpdate({ invalidateStudio: true }),
+		},
+		{
+			projection: {
+				// mappingsHash gets updated when either of these omitted fields changes
+				...omit(studioFieldSpecifier, 'mappingsWithOverrides', 'routeSetsWithOverrides'),
+				mappingsHash: 1,
 			},
-			{
-				projection: {
-					// mappingsHash gets updated when either of these omitted fields changes
-					...omit(studioFieldSpecifier, 'mappingsWithOverrides', 'routeSetsWithOverrides'),
-					mappingsHash: 1,
-				},
-			}
-		),
-	]
+			signal,
+		}
+	)
 }
 
 async function manipulateExpectedPackagesPublicationData(

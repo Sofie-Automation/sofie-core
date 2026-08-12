@@ -12,27 +12,33 @@ import { SofieError } from '@sofie-automation/corelib/dist/error'
  */
 
 /**
- * Create an AbortController whose signal aborts when `parent` aborts, and which can also be aborted
- * directly. Use this for a scope with a shorter lifetime than its parent (e.g. a restartable
- * "generation" of observers inside a subscription).
+ * A lifetime nested inside a longer one: it ends when its parent does, or when it is aborted
+ * directly - whichever happens first. Use this for a scope shorter than its parent, such as a
+ * restartable "generation" of observers inside a subscription.
  *
- * Contract: the returned controller MUST eventually be aborted (aborting it is how the scope ends).
- * Aborting it - from either side - removes the listener from the parent immediately, so repeated
- * generations do not accumulate listeners. Dropping the controller without aborting it keeps a
- * listener (and the controller) referenced by the parent until the parent aborts.
+ * Structurally an AbortController, but not one: its signal is composed from two sources.
  */
-export function createChildAbort(parent: AbortSignal): AbortController {
-	const child = new AbortController()
+export interface AbortScope {
+	readonly signal: AbortSignal
+	abort(reason?: unknown): void
+}
 
-	if (parent.aborted) {
-		child.abort(parent.reason)
-	} else {
-		// `signal: child.signal` makes the listener self-remove once the child aborts for any reason,
-		// so long-lived parent signals do not accumulate listeners from short-lived children.
-		parent.addEventListener('abort', () => child.abort(parent.reason), { once: true, signal: child.signal })
+/**
+ * Create a lifetime nested inside `parent`.
+ *
+ * `AbortSignal.any` composes the two sources, rather than a hand-rolled `addEventListener` on the
+ * parent, because the platform holds dependent signals weakly: a scope that is dropped without ever
+ * being aborted can still be collected, instead of being pinned by a listener on a long-lived parent
+ * until that parent aborts. Scopes are still expected to be aborted explicitly - that is how a scope
+ * ends - this just means forgetting to is not a leak.
+ */
+export function createChildAbort(parent: AbortSignal): AbortScope {
+	const self = new AbortController()
+
+	return {
+		signal: AbortSignal.any([parent, self.signal]),
+		abort: (reason?: unknown) => self.abort(reason),
 	}
-
-	return child
 }
 
 /**
@@ -72,31 +78,41 @@ const processLifetimeAbort = new AbortController()
 export const processLifetimeSignal: AbortSignal = processLifetimeAbort.signal
 
 /**
- * Bind already-created legacy observer handles to a signal: each handle is stopped when the signal
- * aborts, or immediately if it already has (the signal may have aborted while the caller was awaiting
- * the handle's setup).
+ * Run a cleanup function when `signal` aborts, or immediately if it already has - the signal may have
+ * aborted while the caller was awaiting whatever the cleanup releases.
  *
- * @deprecated Temporary migration interop - removed in the final cleanup step, once nothing returns
- * a `LiveQueryHandle` any more.
+ * Errors thrown by the cleanup are logged rather than propagated, so one failure cannot prevent the
+ * rest of a teardown from running.
  */
-export function stopOnAbort(signal: AbortSignal, ...handles: Array<LiveQueryHandleSync | LiveQueryHandle>): void {
-	for (const handle of handles) {
-		if (signal.aborted) {
-			stopIgnoringErrors(handle)
-		} else {
-			signal.addEventListener('abort', () => stopIgnoringErrors(handle), { once: true })
-		}
+export function runOnAbort(signal: AbortSignal, cleanup: () => void | Promise<void>): void {
+	if (signal.aborted) {
+		runIgnoringErrors(cleanup)
+	} else {
+		signal.addEventListener('abort', () => runIgnoringErrors(cleanup), { once: true })
 	}
 }
 
-function stopIgnoringErrors(handle: LiveQueryHandleSync | LiveQueryHandle): void {
+function runIgnoringErrors(cleanup: () => void | Promise<void>): void {
 	try {
-		const res = handle.stop()
+		const res = cleanup()
 		if (res && typeof res.catch === 'function') {
-			res.catch((e) => logger.error(`Error stopping observer: ${stringifyError(e)}`))
+			res.catch((e) => logger.error(`Error during observer cleanup: ${stringifyError(e)}`))
 		}
 	} catch (e) {
-		logger.error(`Error stopping observer: ${stringifyError(e)}`)
+		logger.error(`Error during observer cleanup: ${stringifyError(e)}`)
+	}
+}
+
+/**
+ * Bind already-created legacy observer handles to a signal: each handle is stopped when the signal
+ * aborts, or immediately if it already has.
+ *
+ * @deprecated Temporary migration interop - removed in the final cleanup step, once nothing returns
+ * a `LiveQueryHandle` any more. For a plain cleanup function use {@link runOnAbort}.
+ */
+export function stopOnAbort(signal: AbortSignal, ...handles: Array<LiveQueryHandleSync | LiveQueryHandle>): void {
+	for (const handle of handles) {
+		runOnAbort(signal, () => handle.stop())
 	}
 }
 
@@ -122,7 +138,7 @@ export async function attachPendingHandles(
 	if (firstFailure || allSuccessful.length !== handles.length) {
 		// There was a failure, stop all the observers that did start
 		for (const handle of allSuccessful) {
-			stopIgnoringErrors(handle.value)
+			runIgnoringErrors(() => handle.value.stop())
 		}
 		if (firstFailure) {
 			throw firstFailure.reason

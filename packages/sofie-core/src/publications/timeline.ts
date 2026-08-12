@@ -116,10 +116,22 @@ interface RoutedTimelineUpdateProps {
 
 async function setupTimelinePublicationObservers(
 	args: ReadonlyDeep<RoutedTimelineArgs>,
-	triggerUpdate: TriggerUpdate<RoutedTimelineUpdateProps>
+	triggerUpdate: TriggerUpdate<RoutedTimelineUpdateProps>,
+	signal: AbortSignal
 ): Promise<SetupObserversResult> {
 	// Set up observers:
-	return [
+	setupFastTrackObserver(
+		FastTrackObservers.TIMELINE,
+		[args.studioId],
+		(timeline: TimelineComplete) => {
+			triggerUpdate({
+				timeline,
+			})
+		},
+		signal
+	)
+
+	await Promise.all([
 		Studios.observeChanges(
 			args.studioId,
 			{
@@ -133,19 +145,19 @@ async function setupTimelinePublicationObservers(
 					// change to the mappings or the routes
 					mappingsHash: 1,
 				},
+				signal,
 			}
 		),
-		Timeline.observe(args.studioId, {
-			added: (timeline) => triggerUpdate({ timeline }),
-			changed: (timeline) => triggerUpdate({ timeline }),
-			removed: () => triggerUpdate({ timeline: null }),
-		}),
-		setupFastTrackObserver(FastTrackObservers.TIMELINE, [args.studioId], (timeline: TimelineComplete) => {
-			triggerUpdate({
-				timeline,
-			})
-		}),
-	]
+		Timeline.observe(
+			args.studioId,
+			{
+				added: (timeline) => triggerUpdate({ timeline }),
+				changed: (timeline) => triggerUpdate({ timeline }),
+				removed: () => triggerUpdate({ timeline: null }),
+			},
+			{ signal }
+		),
+	])
 }
 
 async function manipulateTimelinePublicationData(
