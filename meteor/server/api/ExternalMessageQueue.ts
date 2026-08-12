@@ -2,7 +2,6 @@ import { z } from 'zod'
 import { check } from '../lib/check'
 import { StatusCode } from '@sofie-automation/blueprints-integration'
 import { deferAsync, getCurrentTime } from '../lib/lib'
-import { processLifetimeSignal } from '../lib/observerLifetime'
 import { NewExternalMessageQueueAPI } from '@sofie-automation/meteor-lib/dist/api/ExternalMessageQueue'
 import { StatusObject, setSystemStatus } from '../systemStatus/systemStatus'
 import { MethodContextAPI, MethodContext } from './methodContext'
@@ -51,7 +50,7 @@ function updateExternalMessageQueueStatus(): void {
 	}
 }
 
-export async function startExternalMessageQueueStatusMonitor(): Promise<void> {
+export async function startExternalMessageQueueStatusMonitor(signal: AbortSignal): Promise<void> {
 	await ExternalMessageQueue.observeChanges(
 		{
 			sent: { $not: { $gt: 0 } },
@@ -62,7 +61,7 @@ export async function startExternalMessageQueueStatusMonitor(): Promise<void> {
 			changed: updateExternalMessageQueueStatus,
 			removed: updateExternalMessageQueueStatus,
 		},
-		{ signal: processLifetimeSignal }
+		{ signal }
 	)
 
 	updateExternalMessageQueueStatus()

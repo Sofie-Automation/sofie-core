@@ -21,7 +21,6 @@ import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCo
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { TriggersContext } from '@sofie-automation/meteor-lib/dist/triggers/triggersContext'
 import { TagsService } from './TagsService'
-import { processLifetimeSignal } from '../../lib/observerLifetime'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 type ObserverAndManager = {
@@ -34,7 +33,10 @@ type ObserverAndManager = {
  * injected (rather than importing a global) so the compiled actions dispatch through the process's
  * `MethodRegistry`.
  */
-export async function startDeviceTriggersObserver(triggersContext: TriggersContext): Promise<void> {
+export async function startDeviceTriggersObserver(
+	triggersContext: TriggersContext,
+	signal: AbortSignal
+): Promise<void> {
 	const studioObserversAndManagers = new Map<StudioId, ObserverAndManager>()
 	const jobQueue = new JobQueueWithClasses({
 		autoStart: true,
@@ -99,7 +101,7 @@ export async function startDeviceTriggersObserver(triggersContext: TriggersConte
 				destroyObserverAndManager(studioId)
 			},
 		},
-		{ projection: { _id: 1 }, signal: processLifetimeSignal }
+		{ projection: { _id: 1 }, signal }
 	)
 }
 
