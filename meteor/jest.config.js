@@ -56,9 +56,10 @@ module.exports = {
 			globalSetup: './__mocks__/integration-global-setup.js',
 			globalTeardown: './__mocks__/integration-global-teardown.js',
 			// These tests wait on real change-stream / replica-set I/O, which is slower under CI load than the
-			// 5s jest default. Give them some headroom (the reconnect test, which waits on real backoff delays,
-			// overrides this inline).
-			testTimeout: 20000,
+			// 5s jest default. The timeout is raised via `jest.setTimeout` in a setup file rather than the
+			// `testTimeout` option, because jest only reads `testTimeout` from the global config - setting it
+			// on a project is silently ignored. Tests needing longer still override inline.
+			setupFilesAfterEnv: [...commonConfig.setupFilesAfterEnv, './__mocks__/_setupIntegrationTimeout.ts'],
 		}),
 	],
 	coverageProvider: 'v8',

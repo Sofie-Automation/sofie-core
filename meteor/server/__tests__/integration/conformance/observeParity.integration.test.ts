@@ -44,7 +44,14 @@ async function waitForCounts(sink: Sink, expected: Script['expected']): Promise<
 		() =>
 			sink.added.length === expected.added &&
 			sink.changed.length === expected.changed &&
-			sink.removed.length === expected.removed
+			sink.removed.length === expected.removed,
+		undefined,
+		() =>
+			`added/changed/removed ${expected.added}/${expected.changed}/${expected.removed}, got ` +
+			`${sink.added.length}/${sink.changed.length}/${sink.removed.length}` +
+			` :: added=${JSON.stringify(sink.added)} changed=${JSON.stringify(sink.changed)} removed=${JSON.stringify(
+				sink.removed
+			)}`
 	)
 	await settle() // give any (erroneous) extra events a chance to arrive, so the comparison catches them
 }
@@ -163,6 +170,8 @@ describe('observeChanges parity: mock vs real change stream', () => {
 		await client?.close()
 	})
 
+	// No explicit timeout: the project default leaves `waitFor` room to report which counts it was
+	// still waiting for, rather than jest cutting the test off first with a bare "Exceeded timeout"
 	test.each(scripts.map((s) => [s.name, s] as const))('%s', async (_name, script) => {
 		const mock = await runMock(script)
 		const real = await runReal(client, script)

@@ -22,12 +22,20 @@ export const id = (s: string): ProtectedString<any> => protectString<any>(s)
 /**
  * Poll `predicate` until it is true or the timeout elapses (for awaiting async change-stream delivery).
  * Delivery is normally sub-second; the default allows for CI load while staying below the integration
- * project's jest `testTimeout`, so the poll (not jest) reports a genuine hang.
+ * project's default test timeout (see `__mocks__/_setupIntegrationTimeout.ts`), so that this - not jest -
+ * reports a genuine hang, and can say what it was waiting for.
  */
-export async function waitFor(predicate: () => boolean, timeoutMs = 15000): Promise<void> {
+export async function waitFor(
+	predicate: () => boolean,
+	timeoutMs = 15000,
+	/** Describes what is being awaited, for the timeout message. Evaluated only on failure. */
+	describe?: () => string
+): Promise<void> {
 	const start = Date.now()
 	while (!predicate()) {
-		if (Date.now() - start > timeoutMs) throw new Error('waitFor timed out')
+		if (Date.now() - start > timeoutMs) {
+			throw new Error(`waitFor timed out after ${timeoutMs}ms${describe ? `, waiting for ${describe()}` : ''}`)
+		}
 		await new Promise((r) => setTimeout(r, 20))
 	}
 }
