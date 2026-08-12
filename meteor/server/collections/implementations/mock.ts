@@ -14,7 +14,6 @@ import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCo
 import { PromisifyCallbacks } from '@sofie-automation/shared-lib/dist/lib/types'
 import { UpdateOptions, IndexSpecifier } from '@sofie-automation/meteor-lib/dist/collections/lib'
 import { AsyncOnlyMongoCollection, MinimalMongoCursor, WithSignal } from '../collection'
-import { startObserveOnSignal } from '../../lib/observerLifetime'
 
 /**
  * Captured at module load, which is always before a test body can install `jest.useFakeTimers()`.
@@ -92,19 +91,18 @@ export class WrappedMockCollection<
 		await this.#sleep(0)
 		return {
 			collectionName: this.#core.name,
-			observeAsync: async (callbacks: ObserveCallbacks<DBInterface>, cursorOptions: WithSignal) =>
-				startObserveOnSignal(cursorOptions.signal, async (signal) => {
-					await this.#sleep(0)
-					this.#core.observe(callbacks, selector, { ...options, signal })
-				}),
+			observeAsync: async (callbacks: ObserveCallbacks<DBInterface>, cursorOptions: WithSignal) => {
+				await this.#sleep(0)
+				// The in-memory core registers nothing if the signal has aborted in the meantime
+				this.#core.observe(callbacks, selector, { ...options, signal: cursorOptions.signal })
+			},
 			observeChangesAsync: async (
 				callbacks: ObserveChangesCallbacks<DBInterface>,
 				callbackOptions: ObserveChangesOptions & WithSignal
-			) =>
-				startObserveOnSignal(callbackOptions.signal, async (signal) => {
-					await this.#sleep(0)
-					this.#core.observeChanges(callbacks, selector, { ...options, ...callbackOptions, signal })
-				}),
+			) => {
+				await this.#sleep(0)
+				this.#core.observeChanges(callbacks, selector, { ...options, ...callbackOptions })
+			},
 		} as MinimalMongoCursor<DBInterface>
 	}
 
@@ -113,10 +111,9 @@ export class WrappedMockCollection<
 		callbacks: PromisifyCallbacks<ObserveCallbacks<DBInterface>>,
 		options: FindObserveChangesOptions<DBInterface> & WithSignal
 	): Promise<void> {
-		return startObserveOnSignal(options.signal, async (signal) => {
-			await this.#sleep(0)
-			this.#core.observe(callbacks, selector, { ...options, signal })
-		})
+		await this.#sleep(0)
+		// The in-memory core registers nothing if the signal has aborted in the meantime
+		this.#core.observe(callbacks, selector, options)
 	}
 
 	async observeChanges(
@@ -124,10 +121,8 @@ export class WrappedMockCollection<
 		callbacks: PromisifyCallbacks<ObserveChangesCallbacks<DBInterface>>,
 		options: FindObserveChangesOptions<DBInterface> & WithSignal
 	): Promise<void> {
-		return startObserveOnSignal(options.signal, async (signal) => {
-			await this.#sleep(0)
-			this.#core.observeChanges(callbacks, selector, { ...options, signal })
-		})
+		await this.#sleep(0)
+		this.#core.observeChanges(callbacks, selector, options)
 	}
 
 	async countDocuments(selector?: MongoQuery<DBInterface>, options?: FindOptions<DBInterface>): Promise<number> {

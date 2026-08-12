@@ -56,24 +56,18 @@ export async function startDeviceTriggersObserver(
 	function createObserverAndManager(studioId: StudioId) {
 		logger.debug(`Creating observer for studio "${studioId}"`)
 		const manager = new StudioDeviceTriggerManager(studioId, new TagsService(), triggersContext)
-		const observer = new StudioObserver(
-			studioId,
-			(showStyleBaseId, cache) => {
+		const observer = new StudioObserver(studioId, {
+			onRundownContentChanged: (showStyleBaseId, cache) => {
 				logger.silly(`Studio observer updating triggers for "${studioId}":"${showStyleBaseId}"`)
 				workInQueue(async () => manager.updateTriggers(cache, showStyleBaseId))
-
-				return () => {
-					workInQueue(async () => manager.clearTriggers())
-				}
 			},
-			(showStyleBaseId, cache) => {
+			onRundownContentGone: () => {
+				workInQueue(async () => manager.clearTriggers())
+			},
+			onPieceInstancesChanged: (showStyleBaseId, cache) => {
 				workInQueue(async () => manager.updatePieceInstances(cache, showStyleBaseId))
-
-				return () => {
-					return
-				}
-			}
-		)
+			},
+		})
 
 		studioObserversAndManagers.set(studioId, { manager, observer })
 	}

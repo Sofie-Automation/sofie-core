@@ -29,7 +29,6 @@ import {
 import { ChangeStreamCursor } from '../changeStream/changeStreamCursor'
 import { subscribeToCollectionChangeFeed } from '../changeStream/collectionChangeFeed'
 import type { ObserveViewShape } from '@sofie-automation/corelib/dist/memoryCollection/observeView'
-import { startObserveOnSignal } from '../../lib/observerLifetime'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 /**
@@ -207,17 +206,15 @@ export class WrappedAsyncMongoCollection<
 		const sel = this.mongoSelector(selector)
 
 		try {
-			await startObserveOnSignal(options.signal, async (signal: AbortSignal) =>
-				observeChangesViaChangeStream(
-					this.name,
-					sel,
-					this.projectionOf(options),
-					this.shapeOf(options),
-					callbacks,
-					signal,
-					!!options?.nonMutatingCallbacks,
-					() => this.observeDeps(sel)
-				)
+			await observeChangesViaChangeStream(
+				this.name,
+				sel,
+				this.projectionOf(options),
+				this.shapeOf(options),
+				callbacks,
+				options.signal,
+				!!options?.nonMutatingCallbacks,
+				() => this.observeDeps(sel)
 			)
 			if (span) span.end()
 		} catch (e) {
@@ -242,17 +239,15 @@ export class WrappedAsyncMongoCollection<
 		const sel = this.mongoSelector(selector)
 
 		try {
-			await startObserveOnSignal(options.signal, async (signal: AbortSignal) =>
-				observeViaChangeStream(
-					this.name,
-					sel,
-					this.projectionOf(options),
-					this.shapeOf(options),
-					callbacks,
-					signal,
-					!!options?.nonMutatingCallbacks,
-					() => this.observeDeps(sel)
-				)
+			await observeViaChangeStream(
+				this.name,
+				sel,
+				this.projectionOf(options),
+				this.shapeOf(options),
+				callbacks,
+				options.signal,
+				!!options?.nonMutatingCallbacks,
+				() => this.observeDeps(sel)
 			)
 			if (span) span.end()
 		} catch (e) {

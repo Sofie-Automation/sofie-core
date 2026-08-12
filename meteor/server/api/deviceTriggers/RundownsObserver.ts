@@ -14,7 +14,7 @@ const REACTIVITY_DEBOUNCE = 20
  * Called whenever the set of rundowns changes. The signal scopes whatever it starts: it is aborted
  * before the next invocation, and when the observer itself stops.
  */
-type ChangedHandler = (rundownIds: RundownId[], invocationSignal: AbortSignal) => Promise<void | (() => void)>
+type ChangedHandler = (rundownIds: RundownId[], invocationSignal: AbortSignal) => Promise<void>
 
 type RundownFields = '_id'
 const rundownFieldSpecifier = literal<MongoFieldSpecifierOnesStrict<Pick<DBRundown, RundownFields>>>({
@@ -39,11 +39,7 @@ export class RundownsObserver {
 			const invocation = createChildAbort(this.#signal)
 			this.#invocation = invocation
 
-			const cleanup = await this.#changed(this.rundownIds, invocation.signal)
-
-			// If this invocation was superseded, or the observer stopped, while we were awaiting, the
-			// signal is already aborted and the cleanup runs immediately
-			if (cleanup) runOnAbort(invocation.signal, cleanup)
+			await this.#changed(this.rundownIds, invocation.signal)
 		} catch (e) {
 			logger.error(`Error in RundownsObserver triggerUpdateRundownContent: ${stringifyError(e)}`)
 		}

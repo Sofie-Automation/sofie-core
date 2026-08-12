@@ -12,25 +12,20 @@ import { runOnAbort } from '../../lib/observerLifetime'
 
 const REACTIVITY_DEBOUNCE = 20
 
-type ChangedHandler = (cache: ContentCache) => () => void
+type ChangedHandler = (cache: ContentCache) => void
 
 export class PieceInstancesObserver {
 	#cache: ContentCache
-	#cleanup: (() => void) | undefined
 
 	constructor(onChanged: ChangedHandler, signal: AbortSignal) {
 		const { cache, cancel: cancelCache } = createReactiveContentCache(() => {
-			this.#cleanup = onChanged(cache)
-			if (signal.aborted) this.#cleanup()
+			if (signal.aborted) return
+			onChanged(cache)
 		}, REACTIVITY_DEBOUNCE)
 
 		this.#cache = cache
 
-		runOnAbort(signal, () => {
-			cancelCache()
-			this.#cleanup?.()
-			this.#cleanup = undefined
-		})
+		runOnAbort(signal, cancelCache)
 	}
 
 	static async create(
