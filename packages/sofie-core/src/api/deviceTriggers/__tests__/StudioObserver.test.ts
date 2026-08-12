@@ -100,17 +100,17 @@ describe('StudioObserver', () => {
 		const rundownId = protectString<RundownId>('rundown0')
 		const showStyleBaseId = protectString<ShowStyleBaseId>('showStyleBase0')
 
-		const rundownCleanup = jest.fn()
-		const pieceCleanup = jest.fn()
-
-		const onRundownContentChanged = jest.fn(
-			(_ssbId: ShowStyleBaseId, _cache: RundownContentCache) => rundownCleanup
-		)
+		const onRundownContentChanged = jest.fn((_ssbId: ShowStyleBaseId, _cache: RundownContentCache) => undefined)
+		const onRundownContentGone = jest.fn()
 		const onPieceInstancesChanged = jest.fn(
-			(_ssbId: ShowStyleBaseId, _cache: PieceInstancesContentCache) => pieceCleanup
+			(_ssbId: ShowStyleBaseId, _cache: PieceInstancesContentCache) => undefined
 		)
 
-		const observer = new StudioObserver(studioId, onRundownContentChanged, onPieceInstancesChanged)
+		const observer = new StudioObserver(studioId, {
+			onRundownContentChanged,
+			onRundownContentGone,
+			onPieceInstancesChanged,
+		})
 
 		// Prime state so updateShowStyle goes down the creation path
 		;(observer as any).nextProps = {
@@ -143,20 +143,13 @@ describe('StudioObserver', () => {
 		expect(() => capturedRundownContentOnChanged!(mockRundownCache)).not.toThrow()
 		expect(() => capturedPieceInstancesOnChanged!(mockPieceInstancesCache)).not.toThrow()
 
-		// They should return cleanup fns
-		const cleanup1 = capturedRundownContentOnChanged!(mockRundownCache)
-		const cleanup2 = capturedPieceInstancesOnChanged!(mockPieceInstancesCache)
-		expect(typeof cleanup1).toBe('function')
-		expect(typeof cleanup2).toBe('function')
-
 		// Ensure our handlers were called with expected args
 		expect(onRundownContentChanged).toHaveBeenCalledWith(showStyleBaseId, mockRundownCache)
 		expect(onPieceInstancesChanged).toHaveBeenCalledWith(showStyleBaseId, mockPieceInstancesCache)
 
-		// Ensure returned cleanup fns are callable
-		expect(() => cleanup1()).not.toThrow()
-		expect(() => cleanup2()).not.toThrow()
-
+		// Teardown is registered on the observer's signal rather than returned from the change handler
+		expect(onRundownContentGone).not.toHaveBeenCalled()
 		observer.stop()
+		expect(onRundownContentGone).toHaveBeenCalledTimes(1)
 	})
 })

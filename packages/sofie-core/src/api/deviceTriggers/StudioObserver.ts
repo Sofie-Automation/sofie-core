@@ -22,11 +22,17 @@ import { RundownPlaylists, Rundowns, ShowStyleBases } from '../../collections'
 import { PromiseDebounce } from '../../publications/lib/PromiseDebounce'
 import { PieceInstancesObserver } from './PieceInstancesObserver'
 import { MinimalMongoCursor } from '../../collections/collection'
-import { AbortScope, createChildAbort } from '../../lib/observerLifetime'
+import { AbortScope, createChildAbort, runOnAbort } from '../../lib/observerLifetime'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 
-type RundownContentChangeHandler = (showStyleBaseId: ShowStyleBaseId, cache: ContentCache) => () => void
-type PieceInstancesChangeHandler = (showStyleBaseId: ShowStyleBaseId, cache: PieceInstancesContentCache) => () => void
+export interface StudioObserverHandlers {
+	/** The rundown content for `showStyleBaseId` has changed */
+	onRundownContentChanged: (showStyleBaseId: ShowStyleBaseId, cache: ContentCache) => void
+	/** The rundown content observed above has gone away, and whatever was derived from it is now stale */
+	onRundownContentGone: () => void
+	/** The piece instances for `showStyleBaseId` have changed */
+	onPieceInstancesChanged: (showStyleBaseId: ShowStyleBaseId, cache: PieceInstancesContentCache) => void
+}
 
 const REACTIVITY_DEBOUNCE = 20
 
@@ -75,17 +81,11 @@ export class StudioObserver extends EventEmitter {
 	currentProps: StudioObserverProps | undefined = undefined
 	nextProps: StudioObserverProps | undefined = undefined
 
-	#rundownContentChanged: RundownContentChangeHandler
-	#pieceInstancesChanged: PieceInstancesChangeHandler
+	readonly #handlers: StudioObserverHandlers
 
-	constructor(
-		studioId: StudioId,
-		onRundownContentChanged: RundownContentChangeHandler,
-		pieceInstancesChanged: PieceInstancesChangeHandler
-	) {
+	constructor(studioId: StudioId, handlers: StudioObserverHandlers) {
 		super()
-		this.#rundownContentChanged = onRundownContentChanged
-		this.#pieceInstancesChanged = pieceInstancesChanged
+		this.#handlers = handlers
 		observerChain(this.#abort.signal)
 			.next(
 				'activePlaylist',
@@ -212,8 +212,7 @@ export class StudioObserver extends EventEmitter {
 		this.nextProps = undefined
 
 		const { activePlaylistId, activationId } = this.currentProps
-		const rundownContentChanged = this.#rundownContentChanged
-		const pieceInstancesChanged = this.#pieceInstancesChanged
+		const handlers = this.#handlers
 
 		try {
 			await RundownsObserver.create(activePlaylistId, scope.signal, async (rundownIds, invocationSignal) => {
@@ -223,19 +222,18 @@ export class StudioObserver extends EventEmitter {
 					activePlaylistId,
 					showStyleBaseId,
 					rundownIds,
-					(cache) => rundownContentChanged(showStyleBaseId, cache),
+					(cache) => handlers.onRundownContentChanged(showStyleBaseId, cache),
 					invocationSignal
 				)
+
+				// This content is stale once the rundowns change, or the observer stops
+				runOnAbort(invocationSignal, () => handlers.onRundownContentGone())
 			})
 
 			await PieceInstancesObserver.create(
 				activationId,
 				showStyleBaseId,
-				(cache) => {
-					const cleanupChanges = pieceInstancesChanged(showStyleBaseId, cache)
-
-					return () => cleanupChanges?.()
-				},
+				(cache) => handlers.onPieceInstancesChanged(showStyleBaseId, cache),
 				scope.signal
 			)
 		} catch (e) {

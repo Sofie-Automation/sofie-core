@@ -91,6 +91,18 @@ function createWrappedCollection<DBInterface extends { _id: ProtectedString<any>
 export { hasSignal, type WithSignal }
 
 /**
+ * The lifetime contract every observe implementation must honour:
+ *
+ * - Already-aborted signal: start nothing, resolve.
+ * - Signal aborts while setup is in flight: leave nothing running, resolve. A subscription stopping
+ *   mid-setup is a normal lifecycle event, not an error.
+ * - Genuine failure: leave nothing running, reject. A rejection must never oblige the caller to abort
+ *   in order to release a partially-started observer.
+ *
+ * Callers rely on this, and so do not wrap observe calls in cleanup scopes of their own.
+ */
+
+/**
  * A minimal mongo cursor, with only the async methods used by the codebase.
  * This is intentionally only the observe methods, kept for publication usage to avoid a larger refactor
  */

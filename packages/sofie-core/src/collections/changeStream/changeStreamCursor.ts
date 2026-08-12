@@ -10,7 +10,6 @@ import { PromisifyCallbacks } from '@sofie-automation/shared-lib/dist/lib/types'
 import { observeChangesViaChangeStream, observeViaChangeStream, ObserveMultiplexerDeps } from './observeMultiplexer'
 import type { ObserveViewShape } from '@sofie-automation/corelib/dist/memoryCollection/observeView'
 import { type MinimalMongoCursor, type WithSignal } from '../collection'
-import { startObserveOnSignal } from '../../lib/observerLifetime'
 
 export interface ChangeStreamCursorConfig<TDoc extends { _id: ProtectedString<any> }> {
 	collectionName: string
@@ -41,32 +40,28 @@ export class ChangeStreamCursor<TDoc extends { _id: ProtectedString<any> }> impl
 		callbacks: PromisifyCallbacks<ObserveChangesCallbacks<TDoc>>,
 		options: ObserveChangesOptions & WithSignal
 	): Promise<void> {
-		return startObserveOnSignal(options.signal, async (signal) =>
-			observeChangesViaChangeStream(
-				this.#config.collectionName,
-				this.#config.selector,
-				this.#config.projection,
-				this.#config.shape,
-				callbacks,
-				signal,
-				!!options.nonMutatingCallbacks,
-				this.#config.makeDeps
-			)
+		return observeChangesViaChangeStream(
+			this.#config.collectionName,
+			this.#config.selector,
+			this.#config.projection,
+			this.#config.shape,
+			callbacks,
+			options.signal,
+			!!options.nonMutatingCallbacks,
+			this.#config.makeDeps
 		)
 	}
 
 	async observeAsync(callbacks: PromisifyCallbacks<ObserveCallbacks<TDoc>>, options: WithSignal): Promise<void> {
-		return startObserveOnSignal(options.signal, async (signal) =>
-			observeViaChangeStream(
-				this.#config.collectionName,
-				this.#config.selector,
-				this.#config.projection,
-				this.#config.shape,
-				callbacks,
-				signal,
-				false,
-				this.#config.makeDeps
-			)
+		return observeViaChangeStream(
+			this.#config.collectionName,
+			this.#config.selector,
+			this.#config.projection,
+			this.#config.shape,
+			callbacks,
+			options.signal,
+			false,
+			this.#config.makeDeps
 		)
 	}
 }

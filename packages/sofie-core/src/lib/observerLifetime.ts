@@ -40,34 +40,6 @@ export function createChildAbort(parent: AbortSignal): AbortScope {
 }
 
 /**
- * Run an observer setup bound to `signal`, with the standard lifetime semantics:
- *
- * - If the signal is already aborted, nothing is started and this resolves quietly.
- * - If the signal aborts while the setup is in flight, whatever was started is torn down and this
- *   resolves quietly - a subscription stopping mid-setup is a normal lifecycle event, not an error.
- * - If the setup genuinely fails, everything it started is torn down and the error is rethrown, so a
- *   rejection always means nothing was left running.
- *
- * The setup runs on a child signal, so cleanup after a failure cannot abort the caller's signal.
- */
-export async function startObserveOnSignal(
-	signal: AbortSignal,
-	setup: (signal: AbortSignal) => Promise<void>
-): Promise<void> {
-	if (signal.aborted) return
-
-	const child = createChildAbort(signal)
-	try {
-		await setup(child.signal)
-	} catch (e) {
-		child.abort() // Ensure everything started under the signal gets terminated
-		// A failure caused by the lifetime ending is not an error worth propagating
-		if (signal.aborted) return
-		throw e
-	}
-}
-
-/**
  * Run a cleanup function when `signal` aborts, or immediately if it already has - the signal may have
  * aborted while the caller was awaiting whatever the cleanup releases.
  *

@@ -473,6 +473,26 @@ describe('ObserveMultiplexer dedup registry', () => {
 		expect(getActiveMultiplexerCount()).toBe(base)
 	})
 
+	test('a failed initial snapshot rejects and leaves nothing running', async () => {
+		// The caller must not have to abort to release a partially-started observer: rejecting means the
+		// subscriber is already deregistered, which drops the multiplexer and closes its feed.
+		const h = makeHarness([])
+		const snapshotFailed = new Error('snapshot failed')
+		h.deps.snapshot = jest.fn(async () => {
+			throw snapshotFailed
+		})
+
+		const base = getActiveMultiplexerCount()
+
+		await expect(
+			joinChangesFeed('coll_snapshot_fails', {}, undefined, changesCallbacks() as any, () => h.deps)
+		).rejects.toBe(snapshotFailed)
+
+		expect(getActiveMultiplexerCount()).toBe(base)
+		expect(h.feedStop).toHaveBeenCalledTimes(1)
+		expect(h.feedSubCount()).toBe(0)
+	})
+
 	test('selectors that collide under a lossy stringify stay separate (injective key)', async () => {
 		// `{ a:'1', b:'2' }` and `{ a:'1,b=2' }` both reduce to "a=1,b=2" under corelib's `stringifyObjects`;
 		// the canonical dedup key must keep them on separate multiplexers.
