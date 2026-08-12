@@ -144,6 +144,8 @@ const processLifetime = new AbortController()
 })().catch((e) => {
 	logger.error(`Startup failed: ${stringifyError(e)}`)
 
+	processLifetime.abort(new Error('Startup failed'))
+
 	// eslint-disable-next-line n/no-process-exit
 	process.exit(1)
 })
