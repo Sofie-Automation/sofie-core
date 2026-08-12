@@ -22,7 +22,6 @@ import {
 	rundownPlaylistFieldSpecifier,
 	segmentFieldSpecifier,
 } from './reactiveContentCache'
-import { runOnAbort } from '../../lib/observerLifetime'
 
 const REACTIVITY_DEBOUNCE = 20
 
@@ -32,14 +31,7 @@ export class RundownContentObserver {
 	#cache: ContentCache
 
 	private constructor(onChanged: ChangedHandler, signal: AbortSignal) {
-		const { cache, cancel: cancelCache } = createReactiveContentCache(() => {
-			if (signal.aborted) return
-			onChanged(cache)
-		}, REACTIVITY_DEBOUNCE)
-
-		this.#cache = cache
-
-		runOnAbort(signal, cancelCache)
+		this.#cache = createReactiveContentCache(onChanged, REACTIVITY_DEBOUNCE, signal)
 	}
 
 	static async create(
