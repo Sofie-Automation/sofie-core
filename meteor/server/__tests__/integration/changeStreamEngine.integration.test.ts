@@ -145,14 +145,22 @@ describe('change-stream engine (integration)', () => {
 		expect(added[0]).toEqual({ _id: id('A'), val: 1 })
 
 		await collection.updateOne({ _id: id('A') }, { $set: { val: 2 } })
-		await waitFor(() => changed.length === 1)
+		await waitFor(
+			() => changed.length === 1,
+			undefined,
+			() => `1 changed, got ${changed.length}: ${JSON.stringify(changed)} (added ${JSON.stringify(added)})`
+		)
 		expect(changed[0]).toEqual([
 			{ _id: id('A'), val: 2 },
 			{ _id: id('A'), val: 1 },
 		])
 
 		await collection.deleteOne({ _id: id('A') })
-		await waitFor(() => removed.length === 1)
+		await waitFor(
+			() => removed.length === 1,
+			undefined,
+			() => `1 removed, got ${removed.length}: ${JSON.stringify(removed)}`
+		)
 		expect(removed[0]).toEqual({ _id: id('A'), val: 2 })
 	})
 
