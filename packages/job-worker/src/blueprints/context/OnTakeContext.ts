@@ -177,6 +177,10 @@ export class OnTakeContext extends ShowStyleUserContext implements IOnTakeContex
 		return executePeripheralDeviceAction(this._context, deviceId, timeoutMs ?? null, actionId, payload)
 	}
 
+	/**
+	 * If the target is invalid, prepareQueueablePartAndPieces throws synchronously; executeOnTakeCallback catches and logs the error,
+	 * sets an onTake notification, and continues the take without queuing the part.
+	 */
 	queuePartAfterTake(
 		rawPart: IBlueprintPart,
 		rawPieces: IBlueprintPiece[],
