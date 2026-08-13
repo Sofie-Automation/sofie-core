@@ -62,7 +62,6 @@ import {
 	PlayoutChangedType,
 } from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI'
 import _ from 'underscore'
-import { PlayoutRundownModel } from '../model/PlayoutRundownModel.js'
 import { PlayoutPartInstanceModel } from '../model/PlayoutPartInstanceModel.js'
 import { PlayoutPartInstanceModelImpl } from '../model/implementation/PlayoutPartInstanceModelImpl.js'
 import { mock } from 'jest-mock-extended'
@@ -1145,19 +1144,7 @@ describe('Timeline', () => {
 					const currentPartInstance = playoutModel.currentPartInstance as PlayoutPartInstanceModel
 					expect(currentPartInstance).toBeTruthy()
 
-					const rundown = playoutModel.getRundown(
-						currentPartInstance.partInstance.rundownId
-					) as PlayoutRundownModel
-					expect(rundown).toBeTruthy()
-
-					return innerStartOrQueueAdLibPiece(
-						context,
-						playoutModel,
-						rundown,
-						false,
-						currentPartInstance,
-						adlibSource
-					)
+					return innerStartOrQueueAdLibPiece(context, playoutModel, false, currentPartInstance, adlibSource)
 				})
 			}
 

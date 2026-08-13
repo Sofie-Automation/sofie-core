@@ -11,8 +11,24 @@ export interface IPlayoutActionContext {
 	moveNextPart(partDelta: number, segmentDelta: number, ignoreQuickloop?: boolean): Promise<boolean>
 	/** Set flag to perform a take after the current handler completes. Returns state of the flag after each call. */
 	takeAfterExecuteAction(take: boolean): Promise<boolean>
-	/** Insert a queued part to follow the current part */
-	queuePart(part: IBlueprintPart, pieces: IBlueprintPiece[]): Promise<IBlueprintPartInstance>
-	/** Insert a queued part to follow the taken part */
-	queuePartAfterTake(part: IBlueprintPart, pieces: IBlueprintPiece[]): void
+	/**
+	 * Insert an adlibbed part into the rundown and set it as next.
+	 * @param insertBeforePartOrInstanceId When omitted, inserts immediately after the current part.
+	 * When provided, inserts before the given PartId or PartInstanceId (PartInstanceId is checked first).
+	 * The target must exist and must not be in an orphaned segment.
+	 * The inserted part always becomes next via setNextPart, even when the target is far ahead — intervening scripted parts are skipped.
+	 */
+	queuePart(
+		part: IBlueprintPart,
+		pieces: IBlueprintPiece[],
+		insertBeforePartOrInstanceId?: string
+	): Promise<IBlueprintPartInstance>
+	/**
+	 * Insert an adlibbed part into the rundown after the take completes and set it as next.
+	 * @param insertBeforePartOrInstanceId When omitted, inserts immediately after the taken part.
+	 * When provided, inserts before the given PartId or PartInstanceId (PartInstanceId is checked first).
+	 * The target must exist and must not be in an orphaned segment.
+	 * The inserted part always becomes next via setNextPart, even when the target is far ahead — intervening scripted parts are skipped.
+	 */
+	queuePartAfterTake(part: IBlueprintPart, pieces: IBlueprintPiece[], insertBeforePartOrInstanceId?: string): void
 }

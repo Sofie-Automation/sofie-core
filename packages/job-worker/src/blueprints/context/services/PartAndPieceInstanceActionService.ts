@@ -38,6 +38,8 @@ import {
 	innerFindLastScriptedPieceOnLayer,
 	innerStopPieces,
 	insertQueuedPartWithPieces,
+	QueuedAdlibInsertBeforeId,
+	resolveQueuedAdlibInsertTarget,
 } from '../../../playout/adlibUtils.js'
 import { assertNever, getRandomId, omit } from '@sofie-automation/corelib/dist/lib'
 import { logger } from '../../../logging.js'
@@ -59,7 +61,6 @@ import _ from 'underscore'
 import { syncPlayheadInfinitesForNextPartInstance } from '../../../playout/infinites.js'
 import { validateAdlibTestingPartInstanceProperties } from '../../../playout/adlibTesting.js'
 import { DBPart, isPartPlayable } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { PlayoutRundownModel } from '../../../playout/model/PlayoutRundownModel.js'
 import { BlueprintQuickLookInfo } from '@sofie-automation/blueprints-integration/dist/context/quickLoopInfo'
 
 export enum ActionPartChange {
@@ -75,6 +76,7 @@ export interface IPartAndPieceInstanceActionContext {
 export interface QueueablePartAndPieces {
 	part: Omit<DBPart, 'segmentId' | 'rundownId' | '_rank'>
 	pieces: Piece[]
+	insertBeforeId?: QueuedAdlibInsertBeforeId
 }
 
 export class PartAndPieceInstanceActionService {
@@ -93,12 +95,7 @@ export class PartAndPieceInstanceActionService {
 
 	public queuedPartInstanceId: PartInstanceId | undefined = undefined
 
-	constructor(
-		context: JobContext,
-		playoutModel: PlayoutModel,
-		showStyle: ReadonlyDeep<ProcessedShowStyleCompound>,
-		private readonly _rundown: PlayoutRundownModel
-	) {
+	constructor(context: JobContext, playoutModel: PlayoutModel, showStyle: ReadonlyDeep<ProcessedShowStyleCompound>) {
 		this._context = context
 		this._playoutModel = playoutModel
 		this.showStyleCompound = showStyle
@@ -399,7 +396,11 @@ export class PartAndPieceInstanceActionService {
 		return convertPartInstanceToBlueprints(partInstance.partInstance)
 	}
 
-	async queuePart(rawPart: IBlueprintPart, rawPieces: IBlueprintPiece[]): Promise<IBlueprintPartInstance> {
+	async queuePart(
+		rawPart: IBlueprintPart,
+		rawPieces: IBlueprintPiece[],
+		insertBeforePartOrInstanceId?: string
+	): Promise<IBlueprintPartInstance> {
 		const currentPartInstance = this._playoutModel.currentPartInstance
 		if (!currentPartInstance) {
 			throw new Error('Cannot queue part when no current partInstance')
@@ -416,28 +417,57 @@ export class PartAndPieceInstanceActionService {
 			throw new Error('Too close to an autonext to queue a part')
 		}
 
+		const insertBeforeId = insertBeforePartOrInstanceId
+			? protectString<QueuedAdlibInsertBeforeId>(insertBeforePartOrInstanceId)
+			: undefined
+
+		const insertTarget = resolveQueuedAdlibInsertTarget(this._playoutModel, currentPartInstance, insertBeforeId)
+
 		const { part, pieces } = this.processPartAndPiecesToQueueOrFail(
 			rawPart,
 			rawPieces,
-			currentPartInstance.partInstance.rundownId,
-			currentPartInstance.partInstance.segmentId
+			insertTarget.targetRundown.rundown._id,
+			insertTarget.targetSegment.segment._id
 		)
 
 		// Do the work
 		const newPartInstance = await insertQueuedPartWithPieces(
 			this._context,
 			this._playoutModel,
-			this._rundown,
 			currentPartInstance,
 			part,
 			pieces,
-			undefined
+			undefined,
+			insertBeforeId,
+			insertTarget
 		)
 
 		this.nextPartState = ActionPartChange.SAFE_CHANGE
 		this.queuedPartInstanceId = newPartInstance.partInstance._id
 
 		return convertPartInstanceToBlueprints(newPartInstance.partInstance)
+	}
+
+	prepareQueueablePartAndPieces(
+		rawPart: IBlueprintPart,
+		rawPieces: IBlueprintPiece[],
+		currentPartInstance: PlayoutPartInstanceModel,
+		insertBeforePartOrInstanceId?: string
+	): QueueablePartAndPieces {
+		const insertBeforeId = insertBeforePartOrInstanceId
+			? protectString<QueuedAdlibInsertBeforeId>(insertBeforePartOrInstanceId)
+			: undefined
+
+		const insertTarget = resolveQueuedAdlibInsertTarget(this._playoutModel, currentPartInstance, insertBeforeId)
+
+		const { part, pieces } = this.processPartAndPiecesToQueueOrFail(
+			rawPart,
+			rawPieces,
+			insertTarget.targetRundown.rundown._id,
+			insertTarget.targetSegment.segment._id
+		)
+
+		return { part, pieces, insertBeforeId }
 	}
 
 	public processPartAndPiecesToQueueOrFail(
