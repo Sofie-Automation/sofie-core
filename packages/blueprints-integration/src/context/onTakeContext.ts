@@ -29,6 +29,8 @@ export interface IOnTakeContext
 	 * @param insertBefore When targetPartOrInstanceId is set, true (default) inserts before the target, false inserts after it.
 	 * The target must exist and must not be in an orphaned segment.
 	 * The inserted part always becomes next via setNextPart, even when the target is far ahead — intervening scripted parts are skipped.
+	 * If the target is invalid, prepareQueueablePartAndPieces throws synchronously; executeOnTakeCallback catches and logs the error,
+	 * sets an onTake notification, and continues the take without queuing the part.
 	 */
 	queuePartAfterTake(
 		part: IBlueprintPart,

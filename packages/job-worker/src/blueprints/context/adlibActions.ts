@@ -190,6 +190,10 @@ export class ActionExecutionContext extends ShowStyleUserContext implements IAct
 		return this.partAndPieceInstanceService.queuePart(rawPart, rawPieces, targetPartOrInstanceId, insertBefore)
 	}
 
+	/**
+	 * If the target is invalid, prepareQueueablePartAndPieces throws synchronously.
+	 * When called during executeAction, the error fails the action before any take occurs.
+	 */
 	queuePartAfterTake(
 		rawPart: IBlueprintPart,
 		rawPieces: IBlueprintPiece[],
