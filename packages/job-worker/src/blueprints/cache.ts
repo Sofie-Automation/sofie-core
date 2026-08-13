@@ -22,6 +22,8 @@ export interface WrappedStudioBlueprint {
 export interface WrappedShowStyleBlueprint {
 	blueprintId: BlueprintId
 	blueprint: ShowStyleBlueprintManifest
+	/** Hash of the blueprint code from the Blueprint document */
+	blueprintHash: Blueprint['blueprintHash']
 }
 
 // export async function loadSystemBlueprints(system: ICoreSystem): Promise<WrappedSystemBlueprint | undefined> {

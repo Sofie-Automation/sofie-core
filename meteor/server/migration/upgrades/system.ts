@@ -45,7 +45,7 @@ export async function runUpgradeForCoreSystem(coreSystemId: CoreSystemId): Promi
 		$set: {
 			'settingsWithOverrides.defaults': coreSystemSettings,
 			lastBlueprintConfig: {
-				blueprintHash: blueprint?.blueprintHash ?? protectString('default'),
+				blueprintHash: blueprint?.blueprintHash ?? 'default',
 				blueprintId: blueprint?._id ?? protectString('default'),
 				blueprintConfigPresetId: undefined,
 				config: {},

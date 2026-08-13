@@ -185,7 +185,7 @@ export function checkSystemUpgradeStatus(
 					newValue: defaultId,
 				})
 			)
-		} else if (doc.lastBlueprintConfig.blueprintHash !== defaultId) {
+		} else if (doc.lastBlueprintConfig.blueprintHash !== 'default') {
 			changes.push(generateTranslation('Blueprint has a new version'))
 		}
 	}

@@ -8,7 +8,7 @@ export function shouldUpdateStudioBaselineInner(
 	coreVersion: string,
 	studio: Pick<DBStudio, 'blueprintId' | '_rundownVersionHash'>,
 	studioTimeline: ReadonlyDeep<TimelineComplete> | null,
-	studioBlueprint: Pick<Blueprint, 'blueprintVersion'> | null
+	studioBlueprint: Pick<Blueprint, 'blueprintHash'> | null
 ): string | false {
 	if (!studioTimeline) return 'noBaseline'
 
@@ -22,7 +22,7 @@ export function shouldUpdateStudioBaselineInner(
 	if (versionsContent.blueprintId !== unprotectString(studio.blueprintId)) return 'blueprintId'
 	if (studio.blueprintId) {
 		if (!studioBlueprint) return 'blueprintUnknown'
-		if (versionsContent.blueprintVersion !== (studioBlueprint.blueprintVersion || 0)) return 'blueprintVersion'
+		if (versionsContent.blueprintVersion !== (studioBlueprint.blueprintHash || 0)) return 'blueprintVersion'
 	}
 
 	return false

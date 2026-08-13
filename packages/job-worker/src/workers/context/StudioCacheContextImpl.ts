@@ -286,8 +286,13 @@ async function loadShowStyleBlueprint(
 		)
 	}
 
+	if (!blueprintDoc?.blueprintHash) {
+		throw new Error(`Blueprint "${showStyleBase.blueprintId}" is missing blueprintHash!`)
+	}
+
 	return Object.freeze({
 		blueprintId: showStyleBase.blueprintId,
 		blueprint: blueprintManifest,
+		blueprintHash: blueprintDoc.blueprintHash,
 	})
 }

@@ -21,7 +21,7 @@ export namespace ServerPlayoutAPI {
 			const [timeline, blueprint] = await Promise.all([
 				Timeline.findOneAsync(studio._id),
 				studio.blueprintId
-					? Blueprints.findOneAsync(studio.blueprintId, { projection: { blueprintVersion: 1 } })
+					? Blueprints.findOneAsync(studio.blueprintId, { projection: { blueprintHash: 1 } })
 					: null,
 			])
 			if (blueprint === undefined) return 'missingBlueprint'

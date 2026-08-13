@@ -108,11 +108,11 @@ export namespace ClientRundownAPI {
 				const blueprint = (await Blueprints.findOneAsync(showStyleBase.blueprintId, {
 					projection: {
 						_id: 1,
-						blueprintVersion: 1,
+						blueprintHash: 1,
 					},
-				})) as Pick<Blueprint, '_id' | 'blueprintVersion'>
-				if (!blueprint.blueprintVersion) return 'missing blueprint'
-				if (rundown.importVersions.blueprint !== (blueprint.blueprintVersion || 0)) return 'blueprint'
+				})) as Pick<Blueprint, '_id' | 'blueprintHash'>
+				if (!blueprint.blueprintHash) return 'missing blueprint'
+				if (rundown.importVersions.blueprint !== blueprint.blueprintHash) return 'blueprint'
 
 				const studio = (await Studios.findOneAsync(rundown.studioId, {
 					projection: {
