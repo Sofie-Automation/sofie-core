@@ -1,10 +1,9 @@
 import type { IDefaultRendererProps } from './DefaultRenderer.js'
-import { getPieceInOutWords } from '../../../../lib/pieceInOutWords.js'
 
 export function ScriptRenderer(props: Readonly<IDefaultRendererProps>): JSX.Element | string {
-	const { begin: beginRaw, end: endRaw } = getPieceInOutWords(props.piece.instance.piece)
-	const begin = beginRaw.trim()
-	const end = endRaw.trim()
+	const labelItems = (props.piece.instance.piece.name || '').split('||')
+	const begin = (labelItems[0] || '').trim()
+	const end = (labelItems[1] || '').trim()
 
 	if (end) {
 		return (

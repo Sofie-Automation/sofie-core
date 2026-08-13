@@ -8,7 +8,6 @@ import { getElementWidth } from '../../../utils/dimensions.js'
 import { calculatePartInstanceExpectedDurationWithTransition } from '@sofie-automation/corelib/dist/playout/timings'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { logger } from '../../../lib/logging.js'
-import { getPieceInOutWords } from '../../../lib/pieceInOutWords.js'
 
 type IProps = ICustomLayerItemProps
 interface IState {}
@@ -198,11 +197,7 @@ export const MicSourceRenderer: React.ComponentType<IProps> = withTranslation()(
 				this.refreshLine()
 			}
 
-			const prevInOutWords = getPieceInOutWords(prevProps.piece.instance.piece)
-			const inOutWords = getPieceInOutWords(this.props.piece.instance.piece)
-			const inOutWordsChanged = inOutWords.begin !== prevInOutWords.begin || inOutWords.end !== prevInOutWords.end
-
-			if (this.props.piece.instance.piece.name !== prevProps.piece.instance.piece.name || inOutWordsChanged) {
+			if (this.props.piece.instance.piece.name !== prevProps.piece.instance.piece.name) {
 				this.updateAnchoredElsWidths()
 			}
 		}
@@ -214,7 +209,9 @@ export const MicSourceRenderer: React.ComponentType<IProps> = withTranslation()(
 		}
 
 		render(): JSX.Element {
-			const { begin, end } = getPieceInOutWords(this.props.piece.instance.piece)
+			const labelItems = (this.props.piece.instance.piece.name || '').split('||')
+			const begin = labelItems[0] || ''
+			const end = labelItems[1] || ''
 
 			// function shorten (str: string, maxLen: number, separator: string = ' ') {
 			// 	if (str.length <= maxLen) return str

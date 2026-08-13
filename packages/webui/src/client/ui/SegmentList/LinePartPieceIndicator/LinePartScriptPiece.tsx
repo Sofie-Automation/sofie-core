@@ -7,7 +7,6 @@ import {
 } from '../../PreviewPopUp/PreviewPopUpContext.js'
 import { useContentStatusForPieceInstance } from '../../SegmentTimeline/withMediaObjectStatus.js'
 import type { PieceExtended } from '@sofie-automation/corelib/src/dataModel/Piece.js'
-import { getPieceInOutWords } from '../../../lib/pieceInOutWords.js'
 
 interface IProps {
 	pieces: PieceExtended[]
@@ -69,8 +68,8 @@ export function LinePartScriptPiece({ pieces }: IProps): JSX.Element {
 	const hasPiece = thisPieces[0]
 	let scriptLabel = ''
 	if (hasPiece) {
-		const { begin, end } = getPieceInOutWords(hasPiece.instance.piece)
-		scriptLabel = end || begin
+		const scriptLabelSplit = hasPiece.instance.piece.name.split('||')
+		scriptLabel = scriptLabelSplit[1] || scriptLabelSplit[0]
 	}
 
 	// In order to have the left-hand-side ellipsis work it's magic, we need to wrap the text in LTR non-printable,
