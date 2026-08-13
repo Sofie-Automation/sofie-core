@@ -184,15 +184,17 @@ export class ActionExecutionContext extends ShowStyleUserContext implements IAct
 	async queuePart(
 		rawPart: IBlueprintPart,
 		rawPieces: IBlueprintPiece[],
-		insertBeforePartOrInstanceId?: string
+		targetPartOrInstanceId?: string,
+		insertBefore?: boolean
 	): Promise<IBlueprintPartInstance> {
-		return this.partAndPieceInstanceService.queuePart(rawPart, rawPieces, insertBeforePartOrInstanceId)
+		return this.partAndPieceInstanceService.queuePart(rawPart, rawPieces, targetPartOrInstanceId, insertBefore)
 	}
 
 	queuePartAfterTake(
 		rawPart: IBlueprintPart,
 		rawPieces: IBlueprintPiece[],
-		insertBeforePartOrInstanceId?: string
+		targetPartOrInstanceId?: string,
+		insertBefore?: boolean
 	): void {
 		const currentPartInstance = this._playoutModel.currentPartInstance
 		if (!currentPartInstance) {
@@ -202,7 +204,8 @@ export class ActionExecutionContext extends ShowStyleUserContext implements IAct
 			rawPart,
 			rawPieces,
 			currentPartInstance,
-			insertBeforePartOrInstanceId
+			targetPartOrInstanceId,
+			insertBefore
 		)
 	}
 

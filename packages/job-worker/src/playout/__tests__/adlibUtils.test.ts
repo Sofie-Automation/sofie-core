@@ -172,8 +172,156 @@ describe('adlibUtils', () => {
 			playoutModel.cycleSelectedPartInstances()
 
 			expect(() => resolveQueuedAdlibInsertTarget(playoutModel, currentPartInstance, targetPart._id)).toThrow(
-				'Cannot queue part: insert before target is in orphaned segment'
+				'Cannot queue part: target is in orphaned segment'
 			)
+		})
+	})
+
+	test('resolveQueuedAdlibInsertTarget inserts after explicit part id', async () => {
+		const playlistId: RundownPlaylistId = protectString('playlist0')
+		const rundownId: RundownId = getRandomId()
+		const context = await setupActivatedPlaylist(rundownId, playlistId)
+
+		await runJobWithPlayoutModel(context, { playlistId }, null, async (playoutModel) => {
+			const currentPart = playoutModel.getAllOrderedParts()[0]
+			expect(currentPart).toBeTruthy()
+
+			const targetPart = await context.mockCollections.Parts.findOne({
+				externalId: 'MOCK_PART_1_0',
+				rundownId,
+			})
+			expect(targetPart).toBeTruthy()
+			if (!targetPart) throw new Error('targetPart not found')
+
+			const partAfterTarget = await context.mockCollections.Parts.findOne({
+				externalId: 'MOCK_PART_1_1',
+				rundownId,
+			})
+			expect(partAfterTarget).toBeTruthy()
+			if (!partAfterTarget) throw new Error('partAfterTarget not found')
+
+			const currentPartInstance = playoutModel.createInstanceForPart(currentPart, [])
+			currentPartInstance.setTaken(Date.now(), 0)
+			playoutModel.cycleSelectedPartInstances()
+
+			const insertTarget = resolveQueuedAdlibInsertTarget(
+				playoutModel,
+				currentPartInstance,
+				targetPart._id,
+				false
+			)
+
+			expect(insertTarget.newRank).toBeGreaterThan(targetPart._rank)
+			expect(insertTarget.newRank).toBeLessThan(partAfterTarget._rank)
+		})
+	})
+
+	test('resolveQueuedAdlibInsertTarget inserts after explicit part instance id', async () => {
+		const playlistId: RundownPlaylistId = protectString('playlist0')
+		const rundownId: RundownId = getRandomId()
+		const context = await setupActivatedPlaylist(rundownId, playlistId)
+
+		await runJobWithPlayoutModel(context, { playlistId }, null, async (playoutModel) => {
+			const currentPart = playoutModel.getAllOrderedParts()[0]
+			expect(currentPart).toBeTruthy()
+
+			const targetPart = await context.mockCollections.Parts.findOne({
+				externalId: 'MOCK_PART_1_0',
+				rundownId,
+			})
+			expect(targetPart).toBeTruthy()
+			if (!targetPart) throw new Error('targetPart not found')
+
+			const currentPartInstance = playoutModel.createInstanceForPart(currentPart, [])
+			currentPartInstance.setTaken(Date.now(), 0)
+			playoutModel.cycleSelectedPartInstances()
+
+			const existingAdlibPart: DBPart = {
+				_id: getRandomId(),
+				segmentId: targetPart.segmentId,
+				rundownId: targetPart.rundownId,
+				_rank: 0.5,
+				externalId: 'existing_adlib',
+				title: 'Existing adlib',
+				expectedDurationWithTransition: undefined,
+			}
+			const existingAdlibPartInstance = playoutModel.createInstanceForPart(existingAdlibPart, [])
+			existingAdlibPartInstance.setOrphaned('adlib-part')
+
+			const partAfterTarget = await context.mockCollections.Parts.findOne({
+				externalId: 'MOCK_PART_1_1',
+				rundownId,
+			})
+			expect(partAfterTarget).toBeTruthy()
+			if (!partAfterTarget) throw new Error('partAfterTarget not found')
+
+			const insertTarget = resolveQueuedAdlibInsertTarget(
+				playoutModel,
+				currentPartInstance,
+				existingAdlibPartInstance.partInstance._id,
+				false
+			)
+
+			expect(insertTarget.newRank).toBeGreaterThan(existingAdlibPartInstance.partInstance.part._rank)
+			expect(insertTarget.newRank).toBeLessThan(partAfterTarget._rank)
+		})
+	})
+
+	test('resolveQueuedAdlibInsertTarget inserts after last part in segment', async () => {
+		const playlistId: RundownPlaylistId = protectString('playlist0')
+		const rundownId: RundownId = getRandomId()
+		const context = await setupActivatedPlaylist(rundownId, playlistId)
+
+		await runJobWithPlayoutModel(context, { playlistId }, null, async (playoutModel) => {
+			const currentPart = playoutModel.getAllOrderedParts()[0]
+			expect(currentPart).toBeTruthy()
+
+			const lastPartInSegment1 = playoutModel.getAllOrderedParts().find((p) => p.externalId === 'MOCK_PART_1_2')
+			expect(lastPartInSegment1).toBeTruthy()
+			if (!lastPartInSegment1) throw new Error('lastPartInSegment1 not found')
+
+			const currentPartInstance = playoutModel.createInstanceForPart(currentPart, [])
+			currentPartInstance.setTaken(Date.now(), 0)
+			playoutModel.cycleSelectedPartInstances()
+
+			const insertTarget = resolveQueuedAdlibInsertTarget(
+				playoutModel,
+				currentPartInstance,
+				lastPartInSegment1._id,
+				false
+			)
+
+			expect(insertTarget.newRank).toBeGreaterThan(lastPartInSegment1._rank)
+		})
+	})
+
+	test('resolveQueuedAdlibInsertTarget throws when insert after target is in orphaned segment', async () => {
+		const playlistId: RundownPlaylistId = protectString('playlist0')
+		const rundownId: RundownId = getRandomId()
+		const context = await setupActivatedPlaylist(rundownId, playlistId)
+
+		const targetPart = await context.mockCollections.Parts.findOne({
+			externalId: 'MOCK_PART_1_1',
+			rundownId,
+		})
+		expect(targetPart).toBeTruthy()
+		if (!targetPart) throw new Error('targetPart not found')
+
+		await context.mockCollections.Segments.update(targetPart.segmentId, {
+			$set: { orphaned: SegmentOrphanedReason.DELETED },
+		})
+
+		await runJobWithPlayoutModel(context, { playlistId }, null, async (playoutModel) => {
+			const currentPart = playoutModel.getAllOrderedParts()[0]
+			expect(currentPart).toBeTruthy()
+
+			const currentPartInstance = playoutModel.createInstanceForPart(currentPart, [])
+			currentPartInstance.setTaken(Date.now(), 0)
+			playoutModel.cycleSelectedPartInstances()
+
+			expect(() =>
+				resolveQueuedAdlibInsertTarget(playoutModel, currentPartInstance, targetPart._id, false)
+			).toThrow('Cannot queue part: target is in orphaned segment')
 		})
 	})
 })

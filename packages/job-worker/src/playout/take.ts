@@ -308,7 +308,8 @@ export async function performTakeToNextedPart(
 			partToQueueAfterTake.part,
 			partToQueueAfterTake.pieces,
 			undefined,
-			partToQueueAfterTake.insertBeforeId
+			partToQueueAfterTake.targetPartOrInstanceId,
+			partToQueueAfterTake.insertBefore ?? true
 		)
 	} else {
 		// Once everything is synced, we can choose the next part
