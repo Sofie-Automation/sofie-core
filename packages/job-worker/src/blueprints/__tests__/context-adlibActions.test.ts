@@ -136,7 +136,7 @@ describe('Test blueprint api context', () => {
 
 			await context.queuePart({ title: 'My Piece' } as IBlueprintPart<unknown>, [])
 			expect(mockActionService.queuePart).toHaveBeenCalledTimes(1)
-			expect(mockActionService.queuePart).toHaveBeenCalledWith({ title: 'My Piece' }, [], undefined)
+			expect(mockActionService.queuePart).toHaveBeenCalledWith({ title: 'My Piece' }, [], undefined, undefined)
 		})
 
 		test('stopPiecesOnLayers', async () => {

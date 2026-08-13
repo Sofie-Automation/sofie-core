@@ -24,7 +24,7 @@ const { postProcessPieces: postProcessPiecesOrig } = jest.requireActual('../../b
 ;(postProcessPieces as jest.Mock).mockImplementation(postProcessPiecesOrig)
 
 describe('take', () => {
-	test('performTakeToNextedPart queues part after take with insertBeforeId', async () => {
+	async function setupTakenPlaylist() {
 		const context: MockJobContext = setupDefaultJobEnvironment()
 
 		context.setStudio({
@@ -49,6 +49,12 @@ describe('take', () => {
 
 		await handleActivateRundownPlaylist(context, { playlistId, rehearsal: false })
 		await handleTakeNextPart(context, { playlistId, fromPartInstanceId: null })
+
+		return { context, rundownId, playlistId }
+	}
+
+	test('performTakeToNextedPart queues part after take with insert before target', async () => {
+		const { context, rundownId, playlistId } = await setupTakenPlaylist()
 
 		const targetPart = await context.mockCollections.Parts.findOne({
 			externalId: 'MOCK_PART_1_1',
@@ -87,7 +93,8 @@ describe('take', () => {
 				unprotectString(targetPart._id)
 			)
 
-			expect(partToQueueAfterTake.insertBeforeId).toEqual(targetPart._id)
+			expect(partToQueueAfterTake.targetPartOrInstanceId).toEqual(targetPart._id)
+			expect(partToQueueAfterTake.insertBefore).toEqual(true)
 
 			await performTakeToNextedPart(context, playoutModel, getCurrentTime(), partToQueueAfterTake)
 
@@ -101,6 +108,73 @@ describe('take', () => {
 
 			expect(queuedPartInstance.partInstance.segmentId).toEqual(targetPart.segmentId)
 			expect(queuedPartInstance.partInstance.part._rank).toBeLessThan(targetPart._rank)
+			expect(queuedPartInstance.partInstance.part.title).toEqual('After take part')
+		})
+	})
+
+	test('performTakeToNextedPart queues part after take with insert after target', async () => {
+		const { context, rundownId, playlistId } = await setupTakenPlaylist()
+
+		const targetPart = await context.mockCollections.Parts.findOne({
+			externalId: 'MOCK_PART_1_0',
+			rundownId,
+		})
+		expect(targetPart).toBeTruthy()
+		if (!targetPart) throw new Error('targetPart not found')
+
+		const partAfterTarget = await context.mockCollections.Parts.findOne({
+			externalId: 'MOCK_PART_1_1',
+			rundownId,
+		})
+		expect(partAfterTarget).toBeTruthy()
+		if (!partAfterTarget) throw new Error('partAfterTarget not found')
+
+		await runJobWithPlayoutModel(context, { playlistId }, null, async (playoutModel) => {
+			const currentPartInstance = playoutModel.currentPartInstance
+			expect(currentPartInstance).toBeTruthy()
+			if (!currentPartInstance) throw new Error('currentPartInstance not found')
+
+			const showStyle = await context.getShowStyleCompound(
+				playoutModel.rundowns[0].rundown.showStyleVariantId,
+				playoutModel.rundowns[0].rundown.showStyleBaseId
+			)
+			const service = new PartAndPieceInstanceActionService(context, playoutModel, showStyle)
+
+			const partToQueueAfterTake = service.prepareQueueablePartAndPieces(
+				{ externalId: 'after_take', title: 'After take part' },
+				[
+					{
+						name: 'after take piece',
+						sourceLayerId: 'sl0',
+						outputLayerId: 'o0',
+						externalId: '-',
+						enable: { start: 0 },
+						lifespan: PieceLifespan.WithinPart,
+						content: {
+							timelineObjects: [],
+						},
+					},
+				],
+				currentPartInstance,
+				unprotectString(targetPart._id),
+				false
+			)
+
+			expect(partToQueueAfterTake.targetPartOrInstanceId).toEqual(targetPart._id)
+			expect(partToQueueAfterTake.insertBefore).toEqual(false)
+
+			await performTakeToNextedPart(context, playoutModel, getCurrentTime(), partToQueueAfterTake)
+
+			const nextPartInstanceId = playoutModel.playlist.nextPartInfo?.partInstanceId
+			expect(nextPartInstanceId).toBeTruthy()
+			if (!nextPartInstanceId) throw new Error('nextPartInstanceId not found')
+
+			const queuedPartInstance = playoutModel.getPartInstance(nextPartInstanceId)
+			expect(queuedPartInstance).toBeTruthy()
+			if (!queuedPartInstance) throw new Error('queuedPartInstance not found')
+
+			expect(queuedPartInstance.partInstance.part._rank).toBeGreaterThan(targetPart._rank)
+			expect(queuedPartInstance.partInstance.part._rank).toBeLessThan(partAfterTarget._rank)
 			expect(queuedPartInstance.partInstance.part.title).toEqual('After take part')
 		})
 	})

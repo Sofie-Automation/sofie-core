@@ -36,7 +36,7 @@ import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { QuickLoopMarkerType } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 
-export type QueuedAdlibInsertBeforeId = PartId | PartInstanceId
+export type QueuedAdlibInsertRelativeId = PartId | PartInstanceId
 
 export type QueuedAdlibInsertTarget = {
 	targetSegment: ReadonlyDeep<PlayoutSegmentModel>
@@ -45,23 +45,20 @@ export type QueuedAdlibInsertTarget = {
 }
 
 /**
- * Resolve the Part to insert before from a PartInstanceId or PartId.
+ * Resolve the target Part from a PartInstanceId or PartId.
  * PartInstanceId is checked first, then PartId.
  */
-function resolveBeforePart(
-	playoutModel: PlayoutModel,
-	insertBeforeId: QueuedAdlibInsertBeforeId
-): ReadonlyDeep<DBPart> {
-	const partInstance = playoutModel.getPartInstance(insertBeforeId as PartInstanceId)
+function resolveRelativePart(playoutModel: PlayoutModel, targetId: QueuedAdlibInsertRelativeId): ReadonlyDeep<DBPart> {
+	const partInstance = playoutModel.getPartInstance(targetId as PartInstanceId)
 	if (partInstance) return partInstance.partInstance.part
 
-	const part = playoutModel.findPart(insertBeforeId as PartId)
+	const part = playoutModel.findPart(targetId as PartId)
 	if (part) return part
 
-	throw new Error(`Cannot queue part: insert before target "${insertBeforeId}" not found`)
+	throw new Error(`Cannot queue part: target "${targetId}" not found`)
 }
 
-function getRankBeforePart(playoutModel: PlayoutModel, segmentId: SegmentId, beforePart: ReadonlyDeep<DBPart>): number {
+function getAllPartsInSegment(playoutModel: PlayoutModel, segmentId: SegmentId): ReadonlyDeep<DBPart>[] {
 	const partsInSegment = playoutModel.getAllOrderedParts().filter((p) => p.segmentId === segmentId)
 
 	const orphanedParts = playoutModel.loadedPartInstances
@@ -76,9 +73,15 @@ function getRankBeforePart(playoutModel: PlayoutModel, segmentId: SegmentId, bef
 	}
 	allParts.sort((a, b) => a._rank - b._rank)
 
+	return allParts
+}
+
+function getRankBeforePart(playoutModel: PlayoutModel, segmentId: SegmentId, beforePart: ReadonlyDeep<DBPart>): number {
+	const allParts = getAllPartsInSegment(playoutModel, segmentId)
+
 	const beforeIndex = allParts.findIndex((p) => p._id === beforePart._id)
 	if (beforeIndex === -1) {
-		throw new Error(`Cannot queue part: insert before target part "${beforePart._id}" not found in segment`)
+		throw new Error(`Cannot queue part: target part "${beforePart._id}" not found in segment`)
 	}
 	if (beforeIndex === 0) {
 		return getRank(null, beforePart)
@@ -86,36 +89,52 @@ function getRankBeforePart(playoutModel: PlayoutModel, segmentId: SegmentId, bef
 	return getRank(allParts[beforeIndex - 1], beforePart)
 }
 
+function getRankAfterPart(playoutModel: PlayoutModel, segmentId: SegmentId, afterPart: ReadonlyDeep<DBPart>): number {
+	const allParts = getAllPartsInSegment(playoutModel, segmentId)
+
+	const afterIndex = allParts.findIndex((p) => p._id === afterPart._id)
+	if (afterIndex === -1) {
+		throw new Error(`Cannot queue part: target part "${afterPart._id}" not found in segment`)
+	}
+	if (afterIndex === allParts.length - 1) {
+		return getRank(afterPart, null)
+	}
+	return getRank(afterPart, allParts[afterIndex + 1])
+}
+
 /**
  * Resolve where an adlibbed part should be inserted in the rundown.
- * When insertBeforeId is omitted, inserts after currentPartInstance.
- * When provided, inserts before the target part (segment/rundown taken from the target).
+ * When targetPartOrInstanceId is omitted, inserts after currentPartInstance.
+ * When provided, inserts before or after the target based on insertBefore.
  * Rank computation includes orphaned adlib part-instances in the target segment.
  */
 export function resolveQueuedAdlibInsertTarget(
 	playoutModel: PlayoutModel,
 	currentPartInstance: PlayoutPartInstanceModel,
-	insertBeforeId?: QueuedAdlibInsertBeforeId
+	targetPartOrInstanceId?: QueuedAdlibInsertRelativeId,
+	insertBefore = true
 ): QueuedAdlibInsertTarget {
-	if (insertBeforeId) {
-		const beforePart = resolveBeforePart(playoutModel, insertBeforeId)
-		const targetSegment = playoutModel.findSegment(beforePart.segmentId)
+	if (targetPartOrInstanceId) {
+		const targetPart = resolveRelativePart(playoutModel, targetPartOrInstanceId)
+		const targetSegment = playoutModel.findSegment(targetPart.segmentId)
 		if (!targetSegment) {
-			throw new Error(`Segment "${beforePart.segmentId}" not found`)
+			throw new Error(`Segment "${targetPart.segmentId}" not found`)
 		}
 		if (targetSegment.segment.orphaned) {
-			throw new Error(`Cannot queue part: insert before target is in orphaned segment`)
+			throw new Error(`Cannot queue part: target is in orphaned segment`)
 		}
 
-		const targetRundown = playoutModel.getRundown(beforePart.rundownId)
+		const targetRundown = playoutModel.getRundown(targetPart.rundownId)
 		if (!targetRundown) {
-			throw new Error(`Rundown "${beforePart.rundownId}" not found`)
+			throw new Error(`Rundown "${targetPart.rundownId}" not found`)
 		}
 
 		return {
 			targetSegment,
 			targetRundown,
-			newRank: getRankBeforePart(playoutModel, beforePart.segmentId, beforePart),
+			newRank: insertBefore
+				? getRankBeforePart(playoutModel, targetPart.segmentId, targetPart)
+				: getRankAfterPart(playoutModel, targetPart.segmentId, targetPart),
 		}
 	}
 
@@ -304,13 +323,15 @@ export async function insertQueuedPartWithPieces(
 	newPart: Omit<DBPart, 'segmentId' | 'rundownId' | '_rank'>,
 	initialPieces: Omit<PieceInstancePiece, 'startPartId'>[],
 	fromAdlibId: PieceId | BucketAdLibId | undefined,
-	insertBeforeId?: QueuedAdlibInsertBeforeId,
+	targetPartOrInstanceId?: QueuedAdlibInsertRelativeId,
+	insertBefore = true,
 	preResolvedTarget?: QueuedAdlibInsertTarget
 ): Promise<PlayoutPartInstanceModel> {
 	const span = context.startSpan('insertQueuedPartWithPieces')
 
 	const { targetSegment, targetRundown, newRank } =
-		preResolvedTarget ?? resolveQueuedAdlibInsertTarget(playoutModel, currentPartInstance, insertBeforeId)
+		preResolvedTarget ??
+		resolveQueuedAdlibInsertTarget(playoutModel, currentPartInstance, targetPartOrInstanceId, insertBefore)
 
 	const newPartFull: DBPart = {
 		...newPart,

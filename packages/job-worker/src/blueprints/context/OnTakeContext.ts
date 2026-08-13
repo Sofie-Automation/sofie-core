@@ -180,7 +180,8 @@ export class OnTakeContext extends ShowStyleUserContext implements IOnTakeContex
 	queuePartAfterTake(
 		rawPart: IBlueprintPart,
 		rawPieces: IBlueprintPiece[],
-		insertBeforePartOrInstanceId?: string
+		targetPartOrInstanceId?: string,
+		insertBefore?: boolean
 	): void {
 		const currentPartInstance = this._playoutModel.currentPartInstance
 		if (!currentPartInstance) {
@@ -190,7 +191,8 @@ export class OnTakeContext extends ShowStyleUserContext implements IOnTakeContex
 			rawPart,
 			rawPieces,
 			currentPartInstance,
-			insertBeforePartOrInstanceId
+			targetPartOrInstanceId,
+			insertBefore
 		)
 	}
 
