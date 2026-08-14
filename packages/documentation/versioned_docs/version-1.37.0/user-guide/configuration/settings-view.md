@@ -8,7 +8,7 @@ sidebar_position: 2
 The settings views are only visible to users with the correct [access level](../features/access-levels)!
 :::
 
-Recommended read before diving into the settings: [System, \(Organization\), Studio & Show Style](../concepts-and-architecture#system-organization-studio-and-show-style).
+Recommended read before diving into the settings: [System, \(Organization\), Studio & Show Style](../concepts-and-architecture#system-organization-studio--show-style).
 
 ## System
 
@@ -49,7 +49,7 @@ These mappings allow the System Administrator to reconfigure what devices the Bl
 
 #### Route Sets
 
-In order to allow the Producer to reconfigure the automation from the Switchboard in the [Rundown View](../concepts-and-architecture#rundown-view), as well as have some pre-set automation control available for the System Administrator, Sofie has a concept of Route Sets. Route Sets work on top of the Layer Mappings, by configuring sets of [Layer Mappings](settings-view#layer-mappings) that will re-route the control from one device to another, or to disable the automation altogether. These Route Sets are presented to the Producer in the [Switchboard](../concepts-and-architecture#switchboard) panel.
+In order to allow the Producer to reconfigure the automation from the Switchboard in the Rundown View, as well as have some pre-set automation control available for the System Administrator, Sofie has a concept of Route Sets. Route Sets work on top of the Layer Mappings, by configuring sets of [Layer Mappings](settings-view#layer-mappings) that will re-route the control from one device to another, or to disable the automation altogether. These Route Sets are presented to the Producer in the Switchboard panel.
 
 A Route Set is essentially a distinct set of Layer Mappings, which can modify the settings already configured by the Layer Mappings, but can be turned On and Off. Called Routes, these can change:
 
@@ -71,7 +71,7 @@ A Route Set has a Behavior property which will dictate what happens how the Rout
 
 ![An active RouteSet with a single Layer Mapping being re-configured](/img/docs/main/features/route-set-remap.png)
 
-Route Sets can also be configured with a _Default State_. This can be used to contrast a normal, day-to-day configuration with an exceptional one \(like using a backup device\) in the [Switchboard](../concepts-and-architecture#switchboard) panel.
+Route Sets can also be configured with a _Default State_. This can be used to contrast a normal, day-to-day configuration with an exceptional one \(like using a backup device\) in the Switchboard panel.
 
 | Default State | Behavior                                                      |
 | :------------ | :------------------------------------------------------------ |
@@ -94,7 +94,7 @@ Please note the difference between _Source Layers_ and _timeline-layers_:
 
 [Pieces](../concepts-and-architecture#piece) are put onto _Source layers_, to group different types of content \(such as a VT or Camera\), they are therefore intended only as something to indicate to the user what is going to be played, not what is actually going to happen on the technical level.
 
-[Timeline-objects](../concepts-and-architecture#timeline-object) \(inside of the [Pieces](../concepts-and-architecture#piece)\) are put onto timeline-layers, which are \(through the Mappings in the studio\) mapped to physical devices and outputs.  
+[Timeline-objects](../concepts-and-architecture#what-is-the-timeline) \(inside of the [Pieces](../concepts-and-architecture#piece)\) are put onto timeline-layers, which are \(through the Mappings in the studio\) mapped to physical devices and outputs.  
 The exact timeline-layer is never exposed to the user, but instead used on the technical level to control playout.
 
 An example of the difference could be when playing a VT \(that's a Source Layer\), which could involve all of the timeline-layers _video_player0_, _audio_fader_video_, _audio_fader_host_ and _mixer_pgm._

@@ -42,9 +42,9 @@ The prompter can be controlled by different types of controllers. The control mo
 | Default                 | Controlled by both mouse and keyboard                                                                                                                                                                                                          |
 | `?mode=mouse`           | Controlled by mouse only. [See configuration details](prompter.md#control-using-mouse-scroll-wheel)                                                                                                                                            |
 | `?mode=keyboard`        | Controlled by keyboard only. [See configuration details](prompter.md#control-using-keyboard)                                                                                                                                                   |
-| `?mode=shuttlekeyboard` | Controlled by a Contour Design ShuttleXpress, X-keys Jog and Shuttle or any compatible, configured as keyboard-ish device. [See configuration details](prompter.md#control-using-contour-shuttlexpress-or-x-keys)                              |
-| `?mode=pedal`           | Controlled by any MIDI device outputting note values between 0 - 127 of CC notes on channel 8. Analogue Expression pedals work well with TRS-USB midi-converters. [See configuration details](prompter.md#control-using-midi-input-mode-pedal) |
-| `?mode=joycon`          | Controlled by Nintendo Switch Joycon, using the HTML5 GamePad API. [See configuration details](prompter.md#control-using-nintendo-joycon-gamepad)                                                                                              |
+| `?mode=shuttlekeyboard` | Controlled by a Contour Design ShuttleXpress, X-keys Jog and Shuttle or any compatible, configured as keyboard-ish device. [See configuration details](prompter.md#control-using-contour-shuttlexpress-or-x-keys-modeshuttlekeyboard)                              |
+| `?mode=pedal`           | Controlled by any MIDI device outputting note values between 0 - 127 of CC notes on channel 8. Analogue Expression pedals work well with TRS-USB midi-converters. [See configuration details](prompter.md#control-using-midi-input-modepedal) |
+| `?mode=joycon`          | Controlled by Nintendo Switch Joycon, using the HTML5 GamePad API. [See configuration details](prompter.md#control-using-nintendo-joycon-modejoycon)                                                                                              |
 
 #### Control using mouse \(scroll wheel\)
 

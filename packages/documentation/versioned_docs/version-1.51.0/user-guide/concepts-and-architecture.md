@@ -46,14 +46,14 @@ It contains one or several Rundowns inside, which are playout out in order.
 In some many studios, there is only ever one rundown in a playlist. In those cases, we sometimes lazily refer to playlists and rundowns as "being the same thing".
 :::
 
-A Playlist is played out in the context of it's [Studio](#studio), thereby only a single Playlist can be active at a time within each Studio.
+A Playlist is played out in the context of it's Studio, thereby only a single Playlist can be active at a time within each Studio.
 
 A playlist is normally played through and then ends but it is also possible to make looping playlists in which case the playlist will start over from the top after the last part has been played.
 
 ### Rundown
 
 The Rundown contains the content for a show. It contains Segments and Parts, which can be selected by the user to be played out.
-A Rundown always has a [showstyle](#showstyle) and is played out in the context of the [Studio](#studio) of its Playlist.
+A Rundown always has a showstyle and is played out in the context of the Studio of its Playlist.
 
 ### Segment
 
@@ -61,7 +61,7 @@ The Segment is the horizontal line in the GUI. It is intended to be used as a "c
 
 ### Part
 
-The Part is the playable element inside of a [Segment](#segment). This is the thing that starts playing when the user does a [TAKE](#take-point). A Playing part is _On Air_ or _current_, while the part "cued" to be played is _Next_.
+The Part is the playable element inside of a [Segment](#segment). This is the thing that starts playing when the user does a TAKE. A Playing part is _On Air_ or _current_, while the part "cued" to be played is _Next_.
 The Part in itself doesn't determine what's going to happen, that's handled by the [Pieces](#piece) in it.
 
 ### Piece
@@ -71,7 +71,7 @@ The Pieces inside of a Part determines what's going to happen, the could be indi
 Inside of the pieces are the [timeline-objects](#what-is-the-timeline) which controls the playout on a technical level.
 
 :::tip
-Tip! If you want to manually play a certain piece \(for example a graphics overlay\), you can at any time double-click it in the GUI, and it will be copied and played at your play head, just like an [AdLib](#adlib-pieces) would!
+Tip! If you want to manually play a certain piece \(for example a graphics overlay\), you can at any time double-click it in the GUI, and it will be copied and played at your play head, just like an [AdLib](#adlib-piece) would!
 :::
 
 See also: [Showstyle](#system-organization-studio--show-style)
@@ -121,7 +121,7 @@ Documentation on the interface to be exposed by the Blueprint:
 
 ### Showstyle Blueprints
 
-Handle things on the _Showstyle level_, like generating [_Baseline_](#baseline), _Segments_, _Parts, Pieces_ and _Timelines_ in a rundown.
+Handle things on the _Showstyle level_, like generating _Baseline_, _Segments_, _Parts, Pieces_ and _Timelines_ in a rundown.
 Documentation on the interface to be exposed by the Blueprint:
 [https://github.com/Sofie-Automation/sofie-core/blob/main/packages/blueprints-integration/src/api.ts#L117](https://github.com/Sofie-Automation/sofie-core/blob/main/packages/blueprints-integration/src/api.ts#L117)
 
@@ -162,17 +162,17 @@ Fun tip! The timeline in itself is a [separate library available on github](http
 You can play around with the timeline in the browser using [JSFiddle and the timeline-visualizer](https://jsfiddle.net/nytamin/rztp517u/)!
 :::
 
-The Timeline is stored by Sofie&nbsp;Core in a MongoDB collection. It is generated whenever a user does a [Take](#take-point), changes the [Next-point](#next-point-and-lookahead) or anything else that might affect the playout.
+The Timeline is stored by Sofie&nbsp;Core in a MongoDB collection. It is generated whenever a user does a Take, changes the Next-point or anything else that might affect the playout.
 
 _Sofie&nbsp;Core_ generates the timeline using:
 
-- The [Studio Baseline](#baseline) \(only if no rundown is currently active\)
-- The [Showstyle Baseline](#baseline), of the currently active rundown.
-- The [currently playing Part](#take-point)
-- The [Next'ed Part](#next-point-and-lookahead) and Parts that come after it \(the [Lookahead](#lookahead)\)
-- Any [AdLibs](#adlib-pieces) the user has manually selected to play
+- The Studio Baseline \(only if no rundown is currently active\)
+- The Showstyle Baseline, of the currently active rundown.
+- The currently playing Part
+- The Next'ed Part and Parts that come after it \(the Lookahead\)
+- Any [AdLibs](#adlib-piece) the user has manually selected to play
 
-The [**Playout Gateway**](../for-developers/libraries.md#gateways) then picks up the new timeline, and pipes it into the [\(TSR\) timeline-state-resolver](https://github.com/Sofie-Automation/sofie-timeline-state-resolver) library.
+The [**Playout Gateway**](../for-developers/libraries.md#gateways-and-services) then picks up the new timeline, and pipes it into the [\(TSR\) timeline-state-resolver](https://github.com/Sofie-Automation/sofie-timeline-state-resolver) library.
 
 The TSR then...
 

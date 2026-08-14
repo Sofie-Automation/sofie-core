@@ -4,7 +4,7 @@
 
 - [Installed and running Sofie&nbsp;Core](../installing-sofie-server-core)
 - [Installed Playout Gateway](../installing-a-gateway/playout-gateway)
-- [Installed and configured Studio Blueprints](../installing-blueprints#installing-a-studio-blueprint)
+- [Installed and configured Studio Blueprints](../installing-blueprints#studio-blueprint)
 
 The following pages are broken up by equipment type that is supported by Sofie's Gateways.
 
