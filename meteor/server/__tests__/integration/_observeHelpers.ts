@@ -68,9 +68,7 @@ export function makeMultiplexer(
 		snapshot: async () => {
 			const session = client.startSession()
 			try {
-				const docs = (await collection
-					.find(selector as any, { session })
-					.toArray()) as unknown as TestDoc[]
+				const docs = (await collection.find(selector as any, { session }).toArray()) as unknown as TestDoc[]
 				return { docs, operationTime: session.operationTime }
 			} finally {
 				await session.endSession()
