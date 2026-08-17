@@ -1,4 +1,5 @@
-import { check, Match } from '../lib/check'
+import { z } from 'zod'
+import { check, zAnyArray } from '../lib/check'
 import {
 	MigrationChunk,
 	NewMigrationAPI,
@@ -38,9 +39,9 @@ export class ServerMigrationAPI extends MethodContextAPI implements NewMigration
 		hash: string,
 		isFirstOfPartialMigrations?: boolean | null
 	): Promise<RunMigrationResult> {
-		check(chunks, Array)
-		check(hash, String)
-		check(isFirstOfPartialMigrations, Match.Maybe(Boolean))
+		check(chunks, zAnyArray)
+		check(hash, z.string())
+		check(isFirstOfPartialMigrations, z.boolean().nullish())
 
 		assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MIGRATIONS)
 
@@ -48,7 +49,7 @@ export class ServerMigrationAPI extends MethodContextAPI implements NewMigration
 	}
 
 	async forceMigration(chunks: Array<MigrationChunk>): Promise<void> {
-		check(chunks, Array)
+		check(chunks, zAnyArray)
 
 		assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MIGRATIONS)
 
@@ -62,7 +63,7 @@ export class ServerMigrationAPI extends MethodContextAPI implements NewMigration
 	}
 
 	async fixupConfigForStudio(studioId: StudioId): Promise<BlueprintFixUpConfigMessage[]> {
-		check(studioId, String)
+		check(studioId, z.string())
 
 		assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MIGRATIONS)
 
@@ -70,7 +71,7 @@ export class ServerMigrationAPI extends MethodContextAPI implements NewMigration
 	}
 
 	async ignoreFixupConfigForStudio(studioId: StudioId): Promise<void> {
-		check(studioId, String)
+		check(studioId, z.string())
 
 		assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MIGRATIONS)
 
@@ -78,7 +79,7 @@ export class ServerMigrationAPI extends MethodContextAPI implements NewMigration
 	}
 
 	async validateConfigForStudio(studioId: StudioId): Promise<BlueprintValidateConfigForStudioResult> {
-		check(studioId, String)
+		check(studioId, z.string())
 
 		assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MIGRATIONS)
 
@@ -86,7 +87,7 @@ export class ServerMigrationAPI extends MethodContextAPI implements NewMigration
 	}
 
 	async runUpgradeForStudio(studioId: StudioId): Promise<void> {
-		check(studioId, String)
+		check(studioId, z.string())
 
 		assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MIGRATIONS)
 
@@ -94,7 +95,7 @@ export class ServerMigrationAPI extends MethodContextAPI implements NewMigration
 	}
 
 	async fixupConfigForShowStyleBase(showStyleBaseId: ShowStyleBaseId): Promise<BlueprintFixUpConfigMessage[]> {
-		check(showStyleBaseId, String)
+		check(showStyleBaseId, z.string())
 
 		assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MIGRATIONS)
 
@@ -102,7 +103,7 @@ export class ServerMigrationAPI extends MethodContextAPI implements NewMigration
 	}
 
 	async ignoreFixupConfigForShowStyleBase(showStyleBaseId: ShowStyleBaseId): Promise<void> {
-		check(showStyleBaseId, String)
+		check(showStyleBaseId, z.string())
 
 		assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MIGRATIONS)
 
@@ -112,7 +113,7 @@ export class ServerMigrationAPI extends MethodContextAPI implements NewMigration
 	async validateConfigForShowStyleBase(
 		showStyleBaseId: ShowStyleBaseId
 	): Promise<BlueprintValidateConfigForStudioResult> {
-		check(showStyleBaseId, String)
+		check(showStyleBaseId, z.string())
 
 		assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MIGRATIONS)
 
@@ -120,7 +121,7 @@ export class ServerMigrationAPI extends MethodContextAPI implements NewMigration
 	}
 
 	async runUpgradeForShowStyleBase(showStyleBaseId: ShowStyleBaseId): Promise<void> {
-		check(showStyleBaseId, String)
+		check(showStyleBaseId, z.string())
 
 		assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MIGRATIONS)
 
@@ -128,7 +129,7 @@ export class ServerMigrationAPI extends MethodContextAPI implements NewMigration
 	}
 
 	async runUpgradeForCoreSystem(coreSystemId: CoreSystemId): Promise<void> {
-		check(coreSystemId, String)
+		check(coreSystemId, z.string())
 
 		assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MIGRATIONS)
 

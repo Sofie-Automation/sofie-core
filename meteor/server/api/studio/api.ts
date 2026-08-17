@@ -1,4 +1,5 @@
 import { Meteor } from 'meteor/meteor'
+import { z } from 'zod'
 import { check } from '../../lib/check'
 import { NewStudiosAPI } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
@@ -37,7 +38,7 @@ import { ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/St
 const PERMISSIONS_FOR_MANAGE_STUDIOS: Array<keyof UserPermissions> = ['configure']
 
 async function insertStudio(context: MethodContext, newId?: StudioId): Promise<StudioId> {
-	if (newId) check(newId, String)
+	if (newId) check(newId, z.string())
 
 	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_MANAGE_STUDIOS)
 
@@ -99,7 +100,7 @@ export async function insertStudioInner(newId?: StudioId): Promise<StudioId> {
 	)
 }
 async function removeStudio(context: MethodContext, studioId: StudioId): Promise<void> {
-	check(studioId, String)
+	check(studioId, z.string())
 
 	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_MANAGE_STUDIOS)
 

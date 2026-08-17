@@ -1,5 +1,6 @@
+import { z } from 'zod'
 import { PartInstanceId, RundownPlaylistActivationId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { check } from 'meteor/check'
+import { check } from '../../lib/check'
 import {
 	CustomPublishCollection,
 	SetupObserversResult,
@@ -16,7 +17,6 @@ import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/Rund
 import { MongoFieldSpecifierOnesStrict } from '@sofie-automation/corelib/dist/mongo'
 import { RundownsObserver } from '../lib/rundownsObserver'
 import { RundownContentObserver } from './rundownContentObserver'
-import { Match } from '../../lib/check'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import {
 	extractRanks,
@@ -213,7 +213,7 @@ export function registerPartInstancesUIPublications(registry: PublicationRegistr
 		MeteorPubSub.uiPartInstances,
 		CustomCollectionName.UIPartInstances,
 		async (_context, pub, playlistActivationId: RundownPlaylistActivationId | null) => {
-			check(playlistActivationId, Match.Maybe(String))
+			check(playlistActivationId, z.string().nullish())
 
 			triggerWriteAccessBecauseNoCheckNecessary()
 

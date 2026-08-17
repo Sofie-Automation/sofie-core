@@ -116,6 +116,10 @@ export class PublicationRegistry {
 
 	/**
 	 * Register a publication with stricter typings. The subscription context is the first argument.
+	 *
+	 * TODO (follow-up): as with `MethodApiRegistration` in ./methodRegistry.ts, the argument schema should be
+	 * supplied here and validated centrally, rather than relying on each callback remembering to call
+	 * `check()` on its own arguments. Keyed off `AllPubSubTypes` the same way this signature already is.
 	 */
 	publish<K extends keyof AllPubSubTypes>(
 		name: K,

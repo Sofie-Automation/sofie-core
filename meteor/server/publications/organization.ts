@@ -7,7 +7,7 @@ import { Blueprints, Evaluations, Snapshots, UserActionsLog } from '../collectio
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
-import { check, Match } from '../lib/check'
+import { check, zAnyArray } from '../lib/check'
 import { getCurrentTime } from '../lib/lib'
 import { triggerWriteAccessBecauseNoCheckNecessary } from '../security/securityVerify'
 import { assertConnectionHasOneOfPermissions } from '../security/auth'
@@ -19,7 +19,7 @@ export function registerOrganizationPublications(registry: PublicationRegistry):
 		async (context, blueprintIds: BlueprintId[] | null, _token: string | undefined) => {
 			assertConnectionHasOneOfPermissions(context.connection, 'configure')
 
-			check(blueprintIds, Match.Maybe(Array))
+			check(blueprintIds, zAnyArray.nullish())
 
 			// If values were provided, they must have values
 			if (blueprintIds && blueprintIds.length === 0) return null

@@ -1,4 +1,5 @@
 import { UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/error'
+import { z } from 'zod'
 import { logger } from '../../../logging'
 import { APIFactory, APIRegisterHook, ServerAPIContext } from './types'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
@@ -15,7 +16,7 @@ import {
 	SegmentId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { RundownTTimerIndex } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/TTimers'
-import { Match, check } from '../../../lib/check'
+import { check } from '../../../lib/check'
 import { PlaylistsRestAPI } from '../../../lib/rest/v1'
 import { Meteor } from 'meteor/meteor'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
@@ -123,8 +124,8 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 			getCurrentTime(),
 			playlist._id,
 			() => {
-				check(playlist._id, String)
-				check(rehearsal, Boolean)
+				check(playlist._id, z.string())
+				check(rehearsal, z.boolean())
 			},
 			StudioJobs.ActivateRundownPlaylist,
 			{
@@ -146,8 +147,8 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 			getCurrentTime(),
 			rundownPlaylistId,
 			() => {
-				check(rundownPlaylistId, String)
-				check(rundownId, String)
+				check(rundownPlaylistId, z.string())
+				check(rundownId, z.string())
 			},
 			StudioJobs.ActivateAdlibTesting,
 			{
@@ -170,7 +171,7 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 			getCurrentTime(),
 			playlist._id,
 			() => {
-				check(playlist._id, String)
+				check(playlist._id, z.string())
 			},
 			StudioJobs.DeactivateRundownPlaylist,
 			{
@@ -241,8 +242,8 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 				getCurrentTime(),
 				rundownPlaylist._id,
 				() => {
-					check(rundownPlaylist._id, String)
-					check(adLibId, Match.OneOf(String, null))
+					check(rundownPlaylist._id, z.string())
+					check(adLibId, z.string().nullable())
 				},
 				StudioJobs.AdlibPieceStart,
 				{
@@ -297,8 +298,8 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 				getCurrentTime(),
 				rundownPlaylist._id,
 				() => {
-					check(rundownPlaylist._id, String)
-					check(adLibId, Match.OneOf(String, null))
+					check(rundownPlaylist._id, z.string())
+					check(adLibId, z.string().nullable())
 				},
 				StudioJobs.ExecuteAction,
 				{
@@ -367,9 +368,9 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 			getCurrentTime(),
 			playlist._id,
 			() => {
-				check(playlist._id, String)
-				check(bucketId, String)
-				check(externalId, String)
+				check(playlist._id, z.string())
+				check(bucketId, z.string())
+				check(externalId, z.string())
 			},
 			StudioJobs.ExecuteBucketAdLibOrAction,
 			{
@@ -396,8 +397,8 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 			getCurrentTime(),
 			playlist._id,
 			() => {
-				check(playlist._id, String)
-				check(delta, Number)
+				check(playlist._id, z.string())
+				check(delta, z.number())
 			},
 			StudioJobs.MoveNextPart,
 			{
@@ -423,8 +424,8 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 			getCurrentTime(),
 			playlist._id,
 			() => {
-				check(playlist._id, String)
-				check(delta, Number)
+				check(playlist._id, z.string())
+				check(delta, z.number())
 			},
 			StudioJobs.MoveNextPart,
 			{
@@ -448,7 +449,7 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 			getCurrentTime(),
 			playlist._id,
 			() => {
-				check(playlist._id, String)
+				check(playlist._id, z.string())
 			},
 			'reloadPlaylist',
 			{ rundownPlaylistId: playlist._id },
@@ -479,7 +480,7 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 			getCurrentTime(),
 			playlist._id,
 			() => {
-				check(playlist._id, String)
+				check(playlist._id, z.string())
 			},
 			StudioJobs.ResetRundownPlaylist,
 			{
@@ -502,8 +503,8 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 			getCurrentTime(),
 			playlist._id,
 			() => {
-				check(playlist._id, String)
-				check(segment._id, String)
+				check(playlist._id, z.string())
+				check(segment._id, z.string())
 			},
 			StudioJobs.SetNextSegment,
 			{
@@ -527,8 +528,8 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 			getCurrentTime(),
 			playlist._id,
 			() => {
-				check(playlist._id, String)
-				check(part._id, String)
+				check(playlist._id, z.string())
+				check(part._id, z.string())
 			},
 			StudioJobs.SetNextPart,
 			{
@@ -553,8 +554,8 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 			getCurrentTime(),
 			playlist._id,
 			() => {
-				check(playlist._id, String)
-				check(segment._id, String)
+				check(playlist._id, z.string())
+				check(segment._id, z.string())
 			},
 			StudioJobs.QueueNextSegment,
 			{
@@ -579,7 +580,7 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 			getCurrentTime(),
 			playlist._id,
 			() => {
-				check(playlist._id, String)
+				check(playlist._id, z.string())
 			},
 			StudioJobs.TakeNextPart,
 			{
@@ -621,8 +622,8 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 			getCurrentTime(),
 			playlist._id,
 			() => {
-				check(playlist._id, String)
-				check(sourceLayerIds, [String])
+				check(playlist._id, z.string())
+				check(sourceLayerIds, z.array(z.string()))
 			},
 			StudioJobs.StopPiecesOnSourceLayers,
 			{
@@ -647,8 +648,8 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 			getCurrentTime(),
 			playlist._id,
 			() => {
-				check(playlist._id, String)
-				check(sourceLayerId, String)
+				check(playlist._id, z.string())
+				check(sourceLayerId, z.string())
 			},
 			StudioJobs.StartStickyPieceOnSourceLayer,
 			{
@@ -675,11 +676,11 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 			getCurrentTime(),
 			playlist._id,
 			() => {
-				check(playlist._id, String)
-				check(timerIndex, Number)
-				check(duration, Number)
-				check(stopAtZero, Match.Optional(Boolean))
-				check(startPaused, Match.Optional(Boolean))
+				check(playlist._id, z.string())
+				check(timerIndex, z.number())
+				check(duration, z.number())
+				check(stopAtZero, z.boolean().optional())
+				check(startPaused, z.boolean().optional())
 			},
 			StudioJobs.TTimerStartCountdown,
 			{
@@ -707,9 +708,9 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 			getCurrentTime(),
 			playlist._id,
 			() => {
-				check(playlist._id, String)
-				check(timerIndex, Number)
-				check(startPaused, Match.Optional(Boolean))
+				check(playlist._id, z.string())
+				check(timerIndex, z.number())
+				check(startPaused, z.boolean().optional())
 			},
 			StudioJobs.TTimerStartFreeRun,
 			{
@@ -734,8 +735,8 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 			getCurrentTime(),
 			playlist._id,
 			() => {
-				check(playlist._id, String)
-				check(timerIndex, Number)
+				check(playlist._id, z.string())
+				check(timerIndex, z.number())
 			},
 			StudioJobs.TTimerPause,
 			{
@@ -759,8 +760,8 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 			getCurrentTime(),
 			playlist._id,
 			() => {
-				check(playlist._id, String)
-				check(timerIndex, Number)
+				check(playlist._id, z.string())
+				check(timerIndex, z.number())
 			},
 			StudioJobs.TTimerResume,
 			{
@@ -784,8 +785,8 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 			getCurrentTime(),
 			playlist._id,
 			() => {
-				check(playlist._id, String)
-				check(timerIndex, Number)
+				check(playlist._id, z.string())
+				check(timerIndex, z.number())
 			},
 			StudioJobs.TTimerRestart,
 			{
@@ -809,8 +810,8 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 			getCurrentTime(),
 			playlist._id,
 			() => {
-				check(playlist._id, String)
-				check(timerIndex, Number)
+				check(playlist._id, z.string())
+				check(timerIndex, z.number())
 			},
 			StudioJobs.TTimerClearProjected,
 			{
@@ -836,10 +837,10 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 			getCurrentTime(),
 			playlist._id,
 			() => {
-				check(playlist._id, String)
-				check(timerIndex, Number)
-				check(partId, Match.Optional(String))
-				check(externalId, Match.Optional(String))
+				check(playlist._id, z.string())
+				check(timerIndex, z.number())
+				check(partId, z.string().optional())
+				check(externalId, z.string().optional())
 			},
 			StudioJobs.TTimerSetProjectedAnchorPart,
 			{
@@ -867,10 +868,10 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 			getCurrentTime(),
 			playlist._id,
 			() => {
-				check(playlist._id, String)
-				check(timerIndex, Number)
-				check(time, Number)
-				check(paused, Match.Optional(Boolean))
+				check(playlist._id, z.string())
+				check(timerIndex, z.number())
+				check(time, z.number())
+				check(paused, z.boolean().optional())
 			},
 			StudioJobs.TTimerSetProjectedTime,
 			{
@@ -898,10 +899,10 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 			getCurrentTime(),
 			playlist._id,
 			() => {
-				check(playlist._id, String)
-				check(timerIndex, Number)
-				check(duration, Number)
-				check(paused, Match.Optional(Boolean))
+				check(playlist._id, z.string())
+				check(timerIndex, z.number())
+				check(duration, z.number())
+				check(paused, z.boolean().optional())
 			},
 			StudioJobs.TTimerSetProjectedDuration,
 			{
@@ -947,7 +948,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<PlaylistsRestAPI>)
 			const rehearsal = body.rehearsal
 			logger.info(`API PUT: activate ${rundownPlaylistId} - ${rehearsal ? 'rehearsal' : 'live'}`)
 
-			check(rundownPlaylistId, String)
+			check(rundownPlaylistId, z.string())
 			return await serverAPI.activate(connection, event, rundownPlaylistId, rehearsal)
 		}
 	)
@@ -965,8 +966,8 @@ export function registerRoutes(registerRoute: APIRegisterHook<PlaylistsRestAPI>)
 			const rundownId = protectString<RundownId>(params.rundownId)
 			logger.info(`API PUT: activate AdLib testing mode, playlist ${rundownPlaylistId}, rundown ${rundownId}`)
 
-			check(rundownPlaylistId, String)
-			check(rundownId, String)
+			check(rundownPlaylistId, z.string())
+			check(rundownId, z.string())
 			return await serverAPI.activateAdLibTesting(connection, event, rundownPlaylistId, rundownId)
 		}
 	)
@@ -980,7 +981,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<PlaylistsRestAPI>)
 			const rundownPlaylistId = protectString<RundownPlaylistId>(params.playlistId)
 			logger.info(`API PUT: deactivate ${rundownPlaylistId}`)
 
-			check(rundownPlaylistId, String)
+			check(rundownPlaylistId, z.string())
 			return await serverAPI.deactivate(connection, event, rundownPlaylistId)
 		}
 	)
@@ -1009,8 +1010,8 @@ export function registerRoutes(registerRoute: APIRegisterHook<PlaylistsRestAPI>)
 				}`
 			)
 
-			check(adLibId, String)
-			check(rundownPlaylistId, String)
+			check(adLibId, z.string())
+			check(rundownPlaylistId, z.string())
 
 			return await serverAPI.executeAdLib(
 				connection,
@@ -1051,9 +1052,9 @@ export function registerRoutes(registerRoute: APIRegisterHook<PlaylistsRestAPI>)
 				`API POST: execute-bucket-adlib ${rundownPlaylistId} ${bucketId} ${adLibExternalId} - triggerMode: ${triggerMode}`
 			)
 
-			check(rundownPlaylistId, String)
-			check(bucketId, String)
-			check(adLibExternalId, String)
+			check(rundownPlaylistId, z.string())
+			check(bucketId, z.string())
+			check(adLibExternalId, z.string())
 
 			return await serverAPI.executeBucketAdLib(
 				connection,
@@ -1079,8 +1080,8 @@ export function registerRoutes(registerRoute: APIRegisterHook<PlaylistsRestAPI>)
 			const delta = body.delta
 			logger.info(`API POST: move-next-part ${rundownPlaylistId} ${delta}`)
 
-			check(rundownPlaylistId, String)
-			check(delta, Number)
+			check(rundownPlaylistId, z.string())
+			check(delta, z.number())
 			return await serverAPI.moveNextPart(connection, event, rundownPlaylistId, delta)
 		}
 	)
@@ -1098,8 +1099,8 @@ export function registerRoutes(registerRoute: APIRegisterHook<PlaylistsRestAPI>)
 			const delta = body.delta
 			logger.info(`API POST: move-next-segment ${rundownPlaylistId} ${delta}`)
 
-			check(rundownPlaylistId, String)
-			check(delta, Number)
+			check(rundownPlaylistId, z.string())
+			check(delta, z.number())
 			return await serverAPI.moveNextSegment(connection, event, rundownPlaylistId, delta)
 		}
 	)
@@ -1113,7 +1114,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<PlaylistsRestAPI>)
 			const rundownPlaylistId = protectString<RundownPlaylistId>(params.playlistId)
 			logger.info(`API PUT: reload-playlist ${rundownPlaylistId}`)
 
-			check(rundownPlaylistId, String)
+			check(rundownPlaylistId, z.string())
 			return await serverAPI.reloadPlaylist(connection, event, rundownPlaylistId)
 		}
 	)
@@ -1130,7 +1131,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<PlaylistsRestAPI>)
 			const rundownPlaylistId = protectString<RundownPlaylistId>(params.playlistId)
 			logger.info(`API PUT: reset-playlist ${rundownPlaylistId}`)
 
-			check(rundownPlaylistId, String)
+			check(rundownPlaylistId, z.string())
 			return await serverAPI.resetPlaylist(connection, event, rundownPlaylistId)
 		}
 	)
@@ -1148,8 +1149,8 @@ export function registerRoutes(registerRoute: APIRegisterHook<PlaylistsRestAPI>)
 			const partId = protectString<PartId>(body.partId)
 			logger.info(`API PUT: set-next-part ${rundownPlaylistId} ${partId}`)
 
-			check(rundownPlaylistId, String)
-			check(partId, String)
+			check(rundownPlaylistId, z.string())
+			check(partId, z.string())
 			return await serverAPI.setNextPart(connection, event, rundownPlaylistId, partId)
 		}
 	)
@@ -1167,8 +1168,8 @@ export function registerRoutes(registerRoute: APIRegisterHook<PlaylistsRestAPI>)
 			const segmentId = protectString<SegmentId>(body.segmentId)
 			logger.info(`API PUT: set-next-segment ${rundownPlaylistId} ${segmentId}`)
 
-			check(rundownPlaylistId, String)
-			check(segmentId, String)
+			check(rundownPlaylistId, z.string())
+			check(segmentId, z.string())
 			return await serverAPI.setNextSegment(connection, event, rundownPlaylistId, segmentId)
 		}
 	)
@@ -1186,8 +1187,8 @@ export function registerRoutes(registerRoute: APIRegisterHook<PlaylistsRestAPI>)
 			const segmentId = protectString<SegmentId>(body.segmentId)
 			logger.info(`API POST: set-next-segment ${rundownPlaylistId} ${segmentId}`)
 
-			check(rundownPlaylistId, String)
-			check(segmentId, String)
+			check(rundownPlaylistId, z.string())
+			check(segmentId, z.string())
 			return await serverAPI.queueNextSegment(connection, event, rundownPlaylistId, segmentId)
 		}
 	)
@@ -1205,8 +1206,8 @@ export function registerRoutes(registerRoute: APIRegisterHook<PlaylistsRestAPI>)
 			const fromPartInstanceId = body.fromPartInstanceId
 			logger.info(`API POST: take ${rundownPlaylistId}`)
 
-			check(rundownPlaylistId, String)
-			check(fromPartInstanceId, Match.Optional(String))
+			check(rundownPlaylistId, z.string())
+			check(fromPartInstanceId, z.string().optional())
 			return await serverAPI.take(connection, event, rundownPlaylistId, protectString(fromPartInstanceId))
 		}
 	)
@@ -1224,8 +1225,8 @@ export function registerRoutes(registerRoute: APIRegisterHook<PlaylistsRestAPI>)
 			const sourceLayerIds = body?.sourceLayerIds
 			logger.info(`API POST: clear-sourcelayers ${playlistId} ${sourceLayerIds}`)
 
-			check(playlistId, String)
-			check(sourceLayerIds, Array<string>)
+			check(playlistId, z.string())
+			check(sourceLayerIds, z.array(z.string()))
 
 			return await serverAPI.clearSourceLayers(connection, event, playlistId, sourceLayerIds)
 		}
@@ -1244,8 +1245,8 @@ export function registerRoutes(registerRoute: APIRegisterHook<PlaylistsRestAPI>)
 			const sourceLayerId = params.sourceLayerId
 			logger.info(`API DELETE: sourceLayer ${playlistId} ${sourceLayerId}`)
 
-			check(playlistId, String)
-			check(sourceLayerId, String)
+			check(playlistId, z.string())
+			check(sourceLayerId, z.string())
 			return await serverAPI.clearSourceLayers(connection, event, playlistId, [sourceLayerId])
 		}
 	)
@@ -1263,8 +1264,8 @@ export function registerRoutes(registerRoute: APIRegisterHook<PlaylistsRestAPI>)
 			const sourceLayerId = params.sourceLayerId
 			logger.info(`API POST: sourceLayer recallSticky ${playlistId} ${sourceLayerId}`)
 
-			check(playlistId, String)
-			check(sourceLayerId, String)
+			check(playlistId, z.string())
+			check(sourceLayerId, z.string())
 			return await serverAPI.recallStickyPiece(connection, event, playlistId, sourceLayerId)
 		}
 	)
@@ -1283,8 +1284,8 @@ export function registerRoutes(registerRoute: APIRegisterHook<PlaylistsRestAPI>)
 			const timerIndex = parseTimerIndex(params.timerIndex)
 			logger.info(`API POST: t-timer countdown ${rundownPlaylistId} ${timerIndex}`)
 
-			check(rundownPlaylistId, String)
-			check(timerIndex, Number)
+			check(rundownPlaylistId, z.string())
+			check(timerIndex, z.number())
 			return await serverAPI.tTimerStartCountdown(
 				connection,
 				event,
@@ -1307,8 +1308,8 @@ export function registerRoutes(registerRoute: APIRegisterHook<PlaylistsRestAPI>)
 			const timerIndex = parseTimerIndex(params.timerIndex)
 			logger.info(`API POST: t-timer free-run ${rundownPlaylistId} ${timerIndex}`)
 
-			check(rundownPlaylistId, String)
-			check(timerIndex, Number)
+			check(rundownPlaylistId, z.string())
+			check(timerIndex, z.number())
 			return await serverAPI.tTimerStartFreeRun(
 				connection,
 				event,
@@ -1329,8 +1330,8 @@ export function registerRoutes(registerRoute: APIRegisterHook<PlaylistsRestAPI>)
 			const timerIndex = parseTimerIndex(params.timerIndex)
 			logger.info(`API POST: t-timer pause ${rundownPlaylistId} ${timerIndex}`)
 
-			check(rundownPlaylistId, String)
-			check(timerIndex, Number)
+			check(rundownPlaylistId, z.string())
+			check(timerIndex, z.number())
 			return await serverAPI.tTimerPause(connection, event, rundownPlaylistId, timerIndex)
 		}
 	)
@@ -1345,8 +1346,8 @@ export function registerRoutes(registerRoute: APIRegisterHook<PlaylistsRestAPI>)
 			const timerIndex = parseTimerIndex(params.timerIndex)
 			logger.info(`API POST: t-timer resume ${rundownPlaylistId} ${timerIndex}`)
 
-			check(rundownPlaylistId, String)
-			check(timerIndex, Number)
+			check(rundownPlaylistId, z.string())
+			check(timerIndex, z.number())
 			return await serverAPI.tTimerResume(connection, event, rundownPlaylistId, timerIndex)
 		}
 	)
@@ -1361,8 +1362,8 @@ export function registerRoutes(registerRoute: APIRegisterHook<PlaylistsRestAPI>)
 			const timerIndex = parseTimerIndex(params.timerIndex)
 			logger.info(`API POST: t-timer restart ${rundownPlaylistId} ${timerIndex}`)
 
-			check(rundownPlaylistId, String)
-			check(timerIndex, Number)
+			check(rundownPlaylistId, z.string())
+			check(timerIndex, z.number())
 			return await serverAPI.tTimerRestart(connection, event, rundownPlaylistId, timerIndex)
 		}
 	)
@@ -1377,8 +1378,8 @@ export function registerRoutes(registerRoute: APIRegisterHook<PlaylistsRestAPI>)
 			const timerIndex = parseTimerIndex(params.timerIndex)
 			logger.info(`API POST: t-timer projected clear ${rundownPlaylistId} ${timerIndex}`)
 
-			check(rundownPlaylistId, String)
-			check(timerIndex, Number)
+			check(rundownPlaylistId, z.string())
+			check(timerIndex, z.number())
 			return await serverAPI.tTimerClearProjected(connection, event, rundownPlaylistId, timerIndex)
 		}
 	)
@@ -1393,10 +1394,10 @@ export function registerRoutes(registerRoute: APIRegisterHook<PlaylistsRestAPI>)
 			const timerIndex = parseTimerIndex(params.timerIndex)
 			logger.info(`API POST: t-timer projected anchor-part ${rundownPlaylistId} ${timerIndex}`)
 
-			check(rundownPlaylistId, String)
-			check(timerIndex, Number)
-			check(body.partId, Match.Optional(String))
-			check(body.externalId, Match.Optional(String))
+			check(rundownPlaylistId, z.string())
+			check(timerIndex, z.number())
+			check(body.partId, z.string().optional())
+			check(body.externalId, z.string().optional())
 
 			if (!body.partId && !body.externalId) {
 				throw new Meteor.Error(400, `Must provide either 'partId' or 'externalId'`)
@@ -1426,10 +1427,10 @@ export function registerRoutes(registerRoute: APIRegisterHook<PlaylistsRestAPI>)
 			const timerIndex = parseTimerIndex(params.timerIndex)
 			logger.info(`API POST: t-timer projected time ${rundownPlaylistId} ${timerIndex}`)
 
-			check(rundownPlaylistId, String)
-			check(timerIndex, Number)
-			check(body.time, Number)
-			check(body.paused, Match.Optional(Boolean))
+			check(rundownPlaylistId, z.string())
+			check(timerIndex, z.number())
+			check(body.time, z.number())
+			check(body.paused, z.boolean().optional())
 
 			return await serverAPI.tTimerSetProjectedTime(
 				connection,
@@ -1452,10 +1453,10 @@ export function registerRoutes(registerRoute: APIRegisterHook<PlaylistsRestAPI>)
 			const timerIndex = parseTimerIndex(params.timerIndex)
 			logger.info(`API POST: t-timer projected duration ${rundownPlaylistId} ${timerIndex}`)
 
-			check(rundownPlaylistId, String)
-			check(timerIndex, Number)
-			check(body.duration, Number)
-			check(body.paused, Match.Optional(Boolean))
+			check(rundownPlaylistId, z.string())
+			check(timerIndex, z.number())
+			check(body.duration, z.number())
+			check(body.paused, z.boolean().optional())
 
 			return await serverAPI.tTimerSetProjectedDuration(
 				connection,

@@ -1,4 +1,5 @@
 import { Meteor } from 'meteor/meteor'
+import { z } from 'zod'
 import { CustomPublish } from '../lib/customPublication'
 import { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { logger } from '../logging'
@@ -6,7 +7,7 @@ import { DeviceTriggerMountedActionAdlibsPreview, DeviceTriggerMountedActions } 
 import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import _ from 'underscore'
-import { check } from 'meteor/check'
+import { check } from '../lib/check'
 import {
 	PeripheralDevicePubSub,
 	PeripheralDevicePubSubCollectionsNames,
@@ -23,8 +24,8 @@ export function registerMountedTriggersPublications(registry: PublicationRegistr
 		PeripheralDevicePubSub.mountedTriggersForDevice,
 		PeripheralDevicePubSubCollectionsNames.mountedTriggers,
 		async (context, pub, deviceId: PeripheralDeviceId, deviceIds: string[], token: string | undefined) => {
-			check(deviceId, String)
-			check(deviceIds, [String])
+			check(deviceId, z.string())
+			check(deviceIds, z.array(z.string()))
 
 			const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, context)
 
@@ -49,7 +50,7 @@ export function registerMountedTriggersPublications(registry: PublicationRegistr
 		PeripheralDevicePubSub.mountedTriggersForDevicePreview,
 		PeripheralDevicePubSubCollectionsNames.mountedTriggersPreviews,
 		async (context, pub, deviceId: PeripheralDeviceId, token: string | undefined) => {
-			check(deviceId, String)
+			check(deviceId, z.string())
 
 			const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, context)
 

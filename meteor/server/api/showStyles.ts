@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { check } from '../lib/check'
 import { CreateAdlibTestingRundownOption, NewShowStylesAPI } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { Meteor } from 'meteor/meteor'
@@ -181,7 +182,7 @@ export async function removeShowStyleVariant(
 	context: MethodContext,
 	showStyleVariantId: ShowStyleVariantId
 ): Promise<void> {
-	check(showStyleVariantId, String)
+	check(showStyleVariantId, z.string())
 
 	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_MANAGE_SHOWSTYLES)
 
@@ -196,8 +197,8 @@ export async function reorderShowStyleVariant(
 	showStyleVariantId: ShowStyleVariantId,
 	rank: number
 ): Promise<void> {
-	check(showStyleVariantId, String)
-	check(rank, Number)
+	check(showStyleVariantId, z.string())
+	check(rank, z.number())
 
 	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_MANAGE_SHOWSTYLES)
 

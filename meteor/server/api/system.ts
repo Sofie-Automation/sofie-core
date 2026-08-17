@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import _ from 'underscore'
 import type { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { sleep, getCurrentTime } from '../lib/lib'
@@ -93,7 +94,7 @@ async function cleanupIndexes(
 	context: MethodContext,
 	actuallyRemoveOldIndexes: boolean
 ): Promise<Array<IndexSpecification>> {
-	check(actuallyRemoveOldIndexes, Boolean)
+	check(actuallyRemoveOldIndexes, z.boolean())
 	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_SYSTEM_CLEANUP)
 
 	return setupIndexes(actuallyRemoveOldIndexes)
@@ -102,7 +103,7 @@ async function cleanupOldData(
 	context: MethodContext,
 	actuallyRemoveOldData: boolean
 ): Promise<string | CollectionCleanupResult> {
-	check(actuallyRemoveOldData, Boolean)
+	check(actuallyRemoveOldData, z.boolean())
 
 	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_SYSTEM_CLEANUP)
 
@@ -362,7 +363,7 @@ CPU JSON stringifying:       ${avg.cpuStringifying} ms (${comparison.cpuStringif
 }
 
 async function getTranslationBundle(_context: MethodContext, bundleId: TranslationsBundleId) {
-	check(bundleId, String)
+	check(bundleId, z.string())
 
 	triggerWriteAccessBecauseNoCheckNecessary()
 

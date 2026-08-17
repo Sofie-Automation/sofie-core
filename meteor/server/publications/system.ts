@@ -1,7 +1,8 @@
+import { z } from 'zod'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { CoreSystem, Notifications } from '../collections'
 import { RundownId, RundownPlaylistId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { check } from 'meteor/check'
+import { check } from '../lib/check'
 import { SYSTEM_ID } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
 import { triggerWriteAccessBecauseNoCheckNecessary } from '../security/securityVerify'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
@@ -34,8 +35,8 @@ export function registerSystemPublications(registry: PublicationRegistry): void 
 			// HACK: This should do real auth
 			triggerWriteAccessBecauseNoCheckNecessary()
 
-			check(studioId, String)
-			check(rundownId, String)
+			check(studioId, z.string())
+			check(rundownId, z.string())
 
 			return Notifications.findWithCursor({
 				// Loosely match any notifications related to this rundown
@@ -51,8 +52,8 @@ export function registerSystemPublications(registry: PublicationRegistry): void 
 			// HACK: This should do real auth
 			triggerWriteAccessBecauseNoCheckNecessary()
 
-			check(studioId, String)
-			check(playlistId, String)
+			check(studioId, z.string())
+			check(playlistId, z.string())
 
 			return Notifications.findWithCursor({
 				// Loosely match any notifications related to this playlist

@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { DBStudio, StudioPackageContainer } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import {
 	TriggerUpdate,
@@ -18,7 +19,7 @@ import {
 	StudioId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { Studios } from '../../../collections'
-import { check, Match } from 'meteor/check'
+import { check } from '../../../lib/check'
 import { PackageManagerExpectedPackage } from '@sofie-automation/shared-lib/dist/package-manager/publications'
 import { ExpectedPackagesContentObserver } from './contentObserver'
 import { createReactiveContentCache, ExpectedPackagesContentCache } from './contentCache'
@@ -245,8 +246,8 @@ export function registerExpectedPackagesPublications(registry: PublicationRegist
 			filterPlayoutDeviceIds: PeripheralDeviceId[] | undefined,
 			token: string | undefined
 		) => {
-			check(deviceId, String)
-			check(filterPlayoutDeviceIds, Match.Maybe([String]))
+			check(deviceId, z.string())
+			check(filterPlayoutDeviceIds, z.array(z.string()).nullish())
 
 			const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, context)
 
