@@ -48,7 +48,13 @@ async function startMongoIfNeeded() {
 	console.log(`  path:    ${dbPath}`);
 	console.log("  starting... (the first run downloads the mongod binary, which can take a moment)");
 
-	const { uri, stop } = await startDevMongo({ dbPath, port, dbName, version });
+	const { uri, stop } = await startDevMongo({
+		dbPath,
+		port,
+		dbName,
+		version,
+		log: (message) => console.log(`  ${message}`),
+	});
 	process.env.MONGO_URL = uri;
 	console.log(`  ready at ${uri}`);
 
@@ -271,7 +277,21 @@ try {
 		await activeMongo.stop();
 	}
 } catch (e) {
-	console.error(e.message);
+	// Errors flagged as `explained` already say what went wrong and what to do about it, so print just the
+	// messages. Anything else gets the full stack and `cause` chain: an unannotated message on its own is
+	// often a bare driver/tooling error (eg "connection 1 to 127.0.0.1:3003 closed") that says nothing
+	// about which step failed.
+	if (e?.explained) {
+		console.error(`Error: ${e.message}`);
+		for (let cause = e.cause; cause; cause = cause.cause) {
+			console.error(`  caused by: ${cause.message ?? cause}`);
+		}
+	} else {
+		console.error(e?.stack ?? e);
+		for (let cause = e?.cause; cause; cause = cause.cause) {
+			console.error("Caused by:", cause?.stack ?? cause);
+		}
+	}
 	process.exit(1);
 }
 
