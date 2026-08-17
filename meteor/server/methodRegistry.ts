@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import { MethodContext, MethodContextAPI } from './api/methodContext'
 import { extractFunctionSignature } from './lib'
 import { logger } from './logging'
@@ -10,6 +9,7 @@ import {
 	wrapMethodForExecution,
 } from './methods'
 import { assertConnectionHasOneOfPermissions } from './security/auth'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 export type MethodWrapper = (
 	methodContext: MethodContext,
@@ -66,12 +66,9 @@ interface RegisteredMethod {
 
 /**
  * Holds all registered methods on an instance instead of mutating global state at import time.
- * The same instance is handed to both the Meteor path (`applyToMeteor()`) and, later, the
- * standalone DDP server, so methods live on both transports off a single source of truth.
  */
 export class MethodRegistry {
 	private readonly methods = new Map<string, RegisteredMethod>()
-	private applied = false
 
 	/** Register all methods of an API class, mapping each class method to its wire name via `methods`. */
 	registerApi(registration: AnyMethodApiRegistration): void {
@@ -81,7 +78,7 @@ export class MethodRegistry {
 			try {
 				const wireName = methodEnum[classMethodName]
 				if (!wireName) {
-					throw new Meteor.Error(
+					throw new SofieError(
 						500,
 						`MethodRegistry.registerApi: The method "${classMethodName}" is not set in the methods map.`
 					)
@@ -97,8 +94,7 @@ export class MethodRegistry {
 				this.add(wireName, inner, original, secret)
 			} catch (e) {
 				// A missing wire name or duplicate registration is a programming error. Log it and rethrow
-				// to abort registration of the whole API class, so applyToMeteor() can never run against a
-				// partially-registered registry.
+				// to abort registration of the whole API class
 				logger.error(`MethodRegistry: failed to register method "${classMethodName}": ${stringifyError(e)}`)
 				throw e
 			}
@@ -133,17 +129,8 @@ export class MethodRegistry {
 		secret: boolean,
 		debug = false
 	): void {
-		// Once applyToMeteor() has snapshotted the registry into Meteor.methods(), later additions would be
-		// invisible to Meteor. Freeze all registration entry points (they all funnel through here) so this
-		// programming error fails loudly instead of silently dropping the method.
-		if (this.applied) {
-			throw new Meteor.Error(
-				500,
-				`MethodRegistry: Cannot register method "${name}" after applyToMeteor() has been called.`
-			)
-		}
 		if (this.methods.has(name)) {
-			throw new Meteor.Error(500, `MethodRegistry: A method called "${name}" is already registered.`)
+			throw new SofieError(500, `MethodRegistry: A method called "${name}" is already registered.`)
 		}
 		this.methods.set(name, {
 			wrapped: wrapMethodForExecution(name, wrappedInner),
@@ -179,18 +166,6 @@ export class MethodRegistry {
 			if (signature) signatures[name] = signature
 		}
 		return signatures
-	}
-
-	/** Apply all registered methods to Meteor's DDP server. The only place that touches `Meteor.methods()`. */
-	applyToMeteor(): void {
-		if (this.applied) throw new Meteor.Error(500, 'MethodRegistry.applyToMeteor() has already been called')
-		this.applied = true
-
-		const meteorMethods: { [name: string]: MeteorMethod } = {}
-		for (const [name, method] of this.methods) {
-			meteorMethods[name] = method.wrapped
-		}
-		Meteor.methods(meteorMethods)
 	}
 }
 

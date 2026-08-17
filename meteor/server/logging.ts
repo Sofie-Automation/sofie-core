@@ -1,9 +1,8 @@
 import * as Winston from 'winston'
 import * as fs from 'fs'
-import { getAbsolutePath } from './lib'
+import { getAbsolutePath, isInProductionMode, isInTestMode } from './lib'
 import { LogLevel } from '@sofie-automation/meteor-lib/dist/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
-import { Meteor } from 'meteor/meteor'
 import _ from 'underscore'
 import { LoggerInstanceFixed } from '@sofie-automation/corelib/dist/logging'
 
@@ -20,7 +19,7 @@ export function setLogLevel(level: LogLevel, startup = false): void {
 		if (transports.file) {
 			transports.file.level = level
 		}
-		if (!Meteor.isTest) {
+		if (!isInTestMode()) {
 			// Note: We can't use logger.info here, since that might be supressed by the log level.
 			console.log(`Setting logger level to "${level}"`)
 		}
@@ -121,7 +120,7 @@ if (logToFile || logPath !== '') {
 	transports = {
 		console: transportConsole,
 	}
-	if (Meteor.isProduction) {
+	if (isInProductionMode()) {
 		logger = Winston.createLogger({
 			format: Winston.format.json(),
 			transports: [transportConsole],

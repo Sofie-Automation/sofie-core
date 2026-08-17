@@ -5,7 +5,6 @@
  */
 
 import _ from 'underscore'
-import { Meteor } from 'meteor/meteor'
 import type { MethodRegistry } from '../../../methodRegistry'
 import type { PublicationRegistry } from '../../../publicationRegistry'
 import type { PublicationContext } from '../../../publications/lib/lib'
@@ -17,6 +16,8 @@ import Koa from 'koa'
 import KoaRouter from '@koa/router'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { PeripheralDevicePubSub } from '@sofie-automation/shared-lib/dist/pubsub/peripheralDevice'
+import { MethodContext } from '../../methodContext'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 const LEGACY_API_VERSION = 0
 
@@ -101,7 +102,20 @@ export function createLegacyApiRouter(
 
 		assignRoute(router, 'POST', resource, signature.length, async (args) => {
 			const convArgs = typeConvertUrlParameters(args)
-			return Meteor.callAsync(methodValue, ...convArgs)
+
+			const handler = methodRegistry.get(methodValue)
+			if (!handler) {
+				throw new SofieError(404, `Method "${methodValue}" not found`)
+			}
+
+			const context: MethodContext = {
+				connection: null,
+				unblock: () => null,
+			}
+
+			// Call the method, and see if
+			// it calls triggerWriteAccess()
+			return handler.apply(context, convArgs)
 		})
 	}
 
@@ -213,9 +227,8 @@ function assignRoute(
 			const code = ClientAPI.isClientResponseError(result) ? 500 : 200
 			sendResult(ctx, code, result)
 		} catch (e: any) {
-			if (e.error && e.reason) {
-				// is Meteor.Error
-				sendResult(ctx, e.error, String(e.reason))
+			if (e instanceof SofieError && e.reason) {
+				sendResult(ctx, e.error, e.reason)
 			} else {
 				sendResult(ctx, 500, String(e))
 			}

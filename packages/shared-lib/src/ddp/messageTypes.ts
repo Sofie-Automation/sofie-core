@@ -38,11 +38,27 @@ export interface BaseMessage {
  * Note. Different fields to a Javascript error.
  */
 export interface DDPError {
+	/**
+	 * Note: `string` is allowed because this type also describes errors *received* from other DDP
+	 * peers, which may use string codes. Errors thrown by Sofie use `SofieError`, whose code is
+	 * always a number.
+	 */
 	error: string | number
 	reason?: string
 	message?: string
-	/** Extra structured detail carried by `Meteor.Error`; the client reconstructs it as `Meteor.Error.details`. */
+	/** Extra structured detail carried by the error; the client reconstructs it as `Meteor.Error.details`. */
 	details?: string
+	/**
+	 * Signifies that the error was deliberately thrown to be sent to the client, rather than being a
+	 * sanitized internal error. Emitted for parity with Meteor, which always set it; no known client
+	 * reads it. Optional because a non-Meteor DDP peer need not send it.
+	 */
+	isClientSafe?: true
+	/**
+	 * Protocol constant. This retains the `Meteor.Error` name even though Sofie no longer uses Meteor:
+	 * it is part of the DDP wire format, and is read by external gateways (via
+	 * `@sofie-automation/server-core-integration`) and by the web UI's DDP client. Do not rename it.
+	 */
 	errorType: 'Meteor.Error'
 }
 

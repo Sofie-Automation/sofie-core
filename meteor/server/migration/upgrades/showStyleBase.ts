@@ -8,7 +8,6 @@ import { normalizeArray } from '@sofie-automation/corelib/dist/lib'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { wrapTranslatableMessageFromBlueprints } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { BlueprintValidateConfigForStudioResult } from '@sofie-automation/corelib/dist/worker/studio'
-import { Meteor } from 'meteor/meteor'
 import { Blueprints, ShowStyleBases } from '../../collections'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { evalBlueprint } from '../../api/blueprints/cache'
@@ -18,6 +17,7 @@ import { FixUpBlueprintConfigContext } from '@sofie-automation/corelib/dist/fixU
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
 import { BlueprintFixUpConfigMessage } from '@sofie-automation/meteor-lib/dist/api/migration'
 import { updateTriggeredActionsForShowStyleBaseId } from './lib'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 export async function fixupConfigForShowStyleBase(
 	showStyleBaseId: ShowStyleBaseId
@@ -33,7 +33,7 @@ export async function fixupConfigForShowStyleBase(
 				},
 			})
 		}
-		throw new Meteor.Error(500, 'Blueprint does not support this config flow')
+		throw new SofieError(500, 'Blueprint does not support this config flow')
 	}
 
 	const commonContext = new CommonContext(
@@ -74,7 +74,7 @@ export async function ignoreFixupConfigForShowStyleBase(showStyleBaseId: ShowSty
 				},
 			})
 		}
-		throw new Meteor.Error(500, 'Blueprint does not support this config flow')
+		throw new SofieError(500, 'Blueprint does not support this config flow')
 	}
 
 	// Save the 'fixed' config
@@ -91,7 +91,7 @@ export async function validateConfigForShowStyleBase(
 	const { showStyleBase, blueprint, blueprintManifest } = await loadShowStyleAndBlueprint(showStyleBaseId)
 
 	if (typeof blueprintManifest.validateConfig !== 'function')
-		throw new Meteor.Error(500, 'Blueprint does not support this config flow')
+		throw new SofieError(500, 'Blueprint does not support this config flow')
 
 	throwIfNeedsFixupConfigRunning(showStyleBase, blueprint, blueprintManifest)
 
@@ -117,7 +117,7 @@ export async function runUpgradeForShowStyleBase(showStyleBaseId: ShowStyleBaseI
 	const { showStyleBase, blueprint, blueprintManifest } = await loadShowStyleAndBlueprint(showStyleBaseId)
 
 	if (typeof blueprintManifest.applyConfig !== 'function')
-		throw new Meteor.Error(500, 'Blueprint does not support this config flow')
+		throw new SofieError(500, 'Blueprint does not support this config flow')
 
 	throwIfNeedsFixupConfigRunning(showStyleBase, blueprint, blueprintManifest)
 
@@ -177,9 +177,9 @@ async function loadShowStyleAndBlueprint(showStyleBaseId: ShowStyleBaseId) {
 				| 'lastBlueprintFixUpHash'
 		  >
 		| undefined
-	if (!showStyleBase) throw new Meteor.Error(404, `ShowStyleBase "${showStyleBaseId}" not found!`)
+	if (!showStyleBase) throw new SofieError(404, `ShowStyleBase "${showStyleBaseId}" not found!`)
 
-	if (!showStyleBase.blueprintConfigPresetId) throw new Meteor.Error(500, 'ShowStyleBase is missing config preset')
+	if (!showStyleBase.blueprintConfigPresetId) throw new SofieError(500, 'ShowStyleBase is missing config preset')
 
 	const blueprint = showStyleBase.blueprintId
 		? await Blueprints.findOneAsync({
@@ -187,9 +187,9 @@ async function loadShowStyleAndBlueprint(showStyleBaseId: ShowStyleBaseId) {
 				blueprintType: BlueprintManifestType.SHOWSTYLE,
 			})
 		: undefined
-	if (!blueprint) throw new Meteor.Error(404, `Blueprint "${showStyleBase.blueprintId}" not found!`)
+	if (!blueprint) throw new SofieError(404, `Blueprint "${showStyleBase.blueprintId}" not found!`)
 
-	if (!blueprint.blueprintHash) throw new Meteor.Error(500, 'Blueprint is not valid')
+	if (!blueprint.blueprintHash) throw new SofieError(500, 'Blueprint is not valid')
 
 	const blueprintManifest = evalBlueprint(blueprint) as ShowStyleBlueprintManifest
 
@@ -208,5 +208,5 @@ function throwIfNeedsFixupConfigRunning(
 	if (typeof blueprintManifest.fixUpConfig !== 'function') return
 
 	if (blueprint.blueprintHash !== showStyleBase.lastBlueprintFixUpHash)
-		throw new Meteor.Error(500, `fixupConfigForShowStyleBase must be called first`)
+		throw new SofieError(500, `fixupConfigForShowStyleBase must be called first`)
 }

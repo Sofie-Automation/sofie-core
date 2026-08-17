@@ -1,5 +1,0 @@
-coverage
-scripts
-**/.coverage/
-**/__mocks__/
-**/__tests__/

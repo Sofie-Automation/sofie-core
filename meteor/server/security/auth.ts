@@ -1,9 +1,10 @@
 import { parseUserPermissions, UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
-import { Meteor } from 'meteor/meteor'
 import Koa from 'koa'
 import { triggerWriteAccess } from './securityVerify'
 import { logger } from '../logging'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
+import type { DDPClientConnection } from '../ddp-server/types'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 /**
  * The header to use for user permissions
@@ -12,7 +13,7 @@ import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collect
  */
 export const USER_PERMISSIONS_HEADER = (process.env.SOFIE_PERMISSIONS_HEADER || 'dnt').toLowerCase() // Future: swap this to 'x-sofie-permissions or something
 
-export type RequestCredentials = Meteor.Connection | Koa.ParameterizedContext
+export type RequestCredentials = DDPClientConnection | Koa.ParameterizedContext
 
 /**
  * Whether http-header based security measures are enabled.
@@ -51,11 +52,11 @@ export function assertConnectionHasOneOfPermissions(
 	conn: RequestCredentials | null,
 	...allowedPermissions: Array<keyof UserPermissions>
 ): void {
-	if (allowedPermissions.length === 0) throw new Meteor.Error(403, 'No permissions specified')
+	if (allowedPermissions.length === 0) throw new SofieError(403, 'No permissions specified')
 
 	triggerWriteAccess()
 
-	if (!conn) throw new Meteor.Error(403, 'Can only be invoked by clients')
+	if (!conn) throw new SofieError(403, 'Can only be invoked by clients')
 
 	// Skip if auth is disabled
 	if (!ENABLE_HEADER_AUTH) return
@@ -66,7 +67,7 @@ export function assertConnectionHasOneOfPermissions(
 	}
 
 	// Nothing matched
-	throw new Meteor.Error(403, 'Not authorized')
+	throw new SofieError(403, 'Not authorized')
 }
 
 export function checkHasOneOfPermissions(
@@ -74,14 +75,14 @@ export function checkHasOneOfPermissions(
 	collectionName: CollectionName,
 	...allowedPermissions: Array<keyof UserPermissions>
 ): boolean {
-	if (allowedPermissions.length === 0) throw new Meteor.Error(403, 'No permissions specified')
+	if (allowedPermissions.length === 0) throw new SofieError(403, 'No permissions specified')
 
 	triggerWriteAccess()
 
 	// Skip if auth is disabled
 	if (!ENABLE_HEADER_AUTH) return true
 
-	if (!permissions) throw new Meteor.Error(403, 'Permissions is null')
+	if (!permissions) throw new SofieError(403, 'Permissions is null')
 
 	for (const permission of allowedPermissions) {
 		if (permissions[permission]) return true

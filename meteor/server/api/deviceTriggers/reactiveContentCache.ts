@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import _ from 'underscore'
 import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
@@ -160,13 +159,10 @@ export function createReactiveContentCache(
 	reactivityDebounce: number
 ): { cache: ContentCache; cancel: () => void } {
 	let isCancelled = false
-	const innerReaction = _.debounce(
-		Meteor.bindEnvironment(() => {
-			if (isCancelled) return
-			reaction(cache)
-		}),
-		reactivityDebounce
-	)
+	const innerReaction = _.debounce(() => {
+		if (isCancelled) return
+		reaction(cache)
+	}, reactivityDebounce)
 	const cancel = () => {
 		isCancelled = true
 		innerReaction.cancel()

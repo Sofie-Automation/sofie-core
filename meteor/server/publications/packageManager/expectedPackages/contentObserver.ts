@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import { PartInstanceId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { logger } from '../../../logging'
 import {
@@ -11,11 +10,12 @@ import { ReactiveMongoObserverGroup, ReactiveMongoObserverGroupHandle } from '..
 import _ from 'underscore'
 import { equivalentArrays } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { waitForAllObserversReady } from '../../lib/lib'
+import type { LiveQueryHandleSync } from '../../../lib/lib'
 
 const REACTIVITY_DEBOUNCE = 20
 
-export class ExpectedPackagesContentObserver implements Meteor.LiveQueryHandle {
-	#observers: Meteor.LiveQueryHandle[] = []
+export class ExpectedPackagesContentObserver implements LiveQueryHandleSync {
+	#observers: LiveQueryHandleSync[] = []
 	#cache: ExpectedPackagesContentCache
 
 	#partInstanceIds: PartInstanceId[] = []
@@ -82,33 +82,30 @@ export class ExpectedPackagesContentObserver implements Meteor.LiveQueryHandle {
 		return observer
 	}
 
-	private updatePartInstanceIds = _.debounce(
-		Meteor.bindEnvironment(() => {
-			if (this.#disposed) return
+	private updatePartInstanceIds = _.debounce(() => {
+		if (this.#disposed) return
 
-			const newPartInstanceIdsSet = new Set<PartInstanceId>()
+		const newPartInstanceIdsSet = new Set<PartInstanceId>()
 
-			this.#cache.RundownPlaylists.findFetch({}).forEach((playlist) => {
-				if (playlist.activationId) {
-					if (playlist.nextPartInfo) {
-						newPartInstanceIdsSet.add(playlist.nextPartInfo.partInstanceId)
-					}
-					if (playlist.currentPartInfo) {
-						newPartInstanceIdsSet.add(playlist.currentPartInfo.partInstanceId)
-					}
+		this.#cache.RundownPlaylists.findFetch({}).forEach((playlist) => {
+			if (playlist.activationId) {
+				if (playlist.nextPartInfo) {
+					newPartInstanceIdsSet.add(playlist.nextPartInfo.partInstanceId)
 				}
-			})
-
-			const newPartInstanceIds = Array.from(newPartInstanceIdsSet)
-
-			if (!equivalentArrays(newPartInstanceIds, this.#partInstanceIds)) {
-				this.#partInstanceIds = newPartInstanceIds
-				// trigger the rundown group to restart
-				this.#partInstanceIdObserver.restart()
+				if (playlist.currentPartInfo) {
+					newPartInstanceIdsSet.add(playlist.currentPartInfo.partInstanceId)
+				}
 			}
-		}),
-		REACTIVITY_DEBOUNCE
-	)
+		})
+
+		const newPartInstanceIds = Array.from(newPartInstanceIdsSet)
+
+		if (!equivalentArrays(newPartInstanceIds, this.#partInstanceIds)) {
+			this.#partInstanceIds = newPartInstanceIds
+			// trigger the rundown group to restart
+			this.#partInstanceIdObserver.restart()
+		}
+	}, REACTIVITY_DEBOUNCE)
 
 	public get cache(): ExpectedPackagesContentCache {
 		return this.#cache

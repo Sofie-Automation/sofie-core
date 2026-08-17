@@ -1,6 +1,6 @@
-import { Meteor } from 'meteor/meteor'
 import { ProtectedString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { PublicationContext } from '../../publications/lib/lib'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 export interface CustomPublishChanges<T extends { _id: ProtectedString<any> }> {
 	added: Array<T>
@@ -55,7 +55,7 @@ export class CustomPublishMeteor<DBObj extends { _id: ProtectedString<any> }> {
 	 * Send the intial documents to the subscriber
 	 */
 	init(docs: DBObj[]): void {
-		if (this.#isReady) throw new Meteor.Error(500, 'CustomPublish has already been initialised')
+		if (this.#isReady) throw new SofieError(500, 'CustomPublish has already been initialised')
 
 		for (const doc of docs) {
 			this._meteorSubscription.added(this._collectionName, unprotectString(doc._id), doc)
@@ -69,7 +69,7 @@ export class CustomPublishMeteor<DBObj extends { _id: ProtectedString<any> }> {
 	 * Send a batch of changes to the subscriber
 	 */
 	changed(changes: CustomPublishChanges<DBObj>): void {
-		if (!this.#isReady) throw new Meteor.Error(500, 'CustomPublish has not been initialised')
+		if (!this.#isReady) throw new SofieError(500, 'CustomPublish has not been initialised')
 
 		for (const id of changes.removed.values()) {
 			this._meteorSubscription.removed(this._collectionName, unprotectString(id))

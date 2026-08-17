@@ -6,12 +6,16 @@ import { DefaultEnvironment, setupDefaultStudioEnvironment } from '../../../__mo
 import { getRandomId } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { getCurrentTime } from '../../lib/lib'
-import { MeteorCall } from '../methods'
+import { ExternalMessageQueueAPIMethods } from '@sofie-automation/meteor-lib/dist/api/ExternalMessageQueue'
+import { ServerExternalMessageQueueAPI } from '../ExternalMessageQueue'
 
-import { registerAllMethodsForTest } from '../../../__mocks__/helpers/methods'
+import { makeMeteorCallForTest } from '../../../__mocks__/helpers/methods'
 import { SupressLogMessages } from '../../../__mocks__/suppressLogging'
 
-registerAllMethodsForTest()
+const MeteorCall = makeMeteorCallForTest({
+	methods: ExternalMessageQueueAPIMethods,
+	class: ServerExternalMessageQueueAPI,
+})
 
 describe('Test external message queue static methods', () => {
 	let studioEnv: DefaultEnvironment
@@ -104,7 +108,7 @@ describe('Test external message queue static methods', () => {
 
 	test('toggleHold unknown id', async () => {
 		SupressLogMessages.suppressLogMessage(/ExternalMessage/i)
-		await expect(MeteorCall.externalMessages.toggleHold(protectString('cake'))).rejects.toThrowMeteor(
+		await expect(MeteorCall.externalMessages.toggleHold(protectString('cake'))).rejects.toThrowSofieError(
 			404,
 			'ExternalMessage "cake" not found!'
 		)
@@ -127,7 +131,7 @@ describe('Test external message queue static methods', () => {
 
 	test('retry unknown id', async () => {
 		SupressLogMessages.suppressLogMessage(/ExternalMessage/i)
-		await expect(MeteorCall.externalMessages.retry(protectString('is_a_lie'))).rejects.toThrowMeteor(
+		await expect(MeteorCall.externalMessages.retry(protectString('is_a_lie'))).rejects.toThrowSofieError(
 			404,
 			'ExternalMessage "is_a_lie" not found!'
 		)

@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import { z } from 'zod'
 import { check, zAnyArray, zPlainObject } from '../../lib/check'
 import { MethodContext } from '../methodContext'
@@ -30,6 +29,7 @@ import {
 import { logger } from '../../logging'
 import _ from 'underscore'
 import { ExpectedPackageDB } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 export namespace PackageManagerIntegration {
 	export async function updateExpectedPackageWorkStatuses(
@@ -57,7 +57,7 @@ export namespace PackageManagerIntegration {
 
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
 		if (!peripheralDevice.studioAndConfigId)
-			throw new Meteor.Error(400, 'Device "' + peripheralDevice._id + '" has no studio')
+			throw new SofieError(400, 'Device "' + peripheralDevice._id + '" has no studio')
 
 		const bulkChanges: MongoBulkWriteOperation<ExpectedPackageWorkStatus>[] = []
 		const removedIds: ExpectedPackageWorkStatusId[] = []
@@ -107,7 +107,7 @@ export namespace PackageManagerIntegration {
 								}
 							).then((expPackage: Pick<ExpectedPackageDB, '_id' | 'studioId'> | undefined) => {
 								if (!expPackage)
-									throw new Meteor.Error(404, `ExpectedPackages "${fromPackageIds}" not found`)
+									throw new SofieError(404, `ExpectedPackages "${fromPackageIds}" not found`)
 
 								const doc: ExpectedPackageWorkStatus = {
 									...workStatus,
@@ -184,7 +184,7 @@ export namespace PackageManagerIntegration {
 	): Promise<void> {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
 		if (!peripheralDevice.studioAndConfigId)
-			throw new Meteor.Error(400, 'Device "' + peripheralDevice._id + '" has no studio')
+			throw new SofieError(400, 'Device "' + peripheralDevice._id + '" has no studio')
 
 		const studioId = peripheralDevice.studioAndConfigId.studioId
 
@@ -275,7 +275,7 @@ export namespace PackageManagerIntegration {
 	): Promise<void> {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
 		if (!peripheralDevice.studioAndConfigId)
-			throw new Meteor.Error(400, 'Device "' + peripheralDevice._id + '" has no studio')
+			throw new SofieError(400, 'Device "' + peripheralDevice._id + '" has no studio')
 
 		const studioId = peripheralDevice.studioAndConfigId.studioId
 
@@ -355,7 +355,7 @@ export namespace PackageManagerIntegration {
 		check(packageIds, z.array(z.string()))
 		check(type, z.string())
 		if (!peripheralDevice.studioAndConfigId)
-			throw new Meteor.Error(400, 'Device "' + peripheralDevice._id + '" has no studio')
+			throw new SofieError(400, 'Device "' + peripheralDevice._id + '" has no studio')
 
 		const ids = packageIds.map((packageId) => getPackageInfoId(packageId, type))
 		const packageInfos = await PackageInfos.findFetchAsync(
@@ -389,7 +389,7 @@ export namespace PackageManagerIntegration {
 		check(packageId, z.string())
 		check(type, z.string())
 		if (!peripheralDevice.studioAndConfigId)
-			throw new Meteor.Error(400, 'Device "' + peripheralDevice._id + '" has no studio')
+			throw new SofieError(400, 'Device "' + peripheralDevice._id + '" has no studio')
 
 		const id = getPackageInfoId(packageId, type)
 
@@ -423,7 +423,7 @@ export namespace PackageManagerIntegration {
 		check(packageId, z.string())
 		check(type, z.string())
 		if (!peripheralDevice.studioAndConfigId)
-			throw new Meteor.Error(400, 'Device "' + peripheralDevice._id + '" has no studio')
+			throw new SofieError(400, 'Device "' + peripheralDevice._id + '" has no studio')
 
 		const id = getPackageInfoId(packageId, type)
 

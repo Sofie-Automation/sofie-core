@@ -2,17 +2,18 @@ import '../../../../__mocks__/_extendJest'
 import { setupDefaultStudioEnvironment } from '../../../../__mocks__/helpers/database'
 import { hashSingleUseToken } from '../../deviceTriggers/triggersContext'
 import { getCurrentTime, sleep } from '../../../lib/lib'
-import { MeteorCall } from '../../methods'
+import { UserActionAPIMethods } from '@sofie-automation/meteor-lib/dist/api/userActions'
+import { ServerUserActionAPI } from '../../userActions'
+import { SystemAPIMethods } from '@sofie-automation/meteor-lib/dist/api/system'
+import { SystemAPIClass } from '../../system'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { UserActionsLog } from '../../../collections'
-import { registerAllMethodsForTest } from '../../../../__mocks__/helpers/methods'
+import { makeMeteorCallForTest } from '../../../../__mocks__/helpers/methods'
 
-// registerAllMethodsForTest() pulls in the full API graph, which imports deviceTriggers/observer and
-// registers a Meteor.startup() callback. Mock it so that draining startup can never spin up the real
-// device-trigger observers/job-queue and interfere with this suite's fake timers.
-jest.mock('../../deviceTriggers/observer')
-
-registerAllMethodsForTest()
+const MeteorCall = makeMeteorCallForTest([
+	{ methods: UserActionAPIMethods, class: ServerUserActionAPI },
+	{ methods: SystemAPIMethods, class: SystemAPIClass },
+])
 
 describe('User Actions - General', () => {
 	beforeEach(async () => {

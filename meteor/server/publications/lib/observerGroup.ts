@@ -1,7 +1,7 @@
 import { getRandomString } from '@sofie-automation/corelib/dist/lib'
-import { Meteor } from 'meteor/meteor'
 import { LiveQueryHandle, lazyIgnore } from '../../lib/lib'
 import { waitForAllObserversReady } from './lib'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 export interface ReactiveMongoObserverGroupHandle extends LiveQueryHandle {
 	/**
@@ -39,7 +39,7 @@ export async function ReactiveMongoObserverGroup(
 	const runCheck = async () => {
 		let result: PromiseWithResolvers<void> | undefined
 		try {
-			if (!running) throw new Meteor.Error(500, 'ObserverGroup has been stopped!')
+			if (!running) throw new SofieError(500, 'ObserverGroup has been stopped!')
 
 			if (checkRunning) return
 			checkRunning = true
@@ -90,7 +90,7 @@ export async function ReactiveMongoObserverGroup(
 
 	const handle: ReactiveMongoObserverGroupHandle = {
 		stop: async () => {
-			if (!running) throw new Meteor.Error(500, 'ReactiveMongoObserverGroup is not running!')
+			if (!running) throw new SofieError(500, 'ReactiveMongoObserverGroup is not running!')
 
 			pendingStop = pendingStop || Promise.withResolvers<void>()
 
@@ -100,10 +100,10 @@ export async function ReactiveMongoObserverGroup(
 			await pendingStop.promise
 		},
 		restart: () => {
-			if (!running) throw new Meteor.Error(500, 'ReactiveMongoObserverGroup is not running!')
+			if (!running) throw new SofieError(500, 'ReactiveMongoObserverGroup is not running!')
 
 			// Ensure there is not a pending stop
-			if (pendingStop) throw new Meteor.Error(500, 'ReactiveMongoObserverGroup has been stopped')
+			if (pendingStop) throw new SofieError(500, 'ReactiveMongoObserverGroup has been stopped')
 
 			pendingRestart = true
 

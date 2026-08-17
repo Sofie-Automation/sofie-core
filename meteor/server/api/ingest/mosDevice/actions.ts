@@ -1,6 +1,5 @@
 import { logger } from '../../../logging'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { Meteor } from 'meteor/meteor'
 import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { IngestPart } from '@sofie-automation/blueprints-integration'
@@ -13,6 +12,7 @@ import { IngestJobs } from '@sofie-automation/corelib/dist/worker/ingest'
 import { DEFAULT_MOS_TIMEOUT_TIME } from '@sofie-automation/shared-lib/dist/core/constants'
 import { executePeripheralDeviceFunctionWithCustomTimeout } from '../../peripheralDevice/executeFunction'
 import { MOS } from '@sofie-automation/meteor-lib/dist/mos'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 export namespace MOSDeviceActions {
 	export async function reloadRundown(
@@ -32,7 +32,7 @@ export namespace MOSDeviceActions {
 			logger.debug(mosRunningOrder)
 
 			if (parseMosString(mosRunningOrder.ID) !== rundown.externalId) {
-				throw new Meteor.Error(
+				throw new SofieError(
 					401,
 					`Expected triggerGetRunningOrder reply for ${rundown.externalId} but got ${parseMosString(
 						mosRunningOrder.ID
@@ -67,10 +67,10 @@ export namespace MOSDeviceActions {
 		inPoint: number,
 		duration: number
 	): Promise<void> {
-		if (!partCache.payload) throw new Meteor.Error(500, `Part Cache for "${partCache.externalId}" missing payload!`)
+		if (!partCache.payload) throw new SofieError(500, `Part Cache for "${partCache.externalId}" missing payload!`)
 		const mosPayload = partCache.payload as MOS.IMOSROFullStory
 		if (!mosPayload.Body)
-			throw new Meteor.Error(500, `Part Cache for "${partCache.externalId}" missing FullStory content!`)
+			throw new SofieError(500, `Part Cache for "${partCache.externalId}" missing FullStory content!`)
 
 		const mosTypes = MOS.getMosTypes(false)
 
@@ -79,7 +79,7 @@ export namespace MOSDeviceActions {
 				item.itemType === 'storyItem' && mosTypes.mosString128.stringify(item.Content.ID) === piece.externalId
 		)?.Content as MOS.IMOSItem | undefined
 
-		if (!story) throw new Meteor.Error(404, `Story "${piece.externalId}" not found in mosPayload`)
+		if (!story) throw new SofieError(404, `Story "${piece.externalId}" not found in mosPayload`)
 
 		const timeBase = story.TimeBase || 1
 		const modifiedFields = {

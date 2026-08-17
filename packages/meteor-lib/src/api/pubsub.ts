@@ -222,7 +222,6 @@ export enum CustomCollectionName {
 	UITriggeredActions = 'uiTriggeredActions',
 	UIDeviceTriggerPreviews = 'deviceTriggerPreviews',
 	UISegmentPartNotes = 'uiSegmentPartNotes',
-	UIPieceContentStatuses = 'uiPieceContentStatuses',
 	UIBucketContentStatuses = 'uiBucketContentStatuses',
 	UIBlueprintUpgradeStatuses = 'uiBlueprintUpgradeStatuses',
 	UIParts = 'uiParts',

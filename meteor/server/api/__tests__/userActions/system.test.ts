@@ -1,4 +1,5 @@
-import { MeteorCall } from '../../methods'
+import { UserActionAPIMethods } from '@sofie-automation/meteor-lib/dist/api/userActions'
+import { ServerUserActionAPI } from '../../userActions'
 import {
 	PeripheralDevice,
 	PeripheralDeviceCategory,
@@ -22,14 +23,9 @@ import {
 import { literal } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { StudioPlayoutDevice } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { registerAllMethodsForTest } from '../../../../__mocks__/helpers/methods'
+import { makeMeteorCallForTest } from '../../../../__mocks__/helpers/methods'
 
-// registerAllMethodsForTest() pulls in the full API graph, which imports deviceTriggers/observer and
-// registers a Meteor.startup() callback. Mock it so that draining startup can never spin up the real
-// device-trigger observers/job-queue and interfere with this suite.
-jest.mock('../../deviceTriggers/observer')
-
-registerAllMethodsForTest()
+const MeteorCall = makeMeteorCallForTest({ methods: UserActionAPIMethods, class: ServerUserActionAPI })
 
 describe('User Actions - Disable Peripheral SubDevice', () => {
 	let env: DefaultEnvironment

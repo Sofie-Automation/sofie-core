@@ -1,5 +1,3 @@
-import { Meteor } from 'meteor/meteor'
-
 /**
  * Based on https://github.com/sindresorhus/p-debounce
  * With additional features:
@@ -12,7 +10,7 @@ export class PromiseDebounce<TResult = void, TArgs extends unknown[] = []> {
 
 	/** If an execution timeout has passed while  */
 	#pendingArgs: TArgs | null = null
-	#timeout: number | undefined
+	#timeout: NodeJS.Timeout | undefined
 
 	#isExecuting = false
 	#waitingListeners: Listener<TResult>[] = []
@@ -48,10 +46,10 @@ export class PromiseDebounce<TResult = void, TArgs extends unknown[] = []> {
 		}
 
 		// Clear an existing timeout
-		if (this.#timeout) Meteor.clearTimeout(this.#timeout)
+		if (this.#timeout) clearTimeout(this.#timeout)
 
 		// Start a new one
-		this.#timeout = Meteor.setTimeout(() => {
+		this.#timeout = setTimeout(() => {
 			this.#timeout = undefined
 
 			this.executeFn(args)
@@ -91,7 +89,7 @@ export class PromiseDebounce<TResult = void, TArgs extends unknown[] = []> {
 				// If there is a pending execution, run that soon
 				if (this.#pendingArgs) {
 					const args = this.#pendingArgs
-					Meteor.setTimeout(() => this.executeFn(args), 0)
+					setTimeout(() => this.executeFn(args), 0)
 				}
 			})
 	}
@@ -103,7 +101,7 @@ export class PromiseDebounce<TResult = void, TArgs extends unknown[] = []> {
 		this.#pendingArgs = null
 
 		if (this.#timeout) {
-			Meteor.clearTimeout(this.#timeout)
+			clearTimeout(this.#timeout)
 			this.#timeout = undefined
 		}
 
@@ -115,7 +113,7 @@ export class PromiseDebounce<TResult = void, TArgs extends unknown[] = []> {
 			error = error ?? new Error('Cancelled')
 
 			// Inform the listeners in the next tick
-			Meteor.defer(() => {
+			setImmediate(() => {
 				for (const listener of listeners) {
 					listener.reject(error)
 				}

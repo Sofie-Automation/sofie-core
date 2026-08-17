@@ -1,7 +1,7 @@
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
-import { Meteor } from 'meteor/meteor'
 import { IndexSpecifier } from '@sofie-automation/meteor-lib/dist/collections/lib'
 import { AsyncOnlyReadOnlyMongoCollection } from './collection'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 interface CollectionsIndexes {
 	[collectionName: string]: CollectionIndexes<any>
@@ -21,10 +21,8 @@ export function registerIndex<DBInterface extends { _id: ProtectedString<any> }>
 	collection: AsyncOnlyReadOnlyMongoCollection<DBInterface>,
 	index: IndexSpecifier<DBInterface>
 ): void {
-	if (!Meteor.isServer) return // only used server-side
-
 	const collectionName = collection.name
-	if (!collectionName) throw new Meteor.Error(500, `Error: collection.name not set`)
+	if (!collectionName) throw new SofieError(500, `Error: collection.name not set`)
 	if (!registeredIndexes[collectionName]) registeredIndexes[collectionName] = { collection: collection, indexes: [] }
 
 	registeredIndexes[collectionName].indexes.push(index)

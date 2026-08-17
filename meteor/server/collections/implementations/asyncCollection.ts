@@ -7,7 +7,6 @@ import {
 	FindObserveChangesOptions,
 } from '@sofie-automation/corelib/dist/mongo'
 import { ProtectedString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { Meteor } from 'meteor/meteor'
 import { UpdateOptions, IndexSpecifier, FindOptions } from '@sofie-automation/meteor-lib/dist/collections/lib'
 import type {
 	Collection as RawCollection,
@@ -30,6 +29,8 @@ import {
 import { ChangeStreamCursor } from '../changeStream/changeStreamCursor'
 import { subscribeToCollectionChangeFeed } from '../changeStream/collectionChangeFeed'
 import type { ObserveViewShape } from '@sofie-automation/corelib/dist/memoryCollection/observeView'
+import type { LiveQueryHandleSync } from '../../lib/lib'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 /**
  * Translate a meteor-lib {@link FindOptions} into the options the native `mongodb` driver accepts.
@@ -96,7 +97,7 @@ export class WrappedAsyncMongoCollection<
 
 	protected wrapMongoError(e: unknown): never {
 		const str = stringifyError(e) || 'Unknown MongoDB Error'
-		throw new Meteor.Error(e instanceof Meteor.Error ? e.error : 500, `Collection "${this.name}": ${str}`)
+		throw new SofieError(e instanceof SofieError ? e.error : 500, `Collection "${this.name}": ${str}`)
 	}
 
 	/**
@@ -194,7 +195,7 @@ export class WrappedAsyncMongoCollection<
 		selector: MongoQuery<DBInterface> | DBInterface['_id'],
 		callbacks: PromisifyCallbacks<ObserveChangesCallbacks<DBInterface>>,
 		options?: FindObserveChangesOptions<DBInterface>
-	): Promise<Meteor.LiveQueryHandle> {
+	): Promise<LiveQueryHandleSync> {
 		// Note: this span only covers the observer setup (initial snapshot + diff), not the lifetime of the observer
 		const span = profiler.startSpan(`MongoCollection.${this.name}.observeChanges`)
 		if (span) {
@@ -233,7 +234,7 @@ export class WrappedAsyncMongoCollection<
 		selector: MongoQuery<DBInterface> | DBInterface['_id'],
 		callbacks: PromisifyCallbacks<ObserveCallbacks<DBInterface>>,
 		options?: FindObserveChangesOptions<DBInterface>
-	): Promise<Meteor.LiveQueryHandle> {
+	): Promise<LiveQueryHandleSync> {
 		// Note: this span only covers the observer setup (initial snapshot + diff), not the lifetime of the observer
 		const span = profiler.startSpan(`MongoCollection.${this.name}.observe`)
 		if (span) {
@@ -393,7 +394,7 @@ export class WrappedAsyncMongoCollection<
 				})
 
 				if (bulkWriteResult && bulkWriteResult.hasWriteErrors()) {
-					throw new Meteor.Error(
+					throw new SofieError(
 						500,
 						`Errors in rawCollection.bulkWrite: ${bulkWriteResult.getWriteErrors().join(',')}`
 					)

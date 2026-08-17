@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import { z } from 'zod'
 import { check } from '../../lib/check'
 import { NewStudiosAPI } from '@sofie-automation/meteor-lib/dist/api/studios'
@@ -34,6 +33,7 @@ import {
 import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
 import { assertConnectionHasOneOfPermissions } from '../../security/auth'
 import { ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 const PERMISSIONS_FOR_MANAGE_STUDIOS: Array<keyof UserPermissions> = ['configure']
 
@@ -47,10 +47,7 @@ async function insertStudio(context: MethodContext, newId?: StudioId): Promise<S
 export async function insertStudioInner(newId?: StudioId): Promise<StudioId> {
 	const studioCount = await Studios.countDocuments()
 	if (studioCount > 0) {
-		throw new Meteor.Error(
-			400,
-			`Only one studio is supported per installation (there are currently ${studioCount})`
-		)
+		throw new SofieError(400, `Only one studio is supported per installation (there are currently ${studioCount})`)
 	}
 
 	return Studios.insertAsync(
@@ -106,23 +103,20 @@ async function removeStudio(context: MethodContext, studioId: StudioId): Promise
 
 	const studioCount = await Studios.countDocuments()
 	if (studioCount === 1) {
-		throw new Meteor.Error(
-			400,
-			`The last studio in the system cannot be deleted (there must be at least one studio)`
-		)
+		throw new SofieError(400, `The last studio in the system cannot be deleted (there must be at least one studio)`)
 	}
 
 	const studio = await Studios.findOneAsync(studioId)
-	if (!studio) throw new Meteor.Error(404, `Studio "${studioId}" not found`)
+	if (!studio) throw new SofieError(404, `Studio "${studioId}" not found`)
 
 	// allowed to remove?
 	const rundown = await Rundowns.findOneAsync({ studioId: studio._id }, { projection: { _id: 1 } })
 	if (rundown)
-		throw new Meteor.Error(404, `Can't remove studio "${studioId}", because the rundown "${rundown._id}" is in it.`)
+		throw new SofieError(404, `Can't remove studio "${studioId}", because the rundown "${rundown._id}" is in it.`)
 
 	const playlist = await RundownPlaylists.findOneAsync({ studioId: studio._id }, { projection: { _id: 1 } })
 	if (playlist)
-		throw new Meteor.Error(
+		throw new SofieError(
 			404,
 			`Can't remove studio "${studioId}", because the rundownPlaylist "${playlist._id}" is in it.`
 		)
@@ -132,7 +126,7 @@ async function removeStudio(context: MethodContext, studioId: StudioId): Promise
 		{ projection: { _id: 1 } }
 	)
 	if (peripheralDevice)
-		throw new Meteor.Error(
+		throw new SofieError(
 			404,
 			`Can't remoce studio "${studioId}", because the peripheralDevice "${peripheralDevice._id}" is in it.`
 		)
@@ -217,7 +211,7 @@ function triggerUpdateStudioMappingsHash(studioId: StudioId) {
 	)
 }
 
-Meteor.startup(async () => {
+export async function startStudioMappingsHashObserver(): Promise<void> {
 	await Studios.observeChanges(
 		{},
 		{
@@ -232,4 +226,4 @@ Meteor.startup(async () => {
 			},
 		}
 	)
-})
+}

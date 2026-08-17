@@ -1,8 +1,8 @@
 import { WebSocket, RawData } from 'ws'
 import type { IncomingMessage } from 'http'
-import { Meteor } from 'meteor/meteor'
 import { logger } from '../logging'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 import { MethodRegistry } from '../methodRegistry'
 import { PublicationRegistry } from '../publicationRegistry'
 import {
@@ -17,7 +17,7 @@ import {
 import { decodeMessage, encodeMessage } from './wireCodec'
 import { Heartbeat } from './Heartbeat'
 import { makeDdpConnection } from './DdpConnection'
-import { DdpConnectionRegistry } from './ConnectionRegistry'
+import { DdpConnectionRegistry, DdpSessionDebugData, TrackedDdpSession } from './ConnectionRegistry'
 import { handleMethodMessage, wrapError } from './methodDispatch'
 import { isCursorLike } from './subscriptionDispatch'
 import { driveSubscriptionFromCursor } from '../publications/lib/lib'
@@ -25,6 +25,7 @@ import type { MinimalMongoCursor } from '../collections/collection'
 import { SUPPORTED_DDP_VERSIONS } from './config'
 import { SessionCollectionView } from './SessionCollectionView'
 import { DdpPublicationContext, SessionPublicationApi } from './DdpPublicationContext'
+import type { DDPClientConnection } from './types'
 
 export interface DdpSessionOptions {
 	heartbeatInterval: number
@@ -39,8 +40,8 @@ export interface DdpSessionOptions {
  * `SessionCollectionView` per collection) so documents shared across subscriptions are deduplicated
  * before being sent to the client — matching what the client's minimongo expects.
  */
-export class DdpSession implements SessionPublicationApi {
-	readonly connection: Meteor.Connection
+export class DdpSession implements SessionPublicationApi, TrackedDdpSession {
+	readonly connection: DDPClientConnection
 	private readonly fireClose: () => void
 	private readonly socket: WebSocket
 	private readonly registry: MethodRegistry
@@ -105,7 +106,7 @@ export class DdpSession implements SessionPublicationApi {
 		if (this.closed) return
 		this.closed = true
 		this.heartbeat.stop()
-		this.connections.remove(this.connection.id, this.connection.clientAddress)
+		this.connections.remove(this)
 
 		// Tear down all subscriptions (observers etc.); no `nosub` needed as the socket is going away.
 		for (const context of this.subscriptions.values()) context.stop()
@@ -117,6 +118,24 @@ export class DdpSession implements SessionPublicationApi {
 			this.socket.close()
 		} catch {
 			// ignore errors closing an already-broken socket
+		}
+	}
+
+	/** A snapshot of this session's subscriptions and document counts, for diagnostics. */
+	getDebugData(): DdpSessionDebugData {
+		let mergedDocumentCount = 0
+		for (const view of this.collectionViews.values()) {
+			mergedDocumentCount += view.size
+		}
+
+		return {
+			id: this.connection.id,
+			clientAddress: this.connection.clientAddress,
+			subscriptions: Array.from(this.subscriptions.values(), (context) => ({
+				name: context.publicationName,
+				documents: context.getDocumentCounts(),
+			})),
+			mergedDocumentCount,
 		}
 	}
 
@@ -227,7 +246,7 @@ export class DdpSession implements SessionPublicationApi {
 		// If resume is ever wanted, this is where a returning `msg.session` would be looked up and its
 		// subscriptions re-attached instead of starting a new session.
 		this.initialized = true
-		this.connections.add(this.connection.id, this.connection.clientAddress)
+		this.connections.add(this)
 		this.send({ msg: 'connected', session: this.connection.id })
 		this.heartbeat.start()
 		logger.debug(
@@ -306,7 +325,7 @@ export class DdpSession implements SessionPublicationApi {
 			this.send({
 				msg: 'nosub',
 				id: msg.id,
-				error: { error: 404, reason: `Subscription '${msg.name}' not found`, errorType: 'Meteor.Error' },
+				error: wrapError(new SofieError(404, `Subscription '${msg.name}' not found`)),
 			})
 			return
 		}

@@ -2,24 +2,25 @@ import '../../../__mocks__/_extendJest'
 import { setupDefaultStudioEnvironment, DefaultEnvironment } from '../../../__mocks__/helpers/database'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { MeteorMock } from '../../../__mocks__/meteor'
+import { sleepNoFakeTimers } from '../../../__mocks__/time'
 import { status2ExternalStatus, setSystemStatus } from '../systemStatus'
 import { StatusResponse } from '@sofie-automation/meteor-lib/dist/api/systemStatus'
 import { StatusCode } from '@sofie-automation/blueprints-integration'
-import { MeteorCall } from '../../api/methods'
+import { SystemStatusAPIMethods } from '@sofie-automation/meteor-lib/dist/api/systemStatus'
 import { callKoaRoute } from '../../../__mocks__/koa-util'
-import { healthRouter } from '../api'
+import { healthRouter, ServerSystemStatusAPI } from '../api'
 import { UIBlueprintUpgradeStatus } from '@sofie-automation/meteor-lib/dist/api/upgradeStatus'
-import { registerAllMethodsForTest } from '../../../__mocks__/helpers/methods'
+import { makeMeteorCallForTest } from '../../../__mocks__/helpers/methods'
 
 // we don't want the deviceTriggers observer to start up at this time
 jest.mock('../../api/deviceTriggers/observer')
 
-registerAllMethodsForTest()
+const MeteorCall = makeMeteorCallForTest({ methods: SystemStatusAPIMethods, class: ServerSystemStatusAPI })
 require('../../coreSystem/index')
 const PackageInfo = require('../../../package.json')
 
 import * as getServerBlueprintUpgradeStatuses from '../../publications/blueprintUpgradeStatus/systemStatus'
+import { setupSystemStatusObservers } from '../../coreSystem'
 jest.spyOn(getServerBlueprintUpgradeStatuses, 'getServerBlueprintUpgradeStatuses').mockReturnValue(
 	Promise.resolve(literal<UIBlueprintUpgradeStatus[]>([]))
 )
@@ -40,8 +41,8 @@ describe('systemStatus API', () => {
 
 		test('REST /health with state BAD', async () => {
 			env = await setupDefaultStudioEnvironment()
-			await MeteorMock.mockRunMeteorStartup()
-			await MeteorMock.sleepNoFakeTimers(200)
+			await setupSystemStatusObservers()
+			await sleepNoFakeTimers(200)
 
 			// The system is uninitialized, the status will be BAD
 			const expectedStatus0 = StatusCode.BAD
@@ -75,8 +76,8 @@ describe('systemStatus API', () => {
 
 		test('REST /health with state GOOD', async () => {
 			env = await setupDefaultStudioEnvironment()
-			await MeteorMock.mockRunMeteorStartup()
-			await MeteorMock.sleepNoFakeTimers(200)
+			await setupSystemStatusObservers()
+			await sleepNoFakeTimers(200)
 
 			// simulate initialized system
 			setSystemStatus('systemTime', {

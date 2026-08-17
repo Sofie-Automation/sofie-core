@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import { ShowStyleBaseId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { Complete, literal } from '@sofie-automation/corelib/dist/lib'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
@@ -30,8 +29,9 @@ import { logger } from '../../logging'
 import { SomeAction, SomeBlueprintTrigger } from '@sofie-automation/blueprints-integration'
 import { DeviceActions } from '@sofie-automation/shared-lib/dist/core/model/ShowStyle'
 import { DummyReactiveVar } from '@sofie-automation/meteor-lib/dist/triggers/reactive-var'
-import { MeteorTriggersContext } from './triggersContext'
+import { TriggersContext } from '@sofie-automation/meteor-lib/dist/triggers/triggersContext'
 import { TagsService } from './TagsService'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 export class StudioDeviceTriggerManager {
 	#lastShowStyleBaseId: ShowStyleBaseId | null = null
@@ -40,7 +40,8 @@ export class StudioDeviceTriggerManager {
 
 	constructor(
 		public studioId: StudioId,
-		protected tagsService: TagsService
+		protected tagsService: TagsService,
+		private readonly triggersContext: TriggersContext
 	) {
 		if (StudioActionManagers.get(studioId)) {
 			logger.error(`A StudioActionManager for "${studioId}" already exists`)
@@ -68,7 +69,7 @@ export class StudioDeviceTriggerManager {
 		const context = await createCurrentContextFromCache(cache, studioId)
 		const actionManager = StudioActionManagers.get(studioId)
 		if (!actionManager)
-			throw new Meteor.Error(
+			throw new SofieError(
 				500,
 				`No Studio Action Manager available to handle action context in Studio "${studioId}"`
 			)
@@ -107,7 +108,7 @@ export class StudioDeviceTriggerManager {
 					if (existingAction) {
 						thisAction = existingAction
 					} else {
-						const compiledAction = createAction(MeteorTriggersContext, action, sourceLayers)
+						const compiledAction = createAction(this.triggersContext, action, sourceLayers)
 						actionManager.setAction(actionId, compiledAction)
 						thisAction = compiledAction
 					}
@@ -260,7 +261,7 @@ export class StudioDeviceTriggerManager {
 
 		const actionManager = StudioActionManagers.get(studioId)
 		if (!actionManager)
-			throw new Meteor.Error(
+			throw new SofieError(
 				500,
 				`No Studio Action Manager available to handle action context in Studio "${studioId}"`
 			)

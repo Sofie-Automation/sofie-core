@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import { z } from 'zod'
 import { check, zPlainObject } from '../../lib/check'
 import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
@@ -16,6 +15,7 @@ import { PeripheralDeviceId, RundownId, SegmentId, StudioId } from '@sofie-autom
 import { NrcsIngestCacheType } from '@sofie-automation/corelib/dist/dataModel/NrcsIngestDataCache'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { checkAccessAndGetPeripheralDevice } from '../../security/check'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 export namespace RundownInput {
 	export async function dataPlaylistGet(
@@ -309,13 +309,13 @@ async function getIngestRundown(peripheralDevice: PeripheralDevice, rundownExter
 		externalId: rundownExternalId,
 	})
 	if (!rundown) {
-		throw new Meteor.Error(404, `Rundown "${rundownExternalId}" not found`)
+		throw new SofieError(404, `Rundown "${rundownExternalId}" not found`)
 	}
 
 	const ingestCache = await RundownIngestDataCache.create(rundown._id)
 	const ingestData = ingestCache.fetchRundown()
 	if (!ingestData)
-		throw new Meteor.Error(404, `Rundown "${rundown._id}", (${rundownExternalId}) has no cached ingest data`)
+		throw new SofieError(404, `Rundown "${rundown._id}", (${rundownExternalId}) has no cached ingest data`)
 	return ingestData
 }
 async function getIngestSegment(
@@ -329,7 +329,7 @@ async function getIngestSegment(
 		externalId: rundownExternalId,
 	})
 	if (!rundown) {
-		throw new Meteor.Error(404, `Rundown "${rundownExternalId}" not found`)
+		throw new SofieError(404, `Rundown "${rundownExternalId}" not found`)
 	}
 
 	const segment = await Segments.findOneAsync({
@@ -338,13 +338,13 @@ async function getIngestSegment(
 	})
 
 	if (!segment) {
-		throw new Meteor.Error(404, `Segment ${segmentExternalId} not found in rundown ${rundownExternalId}`)
+		throw new SofieError(404, `Segment ${segmentExternalId} not found in rundown ${rundownExternalId}`)
 	}
 
 	const ingestCache = await RundownIngestDataCache.create(rundown._id)
 	const ingestData = ingestCache.fetchSegment(segment._id)
 	if (!ingestData)
-		throw new Meteor.Error(
+		throw new SofieError(
 			404,
 			`Rundown "${rundown._id}", (${rundownExternalId}) has no cached segment "${segment._id}" ingest data`
 		)
@@ -359,8 +359,8 @@ async function listIngestRundowns(peripheralDevice: PeripheralDevice): Promise<s
 	return rundowns.map((r) => r.externalId)
 }
 
-// hackGetMediaObjectDuration stuff
-Meteor.startup(async () => {
+export async function startMediaObjectDurationMonitor(): Promise<void> {
+	// hackGetMediaObjectDuration stuff
 	await MediaObjects.observe(
 		{},
 		{
@@ -369,7 +369,7 @@ Meteor.startup(async () => {
 		},
 		{ projection: { _id: 1, mediaId: 1, mediainfo: 1, studioId: 1 } }
 	)
-})
+}
 
 interface MediaObjectUpdatedIds {
 	rundownId: RundownId
@@ -447,10 +447,10 @@ async function onMediaObjectChanged(newDocument: MediaObject, oldDocument?: Medi
 async function updateSegmentFromCache(studioId: StudioId, mediaObjectUpdatedIds: MediaObjectUpdatedIds) {
 	const rundown = await Rundowns.findOneAsync(mediaObjectUpdatedIds.rundownId)
 	if (!rundown)
-		throw new Meteor.Error(`Could not find rundown ${mediaObjectUpdatedIds.rundownId} in updateSegmentFromCache`)
+		throw new SofieError(404, `Could not find rundown ${mediaObjectUpdatedIds.rundownId} in updateSegmentFromCache`)
 	const segment = await Segments.findOneAsync(mediaObjectUpdatedIds.segmentId)
 	if (!segment)
-		throw new Meteor.Error(`Could not find segment ${mediaObjectUpdatedIds.segmentId} in updateSegmentFromCache`)
+		throw new SofieError(404, `Could not find segment ${mediaObjectUpdatedIds.segmentId} in updateSegmentFromCache`)
 
 	await runIngestOperation(studioId, IngestJobs.RegenerateSegment, {
 		segmentExternalId: segment.externalId,

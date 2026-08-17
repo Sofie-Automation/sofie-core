@@ -1,8 +1,8 @@
 import { IngestPart, IngestSegment } from '@sofie-automation/blueprints-integration'
 import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { Meteor } from 'meteor/meteor'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { IngestRundown } from '@sofie-automation/blueprints-integration'
+import type { DDPClientConnection } from '../../../ddp-server/types'
 
 /* *************************************************************************
 This file contains types and interfaces that are used by the REST API.
@@ -14,26 +14,26 @@ export interface IngestRestAPI {
 	// Playlists
 
 	getPlaylists(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId
 	): Promise<ClientAPI.ClientResponse<Array<PlaylistResponse>>>
 
 	getPlaylist(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string // Internal or external ID
 	): Promise<ClientAPI.ClientResponse<PlaylistResponse>>
 
 	deletePlaylists(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId
 	): Promise<ClientAPI.ClientResponse<void>>
 
 	deletePlaylist(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string // Internal or external ID
@@ -42,14 +42,14 @@ export interface IngestRestAPI {
 	// Rundowns
 
 	getRundowns(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string
 	): Promise<ClientAPI.ClientResponse<Array<RundownResponse>>>
 
 	getRundown(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
@@ -57,7 +57,7 @@ export interface IngestRestAPI {
 	): Promise<ClientAPI.ClientResponse<RundownResponse>>
 
 	postRundown(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string | undefined,
@@ -65,7 +65,7 @@ export interface IngestRestAPI {
 	): Promise<ClientAPI.ClientResponse<void>>
 
 	putRundowns(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
@@ -73,7 +73,7 @@ export interface IngestRestAPI {
 	): Promise<ClientAPI.ClientResponse<void>>
 
 	putRundown(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
@@ -82,14 +82,14 @@ export interface IngestRestAPI {
 	): Promise<ClientAPI.ClientResponse<void>>
 
 	deleteRundowns(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string
 	): Promise<ClientAPI.ClientResponse<void>>
 
 	deleteRundown(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
@@ -99,7 +99,7 @@ export interface IngestRestAPI {
 	// Segments
 
 	getSegments(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
@@ -107,7 +107,7 @@ export interface IngestRestAPI {
 	): Promise<ClientAPI.ClientResponse<Array<SegmentResponse>>>
 
 	getSegment(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
@@ -116,7 +116,7 @@ export interface IngestRestAPI {
 	): Promise<ClientAPI.ClientResponse<SegmentResponse>>
 
 	postSegment(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
@@ -125,7 +125,7 @@ export interface IngestRestAPI {
 	): Promise<ClientAPI.ClientResponse<void>>
 
 	putSegments(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
@@ -134,7 +134,7 @@ export interface IngestRestAPI {
 	): Promise<ClientAPI.ClientResponse<void>>
 
 	putSegment(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
@@ -144,7 +144,7 @@ export interface IngestRestAPI {
 	): Promise<ClientAPI.ClientResponse<void>>
 
 	deleteSegments(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
@@ -152,7 +152,7 @@ export interface IngestRestAPI {
 	): Promise<ClientAPI.ClientResponse<void>>
 
 	deleteSegment(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
@@ -163,7 +163,7 @@ export interface IngestRestAPI {
 	// Parts
 
 	getParts(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
@@ -172,7 +172,7 @@ export interface IngestRestAPI {
 	): Promise<ClientAPI.ClientResponse<Array<PartResponse>>>
 
 	getPart(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
@@ -182,7 +182,7 @@ export interface IngestRestAPI {
 	): Promise<ClientAPI.ClientResponse<PartResponse>>
 
 	postPart(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
@@ -192,7 +192,7 @@ export interface IngestRestAPI {
 	): Promise<ClientAPI.ClientResponse<void>>
 
 	putParts(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
@@ -202,7 +202,7 @@ export interface IngestRestAPI {
 	): Promise<ClientAPI.ClientResponse<void>>
 
 	putPart(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
@@ -213,7 +213,7 @@ export interface IngestRestAPI {
 	): Promise<ClientAPI.ClientResponse<void>>
 
 	deleteParts(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
@@ -222,7 +222,7 @@ export interface IngestRestAPI {
 	): Promise<ClientAPI.ClientResponse<void>>
 
 	deletePart(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,

@@ -18,7 +18,7 @@ const commonConfig = {
 			'ts-jest',
 			{
 				isolatedModules: true, // Skip type check to reduce memory impact, as we are already do a yarn check-types
-				tsconfig: 'tsconfig.json',
+				tsconfig: 'tsconfig.jest.json',
 				diagnostics: {
 					ignoreCodes: ['TS151001'],
 				},

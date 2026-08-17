@@ -6,16 +6,16 @@ import { logger } from '../../../logging'
 import { APIFactory, APIRegisterHook, ServerAPIContext } from './types'
 import { APIBlueprint } from '../../../lib/rest/v1'
 import { BlueprintsRestAPI } from '../../../lib/rest/v1'
-import { Meteor } from 'meteor/meteor'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { Blueprints } from '../../../collections'
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
 import { UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/error'
 import { APIBlueprintFrom } from './typeConversion'
+import type { DDPClientConnection } from '../../../ddp-server/types'
 
 class BlueprintsServerAPI implements BlueprintsRestAPI {
 	async getAllBlueprints(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string
 	): Promise<ClientAPI.ClientResponse<Array<{ id: string }>>> {
 		const blueprints = (await Blueprints.findFetchAsync({}, { projection: { _id: 1 } })) as Array<
@@ -26,7 +26,7 @@ class BlueprintsServerAPI implements BlueprintsRestAPI {
 	}
 
 	async getBlueprint(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		blueprintId: BlueprintId
 	): Promise<ClientAPI.ClientResponse<APIBlueprint>> {

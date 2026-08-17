@@ -1,10 +1,10 @@
-import { Meteor } from 'meteor/meteor'
 import { PublicationContext } from '../publications/lib/lib'
 import { MeteorPublicationsGauge } from '../publicationRegistry'
+import type { DDPClientConnection } from './types'
 
 /** The slice of the session a publication context needs, to route its data through the merge box. */
 export interface SessionPublicationApi {
-	readonly connection: Meteor.Connection | null
+	readonly connection: DDPClientConnection | null
 	mergeAdded(subscriptionHandle: string, collection: string, id: string, fields: Record<string, unknown>): void
 	mergeChanged(subscriptionHandle: string, collection: string, id: string, fields: Record<string, unknown>): void
 	mergeRemoved(subscriptionHandle: string, collection: string, id: string): void
@@ -19,7 +19,7 @@ export interface SessionPublicationApi {
  * added so they can be removed from the merge box when the subscription stops.
  */
 export class DdpPublicationContext implements PublicationContext {
-	readonly connection: Meteor.Connection | null
+	readonly connection: DDPClientConnection | null
 
 	private readonly abort = new AbortController()
 	private readonly stopCallbacks: Array<() => void> = []
@@ -32,7 +32,7 @@ export class DdpPublicationContext implements PublicationContext {
 		private readonly subscriptionId: string,
 		/** The merge-box key for this subscription (distinct from the client-facing subscriptionId). */
 		private readonly subscriptionHandle: string,
-		publicationName: string
+		readonly publicationName: string
 	) {
 		this.connection = session.connection
 
@@ -49,6 +49,15 @@ export class DdpPublicationContext implements PublicationContext {
 
 	get signal(): AbortSignal {
 		return this.abort.signal
+	}
+
+	/** Number of documents this subscription has published, by collection name. For diagnostics. */
+	getDocumentCounts(): Record<string, number> {
+		const counts: Record<string, number> = {}
+		for (const [collection, ids] of this.documents) {
+			counts[collection] = ids.size
+		}
+		return counts
 	}
 
 	private get stopped(): boolean {

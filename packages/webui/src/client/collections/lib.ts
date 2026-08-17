@@ -42,8 +42,13 @@ function registerClientCollection(
 	ClientCollections.set(name, collection)
 }
 
+/**
+ * Collections populated by custom publications, keyed by their wire name.
+ * Custom collections are owned by one of three packages (meteor-lib, corelib or shared-lib for
+ * peripheral devices), so all three name enums are valid keys here.
+ */
 export const PublicationCollections = new Map<
-	CustomCollectionName | PeripheralDevicePubSubCollectionsNames,
+	CustomCollectionName | CustomCorelibCollectionName | PeripheralDevicePubSubCollectionsNames,
 	WrappedMongoReadOnlyCollection<any>
 >()
 

@@ -1,6 +1,6 @@
-import { Meteor } from 'meteor/meteor'
 import { waitForAllObserversReady } from '../lib'
 import { sleep } from '@sofie-automation/shared-lib/dist/lib/lib'
+import type { LiveQueryHandleSync } from '../../../lib/lib'
 
 describe('waitForAllObserversReady', () => {
 	// beforeEach(() => {
@@ -11,7 +11,7 @@ describe('waitForAllObserversReady', () => {
 		await expect(waitForAllObserversReady([])).resolves.toHaveLength(0)
 	})
 
-	async function createFakeObserver(waitTime: number, stopFn: () => void): Promise<Meteor.LiveQueryHandle> {
+	async function createFakeObserver(waitTime: number, stopFn: () => void): Promise<LiveQueryHandleSync> {
 		await sleep(waitTime)
 
 		return {
@@ -19,13 +19,13 @@ describe('waitForAllObserversReady', () => {
 		}
 	}
 
-	async function createBadObserver(waitTime: number): Promise<Meteor.LiveQueryHandle> {
+	async function createBadObserver(waitTime: number): Promise<LiveQueryHandleSync> {
 		await sleep(waitTime)
 
 		throw new Error('Some error')
 	}
 
-	function stopAll(observers: Meteor.LiveQueryHandle[]) {
+	function stopAll(observers: LiveQueryHandleSync[]) {
 		observers.forEach((o) => o.stop())
 	}
 

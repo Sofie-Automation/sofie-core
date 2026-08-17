@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import { logger } from './logging'
 import { MethodContext } from './api/methodContext'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
@@ -80,7 +79,7 @@ export function wrapMethodForExecution(methodName: string, method: MeteorMethod)
 	}
 }
 
-export type MeteorDebugMethod = (this: Meteor.MethodThisType, ...args: any[]) => Promise<any> | any
+export type MeteorDebugMethod = (this: MethodContext, ...args: any[]) => Promise<any> | any
 
 export function getRunningMethods(): RunningMethods {
 	return runningMethods

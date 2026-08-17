@@ -1,5 +1,4 @@
 import deepmerge from 'deepmerge'
-import { Meteor } from 'meteor/meteor'
 import { ReadonlyDeep } from 'type-fest'
 import { clone } from '@sofie-automation/corelib/dist/lib'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
@@ -10,6 +9,7 @@ import { LiveQueryHandle, lazyIgnore } from '../lib'
 import { CustomPublish, CustomPublishChanges } from './publish'
 import { waitForAllObserversReady } from '../../publications/lib/lib'
 import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 const apmNamespace = 'optimizedObserver'
 
@@ -140,14 +140,14 @@ export async function setUpOptimizedObserverInner<
 				lazynessDuration
 			)
 
-			Meteor.defer(() => {
+			setImmediate(() => {
 				resultingOptimizedObserver.resolve(observerWorker)
 			})
 		} catch (e: any) {
 			// The setup failed, so delete and cleanup the in-progress observer
 			delete optimizedObservers[identifier]
 
-			Meteor.defer(() => {
+			setImmediate(() => {
 				// Propogate to other susbcribers
 				resultingOptimizedObserver.reject(e)
 			})
@@ -315,7 +315,7 @@ async function createOptimizedObserverWorker<
 
 					if (hasPendingUpdate) {
 						// There is another pending update, make sure it gets executed asap
-						Meteor.defer(() => {
+						setImmediate(() => {
 							triggerUpdate({})
 						})
 					}
@@ -349,7 +349,7 @@ async function createOptimizedObserverWorker<
 			await thisObserverWorker.stopObservers()
 			thisObserverWorker = undefined
 
-			throw new Meteor.Error(500, 'All subscribers disappeared!')
+			throw new SofieError(500, 'All subscribers disappeared!')
 		}
 
 		// Let subscribers notify that they have unsubscribe
@@ -365,7 +365,7 @@ async function createOptimizedObserverWorker<
 
 		if (hasPendingUpdate) {
 			// An update is pending, let it be executed once the final observer is stored
-			Meteor.defer(() => {
+			setImmediate(() => {
 				triggerUpdate({})
 			})
 		}

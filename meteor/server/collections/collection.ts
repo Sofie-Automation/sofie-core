@@ -8,7 +8,6 @@ import {
 	FindObserveChangesOptions,
 } from '@sofie-automation/corelib/dist/mongo'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
-import { Meteor } from 'meteor/meteor'
 import { PromisifyCallbacks } from '@sofie-automation/shared-lib/dist/lib/types'
 import type { CreateIndexesOptions, IndexDescriptionInfo } from 'mongodb'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
@@ -16,7 +15,6 @@ import { registerCollection } from './lib'
 import { createMockCollection } from './implementations/mock'
 import { WrappedAsyncMongoCollection } from './implementations/asyncCollection'
 import { WrappedReadOnlyMongoCollection } from './implementations/readonlyWrapper'
-import { isInMockMode } from './mongoConnection'
 import {
 	FieldNames,
 	IndexSpecifier,
@@ -24,6 +22,9 @@ import {
 	UpdateOptions,
 } from '@sofie-automation/meteor-lib/dist/collections/lib'
 import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
+import { isInTestMode } from '../lib'
+import type { LiveQueryHandleSync } from '../lib/lib'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 export interface CustomMongoAllowRules<DBInterface> {
 	// insert?: (userId: UserId | null, doc: DBInterface) => Promise<boolean> | boolean
@@ -50,7 +51,7 @@ export function createAsyncOnlyMongoCollection<DBInterface extends { _id: Protec
 ): AsyncOnlyMongoCollection<DBInterface> {
 	if (allowRules) {
 		if (allowRules.requiredPermissions.length === 0)
-			throw new Meteor.Error(403, `No permissions specified for collection "${name}"`)
+			throw new SofieError(403, `No permissions specified for collection "${name}"`)
 
 		collectionsAllowDenyCache.set(name, allowRules as CustomMongoAllowRules<any>)
 	}
@@ -81,7 +82,7 @@ export function createAsyncOnlyReadOnlyMongoCollection<DBInterface extends { _id
 function createWrappedCollection<DBInterface extends { _id: ProtectedString<any> }>(
 	name: CollectionName
 ): AsyncOnlyMongoCollection<DBInterface> {
-	if (isInMockMode()) {
+	if (isInTestMode()) {
 		// In unit tests there is no real database, so back the collection with the in-memory mock
 		return createMockCollection<DBInterface>(name)
 	} else {
@@ -219,7 +220,7 @@ export interface AsyncOnlyReadOnlyMongoCollection<DBInterface extends { _id: Pro
 		selector: MongoQuery<DBInterface> | DBInterface['_id'],
 		callbacks: PromisifyCallbacks<ObserveChangesCallbacks<DBInterface>>,
 		options?: FindObserveChangesOptions<DBInterface>
-	): Promise<Meteor.LiveQueryHandle>
+	): Promise<LiveQueryHandleSync>
 
 	/**
 	 * Observe changes on this collection
@@ -229,7 +230,7 @@ export interface AsyncOnlyReadOnlyMongoCollection<DBInterface extends { _id: Pro
 		selector: MongoQuery<DBInterface> | DBInterface['_id'],
 		callbacks: PromisifyCallbacks<ObserveCallbacks<DBInterface>>,
 		options?: FindObserveChangesOptions<DBInterface>
-	): Promise<Meteor.LiveQueryHandle>
+	): Promise<LiveQueryHandleSync>
 
 	/**
 	 * Count the number of docuyments in a collection that match the selector.

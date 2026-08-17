@@ -8,27 +8,26 @@ import {
 	FindObserveChangesOptions,
 } from '@sofie-automation/corelib/dist/mongo'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
-import { Meteor } from 'meteor/meteor'
 import type { CreateIndexesOptions, IndexDescriptionInfo } from 'mongodb'
 import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
 import { PromisifyCallbacks } from '@sofie-automation/shared-lib/dist/lib/types'
 import { UpdateOptions, IndexSpecifier } from '@sofie-automation/meteor-lib/dist/collections/lib'
 import { AsyncOnlyMongoCollection, MinimalMongoCursor } from '../collection'
+import type { LiveQueryHandleSync } from '../../lib/lib'
 
 /**
- * {@link WrappedMockCollection} only ever runs under jest, where `Meteor` is the mock that provides
- * `sleepNoFakeTimers` (a real-timer sleep, unaffected by `jest.useFakeTimers()`). This bridges the gap to
- * the production `Meteor` type, which does not declare it.
+ * Captured at module load, which is always before a test body can install `jest.useFakeTimers()`.
+ * {@link WrappedMockCollection} must yield on a *real* timer, so that its methods still resolve in tests
+ * that have taken control of the fake clock.
  */
-interface MeteorWithMockTimers {
-	sleepNoFakeTimers(time: number): Promise<void>
-}
+const realSetTimeout = setTimeout
 
 /**
  * The collection used in unit tests: an async veneer over the in-memory {@link InMemoryMongoCollection}.
- * Each method forces a tick (`sleepNoFakeTimers`) before delegating to the synchronous core, so callers
- * cannot accidentally rely on writes resolving synchronously. Observe callbacks are delivered via
- * `Meteor.defer`, so `jest.useFakeTimers()` + `runAllTimers()` tests see them on a later tick.
+ * Each method forces a real-timer tick before delegating to the synchronous core, so callers cannot
+ * accidentally rely on writes resolving synchronously. Observe callbacks, by contrast, are delivered via
+ * `setImmediate`, which jest *does* fake, so `jest.useFakeTimers()` + `runAllTimers()` tests see them on a
+ * later tick.
  */
 export class WrappedMockCollection<
 	DBInterface extends { _id: ProtectedString<any> },
@@ -43,7 +42,7 @@ export class WrappedMockCollection<
 
 	constructor(name: string) {
 		this.#core = new InMemoryMongoCollection<DBInterface>(name, {
-			observerDeliveryScheduler: (fn) => Meteor.defer(fn),
+			observerDeliveryScheduler: (fn) => setImmediate(fn),
 		})
 	}
 
@@ -53,7 +52,7 @@ export class WrappedMockCollection<
 
 	/** Force a real-timer tick so callers can't rely on the synchronous core resolving synchronously. */
 	async #sleep(time: number): Promise<void> {
-		await (Meteor as unknown as MeteorWithMockTimers).sleepNoFakeTimers(time)
+		await new Promise<void>((resolve) => realSetTimeout(resolve, time))
 	}
 
 	get name(): string {
@@ -107,7 +106,7 @@ export class WrappedMockCollection<
 		selector: MongoQuery<DBInterface> | DBInterface['_id'],
 		callbacks: PromisifyCallbacks<ObserveCallbacks<DBInterface>>,
 		options?: FindObserveChangesOptions<DBInterface>
-	): Promise<Meteor.LiveQueryHandle> {
+	): Promise<LiveQueryHandleSync> {
 		await this.#sleep(0)
 		return this.#core.observe(callbacks, selector, options)
 	}
@@ -116,7 +115,7 @@ export class WrappedMockCollection<
 		selector: MongoQuery<DBInterface> | DBInterface['_id'],
 		callbacks: PromisifyCallbacks<ObserveChangesCallbacks<DBInterface>>,
 		options?: FindObserveChangesOptions<DBInterface>
-	): Promise<Meteor.LiveQueryHandle> {
+	): Promise<LiveQueryHandleSync> {
 		await this.#sleep(0)
 		return this.#core.observeChanges(callbacks, selector, options)
 	}

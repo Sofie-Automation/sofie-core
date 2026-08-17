@@ -60,17 +60,12 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version-file: ".node-version"
-      - uses: ./.github/actions/setup-meteor
       - name: Prepare Environment
         run: |
           corepack enable
 
           yarn config set cacheFolder /home/runner/publish-docs-cache
           yarn install
-
-          # setup zodern:types. No linters are setup, so this simply installs the packages
-          yarn meteor lint
-
           cd packages
           yarn build:all
         env:
@@ -148,17 +143,12 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version-file: ".node-version"
-      - uses: ./.github/actions/setup-meteor
       - name: Prepare Environment
         run: |
           corepack enable
 
           yarn config set cacheFolder /home/runner/lint-core-cache
-          yarn
-
-          # setup zodern:types. No linters are setup, so this simply installs the packages
-          yarn meteor lint
-        env:
+          yarn        env:
           CI: true
       - name: Bump version
         if: ${{ github.event_name == 'workflow_dispatch' }}

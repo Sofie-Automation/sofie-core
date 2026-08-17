@@ -1,26 +1,27 @@
-import { Meteor } from 'meteor/meteor'
 import type { IncomingMessage } from 'http'
 import { getRandomString } from '@sofie-automation/corelib/dist/lib'
 import { getClientAddress } from '../lib/clientAddress'
+import type { DDPClientConnection } from './types'
 
 /**
- * Build the `this.connection` handle for a DDP session, structurally a `Meteor.Connection` so it
- * drops into the existing method/auth code unchanged (`auth.ts` reads `httpHeaders`, `Connections.ts`
- * reads `id`/`clientAddress`/`onClose`, `client.ts` reads `clientAddress`).
+ * Build the `this.connection` handle for a DDP session.
  *
  * Returns the handle plus a `fireClose()` to be called once when the underlying socket closes.
  */
 export function makeDdpConnection(
 	request: IncomingMessage,
 	requestClose: () => void
-): { connection: Meteor.Connection; fireClose: () => void } {
+): { connection: DDPClientConnection; fireClose: () => void } {
 	const closeCallbacks: Array<() => void> = []
 	let closed = false
 
-	const connection: Meteor.Connection = {
+	const abortController = new AbortController()
+
+	const connection: DDPClientConnection = {
 		id: getRandomString(),
 		clientAddress: getClientAddress(request.headers, request.socket.remoteAddress),
-		httpHeaders: request.headers as Record<string, string>,
+		httpHeaders: request.headers,
+		signal: abortController.signal,
 		close: () => requestClose(),
 		onClose: (callback: () => void) => {
 			if (closed) {
@@ -35,6 +36,13 @@ export function makeDdpConnection(
 	const fireClose = () => {
 		if (closed) return
 		closed = true
+
+		try {
+			abortController.abort()
+		} catch {
+			// Ignore errors from aborting the signal
+		}
+
 		for (const callback of closeCallbacks) {
 			try {
 				callback()

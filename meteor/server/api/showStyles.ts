@@ -1,7 +1,6 @@
 import { z } from 'zod'
 import { check } from '../lib/check'
 import { CreateAdlibTestingRundownOption, NewShowStylesAPI } from '@sofie-automation/meteor-lib/dist/api/showStyles'
-import { Meteor } from 'meteor/meteor'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
 import { getRandomId, omit } from '@sofie-automation/corelib/dist/lib'
@@ -19,6 +18,7 @@ import { RundownLayouts, ShowStyleBases, ShowStyleVariants, Studios } from '../c
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
 import { assertConnectionHasOneOfPermissions } from '../security/auth'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 const PERMISSIONS_FOR_MANAGE_SHOWSTYLES: Array<keyof UserPermissions> = ['configure']
 
@@ -187,7 +187,7 @@ export async function removeShowStyleVariant(
 	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_MANAGE_SHOWSTYLES)
 
 	const showStyleVariant = await ShowStyleVariants.findOneAsync(showStyleVariantId)
-	if (!showStyleVariant) throw new Meteor.Error(404, `showStyleVariant "${showStyleVariantId}" not found`)
+	if (!showStyleVariant) throw new SofieError(404, `showStyleVariant "${showStyleVariantId}" not found`)
 
 	await ShowStyleVariants.removeAsync(showStyleVariant._id)
 }
@@ -203,7 +203,7 @@ export async function reorderShowStyleVariant(
 	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_MANAGE_SHOWSTYLES)
 
 	const showStyleVariant = await ShowStyleVariants.findOneAsync(showStyleVariantId)
-	if (!showStyleVariant) throw new Meteor.Error(404, `showStyleVariant "${showStyleVariantId}" not found`)
+	if (!showStyleVariant) throw new SofieError(404, `showStyleVariant "${showStyleVariantId}" not found`)
 
 	await ShowStyleVariants.updateAsync(showStyleVariantId, {
 		$set: {

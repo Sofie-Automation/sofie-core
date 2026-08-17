@@ -1,7 +1,7 @@
-import { Meteor } from 'meteor/meteor'
 import * as semver from 'semver'
 import { StatusCode } from '@sofie-automation/blueprints-integration'
 import _ from 'underscore'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 export type Version = string
 export type VersionRange = string
@@ -15,7 +15,7 @@ export function stripVersion(v: string): string {
 		return '0.0.0'
 	} else {
 		const valid = semver.parse(v)
-		if (!valid) throw new Meteor.Error(500, `Invalid version: "${v}"`)
+		if (!valid) throw new SofieError(500, `Invalid version: "${v}"`)
 
 		return `${valid.major}.${valid.minor}.${valid.patch}`
 	}
@@ -25,7 +25,7 @@ export function parseRange(r: VersionRange | undefined): VersionRange {
 		return '^0.0.0' // anything goes..
 	}
 	const range = semver.validRange(r)
-	if (!range) throw new Meteor.Error(500, `Invalid range: "${r}"`)
+	if (!range) throw new SofieError(500, `Invalid range: "${r}"`)
 	return range
 }
 export function parseVersion(v: Version | undefined): Version {
@@ -33,7 +33,7 @@ export function parseVersion(v: Version | undefined): Version {
 		return '0.0.0' // fallback
 	}
 	const valid = semver.valid(v)
-	if (!valid) throw new Meteor.Error(500, `Invalid version: "${v}"`)
+	if (!valid) throw new SofieError(500, `Invalid version: "${v}"`)
 	return valid
 }
 
@@ -42,7 +42,7 @@ export function isPrerelease(v: string): boolean {
 		return true
 	} else {
 		const valid = semver.parse(v)
-		if (!valid) throw new Meteor.Error(500, `Invalid version: "${v}"`)
+		if (!valid) throw new SofieError(500, `Invalid version: "${v}"`)
 
 		return valid.prerelease.length > 0
 	}
@@ -52,7 +52,7 @@ export function parseCoreIntegrationCompatabilityRange(v: string): string {
 		return '0.0'
 	} else {
 		const valid = semver.parse(v)
-		if (!valid) throw new Meteor.Error(500, `Invalid version: "${v}"`)
+		if (!valid) throw new SofieError(500, `Invalid version: "${v}"`)
 
 		// patch releases shouldn't break things, so we always want to accept an older patch
 		valid.patch = 0

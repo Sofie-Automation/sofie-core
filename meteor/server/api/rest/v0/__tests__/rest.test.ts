@@ -1,5 +1,3 @@
-import { MeteorMock } from '../../../../../__mocks__/meteor'
-import { Meteor } from 'meteor/meteor'
 import { UserActionAPIMethods } from '@sofie-automation/meteor-lib/dist/api/userActions'
 import { MethodRegistry, AnyMethodApiRegistration } from '../../../../methodRegistry'
 import { PublicationRegistry } from '../../../../publicationRegistry'
@@ -12,19 +10,28 @@ import { ServerUserActionAPI } from '../../../userActions'
 jest.mock('../../../deviceTriggers/observer')
 
 import '../index'
+import { MethodContext } from '../../../methodContext'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 describe('REST API', () => {
 	describe('UNSTABLE v0', () => {
-		beforeEach(async () => {
-			await MeteorMock.mockRunMeteorStartup()
+		const methodMock = jest.fn((..._args): any => {
+			throw new Error('Method wrapper not setup')
 		})
 
 		const methodRegistry = new MethodRegistry()
 		methodRegistry.registerApi({
 			methods: UserActionAPIMethods,
 			class: ServerUserActionAPI,
+			wrapper: (
+				_methodContext: MethodContext,
+				_methodName: string,
+				args: any[],
+				_fcn: (...args: any[]) => any
+			) => {
+				return methodMock(...args)
+			},
 		} as unknown as AnyMethodApiRegistration)
-		methodRegistry.applyToMeteor() // register the methods on the (mock) Meteor server
 		const methodSignatures = methodRegistry.getSignatures()
 		const publicationRegistry = new PublicationRegistry()
 		const legacyApiRouter = createLegacyApiRouter(methodRegistry, publicationRegistry)
@@ -38,9 +45,7 @@ describe('REST API', () => {
 					docString += `/${paramName}`
 				}
 
-				jest.spyOn(MeteorMock.mockMethods as any, methodValue).mockReturnValue(
-					ClientAPI.responseSuccess(undefined)
-				)
+				methodMock.mockImplementationOnce(() => ClientAPI.responseSuccess(undefined))
 
 				const ctx = await callKoaRoute(legacyApiRouter, {
 					method: 'POST',
@@ -56,7 +61,7 @@ describe('REST API', () => {
 			}
 		})
 
-		test('returns a matching HTTP error code when method throws a Meteor.Error', async () => {
+		test('returns a matching HTTP error code when method throws a SofieError', async () => {
 			const methodName = Object.keys(UserActionAPIMethods)[0]
 
 			const methodValue: string = (UserActionAPIMethods as any)[methodName]
@@ -67,8 +72,8 @@ describe('REST API', () => {
 				docString += `/${paramName}`
 			}
 
-			jest.spyOn(MeteorMock.mockMethods as any, methodValue).mockImplementation(() => {
-				throw new Meteor.Error(401, 'Mock error')
+			methodMock.mockImplementationOnce(() => {
+				throw new SofieError(401, 'Mock error')
 			})
 
 			const ctx = await callKoaRoute(legacyApiRouter, {
@@ -93,7 +98,7 @@ describe('REST API', () => {
 				docString += `/${paramName}`
 			}
 
-			jest.spyOn(MeteorMock.mockMethods as any, methodValue).mockImplementation(() => {
+			methodMock.mockImplementationOnce(() => {
 				throw new Error('Mock error')
 			})
 
@@ -133,7 +138,7 @@ describe('REST API', () => {
 
 			let resultingArgs: any[] = []
 
-			jest.spyOn(MeteorMock.mockMethods as any, methodValue).mockImplementation((...args) => {
+			methodMock.mockImplementationOnce((...args) => {
 				resultingArgs = args
 				return ClientAPI.responseSuccess(undefined)
 			})

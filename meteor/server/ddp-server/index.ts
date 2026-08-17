@@ -1,4 +1,3 @@
-import { WebApp } from 'meteor/webapp'
 import type { Server as HttpServer } from 'http'
 import { WebSocketServer } from 'ws'
 import { URL } from 'url'
@@ -12,22 +11,28 @@ import { getRootSubpath } from '../lib'
 import { trackConnectionOpen, trackConnectionClose } from '../Connections'
 
 /**
+ * Create the registry of live standalone-DDP sessions, wired up to the production connection lifecycle
+ * side-effects. Created separately from the server so other startup steps (e.g. the performance monitor)
+ * can hold onto it before the server itself is started.
+ */
+export function createDdpConnectionRegistry(): DdpConnectionRegistry {
+	return new DdpConnectionRegistry({ onOpen: trackConnectionOpen, onClose: trackConnectionClose })
+}
+
+/**
  * Start the standalone DDP server, sharing the given method + publication registries with the Meteor path.
  *
- * It mounts on Meteor's own HTTP server (`WebApp.httpServer`) under a subpath via a `noServer`
- * WebSocket server, only claiming `upgrade` requests for our path and leaving everything else
- * (e.g. Meteor's SockJS endpoint) untouched. Call from within `Meteor.startup`, once the HTTP
- * server exists.
+ * It mounts on the app's HTTP server under a subpath via a `noServer` WebSocket server, only claiming
+ * `upgrade` requests for our path and leaving everything else untouched. Call before the server begins
+ * listening, so that no upgrade request can arrive before the handler is attached.
  */
-export function startStandaloneDdpServer(registry: MethodRegistry, publications: PublicationRegistry): void {
-	const httpServer = (WebApp as unknown as { httpServer?: HttpServer }).httpServer
-	if (!httpServer) {
-		logger.error('Standalone DDP server: WebApp.httpServer is not available; not starting')
-		return
-	}
-
+export function startStandaloneDdpServer(
+	registry: MethodRegistry,
+	publications: PublicationRegistry,
+	connections: DdpConnectionRegistry,
+	httpServer: HttpServer
+): void {
 	const path = getRootSubpath() + STANDALONE_DDP_SERVER_PATH
-	const connections = new DdpConnectionRegistry({ onOpen: trackConnectionOpen, onClose: trackConnectionClose })
 	const wss = new WebSocketServer({ noServer: true })
 
 	wss.on('connection', (socket, request) => {

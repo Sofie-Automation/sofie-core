@@ -2,7 +2,6 @@ import { z } from 'zod'
 import { PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { getRandomId } from '@sofie-automation/corelib/dist/lib'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { Meteor } from 'meteor/meteor'
 import { check } from '../lib/check'
 import { ReadonlyDeep } from 'type-fest'
 import { CustomCollectionName, MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
@@ -13,6 +12,7 @@ import { CustomPublish } from '../lib/customPublication/publish'
 import { PeripheralDevices } from '../collections'
 import { assertConnectionHasOneOfPermissions } from '../security/auth'
 import type { PublicationRegistry } from '../publicationRegistry'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 /** IDEA: This could potentially be a Capped Collection, thus enabling scaling Core horizontally:
  *  https://www.mongodb.com/docs/manual/core/capped-collections/ */
@@ -41,10 +41,10 @@ export async function insertInputDeviceTriggerIntoPreview(
 	if (typeof deviceId !== 'string') return
 	const pDevice = await PeripheralDevices.findOneAsync(deviceId)
 
-	if (!pDevice) throw new Meteor.Error(404, `Could not find peripheralDevice "${deviceId}"`)
+	if (!pDevice) throw new SofieError(404, `Could not find peripheralDevice "${deviceId}"`)
 
 	const studioId = unprotectString(pDevice.studioAndConfigId?.studioId)
-	if (!studioId) throw new Meteor.Error(501, `Device "${pDevice._id}" is not assigned to any studio`)
+	if (!studioId) throw new SofieError(501, `Device "${pDevice._id}" is not assigned to any studio`)
 
 	const lastTriggersStudio = prepareTriggerBufferForStudio(studioId)
 	lastTriggersStudio.triggers.push({

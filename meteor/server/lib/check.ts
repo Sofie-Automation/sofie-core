@@ -1,5 +1,5 @@
-import { Meteor } from 'meteor/meteor'
 import { z } from 'zod'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 let checkDisabled = false
 
@@ -35,7 +35,7 @@ export function check(value: unknown, schema: z.ZodType): void {
 
 	const result = schema.safeParse(value)
 	if (!result.success) {
-		throw new Meteor.Error(400, `Match error: ${formatError(result.error)}`)
+		throw new SofieError(400, `Match error: ${formatError(result.error)}`)
 	}
 }
 

@@ -21,13 +21,12 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version-file: ".node-version"
-      - uses: ./.github/actions/setup-meteor
       - name: restore node_modules
         uses: actions/cache@v6
         with:
           path: |
             meteor/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('meteor/yarn.lock') }}-${{ hashFiles('meteor/.meteor/release') }}
+          key: ${{ runner.os }}-${{ hashFiles('meteor/yarn.lock') }}
       - name: Validate production dependencies for vulnerabilities and compatible licenses
         run: |
           corepack enable
@@ -51,13 +50,12 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version-file: ".node-version"
-      - uses: ./.github/actions/setup-meteor
       - name: restore node_modules
         uses: actions/cache@v6
         with:
           path: |
             meteor/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('meteor/yarn.lock') }}-${{ hashFiles('meteor/.meteor/release') }}
+          key: ${{ runner.os }}-${{ hashFiles('meteor/yarn.lock') }}
       - name: Validate production dependencies for vulnerabilities and compatible licenses
         run: |
           corepack enable
@@ -130,7 +128,7 @@ jobs:
       - name: Prepare Environment
         run: |
           corepack enable
-          
+
           cd packages
           yarn install
         env:

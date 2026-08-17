@@ -1,11 +1,11 @@
 import { EventEmitter } from 'events'
-import { Meteor } from 'meteor/meteor'
 import { MethodRegistry } from '../../methodRegistry'
 import { PublicationRegistry } from '../../publicationRegistry'
 import { DdpSession } from '../DdpSession'
 import { DdpConnectionRegistry } from '../ConnectionRegistry'
 import { ServerMessage } from '@sofie-automation/shared-lib/dist/ddp/messageTypes'
 import { makeDdpConnection } from '../DdpConnection'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 /** A minimal stand-in for a `ws` WebSocket that records sent messages and lets tests inject frames. */
 class FakeSocket extends EventEmitter {
@@ -37,7 +37,7 @@ describe('DdpSession', () => {
 			return { echoed: value, hadConnection: !!this.connection }
 		})
 		registry.registerMethod('test.fail', function () {
-			throw new Meteor.Error(418, 'teapot')
+			throw new SofieError(418, 'teapot')
 		})
 
 		const publications = new PublicationRegistry()
@@ -351,6 +351,55 @@ describe('DdpSession', () => {
 			expect(addedForX).toHaveLength(1)
 			// Both subscriptions still became ready.
 			expect(socket.sent.filter((m) => m.msg === 'ready')).toHaveLength(2)
+		})
+	})
+
+	describe('debug data', () => {
+		test('the registry reports the live subscriptions and merged document counts', async () => {
+			const { publications, socket, connections } = setup()
+			publications.publishUnsafe('test.a', async (ctx) => {
+				ctx.added('Shared', 'x', { a: 1 })
+				ctx.added('Other', 'y', { a: 1 })
+				ctx.ready()
+			})
+			// Publishes the same document as test.a, so the merge box holds it only once.
+			publications.publishUnsafe('test.b', async (ctx) => {
+				ctx.added('Shared', 'x', { a: 1 })
+				ctx.ready()
+			})
+			socket.receive({ msg: 'connect', version: '1' })
+			socket.receive({ msg: 'sub', id: 's1', name: 'test.a' })
+			socket.receive({ msg: 'sub', id: 's2', name: 'test.b' })
+			await flush()
+
+			expect(connections.getDebugData()).toEqual([
+				{
+					id: expect.any(String),
+					clientAddress: '127.0.0.1',
+					mergedDocumentCount: 2,
+					subscriptions: [
+						{ name: 'test.a', documents: { Shared: 1, Other: 1 } },
+						{ name: 'test.b', documents: { Shared: 1 } },
+					],
+				},
+			])
+
+			socket.receive({ msg: 'unsub', id: 's2' })
+			await flush()
+
+			expect(connections.getDebugData()[0]).toMatchObject({
+				mergedDocumentCount: 2,
+				subscriptions: [{ name: 'test.a', documents: { Shared: 1, Other: 1 } }],
+			})
+		})
+
+		test('a closed session is no longer reported', () => {
+			const { socket, session, connections } = setup()
+			socket.receive({ msg: 'connect', version: '1' })
+			expect(connections.getDebugData()).toHaveLength(1)
+
+			session.close()
+			expect(connections.getDebugData()).toHaveLength(0)
 		})
 	})
 

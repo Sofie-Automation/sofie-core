@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { check, disableChecks, enableChecks, zAnyArray, zPlainObject } from '../check'
-import { Meteor } from 'meteor/meteor'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 describe('lib/check', () => {
 	test('check basic', () => {
@@ -82,7 +82,7 @@ describe('lib/check', () => {
 			error = e
 		}
 
-		expect(error).toBeInstanceOf(Meteor.Error)
+		expect(error).toBeInstanceOf(SofieError)
 		expect(error.error).toBe(400)
 		expect(error.reason).toMatch(/^Match error: /)
 		// The message must describe the expected/received *types*, never the received value

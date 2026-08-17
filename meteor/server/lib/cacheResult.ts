@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import _ from 'underscore'
 
 const cacheResultCache: {
@@ -10,7 +9,7 @@ const cacheResultCache: {
 /** Cache the result of function for a limited time */
 export function cacheResult<T>(name: string, fcn: () => T, limitTime = 1000): T {
 	if (Math.random() < 0.01) {
-		Meteor.setTimeout(cleanOldCacheResult, 10000)
+		setTimeout(cleanOldCacheResult, 10000)
 	}
 	const cache = cacheResultCache[name]
 	if (!cache || cache.ttl < Date.now()) {
@@ -27,7 +26,7 @@ export function cacheResult<T>(name: string, fcn: () => T, limitTime = 1000): T 
 /** Cache the result of function for a limited time */
 export async function cacheResultAsync<T>(name: string, fcn: () => Promise<T>, limitTime = 1000): Promise<T> {
 	if (Math.random() < 0.01) {
-		Meteor.setTimeout(cleanOldCacheResult, 10000)
+		setTimeout(cleanOldCacheResult, 10000)
 	}
 	const cache = cacheResultCache[name]
 	if (!cache || cache.ttl < Date.now()) {
