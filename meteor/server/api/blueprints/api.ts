@@ -250,7 +250,7 @@ async function innerUploadBlueprint(
 	parseVersion(blueprintManifest.integrationVersion)
 	parseVersion(blueprintManifest.TSRVersion)
 
-	await Blueprints.upsertAsync(newBlueprint._id, newBlueprint)
+	await Blueprints.replaceAsync(newBlueprint)
 
 	// check for translations on the manifest and store them if they exist
 	if (

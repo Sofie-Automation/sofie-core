@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor'
 import { Mongo } from 'meteor/mongo'
 import { type ProtectedString, protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
-import type { Collection as RawCollection, Db as RawDb } from 'mongodb'
+import type { Collection as RawCollection } from 'mongodb'
 import type {
 	CollectionName,
 	CustomCollectionName as CustomCorelibCollectionName,
@@ -227,9 +227,6 @@ export class WrappedMongoCollection<DBInterface extends { _id: ProtectedString<a
 	}
 	rawCollection(): RawCollection<DBInterface> {
 		return this._collection.rawCollection() as any
-	}
-	rawDatabase(): RawDb {
-		return this._collection.rawDatabase() as any
 	}
 	remove(selector: MongoQuery<DBInterface> | DBInterface['_id']): number {
 		try {

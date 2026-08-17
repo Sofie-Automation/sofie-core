@@ -1,10 +1,16 @@
-import { FindOptions, MongoModifier, MongoQuery, ObserveChangesOptions } from '@sofie-automation/corelib/dist/mongo'
+import {
+	FindOptions,
+	MongoBulkWriteOperation,
+	MongoModifier,
+	MongoQuery,
+	ObserveChangesOptions,
+} from '@sofie-automation/corelib/dist/mongo'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { Meteor } from 'meteor/meteor'
 import { Mongo } from 'meteor/mongo'
 import { NpmModuleMongodb } from 'meteor/npm-mongo'
 import { PromisifyCallbacks } from '@sofie-automation/shared-lib/dist/lib/types'
-import type { AnyBulkWriteOperation, Collection as RawCollection } from 'mongodb'
+import type { Collection as RawCollection } from 'mongodb'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 import { registerCollection } from './lib'
 import { WrappedMockCollection } from './implementations/mock'
@@ -16,7 +22,6 @@ import {
 	ObserveCallbacks,
 	ObserveChangesCallbacks,
 	UpdateOptions,
-	UpsertOptions,
 } from '@sofie-automation/meteor-lib/dist/collections/lib'
 import { MinimalMongoCursor } from './implementations/asyncCollection'
 import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
@@ -144,28 +149,11 @@ export interface AsyncOnlyMongoCollection<
 	): Promise<number>
 
 	/**
-	 * Perform an update/insert of a document
-	 * @param selector A query describing the documents to update. Typically this will be an id
-	 * @param modifier The operation to apply to each matching document
-	 * @param options Options for the operation
+	 * Replace a single document with a full document, matched by its `_id` (upserting if not present).
+	 * @param doc The full document to store
+	 * @returns `true` if an existing document was replaced, `false` if a new one was inserted
 	 */
-	upsertAsync(
-		selector: DBInterface['_id'] | { _id: DBInterface['_id'] },
-		modifier: MongoModifier<DBInterface>,
-		options?: UpsertOptions
-	): Promise<{ numberAffected?: number; insertedId?: DBInterface['_id'] }>
-	upsertAsync(
-		selector: MongoQuery<DBInterface>,
-		modifier: MongoModifier<DBInterface>,
-		// Require { multi } to be set when selecting multiple documents to be updated, otherwise only the first found document will be updated
-		options: UpdateOptions & Required<Pick<UpdateOptions, 'multi'>>
-	): Promise<{ numberAffected?: number; insertedId?: DBInterface['_id'] }>
-
-	/**
-	 * Perform an upsert for multiple documents, based on the `_id` of each document
-	 * @param documents Documents to upsert
-	 */
-	upsertManyAsync(doc: DBInterface[]): Promise<{ numberAffected: number; insertedIds: DBInterface['_id'][] }>
+	replaceAsync(doc: DBInterface): Promise<boolean>
 
 	/**
 	 * Remove one or more documents
@@ -178,7 +166,7 @@ export interface AsyncOnlyMongoCollection<
 	 * This should be used instead of Promise.all(...) when doing multiple updates, as it is more performant
 	 * @param ops Operations to perform
 	 */
-	bulkWriteAsync(ops: Array<AnyBulkWriteOperation<DBInterface>>): Promise<void>
+	bulkWriteAsync(ops: Array<MongoBulkWriteOperation<DBInterface>>): Promise<void>
 }
 
 /**

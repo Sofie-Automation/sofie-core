@@ -1,17 +1,21 @@
-import { MongoModifier, MongoQuery, ObserveChangesOptions } from '@sofie-automation/corelib/dist/mongo'
+import {
+	MongoBulkWriteOperation,
+	MongoModifier,
+	MongoQuery,
+	ObserveChangesOptions,
+} from '@sofie-automation/corelib/dist/mongo'
 import { ProtectedString, protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { Meteor } from 'meteor/meteor'
 import { Mongo } from 'meteor/mongo'
 import {
 	UpdateOptions,
-	UpsertOptions,
 	IndexSpecifier,
 	MongoCursor,
 	FindOptions,
 	ObserveChangesCallbacks,
 	ObserveCallbacks,
 } from '@sofie-automation/meteor-lib/dist/collections/lib'
-import type { AnyBulkWriteOperation, Collection as RawCollection, Db as RawDb } from 'mongodb'
+import type { AnyBulkWriteOperation, Collection as RawCollection } from 'mongodb'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { NpmModuleMongodb } from 'meteor/npm-mongo'
 import { profiler } from '../../api/profiler'
@@ -31,7 +35,7 @@ export type MinimalMongoCursor<T extends { _id: ProtectedString<any> }> = Pick<
  */
 export type MinimalMeteorMongoCollection<T extends { _id: ProtectedString<any> }> = Pick<
 	Mongo.Collection<T>,
-	'insertAsync' | 'removeAsync' | 'updateAsync' | 'upsertAsync' | 'rawCollection' | 'rawDatabase' | 'createIndex'
+	'insertAsync' | 'removeAsync' | 'updateAsync' | 'upsertAsync' | 'rawCollection' | 'createIndex'
 > & {
 	find: (...args: Parameters<Mongo.Collection<T>['find']>) => MinimalMongoCursor<T>
 }
@@ -69,10 +73,6 @@ export class WrappedAsyncMongoCollection<
 	rawCollection(): RawCollection<DBInterface> {
 		return this._collection.rawCollection() as any
 	}
-	protected rawDatabase(): RawDb {
-		return this._collection.rawDatabase() as any
-	}
-
 	async findFetchAsync(
 		selector: MongoQuery<DBInterface> | DBInterface['_id'],
 		options?: FindOptions<DBInterface>
@@ -266,54 +266,29 @@ export class WrappedAsyncMongoCollection<
 			this.wrapMongoError(e)
 		}
 	}
-	public async upsertAsync(
-		selector: MongoQuery<DBInterface> | DBInterface['_id'] | { _id: DBInterface['_id'] },
-		modifier: MongoModifier<DBInterface>,
-		options?: UpsertOptions
-	): Promise<{
-		numberAffected?: number
-		insertedId?: DBInterface['_id']
-	}> {
-		const span = profiler.startSpan(`MongoCollection.${this.name}.upsert`)
+
+	public async replaceAsync(doc: DBInterface): Promise<boolean> {
+		const span = profiler.startSpan(`MongoCollection.${this.name}.replace`)
 		if (span) {
 			span.addLabels({
 				collection: this.name,
-				query: JSON.stringify(selector),
+				id: unprotectString(doc._id),
 			})
 		}
 		try {
-			const result = await this._collection.upsertAsync(selector as any, modifier as any, options)
+			// Unlike updateAsync/upsertAsync (which take atomic-operator modifiers), this performs a
+			// full-document replacement by `_id` (with upsert).
+			const result = await this._collection.upsertAsync(doc._id as any, doc as any)
 			if (span) span.end()
-			return {
-				numberAffected: result.numberAffected,
-				insertedId: protectString(result.insertedId),
-			}
+			// numberAffected counts the matched (replaced) document; insertedId is only set on insert
+			return !result.insertedId
 		} catch (e) {
 			if (span) span.end()
 			this.wrapMongoError(e)
 		}
 	}
 
-	async upsertManyAsync(docs: DBInterface[]): Promise<{ numberAffected: number; insertedIds: DBInterface['_id'][] }> {
-		const result: {
-			numberAffected: number
-			insertedIds: DBInterface['_id'][]
-		} = {
-			numberAffected: 0,
-			insertedIds: [],
-		}
-		await Promise.all(
-			docs.map(async (doc) =>
-				this.upsertAsync(doc._id, { $set: doc }).then((r) => {
-					if (r.numberAffected) result.numberAffected += r.numberAffected
-					if (r.insertedId) result.insertedIds.push(r.insertedId)
-				})
-			)
-		)
-		return result
-	}
-
-	async bulkWriteAsync(ops: Array<AnyBulkWriteOperation<DBInterface>>): Promise<void> {
+	async bulkWriteAsync(ops: Array<MongoBulkWriteOperation<DBInterface>>): Promise<void> {
 		const span = profiler.startSpan(`MongoCollection.${this.name}.bulkWrite`)
 		if (span) {
 			span.addLabels({
@@ -324,7 +299,7 @@ export class WrappedAsyncMongoCollection<
 
 		if (ops.length > 0) {
 			const rawCollection = this.rawCollection()
-			const bulkWriteResult = await rawCollection.bulkWrite(ops, {
+			const bulkWriteResult = await rawCollection.bulkWrite(ops as AnyBulkWriteOperation<DBInterface>[], {
 				ordered: false,
 			})
 

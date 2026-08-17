@@ -1,7 +1,22 @@
 import _ from 'underscore'
 import { ProtectedString } from './protectedString.js'
 import * as objectPath from 'object-path'
-import type { Condition, Filter, UpdateFilter } from 'mongodb'
+import type {
+	Condition,
+	DeleteManyModel,
+	DeleteOneModel,
+	Document,
+	Filter,
+	InsertOneModel,
+	MatchKeysAndValues,
+	OnlyFieldsOfType,
+	PullOperator,
+	PushOperator,
+	ReplaceOneModel,
+	SetFields,
+	UpdateManyModel,
+	UpdateOneModel,
+} from 'mongodb'
 import { clone } from './lib.js'
 
 /** Hack's using typings pulled from meteor */
@@ -59,7 +74,46 @@ export interface ObserveChangesOptions {
  * */
 export type MongoQuery<TDoc> = Filter<TDoc>
 export type MongoQueryKey<T> = RegExp | T | Condition<T> // Allowed properties in a MongoQuery
-export type MongoModifier<TDoc> = UpdateFilter<TDoc>
+
+/**
+ * The simplified update operators we support. This is intentionally a hand-rolled subset of mongodb's
+ * `UpdateFilter` rather than `UpdateFilter` itself:
+ *
+ *  - `UpdateFilter` ends in `& Document` (a `[key: string]: any` index signature) which lets a whole
+ *    plain document pass as a "modifier"; the native driver then rejects it at runtime ("Update document
+ *    requires atomic operators").
+ *  - it documents exactly which operators are supported, and keeps the type in lockstep with the
+ *    in-memory `mongoModify` below (used by the unit-test mock).
+ *
+ * The per-operator value types are mongodb's own (loose, non-recursive) helpers, so this neither trips
+ * "excessively deep" instantiation like `StrictUpdateFilter`, nor breaks dynamic `$set[key] = value` use.
+ */
+export type MongoModifier<TDoc> = {
+	$set?: MatchKeysAndValues<TDoc>
+	$unset?: OnlyFieldsOfType<TDoc, any, '' | true | 1>
+	$push?: PushOperator<TDoc>
+	$pull?: PullOperator<TDoc>
+	$addToSet?: SetFields<TDoc>
+	$rename?: Record<string, string>
+}
+
+/**
+ * A bulkWrite operation, hand-rolled to match exactly the arms our in-memory mocks implement (see the
+ * `bulkWrite` handlers in the meteor and job-worker collection mocks). Like {@link MongoModifier}, this is
+ * intentionally NOT mongodb's `AnyBulkWriteOperation`:
+ *  - the `update` of the `updateOne`/`updateMany` arms is constrained to {@link MongoModifier}, so a whole
+ *    plain document cannot sneak in as a "modifier" via the bulkWrite path (the heaviest write path). Use
+ *    the `replaceOne` arm for a genuine full-document replacement.
+ *  - aggregation-pipeline updates (the `Document[]` form) are deliberately omitted, as `mongoModify` does
+ *    not implement them.
+ */
+export type MongoBulkWriteOperation<TDoc extends Document> =
+	| { insertOne: InsertOneModel<TDoc> }
+	| { replaceOne: ReplaceOneModel<TDoc> }
+	| { updateOne: Omit<UpdateOneModel<TDoc>, 'update'> & { update: MongoModifier<TDoc> } }
+	| { updateMany: Omit<UpdateManyModel<TDoc>, 'update'> & { update: MongoModifier<TDoc> } }
+	| { deleteOne: DeleteOneModel<TDoc> }
+	| { deleteMany: DeleteManyModel<TDoc> }
 
 /** End of hacks */
 
@@ -339,6 +393,10 @@ export function mongoModify<TDoc extends { _id: ProtectedString<any> }>(
 			_.each(value, (value: any, key: string) => {
 				pullFromPath(doc, key, value)
 			})
+		} else if (key === '$addToSet') {
+			_.each(value, (value: any, key: string) => {
+				addToSetOntoPath(doc, key, value)
+			})
 		} else if (key === '$rename') {
 			_.each(value, (value: any, key: string) => {
 				renamePath(doc, key, value)
@@ -458,9 +516,14 @@ export function mutatePath<T>(
  * Push a value into a object, and ensure the array exists
  * @param obj Object
  * @param path Path to array in object
- * @param valueToPush Value to push onto array
+ * @param valueToPush Value to push onto array, or a `{ $each: [...] }` wrapper to push multiple values
  */
 export function pushOntoPath<T>(obj: Record<string, unknown>, path: string, valueToPush: T): void {
+	const valuesToPush =
+		valueToPush && typeof valueToPush === 'object' && '$each' in valueToPush && Array.isArray(valueToPush.$each)
+			? (valueToPush.$each as unknown[])
+			: [valueToPush]
+
 	const mutator = (o: Record<string, unknown>, lastAttr: string) => {
 		if (!_.has(o, lastAttr)) {
 			o[lastAttr] = []
@@ -472,7 +535,41 @@ export function pushOntoPath<T>(obj: Record<string, unknown>, path: string, valu
 		}
 		const arr: any = o[lastAttr]
 
-		arr.push(valueToPush)
+		arr.push(...valuesToPush)
+		return arr
+	}
+	mutatePath(obj, path, {}, mutator)
+}
+/**
+ * Add one or more values into an array, ensuring the array exists and that values are not duplicated
+ * (mirroring MongoDB's `$addToSet`). The value may be a single value, or a `{ $each: [...] }` wrapper to
+ * add multiple values at once.
+ * @param obj Object
+ * @param path Path to array in object
+ * @param valueToAdd Value (or `{ $each: [...] }`) to add to the array
+ */
+export function addToSetOntoPath<T>(obj: Record<string, unknown>, path: string, valueToAdd: T): void {
+	const valuesToAdd =
+		valueToAdd && typeof valueToAdd === 'object' && '$each' in valueToAdd && Array.isArray(valueToAdd.$each)
+			? (valueToAdd.$each as unknown[])
+			: [valueToAdd]
+
+	const mutator = (o: Record<string, unknown>, lastAttr: string) => {
+		if (!_.has(o, lastAttr)) {
+			o[lastAttr] = []
+		} else {
+			if (!_.isArray(o[lastAttr]))
+				throw new Error(
+					'Object propery "' + lastAttr + '" is not an array ("' + o[lastAttr] + '") (in path "' + path + '")'
+				)
+		}
+		const arr: any[] = o[lastAttr] as any[]
+
+		for (const value of valuesToAdd) {
+			if (!arr.some((entry) => _.isEqual(entry, value))) {
+				arr.push(value)
+			}
+		}
 		return arr
 	}
 	mutatePath(obj, path, {}, mutator)
@@ -481,7 +578,11 @@ export function pushOntoPath<T>(obj: Record<string, unknown>, path: string, valu
  * Push a value from a object, when the value matches
  * @param obj Object
  * @param path Path to array in object
- * @param matchValue Value to match for removal. Supports $in operator for matching multiple values.
+ * @param matchValue Value to match for removal. This mirrors MongoDB's `$pull`:
+ *  - a `{ $in: [...] }` operator removes elements equal to one of the listed values
+ *  - any other object is treated as a query against each element (supporting nested operators such as
+ *    `{ field: { $in: [...] } }`, evaluated by {@link mongoWhere})
+ *  - a primitive removes elements equal to it
  */
 export function pullFromPath<T>(obj: Record<string, unknown>, path: string, matchValue: T): void {
 	const mutator = (o: Record<string, unknown>, lastAttr: string) => {
@@ -492,7 +593,7 @@ export function pullFromPath<T>(obj: Record<string, unknown>, path: string, matc
 					'Object propery "' + lastAttr + '" is not an array ("' + arrAttr + '") (in path "' + path + '")'
 				)
 
-			// Handle $in operator for matching multiple values
+			// Handle $in operator for matching multiple values against the array elements directly
 			if (
 				matchValue &&
 				typeof matchValue === 'object' &&
@@ -500,10 +601,17 @@ export function pullFromPath<T>(obj: Record<string, unknown>, path: string, matc
 				Array.isArray((matchValue as Record<string, unknown>).$in)
 			) {
 				const inValues = (matchValue as Record<string, unknown>).$in as unknown[]
-				return (o[lastAttr] = arrAttr.filter((entry: T) => !inValues.includes(entry)))
+				return (o[lastAttr] = arrAttr.filter((entry: T) => !inValues.some((value) => _.isEqual(entry, value))))
 			}
 
-			return (o[lastAttr] = arrAttr.filter((entry: T) => !_.isMatch(entry, matchValue)))
+			// An object is treated as a query against each element (handles plain sub-document matches as
+			// well as nested operators like `{ field: { $in: [...] } }`)
+			if (matchValue && typeof matchValue === 'object') {
+				return (o[lastAttr] = arrAttr.filter((entry: T) => !mongoWhere(entry as any, matchValue as any)))
+			}
+
+			// A primitive removes elements equal to it
+			return (o[lastAttr] = arrAttr.filter((entry: T) => !_.isEqual(entry, matchValue)))
 		} else {
 			return undefined
 		}
