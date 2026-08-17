@@ -110,7 +110,7 @@ function actionToAdLibPieceUi(
 		name: translateMessage(action.display.label, i18nTranslator),
 		isAction: true,
 		expectedDuration: 0,
-		externalId: unprotectString(action._id),
+		externalId: action.externalId,
 		rundownId: action.rundownId,
 		partId: action.partId,
 		sourceLayer: sourceLayers[sourceLayerId],
@@ -127,6 +127,8 @@ function actionToAdLibPieceUi(
 		lifespan: PieceLifespan.WithinPart, // value doesn't matter
 		expectedPackages: action.expectedPackages,
 		invalid: action.invalid,
+		userEditOperations: action.userEditOperations,
+		userEditProperties: action.userEditProperties,
 	})
 }
 

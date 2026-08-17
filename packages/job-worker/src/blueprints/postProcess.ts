@@ -39,6 +39,10 @@ import { BucketAdLibAction } from '@sofie-automation/corelib/dist/dataModel/Buck
 import { RundownImportVersions } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { BucketAdLib, BucketAdLibIngestInfo } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibPiece'
 import {
+	CoreUserEditingDefinition,
+	CoreUserEditingProperties,
+} from '@sofie-automation/corelib/dist/dataModel/UserEditingDefinitions'
+import {
 	interpollateTranslation,
 	wrapTranslatableMessageFromBlueprints,
 } from '@sofie-automation/corelib/dist/TranslatableMessage'
@@ -252,6 +256,8 @@ export function postProcessAdLibPieces(
 			rundownId: rundownId,
 			partId: partId,
 			timelineObjectsString: EmptyPieceTimelineObjectsBlob,
+			userEditOperations: translateUserEditsFromBlueprint(orgAdlib.userEditOperations, [blueprintId]),
+			userEditProperties: translateUserEditPropertiesFromBlueprint(orgAdlib.userEditProperties, [blueprintId]),
 		}
 
 		if (!piece.externalId)
@@ -307,13 +313,18 @@ export function postProcessGlobalAdLibActions(
 		// Fill in contentVersionHash of expectedPackages
 		sanitiseExpectedPackages(action.expectedPackages)
 
+		const processed = processAdLibActionITranslatableMessages(action, blueprintId)
+
 		return literal<RundownBaselineAdLibAction>({
 			...action,
 			actionId: action.actionId,
 			_id: protectString(docId),
 			rundownId: rundownId,
 			partId: undefined,
-			...processAdLibActionITranslatableMessages(action, blueprintId),
+			display: processed.display,
+			triggerModes: processed.triggerModes,
+			userEditOperations: processed.userEditOperations,
+			userEditProperties: processed.userEditProperties,
 		})
 	})
 }
@@ -348,13 +359,18 @@ export function postProcessAdLibActions(
 		// Fill in contentVersionHash of expectedPackages
 		sanitiseExpectedPackages(action.expectedPackages)
 
+		const processed = processAdLibActionITranslatableMessages(action, blueprintId)
+
 		return literal<AdLibAction>({
 			...action,
 			actionId: action.actionId,
 			_id: protectString(docId),
 			rundownId: rundownId,
 			partId: partId,
-			...processAdLibActionITranslatableMessages(action, blueprintId),
+			display: processed.display,
+			triggerModes: processed.triggerModes,
+			userEditOperations: processed.userEditOperations,
+			userEditProperties: processed.userEditProperties,
 		})
 	})
 }
@@ -404,6 +420,8 @@ export function postProcessGlobalPieces(
 			startPartId: null,
 			invalid: setInvalid ?? false,
 			timelineObjectsString: EmptyPieceTimelineObjectsBlob,
+			userEditOperations: translateUserEditsFromBlueprint(orgPiece.userEditOperations, [blueprintId]),
+			userEditProperties: translateUserEditPropertiesFromBlueprint(orgPiece.userEditProperties, [blueprintId]),
 		}
 
 		if (piece.pieceType !== IBlueprintPieceType.Normal) {
@@ -540,6 +558,9 @@ export function postProcessBucketAction(
 			`${showStyleCompound.showStyleVariantId}_${context.studioId}_${bucketId}_bucket_adlib_${ingestInfo.payload.externalId}`
 		)
 	)
+
+	const processed = processAdLibActionITranslatableMessages(itemOrig, blueprintId, rank, label)
+
 	const action: BucketAdLibAction = {
 		...omit(itemOrig, 'partId'),
 		_id: id,
@@ -550,7 +571,10 @@ export function postProcessBucketAction(
 		bucketId,
 		importVersions,
 		ingestInfo,
-		...processAdLibActionITranslatableMessages(itemOrig, blueprintId, rank, label),
+		display: processed.display,
+		triggerModes: processed.triggerModes,
+		userEditOperations: processed.userEditOperations,
+		userEditProperties: processed.userEditProperties,
 	}
 
 	// Fill in contentVersionHash of expectedPackages
@@ -583,9 +607,16 @@ function processAdLibActionITranslatableMessages<
 				description?: ITranslatableMessage
 			}
 		})[]
+		userEditOperations?: CoreUserEditingDefinition[]
+		userEditProperties?: CoreUserEditingProperties
 	},
 	T extends IBlueprintActionManifest,
->(itemOrig: T, blueprintId: BlueprintId, rank?: number, label?: string): Pick<K, 'display' | 'triggerModes'> {
+>(
+	itemOrig: T,
+	blueprintId: BlueprintId,
+	rank?: number,
+	label?: string
+): Pick<K, 'display' | 'triggerModes' | 'userEditOperations' | 'userEditProperties'> {
 	return {
 		display: {
 			...itemOrig.display,
@@ -612,5 +643,10 @@ function processAdLibActionITranslatableMessages<
 					},
 				})
 			),
+		userEditOperations:
+			itemOrig.userEditOperations && translateUserEditsFromBlueprint(itemOrig.userEditOperations, [blueprintId]),
+		userEditProperties:
+			itemOrig.userEditProperties &&
+			translateUserEditPropertiesFromBlueprint(itemOrig.userEditProperties, [blueprintId]),
 	}
 }

@@ -360,7 +360,7 @@ export interface IBlueprintTriggeredActions {
 	styleClassNames?: string
 }
 
-export { SomeActionIdentifier, ClientActions, PlayoutActions }
+export { SomeActionIdentifier, ClientActions, PlayoutActions, DeviceActions }
 
 export enum IBlueprintDefaultCoreSystemTriggersType {
 	toggleShelf = 'toggleShelf',

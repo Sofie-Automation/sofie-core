@@ -123,18 +123,47 @@ export interface NrcsIngestChangeDetails {
 	changedSegmentExternalIds?: Record<string, string>
 }
 
-export interface UserOperationTarget {
-	segmentExternalId: string | undefined
-	partExternalId: string | undefined
-	pieceExternalId: string | undefined
-}
+export type UserOperationTarget =
+	| {
+			target: 'segment'
+			segmentExternalId: string
+	  }
+	| {
+			target: 'part'
+			segmentExternalId: string
+			partExternalId: string
+	  }
+	| {
+			target: 'piece'
+			segmentExternalId: string | undefined
+			partExternalId: string | undefined
+			pieceExternalId: string
+	  }
+	| {
+			target: 'adlibAction'
+			segmentExternalId: string | undefined
+			partExternalId: string | undefined
+			adlibActionExternalId: string
+	  }
+	| {
+			target: 'adlibPiece'
+			segmentExternalId: string | undefined
+			partExternalId: string | undefined
+			adlibPieceExternalId: string
+	  }
 
 export enum DefaultUserOperationsTypes {
+	/** Revert changes made to a Segment and return it to the state it has inside of the NRCS */
 	REVERT_SEGMENT = '__sofie-revert-segment',
+	/** Revert changes made to a Part and return it to the state it has inside of the NRCS */
 	REVERT_PART = '__sofie-revert-part',
+	/** Revert changes made to a Rundown and return it to the state it has inside of the NRCS */
 	REVERT_RUNDOWN = '__sofie-revert-rundown',
+	/** Update properties of an item using an interactive form defined inside of `userEditProperties` */
 	UPDATE_PROPS = '__sofie-update-props',
+	/** Import a MOS object into a Part - only supported on Parts */
 	IMPORT_MOS_ITEM = '__sofie-import-mos',
+	/** Retime a Piece / move it into a different Part - only supported on Pieces */
 	RETIME_PIECE = '__sofie-retime-piece',
 }
 

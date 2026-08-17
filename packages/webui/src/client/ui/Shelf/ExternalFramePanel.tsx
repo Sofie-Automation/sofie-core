@@ -27,6 +27,7 @@ import {
 	DefaultUserOperationsTypes,
 	type IngestAdlib,
 	UserEditingType,
+	type UserOperationTarget,
 } from '@sofie-automation/blueprints-integration'
 import { MeteorCall } from '../../lib/meteorApi.js'
 import type { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown.js'
@@ -222,10 +223,10 @@ export const ExternalFramePanel: React.ComponentType<IProps> = withTranslation()
 			return undefined
 		}
 
-		private findPartId(el: HTMLElement): {
+		private findPartExternalId(el: HTMLElement): {
 			rundownId: RundownId | undefined
-			segmentId: string | undefined
-			partId: string | undefined
+			segmentExternalId: string | undefined
+			partExternalId: string | undefined
 		} {
 			while (el.dataset.partId === undefined && el.parentElement) {
 				el = el.parentElement
@@ -243,13 +244,13 @@ export const ExternalFramePanel: React.ComponentType<IProps> = withTranslation()
 
 					return {
 						rundownId: part?.rundownId,
-						segmentId: segment?.externalId,
-						partId: part?.externalId,
+						segmentExternalId: segment?.externalId,
+						partExternalId: part?.externalId,
 					}
 				}
 			}
 
-			return { rundownId: undefined, partId: undefined, segmentId: undefined }
+			return { rundownId: undefined, partExternalId: undefined, segmentExternalId: undefined }
 		}
 
 		private getShowStyleBaseId() {
@@ -293,10 +294,9 @@ export const ExternalFramePanel: React.ComponentType<IProps> = withTranslation()
 				return
 			}
 
-			const { rundownId, segmentId, partId } = this.findPartId(e.target)
-			if (rundownId && partId) {
-				console.log('pass to part', partId)
-				this.receiveMOSItemUserOp(e, rundownId, partId, segmentId, mosItem)
+			const { rundownId, segmentExternalId, partExternalId } = this.findPartExternalId(e.target)
+			if (rundownId && segmentExternalId && partExternalId) {
+				this.receiveMOSItemUserOp(e, rundownId, partExternalId, segmentExternalId, mosItem)
 				return
 			}
 		}
@@ -304,13 +304,17 @@ export const ExternalFramePanel: React.ComponentType<IProps> = withTranslation()
 		receiveMOSItemUserOp(
 			e: any,
 			rundownId: RundownId,
-			partId: string,
-			segmentId: string | undefined,
+			partExternalId: string,
+			segmentExternalId: string,
 			mosItem: MOS.IMOSItem
 		) {
 			const { t } = this.props
 
-			const operationTarget = { segmentExternalId: segmentId, partExternalId: partId, pieceExternalId: undefined }
+			const operationTarget: UserOperationTarget = {
+				target: 'part' as const,
+				segmentExternalId,
+				partExternalId,
+			}
 
 			doUserAction(t, e, UserAction.EXECUTE_USER_OPERATION, (e, ts) =>
 				MeteorCall.userAction.executeUserChangeOperation(

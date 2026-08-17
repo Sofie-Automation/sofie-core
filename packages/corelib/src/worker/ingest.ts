@@ -20,6 +20,7 @@ import {
 } from '@sofie-automation/blueprints-integration'
 import { BucketAdLibAction } from '../dataModel/BucketAdLibAction.js'
 import { RundownSource } from '../dataModel/Rundown.js'
+import { BucketAdLib } from '../dataModel/BucketAdLibPiece.js'
 
 export enum IngestJobs {
 	/**
@@ -273,7 +274,7 @@ export interface BucketActionModifyProps {
 }
 export interface BucketPieceModifyProps {
 	pieceId: BucketAdLibId
-	props: Partial<Omit<BucketAdLibAction, '_id'>>
+	props: Partial<Omit<BucketAdLib, '_id'>>
 }
 export interface BucketRemoveAdlibPieceProps {
 	pieceId: BucketAdLibId

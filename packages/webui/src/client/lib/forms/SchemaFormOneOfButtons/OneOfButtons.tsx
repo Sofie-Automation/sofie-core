@@ -2,20 +2,21 @@ import { faQuestionCircle, faSync } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { getSchemaUIField, type JSONSchema, SchemaFormUIField } from '@sofie-automation/blueprints-integration'
 import { objectPathGet } from '@sofie-automation/corelib/dist/lib'
+import { TypeName } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
 import classNames from 'classnames'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Button from 'react-bootstrap/Button'
 import { useTranslation } from 'react-i18next'
+import _ from 'underscore'
 import type {
 	OverrideOpHelperForItemContents,
 	WrappedOverridableItemNormal,
 } from '../../../ui/Settings/util/OverrideOpHelper.js'
+import { BlueprintAssetIcon } from '../../Components/BlueprintAssetIcon.js'
 import { LabelActual, type LabelAndOverridesProps } from '../../Components/LabelAndOverrides.js'
 import { hasOpWithPath } from '../../Components/util.js'
 import { type SchemaFormCommonProps, translateStringIfHasNamespaces } from '../schemaFormUtil.js'
 import { SchemaFormWithState } from '../SchemaFormWithState.js'
-import { TypeName } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
-import { BlueprintAssetIcon } from '../../Components/BlueprintAssetIcon.js'
 
 export const OneOfButtonsWithOverrides = (
 	props: Readonly<SchemaFormCommonProps> & {
@@ -178,14 +179,17 @@ function OneOfVariantButtonComplex({
 	}, [discProperty, typeValue])
 
 	useEffect(() => {
-		if (selected && value !== undefined && oldValue.current !== value && oldValue.current === undefined) {
-			handleUpdateRef.current?.(editingValue)
-		} else if (selected && value !== undefined && oldValue.current !== value) {
-			setEditingValue(value)
+		if (selected && value !== undefined && !_.isEqual(oldValue.current, value)) {
+			// Initial push: when oldValue is undefined, call handleUpdateRef first
+			if (oldValue.current === undefined) {
+				handleUpdateRef.current?.(editingValue)
+			} else {
+				// Value change: sync editingValue
+				setEditingValue(value)
+			}
+			oldValue.current = value
 		}
-
-		oldValue.current = value
-	}, [value, discProperty, typeValue, editingValue, selected])
+	}, [value, discProperty, typeValue, selected, editingValue])
 
 	const variantTitle = getSchemaUIField(schema, SchemaFormUIField.Title)
 	const variantIcon = getSchemaUIField(schema, SchemaFormUIField.Icon)
