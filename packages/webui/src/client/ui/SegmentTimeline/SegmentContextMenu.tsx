@@ -4,10 +4,10 @@ import { useTranslation } from 'react-i18next'
 import { ContextMenu, MenuItem } from '@jstarpl/react-contextmenu'
 import type { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import {
-	type DBRundownPlaylist,
 	type QuickLoopMarker,
 	QuickLoopMarkerType,
 } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { RundownViewPlaylist } from '../../lib/rundownPlaylistProjection.js'
 import { RundownUtils } from '../../lib/rundown.js'
 import type { IContextMenuContext } from '../RundownView.js'
 import type { PartInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
@@ -30,7 +30,7 @@ interface IProps {
 	onSetQuickLoopStart: (marker: QuickLoopMarker | null, e: any) => void
 	onSetQuickLoopEnd: (marker: QuickLoopMarker | null, e: any) => void
 	onEditProps: (element: SelectedElement) => void
-	playlist?: DBRundownPlaylist
+	playlist?: RundownViewPlaylist
 	studioMode: boolean
 	contextMenuContext: IContextMenuContext | null
 	enablePlayFromAnywhere: boolean

@@ -45,6 +45,7 @@ export interface PartInstanceToSync {
 	previousPartInstance: PlayoutPartInstanceModel | null
 	playStatus: PlayStatus
 	newPart: ReadonlyDeep<DBPart> | undefined
+	newPartChanged: boolean
 	proposedPieceInstances: Promise<PieceInstance[]>
 }
 
@@ -54,11 +55,13 @@ export interface PartInstanceToSync {
  * @param context Context of the job being run
  * @param playoutModel Playout model containing containing the Rundown being ingested
  * @param ingestModel Ingest model for the Rundown. This is being written to mongodb while this method runs
+ * @param changedPartIds Ids of the Parts which had pending changes before the ingest save began.
  */
 export async function syncChangesToPartInstances(
 	context: JobContext,
 	playoutModel: PlayoutModel,
-	ingestModel: IngestModelReadonly
+	ingestModel: IngestModelReadonly,
+	changedPartIds: ReadonlySet<PartId>
 ): Promise<void> {
 	if (!playoutModel.playlist.activationId) return
 
@@ -76,7 +79,7 @@ export async function syncChangesToPartInstances(
 		return
 	}
 
-	const instancesToSync = findInstancesToSync(context, playoutModel, ingestModel, playoutRundownModel)
+	const instancesToSync = findInstancesToSync(context, playoutModel, ingestModel, playoutRundownModel, changedPartIds)
 
 	const worker = new SyncChangesToPartInstancesWorker(context, playoutModel, ingestModel, showStyle, blueprint)
 
@@ -243,6 +246,7 @@ export class SyncChangesToPartInstancesWorker {
 			),
 
 			part: instanceToSync.newPart ? convertPartToBlueprints(instanceToSync.newPart) : undefined,
+			partChanged: instanceToSync.newPartChanged,
 			pieceInstances: proposedPieceInstances.map(convertPieceInstanceToBlueprints),
 			adLibPieces:
 				instanceToSync.newPart && ingestPart ? ingestPart.adLibPieces.map(convertAdLibPieceToBlueprints) : [],
@@ -299,7 +303,8 @@ export function findInstancesToSync(
 	context: JobContext,
 	playoutModel: PlayoutModel,
 	ingestModel: IngestModelReadonly,
-	playoutRundownModel: PlayoutRundownModel
+	playoutRundownModel: PlayoutRundownModel,
+	changedPartIds: ReadonlySet<PartId>
 ): PartInstanceToSync[] {
 	const currentPartInstance = playoutModel.currentPartInstance
 	const nextPartInstance = playoutModel.nextPartInstance
@@ -335,7 +340,8 @@ export function findInstancesToSync(
 							partAndPartInstance.partInstance,
 							null,
 							partAndPartInstance.part,
-							'previous'
+							'previous',
+							changedPartIds
 						)
 					} catch (err) {
 						logger.error(
@@ -361,7 +367,8 @@ export function findInstancesToSync(
 				ingestModel,
 				currentPartInstance,
 				previousPartInstance,
-				'current'
+				'current',
+				changedPartIds
 			)
 		} catch (err) {
 			logger.error(`Failed to prepare currentPartInstance for syncChangesToPartInstances: ${stringifyError(err)}`)
@@ -382,7 +389,8 @@ export function findInstancesToSync(
 				ingestModel,
 				nextPartInstance,
 				currentPartInstance,
-				currentPartInstance?.isTooCloseToAutonext(false) ? 'current' : 'next'
+				currentPartInstance?.isTooCloseToAutonext(false) ? 'current' : 'next',
+				changedPartIds
 			)
 		} catch (err) {
 			logger.error(`Failed to prepare nextPartInstance for syncChangesToPartInstances: ${stringifyError(err)}`)
@@ -404,7 +412,8 @@ function insertToSyncedInstanceCandidates(
 	thisPartInstance: PlayoutPartInstanceModel,
 	previousPartInstance: PlayoutPartInstanceModel | null,
 	part: ReadonlyDeep<DBPart> | undefined,
-	playStatus: PlayStatus
+	playStatus: PlayStatus,
+	changedPartIds: ReadonlySet<PartId>
 ): void {
 	const partOrInstancePart = part ?? thisPartInstance.partInstance.part
 
@@ -435,6 +444,7 @@ function insertToSyncedInstanceCandidates(
 		previousPartInstance: previousPartInstance,
 		playStatus,
 		newPart: part,
+		newPartChanged: part ? changedPartIds.has(part._id) : false,
 		proposedPieceInstances,
 	})
 }
@@ -466,7 +476,8 @@ function findPartAndInsertToSyncedInstanceCandidates(
 	ingestModel: IngestModelReadonly,
 	thisPartInstance: PlayoutPartInstanceModel,
 	previousPartInstance: PlayoutPartInstanceModel | null,
-	playStatus: PlayStatus
+	playStatus: PlayStatus,
+	changedPartIds: ReadonlySet<PartId>
 ): void {
 	const newPart = playoutModel.findPart(thisPartInstance.partInstance.part._id)
 
@@ -479,7 +490,8 @@ function findPartAndInsertToSyncedInstanceCandidates(
 		thisPartInstance,
 		previousPartInstance,
 		newPart,
-		playStatus
+		playStatus,
+		changedPartIds
 	)
 }
 

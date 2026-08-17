@@ -1,9 +1,7 @@
 import React, { type ReactNode, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import classNames from 'classnames'
-import {
-	type DBRundownPlaylist,
-	RundownHoldState,
-} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import { RundownHoldState } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { RundownViewPlaylist } from '../../lib/rundownPlaylistProjection.js'
 import { UIStateStorage } from '../../lib/UIStateStorage.js'
 import type { PartUi, SegmentNoteCounts, SegmentUi } from '../SegmentContainer/withResolvedSegment.js'
 import type { IContextMenuContext } from '../RundownView.js'
@@ -38,7 +36,7 @@ interface IProps {
 
 	key: string
 	segment: SegmentUi
-	playlist: DBRundownPlaylist
+	playlist: RundownViewPlaylist
 	parts: Array<PartUi>
 	segmentNoteCounts: SegmentNoteCounts
 

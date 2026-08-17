@@ -33,6 +33,11 @@ export interface IngestPartModelReadonly {
 	 * The ExpectedPackages belonging to this Part
 	 */
 	readonly expectedPackages: ReadonlyDeep<IngestExpectedPackage>[]
+
+	/**
+	 * Whether this Part has any changes in its contents (Pieces, AdLibs, ExpectedPlayoutItems, etc.)
+	 */
+	hasChanges(): boolean
 }
 /**
  * Wrap a Part and its contents in a view for Ingest operations

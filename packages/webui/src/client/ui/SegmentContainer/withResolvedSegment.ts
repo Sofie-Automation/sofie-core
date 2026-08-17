@@ -1,7 +1,7 @@
 import type * as React from 'react'
 import _ from 'underscore'
 import { type ISourceLayer, type NoteSeverity, PieceLifespan } from '@sofie-automation/blueprints-integration'
-import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { RundownViewPlaylist } from '../../lib/rundownPlaylistProjection.js'
 import { withTracker } from '../../lib/ReactMeteorData/react-meteor-data.js'
 import type { IContextMenuContext } from '../RundownView.js'
 import { equalSets } from '@sofie-automation/shared-lib/dist/lib/lib'
@@ -69,7 +69,7 @@ export interface IResolvedSegmentProps {
 	rundownsToShowStyles: ReadonlyMap<RundownId, ShowStyleBaseId>
 	studio: UIStudio
 	showStyleBase: UIShowStyleBase
-	playlist: DBRundownPlaylist
+	playlist: RundownViewPlaylist
 	rundown: MinimalRundown
 	timeScale: number
 	onPieceDoubleClick?: (item: PieceUi, e: React.MouseEvent<HTMLDivElement>) => void

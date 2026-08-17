@@ -3,9 +3,10 @@ import {
 	DBNotificationTarget,
 	DBNotificationTargetType,
 } from '@sofie-automation/corelib/dist/dataModel/Notifications'
-import { setupDefaultJobEnvironment } from '../../__mocks__/context.js'
+import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context.js'
 import { NotificationsModelHelper } from '../NotificationsModelHelper.js'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
+import { getHash } from '@sofie-automation/corelib/dist/hash'
 import { NoteSeverity } from '@sofie-automation/blueprints-integration'
 import { INotificationWithTarget } from '../NotificationsModel.js'
 import { generateTranslation } from '@sofie-automation/corelib/dist/lib'
@@ -20,6 +21,164 @@ describe('NotificationsModelHelper', () => {
 
 		await helper.saveAllToDatabase()
 		expect(notificationsCollection.operations).toHaveLength(0)
+	})
+
+	describe('hasChanges', () => {
+		const notification: INotificationWithTarget = {
+			id: 'id0',
+			message: generateTranslation('test'),
+			severity: NoteSeverity.INFO,
+			relatedTo: { type: 'rundown', rundownId: protectString('rundown0') },
+		}
+
+		/** The document which `notification` is persisted as */
+		function persistedNotification(context: MockJobContext): DBNotificationObj {
+			return {
+				_id: protectString(getHash(`${context.studioId}:test:my-category:${notification.id}`)),
+				category: 'test:my-category',
+				localId: notification.id,
+				message: notification.message,
+				severity: notification.severity,
+				relatedTo: {
+					type: DBNotificationTargetType.RUNDOWN,
+					studioId: context.studioId,
+					rundownId: protectString('rundown0'),
+				},
+				created: 1,
+				modified: 2,
+			}
+		}
+
+		it('is false for a fresh helper', () => {
+			const context = setupDefaultJobEnvironment()
+			const helper = new NotificationsModelHelper(context, 'test', null)
+
+			expect(helper.hasChanges).toBe(false)
+		})
+
+		it('is true for queued operations when the db state has not been loaded', () => {
+			const context = setupDefaultJobEnvironment()
+
+			// Without the db state, the effect of the operations is unknown, so they must be assumed to be changes
+			const setHelper = new NotificationsModelHelper(context, 'test', null)
+			setHelper.setNotification('my-category', notification)
+			expect(setHelper.hasChanges).toBe(true)
+
+			const clearHelper = new NotificationsModelHelper(context, 'test', null)
+			clearHelper.clearNotification('my-category', notification.id)
+			expect(clearHelper.hasChanges).toBe(true)
+
+			const clearAllHelper = new NotificationsModelHelper(context, 'test', null)
+			clearAllHelper.clearAllNotifications('my-category')
+			expect(clearAllHelper.hasChanges).toBe(true)
+		})
+
+		it('is true when setNotification adds a new notification', async () => {
+			const context = setupDefaultJobEnvironment()
+			const helper = new NotificationsModelHelper(context, 'test', null)
+
+			await helper.getAllNotifications('my-category')
+
+			helper.setNotification('my-category', notification)
+
+			expect(helper.hasChanges).toBe(true)
+		})
+
+		it('is false when setNotification matches the persisted notification', async () => {
+			const context = setupDefaultJobEnvironment()
+			await context.mockCollections.Notifications.insertOne(persistedNotification(context))
+
+			const helper = new NotificationsModelHelper(context, 'test', null)
+
+			await helper.getAllNotifications('my-category')
+
+			helper.setNotification('my-category', notification)
+
+			expect(helper.hasChanges).toBe(false)
+		})
+
+		it('is true when setNotification modifies the persisted notification', async () => {
+			const context = setupDefaultJobEnvironment()
+			await context.mockCollections.Notifications.insertOne(persistedNotification(context))
+
+			const helper = new NotificationsModelHelper(context, 'test', null)
+
+			await helper.getAllNotifications('my-category')
+
+			helper.setNotification('my-category', { ...notification, severity: NoteSeverity.ERROR })
+
+			expect(helper.hasChanges).toBe(true)
+		})
+
+		it('is true when clearNotification removes a persisted notification', async () => {
+			const context = setupDefaultJobEnvironment()
+			await context.mockCollections.Notifications.insertOne(persistedNotification(context))
+
+			const helper = new NotificationsModelHelper(context, 'test', null)
+
+			await helper.getAllNotifications('my-category')
+
+			helper.clearNotification('my-category', notification.id)
+
+			expect(helper.hasChanges).toBe(true)
+		})
+
+		it('is false when clearNotification targets a missing notification', async () => {
+			const context = setupDefaultJobEnvironment()
+			const helper = new NotificationsModelHelper(context, 'test', null)
+
+			await helper.getAllNotifications('my-category')
+
+			helper.clearNotification('my-category', notification.id)
+
+			expect(helper.hasChanges).toBe(false)
+		})
+
+		it('is true when clearAllNotifications removes a persisted notification', async () => {
+			const context = setupDefaultJobEnvironment()
+			await context.mockCollections.Notifications.insertOne(persistedNotification(context))
+
+			const helper = new NotificationsModelHelper(context, 'test', null)
+
+			await helper.getAllNotifications('my-category')
+
+			helper.clearAllNotifications('my-category')
+
+			expect(helper.hasChanges).toBe(true)
+		})
+
+		it('is false when clearAllNotifications has nothing to remove', async () => {
+			const context = setupDefaultJobEnvironment()
+			const helper = new NotificationsModelHelper(context, 'test', null)
+
+			await helper.getAllNotifications('my-category')
+
+			helper.clearAllNotifications('my-category')
+
+			expect(helper.hasChanges).toBe(false)
+		})
+
+		it('is false after only reading notifications', async () => {
+			const context = setupDefaultJobEnvironment()
+			const helper = new NotificationsModelHelper(context, 'test', null)
+
+			// Reading creates an internal category entry, but must not count as a pending change
+			await helper.getAllNotifications('my-category')
+
+			expect(helper.hasChanges).toBe(false)
+		})
+
+		it('is false again after saving', async () => {
+			const context = setupDefaultJobEnvironment()
+			const helper = new NotificationsModelHelper(context, 'test', null)
+
+			helper.setNotification('my-category', notification)
+			expect(helper.hasChanges).toBe(true)
+
+			await helper.saveAllToDatabase()
+
+			expect(helper.hasChanges).toBe(false)
+		})
 	})
 
 	describe('from empty', () => {
@@ -278,10 +437,11 @@ describe('NotificationsModelHelper', () => {
 						expect(await updateHelper.getAllNotifications('my-category')).toHaveLength(1)
 					}
 
+					// Note: the severity is changed, so that this is not treated as a no-op
 					updateHelper.setNotification('my-category', {
 						id: 'abc',
 						message: generateTranslation('test2'),
-						severity: NoteSeverity.WARNING,
+						severity: NoteSeverity.ERROR,
 						relatedTo: { type: 'playlist' },
 					})
 					await updateHelper.saveAllToDatabase()
@@ -305,7 +465,7 @@ describe('NotificationsModelHelper', () => {
 							studioId: context.studioId,
 							type: DBNotificationTargetType.PLAYLIST,
 						},
-						severity: NoteSeverity.WARNING,
+						severity: NoteSeverity.ERROR,
 					},
 				] satisfies DBNotificationObj[])
 			})

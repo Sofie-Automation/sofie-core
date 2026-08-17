@@ -391,6 +391,12 @@ async function updateSofieRundownModel(
 		calcSpan?.end()
 	}
 
+	// If nothing actually changed, skip the commit to avoid needlessly regenerating the playlist and
+	// re-syncing PartInstances (UI "part jitter"). removeRundown has no model changes but must still run.
+	if (commitData && !commitData.removeRundown && !ingestModel.hasChanges()) {
+		commitData = null
+	}
+
 	let resultingError: UserError | void | undefined
 
 	if (commitData) {
