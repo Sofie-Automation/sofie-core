@@ -128,7 +128,22 @@ export function useStagedSubDeviceOverrides<TSubDevice>({
 			if (oldId === newId) return
 
 			batchedOverrideHelper().changeItemId(oldId, newId).commit()
-			setUpdatedIds((prev) => new Map(prev).set(oldId, newId))
+			setUpdatedIds((prev) => {
+				const next = new Map<string, string>()
+				let composedExistingRename = false
+
+				for (const [originalId, currentId] of prev) {
+					if (currentId === oldId) {
+						composedExistingRename = true
+						if (originalId !== newId) next.set(originalId, newId)
+					} else {
+						next.set(originalId, currentId)
+					}
+				}
+
+				if (!composedExistingRename) next.set(oldId, newId)
+				return next
+			})
 		},
 		[batchedOverrideHelper]
 	)
