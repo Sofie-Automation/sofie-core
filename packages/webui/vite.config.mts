@@ -37,6 +37,7 @@ const serverUrl = `http://127.0.0.1:${serverPort}`
 // network. Falls back to the sofie server's own bind address, as exposing one without the other is
 // rarely useful (see .env.example).
 const devServerHost = process.env.SOFIE_VITE_BIND_ADDRESS || process.env.SOFIE_BIND_ADDRESS || '127.0.0.1'
+const devServerPort = parseInt(process.env.SOFIE_VITE_PORT || '') || 3005
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command }) => ({
@@ -87,6 +88,7 @@ export default defineConfig(({ command }) => ({
 	server: {
 		allowedHosts: true,
 		host: devServerHost,
+		port: devServerPort,
 		proxy: {
 			[basePath + '/api']: serverUrl,
 			[basePath + '/site.webmanifest']: serverUrl,
