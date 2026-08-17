@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import * as semver from 'semver'
 import {
 	MigrateFunctionCore,
@@ -30,6 +29,7 @@ import { getCoreSystemAsync, setCoreSystemVersion } from '../coreSystem/collecti
 import { assertConnectionHasOneOfPermissions } from '../security/auth'
 import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
 import { MethodContext } from '../api/methodContext'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 export const PERMISSIONS_FOR_MIGRATIONS: Array<keyof UserPermissions> = ['configure']
 
@@ -95,7 +95,7 @@ export interface PreparedMigration {
 }
 export async function prepareMigration(returnAllChunks?: boolean): Promise<PreparedMigration> {
 	const databaseSystem = await getCoreSystemAsync()
-	if (!databaseSystem) throw new Meteor.Error(500, 'System version not set up')
+	if (!databaseSystem) throw new SofieError(500, 'System version not set up')
 
 	// Discover applicable migration steps:
 	let migrationNeeded = false
@@ -185,7 +185,7 @@ export async function prepareMigration(returnAllChunks?: boolean): Promise<Prepa
 			}
 
 			if (migrationSteps[step.id] || ignoredSteps[step.id])
-				throw new Meteor.Error(500, `Error: MigrationStep.id must be unique: "${step.id}"`)
+				throw new SofieError(500, `Error: MigrationStep.id must be unique: "${step.id}"`)
 
 			if (step.dependOnResultFrom) {
 				if (ignoredSteps[step.dependOnResultFrom]) {
@@ -202,9 +202,9 @@ export async function prepareMigration(returnAllChunks?: boolean): Promise<Prepa
 				if (step.chunk.sourceType === MigrationStepType.CORE) {
 					const validate = step.validate as ValidateFunctionCore
 					step._validateResult = await validate(false)
-				} else throw new Meteor.Error(500, `Unknown step.chunk.sourceType "${step.chunk.sourceType}"`)
+				} else throw new SofieError(500, `Unknown step.chunk.sourceType "${step.chunk.sourceType}"`)
 			} catch (error) {
-				throw new Meteor.Error(500, `Error in migration step "${step.id}": ${stringifyError(error)}`)
+				throw new SofieError(500, `Error in migration step "${step.id}": ${stringifyError(error)}`)
 			}
 
 			if (step._validateResult) {
@@ -274,7 +274,7 @@ export async function runMigrationFromTrusted(
 ): Promise<RunMigrationResult> {
 	if (chunksLeft < 0) {
 		logger.error(`Migration: Bailing out, looks like we're in a loop`)
-		throw new Meteor.Error(500, 'Infinite loop in migrations')
+		throw new SofieError(500, 'Infinite loop in migrations')
 	}
 	logger.info(`Migration: Starting`)
 	// logger.info(`Migration: Starting, from "${baseVersion}" to "${targetVersion}".`)
@@ -283,7 +283,7 @@ export async function runMigrationFromTrusted(
 	const migration = await prepareMigration(true)
 
 	if (migration.hash !== hash)
-		throw new Meteor.Error(500, `Migration input hash differ from expected: "${hash}", "${migration.hash}"`)
+		throw new SofieError(500, `Migration input hash differ from expected: "${hash}", "${migration.hash}"`)
 
 	// Check that chunks match:
 	let unmatchedChunk = migration.chunks.find((migrationChunk) => {
@@ -292,7 +292,7 @@ export async function runMigrationFromTrusted(
 		})
 	})
 	if (unmatchedChunk)
-		throw new Meteor.Error(
+		throw new SofieError(
 			500,
 			`Migration input chunks differ from expected, chunk "${JSON.stringify(unmatchedChunk)}" not found in input`
 		)
@@ -302,13 +302,13 @@ export async function runMigrationFromTrusted(
 		})
 	})
 	if (unmatchedChunk)
-		throw new Meteor.Error(
+		throw new SofieError(
 			500,
 			`Migration input chunks differ from expected, chunk in input "${JSON.stringify(
 				unmatchedChunk
 			)}" not found in migration.chunks`
 		)
-	if (migration.chunks.length !== chunks.length) throw new Meteor.Error(500, `Migration input chunk lengths differ`)
+	if (migration.chunks.length !== chunks.length) throw new SofieError(500, `Migration input chunk lengths differ`)
 
 	for (const chunk of migration.chunks) {
 		logger.info(
@@ -343,7 +343,7 @@ export async function runMigrationFromTrusted(
 				if (step.chunk.sourceType === MigrationStepType.CORE) {
 					const migration = step.migrate as MigrateFunctionCore
 					await migration()
-				} else throw new Meteor.Error(500, `Unknown step.chunk.sourceType "${step.chunk.sourceType}"`)
+				} else throw new SofieError(500, `Unknown step.chunk.sourceType "${step.chunk.sourceType}"`)
 			}
 
 			// After migration, run the validation again
@@ -354,7 +354,7 @@ export async function runMigrationFromTrusted(
 			if (step.chunk.sourceType === MigrationStepType.CORE) {
 				const validate = step.validate as ValidateFunctionCore
 				validateMessage = await validate(true)
-			} else throw new Meteor.Error(500, `Unknown step.chunk.sourceType "${step.chunk.sourceType}"`)
+			} else throw new SofieError(500, `Unknown step.chunk.sourceType "${step.chunk.sourceType}"`)
 
 			// let validate = step.validate as ValidateFunctionCore
 			// let validateMessage: string | boolean = validate(true)
@@ -415,7 +415,7 @@ async function completeMigration(chunks: Array<MigrationChunk>) {
 	for (const chunk of chunks) {
 		if (chunk.sourceType === MigrationStepType.CORE) {
 			await setCoreSystemVersion(chunk._targetVersion)
-		} else throw new Meteor.Error(500, `Unknown chunk.sourcetype: "${chunk.sourceType}"`)
+		} else throw new SofieError(500, `Unknown chunk.sourcetype: "${chunk.sourceType}"`)
 	}
 }
 export async function updateDatabaseVersion(targetVersionStr: string): Promise<void> {

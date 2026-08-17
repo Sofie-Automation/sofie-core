@@ -1,6 +1,5 @@
 import { getPeripheralDeviceFromRundown, runIngestOperation } from './lib'
 import { MOSDeviceActions } from './mosDevice/actions'
-import { Meteor } from 'meteor/meteor'
 import { TriggerReloadDataResponse } from '@sofie-automation/meteor-lib/dist/api/userActions'
 import { GenericDeviceActions } from './genericDevice/actions'
 import { PeripheralDeviceType } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
@@ -8,6 +7,7 @@ import { IngestJobs } from '@sofie-automation/corelib/dist/worker/ingest'
 import { assertNever } from '@sofie-automation/corelib/dist/lib'
 import { VerifiedRundownForUserAction } from '../../security/check'
 import { logger } from '../../logging'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 /*
 This file contains actions that can be performed on an ingest-device
@@ -20,7 +20,7 @@ export namespace IngestActions {
 		const rundownSourceType = rundown.source.type
 		switch (rundown.source.type) {
 			case 'snapshot':
-				throw new Meteor.Error(400, `Cannot reload a snapshot rundown`)
+				throw new SofieError(400, `Cannot reload a snapshot rundown`)
 			case 'http': {
 				await runIngestOperation(rundown.studioId, IngestJobs.RegenerateRundown, {
 					rundownExternalId: rundown.externalId,
@@ -69,12 +69,12 @@ export namespace IngestActions {
 				) {
 					return GenericDeviceActions.reloadRundown(device, rundown)
 				} else {
-					throw new Meteor.Error(400, `The device ${device._id} does not support the method "reloadRundown"`)
+					throw new SofieError(400, `The device ${device._id} does not support the method "reloadRundown"`)
 				}
 			}
 			default:
 				assertNever(rundown.source)
-				throw new Meteor.Error(400, `Cannot reload rundown from source "${rundownSourceType}"`)
+				throw new SofieError(400, `Cannot reload rundown from source "${rundownSourceType}"`)
 		}
 	}
 }

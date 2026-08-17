@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import { AllPubSubNames, AllPubSubTypes } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { MetricsGauge } from '@sofie-automation/corelib/dist/prometheus'
 import { extractFunctionSignature } from './lib'
@@ -6,6 +5,7 @@ import { logger } from './logging'
 import { MinimalMongoCursor } from './collections/collection'
 import { PublicationContext, PublishDocType } from './publications/lib/lib'
 import { CustomPublishMeteor, PublishIfDocument } from './lib/customPublication/publish'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 // The Prometheus gauge is registered globally by name, so it must live at module scope rather than on
 // the registry instance, otherwise constructing a second registry (e.g. in tests) would throw.
@@ -63,7 +63,7 @@ export class PublicationRegistry {
 	 */
 	publishUnsafe(name: string, callback: PublicationCallback, signature?: string[], isCustom = false): void {
 		if (this.publications.has(name)) {
-			throw new Meteor.Error(500, `PublicationRegistry: A publication called "${name}" is already registered.`)
+			throw new SofieError(500, `PublicationRegistry: A publication called "${name}" is already registered.`)
 		}
 
 		// The first parameter of every registered callback is the synthetic `context`, which is not part

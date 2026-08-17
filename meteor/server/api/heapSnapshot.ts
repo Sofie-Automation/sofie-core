@@ -1,6 +1,5 @@
 import * as v8 from 'node:v8'
 import { Readable } from 'stream'
-import { Meteor } from 'meteor/meteor'
 import Koa from 'koa'
 import KoaRouter from '@koa/router'
 import { fixValidPath } from '../lib/lib'
@@ -8,6 +7,7 @@ import { sleep } from '../lib/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { logger } from '../logging'
 import { assertConnectionHasOneOfPermissions, RequestCredentials } from '../security/auth'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 async function retrieveHeapSnapshot(cred: RequestCredentials): Promise<Readable> {
 	assertConnectionHasOneOfPermissions(cred, 'developer')
@@ -39,7 +39,7 @@ async function handleKoaResponse(ctx: Koa.ParameterizedContext, snapshotFcn: () 
 		// ctx.response.body = JSON.stringify(snapshot, null, 4)
 	} catch (e) {
 		ctx.response.type = 'text/plain'
-		ctx.response.status = e instanceof Meteor.Error && typeof e.error === 'number' ? e.error : 500
+		ctx.response.status = e instanceof SofieError ? e.error : 500
 		ctx.response.body = 'Error: ' + stringifyError(e)
 
 		if (ctx.response.status !== 404) {

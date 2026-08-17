@@ -10,7 +10,6 @@ import {
 	SystemBenchmarkResults,
 } from '@sofie-automation/meteor-lib/dist/api/system'
 import { CollectionIndexes, getTargetRegisteredIndexes } from '../collections/indices'
-import { Meteor } from 'meteor/meteor'
 import { logger } from '../logging'
 import { check } from '../lib/check'
 import { IndexSpecifier } from '@sofie-automation/meteor-lib/dist/collections/lib'
@@ -27,6 +26,7 @@ import { triggerWriteAccessBecauseNoCheckNecessary } from '../security/securityV
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { assertConnectionHasOneOfPermissions } from '../security/auth'
 import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 const PERMISSIONS_FOR_SYSTEM_CLEANUP: Array<keyof UserPermissions> = ['configure']
 
@@ -372,7 +372,7 @@ async function generateSingleUseToken() {
 	const eventTime = getCurrentTime()
 
 	if (lastTokenTimestamp !== undefined && eventTime <= lastTokenTimestamp + TOKEN_ISSUE_TIME_LIMIT) {
-		throw new Meteor.Error(503, `Tokens can only be issued every ${TOKEN_ISSUE_TIME_LIMIT / 1000}s.`)
+		throw new SofieError(503, `Tokens can only be issued every ${TOKEN_ISSUE_TIME_LIMIT / 1000}s.`)
 	}
 
 	lastTokenTimestamp = eventTime

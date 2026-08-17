@@ -1,6 +1,5 @@
 import { z } from 'zod'
 import * as Path from 'path'
-import { Meteor } from 'meteor/meteor'
 import _ from 'underscore'
 import Koa from 'koa'
 import KoaRouter from '@koa/router'
@@ -100,6 +99,7 @@ import {
 import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
 import { assertConnectionHasOneOfPermissions, RequestCredentials } from '../security/auth'
 import { isInTestMode } from '../lib'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 const PERMISSIONS_FOR_SNAPSHOT_MANAGEMENT: Array<keyof UserPermissions> = ['configure']
 
@@ -163,7 +163,7 @@ async function createSystemSnapshot(options: SystemSnapshotOptions): Promise<Sys
 	logger.info(`Generating System snapshot "${snapshotId}"` + (studioId ? `for studio "${studioId}"` : ''))
 
 	const coreSystem = await getCoreSystemAsync()
-	if (!coreSystem) throw new Meteor.Error(500, `coreSystem not set up`)
+	if (!coreSystem) throw new SofieError(500, `coreSystem not set up`)
 
 	let queryStudio: MongoQuery<DBStudio> = {}
 	let queryShowStyleBases: MongoQuery<DBShowStyleBase> = {}
@@ -255,7 +255,7 @@ async function createDebugSnapshot(studioId: StudioId): Promise<DebugSnapshot> {
 	logger.info(`Generating Debug snapshot "${snapshotId}" for studio "${studioId}"`)
 
 	const studio = await Studios.findOneAsync(studioId)
-	if (!studio) throw new Meteor.Error(404, `Studio ${studioId} not found`)
+	if (!studio) throw new SofieError(404, `Studio ${studioId} not found`)
 
 	const systemSnapshot = await createSystemSnapshot({ studioId, withDeviceSnapshots: true })
 
@@ -462,7 +462,7 @@ async function retreiveSnapshot(snapshotId: SnapshotId, cred: RequestCredentials
 	assertConnectionHasOneOfPermissions(cred, ...PERMISSIONS_FOR_SNAPSHOT_MANAGEMENT)
 
 	const snapshot = await Snapshots.findOneAsync(snapshotId)
-	if (!snapshot) throw new Meteor.Error(404, `Snapshot not found!`)
+	if (!snapshot) throw new SofieError(404, `Snapshot not found!`)
 
 	const storePath = getSystemStorePath()
 	const filePath = Path.join(storePath, snapshot.fileName)
@@ -485,16 +485,13 @@ async function restoreFromSnapshot(
 	// Determine what kind of snapshot
 
 	// Then, continue as if it's a normal snapshot:
-	if (!snapshot.snapshot) throw new Meteor.Error(500, `Restore input data is not a snapshot (${_.keys(snapshot)})`)
+	if (!snapshot.snapshot) throw new SofieError(500, `Restore input data is not a snapshot (${_.keys(snapshot)})`)
 
 	if (snapshot.snapshot.type === SnapshotType.RUNDOWNPLAYLIST) {
 		const playlistSnapshot = snapshot as RundownPlaylistSnapshot
 
 		if (!isVersionSupported(parseVersion(playlistSnapshot.version || '0.18.0'))) {
-			throw new Meteor.Error(
-				400,
-				`Cannot restore, the snapshot comes from an older, unsupported version of Sofie`
-			)
+			throw new SofieError(400, `Cannot restore, the snapshot comes from an older, unsupported version of Sofie`)
 		}
 
 		const studioId = await getStudioIdFromPlaylistSnapshot(playlistSnapshot)
@@ -505,7 +502,7 @@ async function restoreFromSnapshot(
 		// A snapshot of a system
 		return restoreFromSystemSnapshot(snapshot as SystemSnapshot)
 	} else {
-		throw new Meteor.Error(402, `Unknown snapshot type "${snapshot.snapshot.type}"`)
+		throw new SofieError(402, `Unknown snapshot type "${snapshot.snapshot.type}"`)
 	}
 }
 
@@ -514,7 +511,7 @@ async function getStudioIdFromPlaylistSnapshot(playlistSnapshot: RundownPlaylist
 	const studios = await Studios.findFetchAsync({})
 	const snapshotStudioExists = studios.find((studio) => studio._id === playlistSnapshot.playlist.studioId)
 	const studioId = snapshotStudioExists ? playlistSnapshot.playlist.studioId : studios[0]?._id
-	if (!studioId) throw new Meteor.Error(500, `No Studio found`)
+	if (!studioId) throw new SofieError(500, `No Studio found`)
 	return studioId
 }
 /** Read the ingest data from a snapshot and pipe it into blueprints */
@@ -523,7 +520,7 @@ async function ingestFromSnapshot(
 	snapshot: AnySnapshot
 ): Promise<void> {
 	// Determine what kind of snapshot
-	if (!snapshot.snapshot) throw new Meteor.Error(500, `Restore input data is not a snapshot (${_.keys(snapshot)})`)
+	if (!snapshot.snapshot) throw new SofieError(500, `Restore input data is not a snapshot (${_.keys(snapshot)})`)
 	if (snapshot.snapshot.type === SnapshotType.RUNDOWNPLAYLIST) {
 		const playlistSnapshot = snapshot as RundownPlaylistSnapshot
 
@@ -540,7 +537,7 @@ async function ingestFromSnapshot(
 		) as NrcsIngestDataCacheObjSegment[]
 		const partData = ingestData.filter((e) => e.type === NrcsIngestCacheType.PART) as NrcsIngestDataCacheObjPart[]
 
-		if (rundownData.length === 0) throw new Meteor.Error(402, `No rundowns found in ingestData`)
+		if (rundownData.length === 0) throw new SofieError(402, `No rundowns found in ingestData`)
 
 		for (const seg of segmentData) {
 			seg.data.parts = partData
@@ -560,7 +557,7 @@ async function ingestFromSnapshot(
 			await importIngestRundown(studioId, ingestRundown)
 		}
 	} else {
-		throw new Meteor.Error(
+		throw new SofieError(
 			402,
 			`Unable to ingest a snapshot of type "${snapshot.snapshot.type}", did you mean to restore it?`
 		)
@@ -574,7 +571,7 @@ async function restoreFromRundownPlaylistSnapshot(
 	restoreDebugData: boolean
 ): Promise<void> {
 	if (!isVersionSupported(parseVersion(snapshot.version || '0.18.0'))) {
-		throw new Meteor.Error(400, `Cannot restore, the snapshot comes from an older, unsupported version of Sofie`)
+		throw new SofieError(400, `Cannot restore, the snapshot comes from an older, unsupported version of Sofie`)
 	}
 
 	const queuedJob = await QueueStudioJob(StudioJobs.RestorePlaylistSnapshot, studioId, {
@@ -657,7 +654,7 @@ async function restoreFromSystemSnapshot(snapshot: SystemSnapshot): Promise<void
 	const studioId = snapshot.studioId
 
 	if (!isVersionSupported(parseVersion(snapshot.version || '0.18.0'))) {
-		throw new Meteor.Error(400, `Cannot restore, the snapshot comes from an older, unsupported version of Sofie`)
+		throw new SofieError(400, `Cannot restore, the snapshot comes from an older, unsupported version of Sofie`)
 	}
 	if (snapshot.blueprints) {
 		snapshot.blueprints = _.map(snapshot.blueprints, (bp) => {
@@ -772,7 +769,7 @@ export async function storeDebugSnapshot(
 	check(studioId, z.string())
 	check(hashedToken, z.string())
 	if (!verifyHashedToken(hashedToken)) {
-		throw new Meteor.Error(401, `Restart token is invalid or has expired`)
+		throw new SofieError(401, `Restart token is invalid or has expired`)
 	}
 
 	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_SNAPSHOT_MANAGEMENT)
@@ -804,7 +801,7 @@ export async function removeSnapshot(context: MethodContext, snapshotId: Snapsho
 	logger.info(`Removing snapshot ${snapshotId}`)
 
 	const snapshot = await Snapshots.findOneAsync(snapshotId)
-	if (!snapshot) throw new Meteor.Error(404, `Snapshot "${snapshotId}" not found!`)
+	if (!snapshot) throw new SofieError(404, `Snapshot "${snapshotId}" not found!`)
 
 	if (snapshot.fileName) {
 		// remove from disk
@@ -842,7 +839,7 @@ async function handleKoaResponse(
 		ctx.response.body = JSON.stringify(snapshot, null, 4)
 	} catch (e) {
 		ctx.response.type = 'text/plain'
-		ctx.response.status = e instanceof Meteor.Error && typeof e.error === 'number' ? e.error : 500
+		ctx.response.status = e instanceof SofieError ? e.error : 500
 		ctx.response.body = 'Error: ' + stringifyError(e)
 
 		if (ctx.response.status !== 404) {
@@ -864,16 +861,16 @@ snapshotPrivateApiRouter.post(
 			ctx.response.type = 'text/plain'
 
 			if (ctx.request.type !== 'application/json')
-				throw new Meteor.Error(400, 'Restore Snapshot: Invalid content-type')
+				throw new SofieError(400, 'Restore Snapshot: Invalid content-type')
 
 			const snapshot = ctx.request.body as any
-			if (!snapshot) throw new Meteor.Error(400, 'Restore Snapshot: Missing request body')
+			if (!snapshot) throw new SofieError(400, 'Restore Snapshot: Missing request body')
 
 			const restoreDebugData = ctx.headers['restore-debug-data'] === '1'
 			const ingestSnapshotData = ctx.headers['ingest-snapshot-data'] === '1'
 
 			if (typeof snapshot !== 'object' || snapshot === null)
-				throw new Meteor.Error(500, `Restore input data is not an object`)
+				throw new SofieError(500, `Restore input data is not an object`)
 
 			if (ingestSnapshotData) {
 				await ingestFromSnapshot(snapshot)
@@ -885,7 +882,7 @@ snapshotPrivateApiRouter.post(
 			ctx.response.body = content
 		} catch (e) {
 			ctx.response.type = 'text/plain'
-			ctx.response.status = e instanceof Meteor.Error && typeof e.error === 'number' ? e.error : 500
+			ctx.response.status = e instanceof SofieError ? e.error : 500
 			ctx.response.body = 'Error: ' + stringifyError(e)
 
 			if (ctx.response.status !== 404) {
@@ -907,7 +904,7 @@ snapshotPrivateApiRouter.get('/retrieve/:snapshotId', async (ctx) => {
 export class ServerSnapshotAPI extends MethodContextAPI implements NewSnapshotAPI {
 	async storeSystemSnapshot(hashedToken: string, studioId: StudioId | null, reason: string): Promise<SnapshotId> {
 		if (!verifyHashedToken(hashedToken)) {
-			throw new Meteor.Error(401, `Idempotency token is invalid or has expired`)
+			throw new SofieError(401, `Idempotency token is invalid or has expired`)
 		}
 		return storeSystemSnapshot(this, { studioId: studioId ?? undefined }, reason)
 	}
@@ -917,7 +914,7 @@ export class ServerSnapshotAPI extends MethodContextAPI implements NewSnapshotAP
 		reason: string
 	): Promise<SnapshotId> {
 		if (!verifyHashedToken(hashedToken)) {
-			throw new Meteor.Error(401, `Idempotency token is invalid or has expired`)
+			throw new SofieError(401, `Idempotency token is invalid or has expired`)
 		}
 		check(playlistId, z.string())
 		const playlist = await checkAccessToPlaylist(this.connection, playlistId)

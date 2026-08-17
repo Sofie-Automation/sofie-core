@@ -1,11 +1,11 @@
 import { EventEmitter } from 'events'
-import { Meteor } from 'meteor/meteor'
 import { MethodRegistry } from '../../methodRegistry'
 import { PublicationRegistry } from '../../publicationRegistry'
 import { DdpSession } from '../DdpSession'
 import { DdpConnectionRegistry } from '../ConnectionRegistry'
 import { ServerMessage } from '@sofie-automation/shared-lib/dist/ddp/messageTypes'
 import { makeDdpConnection } from '../DdpConnection'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 /** A minimal stand-in for a `ws` WebSocket that records sent messages and lets tests inject frames. */
 class FakeSocket extends EventEmitter {
@@ -37,7 +37,7 @@ describe('DdpSession', () => {
 			return { echoed: value, hadConnection: !!this.connection }
 		})
 		registry.registerMethod('test.fail', function () {
-			throw new Meteor.Error(418, 'teapot')
+			throw new SofieError(418, 'teapot')
 		})
 
 		const publications = new PublicationRegistry()

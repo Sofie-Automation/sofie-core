@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { TriggerReloadDataResponse } from '@sofie-automation/meteor-lib/dist/api/userActions'
@@ -10,6 +9,7 @@ import { generateRundownSource, runIngestOperation } from '../lib'
 import { IngestJobs } from '@sofie-automation/corelib/dist/worker/ingest'
 import { DEFAULT_NRCS_TIMEOUT_TIME } from '@sofie-automation/shared-lib/dist/core/constants'
 import { executePeripheralDeviceFunctionWithCustomTimeout } from '../../peripheralDevice/executeFunction'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 export namespace GenericDeviceActions {
 	export async function reloadRundown(
@@ -34,7 +34,7 @@ export namespace GenericDeviceActions {
 				logger.debug(ingestRundown)
 
 				if (ingestRundown.externalId !== rundown.externalId) {
-					throw new Meteor.Error(
+					throw new SofieError(
 						500,
 						`Bad response from device "${peripheralDevice._id}": Expected ingestRundown "${rundown.externalId}", got "${ingestRundown.externalId}"`
 					)

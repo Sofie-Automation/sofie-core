@@ -1,7 +1,6 @@
 import { z } from 'zod'
 import _ from 'underscore'
 import { logger } from '../../logging'
-import { Meteor } from 'meteor/meteor'
 import { BlueprintManifestSet } from '@sofie-automation/blueprints-integration'
 import { check } from '../../lib/check'
 import { retrieveBlueprintAsset, uploadBlueprint, uploadBlueprintAsset } from './api'
@@ -11,6 +10,7 @@ import { BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import KoaRouter from '@koa/router'
 import bodyParser from 'koa-bodyparser'
 import { isInTestMode } from '../../lib'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 const BLUEPRINT_ASSET_MAX_AGE = 15 * 24 * 3600 // 15 days, in seconds
 
@@ -42,9 +42,9 @@ blueprintsRouter.post(
 			check(blueprintName, z.string().nullish())
 
 			const body = ctx.request.body || ctx.req.body
-			if (!body) throw new Meteor.Error(400, 'Restore Blueprint: Missing request body')
+			if (!body) throw new SofieError(400, 'Restore Blueprint: Missing request body')
 			if (typeof body !== 'string' || body.length < 10)
-				throw new Meteor.Error(400, 'Restore Blueprint: Invalid request body')
+				throw new SofieError(400, 'Restore Blueprint: Invalid request body')
 
 			await uploadBlueprint(ctx, protectString<BlueprintId>(blueprintId), body, {
 				blueprintName,
@@ -72,9 +72,9 @@ blueprintsRouter.post(
 
 		try {
 			const body = ctx.request.body
-			if (!body) throw new Meteor.Error(400, 'Restore Blueprint: Missing request body')
+			if (!body) throw new SofieError(400, 'Restore Blueprint: Missing request body')
 			if (typeof body !== 'object' || Object.keys(body as any).length === 0)
-				throw new Meteor.Error(400, 'Restore Blueprint: Invalid request body')
+				throw new SofieError(400, 'Restore Blueprint: Invalid request body')
 
 			const developmentMode = ctx.query['developmentMode'] === '1' || ctx.query['developmentMode'] === 'true'
 
@@ -83,7 +83,7 @@ blueprintsRouter.post(
 			const isBlueprintManifestSet = (obj: string | object): obj is BlueprintManifestSet =>
 				typeof obj === 'object' && 'blueprints' in obj
 			if (!isBlueprintManifestSet(collection))
-				throw new Meteor.Error(400, 'Restore Blueprint: Malformed request body')
+				throw new SofieError(400, 'Restore Blueprint: Malformed request body')
 
 			if (!isInTestMode()) logger.info(`Got blueprint collection. ${Object.keys(body).length} blueprints`)
 
@@ -143,9 +143,9 @@ blueprintsRouter.post(
 
 		try {
 			const body = ctx.request.body
-			if (!body) throw new Meteor.Error(400, 'Upload Blueprint assets: Missing request body')
+			if (!body) throw new SofieError(400, 'Upload Blueprint assets: Missing request body')
 			if (typeof body !== 'object' || Object.keys(body as any).length === 0)
-				throw new Meteor.Error(400, 'Upload Blueprint assets: Invalid request body')
+				throw new SofieError(400, 'Upload Blueprint assets: Invalid request body')
 
 			const collection = body as Record<string, string>
 

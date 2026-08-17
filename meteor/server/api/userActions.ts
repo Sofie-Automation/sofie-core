@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import { z } from 'zod'
 import { check, zAnyArray, zPlainObject } from '../lib/check'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
@@ -62,6 +61,7 @@ import { assertConnectionHasOneOfPermissions } from '../security/auth'
 import { checkAccessToRundown } from '../security/check'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { isInProductionMode } from '../lib'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 const PERMISSIONS_FOR_PLAYOUT_USERACTION: Array<keyof UserPermissions> = ['studio']
 const PERMISSIONS_FOR_BUCKET_MODIFICATION: Array<keyof UserPermissions> = ['studio']
@@ -76,22 +76,22 @@ async function pieceSetInOutPoints(
 	duration: number
 ): Promise<void> {
 	const part = await Parts.findOneAsync(partId)
-	if (!part) throw new Meteor.Error(404, `Part "${partId}" not found!`)
+	if (!part) throw new SofieError(404, `Part "${partId}" not found!`)
 
 	const rundown = await Rundowns.findOneAsync({
 		_id: part.rundownId,
 		playlistId: playlistId,
 	})
-	if (!rundown) throw new Meteor.Error(501, `Rundown "${part.rundownId}" not found!`)
+	if (!rundown) throw new SofieError(501, `Rundown "${part.rundownId}" not found!`)
 
 	const partCache = await NrcsIngestDataCache.findOneAsync({
 		rundownId: rundown._id,
 		partId: part._id,
 		type: NrcsIngestCacheType.PART,
 	})
-	if (!partCache) throw new Meteor.Error(404, `Part Cache for "${partId}" not found!`)
+	if (!partCache) throw new SofieError(404, `Part Cache for "${partId}" not found!`)
 	const piece = await Pieces.findOneAsync(pieceId)
-	if (!piece) throw new Meteor.Error(404, `Piece "${pieceId}" not found!`)
+	if (!piece) throw new SofieError(404, `Piece "${pieceId}" not found!`)
 
 	// TODO: replace this with a general, non-MOS specific method
 
@@ -682,7 +682,7 @@ export class ServerUserActionAPI
 		full: boolean
 	): Promise<ClientAPI.ClientResponse<SnapshotId>> {
 		if (!verifyHashedToken(hashedToken)) {
-			throw new Meteor.Error(401, `Idempotency token is invalid or has expired`)
+			throw new SofieError(401, `Idempotency token is invalid or has expired`)
 		}
 		return ServerClientAPI.runUserActionInLogForPlaylist(
 			this,
@@ -943,7 +943,7 @@ export class ServerUserActionAPI
 				assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_SYSTEM_ACTION)
 
 				if (!verifyHashedToken(hashedToken)) {
-					throw new Meteor.Error(401, `Restart token is invalid or has expired`)
+					throw new SofieError(401, `Restart token is invalid or has expired`)
 				}
 
 				setTimeout(() => {

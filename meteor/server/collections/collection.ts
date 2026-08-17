@@ -8,7 +8,6 @@ import {
 	FindObserveChangesOptions,
 } from '@sofie-automation/corelib/dist/mongo'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
-import { Meteor } from 'meteor/meteor'
 import { PromisifyCallbacks } from '@sofie-automation/shared-lib/dist/lib/types'
 import type { CreateIndexesOptions, IndexDescriptionInfo } from 'mongodb'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
@@ -25,6 +24,7 @@ import {
 import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
 import { isInTestMode } from '../lib'
 import type { LiveQueryHandleSync } from '../lib/lib'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 export interface CustomMongoAllowRules<DBInterface> {
 	// insert?: (userId: UserId | null, doc: DBInterface) => Promise<boolean> | boolean
@@ -51,7 +51,7 @@ export function createAsyncOnlyMongoCollection<DBInterface extends { _id: Protec
 ): AsyncOnlyMongoCollection<DBInterface> {
 	if (allowRules) {
 		if (allowRules.requiredPermissions.length === 0)
-			throw new Meteor.Error(403, `No permissions specified for collection "${name}"`)
+			throw new SofieError(403, `No permissions specified for collection "${name}"`)
 
 		collectionsAllowDenyCache.set(name, allowRules as CustomMongoAllowRules<any>)
 	}

@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import { z } from 'zod'
 import { check, zAnyArray } from '../lib/check'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
@@ -36,6 +35,7 @@ import { checkAccessAndGetPeripheralDevice } from '../security/check'
 import { assertConnectionHasOneOfPermissions } from '../security/auth'
 import { fetchStudioIds } from '../optimizations'
 import type { PublicationRegistry } from '../publicationRegistry'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 export function registerStudioPublications(registry: PublicationRegistry): void {
 	registry.publish(
@@ -61,7 +61,7 @@ export function registerStudioPublications(registry: PublicationRegistry): void 
 		async (_context, selector: MongoQuery<ExternalMessageQueueObj>, _token: string | undefined) => {
 			triggerWriteAccessBecauseNoCheckNecessary()
 
-			if (!selector) throw new Meteor.Error(400, 'selector argument missing')
+			if (!selector) throw new SofieError(400, 'selector argument missing')
 			const modifier: FindOptions<ExternalMessageQueueObj> = {
 				fields: {},
 			}

@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import { z } from 'zod'
 import { CustomPublish } from '../lib/customPublication'
 import { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
@@ -16,6 +15,7 @@ import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyE
 import { checkAccessAndGetPeripheralDevice } from '../security/check'
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import type { PublicationRegistry } from '../publicationRegistry'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 const PUBLICATION_DEBOUNCE = 20
 
@@ -30,7 +30,7 @@ export function registerMountedTriggersPublications(registry: PublicationRegistr
 			const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, context)
 
 			const studioId = peripheralDevice.studioAndConfigId?.studioId
-			if (!studioId) throw new Meteor.Error(400, `Peripheral Device "${deviceId}" not attached to a studio`)
+			if (!studioId) throw new SofieError(400, `Peripheral Device "${deviceId}" not attached to a studio`)
 
 			cursorCustomPublish(
 				pub,
@@ -55,7 +55,7 @@ export function registerMountedTriggersPublications(registry: PublicationRegistr
 			const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, context)
 
 			const studioId = peripheralDevice.studioAndConfigId?.studioId
-			if (!studioId) throw new Meteor.Error(400, `Peripheral Device "${deviceId}" not attached to a studio`)
+			if (!studioId) throw new SofieError(400, `Peripheral Device "${deviceId}" not attached to a studio`)
 
 			cursorCustomPublish(
 				pub,

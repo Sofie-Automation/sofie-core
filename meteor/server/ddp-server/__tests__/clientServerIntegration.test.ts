@@ -2,13 +2,13 @@ import { createServer, type Server } from 'http'
 import type { AddressInfo } from 'net'
 import { WebSocketServer } from 'ws'
 import { URL } from 'url'
-import { Meteor } from 'meteor/meteor'
 import { DDPClient } from '@sofie-automation/server-core-integration'
 import { MethodRegistry } from '../../methodRegistry'
 import { PublicationRegistry } from '../../publicationRegistry'
 import type { PublicationContext } from '../../publications/lib/lib'
 import { DdpSession } from '../DdpSession'
 import { DdpConnectionRegistry } from '../ConnectionRegistry'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 /**
  * End-to-end test: the real `server-core-integration` DDP client talks to a real `DdpSession` over a real
@@ -38,7 +38,7 @@ describe('DDP client ↔ standalone server (integration)', () => {
 			return { echoed: value, hadConnection: !!this.connection }
 		})
 		methodRegistry.registerMethod('test.fail', function () {
-			throw new Meteor.Error(418, 'teapot')
+			throw new SofieError(418, 'teapot')
 		})
 
 		const publicationRegistry = new PublicationRegistry()

@@ -46,7 +46,6 @@ import {
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
 import { Blueprints, ShowStyleBases, Studios } from '../../../collections'
-import { Meteor } from 'meteor/meteor'
 import { evalBlueprint } from '../../blueprints/cache'
 import { CommonContext } from '../../../migration/upgrades/context'
 import { logger } from '../../../logging'
@@ -57,6 +56,7 @@ import {
 import { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
 import { ForceQuickLoopAutoNext, ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 import { PlaylistSnapshotOptions, SystemSnapshotOptions } from '@sofie-automation/meteor-lib/dist/api/shapshot'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 /*
 This file contains functions that convert between the internal Sofie-Core types and types exposed to the external API.
@@ -622,9 +622,9 @@ async function getBlueprint(
 				blueprintType,
 			})
 		: undefined
-	if (!blueprint) throw new Meteor.Error(404, `Blueprint "${blueprintId}" not found!`)
+	if (!blueprint) throw new SofieError(404, `Blueprint "${blueprintId}" not found!`)
 
-	if (!blueprint.blueprintHash) throw new Meteor.Error(500, 'Blueprint is not valid')
+	if (!blueprint.blueprintHash) throw new SofieError(500, 'Blueprint is not valid')
 
 	return blueprint
 }

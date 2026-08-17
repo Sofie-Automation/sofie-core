@@ -108,7 +108,7 @@ describe('Test external message queue static methods', () => {
 
 	test('toggleHold unknown id', async () => {
 		SupressLogMessages.suppressLogMessage(/ExternalMessage/i)
-		await expect(MeteorCall.externalMessages.toggleHold(protectString('cake'))).rejects.toThrowMeteor(
+		await expect(MeteorCall.externalMessages.toggleHold(protectString('cake'))).rejects.toThrowSofieError(
 			404,
 			'ExternalMessage "cake" not found!'
 		)
@@ -131,7 +131,7 @@ describe('Test external message queue static methods', () => {
 
 	test('retry unknown id', async () => {
 		SupressLogMessages.suppressLogMessage(/ExternalMessage/i)
-		await expect(MeteorCall.externalMessages.retry(protectString('is_a_lie'))).rejects.toThrowMeteor(
+		await expect(MeteorCall.externalMessages.retry(protectString('is_a_lie'))).rejects.toThrowSofieError(
 			404,
 			'ExternalMessage "is_a_lie" not found!'
 		)

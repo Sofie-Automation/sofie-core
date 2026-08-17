@@ -1,4 +1,4 @@
-import { UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/error'
+import { SofieError, UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/error'
 import { z } from 'zod'
 import { logger } from '../../../logging'
 import { APIFactory, APIRegisterHook, ServerAPIContext } from './types'
@@ -18,7 +18,6 @@ import {
 import { RundownTTimerIndex } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/TTimers'
 import { check } from '../../../lib/check'
 import { PlaylistsRestAPI } from '../../../lib/rest/v1'
-import { Meteor } from 'meteor/meteor'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import {
 	AdLibActions,
@@ -44,7 +43,7 @@ import type { DDPClientConnection } from '../../../ddp-server/types'
 function parseTimerIndex(rawTimerIndex: string): RundownTTimerIndex {
 	const timerIndex = Number(rawTimerIndex)
 	if (!Number.isInteger(timerIndex) || timerIndex < 1 || timerIndex > 3) {
-		throw new Meteor.Error(400, `Invalid timerIndex`)
+		throw new SofieError(400, `Invalid timerIndex`)
 	}
 
 	return timerIndex as RundownTTimerIndex
@@ -58,7 +57,7 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 			$or: [{ _id: playlistId }, { externalId: playlistId }],
 		})
 		if (!playlist) {
-			throw new Meteor.Error(404, `Playlist ID '${playlistId}' was not found`)
+			throw new SofieError(404, `Playlist ID '${playlistId}' was not found`)
 		}
 		return playlist
 	}
@@ -75,7 +74,7 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 			],
 		})
 		if (!segment) {
-			throw new Meteor.Error(404, `Segment ID '${segmentId}' was not found`)
+			throw new SofieError(404, `Segment ID '${segmentId}' was not found`)
 		}
 		return segment
 	}
@@ -90,7 +89,7 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 			],
 		})
 		if (!part) {
-			throw new Meteor.Error(404, `Part ID '${partId}' was not found`)
+			throw new SofieError(404, `Part ID '${partId}' was not found`)
 		}
 		return part
 	}
@@ -1401,7 +1400,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<PlaylistsRestAPI>)
 			check(body.externalId, z.string().optional())
 
 			if (!body.partId && !body.externalId) {
-				throw new Meteor.Error(400, `Must provide either 'partId' or 'externalId'`)
+				throw new SofieError(400, `Must provide either 'partId' or 'externalId'`)
 			}
 
 			const partId = body.partId ? protectString<PartId>(body.partId) : undefined

@@ -476,7 +476,7 @@ describe('test peripheralDevice general API methods', () => {
 		// test this does not shutdown because Rundown stored
 		if (DEBUG) setLogLevel(LogLevel.DEBUG)
 		SupressLogMessages.suppressLogMessage(/Unable to run killProcess/i)
-		await expect(MeteorCall.peripheralDevice.killProcess(device._id, device.token, true)).rejects.toThrowMeteor(
+		await expect(MeteorCall.peripheralDevice.killProcess(device._id, device.token, true)).rejects.toThrowSofieError(
 			400,
 			`Unable to run killProcess: Rundowns not empty!`
 		)
@@ -489,7 +489,7 @@ describe('test peripheralDevice general API methods', () => {
 		SupressLogMessages.suppressLogMessage(/Error thrown/i)
 		await expect(
 			MeteorCall.peripheralDevice.testMethod(device._id, device.token, 'european', true)
-		).rejects.toThrowMeteor(418, `Error thrown, as requested`)
+		).rejects.toThrowSofieError(418, `Error thrown, as requested`)
 	})
 
 	/*
@@ -507,7 +507,7 @@ describe('test peripheralDevice general API methods', () => {
 		SupressLogMessages.suppressLogMessage(/can only request user auth token/i)
 		await expect(
 			MeteorCall.peripheralDevice.requestUserAuthToken(device._id, device.token, 'https://auth.url/')
-		).rejects.toThrowMeteor(400, 'can only request user auth token for peripheral device of spreadsheet type')
+		).rejects.toThrowSofieError(400, 'can only request user auth token for peripheral device of spreadsheet type')
 
 		await PeripheralDevices.updateAsync(device._id, {
 			$set: {
@@ -532,7 +532,7 @@ describe('test peripheralDevice general API methods', () => {
 		SupressLogMessages.suppressLogMessage(/can only store access token/i)
 		await expect(
 			MeteorCall.peripheralDevice.storeAccessToken(device._id, device.token, 'https://auth.url/')
-		).rejects.toThrowMeteor(400, 'can only store access token for peripheral device of spreadsheet type')
+		).rejects.toThrowSofieError(400, 'can only store access token for peripheral device of spreadsheet type')
 
 		await PeripheralDevices.updateAsync(device._id, {
 			$set: {

@@ -1,9 +1,9 @@
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
-import { Meteor } from 'meteor/meteor'
 import { UIBlueprintUpgradeStatus } from '@sofie-automation/meteor-lib/dist/api/upgradeStatus'
 import { CustomPublish, CustomPublishChanges } from '../../lib/customPublication'
 import { createBlueprintUpgradeStatusSubscriptionHandle } from './publication'
 import { isInTestMode } from '../../lib'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 class CustomPublishToMap<DBObj extends { _id: ProtectedString<any> }> implements CustomPublish<DBObj> {
 	#isReady = false
@@ -33,7 +33,7 @@ class CustomPublishToMap<DBObj extends { _id: ProtectedString<any> }> implements
 	 * Send the intial documents to the subscriber
 	 */
 	init(docs: DBObj[]): void {
-		if (this.#isReady) throw new Meteor.Error(500, 'CustomPublishToMap has already been initialised')
+		if (this.#isReady) throw new SofieError(500, 'CustomPublishToMap has already been initialised')
 
 		for (const doc of docs) {
 			this.#documents.set(doc._id, doc)
@@ -48,7 +48,7 @@ class CustomPublishToMap<DBObj extends { _id: ProtectedString<any> }> implements
 	 * Send a batch of changes to the subscriber
 	 */
 	changed(changes: CustomPublishChanges<DBObj>): void {
-		if (!this.#isReady) throw new Meteor.Error(500, 'CustomPublish has not been initialised')
+		if (!this.#isReady) throw new SofieError(500, 'CustomPublish has not been initialised')
 
 		for (const doc of changes.added.values()) {
 			this.#documents.set(doc._id, doc)
@@ -73,7 +73,7 @@ const cachedPublisher = new CustomPublishToMap<UIBlueprintUpgradeStatus>()
 let existingPublicationSubscription: Promise<void> | undefined
 
 export async function getServerBlueprintUpgradeStatuses(): Promise<UIBlueprintUpgradeStatus[]> {
-	if (isInTestMode()) throw new Meteor.Error(500, 'getServerBlueprintUpgradeStatuses is not allowed during tests')
+	if (isInTestMode()) throw new SofieError(500, 'getServerBlueprintUpgradeStatuses is not allowed during tests')
 
 	if (!existingPublicationSubscription) {
 		existingPublicationSubscription = createBlueprintUpgradeStatusSubscriptionHandle(cachedPublisher)

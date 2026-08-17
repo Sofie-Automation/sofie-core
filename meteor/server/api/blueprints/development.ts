@@ -2,7 +2,6 @@ import { BlueprintManifestType } from '@sofie-automation/blueprints-integration'
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
 import { assertNever } from '@sofie-automation/corelib/dist/lib'
 import { SYSTEM_ID } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
-import { Meteor } from 'meteor/meteor'
 import { Studios, CoreSystem, Rundowns, ShowStyleBases } from '../../collections'
 import { runUpgradeForShowStyleBase, runUpgradeForStudio } from '../../migration/upgrades'
 import { runUpgradeForCoreSystem } from '../../migration/upgrades/system'
@@ -14,6 +13,7 @@ import { StudioJobs } from '@sofie-automation/corelib/dist/worker/studio'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { logger } from '../../logging'
 import { IngestJobs } from '@sofie-automation/corelib/dist/worker/ingest'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 export async function blueprintsPerformDevelopmentMode(blueprint: Blueprint): Promise<void> {
 	// Note: These are not the most efficient implementations, but this is a development tool so the simplicity is more important
@@ -85,7 +85,7 @@ export async function blueprintsPerformDevelopmentMode(blueprint: Blueprint): Pr
 			break
 		default:
 			assertNever(blueprint.blueprintType)
-			throw new Meteor.Error(400, `Blueprint type "${blueprint.blueprintType}" is not valid`)
+			throw new SofieError(400, `Blueprint type "${blueprint.blueprintType}" is not valid`)
 	}
 }
 

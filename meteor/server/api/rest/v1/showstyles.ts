@@ -1,4 +1,4 @@
-import { UserErrorMessage } from '@sofie-automation/corelib/dist/error'
+import { UserErrorMessage, SofieError } from '@sofie-automation/corelib/dist/error'
 import { z } from 'zod'
 import {
 	APIShowStyleBase,
@@ -11,7 +11,6 @@ import { logger } from '../../../logging'
 import { APIFactory, APIRegisterHook, ServerAPIContext } from './types'
 import { ShowStyleBaseId, ShowStyleVariantId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { Meteor } from 'meteor/meteor'
 import { check, zPlainObject } from '../../../lib/check'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { RundownPlaylists, Rundowns, ShowStyleBases, ShowStyleVariants } from '../../../collections'
@@ -54,7 +53,7 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 		checkValidation(`addShowStyleBase`, blueprintConfigValidation)
 
 		const showStyle = await showStyleBaseFrom(apiShowStyleBase)
-		if (!showStyle) throw new Meteor.Error(400, `Invalid ShowStyleBase`)
+		if (!showStyle) throw new SofieError(400, `Invalid ShowStyleBase`)
 		const showStyleId = showStyle._id
 		await ShowStyleBases.insertAsync(showStyle)
 
@@ -67,7 +66,7 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 		showStyleBaseId: ShowStyleBaseId
 	): Promise<ClientAPI.ClientResponse<APIShowStyleBase>> {
 		const showStyleBase = await ShowStyleBases.findOneAsync(showStyleBaseId)
-		if (!showStyleBase) throw new Meteor.Error(404, `ShowStyleBase ${showStyleBaseId} does not exist`)
+		if (!showStyleBase) throw new SofieError(404, `ShowStyleBase ${showStyleBaseId} does not exist`)
 
 		return ClientAPI.responseSuccess(await APIShowStyleBaseFrom(showStyleBase))
 	}
@@ -85,7 +84,7 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 		checkValidation(`addOrUpdateShowStyleBase ${showStyleBaseId}`, blueprintConfigValidation)
 
 		const showStyle = await showStyleBaseFrom(apiShowStyleBase, showStyleBaseId)
-		if (!showStyle) throw new Meteor.Error(400, `Invalid ShowStyleBase`)
+		if (!showStyle) throw new SofieError(400, `Invalid ShowStyleBase`)
 
 		const existingShowStyle = await ShowStyleBases.findOneAsync(showStyleBaseId)
 		if (existingShowStyle) {
@@ -102,7 +101,7 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 				}
 			)) as Array<Pick<DBRundownPlaylist, 'activationId'>>
 			if (playlists.some((playlist) => playlist.activationId !== undefined)) {
-				throw new Meteor.Error(
+				throw new SofieError(
 					412,
 					`Cannot update ShowStyleBase ${showStyleBaseId} as it is in use by an active Playlist`
 				)
@@ -126,7 +125,7 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 		showStyleBaseId: ShowStyleBaseId
 	): Promise<ClientAPI.ClientResponse<object>> {
 		const showStyleBase = await ShowStyleBases.findOneAsync(showStyleBaseId)
-		if (!showStyleBase) throw new Meteor.Error(404, `ShowStyleBase ${showStyleBaseId} does not exist`)
+		if (!showStyleBase) throw new SofieError(404, `ShowStyleBase ${showStyleBaseId} does not exist`)
 
 		return ClientAPI.responseSuccess((await APIShowStyleBaseFrom(showStyleBase)).config)
 	}
@@ -152,12 +151,12 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 				}
 			)) as Array<Pick<DBRundownPlaylist, 'activationId'>>
 			if (playlists.some((playlist) => playlist.activationId !== undefined)) {
-				throw new Meteor.Error(
+				throw new SofieError(
 					412,
 					`Cannot update ShowStyleBase ${showStyleBaseId} as it is in use by an active Playlist`
 				)
 			}
-		} else throw new Meteor.Error(404, `ShowStyleBase ${showStyleBaseId} not found`)
+		} else throw new SofieError(404, `ShowStyleBase ${showStyleBaseId} not found`)
 
 		const apiShowStyleBase = await APIShowStyleBaseFrom(existingShowStyleBase)
 		apiShowStyleBase.config = config
@@ -169,7 +168,7 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 		checkValidation(`updateShowStyleConfig ${showStyleBaseId}`, blueprintConfigValidation)
 
 		const showStyle = await showStyleBaseFrom(apiShowStyleBase, showStyleBaseId)
-		if (!showStyle) throw new Meteor.Error(400, `Invalid ShowStyleBase`)
+		if (!showStyle) throw new SofieError(400, `Invalid ShowStyleBase`)
 
 		await ShowStyleBases.replaceAsync(showStyle)
 
@@ -200,7 +199,7 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 			}
 		)) as Array<Pick<DBRundownPlaylist, 'activationId'>>
 		if (playlists.some((playlist) => playlist.activationId !== undefined)) {
-			throw new Meteor.Error(
+			throw new SofieError(
 				412,
 				`Cannot delete ShowStyleBase ${showStyleBaseId} as it is in use by an active Playlist`
 			)
@@ -216,7 +215,7 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 		showStyleBaseId: ShowStyleBaseId
 	): Promise<ClientAPI.ClientResponse<Array<{ id: string }>>> {
 		const showStyleBase = await ShowStyleBases.findOneAsync(showStyleBaseId)
-		if (!showStyleBase) throw new Meteor.Error(404, `ShowStyleBase ${showStyleBaseId} not found`)
+		if (!showStyleBase) throw new SofieError(404, `ShowStyleBase ${showStyleBaseId} not found`)
 
 		const showStyleVariants = (await ShowStyleVariants.findFetchAsync(
 			{ showStyleBaseId },
@@ -233,10 +232,10 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 		showStyleVariant: APIShowStyleVariant
 	): Promise<ClientAPI.ClientResponse<string>> {
 		const showStyleBase = await ShowStyleBases.findOneAsync(showStyleBaseId)
-		if (!showStyleBase) throw new Meteor.Error(404, `ShowStyleBase ${showStyleBaseId} not found`)
+		if (!showStyleBase) throw new SofieError(404, `ShowStyleBase ${showStyleBaseId} not found`)
 
 		const variant = showStyleVariantFrom(showStyleVariant)
-		if (!variant) throw new Meteor.Error(400, `Invalid ShowStyleVariant`)
+		if (!variant) throw new SofieError(400, `Invalid ShowStyleVariant`)
 
 		const variantId = variant._id
 		await ShowStyleVariants.insertAsync(variant)
@@ -251,10 +250,10 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 		showStyleVariantId: ShowStyleVariantId
 	): Promise<ClientAPI.ClientResponse<APIShowStyleVariant>> {
 		const showStyleBase = await ShowStyleBases.findOneAsync(showStyleBaseId)
-		if (!showStyleBase) throw new Meteor.Error(404, `ShowStyleBase ${showStyleBaseId} not found`)
+		if (!showStyleBase) throw new SofieError(404, `ShowStyleBase ${showStyleBaseId} not found`)
 
 		const variant = await ShowStyleVariants.findOneAsync(showStyleVariantId)
-		if (!variant) throw new Meteor.Error(404, `ShowStyleVariant ${showStyleVariantId} not found`)
+		if (!variant) throw new SofieError(404, `ShowStyleVariant ${showStyleVariantId} not found`)
 
 		return ClientAPI.responseSuccess(await APIShowStyleVariantFrom(showStyleBase, variant))
 	}
@@ -267,7 +266,7 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 		apiShowStyleVariant: APIShowStyleVariant
 	): Promise<ClientAPI.ClientResponse<void>> {
 		const showStyleBase = await ShowStyleBases.findOneAsync(showStyleBaseId)
-		if (!showStyleBase) throw new Meteor.Error(404, `ShowStyleBase ${showStyleBaseId} does not exist`)
+		if (!showStyleBase) throw new SofieError(404, `ShowStyleBase ${showStyleBaseId} does not exist`)
 
 		const blueprintConfigValidation = await validateAPIBlueprintConfigForShowStyle(
 			apiShowStyleVariant,
@@ -276,7 +275,7 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 		checkValidation(`addOrUpdateShowStyleVariant ${showStyleVariantId}`, blueprintConfigValidation)
 
 		const showStyle = showStyleVariantFrom(apiShowStyleVariant, showStyleVariantId)
-		if (!showStyle) throw new Meteor.Error(400, `Invalid ShowStyleVariant`)
+		if (!showStyle) throw new SofieError(400, `Invalid ShowStyleVariant`)
 
 		const existingShowStyle = await ShowStyleVariants.findOneAsync(showStyleVariantId)
 		if (existingShowStyle) {
@@ -293,7 +292,7 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 				}
 			)) as Array<Pick<DBRundownPlaylist, 'activationId'>>
 			if (playlists.some((playlist) => playlist.activationId !== undefined)) {
-				throw new Meteor.Error(
+				throw new SofieError(
 					412,
 					`Cannot update ShowStyleVariant ${showStyleVariantId} as it is in use by an active Playlist`
 				)
@@ -311,7 +310,7 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 		showStyleVariantId: ShowStyleVariantId
 	): Promise<ClientAPI.ClientResponse<void>> {
 		const showStyleBase = await ShowStyleBases.findOneAsync(showStyleBaseId)
-		if (!showStyleBase) throw new Meteor.Error(404, `ShowStyleBase ${showStyleBaseId} does not exist`)
+		if (!showStyleBase) throw new SofieError(404, `ShowStyleBase ${showStyleBaseId} does not exist`)
 
 		const rundowns = (await Rundowns.findFetchAsync(
 			{ showStyleVariantId },
@@ -326,7 +325,7 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 			}
 		)) as Array<Pick<DBRundownPlaylist, 'activationId'>>
 		if (playlists.some((playlist) => playlist.activationId !== undefined)) {
-			throw new Meteor.Error(
+			throw new SofieError(
 				412,
 				`Cannot delete ShowStyleVariant ${showStyleVariantId} as it is in use by an active Playlist`
 			)
@@ -347,7 +346,7 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 				return ClientAPI.responseSuccess(await runUpgradeForShowStyleBase(showStyleBaseId))
 			default:
 				assertNever(action.type)
-				throw new Meteor.Error(400, `Invalid action type`)
+				throw new SofieError(400, `Invalid action type`)
 		}
 	}
 }

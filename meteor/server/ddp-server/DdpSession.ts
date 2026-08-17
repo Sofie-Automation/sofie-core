@@ -2,6 +2,7 @@ import { WebSocket, RawData } from 'ws'
 import type { IncomingMessage } from 'http'
 import { logger } from '../logging'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 import { MethodRegistry } from '../methodRegistry'
 import { PublicationRegistry } from '../publicationRegistry'
 import {
@@ -324,7 +325,7 @@ export class DdpSession implements SessionPublicationApi, TrackedDdpSession {
 			this.send({
 				msg: 'nosub',
 				id: msg.id,
-				error: { error: 404, reason: `Subscription '${msg.name}' not found`, errorType: 'Meteor.Error' },
+				error: wrapError(new SofieError(404, `Subscription '${msg.name}' not found`)),
 			})
 			return
 		}

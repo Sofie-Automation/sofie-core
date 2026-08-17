@@ -15,7 +15,6 @@ import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { IngestJobs } from '@sofie-automation/corelib/dist/worker/ingest'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
-import { Meteor } from 'meteor/meteor'
 import { Parts, RundownPlaylists, Rundowns, Segments, Studios } from '../../../collections'
 import { check, zAnyArray, zPlainObject } from '../../../lib/check'
 import {
@@ -31,6 +30,7 @@ import { runIngestOperation } from '../../ingest/lib'
 import { validateAPIPartPayload, validateAPIRundownPayload, validateAPISegmentPayload } from './typeConversion'
 import { APIFactory, APIRegisterHook, ServerAPIContext } from './types'
 import type { DDPClientConnection } from '../../../ddp-server/types'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 // Hoisted out of the `validate*` methods below, which run once per segment and once per part on the ingest
 // path. Constructing a schema per field per item would be needless allocation.
@@ -50,7 +50,7 @@ class IngestServerAPI implements IngestRestAPI {
 
 		if (errorMessage) {
 			logger.error(`${errorMessage} with errors: ${validationResult}`)
-			throw new Meteor.Error(409, errorMessage, JSON.stringify(validationResult))
+			throw new SofieError(409, errorMessage, JSON.stringify(validationResult))
 		}
 
 		return Promise.all(
@@ -76,7 +76,7 @@ class IngestServerAPI implements IngestRestAPI {
 
 		if (errorMessage) {
 			logger.error(`${errorMessage} with errors: ${validationResult}`)
-			throw new Meteor.Error(409, errorMessage, JSON.stringify(validationResult))
+			throw new SofieError(409, errorMessage, JSON.stringify(validationResult))
 		}
 
 		return Promise.all(
@@ -100,7 +100,7 @@ class IngestServerAPI implements IngestRestAPI {
 
 		if (errorMessage) {
 			logger.error(`${errorMessage} with errors: ${validationResult}`)
-			throw new Meteor.Error(409, errorMessage, JSON.stringify(validationResult))
+			throw new SofieError(409, errorMessage, JSON.stringify(validationResult))
 		}
 	}
 
@@ -214,7 +214,7 @@ class IngestServerAPI implements IngestRestAPI {
 			],
 		})
 		if (!playlist) {
-			throw new Meteor.Error(404, `Playlist ID '${playlistId}' was not found`)
+			throw new SofieError(404, `Playlist ID '${playlistId}' was not found`)
 		}
 		return playlist
 	}
@@ -235,7 +235,7 @@ class IngestServerAPI implements IngestRestAPI {
 			],
 		})
 		if (!rundown) {
-			throw new Meteor.Error(404, `Rundown ID '${rundownId}' was not found`)
+			throw new SofieError(404, `Rundown ID '${rundownId}' was not found`)
 		}
 		return rundown
 	}
@@ -272,7 +272,7 @@ class IngestServerAPI implements IngestRestAPI {
 	private async findSegment(rundownId: RundownId, segmentId: string) {
 		const segment = await this.softFindSegment(rundownId, segmentId)
 		if (!segment) {
-			throw new Meteor.Error(404, `Segment ID '${segmentId}' was not found`)
+			throw new SofieError(404, `Segment ID '${segmentId}' was not found`)
 		}
 		return segment
 	}
@@ -304,7 +304,7 @@ class IngestServerAPI implements IngestRestAPI {
 	private async findPart(segmentId: SegmentId, partId: string) {
 		const part = await this.softFindPart(segmentId, partId)
 		if (!part) {
-			throw new Meteor.Error(404, `Part ID '${partId}' was not found`)
+			throw new SofieError(404, `Part ID '${partId}' was not found`)
 		}
 		return part
 	}
@@ -319,7 +319,7 @@ class IngestServerAPI implements IngestRestAPI {
 	private async findStudio(studioId: StudioId) {
 		const studio = await Studios.findOneAsync({ _id: studioId })
 		if (!studio) {
-			throw new Meteor.Error(500, `Studio '${studioId}' does not exist`)
+			throw new SofieError(500, `Studio '${studioId}' does not exist`)
 		}
 
 		return studio
@@ -327,7 +327,7 @@ class IngestServerAPI implements IngestRestAPI {
 
 	private checkRundownSource(rundown: Rundown | undefined) {
 		if (rundown && rundown.source.type !== 'restApi') {
-			throw new Meteor.Error(
+			throw new SofieError(
 				403,
 				`Cannot replace existing rundown from source '${getRundownNrcsName(
 					rundown
@@ -513,7 +513,7 @@ class IngestServerAPI implements IngestRestAPI {
 			],
 		})
 		if (existingRundown) {
-			throw new Meteor.Error(400, `Rundown '${rawIngestRundown.externalId}' already exists`)
+			throw new SofieError(400, `Rundown '${rawIngestRundown.externalId}' already exists`)
 		}
 
 		// We look up the playlist to look up the existing playlistExternalId
@@ -615,7 +615,7 @@ class IngestServerAPI implements IngestRestAPI {
 		const playlist = await this.findPlaylist(studio._id, playlistId)
 		const existingRundown = await this.findRundown(studio._id, playlist._id, rundownId)
 		if (!existingRundown) {
-			throw new Meteor.Error(400, `Rundown '${rundownId}' does not exist`)
+			throw new SofieError(400, `Rundown '${rundownId}' does not exist`)
 		}
 		this.checkRundownSource(existingRundown)
 
@@ -749,7 +749,7 @@ class IngestServerAPI implements IngestRestAPI {
 		this.checkRundownSource(rundown)
 		const existingSegment = await this.softFindSegment(rundown._id, ingestSegment.externalId)
 		if (existingSegment) {
-			throw new Meteor.Error(400, `Segment '${ingestSegment.externalId}' already exists`)
+			throw new SofieError(400, `Segment '${ingestSegment.externalId}' already exists`)
 		}
 
 		await runIngestOperation(studio._id, IngestJobs.UpdateSegment, {
@@ -841,7 +841,7 @@ class IngestServerAPI implements IngestRestAPI {
 		this.checkRundownSource(rundown)
 		const segment = await this.softFindSegment(rundown._id, segmentId)
 		if (!segment) {
-			throw new Meteor.Error(400, `Segment '${segmentId}' does not exist`)
+			throw new SofieError(400, `Segment '${segmentId}' does not exist`)
 		}
 
 		await runIngestOperation(studio._id, IngestJobs.UpdateSegment, {
@@ -988,7 +988,7 @@ class IngestServerAPI implements IngestRestAPI {
 		const segment = await this.findSegment(rundown._id, segmentId)
 		const existingPart = await this.softFindPart(segment._id, ingestPart.externalId)
 		if (existingPart) {
-			throw new Meteor.Error(400, `Part '${ingestPart.externalId}' already exists`)
+			throw new SofieError(400, `Part '${ingestPart.externalId}' already exists`)
 		}
 
 		await runIngestOperation(studio._id, IngestJobs.UpdatePart, {
@@ -1077,7 +1077,7 @@ class IngestServerAPI implements IngestRestAPI {
 		const segment = await this.findSegment(rundown._id, segmentId)
 		const existingPart = await this.findPart(segment._id, partId)
 		if (!existingPart) {
-			throw new Meteor.Error(400, `Part '${partId}' does not exists`)
+			throw new SofieError(400, `Part '${partId}' does not exists`)
 		}
 
 		await runIngestOperation(studio._id, IngestJobs.UpdatePart, {
@@ -1287,8 +1287,8 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			check(studioId, z.string())
 
 			const ingestRundown = body as RestApiIngestRundown
-			if (!ingestRundown) throw new Meteor.Error(400, 'Upload rundown: Missing request body')
-			if (typeof ingestRundown !== 'object') throw new Meteor.Error(400, 'Upload rundown: Invalid request body')
+			if (!ingestRundown) throw new SofieError(400, 'Upload rundown: Missing request body')
+			if (typeof ingestRundown !== 'object') throw new SofieError(400, 'Upload rundown: Invalid request body')
 
 			return await serverAPI.postRundown(connection, event, studioId, undefined, ingestRundown)
 		}
@@ -1309,8 +1309,8 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			check(playlistId, z.string())
 
 			const ingestRundown = body as RestApiIngestRundown
-			if (!ingestRundown) throw new Meteor.Error(400, 'Upload rundown: Missing request body')
-			if (typeof ingestRundown !== 'object') throw new Meteor.Error(400, 'Upload rundown: Invalid request body')
+			if (!ingestRundown) throw new SofieError(400, 'Upload rundown: Missing request body')
+			if (typeof ingestRundown !== 'object') throw new SofieError(400, 'Upload rundown: Invalid request body')
 
 			return await serverAPI.postRundown(connection, event, studioId, playlistId, ingestRundown)
 		}
@@ -1331,8 +1331,8 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			check(playlistId, z.string())
 
 			const ingestRundowns = body as RestApiIngestRundown[]
-			if (!ingestRundowns) throw new Meteor.Error(400, 'Upload rundown: Missing request body')
-			if (typeof ingestRundowns !== 'object') throw new Meteor.Error(400, 'Upload rundown: Invalid request body')
+			if (!ingestRundowns) throw new SofieError(400, 'Upload rundown: Missing request body')
+			if (typeof ingestRundowns !== 'object') throw new SofieError(400, 'Upload rundown: Invalid request body')
 
 			return await serverAPI.putRundowns(connection, event, studioId, playlistId, ingestRundowns)
 		}
@@ -1355,8 +1355,8 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			check(rundownId, z.string())
 
 			const ingestRundown = body as RestApiIngestRundown
-			if (!ingestRundown) throw new Meteor.Error(400, 'Upload rundown: Missing request body')
-			if (typeof ingestRundown !== 'object') throw new Meteor.Error(400, 'Upload rundown: Invalid request body')
+			if (!ingestRundown) throw new SofieError(400, 'Upload rundown: Missing request body')
+			if (typeof ingestRundown !== 'object') throw new SofieError(400, 'Upload rundown: Invalid request body')
 
 			return await serverAPI.putRundown(connection, event, studioId, playlistId, rundownId, ingestRundown)
 		}
@@ -1465,7 +1465,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			check(rundownId, z.string())
 
 			const ingestSegment = body as IngestSegment
-			if (!ingestSegment) throw new Meteor.Error(400, 'Upload rundown: Missing request body')
+			if (!ingestSegment) throw new SofieError(400, 'Upload rundown: Missing request body')
 
 			return await serverAPI.postSegment(connection, event, studioId, playlistId, rundownId, ingestSegment)
 		}
@@ -1488,8 +1488,8 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			check(rundownId, z.string())
 
 			const ingestSegments = body as IngestSegment[]
-			if (!ingestSegments) throw new Meteor.Error(400, 'Upload rundown: Missing request body')
-			if (!Array.isArray(ingestSegments)) throw new Meteor.Error(400, 'Upload rundown: Invalid request body')
+			if (!ingestSegments) throw new SofieError(400, 'Upload rundown: Missing request body')
+			if (!Array.isArray(ingestSegments)) throw new SofieError(400, 'Upload rundown: Invalid request body')
 
 			return await serverAPI.putSegments(connection, event, studioId, playlistId, rundownId, ingestSegments)
 		}
@@ -1514,7 +1514,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			check(segmentId, z.string())
 
 			const ingestSegment = body as IngestSegment
-			if (!ingestSegment) throw new Meteor.Error(400, 'Upload rundown: Missing request body')
+			if (!ingestSegment) throw new SofieError(400, 'Upload rundown: Missing request body')
 
 			return await serverAPI.putSegment(
 				connection,
@@ -1645,7 +1645,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			check(segmentId, z.string())
 
 			const ingestPart = body as IngestPart
-			if (!ingestPart) throw new Meteor.Error(400, 'Upload rundown: Missing request body')
+			if (!ingestPart) throw new SofieError(400, 'Upload rundown: Missing request body')
 
 			return await serverAPI.postPart(connection, event, studioId, playlistId, rundownId, segmentId, ingestPart)
 		}
@@ -1670,8 +1670,8 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			check(segmentId, z.string())
 
 			const ingestParts = body as IngestPart[]
-			if (!ingestParts) throw new Meteor.Error(400, 'Upload rundown: Missing request body')
-			if (!Array.isArray(ingestParts)) throw new Meteor.Error(400, 'Upload rundown: Invalid request body')
+			if (!ingestParts) throw new SofieError(400, 'Upload rundown: Missing request body')
+			if (!Array.isArray(ingestParts)) throw new SofieError(400, 'Upload rundown: Invalid request body')
 
 			return await serverAPI.putParts(connection, event, studioId, playlistId, rundownId, segmentId, ingestParts)
 		}
@@ -1702,7 +1702,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<IngestRestAPI>): v
 			check(partId, z.string())
 
 			const ingestPart = body as IngestPart
-			if (!ingestPart) throw new Meteor.Error(400, 'Upload rundown: Missing request body')
+			if (!ingestPart) throw new SofieError(400, 'Upload rundown: Missing request body')
 
 			return await serverAPI.putPart(
 				connection,

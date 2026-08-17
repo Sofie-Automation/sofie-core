@@ -1,7 +1,7 @@
-import { Meteor } from 'meteor/meteor'
 import { IMeteorCall, MakeMeteorCall } from '@sofie-automation/meteor-lib/dist/api/methods'
 import { MethodRegistry } from '../methodRegistry'
 import { MethodContext } from './methodContext'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 /** The MethodContext used for server-internal method calls: no client connection, matching the
  * historical behaviour of calling a method server-side via `Meteor.applyAsync`. */
@@ -25,7 +25,7 @@ export function makeMeteorCallForRegistry(
 ): IMeteorCall {
 	return MakeMeteorCall(async (name, args) => {
 		const handler = registry.get(name)
-		if (!handler) throw new Meteor.Error(404, `Method '${name}' not found`)
+		if (!handler) throw new SofieError(404, `Method '${name}' not found`)
 		return handler.apply(getContext(), args)
 	})
 }

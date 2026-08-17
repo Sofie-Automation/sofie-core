@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import { z } from 'zod'
 import { check, zAnyArray, zPlainObject } from '../lib/check'
 import { ReplaceOptionalWithNullInMethodArguments } from '../methods'
@@ -22,6 +21,7 @@ import KoaRouter from '@koa/router'
 import bodyParser from 'koa-bodyparser'
 import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
 import { assertConnectionHasOneOfPermissions } from '../security/auth'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 const PERMISSIONS_FOR_TRIGGERED_ACTIONS: Array<keyof UserPermissions> = ['configure']
 
@@ -73,7 +73,7 @@ actionTriggersRouter.post(
 			if (showStyleBaseId !== undefined) {
 				const showStyleBase = await fetchShowStyleBaseLight(showStyleBaseId)
 				if (!showStyleBase) {
-					throw new Meteor.Error(
+					throw new SofieError(
 						404,
 						`Restore Action Triggers: ShowStyle "${showStyleBaseId}" could not be found`
 					)
@@ -81,12 +81,12 @@ actionTriggersRouter.post(
 			}
 
 			if (ctx.request.type !== 'application/json')
-				throw new Meteor.Error(400, 'Restore Action Triggers: Invalid content-type')
+				throw new SofieError(400, 'Restore Action Triggers: Invalid content-type')
 
 			const body = ctx.request.body
-			if (!body) throw new Meteor.Error(400, 'Restore Action Triggers: Missing request body')
+			if (!body) throw new SofieError(400, 'Restore Action Triggers: Missing request body')
 			if (typeof body !== 'object' || Object.keys(body as any).length === 0)
-				throw new Meteor.Error(400, 'Restore Action Triggers: Invalid request body')
+				throw new SofieError(400, 'Restore Action Triggers: Invalid request body')
 
 			const triggeredActions = body as DBTriggeredActions[]
 			check(triggeredActions, zAnyArray)
