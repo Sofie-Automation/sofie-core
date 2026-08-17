@@ -1,7 +1,7 @@
 import _ from 'underscore'
 import path from 'path'
 import { ReadStream, createReadStream, promises as fsp } from 'fs'
-import { getRandomId } from '@sofie-automation/corelib/dist/lib'
+import { getHash, getRandomId, getRandomString } from '@sofie-automation/corelib/dist/lib'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { getCurrentTime } from '../../lib/lib'
 import { logger } from '../../logging'
@@ -14,8 +14,8 @@ import {
 	TranslationsBundle,
 } from '@sofie-automation/blueprints-integration'
 import { check, Match } from '../../lib/check'
-import { NewBlueprintAPI, BlueprintAPIMethods } from '@sofie-automation/meteor-lib/dist/api/blueprint'
-import { registerClassToMeteorMethods, ReplaceOptionalWithNullInMethodArguments } from '../../methods'
+import { NewBlueprintAPI } from '@sofie-automation/meteor-lib/dist/api/blueprint'
+import { ReplaceOptionalWithNullInMethodArguments } from '../../methods'
 import { SYSTEM_ID } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
 import { parseVersion } from '../../systemStatus/semverUtils'
 import { evalBlueprint } from './cache'
@@ -62,7 +62,7 @@ export async function insertBlueprint(
 		integrationVersion: '',
 		TSRVersion: '',
 
-		blueprintHash: getRandomId(),
+		blueprintHash: getRandomString(),
 		hasFixUpFunction: false,
 	})
 }
@@ -177,7 +177,9 @@ async function innerUploadBlueprint(
 		TSRVersion: '',
 		disableVersionChecks: false,
 		blueprintType: undefined,
-		blueprintHash: getRandomId(),
+		// Content hash of the uploaded code so identical re-uploads keep the same hash, and any
+		// code change (even with an unchanged semver blueprintVersion) is detectable.
+		blueprintHash: body ? getHash(body) : getRandomString(),
 		hasFixUpFunction: false,
 	}
 
@@ -406,15 +408,17 @@ async function assignSystemBlueprint(methodContext: MethodContext, blueprintId: 
 	}
 }
 
-class ServerBlueprintAPI extends MethodContextAPI implements ReplaceOptionalWithNullInMethodArguments<NewBlueprintAPI> {
-	async insertBlueprint() {
+export class ServerBlueprintAPI
+	extends MethodContextAPI
+	implements ReplaceOptionalWithNullInMethodArguments<NewBlueprintAPI>
+{
+	async insertBlueprint(): Promise<BlueprintId> {
 		return insertBlueprint(this.connection)
 	}
-	async removeBlueprint(blueprintId: BlueprintId) {
+	async removeBlueprint(blueprintId: BlueprintId): Promise<void> {
 		return removeBlueprint(this, blueprintId)
 	}
-	async assignSystemBlueprint(blueprintId: BlueprintId | null) {
+	async assignSystemBlueprint(blueprintId: BlueprintId | null): Promise<void> {
 		return assignSystemBlueprint(this, blueprintId)
 	}
 }
-registerClassToMeteorMethods(BlueprintAPIMethods, ServerBlueprintAPI, false)

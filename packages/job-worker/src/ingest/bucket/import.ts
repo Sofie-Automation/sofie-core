@@ -167,7 +167,7 @@ async function regenerateBucketItemFromIngestInfo(
 				studio: context.studio._rundownVersionHash,
 				showStyleBase: showStyleCompound._rundownVersionHash,
 				showStyleVariant: showStyleCompound._rundownVersionHashVariant,
-				blueprint: blueprint.blueprint.blueprintVersion,
+				blueprint: blueprint.blueprintHash,
 				core: getSystemVersion(),
 			}
 

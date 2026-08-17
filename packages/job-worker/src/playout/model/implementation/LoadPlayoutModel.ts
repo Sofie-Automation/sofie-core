@@ -213,6 +213,12 @@ async function loadRundowns(
 	const groupedBaselineObjects = groupByToMap(baselineObjects, 'rundownId')
 
 	if (ingestModel) {
+		// collect playout-owned AdlibTesting segments
+		const existingSegments = groupedSegmentsWithParts.get(ingestModel.rundownId) ?? []
+		const adlibTestingSegments = existingSegments.filter(
+			(s) => s.segment.orphaned === SegmentOrphanedReason.ADLIB_TESTING
+		)
+
 		const playoutSegments: PlayoutSegmentModelImpl[] = []
 		groupedSegmentsWithParts.set(ingestModel.rundownId, playoutSegments)
 		// Populate the collections with the in-memory data instead
@@ -224,6 +230,11 @@ async function loadRundowns(
 				)
 			)
 		}
+
+		// Re-add playout-owned AdlibTesting segments
+		playoutSegments.push(...adlibTestingSegments)
+		playoutSegments.sort((a, b) => a.segment._rank - b.segment._rank)
+
 		if (baselineTimelineFromIngest) {
 			groupedBaselineObjects.set(ingestModel.rundownId, [
 				literal<Complete<RundownBaselineObj>>({

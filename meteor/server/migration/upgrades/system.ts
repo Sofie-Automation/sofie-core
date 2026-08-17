@@ -14,6 +14,11 @@ import { CoreSystemId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DEFAULT_CORE_TRIGGERS } from './defaultSystemActionTriggers'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { ICoreSystemSettings } from '@sofie-automation/shared-lib/dist/core/model/CoreSystemSettings'
+import {
+	DEFAULT_MAXIMUM_DATA_AGE,
+	DEFAULT_CONFIRM_KEY_CODE,
+	DEFAULT_POISON_KEY,
+} from '@sofie-automation/shared-lib/dist/core/constants'
 
 export async function runUpgradeForCoreSystem(coreSystemId: CoreSystemId): Promise<void> {
 	logger.info(`Running upgrade for CoreSystem`)
@@ -40,7 +45,7 @@ export async function runUpgradeForCoreSystem(coreSystemId: CoreSystemId): Promi
 		$set: {
 			'settingsWithOverrides.defaults': coreSystemSettings,
 			lastBlueprintConfig: {
-				blueprintHash: blueprint?.blueprintHash ?? protectString('default'),
+				blueprintHash: blueprint?.blueprintHash ?? 'default',
 				blueprintId: blueprint?._id ?? protectString('default'),
 				blueprintConfigPresetId: undefined,
 				config: {},
@@ -102,6 +107,9 @@ function generateDefaultSystemConfig(): BlueprintResultApplySystemConfig {
 				heading: '',
 				message: '',
 			},
+			maximumDataAge: DEFAULT_MAXIMUM_DATA_AGE,
+			confirmKeyCode: DEFAULT_CONFIRM_KEY_CODE,
+			poisonKey: DEFAULT_POISON_KEY,
 		},
 		triggeredActions: Object.values<IBlueprintTriggeredActions>(DEFAULT_CORE_TRIGGERS),
 	}

@@ -28,9 +28,9 @@ import {
 	type TriggerActionEvent,
 } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
 import { Tracker } from 'meteor/tracker'
-import { Settings } from '../../lib/Settings.js'
+import { DEFAULT_POISON_KEY } from '@sofie-automation/shared-lib/dist/core/constants'
 import { createInMemorySyncMongoCollection } from '../../collections/lib.js'
-import { RundownPlaylists } from '../../collections/index.js'
+import { RundownPlaylists, getCoreSystemSettings } from '../../collections/index.js'
 import { UIShowStyleBases, UITriggeredActions } from '../../ui/Collections.js'
 import type {
 	PartId,
@@ -252,6 +252,8 @@ export const TriggersHandler: React.FC<IProps> = function TriggersHandler(
 		localSorensen.poison() // cancels all pressed keys, poisons all chords, no hotkey trigger will execute
 	}
 
+	const poisonKey = useTracker(() => getCoreSystemSettings()?.poisonKey ?? DEFAULT_POISON_KEY, [], DEFAULT_POISON_KEY)
+
 	useEffect(() => {
 		const fKeys = ['F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F12'] // not 'F11', because people use that apparently
 		const ctrlDigitKeys = [
@@ -267,8 +269,6 @@ export const TriggersHandler: React.FC<IProps> = function TriggersHandler(
 			'Digit9',
 			'Digit0',
 		]
-
-		const poisonKey: string | null = Settings.poisonKey
 
 		if (initialized) {
 			if (poisonKey) {
@@ -318,7 +318,7 @@ export const TriggersHandler: React.FC<IProps> = function TriggersHandler(
 			fKeys.forEach((key) => localSorensen.unbind(key, preventDefault))
 			ctrlDigitKeys.forEach((key) => localSorensen.unbind(`Control+${key}`, preventDefault))
 		}
-	}, [initialized]) // run once once Sorensen is initialized
+	}, [initialized, poisonKey]) // run once once Sorensen is initialized (and re-bind if the poison key changes)
 
 	useRundownViewEventBusListener(RundownViewEvents.TRIGGER_ACTION, triggerAction)
 

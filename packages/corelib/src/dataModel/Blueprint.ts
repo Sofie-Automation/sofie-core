@@ -6,11 +6,11 @@ import {
 } from '@sofie-automation/blueprints-integration'
 import { JSONBlob } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 import { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
-import { ProtectedString } from '../protectedString.js'
 import { BlueprintId } from './Ids.js'
 import type { PackageStatusMessage } from '@sofie-automation/shared-lib/dist/packageStatusMessages'
 
-export type BlueprintHash = ProtectedString<'BlueprintHash'>
+/** Content hash (or placeholder) for a blueprint code bundle — plain string, like blueprintVersion */
+export type BlueprintHash = string
 
 export interface Blueprint {
 	_id: BlueprintId
@@ -47,7 +47,10 @@ export interface Blueprint {
 	/** Whether version checks should be disabled for this version */
 	disableVersionChecks?: boolean
 
-	/** Hash for the blueprint, changed each time it is changed */
+	/**
+	 * Hash of the blueprint `code` string. Changes whenever the uploaded bundle content changes.
+	 * Used to detect that rundowns/baselines need regenerating after a blueprint deploy.
+	 */
 	blueprintHash: BlueprintHash
 
 	/** Whether the blueprint this wraps has a `fixUpConfig` function defined */

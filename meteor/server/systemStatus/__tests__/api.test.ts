@@ -10,11 +10,12 @@ import { MeteorCall } from '../../api/methods'
 import { callKoaRoute } from '../../../__mocks__/koa-util'
 import { healthRouter } from '../api'
 import { UIBlueprintUpgradeStatus } from '@sofie-automation/meteor-lib/dist/api/upgradeStatus'
+import { registerAllMethodsForTest } from '../../../__mocks__/helpers/methods'
 
 // we don't want the deviceTriggers observer to start up at this time
 jest.mock('../../api/deviceTriggers/observer')
 
-require('../api')
+registerAllMethodsForTest()
 require('../../coreSystem/index')
 const PackageInfo = require('../../../package.json')
 

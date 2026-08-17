@@ -1,5 +1,5 @@
+import { Meteor } from 'meteor/meteor'
 import { addMigrationSteps } from './databaseMigration'
-import { Settings } from '../Settings'
 import { Studios } from '../collections'
 
 // Release 40 (Skipped)
@@ -36,7 +36,7 @@ interface ISettingsOld {
 		maxAllowedDiff: number
 	}
 }
-const OldSettings = Settings as Partial<ISettingsOld>
+const OldSettings = (Meteor.settings.public ?? {}) as Partial<ISettingsOld>
 const oldFrameRate = OldSettings.frameRate ?? 25
 
 export const addSteps = addMigrationSteps('1.40.0', [

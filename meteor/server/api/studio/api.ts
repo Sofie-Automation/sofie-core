@@ -1,7 +1,6 @@
 import { Meteor } from 'meteor/meteor'
 import { check } from '../../lib/check'
-import { registerClassToMeteorMethods } from '../../methods'
-import { NewStudiosAPI, StudiosAPIMethods } from '@sofie-automation/meteor-lib/dist/api/studios'
+import { NewStudiosAPI } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { literal, getRandomId } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
@@ -25,7 +24,12 @@ import { MethodContextAPI, MethodContext } from '../methodContext'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { logger } from '../../logging'
-import { DEFAULT_MINIMUM_TAKE_SPAN } from '@sofie-automation/shared-lib/dist/core/constants'
+import {
+	DEFAULT_MINIMUM_TAKE_SPAN,
+	DEFAULT_DISPLAY_DURATION,
+	DEFAULT_SHELF_DISPLAY_OPTIONS,
+	DEFAULT_TIME_SCALE,
+} from '@sofie-automation/shared-lib/dist/core/constants'
 import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
 import { assertConnectionHasOneOfPermissions } from '../../security/auth'
 import { ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
@@ -66,6 +70,14 @@ export async function insertStudioInner(newId?: StudioId): Promise<StudioId> {
 				enableBuckets: true,
 				enableEvaluationForm: true,
 				shelfAdlibButtonSize: ShelfButtonSize.LARGE,
+				autoRewindLeavingSegment: true,
+				disableBlurBorder: false,
+				allowGrabbingTimeline: true,
+				useCountdownToFreezeFrame: true,
+				defaultShelfDisplayOptions: DEFAULT_SHELF_DISPLAY_OPTIONS,
+				defaultDisplayDuration: DEFAULT_DISPLAY_DURATION,
+				defaultTimeScale: DEFAULT_TIME_SCALE,
+				followOnAirSegmentsHistory: 0,
 			}),
 			_rundownVersionHash: '',
 			routeSetsWithOverrides: wrapDefaultObject({}),
@@ -139,15 +151,19 @@ async function removeStudio(context: MethodContext, studioId: StudioId): Promise
 	])
 }
 
-class ServerStudiosAPI extends MethodContextAPI implements NewStudiosAPI {
-	async insertStudio() {
+export class ServerStudiosAPI extends MethodContextAPI implements NewStudiosAPI {
+	async insertStudio(): Promise<StudioId> {
 		return insertStudio(this)
 	}
-	async removeStudio(studioId: StudioId) {
+	async removeStudio(studioId: StudioId): Promise<void> {
 		return removeStudio(this, studioId)
 	}
 
-	async assignConfigToPeripheralDevice(studioId: StudioId, configId: string, deviceId: PeripheralDeviceId | null) {
+	async assignConfigToPeripheralDevice(
+		studioId: StudioId,
+		configId: string,
+		deviceId: PeripheralDeviceId | null
+	): Promise<void> {
 		assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MANAGE_STUDIOS)
 
 		// Unassign other uses
@@ -182,7 +198,6 @@ class ServerStudiosAPI extends MethodContextAPI implements NewStudiosAPI {
 		}
 	}
 }
-registerClassToMeteorMethods(StudiosAPIMethods, ServerStudiosAPI, false)
 
 // Set up a watcher for updating the mappingsHash whenever a mapping or route is changed:
 function triggerUpdateStudioMappingsHash(studioId: StudioId) {

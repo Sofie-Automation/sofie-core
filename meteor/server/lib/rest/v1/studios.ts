@@ -228,4 +228,11 @@ export interface APIStudioSettings {
 	shelfAdlibButtonSize?: Exclude<ShelfButtonSize, ShelfButtonSize.INHERIT>
 	mockPieceContentStatus?: boolean
 	rundownGlobalPiecesPrepareTime?: number
+	autoRewindLeavingSegment?: boolean
+	disableBlurBorder?: boolean
+	allowGrabbingTimeline?: boolean
+	useCountdownToFreezeFrame?: boolean
+	defaultDisplayDuration?: number
+	defaultTimeScale?: number
+	followOnAirSegmentsHistory?: number
 }

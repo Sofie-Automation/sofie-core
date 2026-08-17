@@ -35,14 +35,14 @@
 		"/LICENSE"
 	],
 	"dependencies": {
-		"@slack/webhook": "^7.0.9",
+		"@slack/webhook": "^7.2.0",
 		"@sofie-automation/blueprints-integration": "26.3.0-2",
 		"@sofie-automation/corelib": "26.3.0-2",
 		"@sofie-automation/shared-lib": "26.3.0-2",
 		"amqplib": "0.10.5",
 		"chrono-node": "^2.9.1",
 		"deepmerge": "^4.3.1",
-		"elastic-apm-node": "^4.15.0",
+		"elastic-apm-node": "^4.18.0",
 		"mongodb": "^7.1.1",
 		"p-lazy": "^3.1.0",
 		"p-timeout": "^4.1.0",

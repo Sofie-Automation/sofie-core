@@ -4,7 +4,6 @@ import {
 	CustomPublishCollection,
 	SetupObserversResult,
 	TriggerUpdate,
-	meteorCustomPublish,
 	setUpCollectionOptimizedObserver,
 } from '../../lib/customPublication'
 import { logger } from '../../logging'
@@ -26,6 +25,7 @@ import {
 	stringsToIndexLookup,
 } from '../lib/quickLoop'
 import { triggerWriteAccessBecauseNoCheckNecessary } from '../../security/securityVerify'
+import type { PublicationRegistry } from '../../publicationRegistry'
 
 interface UIPartInstancesArgs {
 	readonly playlistActivationId: RundownPlaylistActivationId
@@ -208,30 +208,32 @@ export async function manipulateUIPartInstancesPublicationData(
 	})
 }
 
-meteorCustomPublish(
-	MeteorPubSub.uiPartInstances,
-	CustomCollectionName.UIPartInstances,
-	async function (pub, playlistActivationId: RundownPlaylistActivationId | null) {
-		check(playlistActivationId, Match.Maybe(String))
+export function registerPartInstancesUIPublications(registry: PublicationRegistry): void {
+	registry.customPublish(
+		MeteorPubSub.uiPartInstances,
+		CustomCollectionName.UIPartInstances,
+		async (_context, pub, playlistActivationId: RundownPlaylistActivationId | null) => {
+			check(playlistActivationId, Match.Maybe(String))
 
-		triggerWriteAccessBecauseNoCheckNecessary()
+			triggerWriteAccessBecauseNoCheckNecessary()
 
-		if (!playlistActivationId) {
-			logger.info(`Pub.${CustomCollectionName.UISegmentPartNotes}: Not playlistActivationId`)
-			return
+			if (!playlistActivationId) {
+				logger.info(`Pub.${CustomCollectionName.UISegmentPartNotes}: Not playlistActivationId`)
+				return
+			}
+
+			await setUpCollectionOptimizedObserver<
+				Omit<DBPartInstance, PartInstanceOmitedFields>,
+				UIPartInstancesArgs,
+				UIPartInstancesState,
+				UIPartInstancesUpdateProps
+			>(
+				`pub_${MeteorPubSub.uiPartInstances}_${playlistActivationId}`,
+				{ playlistActivationId },
+				setupUIPartInstancesPublicationObservers,
+				manipulateUIPartInstancesPublicationData,
+				pub
+			)
 		}
-
-		await setUpCollectionOptimizedObserver<
-			Omit<DBPartInstance, PartInstanceOmitedFields>,
-			UIPartInstancesArgs,
-			UIPartInstancesState,
-			UIPartInstancesUpdateProps
-		>(
-			`pub_${MeteorPubSub.uiPartInstances}_${playlistActivationId}`,
-			{ playlistActivationId },
-			setupUIPartInstancesPublicationObservers,
-			manipulateUIPartInstancesPublicationData,
-			pub
-		)
-	}
-)
+	)
+}

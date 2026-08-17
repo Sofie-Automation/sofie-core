@@ -44,7 +44,6 @@ export enum RundownLayoutElementType {
 	NEXT_INFO = 'next_info',
 	PLAYLIST_START_TIMER = 'playlist_start_timer',
 	PLAYLIST_END_TIMER = 'playlist_end_timer',
-	NEXT_BREAK_TIMING = 'next_break_timing',
 	SEGMENT_TIMING = 'segment_timing',
 	PART_TIMING = 'part_timing',
 	TEXT_LABEL = 'text_label',
@@ -144,10 +143,6 @@ export interface RundownLayoutPlaylistEndTimer extends RundownLayoutElementBase 
 	hideCountdown: boolean
 	hideDiff: boolean
 	hidePlannedEnd: boolean
-}
-
-export interface RundownLayoutNextBreakTiming extends RundownLayoutElementBase {
-	type: RundownLayoutElementType.NEXT_BREAK_TIMING
 }
 
 export interface RundownLayoutSegmentTiming extends RundownLayoutElementBase, RequiresActiveLayers {
@@ -267,7 +262,6 @@ export type DashboardLayoutAdLibRegion = DashboardPanel<RundownLayoutAdLibRegion
 export type DashboardLayoutPieceCountdown = DashboardPanel<RundownLayoutPieceCountdown>
 export type DashboardLayoutNextInfo = DashboardPanel<RundownLayoutNextInfo>
 export type DashboardLayoutPlaylistStartTimer = DashboardPanel<RundownLayoutPlaylistStartTimer>
-export type DashboardLayoutNextBreakTiming = DashboardPanel<RundownLayoutNextBreakTiming>
 export type DashboardLayoutPlaylistEndTimer = DashboardPanel<RundownLayoutPlaylistEndTimer>
 export type DashboardLayoutSegmentCountDown = DashboardPanel<RundownLayoutSegmentTiming>
 export type DashboardLayoutPartCountDown = DashboardPanel<RundownLayoutPartTiming>
@@ -331,8 +325,6 @@ export interface RundownViewLayout extends RundownLayoutBase {
 	liveLineProps?: RequiresActiveLayers
 	/** Hide the rundown divider header in playlists */
 	hideRundownDivider: boolean
-	/** Show breaks in segment timeline list */
-	showBreaksAsSegments: boolean
 	/** Only count down to the segment if it contains pieces on these layers */
 	countdownToSegmentRequireLayers: string[]
 	/** Always show planned segment duration instead of counting up/down when the segment is live */

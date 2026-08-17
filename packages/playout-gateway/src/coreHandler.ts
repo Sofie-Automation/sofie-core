@@ -14,6 +14,7 @@ import {
 	PeripheralDevicePubSubCollectionsNames,
 	ICoreHandler,
 	CoreConnectionChild,
+	KubernetesRestarter,
 } from '@sofie-automation/server-core-integration'
 import { MediaObject, DeviceOptionsAny, ActionExecutionResult, DeviceStatus } from 'timeline-state-resolver'
 import _ from 'underscore'
@@ -63,10 +64,14 @@ export class CoreHandler implements ICoreHandler {
 	public get connectedToCore(): boolean {
 		return this.core && this.core.connected
 	}
+	private _k8sRestarter?: KubernetesRestarter
 
 	constructor(logger: Logger, deviceOptions: DeviceConfig) {
 		this.logger = logger
 		this._deviceOptions = deviceOptions
+		if (KubernetesRestarter.canUseK8sRestarter()) {
+			this._k8sRestarter = new KubernetesRestarter(this.logger, 'sofie-playout-gateway')
+		}
 	}
 
 	async init(config: CoreConfig, tlsOptions: DDPTLSOptions): Promise<void> {
@@ -248,7 +253,6 @@ export class CoreHandler implements ICoreHandler {
 				const fcn: Function = fcnObject[cmd.functionName]
 				try {
 					if (!fcn) throw Error(`Function "${cmd.functionName}" not found on device "${cmd.deviceId}"!`)
-
 					Promise.resolve(fcn.apply(fcnObject, cmd.args))
 						.then((result) => {
 							cb(null, result)
@@ -313,12 +317,19 @@ export class CoreHandler implements ICoreHandler {
 			}
 		})
 	}
-	killProcess(): void {
-		this.logger.info('KillProcess command received, shutting down in 1000ms!')
-		setTimeout(() => {
-			// eslint-disable-next-line n/no-process-exit
-			process.exit(0)
-		}, 1000)
+	async killProcess(): Promise<boolean> {
+		this.logger.info('KillProcess command received for playout-gateway')
+		if (this._k8sRestarter) {
+			this.logger.info('Running on kubernetes was true, restarting deployment')
+			return await this._k8sRestarter.restartKube()
+		} else {
+			this.logger.info('killing process in 1000ms!')
+			setTimeout(() => {
+				// eslint-disable-next-line n/no-process-exit
+				process.exit(0)
+			}, 1000)
+			return true
+		}
 	}
 	pingResponse(message: string): void {
 		this.core.setPingResponse(message)
@@ -552,8 +563,8 @@ export class CoreTSRDeviceHandler {
 		if (subdevice === 'removeSubDevice') await this.core.unInitialize()
 		await this.core.destroy()
 	}
-	killProcess(): void {
-		this._coreParentHandler.killProcess()
+	async killProcess(): Promise<void> {
+		await this._coreParentHandler.killProcess()
 	}
 	async executeAction(actionId: string, payload?: Record<string, any>): Promise<ActionExecutionResult> {
 		this._coreParentHandler.logger.info(`Exec ${actionId} on ${this._deviceId}`)

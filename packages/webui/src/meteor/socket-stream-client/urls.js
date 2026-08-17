@@ -3,11 +3,9 @@ import { Meteor } from '../meteor'
 // @param url {String} URL to Meteor app, eg:
 //   "/" or "madewith.meteor.com" or "https://foo.meteor.com"
 //   or "ddp+sockjs://ddp--****-foo.meteor.com/sockjs"
-// @returns {String} URL to the endpoint with the specific scheme and subPath, e.g.
-// for scheme "http" and subPath "sockjs"
-//   "http://subdomain.meteor.com/sockjs" or "/sockjs"
-//   or "https://ddp--1234-foo.meteor.com/sockjs"
-function translateUrl(url, newSchemeBase, subPath) {
+// @returns {String} URL to the endpoint with the given scheme, e.g. for scheme "ws"
+//   "ws://subdomain.meteor.com/websocket" or "/websocket"
+function translateUrl(url, newSchemeBase) {
 	if (!newSchemeBase) {
 		newSchemeBase = 'http'
 	}
@@ -52,10 +50,9 @@ function translateUrl(url, newSchemeBase, subPath) {
 	// root. See also client_convenience.js #RationalizingRelativeDDPURLs
 	url = Meteor._relativeToSiteRootUrl(url)
 
-	if (url.endsWith('/')) return url + subPath
-	else return url + '/' + subPath
+	return url
 }
 
 export function toWebsocketUrl(url) {
-	return translateUrl(url, 'ws', 'websocket')
+	return translateUrl(url, 'ws')
 }

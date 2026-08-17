@@ -2839,6 +2839,29 @@ paths:
                     rundownGlobalPiecesPrepareTime:
                       type: number
                       description: How long before their start time a rundown owned piece be added to the timeline
+                    autoRewindLeavingSegment:
+                      type: boolean
+                      description: Should the segment in the Rundown view automatically rewind after it stops being live
+                    disableBlurBorder:
+                      type: boolean
+                      description: Disable the blur border in the RundownView
+                    allowGrabbingTimeline:
+                      type: boolean
+                      description: Allow grabbing the entire timeline to scroll it
+                    useCountdownToFreezeFrame:
+                      type: boolean
+                      description: >-
+                        If true, countdowns of videos will count down to the last freeze-frame of the video instead of
+                        to the end of the video
+                    defaultDisplayDuration:
+                      type: number
+                      description: Default duration (in milliseconds) to use to render parts when no duration is provided
+                    defaultTimeScale:
+                      type: number
+                      description: Default time scale zooming for the timelines in the UI
+                    followOnAirSegmentsHistory:
+                      type: number
+                      description: How many segments of history to show when scrolling back in time (0 = show current segment only)
                   required:
                     - frameRate
                     - mediaPreviewsUrl
@@ -3055,6 +3078,31 @@ paths:
                           rundownGlobalPiecesPrepareTime:
                             type: number
                             description: How long before their start time a rundown owned piece be added to the timeline
+                          autoRewindLeavingSegment:
+                            type: boolean
+                            description: Should the segment in the Rundown view automatically rewind after it stops being live
+                          disableBlurBorder:
+                            type: boolean
+                            description: Disable the blur border in the RundownView
+                          allowGrabbingTimeline:
+                            type: boolean
+                            description: Allow grabbing the entire timeline to scroll it
+                          useCountdownToFreezeFrame:
+                            type: boolean
+                            description: >-
+                              If true, countdowns of videos will count down to the last freeze-frame of the video
+                              instead of to the end of the video
+                          defaultDisplayDuration:
+                            type: number
+                            description: Default duration (in milliseconds) to use to render parts when no duration is provided
+                          defaultTimeScale:
+                            type: number
+                            description: Default time scale zooming for the timelines in the UI
+                          followOnAirSegmentsHistory:
+                            type: number
+                            description: >-
+                              How many segments of history to show when scrolling back in time (0 = show current segment
+                              only)
                         required:
                           - frameRate
                           - mediaPreviewsUrl
@@ -3227,6 +3275,29 @@ paths:
                     rundownGlobalPiecesPrepareTime:
                       type: number
                       description: How long before their start time a rundown owned piece be added to the timeline
+                    autoRewindLeavingSegment:
+                      type: boolean
+                      description: Should the segment in the Rundown view automatically rewind after it stops being live
+                    disableBlurBorder:
+                      type: boolean
+                      description: Disable the blur border in the RundownView
+                    allowGrabbingTimeline:
+                      type: boolean
+                      description: Allow grabbing the entire timeline to scroll it
+                    useCountdownToFreezeFrame:
+                      type: boolean
+                      description: >-
+                        If true, countdowns of videos will count down to the last freeze-frame of the video instead of
+                        to the end of the video
+                    defaultDisplayDuration:
+                      type: number
+                      description: Default duration (in milliseconds) to use to render parts when no duration is provided
+                    defaultTimeScale:
+                      type: number
+                      description: Default time scale zooming for the timelines in the UI
+                    followOnAirSegmentsHistory:
+                      type: number
+                      description: How many segments of history to show when scrolling back in time (0 = show current segment only)
                   required:
                     - frameRate
                     - mediaPreviewsUrl
@@ -4047,11 +4118,47 @@ paths:
                           - lower-third
                           - live-speak
                           - transition
+                          - lights
                           - local
+                          - studio-screen
+                          - remote-speak
                         description: Source layer content type.
                       exclusiveGroup:
                         type: string
                         description: Exclusivity group the layer belongs to.
+                      isRemoteInput:
+                        type: boolean
+                        description: Whether the source layer is used for remote.
+                      isGuestInput:
+                        type: boolean
+                        description: Whether the source layer is used for guest inputs.
+                      isClearable:
+                        type: boolean
+                        description: Whether pieces on the source layer can be cleared.
+                      isSticky:
+                        type: boolean
+                        description: Whether pieces on the source layer can be sticky.
+                      stickyOriginalOnly:
+                        type: boolean
+                        description: Whether sticky pieces on the source layer should only preserve the original piece.
+                      isQueueable:
+                        type: boolean
+                        description: Whether pieces on the source layer can be queued.
+                      isHidden:
+                        type: boolean
+                        description: Whether the source layer should be hidden.
+                      allowDisable:
+                        type: boolean
+                        description: Whether the source layer can be disabled.
+                      onPresenterScreen:
+                        type: boolean
+                        description: Whether the source layer should be shown on presenter screens.
+                      onListViewColumn:
+                        type: boolean
+                        description: Whether the source layer should be shown in the list view column.
+                      onListViewAdLibColumn:
+                        type: boolean
+                        description: Whether the source layer should be shown in the list view ad lib column.
                     required:
                       - id
                       - name
@@ -4213,11 +4320,47 @@ paths:
                                 - lower-third
                                 - live-speak
                                 - transition
+                                - lights
                                 - local
+                                - studio-screen
+                                - remote-speak
                               description: Source layer content type.
                             exclusiveGroup:
                               type: string
                               description: Exclusivity group the layer belongs to.
+                            isRemoteInput:
+                              type: boolean
+                              description: Whether the source layer is used for remote.
+                            isGuestInput:
+                              type: boolean
+                              description: Whether the source layer is used for guest inputs.
+                            isClearable:
+                              type: boolean
+                              description: Whether pieces on the source layer can be cleared.
+                            isSticky:
+                              type: boolean
+                              description: Whether pieces on the source layer can be sticky.
+                            stickyOriginalOnly:
+                              type: boolean
+                              description: Whether sticky pieces on the source layer should only preserve the original piece.
+                            isQueueable:
+                              type: boolean
+                              description: Whether pieces on the source layer can be queued.
+                            isHidden:
+                              type: boolean
+                              description: Whether the source layer should be hidden.
+                            allowDisable:
+                              type: boolean
+                              description: Whether the source layer can be disabled.
+                            onPresenterScreen:
+                              type: boolean
+                              description: Whether the source layer should be shown on presenter screens.
+                            onListViewColumn:
+                              type: boolean
+                              description: Whether the source layer should be shown in the list view column.
+                            onListViewAdLibColumn:
+                              type: boolean
+                              description: Whether the source layer should be shown in the list view ad lib column.
                           required:
                             - id
                             - name
@@ -4352,11 +4495,47 @@ paths:
                           - lower-third
                           - live-speak
                           - transition
+                          - lights
                           - local
+                          - studio-screen
+                          - remote-speak
                         description: Source layer content type.
                       exclusiveGroup:
                         type: string
                         description: Exclusivity group the layer belongs to.
+                      isRemoteInput:
+                        type: boolean
+                        description: Whether the source layer is used for remote.
+                      isGuestInput:
+                        type: boolean
+                        description: Whether the source layer is used for guest inputs.
+                      isClearable:
+                        type: boolean
+                        description: Whether pieces on the source layer can be cleared.
+                      isSticky:
+                        type: boolean
+                        description: Whether pieces on the source layer can be sticky.
+                      stickyOriginalOnly:
+                        type: boolean
+                        description: Whether sticky pieces on the source layer should only preserve the original piece.
+                      isQueueable:
+                        type: boolean
+                        description: Whether pieces on the source layer can be queued.
+                      isHidden:
+                        type: boolean
+                        description: Whether the source layer should be hidden.
+                      allowDisable:
+                        type: boolean
+                        description: Whether the source layer can be disabled.
+                      onPresenterScreen:
+                        type: boolean
+                        description: Whether the source layer should be shown on presenter screens.
+                      onListViewColumn:
+                        type: boolean
+                        description: Whether the source layer should be shown in the list view column.
+                      onListViewAdLibColumn:
+                        type: boolean
+                        description: Whether the source layer should be shown in the list view ad lib column.
                     required:
                       - id
                       - name
@@ -6725,12 +6904,12 @@ paths:
                     timing:
                       type: object
                       properties:
-                        expectedStart:
+                        budgetDuration:
                           type: number
-                          description: Epoch timestamp in milliseconds.
-                        expectedEnd:
-                          type: number
-                          description: Epoch timestamp in milliseconds.
+                          description: Budget duration of this segment, in milliseconds
+                        countdownType:
+                          type: string
+                          description: Defines the behavior of countdowns during this segment.
                       additionalProperties: false
                   required:
                     - id
@@ -7061,12 +7240,12 @@ paths:
                   timing:
                     type: object
                     properties:
-                      expectedStart:
+                      budgetDuration:
                         type: number
-                        description: Epoch timestamp in milliseconds.
-                      expectedEnd:
-                        type: number
-                        description: Epoch timestamp in milliseconds.
+                        description: Budget duration of this segment, in milliseconds
+                      countdownType:
+                        type: string
+                        description: Defines the behavior of countdowns during this segment.
                     additionalProperties: false
                 required:
                   - id

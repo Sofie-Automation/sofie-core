@@ -5,11 +5,11 @@ import { ProtectedString, protectString } from '@sofie-automation/corelib/dist/p
 import {
 	CustomPublish,
 	CustomPublishCollection,
-	meteorCustomPublish,
 	setUpCollectionOptimizedObserver,
 	SetupObserversResult,
 	TriggerUpdate,
 } from '../../lib/customPublication'
+import type { PublicationRegistry } from '../../publicationRegistry'
 import {
 	ContentCache,
 	CoreSystemFields,
@@ -284,12 +284,14 @@ export async function createBlueprintUpgradeStatusSubscriptionHandle(
 	)
 }
 
-meteorCustomPublish(
-	MeteorPubSub.uiBlueprintUpgradeStatuses,
-	CustomCollectionName.UIBlueprintUpgradeStatuses,
-	async function (pub) {
-		assertConnectionHasOneOfPermissions(this.connection, 'configure', 'service')
+export function registerBlueprintUpgradeStatusPublications(registry: PublicationRegistry): void {
+	registry.customPublish(
+		MeteorPubSub.uiBlueprintUpgradeStatuses,
+		CustomCollectionName.UIBlueprintUpgradeStatuses,
+		async (context, pub) => {
+			assertConnectionHasOneOfPermissions(context.connection, 'configure', 'service')
 
-		await createBlueprintUpgradeStatusSubscriptionHandle(pub)
-	}
-)
+			await createBlueprintUpgradeStatusSubscriptionHandle(pub)
+		}
+	)
+}

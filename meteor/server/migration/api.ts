@@ -1,10 +1,10 @@
 import { check, Match } from '../lib/check'
-import { registerClassToMeteorMethods } from '../methods'
 import {
 	MigrationChunk,
 	NewMigrationAPI,
-	MigrationAPIMethods,
 	BlueprintFixUpConfigMessage,
+	GetMigrationStatusResult,
+	RunMigrationResult,
 } from '@sofie-automation/meteor-lib/dist/api/migration'
 import * as Migrations from './databaseMigration'
 import { MethodContextAPI } from '../api/methodContext'
@@ -26,14 +26,18 @@ import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissio
 
 const PERMISSIONS_FOR_MIGRATIONS: Array<keyof UserPermissions> = ['configure']
 
-class ServerMigrationAPI extends MethodContextAPI implements NewMigrationAPI {
-	async getMigrationStatus() {
+export class ServerMigrationAPI extends MethodContextAPI implements NewMigrationAPI {
+	async getMigrationStatus(): Promise<GetMigrationStatusResult> {
 		assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MIGRATIONS)
 
 		return Migrations.getMigrationStatus()
 	}
 
-	async runMigration(chunks: Array<MigrationChunk>, hash: string, isFirstOfPartialMigrations?: boolean | null) {
+	async runMigration(
+		chunks: Array<MigrationChunk>,
+		hash: string,
+		isFirstOfPartialMigrations?: boolean | null
+	): Promise<RunMigrationResult> {
 		check(chunks, Array)
 		check(hash, String)
 		check(isFirstOfPartialMigrations, Match.Maybe(Boolean))
@@ -43,7 +47,7 @@ class ServerMigrationAPI extends MethodContextAPI implements NewMigrationAPI {
 		return Migrations.runMigration(chunks, hash, isFirstOfPartialMigrations || false)
 	}
 
-	async forceMigration(chunks: Array<MigrationChunk>) {
+	async forceMigration(chunks: Array<MigrationChunk>): Promise<void> {
 		check(chunks, Array)
 
 		assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MIGRATIONS)
@@ -51,7 +55,7 @@ class ServerMigrationAPI extends MethodContextAPI implements NewMigrationAPI {
 		return Migrations.forceMigration(chunks)
 	}
 
-	async resetDatabaseVersions() {
+	async resetDatabaseVersions(): Promise<void> {
 		assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MIGRATIONS)
 
 		return Migrations.resetDatabaseVersions()
@@ -131,4 +135,3 @@ class ServerMigrationAPI extends MethodContextAPI implements NewMigrationAPI {
 		return runUpgradeForCoreSystem(coreSystemId)
 	}
 }
-registerClassToMeteorMethods(MigrationAPIMethods, ServerMigrationAPI, false)

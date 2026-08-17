@@ -16,11 +16,11 @@ import { Buckets, MediaObjects, PackageContainerPackageStatuses, PackageInfos, S
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import {
 	CustomPublishCollection,
-	meteorCustomPublish,
 	setUpCollectionOptimizedObserver,
 	TriggerUpdate,
 	SetupObserversResult,
 } from '../../../lib/customPublication'
+import type { PublicationRegistry } from '../../../publicationRegistry'
 import { BucketContentCache, createReactiveContentCache } from './bucketContentCache'
 import { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
 import {
@@ -267,27 +267,29 @@ async function manipulateUIBucketContentStatusesPublicationData(
 	)
 }
 
-meteorCustomPublish(
-	MeteorPubSub.uiBucketContentStatuses,
-	CustomCollectionName.UIBucketContentStatuses,
-	async function (pub, studioId: StudioId, bucketId: BucketId) {
-		check(studioId, String)
-		check(bucketId, String)
+export function registerBucketContentStatusUIPublications(registry: PublicationRegistry): void {
+	registry.customPublish(
+		MeteorPubSub.uiBucketContentStatuses,
+		CustomCollectionName.UIBucketContentStatuses,
+		async (_context, pub, studioId: StudioId, bucketId: BucketId) => {
+			check(studioId, String)
+			check(bucketId, String)
 
-		triggerWriteAccessBecauseNoCheckNecessary()
+			triggerWriteAccessBecauseNoCheckNecessary()
 
-		await setUpCollectionOptimizedObserver<
-			UIBucketContentStatus,
-			UIBucketContentStatusesArgs,
-			UIBucketContentStatusesState,
-			UIBucketContentStatusesUpdateProps
-		>(
-			`pub_${MeteorPubSub.uiBucketContentStatuses}_${studioId}_${bucketId}`,
-			{ studioId, bucketId },
-			setupUIBucketContentStatusesPublicationObservers,
-			manipulateUIBucketContentStatusesPublicationData,
-			pub,
-			100
-		)
-	}
-)
+			await setUpCollectionOptimizedObserver<
+				UIBucketContentStatus,
+				UIBucketContentStatusesArgs,
+				UIBucketContentStatusesState,
+				UIBucketContentStatusesUpdateProps
+			>(
+				`pub_${MeteorPubSub.uiBucketContentStatuses}_${studioId}_${bucketId}`,
+				{ studioId, bucketId },
+				setupUIBucketContentStatusesPublicationObservers,
+				manipulateUIBucketContentStatusesPublicationData,
+				pub,
+				100
+			)
+		}
+	)
+}

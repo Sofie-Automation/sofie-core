@@ -53,8 +53,8 @@ The prompter can be controlled in multiple ways when using the scroll wheel:
 | Query parameter             | Description                                                                                                                                                                              |
 | :-------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `?controlmode=normal`       | Scrolling of the mouse works as "normal scrolling"                                                                                                                                       |
-| `?controlmode=speed`        | Scrolling of the mouse changes the speed of scolling. Left-click to toggle, right-click to rewind                                                                                        |
-| `?controlmode=smoothscroll` | Scrolling the mouse wheel starts continous scrolling. Small speed adjustments can then be made by nudging the scroll wheel. Stop the scrolling by making a "larger scroll" on the wheel. |
+| `?controlmode=speed`        | Scrolling of the mouse changes the speed of scrolling. Left-click to toggle, right-click to rewind                                                                                        |
+| `?controlmode=smoothscroll` | Scrolling the mouse wheel starts continuous scrolling. Small speed adjustments can then be made by nudging the scroll wheel. Stop the scrolling by making a "larger scroll" on the wheel. |
 
 has several operating modes, described further below. All modes are intended to be controlled by a computer mouse or similar, such as a presenter tool.
 
@@ -71,7 +71,7 @@ Keyboard control is intended to be used when having a "keyboard"-device, such as
 
 #### Control using Contour ShuttleXpress or X-keys \(_?mode=shuttlekeyboard_\)
 
-This mode is intended to be used when having a Contour ShuttleXpress or X-keys device, configured to work as a keyboard device. These devices have jog/shuttle wheels, and their software/firmware allow them to map scroll movement to keystrokes from any key-combination. Since we only listen for key combinations, it effectively means that any device outputing keystrokes will work in this mode.
+This mode is intended to be used when having a Contour ShuttleXpress or X-keys device, configured to work as a keyboard device. These devices have jog/shuttle wheels, and their software/firmware allow them to map scroll movement to keystrokes from any key-combination. Since we only listen for key combinations, it effectively means that any device outputting keystrokes will work in this mode.
 
 | Query parameter    | Type             | Description                                                                                                                                                                                                                                                                                  | Default                    |
 | :----------------- | :--------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------- |
@@ -130,7 +130,7 @@ Any movement within forward range will map to the `pedal_speedMap` with interpol
 | _"I can't rest my foot without it starting to run"_                                       | Increase `pedal_rangeNeutralMax`                                                                                                                                                                                                           |
 | _"I have to push too far before it starts moving"_                                        | Decrease `pedal_rangeNeutralMax`                                                                                                                                                                                                           |
 | _"It starts out fine, but runs too fast if I push too hard"_                              | Add more weight to the lower part of the `pedal_speedMap` by adding more low values early in the map, compared to the large numbers in the end.                                                                                            |
-| _"I have to go too far back to reverse"_                                                  | Increse `pedal_rangeNeutralMin`                                                                                                                                                                                                            |
+| _"I have to go too far back to reverse"_                                                  | Increase `pedal_rangeNeutralMin`                                                                                                                                                                                                            |
 | _"As I find a good speed, it varies a bit in speed up/down even if I hold my foot still"_ | Use `?debug=1` to see what speed is calculated in the position the presenter wants to rest the foot in. Add more of that number in a sequence in the `pedal_speedMap` to flatten out the speed curve, i.e. `[1, 2, 3, 4, 4, 4, 4, 5, ...]` |
 
 **Note:** The default values are set up to work with the _Yamaha FC7_ expression pedal, and will probably not be good for pedals with one continuous linear range from fully released to fully depressed. A suggested configuration for such pedals \(i.e. the _Mission Engineering EP-1_\) will be like:
@@ -164,7 +164,7 @@ The Joycons can operate in 3 modes, the L-stick, the R-stick or both L+R sticks 
 - `joycon_rangeNeutralMax` has to be greater than `joycon_rangeNeutralMin`
 - `joycon_rangeFwdMax` has to be greater than `joycon_rangeNeutralMax`
 
-![Nintendo Swith Joycons](/img/docs/main/features/nintendo-switch-joycons.jpg)
+![Nintendo Switch Joycons](/img/docs/main/features/nintendo-switch-joycons.jpg)
 
 You can turn on `?debug=1` to see how your input maps to an output.
 

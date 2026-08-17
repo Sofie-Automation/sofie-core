@@ -27,10 +27,8 @@ import { PeripheralDevice, PERIPHERAL_SUBTYPE_PROCESS } from '@sofie-automation/
 import { logger } from '../logging'
 import { TimelineComplete } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { PeripheralDeviceCommand } from '@sofie-automation/corelib/dist/dataModel/PeripheralDeviceCommand'
-import { registerClassToMeteorMethods } from '../methods'
 import {
 	NewSnapshotAPI,
-	SnapshotAPIMethods,
 	PlaylistSnapshotOptions,
 	SystemSnapshotOptions,
 } from '@sofie-automation/meteor-lib/dist/api/shapshot'
@@ -904,14 +902,18 @@ snapshotPrivateApiRouter.get('/retrieve/:snapshotId', async (ctx) => {
 	})
 })
 
-class ServerSnapshotAPI extends MethodContextAPI implements NewSnapshotAPI {
-	async storeSystemSnapshot(hashedToken: string, studioId: StudioId | null, reason: string) {
+export class ServerSnapshotAPI extends MethodContextAPI implements NewSnapshotAPI {
+	async storeSystemSnapshot(hashedToken: string, studioId: StudioId | null, reason: string): Promise<SnapshotId> {
 		if (!verifyHashedToken(hashedToken)) {
 			throw new Meteor.Error(401, `Idempotency token is invalid or has expired`)
 		}
 		return storeSystemSnapshot(this, { studioId: studioId ?? undefined }, reason)
 	}
-	async storeRundownPlaylist(hashedToken: string, playlistId: RundownPlaylistId, reason: string) {
+	async storeRundownPlaylist(
+		hashedToken: string,
+		playlistId: RundownPlaylistId,
+		reason: string
+	): Promise<SnapshotId> {
 		if (!verifyHashedToken(hashedToken)) {
 			throw new Meteor.Error(401, `Idempotency token is invalid or has expired`)
 		}
@@ -919,14 +921,13 @@ class ServerSnapshotAPI extends MethodContextAPI implements NewSnapshotAPI {
 		const playlist = await checkAccessToPlaylist(this.connection, playlistId)
 		return storeRundownPlaylistSnapshot(playlist, {}, reason)
 	}
-	async storeDebugSnapshot(hashedToken: string, studioId: StudioId, reason: string) {
+	async storeDebugSnapshot(hashedToken: string, studioId: StudioId, reason: string): Promise<SnapshotId> {
 		return storeDebugSnapshot(this, hashedToken, studioId, reason)
 	}
-	async restoreSnapshot(snapshotId: SnapshotId, restoreDebugData: boolean) {
+	async restoreSnapshot(snapshotId: SnapshotId, restoreDebugData: boolean): Promise<void> {
 		return restoreSnapshot(this, snapshotId, restoreDebugData)
 	}
-	async removeSnapshot(snapshotId: SnapshotId) {
+	async removeSnapshot(snapshotId: SnapshotId): Promise<void> {
 		return removeSnapshot(this, snapshotId)
 	}
 }
-registerClassToMeteorMethods(SnapshotAPIMethods, ServerSnapshotAPI, false)

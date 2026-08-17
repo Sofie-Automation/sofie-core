@@ -26,6 +26,7 @@ interface IMediaStatusPopUpItemProps {
 	isAdLib: boolean
 	isLive: boolean
 	isNext: boolean
+	followOnAirSegmentsHistory: number
 }
 
 export function MediaStatusPopUpItem({
@@ -44,6 +45,7 @@ export function MediaStatusPopUpItem({
 	isAdLib,
 	isLive,
 	isNext,
+	followOnAirSegmentsHistory,
 }: IMediaStatusPopUpItemProps): JSX.Element {
 	const timingDurations = useTiming(TimingTickResolution.Low, TimingDataResolution.Synced)
 
@@ -56,14 +58,14 @@ export function MediaStatusPopUpItem({
 	const onPartIdentifierClick = useCallback(() => {
 		if (!segmentId || !partId) return
 
-		scrollToPart(partId, false, false, false).catch(logger.error)
-	}, [segmentId, partId])
+		scrollToPart(partId, followOnAirSegmentsHistory, false, false, false).catch(logger.error)
+	}, [segmentId, partId, followOnAirSegmentsHistory])
 
 	const onSegmentIdentifierClick = useCallback(() => {
 		if (!segmentId) return
 
-		scrollToSegment(segmentId, false, false).catch(logger.error)
-	}, [segmentId])
+		scrollToSegment(segmentId, followOnAirSegmentsHistory, false, false).catch(logger.error)
+	}, [segmentId, followOnAirSegmentsHistory])
 
 	return (
 		<tr className="media-status-popup-item">

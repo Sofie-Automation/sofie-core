@@ -26,6 +26,10 @@ export interface RundownImportVersions {
 	studio: string
 	showStyleBase: string
 	showStyleVariant: string
+	/**
+	 * Blueprint code hash (`Blueprint.blueprintHash`) at ingest time — not the semver
+	 * `blueprintVersion`. Used to detect that a reload is needed after a blueprint upload.
+	 */
 	blueprint: string
 
 	core: string
@@ -78,8 +82,6 @@ export interface Rundown {
 
 	/** External id of the Rundown Playlist to put this rundown in */
 	playlistExternalId?: string
-	/** Whether the end of the rundown marks a commercial break */
-	endOfRundownIsShowBreak?: boolean
 	/** The id of the Rundown Playlist this rundown is in */
 	playlistId: RundownPlaylistId
 	/** If the playlistId has ben set manually by a user in Sofie */

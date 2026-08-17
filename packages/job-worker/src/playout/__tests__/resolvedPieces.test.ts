@@ -347,7 +347,9 @@ describe('Resolved Pieces', () => {
 
 	describe('getResolvedPiecesForPartInstancesOnTimeline', () => {
 		function createPartInstance(
-			partProps?: Partial<Pick<DBPart, 'autoNext' | 'expectedDuration'>>
+			partProps?: Partial<
+				Pick<DBPart, 'autoNext' | 'expectedDuration' | 'outTransition' | 'availablePostrollDuration'>
+			>
 		): DBPartInstance {
 			return {
 				_id: getRandomId(),
@@ -961,6 +963,395 @@ describe('Resolved Pieces', () => {
 				{
 					_id: piece010._id,
 					resolvedStart: nextPartTimes.partStartTime!,
+					resolvedDuration: undefined,
+				},
+			] satisfies StrippedResult)
+		})
+
+		test('nextPart keepalive does not shorten current part resolved duration', async () => {
+			const sourceLayerId = Object.keys(sourceLayers)[0]
+			expect(sourceLayerId).toBeTruthy()
+
+			const piece001 = createPieceInstance(sourceLayerId, { start: 0 })
+			const piece010 = createPieceInstance(sourceLayerId, { start: 0 })
+
+			const now = 990000
+			const currentPartTimes = createPartCurrentTimes(now, now - 2000)
+			const currentPartLength = 13000
+
+			const currentPartInfo = createPartInstanceInfo(
+				currentPartTimes,
+				createPartInstance({
+					autoNext: true,
+					expectedDuration: currentPartLength,
+				}),
+				[piece001]
+			)
+
+			const nextPartInfo = createPartInstanceInfo(
+				createPartCurrentTimes(now, currentPartTimes.partStartTime! + currentPartLength),
+				createPartInstance(),
+				[piece010]
+			)
+			nextPartInfo.calculatedTimings = {
+				...nextPartInfo.calculatedTimings,
+				fromPartRemaining: 2000,
+				fromPartKeepalive: 2000,
+				fromPartPostroll: 0,
+			}
+
+			const simpleResolvedPieces = getResolvedPiecesForPartInstancesOnTimeline(
+				context,
+				{
+					current: currentPartInfo,
+					next: nextPartInfo,
+				},
+				now
+			)
+
+			expect(stripResult(simpleResolvedPieces)).toEqual([
+				{
+					_id: piece001._id,
+					resolvedStart: currentPartTimes.partStartTime!,
+					resolvedDuration: currentPartLength,
+				},
+				{
+					_id: piece010._id,
+					resolvedStart: currentPartTimes.partStartTime! + currentPartLength - 2000,
+					resolvedDuration: undefined,
+				},
+			] satisfies StrippedResult)
+		})
+
+		test('nextPart outTransition does not shorten current part resolved duration', async () => {
+			const sourceLayerId = Object.keys(sourceLayers)[0]
+			expect(sourceLayerId).toBeTruthy()
+
+			const piece001 = createPieceInstance(sourceLayerId, { start: 0 })
+			const piece010 = createPieceInstance(sourceLayerId, { start: 0 })
+
+			const now = 990000
+			const currentPartTimes = createPartCurrentTimes(now, now - 2000)
+			const currentPartLength = 13000
+
+			const currentPartInfo = createPartInstanceInfo(
+				currentPartTimes,
+				createPartInstance({
+					autoNext: true,
+					expectedDuration: currentPartLength,
+					outTransition: { duration: 1200 },
+				}),
+				[piece001]
+			)
+
+			const nextPartInfo = createPartInstanceInfo(
+				createPartCurrentTimes(now, currentPartTimes.partStartTime! + currentPartLength),
+				createPartInstance(),
+				[piece010]
+			)
+			nextPartInfo.calculatedTimings = {
+				...nextPartInfo.calculatedTimings,
+				fromPartRemaining: 1200,
+				fromPartKeepalive: 0,
+				fromPartPostroll: 0,
+			}
+
+			const simpleResolvedPieces = getResolvedPiecesForPartInstancesOnTimeline(
+				context,
+				{
+					current: currentPartInfo,
+					next: nextPartInfo,
+				},
+				now
+			)
+
+			expect(stripResult(simpleResolvedPieces)).toEqual([
+				{
+					_id: piece001._id,
+					resolvedStart: currentPartTimes.partStartTime!,
+					resolvedDuration: currentPartLength,
+				},
+				{
+					_id: piece010._id,
+					resolvedStart: currentPartTimes.partStartTime! + currentPartLength - 1200,
+					resolvedDuration: undefined,
+				},
+			] satisfies StrippedResult)
+		})
+
+		test('nextPart preroll-only overlap does not extend current part resolved duration', async () => {
+			const sourceLayerId = Object.keys(sourceLayers)[0]
+			expect(sourceLayerId).toBeTruthy()
+
+			const piece001 = createPieceInstance(sourceLayerId, { start: 0 })
+			const piece010 = createPieceInstance(sourceLayerId, { start: 0 })
+
+			const now = 990000
+			const currentPartTimes = createPartCurrentTimes(now, now - 2000)
+			const currentPartLength = 13000
+
+			const currentPartInfo = createPartInstanceInfo(
+				currentPartTimes,
+				createPartInstance({
+					autoNext: true,
+					expectedDuration: currentPartLength,
+				}),
+				[piece001]
+			)
+
+			const nextPartInfo = createPartInstanceInfo(
+				createPartCurrentTimes(now, currentPartTimes.partStartTime! + currentPartLength),
+				createPartInstance(),
+				[piece010]
+			)
+			nextPartInfo.calculatedTimings = {
+				...nextPartInfo.calculatedTimings,
+				fromPartRemaining: 1000,
+				fromPartKeepalive: 0,
+				fromPartPostroll: 0,
+			}
+
+			const simpleResolvedPieces = getResolvedPiecesForPartInstancesOnTimeline(
+				context,
+				{
+					current: currentPartInfo,
+					next: nextPartInfo,
+				},
+				now
+			)
+
+			expect(stripResult(simpleResolvedPieces)).toEqual([
+				{
+					_id: piece001._id,
+					resolvedStart: currentPartTimes.partStartTime!,
+					resolvedDuration: currentPartLength,
+				},
+				{
+					_id: piece010._id,
+					resolvedStart: currentPartTimes.partStartTime! + currentPartLength - 1000,
+					resolvedDuration: undefined,
+				},
+			] satisfies StrippedResult)
+		})
+
+		test('nextPart keepalive is capped by availablePostrollDuration = 0', async () => {
+			const sourceLayerId = Object.keys(sourceLayers)[0]
+			expect(sourceLayerId).toBeTruthy()
+
+			const piece001 = createPieceInstance(sourceLayerId, { start: 0 })
+			const piece010 = createPieceInstance(sourceLayerId, { start: 0 })
+
+			const now = 990000
+			const currentPartTimes = createPartCurrentTimes(now, now - 2000)
+			const currentPartLength = 13000
+
+			const currentPartInfo = createPartInstanceInfo(
+				currentPartTimes,
+				createPartInstance({
+					autoNext: true,
+					expectedDuration: currentPartLength,
+					availablePostrollDuration: 0,
+				}),
+				[piece001]
+			)
+
+			const nextPartInfo = createPartInstanceInfo(
+				createPartCurrentTimes(now, currentPartTimes.partStartTime! + currentPartLength),
+				createPartInstance(),
+				[piece010]
+			)
+			nextPartInfo.calculatedTimings = {
+				...nextPartInfo.calculatedTimings,
+				fromPartRemaining: 2000,
+				fromPartKeepalive: 2000,
+				fromPartPostroll: 0,
+			}
+
+			const simpleResolvedPieces = getResolvedPiecesForPartInstancesOnTimeline(
+				context,
+				{
+					current: currentPartInfo,
+					next: nextPartInfo,
+				},
+				now
+			)
+
+			expect(stripResult(simpleResolvedPieces)).toEqual([
+				{
+					_id: piece001._id,
+					resolvedStart: currentPartTimes.partStartTime!,
+					resolvedDuration: currentPartLength,
+				},
+				{
+					_id: piece010._id,
+					resolvedStart: currentPartTimes.partStartTime! + currentPartLength - 2000,
+					resolvedDuration: undefined,
+				},
+			] satisfies StrippedResult)
+		})
+
+		test('nextPart keepalive is capped when availablePostrollDuration is undefined', async () => {
+			const sourceLayerId = Object.keys(sourceLayers)[0]
+			expect(sourceLayerId).toBeTruthy()
+
+			const piece001 = createPieceInstance(sourceLayerId, { start: 0 })
+			const piece010 = createPieceInstance(sourceLayerId, { start: 0 })
+
+			const now = 990000
+			const currentPartTimes = createPartCurrentTimes(now, now - 2000)
+			const currentPartLength = 13000
+
+			const currentPartInfo = createPartInstanceInfo(
+				currentPartTimes,
+				createPartInstance({
+					autoNext: true,
+					expectedDuration: currentPartLength,
+				}),
+				[piece001]
+			)
+
+			const nextPartInfo = createPartInstanceInfo(
+				createPartCurrentTimes(now, currentPartTimes.partStartTime! + currentPartLength),
+				createPartInstance(),
+				[piece010]
+			)
+			nextPartInfo.calculatedTimings = {
+				...nextPartInfo.calculatedTimings,
+				fromPartRemaining: 2000,
+				fromPartKeepalive: 2000,
+				fromPartPostroll: 0,
+			}
+
+			const simpleResolvedPieces = getResolvedPiecesForPartInstancesOnTimeline(
+				context,
+				{
+					current: currentPartInfo,
+					next: nextPartInfo,
+				},
+				now
+			)
+
+			expect(stripResult(simpleResolvedPieces)).toEqual([
+				{
+					_id: piece001._id,
+					resolvedStart: currentPartTimes.partStartTime!,
+					resolvedDuration: currentPartLength,
+				},
+				{
+					_id: piece010._id,
+					resolvedStart: currentPartTimes.partStartTime! + currentPartLength - 2000,
+					resolvedDuration: undefined,
+				},
+			] satisfies StrippedResult)
+		})
+
+		test('nextPart keepalive is partially capped by availablePostrollDuration', async () => {
+			const sourceLayerId = Object.keys(sourceLayers)[0]
+			expect(sourceLayerId).toBeTruthy()
+
+			const piece001 = createPieceInstance(sourceLayerId, { start: 0 })
+			const piece010 = createPieceInstance(sourceLayerId, { start: 0 })
+
+			const now = 990000
+			const currentPartTimes = createPartCurrentTimes(now, now - 2000)
+			const currentPartLength = 13000
+
+			const currentPartInfo = createPartInstanceInfo(
+				currentPartTimes,
+				createPartInstance({
+					autoNext: true,
+					expectedDuration: currentPartLength,
+					availablePostrollDuration: 700,
+				}),
+				[piece001]
+			)
+
+			const nextPartInfo = createPartInstanceInfo(
+				createPartCurrentTimes(now, currentPartTimes.partStartTime! + currentPartLength),
+				createPartInstance(),
+				[piece010]
+			)
+			nextPartInfo.calculatedTimings = {
+				...nextPartInfo.calculatedTimings,
+				fromPartRemaining: 2000,
+				fromPartKeepalive: 2000,
+				fromPartPostroll: 0,
+			}
+
+			const simpleResolvedPieces = getResolvedPiecesForPartInstancesOnTimeline(
+				context,
+				{
+					current: currentPartInfo,
+					next: nextPartInfo,
+				},
+				now
+			)
+
+			expect(stripResult(simpleResolvedPieces)).toEqual([
+				{
+					_id: piece001._id,
+					resolvedStart: currentPartTimes.partStartTime!,
+					resolvedDuration: currentPartLength + 700,
+				},
+				{
+					_id: piece010._id,
+					resolvedStart: currentPartTimes.partStartTime! + currentPartLength - 1300,
+					resolvedDuration: undefined,
+				},
+			] satisfies StrippedResult)
+		})
+
+		test('nextPart keepalive is not capped when availablePostrollDuration is large enough', async () => {
+			const sourceLayerId = Object.keys(sourceLayers)[0]
+			expect(sourceLayerId).toBeTruthy()
+
+			const piece001 = createPieceInstance(sourceLayerId, { start: 0 })
+			const piece010 = createPieceInstance(sourceLayerId, { start: 0 })
+
+			const now = 990000
+			const currentPartTimes = createPartCurrentTimes(now, now - 2000)
+			const currentPartLength = 13000
+
+			const currentPartInfo = createPartInstanceInfo(
+				currentPartTimes,
+				createPartInstance({
+					autoNext: true,
+					expectedDuration: currentPartLength,
+					availablePostrollDuration: 5000,
+				}),
+				[piece001]
+			)
+
+			const nextPartInfo = createPartInstanceInfo(
+				createPartCurrentTimes(now, currentPartTimes.partStartTime! + currentPartLength),
+				createPartInstance(),
+				[piece010]
+			)
+			nextPartInfo.calculatedTimings = {
+				...nextPartInfo.calculatedTimings,
+				fromPartRemaining: 2000,
+				fromPartKeepalive: 2000,
+				fromPartPostroll: 0,
+			}
+
+			const simpleResolvedPieces = getResolvedPiecesForPartInstancesOnTimeline(
+				context,
+				{
+					current: currentPartInfo,
+					next: nextPartInfo,
+				},
+				now
+			)
+
+			expect(stripResult(simpleResolvedPieces)).toEqual([
+				{
+					_id: piece001._id,
+					resolvedStart: currentPartTimes.partStartTime!,
+					resolvedDuration: currentPartLength + 2000,
+				},
+				{
+					_id: piece010._id,
+					resolvedStart: currentPartTimes.partStartTime! + currentPartLength,
 					resolvedDuration: undefined,
 				},
 			] satisfies StrippedResult)

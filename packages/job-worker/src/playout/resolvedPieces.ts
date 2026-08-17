@@ -11,6 +11,21 @@ import {
 import { SelectedPartInstancesTimelineInfo } from './timeline/generate.js'
 import { PlayoutPartInstanceModel } from './model/PlayoutPartInstanceModel.js'
 
+function getAutoNextExpectedDurationExtension(partInstancesInfo: SelectedPartInstancesTimelineInfo): number {
+	if (!partInstancesInfo.current || !partInstancesInfo.next) return 0
+
+	// Keepalive and outTransition extend the effective expectedDuration, but preroll must stay unchanged.
+	const requiredExtension = Math.max(
+		0,
+		partInstancesInfo.next.calculatedTimings.fromPartKeepalive,
+		partInstancesInfo.current.partInstance.part.outTransition?.duration ?? 0
+	)
+
+	const availablePostrollDuration = partInstancesInfo.current.partInstance.part.availablePostrollDuration ?? 0
+
+	return Math.max(0, Math.min(requiredExtension, availablePostrollDuration))
+}
+
 /**
  * Resolve the PieceInstances for a PartInstance
  * Uses the getCurrentTime() as approximation for 'now'
@@ -46,12 +61,28 @@ export function getResolvedPiecesForPartInstancesOnTimeline(
 	if (!partInstancesInfo.current) return []
 
 	const currentPartStarted = partInstancesInfo.current.partTimes.partStartTime ?? now
+	const currentPartDuration =
+		partInstancesInfo.current.partInstance.part.expectedDuration !== undefined
+			? partInstancesInfo.current.partInstance.part.expectedDuration +
+				partInstancesInfo.current.calculatedTimings.toPartDelay +
+				partInstancesInfo.current.calculatedTimings.toPartPostroll +
+				getAutoNextExpectedDurationExtension(partInstancesInfo)
+			: null
 
 	const nextPartStarted =
 		partInstancesInfo.current.partInstance.part.autoNext &&
 		partInstancesInfo.current.partInstance.part.expectedDuration !== 0 &&
-		partInstancesInfo.current.partInstance.part.expectedDuration !== undefined
-			? currentPartStarted + partInstancesInfo.current.partInstance.part.expectedDuration
+		currentPartDuration !== null
+			? currentPartStarted +
+				currentPartDuration -
+				(partInstancesInfo.next?.calculatedTimings.fromPartRemaining ?? 0)
+			: null
+
+	const currentPartEnd =
+		partInstancesInfo.current.partInstance.part.autoNext &&
+		partInstancesInfo.current.partInstance.part.expectedDuration !== 0 &&
+		currentPartDuration !== null
+			? currentPartStarted + currentPartDuration
 			: null
 
 	// Calculate the next part if needed
@@ -73,7 +104,7 @@ export function getResolvedPiecesForPartInstancesOnTimeline(
 	)
 
 	// Translate start to absolute times
-	offsetResolvedStartAndCapDuration(currentResolvedPieces, currentPartStarted, nextPartStarted)
+	offsetResolvedStartAndCapDuration(currentResolvedPieces, currentPartStarted, currentPartEnd)
 
 	// Calculate the previous part
 	let previousResolvedPieces: ResolvedPieceInstance[] = []

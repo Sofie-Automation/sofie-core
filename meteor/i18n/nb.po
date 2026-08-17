@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2026-04-14T14:17:21.170Z\n"
-"PO-Revision-Date: 2026-04-14T14:17:21.170Z\n"
+"POT-Creation-Date: 2026-08-05T10:52:43.643Z\n"
+"PO-Revision-Date: 2026-08-05T10:52:43.643Z\n"
 "Language: nb\n"
 
 msgid " The index of the Atem media/clip banks"
@@ -358,6 +358,12 @@ msgstr ""
 msgid "Allow disabling of Pieces"
 msgstr "Tillat deaktivering av elementer"
 
+msgid "Allow grabbing the segment timelines to scroll them"
+msgstr ""
+
+msgid "Allow grabbing the timeline"
+msgstr ""
+
 msgid "Allow HOLD mode"
 msgstr ""
 
@@ -653,6 +659,9 @@ msgstr ""
 msgid "Auto"
 msgstr "Auto"
 
+msgid "Auto-rewind segment when leaving it"
+msgstr ""
+
 msgid "AutoNext in QuickLoop behavior"
 msgstr ""
 
@@ -845,6 +854,11 @@ msgstr ""
 msgid "Check the console for troubleshooting data from device \"{{deviceName}}\"!"
 msgstr "Sjekk konsollen for feilsøkingsdata fra enheten \"{{deviceName}}\"!"
 
+msgid ""
+"Clean up old data (eg. evaluations, user action logs) that is older than "
+"this, in milliseconds"
+msgstr ""
+
 msgid "Cleanup"
 msgstr "Opprydding"
 
@@ -921,6 +935,9 @@ msgid "Comma-separated list of studio labels to filter by. Leave empty for all."
 msgstr ""
 
 msgid "Comma-separated speeds in px/frame"
+msgstr ""
+
+msgid "Compact"
 msgstr ""
 
 msgid "Compatible Studios"
@@ -1054,6 +1071,9 @@ msgstr ""
 msgid "Could not restart Playout Gateway \"{{playoutDeviceName}}\"."
 msgstr "Playout-gateway \"{{playoutDeviceName}}\" kunne ikke startes på nytt."
 
+msgid "Count down to freeze-frame"
+msgstr ""
+
 msgid "Create Adlib Testing Rundown"
 msgstr ""
 
@@ -1096,6 +1116,9 @@ msgstr "Tilpassede klasser"
 msgid "Custom Hotkey Labels"
 msgstr "Egendefinerte etiketter for hurtigtaster"
 
+msgid "Database connection to {{database}} lost"
+msgstr ""
+
 msgid "Deactivate"
 msgstr "Deaktiver"
 
@@ -1132,11 +1155,28 @@ msgstr ""
 msgid "Default Layout"
 msgstr "Standardlayout"
 
+msgid "Default Part Display Duration"
+msgstr ""
+
+msgid "Default Shelf Display Options"
+msgstr ""
+
 msgid "Default shelf height"
 msgstr "Standard høyde for skuff"
 
 msgid "Default State"
 msgstr "Standardtilstand"
+
+msgid "Default Timeline Time Scale"
+msgstr ""
+
+msgid ""
+"Default value used to toggle Shelf options when the 'display' URL argument "
+"is not provided"
+msgstr ""
+
+msgid "Default zoom factor of the timelines in the UI"
+msgstr ""
 
 msgid "Delete"
 msgstr "Slett"
@@ -1234,6 +1274,9 @@ msgstr ""
 msgid "Disable"
 msgstr ""
 
+msgid "Disable blur border"
+msgstr ""
+
 msgid "Disable Context Menu"
 msgstr "Skru av kontekstmeny"
 
@@ -1245,6 +1288,11 @@ msgstr "Deaktiver hint ved å legge dette til på url-en:"
 
 msgid "Disable next Piece"
 msgstr "Skip neste element"
+
+msgid ""
+"Disable the blur border around the Rundown view when it is not in focus and "
+"studio mode is enabled"
+msgstr ""
 
 msgid "Disable the hover Inspector when hovering over the button"
 msgstr ""
@@ -1263,6 +1311,11 @@ msgstr ""
 
 msgid "Disconnected"
 msgstr "Frakoblet"
+
+msgid ""
+"Discriminant property \"{{ discProperty }}\" used, but is undefined for "
+"variant at index {{ index }}"
+msgstr ""
 
 msgid "Dismiss"
 msgstr ""
@@ -1334,9 +1387,6 @@ msgstr "Dokumenter som fjernes:"
 
 msgid "Does NOT support HEAD requests"
 msgstr ""
-
-msgid "Don't treat the end of the last rundown in a playlist as a break"
-msgstr "Ikke behandle slutten av den siste kjøreplanen i en spilleliste som en pause"
 
 msgid "Done"
 msgstr "Utført"
@@ -1462,9 +1512,6 @@ msgstr ""
 msgid "End of script"
 msgstr "Slutt på manus"
 
-msgid "End Words"
-msgstr "Stikkord"
-
 msgid "Error"
 msgstr "Feil"
 
@@ -1478,6 +1525,9 @@ msgid "Error: The studio of this Rundown was not found."
 msgstr "Feil: Kan ikke finne studioet for denne kjøreplanen."
 
 msgid "Est. End"
+msgstr ""
+
+msgid "Estimated end"
 msgstr ""
 
 msgid "Evaluations"
@@ -1523,9 +1573,6 @@ msgstr ""
 
 msgid "Expected End"
 msgstr "Forventet slutt"
-
-msgid "Expected End text"
-msgstr "Tekst for forventet slutt"
 
 msgid "Expected End Time"
 msgstr "Forventet sendeslutt"
@@ -1675,6 +1722,9 @@ msgstr "Mappesti"
 msgid "Folder path to shared folder"
 msgstr "Sti til delt mappe"
 
+msgid "Follow On-Air Segments History"
+msgstr ""
+
 msgid "Following"
 msgstr ""
 
@@ -1798,9 +1848,6 @@ msgstr "Skjul dupliserte adliber"
 msgid "Hide End Time"
 msgstr "Skjul sendeslutt"
 
-msgid "Hide Expected End timing when a break is next"
-msgstr "Gjem nedtelling til forventet slutt når neste punkt er en pause"
-
 msgid "Hide for dynamically inserted parts"
 msgstr "Skjul for dynamisk innsatte deler"
 
@@ -1849,6 +1896,11 @@ msgstr ""
 "til 1 for å logge alle transaksjonene"
 
 msgid ""
+"How many segments of history to show when scrolling back in time (0 = show "
+"current segment only)"
+msgstr ""
+
+msgid ""
 "How much preparation time to add to global pieces on the timeline before "
 "they are played"
 msgstr ""
@@ -1883,6 +1935,11 @@ msgid "Idempotency-Key is already used"
 msgstr ""
 
 msgid "Idempotency-Key is missing"
+msgstr ""
+
+msgid ""
+"If enabled, countdowns of videos will count down to the last freeze-frame "
+"of the video instead of to the end of the video"
 msgstr ""
 
 msgid "If set, only one Route Set will be active per exclusivity group"
@@ -1974,6 +2031,9 @@ msgstr ""
 msgid "Installation name"
 msgstr "Installasjonsnavn"
 
+msgid "Insufficient {{resource}}: {{available}} available, {{required}} required"
+msgstr ""
+
 msgid "Internal Error generating RundownPlaylist"
 msgstr ""
 
@@ -2027,6 +2087,9 @@ msgstr "Nå"
 msgid "Key"
 msgstr "Key"
 
+msgid "Key to use as the poison key (aborts hotkey actions). Leave empty to disable"
+msgstr ""
+
 msgid "Keyboard"
 msgstr ""
 
@@ -2044,6 +2107,9 @@ msgstr "Etikett"
 msgid "Label contains"
 msgstr "Etikett inneholder"
 
+msgid "Large"
+msgstr ""
+
 msgid "Last"
 msgstr "Forrige"
 
@@ -2052,9 +2118,6 @@ msgstr "Siste {{layerName}}"
 
 msgid "Last modified"
 msgstr "Sist endret"
-
-msgid "Last rundown is not break"
-msgstr "Siste kjøreplan er ingen pause"
 
 msgid "Last seen"
 msgstr "Sist sett"
@@ -2155,6 +2218,9 @@ msgstr "Lagmappinger"
 msgid "Margin (%)"
 msgstr ""
 
+msgid "Maximum data age"
+msgstr ""
+
 msgid "Maximum register limit"
 msgstr ""
 
@@ -2203,6 +2269,9 @@ msgstr "Migrer database"
 msgid "Migrations"
 msgstr "Migrering"
 
+msgid "Mini shelf AdLib button size"
+msgstr ""
+
 msgid "Mini Shelf Layout"
 msgstr "Layouter for miniskuff"
 
@@ -2225,6 +2294,9 @@ msgid "Mirror vertically"
 msgstr ""
 
 msgid "Mock Piece Content Status"
+msgstr ""
+
+msgid "Modal \"Confirm\" key"
 msgstr ""
 
 msgid "Mode: {{triggerMode}}"
@@ -2325,9 +2397,6 @@ msgstr "Ny kilde"
 
 msgid "Next"
 msgstr "Neste"
-
-msgid "Next Break text"
-msgstr "Tekst for neste pause"
 
 msgid "Next Loop at"
 msgstr "Neste loop starter"
@@ -2598,9 +2667,6 @@ msgstr "Utgangslag"
 msgid "Over"
 msgstr ""
 
-msgid "Over/Under"
-msgstr "Over/Under"
-
 msgid "Overflow horizontally"
 msgstr "Horisontal overflyt"
 
@@ -2665,6 +2731,9 @@ msgid "Part Count Up"
 msgstr "Opptelling for del"
 
 msgid "Part duration is 0."
+msgstr ""
+
+msgid "Part has issues and cannot be taken"
 msgstr ""
 
 msgid "Parts Duration"
@@ -2775,6 +2844,9 @@ msgstr ""
 msgid "Please note: This action is irreversible!"
 msgstr "Merk: Denne handlingen kan ikke angres!"
 
+msgid "Poison Key"
+msgstr ""
+
 msgid "Pool name"
 msgstr ""
 
@@ -2830,6 +2902,19 @@ msgid "Prompter Screen"
 msgstr ""
 
 msgid "Properties"
+msgstr ""
+
+msgid ""
+"Property \"{{ propLabel }}\" does not have a discriminant property "
+"specified for variants"
+msgstr ""
+
+msgid "Property \"{{ propLabel }}\" does not have oneOf variants declared"
+msgstr ""
+
+msgid ""
+"Property \"{{ propLabel }}\" has a variant at index {{ index }} that is not "
+"an object and/or does not specify a discriminant"
 msgstr ""
 
 msgid "Quantel FileFlow Profile name"
@@ -2934,6 +3019,9 @@ msgstr ""
 msgid "Rehearsal"
 msgstr "Testmodus"
 
+msgid "Rehearsal end"
+msgstr ""
+
 msgid "Rehearsal mode is already active"
 msgstr ""
 
@@ -2959,6 +3047,9 @@ msgid "Reloading Rundown Playlist Data"
 msgstr ""
 
 msgid "Rem. Dur"
+msgstr ""
+
+msgid "Remaining duration"
 msgstr ""
 
 msgid "Remote"
@@ -3276,12 +3367,6 @@ msgstr "Finner ikke kjøreplan for \"{{pieceLabel}}\"."
 msgid "Rundown Global Piece Prepare Time"
 msgstr ""
 
-msgid "Rundown Header Layout"
-msgstr "Layout for kjøreplanens topptekst"
-
-msgid "Rundown Header Layouts"
-msgstr ""
-
 msgid "Rundown is already doing a HOLD!"
 msgstr ""
 
@@ -3314,6 +3399,9 @@ msgstr ""
 msgid "Rundown Playlist not found!"
 msgstr ""
 
+msgid "Rundown View"
+msgstr ""
+
 msgid "Rundown View Layouts"
 msgstr ""
 
@@ -3324,6 +3412,9 @@ msgstr ""
 
 msgid "Rundowns"
 msgstr "Kjøreplaner"
+
+msgid "Runtime error occurred"
+msgstr ""
 
 msgid "Save"
 msgstr ""
@@ -3345,9 +3436,6 @@ msgstr "Skala"
 
 msgid "Script is empty"
 msgstr "Manuset er tomt"
-
-msgid "Script Source Layers"
-msgstr ""
 
 msgid "Search..."
 msgstr "Søk..."
@@ -3439,6 +3527,9 @@ msgstr ""
 "klippsøk skjer i heile sonen. Hvis denne er satt skjer klippsøk bare på den "
 "serveren."
 
+msgid "Service {{service}} unavailable: {{reason}}"
+msgstr ""
+
 msgid "Set"
 msgstr ""
 
@@ -3487,14 +3578,16 @@ msgstr ""
 msgid "Shortcuts"
 msgstr "Hurtigtaster"
 
+msgid ""
+"Should a segment in the Rundown view automatically rewind after it stops "
+"being live"
+msgstr ""
+
 msgid "Show \"Remove snapshots\"-buttons"
 msgstr "Vis \"Fjern snapshots\"-knappene"
 
 msgid "Show All"
 msgstr "Vis alle"
-
-msgid "Show Breaks as Segments"
-msgstr "Vis pauser som titler"
 
 msgid "Show config changes"
 msgstr ""
@@ -3513,9 +3606,6 @@ msgstr ""
 
 msgid "Show issue"
 msgstr "Vis problem"
-
-msgid "Show next break timing"
-msgstr "Vis tid for neste pause"
 
 msgid "Show panel as a timeline"
 msgstr "Vis panel som en tidslinje"
@@ -3540,9 +3630,6 @@ msgstr "Showstylenavn"
 
 msgid "Show style not set"
 msgstr "Showstyle ikke satt"
-
-msgid "Show Style Variant"
-msgstr "Showstylevariant"
 
 msgid "Show Style Variants"
 msgstr ""
@@ -3646,9 +3733,6 @@ msgstr "Kildelagstyper"
 
 msgid "Source Layers"
 msgstr "Kildelag"
-
-msgid "Source layers containing script"
-msgstr ""
 
 msgid "Source Name"
 msgstr "Kildenavn"
@@ -3907,12 +3991,6 @@ msgstr ""
 msgid "Text"
 msgstr "Tekst"
 
-msgid "Text to show above countdown to end of show"
-msgstr "Tekst som vises over nedtelling til forventet slutt"
-
-msgid "Text to show above countdown to next break"
-msgstr "Tekst som vises over nedtelling til neste pause"
-
 msgid "Text to show above show end time"
 msgstr "Tekst som vises over klokkeslett for sendeslutt"
 
@@ -3926,6 +4004,11 @@ msgstr ""
 "Brukergrensesnittet for konfigurasjon drives nå av manifester matet fra "
 "enhetene. Denne enheten må oppdateres for å gjøre configManifest "
 "konfigurerbart"
+
+msgid ""
+"The fallback duration (in milliseconds) to use to render parts when no "
+"duration is provided"
+msgstr ""
 
 msgid "The following parts no longer exist in {{nrcs}}: {{partNames}}"
 msgstr "De følgende delene eksisterer ikke lenger i {{nrcs}}: {{partNames}}"
@@ -4160,14 +4243,8 @@ msgstr "Dette vil fjerne {{indexCount}} gamle indexer. Vil du fortsette?"
 msgid "Time from platform user event to Action received by Core"
 msgstr ""
 
-msgid "Time since planned end"
-msgstr "Tid siden planlagt slutt"
-
 msgid "Time since rehearsal end"
 msgstr ""
-
-msgid "Time to planned end"
-msgstr "Tid til planlagt slutt"
 
 msgid "Time to planned start"
 msgstr ""
@@ -4463,7 +4540,7 @@ msgstr ""
 msgid "Validate and Apply Config"
 msgstr ""
 
-msgid "Validation failed!"
+msgid "Validation failed! {{message}}"
 msgstr ""
 
 msgid "Value"
@@ -4528,15 +4605,11 @@ msgstr ""
 msgid "When set, resources are considered immutable, ie they will not change"
 msgstr ""
 
-msgid "Whether to show countdown to next break"
-msgstr "Om nedtelling til neste pause skal vises"
-
 msgid ""
-"While there are still breaks coming up in the show, hide the Expected End "
-"timers"
+"Which keyboard key is used as \"Confirm\" in modal dialogs etc. Use "
+"\"Enter\" to exclude the Numpad Enter key (eg. when it is dedicated for "
+"playout)"
 msgstr ""
-"Gjem nedtelling til forventet slutt mens det fremdeles er pauser igjen i "
-"sendingen"
 
 msgid "Width"
 msgstr "Bredde"

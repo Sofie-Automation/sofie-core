@@ -1,19 +1,28 @@
-import {
-	parseUserPermissions,
-	USER_PERMISSIONS_HEADER,
-	UserPermissions,
-} from '@sofie-automation/meteor-lib/dist/userPermissions'
-import { Settings } from '../Settings'
+import { parseUserPermissions, UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
 import { Meteor } from 'meteor/meteor'
 import Koa from 'koa'
 import { triggerWriteAccess } from './securityVerify'
 import { logger } from '../logging'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 
+/**
+ * The header to use for user permissions
+ * This is currently limited to a small set that sockjs supports: https://github.com/sockjs/sockjs-node/blob/46d2f846653a91822a02794b852886c7f137378c/lib/session.js#L137-L150
+ * Any other headers are not exposed in a way we can access, no matter how deep we look into meteor internals.
+ */
+export const USER_PERMISSIONS_HEADER = (process.env.SOFIE_PERMISSIONS_HEADER || 'dnt').toLowerCase() // Future: swap this to 'x-sofie-permissions or something
+
 export type RequestCredentials = Meteor.Connection | Koa.ParameterizedContext
 
+/**
+ * Whether http-header based security measures are enabled.
+ * Configured via the `SOFIE_ENABLE_HEADER_AUTH` environment variable (`1` or `true` to enable).
+ */
+export const ENABLE_HEADER_AUTH =
+	process.env.SOFIE_ENABLE_HEADER_AUTH === '1' || process.env.SOFIE_ENABLE_HEADER_AUTH?.toLowerCase() === 'true'
+
 export function parseConnectionPermissions(conn: RequestCredentials): UserPermissions {
-	if (!Settings.enableHeaderAuth) {
+	if (!ENABLE_HEADER_AUTH) {
 		// If auth is disabled, return all permissions
 		return {
 			studio: true,
@@ -49,7 +58,7 @@ export function assertConnectionHasOneOfPermissions(
 	if (!conn) throw new Meteor.Error(403, 'Can only be invoked by clients')
 
 	// Skip if auth is disabled
-	if (!Settings.enableHeaderAuth) return
+	if (!ENABLE_HEADER_AUTH) return
 
 	const permissions = parseConnectionPermissions(conn)
 	for (const permission of allowedPermissions) {
@@ -70,7 +79,7 @@ export function checkHasOneOfPermissions(
 	triggerWriteAccess()
 
 	// Skip if auth is disabled
-	if (!Settings.enableHeaderAuth) return true
+	if (!ENABLE_HEADER_AUTH) return true
 
 	if (!permissions) throw new Meteor.Error(403, 'Permissions is null')
 

@@ -97,9 +97,7 @@ function VTThumbnailRendererWithTiming({
 			>
 				<FreezeFrameIcon />
 			</span>
-			{contentLeft > 0 ? (
-				<span>{RundownUtils.formatDiffToTimecode(contentLeft, false, false, true, false, true, '+')}</span>
-			) : null}
+			{contentLeft > 0 ? <span>{RundownUtils.formatDiffToTimecodeWithSign(contentLeft)}</span> : null}
 		</div>
 	) : null
 }

@@ -385,6 +385,240 @@ describe('buildTimelineObjsForRundown', () => {
 	})
 
 	describe('overlap and keepalive', () => {
+		it('autonext with keepalive extends current part duration', () => {
+			const context = setupDefaultJobEnvironment()
+
+			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
+				current: {
+					partTimes: createPartCurrentTimes(currentTime, 5678),
+					partInstance: createMockPartInstance('part0', {
+						autoNext: true,
+						expectedDuration: 5000,
+					}),
+					pieceInstances: [createMockPieceInstance('piece0')],
+					calculatedTimings: DEFAULT_PART_TIMINGS,
+					regenerateTimelineAt: undefined,
+				},
+				next: {
+					partTimes: createPartCurrentTimes(currentTime, undefined),
+					partInstance: createMockPartInstance('part1'),
+					pieceInstances: [createMockPieceInstance('piece1')],
+					calculatedTimings: {
+						inTransitionStart: 200,
+						toPartDelay: 500,
+						toPartPostroll: 0,
+						fromPartRemaining: 500 + 400,
+						fromPartPostroll: 400,
+						fromPartKeepalive: 100,
+					},
+					regenerateTimelineAt: undefined,
+				},
+			}
+
+			const playlist = createMockPlaylist(selectedPartInfos)
+			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos, true)
+
+			expect(objs.timingContext?.currentPartGroup.enable).toEqual({
+				start: 'now',
+				duration: 5000,
+			})
+		})
+
+		it('autonext with outTransition extends current part duration', () => {
+			const context = setupDefaultJobEnvironment()
+
+			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
+				current: {
+					partTimes: createPartCurrentTimes(currentTime, 5678),
+					partInstance: createMockPartInstance('part0', {
+						autoNext: true,
+						expectedDuration: 5000,
+						outTransition: { duration: 1200 },
+					}),
+					pieceInstances: [createMockPieceInstance('piece0')],
+					calculatedTimings: DEFAULT_PART_TIMINGS,
+					regenerateTimelineAt: undefined,
+				},
+				next: {
+					partTimes: createPartCurrentTimes(currentTime, undefined),
+					partInstance: createMockPartInstance('part1'),
+					pieceInstances: [createMockPieceInstance('piece1')],
+					calculatedTimings: {
+						inTransitionStart: null,
+						toPartDelay: 1200,
+						toPartPostroll: 0,
+						fromPartRemaining: 1200,
+						fromPartPostroll: 0,
+						fromPartKeepalive: 0,
+					},
+					regenerateTimelineAt: undefined,
+				},
+			}
+
+			const playlist = createMockPlaylist(selectedPartInfos)
+			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos, true)
+
+			expect(objs.timingContext?.currentPartGroup.enable).toEqual({
+				start: 'now',
+				duration: 5000,
+			})
+		})
+
+		it('autonext does not extend current part duration for preroll-only overlap', () => {
+			const context = setupDefaultJobEnvironment()
+
+			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
+				current: {
+					partTimes: createPartCurrentTimes(currentTime, 5678),
+					partInstance: createMockPartInstance('part0', { autoNext: true, expectedDuration: 5000 }),
+					pieceInstances: [createMockPieceInstance('piece0')],
+					calculatedTimings: DEFAULT_PART_TIMINGS,
+					regenerateTimelineAt: undefined,
+				},
+				next: {
+					partTimes: createPartCurrentTimes(currentTime, undefined),
+					partInstance: createMockPartInstance('part1'),
+					pieceInstances: [createMockPieceInstance('piece1')],
+					calculatedTimings: {
+						inTransitionStart: null,
+						toPartDelay: 1000,
+						toPartPostroll: 0,
+						fromPartRemaining: 1000,
+						fromPartPostroll: 0,
+						fromPartKeepalive: 0,
+					},
+					regenerateTimelineAt: undefined,
+				},
+			}
+
+			const playlist = createMockPlaylist(selectedPartInfos)
+			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos, true)
+
+			expect(objs.timingContext?.currentPartGroup.enable).toEqual({
+				start: 'now',
+				duration: 5000,
+			})
+		})
+
+		it('autonext keepalive is capped by availablePostrollDuration = 0', () => {
+			const context = setupDefaultJobEnvironment()
+
+			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
+				current: {
+					partTimes: createPartCurrentTimes(currentTime, 5678),
+					partInstance: createMockPartInstance('part0', {
+						autoNext: true,
+						expectedDuration: 5000,
+						availablePostrollDuration: 0,
+					}),
+					pieceInstances: [createMockPieceInstance('piece0')],
+					calculatedTimings: DEFAULT_PART_TIMINGS,
+					regenerateTimelineAt: undefined,
+				},
+				next: {
+					partTimes: createPartCurrentTimes(currentTime, undefined),
+					partInstance: createMockPartInstance('part1'),
+					pieceInstances: [createMockPieceInstance('piece1')],
+					calculatedTimings: {
+						inTransitionStart: 200,
+						toPartDelay: 500,
+						toPartPostroll: 0,
+						fromPartRemaining: 500 + 400,
+						fromPartPostroll: 400,
+						fromPartKeepalive: 100,
+					},
+					regenerateTimelineAt: undefined,
+				},
+			}
+
+			const playlist = createMockPlaylist(selectedPartInfos)
+			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos, true)
+
+			expect(objs.timingContext?.currentPartGroup.enable).toEqual({
+				start: 'now',
+				duration: 5000,
+			})
+		})
+
+		it('autonext keepalive is capped when availablePostrollDuration is undefined', () => {
+			const context = setupDefaultJobEnvironment()
+
+			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
+				current: {
+					partTimes: createPartCurrentTimes(currentTime, 5678),
+					partInstance: createMockPartInstance('part0', {
+						autoNext: true,
+						expectedDuration: 5000,
+					}),
+					pieceInstances: [createMockPieceInstance('piece0')],
+					calculatedTimings: DEFAULT_PART_TIMINGS,
+					regenerateTimelineAt: undefined,
+				},
+				next: {
+					partTimes: createPartCurrentTimes(currentTime, undefined),
+					partInstance: createMockPartInstance('part1'),
+					pieceInstances: [createMockPieceInstance('piece1')],
+					calculatedTimings: {
+						inTransitionStart: 200,
+						toPartDelay: 500,
+						toPartPostroll: 0,
+						fromPartRemaining: 500 + 400,
+						fromPartPostroll: 400,
+						fromPartKeepalive: 100,
+					},
+					regenerateTimelineAt: undefined,
+				},
+			}
+
+			const playlist = createMockPlaylist(selectedPartInfos)
+			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos, true)
+
+			expect(objs.timingContext?.currentPartGroup.enable).toEqual({
+				start: 'now',
+				duration: 5000,
+			})
+		})
+
+		it('autonext keepalive is partially capped by availablePostrollDuration', () => {
+			const context = setupDefaultJobEnvironment()
+
+			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
+				current: {
+					partTimes: createPartCurrentTimes(currentTime, 5678),
+					partInstance: createMockPartInstance('part0', {
+						autoNext: true,
+						expectedDuration: 5000,
+						availablePostrollDuration: 50,
+					}),
+					pieceInstances: [createMockPieceInstance('piece0')],
+					calculatedTimings: DEFAULT_PART_TIMINGS,
+					regenerateTimelineAt: undefined,
+				},
+				next: {
+					partTimes: createPartCurrentTimes(currentTime, undefined),
+					partInstance: createMockPartInstance('part1'),
+					pieceInstances: [createMockPieceInstance('piece1')],
+					calculatedTimings: {
+						inTransitionStart: 200,
+						toPartDelay: 500,
+						toPartPostroll: 0,
+						fromPartRemaining: 500 + 400,
+						fromPartPostroll: 400,
+						fromPartKeepalive: 100,
+					},
+					regenerateTimelineAt: undefined,
+				},
+			}
+
+			const playlist = createMockPlaylist(selectedPartInfos)
+			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos, true)
+
+			expect(objs.timingContext?.currentPartGroup.enable).toEqual({
+				start: 'now',
+				duration: 5050,
+			})
+		})
+
 		it('current and previous parts', () => {
 			const context = setupDefaultJobEnvironment()
 

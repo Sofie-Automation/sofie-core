@@ -254,4 +254,15 @@ export interface APISourceLayer {
 		| 'studio-screen'
 		| 'remote-speak'
 	exclusiveGroup?: string
+	isRemoteInput?: boolean
+	isGuestInput?: boolean
+	isClearable?: boolean
+	isSticky?: boolean
+	stickyOriginalOnly?: boolean
+	isQueueable?: boolean
+	isHidden?: boolean
+	allowDisable?: boolean
+	onPresenterScreen?: boolean
+	onListViewColumn?: boolean
+	onListViewAdLibColumn?: boolean
 }

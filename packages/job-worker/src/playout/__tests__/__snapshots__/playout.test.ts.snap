@@ -7,7 +7,7 @@ exports[`Playout API Basic rundown control 1`] = `
     "generated": 12345,
     "generationVersions": {
       "blueprintId": "blueprint0",
-      "blueprintVersion": "0.0.0",
+      "blueprintVersion": "mockShowStyleBlueprintHash",
       "core": "0.0.0-test",
       "studio": "asdf",
     },
@@ -51,7 +51,7 @@ exports[`Playout API Basic rundown control 3`] = `
     "generated": 12345,
     "generationVersions": {
       "blueprintId": "studioBlueprint0",
-      "blueprintVersion": "0.0.0",
+      "blueprintVersion": "-",
       "core": "0.0.0-test",
       "studio": "asdf",
     },

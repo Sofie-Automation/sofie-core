@@ -3,7 +3,7 @@ import path from 'path'
 import os from 'os'
 import { promises as fsp } from 'fs'
 import { setupDefaultStudioEnvironment, packageBlueprint } from '../../../../__mocks__/helpers/database'
-import { literal, getRandomId } from '@sofie-automation/corelib/dist/lib'
+import { literal, getRandomId, getRandomString } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
 import { BlueprintManifestType } from '@sofie-automation/blueprints-integration'
@@ -16,11 +16,12 @@ import { SupressLogMessages } from '../../../../__mocks__/suppressLogging'
 import { JSONBlobStringify } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 import { Meteor } from 'meteor/meteor'
 import * as CoreSystemAPI from '../../../coreSystem'
+import { registerAllMethodsForTest } from '../../../../__mocks__/helpers/methods'
 
 // we don't want the deviceTriggers observer to start up at this time
 jest.mock('../../deviceTriggers/observer')
 
-require('../../peripheralDevice.ts') // include in order to create the Meteor methods needed
+registerAllMethodsForTest()
 
 const DEFAULT_CONNECTION: Meteor.Connection = {
 	id: 'mockConnectionId',
@@ -53,7 +54,7 @@ describe('Test blueprint management api', () => {
 
 				blueprintId: '',
 				blueprintType: BlueprintManifestType.SYSTEM,
-				blueprintHash: getRandomId(),
+				blueprintHash: getRandomString(),
 
 				studioConfigSchema: JSONBlobStringify({}),
 				showStyleConfigSchema: JSONBlobStringify({}),
@@ -519,6 +520,47 @@ describe('Test blueprint management api', () => {
 				422,
 				`Cannot replace old blueprint "${existingBlueprint._id}" ("ss1") with new blueprint "show2"`
 			)
+		})
+		test('content hash is stable for identical code and changes when code changes', async () => {
+			const BLUEPRINT_TYPE = BlueprintManifestType.SHOWSTYLE
+			const blueprintStr = packageBlueprint(
+				{
+					BLUEPRINT_TYPE,
+				},
+				() => {
+					return {
+						blueprintId: 'hash_stable',
+						blueprintType: BLUEPRINT_TYPE,
+						blueprintVersion: '0.0.1',
+						integrationVersion: '0.2.0',
+						TSRVersion: '0.3.0',
+						showStyleConfigSchema: JSON.stringify({}) as any,
+					}
+				}
+			)
+			const blueprintStrChanged = packageBlueprint(
+				{
+					BLUEPRINT_TYPE,
+				},
+				() => {
+					return {
+						blueprintId: 'hash_stable',
+						blueprintType: BLUEPRINT_TYPE,
+						blueprintVersion: '0.0.1', // same semver
+						integrationVersion: '0.2.0',
+						TSRVersion: '0.3.0',
+						showStyleConfigSchema: JSON.stringify({ changed: true }) as any,
+					}
+				}
+			)
+
+			const first = await uploadBlueprint(DEFAULT_CONNECTION, protectString('tmp_hash'), blueprintStr)
+			const second = await uploadBlueprint(DEFAULT_CONNECTION, protectString('tmp_hash'), blueprintStr)
+			expect(second.blueprintHash).toEqual(first.blueprintHash)
+
+			const third = await uploadBlueprint(DEFAULT_CONNECTION, protectString('tmp_hash'), blueprintStrChanged)
+			expect(third.blueprintHash).not.toEqual(first.blueprintHash)
+			expect(third.blueprintVersion).toEqual(first.blueprintVersion)
 		})
 		test('update - drop blueprintId', async () => {
 			const BLUEPRINT_TYPE = BlueprintManifestType.SHOWSTYLE
