@@ -7,13 +7,14 @@
 		"node": ">=22.20.0"
 	},
 	"scripts": {
+		"dev": "yarn build && yarn start --watch",
+		"build": "run install-and-build",
+		"start": "node ./scripts/run.mjs",
 		"prepare": "husky",
 		"postinstall": "run install:packages && run install:meteor",
 		"install:meteor": "yarn restart:meteor && cd meteor && meteor --version && meteor npm install -g yarn && node ../scripts/fix-windows-yarn.js && yarn install",
 		"install:packages": "cd packages && yarn install",
-		"start": "yarn install && run install-and-build && run dev",
 		"install-and-build": "node ./scripts/install-and-build.mjs",
-		"dev": "node ./scripts/run.mjs",
 		"restart:meteor": "node ./scripts/meteor-force-restart.js",
 		"build:packages": "cd packages && run build",
 		"test:packages": "cd packages && run test",
